@@ -6,7 +6,7 @@
   </p>
 
   <div class="row vertical-align">
-    <div class="col-md-4 col-sm-6 col-xs-12">
+    <div class="col-md-4 col-sm-6 col-12">
       <div class="form-group">
         <label>Parametername*</label>
         <input
@@ -22,7 +22,7 @@
         </div>
       </div>
     </div>
-    <div class="col-md-8 col-sm-6 col-xs-12">
+    <div class="col-md-8 col-sm-6 col-12">
       <div class="form-group">
         <label>Beschreibung*</label>
         <textarea
@@ -42,7 +42,7 @@
 
   <div class="row vertical-align">
     <!-- Datentyp -->
-    <div class="col-md-3 col-sm-6 col-xs-12">
+    <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
         <label>Datentyp des Parameters*</label>
         <select
@@ -63,7 +63,7 @@
     </div>
 
     <!-- Standard-Wert -->
-    <div class="col-md-3 col-sm-6 col-xs-12">
+    <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
         <label>Standard-Wert*</label>
         @if (parameterDataType_tmp?.apiName === 'string') {
@@ -121,7 +121,7 @@
 
     <!-- Min (integer) -->
     @if (parameterDataType_tmp?.apiName === 'integer') {
-      <div class="col-md-3 col-sm-6 col-xs-12">
+      <div class="col-md-3 col-sm-6 col-12">
         <div class="form-group">
           <label>Minimaler Wert (untere Gültigkeitsgrenze)*</label>
           <input
@@ -144,7 +144,7 @@
 
     <!-- Max (integer) -->
     @if (parameterDataType_tmp?.apiName === 'integer') {
-      <div class="col-md-3 col-sm-6 col-xs-12">
+      <div class="col-md-3 col-sm-6 col-12">
         <div class="form-group">
           <label>Maximaler Wert (obere Gültigkeitsgrenze)*</label>
           <input
@@ -167,7 +167,7 @@
 
     <!-- Min (double) -->
     @if (parameterDataType_tmp?.apiName === 'double') {
-      <div class="col-md-3 col-sm-6 col-xs-12">
+      <div class="col-md-3 col-sm-6 col-12">
         <div class="form-group">
           <label>Minimaler Wert (untere Gültigkeitsgrenze)*</label>
           <input
@@ -190,7 +190,7 @@
 
     <!-- Max (double) -->
     @if (parameterDataType_tmp?.apiName === 'double') {
-      <div class="col-md-3 col-sm-6 col-xs-12">
+      <div class="col-md-3 col-sm-6 col-12">
         <div class="form-group">
           <label>Maximaler Wert (obere Gültigkeitsgrenze)*</label>
           <input
@@ -231,7 +231,7 @@
 
   <!-- Tabelle der definierten Skript-Parameter -->
   <div class="row vertical-align">
-    <div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="col-md-12 col-sm-12 col-12">
       <label>Übersicht der definierten Skript-Parameter</label>
       <table class="table table-condensed">
         <thead>

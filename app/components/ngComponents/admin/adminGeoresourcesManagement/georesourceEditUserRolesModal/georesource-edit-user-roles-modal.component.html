@@ -47,7 +47,7 @@
             </h3>
             <p>Zugriffsrechte (lesen, editieren) müssen explizit vergeben werden</p>
             <div class="row">
-              <div class="col-md-12 col-sm-12 col-xs-12" [hidden]="permissions.length === 0">
+              <div class="col-md-12 col-sm-12 col-12" [hidden]="permissions.length === 0">
                 <div class="form-group vertical-align">
                   <label class="margin-right">Zeige nur zugewiesene Rechte</label>
                   <label class="switch">
@@ -72,7 +72,7 @@
                   <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
                 </div>
               </div>
-              <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="col-md-6 col-sm-6 col-12">
                 <ag-grid-angular
                   #roleManagementTable
                   id="georesourceEditRoleManagementTable"
@@ -116,7 +116,7 @@
           </div>
           <div class="row">
             <div class="col-md-3"></div>
-            <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="col-md-6 col-sm-6 col-12">
               <label for="targetUserRoleSelect"><b>Eigentuümerschaft übertragen an</b></label>
               <div class="input-group">
                 <span class="input-group-addon"><i class="fas fa-filter"></i></span>

@@ -94,7 +94,7 @@
           <b><i>* = Pflichtfeld</i></b>
         </p>
         <div class="row vertical-align meta-row">
-          <div class="col-md-4 col-sm-4 col-xs-4">
+          <div class="col-md-4 col-sm-4 col-4">
             <div class="form-group">
               <label>Name der Raumebene*</label>
               <input
@@ -114,7 +114,7 @@
               }
             </div>
           </div>
-          <div class="col-md-4 col-sm-4 col-xs-4">
+          <div class="col-md-4 col-sm-4 col-4">
             <div class="form-group">
               <label>Hierarchie: nächst niedrigere Ebene</label>
               <select
@@ -142,7 +142,7 @@
               }
             </div>
           </div>
-          <div class="col-md-4 col-sm-4 col-xs-4">
+          <div class="col-md-4 col-sm-4 col-4">
             <div class="form-group">
               <label>Hierarchie: nächst höhere Ebene</label>
               <select
@@ -172,7 +172,7 @@
           </div>
         </div>
         <div class="row vertical-align">
-          <div class="col-md-3 col-sm-3 col-xs-12">
+          <div class="col-md-3 col-sm-3 col-12">
             <div class="form-group">
               <label>als Umringslayer markieren?</label> <br />
               <label class="switch">
@@ -188,7 +188,7 @@
             </div>
           </div>
           @if (isOutlineLayer) {
-            <div class="col-md-3 col-sm-3 col-xs-12">
+            <div class="col-md-3 col-sm-3 col-12">
               <div class="form-group outline-color-group" align="center">
                 <label>Linienfarbe (Umringslayer)</label>
                 <km-color-picker
@@ -200,7 +200,7 @@
             </div>
           }
           @if (isOutlineLayer) {
-            <div class="col-md-3 col-sm-3 col-xs-12">
+            <div class="col-md-3 col-sm-3 col-12">
               <div class="form-group" align="center">
                 <label>Linienbreite (Umringslayer)</label>
                 <br />
@@ -218,7 +218,7 @@
             </div>
           }
           @if (isOutlineLayer) {
-            <div class="col-md-3 col-sm-3 col-xs-12">
+            <div class="col-md-3 col-sm-3 col-12">
               <div class="form-group" align="center">
                 <km-line-pattern-picker
                   [selectedPattern]="selectedOutlineDashArrayObject"
@@ -252,7 +252,7 @@
           <b><i>* = Pflichtfeld</i></b>
         </p>
         <div class="row vertical-align">
-          <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="col-md-3 col-sm-6 col-12">
             <div class="form-group">
               <label>Beschreibung*</label>
               <textarea
@@ -266,7 +266,7 @@
               <div class="help-block with-errors"></div>
             </div>
           </div>
-          <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="col-md-3 col-sm-6 col-12">
             <div class="form-group">
               <label>Datenbasis</label>
               <textarea
@@ -279,7 +279,7 @@
               <div class="help-block with-errors"></div>
             </div>
           </div>
-          <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="col-md-3 col-sm-6 col-12">
             <div class="form-group">
               <label>Datenquelle*</label>
               <textarea
@@ -293,7 +293,7 @@
               <div class="help-block with-errors"></div>
             </div>
           </div>
-          <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="col-md-3 col-sm-6 col-12">
             <div class="form-group">
               <label>Datenhalter und Kontakt*</label>
               <textarea
@@ -309,7 +309,7 @@
           </div>
         </div>
         <div class="row vertical-align">
-          <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="col-md-3 col-sm-6 col-12">
             <div class="form-group">
               <label>Aktualisierungszyklus*</label>
               <select
@@ -328,7 +328,7 @@
               <div class="help-block with-errors"></div>
             </div>
           </div>
-          <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="col-md-3 col-sm-6 col-12">
             <div class="form-group">
               <label>Datum der letzten Aktualisierung*</label>
               <km-date-picker
@@ -340,7 +340,7 @@
               <div class="help-block with-errors"></div>
             </div>
           </div>
-          <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="col-md-3 col-sm-6 col-12">
             <div class="form-group">
               <label>Literatur</label>
               <textarea
@@ -353,7 +353,7 @@
               <div class="help-block with-errors"></div>
             </div>
           </div>
-          <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="col-md-3 col-sm-6 col-12">
             <div class="form-group">
               <label>Bemerkung</label>
               <textarea
@@ -393,7 +393,7 @@
         </h3>
         <div class="row">
           <div class="col-md-3"></div>
-          <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="col-md-6 col-sm-6 col-12">
             <div class="alert alert-info">
               Bitte wählen Sie zunächst die Organisationseinheit aus, unter welcher Sie den
               Datensatz anlegen möchten
@@ -465,7 +465,7 @@
                   <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
                 </div>
               </div>
-              <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="col-md-6 col-sm-6 col-12">
                 <ag-grid-angular
                   #roleManagementGrid
                   class="ag-theme-alpine"
@@ -565,7 +565,7 @@
       </p>
 
       <div class="row vertical-align">
-        <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="col-md-3 col-sm-6 col-12">
           <div class="form-group">
             <label>Geodaten-Quellformat*</label>
             <select
@@ -659,7 +659,7 @@
             </div>
           }
         </div>
-        <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="col-md-3 col-sm-6 col-12">
           @if (!converter) {
             <div class="form-group">
               <p>bitte zuerst das Quellformat wählen</p>
@@ -838,7 +838,7 @@
             </div>
           }
         </div>
-        <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="col-md-3 col-sm-6 col-12">
           <div class="form-group">
             <label>ID Attributname*</label>
             <input
@@ -884,7 +884,7 @@
             }
           </div>
         </div>
-        <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="col-md-3 col-sm-6 col-12">
           <div class="form-group">
             <label>Lebenszeit-Beginn Attributname</label>
             <input
@@ -921,7 +921,7 @@
       </div>
 
       <div class="row vertical-align">
-        <div class="col-md-6 col-sm-6 col-xs-12">
+        <div class="col-md-6 col-sm-6 col-12">
           <div class="form-group">
             <label>Gültigkeitszeitraum: gültig seit*</label>
             <km-date-picker
@@ -947,7 +947,7 @@
             }
           </div>
         </div>
-        <div class="col-md-6 col-sm-6 col-xs-12">
+        <div class="col-md-6 col-sm-6 col-12">
           <div class="form-group">
             <label>Gültigkeitszeitraum: gültig bis</label>
             <km-date-picker
@@ -979,7 +979,7 @@
       <br />
 
       <div class="row vertical-align">
-        <div class="col-md-6 col-sm-6 col-xs-12">
+        <div class="col-md-6 col-sm-6 col-12">
           <div class="form-group">
             <label>Import weiterer Attribute*</label>
             <br />
@@ -997,7 +997,7 @@
           </div>
         </div>
         @if (!keepAttributes) {
-          <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="col-md-6 col-sm-6 col-12">
             <div class="form-group">
               <label>Fehlende/NULL Werte beibehalten*</label>
               <br />
@@ -1019,7 +1019,7 @@
 
       @if (!keepAttributes) {
         <div class="row vertical-align">
-          <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="col-md-6 col-sm-6 col-12">
             <div class="form-group">
               <label>Attributname im zu importierenden Datensatz*</label>
               <input
@@ -1077,7 +1077,7 @@
               <div class="help-block with-errors"></div>
             </div>
           </div>
-          <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="col-md-6 col-sm-6 col-12">
             <label>Übersicht der definierten Attribut-Mappings</label>
             <table class="table table-condensed">
               <thead>

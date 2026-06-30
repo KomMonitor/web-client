@@ -53,7 +53,7 @@
             <h2 class="fs-title">Raumeinheit Übersicht</h2>
             <h3 class="fs-subtitle">Optionale Anzeige der Raumeinheits-Details</h3>
             <div class="row vertical-align">
-              <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="col-md-6 col-sm-6 col-12">
                 <div class="form-group">
                   <label>Datenbank-Raumeinheiten abrufen und editieren</label>
                   <button
@@ -74,7 +74,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="col-md-6 col-sm-6 col-12">
                 <div class="form-group">
                   <label
                     >Datenbank-Raumeinheiten bereinigen (Funktion muss zuerst aktiv eingeschaltet
@@ -207,7 +207,7 @@
 
           <div class="row vertical-align">
             <!-- Converter Settings -->
-            <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="col-md-3 col-sm-6 col-12">
               <div class="form-group">
                 <label>Geodaten-Quellformat*</label>
                 <select
@@ -294,7 +294,7 @@
             </div>
 
             <!-- Datasource Type -->
-            <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="col-md-3 col-sm-6 col-12">
               @if (!converter) {
                 <div class="form-group">
                   <p>bitte zuerst das Quellformat wählen</p>
@@ -466,7 +466,7 @@
             </div>
 
             <!-- Property Mapping -->
-            <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="col-md-3 col-sm-6 col-12">
               <div class="form-group">
                 <label>ID Attributname*</label>
                 <input
@@ -502,7 +502,7 @@
             </div>
 
             <!-- Validity Period -->
-            <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="col-md-3 col-sm-6 col-12">
               <div class="form-group">
                 <label>Lebenszeit-Beginn Attributname</label>
                 <input
@@ -539,7 +539,7 @@
 
           <!-- Period of Validity -->
           <div class="row vertical-align">
-            <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="col-md-6 col-sm-6 col-12">
               <div class="form-group">
                 <label>Gültigkeitszeitraum: gültig seit*</label>
                 <km-date-picker
@@ -566,7 +566,7 @@
               </div>
             </div>
 
-            <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="col-md-6 col-sm-6 col-12">
               <div class="form-group">
                 <label>Gültigkeitszeitraum: gültig bis</label>
                 <km-date-picker
@@ -598,7 +598,7 @@
 
           <!-- Partial Update -->
           <div class="row vertical-align">
-            <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="col-md-6 col-sm-6 col-12">
               <div class="form-group">
                 <label>Partielles Update einzelner Geometrien*</label>
                 <br />
@@ -630,7 +630,7 @@
 
           <!-- Keep Attributes -->
           <div class="row vertical-align">
-            <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="col-md-6 col-sm-6 col-12">
               <div class="form-group">
                 <label>Import weiterer Attribute*</label>
                 <br />
@@ -656,7 +656,7 @@
             </div>
 
             @if (!keepAttributes) {
-              <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="col-md-6 col-sm-6 col-12">
                 <div class="form-group">
                   <label>Fehlende/NULL Werte beibehalten*</label>
                   <br />
@@ -684,7 +684,7 @@
           <!-- Attribute Mapping -->
           @if (!keepAttributes) {
             <div class="row vertical-align">
-              <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="col-md-6 col-sm-6 col-12">
                 <div class="form-group">
                   <label>Attributname im zu importierenden Datensatz*</label>
                   <input
@@ -738,7 +738,7 @@
                   </button>
                 </div>
               </div>
-              <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="col-md-6 col-sm-6 col-12">
                 <label>Übersicht der definierten Attribut-Mappings</label>
                 <table class="table table-condensed">
                   <thead>

@@ -27,7 +27,7 @@
         <div class="box-content">
           @if (defaultIndicatorJobHealth) {
             <div class="row vertical-align">
-              <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="defaultIndicatorJobHealth.queueStatus"
                   descriptionText="Status der Job-Ausführung"
@@ -35,7 +35,7 @@
                   iconClass="fas fa-file-code"
                 ></app-small-box>
               </div>
-              <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="defaultIndicatorJobHealth.newestJobId.toString()"
                   descriptionText="neueste Job-Id"
@@ -43,7 +43,7 @@
                   iconClass="fas fa-file-code"
                 ></app-small-box>
               </div>
-              <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="defaultIndicatorJobHealth.succeededJobs.toString()"
                   descriptionText="abgeschlossene Jobs"
@@ -51,7 +51,7 @@
                   iconClass="fas fa-file-code"
                 ></app-small-box>
               </div>
-              <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="defaultIndicatorJobHealth.failedJobs.toString()"
                   descriptionText="gescheiterte Jobs"
@@ -63,7 +63,7 @@
           }
           @if (defaultIndicatorJobHealth) {
             <div class="row vertical-align">
-              <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="defaultIndicatorJobHealth.activeJobs.toString()"
                   descriptionText="laufende Jobs"
@@ -71,7 +71,7 @@
                   iconClass="fas fa-file-code"
                 ></app-small-box>
               </div>
-              <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="defaultIndicatorJobHealth.waitingJobs.toString()"
                   descriptionText="wartende Jobs"
@@ -79,7 +79,7 @@
                   iconClass="fas fa-file-code"
                 ></app-small-box>
               </div>
-              <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="defaultIndicatorJobHealth.delayedJobs.toString()"
                   descriptionText="wartende Jobs"
@@ -116,7 +116,7 @@
         <div class="box-content customized-computation-content">
           @if (customizedIndicatorJobHealth) {
             <div class="row vertical-align">
-              <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="customizedIndicatorJobHealth.queueStatus"
                   descriptionText="Status der Job-Ausführung"
@@ -124,7 +124,7 @@
                   iconClass="fas fa-file-code"
                 ></app-small-box>
               </div>
-              <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="customizedIndicatorJobHealth.newestJobId.toString()"
                   descriptionText="neueste Job-Id"
@@ -132,7 +132,7 @@
                   iconClass="fas fa-file-code"
                 ></app-small-box>
               </div>
-              <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="customizedIndicatorJobHealth.succeededJobs.toString()"
                   descriptionText="abgeschlossene Jobs"
@@ -140,7 +140,7 @@
                   iconClass="fas fa-file-code"
                 ></app-small-box>
               </div>
-              <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="customizedIndicatorJobHealth.failedJobs.toString()"
                   descriptionText="gescheiterte Jobs"
@@ -152,7 +152,7 @@
           }
           @if (customizedIndicatorJobHealth) {
             <div class="row vertical-align">
-              <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="customizedIndicatorJobHealth!.activeJobs.toString()"
                   descriptionText="laufende Jobs"
@@ -160,7 +160,7 @@
                   iconClass="fas fa-file-code"
                 ></app-small-box>
               </div>
-              <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="customizedIndicatorJobHealth!.waitingJobs.toString()"
                   descriptionText="wartende Jobs"
@@ -168,7 +168,7 @@
                   iconClass="fas fa-file-code"
                 ></app-small-box>
               </div>
-              <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="customizedIndicatorJobHealth!.delayedJobs.toString()"
                   descriptionText="wartende Jobs"

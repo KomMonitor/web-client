@@ -5,7 +5,7 @@
 </p>
 
 <div class="row vertical-align">
-  <div class="col-md-6 col-sm-6 col-xs-12">
+  <div class="col-md-6 col-sm-6 col-12">
     <div class="form-group">
       <input
         [(ngModel)]="reachabilityCombinerService.scenarioTitle"
@@ -22,7 +22,7 @@
       <div class="help-block with-errors"></div>
     </div>
   </div>
-  <div class="col-md-6 col-sm-6 col-xs-12">
+  <div class="col-md-6 col-sm-6 col-12">
     <div class="form-group">
       <label>Auswahl von Punktdatenquelle und Zeitpunkt</label>
       <p>
@@ -31,7 +31,7 @@
       </p>
 
       <div class="row vertical-align" style="margin-right: 0px">
-        <div class="col-md-6 col-sm-6 col-xs-6">
+        <div class="col-md-6 col-sm-6 col-6">
           @if (reachabilityCombinerService.selectedStartPointLayer?.geoJSON_reachability) {
             <div class="horizontal-align">
               <p>
@@ -61,7 +61,7 @@
             </div>
           }
         </div>
-        <div class="col-md-6 col-sm-6 col-xs-6">
+        <div class="col-md-6 col-sm-6 col-6">
           <select
             style="font-size: 12px"
             [(ngModel)]="reachabilityCombinerService.selectedStartPointLayer"

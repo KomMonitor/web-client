@@ -3,8 +3,8 @@
     <!-- reachability config -->
     <div
       [ngClass]="{
-        'col-md-4 col-sm-4 col-xs-12': !isUsedInReporting,
-        'col-md-6 col-sm-6 col-xs-12': isUsedInReporting,
+        'col-md-4 col-sm-4 col-12': !isUsedInReporting,
+        'col-md-6 col-sm-6 col-12': isUsedInReporting,
       }"
     >
       <div id="reachabilityConfigForm" style="height: 57vh; overflow-y: auto">
@@ -197,7 +197,7 @@
 
               <div class="row vertical-align">
                 <!-- reachability config -->
-                <div class="col-md-4 col-sm-4 col-xs-12">
+                <div class="col-md-4 col-sm-4 col-12">
                   <div class="horizontal-align" style="text-align: left">
                     <label>
                       <button
@@ -234,7 +234,7 @@
                   </div>
                 </div>
 
-                <div class="col-md-8 col-sm-8 col-xs-12">
+                <div class="col-md-8 col-sm-8 col-12">
                   <!-- Legend -->
                   <div class="just-padding">
                     <div [hidden]="!mapOverlayState.isochroneLegend">
@@ -287,7 +287,7 @@
     </div>
 
     <!-- interactive Map to display rechability isochrones -->
-    <div class="col-md-8 col-sm-8 col-xs-12" [hidden]="isUsedInReporting">
+    <div class="col-md-8 col-sm-8 col-12" [hidden]="isUsedInReporting">
       <!-- geometry with interactive map and geocoder functionality -->
       <!-- together with special helperService that is used to manage map and data -->
 

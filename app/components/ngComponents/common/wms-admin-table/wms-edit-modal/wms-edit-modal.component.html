@@ -65,7 +65,7 @@
             </p>
             <form [formGroup]="metadataForm">
               <div class="row vertical-align">
-                <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="col-md-3 col-sm-6 col-12">
                   <div class="form-group">
                     <label>Name der Georessource*</label>
                     <input
@@ -89,7 +89,7 @@
                     }
                   </div>
                 </div>
-                <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="col-md-3 col-sm-6 col-12">
                   <div class="form-group">
                     <label>Beschreibung*</label>
                     <textarea
@@ -103,7 +103,7 @@
                     <div class="help-block with-errors"></div>
                   </div>
                 </div>
-                <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="col-md-3 col-sm-6 col-12">
                   <div class="form-group">
                     <label>Datenbasis</label>
                     <textarea
@@ -118,7 +118,7 @@
                 </div>
               </div>
               <div class="row vertical-align">
-                <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="col-md-3 col-sm-6 col-12">
                   <div class="form-group">
                     <label>Datenquelle*</label>
                     <textarea
@@ -132,7 +132,7 @@
                     <div class="help-block with-errors"></div>
                   </div>
                 </div>
-                <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="col-md-3 col-sm-6 col-12">
                   <div class="form-group">
                     <label>Datenhalter und Kontakt*</label>
                     <textarea
@@ -146,7 +146,7 @@
                     <div class="help-block with-errors"></div>
                   </div>
                 </div>
-                <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="col-md-3 col-sm-6 col-12">
                   <div class="form-group">
                     <label>Bemerkung</label>
                     <textarea
@@ -187,7 +187,7 @@
             </p>
             <form [formGroup]="connectForm">
               <div class="row vertical-align">
-                <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="col-md-3 col-sm-6 col-12">
                   <div class="form-group">
                     <label>URL der Resource*</label>
                     <input
@@ -201,7 +201,7 @@
                     <div class="help-block with-errors"></div>
                   </div>
                 </div>
-                <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="col-md-3 col-sm-6 col-12">
                   <div class="form-group">
                     <label>Layer*</label>
                     <input
@@ -257,7 +257,7 @@
             </p>
             <p>Das Aufklappen der unteren Box ermöglicht die Verwaltung des Themenkatalogs.</p>
             <div class="row vertical-align">
-              <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="col-md-3 col-sm-6 col-12">
                 <div class="form-group">
                   <label>Hauptthema*</label>
                   <select
@@ -274,7 +274,7 @@
                   <div class="help-block with-errors"></div>
                 </div>
               </div>
-              <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="col-md-3 col-sm-6 col-12">
                 @if (georesourceTopic_mainTopic?.subTopics?.length > 0) {
                   <div class="form-group">
                     <label>Unterthema - erste Ebene</label>
@@ -292,7 +292,7 @@
                   </div>
                 }
               </div>
-              <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="col-md-3 col-sm-6 col-12">
                 @if (georesourceTopic_subTopic?.subTopics?.length > 0) {
                   <div class="form-group">
                     <label>Unterthema - zweite Ebene</label>
@@ -310,7 +310,7 @@
                   </div>
                 }
               </div>
-              <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="col-md-3 col-sm-6 col-12">
                 @if (georesourceTopic_subsubTopic?.subTopics?.length > 0) {
                   <div class="form-group">
                     <label>Unterthema - dritte Ebene</label>
@@ -336,7 +336,7 @@
             <br />
             @if (accessControlService.checkAdminPermission()) {
               <div class="row vertical-align">
-                <div class="col-md-10 col-sm-12 col-xs-12">
+                <div class="col-md-10 col-sm-12 col-12">
                   <div style="text-align: left">
                     <div
                       id="georesourceAddAdmin_topicsManagement"
