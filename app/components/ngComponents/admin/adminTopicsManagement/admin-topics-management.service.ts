@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Topic, TopicOrderMode, TopicResourceType } from './admin-topics-management.component';
+import { Topic, TopicOrderMode, TopicResourceType } from './topic.model';
 import { HttpClient } from '@angular/common/http';
 import { map, tap, throwError, timeout } from 'rxjs';
 import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
@@ -55,7 +55,9 @@ export class AdminTopicsManagementService {
           () => new Error('Ein Unterthema mit dem gleichen Titel existiert bereits.')
         );
       }
-      parentTopic.subTopics.push(newTopic);
+      // Build the PUT body from a copy so the bound (signal-backed) parent topic is not
+      // mutated before the request succeeds; reloadTopics() refreshes from the server on success.
+      const updatedSubTopics = [...parentTopic.subTopics, newTopic];
       const putBody: Topic = {
         topicId: parentTopic.topicId,
         topicName: parentTopic.topicName,
@@ -63,7 +65,7 @@ export class AdminTopicsManagementService {
         topicResource: parentTopic.topicResource,
         topicType: parentTopic.topicType,
         // remove this prepare step later, when incoming data is not corrupted anymore
-        subTopics: this.prepareSubTopcis(parentTopic.subTopics),
+        subTopics: this.prepareSubTopcis(updatedSubTopics),
       };
 
       const url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}/topics/${parentTopic.topicId}`;

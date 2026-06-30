@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { TopicOrderMode } from '../admin-topics-management.component';
+import { TopicOrderMode } from '../topic.model';
 import { FormsModule } from '@angular/forms';
 
 @Component({

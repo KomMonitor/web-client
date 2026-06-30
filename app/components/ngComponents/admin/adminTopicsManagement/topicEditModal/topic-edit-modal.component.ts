@@ -10,7 +10,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { AdminTopicsManagementService } from '../admin-topics-management.service';
-import { Topic } from '../admin-topics-management.component';
+import { Topic } from '../topic.model';
 
 const SUCCESS_MESSAGE_TIMEOUT_MS = 1500;
 

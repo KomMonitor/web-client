@@ -1,7 +1,7 @@
 import { Component, DestroyRef, OnInit, Input, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AdminTopicsManagementService } from '../admin-topics-management.service';
-import { Topic } from '../admin-topics-management.component';
+import { Topic } from '../topic.model';
 
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { finalize } from 'rxjs/operators';
@@ -66,9 +66,9 @@ export class TopicDeleteModalComponent implements OnInit {
           }, 1500);
         },
         error: (error: any) => {
-          const html = error.data
-            ? this.indicatorValueService.syntaxHighlightJSON(error.data)
-            : this.indicatorValueService.syntaxHighlightJSON(error);
+          // HttpErrorResponse carries the backend payload in .error, not the AngularJS-era .data.
+          const payload = error?.error ?? error?.message ?? error;
+          const html = this.indicatorValueService.syntaxHighlightJSON(payload);
           this.errorMessagePart = this.sanitizer.bypassSecurityTrustHtml(html);
         },
       });

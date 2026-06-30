@@ -1,31 +1,16 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from '../../../../services/broadcast-service/broadcast-message';
-
-export interface Topic {
-  topicDescription: string;
-  topicId?: string;
-  topicName: string;
-  topicResource: string;
-  topicType: string;
-  displayOrder?: number;
-  subTopics: Topic[];
-}
-
-export type TopicResourceType = 'indicator' | 'georesource';
-export type TopicOrderMode = 'custom' | 'alphabetical';
-
-import { Injectable } from '@angular/core';
+import { Component, Injectable, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AdminTopicsManagementService } from './admin-topics-management.service';
-
 import { TopicMetadataStoreService } from '../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 import { ExpandableBoxComponent } from '../../common/expandable-box/expandable-box.component';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { AddTopicComponent } from './add-topic/add-topic.component';
+import { AdminTopicsManagementService } from './admin-topics-management.service';
+import { Topic, TopicOrderMode, TopicResourceType } from './topic.model';
 import { TopicListComponent } from './topicList/topicList.component';
 import { TopicOrderSelectionComponent } from './topicOrderSelection/topic-order-selection.component';
+
+// Re-exported for the many existing importers that reference these types via this component.
+export { Topic, TopicOrderMode, TopicResourceType } from './topic.model';
 
 @Injectable({ providedIn: null })
 export class AdminTopicsManagementErrorHandlingService {
@@ -47,10 +32,9 @@ export class AdminTopicsManagementErrorHandlingService {
   ],
   standalone: true,
 })
-export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
+export class AdminTopicsManagementComponent implements OnInit {
   protected errorHandlingService = inject(AdminTopicsManagementErrorHandlingService);
   private topicSrvc = inject(AdminTopicsManagementService);
-  private broadcastService = inject(BroadcastService);
   private topicStore = inject(TopicMetadataStoreService);
 
   showTopicIds = false;
@@ -58,8 +42,6 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
 
   indicatorOrder: TopicOrderMode | undefined;
   geoRessourceOrder: TopicOrderMode | undefined;
-
-  private subscription: Subscription | undefined;
 
   get filteredIndicatorTopics(): Topic[] {
     return this.topicStore.availableTopics.filter(
@@ -95,12 +77,6 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.subscription = this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
-      if (broadcastMsg.msg === BroadcastMessage.RefreshTopicsOverview) {
-        // this.refreshTopicsOverview();
-      }
-    });
-
     this.topicSrvc.getOrderModes().subscribe({
       next: (modes) => {
         this.indicatorOrder = modes.find((mode) => mode.topicResource === 'indicator')?.orderMode;
@@ -113,11 +89,5 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
         console.error('Failed to fetch topic order modes:', error);
       },
     });
-  }
-
-  ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
   }
 }

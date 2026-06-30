@@ -1,5 +1,5 @@
 import { Component, Input, inject } from '@angular/core';
-import { Topic, TopicOrderMode, TopicResourceType } from '../admin-topics-management.component';
+import { Topic, TopicOrderMode, TopicResourceType } from '../topic.model';
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgbCollapseModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TopicDeleteModalComponent } from '../topicDeleteModal/topic-delete-modal.component';

@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { Topic, TopicOrderMode } from './admin-topics-management.component';
+import { Topic, TopicOrderMode } from './topic.model';
 
 @Pipe({
   name: 'sortByOrder',

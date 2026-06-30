@@ -1,10 +1,7 @@
 import { Component, Input, inject } from '@angular/core';
 import { AdminTopicsManagementService } from '../admin-topics-management.service';
-import {
-  AdminTopicsManagementErrorHandlingService,
-  Topic,
-  TopicResourceType,
-} from '../admin-topics-management.component';
+import { AdminTopicsManagementErrorHandlingService } from '../admin-topics-management.component';
+import { Topic, TopicResourceType } from '../topic.model';
 import { take } from 'rxjs/operators';
 import { FormsModule } from '@angular/forms';
 import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
@@ -44,8 +41,10 @@ export class AddTopicComponent {
           this.newTopicTitle = '';
         },
         error: (error) => {
+          // HttpErrorResponse carries the backend payload in .error; a thrown Error has .message.
+          const payload = error?.error ?? error?.message ?? error;
           this.errorHandlingService.errorMessagePart =
-            this.indicatorValueService.syntaxHighlightJSON(error?.data || error);
+            this.indicatorValueService.syntaxHighlightJSON(payload);
         },
       });
   }
