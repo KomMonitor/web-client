@@ -20,10 +20,17 @@ import {
 import { KommonitorCacheHelperService } from 'services/adminSpatialUnit/kommonitor-cache-helper.service';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridOptions, ICellRendererParams, ValueGetterParams } from 'ag-grid-community';
+import {
+  CellClickedEvent,
+  ColDef,
+  GridOptions,
+  ICellRendererParams,
+  ValueGetterParams,
+} from 'ag-grid-community';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { FormsModule } from '@angular/forms';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 
 interface RefreshBroadcastValues {
   crudType: string;
@@ -45,14 +52,18 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
   private kommonitorCacheHelperService = inject(KommonitorCacheHelperService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
+  private notificationService = inject(NotificationService);
 
   @ViewChild('spatialUnitOverviewTable', { static: true })
   spatialUnitOverviewTable!: AgGridAngular;
 
   public loadingData: boolean = true;
-  public initializationCompleted: boolean = false;
   public tableViewSwitcher: boolean = false;
   private subscriptions: Subscription[] = [];
+
+  // Full, unfiltered metadata list; `rowData` is derived from it via the
+  // "show only editable datasets" table-view filter.
+  private allSpatialUnits: SpatialUnitMetadata[] = [];
 
   // AG Grid properties
   public columnDefs: ColDef[] = [
@@ -67,6 +78,8 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
       sortable: false,
       cellRenderer: (params: ICellRendererParams<SpatialUnitMetadata>) =>
         this.displayEditButtons_spatialUnits(params),
+      onCellClicked: (event: CellClickedEvent<SpatialUnitMetadata>) =>
+        this.onEditButtonsCellClicked(event),
     },
     { headerName: 'Id', field: 'spatialUnitId', pinned: 'left', maxWidth: 125 },
     {
@@ -103,9 +116,9 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
           html += '<li style="margin-right: 15px;">';
           if (periodOfValidity.endDate) {
             html +=
-              '<p>' + periodOfValidity.startDate + ' &dash; ' + periodOfValidity.endDate + '</p>';
+              '<p>' + periodOfValidity.startDate + ' &ndash; ' + periodOfValidity.endDate + '</p>';
           } else {
-            html += '<p>' + periodOfValidity.startDate + ' &dash; heute</p>';
+            html += '<p>' + periodOfValidity.startDate + ' &ndash; heute</p>';
           }
           html += '</li>';
         }
@@ -214,8 +227,8 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
       (spatialUnits) => {
         if (spatialUnits && spatialUnits.length > 0) {
           this.loadingData = false;
-          this.initializationCompleted = true;
-          this.rowData = spatialUnits;
+          this.allSpatialUnits = spatialUnits;
+          this.applyTableViewFilter();
         }
       }
     );
@@ -230,7 +243,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     // Subscribe to error state
     const errorSub = this.kommonitorDataExchangeService.error$.subscribe((error) => {
       if (error) {
-        // You can add error handling UI here
+        this.notificationService.showError('Die Raumebenen konnten nicht geladen werden.');
       }
     });
     this.subscriptions.push(errorSub);
@@ -247,7 +260,6 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
           this.kommonitorDataExchangeService.availableSpatialUnits.length === 0
         ) {
           this.loadingData = false;
-          this.initializationCompleted = true;
         }
       }
     }, 3000);
@@ -265,7 +277,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
       html +=
         '<button id="btn_spatialUnit_editMetadata_' +
         data.spatialUnitId +
-        '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-metadata" title="Metadaten editieren" ' +
+        '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" title="Metadaten editieren" ' +
         (data.userPermissions.includes('editor') ? '' : 'disabled') +
         '><i class="fas fa-pencil-alt"></i></button>';
 
@@ -273,7 +285,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
       html +=
         '<button id="btn_spatialUnit_editFeatures_' +
         data.spatialUnitId +
-        '" class="btn btn-warning btn-sm spatialUnitEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-features" title="Features fortführen" ' +
+        '" class="btn btn-warning btn-sm spatialUnitEditFeaturesBtn" type="button" title="Features fortführen" ' +
         (data.userPermissions.includes('editor') ? '' : 'disabled') +
         '><i class="fas fa-draw-polygon"></i></button>';
 
@@ -281,7 +293,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
       html +=
         '<button id="btn_spatialUnit_editUserRoles_' +
         data.spatialUnitId +
-        '" class="btn btn-warning btn-sm spatialUnitEditUserRolesBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-user-roles" title="Zugriffsschutz und Eigentümerschaft editieren" ' +
+        '" class="btn btn-warning btn-sm spatialUnitEditUserRolesBtn" type="button" title="Zugriffsschutz und Eigentümerschaft editieren" ' +
         (data.userPermissions.includes('creator') ? '' : 'disabled') +
         '><i class="fas fa-user-lock"></i></button>';
 
@@ -289,13 +301,38 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
       html +=
         '<button id="btn_spatialUnit_deleteSpatialUnit_' +
         data.spatialUnitId +
-        '" class="btn btn-danger btn-sm spatialUnitDeleteBtn" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" title="Raumebene entfernen" ' +
+        '" class="btn btn-danger btn-sm spatialUnitDeleteBtn" type="button" title="Raumebene entfernen" ' +
         (data.userPermissions.includes('creator') ? '' : 'disabled') +
         '><i class="fas fa-trash"></i></button>';
 
       html += '</div>';
     }
     return html;
+  }
+
+  /**
+   * Opens the matching modal when one of the edit/delete buttons rendered by
+   * `displayEditButtons_spatialUnits` is clicked. The buttons are plain HTML in
+   * a string cell renderer, so we dispatch on the clicked button's CSS class via
+   * AG Grid's cell-click event instead of Angular click bindings.
+   */
+  private onEditButtonsCellClicked(event: CellClickedEvent<SpatialUnitMetadata>): void {
+    const target = event.event?.target as HTMLElement | null;
+    const button = target?.closest('button');
+    const data = event.data;
+    if (!button || button.disabled || !data) {
+      return;
+    }
+
+    if (button.classList.contains('spatialUnitEditMetadataBtn')) {
+      this.onClickEditMetadata(data);
+    } else if (button.classList.contains('spatialUnitEditFeaturesBtn')) {
+      this.onClickEditFeatures(data);
+    } else if (button.classList.contains('spatialUnitEditUserRolesBtn')) {
+      this.onClickEditUserRoles(data);
+    } else if (button.classList.contains('spatialUnitDeleteBtn')) {
+      this.onClickDeleteSpatialUnits([data]);
+    }
   }
 
   private setupEventListeners(): void {
@@ -311,7 +348,9 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     });
     this.subscriptions.push(loadingSub);
 
-    // Listen for the global metadata loading completion event
+    // Refresh the overview table whenever a modal reports a CRUD change.
+    // Grid button clicks are wired directly via onCellClicked, so the only
+    // broadcast we still consume here is the table-refresh request.
     const sub = this.broadcastService.currentBroadcastMsg.subscribe((data) => {
       if (data.msg === BroadcastMessage.RefreshSpatialUnitOverviewTable) {
         this.zone.run(() => {
@@ -320,26 +359,6 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
           const crudType = (data.values as RefreshBroadcastValues)?.crudType;
           const targetSpatialUnitId = (data.values as RefreshBroadcastValues)?.targetSpatialUnitId;
           this.refreshSpatialUnitOverviewTable(crudType, targetSpatialUnitId);
-        });
-      }
-      // Handle grid button click events
-      else if (data.msg === 'onEditSpatialUnitMetadata') {
-        this.zone.run(() => {
-          this.onClickEditMetadata(data.values);
-        });
-      } else if (data.msg === 'onEditSpatialUnitFeatures') {
-        this.zone.run(() => {
-          this.onClickEditFeatures(data.values);
-        });
-      } else if (data.msg === 'onEditSpatialUnitUserRoles') {
-        this.zone.run(() => {
-          this.onClickEditUserRoles(data.values);
-        });
-      } else if (data.msg === 'onDeleteSpatialUnits') {
-        this.zone.run(() => {
-          // Ensure data.values is an array for delete operation
-          const datasetsToDelete = Array.isArray(data.values) ? data.values : [data.values];
-          this.onClickDeleteSpatialUnits(datasetsToDelete);
         });
       }
     });
@@ -359,7 +378,6 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
       },
       error: (_error) => {
         this.loadingData = false;
-        this.initializationCompleted = true;
       },
     });
   }
@@ -368,11 +386,16 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     this.fetchSpatialUnitsData();
   }
 
-  // Table view switcher method
+  // Table view switcher: toggles between all datasets and only those the
+  // current user may edit.
   onTableViewSwitch(): void {
-    // Filter the data based on the tableViewSwitcher state
-    // For now, just refresh the table
-    this.initializeOrRefreshOverviewTable();
+    this.applyTableViewFilter();
+  }
+
+  private applyTableViewFilter(): void {
+    this.rowData = this.tableViewSwitcher
+      ? this.allSpatialUnits.filter((su) => su.userPermissions?.includes('editor'))
+      : this.allSpatialUnits;
   }
 
   // Alias for the add spatial unit modal (matching HTML template)

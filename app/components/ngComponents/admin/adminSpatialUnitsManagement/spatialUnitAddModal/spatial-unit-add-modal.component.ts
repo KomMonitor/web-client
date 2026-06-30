@@ -869,10 +869,13 @@ export class SpatialUnitAddModalComponent implements OnInit {
               false // isDryRun
             );
 
-          this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, [
-            'add',
-            this.kommonitorImporterHelperService.getIdFromImporterResponse(newSpatialUnitResponse),
-          ]);
+          this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
+            crudType: 'add',
+            targetSpatialUnitId:
+              this.kommonitorImporterHelperService.getIdFromImporterResponse(
+                newSpatialUnitResponse
+              ),
+          });
 
           // refresh all admin dashboard diagrams due to modified metadata
           setTimeout(() => {

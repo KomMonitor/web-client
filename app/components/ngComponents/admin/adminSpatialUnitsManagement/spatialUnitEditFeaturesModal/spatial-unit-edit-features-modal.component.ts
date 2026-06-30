@@ -412,11 +412,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
       // Initialize defaults like in Add modal
       this.schema = this.converter.schemas ? this.converter.schemas[0] : '';
       this.mimeType = this.converter.mimeTypes ? this.converter.mimeTypes[0] : '';
-      console.log('onChangeConverter', {
-        converter: this.converter?.name,
-        schema: this.schema,
-        mimeType: this.mimeType,
-      });
 
       // Update available datasource types. If converter doesn't declare supported datasources,
       // fall back to all available types (matches Add modal behavior)
@@ -528,10 +523,10 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
       next: (_response: any) => {
         this.spatialUnitFeaturesGeoJSON = null;
         this.remainingFeatureHeaders = [];
-        this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, [
-          'edit',
-          this.currentSpatialUnitDataset.spatialUnitId,
-        ]);
+        this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
+          crudType: 'edit',
+          targetSpatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
+        });
 
         // Clear the grid data
         this.spatialUnitFeaturesGeoJSON = null;
@@ -908,12 +903,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
     const allDataSpecified = await this.buildImporterObjects();
     if (!allDataSpecified) {
-      console.log('Missing importer objects', {
-        converterDefinition: !!this.converterDefinition,
-        datasourceTypeDefinition: !!this.datasourceTypeDefinition,
-        propertyMappingDefinition: !!this.propertyMappingDefinition,
-        putBody_spatialUnits: !!this.putBody_spatialUnits,
-      });
       this.loadingData = false;
       this.errorMessage = 'Bitte füllen Sie alle Pflichtfelder in Schritt 2 aus.';
       this.showErrorAlert();
@@ -921,13 +910,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     }
 
     try {
-      console.log('Updating spatial unit', {
-        spatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
-        converterDefinition: this.converterDefinition?.name,
-        datasourceTypeDefinition: this.datasourceTypeDefinition?.type,
-        hasPropertyMapping: !!this.propertyMappingDefinition,
-        putBody: this.putBody_spatialUnits,
-      });
       const updateSpatialUnitResponse_dryRun =
         await this.kommonitorImporterHelperService?.updateSpatialUnit(
           this.converterDefinition,
@@ -953,10 +935,10 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
         );
 
         this.successMessagePart = this.currentSpatialUnitDataset.spatialUnitLevel;
-        this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, [
-          'edit',
-          this.currentSpatialUnitDataset.spatialUnitId,
-        ]);
+        this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
+          crudType: 'edit',
+          targetSpatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
+        });
         this.showSuccessAlert();
         this.loadingData = false;
       } else {

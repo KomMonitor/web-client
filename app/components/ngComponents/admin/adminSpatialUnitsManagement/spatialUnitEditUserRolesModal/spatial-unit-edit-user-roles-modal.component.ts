@@ -406,10 +406,10 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
         .toPromise();
 
       this.successMessagePart = this.currentSpatialUnitDataset.spatialUnitLevel;
-      this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, [
-        'edit',
-        this.currentSpatialUnitDataset.spatialUnitId,
-      ]);
+      this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
+        crudType: 'edit',
+        targetSpatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
+      });
       // Persist latest selection locally so the grid reflects changes on refresh
       this.permissions = putBody.permissions;
       if (this.currentSpatialUnitDataset) {
@@ -449,10 +449,10 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
         .toPromise();
 
       this.successMessagePart = this.currentSpatialUnitDataset.spatialUnitLevel;
-      this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, [
-        'edit',
-        this.currentSpatialUnitDataset.spatialUnitId,
-      ]);
+      this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
+        crudType: 'edit',
+        targetSpatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
+      });
     } catch (error: any) {
       this.errorMessagePart = 'Fehler beim Aktualisieren der Eigentümerschaft. Fehler lautet: \n\n';
       if (error.error) {
