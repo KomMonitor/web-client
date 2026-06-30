@@ -65,7 +65,7 @@ export class AdminTopicsManagementService {
         topicResource: parentTopic.topicResource,
         topicType: parentTopic.topicType,
         // remove this prepare step later, when incoming data is not corrupted anymore
-        subTopics: this.prepareSubTopcis(updatedSubTopics),
+        subTopics: this.prepareSubTopics(updatedSubTopics),
       };
 
       const url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}/topics/${parentTopic.topicId}`;
@@ -145,8 +145,8 @@ export class AdminTopicsManagementService {
     return existingTopics.find((st) => st.topicName === topicName) !== undefined;
   }
 
-  private prepareSubTopcis(subTopcis: Topic[]) {
-    return subTopcis?.map((e) => this.prepareTopic(e));
+  private prepareSubTopics(subTopics: Topic[]) {
+    return subTopics?.map((e) => this.prepareTopic(e));
   }
 
   private prepareTopic(e: Topic) {
@@ -156,7 +156,7 @@ export class AdminTopicsManagementService {
       topicName: e.topicName,
       topicResource: e.topicResource,
       topicType: e.topicType,
-      subTopics: this.prepareSubTopcis(e.subTopics),
+      subTopics: this.prepareSubTopics(e.subTopics),
     };
   }
 
@@ -166,6 +166,7 @@ export class AdminTopicsManagementService {
       .then(() => {
         this.broadcastService.broadcast(BroadcastMessage.RefreshTopicsOverview);
         this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
-      });
+      })
+      .catch((error) => console.error('Failed to reload topics metadata:', error));
   }
 }

@@ -49,11 +49,7 @@ export class AddTopicComponent {
       });
   }
 
-  getType() {
-    if (this.topicType === 'main') {
-      return 'Hauptthema';
-    } else {
-      return 'Unterthema';
-    }
+  get typeLabel(): string {
+    return this.topicType === 'main' ? 'Hauptthema' : 'Unterthema';
   }
 }

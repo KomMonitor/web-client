@@ -2,7 +2,7 @@
   cdkDropList
   class="list-group list-group-root"
   [cdkDropListDisabled]="order !== 'custom'"
-  (cdkDropListDropped)="dropIndicatorTopics($event)"
+  (cdkDropListDropped)="onTopicDropped($event)"
 >
   @for (topic of topics | sortByOrder: order; track topic) {
     <div>

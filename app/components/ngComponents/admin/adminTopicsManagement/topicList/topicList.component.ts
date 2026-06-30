@@ -5,11 +5,10 @@ import { NgbCollapseModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TopicDeleteModalComponent } from '../topicDeleteModal/topic-delete-modal.component';
 import { TopicEditModalComponent } from '../topicEditModal/topic-edit-modal.component';
 import { AdminTopicsManagementService } from '../admin-topics-management.service';
-
 import { Injectable } from '@angular/core';
 import { AddTopicComponent } from '../add-topic/add-topic.component';
-
 import { SortByOrderPipe } from '../sortByOrder.pipe';
+import { NotificationService } from '../../../common/notification/notification.service';
 
 @Injectable({ providedIn: 'root' })
 export class ExpandedService {
@@ -27,6 +26,7 @@ export class TopicListComponent {
   private modalService = inject(NgbModal);
   private srvc = inject(AdminTopicsManagementService);
   private expandedService = inject(ExpandedService);
+  private notificationService = inject(NotificationService);
 
   @Input({ required: true }) topics!: Topic[];
   @Input({ required: true }) levelLimit!: number;
@@ -37,31 +37,19 @@ export class TopicListComponent {
   @Input() showTopicIds = false;
   @Input() level = 1;
 
-  dropIndicatorTopics(event: CdkDragDrop<string[]>) {
+  onTopicDropped(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.topics, event.previousIndex, event.currentIndex);
-    if (this.parentTopic) {
-      this.srvc.updateSubTopicOrder(this.parentTopic, this.topics).subscribe({
-        next: () => {
-          console.log(`Updated topic order successfully.`);
-        },
-        error: () => {
-          console.log(`Failed to update topic order.`);
-          // revert local change
-          moveItemInArray(this.topics, event.currentIndex, event.previousIndex);
-        },
-      });
-    } else {
-      this.srvc.updateMainTopicOrder(this.topicResourceType, this.topics).subscribe({
-        next: () => {
-          console.log(`Updated main topic order successfully.`);
-        },
-        error: () => {
-          console.log(`Failed to update main topic order.`);
-          // revert local change
-          moveItemInArray(this.topics, event.currentIndex, event.previousIndex);
-        },
-      });
-    }
+
+    const revert = () => {
+      moveItemInArray(this.topics, event.currentIndex, event.previousIndex);
+      this.notificationService.showError('Die Sortierung konnte nicht gespeichert werden.');
+    };
+
+    const request$ = this.parentTopic
+      ? this.srvc.updateSubTopicOrder(this.parentTopic, this.topics)
+      : this.srvc.updateMainTopicOrder(this.topicResourceType, this.topics);
+
+    request$.subscribe({ error: revert });
   }
 
   onClickDeleteTopic(topic: Topic) {

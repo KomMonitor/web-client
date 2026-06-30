@@ -6,7 +6,7 @@
       (click)="onAddTopic()"
       [disabled]="!newTopicTitle || !newTopicDescription"
     >
-      <i class="fas fa-plus"></i> &nbsp; &nbsp; {{ getType() }} hinzufügen
+      <i class="fas fa-plus"></i> &nbsp; &nbsp; {{ typeLabel }} hinzufügen
     </button>
   </div>
   <div class="col-4">
@@ -14,7 +14,7 @@
       style="width: 100%"
       class="form-control"
       type="text"
-      placeholder="Titel des {{ getType() }}s"
+      placeholder="Titel des {{ typeLabel }}s"
       [(ngModel)]="newTopicTitle"
       name="newTopicTitle"
       required
@@ -27,7 +27,7 @@
       rows="1"
       class="form-control form-control-sm"
       type="text"
-      placeholder="Beschreibung des {{ getType() }}s"
+      placeholder="Beschreibung des {{ typeLabel }}s"
       [(ngModel)]="newTopicDescription"
       name="newTopicDescription"
       required

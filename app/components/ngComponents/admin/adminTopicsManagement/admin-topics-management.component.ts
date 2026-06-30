@@ -8,11 +8,12 @@ import { AdminTopicsManagementService } from './admin-topics-management.service'
 import { Topic, TopicOrderMode, TopicResourceType } from './topic.model';
 import { TopicListComponent } from './topicList/topicList.component';
 import { TopicOrderSelectionComponent } from './topicOrderSelection/topic-order-selection.component';
+import { NotificationService } from '../../common/notification/notification.service';
 
 // Re-exported for the many existing importers that reference these types via this component.
 export { Topic, TopicOrderMode, TopicResourceType } from './topic.model';
 
-@Injectable({ providedIn: null })
+@Injectable()
 export class AdminTopicsManagementErrorHandlingService {
   errorMessagePart: string = '';
 }
@@ -36,6 +37,7 @@ export class AdminTopicsManagementComponent implements OnInit {
   protected errorHandlingService = inject(AdminTopicsManagementErrorHandlingService);
   private topicSrvc = inject(AdminTopicsManagementService);
   private topicStore = inject(TopicMetadataStoreService);
+  private notificationService = inject(NotificationService);
 
   showTopicIds = false;
   loadingData = false;
@@ -67,11 +69,8 @@ export class AdminTopicsManagementComponent implements OnInit {
 
   private setSorting(topic: TopicResourceType, order: TopicOrderMode) {
     this.topicSrvc.setOrderMode(topic, order).subscribe({
-      next: () => {
-        /* result handled via error callback */
-      },
-      error: (error) => {
-        console.error('Failed to set topic order mode:', error);
+      error: () => {
+        this.notificationService.showError('Die Sortierung konnte nicht gespeichert werden.');
       },
     });
   }
@@ -84,9 +83,8 @@ export class AdminTopicsManagementComponent implements OnInit {
           (mode) => mode.topicResource === 'georesource'
         )?.orderMode;
       },
-      error: (error) => {
-        // TODO: Handle error appropriately
-        console.error('Failed to fetch topic order modes:', error);
+      error: () => {
+        this.notificationService.showError('Die Sortiermodi konnten nicht geladen werden.');
       },
     });
   }
