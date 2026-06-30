@@ -5,8 +5,8 @@
 ></app-admin-content-view>
 <ng-template #content>
   <div class="row vertical-align">
-    <div class="col-md-3 col-sm-6 col-xs-12"></div>
-    <div class="col-md-3 col-sm-6 col-xs-12">
+    <div class="col-md-3 col-sm-6 col-12"></div>
+    <div class="col-md-3 col-sm-6 col-12">
       <app-small-box
         [titleText]="organisationCount()"
         [descriptionText]="'ADMIN_DASHBOARD.ORGANIZATIONS' | translate"
@@ -14,7 +14,7 @@
         iconClass="fas fa-users"
       ></app-small-box>
     </div>
-    <div class="col-md-3 col-sm-6 col-xs-12">
+    <div class="col-md-3 col-sm-6 col-12">
       <app-small-box
         [titleText]="topicCounts()"
         [descriptionText]="
@@ -27,10 +27,10 @@
         iconClass="fas fa-book"
       ></app-small-box>
     </div>
-    <div class="col-md-3 col-sm-6 col-xs-12"></div>
+    <div class="col-md-3 col-sm-6 col-12"></div>
   </div>
   <div class="row vertical-align">
-    <div class="col-md-3 col-sm-6 col-xs-12">
+    <div class="col-md-3 col-sm-6 col-12">
       <app-small-box
         [titleText]="spatialUnitCount()"
         [descriptionText]="'ADMIN_DASHBOARD.SPATIAL_UNITS' | translate"
@@ -38,7 +38,7 @@
         iconClass="fas fa-layer-group"
       ></app-small-box>
     </div>
-    <div class="col-md-3 col-sm-6 col-xs-12">
+    <div class="col-md-3 col-sm-6 col-12">
       <app-small-box
         [titleText]="georesourceCount()"
         [descriptionText]="'ADMIN_DASHBOARD.GEORESOURCES' | translate"
@@ -46,7 +46,7 @@
         iconClass="fas fa-map-marked-alt"
       ></app-small-box>
     </div>
-    <div class="col-md-3 col-sm-6 col-xs-12">
+    <div class="col-md-3 col-sm-6 col-12">
       <app-small-box
         [titleText]="indicatorCount()"
         [descriptionText]="'ADMIN_DASHBOARD.INDICATORS' | translate"
@@ -54,7 +54,7 @@
         iconClass="fas fa-sitemap"
       ></app-small-box>
     </div>
-    <div class="col-md-3 col-sm-6 col-xs-12">
+    <div class="col-md-3 col-sm-6 col-12">
       <app-small-box
         [titleText]="indicatorScriptCount()"
         [descriptionText]="'ADMIN_DASHBOARD.INDICATOR_SCRIPTS' | translate"
@@ -64,27 +64,15 @@
     </div>
   </div>
   <div class="row vertical-align">
-    <div class="col-md-3 col-sm-6 col-xs-12">
-      <div
-        echarts
-        [options]="indicatorsPerSpatialUnitChartOptions()"
-        style="width: 100%; min-height: 500px"
-      ></div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div echarts [options]="indicatorsPerSpatialUnitChartOptions()" class="dashboard-chart"></div>
     </div>
-    <div class="col-md-3 col-sm-6 col-xs-12">
-      <div
-        echarts
-        [options]="georesourcesPerTypeChartOptions()"
-        style="width: 100%; min-height: 500px"
-      ></div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div echarts [options]="georesourcesPerTypeChartOptions()" class="dashboard-chart"></div>
     </div>
-    <div class="col-md-3 col-sm-6 col-xs-12">
-      <div
-        echarts
-        [options]="indicatorsPerTopicChartOptions()"
-        style="width: 100%; min-height: 500px"
-      ></div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div echarts [options]="indicatorsPerTopicChartOptions()" class="dashboard-chart"></div>
     </div>
-    <div class="col-md-3 col-sm-6 col-xs-12"></div>
+    <div class="col-md-3 col-sm-6 col-12"></div>
   </div>
 </ng-template>
