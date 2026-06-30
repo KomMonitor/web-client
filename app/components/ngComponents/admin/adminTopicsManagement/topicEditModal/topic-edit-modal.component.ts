@@ -11,8 +11,7 @@ import {
 } from '@angular/forms';
 import { AdminTopicsManagementService } from '../admin-topics-management.service';
 import { Topic } from '../topic.model';
-
-const SUCCESS_MESSAGE_TIMEOUT_MS = 1500;
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 
 @Component({
   selector: 'app-topic-edit-modal',
@@ -26,6 +25,7 @@ export class TopicEditModalComponent implements OnInit {
   private fb = inject(FormBuilder);
   private srvc = inject(AdminTopicsManagementService);
   private destroyRef = inject(DestroyRef);
+  private notificationService = inject(NotificationService);
 
   @Input({ required: true }) topic!: Topic;
 
@@ -34,8 +34,6 @@ export class TopicEditModalComponent implements OnInit {
     description: FormControl<string | null>;
   }>;
   isSubmitting = false;
-  errorMessage = '';
-  successMessage = '';
 
   constructor() {
     this.topicForm = this.fb.group({
@@ -69,13 +67,10 @@ export class TopicEditModalComponent implements OnInit {
     const description = this.topicForm.value.description;
 
     if (!name || !description) {
-      this.errorMessage = 'Name and description are required';
       return;
     }
 
     this.isSubmitting = true;
-    this.errorMessage = '';
-    this.successMessage = '';
 
     this.srvc
       .editTopic(this.topic, name, description)
@@ -83,14 +78,12 @@ export class TopicEditModalComponent implements OnInit {
       .subscribe({
         next: () => {
           this.isSubmitting = false;
-          this.successMessage = 'success';
-          setTimeout(() => {
-            this.activeModal.close();
-          }, SUCCESS_MESSAGE_TIMEOUT_MS);
+          this.notificationService.showSuccess(`Thema '${name}' wurde aktualisiert.`);
+          this.activeModal.close(true);
         },
         error: (error) => {
           this.isSubmitting = false;
-          this.errorMessage = this.getErrorMessage(error);
+          this.notificationService.showError(this.getErrorMessage(error));
         },
       });
   }
@@ -102,15 +95,7 @@ export class TopicEditModalComponent implements OnInit {
     if (error?.message) {
       return error.message;
     }
-    return 'Failed to update topic';
-  }
-
-  hideSuccessAlert() {
-    this.successMessage = '';
-  }
-
-  hideErrorAlert() {
-    this.errorMessage = '';
+    return 'Das Thema konnte nicht aktualisiert werden.';
   }
 
   cancel() {

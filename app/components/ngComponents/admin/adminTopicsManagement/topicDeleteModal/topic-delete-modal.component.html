@@ -14,39 +14,6 @@
       [innerHTML]="topicToDeletePrettyPrint"
     ></pre>
   </app-loading-overlay>
-
-  @if (successMessage) {
-    <div
-      id="topicDeleteSuccessAlert"
-      class="alert alert-success alert-dismissable"
-      style="position: absolute; bottom: 0px; width: 100%"
-    >
-      <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
-        &times;
-      </button>
-      <h4>
-        <i class="icon fa fa-check"></i>Folgender Themeneintrag inkl. Unterthemen wurden erfolgreich
-        gelöscht
-      </h4>
-      <pre>{{ currentTopic }}</pre>
-    </div>
-  }
-
-  @if (errorMessagePart) {
-    <div
-      id="topicDeleteErrorAlert"
-      class="alert alert-danger alert-dismissable"
-      style="position: absolute; bottom: 0px; width: 100%"
-    >
-      <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">
-        &times;
-      </button>
-      <h4><i class="icon fa fa-ban"></i>Löschen gescheitert</h4>
-      Beim Löschen des Themeneintrags ist ein Fehler aufgetreten. Fehlermeldung:
-      <br />
-      <pre [innerHTML]="errorMessagePart"></pre>
-    </div>
-  }
 </div>
 
 <div class="modal-footer">

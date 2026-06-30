@@ -8,6 +8,7 @@ import { finalize } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 
 @Component({
   selector: 'app-topic-delete-modal',
@@ -22,24 +23,17 @@ export class TopicDeleteModalComponent implements OnInit {
   private srvc = inject(AdminTopicsManagementService);
   private sanitizer = inject(DomSanitizer);
   private destroyRef = inject(DestroyRef);
+  private notificationService = inject(NotificationService);
 
   @Input() currentTopic?: Topic;
   topicToDeletePrettyPrint: SafeHtml | string = '';
   loadingData = false;
-  errorMessagePart: SafeHtml | string = '';
-  successMessage: string = '';
 
   ngOnInit() {
     if (this.currentTopic) {
       const html = this.indicatorValueService.syntaxHighlightJSON(this.currentTopic);
       this.topicToDeletePrettyPrint = this.sanitizer.bypassSecurityTrustHtml(html);
-      this.resetTopicDeleteForm();
     }
-  }
-
-  resetTopicDeleteForm() {
-    this.errorMessagePart = '';
-    this.successMessage = '';
   }
 
   deleteTopic() {
@@ -59,27 +53,25 @@ export class TopicDeleteModalComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.successMessage = 'success';
-          // Close modal after a short delay to show success message
-          setTimeout(() => {
-            this.activeModal.close({ action: 'deleted' });
-          }, 1500);
+          this.notificationService.showSuccess(
+            `Thema '${this.currentTopic?.topicName}' wurde gelöscht.`
+          );
+          this.activeModal.close({ action: 'deleted' });
         },
         error: (error: any) => {
-          // HttpErrorResponse carries the backend payload in .error, not the AngularJS-era .data.
-          const payload = error?.error ?? error?.message ?? error;
-          const html = this.indicatorValueService.syntaxHighlightJSON(payload);
-          this.errorMessagePart = this.sanitizer.bypassSecurityTrustHtml(html);
+          this.notificationService.showError(this.getErrorMessage(error));
         },
       });
   }
 
-  hideSuccessAlert() {
-    this.successMessage = '';
-  }
-
-  hideErrorAlert() {
-    this.errorMessagePart = '';
+  private getErrorMessage(error: any): string {
+    if (error?.error && typeof error.error === 'string') {
+      return error.error;
+    }
+    if (error?.message) {
+      return error.message;
+    }
+    return 'Das Thema konnte nicht gelöscht werden.';
   }
 
   close() {
