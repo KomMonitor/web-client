@@ -16,14 +16,7 @@ import {
 } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { AgGridAngular } from 'ag-grid-angular';
-import {
-  ColDef,
-  GridOptions,
-  GridApi,
-  GridReadyEvent,
-  FirstDataRenderedEvent,
-  ColumnResizedEvent,
-} from 'ag-grid-community';
+import { ColDef, GridOptions, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { KmDatePickerComponent } from '../../../customElements/date-picker/km-date-picker.component';
@@ -170,15 +163,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     await this.loadAvailableOptions();
     this.buildFeatureTable();
     this.ensureGridConfiguration();
-
-    // Add a small delay to ensure everything is initialized
-    setTimeout(() => {
-      this.checkGridConfiguration();
-    }, 500);
-  }
-
-  private checkGridConfiguration(): void {
-    // Grid configuration check completed
   }
 
   private ensureGridConfiguration(): void {
@@ -222,9 +206,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((broadcastMsg) => {
         if (broadcastMsg) {
-          if (broadcastMsg.msg === 'onEditSpatialUnitFeatures') {
-            this.onEditSpatialUnitFeatures(broadcastMsg.values);
-          } else if (
+          if (
             broadcastMsg.msg ===
             showLoadingIconFor(this.featureTableHelper.resourceType_spatialUnit)
           ) {
@@ -339,19 +321,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
         this.headerHeightSetter();
       },
     };
-  }
-
-  onEditSpatialUnitFeatures(spatialUnitDataset: any): void {
-    if (
-      this.currentSpatialUnitDataset &&
-      this.currentSpatialUnitDataset.spatialUnitLevel === spatialUnitDataset.spatialUnitLevel
-    ) {
-      return;
-    }
-
-    this.currentSpatialUnitDataset = spatialUnitDataset;
-    this.resetForm();
-    this.buildFeatureTable();
   }
 
   resetForm(): void {
@@ -1267,20 +1236,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     // Force refresh of pagination and filtering
     this.gridApi.paginationGoToPage(0);
     this.gridApi.refreshHeader();
-  }
-
-  onFirstDataRendered(_event: FirstDataRenderedEvent): void {
-    // Handle first data rendered event
-  }
-
-  onColumnResized(_event: ColumnResizedEvent): void {
-    // Handle column resize event
-  }
-
-  onCellValueChanged(_event: any): void {
-    // Handle cell value changes - this will be called by the grid
-    // The actual API call and visual feedback is handled in the data grid helper service
-    // This method can be used for additional component-specific logic if needed
   }
 
   showMappingConfigErrorAlert(): void {

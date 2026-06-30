@@ -3,7 +3,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbActiveModal, NgbDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { HttpClient } from '@angular/common/http';
 import { KommonitorImporterHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { KommonitorDataExchangeService } from '../../../../../services/adminSpatialUnit/kommonitor-data-exchange.service';
@@ -15,7 +14,6 @@ import {
   KmLinePatternPickerComponent,
   LinePatternOption,
 } from '../../../customElements/line-pattern-picker/km-line-pattern-picker.component';
-import { DomSanitizer } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 
@@ -46,9 +44,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
-  private http = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
-  private sanitizer = inject(DomSanitizer);
   private notificationService = inject(NotificationService);
   private destroyRef = inject(DestroyRef);
 
@@ -134,9 +130,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   datasourceType: any = null;
   selectedDataSourceFile: File | null = null;
   spatialUnitDataSourceIdProperty = '';
-  spatialUnitDataSourceIdPropertyInvalid = false;
   spatialUnitDataSourceNameProperty = '';
-  spatialUnitDataSourceNamePropertyInvalid = false;
 
   // Bbox parameters for OGCAPI_FEATURES
   bboxType: string = '';
@@ -190,12 +184,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
   propertyMappingDefinition: any = null;
   postBody_spatialUnits: any = null;
 
-  // Validation flags
-  idPropertyNotFound = false;
-  namePropertyNotFound = false;
-  spatialUnitDataSourceInputInvalid = false;
-  spatialUnitDataSourceInputInvalidReason = '';
-
   // Missing properties from original component
   outlineColor = '#000000';
   selectedOutlineDashArrayObject: LinePatternOption | null = null;
@@ -223,14 +211,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   onRoleManagementColumnResized(_event: any): void {
     this.roleManagementHeaderHeightSetter();
-  }
-
-  onRoleManagementModelUpdated(): void {
-    // Grid model updated
-  }
-
-  onRoleManagementViewportChanged(): void {
-    // Viewport changed
   }
 
   private roleManagementHeaderHeightSetter(): void {
@@ -294,7 +274,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.initializeMultiStepForm();
     this.initializeOutlineLayerSettings();
     this.initializeMetadataStructures();
-    this.setupEventListeners();
   }
 
   private async loadInitialData() {
@@ -397,12 +376,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     }
   }
 
-  private loadConverters(): void {
-    // Converters are fetched and exposed by the importer helper service.
-    // The template reads them directly from the service; no component state needed here.
-    return;
-  }
-
   private loadDatasourceTypes(): void {
     const datasourceTypes = this.kommonitorImporterHelperService.getAvailableDatasourceTypes();
     this.availableDatasourceTypes = datasourceTypes || [];
@@ -503,12 +476,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
         }, 100);
       }
     }
-  }
-
-  private setupEventListeners() {
-    // Note: In Angular, we typically use subscription to broadcast events
-    // For now, we'll handle these events in the appropriate service calls
-    // The original AngularJS component used $scope.$on which is not available in Angular
   }
 
   checkSpatialUnitName() {
@@ -1420,10 +1387,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.datasourceTypeDefinition = null;
     this.propertyMappingDefinition = null;
     this.postBody_spatialUnits = null;
-    this.idPropertyNotFound = false;
-    this.namePropertyNotFound = false;
-    this.spatialUnitDataSourceInputInvalid = false;
-    this.spatialUnitDataSourceInputInvalidReason = '';
 
     // Reset role management
     this.ownerOrganization = '';
@@ -1447,8 +1410,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.mappingConfigImportSettings = null;
     this.spatialUnitMetadataImportError = '';
     this.spatialUnitMappingConfigImportError = '';
-    this.spatialUnitDataSourceIdPropertyInvalid = false;
-    this.spatialUnitDataSourceNamePropertyInvalid = false;
     this.spatialUnitMappingConfigStructure = {};
     this.spatialUnitMetadataStructure_pretty = '';
     const attributeMappingTypes = this.kommonitorImporterHelperService.getAttributeMappingTypes();

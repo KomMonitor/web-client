@@ -421,8 +421,6 @@
                   (gridReady)="onRoleManagementGridReady($event)"
                   (firstDataRendered)="onRoleManagementFirstDataRendered($event)"
                   (columnResized)="onRoleManagementColumnResized($event)"
-                  (modelUpdated)="onRoleManagementModelUpdated()"
-                  (viewportChanged)="onRoleManagementViewportChanged()"
                 >
                 </ag-grid-angular>
               </div>
@@ -769,11 +767,6 @@
             </div>
           }
           <div class="help-block with-errors"></div>
-          @if (spatialUnitDataSourceInputInvalid) {
-            <div style="color: red">
-              <p>Eingabe ungültig. Grund: {{ spatialUnitDataSourceInputInvalidReason }}</p>
-            </div>
-          }
         </div>
         <div class="col-md-3 col-sm-6 col-12">
           <div class="form-group">
@@ -791,13 +784,6 @@
               </p>
             </div>
             <div class="help-block with-errors"></div>
-            @if (idPropertyNotFound) {
-              <div style="color: red">
-                <p>
-                  Eingabe ungültig. Angegebenes Attribut nicht gefunden oder enthält NULL-Werte.
-                </p>
-              </div>
-            }
           </div>
           <div class="form-group">
             <label>NAME Attributname*</label>
@@ -812,13 +798,6 @@
               <p>Name des Attributs, welches den eindeutigen Namen des Raumeinheiten enthält.</p>
             </div>
             <div class="help-block with-errors"></div>
-            @if (namePropertyNotFound) {
-              <div style="color: red">
-                <p>
-                  Eingabe ungültig. Angegebenes Attribut nicht gefunden oder enthält NULL-Werte.
-                </p>
-              </div>
-            }
           </div>
         </div>
         <div class="col-md-3 col-sm-6 col-12">
