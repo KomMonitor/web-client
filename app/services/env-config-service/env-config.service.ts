@@ -183,7 +183,9 @@ export class EnvConfigService {
     return window.__env.indicatorTypeOptions;
   }
   get indicatorUnitOptions(): any {
-    return window.__env.indicatorUnitOptions.sort();
+    // Optional chaining so a missing config value yields undefined instead of
+    // throwing on `.sort()` of undefined.
+    return window.__env.indicatorUnitOptions?.sort();
   }
   get indicatorCreationTypeOptions(): any {
     return window.__env.indicatorCreationTypeOptions;

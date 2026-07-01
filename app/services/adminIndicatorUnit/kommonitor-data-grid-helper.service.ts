@@ -317,12 +317,12 @@ export class KommonitorIndicatorDataGridHelperService {
       // Ensure that only the target button gets clicked
       // Manually open modal
       event.stopPropagation();
-      const modalId = document.getElementById(event.target.id)?.getAttribute('data-target');
+      const modalId = document.getElementById(event.currentTarget.id)?.getAttribute('data-target');
       if (modalId) {
         $(modalId).modal('show');
       }
 
-      const indicatorId = event.target.id.split('_')[3];
+      const indicatorId = event.currentTarget.id.split('_')[3];
       const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(indicatorId);
 
       // Broadcast event for Angular component to handle
@@ -335,12 +335,12 @@ export class KommonitorIndicatorDataGridHelperService {
       // Ensure that only the target button gets clicked
       // Manually open modal
       event.stopPropagation();
-      const modalId = document.getElementById(event.target.id)?.getAttribute('data-target');
+      const modalId = document.getElementById(event.currentTarget.id)?.getAttribute('data-target');
       if (modalId) {
         $(modalId).modal('show');
       }
 
-      const indicatorId = event.target.id.split('_')[3];
+      const indicatorId = event.currentTarget.id.split('_')[3];
       const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(indicatorId);
 
       // Broadcast event for Angular component to handle
@@ -352,12 +352,12 @@ export class KommonitorIndicatorDataGridHelperService {
       // Ensure that only the target button gets clicked
       // Manually open modal
       event.stopPropagation();
-      const modalId = document.getElementById(event.target.id)?.getAttribute('data-target');
+      const modalId = document.getElementById(event.currentTarget.id)?.getAttribute('data-target');
       if (modalId) {
         $(modalId).modal('show');
       }
 
-      const indicatorId = event.target.id.split('_')[3];
+      const indicatorId = event.currentTarget.id.split('_')[3];
       const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(indicatorId);
 
       // Broadcast event for Angular component to handle

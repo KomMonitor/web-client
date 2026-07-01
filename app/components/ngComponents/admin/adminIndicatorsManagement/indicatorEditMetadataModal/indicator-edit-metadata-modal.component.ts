@@ -23,7 +23,6 @@ import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial
 import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 
 declare const __env: any;
-declare const colorbrewer: any;
 
 @Component({
   selector: 'app-indicator-edit-metadata-modal',
@@ -122,7 +121,6 @@ export class IndicatorEditMetadataModalComponent implements OnInit {
   loadingData = false;
 
   // Color brewer
-  colorbrewerSchemes = colorbrewer;
   colorbreweSchemeName_dynamicIncrease = __env?.defaultColorBrewerPaletteForBalanceIncreasingValues;
   colorbreweSchemeName_dynamicDecrease = __env?.defaultColorBrewerPaletteForBalanceDecreasingValues;
   colorbrewerPalettes: any[] = [];
@@ -207,11 +205,14 @@ export class IndicatorEditMetadataModalComponent implements OnInit {
 
   instantiateColorBrewerPalettes(): void {
     const customColorSchemes = __env?.customColorSchemes;
-    let colorbrewerExtended = colorbrewer;
+    // Access the vendored colorbrewer global defensively: referencing the bare
+    // `colorbrewer` identifier throws a ReferenceError when the script has not
+    // (yet) defined it, whereas the window lookup safely yields undefined.
+    let colorbrewerExtended = (window as any).colorbrewer || {};
 
     // Add custom color themes from configuration properties
     if (customColorSchemes) {
-      colorbrewerExtended = Object.assign(customColorSchemes, colorbrewer);
+      colorbrewerExtended = Object.assign(customColorSchemes, colorbrewerExtended);
     }
 
     for (const key in colorbrewerExtended) {
@@ -294,6 +295,12 @@ export class IndicatorEditMetadataModalComponent implements OnInit {
     this.successMessagePart = '';
     this.errorMessagePart = '';
 
+    if (!this.currentIndicatorDataset) {
+      // Guard against being opened without a dataset (e.g. a stale grid row);
+      // resetting the form has nothing to populate in that case.
+      return;
+    }
+
     this.datasetName = this.currentIndicatorDataset.indicatorName;
     this.datasetNameInvalid = false;
 
@@ -301,20 +308,21 @@ export class IndicatorEditMetadataModalComponent implements OnInit {
     this.displayOrder = this.currentIndicatorDataset.displayOrder;
 
     // Reset metadata
+    const datasetMetadata = this.currentIndicatorDataset.metadata ?? {};
     this.metadata = {
-      note: this.currentIndicatorDataset.metadata.note,
-      literature: this.currentIndicatorDataset.metadata.literature,
+      note: datasetMetadata.note,
+      literature: datasetMetadata.literature,
       sridEPSG: 4326,
-      datasource: this.currentIndicatorDataset.metadata.datasource,
-      databasis: this.currentIndicatorDataset.metadata.databasis,
-      contact: this.currentIndicatorDataset.metadata.contact,
-      description: this.currentIndicatorDataset.metadata.description,
-      lastUpdate: this.currentIndicatorDataset.metadata.lastUpdate,
+      datasource: datasetMetadata.datasource,
+      databasis: datasetMetadata.databasis,
+      contact: datasetMetadata.contact,
+      description: datasetMetadata.description,
+      lastUpdate: datasetMetadata.lastUpdate,
     };
 
     // Set update interval
-    this.envConfigService.updateIntervalOptions.forEach((option: any) => {
-      if (option.apiName === this.currentIndicatorDataset.metadata.updateInterval) {
+    this.envConfigService.updateIntervalOptions?.forEach((option: any) => {
+      if (option.apiName === datasetMetadata.updateInterval) {
         this.metadata.updateInterval = option;
       }
     });
@@ -331,7 +339,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit {
     }
 
     // Set indicator type
-    this.envConfigService.indicatorTypeOptions.forEach((option: any) => {
+    this.envConfigService.indicatorTypeOptions?.forEach((option: any) => {
       if (option.apiName === this.currentIndicatorDataset.indicatorType) {
         this.indicatorType = option;
       }
@@ -341,7 +349,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit {
     this.indicatorUnit = this.currentIndicatorDataset.unit;
 
     this.enableFreeTextUnit = true;
-    this.envConfigService.indicatorUnitOptions.forEach((option: any) => {
+    this.envConfigService.indicatorUnitOptions?.forEach((option: any) => {
       if (option === this.currentIndicatorDataset.unit) {
         this.enableFreeTextUnit = false;
       }
@@ -364,7 +372,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit {
     this.indicatorInterpretation = this.currentIndicatorDataset.interpretation;
 
     // Set creation type
-    this.envConfigService.indicatorCreationTypeOptions.forEach((option: any) => {
+    this.envConfigService.indicatorCreationTypeOptions?.forEach((option: any) => {
       if (option.apiName === this.currentIndicatorDataset.creationType) {
         this.indicatorCreationType = option;
       }
