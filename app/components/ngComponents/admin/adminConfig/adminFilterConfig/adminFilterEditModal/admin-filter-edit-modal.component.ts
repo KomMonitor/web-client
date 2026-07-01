@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from '../../../../../../services/broadcast-service/broadcast.service';
@@ -8,18 +8,20 @@ import { IndicatorValueService } from '../../../../../../services/indicator-valu
 import { GeoresourceMetadataStoreService } from '../../../../../../services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { TopicMetadataStoreService } from '../../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 import { IndicatorMetadataStoreService } from '../../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
-import { MultiStepHelperServiceService } from '../../../../../../services/multi-step-helper-service/multi-step-helper-service.service';
 import { NotificationService } from '../../../../common/notification/notification.service';
+import {
+  StepperComponent,
+  StepperStep,
+} from 'components/ngComponents/common/stepper/stepper.component';
 
 @Component({
   selector: 'app-admin-filter-edit-modal',
   standalone: true,
   templateUrl: './admin-filter-edit-modal.component.html',
   styleUrls: ['./admin-filter-edit-modal.component.scss'],
-  imports: [FormsModule],
+  imports: [FormsModule, StepperComponent],
 })
-export class AdminFilterEditModalComponent implements OnInit {
-  private multiStepHelperService = inject(MultiStepHelperServiceService);
+export class AdminFilterEditModalComponent {
   private indicatorValueService = inject(IndicatorValueService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
@@ -60,8 +62,32 @@ export class AdminFilterEditModalComponent implements OnInit {
 
   filterName!: string | undefined;
 
-  ngOnInit(): void {
-    this.multiStepHelperService.registerClickHandler('adminFilterEditForm');
+  // Multi-step form
+  currentStep = 1;
+  totalSteps = 4;
+  steps: StepperStep[] = [
+    { label: 'Indikatoren' },
+    { label: 'Indikator-Themen' },
+    { label: 'Georesourcen' },
+    { label: 'Georesource-Themen' },
+  ];
+
+  nextStep(): void {
+    if (this.currentStep < this.totalSteps) {
+      this.currentStep++;
+    }
+  }
+
+  previousStep(): void {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+    }
+  }
+
+  goToStep(step: number): void {
+    if (step >= 1 && step <= this.totalSteps) {
+      this.currentStep = step;
+    }
   }
 
   /* 	var addClickListenerToEachCollapseTrigger(){
