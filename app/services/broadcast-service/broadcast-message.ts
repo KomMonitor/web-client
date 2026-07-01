@@ -132,29 +132,6 @@ export const BroadcastMessage = {
 export type BroadcastMessage = (typeof BroadcastMessage)[keyof typeof BroadcastMessage];
 
 /**
- * Helpers for the dynamically built message names from
- * `feature-table-data-grid-helper.service.ts`
- * (e.g. `showLoadingIcon_indicator`). A plain `const` object cannot express the
- * `${resourceType}` suffix, so these typed factories cover them.
- */
-export const showLoadingIconFor = (resourceType: string) =>
-  `showLoadingIcon_${resourceType}` as const;
-export const hideLoadingIconFor = (resourceType: string) =>
-  `hideLoadingIcon_${resourceType}` as const;
-export const onDeleteFeatureEntryFor = (resourceType: string) =>
-  `onDeleteFeatureEntry_${resourceType}` as const;
-
-/**
- * Union of the dynamically built message names (kept in sync with the helpers
- * above). Used to widen `BroadcastService.broadcast()` so the static names *and*
- * the dynamic ones are accepted, while arbitrary raw strings are rejected.
- */
-export type DynamicBroadcastMessage =
-  | ReturnType<typeof showLoadingIconFor>
-  | ReturnType<typeof hideLoadingIconFor>
-  | ReturnType<typeof onDeleteFeatureEntryFor>;
-
-/**
  * Shape of every message on the bus. `msg` accepts the typed names plus an
  * arbitrary string: the receiver side still compares against a handful of
  * intentionally-kept legacy "dead receiver" names (no live sender) and the
@@ -163,6 +140,6 @@ export type DynamicBroadcastMessage =
  * heterogeneous payload and stays untyped.
  */
 export interface BroadcastEnvelope {
-  msg: BroadcastMessage | DynamicBroadcastMessage | (string & {});
+  msg: BroadcastMessage | (string & {});
   values?: any;
 }

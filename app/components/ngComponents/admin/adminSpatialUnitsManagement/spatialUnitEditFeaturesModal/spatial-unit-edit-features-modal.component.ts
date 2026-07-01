@@ -9,13 +9,8 @@ import {
   EventEmitter,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import {
-  showLoadingIconFor,
-  hideLoadingIconFor,
-  onDeleteFeatureEntryFor,
-} from 'services/broadcast-service/broadcast-message';
 import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import { HttpClient } from '@angular/common/http';
 import { FeatureTableDataGridHelperService } from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
@@ -64,7 +59,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   featureTableHelper = inject(FeatureTableDataGridHelperService);
   private http = inject(HttpClient);
-  private broadcastService = inject(BroadcastService);
 
   /** Emitted after features changed so the parent refreshes its table. */
   @Output() refreshRequested = new EventEmitter<SpatialUnitRefreshRequest>();
@@ -213,32 +207,24 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   }
 
   private setupEventListeners(): void {
-    // Setup broadcast listeners
-    this.broadcastService.currentBroadcastMsg
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((broadcastMsg) => {
-        if (broadcastMsg) {
-          if (
-            broadcastMsg.msg ===
-            showLoadingIconFor(this.featureTableHelper.resourceType_spatialUnit)
-          ) {
-            this.loadingData = true;
-          } else if (
-            broadcastMsg.msg ===
-            hideLoadingIconFor(this.featureTableHelper.resourceType_spatialUnit)
-          ) {
-            this.loadingData = false;
-          } else if (
-            broadcastMsg.msg ===
-            onDeleteFeatureEntryFor(this.featureTableHelper.resourceType_spatialUnit)
-          ) {
-            // Handle individual feature deletion
-            this.refreshRequested.emit({
-              crudType: 'edit',
-              targetSpatialUnitId: this.currentSpatialUnitDataset?.spatialUnitId,
-            });
-            this.refreshSpatialUnitEditFeaturesOverviewTable();
-          }
+    // React to feature-table loading/delete events from the shared grid helper.
+    this.featureTableHelper.featureTableEvents$
+      .pipe(
+        filter((event) => event.resourceType === this.featureTableHelper.resourceType_spatialUnit),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((event) => {
+        if (event.type === 'loadingStart') {
+          this.loadingData = true;
+        } else if (event.type === 'loadingEnd') {
+          this.loadingData = false;
+        } else if (event.type === 'featureDeleted') {
+          // Handle individual feature deletion
+          this.refreshRequested.emit({
+            crudType: 'edit',
+            targetSpatialUnitId: this.currentSpatialUnitDataset?.spatialUnitId,
+          });
+          this.refreshSpatialUnitEditFeaturesOverviewTable();
         }
       });
   }

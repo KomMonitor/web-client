@@ -1,5 +1,7 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -8,12 +10,7 @@ import { GridOptions } from 'ag-grid-community';
 import { FilterPipe } from '../../../../../pipes/filter.pipe';
 import { KommonitorImporterHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
-import {
-  BroadcastMessage,
-  showLoadingIconFor,
-  hideLoadingIconFor,
-  onDeleteFeatureEntryFor,
-} from '../../../../../services/broadcast-service/broadcast-message';
+import { BroadcastMessage } from '../../../../../services/broadcast-service/broadcast-message';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { AccessControlService } from '../../../../../services/access-control-service/access-control.service';
 import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
@@ -40,6 +37,7 @@ declare const $: any;
 export class IndicatorEditFeaturesModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   private broadcastService = inject(BroadcastService);
+  private destroyRef = inject(DestroyRef);
   private http = inject(HttpClient);
   private cacheHelperService = inject(CacheHelperServiceService);
   private accessControlService = inject(AccessControlService);
@@ -110,7 +108,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   }
 
   private setupEventListeners(): void {
-    // Listen for edit indicator features event
+    // Bus listener kept for cross-area indicator triggers.
     this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
       if (data.msg === 'onEditIndicatorFeatures') {
         this.openModal(data.values);
@@ -122,20 +120,28 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
             this.currentIndicatorDataset.indicatorId
           );
         }
-      } else if (data.msg === showLoadingIconFor(this.featureTableHelper.resourceType_indicator)) {
-        this.loadingData = true;
-      } else if (data.msg === hideLoadingIconFor(this.featureTableHelper.resourceType_indicator)) {
-        this.loadingData = false;
-      } else if (
-        data.msg === onDeleteFeatureEntryFor(this.featureTableHelper.resourceType_indicator)
-      ) {
-        this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
-          action: 'edit',
-          indicatorId: this.currentIndicatorDataset.indicatorId,
-        });
-        this.refreshIndicatorEditFeaturesOverviewTable();
       }
     });
+
+    // React to feature-table loading/delete events from the shared grid helper.
+    this.featureTableHelper.featureTableEvents$
+      .pipe(
+        filter((event) => event.resourceType === this.featureTableHelper.resourceType_indicator),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((event) => {
+        if (event.type === 'loadingStart') {
+          this.loadingData = true;
+        } else if (event.type === 'loadingEnd') {
+          this.loadingData = false;
+        } else if (event.type === 'featureDeleted') {
+          this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
+            action: 'edit',
+            indicatorId: this.currentIndicatorDataset.indicatorId,
+          });
+          this.refreshIndicatorEditFeaturesOverviewTable();
+        }
+      });
   }
 
   private initializeForm(): void {

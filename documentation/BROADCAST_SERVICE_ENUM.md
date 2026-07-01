@@ -132,6 +132,11 @@ export const onDeleteFeatureEntryFor = (resourceType: string) =>
   `onDeleteFeatureEntry_${resourceType}` as const;
 ```
 
+> **Hinweis (2026-07-01):** Diese dynamischen Helper wurden inzwischen wieder entfernt —
+> die Feature-Table-Signalisierung wurde ganz vom Bus auf eine typisierte reaktive API
+> (`FeatureTableDataGridHelperService.featureTableEvents$`) umgestellt. Details im Nachtrag
+> im Abschnitt „Status" weiter unten. Der übrige Enum-Ansatz bleibt unverändert gültig.
+
 Service typisieren — mit `| string` als **Übergangstyp** für die schrittweise Migration:
 
 ```ts
@@ -247,17 +252,28 @@ String-Empfänger vorbei.
 > erzwungen, s. u.). Übrig nur bewusst belassene tote Empfänger (raw) und
 > auskommentierter Legacy-Code.
 >
-> **`| string` entfernt ✅:** Der Übergangstyp wurde durch einen exportierten Typ
-> `DynamicBroadcastMessage` (Union der 3 Helper-Rückgaben via `ReturnType<…>`) ersetzt:
-> ``broadcast(newMsg: BroadcastMessage | DynamicBroadcastMessage, …)``. Der Compiler
-> erzwingt damit typisierte Namen auf Senderseite — beliebige Roh-Strings werden
-> abgelehnt (Build EXIT 0 bestätigt: kein Roh-String-Sender mehr vorhanden).
+> **`| string` entfernt ✅:** Der Übergangstyp wurde durch die typisierten
+> `BroadcastMessage`-Namen ersetzt: ``broadcast(newMsg: BroadcastMessage, …)``. Der
+> Compiler erzwingt damit typisierte Namen auf Senderseite — beliebige Roh-Strings
+> werden abgelehnt (Build EXIT 0 bestätigt: kein Roh-String-Sender mehr vorhanden).
 >
 > **`BehaviorSubject<any>` typisiert ✅:** Das Bus-Subject ist jetzt
-> `BehaviorSubject<BroadcastEnvelope>` (`{ msg: BroadcastMessage | DynamicBroadcastMessage
-> | (string & {}); values?: any }`). `msg` lässt bewusst beliebige Strings zu, damit die
-> Empfängerseite weiter gegen die toten Roh-Namen und den Seed `''` vergleichen kann;
-> `values` bleibt als heterogene Payload untypisiert.
+> `BehaviorSubject<BroadcastEnvelope>` (`{ msg: BroadcastMessage | (string & {});
+> values?: any }`). `msg` lässt bewusst beliebige Strings zu, damit die Empfängerseite
+> weiter gegen die toten Roh-Namen und den Seed `''` vergleichen kann; `values` bleibt
+> als heterogene Payload untypisiert.
+>
+> **Nachtrag 2026-07-01 — dynamische Nachrichten entfernt:** Die 3 Helper
+> (`showLoadingIconFor` / `hideLoadingIconFor` / `onDeleteFeatureEntryFor`) und der Typ
+> `DynamicBroadcastMessage` wurden entfernt; `broadcast()` nimmt jetzt ausschließlich
+> `BroadcastMessage`. Die zugehörige Feature-Table-Signalisierung (Loading-Icon an/aus,
+> Einzel-Feature-Löschung) läuft nicht mehr über den Bus, sondern über eine typisierte
+> reaktive API des Grid-Helpers: `FeatureTableDataGridHelperService` exponiert
+> `featureTableEvents$: Observable<FeatureTableEvent>`, das die 3 Edit-Features-Modals
+> (SpatialUnit / Georesource / Indicator) nach `resourceType` gefiltert abonnieren.
+> Damit gibt es keine dynamisch gebauten Nachrichtennamen mehr — der Bus trägt nur noch
+> statische `BroadcastMessage`-Namen (Bestandsaufnahme oben entsprechend: „Dynamisch
+> gebaute Muster" jetzt **0**).
 
 ## Migrationsweg (kein Big-Bang)
 
@@ -393,12 +409,14 @@ updateLegendDisplay
 updateMeasureOfValueBar
 ```
 
-Dynamisch gebaute Namen (→ über Helper-Funktionen abbilden):
+Dynamisch gebaute Namen (→ über Helper-Funktionen abgebildet — **seit 2026-07-01
+entfernt**, siehe Nachtrag oben; die Feature-Table-Signalisierung läuft jetzt über
+`FeatureTableDataGridHelperService.featureTableEvents$` statt über den Bus):
 
 ```
-showLoadingIcon_${resourceType}      -> showLoadingIconFor(resourceType)
-hideLoadingIcon_${resourceType}      -> hideLoadingIconFor(resourceType)
-onDeleteFeatureEntry_${resourceType} -> onDeleteFeatureEntryFor(resourceType)
+showLoadingIcon_${resourceType}      -> showLoadingIconFor(resourceType)     # entfernt
+hideLoadingIcon_${resourceType}      -> hideLoadingIconFor(resourceType)     # entfernt
+onDeleteFeatureEntry_${resourceType} -> onDeleteFeatureEntryFor(resourceType) # entfernt
 ```
 
 > Diese Liste regenerieren mit:
