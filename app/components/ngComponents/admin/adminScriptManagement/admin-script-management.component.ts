@@ -1,25 +1,24 @@
-import { Component, OnInit, NgZone, OnDestroy, ViewChild, inject } from '@angular/core';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { Component, NgZone, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 
-import { Subscription, skip } from 'rxjs';
+import { FormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions } from 'ag-grid-community';
-import { FormsModule } from '@angular/forms';
-import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
-import { ScriptAddModalComponent } from './scriptAddModal/script-add-modal.component';
-import { ScriptDeleteModalComponent } from './scriptDeleteModal/script-delete-modal.component';
+import { Subscription, skip } from 'rxjs';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import {
   MetadataBootstrapService,
   MetadataLoadingState,
 } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { ProcessScriptMetadataStoreService } from 'services/process-script-metadata-store-service/process-script-metadata-store.service';
-import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { KommonitorDataGridHelperService } from '../../../../services/adminSpatialUnit/kommonitor-data-grid-helper.service';
-import { ScriptIndicatorsCellRendererComponent } from './script-indicators-cell-renderer.component';
+import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { ScriptGeoresourcesCellRendererComponent } from './script-georesources-cell-renderer.component';
+import { ScriptIndicatorsCellRendererComponent } from './script-indicators-cell-renderer.component';
 import { ScriptProcessParametersCellRendererComponent } from './script-process-parameters-cell-renderer.component';
+import { ScriptRefreshRequest } from './script-refresh.model';
+import { ScriptAddModalComponent } from './scriptAddModal/script-add-modal.component';
+import { ScriptDeleteModalComponent } from './scriptDeleteModal/script-delete-modal.component';
 
 @Component({
   selector: 'app-admin-script-management',
@@ -31,7 +30,6 @@ import { ScriptProcessParametersCellRendererComponent } from './script-process-p
 export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   private zone = inject(NgZone);
   private modalService = inject(NgbModal);
-  private broadcastService = inject(BroadcastService);
   metadataBootstrap = inject(MetadataBootstrapService);
   private processScriptStore = inject(ProcessScriptMetadataStoreService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
@@ -53,20 +51,38 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.buildColumnDefs();
     this.setupEventListeners();
-    this.initializeOrRefreshOverviewTable();
 
-    setTimeout(() => {
-      if (this.loadingData) {
-        this.initializeOrRefreshOverviewTable();
-        if (this.loadingData) {
-          this.loadingData = false;
-        }
-      }
-    }, 3000);
+    // Render immediately when scripts are already cached; otherwise trigger a
+    // fetch. The metadataLoading$ subscription additionally covers the case
+    // where the initial app-wide metadata load completes while this view is
+    // already open.
+    if (this.processScriptStore.availableProcessScripts?.length) {
+      this.initializeOrRefreshOverviewTable();
+    } else {
+      this.ensureDataLoaded();
+    }
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
+  }
+
+  private async ensureDataLoaded(): Promise<void> {
+    if (this.processScriptStore.availableProcessScripts?.length) {
+      return;
+    }
+    try {
+      await this.metadataBootstrap.fetchIndicatorScriptsMetadata();
+      this.initializeOrRefreshOverviewTable();
+    } catch (error) {
+      console.error('Error fetching process scripts:', error);
+    } finally {
+      // A component-triggered fetch does not drive metadataLoading$, so the
+      // loading state is cleared here regardless of the result — including the
+      // empty case, which would otherwise leave the spinner running.
+      this.loadingData = false;
+      this.initializationCompleted = true;
+    }
   }
 
   private buildColumnDefs(): void {
@@ -131,7 +147,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
     const loadingSub = this.metadataBootstrap.metadataLoading$.pipe(skip(1)).subscribe((state) => {
       if (state === MetadataLoadingState.COMPLETE) {
         this.zone.run(() => {
-          setTimeout(() => this.initializeOrRefreshOverviewTable(), 250);
+          this.initializeOrRefreshOverviewTable();
         });
       } else if (state === MetadataLoadingState.ERROR) {
         this.zone.run(() => {
@@ -140,17 +156,13 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
       }
     });
     this.subscriptions.push(loadingSub);
+  }
 
-    const sub = this.broadcastService.currentBroadcastMsg.subscribe((data) => {
-      if (data.msg === BroadcastMessage.RefreshScriptOverviewTable) {
-        this.zone.run(() => {
-          this.loadingData = true;
-          const payload = data as any;
-          this.refreshScriptOverviewTable(payload.crudType, payload.scriptId);
-        });
-      }
-    });
-    this.subscriptions.push(sub);
+  // Handles a modal's refreshRequested output; replaces the former
+  // RefreshScriptOverviewTable broadcast round-trip.
+  private handleRefreshRequest(request: ScriptRefreshRequest): void {
+    this.loadingData = true;
+    this.refreshScriptOverviewTable(request.crudType, request.scriptId);
   }
 
   public initializeOrRefreshOverviewTable(): void {
@@ -205,11 +217,14 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
 
   public onClickAddScript(): void {
     // if (!this.metadataBootstrap.checkCreatePermission()) return;
-    this.modalService.open(ScriptAddModalComponent, {
+    const modalRef = this.modalService.open(ScriptAddModalComponent, {
       // modalDialogClass: "modal-medium",
       size: 'xl',
       backdrop: 'static',
     });
+    (modalRef.componentInstance as ScriptAddModalComponent).refreshRequested.subscribe(
+      (request: ScriptRefreshRequest) => this.handleRefreshRequest(request)
+    );
   }
 
   public onClickDeleteScripts(): void {
@@ -220,6 +235,10 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
       size: 'lg',
       backdrop: 'static',
     });
-    modalRef.componentInstance.datasetsToDelete = JSON.parse(JSON.stringify(selectedScripts));
+    const modalComponent = modalRef.componentInstance as ScriptDeleteModalComponent;
+    modalComponent.datasetsToDelete = JSON.parse(JSON.stringify(selectedScripts));
+    modalComponent.refreshRequested.subscribe((request: ScriptRefreshRequest) =>
+      this.handleRefreshRequest(request)
+    );
   }
 }

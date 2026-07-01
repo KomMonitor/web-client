@@ -82,7 +82,6 @@ export const BroadcastMessage = {
   RefreshGeoresourceOverviewTableCompleted: 'refreshGeoresourceOverviewTableCompleted',
   RefreshIndicatorOverviewTable: 'refreshIndicatorOverviewTable',
   RefreshIndicatorOverviewTableCompleted: 'refreshIndicatorOverviewTableCompleted',
-  RefreshScriptOverviewTable: 'refreshScriptOverviewTable',
   RefreshSpatialUnitOverviewTable: 'refreshSpatialUnitOverviewTable',
   RefreshTopicsOverview: 'refreshTopicsOverview',
   ReinitIndicatorStatisticsConfiguration: 'reinitIndicatorStatisticsConfiguration',
