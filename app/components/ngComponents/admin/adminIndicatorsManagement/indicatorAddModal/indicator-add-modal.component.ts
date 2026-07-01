@@ -8,6 +8,7 @@ import {
   EventEmitter,
 } from '@angular/core';
 import { IndicatorRefreshRequest } from '../indicator-refresh.model';
+import { downloadJson, readJsonFile } from 'util/json-file.util';
 import { NgbActiveModal, NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
@@ -616,16 +617,7 @@ export class IndicatorAddModalComponent implements OnInit {
         this.activeModal.close('success');
       }, 2000);
     } catch (error: any) {
-      if (this.indicatorValueService.syntaxHighlightJSON) {
-        if (error.data) {
-          this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.data);
-        } else {
-          this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
-        }
-      } else {
-        this.errorMessagePart = error.message || 'An error occurred';
-      }
-
+      this.errorMessagePart = this.indicatorValueService.formatError(error);
       this.loadingData = false;
     }
   }
@@ -675,25 +667,18 @@ export class IndicatorAddModalComponent implements OnInit {
     }
   }
 
-  parseMetadataFromFile(file: File) {
-    const fileReader = new FileReader();
-
-    fileReader.onload = (event: any) => {
-      try {
-        this.parseFromMetadataFile(event);
-      } catch (error) {
-        console.error(error);
-        console.error('Uploaded Metadata File cannot be parsed.');
-        this.indicatorMetadataImportError = 'Uploaded Metadata File cannot be parsed correctly';
-      }
-    };
-
-    fileReader.readAsText(file);
+  async parseMetadataFromFile(file: File) {
+    try {
+      this.metadataImportSettings = await readJsonFile(file);
+      this.applyMetadataImport();
+    } catch (error) {
+      console.error(error);
+      console.error('Uploaded Metadata File cannot be parsed.');
+      this.indicatorMetadataImportError = 'Uploaded Metadata File cannot be parsed correctly';
+    }
   }
 
-  parseFromMetadataFile(event: any) {
-    this.metadataImportSettings = JSON.parse(event.target.result);
-
+  private applyMetadataImport() {
     if (!this.metadataImportSettings.metadata) {
       console.error('uploaded Metadata File cannot be parsed - wrong structure.');
       this.indicatorMetadataImportError =
@@ -922,22 +907,7 @@ export class IndicatorAddModalComponent implements OnInit {
     }
 
     fileName += '.json';
-    this.downloadFile(metadataJSON, fileName);
-  }
-
-  private downloadFile(content: string, fileName: string) {
-    const blob = new Blob([content], { type: 'application/json' });
-    const data = URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.download = fileName;
-    a.href = data;
-    a.textContent = 'JSON';
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    a.click();
-
-    a.remove();
+    downloadJson(fileName, metadataJSON);
   }
 
   // Metadata structure for export

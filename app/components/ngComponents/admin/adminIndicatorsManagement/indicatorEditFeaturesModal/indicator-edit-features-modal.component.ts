@@ -34,6 +34,7 @@ import {
   StepperStep,
 } from 'components/ngComponents/common/stepper/stepper.component';
 import { IndicatorRefreshRequest } from '../indicator-refresh.model';
+import { downloadJson } from 'util/json-file.util';
 
 declare const $: any;
 
@@ -284,11 +285,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         this.loadingData = false;
       },
       error: (error: any) => {
-        if (error.error) {
-          this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.error);
-        } else {
-          this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
-        }
+        this.errorMessagePart = this.indicatorValueService.formatError(error);
         this.showErrorAlert();
         this.loadingData = false;
       },
@@ -332,11 +329,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         this.loadingData = false;
       },
       error: (error: any) => {
-        if (error.error) {
-          this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.error);
-        } else {
-          this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
-        }
+        this.errorMessagePart = this.indicatorValueService.formatError(error);
         this.showErrorAlert();
         this.loadingData = false;
       },
@@ -504,11 +497,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         'indicatorDataSourceInput_editFeatures'
       );
     } catch (error: any) {
-      if (error.data) {
-        this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.data);
-      } else {
-        this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
-      }
+      this.errorMessagePart = this.indicatorValueService.formatError(error);
       this.showErrorAlert();
       this.loadingData = false;
       return null;
@@ -590,11 +579,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         this.loadingData = false;
       }
     } catch (error: any) {
-      if (error.data) {
-        this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.data);
-      } else {
-        this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
-      }
+      this.errorMessagePart = this.indicatorValueService.formatError(error);
 
       this.showErrorAlert();
       this.loadingData = false;
@@ -624,21 +609,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       mappingConfigExport.isPublic = this.isPublic;
       mappingConfigExport.ownerId = this.currentIndicatorDataset.ownerId;
 
-      const metadataJSON = JSON.stringify(mappingConfigExport);
-      const fileName = 'KomMonitor-Import-Mapping-Konfiguration_Export.json';
-
-      const blob = new Blob([metadataJSON], { type: 'application/json' });
-      const data = URL.createObjectURL(blob);
-
-      const a = document.createElement('a');
-      a.download = fileName;
-      a.href = data;
-      a.textContent = 'JSON';
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-      a.click();
-
-      a.remove();
+      downloadJson('KomMonitor-Import-Mapping-Konfiguration_Export.json', mappingConfigExport);
     });
   }
 

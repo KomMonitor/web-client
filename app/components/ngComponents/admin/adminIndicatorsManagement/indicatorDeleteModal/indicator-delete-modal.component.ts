@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 
 import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from '../../../../../services/broadcast-service/broadcast-message';
+import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
 import { FormsModule } from '@angular/forms';
 import { IndicatorRefreshRequest } from '../indicator-refresh.model';
 
@@ -50,6 +51,7 @@ export class IndicatorDeleteModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   private http = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
+  private indicatorValueService = inject(IndicatorValueService);
   angularJsDataExchangeService = inject<any>('kommonitorDataExchangeService' as any);
 
   @Output() refreshRequested = new EventEmitter<IndicatorRefreshRequest>();
@@ -290,17 +292,10 @@ export class IndicatorDeleteModalComponent implements OnInit {
         });
       },
       error: (error) => {
-        if (error.error) {
-          this.failedDatasetsAndErrors.push([
-            this.selectedIndicatorDataset,
-            this.angularJsDataExchangeService.syntaxHighlightJSON(error.error),
-          ]);
-        } else {
-          this.failedDatasetsAndErrors.push([
-            this.selectedIndicatorDataset,
-            this.angularJsDataExchangeService.syntaxHighlightJSON(error),
-          ]);
-        }
+        this.failedDatasetsAndErrors.push([
+          this.selectedIndicatorDataset,
+          this.indicatorValueService.formatError(error),
+        ]);
 
         this.showErrorAlert = true;
         this.loadingData = false;
@@ -401,17 +396,10 @@ export class IndicatorDeleteModalComponent implements OnInit {
           }
         },
         (error) => {
-          if (error.error) {
-            this.failedTimestampsAndErrors.push([
-              applicableDate,
-              this.angularJsDataExchangeService.syntaxHighlightJSON(error.error),
-            ]);
-          } else {
-            this.failedTimestampsAndErrors.push([
-              applicableDate,
-              this.angularJsDataExchangeService.syntaxHighlightJSON(error),
-            ]);
-          }
+          this.failedTimestampsAndErrors.push([
+            applicableDate,
+            this.indicatorValueService.formatError(error),
+          ]);
         }
       );
   }
@@ -429,17 +417,10 @@ export class IndicatorDeleteModalComponent implements OnInit {
           }
         },
         (error) => {
-          if (error.error) {
-            this.failedSpatialUnitsAndErrors.push([
-              applicableSpatialUnit,
-              this.angularJsDataExchangeService.syntaxHighlightJSON(error.error),
-            ]);
-          } else {
-            this.failedSpatialUnitsAndErrors.push([
-              applicableSpatialUnit,
-              this.angularJsDataExchangeService.syntaxHighlightJSON(error),
-            ]);
-          }
+          this.failedSpatialUnitsAndErrors.push([
+            applicableSpatialUnit,
+            this.indicatorValueService.formatError(error),
+          ]);
         }
       );
   }

@@ -146,6 +146,19 @@ export class IndicatorValueService {
     );
   }
 
+  /**
+   * Picks the most meaningful part of an error (HTTP response body or its
+   * message, falling back to the raw error) and returns it as syntax-highlighted
+   * JSON for display in the admin error alerts. Replaces the divergent inline
+   * `error.error`/`error.data` cascades that previously lived in the indicator
+   * management modals.
+   */
+  formatError(error) {
+    const detail =
+      error?.error?.message ?? error?.error ?? error?.data?.message ?? error?.data ?? error;
+    return this.syntaxHighlightJSON(detail);
+  }
+
   formatIndicatorNameForLabel(indicatorName, maxCharsPerLine) {
     const arr: any[] = [];
     const space = /\s/;

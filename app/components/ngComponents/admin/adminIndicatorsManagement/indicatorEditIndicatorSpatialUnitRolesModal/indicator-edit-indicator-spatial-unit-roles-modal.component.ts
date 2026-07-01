@@ -336,11 +336,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
         error: (error: any) => {
           this.errorMessagePart =
             'Fehler beim Aktualisieren der Metadaten-Zugriffsrechte. Fehler lautet: \n\n';
-          if (error.data) {
-            this.errorMessagePart += this.indicatorValueService.syntaxHighlightJSON(error.data);
-          } else {
-            this.errorMessagePart += this.indicatorValueService.syntaxHighlightJSON(error);
-          }
+          this.errorMessagePart += this.indicatorValueService.formatError(error);
           this.showErrorAlert();
           this.loadingData = false;
         },
@@ -378,11 +374,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
         error: (error: any) => {
           this.errorMessagePart =
             'Fehler beim Aktualisieren der Metadaten-Eigentümerschaft. Fehler lautet: \n\n';
-          if (error.data) {
-            this.errorMessagePart += this.indicatorValueService.syntaxHighlightJSON(error.data);
-          } else {
-            this.errorMessagePart += this.indicatorValueService.syntaxHighlightJSON(error);
-          }
+          this.errorMessagePart += this.indicatorValueService.formatError(error);
           this.showErrorAlert();
           this.loadingData = false;
         },
@@ -427,11 +419,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
             error: (error: any) => {
               this.errorMessagePart =
                 'Fehler beim Aktualisieren der Metadaten-Eigentümerschaft. Fehler lautet: \n\n';
-              if (error.data) {
-                this.errorMessagePart += this.indicatorValueService.syntaxHighlightJSON(error.data);
-              } else {
-                this.errorMessagePart += this.indicatorValueService.syntaxHighlightJSON(error);
-              }
+              this.errorMessagePart += this.indicatorValueService.formatError(error);
               this.showErrorAlert();
               this.loadingData = false;
             },
@@ -474,11 +462,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
             'Fehler beim Aktualisieren der Zugriffsrechte auf Zeitreihe der Raumeinheit ' +
             this.targetApplicableSpatialUnit.spatialUnitName +
             '. Fehler lautet: \n\n';
-          if (error.data) {
-            this.errorMessagePart += this.indicatorValueService.syntaxHighlightJSON(error.data);
-          } else {
-            this.errorMessagePart += this.indicatorValueService.syntaxHighlightJSON(error);
-          }
+          this.errorMessagePart += this.indicatorValueService.formatError(error);
           this.showErrorAlert();
           this.loadingData = false;
         },

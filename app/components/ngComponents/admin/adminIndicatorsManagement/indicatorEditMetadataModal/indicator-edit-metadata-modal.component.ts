@@ -789,15 +789,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
         },
         error: (error: any) => {
           console.error('Error while updating indicator metadata.');
-          if (error.data?.message) {
-            this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(
-              error.data.message
-            );
-          } else if (error.data) {
-            this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.data);
-          } else {
-            this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
-          }
+          this.errorMessagePart = this.indicatorValueService.formatError(error);
           this.loadingData = false;
         },
       });
