@@ -18,6 +18,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import { getErrorMessage } from '../spatial-unit-import.util';
 import {
   StepperComponent,
   StepperStep,
@@ -57,7 +58,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   steps: StepperStep[] = [{ label: 'Metadaten der Raumebene' }, { label: 'Allgemeine Metadaten' }];
 
   // Form data
-  isSubmitting = false;
   loadingData = false;
 
   // Current dataset being edited
@@ -385,7 +385,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
       });
     } catch (error: any) {
       this.notificationService.showError(
-        'Fehler beim Aktualisieren der Metadaten: ' + this.getErrorMessage(error)
+        'Fehler beim Aktualisieren der Metadaten: ' + getErrorMessage(error)
       );
       this.loadingData = false;
     }
@@ -553,19 +553,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
   hideMetadataErrorAlert() {
     this.spatialUnitMetadataImportError = '';
-  }
-
-  private getErrorMessage(error: any): string {
-    if (typeof error?.error === 'string') {
-      return error.error;
-    }
-    if (typeof error?.error?.message === 'string') {
-      return error.error.message;
-    }
-    if (typeof error?.message === 'string') {
-      return error.message;
-    }
-    return 'Unbekannter Fehler';
   }
 
   cancel() {

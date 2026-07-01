@@ -14,6 +14,7 @@ import { AgGridAngular } from 'ag-grid-angular';
 
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import { getErrorMessage } from '../spatial-unit-import.util';
 import {
   StepperComponent,
   StepperStep,
@@ -410,7 +411,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
       return true;
     } catch (error: any) {
       this.notificationService.showError(
-        'Fehler beim Aktualisieren der Zugriffsrechte: ' + this.getErrorMessage(error)
+        'Fehler beim Aktualisieren der Zugriffsrechte: ' + getErrorMessage(error)
       );
       return false;
     } finally {
@@ -443,7 +444,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
       return true;
     } catch (error: any) {
       this.notificationService.showError(
-        'Fehler beim Aktualisieren der Eigentümerschaft: ' + this.getErrorMessage(error)
+        'Fehler beim Aktualisieren der Eigentümerschaft: ' + getErrorMessage(error)
       );
       return false;
     } finally {
@@ -481,19 +482,6 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
     return orgs.filter((org: any) =>
       org.name.toLowerCase().includes(this.ownerOrgFilter.toLowerCase())
     );
-  }
-
-  private getErrorMessage(error: any): string {
-    if (typeof error?.error === 'string') {
-      return error.error;
-    }
-    if (typeof error?.error?.message === 'string') {
-      return error.error.message;
-    }
-    if (typeof error?.message === 'string') {
-      return error.message;
-    }
-    return 'Unbekannter Fehler';
   }
 
   onCancel(): void {

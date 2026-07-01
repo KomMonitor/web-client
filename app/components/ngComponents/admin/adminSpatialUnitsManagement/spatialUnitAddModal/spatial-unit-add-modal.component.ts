@@ -95,7 +95,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   // Form data
-  isSubmitting = false;
   loadingData = false;
 
   // Basic form data
@@ -120,9 +119,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   // Outline layer settings
   isOutlineLayer = false;
-  loiColor = '#bf3d2c';
   outlineWidth = 3;
-  outlineDashArray: any = null;
 
   // Period of validity
   periodOfValidity: { startDate: any; endDate: any } = {
@@ -613,7 +610,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
   onChangeOutlineDashArray(outlineDashArrayObject: LinePatternOption | null) {
     // Handle outline dash array change
     this.selectedOutlineDashArrayObject = outlineDashArrayObject;
-    this.outlineDashArray = outlineDashArrayObject;
 
     // No need to update dropdown display or close dropdown - handled by km-line-pattern-picker
   }
@@ -1151,7 +1147,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.isOutlineLayer = false;
     this.outlineColor = '#000000';
     this.outlineWidth = 3;
-    this.outlineDashArray = null;
     const availableOptions = this.kommonitorDataExchangeService.availableLoiDashArrayObjects || [];
     if (availableOptions.length > 0) {
       this.selectedOutlineDashArrayObject = {

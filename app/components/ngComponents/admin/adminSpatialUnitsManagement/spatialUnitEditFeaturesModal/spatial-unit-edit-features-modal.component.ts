@@ -72,7 +72,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   steps: StepperStep[] = [{ label: 'Raumeinheit Übersicht' }, { label: 'Räumlicher Datensatz' }];
 
   // Form data
-  isSubmitting = false;
   loadingData = false;
 
   // Current dataset being edited
@@ -93,9 +92,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
 
   // Data source input
   geoJsonString: string = '';
-  spatialUnit_asGeoJson: any = null;
-  spatialUnitEditFeaturesDataSourceInputInvalidReason = '';
-  spatialUnitEditFeaturesDataSourceInputInvalid = false;
   fileSelected: boolean = false;
   selectedDataSourceFile: File | null = null;
   spatialUnitDataSourceIdProperty = '';
@@ -120,7 +116,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   // Attribute mapping
   attributeMapping_sourceAttributeName = '';
   attributeMapping_destinationAttributeName = '';
-  attributeMapping_data: any = null;
   attributeMapping_attributeType: any = null;
   attributeMappings_adminView: AttributeMappingRow[] = [];
   keepAttributes = true;
@@ -139,7 +134,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
 
   // Bbox parameters for OGCAPI_FEATURES
   bboxType: string = '';
-  bboxRefSpatialUnit: any = null;
   bboxRefSpatialUnitLevel: string = '';
   bbox_minx: any = null;
   bbox_miny: any = null;
@@ -348,9 +342,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     this.periodOfValidity = { startDate: '', endDate: '' };
     this.periodOfValidityInvalid = false;
     this.geoJsonString = '';
-    this.spatialUnit_asGeoJson = null;
-    this.spatialUnitEditFeaturesDataSourceInputInvalidReason = '';
-    this.spatialUnitEditFeaturesDataSourceInputInvalid = false;
     this.spatialUnitDataSourceIdProperty = '';
     this.spatialUnitDataSourceNameProperty = '';
     this.converter = null;
@@ -365,7 +356,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     this.validityStartDate_perFeature = '';
     this.attributeMapping_sourceAttributeName = '';
     this.attributeMapping_destinationAttributeName = '';
-    this.attributeMapping_data = null;
     this.attributeMapping_attributeType =
       this.kommonitorImporterHelperService?.attributeMapping_attributeTypes?.[0];
     this.attributeMappings_adminView = [];
