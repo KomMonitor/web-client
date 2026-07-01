@@ -1,13 +1,22 @@
-import { Component, OnInit, ViewChild, ElementRef, inject, DestroyRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  inject,
+  DestroyRef,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import {
-  BroadcastMessage,
   showLoadingIconFor,
   hideLoadingIconFor,
   onDeleteFeatureEntryFor,
 } from 'services/broadcast-service/broadcast-message';
+import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import { HttpClient } from '@angular/common/http';
 import { FeatureTableDataGridHelperService } from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
 import {
@@ -56,6 +65,9 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   featureTableHelper = inject(FeatureTableDataGridHelperService);
   private http = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
+
+  /** Emitted after features changed so the parent refreshes its table. */
+  @Output() refreshRequested = new EventEmitter<SpatialUnitRefreshRequest>();
   private notificationService = inject(NotificationService);
   private destroyRef = inject(DestroyRef);
   private spatialUnitImportService = inject(SpatialUnitImportService);
@@ -227,7 +239,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
             onDeleteFeatureEntryFor(this.featureTableHelper.resourceType_spatialUnit)
           ) {
             // Handle individual feature deletion
-            this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
+            this.refreshRequested.emit({
               crudType: 'edit',
               targetSpatialUnitId: this.currentSpatialUnitDataset?.spatialUnitId,
             });
@@ -480,7 +492,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
       next: (_response: any) => {
         this.spatialUnitFeaturesGeoJSON = null;
         this.remainingFeatureHeaders = [];
-        this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
+        this.refreshRequested.emit({
           crudType: 'edit',
           targetSpatialUnitId: dataset.spatialUnitId,
         });
@@ -755,7 +767,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
           false
         );
 
-        this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
+        this.refreshRequested.emit({
           crudType: 'edit',
           targetSpatialUnitId: dataset.spatialUnitId,
         });

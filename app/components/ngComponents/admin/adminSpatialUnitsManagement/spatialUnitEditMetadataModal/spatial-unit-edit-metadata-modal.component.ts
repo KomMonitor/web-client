@@ -1,7 +1,16 @@
-import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  inject,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import { HttpClient } from '@angular/common/http';
 import {
   KommonitorDataExchangeService,
@@ -49,6 +58,9 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   private broadcastService = inject(BroadcastService);
   private sanitizer = inject(DomSanitizer);
   private notificationService = inject(NotificationService);
+
+  /** Emitted after metadata changed so the parent refreshes its table. */
+  @Output() refreshRequested = new EventEmitter<SpatialUnitRefreshRequest>();
 
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
 
@@ -366,11 +378,13 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
         )
         .toPromise();
 
-      // Broadcast refresh events with proper parameters
-      this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
+      // Ask the parent to refresh its overview table for this spatial unit.
+      this.refreshRequested.emit({
         crudType: 'edit',
         targetSpatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
       });
+      // The indicator overview lives in a sibling admin area, so that refresh
+      // stays on the global event bus.
       if (spatialUnitName_old !== spatialUnitName_new) {
         this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable);
       }

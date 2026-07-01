@@ -1,9 +1,16 @@
-import { Component, OnInit, AfterViewInit, inject, DestroyRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  inject,
+  DestroyRef,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import {
   KommonitorDataExchangeService,
   SpatialUnitMetadata,
@@ -31,10 +38,12 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
   roleManagementHelper = inject(RoleManagementDataGridHelperService);
-  private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
   private notificationService = inject(NotificationService);
   private destroyRef = inject(DestroyRef);
+
+  /** Emitted after roles/ownership changed so the parent refreshes its table. */
+  @Output() refreshRequested = new EventEmitter<SpatialUnitRefreshRequest>();
 
   private _currentSpatialUnitDataset: SpatialUnitMetadata | null = null;
 
@@ -72,7 +81,6 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
 
   ngOnInit(): void {
     this.prepareCreatorList();
-    this.setupBroadcastSubscription();
     this.loadAccessControlData();
   }
 
@@ -83,16 +91,6 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
         this.refreshRoleManagementTable();
       }, 100);
     }
-  }
-
-  private setupBroadcastSubscription(): void {
-    this.broadcastService.currentBroadcastMsg
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((message: any) => {
-        if (message.key === 'availableRolesUpdate') {
-          this.refreshRoleManagementTable();
-        }
-      });
   }
 
   prepareCreatorList(): void {
@@ -397,7 +395,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
         )
         .toPromise();
 
-      this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
+      this.refreshRequested.emit({
         crudType: 'edit',
         targetSpatialUnitId: dataset.spatialUnitId,
       });
@@ -437,7 +435,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
         )
         .toPromise();
 
-      this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
+      this.refreshRequested.emit({
         crudType: 'edit',
         targetSpatialUnitId: dataset.spatialUnitId,
       });

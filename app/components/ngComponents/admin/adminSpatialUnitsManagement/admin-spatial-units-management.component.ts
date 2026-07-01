@@ -1,6 +1,4 @@
 import { Component, OnInit, NgZone, ViewChild, inject, DestroyRef } from '@angular/core';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import {
   MetadataBootstrapService,
   MetadataLoadingState,
@@ -32,11 +30,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
 import { FormsModule } from '@angular/forms';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
-
-interface RefreshBroadcastValues {
-  crudType: string;
-  targetSpatialUnitId: string | string[];
-}
+import { SpatialUnitRefreshRequest } from './spatial-unit-refresh.model';
 
 @Component({
   selector: 'app-admin-spatial-units-management',
@@ -48,7 +42,6 @@ interface RefreshBroadcastValues {
 export class AdminSpatialUnitsManagementComponent implements OnInit {
   private zone = inject(NgZone);
   private modalService = inject(NgbModal);
-  private broadcastService = inject(BroadcastService);
   private metadataBootstrap = inject(MetadataBootstrapService);
   kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
   private kommonitorCacheHelperService = inject(KommonitorCacheHelperService);
@@ -346,24 +339,17 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
           });
         }
       });
+  }
 
-    // Refresh the overview table whenever a modal reports a CRUD change.
-    // Grid button clicks are wired directly via onCellClicked, so the only
-    // broadcast we still consume here is the table-refresh request.
-    this.broadcastService.currentBroadcastMsg
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) => {
-        if (data.msg === BroadcastMessage.RefreshSpatialUnitOverviewTable) {
-          this.zone.run(() => {
-            this.loadingData = true;
-            // Extract crudType and targetSpatialUnitId from the broadcast data values
-            const crudType = (data.values as RefreshBroadcastValues)?.crudType;
-            const targetSpatialUnitId = (data.values as RefreshBroadcastValues)
-              ?.targetSpatialUnitId;
-            this.refreshSpatialUnitOverviewTable(crudType, targetSpatialUnitId);
-          });
-        }
-      });
+  /**
+   * Refresh the overview table after a modal reported a CRUD change. Wired to
+   * each modal's `refreshRequested` output at open time — this replaces the
+   * former `RefreshSpatialUnitOverviewTable` broadcast, which routed a plain
+   * modal -> parent notification needlessly through the global event bus.
+   */
+  private handleRefreshRequest(request: SpatialUnitRefreshRequest): void {
+    this.loadingData = true;
+    this.refreshSpatialUnitOverviewTable(request.crudType, request.targetSpatialUnitId);
   }
 
   /**
@@ -416,6 +402,10 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
       windowClass: 'modal-large-window',
     });
 
+    modalRef.componentInstance.refreshRequested.subscribe((request: SpatialUnitRefreshRequest) =>
+      this.handleRefreshRequest(request)
+    );
+
     modalRef.result
       .then((result) => {
         if (result) {
@@ -438,6 +428,9 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
     });
 
     modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
+    modalRef.componentInstance.refreshRequested.subscribe((request: SpatialUnitRefreshRequest) =>
+      this.handleRefreshRequest(request)
+    );
 
     modalRef.result
       .then((result) => {
@@ -461,6 +454,9 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
     });
 
     modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
+    modalRef.componentInstance.refreshRequested.subscribe((request: SpatialUnitRefreshRequest) =>
+      this.handleRefreshRequest(request)
+    );
 
     modalRef.result
       .then((result) => {
@@ -484,6 +480,9 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
     });
 
     modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
+    modalRef.componentInstance.refreshRequested.subscribe((request: SpatialUnitRefreshRequest) =>
+      this.handleRefreshRequest(request)
+    );
 
     modalRef.result
       .then((result) => {
@@ -507,6 +506,9 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
     });
 
     modalRef.componentInstance.datasetsToDelete = spatialUnitsMetadata;
+    modalRef.componentInstance.refreshRequested.subscribe((request: SpatialUnitRefreshRequest) =>
+      this.handleRefreshRequest(request)
+    );
 
     modalRef.result
       .then((result) => {

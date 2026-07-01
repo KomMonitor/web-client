@@ -1,4 +1,5 @@
-import { Component, OnInit, Input, inject } from '@angular/core';
+import { Component, OnInit, Input, inject, Output, EventEmitter } from '@angular/core';
+import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
@@ -27,6 +28,9 @@ export class SpatialUnitDeleteModalComponent implements OnInit {
   private notificationService = inject(NotificationService);
 
   @Input() datasetsToDelete: SpatialUnitMetadata[] = [];
+
+  /** Emitted after deletion so the parent refreshes its table. */
+  @Output() refreshRequested = new EventEmitter<SpatialUnitRefreshRequest>();
 
   loadingData = false;
 
@@ -70,7 +74,7 @@ export class SpatialUnitDeleteModalComponent implements OnInit {
 
         // Refresh spatial unit overview table
         const deletedIds = this.successfullyDeletedDatasets.map((dataset) => dataset.spatialUnitId);
-        this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
+        this.refreshRequested.emit({
           crudType: 'delete',
           targetSpatialUnitId: deletedIds,
         });

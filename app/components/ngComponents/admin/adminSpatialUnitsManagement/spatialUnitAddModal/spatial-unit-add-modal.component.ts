@@ -1,4 +1,14 @@
-import { Component, OnInit, ViewChild, ElementRef, inject, DestroyRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  inject,
+  DestroyRef,
+  Output,
+  EventEmitter,
+} from '@angular/core';
+import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbActiveModal, NgbDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
@@ -61,6 +71,9 @@ export class SpatialUnitAddModalComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private destroyRef = inject(DestroyRef);
   private spatialUnitImportService = inject(SpatialUnitImportService);
+
+  /** Emitted after a spatial unit was added so the parent refreshes its table. */
+  @Output() refreshRequested = new EventEmitter<SpatialUnitRefreshRequest>();
 
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
@@ -783,7 +796,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
               false // isDryRun
             );
 
-          this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
+          this.refreshRequested.emit({
             crudType: 'add',
             targetSpatialUnitId:
               this.kommonitorImporterHelperService.getIdFromImporterResponse(
