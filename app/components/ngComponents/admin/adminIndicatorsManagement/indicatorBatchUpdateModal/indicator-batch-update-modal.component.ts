@@ -7,8 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
-
-declare const __env: any;
+import { downloadJson, readJsonFile } from 'util/json-file.util';
 
 interface BatchListItem {
   isSelected: boolean;
@@ -29,6 +28,18 @@ interface BatchListItem {
   selectedTargetSpatialUnit: any;
 }
 
+/**
+ * WORK IN PROGRESS — deliberately unfinished.
+ *
+ * The indicator batch-update feature is a non-functional scaffold: the form and
+ * file import/export work, but there is no real batch-update backend call yet
+ * (`startBatchUpdate` is a no-op), the converter/datasource dropdowns have no
+ * data source (`getAvailableConverters`/`getAvailableDatasourceTypes` return
+ * empty), and several row actions are unimplemented. The methods below are kept
+ * as bound stubs so the template renders; each carries a `TODO(batch-update)`
+ * marking what still needs to be built. Do not treat a successful click as a
+ * completed update.
+ */
 @Component({
   selector: 'app-indicator-batch-update-modal',
   templateUrl: './indicator-batch-update-modal.component.html',
@@ -50,8 +61,6 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   public selected: any = { value: null };
   public keepMissingValues: boolean = true;
   public batchList: BatchListItem[] = [];
-  public timeseriesMappingModalOpenForIndex: number | undefined;
-  public defaultTimeseriesMappingSave: any[] = [];
   public allRowsSelected: boolean = false;
   public loadingData: boolean = false;
 
@@ -176,17 +185,13 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
     }
   }
 
-  private parseBatchListFromFile(file: File): void {
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
-      try {
-        const newBatchList = JSON.parse(e.target.result);
-        this.processParsedBatchList(newBatchList);
-      } catch (error) {
-        console.error('Error parsing batch list file:', error);
-      }
-    };
-    reader.readAsText(file);
+  private async parseBatchListFromFile(file: File): Promise<void> {
+    try {
+      const newBatchList = await readJsonFile(file);
+      this.processParsedBatchList(newBatchList);
+    } catch (error) {
+      console.error('Error parsing batch list file:', error);
+    }
   }
 
   private processParsedBatchList(newBatchList: any[]): void {
@@ -238,55 +243,24 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
     });
   }
 
-  public onMappingTableSelected(event: Event, index: number): void {
-    const target = event.target as HTMLInputElement;
-    const file = target.files?.[0];
-    if (file) {
-      // Implementation for mapping table selection
-      console.log('Mapping table selected for index:', index, file);
-
-      const reader = new FileReader();
-      reader.onload = (_e: any) => {
-        try {
-          // Handle mapping table file content
-          console.log('Mapping table file content loaded for index:', index);
-        } catch (error) {
-          console.error('Error reading mapping table file:', error);
-        }
-      };
-      reader.readAsText(file);
-    }
+  public onMappingTableSelected(_event: Event, _index: number): void {
+    // TODO(batch-update): parse the selected mapping-table file and apply it to
+    // the row at the given index. Not implemented yet.
   }
 
-  public onDataSourceFileSelected(event: Event, index: number): void {
-    const target = event.target as HTMLInputElement;
-    const file = target.files?.[0];
-    if (file) {
-      // Implementation for data source file selection
-      console.log('Data source file selected for index:', index, file);
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          // Handle data source file content
-          console.log('Data source file content loaded for index:', index);
-        } catch (error) {
-          console.error('Error reading data source file:', error);
-        }
-      };
-      reader.readAsText(file);
-    }
+  public onDataSourceFileSelected(_event: Event, _index: number): void {
+    // TODO(batch-update): parse the selected data-source file and apply it to
+    // the row at the given index. Not implemented yet.
   }
 
-  public onTimeseriesMappingBtnClicked(event: any, index: number): void {
-    this.timeseriesMappingModalOpenForIndex = index;
-    // Open timeseries mapping modal
-    console.log('Opening timeseries mapping modal for index:', index);
+  public onTimeseriesMappingBtnClicked(_event: any, _index: number): void {
+    // TODO(batch-update): open the timeseries-mapping modal for the given row.
+    // Not implemented yet.
   }
 
   public onDefaultTimeseriesMappingBtnClicked(_event: any): void {
-    // Open default timeseries mapping modal
-    console.log('Opening default timeseries mapping modal');
+    // TODO(batch-update): open the default timeseries-mapping modal.
+    // Not implemented yet.
   }
 
   public saveMappingObjectToFile(event: any, index: number): void {
@@ -298,30 +272,17 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
       isSelected: row.isSelected,
     };
 
-    const blob = new Blob([JSON.stringify(mappingData, null, 2)], { type: 'application/json' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `indicator-mapping-${row.name?.indicatorName || 'unknown'}.json`;
-    a.click();
-    window.URL.revokeObjectURL(url);
+    downloadJson(
+      `indicator-mapping-${row.name?.indicatorName || 'unknown'}.json`,
+      JSON.stringify(mappingData, null, 2)
+    );
   }
 
   public startBatchUpdate(): void {
-    this.loadingData = true;
-
-    // Implementation for batch update
-    console.log('Starting batch update for indicators:', this.batchList);
-
-    // Simulate batch update process
-    setTimeout(() => {
-      this.loadingData = false;
-      this.broadcastService.broadcast(BroadcastMessage.BatchUpdateCompleted, {
-        resourceType: 'indicator',
-        status: 'success',
-        message: 'Batch update completed successfully',
-      });
-    }, 2000);
+    // TODO(batch-update): call the real batch-update backend for the assembled
+    // batchList and broadcast BatchUpdateCompleted with the actual response.
+    // No-op for now — the update is not implemented, so nothing is persisted.
+    // The previous implementation faked a success result, which was misleading.
   }
 
   public reopenResultModal(): void {
@@ -334,8 +295,8 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   }
 
   private refreshNameColumn(): void {
-    // Refresh name column dropdowns
-    console.log('Refreshing name column');
+    // TODO(batch-update): refresh the indicator name-column dropdowns after the
+    // overview table reloaded. Not implemented yet.
   }
 
   // Helper methods for parameter conversion
@@ -393,22 +354,16 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   }
 
   private getConverterObjectByName(_name: string): any {
-    // Implementation to get converter object by name
-    // Access through AngularJS service for now
-    // const angularJsService = (this.kommonitorDataExchangeService as any).angularJsDataExchangeService;
-    // if (angularJsService && angularJsService.availableConverters) {
-    //   return angularJsService.availableConverters.find((c: any) => c.name === name);
-    // }
+    // TODO(batch-update): resolve the converter object by name once a typed
+    // converter source is available. Returns null for now, so imported batch
+    // files do not populate selectedConverter.
     return null;
   }
 
   private getDatasourceTypeObjectByType(_type: string): any {
-    // Implementation to get datasource type object by type
-    // Access through AngularJS service for now
-    // const angularJsService = (this.kommonitorDataExchangeService as any).angularJsDataExchangeService;
-    // if (angularJsService && angularJsService.availableDatasourceTypes) {
-    //   return angularJsService.availableDatasourceTypes.find((d: any) => d.type === type);
-    // }
+    // TODO(batch-update): resolve the datasource-type object by type once a
+    // typed source is available. Returns null for now, so imported batch files
+    // do not populate selectedDatasourceType.
     return null;
   }
 
@@ -454,14 +409,14 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
 
   // Helper methods to get available options
   public getAvailableConverters(): any[] {
-    // const angularJsService = (this.kommonitorDataExchangeService as any).angularJsDataExchangeService;
-    // return angularJsService?.availableConverters || [];
+    // TODO(batch-update): supply the available importer converters. Empty for
+    // now, so the converter dropdowns render no options.
     return [];
   }
 
   public getAvailableDatasourceTypes(): any[] {
-    // const angularJsService = (this.kommonitorDataExchangeService as any).angularJsDataExchangeService;
-    // return angularJsService?.availableDatasourceTypes || [];
+    // TODO(batch-update): supply the available importer datasource types. Empty
+    // for now, so the datasource dropdowns render no options.
     return [];
   }
 
@@ -471,12 +426,8 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   public colDefaultFunctionAllRowsChb: boolean = false;
 
   public onClickSaveColDefaultValue(): void {
-    // Implementation for saving default column value
-    console.log(
-      'Saving default column value:',
-      this.colDefaultFunctionSelectedColumn,
-      this.colDefaultFunctionNewValue
-    );
+    // TODO(batch-update): apply colDefaultFunctionNewValue to the selected
+    // column across the chosen rows. Not implemented yet.
   }
 
   public saveBatchListToFile(): void {
@@ -487,13 +438,7 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
       isSelected: item.isSelected,
     }));
 
-    const blob = new Blob([JSON.stringify(batchData, null, 2)], { type: 'application/json' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'indicator-batch-list.json';
-    a.click();
-    window.URL.revokeObjectURL(url);
+    downloadJson('indicator-batch-list.json', JSON.stringify(batchData, null, 2));
   }
 
   public checkIfNameAndFilesChosenInEachRow(): boolean {
