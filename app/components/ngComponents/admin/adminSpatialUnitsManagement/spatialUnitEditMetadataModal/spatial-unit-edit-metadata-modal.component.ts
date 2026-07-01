@@ -136,25 +136,11 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
   ngOnInit() {
     this.loadInitialData();
-    this.setupEventListeners();
-
-    // Remove jQuery date picker initialization - no longer needed
 
     // If currentSpatialUnitDataset is already set (from parent component), initialize form
     if (this.currentSpatialUnitDataset) {
       this.resetForm();
     }
-  }
-
-  private checkElementsExist(): boolean {
-    return true;
-  }
-
-  // Color picker logic removed; handled by km-color-picker
-
-  private setupEventListeners() {
-    // Listen for broadcast messages if needed
-    // Currently no role management in this version to match AngularJS
   }
 
   private loadInitialData() {

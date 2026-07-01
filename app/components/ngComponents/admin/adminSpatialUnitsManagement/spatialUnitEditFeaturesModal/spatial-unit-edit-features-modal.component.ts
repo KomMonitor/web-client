@@ -175,7 +175,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   public compareDatasourceType = (a: any, b: any) => (a && b ? a.type === b.type : a === b);
 
   async ngOnInit(): Promise<void> {
-    this.initializeDatePickers();
     this.initializeForm();
     this.setupEventListeners();
     await this.loadAvailableOptions();
@@ -198,11 +197,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
         this.featureTableGridOptions.defaultColDef.sortable = true;
       }
     }
-  }
-
-  private initializeDatePickers(): void {
-    // ng-bootstrap date pickers are automatically initialized via template
-    // No additional initialization needed
   }
 
   private initializeForm(): void {

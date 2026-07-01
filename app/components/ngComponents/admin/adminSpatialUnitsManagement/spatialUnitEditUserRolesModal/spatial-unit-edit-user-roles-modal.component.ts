@@ -219,12 +219,6 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
       onGridReady: (params) => {
         this.onRoleManagementGridReady(params);
       },
-      onFirstDataRendered: (event) => {
-        this.onRoleManagementFirstDataRendered(event);
-      },
-      onColumnResized: (event) => {
-        this.onRoleManagementColumnResized(event);
-      },
     };
   }
 
@@ -236,14 +230,6 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
     this.roleManagementGridApi = params.api;
     // Ensure helper service has the grid API to collect selected role IDs
     this.roleManagementHelper.setGridApi(params.api);
-  }
-
-  onRoleManagementFirstDataRendered(_event: any): void {
-    // Handle first data rendered event
-  }
-
-  onRoleManagementColumnResized(_event: any): void {
-    // Handle column resized event
   }
 
   onActiveRolesOnlyChange(): void {

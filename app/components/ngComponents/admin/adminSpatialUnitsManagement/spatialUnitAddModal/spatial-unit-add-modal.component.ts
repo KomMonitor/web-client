@@ -767,9 +767,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
       this.loadingData = false;
       return;
     } else {
-      // TODO verify input
-      // TODO Create and perform POST Request with loading screen
-
       let newSpatialUnitResponse_dryRun: any = undefined;
       try {
         newSpatialUnitResponse_dryRun =
@@ -881,8 +878,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
       return;
     }
 
-    // For now, allow navigation to any step for testing
-    // TODO: Add validation back once basic navigation works
     this.currentStep = step;
   }
 
