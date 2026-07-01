@@ -1,7 +1,6 @@
 import {
   Component,
   OnInit,
-  OnDestroy,
   ViewChild,
   ElementRef,
   inject,
@@ -10,9 +9,7 @@ import {
 } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
-import { Subscription } from 'rxjs';
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { FormsModule } from '@angular/forms';
 import { IndicatorRefreshRequest } from '../indicator-refresh.model';
 
@@ -35,11 +32,10 @@ declare const colorbrewer: any;
   imports: [FormsModule, FilterPipe],
   standalone: true,
 })
-export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
+export class IndicatorEditMetadataModalComponent implements OnInit {
   protected activeModal = inject(NgbActiveModal);
   private http = inject(HttpClient);
   private kommonitorDataGridHelperService = inject(KommonitorIndicatorDataGridHelperService);
-  private broadcastService = inject(BroadcastService);
   private topicHierarchyService = inject(TopicHierarchyService);
   protected envConfigService = inject(EnvConfigService);
   private indicatorValueService = inject(IndicatorValueService);
@@ -51,8 +47,6 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   @ViewChild('modal') modal!: ElementRef;
 
   @Output() refreshRequested = new EventEmitter<IndicatorRefreshRequest>();
-
-  private subscriptions: Subscription[] = [];
 
   // Current indicator dataset
   currentIndicatorDataset: any = null;
@@ -201,25 +195,10 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   indicatorMetadataStructure_pretty = '';
 
   ngOnInit(): void {
-    this.setupEventListeners();
     this.instantiateColorBrewerPalettes();
     this.indicatorMetadataStructure_pretty = this.indicatorValueService.syntaxHighlightJSON(
       this.indicatorMetadataStructure
     );
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.forEach((sub) => sub.unsubscribe());
-  }
-
-  private setupEventListeners(): void {
-    const sub = this.broadcastService.currentBroadcastMsg.subscribe((data) => {
-      if (data.msg === 'onEditIndicatorMetadata') {
-        this.currentIndicatorDataset = data.values;
-        this.resetIndicatorEditMetadataForm();
-      }
-    });
-    this.subscriptions.push(sub);
   }
 
   closeModal(): void {

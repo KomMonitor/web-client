@@ -123,9 +123,9 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   private setupEventListeners(): void {
     // Bus listener kept for cross-area indicator triggers.
     this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
-      if (data.msg === 'onEditIndicatorFeatures') {
-        this.openModal(data.values);
-      } else if (data.msg === 'timeseriesMappingChanged') {
+      // NOTE: timeseriesMappingChanged has no sender yet (the timeseries-mapping
+      // modal is not built); the branch is a deliberate WIP hook.
+      if (data.msg === 'timeseriesMappingChanged') {
         this.timeseriesMappingReference = data.mapping;
       } else if (data.msg === BroadcastMessage.RefreshIndicatorOverviewTableCompleted) {
         if (this.currentIndicatorDataset) {
