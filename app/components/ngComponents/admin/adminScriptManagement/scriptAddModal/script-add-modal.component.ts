@@ -47,7 +47,6 @@ export class ScriptAddModalComponent {
     description: '',
     associatedIndicatorId: '',
   };
-  scriptStepValid: boolean = false;
 
   loadingData: boolean = false;
   // Alerts
@@ -55,9 +54,6 @@ export class ScriptAddModalComponent {
   showErrorAlert: boolean = false;
   errorMessagePart: string = '';
   successMessagePart: string = '';
-  errorMessagePart_indicatorMetadata: string = '';
-  showIndicatorMetadataEditSuccessAlert: boolean = false;
-  showIndicatorMetadataEditErrorAlert: boolean = false;
 
   resetForm(): void {
     this.currentStep = 1;
@@ -70,9 +66,6 @@ export class ScriptAddModalComponent {
     this.showErrorAlert = false;
     this.errorMessagePart = '';
     this.successMessagePart = '';
-    this.errorMessagePart_indicatorMetadata = '';
-    this.showIndicatorMetadataEditSuccessAlert = false;
-    this.showIndicatorMetadataEditErrorAlert = false;
     this.scriptHelperService.reset();
     this.scriptStepContent?.reset();
   }
@@ -109,21 +102,6 @@ export class ScriptAddModalComponent {
     try {
       await this.scriptHelperService.postNewScript(name, description, associatedIndicatorId);
 
-      // Attempt to update the target indicator's processDescription if formula HTML is set
-      if (this.scriptHelperService.scriptFormulaHTML_overwriteTargetIndicatorMethod) {
-        try {
-          await this.scriptHelperService.replaceMethodMetadataForTargetIndicator(
-            associatedIndicatorId
-          );
-          this.showIndicatorMetadataEditSuccessAlert = true;
-        } catch (error: any) {
-          this.errorMessagePart_indicatorMetadata = error?.data
-            ? JSON.stringify(error.data)
-            : JSON.stringify(error);
-          this.showIndicatorMetadataEditErrorAlert = true;
-        }
-      }
-
       this.broadcastService.broadcast(BroadcastMessage.RefreshScriptOverviewTable, {
         crudType: 'add',
       });
@@ -147,17 +125,10 @@ export class ScriptAddModalComponent {
   }
 
   isFormValid(): boolean {
-    return !!(
-      (
-        this.scriptMetadata.name.trim() !== '' &&
-        this.scriptMetadata.description.trim() !== '' &&
-        this.scriptMetadata.associatedIndicatorId.trim() !== ''
-      )
-      // this.scriptStepValid
+    return (
+      this.scriptMetadata.name.trim() !== '' &&
+      this.scriptMetadata.description.trim() !== '' &&
+      this.scriptMetadata.associatedIndicatorId.trim() !== ''
     );
-  }
-
-  scriptStepValidChanged(valid: boolean) {
-    this.scriptStepValid = valid;
   }
 }

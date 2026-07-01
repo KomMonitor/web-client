@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import {
@@ -23,8 +23,6 @@ import { ScriptGenericComponent } from './script-types/script-generic/script-gen
 })
 export class ScriptStepContentComponent {
   protected scriptHelperService = inject(ScriptHelperService);
-
-  @Output() allValid: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   protected selectedScriptType: ScriptSelectItem | undefined = undefined;
 

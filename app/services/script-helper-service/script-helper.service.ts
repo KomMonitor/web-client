@@ -1,11 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
-
-declare const MathJax: any;
 
 export interface ScriptSelectItem {
   displayName: string;
@@ -16,7 +12,6 @@ export interface ScriptSelectItem {
 })
 export class ScriptHelperService {
   private httpClient = inject(HttpClient);
-  private broadcastService = inject(BroadcastService);
   private envConfigService = inject(EnvConfigService);
 
   private targetUrlToManagementService =
@@ -145,24 +140,12 @@ export class ScriptHelperService {
   scriptCode_base64String = undefined;
   scriptCode_readableString = undefined;
 
-  scriptFormulaHTML = undefined;
-  scriptFormulaHTML_successToastDisplay = this.scriptFormulaHTML;
-  scriptFormulaHTML_overwriteTargetIndicatorMethod = false;
-
-  scriptFormulaExplanation = '';
-
-  targetIndicatorOldProcessDescription = undefined;
-
   reset() {
     this.requiredIndicators_tmp = [];
     this.requiredGeoresources_tmp = [];
     this.requiredScriptParameters_tmp = [];
     this.scriptCode_base64String = undefined;
     this.scriptCode_readableString = undefined;
-    this.scriptFormulaHTML = undefined;
-    this.scriptFormulaHTML_overwriteTargetIndicatorMethod = false;
-    this.scriptFormulaExplanation = '';
-    this.targetIndicatorOldProcessDescription = undefined;
   }
 
   addBaseIndicator(indicatorMetadata) {
@@ -265,95 +248,7 @@ export class ScriptHelperService {
     }, 250);
   }
 
-  buildPatchBody_indicators(targetIndicatorMetadata) {
-    const patchBody: any = {
-      metadata: {
-        note: targetIndicatorMetadata.metadata.note || null,
-        literature: targetIndicatorMetadata.metadata.literature || null,
-        updateInterval: targetIndicatorMetadata.metadata.updateInterval,
-        sridEPSG: targetIndicatorMetadata.metadata.sridEPSG || 4326,
-        datasource: targetIndicatorMetadata.metadata.datasource,
-        contact: targetIndicatorMetadata.metadata.contact,
-        lastUpdate: targetIndicatorMetadata.metadata.lastUpdate,
-        description: targetIndicatorMetadata.metadata.description || null,
-        databasis: targetIndicatorMetadata.metadata.databasis || null,
-      },
-      refrencesToOtherIndicators: [], // filled directly after
-      permissions: targetIndicatorMetadata.permissions,
-      datasetName: targetIndicatorMetadata.indicatorName,
-      abbreviation: targetIndicatorMetadata.abbreviation || null,
-      characteristicValue: targetIndicatorMetadata.characteristicValue || null,
-      tags: targetIndicatorMetadata.tags,
-      creationType: targetIndicatorMetadata.creationType,
-      unit: targetIndicatorMetadata.unit,
-      topicReference: targetIndicatorMetadata.topicReference,
-      refrencesToGeoresources: [], // filled directly after
-      indicatorType: targetIndicatorMetadata.indicatorType,
-      interpretation: targetIndicatorMetadata.interpretation || '',
-      isHeadlineIndicator: targetIndicatorMetadata.isHeadlineIndicator || false,
-      processDescription: this.scriptFormulaHTML || targetIndicatorMetadata.processDescription,
-      lowestSpatialUnitForComputation: targetIndicatorMetadata.lowestSpatialUnitForComputation,
-      defaultClassificationMapping: targetIndicatorMetadata.defaultClassificationMapping,
-    };
-
-    // REFERENCES
-
-    if (
-      targetIndicatorMetadata.referencedIndicators &&
-      targetIndicatorMetadata.referencedIndicators.length > 0
-    ) {
-      patchBody.refrencesToOtherIndicators = [];
-
-      for (const indicRef of targetIndicatorMetadata.referencedIndicators) {
-        patchBody.refrencesToOtherIndicators.push({
-          indicatorId: indicRef.referencedIndicatorId,
-          referenceDescription: indicRef.referencedIndicatorDescription,
-        });
-      }
-    }
-
-    if (
-      targetIndicatorMetadata.referencedGeoresources &&
-      targetIndicatorMetadata.referencedGeoresources.length > 0
-    ) {
-      patchBody.refrencesToGeoresources = [];
-
-      for (const geoRef of targetIndicatorMetadata.referencedGeoresources) {
-        patchBody.refrencesToGeoresources.push({
-          georesourceId: geoRef.referencedGeoresourceId,
-          referenceDescription: geoRef.referencedGeoresourceDescription,
-        });
-      }
-    }
-
-    return patchBody;
-  }
-
-  async replaceMethodMetadataForTargetIndicator(targetIndicatorMetadata) {
-    const patchBody = this.buildPatchBody_indicators(targetIndicatorMetadata);
-
-    this.targetIndicatorOldProcessDescription = targetIndicatorMetadata.processDescription;
-
-    this.httpClient
-      .patch(
-        this.envConfigService.baseUrlToKomMonitorDataAPI +
-          '/indicators/' +
-          targetIndicatorMetadata.indicatorId,
-        patchBody
-      )
-      .subscribe({
-        next: (_response) => {
-          this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, [
-            'edit',
-            targetIndicatorMetadata.indicatorId,
-          ]);
-        },
-      });
-  }
-
   async postNewScript(scriptName, description, associatedIndicatorId: string) {
-    console.log('Trying to POST to management service to register new script.');
-
     /*	POST BODY
     {
         "scriptCodeBase64": "scriptCodeBase64",
@@ -412,104 +307,5 @@ export class ScriptHelperService {
         headers: header,
       })
     );
-  }
-
-  async updateScript(scriptName, description, scriptId) {
-    console.log('Trying to POST to importer service to update spatial unit.');
-
-    const putBody = {
-      name: scriptName,
-      description: description,
-      requiredIndicatorIds: this.requiredIndicators_tmp,
-      requiredGeoresourceIds: this.requiredGeoresources_tmp,
-      variableProcessParameters: this.requiredScriptParameters_tmp,
-      scriptCodeBase64: window.btoa(this.scriptCode_readableString!),
-    };
-
-    const header = {
-      'Content-Type': 'application/json',
-    };
-
-    return await this.httpClient
-      .post(this.targetUrlToManagementService + 'process-scripts/' + scriptId, putBody, {
-        headers: header,
-      })
-      .subscribe({
-        next: (response) => {
-          return response;
-        },
-        error: (error) => {
-          console.error('Error while posting to importer service.');
-          throw error;
-        },
-      });
-  }
-
-  getAlphabetLetterFromNumber(number) {
-    return String.fromCharCode(Number(number) + 'A'.charCodeAt(0));
-  }
-
-  styleMathFormula(domOutputElementId) {
-    const output: any = document.getElementById(domOutputElementId);
-    output.innerHTML = this.scriptFormulaHTML;
-
-    // MathJax.texReset();
-    // MathJax.typesetClear();
-    MathJax.typesetPromise([output])
-      .then(function () {
-        /* intentionally empty */
-      })
-      .catch(function (err) {
-        output.innerHTML = '';
-        output.appendChild(document.createTextNode(err.message));
-        console.error(err);
-      })
-      .then(function () {
-        /* intentionally empty */
-      });
-  }
-
-  styleMathFormula_forExplanation(domOutputElementId) {
-    const output = document.getElementById(domOutputElementId);
-
-    // MathJax.texReset();
-    // MathJax.typesetClear();
-    MathJax.typesetPromise([output])
-      .then(() => {
-        setTimeout(() => {
-          this.scriptFormulaExplanation = '' + output!.innerHTML;
-        });
-      })
-      .catch((err) => {
-        output!.innerHTML = '';
-        output!.appendChild(document.createTextNode(err.message));
-        console.error(err);
-      })
-      .then(() => {
-        setTimeout(() => {
-          this.scriptFormulaExplanation = '' + output!.innerHTML;
-        });
-      });
-  }
-
-  typesetContainerByClass(className) {
-    const domElements: any = document.getElementsByClassName(className);
-
-    for (const domElement of domElements) {
-      MathJax.typesetPromise([domElement])
-        .then(function () {
-          setTimeout(() => {
-            /* intentionally empty */
-          });
-        })
-        .catch((err) => {
-          console.error(err);
-        })
-        .then(() => {
-          setTimeout(() => {
-            /* intentionally empty */
-          });
-        });
-    }
   }
 }

@@ -54,35 +54,11 @@
     <div>
       <div class="intro-heading">{{ stepperSteps[2].label }}</div>
       <div class="sub-heading">Angaben über den Skript-Code und notwendige Skript-Parameter</div>
-      <app-script-step-content
-        (allValid)="scriptStepValidChanged($event)"
-      ></app-script-step-content>
+      <app-script-step-content></app-script-step-content>
     </div>
   }
 
   <!-- ---- SUCCESS / ERROR ALERTS ---- -->
-  @if (showIndicatorMetadataEditSuccessAlert) {
-    <div class="alert alert-success mt-3">
-      <button
-        type="button"
-        class="btn-close"
-        (click)="showIndicatorMetadataEditSuccessAlert = false"
-      >
-        &times;
-      </button>
-      <i class="fas fa-check"></i> Indikator-Metadaten erfolgreich aktualisiert.
-    </div>
-  }
-  @if (showIndicatorMetadataEditErrorAlert) {
-    <div class="alert alert-danger mt-3">
-      <button type="button" class="btn-close" (click)="showIndicatorMetadataEditErrorAlert = false">
-        &times;
-      </button>
-      <i class="fas fa-ban"></i> Fehler beim Aktualisieren der Indikator-Metadaten.
-      <pre>{{ errorMessagePart_indicatorMetadata }}</pre>
-    </div>
-  }
-
   @if (showSuccessAlert) {
     <div class="alert alert-success mt-3">
       <button type="button" class="btn-close" (click)="hideSuccessAlert()">&times;</button>
