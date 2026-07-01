@@ -74,48 +74,36 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   WmsResourceType = WmsResourceType;
 
   ngOnInit(): void {
-    // Try to load data if not already available
-    this.ensureDataLoaded();
-
-    this.initializeOrRefreshOverviewTable();
     this.setupEventListeners();
 
-    // Add polling mechanism to check for data availability
-    this.startDataPolling();
-
-    // Add a fallback timeout to prevent infinite loading
-    setTimeout(() => {
-      if (this.loadingData) {
-        this.ensureDataLoaded();
-        this.initializeOrRefreshOverviewTable();
-
-        // If still no data after fallback, stop loading anyway
-        const filteredIndicators = this.getFilteredIndicators();
-        if (!filteredIndicators || filteredIndicators.length === 0) {
-          this.loadingData = false;
-          this.initializationCompleted = true;
-        }
-      }
-    }, 3000); // 3 second timeout
+    // Render immediately when metadata is already cached; otherwise trigger a
+    // fetch. The metadataLoading$ subscription additionally covers the case
+    // where the initial app-wide metadata load completes while this view is
+    // already open.
+    if (this.indicatorStore.availableIndicators?.length) {
+      this.initializeOrRefreshOverviewTable();
+    } else {
+      this.ensureDataLoaded();
+    }
   }
 
   private async ensureDataLoaded(): Promise<void> {
-    // If no indicators are available, try to fetch them
-    if (
-      !this.indicatorStore.availableIndicators ||
-      this.indicatorStore.availableIndicators.length === 0
-    ) {
-      try {
-        await this.metadataBootstrap.fetchIndicatorsMetadata(
-          this.accessControlService.currentKeycloakLoginRoles
-        );
-        // Force refresh the table after data is loaded
-        setTimeout(() => {
-          this.forceRefreshGrid();
-        }, 100);
-      } catch (error) {
-        console.error('Error fetching indicators:', error);
-      }
+    if (this.indicatorStore.availableIndicators?.length) {
+      return;
+    }
+    try {
+      await this.metadataBootstrap.fetchIndicatorsMetadata(
+        this.accessControlService.currentKeycloakLoginRoles
+      );
+      this.initializeOrRefreshOverviewTable();
+    } catch (error) {
+      console.error('Error fetching indicators:', error);
+    } finally {
+      // A component-triggered fetch does not drive metadataLoading$, so the
+      // loading state is cleared here regardless of the result — including the
+      // empty case, which would otherwise leave the spinner running.
+      this.loadingData = false;
+      this.initializationCompleted = true;
     }
   }
 
@@ -150,9 +138,9 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     const loadingSub = this.metadataBootstrap.metadataLoading$.pipe(skip(1)).subscribe((state) => {
       if (state === MetadataLoadingState.COMPLETE) {
         this.zone.run(() => {
-          setTimeout(() => {
-            this.initializeOrRefreshOverviewTable();
-          }, 250);
+          this.initializeOrRefreshOverviewTable();
+          this.loadingData = false;
+          this.initializationCompleted = true;
         });
       } else if (state === MetadataLoadingState.ERROR) {
         this.zone.run(() => {
@@ -640,28 +628,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   checkDeletePermission(): boolean {
     return this.accessControlService.checkDeletePermission();
-  }
-
-  private startDataPolling(): void {
-    // Poll every 500ms for data availability
-    const pollInterval = setInterval(() => {
-      if (this.loadingData) {
-        this.initializeOrRefreshOverviewTable();
-
-        // If data is found, stop polling
-        if (!this.loadingData) {
-          clearInterval(pollInterval);
-        }
-      } else {
-        // Data loaded, stop polling
-        clearInterval(pollInterval);
-      }
-    }, 500);
-
-    // Stop polling after 10 seconds regardless
-    setTimeout(() => {
-      clearInterval(pollInterval);
-    }, 10000);
   }
 
   getSelectedIndicatorsMetadata(): any[] {
