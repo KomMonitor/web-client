@@ -11,10 +11,10 @@ import {
   MetadataLoadingState,
 } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { ProcessScriptMetadataStoreService } from 'services/process-script-metadata-store-service/process-script-metadata-store.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { KommonitorDataGridHelperService } from '../../../../services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
-import { ScriptGeoresourcesCellRendererComponent } from './script-georesources-cell-renderer.component';
-import { ScriptIndicatorsCellRendererComponent } from './script-indicators-cell-renderer.component';
+import { ScriptIdNameTableCellRendererComponent } from './script-id-name-table-cell-renderer.component';
 import { ScriptProcessParametersCellRendererComponent } from './script-process-parameters-cell-renderer.component';
 import { ScriptRefreshRequest } from './script-refresh.model';
 import { ScriptAddModalComponent } from './scriptAddModal/script-add-modal.component';
@@ -33,6 +33,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   metadataBootstrap = inject(MetadataBootstrapService);
   private processScriptStore = inject(ProcessScriptMetadataStoreService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
+  private georesourceStore = inject(GeoresourceMetadataStoreService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
 
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
@@ -114,7 +115,12 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
       {
         headerName: 'notwendige Basis-Indikatoren',
         minWidth: 300,
-        cellRenderer: ScriptIndicatorsCellRendererComponent,
+        cellRenderer: ScriptIdNameTableCellRendererComponent,
+        cellRendererParams: {
+          idsField: 'requiredIndicatorIds',
+          resolveName: (id: string) =>
+            (this.indicatorStore.getIndicatorMetadataById(id) as any)?.indicatorName ?? '',
+        },
         filter: 'agTextColumnFilter',
         filterValueGetter: (params: any) =>
           params.data?.requiredIndicatorIds?.join(', ') ?? 'keine',
@@ -122,7 +128,12 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
       {
         headerName: 'notwendige Basis-Georessourcen',
         minWidth: 300,
-        cellRenderer: ScriptGeoresourcesCellRendererComponent,
+        cellRenderer: ScriptIdNameTableCellRendererComponent,
+        cellRendererParams: {
+          idsField: 'requiredGeoresourceIds',
+          resolveName: (id: string) =>
+            (this.georesourceStore.getGeoresourceMetadataById(id) as any)?.datasetName ?? '',
+        },
         filter: 'agTextColumnFilter',
         filterValueGetter: (params: any) =>
           params.data?.requiredGeoresourceIds?.join(', ') ?? 'keine',
@@ -166,47 +177,35 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   }
 
   public initializeOrRefreshOverviewTable(): void {
-    const scripts = this.processScriptStore.availableProcessScripts;
-    if (scripts && scripts.length >= 0) {
-      this.loadingData = false;
-      this.initializationCompleted = true;
-      this.rowData = scripts;
-    } else {
-      this.loadingData = true;
-      this.initializationCompleted = false;
-    }
+    // The store always exposes a (possibly empty) array, so the table can render
+    // immediately; there is no "not ready" state to guard against here.
+    this.rowData = this.processScriptStore.availableProcessScripts;
+    this.loadingData = false;
+    this.initializationCompleted = true;
   }
 
   public refreshScriptOverviewTable(crudType?: string, scriptId?: string | string[]): void {
-    if (!crudType || !scriptId) {
-      this.metadataBootstrap
-        .fetchIndicatorScriptsMetadata()
-        .then(() => {
-          this.initializeOrRefreshOverviewTable();
-          this.loadingData = false;
-        })
-        .catch(() => {
-          this.loadingData = false;
-        });
-    } else if (crudType === 'delete') {
+    // Delete can be applied to the store locally without a round-trip.
+    if (crudType === 'delete' && scriptId) {
       const idsToDelete = Array.isArray(scriptId) ? scriptId : [scriptId];
       for (const id of idsToDelete) {
         this.processScriptStore.deleteSingleProcessScriptMetadata(id);
       }
       this.initializeOrRefreshOverviewTable();
       this.loadingData = false;
-    } else {
-      // For add/edit: re-fetch all scripts
-      this.metadataBootstrap
-        .fetchIndicatorScriptsMetadata()
-        .then(() => {
-          this.initializeOrRefreshOverviewTable();
-          this.loadingData = false;
-        })
-        .catch(() => {
-          this.loadingData = false;
-        });
+      return;
     }
+
+    // Add and full refreshes re-fetch all scripts.
+    this.metadataBootstrap
+      .fetchIndicatorScriptsMetadata()
+      .then(() => {
+        this.initializeOrRefreshOverviewTable();
+        this.loadingData = false;
+      })
+      .catch(() => {
+        this.loadingData = false;
+      });
   }
 
   public onSelectionChanged(): void {
@@ -236,7 +235,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
       backdrop: 'static',
     });
     const modalComponent = modalRef.componentInstance as ScriptDeleteModalComponent;
-    modalComponent.datasetsToDelete = JSON.parse(JSON.stringify(selectedScripts));
+    modalComponent.datasetsToDelete = structuredClone(selectedScripts);
     modalComponent.refreshRequested.subscribe((request: ScriptRefreshRequest) =>
       this.handleRefreshRequest(request)
     );
