@@ -1,9 +1,11 @@
 import { inject, Injectable } from '@angular/core';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import type {
+  AttributeMappingRow,
   DatasourceTypeDefinition,
   ImporterDefinitions,
   ImporterObjectsConfig,
+  MappingConfigImport,
 } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.model';
 
 /**
@@ -75,5 +77,118 @@ export class SpatialUnitImportService {
       config.datasourceFileInputId,
       Object.keys(formValues).length ? formValues : undefined
     );
+  }
+
+  /** Reads a File as text and parses it as JSON. Rejects on read/parse errors. */
+  readJsonFile(file: File): Promise<unknown> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          resolve(JSON.parse(String(event.target?.result ?? '')));
+        } catch {
+          reject(new Error('Uploaded MappingConfig File cannot be parsed correctly'));
+        }
+      };
+      reader.onerror = () =>
+        reject(new Error('Uploaded MappingConfig File cannot be parsed correctly'));
+      reader.readAsText(file);
+    });
+  }
+
+  /**
+   * Resolves a parsed import mapping-config JSON against the importer's available
+   * converters / data-source types / attribute-mapping types into a
+   * `MappingConfigImport`. Throws when the top-level structure is missing.
+   */
+  parseMappingConfig(json: any): MappingConfigImport {
+    if (!json?.converter || !json?.dataSource || !json?.propertyMapping) {
+      throw new Error('Struktur der Datei stimmt nicht mit erwartetem Muster überein.');
+    }
+
+    const converter =
+      this.importerHelper.getAvailableConverters().find((c) => c.name === json.converter.name) ??
+      null;
+
+    let schema = '';
+    if (converter?.schemas && json.converter.schema) {
+      schema = converter.schemas.find((s) => s === json.converter.schema) ?? '';
+    }
+
+    let mimeType = '';
+    if (converter?.mimeTypes && json.converter.mimeType) {
+      mimeType = converter.mimeTypes.find((m) => m === json.converter.mimeType) ?? '';
+    }
+
+    const converterParameters: { [key: string]: string } = {};
+    for (const param of json.converter.parameters ?? []) {
+      if (param?.name) {
+        converterParameters[param.name] = param.value ?? '';
+      }
+    }
+
+    const datasourceType =
+      this.importerHelper
+        .getAvailableDatasourceTypes()
+        .find((d) => d.type === json.dataSource.type) ?? null;
+
+    const dataSourceParameters: { name: string; value: string }[] = Array.isArray(
+      json.dataSource.parameters
+    )
+      ? json.dataSource.parameters
+      : [];
+
+    const datasourceTypeParameters: { [key: string]: string } = {};
+    for (const p of dataSourceParameters) {
+      if (p?.name && p.name !== 'bbox' && p.name !== 'bboxType') {
+        datasourceTypeParameters[p.name] = p.value ?? '';
+      }
+    }
+
+    const attributeMappingTypes = this.importerHelper.getAttributeMappingTypes();
+    const attributeMappings: AttributeMappingRow[] = (json.propertyMapping.attributes ?? []).map(
+      (attr: any) => ({
+        sourceName: attr.name,
+        destinationName: attr.mappingName,
+        dataType: attributeMappingTypes.find((t) => t.apiName === attr.type)!,
+      })
+    );
+
+    const periodOfValidity = json.periodOfValidity
+      ? {
+          startDate: json.periodOfValidity.startDate ?? '',
+          endDate: json.periodOfValidity.endDate ?? '',
+        }
+      : null;
+
+    return {
+      converter,
+      schema,
+      mimeType,
+      converterParameters,
+      datasourceType,
+      datasourceTypeParameters,
+      dataSourceParameters,
+      nameProperty: json.propertyMapping.nameProperty,
+      idProperty: json.propertyMapping.identifierProperty,
+      validStartDate: json.propertyMapping.validStartDateProperty,
+      validEndDate: json.propertyMapping.validEndDateProperty,
+      keepAttributes: json.propertyMapping.keepAttributes,
+      keepMissingValues: json.propertyMapping.keepMissingOrNullValueAttributes,
+      attributeMappings,
+      periodOfValidity,
+    };
+  }
+
+  /** Serialises `data` to JSON and triggers a browser download. */
+  downloadJson(fileName: string, data: unknown): void {
+    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.download = fileName;
+    anchor.href = url;
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
   }
 }

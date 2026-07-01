@@ -64,3 +64,27 @@ export interface ImporterDefinitions {
   datasourceTypeDefinition: DatasourceTypeDefinition | null;
   propertyMappingDefinition: PropertyMappingDefinition | null;
 }
+
+/**
+ * A parsed import mapping-config file, resolved against the importer's available
+ * converters / data-source types / attribute-mapping types. The modal applies
+ * this onto its form fields; the raw `dataSourceParameters` are exposed so each
+ * modal can keep its own bbox interpretation.
+ */
+export interface MappingConfigImport {
+  converter: Converter | null;
+  schema: string;
+  mimeType: string;
+  converterParameters: { [key: string]: string };
+  datasourceType: DatasourceType | null;
+  datasourceTypeParameters: { [key: string]: string };
+  dataSourceParameters: { name: string; value: string }[];
+  nameProperty: string;
+  idProperty: string;
+  validStartDate: string;
+  validEndDate: string;
+  keepAttributes: boolean;
+  keepMissingValues: boolean;
+  attributeMappings: AttributeMappingRow[];
+  periodOfValidity: { startDate: string; endDate: string } | null;
+}

@@ -36,6 +36,7 @@ import type {
   Converter,
   DatasourceType,
   ImporterObjectsConfig,
+  MappingConfigImport,
 } from '../spatial-unit-import.model';
 import { SpatialUnitImportService } from 'services/spatial-unit-import-service/spatial-unit-import.service';
 
@@ -147,9 +148,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
 
   // Feature table settings
   enableDeleteFeatures = false;
-
-  // Import/Export functionality
-  mappingConfigImportSettings: any = null;
 
   // Grid options for feature table
   featureTableGridOptions: GridOptions = {};
@@ -886,143 +884,63 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     }
   }
 
-  onMappingConfigFileSelected(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      this.parseMappingConfigFromFile(file);
-    }
-  }
-
-  parseMappingConfigFromFile(file: File): void {
-    const fileReader = new FileReader();
-    fileReader.onload = (event: any) => {
-      try {
-        this.parseFromMappingConfigFile(event);
-      } catch {
-        this.spatialUnitMappingConfigImportError =
-          'Uploaded MappingConfig File cannot be parsed correctly';
-        this.showMappingConfigErrorAlert();
-      }
-    };
-    fileReader.readAsText(file);
-  }
-
-  parseFromMappingConfigFile(event: any): void {
-    this.mappingConfigImportSettings = JSON.parse(event.target.result);
-
-    // Use service method to validate import structure
-    const validation = this.kommonitorDataExchangeService.validateMappingConfigImport(
-      this.mappingConfigImportSettings
-    );
-    if (!validation.isValid) {
-      this.spatialUnitMappingConfigImportError =
-        validation.error || 'Struktur der Datei stimmt nicht mit erwartetem Muster überein.';
-      this.showMappingConfigErrorAlert();
+  async onMappingConfigFileSelected(event: any): Promise<void> {
+    const file = event?.target?.files?.[0];
+    if (!file) {
       return;
     }
-
-    // Set converter (use cached list to keep object identity stable)
-    const converters = this.availableConverters;
-    this.converter = converters?.find(
-      (converter: any) => converter.name === this.mappingConfigImportSettings.converter.name
-    );
-
-    // Set schema and mimeType
-    if (this.converter?.schemas && this.mappingConfigImportSettings.converter.schema) {
-      this.schema =
-        this.converter.schemas.find(
-          (schema: string) => schema === this.mappingConfigImportSettings.converter.schema
-        ) || '';
+    this.spatialUnitMappingConfigImportError = '';
+    try {
+      const json = await this.spatialUnitImportService.readJsonFile(file);
+      this.applyMappingConfig(this.spatialUnitImportService.parseMappingConfig(json));
+    } catch (error) {
+      this.spatialUnitMappingConfigImportError = getErrorMessage(error);
+      this.showMappingConfigErrorAlert();
     }
+  }
 
-    if (this.converter?.mimeTypes && this.mappingConfigImportSettings.converter.mimeType) {
-      this.mimeType =
-        this.converter.mimeTypes.find(
-          (mimeType: string) => mimeType === this.mappingConfigImportSettings.converter.mimeType
-        ) || '';
-    }
+  /** Applies a parsed mapping-config onto this modal's form fields. */
+  private applyMappingConfig(parsed: MappingConfigImport): void {
+    this.converter = parsed.converter;
+    this.schema = parsed.schema;
+    this.mimeType = parsed.mimeType;
+    this.converterParameters = parsed.converterParameters;
+    this.datasourceType = parsed.datasourceType;
+    this.datasourceTypeParameters = parsed.datasourceTypeParameters;
 
-    // Set datasource type
-    const datasourceTypes = this.kommonitorImporterHelperService?.getAvailableDatasourceTypes();
-    this.datasourceType = datasourceTypes?.find(
-      (datasourceType: any) =>
-        datasourceType.type === this.mappingConfigImportSettings.dataSource.type
-    );
+    this.applyBbox(parsed.dataSourceParameters);
 
-    // Set property mapping
-    this.spatialUnitDataSourceNameProperty =
-      this.mappingConfigImportSettings.propertyMapping.nameProperty;
-    this.spatialUnitDataSourceIdProperty =
-      this.mappingConfigImportSettings.propertyMapping.identifierProperty;
-    this.validityStartDate_perFeature =
-      this.mappingConfigImportSettings.propertyMapping.validStartDateProperty;
-    this.validityEndDate_perFeature =
-      this.mappingConfigImportSettings.propertyMapping.validEndDateProperty;
-    this.keepAttributes = this.mappingConfigImportSettings.propertyMapping.keepAttributes;
-    this.keepMissingValues =
-      this.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueAttributes;
+    this.spatialUnitDataSourceNameProperty = parsed.nameProperty;
+    this.spatialUnitDataSourceIdProperty = parsed.idProperty;
+    this.validityStartDate_perFeature = parsed.validStartDate;
+    this.validityEndDate_perFeature = parsed.validEndDate;
+    this.keepAttributes = parsed.keepAttributes;
+    this.keepMissingValues = parsed.keepMissingValues;
+    this.attributeMappings_adminView = parsed.attributeMappings;
 
-    // Set attribute mappings
-    this.attributeMappings_adminView =
-      this.mappingConfigImportSettings.propertyMapping.attributes?.map((attr: any) => ({
-        sourceName: attr.name,
-        destinationName: attr.mappingName,
-        dataType: this.kommonitorImporterHelperService?.attributeMapping_attributeTypes?.find(
-          (dataType: any) => dataType.apiName === attr.type
-        ),
-      })) || [];
-
-    // Set period of validity
-    if (this.mappingConfigImportSettings.periodOfValidity) {
-      this.periodOfValidity = {
-        startDate: this.mappingConfigImportSettings.periodOfValidity.startDate,
-        endDate: this.mappingConfigImportSettings.periodOfValidity.endDate,
-      };
+    if (parsed.periodOfValidity) {
+      this.periodOfValidity = parsed.periodOfValidity;
       this.checkPeriodOfValidity();
     }
+  }
 
-    // Set converter parameters (e.g., CRS)
-    this.converterParameters = {};
-    if (this.mappingConfigImportSettings.converter?.parameters?.length) {
-      for (const param of this.mappingConfigImportSettings.converter.parameters) {
-        if (param?.name) {
-          this.converterParameters[param.name] = param.value;
-        }
-      }
+  /** Edit-features bbox interpretation: infer type from the bbox value (OGCAPI only). */
+  private applyBbox(dsParams: { name: string; value: string }[]): void {
+    if (this.datasourceType?.type !== 'OGCAPI_FEATURES') {
+      return;
     }
-
-    // Set datasource parameters for OGC API Features (bbox)
-    if (
-      this.datasourceType?.type === 'OGCAPI_FEATURES' &&
-      Array.isArray(this.mappingConfigImportSettings.dataSource?.parameters)
-    ) {
-      const bboxParam = this.mappingConfigImportSettings.dataSource.parameters.find(
-        (p: any) => p?.name === 'bbox'
-      );
-      if (bboxParam && typeof bboxParam.value === 'string') {
-        const value = bboxParam.value;
-        const parts = value.split(',').map((v: string) => v.trim());
-        if (parts.length === 4 && parts.every((p: string) => p !== '')) {
-          // literal bbox
-          this.bboxType = 'literal';
-          this.bbox_minx = parts[0];
-          this.bbox_miny = parts[1];
-          this.bbox_maxx = parts[2];
-          this.bbox_maxy = parts[3];
-        } else {
-          // ref bbox (value is spatial unit level)
-          this.bboxType = 'ref';
-          this.bboxRefSpatialUnitLevel = value;
-        }
-      }
-    }
-
-    // Populate datasource type generic parameters
-    this.datasourceTypeParameters = {};
-    const params = this.mappingConfigImportSettings?.dataSource?.parameters || [];
-    for (const p of params) {
-      if (p?.name && p.name !== 'bbox' && p.name !== 'bboxType') {
-        this.datasourceTypeParameters[p.name] = p.value;
+    const bboxParam = dsParams.find((p) => p.name === 'bbox');
+    if (bboxParam && typeof bboxParam.value === 'string') {
+      const parts = bboxParam.value.split(',').map((v) => v.trim());
+      if (parts.length === 4 && parts.every((p) => p !== '')) {
+        this.bboxType = 'literal';
+        this.bbox_minx = parts[0];
+        this.bbox_miny = parts[1];
+        this.bbox_maxx = parts[2];
+        this.bbox_maxy = parts[3];
+      } else {
+        this.bboxType = 'ref';
+        this.bboxRefSpatialUnitLevel = bboxParam.value;
       }
     }
   }
@@ -1041,16 +959,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     );
 
     const fileName = `KomMonitor-Import-Mapping-Konfiguration_Export-${this.currentSpatialUnitDataset?.spatialUnitLevel || 'SpatialUnit'}.json`;
-    const metadataJSON = JSON.stringify(mappingConfigExport);
-    const blob = new Blob([metadataJSON], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.download = fileName;
-    a.href = url;
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+    this.spatialUnitImportService.downloadJson(fileName, mappingConfigExport);
   }
 
   onChangeEnableDeleteFeatures(): void {

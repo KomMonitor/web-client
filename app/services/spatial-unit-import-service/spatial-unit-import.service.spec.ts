@@ -10,6 +10,9 @@ describe('SpatialUnitImportService', () => {
     buildDatasourceTypeDefinition: jest.Mock;
     buildPropertyMapping_spatialResource: jest.Mock;
     uploadNewFile: jest.Mock;
+    getAvailableConverters: jest.Mock;
+    getAvailableDatasourceTypes: jest.Mock;
+    getAttributeMappingTypes: jest.Mock;
   };
 
   const baseConfig = (overrides: Partial<ImporterObjectsConfig> = {}): ImporterObjectsConfig => ({
@@ -42,6 +45,17 @@ describe('SpatialUnitImportService', () => {
         .mockResolvedValue({ type: 'OGCAPI_FEATURES', parameters: [] }),
       buildPropertyMapping_spatialResource: jest.fn().mockReturnValue({ identifierProperty: 'ID' }),
       uploadNewFile: jest.fn().mockResolvedValue('server-file.json'),
+      getAvailableConverters: jest
+        .fn()
+        .mockReturnValue([
+          { name: 'GeoJSON', mimeTypes: ['application/json'], encodings: [], schemas: ['s1'] },
+        ]),
+      getAvailableDatasourceTypes: jest
+        .fn()
+        .mockReturnValue([{ type: 'OGCAPI_FEATURES', parameters: [] }]),
+      getAttributeMappingTypes: jest
+        .fn()
+        .mockReturnValue([{ displayName: 'Integer', apiName: 'integer' }]),
     };
     TestBed.configureTestingModule({
       providers: [
@@ -106,6 +120,57 @@ describe('SpatialUnitImportService', () => {
     expect(defs.datasourceTypeDefinition).toEqual({
       type: 'FILE',
       parameters: [{ name: 'NAME', value: 'server-file.json' }],
+    });
+  });
+
+  describe('parseMappingConfig', () => {
+    it('throws when the top-level structure is incomplete', () => {
+      expect(() => service.parseMappingConfig({ converter: {} })).toThrow();
+    });
+
+    it('resolves converter/data-source/property mapping and excludes bbox params', () => {
+      const parsed = service.parseMappingConfig({
+        converter: {
+          name: 'GeoJSON',
+          schema: 's1',
+          mimeType: 'application/json',
+          parameters: [{ name: 'crs', value: '4326' }],
+        },
+        dataSource: {
+          type: 'OGCAPI_FEATURES',
+          parameters: [
+            { name: 'url', value: 'http://x' },
+            { name: 'bbox', value: '1,2,3,4' },
+          ],
+        },
+        propertyMapping: {
+          nameProperty: 'NAME',
+          identifierProperty: 'ID',
+          validStartDateProperty: 'vs',
+          validEndDateProperty: 've',
+          keepAttributes: true,
+          keepMissingOrNullValueAttributes: false,
+          attributes: [{ name: 'a', mappingName: 'b', type: 'integer' }],
+        },
+        periodOfValidity: { startDate: '2026-01-01', endDate: '2026-12-31' },
+      });
+
+      expect(parsed.converter?.name).toBe('GeoJSON');
+      expect(parsed.schema).toBe('s1');
+      expect(parsed.mimeType).toBe('application/json');
+      expect(parsed.converterParameters).toEqual({ crs: '4326' });
+      expect(parsed.datasourceType?.type).toBe('OGCAPI_FEATURES');
+      expect(parsed.datasourceTypeParameters).toEqual({ url: 'http://x' });
+      expect(parsed.dataSourceParameters).toContainEqual({ name: 'bbox', value: '1,2,3,4' });
+      expect(parsed.idProperty).toBe('ID');
+      expect(parsed.attributeMappings).toEqual([
+        {
+          sourceName: 'a',
+          destinationName: 'b',
+          dataType: { displayName: 'Integer', apiName: 'integer' },
+        },
+      ]);
+      expect(parsed.periodOfValidity).toEqual({ startDate: '2026-01-01', endDate: '2026-12-31' });
     });
   });
 });
