@@ -681,6 +681,21 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     };
   }
 
+  /** True when a data-source file is selected (via ngModel flag or the DOM input). */
+  private hasSelectedDataSourceFile(): boolean {
+    if (this.fileSelected) {
+      return true;
+    }
+    const inputEl = this.spatialUnitDataSourceInput?.nativeElement as HTMLInputElement | undefined;
+    if (inputEl?.files?.length) {
+      return true;
+    }
+    const fallbackEl = document.getElementById(
+      'spatialUnitDataSourceInput_editFeatures'
+    ) as HTMLInputElement | null;
+    return !!fallbackEl?.files?.length;
+  }
+
   async editSpatialUnitFeatures(): Promise<void> {
     const dataset = this.currentSpatialUnitDataset;
     if (!dataset) return;
@@ -688,116 +703,27 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     this.loadingData = true;
     this.importerErrors = [];
 
-    // Pre-validate like legacy component (show precise issues)
-    const missing: string[] = [];
-    if (!this.converter) {
-      missing.push('Konverter');
-    } else {
-      if (
-        Array.isArray(this.converter.schemas) &&
-        this.converter.schemas.length > 0 &&
-        !this.schema
-      ) {
-        missing.push('Schema');
-      }
-      if (
-        Array.isArray(this.converter.mimeTypes) &&
-        this.converter.mimeTypes.length > 0 &&
-        !this.mimeType
-      ) {
-        missing.push('Quellformat');
-      }
-      if (Array.isArray(this.converter.parameters) && this.converter.parameters.length > 0) {
-        for (const p of this.converter.parameters) {
-          if (p.mandatory && (!this.converterParameters || !this.converterParameters[p.name])) {
-            missing.push(`Konverter-Parameter '${p.name}'`);
-          }
-        }
-      }
-    }
-
-    if (!this.datasourceType) {
-      missing.push('Datenquelltyp');
-    } else if (this.datasourceType.type === 'FILE') {
-      let hasFile = this.fileSelected;
-      const fileInputEl = this.spatialUnitDataSourceInput?.nativeElement as
-        | HTMLInputElement
-        | undefined;
-      if (!hasFile && fileInputEl && fileInputEl.files && fileInputEl.files.length > 0) {
-        hasFile = true;
-      }
-      if (!hasFile) {
-        const fallbackEl = document.getElementById(
-          'spatialUnitDataSourceInput_editFeatures'
-        ) as HTMLInputElement | null;
-        if (fallbackEl && fallbackEl.files && fallbackEl.files.length > 0) {
-          hasFile = true;
-        }
-      }
-      if (!hasFile) {
-        missing.push('Datei');
-      }
-    } else if (this.datasourceType.type === 'OGCAPI_FEATURES') {
-      if (!this.bboxType) {
-        missing.push('Räumlicher Filter');
-      } else if (this.bboxType === 'ref' && !this.bboxRefSpatialUnitLevel) {
-        missing.push('Referenzraumebene für Begrenzungsrahmen');
-      } else if (this.bboxType === 'literal') {
-        if (
-          this.bbox_minx === null ||
-          this.bbox_miny === null ||
-          this.bbox_maxx === null ||
-          this.bbox_maxy === null
-        ) {
-          missing.push('Begrenzungsrahmen (minx, miny, maxx, maxy)');
-        }
-      }
-      // Other datasourceType parameters
-      if (
-        Array.isArray(this.datasourceType.parameters) &&
-        this.datasourceType.parameters.length > 0
-      ) {
-        for (const p of this.datasourceType.parameters) {
-          if (p.name === 'bbox') {
-            continue;
-          }
-          const v = this.datasourceTypeParameters
-            ? this.datasourceTypeParameters[p.name]
-            : undefined;
-          if (p.mandatory && (v === undefined || v === null || v === '')) {
-            missing.push(`Datenquelle-Parameter '${p.name}'`);
-          }
-        }
-      }
-    } else {
-      // Generic datasourceType params
-      if (
-        Array.isArray(this.datasourceType.parameters) &&
-        this.datasourceType.parameters.length > 0
-      ) {
-        for (const p of this.datasourceType.parameters) {
-          const v = this.datasourceTypeParameters
-            ? this.datasourceTypeParameters[p.name]
-            : undefined;
-          if (p.mandatory && (v === undefined || v === null || v === '')) {
-            missing.push(`Datenquelle-Parameter '${p.name}'`);
-          }
-        }
-      }
-    }
-
-    if (!this.spatialUnitDataSourceIdProperty) {
-      missing.push('ID Attributname');
-    }
-    if (!this.spatialUnitDataSourceNameProperty) {
-      missing.push('NAME Attributname');
-    }
-    if (!this.periodOfValidity.startDate) {
-      missing.push('Gültig seit (Periodenbeginn)');
-    }
-    if (this.periodOfValidityInvalid) {
-      missing.push('Gültigkeitszeitraum ist ungültig');
-    }
+    const missing = this.spatialUnitImportService.collectMissingImporterFields({
+      converter: this.converter,
+      schema: this.schema,
+      mimeType: this.mimeType,
+      converterParameters: this.converterParameters,
+      datasourceType: this.datasourceType,
+      datasourceTypeParameters: this.datasourceTypeParameters,
+      hasFile: this.hasSelectedDataSourceFile(),
+      bboxType: this.bboxType,
+      bboxRefSpatialUnitLevel: this.bboxRefSpatialUnitLevel,
+      bboxLiteral: {
+        minx: this.bbox_minx,
+        miny: this.bbox_miny,
+        maxx: this.bbox_maxx,
+        maxy: this.bbox_maxy,
+      },
+      idProperty: this.spatialUnitDataSourceIdProperty,
+      nameProperty: this.spatialUnitDataSourceNameProperty,
+      startDate: this.periodOfValidity.startDate,
+      periodOfValidityInvalid: this.periodOfValidityInvalid,
+    });
 
     if (missing.length > 0) {
       this.loadingData = false;

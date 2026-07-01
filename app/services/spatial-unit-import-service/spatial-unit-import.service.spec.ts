@@ -173,4 +173,58 @@ describe('SpatialUnitImportService', () => {
       expect(parsed.periodOfValidity).toEqual({ startDate: '2026-01-01', endDate: '2026-12-31' });
     });
   });
+
+  describe('collectMissingImporterFields', () => {
+    const completeInput = () => ({
+      converter: {
+        name: 'GeoJSON',
+        mimeTypes: ['application/json'],
+        schemas: ['s1'],
+        parameters: [{ name: 'crs', mandatory: true }],
+      } as any,
+      schema: 's1',
+      mimeType: 'application/json',
+      converterParameters: { crs: '4326' },
+      datasourceType: { type: 'FILE', parameters: [] } as any,
+      datasourceTypeParameters: {},
+      hasFile: true,
+      bboxType: '',
+      bboxRefSpatialUnitLevel: '',
+      bboxLiteral: { minx: null, miny: null, maxx: null, maxy: null },
+      idProperty: 'ID',
+      nameProperty: 'NAME',
+      startDate: '2026-01-01',
+      periodOfValidityInvalid: false,
+    });
+
+    it('returns an empty array when everything required is present', () => {
+      expect(service.collectMissingImporterFields(completeInput())).toEqual([]);
+    });
+
+    it('flags a missing converter, mandatory converter param, file and id/name/start', () => {
+      const missing = service.collectMissingImporterFields({
+        ...completeInput(),
+        converter: null,
+        hasFile: false,
+        idProperty: '',
+        nameProperty: '',
+        startDate: '',
+      });
+      expect(missing).toContain('Konverter');
+      expect(missing).toContain('Datei');
+      expect(missing).toContain('ID Attributname');
+      expect(missing).toContain('NAME Attributname');
+      expect(missing).toContain('Gültig seit (Periodenbeginn)');
+    });
+
+    it('flags an incomplete literal bbox for an OGCAPI data source', () => {
+      const missing = service.collectMissingImporterFields({
+        ...completeInput(),
+        datasourceType: { type: 'OGCAPI_FEATURES', parameters: [] } as any,
+        bboxType: 'literal',
+        bboxLiteral: { minx: '1', miny: '2', maxx: '3', maxy: null },
+      });
+      expect(missing).toContain('Begrenzungsrahmen (minx, miny, maxx, maxy)');
+    });
+  });
 });

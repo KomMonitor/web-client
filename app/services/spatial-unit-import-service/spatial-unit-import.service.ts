@@ -6,6 +6,7 @@ import type {
   ImporterDefinitions,
   ImporterObjectsConfig,
   MappingConfigImport,
+  MissingImporterFieldsInput,
 } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.model';
 
 /**
@@ -178,6 +179,82 @@ export class SpatialUnitImportService {
       attributeMappings,
       periodOfValidity,
     };
+  }
+
+  /**
+   * Returns the labels of the required importer form fields that are missing or
+   * invalid, in display order. An empty array means the form is complete.
+   */
+  collectMissingImporterFields(input: MissingImporterFieldsInput): string[] {
+    const missing: string[] = [];
+
+    const converter = input.converter;
+    if (!converter) {
+      missing.push('Konverter');
+    } else {
+      if (converter.schemas?.length && !input.schema) {
+        missing.push('Schema');
+      }
+      if (converter.mimeTypes?.length && !input.mimeType) {
+        missing.push('Quellformat');
+      }
+      for (const param of converter.parameters ?? []) {
+        if (param.mandatory && !input.converterParameters?.[param.name]) {
+          missing.push(`Konverter-Parameter '${param.name}'`);
+        }
+      }
+    }
+
+    const datasourceType = input.datasourceType;
+    if (!datasourceType) {
+      missing.push('Datenquelltyp');
+    } else if (datasourceType.type === 'FILE') {
+      if (!input.hasFile) {
+        missing.push('Datei');
+      }
+    } else {
+      if (datasourceType.type === 'OGCAPI_FEATURES') {
+        if (!input.bboxType) {
+          missing.push('Räumlicher Filter');
+        } else if (input.bboxType === 'ref' && !input.bboxRefSpatialUnitLevel) {
+          missing.push('Referenzraumebene für Begrenzungsrahmen');
+        } else if (input.bboxType === 'literal') {
+          const bbox = input.bboxLiteral;
+          if (
+            bbox.minx === null ||
+            bbox.miny === null ||
+            bbox.maxx === null ||
+            bbox.maxy === null
+          ) {
+            missing.push('Begrenzungsrahmen (minx, miny, maxx, maxy)');
+          }
+        }
+      }
+      for (const param of datasourceType.parameters ?? []) {
+        if (param.name === 'bbox') {
+          continue;
+        }
+        const value = input.datasourceTypeParameters?.[param.name];
+        if (param.mandatory && (value === undefined || value === null || value === '')) {
+          missing.push(`Datenquelle-Parameter '${param.name}'`);
+        }
+      }
+    }
+
+    if (!input.idProperty) {
+      missing.push('ID Attributname');
+    }
+    if (!input.nameProperty) {
+      missing.push('NAME Attributname');
+    }
+    if (!input.startDate) {
+      missing.push('Gültig seit (Periodenbeginn)');
+    }
+    if (input.periodOfValidityInvalid) {
+      missing.push('Gültigkeitszeitraum ist ungültig');
+    }
+
+    return missing;
   }
 
   /** Serialises `data` to JSON and triggers a browser download. */

@@ -58,6 +58,28 @@ export interface ImporterObjectsConfig {
   attributeMappings: AttributeMappingRow[];
 }
 
+/**
+ * Snapshot of a modal's importer form state used to collect the labels of
+ * missing/invalid required fields. The file-presence and bbox-literal checks are
+ * pre-computed by the modal (which owns the DOM/raw values) and passed as flags.
+ */
+export interface MissingImporterFieldsInput {
+  converter: Converter | null;
+  schema: string;
+  mimeType: string;
+  converterParameters: { [key: string]: string };
+  datasourceType: DatasourceType | null;
+  datasourceTypeParameters: { [key: string]: string };
+  hasFile: boolean;
+  bboxType: string;
+  bboxRefSpatialUnitLevel: string;
+  bboxLiteral: { minx: unknown; miny: unknown; maxx: unknown; maxy: unknown };
+  idProperty: string;
+  nameProperty: string;
+  startDate: string;
+  periodOfValidityInvalid: boolean;
+}
+
 /** The three importer definitions produced from an `ImporterObjectsConfig`. */
 export interface ImporterDefinitions {
   converterDefinition: ConverterDefinition | null;
