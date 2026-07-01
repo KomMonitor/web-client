@@ -1,10 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Output, EventEmitter } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 
 import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from '../../../../../services/broadcast-service/broadcast-message';
 import { FormsModule } from '@angular/forms';
+import { IndicatorRefreshRequest } from '../indicator-refresh.model';
 
 interface IndicatorDeleteType {
   displayName: string;
@@ -50,6 +51,8 @@ export class IndicatorDeleteModalComponent implements OnInit {
   private http = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
   angularJsDataExchangeService = inject<any>('kommonitorDataExchangeService' as any);
+
+  @Output() refreshRequested = new EventEmitter<IndicatorRefreshRequest>();
 
   indicatorDeleteTypes: IndicatorDeleteType[] = [
     {
@@ -271,9 +274,9 @@ export class IndicatorDeleteModalComponent implements OnInit {
         this.successfullyDeletedDatasets.push(this.selectedIndicatorDataset);
 
         // Fetch indicator metadata again as an indicator was deleted
-        this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
-          action: 'delete',
-          indicatorId: this.currentIndicatorId,
+        this.refreshRequested.emit({
+          crudType: 'delete',
+          targetIndicatorId: this.currentIndicatorId,
         });
 
         setTimeout(() => {
@@ -328,9 +331,9 @@ export class IndicatorDeleteModalComponent implements OnInit {
       this.showSuccessAlert = true;
 
       // Refresh overview table
-      this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
-        action: 'edit',
-        indicatorId: this.currentIndicatorId,
+      this.refreshRequested.emit({
+        crudType: 'edit',
+        targetIndicatorId: this.currentIndicatorId,
       });
 
       // Refresh all admin dashboard diagrams due to modified metadata
@@ -365,9 +368,9 @@ export class IndicatorDeleteModalComponent implements OnInit {
       );
 
       // Refresh overview table
-      this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
-        action: 'edit',
-        indicatorId: this.currentIndicatorId,
+      this.refreshRequested.emit({
+        crudType: 'edit',
+        targetIndicatorId: this.currentIndicatorId,
       });
 
       // Refresh all admin dashboard diagrams due to modified metadata

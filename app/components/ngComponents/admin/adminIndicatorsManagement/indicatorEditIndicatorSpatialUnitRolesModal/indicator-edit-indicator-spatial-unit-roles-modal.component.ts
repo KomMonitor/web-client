@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Output, EventEmitter } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
@@ -15,6 +15,7 @@ import {
   StepperComponent,
   StepperStep,
 } from 'components/ngComponents/common/stepper/stepper.component';
+import { IndicatorRefreshRequest } from '../indicator-refresh.model';
 
 @Component({
   selector: 'app-indicator-edit-indicator-spatial-unit-roles-modal',
@@ -24,6 +25,8 @@ import {
   standalone: true,
 })
 export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnInit {
+  @Output() refreshRequested = new EventEmitter<IndicatorRefreshRequest>();
+
   // Form data
   currentIndicatorDataset: any;
   targetApplicableSpatialUnit: any;
@@ -323,7 +326,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       .subscribe({
         next: (_response: any) => {
           this.successMessagePart = this.currentIndicatorDataset.indicatorName;
-          this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
+          this.refreshRequested.emit({
             crudType: 'edit',
             targetIndicatorId: this.currentIndicatorDataset.indicatorId,
           });
@@ -365,7 +368,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       .subscribe({
         next: (_response: any) => {
           this.successMessagePart = this.currentIndicatorDataset.indicatorName;
-          this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
+          this.refreshRequested.emit({
             crudType: 'edit',
             targetIndicatorId: this.currentIndicatorDataset.indicatorId,
           });
@@ -414,7 +417,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
           .subscribe({
             next: (_response: any) => {
               this.successMessagePart = this.currentIndicatorDataset.indicatorName;
-              this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
+              this.refreshRequested.emit({
                 crudType: 'edit',
                 targetIndicatorId: this.currentIndicatorDataset.indicatorId,
               });
@@ -459,7 +462,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       )
       .subscribe({
         next: (_response: any) => {
-          this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
+          this.refreshRequested.emit({
             crudType: 'edit',
             targetIndicatorId: this.currentIndicatorDataset.indicatorId,
           });

@@ -1,11 +1,20 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+  inject,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { FormsModule } from '@angular/forms';
+import { IndicatorRefreshRequest } from '../indicator-refresh.model';
 
 import { FilterPipe } from '../../../../../pipes/filter.pipe';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
@@ -40,6 +49,8 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   protected indicatorStore = inject(IndicatorMetadataStoreService);
 
   @ViewChild('modal') modal!: ElementRef;
+
+  @Output() refreshRequested = new EventEmitter<IndicatorRefreshRequest>();
 
   private subscriptions: Subscription[] = [];
 
@@ -770,7 +781,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (_response: any) => {
           this.successMessagePart = this.datasetName;
-          this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
+          this.refreshRequested.emit({
             crudType: 'edit',
             targetIndicatorId: this.currentIndicatorDataset.indicatorId,
           });

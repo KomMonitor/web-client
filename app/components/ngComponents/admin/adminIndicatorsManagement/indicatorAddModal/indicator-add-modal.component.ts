@@ -1,4 +1,13 @@
-import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  inject,
+  Output,
+  EventEmitter,
+} from '@angular/core';
+import { IndicatorRefreshRequest } from '../indicator-refresh.model';
 import { NgbActiveModal, NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
@@ -49,6 +58,8 @@ export class IndicatorAddModalComponent implements OnInit {
   protected envConfigService = inject(EnvConfigService);
 
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
+
+  @Output() refreshRequested = new EventEmitter<IndicatorRefreshRequest>();
 
   // Multi-step form
   currentStep = 1;
@@ -587,10 +598,10 @@ export class IndicatorAddModalComponent implements OnInit {
         )
         .toPromise();
 
-      this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, [
-        'add',
-        (response as any).indicatorId,
-      ]);
+      this.refreshRequested.emit({
+        crudType: 'add',
+        targetIndicatorId: (response as any).indicatorId,
+      });
 
       // Refresh all admin dashboard diagrams due to modified metadata
       setTimeout(() => {

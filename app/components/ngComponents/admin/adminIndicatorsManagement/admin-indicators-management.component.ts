@@ -29,6 +29,7 @@ import { IndicatorDeleteModalComponent } from './indicatorDeleteModal/indicator-
 import { IndicatorEditFeaturesModalComponent } from './indicatorEditFeaturesModal/indicator-edit-features-modal.component';
 import { IndicatorEditIndicatorSpatialUnitRolesModalComponent } from './indicatorEditIndicatorSpatialUnitRolesModal/indicator-edit-indicator-spatial-unit-roles-modal.component';
 import { IndicatorEditMetadataModalComponent } from './indicatorEditMetadataModal/indicator-edit-metadata-modal.component';
+import { IndicatorRefreshRequest } from './indicator-refresh.model';
 
 declare const __env: any;
 
@@ -201,35 +202,19 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     });
     this.subscriptions.push(loadingSub);
 
-    // Listen for the global metadata loading completion event
-    const sub = this.broadcastService.currentBroadcastMsg.subscribe((data) => {
+    // Cross-area refresh: sibling admin areas (the script runner and the
+    // spatial-unit metadata editor) still request a full indicator overview
+    // refresh over the global bus. Modal-driven refreshes now come in through
+    // each modal's refreshRequested output instead (see handleRefreshRequest).
+    const refreshSub = this.broadcastService.currentBroadcastMsg.subscribe((data) => {
       if (data.msg === BroadcastMessage.RefreshIndicatorOverviewTable) {
         this.zone.run(() => {
           this.loadingData = true;
-          // Extract crudType and targetIndicatorId from the broadcast data
-          const crudType = (data as any).crudType;
-          const targetIndicatorId = (data as any).targetIndicatorId;
-          this.refreshIndicatorOverviewTable(crudType, targetIndicatorId);
-        });
-      }
-      // Handle grid button click events
-      else if (data.msg === 'onEditIndicatorMetadata') {
-        this.zone.run(() => {
-          this.onClickEditMetadata(data.values);
-        });
-      } else if (data.msg === 'onEditIndicatorFeatures') {
-        this.zone.run(() => {
-          this.onClickEditFeatures(data.values);
-        });
-      } else if (data.msg === 'onDeleteIndicators') {
-        this.zone.run(() => {
-          // Ensure data.values is an array for delete operation
-          const datasetsToDelete = Array.isArray(data.values) ? data.values : [data.values];
-          this.onClickDeleteIndicators(datasetsToDelete);
+          this.refreshIndicatorOverviewTable();
         });
       }
     });
-    this.subscriptions.push(sub);
+    this.subscriptions.push(refreshSub);
 
     // Listen for custom events from the data grid helper service
     const handleEditMetadata = (event: CustomEvent) => {
@@ -454,16 +439,14 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         windowClass: 'modal-large',
       });
 
-      modalRef.result
-        .then((result) => {
-          if (result) {
-            // Modal was closed successfully, refresh the table
-            this.initializeOrRefreshOverviewTable();
-          }
-        })
-        .catch((_error) => {
-          // Modal dismissed
-        });
+      const modalComponent = modalRef.componentInstance as IndicatorAddModalComponent;
+      modalComponent.refreshRequested.subscribe((request: IndicatorRefreshRequest) =>
+        this.handleRefreshRequest(request)
+      );
+
+      modalRef.result.catch(() => {
+        // Modal dismissed
+      });
     } catch (error) {
       console.error('Error opening modal:', error);
     }
@@ -483,17 +466,13 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       const modalComponent = modalRef.componentInstance as IndicatorEditMetadataModalComponent;
       modalComponent.currentIndicatorDataset = indicatorMetadata;
       modalComponent.resetIndicatorEditMetadataForm();
+      modalComponent.refreshRequested.subscribe((request: IndicatorRefreshRequest) =>
+        this.handleRefreshRequest(request)
+      );
 
-      modalRef.result
-        .then((result) => {
-          if (result) {
-            // Modal was closed successfully, refresh the table
-            this.initializeOrRefreshOverviewTable();
-          }
-        })
-        .catch((_error) => {
-          // Modal dismissed
-        });
+      modalRef.result.catch(() => {
+        // Modal dismissed
+      });
     } catch (error) {
       console.error('Error opening edit metadata modal:', error);
     }
@@ -511,17 +490,13 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
       const modalComponent = modalRef.componentInstance as IndicatorEditFeaturesModalComponent;
       modalComponent.openModal(indicatorMetadata);
+      modalComponent.refreshRequested.subscribe((request: IndicatorRefreshRequest) =>
+        this.handleRefreshRequest(request)
+      );
 
-      modalRef.result
-        .then((result) => {
-          if (result) {
-            // Modal was closed successfully, refresh the table
-            this.initializeOrRefreshOverviewTable();
-          }
-        })
-        .catch((_error) => {
-          // Modal dismissed
-        });
+      modalRef.result.catch(() => {
+        // Modal dismissed
+      });
     } catch (error) {
       console.error('Error opening edit features modal:', error);
     }
@@ -543,16 +518,13 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       const modalComponent =
         modalRef.componentInstance as IndicatorEditIndicatorSpatialUnitRolesModalComponent;
       modalComponent.openModal(indicatorMetadata);
+      modalComponent.refreshRequested.subscribe((request: IndicatorRefreshRequest) =>
+        this.handleRefreshRequest(request)
+      );
 
-      modalRef.result
-        .then((result) => {
-          if (result) {
-            this.initializeOrRefreshOverviewTable();
-          }
-        })
-        .catch((_error) => {
-          // Modal dismissed
-        });
+      modalRef.result.catch(() => {
+        // Modal dismissed
+      });
     } catch (error) {
       console.error('Error opening edit indicator spatial unit roles modal:', error);
     }
@@ -579,16 +551,16 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     });
 
     // Set the selected indicator in the modal
-    modalRef.componentInstance.selectedIndicatorDataset = indicatorDataset;
-    modalRef.componentInstance.onChangeSelectedIndicator();
+    const modalComponent = modalRef.componentInstance as IndicatorDeleteModalComponent;
+    modalComponent.selectedIndicatorDataset = indicatorDataset;
+    modalComponent.onChangeSelectedIndicator();
+    modalComponent.refreshRequested.subscribe((request: IndicatorRefreshRequest) =>
+      this.handleRefreshRequest(request)
+    );
 
-    modalRef.result
-      .then((_result) => {
-        // Delete modal closed with result
-      })
-      .catch((_error) => {
-        // Delete modal dismissed
-      });
+    modalRef.result.catch(() => {
+      // Delete modal dismissed
+    });
   }
 
   onClickBatchUpdate(): void {
@@ -627,6 +599,13 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     } else {
       // Show message that no indicators are selected
     }
+  }
+
+  // Handles a modal's refreshRequested output; replaces the former
+  // RefreshIndicatorOverviewTable broadcast round-trip.
+  private handleRefreshRequest(request: IndicatorRefreshRequest): void {
+    this.loadingData = true;
+    this.refreshIndicatorOverviewTable(request.crudType, request.targetIndicatorId);
   }
 
   refreshIndicatorOverviewTable(crudType?: string, targetIndicatorId?: string): void {

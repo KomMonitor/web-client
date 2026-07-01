@@ -1,5 +1,14 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, DestroyRef, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  EventEmitter,
+  inject,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
 import { FormsModule } from '@angular/forms';
@@ -24,6 +33,7 @@ import {
   StepperComponent,
   StepperStep,
 } from 'components/ngComponents/common/stepper/stepper.component';
+import { IndicatorRefreshRequest } from '../indicator-refresh.model';
 
 declare const $: any;
 
@@ -53,6 +63,8 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   featureTableGridOptions: GridOptions = {};
 
   @ViewChild('modal') modal!: ElementRef;
+
+  @Output() refreshRequested = new EventEmitter<IndicatorRefreshRequest>();
 
   // Form data
   currentIndicatorDataset: any;
@@ -135,9 +147,9 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         } else if (event.type === 'loadingEnd') {
           this.loadingData = false;
         } else if (event.type === 'featureDeleted') {
-          this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
-            action: 'edit',
-            indicatorId: this.currentIndicatorDataset.indicatorId,
+          this.refreshRequested.emit({
+            crudType: 'edit',
+            targetIndicatorId: this.currentIndicatorDataset.indicatorId,
           });
           this.refreshIndicatorEditFeaturesOverviewTable();
         }
@@ -302,9 +314,9 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         this.indicatorFeaturesJSON = undefined;
         this.remainingFeatureHeaders = [];
 
-        this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
-          action: 'edit',
-          indicatorId: this.currentIndicatorDataset.indicatorId,
+        this.refreshRequested.emit({
+          crudType: 'edit',
+          targetIndicatorId: this.currentIndicatorDataset.indicatorId,
         });
 
         // Force empty feature overview table on successful deletion of entries
@@ -552,9 +564,9 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
           false
         );
 
-        this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
-          action: 'edit',
-          indicatorId: this.currentIndicatorDataset.indicatorId,
+        this.refreshRequested.emit({
+          crudType: 'edit',
+          targetIndicatorId: this.currentIndicatorDataset.indicatorId,
         });
 
         this.successMessagePart = this.currentIndicatorDataset.indicatorName;
