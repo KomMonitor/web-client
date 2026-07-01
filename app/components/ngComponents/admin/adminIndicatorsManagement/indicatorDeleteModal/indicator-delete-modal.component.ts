@@ -1,14 +1,10 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
-import { Subscription } from 'rxjs';
 
-import { AccessControlService } from '../../../../../services/access-control-service/access-control.service';
 import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from '../../../../../services/broadcast-service/broadcast-message';
 import { FormsModule } from '@angular/forms';
-
-declare let __env: any;
 
 interface IndicatorDeleteType {
   displayName: string;
@@ -49,10 +45,9 @@ interface AffectedGeoresourceReference {
   imports: [FormsModule],
   standalone: true,
 })
-export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
+export class IndicatorDeleteModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   private http = inject(HttpClient);
-  private accessControlService = inject(AccessControlService);
   private broadcastService = inject(BroadcastService);
   angularJsDataExchangeService = inject<any>('kommonitorDataExchangeService' as any);
 
@@ -96,14 +91,8 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
   showSuccessAlert: boolean = false;
   showErrorAlert: boolean = false;
 
-  private subscriptions: Subscription[] = [];
-
   ngOnInit(): void {
     this.resetIndicatorsDeleteForm();
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
   onChangeSelectIndicatorTimestampEntries(): void {

@@ -12,7 +12,6 @@ import { TopicMetadataStoreService } from 'services/topic-metadata-store-service
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
-import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
@@ -47,11 +46,9 @@ export class IndicatorAddModalComponent implements OnInit {
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private http = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
-  private kommonitorConfigStorageService = inject(ConfigStorageService);
   protected envConfigService = inject(EnvConfigService);
 
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
-  @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
 
   // Multi-step form
   currentStep = 1;
@@ -160,19 +157,14 @@ export class IndicatorAddModalComponent implements OnInit {
   ownerOrganization: any = null;
   ownerOrgFilter = '';
   isPublic = false;
-  resourcesCreatorRights: any[] = [];
 
   // Import/Export functionality
   metadataImportSettings: any = null;
-  mappingConfigImportSettings: any = null;
   indicatorMetadataImportError = '';
-  indicatorMappingConfigImportError = '';
 
   // Success/Error data
   successMessagePart = '';
   errorMessagePart = '';
-  importerErrors: any[] = [];
-  importedFeatures: any[] = [];
 
   // Available options
   availableSpatialUnits: any[] = [];
@@ -577,7 +569,6 @@ export class IndicatorAddModalComponent implements OnInit {
 
   async addIndicator() {
     this.loadingData = true;
-    this.importerErrors = [];
     this.successMessagePart = '';
     this.errorMessagePart = '';
 
@@ -666,24 +657,10 @@ export class IndicatorAddModalComponent implements OnInit {
     }
   }
 
-  onImportIndicatorAddMappingConfig() {
-    this.indicatorMappingConfigImportError = '';
-    if (this.mappingConfigImportFile) {
-      this.mappingConfigImportFile.nativeElement.click();
-    }
-  }
-
   onMetadataFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
       this.parseMetadataFromFile(file);
-    }
-  }
-
-  onMappingConfigFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      this.parseMappingConfigFromFile(file);
     }
   }
 
@@ -697,23 +674,6 @@ export class IndicatorAddModalComponent implements OnInit {
         console.error(error);
         console.error('Uploaded Metadata File cannot be parsed.');
         this.indicatorMetadataImportError = 'Uploaded Metadata File cannot be parsed correctly';
-      }
-    };
-
-    fileReader.readAsText(file);
-  }
-
-  parseMappingConfigFromFile(file: File) {
-    const fileReader = new FileReader();
-
-    fileReader.onload = (event: any) => {
-      try {
-        this.parseFromMappingConfigFile(event);
-      } catch (error) {
-        console.error(error);
-        console.error('Uploaded MappingConfig File cannot be parsed.');
-        this.indicatorMappingConfigImportError =
-          'Uploaded MappingConfig File cannot be parsed correctly';
       }
     };
 
@@ -869,31 +829,6 @@ export class IndicatorAddModalComponent implements OnInit {
     }
   }
 
-  parseFromMappingConfigFile(event: any) {
-    this.mappingConfigImportSettings = JSON.parse(event.target.result);
-
-    if (
-      !this.mappingConfigImportSettings.converter ||
-      !this.mappingConfigImportSettings.dataSource ||
-      !this.mappingConfigImportSettings.propertyMapping
-    ) {
-      console.error('uploaded MappingConfig File cannot be parsed - wrong structure.');
-      this.indicatorMappingConfigImportError =
-        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.';
-      return;
-    }
-
-    // Parse converter settings
-    // This would be similar to spatial unit mapping config parsing
-    // but adapted for indicators
-  }
-
-  onExportIndicatorAddMetadataTemplate() {
-    const metadataJSON = JSON.stringify(this.indicatorMetadataStructure);
-    const fileName = 'Indikator_Metadaten_Vorlage_Export.json';
-    this.downloadFile(metadataJSON, fileName);
-  }
-
   onExportIndicatorAddMetadata() {
     const metadataExport: any = { ...this.indicatorMetadataStructure };
 
@@ -979,25 +914,6 @@ export class IndicatorAddModalComponent implements OnInit {
     this.downloadFile(metadataJSON, fileName);
   }
 
-  async onExportIndicatorAddMappingConfig() {
-    const mappingConfigExport = {
-      converter: {}, // Would be populated if converter is used
-      dataSource: {}, // Would be populated if data source is used
-      propertyMapping: {}, // Would be populated if property mapping is used
-    };
-
-    const name = this.datasetName;
-    const metadataJSON = JSON.stringify(mappingConfigExport);
-    let fileName = 'KomMonitor-Import-Mapping-Konfiguration_Export';
-
-    if (name) {
-      fileName += '-' + name;
-    }
-
-    fileName += '.json';
-    this.downloadFile(metadataJSON, fileName);
-  }
-
   private downloadFile(content: string, fileName: string) {
     const blob = new Blob([content], { type: 'application/json' });
     const data = URL.createObjectURL(blob);
@@ -1054,20 +970,6 @@ export class IndicatorAddModalComponent implements OnInit {
 
   get indicatorMetadataStructure_pretty() {
     return JSON.stringify(this.indicatorMetadataStructure, null, 2);
-  }
-
-  get indicatorMappingConfigStructure_pretty() {
-    if (
-      this.kommonitorImporterHelperService &&
-      this.kommonitorImporterHelperService.mappingConfigStructure_indicator
-    ) {
-      return JSON.stringify(
-        this.kommonitorImporterHelperService.mappingConfigStructure_indicator,
-        null,
-        2
-      );
-    }
-    return JSON.stringify({}, null, 2);
   }
 
   resetForm() {
@@ -1128,14 +1030,9 @@ export class IndicatorAddModalComponent implements OnInit {
     this.isPublic = false;
     this.roleManagementTableOptions = null;
     this.metadataImportSettings = null;
-    this.mappingConfigImportSettings = null;
     this.indicatorMetadataImportError = '';
-    this.indicatorMappingConfigImportError = '';
-    this.resourcesCreatorRights = [];
     this.successMessagePart = '';
     this.errorMessagePart = '';
-    this.importerErrors = [];
-    this.importedFeatures = [];
     this.postBody_indicators = null;
     this.errorMessage = '';
     this.successMessage = '';
@@ -1213,10 +1110,6 @@ export class IndicatorAddModalComponent implements OnInit {
 
   hideMetadataErrorAlert() {
     this.indicatorMetadataImportError = '';
-  }
-
-  hideMappingConfigErrorAlert() {
-    this.indicatorMappingConfigImportError = '';
   }
 
   onChangeIndicatorUnit() {
@@ -1352,30 +1245,6 @@ export class IndicatorAddModalComponent implements OnInit {
     if (index >= 0 && index < this.additionalTopicAssignments.length) {
       this.additionalTopicAssignments.splice(index, 1);
     }
-  }
-
-  // Helper method to get all topic assignments (main + additional)
-  getAllTopicAssignments(): Array<{ topic: any; subTopic: any; isMain: boolean }> {
-    const assignments: Array<{ topic: any; subTopic: any; isMain: boolean }> = [];
-
-    // Add main assignment if exists
-    if (this.selectedTopic && this.selectedSubTopic) {
-      assignments.push({
-        topic: this.selectedTopic,
-        subTopic: this.selectedSubTopic,
-        isMain: true,
-      });
-    }
-
-    // Add additional assignments
-    this.additionalTopicAssignments.forEach((assignment) => {
-      assignments.push({
-        ...assignment,
-        isMain: false,
-      });
-    });
-
-    return assignments;
   }
 
   // Step 4: Reference Filtering Methods
@@ -1572,59 +1441,6 @@ export class IndicatorAddModalComponent implements OnInit {
     return typeMap[type] || type;
   }
 
-  // Helper method to get all comparison values (main + additional)
-  getAllComparisonValues(): Array<{
-    type: string;
-    value: number;
-    description: string;
-    isMain: boolean;
-  }> {
-    const comparisons: Array<{
-      type: string;
-      value: number;
-      description: string;
-      isMain: boolean;
-    }> = [];
-
-    // Add main comparison if exists
-    if (this.comparisonValueType && this.comparisonValue !== null) {
-      comparisons.push({
-        type: this.comparisonValueType,
-        value: this.comparisonValue,
-        description: this.comparisonDescription,
-        isMain: true,
-      });
-    }
-
-    // Add additional comparisons
-    this.additionalComparisonValues.forEach((comparison) => {
-      comparisons.push({
-        ...comparison,
-        isMain: false,
-      });
-    });
-
-    return comparisons;
-  }
-
-  // Validate benchmarking thresholds
-  validateBenchmarkingThresholds(): boolean {
-    if (!this.enableBenchmarking) {
-      return true;
-    }
-
-    if (
-      this.greenThreshold === null ||
-      this.yellowThreshold === null ||
-      this.redThreshold === null
-    ) {
-      return false;
-    }
-
-    // Ensure thresholds are in logical order
-    return this.greenThreshold <= this.yellowThreshold && this.yellowThreshold <= this.redThreshold;
-  }
-
   // Step 7: Access Control Methods
   filterOrganizations() {
     if (!this.ownerOrgFilter || this.ownerOrgFilter.trim() === '') {
@@ -1678,47 +1494,6 @@ export class IndicatorAddModalComponent implements OnInit {
     if (index >= 0) {
       this.selectedRoles.splice(index, 1);
     }
-  }
-
-  // Validate access control configuration
-  validateAccessControl(): boolean {
-    // Owner organization is required
-    if (!this.ownerOrganization) {
-      return false;
-    }
-
-    // If not public, at least one role must be selected
-    if (!this.isPublic && this.selectedRoles.length === 0) {
-      return false;
-    }
-
-    // Validate time restrictions if enabled
-    if (this.enableTimeRestrictedAccess) {
-      if (!this.accessStartDate || !this.accessEndDate) {
-        return false;
-      }
-      // Check if end date is after start date
-      const startDate = new Date(this.accessStartDate);
-      const endDate = new Date(this.accessEndDate);
-      if (endDate <= startDate) {
-        return false;
-      }
-    }
-
-    // Validate geographic restrictions if enabled
-    if (
-      this.enableGeographicRestriction &&
-      (!this.allowedRegions || this.allowedRegions.length === 0)
-    ) {
-      return false;
-    }
-
-    return true;
-  }
-
-  // Get selected role IDs for API
-  getSelectedRoleIds(): string[] {
-    return this.selectedRoles.map((role) => role.roleId);
   }
 
   cancel() {

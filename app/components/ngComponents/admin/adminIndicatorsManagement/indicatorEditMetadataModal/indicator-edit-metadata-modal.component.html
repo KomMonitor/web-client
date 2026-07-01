@@ -28,16 +28,6 @@
       </div>
     }
 
-    <!-- Import Error Alert -->
-    @if (indicatorAddMetadataImportErrorAlert) {
-      <div class="alert alert-danger alert-dismissible" id="indicatorEditMetadataImportErrorAlert">
-        <button type="button" class="close" (click)="hideMetadataErrorAlert()">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        <strong>Fehler!</strong> {{ indicatorMetadataImportError }}
-      </div>
-    }
-
     <!-- Loading Overlay -->
     @if (loadingData) {
       <div class="loading-overlay">

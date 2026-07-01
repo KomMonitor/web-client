@@ -108,15 +108,10 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
   // Regional reference values
   regionalReferenceValuesManagementTableOptions: any = null;
-  tmpIndicatorRegionalReferenceValuesObject: any = null;
-  noneColumnValue = '-- keine --';
-  file_regionalReferenceValuesImport: any = null;
 
   // Messages
   successMessagePart = '';
   errorMessagePart = '';
-  indicatorMetadataImportError = '';
-  indicatorAddMetadataImportErrorAlert = false;
 
   // Loading state
   loadingData = false;
@@ -216,13 +211,6 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     this.subscriptions.push(sub);
   }
 
-  openModal(): void {
-    // Modal is already opened by the parent component
-    // This method is called after the modal is already open
-    this.resetIndicatorEditMetadataForm();
-    this.instantiateColorBrewerPalettes();
-  }
-
   closeModal(): void {
     this.activeModal.dismiss();
   }
@@ -301,23 +289,6 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
       }
     }
     this.tabClasses[tabIndex] = cssClass;
-    this.updateDecreaseAndIncreaseBreaks(tabIndex);
-  }
-
-  updateDecreaseAndIncreaseBreaks(tabIndex: number): void {
-    const increaseBreaksLength = this.spatialUnitClassification[tabIndex].breaks.filter(
-      (val: number) => val > 0
-    ).length;
-    const decreaseBreaksLength = this.spatialUnitClassification[tabIndex].breaks.filter(
-      (val: number) => val < 0
-    ).length;
-
-    if (increaseBreaksLength < 3) {
-      // Handle minimum increase breaks
-    }
-    if (decreaseBreaksLength < 3) {
-      // Handle minimum decrease breaks
-    }
   }
 
   refreshReferenceValuesManagementTable(): void {
@@ -827,9 +798,5 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
   hideErrorAlert(): void {
     this.errorMessagePart = '';
-  }
-
-  hideMetadataErrorAlert(): void {
-    this.indicatorAddMetadataImportErrorAlert = false;
   }
 }

@@ -1,4 +1,4 @@
-import { Component, DOCUMENT, inject, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { WmsSharedComponentsService } from 'components/ngComponents/common/wms-admin-table/wms-admin-tables-shared.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
@@ -47,7 +47,6 @@ declare const __env: any;
   standalone: true,
 })
 export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
-  private document = inject<Document>(DOCUMENT);
   private zone = inject(NgZone);
   private modalService = inject(NgbModal);
   private broadcastService = inject(BroadcastService);
@@ -66,7 +65,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   public loadingData: boolean = true;
   public initializationCompleted: boolean = false;
   public tableViewSwitcher: boolean = false;
-  public selectIndicatorEntriesInput: boolean = false;
 
   // AG Grid properties
   public columnDefs: ColDef[] = [];
@@ -113,12 +111,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   WmsResourceType = WmsResourceType;
 
   ngOnInit(): void {
-    // Initialize any adminLTE box widgets
-    //(window as any).$('.box').boxWidget();
-
-    // Make component available globally for debugging
-    (window as any).adminIndicatorsComponent = this;
-
     // Try to load data if not already available
     this.ensureDataLoaded();
 
@@ -186,11 +178,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
-
-    // Clean up global reference
-    if ((window as any).adminIndicatorsComponent === this) {
-      delete (window as any).adminIndicatorsComponent;
-    }
   }
 
   private setupEventListeners(): void {
@@ -374,12 +361,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       onGridReady: (params: GridReadyEvent) => {
         this.onGridReady(params);
       },
-      onFirstDataRendered: () => {
-        this.onFirstDataRendered();
-      },
-      onColumnResized: () => {
-        this.onColumnResized();
-      },
       onModelUpdated: () => {
         this.onModelUpdated(indicatorMetadataArray);
       },
@@ -409,14 +390,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         this.forceRefreshGrid();
       }
     }
-  }
-
-  onFirstDataRendered(): void {
-    // no-op: no action required on first data render
-  }
-
-  onColumnResized(): void {
-    // Column resized
   }
 
   onModelUpdated(indicatorMetadataArray: any[]): void {
@@ -456,18 +429,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     } else {
       return allIndicators;
     }
-  }
-
-  // Debug method to force stop loading
-  stopLoading(): void {
-    this.loadingData = false;
-    this.initializationCompleted = true;
-  }
-
-  // Debug method to manually refresh the grid
-  debugRefreshGrid(): void {
-    // Force refresh
-    this.forceRefreshGrid();
   }
 
   // Table view switcher method
@@ -665,20 +626,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       this.onClickDeleteIndicators(selectedIndicators);
     } else {
       // Show message that no indicators are selected
-    }
-  }
-
-  onChangeSelectIndicatorEntries(): void {
-    if (this.selectIndicatorEntriesInput) {
-      // TODO: Implement when availableIndicatorDatasets is available
-      // this.availableIndicatorDatasets.forEach(function(dataset) {
-      //   dataset.isSelected = true;
-      // });
-    } else {
-      // TODO: Implement when availableIndicatorDatasets is available
-      // this.availableIndicatorDatasets.forEach(function(dataset) {
-      //   dataset.isSelected = false;
-      // });
     }
   }
 
