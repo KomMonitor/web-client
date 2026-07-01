@@ -4,7 +4,6 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { WmsResourceType } from './../../models/services.models';
 
-import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdownModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -18,10 +17,8 @@ import {
   MetadataBootstrapService,
   MetadataLoadingState,
 } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
-import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { AccessControlService } from '../../../../services/access-control-service/access-control.service';
 import { IndicatorMetadataStoreService } from '../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
-import { EnvConfigService } from '../../../../services/env-config-service/env-config.service';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { IndicatorAddModalComponent } from './indicatorAddModal/indicator-add-modal.component';
 import { IndicatorBatchUpdateModalComponent } from './indicatorBatchUpdateModal/indicator-batch-update-modal.component';
@@ -51,13 +48,10 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   private zone = inject(NgZone);
   private modalService = inject(NgbModal);
   private broadcastService = inject(BroadcastService);
-  private http = inject(HttpClient);
   private kommonitorCacheHelperService = inject(KommonitorIndicatorCacheHelperService);
   private kommonitorDataGridHelperService = inject(KommonitorIndicatorDataGridHelperService);
   protected wmsSharedComponentsService = inject(WmsSharedComponentsService);
-  private envConfigService = inject(EnvConfigService);
   private metadataBootstrap = inject(MetadataBootstrapService);
-  private mapErrorNotificationService = inject(MapErrorNotificationService);
   private accessControlService = inject(AccessControlService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
 
@@ -75,38 +69,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   resourceType: WmsResourceType = WmsResourceType.INDICATOR;
 
-  // Drag & Drop properties
-  public collapsedTopics: Set<string> = new Set();
-  public sortableConfig: any = {
-    onEnd: (evt: any) => {
-      const updatedIndicatorMetadataEntries = evt.models;
-
-      // for those models send API request to persist new sort order
-      const patchBody: Array<{ indicatorId: string; displayOrder: number }> = [];
-      for (let index = 0; index < updatedIndicatorMetadataEntries.length; index++) {
-        const indicatorMetadata = updatedIndicatorMetadataEntries[index];
-
-        patchBody.push({
-          indicatorId: indicatorMetadata.indicatorId,
-          displayOrder: index,
-        });
-      }
-
-      this.http
-        .patch(
-          this.envConfigService.baseUrlToKomMonitorDataAPI + '/indicators/display-order',
-          patchBody
-        )
-        .subscribe({
-          next: (_response: any) => {
-            // Success - no action needed
-          },
-          error: (error: any) => {
-            this.mapErrorNotificationService.displayMapApplicationError(error);
-          },
-        });
-    },
-  };
   private subscriptions: Subscription[] = [];
 
   WmsResourceType = WmsResourceType;
@@ -190,8 +152,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         this.zone.run(() => {
           setTimeout(() => {
             this.initializeOrRefreshOverviewTable();
-            // Also ensure topics are collapsed when metadata is loaded
-            this.initializeCollapsedTopics();
           }, 250);
         });
       } else if (state === MetadataLoadingState.ERROR) {
@@ -269,9 +229,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     if (indicators && indicators.length > 0) {
       this.loadingData = false;
       this.initializationCompleted = true;
-
-      // Initialize all topics as collapsed
-      this.initializeCollapsedTopics();
 
       // Set up grid options first
       this.setupGridOptions(indicators);
@@ -709,112 +666,5 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   getSelectedIndicatorsMetadata(): any[] {
     return this.selectedRows;
-  }
-
-  // Getter to check if we have topic hierarchy data
-  get hasTopicData(): boolean {
-    return (
-      this.metadataBootstrap.topicIndicatorHierarchy_forOrderView &&
-      this.metadataBootstrap.topicIndicatorHierarchy_forOrderView.length > 0
-    );
-  }
-
-  // Drag & Drop methods
-  initializeCollapsedTopics(): void {
-    // Clear existing collapsed topics
-    this.collapsedTopics.clear();
-
-    // Initialize all topics as collapsed by default
-    if (
-      this.metadataBootstrap.topicIndicatorHierarchy_forOrderView &&
-      this.metadataBootstrap.topicIndicatorHierarchy_forOrderView.length > 0
-    ) {
-      this.metadataBootstrap.topicIndicatorHierarchy_forOrderView.forEach((mainTopic: any) => {
-        this.collapsedTopics.add(mainTopic.topicId);
-
-        if (mainTopic.subTopics && mainTopic.subTopics.length > 0) {
-          mainTopic.subTopics.forEach((subTopic: any) => {
-            this.collapsedTopics.add(subTopic.topicId);
-
-            if (subTopic.subTopics && subTopic.subTopics.length > 0) {
-              subTopic.subTopics.forEach((subsubTopic: any) => {
-                this.collapsedTopics.add(subsubTopic.topicId);
-
-                if (subsubTopic.subTopics && subsubTopic.subTopics.length > 0) {
-                  subsubTopic.subTopics.forEach((subsubsubTopic: any) => {
-                    this.collapsedTopics.add(subsubsubTopic.topicId);
-                  });
-                }
-              });
-            }
-          });
-        }
-      });
-    } else {
-      // No topic hierarchy data available yet
-    }
-  }
-
-  toggleTopicCollapse(topicId: string): void {
-    if (this.collapsedTopics.has(topicId)) {
-      this.collapsedTopics.delete(topicId);
-    } else {
-      this.collapsedTopics.add(topicId);
-    }
-  }
-
-  isTopicCollapsed(topicId: string): boolean {
-    // If topic hierarchy is not loaded yet, assume collapsed
-    if (
-      !this.metadataBootstrap.topicIndicatorHierarchy_forOrderView ||
-      this.metadataBootstrap.topicIndicatorHierarchy_forOrderView.length === 0
-    ) {
-      return true;
-    }
-
-    // If the collapsedTopics set is empty, initialize it and return true (collapsed by default)
-    if (this.collapsedTopics.size === 0) {
-      this.initializeCollapsedTopics();
-      return true;
-    }
-
-    return this.collapsedTopics.has(topicId);
-  }
-
-  onDragEnd(event: any, indicators: any[]): void {
-    const { previousIndex, currentIndex } = event;
-
-    if (previousIndex === currentIndex) {
-      return;
-    }
-
-    // Reorder the indicators array
-    const movedItem = indicators.splice(previousIndex, 1)[0];
-    indicators.splice(currentIndex, 0, movedItem);
-
-    // Update display order for all indicators in this group
-    const patchBody: Array<{ indicatorId: string; displayOrder: number }> = [];
-    for (let index = 0; index < indicators.length; index++) {
-      const indicatorMetadata = indicators[index];
-      patchBody.push({
-        indicatorId: indicatorMetadata.indicatorId,
-        displayOrder: index,
-      });
-    }
-
-    // Send API request to persist new sort order
-    this.http
-      .patch(
-        this.envConfigService.baseUrlToKomMonitorDataAPI + '/indicators/display-order',
-        patchBody
-      )
-      .subscribe({
-        next: (_response: any) => {
-          // Display order updated successfully
-        },
-        error: (error: any) => {
-          this.mapErrorNotificationService.displayMapApplicationError(error);
-        },
-      });
   }
 }
