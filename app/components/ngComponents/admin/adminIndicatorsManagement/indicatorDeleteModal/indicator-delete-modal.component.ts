@@ -5,6 +5,12 @@ import { HttpClient } from '@angular/common/http';
 import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from '../../../../../services/broadcast-service/broadcast-message';
 import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
+import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
+import { ProcessScriptMetadataStoreService } from '../../../../../services/process-script-metadata-store-service/process-script-metadata-store.service';
+import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
+import { AccessControlService } from '../../../../../services/access-control-service/access-control.service';
+import { MetadataBootstrapService } from '../../../../../services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { FormsModule } from '@angular/forms';
 import { IndicatorRefreshRequest } from '../indicator-refresh.model';
 
@@ -52,7 +58,12 @@ export class IndicatorDeleteModalComponent implements OnInit {
   private http = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
   private indicatorValueService = inject(IndicatorValueService);
-  angularJsDataExchangeService = inject<any>('kommonitorDataExchangeService' as any);
+  private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
+  private indicatorStore = inject(IndicatorMetadataStoreService);
+  private processScriptStore = inject(ProcessScriptMetadataStoreService);
+  private envConfigService = inject(EnvConfigService);
+  private accessControlService = inject(AccessControlService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
 
   @Output() refreshRequested = new EventEmitter<IndicatorRefreshRequest>();
 
@@ -136,7 +147,7 @@ export class IndicatorDeleteModalComponent implements OnInit {
       }
 
       this.currentApplicableSpatialUnits = [];
-      for (const spatialUnitMetadata of this.angularJsDataExchangeService.availableSpatialUnits) {
+      for (const spatialUnitMetadata of this.spatialUnitStore.availableSpatialUnits) {
         if (
           this.selectedIndicatorDataset.applicableSpatialUnits &&
           this.selectedIndicatorDataset.applicableSpatialUnits.some(
@@ -181,7 +192,7 @@ export class IndicatorDeleteModalComponent implements OnInit {
   gatherAffectedScripts(): AffectedScript[] {
     const affectedScripts: AffectedScript[] = [];
 
-    this.angularJsDataExchangeService.availableProcessScripts.forEach((script) => {
+    this.processScriptStore.availableProcessScripts.forEach((script) => {
       const requiredIndicatorIds = script.requiredIndicatorIds;
 
       for (const indicatorId of requiredIndicatorIds) {
@@ -225,7 +236,7 @@ export class IndicatorDeleteModalComponent implements OnInit {
     }
 
     // Then add all references, where selected indicator is the referencedIndicator
-    this.angularJsDataExchangeService.availableIndicators.forEach((indicator) => {
+    this.indicatorStore.availableIndicators.forEach((indicator) => {
       const indicatorReferences = indicator.referencedIndicators;
 
       for (const indicatorReference of indicatorReferences) {
@@ -269,7 +280,7 @@ export class IndicatorDeleteModalComponent implements OnInit {
   deleteWholeIndicatorDataset(): void {
     this.loadingData = true;
 
-    const url = `${this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI}/indicators/${this.selectedIndicatorDataset.indicatorId}`;
+    const url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}/indicators/${this.selectedIndicatorDataset.indicatorId}`;
 
     this.http.delete(url).subscribe({
       next: (_response) => {
@@ -358,8 +369,8 @@ export class IndicatorDeleteModalComponent implements OnInit {
       this.showSuccessAlert = true;
 
       // Fetch indicator metadata again as an indicator was modified
-      await this.angularJsDataExchangeService.fetchIndicatorsMetadata(
-        this.angularJsDataExchangeService.currentKeycloakLoginRoles
+      await this.metadataBootstrap.fetchIndicatorsMetadata(
+        this.accessControlService.currentKeycloakLoginRoles
       );
 
       // Refresh overview table
@@ -384,7 +395,7 @@ export class IndicatorDeleteModalComponent implements OnInit {
     // [yyyy, mm, dd]
     const timestampComps = timestamp.split('-');
 
-    const url = `${this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI}/indicators/${this.selectedIndicatorDataset.indicatorId}/${spatialUnitId}/${timestampComps[0]}/${timestampComps[1]}/${timestampComps[2]}`;
+    const url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}/indicators/${this.selectedIndicatorDataset.indicatorId}/${spatialUnitId}/${timestampComps[0]}/${timestampComps[1]}/${timestampComps[2]}`;
 
     return this.http
       .delete(url)
@@ -405,7 +416,7 @@ export class IndicatorDeleteModalComponent implements OnInit {
   }
 
   getDeleteSpatialUnitPromise(applicableSpatialUnit: ApplicableSpatialUnit): Promise<void> {
-    const url = `${this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI}/indicators/${this.selectedIndicatorDataset.indicatorId}/${applicableSpatialUnit.spatialUnitMetadata.spatialUnitId}`;
+    const url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}/indicators/${this.selectedIndicatorDataset.indicatorId}/${applicableSpatialUnit.spatialUnitMetadata.spatialUnitId}`;
 
     return this.http
       .delete(url)
@@ -434,7 +445,7 @@ export class IndicatorDeleteModalComponent implements OnInit {
   }
 
   getIndicatorsWithPermission(): any[] {
-    return this.angularJsDataExchangeService.availableIndicators.filter((indicator) =>
+    return this.indicatorStore.availableIndicators.filter((indicator) =>
       indicator.userPermissions.includes('creator')
     );
   }
