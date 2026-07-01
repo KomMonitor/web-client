@@ -406,15 +406,11 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
       this.handleRefreshRequest(request)
     );
 
-    modalRef.result
-      .then((result) => {
-        if (result) {
-          this.initializeOrRefreshOverviewTable();
-        }
-      })
-      .catch(() => {
-        // Modal dismissed
-      });
+    // The table refresh is driven by the modal's refreshRequested output, so
+    // the result promise only needs its rejection swallowed on dismiss.
+    modalRef.result.catch(() => {
+      // Modal dismissed
+    });
   }
 
   onClickEditMetadata(spatialUnitMetadata: SpatialUnitMetadata): void {
@@ -432,15 +428,11 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
       this.handleRefreshRequest(request)
     );
 
-    modalRef.result
-      .then((result) => {
-        if (result) {
-          this.initializeOrRefreshOverviewTable();
-        }
-      })
-      .catch(() => {
-        // Modal dismissed
-      });
+    // The table refresh is driven by the modal's refreshRequested output, so
+    // the result promise only needs its rejection swallowed on dismiss.
+    modalRef.result.catch(() => {
+      // Modal dismissed
+    });
   }
 
   onClickEditFeatures(spatialUnitMetadata: SpatialUnitMetadata): void {
@@ -458,15 +450,11 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
       this.handleRefreshRequest(request)
     );
 
-    modalRef.result
-      .then((result) => {
-        if (result) {
-          this.initializeOrRefreshOverviewTable();
-        }
-      })
-      .catch(() => {
-        // Modal dismissed
-      });
+    // The table refresh is driven by the modal's refreshRequested output, so
+    // the result promise only needs its rejection swallowed on dismiss.
+    modalRef.result.catch(() => {
+      // Modal dismissed
+    });
   }
 
   onClickEditUserRoles(spatialUnitMetadata: SpatialUnitMetadata): void {
@@ -484,15 +472,11 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
       this.handleRefreshRequest(request)
     );
 
-    modalRef.result
-      .then((result) => {
-        if (result) {
-          this.initializeOrRefreshOverviewTable();
-        }
-      })
-      .catch(() => {
-        // Modal dismissed
-      });
+    // The table refresh is driven by the modal's refreshRequested output, so
+    // the result promise only needs its rejection swallowed on dismiss.
+    modalRef.result.catch(() => {
+      // Modal dismissed
+    });
   }
 
   onClickDeleteSpatialUnits(spatialUnitsMetadata: SpatialUnitMetadata[]): void {
@@ -510,15 +494,11 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
       this.handleRefreshRequest(request)
     );
 
-    modalRef.result
-      .then((result) => {
-        if (result) {
-          this.initializeOrRefreshOverviewTable();
-        }
-      })
-      .catch(() => {
-        // Modal dismissed
-      });
+    // The table refresh is driven by the modal's refreshRequested output, so
+    // the result promise only needs its rejection swallowed on dismiss.
+    modalRef.result.catch(() => {
+      // Modal dismissed
+    });
   }
 
   // Utility methods
