@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -350,7 +351,7 @@ export class ScriptHelperService {
       });
   }
 
-  async postNewScript(scriptName, description, targetIndicatorMetadata) {
+  async postNewScript(scriptName, description, associatedIndicatorId: string) {
     console.log('Trying to POST to management service to register new script.');
 
     /*	POST BODY
@@ -391,7 +392,7 @@ export class ScriptHelperService {
     const postBody = {
       name: scriptName,
       description: description,
-      associatedIndicatorId: targetIndicatorMetadata.indicatorId,
+      associatedIndicatorId: associatedIndicatorId,
       requiredIndicatorIds: this.requiredIndicators_tmp.map(
         (indicatorMetadata) => indicatorMetadata.indicatorId
       ),
@@ -406,17 +407,11 @@ export class ScriptHelperService {
       'Content-Type': 'application/json',
     };
 
-    return await this.httpClient
-      .post(this.targetUrlToManagementService + 'process-scripts', postBody, { headers: header })
-      .subscribe({
-        next: (response) => {
-          return response;
-        },
-        error: (error) => {
-          console.error('Error while posting to importer service.');
-          throw error;
-        },
-      });
+    return await firstValueFrom(
+      this.httpClient.post(this.targetUrlToManagementService + 'process-scripts', postBody, {
+        headers: header,
+      })
+    );
   }
 
   async updateScript(scriptName, description, scriptId) {
