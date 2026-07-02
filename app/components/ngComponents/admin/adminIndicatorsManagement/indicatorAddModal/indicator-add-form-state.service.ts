@@ -1,0 +1,1362 @@
+import { Injectable, inject } from '@angular/core';
+import { downloadJson, readJsonFile } from 'util/json-file.util';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
+import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { StepperStep } from 'components/ngComponents/common/stepper/stepper.component';
+
+/**
+ * Holds the entire form state and state-manipulating logic for the
+ * "add indicator" wizard. Provided at the modal-component level (not root),
+ * so each opened modal gets a fresh instance that is discarded with the modal.
+ * The step child components and the modal shell all share this single instance.
+ */
+@Injectable()
+export class IndicatorAddFormStateService {
+  protected accessControlService = inject(AccessControlService);
+  private georesourceStore = inject(GeoresourceMetadataStoreService);
+  private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
+  private indicatorStore = inject(IndicatorMetadataStoreService);
+  private topicStore = inject(TopicMetadataStoreService);
+  private roleManagementHelper = inject(RoleManagementDataGridHelperService);
+  private envConfigService = inject(EnvConfigService);
+
+  // Multi-step form
+  currentStep = 1;
+  totalSteps = 7; // Will be adjusted based on security settings
+
+  // Stepper labels — the security step is only present when Keycloak is enabled,
+  // mirroring the conditional fieldset below. References are stable so the
+  // stepper only re-evaluates when the security flag actually changes.
+  private readonly stepsWithSecurity: StepperStep[] = [
+    { label: 'Metadaten des Indikators' },
+    { label: 'Allgemeine Metadaten' },
+    { label: 'Themenhierarchie' },
+    { label: 'Referenzen zu Indikatoren/Georessourcen' },
+    { label: 'Klassifizierungsoptionen' },
+    { label: 'regionale Vergleichswerte' },
+    { label: 'Zugriffsschutz und Eigentümerschaft' },
+  ];
+  private readonly stepsWithoutSecurity: StepperStep[] = [
+    { label: 'Metadaten des Indikators' },
+    { label: 'Allgemeine Metadaten' },
+    { label: 'Themenhierarchie' },
+    { label: 'Referenzen zu Indikatoren/Georessourcen' },
+    { label: 'Klassifizierungsoptionen' },
+    { label: 'regionale Vergleichswerte' },
+  ];
+  get steps(): StepperStep[] {
+    return this.envConfigService.enableKeycloakSecurity
+      ? this.stepsWithSecurity
+      : this.stepsWithoutSecurity;
+  }
+
+  // Form data
+  loadingData = false;
+
+  // Basic form data
+  datasetName = '';
+  datasetNameInvalid = false;
+  indicatorAbbreviation = '';
+  indicatorType: any = null;
+  isHeadlineIndicator = false;
+  indicatorUnit = '';
+  enableFreeTextUnit = false;
+  indicatorProcessDescription = '';
+  indicatorTagsString_withCommas = '';
+  indicatorInterpretation = '';
+  indicatorCreationType: any = null;
+  indicatorLowestSpatialUnitMetadataObjectForComputation: any = null;
+  enableLowestSpatialUnitSelect = false;
+  indicatorPrecision: any = null;
+  showCustomCommaValue = false;
+
+  // Metadata
+  metadata: any = {
+    description: '',
+    databasis: '',
+    datasource: '',
+    contact: '',
+    updateInterval: null,
+    lastUpdate: '',
+    literature: '',
+    note: '',
+    sridEPSG: 4326,
+  };
+
+  // References
+  indicatorReferences_adminView: any[] = [];
+  indicatorReferences_apiRequest: any[] = [];
+  georesourceReferences_adminView: any[] = [];
+  georesourceReferences_apiRequest: any[] = [];
+
+  // Topic hierarchy
+  indicatorTopic_mainTopic: any = null;
+  indicatorTopic_subTopic: any = null;
+  indicatorTopic_subsubTopic: any = null;
+  indicatorTopic_subsubsubTopic: any = null;
+
+  // Step 3: Topic Hierarchy
+  selectedTopic: any = null;
+  selectedSubTopic: any = null;
+  selectedSubSubTopic: any = null;
+  selectedSubSubSubTopic: any = null;
+  availableSubTopics: any[] = [];
+  availableSubSubTopics: any[] = [];
+  availableSubSubSubTopics: any[] = [];
+  additionalTopic: any = null;
+  additionalSubTopic: any = null;
+  additionalSubTopics: any[] = [];
+  additionalTopicAssignments: Array<{ topic: any; subTopic: any }> = [];
+
+  // Classification
+  numClassesArray = [3, 4, 5, 6, 7, 8];
+  numClassesPerSpatialUnit = 5;
+  classificationMethod = 'jenks';
+  selectedColorBrewerPaletteEntry: any = null;
+  spatialUnitClassification: any[] = [];
+  classBreaksInvalid = false;
+  tabClasses: string[] = [];
+
+  // Role management
+  roleManagementTableOptions: any = null;
+  ownerOrganization: any = null;
+  ownerOrgFilter = '';
+  isPublic = false;
+
+  // Import/Export functionality
+  metadataImportSettings: any = null;
+  indicatorMetadataImportError = '';
+
+  // Success/Error data
+  successMessage = '';
+  errorMessage = '';
+  successMessagePart = '';
+  errorMessagePart = '';
+
+  // Available options
+  availableSpatialUnits: any[] = [];
+  updateIntervalOptions: any[] = [];
+  indicatorTypeOptions: any[] = [];
+  colorbrewerPalettes: any[] = [];
+  colorbrewerSchemes: any = {};
+  availableIndicators: any[] = [];
+  availableGeoresources: any[] = [];
+  availableTopics: any[] = [];
+  accessControl: any[] = [];
+  colorbreweSchemeName_dynamicIncrease = 'Blues';
+  colorbreweSchemeName_dynamicDecrease = 'Reds';
+
+  // Step 5: Classification Options
+  enableDynamicColorAssignment = false;
+  currentClassificationTab = 0;
+
+  // Step 6: Regional Comparison Values
+  comparisonValueType: string | null = null;
+  comparisonValue: number | null = null;
+  comparisonRegion: string | null = null;
+  comparisonTimeframe: string | null = null;
+  comparisonDescription = '';
+  evaluationDirection: string | null = null;
+  toleranceRange: number | null = null;
+
+  // Additional comparison values
+  additionalComparisonType: string | null = null;
+  additionalComparisonValue: number | null = null;
+  additionalComparisonDescription = '';
+  additionalComparisonValues: Array<{ type: string; value: number; description: string }> = [];
+
+  // Benchmarking configuration
+  enableBenchmarking = false;
+  benchmarkingVisualizationType: string | null = null;
+  greenThreshold: number | null = null;
+  yellowThreshold: number | null = null;
+  redThreshold: number | null = null;
+
+  // Step 7: Access Control and Ownership
+  filteredOrganizations: any[] = [];
+  roleFilter = '';
+  filteredRoles: any[] = [];
+  selectedRoles: any[] = [];
+
+  // Advanced access control
+  enableTimeRestrictedAccess = false;
+  enableGeographicRestriction = false;
+  accessStartDate = '';
+  accessEndDate = '';
+  allowedRegions: any[] = [];
+  availableRegions: any[] = [];
+  enableAccessLogging = false;
+
+  // Temporary variables for references
+  indicatorNameFilter = '';
+  tmpIndicatorReference_selectedIndicatorMetadata: any = null;
+  tmpIndicatorReference_referenceDescription = '';
+  georesourceNameFilter = '';
+  tmpGeoresourceReference_selectedGeoresourceMetadata: any = null;
+  tmpGeoresourceReference_referenceDescription = '';
+
+  // Step 4: Filtered lists for references
+  filteredIndicators: any[] = [];
+  filteredGeoresources: any[] = [];
+
+  // Post body
+  postBody_indicators: any = null;
+
+  // Reference date
+  indicatorReferenceDateNote = '';
+  displayOrder = 0;
+
+  loadInitialData() {
+    this.loadingData = true;
+
+    // Load available spatial units
+    if (this.spatialUnitStore.availableSpatialUnits) {
+      this.availableSpatialUnits = this.spatialUnitStore.availableSpatialUnits;
+      this.indicatorLowestSpatialUnitMetadataObjectForComputation =
+        this.availableSpatialUnits.length > 0 ? this.availableSpatialUnits[0] : null;
+    }
+
+    // Load update interval options
+    if (this.envConfigService && this.envConfigService.updateIntervalOptions) {
+      this.updateIntervalOptions = this.envConfigService.updateIntervalOptions;
+    }
+
+    // Load indicator type options
+    if (this.envConfigService && this.envConfigService.indicatorTypeOptions) {
+      this.indicatorTypeOptions = this.envConfigService.indicatorTypeOptions;
+      this.indicatorType =
+        this.indicatorTypeOptions.length > 0 ? this.indicatorTypeOptions[0] : null;
+    }
+
+    // Load available indicators
+    if (this.indicatorStore.availableIndicators) {
+      this.availableIndicators = this.indicatorStore.availableIndicators;
+    }
+
+    // Load available georesources
+    if (this.georesourceStore.availableGeoresources) {
+      this.availableGeoresources = this.georesourceStore.availableGeoresources;
+    }
+
+    // Load available topics
+    if (this.topicStore.availableTopics) {
+      this.availableTopics = this.topicStore.availableTopics;
+    }
+
+    // Load access control
+    if (this.accessControlService.accessControl) {
+      this.accessControl = this.accessControlService.accessControl;
+    }
+
+    // Load color brewer schemes
+    this.loadColorBrewerSchemes();
+
+    // Initialize filtered lists for Step 4
+    this.filteredIndicators = this.availableIndicators || [];
+    this.filteredGeoresources = this.availableGeoresources || [];
+
+    // Initialize data for Step 7
+    this.filteredOrganizations = this.accessControl || [];
+    this.filteredRoles = this.accessControl || [];
+    this.availableRegions = this.availableSpatialUnits || [];
+
+    this.loadingData = false;
+  }
+
+  initializeMultiStepForm() {
+    // Initialize multi-step form based on security settings
+    if (this.envConfigService.enableKeycloakSecurity) {
+      this.totalSteps = 7; // Include role management step
+    } else {
+      this.totalSteps = 6;
+    }
+
+    // Initialize role management if available
+    if (this.accessControlService.accessControl && this.roleManagementHelper) {
+      this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
+        'indicatorAddRoleManagementTable',
+        this.roleManagementTableOptions,
+        this.accessControlService.accessControl,
+        []
+      );
+    }
+
+    // Initialize classification
+    this.onNumClassesChanged(this.numClassesPerSpatialUnit);
+  }
+
+  private loadColorBrewerSchemes() {
+    // Load color brewer schemes from environment or default
+    const customColorSchemes = (window as any).__env?.customColorSchemes;
+    this.colorbrewerSchemes = (window as any).colorbrewer || {};
+
+    if (customColorSchemes) {
+      this.colorbrewerSchemes = Object.assign(customColorSchemes, this.colorbrewerSchemes);
+    }
+
+    this.instantiateColorBrewerPalettes();
+  }
+
+  private instantiateColorBrewerPalettes() {
+    this.colorbrewerPalettes = [];
+
+    for (const key in this.colorbrewerSchemes) {
+      if (Object.prototype.hasOwnProperty.call(this.colorbrewerSchemes, key)) {
+        const colorPalettes = this.colorbrewerSchemes[key];
+
+        const paletteEntry = {
+          paletteName: key,
+          paletteArrayObject: colorPalettes,
+        };
+
+        this.colorbrewerPalettes.push(paletteEntry);
+      }
+    }
+
+    // Instantiate with palette 'Blues'
+    this.selectedColorBrewerPaletteEntry =
+      this.colorbrewerPalettes[13] || this.colorbrewerPalettes[0];
+  }
+
+  checkDatasetName() {
+    this.datasetNameInvalid = false;
+
+    if (this.datasetName && this.indicatorType && this.indicatorStore.availableIndicators) {
+      this.indicatorStore.availableIndicators.forEach((indicator: any) => {
+        if (
+          indicator.datasetName === this.datasetName &&
+          indicator.indicatorType === this.indicatorType.apiName
+        ) {
+          this.datasetNameInvalid = true;
+          return;
+        }
+      });
+    }
+  }
+
+  // Reference management methods
+  onAddOrUpdateIndicatorReference() {
+    if (
+      this.tmpIndicatorReference_selectedIndicatorMetadata &&
+      this.tmpIndicatorReference_referenceDescription
+    ) {
+      const tmpReference = {
+        indicatorMetadata: this.tmpIndicatorReference_selectedIndicatorMetadata,
+        referenceDescription: this.tmpIndicatorReference_referenceDescription,
+      };
+
+      let processed = false;
+      for (let index = 0; index < this.indicatorReferences_adminView.length; index++) {
+        const indicatorReference = this.indicatorReferences_adminView[index];
+        if (
+          indicatorReference.indicatorMetadata.indicatorId ===
+          tmpReference.indicatorMetadata.indicatorId
+        ) {
+          // replace object
+          this.indicatorReferences_adminView[index] = tmpReference;
+          processed = true;
+          break;
+        }
+      }
+
+      if (!processed) {
+        // new entry
+        this.indicatorReferences_adminView.push(tmpReference);
+      }
+
+      this.tmpIndicatorReference_selectedIndicatorMetadata = null;
+      this.tmpIndicatorReference_referenceDescription = '';
+    }
+  }
+
+  onClickEditIndicatorReference(indicatorReference: any) {
+    this.tmpIndicatorReference_selectedIndicatorMetadata = indicatorReference.indicatorMetadata;
+    this.tmpIndicatorReference_referenceDescription = indicatorReference.referenceDescription;
+  }
+
+  onClickDeleteIndicatorReference(indicatorReference: any) {
+    for (let index = 0; index < this.indicatorReferences_adminView.length; index++) {
+      if (
+        this.indicatorReferences_adminView[index].indicatorMetadata.indicatorId ===
+        indicatorReference.indicatorMetadata.indicatorId
+      ) {
+        // remove object
+        this.indicatorReferences_adminView.splice(index, 1);
+        break;
+      }
+    }
+  }
+
+  onAddOrUpdateGeoresourceReference() {
+    if (
+      this.tmpGeoresourceReference_selectedGeoresourceMetadata &&
+      this.tmpGeoresourceReference_referenceDescription
+    ) {
+      const tmpReference = {
+        georesourceMetadata: this.tmpGeoresourceReference_selectedGeoresourceMetadata,
+        referenceDescription: this.tmpGeoresourceReference_referenceDescription,
+      };
+
+      let processed = false;
+      for (let index = 0; index < this.georesourceReferences_adminView.length; index++) {
+        const georesourceReference = this.georesourceReferences_adminView[index];
+        if (
+          georesourceReference.georesourceMetadata.georesourceId ===
+          tmpReference.georesourceMetadata.georesourceId
+        ) {
+          // replace object
+          this.georesourceReferences_adminView[index] = tmpReference;
+          processed = true;
+          break;
+        }
+      }
+
+      if (!processed) {
+        // new entry
+        this.georesourceReferences_adminView.push(tmpReference);
+      }
+
+      this.tmpGeoresourceReference_selectedGeoresourceMetadata = null;
+      this.tmpGeoresourceReference_referenceDescription = '';
+    }
+  }
+
+  onClickEditGeoresourceReference(georesourceReference: any) {
+    this.tmpGeoresourceReference_selectedGeoresourceMetadata =
+      georesourceReference.georesourceMetadata;
+    this.tmpGeoresourceReference_referenceDescription = georesourceReference.referenceDescription;
+  }
+
+  onClickDeleteGeoresourceReference(georesourceReference: any) {
+    for (let index = 0; index < this.georesourceReferences_adminView.length; index++) {
+      if (
+        this.georesourceReferences_adminView[index].georesourceMetadata.georesourceId ===
+        georesourceReference.georesourceMetadata.georesourceId
+      ) {
+        // remove object
+        this.georesourceReferences_adminView.splice(index, 1);
+        break;
+      }
+    }
+  }
+
+  // Build post body for API request
+  buildPostBody_indicators() {
+    // Convert references to API format
+    this.convertReferencesToApiFormat();
+
+    const postBody: any = {
+      datasetName: this.datasetName,
+      abbreviation: this.indicatorAbbreviation,
+      indicatorType: this.indicatorType?.apiName,
+      isHeadlineIndicator: this.isHeadlineIndicator,
+      unit: this.indicatorUnit,
+      processDescription: this.indicatorProcessDescription,
+      interpretation: this.indicatorInterpretation,
+      creationType: this.indicatorCreationType?.apiName,
+      lowestSpatialUnitForComputation:
+        this.indicatorLowestSpatialUnitMetadataObjectForComputation?.spatialUnitLevel,
+      referenceDateNote: this.indicatorReferenceDateNote,
+      displayOrder: this.displayOrder,
+      metadata: {
+        note: this.metadata.note,
+        literature: this.metadata.literature,
+        updateInterval: this.metadata.updateInterval?.apiName,
+        sridEPSG: this.metadata.sridEPSG,
+        datasource: this.metadata.datasource,
+        contact: this.metadata.contact,
+        lastUpdate: this.metadata.lastUpdate,
+        description: this.metadata.description,
+        databasis: this.metadata.databasis,
+      },
+      allowedRoles: [] as string[],
+      refrencesToOtherIndicators: this.indicatorReferences_apiRequest,
+      refrencesToGeoresources: this.georesourceReferences_apiRequest,
+      defaultClassificationMapping: {
+        colorBrewerSchemeName: this.selectedColorBrewerPaletteEntry?.paletteName,
+        numClasses: this.numClassesPerSpatialUnit,
+        classificationMethod: this.classificationMethod,
+        items: this.spatialUnitClassification.map((classification) => ({
+          spatialUnit: classification.spatialUnitId,
+          breaks: classification.breaks.filter((breakVal) => breakVal !== null),
+        })),
+      },
+    };
+
+    // Add topic reference if selected
+    if (this.indicatorTopic_subsubsubTopic) {
+      postBody.topicReference = this.indicatorTopic_subsubsubTopic.topicId;
+    } else if (this.indicatorTopic_subsubTopic) {
+      postBody.topicReference = this.indicatorTopic_subsubTopic.topicId;
+    } else if (this.indicatorTopic_subTopic) {
+      postBody.topicReference = this.indicatorTopic_subTopic.topicId;
+    } else if (this.indicatorTopic_mainTopic) {
+      postBody.topicReference = this.indicatorTopic_mainTopic.topicId;
+    }
+
+    // Add tags if provided
+    if (this.indicatorTagsString_withCommas) {
+      postBody.tags = this.indicatorTagsString_withCommas
+        .split(',')
+        .map((tag: string) => tag.trim());
+    }
+
+    // Add precision if custom value is enabled
+    if (this.showCustomCommaValue && this.indicatorPrecision !== null) {
+      postBody.precision = this.indicatorPrecision;
+    }
+
+    // Add role permissions
+    if (this.roleManagementTableOptions && this.roleManagementHelper) {
+      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
+        this.roleManagementTableOptions
+      );
+      if (roleIds && Array.isArray(roleIds)) {
+        for (const roleId of roleIds) {
+          postBody.allowedRoles.push(roleId);
+        }
+      }
+    }
+
+    return postBody;
+  }
+
+  // Import/Export functionality
+  async parseMetadataFromFile(file: File) {
+    try {
+      this.metadataImportSettings = await readJsonFile(file);
+      this.applyMetadataImport();
+    } catch (error) {
+      console.error(error);
+      console.error('Uploaded Metadata File cannot be parsed.');
+      this.indicatorMetadataImportError = 'Uploaded Metadata File cannot be parsed correctly';
+    }
+  }
+
+  private applyMetadataImport() {
+    if (!this.metadataImportSettings.metadata) {
+      console.error('uploaded Metadata File cannot be parsed - wrong structure.');
+      this.indicatorMetadataImportError =
+        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.';
+      return;
+    }
+
+    // Parse metadata
+    this.metadata = {};
+    this.metadata.note = this.metadataImportSettings.metadata.note;
+    this.metadata.literature = this.metadataImportSettings.metadata.literature;
+
+    if (this.envConfigService && this.envConfigService.updateIntervalOptions) {
+      this.envConfigService.updateIntervalOptions.forEach((option: any) => {
+        if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
+          this.metadata.updateInterval = option;
+        }
+      });
+    }
+
+    this.metadata.sridEPSG = this.metadataImportSettings.metadata.sridEPSG;
+    this.metadata.datasource = this.metadataImportSettings.metadata.datasource;
+    this.metadata.contact = this.metadataImportSettings.metadata.contact;
+    this.metadata.lastUpdate = this.metadataImportSettings.metadata.lastUpdate;
+    this.metadata.description = this.metadataImportSettings.metadata.description;
+    this.metadata.databasis = this.metadataImportSettings.metadata.databasis;
+
+    // Parse basic fields
+    this.datasetName = this.metadataImportSettings.datasetName || '';
+    this.indicatorAbbreviation = this.metadataImportSettings.abbreviation || '';
+    this.indicatorUnit = this.metadataImportSettings.unit || '';
+    this.indicatorProcessDescription = this.metadataImportSettings.processDescription || '';
+    this.indicatorInterpretation = this.metadataImportSettings.interpretation || '';
+    this.indicatorReferenceDateNote = this.metadataImportSettings.referenceDateNote || '';
+    this.displayOrder = this.metadataImportSettings.displayOrder || 0;
+    this.isHeadlineIndicator = this.metadataImportSettings.isHeadlineIndicator || false;
+
+    // Parse indicator type
+    if (
+      this.metadataImportSettings.indicatorType &&
+      this.envConfigService &&
+      this.envConfigService.indicatorTypeOptions
+    ) {
+      this.envConfigService.indicatorTypeOptions.forEach((option: any) => {
+        if (option.apiName === this.metadataImportSettings.indicatorType) {
+          this.indicatorType = option;
+        }
+      });
+    }
+
+    // Parse creation type
+    if (this.metadataImportSettings.creationType) {
+      // Add creation type options if available
+      // this.indicatorCreationType = ...
+    }
+
+    // Parse tags
+    if (this.metadataImportSettings.tags && Array.isArray(this.metadataImportSettings.tags)) {
+      this.indicatorTagsString_withCommas = this.metadataImportSettings.tags.join(', ');
+    }
+
+    // Parse references
+    if (
+      this.metadataImportSettings.refrencesToOtherIndicators &&
+      this.indicatorStore.availableIndicators
+    ) {
+      this.indicatorReferences_apiRequest = this.metadataImportSettings.refrencesToOtherIndicators;
+      // Populate admin view
+      this.indicatorReferences_adminView = [];
+      this.indicatorReferences_apiRequest.forEach((ref: any) => {
+        const indicator = this.indicatorStore.availableIndicators.find(
+          (ind: any) => ind.indicatorId === ref.indicatorId
+        );
+        if (indicator) {
+          this.indicatorReferences_adminView.push({
+            indicatorId: ref.indicatorId,
+            referenceDescription: ref.referenceDescription,
+            indicatorName: indicator.indicatorName,
+          });
+        }
+      });
+    }
+
+    if (
+      this.metadataImportSettings.refrencesToGeoresources &&
+      this.georesourceStore.availableGeoresources
+    ) {
+      this.georesourceReferences_apiRequest = this.metadataImportSettings.refrencesToGeoresources;
+      // Populate admin view
+      this.georesourceReferences_adminView = [];
+      this.georesourceReferences_apiRequest.forEach((ref: any) => {
+        const georesource = this.georesourceStore.availableGeoresources.find(
+          (geo: any) => geo.georesourceId === ref.georesourceId
+        );
+        if (georesource) {
+          this.georesourceReferences_adminView.push({
+            georesourceId: ref.georesourceId,
+            referenceDescription: ref.referenceDescription,
+            georesourceName: georesource.georesourceName,
+          });
+        }
+      });
+    }
+
+    // Parse classification mapping
+    if (this.metadataImportSettings.defaultClassificationMapping) {
+      const mapping = this.metadataImportSettings.defaultClassificationMapping;
+      this.numClassesPerSpatialUnit = mapping.numClasses || 5;
+      this.classificationMethod = mapping.classificationMethod || 'jenks';
+
+      // Set color brewer palette
+      if (mapping.colorBrewerSchemeName) {
+        this.selectedColorBrewerPaletteEntry = this.colorbrewerPalettes.find(
+          (palette) => palette.paletteName === mapping.colorBrewerSchemeName
+        );
+      }
+
+      // Parse spatial unit classification
+      if (mapping.items) {
+        this.onNumClassesChanged(this.numClassesPerSpatialUnit);
+        mapping.items.forEach((item: any) => {
+          const index = this.spatialUnitClassification.findIndex(
+            (classification) => classification.spatialUnitId === item.spatialUnit
+          );
+          if (index > -1) {
+            this.spatialUnitClassification[index].breaks = item.breaks;
+          }
+        });
+      }
+    }
+
+    // Parse role permissions
+    if (
+      this.accessControlService.accessControl &&
+      this.metadataImportSettings.allowedRoles &&
+      this.roleManagementHelper
+    ) {
+      this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
+        'indicatorAddRoleManagementTable',
+        this.roleManagementTableOptions,
+        this.accessControlService.accessControl,
+        this.metadataImportSettings.allowedRoles
+      );
+    }
+  }
+
+  onExportIndicatorAddMetadata() {
+    const metadataExport: any = { ...this.indicatorMetadataStructure };
+
+    // Populate with current form data
+    metadataExport.datasetName = this.datasetName || '';
+    metadataExport.abbreviation = this.indicatorAbbreviation || '';
+    metadataExport.unit = this.indicatorUnit || '';
+    metadataExport.processDescription = this.indicatorProcessDescription || '';
+    metadataExport.interpretation = this.indicatorInterpretation || '';
+    metadataExport.referenceDateNote = this.indicatorReferenceDateNote || '';
+    metadataExport.displayOrder = this.displayOrder || 0;
+    metadataExport.isHeadlineIndicator = this.isHeadlineIndicator || false;
+
+    if (this.indicatorType) {
+      metadataExport.indicatorType = this.indicatorType.apiName;
+    }
+
+    if (this.indicatorCreationType) {
+      metadataExport.creationType = this.indicatorCreationType.apiName;
+    }
+
+    if (this.indicatorTagsString_withCommas) {
+      metadataExport.tags = this.indicatorTagsString_withCommas
+        .split(',')
+        .map((tag: string) => tag.trim());
+    }
+
+    if (this.showCustomCommaValue && this.indicatorPrecision !== null) {
+      metadataExport.precision = this.indicatorPrecision;
+    }
+
+    // Add metadata
+    metadataExport.metadata.note = this.metadata.note || '';
+    metadataExport.metadata.literature = this.metadata.literature || '';
+    metadataExport.metadata.sridEPSG = this.metadata.sridEPSG || '';
+    metadataExport.metadata.datasource = this.metadata.datasource || '';
+    metadataExport.metadata.contact = this.metadata.contact || '';
+    metadataExport.metadata.lastUpdate = this.metadata.lastUpdate || '';
+    metadataExport.metadata.description = this.metadata.description || '';
+    metadataExport.metadata.databasis = this.metadata.databasis || '';
+
+    if (this.metadata.updateInterval) {
+      metadataExport.metadata.updateInterval = this.metadata.updateInterval.apiName;
+    }
+
+    // Add references
+    metadataExport.refrencesToOtherIndicators = this.indicatorReferences_apiRequest;
+    metadataExport.refrencesToGeoresources = this.georesourceReferences_apiRequest;
+
+    // Add classification mapping
+    metadataExport.defaultClassificationMapping = {
+      colorBrewerSchemeName: this.selectedColorBrewerPaletteEntry?.paletteName,
+      numClasses: this.numClassesPerSpatialUnit,
+      classificationMethod: this.classificationMethod,
+      items: this.spatialUnitClassification.map((classification) => ({
+        spatialUnit: classification.spatialUnitId,
+        breaks: classification.breaks.filter((breakVal) => breakVal !== null),
+      })),
+    };
+
+    // Add role permissions
+    metadataExport.allowedRoles = [];
+    if (this.roleManagementTableOptions && this.roleManagementHelper) {
+      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
+        this.roleManagementTableOptions
+      );
+      if (roleIds && Array.isArray(roleIds)) {
+        for (const roleId of roleIds) {
+          metadataExport.allowedRoles.push(roleId);
+        }
+      }
+    }
+
+    const name = this.datasetName;
+    const metadataJSON = JSON.stringify(metadataExport);
+    let fileName = 'Indikator_Metadaten_Export';
+
+    if (name) {
+      fileName += '-' + name;
+    }
+
+    fileName += '.json';
+    downloadJson(fileName, metadataJSON);
+  }
+
+  // Metadata structure for export
+  get indicatorMetadataStructure() {
+    return {
+      metadata: {
+        note: '',
+        literature: '',
+        updateInterval: '',
+        sridEPSG: '',
+        datasource: '',
+        contact: '',
+        lastUpdate: '',
+        description: '',
+        databasis: '',
+      },
+      allowedRoles: [],
+      datasetName: '',
+      abbreviation: '',
+      indicatorType: '',
+      isHeadlineIndicator: false,
+      unit: '',
+      processDescription: '',
+      interpretation: '',
+      creationType: '',
+      lowestSpatialUnitForComputation: '',
+      referenceDateNote: '',
+      displayOrder: 0,
+      refrencesToOtherIndicators: [],
+      refrencesToGeoresources: [],
+      tags: [],
+      precision: null,
+      defaultClassificationMapping: {
+        colorBrewerSchemeName: '',
+        numClasses: 5,
+        classificationMethod: 'jenks',
+        items: [],
+      },
+    };
+  }
+
+  get indicatorMetadataStructure_pretty() {
+    return JSON.stringify(this.indicatorMetadataStructure, null, 2);
+  }
+
+  resetForm() {
+    this.currentStep = 1;
+    this.datasetName = '';
+    this.datasetNameInvalid = false;
+    this.indicatorAbbreviation = '';
+    this.indicatorType =
+      this.indicatorTypeOptions && this.indicatorTypeOptions.length > 0
+        ? this.indicatorTypeOptions[0]
+        : null;
+    this.isHeadlineIndicator = false;
+    this.indicatorUnit = '';
+    this.enableFreeTextUnit = false;
+    this.indicatorProcessDescription = '';
+    this.indicatorTagsString_withCommas = '';
+    this.indicatorInterpretation = '';
+    this.indicatorCreationType = null;
+    this.indicatorLowestSpatialUnitMetadataObjectForComputation =
+      this.availableSpatialUnits && this.availableSpatialUnits.length > 0
+        ? this.availableSpatialUnits[0]
+        : null;
+    this.enableLowestSpatialUnitSelect = false;
+    this.indicatorPrecision = null;
+    this.showCustomCommaValue = false;
+    this.indicatorReferenceDateNote = '';
+    this.displayOrder = 0;
+    this.indicatorTopic_mainTopic = null;
+    this.indicatorTopic_subTopic = null;
+    this.indicatorTopic_subsubTopic = null;
+    this.indicatorTopic_subsubsubTopic = null;
+
+    // Reset Step 3: Topic Hierarchy
+    this.selectedTopic = null;
+    this.selectedSubTopic = null;
+    this.availableSubTopics = [];
+    this.additionalTopic = null;
+    this.additionalSubTopic = null;
+    this.additionalSubTopics = [];
+    this.additionalTopicAssignments = [];
+    this.indicatorReferences_adminView = [];
+    this.indicatorReferences_apiRequest = [];
+    this.georesourceReferences_adminView = [];
+    this.georesourceReferences_apiRequest = [];
+    this.numClassesPerSpatialUnit = 5;
+    this.classificationMethod = 'jenks';
+    this.selectedColorBrewerPaletteEntry =
+      this.colorbrewerPalettes && this.colorbrewerPalettes.length > 13
+        ? this.colorbrewerPalettes[13]
+        : this.colorbrewerPalettes && this.colorbrewerPalettes.length > 0
+          ? this.colorbrewerPalettes[0]
+          : null;
+    this.spatialUnitClassification = [];
+    this.classBreaksInvalid = false;
+    this.tabClasses = [];
+    this.ownerOrganization = '';
+    this.ownerOrgFilter = '';
+    this.isPublic = false;
+    this.roleManagementTableOptions = null;
+    this.metadataImportSettings = null;
+    this.indicatorMetadataImportError = '';
+    this.successMessagePart = '';
+    this.errorMessagePart = '';
+    this.postBody_indicators = null;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    // Reset metadata
+    this.metadata = {
+      description: '',
+      databasis: '',
+      datasource: '',
+      contact: '',
+      updateInterval: null,
+      lastUpdate: '',
+      literature: '',
+      note: '',
+      sridEPSG: 4326,
+    };
+
+    // Reset temporary variables
+    this.indicatorNameFilter = '';
+    this.tmpIndicatorReference_selectedIndicatorMetadata = null;
+    this.tmpIndicatorReference_referenceDescription = '';
+    this.georesourceNameFilter = '';
+    this.tmpGeoresourceReference_selectedGeoresourceMetadata = null;
+    this.tmpGeoresourceReference_referenceDescription = '';
+
+    // Reset Step 4: Filtered lists
+    this.filteredIndicators = this.availableIndicators || [];
+    this.filteredGeoresources = this.availableGeoresources || [];
+
+    // Reset Step 5: Classification Options
+    this.enableDynamicColorAssignment = false;
+    this.currentClassificationTab = 0;
+
+    // Reset Step 6: Regional Comparison Values
+    this.comparisonValueType = null;
+    this.comparisonValue = null;
+    this.comparisonRegion = null;
+    this.comparisonTimeframe = null;
+    this.comparisonDescription = '';
+    this.evaluationDirection = null;
+    this.toleranceRange = null;
+    this.additionalComparisonType = null;
+    this.additionalComparisonValue = null;
+    this.additionalComparisonDescription = '';
+    this.additionalComparisonValues = [];
+    this.enableBenchmarking = false;
+    this.benchmarkingVisualizationType = null;
+    this.greenThreshold = null;
+    this.yellowThreshold = null;
+    this.redThreshold = null;
+
+    // Reset Step 7: Access Control and Ownership
+    this.roleFilter = '';
+    this.selectedRoles = [];
+    this.enableTimeRestrictedAccess = false;
+    this.enableGeographicRestriction = false;
+    this.accessStartDate = '';
+    this.accessEndDate = '';
+    this.allowedRegions = [];
+    this.enableAccessLogging = false;
+    this.filteredOrganizations = this.accessControl || [];
+    this.filteredRoles = this.accessControl || [];
+
+    // Reinitialize classification
+    this.onNumClassesChanged(this.numClassesPerSpatialUnit);
+  }
+
+  hideSuccessAlert() {
+    this.successMessage = '';
+  }
+
+  hideErrorAlert() {
+    this.errorMessage = '';
+  }
+
+  hideMetadataErrorAlert() {
+    this.indicatorMetadataImportError = '';
+  }
+
+  onChangeIndicatorUnit() {
+    if (this.indicatorUnit && this.indicatorUnit.includes('Freitext')) {
+      this.enableFreeTextUnit = true;
+    } else {
+      this.enableFreeTextUnit = false;
+    }
+  }
+
+  onChangeCreationType() {
+    if (this.indicatorCreationType && this.indicatorCreationType.apiName === 'COMPUTATION') {
+      this.enableLowestSpatialUnitSelect = true;
+    } else {
+      this.enableLowestSpatialUnitSelect = false;
+    }
+  }
+
+  onChangeOwner(ownerOrganization: any) {
+    this.ownerOrganization = ownerOrganization;
+  }
+
+  onChangeIsPublic(isPublic: boolean) {
+    this.isPublic = isPublic;
+  }
+
+  // Step 3: Topic Hierarchy Methods
+  onTopicChange() {
+    if (this.selectedTopic) {
+      // Load sub-topics for the selected topic
+      this.availableSubTopics = this.selectedTopic.subTopics || [];
+      this.selectedSubTopic = null;
+
+      // Update main topic reference
+      this.indicatorTopic_mainTopic = this.selectedTopic;
+      this.indicatorTopic_subTopic = null;
+      this.indicatorTopic_subsubTopic = null;
+      this.indicatorTopic_subsubsubTopic = null;
+    } else {
+      this.availableSubTopics = [];
+      this.availableSubSubTopics = [];
+      this.availableSubSubSubTopics = [];
+      this.selectedSubTopic = null;
+      this.selectedSubSubTopic = null;
+      this.selectedSubSubSubTopic = null;
+    }
+  }
+
+  onSubTopicChange() {
+    if (this.selectedSubTopic) {
+      // Load sub-topics for the selected topic
+      this.availableSubSubTopics = this.selectedSubTopic.subTopics || [];
+      this.selectedSubSubTopic = null;
+
+      // Update sub topic reference
+      this.indicatorTopic_subTopic = this.selectedSubTopic;
+      this.indicatorTopic_subsubTopic = null;
+      this.indicatorTopic_subsubsubTopic = null;
+    } else {
+      this.availableSubSubTopics = [];
+      this.availableSubSubSubTopics = [];
+      this.selectedSubSubTopic = null;
+      this.selectedSubSubSubTopic = null;
+    }
+  }
+
+  onSubSubTopicChange() {
+    if (this.selectedSubSubTopic) {
+      // Load sub-topics for the selected topic
+      this.availableSubSubSubTopics = this.selectedSubSubTopic.subTopics || [];
+      this.selectedSubSubSubTopic = null;
+
+      // Update sub topic reference
+      this.indicatorTopic_subsubTopic = this.selectedSubSubTopic;
+      this.indicatorTopic_subsubsubTopic = null;
+    } else {
+      this.availableSubSubSubTopics = [];
+      this.selectedSubSubSubTopic = null;
+    }
+  }
+
+  onSubSubSubTopicChange() {
+    if (this.selectedSubSubSubTopic) {
+      // Update sub topic reference
+      this.indicatorTopic_subsubsubTopic = this.selectedSubSubSubTopic;
+    }
+  }
+
+  onAdditionalTopicChange() {
+    if (this.additionalTopic) {
+      // Load sub-topics for the additional topic
+      this.additionalSubTopics = this.additionalTopic.subTopics || [];
+      this.additionalSubTopic = null;
+    } else {
+      this.additionalSubTopics = [];
+      this.additionalSubTopic = null;
+    }
+  }
+
+  addAdditionalTopicAssignment() {
+    if (this.additionalTopic && this.additionalSubTopic) {
+      // Check if this assignment already exists
+      const existingAssignment = this.additionalTopicAssignments.find(
+        (assignment) =>
+          assignment.topic.topicId === this.additionalTopic.topicId &&
+          assignment.subTopic.subTopicId === this.additionalSubTopic.subTopicId
+      );
+
+      if (!existingAssignment) {
+        // Check if it's the same as the main assignment
+        const isMainAssignment =
+          this.selectedTopic &&
+          this.selectedSubTopic &&
+          this.selectedTopic.topicId === this.additionalTopic.topicId &&
+          this.selectedSubTopic.subTopicId === this.additionalSubTopic.subTopicId;
+
+        if (!isMainAssignment) {
+          this.additionalTopicAssignments.push({
+            topic: this.additionalTopic,
+            subTopic: this.additionalSubTopic,
+          });
+
+          // Reset additional topic selection
+          this.additionalTopic = null;
+          this.additionalSubTopic = null;
+          this.additionalSubTopics = [];
+        }
+      }
+    }
+  }
+
+  removeAdditionalTopicAssignment(index: number) {
+    if (index >= 0 && index < this.additionalTopicAssignments.length) {
+      this.additionalTopicAssignments.splice(index, 1);
+    }
+  }
+
+  // Step 4: Reference Filtering Methods
+  filterIndicators() {
+    if (!this.indicatorNameFilter || this.indicatorNameFilter.trim() === '') {
+      this.filteredIndicators = this.availableIndicators || [];
+    } else {
+      const filter = this.indicatorNameFilter.toLowerCase().trim();
+      this.filteredIndicators = (this.availableIndicators || []).filter(
+        (indicator) => indicator.datasetName && indicator.datasetName.toLowerCase().includes(filter)
+      );
+    }
+  }
+
+  filterGeoresources() {
+    if (!this.georesourceNameFilter || this.georesourceNameFilter.trim() === '') {
+      this.filteredGeoresources = this.availableGeoresources || [];
+    } else {
+      const filter = this.georesourceNameFilter.toLowerCase().trim();
+      this.filteredGeoresources = (this.availableGeoresources || []).filter(
+        (georesource) =>
+          georesource.datasetName && georesource.datasetName.toLowerCase().includes(filter)
+      );
+    }
+  }
+
+  // Convert admin view references to API format
+  private convertReferencesToApiFormat() {
+    // Convert indicator references
+    this.indicatorReferences_apiRequest = this.indicatorReferences_adminView.map((ref) => ({
+      referencedIndicatorName: ref.indicatorMetadata.datasetName,
+      referencedIndicatorId: ref.indicatorMetadata.indicatorId,
+      referencedIndicatorAbbreviation: ref.indicatorMetadata.abbreviation,
+      referencedIndicatorDescription: ref.referenceDescription,
+    }));
+
+    // Convert georesource references
+    this.georesourceReferences_apiRequest = this.georesourceReferences_adminView.map((ref) => ({
+      referencedGeoresourceName: ref.georesourceMetadata.datasetName,
+      referencedGeoresourceId: ref.georesourceMetadata.georesourceId,
+      referencedGeoresourceDescription: ref.referenceDescription,
+    }));
+  }
+
+  // Step 5: Classification Methods
+  goToClassificationTab(tabIndex: number) {
+    this.currentClassificationTab = tabIndex;
+
+    // Update active tab classes
+    this.tabClasses.forEach((_, index) => {
+      if (index === tabIndex) {
+        this.tabClasses[index] = 'active';
+      } else {
+        this.tabClasses[index] = '';
+      }
+    });
+  }
+
+  getClassColor(classIndex: number, palette: any): string {
+    if (!palette || !palette.colors) {
+      return '#cccccc';
+    }
+
+    const colors = palette.colors;
+    if (classIndex >= 0 && classIndex < colors.length) {
+      return colors[classIndex];
+    }
+
+    return '#cccccc';
+  }
+
+  // Override existing classification methods to work with Step 5
+  onClassificationMethodSelected(method: any) {
+    this.classificationMethod = method;
+    // Reinitialize classification when method changes
+    this.onNumClassesChanged(this.numClassesPerSpatialUnit);
+  }
+
+  onClickColorBrewerEntry(colorPaletteEntry: any) {
+    this.selectedColorBrewerPaletteEntry = colorPaletteEntry;
+  }
+
+  onNumClassesChanged(numClasses: number) {
+    this.numClassesPerSpatialUnit = numClasses;
+
+    // Initialize classification for each spatial unit
+    this.spatialUnitClassification = [];
+    this.tabClasses = [];
+
+    if (this.availableSpatialUnits && this.availableSpatialUnits.length > 0) {
+      this.availableSpatialUnits.forEach((spatialUnit, index) => {
+        // Initialize breaks array
+        const breaks: Array<number | null> = [];
+        for (let i = 0; i < numClasses - 1; i++) {
+          breaks.push(null);
+        }
+
+        this.spatialUnitClassification.push({
+          spatialUnitId: spatialUnit.spatialUnitId,
+          spatialUnitLevel: spatialUnit.spatialUnitLevel,
+          breaks: breaks,
+        });
+
+        // Initialize tab class
+        this.tabClasses[index] = index === 0 ? 'active' : '';
+      });
+    }
+
+    // Reset validation
+    this.classBreaksInvalid = false;
+  }
+
+  onBreaksChanged(tabIndex: number) {
+    if (!this.spatialUnitClassification[tabIndex]) {
+      return;
+    }
+
+    const breaks = this.spatialUnitClassification[tabIndex].breaks;
+    let cssClass = 'active';
+    this.classBreaksInvalid = false;
+
+    // Validate breaks for manual classification
+    if (this.classificationMethod === 'manual') {
+      let lastValidBreak = null;
+      for (const classBreak of breaks) {
+        if (classBreak !== null && classBreak !== undefined) {
+          if (lastValidBreak !== null && classBreak <= lastValidBreak) {
+            cssClass = 'tab-error';
+            this.classBreaksInvalid = true;
+            break;
+          }
+          lastValidBreak = classBreak;
+        }
+      }
+    } else {
+      for (const classBreak of this.spatialUnitClassification[tabIndex].breaks) {
+        if (classBreak !== null) {
+          cssClass = 'tab-error';
+          this.classBreaksInvalid = true;
+        }
+      }
+    }
+
+    this.tabClasses[tabIndex] = cssClass;
+  }
+
+  // Step 6: Regional Comparison Methods
+  onComparisonValueTypeChange() {
+    // Reset comparison value when type changes
+    if (this.comparisonValueType === null) {
+      this.comparisonValue = null;
+    }
+  }
+
+  addAdditionalComparisonValue() {
+    if (this.additionalComparisonType && this.additionalComparisonValue !== null) {
+      // Check if this comparison already exists
+      const existingComparison = this.additionalComparisonValues.find(
+        (comparison) =>
+          comparison.type === this.additionalComparisonType &&
+          comparison.value === this.additionalComparisonValue
+      );
+
+      if (!existingComparison) {
+        this.additionalComparisonValues.push({
+          type: this.additionalComparisonType,
+          value: this.additionalComparisonValue,
+          description: this.additionalComparisonDescription || '',
+        });
+
+        // Reset additional comparison inputs
+        this.additionalComparisonType = null;
+        this.additionalComparisonValue = null;
+        this.additionalComparisonDescription = '';
+      }
+    }
+  }
+
+  removeAdditionalComparisonValue(index: number) {
+    if (index >= 0 && index < this.additionalComparisonValues.length) {
+      this.additionalComparisonValues.splice(index, 1);
+    }
+  }
+
+  getComparisonTypeDisplayName(type: string): string {
+    const typeMap: { [key: string]: string } = {
+      target: 'Zielwert',
+      average: 'Durchschnittswert',
+      median: 'Medianwert',
+      best_practice: 'Best Practice',
+      threshold: 'Schwellenwert',
+      custom: 'Benutzerdefiniert',
+    };
+    return typeMap[type] || type;
+  }
+
+  // Step 7: Access Control Methods
+  filterOrganizations() {
+    if (!this.ownerOrgFilter || this.ownerOrgFilter.trim() === '') {
+      this.filteredOrganizations = this.accessControl || [];
+    } else {
+      const filter = this.ownerOrgFilter.toLowerCase().trim();
+      this.filteredOrganizations = (this.accessControl || []).filter(
+        (org) => org.organizationName && org.organizationName.toLowerCase().includes(filter)
+      );
+    }
+  }
+
+  clearOwnerFilter() {
+    this.ownerOrgFilter = '';
+    this.filterOrganizations();
+  }
+
+  filterRoles() {
+    if (!this.roleFilter || this.roleFilter.trim() === '') {
+      this.filteredRoles = this.accessControl || [];
+    } else {
+      const filter = this.roleFilter.toLowerCase().trim();
+      this.filteredRoles = (this.accessControl || []).filter(
+        (role) => role.roleName && role.roleName.toLowerCase().includes(filter)
+      );
+    }
+  }
+
+  isRoleSelected(role: any): boolean {
+    return this.selectedRoles.some((selectedRole) => selectedRole.roleId === role.roleId);
+  }
+
+  toggleRoleSelection(role: any) {
+    if (this.isRoleSelected(role)) {
+      this.removeRole(role);
+    } else {
+      this.addRole(role);
+    }
+  }
+
+  addRole(role: any) {
+    if (!this.isRoleSelected(role)) {
+      this.selectedRoles.push(role);
+    }
+  }
+
+  removeRole(role: any) {
+    const index = this.selectedRoles.findIndex(
+      (selectedRole) => selectedRole.roleId === role.roleId
+    );
+    if (index >= 0) {
+      this.selectedRoles.splice(index, 1);
+    }
+  }
+
+  // Multi-step navigation
+  nextStep() {
+    const maxSteps = this.envConfigService.enableKeycloakSecurity ? 7 : 6;
+    if (this.currentStep < maxSteps) {
+      this.currentStep++;
+    }
+  }
+
+  previousStep() {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+    }
+  }
+
+  goToStep(step: number) {
+    const maxSteps = this.envConfigService.enableKeycloakSecurity ? 7 : 6;
+
+    // Allow navigation to any step without validation (like old AngularJS counterpart)
+    if (step >= 1 && step <= maxSteps) {
+      this.currentStep = step;
+    }
+  }
+}

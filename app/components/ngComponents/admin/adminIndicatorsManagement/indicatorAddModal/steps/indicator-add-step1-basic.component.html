@@ -1,0 +1,310 @@
+<div>
+  <h2 class="fs-title">Metadaten des Indikators</h2>
+  <h3 class="fs-subtitle">Angaben über Metadaten des Indikators</h3>
+  <p>
+    <b><i>* = Pflichtfeld</i></b>
+  </p>
+  <div class="row vertical-align">
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Indikatorname*</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="state.datasetName"
+          name="datasetName"
+          placeholder="Name"
+          (ngModelChange)="state.checkDatasetName()"
+          required
+        />
+        <div class="help-block with-errors"></div>
+        <div class="help-block">
+          <p>Das Tupel aus 'Indikatorname' und 'Indikatoren-Typ' muss eindeutig sein.</p>
+        </div>
+        @if (state.datasetNameInvalid) {
+          <div style="color: red">
+            <p>
+              Eingabe ungültig. Es existiert bereits ein Indikator mit gleichem Namen und gleichem
+              Typ.
+            </p>
+          </div>
+        }
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Kürzel/Kennzeichen</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="state.indicatorAbbreviation"
+          name="indicatorAbbreviation"
+          placeholder="optionales Kürzel"
+        />
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Indikatoren-Typ*</label>
+        <select
+          [(ngModel)]="state.indicatorType"
+          name="indicatorType"
+          (ngModelChange)="state.checkDatasetName()"
+          class="form-control"
+          required
+        >
+          <option [ngValue]="null" disabled selected>-- Indikatorentyp wählen --</option>
+          @for (type of state.indicatorTypeOptions; track type) {
+            <option [ngValue]="type">
+              {{ type.displayName }}
+            </option>
+          }
+        </select>
+        <div class="help-block with-errors"></div>
+        <div class="help-block">
+          <p>'Status'-Indikatoren enthalten Werte für je einen einzelnen Zeitpunkt.</p>
+          <p>
+            'Dynamik'-Indikatoren enthalten Werte, die sich auf eine Zeitperiode beziehen (bspw.
+            Veränderung innerhalb der letzten 5 Jahre), somit Zu- oder Abnahmen des Indikators.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Nachkommastellen</label>
+        <div class="form-group vertical-align">
+          <label class="margin-right" style="font-weight: normal"
+            >Individuelle Anzeige aktivieren</label
+          >
+          <label class="switch">
+            <input
+              type="checkbox"
+              [(ngModel)]="state.showCustomCommaValue"
+              name="showCustomCommaValue"
+            />
+            <span class="switchslider round"></span>
+          </label>
+        </div>
+        @if (!state.showCustomCommaValue) {
+          <div>
+            Wird kein individueller Wert angegeben, so greift selbiger aus den Allgemeinen
+            Einstellungen.<br />
+            Zu finden unter <i>Einstellungen</i> - <i>Allgemeine Einstellungen</i> -
+            <i>"numberOfDecimals"</i>
+          </div>
+        }
+        @if (state.showCustomCommaValue) {
+          <div>
+            <input
+              class="form-control"
+              type="number"
+              min="0"
+              max="4"
+              [(ngModel)]="state.indicatorPrecision"
+              name="indicatorPrecision"
+            />
+            <div class="help-block">
+              <p>
+                Anzahl der angezeigten Nachkommastellen in allen Bereichen der Benutzeroberfläche
+              </p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+  <div class="row vertical-align">
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Einheit*</label>
+        <select
+          [(ngModel)]="state.indicatorUnit"
+          name="indicatorUnit"
+          (ngModelChange)="state.onChangeIndicatorUnit()"
+          class="form-control"
+          required
+        >
+          <option [ngValue]="null" disabled selected>-- Einheit wählen --</option>
+          <option value="-- Freitext --">-- Freitext --</option>
+          @for (unit of envConfigService.indicatorUnitOptions; track unit) {
+            <option [value]="unit">{{ unit }}</option>
+          }
+        </select>
+        @if (state.enableFreeTextUnit) {
+          <div>
+            <label>Freitexteingabe*</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="state.indicatorUnit"
+              name="indicatorUnit"
+              placeholder="Einheit"
+              required
+            />
+          </div>
+        }
+        <div class="help-block">
+          <p>
+            Enthält die Auswahlliste nicht das gewünschte Element, dann '-- Freitext --'
+            selektieren, um einen Freitext einzugeben
+          </p>
+        </div>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Methodik (der Berechnung)</label>
+        <textarea
+          rows="3"
+          class="form-control"
+          [(ngModel)]="state.indicatorProcessDescription"
+          name="indicatorProcessDescription"
+          placeholder="optionale Methodik"
+        ></textarea>
+        <div class="help-block">
+          <p>Hinweise über die Berechnungsvorschrift des Indikators</p>
+        </div>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Interpretation*</label>
+        <textarea
+          rows="3"
+          class="form-control"
+          [(ngModel)]="state.indicatorInterpretation"
+          name="indicatorInterpretation"
+          placeholder="optionale Interpretationshilfe"
+          required
+        ></textarea>
+        <div class="help-block">
+          <p>Hinweise, um die Verständlichkeit der Werteverteilung des Indikators zu erhöhen</p>
+        </div>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Tags (Komma-separierte Auflistung)</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="state.indicatorTagsString_withCommas"
+          name="indicatorTagsString_withCommas"
+          placeholder="optionale Komma-separierte Tags"
+        />
+        <div class="help-block">
+          <p>Eingabe als Freitext. Komma dient als Trennzeichen</p>
+        </div>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+  </div>
+  <div class="row vertical-align">
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Leitindikator*</label>
+        <label class="switch">
+          <input
+            type="checkbox"
+            [(ngModel)]="state.isHeadlineIndicator"
+            name="isHeadlineIndicator"
+          />
+          <span class="switchslider round"></span>
+        </label>
+        <div class="help-block">
+          <p>
+            Angabe, ob der Indikator ein Leitindikator ist. Leitindikatoren aggregieren in der Regel
+            Basisindikatoren zu einer höherwertigen Aussage
+          </p>
+        </div>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Hinweistext zu Referenzdatum</label>
+        <textarea
+          rows="3"
+          class="form-control"
+          [(ngModel)]="state.indicatorReferenceDateNote"
+          name="indicatorReferenceDateNote"
+          placeholder="optionaler Hinweistext bzgl. Referenzdatum des Indikators"
+        ></textarea>
+        <div class="help-block">
+          <p>Angabe des Referenzdatums oder Hinweise über die Fortführung des Indikators</p>
+        </div>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Fortführungstyp*</label>
+        <select
+          [(ngModel)]="state.indicatorCreationType"
+          name="indicatorCreationType"
+          (ngModelChange)="state.onChangeCreationType()"
+          class="form-control"
+          required
+        >
+          <option [ngValue]="null" disabled selected>-- Fortführungstyp wählen --</option>
+          @for (type of envConfigService.indicatorCreationTypeOptions; track type) {
+            <option [ngValue]="type">
+              {{ type.displayName }}
+            </option>
+          }
+        </select>
+        <div class="help-block">
+          <p>
+            'manuell' bedeutet, dass die Zeitreihenfortführung manuell durch den Anwender
+            durchgeführt werden muss.
+          </p>
+          <p>
+            'automatisierte Berechnung durch KomMonitor' bedeutet, dass die Zeitreihenfortführung
+            mittels eines Skript-Mechanismus semi-automatisiert von KomMonitor durchgeführt werden
+            kann.
+          </p>
+        </div>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+      @if (state.enableLowestSpatialUnitSelect) {
+        <div class="form-group">
+          <label>Niedrigste Raumebene für automatisierte Berechnung</label>
+          <select
+            [(ngModel)]="state.indicatorLowestSpatialUnitMetadataObjectForComputation"
+            name="indicatorLowestSpatialUnitMetadataObjectForComputation"
+            class="form-control"
+          >
+            <option [ngValue]="null" disabled selected>-- Raumebene wählen --</option>
+            @for (spatialUnit of state.availableSpatialUnits; track spatialUnit) {
+              <option [ngValue]="spatialUnit">
+                {{ spatialUnit.spatialUnitLevel }}
+              </option>
+            }
+          </select>
+          <div class="help-block">
+            <p>
+              Angabe der niedrigsten Raumebene, für die der automatisiert berechenbare Indikator
+              berechnet werden kann. Indikatorenwerte für höhere Raumebenen werden dabei automatisch
+              aus den niedrigeren Ebenen aggregiert berechnet.
+            </p>
+          </div>
+          <div class="help-block with-errors"></div>
+        </div>
+      }
+    </div>
+  </div>
+  <input
+    type="button"
+    name="next"
+    class="next next_addIndicator action-button"
+    value="Nächster Schritt"
+    (click)="state.nextStep()"
+  />
+</div>

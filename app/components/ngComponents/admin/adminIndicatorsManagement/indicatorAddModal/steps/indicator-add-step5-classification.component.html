@@ -1,0 +1,286 @@
+<div>
+  <h2 class="fs-title">Klassifizierungsoptionen</h2>
+  <h3 class="fs-subtitle">Angaben über die Klassifizierung der Indikatorwerte</h3>
+  <p>
+    <b><i>* = Pflichtfeld</i></b>
+  </p>
+  <div class="row vertical-align">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label>Allgemeine Klassifizierungseinstellungen</label>
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle"></i>
+          <strong>Hinweis:</strong> Hier können Sie die Klassifizierungsoptionen für die Darstellung
+          der Indikatorwerte konfigurieren.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row vertical-align">
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Anzahl Klassen*</label>
+        <select
+          [(ngModel)]="state.numClassesPerSpatialUnit"
+          name="numClassesPerSpatialUnit"
+          (ngModelChange)="state.onNumClassesChanged($event)"
+          class="form-control"
+          required
+        >
+          @for (numClass of state.numClassesArray; track numClass) {
+            <option [ngValue]="numClass">{{ numClass }}</option>
+          }
+        </select>
+        <div class="help-block">
+          <p>Anzahl der Klassen für die Klassifizierung der Indikatorwerte</p>
+        </div>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Klassifizierungsmethode*</label>
+        <select
+          [(ngModel)]="state.classificationMethod"
+          name="classificationMethod"
+          (ngModelChange)="state.onClassificationMethodSelected($event)"
+          class="form-control"
+          required
+        >
+          <option value="jenks">Jenks Natural Breaks</option>
+          <option value="equal">Gleiche Intervalle</option>
+          <option value="manual">Manuelle Klassifizierung</option>
+        </select>
+        <div class="help-block">
+          <p>Methode zur Bestimmung der Klassengrenzen</p>
+        </div>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Farbschema*</label>
+        <div class="color-palette-container">
+          <div class="color-palette-grid">
+            @for (palette of state.colorbrewerPalettes; track palette) {
+              <div
+                class="color-palette-item"
+                [class.selected]="state.selectedColorBrewerPaletteEntry === palette"
+                (click)="state.onClickColorBrewerEntry(palette)"
+                [title]="palette.paletteName"
+              >
+                <div class="color-strip" [style.background]="palette.colorStrip"></div>
+                <div class="palette-name">{{ palette.paletteName }}</div>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="help-block">
+          <p>Wählen Sie ein Farbschema für die Darstellung der Klassen</p>
+        </div>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Dynamische Farbzuordnung</label>
+        <div class="form-group vertical-align">
+          <label class="margin-right" style="font-weight: normal">Aktivieren</label>
+          <label class="switch">
+            <input
+              type="checkbox"
+              [(ngModel)]="state.enableDynamicColorAssignment"
+              name="enableDynamicColorAssignment"
+            />
+            <span class="switchslider round"></span>
+          </label>
+        </div>
+        <div class="help-block">
+          <p>
+            Bei Aktivierung werden Farben basierend auf der Werteentwicklung automatisch zugeordnet
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  @if (state.enableDynamicColorAssignment) {
+    <div class="row vertical-align">
+      <div class="col-md-6 col-sm-6 col-12">
+        <div class="form-group">
+          <label>Farbschema für steigende Werte</label>
+          <select
+            [(ngModel)]="state.colorbreweSchemeName_dynamicIncrease"
+            name="colorbreweSchemeName_dynamicIncrease"
+            class="form-control"
+          >
+            @for (palette of state.colorbrewerPalettes; track palette) {
+              <option [ngValue]="palette.paletteName">
+                {{ palette.paletteName }}
+              </option>
+            }
+          </select>
+          <div class="help-block">
+            <p>Farbschema für positive Werteentwicklung</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-sm-6 col-12">
+        <div class="form-group">
+          <label>Farbschema für fallende Werte</label>
+          <select
+            [(ngModel)]="state.colorbreweSchemeName_dynamicDecrease"
+            name="colorbreweSchemeName_dynamicDecrease"
+            class="form-control"
+          >
+            @for (palette of state.colorbrewerPalettes; track palette) {
+              <option [ngValue]="palette.paletteName">
+                {{ palette.paletteName }}
+              </option>
+            }
+          </select>
+          <div class="help-block">
+            <p>Farbschema für negative Werteentwicklung</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+  <!-- Spatial Unit Classification Tabs -->
+  <div class="row vertical-align">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label>Klassifizierung pro Raumebene</label>
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle"></i>
+          <strong>Wichtig:</strong> Konfigurieren Sie die Klassengrenzen für jede Raumebene.
+          Ungültige Konfigurationen werden rot markiert.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row vertical-align">
+    <div class="col-md-12">
+      <div class="form-group">
+        <div class="nav-tabs-custom">
+          <ul class="nav nav-tabs">
+            @for (spatialUnit of state.availableSpatialUnits; track spatialUnit; let i = $index) {
+              <li [class.active]="i === 0" [ngClass]="state.tabClasses[i]">
+                <a href="#" (click)="state.goToClassificationTab(i); $event.preventDefault()">
+                  {{ spatialUnit.spatialUnitLevel }}
+                </a>
+              </li>
+            }
+          </ul>
+          <div class="tab-content">
+            @for (spatialUnit of state.availableSpatialUnits; track spatialUnit; let i = $index) {
+              <div class="tab-pane" [class.active]="i === 0" [id]="'classification-tab-' + i">
+                <div class="classification-tab-content">
+                  <h4>Klassifizierung für {{ spatialUnit.spatialUnitLevel }}</h4>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Klassengrenzen</label>
+                        <div class="class-breaks-container">
+                          @for (
+                            break of state.spatialUnitClassification[i]?.breaks;
+                            track break;
+                            let j = $index
+                          ) {
+                            <div class="class-break-input">
+                              <label>Klasse {{ j + 1 }} - {{ j + 2 }}</label>
+                              <input
+                                type="number"
+                                class="form-control"
+                                [(ngModel)]="state.spatialUnitClassification[i].breaks[j]"
+                                (ngModelChange)="state.onBreaksChanged(i)"
+                                step="0.01"
+                                placeholder="Klassengrenze"
+                              />
+                            </div>
+                          }
+                        </div>
+                        <div class="help-block">
+                          <p>
+                            Geben Sie die Klassengrenzen für diese Raumebene ein. Leere Felder
+                            werden ignoriert.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Vorschau</label>
+                        <div class="classification-preview">
+                          @for (
+                            break of state.spatialUnitClassification[i]?.breaks;
+                            track break;
+                            let j = $index
+                          ) {
+                            @if (break !== null && break !== undefined) {
+                              <div class="class-preview-item">
+                                <div
+                                  class="class-color"
+                                  [style.background-color]="
+                                    state.getClassColor(j, state.selectedColorBrewerPaletteEntry)
+                                  "
+                                ></div>
+                                <div class="class-range">
+                                  @if (j === 0) {
+                                    <span>≤ {{ break }}</span>
+                                  }
+                                  @if (
+                                    j > 0 &&
+                                    state.spatialUnitClassification[i]?.breaks[j - 1] !== null
+                                  ) {
+                                    <span>
+                                      {{ state.spatialUnitClassification[i].breaks[j - 1] }} -
+                                      {{ break }}
+                                    </span>
+                                  }
+                                  @if (
+                                    j === state.spatialUnitClassification[i]?.breaks.length - 1
+                                  ) {
+                                    <span>> {{ break }}</span>
+                                  }
+                                </div>
+                              </div>
+                            }
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  @if (state.classBreaksInvalid) {
+    <div class="row vertical-align">
+      <div class="col-md-12">
+        <div class="alert alert-danger">
+          <i class="fas fa-exclamation-triangle"></i>
+          <strong>Fehler:</strong> Es gibt ungültige Klassifizierungskonfigurationen. Bitte
+          überprüfen Sie die rot markierten Tabs.
+        </div>
+      </div>
+    </div>
+  }
+  <input
+    type="button"
+    name="previous"
+    class="previous previous_addIndicator action-button-previous"
+    value="Voriger Schritt"
+    (click)="state.previousStep()"
+  />
+  <input
+    type="button"
+    name="next"
+    class="next next_addIndicator action-button"
+    value="Nächster Schritt"
+    (click)="state.nextStep()"
+  />
+</div>

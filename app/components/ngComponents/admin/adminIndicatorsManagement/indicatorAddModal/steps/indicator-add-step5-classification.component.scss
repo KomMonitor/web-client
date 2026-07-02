@@ -1,0 +1,146 @@
+/* Step 5: Classification Options Styles */
+.color-palette-container {
+  margin-top: 10px;
+}
+
+.color-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.color-palette-item {
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.color-palette-item:hover {
+  border-color: #27ae60;
+  transform: translateY(-2px);
+}
+
+.color-palette-item.selected {
+  border-color: #27ae60;
+  background-color: #f8fff9;
+}
+
+.color-strip {
+  height: 20px;
+  border-radius: 2px;
+  margin-bottom: 5px;
+}
+
+.palette-name {
+  font-size: 11px;
+  color: #666;
+  font-weight: 500;
+}
+
+.classification-tab-content {
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.class-breaks-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.class-break-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.class-break-input label {
+  min-width: 100px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.class-break-input input {
+  flex: 1;
+}
+
+.classification-preview {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  background-color: white;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.class-preview-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  padding: 5px;
+  border-radius: 3px;
+}
+
+.class-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  border: 1px solid #ddd;
+}
+
+.class-range {
+  font-size: 12px;
+  font-weight: 500;
+  color: #333;
+}
+
+.nav-tabs-custom {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.nav-tabs-custom .nav-tabs {
+  margin-bottom: 0;
+  background-color: #f8f9fa;
+}
+
+.nav-tabs-custom .tab-content {
+  padding: 0;
+}
+
+.nav-tabs-custom .tab-pane {
+  padding: 0;
+}
+
+/* Dynamic color assignment styles */
+.dynamic-color-section {
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  margin-top: 15px;
+}
+
+/* Responsive adjustments for classification */
+@media (max-width: 768px) {
+  .color-palette-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+
+  .class-break-input {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .class-break-input label {
+    min-width: auto;
+  }
+}

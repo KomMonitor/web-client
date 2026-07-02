@@ -1,0 +1,356 @@
+<div>
+  <h2 class="fs-title">Zugriffsschutz und Eigentümerschaft</h2>
+  <h3 class="fs-subtitle">Angaben über Zugriffsrechte und Eigentümerschaft des Indikators</h3>
+  <p>
+    <b><i>* = Pflichtfeld</i></b>
+  </p>
+  <div class="row vertical-align">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label>Zugriffsschutz und Eigentümerschaft</label>
+        <div class="alert alert-info">
+          <i class="fas fa-shield-alt"></i>
+          <strong>Hinweis:</strong> Hier können Sie die Zugriffsrechte und Eigentümerschaft des
+          Indikators konfigurieren.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row vertical-align">
+    <div class="col-md-6 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Eigentümer-Organisation*</label>
+        <div class="input-group">
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="state.ownerOrgFilter"
+            name="ownerOrgFilter"
+            placeholder="Organisation filtern"
+            (ngModelChange)="state.filterOrganizations()"
+          />
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button" (click)="state.clearOwnerFilter()">
+              <i class="fas fa-times"></i>
+            </button>
+          </span>
+        </div>
+        <select
+          [(ngModel)]="state.ownerOrganization"
+          name="ownerOrganization"
+          (ngModelChange)="state.onChangeOwner($event)"
+          class="form-control"
+          required
+        >
+          <option [ngValue]="null" disabled selected>-- Eigentümer-Organisation wählen --</option>
+          @for (org of state.filteredOrganizations; track org) {
+            <option [ngValue]="org">
+              {{ org.organizationName }}
+            </option>
+          }
+        </select>
+        <div class="help-block">
+          <p>
+            Organisation, die für den Indikator verantwortlich ist und die Zugriffsrechte verwaltet
+          </p>
+        </div>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+    <div class="col-md-6 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Öffentlicher Zugriff</label>
+        <div class="form-group vertical-align">
+          <label class="margin-right" style="font-weight: normal">Öffentlich verfügbar</label>
+          <label class="switch">
+            <input
+              type="checkbox"
+              [(ngModel)]="state.isPublic"
+              name="isPublic"
+              (ngModelChange)="state.onChangeIsPublic($event)"
+            />
+            <span class="switchslider round"></span>
+          </label>
+        </div>
+        <div class="help-block">
+          <p>Bei Aktivierung ist der Indikator für alle Benutzer sichtbar und zugreifbar</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  @if (!state.isPublic) {
+    <div class="row vertical-align">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label>Rollenbasierte Zugriffsrechte</label>
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>Wichtig:</strong> Da der Indikator nicht öffentlich ist, müssen Sie mindestens
+            eine Rolle mit Zugriffsrechten zuweisen.
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+  @if (!state.isPublic) {
+    <div class="row vertical-align">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label>Verfügbare Rollen</label>
+          <div class="role-selection-container">
+            <div class="role-filter">
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="state.roleFilter"
+                name="roleFilter"
+                placeholder="Rollen filtern"
+                (ngModelChange)="state.filterRoles()"
+              />
+            </div>
+            <div class="role-list">
+              @for (role of state.filteredRoles; track role) {
+                <div
+                  class="role-item"
+                  [class.selected]="state.isRoleSelected(role)"
+                  (click)="state.toggleRoleSelection(role)"
+                >
+                  <div class="role-checkbox">
+                    <input
+                      type="checkbox"
+                      [checked]="state.isRoleSelected(role)"
+                      (change)="state.toggleRoleSelection(role)"
+                    />
+                  </div>
+                  <div class="role-info">
+                    <div class="role-name">{{ role.roleName }}</div>
+                    <div class="role-description">{{ role.roleDescription }}</div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+          <div class="help-block">
+            <p>Wählen Sie die Rollen aus, die Zugriff auf diesen Indikator haben sollen</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+  @if (state.selectedRoles.length > 0) {
+    <div class="row vertical-align">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label>Ausgewählte Rollen</label>
+          <div class="selected-roles-container">
+            @for (role of state.selectedRoles; track role; let i = $index) {
+              <div class="selected-role-item">
+                <span class="role-badge">{{ role.roleName }}</span>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-danger"
+                  (click)="state.removeRole(role)"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+  <div class="row vertical-align">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label>Erweiterte Zugriffskontrolle</label>
+        <div class="alert alert-info">
+          <i class="fas fa-cogs"></i>
+          <strong>Erweiterte Einstellungen:</strong> Konfigurieren Sie zusätzliche
+          Zugriffskontrollen für spezielle Anforderungen.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row vertical-align">
+    <div class="col-md-6 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Zugriffszeitraum</label>
+        <div class="form-group vertical-align">
+          <label class="margin-right" style="font-weight: normal">Zeitlich begrenzt</label>
+          <label class="switch">
+            <input
+              type="checkbox"
+              [(ngModel)]="state.enableTimeRestrictedAccess"
+              name="enableTimeRestrictedAccess"
+            />
+            <span class="switchslider round"></span>
+          </label>
+        </div>
+        <div class="help-block">
+          <p>Bei Aktivierung können Sie einen zeitlich begrenzten Zugriff konfigurieren</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Geografische Einschränkung</label>
+        <div class="form-group vertical-align">
+          <label class="margin-right" style="font-weight: normal">Räumlich begrenzt</label>
+          <label class="switch">
+            <input
+              type="checkbox"
+              [(ngModel)]="state.enableGeographicRestriction"
+              name="enableGeographicRestriction"
+            />
+            <span class="switchslider round"></span>
+          </label>
+        </div>
+        <div class="help-block">
+          <p>Bei Aktivierung können Sie eine geografische Zugriffsbeschränkung konfigurieren</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  @if (state.enableTimeRestrictedAccess) {
+    <div class="row vertical-align">
+      <div class="col-md-6 col-sm-6 col-12">
+        <div class="form-group">
+          <label>Zugriff von</label>
+          <div class="input-group date">
+            <div class="input-group-addon">
+              <i class="far fa-calendar-alt"></i>
+            </div>
+            <input
+              type="text"
+              [(ngModel)]="state.accessStartDate"
+              name="accessStartDate"
+              class="form-control pull-right"
+              placeholder="YYYY-MM-DD"
+            />
+          </div>
+          <div class="help-block">
+            <p>Startdatum für den Zugriff auf den Indikator</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-sm-6 col-12">
+        <div class="form-group">
+          <label>Zugriff bis</label>
+          <div class="input-group date">
+            <div class="input-group-addon">
+              <i class="far fa-calendar-alt"></i>
+            </div>
+            <input
+              type="text"
+              [(ngModel)]="state.accessEndDate"
+              name="accessEndDate"
+              class="form-control pull-right"
+              placeholder="YYYY-MM-DD"
+            />
+          </div>
+          <div class="help-block">
+            <p>Enddatum für den Zugriff auf den Indikator</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+  @if (state.enableGeographicRestriction) {
+    <div class="row vertical-align">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label>Erlaubte Regionen</label>
+          <select
+            [(ngModel)]="state.allowedRegions"
+            name="allowedRegions"
+            class="form-control"
+            multiple
+          >
+            @for (region of state.availableRegions; track region) {
+              <option [ngValue]="region">
+                {{ region.regionName }}
+              </option>
+            }
+          </select>
+          <div class="help-block">
+            <p>Wählen Sie die Regionen aus, für die der Zugriff erlaubt ist</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+  <div class="row vertical-align">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label>Zugriffsprotokollierung</label>
+        <div class="form-group vertical-align">
+          <label class="margin-right" style="font-weight: normal">Protokollierung aktivieren</label>
+          <label class="switch">
+            <input
+              type="checkbox"
+              [(ngModel)]="state.enableAccessLogging"
+              name="enableAccessLogging"
+            />
+            <span class="switchslider round"></span>
+          </label>
+        </div>
+        <div class="help-block">
+          <p>Bei Aktivierung werden alle Zugriffe auf den Indikator protokolliert</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row vertical-align">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label>Zusammenfassung der Zugriffskonfiguration</label>
+        <div class="access-summary">
+          <div class="summary-item">
+            <strong>Eigentümer:</strong>
+            {{ state.ownerOrganization?.organizationName || 'Nicht ausgewählt' }}
+          </div>
+          <div class="summary-item">
+            <strong>Öffentlicher Zugriff:</strong> {{ state.isPublic ? 'Ja' : 'Nein' }}
+          </div>
+          @if (!state.isPublic) {
+            <div class="summary-item">
+              <strong>Zugriffsberechtigte Rollen:</strong>
+              {{ state.selectedRoles.length }} Rolle(n)
+            </div>
+          }
+          @if (state.enableTimeRestrictedAccess) {
+            <div class="summary-item">
+              <strong>Zeitliche Begrenzung:</strong> {{ state.accessStartDate }} -
+              {{ state.accessEndDate }}
+            </div>
+          }
+          @if (state.enableGeographicRestriction) {
+            <div class="summary-item">
+              <strong>Geografische Begrenzung:</strong>
+              {{ state.allowedRegions.length || 0 }} Region(en)
+            </div>
+          }
+          <div class="summary-item">
+            <strong>Protokollierung:</strong>
+            {{ state.enableAccessLogging ? 'Aktiviert' : 'Deaktiviert' }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <input
+    type="button"
+    name="previous"
+    class="previous previous_addIndicator action-button-previous"
+    value="Voriger Schritt"
+    (click)="state.previousStep()"
+  />
+  <input
+    type="button"
+    name="next"
+    class="next next_addIndicator action-button"
+    value="Nächster Schritt"
+    (click)="state.nextStep()"
+  />
+</div>

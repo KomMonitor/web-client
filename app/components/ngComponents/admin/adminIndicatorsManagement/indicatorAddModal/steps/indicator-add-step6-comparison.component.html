@@ -1,0 +1,404 @@
+<div>
+  <h2 class="fs-title">Regionale Vergleichswerte</h2>
+  <h3 class="fs-subtitle">Angaben über regionale Vergleichswerte und Benchmarking</h3>
+  <p>
+    <b><i>* = Pflichtfeld</i></b>
+  </p>
+  <div class="row vertical-align">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label>Regionale Vergleichswerte (optional)</label>
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle"></i>
+          <strong>Hinweis:</strong> Hier können Sie regionale Vergleichswerte definieren, die als
+          Benchmark für die Bewertung der Indikatorwerte dienen.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row vertical-align">
+    <div class="col-md-6 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Vergleichswert-Typ</label>
+        <select
+          [(ngModel)]="state.comparisonValueType"
+          name="comparisonValueType"
+          (ngModelChange)="state.onComparisonValueTypeChange()"
+          class="form-control"
+        >
+          <option [ngValue]="null" selected>-- Vergleichswert-Typ wählen --</option>
+          <option value="target">Zielwert</option>
+          <option value="average">Durchschnittswert</option>
+          <option value="median">Medianwert</option>
+          <option value="best_practice">Best Practice</option>
+          <option value="threshold">Schwellenwert</option>
+          <option value="custom">Benutzerdefiniert</option>
+        </select>
+        <div class="help-block">
+          <p>Art des Vergleichswerts für die Bewertung der Indikatorwerte</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Vergleichswert</label>
+        <input
+          type="number"
+          class="form-control"
+          [(ngModel)]="state.comparisonValue"
+          name="comparisonValue"
+          placeholder="Numerischer Wert"
+          step="0.01"
+        />
+        <div class="help-block">
+          <p>Numerischer Wert des Vergleichswerts</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row vertical-align">
+    <div class="col-md-6 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Vergleichsregion</label>
+        <select [(ngModel)]="state.comparisonRegion" name="comparisonRegion" class="form-control">
+          <option [ngValue]="null" selected>-- Vergleichsregion wählen --</option>
+          <option value="national">National</option>
+          <option value="state">Bundesland</option>
+          <option value="district">Kreis</option>
+          <option value="municipality">Gemeinde</option>
+          <option value="neighborhood">Stadtteil</option>
+          <option value="custom">Benutzerdefiniert</option>
+        </select>
+        <div class="help-block">
+          <p>Räumliche Ebene der Vergleichsregion</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Vergleichszeitraum</label>
+        <select
+          [(ngModel)]="state.comparisonTimeframe"
+          name="comparisonTimeframe"
+          class="form-control"
+        >
+          <option [ngValue]="null" selected>-- Vergleichszeitraum wählen --</option>
+          <option value="current">Aktueller Zeitpunkt</option>
+          <option value="previous_year">Vorjahr</option>
+          <option value="five_years">5-Jahres-Durchschnitt</option>
+          <option value="ten_years">10-Jahres-Durchschnitt</option>
+          <option value="baseline">Baseline-Zeitpunkt</option>
+          <option value="custom">Benutzerdefiniert</option>
+        </select>
+        <div class="help-block">
+          <p>Zeitlicher Bezugspunkt für den Vergleichswert</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row vertical-align">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label>Beschreibung des Vergleichswerts</label>
+        <textarea
+          rows="3"
+          class="form-control"
+          [(ngModel)]="state.comparisonDescription"
+          name="comparisonDescription"
+          placeholder="Beschreibung der Herkunft und Bedeutung des Vergleichswerts"
+        ></textarea>
+        <div class="help-block">
+          <p>
+            Detaillierte Beschreibung der Herkunft, Berechnung und Bedeutung des Vergleichswerts
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row vertical-align">
+    <div class="col-md-6 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Bewertungsrichtung</label>
+        <select
+          [(ngModel)]="state.evaluationDirection"
+          name="evaluationDirection"
+          class="form-control"
+        >
+          <option [ngValue]="null" selected>-- Bewertungsrichtung wählen --</option>
+          <option value="higher_better">Höhere Werte sind besser</option>
+          <option value="lower_better">Niedrigere Werte sind besser</option>
+          <option value="target_range">Optimaler Bereich</option>
+          <option value="neutral">Neutral</option>
+        </select>
+        <div class="help-block">
+          <p>Richtung der Bewertung im Vergleich zum Vergleichswert</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Toleranzbereich (±)</label>
+        <input
+          type="number"
+          class="form-control"
+          [(ngModel)]="state.toleranceRange"
+          name="toleranceRange"
+          placeholder="Toleranz in Prozent"
+          step="0.1"
+          min="0"
+        />
+        <div class="help-block">
+          <p>Toleranzbereich um den Vergleichswert in Prozent</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row vertical-align">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label>Zusätzliche Vergleichswerte</label>
+        <div class="alert alert-warning">
+          <i class="fas fa-info-circle"></i>
+          <strong>Hinweis:</strong> Sie können mehrere Vergleichswerte für verschiedene Kontexte
+          hinzufügen.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row vertical-align">
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Typ</label>
+        <select
+          [(ngModel)]="state.additionalComparisonType"
+          name="additionalComparisonType"
+          class="form-control"
+        >
+          <option [ngValue]="null" selected>-- Typ wählen --</option>
+          <option value="target">Zielwert</option>
+          <option value="average">Durchschnittswert</option>
+          <option value="median">Medianwert</option>
+          <option value="best_practice">Best Practice</option>
+          <option value="threshold">Schwellenwert</option>
+          <option value="custom">Benutzerdefiniert</option>
+        </select>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Wert</label>
+        <input
+          type="number"
+          class="form-control"
+          [(ngModel)]="state.additionalComparisonValue"
+          name="additionalComparisonValue"
+          placeholder="Numerischer Wert"
+          step="0.01"
+        />
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Beschreibung</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="state.additionalComparisonDescription"
+          name="additionalComparisonDescription"
+          placeholder="Kurze Beschreibung"
+        />
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>&nbsp;</label>
+        <button
+          type="button"
+          class="btn btn-primary form-control"
+          [disabled]="!state.additionalComparisonType || !state.additionalComparisonValue"
+          (click)="state.addAdditionalComparisonValue()"
+        >
+          <i class="fas fa-plus"></i> Hinzufügen
+        </button>
+      </div>
+    </div>
+  </div>
+  @if (state.additionalComparisonValues.length > 0) {
+    <div class="row vertical-align">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label>Hinzugefügte Vergleichswerte</label>
+          <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <th>Typ</th>
+                  <th>Wert</th>
+                  <th>Beschreibung</th>
+                  <th>Aktion</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (
+                  comparison of state.additionalComparisonValues;
+                  track comparison;
+                  let i = $index
+                ) {
+                  <tr>
+                    <td>{{ state.getComparisonTypeDisplayName(comparison.type) }}</td>
+                    <td>{{ comparison.value }}</td>
+                    <td>{{ comparison.description }}</td>
+                    <td>
+                      <button
+                        type="button"
+                        class="btn btn-danger btn-sm"
+                        (click)="state.removeAdditionalComparisonValue(i)"
+                      >
+                        <i class="fas fa-trash"></i> Entfernen
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+  <div class="row vertical-align">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label>Benchmarking-Konfiguration</label>
+        <div class="alert alert-info">
+          <i class="fas fa-chart-line"></i>
+          <strong>Benchmarking:</strong> Konfigurieren Sie, wie die Indikatorwerte im Vergleich zu
+          den Vergleichswerten dargestellt werden sollen.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row vertical-align">
+    <div class="col-md-6 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Benchmarking aktivieren</label>
+        <div class="form-group vertical-align">
+          <label class="margin-right" style="font-weight: normal">Aktivieren</label>
+          <label class="switch">
+            <input
+              type="checkbox"
+              [(ngModel)]="state.enableBenchmarking"
+              name="enableBenchmarking"
+            />
+            <span class="switchslider round"></span>
+          </label>
+        </div>
+        <div class="help-block">
+          <p>Bei Aktivierung werden Indikatorwerte im Vergleich zu den Vergleichswerten bewertet</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Visualisierungstyp</label>
+        <select
+          [(ngModel)]="state.benchmarkingVisualizationType"
+          name="benchmarkingVisualizationType"
+          class="form-control"
+          [disabled]="!state.enableBenchmarking"
+        >
+          <option [ngValue]="null" selected>-- Visualisierungstyp wählen --</option>
+          <option value="traffic_light">Ampelsystem</option>
+          <option value="percentage">Prozentuale Abweichung</option>
+          <option value="rating">Bewertungsskala</option>
+          <option value="trend">Trendindikator</option>
+        </select>
+        <div class="help-block">
+          <p>Art der visuellen Darstellung der Benchmarking-Ergebnisse</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  @if (state.enableBenchmarking) {
+    <div class="row vertical-align">
+      <div class="col-md-6 col-sm-6 col-12">
+        <div class="form-group">
+          <label>Schwellenwerte für Bewertung</label>
+          <div class="threshold-config">
+            <div class="threshold-item">
+              <label>Grün (gut):</label>
+              <input
+                type="number"
+                class="form-control"
+                [(ngModel)]="state.greenThreshold"
+                name="greenThreshold"
+                placeholder="Schwellenwert"
+                step="0.1"
+              />
+            </div>
+            <div class="threshold-item">
+              <label>Gelb (mittel):</label>
+              <input
+                type="number"
+                class="form-control"
+                [(ngModel)]="state.yellowThreshold"
+                name="yellowThreshold"
+                placeholder="Schwellenwert"
+                step="0.1"
+              />
+            </div>
+            <div class="threshold-item">
+              <label>Rot (schlecht):</label>
+              <input
+                type="number"
+                class="form-control"
+                [(ngModel)]="state.redThreshold"
+                name="redThreshold"
+                placeholder="Schwellenwert"
+                step="0.1"
+              />
+            </div>
+          </div>
+          <div class="help-block">
+            <p>Schwellenwerte für die Bewertung der Abweichung vom Vergleichswert</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-sm-6 col-12">
+        <div class="form-group">
+          <label>Vorschau der Bewertung</label>
+          <div class="benchmarking-preview">
+            <div class="preview-item">
+              <div class="preview-color green"></div>
+              <div class="preview-text">Gut (≤ {{ state.greenThreshold || 0 }}%)</div>
+            </div>
+            <div class="preview-item">
+              <div class="preview-color yellow"></div>
+              <div class="preview-text">
+                Mittel ({{ state.greenThreshold || 0 }}% - {{ state.yellowThreshold || 0 }}%)
+              </div>
+            </div>
+            <div class="preview-item">
+              <div class="preview-color red"></div>
+              <div class="preview-text">Schlecht (> {{ state.yellowThreshold || 0 }}%)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+  <input
+    type="button"
+    name="previous"
+    class="previous previous_addIndicator action-button-previous"
+    value="Voriger Schritt"
+    (click)="state.previousStep()"
+  />
+  <input
+    type="button"
+    name="next"
+    class="next next_addIndicator action-button"
+    value="Nächster Schritt"
+    (click)="state.nextStep()"
+  />
+</div>

@@ -1,0 +1,156 @@
+<div>
+  <h2 class="fs-title">Allgemeine Metadaten</h2>
+  <h3 class="fs-subtitle">Angaben über allgemeine Metadaten in KomMonitor</h3>
+  <p>
+    <b><i>* = Pflichtfeld</i></b>
+  </p>
+  <div class="row vertical-align">
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Beschreibung*</label>
+        <textarea
+          rows="3"
+          class="form-control"
+          [(ngModel)]="state.metadata.description"
+          name="metadata.description"
+          placeholder="Datensatz Beschreibung"
+          required
+        ></textarea>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Datenbasis</label>
+        <textarea
+          rows="3"
+          class="form-control"
+          [(ngModel)]="state.metadata.databasis"
+          name="metadata.databasis"
+          placeholder="optionale Beschreibung etwaiger grundlegender Daten, die zur Erzeugung des Datensatzes beitragen"
+        ></textarea>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Datenquelle*</label>
+        <textarea
+          rows="3"
+          class="form-control"
+          [(ngModel)]="state.metadata.datasource"
+          name="metadata.datasource"
+          placeholder="Beschreibung der Datenquelle"
+          required
+        ></textarea>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Datenhalter und Kontakt*</label>
+        <textarea
+          rows="3"
+          class="form-control"
+          [(ngModel)]="state.metadata.contact"
+          name="metadata.contact"
+          placeholder="Beschreibung des Datenhalters und etwaiger Kontaktinformationen"
+          required
+        ></textarea>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+  </div>
+  <div class="row vertical-align">
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Aktualisierungszyklus*</label>
+        <select
+          [(ngModel)]="state.metadata.updateInterval"
+          name="metadata.updateInterval"
+          class="form-control"
+          required
+        >
+          <option [ngValue]="null" disabled selected>-- Aktualisierungszyklus wählen --</option>
+          @for (value of state.updateIntervalOptions; track value) {
+            <option [ngValue]="value">
+              {{ value.displayName }}
+            </option>
+          }
+        </select>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Datum der letzten Aktualisierung*</label>
+        <km-date-picker
+          name="metadata.lastUpdate"
+          placeholder="YYYY-MM-DD"
+          [(ngModel)]="state.metadata.lastUpdate"
+          [required]="true"
+        ></km-date-picker>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Literatur</label>
+        <textarea
+          rows="3"
+          class="form-control"
+          [(ngModel)]="state.metadata.literature"
+          name="metadata.literature"
+          placeholder="optionale Angaben zu Literatur"
+        ></textarea>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>Bemerkung</label>
+        <textarea
+          rows="3"
+          class="form-control"
+          [(ngModel)]="state.metadata.note"
+          name="metadata.note"
+          placeholder="optionale Bemerkung"
+        ></textarea>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+  </div>
+  <div class="row vertical-align">
+    <div class="col-md-3 col-sm-6 col-12">
+      <div class="form-group">
+        <label>SRID EPSG</label>
+        <input
+          type="number"
+          class="form-control"
+          [(ngModel)]="state.metadata.sridEPSG"
+          name="metadata.sridEPSG"
+          placeholder="4326"
+          value="4326"
+        />
+        <div class="help-block">
+          <p>Koordinatensystem für die räumlichen Daten (Standard: 4326 für WGS84)</p>
+        </div>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+  </div>
+  <input
+    type="button"
+    name="previous"
+    class="previous previous_addIndicator action-button-previous"
+    value="Voriger Schritt"
+    (click)="state.previousStep()"
+  />
+  <input
+    type="button"
+    name="next"
+    class="next next_addIndicator action-button"
+    value="Nächster Schritt"
+    (click)="state.nextStep()"
+  />
+</div>

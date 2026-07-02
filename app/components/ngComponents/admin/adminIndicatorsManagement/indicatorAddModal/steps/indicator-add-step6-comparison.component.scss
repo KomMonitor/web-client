@@ -1,0 +1,98 @@
+/* Step 6: Regional Comparison Values Styles */
+.threshold-config {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.threshold-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.threshold-item label {
+  min-width: 120px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.threshold-item input {
+  flex: 1;
+}
+
+.benchmarking-preview {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  background-color: white;
+}
+
+.preview-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  padding: 5px;
+  border-radius: 3px;
+}
+
+.preview-item:last-child {
+  margin-bottom: 0;
+}
+
+.preview-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  border: 1px solid #ddd;
+}
+
+.preview-color.green {
+  background-color: #27ae60;
+}
+
+.preview-color.yellow {
+  background-color: #f39c12;
+}
+
+.preview-color.red {
+  background-color: #e74c3c;
+}
+
+.preview-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: #333;
+}
+
+.comparison-values-table {
+  margin-top: 15px;
+}
+
+.comparison-values-table .table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.comparison-values-table .table td {
+  vertical-align: middle;
+}
+
+/* Responsive adjustments for comparison values */
+@media (max-width: 768px) {
+  .threshold-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .threshold-item label {
+    min-width: auto;
+  }
+
+  .preview-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+}
