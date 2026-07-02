@@ -33,4 +33,12 @@
       }
     }
   }
+
+  // Color-swatch buttons inside the marker-color dropdowns. These were
+  // previously styled by a global `.dropdown-menu button` rule in app.scss;
+  // that rule was removed, so the styling now lives here, scoped.
+  .dropdown-menu button {
+    border: none;
+    margin: 0.2em;
+  }
 }

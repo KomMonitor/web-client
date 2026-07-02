@@ -31,13 +31,16 @@
     <button class="btn btn-success btn-sm" ngbDropdownToggle>+ Erstellen</button>
 
     <div ngbDropdownMenu class="addButton_dropdownWrapper">
-      <p ngbDropdownItem (click)="onClickAddGeoresource()">POI / LOI / AOI erstellen</p>
-      <p
+      <button ngbDropdownItem type="button" (click)="onClickAddGeoresource()">
+        POI / LOI / AOI erstellen
+      </button>
+      <button
         ngbDropdownItem
+        type="button"
         (click)="wmsSharedComponentsService.openAddModal(WmsResourceType.GEORESOURCE)"
       >
         WMS erstellen
-      </p>
+      </button>
     </div>
   </div>
   <!-- edit features -->

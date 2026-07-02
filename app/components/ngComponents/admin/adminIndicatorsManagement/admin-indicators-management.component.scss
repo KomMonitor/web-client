@@ -266,11 +266,8 @@
 }
 
 .addButton_dropdownWrapper {
-  p {
-    display: block !important;
+  .dropdown-item {
     font-weight: bold;
     font-size: 12px;
-    margin: 0.5em;
-    cursor: pointer;
   }
 }

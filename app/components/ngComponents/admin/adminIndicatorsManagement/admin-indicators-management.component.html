@@ -30,13 +30,16 @@
     <button class="btn btn-success btn-sm" ngbDropdownToggle>+ Erstellen</button>
 
     <div ngbDropdownMenu class="addButton_dropdownWrapper">
-      <p ngbDropdownItem (click)="openAddIndicatorModal()">Indikator erstellen</p>
-      <p
+      <button ngbDropdownItem type="button" (click)="openAddIndicatorModal()">
+        Indikator erstellen
+      </button>
+      <button
         ngbDropdownItem
+        type="button"
         (click)="wmsSharedComponentsService.openAddModal(WmsResourceType.INDICATOR)"
       >
         WMS erstellen
-      </p>
+      </button>
     </div>
   </div>
   <!-- delete selected completely -->
