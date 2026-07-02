@@ -239,6 +239,11 @@ export class KommonitorReachabilityComponent implements OnInit {
   }
 
   openReachabilityScenarioModal(scenarioDataset: any = false) {
+
+    this.reachabilityCombinerService.showOnMainMap = false;
+    this.active = 1;
+    this.onSinglePointSelection();
+
     const modalRef = this.modalService.open(ReachabilityScenarioModalComponent, {
       windowClass: 'modal-holder',
       centered: true,
@@ -257,18 +262,21 @@ export class KommonitorReachabilityComponent implements OnInit {
   }
 
   onSinglePointSelection() {
+    this.reachabilityCombinerService.showOnMainMap = true;
     this.reachabilityCombinerService.resetLocations();
     this.reachabilityCombinerService.startPointsSource = 'manual';
     this.reachabilityCombinerService.manualMapSelectionMode = false;
   }
 
   onMapSelection() {
+    this.reachabilityCombinerService.showOnMainMap = true;
     this.reachabilityCombinerService.resetLocations();
     this.reachabilityCombinerService.startPointsSource = 'manual';
     this.reachabilityCombinerService.manualMapSelectionMode = true;
   }
 
   onLayerSelection() {
+    this.reachabilityCombinerService.showOnMainMap = true;
     this.reachabilityCombinerService.resetLocations();
     this.reachabilityCombinerService.startPointsSource = 'fromLayer';
     this.reachabilityCombinerService.manualMapSelectionMode = false;

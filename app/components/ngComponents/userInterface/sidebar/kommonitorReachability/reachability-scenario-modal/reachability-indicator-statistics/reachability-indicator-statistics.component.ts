@@ -16,6 +16,7 @@ import { ReachabilityScenarioHelperService } from 'services/reachability-scenari
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { SpatialDataProcessorHelperService } from 'services/spatial-data-processor-helper/spatial-data-processor-helper.service';
+import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
 
 @Component({
   selector: 'app-reachability-indicator-statistics',
@@ -38,6 +39,7 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
   private reachabilityMapHelperService = inject(ReachabilityMapHelperService);
   private spatialDataProcessorHelperService = inject(SpatialDataProcessorHelperService);
   private broadcastService = inject(BroadcastService);
+  private reachabilityCombinerService = inject(ReachabilityCombinerService);
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -104,6 +106,12 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
           break;
       }
     });
+
+    this.reachabilityCombinerService.reachabilityMapSubject$.subscribe((value) => {
+        if (value.scenarioState) {
+          this.isochronesCalculationFinished();
+        }
+      });
   }
 
   init() {
@@ -113,6 +121,7 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
   }
 
   isochronesCalculationFinished(reinit = false) {
+    console.log("hier")
     if (reinit) {
       this.init();
 

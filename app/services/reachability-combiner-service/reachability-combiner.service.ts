@@ -39,6 +39,7 @@ export interface ReachbilityModel {
   selectedStartDate?: string;
   loadingState: boolean;
   scenarioState?: boolean;
+  showOnMainMap: boolean;
 }
 
 export interface GeoJSONFeature {
@@ -89,6 +90,7 @@ export class ReachabilityCombinerService {
     features: [],
     isochronesGeoJson: null,
     loadingState: false,
+    showOnMainMap: false
   });
 
   reachabilityMapSubject$ = this.reachabilityMapSubject.asObservable();
@@ -143,6 +145,14 @@ export class ReachabilityCombinerService {
     };
 
     this.filteredDisplayableGeoresources.splice(0, 0, emptyDataset);
+  }
+
+  set showOnMainMap(state: boolean) {
+    this.reachabilityMapSubject.value.showOnMainMap = state;
+  }
+
+  get showOnMainMap():boolean {
+    return this.reachabilityMapSubject.value.showOnMainMap;
   }
 
   set startPointsSource(type: string) {

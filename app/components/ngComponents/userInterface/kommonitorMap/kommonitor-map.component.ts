@@ -327,10 +327,13 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.reachabilityCombinerService.reachabilityMapSubject$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
-        if (value.features) this.addSingleMarker(value?.features);
+        console.log(value)
+        if(value.showOnMainMap) {
+          if (value.features) this.addSingleMarker(value?.features);
 
-        if (value.isochronesGeoJson) this.addIsochrones(value.isochronesGeoJson);
-        else this.removeIsochrones();
+          if (value.isochronesGeoJson) this.addIsochrones(value.isochronesGeoJson);
+          else this.removeIsochrones();
+        }
       });
 
     // catch broadcast msgs
