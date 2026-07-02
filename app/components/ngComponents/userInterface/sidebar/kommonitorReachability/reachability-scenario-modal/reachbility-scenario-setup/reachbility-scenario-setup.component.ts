@@ -2,10 +2,8 @@ import { UserFavourites } from 'components/ngComponents/models/favorites.models'
 
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
-import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
+import { ReachabilityStateService } from 'services/reachability-state-service/reachability-state.service';
 import { ColorPickerDirective } from 'ngx-color-picker';
-import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 
@@ -17,13 +15,11 @@ import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
   imports: [FormsModule],
 })
 export class ReachbilityScenarioSetupComponent implements OnInit {
-  protected reachabilityHelperService = inject(ReachabilityHelperService);
-  private reachabilityScenarioHelperService = inject(ReachabilityScenarioHelperService);
-  protected reachabilityCombinerService = inject(ReachabilityCombinerService);
+  protected reachabilityStateService = inject(ReachabilityStateService);
   private broadcastService = inject(BroadcastService);
 
   ngOnInit(): void {
-    this.reachabilityCombinerService.reachabilityMapSubject$.subscribe((value) => {
+    this.reachabilityStateService.reachabilityMapSubject$.subscribe((value) => {
       if (value.scenarioState) {
         this.importScenarioFromQuickSetup();
       }
@@ -31,16 +27,16 @@ export class ReachbilityScenarioSetupComponent implements OnInit {
   }
 
   importScenarioFromQuickSetup() {
-    this.reachabilityHelperService.settings.selectedStartPointLayer =
-      this.reachabilityCombinerService.selectedStartPointLayer;
-    this.reachabilityHelperService.settings.isochroneConfig.selectedDate =
-      this.reachabilityCombinerService.selectedStartDate;
+    this.reachabilityStateService.settings.selectedStartPointLayer =
+      this.reachabilityStateService.selectedStartPointLayer;
+    this.reachabilityStateService.settings.isochroneConfig.selectedDate =
+      this.reachabilityStateService.selectedStartDate;
 
-    if (this.reachabilityHelperService.settings.selectedStartPointLayer) {
+    if (this.reachabilityStateService.settings.selectedStartPointLayer) {
       if (
-        this.reachabilityHelperService.settings.selectedStartPointLayer
+        this.reachabilityStateService.settings.selectedStartPointLayer
           .isNewReachabilityDataSource ||
-        this.reachabilityHelperService.settings.selectedStartPointLayer.isTmpDataLayer
+        this.reachabilityStateService.settings.selectedStartPointLayer.isTmpDataLayer
       ) {
         this.initPoiResourceEditFeaturesMenu();
       } else {
@@ -50,34 +46,32 @@ export class ReachbilityScenarioSetupComponent implements OnInit {
   }
 
   onChangePoiResource() {
-    this.reachabilityHelperService.settings.selectedStartPointLayer =
-      this.reachabilityCombinerService.selectedStartPointLayer;
+    this.reachabilityStateService.settings.selectedStartPointLayer =
+      this.reachabilityStateService.selectedStartPointLayer;
 
-    if (!this.reachabilityHelperService.settings.selectedStartPointLayer) {
+    if (!this.reachabilityStateService.settings.selectedStartPointLayer) {
       return;
     }
 
     if (
-      this.reachabilityScenarioHelperService.tmpActiveScenario.poiDataset &&
-      this.reachabilityScenarioHelperService.tmpActiveScenario.poiDataset.poiName &&
-      this.reachabilityScenarioHelperService.tmpActiveScenario.reachabilitySettings
-        ?.selectedStartPointLayer &&
-      this.reachabilityScenarioHelperService.tmpActiveScenario.poiDataset.poiName !=
-        this.reachabilityScenarioHelperService.tmpActiveScenario.reachabilitySettings
-          .selectedStartPointLayer.datasetName
+      this.reachabilityStateService.poiDataset &&
+      this.reachabilityStateService.poiDataset.poiName &&
+      this.reachabilityStateService.settings?.selectedStartPointLayer &&
+      this.reachabilityStateService.poiDataset.poiName !=
+        this.reachabilityStateService.settings.selectedStartPointLayer.datasetName
     ) {
       //kommonitorToastHelperService.displayWarningToast("Datenquelle neu gesetzt", "Die weiteren Abschnitte weisen vielleicht veraltete Daten auf.");
     }
 
     // if emtpy layer is selected then no features can be fetched at all!
     if (
-      this.reachabilityHelperService.settings.selectedStartPointLayer.isNewReachabilityDataSource ||
-      this.reachabilityHelperService.settings.selectedStartPointLayer.isTmpDataLayer
+      this.reachabilityStateService.settings.selectedStartPointLayer.isNewReachabilityDataSource ||
+      this.reachabilityStateService.settings.selectedStartPointLayer.isTmpDataLayer
     ) {
       // if tmp datalayer has been selected we assume that there are features already in property .geoJSON
-      if (this.reachabilityHelperService.settings.selectedStartPointLayer.isTmpDataLayer) {
-        this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability =
-          this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON;
+      if (this.reachabilityStateService.settings.selectedStartPointLayer.isTmpDataLayer) {
+        this.reachabilityStateService.settings.selectedStartPointLayer.geoJSON_reachability =
+          this.reachabilityStateService.settings.selectedStartPointLayer.geoJSON;
       }
 
       // init geoMap with empty dataset
@@ -85,19 +79,19 @@ export class ReachbilityScenarioSetupComponent implements OnInit {
       return;
     }
 
-    if (!this.reachabilityHelperService.settings.isochroneConfig.selectedDate) {
-      this.reachabilityHelperService.settings.isochroneConfig.selectedDate =
-        this.reachabilityHelperService.settings.selectedStartPointLayer?.availablePeriodsOfValidity[
-          this.reachabilityHelperService.settings.selectedStartPointLayer.availablePeriodsOfValidity
+    if (!this.reachabilityStateService.settings.isochroneConfig.selectedDate) {
+      this.reachabilityStateService.settings.isochroneConfig.selectedDate =
+        this.reachabilityStateService.settings.selectedStartPointLayer?.availablePeriodsOfValidity[
+          this.reachabilityStateService.settings.selectedStartPointLayer.availablePeriodsOfValidity
             .length - 1
         ].startDate;
     }
 
-    this.reachabilityCombinerService.prepAvailablePeriods();
-    this.reachabilityCombinerService.selectedStartDate =
-      this.reachabilityCombinerService.filteredAvailablePeriodsOfValidity.at(0).startDate;
-    this.reachabilityHelperService.settings.isochroneConfig.selectedDate =
-      this.reachabilityCombinerService.filteredAvailablePeriodsOfValidity.at(0).startDate;
+    this.reachabilityStateService.prepAvailablePeriods();
+    this.reachabilityStateService.selectedStartDate =
+      this.reachabilityStateService.filteredAvailablePeriodsOfValidity.at(0).startDate;
+    this.reachabilityStateService.settings.isochroneConfig.selectedDate =
+      this.reachabilityStateService.filteredAvailablePeriodsOfValidity.at(0).startDate;
 
     this.fetchPoiResourceGeoJSON();
   }
@@ -107,7 +101,7 @@ export class ReachbilityScenarioSetupComponent implements OnInit {
   }
 
   fetchPoiResourceGeoJSON() {
-    this.reachabilityCombinerService.fetchPoiResourceGeoJSON(false);
+    this.reachabilityStateService.fetchPoiResourceGeoJSON(false);
     this.initPoiResourceEditFeaturesMenu();
   }
 
@@ -118,20 +112,20 @@ export class ReachbilityScenarioSetupComponent implements OnInit {
     let isReachabilityDatasetOnly = false;
 
     if (
-      this.reachabilityHelperService.settings.selectedStartPointLayer.isNewReachabilityDataSource ||
-      this.reachabilityHelperService.settings.selectedStartPointLayer.isTmpDataLayer
+      this.reachabilityStateService.settings.selectedStartPointLayer.isNewReachabilityDataSource ||
+      this.reachabilityStateService.settings.selectedStartPointLayer.isTmpDataLayer
     ) {
       isReachabilityDatasetOnly = true;
       // check if geoJSON is available
       // is required by editFeature component
-      if (!this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON) {
-        this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON =
-          this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability;
+      if (!this.reachabilityStateService.settings.selectedStartPointLayer.geoJSON) {
+        this.reachabilityStateService.settings.selectedStartPointLayer.geoJSON =
+          this.reachabilityStateService.settings.selectedStartPointLayer.geoJSON_reachability;
       }
     }
 
     this.broadcastService.broadcast(BroadcastMessage.OnEditGeoresourceFeatures, [
-      this.reachabilityHelperService.settings.selectedStartPointLayer,
+      this.reachabilityStateService.settings.selectedStartPointLayer,
       isReachabilityDatasetOnly,
     ]);
   }

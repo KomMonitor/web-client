@@ -1,4 +1,4 @@
-<app-loading-overlay [loading]="reachabilityHelperService.settings.loadingData">
+<app-loading-overlay [loading]="reachabilityStateService.settings.loadingData">
   <div class="row vertical-align">
     <!-- reachability config -->
     <div
@@ -12,7 +12,7 @@
         <div class="reachability-feature-btn-wrapper">
           <button
             class="feature-btn"
-            [ngClass]="{ active: reachabilityHelperService.settings.transitMode === 'buffer' }"
+            [ngClass]="{ active: reachabilityStateService.settings.transitMode === 'buffer' }"
             (click)="changeType('buffer')"
           >
             <i class="far fa-dot-circle"></i>
@@ -20,7 +20,7 @@
           <button
             class="feature-btn"
             [ngClass]="{
-              active: reachabilityHelperService.settings.transitMode === 'foot-walking',
+              active: reachabilityStateService.settings.transitMode === 'foot-walking',
             }"
             (click)="changeType('foot-walking')"
           >
@@ -29,7 +29,7 @@
           <button
             class="feature-btn"
             [ngClass]="{
-              active: reachabilityHelperService.settings.transitMode === 'cycling-regular',
+              active: reachabilityStateService.settings.transitMode === 'cycling-regular',
             }"
             (click)="changeType('cycling-regular')"
           >
@@ -37,14 +37,14 @@
           </button>
           <button
             class="feature-btn"
-            [ngClass]="{ active: reachabilityHelperService.settings.transitMode === 'driving-car' }"
+            [ngClass]="{ active: reachabilityStateService.settings.transitMode === 'driving-car' }"
             (click)="changeType('driving-car')"
           >
             <i class="fas fa-car"></i>
           </button>
           <button
             class="feature-btn"
-            [ngClass]="{ active: reachabilityHelperService.settings.transitMode === 'wheelchair' }"
+            [ngClass]="{ active: reachabilityStateService.settings.transitMode === 'wheelchair' }"
             (click)="changeType('wheelchair')"
           >
             <i class="fab fa-accessible-icon"></i>
@@ -60,23 +60,23 @@
             <div class="reachability-feature-btn-wrapper">
               <button
                 class="feature-btn"
-                [ngClass]="{ active: reachabilityHelperService.settings.focus === 'distance' }"
+                [ngClass]="{ active: reachabilityStateService.settings.focus === 'distance' }"
                 (click)="changeFocus('distance')"
               >
                 <i class="fas fa-ruler"></i> Distanz
               </button>
               <button
                 class="feature-btn"
-                [ngClass]="{ active: reachabilityHelperService.settings.focus === 'time' }"
+                [ngClass]="{ active: reachabilityStateService.settings.focus === 'time' }"
                 (click)="changeFocus('time')"
-                [disabled]="reachabilityHelperService.settings.transitMode === 'buffer'"
+                [disabled]="reachabilityStateService.settings.transitMode === 'buffer'"
               >
                 <i class="far fa-clock"></i> Zeit
               </button>
             </div>
 
             <!--
-            <label>Fokus= {{reachabilityHelperService.settings.focus}}, Time= {{isTime}}</label>
+            <label>Fokus= {{reachabilityStateService.settings.focus}}, Time= {{isTime}}</label>
             -->
 
             <br />
@@ -91,7 +91,7 @@
               </p>
               <div>
                 <input
-                  [(ngModel)]="reachabilityHelperService.settings.isochroneInput"
+                  [(ngModel)]="reachabilityStateService.settings.isochroneInput"
                   id="isochroneCutInput"
                   type="text"
                   style="width: 95%"
@@ -110,9 +110,9 @@
                       type="radio"
                       name="distances"
                       value="100,200,300,400,500"
-                      [(ngModel)]="reachabilityHelperService.settings.isochroneInput"
+                      [(ngModel)]="reachabilityStateService.settings.isochroneInput"
                       (click)="
-                        reachabilityHelperService.settings.isochroneInput = '100,200,300,400,500'
+                        reachabilityStateService.settings.isochroneInput = '100,200,300,400,500'
                       "
                     />
                     100,200,300,400,500 Meter</label
@@ -122,8 +122,8 @@
                       type="radio"
                       name="distances"
                       value="500,1000,1500"
-                      [(ngModel)]="reachabilityHelperService.settings.isochroneInput"
-                      (click)="reachabilityHelperService.settings.isochroneInput = '500,1000,1500'"
+                      [(ngModel)]="reachabilityStateService.settings.isochroneInput"
+                      (click)="reachabilityStateService.settings.isochroneInput = '500,1000,1500'"
                     />
                     500,1000,1500 Meter</label
                   >
@@ -139,8 +139,8 @@
                       type="radio"
                       name="times"
                       value="5,10,15"
-                      [(ngModel)]="reachabilityHelperService.settings.isochroneInput"
-                      (click)="reachabilityHelperService.settings.isochroneInput = '5,10,15'"
+                      [(ngModel)]="reachabilityStateService.settings.isochroneInput"
+                      (click)="reachabilityStateService.settings.isochroneInput = '5,10,15'"
                     />
                     5,10,15 Minuten</label
                   >
@@ -149,8 +149,8 @@
                       type="radio"
                       name="times"
                       value="5,10,15,20,25"
-                      [(ngModel)]="reachabilityHelperService.settings.isochroneInput"
-                      (click)="reachabilityHelperService.settings.isochroneInput = '5,10,15,20,25'"
+                      [(ngModel)]="reachabilityStateService.settings.isochroneInput"
+                      (click)="reachabilityStateService.settings.isochroneInput = '5,10,15,20,25'"
                     />5,10,15,20,25 Minuten</label
                   >
                 </div>
@@ -169,14 +169,14 @@
 
             @if (
               mapOverlayState.isochroneLegend.datasetName !=
-              reachabilityHelperService.settings.selectedStartPointLayer?.datasetName
+              reachabilityStateService.settings.selectedStartPointLayer?.datasetName
             ) {
               <div>
                 <label style="color: red"
                   >Punktdatenquelle des Szenarios ge&auml;ndert - Neuberechnung erforderlich
                   f&uuml;r
                   <i>{{
-                    reachabilityHelperService.settings.selectedStartPointLayer?.datasetName
+                    reachabilityStateService.settings.selectedStartPointLayer?.datasetName
                   }}</i></label
                 >
               </div>
@@ -188,8 +188,8 @@
               &nbsp;
               <label class="switch">
                 <input type="checkbox"
-                  value="reachabilityHelperService.settings.dissolveIsochrones"
-                  [(ngModel)]="reachabilityHelperService.settings.dissolveIsochrones"
+                  value="reachabilityStateService.settings.dissolveIsochrones"
+                  [(ngModel)]="reachabilityStateService.settings.dissolveIsochrones"
                   checked>
                 <span class="switchslider round"></span>
               </label>
@@ -203,18 +203,18 @@
                       <button
                         class="btn btn-s btn-info"
                         [disabled]="
-                          reachabilityHelperService.settings.loadingData ||
+                          reachabilityStateService.settings.loadingData ||
                           !(
-                            reachabilityHelperService.settings.selectedStartPointLayer &&
-                            reachabilityHelperService.settings.selectedStartPointLayer
+                            reachabilityStateService.settings.selectedStartPointLayer &&
+                            reachabilityStateService.settings.selectedStartPointLayer
                               .geoJSON_reachability &&
-                            reachabilityHelperService.settings.isochroneInput
+                            reachabilityStateService.settings.isochroneInput
                           )
                         "
                         (click)="startAnalysis()"
                       >
                         <i class="fa-solid fa-hourglass-start"></i>&nbsp; Start
-                        @if (reachabilityHelperService.settings.loadingData) {
+                        @if (reachabilityStateService.settings.loadingData) {
                           <span class="glyphicon glyphicon-refresh icon-spin"></span>
                         }
                       </button>
@@ -225,7 +225,7 @@
                     <label>
                       <button
                         class="btn btn-s btn-success"
-                        [hidden]="!reachabilityHelperService.currentIsochronesGeoJSON"
+                        [hidden]="!reachabilityStateService.currentIsochronesGeoJSON"
                         (click)="downloadIsochrones()"
                       >
                         <i class="fa-solid fa-file-arrow-down"></i> &nbsp; Isochronen

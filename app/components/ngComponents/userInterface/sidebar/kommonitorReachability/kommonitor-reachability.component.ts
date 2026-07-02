@@ -20,8 +20,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { OpenStreetMapProvider, SearchControl } from 'leaflet-geosearch';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
-import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
+import { ReachabilityStateService } from 'services/reachability-state-service/reachability-state.service';
 import { MultiSelectSliderComponent } from 'components/ngComponents/common/multi-select-slider/multi-select-slider.component';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import uuidv4 from '../../../../../../customizedExternalLibs/uuidv4.js';
@@ -53,8 +52,7 @@ export class KommonitorReachabilityComponent implements OnInit {
   private modalService = inject(NgbModal);
   private broadcastService = inject(BroadcastService);
   private envConfigService = inject(EnvConfigService);
-  protected reachabilityCombinerService = inject(ReachabilityCombinerService);
-  protected reachabilityHelperService = inject(ReachabilityHelperService);
+  protected reachabilityStateService = inject(ReachabilityStateService);
 
   error = undefined;
   manualStartPoints = undefined;
@@ -67,7 +65,7 @@ export class KommonitorReachabilityComponent implements OnInit {
 
   sliderRange: number[] = [1, 300];
 
-  loading$ = this.reachabilityCombinerService.loadingState$;
+  loading$ = this.reachabilityStateService.loadingState$;
 
   ngOnInit(): void {
     // catch broadcast msgs
@@ -148,7 +146,7 @@ export class KommonitorReachabilityComponent implements OnInit {
     this.query = result.label;
     this.results = [];
 
-    this.reachabilityCombinerService.addLocation({
+    this.reachabilityStateService.addLocation({
       type: 'Feature',
       geometry: { type: 'Point', coordinates: [result.x, result.y] },
     });
@@ -159,22 +157,21 @@ export class KommonitorReachabilityComponent implements OnInit {
   }
 
   createScenario() {
-    this.reachabilityHelperService.settings.startPointsSource =
-      this.reachabilityCombinerService.startPointsSource;
+    const state = this.reachabilityStateService;
 
-    if (this.reachabilityCombinerService.startPointsSource == 'fromLayer') {
-      this.reachabilityCombinerService.scenarioTitle = `Erreichbarkeitsszenario - ${this.reachabilityCombinerService.selectedStartPointLayer.datasetName}`;
-      this.reachabilityHelperService.settings.selectedStartPointLayer =
-        this.reachabilityCombinerService.selectedStartPointLayer;
-      this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability = {
+    state.settings.startPointsSource = state.startPointsSource;
+
+    if (state.startPointsSource == 'fromLayer') {
+      state.scenarioTitle = `Erreichbarkeitsszenario - ${state.selectedStartPointLayer.datasetName}`;
+      state.selectedStartPointLayer.geoJSON_reachability = {
         type: 'FeatureCollection',
-        features: this.reachabilityCombinerService.features,
+        features: state.features,
       };
     } else {
-      this.reachabilityCombinerService.scenarioTitle = `Erreichbarkeitsszenario`;
+      state.scenarioTitle = `Erreichbarkeitsszenario`;
 
       // Find empty/new dataset template in filteredDisplayableGeoresources
-      const emptyDataset = this.reachabilityCombinerService.filteredDisplayableGeoresources.find(
+      const emptyDataset = state.filteredDisplayableGeoresources.find(
         (e) => e.isNewReachabilityDataSource
       );
       if (emptyDataset) {
@@ -184,38 +181,37 @@ export class KommonitorReachabilityComponent implements OnInit {
         clonedDataset.datasetName = 'manuelle Punkte';
         clonedDataset.geoJSON_reachability = {
           type: 'FeatureCollection',
-          features: this.reachabilityCombinerService.features,
+          features: state.features,
         };
         clonedDataset.geoJSON = clonedDataset.geoJSON_reachability;
-        this.reachabilityCombinerService.selectedStartPointLayer = clonedDataset;
+        state.selectedStartPointLayer = clonedDataset;
       }
-      this.reachabilityHelperService.settings.selectedStartPointLayer =
-        this.reachabilityCombinerService.selectedStartPointLayer;
-      this.reachabilityHelperService.settings.manualStartPoints = {
-        features: this.reachabilityCombinerService.features,
-      };
+      state.settings.manualStartPoints = { features: state.features };
     }
 
-    this.reachabilityHelperService.settings.transitMode =
-      this.reachabilityCombinerService.settings.transitMode;
-    this.reachabilityHelperService.settings.focus = this.reachabilityCombinerService.settings.focus;
-    this.reachabilityHelperService.settings.isochroneInput =
-      this.reachabilityCombinerService.settings.ranges.join(',');
+    // the scenario wizard's engine reads its start-point layer from `settings`, which
+    // is a distinct field from the quick-calc UI's `selectedStartPointLayer` above
+    state.settings.selectedStartPointLayer = state.selectedStartPointLayer;
 
-    this.reachabilityHelperService.makeLocationsArrayFromStartPoints();
+    // translate the quick-calc UI's simplified settings into the wizard's config shape
+    state.settings.transitMode = state.quickCalcSettings.transitMode;
+    state.settings.focus = state.quickCalcSettings.focus;
+    state.settings.isochroneInput = state.quickCalcSettings.ranges.join(',');
 
-    this.reachabilityHelperService.currentIsochronesGeoJSON =
-      this.reachabilityCombinerService.isochronesGeoJson;
-    this.reachabilityHelperService.settings.useMultipleStartPoints = true;
-    this.reachabilityHelperService.settings.dissolveIsochrones = true;
+    state.makeLocationsArrayFromStartPoints();
 
-    this.reachabilityCombinerService.setScenarioState = true;
+    // carry over the already-computed quick-calc result so the wizard doesn't recalculate
+    state.currentIsochronesGeoJSON = state.isochronesGeoJson;
+    state.settings.useMultipleStartPoints = true;
+    state.settings.dissolveIsochrones = true;
+
+    state.setScenarioState = true;
 
     this.openReachabilityScenarioModal();
   }
 
   startCalculation() {
-    this.reachabilityCombinerService.startQuickCalculation();
+    this.reachabilityStateService.startQuickCalculation();
   }
 
   changeStartPointsSource_fromLayer() {
@@ -239,8 +235,7 @@ export class KommonitorReachabilityComponent implements OnInit {
   }
 
   openReachabilityScenarioModal(scenarioDataset: any = false) {
-
-    this.reachabilityCombinerService.showOnMainMap = false;
+    this.reachabilityStateService.showOnMainMap = false;
     this.active = 1;
     this.onSinglePointSelection();
 
@@ -262,28 +257,29 @@ export class KommonitorReachabilityComponent implements OnInit {
   }
 
   onSinglePointSelection() {
-    this.reachabilityCombinerService.showOnMainMap = true;
-    this.reachabilityCombinerService.resetLocations();
-    this.reachabilityCombinerService.startPointsSource = 'manual';
-    this.reachabilityCombinerService.manualMapSelectionMode = false;
+    this.reachabilityStateService.showOnMainMap = true;
+    this.reachabilityStateService.resetLocations();
+    this.reachabilityStateService.startPointsSource = 'manual';
+    this.reachabilityStateService.manualMapSelectionMode = false;
   }
 
   onMapSelection() {
-    this.reachabilityCombinerService.showOnMainMap = true;
-    this.reachabilityCombinerService.resetLocations();
-    this.reachabilityCombinerService.startPointsSource = 'manual';
-    this.reachabilityCombinerService.manualMapSelectionMode = true;
+    this.reachabilityStateService.showOnMainMap = true;
+    this.reachabilityStateService.resetLocations();
+    this.reachabilityStateService.startPointsSource = 'manual';
+    this.reachabilityStateService.manualMapSelectionMode = true;
   }
 
   onLayerSelection() {
-    this.reachabilityCombinerService.showOnMainMap = true;
-    this.reachabilityCombinerService.resetLocations();
-    this.reachabilityCombinerService.startPointsSource = 'fromLayer';
-    this.reachabilityCombinerService.manualMapSelectionMode = false;
+    this.reachabilityStateService.showOnMainMap = true;
+    this.reachabilityStateService.resetLocations();
+    this.reachabilityStateService.startPointsSource = 'fromLayer';
+    this.reachabilityStateService.manualMapSelectionMode = false;
   }
 
   onFocusModeChange() {
-    if (this.reachabilityCombinerService.settings.focus == 'distance') this.sliderRange = [1, 300];
+    if (this.reachabilityStateService.quickCalcSettings.focus == 'distance')
+      this.sliderRange = [1, 300];
     else this.sliderRange = [1, 15];
   }
 }

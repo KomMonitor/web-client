@@ -1,4 +1,4 @@
-@if (!reachabilityHelperService.currentIsochronesGeoJSON) {
+@if (!reachabilityStateService.currentIsochronesGeoJSON) {
   <div style="text-align: center">
     <p>Bitte f&uuml;hren Sie zuerst eine Isochronenberechnung durch.</p>
   </div>
@@ -6,7 +6,7 @@
 
 <div style="text-align: center">
   <div class="row vertical-align">
-    @if (reachabilityHelperService.currentIsochronesGeoJSON) {
+    @if (reachabilityStateService.currentIsochronesGeoJSON) {
       <div class="col-md-6 col-sm-6 col-12">
         <div class="input-group">
           <span class="input-group-addon"><i class="fas fa-filter"></i></span>
@@ -108,18 +108,18 @@
           </div>
         }
         <div class="row" style="margin-right: 0px">
-          @if (reachabilityHelperService.settings.selectedStartPointLayer) {
+          @if (reachabilityStateService.settings.selectedStartPointLayer) {
             <div>
               @if (
                 mapOverlayState.isochroneLegend.datasetName !=
-                reachabilityHelperService.settings.selectedStartPointLayer?.datasetName
+                reachabilityStateService.settings.selectedStartPointLayer?.datasetName
               ) {
                 <div>
                   <label style="color: red"
                     >Punktdatenquelle des Szenarios ge&auml;ndert - Neuberechnung erforderlich
                     f&uuml;r
                     <i>{{
-                      reachabilityHelperService.settings.selectedStartPointLayer.datasetName
+                      reachabilityStateService.settings.selectedStartPointLayer.datasetName
                     }}</i></label
                   >
                 </div>
@@ -127,16 +127,16 @@
             </div>
           }
           <div class="col-sm-8">
-            @if (reachabilityScenarioHelperService.tmpActiveScenario.poiDataset.poiName) {
+            @if (reachabilityStateService.poiDataset.poiName) {
               <div>
                 <b>Berechnungen f&uuml;r Punktdatenquelle:</b>
-                <i>{{ reachabilityScenarioHelperService.tmpActiveScenario.poiDataset.poiName }}</i>
+                <i>{{ reachabilityStateService.poiDataset.poiName }}</i>
               </div>
             }
-            @if (!reachabilityScenarioHelperService.tmpActiveScenario.poiDataset.poiName) {
+            @if (!reachabilityStateService.poiDataset.poiName) {
               <div>
                 <b>Berechnungen f&uuml;r Punktdatenquelle:</b>
-                <i>{{ reachabilityHelperService.settings?.selectedStartPointLayer.datasetName }}</i>
+                <i>{{ reachabilityStateService.settings?.selectedStartPointLayer.datasetName }}</i>
               </div>
             }
           </div>
@@ -166,8 +166,7 @@
               </thead>
               <tbody>
                 @for (
-                  indicatorStatisticsEntry of reachabilityScenarioHelperService.tmpActiveScenario
-                    .indicatorStatistics;
+                  indicatorStatisticsEntry of reachabilityStateService.indicatorStatistics;
                   track indicatorStatisticsEntry
                 ) {
                   <tr>
@@ -221,7 +220,7 @@
                           "
                           (click)="
                             reachabilityCoverageReportsHelperService.generateTotalCoverageReport_focusPoiCoverage(
-                              reachabilityScenarioHelperService.tmpActiveScenario,
+                              reachabilityStateService.getSnapshot(),
                               indicatorStatisticsEntry
                             )
                           "
@@ -248,7 +247,7 @@
                           "
                           (click)="
                             reachabilityCoverageReportsHelperService.generateFeatureCoverageReport_focusPoiCoverage(
-                              reachabilityScenarioHelperService.tmpActiveScenario,
+                              reachabilityStateService.getSnapshot(),
                               indicatorStatisticsEntry
                             )
                           "
@@ -314,18 +313,12 @@
                             track overallCoverageEntry
                           ) {
                             <div>
-                              @if (
-                                reachabilityScenarioHelperService.tmpActiveScenario
-                                  .reachabilitySettings.focus === 'time'
-                              ) {
+                              @if (reachabilityStateService.settings.focus === 'time') {
                                 <div>
                                   <b>{{ overallCoverageEntry.range / 60 }} [Minuten]</b>
                                 </div>
                               }
-                              @if (
-                                reachabilityScenarioHelperService.tmpActiveScenario
-                                  .reachabilitySettings.focus === 'distance'
-                              ) {
+                              @if (reachabilityStateService.settings.focus === 'distance') {
                                 <div>
                                   <b>{{ overallCoverageEntry.range }} [Meter]</b>
                                 </div>

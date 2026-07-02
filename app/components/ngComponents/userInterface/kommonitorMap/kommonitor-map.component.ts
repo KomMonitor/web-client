@@ -34,11 +34,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
 
 import {
-  ReachabilityCombinerService,
+  ReachabilityStateService,
   GeoJSONFeature,
-} from 'services/reachability-combiner-service/reachability-combiner.service';
+} from 'services/reachability-state-service/reachability-state.service';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
-import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 
 @Component({
   selector: 'app-kommonitor-map',
@@ -63,9 +62,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   private envConfigService = inject(EnvConfigService);
   private fileHelperService = inject(FileHelperService);
   private mapService = inject(MapService);
-  private reachabilityCombinerService = inject(ReachabilityCombinerService);
+  private reachabilityStateService = inject(ReachabilityStateService);
   private reachabilityMapHelperService = inject(ReachabilityMapHelperService);
-  private reachabilityHelperService = inject(ReachabilityHelperService);
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -324,11 +322,11 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       if (value.recenter) this.recenterMapOnly();
     });
 
-    this.reachabilityCombinerService.reachabilityMapSubject$
+    this.reachabilityStateService.reachabilityMapSubject$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
-        console.log(value)
-        if(value.showOnMainMap) {
+        console.log(value);
+        if (value.showOnMainMap) {
           if (value.features) this.addSingleMarker(value?.features);
 
           if (value.isochronesGeoJson) this.addIsochrones(value.isochronesGeoJson);
@@ -800,8 +798,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.noDataFillPattern.addTo(this.map);
 
     this.map.on('click', async (e: L.LeafletMouseEvent) => {
-      if (this.reachabilityCombinerService.manualMapSelectionMode) {
-        this.reachabilityCombinerService.addLocation(
+      if (this.reachabilityStateService.manualMapSelectionMode) {
+        this.reachabilityStateService.addLocation(
           {
             type: 'Feature',
             geometry: {
@@ -869,14 +867,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.removeIsochrones();
 
     this.isochronesLayer = this.reachabilityMapHelperService.makeIsochroneLayer(
-      this.reachabilityHelperService.settings.selectedStartPointLayer?.datasetName ||
+      this.reachabilityStateService.settings.selectedStartPointLayer?.datasetName ||
         'Manuelle Eingabe',
       isochrones,
-      this.reachabilityHelperService.settings.transitMode,
-      this.reachabilityHelperService.settings.focus,
-      this.reachabilityHelperService.settings.rangeArray,
-      this.reachabilityHelperService.settings.useMultipleStartPoints,
-      this.reachabilityHelperService.settings.dissolveIsochrones
+      this.reachabilityStateService.settings.transitMode,
+      this.reachabilityStateService.settings.focus,
+      this.reachabilityStateService.settings.rangeArray,
+      this.reachabilityStateService.settings.useMultipleStartPoints,
+      this.reachabilityStateService.settings.dissolveIsochrones
     );
 
     this.isochronesLayer.addTo(this.map);

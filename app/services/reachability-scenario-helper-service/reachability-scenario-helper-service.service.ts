@@ -1,32 +1,23 @@
 import { Injectable, inject } from '@angular/core';
-import { Injector } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
-import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
+import {
+  ReachabilitySessionSnapshot,
+  ReachabilityStateService,
+} from 'services/reachability-state-service/reachability-state.service';
 
-export interface PoiDataset {
-  poiId: string;
-  poiName: string;
-  poiDate: string;
-}
+export type ReachabilityScenario = ReachabilitySessionSnapshot;
 
-export interface ReachabilityScenario {
-  reachabilitySettings: any; // Consider creating a specific interface for this
-  scenarioName: string;
-  indicatorStatistics: any[]; // Consider creating a specific interface for this
-  isochrones_dissolved: any; // GeoJSON FeatureCollection
-  isochrones_perPoint: any; // GeoJSON FeatureCollection
-  poiDataset: PoiDataset;
-  // To allow for extensibility while maintaining some type safety
-  [key: string]: any;
-}
-
+/**
+ * Persistence/repository layer for named reachability scenarios. Holds the saved-scenario
+ * list; snapshotting and restoring the live session itself is delegated to
+ * ReachabilityStateService.getSnapshot()/restoreSnapshot() so there is only one object
+ * graph to clone, not several kept in sync by hand.
+ */
 @Injectable({
   providedIn: 'root',
 })
 export class ReachabilityScenarioHelperService {
-  private kommonitorReachabilityHelperService = inject(ReachabilityHelperService);
-  private injector = inject(Injector);
+  private reachabilityStateService = inject(ReachabilityStateService);
 
   private readonly scenarios = new BehaviorSubject<ReachabilityScenario[]>([]);
   public readonly scenarios$ = this.scenarios.asObservable();
@@ -35,84 +26,18 @@ export class ReachabilityScenarioHelperService {
   public readonly isochronesCalculationFinished$ =
     this.isochronesCalculationFinished.asObservable();
 
-  public tmpActiveScenario: ReachabilityScenario = this.createEmptyScenario();
-
   get reachabilityScenarios(): ReachabilityScenario[] {
     return this.scenarios.value;
   }
 
-  private createEmptyScenario(): ReachabilityScenario {
-    return {
-      reachabilitySettings: {},
-      scenarioName: '',
-      indicatorStatistics: [],
-      isochrones_dissolved: {},
-      isochrones_perPoint: {},
-      poiDataset: {
-        poiId: '',
-        poiName: '',
-        poiDate: '',
-      },
-    };
-  }
-
-  public resetTmpActiveScenario(): void {
-    this.tmpActiveScenario = this.createEmptyScenario();
-  }
-
-  public setPoiDataset(poiDataset: any): void {
-    const poiDatasetClone = JSON.parse(JSON.stringify(poiDataset));
-    this.tmpActiveScenario.poiDataset = {
-      poiId: poiDatasetClone.georesourceId,
-      poiName: poiDatasetClone.datasetName,
-      poiDate:
-        this.kommonitorReachabilityHelperService.settings.isochroneConfig.selectedDate?.startDate ||
-        'tmpDataset',
-    };
-  }
-
-  public setActiveScenario(scenarioDataset: ReachabilityScenario): void {
-    // deep clone object to persist this scenario as a whole
-    this.tmpActiveScenario = JSON.parse(JSON.stringify(scenarioDataset));
-
-    const combinerService = this.injector.get(ReachabilityCombinerService);
-    combinerService.scenarioTitle = scenarioDataset.scenarioName;
-    combinerService.selectedStartPointLayer =
-      scenarioDataset.reachabilitySettings.selectedStartPointLayer;
-    combinerService.selectedStartDate =
-      scenarioDataset.reachabilitySettings.isochroneConfig.selectedDate;
-
-    this.kommonitorReachabilityHelperService.settings = JSON.parse(
-      JSON.stringify(this.tmpActiveScenario.reachabilitySettings)
-    );
-    this.kommonitorReachabilityHelperService.currentIsochronesGeoJSON = JSON.parse(
-      JSON.stringify(this.tmpActiveScenario.isochrones_dissolved)
-    );
-    this.kommonitorReachabilityHelperService.original_nonDissolved_isochrones = JSON.parse(
-      JSON.stringify(this.tmpActiveScenario.isochrones_perPoint)
-    );
-  }
-
   public loadActiveScenario(scenarioDataset: ReachabilityScenario): void {
-    this.setActiveScenario(scenarioDataset);
+    this.reachabilityStateService.restoreSnapshot(scenarioDataset);
     // since the config contains all info for active scenario we just reload all reachability maps
     this.isochronesCalculationFinished.next(true);
   }
 
   public addReachabilityScenario(): void {
-    this.configureActiveScenario();
-    this.replaceOrAddScenario(JSON.parse(JSON.stringify(this.tmpActiveScenario)));
-  }
-
-  public configureActiveScenario(): void {
-    this.tmpActiveScenario.reachabilitySettings = this.kommonitorReachabilityHelperService.settings;
-    this.tmpActiveScenario.isochrones_dissolved =
-      this.kommonitorReachabilityHelperService.currentIsochronesGeoJSON;
-    this.tmpActiveScenario.isochrones_perPoint =
-      this.kommonitorReachabilityHelperService.original_nonDissolved_isochrones;
-    // this.tmpActiveScenario.indicatorStatistics and this.tmpActiveScenario.scenarioName are already directly set within reachability components
-
-    this.setPoiDataset(this.tmpActiveScenario.reachabilitySettings.selectedStartPointLayer);
+    this.replaceOrAddScenario(this.reachabilityStateService.getSnapshot());
   }
 
   public replaceOrAddScenario(scenario: ReachabilityScenario): void {
@@ -121,10 +46,10 @@ export class ReachabilityScenarioHelperService {
 
     if (index > -1) {
       currentScenarios.splice(index, 1, scenario);
-      //this.kommonitorToastHelperService.displaySuccessToast("Erreichbarkeitsszenario aktualisiert", this.tmpActiveScenario.scenarioName);
+      //this.kommonitorToastHelperService.displaySuccessToast("Erreichbarkeitsszenario aktualisiert", scenario.scenarioName);
     } else {
       currentScenarios.push(scenario);
-      //this.kommonitorToastHelperService.displaySuccessToast("Erreichbarkeitsszenario neu angelegt", this.tmpActiveScenario.scenarioName);
+      //this.kommonitorToastHelperService.displaySuccessToast("Erreichbarkeitsszenario neu angelegt", scenario.scenarioName);
     }
     this.scenarios.next(currentScenarios);
   }

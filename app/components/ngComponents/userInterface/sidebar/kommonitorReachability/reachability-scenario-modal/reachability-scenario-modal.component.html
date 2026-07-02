@@ -168,9 +168,9 @@
           type="button"
           class="btn btn-success"
           [disabled]="
-            !reachabilityScenarioHelperService.tmpActiveScenario.scenarioName ||
-            !reachabilityHelperService.currentIsochronesGeoJSON ||
-            !reachabilityHelperService.original_nonDissolved_isochrones
+            !reachabilityStateService.scenarioTitle ||
+            !reachabilityStateService.currentIsochronesGeoJSON ||
+            !reachabilityStateService.original_nonDissolved_isochrones
           "
           (click)="onClickAddScenario()"
         >

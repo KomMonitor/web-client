@@ -16,7 +16,7 @@ import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
-import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
+import { ReachabilityStateService } from 'services/reachability-state-service/reachability-state.service';
 
 @Injectable({
   providedIn: 'root',
@@ -31,7 +31,7 @@ export class ReachabilityMapHelperService {
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private genericMapHelperService = inject(GenericMapHelperService);
   private visualStyleHelperService = inject(VisualStyleHelperServiceNew);
-  private reachabilityScenarioHelperService = inject(ReachabilityScenarioHelperService);
+  private reachabilityStateService = inject(ReachabilityStateService);
   private envConfService = inject(EnvConfigService);
   private indicatorValueService = inject(IndicatorValueService);
   private selectionState = inject(SelectionStateService);
@@ -816,10 +816,7 @@ export class ReachabilityMapHelperService {
     for (const isochronePruneResult of poiFeature.properties.individualIsochronePruneResults) {
       const range = isochronePruneResult.poiFeatureId.split('_').pop();
       const unit =
-        this.reachabilityScenarioHelperService.tmpActiveScenario.reachabilitySettings.focus ===
-        'distance'
-          ? 'Meter'
-          : 'Minuten';
+        this.reachabilityStateService.settings.focus === 'distance' ? 'Meter' : 'Minuten';
       html += `<h4>${range} [${unit}]</h4><h4><i>Gesamtgebiet</i></h4>`;
       html += `<i>${this.getIndicatorValue_asFormattedText(isochronePruneResult.overallCoverage[0].absoluteCoverage)} von ${this.getIndicatorValue_asFormattedText(indicatorStatisticsCandidate.coverageResult.timeseries[0].value)} [${indicatorStatisticsCandidate.indicator.unit}]</i><br/>`;
       html += `entspricht <i>${this.getIndicatorValue_asFormattedText(isochronePruneResult.overallCoverage[0].relativeCoverage * 100)} [%]</i><br/><br/>`;

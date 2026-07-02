@@ -16,9 +16,8 @@ import {
   MetadataBootstrapService,
   MetadataLoadingState,
 } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
-import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
-import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
+import { ReachabilityStateService } from 'services/reachability-state-service/reachability-state.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 
 @Component({
@@ -29,7 +28,7 @@ import { SelectionStateService } from 'services/selection-state-service/selectio
   imports: [CommonModule, FormsModule],
 })
 export class ReachabilityPoiInIsoComponent implements OnInit {
-  protected reachabilityHelperService = inject(ReachabilityHelperService);
+  protected reachabilityStateService = inject(ReachabilityStateService);
   private reachabilityMapHelperService = inject(ReachabilityMapHelperService);
   protected mapOverlayState = inject(MapOverlayStateService);
   private metadataBootstrap = inject(MetadataBootstrapService);
@@ -40,7 +39,6 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   private diagramHelperService = inject(DiagramHelperServiceService);
   private http = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
-  private reachabilityCombinerService = inject(ReachabilityCombinerService);
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -93,7 +91,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
       }
     });
 
-    this.reachabilityCombinerService.reachabilityMapSubject$.subscribe((value) => {
+    this.reachabilityStateService.reachabilityMapSubject$.subscribe((value) => {
       if (value.scenarioState) {
         this.isochronesCalculationFinished(true);
       }
@@ -137,13 +135,13 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
 
     this.reachabilityMapHelperService.replaceIsochroneGeoJSON(
       this.domId,
-      this.reachabilityHelperService.settings.selectedStartPointLayer.datasetName,
-      this.reachabilityHelperService.currentIsochronesGeoJSON,
-      this.reachabilityHelperService.settings.transitMode,
-      this.reachabilityHelperService.settings.focus,
-      this.reachabilityHelperService.settings.rangeArray,
-      this.reachabilityHelperService.settings.useMultipleStartPoints,
-      this.reachabilityHelperService.settings.dissolveIsochrones
+      this.reachabilityStateService.settings.selectedStartPointLayer.datasetName,
+      this.reachabilityStateService.currentIsochronesGeoJSON,
+      this.reachabilityStateService.settings.transitMode,
+      this.reachabilityStateService.settings.focus,
+      this.reachabilityStateService.settings.rangeArray,
+      this.reachabilityStateService.settings.useMultipleStartPoints,
+      this.reachabilityStateService.settings.dissolveIsochrones
     );
   }
 
@@ -167,18 +165,18 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
     }
 
     if (
-      this.reachabilityHelperService.settings.dateSelectionType.selectedDateType ===
-      this.reachabilityHelperService.settings.dateSelectionType_valueIndicator
+      this.reachabilityStateService.settings.dateSelectionType.selectedDateType ===
+      this.reachabilityStateService.settings.dateSelectionType_valueIndicator
     ) {
       return this.selectionState.selectedDate;
     } else if (
-      this.reachabilityHelperService.settings.dateSelectionType.selectedDateType ===
-      this.reachabilityHelperService.settings.dateSelectionType_valueManual
+      this.reachabilityStateService.settings.dateSelectionType.selectedDateType ===
+      this.reachabilityStateService.settings.dateSelectionType_valueManual
     ) {
-      return this.reachabilityHelperService.settings.selectedDate_manual;
+      return this.reachabilityStateService.settings.selectedDate_manual;
     } else if (
-      this.reachabilityHelperService.settings.dateSelectionType.selectedDateType ===
-      this.reachabilityHelperService.settings.dateSelectionType_valuePerDataset
+      this.reachabilityStateService.settings.dateSelectionType.selectedDateType ===
+      this.reachabilityStateService.settings.dateSelectionType_valuePerDataset
     ) {
       return resource.selectedDate.startDate;
     } else {
@@ -190,7 +188,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   async handlePoiForAnalysis(poi) {
     this.georesourceStore.displayableGeoresources = this.filteredDisplayableGeoresources;
 
-    this.reachabilityHelperService.settings.loadingData = true;
+    this.reachabilityStateService.settings.loadingData = true;
 
     try {
       if (poi.isSelected_reachabilityAnalysis) {
@@ -205,7 +203,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
       console.error(error);
     }
 
-    this.reachabilityHelperService.settings.loadingData = false;
+    this.reachabilityStateService.settings.loadingData = false;
   }
 
   fetchGeoJSONForDate(poiGeoresource) {
@@ -253,7 +251,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
         error: (error) => {
           // called asynchronously if an error occurs
           // or server returns response with an error status.
-          this.reachabilityHelperService.settings.loadingData = false;
+          this.reachabilityStateService.settings.loadingData = false;
           this.mapErrorNotificationService.displayMapApplicationError(error);
           reject(error);
         },
@@ -328,7 +326,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   computePoisWithinIsochrone(rangeValue, poi) {
     // create clones of poi geoJSON and isochrone geoJSON
     const isochrones_geoJSON_clone = JSON.parse(
-      JSON.stringify(this.reachabilityHelperService.currentIsochronesGeoJSON)
+      JSON.stringify(this.reachabilityStateService.currentIsochronesGeoJSON)
     );
     const poi_geoJSON_clone = JSON.parse(JSON.stringify(poi.geoJSON_poiInIsochrones));
 
@@ -349,7 +347,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   initializeMapWithRangeKeys() {
     const map = new Map();
 
-    for (const feature of this.reachabilityHelperService.currentIsochronesGeoJSON.features) {
+    for (const feature of this.reachabilityStateService.currentIsochronesGeoJSON.features) {
       map.set('' + feature.properties.value, null);
     }
 
@@ -366,7 +364,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
       let numberOfFeatures = 0;
 
       let nextEntry_keyRange_label = nextEntry_keyRange;
-      if (this.reachabilityHelperService.settings.focus == 'time') {
+      if (this.reachabilityStateService.settings.focus == 'time') {
         // compute seconds to minutes for display
         nextEntry_keyRange_label = nextEntry_keyRange_label / 60;
       }
@@ -468,7 +466,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   }
 
   addPoiLayerToMap(poiGeoresource) {
-    this.reachabilityHelperService.settings.loadingData = true;
+    this.reachabilityStateService.settings.loadingData = true;
 
     // fale --> useCluster = false
     this.reachabilityMapHelperService.addPoiGeoresourceGeoJSON_reachabilityAnalysis(
@@ -477,17 +475,17 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
       this.getQueryDate(poiGeoresource),
       false
     );
-    this.reachabilityHelperService.settings.loadingData = false;
+    this.reachabilityStateService.settings.loadingData = false;
   }
 
   removePoiLayerFromMap(poiGeoresource) {
-    this.reachabilityHelperService.settings.loadingData = true;
+    this.reachabilityStateService.settings.loadingData = true;
 
     this.reachabilityMapHelperService.removePoiGeoresource_reachabilityAnalysis(
       this.domId,
       poiGeoresource
     );
-    this.reachabilityHelperService.settings.loadingData = false;
+    this.reachabilityStateService.settings.loadingData = false;
   }
 
   //async
@@ -506,8 +504,8 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   }
 
   onClickUseIndicatorTimestamp() {
-    this.reachabilityHelperService.settings.dateSelectionType.selectedDateType =
-      this.reachabilityHelperService.settings.dateSelectionType_valueIndicator;
+    this.reachabilityStateService.settings.dateSelectionType.selectedDateType =
+      this.reachabilityStateService.settings.dateSelectionType_valueIndicator;
 
     this.refreshSelectedGeoresources();
   }
@@ -539,7 +537,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
 
     // Make a new timeout set to go off in 1000ms (1 second)
     this.timeout_manualdate = setTimeout(() => {
-      const dateCandidate = this.reachabilityHelperService.settings.selectedDate_manual;
+      const dateCandidate = this.reachabilityStateService.settings.selectedDate_manual;
 
       if (this.isNoValidDate(dateCandidate)) {
         return;
@@ -567,7 +565,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
     // Make a new timeout set to go off in 1000ms (1 second)
     this.timeout_manualdate = setTimeout(() => {
       const dateCandidate =
-        this.reachabilityHelperService.settings.isochroneConfig.selectedDate_manual;
+        this.reachabilityStateService.settings.isochroneConfig.selectedDate_manual;
 
       if (this.isNoValidDate(dateCandidate)) {
         return;
@@ -594,8 +592,8 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   selectedIndicatorDateHasChanged() {
     // only refresh georesources if sync with indicator timestamp is selected
     if (
-      !this.reachabilityHelperService.settings.dateSelectionType.selectedDateType.includes(
-        this.reachabilityHelperService.settings.dateSelectionType_valueIndicator
+      !this.reachabilityStateService.settings.dateSelectionType.selectedDateType.includes(
+        this.reachabilityStateService.settings.dateSelectionType_valueIndicator
       )
     ) {
       return;

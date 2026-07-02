@@ -6,10 +6,9 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
-import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
+import { ReachabilityStateService } from 'services/reachability-state-service/reachability-state.service';
 import { ReachabilityScenarioConfigurationComponent } from './reachability-scenario-configuration/reachability-scenario-configuration.component';
 import { ReachabilityPoiInIsoComponent } from './reachability-poi-in-iso/reachability-poi-in-iso.component';
-import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
 import { ReachbilityScenarioSetupComponent } from './reachbility-scenario-setup/reachbility-scenario-setup.component';
 import { SingleFeatureEditComponent } from 'components/ngComponents/common/single-feature-edit/single-feature-edit.component';
 import { ReachabilityIndicatorStatisticsComponent } from './reachability-indicator-statistics/reachability-indicator-statistics.component';
@@ -29,11 +28,10 @@ import { ReachabilityIndicatorStatisticsComponent } from './reachability-indicat
   ],
 })
 export class ReachabilityScenarioModalComponent implements OnInit {
-  protected reachabilityHelperService = inject(ReachabilityHelperService);
+  protected reachabilityStateService = inject(ReachabilityStateService);
   private multiStepHelperService = inject(MultiStepHelperServiceService);
   private broadcastService = inject(BroadcastService);
   protected reachabilityScenarioHelperService = inject(ReachabilityScenarioHelperService);
-  private reachabilityCombinerService = inject(ReachabilityCombinerService);
   private cdr = inject(ChangeDetectorRef);
 
   activeModal = inject(NgbActiveModal);
@@ -56,10 +54,10 @@ export class ReachabilityScenarioModalComponent implements OnInit {
       switch (title) {
         case BroadcastMessage.GeoresourceGeoJSONUpdated:
           {
-            if (this.reachabilityHelperService.settings.selectedStartPointLayer) {
-              this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability =
+            if (this.reachabilityStateService.settings.selectedStartPointLayer) {
+              this.reachabilityStateService.settings.selectedStartPointLayer.geoJSON_reachability =
                 values[0];
-              this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON = values[0];
+              this.reachabilityStateService.settings.selectedStartPointLayer.geoJSON = values[0];
             }
           }
           break;
@@ -159,21 +157,19 @@ export class ReachabilityScenarioModalComponent implements OnInit {
 
   */
   resetReachabilityScenarioForm() {
-    this.reachabilityCombinerService.reset();
+    this.reachabilityStateService.reset();
 
-    this.reachabilityHelperService.settings.selectedStartPointLayer = undefined;
-    this.reachabilityHelperService.currentIsochronesGeoJSON = undefined;
-    this.reachabilityHelperService.original_nonDissolved_isochrones = undefined;
-    this.reachabilityScenarioHelperService.resetTmpActiveScenario();
-    this.reachabilityHelperService.resetSettings();
+    this.reachabilityStateService.settings.selectedStartPointLayer = undefined;
+    this.reachabilityStateService.currentIsochronesGeoJSON = undefined;
+    this.reachabilityStateService.original_nonDissolved_isochrones = undefined;
+    this.reachabilityStateService.resetSettings();
   }
 
   onManageReachabilityScenario(scenarioDataset) {
     if (scenarioDataset) {
       if (
-        this.reachabilityScenarioHelperService.tmpActiveScenario.scenarioName &&
-        this.reachabilityScenarioHelperService.tmpActiveScenario.scenarioName ==
-          scenarioDataset.scenarioName
+        this.reachabilityStateService.scenarioTitle &&
+        this.reachabilityStateService.scenarioTitle == scenarioDataset.scenarioName
       ) {
         return;
       } else {
@@ -190,24 +186,24 @@ export class ReachabilityScenarioModalComponent implements OnInit {
     // then we must init feature edit component with empty dataset!
     let isReachabilityDatasetOnly = false;
 
-    if (this.reachabilityHelperService.settings.selectedStartPointLayer) {
+    if (this.reachabilityStateService.settings.selectedStartPointLayer) {
       if (
-        this.reachabilityHelperService.settings.selectedStartPointLayer
+        this.reachabilityStateService.settings.selectedStartPointLayer
           .isNewReachabilityDataSource ||
-        this.reachabilityHelperService.settings.selectedStartPointLayer.isTmpDataLayer
+        this.reachabilityStateService.settings.selectedStartPointLayer.isTmpDataLayer
       ) {
         isReachabilityDatasetOnly = true;
         // check if geoJSON is available
         // is required by editFeature component
-        if (!this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON) {
-          this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON =
-            this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability;
+        if (!this.reachabilityStateService.settings.selectedStartPointLayer.geoJSON) {
+          this.reachabilityStateService.settings.selectedStartPointLayer.geoJSON =
+            this.reachabilityStateService.settings.selectedStartPointLayer.geoJSON_reachability;
         }
       }
     }
 
     this.broadcastService.broadcast(BroadcastMessage.OnEditGeoresourceFeatures, [
-      this.reachabilityHelperService.settings.selectedStartPointLayer,
+      this.reachabilityStateService.settings.selectedStartPointLayer,
       isReachabilityDatasetOnly,
     ]);
   }
@@ -215,7 +211,7 @@ export class ReachabilityScenarioModalComponent implements OnInit {
   /* prepAvailablePeriods() {
 
         let tempDates:any[] = [];
-        this.filteredAvailablePeriodsOfValidity = this.reachabilityHelperService.settings.selectedStartPointLayer.availablePeriodsOfValidity.filter(e => {
+        this.filteredAvailablePeriodsOfValidity = this.reachabilityStateService.settings.selectedStartPointLayer.availablePeriodsOfValidity.filter(e => {
           
           if(!tempDates.includes(e.startDate)) {
             tempDates.push(e.startDate);

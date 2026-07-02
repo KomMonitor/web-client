@@ -1,10 +1,10 @@
-@if (!reachabilityHelperService.currentIsochronesGeoJSON) {
+@if (!reachabilityStateService.currentIsochronesGeoJSON) {
   <div style="text-align: center">
     <p>Bitte f&uuml;hren Sie zuerst eine Isochronenberechnung durch.</p>
   </div>
 }
 
-<div style="text-align: center" [hidden]="!reachabilityHelperService.currentIsochronesGeoJSON">
+<div style="text-align: center" [hidden]="!reachabilityStateService.currentIsochronesGeoJSON">
   <div class="row vertical-align">
     <!-- reachability config -->
     <div class="col-md-4 col-sm-4 col-12" style="padding-left: 5px; padding-right: 5px">
@@ -13,18 +13,18 @@
         style="height: 57vh; overflow-y: auto"
         id="reachabilityPoiInIsoConfigForm"
       >
-        @if (reachabilityHelperService.settings.selectedStartPointLayer) {
+        @if (reachabilityStateService.settings.selectedStartPointLayer) {
           <div>
             @if (
               mapOverlayState.isochroneLegend.datasetName !=
-              reachabilityHelperService.settings.selectedStartPointLayer?.datasetName
+              reachabilityStateService.settings.selectedStartPointLayer?.datasetName
             ) {
               <div>
                 <label style="color: red"
                   >Punktdatenquelle des Szenarios ge&auml;ndert - Neuberechnung erforderlich
                   f&uuml;r
                   <i>{{
-                    reachabilityHelperService.settings.selectedStartPointLayer.datasetName
+                    reachabilityStateService.settings.selectedStartPointLayer.datasetName
                   }}</i></label
                 >
               </div>
@@ -84,8 +84,8 @@
                 <th>Beschreibung</th>
                 <th>Legende</th>
                 @if (
-                  reachabilityHelperService.settings.dateSelectionType.selectedDateType ===
-                  reachabilityHelperService.settings.dateSelectionType_valuePerDataset
+                  reachabilityStateService.settings.dateSelectionType.selectedDateType ===
+                  reachabilityStateService.settings.dateSelectionType_valuePerDataset
                 ) {
                   <th>Zeitschnitt</th>
                 }
@@ -133,8 +133,8 @@
                     </div>
                   </td>
                   @if (
-                    reachabilityHelperService.settings.dateSelectionType.selectedDateType ===
-                      reachabilityHelperService.settings.dateSelectionType_valuePerDataset &&
+                    reachabilityStateService.settings.dateSelectionType.selectedDateType ===
+                      reachabilityStateService.settings.dateSelectionType_valuePerDataset &&
                     !poi.isTmpDataLayer
                   ) {
                     <td>

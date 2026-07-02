@@ -20,7 +20,7 @@ import { MetadataExportService } from 'services/metadata-export-service/metadata
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import { HttpClient } from '@angular/common/http';
 import * as L from 'leaflet';
-import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
+import { ReachabilityStateService } from 'services/reachability-state-service/reachability-state.service';
 import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot-cache-helper-service/leaflet-screenshot-cache-helper.service';
 import * as d3 from 'd3';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -66,7 +66,7 @@ export class IndicatorAddComponent implements OnInit {
   private visualStyleHelperService = inject(VisualStyleHelperServiceNew);
   private httpClient = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
-  private reachabilityHelperService = inject(ReachabilityHelperService);
+  private reachabilityStateService = inject(ReachabilityStateService);
   protected leafletScreenshotCacheHelperService = inject(LeafletScreenshotCacheHelperService);
   protected reportingService = inject(ReportingService);
   private fb = inject(FormBuilder);
@@ -1688,7 +1688,7 @@ export class IndicatorAddComponent implements OnInit {
     this.isochrones = isochrones;
 
     // this.typeOfMovement = this.isochrones.metadata.query.profile;
-    this.typeOfMovement = this.reachabilityHelperService.settings.transitMode;
+    this.typeOfMovement = this.reachabilityStateService.settings.transitMode;
 
     if (this.typeOfMovement === 'buffer') {
       this.isochronesRangeType = 'distance';
@@ -1696,7 +1696,7 @@ export class IndicatorAddComponent implements OnInit {
     } else {
       // this.isochronesRangeType = this.isochrones.metadata.query.range_type;
       // this.isochronesRangeUnits = this.isochrones.metadata.query.units;
-      this.isochronesRangeType = this.reachabilityHelperService.settings.focus;
+      this.isochronesRangeType = this.reachabilityStateService.settings.focus;
       this.isochronesRangeUnits = this.isochronesRangeType == 'distance' ? 'm' : 's';
     }
 

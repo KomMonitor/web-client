@@ -8,7 +8,7 @@
   <div class="col-md-6 col-sm-6 col-12">
     <div class="form-group">
       <input
-        [(ngModel)]="reachabilityCombinerService.scenarioTitle"
+        [(ngModel)]="reachabilityStateService.scenarioTitle"
         placeholder="sprechender Name, der Szenario passend umschreibt"
       />
 
@@ -32,11 +32,11 @@
 
       <div class="row vertical-align" style="margin-right: 0px">
         <div class="col-md-6 col-sm-6 col-6">
-          @if (reachabilityCombinerService.selectedStartPointLayer?.geoJSON_reachability) {
+          @if (reachabilityStateService.selectedStartPointLayer?.geoJSON_reachability) {
             <div class="horizontal-align">
               <p>
                 <b>{{
-                  reachabilityCombinerService.selectedStartPointLayer.geoJSON_reachability.features
+                  reachabilityStateService.selectedStartPointLayer.geoJSON_reachability.features
                     .length
                 }}</b>
                 Startpunkte im selektierten Layer
@@ -44,15 +44,15 @@
             </div>
           }
 
-          @if (!reachabilityCombinerService.selectedStartPointLayer) {
+          @if (!reachabilityStateService.selectedStartPointLayer) {
             <div class="horizontal-align">
               <p>noch kein Layer selektiert</p>
             </div>
           }
 
           @if (
-            reachabilityCombinerService.selectedStartPointLayer &&
-            !reachabilityCombinerService.selectedStartPointLayer?.geoJSON_reachability
+            reachabilityStateService.selectedStartPointLayer &&
+            !reachabilityStateService.selectedStartPointLayer?.geoJSON_reachability
           ) {
             <div class="horizontal-align">
               <p style="color: red">
@@ -64,14 +64,14 @@
         <div class="col-md-6 col-sm-6 col-6">
           <select
             style="font-size: 12px"
-            [(ngModel)]="reachabilityCombinerService.selectedStartPointLayer"
+            [(ngModel)]="reachabilityStateService.selectedStartPointLayer"
             (change)="onChangePoiResource()"
             [compareWith]="compareLayers"
             class="form-control"
             required
           >
             <option disabled value>-- Punkt-Layer w&auml;hlen --</option>
-            @for (poi of reachabilityCombinerService.filteredDisplayableGeoresources; track poi) {
+            @for (poi of reachabilityStateService.filteredDisplayableGeoresources; track poi) {
               <option [ngValue]="poi">
                 {{ poi.datasetName }}
               </option>
@@ -79,32 +79,32 @@
           </select>
 
           @if (
-            reachabilityHelperService.settings.selectedStartPointLayer?.isNewReachabilityDataSource
+            reachabilityStateService.settings.selectedStartPointLayer?.isNewReachabilityDataSource
           ) {
             <div>
               <br />
               <label>Name des neuen Datensatzes (Umbenennung)</label>
               <input
-                [(ngModel)]="reachabilityHelperService.settings.selectedStartPointLayer.datasetName"
+                [(ngModel)]="reachabilityStateService.settings.selectedStartPointLayer.datasetName"
               />
             </div>
           }
 
           @if (
-            reachabilityCombinerService.selectedStartPointLayer &&
-            !reachabilityCombinerService.selectedStartPointLayer?.isNewReachabilityDataSource &&
-            !reachabilityCombinerService.selectedStartPointLayer?.isTmpDataLayer
+            reachabilityStateService.selectedStartPointLayer &&
+            !reachabilityStateService.selectedStartPointLayer?.isNewReachabilityDataSource &&
+            !reachabilityStateService.selectedStartPointLayer?.isTmpDataLayer
           ) {
             <div>
               <select
                 style="font-size: 11px; width: 135px; padding: 0px"
-                [(ngModel)]="reachabilityCombinerService.selectedStartDate"
+                [(ngModel)]="reachabilityStateService.selectedStartDate"
                 (change)="fetchPoiResourceGeoJSON()"
                 class="form-control"
                 required
               >
                 @for (
-                  date of reachabilityCombinerService.filteredAvailablePeriodsOfValidity;
+                  date of reachabilityStateService.filteredAvailablePeriodsOfValidity;
                   track date;
                   let i = $index
                 ) {

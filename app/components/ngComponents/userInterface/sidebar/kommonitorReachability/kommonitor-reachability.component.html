@@ -29,14 +29,14 @@
         <li [ngbNavItem]="2">
           <button ngbNavLink (click)="onMapSelection()">Karte</button>
           <ng-template ngbNavContent>
-            @if (reachabilityCombinerService.locations.length == 0) {
+            @if (reachabilityStateService.locations.length == 0) {
               <div class="mapSelection_info">Beliebige Standorte auf der Karte wählen</div>
             }
-            @for (item of reachabilityCombinerService.locations; track item) {
+            @for (item of reachabilityStateService.locations; track item) {
               <div class="mapItem">
                 <i
                   class="fa-solid fa-trash"
-                  (click)="reachabilityCombinerService.deleteLocation(item)"
+                  (click)="reachabilityStateService.deleteLocation(item)"
                 ></i>
                 <p>{{ item.label }}</p>
               </div>
@@ -51,14 +51,14 @@
                 <b>Layer</b>
                 <select
                   style="font-size: 12px"
-                  [(ngModel)]="reachabilityCombinerService.selectedStartPointLayer"
-                  (change)="reachabilityCombinerService.onChangePoiResource()"
+                  [(ngModel)]="reachabilityStateService.selectedStartPointLayer"
+                  (change)="reachabilityStateService.onChangePoiResource()"
                   class="form-control"
                   required
                 >
                   <option disabled selected value>-- Punkt-Layer w&auml;hlen --</option>
                   @for (
-                    poi of reachabilityCombinerService.filteredDisplayableGeoresources;
+                    poi of reachabilityStateService.filteredDisplayableGeoresources;
                     track poi
                   ) {
                     <option [ngValue]="poi">{{ poi.datasetName }}</option>
@@ -66,20 +66,20 @@
                 </select>
               </div>
               @if (
-                reachabilityCombinerService.selectedStartPointLayer &&
-                !reachabilityCombinerService.selectedStartPointLayer?.isNewReachabilityDataSource &&
-                !reachabilityCombinerService.selectedStartPointLayer?.isTmpDataLayer
+                reachabilityStateService.selectedStartPointLayer &&
+                !reachabilityStateService.selectedStartPointLayer?.isNewReachabilityDataSource &&
+                !reachabilityStateService.selectedStartPointLayer?.isTmpDataLayer
               ) {
                 <div>
                   <b>Datum</b>
                   <select
-                    [(ngModel)]="reachabilityCombinerService.selectedStartDate"
-                    (change)="reachabilityCombinerService.fetchPoiResourceGeoJSON()"
+                    [(ngModel)]="reachabilityStateService.selectedStartDate"
+                    (change)="reachabilityStateService.fetchPoiResourceGeoJSON()"
                     class="form-control"
                     required
                   >
                     @for (
-                      date of reachabilityCombinerService.filteredAvailablePeriodsOfValidity;
+                      date of reachabilityStateService.filteredAvailablePeriodsOfValidity;
                       track date
                     ) {
                       <option [value]="date.startDate">{{ date.startDate }}</option>
@@ -100,13 +100,13 @@
         <button
           class="btn btn-primary btn-sm w-100"
           (click)="createScenario()"
-          [disabled]="!reachabilityCombinerService.isValidCalculation"
+          [disabled]="!reachabilityStateService.isValidCalculation"
         >
           Als Szenario übernehmen
         </button>
         <button
           class="btn btn-danger btn-sm w-100"
-          (click)="reachabilityCombinerService.resetLocations()"
+          (click)="reachabilityStateService.resetLocations()"
         >
           Zurücksetzen
         </button>
@@ -119,9 +119,9 @@
         <div
           class="modeItem"
           [ngClass]="{
-            active: reachabilityCombinerService.settings.transitMode === 'foot-walking',
+            active: reachabilityStateService.quickCalcSettings.transitMode === 'foot-walking',
           }"
-          (click)="reachabilityCombinerService.setTransitMode('foot-walking')"
+          (click)="reachabilityStateService.setTransitMode('foot-walking')"
         >
           <i class="fa-solid fa-person-walking"></i>
           Fussgänger
@@ -129,17 +129,19 @@
         <div
           class="modeItem"
           [ngClass]="{
-            active: reachabilityCombinerService.settings.transitMode === 'cycling-regular',
+            active: reachabilityStateService.quickCalcSettings.transitMode === 'cycling-regular',
           }"
-          (click)="reachabilityCombinerService.setTransitMode('cycling-regular')"
+          (click)="reachabilityStateService.setTransitMode('cycling-regular')"
         >
           <i class="fa-solid fa-bicycle"></i>
           Fahrrad
         </div>
         <div
           class="modeItem"
-          [ngClass]="{ active: reachabilityCombinerService.settings.transitMode === 'driving-car' }"
-          (click)="reachabilityCombinerService.setTransitMode('driving-car')"
+          [ngClass]="{
+            active: reachabilityStateService.quickCalcSettings.transitMode === 'driving-car',
+          }"
+          (click)="reachabilityStateService.setTransitMode('driving-car')"
         >
           <i class="fa-solid fa-car-side"></i>
           PKW
@@ -149,16 +151,16 @@
       <div class="focusWrapper">
         <div
           class="modeItem"
-          [ngClass]="{ active: reachabilityCombinerService.settings.focus === 'time' }"
-          (click)="reachabilityCombinerService.setFocusMode('time'); onFocusModeChange()"
+          [ngClass]="{ active: reachabilityStateService.quickCalcSettings.focus === 'time' }"
+          (click)="reachabilityStateService.setFocusMode('time'); onFocusModeChange()"
         >
           <i class="fa-solid fa-stopwatch"></i>
           Zeit (Min)
         </div>
         <div
           class="modeItem"
-          [ngClass]="{ active: reachabilityCombinerService.settings.focus === 'distance' }"
-          (click)="reachabilityCombinerService.setFocusMode('distance'); onFocusModeChange()"
+          [ngClass]="{ active: reachabilityStateService.quickCalcSettings.focus === 'distance' }"
+          (click)="reachabilityStateService.setFocusMode('distance'); onFocusModeChange()"
         >
           <i class="fa-solid fa-ruler-horizontal"></i>
           Distanz (m)
@@ -167,9 +169,9 @@
       <b>Mehrfach-Reichweiten</b>
       <multi-select-slider
         [range]="sliderRange"
-        [selectedValues]="reachabilityCombinerService.settings.ranges"
-        [unit]="reachabilityCombinerService.settings.focusUnit"
-        (change)="reachabilityCombinerService.startQuickCalculation()"
+        [selectedValues]="reachabilityStateService.quickCalcSettings.ranges"
+        [unit]="reachabilityStateService.quickCalcSettings.focusUnit"
+        (change)="reachabilityStateService.startQuickCalculation()"
       ></multi-select-slider>
     </expandable-box>
 

@@ -4,7 +4,7 @@ import 'jspdf-autotable';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
-import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
+import { ReachabilityStateService } from 'services/reachability-state-service/reachability-state.service';
 
 // Assuming dom-to-image-more is imported or available globally
 declare let _domtoimage: any;
@@ -13,7 +13,7 @@ declare let _domtoimage: any;
   providedIn: 'root',
 })
 export class ReachabilityCoverageReportsHelperService {
-  private kommonitorReachabilityHelperService = inject(ReachabilityHelperService);
+  private kommonitorReachabilityHelperService = inject(ReachabilityStateService);
   private kommonitorReachabilityMapHelperService = inject(ReachabilityMapHelperService);
   private zone = inject(NgZone);
   private indicatorValueService = inject(IndicatorValueService);
