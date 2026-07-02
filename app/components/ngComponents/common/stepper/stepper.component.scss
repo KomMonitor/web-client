@@ -75,7 +75,7 @@
      break-word only splits a word when it cannot fit on its own line */
   white-space: normal;
   overflow-wrap: break-word;
-  max-width: 120px;
+  max-width: 140px;
   padding: 0 4px;
   z-index: 2; /* ensure labels sit above connector lines */
 }

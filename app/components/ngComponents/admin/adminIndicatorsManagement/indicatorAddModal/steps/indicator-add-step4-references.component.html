@@ -36,7 +36,7 @@
                 <option [ngValue]="null" disabled>-- Indikator wählen --</option>
                 @for (indicator of state.filteredIndicators; track indicator) {
                   <option [ngValue]="indicator">
-                    {{ indicator.datasetName }} ({{ indicator.indicatorType.displayName }})
+                    {{ indicator.datasetName }} ({{ indicator.indicatorType?.displayName }})
                   </option>
                 }
               </select>
@@ -109,7 +109,7 @@
                         <tr>
                           <td>{{ reference.indicatorMetadata.datasetName }}</td>
                           <td>
-                            {{ reference.indicatorMetadata.indicatorType.displayName }}
+                            {{ reference.indicatorMetadata.indicatorType?.displayName }}
                           </td>
                           <td>{{ reference.referenceDescription }}</td>
                           <td>
@@ -161,7 +161,7 @@
                 <option [ngValue]="null" disabled>-- Georessource wählen --</option>
                 @for (georesource of state.filteredGeoresources; track georesource) {
                   <option [ngValue]="georesource">
-                    {{ georesource.datasetName }} ({{ georesource.georesourceType.displayName }})
+                    {{ georesource.datasetName }} ({{ georesource.georesourceType?.displayName }})
                   </option>
                 }
               </select>
@@ -234,7 +234,7 @@
                         <tr>
                           <td>{{ reference.georesourceMetadata.datasetName }}</td>
                           <td>
-                            {{ reference.georesourceMetadata.georesourceType.displayName }}
+                            {{ reference.georesourceMetadata.georesourceType?.displayName }}
                           </td>
                           <td>{{ reference.referenceDescription }}</td>
                           <td>

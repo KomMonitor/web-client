@@ -92,9 +92,9 @@
       }
     </div>
   </div>
-  <hr />
-  <br />
   @if (accessControlService.checkAdminPermission()) {
+    <hr />
+    <br />
     <div class="row vertical-align">
       <div class="col-md-10 col-sm-12 col-12">
         <div style="text-align: left">
@@ -122,7 +122,6 @@
                 </button>
               </div>
             </div>
-            <!-- /.box-header -->
             <div
               class="box-body"
               #indicatorAddTopicsCollapse="ngbCollapse"
@@ -130,9 +129,7 @@
             >
               <app-admin-topics-management></app-admin-topics-management>
             </div>
-            <!-- /.box-body -->
           </div>
-          <!-- /.box -->
         </div>
       </div>
     </div>
