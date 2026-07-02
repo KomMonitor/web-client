@@ -89,6 +89,11 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
             this.reachabilityMapHelperService.invalidateMap(this.domId);
           }
           break;
+        case BroadcastMessage.ResetReachabilityScenarioConfiguration:
+          {
+            this.resetReachabilityConfigurationMap();
+          }
+          break;
       }
 
       this.reachabilityStateService.reachabilityMapSubject$.subscribe((value) => {
@@ -156,17 +161,25 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
     this.error = undefined;
   }
 
-  /////
-  // TODO
   removeReachabilityLayers() {
     this.reachabilityStateService.settings.loadingData = true;
 
     this.reachabilityMapHelperService.removeReachabilityLayers(this.domId);
     this.reachabilityStateService.currentIsochronesGeoJSON = undefined;
-    this.mapOverlayState.isochroneLegend = undefined;
+    // falsy sentinel, not undefined: the sidebar's legend template reads
+    // mapOverlayState.isochroneLegend.datasetName without optional chaining, which
+    // throws on undefined/null but not on `false`
+    this.mapOverlayState.isochroneLegend = false;
     // remove any diagram
     this.broadcastService.broadcast(BroadcastMessage.ResetPoisInIsochrone);
     this.reachabilityStateService.settings.loadingData = false;
+  }
+
+  /** Clears this step's own isochrone/marker layers, e.g. when the scenario modal is fully reset. */
+  resetReachabilityConfigurationMap() {
+    this.error = undefined;
+    this.removeReachabilityLayers();
+    this.reachabilityMapHelperService.invalidateMap(this.domId);
   }
 
   downloadIsochrones() {

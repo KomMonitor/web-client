@@ -66,6 +66,11 @@ export class SingleFeatureEditComponent implements OnInit {
             this.reinitSingleFeatureEdit();
           }
           break;
+        case BroadcastMessage.ResetSingleFeatureEdit:
+          {
+            this.resetSingleFeatureEditState();
+          }
+          break;
         case BroadcastMessage.SingleFeatureSelected:
           {
             this.singleFeatureSelected(values);
@@ -156,6 +161,21 @@ export class SingleFeatureEditComponent implements OnInit {
     this.resetContent();
     this.initFeatureSchema();
     this.initGeoMap();
+  }
+
+  /**
+   * Fully clears this editor, unlike `reinitSingleFeatureEdit()` which reloads the
+   * currently selected dataset — used when there is no longer any dataset to edit
+   * (e.g. the reachability scenario modal's "Zurücksetzen" button).
+   */
+  resetSingleFeatureEditState() {
+    this.currentGeoresourceDataset = undefined;
+    this.georesourceFeaturesGeoJSON = undefined;
+    this.resetContent();
+    this.singleFeatureMapHelperService.initSingleFeatureGeoMap(
+      this.domId,
+      this.singleFeatureMapHelperService.resourceType_point
+    );
   }
 
   initDefaultSchema() {

@@ -365,6 +365,31 @@ export class ReachabilityStateService {
     this.poiDataset = { poiId: '', poiName: '', poiDate: '' };
   }
 
+  /**
+   * Full reset for the scenario modal's "Zurücksetzen" button: clears the wizard's own
+   * working data (title, calculation results, indicator statistics, POI-source
+   * metadata, the detailed `settings`) AND the quick-calc session (locations,
+   * isochrones, layer selection) shown independently on the main map, so nothing from
+   * either flow lingers once the user asks to start over.
+   */
+  resetScenarioSession() {
+    this.reachabilityMapSubject.value.scenarioTitle = undefined;
+    this.reachabilityMapSubject.value.scenarioState = false;
+    this.currentIsochronesGeoJSON = undefined;
+    this.original_nonDissolved_isochrones = undefined;
+    this.indicatorStatistics = [];
+    this.poiDataset = { poiId: '', poiName: '', poiDate: '' };
+    this.resetSettings();
+
+    // clear the quick-calc session while showOnMainMap is still whatever it was, so the
+    // emitted empty features/isochrones actually get removed from the main map, then
+    // hide the (now empty) quick-calc overlay and leave point-selection mode
+    this.resetLocations();
+    this.showOnMainMap = false;
+    this.manualMapSelectionMode = false;
+    this.startPointsSource = 'manual';
+  }
+
   setPoiDataset(poiDataset: any) {
     const poiDatasetClone = JSON.parse(JSON.stringify(poiDataset));
     this.poiDataset = {

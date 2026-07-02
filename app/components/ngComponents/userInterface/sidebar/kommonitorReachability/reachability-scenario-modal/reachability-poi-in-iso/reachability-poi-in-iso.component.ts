@@ -155,6 +155,11 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
         this.removePoiLayerFromMap(poi);
       }
     }
+
+    // also clear this step's own isochrone/marker layer, e.g. when the scenario modal
+    // is fully reset — otherwise it keeps showing the isochrones of the cleared session
+    this.reachabilityMapHelperService.removeReachabilityLayers(this.domId);
+    this.reachabilityMapHelperService.invalidateMap(this.domId);
   }
 
   //////////////////////////// SECTION FOR GORESOURCE AND INDICATOR ANALYSIS

@@ -100,6 +100,11 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
             this.reachabilityMapHelperService.invalidateMap(this.domId);
           }
           break;
+        case BroadcastMessage.ResetReachabilityIndicatorStatistics:
+          {
+            this.resetIndicatorStatisticsMap();
+          }
+          break;
       }
     });
 
@@ -114,6 +119,13 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
     this.mapParts = this.reachabilityMapHelperService.initReachabilityIndicatorStatisticsGeoMap(
       this.domId
     );
+  }
+
+  /** Clears this step's rendered layers (isochrones, POI/indicator overlays), e.g. when the scenario modal is fully reset. */
+  resetIndicatorStatisticsMap() {
+    this.reachabilityMapHelperService.removeOldLayers_reachabilityIndicatorStatistics(this.domId);
+    this.reachabilityMapHelperService.removeReachabilityLayers(this.domId);
+    this.reachabilityMapHelperService.invalidateMap(this.domId);
   }
 
   isochronesCalculationFinished(reinit = false) {

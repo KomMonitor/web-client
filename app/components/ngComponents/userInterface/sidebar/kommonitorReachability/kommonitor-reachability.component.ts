@@ -207,7 +207,9 @@ export class KommonitorReachabilityComponent implements OnInit {
 
     state.setScenarioState = true;
 
-    this.openReachabilityScenarioModal();
+    // don't reset the quick-calc UI here: it would wipe the locations/layer/scenarioState
+    // we just prepared above before the modal's setup step gets a chance to read them
+    this.openReachabilityScenarioModal(false, false);
   }
 
   startCalculation() {
@@ -234,10 +236,12 @@ export class KommonitorReachabilityComponent implements OnInit {
     this.broadcastService.broadcast(BroadcastMessage.RemoveAllDrawnPoints);
   }
 
-  openReachabilityScenarioModal(scenarioDataset: any = false) {
-    this.reachabilityStateService.showOnMainMap = false;
-    this.active = 1;
-    this.onSinglePointSelection();
+  openReachabilityScenarioModal(scenarioDataset: any = false, resetQuickCalcState: boolean = true) {
+    if (resetQuickCalcState) {
+      this.reachabilityStateService.showOnMainMap = false;
+      this.active = 1;
+      this.onSinglePointSelection();
+    }
 
     const modalRef = this.modalService.open(ReachabilityScenarioModalComponent, {
       windowClass: 'modal-holder',

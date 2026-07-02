@@ -157,12 +157,19 @@ export class ReachabilityScenarioModalComponent implements OnInit {
 
   */
   resetReachabilityScenarioForm() {
-    this.reachabilityStateService.reset();
+    // resets both the wizard's own working data and the quick-calc session (locations/
+    // isochrones shown independently on the main map), so "Zurücksetzen" clears
+    // everything reachability-related
+    this.reachabilityStateService.resetScenarioSession();
 
-    this.reachabilityStateService.settings.selectedStartPointLayer = undefined;
-    this.reachabilityStateService.currentIsochronesGeoJSON = undefined;
-    this.reachabilityStateService.original_nonDissolved_isochrones = undefined;
-    this.reachabilityStateService.resetSettings();
+    // clear each step's own local UI state and rendered map layers. This is deliberately
+    // distinct from the "Reinit*" broadcasts (fired on tab switch), which only
+    // resize/redraw against whatever dataset is currently selected — reusing those here
+    // would just re-fetch and re-render the stale (now cleared) dataset
+    this.broadcastService.broadcast(BroadcastMessage.ResetSingleFeatureEdit);
+    this.broadcastService.broadcast(BroadcastMessage.ResetReachabilityScenarioConfiguration);
+    this.broadcastService.broadcast(BroadcastMessage.ResetPoisInIsochrone);
+    this.broadcastService.broadcast(BroadcastMessage.ResetReachabilityIndicatorStatistics);
   }
 
   onManageReachabilityScenario(scenarioDataset) {
