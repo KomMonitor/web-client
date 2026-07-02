@@ -3,7 +3,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 8px 0 4px;
+  padding: 4px 0 2px;
   overflow: visible;
   position: relative;
 }
@@ -14,7 +14,7 @@
   align-items: center;
   flex: 0 0 auto;
   cursor: default;
-  padding: 0 8px;
+  padding: 0 4px;
 }
 
 .stepper-step.clickable {
@@ -34,14 +34,14 @@
 }
 
 .stepper-circle {
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   border: 2px solid #bbb;
   background: #fff;
   color: #999;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -63,16 +63,20 @@
 }
 
 .stepper-label {
-  margin-top: 8px;
-  font-size: 11px;
+  margin-top: 5px;
+  font-size: 10px;
+  line-height: 1.2;
   text-transform: uppercase;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   color: #999;
   text-align: center;
-  white-space: nowrap;
-  max-width: none;
-  padding: 0 8px;
+  /* allow long labels to wrap onto 2-3 lines instead of forcing wide columns;
+     break-word only splits a word when it cannot fit on its own line */
+  white-space: normal;
+  overflow-wrap: break-word;
+  max-width: 120px;
+  padding: 0 4px;
   z-index: 2; /* ensure labels sit above connector lines */
 }
 
@@ -85,8 +89,8 @@
   flex: 1;
   height: 2px;
   background: transparent; /* base line handled by pseudo-element */
-  margin-top: 17px; /* vertically centre against circle */
-  min-width: 40px;
+  margin-top: 14px; /* vertically centre against circle */
+  min-width: 24px;
   z-index: 1; /* sit below labels */
 }
 
@@ -98,7 +102,7 @@
   width: var(--line-width, 100%);
   height: 2px;
   background: #ddd;
-  top: 25px; /* aligns to roughly vertical center of the bubbles */
+  top: 18px; /* aligns to roughly vertical center of the bubbles */
   z-index: 1;
 }
 
@@ -109,7 +113,7 @@
   width: var(--progress-width, 0px);
   height: 2px;
   background: #1a73e8;
-  top: 25px; /* same alignment as base line */
+  top: 18px; /* same alignment as base line */
   z-index: 2;
   transition: width 220ms ease;
 }
