@@ -7,52 +7,26 @@
     </a>
   </header>
   <div class="sidebar-subheader">Administration</div>
-  <div
-    ngbNav
-    #nav="ngbNav"
-    [(activeId)]="active"
-    class="nav-pills flex-column"
-    orientation="vertical"
-  >
-    <ng-container [ngbNavItem]="AdminNavItem.Overview">
-      <button ngbNavLink>
-        <i class="fas fa-tachometer-alt"></i>
-        <span>Übersicht</span>
-      </button>
-      <ng-template ngbNavContent>
-        <app-admin-dashboard-management></app-admin-dashboard-management>
-      </ng-template>
-    </ng-container>
+  <div class="nav-pills flex-column">
+    <a class="nav-link" routerLink="overview" routerLinkActive="active">
+      <i class="fas fa-tachometer-alt"></i>
+      <span>Übersicht</span>
+    </a>
 
-    <ng-container [ngbNavItem]="AdminNavItem.GroupMgmt">
-      <button ngbNavLink>
-        <i class="fas fa-users"></i>
-        <span>Gruppenverwaltung</span>
-      </button>
-      <ng-template ngbNavContent>
-        <app-admin-role-management></app-admin-role-management>
-      </ng-template>
-    </ng-container>
+    <a class="nav-link" routerLink="groups" routerLinkActive="active">
+      <i class="fas fa-users"></i>
+      <span>Gruppenverwaltung</span>
+    </a>
 
-    <ng-container [ngbNavItem]="AdminNavItem.GroupRights">
-      <button ngbNavLink>
-        <i class="fa-solid fa-user-lock"></i>
-        <span>Gruppen-/Rechtekonzept</span>
-      </button>
-      <ng-template ngbNavContent>
-        <app-admin-role-explanation></app-admin-role-explanation>
-      </ng-template>
-    </ng-container>
+    <a class="nav-link" routerLink="permissions" routerLinkActive="active">
+      <i class="fa-solid fa-user-lock"></i>
+      <span>Gruppen-/Rechtekonzept</span>
+    </a>
 
-    <ng-container [ngbNavItem]="AdminNavItem.TopicMgmt">
-      <button ngbNavLink>
-        <i class="fas fa-book"></i>
-        <span>Themenverwaltung</span>
-      </button>
-      <ng-template ngbNavContent>
-        <app-admin-topics-management></app-admin-topics-management>
-      </ng-template>
-    </ng-container>
+    <a class="nav-link" routerLink="topics" routerLinkActive="active">
+      <i class="fas fa-book"></i>
+      <span>Themenverwaltung</span>
+    </a>
 
     <button
       class="btn btn-link nav-link w-100 text-start"
@@ -68,67 +42,36 @@
       ></span>
     </button>
 
-    <div
-      [ngbNavItem]="AdminNavItem.RoomLevels"
-      [class.d-none]="!isGeodataMgmtExpanded"
-      class="child"
-    >
-      <button ngbNavLink>
+    <div [class.d-none]="!isGeodataMgmtExpanded" class="nav-item child">
+      <a class="nav-link" routerLink="spatial-units" routerLinkActive="active">
         <i class="fas fa-layer-group"></i>
         <span>Raumebenen</span>
-      </button>
-      <ng-template ngbNavContent>
-        <app-admin-spatial-units-management></app-admin-spatial-units-management>
-      </ng-template>
+      </a>
     </div>
 
-    <div
-      [ngbNavItem]="AdminNavItem.Indicators"
-      [class.d-none]="!isGeodataMgmtExpanded"
-      class="child"
-    >
-      <button ngbNavLink>
+    <div [class.d-none]="!isGeodataMgmtExpanded" class="nav-item child">
+      <a class="nav-link" routerLink="indicators" routerLinkActive="active">
         <i class="fas fa-sitemap"></i>
         <span>Indikatoren</span>
-      </button>
-      <ng-template ngbNavContent>
-        <app-admin-indicators-management></app-admin-indicators-management>
-      </ng-template>
+      </a>
     </div>
 
-    <div
-      [ngbNavItem]="AdminNavItem.Georesources"
-      [class.d-none]="!isGeodataMgmtExpanded"
-      class="child"
-    >
-      <button ngbNavLink>
+    <div [class.d-none]="!isGeodataMgmtExpanded" class="nav-item child">
+      <a class="nav-link" routerLink="georesources" routerLinkActive="active">
         <i class="fas fa-map-marked-alt"></i>
         <span>Georessourcen</span>
-      </button>
-      <ng-template ngbNavContent>
-        <app-admin-georesources-management></app-admin-georesources-management>
-      </ng-template>
+      </a>
     </div>
 
-    <ng-container [ngbNavItem]="AdminNavItem.ScriptMgmt">
-      <button ngbNavLink>
-        <i class="far fa-file-code"></i>
-        <span>Skriptverwaltung</span>
-      </button>
-      <ng-template ngbNavContent>
-        <app-admin-script-management></app-admin-script-management>
-      </ng-template>
-    </ng-container>
+    <a class="nav-link" routerLink="scripts" routerLinkActive="active">
+      <i class="far fa-file-code"></i>
+      <span>Skriptverwaltung</span>
+    </a>
 
-    <ng-container [ngbNavItem]="AdminNavItem.IndicatorCalculation">
-      <button ngbNavLink>
-        <i class="far fa-file-code"></i>
-        <span>Indikatorenberechnung</span>
-      </button>
-      <ng-template ngbNavContent>
-        <app-admin-script-execution></app-admin-script-execution>
-      </ng-template>
-    </ng-container>
+    <a class="nav-link" routerLink="indicator-calculation" routerLinkActive="active">
+      <i class="far fa-file-code"></i>
+      <span>Indikatorenberechnung</span>
+    </a>
 
     <button
       class="btn btn-link nav-link w-100 text-start"
@@ -144,46 +87,25 @@
       ></span>
     </button>
 
-    <div
-      [ngbNavItem]="AdminNavItem.CommonSettings"
-      [class.d-none]="!isSettingsExpanded"
-      class="child"
-    >
-      <button ngbNavLink>
+    <div [class.d-none]="!isSettingsExpanded" class="nav-item child">
+      <a class="nav-link" routerLink="settings" routerLinkActive="active">
         <i class="fas fa-cogs"></i>
         <span>Allgemeine Einstellungen</span>
-      </button>
-      <ng-template ngbNavContent>
-        <app-admin-app-config></app-admin-app-config>
-      </ng-template>
+      </a>
     </div>
 
-    <div
-      [ngbNavItem]="AdminNavItem.WidgetConfig"
-      [class.d-none]="!isSettingsExpanded"
-      class="child"
-    >
-      <button ngbNavLink>
+    <div [class.d-none]="!isSettingsExpanded" class="nav-item child">
+      <a class="nav-link" routerLink="widgets" routerLinkActive="active">
         <i class="far fa-eye-slash"></i>
         <span>Widget-Konfiguration</span>
-      </button>
-      <ng-template ngbNavContent>
-        <app-admin-controls-config></app-admin-controls-config>
-      </ng-template>
+      </a>
     </div>
 
-    <div
-      [ngbNavItem]="AdminNavItem.FilterConfig"
-      [class.d-none]="!isSettingsExpanded"
-      class="child"
-    >
-      <button ngbNavLink>
+    <div [class.d-none]="!isSettingsExpanded" class="nav-item child">
+      <a class="nav-link" routerLink="filters" routerLinkActive="active">
         <i class="fa fa-filter"></i>
         <span>Filter-Konfiguration</span>
-      </button>
-      <ng-template ngbNavContent>
-        <app-admin-filter-config></app-admin-filter-config>
-      </ng-template>
+      </a>
     </div>
   </div>
 </div>
@@ -201,7 +123,9 @@
     <app-user-login></app-user-login>
   </header>
 
-  <div [ngbNavOutlet]="nav" class="flex-grow-1"></div>
+  <div class="tab-content flex-grow-1">
+    <router-outlet></router-outlet>
+  </div>
 
   <footer>
     <strong>Copyright &copy; <a href="http://kommonitor.de">KomMonitor-Team</a>.</strong>

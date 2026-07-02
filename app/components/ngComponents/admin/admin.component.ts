@@ -1,60 +1,26 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { AdminAppConfigComponent } from './adminConfig/adminAppConfig/admin-app-config.component';
-import { AdminControlsConfigComponent } from './adminConfig/adminControlsConfig/admin-controls-config.component';
-import { AdminFilterConfigComponent } from './adminConfig/adminFilterConfig/admin-filter-config.component';
-import { AdminDashboardManagementComponent } from './adminDashboardManagement/admin-dashboard-management.component';
-import { AdminGeoresourcesManagementComponent } from './adminGeoresourcesManagement/admin-georesources-management.component';
-import { AdminIndicatorsManagementComponent } from './adminIndicatorsManagement/admin-indicators-management.component';
-import { AdminRoleExplanationComponent } from './adminRoleExplanation/admin-role-explanation.component';
-import { AdminSpatialUnitsManagementComponent } from './adminSpatialUnitsManagement/admin-spatial-units-management.component';
-import { AdminTopicsManagementComponent } from './adminTopicsManagement/admin-topics-management.component';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
-import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { AccessControlService } from '../../../services/access-control-service/access-control.service';
 import { NotificationComponent } from '../common/notification/notification.component';
 import { SessionValidityComponent } from '../common/userLogin/session-validity/session-validity.component';
 import { UserLoginComponent } from '../common/userLogin/user-login.component';
-import { AdminRoleManagementComponent } from './adminRoleManagement/admin-role-management.component';
-import { AdminScriptExecutionComponent } from './adminScriptExecution/admin-script-execution.component';
-import { AdminScriptManagementComponent } from './adminScriptManagement/admin-script-management.component';
 
-export enum AdminNavItem {
-  Overview = 'overview',
-  GroupMgmt = 'groupMgmt',
-  GroupRights = 'groupRights',
-  TopicMgmt = 'topicMgmt',
-  RoomLevels = 'roomLevels',
-  Indicators = 'indicators',
-  Georesources = 'georessources',
-  ScriptMgmt = 'scriptMgmt',
-  IndicatorCalculation = 'indicatorCalculation',
-  CommonSettings = 'commonSettings',
-  WidgetConfig = 'widgetConfig',
-  FilterConfig = 'filterConfig',
-}
+// Child route slugs whose parent group should auto-expand on (re)load.
+const GEODATA_ROUTES = ['spatial-units', 'indicators', 'georesources'];
+const SETTINGS_ROUTES = ['settings', 'widgets', 'filters'];
 
 @Component({
   selector: 'app-admin',
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.scss'],
   imports: [
-    AdminAppConfigComponent,
-    AdminControlsConfigComponent,
-    AdminDashboardManagementComponent,
-    AdminFilterConfigComponent,
-    AdminGeoresourcesManagementComponent,
-    AdminIndicatorsManagementComponent,
-    AdminRoleExplanationComponent,
-    AdminSpatialUnitsManagementComponent,
-    AdminTopicsManagementComponent,
-    AdminScriptExecutionComponent,
-    AdminScriptManagementComponent,
-    NgbNavModule,
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
     UserLoginComponent,
     NotificationComponent,
-    AdminRoleManagementComponent,
     SessionValidityComponent,
   ],
   standalone: true,
@@ -63,9 +29,6 @@ export class AdminComponent implements OnInit {
   private router = inject(Router);
   private metadataBootstrap = inject(MetadataBootstrapService);
   protected accessControlService = inject(AccessControlService);
-
-  readonly AdminNavItem = AdminNavItem;
-  active: AdminNavItem = AdminNavItem.Overview;
 
   isGeodataMgmtExpanded = false;
   isSettingsExpanded = false;
@@ -79,9 +42,23 @@ export class AdminComponent implements OnInit {
     // }
     this.metadataBootstrap.fetchAllMetadata();
 
+    // Keep the collapsible groups open when a child route inside them is
+    // active on reload / direct navigation.
+    this.expandGroupForCurrentRoute();
+
     setTimeout(() => {
       this.prepUserInformation();
     }, 1000);
+  }
+
+  private expandGroupForCurrentRoute(): void {
+    const url = this.router.url;
+    if (GEODATA_ROUTES.some((slug) => url.includes(`/administration/${slug}`))) {
+      this.isGeodataMgmtExpanded = true;
+    }
+    if (SETTINGS_ROUTES.some((slug) => url.includes(`/administration/${slug}`))) {
+      this.isSettingsExpanded = true;
+    }
   }
 
   prepUserInformation() {
