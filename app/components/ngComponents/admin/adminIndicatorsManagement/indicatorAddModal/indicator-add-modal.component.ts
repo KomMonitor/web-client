@@ -30,6 +30,7 @@ import {
   StepperComponent,
   StepperStep,
 } from 'components/ngComponents/common/stepper/stepper.component';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 
 @Component({
   selector: 'app-indicator-add-modal',
@@ -41,6 +42,7 @@ import {
     AdminTopicsManagementComponent,
     NgbCollapseModule,
     StepperComponent,
+    ExpandableBoxComponent,
   ],
   standalone: true,
 })

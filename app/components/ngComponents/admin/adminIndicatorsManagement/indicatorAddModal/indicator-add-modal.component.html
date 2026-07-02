@@ -777,283 +777,261 @@
             <div class="row vertical-align">
               <div class="col-md-10 col-sm-12 col-12">
                 <!-- box indicators -->
-                <div class="box box-danger collapsed-box" style="background: #ebf0fd">
-                  <div class="box-header">
-                    <h3 class="box-title">Referenzen zu anderen Indikatoren</h3>
-                    <div class="box-tools pull-right">
-                      <button type="button" class="btn btn-box-tool" data-widget="collapse">
-                        <i class="fa fa-plus"></i>
-                      </button>
+                <expandable-box title="Referenzen zu anderen Indikatoren">
+                  <div class="row vertical-align">
+                    <div class="col-md-4 col-sm-6 col-12">
+                      <div class="form-group">
+                        <label>Indikator auswählen</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          [(ngModel)]="indicatorNameFilter"
+                          name="indicatorNameFilter"
+                          placeholder="Indikatorname filtern"
+                          (ngModelChange)="filterIndicators()"
+                        />
+                        <select
+                          [(ngModel)]="tmpIndicatorReference_selectedIndicatorMetadata"
+                          name="tmpIndicatorReference_selectedIndicatorMetadata"
+                          class="form-control"
+                          size="8"
+                        >
+                          <option [ngValue]="null" disabled>-- Indikator wählen --</option>
+                          @for (indicator of filteredIndicators; track indicator) {
+                            <option [ngValue]="indicator">
+                              {{ indicator.datasetName }} ({{
+                                indicator.indicatorType.displayName
+                              }})
+                            </option>
+                          }
+                        </select>
+                        <div class="help-block">
+                          <p>
+                            Wählen Sie einen Indikator aus der Liste aus, zu dem eine Referenz
+                            erstellt werden soll
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-sm-6 col-12">
+                      <div class="form-group">
+                        <label>Referenzbeschreibung*</label>
+                        <textarea
+                          rows="3"
+                          class="form-control"
+                          [(ngModel)]="tmpIndicatorReference_referenceDescription"
+                          name="tmpIndicatorReference_referenceDescription"
+                          placeholder="Beschreibung der Beziehung zum ausgewählten Indikator"
+                          required
+                        ></textarea>
+                        <div class="help-block">
+                          <p>
+                            Beschreiben Sie die Art der Beziehung zwischen diesem Indikator und dem
+                            ausgewählten Indikator
+                          </p>
+                        </div>
+                        <div class="help-block with-errors"></div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-sm-6 col-12">
+                      <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button
+                          type="button"
+                          class="btn btn-primary form-control"
+                          [disabled]="
+                            !tmpIndicatorReference_selectedIndicatorMetadata ||
+                            !tmpIndicatorReference_referenceDescription
+                          "
+                          (click)="onAddOrUpdateIndicatorReference()"
+                        >
+                          <i class="fas fa-plus"></i> Indikator-Referenz hinzufügen
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <!-- /.box-header -->
-                  <div class="box-body">
+                  @if (indicatorReferences_adminView.length > 0) {
                     <div class="row vertical-align">
-                      <div class="col-md-4 col-sm-6 col-12">
+                      <div class="col-md-12">
                         <div class="form-group">
-                          <label>Indikator auswählen</label>
-                          <input
-                            type="text"
-                            class="form-control"
-                            [(ngModel)]="indicatorNameFilter"
-                            name="indicatorNameFilter"
-                            placeholder="Indikatorname filtern"
-                            (ngModelChange)="filterIndicators()"
-                          />
-                          <select
-                            [(ngModel)]="tmpIndicatorReference_selectedIndicatorMetadata"
-                            name="tmpIndicatorReference_selectedIndicatorMetadata"
-                            class="form-control"
-                            size="8"
-                          >
-                            <option [ngValue]="null" disabled>-- Indikator wählen --</option>
-                            @for (indicator of filteredIndicators; track indicator) {
-                              <option [ngValue]="indicator">
-                                {{ indicator.datasetName }} ({{
-                                  indicator.indicatorType.displayName
-                                }})
-                              </option>
-                            }
-                          </select>
-                          <div class="help-block">
-                            <p>
-                              Wählen Sie einen Indikator aus der Liste aus, zu dem eine Referenz
-                              erstellt werden soll
-                            </p>
+                          <label>Hinzugefügte Indikator-Referenzen</label>
+                          <div class="table-responsive">
+                            <table class="table table-striped table-bordered">
+                              <thead>
+                                <tr>
+                                  <th>Indikator</th>
+                                  <th>Typ</th>
+                                  <th>Referenzbeschreibung</th>
+                                  <th>Aktion</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                @for (
+                                  reference of indicatorReferences_adminView;
+                                  track reference;
+                                  let i = $index
+                                ) {
+                                  <tr>
+                                    <td>{{ reference.indicatorMetadata.datasetName }}</td>
+                                    <td>
+                                      {{ reference.indicatorMetadata.indicatorType.displayName }}
+                                    </td>
+                                    <td>{{ reference.referenceDescription }}</td>
+                                    <td>
+                                      <button
+                                        type="button"
+                                        class="btn btn-warning btn-sm"
+                                        (click)="onClickEditIndicatorReference(reference)"
+                                      >
+                                        <i class="fas fa-edit"></i> Bearbeiten
+                                      </button>
+                                      <button
+                                        type="button"
+                                        class="btn btn-danger btn-sm"
+                                        (click)="onClickDeleteIndicatorReference(reference)"
+                                      >
+                                        <i class="fas fa-trash"></i> Löschen
+                                      </button>
+                                    </td>
+                                  </tr>
+                                }
+                              </tbody>
+                            </table>
                           </div>
-                        </div>
-                      </div>
-                      <div class="col-md-4 col-sm-6 col-12">
-                        <div class="form-group">
-                          <label>Referenzbeschreibung*</label>
-                          <textarea
-                            rows="3"
-                            class="form-control"
-                            [(ngModel)]="tmpIndicatorReference_referenceDescription"
-                            name="tmpIndicatorReference_referenceDescription"
-                            placeholder="Beschreibung der Beziehung zum ausgewählten Indikator"
-                            required
-                          ></textarea>
-                          <div class="help-block">
-                            <p>
-                              Beschreiben Sie die Art der Beziehung zwischen diesem Indikator und
-                              dem ausgewählten Indikator
-                            </p>
-                          </div>
-                          <div class="help-block with-errors"></div>
-                        </div>
-                      </div>
-                      <div class="col-md-4 col-sm-6 col-12">
-                        <div class="form-group">
-                          <label>&nbsp;</label>
-                          <button
-                            type="button"
-                            class="btn btn-primary form-control"
-                            [disabled]="
-                              !tmpIndicatorReference_selectedIndicatorMetadata ||
-                              !tmpIndicatorReference_referenceDescription
-                            "
-                            (click)="onAddOrUpdateIndicatorReference()"
-                          >
-                            <i class="fas fa-plus"></i> Indikator-Referenz hinzufügen
-                          </button>
                         </div>
                       </div>
                     </div>
-                    @if (indicatorReferences_adminView.length > 0) {
-                      <div class="row vertical-align">
-                        <div class="col-md-12">
-                          <div class="form-group">
-                            <label>Hinzugefügte Indikator-Referenzen</label>
-                            <div class="table-responsive">
-                              <table class="table table-striped table-bordered">
-                                <thead>
-                                  <tr>
-                                    <th>Indikator</th>
-                                    <th>Typ</th>
-                                    <th>Referenzbeschreibung</th>
-                                    <th>Aktion</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  @for (
-                                    reference of indicatorReferences_adminView;
-                                    track reference;
-                                    let i = $index
-                                  ) {
-                                    <tr>
-                                      <td>{{ reference.indicatorMetadata.datasetName }}</td>
-                                      <td>
-                                        {{ reference.indicatorMetadata.indicatorType.displayName }}
-                                      </td>
-                                      <td>{{ reference.referenceDescription }}</td>
-                                      <td>
-                                        <button
-                                          type="button"
-                                          class="btn btn-warning btn-sm"
-                                          (click)="onClickEditIndicatorReference(reference)"
-                                        >
-                                          <i class="fas fa-edit"></i> Bearbeiten
-                                        </button>
-                                        <button
-                                          type="button"
-                                          class="btn btn-danger btn-sm"
-                                          (click)="onClickDeleteIndicatorReference(reference)"
-                                        >
-                                          <i class="fas fa-trash"></i> Löschen
-                                        </button>
-                                      </td>
-                                    </tr>
-                                  }
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    }
-                  </div>
-                </div>
+                  }
+                </expandable-box>
                 <!-- box georesources -->
-                <div class="box box-danger collapsed-box" style="background: #ebf0fd">
-                  <div class="box-header">
-                    <h3 class="box-title">Referenzen zu Georessourcen</h3>
-                    <div class="box-tools pull-right">
-                      <button type="button" class="btn btn-box-tool" data-widget="collapse">
-                        <i class="fa fa-plus"></i>
-                      </button>
+                <expandable-box title="Referenzen zu Georessourcen">
+                  <div class="row vertical-align">
+                    <div class="col-md-4 col-sm-6 col-12">
+                      <div class="form-group">
+                        <label>Georessource auswählen</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          [(ngModel)]="georesourceNameFilter"
+                          name="georesourceNameFilter"
+                          placeholder="Georessourcenname filtern"
+                          (ngModelChange)="filterGeoresources()"
+                        />
+                        <select
+                          [(ngModel)]="tmpGeoresourceReference_selectedGeoresourceMetadata"
+                          name="tmpGeoresourceReference_selectedGeoresourceMetadata"
+                          class="form-control"
+                          size="8"
+                        >
+                          <option [ngValue]="null" disabled>-- Georessource wählen --</option>
+                          @for (georesource of filteredGeoresources; track georesource) {
+                            <option [ngValue]="georesource">
+                              {{ georesource.datasetName }} ({{
+                                georesource.georesourceType.displayName
+                              }})
+                            </option>
+                          }
+                        </select>
+                        <div class="help-block">
+                          <p>
+                            Wählen Sie eine Georessource aus der Liste aus, zu der eine Referenz
+                            erstellt werden soll
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-sm-6 col-12">
+                      <div class="form-group">
+                        <label>Referenzbeschreibung*</label>
+                        <textarea
+                          rows="3"
+                          class="form-control"
+                          [(ngModel)]="tmpGeoresourceReference_referenceDescription"
+                          name="tmpGeoresourceReference_referenceDescription"
+                          placeholder="Beschreibung der Beziehung zur ausgewählten Georessource"
+                          required
+                        ></textarea>
+                        <div class="help-block">
+                          <p>
+                            Beschreiben Sie die Art der Beziehung zwischen diesem Indikator und der
+                            ausgewählten Georessource
+                          </p>
+                        </div>
+                        <div class="help-block with-errors"></div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-sm-6 col-12">
+                      <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button
+                          type="button"
+                          class="btn btn-primary form-control"
+                          [disabled]="
+                            !tmpGeoresourceReference_selectedGeoresourceMetadata ||
+                            !tmpGeoresourceReference_referenceDescription
+                          "
+                          (click)="onAddOrUpdateGeoresourceReference()"
+                        >
+                          <i class="fas fa-plus"></i> Georessourcen-Referenz hinzufügen
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <!-- /.box-header -->
-                  <div class="box-body">
+                  @if (georesourceReferences_adminView.length > 0) {
                     <div class="row vertical-align">
-                      <div class="col-md-4 col-sm-6 col-12">
+                      <div class="col-md-12">
                         <div class="form-group">
-                          <label>Georessource auswählen</label>
-                          <input
-                            type="text"
-                            class="form-control"
-                            [(ngModel)]="georesourceNameFilter"
-                            name="georesourceNameFilter"
-                            placeholder="Georessourcenname filtern"
-                            (ngModelChange)="filterGeoresources()"
-                          />
-                          <select
-                            [(ngModel)]="tmpGeoresourceReference_selectedGeoresourceMetadata"
-                            name="tmpGeoresourceReference_selectedGeoresourceMetadata"
-                            class="form-control"
-                            size="8"
-                          >
-                            <option [ngValue]="null" disabled>-- Georessource wählen --</option>
-                            @for (georesource of filteredGeoresources; track georesource) {
-                              <option [ngValue]="georesource">
-                                {{ georesource.datasetName }} ({{
-                                  georesource.georesourceType.displayName
-                                }})
-                              </option>
-                            }
-                          </select>
-                          <div class="help-block">
-                            <p>
-                              Wählen Sie eine Georessource aus der Liste aus, zu der eine Referenz
-                              erstellt werden soll
-                            </p>
+                          <label>Hinzugefügte Georessourcen-Referenzen</label>
+                          <div class="table-responsive">
+                            <table class="table table-striped table-bordered">
+                              <thead>
+                                <tr>
+                                  <th>Georessource</th>
+                                  <th>Typ</th>
+                                  <th>Referenzbeschreibung</th>
+                                  <th>Aktion</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                @for (
+                                  reference of georesourceReferences_adminView;
+                                  track reference;
+                                  let i = $index
+                                ) {
+                                  <tr>
+                                    <td>{{ reference.georesourceMetadata.datasetName }}</td>
+                                    <td>
+                                      {{
+                                        reference.georesourceMetadata.georesourceType.displayName
+                                      }}
+                                    </td>
+                                    <td>{{ reference.referenceDescription }}</td>
+                                    <td>
+                                      <button
+                                        type="button"
+                                        class="btn btn-warning btn-sm"
+                                        (click)="onClickEditGeoresourceReference(reference)"
+                                      >
+                                        <i class="fas fa-edit"></i> Bearbeiten
+                                      </button>
+                                      <button
+                                        type="button"
+                                        class="btn btn-danger btn-sm"
+                                        (click)="onClickDeleteGeoresourceReference(reference)"
+                                      >
+                                        <i class="fas fa-trash"></i> Löschen
+                                      </button>
+                                    </td>
+                                  </tr>
+                                }
+                              </tbody>
+                            </table>
                           </div>
-                        </div>
-                      </div>
-                      <div class="col-md-4 col-sm-6 col-12">
-                        <div class="form-group">
-                          <label>Referenzbeschreibung*</label>
-                          <textarea
-                            rows="3"
-                            class="form-control"
-                            [(ngModel)]="tmpGeoresourceReference_referenceDescription"
-                            name="tmpGeoresourceReference_referenceDescription"
-                            placeholder="Beschreibung der Beziehung zur ausgewählten Georessource"
-                            required
-                          ></textarea>
-                          <div class="help-block">
-                            <p>
-                              Beschreiben Sie die Art der Beziehung zwischen diesem Indikator und
-                              der ausgewählten Georessource
-                            </p>
-                          </div>
-                          <div class="help-block with-errors"></div>
-                        </div>
-                      </div>
-                      <div class="col-md-4 col-sm-6 col-12">
-                        <div class="form-group">
-                          <label>&nbsp;</label>
-                          <button
-                            type="button"
-                            class="btn btn-primary form-control"
-                            [disabled]="
-                              !tmpGeoresourceReference_selectedGeoresourceMetadata ||
-                              !tmpGeoresourceReference_referenceDescription
-                            "
-                            (click)="onAddOrUpdateGeoresourceReference()"
-                          >
-                            <i class="fas fa-plus"></i> Georessourcen-Referenz hinzufügen
-                          </button>
                         </div>
                       </div>
                     </div>
-                    @if (georesourceReferences_adminView.length > 0) {
-                      <div class="row vertical-align">
-                        <div class="col-md-12">
-                          <div class="form-group">
-                            <label>Hinzugefügte Georessourcen-Referenzen</label>
-                            <div class="table-responsive">
-                              <table class="table table-striped table-bordered">
-                                <thead>
-                                  <tr>
-                                    <th>Georessource</th>
-                                    <th>Typ</th>
-                                    <th>Referenzbeschreibung</th>
-                                    <th>Aktion</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  @for (
-                                    reference of georesourceReferences_adminView;
-                                    track reference;
-                                    let i = $index
-                                  ) {
-                                    <tr>
-                                      <td>{{ reference.georesourceMetadata.datasetName }}</td>
-                                      <td>
-                                        {{
-                                          reference.georesourceMetadata.georesourceType.displayName
-                                        }}
-                                      </td>
-                                      <td>{{ reference.referenceDescription }}</td>
-                                      <td>
-                                        <button
-                                          type="button"
-                                          class="btn btn-warning btn-sm"
-                                          (click)="onClickEditGeoresourceReference(reference)"
-                                        >
-                                          <i class="fas fa-edit"></i> Bearbeiten
-                                        </button>
-                                        <button
-                                          type="button"
-                                          class="btn btn-danger btn-sm"
-                                          (click)="onClickDeleteGeoresourceReference(reference)"
-                                        >
-                                          <i class="fas fa-trash"></i> Löschen
-                                        </button>
-                                      </td>
-                                    </tr>
-                                  }
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    }
-                  </div>
-                </div>
+                  }
+                </expandable-box>
               </div>
             </div>
             <input
