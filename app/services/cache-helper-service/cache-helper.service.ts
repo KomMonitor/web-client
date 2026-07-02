@@ -127,7 +127,9 @@ export class CacheHelperServiceService {
 
     const lastModTimestamp_fromCache_string = localStorage.getItem(timestampKey);
 
-    if (lastModTimestamp_fromCache_string && !filter) {
+    // Without the server-side last-modification info (e.g. that request failed) we cannot
+    // validate the cached timestamp, so fall through to a fresh server fetch below.
+    if (lastModTimestamp_fromCache_string && !filter && this.lastDatabaseModificationInfo) {
       const lastModTimestamp_fromCache = JSON.parse(lastModTimestamp_fromCache_string);
 
       if (lastModTimestamp_fromCache) {
@@ -153,11 +155,15 @@ export class CacheHelperServiceService {
       } else {
         // when code reaches this place we must overwrite/set timestamp and actual metadata
 
-        // persist last modification timestamp object as String in local storage
-        localStorage.setItem(
-          timestampKey,
-          JSON.stringify(this.lastDatabaseModificationInfo[lastModificationResourceName])
-        );
+        // persist last modification timestamp object as String in local storage.
+        // Only possible when we actually have the server-side modification info; otherwise
+        // we skip the timestamp (leaving the cache to be revalidated on the next successful load).
+        if (this.lastDatabaseModificationInfo) {
+          localStorage.setItem(
+            timestampKey,
+            JSON.stringify(this.lastDatabaseModificationInfo[lastModificationResourceName])
+          );
+        }
 
         return await firstValueFrom(
           this.http.get(this.baseUrlToKomMonitorDataAPI + resourceEndpoint)
