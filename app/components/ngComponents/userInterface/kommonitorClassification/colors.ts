@@ -1,3 +1,8 @@
+/** Built-in colorbrewer schemes merged with optional custom schemes from config (custom wins). */
+export function mergeColorSchemes(customSchemes?: Record<string, any>): Record<string, any> {
+  return { ...colorbrewer, ...(customSchemes ?? {}) };
+}
+
 export const colorbrewer = {
   YlGn: {
     3: ['#f7fcb9', '#addd8e', '#31a354'],

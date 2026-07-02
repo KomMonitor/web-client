@@ -8,53 +8,16 @@
     ) {
       <div class="row vertical-align">
         <div class="col-md-6 col-sm-6 col-12">
-          <div class="dropdown">
-            <button
-              class="btn btn-primary dropdown-toggle btn-sm"
-              type="button"
-              (click)="clrSelectVisible = !clrSelectVisible"
-            >
-              Farbpalettenwahl<span class="caret"></span>
-            </button>
-            <div id="clr_dropdown" [ngClass]="{ visible: clrSelectVisible }">
-              <ul class="dropdown-menu" style="columns: 2; -webkit-columns: 2; -moz-columns: 2">
-                @for (colorPaletteEntry of colorbrewerPalettes; track colorPaletteEntry) {
-                  <li style="margin-right: 15px">
-                    <div (click)="onClickColorBrewerEntry(colorPaletteEntry)">
-                      <div style="display: inline-block">
-                        <svg width="100" height="20">
-                          @for (
-                            color of colorPaletteEntry.paletteArrayObject['5'];
-                            track color;
-                            let i = $index
-                          ) {
-                            <rect
-                              [ngStyle]="{ fill: color, x: i * 20 + 'px' }"
-                              width="20"
-                              height="20"
-                            ></rect>
-                          }
-                        </svg>
-                      </div>
-                    </div>
-                  </li>
-                }
-              </ul>
-            </div>
-          </div>
-          <div class="help-block with-errors"></div>
+          <app-color-palette-select
+            [selectedColorScheme]="
+              selectionState.selectedIndicator?.defaultClassificationMapping?.colorBrewerSchemeName
+            "
+            (colorSchemeSelected)="onColorSchemeSelected($event)"
+          ></app-color-palette-select>
         </div>
         <div class="col-md-6 col-sm-6 col-12">
           <div style="display: inline-block">
-            <svg width="100" height="20">
-              @for (
-                color of selectedColorBrewerPaletteEntry.paletteArrayObject['5'];
-                track color;
-                let i = $index
-              ) {
-                <rect [ngStyle]="{ fill: color, x: i * 20 + 'px' }" width="20" height="20"></rect>
-              }
-            </svg>
+            <app-color-palette-swatch [colors]="selectedPaletteColors"></app-color-palette-swatch>
           </div>
         </div>
       </div>

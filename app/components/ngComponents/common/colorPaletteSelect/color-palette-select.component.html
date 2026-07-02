@@ -1,0 +1,35 @@
+<!-- color palette selection -->
+<button
+  class="btn btn-primary dropdown-toggle btn-sm"
+  type="button"
+  cdkOverlayOrigin
+  #paletteTrigger="cdkOverlayOrigin"
+  (click)="clrSelectVisible = !clrSelectVisible"
+>
+  Farbpalettenwahl<span class="caret"></span>
+</button>
+
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="paletteTrigger"
+  [cdkConnectedOverlayOpen]="clrSelectVisible"
+  [cdkConnectedOverlayPositions]="overlayPositions"
+  [cdkConnectedOverlayHasBackdrop]="true"
+  cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+  (backdropClick)="clrSelectVisible = false"
+  (detach)="clrSelectVisible = false"
+>
+  <div class="clr-overlay-panel">
+    <ul class="palette-list">
+      @for (colorPaletteEntry of colorbrewerPalettes; track colorPaletteEntry) {
+        <li [class.selected]="colorPaletteEntry.paletteName === selectedColorScheme">
+          <div (click)="onClickColorBrewerEntry(colorPaletteEntry)">
+            <app-color-palette-swatch
+              [colors]="colorPaletteEntry.paletteArrayObject['5']"
+            ></app-color-palette-swatch>
+          </div>
+        </li>
+      }
+    </ul>
+  </div>
+</ng-template>

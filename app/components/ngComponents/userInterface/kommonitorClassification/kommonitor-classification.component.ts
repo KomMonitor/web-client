@@ -2,20 +2,28 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ClassificationMethodSelectComponent } from 'components/ngComponents/common/classificationMethodSelect/classification-method-select.component';
+import { ColorPaletteSelectComponent } from 'components/ngComponents/common/colorPaletteSelect/color-palette-select.component';
+import { ColorPaletteSwatchComponent } from 'components/ngComponents/common/colorPaletteSwatch/color-palette-swatch.component';
+import { mergeColorSchemes } from './colors';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
-import { colorbrewer } from './colors';
 
 @Component({
   selector: 'kommonitor-classification-component',
   templateUrl: './kommonitor-classification.component.html',
   styleUrls: ['./kommonitor-classification.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, ClassificationMethodSelectComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ClassificationMethodSelectComponent,
+    ColorPaletteSelectComponent,
+    ColorPaletteSwatchComponent,
+  ],
 })
 export class KommonitorClassificationComponent implements OnInit {
   protected chartDisplayState = inject(ChartDisplayStateService);
@@ -23,8 +31,6 @@ export class KommonitorClassificationComponent implements OnInit {
   protected visualStyleHelperService = inject(VisualStyleHelperServiceNew);
   private broadcastService = inject(BroadcastService);
   protected envConfigService = inject(EnvConfigService);
-
-  clrSelectVisible: boolean = false;
 
   methodName = 'Klassifizierungsmethode auswählen';
   showMethodSelection = false;
@@ -44,36 +50,23 @@ export class KommonitorClassificationComponent implements OnInit {
 
   hiddenMethodIds: any[] = [];
 
-  colorbrewerSchemes!: any;
-  colorbrewerPalettes: any[] = [];
+  /** colorbrewer schemes (incl. custom) used to render the selected palette preview. */
+  private colorSchemes = mergeColorSchemes(this.envConfigService.customColorSchemes);
 
-  selectedColorBrewerPaletteEntry!: any;
-
-  private customColorSchemes = this.envConfigService.customColorSchemes;
-
-  constructor() {
-    // Add custom color themes from configuration properties.
-    // Merge them into the imported colorbrewer object (iterated in
-    // instantiateColorBrewerPalettes); custom schemes override built-ins.
-    if (this.customColorSchemes) {
-      Object.assign(colorbrewer, this.customColorSchemes);
-    }
+  /** The 5-class colors of the currently selected scheme (falls back to 'Blues'). */
+  get selectedPaletteColors(): string[] {
+    const schemeName =
+      this.selectionState.selectedIndicator?.defaultClassificationMapping?.colorBrewerSchemeName;
+    return (this.colorSchemes[schemeName] ?? this.colorSchemes['Blues'])['5'];
   }
 
   ngOnInit(): void {
-    this.instantiateColorBrewerPalettes();
-
     // catch broadcast msgs
     this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
       const title = broadcastMsg.msg;
       const values: any = broadcastMsg.values;
 
       switch (title) {
-        case BroadcastMessage.OnChangeSelectedIndicator:
-          {
-            this.onChangeSelectedIndicator();
-          }
-          break;
         case BroadcastMessage.UpdateClassificationComponent:
           {
             this.updateClassificationComponent(values);
@@ -90,57 +83,6 @@ export class KommonitorClassificationComponent implements OnInit {
     if (this.envConfigService.disableManualClassification) {
       this.hideManualClassification();
     }
-  }
-
-  instantiateColorBrewerPalettes() {
-    for (const key in colorbrewer) {
-      if (Object.prototype.hasOwnProperty.call(colorbrewer, key)) {
-        const colorPalettes = colorbrewer[key];
-
-        const paletteEntry = {
-          paletteName: key,
-          paletteArrayObject: colorPalettes,
-        };
-
-        this.colorbrewerPalettes.push(paletteEntry);
-      }
-    }
-
-    // instantiate with palette 'Blues'
-    this.selectedColorBrewerPaletteEntry = this.colorbrewerPalettes[13];
-
-    for (const colorbrewerPalette of this.colorbrewerPalettes) {
-      if (
-        colorbrewerPalette.paletteName ===
-        this.selectionState.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName
-      ) {
-        this.selectedColorBrewerPaletteEntry = colorbrewerPalette;
-        break;
-      }
-    }
-  }
-
-  onChangeSelectedIndicator() {
-    for (const colorbrewerPalette of this.colorbrewerPalettes) {
-      if (
-        colorbrewerPalette.paletteName ===
-        this.selectionState.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName
-      ) {
-        this.selectedColorBrewerPaletteEntry = colorbrewerPalette;
-        break;
-      }
-    }
-  }
-
-  onClickColorBrewerEntry(colorPaletteEntry) {
-    this.selectedColorBrewerPaletteEntry = colorPaletteEntry;
-
-    this.selectionState.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName =
-      this.selectedColorBrewerPaletteEntry.paletteName;
-
-    this.broadcastService.broadcast(BroadcastMessage.ChangeColorScheme, [
-      this.selectionState.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName,
-    ]);
   }
 
   updateClassificationComponent([
@@ -198,6 +140,14 @@ export class KommonitorClassificationComponent implements OnInit {
     this.broadcastService.broadcast(BroadcastMessage.ChangeNumClasses, [
       this.visualStyleHelperService.numClasses,
     ]);
+  }
+
+  onColorSchemeSelected(schemeName: string) {
+    this.selectionState.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName =
+      schemeName;
+
+    // notify the map to restyle the current layer with the new scheme
+    this.broadcastService.broadcast(BroadcastMessage.ChangeColorScheme, [schemeName]);
   }
 
   toggleAddBtn(e, site) {

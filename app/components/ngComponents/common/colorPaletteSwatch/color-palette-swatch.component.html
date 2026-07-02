@@ -1,0 +1,9 @@
+<svg [attr.width]="colors.length * swatchSize" [attr.height]="swatchSize">
+  @for (color of colors; track $index; let i = $index) {
+    <rect
+      [ngStyle]="{ fill: color, x: i * swatchSize + 'px' }"
+      [attr.width]="swatchSize"
+      [attr.height]="swatchSize"
+    ></rect>
+  }
+</svg>
