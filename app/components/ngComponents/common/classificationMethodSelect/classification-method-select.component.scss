@@ -1,15 +1,31 @@
-:host {
-  #method-select-method {
-    display: grid;
-    grid-template-columns: min-content auto;
-    margin: 1em 0;
-    cursor: pointer;
+// The overlay panel and its method rows are rendered in the CDK overlay container
+// (at body level via a portal), so they must NOT be nested under :host — Angular's
+// emulated encapsulation still tags them with this component's scope attribute, so a
+// plain selector matches.
+.method-select-panel {
+  // the panel is portal-rendered at body level, so restore the small font it used to
+  // inherit from the legend context (:host font-size: 11px) instead of the body default
+  font-size: 11px;
+  width: 300px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 0 1em;
+}
 
-    .method-select-method-symbol {
-      height: 3em;
-      width: 3em;
-      background-size: cover;
-      margin: 1em;
-    }
+#method-select-method {
+  display: grid;
+  grid-template-columns: min-content auto;
+  margin: 1em 0;
+  cursor: pointer;
+
+  .method-select-method-symbol {
+    height: 3em;
+    width: 3em;
+    background-size: cover;
+    margin: 1em;
   }
 }

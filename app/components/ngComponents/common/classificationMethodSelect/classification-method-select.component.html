@@ -1,23 +1,38 @@
 <div id="classificationMethodSelect">
-  <div
+  <button
     id="method-select-selected"
-    class="form-control"
+    type="button"
+    class="btn btn-outline-secondary dropdown-toggle btn-sm"
+    cdkOverlayOrigin
+    #methodTrigger="cdkOverlayOrigin"
     (click)="showMethodSelection = !showMethodSelection"
   >
-    {{ selectedMethod!.name }}
-  </div>
-  <div [hidden]="!showMethodSelection" id="method-select-selection" class="select-border">
-    @for (method of preppedMethods; track method) {
-      <div id="method-select-method" (click)="methodSelected(method)">
-        <div
-          class="method-select-method-symbol"
-          style="background-image: url('{{ preloadImgs[method.name] }}')"
-        ></div>
-        <div class="method-select-method-text">
-          <div class="method-select-method-name">{{ method.name }}</div>
-          <div class="method-select-method-description">{{ method.description }}</div>
+    {{ selectedMethod!.name }}<span class="caret"></span>
+  </button>
+
+  <ng-template
+    cdkConnectedOverlay
+    [cdkConnectedOverlayOrigin]="methodTrigger"
+    [cdkConnectedOverlayOpen]="showMethodSelection"
+    [cdkConnectedOverlayPositions]="overlayPositions"
+    [cdkConnectedOverlayHasBackdrop]="true"
+    cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+    (backdropClick)="showMethodSelection = false"
+    (detach)="showMethodSelection = false"
+  >
+    <div id="method-select-selection" class="method-select-panel select-border">
+      @for (method of preppedMethods; track method) {
+        <div id="method-select-method" (click)="methodSelected(method)">
+          <div
+            class="method-select-method-symbol"
+            style="background-image: url('{{ preloadImgs[method.name] }}')"
+          ></div>
+          <div class="method-select-method-text">
+            <div class="method-select-method-name">{{ method.name }}</div>
+            <div class="method-select-method-description">{{ method.description }}</div>
+          </div>
         </div>
-      </div>
-    }
-  </div>
+      }
+    </div>
+  </ng-template>
 </div>

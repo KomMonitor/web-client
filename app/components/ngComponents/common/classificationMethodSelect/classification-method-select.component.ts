@@ -1,3 +1,4 @@
+import { ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
 import {
   Component,
   EventEmitter,
@@ -15,7 +16,7 @@ import { Classification } from 'components/ngComponents/models/classification.mo
   templateUrl: './classification-method-select.component.html',
   styleUrls: ['./classification-method-select.component.scss'],
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, OverlayModule],
 })
 export class ClassificationMethodSelectComponent implements OnInit, OnChanges {
   @Input() defaultMethodId: string = 'quantile';
@@ -25,6 +26,12 @@ export class ClassificationMethodSelectComponent implements OnInit, OnChanges {
   selectedMethod: Classification | undefined;
   showMethodSelection: boolean = false;
   preloadImgs: any[] = [];
+
+  /** Prefer opening below the trigger, fall back to above when there's no room. */
+  readonly overlayPositions: ConnectedPosition[] = [
+    { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 4 },
+    { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -4 },
+  ];
 
   preppedMethods: Classification[] = [];
   methods: Classification[] = [
