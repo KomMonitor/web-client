@@ -16,7 +16,7 @@ import { Routes } from '@angular/router';
 import { authAdminGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
- /*  {
+  {
     path: 'administration',
     component: AdminComponent,
     canActivate: [authAdminGuard],
@@ -35,6 +35,6 @@ export const routes: Routes = [
       { path: 'widgets', component: AdminControlsConfigComponent },
       { path: 'filters', component: AdminFilterConfigComponent },
     ],
-  }, */
+  },
   { path: '**', component: UserInterfaceComponent },
 ];
