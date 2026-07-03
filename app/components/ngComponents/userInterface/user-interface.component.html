@@ -53,9 +53,9 @@
       </div>
     }
     <p title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></p>
-    @if (showAdminLogin) {
+  <!--   @if (showAdminLogin) {
       <p (click)="openAdminUI()" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></p>
-    }
+    } -->
     <p (click)="openInfoModal()" title="Information&nbsp;&nbsp;">
       <span class="glyphicon glyphicon-info-sign"></span>
     </p>
@@ -271,7 +271,7 @@
         </button>
       }
 
-      @if (visibilityHelperService.elementVisibility.reportingButton) {
+    <!--   @if (visibilityHelperService.elementVisibility.reportingButton) {
         <button
           type="button"
           style="display: block; position: relative; margin-top: 5px"
@@ -283,7 +283,7 @@
         >
           <i class="fas fa-file-alt"></i>
         </button>
-      }
+      } -->
 
       <app-export-menu-button></app-export-menu-button>
     </div>
