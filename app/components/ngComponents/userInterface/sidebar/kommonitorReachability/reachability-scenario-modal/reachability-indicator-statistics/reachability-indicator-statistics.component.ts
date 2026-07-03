@@ -46,6 +46,8 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
   selectedSpatialUnit: any;
   selectedIndicatorDate: any;
 
+  filteredIndicators = this.indicatorStore.displayableIndicators;
+
   weightStrategyOptions = [
     {
       apiName: 'simple',
@@ -313,5 +315,13 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
     );
 
     this.appendNewIsochroneStatistic(jobId);
+  }
+
+  onNameFilterChange(name: any) {
+    const value = name.target.value.toLowerCase();
+
+    this.filteredIndicators = this.indicatorStore.displayableIndicators.filter(
+      (e) => e.indicatorName.toLowerCase().includes(value)
+    );
   }
 }

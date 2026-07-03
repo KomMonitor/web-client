@@ -174,12 +174,14 @@ export class ReachabilityScenarioModalComponent implements OnInit {
 
   onManageReachabilityScenario(scenarioDataset) {
     if (scenarioDataset) {
-      if (
-        this.reachabilityStateService.scenarioTitle &&
-        this.reachabilityStateService.scenarioTitle == scenarioDataset.scenarioName
-      ) {
+      // Compare by object reference, not by scenarioName: manually-drawn quick-calc
+      // scenarios all share the same default title ("Erreichbarkeitsszenario"), so a
+      // name comparison would skip reloading a different scenario with the same title
+      // (e.g. after importing one) and leave stale/missing isochrones in steps 3-5.
+      if (this.activeScenarioDataset === scenarioDataset) {
         return;
       } else {
+        this.activeScenarioDataset = scenarioDataset;
         this.reachabilityScenarioHelperService.loadActiveScenario(scenarioDataset);
         this.initPoiResourceEditFeaturesMenu();
         this.cdr.detectChanges();

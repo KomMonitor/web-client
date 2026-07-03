@@ -185,6 +185,13 @@
           <i class="fa-solid fa-file-import"></i>
           Szenarien-Import
         </div>
+        <input
+          type="file"
+          #scenarioImportInput
+          hidden
+          accept=".json"
+          (change)="onScenarioFileSelected($event)"
+        />
         <div class="modeItem" (click)="reachabilityScenarioHelperService.exportScenarios()">
           <i class="fa-solid fa-file-export"></i>
           Szenarien-Export

@@ -325,7 +325,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.reachabilityStateService.reachabilityMapSubject$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
-        console.log(value);
+    
         if (value.showOnMainMap) {
           if (value.features) this.addSingleMarker(value?.features);
 

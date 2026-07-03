@@ -1,5 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import {
   ReachabilitySessionSnapshot,
   ReachabilityStateService,
@@ -18,6 +20,7 @@ export type ReachabilityScenario = ReachabilitySessionSnapshot;
 })
 export class ReachabilityScenarioHelperService {
   private reachabilityStateService = inject(ReachabilityStateService);
+  private broadcastService = inject(BroadcastService);
 
   private readonly scenarios = new BehaviorSubject<ReachabilityScenario[]>([]);
   public readonly scenarios$ = this.scenarios.asObservable();
@@ -34,6 +37,17 @@ export class ReachabilityScenarioHelperService {
     this.reachabilityStateService.restoreSnapshot(scenarioDataset);
     // since the config contains all info for active scenario we just reload all reachability maps
     this.isochronesCalculationFinished.next(true);
+
+    // The wizard's step components (configuration/poi-in-iso/indicator-statistics) redraw
+    // their isochrone maps in response to this broadcast, not the Subject above. This is
+    // called right after the scenario modal is opened (see onManageReachabilityScenario),
+    // so the step components — siblings in the same modal, all mounted eagerly regardless
+    // of which step is active — may not have finished their ngOnInit subscription setup
+    // yet. Defer like the modal's own step-switch handlers do (onReachbilityConfigurationClick
+    // etc., also 250ms) to give Angular a tick to finish creating them first.
+    setTimeout(() => {
+      this.broadcastService.broadcast(BroadcastMessage.IsochronesCalculationFinished);
+    }, 250);
   }
 
   public addReachabilityScenario(): void {

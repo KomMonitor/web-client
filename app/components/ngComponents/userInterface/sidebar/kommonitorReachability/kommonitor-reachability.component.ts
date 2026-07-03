@@ -1,5 +1,5 @@
 import { MapService } from 'services/map-service/map.service';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -53,6 +53,8 @@ export class KommonitorReachabilityComponent implements OnInit {
   private broadcastService = inject(BroadcastService);
   private envConfigService = inject(EnvConfigService);
   protected reachabilityStateService = inject(ReachabilityStateService);
+
+  @ViewChild('scenarioImportInput') scenarioImportInput!: ElementRef<HTMLInputElement>;
 
   error = undefined;
   manualStartPoints = undefined;
@@ -153,7 +155,18 @@ export class KommonitorReachabilityComponent implements OnInit {
   }
 
   onClickImport() {
-    //reachabilityScenarioHelperService.importScenarios()
+    this.scenarioImportInput.nativeElement.click();
+  }
+
+  onScenarioFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (file) {
+      this.reachabilityScenarioHelperService.importScenarios(file);
+    }
+
+    input.value = '';
   }
 
   createScenario() {
@@ -257,6 +270,7 @@ export class KommonitorReachabilityComponent implements OnInit {
   }
 
   removeReachabilityScenarioFromMainMap() {
+    this.reachabilityStateService.resetLocations();
     this.mapService.removeReachabilityScenarioFromMainMap();
   }
 
