@@ -8,6 +8,7 @@ import { TopicMetadataStoreService } from 'services/topic-metadata-store-service
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { StepperStep } from 'components/ngComponents/common/stepper/stepper.component';
+import { mergeColorSchemes } from 'components/ngComponents/userInterface/kommonitorClassification/colors';
 
 /**
  * Holds the entire form state and state-manipulating logic for the
@@ -116,7 +117,7 @@ export class IndicatorAddFormStateService {
   // Classification
   numClassesArray = [3, 4, 5, 6, 7, 8];
   numClassesPerSpatialUnit = 5;
-  classificationMethod = 'jenks';
+  classificationMethod = 'regional_default';
   selectedColorBrewerPaletteEntry: any = null;
   spatialUnitClassification: any[] = [];
   classBreaksInvalid = false;
@@ -152,7 +153,6 @@ export class IndicatorAddFormStateService {
   colorbreweSchemeName_dynamicDecrease = 'Reds';
 
   // Step 5: Classification Options
-  enableDynamicColorAssignment = false;
   currentClassificationTab = 0;
 
   // Step 6: Regional Comparison Values
@@ -291,13 +291,11 @@ export class IndicatorAddFormStateService {
   }
 
   private loadColorBrewerSchemes() {
-    // Load color brewer schemes from environment or default
-    const customColorSchemes = (window as any).__env?.customColorSchemes;
-    this.colorbrewerSchemes = (window as any).colorbrewer || {};
-
-    if (customColorSchemes) {
-      this.colorbrewerSchemes = Object.assign(customColorSchemes, this.colorbrewerSchemes);
-    }
+    // Build the colorbrewer schemes from the bundled palettes merged with any custom
+    // schemes from config — the same reliable source app-color-palette-select uses.
+    // (window.colorbrewer is not loaded globally in the migrated app, so reading it
+    // here left the schemes/palettes empty and the selected palette unset.)
+    this.colorbrewerSchemes = mergeColorSchemes(this.envConfigService.customColorSchemes);
 
     this.instantiateColorBrewerPalettes();
   }
@@ -647,7 +645,7 @@ export class IndicatorAddFormStateService {
     if (this.metadataImportSettings.defaultClassificationMapping) {
       const mapping = this.metadataImportSettings.defaultClassificationMapping;
       this.numClassesPerSpatialUnit = mapping.numClasses || 5;
-      this.classificationMethod = mapping.classificationMethod || 'jenks';
+      this.classificationMethod = mapping.classificationMethod || 'regional_default';
 
       // Set color brewer palette
       if (mapping.colorBrewerSchemeName) {
@@ -803,7 +801,7 @@ export class IndicatorAddFormStateService {
       defaultClassificationMapping: {
         colorBrewerSchemeName: '',
         numClasses: 5,
-        classificationMethod: 'jenks',
+        classificationMethod: 'regional_default',
         items: [],
       },
     };
@@ -856,7 +854,7 @@ export class IndicatorAddFormStateService {
     this.georesourceReferences_adminView = [];
     this.georesourceReferences_apiRequest = [];
     this.numClassesPerSpatialUnit = 5;
-    this.classificationMethod = 'jenks';
+    this.classificationMethod = 'regional_default';
     this.selectedColorBrewerPaletteEntry =
       this.colorbrewerPalettes && this.colorbrewerPalettes.length > 13
         ? this.colorbrewerPalettes[13]
@@ -904,7 +902,6 @@ export class IndicatorAddFormStateService {
     this.filteredGeoresources = this.availableGeoresources || [];
 
     // Reset Step 5: Classification Options
-    this.enableDynamicColorAssignment = false;
     this.currentClassificationTab = 0;
 
     // Reset Step 6: Regional Comparison Values
@@ -1131,41 +1128,92 @@ export class IndicatorAddFormStateService {
   }
 
   // Step 5: Classification Methods
-  goToClassificationTab(tabIndex: number) {
-    this.currentClassificationTab = tabIndex;
-
-    // Update active tab classes
-    this.tabClasses.forEach((_, index) => {
-      if (index === tabIndex) {
-        this.tabClasses[index] = 'active';
-      } else {
-        this.tabClasses[index] = '';
-      }
-    });
-  }
-
   getClassColor(classIndex: number, palette: any): string {
-    if (!palette || !palette.colors) {
-      return '#cccccc';
-    }
-
-    const colors = palette.colors;
-    if (classIndex >= 0 && classIndex < colors.length) {
+    // Palette entries carry a colorbrewer `paletteArrayObject` keyed by class count
+    // (e.g. '5'), so resolve the color row for the currently selected class count.
+    const colors = palette?.paletteArrayObject?.[this.numClassesPerSpatialUnit?.toString()];
+    if (Array.isArray(colors) && classIndex >= 0 && classIndex < colors.length) {
       return colors[classIndex];
     }
 
     return '#cccccc';
   }
 
-  // Override existing classification methods to work with Step 5
+  // Receives the full method object from app-classification-method-select; keep a
+  // string fallback in case a bare id is passed.
   onClassificationMethodSelected(method: any) {
-    this.classificationMethod = method;
+    this.classificationMethod = method?.id ?? method;
     // Reinitialize classification when method changes
     this.onNumClassesChanged(this.numClassesPerSpatialUnit);
   }
 
   onClickColorBrewerEntry(colorPaletteEntry: any) {
     this.selectedColorBrewerPaletteEntry = colorPaletteEntry;
+  }
+
+  // app-color-palette-select emits the scheme name; map it back to our palette entry.
+  onColorSchemeSelected(paletteName: string) {
+    const entry = this.colorbrewerPalettes.find((p) => p.paletteName === paletteName);
+    if (entry) {
+      this.onClickColorBrewerEntry(entry);
+    }
+  }
+
+  // Read-only 5-color spectrum for the standard two-color (negative/positive) classification.
+  getDynamicSchemeColors(direction: 'increase' | 'decrease'): string[] {
+    const name =
+      direction === 'increase'
+        ? this.colorbreweSchemeName_dynamicIncrease
+        : this.colorbreweSchemeName_dynamicDecrease;
+    return this.colorbrewerSchemes?.[name]?.['5'] ?? [];
+  }
+
+  // Read-only 5-color preview of the currently selected palette ("derzeit selektiert").
+  getSelectedPaletteColors(): string[] {
+    return this.selectedColorBrewerPaletteEntry?.paletteArrayObject?.['5'] ?? [];
+  }
+
+  // Colors of the selected palette for the current class count — one legend row each.
+  getClassColors(): string[] {
+    return (
+      this.selectedColorBrewerPaletteEntry?.paletteArrayObject?.[
+        this.numClassesPerSpatialUnit?.toString()
+      ] ?? []
+    );
+  }
+
+  // Legend "Wertebereich" text for a class of a spatial unit (regional default).
+  getLegendRange(tabIndex: number, classIndex: number): string {
+    const breaks: (number | null)[] = this.spatialUnitClassification[tabIndex]?.breaks ?? [];
+    const lastIndex = this.numClassesPerSpatialUnit - 1;
+    const fmt = (value: number | null | undefined) =>
+      value === null || value === undefined ? '[bitte eingeben]' : `${value}`;
+
+    if (classIndex === 0) {
+      return `Niedrigster Wert - < ${fmt(breaks[0])}`;
+    }
+    if (classIndex === lastIndex) {
+      return `${fmt(breaks[classIndex - 1])} - < Höchster Wert`;
+    }
+    return `${fmt(breaks[classIndex - 1])} - < ${fmt(breaks[classIndex])}`;
+  }
+
+  // Legend "Hinweis" text — only the lowest and highest class carry a note.
+  getLegendHint(tabIndex: number, classIndex: number): string {
+    const breaks: (number | null)[] = this.spatialUnitClassification[tabIndex]?.breaks ?? [];
+    const lastIndex = this.numClassesPerSpatialUnit - 1;
+
+    if (classIndex === 0 && breaks[0] !== null && breaks[0] !== undefined) {
+      return `Klasse wird bei Werten unter ${breaks[0]} hinzugefügt`;
+    }
+    if (
+      classIndex === lastIndex &&
+      breaks[classIndex - 1] !== null &&
+      breaks[classIndex - 1] !== undefined
+    ) {
+      return `Klasse wird bei Werten über ${breaks[classIndex - 1]} hinzugefügt`;
+    }
+    return '';
   }
 
   onNumClassesChanged(numClasses: number) {
@@ -1189,8 +1237,8 @@ export class IndicatorAddFormStateService {
           breaks: breaks,
         });
 
-        // Initialize tab class
-        this.tabClasses[index] = index === 0 ? 'active' : '';
+        // Initialize tab validation class (neutral until breaks are entered)
+        this.tabClasses[index] = '';
       });
     }
 
@@ -1203,33 +1251,35 @@ export class IndicatorAddFormStateService {
       return;
     }
 
-    const breaks = this.spatialUnitClassification[tabIndex].breaks;
-    let cssClass = 'active';
-    this.classBreaksInvalid = false;
+    const breaks: (number | null)[] = this.spatialUnitClassification[tabIndex].breaks;
 
-    // Validate breaks for manual classification
-    if (this.classificationMethod === 'manual') {
-      let lastValidBreak = null;
-      for (const classBreak of breaks) {
-        if (classBreak !== null && classBreak !== undefined) {
-          if (lastValidBreak !== null && classBreak <= lastValidBreak) {
-            cssClass = 'tab-error';
-            this.classBreaksInvalid = true;
-            break;
-          }
-          lastValidBreak = classBreak;
+    // Class breaks must be strictly ascending; empty (null) entries are ignored.
+    // A tab is green ('tab-valid') once every break is filled and correctly ordered,
+    // red ('tab-error') on any ordering violation, and neutral ('') while incomplete.
+    let hasError = false;
+    let filledCount = 0;
+    let lastValidBreak: number | null = null;
+    for (const classBreak of breaks) {
+      if (classBreak !== null && classBreak !== undefined) {
+        filledCount++;
+        if (lastValidBreak !== null && classBreak <= lastValidBreak) {
+          hasError = true;
+          break;
         }
-      }
-    } else {
-      for (const classBreak of this.spatialUnitClassification[tabIndex].breaks) {
-        if (classBreak !== null) {
-          cssClass = 'tab-error';
-          this.classBreaksInvalid = true;
-        }
+        lastValidBreak = classBreak;
       }
     }
 
-    this.tabClasses[tabIndex] = cssClass;
+    if (hasError) {
+      this.tabClasses[tabIndex] = 'tab-error';
+    } else if (breaks.length > 0 && filledCount === breaks.length) {
+      this.tabClasses[tabIndex] = 'tab-valid';
+    } else {
+      this.tabClasses[tabIndex] = '';
+    }
+
+    // Aggregate overall validity across all spatial-unit tabs.
+    this.classBreaksInvalid = this.tabClasses.some((cssClass) => cssClass === 'tab-error');
   }
 
   // Step 6: Regional Comparison Methods

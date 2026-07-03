@@ -1,51 +1,68 @@
 /* Step 5: Classification Options Styles */
-.color-palette-container {
-  margin-top: 10px;
-}
 
-.color-palette-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 10px;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.color-palette-item {
-  border: 2px solid #ddd;
-  border-radius: 4px;
-  padding: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: center;
-}
-
-.color-palette-item:hover {
-  border-color: #27ae60;
-  transform: translateY(-2px);
-}
-
-.color-palette-item.selected {
-  border-color: #27ae60;
-  background-color: #f8fff9;
-}
-
-.color-strip {
-  height: 20px;
-  border-radius: 2px;
-  margin-bottom: 5px;
-}
-
-.palette-name {
-  font-size: 11px;
+/* Descriptive note between the palette and the two-color preview */
+.fs-note {
   color: #666;
-  font-weight: 500;
+  font-size: 14px;
+  margin: 18px 0;
+}
+
+/* Palette picker + "derzeit selektiert" preview, centered and close together */
+.palette-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+
+  .form-group {
+    margin-bottom: 0;
+  }
+}
+
+/* Inline label sitting next to a read-only swatch ("derzeit selektiert:" etc.) */
+.inline-label {
+  margin-right: 8px;
+  font-weight: bold;
+  vertical-align: middle;
+}
+
+.palette-preview {
+  app-color-palette-swatch {
+    display: inline-block;
+    vertical-align: middle;
+  }
+}
+
+/* Center the palette / method trigger controls within their column */
+.control-inline {
+  display: inline-block;
+}
+
+/* Centered, width-constrained field block (method + class count) */
+.centered-field {
+  max-width: 340px;
+  margin: 12px auto;
+  text-align: center;
+
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
 }
 
 .classification-tab-content {
   padding: 20px;
-  background-color: #f8f9fa;
+  background-color: #fff;
   border-radius: 4px;
+}
+
+.breaks-heading {
+  display: block;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 15px;
 }
 
 .class-breaks-container {
@@ -54,87 +71,91 @@
   gap: 10px;
 }
 
-.class-break-input {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+/* Legend: Symbolik / Wertebereich / Hinweis */
+.legend-table {
+  width: 100%;
+  border-collapse: collapse;
+  /* Fixed layout so the headers sit above stable columns (old col-md-2 / -5 / -5) */
+  table-layout: fixed;
 
-.class-break-input label {
-  min-width: 100px;
-  font-weight: 500;
-  margin: 0;
-}
+  th {
+    text-align: left;
+    font-weight: bold;
+    padding: 2px 8px 6px 0;
+  }
 
-.class-break-input input {
-  flex: 1;
-}
+  td {
+    padding: 2px 8px 2px 0;
+    vertical-align: top;
+    font-size: 13px;
+  }
 
-.classification-preview {
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 15px;
-  background-color: white;
-  max-height: 300px;
-  overflow-y: auto;
-}
+  /* Symbolik | Wertebereich | Hinweis column proportions */
+  th:nth-child(1),
+  td:nth-child(1) {
+    width: 16%;
+  }
 
-.class-preview-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
-  padding: 5px;
-  border-radius: 3px;
-}
+  th:nth-child(2),
+  td:nth-child(2) {
+    width: 42%;
+  }
 
-.class-color {
-  width: 20px;
-  height: 20px;
-  border-radius: 3px;
-  border: 1px solid #ddd;
-}
+  th:nth-child(3),
+  td:nth-child(3) {
+    width: 42%;
+  }
 
-.class-range {
-  font-size: 12px;
-  font-weight: 500;
-  color: #333;
+  .legend-swatch {
+    display: inline-block;
+    width: 24px;
+    height: 20px;
+    border: 1px solid #ddd;
+  }
+
+  .legend-hint {
+    color: #737373;
+  }
 }
 
 .nav-tabs-custom {
   border: 1px solid #ddd;
   border-radius: 4px;
   overflow: hidden;
-}
 
-.nav-tabs-custom .nav-tabs {
-  margin-bottom: 0;
-  background-color: #f8f9fa;
-}
+  .nav-tabs {
+    margin-bottom: 0;
+    background-color: #f8f9fa;
+  }
 
-.nav-tabs-custom .tab-content {
-  padding: 0;
-}
+  /* ngb-nav renders the active pane into this outlet */
+  .tab-content {
+    padding: 0;
+  }
 
-.nav-tabs-custom .tab-pane {
-  padding: 0;
-}
+  /* Validation colouring of the per-spatial-unit tabs */
+  .nav-item.tab-error .nav-link {
+    color: #a94442;
+    font-weight: 600;
 
-/* Dynamic color assignment styles */
-.dynamic-color-section {
-  background-color: #f8f9fa;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 15px;
-  margin-top: 15px;
+    &.active {
+      background-color: #f2dede;
+      border-color: #ebccd1 #ebccd1 #f2dede;
+    }
+  }
+
+  .nav-item.tab-valid .nav-link {
+    color: #3c763d;
+
+    &.active {
+      background-color: #dff0d8;
+      border-color: #d6e9c6 #d6e9c6 #dff0d8;
+    }
+  }
 }
 
 /* Responsive adjustments for classification */
 @media (max-width: 768px) {
-  .color-palette-grid {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  }
-
   .class-break-input {
     flex-direction: column;
     align-items: flex-start;
