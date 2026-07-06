@@ -89,29 +89,32 @@
 
   <div style="flex: 1"></div>
 
-  <button
-    type="button"
-    class="btn btn-success"
-    [disabled]="
-      !state.datasetName ||
-      !state.metadata.description ||
-      !state.metadata.datasource ||
-      !state.metadata.contact ||
-      !state.metadata.updateInterval ||
-      !state.metadata.lastUpdate ||
-      !state.indicatorType ||
-      !state.indicatorCreationType ||
-      !state.indicatorInterpretation ||
-      state.datasetNameInvalid ||
-      !state.indicatorUnit ||
-      state.classBreaksInvalid
-    "
-    (click)="addIndicator()"
-  >
+  <button type="button" class="btn btn-success" (click)="addIndicator()">
     Indikator-Metadaten registrieren
   </button>
   <button type="button" class="btn btn-danger" (click)="state.resetForm()">Zurücksetzen</button>
 </div>
+
+<!-- Missing required fields dialog (shown before sending when validation fails) -->
+<ng-template #missingFieldsModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">
+      <i class="fa fa-exclamation-triangle"></i>&nbsp;Pflichtfelder unvollständig
+    </h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <p>Bitte füllen Sie die folgenden Pflichtfelder aus, bevor der Indikator registriert wird:</p>
+    <ul>
+      @for (field of missingFields; track field.label) {
+        <li>{{ field.label }}</li>
+      }
+    </ul>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" (click)="modal.close()">Verstanden</button>
+  </div>
+</ng-template>
 
 <!-- Success Alert -->
 @if (state.successMessagePart) {

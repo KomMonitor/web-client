@@ -1,14 +1,14 @@
 import { Injectable, inject } from '@angular/core';
-import { downloadJson, readJsonFile } from 'util/json-file.util';
-import { AccessControlService } from 'services/access-control-service/access-control.service';
-import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
-import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
-import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
-import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
-import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
-import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { StepperStep } from 'components/ngComponents/common/stepper/stepper.component';
 import { mergeColorSchemes } from 'components/ngComponents/userInterface/kommonitorClassification/colors';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
+import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
+import { downloadJson, readJsonFile } from 'util/json-file.util';
 
 /**
  * Holds the entire form state and state-manipulating logic for the
@@ -524,6 +524,162 @@ export class IndicatorAddFormStateService {
     return postBody;
   }
 
+  /**
+   * Builds the POST body strictly following the KomMonitor Data Management API v3
+   * schema `IndicatorPOSTInputType` (verified against the OpenAPI docs). Unlike
+   * {@link buildPostBody_indicators} this method:
+   *  - sends every required field unconditionally (`tags`, `topicReference`,
+   *    `characteristicValue`, `ownerId`, `isPublic`, `permissions`),
+   *  - uses the correct field names (`permissions` not `allowedRoles`,
+   *    classification item key `spatialUnitId` not `spatialUnit`),
+   *  - uppercases `classificationMethod` to match the API enum,
+   *  - emits references in the `{ indicatorId | georesourceId, referenceDescription }`
+   *    shape, built directly from the admin-view lists (no shared state).
+   * Kept alongside the legacy builder so both can be compared against the live API.
+   */
+  buildPostBody_indicators_v3() {
+    // Resolve the selected topic id from the deepest selected hierarchy level.
+    const topicReference =
+      this.indicatorTopic_subsubsubTopic?.topicId ??
+      this.indicatorTopic_subsubTopic?.topicId ??
+      this.indicatorTopic_subTopic?.topicId ??
+      this.indicatorTopic_mainTopic?.topicId ??
+      '';
+
+    // Tags: always an array (required field), empty when none entered.
+    const tags = this.indicatorTagsString_withCommas
+      ? this.indicatorTagsString_withCommas.split(',').map((tag: string) => tag.trim())
+      : [];
+
+    // Permissions: role ids selected in the role-management grid (required array).
+    const permissions: string[] = [];
+    if (this.roleManagementTableOptions && this.roleManagementHelper) {
+      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
+        this.roleManagementTableOptions
+      );
+      if (Array.isArray(roleIds)) {
+        permissions.push(...roleIds);
+      }
+    }
+
+    const postBody: any = {
+      // required
+      datasetName: this.datasetName,
+      characteristicValue: '', // no dedicated UI field yet; API requires the property
+      creationType: this.indicatorCreationType?.apiName,
+      isHeadlineIndicator: this.isHeadlineIndicator,
+      interpretation: this.indicatorInterpretation,
+      processDescription: this.indicatorProcessDescription,
+      unit: this.indicatorUnit,
+      topicReference,
+      tags,
+      permissions,
+      // ownerOrganization holds the full org object from the picker; the API
+      // expects only its identifier. Fall back to the raw value if a bare id is set.
+      ownerId: this.ownerOrganization?.organizationalUnitId ?? this.ownerOrganization,
+      isPublic: this.isPublic ? true : false,
+      metadata: {
+        // required metadata fields
+        contact: this.metadata.contact,
+        datasource: this.metadata.datasource,
+        description: this.metadata.description,
+        updateInterval: this.metadata.updateInterval?.apiName,
+        // optional / nullable metadata fields
+        note: this.metadata.note || null,
+        literature: this.metadata.literature || null,
+        databasis: this.metadata.databasis || null,
+        lastUpdate: this.metadata.lastUpdate || null,
+        sridEPSG: this.metadata.sridEPSG || 4326,
+      },
+      defaultClassificationMapping: {
+        colorBrewerSchemeName: this.selectedColorBrewerPaletteEntry?.paletteName,
+        numClasses: this.numClassesPerSpatialUnit,
+        classificationMethod: this.classificationMethod?.toUpperCase(),
+        // Only send spatial units whose break values are fully filled in.
+        items: this.spatialUnitClassification
+          .filter((classification) => !classification.breaks.includes(null))
+          .map((classification) => ({
+            spatialUnitId: classification.spatialUnitId,
+            breaks: classification.breaks,
+          })),
+      },
+      // optional top-level fields
+      abbreviation: this.indicatorAbbreviation || null,
+      indicatorType: this.indicatorType?.apiName,
+      displayOrder: this.displayOrder,
+      referenceDateNote: this.indicatorReferenceDateNote || null,
+      lowestSpatialUnitForComputation:
+        this.indicatorLowestSpatialUnitMetadataObjectForComputation?.spatialUnitLevel ?? null,
+      refrencesToOtherIndicators: this.indicatorReferences_adminView.map((ref) => ({
+        indicatorId: ref.indicatorMetadata.indicatorId,
+        referenceDescription: ref.referenceDescription,
+      })),
+      refrencesToGeoresources: this.georesourceReferences_adminView.map((ref) => ({
+        georesourceId: ref.georesourceMetadata.georesourceId,
+        referenceDescription: ref.referenceDescription,
+      })),
+    };
+
+    // Precision is optional; only send it when a custom value is enabled.
+    if (this.showCustomCommaValue && this.indicatorPrecision !== null) {
+      postBody.precision = this.indicatorPrecision;
+    }
+
+    return postBody;
+  }
+
+  /**
+   * Returns the required `IndicatorPOSTInputType` fields that are still blank in
+   * the API-v3 body, as `{ label }` entries for a user-facing validation dialog.
+   * (Booleans, `tags`/`permissions` empty-arrays and `characteristicValue` — which
+   * has no UI field yet — are intentionally not treated as missing.)
+   */
+  getV3MissingRequiredFields(): { label: string }[] {
+    const body = this.buildPostBody_indicators_v3();
+    const missing: { label: string }[] = [];
+    const isBlank = (value: any) =>
+      value === undefined || value === null || (typeof value === 'string' && value.trim() === '');
+    const check = (blank: boolean, label: string) => {
+      if (blank) missing.push({ label });
+    };
+
+    // Ordered by wizard step so the resulting list is already sorted by step.
+
+    // Step 1 — basic metadata
+    check(isBlank(body.datasetName), 'Indikatorname (Schritt 1)');
+    check(isBlank(body.unit), 'Einheit (Schritt 1)');
+    check(isBlank(body.processDescription), 'Methodik (der Berechnung) (Schritt 1)');
+    check(isBlank(body.interpretation), 'Interpretation (Schritt 1)');
+    check(isBlank(body.creationType), 'Fortführungstyp (Schritt 1)');
+
+    // Step 2 — general metadata
+    check(isBlank(body.metadata?.description), 'Beschreibung (Schritt 2)');
+    check(isBlank(body.metadata?.datasource), 'Datenquelle (Schritt 2)');
+    check(isBlank(body.metadata?.contact), 'Datenhalter und Kontakt (Schritt 2)');
+    check(isBlank(body.metadata?.updateInterval), 'Aktualisierungszyklus (Schritt 2)');
+
+    // Step 3 — topic hierarchy
+    check(isBlank(body.topicReference), 'Heuptthema (Schritt 3)');
+
+    // Step 5 — classification mapping
+    const mapping = body.defaultClassificationMapping;
+    check(isBlank(mapping?.colorBrewerSchemeName), 'Klassifizierung: Farbschema (Schritt 5)');
+    check(isBlank(mapping?.classificationMethod), 'Klassifizierung: Methode (Schritt 5)');
+    check(
+      mapping?.numClasses === undefined || mapping?.numClasses === null,
+      'Klassifizierung: Klassenanzahl (Schritt 5)'
+    );
+    check(
+      !Array.isArray(mapping?.items) || mapping.items.length === 0,
+      'Klassifizierung: vollständige Klassengrenzen für mind. eine Raumeinheit (Schritt 5)'
+    );
+
+    // Step 7 — ownership
+    check(isBlank(body.ownerId), 'Eigentümer-Organisation (Schritt 7)');
+
+    return missing;
+  }
+
   // Import/Export functionality
   async parseMetadataFromFile(file: File) {
     try {
@@ -939,10 +1095,16 @@ export class IndicatorAddFormStateService {
   }
 
   hideSuccessAlert() {
+    // The success alert is shown via `successMessagePart`, so clear that field
+    // (the legacy `successMessage` alone did not control visibility).
+    this.successMessagePart = '';
     this.successMessage = '';
   }
 
   hideErrorAlert() {
+    // The error alert is shown via `errorMessagePart`, so clear that field
+    // (the legacy `errorMessage` alone did not control visibility).
+    this.errorMessagePart = '';
     this.errorMessage = '';
   }
 

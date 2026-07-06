@@ -3,12 +3,13 @@ import {
   OnInit,
   ViewChild,
   ElementRef,
+  TemplateRef,
   inject,
   Output,
   EventEmitter,
 } from '@angular/core';
 import { IndicatorRefreshRequest } from '../indicator-refresh.model';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
@@ -50,23 +51,44 @@ export class IndicatorAddModalComponent implements OnInit {
   private http = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
   protected envConfigService = inject(EnvConfigService);
+  private modalService = inject(NgbModal);
 
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
+  @ViewChild('missingFieldsModal', { static: false }) missingFieldsModalTpl!: TemplateRef<unknown>;
 
   @Output() refreshRequested = new EventEmitter<IndicatorRefreshRequest>();
+
+  // Required fields still missing when the user tried to register (for the dialog).
+  protected missingFields: { label: string }[] = [];
 
   ngOnInit() {
     this.state.loadInitialData();
     this.state.initializeMultiStepForm();
   }
 
+  // Register the indicator. Validates the required fields first and, if any are
+  // still blank, lists them in a modal instead of sending the request.
   async addIndicator() {
+    this.missingFields = this.state.getV3MissingRequiredFields();
+    if (this.missingFields.length > 0) {
+      this.modalService.open(this.missingFieldsModalTpl, {
+        backdrop: true,
+        container: 'body',
+        scrollable: true,
+      });
+      return;
+    }
+    await this.submitIndicator(this.state.buildPostBody_indicators_v3());
+  }
+
+  // Shared POST + success/refresh/error handling.
+  private async submitIndicator(postBody: any) {
     this.state.loadingData = true;
     this.state.successMessagePart = '';
     this.state.errorMessagePart = '';
 
     try {
-      this.state.postBody_indicators = this.state.buildPostBody_indicators();
+      this.state.postBody_indicators = postBody;
 
       // Check if service is available
       if (!this.envConfigService.baseUrlToKomMonitorDataAPI) {
