@@ -1,14 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { ColDef } from 'ag-grid-community';
+import { ColDef, createGrid } from 'ag-grid-community';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
-import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
-import * as agGrid from 'ag-grid-community';
 import { TopicHierarchyService } from '../topic-hierarchy-service/topic-hierarchy.service';
 import { EnvConfigService } from '../env-config-service/env-config.service';
-
-declare const $: any;
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +13,6 @@ export class KommonitorIndicatorDataGridHelperService {
   private accessControlService = inject(AccessControlService);
   private metadataExportService = inject(MetadataExportService);
   private topicStore = inject(TopicMetadataStoreService);
-  private indicatorStore = inject(IndicatorMetadataStoreService);
   private topicHierarchyService = inject(TopicHierarchyService);
   private envConfigService = inject(EnvConfigService);
 
@@ -274,11 +269,11 @@ export class KommonitorIndicatorDataGridHelperService {
     html +=
       '<button id="' +
       editMetadataButtonId +
-      '" class="btn btn-warning btn-sm indicatorEditMetadataBtn disabled" type="button" data-toggle="modal" data-target="#modal-edit-indicator-metadata" title="Metadaten editieren" disabled><i class="fas fa-pencil-alt"></i></button>';
+      '" class="btn btn-warning btn-sm indicatorEditMetadataBtn disabled" type="button" title="Metadaten editieren" disabled><i class="fas fa-pencil-alt"></i></button>';
     html +=
       '<button id="' +
       editFeaturesButtonId +
-      '" class="btn btn-warning btn-sm indicatorEditFeaturesBtn disabled" type="button" data-toggle="modal" data-target="#modal-edit-indicator-features" title="Features fortf&uuml;hren" disabled><i class="fas fa-draw-polygon"></i></button>';
+      '" class="btn btn-warning btn-sm indicatorEditFeaturesBtn disabled" type="button" title="Features fortf&uuml;hren" disabled><i class="fas fa-draw-polygon"></i></button>';
 
     if (!disabledEditButtons) {
       html = html.replaceAll('disabled', ''); // enabled
@@ -300,7 +295,7 @@ export class KommonitorIndicatorDataGridHelperService {
       }
 
       html +=
-        ' type="button" data-toggle="modal" data-target="#modal-edit-indicator-spatial-unit-roles" title="Zugriffsschutz und Eigentümerschaft editieren"><i class="fas fa-user-lock"></i></button>';
+        ' type="button" title="Zugriffsschutz und Eigentümerschaft editieren"><i class="fas fa-user-lock"></i></button>';
     }
 
     // Delete Button — gated on the global delete permission and, like spatial
@@ -323,138 +318,6 @@ export class KommonitorIndicatorDataGridHelperService {
 
     return html;
   };
-
-  /**
-   * Registers click handlers for indicator buttons
-   */
-  registerClickHandler_indicators(_indicatorMetadataArray: any[]): void {
-    // First unbind previous click events
-    $('.indicatorEditMetadataBtn').off();
-    $('.indicatorEditMetadataBtn').on('click', (event: any) => {
-      // Ensure that only the target button gets clicked
-      // Manually open modal
-      event.stopPropagation();
-      const modalId = document.getElementById(event.currentTarget.id)?.getAttribute('data-target');
-      if (modalId) {
-        $(modalId).modal('show');
-      }
-
-      const indicatorId = event.currentTarget.id.split('_')[3];
-      const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(indicatorId);
-
-      // Broadcast event for Angular component to handle
-      this.broadcastEvent('onEditIndicatorMetadata', indicatorMetadata);
-    });
-
-    // First unbind previous click events
-    $('.indicatorEditFeaturesBtn').off();
-    $('.indicatorEditFeaturesBtn').on('click', (event: any) => {
-      // Ensure that only the target button gets clicked
-      // Manually open modal
-      event.stopPropagation();
-      const modalId = document.getElementById(event.currentTarget.id)?.getAttribute('data-target');
-      if (modalId) {
-        $(modalId).modal('show');
-      }
-
-      const indicatorId = event.currentTarget.id.split('_')[3];
-      const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(indicatorId);
-
-      // Broadcast event for Angular component to handle
-      this.broadcastEvent('onEditIndicatorFeatures', indicatorMetadata);
-    });
-
-    $('.indicatorEditRoleBasedAccessBtn').off();
-    $('.indicatorEditRoleBasedAccessBtn').on('click', (event: any) => {
-      // Ensure that only the target button gets clicked
-      // Manually open modal
-      event.stopPropagation();
-      const modalId = document.getElementById(event.currentTarget.id)?.getAttribute('data-target');
-      if (modalId) {
-        $(modalId).modal('show');
-      }
-
-      const indicatorId = event.currentTarget.id.split('_')[3];
-      const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(indicatorId);
-
-      // Broadcast event for Angular component to handle
-      this.broadcastEvent('onEditIndicatorSpatialUnitRoles', indicatorMetadata);
-    });
-
-    $('.indicatorDeleteBtn').off();
-    $('.indicatorDeleteBtn').on('click', (event: any) => {
-      event.stopPropagation();
-
-      const indicatorId = event.currentTarget.id.split('_')[3];
-      const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(indicatorId);
-
-      // Broadcast event for Angular component to handle
-      this.broadcastEvent('onDeleteIndicator', indicatorMetadata);
-    });
-  }
-
-  /**
-   * Header height getter utility function
-   */
-  private headerHeightGetter(): number {
-    const columnHeaderTexts = Array.from(document.querySelectorAll('.ag-header-cell-text'));
-    const clientHeights = columnHeaderTexts.map((headerText: any) => headerText.clientHeight);
-    const tallestHeaderTextHeight = Math.max(...clientHeights);
-
-    return tallestHeaderTextHeight;
-  }
-
-  /**
-   * Header height setter utility function
-   */
-  private headerHeightSetter(gridOptions: any): void {
-    const padding = 20;
-    const height = this.headerHeightGetter() + padding;
-    gridOptions.api.setHeaderHeight(height);
-  }
-
-  /**
-   * Save grid store (filters, sorting, etc.)
-   */
-  private saveGridStore(gridOptions: any): void {
-    (window as any).colState = gridOptions.columnApi.getColumnState();
-    (window as any).filterState = gridOptions.api.getFilterModel();
-  }
-
-  /**
-   * Restore grid store (filters, sorting, etc.)
-   */
-  private restoreGridStore(gridOptions: any): void {
-    if ((window as any).colState) {
-      gridOptions.columnApi.applyColumnState({
-        state: (window as any).colState,
-        applyOrder: true,
-      });
-    }
-
-    if ((window as any).filterState) {
-      gridOptions.api.setFilterModel((window as any).filterState);
-    }
-  }
-
-  /**
-   * Broadcast event for Angular component communication
-   */
-  private broadcastEvent(eventName: string, data: any): void {
-    // Create a custom event that the Angular component can listen to
-    const event = new CustomEvent(eventName, {
-      detail: { values: data },
-    });
-    document.dispatchEvent(event);
-  }
-
-  /**
-   * Get current timestamp string utility
-   */
-  private getCurrentTimestampString(): string {
-    const now = new Date();
-    return now.toISOString();
-  }
 
   /**
    * Gets reference values from regional reference values management grid - delegates to AngularJS service
@@ -509,7 +372,13 @@ export class KommonitorIndicatorDataGridHelperService {
       while (gridDiv.firstChild) {
         gridDiv.removeChild(gridDiv!.firstChild);
       }
-      new agGrid.Grid(gridDiv, dataGridOptions_regionalReferenceValues);
+      // createGrid() replaces the v31-deprecated `new agGrid.Grid()`. It returns
+      // the GridApi (no longer attached to gridOptions), so keep it on `.api` for
+      // getReferenceValues_regionalReferenceValuesManagementGrid to read back.
+      dataGridOptions_regionalReferenceValues.api = createGrid(
+        gridDiv,
+        dataGridOptions_regionalReferenceValues
+      );
     }
 
     return dataGridOptions_regionalReferenceValues;
@@ -584,12 +453,6 @@ export class KommonitorIndicatorDataGridHelperService {
       paginationPageSize: 10,
       paginationPageSizeSelector: [10, 25, 50, 100],
       suppressColumnVirtualisation: true,
-      // onFirstDataRendered: function () {
-      //   headerHeightSetter(this);
-      // },
-      // onColumnResized: function () {
-      //   headerHeightSetter(this);
-      // }
       onRowDataChanged: function () {
         /* intentionally empty */
       },

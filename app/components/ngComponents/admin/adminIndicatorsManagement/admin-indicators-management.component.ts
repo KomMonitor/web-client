@@ -7,7 +7,7 @@ import { WmsResourceType } from './../../models/services.models';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdownModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridOptions, SelectionChangedEvent } from 'ag-grid-community';
+import { CellClickedEvent, ColDef, GridOptions, SelectionChangedEvent } from 'ag-grid-community';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { WmsAdminTableComponent } from 'components/ngComponents/common/wms-admin-table/wms-admin-table.component';
 import { skip, Subscription } from 'rxjs';
@@ -114,60 +114,31 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       }
     });
     this.subscriptions.push(refreshSub);
+  }
 
-    // Listen for custom events from the data grid helper service
-    const handleEditMetadata = (event: CustomEvent) => {
-      this.zone.run(() => {
-        this.onClickEditMetadata(event.detail.values);
-      });
-    };
+  /**
+   * Opens the matching modal when one of the edit/delete buttons rendered by
+   * `displayEditButtons_indicators` is clicked. The buttons are plain HTML in a
+   * string cell renderer, so we dispatch on the clicked button's CSS class via
+   * AG Grid's cell-click event instead of jQuery click bindings.
+   */
+  private onEditButtonsCellClicked(event: CellClickedEvent): void {
+    const target = event.event?.target as HTMLElement | null;
+    const button = target?.closest('button');
+    const data = event.data;
+    if (!button || button.disabled || !data) {
+      return;
+    }
 
-    const handleEditFeatures = (event: CustomEvent) => {
-      this.zone.run(() => {
-        this.onClickEditFeatures(event.detail.values);
-      });
-    };
-
-    const handleEditUserRoles = (event: CustomEvent) => {
-      this.zone.run(() => {
-        this.onClickEditIndicatorSpatialUnitRoles(event.detail.values);
-      });
-    };
-
-    const handleDelete = (event: CustomEvent) => {
-      this.zone.run(() => {
-        this.openDeleteIndicatorModal(event.detail.values);
-      });
-    };
-
-    // Add event listeners
-    document.addEventListener('onEditIndicatorMetadata', handleEditMetadata as EventListener);
-    document.addEventListener('onEditIndicatorFeatures', handleEditFeatures as EventListener);
-    document.addEventListener(
-      'onEditIndicatorSpatialUnitRoles',
-      handleEditUserRoles as EventListener
-    );
-    document.addEventListener('onDeleteIndicator', handleDelete as EventListener);
-
-    // Store references for cleanup
-    const customEventSubscription = {
-      unsubscribe: () => {
-        document.removeEventListener(
-          'onEditIndicatorMetadata',
-          handleEditMetadata as EventListener
-        );
-        document.removeEventListener(
-          'onEditIndicatorFeatures',
-          handleEditFeatures as EventListener
-        );
-        document.removeEventListener(
-          'onEditIndicatorSpatialUnitRoles',
-          handleEditUserRoles as EventListener
-        );
-        document.removeEventListener('onDeleteIndicator', handleDelete as EventListener);
-      },
-    } as any;
-    this.subscriptions.push(customEventSubscription);
+    if (button.classList.contains('indicatorEditMetadataBtn')) {
+      this.onClickEditMetadata(data);
+    } else if (button.classList.contains('indicatorEditFeaturesBtn')) {
+      this.onClickEditFeatures(data);
+    } else if (button.classList.contains('indicatorEditRoleBasedAccessBtn')) {
+      this.onClickEditIndicatorSpatialUnitRoles(data);
+    } else if (button.classList.contains('indicatorDeleteBtn')) {
+      this.openDeleteIndicatorModal(data);
+    }
   }
 
   public initializeOrRefreshOverviewTable(): void {
@@ -228,25 +199,14 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       suppressColumnVirtualisation: true,
       rowSelection: 'multiple',
       suppressRowClickSelection: true,
-      onModelUpdated: () => {
-        this.registerClickHandlers();
-      },
+      onCellClicked: (event: CellClickedEvent) => this.onEditButtonsCellClicked(event),
       onViewportChanged: () => {
-        this.registerClickHandlers();
         this.typesetMath();
       },
       onSelectionChanged: (event: SelectionChangedEvent) => {
         this.onSelectionChanged(event);
       },
     };
-  }
-
-  // Grid event handlers
-  private registerClickHandlers(): void {
-    // Read the current indicator set so refreshed rows wire up to fresh data.
-    this.kommonitorDataGridHelperService.registerClickHandler_indicators(
-      this.getFilteredIndicators()
-    );
   }
 
   private typesetMath(): void {
