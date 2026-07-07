@@ -42,7 +42,7 @@ export class KommonitorIndicatorDataGridHelperService {
       {
         headerName: 'Editierfunktionen',
         pinned: 'left',
-        maxWidth: 150,
+        maxWidth: 200,
         checkboxSelection: false,
         filter: false,
         sortable: false,
@@ -302,6 +302,23 @@ export class KommonitorIndicatorDataGridHelperService {
       html +=
         ' type="button" data-toggle="modal" data-target="#modal-edit-indicator-spatial-unit-roles" title="Zugriffsschutz und Eigentümerschaft editieren"><i class="fas fa-user-lock"></i></button>';
     }
+
+    // Delete Button — gated on the global delete permission and, like spatial
+    // units, on the per-dataset 'creator' permission.
+    const disableDelete =
+      !this.accessControlService.checkDeletePermission() ||
+      !(
+        params.data.userPermissions &&
+        Array.isArray(params.data.userPermissions) &&
+        params.data.userPermissions.includes('creator')
+      );
+    html +=
+      '<button id="btn_indicator_deleteIndicator_' +
+      params.data.indicatorId +
+      '" class="btn btn-danger btn-sm indicatorDeleteBtn" type="button" title="Indikator entfernen" ' +
+      (disableDelete ? 'disabled' : '') +
+      '><i class="fas fa-trash"></i></button>';
+
     html += '</div>';
 
     return html;
@@ -362,6 +379,17 @@ export class KommonitorIndicatorDataGridHelperService {
 
       // Broadcast event for Angular component to handle
       this.broadcastEvent('onEditIndicatorSpatialUnitRoles', indicatorMetadata);
+    });
+
+    $('.indicatorDeleteBtn').off();
+    $('.indicatorDeleteBtn').on('click', (event: any) => {
+      event.stopPropagation();
+
+      const indicatorId = event.currentTarget.id.split('_')[3];
+      const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(indicatorId);
+
+      // Broadcast event for Angular component to handle
+      this.broadcastEvent('onDeleteIndicator', indicatorMetadata);
     });
   }
 

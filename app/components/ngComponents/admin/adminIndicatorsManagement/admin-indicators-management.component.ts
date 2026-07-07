@@ -134,6 +134,12 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       });
     };
 
+    const handleDelete = (event: CustomEvent) => {
+      this.zone.run(() => {
+        this.openDeleteIndicatorModal(event.detail.values);
+      });
+    };
+
     // Add event listeners
     document.addEventListener('onEditIndicatorMetadata', handleEditMetadata as EventListener);
     document.addEventListener('onEditIndicatorFeatures', handleEditFeatures as EventListener);
@@ -141,6 +147,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       'onEditIndicatorSpatialUnitRoles',
       handleEditUserRoles as EventListener
     );
+    document.addEventListener('onDeleteIndicator', handleDelete as EventListener);
 
     // Store references for cleanup
     const customEventSubscription = {
@@ -157,6 +164,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
           'onEditIndicatorSpatialUnitRoles',
           handleEditUserRoles as EventListener
         );
+        document.removeEventListener('onDeleteIndicator', handleDelete as EventListener);
       },
     } as any;
     this.subscriptions.push(customEventSubscription);
@@ -385,30 +393,27 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-  onClickDeleteIndicators(indicatorsMetadata: any[]): void {
-    if (indicatorsMetadata.length === 1) {
-      // Open the Angular delete modal for single indicator
-      this.openDeleteIndicatorModal(indicatorsMetadata[0]);
-    } else {
-      // For multiple indicators, we might need to handle differently
-      // For now, just open the modal with the first indicator
-      console.log('Multiple indicators delete not yet supported');
-    }
-  }
-
-  openDeleteIndicatorModal(indicatorDataset: any): void {
+  openDeleteIndicatorModal(indicatorDataset?: any): void {
+    // Narrow modal: the selection controls stack vertically; the wide metadata
+    // table scrolls horizontally within the full-width accordion.
     const modalRef = this.modalService.open(IndicatorDeleteModalComponent, {
       size: 'lg',
-      backdrop: 'static',
+      backdrop: true,
       keyboard: false,
       container: 'body',
       animation: false,
     });
 
-    // Set the selected indicator in the modal
+    // Preselect the passed indicator (from a per-row trash button). The modal's
+    // ngOnInit resets its form, so we hand the preselection over as an input it
+    // re-applies after that reset instead of assigning it here (which would be
+    // wiped). Set it directly too, to also cover a synchronous ngOnInit.
     const modalComponent = modalRef.componentInstance as IndicatorDeleteModalComponent;
-    modalComponent.selectedIndicatorDataset = indicatorDataset;
-    modalComponent.onChangeSelectedIndicator();
+    modalComponent.preselectedIndicatorDataset = indicatorDataset ?? null;
+    if (indicatorDataset) {
+      modalComponent.selectedIndicatorDataset = indicatorDataset;
+      modalComponent.onChangeSelectedIndicator();
+    }
     modalComponent.refreshRequested.subscribe((request: IndicatorRefreshRequest) =>
       this.handleRefreshRequest(request)
     );
@@ -444,15 +449,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         });
     } catch (error) {
       console.error('Error opening batch update modal:', error);
-    }
-  }
-
-  onClickDeleteSelected(): void {
-    const selectedIndicators = this.getSelectedIndicatorsMetadata();
-    if (selectedIndicators.length > 0) {
-      this.onClickDeleteIndicators(selectedIndicators);
-    } else {
-      // Show message that no indicators are selected
     }
   }
 

@@ -47,7 +47,7 @@
     class="btn btn-danger btn-sm"
     type="button"
     [disabled]="!checkDeletePermission()"
-    (click)="onClickDeleteSelected()"
+    (click)="openDeleteIndicatorModal()"
   >
     <i class="fas fa-trash"></i>&nbsp;&nbsp;Löschen
   </button>

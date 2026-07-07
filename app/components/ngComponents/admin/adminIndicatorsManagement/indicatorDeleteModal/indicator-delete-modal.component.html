@@ -1,8 +1,6 @@
 <div class="modal-header">
   <h4 class="modal-title" id="modal-title">Indikatoren löschen</h4>
-  <button type="button" class="btn-close" aria-label="Close" (click)="close()">
-    <span aria-hidden="true">&times;</span>
-  </button>
+  <button type="button" class="btn-close" aria-label="Close" (click)="close()"></button>
 </div>
 
 <div class="modal-body">
@@ -14,15 +12,15 @@
   }
 
   <div class="text-center">
-    <h2 class="fs-title">Indikatoren-Daten löschen</h2>
-    <h3 class="fs-subtitle">
+    <div class="fs-title">Indikatoren-Daten löschen</div>
+    <div class="fs-subtitle">
       Hier können einzelne Zeitschnitte oder Raumebenen sowie ganze Indikatoren-Datensätze aus dem
       System entfernt werden.
-    </h3>
+    </div>
   </div>
 
-  <div class="row vertical-align">
-    <div class="col-md-6 col-sm-6 col-12">
+  <div class="row align-items-center">
+    <div class="col-12">
       <div class="input-group mb-3">
         <span class="input-group-text"><i class="fas fa-filter"></i></span>
         <input
@@ -32,7 +30,6 @@
           [(ngModel)]="indicatorNameFilter"
         />
       </div>
-      <br />
       <div>
         <select
           class="form-control"
@@ -50,48 +47,26 @@
         </select>
       </div>
     </div>
-    <div class="col-md-6 col-sm-6 col-12">
-      <div class="form-group">
-        <label>Typ*</label>
-        <select [(ngModel)]="indicatorDeleteType" class="form-control" required>
-          @for (deleteType of indicatorDeleteTypes; track deleteType) {
-            <option [ngValue]="deleteType">
-              {{ deleteType.displayName }}
-            </option>
-          }
-        </select>
-        <div class="help-block">
-          <p>Diese Auswahl bestimmt, welche Aspekte des Indikators gelöscht werden sollen.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <br /><br />
-
-  <!-- Indicator Metadata -->
-  @if (selectedIndicatorDataset) {
-    <div class="row vertical-align">
-      <div class="col-md-10 col-sm-12 col-12">
-        <div class="card card-info">
-          <div
-            class="card-header"
-            [attr.data-bs-toggle]="'collapse'"
-            [attr.data-bs-target]="'#indicatorMetadataCollapse'"
-          >
-            <h3 class="card-title">Metadaten des selektierten Indikators</h3>
-            <div class="card-tools">
-              <button
-                type="button"
-                class="btn btn-tool"
-                data-bs-toggle="collapse"
-                data-bs-target="#indicatorMetadataCollapse"
-              >
-                <i class="fas fa-plus"></i>
-              </button>
-            </div>
+    @if (selectedIndicatorDataset) {
+      <div class="col-12 metadata-section">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0 fs-6">Metadaten des selektierten Indikators</h3>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-secondary"
+              (click)="toggleMetadataDetails()"
+              [attr.aria-expanded]="showMetadata()"
+              aria-label="Metadaten ein-/ausblenden"
+            >
+              <i
+                class="fas"
+                [class.fa-chevron-down]="!showMetadata()"
+                [class.fa-chevron-up]="showMetadata()"
+              ></i>
+            </button>
           </div>
-          <div id="indicatorMetadataCollapse" class="collapse">
+          @if (showMetadata()) {
             <div class="card-body">
               <div class="admin-table-wrapper">
                 <table class="table table-bordered table-condensed table-striped">
@@ -135,7 +110,11 @@
                       <td>{{ selectedIndicatorDataset?.datasource }}</td>
                       <td>{{ selectedIndicatorDataset?.datasetName }}</td>
                       <td>
-                        @for (tag of selectedIndicatorDataset?.tags; track tag; let last = $last) {
+                        @for (
+                          tag of selectedIndicatorDataset?.tags;
+                          track $index;
+                          let last = $last
+                        ) {
                           <span>
                             {{ tag }}
                             @if (!last) {
@@ -144,20 +123,7 @@
                           </span>
                         }
                       </td>
-                      <td>
-                        @for (
-                          topic of selectedIndicatorDataset?.topicReference;
-                          track topic;
-                          let last = $last
-                        ) {
-                          <span>
-                            {{ topic }}
-                            @if (!last) {
-                              <span>, </span>
-                            }
-                          </span>
-                        }
-                      </td>
+                      <td [innerHTML]="getTopicHierarchyDisplayString()"></td>
                       <td>
                         @for (
                           spatialUnit of selectedIndicatorDataset?.applicableSpatialUnits;
@@ -175,7 +141,7 @@
                       <td>
                         @for (
                           date of selectedIndicatorDataset?.applicableDates;
-                          track date;
+                          track $index;
                           let last = $last
                         ) {
                           <span>
@@ -194,19 +160,31 @@
                 </table>
               </div>
             </div>
-          </div>
+          }
+        </div>
+      </div>
+    }
+    <div class="col-12">
+      <div class="form-group">
+        <label>Typ*</label>
+        <select [(ngModel)]="indicatorDeleteType" class="form-control" required>
+          @for (deleteType of indicatorDeleteTypes; track deleteType) {
+            <option [ngValue]="deleteType">
+              {{ deleteType.displayName }}
+            </option>
+          }
+        </select>
+        <div class="help-block">
+          <p>Diese Auswahl bestimmt, welche Aspekte des Indikators gelöscht werden sollen.</p>
         </div>
       </div>
     </div>
-  }
+  </div>
+
+  <!-- Indicator Metadata -->
 
   @if (selectedIndicatorDataset) {
-    <form
-      class="multiStepForm form-group"
-      id="indicatorDeleteForm"
-      role="form"
-      style="margin-bottom: 0px"
-    >
+    <form id="indicatorDeleteForm" role="form" style="margin-bottom: 0px">
       <fieldset>
         <!-- Complete Dataset Deletion -->
         @if (selectedIndicatorDataset && indicatorDeleteType.apiName === 'indicatorDataset') {
@@ -299,7 +277,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @for (script of affectedScripts; track trackByIndex($index, script)) {
+                    @for (script of affectedScripts; track script.scriptId) {
                       <tr>
                         <td>{{ script.scriptId }}</td>
                         <td>{{ script.name }}</td>
@@ -348,6 +326,7 @@
                               type="checkbox"
                               class="form-check-input"
                               [(ngModel)]="date.isSelected"
+                              [ngModelOptions]="{ standalone: true }"
                             />
                           </td>
                           <td>{{ date.timestamp }}</td>
@@ -395,6 +374,7 @@
                               type="checkbox"
                               class="form-check-input"
                               [(ngModel)]="spatialUnit.isSelected"
+                              [ngModelOptions]="{ standalone: true }"
                             />
                           </td>
                           <td>{{ spatialUnit.spatialUnitMetadata.spatialUnitLevel }}</td>

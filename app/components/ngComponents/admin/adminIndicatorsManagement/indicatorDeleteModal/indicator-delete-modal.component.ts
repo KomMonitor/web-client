@@ -1,6 +1,7 @@
-import { Component, OnInit, inject, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, inject, output, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
 import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from '../../../../../services/broadcast-service/broadcast-message';
@@ -11,6 +12,8 @@ import { ProcessScriptMetadataStoreService } from '../../../../../services/proce
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 import { AccessControlService } from '../../../../../services/access-control-service/access-control.service';
 import { MetadataBootstrapService } from '../../../../../services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { TopicMetadataStoreService } from '../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
+import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
 import { FormsModule } from '@angular/forms';
 import { IndicatorRefreshRequest } from '../indicator-refresh.model';
 
@@ -37,12 +40,10 @@ interface AffectedScript {
 }
 
 interface AffectedIndicatorReference {
-  indicatorMetadata: any;
   indicatorReference: any;
 }
 
 interface AffectedGeoresourceReference {
-  indicatorMetadata: any;
   georesourceReference: any;
 }
 
@@ -64,8 +65,13 @@ export class IndicatorDeleteModalComponent implements OnInit {
   private envConfigService = inject(EnvConfigService);
   private accessControlService = inject(AccessControlService);
   private metadataBootstrap = inject(MetadataBootstrapService);
+  private topicStore = inject(TopicMetadataStoreService);
+  private topicHierarchyService = inject(TopicHierarchyService);
 
-  @Output() refreshRequested = new EventEmitter<IndicatorRefreshRequest>();
+  readonly refreshRequested = output<IndicatorRefreshRequest>();
+
+  // Collapsible state of the selected indicator's metadata table.
+  readonly showMetadata = signal(false);
 
   indicatorDeleteTypes: IndicatorDeleteType[] = [
     {
@@ -84,6 +90,9 @@ export class IndicatorDeleteModalComponent implements OnInit {
 
   indicatorDeleteType: IndicatorDeleteType = this.indicatorDeleteTypes[0];
   selectedIndicatorDataset: any = undefined;
+  // Optional indicator to preselect when the modal is opened from a per-row
+  // trash button. Applied in ngOnInit after the form reset.
+  preselectedIndicatorDataset: any = null;
   currentIndicatorId: string = '';
   currentApplicableDates: ApplicableDate[] = [];
   selectIndicatorTimestampsInput: boolean = false;
@@ -109,6 +118,13 @@ export class IndicatorDeleteModalComponent implements OnInit {
 
   ngOnInit(): void {
     this.resetIndicatorsDeleteForm();
+
+    // Apply a preselection handed in by the caller (per-row trash button) after
+    // the reset above, so it survives the reset regardless of ngOnInit timing.
+    if (this.preselectedIndicatorDataset) {
+      this.selectedIndicatorDataset = this.preselectedIndicatorDataset;
+      this.onChangeSelectedIndicator();
+    }
   }
 
   onChangeSelectIndicatorTimestampEntries(): void {
@@ -139,7 +155,7 @@ export class IndicatorDeleteModalComponent implements OnInit {
       this.failedSpatialUnitsAndErrors = [];
 
       this.currentApplicableDates = [];
-      for (const timestamp of this.selectedIndicatorDataset.applicableDates) {
+      for (const timestamp of this.selectedIndicatorDataset.applicableDates ?? []) {
         this.currentApplicableDates.push({
           timestamp: timestamp,
           isSelected: false,
@@ -184,6 +200,7 @@ export class IndicatorDeleteModalComponent implements OnInit {
     this.affectedScripts = [];
     this.affectedIndicatorReferences = [];
     this.affectedGeoresourceReferences = [];
+    this.showMetadata.set(false);
 
     this.hideSuccessAlert();
     this.hideErrorAlert();
@@ -209,11 +226,10 @@ export class IndicatorDeleteModalComponent implements OnInit {
   gatherAffectedGeoresourceReferences(): AffectedGeoresourceReference[] {
     const affectedGeoresourceReferences: AffectedGeoresourceReference[] = [];
 
-    const georesourceReferences = this.selectedIndicatorDataset.referencedGeoresources;
+    const georesourceReferences = this.selectedIndicatorDataset.referencedGeoresources ?? [];
 
     for (const georesourceReference of georesourceReferences) {
       affectedGeoresourceReferences.push({
-        indicatorMetadata: this.selectedIndicatorDataset,
         georesourceReference: georesourceReference,
       });
     }
@@ -226,25 +242,23 @@ export class IndicatorDeleteModalComponent implements OnInit {
 
     // First add all direct references from selected indicator
     const indicatorReferences_selectedIndicator =
-      this.selectedIndicatorDataset.referencedIndicators;
+      this.selectedIndicatorDataset.referencedIndicators ?? [];
 
     for (const indicatorReference_selectedIndicator of indicatorReferences_selectedIndicator) {
       affectedIndicatorReferences.push({
-        indicatorMetadata: this.selectedIndicatorDataset,
         indicatorReference: indicatorReference_selectedIndicator,
       });
     }
 
     // Then add all references, where selected indicator is the referencedIndicator
     this.indicatorStore.availableIndicators.forEach((indicator) => {
-      const indicatorReferences = indicator.referencedIndicators;
+      const indicatorReferences = indicator.referencedIndicators ?? [];
 
       for (const indicatorReference of indicatorReferences) {
         if (
           indicatorReference.referencedIndicatorId === this.selectedIndicatorDataset.indicatorId
         ) {
           affectedIndicatorReferences.push({
-            indicatorMetadata: this.selectedIndicatorDataset,
             indicatorReference: indicatorReference,
           });
         }
@@ -278,8 +292,6 @@ export class IndicatorDeleteModalComponent implements OnInit {
   }
 
   deleteWholeIndicatorDataset(): void {
-    this.loadingData = true;
-
     const url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}/indicators/${this.selectedIndicatorDataset.indicatorId}`;
 
     this.http.delete(url).subscribe({
@@ -397,43 +409,37 @@ export class IndicatorDeleteModalComponent implements OnInit {
 
     const url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}/indicators/${this.selectedIndicatorDataset.indicatorId}/${spatialUnitId}/${timestampComps[0]}/${timestampComps[1]}/${timestampComps[2]}`;
 
-    return this.http
-      .delete(url)
-      .toPromise()
-      .then(
-        (_response) => {
-          if (!this.successfullyDeletedTimestamps.includes(applicableDate)) {
-            this.successfullyDeletedTimestamps.push(applicableDate);
-          }
-        },
-        (error) => {
-          this.failedTimestampsAndErrors.push([
-            applicableDate,
-            this.indicatorValueService.formatError(error),
-          ]);
+    return firstValueFrom(this.http.delete(url)).then(
+      () => {
+        if (!this.successfullyDeletedTimestamps.includes(applicableDate)) {
+          this.successfullyDeletedTimestamps.push(applicableDate);
         }
-      );
+      },
+      (error) => {
+        this.failedTimestampsAndErrors.push([
+          applicableDate,
+          this.indicatorValueService.formatError(error),
+        ]);
+      }
+    );
   }
 
   getDeleteSpatialUnitPromise(applicableSpatialUnit: ApplicableSpatialUnit): Promise<void> {
     const url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}/indicators/${this.selectedIndicatorDataset.indicatorId}/${applicableSpatialUnit.spatialUnitMetadata.spatialUnitId}`;
 
-    return this.http
-      .delete(url)
-      .toPromise()
-      .then(
-        (_response) => {
-          if (!this.successfullyDeletedSpatialUnits.includes(applicableSpatialUnit)) {
-            this.successfullyDeletedSpatialUnits.push(applicableSpatialUnit);
-          }
-        },
-        (error) => {
-          this.failedSpatialUnitsAndErrors.push([
-            applicableSpatialUnit,
-            this.indicatorValueService.formatError(error),
-          ]);
+    return firstValueFrom(this.http.delete(url)).then(
+      () => {
+        if (!this.successfullyDeletedSpatialUnits.includes(applicableSpatialUnit)) {
+          this.successfullyDeletedSpatialUnits.push(applicableSpatialUnit);
         }
-      );
+      },
+      (error) => {
+        this.failedSpatialUnitsAndErrors.push([
+          applicableSpatialUnit,
+          this.indicatorValueService.formatError(error),
+        ]);
+      }
+    );
   }
 
   hideSuccessAlert(): void {
@@ -460,8 +466,17 @@ export class IndicatorDeleteModalComponent implements OnInit {
     );
   }
 
-  trackByIndex(index: number, _item: any): number {
-    return index;
+  toggleMetadataDetails(): void {
+    this.showMetadata.update((shown) => !shown);
+  }
+
+  // Resolve the selected indicator's topicReference (a single topic id) to a
+  // human-readable hierarchy string, matching the overview grid's column.
+  getTopicHierarchyDisplayString(): string {
+    return this.topicHierarchyService.getTopicHierarchyDisplayString(
+      this.topicStore.availableTopics,
+      this.selectedIndicatorDataset?.topicReference
+    );
   }
 
   close(): void {
