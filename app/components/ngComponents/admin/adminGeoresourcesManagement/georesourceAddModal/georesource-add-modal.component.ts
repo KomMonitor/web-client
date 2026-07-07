@@ -45,6 +45,13 @@ import {
   StepperComponent,
   StepperStep,
 } from 'components/ngComponents/common/stepper/stepper.component';
+import { ResourceMetadataFormComponent } from '../../adminShared/resourceMetadataForm/resource-metadata-form.component';
+import {
+  buildResourceMetadataForm,
+  metadataFormToApi,
+  patchMetadataFormFromApi,
+  ResourceMetadataFormValue,
+} from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
 
 @Component({
   selector: 'app-georesource-add-modal',
@@ -57,6 +64,7 @@ import {
     KmColorPickerComponent,
     KmDatePickerComponent,
     KmLinePatternPickerComponent,
+    ResourceMetadataFormComponent,
   ],
   standalone: true,
 })
@@ -125,17 +133,11 @@ export class GeoresourceAddModalComponent implements OnInit {
   isAOI = false;
 
   // Metadata
-  metadata: any = {
-    description: '',
-    databasis: '',
-    datasource: '',
-    contact: '',
-    updateInterval: null,
-    lastUpdate: '',
-    literature: '',
-    note: '',
-    sridEPSG: 4326,
-  };
+  metadataForm = buildResourceMetadataForm();
+  /** Read-only view of the metadata form value for post-body/export building. */
+  get metadata(): ResourceMetadataFormValue {
+    return this.metadataForm.getRawValue();
+  }
 
   // Topic hierarchy
   georesourceTopic_mainTopic: any = null;
@@ -708,22 +710,11 @@ export class GeoresourceAddModalComponent implements OnInit {
       return;
     }
 
-    this.metadata = {};
-    this.metadata.note = this.metadataImportSettings.metadata.note;
-    this.metadata.literature = this.metadataImportSettings.metadata.literature;
-
-    this.updateIntervalOptions.forEach((option: any) => {
-      if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
-        this.metadata.updateInterval = option;
-      }
-    });
-
-    this.metadata.sridEPSG = this.metadataImportSettings.metadata.sridEPSG;
-    this.metadata.datasource = this.metadataImportSettings.metadata.datasource;
-    this.metadata.contact = this.metadataImportSettings.metadata.contact;
-    this.metadata.lastUpdate = this.metadataImportSettings.metadata.lastUpdate;
-    this.metadata.description = this.metadataImportSettings.metadata.description;
-    this.metadata.databasis = this.metadataImportSettings.metadata.databasis;
+    patchMetadataFormFromApi(
+      this.metadataForm,
+      this.metadataImportSettings.metadata,
+      this.updateIntervalOptions
+    );
 
     this.datasetName = this.metadataImportSettings.datasetName;
 
@@ -955,17 +946,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.datasetName = '';
     this.datasetNameInvalid = false;
 
-    this.metadata = {
-      note: '',
-      literature: '',
-      updateInterval: null,
-      sridEPSG: 4326,
-      datasource: '',
-      databasis: '',
-      contact: '',
-      lastUpdate: '',
-      description: '',
-    };
+    this.metadataForm.reset();
 
     this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'georesourceAddRoleManagementTable',
@@ -1046,17 +1027,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     const postBody: any = {
       geoJsonString: '', // will be set by importer
       allowedRoles: [],
-      metadata: {
-        note: this.metadata.note,
-        literature: this.metadata.literature,
-        updateInterval: this.metadata.updateInterval?.apiName,
-        sridEPSG: this.metadata.sridEPSG || 4326,
-        datasource: this.metadata.datasource,
-        contact: this.metadata.contact,
-        lastUpdate: this.metadata.lastUpdate,
-        description: this.metadata.description,
-        databasis: this.metadata.databasis,
-      },
+      metadata: metadataFormToApi(this.metadataForm),
       jsonSchema: null,
       datasetName: this.datasetName,
       periodOfValidity: {

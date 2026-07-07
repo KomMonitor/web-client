@@ -43,6 +43,13 @@ import type {
   MappingConfigImport,
 } from '../spatial-unit-import.model';
 import { SpatialUnitImportService } from 'services/spatial-unit-import-service/spatial-unit-import.service';
+import { ResourceMetadataFormComponent } from '../../adminShared/resourceMetadataForm/resource-metadata-form.component';
+import {
+  buildResourceMetadataForm,
+  metadataFormToApi,
+  patchMetadataFormFromApi,
+  ResourceMetadataFormValue,
+} from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
 
 // Removed in favor of standalone km-date-picker component providers
 
@@ -57,6 +64,7 @@ import { SpatialUnitImportService } from 'services/spatial-unit-import-service/s
     AgGridAngular,
     KmDatePickerComponent,
     StepperComponent,
+    ResourceMetadataFormComponent,
   ],
   standalone: true,
 })
@@ -110,17 +118,11 @@ export class SpatialUnitAddModalComponent implements OnInit {
   // Basic form data
   spatialUnitLevel = '';
   spatialUnitLevelInvalid = false;
-  metadata: any = {
-    description: '',
-    databasis: '',
-    datasource: '',
-    contact: '',
-    updateInterval: null,
-    lastUpdate: '',
-    literature: '',
-    note: '',
-    sridEPSG: 4326,
-  };
+  metadataForm = buildResourceMetadataForm();
+  /** Read-only view of the metadata form value for post-body/export building. */
+  get metadata(): ResourceMetadataFormValue {
+    return this.metadataForm.getRawValue();
+  }
 
   // Hierarchy
   nextLowerHierarchySpatialUnit: any = null;
@@ -698,17 +700,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   buildPostBody_spatialUnits() {
     const postBody: any = {
       geoJsonString: '', // will be set by importer
-      metadata: {
-        note: this.metadata.note,
-        literature: this.metadata.literature,
-        updateInterval: this.metadata.updateInterval?.apiName,
-        sridEPSG: this.metadata.sridEPSG,
-        datasource: this.metadata.datasource,
-        contact: this.metadata.contact,
-        lastUpdate: toIsoDateString(this.metadata.lastUpdate),
-        description: this.metadata.description,
-        databasis: this.metadata.databasis,
-      },
+      metadata: metadataFormToApi(this.metadataForm),
       jsonSchema: undefined,
       permissions: [] as string[], // Changed from allowedRoles to match original
       nextLowerHierarchyLevel: this.nextLowerHierarchySpatialUnit
@@ -932,30 +924,17 @@ export class SpatialUnitAddModalComponent implements OnInit {
       return;
     }
 
-    // Parse metadata
-    this.metadata = {};
-    this.metadata.note = this.metadataImportSettings.metadata.note;
-    this.metadata.literature = this.metadataImportSettings.metadata.literature;
-
-    // Use the same array instance as the select options to ensure object identity matches
+    // Parse metadata; use the same array instance as the select options to
+    // ensure object identity matches
     const intervalOptions =
       this.updateIntervalOptions && this.updateIntervalOptions.length
         ? this.updateIntervalOptions
         : this.kommonitorDataExchangeService.updateIntervalOptions;
-
-    for (const option of intervalOptions) {
-      if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
-        this.metadata.updateInterval = option;
-        break;
-      }
-    }
-
-    this.metadata.sridEPSG = this.metadataImportSettings.metadata.sridEPSG;
-    this.metadata.datasource = this.metadataImportSettings.metadata.datasource;
-    this.metadata.contact = this.metadataImportSettings.metadata.contact;
-    this.metadata.lastUpdate = this.metadataImportSettings.metadata.lastUpdate;
-    this.metadata.description = this.metadataImportSettings.metadata.description;
-    this.metadata.databasis = this.metadataImportSettings.metadata.databasis;
+    patchMetadataFormFromApi(
+      this.metadataForm,
+      this.metadataImportSettings.metadata,
+      intervalOptions
+    );
 
     // Parse role management (changed from allowedRoles to permissions)
     if (this.kommonitorDataExchangeService.accessControl) {
@@ -1126,17 +1105,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.currentStep = 1;
     this.spatialUnitLevel = '';
     this.spatialUnitLevelInvalid = false;
-    this.metadata = {
-      description: '',
-      databasis: '',
-      datasource: '',
-      contact: '',
-      updateInterval: null,
-      lastUpdate: '',
-      literature: '',
-      note: '',
-      sridEPSG: 4326,
-    };
+    this.metadataForm.reset();
     this.nextLowerHierarchySpatialUnit = null;
     this.nextUpperHierarchySpatialUnit = null;
     this.hierarchyInvalid = false;

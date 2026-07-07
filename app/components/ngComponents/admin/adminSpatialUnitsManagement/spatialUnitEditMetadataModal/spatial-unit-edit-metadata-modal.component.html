@@ -211,124 +211,10 @@
             <p>
               <b><i>* = Pflichtfeld</i></b>
             </p>
-            <div class="row vertical-align">
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>Beschreibung*</label>
-                  <textarea
-                    rows="3"
-                    class="form-control"
-                    [(ngModel)]="metadata.description"
-                    name="description"
-                    placeholder="Datensatz Beschreibung"
-                    required
-                  ></textarea>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>Datenbasis</label>
-                  <textarea
-                    rows="3"
-                    class="form-control"
-                    [(ngModel)]="metadata.databasis"
-                    name="databasis"
-                    placeholder="optionale Beschreibung etwaiger grundlegender Daten, die zur Erzeugung des Datensatzes beitragen"
-                  ></textarea>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>Datenquelle*</label>
-                  <textarea
-                    rows="3"
-                    class="form-control"
-                    [(ngModel)]="metadata.datasource"
-                    name="datasource"
-                    placeholder="Beschreibung der Datenquelle"
-                    required
-                  ></textarea>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>Datenhalter und Kontakt*</label>
-                  <textarea
-                    rows="3"
-                    class="form-control"
-                    [(ngModel)]="metadata.contact"
-                    name="contact"
-                    placeholder="Beschreibung des Datenhalters und etwaiger Kontaktinformationen"
-                    required
-                  ></textarea>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-            </div>
-            <div class="row vertical-align">
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>Aktualisierungszyklus*</label>
-                  <select
-                    [(ngModel)]="metadata.updateInterval"
-                    name="updateInterval"
-                    class="form-control"
-                    required
-                  >
-                    <option [ngValue]="null" disabled [selected]="!metadata.updateInterval">
-                      -- Aktualisierungszyklus wählen --
-                    </option>
-                    @for (value of updateIntervalOptions; track value) {
-                      <option [ngValue]="value">
-                        {{ value.displayName }}
-                      </option>
-                    }
-                  </select>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>Datum der letzten Aktualisierung*</label>
-                  <km-date-picker
-                    name="lastUpdate"
-                    placeholder="YYYY-MM-DD"
-                    [(ngModel)]="metadata.lastUpdate"
-                    [required]="true"
-                  ></km-date-picker>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>Literatur</label>
-                  <textarea
-                    rows="3"
-                    class="form-control"
-                    [(ngModel)]="metadata.literature"
-                    name="literature"
-                    placeholder="optionale Angaben zu Literatur"
-                  ></textarea>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>Bemerkung</label>
-                  <textarea
-                    rows="3"
-                    class="form-control"
-                    [(ngModel)]="metadata.note"
-                    name="note"
-                    placeholder="optionale Bemerkung"
-                  ></textarea>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-            </div>
+            <app-resource-metadata-form
+              [form]="metadataForm"
+              [updateIntervalOptions]="updateIntervalOptions"
+            ></app-resource-metadata-form>
             <div class="button-container">
               <input
                 type="button"
@@ -383,11 +269,7 @@
     [disabled]="
       !spatialUnitLevel ||
       spatialUnitLevelInvalid ||
-      !metadata.description ||
-      !metadata.datasource ||
-      !metadata.contact ||
-      !metadata.updateInterval ||
-      !metadata.lastUpdate ||
+      metadataForm.invalid ||
       hierarchyInvalid ||
       loadingData
     "

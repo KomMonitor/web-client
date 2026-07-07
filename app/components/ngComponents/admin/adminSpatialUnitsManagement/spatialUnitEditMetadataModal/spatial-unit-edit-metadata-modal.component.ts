@@ -32,6 +32,12 @@ import {
   StepperComponent,
   StepperStep,
 } from 'components/ngComponents/common/stepper/stepper.component';
+import { ResourceMetadataFormComponent } from '../../adminShared/resourceMetadataForm/resource-metadata-form.component';
+import {
+  buildResourceMetadataForm,
+  patchMetadataFormFromApi,
+  ResourceMetadataFormValue,
+} from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
 
 // Remove jQuery declaration - no longer needed
 // declare var $: any;
@@ -47,6 +53,7 @@ import {
     KmColorPickerComponent,
     KmLinePatternPickerComponent,
     StepperComponent,
+    ResourceMetadataFormComponent,
   ],
   standalone: true,
 })
@@ -78,17 +85,11 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   // Basic form data
   spatialUnitLevel = '';
   spatialUnitLevelInvalid = false;
-  metadata: any = {
-    description: '',
-    databasis: '',
-    datasource: '',
-    contact: '',
-    updateInterval: null,
-    lastUpdate: '',
-    literature: '',
-    note: '',
-    sridEPSG: 4326,
-  };
+  metadataForm = buildResourceMetadataForm();
+  /** Read-only view of the metadata form value for patch-body/export building. */
+  get metadata(): ResourceMetadataFormValue {
+    return this.metadataForm.getRawValue();
+  }
 
   // Date picker model for ng-bootstrap - using string format directly
   // Remove the custom visibility control since ng-bootstrap handles it
@@ -181,34 +182,12 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     this.spatialUnitLevel = dataset.spatialUnitLevel;
     this.spatialUnitLevelInvalid = false;
 
-    // Reset metadata with null checks
-    const metadata = dataset.metadata || {};
-    this.metadata = {
-      note: metadata.note || '',
-      literature: metadata.literature || '',
-      sridEPSG: 4326,
-      datasource: metadata.datasource || '',
-      databasis: metadata.databasis || '',
-      contact: metadata.contact || '',
-      description: metadata.description || '',
-      lastUpdate: metadata.lastUpdate || '',
-      updateInterval: null,
-    };
+    // Reset metadata from the dataset being edited
+    patchMetadataFormFromApi(this.metadataForm, dataset.metadata, this.updateIntervalOptions);
 
-    // km-date-picker binds directly to string; no separate model needed
-
-    // Set update interval with null check
-    if (metadata.updateInterval) {
-      this.updateIntervalOptions.forEach((option) => {
-        if (option.apiName === metadata.updateInterval) {
-          this.metadata.updateInterval = option;
-        }
-      });
-    } else {
-      // If no update interval is set, try to find a default one
-      if (this.updateIntervalOptions && this.updateIntervalOptions.length > 0) {
-        this.metadata.updateInterval = this.updateIntervalOptions[0];
-      }
+    // If no update interval is set, fall back to the first available option
+    if (!this.metadataForm.controls.updateInterval.value && this.updateIntervalOptions.length > 0) {
+      this.metadataForm.controls.updateInterval.setValue(this.updateIntervalOptions[0]);
     }
 
     // Set hierarchy
@@ -448,27 +427,12 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
       return;
     }
 
-    // Apply imported metadata using service method for consistency
-    this.metadata = {
-      note: this.metadataImportSettings.metadata.note,
-      literature: this.metadataImportSettings.metadata.literature,
-      sridEPSG: this.metadataImportSettings.metadata.sridEPSG,
-      datasource: this.metadataImportSettings.metadata.datasource,
-      contact: this.metadataImportSettings.metadata.contact,
-      lastUpdate: this.metadataImportSettings.metadata.lastUpdate,
-      description: this.metadataImportSettings.metadata.description,
-      databasis: this.metadataImportSettings.metadata.databasis,
-      updateInterval: null,
-    };
-
-    // km-date-picker binds directly to string; no separate model needed
-
-    // Set update interval
-    this.updateIntervalOptions.forEach((option) => {
-      if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
-        this.metadata.updateInterval = option;
-      }
-    });
+    // Apply imported metadata
+    patchMetadataFormFromApi(
+      this.metadataForm,
+      this.metadataImportSettings.metadata,
+      this.updateIntervalOptions
+    );
 
     // Set hierarchy
     this.availableSpatialUnits.forEach((spatialUnit) => {

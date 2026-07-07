@@ -38,6 +38,13 @@ import {
   KmLinePatternPickerComponent,
   LinePatternOption,
 } from 'components/ngComponents/customElements/line-pattern-picker/km-line-pattern-picker.component';
+import { ResourceMetadataFormComponent } from '../../adminShared/resourceMetadataForm/resource-metadata-form.component';
+import {
+  buildResourceMetadataForm,
+  metadataFormToApi,
+  patchMetadataFormFromApi,
+  ResourceMetadataFormValue,
+} from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
 
 @Component({
   selector: 'app-georesource-edit-metadata-modal',
@@ -50,6 +57,7 @@ import {
     KmColorPickerComponent,
     KmDatePickerComponent,
     KmLinePatternPickerComponent,
+    ResourceMetadataFormComponent,
   ],
   standalone: true,
 })
@@ -87,17 +95,11 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   poiMarkerTextInvalid = false;
 
   // Metadata
-  metadata: any = {
-    note: '',
-    literature: '',
-    updateInterval: undefined,
-    sridEPSG: 4326,
-    datasource: '',
-    contact: '',
-    lastUpdate: '',
-    description: '',
-    databasis: '',
-  };
+  metadataForm = buildResourceMetadataForm();
+  /** Read-only view of the metadata form value for patch-body/export building. */
+  get metadata(): ResourceMetadataFormValue {
+    return this.metadataForm.getRawValue();
+  }
 
   // Georesource type
   georesourceType: string = 'poi';
@@ -247,24 +249,12 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     this.datasetName = this.currentGeoresourceDataset.datasetName;
     this.datasetNameInvalid = false;
 
-    // Reset metadata
-    this.metadata = {
-      note: this.currentGeoresourceDataset.metadata.note,
-      literature: this.currentGeoresourceDataset.metadata.literature,
-      sridEPSG: 4326,
-      datasource: this.currentGeoresourceDataset.metadata.datasource,
-      databasis: this.currentGeoresourceDataset.metadata.databasis,
-      contact: this.currentGeoresourceDataset.metadata.contact,
-      description: this.currentGeoresourceDataset.metadata.description,
-      lastUpdate: this.currentGeoresourceDataset.metadata.lastUpdate,
-    };
-
-    // Set update interval
-    this.envConfigService.updateIntervalOptions.forEach((option: any) => {
-      if (option.apiName === this.currentGeoresourceDataset.metadata.updateInterval) {
-        this.metadata.updateInterval = option;
-      }
-    });
+    // Reset metadata from the dataset being edited
+    patchMetadataFormFromApi(
+      this.metadataForm,
+      this.currentGeoresourceDataset.metadata,
+      this.envConfigService.updateIntervalOptions
+    );
 
     // Set role management
     this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
@@ -417,23 +407,11 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     }
 
     // Parse metadata
-    this.metadata = {
-      note: this.metadataImportSettings.metadata.note,
-      literature: this.metadataImportSettings.metadata.literature,
-      sridEPSG: this.metadataImportSettings.metadata.sridEPSG,
-      datasource: this.metadataImportSettings.metadata.datasource,
-      contact: this.metadataImportSettings.metadata.contact,
-      lastUpdate: this.metadataImportSettings.metadata.lastUpdate,
-      description: this.metadataImportSettings.metadata.description,
-      databasis: this.metadataImportSettings.metadata.databasis,
-    };
-
-    // Set update interval
-    this.envConfigService.updateIntervalOptions.forEach((option: any) => {
-      if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
-        this.metadata.updateInterval = option;
-      }
-    });
+    patchMetadataFormFromApi(
+      this.metadataForm,
+      this.metadataImportSettings.metadata,
+      this.envConfigService.updateIntervalOptions
+    );
 
     this.datasetName = this.metadataImportSettings.datasetName;
 
@@ -596,17 +574,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   // Main edit method
   editGeoresourceMetadata(): void {
     const patchBody: any = {
-      metadata: {
-        note: this.metadata.note,
-        literature: this.metadata.literature,
-        updateInterval: this.metadata.updateInterval.apiName,
-        sridEPSG: this.metadata.sridEPSG,
-        datasource: this.metadata.datasource,
-        contact: this.metadata.contact,
-        lastUpdate: this.metadata.lastUpdate,
-        description: this.metadata.description,
-        databasis: this.metadata.databasis,
-      },
+      metadata: metadataFormToApi(this.metadataForm),
       allowedRoles: [],
       datasetName: this.datasetName,
       isAOI: this.isAOI,
@@ -726,15 +694,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
   // Validation for form submission
   canSubmitForm(): boolean {
-    return (
-      !this.datasetNameInvalid &&
-      !!this.metadata.description &&
-      !!this.metadata.datasource &&
-      !!this.metadata.contact &&
-      !!this.metadata.updateInterval &&
-      !!this.metadata.lastUpdate &&
-      !this.poiMarkerTextInvalid
-    );
+    return !this.datasetNameInvalid && this.metadataForm.valid && !this.poiMarkerTextInvalid;
   }
 
   // Step navigation
