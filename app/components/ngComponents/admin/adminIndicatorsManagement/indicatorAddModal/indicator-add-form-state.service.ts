@@ -12,6 +12,11 @@ import { TopicMetadataStoreService } from 'services/topic-metadata-store-service
 import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
 import { downloadJson, readJsonFile } from 'util/json-file.util';
 import { ColDef, GridOptions, GridApi } from 'ag-grid-community';
+import {
+  buildResourceMetadataForm,
+  patchMetadataFormFromApi,
+  ResourceMetadataFormValue,
+} from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
 
 /**
  * Holds the entire form state and state-manipulating logic for the
@@ -93,17 +98,11 @@ export class IndicatorAddFormStateService {
   showCustomCommaValue = false;
 
   // Metadata
-  metadata: any = {
-    description: '',
-    databasis: '',
-    datasource: '',
-    contact: '',
-    updateInterval: null,
-    lastUpdate: '',
-    literature: '',
-    note: '',
-    sridEPSG: 4326,
-  };
+  metadataForm = buildResourceMetadataForm();
+  /** Read-only view of the metadata form value for post-/patch-body building. */
+  get metadata(): ResourceMetadataFormValue {
+    return this.metadataForm.getRawValue();
+  }
 
   // References
   indicatorReferences_adminView: any[] = [];
@@ -778,23 +777,7 @@ export class IndicatorAddFormStateService {
     }
 
     // Step 2 — general metadata
-    const datasetMetadata = dataset.metadata ?? {};
-    this.metadata = {
-      note: datasetMetadata.note ?? '',
-      literature: datasetMetadata.literature ?? '',
-      sridEPSG: datasetMetadata.sridEPSG ?? 4326,
-      datasource: datasetMetadata.datasource ?? '',
-      databasis: datasetMetadata.databasis ?? '',
-      contact: datasetMetadata.contact ?? '',
-      description: datasetMetadata.description ?? '',
-      lastUpdate: datasetMetadata.lastUpdate ?? '',
-      updateInterval: null,
-    };
-    this.updateIntervalOptions?.forEach((option: any) => {
-      if (option.apiName === datasetMetadata.updateInterval) {
-        this.metadata.updateInterval = option;
-      }
-    });
+    patchMetadataFormFromApi(this.metadataForm, dataset.metadata, this.updateIntervalOptions ?? []);
 
     // Step 3 — topic hierarchy
     this.indicatorTopic_mainTopic = null;
@@ -1004,24 +987,11 @@ export class IndicatorAddFormStateService {
     }
 
     // Parse metadata
-    this.metadata = {};
-    this.metadata.note = this.metadataImportSettings.metadata.note;
-    this.metadata.literature = this.metadataImportSettings.metadata.literature;
-
-    if (this.envConfigService && this.envConfigService.updateIntervalOptions) {
-      this.envConfigService.updateIntervalOptions.forEach((option: any) => {
-        if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
-          this.metadata.updateInterval = option;
-        }
-      });
-    }
-
-    this.metadata.sridEPSG = this.metadataImportSettings.metadata.sridEPSG;
-    this.metadata.datasource = this.metadataImportSettings.metadata.datasource;
-    this.metadata.contact = this.metadataImportSettings.metadata.contact;
-    this.metadata.lastUpdate = this.metadataImportSettings.metadata.lastUpdate;
-    this.metadata.description = this.metadataImportSettings.metadata.description;
-    this.metadata.databasis = this.metadataImportSettings.metadata.databasis;
+    patchMetadataFormFromApi(
+      this.metadataForm,
+      this.metadataImportSettings.metadata,
+      this.envConfigService?.updateIntervalOptions ?? []
+    );
 
     // Parse basic fields
     this.datasetName = this.metadataImportSettings.datasetName || '';
@@ -1346,17 +1316,7 @@ export class IndicatorAddFormStateService {
     this.successMessage = '';
 
     // Reset metadata
-    this.metadata = {
-      description: '',
-      databasis: '',
-      datasource: '',
-      contact: '',
-      updateInterval: null,
-      lastUpdate: '',
-      literature: '',
-      note: '',
-      sridEPSG: 4326,
-    };
+    this.metadataForm.reset();
 
     // Reset temporary variables
     this.indicatorNameFilter = '';

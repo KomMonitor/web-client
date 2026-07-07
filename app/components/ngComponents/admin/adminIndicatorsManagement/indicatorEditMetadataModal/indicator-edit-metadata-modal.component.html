@@ -76,9 +76,9 @@
         [(ngModel)]="indicatorType"
         required
       >
-        <option value="">Bitte wählen...</option>
+        <option [ngValue]="null">Bitte wählen...</option>
         @for (option of envConfigService.indicatorTypeOptions; track option) {
-          <option [value]="option">
+          <option [ngValue]="option">
             {{ option.displayName }}
           </option>
         }
@@ -199,9 +199,9 @@
         (change)="onChangeCreationType()"
         required
       >
-        <option value="">Bitte wählen...</option>
+        <option [ngValue]="null">Bitte wählen...</option>
         @for (option of envConfigService.indicatorCreationTypeOptions; track option) {
-          <option [value]="option">
+          <option [ngValue]="option">
             {{ option.displayName }}
           </option>
         }
@@ -219,9 +219,9 @@
           name="indicatorLowestSpatialUnitMetadataObjectForComputation"
           [(ngModel)]="indicatorLowestSpatialUnitMetadataObjectForComputation"
         >
-          <option value="">Bitte wählen...</option>
+          <option [ngValue]="null">Bitte wählen...</option>
           @for (spatialUnit of spatialUnitStore.availableSpatialUnits; track spatialUnit) {
-            <option [value]="spatialUnit">
+            <option [ngValue]="spatialUnit">
               {{ spatialUnit.spatialUnitLevel }}
             </option>
           }
@@ -285,9 +285,9 @@
         name="metadata.updateInterval"
         [(ngModel)]="metadata.updateInterval"
       >
-        <option value="">Bitte wählen...</option>
+        <option [ngValue]="null">Bitte wählen...</option>
         @for (option of envConfigService.updateIntervalOptions; track option) {
-          <option [value]="option">
+          <option [ngValue]="option">
             {{ option.displayName }}
           </option>
         }
@@ -371,12 +371,12 @@
         name="indicatorTopic_mainTopic"
         [(ngModel)]="indicatorTopic_mainTopic"
       >
-        <option value="">Bitte wählen...</option>
+        <option [ngValue]="null">Bitte wählen...</option>
         @for (
           topic of topicStore.availableTopics | filter: 'topicResource' : 'indicator';
           track topic
         ) {
-          <option [value]="topic">
+          <option [ngValue]="topic">
             {{ topic.topicName }}
           </option>
         }
@@ -392,9 +392,9 @@
           name="indicatorTopic_subTopic"
           [(ngModel)]="indicatorTopic_subTopic"
         >
-          <option value="">Bitte wählen...</option>
+          <option [ngValue]="null">Bitte wählen...</option>
           @for (topic of indicatorTopic_mainTopic.subTopics; track topic) {
-            <option [value]="topic">
+            <option [ngValue]="topic">
               {{ topic.topicName }}
             </option>
           }
@@ -411,9 +411,9 @@
           name="indicatorTopic_subsubTopic"
           [(ngModel)]="indicatorTopic_subsubTopic"
         >
-          <option value="">Bitte wählen...</option>
+          <option [ngValue]="null">Bitte wählen...</option>
           @for (topic of indicatorTopic_subTopic.subTopics; track topic) {
-            <option [value]="topic">
+            <option [ngValue]="topic">
               {{ topic.topicName }}
             </option>
           }
@@ -430,9 +430,9 @@
           name="indicatorTopic_subsubsubTopic"
           [(ngModel)]="indicatorTopic_subsubsubTopic"
         >
-          <option value="">Bitte wählen...</option>
+          <option [ngValue]="null">Bitte wählen...</option>
           @for (topic of indicatorTopic_subsubTopic.subTopics; track topic) {
-            <option [value]="topic">
+            <option [ngValue]="topic">
               {{ topic.topicName }}
             </option>
           }
@@ -463,13 +463,13 @@
         name="tmpIndicatorReference_selectedIndicatorMetadata"
         [(ngModel)]="tmpIndicatorReference_selectedIndicatorMetadata"
       >
-        <option value="">Bitte wählen...</option>
+        <option [ngValue]="null">Bitte wählen...</option>
         @for (
           indicator of indicatorStore.availableIndicators
             | filter: 'indicatorName' : indicatorNameFilter;
           track indicator
         ) {
-          <option [value]="indicator">
+          <option [ngValue]="indicator">
             {{ indicator.indicatorName }}
           </option>
         }
@@ -561,13 +561,13 @@
         name="tmpGeoresourceReference_selectedGeoresourceMetadata"
         [(ngModel)]="tmpGeoresourceReference_selectedGeoresourceMetadata"
       >
-        <option value="">Bitte wählen...</option>
+        <option [ngValue]="null">Bitte wählen...</option>
         @for (
           georesource of georesourceStore.availableGeoresources
             | filter: 'datasetName' : georesourceNameFilter;
           track georesource
         ) {
-          <option [value]="georesource">
+          <option [ngValue]="georesource">
             {{ georesource.datasetName }}
           </option>
         }
@@ -646,9 +646,9 @@
         [(ngModel)]="numClassesPerSpatialUnit"
         (change)="onNumClassesChanged(numClassesPerSpatialUnit || 5)"
       >
-        <option value="">Bitte wählen...</option>
+        <option [ngValue]="null">Bitte wählen...</option>
         @for (num of numClassesArray; track num) {
-          <option [value]="num">
+          <option [ngValue]="num">
             {{ num }}
           </option>
         }
