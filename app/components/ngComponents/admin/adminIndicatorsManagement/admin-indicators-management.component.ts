@@ -25,7 +25,6 @@ import { IndicatorBatchUpdateModalComponent } from './indicatorBatchUpdateModal/
 import { IndicatorDeleteModalComponent } from './indicatorDeleteModal/indicator-delete-modal.component';
 import { IndicatorEditFeaturesModalComponent } from './indicatorEditFeaturesModal/indicator-edit-features-modal.component';
 import { IndicatorEditIndicatorSpatialUnitRolesModalComponent } from './indicatorEditIndicatorSpatialUnitRolesModal/indicator-edit-indicator-spatial-unit-roles-modal.component';
-import { IndicatorEditMetadataModalComponent } from './indicatorEditMetadataModal/indicator-edit-metadata-modal.component';
 import { IndicatorRefreshRequest } from './indicator-refresh.model';
 
 declare const __env: any;
@@ -399,18 +398,19 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   onClickEditMetadata(indicatorMetadata: any): void {
     try {
-      const modalRef = this.modalService.open(IndicatorEditMetadataModalComponent, {
-        size: 'lg',
-        backdrop: 'static',
+      // Editing reuses the add wizard, pre-filled with the existing indicator's
+      // values; on submit it sends a metadata PATCH instead of a POST.
+      const modalRef = this.modalService.open(IndicatorAddModalComponent, {
+        backdrop: true,
         keyboard: false,
         container: 'body',
         animation: false,
+        modalDialogClass: 'modal-large',
+        windowClass: 'modal-large',
       });
 
-      // Set the current indicator dataset in the modal component
-      const modalComponent = modalRef.componentInstance as IndicatorEditMetadataModalComponent;
-      modalComponent.currentIndicatorDataset = indicatorMetadata;
-      modalComponent.resetIndicatorEditMetadataForm();
+      const modalComponent = modalRef.componentInstance as IndicatorAddModalComponent;
+      modalComponent.editIndicatorDataset = indicatorMetadata;
       modalComponent.refreshRequested.subscribe((request: IndicatorRefreshRequest) =>
         this.handleRefreshRequest(request)
       );

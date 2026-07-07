@@ -1,5 +1,11 @@
 <div class="modal-header">
-  <h4 class="modal-title">Neuen Indikator registrieren</h4>
+  <h4 class="modal-title">
+    @if (state.editMode) {
+      Indikator bearbeiten
+    } @else {
+      Neuen Indikator registrieren
+    }
+  </h4>
   <button type="button" class="btn-close" aria-label="Close" (click)="cancel()"></button>
 </div>
 
@@ -90,7 +96,11 @@
   <div style="flex: 1"></div>
 
   <button type="button" class="btn btn-success" (click)="addIndicator()">
-    Indikator-Metadaten registrieren
+    @if (state.editMode) {
+      Änderungen speichern
+    } @else {
+      Indikator-Metadaten registrieren
+    }
   </button>
   <button type="button" class="btn btn-danger" (click)="state.resetForm()">Zurücksetzen</button>
 </div>
@@ -126,11 +136,19 @@
     <button type="button" class="close" (click)="state.hideSuccessAlert()" aria-hidden="true">
       &times;
     </button>
-    <h4><i class="icon fa fa-check"></i>Indikator-Metadaten registriert</h4>
-    <p>
-      Eine neuer Indikator mit Namen {{ state.successMessagePart }} wurde in KomMonitor registriert
-      und in die Übersichtstabelle eingetragen.
-    </p>
+    @if (state.editMode) {
+      <h4><i class="icon fa fa-check"></i>Indikator-Metadaten aktualisiert</h4>
+      <p>
+        Die Metadaten des Indikators {{ state.successMessagePart }} wurden in KomMonitor
+        aktualisiert.
+      </p>
+    } @else {
+      <h4><i class="icon fa fa-check"></i>Indikator-Metadaten registriert</h4>
+      <p>
+        Eine neuer Indikator mit Namen {{ state.successMessagePart }} wurde in KomMonitor
+        registriert und in die Übersichtstabelle eingetragen.
+      </p>
+    }
   </div>
 }
 

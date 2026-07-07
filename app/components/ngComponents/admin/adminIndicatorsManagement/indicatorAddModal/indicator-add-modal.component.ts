@@ -58,16 +58,27 @@ export class IndicatorAddModalComponent implements OnInit {
 
   @Output() refreshRequested = new EventEmitter<IndicatorRefreshRequest>();
 
+  // Set by the caller (before ngOnInit) to open the wizard in edit mode,
+  // pre-filled with this existing indicator's metadata. Left null for "add new".
+  editIndicatorDataset: any = null;
+
   // Required fields still missing when the user tried to register (for the dialog).
   protected missingFields: { label: string }[] = [];
 
   ngOnInit() {
     this.state.loadInitialData();
     this.state.initializeMultiStepForm();
+
+    // Edit mode: pre-fill the whole wizard from the existing indicator. Runs
+    // after the init above so option lists and classification tabs already exist.
+    if (this.editIndicatorDataset) {
+      this.state.enterEditMode(this.editIndicatorDataset);
+    }
   }
 
-  // Register the indicator. Validates the required fields first and, if any are
-  // still blank, lists them in a modal instead of sending the request.
+  // Register (add) or save (edit) the indicator. Validates the required fields
+  // first and, if any are still blank, lists them in a modal instead of sending
+  // the request.
   async addIndicator() {
     this.missingFields = this.state.getV3MissingRequiredFields();
     if (this.missingFields.length > 0) {
@@ -78,33 +89,44 @@ export class IndicatorAddModalComponent implements OnInit {
       });
       return;
     }
-    await this.submitIndicator(this.state.buildPostBody_indicators_v3());
+
+    if (this.state.editMode) {
+      await this.submitIndicator(this.state.buildPatchBody_indicators_v3(), true);
+    } else {
+      await this.submitIndicator(this.state.buildPostBody_indicators_v3(), false);
+    }
   }
 
-  // Shared POST + success/refresh/error handling.
-  private async submitIndicator(postBody: any) {
+  // Shared submit + success/refresh/error handling. Sends a POST to create a new
+  // indicator, or a metadata PATCH to /indicators/{id} when editing.
+  private async submitIndicator(body: any, isEdit: boolean) {
     this.state.loadingData = true;
     this.state.successMessagePart = '';
     this.state.errorMessagePart = '';
 
     try {
-      this.state.postBody_indicators = postBody;
+      this.state.postBody_indicators = body;
 
       // Check if service is available
       if (!this.envConfigService.baseUrlToKomMonitorDataAPI) {
         throw new Error('Data exchange service not available');
       }
 
-      const response = await this.http
-        .post(
-          this.envConfigService.baseUrlToKomMonitorDataAPI + '/indicators',
-          this.state.postBody_indicators
-        )
-        .toPromise();
+      const indicatorsUrl = this.envConfigService.baseUrlToKomMonitorDataAPI + '/indicators';
+      let targetIndicatorId: string;
+
+      if (isEdit) {
+        const indicatorId = this.state.editIndicatorId as string;
+        await this.http.patch(indicatorsUrl + '/' + indicatorId, body).toPromise();
+        targetIndicatorId = indicatorId;
+      } else {
+        const response = await this.http.post(indicatorsUrl, body).toPromise();
+        targetIndicatorId = (response as any).indicatorId;
+      }
 
       this.refreshRequested.emit({
-        crudType: 'add',
-        targetIndicatorId: (response as any).indicatorId,
+        crudType: isEdit ? 'edit' : 'add',
+        targetIndicatorId,
       });
 
       // Refresh all admin dashboard diagrams due to modified metadata

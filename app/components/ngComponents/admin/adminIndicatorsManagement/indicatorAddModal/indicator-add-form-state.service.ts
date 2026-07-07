@@ -8,6 +8,7 @@ import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
+import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
 import { downloadJson, readJsonFile } from 'util/json-file.util';
 
 /**
@@ -25,6 +26,14 @@ export class IndicatorAddFormStateService {
   private topicStore = inject(TopicMetadataStoreService);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private envConfigService = inject(EnvConfigService);
+  private topicHierarchyService = inject(TopicHierarchyService);
+
+  // Edit mode: when the wizard is opened to edit an existing indicator, this
+  // holds the source dataset and its id. In this mode the modal submits a
+  // metadata PATCH (see buildPatchBody_indicators_v3) instead of a POST.
+  editMode = false;
+  editIndicatorDataset: any = null;
+  editIndicatorId: string | null = null;
 
   // Multi-step form
   currentStep = 1;
@@ -674,10 +683,300 @@ export class IndicatorAddFormStateService {
       'Klassifizierung: vollständige Klassengrenzen für mind. eine Raumeinheit (Schritt 5)'
     );
 
-    // Step 7 — ownership
-    check(isBlank(body.ownerId), 'Eigentümer-Organisation (Schritt 7)');
+    // Step 7 — ownership. Only required when creating a new indicator; the
+    // metadata PATCH used in edit mode does not carry ownership (that is managed
+    // through separate ownership/permission endpoints).
+    if (!this.editMode) {
+      check(isBlank(body.ownerId), 'Eigentümer-Organisation (Schritt 7)');
+    }
 
     return missing;
+  }
+
+  /**
+   * Enters edit mode for an existing indicator: stores the source dataset and
+   * pre-fills every wizard field from it. Must be called after
+   * {@link loadInitialData} and {@link initializeMultiStepForm} so the option
+   * lists, colorbrewer palettes and per-spatial-unit classification tabs already
+   * exist to be matched/populated against.
+   */
+  enterEditMode(dataset: any) {
+    this.editMode = true;
+    this.editIndicatorDataset = dataset;
+    this.editIndicatorId = dataset?.indicatorId ?? null;
+    this.populateFromExistingIndicator(dataset);
+  }
+
+  /**
+   * Maps a runtime indicator metadata object onto the wizard's form-state fields
+   * (the reverse of {@link buildPostBody_indicators_v3}). Resolves option objects
+   * by their `apiName`, the topic hierarchy from `topicReference`, references from
+   * the stored `referenced*` lists, and the classification breaks per spatial unit.
+   */
+  private populateFromExistingIndicator(dataset: any) {
+    if (!dataset) {
+      return;
+    }
+
+    // Step 1 — basic metadata
+    this.datasetName = dataset.indicatorName ?? '';
+    this.datasetNameInvalid = false;
+    this.indicatorAbbreviation = dataset.abbreviation ?? '';
+    this.isHeadlineIndicator = dataset.isHeadlineIndicator ?? false;
+    this.indicatorUnit = dataset.unit ?? '';
+    this.indicatorProcessDescription = dataset.processDescription ?? '';
+    this.indicatorInterpretation = dataset.interpretation ?? '';
+    this.indicatorReferenceDateNote = dataset.referenceDateNote ?? '';
+    this.displayOrder = dataset.displayOrder ?? 0;
+    this.indicatorTagsString_withCommas = Array.isArray(dataset.tags) ? dataset.tags.join(',') : '';
+
+    // Free-text unit toggle: enabled unless the unit matches a configured option.
+    this.enableFreeTextUnit = true;
+    this.envConfigService.indicatorUnitOptions?.forEach((option: any) => {
+      if (option === dataset.unit) {
+        this.enableFreeTextUnit = false;
+      }
+    });
+
+    // Precision
+    this.indicatorPrecision = dataset.precision ?? null;
+    this.showCustomCommaValue = dataset.defaultPrecision === false;
+
+    // Indicator type (resolve the option object by apiName)
+    this.indicatorTypeOptions?.forEach((option: any) => {
+      if (option.apiName === dataset.indicatorType) {
+        this.indicatorType = option;
+      }
+    });
+
+    // Creation type
+    this.indicatorCreationType = null;
+    this.envConfigService.indicatorCreationTypeOptions?.forEach((option: any) => {
+      if (option.apiName === dataset.creationType) {
+        this.indicatorCreationType = option;
+      }
+    });
+    this.enableLowestSpatialUnitSelect = this.indicatorCreationType?.apiName === 'COMPUTATION';
+
+    // Lowest spatial unit for computation
+    this.indicatorLowestSpatialUnitMetadataObjectForComputation = null;
+    for (const spatialUnit of this.availableSpatialUnits) {
+      if (spatialUnit.spatialUnitLevel === dataset.lowestSpatialUnitForComputation) {
+        this.indicatorLowestSpatialUnitMetadataObjectForComputation = spatialUnit;
+        break;
+      }
+    }
+
+    // Step 2 — general metadata
+    const datasetMetadata = dataset.metadata ?? {};
+    this.metadata = {
+      note: datasetMetadata.note ?? '',
+      literature: datasetMetadata.literature ?? '',
+      sridEPSG: datasetMetadata.sridEPSG ?? 4326,
+      datasource: datasetMetadata.datasource ?? '',
+      databasis: datasetMetadata.databasis ?? '',
+      contact: datasetMetadata.contact ?? '',
+      description: datasetMetadata.description ?? '',
+      lastUpdate: datasetMetadata.lastUpdate ?? '',
+      updateInterval: null,
+    };
+    this.updateIntervalOptions?.forEach((option: any) => {
+      if (option.apiName === datasetMetadata.updateInterval) {
+        this.metadata.updateInterval = option;
+      }
+    });
+
+    // Step 3 — topic hierarchy
+    this.indicatorTopic_mainTopic = null;
+    this.indicatorTopic_subTopic = null;
+    this.indicatorTopic_subsubTopic = null;
+    this.indicatorTopic_subsubsubTopic = null;
+    this.selectedTopic = null;
+    this.selectedSubTopic = null;
+    this.selectedSubSubTopic = null;
+    this.selectedSubSubSubTopic = null;
+    this.availableSubTopics = [];
+    this.availableSubSubTopics = [];
+    this.availableSubSubSubTopics = [];
+    const topicHierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(
+      this.topicStore.availableTopics,
+      dataset.topicReference
+    );
+    if (topicHierarchy?.[0]) {
+      this.indicatorTopic_mainTopic = topicHierarchy[0];
+      this.selectedTopic = topicHierarchy[0];
+      this.availableSubTopics = topicHierarchy[0].subTopics ?? [];
+    }
+    if (topicHierarchy?.[1]) {
+      this.indicatorTopic_subTopic = topicHierarchy[1];
+      this.selectedSubTopic = topicHierarchy[1];
+      this.availableSubSubTopics = topicHierarchy[1].subTopics ?? [];
+    }
+    if (topicHierarchy?.[2]) {
+      this.indicatorTopic_subsubTopic = topicHierarchy[2];
+      this.selectedSubSubTopic = topicHierarchy[2];
+      this.availableSubSubSubTopics = topicHierarchy[2].subTopics ?? [];
+    }
+    if (topicHierarchy?.[3]) {
+      this.indicatorTopic_subsubsubTopic = topicHierarchy[3];
+      this.selectedSubSubSubTopic = topicHierarchy[3];
+    }
+
+    // Step 4 — references (stored here as { indicatorMetadata | georesourceMetadata,
+    // referenceDescription }, matching what the step-4 component and the body
+    // builders expect).
+    this.indicatorReferences_adminView = [];
+    (dataset.referencedIndicators ?? [])
+      .filter((entry: any) => entry != null)
+      .forEach((ref: any) => {
+        const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(
+          ref.referencedIndicatorId
+        );
+        if (indicatorMetadata) {
+          this.indicatorReferences_adminView.push({
+            indicatorMetadata,
+            referenceDescription: ref.referencedIndicatorDescription,
+          });
+        }
+      });
+
+    this.georesourceReferences_adminView = [];
+    (dataset.referencedGeoresources ?? [])
+      .filter((entry: any) => entry != null)
+      .forEach((ref: any) => {
+        const georesourceMetadata = this.georesourceStore.getGeoresourceMetadataById(
+          ref.referencedGeoresourceId
+        );
+        if (georesourceMetadata) {
+          this.georesourceReferences_adminView.push({
+            georesourceMetadata,
+            referenceDescription: ref.referencedGeoresourceDescription,
+          });
+        }
+      });
+
+    // Step 5 — classification mapping
+    const mapping = dataset.defaultClassificationMapping ?? {};
+    if (mapping.classificationMethod) {
+      this.classificationMethod = String(mapping.classificationMethod).toLowerCase();
+    }
+    if (mapping.numClasses) {
+      this.numClassesPerSpatialUnit = mapping.numClasses;
+      // Rebuild the per-spatial-unit tabs for the class count, then apply the
+      // stored breaks onto the matching spatial unit.
+      this.onNumClassesChanged(this.numClassesPerSpatialUnit);
+      (mapping.items ?? []).forEach((item: any) => {
+        const index = this.spatialUnitClassification.findIndex(
+          (classification) => classification.spatialUnitId === item.spatialUnitId
+        );
+        if (index > -1) {
+          this.spatialUnitClassification[index].breaks = item.breaks;
+          this.onBreaksChanged(index);
+        }
+      });
+    }
+    if (mapping.colorBrewerSchemeName) {
+      const paletteEntry = this.colorbrewerPalettes.find(
+        (palette) => palette.paletteName === mapping.colorBrewerSchemeName
+      );
+      if (paletteEntry) {
+        this.selectedColorBrewerPaletteEntry = paletteEntry;
+      }
+    }
+
+    // Step 7 — ownership / access. Pre-filled for display only; the metadata
+    // PATCH does not carry ownership or permissions (managed separately).
+    this.isPublic = dataset.isPublic ?? false;
+    const ownerOrg = (this.accessControl ?? []).find(
+      (org: any) => org.organizationalUnitId === dataset.ownerId
+    );
+    this.ownerOrganization = ownerOrg ?? dataset.ownerId ?? '';
+    if (this.accessControlService.accessControl && this.roleManagementHelper) {
+      this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
+        'indicatorAddRoleManagementTable',
+        this.roleManagementTableOptions,
+        this.accessControlService.accessControl,
+        dataset.permissions ?? []
+      );
+    }
+  }
+
+  /**
+   * Builds the metadata PATCH body for editing an existing indicator, following
+   * the KomMonitor Data Management API v3 schema `IndicatorMetadataPATCHInputType`.
+   * Mirrors {@link buildPostBody_indicators_v3} but omits ownership/permissions
+   * (handled via separate endpoints) and preserves the indicator's existing
+   * `characteristicValue` and `regionalReferenceValues`, which this wizard does
+   * not edit.
+   */
+  buildPatchBody_indicators_v3() {
+    const topicReference =
+      this.indicatorTopic_subsubsubTopic?.topicId ??
+      this.indicatorTopic_subsubTopic?.topicId ??
+      this.indicatorTopic_subTopic?.topicId ??
+      this.indicatorTopic_mainTopic?.topicId ??
+      '';
+
+    const tags = this.indicatorTagsString_withCommas
+      ? this.indicatorTagsString_withCommas.split(',').map((tag: string) => tag.trim())
+      : [];
+
+    const patchBody: any = {
+      datasetName: this.datasetName,
+      // Preserve values the wizard does not edit rather than overwriting them.
+      characteristicValue: this.editIndicatorDataset?.characteristicValue ?? null,
+      creationType: this.indicatorCreationType?.apiName,
+      interpretation: this.indicatorInterpretation || '',
+      processDescription: this.indicatorProcessDescription || '',
+      unit: this.indicatorUnit,
+      topicReference,
+      tags,
+      abbreviation: this.indicatorAbbreviation || null,
+      indicatorType: this.indicatorType?.apiName,
+      isHeadlineIndicator: this.isHeadlineIndicator || false,
+      displayOrder: this.displayOrder,
+      referenceDateNote: this.indicatorReferenceDateNote || null,
+      lowestSpatialUnitForComputation:
+        this.indicatorLowestSpatialUnitMetadataObjectForComputation?.spatialUnitLevel ?? null,
+      metadata: {
+        contact: this.metadata.contact,
+        datasource: this.metadata.datasource,
+        description: this.metadata.description,
+        updateInterval: this.metadata.updateInterval?.apiName,
+        note: this.metadata.note || null,
+        literature: this.metadata.literature || null,
+        databasis: this.metadata.databasis || null,
+        lastUpdate: this.metadata.lastUpdate || null,
+        sridEPSG: this.metadata.sridEPSG || 4326,
+      },
+      defaultClassificationMapping: {
+        colorBrewerSchemeName: this.selectedColorBrewerPaletteEntry?.paletteName,
+        numClasses: this.numClassesPerSpatialUnit,
+        classificationMethod: this.classificationMethod?.toUpperCase(),
+        items: this.spatialUnitClassification
+          .filter((classification) => !classification.breaks.includes(null))
+          .map((classification) => ({
+            spatialUnitId: classification.spatialUnitId,
+            breaks: classification.breaks,
+          })),
+      },
+      refrencesToOtherIndicators: this.indicatorReferences_adminView.map((ref) => ({
+        indicatorId: ref.indicatorMetadata.indicatorId,
+        referenceDescription: ref.referenceDescription,
+      })),
+      refrencesToGeoresources: this.georesourceReferences_adminView.map((ref) => ({
+        georesourceId: ref.georesourceMetadata.georesourceId,
+        referenceDescription: ref.referenceDescription,
+      })),
+      // Preserve the existing regional reference values unchanged (not edited here).
+      regionalReferenceValues: this.editIndicatorDataset?.regionalReferenceValues ?? [],
+    };
+
+    if (this.showCustomCommaValue && this.indicatorPrecision !== null) {
+      patchBody.precision = this.indicatorPrecision;
+    }
+
+    return patchBody;
   }
 
   // Import/Export functionality
