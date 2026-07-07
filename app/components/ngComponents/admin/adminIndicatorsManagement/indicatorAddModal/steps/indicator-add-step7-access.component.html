@@ -45,7 +45,7 @@
           <option [ngValue]="null" disabled selected>-- Eigentümer-Organisation wählen --</option>
           @for (org of state.filteredOrganizations; track org) {
             <option [ngValue]="org">
-              {{ org.organizationName }}
+              {{ org.name }}
             </option>
           }
         </select>
@@ -78,83 +78,54 @@
       </div>
     </div>
   </div>
-  @if (!state.isPublic) {
+  @if (!state.showRoleForm) {
+    <div class="row vertical-align">
+      <div class="col-md-12">
+        <div class="form-group">
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            Bitte wählen Sie zunächst eine Eigentümer-Organisation aus, um Zugriffsrechte an
+            Organisationseinheiten zu vergeben.
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+  @if (state.showRoleForm) {
     <div class="row vertical-align">
       <div class="col-md-12">
         <div class="form-group">
           <label>Rollenbasierte Zugriffsrechte</label>
-          <div class="alert alert-warning">
-            <i class="fas fa-exclamation-triangle"></i>
-            <strong>Wichtig:</strong> Da der Indikator nicht öffentlich ist, müssen Sie mindestens
-            eine Rolle mit Zugriffsrechten zuweisen.
+          <div class="alert alert-info">
+            <i class="fas fa-users"></i>
+            Als Eigentümer-Organisation können Sie Lese- und Editier-Rechte an die eigene und
+            weitere Organisationseinheiten vergeben. Die Rechte der Eigentümer-Organisation sind
+            fest gesetzt und können nicht entfernt werden.
           </div>
-        </div>
-      </div>
-    </div>
-  }
-  @if (!state.isPublic) {
-    <div class="row vertical-align">
-      <div class="col-md-12">
-        <div class="form-group">
-          <label>Verfügbare Rollen</label>
-          <div class="role-selection-container">
-            <div class="role-filter">
-              <input
-                type="text"
-                class="form-control"
-                [(ngModel)]="state.roleFilter"
-                name="roleFilter"
-                placeholder="Rollen filtern"
-                (ngModelChange)="state.filterRoles()"
-              />
-            </div>
-            <div class="role-list">
-              @for (role of state.filteredRoles; track role) {
-                <div
-                  class="role-item"
-                  [class.selected]="state.isRoleSelected(role)"
-                  (click)="state.toggleRoleSelection(role)"
-                >
-                  <div class="role-checkbox">
-                    <input
-                      type="checkbox"
-                      [checked]="state.isRoleSelected(role)"
-                      (change)="state.toggleRoleSelection(role)"
-                    />
-                  </div>
-                  <div class="role-info">
-                    <div class="role-name">{{ role.roleName }}</div>
-                    <div class="role-description">{{ role.roleDescription }}</div>
-                  </div>
-                </div>
-              }
-            </div>
-          </div>
+          <ag-grid-angular
+            id="indicatorAddRoleManagementGrid"
+            class="ag-theme-alpine"
+            style="width: 100%; height: 45vh"
+            [columnDefs]="state.roleManagementColumnDefs"
+            [rowData]="state.roleManagementRowData"
+            [defaultColDef]="state.roleManagementDefaultColDef"
+            [gridOptions]="state.roleManagementGridOptions"
+            [components]="state.roleManagementTableOptions?.components"
+            [suppressRowClickSelection]="true"
+            [rowSelection]="'multiple'"
+            [enableCellTextSelection]="true"
+            [ensureDomOrder]="true"
+            [pagination]="false"
+            [suppressColumnVirtualisation]="true"
+            (gridReady)="state.onRoleManagementGridReady($event)"
+            (firstDataRendered)="state.onRoleManagementFirstDataRendered($event)"
+            (columnResized)="state.onRoleManagementColumnResized($event)"
+          >
+          </ag-grid-angular>
           <div class="help-block">
-            <p>Wählen Sie die Rollen aus, die Zugriff auf diesen Indikator haben sollen</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  }
-  @if (state.selectedRoles.length > 0) {
-    <div class="row vertical-align">
-      <div class="col-md-12">
-        <div class="form-group">
-          <label>Ausgewählte Rollen</label>
-          <div class="selected-roles-container">
-            @for (role of state.selectedRoles; track role; let i = $index) {
-              <div class="selected-role-item">
-                <span class="role-badge">{{ role.roleName }}</span>
-                <button
-                  type="button"
-                  class="btn btn-sm btn-danger"
-                  (click)="state.removeRole(role)"
-                >
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-            }
+            <p>
+              Wählen Sie die Organisationseinheiten aus, die Zugriff auf diesen Indikator haben.
+            </p>
           </div>
         </div>
       </div>
@@ -308,17 +279,15 @@
         <div class="access-summary">
           <div class="summary-item">
             <strong>Eigentümer:</strong>
-            {{ state.ownerOrganization?.organizationName || 'Nicht ausgewählt' }}
+            {{ state.ownerOrganization?.name || 'Nicht ausgewählt' }}
           </div>
           <div class="summary-item">
             <strong>Öffentlicher Zugriff:</strong> {{ state.isPublic ? 'Ja' : 'Nein' }}
           </div>
-          @if (!state.isPublic) {
-            <div class="summary-item">
-              <strong>Zugriffsberechtigte Rollen:</strong>
-              {{ state.selectedRoles.length }} Rolle(n)
-            </div>
-          }
+          <div class="summary-item">
+            <strong>Zugriffsberechtigte Rollen:</strong>
+            {{ state.selectedRoleCount }} Rolle(n)
+          </div>
           @if (state.enableTimeRestrictedAccess) {
             <div class="summary-item">
               <strong>Zeitliche Begrenzung:</strong> {{ state.accessStartDate }} -

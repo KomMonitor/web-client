@@ -1,7 +1,8 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { StepperStep } from 'components/ngComponents/common/stepper/stepper.component';
 import { mergeColorSchemes } from 'components/ngComponents/userInterface/kommonitorClassification/colors';
-import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
@@ -10,6 +11,7 @@ import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
 import { downloadJson, readJsonFile } from 'util/json-file.util';
+import { ColDef, GridOptions, GridApi } from 'ag-grid-community';
 
 /**
  * Holds the entire form state and state-manipulating logic for the
@@ -19,7 +21,6 @@ import { downloadJson, readJsonFile } from 'util/json-file.util';
  */
 @Injectable()
 export class IndicatorAddFormStateService {
-  protected accessControlService = inject(AccessControlService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
@@ -27,6 +28,12 @@ export class IndicatorAddFormStateService {
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private envConfigService = inject(EnvConfigService);
   private topicHierarchyService = inject(TopicHierarchyService);
+  // Owner-organization data source: the admin indicator pages do not populate the
+  // global AccessControlService, so the org/role access-control list is read from
+  // (and lazily fetched via) the admin KommonitorDataExchangeService — the same
+  // singleton the sibling spatial-unit/georesource add modals rely on.
+  private adminDataExchange = inject(KommonitorDataExchangeService);
+  private destroyRef = inject(DestroyRef);
 
   // Edit mode: when the wizard is opened to edit an existing indicator, this
   // holds the source dataset and its id. In this mode the modal submits a
@@ -138,6 +145,16 @@ export class IndicatorAddFormStateService {
   ownerOrgFilter = '';
   isPublic = false;
 
+  // Role-management ag-grid config (bound by the step-7 access component). The grid
+  // only appears once an owner organization is chosen (`showRoleForm`), mirroring the
+  // sibling spatial-unit/georesource add modals and the legacy indicator modal.
+  showRoleForm = false;
+  roleManagementColumnDefs: ColDef[] = [];
+  roleManagementRowData: any[] = [];
+  roleManagementDefaultColDef: ColDef = {};
+  roleManagementGridOptions: GridOptions = {};
+  roleManagementGridApi: GridApi | null = null;
+
   // Import/Export functionality
   metadataImportSettings: any = null;
   indicatorMetadataImportError = '';
@@ -157,7 +174,6 @@ export class IndicatorAddFormStateService {
   availableIndicators: any[] = [];
   availableGeoresources: any[] = [];
   availableTopics: any[] = [];
-  accessControl: any[] = [];
   colorbreweSchemeName_dynamicIncrease = 'Blues';
   colorbreweSchemeName_dynamicDecrease = 'Reds';
 
@@ -187,10 +203,11 @@ export class IndicatorAddFormStateService {
   redThreshold: number | null = null;
 
   // Step 7: Access Control and Ownership
+  // Base list of organizations the user may assign as owner (full accessControl
+  // for admins, resource-creator subset otherwise); `filteredOrganizations` is the
+  // filtered view of it shown in the dropdown.
+  ownerOrganizations: any[] = [];
   filteredOrganizations: any[] = [];
-  roleFilter = '';
-  filteredRoles: any[] = [];
-  selectedRoles: any[] = [];
 
   // Advanced access control
   enableTimeRestrictedAccess = false;
@@ -257,11 +274,6 @@ export class IndicatorAddFormStateService {
       this.availableTopics = this.topicStore.availableTopics;
     }
 
-    // Load access control
-    if (this.accessControlService.accessControl) {
-      this.accessControl = this.accessControlService.accessControl;
-    }
-
     // Load color brewer schemes
     this.loadColorBrewerSchemes();
 
@@ -270,8 +282,7 @@ export class IndicatorAddFormStateService {
     this.filteredGeoresources = this.availableGeoresources || [];
 
     // Initialize data for Step 7
-    this.filteredOrganizations = this.accessControl || [];
-    this.filteredRoles = this.accessControl || [];
+    this.loadOwnerOrganizations();
     this.availableRegions = this.availableSpatialUnits || [];
 
     this.loadingData = false;
@@ -285,15 +296,9 @@ export class IndicatorAddFormStateService {
       this.totalSteps = 6;
     }
 
-    // Initialize role management if available
-    if (this.accessControlService.accessControl && this.roleManagementHelper) {
-      this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-        'indicatorAddRoleManagementTable',
-        this.roleManagementTableOptions,
-        this.accessControlService.accessControl,
-        []
-      );
-    }
+    // The role-management grid is (re)built from the admin access-control data once
+    // it is available (see prepareOwnerOrganizationList / rebuildRoleManagementGrid),
+    // so nothing to build here up front.
 
     // Initialize classification
     this.onNumClassesChanged(this.numClassesPerSpatialUnit);
@@ -705,6 +710,11 @@ export class IndicatorAddFormStateService {
     this.editIndicatorDataset = dataset;
     this.editIndicatorId = dataset?.indicatorId ?? null;
     this.populateFromExistingIndicator(dataset);
+    // Rebuild the role grid now that editMode/dataset are set: when the access-control
+    // data was already cached, prepareOwnerOrganizationList ran before this and built
+    // an empty grid; this pass pre-checks the indicator's existing permissions. When
+    // the data is still loading, the async prepare pass rebuilds it instead.
+    this.rebuildRoleManagementGrid();
   }
 
   /**
@@ -887,18 +897,12 @@ export class IndicatorAddFormStateService {
     // Step 7 — ownership / access. Pre-filled for display only; the metadata
     // PATCH does not carry ownership or permissions (managed separately).
     this.isPublic = dataset.isPublic ?? false;
-    const ownerOrg = (this.accessControl ?? []).find(
+    const ownerOrg = (this.adminDataExchange.accessControl ?? []).find(
       (org: any) => org.organizationalUnitId === dataset.ownerId
     );
     this.ownerOrganization = ownerOrg ?? dataset.ownerId ?? '';
-    if (this.accessControlService.accessControl && this.roleManagementHelper) {
-      this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-        'indicatorAddRoleManagementTable',
-        this.roleManagementTableOptions,
-        this.accessControlService.accessControl,
-        dataset.permissions ?? []
-      );
-    }
+    // The role grid (pre-checking dataset.permissions) is (re)built by enterEditMode /
+    // the async access-control load via rebuildRoleManagementGrid.
   }
 
   /**
@@ -1123,18 +1127,24 @@ export class IndicatorAddFormStateService {
       }
     }
 
-    // Parse role permissions
+    // Parse role permissions: pre-check the imported allowedRoles in the role grid.
     if (
-      this.accessControlService.accessControl &&
+      this.adminDataExchange.accessControl?.length > 0 &&
       this.metadataImportSettings.allowedRoles &&
       this.roleManagementHelper
     ) {
       this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
         'indicatorAddRoleManagementTable',
         this.roleManagementTableOptions,
-        this.accessControlService.accessControl,
-        this.metadataImportSettings.allowedRoles
+        this.adminDataExchange.accessControl,
+        this.metadataImportSettings.allowedRoles,
+        true
       );
+      if (this.roleManagementTableOptions) {
+        this.roleManagementColumnDefs = this.roleManagementTableOptions.columnDefs || [];
+        this.roleManagementRowData = this.roleManagementTableOptions.rowData || [];
+        this.buildRoleManagementGridConfig();
+      }
     }
   }
 
@@ -1323,6 +1333,10 @@ export class IndicatorAddFormStateService {
     this.ownerOrgFilter = '';
     this.isPublic = false;
     this.roleManagementTableOptions = null;
+    this.showRoleForm = false;
+    this.roleManagementColumnDefs = [];
+    this.roleManagementRowData = [];
+    this.roleManagementGridApi = null;
     this.metadataImportSettings = null;
     this.indicatorMetadataImportError = '';
     this.successMessagePart = '';
@@ -1378,16 +1392,13 @@ export class IndicatorAddFormStateService {
     this.redThreshold = null;
 
     // Reset Step 7: Access Control and Ownership
-    this.roleFilter = '';
-    this.selectedRoles = [];
     this.enableTimeRestrictedAccess = false;
     this.enableGeographicRestriction = false;
     this.accessStartDate = '';
     this.accessEndDate = '';
     this.allowedRegions = [];
     this.enableAccessLogging = false;
-    this.filteredOrganizations = this.accessControl || [];
-    this.filteredRoles = this.accessControl || [];
+    this.loadOwnerOrganizations();
 
     // Reinitialize classification
     this.onNumClassesChanged(this.numClassesPerSpatialUnit);
@@ -1429,10 +1440,130 @@ export class IndicatorAddFormStateService {
 
   onChangeOwner(ownerOrganization: any) {
     this.ownerOrganization = ownerOrganization;
+    // Selecting an owner reveals the role grid and pre-checks the owner's own
+    // viewer/editor permissions (its row is then locked as dataset owner).
+    this.rebuildRoleManagementGrid();
   }
 
   onChangeIsPublic(isPublic: boolean) {
     this.isPublic = isPublic;
+  }
+
+  // Resolves the currently selected owner organizational-unit id. The dropdown binds
+  // the whole org object, edit mode carries only the stored ownerId — handle both.
+  private getSelectedOwnerId(): string | undefined {
+    if (this.editMode) {
+      return this.editIndicatorDataset?.ownerId;
+    }
+    return this.ownerOrganization?.organizationalUnitId ?? this.ownerOrganization ?? undefined;
+  }
+
+  // Permission ids that should be pre-checked in the role grid: the indicator's
+  // existing permissions in edit mode, otherwise the selected owner's own
+  // viewer/editor permissions (mirrors the legacy `refreshRoles`).
+  private getPreCheckedPermissionIds(ownerId: string | undefined): string[] {
+    if (this.editMode) {
+      return this.editIndicatorDataset?.permissions ?? [];
+    }
+    if (!ownerId) {
+      return [];
+    }
+    const ownerUnit = this.adminDataExchange.getAccessControlById(ownerId);
+    return (ownerUnit?.permissions ?? [])
+      .filter((permission) => ['viewer', 'editor'].includes(permission.permissionLevel))
+      .map((permission) => permission.permissionId);
+  }
+
+  /**
+   * (Re)builds the role-management ag-grid from the admin access-control data,
+   * locking the owner's row and pre-checking the relevant permissions. Toggles
+   * `showRoleForm` so the grid is only shown once an owner is selected (or always
+   * in edit mode). Safe to call before the access-control data has loaded — it
+   * simply updates visibility and returns until the data is available.
+   */
+  rebuildRoleManagementGrid() {
+    const ownerId = this.getSelectedOwnerId();
+    this.showRoleForm = !!ownerId;
+
+    const accessControl = this.adminDataExchange.accessControl || [];
+    if (accessControl.length === 0 || !this.roleManagementHelper) {
+      return;
+    }
+
+    // Flag the owner's row so the grid disables editing of its own permissions.
+    accessControl.forEach((unit) => {
+      unit.datasetOwner = unit.organizationalUnitId === ownerId;
+    });
+
+    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
+      'indicatorAddRoleManagementTable',
+      this.roleManagementTableOptions,
+      accessControl,
+      this.getPreCheckedPermissionIds(ownerId),
+      true
+    );
+
+    if (this.roleManagementTableOptions) {
+      this.roleManagementColumnDefs = this.roleManagementTableOptions.columnDefs || [];
+      this.roleManagementRowData = this.roleManagementTableOptions.rowData || [];
+      this.buildRoleManagementGridConfig();
+    }
+  }
+
+  private buildRoleManagementGridConfig() {
+    this.roleManagementDefaultColDef = this.roleManagementHelper.buildRoleManagementDefaultColDef();
+    const baseGridOptions = this.roleManagementHelper.buildRoleManagementGridOptionsPublic(
+      this.roleManagementTableOptions?.components
+    );
+    this.roleManagementGridOptions = {
+      ...baseGridOptions,
+      onGridReady: (params) => this.onRoleManagementGridReady(params),
+      onFirstDataRendered: (event) => this.onRoleManagementFirstDataRendered(event),
+      onColumnResized: (event) => this.onRoleManagementColumnResized(event),
+    };
+  }
+
+  // Number of currently checked role permissions in the grid (for the summary line).
+  get selectedRoleCount(): number {
+    if (!this.roleManagementTableOptions || !this.roleManagementHelper) {
+      return 0;
+    }
+    return this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
+      this.roleManagementTableOptions
+    ).length;
+  }
+
+  onRoleManagementGridReady(params: any) {
+    this.roleManagementGridApi = params.api;
+    // Hand the live grid API to the helper so getSelectedRoleIds can read it on submit.
+    this.roleManagementHelper.setGridApi(params.api);
+  }
+
+  onRoleManagementFirstDataRendered(_event: any) {
+    this.roleManagementHeaderHeightSetter();
+  }
+
+  onRoleManagementColumnResized(_event: any) {
+    this.roleManagementHeaderHeightSetter();
+  }
+
+  private roleManagementHeaderHeightSetter() {
+    if (this.roleManagementGridApi) {
+      this.roleManagementGridApi.setGridOption('headerHeight', this.roleManagementHeaderHeight());
+    }
+  }
+
+  private roleManagementHeaderHeight(): number {
+    const headerElement = document.querySelector('#indicatorAddRoleManagementGrid .ag-header');
+    if (headerElement) {
+      const headerTextElements = headerElement.querySelectorAll('.ag-header-cell-text');
+      let maxHeight = 0;
+      headerTextElements.forEach((element) => {
+        maxHeight = Math.max(maxHeight, element.scrollHeight);
+      });
+      return Math.max(maxHeight + 20, 40);
+    }
+    return 40;
   }
 
   // Step 3: Topic Hierarchy Methods
@@ -1794,13 +1925,111 @@ export class IndicatorAddFormStateService {
   }
 
   // Step 7: Access Control Methods
+
+  /**
+   * Loads the access-control data backing the owner-organization picker. The list
+   * is populated straight away when the admin service already holds it, otherwise
+   * it is fetched lazily (cache-first) and the picker is built once it arrives.
+   */
+  loadOwnerOrganizations() {
+    if (this.adminDataExchange.accessControl?.length > 0) {
+      this.prepareOwnerOrganizationList();
+    } else {
+      this.adminDataExchange
+        .fetchAccessControlMetadata(true)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => this.prepareOwnerOrganizationList(),
+          error: () => {
+            this.ownerOrganizations = [];
+            this.filteredOrganizations = [];
+          },
+        });
+    }
+  }
+
+  /**
+   * Builds the list of organizations the current user may assign as the indicator's
+   * owner, mirroring the legacy addIndicator modal:
+   *  - realm admins may pick any organizational unit (full accessControl list);
+   *  - other users may only pick units they hold resource-creator rights for
+   *    (`unit-resources-creator` directly, `client-resources-creator` including all
+   *    descendant units — see {@link gatherCreatorRightsChildren}).
+   * Seeds the base list and refreshes the filtered view shown in the dropdown.
+   */
+  prepareOwnerOrganizationList() {
+    if (this.adminDataExchange.checkAdminPermission()) {
+      this.ownerOrganizations = this.adminDataExchange.accessControl || [];
+    } else {
+      this.ownerOrganizations = this.buildResourcesCreatorRights();
+    }
+    this.filterOrganizations();
+    // Access-control data is now present, so (re)build the role-management grid. In
+    // edit mode this pre-checks the indicator's existing permissions; in add mode it
+    // stays empty until an owner is chosen.
+    this.rebuildRoleManagementGrid();
+  }
+
+  private buildResourcesCreatorRights(): any[] {
+    const roleNames = this.adminDataExchange.currentKomMonitorLoginRoleNames || [];
+    if (roleNames.length === 0) {
+      return [];
+    }
+
+    const creatorRights: string[] = [];
+    const creatorRightsChildren: string[] = [];
+    roleNames.forEach((role: string) => {
+      const orgName = role.split('.')[0];
+      const roleSuffix = role.split('.')[1];
+
+      if (roleSuffix === 'unit-resources-creator' && !creatorRights.includes(orgName)) {
+        creatorRights.push(orgName);
+      }
+      // client-resources-creator grants rights on the whole subtree; gather the
+      // unit ids first, then resolve all descendant units below.
+      if (roleSuffix === 'client-resources-creator' && !creatorRightsChildren.includes(orgName)) {
+        creatorRightsChildren.push(orgName);
+      }
+    });
+
+    this.gatherCreatorRightsChildren(creatorRights, creatorRightsChildren);
+
+    return (this.adminDataExchange.accessControl || []).filter((unit) =>
+      creatorRights.includes(unit.name)
+    );
+  }
+
+  // Recursively collect the names of all descendant units for the given parent
+  // units (client-resources-creator implies rights on every child unit).
+  private gatherCreatorRightsChildren(creatorRights: string[], creatorRightsChildren: string[]) {
+    if (creatorRightsChildren.length === 0) {
+      return;
+    }
+
+    const accessControl = this.adminDataExchange.accessControl || [];
+    accessControl
+      .filter((unit) => creatorRightsChildren.includes(unit.name))
+      .flatMap((unit) => unit.children || [])
+      .forEach((childId: string) => {
+        accessControl
+          .filter((unit) => unit.organizationalUnitId === childId)
+          .forEach((childUnit) => {
+            if (!creatorRights.includes(childUnit.name)) {
+              creatorRights.push(childUnit.name);
+            }
+            this.gatherCreatorRightsChildren(creatorRights, [childUnit.name]);
+          });
+      });
+  }
+
   filterOrganizations() {
+    const baseList = this.ownerOrganizations || [];
     if (!this.ownerOrgFilter || this.ownerOrgFilter.trim() === '') {
-      this.filteredOrganizations = this.accessControl || [];
+      this.filteredOrganizations = baseList;
     } else {
       const filter = this.ownerOrgFilter.toLowerCase().trim();
-      this.filteredOrganizations = (this.accessControl || []).filter(
-        (org) => org.organizationName && org.organizationName.toLowerCase().includes(filter)
+      this.filteredOrganizations = baseList.filter(
+        (org) => org.name && org.name.toLowerCase().includes(filter)
       );
     }
   }
@@ -1808,44 +2037,6 @@ export class IndicatorAddFormStateService {
   clearOwnerFilter() {
     this.ownerOrgFilter = '';
     this.filterOrganizations();
-  }
-
-  filterRoles() {
-    if (!this.roleFilter || this.roleFilter.trim() === '') {
-      this.filteredRoles = this.accessControl || [];
-    } else {
-      const filter = this.roleFilter.toLowerCase().trim();
-      this.filteredRoles = (this.accessControl || []).filter(
-        (role) => role.roleName && role.roleName.toLowerCase().includes(filter)
-      );
-    }
-  }
-
-  isRoleSelected(role: any): boolean {
-    return this.selectedRoles.some((selectedRole) => selectedRole.roleId === role.roleId);
-  }
-
-  toggleRoleSelection(role: any) {
-    if (this.isRoleSelected(role)) {
-      this.removeRole(role);
-    } else {
-      this.addRole(role);
-    }
-  }
-
-  addRole(role: any) {
-    if (!this.isRoleSelected(role)) {
-      this.selectedRoles.push(role);
-    }
-  }
-
-  removeRole(role: any) {
-    const index = this.selectedRoles.findIndex(
-      (selectedRole) => selectedRole.roleId === role.roleId
-    );
-    if (index >= 0) {
-      this.selectedRoles.splice(index, 1);
-    }
   }
 
   // Multi-step navigation
