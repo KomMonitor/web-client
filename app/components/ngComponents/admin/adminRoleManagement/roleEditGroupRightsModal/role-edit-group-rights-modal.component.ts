@@ -130,6 +130,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
     this.authorityGridOptions = {
       ...baseOptions,
       paginationPageSize: 5,
+      paginationPageSizeSelector: [5, 10, 25, 50],
       headerHeight: 52,
       rowHeight: 42,
     };
@@ -165,6 +166,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
     this.delegatedGridOptions = {
       ...baseOptions,
       paginationPageSize: 5,
+      paginationPageSizeSelector: [5, 10, 25, 50],
       headerHeight: 52,
       rowHeight: 42,
       onGridReady: (params: GridReadyEvent) => {

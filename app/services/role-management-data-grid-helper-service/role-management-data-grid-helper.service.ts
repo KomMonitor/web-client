@@ -69,6 +69,7 @@ export class RoleManagementDataGridHelperService {
       ensureDomOrder: true,
       pagination: true,
       paginationPageSize: 10,
+      paginationPageSizeSelector: [10, 25, 50, 100],
       suppressColumnVirtualisation: true,
       headerHeight: 40,
       rowHeight: 35,
@@ -120,7 +121,7 @@ export class RoleManagementDataGridHelperService {
       );
       // update underlying options so callers get the latest data
       currentTableOptionsObject.rowData = newRowData;
-      this.gridApi.setRowData(newRowData);
+      this.gridApi.setGridOption('rowData', newRowData);
       // ensure cells re-render to apply disabled state and checks
       setTimeout(() => {
         try {
@@ -291,6 +292,7 @@ export class RoleManagementDataGridHelperService {
       ensureDomOrder: true,
       pagination: true,
       paginationPageSize: 10,
+      paginationPageSizeSelector: [10, 25, 50, 100],
       suppressColumnVirtualisation: true,
       onFirstDataRendered: () => {
         this.headerHeightSetter();

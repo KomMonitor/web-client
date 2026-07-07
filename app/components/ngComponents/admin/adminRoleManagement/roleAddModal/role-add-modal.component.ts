@@ -206,6 +206,7 @@ export class RoleAddModalComponent implements OnInit {
     this.roleDelegatesGridOptions = {
       ...baseGridOptions,
       paginationPageSize: 5,
+      paginationPageSizeSelector: [5, 10, 25, 50],
       headerHeight: 52,
       rowHeight: 42,
       onGridReady: (params) => this.onRoleDelegatesGridReady(params),

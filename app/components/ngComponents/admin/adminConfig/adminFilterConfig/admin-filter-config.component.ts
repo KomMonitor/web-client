@@ -1,7 +1,7 @@
 import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { skip } from 'rxjs';
 import CodeMirror from 'codemirror';
+import { skip } from 'rxjs';
 
 // CodeMirror module is not loaded properly (why?!), reload necessary files
 import 'codemirror/mode/css/css.js';
@@ -14,23 +14,23 @@ import { HttpClient } from '@angular/common/http';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions, GridReadyEvent, SelectionChangedEvent } from 'ag-grid-community';
 
-import { KommonitorFilterDataGridHelperService } from '../../../../../services/adminFilterConfig/kommonitor-data-grid-helper.service';
-import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from '../../../../../services/broadcast-service/broadcast-message';
-import { ConfigStorageService } from '../../../../../services/config-storage-service/config-storage.service';
-import { GeoresourceMetadataStoreService } from '../../../../../services/georesource-metadata-store-service/georesource-metadata-store.service';
-import { TopicMetadataStoreService } from '../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
-import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
+import { GlobalFilterEntry } from 'components/ngComponents/models/globalFilters.models';
 import {
   MetadataBootstrapService,
   MetadataLoadingState,
 } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { KommonitorFilterDataGridHelperService } from '../../../../../services/adminFilterConfig/kommonitor-data-grid-helper.service';
+import { BroadcastMessage } from '../../../../../services/broadcast-service/broadcast-message';
+import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
+import { ConfigStorageService } from '../../../../../services/config-storage-service/config-storage.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
+import { GeoresourceMetadataStoreService } from '../../../../../services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { ScriptHelperService } from '../../../../../services/script-helper-service/script-helper.service';
+import { TopicMetadataStoreService } from '../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 import { ExpandableBoxComponent } from '../../../common/expandable-box/expandable-box.component';
 import { NotificationService } from '../../../common/notification/notification.service';
 import { AdminContentViewComponent } from '../../admin-content-view/admin-content-view.component';
-import { GlobalFilterEntry } from 'components/ngComponents/models/globalFilters.models';
 
 @Component({
   selector: 'app-admin-filter-config',
@@ -161,8 +161,8 @@ export class AdminFilterConfigComponent implements OnInit {
       // Force change detection
       setTimeout(() => {
         if (this.agGrid && this.agGrid.api) {
-          this.agGrid.api.setRowData(this.rowData);
-          this.agGrid.api.setColumnDefs(this.columnDefs);
+          this.agGrid.api.setGridOption('rowData', this.rowData);
+          this.agGrid.api.setGridOption('columnDefs', this.columnDefs);
           this.agGrid.api.refreshCells();
         }
       }, 200);
@@ -176,6 +176,7 @@ export class AdminFilterConfigComponent implements OnInit {
     this.gridOptions = {
       defaultColDef: {
         editable: false,
+        cellDataType: false,
         sortable: true,
         flex: 1,
         minWidth: 200,
@@ -215,6 +216,7 @@ export class AdminFilterConfigComponent implements OnInit {
       ensureDomOrder: true,
       pagination: true,
       paginationPageSize: 10,
+      paginationPageSizeSelector: [10, 25, 50, 100],
       suppressColumnVirtualisation: true,
       rowSelection: 'multiple',
       suppressRowClickSelection: true,
@@ -247,8 +249,8 @@ export class AdminFilterConfigComponent implements OnInit {
   onGridReady(params: GridReadyEvent): void {
     // If we have data, set it now
     if (this.rowData && this.rowData.length > 0) {
-      params.api.setRowData(this.rowData);
-      params.api.setColumnDefs(this.columnDefs);
+      params.api.setGridOption('rowData', this.rowData);
+      params.api.setGridOption('columnDefs', this.columnDefs);
     } else {
       // If no data is available, try to load it
     }

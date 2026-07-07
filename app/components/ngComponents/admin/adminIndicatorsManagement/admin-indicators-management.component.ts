@@ -1,16 +1,16 @@
-import { Component, inject, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { WmsSharedComponentsService } from 'components/ngComponents/common/wms-admin-table/wms-admin-tables-shared.service';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { WmsResourceType } from './../../models/services.models';
 
 import { FormsModule } from '@angular/forms';
 import { NgbDropdownModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridOptions, GridReadyEvent, SelectionChangedEvent } from 'ag-grid-community';
+import { ColDef, GridOptions, SelectionChangedEvent } from 'ag-grid-community';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { WmsAdminTableComponent } from 'components/ngComponents/common/wms-admin-table/wms-admin-table.component';
-import { Subscription, skip } from 'rxjs';
+import { skip, Subscription } from 'rxjs';
 import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
 import {
@@ -20,12 +20,12 @@ import {
 import { AccessControlService } from '../../../../services/access-control-service/access-control.service';
 import { IndicatorMetadataStoreService } from '../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
+import { IndicatorRefreshRequest } from './indicator-refresh.model';
 import { IndicatorAddModalComponent } from './indicatorAddModal/indicator-add-modal.component';
 import { IndicatorBatchUpdateModalComponent } from './indicatorBatchUpdateModal/indicator-batch-update-modal.component';
 import { IndicatorDeleteModalComponent } from './indicatorDeleteModal/indicator-delete-modal.component';
 import { IndicatorEditFeaturesModalComponent } from './indicatorEditFeaturesModal/indicator-edit-features-modal.component';
 import { IndicatorEditIndicatorSpatialUnitRolesModalComponent } from './indicatorEditIndicatorSpatialUnitRolesModal/indicator-edit-indicator-spatial-unit-roles-modal.component';
-import { IndicatorRefreshRequest } from './indicator-refresh.model';
 
 declare const __env: any;
 
@@ -54,10 +54,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   private accessControlService = inject(AccessControlService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
 
-  @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
-
-  public loadingData: boolean = true;
-  public initializationCompleted: boolean = false;
   public tableViewSwitcher: boolean = false;
 
   // AG Grid properties
@@ -72,58 +68,25 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   WmsResourceType = WmsResourceType;
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    // Grid options never depend on the data, so build them once up front —
+    // before the grid is created — to guarantee its callbacks are wired.
+    this.setupGridOptions();
     this.setupEventListeners();
 
-    // Render immediately when metadata is already cached; otherwise trigger a
-    // fetch. The metadataLoading$ subscription additionally covers the case
-    // where the initial app-wide metadata load completes while this view is
-    // already open.
-    if (this.indicatorStore.availableIndicators?.length) {
-      this.initializeOrRefreshOverviewTable();
-    } else {
-      this.ensureDataLoaded();
-    }
-  }
-
-  private async ensureDataLoaded(): Promise<void> {
-    if (this.indicatorStore.availableIndicators?.length) {
-      return;
-    }
-    try {
-      await this.metadataBootstrap.fetchIndicatorsMetadata(
-        this.accessControlService.currentKeycloakLoginRoles
-      );
-      this.initializeOrRefreshOverviewTable();
-    } catch (error) {
-      console.error('Error fetching indicators:', error);
-    } finally {
-      // A component-triggered fetch does not drive metadataLoading$, so the
-      // loading state is cleared here regardless of the result — including the
-      // empty case, which would otherwise leave the spinner running.
-      this.loadingData = false;
-      this.initializationCompleted = true;
-    }
-  }
-
-  private forceRefreshGrid(): void {
-    const indicators = this.getFilteredIndicators();
-
-    if (indicators && indicators.length > 0) {
-      this.columnDefs =
-        this.kommonitorDataGridHelperService.buildDataGridColumnConfig_indicators(indicators);
-      this.rowData =
-        this.kommonitorDataGridHelperService.buildDataGridRowData_indicators(indicators);
-
-      // Update the grid if it's ready
-      if (this.agGrid && this.agGrid.api) {
-        this.agGrid.api.setRowData(this.rowData);
-        this.agGrid.api.setColumnDefs(this.columnDefs);
-        this.agGrid.api.refreshCells();
-        this.loadingData = false;
-        this.initializationCompleted = true;
+    // Load metadata if the store is empty; the table renders from the store
+    // either way. The metadataLoading$ subscription additionally covers the
+    // case where the initial app-wide load finishes while this view is open.
+    if (!this.indicatorStore.availableIndicators?.length) {
+      try {
+        await this.metadataBootstrap.fetchIndicatorsMetadata(
+          this.accessControlService.currentKeycloakLoginRoles
+        );
+      } catch (error) {
+        console.error('Error fetching indicators:', error);
       }
     }
+    this.initializeOrRefreshOverviewTable();
   }
 
   ngOnDestroy(): void {
@@ -131,20 +94,12 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   private setupEventListeners(): void {
-    // React to metadata loading state transitions. skip(1) drops the
-    // BehaviorSubject's replayed current value so this keeps the original
-    // one-shot semantics of the former broadcast events.
+    // React to the app-wide metadata load completing while this view is open.
+    // skip(1) drops the BehaviorSubject's replayed current value so this keeps
+    // the original one-shot semantics of the former broadcast events.
     const loadingSub = this.metadataBootstrap.metadataLoading$.pipe(skip(1)).subscribe((state) => {
       if (state === MetadataLoadingState.COMPLETE) {
-        this.zone.run(() => {
-          this.initializeOrRefreshOverviewTable();
-          this.loadingData = false;
-          this.initializationCompleted = true;
-        });
-      } else if (state === MetadataLoadingState.ERROR) {
-        this.zone.run(() => {
-          this.loadingData = false;
-        });
+        this.zone.run(() => this.initializeOrRefreshOverviewTable());
       }
     });
     this.subscriptions.push(loadingSub);
@@ -155,10 +110,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     // each modal's refreshRequested output instead (see handleRefreshRequest).
     const refreshSub = this.broadcastService.currentBroadcastMsg.subscribe((data) => {
       if (data.msg === BroadcastMessage.RefreshIndicatorOverviewTable) {
-        this.zone.run(() => {
-          this.loadingData = true;
-          this.refreshIndicatorOverviewTable();
-        });
+        this.zone.run(() => this.refreshIndicatorOverviewTable());
       }
     });
     this.subscriptions.push(refreshSub);
@@ -211,40 +163,20 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   public initializeOrRefreshOverviewTable(): void {
+    // columnDefs/rowData are bound as AG Grid inputs in the template, so
+    // assigning them is enough — the grid reacts on its own. An empty array
+    // simply renders an empty grid.
     const indicators = this.getFilteredIndicators();
-
-    if (indicators && indicators.length > 0) {
-      this.loadingData = false;
-      this.initializationCompleted = true;
-
-      // Set up grid options first
-      this.setupGridOptions(indicators);
-
-      // Use the data grid helper service to build column definitions and row data
-      this.columnDefs =
-        this.kommonitorDataGridHelperService.buildDataGridColumnConfig_indicators(indicators);
-      this.rowData =
-        this.kommonitorDataGridHelperService.buildDataGridRowData_indicators(indicators);
-
-      // Force change detection
-      setTimeout(() => {
-        if (this.agGrid && this.agGrid.api) {
-          this.agGrid.api.setRowData(this.rowData);
-          this.agGrid.api.setColumnDefs(this.columnDefs);
-          this.agGrid.api.refreshCells();
-        }
-      }, 100);
-    } else {
-      // Data not ready yet, keep loading
-      this.loadingData = true;
-      this.initializationCompleted = false;
-    }
+    this.columnDefs =
+      this.kommonitorDataGridHelperService.buildDataGridColumnConfig_indicators(indicators);
+    this.rowData = this.kommonitorDataGridHelperService.buildDataGridRowData_indicators(indicators);
   }
 
-  private setupGridOptions(indicatorMetadataArray: any[]): void {
+  private setupGridOptions(): void {
     this.gridOptions = {
       defaultColDef: {
         editable: false,
+        cellDataType: false,
         sortable: true,
         flex: 1,
         minWidth: 200,
@@ -284,17 +216,16 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       ensureDomOrder: true,
       pagination: true,
       paginationPageSize: 10,
+      paginationPageSizeSelector: [10, 25, 50, 100],
       suppressColumnVirtualisation: true,
       rowSelection: 'multiple',
       suppressRowClickSelection: true,
-      onGridReady: (params: GridReadyEvent) => {
-        this.onGridReady(params);
-      },
       onModelUpdated: () => {
-        this.onModelUpdated(indicatorMetadataArray);
+        this.registerClickHandlers();
       },
       onViewportChanged: () => {
-        this.onViewportChanged(indicatorMetadataArray);
+        this.registerClickHandlers();
+        this.typesetMath();
       },
       onSelectionChanged: (event: SelectionChangedEvent) => {
         this.onSelectionChanged(event);
@@ -303,36 +234,17 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   // Grid event handlers
-  onGridReady(params: GridReadyEvent): void {
-    // If we have data, set it now
-    if (this.rowData && this.rowData.length > 0) {
-      params.api.setRowData(this.rowData);
-      params.api.setColumnDefs(this.columnDefs);
-    } else {
-      // If no data is available, try to load it
-      if (
-        !this.indicatorStore.availableIndicators ||
-        this.indicatorStore.availableIndicators.length === 0
-      ) {
-        this.ensureDataLoaded();
-      } else {
-        this.forceRefreshGrid();
-      }
-    }
+  private registerClickHandlers(): void {
+    // Read the current indicator set so refreshed rows wire up to fresh data.
+    this.kommonitorDataGridHelperService.registerClickHandler_indicators(
+      this.getFilteredIndicators()
+    );
   }
 
-  onModelUpdated(indicatorMetadataArray: any[]): void {
-    this.kommonitorDataGridHelperService.registerClickHandler_indicators(indicatorMetadataArray);
-  }
-
-  onViewportChanged(indicatorMetadataArray: any[]): void {
-    this.kommonitorDataGridHelperService.registerClickHandler_indicators(indicatorMetadataArray);
+  private typesetMath(): void {
     setTimeout(() => {
-      // MathJax rendering if available
       if ((window as any).MathJax && (window as any).MathJax.typesetPromise) {
-        (window as any).MathJax.typesetPromise().then(() => {
-          // MathJax rendering completed
-        });
+        (window as any).MathJax.typesetPromise();
       }
     }, 250);
   }
@@ -342,22 +254,20 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   private getFilteredIndicators(): any[] {
-    const allIndicators = this.indicatorStore.availableIndicators;
+    const allIndicators = this.indicatorStore.availableIndicators ?? [];
 
-    if (this.tableViewSwitcher) {
-      // Filter out indicators where user only has viewer permission
-      const filtered = allIndicators.filter(
-        (e) =>
-          !(
-            e.userPermissions &&
-            e.userPermissions.length === 1 &&
-            e.userPermissions.includes('viewer')
-          )
-      );
-      return filtered;
-    } else {
+    if (!this.tableViewSwitcher) {
       return allIndicators;
     }
+    // Filter out indicators where the user only has viewer permission.
+    return allIndicators.filter(
+      (e) =>
+        !(
+          e.userPermissions &&
+          e.userPermissions.length === 1 &&
+          e.userPermissions.includes('viewer')
+        )
+    );
   }
 
   // Table view switcher method
@@ -525,7 +435,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       modalRef.result
         .then((result) => {
           if (result) {
-            // Modal was closed successfully, refresh the table
+            // Modal was closed successfully, re-render from the store.
             this.initializeOrRefreshOverviewTable();
           }
         })
@@ -549,72 +459,46 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   // Handles a modal's refreshRequested output; replaces the former
   // RefreshIndicatorOverviewTable broadcast round-trip.
   private handleRefreshRequest(request: IndicatorRefreshRequest): void {
-    this.loadingData = true;
     this.refreshIndicatorOverviewTable(request.crudType, request.targetIndicatorId);
   }
 
   refreshIndicatorOverviewTable(crudType?: string, targetIndicatorId?: string): void {
-    if (!crudType || !targetIndicatorId) {
-      // refetch all metadata from indicators to update table
-      this.metadataBootstrap
-        .fetchIndicatorsMetadata(this.accessControlService.currentKeycloakLoginRoles)
-        .then((_response: any) => {
-          this.initializeOrRefreshOverviewTable();
-          this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTableCompleted);
-          this.loadingData = false;
-        })
-        .catch((_response: any) => {
-          this.loadingData = false;
-          this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTableCompleted);
-        });
-    } else if (crudType && targetIndicatorId) {
-      if (crudType === 'add') {
-        this.kommonitorCacheHelperService
-          .fetchSingleIndicatorMetadata(
-            targetIndicatorId,
-            this.accessControlService.currentKeycloakLoginRoles
-          )
-          .then((data: any) => {
-            this.indicatorStore.addSingleIndicatorMetadata(data);
-            this.initializeOrRefreshOverviewTable();
-            this.broadcastService.broadcast(
-              BroadcastMessage.RefreshIndicatorOverviewTableCompleted
-            );
-            this.loadingData = false;
-          })
-          .catch((_response: any) => {
-            this.loadingData = false;
-            this.broadcastService.broadcast(
-              BroadcastMessage.RefreshIndicatorOverviewTableCompleted
-            );
-          });
-      } else if (crudType === 'edit') {
-        this.kommonitorCacheHelperService
-          .fetchSingleIndicatorMetadata(
-            targetIndicatorId,
-            this.accessControlService.currentKeycloakLoginRoles
-          )
-          .then((data: any) => {
-            this.indicatorStore.replaceSingleIndicatorMetadata(data);
-            this.initializeOrRefreshOverviewTable();
-            this.broadcastService.broadcast(
-              BroadcastMessage.RefreshIndicatorOverviewTableCompleted
-            );
-            this.loadingData = false;
-          })
-          .catch((_response: any) => {
-            this.loadingData = false;
-            this.broadcastService.broadcast(
-              BroadcastMessage.RefreshIndicatorOverviewTableCompleted
-            );
-          });
-      } else if (crudType === 'delete') {
-        this.indicatorStore.deleteSingleIndicatorMetadata(targetIndicatorId);
-        this.initializeOrRefreshOverviewTable();
-        this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTableCompleted);
-        this.loadingData = false;
-      }
+    const roles = this.accessControlService.currentKeycloakLoginRoles;
+
+    // Re-render the table and notify open modals that the refresh finished.
+    // The completed broadcast is consumed by the edit-features and batch-update
+    // modals to refresh their own view — it must fire even on error.
+    const complete = () => {
+      this.initializeOrRefreshOverviewTable();
+      this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTableCompleted);
+    };
+    const notifyOnly = () =>
+      this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTableCompleted);
+
+    // Targeted single-indicator updates avoid refetching the whole overview.
+    if (crudType === 'delete' && targetIndicatorId) {
+      this.indicatorStore.deleteSingleIndicatorMetadata(targetIndicatorId);
+      complete();
+      return;
     }
+
+    if ((crudType === 'add' || crudType === 'edit') && targetIndicatorId) {
+      this.kommonitorCacheHelperService
+        .fetchSingleIndicatorMetadata(targetIndicatorId, roles)
+        .then((data: any) => {
+          if (crudType === 'add') {
+            this.indicatorStore.addSingleIndicatorMetadata(data);
+          } else {
+            this.indicatorStore.replaceSingleIndicatorMetadata(data);
+          }
+          complete();
+        })
+        .catch(notifyOnly);
+      return;
+    }
+
+    // Fallback: refetch all indicator metadata.
+    this.metadataBootstrap.fetchIndicatorsMetadata(roles).then(complete).catch(notifyOnly);
   }
 
   // Utility methods

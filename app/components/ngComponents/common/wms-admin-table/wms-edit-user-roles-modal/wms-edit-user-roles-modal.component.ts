@@ -104,8 +104,8 @@ export class WmsEditUserRolesModalComponent {
       // If grid is already initialized, update the data and grid options
       if (this.roleManagementGridApi) {
         // Update data
-        this.roleManagementGridApi.setRowData(this.roleManagementRowData);
-        this.roleManagementGridApi.setColumnDefs(this.roleManagementColumnDefs);
+        this.roleManagementGridApi.setGridOption('rowData', this.roleManagementRowData);
+        this.roleManagementGridApi.setGridOption('columnDefs', this.roleManagementColumnDefs);
 
         // Refresh the grid to ensure it updates
         setTimeout(() => {
@@ -196,8 +196,8 @@ export class WmsEditUserRolesModalComponent {
       // If grid is already initialized, update the data and grid options
       if (this.roleManagementGridApi) {
         // Update data
-        this.roleManagementGridApi.setRowData(this.roleManagementRowData);
-        this.roleManagementGridApi.setColumnDefs(this.roleManagementColumnDefs);
+        this.roleManagementGridApi.setGridOption('rowData', this.roleManagementRowData);
+        this.roleManagementGridApi.setGridOption('columnDefs', this.roleManagementColumnDefs);
 
         // Refresh the grid to ensure it updates
         setTimeout(() => {

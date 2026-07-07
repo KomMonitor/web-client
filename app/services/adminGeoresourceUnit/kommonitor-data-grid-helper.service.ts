@@ -93,17 +93,17 @@ export class KommonitorGeoresourceDataGridHelperService {
   private updateColumnDefinitions(): void {
     if (this.poiGrid && this.poiGrid.api) {
       const poiColumnDefs = this.getPoiColumnDefinitions();
-      this.poiGrid.api.setColumnDefs(poiColumnDefs);
+      this.poiGrid.api.setGridOption('columnDefs', poiColumnDefs);
     }
 
     if (this.loiGrid && this.loiGrid.api) {
       const loiColumnDefs = this.getLoiColumnDefinitions();
-      this.loiGrid.api.setColumnDefs(loiColumnDefs);
+      this.loiGrid.api.setGridOption('columnDefs', loiColumnDefs);
     }
 
     if (this.aoiGrid && this.aoiGrid.api) {
       const aoiColumnDefs = this.getAoiColumnDefinitions();
-      this.aoiGrid.api.setColumnDefs(aoiColumnDefs);
+      this.aoiGrid.api.setGridOption('columnDefs', aoiColumnDefs);
     }
   }
 
@@ -137,8 +137,8 @@ export class KommonitorGeoresourceDataGridHelperService {
     const columnDefs = this.getPoiColumnDefinitions();
 
     try {
-      this.poiGrid.api?.setRowData(poiData);
-      this.poiGrid.api?.setColumnDefs(columnDefs);
+      this.poiGrid.api?.setGridOption('rowData', poiData);
+      this.poiGrid.api?.setGridOption('columnDefs', columnDefs);
 
       // Register click handlers after a short delay
       setTimeout(() => {
@@ -161,8 +161,8 @@ export class KommonitorGeoresourceDataGridHelperService {
     const columnDefs = this.getLoiColumnDefinitions();
 
     try {
-      this.loiGrid.api?.setRowData(loiData);
-      this.loiGrid.api?.setColumnDefs(columnDefs);
+      this.loiGrid.api?.setGridOption('rowData', loiData);
+      this.loiGrid.api?.setGridOption('columnDefs', columnDefs);
 
       // Register click handlers after a short delay
       setTimeout(() => {
@@ -185,8 +185,8 @@ export class KommonitorGeoresourceDataGridHelperService {
     const columnDefs = this.getAoiColumnDefinitions();
 
     try {
-      this.aoiGrid.api?.setRowData(aoiData);
-      this.aoiGrid.api?.setColumnDefs(columnDefs);
+      this.aoiGrid.api?.setGridOption('rowData', aoiData);
+      this.aoiGrid.api?.setGridOption('columnDefs', columnDefs);
 
       // Register click handlers after a short delay
       setTimeout(() => {
@@ -731,6 +731,7 @@ export class KommonitorGeoresourceDataGridHelperService {
       ensureDomOrder: true,
       pagination: true,
       paginationPageSize: 10,
+      paginationPageSizeSelector: [10, 25, 50, 100],
       suppressColumnVirtualisation: true,
       onModelUpdated: () => {
         setTimeout(() => {
@@ -768,6 +769,7 @@ export class KommonitorGeoresourceDataGridHelperService {
       ensureDomOrder: true,
       pagination: true,
       paginationPageSize: 10,
+      paginationPageSizeSelector: [10, 25, 50, 100],
       suppressColumnVirtualisation: true,
       onModelUpdated: () => {
         setTimeout(() => {
@@ -805,6 +807,7 @@ export class KommonitorGeoresourceDataGridHelperService {
       ensureDomOrder: true,
       pagination: true,
       paginationPageSize: 10,
+      paginationPageSizeSelector: [10, 25, 50, 100],
       suppressColumnVirtualisation: true,
       onModelUpdated: () => {
         setTimeout(() => {

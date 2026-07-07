@@ -62,21 +62,13 @@
       [columnDefs]="columnDefs"
       [rowData]="rowData"
       [gridOptions]="gridOptions"
-      [defaultColDef]="gridOptions.defaultColDef"
-      [pagination]="true"
-      [paginationPageSize]="10"
-      [rowSelection]="'multiple'"
-      [suppressRowClickSelection]="true"
-      [enableCellTextSelection]="true"
-      [ensureDomOrder]="true"
-      [suppressColumnVirtualisation]="true"
     >
     </ag-grid-angular>
   </expandable-box>
 
   <app-wms-admin-table [resourceType]="resourceType"></app-wms-admin-table>
 
-  <expandable-box title="Indikatoren-Reihenfolge in Themenkatalog">
+  <!-- <expandable-box title="Indikatoren-Reihenfolge in Themenkatalog">
     TODO: add topic comp once ready
-  </expandable-box>
+  </expandable-box> -->
 </ng-template>

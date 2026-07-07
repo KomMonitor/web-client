@@ -106,7 +106,7 @@ export class FeatureTableDataGridHelperService {
       // Grid already exists, just update the data
       this.saveGridStore_featureTable(this.dataGridOptions_featureTable);
       const newRowData = this.buildFeatureTableRowData(features);
-      this.gridApi_featureTable.setRowData(newRowData);
+      this.gridApi_featureTable.setGridOption('rowData', newRowData);
       this.restoreGridStore_featureTable(this.dataGridOptions_featureTable);
     } else {
       // Create new grid options
@@ -534,7 +534,7 @@ export class FeatureTableDataGridHelperService {
    */
   clearFeatureTable(): void {
     if (this.dataGridOptions_featureTable && this.gridApi_featureTable) {
-      this.gridApi_featureTable.setRowData([]);
+      this.gridApi_featureTable.setGridOption('rowData', []);
     }
   }
 
@@ -544,7 +544,7 @@ export class FeatureTableDataGridHelperService {
   refreshFeatureTable(features: any[]): void {
     if (this.dataGridOptions_featureTable && this.gridApi_featureTable) {
       const newRowData = this.buildFeatureTableRowData(features);
-      this.gridApi_featureTable.setRowData(newRowData);
+      this.gridApi_featureTable.setGridOption('rowData', newRowData);
     }
   }
 
@@ -702,7 +702,7 @@ export class FeatureTableDataGridHelperService {
       gridContainer.childElementCount > 0
     ) {
       const newRowData = this.buildIndicatorFeatureTableRowData(features);
-      this.gridApi_featureTable.setRowData(newRowData);
+      this.gridApi_featureTable.setGridOption('rowData', newRowData);
     } else {
       this.dataGridOptions_featureTable = this.buildIndicatorFeatureTableGridOptions(
         headers,

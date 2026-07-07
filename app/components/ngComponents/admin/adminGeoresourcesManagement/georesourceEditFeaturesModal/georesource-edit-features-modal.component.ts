@@ -356,7 +356,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
             }
           );
           console.log('Transformed data for grid:', transformedData);
-          this.gridApi.setRowData(transformedData);
+          this.gridApi.setGridOption('rowData', transformedData);
           // Force refresh of the grid
           this.gridApi.refreshCells();
         }
@@ -397,7 +397,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       // Update grid if API is available
       if (this.gridApi && this.featureTableGridOptions && this.featureTableGridOptions.columnDefs) {
         // Update column definitions to include/exclude delete buttons
-        this.gridApi.setColumnDefs(this.featureTableGridOptions.columnDefs);
+        this.gridApi.setGridOption('columnDefs', this.featureTableGridOptions.columnDefs);
       }
     }
   }
