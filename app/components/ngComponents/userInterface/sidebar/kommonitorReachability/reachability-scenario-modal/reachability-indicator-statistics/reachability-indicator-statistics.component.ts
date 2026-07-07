@@ -320,8 +320,8 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
   onNameFilterChange(name: any) {
     const value = name.target.value.toLowerCase();
 
-    this.filteredIndicators = this.indicatorStore.displayableIndicators.filter(
-      (e) => e.indicatorName.toLowerCase().includes(value)
+    this.filteredIndicators = this.indicatorStore.displayableIndicators.filter((e) =>
+      e.indicatorName.toLowerCase().includes(value)
     );
   }
 }

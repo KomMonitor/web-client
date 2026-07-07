@@ -8,7 +8,7 @@
   <div class="row vertical-align align-top">
     @if (reachabilityStateService.currentIsochronesGeoJSON) {
       <div class="col-md-6 col-sm-6 col-12">
-         <div class="input-wrapper">
+        <div class="input-wrapper">
           <span class="icon"><i class="fas fa-filter"></i></span>
           <input
             type="text"
@@ -28,10 +28,7 @@
             required
           >
             <option disabled selected value>-- Indikator w&auml;hlen --</option>
-            @for (
-              indicatorMetadata of filteredIndicators;
-              track indicatorMetadata
-            ) {
+            @for (indicatorMetadata of filteredIndicators; track indicatorMetadata) {
               <option [value]="indicatorMetadata.indicatorId">
                 <!--  | filter:indicatorNameFilter | filter:{indicatorType:'STATUS_ABSOLUTE'}) track by indicatorMetadata.indicatorId -->
                 {{ indicatorMetadata.indicatorName }} [{{ indicatorMetadata.unit }}]
