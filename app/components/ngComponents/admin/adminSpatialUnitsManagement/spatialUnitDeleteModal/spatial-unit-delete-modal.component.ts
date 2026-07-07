@@ -1,8 +1,6 @@
 import { Component, OnInit, Input, inject, Output, EventEmitter } from '@angular/core';
 import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
 import {
   KommonitorDataExchangeService,
@@ -24,7 +22,6 @@ export class SpatialUnitDeleteModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
   private http = inject(HttpClient);
-  private broadcastService = inject(BroadcastService);
   private notificationService = inject(NotificationService);
 
   @Input() datasetsToDelete: SpatialUnitMetadata[] = [];
@@ -78,11 +75,6 @@ export class SpatialUnitDeleteModalComponent implements OnInit {
           crudType: 'delete',
           targetSpatialUnitId: deletedIds,
         });
-
-        // Refresh all admin dashboard diagrams due to modified metadata
-        setTimeout(() => {
-          this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
-        }, 500);
 
         this.notificationService.showSuccess(
           `${this.successfullyDeletedDatasets.length} Raumebene(n) erfolgreich gelöscht.`

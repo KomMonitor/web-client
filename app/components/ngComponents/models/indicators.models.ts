@@ -1,3 +1,9 @@
+import {
+  CommonMetadataType,
+  DefaultClassificationMappingType,
+  IndicatorOverviewType,
+  IndicatorSpatialUnitJoinItem,
+} from 'models/data-management-api';
 import { WmsDataset } from './services.models';
 
 export interface IndicatorsTopicsHierarchy {
@@ -16,63 +22,24 @@ export interface IndicatorsTopicsHierarchy {
   wmsCount: number;
 }
 
-export interface IndicatorsDataset {
-  abbreviation: string;
-  applicableDates: string[];
-  applicableSpatialUnits: SpatialUnitDataset[];
-  characteristicValue: null;
-  creationType: string;
-  defaultClassificationMapping: IndicatorClassification;
-  defaultPrecision: boolean;
-  displayOrder: 0;
-  indicatorId: string;
-  indicatorName: string;
-  indicatorType: string;
-  interpretation: string;
-  isHeadlineIndicator: boolean;
-  isPublic: boolean;
-  lowestSpatialUnitForComputation: any | null;
-  metadata: IndicatorMetadata;
-  ogcServices: any[];
-  ownerId: string;
-  permissions: string[];
-  precision: number;
-  processDescription: string;
-  referenceDateNote: string;
-  referencedGeoresources: any | null;
-  referencedIndicators: any | null;
-  regionalReferenceValues: any[];
-  tags: string[];
-  topicReference: string;
-  unit: string;
-  userPermissions: string[];
-  geoJSON: any;
+/**
+ * Indicator metadata as delivered by the Data Management API
+ * (IndicatorOverviewType), plus fields the web client attaches on top.
+ */
+export interface IndicatorsDataset extends Omit<IndicatorOverviewType, 'precision'> {
+  /** loosened vs. the API type: the backend sends explicit null when no precision is predefined */
+  precision?: number | null;
+  /** set client-side by IndicatorMetadataStoreService: true when the API precision was null and the env default was applied */
+  defaultPrecision?: boolean;
+  /** attached client-side once indicator features have been loaded */
+  geoJSON?: any;
 }
 
-export interface IndicatorClassification {
-  classificationMethod: string;
-  colorBrewerSchemeName: string;
-  items: any[];
-  numClasses: number;
-}
+/** @deprecated import DefaultClassificationMappingType from 'models/data-management-api' instead */
+export type IndicatorClassification = DefaultClassificationMappingType;
 
-export interface SpatialUnitDataset {
-  isPublic: boolean;
-  ownerId: string;
-  permissions: string[];
-  spatialUnitId: string;
-  spatialUnitName: string;
-  userPermissions: null;
-}
+/** @deprecated import IndicatorSpatialUnitJoinItem from 'models/data-management-api' instead */
+export type SpatialUnitDataset = IndicatorSpatialUnitJoinItem;
 
-export interface IndicatorMetadata {
-  contact: string;
-  databasis: any | null;
-  datasource: string;
-  description: string;
-  lastUpdate: string;
-  literature: any | null;
-  note: any | null;
-  sridEPSG: any | null;
-  updateInterval: string;
-}
+/** @deprecated import CommonMetadataType from 'models/data-management-api' instead */
+export type IndicatorMetadata = CommonMetadataType;

@@ -170,7 +170,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
         this.kommonitorDataExchangeService.getRoleTitle(params.data.ownerId),
       filter: 'agTextColumnFilter',
       filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-        '' + this.kommonitorDataExchangeService.getRoleTitle(params.data!.ownerId),
+        '' + this.kommonitorDataExchangeService.getRoleTitle(params.data!.ownerId ?? ''),
     },
     {
       headerName: 'Linienfarbe (Umringslayer)',

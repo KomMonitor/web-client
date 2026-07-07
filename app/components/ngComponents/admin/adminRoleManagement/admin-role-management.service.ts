@@ -4,6 +4,7 @@ import {
   AccessControlMetadata,
   KommonitorDataExchangeService,
 } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { OrganizationalUnitInputType } from 'models/data-management-api';
 import { KeycloakHelperService } from 'services/keycloak-helper-service/keycloak-helper.service';
 import { Observable, of, from, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
@@ -54,9 +55,9 @@ export class AdminRoleManagementService {
   }
 
   addOrganizationalUnit(
-    postBody: any,
+    postBody: OrganizationalUnitInputType,
     parentOrganizationalUnit: AccessControlMetadata | null,
-    roleDelegatesPutBody: any[]
+    roleDelegatesPutBody: RoleDelegatePutEntry[]
   ): Observable<{ created?: AccessControlMetadata }> {
     return this.http.post(`${this.baseUrl}/organizationalUnits`, postBody).pipe(
       // after creation, refresh access control metadata

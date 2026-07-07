@@ -34,8 +34,8 @@ export class GeoresourceMetadataStoreService {
   set availableGeoresources(value: GeoresourcesDataset[]) {
     this._availableGeoresources.set(value);
   }
-  availableGeoresources_map = new Map();
-  displayableGeoresources: any;
+  availableGeoresources_map = new Map<string, GeoresourcesDataset>();
+  displayableGeoresources: GeoresourcesDataset[] = [];
 
   availableWmsDatasets: WmsDataset[] = [];
   wmsDatasets!: WmsDataset[];
@@ -55,12 +55,12 @@ export class GeoresourceMetadataStoreService {
     this.wmsDatasets_keywordFiltered = servicesArray;
   }
 
-  addSingleGeoresourceMetadata(georesourceMetadata) {
+  addSingleGeoresourceMetadata(georesourceMetadata: GeoresourcesDataset) {
     this.availableGeoresources_map.set(georesourceMetadata.georesourceId, georesourceMetadata);
     this.availableGeoresources = [georesourceMetadata, ...this.availableGeoresources];
   }
 
-  replaceSingleGeoresourceMetadata(georesourceMetadata) {
+  replaceSingleGeoresourceMetadata(georesourceMetadata: GeoresourcesDataset) {
     const index = this.availableGeoresources.findIndex(
       (g) => g.georesourceId === georesourceMetadata.georesourceId
     );
@@ -71,14 +71,14 @@ export class GeoresourceMetadataStoreService {
     this.availableGeoresources_map.set(georesourceMetadata.georesourceId, georesourceMetadata);
   }
 
-  deleteSingleGeoresourceMetadata(georesourceId) {
+  deleteSingleGeoresourceMetadata(georesourceId: string) {
     const index = this.availableGeoresources.findIndex((g) => g.georesourceId === georesourceId);
     if (index !== -1)
       this.availableGeoresources = this.availableGeoresources.filter((_, i) => i !== index);
     this.availableGeoresources_map.delete(georesourceId);
   }
 
-  getGeoresourceMetadataById(georesourceId) {
+  getGeoresourceMetadataById(georesourceId: string): GeoresourcesDataset | undefined {
     return this.availableGeoresources_map.get(georesourceId);
   }
 
@@ -92,7 +92,7 @@ export class GeoresourceMetadataStoreService {
     return this.availableWmsDatasets.filter((e) => e.serviceResource == WmsResourceType.INDICATOR);
   }
 
-  setGeoresources(georesourcesArray) {
+  setGeoresources(georesourcesArray: GeoresourcesDataset[]) {
     // wms are not part of availableGeoresources anymore, maybe add again. But no use-case for the time beeing
     this.availableGeoresources_map = new Map(georesourcesArray.map((g) => [g.georesourceId, g]));
     this.availableGeoresources = Array.from(this.availableGeoresources_map.values());

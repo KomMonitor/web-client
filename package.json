@@ -30,6 +30,7 @@
     "jest-canvas-mock": "^2.5.2",
     "jest-environment-jsdom": "^30.4.1",
     "license-checker": "^25.0.1",
+    "openapi-typescript": "^7.13.0",
     "prettier": "^3.8.4",
     "release-it": "^15.10.1",
     "typescript": "~5.9.3",
@@ -51,6 +52,7 @@
     "lint:fix": "ng lint --fix",
     "format": "prettier --write \"app/**/*.{ts,html,scss}\"",
     "format:check": "prettier --check \"app/**/*.{ts,html,scss}\"",
+    "generate:api-types": "openapi-typescript api-specs/kommonitor_dataAccessAPI.yaml -o app/models/data-management-api.generated.ts",
     "prepare": "husky"
   },
   "dependencies": {

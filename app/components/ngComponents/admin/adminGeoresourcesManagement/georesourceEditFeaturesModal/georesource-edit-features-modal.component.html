@@ -274,8 +274,9 @@
                     </label>
                     <input
                       type="text"
-                      [id]="'converterParameter_georesourceEditFeatures_' + parameter.name"
                       class="form-control"
+                      [(ngModel)]="converterParameterValues[parameter.name]"
+                      [ngModelOptions]="{ standalone: true }"
                       [placeholder]="parameter.name"
                       [required]="parameter.mandatory"
                     />
@@ -372,10 +373,11 @@
                           <div>
                             <label>Begrenzungsrahmen*</label>
                             <input
-                              id="datasourceTypeParameter_georesourceEditFeatures_bbox_minx"
                               class="form-control"
                               type="number"
                               lang="us"
+                              [(ngModel)]="bboxMinX"
+                              [ngModelOptions]="{ standalone: true }"
                               placeholder="-180"
                               [required]="bboxType === 'literal'"
                             />
@@ -383,10 +385,11 @@
                               <p>Minimale x-Koordinate</p>
                             </div>
                             <input
-                              id="datasourceTypeParameter_georesourceEditFeatures_bbox_miny"
                               class="form-control"
                               type="number"
                               lang="us"
+                              [(ngModel)]="bboxMinY"
+                              [ngModelOptions]="{ standalone: true }"
                               placeholder="-90"
                               [required]="bboxType === 'literal'"
                             />
@@ -394,10 +397,11 @@
                               <p>Minimale y-Koordinate</p>
                             </div>
                             <input
-                              id="datasourceTypeParameter_georesourceEditFeatures_bbox_maxx"
                               class="form-control"
                               type="number"
                               lang="us"
+                              [(ngModel)]="bboxMaxX"
+                              [ngModelOptions]="{ standalone: true }"
                               placeholder="180"
                               [required]="bboxType === 'literal'"
                             />
@@ -405,10 +409,11 @@
                               <p>Maximale x-Koordinate</p>
                             </div>
                             <input
-                              id="datasourceTypeParameter_georesourceEditFeatures_bbox_maxy"
                               class="form-control"
                               type="number"
                               lang="us"
+                              [(ngModel)]="bboxMaxY"
+                              [ngModelOptions]="{ standalone: true }"
                               placeholder="90"
                               [required]="bboxType === 'literal'"
                             />
@@ -432,11 +437,9 @@
                               }
                               <textarea
                                 rows="1"
-                                [id]="
-                                  'datasourceTypeParameter_georesourceEditFeatures_' +
-                                  parameter.name
-                                "
                                 class="form-control"
+                                [(ngModel)]="datasourceParameterValues[parameter.name]"
+                                [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="parameter.name"
                                 [required]="parameter.mandatory"
                               ></textarea>
@@ -544,20 +547,15 @@
             <div class="col-md-6 col-sm-6 col-12">
               <div class="form-group">
                 <label>Gültigkeitszeitraum: gültig seit*</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="far fa-calendar-alt"></i>
-                  </div>
-                  <input
-                    type="text"
-                    [(ngModel)]="periodOfValidity.startDate"
-                    (ngModelChange)="checkPeriodOfValidity()"
-                    class="form-control pull-right"
-                    id="georesourceEditFeaturesDatepickerStart"
-                    placeholder="YYYY-MM-DD"
-                    required
-                  />
-                </div>
+                <km-date-picker
+                  name="periodOfValidityStartDate"
+                  placeholder="YYYY-MM-DD"
+                  [(ngModel)]="periodOfValidity.startDate"
+                  (ngModelChange)="checkPeriodOfValidity()"
+                  (valueChange)="checkPeriodOfValidity()"
+                  [invalid]="periodOfValidityInvalid"
+                  [required]="true"
+                ></km-date-picker>
                 <div class="help-block">
                   <p>
                     Eintrag ist immer erforderlich, selbst wenn die räumlichen Features über ein
@@ -575,19 +573,14 @@
             <div class="col-md-6 col-sm-6 col-12">
               <div class="form-group">
                 <label>Gültigkeitszeitraum: gültig bis</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="far fa-calendar-alt"></i>
-                  </div>
-                  <input
-                    type="text"
-                    [(ngModel)]="periodOfValidity.endDate"
-                    (ngModelChange)="checkPeriodOfValidity()"
-                    class="form-control pull-right"
-                    id="georesourceEditFeaturesDatepickerEnd"
-                    placeholder="YYYY-MM-DD"
-                  />
-                </div>
+                <km-date-picker
+                  name="periodOfValidityEndDate"
+                  placeholder="YYYY-MM-DD"
+                  [(ngModel)]="periodOfValidity.endDate"
+                  (ngModelChange)="checkPeriodOfValidity()"
+                  (valueChange)="checkPeriodOfValidity()"
+                  [invalid]="periodOfValidityInvalid"
+                ></km-date-picker>
                 <div class="help-block">
                   <p>
                     Eintrag ist erforderlich, falls die räumlichen Features nicht selbst über ein
@@ -812,9 +805,8 @@
 </div>
 
 <div
-  id="georesourceEditFeaturesSuccessAlert"
   style="position: absolute; bottom: 0px; width: 100%"
-  hidden
+  [hidden]="!successAlertVisible"
   class="alert alert-success alert-dismissable"
 >
   <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
@@ -832,9 +824,8 @@
 </div>
 
 <div
-  id="georesourceEditFeaturesErrorAlert"
   style="position: absolute; bottom: 0px; width: 100%"
-  hidden
+  [hidden]="!errorAlertVisible"
   class="alert alert-danger alert-dismissable"
 >
   <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
@@ -861,9 +852,8 @@
 </div>
 
 <div
-  id="georesourceEditFeaturesMappingConfigImportErrorAlert"
   style="position: absolute; bottom: 0px; width: 100%"
-  hidden
+  [hidden]="!mappingConfigImportErrorAlertVisible"
   class="alert alert-danger alert-dismissable"
 >
   <button type="button" class="close" (click)="hideMappingConfigErrorAlert()" aria-hidden="true">
@@ -877,7 +867,7 @@
   <br />
   <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
   <pre
-    id="georesourcesEditFeaturesMappingConfigPre"
     style="overflow: auto; max-height: 500px"
+    [innerHTML]="georesourceMappingConfigStructure_pretty"
   ></pre>
 </div>

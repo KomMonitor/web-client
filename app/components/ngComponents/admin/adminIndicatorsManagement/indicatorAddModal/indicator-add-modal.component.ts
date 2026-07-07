@@ -10,8 +10,6 @@ import {
 } from '@angular/core';
 import { IndicatorRefreshRequest } from '../indicator-refresh.model';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -49,7 +47,6 @@ export class IndicatorAddModalComponent implements OnInit {
   protected state = inject(IndicatorAddFormStateService);
   private indicatorValueService = inject(IndicatorValueService);
   private http = inject(HttpClient);
-  private broadcastService = inject(BroadcastService);
   protected envConfigService = inject(EnvConfigService);
   private modalService = inject(NgbModal);
 
@@ -128,11 +125,6 @@ export class IndicatorAddModalComponent implements OnInit {
         crudType: isEdit ? 'edit' : 'add',
         targetIndicatorId,
       });
-
-      // Refresh all admin dashboard diagrams due to modified metadata
-      setTimeout(() => {
-        this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
-      }, 500);
 
       this.state.successMessagePart = this.state.postBody_indicators.datasetName;
       this.state.loadingData = false;

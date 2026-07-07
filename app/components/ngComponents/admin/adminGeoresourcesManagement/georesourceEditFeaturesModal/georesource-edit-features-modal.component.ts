@@ -1,5 +1,15 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
+  inject,
+} from '@angular/core';
+import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import {
@@ -15,9 +25,9 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 
 import { FormsModule } from '@angular/forms';
+import { KmDatePickerComponent } from 'components/ngComponents/customElements/date-picker/km-date-picker.component';
 import { SingleFeatureEditComponent } from 'components/ngComponents/common/single-feature-edit/single-feature-edit.component';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
-import { DATE_PICKER_OPTIONS } from 'util/date-picker.constants';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
@@ -34,11 +44,20 @@ declare const __env: any;
   selector: 'app-georesource-edit-features-modal',
   templateUrl: './georesource-edit-features-modal.component.html',
   styleUrls: ['./georesource-edit-features-modal.component.scss'],
-  imports: [AgGridAngular, FormsModule, SingleFeatureEditComponent, StepperComponent],
+  imports: [
+    AgGridAngular,
+    FormsModule,
+    SingleFeatureEditComponent,
+    StepperComponent,
+    KmDatePickerComponent,
+  ],
   standalone: true,
 })
 export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy {
   activeModal = inject(NgbActiveModal);
+
+  /** Emitted after a feature update/delete so the parent refreshes its table. */
+  @Output() refreshRequested = new EventEmitter<GeoresourceRefreshRequest>();
   private cacheHelperService = inject(CacheHelperServiceService);
   private indicatorValueService = inject(IndicatorValueService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
@@ -47,6 +66,20 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   private envConfigService = inject(EnvConfigService);
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
+
+  // Model-backed values for the dynamic converter/datasource parameter inputs
+  // (formerly scraped from the DOM by element id)
+  converterParameterValues: Record<string, string> = {};
+  datasourceParameterValues: Record<string, string> = {};
+  bboxMinX = '';
+  bboxMinY = '';
+  bboxMaxX = '';
+  bboxMaxY = '';
+
+  // Alert visibility (template bindings; formerly toggled via document.getElementById)
+  successAlertVisible = false;
+  errorAlertVisible = false;
+  mappingConfigImportErrorAlertVisible = false;
 
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
   @ViewChild('dataSourceInput', { static: false }) dataSourceInput!: ElementRef;
@@ -161,7 +194,6 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   ngOnInit(): void {
-    this.initializeDatePickers();
     this.setupEventListeners();
     this.initializeMappingConfigStructure();
     this.buildFeatureTable();
@@ -182,29 +214,6 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.georesourceMappingConfigStructure_pretty = this.indicatorValueService.syntaxHighlightJSON(
       this.kommonitorImporterHelperService.mappingConfigStructure
     );
-  }
-
-  private initializeDatePickers(): void {
-    setTimeout(() => {
-      try {
-        if ((window as any).$) {
-          (window as any)
-            .$('#georesourceEditFeaturesDatepickerStart')
-            .datepicker(DATE_PICKER_OPTIONS);
-          (window as any)
-            .$('#georesourceEditFeaturesDatepickerEnd')
-            .datepicker(DATE_PICKER_OPTIONS);
-          (window as any)
-            .$('#georesourceSingleFeatureDatepickerStart')
-            .datepicker(DATE_PICKER_OPTIONS);
-          (window as any)
-            .$('#georesourceSingleFeatureDatepickerEnd')
-            .datepicker(DATE_PICKER_OPTIONS);
-        }
-      } catch (error) {
-        console.warn('Date picker initialization failed:', error);
-      }
-    }, 250);
   }
 
   private setupEventListeners(): void {
@@ -229,7 +238,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
         } else if (event.type === 'loadingEnd') {
           this.loadingData = false;
         } else if (event.type === 'featureDeleted') {
-          this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTable, {
+          this.refreshRequested.emit({
             crudType: 'edit',
             targetGeoresourceId: this.currentGeoresourceDataset?.georesourceId,
           });
@@ -531,10 +540,6 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
         console.error('Uploaded Mapping Config File cannot be parsed.');
         this.georesourceMappingConfigImportError =
           'Uploaded Mapping Config File cannot be parsed correctly';
-        const preElement = document.getElementById('georesourcesEditFeaturesMappingConfigPre');
-        if (preElement) {
-          preElement.innerHTML = this.georesourceMappingConfigStructure_pretty;
-        }
         this.showMappingConfigImportErrorAlert();
       }
     };
@@ -615,7 +620,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
         next: (response: any) => {
           this.successMessagePart = this.currentGeoresourceDataset.datasetName;
           this.importedFeatures = response.importedFeatures || [];
-          this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTable, {
+          this.refreshRequested.emit({
             crudType: 'edit',
             targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
           });
@@ -678,12 +683,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
     if (this.converter.parameters) {
       this.converter.parameters.forEach((param: any) => {
-        const element = document.getElementById(
-          `converterParameter_georesourceEditFeatures_${param.name}`
-        );
-        if (element) {
-          parameters[param.name] = (element as HTMLInputElement).value;
-        }
+        parameters[param.name] = this.converterParameterValues[param.name] ?? '';
       });
     }
 
@@ -702,10 +702,8 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
     if (this.datasourceType.type === 'FILE') {
       // Handle file upload
-      const fileInput = document.getElementById(
-        'georesourceDataSourceInput_editFeatures'
-      ) as HTMLInputElement;
-      if (fileInput && fileInput.files && fileInput.files[0]) {
+      const fileInput: HTMLInputElement | undefined = this.dataSourceInput?.nativeElement;
+      if (fileInput?.files?.[0]) {
         // File will be handled separately in actual implementation
         parameters.file = fileInput.files[0];
       }
@@ -714,28 +712,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       if (this.bboxType === 'ref' && this.bboxRefSpatialUnit) {
         parameters.spatialUnitId = this.bboxRefSpatialUnit.spatialUnitId;
       } else if (this.bboxType === 'literal') {
-        const minx = (
-          document.getElementById(
-            'datasourceTypeParameter_georesourceEditFeatures_bbox_minx'
-          ) as HTMLInputElement
-        )?.value;
-        const miny = (
-          document.getElementById(
-            'datasourceTypeParameter_georesourceEditFeatures_bbox_miny'
-          ) as HTMLInputElement
-        )?.value;
-        const maxx = (
-          document.getElementById(
-            'datasourceTypeParameter_georesourceEditFeatures_bbox_maxx'
-          ) as HTMLInputElement
-        )?.value;
-        const maxy = (
-          document.getElementById(
-            'datasourceTypeParameter_georesourceEditFeatures_bbox_maxy'
-          ) as HTMLInputElement
-        )?.value;
-
-        parameters.bbox = `${minx},${miny},${maxx},${maxy}`;
+        parameters.bbox = `${this.bboxMinX},${this.bboxMinY},${this.bboxMaxX},${this.bboxMaxY}`;
       }
     }
 
@@ -743,12 +720,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     if (this.datasourceType.parameters) {
       this.datasourceType.parameters.forEach((param: any) => {
         if (param.name !== 'bbox') {
-          const element = document.getElementById(
-            `datasourceTypeParameter_georesourceEditFeatures_${param.name}`
-          );
-          if (element) {
-            parameters[param.name] = (element as HTMLTextAreaElement).value;
-          }
+          parameters[param.name] = this.datasourceParameterValues[param.name] ?? '';
         }
       });
     }
@@ -809,51 +781,29 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.importedFeatures = [];
   }
 
-  // Alert methods
+  // Alert methods (template-bound flags)
   showSuccessAlert(): void {
-    const alertElement = document.getElementById('georesourceEditFeaturesSuccessAlert');
-    if (alertElement) {
-      alertElement.hidden = false;
-    }
+    this.successAlertVisible = true;
   }
 
   showErrorAlert(): void {
-    const alertElement = document.getElementById('georesourceEditFeaturesErrorAlert');
-    if (alertElement) {
-      alertElement.hidden = false;
-    }
+    this.errorAlertVisible = true;
   }
 
   showMappingConfigImportErrorAlert(): void {
-    const alertElement = document.getElementById(
-      'georesourceEditFeaturesMappingConfigImportErrorAlert'
-    );
-    if (alertElement) {
-      alertElement.hidden = false;
-    }
+    this.mappingConfigImportErrorAlertVisible = true;
   }
 
   hideSuccessAlert(): void {
-    const alertElement = document.getElementById('georesourceEditFeaturesSuccessAlert');
-    if (alertElement) {
-      alertElement.hidden = true;
-    }
+    this.successAlertVisible = false;
   }
 
   hideErrorAlert(): void {
-    const alertElement = document.getElementById('georesourceEditFeaturesErrorAlert');
-    if (alertElement) {
-      alertElement.hidden = true;
-    }
+    this.errorAlertVisible = false;
   }
 
   hideMappingConfigErrorAlert(): void {
-    const alertElement = document.getElementById(
-      'georesourceEditFeaturesMappingConfigImportErrorAlert'
-    );
-    if (alertElement) {
-      alertElement.hidden = true;
-    }
+    this.mappingConfigImportErrorAlertVisible = false;
   }
 
   // Validation for form submission

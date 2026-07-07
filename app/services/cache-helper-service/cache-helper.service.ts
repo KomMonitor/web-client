@@ -1,5 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
+import { IndicatorsDataset } from 'components/ngComponents/models/indicators.models';
+import { WmsDataset } from 'components/ngComponents/models/services.models';
+import {
+  LastModificationOverviewType,
+  OrganizationalUnitOverviewType,
+  ProcessScriptOverviewType,
+  SpatialUnitOverviewType,
+  TopicOverviewType,
+} from 'models/data-management-api';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from 'services/auth-service/auth.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -12,7 +22,7 @@ export class CacheHelperServiceService {
   private http = inject(HttpClient);
   private envConfigService = inject(EnvConfigService);
 
-  lastDatabaseModificationInfo;
+  lastDatabaseModificationInfo: LastModificationOverviewType | undefined;
   private baseUrlToKomMonitorDataAPI =
     this.envConfigService.apiUrl + this.envConfigService.basePath;
 
@@ -82,23 +92,25 @@ export class CacheHelperServiceService {
     );
   }
 
-  async fetchLastDatabaseModificationObject(): Promise<any> {
+  async fetchLastDatabaseModificationObject(): Promise<void> {
     try {
       this.lastDatabaseModificationInfo = await firstValueFrom(
-        this.http.get(this.baseUrlToKomMonitorDataAPI + '/public/database/last-modification')
+        this.http.get<LastModificationOverviewType>(
+          this.baseUrlToKomMonitorDataAPI + '/public/database/last-modification'
+        )
       );
     } catch {
       console.error('Unable to load las mod date');
     }
   }
 
-  async fetchResource_fromCacheOrServer(
-    localStorageKey,
-    resourceEndpoint,
-    lastModificationResourceName,
-    keycloakRolesArray,
+  async fetchResource_fromCacheOrServer<T>(
+    localStorageKey: string,
+    resourceEndpoint: string,
+    lastModificationResourceName: keyof LastModificationOverviewType,
+    keycloakRolesArray: string[] | undefined,
     filter: any = undefined
-  ) {
+  ): Promise<T> {
     // check if the last modification date within local storage is the same as on the server
 
     // if YES, then try to use data from cache
@@ -150,7 +162,7 @@ export class CacheHelperServiceService {
     try {
       if (filter) {
         return await firstValueFrom(
-          this.http.post(this.baseUrlToKomMonitorDataAPI + resourceEndpoint + '/filter', filter)
+          this.http.post<T>(this.baseUrlToKomMonitorDataAPI + resourceEndpoint + '/filter', filter)
         );
       } else {
         // when code reaches this place we must overwrite/set timestamp and actual metadata
@@ -166,7 +178,7 @@ export class CacheHelperServiceService {
         }
 
         return await firstValueFrom(
-          this.http.get(this.baseUrlToKomMonitorDataAPI + resourceEndpoint)
+          this.http.get<T>(this.baseUrlToKomMonitorDataAPI + resourceEndpoint)
         ).then((response) => {
           localStorage.setItem(metadataKey, JSON.stringify(response));
 
@@ -179,15 +191,15 @@ export class CacheHelperServiceService {
     }
   }
 
-  async fetchServices(keycloakRolesArray, _filter): Promise<any> {
+  async fetchServices(keycloakRolesArray: string[] | undefined, _filter): Promise<WmsDataset[]> {
     /*  if (filter) {
       const filterBody = {
         topicIds: filter.indicatorTopics + geores,
         ids: filter.indicators + geores
-      } 
+      }
     } */
 
-    return await this.fetchResource_fromCacheOrServer(
+    return await this.fetchResource_fromCacheOrServer<WmsDataset[]>(
       this.localStorageKey_services,
       this.servicesEndpoint,
       'web-services',
@@ -195,8 +207,10 @@ export class CacheHelperServiceService {
     );
   }
 
-  async fetchAccessControlMetadata(keycloakRolesArray) {
-    return await this.fetchResource_fromCacheOrServer(
+  async fetchAccessControlMetadata(
+    keycloakRolesArray: string[] | undefined
+  ): Promise<OrganizationalUnitOverviewType[]> {
+    return await this.fetchResource_fromCacheOrServer<OrganizationalUnitOverviewType[]>(
       this.localStorageKey_accessControl,
       this.accessControlEndpoint,
       'access-control',
@@ -204,8 +218,10 @@ export class CacheHelperServiceService {
     );
   }
 
-  async fetchTopicsMetadata(keycloakRolesArray) {
-    return await this.fetchResource_fromCacheOrServer(
+  async fetchTopicsMetadata(
+    keycloakRolesArray: string[] | undefined
+  ): Promise<TopicOverviewType[]> {
+    return await this.fetchResource_fromCacheOrServer<TopicOverviewType[]>(
       this.localStorageKey_topics,
       this.topicsPublicEndpoint,
       'topics',
@@ -229,8 +245,10 @@ export class CacheHelperServiceService {
     keysToRemove.forEach((key) => localStorage.removeItem(key));
   }
 
-  async fetchSpatialUnitsMetadata(keycloakRolesArray) {
-    return await this.fetchResource_fromCacheOrServer(
+  async fetchSpatialUnitsMetadata(
+    keycloakRolesArray: string[] | undefined
+  ): Promise<SpatialUnitOverviewType[]> {
+    return await this.fetchResource_fromCacheOrServer<SpatialUnitOverviewType[]>(
       this.localStorageKey_spatialUnits,
       this.spatialUnitsEndpoint,
       'spatial-units',
@@ -238,13 +256,16 @@ export class CacheHelperServiceService {
     );
   }
 
-  async fetchIndicatorsMetadata(keycloakRolesArray, filter: any = undefined) {
+  async fetchIndicatorsMetadata(
+    keycloakRolesArray: string[] | undefined,
+    filter: any = undefined
+  ): Promise<IndicatorsDataset[]> {
     if (filter) {
       const filterBody = {
         topicIds: filter.indicatorTopics,
         ids: filter.indicators,
       };
-      return await this.fetchResource_fromCacheOrServer(
+      return await this.fetchResource_fromCacheOrServer<IndicatorsDataset[]>(
         this.localStorageKey_indicators,
         this.indicatorsEndpoint,
         'indicators',
@@ -252,7 +273,7 @@ export class CacheHelperServiceService {
         filterBody
       );
     } else {
-      return await this.fetchResource_fromCacheOrServer(
+      return await this.fetchResource_fromCacheOrServer<IndicatorsDataset[]>(
         this.localStorageKey_indicators,
         this.indicatorsEndpoint,
         'indicators',
@@ -261,13 +282,16 @@ export class CacheHelperServiceService {
     }
   }
 
-  async fetchGeoresourceMetadata(keycloakRolesArray, filter: any = undefined) {
+  async fetchGeoresourceMetadata(
+    keycloakRolesArray: string[] | undefined,
+    filter: any = undefined
+  ): Promise<GeoresourcesDataset[]> {
     if (filter) {
       const filterBody = {
         topicIds: filter.georesourceTopics,
         ids: filter.georesources,
       };
-      return await this.fetchResource_fromCacheOrServer(
+      return await this.fetchResource_fromCacheOrServer<GeoresourcesDataset[]>(
         this.localStorageKey_georesources,
         this.georesourcesEndpoint,
         'georesources',
@@ -275,7 +299,7 @@ export class CacheHelperServiceService {
         filterBody
       );
     } else {
-      return await this.fetchResource_fromCacheOrServer(
+      return await this.fetchResource_fromCacheOrServer<GeoresourcesDataset[]>(
         this.localStorageKey_georesources,
         this.georesourcesEndpoint,
         'georesources',
@@ -284,8 +308,10 @@ export class CacheHelperServiceService {
     }
   }
 
-  async fetchProcessScriptsMetadata(keycloakRolesArray) {
-    return await this.fetchResource_fromCacheOrServer(
+  async fetchProcessScriptsMetadata(
+    keycloakRolesArray: string[] | undefined
+  ): Promise<ProcessScriptOverviewType[]> {
+    return await this.fetchResource_fromCacheOrServer<ProcessScriptOverviewType[]>(
       this.localStorageKey_processScripts,
       this.scriptsEndpoint,
       'process-scripts',

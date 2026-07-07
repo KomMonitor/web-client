@@ -1,3 +1,5 @@
+import { GeoresourcesDataset } from './../../models/georesources.models';
+import { GeoresourceRefreshRequest } from './georesource-refresh.model';
 import { WmsResourceType } from './../../models/services.models';
 import {
   Component,
@@ -123,6 +125,8 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
   }
 
   private testGridsWithSampleData(): void {
+    // Debug-only sample rows; deliberately partial/invalid objects (hex colors
+    // instead of the API color names), hence the unchecked cast below
     const testData = [
       {
         georesourceId: 'test-poi-1',
@@ -169,7 +173,9 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
       },
     ];
 
-    this.kommonitorDataGridHelperService.buildDataGrid_georesources(testData);
+    this.kommonitorDataGridHelperService.buildDataGrid_georesources(
+      testData as unknown as GeoresourcesDataset[]
+    );
   }
 
   ngOnDestroy(): void {
@@ -191,7 +197,8 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
     });
     this.subscriptions.push(loadingSub);
 
-    // Listen for broadcast messages
+    // The admin modals report changes via their refreshRequested outputs; this
+    // broadcast listener remains only for external senders (wms-admin-table).
     const broadcastSub = this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
       if (data.msg === BroadcastMessage.RefreshGeoresourceOverviewTable) {
         this.loadingData = true;
@@ -317,15 +324,29 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
     }
   }
 
+  /**
+   * Handles a refresh request emitted by one of the CRUD modals. Subscribed on
+   * each modal's `refreshRequested` output at open time — this replaces the
+   * former RefreshGeoresourceOverviewTable broadcast round-trip.
+   */
+  private handleRefreshRequest(request: GeoresourceRefreshRequest): void {
+    this.loadingData = true;
+    this.refreshGeoresourceOverviewTable(request.crudType, request.targetGeoresourceId as any);
+  }
+
   // Modal event handlers
   onClickAddGeoresource(): void {
-    this.modalService.open(GeoresourceAddModalComponent, {
+    const modalRef = this.modalService.open(GeoresourceAddModalComponent, {
       size: 'lg',
       backdrop: 'static',
       keyboard: false,
       container: 'body',
       animation: false,
     });
+
+    modalRef.componentInstance.refreshRequested.subscribe((request: GeoresourceRefreshRequest) =>
+      this.handleRefreshRequest(request)
+    );
   }
 
   onClickBatchUpdateGeoresource(): void {
@@ -359,18 +380,13 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
 
     // Pass the georesource dataset to the modal
     modalRef.componentInstance.currentGeoresourceDataset = georesourceDataset;
-
-    modalRef.result.then(
-      (result) => {
-        if (result) {
-          // Handle successful edit
-          this.refreshGeoresourceOverviewTable('edit', georesourceDataset.georesourceId);
-        }
-      },
-      (_reason) => {
-        // Modal dismissed
-      }
+    modalRef.componentInstance.refreshRequested.subscribe((request: GeoresourceRefreshRequest) =>
+      this.handleRefreshRequest(request)
     );
+
+    // The table refresh is driven by the modal's refreshRequested output, so
+    // the close result only needs to swallow the dismissal rejection.
+    modalRef.result.catch(() => undefined);
   }
 
   public onClickEditFeatures(georesourceDataset: any): void {
@@ -384,18 +400,11 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
 
     // Pass the georesource dataset to the modal
     modalRef.componentInstance.currentGeoresourceDataset = georesourceDataset;
-
-    modalRef.result.then(
-      (result) => {
-        if (result) {
-          // Handle successful edit
-          this.refreshGeoresourceOverviewTable('edit', georesourceDataset.georesourceId);
-        }
-      },
-      (_reason) => {
-        // Modal dismissed
-      }
+    modalRef.componentInstance.refreshRequested.subscribe((request: GeoresourceRefreshRequest) =>
+      this.handleRefreshRequest(request)
     );
+
+    modalRef.result.catch(() => undefined);
   }
 
   public onClickEditUserRoles(georesourceDataset: any): void {
@@ -407,18 +416,11 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
       animation: false,
     });
     modalRef.componentInstance.currentGeoresourceDataset = georesourceDataset;
-
-    modalRef.result.then(
-      (result) => {
-        if (result) {
-          // Handle successful edit
-          this.refreshGeoresourceOverviewTable('edit', georesourceDataset.georesourceId);
-        }
-      },
-      (_reason) => {
-        // Modal dismissed
-      }
+    modalRef.componentInstance.refreshRequested.subscribe((request: GeoresourceRefreshRequest) =>
+      this.handleRefreshRequest(request)
     );
+
+    modalRef.result.catch(() => undefined);
   }
 
   public onClickDeleteGeoresource(georesourceDataset: any): void {
@@ -430,17 +432,14 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
       animation: false,
     });
 
-    // Pass the georesource dataset to the modal (as array like original)
-    this.broadcastService.broadcast(BroadcastMessage.OnDeleteGeoresources, [georesourceDataset]);
-
-    modalRef.result.then(
-      (result) => {
-        console.log('Georesource delete modal closed with result:', result);
-      },
-      (reason) => {
-        console.log('Georesource delete modal dismissed with reason:', reason);
-      }
+    // Pass the georesource dataset directly to the modal (the former
+    // OnDeleteGeoresources broadcast detour is gone)
+    modalRef.componentInstance.datasetsToDelete = [georesourceDataset];
+    modalRef.componentInstance.refreshRequested.subscribe((request: GeoresourceRefreshRequest) =>
+      this.handleRefreshRequest(request)
     );
+
+    modalRef.result.catch(() => undefined);
   }
 
   // Utility methods
@@ -454,18 +453,5 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
 
   checkDeletePermission(): boolean {
     return this.kommonitorDataExchangeService.checkDeletePermission();
-  }
-
-  // Callback methods for cell renderer
-  onEditMetadata(georesourceDataset: any): void {
-    this.broadcastService.broadcast(BroadcastMessage.OnEditGeoresourceMetadata, georesourceDataset);
-  }
-
-  onEditFeatures(georesourceDataset: any): void {
-    this.onClickEditFeatures(georesourceDataset);
-  }
-
-  onEditUserRoles(georesourceDataset: any): void {
-    this.onClickEditUserRoles(georesourceDataset);
   }
 }

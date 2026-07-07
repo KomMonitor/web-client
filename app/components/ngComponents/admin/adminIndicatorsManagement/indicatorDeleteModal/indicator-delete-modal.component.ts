@@ -3,8 +3,6 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
-import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from '../../../../../services/broadcast-service/broadcast-message';
 import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
 import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
@@ -57,7 +55,6 @@ interface AffectedGeoresourceReference {
 export class IndicatorDeleteModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   private http = inject(HttpClient);
-  private broadcastService = inject(BroadcastService);
   private indicatorValueService = inject(IndicatorValueService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
@@ -304,10 +301,6 @@ export class IndicatorDeleteModalComponent implements OnInit {
           targetIndicatorId: this.currentIndicatorId,
         });
 
-        setTimeout(() => {
-          this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
-        }, 500);
-
         this.showSuccessAlert = true;
 
         setTimeout(() => {
@@ -354,11 +347,6 @@ export class IndicatorDeleteModalComponent implements OnInit {
         targetIndicatorId: this.currentIndicatorId,
       });
 
-      // Refresh all admin dashboard diagrams due to modified metadata
-      setTimeout(() => {
-        this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
-      }, 500);
-
       this.loadingData = false;
     }
   }
@@ -390,11 +378,6 @@ export class IndicatorDeleteModalComponent implements OnInit {
         crudType: 'edit',
         targetIndicatorId: this.currentIndicatorId,
       });
-
-      // Refresh all admin dashboard diagrams due to modified metadata
-      setTimeout(() => {
-        this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
-      }, 500);
 
       this.loadingData = false;
     }
@@ -452,7 +435,7 @@ export class IndicatorDeleteModalComponent implements OnInit {
 
   getIndicatorsWithPermission(): any[] {
     return this.indicatorStore.availableIndicators.filter((indicator) =>
-      indicator.userPermissions.includes('creator')
+      indicator.userPermissions?.includes('creator')
     );
   }
 

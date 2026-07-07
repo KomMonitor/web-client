@@ -15,55 +15,18 @@ import {
   takeUntil,
   Subject,
 } from 'rxjs';
+import { IndicatorsDataset } from 'components/ngComponents/models/indicators.models';
+import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
+import { SpatialUnitOverviewType } from 'models/data-management-api';
 import { AuthService } from '../auth-service/auth.service';
 
-// TypeScript interfaces for better type safety
-export interface SpatialUnitMetadata {
-  spatialUnitId: string;
-  spatialUnitLevel: string;
-  metadata: {
-    description: string;
-    datasource: string;
-    contact: string;
-    note?: string;
-    literature?: string;
-    updateInterval?: string;
-    lastUpdate?: string;
-    databasis?: string;
-    sridEPSG?: number;
-  };
-  nextLowerHierarchyLevel?: string;
-  nextUpperHierarchyLevel?: string;
-  availablePeriodsOfValidity: Array<{
-    startDate: string;
-    endDate?: string;
-  }>;
-  permissions: any[];
-  isPublic: boolean;
-  ownerId: string;
-  userPermissions?: string[];
-  isOutlineLayer?: boolean;
-  outlineColor?: string;
-  outlineWidth?: number;
-  outlineDashArrayString?: string;
-}
-
-export interface AccessControlMetadata {
-  organizationalUnitId: string;
-  name: string;
-  permissions: Array<{
-    permissionId: string;
-    permissionLevel: string;
-    isChecked: boolean;
-  }>;
-  datasetOwner?: boolean;
-  children?: string[];
-  parentId?: string;
-  description?: string;
-  contact?: string;
-  mandant?: boolean;
-  keycloakId?: string;
-}
+/**
+ * Legacy exported names kept for the many importers of this service; the
+ * canonical definitions live in models/data-management-api (generated from the
+ * OpenAPI spec) and components/ngComponents/models/permissions.models.
+ */
+export type SpatialUnitMetadata = SpatialUnitOverviewType;
+export type { AccessControlMetadata };
 
 @Injectable({
   providedIn: 'root',
@@ -527,14 +490,14 @@ export class KommonitorDataExchangeService implements OnDestroy {
   /**
    * Fetches indicators metadata
    */
-  fetchIndicatorsMetadata(_keycloakRolesArray: string[]): Observable<any[]> {
+  fetchIndicatorsMetadata(_keycloakRolesArray: string[]): Observable<IndicatorsDataset[]> {
     this.setLoading(true);
     this.clearError();
 
     const endpoint = this.getIndicatorsEndpoint();
     const url = `${this.baseUrl}${endpoint}`;
 
-    return this.http.get<any[]>(url).pipe(
+    return this.http.get<IndicatorsDataset[]>(url).pipe(
       tap(() => {
         this.setLoading(false);
       }),
@@ -636,7 +599,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
   /**
    * Get allowed roles string for display
    */
-  getAllowedRolesString(permissions: any): string {
+  getAllowedRolesString(permissions: string[] | null | undefined): string {
     if (!permissions || !Array.isArray(permissions)) {
       return '';
     }

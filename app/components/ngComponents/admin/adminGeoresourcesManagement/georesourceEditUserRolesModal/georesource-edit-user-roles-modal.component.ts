@@ -1,4 +1,12 @@
-import { Component, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
@@ -14,6 +22,8 @@ import {
   ColumnResizedEvent,
 } from 'ag-grid-community';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
+import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
 import { FormsModule } from '@angular/forms';
 import {
   StepperComponent,
@@ -31,12 +41,17 @@ declare const __env: any;
 })
 export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy {
   activeModal = inject(NgbActiveModal);
-  kommonitorDataExchangeService = inject<any>('kommonitorDataExchangeService' as any);
+  // Formerly a broken string-token inject ('kommonitorDataExchangeService') that
+  // threw a NullInjectorError on modal open; wired to the real service now.
+  kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
 
   @ViewChild('roleManagementTable', { static: true }) roleManagementTable!: AgGridAngular;
+
+  /** Emitted after a successful permissions/ownership update so the parent refreshes its table. */
+  @Output() refreshRequested = new EventEmitter<GeoresourceRefreshRequest>();
 
   // Multi-step form
   currentStep = 1;
@@ -239,9 +254,8 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
 
   private refreshRoles(orgUnitId: any): void {
     const permissionIds_ownerUnit = orgUnitId
-      ? this.kommonitorDataExchangeService
-          .getAccessControlById(orgUnitId)
-          .permissions.filter(
+      ? (this.kommonitorDataExchangeService.getAccessControlById(orgUnitId)?.permissions ?? [])
+          .filter(
             (permission: any) =>
               permission.permissionLevel === 'viewer' || permission.permissionLevel === 'editor'
           )
@@ -340,7 +354,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
       .subscribe({
         next: (_response: any) => {
           this.successMessagePart = this.currentGeoresourceDataset.datasetName;
-          this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTable, {
+          this.refreshRequested.emit({
             crudType: 'edit',
             targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
           });
@@ -390,7 +404,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
       .subscribe({
         next: (_response: any) => {
           this.successMessagePart = this.currentGeoresourceDataset.datasetName;
-          this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTable, {
+          this.refreshRequested.emit({
             crudType: 'edit',
             targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
           });

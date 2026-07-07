@@ -1,4 +1,6 @@
 import { Injectable, inject } from '@angular/core';
+import { IndicatorsDataset } from 'components/ngComponents/models/indicators.models';
+import { RegionalReferenceValueType } from 'models/data-management-api';
 import { ColDef, createGrid } from 'ag-grid-community';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
@@ -19,9 +21,9 @@ export class KommonitorIndicatorDataGridHelperService {
   /**
    * Builds data grid for indicators - now returns column definitions and row data for AG Grid Angular
    */
-  buildDataGrid_indicators(indicatorMetadataArray: any[]): {
+  buildDataGrid_indicators(indicatorMetadataArray: IndicatorsDataset[]): {
     columnDefs: ColDef[];
-    rowData: any[];
+    rowData: IndicatorsDataset[];
   } {
     const columnDefs = this.buildDataGridColumnConfig_indicators(indicatorMetadataArray);
     const rowData = this.buildDataGridRowData_indicators(indicatorMetadataArray);
@@ -32,7 +34,7 @@ export class KommonitorIndicatorDataGridHelperService {
   /**
    * Builds column configuration for indicators
    */
-  buildDataGridColumnConfig_indicators(_indicatorMetadataArray: any[]): any[] {
+  buildDataGridColumnConfig_indicators(_indicatorMetadataArray: IndicatorsDataset[]): any[] {
     const columnDefs = [
       {
         headerName: 'Editierfunktionen',
@@ -244,7 +246,9 @@ export class KommonitorIndicatorDataGridHelperService {
   /**
    * Builds row data for indicators
    */
-  buildDataGridRowData_indicators(indicatorMetadataArray: any[]): any[] {
+  buildDataGridRowData_indicators(
+    indicatorMetadataArray: IndicatorsDataset[]
+  ): IndicatorsDataset[] {
     return indicatorMetadataArray;
   }
 
@@ -325,7 +329,7 @@ export class KommonitorIndicatorDataGridHelperService {
   getReferenceValues_regionalReferenceValuesManagementGrid(
     regionalReferenceValuesManagementTableOptions
   ) {
-    const regionalReferenceValuesList: any[] = [];
+    const regionalReferenceValuesList: RegionalReferenceValueType[] = [];
     if (
       regionalReferenceValuesManagementTableOptions &&
       regionalReferenceValuesManagementTableOptions.api
@@ -384,7 +388,10 @@ export class KommonitorIndicatorDataGridHelperService {
     return dataGridOptions_regionalReferenceValues;
   }
 
-  buildDataGridOptions_regionalReferenceValues(applicableDates, regionalReferenceValuesList) {
+  buildDataGridOptions_regionalReferenceValues(
+    applicableDates: string[],
+    regionalReferenceValuesList: RegionalReferenceValueType[]
+  ) {
     const columnDefs = this.buildDataGridColumnConfig_regionalReferenceValues(
       applicableDates,
       regionalReferenceValuesList
@@ -525,7 +532,10 @@ export class KommonitorIndicatorDataGridHelperService {
     return columnDefs;
   }
 
-  buildDataGridRowData_regionalReferenceValues(applicableDates, regionalReferenceValuesList) {
+  buildDataGridRowData_regionalReferenceValues(
+    applicableDates: string[],
+    regionalReferenceValuesList: RegionalReferenceValueType[]
+  ) {
     /*
       regionalReferenceValuesList: 
         [
@@ -544,11 +554,11 @@ export class KommonitorIndicatorDataGridHelperService {
         ]
     */
 
-    const dataArray: any[] = [];
+    const dataArray: RegionalReferenceValueType[] = [];
 
     if (applicableDates && applicableDates.length > 0) {
       for (const availableDate of applicableDates) {
-        let item = {
+        let item: RegionalReferenceValueType = {
           referenceDate: availableDate,
           regionalSum: undefined,
           regionalAverage: undefined,

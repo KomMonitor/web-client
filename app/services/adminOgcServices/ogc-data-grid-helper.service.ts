@@ -280,7 +280,7 @@ export class OgcDataGridHelperService {
       return '<div class="btn-group btn-group-sm">No data</div>';
     }
 
-    const topic: Topic = this.topicStore.availableTopics.find(
+    const topic: Topic | undefined = this.topicStore.availableTopics.find(
       (e: Topic) => e.topicId == params.data.topicReference
     );
 

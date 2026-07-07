@@ -1,5 +1,6 @@
 import { colorbrewer } from './../../components/ngComponents/userInterface/kommonitorClassification/colors';
 import { Injectable, inject } from '@angular/core';
+import { IndicatorsDataset } from 'components/ngComponents/models/indicators.models';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
@@ -323,7 +324,7 @@ export class VisualStyleHelperServiceNew {
     colorCode,
     classifyMethod,
     forceProvidedIndicator = false,
-    indicator = false
+    indicator: IndicatorsDataset | false = false
   ) {
     this.resetFeaturesPerColorObjects();
 

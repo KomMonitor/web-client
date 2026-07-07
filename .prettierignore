@@ -10,6 +10,7 @@ customizedExternalLibs/
 **/*.js.map
 ThirdParty.json
 package-lock.json
+app/models/data-management-api.generated.ts
 
 # Bewusst behaltene AngularJS-Restfeatures (kein aktiver Code)
 app/components/kommonitorUserInterface/kommonitorControls/feedbackModal/

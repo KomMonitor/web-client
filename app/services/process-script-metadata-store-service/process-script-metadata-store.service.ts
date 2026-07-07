@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { ProcessScriptOverviewType } from 'models/data-management-api';
 
 /**
  * Process-script metadata store extracted from DataExchangeService
@@ -13,16 +14,16 @@ import { Injectable, signal } from '@angular/core';
 export class ProcessScriptMetadataStoreService {
   // Signal-backed so reactive consumers (computed/templates) re-derive on change,
   // while existing imperative reads/assignments keep working via the getter/setter shim.
-  private _availableProcessScripts = signal<any[]>([]);
-  get availableProcessScripts(): any[] {
+  private _availableProcessScripts = signal<ProcessScriptOverviewType[]>([]);
+  get availableProcessScripts(): ProcessScriptOverviewType[] {
     return this._availableProcessScripts();
   }
-  set availableProcessScripts(value: any[]) {
+  set availableProcessScripts(value: ProcessScriptOverviewType[]) {
     this._availableProcessScripts.set(value);
   }
-  availableProcessScripts_map = new Map();
+  availableProcessScripts_map = new Map<string, ProcessScriptOverviewType>();
 
-  setProcessScripts(scriptsArray) {
+  setProcessScripts(scriptsArray: ProcessScriptOverviewType[]) {
     this.availableProcessScripts_map = new Map(scriptsArray.map((s) => [s.scriptId, s]));
     this.availableProcessScripts = Array.from(this.availableProcessScripts_map.values());
   }

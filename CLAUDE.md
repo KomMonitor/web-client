@@ -123,6 +123,7 @@ The client is non-functional without these backends (configured via the runtime 
 ## Conventions
 
 - TypeScript is `strict` (`tsconfig.json`), but `noImplicitAny` is **off** — untyped values are common, especially around `window.__env` and legacy data. Angular `strictTemplates` is on.
+- **API types:** Types for the Data Management API are generated from its OpenAPI spec (`api-specs/`, see `api-specs/README.md`) via `npm run generate:api-types` into `app/models/data-management-api.generated.ts`. Import the named re-exports from `models/data-management-api` (e.g. `IndicatorOverviewType`); client-side extensions (extra fields the client attaches) live in `app/components/ngComponents/models/*.models.ts` (e.g. `IndicatorsDataset`, `GeoresourcesDataset`). Prefer these over `any` for API payloads in new/touched code.
 - Path imports are baseUrl-relative to `app/` (e.g. `import { StartupService } from 'services/startup-service/startup.service'`), not just relative paths.
 - jQuery and Bootstrap JS are globals (set up in `main.ts` and loaded via `angular.json`); some components and vendored libs rely on `window.$`.
 - i18n via `@ngx-translate` (default language `de`, files in `app/assets/i18n/`) is set up but inconsistently used — many German labels are still hardcoded.

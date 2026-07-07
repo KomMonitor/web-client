@@ -85,7 +85,7 @@
                       <button
                         type="button"
                         class="btn btn-info dropdown-toggle"
-                        data-toggle="dropdown"
+                        data-bs-toggle="dropdown"
                         aria-haspopup="true"
                         aria-expanded="false"
                       >
@@ -96,7 +96,7 @@
                       <ul class="dropdown-menu dropdown-menu-center">
                         @for (markerColor of availablePoiMarkerColors; track markerColor) {
                           <li (click)="onChangeMarkerColor(markerColor)">
-                            <a href=""
+                            <a style="cursor: pointer"
                               ><i [style.background]="markerColor?.colorValue || '#ccc'"></i
                               >{{ markerColor?.colorName || markerColor }}</a
                             >
@@ -114,7 +114,7 @@
                       <button
                         type="button"
                         class="btn btn-info dropdown-toggle"
-                        data-toggle="dropdown"
+                        data-bs-toggle="dropdown"
                         aria-haspopup="true"
                         aria-expanded="false"
                       >
@@ -126,10 +126,10 @@
                       </button>
                       <ul class="dropdown-menu dropdown-menu-center">
                         <li (click)="onChangeMarkerStyle('symbol')">
-                          <a href="">Symbol</a>
+                          <a style="cursor: pointer">Symbol</a>
                         </li>
                         <li (click)="onChangeMarkerStyle('text')">
-                          <a href="">Text</a>
+                          <a style="cursor: pointer">Text</a>
                         </li>
                       </ul>
                       <div class="help-block with-errors"></div>
@@ -141,7 +141,16 @@
                     <div class="form-group" align="center">
                       <label>Symbol*</label>
                       <br />
-                      <button id="poiSymbolPicker" class="btn btn-info"></button>
+                      <input
+                        type="text"
+                        class="form-control"
+                        style="width: auto; display: inline-block"
+                        [(ngModel)]="selectedPoiIconName"
+                        name="poiSymbolName"
+                        placeholder="z.B. home"
+                        title="Name des Marker-Symbols (Bootstrap-3-Glyphicon-Name)"
+                        required
+                      />
                       <div class="help-block with-errors"></div>
                     </div>
                   </div>
@@ -182,7 +191,7 @@
                       <button
                         type="button"
                         class="btn btn-info dropdown-toggle"
-                        data-toggle="dropdown"
+                        data-bs-toggle="dropdown"
                         aria-haspopup="true"
                         aria-expanded="false"
                       >
@@ -193,7 +202,7 @@
                       <ul class="dropdown-menu dropdown-menu-center">
                         @for (symbolColor of availablePoiMarkerColors; track symbolColor) {
                           <li (click)="onChangeSymbolColor(symbolColor)">
-                            <a href=""
+                            <a style="cursor: pointer"
                               ><i [style.background]="symbolColor?.colorValue || '#ccc'"></i
                               >{{ symbolColor?.colorName || symbolColor }}</a
                             >
@@ -211,24 +220,11 @@
                 <div class="col-md-4 col-sm-4 col-12">
                   <div class="form-group" align="center">
                     <label>Linienfarbe*</label>
-                    <div id="loiColorPicker" class="input-group" style="width: 50px">
-                      <input
-                        type="text"
-                        style="display: none"
-                        class="form-control input-sm"
-                        [(ngModel)]="loiColor"
-                        name="loiColor"
-                        placeholder="Line of Interest Farbauswahl"
-                        value="#bf3d2c"
-                        required
-                      />
-                      <span
-                        title="Klicken, um die Farbe anzupassen"
-                        style="border: 1px solid #ccc; width: 100%"
-                        class="input-group-addon btn btn-info btn-sm"
-                        ><i></i
-                      ></span>
-                    </div>
+                    <br />
+                    <km-color-picker
+                      [(color)]="loiColor"
+                      label="Linienfarbe wählen"
+                    ></km-color-picker>
                     <div class="help-block with-errors"></div>
                   </div>
                 </div>
@@ -250,38 +246,16 @@
                 </div>
                 <div class="col-md-4 col-sm-4 col-12">
                   <div class="form-group" align="center">
-                    <label>Linienmuster*</label>
-                    <div class="dropdown">
-                      <button
-                        type="button"
-                        width="200px"
-                        class="btn btn-info dropdown-toggle"
-                        data-toggle="dropdown"
-                        aria-haspopup="true"
-                        aria-expanded="false"
-                      >
-                        <div id="loiDashArrayDropdownButton_addGeoresource">
-                          {{ selectedLoiDashArrayObject?.displayName }}
-                        </div>
-                        <span class="caret"></span>
-                      </button>
-                      <ul class="dropdown-menu dropdown-menu-center">
-                        @for (
-                          loiDashArrayObject of availableLoiDashArrayObjects;
-                          track loiDashArrayObject;
-                          let i = $index
-                        ) {
-                          <li (click)="onChangeLoiDashArray(loiDashArrayObject)">
-                            <a href="">
-                              <div id="loiDashArrayDropdownItem-{{ i }}">
-                                {{ loiDashArrayObject.displayName }}
-                              </div>
-                            </a>
-                          </li>
-                        }
-                      </ul>
-                      <div class="help-block with-errors"></div>
-                    </div>
+                    <km-line-pattern-picker
+                      [selectedPattern]="selectedLoiDashArrayObject"
+                      [options]="availableLoiDashArrayObjects"
+                      [label]="'Linienmuster*'"
+                      [placeholder]="'Linienmuster wählen'"
+                      [width]="'200px'"
+                      (patternChange)="onChangeLoiDashArray($event)"
+                    >
+                    </km-line-pattern-picker>
+                    <div class="help-block with-errors"></div>
                   </div>
                 </div>
               </div>
@@ -291,24 +265,11 @@
                 <div class="col-md-12 col-sm-12 col-12">
                   <div class="form-group" align="center">
                     <label>Objektfarbe*</label>
-                    <div id="aoiColorPicker" class="input-group" style="width: 50px">
-                      <input
-                        type="text"
-                        style="display: none"
-                        class="form-control input-sm"
-                        [(ngModel)]="aoiColor"
-                        name="aoiColor"
-                        placeholder="Area of Interest Farbauswahl"
-                        value="#bf3d2c"
-                        required
-                      />
-                      <span
-                        title="Klicken, um die Farbe anzupassen"
-                        style="border: 1px solid #ccc; width: 100%"
-                        class="input-group-addon btn btn-info btn-sm"
-                        ><i></i
-                      ></span>
-                    </div>
+                    <br />
+                    <km-color-picker
+                      [(color)]="aoiColor"
+                      label="Objektfarbe wählen"
+                    ></km-color-picker>
                     <div class="help-block with-errors"></div>
                   </div>
                 </div>
@@ -409,20 +370,12 @@
               <div class="col-md-3 col-sm-6 col-12">
                 <div class="form-group">
                   <label>Datum der letzten Aktualisierung*</label>
-                  <div class="input-group date">
-                    <div class="input-group-addon">
-                      <i class="far fa-calendar-alt"></i>
-                    </div>
-                    <input
-                      type="text"
-                      [(ngModel)]="metadata.lastUpdate"
-                      name="metadataLastUpdate"
-                      class="form-control pull-right"
-                      id="georesourceAddLastUpdateDatepicker"
-                      placeholder="YYYY-MM-DD"
-                      required
-                    />
-                  </div>
+                  <km-date-picker
+                    name="metadataLastUpdate"
+                    placeholder="YYYY-MM-DD"
+                    [(ngModel)]="metadata.lastUpdate"
+                    [required]="true"
+                  ></km-date-picker>
                   <div class="help-block with-errors"></div>
                 </div>
               </div>

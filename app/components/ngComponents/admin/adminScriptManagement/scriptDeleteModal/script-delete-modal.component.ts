@@ -2,8 +2,6 @@ import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 import { ScriptRefreshRequest } from '../script-refresh.model';
@@ -18,7 +16,6 @@ export class ScriptDeleteModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   private http = inject(HttpClient);
   private indicatorValueService = inject(IndicatorValueService);
-  private broadcastService = inject(BroadcastService);
   private envConfigService = inject(EnvConfigService);
 
   @Input() datasetsToDelete: any[] = [];
@@ -67,7 +64,6 @@ export class ScriptDeleteModalComponent implements OnInit {
 
         const deletedIds = this.successfullyDeletedDatasets.map((d) => d.scriptId);
         this.refreshRequested.emit({ crudType: 'delete', scriptId: deletedIds });
-        this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
       }
       this.loadingData = false;
     });

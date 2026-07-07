@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { OrganizationalUnitInputType } from 'models/data-management-api';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridOptions, GridReadyEvent } from 'ag-grid-community';
 import {
@@ -226,14 +227,18 @@ export class RoleAddModalComponent implements OnInit {
   addOrganizationalUnit(): void {
     if (!this.canSubmit) return;
 
+    // canSubmit already ensures these are set; the local check narrows the types
+    const { name, contact } = this.newOrganizationalUnit;
+    if (!name || !contact) return;
+
     this.errorMessagePart = undefined;
     this.keycloakErrorMessagePart = undefined;
     this.processCreation = true;
 
-    const postBody = {
-      name: this.newOrganizationalUnit.name,
+    const postBody: OrganizationalUnitInputType = {
+      name,
       description: this.newOrganizationalUnit.description,
-      contact: this.newOrganizationalUnit.contact,
+      contact,
       mandant: !!this.newOrganizationalUnit.mandant,
       parentId: this.newOrganizationalUnit.parentId,
     };

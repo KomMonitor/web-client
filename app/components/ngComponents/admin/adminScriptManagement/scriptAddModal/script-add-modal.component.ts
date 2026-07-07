@@ -2,8 +2,6 @@ import { Component, EventEmitter, Output, ViewChild, inject } from '@angular/cor
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { FormsModule } from '@angular/forms';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
 import { ScriptStepIntroductionComponent } from './scriptStepIntroduction/script-step-introduction.component';
 import {
@@ -30,7 +28,6 @@ import { ScriptRefreshRequest } from '../script-refresh.model';
 export class ScriptAddModalComponent {
   activeModal = inject(NgbActiveModal);
   scriptHelperService = inject(ScriptHelperService);
-  private broadcastService = inject(BroadcastService);
 
   // Asks the management component to refresh the overview table; replaces the
   // former RefreshScriptOverviewTable broadcast round-trip.
@@ -108,7 +105,6 @@ export class ScriptAddModalComponent {
       await this.scriptHelperService.postNewScript(name, description, associatedIndicatorId);
 
       this.refreshRequested.emit({ crudType: 'add' });
-      this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
       this.showSuccessAlert = true;
       this.loadingData = false;
     } catch (error: any) {

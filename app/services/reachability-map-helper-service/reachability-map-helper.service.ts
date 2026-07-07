@@ -699,6 +699,9 @@ export class ReachabilityMapHelperService {
     const { spatialUnitId } = indicatorStatisticsCandidate.spatialUnit;
     const { timestamp } = indicatorStatisticsCandidate;
     const indicatorMetadataAndGeoJSON = this.indicatorStore.getIndicatorMetadataById(indicatorId);
+    if (!indicatorMetadataAndGeoJSON) {
+      throw new Error(`Indicator metadata not found in store for id '${indicatorId}'`);
+    }
     indicatorMetadataAndGeoJSON.geoJSON = await this.fetchIndicatorForSpatialUnit(
       indicatorId,
       spatialUnitId,
@@ -725,12 +728,19 @@ export class ReachabilityMapHelperService {
     const { timestamp } = indicatorStatisticsCandidate;
     const indicatorPropertyName = this.envConfigService.indicatorDatePrefix + timestamp;
 
+    const classificationMapping = indicatorMetadataAndGeoJSON.defaultClassificationMapping;
+    if (!classificationMapping) {
+      throw new Error(
+        `Indicator '${indicatorMetadataAndGeoJSON.indicatorId}' has no default classification mapping`
+      );
+    }
+
     this.visualStyleHelperService.backupCurrentBrewObjects_forMainMapIndicator();
     const defaultBrew = this.visualStyleHelperService.setupDefaultBrew(
       indicatorMetadataAndGeoJSON.geoJSON,
       indicatorPropertyName,
-      indicatorMetadataAndGeoJSON.defaultClassificationMapping.numClasses,
-      indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName,
+      classificationMapping.numClasses,
+      classificationMapping.colorBrewerSchemeName,
       this.visualStyleHelperService.classifyMethod,
       true,
       indicatorMetadataAndGeoJSON

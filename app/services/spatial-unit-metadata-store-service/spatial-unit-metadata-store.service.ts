@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { SpatialUnitOverviewType } from 'models/data-management-api';
 
 /**
  * Spatial-unit metadata store extracted from DataExchangeService
@@ -14,21 +15,21 @@ import { Injectable, signal } from '@angular/core';
 export class SpatialUnitMetadataStoreService {
   // Signal-backed so reactive consumers (computed/templates) re-derive on change,
   // while existing imperative reads/assignments keep working via the getter/setter shim.
-  private _availableSpatialUnits = signal<any[]>([]);
-  get availableSpatialUnits(): any[] {
+  private _availableSpatialUnits = signal<SpatialUnitOverviewType[]>([]);
+  get availableSpatialUnits(): SpatialUnitOverviewType[] {
     return this._availableSpatialUnits();
   }
-  set availableSpatialUnits(value: any[]) {
+  set availableSpatialUnits(value: SpatialUnitOverviewType[]) {
     this._availableSpatialUnits.set(value);
   }
-  availableSpatialUnits_map = new Map();
+  availableSpatialUnits_map = new Map<string, SpatialUnitOverviewType>();
 
-  setSpatialUnits(spatialUnitsArray) {
+  setSpatialUnits(spatialUnitsArray: SpatialUnitOverviewType[]) {
     this.availableSpatialUnits_map = new Map(spatialUnitsArray.map((u) => [u.spatialUnitId, u]));
     this.availableSpatialUnits = Array.from(this.availableSpatialUnits_map.values());
   }
 
-  getSpatialUnitMetadataById(spatialUnitId) {
+  getSpatialUnitMetadataById(spatialUnitId: string): SpatialUnitOverviewType | undefined {
     return this.availableSpatialUnits_map.get(spatialUnitId);
   }
 }

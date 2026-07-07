@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { SpatialUnitOverviewType } from 'models/data-management-api';
 import { Observable, BehaviorSubject, throwError, of, catchError, tap } from 'rxjs';
 
 // TypeScript interfaces for better type safety
@@ -18,31 +19,11 @@ export interface CacheEntry<T> {
   lastModified: string;
 }
 
-export interface SpatialUnitMetadata {
-  spatialUnitId: string;
-  spatialUnitLevel: string;
-  metadata: {
-    description: string;
-    datasource: string;
-    contact: string;
-    note?: string;
-    literature?: string;
-    updateInterval?: string;
-    lastUpdate?: string;
-    databasis?: string;
-    sridEPSG?: number;
-  };
-  nextLowerHierarchyLevel?: string;
-  nextUpperHierarchyLevel?: string;
-  availablePeriodsOfValidity: Array<{
-    startDate: string;
-    endDate?: string;
-  }>;
-  permissions: string[];
-  isPublic: boolean;
-  ownerId: string;
-  userPermissions?: string[];
-}
+/**
+ * Legacy exported name kept for the importers of this service; the canonical
+ * definition lives in models/data-management-api (generated from the OpenAPI spec).
+ */
+export type SpatialUnitMetadata = SpatialUnitOverviewType;
 
 @Injectable({
   providedIn: 'root',

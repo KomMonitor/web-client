@@ -1,5 +1,21 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, DestroyRef, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  EventEmitter,
+  inject,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
+import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
+import { KmColorPickerComponent } from 'components/ngComponents/customElements/color-picker/km-color-picker.component';
+import { KmDatePickerComponent } from 'components/ngComponents/customElements/date-picker/km-date-picker.component';
+import {
+  KmLinePatternPickerComponent,
+  LinePatternOption,
+} from 'components/ngComponents/customElements/line-pattern-picker/km-line-pattern-picker.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { skip } from 'rxjs';
@@ -34,11 +50,21 @@ import {
   selector: 'app-georesource-add-modal',
   templateUrl: './georesource-add-modal.component.html',
   styleUrls: ['./georesource-add-modal.component.scss'],
-  imports: [FormsModule, AdminTopicsManagementComponent, StepperComponent],
+  imports: [
+    FormsModule,
+    AdminTopicsManagementComponent,
+    StepperComponent,
+    KmColorPickerComponent,
+    KmDatePickerComponent,
+    KmLinePatternPickerComponent,
+  ],
   standalone: true,
 })
 export class GeoresourceAddModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
+
+  /** Emitted after a successful registration so the parent refreshes its table. */
+  @Output() refreshRequested = new EventEmitter<GeoresourceRefreshRequest>();
   protected accessControlService = inject(AccessControlService);
   private indicatorValueService = inject(IndicatorValueService);
   georesourceStore = inject(GeoresourceMetadataStoreService);
@@ -120,7 +146,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   // Visual styling
   selectedPoiMarkerColor: any = null;
   selectedPoiSymbolColor: any = null;
-  selectedLoiDashArrayObject: any = null;
+  selectedLoiDashArrayObject: LinePatternOption | null = null;
   loiColor = '#bf3d2c';
   loiWidth = 3;
   aoiColor = '#bf3d2c';
@@ -140,7 +166,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   availableTopics: any[] = [];
   updateIntervalOptions: any[] = [];
   availablePoiMarkerColors: any[] = [];
-  availableLoiDashArrayObjects: any[] = [];
+  availableLoiDashArrayObjects: LinePatternOption[] = [];
   availableDatasourceTypes: any[] = [];
 
   // Importer functionality
@@ -299,7 +325,11 @@ export class GeoresourceAddModalComponent implements OnInit {
     // Load available options from services
     this.updateIntervalOptions = this.envConfigService.updateIntervalOptions || [];
     this.availablePoiMarkerColors = POI_MARKER_COLORS || [];
-    this.availableLoiDashArrayObjects = LOI_DASH_ARRAY_OBJECTS || [];
+    this.availableLoiDashArrayObjects = LOI_DASH_ARRAY_OBJECTS.map((option) => ({
+      label: option.dashArrayValue || 'durchgezogen',
+      dashArrayValue: option.dashArrayValue,
+      svgString: option.svgString,
+    }));
     this.availableTopics = this.topicStore.availableTopics || [];
     this.availableDatasourceTypes =
       this.kommonitorImporterHelperService.availableDatasourceTypes || [];
@@ -421,7 +451,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.selectedPoiSymbolColor = symbolColor;
   }
 
-  onChangeLoiDashArray(loiDashArrayObject: any): void {
+  onChangeLoiDashArray(loiDashArrayObject: LinePatternOption | null): void {
     this.selectedLoiDashArrayObject = loiDashArrayObject;
   }
 
@@ -548,7 +578,7 @@ export class GeoresourceAddModalComponent implements OnInit {
       metadataExport['poiSymbolColor'] = '';
       metadataExport['poiMarkerColor'] = '';
 
-      metadataExport['loiDashArrayString'] = this.selectedLoiDashArrayObject.dashArrayValue;
+      metadataExport['loiDashArrayString'] = this.selectedLoiDashArrayObject?.dashArrayValue ?? '';
       metadataExport['loiColor'] = this.loiColor;
       metadataExport['loiWidth'] = this.loiWidth;
 
@@ -1149,18 +1179,14 @@ export class GeoresourceAddModalComponent implements OnInit {
             false
           );
 
-        // Broadcast refresh events
-        this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTable, {
-          action: 'add',
-          id: this.kommonitorImporterHelperService.getIdFromImporterResponse(
-            newGeoresourceResponse
-          ),
+        // Ask the management component to refresh its table. The former broadcast
+        // sent mismatched payload keys (action/id), which always forced the
+        // full-refetch fallback; the emit uses the proper request shape.
+        this.refreshRequested.emit({
+          crudType: 'add',
+          targetGeoresourceId:
+            this.kommonitorImporterHelperService.getIdFromImporterResponse(newGeoresourceResponse),
         });
-
-        // refresh all admin dashboard diagrams due to modified metadata
-        setTimeout(() => {
-          this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
-        }, 500);
 
         this.successMessagePart = this.postBody_georesources.datasetName;
         this.importedFeatures =

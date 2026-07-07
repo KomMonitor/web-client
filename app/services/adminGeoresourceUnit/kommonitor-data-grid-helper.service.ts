@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
 import { BroadcastService } from '../broadcast-service/broadcast.service';
 import { KommonitorGeoresourceDataExchangeService } from './kommonitor-data-exchange.service';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -110,7 +111,7 @@ export class KommonitorGeoresourceDataGridHelperService {
   /**
    * Build data grid for georesources
    */
-  buildDataGrid_georesources(georesourcesArray: any[]): void {
+  buildDataGrid_georesources(georesourcesArray: GeoresourcesDataset[]): void {
     if (!georesourcesArray || georesourcesArray.length === 0) {
       console.warn('No georesources data provided to buildDataGrid_georesources');
       return;
@@ -129,7 +130,7 @@ export class KommonitorGeoresourceDataGridHelperService {
   /**
    * Build POI grid
    */
-  private buildPoiGrid(georesourcesArray: any[]): void {
+  private buildPoiGrid(georesourcesArray: GeoresourcesDataset[]): void {
     if (!this.poiGrid) {
       return;
     }
@@ -152,7 +153,7 @@ export class KommonitorGeoresourceDataGridHelperService {
   /**
    * Build LOI grid
    */
-  private buildLoiGrid(georesourcesArray: any[]): void {
+  private buildLoiGrid(georesourcesArray: GeoresourcesDataset[]): void {
     if (!this.loiGrid) {
       return;
     }
@@ -176,7 +177,7 @@ export class KommonitorGeoresourceDataGridHelperService {
   /**
    * Build AOI grid
    */
-  private buildAoiGrid(georesourcesArray: any[]): void {
+  private buildAoiGrid(georesourcesArray: GeoresourcesDataset[]): void {
     if (!this.aoiGrid) {
       return;
     }
@@ -200,7 +201,9 @@ export class KommonitorGeoresourceDataGridHelperService {
   /**
    * Register click handlers for georesource buttons
    */
-  private registerClickHandler_georesources(_georesourceMetadataArray: any[]): void {
+  private registerClickHandler_georesources(
+    _georesourceMetadataArray: GeoresourcesDataset[]
+  ): void {
     // Edit Metadata Button
     const editMetadataButtons = document.querySelectorAll('.georesourceEditMetadataBtn');
     editMetadataButtons.forEach((button: any) => {

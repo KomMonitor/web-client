@@ -293,7 +293,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
 
   resetForm(): void {
     if (this.currentSpatialUnitDataset) {
-      this.ownerOrganization = this.currentSpatialUnitDataset.ownerId;
+      this.ownerOrganization = this.currentSpatialUnitDataset.ownerId ?? '';
       // Ensure the grid is initialized after a short delay to allow the view to be ready
       setTimeout(() => {
         this.refreshRoleManagementTable();
