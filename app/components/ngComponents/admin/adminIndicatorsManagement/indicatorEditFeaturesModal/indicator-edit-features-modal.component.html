@@ -45,13 +45,13 @@
                     class="form-control"
                     required
                   >
-                    <option disabled selected value>-- Ziel-Raumebene wählen --</option>
+                    <option [ngValue]="null" disabled>-- Ziel-Raumebene wählen --</option>
                     @for (
                       spatialUnit of spatialUnitStore.availableSpatialUnits
                         | filter: filterOverviewTargetSpatialUnits();
                       track spatialUnit
                     ) {
-                      <option [value]="spatialUnit">
+                      <option [ngValue]="spatialUnit">
                         {{ spatialUnit.spatialUnitLevel }}
                       </option>
                     }
@@ -201,9 +201,9 @@
                     class="form-control"
                     required
                   >
-                    <option disabled selected value>-- Quellformat wählen --</option>
+                    <option [ngValue]="null" disabled>-- Quellformat wählen --</option>
                     @for (converter of filteredConverters; track converter) {
-                      <option [value]="converter">
+                      <option [ngValue]="converter">
                         {{ converter.name }}
                       </option>
                     }
@@ -316,12 +316,12 @@
                           class="form-control"
                           required
                         >
-                          <option disabled selected value>-- Quelltyp wählen --</option>
+                          <option [ngValue]="null" disabled>-- Quelltyp wählen --</option>
                           @for (
                             datasourceType of importerHelperService.availableDatasourceTypes;
                             track datasourceType
                           ) {
-                            <option [value]="datasourceType">
+                            <option [ngValue]="datasourceType">
                               {{ datasourceType.type }}
                             </option>
                           }
@@ -398,12 +398,12 @@
                     class="form-control"
                     required
                   >
-                    <option disabled selected value>-- Ziel-Raumebene wählen --</option>
+                    <option [ngValue]="null" disabled>-- Ziel-Raumebene wählen --</option>
                     @for (
                       spatialUnit of spatialUnitStore.availableSpatialUnits;
                       track spatialUnit
                     ) {
-                      <option [value]="spatialUnit">
+                      <option [ngValue]="spatialUnit">
                         {{ spatialUnit.spatialUnitLevel }}
                       </option>
                     }

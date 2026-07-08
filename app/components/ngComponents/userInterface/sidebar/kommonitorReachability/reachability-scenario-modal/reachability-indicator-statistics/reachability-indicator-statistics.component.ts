@@ -43,7 +43,8 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
   selectedIndicatorForStatistics: any;
   selectedIndicatorId: any;
   indicatorNameFilter: any;
-  selectedSpatialUnit: any;
+  // null (not undefined) so the [ngValue]="null" placeholder option is selected
+  selectedSpatialUnit: any = null;
   selectedIndicatorDate: any;
 
   filteredIndicators = this.indicatorStore.displayableIndicators;

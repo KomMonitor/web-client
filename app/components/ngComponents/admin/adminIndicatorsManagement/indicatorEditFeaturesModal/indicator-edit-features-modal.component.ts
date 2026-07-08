@@ -193,7 +193,8 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
 
     this.indicatorFeaturesJSON = undefined;
     this.remainingFeatureHeaders = [];
-    this.overviewTableTargetSpatialUnitMetadata = undefined;
+    // null (not undefined) so the [ngValue]="null" placeholder option is selected
+    this.overviewTableTargetSpatialUnitMetadata = null;
 
     // Set default spatial unit
     for (const spatialUnitMetadataEntry of this.spatialUnitStore.availableSpatialUnits) {
@@ -216,13 +217,14 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     );
 
     this.spatialUnitRefKeyProperty = '';
-    this.targetSpatialUnitMetadata = undefined;
+    // null (not undefined) so the [ngValue]="null" placeholder options are selected
+    this.targetSpatialUnitMetadata = null;
     this.targetApplicableSpatialUnit = undefined;
 
-    this.converter = undefined;
+    this.converter = null;
     this.schema = undefined;
     this.mimeType = undefined;
-    this.datasourceType = undefined;
+    this.datasourceType = null;
 
     this.converterDefinition = undefined;
     this.datasourceTypeDefinition = undefined;
