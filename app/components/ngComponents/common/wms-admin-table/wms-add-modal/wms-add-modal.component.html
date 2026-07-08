@@ -364,109 +364,60 @@
           </fieldset>
         }
 
-        @if (currentStep === 4 && envConfigService.enableKeycloakSecurity) {
-          <fieldset>
+        <!-- Step 4: Zugriffsschutz und Eigentümerschaft.
+             Switched via display (not @if) so the role grid's checked state
+             survives navigating between steps. -->
+        @if (envConfigService.enableKeycloakSecurity) {
+          <fieldset [style.display]="currentStep === 4 ? 'block' : 'none'">
             <h2 class="fs-title">Zugriffsschutz und Eigentümerschaft</h2>
             <h3 class="fs-subtitle">
               Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro
               Organisationseinheit
             </h3>
-            <div class="row">
-              <div class="col-md-3"></div>
-              <div class="col-md-6 col-sm-6 col-12">
-                <div class="alert alert-info">
-                  Bitte wählen Sie zunächst die Organisationseinheit aus, unter welcher Sie den
-                  Datensatz anlegen möchten
-                </div>
-                <label for="addWmsUserRoleSelect">Eigentümer-Organisationseinheit*</label>
-                <div class="input-group">
-                  <span class="input-group-addon"><i class="fas fa-filter"></i></span>
-                  <input
-                    type="text"
-                    class="form-control input-sm"
-                    placeholder="Stichwortfilter"
-                    [(ngModel)]="ownerOrgFilter"
-                    name="ownerOrgFilter"
-                  />
-                </div>
-                @if (accessControlService.checkAdminPermission()) {
-                  <select
-                    id="addWmsUserRoleSelect"
-                    [(ngModel)]="ownerOrganization"
-                    name="ownerOrganization"
-                    class="form-control"
-                    (ngModelChange)="onChangeOwner(ownerOrganization)"
-                    required
-                  >
-                    @for (org of accessControlService.accessControl; track org) {
-                      <option [value]="org.organizationalUnitId">{{ org.name }}</option>
-                    }
-                  </select>
-                }
-                <p></p>
-              </div>
-              <div class="col-md-3"></div>
-            </div>
+            <app-owner-organization-select
+              mode="assign"
+              [ownerId]="ownerOrganization"
+              (ownerIdChange)="onChangeOwner($event)"
+            ></app-owner-organization-select>
             <br />
             <hr />
             <br />
-            @if (ownerOrganization !== '') {
-              <div id="georesourceRoleForm">
-                <label>Datensatz-Freigaben</label>
-                <div class="row vertical-align">
-                  <div class="col-md-3">
-                    <label>Öffentliche Lesefreigabe*</label>
-                    <label class="switch">
-                      <input
-                        type="checkbox"
-                        [(ngModel)]="isPublic"
-                        name="isPublic"
-                        (ngModelChange)="onChangeIsPublic($event)"
-                      />
-                      <span class="switchslider round"></span>
-                    </label>
-                    <div class="help-block">
-                      <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
-                    </div>
+            <div id="georesourceRoleForm" [style.display]="ownerOrganization ? 'block' : 'none'">
+              <label>Datensatz-Freigaben</label>
+              <div class="row vertical-align">
+                <div class="col-md-3">
+                  <label>Öffentliche Lesefreigabe*</label>
+                  <label class="switch">
+                    <input
+                      type="checkbox"
+                      [(ngModel)]="isPublic"
+                      name="isPublic"
+                      (ngModelChange)="onChangeIsPublic($event)"
+                    />
+                    <span class="switchslider round"></span>
+                  </label>
+                  <div class="help-block">
+                    <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
                   </div>
-                  <div class="col-md-6 col-sm-6 col-12">
-                    <ag-grid-angular
-                      #roleManagementGrid
-                      class="ag-theme-alpine"
-                      style="height: 45vh; width: 100%"
-                      [columnDefs]="roleManagementColumnDefs"
-                      [rowData]="roleManagementRowData"
-                      [defaultColDef]="roleManagementDefaultColDef"
-                      [gridOptions]="roleManagementGridOptions"
-                      [components]="roleManagementHelper.getRoleManagementComponents()"
-                      [suppressRowClickSelection]="true"
-                      [rowSelection]="'multiple'"
-                      [enableCellTextSelection]="true"
-                      [ensureDomOrder]="true"
-                      [pagination]="false"
-                      [suppressColumnVirtualisation]="true"
-                      (gridReady)="onRoleManagementGridReady($event)"
-                      (firstDataRendered)="onRoleManagementFirstDataRendered($event)"
-                      (columnResized)="onRoleManagementColumnResized($event)"
-                      (modelUpdated)="onRoleManagementModelUpdated()"
-                      (viewportChanged)="onRoleManagementViewportChanged()"
-                    >
-                    </ag-grid-angular>
+                </div>
+                <div class="col-md-6 col-sm-6 col-12">
+                  <app-role-management-grid
+                    gridId="wmsAddRoleManagementTable"
+                  ></app-role-management-grid>
+                </div>
+                <div class="col-md-3">
+                  <div class="alert alert-info">
+                    Als Eigentümer-Organisation des Datensatzes können Sie Lese- und Editier-Rechte
+                    an die eigene und weitere Organisationseinheiten vergeben.
                   </div>
-                  <div class="col-md-3">
-                    <div class="alert alert-info">
-                      Als Eigentümer-Organisation des Datensatzes können Sie Lese- und
-                      Editier-Rechte an die eigene und weitere Organisationseinheiten vergeben.
-                    </div>
-                    <br />
-                    <div class="alert alert-warning">
-                      Lese- und Editierrechte wurden für die von Ihnen selektierte
-                      Eigentümer-Organisationseinheit markiert.
-                    </div>
+                  <br />
+                  <div class="alert alert-warning">
+                    Lese- und Editierrechte wurden für die von Ihnen selektierte
+                    Eigentümer-Organisationseinheit markiert.
                   </div>
                 </div>
               </div>
-            }
+            </div>
             <input
               type="button"
               name="previous"

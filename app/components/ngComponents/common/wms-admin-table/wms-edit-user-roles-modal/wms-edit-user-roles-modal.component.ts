@@ -1,36 +1,40 @@
-import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, Validators } from '@angular/forms';
+import { Component, ViewChild, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ColDef, ColumnApi, GridApi, GridOptions } from 'ag-grid-community';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { forkJoin } from 'rxjs';
-import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
-import { AgGridAngular } from 'ag-grid-angular';
 
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 import {
   StepperComponent,
   StepperStep,
 } from 'components/ngComponents/common/stepper/stepper.component';
+import { RoleManagementGridComponent } from 'components/ngComponents/admin/adminShared/roleManagementPanel/role-management-grid.component';
+import { OwnerOrganizationSelectComponent } from 'components/ngComponents/admin/adminShared/roleManagementPanel/owner-organization-select.component';
 
 @Component({
   selector: 'app-wms-edit-user-roles-modal',
   templateUrl: './wms-edit-user-roles-modal.component.html',
   styleUrls: ['./wms-edit-user-roles-modal.component.scss'],
-  imports: [AgGridAngular, FormsModule, StepperComponent],
+  imports: [
+    FormsModule,
+    StepperComponent,
+    RoleManagementGridComponent,
+    OwnerOrganizationSelectComponent,
+  ],
   standalone: true,
 })
 export class WmsEditUserRolesModalComponent {
   activeModal = inject(NgbActiveModal);
   protected accessControlService = inject(AccessControlService);
   private ogcService = inject(OgcService);
-  protected roleManagementHelper = inject(RoleManagementDataGridHelperService);
   protected envConfigService = inject(EnvConfigService);
 
   currentGeoresourceDataset!: WmsDataset;
+
+  @ViewChild(RoleManagementGridComponent) roleGrid?: RoleManagementGridComponent;
 
   totalSteps: number = 2;
   currentStep: number = 1;
@@ -41,18 +45,9 @@ export class WmsEditUserRolesModalComponent {
   successMessage = false;
   loadingData = false;
 
-  // Role management
-  roleManagementTableOptions: any = null;
-  roleManagementColumnDefs: ColDef[] = [];
-  roleManagementRowData: any[] = [];
-  roleManagementDefaultColDef: ColDef = {};
-  roleManagementGridOptions: GridOptions = {};
-  roleManagementGridApi: GridApi | null = null;
-  roleManagementColumnApi: ColumnApi | null = null;
+  // Role management (grid handled by <app-role-management-grid>)
   ownerOrganization = '';
-  ownerOrgFilter = '';
   isPublic = false;
-  resourcesCreatorRights: any[] = [];
 
   successMessagePart = '';
   errorMessagePart = '';
@@ -83,39 +78,8 @@ export class WmsEditUserRolesModalComponent {
   reInit() {
     this.isPublic = this.currentGeoresourceDataset.isPublic;
     this.ownerOrganization = this.currentGeoresourceDataset.ownerId;
-
-    // Build the role management grid options
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      '',
-      this.roleManagementTableOptions,
-      this.accessControlService.accessControl || [],
-      this.currentGeoresourceDataset.permissions,
-      true
-    );
-
-    // Extract column definitions and row data for ag-grid-angular and rebuild grid config
-    if (this.roleManagementTableOptions) {
-      this.roleManagementColumnDefs = this.roleManagementTableOptions.columnDefs || [];
-      this.roleManagementRowData = this.roleManagementTableOptions.rowData || [];
-
-      // Build grid configuration (this will use the components from roleManagementTableOptions)
-      this.buildRoleManagementGridConfig();
-
-      // If grid is already initialized, update the data and grid options
-      if (this.roleManagementGridApi) {
-        // Update data
-        this.roleManagementGridApi.setGridOption('rowData', this.roleManagementRowData);
-        this.roleManagementGridApi.setGridOption('columnDefs', this.roleManagementColumnDefs);
-
-        // Refresh the grid to ensure it updates
-        setTimeout(() => {
-          if (this.roleManagementGridApi) {
-            this.roleManagementGridApi.refreshCells();
-            this.roleManagementGridApi.redrawRows();
-          }
-        }, 100);
-      }
-    }
+    // The grid seeds itself from its [permissions]/[ownerId] inputs bound to the dataset
+    this.roleGrid?.reset();
   }
 
   editData() {
@@ -125,9 +89,7 @@ export class WmsEditUserRolesModalComponent {
 
     const permissionData = {
       isPublic: this.isPublic,
-      permissions: this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-        this.roleManagementGridOptions
-      ),
+      permissions: this.roleGrid?.getSelectedRoleIds() ?? [],
     };
 
     forkJoin({
@@ -137,7 +99,7 @@ export class WmsEditUserRolesModalComponent {
         permissionData
       ),
     }).subscribe({
-      next: (response: any) => {
+      next: (_response: any) => {
         this.successMessagePart = this.currentGeoresourceDataset.title;
         this.successMessage = true;
       },
@@ -149,71 +111,19 @@ export class WmsEditUserRolesModalComponent {
   }
 
   onChangeOwner(orgUnitId: string): void {
+    // Deliberately no grid re-seeding here (matches the historical behavior:
+    // the legacy refreshRoles call was disabled).
     this.ownerOrganization = orgUnitId;
-    //this.refreshRoles(orgUnitId);
   }
 
   onChangeIsPublic(isPublic: boolean): void {
     this.isPublic = isPublic;
   }
 
-  private refreshRoles(orgUnitId: string): void {
-    let permissionIds_ownerUnit: string[] = [];
-
-    if (orgUnitId) {
-      const accessControl = this.accessControlService.getAccessControlById(orgUnitId);
-      permissionIds_ownerUnit =
-        accessControl?.permissions
-          ?.filter(
-            (permission) =>
-              permission.permissionLevel === 'viewer' || permission.permissionLevel === 'editor'
-          )
-          .map((permission) => permission.permissionId) || [];
-    }
-
-    // Set datasetOwner flags
-    this.accessControlService.accessControl?.forEach((item) => {
-      item.datasetOwner = item.organizationalUnitId === orgUnitId;
-    });
-
-    // Build the role management grid options
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      '',
-      this.roleManagementTableOptions,
-      this.accessControlService.accessControl || [],
-      permissionIds_ownerUnit,
-      true
-    );
-
-    // Extract column definitions and row data for ag-grid-angular and rebuild grid config
-    if (this.roleManagementTableOptions) {
-      this.roleManagementColumnDefs = this.roleManagementTableOptions.columnDefs || [];
-      this.roleManagementRowData = this.roleManagementTableOptions.rowData || [];
-
-      // Build grid configuration (this will use the components from roleManagementTableOptions)
-      this.buildRoleManagementGridConfig();
-
-      // If grid is already initialized, update the data and grid options
-      if (this.roleManagementGridApi) {
-        // Update data
-        this.roleManagementGridApi.setGridOption('rowData', this.roleManagementRowData);
-        this.roleManagementGridApi.setGridOption('columnDefs', this.roleManagementColumnDefs);
-
-        // Refresh the grid to ensure it updates
-        setTimeout(() => {
-          if (this.roleManagementGridApi) {
-            this.roleManagementGridApi.refreshCells();
-            this.roleManagementGridApi.redrawRows();
-          }
-        }, 100);
-      }
-    }
-  }
-
   resetWmsEditForm() {
     this.ownerOrganization = '';
-    this.ownerOrgFilter = '';
     this.isPublic = false;
+    this.roleGrid?.reset();
   }
 
   hideSuccessAlert(): void {
@@ -222,75 +132,5 @@ export class WmsEditUserRolesModalComponent {
 
   hideErrorAlert(): void {
     this.errorMessage = false;
-  }
-
-  onRoleManagementGridReady(params: any) {
-    this.roleManagementGridApi = params.api;
-    this.roleManagementColumnApi = params.columnApi;
-
-    // Update the service with the grid API so it can be used for getSelectedRoleIds
-    this.roleManagementHelper.setGridApi(params.api);
-  }
-
-  // Additional grid event handlers to match parent component
-  onRoleManagementFirstDataRendered(event: any): void {
-    this.roleManagementHeaderHeightSetter();
-  }
-
-  onRoleManagementColumnResized(event: any): void {
-    this.roleManagementHeaderHeightSetter();
-  }
-
-  onRoleManagementModelUpdated(): void {
-    // Grid model updated
-  }
-
-  onRoleManagementViewportChanged(): void {
-    // Viewport changed
-  }
-
-  private roleManagementHeaderHeightSetter(): void {
-    if (this.roleManagementGridApi) {
-      const headerHeight = this.roleManagementHeaderHeightGetter();
-      this.roleManagementGridApi.setHeaderHeight(headerHeight);
-    }
-  }
-
-  private roleManagementHeaderHeightGetter(): number {
-    const headerElement = document.querySelector('#roleManagementGrid .ag-header');
-    if (headerElement) {
-      const headerTextElements = headerElement.querySelectorAll('.ag-header-cell-text');
-      let maxHeight = 0;
-      headerTextElements.forEach((element) => {
-        const height = element.scrollHeight;
-        if (height > maxHeight) {
-          maxHeight = height;
-        }
-      });
-      return Math.max(maxHeight + 20, 40); // Add padding and minimum height
-    }
-    return 40;
-  }
-
-  private buildRoleManagementGridConfig() {
-    // Use service methods for base grid configuration
-    this.roleManagementDefaultColDef = this.roleManagementHelper.buildRoleManagementDefaultColDef();
-    const baseGridOptions = this.roleManagementHelper.buildRoleManagementGridOptionsPublic(
-      this.roleManagementTableOptions?.components
-    );
-
-    // Apply component-specific overrides
-    this.roleManagementGridOptions = {
-      ...baseGridOptions,
-      onGridReady: (params) => {
-        this.onRoleManagementGridReady(params);
-      },
-      onFirstDataRendered: (event) => {
-        this.onRoleManagementFirstDataRendered(event);
-      },
-      onColumnResized: (event) => {
-        this.onRoleManagementColumnResized(event);
-      },
-    };
   }
 }

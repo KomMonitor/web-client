@@ -28,9 +28,10 @@
         <!-- progressbar -->
         <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
 
-        <!-- fieldsets -->
-        @if (currentStep === 1 && envConfigService.enableKeycloakSecurity) {
-          <fieldset>
+        <!-- fieldsets: switched via display so the role grid (and its checked
+             state) survives navigating between steps -->
+        @if (envConfigService.enableKeycloakSecurity) {
+          <fieldset [style.display]="currentStep === 1 ? 'block' : 'none'">
             <h2 class="fs-title">Zugriffsschutz</h2>
             <h3 class="fs-subtitle">
               Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro
@@ -55,38 +56,16 @@
                   </div>
                 </div>
                 <div class="col-md-6 col-sm-6 col-12">
-                  <ag-grid-angular
-                    #roleManagementGrid
-                    class="ag-theme-alpine"
-                    style="height: 45vh; width: 100%"
-                    [columnDefs]="roleManagementColumnDefs"
-                    [rowData]="roleManagementRowData"
-                    [defaultColDef]="roleManagementDefaultColDef"
-                    [gridOptions]="roleManagementGridOptions"
-                    [components]="roleManagementHelper.getRoleManagementComponents()"
-                    [suppressRowClickSelection]="true"
-                    [rowSelection]="'multiple'"
-                    [enableCellTextSelection]="true"
-                    [ensureDomOrder]="true"
-                    [pagination]="false"
-                    [suppressColumnVirtualisation]="true"
-                    (gridReady)="onRoleManagementGridReady($event)"
-                    (firstDataRendered)="onRoleManagementFirstDataRendered($event)"
-                    (columnResized)="onRoleManagementColumnResized($event)"
-                    (modelUpdated)="onRoleManagementModelUpdated()"
-                    (viewportChanged)="onRoleManagementViewportChanged()"
-                  >
-                  </ag-grid-angular>
+                  <app-role-management-grid
+                    gridId="wmsEditRoleManagementTable"
+                    [permissions]="currentGeoresourceDataset?.permissions"
+                    [ownerId]="currentGeoresourceDataset?.ownerId"
+                  ></app-role-management-grid>
                 </div>
                 <div class="col-md-3">
                   <div class="alert alert-info">
                     Als Eigentümer-Organisation des Datensatzes können Sie Lese- und Editier-Rechte
                     an die eigene und weitere Organisationseinheiten vergeben.
-                  </div>
-                  <br />
-                  <div class="alert alert-warning">
-                    Lese- und Editierrechte wurden für die von Ihnen selektierte
-                    Eigentümer-Organisationseinheit markiert.
                   </div>
                 </div>
               </div>
@@ -106,46 +85,17 @@
               (click)="nextStep()"
             />
           </fieldset>
-        }
 
-        @if (currentStep === 2 && envConfigService.enableKeycloakSecurity) {
-          <fieldset>
-            <div class="row">
-              <div class="col-md-3"></div>
-              <div class="col-md-6 col-sm-6 col-12">
-                <div class="alert alert-info">
-                  Bitte wählen Sie die Organisationseinheit aus, unter welcher Sie den Datensatz
-                  anlegen möchten
-                </div>
-                <label for="addWmsUserRoleSelect">Eigentümer-Organisationseinheit*</label>
-                <div class="input-group">
-                  <span class="input-group-addon"><i class="fas fa-filter"></i></span>
-                  <input
-                    type="text"
-                    class="form-control input-sm"
-                    placeholder="Stichwortfilter"
-                    [(ngModel)]="ownerOrgFilter"
-                    name="ownerOrgFilter"
-                  />
-                </div>
-                @if (accessControlService.checkAdminPermission()) {
-                  <select
-                    id="addWmsUserRoleSelect"
-                    [(ngModel)]="ownerOrganization"
-                    name="ownerOrganization"
-                    class="form-control"
-                    (ngModelChange)="onChangeOwner(ownerOrganization)"
-                    required
-                  >
-                    @for (org of accessControlService.accessControl; track org) {
-                      <option [value]="org.organizationalUnitId">{{ org.name }}</option>
-                    }
-                  </select>
-                }
-                <p></p>
-              </div>
-              <div class="col-md-3"></div>
-            </div>
+          <fieldset [style.display]="currentStep === 2 ? 'block' : 'none'">
+            <h2 class="fs-title">Eigentümerschaft eines Datensatzes</h2>
+            <h3 class="fs-subtitle">
+              Übertragen der Eigentümerschaft von Datensätzen mit allen dazugehörigen Rechten
+            </h3>
+            <app-owner-organization-select
+              [ownerId]="ownerOrganization"
+              [currentOwnerId]="currentGeoresourceDataset?.ownerId"
+              (ownerIdChange)="onChangeOwner($event)"
+            ></app-owner-organization-select>
           </fieldset>
         }
       </form>

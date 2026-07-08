@@ -1,25 +1,27 @@
 import { Injectable } from '@angular/core';
-import { GridOptions, GridApi, GridReadyEvent } from 'ag-grid-community';
+import { GridOptions } from 'ag-grid-community';
 
 /**
  * Helper service for the role-/permission-management ag-Grid used across the
- * admin area (spatial units, georesources, indicators, roles, WMS).
+ * admin area.
  *
  * Extracted from `KommonitorDataGridHelperService` (adminSpatialUnit) as the
  * first responsibility split of Prio 7 — see
- * `documentation/PRIO7_GOD_SERVICE_SPLIT.md`. The role-management grid is a
- * cross-cutting concern and does not belong to the spatial-unit helper.
+ * `documentation/PRIO7_GOD_SERVICE_SPLIT.md`.
  *
- * Holds its own grid API (`gridApi`); `setGridApi` is invoked from the
- * consuming components' role-management `onGridReady` handlers so that
- * `getSelectedRoleIds_roleManagementGrid` can read the live grid state.
+ * The resource-permission grids themselves live in the shared
+ * `<app-role-management-grid>` component (adminShared/roleManagementPanel),
+ * which owns its grid API per instance and builds fresh options through
+ * `buildRoleManagementGrid`. Besides the panel, only the role-management
+ * modals (role-add, role-edit-group-rights) use the base col-def/grid-options
+ * builders for their custom grids. The former shared `gridApi` state and its
+ * `setGridApi`/`getSelectedRoleIds_roleManagementGrid` accessors are gone —
+ * they let concurrently open grids clobber each other.
  */
 @Injectable({
   providedIn: 'root',
 })
 export class RoleManagementDataGridHelperService {
-  private gridApi: GridApi | null = null;
-
   /**
    * Build default column definition for role management grids
    */
@@ -77,69 +79,23 @@ export class RoleManagementDataGridHelperService {
   }
 
   /**
-   * Set header height for proper display
-   */
-  private headerHeightSetter(): void {
-    if (this.gridApi) {
-      const headerHeight = this.headerHeightGetter();
-      this.gridApi.setHeaderHeight(headerHeight);
-    }
-  }
-
-  /**
-   * Calculate header height based on content
-   */
-  private headerHeightGetter(): number {
-    const columnHeaderTexts = document.querySelectorAll('.ag-header-cell-text');
-    let maxHeight = 0;
-
-    columnHeaderTexts.forEach((element: any) => {
-      const height = element.offsetHeight;
-      if (height > maxHeight) {
-        maxHeight = height;
-      }
-    });
-
-    return Math.max(maxHeight + 20, 50); // Add padding, minimum 50px
-  }
-
-  /**
-   * Build role management grid for spatial units
+   * Build fresh role-management grid options (column defs, row data, checkbox
+   * cell-renderer components) from the access-control list and the selected
+   * permission ids. Consumed by `<app-role-management-grid>`, which pushes the
+   * fresh columnDefs/rowData through its bindings on every rebuild.
    */
   buildRoleManagementGrid(
-    tableDOMId: string,
-    currentTableOptionsObject: any,
+    _tableDOMId: string,
+    _currentTableOptionsObject: any,
     accessControlMetadata: any[],
     selectedPermissionIds: string[],
     reducedRoleManagement: boolean = false
   ): any {
-    if (currentTableOptionsObject && this.gridApi) {
-      // Grid already exists, just update the data
-      const newRowData = this.buildRoleManagementGridRowData(
-        accessControlMetadata,
-        selectedPermissionIds
-      );
-      // update underlying options so callers get the latest data
-      currentTableOptionsObject.rowData = newRowData;
-      this.gridApi.setGridOption('rowData', newRowData);
-      // ensure cells re-render to apply disabled state and checks
-      setTimeout(() => {
-        try {
-          this.gridApi?.refreshCells({ force: true });
-          this.gridApi?.redrawRows();
-        } catch {
-          /* grid may have been destroyed before the timeout fires; ignore refresh errors */
-        }
-      }, 0);
-    } else {
-      // Create new grid options
-      currentTableOptionsObject = this.buildRoleManagementGridOptions(
-        accessControlMetadata,
-        selectedPermissionIds,
-        reducedRoleManagement
-      );
-    }
-    return currentTableOptionsObject;
+    return this.buildRoleManagementGridOptions(
+      accessControlMetadata,
+      selectedPermissionIds,
+      reducedRoleManagement
+    );
   }
 
   /**
@@ -294,15 +250,6 @@ export class RoleManagementDataGridHelperService {
       paginationPageSize: 10,
       paginationPageSizeSelector: [10, 25, 50, 100],
       suppressColumnVirtualisation: true,
-      onFirstDataRendered: () => {
-        this.headerHeightSetter();
-      },
-      onColumnResized: () => {
-        this.headerHeightSetter();
-      },
-      onGridReady: (params: GridReadyEvent) => {
-        this.gridApi = params.api;
-      },
     };
     return gridOptions;
   }
@@ -316,41 +263,6 @@ export class RoleManagementDataGridHelperService {
       CheckboxRenderer_editor: this.CheckboxRenderer_editor,
       CheckboxRenderer_creator: this.CheckboxRenderer_creator,
     };
-  }
-
-  /**
-   * Get selected role IDs from role management grid
-   */
-  getSelectedRoleIds_roleManagementGrid(roleManagementTableOptions: any): string[] {
-    const selectedIds = new Set<string>();
-
-    const collectFromRow = (row: any) => {
-      if (!row || !row.permissions) return;
-      for (const permission of row.permissions) {
-        if (permission && permission.isChecked && permission.permissionId) {
-          selectedIds.add(permission.permissionId);
-        }
-      }
-    };
-
-    // Prefer live grid data when API is available
-    if (this.gridApi && !(this.gridApi as any).isDestroyed?.()) {
-      this.gridApi.forEachNode((node: any) => collectFromRow(node.data));
-    } else if (roleManagementTableOptions && Array.isArray(roleManagementTableOptions.rowData)) {
-      // Fallback to current table options rowData
-      for (const row of roleManagementTableOptions.rowData) {
-        collectFromRow(row);
-      }
-    }
-
-    return Array.from(selectedIds);
-  }
-
-  /**
-   * Set the grid API for role management operations
-   */
-  setGridApi(gridApi: GridApi): void {
-    this.gridApi = gridApi;
   }
 
   /**
