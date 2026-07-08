@@ -40,8 +40,8 @@ import type {
   DatasourceType,
   ImporterObjectsConfig,
   MappingConfigImport,
-} from '../spatial-unit-import.model';
-import { SpatialUnitImportService } from 'services/spatial-unit-import-service/spatial-unit-import.service';
+} from 'services/resource-import-service/resource-import.model';
+import { ResourceImportService } from 'services/resource-import-service/resource-import.service';
 import { ResourceMetadataFormComponent } from '../../adminShared/resourceMetadataForm/resource-metadata-form.component';
 import {
   buildResourceMetadataForm,
@@ -74,7 +74,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   private notificationService = inject(NotificationService);
   private destroyRef = inject(DestroyRef);
-  private spatialUnitImportService = inject(SpatialUnitImportService);
+  private resourceImportService = inject(ResourceImportService);
 
   /** Emitted after a spatial unit was added so the parent refreshes its table. */
   @Output() refreshRequested = new EventEmitter<SpatialUnitRefreshRequest>();
@@ -469,11 +469,8 @@ export class SpatialUnitAddModalComponent implements OnInit {
       converter: this.converter,
       schema: this.schema,
       mimeType: this.mimeType,
-      converterParameterPrefix: 'converterParameter_spatialUnitAdd_',
       converterParameterValues: this.converterParameterValues,
       datasourceType: this.datasourceType,
-      datasourceTypeParameterPrefix: 'datasourceTypeParameter_spatialUnitAdd_',
-      datasourceFileInputId: 'spatialUnitDataSourceInput',
       datasourceTypeFormValues: this.assembleDatasourceFormValues(),
       selectedFile: this.selectedDataSourceFile,
       fileInputElement: this.spatialUnitDataSourceInput?.nativeElement,
@@ -502,7 +499,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   async buildImporterObjects() {
     try {
-      const definitions = await this.spatialUnitImportService.buildImporterObjects(
+      const definitions = await this.resourceImportService.buildImporterObjects(
         this.importerObjectsConfig()
       );
       this.converterDefinition = definitions.converterDefinition;
@@ -713,8 +710,8 @@ export class SpatialUnitAddModalComponent implements OnInit {
     }
     this.spatialUnitMappingConfigImportError = '';
     try {
-      const json = await this.spatialUnitImportService.readJsonFile(file);
-      this.applyMappingConfig(this.spatialUnitImportService.parseMappingConfig(json));
+      const json = await this.resourceImportService.readJsonFile(file);
+      this.applyMappingConfig(this.resourceImportService.parseMappingConfig(json));
     } catch (error) {
       this.spatialUnitMappingConfigImportError = getErrorMessage(error);
     }
@@ -846,7 +843,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   onExportSpatialUnitAddMetadataTemplate() {
-    this.spatialUnitImportService.downloadJson(
+    this.resourceImportService.downloadJson(
       'Raumebene_Metadaten_Vorlage_Export.json',
       this.kommonitorDataExchangeService.spatialUnitMetadataStructure
     );
@@ -874,11 +871,11 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
     const name = this.spatialUnitLevel;
     const fileName = `Raumebene_Metadaten_Export${name ? '-' + name : ''}.json`;
-    this.spatialUnitImportService.downloadJson(fileName, metadataExport);
+    this.resourceImportService.downloadJson(fileName, metadataExport);
   }
 
   async onExportSpatialUnitAddMappingConfig() {
-    const definitions = await this.spatialUnitImportService.buildImporterObjects(
+    const definitions = await this.resourceImportService.buildImporterObjects(
       this.importerObjectsConfig()
     );
 
@@ -892,7 +889,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
     const name = this.spatialUnitLevel;
     const fileName = `KomMonitor-Import-Mapping-Konfiguration_Export${name ? '-' + name : ''}.json`;
-    this.spatialUnitImportService.downloadJson(fileName, mappingConfigExport);
+    this.resourceImportService.downloadJson(fileName, mappingConfigExport);
   }
 
   // Metadata structure for export

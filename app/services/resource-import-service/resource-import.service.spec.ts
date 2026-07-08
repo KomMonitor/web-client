@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
-import { SpatialUnitImportService } from './spatial-unit-import.service';
+import { ResourceImportService } from './resource-import.service';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
-import type { ImporterObjectsConfig } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.model';
+import type { ImporterObjectsConfig } from 'services/resource-import-service/resource-import.model';
 
-describe('SpatialUnitImportService', () => {
-  let service: SpatialUnitImportService;
+describe('ResourceImportService', () => {
+  let service: ResourceImportService;
   let importerHelper: {
     buildConverterDefinition: jest.Mock;
     buildDatasourceTypeDefinition: jest.Mock;
@@ -19,11 +19,8 @@ describe('SpatialUnitImportService', () => {
     converter: { name: 'GeoJSON', type: 'spatialUnit', mimeTypes: [], encodings: [] } as any,
     schema: 's',
     mimeType: 'application/json',
-    converterParameterPrefix: 'c_',
     converterParameterValues: {},
     datasourceType: { type: 'OGCAPI_FEATURES', parameters: [] } as any,
-    datasourceTypeParameterPrefix: 'd_',
-    datasourceFileInputId: 'in',
     datasourceTypeFormValues: { foo: 'bar' },
     selectedFile: null,
     fileInputElement: null,
@@ -59,33 +56,29 @@ describe('SpatialUnitImportService', () => {
     };
     TestBed.configureTestingModule({
       providers: [
-        SpatialUnitImportService,
+        ResourceImportService,
         { provide: KommonitorImporterHelperService, useValue: importerHelper },
       ],
     });
-    service = TestBed.inject(SpatialUnitImportService);
+    service = TestBed.inject(ResourceImportService);
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('builds the three definitions and forwards the prefixes/form values', async () => {
+  it('builds the three definitions and forwards the form values', async () => {
     const defs = await service.buildImporterObjects(baseConfig());
 
     expect(importerHelper.buildConverterDefinition).toHaveBeenCalledWith(
       expect.anything(),
-      'c_',
       's',
       'application/json',
       {}
     );
-    expect(importerHelper.buildDatasourceTypeDefinition).toHaveBeenCalledWith(
-      expect.anything(),
-      'd_',
-      'in',
-      { foo: 'bar' }
-    );
+    expect(importerHelper.buildDatasourceTypeDefinition).toHaveBeenCalledWith(expect.anything(), {
+      foo: 'bar',
+    });
     expect(defs.converterDefinition).toEqual({ name: 'GeoJSON' });
     expect(defs.datasourceTypeDefinition).toEqual({ type: 'OGCAPI_FEATURES', parameters: [] });
     expect(defs.propertyMappingDefinition).toEqual({ identifierProperty: 'ID' });
@@ -98,14 +91,12 @@ describe('SpatialUnitImportService', () => {
     expect(defs.converterDefinition).toBeNull();
   });
 
-  it('passes undefined form values when there are none', async () => {
+  it('always passes the form values object, even when empty', async () => {
     await service.buildImporterObjects(baseConfig({ datasourceTypeFormValues: {} }));
 
     expect(importerHelper.buildDatasourceTypeDefinition).toHaveBeenCalledWith(
       expect.anything(),
-      'd_',
-      'in',
-      undefined
+      {}
     );
   });
 

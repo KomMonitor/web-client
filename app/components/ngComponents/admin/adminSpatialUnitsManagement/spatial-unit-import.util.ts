@@ -1,6 +1,6 @@
 // Pure helpers shared by the spatial-unit importer modals (add / edit-features).
 
-import type { AttributeMappingRow } from './spatial-unit-import.model';
+import type { AttributeMappingRow } from 'services/resource-import-service/resource-import.model';
 
 /**
  * Adds `row` to the attribute-mapping list, replacing any existing row with the

@@ -423,14 +423,14 @@ export class KommonitorImporterHelperService {
   }
 
   /**
-   * Build converter definition from form values
+   * Build converter definition from the modal's ngModel-bound form values
+   * (keyed by parameter name). Returns null while required fields are missing.
    */
   buildConverterDefinition(
     selectedConverter: Converter,
-    converterParameterPrefix: string,
     schema: string,
     mimeType: string,
-    formValues?: { [key: string]: string }
+    formValues: { [key: string]: string }
   ): ConverterDefinition | null {
     const converterDefinition: ConverterDefinition = {
       encoding: selectedConverter.encodings[0],
@@ -454,10 +454,7 @@ export class KommonitorImporterHelperService {
     if (selectedConverter.parameters && selectedConverter.parameters.length > 0) {
       for (const parameter of selectedConverter.parameters) {
         const parameterName = parameter.name;
-        const parameterValue = formValues
-          ? formValues[parameterName]
-          : (document.getElementById(converterParameterPrefix + parameterName) as HTMLInputElement)
-              ?.value;
+        const parameterValue = formValues[parameterName];
 
         if (
           parameter.mandatory &&
@@ -490,119 +487,63 @@ export class KommonitorImporterHelperService {
   }
 
   /**
-   * Build datasource type definition from form values
+   * Build a non-FILE datasource type definition from the modal's ngModel-bound
+   * form values (keyed by parameter name; bbox settings via the dedicated
+   * bboxType/bboxRef/bbox_* keys). FILE data sources are handled by
+   * `ResourceImportService` (file upload first) and return null here.
    */
-  async buildDatasourceTypeDefinition(
+  buildDatasourceTypeDefinition(
     selectedDatasourceType: DatasourceType,
-    datasourceTypeParameterPrefix: string,
-    datasourceFileInputId: string,
-    formValues?: { [key: string]: string }
-  ): Promise<DatasourceTypeDefinition | null> {
+    formValues: { [key: string]: string }
+  ): DatasourceTypeDefinition | null {
     const datasourceTypeDefinition: DatasourceTypeDefinition = {
       parameters: [],
       type: selectedDatasourceType.type,
     };
 
     if (selectedDatasourceType.type === 'FILE') {
-      const fileInput = document.getElementById(datasourceFileInputId) as HTMLInputElement;
-      const file = fileInput?.files?.[0];
+      return null;
+    }
 
-      if (file === null || file === undefined) {
-        return null;
-      }
+    if (selectedDatasourceType.parameters.length > 0) {
+      for (const parameter of selectedDatasourceType.parameters) {
+        const parameterName = parameter.name;
+        if (parameterName === 'bbox') {
+          const bboxType = formValues['bboxType'];
 
-      let fileUploadName: string;
-      try {
-        fileUploadName = await this.uploadNewFile(file, file.name);
-      } catch (error) {
-        console.error('Error while uploading file to importer.', error);
-        throw error;
-      }
+          datasourceTypeDefinition.parameters.push({
+            name: 'bboxType',
+            value: bboxType,
+          });
 
-      datasourceTypeDefinition.parameters.push({
-        name: 'NAME',
-        value: fileUploadName,
-      });
-    } else {
-      if (selectedDatasourceType.parameters.length > 0) {
-        for (const parameter of selectedDatasourceType.parameters) {
-          const parameterName = parameter.name;
-          if (parameterName === 'bbox') {
-            const bboxType = formValues
-              ? formValues['bboxType']
-              : (
-                  document.getElementById(
-                    datasourceTypeParameterPrefix + 'bboxType'
-                  ) as HTMLInputElement
-                )?.value;
-
-            datasourceTypeDefinition.parameters.push({
-              name: 'bboxType',
-              value: bboxType,
-            });
-
-            let value: string | undefined;
-            if (bboxType === 'ref') {
-              value = formValues
-                ? formValues['bboxRef']
-                : (
-                    document.getElementById(
-                      datasourceTypeParameterPrefix + 'bboxRef'
-                    ) as HTMLInputElement
-                  )?.value;
-            } else {
-              const minx = formValues
-                ? formValues['bbox_minx']
-                : (
-                    document.getElementById(
-                      datasourceTypeParameterPrefix + 'bbox_minx'
-                    ) as HTMLInputElement
-                  )?.value;
-              const miny = formValues
-                ? formValues['bbox_miny']
-                : (
-                    document.getElementById(
-                      datasourceTypeParameterPrefix + 'bbox_miny'
-                    ) as HTMLInputElement
-                  )?.value;
-              const maxx = formValues
-                ? formValues['bbox_maxx']
-                : (
-                    document.getElementById(
-                      datasourceTypeParameterPrefix + 'bbox_maxx'
-                    ) as HTMLInputElement
-                  )?.value;
-              const maxy = formValues
-                ? formValues['bbox_maxy']
-                : (
-                    document.getElementById(
-                      datasourceTypeParameterPrefix + 'bbox_maxy'
-                    ) as HTMLInputElement
-                  )?.value;
-              value = minx + ',' + miny + ',' + maxx + ',' + maxy;
-            }
-
-            datasourceTypeDefinition.parameters.push({
-              name: 'bbox',
-              value: value,
-            });
+          let value: string | undefined;
+          if (bboxType === 'ref') {
+            value = formValues['bboxRef'];
           } else {
-            const parameterValue = formValues
-              ? formValues[parameterName]
-              : (
-                  document.getElementById(
-                    datasourceTypeParameterPrefix + parameterName
-                  ) as HTMLInputElement
-                )?.value;
+            value =
+              formValues['bbox_minx'] +
+              ',' +
+              formValues['bbox_miny'] +
+              ',' +
+              formValues['bbox_maxx'] +
+              ',' +
+              formValues['bbox_maxy'];
+          }
 
-            if (parameterValue === undefined || parameterValue === null) {
-              return datasourceTypeDefinition;
-            } else {
-              datasourceTypeDefinition.parameters.push({
-                name: parameterName,
-                value: parameterValue,
-              });
-            }
+          datasourceTypeDefinition.parameters.push({
+            name: 'bbox',
+            value: value,
+          });
+        } else {
+          const parameterValue = formValues[parameterName];
+
+          if (parameterValue === undefined || parameterValue === null) {
+            return datasourceTypeDefinition;
+          } else {
+            datasourceTypeDefinition.parameters.push({
+              name: parameterName,
+              value: parameterValue,
+            });
           }
         }
       }

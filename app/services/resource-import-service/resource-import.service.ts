@@ -2,22 +2,41 @@ import { inject, Injectable } from '@angular/core';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import type {
   AttributeMappingRow,
+  ConverterDefinition,
   DatasourceTypeDefinition,
   ImporterDefinitions,
   ImporterObjectsConfig,
   MappingConfigImport,
   MissingImporterFieldsInput,
-} from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.model';
+} from 'services/resource-import-service/resource-import.model';
+
+/** The converter-related subset of {@link ImporterObjectsConfig}. */
+export type ConverterConfig = Pick<
+  ImporterObjectsConfig,
+  'converter' | 'schema' | 'mimeType' | 'converterParameterValues'
+>;
+
+/** The data-source-related subset of {@link ImporterObjectsConfig}. */
+export type DatasourceConfig = Pick<
+  ImporterObjectsConfig,
+  'datasourceType' | 'datasourceTypeFormValues' | 'selectedFile' | 'fileInputElement'
+>;
 
 /**
- * Shared importer logic for the spatial-unit add and edit-features modals.
- * Wraps `KommonitorImporterHelperService` so both modals build the importer
- * definitions through one typed entry point instead of duplicating the thin
- * builder wrappers (which only differed in parameter-name prefixes and the
- * data-source file input id).
+ * Shared importer logic for the admin resource modals (spatial units,
+ * georesources, indicators). Wraps `KommonitorImporterHelperService` so the
+ * modals build the importer definitions through one typed entry point instead
+ * of duplicating the thin builder wrappers (which only differed in
+ * parameter-name prefixes and the data-source file input id).
+ *
+ * `buildImporterObjects` is the all-in-one entry for spatial resources
+ * (spatial units, georesources — includes the spatial property mapping);
+ * indicator modals use the granular `buildConverterDefinition` /
+ * `buildDatasourceTypeDefinition` and add their indicator-specific property
+ * mapping themselves.
  */
 @Injectable({ providedIn: 'root' })
-export class SpatialUnitImportService {
+export class ResourceImportService {
   private importerHelper = inject(KommonitorImporterHelperService);
 
   /**
@@ -27,15 +46,7 @@ export class SpatialUnitImportService {
    * submit. Rejects if a FILE data-source upload fails.
    */
   async buildImporterObjects(config: ImporterObjectsConfig): Promise<ImporterDefinitions> {
-    const converterDefinition = config.converter
-      ? this.importerHelper.buildConverterDefinition(
-          config.converter,
-          config.converterParameterPrefix,
-          config.schema,
-          config.mimeType,
-          config.converterParameterValues
-        )
-      : null;
+    const converterDefinition = this.buildConverterDefinition(config);
 
     const datasourceTypeDefinition = await this.buildDatasourceTypeDefinition(config);
 
@@ -53,8 +64,25 @@ export class SpatialUnitImportService {
     return { converterDefinition, datasourceTypeDefinition, propertyMappingDefinition };
   }
 
-  private async buildDatasourceTypeDefinition(
-    config: ImporterObjectsConfig
+  /** Converter definition from form state; null while required fields are missing. */
+  buildConverterDefinition(config: ConverterConfig): ConverterDefinition | null {
+    return config.converter
+      ? this.importerHelper.buildConverterDefinition(
+          config.converter,
+          config.schema,
+          config.mimeType,
+          config.converterParameterValues
+        )
+      : null;
+  }
+
+  /**
+   * Data-source definition from form state; null while required fields are
+   * missing. FILE data sources are uploaded to the importer first (rejects on
+   * upload errors); the server-side filename becomes the single NAME parameter.
+   */
+  async buildDatasourceTypeDefinition(
+    config: DatasourceConfig
   ): Promise<DatasourceTypeDefinition | null> {
     if (!config.datasourceType) {
       return null;
@@ -71,12 +99,9 @@ export class SpatialUnitImportService {
       return { type: 'FILE', parameters: [{ name: 'NAME', value: uploadedName }] };
     }
 
-    const formValues = config.datasourceTypeFormValues;
     return this.importerHelper.buildDatasourceTypeDefinition(
       config.datasourceType,
-      config.datasourceTypeParameterPrefix,
-      config.datasourceFileInputId,
-      Object.keys(formValues).length ? formValues : undefined
+      config.datasourceTypeFormValues
     );
   }
 

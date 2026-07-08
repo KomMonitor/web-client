@@ -41,8 +41,8 @@ import type {
   DatasourceType,
   ImporterObjectsConfig,
   MappingConfigImport,
-} from '../spatial-unit-import.model';
-import { SpatialUnitImportService } from 'services/spatial-unit-import-service/spatial-unit-import.service';
+} from 'services/resource-import-service/resource-import.model';
+import { ResourceImportService } from 'services/resource-import-service/resource-import.service';
 
 declare const __env: any;
 
@@ -64,7 +64,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   @Output() refreshRequested = new EventEmitter<SpatialUnitRefreshRequest>();
   private notificationService = inject(NotificationService);
   private destroyRef = inject(DestroyRef);
-  private spatialUnitImportService = inject(SpatialUnitImportService);
+  private resourceImportService = inject(ResourceImportService);
 
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
   @ViewChild('spatialUnitDataSourceInput', { static: false })
@@ -595,11 +595,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
       converter: this.converter,
       schema: this.schema,
       mimeType: this.mimeType,
-      converterParameterPrefix: 'converterParameter_spatialUnitEditFeatures_',
       converterParameterValues: this.converterParameters,
       datasourceType: this.datasourceType,
-      datasourceTypeParameterPrefix: 'datasourceTypeParameter_spatialUnitEditFeatures_',
-      datasourceFileInputId: 'spatialUnitDataSourceInput_editFeatures',
       datasourceTypeFormValues: this.assembleDatasourceFormValues(),
       selectedFile: this.selectedDataSourceFile,
       fileInputElement: this.spatialUnitDataSourceInput?.nativeElement,
@@ -632,7 +629,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
 
   async buildImporterObjects(): Promise<boolean> {
     try {
-      const definitions = await this.spatialUnitImportService.buildImporterObjects(
+      const definitions = await this.resourceImportService.buildImporterObjects(
         this.importerObjectsConfig()
       );
       this.converterDefinition = definitions.converterDefinition;
@@ -685,7 +682,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     this.loadingData = true;
     this.importerErrors = [];
 
-    const missing = this.spatialUnitImportService.collectMissingImporterFields({
+    const missing = this.resourceImportService.collectMissingImporterFields({
       converter: this.converter,
       schema: this.schema,
       mimeType: this.mimeType,
@@ -799,8 +796,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     }
     this.spatialUnitMappingConfigImportError = '';
     try {
-      const json = await this.spatialUnitImportService.readJsonFile(file);
-      this.applyMappingConfig(this.spatialUnitImportService.parseMappingConfig(json));
+      const json = await this.resourceImportService.readJsonFile(file);
+      this.applyMappingConfig(this.resourceImportService.parseMappingConfig(json));
     } catch (error) {
       this.spatialUnitMappingConfigImportError = getErrorMessage(error);
       this.showMappingConfigErrorAlert();
@@ -854,7 +851,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   }
 
   async onExportSpatialUnitEditFeaturesMappingConfig(): Promise<void> {
-    const definitions = await this.spatialUnitImportService.buildImporterObjects(
+    const definitions = await this.resourceImportService.buildImporterObjects(
       this.importerObjectsConfig()
     );
 
@@ -867,7 +864,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     );
 
     const fileName = `KomMonitor-Import-Mapping-Konfiguration_Export-${this.currentSpatialUnitDataset?.spatialUnitLevel || 'SpatialUnit'}.json`;
-    this.spatialUnitImportService.downloadJson(fileName, mappingConfigExport);
+    this.resourceImportService.downloadJson(fileName, mappingConfigExport);
   }
 
   onChangeEnableDeleteFeatures(): void {

@@ -28,6 +28,7 @@ import { IndicatorMetadataStoreService } from '../../../../../services/indicator
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 import { FeatureTableDataGridHelperService } from '../../../../../services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
 import { ownerDefaultPermissionIds } from '../../adminShared/roleManagementPanel/role-management-panel.model';
+import { ResourceImportService } from 'services/resource-import-service/resource-import.service';
 import { NotificationService } from '../../../common/notification/notification.service';
 import {
   StepperComponent,
@@ -56,6 +57,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   indicatorStore = inject(IndicatorMetadataStoreService);
   importerHelperService = inject(KommonitorImporterHelperService);
+  private resourceImportService = inject(ResourceImportService);
   featureTableHelper = inject(FeatureTableDataGridHelperService);
   protected envConfigService = inject(EnvConfigService);
   private notificationService = inject(NotificationService);
@@ -77,6 +79,15 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   converter: any;
   schema: any;
   mimeType: any;
+
+  // ngModel-bound converter / data-source parameter values, keyed by parameter
+  // name. Passed to the import service as formValues so the importer helper
+  // never has to scrape the parameter inputs from the DOM.
+  converterParameterValues: { [key: string]: string } = {};
+  datasourceTypeParameterValues: { [key: string]: string } = {};
+
+  @ViewChild('indicatorDataSourceInput', { static: false })
+  indicatorDataSourceInput?: ElementRef;
   datasourceType: any;
   spatialUnitRefKeyProperty: string = '';
   targetSpatialUnitMetadata: any;
@@ -213,6 +224,8 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.schema = undefined;
     this.mimeType = undefined;
     this.datasourceType = null;
+    this.converterParameterValues = {};
+    this.datasourceTypeParameterValues = {};
 
     this.converterDefinition = undefined;
     this.datasourceTypeDefinition = undefined;
@@ -358,6 +371,10 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   onChangeConverter(): void {
     this.schema = this.converter.schemas ? this.converter.schemas[0] : undefined;
     this.mimeType = this.converter.mimeTypes[0];
+    // Fresh parameter values for the newly selected converter. NOTE: CRS
+    // parameters are deliberately not seeded — the template hides them, so
+    // they were never sent historically either.
+    this.converterParameterValues = {};
   }
 
   onChangeMimeType(mimeType: string): void {
@@ -446,21 +463,22 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   }
 
   buildConverterDefinition(): any {
-    return this.importerHelperService.buildConverterDefinition(
-      this.converter,
-      'converterParameter_indicatorEditFeatures_',
-      this.schema,
-      this.mimeType
-    );
+    return this.resourceImportService.buildConverterDefinition({
+      converter: this.converter,
+      schema: this.schema,
+      mimeType: this.mimeType,
+      converterParameterValues: this.converterParameterValues,
+    });
   }
 
   async buildDatasourceTypeDefinition(): Promise<any> {
     try {
-      return await this.importerHelperService.buildDatasourceTypeDefinition(
-        this.datasourceType,
-        'datasourceTypeParameter_indicatorEditFeatures_',
-        'indicatorDataSourceInput_editFeatures'
-      );
+      return await this.resourceImportService.buildDatasourceTypeDefinition({
+        datasourceType: this.datasourceType,
+        datasourceTypeFormValues: this.datasourceTypeParameterValues,
+        selectedFile: null,
+        fileInputElement: this.indicatorDataSourceInput?.nativeElement,
+      });
     } catch (error: any) {
       this.errorMessagePart = this.indicatorValueService.formatError(error);
       this.showErrorAlert();
@@ -488,8 +506,11 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     const allDataSpecified = await this.buildImporterObjects();
 
     if (!allDataSpecified) {
-      $('#indicatorEditFeaturesForm').validator('update');
-      $('#indicatorEditFeaturesForm').validator('validate');
+      // Formerly triggered the bootstrap-validator jQuery plugin, which is not
+      // loaded since the migration and threw a TypeError here.
+      this.notificationService.showError(
+        'Bitte füllen Sie alle Pflichtfelder des Import-Formulars aus.'
+      );
       this.loadingData = false;
       return;
     }

@@ -263,36 +263,18 @@
                             <i>*</i>
                           }
                         </label>
-                        @if (!(parameter.name === 'CRS')) {
-                          <input
-                            type="text"
-                            id="converterParameter_indicatorEditFeatures_{{ parameter.name }}"
-                            class="form-control"
-                            placeholder="{{ parameter.name }}"
-                            [required]="parameter.mandatory"
-                          />
-                        }
-                        @if (parameter.name === 'CRS') {
-                          <input
-                            value="EPSG:4326"
-                            type="text"
-                            id="converterParameter_indicatorEditFeatures_{{ parameter.name }}"
-                            class="form-control"
-                            placeholder="{{ parameter.name }}"
-                            [required]="parameter.mandatory"
-                          />
-                        }
+                        <input
+                          type="text"
+                          class="form-control"
+                          placeholder="{{ parameter.name }}"
+                          [(ngModel)]="converterParameterValues[parameter.name]"
+                          [name]="'converterParameter_' + parameter.name"
+                          [ngModelOptions]="{ standalone: true }"
+                          [required]="parameter.mandatory"
+                        />
                         <div class="help-block">
                           <p>{{ parameter.description }}</p>
                         </div>
-                        @if (parameter.name === 'CRS') {
-                          <div class="help-block with-errors" style="color: red">
-                            <p>
-                              CRS aufmerksam setzen. Falsche Angaben führen zur fehlerhaften
-                              Koordinaten der räumlichen Features
-                            </p>
-                          </div>
-                        }
                         <div class="help-block with-errors"></div>
                       </div>
                     </div>
@@ -334,6 +316,7 @@
                           <input
                             type="file"
                             class="form-control"
+                            #indicatorDataSourceInput
                             id="indicatorDataSourceInput_editFeatures"
                             required
                           />
@@ -347,11 +330,11 @@
                                 <label>{{ parameter.name }}*</label>
                                 <textarea
                                   rows="1"
-                                  id="datasourceTypeParameter_indicatorEditFeatures_{{
-                                    parameter.name
-                                  }}"
                                   class="form-control"
                                   placeholder="{{ parameter.name }}"
+                                  [(ngModel)]="datasourceTypeParameterValues[parameter.name]"
+                                  [name]="'datasourceTypeParameter_' + parameter.name"
+                                  [ngModelOptions]="{ standalone: true }"
                                   required
                                 ></textarea>
                                 <div class="help-block">

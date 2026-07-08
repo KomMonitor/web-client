@@ -41,7 +41,7 @@ import {
   LOI_DASH_ARRAY_OBJECTS,
   POI_MARKER_COLORS,
 } from 'services/poi-presentation-service/poi-presentation.service';
-import { SpatialUnitImportService } from 'services/spatial-unit-import-service/spatial-unit-import.service';
+import { ResourceImportService } from 'services/resource-import-service/resource-import.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
@@ -83,7 +83,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
-  private resourceImportService = inject(SpatialUnitImportService);
+  private resourceImportService = inject(ResourceImportService);
   private notificationService = inject(NotificationService);
   private topicHierarchyService = inject(TopicHierarchyService);
   protected envConfigService = inject(EnvConfigService);
@@ -1100,13 +1100,47 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.loadingData = true;
     this.importerErrors = [];
 
+    // Name the missing required importer fields instead of aborting silently
+    // (the historical behavior left the user without any feedback).
+    const missing = this.resourceImportService.collectMissingImporterFields({
+      converter: this.converter,
+      schema: this.schema,
+      mimeType: this.mimeType,
+      converterParameters: this.converterParameterValues,
+      datasourceType: this.datasourceType,
+      datasourceTypeParameters: this.datasourceTypeParameterValues,
+      hasFile: !!this.georesourceDataSourceInput?.nativeElement?.files?.[0],
+      bboxType: this.bboxType,
+      bboxRefSpatialUnitLevel: this.bboxRefSpatialUnit,
+      bboxLiteral: {
+        minx: this.bbox_minx,
+        miny: this.bbox_miny,
+        maxx: this.bbox_maxx,
+        maxy: this.bbox_maxy,
+      },
+      idProperty: this.georesourceDataSourceIdProperty,
+      nameProperty: this.georesourceDataSourceNameProperty,
+      startDate: this.periodOfValidity.startDate,
+      periodOfValidityInvalid: this.periodOfValidityInvalid,
+    });
+
+    if (missing.length > 0) {
+      this.loadingData = false;
+      this.notificationService.showError(
+        `Bitte füllen Sie alle Pflichtfelder im Schritt "Räumlicher Datensatz" aus. Fehlend: ${missing.join(', ')}.`
+      );
+      return;
+    }
+
     try {
       // Build importer objects
       const allDataSpecified = await this.buildImporterObjects();
 
       if (!allDataSpecified) {
-        // Validation failed
         this.loadingData = false;
+        this.notificationService.showError(
+          'Bitte füllen Sie alle Pflichtfelder im Schritt "Räumlicher Datensatz" aus.'
+        );
         return;
       }
 
@@ -1182,11 +1216,8 @@ export class GeoresourceAddModalComponent implements OnInit {
         converter: this.converter,
         schema: this.schema,
         mimeType: this.mimeType,
-        converterParameterPrefix: 'converterParameter_georesourceAdd_',
         converterParameterValues: this.converterParameterValues,
         datasourceType: this.datasourceType,
-        datasourceTypeParameterPrefix: 'datasourceTypeParameter_georesourceAdd_',
-        datasourceFileInputId: 'georesourceDataSourceInput_add',
         datasourceTypeFormValues: this.assembleDatasourceFormValues(),
         selectedFile: null,
         fileInputElement: this.georesourceDataSourceInput?.nativeElement,
