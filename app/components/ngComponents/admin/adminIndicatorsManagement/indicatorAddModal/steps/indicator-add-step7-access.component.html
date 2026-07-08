@@ -91,46 +91,28 @@
       </div>
     </div>
   }
-  @if (state.showRoleForm) {
-    <div class="row vertical-align">
-      <div class="col-md-12">
-        <div class="form-group">
-          <label>Rollenbasierte Zugriffsrechte</label>
-          <div class="alert alert-info">
-            <i class="fas fa-users"></i>
-            Als Eigentümer-Organisation können Sie Lese- und Editier-Rechte an die eigene und
-            weitere Organisationseinheiten vergeben. Die Rechte der Eigentümer-Organisation sind
-            fest gesetzt und können nicht entfernt werden.
-          </div>
-          <ag-grid-angular
-            id="indicatorAddRoleManagementGrid"
-            class="ag-theme-alpine"
-            style="width: 100%; height: 45vh"
-            [columnDefs]="state.roleManagementColumnDefs"
-            [rowData]="state.roleManagementRowData"
-            [defaultColDef]="state.roleManagementDefaultColDef"
-            [gridOptions]="state.roleManagementGridOptions"
-            [components]="state.roleManagementTableOptions?.components"
-            [suppressRowClickSelection]="true"
-            [rowSelection]="'multiple'"
-            [enableCellTextSelection]="true"
-            [ensureDomOrder]="true"
-            [pagination]="false"
-            [suppressColumnVirtualisation]="true"
-            (gridReady)="state.onRoleManagementGridReady($event)"
-            (firstDataRendered)="state.onRoleManagementFirstDataRendered($event)"
-            (columnResized)="state.onRoleManagementColumnResized($event)"
-          >
-          </ag-grid-angular>
-          <div class="help-block">
-            <p>
-              Wählen Sie die Organisationseinheiten aus, die Zugriff auf diesen Indikator haben.
-            </p>
-          </div>
+  <!-- Hidden via display (not @if) so the grid exists for the form-state
+       service's attach/detach handshake and keeps its checked state. -->
+  <div class="row vertical-align" [style.display]="state.showRoleForm ? 'flex' : 'none'">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label>Rollenbasierte Zugriffsrechte</label>
+        <div class="alert alert-info">
+          <i class="fas fa-users"></i>
+          Als Eigentümer-Organisation können Sie Lese- und Editier-Rechte an die eigene und weitere
+          Organisationseinheiten vergeben. Die Rechte der Eigentümer-Organisation sind fest gesetzt
+          und können nicht entfernt werden.
+        </div>
+        <app-role-management-grid
+          gridId="indicatorAddRoleManagementTable"
+          [reducedColumns]="true"
+        ></app-role-management-grid>
+        <div class="help-block">
+          <p>Wählen Sie die Organisationseinheiten aus, die Zugriff auf diesen Indikator haben.</p>
         </div>
       </div>
     </div>
-  }
+  </div>
   <div class="row vertical-align">
     <div class="col-md-12">
       <div class="form-group">

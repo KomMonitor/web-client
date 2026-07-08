@@ -6,12 +6,11 @@ import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommoni
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
-import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
 import { downloadJson, readJsonFile } from 'util/json-file.util';
-import { ColDef, GridOptions, GridApi } from 'ag-grid-community';
+import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
 import {
   buildResourceMetadataForm,
   patchMetadataFormFromApi,
@@ -30,7 +29,6 @@ export class IndicatorAddFormStateService {
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
-  private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private envConfigService = inject(EnvConfigService);
   private topicHierarchyService = inject(TopicHierarchyService);
   // Owner-organization data source: the admin indicator pages do not populate the
@@ -139,20 +137,19 @@ export class IndicatorAddFormStateService {
   tabClasses: string[] = [];
 
   // Role management
-  roleManagementTableOptions: any = null;
   ownerOrganization: any = null;
   ownerOrgFilter = '';
   isPublic = false;
 
-  // Role-management ag-grid config (bound by the step-7 access component). The grid
-  // only appears once an owner organization is chosen (`showRoleForm`), mirroring the
-  // sibling spatial-unit/georesource add modals and the legacy indicator modal.
+  // The role grid is the shared <app-role-management-grid> rendered by the step-7
+  // access component. Because the step components are created/destroyed while
+  // navigating the wizard, step 7 attaches its grid here on view init and detaches
+  // it on destroy; the selection is harvested into `storedPermissionIds` so it
+  // survives leaving the step. The grid only appears once an owner organization is
+  // chosen (`showRoleForm`), mirroring the sibling spatial-unit/georesource add modals.
   showRoleForm = false;
-  roleManagementColumnDefs: ColDef[] = [];
-  roleManagementRowData: any[] = [];
-  roleManagementDefaultColDef: ColDef = {};
-  roleManagementGridOptions: GridOptions = {};
-  roleManagementGridApi: GridApi | null = null;
+  private attachedRoleGrid: RoleManagementGridComponent | null = null;
+  private storedPermissionIds: string[] | null = null;
 
   // Import/Export functionality
   metadataImportSettings: any = null;
@@ -523,16 +520,7 @@ export class IndicatorAddFormStateService {
     }
 
     // Add role permissions
-    if (this.roleManagementTableOptions && this.roleManagementHelper) {
-      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-        this.roleManagementTableOptions
-      );
-      if (roleIds && Array.isArray(roleIds)) {
-        for (const roleId of roleIds) {
-          postBody.allowedRoles.push(roleId);
-        }
-      }
-    }
+    postBody.allowedRoles.push(...this.getSelectedRoleIds());
 
     return postBody;
   }
@@ -565,15 +553,7 @@ export class IndicatorAddFormStateService {
       : [];
 
     // Permissions: role ids selected in the role-management grid (required array).
-    const permissions: string[] = [];
-    if (this.roleManagementTableOptions && this.roleManagementHelper) {
-      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-        this.roleManagementTableOptions
-      );
-      if (Array.isArray(roleIds)) {
-        permissions.push(...roleIds);
-      }
-    }
+    const permissions: string[] = [...this.getSelectedRoleIds()];
 
     const postBody: any = {
       // required
@@ -1098,23 +1078,9 @@ export class IndicatorAddFormStateService {
     }
 
     // Parse role permissions: pre-check the imported allowedRoles in the role grid.
-    if (
-      this.adminDataExchange.accessControl?.length > 0 &&
-      this.metadataImportSettings.allowedRoles &&
-      this.roleManagementHelper
-    ) {
-      this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-        'indicatorAddRoleManagementTable',
-        this.roleManagementTableOptions,
-        this.adminDataExchange.accessControl,
-        this.metadataImportSettings.allowedRoles,
-        true
-      );
-      if (this.roleManagementTableOptions) {
-        this.roleManagementColumnDefs = this.roleManagementTableOptions.columnDefs || [];
-        this.roleManagementRowData = this.roleManagementTableOptions.rowData || [];
-        this.buildRoleManagementGridConfig();
-      }
+    if (this.metadataImportSettings.allowedRoles) {
+      this.storedPermissionIds = [...this.metadataImportSettings.allowedRoles];
+      this.attachedRoleGrid?.applyPermissions(this.storedPermissionIds);
     }
   }
 
@@ -1179,17 +1145,7 @@ export class IndicatorAddFormStateService {
     };
 
     // Add role permissions
-    metadataExport.allowedRoles = [];
-    if (this.roleManagementTableOptions && this.roleManagementHelper) {
-      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-        this.roleManagementTableOptions
-      );
-      if (roleIds && Array.isArray(roleIds)) {
-        for (const roleId of roleIds) {
-          metadataExport.allowedRoles.push(roleId);
-        }
-      }
-    }
+    metadataExport.allowedRoles = this.getSelectedRoleIds();
 
     const name = this.datasetName;
     const metadataJSON = JSON.stringify(metadataExport);
@@ -1302,11 +1258,9 @@ export class IndicatorAddFormStateService {
     this.ownerOrganization = '';
     this.ownerOrgFilter = '';
     this.isPublic = false;
-    this.roleManagementTableOptions = null;
     this.showRoleForm = false;
-    this.roleManagementColumnDefs = [];
-    this.roleManagementRowData = [];
-    this.roleManagementGridApi = null;
+    this.storedPermissionIds = null;
+    this.seedAttachedRoleGrid();
     this.metadataImportSettings = null;
     this.indicatorMetadataImportError = '';
     this.successMessagePart = '';
@@ -1435,95 +1389,60 @@ export class IndicatorAddFormStateService {
   }
 
   /**
-   * (Re)builds the role-management ag-grid from the admin access-control data,
-   * locking the owner's row and pre-checking the relevant permissions. Toggles
-   * `showRoleForm` so the grid is only shown once an owner is selected (or always
-   * in edit mode). Safe to call before the access-control data has loaded — it
-   * simply updates visibility and returns until the data is available.
+   * Called by the step-7 access component when its role grid enters the view.
+   * Seeds the grid with the harvested selection (or the pre-checked defaults)
+   * and the current owner.
+   */
+  attachRoleGrid(grid: RoleManagementGridComponent) {
+    this.attachedRoleGrid = grid;
+    this.seedAttachedRoleGrid();
+  }
+
+  /**
+   * Called by the step-7 access component on destroy: harvests the grid's
+   * selection so it survives navigating to another wizard step.
+   */
+  detachRoleGrid(grid: RoleManagementGridComponent) {
+    if (this.attachedRoleGrid === grid) {
+      this.storedPermissionIds = grid.getSelectedRoleIds();
+      this.attachedRoleGrid = null;
+    }
+  }
+
+  /** Currently selected role permission ids (live grid if attached, else harvested state). */
+  getSelectedRoleIds(): string[] {
+    if (this.attachedRoleGrid) {
+      return this.attachedRoleGrid.getSelectedRoleIds();
+    }
+    return this.storedPermissionIds ?? this.getPreCheckedPermissionIds(this.getSelectedOwnerId());
+  }
+
+  /**
+   * Re-seeds the role selection from the current owner/edit-mode state,
+   * discarding manual edits. Toggles `showRoleForm` so the grid is only shown
+   * once an owner is selected (or always in edit mode).
    */
   rebuildRoleManagementGrid() {
     const ownerId = this.getSelectedOwnerId();
     this.showRoleForm = !!ownerId;
-
-    const accessControl = this.adminDataExchange.accessControl || [];
-    if (accessControl.length === 0 || !this.roleManagementHelper) {
-      return;
-    }
-
-    // Flag the owner's row so the grid disables editing of its own permissions.
-    accessControl.forEach((unit) => {
-      unit.datasetOwner = unit.organizationalUnitId === ownerId;
-    });
-
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'indicatorAddRoleManagementTable',
-      this.roleManagementTableOptions,
-      accessControl,
-      this.getPreCheckedPermissionIds(ownerId),
-      true
-    );
-
-    if (this.roleManagementTableOptions) {
-      this.roleManagementColumnDefs = this.roleManagementTableOptions.columnDefs || [];
-      this.roleManagementRowData = this.roleManagementTableOptions.rowData || [];
-      this.buildRoleManagementGridConfig();
-    }
+    this.storedPermissionIds = null;
+    this.seedAttachedRoleGrid();
   }
 
-  private buildRoleManagementGridConfig() {
-    this.roleManagementDefaultColDef = this.roleManagementHelper.buildRoleManagementDefaultColDef();
-    const baseGridOptions = this.roleManagementHelper.buildRoleManagementGridOptionsPublic(
-      this.roleManagementTableOptions?.components
-    );
-    this.roleManagementGridOptions = {
-      ...baseGridOptions,
-      onGridReady: (params) => this.onRoleManagementGridReady(params),
-      onFirstDataRendered: (event) => this.onRoleManagementFirstDataRendered(event),
-      onColumnResized: (event) => this.onRoleManagementColumnResized(event),
-    };
+  private seedAttachedRoleGrid() {
+    if (!this.attachedRoleGrid) {
+      return;
+    }
+    const ownerId = this.getSelectedOwnerId();
+    this.attachedRoleGrid.permissions =
+      this.storedPermissionIds ?? this.getPreCheckedPermissionIds(ownerId);
+    this.attachedRoleGrid.ownerId = ownerId ?? null;
+    this.attachedRoleGrid.reset();
   }
 
   // Number of currently checked role permissions in the grid (for the summary line).
   get selectedRoleCount(): number {
-    if (!this.roleManagementTableOptions || !this.roleManagementHelper) {
-      return 0;
-    }
-    return this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-      this.roleManagementTableOptions
-    ).length;
-  }
-
-  onRoleManagementGridReady(params: any) {
-    this.roleManagementGridApi = params.api;
-    // Hand the live grid API to the helper so getSelectedRoleIds can read it on submit.
-    this.roleManagementHelper.setGridApi(params.api);
-  }
-
-  onRoleManagementFirstDataRendered(_event: any) {
-    this.roleManagementHeaderHeightSetter();
-  }
-
-  onRoleManagementColumnResized(_event: any) {
-    this.roleManagementHeaderHeightSetter();
-  }
-
-  private roleManagementHeaderHeightSetter() {
-    if (this.roleManagementGridApi) {
-      this.roleManagementGridApi.setGridOption('headerHeight', this.roleManagementHeaderHeight());
-    }
-  }
-
-  private roleManagementHeaderHeight(): number {
-    const headerElement = document.querySelector('#indicatorAddRoleManagementGrid .ag-header');
-    if (headerElement) {
-      const headerTextElements = headerElement.querySelectorAll('.ag-header-cell-text');
-      let maxHeight = 0;
-      headerTextElements.forEach((element) => {
-        maxHeight = Math.max(maxHeight, element.scrollHeight);
-      });
-      return Math.max(maxHeight + 20, 40);
-    }
-    return 40;
+    return this.getSelectedRoleIds().length;
   }
 
   // Step 3: Topic Hierarchy Methods
