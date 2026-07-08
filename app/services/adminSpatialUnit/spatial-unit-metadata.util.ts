@@ -1,6 +1,6 @@
 /**
  * Pure spatial-unit metadata helpers extracted from the former
- * `adminSpatialUnit/KommonitorDataExchangeService` god service (step 4 of the
+ * `adminSpatialUnit` data-exchange god service (step 4 of the
  * admin refactoring — see documentation/ADMIN_REFACTORING_ANALYSIS.md). The
  * facade delegates to these; new code can import them directly.
  */

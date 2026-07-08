@@ -13,7 +13,7 @@ import { SpatialUnitEditFeaturesModalComponent } from './spatialUnitEditFeatures
 import { SpatialUnitEditUserRolesModalComponent } from './spatialUnitEditUserRolesModal/spatial-unit-edit-user-roles-modal.component';
 import { SpatialUnitDeleteModalComponent } from './spatialUnitDeleteModal/spatial-unit-delete-modal.component';
 import {
-  KommonitorDataExchangeService,
+  KommonitorSpatialUnitDataExchangeService,
   SpatialUnitMetadata,
 } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
@@ -43,7 +43,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
   private zone = inject(NgZone);
   private modalService = inject(NgbModal);
   private metadataBootstrap = inject(MetadataBootstrapService);
-  kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
   private cacheHelperService = inject(CacheHelperServiceService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
   private notificationService = inject(NotificationService);

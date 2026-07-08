@@ -6,7 +6,7 @@ import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { forkJoin, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
-import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { KommonitorSpatialUnitDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { ProcessScriptMetadataStoreService } from 'services/process-script-metadata-store-service/process-script-metadata-store.service';
@@ -45,7 +45,7 @@ export class GeoresourceDeleteModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   // Formerly a broken string-token inject ('kommonitorDataExchangeService') that
   // threw a NullInjectorError on modal open; wired to the real services now.
-  kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private processScriptStore = inject(ProcessScriptMetadataStoreService);

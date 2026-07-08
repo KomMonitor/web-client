@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { GridApi, GridOptions, GridReadyEvent } from 'ag-grid-community';
-import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { KommonitorSpatialUnitDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 
 // Declare environment variables
 declare const __env: any;
@@ -59,7 +59,7 @@ export class FeatureTableDataGridHelperService {
   featureTable_indicator_lastUpdate_timestamp_success: Date | undefined = undefined;
   featureTable_indicator_lastUpdate_timestamp_failure: Date | undefined = undefined;
 
-  private kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  private kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
   private http = inject(HttpClient);
 
   private readonly featureTableEvents = new Subject<FeatureTableEvent>();

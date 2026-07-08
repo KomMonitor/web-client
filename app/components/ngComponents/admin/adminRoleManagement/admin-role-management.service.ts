@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {
   AccessControlMetadata,
-  KommonitorDataExchangeService,
+  KommonitorSpatialUnitDataExchangeService,
 } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { OrganizationalUnitInputType } from 'models/data-management-api';
 import { KeycloakHelperService } from 'services/keycloak-helper-service/keycloak-helper.service';
@@ -27,7 +27,7 @@ export interface RoleDelegatePutEntry {
 @Injectable({ providedIn: 'root' })
 export class AdminRoleManagementService {
   private http = inject(HttpClient);
-  private kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  private kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
   private keycloakHelperService = inject(KeycloakHelperService);
 
   private baseUrl = this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI;

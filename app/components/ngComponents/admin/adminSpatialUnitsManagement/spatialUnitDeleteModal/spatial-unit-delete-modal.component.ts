@@ -3,7 +3,7 @@ import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import {
-  KommonitorDataExchangeService,
+  KommonitorSpatialUnitDataExchangeService,
   SpatialUnitMetadata,
 } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
@@ -20,7 +20,7 @@ declare const __env: any;
 })
 export class SpatialUnitDeleteModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
-  kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
   private http = inject(HttpClient);
   private notificationService = inject(NotificationService);
 

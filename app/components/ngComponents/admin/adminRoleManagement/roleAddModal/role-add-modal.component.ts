@@ -7,7 +7,7 @@ import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridOptions, GridReadyEvent } from 'ag-grid-community';
 import {
   AccessControlMetadata,
-  KommonitorDataExchangeService,
+  KommonitorSpatialUnitDataExchangeService,
 } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { AdminRoleManagementService } from '../admin-role-management.service';
@@ -43,7 +43,7 @@ import { RoleDelegatePutEntry } from '../admin-role-management.service';
 })
 export class RoleAddModalComponent implements OnInit {
   protected activeModal = inject(NgbActiveModal);
-  protected kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  protected kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private adminRoleManagementService = inject(AdminRoleManagementService);
   private notificationService = inject(NotificationService);

@@ -3,7 +3,7 @@ import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import {
-  KommonitorDataExchangeService,
+  KommonitorSpatialUnitDataExchangeService,
   AccessControlMetadata,
 } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { AdminRoleManagementService } from '../admin-role-management.service';
@@ -19,7 +19,7 @@ import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-
 })
 export class RoleEditMetadataModalComponent implements OnInit {
   private activeModal = inject(NgbActiveModal);
-  private kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  private kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
   private adminRoleManagementService = inject(AdminRoleManagementService);
   private notificationSrvc = inject(NotificationService);
 

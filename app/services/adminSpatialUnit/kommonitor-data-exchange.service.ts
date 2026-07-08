@@ -46,7 +46,7 @@ export type { AccessControlMetadata };
 @Injectable({
   providedIn: 'root',
 })
-export class KommonitorDataExchangeService {
+export class KommonitorSpatialUnitDataExchangeService {
   private http = inject(HttpClient);
   private accessControlService = inject(AccessControlService);
   private cacheHelperService = inject(CacheHelperServiceService);

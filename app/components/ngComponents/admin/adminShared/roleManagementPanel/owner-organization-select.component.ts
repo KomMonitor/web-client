@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { KommonitorSpatialUnitDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
 import { collectCreatorRightOrganizations } from './role-management-panel.model';
 
@@ -24,7 +24,7 @@ import { collectCreatorRightOrganizations } from './role-management-panel.model'
   standalone: true,
 })
 export class OwnerOrganizationSelectComponent {
-  private kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  private kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
 
   /** 'transfer': optional ownership transfer (edit); 'assign': mandatory owner choice (add). */
   @Input() mode: 'transfer' | 'assign' = 'transfer';

@@ -7,7 +7,7 @@ import { ColDef, GridOptions, ICellRendererParams, SelectionChangedEvent } from 
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import {
-  KommonitorDataExchangeService,
+  KommonitorSpatialUnitDataExchangeService,
   AccessControlMetadata,
 } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
@@ -40,7 +40,7 @@ interface AccessControlTableEntry extends AccessControlMetadata {
 })
 export class AdminRoleManagementComponent implements OnInit {
   private modalService = inject(NgbModal);
-  protected kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  protected kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
   private notificationService = inject(NotificationService);
   protected keycloakHelperService = inject(KeycloakHelperService);

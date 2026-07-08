@@ -12,7 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
-import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { KommonitorSpatialUnitDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
 import { collectSelectedRoleIds, ownerDefaultPermissionIds } from './role-management-panel.model';
 
@@ -39,7 +39,7 @@ import { collectSelectedRoleIds, ownerDefaultPermissionIds } from './role-manage
 })
 export class RoleManagementGridComponent implements OnInit, OnChanges {
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
-  private kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  private kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
   private destroyRef = inject(DestroyRef);
 
   /** Permission ids that are initially checked. */

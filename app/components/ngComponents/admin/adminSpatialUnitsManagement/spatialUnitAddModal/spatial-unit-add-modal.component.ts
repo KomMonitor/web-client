@@ -12,7 +12,7 @@ import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbActiveModal, NgbDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { KommonitorImporterHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service';
-import { KommonitorDataExchangeService } from '../../../../../services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { KommonitorSpatialUnitDataExchangeService } from '../../../../../services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
 import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManagementPanel/owner-organization-select.component';
 
@@ -68,7 +68,7 @@ import {
 })
 export class SpatialUnitAddModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
-  kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   private notificationService = inject(NotificationService);
   private destroyRef = inject(DestroyRef);

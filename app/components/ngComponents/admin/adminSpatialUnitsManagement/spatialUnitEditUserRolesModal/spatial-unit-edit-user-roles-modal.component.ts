@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import {
-  KommonitorDataExchangeService,
+  KommonitorSpatialUnitDataExchangeService,
   SpatialUnitMetadata,
 } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { FormsModule } from '@angular/forms';
@@ -29,7 +29,7 @@ import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManageme
 })
 export class SpatialUnitEditUserRolesModalComponent {
   activeModal = inject(NgbActiveModal);
-  kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
   private http = inject(HttpClient);
   private notificationService = inject(NotificationService);
 

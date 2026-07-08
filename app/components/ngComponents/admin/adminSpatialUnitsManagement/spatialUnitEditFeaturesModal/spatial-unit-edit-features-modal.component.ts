@@ -15,7 +15,7 @@ import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import { HttpClient } from '@angular/common/http';
 import { FeatureTableDataGridHelperService } from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
 import {
-  KommonitorDataExchangeService,
+  KommonitorSpatialUnitDataExchangeService,
   SpatialUnitMetadata,
 } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
@@ -53,7 +53,7 @@ declare const __env: any;
 })
 export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
-  kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   featureTableHelper = inject(FeatureTableDataGridHelperService);
   private http = inject(HttpClient);

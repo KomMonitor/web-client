@@ -13,7 +13,7 @@ import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import { HttpClient } from '@angular/common/http';
 import {
-  KommonitorDataExchangeService,
+  KommonitorSpatialUnitDataExchangeService,
   SpatialUnitMetadata,
 } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
@@ -57,7 +57,7 @@ import {
 })
 export class SpatialUnitEditMetadataModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
-  kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
   private http = inject(HttpClient);
   private broadcastService = inject(BroadcastService);

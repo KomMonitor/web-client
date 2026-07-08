@@ -2,7 +2,7 @@ import { Injectable, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { mergeColorSchemes } from 'components/ngComponents/userInterface/kommonitorClassification/colors';
-import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { KommonitorSpatialUnitDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
@@ -33,9 +33,9 @@ export class IndicatorAddFormStateService {
   private topicHierarchyService = inject(TopicHierarchyService);
   // Owner-organization data source: the admin indicator pages do not populate the
   // global AccessControlService, so the org/role access-control list is read from
-  // (and lazily fetched via) the admin KommonitorDataExchangeService — the same
+  // (and lazily fetched via) the admin KommonitorSpatialUnitDataExchangeService — the same
   // singleton the sibling spatial-unit/georesource add modals rely on.
-  private adminDataExchange = inject(KommonitorDataExchangeService);
+  private adminDataExchange = inject(KommonitorSpatialUnitDataExchangeService);
   private destroyRef = inject(DestroyRef);
 
   // Edit mode: when the wizard is opened to edit an existing indicator, this
