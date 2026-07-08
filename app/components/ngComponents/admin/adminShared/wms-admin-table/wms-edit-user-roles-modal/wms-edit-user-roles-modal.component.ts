@@ -6,7 +6,7 @@ import { forkJoin } from 'rxjs';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
 
-import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { RoleManagementGridComponent } from 'components/ngComponents/admin/adminShared/roleManagementPanel/role-management-grid.component';

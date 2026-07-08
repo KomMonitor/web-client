@@ -28,9 +28,9 @@ import { GeoresourceEditMetadataModalComponent } from './georesourceEditMetadata
 import { GeoresourceEditFeaturesModalComponent } from './georesourceEditFeaturesModal/georesource-edit-features-modal.component';
 import { GeoresourceEditUserRolesModalComponent } from './georesourceEditUserRolesModal/georesource-edit-user-roles-modal.component';
 import { GeoresourceDeleteModalComponent } from './georesourceDeleteModal/georesource-delete-modal.component';
-import { WmsSharedComponentsService } from 'components/ngComponents/common/wms-admin-table/wms-admin-tables-shared.service';
+import { WmsSharedComponentsService } from 'components/ngComponents/admin/adminShared/wms-admin-table/wms-admin-tables-shared.service';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
-import { WmsAdminTableComponent } from '../../common/wms-admin-table/wms-admin-table.component';
+import { WmsAdminTableComponent } from '../adminShared/wms-admin-table/wms-admin-table.component';
 import { FormsModule } from '@angular/forms';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 

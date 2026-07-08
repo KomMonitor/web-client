@@ -1,5 +1,5 @@
 import { Component, inject, NgZone, OnDestroy, OnInit } from '@angular/core';
-import { WmsSharedComponentsService } from 'components/ngComponents/common/wms-admin-table/wms-admin-tables-shared.service';
+import { WmsSharedComponentsService } from 'components/ngComponents/admin/adminShared/wms-admin-table/wms-admin-tables-shared.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { WmsResourceType } from './../../models/services.models';
@@ -9,7 +9,7 @@ import { NgbDropdownModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import { CellClickedEvent, ColDef, GridOptions, SelectionChangedEvent } from 'ag-grid-community';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
-import { WmsAdminTableComponent } from 'components/ngComponents/common/wms-admin-table/wms-admin-table.component';
+import { WmsAdminTableComponent } from 'components/ngComponents/admin/adminShared/wms-admin-table/wms-admin-table.component';
 import { skip, Subscription } from 'rxjs';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';

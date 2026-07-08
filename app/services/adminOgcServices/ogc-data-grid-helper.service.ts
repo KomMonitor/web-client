@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions } from 'ag-grid-community';
-import { Topic } from 'components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
+import { Topic } from 'components/ngComponents/admin/adminTopicsManagement/topic.model';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';

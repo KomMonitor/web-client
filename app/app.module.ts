@@ -15,7 +15,6 @@ import { StartupService } from 'services/startup-service/startup.service';
 import { NgbDropdownModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 // import { MathjaxModule } from 'mathjax-angular';
-import { AdminComponent } from 'components/ngComponents/admin/admin.component';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -89,7 +88,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     KommonitorLegendComponent,
     SidebarComponent,
     ExpandableBoxComponent,
-    AdminComponent,
     UserLoginComponent,
   ],
   providers: [

@@ -14,7 +14,7 @@ import { TopicMetadataStoreService } from 'services/topic-metadata-store-service
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { AdminTopicsManagementComponent } from 'components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
 
-import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
+import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 

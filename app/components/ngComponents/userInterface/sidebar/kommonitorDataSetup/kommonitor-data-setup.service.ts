@@ -19,7 +19,7 @@ import {
   IndicatorsTopicsHierarchy,
 } from 'components/ngComponents/models/indicators.models';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
-import { TopicOrderMode } from 'components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
+import { TopicOrderMode } from 'components/ngComponents/admin/adminTopicsManagement/topic.model';
 import { Indicator } from 'components/ngComponents/userInterface/exporting/models';
 
 @Injectable({

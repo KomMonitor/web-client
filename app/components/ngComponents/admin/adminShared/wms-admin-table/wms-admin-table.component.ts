@@ -17,7 +17,7 @@ import { WmsEditModalComponent } from './wms-edit-modal/wms-edit-modal.component
 import { WmsEditUserRolesModalComponent } from './wms-edit-user-roles-modal/wms-edit-user-roles-modal.component';
 import { WmsDeleteModalComponent } from './wms-delete-modal/wms-delete-modal.component';
 import { WmsSharedComponentsService } from './wms-admin-tables-shared.service';
-import { ExpandableBoxComponent } from '../expandable-box/expandable-box.component';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 
 @Component({
   selector: 'app-wms-admin-table',
