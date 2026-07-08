@@ -38,8 +38,6 @@ import { FeatureTableDataGridHelperService } from 'services/feature-table-data-g
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 
-declare const __env: any;
-
 @Component({
   selector: 'app-georesource-edit-features-modal',
   templateUrl: './georesource-edit-features-modal.component.html',
@@ -299,10 +297,10 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
           );
           for (const property in this.georesourceFeaturesGeoJSON.features[0].properties) {
             if (
-              property !== __env.FEATURE_ID_PROPERTY_NAME &&
-              property !== __env.FEATURE_NAME_PROPERTY_NAME &&
-              property !== __env.VALID_START_DATE_PROPERTY_NAME &&
-              property !== __env.VALID_END_DATE_PROPERTY_NAME
+              property !== this.envConfigService.FEATURE_ID_PROPERTY_NAME &&
+              property !== this.envConfigService.FEATURE_NAME_PROPERTY_NAME &&
+              property !== this.envConfigService.VALID_START_DATE_PROPERTY_NAME &&
+              property !== this.envConfigService.VALID_END_DATE_PROPERTY_NAME
             ) {
               tmpRemainingHeaders.push(property);
             }

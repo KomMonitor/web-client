@@ -49,8 +49,6 @@ import type {
 } from 'services/resource-import-service/resource-import.model';
 import { ResourceImportService } from 'services/resource-import-service/resource-import.service';
 
-declare const __env: any;
-
 @Component({
   selector: 'app-spatial-unit-edit-features-modal',
   templateUrl: './spatial-unit-edit-features-modal.component.html',

@@ -13,6 +13,7 @@ import {
   FileHelperService,
   FileUploadState,
 } from 'services/file-helper-service/file-helper.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { GeocoderHelperService } from 'services/geocoder-helper-service/geocoder-helper.service';
 import { MapService } from 'services/map-service/map.service';
 import { ColorPickerModule } from 'ngx-color-picker';
@@ -57,6 +58,7 @@ export class KommonitorDataImportComponent implements OnInit {
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private kommonitorMapService = inject(MapService);
   private kommonitorGeocoderHelperService = inject(GeocoderHelperService);
+  private envConfigService = inject(EnvConfigService);
   private kommonitorFileHelperService = inject(FileHelperService);
 
   @ViewChild('poiColorDropdown') poiColorDropdown!: NgbDropdown;
@@ -119,9 +121,9 @@ export class KommonitorDataImportComponent implements OnInit {
   // initialize any adminLTE box widgets
   /* $('.box').boxWidget(); */
 
-  DATE_PREFIX = window.__env.indicatorDatePrefix;
+  DATE_PREFIX = this.envConfigService.indicatorDatePrefix;
 
-  numberOfDecimals = window.__env.numberOfDecimals;
+  numberOfDecimals = this.envConfigService.numberOfDecimals;
 
   ngOnInit(): void {
     this.kommonitorFileHelperService.fileImport$
@@ -585,7 +587,7 @@ export class KommonitorDataImportComponent implements OnInit {
   onChangeNameProperty(dataset) {
     // ensure it is a string
     for (const feature of dataset.geoJSON.features) {
-      feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] =
+      feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] =
         '' + feature.properties[dataset.NAME_ATTRIBUTE];
     }
 
@@ -595,7 +597,7 @@ export class KommonitorDataImportComponent implements OnInit {
   onChangeIdProperty(dataset) {
     // ensure it is a string
     for (const feature of dataset.geoJSON.features) {
-      feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME] =
+      feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME] =
         '' + feature.properties[dataset.ID_ATTRIBUTE];
     }
 

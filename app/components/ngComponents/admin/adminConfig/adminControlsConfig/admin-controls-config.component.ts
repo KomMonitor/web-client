@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import CodeMirror from 'codemirror';
 import { firstValueFrom } from 'rxjs';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { ConfigStorageService } from '../../../../../services/config-storage-service/config-storage.service';
 
 // CodeMirror module is not loaded properly (why?!), reload necessary files
@@ -41,6 +42,7 @@ interface LintingIssue {
 export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
   private http = inject(HttpClient);
   private kommonitorConfigStorageService = inject(ConfigStorageService);
+  private envConfigService = inject(EnvConfigService);
   private kommonitorScriptHelperService = inject(ScriptHelperService);
   private notificationService = inject(NotificationService);
 
@@ -124,7 +126,7 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
           );
         }
         try {
-          const config = (window as any).__env?.controlsConfig;
+          const config = this.envConfigService.controlsConfig;
           if (!config) {
             await this.kommonitorConfigStorageService.getControlsConfig();
             const storedConfig = this.kommonitorConfigStorageService.controlsConfig;

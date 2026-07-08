@@ -5,8 +5,6 @@ import { Observable, Subject } from 'rxjs';
 import { GridApi, GridOptions, GridReadyEvent } from 'ag-grid-community';
 
 // Declare environment variables
-declare const __env: any;
-
 /** Kinds of feature-table events the grid helper emits to its owning modal. */
 export type FeatureTableEventType = 'loadingStart' | 'loadingEnd' | 'featureDeleted';
 
@@ -360,8 +358,8 @@ export class FeatureTableDataGridHelperService {
    */
   private deleteButtonRenderer(params: any): string {
     const featureId =
-      params.data.properties?.[__env?.FEATURE_ID_PROPERTY_NAME] ||
-      params.data[__env?.FEATURE_ID_PROPERTY_NAME] ||
+      params.data.properties?.[this.envConfigService.FEATURE_ID_PROPERTY_NAME] ||
+      params.data[this.envConfigService.FEATURE_ID_PROPERTY_NAME] ||
       '';
     const resourceType = params.resourceType || 'spatialUnit';
 
@@ -485,8 +483,8 @@ export class FeatureTableDataGridHelperService {
       gridOptions._savedState = {
         selectedIds: selectedNodes.map((node: any) => {
           const featureId =
-            node.data.properties?.[__env?.FEATURE_ID_PROPERTY_NAME] ||
-            node.data[__env?.FEATURE_ID_PROPERTY_NAME] ||
+            node.data.properties?.[this.envConfigService.FEATURE_ID_PROPERTY_NAME] ||
+            node.data[this.envConfigService.FEATURE_ID_PROPERTY_NAME] ||
             '';
           return featureId;
         }),
@@ -502,8 +500,8 @@ export class FeatureTableDataGridHelperService {
       setTimeout(() => {
         this.gridApi_featureTable?.forEachNode((node: any) => {
           const featureId =
-            node.data.properties?.[__env?.FEATURE_ID_PROPERTY_NAME] ||
-            node.data[__env?.FEATURE_ID_PROPERTY_NAME] ||
+            node.data.properties?.[this.envConfigService.FEATURE_ID_PROPERTY_NAME] ||
+            node.data[this.envConfigService.FEATURE_ID_PROPERTY_NAME] ||
             '';
           if (gridOptions._savedState.selectedIds.includes(featureId)) {
             node.setSelected(true);
@@ -806,7 +804,7 @@ export class FeatureTableDataGridHelperService {
         cellClass: 'grid-non-editable',
         maxWidth: 125,
         cellRenderer: (params: any) => {
-          const featureId = params.data[__env.FEATURE_ID_PROPERTY_NAME] || '';
+          const featureId = params.data[this.envConfigService.FEATURE_ID_PROPERTY_NAME] || '';
           let html =
             `<button id="btn__indicator__deleteFeatureEntry__${datasetId}__${spatialUnitId}__${featureId}__${params.data.fid}" ` +
             `class="btn btn-danger btn-sm indicatorDeleteFeatureRecordBtn" type="button" ` +
@@ -819,7 +817,7 @@ export class FeatureTableDataGridHelperService {
       },
       {
         headerName: 'Feature-Id',
-        field: __env.FEATURE_ID_PROPERTY_NAME,
+        field: this.envConfigService.FEATURE_ID_PROPERTY_NAME,
         pinned: 'left',
         editable: false,
         cellClass: 'grid-non-editable',
@@ -827,7 +825,7 @@ export class FeatureTableDataGridHelperService {
       },
       {
         headerName: 'Name',
-        field: __env.FEATURE_NAME_PROPERTY_NAME,
+        field: this.envConfigService.FEATURE_NAME_PROPERTY_NAME,
         pinned: 'left',
         minWidth: 200,
         editable: false,
@@ -835,14 +833,14 @@ export class FeatureTableDataGridHelperService {
       },
       {
         headerName: 'Lebenszeitbeginn',
-        field: __env.VALID_START_DATE_PROPERTY_NAME,
+        field: this.envConfigService.VALID_START_DATE_PROPERTY_NAME,
         minWidth: 125,
         editable: false,
         cellClass: 'grid-non-editable',
       },
       {
         headerName: 'Lebenszeitende',
-        field: __env.VALID_END_DATE_PROPERTY_NAME,
+        field: this.envConfigService.VALID_END_DATE_PROPERTY_NAME,
         minWidth: 125,
         editable: false,
         cellClass: 'grid-non-editable',
@@ -936,23 +934,26 @@ export class FeatureTableDataGridHelperService {
     // Only the indicator's feature id, the DB record id (fid) and the date-prefixed
     // value columns are sent on update.
     const json: any = JSON.parse(JSON.stringify(newValueParams.data));
-    const allowedProperties = [__env.FEATURE_ID_PROPERTY_NAME, 'fid'];
+    const allowedProperties = [this.envConfigService.FEATURE_ID_PROPERTY_NAME, 'fid'];
 
     for (const key in json) {
       if (Object.prototype.hasOwnProperty.call(json, key)) {
-        if (!key.includes(__env.indicatorDatePrefix) && !allowedProperties.includes(key)) {
+        if (
+          !key.includes(this.envConfigService.indicatorDatePrefix) &&
+          !allowedProperties.includes(key)
+        ) {
           delete json[key];
         }
       }
     }
-    delete json[__env.VALID_START_DATE_PROPERTY_NAME];
-    delete json[__env.VALID_END_DATE_PROPERTY_NAME];
-    delete json[__env.FEATURE_NAME_PROPERTY_NAME];
+    delete json[this.envConfigService.VALID_START_DATE_PROPERTY_NAME];
+    delete json[this.envConfigService.VALID_END_DATE_PROPERTY_NAME];
+    delete json[this.envConfigService.FEATURE_NAME_PROPERTY_NAME];
 
     // Empty value cells are transmitted as null
     for (const key in json) {
       if (Object.prototype.hasOwnProperty.call(json, key)) {
-        if (key.includes(__env.indicatorDatePrefix) && json[key] === '') {
+        if (key.includes(this.envConfigService.indicatorDatePrefix) && json[key] === '') {
           json[key] = null;
         }
       }
@@ -961,7 +962,7 @@ export class FeatureTableDataGridHelperService {
     const url =
       `${this.envConfigService.baseUrlToKomMonitorDataAPI}` +
       `/indicators/${datasetId}/${spatialUnitId}/singleFeature/` +
-      `${newValueParams.data[__env.FEATURE_ID_PROPERTY_NAME]}/singleFeatureRecord/${newValueParams.data.fid}`;
+      `${newValueParams.data[this.envConfigService.FEATURE_ID_PROPERTY_NAME]}/singleFeatureRecord/${newValueParams.data.fid}`;
 
     this.http
       .put(url, json, {

@@ -348,10 +348,10 @@ export class GenericMapHelperService {
           'accept-language': 'de', // render results in Dutch
           countrycodes: 'de', // limit search results to the Netherlands
           addressdetails: 1, // include additional address detail parts  
-          viewbox: "" + (Number(__env.initialLongitude) - 0.001) + "," + (Number(__env.initialLatitude) - 0.001) + "," + (Number(__env.initialLongitude) + 0.001) + "," + (Number(__env.initialLatitude) + 0.001)
+          viewbox: "" + (Number(this.envConfigService.initialLongitude) - 0.001) + "," + (Number(this.envConfigService.initialLatitude) - 0.001) + "," + (Number(this.envConfigService.initialLongitude) + 0.001) + "," + (Number(this.envConfigService.initialLatitude) + 0.001)
         },
-        searchUrl: __env.targetUrlToGeocoderService + '/search',
-        reverseUrl: __env.targetUrlToGeocoderService + '/reverse'
+        searchUrl: this.envConfigService.targetUrlToGeocoderService + '/search',
+        reverseUrl: this.envConfigService.targetUrlToGeocoderService + '/reverse'
       }
     );
 

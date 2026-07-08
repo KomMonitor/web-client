@@ -22,8 +22,6 @@ import { TopicMetadataStoreService } from '../../../../../services/topic-metadat
 import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 
-declare const __env: any;
-
 @Component({
   selector: 'app-indicator-edit-metadata-modal',
   templateUrl: './indicator-edit-metadata-modal.component.html',
@@ -105,7 +103,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit {
   numClassesArray = [3, 4, 5, 6, 7, 8];
   selectedColorBrewerPaletteEntry: any = null;
   numClassesPerSpatialUnit: number | null = null;
-  classificationMethod = __env?.defaultClassifyMethod || 'jenks';
+  classificationMethod = this.envConfigService.defaultClassifyMethod || 'jenks';
   spatialUnitClassification: any[] = [];
   classBreaksInvalid = false;
   tabClasses: string[] = [];
@@ -121,8 +119,10 @@ export class IndicatorEditMetadataModalComponent implements OnInit {
   loadingData = false;
 
   // Color brewer
-  colorbreweSchemeName_dynamicIncrease = __env?.defaultColorBrewerPaletteForBalanceIncreasingValues;
-  colorbreweSchemeName_dynamicDecrease = __env?.defaultColorBrewerPaletteForBalanceDecreasingValues;
+  colorbreweSchemeName_dynamicIncrease =
+    this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues;
+  colorbreweSchemeName_dynamicDecrease =
+    this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues;
   colorbrewerPalettes: any[] = [];
 
   // Metadata structure
@@ -204,7 +204,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit {
   }
 
   instantiateColorBrewerPalettes(): void {
-    const customColorSchemes = __env?.customColorSchemes;
+    const customColorSchemes = this.envConfigService.customColorSchemes;
     // Access the vendored colorbrewer global defensively: referencing the bare
     // `colorbrewer` identifier throws a ReferenceError when the script has not
     // (yet) defined it, whereas the window lookup safely yields undefined.
@@ -468,7 +468,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit {
     // Reset classification
     this.numClassesArray = [3, 4, 5, 6, 7, 8];
     this.numClassesPerSpatialUnit = null;
-    this.classificationMethod = __env?.defaultClassifyMethod || 'jenks';
+    this.classificationMethod = this.envConfigService.defaultClassifyMethod || 'jenks';
     this.spatialUnitClassification = [];
     this.classBreaksInvalid = false;
 

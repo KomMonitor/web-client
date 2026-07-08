@@ -12,8 +12,6 @@ import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 
-declare const __env: any;
-
 @Component({
   selector: 'app-spatial-unit-delete-modal',
   templateUrl: './spatial-unit-delete-modal.component.html',

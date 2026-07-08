@@ -6,6 +6,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { ReachabilityStateService } from 'services/reachability-state-service/reachability-state.service';
 import { ReachabilityScenarioConfigurationComponent } from './reachability-scenario-configuration/reachability-scenario-configuration.component';
 import { ReachabilityPoiInIsoComponent } from './reachability-poi-in-iso/reachability-poi-in-iso.component';
@@ -29,6 +30,7 @@ import { ReachabilityIndicatorStatisticsComponent } from './reachability-indicat
 })
 export class ReachabilityScenarioModalComponent implements OnInit {
   protected reachabilityStateService = inject(ReachabilityStateService);
+  private envConfigService = inject(EnvConfigService);
   private multiStepHelperService = inject(MultiStepHelperServiceService);
   private broadcastService = inject(BroadcastService);
   protected reachabilityScenarioHelperService = inject(ReachabilityScenarioHelperService);
@@ -251,7 +253,7 @@ export class ReachabilityScenarioModalComponent implements OnInit {
 					kommonitorReachabilityHelperService.settings.selectedStartPointLayer.schemaObject = response.data;
 
 					for (var property in kommonitorReachabilityHelperService.settings.selectedStartPointLayer.schemaObject) {
-						if (property != __env.FEATURE_ID_PROPERTY_NAME && property != __env.FEATURE_NAME_PROPERTY_NAME && property != __env.VALID_START_DATE_PROPERTY_NAME && property != __env.VALID_END_DATE_PROPERTY_NAME) {
+						if (property != this.envConfigService.FEATURE_ID_PROPERTY_NAME && property != this.envConfigService.FEATURE_NAME_PROPERTY_NAME && property != this.envConfigService.VALID_START_DATE_PROPERTY_NAME && property != this.envConfigService.VALID_END_DATE_PROPERTY_NAME) {
 							kommonitorReachabilityHelperService.settings.selectedStartPointLayer.featureSchemaProperties.push(
 								{
 									property: property,

@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { firstValueFrom } from 'rxjs';
 import {
   DefaultClassificationMappingType,
@@ -258,11 +259,11 @@ export class KommonitorImporterHelperService {
   };
 
   private http = inject(HttpClient);
+  private envConfigService = inject(EnvConfigService);
 
   constructor() {
-    // Get the target URL from environment or configuration
     this.targetUrlToImporterService =
-      (window as any).__env?.targetUrlToImporterService || '/api/importer/';
+      this.envConfigService.targetUrlToImporterService || '/api/importer/';
 
     // Initialize resources
     this.fetchResourcesFromImporter();

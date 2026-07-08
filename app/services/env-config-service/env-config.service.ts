@@ -334,6 +334,10 @@ export class EnvConfigService {
     window.__env.initialSpatialUnitName = value;
   }
 
+  get controlsConfig(): any {
+    return window.__env.controlsConfig;
+  }
+
   // --- Filters ---
   get filterConfig(): any {
     return window.__env.filterConfig;

@@ -27,8 +27,6 @@ import { IndicatorDeleteModalComponent } from './indicatorDeleteModal/indicator-
 import { IndicatorEditFeaturesModalComponent } from './indicatorEditFeaturesModal/indicator-edit-features-modal.component';
 import { IndicatorEditIndicatorSpatialUnitRolesModalComponent } from './indicatorEditIndicatorSpatialUnitRolesModal/indicator-edit-indicator-spatial-unit-roles-modal.component';
 
-declare const __env: any;
-
 @Component({
   selector: 'app-admin-indicators-management',
   templateUrl: './admin-indicators-management.component.html',
