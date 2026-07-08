@@ -37,18 +37,16 @@ export class AdminComponent implements OnInit {
   userGroupInformation: any[] = [];
 
   ngOnInit(): void {
-    // if(! this.dataExchangeService.enableKeycloakSecurity){
-    // 	  this.checkAuthorizationOnStartup_withoutKeycloak();
-    // }
-    this.metadataBootstrap.fetchAllMetadata();
+    // The map application (default route) already bootstraps the metadata:
+    // only (re)fetch on direct entry to /administration or when the last load
+    // applied a global filter — the admin area must see the unfiltered
+    // datasets. The user information is derived once the roles are loaded
+    // (replaces the former fixed 1s timeout).
+    this.metadataBootstrap.ensureMetadataLoaded().then(() => this.prepUserInformation());
 
     // Keep the collapsible groups open when a child route inside them is
     // active on reload / direct navigation.
     this.expandGroupForCurrentRoute();
-
-    setTimeout(() => {
-      this.prepUserInformation();
-    }, 1000);
   }
 
   private expandGroupForCurrentRoute(): void {

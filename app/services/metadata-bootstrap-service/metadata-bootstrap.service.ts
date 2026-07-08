@@ -66,11 +66,44 @@ export class MetadataBootstrapService {
    */
   private inFlight: Promise<void> | null = null;
 
+  /** Filter of the most recently requested load (undefined = unfiltered). */
+  private lastRequestedFilter: any = undefined;
+
   setMetadataState(state: MetadataLoadingState) {
     this.metadataLoadingSubject.next(state);
   }
 
+  get metadataLoadingState(): MetadataLoadingState {
+    return this.metadataLoadingSubject.value;
+  }
+
+  /**
+   * Loads the metadata only when the stores do not already hold the requested
+   * state: skipped when a load with the same filter has completed, joined when
+   * one is currently in flight, started otherwise. Route components use this
+   * on init so switching between the map application and /administration does
+   * not refetch everything (the admin entry passes no filter, so a previously
+   * filter-narrowed load is correctly replaced by an unfiltered one).
+   */
+  ensureMetadataLoaded(filter = undefined): Promise<void> {
+    const sameFilter = JSON.stringify(filter) === JSON.stringify(this.lastRequestedFilter);
+    // Join only a load that is really still running — after a settled run,
+    // inFlight may linger until its finally-cleanup microtask executes.
+    if (
+      sameFilter &&
+      this.inFlight &&
+      this.metadataLoadingState === MetadataLoadingState.INPROGRESS
+    ) {
+      return this.inFlight;
+    }
+    if (sameFilter && this.metadataLoadingState === MetadataLoadingState.COMPLETE) {
+      return Promise.resolve();
+    }
+    return this.fetchAllMetadata(filter);
+  }
+
   fetchAllMetadata(filter = undefined): Promise<void> {
+    this.lastRequestedFilter = filter;
     const run = () => this.runFetchAllMetadata(filter);
     const next = this.inFlight ? this.inFlight.then(run, run) : run();
     this.inFlight = next;

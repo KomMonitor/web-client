@@ -206,4 +206,48 @@ describe('MetadataBootstrapService', () => {
     gate2.resolve(undefined);
     await p2;
   });
+
+  describe('ensureMetadataLoaded', () => {
+    it('skips the fetch when a load with the same filter already completed', async () => {
+      await service.fetchAllMetadata();
+      expect(cacheHelper.fetchTopicsMetadata).toHaveBeenCalledTimes(1);
+
+      await service.ensureMetadataLoaded();
+      expect(cacheHelper.fetchTopicsMetadata).toHaveBeenCalledTimes(1);
+    });
+
+    it('joins an in-flight load with the same filter instead of chaining a new one', async () => {
+      const gate = deferred();
+      cacheHelper.fetchTopicsMetadata.mockReturnValueOnce(gate.promise);
+
+      const first = service.fetchAllMetadata();
+      const joined = service.ensureMetadataLoaded();
+
+      gate.resolve(undefined);
+      await Promise.all([first, joined]);
+      expect(cacheHelper.fetchTopicsMetadata).toHaveBeenCalledTimes(1);
+    });
+
+    it('refetches when the requested filter differs from the last load', async () => {
+      await service.fetchAllMetadata({ keywords: ['a'] });
+      expect(cacheHelper.fetchTopicsMetadata).toHaveBeenCalledTimes(1);
+
+      // admin entry requests the unfiltered state
+      await service.ensureMetadataLoaded();
+      expect(cacheHelper.fetchTopicsMetadata).toHaveBeenCalledTimes(2);
+    });
+
+    it('fetches when nothing was loaded yet', async () => {
+      await service.ensureMetadataLoaded();
+      expect(cacheHelper.fetchTopicsMetadata).toHaveBeenCalledTimes(1);
+    });
+
+    it('retries after a failed load instead of treating it as loaded', async () => {
+      cacheHelper.fetchTopicsMetadata.mockRejectedValueOnce(new Error('boom'));
+      await service.fetchAllMetadata();
+
+      await service.ensureMetadataLoaded();
+      expect(cacheHelper.fetchTopicsMetadata).toHaveBeenCalledTimes(2);
+    });
+  });
 });

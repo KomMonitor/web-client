@@ -117,17 +117,15 @@ export class UserInterfaceComponent implements OnInit {
       this.userLoggedIn = true;
     }
 
-    if (this.globalFilterHelperService.applicationFilter) {
-      this.metadataBootstrap.fetchAllMetadata(this.globalFilterHelperService.applicationFilter);
-    } else {
-      this.metadataBootstrap.fetchAllMetadata();
-    }
+    // Skips the refetch when the metadata is already loaded in the requested
+    // filter state (e.g. when returning from /administration without an active
+    // global filter). The user information is derived once the roles are
+    // loaded (replaces the former fixed 1s timeout).
+    this.metadataBootstrap
+      .ensureMetadataLoaded(this.globalFilterHelperService.applicationFilter || undefined)
+      .then(() => this.prepUserInformation());
 
     this.showAdminLogin = this.authService.hasAdminRights();
-
-    setTimeout(() => {
-      this.prepUserInformation();
-    }, 1000);
 
     // open infoModal ico
     /* if(!localStorage.getItem('hideKomMonitorAppGreeting') || localStorage.getItem('hideKomMonitorAppGreeting') === 'false')
