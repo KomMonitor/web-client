@@ -12,10 +12,9 @@ import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbActiveModal, NgbDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { KommonitorImporterHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service';
-import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { KommonitorDataExchangeService } from '../../../../../services/adminSpatialUnit/kommonitor-data-exchange.service';
-import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridOptions, GridApi } from 'ag-grid-community';
+import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
+import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManagementPanel/owner-organization-select.component';
 
 import { KmColorPickerComponent } from '../../../customElements/color-picker/km-color-picker.component';
 import {
@@ -61,10 +60,11 @@ import {
     FormsModule,
     KmColorPickerComponent,
     KmLinePatternPickerComponent,
-    AgGridAngular,
     KmDatePickerComponent,
     StepperComponent,
     ResourceMetadataFormComponent,
+    RoleManagementGridComponent,
+    OwnerOrganizationSelectComponent,
   ],
   standalone: true,
 })
@@ -72,7 +72,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
-  private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private notificationService = inject(NotificationService);
   private destroyRef = inject(DestroyRef);
   private spatialUnitImportService = inject(SpatialUnitImportService);
@@ -84,7 +83,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
   @ViewChild('spatialUnitDataSourceInput', { static: false })
   spatialUnitDataSourceInput!: ElementRef;
-  @ViewChild('roleManagementGrid', { static: false }) roleManagementGrid!: AgGridAngular;
+  @ViewChild(RoleManagementGridComponent) roleGrid?: RoleManagementGridComponent;
   // datepickers handled by km-date-picker
   @ViewChild('lastUpdateDatepicker', { static: false }) lastUpdateDatepicker!: NgbDatepicker;
 
@@ -179,17 +178,9 @@ export class SpatialUnitAddModalComponent implements OnInit {
   validityStartDate_perFeature = '';
   validityEndDate_perFeature = '';
 
-  // Role management
-  roleManagementTableOptions: any = null;
-  roleManagementColumnDefs: ColDef[] = [];
-  roleManagementRowData: any[] = [];
-  roleManagementDefaultColDef: ColDef = {};
-  roleManagementGridOptions: GridOptions = {};
-  roleManagementGridApi: GridApi | null = null;
+  // Role management (grid handled by <app-role-management-grid>)
   ownerOrganization = '';
-  ownerOrgFilter = '';
   isPublic = false;
-  resourcesCreatorRights: any[] = [];
 
   // Import/Export functionality
   metadataImportSettings: any = null;
@@ -217,69 +208,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   // Color picker handled by km-color-picker
   // Line pattern picker handled by km-line-pattern-picker
-
-  // Grid ready event handler
-  onRoleManagementGridReady(params: any) {
-    this.roleManagementGridApi = params.api;
-
-    // Update the service with the grid API so it can be used for getSelectedRoleIds
-    this.roleManagementHelper.setGridApi(params.api);
-  }
-
-  // Additional grid event handlers to match parent component
-  onRoleManagementFirstDataRendered(_event: any): void {
-    this.roleManagementHeaderHeightSetter();
-  }
-
-  onRoleManagementColumnResized(_event: any): void {
-    this.roleManagementHeaderHeightSetter();
-  }
-
-  private roleManagementHeaderHeightSetter(): void {
-    if (this.roleManagementGridApi) {
-      const headerHeight = this.roleManagementHeaderHeightGetter();
-      this.roleManagementGridApi.setGridOption('headerHeight', headerHeight);
-    }
-  }
-
-  private roleManagementHeaderHeightGetter(): number {
-    const headerElement = document.querySelector('#roleManagementGrid .ag-header');
-    if (headerElement) {
-      const headerTextElements = headerElement.querySelectorAll('.ag-header-cell-text');
-      let maxHeight = 0;
-      headerTextElements.forEach((element) => {
-        const height = element.scrollHeight;
-        if (height > maxHeight) {
-          maxHeight = height;
-        }
-      });
-      return Math.max(maxHeight + 20, 40); // Add padding and minimum height
-    }
-    return 40;
-  }
-
-  // Filter organizations based on ownerOrgFilter
-  get filteredAccessControl() {
-    const accessControl = this.kommonitorDataExchangeService.accessControl || [];
-
-    if (!this.ownerOrgFilter) {
-      return accessControl;
-    }
-    const filtered = accessControl.filter((org) =>
-      org.name.toLowerCase().includes(this.ownerOrgFilter.toLowerCase())
-    );
-    return filtered;
-  }
-
-  get filteredResourcesCreatorRights() {
-    if (!this.ownerOrgFilter) {
-      return this.resourcesCreatorRights;
-    }
-    const filtered = this.resourcesCreatorRights.filter((org) =>
-      org.name.toLowerCase().includes(this.ownerOrgFilter.toLowerCase())
-    );
-    return filtered;
-  }
 
   get availableLinePatternOptions(): LinePatternOption[] {
     return (this.kommonitorDataExchangeService.availableLoiDashArrayObjects || []).map(
@@ -338,26 +266,22 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   private loadAccessControlData() {
-    // Check if access control data is already available
+    // The role grid / owner select load their own access-control data; this
+    // only keeps the modal's loading overlay in sync.
     if (
       this.kommonitorDataExchangeService.accessControl &&
       this.kommonitorDataExchangeService.accessControl.length > 0
     ) {
-      this.prepareCreatorList();
       this.loadingData = false;
     } else {
-      // Fetch access control data from server
       this.kommonitorDataExchangeService
         .fetchAccessControlMetadata(true)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: (_data) => {
-            this.prepareCreatorList();
+          next: () => {
             this.loadingData = false;
           },
-          error: (_error) => {
-            // Set empty arrays to avoid errors
-            this.resourcesCreatorRights = [];
+          error: () => {
             this.loadingData = false;
           },
         });
@@ -373,28 +297,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
       this.totalSteps = 5; // Include role management step
     } else {
       this.totalSteps = 4;
-    }
-
-    // Initialize role management if available
-    if (
-      this.kommonitorDataExchangeService.accessControl &&
-      this.kommonitorDataExchangeService.accessControl.length > 0
-    ) {
-      this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-        'spatialUnitAddRoleManagementTable',
-        this.roleManagementTableOptions,
-        this.kommonitorDataExchangeService.accessControl,
-        []
-      );
-
-      // Extract initial column definitions and row data and build grid config
-      if (this.roleManagementTableOptions) {
-        this.roleManagementColumnDefs = this.roleManagementTableOptions.columnDefs || [];
-        this.roleManagementRowData = this.roleManagementTableOptions.rowData || [];
-
-        // Build grid configuration
-        this.buildRoleManagementGridConfig();
-      }
     }
   }
 
@@ -424,80 +326,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
       );
     this.spatialUnitMappingConfigStructure =
       this.kommonitorImporterHelperService.mappingConfigStructure;
-  }
-
-  prepareCreatorList() {
-    if (this.kommonitorDataExchangeService.currentKomMonitorLoginRoleNames?.length > 0) {
-      const creatorRights: string[] = [];
-
-      this.kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.forEach(
-        (roles: string) => {
-          const key = roles.split('.')[0];
-          const role = roles.split('.')[1];
-
-          if (role === 'unit-resources-creator' && !creatorRights.includes(key)) {
-            creatorRights.push(key);
-          }
-        }
-      );
-
-      // Simplified approach - just filter based on creator rights
-      this.resourcesCreatorRights =
-        this.kommonitorDataExchangeService.accessControl?.filter((elem) =>
-          creatorRights.includes(elem.name)
-        ) || [];
-    } else {
-      this.resourcesCreatorRights = [];
-    }
-  }
-
-  private refreshRoles(orgUnitId?: string) {
-    let permissionIds_ownerUnit: string[] = [];
-
-    if (orgUnitId) {
-      const accessControl = this.kommonitorDataExchangeService.getAccessControlById(orgUnitId);
-      permissionIds_ownerUnit =
-        accessControl?.permissions
-          ?.filter(
-            (permission) =>
-              permission.permissionLevel === 'viewer' || permission.permissionLevel === 'editor'
-          )
-          .map((permission) => permission.permissionId) || [];
-    }
-
-    // Set datasetOwner flags
-    this.kommonitorDataExchangeService.accessControl?.forEach((item) => {
-      item.datasetOwner = item.organizationalUnitId === orgUnitId;
-    });
-
-    // Build the role management grid options
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'spatialUnitAddRoleManagementTable',
-      this.roleManagementTableOptions,
-      this.kommonitorDataExchangeService.accessControl || [],
-      permissionIds_ownerUnit,
-      true
-    );
-
-    // Extract column definitions and row data for ag-grid-angular and rebuild grid config
-    if (this.roleManagementTableOptions) {
-      this.roleManagementColumnDefs = this.roleManagementTableOptions.columnDefs || [];
-      this.roleManagementRowData = this.roleManagementTableOptions.rowData || [];
-
-      // Build grid configuration (this will use the components from roleManagementTableOptions)
-      this.buildRoleManagementGridConfig();
-
-      // The [rowData]/[columnDefs] bindings already pushed the reassigned fields
-      // to the grid; just force a re-render of the checkbox cell renderers.
-      if (this.roleManagementGridApi) {
-        setTimeout(() => {
-          if (this.roleManagementGridApi) {
-            this.roleManagementGridApi.refreshCells();
-            this.roleManagementGridApi.redrawRows();
-          }
-        }, 100);
-      }
-    }
   }
 
   checkSpatialUnitName() {
@@ -731,16 +559,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
       isPublic: this.isPublic,
     };
 
-    if (this.roleManagementTableOptions) {
-      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-        this.roleManagementTableOptions
-      );
-      if (roleIds && Array.isArray(roleIds)) {
-        for (const roleId of roleIds) {
-          postBody.permissions.push(roleId);
-        }
-      }
-    }
+    postBody.permissions.push(...(this.roleGrid?.getSelectedRoleIds() ?? []));
 
     return postBody;
   }
@@ -937,15 +756,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     );
 
     // Parse role management (changed from allowedRoles to permissions)
-    if (this.kommonitorDataExchangeService.accessControl) {
-      this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-        'spatialUnitAddRoleManagementTable',
-        this.roleManagementTableOptions,
-        this.kommonitorDataExchangeService.accessControl,
-        this.metadataImportSettings.permissions || [], // Changed from allowedRoles
-        true
-      );
-    }
+    this.roleGrid?.applyPermissions(this.metadataImportSettings.permissions || []);
 
     // Parse hierarchy
     this.kommonitorDataExchangeService.availableSpatialUnits.forEach((spatialUnit: any) => {
@@ -1055,13 +866,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     );
 
     // Add component-specific properties
-    metadataExport.permissions = [];
-    if (this.roleManagementTableOptions) {
-      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-        this.roleManagementTableOptions
-      );
-      metadataExport.permissions.push(...roleIds);
-    }
+    metadataExport.permissions = this.roleGrid?.getSelectedRoleIds() ?? [];
 
     // Add owner properties
     metadataExport.ownerId = this.ownerOrganization;
@@ -1161,21 +966,9 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
     // Reset role management
     this.ownerOrganization = '';
-    this.ownerOrgFilter = '';
     this.isPublic = false;
-    this.resourcesCreatorRights = [];
     this.showRoleForm = false;
-
-    // Reset role management table
-    if (this.kommonitorDataExchangeService.accessControl) {
-      this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-        'spatialUnitAddRoleManagementTable',
-        this.roleManagementTableOptions,
-        this.kommonitorDataExchangeService.accessControl,
-        [],
-        true
-      );
-    }
+    this.roleGrid?.reset();
 
     this.metadataImportSettings = null;
     this.spatialUnitMetadataImportError = '';
@@ -1194,12 +987,11 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.spatialUnitMappingConfigImportError = '';
   }
 
-  onChangeOwner(ownerOrganization: any) {
-    // Handle owner organization change
+  onChangeOwner(ownerOrganization: string) {
     this.ownerOrganization = ownerOrganization;
 
-    // Refresh roles for the selected organization
-    this.refreshRoles(ownerOrganization);
+    // Seed the grid with the owner unit's default viewer/editor permissions
+    this.roleGrid?.applyOwner(ownerOrganization);
 
     // Show/hide the role form based on whether an organization is selected
     this.showRoleForm = !!ownerOrganization;
@@ -1212,27 +1004,5 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   cancel() {
     this.activeModal.dismiss('cancel');
-  }
-
-  private buildRoleManagementGridConfig() {
-    // Use service methods for base grid configuration
-    this.roleManagementDefaultColDef = this.roleManagementHelper.buildRoleManagementDefaultColDef();
-    const baseGridOptions = this.roleManagementHelper.buildRoleManagementGridOptionsPublic(
-      this.roleManagementTableOptions?.components
-    );
-
-    // Apply component-specific overrides
-    this.roleManagementGridOptions = {
-      ...baseGridOptions,
-      onGridReady: (params) => {
-        this.onRoleManagementGridReady(params);
-      },
-      onFirstDataRendered: (event) => {
-        this.onRoleManagementFirstDataRendered(event);
-      },
-      onColumnResized: (event) => {
-        this.onRoleManagementColumnResized(event);
-      },
-    };
   }
 }

@@ -451,63 +451,21 @@
           </fieldset>
         }
 
-        @if (currentStep === 4 && envConfigService.enableKeycloakSecurity) {
-          <fieldset>
+        <!-- Step 4: Zugriffsschutz und Eigentümerschaft (Security).
+             Switched via display (not @if) so the role grid's checked state
+             survives navigating between steps. -->
+        @if (envConfigService.enableKeycloakSecurity) {
+          <fieldset [style.display]="currentStep === 4 ? 'block' : 'none'">
             <h2 class="fs-title">Zugriffsschutz und Eigentümerschaft</h2>
             <h3 class="fs-subtitle">
               Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro
               Organisationseinheit
             </h3>
-            <div class="row">
-              <div class="col-md-3"></div>
-              <div class="col-md-6 col-sm-6 col-12">
-                <div class="alert alert-info">
-                  Bitte wählen Sie zunächst die Organisationseinheit aus, unter welcher Sie den
-                  Datensatz anlegen möchten
-                </div>
-                <label for="addGeoresourceUserRoleSelect">Eigentümer-Organisationseinheit*</label>
-                <div class="input-group">
-                  <span class="input-group-addon"><i class="fas fa-filter"></i></span>
-                  <input
-                    type="text"
-                    class="form-control input-sm"
-                    placeholder="Stichwortfilter"
-                    [(ngModel)]="ownerOrgFilter"
-                    name="ownerOrgFilter"
-                  />
-                </div>
-                @if (accessControlService.checkAdminPermission()) {
-                  <select
-                    id="addGeoresourceUserRoleSelect"
-                    [(ngModel)]="ownerOrganization"
-                    name="ownerOrganization"
-                    class="form-control"
-                    (ngModelChange)="onChangeOwner($event)"
-                    required
-                  >
-                    @for (org of accessControlService.accessControl; track org) {
-                      <option [value]="org.organizationalUnitId">{{ org.name }}</option>
-                    }
-                  </select>
-                }
-                @if (!accessControlService.checkAdminPermission()) {
-                  <select
-                    id="addGeoresourceUserRoleSelect"
-                    [(ngModel)]="ownerOrganization"
-                    name="ownerOrganization"
-                    class="form-control"
-                    (ngModelChange)="onChangeOwner($event)"
-                    required
-                  >
-                    @for (org of resourcesCreatorRights; track org) {
-                      <option [value]="org.organizationalUnitId">{{ org.name }}</option>
-                    }
-                  </select>
-                }
-                <p></p>
-              </div>
-              <div class="col-md-3"></div>
-            </div>
+            <app-owner-organization-select
+              mode="assign"
+              [ownerId]="ownerOrganization"
+              (ownerIdChange)="onChangeOwner($event)"
+            ></app-owner-organization-select>
             <br />
             <hr />
             <br />
@@ -530,11 +488,10 @@
                   </div>
                 </div>
                 <div class="col-md-6 col-sm-6 col-12">
-                  <div
-                    id="georesourceAddRoleManagementTable"
-                    style="height: 45vh"
-                    class="ag-theme-alpine"
-                  ></div>
+                  <app-role-management-grid
+                    gridId="georesourceAddRoleManagementTable"
+                    [reducedColumns]="false"
+                  ></app-role-management-grid>
                 </div>
                 <div class="col-md-3">
                   <div class="alert alert-info">

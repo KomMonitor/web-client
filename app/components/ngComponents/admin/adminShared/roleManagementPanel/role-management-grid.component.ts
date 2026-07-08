@@ -98,6 +98,15 @@ export class RoleManagementGridComponent implements OnInit, OnChanges {
   }
 
   /**
+   * Replaces the current selection (e.g. from an imported metadata file) and
+   * rebuilds the grid, keeping the current owner.
+   */
+  applyPermissions(permissionIds: string[] | null | undefined): void {
+    this.selectedPermissionIds = [...(permissionIds ?? [])];
+    this.rebuild();
+  }
+
+  /**
    * Re-seeds the grid for a new owner unit: its viewer/editor permissions get
    * checked and its row disabled. An empty value clears owner and selection
    * (matches the historical modal behavior of the "keep owner" option).

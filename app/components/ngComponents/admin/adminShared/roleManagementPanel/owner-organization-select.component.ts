@@ -11,7 +11,11 @@ import { collectCreatorRightOrganizations } from './role-management-panel.model'
  * the units they hold creator rights for.
  *
  * Replaces the per-modal copies in the spatial-unit and georesource
- * edit-user-roles modals. An empty `ownerId` means "keep the current owner".
+ * edit-user-roles and add modals. Two modes:
+ * - 'transfer' (default, edit modals): optional choice, an empty `ownerId`
+ *   keeps the current owner; shows the current-owner column with a warning.
+ * - 'assign' (add modals): mandatory choice of the owning unit for a new
+ *   dataset; no current-owner column.
  */
 @Component({
   selector: 'app-owner-organization-select',
@@ -22,6 +26,8 @@ import { collectCreatorRightOrganizations } from './role-management-panel.model'
 export class OwnerOrganizationSelectComponent {
   private kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
 
+  /** 'transfer': optional ownership transfer (edit); 'assign': mandatory owner choice (add). */
+  @Input() mode: 'transfer' | 'assign' = 'transfer';
   /** Current owner of the dataset (drives the display and the change warning). */
   @Input() currentOwnerId: string | null | undefined = null;
   /** Selected target owner; empty keeps the current owner. Supports two-way binding. */

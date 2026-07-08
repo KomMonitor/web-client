@@ -1,7 +1,15 @@
 <div class="row">
   <div class="col-md-3"></div>
   <div class="col-md-6 col-sm-6 col-12">
-    <label for="targetUserRoleSelect"><b>Eigentümerschaft übertragen an</b></label>
+    @if (mode === 'assign') {
+      <div class="alert alert-info">
+        Bitte wählen Sie zunächst die Organisationseinheit aus, unter welcher Sie den Datensatz
+        anlegen möchten
+      </div>
+      <label for="targetUserRoleSelect">Eigentümer-Organisationseinheit*</label>
+    } @else {
+      <label for="targetUserRoleSelect"><b>Eigentümerschaft übertragen an</b></label>
+    }
     <div class="input-group">
       <span class="input-group-addon"><i class="fas fa-filter"></i></span>
       <input
@@ -20,20 +28,27 @@
       (ngModelChange)="onChangeOwner($event)"
       name="ownerOrganization"
       [ngModelOptions]="{ standalone: true }"
+      [required]="mode === 'assign'"
     >
-      <option value=""><b>Eigentümerschaft nicht übertragen</b></option>
+      @if (mode === 'assign') {
+        <option value="" disabled>-- Eigentümer-Organisationseinheit wählen --</option>
+      } @else {
+        <option value=""><b>Eigentümerschaft nicht übertragen</b></option>
+      }
       @for (org of getFilteredOrganizations(); track org.organizationalUnitId) {
         <option [value]="org.organizationalUnitId">{{ org.name }}</option>
       }
     </select>
   </div>
   <div class="col-md-3">
-    <label>aktuelle Eigentümer-Organisationseinheit</label>
-    <p>{{ getCurrentOwnerName() }}</p>
-    @if (isOwnershipChanging) {
-      <div class="help-block" style="color: red">
-        <p>ACHTUNG: Sie sind dabei, die Eigentümerschaft an diesem Datensatz zu ändern.</p>
-      </div>
+    @if (mode === 'transfer') {
+      <label>aktuelle Eigentümer-Organisationseinheit</label>
+      <p>{{ getCurrentOwnerName() }}</p>
+      @if (isOwnershipChanging) {
+        <div class="help-block" style="color: red">
+          <p>ACHTUNG: Sie sind dabei, die Eigentümerschaft an diesem Datensatz zu ändern.</p>
+        </div>
+      }
     }
   </div>
 </div>

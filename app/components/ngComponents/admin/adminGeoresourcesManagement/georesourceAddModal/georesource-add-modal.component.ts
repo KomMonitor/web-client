@@ -41,7 +41,6 @@ import {
   LOI_DASH_ARRAY_OBJECTS,
   POI_MARKER_COLORS,
 } from 'services/poi-presentation-service/poi-presentation.service';
-import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { SpatialUnitImportService } from 'services/spatial-unit-import-service/spatial-unit-import.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
@@ -54,6 +53,8 @@ import {
   ResourceMetadataFormValue,
 } from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
 import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
+import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
+import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManagementPanel/owner-organization-select.component';
 
 @Component({
   selector: 'app-georesource-add-modal',
@@ -66,6 +67,8 @@ import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admi
     KmColorPickerComponent,
     KmLinePatternPickerComponent,
     ResourceMetadataFormComponent,
+    RoleManagementGridComponent,
+    OwnerOrganizationSelectComponent,
   ],
   standalone: true,
 })
@@ -82,7 +85,6 @@ export class GeoresourceAddModalComponent implements OnInit {
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   private resourceImportService = inject(SpatialUnitImportService);
   private notificationService = inject(NotificationService);
-  roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private topicHierarchyService = inject(TopicHierarchyService);
   protected envConfigService = inject(EnvConfigService);
   private broadcastService = inject(BroadcastService);
@@ -94,6 +96,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
   @ViewChild('georesourceDataSourceInput', { static: false })
   georesourceDataSourceInput!: ElementRef;
+  @ViewChild(RoleManagementGridComponent) roleGrid?: RoleManagementGridComponent;
 
   // Multi-step form
   currentStep = 1;
@@ -209,12 +212,9 @@ export class GeoresourceAddModalComponent implements OnInit {
   validityStartDate_perFeature = '';
   validityEndDate_perFeature = '';
 
-  // Role management
-  roleManagementTableOptions: any = null;
+  // Role management (grid handled by <app-role-management-grid>)
   ownerOrganization = '';
-  ownerOrgFilter = '';
   isPublic = false;
-  resourcesCreatorRights: any[] = [];
 
   // GeoJSON data
   geoJsonString: any = null;
@@ -320,14 +320,14 @@ export class GeoresourceAddModalComponent implements OnInit {
       .pipe(skip(1), takeUntilDestroyed(this.destroyRef))
       .subscribe((state) => {
         if (state === MetadataLoadingState.COMPLETE) {
-          this.refreshRoles();
+          this.roleGrid?.reset();
         }
       });
 
     // Listen for broadcast messages
     this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
       if (data.msg === BroadcastMessage.AvailableRolesUpdate) {
-        this.refreshRoles();
+        this.roleGrid?.reset();
       }
     });
   }
@@ -351,15 +351,6 @@ export class GeoresourceAddModalComponent implements OnInit {
     );
     this.georesourceMappingConfigStructure_pretty = this.indicatorValueService.syntaxHighlightJSON(
       this.kommonitorImporterHelperService.mappingConfigStructure
-    );
-  }
-
-  private refreshRoles(): void {
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'georesourceAddRoleManagementTable',
-      this.roleManagementTableOptions,
-      this.accessControlService.accessControl,
-      []
     );
   }
 
@@ -432,7 +423,8 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   onChangeOwner(orgUnitId: string): void {
     this.ownerOrganization = orgUnitId;
-    this.refreshRoles();
+    // Seed the grid with the owner unit's default viewer/editor permissions
+    this.roleGrid?.applyOwner(orgUnitId);
   }
 
   onChangeIsPublic(isPublic: boolean): void {
@@ -550,18 +542,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     metadataExport.metadata.databasis = this.metadata.databasis || '';
     metadataExport.datasetName = this.datasetName || '';
 
-    metadataExport.allowedRoles = [];
-
-    if (this.roleManagementTableOptions) {
-      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-        this.roleManagementTableOptions
-      );
-      if (roleIds && Array.isArray(roleIds)) {
-        for (const roleId of roleIds) {
-          metadataExport.allowedRoles.push(roleId);
-        }
-      }
-    }
+    metadataExport.allowedRoles = this.roleGrid?.getSelectedRoleIds() ?? [];
 
     if (this.metadata.updateInterval) {
       metadataExport.metadata.updateInterval = this.metadata.updateInterval.apiName;
@@ -727,12 +708,7 @@ export class GeoresourceAddModalComponent implements OnInit {
 
     this.datasetName = this.metadataImportSettings.datasetName;
 
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'georesourceAddRoleManagementTable',
-      this.roleManagementTableOptions,
-      this.accessControlService.accessControl,
-      this.metadataImportSettings.allowedRoles
-    );
+    this.roleGrid?.applyPermissions(this.metadataImportSettings.allowedRoles || []);
 
     // georesource specific properties
     this.isPOI = this.metadataImportSettings.isPOI;
@@ -965,12 +941,7 @@ export class GeoresourceAddModalComponent implements OnInit {
 
     this.metadataForm.reset();
 
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'georesourceAddRoleManagementTable',
-      null,
-      this.accessControlService.accessControl,
-      []
-    );
+    this.roleGrid?.reset();
 
     this.georesourceTopic_mainTopic = null;
     this.georesourceTopic_subTopic = null;
@@ -1039,7 +1010,6 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.keepMissingValues = true;
 
     this.ownerOrganization = '';
-    this.ownerOrgFilter = '';
     this.isPublic = false;
 
     this.metadataImportSettings = null;
@@ -1068,16 +1038,7 @@ export class GeoresourceAddModalComponent implements OnInit {
       isPublic: this.isPublic,
     };
 
-    if (this.roleManagementTableOptions) {
-      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-        this.roleManagementTableOptions
-      );
-      if (roleIds && Array.isArray(roleIds)) {
-        for (const roleId of roleIds) {
-          postBody.allowedRoles.push(roleId);
-        }
-      }
-    }
+    postBody.allowedRoles.push(...(this.roleGrid?.getSelectedRoleIds() ?? []));
 
     if (this.isPOI) {
       postBody['poiSymbolBootstrap3Name'] = this.selectedPoiIconName;
