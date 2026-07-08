@@ -12,8 +12,8 @@
     <label class="switch">
       <input
         type="checkbox"
-        [(ngModel)]="tableViewSwitcher"
-        (ngModelChange)="onTableViewSwitch()"
+        [ngModel]="tableViewSwitcher()"
+        (ngModelChange)="tableViewSwitcher.set($event)"
       />
       <span class="switchslider round"></span>
     </label>
@@ -42,25 +42,16 @@
 <ng-template #content>
   <expandable-box title="Points of Interest">
     <ag-grid-angular
-      #poiGrid
       class="ag-theme-alpine"
       style="height: 70vh; width: 100%"
-      [rowData]="[]"
-      [columnDefs]="[]"
-      [gridOptions]="poiGridOptions"
-      [defaultColDef]="{
-        editable: false,
-        sortable: true,
-        filter: true,
-        floatingFilter: true,
-        resizable: true,
-        wrapText: true,
-        autoHeight: true,
-      }"
+      [rowData]="poiRowData()"
+      [columnDefs]="poiColumnDefs"
+      [defaultColDef]="defaultColDef"
       [suppressRowClickSelection]="true"
       [rowSelection]="'multiple'"
       [pagination]="true"
       [paginationPageSize]="10"
+      [paginationPageSizeSelector]="paginationPageSizeSelector"
       [enableCellTextSelection]="true"
       [ensureDomOrder]="true"
       [suppressColumnVirtualisation]="true"
@@ -70,25 +61,16 @@
 
   <expandable-box title="Lines of Interest">
     <ag-grid-angular
-      #loiGrid
       class="ag-theme-alpine"
       style="height: 70vh; width: 100%"
-      [rowData]="[]"
-      [columnDefs]="[]"
-      [gridOptions]="loiGridOptions"
-      [defaultColDef]="{
-        editable: false,
-        sortable: true,
-        filter: true,
-        floatingFilter: true,
-        resizable: true,
-        wrapText: true,
-        autoHeight: true,
-      }"
+      [rowData]="loiRowData()"
+      [columnDefs]="loiColumnDefs"
+      [defaultColDef]="defaultColDef"
       [suppressRowClickSelection]="true"
       [rowSelection]="'multiple'"
       [pagination]="true"
       [paginationPageSize]="10"
+      [paginationPageSizeSelector]="paginationPageSizeSelector"
       [enableCellTextSelection]="true"
       [ensureDomOrder]="true"
       [suppressColumnVirtualisation]="true"
@@ -98,25 +80,16 @@
 
   <expandable-box title="Areas of Interest">
     <ag-grid-angular
-      #aoiGrid
       class="ag-theme-alpine"
       style="height: 70vh; width: 100%"
-      [rowData]="[]"
-      [columnDefs]="[]"
-      [gridOptions]="aoiGridOptions"
-      [defaultColDef]="{
-        editable: false,
-        sortable: true,
-        filter: true,
-        floatingFilter: true,
-        resizable: true,
-        wrapText: true,
-        autoHeight: true,
-      }"
+      [rowData]="aoiRowData()"
+      [columnDefs]="aoiColumnDefs"
+      [defaultColDef]="defaultColDef"
       [suppressRowClickSelection]="true"
       [rowSelection]="'multiple'"
       [pagination]="true"
       [paginationPageSize]="10"
+      [paginationPageSizeSelector]="paginationPageSizeSelector"
       [enableCellTextSelection]="true"
       [ensureDomOrder]="true"
       [suppressColumnVirtualisation]="true"
