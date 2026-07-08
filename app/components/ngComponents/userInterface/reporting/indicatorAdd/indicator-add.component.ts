@@ -134,7 +134,6 @@ export class IndicatorAddComponent implements OnInit {
   isochronesRangeUnits;
   insertDatatableRowsInterval;
   intervalArr: any[] = [];
-  updateDiagramsInterval_areas;
 
   indicatorNameFilter = '';
   poiNameFilter = '';
@@ -509,9 +508,10 @@ export class IndicatorAddComponent implements OnInit {
   async onChangeSelectedBaseMap() {
     // reinitiate page building from the scratch as easiest solution
     this.loadingData = true;
+    this.preparationNeeded = true;
 
     this.leafletScreenshotCacheHelperService.resetCounter_keepingCurrentTargetFeatures(false);
-    await this.initializeAllDiagrams();
+    // new user workflow: onTriggerPreparationClicked is the only place to start page generation
 
     this.loadingData = false;
   }
@@ -574,53 +574,10 @@ export class IndicatorAddComponent implements OnInit {
   
   */
 
-  initSelectedDualListOption() {
-    const updateDiagramsInterval = setInterval(
-      () => {
-        if (this.diagramsPrepared) {
-          clearInterval(updateDiagramsInterval); // code below still executes once
-        } else {
-          return;
-        }
-
-        setTimeout(async () => {
-          try {
-            // indicator selection is optional in reachability template only
-            if (this.selectedIndicator) {
-              for (const timestamp of this.selectedTimestamps) {
-                const classifyUsingWholeTimeseries = false;
-                const isTimeseries = false;
-                this.prepareDiagrams(
-                  this.selectedIndicator,
-                  this.selectedSpatialUnit,
-                  timestamp.name,
-                  classifyUsingWholeTimeseries,
-                  isTimeseries,
-                  undefined,
-                  undefined
-                );
-              }
-            } else {
-              this.reachabilityTemplateGeoMapOptions = this.prepareReachabilityEchartsMap();
-            }
-            await this.initializeAllDiagrams();
-            this.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
-          } catch (error) {
-            console.error('Auto-initialization after indicator selection failed:', error);
-            this.mapErrorNotificationService.displayMapApplicationError(error);
-          } finally {
-            this.loadingData = false;
-          }
-        });
-      },
-      0,
-      100
-    );
-  }
-
   async onSelectedAreasChanged(newVal) {
     if (typeof this.reportingService.clonedTemplate === 'undefined') return;
     this.loadingData = true;
+    this.preparationNeeded = true;
 
     this.selectedAreas = newVal;
 
@@ -651,40 +608,9 @@ export class IndicatorAddComponent implements OnInit {
     if (this.reportingService.clonedTemplate.name.includes('reachability'))
       this.updateAreasForReachabilityTemplates(newVal);
 
-    this.updateDiagramsInterval_areas = setInterval(
-      async () => {
-        if (this.diagramsPrepared) {
-          clearInterval(this.updateDiagramsInterval_areas); // code below still executes once
-        } else {
-          return;
-        }
-        // diagrams are prepared, but dom has to be updated first, too
-        // we could filter the geoJson here to only include selected areas
-        // but for now we get all areas and filter them out after
-        let justChanged = false;
-        if (this.isFirstUpdateOnIndicatorOrPoiLayerSelection) {
-          // Skip the update but set variable to false, so diagrams get updated on time update
-          // (relevant for indicator selection only)
-          this.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
-          justChanged = true;
-        }
-        if (
-          this.reportingService.clonedTemplate.name.includes('reachability') ||
-          (this.isFirstUpdateOnIndicatorOrPoiLayerSelection == false && justChanged == false)
-        ) {
-          try {
-            await this.initializeAllDiagrams();
-          } catch (error) {
-            console.error('Diagram re-initialization after area change failed:', error);
-            this.mapErrorNotificationService.displayMapApplicationError(error);
-          } finally {
-            this.loadingData = false;
-          }
-        }
-      },
-      0,
-      100
-    );
+    // skip automatic diagram update; page/diagram generation only starts once the
+    // user clicks "Vorschau & Report-Seiten generieren"
+    this.loadingData = false;
   }
 
   removeCircularReferences(pages) {
@@ -961,6 +887,7 @@ export class IndicatorAddComponent implements OnInit {
 
     if (typeof this.reportingService.clonedTemplate === 'undefined') return;
     this.loadingData = true;
+    this.preparationNeeded = true;
 
     // get difference between old and new value (the timestamps selected / deselected)
     const difference = oldVal
@@ -1141,53 +1068,9 @@ export class IndicatorAddComponent implements OnInit {
       }
     }
 
-    const updateDiagramsInterval = setInterval(
-      () => {
-        if (this.diagramsPrepared) {
-          clearInterval(updateDiagramsInterval); // code below still executes once
-        } else {
-          return;
-        }
-
-        setTimeout(async () => {
-          if (this.isFirstUpdateOnIndicatorOrPoiLayerSelection) {
-            // Skip the update but set variable to false, so diagrams get updated on time update
-            // (relevant for indicator selection only)
-            this.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
-          } else {
-            try {
-              // indicator selection is optional in reachability template only
-              if (this.selectedIndicator) {
-                for (const timestamp of this.selectedTimestamps) {
-                  const classifyUsingWholeTimeseries = false;
-                  const isTimeseries = false;
-                  this.prepareDiagrams(
-                    this.selectedIndicator,
-                    this.selectedSpatialUnit,
-                    timestamp.name,
-                    classifyUsingWholeTimeseries,
-                    isTimeseries,
-                    undefined,
-                    undefined
-                  );
-                }
-              } else {
-                this.reachabilityTemplateGeoMapOptions = this.prepareReachabilityEchartsMap();
-              }
-
-              await this.initializeAllDiagrams();
-            } catch (error) {
-              console.error('Diagram re-initialization after timestamp change failed:', error);
-              this.mapErrorNotificationService.displayMapApplicationError(error);
-            } finally {
-              this.loadingData = false;
-            }
-          }
-        });
-      },
-      0,
-      100
-    );
+    // skip automatic diagram update; page/diagram generation only starts once the
+    // user clicks "Vorschau & Report-Seiten generieren"
+    this.loadingData = false;
   }
 
   reportingConfigureNewIndicatorShown() {
@@ -1256,6 +1139,7 @@ export class IndicatorAddComponent implements OnInit {
   async onSpatialUnitChanged() {
     this.selectedSpatialUnit = this.spatialUnitSelect.value;
     this.loadingData = true;
+    this.preparationNeeded = true;
     this.displayableIndicatorsByNameReachability = this.indicatorStore.displayableIndicators
       .filter(
         (e: any) =>
@@ -1433,11 +1317,8 @@ export class IndicatorAddComponent implements OnInit {
           this.reachabilityTemplateGeoMapOptions = this.prepareReachabilityEchartsMap();
         }
 
-        await this.initializeAllDiagrams();
-        // if(!this.reportingService.clonedTemplate.name.includes("reachability")) {
-        // 	// in reachability template we have to update leaflet maps, too
-        // 	this.loadingData = false;
-        // }
+        // page/diagram generation only starts once the user clicks
+        // "Vorschau & Report-Seiten generieren"
         this.loadingData = false;
       });
     }, 1000);
@@ -1750,6 +1631,7 @@ export class IndicatorAddComponent implements OnInit {
   //async
   async onPoiLayerSelected(poiLayer) {
     try {
+      this.preparationNeeded = true;
       this.absoluteLabelPositions = [];
       this.diagramsPrepared = false;
       this.isFirstUpdateOnIndicatorOrPoiLayerSelection = true;
@@ -1871,6 +1753,11 @@ export class IndicatorAddComponent implements OnInit {
         for (const tab of allTabs) {
           this.enableTab(tab);
         }
+
+        // mark that preparation is required; actual page/diagram generation only
+        // starts once the user clicks "Vorschau & Report-Seiten generieren"
+        this.preparationNeeded = true;
+        this.loadingData = false;
       }, 1000);
     } catch (error) {
       console.error(error);
@@ -1898,26 +1785,6 @@ export class IndicatorAddComponent implements OnInit {
       this.updateAreasForTimeseriesTemplates(this.selectedAreas);
     if (this.reportingService.clonedTemplate.name.includes('reachability'))
       this.updateAreasForReachabilityTemplates(this.selectedAreas);
-
-    const updateDiagramsInterval = setInterval(
-      () => {
-        if (this.diagramsPrepared) {
-          clearInterval(updateDiagramsInterval); // code below still executes once
-        } else {
-          return;
-        }
-
-        setTimeout(async () => {
-          // indicator selection is optional in reachability template only
-
-          await this.initializeAllDiagrams();
-          this.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
-          this.loadingData = false;
-        });
-      },
-      0,
-      100
-    );
   }
 
   calculateOverallBoundingBoxFromGeoJSON(features) {
@@ -2126,7 +1993,11 @@ export class IndicatorAddComponent implements OnInit {
       this.selectedIndicator = indicator;
 
       // get a new template (in case another indicator was selected previously)
-      //this.reportingService.clonedTemplate = this.getCleanTemplate();
+      this.reportingService.resetTemplateClone();
+      this.setAreaSpecificPagesVisibility();
+      for (const page of this.reportingService.clonedTemplate.pages) {
+        page.id = this.templatePageIdCounter++;
+      }
       this.reportingService.clonedTemplate.pageConfig = this.pageConfig;
 
       // set spatial unit to highest available one
@@ -2294,14 +2165,16 @@ export class IndicatorAddComponent implements OnInit {
         if (this.reportingService.clonedTemplate.name.includes('reachability'))
           this.updateAreasForReachabilityTemplates(areasListInput);
 
-        // call initSelectedDualListOption, as the selected Items have not been processed yet - only been selected on the dual lists
-        this.initSelectedDualListOption();
-
         if (this.selectedAreas.length > 0)
           this.leafletScreenshotCacheHelperService.resetCounter(
             this.selectedAreas.length + 1,
             false
           );
+
+        // mark that preparation is required; actual page/diagram generation only
+        // starts once the user clicks "Vorschau & Report-Seiten generieren"
+        this.preparationNeeded = true;
+        this.loadingData = false;
       }, 1000);
     } catch (error) {
       console.error(error);
@@ -2365,7 +2238,7 @@ export class IndicatorAddComponent implements OnInit {
       georesourceId: this.selectedPoiLayer ? this.selectedPoiLayer.georesourceId : '',
       spatialUnitName:
         this.selectedSpatialUnit.spatialUnitName ?? this.selectedSpatialUnit.spatialUnitLevel,
-      absoluteLabelPositions: this.reportingService.clonedTemplate.absoluteLabelPositions,
+      absoluteLabelPositions: this.absoluteLabelPositions,
       echartsRegisteredMapNames: this.echartsRegisteredMapNames,
       echartsMaps: [],
       pageConfig: jQuery.extend(true, {}, this.pageConfig),
@@ -2378,60 +2251,11 @@ export class IndicatorAddComponent implements OnInit {
       (e) => e.hidden !== true
     );
 
-    // for each page: add echarts configuration objects to the template
-    for (const [idx, page] of this.reportingService.clonedTemplate.pages.entries()) {
-      const pageDom: any = document.querySelector('#reporting-addIndicator-page-' + idx);
-
-      for (const pageElement of page.pageElements) {
-        let pElementDom;
-        if (pageElement.type === 'linechart') {
-          const arr = pageDom.querySelectorAll('.type-linechart');
-          if (pageElement.showPercentageChangeToPrevTimestamp) {
-            pElementDom = arr[1];
-          } else {
-            pElementDom = arr[0];
-          }
-        } else {
-          pElementDom = pageDom.querySelector(
-            '#reporting-addIndicator-page-' + idx + '-' + pageElement.type
-          );
-        }
-
-        if (
-          pageElement.type === 'map' ||
-          pageElement.type === 'barchart' ||
-          pageElement.type === 'linechart'
-        ) {
-          const instance: any = echarts.getInstanceByDom(pElementDom);
-          const options = JSON.parse(JSON.stringify(instance.getOption()));
-          pageElement.echartsOptions = options;
-
-          // for reachability we also have the leaflet bbox stored already
-          // store legend for first page
-        }
-
-        if (pageElement.type === 'datatable') {
-          // add some properties so we can recreate the table later
-          const columnHeaders = pageDom.querySelectorAll('th');
-          const columnNames: any[] = [];
-          for (const header of columnHeaders) {
-            columnNames.push(header.innerText);
-          }
-          pageElement.columnNames = columnNames;
-          const tableData: any[] = [];
-          const rows = pageDom.querySelectorAll('tbody tr');
-          for (const row of rows) {
-            const rowData: any[] = [];
-            const fields = row.querySelectorAll('td');
-            for (const field of fields) {
-              rowData.push(field.innerText);
-            }
-            tableData.push(rowData);
-          }
-          pageElement.tableData = tableData; // [ [...], [...], [...] ]
-        }
-      }
-
+    // echarts configs / table data were already captured onto each page/pageElement by
+    // preparePageForIndicatorAdd during generation (page.generatedData, pageElement.echartsOptions,
+    // pageElement.tableData) — most pages are never rendered into the visible preview DOM (only the
+    // first few area-specific/datatable pages are), so it can't be re-scraped from the DOM here.
+    for (const page of this.reportingService.clonedTemplate.pages) {
       page.templateSection = templateSection;
     }
 
@@ -2712,6 +2536,11 @@ export class IndicatorAddComponent implements OnInit {
       fadeAnimation: false,
       zoomAnimation: false,
     });
+    // Leaflet caches the container size at construction time; force it to re-measure
+    // now (after our explicit width/height are applied) so fitBounds() below computes
+    // against the real size instead of a stale/zero one — otherwise only the fraction
+    // of the container Leaflet thinks is visible gets tiles (classic top-left-only bug).
+    leafletMap.invalidateSize(false);
     // manually create a field for attribution so we can control the z-index.
     const prevAttributionDiv = pageDom.querySelector('.map-attribution');
     if (prevAttributionDiv) prevAttributionDiv.remove();
@@ -4242,6 +4071,9 @@ export class IndicatorAddComponent implements OnInit {
           );
           pageElement.isPlaceholder = false;
           page.generatedData.echarts[pageElement.type] = map.getDataURL({ pixelRatio: 2 });
+          // pageElement.echartsOptions (incl. the custom projection functions) is already
+          // set by initLeafletMapBeneathEchartsMap above — do not overwrite it with a
+          // JSON-cloned copy, which would silently drop those functions
 
           if (isPreview) {
             const previewEl =
@@ -4280,9 +4112,15 @@ export class IndicatorAddComponent implements OnInit {
         case 'barchart': {
           this.createPageElement_BarChartDiagram(pElementDom, page);
           pageElement.isPlaceholder = false;
-          page.generatedData.echarts[pageElement.type] = (
-            echarts.getInstanceByDom(pElementDom) as any
-          )?.getDataURL({ pixelRatio: 2 });
+          const barChartInstance = echarts.getInstanceByDom(pElementDom) as any;
+          page.generatedData.echarts[pageElement.type] = barChartInstance?.getDataURL({
+            pixelRatio: 2,
+          });
+          if (barChartInstance) {
+            // keep the object as returned by getOption() (not a JSON-cloned copy) so any
+            // function-valued option properties (formatters etc.) survive
+            pageElement.echartsOptions = barChartInstance.getOption();
+          }
           if (isPreview) {
             const previewEl = document.querySelector(
               '#reporting-addIndicator-page-' + idx + '-' + pageElement.type
@@ -4300,9 +4138,13 @@ export class IndicatorAddComponent implements OnInit {
           const chartKey = pageElement.showPercentageChangeToPrevTimestamp
             ? 'linechart_perc'
             : 'linechart';
-          page.generatedData.echarts[chartKey] = (
-            echarts.getInstanceByDom(pElementDom) as any
-          )?.getDataURL({ pixelRatio: 2 });
+          const lineChartInstance = echarts.getInstanceByDom(pElementDom) as any;
+          page.generatedData.echarts[chartKey] = lineChartInstance?.getDataURL({ pixelRatio: 2 });
+          if (lineChartInstance) {
+            // keep the object as returned by getOption() (not a JSON-cloned copy) so any
+            // function-valued option properties (formatters etc.) survive
+            pageElement.echartsOptions = lineChartInstance.getOption();
+          }
           if (isPreview) {
             const allLinechartEls = document.querySelectorAll(
               '#reporting-addIndicator-page-' + idx + ' .type-linechart'
@@ -4339,6 +4181,28 @@ export class IndicatorAddComponent implements OnInit {
             }
           }
           this.createPageElement_Datatable(pElementDom, page);
+
+          // capture the rendered table now; background pages never reach the visible
+          // preview DOM, so this can't be scraped later when the section is added
+          const columnHeaders = Array.from(pElementDom.querySelectorAll('th'));
+          const columnNames: any[] = [];
+          for (const header of columnHeaders) {
+            columnNames.push((header as HTMLElement).innerText);
+          }
+          pageElement.columnNames = columnNames;
+
+          const tableData: any[] = [];
+          const rows = Array.from(pElementDom.querySelectorAll('tbody tr'));
+          for (const row of rows) {
+            const rowData: any[] = [];
+            const fields = Array.from((row as HTMLElement).querySelectorAll('td'));
+            for (const field of fields) {
+              rowData.push((field as HTMLElement).innerText);
+            }
+            tableData.push(rowData);
+          }
+          pageElement.tableData = tableData;
+          page.generatedData.tableData = tableData;
           break;
         }
       }
@@ -4586,6 +4450,7 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   onChangeDateSliderInterval() {
+    this.preparationNeeded = true;
     this.loadingData = true;
     // needed to tell angular something has changed
 
@@ -4629,22 +4494,9 @@ export class IndicatorAddComponent implements OnInit {
       }
     }
 
-    const updateDiagramsInterval = setInterval(
-      () => {
-        if (this.diagramsPrepared) {
-          clearInterval(updateDiagramsInterval); // code below still executes once
-        } else {
-          return;
-        }
-        // diagrams are prepared, but dom has to be updated first, too
-        setTimeout(async () => {
-          await this.initializeAllDiagrams();
-          this.loadingData = false;
-        });
-      },
-      0,
-      100
-    );
+    // page/diagram generation only starts once the user clicks
+    // "Vorschau & Report-Seiten generieren"
+    this.loadingData = false;
   }
 
   getFormattedDateSliderValues(includeInBetweenValues) {

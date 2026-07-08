@@ -236,6 +236,7 @@ export class ReportingOverviewComponent implements OnInit {
             instance,
             this.currentSpatialUnit,
             true,
+            true,
             true
           );
         }
@@ -656,7 +657,8 @@ export class ReportingOverviewComponent implements OnInit {
             instance,
             spatialUnit,
             false,
-            false
+            false,
+            isPreview
           );
 
           if (isPreview) {
@@ -849,8 +851,14 @@ export class ReportingOverviewComponent implements OnInit {
     echartsMap,
     spatialUnit,
     forceScreenshot,
-    isVisible
+    isVisible,
+    isPreview?: boolean
   ) {
+    // declared outside the try block so the finally clause can always clean them up —
+    // for preview pages this map is built directly inside the visible page DOM, so leaving
+    // it behind on an early return/exception would show a stuck, partially-loaded live map
+    let leafletMap: any;
+    let div: any;
     try {
       const pageIdx = this.reportingService.workingTemplate.pages.indexOf(page);
 
@@ -887,14 +895,30 @@ export class ReportingOverviewComponent implements OnInit {
       }
 
       const id = 'reporting-background-leaflet-map-container-' + elementIdx;
-      const pageDom: any = document.getElementById('reporting-background-page');
+      // Leaflet does not reliably load tiles while off-screen (opacity: 0 / far off-canvas
+      // position) — for preview pages, build the map inside the visible page DOM instead,
+      // same workaround already used by indicator-add.component.ts's equivalent function.
+      const pageDomId = isPreview ? 'reporting-overview-page-' + pageIdx : 'reporting-background-page';
+      let pageDom: any = document.getElementById(pageDomId);
       const pageElementDomId = 'reporting-background-page-map-' + elementIdx;
-      const pageElementDom: any = document.getElementById(pageElementDomId);
+      let pageElementDom: any = document.getElementById(pageElementDomId);
+
+      if (!pageDom) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        pageDom = document.getElementById(pageDomId);
+        pageElementDom = document.getElementById(pageElementDomId);
+      }
+
+      if (!pageDom) {
+        console.error('Could not find DOM for leaflet map init: ' + pageDomId);
+        return undefined;
+      }
+
       const oldMapNode = document.getElementById(id);
       if (oldMapNode) {
         oldMapNode.remove();
       }
-      const div: any = document.createElement('div');
+      div = document.createElement('div');
       div.id = id;
       div.style.position = 'absolute';
       div.style.left = pageElement.dimensions.left;
@@ -905,7 +929,7 @@ export class ReportingOverviewComponent implements OnInit {
       pageDom.appendChild(div);
       const echartsOptions = echartsMap.getOption();
 
-      const leafletMap = L.map(div.id, {
+      leafletMap = L.map(div.id, {
         zoomControl: false,
         dragging: false,
         doubleClickZoom: false,
@@ -916,6 +940,11 @@ export class ReportingOverviewComponent implements OnInit {
         fadeAnimation: false,
         zoomAnimation: false,
       });
+      // Leaflet caches the container size at construction time; force it to re-measure
+      // now (after our explicit width/height are applied) so fitBounds() below computes
+      // against the real size instead of a stale/zero one — otherwise only the fraction
+      // of the container Leaflet thinks is visible gets tiles (classic top-left-only bug).
+      leafletMap.invalidateSize(false);
 
       // manually create attribution overlay with controlled z-index
       const prevAttributionDiv = pageDom.querySelector('.map-attribution');
@@ -1043,22 +1072,20 @@ export class ReportingOverviewComponent implements OnInit {
         dataUrl.length < 10
       ) {
         console.warn('Invalid leaflet map screenshot generated for page ' + pageIdx);
-        if (!isVisible) {
-          leafletMap.remove();
-          div.remove();
-        }
         return undefined;
-      }
-
-      if (!isVisible) {
-        leafletMap.remove();
-        div.remove();
       }
 
       return dataUrl;
     } catch (error) {
       console.error(error);
       return undefined;
+    } finally {
+      // guaranteed cleanup: for preview pages this map/div lives in the visible page DOM,
+      // so any early return or exception above must not leave a stuck partial map behind
+      if (!isVisible) {
+        if (leafletMap) leafletMap.remove();
+        if (div) div.remove();
+      }
     }
   }
 

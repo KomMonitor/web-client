@@ -210,18 +210,37 @@ export class LeafletScreenshotCacheHelperService {
             });
         };
 
-        const tiles = el.querySelectorAll('.leaflet-tile');
-        if (tiles.length === 0) {
-          console.warn('No Leaflet tiles found in DOM yet. Retrying after short delay...');
-          setTimeout(() => capture(), 500);
-        } else {
-          capture();
-        }
+        this.waitForTilesToLoad(el).then(() => capture());
       }, 500);
     });
 
     this.pendingPromises.set(CacheKey, promise);
     return promise;
+  }
+
+  // Leaflet appends a tile's <img> to the DOM as soon as loading starts, well before the image
+  // data has actually downloaded — so checking for element presence alone (as this used to do)
+  // can capture a screenshot with some tiles still blank. Wait until every tile image has settled
+  // (loaded or failed — img.complete covers both) before letting the caller capture the DOM.
+  private waitForTilesToLoad(el: HTMLElement, timeoutMs = 8000): Promise<void> {
+    return new Promise((resolve) => {
+      const start = Date.now();
+      const check = () => {
+        const tiles = Array.from(el.querySelectorAll('.leaflet-tile')) as HTMLImageElement[];
+        const allSettled = tiles.length > 0 && tiles.every((tile) => tile.complete);
+        if (allSettled) {
+          resolve();
+          return;
+        }
+        if (Date.now() - start > timeoutMs) {
+          console.warn('Timed out waiting for Leaflet tiles to finish loading, capturing anyway.');
+          resolve();
+          return;
+        }
+        setTimeout(check, 100);
+      };
+      check();
+    });
   }
 
   clearScreenshotMap() {
