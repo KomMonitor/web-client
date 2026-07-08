@@ -183,34 +183,4 @@
   </button>
 </div>
 
-<!-- Success Alert -->
-@if (successMessage) {
-  <div
-    style="position: absolute; bottom: 0px; width: 100%"
-    class="alert alert-success alert-dismissable"
-  >
-    <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
-      &times;
-    </button>
-    <h4><i class="icon fa fa-check"></i>Zugriffsschutz und Eigentuümerschaft aktualisiert</h4>
-    Erfolgreiche Aktualisierung des Zugriffsschutzes und der Eigentuümerschaft für die Georessource
-    '{{ successMessagePart }}'
-  </div>
-}
-
-<!-- Error Alert -->
-@if (errorMessage || errorMessagePart) {
-  <div
-    style="position: absolute; bottom: 0px; width: 100%"
-    class="alert alert-danger alert-dismissable"
-  >
-    <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">
-      &times;
-    </button>
-    <h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
-    Bei der Aktualisierung des Zugriffsschutzes und der Eigentuümerschaft ist ein Fehler
-    aufgetreten. Fehlermeldung:
-    <br />
-    <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessagePart"></pre>
-  </div>
-}
+<!-- Success/error feedback is shown via NotificationService toasts -->

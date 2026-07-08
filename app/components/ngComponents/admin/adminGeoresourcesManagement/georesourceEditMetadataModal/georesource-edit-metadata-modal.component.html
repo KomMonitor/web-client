@@ -482,31 +482,7 @@
   </button>
 </div>
 
-<div
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!successAlertVisible"
-  class="alert alert-success alert-dismissable"
->
-  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
-    &times;
-  </button>
-  <h4><i class="icon fa fa-check"></i>Georessource aktualisiert</h4>
-  Die Metadaten der Georessource mit Namen {{ successMessagePart }} wurden in KomMonitor
-  aktualisiert und in die Übersichtstabelle eingetragen.
-</div>
-
-<div
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!errorAlertVisible"
-  class="alert alert-danger alert-dismissable"
->
-  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
-  <h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
-  Bei der Aktualisierung der Metadaten der Georessource ist ein Fehler aufgetreten. Fehlermeldung:
-  <br />
-  <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessagePart"></pre>
-</div>
-
+<!-- Update success/error feedback is shown via NotificationService toasts -->
 <div
   style="position: absolute; bottom: 0px; width: 100%"
   [hidden]="!importErrorAlertVisible"

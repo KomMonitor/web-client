@@ -804,52 +804,22 @@
   </button>
 </div>
 
-<div
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!successAlertVisible"
-  class="alert alert-success alert-dismissable"
->
-  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
-    &times;
-  </button>
-  <h4><i class="icon fa fa-check"></i>Features erfolgreich fortgeführt</h4>
-  <p>
-    Fortführen der Features der Georessource mit Namen {{ successMessagePart }} war erfolgreich.
-  </p>
-  @if (importedFeatures && importedFeatures.length > 0) {
-    <div>
-      <p>{{ importedFeatures.length }} Features wurden dabei importiert.</p>
-    </div>
-  }
-</div>
-
-<div
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!errorAlertVisible"
-  class="alert alert-danger alert-dismissable"
->
-  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
-  <h4><i class="icon fa fa-ban"></i>Features fortführen gescheitert</h4>
-  Beim Fortführen der Features ist ein Fehler aufgetreten. Fehlermeldung:
-  <br />
-  <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessagePart"></pre>
-  <br />
-  <br />
-
-  @if (importerErrors) {
-    <div>
-      <p>Bei den {{ importerErrors.length }} Features mit folgenden IDs scheitert der Import:</p>
-      <pre style="overflow: auto; max-height: 500px">
-            <ul>
-              @for (error of importerErrors; track error) {
-                <li>{{error}}</li>
-              }
-            </ul>
-          </pre>
-      <p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
-    </div>
-  }
-</div>
+<!-- Update success/error summaries are toasted via NotificationService; the
+     per-feature importer error report stays inline. -->
+@if (importerErrors && importerErrors.length > 0) {
+  <div class="alert alert-danger">
+    <h4><i class="icon fa fa-ban"></i>Features fortführen gescheitert</h4>
+    <p>Bei den {{ importerErrors.length }} Features mit folgenden IDs scheitert der Import:</p>
+    <pre style="overflow: auto; max-height: 500px">
+          <ul>
+            @for (error of importerErrors; track error) {
+              <li>{{error}}</li>
+            }
+          </ul>
+        </pre>
+    <p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
+  </div>
+}
 
 <div
   style="position: absolute; bottom: 0px; width: 100%"

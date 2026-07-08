@@ -23,6 +23,8 @@ import {
 } from 'ag-grid-community';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import { getErrorMessage } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.util';
 import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
 import { FormsModule } from '@angular/forms';
 import {
@@ -46,6 +48,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
   kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private broadcastService = inject(BroadcastService);
+  private notificationService = inject(NotificationService);
   private http = inject(HttpClient);
 
   @ViewChild('roleManagementTable', { static: true }) roleManagementTable!: AgGridAngular;
@@ -60,8 +63,6 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
 
   // Form data
   loadingData = false;
-  errorMessage = '';
-  successMessage = '';
 
   // Current dataset being edited
   private _currentGeoresourceDataset: any;
@@ -88,10 +89,6 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
   resourcesCreatorRights: any[] = [];
   ownerOrgFilter = '';
   ownerOrganization: any;
-
-  // Messages
-  successMessagePart = '';
-  errorMessagePart = '';
 
   // Subscriptions
   private subscriptions: Subscription[] = [];
@@ -350,25 +347,19 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
       )
       .subscribe({
         next: (_response: any) => {
-          this.successMessagePart = this.currentGeoresourceDataset.datasetName;
           this.refreshRequested.emit({
             crudType: 'edit',
             targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
           });
-          this.showSuccessAlert();
+          this.notificationService.showSuccess(
+            `Zugriffsrechte für Georessource "${this.currentGeoresourceDataset.datasetName}" wurden aktualisiert.`
+          );
           this.loadingData = false;
         },
         error: (error: any) => {
-          this.errorMessagePart =
-            'Fehler beim Aktualisieren der Zugriffsrechte. Fehler lautet: \n\n';
-          if (error.data) {
-            this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(
-              error.data
-            );
-          } else {
-            this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
-          }
-          this.showErrorAlert();
+          this.notificationService.showError(
+            'Fehler beim Aktualisieren der Zugriffsrechte: ' + getErrorMessage(error)
+          );
           this.loadingData = false;
         },
       });
@@ -396,25 +387,19 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
       )
       .subscribe({
         next: (_response: any) => {
-          this.successMessagePart = this.currentGeoresourceDataset.datasetName;
           this.refreshRequested.emit({
             crudType: 'edit',
             targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
           });
-          this.showSuccessAlert();
+          this.notificationService.showSuccess(
+            `Eigentümerschaft für Georessource "${this.currentGeoresourceDataset.datasetName}" wurde aktualisiert.`
+          );
           this.loadingData = false;
         },
         error: (error: any) => {
-          this.errorMessagePart =
-            'Fehler beim Aktualisieren der Eigentümerschaft. Fehler lautet: \n\n';
-          if (error.data) {
-            this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(
-              error.data
-            );
-          } else {
-            this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
-          }
-          this.showErrorAlert();
+          this.notificationService.showError(
+            'Fehler beim Aktualisieren der Eigentümerschaft: ' + getErrorMessage(error)
+          );
           this.loadingData = false;
         },
       });
@@ -424,10 +409,6 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     this.ownerOrganization = this.currentGeoresourceDataset?.ownerId;
     this.refreshRoleManagementTable();
     this.ownerOrgFilter = '';
-    this.successMessagePart = '';
-    this.errorMessagePart = '';
-    this.hideSuccessAlert();
-    this.hideErrorAlert();
   }
 
   // Helper methods
@@ -485,25 +466,6 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     }
 
     return ids;
-  }
-
-  // Alert methods
-  showSuccessAlert(): void {
-    this.successMessage = 'Zugriffsschutz und Eigentümerschaft erfolgreich aktualisiert';
-    setTimeout(() => this.hideSuccessAlert(), 5000);
-  }
-
-  hideSuccessAlert(): void {
-    this.successMessage = '';
-  }
-
-  showErrorAlert(): void {
-    setTimeout(() => this.hideErrorAlert(), 10000);
-  }
-
-  hideErrorAlert(): void {
-    this.errorMessage = '';
-    this.errorMessagePart = '';
   }
 
   // Modal control methods

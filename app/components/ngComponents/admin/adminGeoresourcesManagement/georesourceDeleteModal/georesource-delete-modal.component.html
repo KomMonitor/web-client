@@ -139,73 +139,10 @@ kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert wer
     }
   </app-loading-overlay>
 
-  <!-- Success Alert -->
-  @if (showSuccessAlert) {
-    <div class="alert alert-success alert-dismissible" role="alert">
-      <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
-        &times;
-      </button>
-      <h4><i class="icon fa fa-check"></i>{{ successMessage }}</h4>
-      @if (getSuccessfulPoiDatasets().length > 0) {
-        <div>
-          <h4>Points of Interest</h4>
-          <ul>
-            @for (dataset of getSuccessfulPoiDatasets(); track dataset) {
-              <li>{{ dataset.datasetName }}</li>
-            }
-          </ul>
-        </div>
-      }
-      @if (getSuccessfulLoiDatasets().length > 0) {
-        <div>
-          <h4>Lines of Interest</h4>
-          <ul>
-            @for (dataset of getSuccessfulLoiDatasets(); track dataset) {
-              <li>{{ dataset.datasetName }}</li>
-            }
-          </ul>
-        </div>
-      }
-      @if (getSuccessfulAoiDatasets().length > 0) {
-        <div>
-          <h4>Areas of Interest</h4>
-          <ul>
-            @for (dataset of getSuccessfulAoiDatasets(); track dataset) {
-              <li>{{ dataset.datasetName }}</li>
-            }
-          </ul>
-        </div>
-      }
-      @if (affectedScripts.length > 0) {
-        <div>
-          <h4>Skripte</h4>
-          <ul>
-            @for (script of affectedScripts; track trackByIndex($index, script)) {
-              <li>{{ script.name }}</li>
-            }
-          </ul>
-        </div>
-      }
-      @if (affectedIndicatorReferences.length > 0) {
-        <div>
-          <h4>Referenzen zu Indikatoren</h4>
-          <ul>
-            @for (indicator of affectedIndicatorReferences; track indicator) {
-              <li>{{ indicator.indicatorMetadata.indicatorName }}</li>
-            }
-          </ul>
-        </div>
-      }
-    </div>
-  }
-
-  <!-- Error Alert -->
-  @if (showErrorAlert) {
-    <div class="alert alert-danger alert-dismissible" role="alert">
-      <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">
-        &times;
-      </button>
-      <h4><i class="icon fa fa-ban"></i>{{ errorMessage }}</h4>
+  <!-- Per-dataset failure report; success/error summaries are toasted via NotificationService -->
+  @if (failedDatasetsAndErrors.length > 0) {
+    <div class="alert alert-danger" role="alert">
+      <h4><i class="icon fa fa-ban"></i>Löschen gescheitert</h4>
       <p>Folgende Datensätze konnten nicht gelöscht werden.</p>
       <br />
       <table

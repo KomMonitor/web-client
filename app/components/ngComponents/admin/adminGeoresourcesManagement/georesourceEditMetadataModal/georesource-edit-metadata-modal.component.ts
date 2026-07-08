@@ -9,6 +9,8 @@ import {
   inject,
 } from '@angular/core';
 import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import { getErrorMessage } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.util';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
@@ -68,6 +70,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   @Output() refreshRequested = new EventEmitter<GeoresourceRefreshRequest>();
   protected accessControlService = inject(AccessControlService);
   private indicatorValueService = inject(IndicatorValueService);
+  private notificationService = inject(NotificationService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
   roleManagementHelper = inject(RoleManagementDataGridHelperService);
@@ -136,10 +139,6 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   georesourceMetadataStructure: any;
   georesourceMetadataStructure_pretty: string = '';
 
-  // Success/Error messages
-  successMessagePart: string = '';
-  errorMessagePart: string = '';
-
   // Subscriptions
   private subscriptions: Subscription[] = [];
 
@@ -154,9 +153,9 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     })
   );
 
-  // Alert visibility (template bindings; formerly toggled via document.getElementById)
-  successAlertVisible = false;
-  errorAlertVisible = false;
+  // Alert visibility (template binding; formerly toggled via document.getElementById).
+  // Success/error feedback is toasted via NotificationService; only the inline
+  // metadata-import error report remains.
   importErrorAlertVisible = false;
 
   constructor() {
@@ -317,10 +316,6 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     if (topicHierarchy && topicHierarchy[3]) {
       this.georesourceTopic_subsubsubTopic = topicHierarchy[3];
     }
-
-    // Reset messages
-    this.successMessagePart = '';
-    this.errorMessagePart = '';
   }
 
   // Validation methods
@@ -640,45 +635,31 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       )
       .subscribe({
         next: (_response: any) => {
-          this.successMessagePart = this.datasetName;
           this.refreshRequested.emit({
             crudType: 'edit',
             targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
           });
-          this.showSuccessAlert();
           this.loadingData = false;
+          this.notificationService.showSuccess(
+            `Metadaten der Georessource "${this.datasetName}" wurden aktualisiert.`
+          );
+          this.activeModal.close({
+            action: 'updated',
+            georesourceId: this.currentGeoresourceDataset.georesourceId,
+          });
         },
         error: (error: any) => {
-          if (error.data) {
-            this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.data);
-          } else {
-            this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
-          }
-          this.showErrorAlert();
+          this.notificationService.showError(
+            'Fehler beim Aktualisieren der Metadaten: ' + getErrorMessage(error)
+          );
           this.loadingData = false;
         },
       });
   }
 
   // Alert methods (template-bound flags)
-  showSuccessAlert(): void {
-    this.successAlertVisible = true;
-  }
-
-  showErrorAlert(): void {
-    this.errorAlertVisible = true;
-  }
-
   showMetadataImportErrorAlert(): void {
     this.importErrorAlertVisible = true;
-  }
-
-  hideSuccessAlert(): void {
-    this.successAlertVisible = false;
-  }
-
-  hideErrorAlert(): void {
-    this.errorAlertVisible = false;
   }
 
   hideMetadataErrorAlert(): void {

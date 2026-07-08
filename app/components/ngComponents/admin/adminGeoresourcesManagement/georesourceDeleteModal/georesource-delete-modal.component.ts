@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { forkJoin, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
@@ -48,6 +49,7 @@ export class GeoresourceDeleteModalComponent implements OnInit {
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private processScriptStore = inject(ProcessScriptMetadataStoreService);
+  private notificationService = inject(NotificationService);
   private http = inject(HttpClient);
 
   @Input() datasetsToDelete: GeoresourcesDataset[] = [];
@@ -63,12 +65,6 @@ export class GeoresourceDeleteModalComponent implements OnInit {
   affectedScripts: AffectedScript[] = [];
   affectedIndicatorReferences: AffectedIndicatorReference[] = [];
 
-  // Alert states
-  showSuccessAlert: boolean = false;
-  showErrorAlert: boolean = false;
-  successMessage: string = '';
-  errorMessage: string = '';
-
   ngOnInit(): void {
     this.resetGeoresourcesDeleteForm();
   }
@@ -78,8 +74,6 @@ export class GeoresourceDeleteModalComponent implements OnInit {
     this.failedDatasetsAndErrors = [];
     this.affectedScripts = this.gatherAffectedScripts();
     this.affectedIndicatorReferences = this.gatherAffectedIndicatorReferences();
-    this.hideSuccessAlert();
-    this.hideErrorAlert();
   }
 
   gatherAffectedScripts(): AffectedScript[] {
@@ -169,16 +163,7 @@ export class GeoresourceDeleteModalComponent implements OnInit {
   }
 
   private handleDeleteResults(): void {
-    if (this.failedDatasetsAndErrors.length > 0) {
-      this.showErrorAlert = true;
-      this.errorMessage = 'Löschen gescheitert';
-    }
-
     if (this.successfullyDeletedDatasets.length > 0) {
-      this.showSuccessAlert = true;
-      this.successMessage =
-        'Folgende Georessourcen sowie assoziierte Indikatorenreferenzen und Skripte wurden erfolgreich gelöscht';
-
       // Refresh overview table
       this.refreshRequested.emit({
         crudType: 'delete',
@@ -186,9 +171,26 @@ export class GeoresourceDeleteModalComponent implements OnInit {
           (dataset) => dataset.georesourceId
         ),
       });
+
+      this.notificationService.showSuccess(
+        `${this.successfullyDeletedDatasets.length} Georessource(n) sowie assoziierte Indikatorenreferenzen und Skripte erfolgreich gelöscht.`
+      );
+    }
+
+    if (this.failedDatasetsAndErrors.length > 0) {
+      this.notificationService.showError('Einige Georessourcen konnten nicht gelöscht werden.');
     }
 
     this.loadingData = false;
+
+    // Close only when everything succeeded; otherwise keep the modal open so
+    // the per-dataset failure table stays visible.
+    if (this.successfullyDeletedDatasets.length > 0 && this.failedDatasetsAndErrors.length === 0) {
+      this.activeModal.close({
+        action: 'deleted',
+        deletedDatasets: this.successfullyDeletedDatasets,
+      });
+    }
   }
 
   // Filter methods for template
@@ -202,27 +204,6 @@ export class GeoresourceDeleteModalComponent implements OnInit {
 
   getAoiDatasets(): GeoresourcesDataset[] {
     return this.datasetsToDelete.filter((dataset) => dataset.isAOI);
-  }
-
-  getSuccessfulPoiDatasets(): GeoresourcesDataset[] {
-    return this.successfullyDeletedDatasets.filter((dataset) => dataset.isPOI);
-  }
-
-  getSuccessfulLoiDatasets(): GeoresourcesDataset[] {
-    return this.successfullyDeletedDatasets.filter((dataset) => dataset.isLOI);
-  }
-
-  getSuccessfulAoiDatasets(): GeoresourcesDataset[] {
-    return this.successfullyDeletedDatasets.filter((dataset) => dataset.isAOI);
-  }
-
-  // Alert methods
-  hideSuccessAlert(): void {
-    this.showSuccessAlert = false;
-  }
-
-  hideErrorAlert(): void {
-    this.showErrorAlert = false;
   }
 
   // TrackBy function for *ngFor

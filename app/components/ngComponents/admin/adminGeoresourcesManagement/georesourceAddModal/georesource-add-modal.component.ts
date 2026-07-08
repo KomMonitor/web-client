@@ -29,6 +29,8 @@ import {
 import { FormsModule } from '@angular/forms';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { SpatialUnitImportService } from 'services/spatial-unit-import-service/spatial-unit-import.service';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import { getErrorMessage } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.util';
 import {
   LOI_DASH_ARRAY_OBJECTS,
   POI_MARKER_COLORS,
@@ -81,6 +83,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   private topicStore = inject(TopicMetadataStoreService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   private resourceImportService = inject(SpatialUnitImportService);
+  private notificationService = inject(NotificationService);
   roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private topicHierarchyService = inject(TopicHierarchyService);
   protected envConfigService = inject(EnvConfigService);
@@ -122,8 +125,6 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   // Form data
   isSubmitting = false;
-  errorMessage = '';
-  successMessage = '';
   loadingData = false;
 
   // Basic form data
@@ -227,9 +228,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   georesourceMetadataImportError = '';
   georesourceMappingConfigImportError = '';
 
-  // Success/Error data
-  successMessagePart = '';
-  errorMessagePart = '';
+  // Per-feature importer error report (shown inline; summaries are toasted)
   importerErrors: any[] = [];
   importedFeatures: any[] = [];
 
@@ -943,14 +942,6 @@ export class GeoresourceAddModalComponent implements OnInit {
   }
 
   // Alert methods
-  hideSuccessAlert(): void {
-    this.successMessage = '';
-  }
-
-  hideErrorAlert(): void {
-    this.errorMessage = '';
-  }
-
   hideMetadataErrorAlert(): void {
     this.georesourceMetadataImportError = '';
   }
@@ -970,8 +961,6 @@ export class GeoresourceAddModalComponent implements OnInit {
   // Form reset
   resetGeoresourceAddForm(): void {
     this.importerErrors = [];
-    this.successMessagePart = '';
-    this.errorMessagePart = '';
 
     this.datasetName = '';
     this.datasetNameInvalid = false;
@@ -1151,8 +1140,6 @@ export class GeoresourceAddModalComponent implements OnInit {
   async addGeoresource(): Promise<void> {
     this.loadingData = true;
     this.importerErrors = [];
-    this.successMessagePart = '';
-    this.errorMessagePart = '';
 
     try {
       // Build importer objects
@@ -1198,32 +1185,32 @@ export class GeoresourceAddModalComponent implements OnInit {
             this.kommonitorImporterHelperService.getIdFromImporterResponse(newGeoresourceResponse),
         });
 
-        this.successMessagePart = this.postBody_georesources.datasetName;
         this.importedFeatures =
           this.kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(
             newGeoresourceResponse
           ) || [];
 
-        this.successMessage = 'Georessource erfolgreich registriert';
+        const featureCount = this.importedFeatures.length;
+        this.notificationService.showSuccess(
+          `Eine neue Georessource mit Namen "${this.postBody_georesources.datasetName}" wurde registriert` +
+            (featureCount > 0 ? ` (${featureCount} Features importiert).` : '.')
+        );
         this.activeModal.close(true);
       } else {
-        // errors occurred
-        this.errorMessagePart =
-          'Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf';
+        // Dry-run reported import errors: keep the modal open and list the
+        // affected feature IDs inline; summarise via a toast.
         this.importerErrors =
           this.kommonitorImporterHelperService.getErrorsFromImporterResponse(
             newGeoresourceResponse_dryRun
           ) || [];
-        this.errorMessage = 'Validierung fehlgeschlagen';
+        this.notificationService.showError(
+          'Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.'
+        );
       }
     } catch (error: any) {
-      if (error.data) {
-        this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.data);
-      } else {
-        this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
-      }
-
-      this.errorMessage = 'Fehler beim Registrieren der Georessource';
+      this.notificationService.showError(
+        'Fehler bei der Registrierung der Georessource: ' + getErrorMessage(error)
+      );
       console.error('Error adding georesource:', error);
     } finally {
       this.loadingData = false;
@@ -1265,7 +1252,9 @@ export class GeoresourceAddModalComponent implements OnInit {
         this.postBody_georesources
       );
     } catch (error: any) {
-      this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.data ?? error);
+      this.notificationService.showError(
+        'Fehler beim Aufbau der Datenquellen-Definition: ' + getErrorMessage(error)
+      );
       this.loadingData = false;
       return false;
     }

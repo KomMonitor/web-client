@@ -10,6 +10,8 @@ import {
   inject,
 } from '@angular/core';
 import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import { getErrorMessage } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.util';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import {
@@ -60,6 +62,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   @Output() refreshRequested = new EventEmitter<GeoresourceRefreshRequest>();
   private cacheHelperService = inject(CacheHelperServiceService);
   private indicatorValueService = inject(IndicatorValueService);
+  private notificationService = inject(NotificationService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   featureTableHelper = inject(FeatureTableDataGridHelperService);
@@ -76,9 +79,9 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   bboxMaxX = '';
   bboxMaxY = '';
 
-  // Alert visibility (template bindings; formerly toggled via document.getElementById)
-  successAlertVisible = false;
-  errorAlertVisible = false;
+  // Alert visibility (template binding; formerly toggled via document.getElementById).
+  // Update success/error feedback is toasted via NotificationService; only the
+  // inline mapping-config import error report remains.
   mappingConfigImportErrorAlertVisible = false;
 
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
@@ -175,9 +178,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   // Partial update
   isPartialUpdate = false;
 
-  // Success/Error messages
-  successMessagePart: string = '';
-  errorMessagePart: string = '';
+  // Per-feature importer error report (shown inline; summaries are toasted)
   importerErrors: any;
   importedFeatures: any[] = [];
 
@@ -608,23 +609,25 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       )
       .subscribe({
         next: (response: any) => {
-          this.successMessagePart = this.currentGeoresourceDataset.datasetName;
           this.importedFeatures = response.importedFeatures || [];
           this.refreshRequested.emit({
             crudType: 'edit',
             targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
           });
-          this.showSuccessAlert();
           this.loadingData = false;
+          const featureCount = this.importedFeatures.length;
+          this.notificationService.showSuccess(
+            `Die Features der Georessource "${this.currentGeoresourceDataset.datasetName}" wurden aktualisiert` +
+              (featureCount > 0 ? ` (${featureCount} Features importiert).` : '.')
+          );
+          this.activeModal.close({ action: 'updated' });
         },
         error: (error: any) => {
-          if (error.error) {
-            this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.error);
-          } else {
-            this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
-          }
+          // Keep the modal open so the per-feature importer error report stays visible.
           this.importerErrors = error.error?.importerErrors || [];
-          this.showErrorAlert();
+          this.notificationService.showError(
+            'Fehler beim Fortführen der Features: ' + getErrorMessage(error)
+          );
           this.loadingData = false;
         },
       });
@@ -764,32 +767,13 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.bboxType = '';
     this.bboxRefSpatialUnit = undefined;
 
-    // Reset messages
-    this.successMessagePart = '';
-    this.errorMessagePart = '';
     this.importerErrors = undefined;
     this.importedFeatures = [];
   }
 
   // Alert methods (template-bound flags)
-  showSuccessAlert(): void {
-    this.successAlertVisible = true;
-  }
-
-  showErrorAlert(): void {
-    this.errorAlertVisible = true;
-  }
-
   showMappingConfigImportErrorAlert(): void {
     this.mappingConfigImportErrorAlertVisible = true;
-  }
-
-  hideSuccessAlert(): void {
-    this.successAlertVisible = false;
-  }
-
-  hideErrorAlert(): void {
-    this.errorAlertVisible = false;
   }
 
   hideMappingConfigErrorAlert(): void {
@@ -837,14 +821,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   private handleError(error: any): void {
     console.error('Error occurred:', error);
-    if (error.data) {
-      this.errorMessagePart =
-        this.indicatorValueService.syntaxHighlightJSON(error.data) || 'An error occurred';
-    } else {
-      this.errorMessagePart =
-        this.indicatorValueService.syntaxHighlightJSON(error) || 'An error occurred';
-    }
-    this.showErrorAlert();
+    this.notificationService.showError('Ein Fehler ist aufgetreten: ' + getErrorMessage(error));
   }
 
   // Modal control
