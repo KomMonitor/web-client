@@ -27,7 +27,7 @@ import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial
 import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 import { FeatureTableDataGridHelperService } from '../../../../../services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
-import { RoleManagementDataGridHelperService } from '../../../../../services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
+import { ownerDefaultPermissionIds } from '../../adminShared/roleManagementPanel/role-management-panel.model';
 import { NotificationService } from '../../../common/notification/notification.service';
 import {
   StepperComponent,
@@ -57,7 +57,6 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   indicatorStore = inject(IndicatorMetadataStoreService);
   importerHelperService = inject(KommonitorImporterHelperService);
   featureTableHelper = inject(FeatureTableDataGridHelperService);
-  private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   protected envConfigService = inject(EnvConfigService);
   private notificationService = inject(NotificationService);
 
@@ -95,9 +94,6 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
 
   // Timeseries mapping
   timeseriesMappingReference: any[] = [];
-
-  // Role management
-  roleManagementTableOptions: any;
 
   // Messages
   successMessagePart: string = '';
@@ -207,14 +203,6 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         break;
       }
     }
-
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'indicatorEditFeaturesRoleManagementTable',
-      this.roleManagementTableOptions,
-      this.accessControlService.accessControl,
-      [],
-      true
-    );
 
     this.spatialUnitRefKeyProperty = '';
     // null (not undefined) so the [ngValue]="null" placeholder options are selected
@@ -347,47 +335,24 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         break;
       }
     }
-
-    this.refreshRoles();
   }
 
-  refreshRoles(): void {
-    let permissions = this.targetApplicableSpatialUnit
-      ? this.targetApplicableSpatialUnit.permissions
-      : [];
-
-    if (this.currentIndicatorDataset) {
-      const ownerAccessControl = this.accessControlService.getAccessControlById(
-        this.currentIndicatorDataset.ownerId
-      );
-      const permissionIds_ownerUnit = (ownerAccessControl?.permissions || [])
-        .filter(
-          (permission: any) =>
-            permission.permissionLevel == 'viewer' || permission.permissionLevel == 'editor'
+  /**
+   * Roles pass-through for the importer PUT body and the mapping-config export:
+   * this modal does not manage permissions (that is the roles modal's job) — it
+   * echoes the target spatial unit's timeseries permissions plus the owner
+   * unit's default viewer/editor permissions. Historically this went through an
+   * invisible role grid that was never rendered.
+   */
+  private currentRolePermissionIds(): string[] {
+    const unitPermissions: string[] = this.targetApplicableSpatialUnit?.permissions ?? [];
+    const ownerDefaults = this.currentIndicatorDataset
+      ? ownerDefaultPermissionIds(
+          this.accessControlService.accessControl ?? [],
+          this.currentIndicatorDataset.ownerId
         )
-        .map((permission: any) => permission.permissionId);
-
-      permissions = permissions.concat(permissionIds_ownerUnit);
-    }
-
-    // Set datasetOwner to disable checkboxes for owned datasets in permissions-table
-    this.accessControlService.accessControl.forEach((item: any) => {
-      if (this.currentIndicatorDataset) {
-        if (item.organizationalUnitId == this.currentIndicatorDataset.ownerId) {
-          item.datasetOwner = true;
-        } else {
-          item.datasetOwner = false;
-        }
-      }
-    });
-
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'indicatorEditFeaturesRoleManagementTable',
-      this.roleManagementTableOptions,
-      this.accessControlService.accessControl,
-      permissions,
-      true
-    );
+      : [];
+    return Array.from(new Set([...unitPermissions, ...ownerDefaults]));
   }
 
   onChangeConverter(): void {
@@ -452,9 +417,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.datasourceTypeDefinition = await this.buildDatasourceTypeDefinition();
     this.propertyMappingDefinition = this.buildPropertyMappingDefinition();
 
-    const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-      this.roleManagementTableOptions
-    );
+    const roleIds = this.currentRolePermissionIds();
 
     const scopeProperties = {
       targetSpatialUnitMetadata: {
@@ -603,10 +566,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         permissions: [],
       };
 
-      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-        this.roleManagementTableOptions
-      );
-      mappingConfigExport.permissions = roleIds;
+      mappingConfigExport.permissions = this.currentRolePermissionIds();
 
       mappingConfigExport.isPublic = this.isPublic;
       mappingConfigExport.ownerId = this.currentIndicatorDataset.ownerId;

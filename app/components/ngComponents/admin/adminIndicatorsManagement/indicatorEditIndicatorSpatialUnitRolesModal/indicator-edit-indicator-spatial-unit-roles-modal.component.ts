@@ -1,27 +1,32 @@
-import { Component, OnInit, inject, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, inject, Output, EventEmitter, ViewChild } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
-import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { HttpClient } from '@angular/common/http';
 
 import { FormsModule } from '@angular/forms';
-import { FilterPipe } from '../../../../../pipes/filter.pipe';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import {
   StepperComponent,
   StepperStep,
 } from 'components/ngComponents/common/stepper/stepper.component';
 import { IndicatorRefreshRequest } from '../indicator-refresh.model';
+import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
+import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManagementPanel/owner-organization-select.component';
 
 @Component({
   selector: 'app-indicator-edit-indicator-spatial-unit-roles-modal',
   templateUrl: './indicator-edit-indicator-spatial-unit-roles-modal.component.html',
   styleUrls: ['./indicator-edit-indicator-spatial-unit-roles-modal.component.scss'],
-  imports: [FormsModule, FilterPipe, StepperComponent],
+  imports: [
+    FormsModule,
+    StepperComponent,
+    RoleManagementGridComponent,
+    OwnerOrganizationSelectComponent,
+  ],
   standalone: true,
 })
 export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnInit {
@@ -31,21 +36,11 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   currentIndicatorDataset: any;
   targetApplicableSpatialUnit: any;
 
-  // Role management tables
-  roleManagementTableOptions_indicatorMetadata: any;
-  roleManagementTableOptions_indicatorSpatialUnitTimeseries: any;
-
   // Messages
-  successMessagePart: string = '';
   errorMessagePart: string = '';
 
-  // Form controls
-  ownerOrgFilter: string = '';
-  ownerOrganization: any;
-  activeRolesOnly: boolean = true;
-  activeConnectedRolesOnly: boolean = true;
-  permissions: any[] = [];
-  resourcesCreatorRights: any[] = [];
+  /** Target owner selected in step 3; empty keeps the current owner. */
+  ownerOrganization: string = '';
 
   // Loading states
   loadingData: boolean = false;
@@ -64,32 +59,29 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   private http = inject(HttpClient);
   protected accessControlService = inject(AccessControlService);
   private indicatorValueService = inject(IndicatorValueService);
-  private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private envConfigService = inject(EnvConfigService);
   private notificationService = inject(NotificationService);
 
+  @ViewChild('metadataRoleGrid') metadataRoleGrid?: RoleManagementGridComponent;
+  @ViewChild('timeseriesRoleGrid') timeseriesRoleGrid?: RoleManagementGridComponent;
+
   ngOnInit(): void {
     this.setupEventListeners();
-    this.initializeForm();
+    this.resetIndicatorEditIndicatorSpatialUnitRolesForm();
   }
 
   private setupEventListeners(): void {
     this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
       if (data.msg === BroadcastMessage.AvailableRolesUpdate) {
-        this.refreshRoleManagementTable_indicatorMetadata();
-        this.refreshRoleManagementTable_indicatorSpatialUnitTimeseries();
+        this.metadataRoleGrid?.reset();
+        this.timeseriesRoleGrid?.reset();
       }
     });
-  }
-
-  private initializeForm(): void {
-    this.resetIndicatorEditIndicatorSpatialUnitRolesForm();
   }
 
   // Called by the parent after opening the modal via NgbModal to set up the form data.
   openModal(indicatorDataset: any): void {
     this.currentIndicatorDataset = indicatorDataset;
-    this.prepareCreatorList();
     this.resetIndicatorEditIndicatorSpatialUnitRolesForm();
   }
 
@@ -97,199 +89,23 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     this.activeModal.dismiss();
   }
 
-  prepareCreatorList(): void {
-    if (this.accessControlService.currentKomMonitorLoginRoleNames.length > 0) {
-      const creatorRights: string[] = [];
-      const creatorRightsChildren: string[] = [];
-
-      this.accessControlService.currentKomMonitorLoginRoleNames.forEach((roles: string) => {
-        const key = roles.split('.')[0];
-        const role = roles.split('.')[1];
-
-        // case unit-resources-creator
-        if (role == 'unit-resources-creator' && !this.resourcesCreatorRights.includes(key)) {
-          creatorRights.push(key);
-        }
-
-        // case client-resources-creator, gather unit-ids first, then fetch all unit-data
-        if (role == 'client-resources-creator' && !creatorRightsChildren.includes(key)) {
-          creatorRightsChildren.push(key);
-        }
-      });
-
-      // gather all children
-      this.gatherCreatorRightsChildren(creatorRights, creatorRightsChildren);
-
-      this.resourcesCreatorRights = this.accessControlService.accessControl.filter((elem: any) =>
-        creatorRights.includes(elem.name)
-      );
-    }
-  }
-
-  gatherCreatorRightsChildren(creatorRights: string[], creatorRightsChildren: string[]): void {
-    if (creatorRightsChildren.length > 0) {
-      this.accessControlService.accessControl
-        .filter((elem: any) => creatorRightsChildren.includes(elem.name))
-        .flatMap((res: any) => res.children)
-        .forEach((child: any) => {
-          this.accessControlService.accessControl
-            .filter((elem: any) => elem.organizationalUnitId == child)
-            .forEach((childData: any) => {
-              creatorRights.push(childData.name);
-              this.gatherCreatorRightsChildren(creatorRights, [childData.name]);
-            });
-        });
-    }
-  }
-
   resetIndicatorEditIndicatorSpatialUnitRolesForm(): void {
-    this.ownerOrganization = this.currentIndicatorDataset?.ownerId;
-    this.ownerOrgFilter = '';
+    this.ownerOrganization = this.currentIndicatorDataset?.ownerId ?? '';
     this.targetApplicableSpatialUnit = this.currentIndicatorDataset?.applicableSpatialUnits?.[0];
-
-    this.refreshRoleManagementTable_indicatorMetadata();
-    this.refreshRoleManagementTable_indicatorSpatialUnitTimeseries();
-
-    this.successMessagePart = '';
+    this.metadataRoleGrid?.reset();
+    this.timeseriesRoleGrid?.reset();
     this.errorMessagePart = '';
   }
 
-  refreshRoleManagementTable_indicatorMetadata(): void {
-    this.permissions = this.currentIndicatorDataset ? this.currentIndicatorDataset.permissions : [];
-
-    // set datasetOwner to disable checkboxes for owned datasets in permissions-table
-    this.accessControlService.accessControl.forEach((item: any) => {
-      if (this.currentIndicatorDataset) {
-        if (item.organizationalUnitId == this.currentIndicatorDataset.ownerId) {
-          item.datasetOwner = true;
-        } else {
-          item.datasetOwner = false;
-        }
-      }
-    });
-
-    if (this.permissions.length == 0) {
-      this.activeRolesOnly = false;
-    }
-
-    let access = this.accessControlService.accessControl;
-    if (this.permissions.length > 0 && this.activeRolesOnly) {
-      access = this.accessControlService.accessControl.filter((unit: any) => {
-        return unit.permissions.filter((unitPermission: any) =>
-          this.permissions.includes(unitPermission.permissionId)
-        ).length > 0
-          ? true
-          : false;
-      });
-    }
-
-    this.roleManagementTableOptions_indicatorMetadata =
-      this.roleManagementHelper.buildRoleManagementGrid(
-        'indicatorEditRoleManagementTable',
-        this.roleManagementTableOptions_indicatorMetadata,
-        access,
-        this.permissions,
-        true
-      );
-  }
-
-  refreshRoleManagementTable_indicatorSpatialUnitTimeseries(): void {
-    if (this.targetApplicableSpatialUnit && this.targetApplicableSpatialUnit.permissions) {
-      if (this.targetApplicableSpatialUnit.permissions.length == 0) {
-        this.activeConnectedRolesOnly = false;
-      }
-
-      let connectedAccess = this.accessControlService.accessControl;
-      if (
-        this.targetApplicableSpatialUnit.permissions.length > 0 &&
-        this.activeConnectedRolesOnly
-      ) {
-        connectedAccess = this.accessControlService.accessControl.filter((unit: any) => {
-          return unit.permissions.filter((unitPermission: any) =>
-            this.targetApplicableSpatialUnit.permissions.includes(unitPermission.permissionId)
-          ).length > 0
-            ? true
-            : false;
-        });
-      }
-
-      this.roleManagementTableOptions_indicatorSpatialUnitTimeseries =
-        this.roleManagementHelper.buildRoleManagementGrid(
-          'indicatorEditIndicatorSpatialUnitsRoleManagementTable',
-          this.roleManagementTableOptions_indicatorSpatialUnitTimeseries,
-          connectedAccess,
-          this.targetApplicableSpatialUnit.permissions,
-          true
-        );
-    } else {
-      this.activeConnectedRolesOnly = false;
-      this.roleManagementTableOptions_indicatorSpatialUnitTimeseries =
-        this.roleManagementHelper.buildRoleManagementGrid(
-          'indicatorEditIndicatorSpatialUnitsRoleManagementTable',
-          this.roleManagementTableOptions_indicatorSpatialUnitTimeseries,
-          this.accessControlService.accessControl,
-          [],
-          true
-        );
-    }
-  }
-
-  onActiveConnectedRolesOnlyChange(): void {
-    this.refreshRoleManagementTable_indicatorSpatialUnitTimeseries();
-  }
-
-  onActiveRolesOnlyChange(): void {
-    this.refreshRoleManagementTable_indicatorMetadata();
-  }
-
-  onChangeOwner(ownerOrganization: any): void {
+  onChangeOwner(ownerOrganization: string): void {
     this.ownerOrganization = ownerOrganization;
-    this.refreshRoles(this.ownerOrganization);
-  }
-
-  refreshRoles(orgUnitId: string): void {
-    const permissionIds_ownerUnit = orgUnitId
-      ? (this.accessControlService.getAccessControlById(orgUnitId)?.permissions ?? [])
-          .filter(
-            (permission: any) =>
-              permission.permissionLevel == 'viewer' || permission.permissionLevel == 'editor'
-          )
-          .map((permission: any) => permission.permissionId)
-      : [];
-
-    // set datasetOwner to disable checkboxes for owned datasets in permissions-table
-    this.accessControlService.accessControl.forEach((item: any) => {
-      if (item.organizationalUnitId == orgUnitId) {
-        item.datasetOwner = true;
-      } else {
-        item.datasetOwner = false;
-      }
-    });
-
-    this.roleManagementTableOptions_indicatorMetadata =
-      this.roleManagementHelper.buildRoleManagementGrid(
-        'indicatorEditRoleManagementTable',
-        this.roleManagementTableOptions_indicatorMetadata,
-        this.accessControlService.accessControl,
-        permissionIds_ownerUnit,
-        true
-      );
-
-    this.roleManagementTableOptions_indicatorSpatialUnitTimeseries =
-      this.roleManagementHelper.buildRoleManagementGrid(
-        'indicatorEditIndicatorSpatialUnitsRoleManagementTable',
-        this.roleManagementTableOptions_indicatorSpatialUnitTimeseries,
-        this.accessControlService.accessControl,
-        permissionIds_ownerUnit,
-        true
-      );
+    // Re-seed both grids with the new owner unit's default viewer/editor permissions
+    this.metadataRoleGrid?.applyOwner(ownerOrganization);
+    this.timeseriesRoleGrid?.applyOwner(ownerOrganization);
   }
 
   editIndicatorSpatialUnitRoles(): void {
-    if (
-      this.ownerOrganization !== undefined &&
-      this.ownerOrganization != this.currentIndicatorDataset.ownerId
-    ) {
+    if (this.ownerOrganization && this.ownerOrganization !== this.currentIndicatorDataset.ownerId) {
       if (
         !confirm(
           'Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?'
@@ -309,9 +125,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     this.loadingData = true;
 
     const putBody = {
-      permissions: this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-        this.roleManagementTableOptions_indicatorMetadata
-      ),
+      permissions: this.metadataRoleGrid?.getSelectedRoleIds() ?? [],
       isPublic: this.currentIndicatorDataset.isPublic,
     };
 
@@ -325,7 +139,6 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       )
       .subscribe({
         next: (_response: any) => {
-          this.successMessagePart = this.currentIndicatorDataset.indicatorName;
           this.refreshRequested.emit({
             crudType: 'edit',
             targetIndicatorId: this.currentIndicatorDataset.indicatorId,
@@ -347,10 +160,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     this.loadingData = true;
 
     const putBody = {
-      ownerId:
-        this.ownerOrganization === undefined
-          ? this.currentIndicatorDataset.ownerId
-          : this.ownerOrganization,
+      ownerId: this.ownerOrganization || this.currentIndicatorDataset.ownerId,
     };
 
     this.http
@@ -363,7 +173,6 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       )
       .subscribe({
         next: (_response: any) => {
-          this.successMessagePart = this.currentIndicatorDataset.indicatorName;
           this.refreshRequested.emit({
             crudType: 'edit',
             targetIndicatorId: this.currentIndicatorDataset.indicatorId,
@@ -390,10 +199,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     ) {
       this.currentIndicatorDataset.applicableSpatialUnits.forEach((indicatorSpatialUnit: any) => {
         const putBody = {
-          ownerId:
-            this.ownerOrganization === undefined
-              ? this.currentIndicatorDataset.ownerId
-              : this.ownerOrganization,
+          ownerId: this.ownerOrganization || this.currentIndicatorDataset.ownerId,
         };
 
         this.http
@@ -408,7 +214,6 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
           )
           .subscribe({
             next: (_response: any) => {
-              this.successMessagePart = this.currentIndicatorDataset.indicatorName;
               this.refreshRequested.emit({
                 crudType: 'edit',
                 targetIndicatorId: this.currentIndicatorDataset.indicatorId,
@@ -429,10 +234,12 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   }
 
   executeRequest_indicatorSpatialUnitRoles(): void {
+    if (!this.targetApplicableSpatialUnit) {
+      return;
+    }
+
     const putBody = {
-      permissions: this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-        this.roleManagementTableOptions_indicatorSpatialUnitTimeseries
-      ),
+      permissions: this.timeseriesRoleGrid?.getSelectedRoleIds() ?? [],
       isPublic: this.targetApplicableSpatialUnit.isPublic,
     };
 
@@ -467,10 +274,6 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
           this.loadingData = false;
         },
       });
-  }
-
-  onChangeSelectedSpatialUnit(_targetApplicableSpatialUnit: any): void {
-    this.refreshRoleManagementTable_indicatorSpatialUnitTimeseries();
   }
 
   // Multi-step form navigation

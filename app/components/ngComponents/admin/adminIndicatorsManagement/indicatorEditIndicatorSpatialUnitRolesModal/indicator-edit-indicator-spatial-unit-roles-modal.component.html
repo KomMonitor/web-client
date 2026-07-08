@@ -25,257 +25,163 @@
         class="multiStepForm form-group"
         id="indicatorEditIndicatorSpatialUnitRolesForm"
         role="form"
-        data-toggle="validator"
-        data-disable="true"
         style="margin-bottom: 0px"
       >
         <!-- progressbar -->
         <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
+        <!-- fieldsets: switched via display so the role grids (and their checked
+             state) survive navigating between steps -->
 
         <!-- Step 1: Zugriffsschutz Indikator-Metadaten -->
-        @if (currentStep === 1) {
-          <fieldset>
-            <h2 class="fs-title">Zugriffsschutz Indikator-Metadaten</h2>
-            <h3 class="fs-subtitle">
-              Vergabe der Zugriffsrechte auf Indikator-Metadaten pro Organisationseinheit. Hiermit
-              legen Sie fest, welche Organisationseinheiten den Indikator lesen und/oder editieren
-              dürfen
-            </h3>
-            <p>Zugriffsrechte (lesen, editieren) müssen explizit vergeben werden</p>
-            <div class="row">
-              @if (permissions.length != 0) {
-                <div class="col-md-12 col-sm-12 col-12">
-                  <div class="form-group vertical-align">
-                    <label class="margin-right">Zeige nur zugewiesene Rechte</label>
-                    <label class="switch">
-                      <input
-                        type="checkbox"
-                        value="activeRolesOnly"
-                        [(ngModel)]="activeRolesOnly"
-                        [ngModelOptions]="{ standalone: true }"
-                        (change)="onActiveRolesOnlyChange()"
-                        [disabled]="permissions.length == 0"
-                      />
-                      <span class="switchslider round"></span>
-                    </label>
-                  </div>
-                </div>
-              }
-              <div class="col-md-3">
-                <label>Öffentliche Lesefreigabe*</label>
+        <fieldset [style.display]="currentStep === 1 ? 'block' : 'none'">
+          <h2 class="fs-title">Zugriffsschutz Indikator-Metadaten</h2>
+          <h3 class="fs-subtitle">
+            Vergabe der Zugriffsrechte auf Indikator-Metadaten pro Organisationseinheit. Hiermit
+            legen Sie fest, welche Organisationseinheiten den Indikator lesen und/oder editieren
+            dürfen
+          </h3>
+          <p>Zugriffsrechte (lesen, editieren) müssen explizit vergeben werden</p>
+          <div class="row">
+            <div class="col-md-3">
+              <label>Öffentliche Lesefreigabe*</label>
+              @if (currentIndicatorDataset; as dataset) {
                 <label class="switch">
                   <input
                     type="checkbox"
-                    [(ngModel)]="currentIndicatorDataset.isPublic"
+                    [(ngModel)]="dataset.isPublic"
+                    name="isPublic"
                     [ngModelOptions]="{ standalone: true }"
                   />
                   <span class="switchslider round"></span>
                 </label>
-                <div class="help-block">
-                  <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
-                </div>
-              </div>
-              <div class="col-md-6 col-sm-6 col-12">
-                <div
-                  id="indicatorEditRoleManagementTable"
-                  style="height: 45vh"
-                  class="ag-theme-alpine"
-                ></div>
-              </div>
-              <div class="col-md-3">
-                <div class="alert alert-info">
-                  Als Eigentümer-Organisation des Datensatzes können Sie Lese- und Editier-Rechte an
-                  die eigene und weitere Organisationseinheiten vergeben.
-                </div>
+              }
+              <div class="help-block">
+                <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
               </div>
             </div>
-            <input
-              type="button"
-              name="next"
-              class="next next_editIndicatorRoles action-button"
-              value="Nächster Schritt"
-              (click)="nextStep()"
-            />
-          </fieldset>
-        }
+            <div class="col-md-6 col-sm-6 col-12">
+              <app-role-management-grid
+                #metadataRoleGrid
+                gridId="indicatorEditRoleManagementTable"
+                [permissions]="currentIndicatorDataset?.permissions"
+                [ownerId]="currentIndicatorDataset?.ownerId"
+                [showActiveRolesOnlyToggle]="true"
+              ></app-role-management-grid>
+            </div>
+            <div class="col-md-3">
+              <div class="alert alert-info">
+                Als Eigentümer-Organisation des Datensatzes können Sie Lese- und Editier-Rechte an
+                die eigene und weitere Organisationseinheiten vergeben.
+              </div>
+            </div>
+          </div>
+          <input
+            type="button"
+            name="next"
+            class="next next_editIndicatorRoles action-button"
+            value="Nächster Schritt"
+            (click)="nextStep()"
+          />
+        </fieldset>
 
         <!-- Step 2: Zeitreihen-Zugriffsschutz für verknüpfte Raumebenen -->
-        @if (currentStep === 2) {
-          <fieldset>
-            <h2 class="fs-title">Zeitreihen-Zugriffsschutz für verknüpfte Raumebenen</h2>
-            <h3 class="fs-subtitle">
-              Vergabe der Zugriffsrechte auf die Indikator-Zeitreihen der einzelnen Raumebenen.
-              Zusätzlich zu den Metadaten muss der Zugriff auf die Zeitreihe einer verknüpften
-              Raumeinheit explizit für authorisierte Organisationseinheiten freigegeben werden.
-            </h3>
-            <div class="row">
-              @if (targetApplicableSpatialUnit?.permissions?.length != 0) {
-                <div class="col-md-12 col-sm-12 col-12">
-                  <div class="form-group vertical-align">
-                    <label class="margin-right">Zeige nur zugewiesene Rechte</label>
-                    <label class="switch">
-                      <input
-                        type="checkbox"
-                        value="activeConnectedRolesOnly"
-                        [(ngModel)]="activeConnectedRolesOnly"
-                        [ngModelOptions]="{ standalone: true }"
-                        (change)="onActiveConnectedRolesOnlyChange()"
-                        [disabled]="targetApplicableSpatialUnit?.permissions?.length == 0"
-                      />
-                      <span class="switchslider round"></span>
-                    </label>
-                  </div>
-                </div>
-              }
-            </div>
-            <div class="row vertical-align">
-              <div class="col-md-3 col-sm-6 col-12">
-                <label>Ziel-Raumebene*</label>
-                <select
-                  [(ngModel)]="targetApplicableSpatialUnit"
-                  [ngModelOptions]="{ standalone: true }"
-                  (change)="onChangeSelectedSpatialUnit(targetApplicableSpatialUnit)"
-                  class="form-control"
-                  required
-                >
-                  <option disabled selected value>-- Ziel-Raumebene wählen --</option>
-                  @for (
-                    spatialUnit of currentIndicatorDataset?.applicableSpatialUnits;
-                    track spatialUnit
-                  ) {
-                    <option [value]="spatialUnit">
-                      {{ spatialUnit.spatialUnitName }}
-                    </option>
-                  }
-                </select>
-                <br />
-                <label>Öffentliche Lesefreigabe*</label>
+        <fieldset [style.display]="currentStep === 2 ? 'block' : 'none'">
+          <h2 class="fs-title">Zeitreihen-Zugriffsschutz für verknüpfte Raumebenen</h2>
+          <h3 class="fs-subtitle">
+            Vergabe der Zugriffsrechte auf die Indikator-Zeitreihen der einzelnen Raumebenen.
+            Zusätzlich zu den Metadaten muss der Zugriff auf die Zeitreihe einer verknüpften
+            Raumeinheit explizit für authorisierte Organisationseinheiten freigegeben werden.
+          </h3>
+          <div class="row vertical-align">
+            <div class="col-md-3 col-sm-6 col-12">
+              <label>Ziel-Raumebene*</label>
+              <select
+                [(ngModel)]="targetApplicableSpatialUnit"
+                name="targetApplicableSpatialUnit"
+                [ngModelOptions]="{ standalone: true }"
+                class="form-control"
+                required
+              >
+                <option [ngValue]="null" disabled>-- Ziel-Raumebene wählen --</option>
+                @for (
+                  spatialUnit of currentIndicatorDataset?.applicableSpatialUnits;
+                  track spatialUnit
+                ) {
+                  <option [ngValue]="spatialUnit">
+                    {{ spatialUnit.spatialUnitName }}
+                  </option>
+                }
+              </select>
+              <br />
+              <label>Öffentliche Lesefreigabe*</label>
+              @if (targetApplicableSpatialUnit; as spatialUnit) {
                 <label class="switch">
                   <input
                     type="checkbox"
-                    [(ngModel)]="targetApplicableSpatialUnit.isPublic"
+                    [(ngModel)]="spatialUnit.isPublic"
+                    name="spatialUnitIsPublic"
                     [ngModelOptions]="{ standalone: true }"
                   />
                   <span class="switchslider round"></span>
                 </label>
-                <div class="help-block">
-                  <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
-                </div>
-                <div class="form-group">
-                  <div class="help-block with-errors"></div>
-                </div>
+              }
+              <div class="help-block">
+                <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
               </div>
-              <div class="col-md-9 col-sm-6 col-12">
-                <div
-                  id="indicatorEditIndicatorSpatialUnitsRoleManagementTable"
-                  style="height: 45vh"
-                  class="ag-theme-alpine"
-                ></div>
+              <div class="form-group">
+                <div class="help-block with-errors"></div>
               </div>
             </div>
-            <input
-              type="button"
-              name="next"
-              class="next next_editIndicatorRoles action-button"
-              value="Nächster Schritt"
-              (click)="nextStep()"
-            />
-            <input
-              type="button"
-              name="previous"
-              class="previous previous_editIndicatorRoles action-button-previous"
-              value="Voriger Schritt"
-              (click)="previousStep()"
-            />
-          </fieldset>
-        }
+            <div class="col-md-9 col-sm-6 col-12">
+              <app-role-management-grid
+                #timeseriesRoleGrid
+                gridId="indicatorEditIndicatorSpatialUnitsRoleManagementTable"
+                [permissions]="targetApplicableSpatialUnit?.permissions"
+                [ownerId]="currentIndicatorDataset?.ownerId"
+                [showActiveRolesOnlyToggle]="true"
+              ></app-role-management-grid>
+            </div>
+          </div>
+          <input
+            type="button"
+            name="next"
+            class="next next_editIndicatorRoles action-button"
+            value="Nächster Schritt"
+            (click)="nextStep()"
+          />
+          <input
+            type="button"
+            name="previous"
+            class="previous previous_editIndicatorRoles action-button-previous"
+            value="Voriger Schritt"
+            (click)="previousStep()"
+          />
+        </fieldset>
 
         <!-- Step 3: Eigentümerschaft -->
-        @if (currentStep === 3) {
-          <fieldset>
-            <h2 class="fs-title">Eigentümerschaft eines Datensatzes</h2>
-            <h3 class="fs-subtitle">
-              Übetragen der Eigentümerschaft von Datensätzen mit allen dazugehörigen Rechten
-            </h3>
-            <div class="alert alert-danger">
-              Bitte beachten Sie, dass Sie beim Übertragen einer Eigentümerschaft einer Resource
-              unter Umständen jegliche Rechte eben dieser verlieren.<br />Die Rechte werden
-              unwiderruflich und sofort an den neuen Eigentümer übertragen.
-            </div>
-            <div class="row">
-              <div class="col-md-3"></div>
-              <div class="col-md-6 col-sm-6 col-12">
-                <label for="targetUserRoleSelect"><b>Eigentümerschaft übertragen an</b></label>
-                <div class="input-group">
-                  <span class="input-group-addon"><i class="fas fa-filter"></i></span>
-                  <input
-                    type="text"
-                    class="form-control input-sm"
-                    placeholder="Stichwortfilter"
-                    [(ngModel)]="ownerOrgFilter"
-                    [ngModelOptions]="{ standalone: true }"
-                  />
-                </div>
-                @if (accessControlService.checkAdminPermission()) {
-                  <select
-                    id="targetUserRoleSelect"
-                    [(ngModel)]="ownerOrganization"
-                    [ngModelOptions]="{ standalone: true }"
-                    (change)="onChangeOwner(ownerOrganization)"
-                    class="form-control"
-                    required
-                  >
-                    <option selected value><b>Eigentümerschaft nicht übertragen</b></option>
-                    @for (
-                      org of accessControlService.accessControl | filter: ownerOrgFilter;
-                      track org
-                    ) {
-                      <option [value]="org.organizationalUnitId">{{ org.name }}</option>
-                    }
-                  </select>
-                }
-                @if (!accessControlService.checkAdminPermission()) {
-                  <select
-                    id="targetUserRoleSelect"
-                    [(ngModel)]="ownerOrganization"
-                    [ngModelOptions]="{ standalone: true }"
-                    (change)="onChangeOwner(ownerOrganization)"
-                    class="form-control"
-                    required
-                  >
-                    <option selected value><b>Eigentümerschaft nicht übertragen</b></option>
-                    @for (org of resourcesCreatorRights | filter: ownerOrgFilter; track org) {
-                      <option [value]="org.organizationalUnitId">{{ org.name }}</option>
-                    }
-                  </select>
-                }
-              </div>
-              <div class="col-md-3">
-                <label>aktuelle Eigentümer-Organisationseinheit</label>
-                <p>
-                  {{
-                    accessControlService.getAccessControlById(currentIndicatorDataset?.ownerId)
-                      ?.name
-                  }}
-                </p>
-                @if (ownerOrganization != currentIndicatorDataset?.ownerId) {
-                  <div class="help-block" style="color: red">
-                    <p>
-                      ACHTUNG: Sie sind dabei, die Eigentümerschaft an diesem Datensatz zu ändern.
-                    </p>
-                  </div>
-                }
-              </div>
-            </div>
-            <input
-              type="button"
-              name="previous"
-              class="previous previous_editIndicatorRoles action-button-previous"
-              value="Voriger Schritt"
-              (click)="previousStep()"
-            />
-          </fieldset>
-        }
+        <fieldset [style.display]="currentStep === 3 ? 'block' : 'none'">
+          <h2 class="fs-title">Eigentümerschaft eines Datensatzes</h2>
+          <h3 class="fs-subtitle">
+            Übertragen der Eigentümerschaft von Datensätzen mit allen dazugehörigen Rechten
+          </h3>
+          <div class="alert alert-danger">
+            Bitte beachten Sie, dass Sie beim Übertragen einer Eigentümerschaft einer Resource unter
+            Umständen jegliche Rechte eben dieser verlieren.<br />Die Rechte werden unwiderruflich
+            und sofort an den neuen Eigentümer übertragen.
+          </div>
+          <app-owner-organization-select
+            [ownerId]="ownerOrganization"
+            [currentOwnerId]="currentIndicatorDataset?.ownerId"
+            (ownerIdChange)="onChangeOwner($event)"
+          ></app-owner-organization-select>
+          <input
+            type="button"
+            name="previous"
+            class="previous previous_editIndicatorRoles action-button-previous"
+            value="Voriger Schritt"
+            (click)="previousStep()"
+          />
+        </fieldset>
       </form>
     </div>
   </div>
