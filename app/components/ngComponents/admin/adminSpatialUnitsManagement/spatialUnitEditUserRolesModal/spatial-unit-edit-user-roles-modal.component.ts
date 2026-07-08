@@ -3,10 +3,8 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
-import {
-  KommonitorSpatialUnitDataExchangeService,
-  SpatialUnitMetadata,
-} from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { SpatialUnitOverviewType as SpatialUnitMetadata } from 'models/data-management-api';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { getErrorMessage } from '../spatial-unit-import.util';
@@ -29,7 +27,7 @@ import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManageme
 })
 export class SpatialUnitEditUserRolesModalComponent {
   activeModal = inject(NgbActiveModal);
-  kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
+  private envConfigService = inject(EnvConfigService);
   private http = inject(HttpClient);
   private notificationService = inject(NotificationService);
 
@@ -122,7 +120,7 @@ export class SpatialUnitEditUserRolesModalComponent {
 
       await firstValueFrom(
         this.http.put(
-          `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/spatial-units/${dataset.spatialUnitId}/permissions`,
+          `${this.envConfigService.baseUrlToKomMonitorDataAPI}/spatial-units/${dataset.spatialUnitId}/permissions`,
           putBody,
           { headers: { 'Content-Type': 'application/json' } }
         )
@@ -158,7 +156,7 @@ export class SpatialUnitEditUserRolesModalComponent {
 
       await firstValueFrom(
         this.http.put(
-          `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/spatial-units/${dataset.spatialUnitId}/ownership`,
+          `${this.envConfigService.baseUrlToKomMonitorDataAPI}/spatial-units/${dataset.spatialUnitId}/ownership`,
           putBody,
           { headers: { 'Content-Type': 'application/json' } }
         )

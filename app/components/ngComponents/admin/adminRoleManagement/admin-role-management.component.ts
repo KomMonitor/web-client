@@ -6,10 +6,10 @@ import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions, ICellRendererParams, SelectionChangedEvent } from 'ag-grid-community';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
-import {
-  KommonitorSpatialUnitDataExchangeService,
-  AccessControlMetadata,
-} from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { KeycloakHelperService } from 'services/keycloak-helper-service/keycloak-helper.service';
 import { RoleAddModalComponent } from './roleAddModal/role-add-modal.component';
@@ -40,7 +40,9 @@ interface AccessControlTableEntry extends AccessControlMetadata {
 })
 export class AdminRoleManagementComponent implements OnInit {
   private modalService = inject(NgbModal);
-  protected kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
+  protected accessControlService = inject(AccessControlService);
+  protected envConfigService = inject(EnvConfigService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
   private notificationService = inject(NotificationService);
   protected keycloakHelperService = inject(KeycloakHelperService);
@@ -120,12 +122,12 @@ export class AdminRoleManagementComponent implements OnInit {
     this.fetchAccessControlData(false);
   }
 
-  private fetchAccessControlData(useCache): void {
+  private fetchAccessControlData(_useCache): void {
     this.loadingData = true;
-    this.kommonitorDataExchangeService.fetchAccessControlMetadata(useCache).subscribe({
-      next: (accessControl) => this.setData(accessControl),
-      error: (error) => this.handleError(error),
-    });
+    this.metadataBootstrap
+      .fetchAccessControlMetadata(this.accessControlService.currentKeycloakLoginRoles)
+      .then(() => this.setData(this.accessControlService.accessControl))
+      .catch((error) => this.handleError(error));
   }
 
   private handleError(error: any) {
@@ -149,7 +151,7 @@ export class AdminRoleManagementComponent implements OnInit {
       const childrenIds = dataItem.children ?? [];
 
       const organizationalUnitChildrenUnits = childrenIds
-        .map((id) => this.kommonitorDataExchangeService.getAccessControlById(id))
+        .map((id) => this.accessControlService.getAccessControlById(id))
         .filter((unit): unit is AccessControlMetadata => unit !== undefined)
         .map((id) => id.name);
       dataItem.ownChildGroupNames = organizationalUnitChildrenUnits;

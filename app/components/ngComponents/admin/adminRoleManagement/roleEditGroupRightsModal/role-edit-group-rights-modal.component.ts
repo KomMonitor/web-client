@@ -4,10 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridOptions, GridReadyEvent } from 'ag-grid-community';
-import {
-  AccessControlMetadata,
-  KommonitorSpatialUnitDataExchangeService,
-} from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { AdminRoleManagementService, RoleDelegatePutEntry } from '../admin-role-management.service';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
@@ -40,7 +38,7 @@ import {
 })
 export class RoleEditGroupRightsModalComponent implements OnInit {
   protected activeModal = inject(NgbActiveModal);
-  protected kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
+  private accessControlService = inject(AccessControlService);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private adminRoleManagementService = inject(AdminRoleManagementService);
   private notificationService = inject(NotificationService);
@@ -108,7 +106,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
       r.adminRoles.map((role) => `${r.organizationalUnitId}-${role}`)
     );
 
-    const access = this.kommonitorDataExchangeService.accessControl.filter((item) =>
+    const access = this.accessControlService.accessControl.filter((item) =>
       authorityRoleIds.includes(item.organizationalUnitId)
     );
 
@@ -148,7 +146,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
       this.activeDelegatedRolesOnly = false;
     }
 
-    const allAccess = this.kommonitorDataExchangeService.accessControl;
+    const allAccess = this.accessControlService.accessControl;
     this.allDelegatedRowData = buildAdvancedRoleRowData(allAccess, delegatedPermissionIds, false);
 
     const components = createAdvancedRoleComponents();
@@ -193,8 +191,9 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
       this.delegatedGridApi,
       this.delegatedRowData
     );
-    return buildRoleDelegatesPutBody(selectedPermissionIds, (id) =>
-      this.kommonitorDataExchangeService.getAccessControlById(id)
+    return buildRoleDelegatesPutBody(
+      selectedPermissionIds,
+      (id) => this.accessControlService.getAccessControlById(id) ?? undefined
     );
   }
 

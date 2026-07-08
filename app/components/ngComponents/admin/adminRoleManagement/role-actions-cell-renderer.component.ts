@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';
-import { AccessControlMetadata } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
 
 export interface RoleActionsCellRendererParams extends ICellRendererParams<AccessControlMetadata> {
   onEditMetadata: (dataset: AccessControlMetadata) => void;

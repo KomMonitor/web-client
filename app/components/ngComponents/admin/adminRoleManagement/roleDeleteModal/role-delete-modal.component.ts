@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
 
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { AccessControlMetadata } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
 import { forkJoin } from 'rxjs';
 import { AdminRoleManagementService } from '../admin-role-management.service';
 import { NotificationService } from '../../../common/notification/notification.service';

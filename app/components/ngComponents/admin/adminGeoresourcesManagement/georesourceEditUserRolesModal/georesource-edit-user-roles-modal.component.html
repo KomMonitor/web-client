@@ -30,7 +30,7 @@
         <!-- fieldsets: switched via display so the role grid (and its checked
              state) survives navigating to step 2 -->
 
-        @if (kommonitorDataExchangeService.enableKeycloakSecurity) {
+        @if (envConfigService.enableKeycloakSecurity) {
           <fieldset [style.display]="stepper.isActive('roles') ? 'block' : 'none'">
             <h2 class="fs-title">Zugriffsschutz</h2>
             <h3 class="fs-subtitle">

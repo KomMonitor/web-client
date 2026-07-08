@@ -14,10 +14,17 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import { HttpClient } from '@angular/common/http';
 import { FeatureTableDataGridHelperService } from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
+import { SpatialUnitOverviewType as SpatialUnitMetadata } from 'models/data-management-api';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import {
-  KommonitorSpatialUnitDataExchangeService,
-  SpatialUnitMetadata,
-} from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+  buildMappingConfigExport,
+  extractRemainingHeaders,
+  transformFeaturesForGrid,
+  validatePeriodOfValidity,
+} from 'services/adminSpatialUnit/spatial-unit-metadata.util';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions, GridApi, GridReadyEvent } from 'ag-grid-community';
@@ -53,7 +60,10 @@ declare const __env: any;
 })
 export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
-  kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
+  private cacheHelperService = inject(CacheHelperServiceService);
+  private indicatorValueService = inject(IndicatorValueService);
+  private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
+  private envConfigService = inject(EnvConfigService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   featureTableHelper = inject(FeatureTableDataGridHelperService);
   private http = inject(HttpClient);
@@ -195,7 +205,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   private initializeForm(): void {
     // Initialize form with defaults
     this.spatialUnitMappingConfigStructure_pretty =
-      this.kommonitorDataExchangeService?.syntaxHighlightJSON(
+      this.indicatorValueService.syntaxHighlightJSON(
         this.kommonitorImporterHelperService?.mappingConfigStructure
       ) || '';
 
@@ -394,7 +404,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
 
     if (this.datasourceType && this.datasourceType.type === 'OGCAPI_FEATURES') {
       // Use array of available spatial units like in Add modal
-      this.availableSpatialUnits = this.kommonitorDataExchangeService?.availableSpatialUnits || [];
+      this.availableSpatialUnits = this.spatialUnitStore.availableSpatialUnits || [];
     }
     // reset DS param cache on type change
     this.datasourceTypeParameters = {};
@@ -412,14 +422,14 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
 
     this.loadingData = true;
 
-    const url = `${this.kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/spatial-units/${this.currentSpatialUnitDataset.spatialUnitId}/allFeatures`;
+    const url = `${this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/spatial-units/${this.currentSpatialUnitDataset.spatialUnitId}/allFeatures`;
 
     this.http.get(url).subscribe({
       next: (response: any) => {
         this.spatialUnitFeaturesGeoJSON = response;
 
         // Use service method to extract remaining headers
-        this.remainingFeatureHeaders = this.kommonitorDataExchangeService.extractRemainingHeaders(
+        this.remainingFeatureHeaders = extractRemainingHeaders(
           this.spatialUnitFeaturesGeoJSON?.features || []
         );
 
@@ -465,7 +475,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
 
     this.loadingData = true;
 
-    const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/spatial-units/${dataset.spatialUnitId}/allFeatures`;
+    const url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}/spatial-units/${dataset.spatialUnitId}/allFeatures`;
 
     this.http.delete(url).subscribe({
       next: (_response: any) => {
@@ -500,7 +510,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
 
   checkPeriodOfValidity(): void {
     // Use service method for validation
-    const validation = this.kommonitorDataExchangeService.validatePeriodOfValidity(
+    const validation = validatePeriodOfValidity(
       this.periodOfValidity.startDate,
       this.periodOfValidity.endDate
     );
@@ -855,7 +865,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     );
 
     // Use service method to build export structure
-    const mappingConfigExport = this.kommonitorDataExchangeService.buildMappingConfigExport(
+    const mappingConfigExport = buildMappingConfigExport(
       definitions.converterDefinition,
       definitions.datasourceTypeDefinition,
       definitions.propertyMappingDefinition,
@@ -876,9 +886,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
       // Update data if we have features
       if (this.spatialUnitFeaturesGeoJSON?.features) {
         // Use service method to transform data for grid display
-        this.rowData = this.kommonitorDataExchangeService.transformFeaturesForGrid(
-          this.spatialUnitFeaturesGeoJSON.features
-        );
+        this.rowData = transformFeaturesForGrid(this.spatialUnitFeaturesGeoJSON.features);
       }
 
       // Force refresh of the grid to show/hide delete buttons
@@ -975,9 +983,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
 
     // Transform and set data; the bound columnDefs/rowData (reassigned in
     // buildFeatureTable / here) are pushed to the grid by Angular.
-    this.rowData = this.kommonitorDataExchangeService.transformFeaturesForGrid(
-      this.spatialUnitFeaturesGeoJSON?.features || []
-    );
+    this.rowData = transformFeaturesForGrid(this.spatialUnitFeaturesGeoJSON?.features || []);
     this.gridApi.refreshCells();
     this.gridApi.redrawRows();
 

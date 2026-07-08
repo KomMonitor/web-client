@@ -1,5 +1,5 @@
 import { ColDef, GridApi } from 'ag-grid-community';
-import { AccessControlMetadata } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
 import { RoleDelegatePutEntry } from './admin-role-management.service';
 
 /**

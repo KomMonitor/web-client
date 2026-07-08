@@ -212,7 +212,7 @@
     <!-- Step 3: Zugriffsschutz und Eigentümerschaft (Security).
          Switched via display (not @if) so the role grid's checked state
          survives navigating between steps. -->
-    @if (kommonitorDataExchangeService.enableKeycloakSecurity) {
+    @if (envConfigService.enableKeycloakSecurity) {
       <fieldset [style.display]="stepper.isActive('security') ? 'block' : 'none'">
         <h2 class="fs-title">Zugriffsschutz und Eigentümerschaft</h2>
         <h3 class="fs-subtitle">

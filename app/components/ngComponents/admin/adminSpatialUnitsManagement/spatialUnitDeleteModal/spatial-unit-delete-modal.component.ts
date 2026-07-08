@@ -2,10 +2,13 @@ import { Component, OnInit, Input, inject, Output, EventEmitter } from '@angular
 import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
-import {
-  KommonitorSpatialUnitDataExchangeService,
-  SpatialUnitMetadata,
-} from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { firstValueFrom } from 'rxjs';
+import { SpatialUnitOverviewType as SpatialUnitMetadata } from 'models/data-management-api';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 
@@ -20,7 +23,11 @@ declare const __env: any;
 })
 export class SpatialUnitDeleteModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
-  kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
+  private accessControlService = inject(AccessControlService);
+  private envConfigService = inject(EnvConfigService);
+  private indicatorValueService = inject(IndicatorValueService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
+  private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private http = inject(HttpClient);
   private notificationService = inject(NotificationService);
 
@@ -48,10 +55,8 @@ export class SpatialUnitDeleteModalComponent implements OnInit {
     this.resetForm();
 
     try {
-      // Use service method for bulk deletion
       const spatialUnitIds = this.datasetsToDelete.map((dataset) => dataset.spatialUnitId);
-      const result =
-        await this.kommonitorDataExchangeService.bulkDeleteSpatialUnits(spatialUnitIds);
+      const result = await this.bulkDeleteSpatialUnits(spatialUnitIds);
 
       // Process results
       this.successfullyDeletedDatasets = this.datasetsToDelete.filter((dataset) =>
@@ -65,8 +70,8 @@ export class SpatialUnitDeleteModalComponent implements OnInit {
 
       if (this.successfullyDeletedDatasets.length > 0) {
         // Fetch indicator metadata again as spatial units were deleted
-        await this.kommonitorDataExchangeService.fetchIndicatorsMetadata(
-          this.kommonitorDataExchangeService.currentKeycloakLoginRoles
+        await this.metadataBootstrap.fetchIndicatorsMetadata(
+          this.accessControlService.currentKeycloakLoginRoles
         );
 
         // Refresh spatial unit overview table
@@ -102,6 +107,35 @@ export class SpatialUnitDeleteModalComponent implements OnInit {
       this.notificationService.showError('Ein unerwarteter Fehler ist aufgetreten.');
       this.loadingData = false;
     }
+  }
+
+  /**
+   * Delete the given spatial units one by one (moved here from the former
+   * data-exchange god service; this modal is the only consumer). Successful
+   * deletions are removed from the canonical store.
+   */
+  private async bulkDeleteSpatialUnits(spatialUnitIds: string[]): Promise<{
+    successful: string[];
+    failed: Array<{ id: string; error: string }>;
+  }> {
+    const successful: string[] = [];
+    const failed: Array<{ id: string; error: string }> = [];
+
+    for (const id of spatialUnitIds) {
+      try {
+        await firstValueFrom(
+          this.http.delete(
+            `${this.envConfigService.baseUrlToKomMonitorDataAPI}/spatial-units/${id}`
+          )
+        );
+        successful.push(id);
+        this.spatialUnitStore.deleteSingleSpatialUnitMetadata(id);
+      } catch (error) {
+        failed.push({ id, error: this.indicatorValueService.formatError(error) });
+      }
+    }
+
+    return { successful, failed };
   }
 
   // Modal control methods

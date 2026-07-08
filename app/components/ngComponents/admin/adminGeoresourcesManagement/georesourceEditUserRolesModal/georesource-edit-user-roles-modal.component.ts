@@ -12,7 +12,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
 import { Subscription, firstValueFrom } from 'rxjs';
-import { KommonitorSpatialUnitDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { getErrorMessage } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.util';
 import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
@@ -36,9 +36,7 @@ import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManageme
 })
 export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy {
   activeModal = inject(NgbActiveModal);
-  // Formerly a broken string-token inject ('kommonitorDataExchangeService') that
-  // threw a NullInjectorError on modal open; wired to the real service now.
-  kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
+  protected envConfigService = inject(EnvConfigService);
   private broadcastService = inject(BroadcastService);
   private notificationService = inject(NotificationService);
   private http = inject(HttpClient);
@@ -153,7 +151,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
 
       await firstValueFrom(
         this.http.put(
-          `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/georesources/${dataset.georesourceId}/permissions`,
+          `${this.envConfigService.baseUrlToKomMonitorDataAPI}/georesources/${dataset.georesourceId}/permissions`,
           putBody,
           { headers: { 'Content-Type': 'application/json' } }
         )
@@ -189,7 +187,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
 
       await firstValueFrom(
         this.http.put(
-          `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/georesources/${dataset.georesourceId}/ownership`,
+          `${this.envConfigService.baseUrlToKomMonitorDataAPI}/georesources/${dataset.georesourceId}/ownership`,
           putBody,
           { headers: { 'Content-Type': 'application/json' } }
         )

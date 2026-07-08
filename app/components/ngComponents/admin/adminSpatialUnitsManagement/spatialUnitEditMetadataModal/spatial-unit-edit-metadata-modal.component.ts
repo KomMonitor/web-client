@@ -12,10 +12,16 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import { HttpClient } from '@angular/common/http';
+import { SpatialUnitOverviewType as SpatialUnitMetadata } from 'models/data-management-api';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import {
-  KommonitorSpatialUnitDataExchangeService,
-  SpatialUnitMetadata,
-} from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+  LABELED_LOI_DASH_ARRAY_OBJECTS,
+  SPATIAL_UNIT_METADATA_STRUCTURE,
+  buildSpatialUnitMetadataExport,
+  buildSpatialUnitMetadataPatchBody,
+  validateSpatialUnitMetadata,
+} from 'services/adminSpatialUnit/spatial-unit-metadata.util';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 
 import { KmColorPickerComponent } from '../../../customElements/color-picker/km-color-picker.component';
@@ -57,7 +63,8 @@ import {
 })
 export class SpatialUnitEditMetadataModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
-  kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
+  protected envConfigService = inject(EnvConfigService);
+  private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
   private http = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
@@ -125,13 +132,11 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   private svgInjected = false;
 
   get availableLinePatternOptions(): LinePatternOption[] {
-    return (this.kommonitorDataExchangeService.availableLoiDashArrayObjects || []).map(
-      (option) => ({
-        label: option.label,
-        dashArrayValue: option.dashArrayValue,
-        svgString: option.svgString,
-      })
-    );
+    return (LABELED_LOI_DASH_ARRAY_OBJECTS || []).map((option) => ({
+      label: option.label,
+      dashArrayValue: option.dashArrayValue,
+      svgString: option.svgString,
+    }));
   }
 
   ngOnInit() {
@@ -147,19 +152,18 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     this.loadingData = true;
 
     // Load available spatial units
-    if (this.kommonitorDataExchangeService.availableSpatialUnits) {
-      this.availableSpatialUnits = this.kommonitorDataExchangeService.availableSpatialUnits;
+    if (this.spatialUnitStore.availableSpatialUnits) {
+      this.availableSpatialUnits = this.spatialUnitStore.availableSpatialUnits;
     }
 
     // Load update interval options
-    if (this.kommonitorDataExchangeService.updateIntervalOptions) {
-      this.updateIntervalOptions = this.kommonitorDataExchangeService.updateIntervalOptions;
+    if (this.envConfigService.updateIntervalOptions) {
+      this.updateIntervalOptions = this.envConfigService.updateIntervalOptions;
     }
 
     // Load available dash array objects
-    if (this.kommonitorDataExchangeService.availableLoiDashArrayObjects) {
-      this.availableLoiDashArrayObjects =
-        this.kommonitorDataExchangeService.availableLoiDashArrayObjects;
+    if (LABELED_LOI_DASH_ARRAY_OBJECTS) {
+      this.availableLoiDashArrayObjects = LABELED_LOI_DASH_ARRAY_OBJECTS;
     }
 
     this.loadingData = false;
@@ -298,10 +302,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     const spatialUnitName_new = this.spatialUnitLevel;
 
     // Validate using service method
-    const validation = this.kommonitorDataExchangeService.validateSpatialUnitMetadata(
-      this.metadata,
-      this.spatialUnitLevel
-    );
+    const validation = validateSpatialUnitMetadata(this.metadata, this.spatialUnitLevel);
 
     if (!validation.isValid) {
       this.notificationService.showError(validation.errors.join('\n'));
@@ -310,7 +311,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     }
 
     // Build patch body using service method
-    const patchBody = this.kommonitorDataExchangeService.buildSpatialUnitMetadataPatchBody(
+    const patchBody = buildSpatialUnitMetadataPatchBody(
       this.spatialUnitLevel,
       this.metadata,
       this.nextLowerHierarchySpatialUnit
@@ -334,7 +335,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     try {
       await this.http
         .patch(
-          `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/spatial-units/${this.currentSpatialUnitDataset.spatialUnitId}`,
+          `${this.envConfigService.baseUrlToKomMonitorDataAPI}/spatial-units/${this.currentSpatialUnitDataset.spatialUnitId}`,
           patchBody
         )
         .toPromise();
@@ -450,7 +451,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
   onExportSpatialUnitEditMetadata() {
     // Build export data using service method
-    const metadataExport = this.kommonitorDataExchangeService.buildSpatialUnitMetadataExport(
+    const metadataExport = buildSpatialUnitMetadataExport(
       this.metadata,
       this.spatialUnitLevel,
       this.nextLowerHierarchySpatialUnit
@@ -489,7 +490,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
   // Metadata structure for export - now using service
   get spatialUnitMetadataStructure() {
-    return this.kommonitorDataExchangeService.spatialUnitMetadataStructure;
+    return SPATIAL_UNIT_METADATA_STRUCTURE;
   }
 
   hideMetadataErrorAlert() {

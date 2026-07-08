@@ -1,18 +1,10 @@
-import {
-  Component,
-  DestroyRef,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-  inject,
-} from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
-import { KommonitorSpatialUnitDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
 import { collectSelectedRoleIds, ownerDefaultPermissionIds } from './role-management-panel.model';
 
@@ -39,8 +31,8 @@ import { collectSelectedRoleIds, ownerDefaultPermissionIds } from './role-manage
 })
 export class RoleManagementGridComponent implements OnInit, OnChanges {
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
-  private kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
-  private destroyRef = inject(DestroyRef);
+  private accessControlService = inject(AccessControlService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
 
   /** Permission ids that are initially checked. */
   @Input() permissions: string[] | null | undefined = [];
@@ -114,7 +106,7 @@ export class RoleManagementGridComponent implements OnInit, OnChanges {
   applyOwner(orgUnitId: string | null | undefined): void {
     this.currentOwnerId = orgUnitId || null;
     this.selectedPermissionIds = orgUnitId
-      ? ownerDefaultPermissionIds(this.kommonitorDataExchangeService.accessControl ?? [], orgUnitId)
+      ? ownerDefaultPermissionIds(this.accessControlService.accessControl ?? [], orgUnitId)
       : [];
     this.rebuild();
   }
@@ -128,24 +120,21 @@ export class RoleManagementGridComponent implements OnInit, OnChanges {
   }
 
   private ensureAccessControlLoaded(): void {
-    const accessControl = this.kommonitorDataExchangeService.accessControl;
+    const accessControl = this.accessControlService.accessControl;
     if (accessControl && accessControl.length > 0) {
       this.rebuild();
       return;
     }
-    this.kommonitorDataExchangeService
-      .fetchAccessControlMetadata(true)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => this.rebuild(),
-        error: () => {
-          /* grid stays empty when access control cannot be loaded */
-        },
+    this.metadataBootstrap
+      .fetchAccessControlMetadata(this.accessControlService.currentKeycloakLoginRoles)
+      .then(() => this.rebuild())
+      .catch(() => {
+        /* grid stays empty when access control cannot be loaded */
       });
   }
 
   private rebuild(): void {
-    const accessControl = this.kommonitorDataExchangeService.accessControl;
+    const accessControl = this.accessControlService.accessControl;
     if (!accessControl || accessControl.length === 0) {
       return;
     }

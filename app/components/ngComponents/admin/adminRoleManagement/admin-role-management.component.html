@@ -7,7 +7,7 @@
 </app-admin-content-view>
 
 <ng-template #controls>
-  @if (kommonitorDataExchangeService.enableKeycloakSecurity) {
+  @if (envConfigService.enableKeycloakSecurity) {
     <span>Nur editierbare Datensätze anzeigen</span>
     <div>
       <label class="switch">
@@ -20,7 +20,7 @@
       </label>
     </div>
     <button
-      [disabled]="!kommonitorDataExchangeService.checkCreatePermission()"
+      [disabled]="!accessControlService.checkCreatePermission()"
       class="btn btn-success btn-sm"
       type="button"
       (click)="openAddModal()"
@@ -28,9 +28,7 @@
       <i class="fas fa-plus"></i> Erstellen
     </button>
     <button
-      [disabled]="
-        !kommonitorDataExchangeService.checkCreatePermission() || selectedRows.length === 0
-      "
+      [disabled]="!accessControlService.checkCreatePermission() || selectedRows.length === 0"
       class="btn btn-danger btn-sm"
       type="button"
       (click)="openDeleteModal()"
@@ -41,7 +39,7 @@
 </ng-template>
 
 <ng-template #content>
-  @if (!kommonitorDataExchangeService.enableKeycloakSecurity) {
+  @if (!envConfigService.enableKeycloakSecurity) {
     <div>
       <expandable-box title="Zugriffskontrolle" [isCollapsible]="false">
         <p>
@@ -57,7 +55,7 @@
     </div>
   }
 
-  @if (kommonitorDataExchangeService.enableKeycloakSecurity) {
+  @if (envConfigService.enableKeycloakSecurity) {
     <div>
       <expandable-box title="Mandantenspezifische Gruppenverwaltung" [isCollapsible]="false">
         <i>Hinweise und Erläuterungen sind unter <b>Gruppen-/Rechtekonzept</b> zu finden</i>

@@ -6,7 +6,8 @@ import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { forkJoin, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
-import { KommonitorSpatialUnitDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { ProcessScriptMetadataStoreService } from 'services/process-script-metadata-store-service/process-script-metadata-store.service';
@@ -43,9 +44,8 @@ interface AffectedIndicatorReference {
 })
 export class GeoresourceDeleteModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
-  // Formerly a broken string-token inject ('kommonitorDataExchangeService') that
-  // threw a NullInjectorError on modal open; wired to the real services now.
-  kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
+  private envConfigService = inject(EnvConfigService);
+  private indicatorValueService = inject(IndicatorValueService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private processScriptStore = inject(ProcessScriptMetadataStoreService);
@@ -140,7 +140,7 @@ export class GeoresourceDeleteModalComponent implements OnInit {
   }
 
   private getDeleteDatasetPromise(dataset: GeoresourcesDataset) {
-    const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/georesources/${dataset.georesourceId}`;
+    const url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}/georesources/${dataset.georesourceId}`;
 
     return this.http.delete(url).pipe(
       tap((_response) => {
@@ -152,8 +152,8 @@ export class GeoresourceDeleteModalComponent implements OnInit {
       catchError((error) => {
         console.error(`Failed to delete georesource ${dataset.georesourceId}:`, error);
         const errorMessage = error.error
-          ? this.kommonitorDataExchangeService.syntaxHighlightJSON(error.error)
-          : this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
+          ? this.indicatorValueService.syntaxHighlightJSON(error.error)
+          : this.indicatorValueService.syntaxHighlightJSON(error);
         this.failedDatasetsAndErrors.push([dataset, errorMessage]);
 
         // Return a resolved observable so forkJoin continues

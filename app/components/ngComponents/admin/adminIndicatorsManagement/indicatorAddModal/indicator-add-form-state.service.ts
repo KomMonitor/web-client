@@ -2,7 +2,8 @@ import { Injectable, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { mergeColorSchemes } from 'components/ngComponents/userInterface/kommonitorClassification/colors';
-import { KommonitorSpatialUnitDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
@@ -31,11 +32,8 @@ export class IndicatorAddFormStateService {
   private topicStore = inject(TopicMetadataStoreService);
   private envConfigService = inject(EnvConfigService);
   private topicHierarchyService = inject(TopicHierarchyService);
-  // Owner-organization data source: the admin indicator pages do not populate the
-  // global AccessControlService, so the org/role access-control list is read from
-  // (and lazily fetched via) the admin KommonitorSpatialUnitDataExchangeService — the same
-  // singleton the sibling spatial-unit/georesource add modals rely on.
-  private adminDataExchange = inject(KommonitorSpatialUnitDataExchangeService);
+  private accessControlService = inject(AccessControlService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
   private destroyRef = inject(DestroyRef);
 
   // Edit mode: when the wizard is opened to edit an existing indicator, this
@@ -839,7 +837,7 @@ export class IndicatorAddFormStateService {
     // Step 7 — ownership / access. Pre-filled for display only; the metadata
     // PATCH does not carry ownership or permissions (managed separately).
     this.isPublic = dataset.isPublic ?? false;
-    const ownerOrg = (this.adminDataExchange.accessControl ?? []).find(
+    const ownerOrg = (this.accessControlService.accessControl ?? []).find(
       (org: any) => org.organizationalUnitId === dataset.ownerId
     );
     this.ownerOrganization = ownerOrg ?? dataset.ownerId ?? '';
@@ -1361,7 +1359,7 @@ export class IndicatorAddFormStateService {
     if (!ownerId) {
       return [];
     }
-    const ownerUnit = this.adminDataExchange.getAccessControlById(ownerId);
+    const ownerUnit = this.accessControlService.getAccessControlById(ownerId);
     return (ownerUnit?.permissions ?? [])
       .filter((permission) => ['viewer', 'editor'].includes(permission.permissionLevel))
       .map((permission) => permission.permissionId);
@@ -1790,18 +1788,15 @@ export class IndicatorAddFormStateService {
    * it is fetched lazily (cache-first) and the picker is built once it arrives.
    */
   loadOwnerOrganizations() {
-    if (this.adminDataExchange.accessControl?.length > 0) {
+    if (this.accessControlService.accessControl?.length > 0) {
       this.prepareOwnerOrganizationList();
     } else {
-      this.adminDataExchange
-        .fetchAccessControlMetadata(true)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: () => this.prepareOwnerOrganizationList(),
-          error: () => {
-            this.ownerOrganizations = [];
-            this.filteredOrganizations = [];
-          },
+      this.metadataBootstrap
+        .fetchAccessControlMetadata(this.accessControlService.currentKeycloakLoginRoles)
+        .then(() => this.prepareOwnerOrganizationList())
+        .catch(() => {
+          this.ownerOrganizations = [];
+          this.filteredOrganizations = [];
         });
     }
   }
@@ -1816,8 +1811,8 @@ export class IndicatorAddFormStateService {
    * Seeds the base list and refreshes the filtered view shown in the dropdown.
    */
   prepareOwnerOrganizationList() {
-    if (this.adminDataExchange.checkAdminPermission()) {
-      this.ownerOrganizations = this.adminDataExchange.accessControl || [];
+    if (this.accessControlService.checkAdminPermission()) {
+      this.ownerOrganizations = this.accessControlService.accessControl || [];
     } else {
       this.ownerOrganizations = this.buildResourcesCreatorRights();
     }
@@ -1829,7 +1824,7 @@ export class IndicatorAddFormStateService {
   }
 
   private buildResourcesCreatorRights(): any[] {
-    const roleNames = this.adminDataExchange.currentKomMonitorLoginRoleNames || [];
+    const roleNames = this.accessControlService.currentKomMonitorLoginRoleNames || [];
     if (roleNames.length === 0) {
       return [];
     }
@@ -1852,7 +1847,7 @@ export class IndicatorAddFormStateService {
 
     this.gatherCreatorRightsChildren(creatorRights, creatorRightsChildren);
 
-    return (this.adminDataExchange.accessControl || []).filter((unit) =>
+    return (this.accessControlService.accessControl || []).filter((unit) =>
       creatorRights.includes(unit.name)
     );
   }
@@ -1864,7 +1859,7 @@ export class IndicatorAddFormStateService {
       return;
     }
 
-    const accessControl = this.adminDataExchange.accessControl || [];
+    const accessControl = this.accessControlService.accessControl || [];
     accessControl
       .filter((unit) => creatorRightsChildren.includes(unit.name))
       .flatMap((unit) => unit.children || [])

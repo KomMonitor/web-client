@@ -4,15 +4,24 @@ import {
   ViewChild,
   ElementRef,
   inject,
-  DestroyRef,
   Output,
   EventEmitter,
 } from '@angular/core';
 import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbActiveModal, NgbDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { KommonitorImporterHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service';
-import { KommonitorSpatialUnitDataExchangeService } from '../../../../../services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import {
+  LABELED_LOI_DASH_ARRAY_OBJECTS,
+  SPATIAL_UNIT_METADATA_STRUCTURE,
+  buildMappingConfigExport,
+  buildSpatialUnitMetadataExport,
+  validatePeriodOfValidity,
+} from 'services/adminSpatialUnit/spatial-unit-metadata.util';
 import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
 import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManagementPanel/owner-organization-select.component';
 
@@ -68,10 +77,13 @@ import {
 })
 export class SpatialUnitAddModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
-  kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
+  protected envConfigService = inject(EnvConfigService);
+  private accessControlService = inject(AccessControlService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
+  private indicatorValueService = inject(IndicatorValueService);
+  private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   private notificationService = inject(NotificationService);
-  private destroyRef = inject(DestroyRef);
   private resourceImportService = inject(ResourceImportService);
 
   /** Emitted after a spatial unit was added so the parent refreshes its table. */
@@ -93,7 +105,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     {
       key: 'security',
       label: 'Zugriffsschutz und Eigentümerschaft',
-      when: () => this.kommonitorDataExchangeService.enableKeycloakSecurity,
+      when: () => this.envConfigService.enableKeycloakSecurity,
     },
     { key: 'data', label: 'Räumlicher Datensatz' },
   ]);
@@ -197,13 +209,11 @@ export class SpatialUnitAddModalComponent implements OnInit {
   // Line pattern picker handled by km-line-pattern-picker
 
   get availableLinePatternOptions(): LinePatternOption[] {
-    return (this.kommonitorDataExchangeService.availableLoiDashArrayObjects || []).map(
-      (option) => ({
-        label: option.label,
-        dashArrayValue: option.dashArrayValue,
-        svgString: option.svgString,
-      })
-    );
+    return (LABELED_LOI_DASH_ARRAY_OBJECTS || []).map((option) => ({
+      label: option.label,
+      dashArrayValue: option.dashArrayValue,
+      svgString: option.svgString,
+    }));
   }
 
   ngOnInit() {
@@ -216,13 +226,13 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.loadingData = true;
 
     // Load available spatial units
-    if (this.kommonitorDataExchangeService.availableSpatialUnits) {
-      this.availableSpatialUnits = this.kommonitorDataExchangeService.availableSpatialUnits;
+    if (this.spatialUnitStore.availableSpatialUnits) {
+      this.availableSpatialUnits = this.spatialUnitStore.availableSpatialUnits;
     }
 
     // Load update interval options
-    if (this.kommonitorDataExchangeService.updateIntervalOptions) {
-      this.updateIntervalOptions = this.kommonitorDataExchangeService.updateIntervalOptions;
+    if (this.envConfigService.updateIntervalOptions) {
+      this.updateIntervalOptions = this.envConfigService.updateIntervalOptions;
     } else {
       // no branch action required
     }
@@ -255,21 +265,15 @@ export class SpatialUnitAddModalComponent implements OnInit {
     // The role grid / owner select load their own access-control data; this
     // only keeps the modal's loading overlay in sync.
     if (
-      this.kommonitorDataExchangeService.accessControl &&
-      this.kommonitorDataExchangeService.accessControl.length > 0
+      this.accessControlService.accessControl &&
+      this.accessControlService.accessControl.length > 0
     ) {
       this.loadingData = false;
     } else {
-      this.kommonitorDataExchangeService
-        .fetchAccessControlMetadata(true)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: () => {
-            this.loadingData = false;
-          },
-          error: () => {
-            this.loadingData = false;
-          },
+      this.metadataBootstrap
+        .fetchAccessControlMetadata(this.accessControlService.currentKeycloakLoginRoles)
+        .finally(() => {
+          this.loadingData = false;
         });
     }
   }
@@ -280,7 +284,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   private initializeOutlineLayerSettings() {
-    const availableOptions = this.kommonitorDataExchangeService.availableLoiDashArrayObjects || [];
+    const availableOptions = LABELED_LOI_DASH_ARRAY_OBJECTS || [];
     if (availableOptions.length > 0) {
       this.selectedOutlineDashArrayObject = {
         label: availableOptions[0].label,
@@ -294,10 +298,9 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   private initializeMetadataStructures() {
-    this.spatialUnitMetadataStructure_pretty =
-      this.kommonitorDataExchangeService.syntaxHighlightJSON(
-        this.kommonitorDataExchangeService.spatialUnitMetadataStructure
-      );
+    this.spatialUnitMetadataStructure_pretty = this.indicatorValueService.syntaxHighlightJSON(
+      SPATIAL_UNIT_METADATA_STRUCTURE
+    );
     this.spatialUnitMappingConfigStructure =
       this.kommonitorImporterHelperService.mappingConfigStructure;
   }
@@ -325,8 +328,8 @@ export class SpatialUnitAddModalComponent implements OnInit {
       let indexOfLowerHierarchyUnit: number;
       let indexOfUpperHierarchyUnit: number;
 
-      for (let i = 0; i < this.kommonitorDataExchangeService.availableSpatialUnits.length; i++) {
-        const spatialUnit = this.kommonitorDataExchangeService.availableSpatialUnits[i];
+      for (let i = 0; i < this.spatialUnitStore.availableSpatialUnits.length; i++) {
+        const spatialUnit = this.spatialUnitStore.availableSpatialUnits[i];
         if (spatialUnit.spatialUnitLevel === this.nextLowerHierarchySpatialUnit.spatialUnitLevel) {
           indexOfLowerHierarchyUnit = i;
         }
@@ -348,10 +351,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     const endIso = toIsoDateString(this.periodOfValidity.endDate);
 
     // Use service validation (guards optional end)
-    const validation = this.kommonitorDataExchangeService.validatePeriodOfValidity(
-      startIso as any,
-      endIso as any
-    );
+    const validation = validatePeriodOfValidity(startIso as any, endIso as any);
 
     this.periodOfValidityInvalid = !validation.isValid;
 
@@ -694,7 +694,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     const intervalOptions =
       this.updateIntervalOptions && this.updateIntervalOptions.length
         ? this.updateIntervalOptions
-        : this.kommonitorDataExchangeService.updateIntervalOptions;
+        : this.envConfigService.updateIntervalOptions;
     patchMetadataFormFromApi(
       this.metadataForm,
       this.metadataImportSettings.metadata,
@@ -705,7 +705,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.roleGrid?.applyPermissions(this.metadataImportSettings.permissions || []);
 
     // Parse hierarchy
-    this.kommonitorDataExchangeService.availableSpatialUnits.forEach((spatialUnit: any) => {
+    this.spatialUnitStore.availableSpatialUnits.forEach((spatialUnit: any) => {
       if (spatialUnit.spatialUnitLevel === this.metadataImportSettings.nextLowerHierarchyLevel) {
         this.nextLowerHierarchySpatialUnit = spatialUnit;
       }
@@ -719,7 +719,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.outlineColor = this.metadataImportSettings.outlineColor || '#000000';
     this.outlineWidth = this.metadataImportSettings.outlineWidth || 3;
 
-    this.kommonitorDataExchangeService.availableLoiDashArrayObjects?.forEach((option: any) => {
+    LABELED_LOI_DASH_ARRAY_OBJECTS?.forEach((option: any) => {
       if (option.dashArrayValue === this.metadataImportSettings.outlineDashArrayString) {
         this.selectedOutlineDashArrayObject = {
           label: option.label,
@@ -794,13 +794,13 @@ export class SpatialUnitAddModalComponent implements OnInit {
   onExportSpatialUnitAddMetadataTemplate() {
     this.resourceImportService.downloadJson(
       'Raumebene_Metadaten_Vorlage_Export.json',
-      this.kommonitorDataExchangeService.spatialUnitMetadataStructure
+      SPATIAL_UNIT_METADATA_STRUCTURE
     );
   }
 
   onExportSpatialUnitAddMetadata() {
     // Use service method to build export structure
-    const metadataExport = this.kommonitorDataExchangeService.buildSpatialUnitMetadataExport(
+    const metadataExport = buildSpatialUnitMetadataExport(
       this.metadata,
       this.spatialUnitLevel,
       this.nextLowerHierarchySpatialUnit?.spatialUnitLevel || null,
@@ -829,7 +829,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     );
 
     // Use service method to build export structure
-    const mappingConfigExport = this.kommonitorDataExchangeService.buildMappingConfigExport(
+    const mappingConfigExport = buildMappingConfigExport(
       definitions.converterDefinition,
       definitions.datasourceTypeDefinition,
       definitions.propertyMappingDefinition,
@@ -843,11 +843,11 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   // Metadata structure for export
   get spatialUnitMetadataStructure() {
-    return this.kommonitorDataExchangeService.spatialUnitMetadataStructure;
+    return SPATIAL_UNIT_METADATA_STRUCTURE;
   }
 
   get spatialUnitMappingConfigStructure_pretty() {
-    return this.kommonitorDataExchangeService.syntaxHighlightJSON(
+    return this.indicatorValueService.syntaxHighlightJSON(
       this.kommonitorImporterHelperService.mappingConfigStructure
     );
   }
@@ -867,7 +867,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.isOutlineLayer = false;
     this.outlineColor = '#000000';
     this.outlineWidth = 3;
-    const availableOptions = this.kommonitorDataExchangeService.availableLoiDashArrayObjects || [];
+    const availableOptions = LABELED_LOI_DASH_ARRAY_OBJECTS || [];
     if (availableOptions.length > 0) {
       this.selectedOutlineDashArrayObject = {
         label: availableOptions[0].label,

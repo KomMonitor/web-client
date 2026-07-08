@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { Injectable, inject } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { GridApi, GridOptions, GridReadyEvent } from 'ag-grid-community';
-import { KommonitorSpatialUnitDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 
 // Declare environment variables
 declare const __env: any;
@@ -59,8 +59,8 @@ export class FeatureTableDataGridHelperService {
   featureTable_indicator_lastUpdate_timestamp_success: Date | undefined = undefined;
   featureTable_indicator_lastUpdate_timestamp_failure: Date | undefined = undefined;
 
-  private kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
   private http = inject(HttpClient);
+  private envConfigService = inject(EnvConfigService);
 
   private readonly featureTableEvents = new Subject<FeatureTableEvent>();
   /** Loading/delete events for the feature table, discriminated by resourceType. */
@@ -427,7 +427,7 @@ export class FeatureTableDataGridHelperService {
     this.featureTableEvents.next({ resourceType, type: 'loadingStart' });
 
     // Determine URL based on resource type
-    let url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}`;
+    let url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}`;
     if (resourceType === 'spatialUnit') {
       url += `/spatial-units/${datasetId}/singleFeature/${featureId}/singleFeatureRecord/${recordId}`;
     } else if (resourceType === 'georesource') {
@@ -605,7 +605,7 @@ export class FeatureTableDataGridHelperService {
     delete geoJSON.properties.kommonitorRecordId;
 
     // Build URL
-    let url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}`;
+    let url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}`;
     if (resourceType === this.resourceType_georesource) {
       url += '/georesources/';
     } else {
@@ -906,7 +906,7 @@ export class FeatureTableDataGridHelperService {
     this.featureTableEvents.next({ resourceType, type: 'loadingStart' });
 
     const url =
-      `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}` +
+      `${this.envConfigService.baseUrlToKomMonitorDataAPI}` +
       `/indicators/${datasetId}/${spatialUnitId}/singleFeature/${featureId}/singleFeatureRecord/${recordId}`;
 
     this.http.delete(url).subscribe({
@@ -959,7 +959,7 @@ export class FeatureTableDataGridHelperService {
     }
 
     const url =
-      `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}` +
+      `${this.envConfigService.baseUrlToKomMonitorDataAPI}` +
       `/indicators/${datasetId}/${spatialUnitId}/singleFeature/` +
       `${newValueParams.data[__env.FEATURE_ID_PROPERTY_NAME]}/singleFeatureRecord/${newValueParams.data.fid}`;
 

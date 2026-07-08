@@ -2,10 +2,8 @@ import { Component, Input, OnInit, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import {
-  KommonitorSpatialUnitDataExchangeService,
-  AccessControlMetadata,
-} from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { AdminRoleManagementService } from '../admin-role-management.service';
 import { NotificationService } from '../../../common/notification/notification.service';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
@@ -19,7 +17,7 @@ import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-
 })
 export class RoleEditMetadataModalComponent implements OnInit {
   private activeModal = inject(NgbActiveModal);
-  private kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
+  private accessControlService = inject(AccessControlService);
   private adminRoleManagementService = inject(AdminRoleManagementService);
   private notificationSrvc = inject(NotificationService);
 
@@ -49,7 +47,7 @@ export class RoleEditMetadataModalComponent implements OnInit {
   }
 
   checkName(): void {
-    this.nameInvalid = this.kommonitorDataExchangeService.accessControl.some(
+    this.nameInvalid = this.accessControlService.accessControl.some(
       (ou) =>
         ou.name === this.currentDataset.name &&
         ou.organizationalUnitId !== this.currentDataset.organizationalUnitId

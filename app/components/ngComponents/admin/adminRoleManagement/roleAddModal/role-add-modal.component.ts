@@ -5,10 +5,10 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { OrganizationalUnitInputType } from 'models/data-management-api';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridOptions, GridReadyEvent } from 'ag-grid-community';
-import {
-  AccessControlMetadata,
-  KommonitorSpatialUnitDataExchangeService,
-} from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { AdminRoleManagementService } from '../admin-role-management.service';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
@@ -43,7 +43,9 @@ import { RoleDelegatePutEntry } from '../admin-role-management.service';
 })
 export class RoleAddModalComponent implements OnInit {
   protected activeModal = inject(NgbActiveModal);
-  protected kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
+  protected accessControlService = inject(AccessControlService);
+  private indicatorValueService = inject(IndicatorValueService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private adminRoleManagementService = inject(AdminRoleManagementService);
   private notificationService = inject(NotificationService);
@@ -80,25 +82,25 @@ export class RoleAddModalComponent implements OnInit {
     { key: 'basics', label: 'Basisinformationen' },
     { key: 'rights', label: 'Rechte anderer Gruppen an neuer Gruppe' },
   ]);
-  protected accessControlOptions = [...this.kommonitorDataExchangeService.accessControl].sort(
+  protected accessControlOptions = [...this.accessControlService.accessControl].sort(
     (left, right) => left.name.localeCompare(right.name, 'de')
   );
 
   ngOnInit(): void {
     this.reset();
 
-    if (this.kommonitorDataExchangeService.accessControl.length > 0) {
+    if (this.accessControlService.accessControl.length > 0) {
       this.buildRoleDelegatesTable();
       return;
     }
 
-    this.kommonitorDataExchangeService.fetchAccessControlMetadata(true).subscribe({
-      next: () => this.buildRoleDelegatesTable(),
-    });
+    this.metadataBootstrap
+      .fetchAccessControlMetadata(this.accessControlService.currentKeycloakLoginRoles)
+      .then(() => this.buildRoleDelegatesTable());
   }
 
   get isRealmAdmin(): boolean {
-    return this.kommonitorDataExchangeService.checkAdminPermission();
+    return this.accessControlService.checkAdminPermission();
   }
 
   get parentSelected(): boolean {
@@ -135,13 +137,13 @@ export class RoleAddModalComponent implements OnInit {
     this.nameInvalid = false;
     this.stepper.reset();
 
-    if (this.kommonitorDataExchangeService.accessControl.length > 0) {
+    if (this.accessControlService.accessControl.length > 0) {
       this.buildRoleDelegatesTable();
     }
   }
 
   checkName(): void {
-    this.nameInvalid = this.kommonitorDataExchangeService.accessControl.some(
+    this.nameInvalid = this.accessControlService.accessControl.some(
       (ou) => ou.name === this.newOrganizationalUnit.name
     );
   }
@@ -170,9 +172,7 @@ export class RoleAddModalComponent implements OnInit {
     }
 
     return (
-      this.kommonitorDataExchangeService.getAccessControlById(
-        this.newOrganizationalUnit.parentId
-      ) || null
+      this.accessControlService.getAccessControlById(this.newOrganizationalUnit.parentId) || null
     );
   }
 
@@ -181,7 +181,7 @@ export class RoleAddModalComponent implements OnInit {
   }
 
   private buildRoleDelegatesTable(): void {
-    const rowData = buildAdvancedRoleRowData(this.kommonitorDataExchangeService.accessControl, []);
+    const rowData = buildAdvancedRoleRowData(this.accessControlService.accessControl, []);
     const components = createAdvancedRoleComponents();
 
     this.roleDelegatesColumnDefs = buildAdvancedColumnDefs();
@@ -216,8 +216,9 @@ export class RoleAddModalComponent implements OnInit {
       this.roleDelegatesGridApi,
       this.roleDelegatesRowData
     );
-    return buildRoleDelegatesPutBody(selectedPermissionIds, (id) =>
-      this.kommonitorDataExchangeService.getAccessControlById(id)
+    return buildRoleDelegatesPutBody(
+      selectedPermissionIds,
+      (id) => this.accessControlService.getAccessControlById(id) ?? undefined
     );
   }
 
@@ -260,11 +261,10 @@ export class RoleAddModalComponent implements OnInit {
 
           // Distinguish HTTP/backend errors from Keycloak/service errors by status presence
           if (error && error.status !== undefined) {
-            this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(payload);
+            this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(payload);
             this.showErrorAlert = true;
           } else {
-            this.keycloakErrorMessagePart =
-              this.kommonitorDataExchangeService.syntaxHighlightJSON(payload);
+            this.keycloakErrorMessagePart = this.indicatorValueService.syntaxHighlightJSON(payload);
             if (!this.showErrorAlert) {
               this.showKeycloakErrorAlert = true;
             }

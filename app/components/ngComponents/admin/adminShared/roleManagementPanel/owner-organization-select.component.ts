@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { KommonitorSpatialUnitDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
 import { collectCreatorRightOrganizations } from './role-management-panel.model';
 
@@ -24,7 +24,7 @@ import { collectCreatorRightOrganizations } from './role-management-panel.model'
   standalone: true,
 })
 export class OwnerOrganizationSelectComponent {
-  private kommonitorDataExchangeService = inject(KommonitorSpatialUnitDataExchangeService);
+  private accessControlService = inject(AccessControlService);
 
   /** 'transfer': optional ownership transfer (edit); 'assign': mandatory owner choice (add). */
   @Input() mode: 'transfer' | 'assign' = 'transfer';
@@ -52,12 +52,12 @@ export class OwnerOrganizationSelectComponent {
     if (!this.currentOwnerId) {
       return '';
     }
-    return this.kommonitorDataExchangeService.getAccessControlById(this.currentOwnerId)?.name || '';
+    return this.accessControlService.getAccessControlById(this.currentOwnerId)?.name || '';
   }
 
   getFilteredOrganizations(): AccessControlMetadata[] {
-    const orgs = this.kommonitorDataExchangeService.checkAdminPermission()
-      ? (this.kommonitorDataExchangeService.accessControl ?? [])
+    const orgs = this.accessControlService.checkAdminPermission()
+      ? (this.accessControlService.accessControl ?? [])
       : this.creatorRightOrganizations();
     if (!this.ownerOrgFilter) {
       return orgs;
@@ -67,11 +67,11 @@ export class OwnerOrganizationSelectComponent {
 
   /** Cached per accessControl array instance — the list may load after init. */
   private creatorRightOrganizations(): AccessControlMetadata[] {
-    const accessControl = this.kommonitorDataExchangeService.accessControl ?? [];
+    const accessControl = this.accessControlService.accessControl ?? [];
     if (accessControl !== this.cachedCreatorOrgsSource) {
       this.cachedCreatorOrgsSource = accessControl;
       this.cachedCreatorOrgs = collectCreatorRightOrganizations(
-        this.kommonitorDataExchangeService.currentKomMonitorLoginRoleNames ?? [],
+        this.accessControlService.currentKomMonitorLoginRoleNames ?? [],
         accessControl
       );
     }
