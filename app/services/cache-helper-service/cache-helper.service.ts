@@ -319,91 +319,72 @@ export class CacheHelperServiceService {
     );
   }
 
-  fetchSingleAccessControlMetadata(targetId, keycloakRolesArray) {
-    return this.http
-      .get(this.baseUrlToKomMonitorDataAPI + this.accessControlEndpoint + '/' + targetId)
-      .subscribe({
-        next: (response) => {
-          this.fetchAccessControlMetadata(keycloakRolesArray);
-          return response;
-        },
-      });
+  // Single-resource fetchers. These used to return the .subscribe()
+  // Subscription instead of the payload, so callers that awaited/then-ed them
+  // wrote Subscription objects into their stores; they also kicked off a
+  // hidden full-list refetch that raced the caller's targeted store update.
+  // They now resolve with the fetched resource and nothing else.
+
+  fetchSingleAccessControlMetadata(targetId: string): Promise<OrganizationalUnitOverviewType> {
+    return firstValueFrom(
+      this.http.get<OrganizationalUnitOverviewType>(
+        this.baseUrlToKomMonitorDataAPI + this.accessControlEndpoint + '/' + targetId
+      )
+    );
   }
 
-  fetchSingleSpatialUnitMetadata(targetSpatialUnitId, keycloakRolesArray) {
-    return this.http
-      .get(this.baseUrlToKomMonitorDataAPI + this.spatialUnitsEndpoint + '/' + targetSpatialUnitId)
-      .subscribe({
-        next: (response) => {
-          this.fetchSpatialUnitsMetadata(keycloakRolesArray);
-          return response;
-        },
-      });
+  fetchSingleSpatialUnitMetadata(targetSpatialUnitId: string): Promise<SpatialUnitOverviewType> {
+    return firstValueFrom(
+      this.http.get<SpatialUnitOverviewType>(
+        this.baseUrlToKomMonitorDataAPI + this.spatialUnitsEndpoint + '/' + targetSpatialUnitId
+      )
+    );
   }
 
-  fetchSingleGeoresourceMetadata(targetGeoresourceId, keycloakRolesArray) {
-    return this.http
-      .get(this.baseUrlToKomMonitorDataAPI + this.georesourcesEndpoint + '/' + targetGeoresourceId)
-      .subscribe({
-        next: (response) => {
-          this.fetchGeoresourceMetadata(keycloakRolesArray);
-          return response;
-        },
-      });
+  fetchSingleGeoresourceMetadata(targetGeoresourceId: string): Promise<GeoresourcesDataset> {
+    return firstValueFrom(
+      this.http.get<GeoresourcesDataset>(
+        this.baseUrlToKomMonitorDataAPI + this.georesourcesEndpoint + '/' + targetGeoresourceId
+      )
+    );
   }
 
-  fetchSingleIndicatorMetadata(targetIndicatorId, keycloakRolesArray) {
-    return this.http
-      .get(this.baseUrlToKomMonitorDataAPI + this.indicatorsEndpoint + '/' + targetIndicatorId)
-      .subscribe({
-        next: (response) => {
-          this.fetchIndicatorsMetadata(keycloakRolesArray);
-          return response;
-        },
-      });
+  fetchSingleIndicatorMetadata(targetIndicatorId: string): Promise<IndicatorsDataset> {
+    return firstValueFrom(
+      this.http.get<IndicatorsDataset>(
+        this.baseUrlToKomMonitorDataAPI + this.indicatorsEndpoint + '/' + targetIndicatorId
+      )
+    );
   }
 
-  fetchSingleIndicatorScriptMetadata(targetScriptId, keycloakRolesArray) {
-    return this.http
-      .get(this.baseUrlToKomMonitorDataAPI + this.scriptsEndpoint + '/' + targetScriptId)
-      .subscribe({
-        next: (response) => {
-          this.fetchProcessScriptsMetadata(keycloakRolesArray);
-          return response;
-        },
-      });
+  fetchSingleIndicatorScriptMetadata(targetScriptId: string): Promise<unknown> {
+    return firstValueFrom(
+      this.http.get(this.baseUrlToKomMonitorDataAPI + this.scriptsEndpoint + '/' + targetScriptId)
+    );
   }
 
-  fetchSingleGeoresourceSchema(targetGeoresourceId) {
-    return this.http
-      .get(
+  fetchSingleGeoresourceSchema(targetGeoresourceId: string): Promise<unknown> {
+    return firstValueFrom(
+      this.http.get(
         this.baseUrlToKomMonitorDataAPI +
           this.georesourcesEndpoint +
           '/' +
           targetGeoresourceId +
           '/schema'
       )
-      .subscribe({
-        next: (response) => {
-          return response;
-        },
-      });
+    );
   }
 
-  fetchSingleGeoresourceWithoutGeometry(targetGeoresourceId) {
-    return this.http
-      .get(
+  fetchSingleGeoresourceWithoutGeometry(targetGeoresourceId: string): Promise<unknown> {
+    return firstValueFrom(
+      this.http.get(
         this.baseUrlToKomMonitorDataAPI +
           this.georesourcesEndpoint +
           '/' +
           targetGeoresourceId +
           '/allFeatures/without-geometry'
       )
-      .subscribe({
-        next: (response) => {
-          return response;
-        },
-      });
+    );
   }
 
   async init() {

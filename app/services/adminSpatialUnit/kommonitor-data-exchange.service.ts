@@ -1,24 +1,25 @@
-import { Injectable, OnDestroy, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import {
-  Observable,
-  BehaviorSubject,
-  throwError,
-  of,
-  timer,
-  catchError,
-  retry,
-  shareReplay,
-  tap,
-  map,
-  filter,
-  takeUntil,
-  Subject,
-} from 'rxjs';
-import { IndicatorsDataset } from 'components/ngComponents/models/indicators.models';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, from, map, tap, firstValueFrom } from 'rxjs';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
 import { SpatialUnitOverviewType } from 'models/data-management-api';
-import { AuthService } from '../auth-service/auth.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import {
+  LABELED_LOI_DASH_ARRAY_OBJECTS,
+  SPATIAL_UNIT_METADATA_STRUCTURE,
+  buildMappingConfigExport,
+  buildSpatialUnitMetadataExport,
+  buildSpatialUnitMetadataPatchBody,
+  extractRemainingHeaders,
+  transformFeaturesForGrid,
+  validatePeriodOfValidity,
+  validateSpatialUnitMetadata,
+} from './spatial-unit-metadata.util';
 
 /**
  * Legacy exported names kept for the many importers of this service; the
@@ -28,1106 +29,216 @@ import { AuthService } from '../auth-service/auth.service';
 export type SpatialUnitMetadata = SpatialUnitOverviewType;
 export type { AccessControlMetadata };
 
+/**
+ * Thin facade over the canonical admin services (step 4 of the admin
+ * refactoring — see documentation/ADMIN_REFACTORING_ANALYSIS.md), mirroring
+ * the georesource facade in adminGeoresourceUnit.
+ *
+ * Despite its historical name this service was the admin area's de-facto
+ * global auth/data service. The former implementation duplicated global
+ * state: its own Keycloak polling (1s timer + retries + 30s refresh), its own
+ * spatial-units/access-control fetches with a private 5-minute cache, and
+ * seven BehaviorSubjects — all shadowing the canonical stores that
+ * MetadataBootstrapService populates. All state now lives in
+ * AccessControlService / SpatialUnitMetadataStoreService / CacheHelperService;
+ * this facade only adapts the legacy API surface for its ~20 consumers.
+ */
 @Injectable({
   providedIn: 'root',
 })
-export class KommonitorDataExchangeService implements OnDestroy {
+export class KommonitorDataExchangeService {
   private http = inject(HttpClient);
-  private authService = inject(AuthService);
+  private accessControlService = inject(AccessControlService);
+  private cacheHelperService = inject(CacheHelperServiceService);
+  private envConfigService = inject(EnvConfigService);
+  private indicatorValueService = inject(IndicatorValueService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
+  private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
 
-  // Reactive subjects for state management
-  private spatialUnitsSubject = new BehaviorSubject<SpatialUnitMetadata[]>([]);
-  private accessControlSubject = new BehaviorSubject<AccessControlMetadata[]>([]);
-  private currentRolesSubject = new BehaviorSubject<string[]>([]);
-  private komMonitorRolesSubject = new BehaviorSubject<string[]>([]);
+  // Loading/error state of the fetches triggered through this facade (the
+  // spatial-units overview page binds these).
   private loadingSubject = new BehaviorSubject<boolean>(false);
   private errorSubject = new BehaviorSubject<string | null>(null);
-  private authenticationStateSubject = new BehaviorSubject<boolean>(false);
-
-  // Destroy subject for cleanup
-  private destroy$ = new Subject<void>();
-
-  // Public observables
-  public spatialUnits$ = this.spatialUnitsSubject.asObservable();
-  public accessControl$ = this.accessControlSubject.asObservable();
-  public currentRoles$ = this.currentRolesSubject.asObservable();
-  public komMonitorRoles$ = this.komMonitorRolesSubject.asObservable();
   public loading$ = this.loadingSubject.asObservable();
   public error$ = this.errorSubject.asObservable();
-  public authenticationState$ = this.authenticationStateSubject.asObservable();
 
-  // Cache for spatial units with expiration
-  private spatialUnitsCache: {
-    data: SpatialUnitMetadata[];
-    timestamp: number;
-    expiresAt: number;
-  } | null = null;
+  /** Spatial units stream, backed by the canonical store signal. */
+  public spatialUnits$ = this.spatialUnitStore.availableSpatialUnits$;
 
-  // Cache for access control with expiration
-  private accessControlCache: {
-    data: AccessControlMetadata[];
-    timestamp: number;
-    expiresAt: number;
-  } | null = null;
+  // ---------------------------------------------------------------------
+  // Spatial-unit metadata (delegates to SpatialUnitMetadataStoreService)
+  // ---------------------------------------------------------------------
 
-  // Cache duration in milliseconds (5 minutes)
-  private readonly CACHE_DURATION = 5 * 60 * 1000;
-
-  // Base URL for API calls
-  private readonly baseUrl: string;
-
-  // API endpoints
-  private readonly endpoints = {
-    spatialUnits: '/spatial-units',
-    spatialUnitsPublic: '/public/spatial-units',
-    accessControl: '/organizationalUnits',
-    indicators: '/indicators',
-    indicatorsPublic: '/public/indicators',
-  };
-
-  // Environment configuration
-  private readonly env: any;
-
-  constructor() {
-    // Get environment configuration
-    this.env = (window as any).__env;
-    this.baseUrl = this.getBaseApiUrl();
-
-    // Initialize the service
-    this.initializeService();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  /**
-   * Initialize the service with proper race condition handling
-   */
-  private initializeService(): void {
-    // Set up authentication listeners
-    this.setupAuthenticationListeners();
-
-    // Initial role extraction (with retry logic for race conditions)
-    this.extractAndSetRolesWithRetry();
-
-    // Set up periodic role checking to handle token refreshes
-    this.setupPeriodicRoleCheck();
-  }
-
-  /**
-   * Set up authentication state listeners
-   */
-  private setupAuthenticationListeners(): void {
-    // Listen for authentication state changes
-    timer(0, 1000) // Check every second
-      .pipe(
-        takeUntil(this.destroy$),
-        map(() => this.authService.isAuthenticated()),
-        filter((isAuth, _index) => {
-          const currentState = this.authenticationStateSubject.value;
-          return isAuth !== currentState; // Only emit when state changes
-        })
-      )
-      .subscribe((isAuthenticated) => {
-        this.authenticationStateSubject.next(isAuthenticated);
-
-        if (isAuthenticated) {
-          // User just authenticated, extract roles
-          this.extractAndSetRoles();
-        } else {
-          // User logged out, clear roles
-          this.clearRoles();
-        }
-      });
-  }
-
-  /**
-   * Extract roles with retry logic to handle race conditions
-   */
-  private extractAndSetRolesWithRetry(): void {
-    const maxRetries = 10;
-    let retryCount = 0;
-
-    const attemptRoleExtraction = () => {
-      const roles = this.extractRolesFromKeycloak();
-
-      if (roles.length > 0 || retryCount >= maxRetries) {
-        this.setCurrentKeycloakLoginRoles(roles);
-      } else {
-        retryCount++;
-        setTimeout(attemptRoleExtraction, 500); // Retry after 500ms
-      }
-    };
-
-    attemptRoleExtraction();
-  }
-
-  /**
-   * Set up periodic role checking for token refreshes
-   */
-  private setupPeriodicRoleCheck(): void {
-    timer(30000, 30000) // Check every 30 seconds
-      .pipe(
-        takeUntil(this.destroy$),
-        filter(() => this.authService.isAuthenticated())
-      )
-      .subscribe(() => {
-        const currentRoles = this.currentRolesSubject.value;
-        const newRoles = this.extractRolesFromKeycloak();
-
-        // Only update if roles have changed
-        if (JSON.stringify(currentRoles) !== JSON.stringify(newRoles)) {
-          this.setCurrentKeycloakLoginRoles(newRoles);
-        }
-      });
-  }
-
-  /**
-   * Extract roles directly from Keycloak JWT token
-   */
-  private extractRolesFromKeycloak(): string[] {
-    try {
-      if (!this.authService.isAuthenticated()) {
-        return [];
-      }
-
-      const tokenParsed = this.authService.getTokenParsed();
-      if (!tokenParsed?.realm_access?.roles) {
-        return [];
-      }
-
-      const roles = tokenParsed.realm_access.roles;
-      return roles;
-    } catch {
-      return [];
-    }
-  }
-
-  /**
-   * Extract and set roles from Keycloak
-   */
-  private extractAndSetRoles(): void {
-    const roles = this.extractRolesFromKeycloak();
-    this.setCurrentKeycloakLoginRoles(roles);
-  }
-
-  /**
-   * Filter roles to only include KomMonitor-specific roles
-   */
-  private filterKomMonitorRoles(allRoles: string[]): string[] {
-    if (!allRoles || allRoles.length === 0) {
-      return [];
-    }
-
-    // Get environment configuration for role suffixes
-    const roleSuffixes = [
-      ...(this.env?.keycloakKomMonitorGroupsEditRoleNames || []),
-      ...(this.env?.keycloakKomMonitorThemesEditRoleNames || []),
-      ...(this.env?.keycloakKomMonitorGeodataEditRoleNames || []),
-    ];
-
-    // Always include admin role
-    const possibleRoles = [this.env?.keycloakKomMonitorAdminRoleName || 'kommonitor-creator'];
-
-    // Add organizational unit roles based on access control data
-    const accessControl = this.accessControlSubject.value;
-    accessControl.forEach((organizationalUnit) => {
-      for (const roleSuffix of roleSuffixes) {
-        possibleRoles.push(organizationalUnit.name + '.' + roleSuffix);
-      }
-    });
-
-    // Filter roles to only include KomMonitor-specific ones
-    const komMonitorRoles = allRoles.filter((role) => possibleRoles.includes(role));
-
-    return komMonitorRoles;
-  }
-
-  /**
-   * Clear roles when user logs out
-   */
-  private clearRoles(): void {
-    this.currentRolesSubject.next([]);
-    this.komMonitorRolesSubject.next([]);
-  }
-
-  /**
-   * Gets the base API URL from environment configuration
-   */
-  private getBaseApiUrl(): string {
-    if (this.env?.apiUrl && this.env?.basePath) {
-      return `${this.env.apiUrl}${this.env.basePath}`;
-    }
-    // Fallback to default values
-    return 'http://localhost:8085/management';
-  }
-
-  /**
-   * Get available spatial units with caching
-   */
   get availableSpatialUnits(): SpatialUnitMetadata[] {
-    return this.spatialUnitsSubject.value;
+    return this.spatialUnitStore.availableSpatialUnits;
   }
 
-  /**
-   * Get current Keycloak login roles
-   */
-  get currentKeycloakLoginRoles(): string[] {
-    return this.currentRolesSubject.value;
-  }
-
-  /**
-   * Get KomMonitor-specific roles
-   */
-  get currentKomMonitorLoginRoleNames(): string[] {
-    return this.komMonitorRolesSubject.value;
-  }
-
-  /**
-   * Get spatial units map for quick lookup
-   */
   get availableSpatialUnits_map(): Map<string, SpatialUnitMetadata> {
-    const spatialUnits = this.availableSpatialUnits;
-    const map = new Map<string, SpatialUnitMetadata>();
-    spatialUnits.forEach((unit) => {
-      map.set(unit.spatialUnitId, unit);
-    });
-    return map;
+    return this.spatialUnitStore.availableSpatialUnits_map;
   }
 
-  /**
-   * Get access control data
-   */
-  get accessControl(): AccessControlMetadata[] {
-    return this.accessControlSubject.value;
-  }
-
-  /**
-   * Get base URL to KomMonitor Data API
-   */
-  get baseUrlToKomMonitorDataAPI(): string {
-    return this.baseUrl;
-  }
-
-  /**
-   * Get base URL to KomMonitor Data API for spatial resources
-   * This includes the authentication path based on user authentication state
-   */
-  getBaseUrlToKomMonitorDataAPI_spatialResource(): string {
-    // For now, we'll use "/public" as the default path for spatial resources
-    // This should be configurable based on authentication state
-    const spatialResourcePath = this.authService.isAuthenticated() ? '' : '/public';
-    return this.baseUrl + spatialResourcePath;
-  }
-
-  /**
-   * Check if Keycloak security is enabled
-   */
-  get enableKeycloakSecurity(): boolean {
-    return this.env?.enableKeycloakSecurity || false;
-  }
-
-  /**
-   * Get date picker options
-   */
-  get datePickerOptions(): any {
-    return {
-      format: 'dd.mm.yyyy',
-      autoclose: true,
-      todayBtn: 'linked',
-      todayHighlight: true,
-      assumeNearbyYear: true,
-      startView: 2,
-      minView: 2,
-    };
-  }
-
-  /**
-   * Get update interval options
-   */
-  get updateIntervalOptions(): any[] {
-    return [
-      {
-        displayName: 'jährlich',
-        apiName: 'YEARLY',
-      },
-      {
-        displayName: 'halbjährlich',
-        apiName: 'HALF_YEARLY',
-      },
-      {
-        displayName: 'vierteljährlich',
-        apiName: 'QUARTERLY',
-      },
-      {
-        displayName: 'monatlich',
-        apiName: 'MONTHLY',
-      },
-      {
-        displayName: 'wöchentlich',
-        apiName: 'WEEKLY',
-      },
-      {
-        displayName: 'täglich',
-        apiName: 'DAILY',
-      },
-      {
-        displayName: 'beliebig',
-        apiName: 'ARBITRARY',
-      },
-    ];
-  }
-
-  /**
-   * Get available line of interest dash array objects
-   */
-  get availableLoiDashArrayObjects(): any[] {
-    // Align with legacy AngularJS values so persisted datasets map correctly
-    return [
-      {
-        label: 'Durchgezogen',
-        dashArrayValue: '',
-        svgString:
-          '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black"/></svg>',
-      },
-      {
-        label: 'Gestrichelt (20)',
-        dashArrayValue: '20',
-        svgString:
-          '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20"/></svg>',
-      },
-      {
-        label: 'Gestrichelt (20 10)',
-        dashArrayValue: '20 10',
-        svgString:
-          '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10"/></svg>',
-      },
-      {
-        label: 'Strich-Punkt (20 10 5 10)',
-        dashArrayValue: '20 10 5 10',
-        svgString:
-          '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10 5 10"/></svg>',
-      },
-      {
-        label: 'Gepunktet (5)',
-        dashArrayValue: '5',
-        svgString:
-          '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="5"/></svg>',
-      },
-    ];
-  }
-
-  /**
-   * Fetches spatial units metadata with caching and error handling
-   */
-  fetchSpatialUnitsMetadata(_keycloakRolesArray: string[]): Observable<SpatialUnitMetadata[]> {
-    // Check cache first
-    if (this.isCacheValid(this.spatialUnitsCache)) {
-      this.spatialUnitsSubject.next(this.spatialUnitsCache!.data);
-      return of(this.spatialUnitsCache!.data);
-    }
-
-    this.setLoading(true);
-    this.clearError();
-
-    const endpoint = this.getSpatialUnitsEndpoint();
-    const url = `${this.baseUrl}${endpoint}`;
-
-    return this.http.get<SpatialUnitMetadata[]>(url).pipe(
-      tap((data) => {
-        this.spatialUnitsSubject.next(data);
-        this.updateSpatialUnitsCache(data);
-        this.setLoading(false);
-      }),
-      catchError((error) => {
-        this.setError(this.handleHttpError(error));
-        this.setLoading(false);
-        return throwError(() => error);
-      }),
-      retry(2),
-      shareReplay(1)
-    );
-  }
-
-  /**
-   * Fetches access control metadata
-   */
-  fetchAccessControlMetadata(useCache: boolean): Observable<AccessControlMetadata[]> {
-    // Check cache first
-    if (useCache && this.isCacheValid(this.accessControlCache)) {
-      this.accessControlSubject.next(this.accessControlCache!.data);
-      return of(this.accessControlCache!.data);
-    }
-
-    this.setLoading(true);
-    this.clearError();
-
-    const url = `${this.baseUrl}${this.endpoints.accessControl}`;
-
-    return this.http.get<AccessControlMetadata[]>(url).pipe(
-      tap((data) => {
-        this.accessControlSubject.next(data);
-        this.updateAccessControlCache(data);
-
-        // Update KomMonitor roles after access control is loaded
-        this.updateKomMonitorRoles();
-
-        // Reset loading state after successful fetch
-        this.setLoading(false);
-      }),
-      catchError((error) => {
-        this.setError(this.handleHttpError(error));
-        this.setLoading(false);
-        return throwError(() => error);
-      }),
-      retry(2),
-      shareReplay(1)
-    );
-  }
-
-  /**
-   * Fetches indicators metadata
-   */
-  fetchIndicatorsMetadata(_keycloakRolesArray: string[]): Observable<IndicatorsDataset[]> {
-    this.setLoading(true);
-    this.clearError();
-
-    const endpoint = this.getIndicatorsEndpoint();
-    const url = `${this.baseUrl}${endpoint}`;
-
-    return this.http.get<IndicatorsDataset[]>(url).pipe(
-      tap(() => {
-        this.setLoading(false);
-      }),
-      catchError((error) => {
-        this.setError(this.handleHttpError(error));
-        this.setLoading(false);
-        return throwError(() => error);
-      }),
-      retry(2)
-    );
-  }
-
-  /**
-   * Get spatial unit metadata by ID
-   */
   getSpatialUnitMetadataById(spatialUnitId: string): SpatialUnitMetadata | null {
-    const spatialUnits = this.availableSpatialUnits;
-    return spatialUnits.find((unit) => unit.spatialUnitId === spatialUnitId) || null;
+    return this.spatialUnitStore.getSpatialUnitMetadataById(spatialUnitId) ?? null;
   }
 
-  /**
-   * Add single spatial unit metadata to the list
-   */
   addSingleSpatialUnitMetadata(spatialUnitMetadata: SpatialUnitMetadata): void {
-    // Ensure userPermissions is always an array
-    const metadataWithDefaults = {
-      ...spatialUnitMetadata,
-      userPermissions: spatialUnitMetadata.userPermissions || [],
-    };
-
-    const currentSpatialUnits = [...this.availableSpatialUnits];
-    currentSpatialUnits.unshift(metadataWithDefaults);
-    this.spatialUnitsSubject.next(currentSpatialUnits);
-    this.updateSpatialUnitsCache(currentSpatialUnits);
+    this.spatialUnitStore.addSingleSpatialUnitMetadata(spatialUnitMetadata);
   }
 
-  /**
-   * Replace single spatial unit metadata in the list
-   */
   replaceSingleSpatialUnitMetadata(spatialUnitMetadata: SpatialUnitMetadata): void {
-    // Ensure userPermissions is always an array
-    const metadataWithDefaults = {
-      ...spatialUnitMetadata,
-      userPermissions: spatialUnitMetadata.userPermissions || [],
-    };
-
-    const currentSpatialUnits = [...this.availableSpatialUnits];
-    const index = currentSpatialUnits.findIndex(
-      (unit) => unit.spatialUnitId === spatialUnitMetadata.spatialUnitId
-    );
-
-    if (index !== -1) {
-      currentSpatialUnits[index] = metadataWithDefaults;
-      this.spatialUnitsSubject.next(currentSpatialUnits);
-      this.updateSpatialUnitsCache(currentSpatialUnits);
-    }
+    this.spatialUnitStore.replaceSingleSpatialUnitMetadata(spatialUnitMetadata);
   }
 
-  /**
-   * Delete single spatial unit metadata from the list
-   */
   deleteSingleSpatialUnitMetadata(spatialUnitId: string): void {
-    const currentSpatialUnits = [...this.availableSpatialUnits];
-    const index = currentSpatialUnits.findIndex((unit) => unit.spatialUnitId === spatialUnitId);
-
-    if (index !== -1) {
-      currentSpatialUnits.splice(index, 1);
-      this.spatialUnitsSubject.next(currentSpatialUnits);
-      this.updateSpatialUnitsCache(currentSpatialUnits);
-    }
+    this.spatialUnitStore.deleteSingleSpatialUnitMetadata(spatialUnitId);
   }
 
   /**
-   * Sets the current Keycloak login roles
+   * Re-fetch the spatial units into the canonical store. Returns the fresh
+   * list for legacy subscribers; the overview page also listens on
+   * spatialUnits$.
    */
-  setCurrentKeycloakLoginRoles(roles: string[]): void {
-    this.currentRolesSubject.next([...roles]);
-    this.komMonitorRolesSubject.next(this.filterKomMonitorRoles(roles));
-  }
-
-  /**
-   * Check if user has permission to create spatial units
-   */
-  checkCreatePermission(): boolean {
-    const roles = this.currentKeycloakLoginRoles;
-    const komMonitorRoles = this.currentKomMonitorLoginRoleNames;
-
-    // Check for admin role
-    if (roles.includes(this.env?.keycloakKomMonitorAdminRoleName || 'kommonitor-creator')) {
-      return true;
-    }
-
-    // Check for creator roles
-    const hasCreatorRole = komMonitorRoles.some((role) => role.endsWith('-creator'));
-
-    return hasCreatorRole;
-  }
-
-  /**
-   * Get allowed roles string for display
-   */
-  getAllowedRolesString(permissions: string[] | null | undefined): string {
-    if (!permissions || !Array.isArray(permissions)) {
-      return '';
-    }
-
-    const accessControl = this.accessControl;
-    const roleNames = permissions.map((permissionId: string) => {
-      for (const unit of accessControl) {
-        const permission = unit.permissions.find((p) => p.permissionId === permissionId);
-        if (permission) {
-          return unit.name + '.' + permission.permissionLevel;
-        }
-      }
-      return permissionId;
-    });
-
-    return roleNames.join(', ');
-  }
-
-  /**
-   * Get role title by role ID
-   */
-  getRoleTitle(roleId: string): string {
-    const accessControl = this.accessControl;
-    const unit = accessControl.find((u) => u.organizationalUnitId === roleId);
-    return unit ? unit.name : roleId;
-  }
-
-  /**
-   * Syntax highlight JSON for error display
-   */
-  syntaxHighlightJSON(json: any): string {
-    if (typeof json !== 'string') {
-      json = JSON.stringify(json, null, 2);
-    }
-    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    return json.replace(
-      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g,
-      function (match) {
-        let cls = 'number';
-        if (/^"/.test(match)) {
-          if (/:$/.test(match)) {
-            cls = 'key';
-          } else {
-            cls = 'string';
-          }
-        } else if (/true|false/.test(match)) {
-          cls = 'boolean';
-        } else if (/null/.test(match)) {
-          cls = 'null';
-        }
-        return '<span class="' + cls + '">' + match + '</span>';
-      }
-    );
-  }
-
-  /**
-   * Display map application error
-   */
-  displayMapApplicationError(error: any): void {
-    this.setError(typeof error === 'string' ? error : JSON.stringify(error));
-  }
-
-  /**
-   * Refresh spatial units data
-   */
-  refreshSpatialUnits(): Observable<SpatialUnitMetadata[]> {
-    this.invalidateSpatialUnitsCache();
-    return this.fetchSpatialUnitsMetadata(this.currentKeycloakLoginRoles);
-  }
-
-  /**
-   * Clear all caches
-   */
-  clearAllCaches(): void {
-    this.invalidateSpatialUnitsCache();
-    this.accessControlCache = null;
-  }
-
-  /**
-   * Get the appropriate spatial units endpoint based on authentication
-   */
-  private getSpatialUnitsEndpoint(): string {
-    const endpoint = this.enableKeycloakSecurity
-      ? this.endpoints.spatialUnits
-      : this.endpoints.spatialUnitsPublic;
-    return endpoint;
-  }
-
-  /**
-   * Get the appropriate indicators endpoint based on authentication
-   */
-  private getIndicatorsEndpoint(): string {
-    const endpoint = this.enableKeycloakSecurity
-      ? this.endpoints.indicators
-      : this.endpoints.indicatorsPublic;
-    return endpoint;
-  }
-
-  /**
-   * Check if cache is valid
-   */
-  private isCacheValid(cache: any): boolean {
-    return cache && cache.data && cache.expiresAt > Date.now();
-  }
-
-  /**
-   * Update spatial units cache
-   */
-  private updateSpatialUnitsCache(data: SpatialUnitMetadata[]): void {
-    this.spatialUnitsCache = {
-      data: [...data],
-      timestamp: Date.now(),
-      expiresAt: Date.now() + this.CACHE_DURATION,
-    };
-  }
-
-  /**
-   * Update access control cache
-   */
-  private updateAccessControlCache(data: AccessControlMetadata[]): void {
-    this.accessControlCache = {
-      data: [...data],
-      timestamp: Date.now(),
-      expiresAt: Date.now() + this.CACHE_DURATION,
-    };
-  }
-
-  /**
-   * Invalidate spatial units cache
-   */
-  private invalidateSpatialUnitsCache(): void {
-    this.spatialUnitsCache = null;
-  }
-
-  /**
-   * Update KomMonitor roles after access control is loaded
-   */
-  private updateKomMonitorRoles(): void {
-    const currentRoles = this.currentRolesSubject.value;
-    const komMonitorRoles = this.filterKomMonitorRoles(currentRoles);
-    this.komMonitorRolesSubject.next(komMonitorRoles);
-  }
-
-  /**
-   * Set loading state
-   */
-  private setLoading(loading: boolean): void {
-    this.loadingSubject.next(loading);
-  }
-
-  /**
-   * Set error state
-   */
-  private setError(error: string): void {
-    this.errorSubject.next(error);
-  }
-
-  /**
-   * Clear error state
-   */
-  private clearError(): void {
+  fetchSpatialUnitsMetadata(keycloakRolesArray: string[]): Observable<SpatialUnitMetadata[]> {
+    this.loadingSubject.next(true);
     this.errorSubject.next(null);
-  }
-
-  /**
-   * Handle HTTP errors
-   */
-  private handleHttpError(error: HttpErrorResponse): string {
-    let errorMessage = 'An error occurred';
-
-    if (error.error instanceof ErrorEvent) {
-      // Client-side error
-      errorMessage = `Error: ${error.error.message}`;
-    } else {
-      // Server-side error
-      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
-      if (error.error && typeof error.error === 'object') {
-        errorMessage += `\nDetails: ${JSON.stringify(error.error)}`;
-      }
-    }
-
-    return errorMessage;
-  }
-
-  /**
-   * Check if current user has admin permission
-   */
-  checkAdminPermission(): boolean {
-    const currentRoles = this.currentRolesSubject.value;
-    const adminRoleName = this.env?.keycloakKomMonitorAdminRoleName;
-
-    if (!adminRoleName || !currentRoles || currentRoles.length === 0) {
-      return false;
-    }
-
-    return currentRoles.includes(adminRoleName);
-  }
-
-  /**
-   * Get access control metadata by organizational unit ID
-   */
-  getAccessControlById(id: string): AccessControlMetadata | undefined {
-    return this.accessControl.find((unit) => unit.organizationalUnitId === id);
-  }
-
-  /**
-   * Get access control metadata by organizational unit name
-   */
-  getAccessControlByName(name: string): AccessControlMetadata | null {
-    return this.accessControl.find((unit) => unit.name === name) || null;
-  }
-
-  /**
-   * Filter child or self organizational units
-   */
-  filterChildOrSelfOrganizationalUnits(
-    organizationalUnitReferenceItem: AccessControlMetadata | null
-  ): (organizationalUnit: AccessControlMetadata) => boolean {
-    return (organizationalUnit: AccessControlMetadata) => {
-      if (!organizationalUnitReferenceItem) {
-        return true;
-      }
-
-      if (
-        organizationalUnit.organizationalUnitId ===
-        organizationalUnitReferenceItem.organizationalUnitId
-      ) {
-        return false;
-      }
-
-      if (
-        organizationalUnitReferenceItem.children &&
-        organizationalUnitReferenceItem.children.length > 0
-      ) {
-        return !this.isDescendantOfReferenceItem(
-          organizationalUnitReferenceItem,
-          organizationalUnit
-        );
-      }
-
-      return true;
-    };
-  }
-
-  /**
-   * Check if an organizational unit is a descendant of a reference item
-   */
-  isDescendantOfReferenceItem(
-    organizationalUnitReferenceItem: AccessControlMetadata,
-    organizationalUnitCandidate: AccessControlMetadata
-  ): boolean {
-    if (
-      organizationalUnitReferenceItem.children &&
-      organizationalUnitReferenceItem.children.includes(
-        organizationalUnitCandidate.organizationalUnitId
-      )
-    ) {
-      return true;
-    }
-
-    // Check all further descendants
-    if (organizationalUnitReferenceItem.children) {
-      for (const childOrganizationalUnitId of organizationalUnitReferenceItem.children) {
-        const childOrganizationalUnit = this.getAccessControlById(childOrganizationalUnitId);
-        if (
-          childOrganizationalUnit &&
-          childOrganizationalUnit.children &&
-          childOrganizationalUnit.children.length > 0
-        ) {
-          if (
-            this.isDescendantOfReferenceItem(childOrganizationalUnit, organizationalUnitCandidate)
-          ) {
-            return true;
-          }
-        }
-      }
-    }
-
-    return false;
-  }
-
-  /**
-   * Validate spatial unit metadata form data
-   */
-  validateSpatialUnitMetadata(
-    metadata: any,
-    spatialUnitLevel: string
-  ): { isValid: boolean; errors: string[] } {
-    const errors: string[] = [];
-
-    // Check required fields
-    if (!spatialUnitLevel || spatialUnitLevel.trim() === '') {
-      errors.push('Raumebene Name ist erforderlich.');
-    }
-
-    // Check hierarchy validity
-    if (metadata.nextLowerHierarchyLevel && metadata.nextUpperHierarchyLevel) {
-      // This would need access to availableSpatialUnits to fully validate
-      // For now, just check if both are set
-    }
-
-    return {
-      isValid: errors.length === 0,
-      errors,
-    };
-  }
-
-  /**
-   * Convert empty strings to null for API calls
-   */
-  convertEmptyToNull(value: any): any {
-    return value === '' || value === undefined || value === null ? null : value;
-  }
-
-  /**
-   * Build patch body for spatial unit metadata update
-   */
-  buildSpatialUnitMetadataPatchBody(
-    spatialUnitLevel: string,
-    metadata: any,
-    nextLowerHierarchyLevel: string | null,
-    nextUpperHierarchyLevel: string | null,
-    isOutlineLayer: boolean,
-    outlineColor: string,
-    outlineWidth: number,
-    outlineDashArrayString: string | null
-  ): any {
-    return {
-      datasetName: spatialUnitLevel.trim(),
-      metadata: {
-        note: this.convertEmptyToNull(metadata.note),
-        literature: this.convertEmptyToNull(metadata.literature),
-        updateInterval:
-          metadata.updateInterval && metadata.updateInterval.apiName
-            ? metadata.updateInterval.apiName
-            : null,
-        sridEPSG: metadata.sridEPSG || 4326,
-        datasource: this.convertEmptyToNull(metadata.datasource),
-        contact: this.convertEmptyToNull(metadata.contact),
-        lastUpdate: this.convertEmptyToNull(metadata.lastUpdate),
-        description: this.convertEmptyToNull(metadata.description),
-        databasis: this.convertEmptyToNull(metadata.databasis),
-      },
-      nextLowerHierarchyLevel,
-      nextUpperHierarchyLevel,
-      isOutlineLayer,
-      outlineColor: outlineColor || '#bf3d2c',
-      outlineWidth: outlineWidth || 2,
-      outlineDashArrayString,
-    };
-  }
-
-  /**
-   * Build export data for spatial unit metadata
-   */
-  buildSpatialUnitMetadataExport(
-    metadata: any,
-    spatialUnitLevel: string,
-    nextLowerHierarchyLevel: string | null,
-    nextUpperHierarchyLevel: string | null,
-    isOutlineLayer: boolean,
-    outlineColor: string,
-    outlineWidth: number,
-    outlineDashArrayString: string | null
-  ): any {
-    return {
-      metadata: {
-        note: this.convertEmptyToNull(metadata.note),
-        literature: this.convertEmptyToNull(metadata.literature),
-        updateInterval: metadata.updateInterval ? metadata.updateInterval.apiName : null,
-        sridEPSG: metadata.sridEPSG || 4326,
-        datasource: this.convertEmptyToNull(metadata.datasource),
-        contact: this.convertEmptyToNull(metadata.contact),
-        lastUpdate: this.convertEmptyToNull(metadata.lastUpdate),
-        description: this.convertEmptyToNull(metadata.description),
-        databasis: this.convertEmptyToNull(metadata.databasis),
-      },
-      allowedRoles: ['roleId'],
-      spatialUnitLevel: spatialUnitLevel || null,
-      nextLowerHierarchyLevel,
-      nextUpperHierarchyLevel,
-      isOutlineLayer,
-      outlineColor,
-      outlineWidth,
-      outlineDashArrayString,
-    };
-  }
-
-  /**
-   * Get metadata structure template for export
-   */
-  get spatialUnitMetadataStructure() {
-    return {
-      metadata: {
-        note: 'an optional note',
-        literature: 'optional text about literature',
-        updateInterval: 'YEARLY|HALF_YEARLY|QUARTERLY|MONTHLY|ARBITRARY',
-        sridEPSG: 4326,
-        datasource: 'text about data source',
-        contact: 'text about contact details',
-        lastUpdate: 'YYYY-MM-DD',
-        description: 'description about spatial unit dataset',
-        databasis: 'text about data basis',
-      },
-      allowedRoles: ['roleId'],
-      nextLowerHierarchyLevel: 'Name of lower hierarchy level',
-      spatialUnitLevel: 'Name of spatial unit dataset',
-      nextUpperHierarchyLevel: 'Name of upper hierarchy level',
-    };
-  }
-
-  /**
-   * Validate period of validity dates
-   */
-  validatePeriodOfValidity(
-    startDate: string,
-    endDate: string
-  ): { isValid: boolean; error?: string } {
-    if (!startDate || !endDate) {
-      return { isValid: true }; // Both dates are optional
-    }
-
-    const start = new Date(startDate as any);
-    const end = new Date(endDate as any);
-
-    // If either date is invalid, do not block submission here
-    const startTime = start.getTime();
-    const endTime = end.getTime();
-    if (isNaN(startTime) || isNaN(endTime)) {
-      return { isValid: true };
-    }
-
-    if (startTime >= endTime) {
-      return {
-        isValid: false,
-        error: 'Start date must be before end date and they cannot be the same',
-      };
-    }
-
-    return { isValid: true };
-  }
-
-  /**
-   * Transform GeoJSON features for grid display
-   */
-  transformFeaturesForGrid(features: any[]): any[] {
-    return (features || []).map((feature: any) => {
-      if (feature.properties) {
-        // Add geometry and record ID to properties for grid display
-        feature.properties.kommonitorGeometry = feature.geometry;
-        feature.properties.kommonitorRecordId = feature.id;
-        return feature.properties;
-      }
-      return feature;
-    });
-  }
-
-  /**
-   * Extract remaining headers from GeoJSON features
-   */
-  extractRemainingHeaders(features: any[]): string[] {
-    if (!features || features.length === 0) return [];
-
-    const firstFeature = features[0];
-    if (!firstFeature.properties) return [];
-
-    const komMonitorProperties = ['ID', 'NAME', 'validStartDate', 'validEndDate'];
-    return Object.keys(firstFeature.properties).filter(
-      (property) => !komMonitorProperties.includes(property)
+    return from(this.metadataBootstrap.fetchSpatialUnitsMetadata(keycloakRolesArray)).pipe(
+      map(() => this.spatialUnitStore.availableSpatialUnits),
+      tap({
+        next: () => this.loadingSubject.next(false),
+        error: (error) => {
+          this.errorSubject.next(this.formatErrorMessage(error));
+          this.loadingSubject.next(false);
+        },
+      })
     );
   }
 
-  /**
-   * Build mapping config export structure
-   */
-  buildMappingConfigExport(
-    converterDefinition: any,
-    datasourceTypeDefinition: any,
-    propertyMappingDefinition: any,
-    periodOfValidity: any
-  ): any {
-    return {
-      converter: converterDefinition,
-      dataSource: datasourceTypeDefinition,
-      propertyMapping: propertyMappingDefinition,
-      periodOfValidity,
-    };
+  // ---------------------------------------------------------------------
+  // Access control / roles (delegates to AccessControlService)
+  // ---------------------------------------------------------------------
+
+  get accessControl(): AccessControlMetadata[] {
+    return this.accessControlService.accessControl;
+  }
+
+  get currentKeycloakLoginRoles(): string[] {
+    return this.accessControlService.currentKeycloakLoginRoles;
+  }
+
+  get currentKomMonitorLoginRoleNames(): string[] {
+    return this.accessControlService.currentKomMonitorLoginRoleNames;
+  }
+
+  getAccessControlById(id: string): AccessControlMetadata | undefined {
+    return this.accessControlService.getAccessControlById(id) ?? undefined;
+  }
+
+  getAllowedRolesString(permissions: string[] | null | undefined): string {
+    return this.accessControlService.getAllowedRolesString(permissions);
+  }
+
+  getRoleTitle(roleId: string): string {
+    return this.accessControlService.getRoleTitle(roleId);
+  }
+
+  checkAdminPermission(): boolean {
+    return this.accessControlService.checkAdminPermission();
+  }
+
+  checkCreatePermission(): boolean {
+    return this.accessControlService.checkCreatePermission();
   }
 
   /**
-   * Validate mapping config import structure
+   * Re-fetch the access-control list into the canonical service and emit it.
+   * The useCache flag of the former private 5-minute cache is obsolete — the
+   * central cache helper decides on caching.
    */
-  validateMappingConfigImport(config: any): { isValid: boolean; error?: string } {
-    if (!config.converter || !config.dataSource || !config.propertyMapping) {
-      return {
-        isValid: false,
-        error: 'Struktur der Datei stimmt nicht mit erwartetem Muster überein.',
-      };
-    }
-    return { isValid: true };
+  fetchAccessControlMetadata(_useCache: boolean): Observable<AccessControlMetadata[]> {
+    return from(
+      this.metadataBootstrap.fetchAccessControlMetadata(this.currentKeycloakLoginRoles)
+    ).pipe(map(() => this.accessControlService.accessControl));
   }
 
+  // ---------------------------------------------------------------------
+  // Indicators (delegates to MetadataBootstrapService)
+  // ---------------------------------------------------------------------
+
   /**
-   * Delete a spatial unit by ID
+   * Re-fetch the indicators into the canonical store. Returns a promise: the
+   * former Observable return value was awaited by its only consumer, which
+   * never subscribed — the fetch silently never ran.
    */
+  fetchIndicatorsMetadata(keycloakRolesArray: string[]): Promise<void> {
+    return this.metadataBootstrap.fetchIndicatorsMetadata(keycloakRolesArray);
+  }
+
+  // ---------------------------------------------------------------------
+  // Config / URLs (delegates to EnvConfigService / CacheHelperService)
+  // ---------------------------------------------------------------------
+
+  get enableKeycloakSecurity(): boolean {
+    return this.envConfigService.enableKeycloakSecurity || false;
+  }
+
+  get baseUrlToKomMonitorDataAPI(): string {
+    return this.envConfigService.baseUrlToKomMonitorDataAPI;
+  }
+
+  getBaseUrlToKomMonitorDataAPI_spatialResource(): string {
+    return this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource();
+  }
+
+  get updateIntervalOptions(): any[] {
+    return this.envConfigService.updateIntervalOptions || [];
+  }
+
+  get availableLoiDashArrayObjects(): any[] {
+    return LABELED_LOI_DASH_ARRAY_OBJECTS;
+  }
+
+  // ---------------------------------------------------------------------
+  // Metadata form helpers (delegates to spatial-unit-metadata.util)
+  // ---------------------------------------------------------------------
+
+  get spatialUnitMetadataStructure() {
+    return SPATIAL_UNIT_METADATA_STRUCTURE;
+  }
+
+  validateSpatialUnitMetadata = validateSpatialUnitMetadata;
+  validatePeriodOfValidity = validatePeriodOfValidity;
+  buildSpatialUnitMetadataPatchBody = buildSpatialUnitMetadataPatchBody;
+  buildSpatialUnitMetadataExport = buildSpatialUnitMetadataExport;
+  buildMappingConfigExport = buildMappingConfigExport;
+  transformFeaturesForGrid = transformFeaturesForGrid;
+  extractRemainingHeaders = extractRemainingHeaders;
+
+  // ---------------------------------------------------------------------
+  // Error formatting (delegates to IndicatorValueService)
+  // ---------------------------------------------------------------------
+
+  syntaxHighlightJSON(json: any): string {
+    return this.indicatorValueService.syntaxHighlightJSON(json);
+  }
+
+  formatErrorMessage(error: any): string {
+    return this.indicatorValueService.formatError(error);
+  }
+
+  // ---------------------------------------------------------------------
+  // Spatial-unit deletion (the facade's only own HTTP calls)
+  // ---------------------------------------------------------------------
+
   async deleteSpatialUnit(spatialUnitId: string): Promise<boolean> {
     try {
-      const url = `${this.baseUrl}/spatial-units/${spatialUnitId}`;
-      await this.http.delete(url).toPromise();
+      const url = `${this.baseUrlToKomMonitorDataAPI}/spatial-units/${spatialUnitId}`;
+      await firstValueFrom(this.http.delete(url));
       return true;
     } catch {
       return false;
     }
   }
 
-  /**
-   * Format error message consistently across components
-   */
-  formatErrorMessage(error: any): string {
-    if (error && (error as any).error) {
-      return this.syntaxHighlightJSON((error as any).error);
-    }
-    return this.syntaxHighlightJSON(error);
-  }
-
-  /**
-   * Bulk delete spatial units with error handling
-   */
   async bulkDeleteSpatialUnits(spatialUnitIds: string[]): Promise<{
     successful: string[];
     failed: Array<{ id: string; error: string }>;
@@ -1140,7 +251,6 @@ export class KommonitorDataExchangeService implements OnDestroy {
         const success = await this.deleteSpatialUnit(id);
         if (success) {
           successful.push(id);
-          // Remove from local cache
           this.deleteSingleSpatialUnitMetadata(id);
         } else {
           failed.push({ id, error: 'Deletion failed' });

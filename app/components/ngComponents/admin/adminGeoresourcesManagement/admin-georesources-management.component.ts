@@ -20,7 +20,7 @@ import {
   MetadataLoadingState,
 } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { KommonitorGeoresourceDataExchangeService } from '../../../../services/adminGeoresourceUnit/kommonitor-data-exchange.service';
-import { KommonitorGeoresourceCacheHelperService } from '../../../../services/adminGeoresourceUnit/kommonitor-cache-helper.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { KommonitorGeoresourceDataGridHelperService } from '../../../../services/adminGeoresourceUnit/kommonitor-data-grid-helper.service';
 import { AgGridAngular } from 'ag-grid-angular';
 import { GeoresourceAddModalComponent } from './georesourceAddModal/georesource-add-modal.component';
@@ -57,7 +57,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
   private broadcastService = inject(BroadcastService);
   private metadataBootstrap = inject(MetadataBootstrapService);
   kommonitorDataExchangeService = inject(KommonitorGeoresourceDataExchangeService);
-  private kommonitorCacheHelperService = inject(KommonitorGeoresourceCacheHelperService);
+  private cacheHelperService = inject(CacheHelperServiceService);
   private kommonitorDataGridHelperService = inject(KommonitorGeoresourceDataGridHelperService);
   protected wmsSharedComponentsService = inject(WmsSharedComponentsService);
 
@@ -255,12 +255,9 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
         });
     } else if (crudType && targetGeoresourceId) {
       if (crudType === 'add') {
-        this.kommonitorCacheHelperService
-          .fetchSingleGeoresourceMetadata(
-            targetGeoresourceId,
-            this.kommonitorDataExchangeService.currentKeycloakLoginRoles
-          )
-          .then((data: any) => {
+        this.cacheHelperService
+          .fetchSingleGeoresourceMetadata(targetGeoresourceId)
+          .then((data) => {
             this.kommonitorDataExchangeService.addSingleGeoresourceMetadata(data);
             this.initializeOrRefreshOverviewTable();
             this.loadingData = false;
@@ -269,12 +266,9 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
             this.loadingData = false;
           });
       } else if (crudType === 'edit') {
-        this.kommonitorCacheHelperService
-          .fetchSingleGeoresourceMetadata(
-            targetGeoresourceId,
-            this.kommonitorDataExchangeService.currentKeycloakLoginRoles
-          )
-          .then((data: any) => {
+        this.cacheHelperService
+          .fetchSingleGeoresourceMetadata(targetGeoresourceId)
+          .then((data) => {
             this.kommonitorDataExchangeService.replaceSingleGeoresourceMetadata(data);
             this.initializeOrRefreshOverviewTable();
             this.loadingData = false;

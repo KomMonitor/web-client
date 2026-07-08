@@ -16,7 +16,7 @@ import {
   KommonitorDataExchangeService,
   SpatialUnitMetadata,
 } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
-import { KommonitorCacheHelperService } from 'services/adminSpatialUnit/kommonitor-cache-helper.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { AgGridAngular } from 'ag-grid-angular';
 import {
@@ -44,7 +44,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
   private modalService = inject(NgbModal);
   private metadataBootstrap = inject(MetadataBootstrapService);
   kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
-  private kommonitorCacheHelperService = inject(KommonitorCacheHelperService);
+  private cacheHelperService = inject(CacheHelperServiceService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
   private notificationService = inject(NotificationService);
   private destroyRef = inject(DestroyRef);
@@ -526,37 +526,27 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
     } else if (crudType && targetSpatialUnitId) {
       if (crudType === 'edit') {
         // Fetch single spatial unit metadata and update the table
-        this.kommonitorCacheHelperService
-          .fetchSingleSpatialUnitMetadata(
-            targetSpatialUnitId as string,
-            this.kommonitorDataExchangeService.currentKeycloakLoginRoles
-          )
-          .subscribe({
-            next: (data) => {
-              this.kommonitorDataExchangeService.replaceSingleSpatialUnitMetadata(data);
-              this.initializeOrRefreshOverviewTable();
-              this.loadingData = false;
-            },
-            error: (_response) => {
-              this.loadingData = false;
-            },
+        this.cacheHelperService
+          .fetchSingleSpatialUnitMetadata(targetSpatialUnitId as string)
+          .then((data) => {
+            this.kommonitorDataExchangeService.replaceSingleSpatialUnitMetadata(data);
+            this.initializeOrRefreshOverviewTable();
+            this.loadingData = false;
+          })
+          .catch(() => {
+            this.loadingData = false;
           });
       } else if (crudType === 'add') {
         // Fetch single spatial unit metadata and add to table
-        this.kommonitorCacheHelperService
-          .fetchSingleSpatialUnitMetadata(
-            targetSpatialUnitId as string,
-            this.kommonitorDataExchangeService.currentKeycloakLoginRoles
-          )
-          .subscribe({
-            next: (data) => {
-              this.kommonitorDataExchangeService.addSingleSpatialUnitMetadata(data);
-              this.initializeOrRefreshOverviewTable();
-              this.loadingData = false;
-            },
-            error: (_response) => {
-              this.loadingData = false;
-            },
+        this.cacheHelperService
+          .fetchSingleSpatialUnitMetadata(targetSpatialUnitId as string)
+          .then((data) => {
+            this.kommonitorDataExchangeService.addSingleSpatialUnitMetadata(data);
+            this.initializeOrRefreshOverviewTable();
+            this.loadingData = false;
+          })
+          .catch(() => {
+            this.loadingData = false;
           });
       } else if (crudType === 'delete') {
         // Handle delete operation

@@ -11,7 +11,7 @@ import { CellClickedEvent, ColDef, GridOptions, SelectionChangedEvent } from 'ag
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { WmsAdminTableComponent } from 'components/ngComponents/common/wms-admin-table/wms-admin-table.component';
 import { skip, Subscription } from 'rxjs';
-import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
 import {
   MetadataBootstrapService,
@@ -47,7 +47,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   private zone = inject(NgZone);
   private modalService = inject(NgbModal);
   private broadcastService = inject(BroadcastService);
-  private kommonitorCacheHelperService = inject(KommonitorIndicatorCacheHelperService);
+  private cacheHelperService = inject(CacheHelperServiceService);
   private kommonitorDataGridHelperService = inject(KommonitorIndicatorDataGridHelperService);
   protected wmsSharedComponentsService = inject(WmsSharedComponentsService);
   private metadataBootstrap = inject(MetadataBootstrapService);
@@ -439,9 +439,9 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     }
 
     if ((crudType === 'add' || crudType === 'edit') && targetIndicatorId) {
-      this.kommonitorCacheHelperService
-        .fetchSingleIndicatorMetadata(targetIndicatorId, roles)
-        .then((data: any) => {
+      this.cacheHelperService
+        .fetchSingleIndicatorMetadata(targetIndicatorId)
+        .then((data) => {
           if (crudType === 'add') {
             this.indicatorStore.addSingleIndicatorMetadata(data);
           } else {
