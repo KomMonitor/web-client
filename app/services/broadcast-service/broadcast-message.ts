@@ -76,7 +76,6 @@ export const BroadcastMessage = {
   PreserveHighlightedFeatures: 'preserveHighlightedFeatures',
   RefreshAdminFilterOverview: 'refreshAdminFilterOverview',
   RefreshGeoresourceOverviewTable: 'refreshGeoresourceOverviewTable',
-  RefreshGeoresourceOverviewTableCompleted: 'refreshGeoresourceOverviewTableCompleted',
   RefreshIndicatorOverviewTable: 'refreshIndicatorOverviewTable',
   RefreshIndicatorOverviewTableCompleted: 'refreshIndicatorOverviewTableCompleted',
   RefreshSpatialUnitOverviewTable: 'refreshSpatialUnitOverviewTable',

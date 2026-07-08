@@ -24,7 +24,6 @@ import { KommonitorGeoresourceCacheHelperService } from '../../../../services/ad
 import { KommonitorGeoresourceDataGridHelperService } from '../../../../services/adminGeoresourceUnit/kommonitor-data-grid-helper.service';
 import { AgGridAngular } from 'ag-grid-angular';
 import { GeoresourceAddModalComponent } from './georesourceAddModal/georesource-add-modal.component';
-import { GeoresourceBatchUpdateModalComponent } from './georesourceBatchUpdateModal/georesource-batch-update-modal.component';
 import { GeoresourceEditMetadataModalComponent } from './georesourceEditMetadataModal/georesource-edit-metadata-modal.component';
 import { GeoresourceEditFeaturesModalComponent } from './georesourceEditFeaturesModal/georesource-edit-features-modal.component';
 import { GeoresourceEditUserRolesModalComponent } from './georesourceEditUserRolesModal/georesource-edit-user-roles-modal.component';
@@ -249,16 +248,10 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
         .fetchGeoresourcesMetadata(this.kommonitorDataExchangeService.currentKeycloakLoginRoles)
         .then((_response: any) => {
           this.initializeOrRefreshOverviewTable();
-          this.broadcastService.broadcast(
-            BroadcastMessage.RefreshGeoresourceOverviewTableCompleted
-          );
           this.loadingData = false;
         })
         .catch((_response: any) => {
           this.loadingData = false;
-          this.broadcastService.broadcast(
-            BroadcastMessage.RefreshGeoresourceOverviewTableCompleted
-          );
         });
     } else if (crudType && targetGeoresourceId) {
       if (crudType === 'add') {
@@ -270,16 +263,10 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
           .then((data: any) => {
             this.kommonitorDataExchangeService.addSingleGeoresourceMetadata(data);
             this.initializeOrRefreshOverviewTable();
-            this.broadcastService.broadcast(
-              BroadcastMessage.RefreshGeoresourceOverviewTableCompleted
-            );
             this.loadingData = false;
           })
           .catch((_response: any) => {
             this.loadingData = false;
-            this.broadcastService.broadcast(
-              BroadcastMessage.RefreshGeoresourceOverviewTableCompleted
-            );
           });
       } else if (crudType === 'edit') {
         this.kommonitorCacheHelperService
@@ -290,34 +277,22 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
           .then((data: any) => {
             this.kommonitorDataExchangeService.replaceSingleGeoresourceMetadata(data);
             this.initializeOrRefreshOverviewTable();
-            this.broadcastService.broadcast(
-              BroadcastMessage.RefreshGeoresourceOverviewTableCompleted
-            );
             this.loadingData = false;
           })
           .catch((_response: any) => {
             this.loadingData = false;
-            this.broadcastService.broadcast(
-              BroadcastMessage.RefreshGeoresourceOverviewTableCompleted
-            );
           });
       } else if (crudType === 'delete') {
         // targetGeoresourceId might be array in this case
         if (targetGeoresourceId && typeof targetGeoresourceId === 'string') {
           this.kommonitorDataExchangeService.deleteSingleGeoresourceMetadata(targetGeoresourceId);
           this.initializeOrRefreshOverviewTable();
-          this.broadcastService.broadcast(
-            BroadcastMessage.RefreshGeoresourceOverviewTableCompleted
-          );
           this.loadingData = false;
         } else if (targetGeoresourceId && Array.isArray(targetGeoresourceId)) {
           for (const id of targetGeoresourceId) {
             this.kommonitorDataExchangeService.deleteSingleGeoresourceMetadata(id);
           }
           this.initializeOrRefreshOverviewTable();
-          this.broadcastService.broadcast(
-            BroadcastMessage.RefreshGeoresourceOverviewTableCompleted
-          );
           this.loadingData = false;
         }
       }
@@ -347,26 +322,6 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
     modalRef.componentInstance.refreshRequested.subscribe((request: GeoresourceRefreshRequest) =>
       this.handleRefreshRequest(request)
     );
-  }
-
-  onClickBatchUpdateGeoresource(): void {
-    const modalRef = this.modalService.open(GeoresourceBatchUpdateModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
-      keyboard: false,
-      container: 'body',
-      animation: false,
-    });
-
-    modalRef.result
-      .then((result) => {
-        if (result) {
-          this.initializeOrRefreshOverviewTable();
-        }
-      })
-      .catch(() => {
-        // Modal dismissed
-      });
   }
 
   public onClickEditMetadata(georesourceDataset: any): void {
