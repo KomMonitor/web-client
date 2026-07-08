@@ -670,9 +670,10 @@
                       </label>
                       <input
                         type="text"
-                        [id]="'converterParameter_georesourceAdd_' + parameter.name"
                         class="form-control"
                         [placeholder]="parameter.name"
+                        [(ngModel)]="converterParameterValues[parameter.name]"
+                        [name]="'converterParameter_' + parameter.name"
                         [required]="parameter.mandatory"
                       />
                       <div class="help-block">
@@ -732,7 +733,6 @@
                         <div>
                           <label>Räumlicher Filter*</label>
                           <select
-                            [id]="'datasourceTypeParameter_georesourceAdd_bboxType'"
                             [(ngModel)]="bboxType"
                             name="bboxType"
                             class="form-control"
@@ -745,7 +745,6 @@
                           @if (bboxType === 'ref') {
                             <div>
                               <select
-                                [id]="'datasourceTypeParameter_georesourceAdd_bboxRef'"
                                 [(ngModel)]="bboxRefSpatialUnit"
                                 name="bboxRefSpatialUnit"
                                 class="form-control"
@@ -772,44 +771,48 @@
                             <div>
                               <label>Begrenzungsrahmen*</label>
                               <input
-                                [id]="'datasourceTypeParameter_georesourceAdd_bbox_minx'"
                                 class="form-control"
                                 type="number"
                                 lang="us"
                                 placeholder="-180"
+                                [(ngModel)]="bbox_minx"
+                                name="bbox_minx"
                                 [required]="bboxType === 'literal'"
                               />
                               <div class="help-block">
                                 <p>Minimale x-Koordinate (Longitude)</p>
                               </div>
                               <input
-                                [id]="'datasourceTypeParameter_georesourceAdd_bbox_miny'"
                                 class="form-control"
                                 type="number"
                                 lang="us"
                                 placeholder="-90"
+                                [(ngModel)]="bbox_miny"
+                                name="bbox_miny"
                                 [required]="bboxType === 'literal'"
                               />
                               <div class="help-block">
                                 <p>Minimale y-Koordinate (Latitude)</p>
                               </div>
                               <input
-                                [id]="'datasourceTypeParameter_georesourceAdd_bbox_maxx'"
                                 class="form-control"
                                 type="number"
                                 lang="us"
                                 placeholder="180"
+                                [(ngModel)]="bbox_maxx"
+                                name="bbox_maxx"
                                 [required]="bboxType === 'literal'"
                               />
                               <div class="help-block">
                                 <p>Maximale x-Koordinate (Longitude)</p>
                               </div>
                               <input
-                                [id]="'datasourceTypeParameter_georesourceAdd_bbox_maxy'"
                                 class="form-control"
                                 type="number"
                                 lang="us"
                                 placeholder="90"
+                                [(ngModel)]="bbox_maxy"
+                                name="bbox_maxy"
                                 [required]="bboxType === 'literal'"
                               />
                               <div class="help-block">
@@ -833,11 +836,10 @@
                                   }
                                   <textarea
                                     rows="1"
-                                    [id]="
-                                      'datasourceTypeParameter_georesourceAdd_' + parameter.name
-                                    "
                                     class="form-control"
                                     [placeholder]="parameter.name"
+                                    [(ngModel)]="datasourceTypeParameterValues[parameter.name]"
+                                    [name]="'datasourceTypeParameter_' + parameter.name"
                                     [required]="parameter.mandatory"
                                   ></textarea>
                                   <div class="help-block">

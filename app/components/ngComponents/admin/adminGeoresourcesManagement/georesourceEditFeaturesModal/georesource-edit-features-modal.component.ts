@@ -259,11 +259,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.currentGeoresourceDataset = georesourceDataset;
     this.resetGeoresourceEditFeaturesForm();
     this.buildFeatureTable();
-
-    // Load the georesource features
-    setTimeout(() => {
-      this.refreshGeoresourceEditFeaturesOverviewTable();
-    }, 100);
+    this.refreshGeoresourceEditFeaturesOverviewTable();
   }
 
   // Step navigation
@@ -370,18 +366,12 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
           this.gridApi.refreshCells();
         }
 
-        // Use setTimeout to ensure proper change detection and DOM updates
-        setTimeout(() => {
-          this.loadingData = false;
-          console.log('Loading completed');
-        }, 500); // Increased timeout to show loading state longer
+        this.loadingData = false;
       },
       error: (error) => {
         console.error('Error fetching georesource features:', error);
         this.handleError(error);
-        setTimeout(() => {
-          this.loadingData = false;
-        }, 500); // Increased timeout to show loading state longer
+        this.loadingData = false;
       },
     });
   }

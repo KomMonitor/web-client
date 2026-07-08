@@ -28,6 +28,7 @@ import {
 
 import { FormsModule } from '@angular/forms';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
+import { SpatialUnitImportService } from 'services/spatial-unit-import-service/spatial-unit-import.service';
 import {
   LOI_DASH_ARRAY_OBJECTS,
   POI_MARKER_COLORS,
@@ -79,6 +80,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
+  private resourceImportService = inject(SpatialUnitImportService);
   roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private topicHierarchyService = inject(TopicHierarchyService);
   protected envConfigService = inject(EnvConfigService);
@@ -184,6 +186,16 @@ export class GeoresourceAddModalComponent implements OnInit {
   // Bbox parameters for OGCAPI_FEATURES
   bboxType: string = '';
   bboxRefSpatialUnit: any = null;
+  bbox_minx: any = null;
+  bbox_miny: any = null;
+  bbox_maxx: any = null;
+  bbox_maxy: any = null;
+
+  // ngModel-bound converter / data-source parameter values, keyed by parameter
+  // name. Passed to the import service as formValues so the importer helper
+  // never has to scrape the parameter inputs from the DOM.
+  converterParameterValues: { [key: string]: string } = {};
+  datasourceTypeParameterValues: { [key: string]: string } = {};
 
   // Attribute mapping
   attributeMapping_sourceAttributeName = '';
@@ -836,27 +848,23 @@ export class GeoresourceAddModalComponent implements OnInit {
     }
 
     // converter parameters
+    this.converterParameterValues = {};
     if (this.converter) {
-      for (const convParameter of this.mappingConfigImportSettings.converter.parameters) {
-        const element = document.getElementById(
-          'converterParameter_georesourceAdd_' + convParameter.name
-        ) as HTMLInputElement;
-        if (element) {
-          element.value = convParameter.value;
-        }
+      for (const convParameter of this.mappingConfigImportSettings.converter.parameters ?? []) {
+        this.converterParameterValues[convParameter.name] = convParameter.value ?? '';
       }
     }
 
-    // datasourceTypes parameters
+    // datasourceTypes parameters (bbox settings are applied to their dedicated fields)
+    this.datasourceTypeParameterValues = {};
     if (this.datasourceType) {
-      for (const dsParameter of this.mappingConfigImportSettings.dataSource.parameters) {
-        const element = document.getElementById(
-          'datasourceTypeParameter_georesourceAdd_' + dsParameter.name
-        ) as HTMLInputElement;
-        if (element) {
-          element.value = dsParameter.value;
+      const dsParameters = this.mappingConfigImportSettings.dataSource.parameters ?? [];
+      for (const dsParameter of dsParameters) {
+        if (dsParameter.name !== 'bbox' && dsParameter.name !== 'bboxType') {
+          this.datasourceTypeParameterValues[dsParameter.name] = dsParameter.value ?? '';
         }
       }
+      this.applyBbox(dsParameters);
     }
 
     // property Mapping
@@ -894,6 +902,28 @@ export class GeoresourceAddModalComponent implements OnInit {
         endDate: this.mappingConfigImportSettings.periodOfValidity.endDate,
       };
       this.periodOfValidityInvalid = false;
+    }
+  }
+
+  /** Applies imported bbox data-source parameters onto the dedicated bbox form fields. */
+  private applyBbox(dsParams: { name: string; value: string }[]): void {
+    const bboxTypeParam = dsParams.find((p) => p.name === 'bboxType');
+    if (bboxTypeParam) {
+      this.bboxType = bboxTypeParam.value || '';
+    }
+    const bboxParam = dsParams.find((p) => p.name === 'bbox');
+    if (bboxParam && typeof bboxParam.value === 'string') {
+      if (this.bboxType === 'ref') {
+        this.bboxRefSpatialUnit = bboxParam.value;
+      } else {
+        const parts = bboxParam.value.split(',');
+        if (parts.length === 4) {
+          this.bbox_minx = parts[0];
+          this.bbox_miny = parts[1];
+          this.bbox_maxx = parts[2];
+          this.bbox_maxy = parts[3];
+        }
+      }
     }
   }
 
@@ -994,6 +1024,15 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.schema = '';
     this.mimeType = '';
     this.datasourceType = null;
+
+    this.converterParameterValues = {};
+    this.datasourceTypeParameterValues = {};
+    this.bboxType = '';
+    this.bboxRefSpatialUnit = null;
+    this.bbox_minx = null;
+    this.bbox_miny = null;
+    this.bbox_maxx = null;
+    this.bbox_maxy = null;
 
     this.converterDefinition = null;
     this.datasourceTypeDefinition = null;
@@ -1192,62 +1231,57 @@ export class GeoresourceAddModalComponent implements OnInit {
   }
 
   private async buildImporterObjects(): Promise<boolean> {
-    this.converterDefinition = this.buildConverterDefinition();
-    this.datasourceTypeDefinition = await this.buildDatasourceTypeDefinition();
-    this.propertyMappingDefinition = this.buildPropertyMappingDefinition();
-    this.postBody_georesources = this.buildPostBody_georesources();
-
-    if (
-      !this.converterDefinition ||
-      !this.datasourceTypeDefinition ||
-      !this.propertyMappingDefinition ||
-      !this.postBody_georesources
-    ) {
-      return false;
-    }
-
-    return true;
-  }
-
-  private buildConverterDefinition(): any {
-    return this.kommonitorImporterHelperService.buildConverterDefinition(
-      this.converter,
-      'converterParameter_georesourceAdd_',
-      this.schema,
-      this.mimeType
-    );
-  }
-
-  private async buildDatasourceTypeDefinition(): Promise<any> {
     try {
-      return await this.kommonitorImporterHelperService.buildDatasourceTypeDefinition(
-        this.datasourceType,
-        'datasourceTypeParameter_georesourceAdd_',
-        'georesourceDataSourceInput_add'
+      const definitions = await this.resourceImportService.buildImporterObjects({
+        converter: this.converter,
+        schema: this.schema,
+        mimeType: this.mimeType,
+        converterParameterPrefix: 'converterParameter_georesourceAdd_',
+        converterParameterValues: this.converterParameterValues,
+        datasourceType: this.datasourceType,
+        datasourceTypeParameterPrefix: 'datasourceTypeParameter_georesourceAdd_',
+        datasourceFileInputId: 'georesourceDataSourceInput_add',
+        datasourceTypeFormValues: this.assembleDatasourceFormValues(),
+        selectedFile: null,
+        fileInputElement: this.georesourceDataSourceInput?.nativeElement,
+        idProperty: this.georesourceDataSourceIdProperty,
+        nameProperty: this.georesourceDataSourceNameProperty,
+        validStartDate: this.validityStartDate_perFeature,
+        validEndDate: this.validityEndDate_perFeature,
+        keepAttributes: this.keepAttributes,
+        keepMissingValues: this.keepMissingValues,
+        attributeMappings: this.attributeMappings_adminView,
+      });
+
+      this.converterDefinition = definitions.converterDefinition;
+      this.datasourceTypeDefinition = definitions.datasourceTypeDefinition;
+      this.propertyMappingDefinition = definitions.propertyMappingDefinition;
+      this.postBody_georesources = this.buildPostBody_georesources();
+
+      return !!(
+        this.converterDefinition &&
+        this.datasourceTypeDefinition &&
+        this.propertyMappingDefinition &&
+        this.postBody_georesources
       );
     } catch (error: any) {
-      if (error.data) {
-        this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.data);
-      } else {
-        this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
-      }
-
+      this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.data ?? error);
       this.loadingData = false;
-      return null;
+      return false;
     }
   }
 
-  private buildPropertyMappingDefinition(): any {
-    return this.kommonitorImporterHelperService.buildPropertyMapping_spatialResource(
-      this.georesourceDataSourceNameProperty,
-      this.georesourceDataSourceIdProperty,
-      this.validityStartDate_perFeature,
-      this.validityEndDate_perFeature,
-      '',
-      this.keepAttributes,
-      this.keepMissingValues,
-      this.attributeMappings_adminView
-    );
+  /** Data-source form values for the import service; bbox fields are always included. */
+  private assembleDatasourceFormValues(): { [key: string]: string } {
+    return {
+      ...this.datasourceTypeParameterValues,
+      bboxType: this.bboxType,
+      bboxRef: this.bboxRefSpatialUnit,
+      bbox_minx: this.bbox_minx,
+      bbox_miny: this.bbox_miny,
+      bbox_maxx: this.bbox_maxx,
+      bbox_maxy: this.bbox_maxy,
+    } as { [key: string]: string };
   }
 
   // Modal control methods

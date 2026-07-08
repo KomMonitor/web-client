@@ -71,12 +71,9 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
   }
 
   set currentGeoresourceDataset(value: any) {
-    console.log('Setting currentGeoresourceDataset:', value);
     this._currentGeoresourceDataset = value;
     if (value) {
-      setTimeout(() => {
-        this.resetGeoresourceEditUserRolesForm();
-      }, 100);
+      this.resetGeoresourceEditUserRolesForm();
     }
   }
 
@@ -359,9 +356,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
             targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
           });
           this.showSuccessAlert();
-          setTimeout(() => {
-            this.loadingData = false;
-          }, 250);
+          this.loadingData = false;
         },
         error: (error: any) => {
           this.errorMessagePart =
@@ -374,9 +369,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
             this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
           }
           this.showErrorAlert();
-          setTimeout(() => {
-            this.loadingData = false;
-          }, 250);
+          this.loadingData = false;
         },
       });
   }
@@ -409,9 +402,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
             targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
           });
           this.showSuccessAlert();
-          setTimeout(() => {
-            this.loadingData = false;
-          }, 250);
+          this.loadingData = false;
         },
         error: (error: any) => {
           this.errorMessagePart =
@@ -424,9 +415,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
             this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
           }
           this.showErrorAlert();
-          setTimeout(() => {
-            this.loadingData = false;
-          }, 250);
+          this.loadingData = false;
         },
       });
   }
@@ -439,10 +428,6 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     this.errorMessagePart = '';
     this.hideSuccessAlert();
     this.hideErrorAlert();
-
-    setTimeout(() => {
-      // Trigger change detection if needed
-    }, 250);
   }
 
   // Helper methods

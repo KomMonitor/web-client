@@ -188,9 +188,7 @@ export class GeoresourceDeleteModalComponent implements OnInit {
       });
     }
 
-    setTimeout(() => {
-      this.loadingData = false;
-    }, 500);
+    this.loadingData = false;
   }
 
   // Filter methods for template
