@@ -18,10 +18,8 @@ import { RoleManagementGridComponent } from 'components/ngComponents/admin/admin
 import { OwnerOrganizationSelectComponent } from 'components/ngComponents/admin/adminShared/roleManagementPanel/owner-organization-select.component';
 
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
-import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 
 @Component({
   selector: 'app-wms-add-modal',
@@ -48,14 +46,19 @@ export class WmsAddModalComponent implements OnInit {
 
   @ViewChild(RoleManagementGridComponent) roleGrid?: RoleManagementGridComponent;
 
-  totalSteps: number = 4;
-  currentStep: number = 1;
-  steps: StepperStep[] = [
-    { label: 'Metadaten' },
-    { label: 'Anfrageparameter' },
-    { label: 'Themenhierarchie' },
-    { label: 'Zugriffsschutz und Eigentümerschaft' },
-  ];
+  // Multi-step form; the security step is only present when Keycloak is
+  // enabled (fixes navigating onto a blank fourth step without Keycloak —
+  // totalSteps was hard-coded to 4 before).
+  readonly stepper = new WizardStepper([
+    { key: 'metadata', label: 'Metadaten' },
+    { key: 'connection', label: 'Anfrageparameter' },
+    { key: 'topics', label: 'Themenhierarchie' },
+    {
+      key: 'security',
+      label: 'Zugriffsschutz und Eigentümerschaft',
+      when: () => this.envConfigService.enableKeycloakSecurity,
+    },
+  ]);
 
   isSubmitting = false;
   errorMessage = false;
@@ -102,25 +105,6 @@ export class WmsAddModalComponent implements OnInit {
     this.availableTopics = this.topicStore.availableTopics.filter(
       (e) => e.topicResource == this.resourceType
     );
-  }
-
-  // Multi-step form navigation
-  goToStep(step: number): void {
-    if (step >= 1 && step <= this.totalSteps) {
-      this.currentStep = step;
-    }
-  }
-
-  nextStep(): void {
-    if (this.currentStep < this.totalSteps) {
-      this.currentStep++;
-    }
-  }
-
-  previousStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
   }
 
   close(): void {
@@ -198,7 +182,7 @@ export class WmsAddModalComponent implements OnInit {
     this.isPublic = false;
     this.roleGrid?.reset();
 
-    this.currentStep = 1;
+    this.stepper.reset();
   }
 
   hideSuccessAlert(): void {

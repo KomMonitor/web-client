@@ -35,10 +35,8 @@ import { IndicatorValueService } from 'services/indicator-value-service/indicato
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { FeatureTableDataGridHelperService } from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
-import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 
 declare const __env: any;
 
@@ -91,12 +89,11 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   // Component state
   loadingData = false;
   private _currentGeoresourceDataset: any;
-  currentStep = 1;
-  steps: StepperStep[] = [
-    { label: 'Feature Übersicht' },
-    { label: 'Import einzelner Features' },
-    { label: 'Import mehrerer Features' },
-  ];
+  readonly stepper = new WizardStepper([
+    { key: 'overview', label: 'Feature Übersicht' },
+    { key: 'single', label: 'Import einzelner Features' },
+    { key: 'batch', label: 'Import mehrerer Features' },
+  ]);
 
   get currentGeoresourceDataset(): any {
     return this._currentGeoresourceDataset;
@@ -261,25 +258,6 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.resetGeoresourceEditFeaturesForm();
     this.buildFeatureTable();
     this.refreshGeoresourceEditFeaturesOverviewTable();
-  }
-
-  // Step navigation
-  nextStep(): void {
-    if (this.currentStep < 3) {
-      this.currentStep++;
-    }
-  }
-
-  previousStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
-  }
-
-  goToStep(step: number): void {
-    if (step >= 1 && step <= 3) {
-      this.currentStep = step;
-    }
   }
 
   // Feature table management
@@ -735,7 +713,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   // Form reset
   resetGeoresourceEditFeaturesForm(): void {
-    this.currentStep = 1;
+    this.stepper.reset();
     this.enableDeleteFeatures = false;
 
     // Reset all form fields

@@ -15,10 +15,8 @@ import { OgcService } from 'services/ogcServices/ogc.service';
 import { AdminTopicsManagementComponent } from 'components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
 
 import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
-import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 
 @Component({
   selector: 'app-wms-edit-modal',
@@ -37,13 +35,11 @@ export class WmsEditModalComponent {
 
   currentGeoresourceDataset!: WmsDataset;
 
-  totalSteps: number = 3;
-  currentStep: number = 1;
-  steps: StepperStep[] = [
-    { label: 'Metadaten' },
-    { label: 'Anfrageparameter' },
-    { label: 'Themenhierarchie' },
-  ];
+  readonly stepper = new WizardStepper([
+    { key: 'metadata', label: 'Metadaten' },
+    { key: 'connection', label: 'Anfrageparameter' },
+    { key: 'topics', label: 'Themenhierarchie' },
+  ]);
 
   isSubmitting = false;
   errorMessage = false;
@@ -132,25 +128,6 @@ export class WmsEditModalComponent {
     }
     if (topicHierarchy && topicHierarchy[3]) {
       this.georesourceTopic_subsubsubTopic = topicHierarchy[3];
-    }
-  }
-
-  // Multi-step form navigation
-  goToStep(step: number): void {
-    if (step >= 1 && step <= this.totalSteps) {
-      this.currentStep = step;
-    }
-  }
-
-  nextStep(): void {
-    if (this.currentStep < this.totalSteps) {
-      this.currentStep++;
-    }
-  }
-
-  previousStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
     }
   }
 

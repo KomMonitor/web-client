@@ -30,10 +30,10 @@
         style="margin-bottom: 0px"
       >
         <!-- progressbar -->
-        <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
+        <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
 
         <!-- fieldsets -->
-        <fieldset [style.display]="currentStep === 1 ? 'block' : 'none'">
+        <fieldset [style.display]="stepper.isActive('overview') ? 'block' : 'none'">
           <h2 class="fs-title">Feature Übersicht</h2>
           <h3 class="fs-subtitle">Optionale Anzeige der Feature-Details</h3>
 
@@ -136,11 +136,11 @@
             name="next"
             class="next next_editFeaturesGeoresource action-button"
             value="Nächster Schritt"
-            (click)="nextStep()"
+            (click)="stepper.next()"
           />
         </fieldset>
 
-        <fieldset [style.display]="currentStep === 2 ? 'block' : 'none'">
+        <fieldset [style.display]="stepper.isActive('single') ? 'block' : 'none'">
           <h2 class="fs-title">Manuelles Bearbeiten der Datensatz-Objekte</h2>
           <h3 class="fs-subtitle">
             Eine interaktive Karte sowie Eingabefelder erlauben das Editieren einzelner Features
@@ -160,18 +160,18 @@
             name="previous"
             class="previous previous_editFeaturesGeoresource action-button-previous"
             value="Voriger Schritt"
-            (click)="previousStep()"
+            (click)="stepper.previous()"
           />
           <input
             type="button"
             name="next"
             class="next next_editFeaturesGeoresource action-button"
             value="Nächster Schritt"
-            (click)="nextStep()"
+            (click)="stepper.next()"
           />
         </fieldset>
 
-        <fieldset [style.display]="currentStep === 3 ? 'block' : 'none'">
+        <fieldset [style.display]="stepper.isActive('batch') ? 'block' : 'none'">
           <div style="position: absolute">
             <button
               type="button"
@@ -781,7 +781,7 @@
             name="previous"
             class="previous previous_editFeaturesGeoresource action-button-previous"
             value="Voriger Schritt"
-            (click)="previousStep()"
+            (click)="stepper.previous()"
           />
         </fieldset>
       </form>

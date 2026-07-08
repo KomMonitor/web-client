@@ -28,10 +28,8 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { getErrorMessage } from '../spatial-unit-import.util';
-import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { ResourceMetadataFormComponent } from '../../adminShared/resourceMetadataForm/resource-metadata-form.component';
 import {
   buildResourceMetadataForm,
@@ -72,9 +70,10 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
 
   // Multi-step form
-  currentStep = 1;
-  totalSteps = 2;
-  steps: StepperStep[] = [{ label: 'Metadaten der Raumebene' }, { label: 'Allgemeine Metadaten' }];
+  readonly stepper = new WizardStepper([
+    { key: 'metadata', label: 'Metadaten der Raumebene' },
+    { key: 'general', label: 'Allgemeine Metadaten' },
+  ]);
 
   // Form data
   loadingData = false;
@@ -163,9 +162,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
         this.kommonitorDataExchangeService.availableLoiDashArrayObjects;
     }
 
-    // Always 2 steps to match AngularJS version
-    this.totalSteps = 2;
-
     this.loadingData = false;
   }
 
@@ -243,7 +239,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     // No role management in this version to match AngularJS
 
     // Reset to first step
-    this.currentStep = 1;
+    this.stepper.reset();
   }
 
   checkSpatialUnitName() {
@@ -367,25 +363,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
         'Fehler beim Aktualisieren der Metadaten: ' + getErrorMessage(error)
       );
       this.loadingData = false;
-    }
-  }
-
-  // Multi-step form navigation
-  nextStep() {
-    if (this.currentStep < this.totalSteps) {
-      this.currentStep++;
-    }
-  }
-
-  previousStep() {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
-  }
-
-  goToStep(step: number) {
-    if (step >= 1 && step <= this.totalSteps) {
-      this.currentStep = step;
     }
   }
 

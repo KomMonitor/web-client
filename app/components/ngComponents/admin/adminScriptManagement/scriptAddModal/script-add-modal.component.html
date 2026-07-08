@@ -27,32 +27,32 @@
 
   <!-- Progress Stepper -->
   <app-stepper
-    [steps]="stepperSteps"
-    [(currentStep)]="currentStep"
+    [steps]="stepper.steps"
+    [(currentStep)]="stepper.currentStep"
     [allStepsClickable]="true"
   ></app-stepper>
 
   <!-- ===================== STEP 1: INTRODUCTION ===================== -->
-  @if (currentStep === 1) {
+  @if (stepper.isActive('intro')) {
     <div>
-      <div class="intro-heading">{{ stepperSteps[0].label }}</div>
+      <div class="intro-heading">{{ stepper.steps[0].label }}</div>
       <app-script-step-introduction></app-script-step-introduction>
     </div>
   }
 
   <!-- ===================== STEP 2: METADATA ===================== -->
-  @if (currentStep === 2) {
+  @if (stepper.isActive('metadata')) {
     <div>
-      <div class="intro-heading">{{ stepperSteps[1].label }}</div>
+      <div class="intro-heading">{{ stepper.steps[1].label }}</div>
       <div class="sub-heading">Angaben über Metadaten des Indikatoren-Berechnungs-Skripts</div>
       <app-script-step-metadata [(metadata)]="scriptMetadata"></app-script-step-metadata>
     </div>
   }
 
   <!-- ===================== STEP 3: SCRIPT CONTENT ===================== -->
-  @if (currentStep === 3) {
+  @if (stepper.isActive('script')) {
     <div>
-      <div class="intro-heading">{{ stepperSteps[2].label }}</div>
+      <div class="intro-heading">{{ stepper.steps[2].label }}</div>
       <div class="sub-heading">Angaben über den Skript-Code und notwendige Skript-Parameter</div>
       <app-script-step-content></app-script-step-content>
     </div>
@@ -74,14 +74,14 @@
   }
 
   <div class="stepper-buttons">
-    @if (currentStep > 1) {
-      <button type="button" class="btn btn-primary" (click)="previousStep()">
+    @if (stepper.currentStep > 1) {
+      <button type="button" class="btn btn-primary" (click)="stepper.previous()">
         &lt; Voriger Schritt
       </button>
     }
 
-    @if (currentStep < stepperSteps.length) {
-      <button type="button" class="btn btn-primary" (click)="nextStep()">
+    @if (stepper.currentStep < stepper.totalSteps) {
+      <button type="button" class="btn btn-primary" (click)="stepper.next()">
         Nächster Schritt &gt;
       </button>
     }

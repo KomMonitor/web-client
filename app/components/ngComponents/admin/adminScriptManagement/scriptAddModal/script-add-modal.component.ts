@@ -9,7 +9,8 @@ import {
   ScriptStepMetadataComponent,
 } from './scriptStepMetadata/script-step-metadata.component';
 import { ScriptStepContentComponent } from './scriptStepContent/script-step-content.component';
-import { StepperComponent, StepperStep } from '../../../common/stepper/stepper.component';
+import { StepperComponent } from '../../../common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { ScriptRefreshRequest } from '../script-refresh.model';
 
 @Component({
@@ -33,13 +34,11 @@ export class ScriptAddModalComponent {
   // former RefreshScriptOverviewTable broadcast round-trip.
   @Output() refreshRequested = new EventEmitter<ScriptRefreshRequest>();
 
-  currentStep: number = 1;
-
-  readonly stepperSteps: StepperStep[] = [
-    { label: 'Einleitende Hinweise' },
-    { label: 'Metadaten des Indikators-Skripts' },
-    { label: 'Skriptinhalt und Parametrisierung' },
-  ];
+  readonly stepper = new WizardStepper([
+    { key: 'intro', label: 'Einleitende Hinweise' },
+    { key: 'metadata', label: 'Metadaten des Indikators-Skripts' },
+    { key: 'script', label: 'Skriptinhalt und Parametrisierung' },
+  ]);
 
   @ViewChild(ScriptStepContentComponent)
   scriptStepContent!: ScriptStepContentComponent;
@@ -58,7 +57,7 @@ export class ScriptAddModalComponent {
   successMessagePart: string = '';
 
   resetForm(): void {
-    this.currentStep = 1;
+    this.stepper.reset();
     this.scriptMetadata = {
       name: '',
       description: '',
@@ -74,18 +73,6 @@ export class ScriptAddModalComponent {
 
   close(): void {
     this.activeModal.dismiss('closed');
-  }
-
-  nextStep(): void {
-    if (this.currentStep < this.stepperSteps.length) {
-      this.currentStep++;
-    }
-  }
-
-  previousStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
   }
 
   // ---- Submit ----

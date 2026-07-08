@@ -17,10 +17,8 @@ import { NotificationService } from 'components/ngComponents/common/notification
 import { getErrorMessage } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.util';
 import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
 import { FormsModule } from '@angular/forms';
-import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
 import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManagementPanel/owner-organization-select.component';
 
@@ -51,9 +49,10 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
   @ViewChild(RoleManagementGridComponent) roleGrid?: RoleManagementGridComponent;
 
   // Multi-step form
-  currentStep = 1;
-  totalSteps = 2;
-  steps: StepperStep[] = [{ label: 'Zugriffsschutz' }, { label: 'Eigentümerschaft' }];
+  readonly stepper = new WizardStepper([
+    { key: 'roles', label: 'Zugriffsschutz' },
+    { key: 'ownership', label: 'Eigentümerschaft' },
+  ]);
 
   loadingData = false;
 
@@ -99,20 +98,8 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
 
   resetGeoresourceEditUserRolesForm(): void {
     this.ownerOrganization = this.currentGeoresourceDataset?.ownerId ?? '';
-    this.currentStep = 1;
+    this.stepper.reset();
     this.roleGrid?.reset();
-  }
-
-  nextStep(): void {
-    if (this.currentStep < this.totalSteps) {
-      this.currentStep++;
-    }
-  }
-
-  previousStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
   }
 
   async editGeoresourceEditUserRolesForm(): Promise<void> {

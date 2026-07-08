@@ -28,10 +28,10 @@
         style="margin-bottom: 0px"
       >
         <!-- Progress bar -->
-        <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
+        <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
 
         <!-- Step 1: Zeitreihen Übersicht -->
-        @if (currentStep === 1) {
+        @if (stepper.isActive('overview')) {
           <fieldset>
             <h2 class="fs-title">Zeitreihen Übersicht</h2>
             <h3 class="fs-subtitle">Optionale Anzeige der Zeitreihen-Details</h3>
@@ -148,13 +148,13 @@
               name="next"
               class="next next_editFeaturesIndicator action-button"
               value="Nächster Schritt"
-              (click)="nextStep()"
+              (click)="stepper.next()"
             />
           </fieldset>
         }
 
         <!-- Step 2: Räumlicher Datensatz -->
-        @if (currentStep === 2) {
+        @if (stepper.isActive('data')) {
           <fieldset>
             <div style="position: absolute">
               <button
@@ -482,7 +482,7 @@
               name="previous"
               class="previous previous_editFeaturesIndicator action-button-previous"
               value="Voriger Schritt"
-              (click)="previousStep()"
+              (click)="stepper.previous()"
             />
           </fieldset>
         }

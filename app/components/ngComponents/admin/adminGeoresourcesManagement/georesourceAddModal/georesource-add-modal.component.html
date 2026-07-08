@@ -24,10 +24,10 @@
         style="margin-bottom: 0px"
       >
         <!-- progressbar -->
-        <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
+        <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
 
         <!-- fieldsets -->
-        @if (currentStep === 1) {
+        @if (stepper.isActive('metadata')) {
           <fieldset>
             <h2 class="fs-title">Metadaten der Georessource</h2>
             <h3 class="fs-subtitle">Angaben über Metadaten der Georessource</h3>
@@ -280,12 +280,12 @@
               name="next"
               class="next next_addGeoresource action-button"
               value="Nächster Schritt"
-              (click)="nextStep()"
+              (click)="stepper.next()"
             />
           </fieldset>
         }
 
-        @if (currentStep === 2) {
+        @if (stepper.isActive('general')) {
           <fieldset>
             <h2 class="fs-title">Allgemeine Metadaten</h2>
             <h3 class="fs-subtitle">Angaben über allgemeine Metadaten in KomMonitor</h3>
@@ -301,19 +301,19 @@
               name="previous"
               class="previous previous_addGeoresource action-button-previous"
               value="Voriger Schritt"
-              (click)="previousStep()"
+              (click)="stepper.previous()"
             />
             <input
               type="button"
               name="next"
               class="next next_addGeoresource action-button"
               value="Nächster Schritt"
-              (click)="nextStep()"
+              (click)="stepper.next()"
             />
           </fieldset>
         }
 
-        @if (currentStep === 3) {
+        @if (stepper.isActive('topics')) {
           <fieldset>
             <h2 class="fs-title">Themenhierarchie</h2>
             <h3 class="fs-subtitle">Angaben über die Themenhierarchie der Georessource</h3>
@@ -439,14 +439,14 @@
               name="previous"
               class="previous previous_addGeoresource action-button-previous"
               value="Voriger Schritt"
-              (click)="previousStep()"
+              (click)="stepper.previous()"
             />
             <input
               type="button"
               name="next"
               class="next next_addGeoresource action-button"
               value="Nächster Schritt"
-              (click)="nextStep()"
+              (click)="stepper.next()"
             />
           </fieldset>
         }
@@ -455,7 +455,7 @@
              Switched via display (not @if) so the role grid's checked state
              survives navigating between steps. -->
         @if (envConfigService.enableKeycloakSecurity) {
-          <fieldset [style.display]="currentStep === 4 ? 'block' : 'none'">
+          <fieldset [style.display]="stepper.isActive('security') ? 'block' : 'none'">
             <h2 class="fs-title">Zugriffsschutz und Eigentümerschaft</h2>
             <h3 class="fs-subtitle">
               Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro
@@ -511,22 +511,19 @@
               name="previous"
               class="previous previous_addGeoresource action-button-previous"
               value="Voriger Schritt"
-              (click)="previousStep()"
+              (click)="stepper.previous()"
             />
             <input
               type="button"
               name="next"
               class="next next_addGeoresource action-button"
               value="Nächster Schritt"
-              (click)="nextStep()"
+              (click)="stepper.next()"
             />
           </fieldset>
         }
 
-        @if (
-          (currentStep === 4 && !envConfigService.enableKeycloakSecurity) ||
-          (currentStep === 5 && envConfigService.enableKeycloakSecurity)
-        ) {
+        @if (stepper.isActive('data')) {
           <fieldset>
             <div style="position: absolute">
               <button
@@ -1122,7 +1119,7 @@
               name="previous"
               class="previous previous_addGeoresource action-button-previous"
               value="Voriger Schritt"
-              (click)="previousStep()"
+              (click)="stepper.previous()"
             />
           </fieldset>
         }

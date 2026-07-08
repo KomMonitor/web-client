@@ -25,10 +25,8 @@ import { FormsModule } from '@angular/forms';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 
 import { KmDatePickerComponent } from '../../../customElements/date-picker/km-date-picker.component';
-import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import {
   addOrUpdateAttributeMapping,
   getErrorMessage,
@@ -87,29 +85,18 @@ export class SpatialUnitAddModalComponent implements OnInit {
   // datepickers handled by km-date-picker
   @ViewChild('lastUpdateDatepicker', { static: false }) lastUpdateDatepicker!: NgbDatepicker;
 
-  // Multi-step form
-  currentStep = 1;
-  totalSteps = 3; // Will be adjusted based on security settings
-
-  // Stepper labels — the security step is only present when Keycloak is enabled,
-  // mirroring the conditional fieldsets below. References are stable so the
-  // stepper only re-evaluates when the security flag actually changes.
-  private readonly stepsWithSecurity: StepperStep[] = [
-    { label: 'Metadaten der Raumebene' },
-    { label: 'Allgemeine Metadaten' },
-    { label: 'Zugriffsschutz und Eigentümerschaft' },
-    { label: 'Räumlicher Datensatz' },
-  ];
-  private readonly stepsWithoutSecurity: StepperStep[] = [
-    { label: 'Metadaten der Raumebene' },
-    { label: 'Allgemeine Metadaten' },
-    { label: 'Räumlicher Datensatz' },
-  ];
-  get steps(): StepperStep[] {
-    return this.kommonitorDataExchangeService.enableKeycloakSecurity
-      ? this.stepsWithSecurity
-      : this.stepsWithoutSecurity;
-  }
+  // Multi-step form; the security step is only present when Keycloak is
+  // enabled, mirroring the conditional fieldset in the template.
+  readonly stepper = new WizardStepper([
+    { key: 'metadata', label: 'Metadaten der Raumebene' },
+    { key: 'general', label: 'Allgemeine Metadaten' },
+    {
+      key: 'security',
+      label: 'Zugriffsschutz und Eigentümerschaft',
+      when: () => this.kommonitorDataExchangeService.enableKeycloakSecurity,
+    },
+    { key: 'data', label: 'Räumlicher Datensatz' },
+  ]);
 
   // Form data
   loadingData = false;
@@ -221,7 +208,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   ngOnInit() {
     this.loadInitialData();
-    this.initializeMultiStepForm();
     this.initializeOutlineLayerSettings();
     this.initializeMetadataStructures();
   }
@@ -285,18 +271,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
             this.loadingData = false;
           },
         });
-    }
-  }
-
-  private initializeMultiStepForm() {
-    // Initialize multi-step form based on security settings
-    if (
-      this.kommonitorDataExchangeService.accessControl &&
-      this.kommonitorDataExchangeService.accessControl.length > 0
-    ) {
-      this.totalSteps = 5; // Include role management step
-    } else {
-      this.totalSteps = 4;
     }
   }
 
@@ -656,31 +630,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     }
   }
 
-  // Multi-step navigation
-  nextStep() {
-    const maxSteps = this.kommonitorDataExchangeService.enableKeycloakSecurity ? 4 : 3;
-    if (this.currentStep < maxSteps) {
-      this.currentStep++;
-    }
-  }
-
-  previousStep() {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
-  }
-
-  goToStep(step: number) {
-    const maxSteps = this.kommonitorDataExchangeService.enableKeycloakSecurity ? 4 : 3;
-
-    // Validate step range
-    if (step < 1 || step > maxSteps) {
-      return;
-    }
-
-    this.currentStep = step;
-  }
-
   // Import/Export functionality
   onImportSpatialUnitAddMetadata() {
     this.spatialUnitMetadataImportError = '';
@@ -904,7 +853,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   resetForm() {
-    this.currentStep = 1;
+    this.stepper.reset();
     this.spatialUnitLevel = '';
     this.spatialUnitLevelInvalid = false;
     this.metadataForm.reset();

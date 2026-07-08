@@ -28,10 +28,8 @@ import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
 import { FormsModule } from '@angular/forms';
 import { getErrorMessage } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.util';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
-import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -98,31 +96,19 @@ export class GeoresourceAddModalComponent implements OnInit {
   georesourceDataSourceInput!: ElementRef;
   @ViewChild(RoleManagementGridComponent) roleGrid?: RoleManagementGridComponent;
 
-  // Multi-step form
-  currentStep = 1;
-  totalSteps = 4; // Will be adjusted based on security settings
-
-  // Stepper labels — the security step is only present when Keycloak is enabled,
-  // mirroring the conditional fieldsets below. References are stable so the
-  // stepper only re-evaluates when the security flag actually changes.
-  private readonly stepsWithSecurity: StepperStep[] = [
-    { label: 'Metadaten der Georessource' },
-    { label: 'Allgemeine Metadaten' },
-    { label: 'Themenhierarchie' },
-    { label: 'Zugriffsschutz und Eigentümerschaft' },
-    { label: 'Räumlicher Datensatz' },
-  ];
-  private readonly stepsWithoutSecurity: StepperStep[] = [
-    { label: 'Metadaten der Georessource' },
-    { label: 'Allgemeine Metadaten' },
-    { label: 'Themenhierarchie' },
-    { label: 'Räumlicher Datensatz' },
-  ];
-  get steps(): StepperStep[] {
-    return this.envConfigService.enableKeycloakSecurity
-      ? this.stepsWithSecurity
-      : this.stepsWithoutSecurity;
-  }
+  // Multi-step form; the security step is only present when Keycloak is
+  // enabled, mirroring the conditional fieldset in the template.
+  readonly stepper = new WizardStepper([
+    { key: 'metadata', label: 'Metadaten der Georessource' },
+    { key: 'general', label: 'Allgemeine Metadaten' },
+    { key: 'topics', label: 'Themenhierarchie' },
+    {
+      key: 'security',
+      label: 'Zugriffsschutz und Eigentümerschaft',
+      when: () => this.envConfigService.enableKeycloakSecurity,
+    },
+    { key: 'data', label: 'Räumlicher Datensatz' },
+  ]);
 
   // Form data
   isSubmitting = false;
@@ -307,9 +293,6 @@ export class GeoresourceAddModalComponent implements OnInit {
 
     // Load available options
     this.loadAvailableOptions();
-
-    // Adjust total steps based on security settings
-    this.totalSteps = this.envConfigService.enableKeycloakSecurity ? 5 : 4;
   }
 
   private setupEventListeners(): void {
@@ -352,25 +335,6 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.georesourceMappingConfigStructure_pretty = this.indicatorValueService.syntaxHighlightJSON(
       this.kommonitorImporterHelperService.mappingConfigStructure
     );
-  }
-
-  // Multi-step form navigation
-  goToStep(step: number): void {
-    if (step >= 1 && step <= this.totalSteps) {
-      this.currentStep = step;
-    }
-  }
-
-  nextStep(): void {
-    if (this.currentStep < this.totalSteps) {
-      this.currentStep++;
-    }
-  }
-
-  previousStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
   }
 
   // Form validation methods

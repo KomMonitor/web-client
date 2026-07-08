@@ -9,10 +9,8 @@ import { HttpClient } from '@angular/common/http';
 
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
-import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { IndicatorRefreshRequest } from '../indicator-refresh.model';
 import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
 import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManagementPanel/owner-organization-select.component';
@@ -46,13 +44,11 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   loadingData: boolean = false;
 
   // Multi-step form
-  currentStep: number = 1;
-  totalSteps: number = 3;
-  steps: StepperStep[] = [
-    { label: 'Zugriffsschutz Indikator-Metadaten' },
-    { label: 'Zugriffsschutz Indikator-Zeitreihe pro Raumeinheit' },
-    { label: 'Eigentümerschaft' },
-  ];
+  readonly stepper = new WizardStepper([
+    { key: 'metadataRoles', label: 'Zugriffsschutz Indikator-Metadaten' },
+    { key: 'timeseriesRoles', label: 'Zugriffsschutz Indikator-Zeitreihe pro Raumeinheit' },
+    { key: 'ownership', label: 'Eigentümerschaft' },
+  ]);
 
   activeModal = inject(NgbActiveModal);
   private broadcastService = inject(BroadcastService);
@@ -277,24 +273,6 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   }
 
   // Multi-step form navigation
-  nextStep(): void {
-    if (this.currentStep < this.totalSteps) {
-      this.currentStep++;
-    }
-  }
-
-  previousStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
-  }
-
-  goToStep(step: number): void {
-    if (step >= 1 && step <= this.totalSteps) {
-      this.currentStep = step;
-    }
-  }
-
   // Alert management
   showSuccessAlert(): void {
     let message = `Zugriffsschutz und Eigentümerschaft für Indikator '${this.currentIndicatorDataset?.indicatorName}' aktualisiert.`;

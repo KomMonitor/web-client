@@ -30,10 +30,8 @@ import { FeatureTableDataGridHelperService } from '../../../../../services/featu
 import { ownerDefaultPermissionIds } from '../../adminShared/roleManagementPanel/role-management-panel.model';
 import { ResourceImportService } from 'services/resource-import-service/resource-import.service';
 import { NotificationService } from '../../../common/notification/notification.service';
-import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { IndicatorRefreshRequest } from '../indicator-refresh.model';
 import { downloadJson } from 'util/json-file.util';
 
@@ -118,9 +116,10 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   importedFeatures: any[] = [];
 
   // Multi-step form
-  currentStep: number = 1;
-  totalSteps: number = 2;
-  steps: StepperStep[] = [{ label: 'Zeitreihen Übersicht' }, { label: 'Räumlicher Datensatz' }];
+  readonly stepper = new WizardStepper([
+    { key: 'overview', label: 'Zeitreihen Übersicht' },
+    { key: 'data', label: 'Räumlicher Datensatz' },
+  ]);
 
   ngOnInit(): void {
     this.setupEventListeners();
@@ -594,25 +593,6 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
 
       downloadJson('KomMonitor-Import-Mapping-Konfiguration_Export.json', mappingConfigExport);
     });
-  }
-
-  // Multi-step form navigation
-  nextStep(): void {
-    if (this.currentStep < this.totalSteps) {
-      this.currentStep++;
-    }
-  }
-
-  previousStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
-  }
-
-  goToStep(step: number): void {
-    if (step >= 1 && step <= this.totalSteps) {
-      this.currentStep = step;
-    }
   }
 
   // Alert management

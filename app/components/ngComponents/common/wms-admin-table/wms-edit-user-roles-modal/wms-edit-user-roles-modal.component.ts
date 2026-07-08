@@ -7,10 +7,8 @@ import { AccessControlService } from 'services/access-control-service/access-con
 import { OgcService } from 'services/ogcServices/ogc.service';
 
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
-import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { RoleManagementGridComponent } from 'components/ngComponents/admin/adminShared/roleManagementPanel/role-management-grid.component';
 import { OwnerOrganizationSelectComponent } from 'components/ngComponents/admin/adminShared/roleManagementPanel/owner-organization-select.component';
 
@@ -36,9 +34,10 @@ export class WmsEditUserRolesModalComponent {
 
   @ViewChild(RoleManagementGridComponent) roleGrid?: RoleManagementGridComponent;
 
-  totalSteps: number = 2;
-  currentStep: number = 1;
-  steps: StepperStep[] = [{ label: 'Zugriffsschutz' }, { label: 'Eigentümerschaft' }];
+  readonly stepper = new WizardStepper([
+    { key: 'roles', label: 'Zugriffsschutz' },
+    { key: 'ownership', label: 'Eigentümerschaft' },
+  ]);
 
   isSubmitting = false;
   errorMessage = false;
@@ -51,25 +50,6 @@ export class WmsEditUserRolesModalComponent {
 
   successMessagePart = '';
   errorMessagePart = '';
-
-  // Multi-step form navigation
-  goToStep(step: number): void {
-    if (step >= 1 && step <= this.totalSteps) {
-      this.currentStep = step;
-    }
-  }
-
-  nextStep(): void {
-    if (this.currentStep < this.totalSteps) {
-      this.currentStep++;
-    }
-  }
-
-  previousStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
-  }
 
   close(): void {
     this.activeModal.close(true);

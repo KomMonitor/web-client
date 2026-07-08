@@ -11,10 +11,8 @@ import {
 } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { AdminRoleManagementService } from '../admin-role-management.service';
-import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { FilterableSelectComponent } from 'components/ngComponents/common/filterableSelect/filterable-select.component';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { NotificationService } from '../../../common/notification/notification.service';
@@ -78,11 +76,10 @@ export class RoleAddModalComponent implements OnInit {
     organizationalUnitId?: string;
   } = {};
 
-  protected steps: StepperStep[] = [
-    { label: 'Basisinformationen' },
-    { label: 'Rechte anderer Gruppen an neuer Gruppe' },
-  ];
-  protected currentStep: number = 1;
+  protected readonly stepper = new WizardStepper([
+    { key: 'basics', label: 'Basisinformationen' },
+    { key: 'rights', label: 'Rechte anderer Gruppen an neuer Gruppe' },
+  ]);
   protected accessControlOptions = [...this.kommonitorDataExchangeService.accessControl].sort(
     (left, right) => left.name.localeCompare(right.name, 'de')
   );
@@ -136,7 +133,7 @@ export class RoleAddModalComponent implements OnInit {
     this.showErrorAlert = false;
     this.showKeycloakErrorAlert = false;
     this.nameInvalid = false;
-    this.currentStep = 1;
+    this.stepper.reset();
 
     if (this.kommonitorDataExchangeService.accessControl.length > 0) {
       this.buildRoleDelegatesTable();

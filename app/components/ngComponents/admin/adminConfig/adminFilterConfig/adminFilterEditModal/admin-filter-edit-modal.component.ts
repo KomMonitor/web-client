@@ -9,10 +9,8 @@ import { GeoresourceMetadataStoreService } from '../../../../../../services/geor
 import { TopicMetadataStoreService } from '../../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 import { IndicatorMetadataStoreService } from '../../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { NotificationService } from '../../../../common/notification/notification.service';
-import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 
 @Component({
   selector: 'app-admin-filter-edit-modal',
@@ -63,32 +61,12 @@ export class AdminFilterEditModalComponent {
   filterName!: string | undefined;
 
   // Multi-step form
-  currentStep = 1;
-  totalSteps = 4;
-  steps: StepperStep[] = [
-    { label: 'Indikatoren' },
-    { label: 'Indikator-Themen' },
-    { label: 'Georesourcen' },
-    { label: 'Georesource-Themen' },
-  ];
-
-  nextStep(): void {
-    if (this.currentStep < this.totalSteps) {
-      this.currentStep++;
-    }
-  }
-
-  previousStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
-  }
-
-  goToStep(step: number): void {
-    if (step >= 1 && step <= this.totalSteps) {
-      this.currentStep = step;
-    }
-  }
+  readonly stepper = new WizardStepper([
+    { key: 'indicators', label: 'Indikatoren' },
+    { key: 'indicatorTopics', label: 'Indikator-Themen' },
+    { key: 'georesources', label: 'Georesourcen' },
+    { key: 'georesourceTopics', label: 'Georesource-Themen' },
+  ]);
 
   /* 	var addClickListenerToEachCollapseTrigger(){
 

@@ -26,10 +26,10 @@
         style="margin-bottom: 0px"
       >
         <!-- progressbar -->
-        <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
+        <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
 
         <!-- fieldsets -->
-        @if (currentStep === 1) {
+        @if (stepper.isActive('metadata')) {
           <fieldset>
             <h2 class="fs-title">Allgemeine Metadaten</h2>
             <h3 class="fs-subtitle">Angaben über allgemeine Metadaten in KomMonitor</h3>
@@ -138,20 +138,20 @@
                 name="previous"
                 class="previous previous_addGeoresource action-button-previous"
                 value="Voriger Schritt"
-                (click)="previousStep()"
+                (click)="stepper.previous()"
               />
               <input
                 type="button"
                 name="next"
                 class="next next_addGeoresource action-button"
                 value="Nächster Schritt"
-                (click)="nextStep()"
+                (click)="stepper.next()"
               />
             </form>
           </fieldset>
         }
 
-        @if (currentStep === 2) {
+        @if (stepper.isActive('connection')) {
           <fieldset>
             <h2 class="fs-title">Anfrageparameter</h2>
             <h3 class="fs-subtitle">Angabe der Abruf-Informationen</h3>
@@ -203,20 +203,20 @@
                 name="previous"
                 class="previous previous_addGeoresource action-button-previous"
                 value="Voriger Schritt"
-                (click)="previousStep()"
+                (click)="stepper.previous()"
               />
               <input
                 type="button"
                 name="next"
                 class="next next_addGeoresource action-button"
                 value="Nächster Schritt"
-                (click)="nextStep()"
+                (click)="stepper.next()"
               />
             </form>
           </fieldset>
         }
 
-        @if (currentStep === 3) {
+        @if (stepper.isActive('topics')) {
           <fieldset>
             <h2 class="fs-title">Themenhierarchie</h2>
             <h3 class="fs-subtitle">Angaben über die Themenhierarchie der Georessource</h3>
@@ -342,14 +342,14 @@
               name="previous"
               class="previous previous_addGeoresource action-button-previous"
               value="Voriger Schritt"
-              (click)="previousStep()"
+              (click)="stepper.previous()"
             />
             <input
               type="button"
               name="next"
               class="next next_addGeoresource action-button"
               value="Nächster Schritt"
-              (click)="nextStep()"
+              (click)="stepper.next()"
             />
           </fieldset>
         }

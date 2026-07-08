@@ -26,12 +26,12 @@
         style="margin-bottom: 0px"
       >
         <!-- progressbar -->
-        <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
+        <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
         <!-- fieldsets: switched via display so the role grid (and its checked
              state) survives navigating to step 2 -->
 
         @if (kommonitorDataExchangeService.enableKeycloakSecurity) {
-          <fieldset [style.display]="currentStep === 1 ? 'block' : 'none'">
+          <fieldset [style.display]="stepper.isActive('roles') ? 'block' : 'none'">
             <h2 class="fs-title">Zugriffsschutz</h2>
             <h3 class="fs-subtitle">
               Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro
@@ -76,12 +76,12 @@
               name="next"
               class="next next_editGeoresourceRoles action-button"
               value="Nächster Schritt"
-              (click)="nextStep()"
+              (click)="stepper.next()"
             />
           </fieldset>
         }
 
-        <fieldset [style.display]="currentStep === 2 ? 'block' : 'none'">
+        <fieldset [style.display]="stepper.isActive('ownership') ? 'block' : 'none'">
           <h2 class="fs-title">Eigentümerschaft eines Datensatzes</h2>
           <h3 class="fs-subtitle">
             Übertragen der Eigentümerschaft von Datensätzen mit allen dazugehörigen Rechten
@@ -101,7 +101,7 @@
             name="previous"
             class="previous previous_editGeoresourceRoles action-button-previous"
             value="Voriger Schritt"
-            (click)="previousStep()"
+            (click)="stepper.previous()"
           />
         </fieldset>
       </form>

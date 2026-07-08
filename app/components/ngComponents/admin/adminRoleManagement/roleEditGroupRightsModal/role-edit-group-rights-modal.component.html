@@ -20,14 +20,14 @@
 
     <div class="stepper-wrapper">
       <app-stepper
-        [steps]="steps"
-        [(currentStep)]="currentStep"
+        [steps]="stepper.steps"
+        [(currentStep)]="stepper.currentStep"
         [allStepsClickable]="true"
       ></app-stepper>
     </div>
 
     <!-- Step 1: Authority roles (read-only) -->
-    @if (currentStep === 1) {
+    @if (stepper.isActive('ownRights')) {
       <h2 class="fs-title text-center">Zugewiesene administrative Rechte</h2>
       <expandable-box title="Bedienhinweise" [collapsed]="true">
         <p class="text-center">
@@ -65,7 +65,7 @@
     }
 
     <!-- Step 2: Delegated roles (editable) -->
-    @if (currentStep === 2) {
+    @if (stepper.isActive('foreignRights')) {
       <h2 class="fs-title text-center">Delegierte administrative Rechte</h2>
       <expandable-box title="Bedienhinweise" [collapsed]="true">
         <p class="text-center">

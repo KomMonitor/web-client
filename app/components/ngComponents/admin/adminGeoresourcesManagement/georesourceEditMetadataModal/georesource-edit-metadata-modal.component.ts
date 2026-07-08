@@ -18,10 +18,8 @@ import { IndicatorValueService } from 'services/indicator-value-service/indicato
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
 
-import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { KmColorPickerComponent } from 'components/ngComponents/customElements/color-picker/km-color-picker.component';
 import {
   KmLinePatternPickerComponent,
@@ -75,12 +73,11 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
   // Component state
   loadingData = false;
   currentGeoresourceDataset: any;
-  currentStep = 1;
-  steps: StepperStep[] = [
-    { label: 'Metadaten der Georessource' },
-    { label: 'Allgemeine Metadaten' },
-    { label: 'Themenhierarchie' },
-  ];
+  readonly stepper = new WizardStepper([
+    { key: 'metadata', label: 'Metadaten der Georessource' },
+    { key: 'general', label: 'Allgemeine Metadaten' },
+    { key: 'topics', label: 'Themenhierarchie' },
+  ]);
 
   // Form data
   datasetName: string = '';
@@ -208,7 +205,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
   resetGeoresourceEditMetadataForm(): void {
     if (!this.currentGeoresourceDataset) return;
 
-    this.currentStep = 1;
+    this.stepper.reset();
     this.datasetName = this.currentGeoresourceDataset.datasetName;
     this.datasetNameInvalid = false;
 
@@ -614,25 +611,6 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
   // Validation for form submission
   canSubmitForm(): boolean {
     return !this.datasetNameInvalid && this.metadataForm.valid && !this.poiMarkerTextInvalid;
-  }
-
-  // Step navigation
-  nextStep(): void {
-    if (this.currentStep < 3) {
-      this.currentStep++;
-    }
-  }
-
-  previousStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
-  }
-
-  goToStep(step: number): void {
-    if (step >= 1 && step <= 3) {
-      this.currentStep = step;
-    }
   }
 
   // Modal control

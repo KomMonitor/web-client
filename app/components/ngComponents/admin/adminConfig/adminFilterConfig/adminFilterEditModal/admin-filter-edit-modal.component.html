@@ -31,10 +31,10 @@
         style="margin-bottom: 0px"
       >
         <!-- progressbar -->
-        <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
+        <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
 
         <!-- fieldsets -->
-        @if (currentStep === 1) {
+        @if (stepper.isActive('indicators')) {
           <fieldset>
             <h2 class="fs-title">Indikatoren</h2>
             <h3 class="fs-subtitle">Auswahl der sichtbaren Indikatoren</h3>
@@ -77,12 +77,12 @@
               name="next"
               class="next next_editAdminFilter action-button"
               value="N&auml;chster Schritt"
-              (click)="nextStep()"
+              (click)="stepper.next()"
             />
           </fieldset>
         }
 
-        @if (currentStep === 2) {
+        @if (stepper.isActive('indicatorTopics')) {
           <fieldset>
             <h2 class="fs-title">Indikator-Themen</h2>
             <h3 class="fs-subtitle">Auswahl der Indikator-spezifischen Themen</h3>
@@ -135,19 +135,19 @@
               name="previous"
               class="previous previous_editAdminFilter action-button-previous"
               value="Voriger Schritt"
-              (click)="previousStep()"
+              (click)="stepper.previous()"
             />
             <input
               type="button"
               name="next"
               class="next next_editAdminFilter action-button"
               value="N&auml;chster Schritt"
-              (click)="nextStep()"
+              (click)="stepper.next()"
             />
           </fieldset>
         }
 
-        @if (currentStep === 3) {
+        @if (stepper.isActive('georesources')) {
           <fieldset>
             <h2 class="fs-title">Georesourcen</h2>
             <h3 class="fs-subtitle">Auswahl der sichtbaren Georesourcen</h3>
@@ -184,19 +184,19 @@
               name="previous"
               class="previous previous_editAdminFilter action-button-previous"
               value="Voriger Schritt"
-              (click)="previousStep()"
+              (click)="stepper.previous()"
             />
             <input
               type="button"
               name="next"
               class="next next_editAdminFilter action-button"
               value="N&auml;chster Schritt"
-              (click)="nextStep()"
+              (click)="stepper.next()"
             />
           </fieldset>
         }
 
-        @if (currentStep === 4) {
+        @if (stepper.isActive('georesourceTopics')) {
           <fieldset>
             <h2 class="fs-title">Georesource-Themen</h2>
             <h3 class="fs-subtitle">Auswahl der Georesource-spezifischen Themen</h3>
@@ -249,7 +249,7 @@
               name="previous"
               class="previous previous_editAdminFilter action-button-previous"
               value="Voriger Schritt"
-              (click)="previousStep()"
+              (click)="stepper.previous()"
             />
           </fieldset>
         }

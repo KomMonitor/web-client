@@ -23,40 +23,43 @@
     <div class="col-md-12">
       <div class="multiStepForm form-group" id="indicatorAddForm" style="margin-bottom: 0px">
         <!-- progressbar -->
-        <app-stepper [steps]="state.steps" [(currentStep)]="state.currentStep"></app-stepper>
+        <app-stepper
+          [steps]="state.stepper.steps"
+          [(currentStep)]="state.stepper.currentStep"
+        ></app-stepper>
 
         <!-- Step 1: Basic Indicator Metadata -->
-        @if (state.currentStep === 1) {
+        @if (state.stepper.isActive('metadata')) {
           <app-indicator-add-step1-basic></app-indicator-add-step1-basic>
         }
 
         <!-- Step 2: General Metadata -->
-        @if (state.currentStep === 2) {
+        @if (state.stepper.isActive('general')) {
           <app-indicator-add-step2-metadata></app-indicator-add-step2-metadata>
         }
 
         <!-- Step 3: Topic Hierarchy -->
-        @if (state.currentStep === 3) {
+        @if (state.stepper.isActive('topics')) {
           <app-indicator-add-step3-topics></app-indicator-add-step3-topics>
         }
 
         <!-- Step 4: References to Indicators/Georesources -->
-        @if (state.currentStep === 4) {
+        @if (state.stepper.isActive('references')) {
           <app-indicator-add-step4-references></app-indicator-add-step4-references>
         }
 
         <!-- Step 5: Classification Options -->
-        @if (state.currentStep === 5) {
+        @if (state.stepper.isActive('classification')) {
           <app-indicator-add-step5-classification></app-indicator-add-step5-classification>
         }
 
         <!-- Step 6: Regional Comparison Values -->
-        @if (state.currentStep === 6) {
+        @if (state.stepper.isActive('referenceValues')) {
           <app-indicator-add-step6-comparison></app-indicator-add-step6-comparison>
         }
 
         <!-- Step 7: Access Control and Ownership -->
-        @if (state.currentStep === 7) {
+        @if (state.stepper.isActive('security')) {
           <app-indicator-add-step7-access></app-indicator-add-step7-access>
         }
       </div>

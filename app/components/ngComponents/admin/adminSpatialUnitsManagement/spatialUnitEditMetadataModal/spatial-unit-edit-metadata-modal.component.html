@@ -33,9 +33,9 @@
         (ngSubmit)="onSubmit()"
       >
         <!-- progressbar -->
-        <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
+        <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
 
-        @if (currentStep === 1) {
+        @if (stepper.isActive('metadata')) {
           <fieldset>
             <h2 class="fs-title">Metadaten der Raumebene</h2>
             <h3 class="fs-subtitle">Angaben über die Raumebene</h3>
@@ -198,13 +198,13 @@
                 name="next"
                 class="next next_editSpatialUnit action-button"
                 value="Nächster Schritt"
-                (click)="nextStep()"
+                (click)="stepper.next()"
               />
             </div>
           </fieldset>
         }
 
-        @if (currentStep === 2) {
+        @if (stepper.isActive('general')) {
           <fieldset>
             <h2 class="fs-title">Allgemeine Metadaten</h2>
             <h3 class="fs-subtitle">Angaben über allgemeine Metadaten in KomMonitor</h3>
@@ -221,7 +221,7 @@
                 name="previous"
                 class="previous previous_editSpatialUnit action-button-previous"
                 value="Voriger Schritt"
-                (click)="previousStep()"
+                (click)="stepper.previous()"
               />
             </div>
           </fieldset>

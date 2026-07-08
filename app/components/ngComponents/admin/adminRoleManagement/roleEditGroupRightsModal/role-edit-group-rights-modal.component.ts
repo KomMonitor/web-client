@@ -10,10 +10,8 @@ import {
 } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { AdminRoleManagementService, RoleDelegatePutEntry } from '../admin-role-management.service';
-import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { NotificationService } from '../../../common/notification/notification.service';
@@ -54,11 +52,10 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
   errorMessagePart: string | undefined;
   activeDelegatedRolesOnly: boolean = true;
 
-  protected steps: StepperStep[] = [
-    { label: 'Eigene Rechte an anderen Gruppen' },
-    { label: 'Rechte anderer Gruppen an gewählter Gruppe' },
-  ];
-  protected currentStep: number = 1;
+  protected readonly stepper = new WizardStepper([
+    { key: 'ownRights', label: 'Eigene Rechte an anderen Gruppen' },
+    { key: 'foreignRights', label: 'Rechte anderer Gruppen an gewählter Gruppe' },
+  ]);
 
   // Authority table (step 1, read-only)
   authorityColumnDefs: ColDef[] = [];

@@ -25,10 +25,10 @@
         style="margin-bottom: 0px"
       >
         <!-- progressbar -->
-        <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
+        <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
 
         <!-- Step 1: Spatial Unit Overview -->
-        @if (currentStep === 1) {
+        @if (stepper.isActive('overview')) {
           <fieldset>
             <h2 class="fs-title">Raumeinheit Übersicht</h2>
             <h3 class="fs-subtitle">Optionale Anzeige der Raumeinheits-Details</h3>
@@ -137,13 +137,13 @@
               name="next"
               class="next next_editSpatialUnitFeatures action-button"
               value="Nächster Schritt"
-              (click)="nextStep()"
+              (click)="stepper.next()"
             />
           </fieldset>
         }
 
         <!-- Step 2: Spatial Dataset -->
-        <fieldset [hidden]="!(currentStep === 2)">
+        <fieldset [hidden]="!stepper.isActive('data')">
           <div style="position: absolute">
             <button
               type="button"
@@ -760,7 +760,7 @@
             name="previous"
             class="previous previous_editSpatialUnitFeatures action-button-previous"
             value="Voriger Schritt"
-            (click)="previousStep()"
+            (click)="stepper.previous()"
           />
         </fieldset>
       </form>

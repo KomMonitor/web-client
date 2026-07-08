@@ -25,10 +25,8 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { KmDatePickerComponent } from '../../../customElements/date-picker/km-date-picker.component';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
-import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import {
   addOrUpdateAttributeMapping,
   getErrorMessage,
@@ -73,9 +71,10 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   // km-date-picker handles its own datepicker internally; no ngb refs needed
 
   // Multi-step form
-  currentStep = 1;
-  totalSteps = 2;
-  steps: StepperStep[] = [{ label: 'Raumeinheit Übersicht' }, { label: 'Räumlicher Datensatz' }];
+  readonly stepper = new WizardStepper([
+    { key: 'overview', label: 'Raumeinheit Übersicht' },
+    { key: 'data', label: 'Räumlicher Datensatz' },
+  ]);
 
   // Form data
   loadingData = false;
@@ -904,25 +903,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
 
   getFeatureName(geojsonFeature: any): string {
     return geojsonFeature.properties?.['NAME'] || '';
-  }
-
-  // Navigation methods
-  nextStep(): void {
-    if (this.currentStep < this.totalSteps) {
-      this.currentStep++;
-    }
-  }
-
-  previousStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
-  }
-
-  goToStep(step: number): void {
-    if (step >= 1 && step <= this.totalSteps) {
-      this.currentStep = step;
-    }
   }
 
   // AG Grid event handlers

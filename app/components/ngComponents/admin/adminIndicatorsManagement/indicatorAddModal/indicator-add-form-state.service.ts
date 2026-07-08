@@ -1,6 +1,6 @@
 import { Injectable, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { StepperStep } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { mergeColorSchemes } from 'components/ngComponents/userInterface/kommonitorClassification/colors';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -45,35 +45,21 @@ export class IndicatorAddFormStateService {
   editIndicatorDataset: any = null;
   editIndicatorId: string | null = null;
 
-  // Multi-step form
-  currentStep = 1;
-  totalSteps = 7; // Will be adjusted based on security settings
-
-  // Stepper labels — the security step is only present when Keycloak is enabled,
-  // mirroring the conditional fieldset below. References are stable so the
-  // stepper only re-evaluates when the security flag actually changes.
-  private readonly stepsWithSecurity: StepperStep[] = [
-    { label: 'Metadaten des Indikators' },
-    { label: 'Allgemeine Metadaten' },
-    { label: 'Themenhierarchie' },
-    { label: 'Referenzen zu Indikatoren/Georessourcen' },
-    { label: 'Klassifizierungsoptionen' },
-    { label: 'regionale Vergleichswerte' },
-    { label: 'Zugriffsschutz und Eigentümerschaft' },
-  ];
-  private readonly stepsWithoutSecurity: StepperStep[] = [
-    { label: 'Metadaten des Indikators' },
-    { label: 'Allgemeine Metadaten' },
-    { label: 'Themenhierarchie' },
-    { label: 'Referenzen zu Indikatoren/Georessourcen' },
-    { label: 'Klassifizierungsoptionen' },
-    { label: 'regionale Vergleichswerte' },
-  ];
-  get steps(): StepperStep[] {
-    return this.envConfigService.enableKeycloakSecurity
-      ? this.stepsWithSecurity
-      : this.stepsWithoutSecurity;
-  }
+  // Multi-step form; the security step is only present when Keycloak is
+  // enabled, mirroring the conditional step component in the template.
+  readonly stepper = new WizardStepper([
+    { key: 'metadata', label: 'Metadaten des Indikators' },
+    { key: 'general', label: 'Allgemeine Metadaten' },
+    { key: 'topics', label: 'Themenhierarchie' },
+    { key: 'references', label: 'Referenzen zu Indikatoren/Georessourcen' },
+    { key: 'classification', label: 'Klassifizierungsoptionen' },
+    { key: 'referenceValues', label: 'regionale Vergleichswerte' },
+    {
+      key: 'security',
+      label: 'Zugriffsschutz und Eigentümerschaft',
+      when: () => this.envConfigService.enableKeycloakSecurity,
+    },
+  ]);
 
   // Form data
   loadingData = false;
@@ -285,13 +271,6 @@ export class IndicatorAddFormStateService {
   }
 
   initializeMultiStepForm() {
-    // Initialize multi-step form based on security settings
-    if (this.envConfigService.enableKeycloakSecurity) {
-      this.totalSteps = 7; // Include role management step
-    } else {
-      this.totalSteps = 6;
-    }
-
     // The role-management grid is (re)built from the admin access-control data once
     // it is available (see prepareOwnerOrganizationList / rebuildRoleManagementGrid),
     // so nothing to build here up front.
@@ -1203,7 +1182,7 @@ export class IndicatorAddFormStateService {
   }
 
   resetForm() {
-    this.currentStep = 1;
+    this.stepper.reset();
     this.datasetName = '';
     this.datasetNameInvalid = false;
     this.indicatorAbbreviation = '';
@@ -1918,26 +1897,18 @@ export class IndicatorAddFormStateService {
     this.filterOrganizations();
   }
 
-  // Multi-step navigation
+  // Multi-step navigation (delegates kept: the seven step components bind
+  // state.nextStep()/state.previousStep() in their templates)
   nextStep() {
-    const maxSteps = this.envConfigService.enableKeycloakSecurity ? 7 : 6;
-    if (this.currentStep < maxSteps) {
-      this.currentStep++;
-    }
+    this.stepper.next();
   }
 
   previousStep() {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
+    this.stepper.previous();
   }
 
   goToStep(step: number) {
-    const maxSteps = this.envConfigService.enableKeycloakSecurity ? 7 : 6;
-
     // Allow navigation to any step without validation (like old AngularJS counterpart)
-    if (step >= 1 && step <= maxSteps) {
-      this.currentStep = step;
-    }
+    this.stepper.goTo(step);
   }
 }

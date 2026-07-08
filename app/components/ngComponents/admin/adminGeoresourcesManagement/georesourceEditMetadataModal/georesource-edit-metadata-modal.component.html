@@ -30,11 +30,11 @@
         style="margin-bottom: 0px"
       >
         <!-- progressbar -->
-        <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
+        <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
 
         <!-- fieldsets -->
 
-        <fieldset [style.display]="currentStep === 1 ? 'block' : 'none'">
+        <fieldset [style.display]="stepper.isActive('metadata') ? 'block' : 'none'">
           <h2 class="fs-title">Metadaten der Georessource</h2>
           <h3 class="fs-subtitle">Angaben über Metadaten der Georessource</h3>
           <p>
@@ -280,11 +280,11 @@
             name="next"
             class="next next_editGeoresourceMetadata action-button"
             value="Nächster Schritt"
-            (click)="nextStep()"
+            (click)="stepper.next()"
           />
         </fieldset>
 
-        <fieldset [style.display]="currentStep === 2 ? 'block' : 'none'">
+        <fieldset [style.display]="stepper.isActive('general') ? 'block' : 'none'">
           <h2 class="fs-title">Allgemeine Metadaten</h2>
           <h3 class="fs-subtitle">Angaben über allgemeine Metadaten in KomMonitor</h3>
           <p>
@@ -301,7 +301,7 @@
             name="next"
             class="next next_editGeoresourceMetadata action-button"
             value="Nächster Schritt"
-            (click)="nextStep()"
+            (click)="stepper.next()"
           />
 
           <input
@@ -309,11 +309,11 @@
             name="previous"
             class="previous previous_editGeoresourceMetadata action-button-previous"
             value="Voriger Schritt"
-            (click)="previousStep()"
+            (click)="stepper.previous()"
           />
         </fieldset>
 
-        <fieldset [style.display]="currentStep === 3 ? 'block' : 'none'">
+        <fieldset [style.display]="stepper.isActive('topics') ? 'block' : 'none'">
           <h2 class="fs-title">Themenhierarchie</h2>
           <h3 class="fs-subtitle">Angaben über die Themenhierarchie der Georessource</h3>
 
@@ -431,7 +431,7 @@
             name="previous"
             class="previous previous_editGeoresourceMetadata action-button-previous"
             value="Voriger Schritt"
-            (click)="previousStep()"
+            (click)="stepper.previous()"
           />
         </fieldset>
       </form>
