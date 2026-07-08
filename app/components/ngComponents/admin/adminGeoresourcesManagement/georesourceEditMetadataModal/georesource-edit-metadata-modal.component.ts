@@ -4,7 +4,6 @@ import {
   ElementRef,
   EventEmitter,
   inject,
-  OnDestroy,
   OnInit,
   Output,
   ViewChild,
@@ -13,13 +12,9 @@ import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { getErrorMessage } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.util';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
-import { Subscription } from 'rxjs';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
-import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
 
@@ -61,7 +56,7 @@ import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admi
   ],
   standalone: true,
 })
-export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy {
+export class GeoresourceEditMetadataModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
 
   /** Emitted after a successful metadata update so the parent refreshes its table. */
@@ -71,8 +66,6 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   private notificationService = inject(NotificationService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
-  roleManagementHelper = inject(RoleManagementDataGridHelperService);
-  private broadcastService = inject(BroadcastService);
   private topicHierarchyService = inject(TopicHierarchyService);
   private http = inject(HttpClient);
   protected envConfigService = inject(EnvConfigService);
@@ -128,17 +121,18 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   georesourceTopic_subsubTopic: any;
   georesourceTopic_subsubsubTopic: any;
 
-  // Role management
-  roleManagementTableOptions: any;
+  // Roles pass-through for PATCH/export: metadata editing does not manage
+  // permissions (that is the edit-user-roles modal's job, like in the
+  // spatial-unit area) — the current roles are just echoed back. Sourced from
+  // the dataset on reset and from an imported metadata file. Historically this
+  // went through an invisible role grid that was never rendered.
+  allowedRoles: string[] = [];
 
   // Import/Export
   metadataImportSettings: any;
   georesourceMetadataImportError: string = '';
   georesourceMetadataStructure: any;
   georesourceMetadataStructure_pretty: string = '';
-
-  // Subscriptions
-  private subscriptions: Subscription[] = [];
 
   readonly poiMarkerColors = POI_MARKER_COLORS;
 
@@ -161,12 +155,10 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   }
 
   ngOnInit(): void {
-    this.setupEventListeners();
+    // The dataset arrives via the componentInstance input set by the management
+    // component; the former OnEditGeoresourceMetadata broadcast subscription read
+    // a non-existent payload field and never fired with data.
     this.initializeMetadataStructure();
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
   private initializeDefaultValues(): void {
@@ -212,32 +204,6 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     );
   }
 
-  private setupEventListeners(): void {
-    // The dataset arrives via the componentInstance input set by the management
-    // component; the former OnEditGeoresourceMetadata broadcast subscription read
-    // a non-existent payload field and never fired with data.
-
-    // Listen for available roles update
-    const rolesSub = this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
-      if (data.msg === BroadcastMessage.AvailableRolesUpdate) {
-        this.refreshRoles();
-      }
-    });
-    this.subscriptions.push(rolesSub);
-  }
-
-  private refreshRoles(): void {
-    const allowedRoles = this.currentGeoresourceDataset
-      ? this.currentGeoresourceDataset.allowedRoles
-      : [];
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'georesourceEditRoleManagementTable',
-      this.roleManagementTableOptions,
-      this.accessControlService.accessControl,
-      allowedRoles
-    );
-  }
-
   // Form methods
   resetGeoresourceEditMetadataForm(): void {
     if (!this.currentGeoresourceDataset) return;
@@ -253,13 +219,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       this.envConfigService.updateIntervalOptions
     );
 
-    // Set role management
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'georesourceEditRoleManagementTable',
-      this.roleManagementTableOptions,
-      this.accessControlService.accessControl,
-      this.currentGeoresourceDataset.allowedRoles
-    );
+    this.allowedRoles = [...(this.currentGeoresourceDataset.allowedRoles ?? [])];
 
     // Set georesource type
     this.isPOI = this.currentGeoresourceDataset.isPOI;
@@ -408,13 +368,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
     this.datasetName = this.metadataImportSettings.datasetName;
 
-    // Set role management
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'georesourceEditRoleManagementTable',
-      this.roleManagementTableOptions,
-      this.accessControlService.accessControl,
-      this.metadataImportSettings.allowedRoles
-    );
+    this.allowedRoles = [...(this.metadataImportSettings.allowedRoles ?? [])];
 
     // Set georesource specific properties
     this.isPOI = this.metadataImportSettings.isPOI;
@@ -484,14 +438,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     metadataExport.metadata.databasis = this.metadata.databasis || '';
     metadataExport.datasetName = this.datasetName || '';
 
-    metadataExport.allowedRoles = [];
-
-    const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-      this.roleManagementTableOptions
-    );
-    for (const roleId of roleIds) {
-      metadataExport.allowedRoles.push(roleId);
-    }
+    metadataExport.allowedRoles = [...this.allowedRoles];
 
     if (this.metadata.updateInterval) {
       metadataExport.metadata.updateInterval = this.metadata.updateInterval.apiName;
@@ -568,20 +515,13 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   editGeoresourceMetadata(): void {
     const patchBody: any = {
       metadata: metadataFormToApi(this.metadataForm),
-      allowedRoles: [],
+      allowedRoles: [...this.allowedRoles],
       datasetName: this.datasetName,
       isAOI: this.isAOI,
       isLOI: this.isLOI,
       isPOI: this.isPOI,
       topicReference: null,
     };
-
-    const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-      this.roleManagementTableOptions
-    );
-    for (const roleId of roleIds) {
-      patchBody.allowedRoles.push(roleId);
-    }
 
     if (this.isPOI) {
       patchBody.poiSymbolBootstrap3Name = this.selectedPoiIconName;
