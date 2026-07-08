@@ -9,6 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { firstValueFrom } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
@@ -44,14 +45,11 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   currentIndicatorDataset: any;
   targetApplicableSpatialUnit: any;
 
-  // Messages
-  errorMessagePart: string = '';
-
   /** Target owner selected in step 3; empty keeps the current owner. */
   ownerOrganization: string = '';
 
   // Loading states
-  // Signal: toggled from the four permission/ownership PUT subscriptions (OnPush).
+  // Signal: toggled across the await boundaries of the sequential save (OnPush).
   loadingData = signal(false);
 
   // Multi-step form
@@ -101,7 +99,6 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     this.targetApplicableSpatialUnit = this.currentIndicatorDataset?.applicableSpatialUnits?.[0];
     this.metadataRoleGrid?.reset();
     this.timeseriesRoleGrid?.reset();
-    this.errorMessagePart = '';
   }
 
   onChangeOwner(ownerOrganization: string): void {
@@ -111,8 +108,22 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     this.timeseriesRoleGrid?.applyOwner(ownerOrganization);
   }
 
-  editIndicatorSpatialUnitRoles(): void {
-    if (this.ownerOrganization && this.ownerOrganization !== this.currentIndicatorDataset.ownerId) {
+  /**
+   * Sequential save following the spatial-unit edit-user-roles pattern
+   * (formerly four fire-and-forget parallel PUTs): permissions are persisted
+   * first and abort the chain on failure — otherwise a later ownership
+   * transfer could succeed, revoke our creator rights, and mask that the
+   * permissions were never saved. Ownership is only transferred when it
+   * actually changed. One success toast, then the modal closes.
+   */
+  async editIndicatorSpatialUnitRoles(): Promise<void> {
+    const dataset = this.currentIndicatorDataset;
+    if (!dataset) return;
+
+    const ownershipChanging = !!(
+      this.ownerOrganization && this.ownerOrganization !== dataset.ownerId
+    );
+    if (ownershipChanging) {
       if (
         !confirm(
           'Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?'
@@ -122,95 +133,122 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       }
     }
 
-    this.executeRequest_indicatorMetadataRoles();
-    this.executeRequest_indicatorOwnership();
-    this.executeRequest_indicatorSpatialUnitRoles();
-    this.executeRequest_indicatorSpatialUnitOwnership();
+    this.loadingData.set(true);
+    try {
+      if (!(await this.putIndicatorMetadataRoles())) return;
+      if (!(await this.putIndicatorSpatialUnitRoles())) return;
+
+      if (ownershipChanging) {
+        if (!(await this.putIndicatorOwnership())) return;
+        if (!(await this.putIndicatorSpatialUnitOwnership())) return;
+      }
+
+      this.refreshRequested.emit({
+        crudType: 'edit',
+        targetIndicatorId: dataset.indicatorId,
+      });
+
+      let message = `Zugriffsschutz und Eigentümerschaft für Indikator '${dataset.indicatorName}' aktualisiert.`;
+      if (this.targetApplicableSpatialUnit?.spatialUnitName) {
+        message += ` Verknüpfte Raumebene '${this.targetApplicableSpatialUnit.spatialUnitName}' wurde ebenfalls aktualisiert.`;
+      }
+      this.notificationService.showSuccess(message);
+      this.activeModal.close({
+        action: 'updated',
+        indicatorId: dataset.indicatorId,
+      });
+    } finally {
+      this.loadingData.set(false);
+    }
   }
 
-  executeRequest_indicatorMetadataRoles(): void {
-    this.loadingData.set(true);
-
+  private async putIndicatorMetadataRoles(): Promise<boolean> {
     const putBody = {
       permissions: this.metadataRoleGrid?.getSelectedRoleIds() ?? [],
       isPublic: this.currentIndicatorDataset.isPublic,
     };
 
-    this.http
-      .put(
-        this.envConfigService.baseUrlToKomMonitorDataAPI +
-          '/indicators/' +
-          this.currentIndicatorDataset.indicatorId +
-          '/permissions',
-        putBody
-      )
-      .subscribe({
-        next: (_response: any) => {
-          this.refreshRequested.emit({
-            crudType: 'edit',
-            targetIndicatorId: this.currentIndicatorDataset.indicatorId,
-          });
-          this.showSuccessAlert();
-          this.loadingData.set(false);
-        },
-        error: (error: any) => {
-          this.errorMessagePart =
-            'Fehler beim Aktualisieren der Metadaten-Zugriffsrechte. Fehler lautet: \n\n';
-          this.errorMessagePart += this.indicatorValueService.formatError(error);
-          this.showErrorAlert();
-          this.loadingData.set(false);
-        },
-      });
+    try {
+      await firstValueFrom(
+        this.http.put(
+          this.envConfigService.baseUrlToKomMonitorDataAPI +
+            '/indicators/' +
+            this.currentIndicatorDataset.indicatorId +
+            '/permissions',
+          putBody
+        )
+      );
+      return true;
+    } catch (error) {
+      this.showErrorAlert('Fehler beim Aktualisieren der Metadaten-Zugriffsrechte.', error);
+      return false;
+    }
   }
 
-  executeRequest_indicatorOwnership(): void {
-    this.loadingData.set(true);
+  /** Timeseries permissions of the selected target spatial unit (step 2). */
+  private async putIndicatorSpatialUnitRoles(): Promise<boolean> {
+    if (!this.targetApplicableSpatialUnit) {
+      return true;
+    }
 
     const putBody = {
-      ownerId: this.ownerOrganization || this.currentIndicatorDataset.ownerId,
+      permissions: this.timeseriesRoleGrid?.getSelectedRoleIds() ?? [],
+      isPublic: this.targetApplicableSpatialUnit.isPublic,
     };
 
-    this.http
-      .put(
-        this.envConfigService.baseUrlToKomMonitorDataAPI +
-          '/indicators/' +
-          this.currentIndicatorDataset.indicatorId +
-          '/ownership',
-        putBody
-      )
-      .subscribe({
-        next: (_response: any) => {
-          this.refreshRequested.emit({
-            crudType: 'edit',
-            targetIndicatorId: this.currentIndicatorDataset.indicatorId,
-          });
-          this.showSuccessAlert();
-          this.loadingData.set(false);
-        },
-        error: (error: any) => {
-          this.errorMessagePart =
-            'Fehler beim Aktualisieren der Metadaten-Eigentümerschaft. Fehler lautet: \n\n';
-          this.errorMessagePart += this.indicatorValueService.formatError(error);
-          this.showErrorAlert();
-          this.loadingData.set(false);
-        },
-      });
+    try {
+      await firstValueFrom(
+        this.http.put(
+          this.envConfigService.baseUrlToKomMonitorDataAPI +
+            '/indicators/' +
+            this.currentIndicatorDataset.indicatorId +
+            '/' +
+            this.targetApplicableSpatialUnit.spatialUnitId +
+            '/permissions',
+          putBody
+        )
+      );
+      return true;
+    } catch (error) {
+      this.showErrorAlert(
+        'Fehler beim Aktualisieren der Zugriffsrechte auf Zeitreihe der Raumeinheit ' +
+          this.targetApplicableSpatialUnit.spatialUnitName +
+          '.',
+        error
+      );
+      return false;
+    }
   }
 
-  executeRequest_indicatorSpatialUnitOwnership(): void {
-    this.loadingData.set(true);
+  private async putIndicatorOwnership(): Promise<boolean> {
+    const putBody = { ownerId: this.ownerOrganization };
 
-    if (
-      this.currentIndicatorDataset.applicableSpatialUnits &&
-      this.currentIndicatorDataset.applicableSpatialUnits.length > 0
-    ) {
-      this.currentIndicatorDataset.applicableSpatialUnits.forEach((indicatorSpatialUnit: any) => {
-        const putBody = {
-          ownerId: this.ownerOrganization || this.currentIndicatorDataset.ownerId,
-        };
+    try {
+      await firstValueFrom(
+        this.http.put(
+          this.envConfigService.baseUrlToKomMonitorDataAPI +
+            '/indicators/' +
+            this.currentIndicatorDataset.indicatorId +
+            '/ownership',
+          putBody
+        )
+      );
+      return true;
+    } catch (error) {
+      this.showErrorAlert('Fehler beim Aktualisieren der Metadaten-Eigentümerschaft.', error);
+      return false;
+    }
+  }
 
-        this.http
-          .put(
+  /** Timeseries ownership per applicable spatial unit, transferred one by one. */
+  private async putIndicatorSpatialUnitOwnership(): Promise<boolean> {
+    const spatialUnits = this.currentIndicatorDataset.applicableSpatialUnits ?? [];
+    const putBody = { ownerId: this.ownerOrganization };
+
+    for (const indicatorSpatialUnit of spatialUnits) {
+      try {
+        await firstValueFrom(
+          this.http.put(
             this.envConfigService.baseUrlToKomMonitorDataAPI +
               '/indicators/' +
               this.currentIndicatorDataset.indicatorId +
@@ -219,89 +257,27 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
               '/ownership',
             putBody
           )
-          .subscribe({
-            next: (_response: any) => {
-              this.refreshRequested.emit({
-                crudType: 'edit',
-                targetIndicatorId: this.currentIndicatorDataset.indicatorId,
-              });
-              this.showSuccessAlert();
-              this.loadingData.set(false);
-            },
-            error: (error: any) => {
-              this.errorMessagePart =
-                'Fehler beim Aktualisieren der Metadaten-Eigentümerschaft. Fehler lautet: \n\n';
-              this.errorMessagePart += this.indicatorValueService.formatError(error);
-              this.showErrorAlert();
-              this.loadingData.set(false);
-            },
-          });
-      });
+        );
+      } catch (error) {
+        this.showErrorAlert(
+          'Fehler beim Aktualisieren der Zeitreihen-Eigentümerschaft der Raumeinheit ' +
+            indicatorSpatialUnit.spatialUnitName +
+            '.',
+          error
+        );
+        return false;
+      }
     }
+    return true;
   }
 
-  executeRequest_indicatorSpatialUnitRoles(): void {
-    if (!this.targetApplicableSpatialUnit) {
-      return;
-    }
-
-    const putBody = {
-      permissions: this.timeseriesRoleGrid?.getSelectedRoleIds() ?? [],
-      isPublic: this.targetApplicableSpatialUnit.isPublic,
-    };
-
-    this.loadingData.set(true);
-
-    this.http
-      .put(
-        this.envConfigService.baseUrlToKomMonitorDataAPI +
-          '/indicators/' +
-          this.currentIndicatorDataset.indicatorId +
-          '/' +
-          this.targetApplicableSpatialUnit.spatialUnitId +
-          '/permissions',
-        putBody
-      )
-      .subscribe({
-        next: (_response: any) => {
-          this.refreshRequested.emit({
-            crudType: 'edit',
-            targetIndicatorId: this.currentIndicatorDataset.indicatorId,
-          });
-          this.showSuccessAlert();
-          this.loadingData.set(false);
-        },
-        error: (error: any) => {
-          this.errorMessagePart =
-            'Fehler beim Aktualisieren der Zugriffsrechte auf Zeitreihe der Raumeinheit ' +
-            this.targetApplicableSpatialUnit.spatialUnitName +
-            '. Fehler lautet: \n\n';
-          this.errorMessagePart += this.indicatorValueService.formatError(error);
-          this.showErrorAlert();
-          this.loadingData.set(false);
-        },
-      });
-  }
-
-  // Multi-step form navigation
-  // Alert management
-  showSuccessAlert(): void {
-    let message = `Zugriffsschutz und Eigentümerschaft für Indikator '${this.currentIndicatorDataset?.indicatorName}' aktualisiert.`;
-    if (this.targetApplicableSpatialUnit?.spatialUnitName) {
-      message += ` Verknüpfte Raumebene '${this.targetApplicableSpatialUnit.spatialUnitName}' wurde ebenfalls aktualisiert.`;
-    }
-    this.notificationService.showSuccess(message);
-  }
-
-  showErrorAlert(): void {
-    // errorMessagePart may contain HTML (syntax-highlighted JSON); reduce it to plain text for the toast
+  private showErrorAlert(context: string, error: unknown): void {
+    // formatError may return HTML (syntax-highlighted JSON); reduce it to plain text for the toast
     const tmp = document.createElement('div');
-    tmp.innerHTML = this.errorMessagePart || '';
+    tmp.innerHTML = this.indicatorValueService.formatError(error) || '';
     const detail = (tmp.textContent || '').trim();
-    this.notificationService.showError(
-      'Aktualisierung des Zugriffsschutzes und der Eigentümerschaft gescheitert.' +
-        (detail ? ' ' + detail : ''),
-      { autohide: false }
-    );
+    this.notificationService.showError(context + (detail ? ' ' + detail : ''), {
+      autohide: false,
+    });
   }
 }
