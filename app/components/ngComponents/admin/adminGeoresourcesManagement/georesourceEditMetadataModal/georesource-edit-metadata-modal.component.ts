@@ -1,45 +1,43 @@
+import { HttpClient } from '@angular/common/http';
 import {
   Component,
   ElementRef,
   EventEmitter,
+  inject,
   OnDestroy,
   OnInit,
   Output,
   ViewChild,
-  inject,
 } from '@angular/core';
-import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
-import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
-import { getErrorMessage } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.util';
+import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { HttpClient } from '@angular/common/http';
+import { getErrorMessage } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.util';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { Subscription } from 'rxjs';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
-import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
-import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
-import { FormsModule } from '@angular/forms';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
+import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
 
-import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
 import {
   StepperComponent,
   StepperStep,
 } from 'components/ngComponents/common/stepper/stepper.component';
-import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
-import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
-import {
-  LOI_DASH_ARRAY_OBJECTS,
-  POI_MARKER_COLORS,
-} from 'services/poi-presentation-service/poi-presentation.service';
 import { KmColorPickerComponent } from 'components/ngComponents/customElements/color-picker/km-color-picker.component';
-import { KmDatePickerComponent } from 'components/ngComponents/customElements/date-picker/km-date-picker.component';
 import {
   KmLinePatternPickerComponent,
   LinePatternOption,
 } from 'components/ngComponents/customElements/line-pattern-picker/km-line-pattern-picker.component';
+import {
+  LOI_DASH_ARRAY_OBJECTS,
+  POI_MARKER_COLORS,
+} from 'services/poi-presentation-service/poi-presentation.service';
+import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
+import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
 import { ResourceMetadataFormComponent } from '../../adminShared/resourceMetadataForm/resource-metadata-form.component';
 import {
   buildResourceMetadataForm,
@@ -47,6 +45,7 @@ import {
   patchMetadataFormFromApi,
   ResourceMetadataFormValue,
 } from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
+import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
 
 @Component({
   selector: 'app-georesource-edit-metadata-modal',
@@ -57,7 +56,6 @@ import {
     AdminTopicsManagementComponent,
     StepperComponent,
     KmColorPickerComponent,
-    KmDatePickerComponent,
     KmLinePatternPickerComponent,
     ResourceMetadataFormComponent,
   ],

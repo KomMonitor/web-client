@@ -1,6 +1,6 @@
 <div class="modal-header">
   <h4 class="modal-title">
-    Zugriffsschutz und Eigentuümerschaft der Georesource
+    Zugriffsschutz und Eigentümerschaft der Georesource
     <i
       ><b>{{ currentGeoresourceDataset?.datasetName }}</b></i
     >
@@ -27,7 +27,8 @@
       >
         <!-- progressbar -->
         <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
-        <!-- fieldsets -->
+        <!-- fieldsets: switched via display so the role grid (and its checked
+             state) survives navigating to step 2 -->
 
         @if (kommonitorDataExchangeService.enableKeycloakSecurity) {
           <fieldset [style.display]="currentStep === 1 ? 'block' : 'none'">
@@ -38,45 +39,30 @@
             </h3>
             <p>Zugriffsrechte (lesen, editieren) müssen explizit vergeben werden</p>
             <div class="row">
-              <div class="col-md-12 col-sm-12 col-12" [hidden]="permissions.length === 0">
-                <div class="form-group vertical-align">
-                  <label class="margin-right">Zeige nur zugewiesene Rechte</label>
+              <div class="col-md-3">
+                <label>Öffentliche Lesefreigabe*</label>
+                @if (currentGeoresourceDataset; as dataset) {
                   <label class="switch">
                     <input
                       type="checkbox"
-                      value="activeRolesOnly"
-                      [(ngModel)]="activeRolesOnly"
-                      (ngModelChange)="onActiveRolesOnlyChange()"
-                      [disabled]="permissions.length === 0"
+                      [(ngModel)]="dataset.isPublic"
+                      name="isPublic"
+                      [ngModelOptions]="{ standalone: true }"
                     />
                     <span class="switchslider round"></span>
                   </label>
-                </div>
-              </div>
-              <div class="col-md-3">
-                <label>Öffentliche Lesefreigabe*</label>
-                <label class="switch">
-                  <input type="checkbox" [(ngModel)]="currentGeoresourceDataset.isPublic" />
-                  <span class="switchslider round"></span>
-                </label>
+                }
                 <div class="help-block">
                   <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
                 </div>
               </div>
               <div class="col-md-6 col-sm-6 col-12">
-                <ag-grid-angular
-                  #roleManagementTable
-                  id="georesourceEditRoleManagementTable"
-                  style="height: 45vh; width: 100%"
-                  class="ag-theme-alpine"
-                  [gridOptions]="roleManagementTableOptions"
-                  [rowData]="roleManagementTableOptions.rowData || []"
-                  [columnDefs]="roleManagementTableOptions.columnDefs || []"
-                  (gridReady)="onGridReady($event)"
-                  (firstDataRendered)="onFirstDataRendered($event)"
-                  (columnResized)="onColumnResized($event)"
-                >
-                </ag-grid-angular>
+                <app-role-management-grid
+                  gridId="georesourceEditRoleManagementTable"
+                  [permissions]="currentGeoresourceDataset?.permissions"
+                  [ownerId]="currentGeoresourceDataset?.ownerId"
+                  [showActiveRolesOnlyToggle]="true"
+                ></app-role-management-grid>
               </div>
               <div class="col-md-3">
                 <div class="alert alert-info">
@@ -87,79 +73,29 @@
             </div>
             <input
               type="button"
-              name="previous"
-              class="previous previous_editGeoresourceRoles action-button-previous"
-              value="Voriger Schritt"
-              (click)="previousStep()"
+              name="next"
+              class="next next_editGeoresourceRoles action-button"
+              value="Nächster Schritt"
+              (click)="nextStep()"
             />
           </fieldset>
         }
 
         <fieldset [style.display]="currentStep === 2 ? 'block' : 'none'">
-          <h2 class="fs-title">Eigentuümerschaft eines Datensatzes</h2>
+          <h2 class="fs-title">Eigentümerschaft eines Datensatzes</h2>
           <h3 class="fs-subtitle">
-            Übetragen der Eigentuümerschaft von Datensätzen mit allen dazugehörigen Rechten
+            Übertragen der Eigentümerschaft von Datensätzen mit allen dazugehörigen Rechten
           </h3>
           <div class="alert alert-danger">
-            Bitte beachten Sie, dass Sie beim Übertragen einer Eigentuümerschaft einer Resource
-            unter Umständen jegliche Rechte eben dieser verlieren.<br />Die Rechte werden
-            unwiderruflich und sofort an den neuen Eigentümer übertragen.
+            Bitte beachten Sie, dass Sie beim Übertragen einer Eigentümerschaft einer Resource unter
+            Umständen jegliche Rechte eben dieser verlieren.<br />Die Rechte werden unwiderruflich
+            und sofort an den neuen Eigentümer übertragen.
           </div>
-          <div class="row">
-            <div class="col-md-3"></div>
-            <div class="col-md-6 col-sm-6 col-12">
-              <label for="targetUserRoleSelect"><b>Eigentuümerschaft übertragen an</b></label>
-              <div class="input-group">
-                <span class="input-group-addon"><i class="fas fa-filter"></i></span>
-                <input
-                  type="text"
-                  class="form-control input-sm"
-                  placeholder="Stichwortfilter"
-                  [(ngModel)]="ownerOrgFilter"
-                />
-              </div>
-              @if (kommonitorDataExchangeService.checkAdminPermission()) {
-                <select
-                  id="targetUserRoleSelect"
-                  [(ngModel)]="ownerOrganization"
-                  class="form-control"
-                  (ngModelChange)="onChangeOwner(ownerOrganization)"
-                  required
-                >
-                  <option [ngValue]="undefined"><b>Eigentuümerschaft nicht übertragen</b></option>
-                  @for (org of getFilteredOrganizations(); track org) {
-                    <option [ngValue]="org.organizationalUnitId">{{ org.name }}</option>
-                  }
-                </select>
-              }
-              @if (!kommonitorDataExchangeService.checkAdminPermission()) {
-                <select
-                  id="targetUserRoleSelect"
-                  [(ngModel)]="ownerOrganization"
-                  class="form-control"
-                  (ngModelChange)="onChangeOwner(ownerOrganization)"
-                  required
-                >
-                  <option [ngValue]="undefined"><b>Eigentuümerschaft nicht übertragen</b></option>
-                  @for (org of getFilteredCreatorRights(); track org) {
-                    <option [ngValue]="org.organizationalUnitId">{{ org.name }}</option>
-                  }
-                </select>
-              }
-            </div>
-            <div class="col-md-3">
-              <label>aktuelle Eigentümer-Organisationseinheit</label>
-              <p>{{ getCurrentOwnerName() }}</p>
-              @if (ownerOrganization !== currentGeoresourceDataset?.ownerId) {
-                <div class="help-block" style="color: red">
-                  <p>
-                    ACHTUNG: Sie sind dabei, die Eigentuümerschaft an diesem Datensatz zu ändern.
-                  </p>
-                </div>
-              }
-            </div>
-          </div>
-
+          <app-owner-organization-select
+            [ownerId]="ownerOrganization"
+            [currentOwnerId]="currentGeoresourceDataset?.ownerId"
+            (ownerIdChange)="onChangeOwner($event)"
+          ></app-owner-organization-select>
           <input
             type="button"
             name="previous"
@@ -182,5 +118,3 @@
     Zurücksetzen
   </button>
 </div>
-
-<!-- Success/error feedback is shown via NotificationService toasts -->

@@ -23,173 +23,85 @@
         role="form"
         class="multiStepForm form-group"
         id="spatialUnitEditUserRolesForm"
-        data-toggle="validator"
         style="margin-bottom: 0px"
       >
         <!-- progressbar -->
         <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
-        <!-- fieldsets -->
+        <!-- fieldsets: switched via display so the role grid (and its checked
+             state) survives navigating to step 2 -->
 
-        @if (currentStep === 1) {
-          <fieldset>
-            <h2 class="fs-title">Zugriffsschutz</h2>
-            <h3 class="fs-subtitle">
-              Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro
-              Organisationseinheit
-            </h3>
-            <p>Zugriffsrechte (lesen, editieren) müssen explizit vergeben werden</p>
-            <div class="row">
-              <div class="col-md-12 col-sm-12 col-12">
-                <div class="form-group vertical-align">
-                  <label class="margin-right">Zeige nur zugewiesene Rechte</label>
-                  <label class="switch">
-                    <input
-                      type="checkbox"
-                      value="activeRolesOnly"
-                      [(ngModel)]="activeRolesOnly"
-                      name="activeRolesOnly"
-                      [ngModelOptions]="{ standalone: true }"
-                      (ngModelChange)="onActiveRolesOnlyChange()"
-                    />
-                    <span class="switchslider round"></span>
-                  </label>
-                </div>
-              </div>
-              <div class="col-md-3">
-                <label>Öffentliche Lesefreigabe*</label>
-                @if (currentSpatialUnitDataset; as dataset) {
-                  <label class="switch">
-                    <input
-                      type="checkbox"
-                      [(ngModel)]="dataset.isPublic"
-                      name="isPublic"
-                      [ngModelOptions]="{ standalone: true }"
-                    />
-                    <span class="switchslider round"></span>
-                  </label>
-                }
-                <div class="help-block">
-                  <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
-                </div>
-              </div>
-              <div class="col-md-6 col-sm-6 col-12">
-                <ag-grid-angular
-                  #roleManagementGrid
-                  class="ag-theme-alpine"
-                  style="height: 45vh; width: 100%"
-                  [columnDefs]="roleManagementColumnDefs"
-                  [rowData]="roleManagementRowData"
-                  [defaultColDef]="roleManagementDefaultColDef"
-                  [gridOptions]="roleManagementGridOptions"
-                  [components]="roleManagementHelper.getRoleManagementComponents()"
-                  [suppressRowClickSelection]="true"
-                  [rowSelection]="'multiple'"
-                  [enableCellTextSelection]="true"
-                  [ensureDomOrder]="true"
-                  [pagination]="true"
-                  [paginationPageSize]="10"
-                  [suppressColumnVirtualisation]="true"
-                  (gridReady)="onRoleManagementGridReady($event)"
-                >
-                </ag-grid-angular>
-              </div>
-              <div class="col-md-3">
-                <div class="alert alert-info">
-                  Als Eigentümer-Organisation des Datensatzes können Sie Lese- und Editier-Rechte an
-                  die eigene und weitere Organisationseinheiten vergeben.
-                </div>
-              </div>
-            </div>
-            <input
-              type="button"
-              name="next"
-              class="next next_editSpatialUnitRoles action-button"
-              value="Nächster Schritt"
-              (click)="nextStep()"
-            />
-          </fieldset>
-        }
-
-        @if (currentStep === 2) {
-          <fieldset>
-            <h2 class="fs-title">Eigentümerschaft eines Datensatzes</h2>
-            <h3 class="fs-subtitle">
-              Übertragen der Eigentümerschaft von Datensätzen mit allen dazugehörigen Rechten
-            </h3>
-            <div class="alert alert-danger">
-              Bitte beachten Sie, dass Sie beim Übertragen einer Eigentümerschaft einer Resource
-              unter Umständen jegliche Rechte eben dieser verlieren.<br />Die Rechte werden
-              unwiderruflich und sofort an den neuen Eigentümer übertragen.
-            </div>
-            <div class="row">
-              <div class="col-md-3"></div>
-              <div class="col-md-6 col-sm-6 col-12">
-                <label for="targetUserRoleSelect"><b>Eigentümerschaft übertragen an</b></label>
-                <div class="input-group">
-                  <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+        <fieldset [style.display]="currentStep === 1 ? 'block' : 'none'">
+          <h2 class="fs-title">Zugriffsschutz</h2>
+          <h3 class="fs-subtitle">
+            Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro
+            Organisationseinheit
+          </h3>
+          <p>Zugriffsrechte (lesen, editieren) müssen explizit vergeben werden</p>
+          <div class="row">
+            <div class="col-md-3">
+              <label>Öffentliche Lesefreigabe*</label>
+              @if (currentSpatialUnitDataset; as dataset) {
+                <label class="switch">
                   <input
-                    type="text"
-                    class="form-control input-sm"
-                    placeholder="Stichwortfilter"
-                    [(ngModel)]="ownerOrgFilter"
-                    name="ownerOrgFilter"
+                    type="checkbox"
+                    [(ngModel)]="dataset.isPublic"
+                    name="isPublic"
                     [ngModelOptions]="{ standalone: true }"
                   />
-                </div>
-                @if (kommonitorDataExchangeService.checkAdminPermission()) {
-                  <select
-                    id="targetUserRoleSelect"
-                    [(ngModel)]="ownerOrganization"
-                    name="ownerOrganization"
-                    [ngModelOptions]="{ standalone: true }"
-                    class="form-control"
-                    (ngModelChange)="onChangeOwner(ownerOrganization)"
-                    required
-                  >
-                    <option selected value><b>Eigentümerschaft nicht übertragen</b></option>
-                    @for (org of getFilteredOrganizations(); track org) {
-                      <option [value]="org.organizationalUnitId">{{ org.name }}</option>
-                    }
-                  </select>
-                }
-                @if (!kommonitorDataExchangeService.checkAdminPermission()) {
-                  <select
-                    id="addSpatialUnitUserRoleSelect"
-                    [(ngModel)]="ownerOrganization"
-                    name="ownerOrganizationNonAdmin"
-                    [ngModelOptions]="{ standalone: true }"
-                    class="form-control"
-                    (ngModelChange)="onChangeOwner(ownerOrganization)"
-                    required
-                  >
-                    <option selected value><b>Eigentümerschaft nicht übertragen</b></option>
-                    @for (org of getFilteredOrganizations(); track org) {
-                      <option [value]="org.organizationalUnitId">{{ org.name }}</option>
-                    }
-                  </select>
-                }
-              </div>
-              <div class="col-md-3">
-                <label>aktuelle Eigentümer-Organisationseinheit</label>
-                <p>{{ getCurrentOwnerName() }}</p>
-                @if (isOwnershipChanging()) {
-                  <div class="help-block" style="color: red">
-                    <p>
-                      ACHTUNG: Sie sind dabei, die Eigentümerschaft an diesem Datensatz zu ändern.
-                    </p>
-                  </div>
-                }
+                  <span class="switchslider round"></span>
+                </label>
+              }
+              <div class="help-block">
+                <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
               </div>
             </div>
-            <input
-              type="button"
-              name="previous"
-              class="previous next_editSpatialUnitRoles action-button-previous"
-              value="Voriger Schritt"
-              (click)="previousStep()"
-            />
-          </fieldset>
-        }
+            <div class="col-md-6 col-sm-6 col-12">
+              <app-role-management-grid
+                gridId="spatialUnitEditRoleManagementTable"
+                [permissions]="currentSpatialUnitDataset?.permissions"
+                [ownerId]="currentSpatialUnitDataset?.ownerId"
+                [showActiveRolesOnlyToggle]="true"
+              ></app-role-management-grid>
+            </div>
+            <div class="col-md-3">
+              <div class="alert alert-info">
+                Als Eigentümer-Organisation des Datensatzes können Sie Lese- und Editier-Rechte an
+                die eigene und weitere Organisationseinheiten vergeben.
+              </div>
+            </div>
+          </div>
+          <input
+            type="button"
+            name="next"
+            class="next next_editSpatialUnitRoles action-button"
+            value="Nächster Schritt"
+            (click)="nextStep()"
+          />
+        </fieldset>
+
+        <fieldset [style.display]="currentStep === 2 ? 'block' : 'none'">
+          <h2 class="fs-title">Eigentümerschaft eines Datensatzes</h2>
+          <h3 class="fs-subtitle">
+            Übertragen der Eigentümerschaft von Datensätzen mit allen dazugehörigen Rechten
+          </h3>
+          <div class="alert alert-danger">
+            Bitte beachten Sie, dass Sie beim Übertragen einer Eigentümerschaft einer Resource unter
+            Umständen jegliche Rechte eben dieser verlieren.<br />Die Rechte werden unwiderruflich
+            und sofort an den neuen Eigentümer übertragen.
+          </div>
+          <app-owner-organization-select
+            [ownerId]="ownerOrganization"
+            [currentOwnerId]="currentSpatialUnitDataset?.ownerId"
+            (ownerIdChange)="onChangeOwner($event)"
+          ></app-owner-organization-select>
+          <input
+            type="button"
+            name="previous"
+            class="previous next_editSpatialUnitRoles action-button-previous"
+            value="Voriger Schritt"
+            (click)="previousStep()"
+          />
+        </fieldset>
       </form>
     </div>
   </div>

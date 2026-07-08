@@ -1,0 +1,74 @@
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
+import { collectCreatorRightOrganizations } from './role-management-panel.model';
+
+/**
+ * The "transfer ownership" block of the edit-user-roles modals: keyword
+ * filter, target-organization select and the current-owner column with a
+ * change warning. Admins may pick any organizational unit; other users only
+ * the units they hold creator rights for.
+ *
+ * Replaces the per-modal copies in the spatial-unit and georesource
+ * edit-user-roles modals. An empty `ownerId` means "keep the current owner".
+ */
+@Component({
+  selector: 'app-owner-organization-select',
+  templateUrl: './owner-organization-select.component.html',
+  imports: [FormsModule],
+  standalone: true,
+})
+export class OwnerOrganizationSelectComponent {
+  private kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+
+  /** Current owner of the dataset (drives the display and the change warning). */
+  @Input() currentOwnerId: string | null | undefined = null;
+  /** Selected target owner; empty keeps the current owner. Supports two-way binding. */
+  @Input() ownerId = '';
+  @Output() ownerIdChange = new EventEmitter<string>();
+
+  ownerOrgFilter = '';
+
+  private cachedCreatorOrgs: AccessControlMetadata[] = [];
+  private cachedCreatorOrgsSource: AccessControlMetadata[] | null = null;
+
+  get isOwnershipChanging(): boolean {
+    return !!(this.ownerId && this.ownerId !== this.currentOwnerId);
+  }
+
+  onChangeOwner(value: string): void {
+    this.ownerId = value;
+    this.ownerIdChange.emit(value);
+  }
+
+  getCurrentOwnerName(): string {
+    if (!this.currentOwnerId) {
+      return '';
+    }
+    return this.kommonitorDataExchangeService.getAccessControlById(this.currentOwnerId)?.name || '';
+  }
+
+  getFilteredOrganizations(): AccessControlMetadata[] {
+    const orgs = this.kommonitorDataExchangeService.checkAdminPermission()
+      ? (this.kommonitorDataExchangeService.accessControl ?? [])
+      : this.creatorRightOrganizations();
+    if (!this.ownerOrgFilter) {
+      return orgs;
+    }
+    return orgs.filter((org) => org.name.toLowerCase().includes(this.ownerOrgFilter.toLowerCase()));
+  }
+
+  /** Cached per accessControl array instance — the list may load after init. */
+  private creatorRightOrganizations(): AccessControlMetadata[] {
+    const accessControl = this.kommonitorDataExchangeService.accessControl ?? [];
+    if (accessControl !== this.cachedCreatorOrgsSource) {
+      this.cachedCreatorOrgsSource = accessControl;
+      this.cachedCreatorOrgs = collectCreatorRightOrganizations(
+        this.kommonitorDataExchangeService.currentKomMonitorLoginRoleNames ?? [],
+        accessControl
+      );
+    }
+    return this.cachedCreatorOrgs;
+  }
+}

@@ -9,45 +9,43 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { KmColorPickerComponent } from 'components/ngComponents/customElements/color-picker/km-color-picker.component';
-import { KmDatePickerComponent } from 'components/ngComponents/customElements/date-picker/km-date-picker.component';
 import {
   KmLinePatternPickerComponent,
   LinePatternOption,
 } from 'components/ngComponents/customElements/line-pattern-picker/km-line-pattern-picker.component';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { skip } from 'rxjs';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import {
   MetadataBootstrapService,
   MetadataLoadingState,
 } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
 
 import { FormsModule } from '@angular/forms';
-import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
-import { SpatialUnitImportService } from 'services/spatial-unit-import-service/spatial-unit-import.service';
-import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { getErrorMessage } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.util';
-import {
-  LOI_DASH_ARRAY_OBJECTS,
-  POI_MARKER_COLORS,
-} from 'services/poi-presentation-service/poi-presentation.service';
-import { AccessControlService } from 'services/access-control-service/access-control.service';
-import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
-import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
-import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
-import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
-import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
-import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
-import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import {
   StepperComponent,
   StepperStep,
 } from 'components/ngComponents/common/stepper/stepper.component';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import {
+  LOI_DASH_ARRAY_OBJECTS,
+  POI_MARKER_COLORS,
+} from 'services/poi-presentation-service/poi-presentation.service';
+import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
+import { SpatialUnitImportService } from 'services/spatial-unit-import-service/spatial-unit-import.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { ResourceMetadataFormComponent } from '../../adminShared/resourceMetadataForm/resource-metadata-form.component';
 import {
   buildResourceMetadataForm,
@@ -55,6 +53,7 @@ import {
   patchMetadataFormFromApi,
   ResourceMetadataFormValue,
 } from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
+import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
 
 @Component({
   selector: 'app-georesource-add-modal',
@@ -65,7 +64,6 @@ import {
     AdminTopicsManagementComponent,
     StepperComponent,
     KmColorPickerComponent,
-    KmDatePickerComponent,
     KmLinePatternPickerComponent,
     ResourceMetadataFormComponent,
   ],
