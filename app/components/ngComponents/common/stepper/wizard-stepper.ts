@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { StepperStep } from './stepper.component';
 
 export interface WizardStepDefinition {
@@ -23,8 +24,19 @@ export interface WizardStepDefinition {
  *   <input type="button" (click)="stepper.next()" />
  */
 export class WizardStepper {
+  // Signal-backed behind a getter/setter shim: templates of OnPush host
+  // components read `currentStep`/`isActive()` during rendering and are
+  // re-rendered when the step changes programmatically (e.g. reset() after an
+  // async save) — without any template or consumer changes.
+  private readonly _currentStep = signal(1);
+
   /** 1-based index into the currently visible steps (bind with [(currentStep)]). */
-  currentStep = 1;
+  get currentStep(): number {
+    return this._currentStep();
+  }
+  set currentStep(value: number) {
+    this._currentStep.set(value);
+  }
 
   private cachedSteps: StepperStep[] = [];
   private cachedSignature: string | null = null;

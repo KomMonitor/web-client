@@ -1,4 +1,12 @@
-import { Component, DestroyRef, OnInit, Input, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  Input,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import {
@@ -19,6 +27,7 @@ import { NotificationService } from 'components/ngComponents/common/notification
   styleUrls: ['./topic-edit-modal.component.scss'],
   imports: [FormsModule, ReactiveFormsModule],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TopicEditModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
@@ -33,7 +42,8 @@ export class TopicEditModalComponent implements OnInit {
     name: FormControl<string | null>;
     description: FormControl<string | null>;
   }>;
-  isSubmitting = false;
+  // Signal: toggled from the edit subscription (OnPush).
+  isSubmitting = signal(false);
 
   constructor() {
     this.topicForm = this.fb.group({
@@ -70,19 +80,19 @@ export class TopicEditModalComponent implements OnInit {
       return;
     }
 
-    this.isSubmitting = true;
+    this.isSubmitting.set(true);
 
     this.srvc
       .editTopic(this.topic, name, description)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.isSubmitting = false;
+          this.isSubmitting.set(false);
           this.notificationService.showSuccess(`Thema '${name}' wurde aktualisiert.`);
           this.activeModal.close(true);
         },
         error: (error) => {
-          this.isSubmitting = false;
+          this.isSubmitting.set(false);
           this.notificationService.showError(this.getErrorMessage(error));
         },
       });

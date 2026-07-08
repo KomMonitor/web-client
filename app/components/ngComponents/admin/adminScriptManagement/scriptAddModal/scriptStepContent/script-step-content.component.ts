@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import {
@@ -20,6 +20,7 @@ import { ScriptGenericComponent } from './script-types/script-generic/script-gen
     FilterableSelectComponent,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScriptStepContentComponent {
   protected scriptHelperService = inject(ScriptHelperService);

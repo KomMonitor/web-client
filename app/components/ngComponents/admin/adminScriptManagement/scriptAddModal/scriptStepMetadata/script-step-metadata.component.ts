@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  inject,
+} from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { IndicatorMetadataStoreService } from '../../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
@@ -16,6 +23,7 @@ export interface ScriptMetadata {
   styleUrls: ['./script-step-metadata.component.scss'],
   standalone: true,
   imports: [FormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScriptStepMetadataComponent {
   private indicatorStore = inject(IndicatorMetadataStoreService);
@@ -23,7 +31,11 @@ export class ScriptStepMetadataComponent {
   @Input({ required: true }) metadata!: ScriptMetadata;
   @Output() metadataChange = new EventEmitter<ScriptMetadata>();
 
-  availableIndicators: IndicatorsDataset[] = this.indicatorStore.availableIndicators;
+  // Getter instead of a one-time snapshot: the store is signal-backed, so the
+  // template read tracks late-arriving indicator metadata under OnPush.
+  get availableIndicators(): IndicatorsDataset[] {
+    return this.indicatorStore.availableIndicators;
+  }
 
   targetIndicator: IndicatorsDataset | undefined;
 

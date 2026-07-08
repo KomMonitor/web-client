@@ -1,4 +1,13 @@
-import { Component, NgZone, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -26,6 +35,7 @@ import { ScriptDeleteModalComponent } from './scriptDeleteModal/script-delete-mo
   styleUrls: ['./admin-script-management.component.scss'],
   imports: [AgGridAngular, FormsModule, AdminContentViewComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   private zone = inject(NgZone);
@@ -38,14 +48,20 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
 
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
 
-  public loadingData: boolean = true;
+  // Signal-backed: written from async paths (metadata fetches, store
+  // subscription, modal refresh requests) that would not trigger a re-render
+  // of this OnPush component otherwise.
+  public loadingData = signal(true);
   public initializationCompleted: boolean = false;
 
   public defaultColDef: ColDef = this.kommonitorDataGridHelperService.buildDefaultColDef();
   public columnDefs: ColDef[] = [];
-  public rowData: any[] = [];
+  // Signal-backed: rebuilt after async metadata fetches.
+  public rowData = signal<any[]>([]);
   public gridOptions: GridOptions = this.kommonitorDataGridHelperService.buildGridOptions();
-  public selectedRows: any[] = [];
+  // Signal-backed: updated from AG Grid's selectionChanged callback, which
+  // does not mark this OnPush component dirty by itself.
+  public selectedRows = signal<any[]>([]);
 
   private subscriptions: Subscription[] = [];
 
@@ -81,7 +97,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
       // A component-triggered fetch does not drive metadataLoading$, so the
       // loading state is cleared here regardless of the result — including the
       // empty case, which would otherwise leave the spinner running.
-      this.loadingData = false;
+      this.loadingData.set(false);
       this.initializationCompleted = true;
     }
   }
@@ -162,7 +178,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
         });
       } else if (state === MetadataLoadingState.ERROR) {
         this.zone.run(() => {
-          this.loadingData = false;
+          this.loadingData.set(false);
         });
       }
     });
@@ -172,15 +188,15 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   // Handles a modal's refreshRequested output; replaces the former
   // RefreshScriptOverviewTable broadcast round-trip.
   private handleRefreshRequest(request: ScriptRefreshRequest): void {
-    this.loadingData = true;
+    this.loadingData.set(true);
     this.refreshScriptOverviewTable(request.crudType, request.scriptId);
   }
 
   public initializeOrRefreshOverviewTable(): void {
     // The store always exposes a (possibly empty) array, so the table can render
     // immediately; there is no "not ready" state to guard against here.
-    this.rowData = this.processScriptStore.availableProcessScripts;
-    this.loadingData = false;
+    this.rowData.set(this.processScriptStore.availableProcessScripts);
+    this.loadingData.set(false);
     this.initializationCompleted = true;
   }
 
@@ -192,7 +208,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
         this.processScriptStore.deleteSingleProcessScriptMetadata(id);
       }
       this.initializeOrRefreshOverviewTable();
-      this.loadingData = false;
+      this.loadingData.set(false);
       return;
     }
 
@@ -201,16 +217,16 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
       .fetchIndicatorScriptsMetadata()
       .then(() => {
         this.initializeOrRefreshOverviewTable();
-        this.loadingData = false;
+        this.loadingData.set(false);
       })
       .catch(() => {
-        this.loadingData = false;
+        this.loadingData.set(false);
       });
   }
 
   public onSelectionChanged(): void {
     if (this.agGrid?.api) {
-      this.selectedRows = this.agGrid.api.getSelectedRows();
+      this.selectedRows.set(this.agGrid.api.getSelectedRows());
     }
   }
 

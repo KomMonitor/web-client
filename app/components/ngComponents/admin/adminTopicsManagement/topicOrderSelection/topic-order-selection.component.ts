@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { TopicOrderMode } from '../topic.model';
 import { FormsModule } from '@angular/forms';
 
@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./topic-order-selection.component.scss'],
   imports: [FormsModule],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TopicOrderSelectionComponent {
   @Input({ required: true }) orderMode!: TopicOrderMode;

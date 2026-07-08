@@ -1,11 +1,14 @@
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
-  OnInit,
-  ViewChild,
   ElementRef,
-  inject,
-  Output,
   EventEmitter,
+  OnInit,
+  Output,
+  ViewChild,
+  inject,
+  signal,
 } from '@angular/core';
 import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import { NgbActiveModal, NgbDatepicker } from '@ng-bootstrap/ng-bootstrap';
@@ -74,6 +77,7 @@ import {
     OwnerOrganizationSelectComponent,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpatialUnitAddModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
@@ -85,6 +89,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   private notificationService = inject(NotificationService);
   private resourceImportService = inject(ResourceImportService);
+  private cdr = inject(ChangeDetectorRef);
 
   /** Emitted after a spatial unit was added so the parent refreshes its table. */
   @Output() refreshRequested = new EventEmitter<SpatialUnitRefreshRequest>();
@@ -110,8 +115,8 @@ export class SpatialUnitAddModalComponent implements OnInit {
     { key: 'data', label: 'Räumlicher Datensatz' },
   ]);
 
-  // Form data
-  loadingData = false;
+  // Form data — signal: toggled across await boundaries (OnPush).
+  loadingData = signal(false);
 
   // Basic form data
   spatialUnitLevel = '';
@@ -183,12 +188,13 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   // Import/Export functionality
   metadataImportSettings: any = null;
-  spatialUnitMetadataImportError = '';
-  spatialUnitMappingConfigImportError = '';
+  // Signals: written from async import callbacks (OnPush).
+  spatialUnitMetadataImportError = signal('');
+  spatialUnitMappingConfigImportError = signal('');
 
-  // Import result data
-  importerErrors: any[] = [];
-  importedFeatures: any[] = [];
+  // Import result data — signals: written after importer responses (OnPush).
+  importerErrors = signal<any[]>([]);
+  importedFeatures = signal<any[]>([]);
 
   // Importer objects
   converterDefinition: any = null;
@@ -223,7 +229,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   private async loadInitialData() {
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     // Load available spatial units
     if (this.spatialUnitStore.availableSpatialUnits) {
@@ -259,6 +265,10 @@ export class SpatialUnitAddModalComponent implements OnInit {
     // Initialize metadata structures
     this.spatialUnitMappingConfigStructure =
       this.kommonitorImporterHelperService.mappingConfigStructure;
+
+    // Several select options above are assigned after awaiting the importer
+    // resources — mark the OnPush view once instead of signalling each field.
+    this.cdr.markForCheck();
   }
 
   private loadAccessControlData() {
@@ -268,12 +278,12 @@ export class SpatialUnitAddModalComponent implements OnInit {
       this.accessControlService.accessControl &&
       this.accessControlService.accessControl.length > 0
     ) {
-      this.loadingData = false;
+      this.loadingData.set(false);
     } else {
       this.metadataBootstrap
         .fetchAccessControlMetadata(this.accessControlService.currentKeycloakLoginRoles)
         .finally(() => {
-          this.loadingData = false;
+          this.loadingData.set(false);
         });
     }
   }
@@ -491,7 +501,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
       this.notificationService.showError(
         'Fehler beim Aufbau der Datenquellen-Definition: ' + getErrorMessage(error)
       );
-      this.loadingData = false;
+      this.loadingData.set(false);
       return false;
     }
   }
@@ -536,14 +546,14 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   async addSpatialUnit() {
-    this.loadingData = true;
-    this.importerErrors = [];
+    this.loadingData.set(true);
+    this.importerErrors.set([]);
 
     const allDataSpecified = await this.buildImporterObjects();
 
     if (!allDataSpecified) {
       // TODO: Add form validation here
-      this.loadingData = false;
+      this.loadingData.set(false);
       return;
     } else {
       let newSpatialUnitResponse_dryRun: any = undefined;
@@ -584,10 +594,10 @@ export class SpatialUnitAddModalComponent implements OnInit {
             this.kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(
               newSpatialUnitResponse
             );
-          this.importedFeatures = importedFeatures || [];
+          this.importedFeatures.set(importedFeatures || []);
 
-          this.loadingData = false;
-          const featureCount = this.importedFeatures.length;
+          this.loadingData.set(false);
+          const featureCount = this.importedFeatures().length;
           this.notificationService.showSuccess(
             `Eine neue Raumebene mit Namen "${this.postBody_spatialUnits.spatialUnitLevel}" wurde registriert` +
               (featureCount > 0 ? ` (${featureCount} Raumeinheiten importiert).` : '.')
@@ -599,9 +609,9 @@ export class SpatialUnitAddModalComponent implements OnInit {
           const errors = this.kommonitorImporterHelperService.getErrorsFromImporterResponse(
             newSpatialUnitResponse_dryRun
           );
-          this.importerErrors = errors || [];
+          this.importerErrors.set(errors || []);
 
-          this.loadingData = false;
+          this.loadingData.set(false);
           this.notificationService.showError(
             'Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.'
           );
@@ -611,10 +621,10 @@ export class SpatialUnitAddModalComponent implements OnInit {
           const errors = this.kommonitorImporterHelperService.getErrorsFromImporterResponse(
             newSpatialUnitResponse_dryRun
           );
-          this.importerErrors = errors || [];
+          this.importerErrors.set(errors || []);
         }
 
-        this.loadingData = false;
+        this.loadingData.set(false);
         this.notificationService.showError(
           'Fehler bei der Registrierung der Raumebene: ' + getErrorMessage(error)
         );
@@ -626,20 +636,20 @@ export class SpatialUnitAddModalComponent implements OnInit {
     if (!this.spatialUnitLevelInvalid && !this.hierarchyInvalid) {
       this.addSpatialUnit();
     } else {
-      this.loadingData = false;
+      this.loadingData.set(false);
     }
   }
 
   // Import/Export functionality
   onImportSpatialUnitAddMetadata() {
-    this.spatialUnitMetadataImportError = '';
+    this.spatialUnitMetadataImportError.set('');
     if (this.metadataImportFile) {
       this.metadataImportFile.nativeElement.click();
     }
   }
 
   onImportSpatialUnitAddMappingConfig() {
-    this.spatialUnitMappingConfigImportError = '';
+    this.spatialUnitMappingConfigImportError.set('');
     if (this.mappingConfigImportFile) {
       this.mappingConfigImportFile.nativeElement.click();
     }
@@ -657,13 +667,16 @@ export class SpatialUnitAddModalComponent implements OnInit {
     if (!file) {
       return;
     }
-    this.spatialUnitMappingConfigImportError = '';
+    this.spatialUnitMappingConfigImportError.set('');
     try {
       const json = await this.resourceImportService.readJsonFile(file);
       this.applyMappingConfig(this.resourceImportService.parseMappingConfig(json));
     } catch (error) {
-      this.spatialUnitMappingConfigImportError = getErrorMessage(error);
+      this.spatialUnitMappingConfigImportError.set(getErrorMessage(error));
     }
+    // The import rewrites many ngModel-bound fields after an await — mark the
+    // OnPush view once instead of converting each field to a signal.
+    this.cdr.markForCheck();
   }
 
   parseMetadataFromFile(file: File) {
@@ -673,8 +686,12 @@ export class SpatialUnitAddModalComponent implements OnInit {
       try {
         this.parseFromMetadataFile(event);
       } catch {
-        this.spatialUnitMetadataImportError = 'Uploaded Metadata File cannot be parsed correctly';
+        this.spatialUnitMetadataImportError.set(
+          'Uploaded Metadata File cannot be parsed correctly'
+        );
       }
+      // Same bulk-rewrite situation as the mapping-config import above.
+      this.cdr.markForCheck();
     };
 
     fileReader.readAsText(file);
@@ -684,8 +701,9 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.metadataImportSettings = JSON.parse(event.target.result);
 
     if (!this.metadataImportSettings.metadata) {
-      this.spatialUnitMetadataImportError =
-        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.';
+      this.spatialUnitMetadataImportError.set(
+        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.'
+      );
       return;
     }
 
@@ -903,8 +921,8 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.attributeMappings_adminView = [];
     this.keepAttributes = true;
     this.keepMissingValues = true;
-    this.importerErrors = [];
-    this.importedFeatures = [];
+    this.importerErrors.set([]);
+    this.importedFeatures.set([]);
     this.converterDefinition = null;
     this.datasourceTypeDefinition = null;
     this.propertyMappingDefinition = null;
@@ -917,8 +935,8 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.roleGrid?.reset();
 
     this.metadataImportSettings = null;
-    this.spatialUnitMetadataImportError = '';
-    this.spatialUnitMappingConfigImportError = '';
+    this.spatialUnitMetadataImportError.set('');
+    this.spatialUnitMappingConfigImportError.set('');
     this.spatialUnitMappingConfigStructure = {};
     this.spatialUnitMetadataStructure_pretty = '';
     const attributeMappingTypes = this.kommonitorImporterHelperService.getAttributeMappingTypes();
@@ -926,11 +944,11 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   hideMetadataErrorAlert() {
-    this.spatialUnitMetadataImportError = '';
+    this.spatialUnitMetadataImportError.set('');
   }
 
   hideMappingConfigErrorAlert() {
-    this.spatialUnitMappingConfigImportError = '';
+    this.spatialUnitMappingConfigImportError.set('');
   }
 
   onChangeOwner(ownerOrganization: string) {

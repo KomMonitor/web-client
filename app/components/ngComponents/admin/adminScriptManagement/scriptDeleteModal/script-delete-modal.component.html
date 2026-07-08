@@ -7,7 +7,7 @@
 
 <div class="modal-body">
   <!-- Loading Overlay -->
-  @if (loadingData) {
+  @if (loadingData()) {
     <div class="loading-overlay-admin-panel text-center">
       <i class="fas fa-spinner fa-spin fa-2x"></i>
     </div>
@@ -38,14 +38,14 @@
   }
 
   <!-- Success Alert -->
-  @if (showSuccessAlert) {
+  @if (showSuccessAlert()) {
     <div class="alert alert-success alert-dismissable">
       <button type="button" class="btn-close" (click)="hideSuccessAlert()" aria-hidden="true">
         &times;
       </button>
       <h4><i class="icon fa fa-check"></i> Folgende Skripte wurden erfolgreich gelöscht</h4>
       <ul>
-        @for (dataset of successfullyDeletedDatasets; track dataset) {
+        @for (dataset of successfullyDeletedDatasets(); track dataset) {
           <li>
             {{ dataset.name }}
           </li>
@@ -55,7 +55,7 @@
   }
 
   <!-- Error Alert -->
-  @if (showErrorAlert) {
+  @if (showErrorAlert()) {
     <div class="alert alert-danger alert-dismissable">
       <button type="button" class="btn-close" (click)="hideErrorAlert()" aria-hidden="true">
         &times;
@@ -73,7 +73,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (entry of failedDatasetsAndErrors; track entry) {
+          @for (entry of failedDatasetsAndErrors(); track entry) {
             <tr>
               <td>{{ entry[0].name }}</td>
               <td [innerHTML]="entry[1]"></td>
@@ -91,7 +91,7 @@
   <button
     type="button"
     class="btn btn-danger"
-    [disabled]="datasetsToDelete.length === 0 || loadingData"
+    [disabled]="datasetsToDelete.length === 0 || loadingData()"
     (click)="deleteScripts()"
   >
     Skripte unwiderruflich löschen

@@ -1,4 +1,13 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  inject,
+  signal,
+} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
@@ -41,6 +50,7 @@ interface AffectedIndicatorReference {
   styleUrls: ['./georesource-delete-modal.component.scss'],
   imports: [LoadingOverlayComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeoresourceDeleteModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
@@ -57,10 +67,11 @@ export class GeoresourceDeleteModalComponent implements OnInit {
   /** Emitted after deletion so the parent refreshes its table. */
   @Output() refreshRequested = new EventEmitter<GeoresourceRefreshRequest>();
 
-  loadingData: boolean = false;
+  // Signals: written from the async delete pipeline (OnPush).
+  loadingData = signal(false);
 
   successfullyDeletedDatasets: GeoresourcesDataset[] = [];
-  failedDatasetsAndErrors: [GeoresourcesDataset, string][] = [];
+  failedDatasetsAndErrors = signal<[GeoresourcesDataset, string][]>([]);
 
   affectedScripts: AffectedScript[] = [];
   affectedIndicatorReferences: AffectedIndicatorReference[] = [];
@@ -71,7 +82,7 @@ export class GeoresourceDeleteModalComponent implements OnInit {
 
   resetGeoresourcesDeleteForm(): void {
     this.successfullyDeletedDatasets = [];
-    this.failedDatasetsAndErrors = [];
+    this.failedDatasetsAndErrors.set([]);
     this.affectedScripts = this.gatherAffectedScripts();
     this.affectedIndicatorReferences = this.gatherAffectedIndicatorReferences();
   }
@@ -121,7 +132,7 @@ export class GeoresourceDeleteModalComponent implements OnInit {
   }
 
   deleteGeoresources(): void {
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     const deletePromises = this.datasetsToDelete.map((dataset) =>
       this.getDeleteDatasetPromise(dataset)
@@ -154,7 +165,7 @@ export class GeoresourceDeleteModalComponent implements OnInit {
         const errorMessage = error.error
           ? this.indicatorValueService.syntaxHighlightJSON(error.error)
           : this.indicatorValueService.syntaxHighlightJSON(error);
-        this.failedDatasetsAndErrors.push([dataset, errorMessage]);
+        this.failedDatasetsAndErrors.update((failures) => [...failures, [dataset, errorMessage]]);
 
         // Return a resolved observable so forkJoin continues
         return of(null);
@@ -177,15 +188,18 @@ export class GeoresourceDeleteModalComponent implements OnInit {
       );
     }
 
-    if (this.failedDatasetsAndErrors.length > 0) {
+    if (this.failedDatasetsAndErrors().length > 0) {
       this.notificationService.showError('Einige Georessourcen konnten nicht gelöscht werden.');
     }
 
-    this.loadingData = false;
+    this.loadingData.set(false);
 
     // Close only when everything succeeded; otherwise keep the modal open so
     // the per-dataset failure table stays visible.
-    if (this.successfullyDeletedDatasets.length > 0 && this.failedDatasetsAndErrors.length === 0) {
+    if (
+      this.successfullyDeletedDatasets.length > 0 &&
+      this.failedDatasetsAndErrors().length === 0
+    ) {
       this.activeModal.close({
         action: 'deleted',
         deletedDatasets: this.successfullyDeletedDatasets,

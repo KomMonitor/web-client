@@ -5,8 +5,8 @@
 
 <div class="modal-body">
   <div align="center">
-    @if (loadingData) {
-      <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData">
+    @if (loadingData()) {
+      <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData()">
         <i class="fas fa-spinner fa-spin fa-2x"></i>
       </div>
     }
@@ -1185,13 +1185,13 @@
 
 <!-- Registration success/error summaries are toasted via NotificationService; the
      per-feature importer error report stays inline. -->
-@if (importerErrors && importerErrors.length > 0) {
+@if (importerErrors().length > 0) {
   <div class="alert alert-danger">
     <h4><i class="icon fa fa-ban"></i>Registrierung gescheitert</h4>
-    <p>Bei den {{ importerErrors.length }} Features mit folgenden IDs scheitert der Import:</p>
+    <p>Bei den {{ importerErrors().length }} Features mit folgenden IDs scheitert der Import:</p>
     <pre style="overflow: auto; max-height: 500px">
                         <ul>
-                          @for (error of importerErrors; track error) {
+                          @for (error of importerErrors(); track error) {
                             <li>{{error}}</li>
                           }
                         </ul>
@@ -1204,7 +1204,7 @@
 <div
   id="georesourceMetadataImportErrorAlert"
   style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!georesourceMetadataImportError"
+  [hidden]="!georesourceMetadataImportError()"
   class="alert alert-danger alert-dismissable"
 >
   <button type="button" class="close" (click)="hideMetadataErrorAlert()" aria-hidden="true">
@@ -1213,7 +1213,7 @@
   <h4><i class="icon fa fa-ban"></i>Metadata Import gescheitert</h4>
   Beim Import der Metadaten aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
   <br />
-  <pre>{{ georesourceMetadataImportError }}</pre>
+  <pre>{{ georesourceMetadataImportError() }}</pre>
   <br />
   <br />
   <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
@@ -1228,7 +1228,7 @@
 <div
   id="georesourceMappingConfigImportErrorAlert"
   style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!georesourceMappingConfigImportError"
+  [hidden]="!georesourceMappingConfigImportError()"
   class="alert alert-danger alert-dismissable"
 >
   <button type="button" class="close" (click)="hideMappingConfigErrorAlert()" aria-hidden="true">
@@ -1237,7 +1237,7 @@
   <h4><i class="icon fa fa-ban"></i>Mapping-Konfiguration Import gescheitert</h4>
   Beim Import der Mapping-Konfiguration aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
   <br />
-  <pre [innerHTML]="georesourceMappingConfigImportError"></pre>
+  <pre [innerHTML]="georesourceMappingConfigImportError()"></pre>
   <br />
   <br />
   <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>

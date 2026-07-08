@@ -1,4 +1,10 @@
-import { Component, Input, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  inject,
+} from '@angular/core';
 import { Topic, TopicOrderMode, TopicResourceType } from '../topic.model';
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgbCollapseModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -21,12 +27,14 @@ export class ExpandedService {
   styleUrls: ['./topicList.component.scss'],
   imports: [AddTopicComponent, SortByOrderPipe, CdkDropList, NgbCollapseModule, CdkDrag],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TopicListComponent {
   private modalService = inject(NgbModal);
   private srvc = inject(AdminTopicsManagementService);
   private expandedService = inject(ExpandedService);
   private notificationService = inject(NotificationService);
+  private cdr = inject(ChangeDetectorRef);
 
   @Input({ required: true }) topics!: Topic[];
   @Input({ required: true }) levelLimit!: number;
@@ -43,6 +51,9 @@ export class TopicListComponent {
     const revert = () => {
       moveItemInArray(this.topics, event.currentIndex, event.previousIndex);
       this.notificationService.showError('Die Sortierung konnte nicht gespeichert werden.');
+      // The in-place revert happens in an async error callback — re-render this
+      // OnPush view so the list reflects the restored order.
+      this.cdr.markForCheck();
     };
 
     const request$ = this.parentTopic

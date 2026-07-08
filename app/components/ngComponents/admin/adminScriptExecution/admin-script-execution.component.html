@@ -12,20 +12,20 @@
   </button>
 </ng-template>
 <ng-template #content>
-  @if (errorOccurred) {
+  @if (errorOccurred()) {
     <div class="alert alert-danger" role="alert">
       <i class="fas fa-exclamation-triangle"></i>
       Fehler beim Laden der Job-Daten. Bitte versuche es erneut.
     </div>
   }
-  @if (!errorOccurred) {
-    <app-loading-overlay [loading]="loadingData" message="Lade Daten...">
+  @if (!errorOccurred()) {
+    <app-loading-overlay [loading]="loadingData()" message="Lade Daten...">
       <expandable-box
         title="Übersicht Berechnungs-Jobs zur Indikatoren-Zeitreihen-fortführung"
         [collapsed]="false"
       >
         <div class="box-content">
-          @if (defaultIndicatorJobHealth) {
+          @if (defaultIndicatorJobHealth(); as defaultIndicatorJobHealth) {
             <div class="row vertical-align">
               <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
@@ -61,7 +61,7 @@
               </div>
             </div>
           }
-          @if (defaultIndicatorJobHealth) {
+          @if (defaultIndicatorJobHealth(); as defaultIndicatorJobHealth) {
             <div class="row vertical-align">
               <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
@@ -95,7 +95,7 @@
             style="height: 70vh"
             class="ag-theme-alpine"
             [columnDefs]="columnDefs"
-            [rowData]="defaultIndicatorJobs"
+            [rowData]="defaultIndicatorJobs()"
             [defaultColDef]="defaultColDef"
             [gridOptions]="gridOptions"
             [pagination]="true"
@@ -114,7 +114,7 @@
         [collapsed]="false"
       >
         <div class="box-content customized-computation-content">
-          @if (customizedIndicatorJobHealth) {
+          @if (customizedIndicatorJobHealth(); as customizedIndicatorJobHealth) {
             <div class="row vertical-align">
               <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
@@ -150,11 +150,11 @@
               </div>
             </div>
           }
-          @if (customizedIndicatorJobHealth) {
+          @if (customizedIndicatorJobHealth(); as customizedIndicatorJobHealth) {
             <div class="row vertical-align">
               <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
-                  [titleText]="customizedIndicatorJobHealth!.activeJobs.toString()"
+                  [titleText]="customizedIndicatorJobHealth.activeJobs.toString()"
                   descriptionText="laufende Jobs"
                   boxColor="#00c0ef"
                   iconClass="fas fa-file-code"
@@ -162,7 +162,7 @@
               </div>
               <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
-                  [titleText]="customizedIndicatorJobHealth!.waitingJobs.toString()"
+                  [titleText]="customizedIndicatorJobHealth.waitingJobs.toString()"
                   descriptionText="wartende Jobs"
                   boxColor="#FF851B"
                   iconClass="fas fa-file-code"
@@ -170,7 +170,7 @@
               </div>
               <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
-                  [titleText]="customizedIndicatorJobHealth!.delayedJobs.toString()"
+                  [titleText]="customizedIndicatorJobHealth.delayedJobs.toString()"
                   descriptionText="wartende Jobs"
                   boxColor="#d2d6de"
                   iconClass="fas fa-file-code"
@@ -184,7 +184,7 @@
             style="height: 70vh"
             class="ag-theme-alpine"
             [columnDefs]="columnDefs"
-            [rowData]="customizedIndicatorJobs"
+            [rowData]="customizedIndicatorJobs()"
             [defaultColDef]="defaultColDef"
             [gridOptions]="gridOptions"
             [pagination]="true"

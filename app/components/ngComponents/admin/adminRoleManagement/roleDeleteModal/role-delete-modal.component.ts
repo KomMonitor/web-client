@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit, inject, signal } from '@angular/core';
 
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
@@ -12,6 +12,7 @@ import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-
   templateUrl: './role-delete-modal.component.html',
   imports: [LoadingOverlayComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoleDeleteModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
@@ -20,8 +21,10 @@ export class RoleDeleteModalComponent implements OnInit {
 
   @Input() datasetsToDelete: AccessControlMetadata[] = [];
 
-  deletingInProgress: boolean = false;
-  failedDatasetsAndErrors: [AccessControlMetadata, string][] = [];
+  // Signal-backed: written from the async deletion callbacks, which would not
+  // trigger a re-render of this OnPush component otherwise.
+  deletingInProgress = signal(false);
+  failedDatasetsAndErrors = signal<[AccessControlMetadata, string][]>([]);
 
   readonly PROTECTED_NAMES = ['public', 'kommonitor'];
 
@@ -32,13 +35,16 @@ export class RoleDeleteModalComponent implements OnInit {
       (ou) => !this.PROTECTED_NAMES.includes(ou.name)
     );
     if (this.datasetsToDelete.length < original) {
-      this.failedDatasetsAndErrors.push([
-        {
-          organizationalUnitId: '',
-          name: 'public / kommonitor',
-          permissions: [],
-        },
-        'System-Organisationseinheiten können nicht gelöscht werden! Die betroffene Einheit wurde aus der Liste entfernt.',
+      this.failedDatasetsAndErrors.update((entries) => [
+        ...entries,
+        [
+          {
+            organizationalUnitId: '',
+            name: 'public / kommonitor',
+            permissions: [],
+          },
+          'System-Organisationseinheiten können nicht gelöscht werden! Die betroffene Einheit wurde aus der Liste entfernt.',
+        ],
       ]);
     }
   }
@@ -54,27 +60,29 @@ export class RoleDeleteModalComponent implements OnInit {
   deleteOrganizationalUnits(): void {
     if (this.datasetsToDelete.length === 0) return;
 
-    this.deletingInProgress = true;
-    this.failedDatasetsAndErrors = [];
+    this.deletingInProgress.set(true);
+    this.failedDatasetsAndErrors.set([]);
 
     const deletionsObs = this.datasetsToDelete.map((dataset) =>
       this.roleMgmgSrvc.deleteOrganizationalUnit(dataset)
     );
 
     forkJoin(deletionsObs).subscribe((results) => {
+      const failed: [AccessControlMetadata, string][] = [];
       results.forEach((res) => {
         if (res.success) {
           this.notificationService.showSuccess(
             `Die Organisationseinheit "${res.dataset.name}" wurde erfolgreich gelöscht.`
           );
         } else {
-          this.failedDatasetsAndErrors.push([res.dataset, res.error || JSON.stringify(res)]);
+          failed.push([res.dataset, res.error || JSON.stringify(res)]);
         }
       });
 
-      this.deletingInProgress = false;
+      this.failedDatasetsAndErrors.set(failed);
+      this.deletingInProgress.set(false);
 
-      if (this.failedDatasetsAndErrors.length === 0) {
+      if (failed.length === 0) {
         this.activeModal.close(true);
       }
     });

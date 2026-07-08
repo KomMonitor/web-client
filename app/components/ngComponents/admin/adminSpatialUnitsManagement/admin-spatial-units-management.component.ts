@@ -1,4 +1,13 @@
-import { Component, OnInit, NgZone, ViewChild, inject, DestroyRef } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  NgZone,
+  OnInit,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import {
   MetadataBootstrapService,
   MetadataLoadingState,
@@ -37,6 +46,7 @@ import { SpatialUnitRefreshRequest } from './spatial-unit-refresh.model';
   styleUrls: ['./admin-spatial-units-management.component.scss'],
   imports: [ExpandableBoxComponent, AgGridAngular, FormsModule, AdminContentViewComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminSpatialUnitsManagementComponent implements OnInit {
   private zone = inject(NgZone);
@@ -200,7 +210,9 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
         '' + (params.data!.outlineDashArrayString || '-'),
     },
   ];
-  public rowData: SpatialUnitMetadata[] = [];
+  // Signal-backed: written from the store subscription and fetch callbacks,
+  // which would not trigger a re-render of this OnPush component otherwise.
+  public rowData = signal<SpatialUnitMetadata[]>([]);
   public defaultColDef: ColDef = this.kommonitorDataGridHelperService.buildDefaultColDef();
   public gridOptions: GridOptions = {};
 
@@ -365,9 +377,11 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
   }
 
   private applyTableViewFilter(): void {
-    this.rowData = this.tableViewSwitcher
-      ? this.allSpatialUnits.filter((su) => su.userPermissions?.includes('editor'))
-      : this.allSpatialUnits;
+    this.rowData.set(
+      this.tableViewSwitcher
+        ? this.allSpatialUnits.filter((su) => su.userPermissions?.includes('editor'))
+        : this.allSpatialUnits
+    );
   }
 
   // Alias for the add spatial unit modal (matching HTML template)

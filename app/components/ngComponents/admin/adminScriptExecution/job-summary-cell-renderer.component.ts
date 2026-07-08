@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';
 
@@ -16,8 +16,9 @@ interface SpatialUnitIntegrationSummaryItem {
   selector: 'app-job-summary-cell-renderer',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @if (summaryItems && summaryItems.length > 0) {
+    @if (summaryItems() && summaryItems()!.length > 0) {
       <table class="table table-condensed table-bordered table-striped">
         <thead>
           <tr>
@@ -30,7 +31,7 @@ interface SpatialUnitIntegrationSummaryItem {
           </tr>
         </thead>
         <tbody>
-          @for (item of summaryItems; track item) {
+          @for (item of summaryItems()!; track item) {
             <tr>
               <td>{{ item.spatialUnitId }}</td>
               <td>{{ item.spatialUnitName }}</td>
@@ -54,7 +55,8 @@ interface SpatialUnitIntegrationSummaryItem {
   `,
 })
 export class JobSummaryCellRendererComponent implements ICellRendererAngularComp {
-  summaryItems: SpatialUnitIntegrationSummaryItem[] | null = null;
+  // Signal: refresh() is invoked by AG Grid outside Angular CD (OnPush).
+  summaryItems = signal<SpatialUnitIntegrationSummaryItem[] | null>(null);
 
   agInit(params: ICellRendererParams): void {
     this.setParams(params);
@@ -66,6 +68,6 @@ export class JobSummaryCellRendererComponent implements ICellRendererAngularComp
   }
 
   private setParams(params: ICellRendererParams): void {
-    this.summaryItems = params.data.spatialUnitIntegrationSummary ?? null;
+    this.summaryItems.set(params.data.spatialUnitIntegrationSummary ?? null);
   }
 }

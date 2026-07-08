@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
@@ -10,6 +10,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
   styleUrls: ['./script-parameters.component.scss'],
   standalone: true,
   imports: [FormsModule, ExpandableBoxComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScriptParametersComponent {
   protected scriptHelperService = inject(ScriptHelperService);

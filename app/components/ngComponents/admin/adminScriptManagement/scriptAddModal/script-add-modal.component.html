@@ -5,7 +5,7 @@
 
 <div class="modal-body" style="position: relative">
   <!-- Loading Overlay -->
-  @if (loadingData) {
+  @if (loadingData()) {
     <div
       class="loading-overlay-admin-panel text-center"
       style="
@@ -59,17 +59,17 @@
   }
 
   <!-- ---- SUCCESS / ERROR ALERTS ---- -->
-  @if (showSuccessAlert) {
+  @if (showSuccessAlert()) {
     <div class="alert alert-success mt-3">
       <button type="button" class="btn-close" (click)="hideSuccessAlert()">&times;</button>
       <i class="fas fa-check"></i> Skript wurde erfolgreich registriert.
     </div>
   }
-  @if (showErrorAlert) {
+  @if (showErrorAlert()) {
     <div class="alert alert-danger mt-3">
       <button type="button" class="btn-close" (click)="hideErrorAlert()">&times;</button>
       <i class="fas fa-ban"></i> Fehler beim Registrieren des Skripts.
-      <pre>{{ errorMessagePart }}</pre>
+      <pre>{{ errorMessagePart() }}</pre>
     </div>
   }
 

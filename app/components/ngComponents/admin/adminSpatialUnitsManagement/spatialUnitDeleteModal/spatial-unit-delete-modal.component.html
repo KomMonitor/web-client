@@ -4,7 +4,7 @@
 </div>
 
 <div class="modal-body">
-  <app-loading-overlay [loading]="loadingData">
+  <app-loading-overlay [loading]="loadingData()">
     <h4><b>Sollen die folgenden Raumebenen wirklich gelöscht werden?</b></h4>
 
     <p>
@@ -44,7 +44,7 @@ kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert wer
   </button>
 </div>
 
-@if (failedDatasetsAndErrors.length > 0) {
+@if (failedDatasetsAndErrors().length > 0) {
   <div id="spatialUnitsDeleteErrorReport" class="alert alert-danger">
     <h4><i class="icon fa fa-ban"></i>Löschen gescheitert</h4>
     Folgende Datensätze konnten nicht gelöscht werden.
@@ -60,7 +60,7 @@ kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert wer
         </tr>
       </thead>
       <tbody>
-        @for (dataset of failedDatasetsAndErrors; track dataset) {
+        @for (dataset of failedDatasetsAndErrors(); track dataset) {
           <tr>
             <td>{{ dataset[0].spatialUnitLevel }}</td>
             <td [innerHTML]="dataset[1]"></td>

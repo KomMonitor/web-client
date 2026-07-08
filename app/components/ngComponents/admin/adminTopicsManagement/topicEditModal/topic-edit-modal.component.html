@@ -10,7 +10,7 @@
 </div>
 <div class="modal-body">
   <div>
-    @if (isSubmitting) {
+    @if (isSubmitting()) {
       <div class="loading-overlay-admin-panel">
         <i class="fas fa-spinner fa-spin fa-2x"></i>
       </div>
@@ -85,10 +85,10 @@
   <button
     type="button"
     class="btn btn-success"
-    [disabled]="topicForm.invalid || isSubmitting"
+    [disabled]="topicForm.invalid || isSubmitting()"
     (click)="onSubmit()"
   >
-    @if (isSubmitting) {
+    @if (isSubmitting()) {
       <span class="spinner-border spinner-border-sm mr-1"></span>
     }
     Eintrag aktualisieren

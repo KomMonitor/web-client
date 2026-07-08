@@ -1,4 +1,11 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnInit,
+  inject,
+} from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -35,6 +42,7 @@ import {
     LoadingOverlayComponent,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoleEditGroupRightsModalComponent implements OnInit {
   protected activeModal = inject(NgbActiveModal);
@@ -42,6 +50,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private adminRoleManagementService = inject(AdminRoleManagementService);
   private notificationService = inject(NotificationService);
+  private cdr = inject(ChangeDetectorRef);
 
   @Input() currentDataset!: AccessControlMetadata;
 
@@ -86,11 +95,15 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
         this.buildAuthorityTable(authorities.authorityRoles);
         this.buildDelegatedTable(delegates.roleDelegates);
         this.loadingData = false;
+        // Both grids' bound fields were rebuilt in this async callback — mark
+        // the OnPush view once instead of converting each field to a signal.
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error(err);
         this.notificationService.showError('Die Rollendaten konnten nicht geladen werden.');
         this.loadingData = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -215,6 +228,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
           this.errorMessagePart = result.errorMessagePart;
           this.showErrorAlert = true;
           this.loadingData = false;
+          this.cdr.markForCheck();
         }
       });
   }

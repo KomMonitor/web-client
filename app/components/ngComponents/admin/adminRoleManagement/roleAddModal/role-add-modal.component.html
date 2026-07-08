@@ -4,17 +4,17 @@
 </div>
 
 <div class="modal-body">
-  <app-loading-overlay [loading]="processCreation" message="Erstelle Organisationseinheit...">
-    @if (showErrorAlert) {
+  <app-loading-overlay [loading]="processCreation()" message="Erstelle Organisationseinheit...">
+    @if (showErrorAlert()) {
       <div class="alert alert-danger" role="alert">
         Fehler beim Erstellen der Organisationseinheit:
-        <span [innerHTML]="errorMessagePart"></span>
+        <span [innerHTML]="errorMessagePart()"></span>
       </div>
     }
-    @if (showKeycloakErrorAlert) {
+    @if (showKeycloakErrorAlert()) {
       <div class="alert alert-danger" role="alert">
         Fehler beim Anlegen der Keycloak-Rollen:
-        <span [innerHTML]="keycloakErrorMessagePart"></span>
+        <span [innerHTML]="keycloakErrorMessagePart()"></span>
       </div>
     }
 

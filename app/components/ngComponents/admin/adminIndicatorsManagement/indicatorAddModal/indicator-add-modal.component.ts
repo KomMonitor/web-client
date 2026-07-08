@@ -1,12 +1,15 @@
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
-  OnInit,
-  ViewChild,
   ElementRef,
-  TemplateRef,
-  inject,
-  Output,
   EventEmitter,
+  OnInit,
+  Output,
+  TemplateRef,
+  ViewChild,
+  effect,
+  inject,
 } from '@angular/core';
 import { IndicatorRefreshRequest } from '../indicator-refresh.model';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -41,6 +44,7 @@ import { IndicatorAddStep7AccessComponent } from './steps/indicator-add-step7-ac
   ],
   providers: [IndicatorAddFormStateService],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IndicatorAddModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
@@ -49,6 +53,14 @@ export class IndicatorAddModalComponent implements OnInit {
   private http = inject(HttpClient);
   protected envConfigService = inject(EnvConfigService);
   private modalService = inject(NgbModal);
+  private cdr = inject(ChangeDetectorRef);
+
+  // Re-render this OnPush view whenever the shared form-state service reports
+  // an async bulk rewrite of its plain fields (see stateRevision docs).
+  private readonly stateSync = effect(() => {
+    this.state.stateRevision();
+    this.cdr.markForCheck();
+  });
 
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
   @ViewChild('missingFieldsModal', { static: false }) missingFieldsModalTpl!: TemplateRef<unknown>;

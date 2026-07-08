@@ -1,4 +1,13 @@
-import { Component, OnInit, Input, inject, Output, EventEmitter } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  inject,
+  signal,
+} from '@angular/core';
 import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
@@ -18,6 +27,7 @@ import { NotificationService } from 'components/ngComponents/common/notification
   styleUrls: ['./spatial-unit-delete-modal.component.scss'],
   imports: [LoadingOverlayComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpatialUnitDeleteModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
@@ -34,22 +44,24 @@ export class SpatialUnitDeleteModalComponent implements OnInit {
   /** Emitted after deletion so the parent refreshes its table. */
   @Output() refreshRequested = new EventEmitter<SpatialUnitRefreshRequest>();
 
-  loadingData = false;
+  // Signals: written across await boundaries during the bulk delete, which
+  // would not re-render an OnPush component via plain fields.
+  loadingData = signal(false);
 
-  successfullyDeletedDatasets: SpatialUnitMetadata[] = [];
-  failedDatasetsAndErrors: any[] = [];
+  successfullyDeletedDatasets = signal<SpatialUnitMetadata[]>([]);
+  failedDatasetsAndErrors = signal<any[]>([]);
 
   ngOnInit(): void {
     this.resetForm();
   }
 
   resetForm(): void {
-    this.successfullyDeletedDatasets = [];
-    this.failedDatasetsAndErrors = [];
+    this.successfullyDeletedDatasets.set([]);
+    this.failedDatasetsAndErrors.set([]);
   }
 
   async deleteSpatialUnits(): Promise<void> {
-    this.loadingData = true;
+    this.loadingData.set(true);
     this.resetForm();
 
     try {
@@ -57,53 +69,57 @@ export class SpatialUnitDeleteModalComponent implements OnInit {
       const result = await this.bulkDeleteSpatialUnits(spatialUnitIds);
 
       // Process results
-      this.successfullyDeletedDatasets = this.datasetsToDelete.filter((dataset) =>
-        result.successful.includes(dataset.spatialUnitId)
+      this.successfullyDeletedDatasets.set(
+        this.datasetsToDelete.filter((dataset) => result.successful.includes(dataset.spatialUnitId))
       );
 
-      this.failedDatasetsAndErrors = result.failed.map((failure) => {
-        const dataset = this.datasetsToDelete.find((d) => d.spatialUnitId === failure.id);
-        return [dataset, failure.error];
-      });
+      this.failedDatasetsAndErrors.set(
+        result.failed.map((failure) => {
+          const dataset = this.datasetsToDelete.find((d) => d.spatialUnitId === failure.id);
+          return [dataset, failure.error];
+        })
+      );
 
-      if (this.successfullyDeletedDatasets.length > 0) {
+      if (this.successfullyDeletedDatasets().length > 0) {
         // Fetch indicator metadata again as spatial units were deleted
         await this.metadataBootstrap.fetchIndicatorsMetadata(
           this.accessControlService.currentKeycloakLoginRoles
         );
 
         // Refresh spatial unit overview table
-        const deletedIds = this.successfullyDeletedDatasets.map((dataset) => dataset.spatialUnitId);
+        const deletedIds = this.successfullyDeletedDatasets().map(
+          (dataset) => dataset.spatialUnitId
+        );
         this.refreshRequested.emit({
           crudType: 'delete',
           targetSpatialUnitId: deletedIds,
         });
 
         this.notificationService.showSuccess(
-          `${this.successfullyDeletedDatasets.length} Raumebene(n) erfolgreich gelöscht.`
+          `${this.successfullyDeletedDatasets().length} Raumebene(n) erfolgreich gelöscht.`
         );
       }
 
-      if (this.failedDatasetsAndErrors.length > 0) {
+      if (this.failedDatasetsAndErrors().length > 0) {
         this.notificationService.showError('Einige Raumebenen konnten nicht gelöscht werden.');
       }
 
-      this.loadingData = false;
+      this.loadingData.set(false);
 
       // Close only when everything succeeded; otherwise keep the modal open so
       // the per-dataset failure table stays visible.
       if (
-        this.successfullyDeletedDatasets.length > 0 &&
-        this.failedDatasetsAndErrors.length === 0
+        this.successfullyDeletedDatasets().length > 0 &&
+        this.failedDatasetsAndErrors().length === 0
       ) {
         this.activeModal.close({
           action: 'deleted',
-          deletedDatasets: this.successfullyDeletedDatasets,
+          deletedDatasets: this.successfullyDeletedDatasets(),
         });
       }
     } catch {
       this.notificationService.showError('Ein unerwarteter Fehler ist aufgetreten.');
-      this.loadingData = false;
+      this.loadingData.set(false);
     }
   }
 
@@ -147,6 +163,6 @@ export class SpatialUnitDeleteModalComponent implements OnInit {
   }
 
   get canDelete(): boolean {
-    return this.hasValidDatasets && !this.loadingData;
+    return this.hasValidDatasets && !this.loadingData();
   }
 }

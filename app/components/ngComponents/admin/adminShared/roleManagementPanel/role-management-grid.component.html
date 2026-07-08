@@ -4,10 +4,10 @@
     <label class="switch">
       <input
         type="checkbox"
-        [(ngModel)]="activeRolesOnly"
+        [ngModel]="activeRolesOnly()"
         name="activeRolesOnly"
         [ngModelOptions]="{ standalone: true }"
-        (ngModelChange)="onActiveRolesOnlyChange()"
+        (ngModelChange)="activeRolesOnly.set($event); onActiveRolesOnlyChange()"
       />
       <span class="switchslider round"></span>
     </label>
@@ -16,8 +16,8 @@
 <ag-grid-angular
   class="ag-theme-alpine"
   style="height: 45vh; width: 100%"
-  [columnDefs]="columnDefs"
-  [rowData]="rowData"
+  [columnDefs]="columnDefs()"
+  [rowData]="rowData()"
   [defaultColDef]="defaultColDef"
   [gridOptions]="gridOptions"
   [components]="components"

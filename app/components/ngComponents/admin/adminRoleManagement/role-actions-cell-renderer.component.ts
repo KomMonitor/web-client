@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
@@ -31,6 +31,9 @@ export interface RoleActionsCellRendererParams extends ICellRendererParams<Acces
       </button>
     </div>
   `,
+  // The template is static (no bindings to `dataset`), so the fields updated by
+  // AG Grid's agInit()/refresh() callbacks need no signal conversion.
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoleActionsCellRendererComponent implements ICellRendererAngularComp {
   private dataset!: AccessControlMetadata;

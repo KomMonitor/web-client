@@ -1,4 +1,12 @@
-import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import CodeMirror from 'codemirror';
 import { skip } from 'rxjs';
@@ -38,6 +46,7 @@ import { AdminContentViewComponent } from '../../admin-content-view/admin-conten
   styleUrls: ['./admin-filter-config.component.scss'],
   imports: [AgGridAngular, ExpandableBoxComponent, AdminContentViewComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminFilterConfigComponent implements OnInit {
   private georesourceStore = inject(GeoresourceMetadataStoreService);
@@ -56,8 +65,9 @@ export class AdminFilterConfigComponent implements OnInit {
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
 
   // AG Grid properties
-  public columnDefs: ColDef[] = [];
-  public rowData: any[] = [];
+  // Signals: rebuilt from config fetches and broadcast callbacks (OnPush).
+  public columnDefs = signal<ColDef[]>([]);
+  public rowData = signal<any[]>([]);
   public gridOptions: GridOptions = {};
   public selectedRows: any[] = [];
 
@@ -65,8 +75,10 @@ export class AdminFilterConfigComponent implements OnInit {
   codeMirrorEditor: any = undefined;
   lintingIssues;
 
-  missingRequiredParameters = [];
-  missingRequiredParameters_string = '';
+  // Signals: written from CodeMirror lint callbacks, which run outside
+  // Angular's template-event path (OnPush).
+  missingRequiredParameters = signal<string[]>([]);
+  missingRequiredParameters_string = signal('');
 
   keywordsInConfig = [];
 
@@ -77,7 +89,7 @@ export class AdminFilterConfigComponent implements OnInit {
   origConfig: any = undefined;
   mergedFilterConfig: any = undefined;
 
-  configSettingInvalid = false;
+  configSettingInvalid = signal(false);
 
   async ngOnInit() {
     this.httpClient
@@ -151,18 +163,18 @@ export class AdminFilterConfigComponent implements OnInit {
       this.setupGridOptions(this.origConfig);
 
       // Use the data grid helper service to build column definitions and row data
-      this.columnDefs = this.kommonitorDataGridHelperService.buildDataGridColumnConfig_filters(
-        this.origConfig
+      this.columnDefs.set(
+        this.kommonitorDataGridHelperService.buildDataGridColumnConfig_filters(this.origConfig)
       );
-      this.rowData = this.kommonitorDataGridHelperService.buildDataGridRowData_filters(
-        this.origConfig
+      this.rowData.set(
+        this.kommonitorDataGridHelperService.buildDataGridRowData_filters(this.origConfig)
       );
 
       // Force change detection
       setTimeout(() => {
         if (this.agGrid && this.agGrid.api) {
-          this.agGrid.api.setGridOption('rowData', this.rowData);
-          this.agGrid.api.setGridOption('columnDefs', this.columnDefs);
+          this.agGrid.api.setGridOption('rowData', this.rowData());
+          this.agGrid.api.setGridOption('columnDefs', this.columnDefs());
           this.agGrid.api.refreshCells();
         }
       }, 200);
@@ -248,9 +260,9 @@ export class AdminFilterConfigComponent implements OnInit {
   // Grid event handlers
   onGridReady(params: GridReadyEvent): void {
     // If we have data, set it now
-    if (this.rowData && this.rowData.length > 0) {
-      params.api.setGridOption('rowData', this.rowData);
-      params.api.setGridOption('columnDefs', this.columnDefs);
+    if (this.rowData().length > 0) {
+      params.api.setGridOption('rowData', this.rowData());
+      params.api.setGridOption('columnDefs', this.columnDefs());
     } else {
       // If no data is available, try to load it
     }
@@ -450,10 +462,10 @@ export class AdminFilterConfigComponent implements OnInit {
     let isInvalid = true;
 
     isInvalid = !this.keywordsInConfig.every((keyword) => configString.includes(keyword));
-    this.missingRequiredParameters = this.keywordsInConfig.filter(
-      (keyword) => !configString.includes(keyword)
+    this.missingRequiredParameters.set(
+      this.keywordsInConfig.filter((keyword) => !configString.includes(keyword))
     );
-    this.missingRequiredParameters_string = JSON.stringify(this.missingRequiredParameters);
+    this.missingRequiredParameters_string.set(JSON.stringify(this.missingRequiredParameters()));
 
     if (this.lintingIssues && this.lintingIssues.length > 0) {
       isInvalid = true;
@@ -471,7 +483,7 @@ export class AdminFilterConfigComponent implements OnInit {
       configString = JSON.stringify(configString, null, '    ');
     }
 
-    this.configSettingInvalid = this.isConfigSettingInvalid(configString);
+    this.configSettingInvalid.set(this.isConfigSettingInvalid(configString));
 
     setTimeout(() => {
       this.filterConfigNew = configString;

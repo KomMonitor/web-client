@@ -13,8 +13,8 @@
   <div align="center">
     <div
       class="loading-overlay-admin-panel"
-      [class.ng-hide]="!loadingData"
-      [style.display]="loadingData ? 'block' : 'none'"
+      [class.ng-hide]="!loadingData()"
+      [style.display]="loadingData() ? 'block' : 'none'"
     >
       <i class="fas fa-spinner fa-spin fa-2x"></i>
     </div>
@@ -271,14 +271,14 @@
       spatialUnitLevelInvalid ||
       metadataForm.invalid ||
       hierarchyInvalid ||
-      loadingData
+      loadingData()
     "
     (click)="onSubmit()"
   >
-    @if (!loadingData) {
+    @if (!loadingData()) {
       <span>Metadaten aktualisieren</span>
     }
-    @if (loadingData) {
+    @if (loadingData()) {
       <span>Aktualisiere...</span>
     }
   </button>
@@ -290,7 +290,7 @@
 <div
   id="spatialUnitEditMetadataImportErrorAlert"
   style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!spatialUnitMetadataImportError"
+  [hidden]="!spatialUnitMetadataImportError()"
   class="alert alert-danger alert-dismissable"
 >
   <button type="button" class="close" (click)="hideMetadataErrorAlert()" aria-hidden="true">
@@ -299,7 +299,7 @@
   <h4><i class="icon fa fa-ban"></i>Metadata Import gescheitert</h4>
   Beim Import der Metadaten aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
   <br />
-  <pre>{{ spatialUnitMetadataImportError }}</pre>
+  <pre>{{ spatialUnitMetadataImportError() }}</pre>
   <br />
   <br />
   <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>

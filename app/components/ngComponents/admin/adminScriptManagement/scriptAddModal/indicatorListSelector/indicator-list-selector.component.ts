@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 
@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './indicator-list-selector.component.html',
   standalone: true,
   imports: [FormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IndicatorListSelectorComponent {
   @Input() availableIndicators: any[] = [];

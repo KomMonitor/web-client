@@ -28,7 +28,7 @@
       <i class="fas fa-plus"></i> Erstellen
     </button>
     <button
-      [disabled]="!accessControlService.checkCreatePermission() || selectedRows.length === 0"
+      [disabled]="!accessControlService.checkCreatePermission() || selectedRows().length === 0"
       class="btn btn-danger btn-sm"
       type="button"
       (click)="openDeleteModal()"
@@ -73,14 +73,14 @@
           (Beim Neuanlegen von Usern müssen diese direkt einer oder mehrerer Gruppen zugeteilt
           werden)
         </p>
-        <app-loading-overlay [loading]="loadingData">
+        <app-loading-overlay [loading]="loadingData()">
           <ag-grid-angular
             #roleOverviewTable
             id="roleOverviewTable"
             style="height: 70vh"
             class="ag-theme-alpine"
             [columnDefs]="columnDefs"
-            [rowData]="rowData"
+            [rowData]="rowData()"
             [defaultColDef]="defaultColDef"
             [gridOptions]="gridOptions"
             [pagination]="true"

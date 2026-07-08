@@ -1,11 +1,13 @@
 import {
+  ChangeDetectionStrategy,
   Component,
-  OnInit,
-  ViewChild,
   ElementRef,
-  inject,
-  Output,
   EventEmitter,
+  OnInit,
+  Output,
+  ViewChild,
+  inject,
+  signal,
 } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
@@ -28,6 +30,7 @@ import { IndicatorMetadataStoreService } from '../../../../../services/indicator
   styleUrls: ['./indicator-edit-metadata-modal.component.scss'],
   imports: [FormsModule, FilterPipe],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IndicatorEditMetadataModalComponent implements OnInit {
   protected activeModal = inject(NgbActiveModal);
@@ -112,11 +115,13 @@ export class IndicatorEditMetadataModalComponent implements OnInit {
   regionalReferenceValuesManagementTableOptions: any = null;
 
   // Messages
-  successMessagePart = '';
-  errorMessagePart = '';
+  // Signals: written from the PATCH subscription (OnPush).
+  successMessagePart = signal('');
+  errorMessagePart = signal('');
 
   // Loading state
-  loadingData = false;
+  // Signal: toggled from the PATCH subscription (OnPush).
+  loadingData = signal(false);
 
   // Color brewer
   colorbreweSchemeName_dynamicIncrease =
@@ -292,8 +297,8 @@ export class IndicatorEditMetadataModalComponent implements OnInit {
   }
 
   resetIndicatorEditMetadataForm(): void {
-    this.successMessagePart = '';
-    this.errorMessagePart = '';
+    this.successMessagePart.set('');
+    this.errorMessagePart.set('');
 
     if (!this.currentIndicatorDataset) {
       // Guard against being opened without a dataset (e.g. a stale grid row);
@@ -505,8 +510,8 @@ export class IndicatorEditMetadataModalComponent implements OnInit {
       }
     }
 
-    this.successMessagePart = '';
-    this.errorMessagePart = '';
+    this.successMessagePart.set('');
+    this.errorMessagePart.set('');
   }
 
   onClickColorBrewerEntry(colorPaletteEntry: any): void {
@@ -756,7 +761,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit {
   editIndicatorMetadata(): void {
     const patchBody = this.buildPatchBody_indicators();
 
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     this.http
       .patch(
@@ -767,26 +772,26 @@ export class IndicatorEditMetadataModalComponent implements OnInit {
       )
       .subscribe({
         next: (_response: any) => {
-          this.successMessagePart = this.datasetName;
+          this.successMessagePart.set(this.datasetName);
           this.refreshRequested.emit({
             crudType: 'edit',
             targetIndicatorId: this.currentIndicatorDataset.indicatorId,
           });
-          this.loadingData = false;
+          this.loadingData.set(false);
         },
         error: (error: any) => {
           console.error('Error while updating indicator metadata.');
-          this.errorMessagePart = this.indicatorValueService.formatError(error);
-          this.loadingData = false;
+          this.errorMessagePart.set(this.indicatorValueService.formatError(error));
+          this.loadingData.set(false);
         },
       });
   }
 
   hideSuccessAlert(): void {
-    this.successMessagePart = '';
+    this.successMessagePart.set('');
   }
 
   hideErrorAlert(): void {
-    this.errorMessagePart = '';
+    this.errorMessagePart.set('');
   }
 }

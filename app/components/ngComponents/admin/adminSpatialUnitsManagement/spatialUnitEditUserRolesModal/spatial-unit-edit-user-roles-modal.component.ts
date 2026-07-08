@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Output, ViewChild, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Output,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
@@ -24,6 +32,7 @@ import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManageme
     OwnerOrganizationSelectComponent,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpatialUnitEditUserRolesModalComponent {
   activeModal = inject(NgbActiveModal);
@@ -52,7 +61,9 @@ export class SpatialUnitEditUserRolesModalComponent {
   /** Target owner selected in step 2; empty keeps the current owner. */
   ownerOrganization: string = '';
 
-  loadingData: boolean = false;
+  // Signal: toggled across await boundaries, which would not re-render an
+  // OnPush component via plain fields.
+  loadingData = signal(false);
   readonly stepper = new WizardStepper([
     { key: 'roles', label: 'Zugriffsschutz' },
     { key: 'ownership', label: 'Eigentümerschaft' },
@@ -111,7 +122,7 @@ export class SpatialUnitEditUserRolesModalComponent {
     const dataset = this.currentSpatialUnitDataset;
     if (!dataset) return false;
     try {
-      this.loadingData = true;
+      this.loadingData.set(true);
 
       const putBody = {
         permissions: this.roleGrid?.getSelectedRoleIds() ?? [],
@@ -140,7 +151,7 @@ export class SpatialUnitEditUserRolesModalComponent {
       );
       return false;
     } finally {
-      this.loadingData = false;
+      this.loadingData.set(false);
     }
   }
 
@@ -148,7 +159,7 @@ export class SpatialUnitEditUserRolesModalComponent {
     const dataset = this.currentSpatialUnitDataset;
     if (!dataset) return false;
     try {
-      this.loadingData = true;
+      this.loadingData.set(true);
 
       const putBody = {
         ownerId: this.ownerOrganization || dataset.ownerId,
@@ -173,7 +184,7 @@ export class SpatialUnitEditUserRolesModalComponent {
       );
       return false;
     } finally {
-      this.loadingData = false;
+      this.loadingData.set(false);
     }
   }
 

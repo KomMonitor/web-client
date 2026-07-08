@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, Output, TemplateRef } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  TemplateRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -7,6 +14,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./script-definition-wrapper.component.scss'],
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScriptDefinitionWrapperComponent {
   @Input({ required: true }) title!: string;

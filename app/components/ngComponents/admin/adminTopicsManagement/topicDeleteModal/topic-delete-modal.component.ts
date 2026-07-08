@@ -1,4 +1,12 @@
-import { Component, DestroyRef, OnInit, Input, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  Input,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AdminTopicsManagementService } from '../admin-topics-management.service';
 import { Topic } from '../topic.model';
@@ -16,6 +24,7 @@ import { NotificationService } from 'components/ngComponents/common/notification
   styleUrls: ['./topic-delete-modal.component.scss'],
   imports: [LoadingOverlayComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TopicDeleteModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
@@ -27,7 +36,8 @@ export class TopicDeleteModalComponent implements OnInit {
 
   @Input() currentTopic?: Topic;
   topicToDeletePrettyPrint: SafeHtml | string = '';
-  loadingData = false;
+  // Signal: toggled from the delete subscription (OnPush).
+  loadingData = signal(false);
 
   ngOnInit() {
     if (this.currentTopic) {
@@ -41,14 +51,14 @@ export class TopicDeleteModalComponent implements OnInit {
     if (!topicId) {
       return;
     }
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     this.srvc
       .deleteTopic(topicId)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => {
-          this.loadingData = false;
+          this.loadingData.set(false);
         })
       )
       .subscribe({

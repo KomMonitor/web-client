@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   EventEmitter,
   OnDestroy,
@@ -6,6 +7,7 @@ import {
   Output,
   ViewChild,
   inject,
+  signal,
 } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
@@ -33,6 +35,7 @@ import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManageme
     OwnerOrganizationSelectComponent,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy {
   activeModal = inject(NgbActiveModal);
@@ -52,7 +55,8 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     { key: 'ownership', label: 'Eigentümerschaft' },
   ]);
 
-  loadingData = false;
+  // Signal: toggled across await boundaries (OnPush).
+  loadingData = signal(false);
 
   // Current dataset being edited
   private _currentGeoresourceDataset: any;
@@ -142,7 +146,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     const dataset = this.currentGeoresourceDataset;
     if (!dataset) return false;
     try {
-      this.loadingData = true;
+      this.loadingData.set(true);
 
       const putBody = {
         permissions: this.roleGrid?.getSelectedRoleIds() ?? [],
@@ -171,7 +175,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
       );
       return false;
     } finally {
-      this.loadingData = false;
+      this.loadingData.set(false);
     }
   }
 
@@ -179,7 +183,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     const dataset = this.currentGeoresourceDataset;
     if (!dataset) return false;
     try {
-      this.loadingData = true;
+      this.loadingData.set(true);
 
       const putBody = {
         ownerId: this.ownerOrganization || dataset.ownerId,
@@ -204,7 +208,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
       );
       return false;
     } finally {
-      this.loadingData = false;
+      this.loadingData.set(false);
     }
   }
 

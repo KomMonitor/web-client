@@ -6,7 +6,7 @@
 </div>
 
 <div class="modal-body">
-  <app-loading-overlay [loading]="loadingData">
+  <app-loading-overlay [loading]="loadingData()">
     <h4><b>Sollen die folgenden Georessourcen wirklich gelöscht werden?</b></h4>
 
     @if (datasetsToDelete.length === 0) {
@@ -156,7 +156,7 @@ kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert wer
           </tr>
         </thead>
         <tbody>
-          @for (datasetError of failedDatasetsAndErrors; track datasetError) {
+          @for (datasetError of failedDatasetsAndErrors(); track datasetError) {
             <tr>
               <td>{{ datasetError[0].datasetName }}</td>
               <td [innerHTML]="datasetError[1]"></td>

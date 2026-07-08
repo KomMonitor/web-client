@@ -22,7 +22,7 @@
     <div class="col-md-12 col-sm-12 col-12">
       <div class="form-group">
         <label>Vorschaufenster des Skript-Codes*</label>
-        @if (rawScriptCode) {
+        @if (rawScriptCode()) {
           <div #scriptCodeMirrorContainer></div>
         }
       </div>
@@ -30,7 +30,7 @@
   </div>
 </expandable-box>
 
-@if (showScriptCodeErrorAlert) {
+@if (showScriptCodeErrorAlert()) {
   <div
     style="position: absolute; bottom: 0px; width: 100%"
     class="alert alert-danger alert-dismissable"
@@ -41,7 +41,7 @@
     <h4><i class="icon fa fa-ban"></i> Script Code Import gescheitert</h4>
     Beim Import des Script Codes aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
     <br />
-    <pre>{{ indicatorScriptCodeImportError }}</pre>
+    <pre>{{ indicatorScriptCodeImportError() }}</pre>
     <br /><br />
     <p>
       Bitte stellen Sie sicher, dass das

@@ -1,4 +1,12 @@
-import { Component, inject, NgZone, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { WmsSharedComponentsService } from 'components/ngComponents/admin/adminShared/wms-admin-table/wms-admin-tables-shared.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
@@ -40,6 +48,7 @@ import { IndicatorEditIndicatorSpatialUnitRolesModalComponent } from './indicato
     NgbDropdownModule,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   private zone = inject(NgZone);
@@ -54,9 +63,10 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   public tableViewSwitcher: boolean = false;
 
-  // AG Grid properties
-  public columnDefs: ColDef[] = [];
-  public rowData: any[] = [];
+  // AG Grid properties — signals: reassigned from store/fetch callbacks and
+  // bus subscriptions, which would not re-render this OnPush component otherwise.
+  public columnDefs = signal<ColDef[]>([]);
+  public rowData = signal<any[]>([]);
   public gridOptions: GridOptions = {};
   public selectedRows: any[] = [];
 
@@ -144,9 +154,12 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     // assigning them is enough — the grid reacts on its own. An empty array
     // simply renders an empty grid.
     const indicators = this.getFilteredIndicators();
-    this.columnDefs =
-      this.kommonitorDataGridHelperService.buildDataGridColumnConfig_indicators(indicators);
-    this.rowData = this.kommonitorDataGridHelperService.buildDataGridRowData_indicators(indicators);
+    this.columnDefs.set(
+      this.kommonitorDataGridHelperService.buildDataGridColumnConfig_indicators(indicators)
+    );
+    this.rowData.set(
+      this.kommonitorDataGridHelperService.buildDataGridRowData_indicators(indicators)
+    );
   }
 
   private setupGridOptions(): void {

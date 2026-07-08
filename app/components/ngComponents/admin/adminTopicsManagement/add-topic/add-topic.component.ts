@@ -1,4 +1,10 @@
-import { Component, Input, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  inject,
+} from '@angular/core';
 import { AdminTopicsManagementService } from '../admin-topics-management.service';
 import { AdminTopicsManagementErrorHandlingService } from '../admin-topics-management.component';
 import { Topic, TopicResourceType } from '../topic.model';
@@ -12,11 +18,13 @@ import { IndicatorValueService } from '../../../../../services/indicator-value-s
   styleUrls: ['./add-topic.component.scss'],
   imports: [FormsModule],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddTopicComponent {
   private srvc = inject(AdminTopicsManagementService);
   private errorHandlingService = inject(AdminTopicsManagementErrorHandlingService);
   private indicatorValueService = inject(IndicatorValueService);
+  private cdr = inject(ChangeDetectorRef);
 
   @Input({ required: true }) topicResourceType!: TopicResourceType;
   @Input() topicType: 'main' | 'sub' = 'main';
@@ -39,6 +47,8 @@ export class AddTopicComponent {
         next: () => {
           this.newTopicDescription = '';
           this.newTopicTitle = '';
+          // ngModel fields reset in an async callback (OnPush).
+          this.cdr.markForCheck();
         },
         error: (error) => {
           // HttpErrorResponse carries the backend payload in .error; a thrown Error has .message.

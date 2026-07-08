@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit, inject, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -14,6 +14,7 @@ import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-
   styleUrls: ['./role-edit-metadata-modal.component.scss'],
   imports: [FormsModule, LoadingOverlayComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoleEditMetadataModalComponent implements OnInit {
   private activeModal = inject(NgbActiveModal);
@@ -23,15 +24,16 @@ export class RoleEditMetadataModalComponent implements OnInit {
 
   @Input() currentDataset!: AccessControlMetadata;
 
-  loadingData: boolean = false;
+  // Signals: written from the save subscription (OnPush).
+  loadingData = signal(false);
   nameInvalid: boolean = false;
   oldName: string = '';
 
   successMessagePart: string | undefined;
-  errorMessagePart: string | undefined;
-  keycloakErrorMessagePart: string | undefined;
-  showErrorAlert: boolean = false;
-  showKeycloakErrorAlert: boolean = false;
+  errorMessagePart = signal<string | undefined>(undefined);
+  keycloakErrorMessagePart = signal<string | undefined>(undefined);
+  showErrorAlert = signal(false);
+  showKeycloakErrorAlert = signal(false);
 
   ngOnInit(): void {
     this.oldName = this.currentDataset.name;
@@ -40,10 +42,10 @@ export class RoleEditMetadataModalComponent implements OnInit {
 
   resetAlerts(): void {
     this.successMessagePart = undefined;
-    this.errorMessagePart = undefined;
-    this.keycloakErrorMessagePart = undefined;
-    this.showErrorAlert = false;
-    this.showKeycloakErrorAlert = false;
+    this.errorMessagePart.set(undefined);
+    this.keycloakErrorMessagePart.set(undefined);
+    this.showErrorAlert.set(false);
+    this.showKeycloakErrorAlert.set(false);
   }
 
   checkName(): void {
@@ -62,7 +64,7 @@ export class RoleEditMetadataModalComponent implements OnInit {
     if (this.nameInvalid) return;
 
     this.resetAlerts();
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     this.adminRoleManagementService
       .editOrganizationalUnit(this.currentDataset, this.oldName)
@@ -74,20 +76,20 @@ export class RoleEditMetadataModalComponent implements OnInit {
           );
 
           if (res.keycloakErrorMessagePart) {
-            this.keycloakErrorMessagePart = res.keycloakErrorMessagePart;
-            this.showKeycloakErrorAlert = true;
+            this.keycloakErrorMessagePart.set(res.keycloakErrorMessagePart);
+            this.showKeycloakErrorAlert.set(true);
           } else {
             this.notificationSrvc.showSuccess(
               `Keycloak-Rollen für '${this.successMessagePart}' erfolgreich aktualisiert.`
             );
           }
 
-          this.loadingData = false;
+          this.loadingData.set(false);
           this.activeModal.close(true);
         } else {
-          this.errorMessagePart = res.errorMessagePart;
-          this.showErrorAlert = true;
-          this.loadingData = false;
+          this.errorMessagePart.set(res.errorMessagePart);
+          this.showErrorAlert.set(true);
+          this.loadingData.set(false);
         }
       });
   }

@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  inject,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
@@ -22,6 +29,7 @@ import { collectCreatorRightOrganizations } from './role-management-panel.model'
   templateUrl: './owner-organization-select.component.html',
   imports: [FormsModule],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OwnerOrganizationSelectComponent {
   private accessControlService = inject(AccessControlService);

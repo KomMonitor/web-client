@@ -30,8 +30,8 @@
       #agGrid
       style="height: 70vh"
       class="ag-theme-alpine"
-      [columnDefs]="columnDefs"
-      [rowData]="rowData"
+      [columnDefs]="columnDefs()"
+      [rowData]="rowData()"
       [gridOptions]="gridOptions"
       [defaultColDef]="gridOptions.defaultColDef"
       [pagination]="true"
@@ -91,7 +91,7 @@
           <br />
           <textarea id="filterConfigEditor"></textarea>
         </div>
-        @if (configSettingInvalid) {
+        @if (configSettingInvalid()) {
           <div class="help-block with-errors">
             Bitte beachten Sie, dass alle notwendigen Parameter gem&auml;&szlig; der obigen Vorlage
             definiert werden m&uuml;ssen. Beachten Sie daher die vorgegebene JSON-Struktur. Der Text
@@ -99,9 +99,9 @@
             JSON geparsed werden kann.
           </div>
         }
-        @if (missingRequiredParameters && missingRequiredParameters.length > 0) {
+        @if (missingRequiredParameters().length > 0) {
           <div class="help-block with-errors">
-            Fehlende Parameter: {{ missingRequiredParameters_string }}
+            Fehlende Parameter: {{ missingRequiredParameters_string() }}
           </div>
         }
       </div>
@@ -132,7 +132,7 @@
           <button
             type="button"
             class="btn btn-success vertical-align horizontal-align"
-            ng-disabled="configSettingInvalid"
+            ng-disabled="configSettingInvalid()"
             (click)="editFilterConfig()"
           >
             Filter-Konfiguration speichern

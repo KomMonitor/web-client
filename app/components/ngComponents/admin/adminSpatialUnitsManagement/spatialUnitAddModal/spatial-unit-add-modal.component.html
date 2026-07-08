@@ -5,7 +5,7 @@
 
 <div class="modal-body">
   <div align="center">
-    @if (loadingData) {
+    @if (loadingData()) {
       <div class="loading-overlay-admin-panel">
         <i class="fas fa-spinner fa-spin fa-2x"></i>
       </div>
@@ -922,12 +922,14 @@
 </div>
 
 <!-- Importer errors: affected feature IDs (modal stays open on import failure) -->
-@if (importerErrors.length > 0) {
+@if (importerErrors().length > 0) {
   <div id="spatialUnitAddImporterErrors" class="alert alert-danger">
     <h4><i class="icon fa fa-ban"></i>Import gescheitert</h4>
-    <p>Bei den {{ importerErrors.length }} Raumeinheiten mit folgenden IDs scheitert der Import:</p>
+    <p>
+      Bei den {{ importerErrors().length }} Raumeinheiten mit folgenden IDs scheitert der Import:
+    </p>
     <ul style="overflow: auto; max-height: 500px">
-      @for (error of importerErrors; track error) {
+      @for (error of importerErrors(); track error) {
         <li>{{ error }}</li>
       }
     </ul>
@@ -936,7 +938,7 @@
 }
 
 <!-- Metadata Import Error Alert -->
-@if (spatialUnitMetadataImportError) {
+@if (spatialUnitMetadataImportError()) {
   <div
     id="spatialUnitMetadataImportErrorAlert"
     style="position: absolute; bottom: 0px; width: 100%"
@@ -948,7 +950,7 @@
     <h4><i class="icon fa fa-ban"></i>Metadata Import gescheitert</h4>
     Beim Import der Metadaten aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
     <br />
-    <pre>{{ spatialUnitMetadataImportError }}</pre>
+    <pre>{{ spatialUnitMetadataImportError() }}</pre>
     <br />
     <br />
     <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
@@ -961,7 +963,7 @@
 }
 
 <!-- Mapping Config Import Error Alert -->
-@if (spatialUnitMappingConfigImportError) {
+@if (spatialUnitMappingConfigImportError()) {
   <div
     id="spatialUnitMappingConfigImportErrorAlert"
     style="position: absolute; bottom: 0px; width: 100%"
@@ -973,7 +975,7 @@
     <h4><i class="icon fa fa-ban"></i>Mapping-Konfiguration Import gescheitert</h4>
     Beim Import der Mapping-Konfiguration aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
     <br />
-    <pre [innerHTML]="spatialUnitMappingConfigImportError"></pre>
+    <pre [innerHTML]="spatialUnitMappingConfigImportError()"></pre>
     <br />
     <br />
     <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>

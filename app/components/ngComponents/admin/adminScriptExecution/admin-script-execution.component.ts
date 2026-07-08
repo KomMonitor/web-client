@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
@@ -30,6 +30,7 @@ import { LoadingOverlayComponent } from '../../common/loading-overlay/loading-ov
     AgGridAngular,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminScriptExecutionComponent implements OnInit {
   private scriptExecutionService = inject(AdminScriptExecutionService);
@@ -37,13 +38,14 @@ export class AdminScriptExecutionComponent implements OnInit {
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
 
-  protected defaultIndicatorJobHealth: IndicatorJobHealth | undefined;
-  protected customizedIndicatorJobHealth: IndicatorJobHealth | undefined;
-  protected errorOccurred = false;
-  protected defaultIndicatorJobs: IndicatorJob[] | undefined;
-  protected customizedIndicatorJobs: IndicatorJob[] | undefined;
+  // Signals: all filled from the forkJoin subscription (OnPush).
+  protected defaultIndicatorJobHealth = signal<IndicatorJobHealth | undefined>(undefined);
+  protected customizedIndicatorJobHealth = signal<IndicatorJobHealth | undefined>(undefined);
+  protected errorOccurred = signal(false);
+  protected defaultIndicatorJobs = signal<IndicatorJob[] | undefined>(undefined);
+  protected customizedIndicatorJobs = signal<IndicatorJob[] | undefined>(undefined);
 
-  protected loadingData = true;
+  protected loadingData = signal(true);
 
   public columnDefs: ColDef[] = [
     {
@@ -133,8 +135,8 @@ export class AdminScriptExecutionComponent implements OnInit {
   }
 
   loadData() {
-    this.loadingData = true;
-    this.errorOccurred = false;
+    this.loadingData.set(true);
+    this.errorOccurred.set(false);
 
     const defaultHealth$ = this.scriptExecutionService.getDefaultIndicatorJobHealth();
     const customizedHealth$ = this.scriptExecutionService.getCustomizedIndicatorJobHealth();
@@ -147,23 +149,27 @@ export class AdminScriptExecutionComponent implements OnInit {
       defaultJobs: defaultJobs$,
       customizedJobs: customizedJobs$,
     })
-      .pipe(finalize(() => (this.loadingData = false)))
+      .pipe(finalize(() => this.loadingData.set(false)))
       .subscribe({
         next: (result) => {
-          this.defaultIndicatorJobHealth = result.defaultHealth;
-          this.customizedIndicatorJobHealth = result.customizedHealth;
+          this.defaultIndicatorJobHealth.set(result.defaultHealth);
+          this.customizedIndicatorJobHealth.set(result.customizedHealth);
 
-          this.defaultIndicatorJobs = (result.defaultJobs || []).sort(
-            (a, b) => Number.parseInt(b.jobId) - Number.parseInt(a.jobId)
+          this.defaultIndicatorJobs.set(
+            (result.defaultJobs || []).sort(
+              (a, b) => Number.parseInt(b.jobId) - Number.parseInt(a.jobId)
+            )
           );
 
-          this.customizedIndicatorJobs = (result.customizedJobs || []).sort(
-            (a, b) => Number.parseInt(b.jobId) - Number.parseInt(a.jobId)
+          this.customizedIndicatorJobs.set(
+            (result.customizedJobs || []).sort(
+              (a, b) => Number.parseInt(b.jobId) - Number.parseInt(a.jobId)
+            )
           );
         },
         error: (error) => {
           console.error('Error fetching job data:', error);
-          this.errorOccurred = true;
+          this.errorOccurred.set(true);
         },
       });
   }

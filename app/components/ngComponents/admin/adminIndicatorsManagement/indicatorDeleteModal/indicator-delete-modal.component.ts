@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, output, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
@@ -51,6 +51,7 @@ interface AffectedGeoresourceReference {
   styleUrls: ['./indicator-delete-modal.component.scss'],
   imports: [FormsModule],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IndicatorDeleteModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
@@ -97,21 +98,22 @@ export class IndicatorDeleteModalComponent implements OnInit {
   selectIndicatorSpatialUnitsInput: boolean = false;
   indicatorNameFilter: string = '';
 
-  loadingData: boolean = false;
+  // Signals: toggled/filled from HTTP subscribe callbacks and awaits (OnPush).
+  loadingData = signal(false);
 
-  successfullyDeletedDatasets: any[] = [];
-  successfullyDeletedTimestamps: ApplicableDate[] = [];
-  successfullyDeletedSpatialUnits: ApplicableSpatialUnit[] = [];
-  failedDatasetsAndErrors: [any, string][] = [];
-  failedTimestampsAndErrors: [ApplicableDate, string][] = [];
-  failedSpatialUnitsAndErrors: [ApplicableSpatialUnit, string][] = [];
+  successfullyDeletedDatasets = signal<any[]>([]);
+  successfullyDeletedTimestamps = signal<ApplicableDate[]>([]);
+  successfullyDeletedSpatialUnits = signal<ApplicableSpatialUnit[]>([]);
+  failedDatasetsAndErrors = signal<[any, string][]>([]);
+  failedTimestampsAndErrors = signal<[ApplicableDate, string][]>([]);
+  failedSpatialUnitsAndErrors = signal<[ApplicableSpatialUnit, string][]>([]);
 
   affectedScripts: AffectedScript[] = [];
   affectedIndicatorReferences: AffectedIndicatorReference[] = [];
   affectedGeoresourceReferences: AffectedGeoresourceReference[] = [];
 
-  showSuccessAlert: boolean = false;
-  showErrorAlert: boolean = false;
+  showSuccessAlert = signal(false);
+  showErrorAlert = signal(false);
 
   ngOnInit(): void {
     this.resetIndicatorsDeleteForm();
@@ -144,12 +146,12 @@ export class IndicatorDeleteModalComponent implements OnInit {
     if (this.selectedIndicatorDataset) {
       this.currentIndicatorId = this.selectedIndicatorDataset.indicatorId;
 
-      this.successfullyDeletedDatasets = [];
-      this.successfullyDeletedTimestamps = [];
-      this.successfullyDeletedSpatialUnits = [];
-      this.failedDatasetsAndErrors = [];
-      this.failedTimestampsAndErrors = [];
-      this.failedSpatialUnitsAndErrors = [];
+      this.successfullyDeletedDatasets.set([]);
+      this.successfullyDeletedTimestamps.set([]);
+      this.successfullyDeletedSpatialUnits.set([]);
+      this.failedDatasetsAndErrors.set([]);
+      this.failedTimestampsAndErrors.set([]);
+      this.failedSpatialUnitsAndErrors.set([]);
 
       this.currentApplicableDates = [];
       for (const timestamp of this.selectedIndicatorDataset.applicableDates ?? []) {
@@ -188,12 +190,12 @@ export class IndicatorDeleteModalComponent implements OnInit {
     this.selectIndicatorSpatialUnitsInput = false;
     this.indicatorDeleteType = this.indicatorDeleteTypes[0];
 
-    this.successfullyDeletedDatasets = [];
-    this.successfullyDeletedTimestamps = [];
-    this.successfullyDeletedSpatialUnits = [];
-    this.failedDatasetsAndErrors = [];
-    this.failedTimestampsAndErrors = [];
-    this.failedSpatialUnitsAndErrors = [];
+    this.successfullyDeletedDatasets.set([]);
+    this.successfullyDeletedTimestamps.set([]);
+    this.successfullyDeletedSpatialUnits.set([]);
+    this.failedDatasetsAndErrors.set([]);
+    this.failedTimestampsAndErrors.set([]);
+    this.failedSpatialUnitsAndErrors.set([]);
     this.affectedScripts = [];
     this.affectedIndicatorReferences = [];
     this.affectedGeoresourceReferences = [];
@@ -266,14 +268,14 @@ export class IndicatorDeleteModalComponent implements OnInit {
   }
 
   deleteIndicatorData(): void {
-    this.loadingData = true;
+    this.loadingData.set(true);
 
-    this.successfullyDeletedDatasets = [];
-    this.successfullyDeletedTimestamps = [];
-    this.successfullyDeletedSpatialUnits = [];
-    this.failedDatasetsAndErrors = [];
-    this.failedTimestampsAndErrors = [];
-    this.failedSpatialUnitsAndErrors = [];
+    this.successfullyDeletedDatasets.set([]);
+    this.successfullyDeletedTimestamps.set([]);
+    this.successfullyDeletedSpatialUnits.set([]);
+    this.failedDatasetsAndErrors.set([]);
+    this.failedTimestampsAndErrors.set([]);
+    this.failedSpatialUnitsAndErrors.set([]);
 
     // Depending on deleteType we must execute different DELETE requests
     if (this.indicatorDeleteType.apiName === 'indicatorDataset') {
@@ -293,7 +295,7 @@ export class IndicatorDeleteModalComponent implements OnInit {
 
     this.http.delete(url).subscribe({
       next: (_response) => {
-        this.successfullyDeletedDatasets.push(this.selectedIndicatorDataset);
+        this.successfullyDeletedDatasets.update((list) => [...list, this.selectedIndicatorDataset]);
 
         // Fetch indicator metadata again as an indicator was deleted
         this.refreshRequested.emit({
@@ -301,20 +303,20 @@ export class IndicatorDeleteModalComponent implements OnInit {
           targetIndicatorId: this.currentIndicatorId,
         });
 
-        this.showSuccessAlert = true;
+        this.showSuccessAlert.set(true);
 
         setTimeout(() => {
-          this.loadingData = false;
+          this.loadingData.set(false);
         });
       },
       error: (error) => {
-        this.failedDatasetsAndErrors.push([
-          this.selectedIndicatorDataset,
-          this.indicatorValueService.formatError(error),
+        this.failedDatasetsAndErrors.update((list) => [
+          ...list,
+          [this.selectedIndicatorDataset, this.indicatorValueService.formatError(error)],
         ]);
 
-        this.showErrorAlert = true;
-        this.loadingData = false;
+        this.showErrorAlert.set(true);
+        this.loadingData.set(false);
       },
     });
   }
@@ -332,14 +334,14 @@ export class IndicatorDeleteModalComponent implements OnInit {
       }
     }
 
-    if (this.failedTimestampsAndErrors.length > 0) {
+    if (this.failedTimestampsAndErrors().length > 0) {
       // Error handling
-      this.showErrorAlert = true;
-      this.loadingData = false;
+      this.showErrorAlert.set(true);
+      this.loadingData.set(false);
     }
 
-    if (this.successfullyDeletedTimestamps.length > 0) {
-      this.showSuccessAlert = true;
+    if (this.successfullyDeletedTimestamps().length > 0) {
+      this.showSuccessAlert.set(true);
 
       // Refresh overview table
       this.refreshRequested.emit({
@@ -347,7 +349,7 @@ export class IndicatorDeleteModalComponent implements OnInit {
         targetIndicatorId: this.currentIndicatorId,
       });
 
-      this.loadingData = false;
+      this.loadingData.set(false);
     }
   }
 
@@ -359,14 +361,14 @@ export class IndicatorDeleteModalComponent implements OnInit {
       }
     }
 
-    if (this.failedSpatialUnitsAndErrors.length > 0) {
+    if (this.failedSpatialUnitsAndErrors().length > 0) {
       // Error handling
-      this.showErrorAlert = true;
-      this.loadingData = false;
+      this.showErrorAlert.set(true);
+      this.loadingData.set(false);
     }
 
-    if (this.successfullyDeletedSpatialUnits.length > 0) {
-      this.showSuccessAlert = true;
+    if (this.successfullyDeletedSpatialUnits().length > 0) {
+      this.showSuccessAlert.set(true);
 
       // Fetch indicator metadata again as an indicator was modified
       await this.metadataBootstrap.fetchIndicatorsMetadata(
@@ -379,7 +381,7 @@ export class IndicatorDeleteModalComponent implements OnInit {
         targetIndicatorId: this.currentIndicatorId,
       });
 
-      this.loadingData = false;
+      this.loadingData.set(false);
     }
   }
 
@@ -394,14 +396,14 @@ export class IndicatorDeleteModalComponent implements OnInit {
 
     return firstValueFrom(this.http.delete(url)).then(
       () => {
-        if (!this.successfullyDeletedTimestamps.includes(applicableDate)) {
-          this.successfullyDeletedTimestamps.push(applicableDate);
+        if (!this.successfullyDeletedTimestamps().includes(applicableDate)) {
+          this.successfullyDeletedTimestamps.update((list) => [...list, applicableDate]);
         }
       },
       (error) => {
-        this.failedTimestampsAndErrors.push([
-          applicableDate,
-          this.indicatorValueService.formatError(error),
+        this.failedTimestampsAndErrors.update((list) => [
+          ...list,
+          [applicableDate, this.indicatorValueService.formatError(error)],
         ]);
       }
     );
@@ -412,25 +414,25 @@ export class IndicatorDeleteModalComponent implements OnInit {
 
     return firstValueFrom(this.http.delete(url)).then(
       () => {
-        if (!this.successfullyDeletedSpatialUnits.includes(applicableSpatialUnit)) {
-          this.successfullyDeletedSpatialUnits.push(applicableSpatialUnit);
+        if (!this.successfullyDeletedSpatialUnits().includes(applicableSpatialUnit)) {
+          this.successfullyDeletedSpatialUnits.update((list) => [...list, applicableSpatialUnit]);
         }
       },
       (error) => {
-        this.failedSpatialUnitsAndErrors.push([
-          applicableSpatialUnit,
-          this.indicatorValueService.formatError(error),
+        this.failedSpatialUnitsAndErrors.update((list) => [
+          ...list,
+          [applicableSpatialUnit, this.indicatorValueService.formatError(error)],
         ]);
       }
     );
   }
 
   hideSuccessAlert(): void {
-    this.showSuccessAlert = false;
+    this.showSuccessAlert.set(false);
   }
 
   hideErrorAlert(): void {
-    this.showErrorAlert = false;
+    this.showErrorAlert.set(false);
   }
 
   getIndicatorsWithPermission(): any[] {

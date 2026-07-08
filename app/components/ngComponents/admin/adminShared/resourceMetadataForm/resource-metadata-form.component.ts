@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { KmDatePickerComponent } from '../../../customElements/date-picker/km-date-picker.component';
 import { ResourceMetadataFormGroup, UpdateIntervalOption } from './resource-metadata-form.model';
@@ -14,6 +14,7 @@ import { ResourceMetadataFormGroup, UpdateIntervalOption } from './resource-meta
   standalone: true,
   imports: [ReactiveFormsModule, KmDatePickerComponent],
   templateUrl: './resource-metadata-form.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResourceMetadataFormComponent {
   @Input({ required: true }) form!: ResourceMetadataFormGroup;

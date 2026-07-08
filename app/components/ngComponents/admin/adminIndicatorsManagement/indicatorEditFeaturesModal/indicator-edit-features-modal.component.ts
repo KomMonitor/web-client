@@ -1,13 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   ElementRef,
   EventEmitter,
-  inject,
   OnInit,
   Output,
   ViewChild,
+  inject,
+  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
@@ -43,11 +46,13 @@ declare const $: any;
   styleUrls: ['./indicator-edit-features-modal.component.scss'],
   imports: [FormsModule, FilterPipe, AgGridAngular, StepperComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IndicatorEditFeaturesModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   private broadcastService = inject(BroadcastService);
   private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
   private http = inject(HttpClient);
   private cacheHelperService = inject(CacheHelperServiceService);
   private accessControlService = inject(AccessControlService);
@@ -110,7 +115,8 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   importerErrors: any[] = [];
 
   // Loading states
-  loadingData: boolean = false;
+  // Signal: toggled from subscriptions, awaits and grid-helper events (OnPush).
+  loadingData = signal(false);
 
   // Imported features
   importedFeatures: any[] = [];
@@ -140,6 +146,8 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
           );
         }
       }
+      // Bus callbacks swap template-bound fields on this OnPush view.
+      this.cdr.markForCheck();
     });
 
     // React to feature-table loading/delete events from the shared grid helper.
@@ -150,9 +158,9 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       )
       .subscribe((event) => {
         if (event.type === 'loadingStart') {
-          this.loadingData = true;
+          this.loadingData.set(true);
         } else if (event.type === 'loadingEnd') {
-          this.loadingData = false;
+          this.loadingData.set(false);
         } else if (event.type === 'featureDeleted') {
           this.refreshRequested.emit({
             crudType: 'edit',
@@ -245,7 +253,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       return;
     }
 
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     const url =
       this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
@@ -284,12 +292,14 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
             this.overviewTableTargetSpatialUnitMetadata.spatialUnitId
           );
 
-        this.loadingData = false;
+        this.loadingData.set(false);
+        // The grid options above were rebuilt in this async callback.
+        this.cdr.markForCheck();
       },
       error: (error: any) => {
         this.errorMessagePart = this.indicatorValueService.formatError(error);
         this.showErrorAlert();
-        this.loadingData = false;
+        this.loadingData.set(false);
       },
     });
   }
@@ -299,7 +309,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       return;
     }
 
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     const url =
       this.envConfigService.baseUrlToKomMonitorDataAPI +
@@ -328,12 +338,14 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
 
         this.successMessagePart = this.currentIndicatorDataset.indicatorName;
         this.showSuccessAlert();
-        this.loadingData = false;
+        this.loadingData.set(false);
+        // The grid options above were reset in this async callback.
+        this.cdr.markForCheck();
       },
       error: (error: any) => {
         this.errorMessagePart = this.indicatorValueService.formatError(error);
         this.showErrorAlert();
-        this.loadingData = false;
+        this.loadingData.set(false);
       },
     });
   }
@@ -481,7 +493,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     } catch (error: any) {
       this.errorMessagePart = this.indicatorValueService.formatError(error);
       this.showErrorAlert();
-      this.loadingData = false;
+      this.loadingData.set(false);
       return null;
     }
   }
@@ -496,7 +508,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   }
 
   async editIndicatorFeatures(): Promise<void> {
-    this.loadingData = true;
+    this.loadingData.set(true);
     this.importerErrors = [];
     this.successMessagePart = '';
     this.errorMessagePart = '';
@@ -510,7 +522,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       this.notificationService.showError(
         'Bitte füllen Sie alle Pflichtfelder des Import-Formulars aus.'
       );
-      this.loadingData = false;
+      this.loadingData.set(false);
       return;
     }
 
@@ -550,7 +562,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
           ) || [];
 
         this.showSuccessAlert();
-        this.loadingData = false;
+        this.loadingData.set(false);
       } else {
         // Errors occurred
         this.errorMessagePart =
@@ -561,13 +573,13 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
           ) || [];
 
         this.showErrorAlert();
-        this.loadingData = false;
+        this.loadingData.set(false);
       }
     } catch (error: any) {
       this.errorMessagePart = this.indicatorValueService.formatError(error);
 
       this.showErrorAlert();
-      this.loadingData = false;
+      this.loadingData.set(false);
     }
   }
 

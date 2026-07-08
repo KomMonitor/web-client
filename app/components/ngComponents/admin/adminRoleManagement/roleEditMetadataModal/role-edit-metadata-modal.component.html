@@ -10,17 +10,17 @@
 </div>
 
 <div class="modal-body">
-  <app-loading-overlay [loading]="loadingData" message="Speichere...">
-    @if (showErrorAlert) {
+  <app-loading-overlay [loading]="loadingData()" message="Speichere...">
+    @if (showErrorAlert()) {
       <div class="alert alert-danger" role="alert">
         Fehler beim Speichern:
-        <span [innerHTML]="errorMessagePart"></span>
+        <span [innerHTML]="errorMessagePart()"></span>
       </div>
     }
-    @if (showKeycloakErrorAlert) {
+    @if (showKeycloakErrorAlert()) {
       <div class="alert alert-danger" role="alert">
         Fehler beim Umbenennen der Keycloak-Rolle:
-        <span [innerHTML]="keycloakErrorMessagePart"></span>
+        <span [innerHTML]="keycloakErrorMessagePart()"></span>
       </div>
     }
 
@@ -91,7 +91,7 @@
   <button
     type="button"
     class="btn btn-success"
-    [disabled]="loadingData || nameInvalid"
+    [disabled]="loadingData() || nameInvalid"
     (click)="editMetadata()"
   >
     Metadaten aktualisieren

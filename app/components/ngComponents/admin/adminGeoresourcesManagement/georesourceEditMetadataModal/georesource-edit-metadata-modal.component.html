@@ -11,8 +11,8 @@
 
 <div class="modal-body">
   <div align="center">
-    @if (loadingData) {
-      <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData">
+    @if (loadingData()) {
+      <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData()">
         <i class="fas fa-spinner fa-spin fa-2x"></i>
       </div>
     }
@@ -485,7 +485,7 @@
 <!-- Update success/error feedback is shown via NotificationService toasts -->
 <div
   style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!importErrorAlertVisible"
+  [hidden]="!importErrorAlertVisible()"
   class="alert alert-danger alert-dismissable"
 >
   <button type="button" class="close" (click)="hideMetadataErrorAlert()" aria-hidden="true">
@@ -494,7 +494,7 @@
   <h4><i class="icon fa fa-ban"></i>Metadata Import gescheitert</h4>
   Beim Import der Metadaten aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
   <br />
-  <pre>{{ georesourceMetadataImportError }}</pre>
+  <pre>{{ georesourceMetadataImportError() }}</pre>
   <br />
   <br />
   <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>

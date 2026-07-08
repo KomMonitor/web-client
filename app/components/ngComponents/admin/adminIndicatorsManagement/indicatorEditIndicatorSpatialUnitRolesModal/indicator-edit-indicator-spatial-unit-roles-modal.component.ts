@@ -1,4 +1,13 @@
-import { Component, OnInit, inject, Output, EventEmitter, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  OnInit,
+  Output,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
@@ -26,6 +35,7 @@ import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManageme
     OwnerOrganizationSelectComponent,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnInit {
   @Output() refreshRequested = new EventEmitter<IndicatorRefreshRequest>();
@@ -41,7 +51,8 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   ownerOrganization: string = '';
 
   // Loading states
-  loadingData: boolean = false;
+  // Signal: toggled from the four permission/ownership PUT subscriptions (OnPush).
+  loadingData = signal(false);
 
   // Multi-step form
   readonly stepper = new WizardStepper([
@@ -118,7 +129,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   }
 
   executeRequest_indicatorMetadataRoles(): void {
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     const putBody = {
       permissions: this.metadataRoleGrid?.getSelectedRoleIds() ?? [],
@@ -140,20 +151,20 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
             targetIndicatorId: this.currentIndicatorDataset.indicatorId,
           });
           this.showSuccessAlert();
-          this.loadingData = false;
+          this.loadingData.set(false);
         },
         error: (error: any) => {
           this.errorMessagePart =
             'Fehler beim Aktualisieren der Metadaten-Zugriffsrechte. Fehler lautet: \n\n';
           this.errorMessagePart += this.indicatorValueService.formatError(error);
           this.showErrorAlert();
-          this.loadingData = false;
+          this.loadingData.set(false);
         },
       });
   }
 
   executeRequest_indicatorOwnership(): void {
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     const putBody = {
       ownerId: this.ownerOrganization || this.currentIndicatorDataset.ownerId,
@@ -174,20 +185,20 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
             targetIndicatorId: this.currentIndicatorDataset.indicatorId,
           });
           this.showSuccessAlert();
-          this.loadingData = false;
+          this.loadingData.set(false);
         },
         error: (error: any) => {
           this.errorMessagePart =
             'Fehler beim Aktualisieren der Metadaten-Eigentümerschaft. Fehler lautet: \n\n';
           this.errorMessagePart += this.indicatorValueService.formatError(error);
           this.showErrorAlert();
-          this.loadingData = false;
+          this.loadingData.set(false);
         },
       });
   }
 
   executeRequest_indicatorSpatialUnitOwnership(): void {
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     if (
       this.currentIndicatorDataset.applicableSpatialUnits &&
@@ -215,14 +226,14 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
                 targetIndicatorId: this.currentIndicatorDataset.indicatorId,
               });
               this.showSuccessAlert();
-              this.loadingData = false;
+              this.loadingData.set(false);
             },
             error: (error: any) => {
               this.errorMessagePart =
                 'Fehler beim Aktualisieren der Metadaten-Eigentümerschaft. Fehler lautet: \n\n';
               this.errorMessagePart += this.indicatorValueService.formatError(error);
               this.showErrorAlert();
-              this.loadingData = false;
+              this.loadingData.set(false);
             },
           });
       });
@@ -239,7 +250,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       isPublic: this.targetApplicableSpatialUnit.isPublic,
     };
 
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     this.http
       .put(
@@ -258,7 +269,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
             targetIndicatorId: this.currentIndicatorDataset.indicatorId,
           });
           this.showSuccessAlert();
-          this.loadingData = false;
+          this.loadingData.set(false);
         },
         error: (error: any) => {
           this.errorMessagePart =
@@ -267,7 +278,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
             '. Fehler lautet: \n\n';
           this.errorMessagePart += this.indicatorValueService.formatError(error);
           this.showErrorAlert();
-          this.loadingData = false;
+          this.loadingData.set(false);
         },
       });
   }

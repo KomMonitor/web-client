@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -24,6 +24,7 @@ import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-ste
   styleUrls: ['./wms-edit-modal.component.scss'],
   imports: [FormsModule, ReactiveFormsModule, AdminTopicsManagementComponent, StepperComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WmsEditModalComponent {
   activeModal = inject(NgbActiveModal);
@@ -42,12 +43,13 @@ export class WmsEditModalComponent {
   ]);
 
   isSubmitting = false;
-  errorMessage = false;
-  successMessage = false;
+  // Signals: toggled from async HTTP callbacks and read by the template (OnPush)
+  errorMessage = signal(false);
+  successMessage = signal(false);
   loadingData = false;
 
-  testErrorMessage = false;
-  testSuccessMessage = false;
+  testErrorMessage = signal(false);
+  testSuccessMessage = signal(false);
 
   wmsTestStatus: boolean | undefined = undefined;
 
@@ -75,8 +77,8 @@ export class WmsEditModalComponent {
 
   availableTopics!: any;
 
-  successMessagePart = '';
-  errorMessagePart = '';
+  successMessagePart = signal('');
+  errorMessagePart = signal('');
 
   constructor() {
     this.availableTopics = this.topicStore.availableTopics.filter(
@@ -163,12 +165,12 @@ export class WmsEditModalComponent {
 
     this.ogcService.updateWms(this.currentGeoresourceDataset.id, data).subscribe({
       next: (response) => {
-        this.successMessagePart = this.currentGeoresourceDataset.title;
-        this.successMessage = true;
+        this.successMessagePart.set(this.currentGeoresourceDataset.title);
+        this.successMessage.set(true);
       },
       error: (error) => {
-        this.errorMessagePart = error.message;
-        this.errorMessage = true;
+        this.errorMessagePart.set(error.message);
+        this.errorMessage.set(true);
       },
     });
   }
@@ -190,18 +192,18 @@ export class WmsEditModalComponent {
   }
 
   hideSuccessAlert(): void {
-    this.successMessage = false;
-    this.testSuccessMessage = false;
+    this.successMessage.set(false);
+    this.testSuccessMessage.set(false);
   }
 
   hideErrorAlert(): void {
-    this.errorMessage = false;
-    this.testErrorMessage = false;
+    this.errorMessage.set(false);
+    this.testErrorMessage.set(false);
   }
 
   testConnection() {
-    this.testErrorMessage = false;
-    this.testSuccessMessage = false;
+    this.testErrorMessage.set(false);
+    this.testSuccessMessage.set(false);
 
     const url = this.connectForm.controls.url.value;
     const layer = this.connectForm.controls.layer.value;
@@ -209,11 +211,11 @@ export class WmsEditModalComponent {
     if (url && layer) {
       this.ogcService.testConnection(url).subscribe({
         next: (response) => {
-          if (response.success === true) this.testSuccessMessage = true;
-          else this.testErrorMessage = true;
+          if (response.success === true) this.testSuccessMessage.set(true);
+          else this.testErrorMessage.set(true);
         },
         error: (error) => {
-          this.testErrorMessage = true;
+          this.testErrorMessage.set(true);
         },
       });
     }

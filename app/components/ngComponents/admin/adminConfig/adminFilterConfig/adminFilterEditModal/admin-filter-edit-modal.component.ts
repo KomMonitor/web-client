@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from '../../../../../../services/broadcast-service/broadcast.service';
@@ -18,6 +18,7 @@ import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-ste
   templateUrl: './admin-filter-edit-modal.component.html',
   styleUrls: ['./admin-filter-edit-modal.component.scss'],
   imports: [FormsModule, StepperComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminFilterEditModalComponent {
   private indicatorValueService = inject(IndicatorValueService);
@@ -27,6 +28,7 @@ export class AdminFilterEditModalComponent {
   private kommonitorConfigStorageService = inject(ConfigStorageService);
   private broadcastService = inject(BroadcastService);
   private notificationService = inject(NotificationService);
+  private cdr = inject(ChangeDetectorRef);
 
   activeModal = inject(NgbActiveModal);
 
@@ -435,6 +437,8 @@ export class AdminFilterEditModalComponent {
 
     this.refreshIndicatorsTable();
     this.refreshGeoresourcesTable();
+    // Bound table data was rebuilt after the awaits above (OnPush).
+    this.cdr.markForCheck();
 
     setTimeout(() => {
       this.broadcastService.broadcast(BroadcastMessage.RefreshAdminFilterOverview);

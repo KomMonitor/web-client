@@ -1,5 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   ElementRef,
@@ -8,6 +10,7 @@ import {
   OnInit,
   Output,
   ViewChild,
+  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -69,6 +72,7 @@ import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManageme
     OwnerOrganizationSelectComponent,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeoresourceAddModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
@@ -89,6 +93,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   private metadataBootstrap = inject(MetadataBootstrapService);
   private destroyRef = inject(DestroyRef);
   private http = inject(HttpClient);
+  private cdr = inject(ChangeDetectorRef);
 
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
@@ -112,7 +117,8 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   // Form data
   isSubmitting = false;
-  loadingData = false;
+  // Signal: toggled across await boundaries during registration (OnPush).
+  loadingData = signal(false);
 
   // Basic form data
   datasetName = '';
@@ -209,11 +215,13 @@ export class GeoresourceAddModalComponent implements OnInit {
   // Import/Export functionality
   metadataImportSettings: any = null;
   mappingConfigImportSettings: any = null;
-  georesourceMetadataImportError = '';
-  georesourceMappingConfigImportError = '';
+  // Signals: written from async file-import callbacks (OnPush).
+  georesourceMetadataImportError = signal('');
+  georesourceMappingConfigImportError = signal('');
 
   // Per-feature importer error report (shown inline; summaries are toasted)
-  importerErrors: any[] = [];
+  // Signal: written after importer responses (OnPush).
+  importerErrors = signal<any[]>([]);
   importedFeatures: any[] = [];
 
   // Metadata structure for import/export
@@ -483,7 +491,7 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   // Import/Export methods
   onImportGeoresourceAddMetadata(): void {
-    this.georesourceMetadataImportError = '';
+    this.georesourceMetadataImportError.set('');
     this.metadataImportFile.nativeElement.click();
   }
 
@@ -576,7 +584,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   }
 
   onImportGeoresourceAddMappingConfig(): void {
-    this.georesourceMappingConfigImportError = '';
+    this.georesourceMappingConfigImportError.set('');
     this.mappingConfigImportFile.nativeElement.click();
   }
 
@@ -627,9 +635,14 @@ export class GeoresourceAddModalComponent implements OnInit {
       } catch (error) {
         console.error(error);
         console.error('Uploaded Metadata File cannot be parsed.');
-        this.georesourceMetadataImportError = 'Uploaded Metadata File cannot be parsed correctly';
+        this.georesourceMetadataImportError.set(
+          'Uploaded Metadata File cannot be parsed correctly'
+        );
         this.showMetadataErrorAlert();
       }
+      // The import rewrites many ngModel-bound fields in an async callback —
+      // mark the OnPush view once instead of converting each field to a signal.
+      this.cdr.markForCheck();
     };
 
     fileReader.readAsText(file);
@@ -644,10 +657,13 @@ export class GeoresourceAddModalComponent implements OnInit {
       } catch (error) {
         console.error(error);
         console.error('Uploaded MappingConfig File cannot be parsed.');
-        this.georesourceMappingConfigImportError =
-          'Uploaded MappingConfig File cannot be parsed correctly';
+        this.georesourceMappingConfigImportError.set(
+          'Uploaded MappingConfig File cannot be parsed correctly'
+        );
         this.showMappingConfigErrorAlert();
       }
+      // Same bulk-rewrite situation as the metadata import above.
+      this.cdr.markForCheck();
     };
 
     fileReader.readAsText(file);
@@ -658,8 +674,9 @@ export class GeoresourceAddModalComponent implements OnInit {
 
     if (!this.metadataImportSettings.metadata) {
       console.error('uploaded Metadata File cannot be parsed - wrong structure.');
-      this.georesourceMetadataImportError =
-        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.';
+      this.georesourceMetadataImportError.set(
+        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.'
+      );
       this.showMetadataErrorAlert();
       return;
     }
@@ -736,8 +753,9 @@ export class GeoresourceAddModalComponent implements OnInit {
       !this.mappingConfigImportSettings.propertyMapping
     ) {
       console.error('uploaded MappingConfig File cannot be parsed - wrong structure.');
-      this.georesourceMappingConfigImportError =
-        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.';
+      this.georesourceMappingConfigImportError.set(
+        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.'
+      );
       this.showMappingConfigErrorAlert();
       return;
     }
@@ -881,11 +899,11 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   // Alert methods
   hideMetadataErrorAlert(): void {
-    this.georesourceMetadataImportError = '';
+    this.georesourceMetadataImportError.set('');
   }
 
   hideMappingConfigErrorAlert(): void {
-    this.georesourceMappingConfigImportError = '';
+    this.georesourceMappingConfigImportError.set('');
   }
 
   private showMetadataErrorAlert(): void {
@@ -898,7 +916,7 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   // Form reset
   resetGeoresourceAddForm(): void {
-    this.importerErrors = [];
+    this.importerErrors.set([]);
 
     this.datasetName = '';
     this.datasetNameInvalid = false;
@@ -978,8 +996,8 @@ export class GeoresourceAddModalComponent implements OnInit {
 
     this.metadataImportSettings = null;
     this.mappingConfigImportSettings = null;
-    this.georesourceMetadataImportError = '';
-    this.georesourceMappingConfigImportError = '';
+    this.georesourceMetadataImportError.set('');
+    this.georesourceMappingConfigImportError.set('');
   }
 
   // Build post body for API request
@@ -1061,8 +1079,8 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   // Main add method
   async addGeoresource(): Promise<void> {
-    this.loadingData = true;
-    this.importerErrors = [];
+    this.loadingData.set(true);
+    this.importerErrors.set([]);
 
     // Name the missing required importer fields instead of aborting silently
     // (the historical behavior left the user without any feedback).
@@ -1089,7 +1107,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     });
 
     if (missing.length > 0) {
-      this.loadingData = false;
+      this.loadingData.set(false);
       this.notificationService.showError(
         `Bitte füllen Sie alle Pflichtfelder im Schritt "Räumlicher Datensatz" aus. Fehlend: ${missing.join(', ')}.`
       );
@@ -1101,7 +1119,7 @@ export class GeoresourceAddModalComponent implements OnInit {
       const allDataSpecified = await this.buildImporterObjects();
 
       if (!allDataSpecified) {
-        this.loadingData = false;
+        this.loadingData.set(false);
         this.notificationService.showError(
           'Bitte füllen Sie alle Pflichtfelder im Schritt "Räumlicher Datensatz" aus.'
         );
@@ -1156,10 +1174,11 @@ export class GeoresourceAddModalComponent implements OnInit {
       } else {
         // Dry-run reported import errors: keep the modal open and list the
         // affected feature IDs inline; summarise via a toast.
-        this.importerErrors =
+        this.importerErrors.set(
           this.kommonitorImporterHelperService.getErrorsFromImporterResponse(
             newGeoresourceResponse_dryRun
-          ) || [];
+          ) || []
+        );
         this.notificationService.showError(
           'Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.'
         );
@@ -1170,7 +1189,7 @@ export class GeoresourceAddModalComponent implements OnInit {
       );
       console.error('Error adding georesource:', error);
     } finally {
-      this.loadingData = false;
+      this.loadingData.set(false);
     }
   }
 
@@ -1209,7 +1228,7 @@ export class GeoresourceAddModalComponent implements OnInit {
       this.notificationService.showError(
         'Fehler beim Aufbau der Datenquellen-Definition: ' + getErrorMessage(error)
       );
-      this.loadingData = false;
+      this.loadingData.set(false);
       return false;
     }
   }

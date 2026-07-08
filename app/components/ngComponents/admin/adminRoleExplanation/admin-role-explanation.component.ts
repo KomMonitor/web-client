@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 
@@ -15,6 +15,7 @@ interface AccordionItem {
   styleUrls: ['./admin-role-explanation.component.scss'],
   imports: [ExpandableBoxComponent, AdminContentViewComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminRoleExplanationComponent {
   items: AccordionItem[] = [

@@ -2,12 +2,13 @@ import { GeoresourcesDataset } from './../../models/georesources.models';
 import { GeoresourceRefreshRequest } from './georesource-refresh.model';
 import { WmsResourceType } from './../../models/services.models';
 import {
-  Component,
-  OnInit,
-  OnDestroy,
-  ViewChild,
   AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
   DOCUMENT,
+  OnDestroy,
+  OnInit,
+  ViewChild,
   inject,
 } from '@angular/core';
 
@@ -50,6 +51,7 @@ declare const $: any;
     NgbDropdownModule,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, AfterViewInit {
   private document = inject<Document>(DOCUMENT);

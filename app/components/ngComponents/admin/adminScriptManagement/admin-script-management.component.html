@@ -15,7 +15,7 @@
   <button
     class="btn btn-danger btn-sm"
     type="button"
-    [disabled]="selectedRows.length === 0"
+    [disabled]="selectedRows().length === 0"
     (click)="onClickDeleteScripts()"
   >
     <i class="fas fa-trash"></i> Löschen
@@ -24,20 +24,20 @@
 
 <ng-template #content>
   <!-- TODO: use Loading Overlay Component -->
-  @if (loadingData) {
+  @if (loadingData()) {
     <div class="loading-overlay-admin-panel text-center">
       <i class="fas fa-spinner fa-spin fa-2x"></i>
     </div>
   }
 
-  @if (!loadingData) {
+  @if (!loadingData()) {
     <div class="admin-table-wrapper">
       <ag-grid-angular
         style="height: 70vh; width: 100%"
         class="ag-theme-alpine"
         [columnDefs]="columnDefs"
         [defaultColDef]="defaultColDef"
-        [rowData]="rowData"
+        [rowData]="rowData()"
         [gridOptions]="gridOptions"
         (selectionChanged)="onSelectionChanged()"
         rowSelection="multiple"

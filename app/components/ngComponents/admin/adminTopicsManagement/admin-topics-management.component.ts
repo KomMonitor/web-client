@@ -1,4 +1,11 @@
-import { Component, Injectable, OnInit, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Injectable,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TopicMetadataStoreService } from '../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 import { ExpandableBoxComponent } from '../../common/expandable-box/expandable-box.component';
@@ -15,7 +22,16 @@ export { Topic, TopicOrderMode, TopicResourceType } from './topic.model';
 
 @Injectable()
 export class AdminTopicsManagementErrorHandlingService {
-  errorMessagePart: string = '';
+  // Signal-backed behind a getter/setter shim: the add-topic child writes this
+  // from an async subscribe callback while the OnPush overview template reads
+  // it — the signal read makes the overview re-render without further wiring.
+  private readonly _errorMessagePart = signal('');
+  get errorMessagePart(): string {
+    return this._errorMessagePart();
+  }
+  set errorMessagePart(value: string) {
+    this._errorMessagePart.set(value);
+  }
 }
 
 @Component({
@@ -32,6 +48,7 @@ export class AdminTopicsManagementErrorHandlingService {
     AdminContentViewComponent,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminTopicsManagementComponent implements OnInit {
   protected errorHandlingService = inject(AdminTopicsManagementErrorHandlingService);
@@ -42,8 +59,9 @@ export class AdminTopicsManagementComponent implements OnInit {
   showTopicIds = false;
   loadingData = false;
 
-  indicatorOrder: TopicOrderMode | undefined;
-  geoRessourceOrder: TopicOrderMode | undefined;
+  // Signals: assigned from the order-mode fetch subscription (OnPush).
+  indicatorOrder = signal<TopicOrderMode | undefined>(undefined);
+  geoRessourceOrder = signal<TopicOrderMode | undefined>(undefined);
 
   get filteredIndicatorTopics(): Topic[] {
     return this.topicStore.availableTopics.filter(
@@ -58,12 +76,12 @@ export class AdminTopicsManagementComponent implements OnInit {
   }
 
   setIndicatorSorting(order: TopicOrderMode) {
-    this.indicatorOrder = order;
+    this.indicatorOrder.set(order);
     this.setSorting('indicator', order);
   }
 
   setGeoRessourceSorting(order: TopicOrderMode) {
-    this.geoRessourceOrder = order;
+    this.geoRessourceOrder.set(order);
     this.setSorting('georesource', order);
   }
 
@@ -78,10 +96,12 @@ export class AdminTopicsManagementComponent implements OnInit {
   ngOnInit(): void {
     this.topicSrvc.getOrderModes().subscribe({
       next: (modes) => {
-        this.indicatorOrder = modes.find((mode) => mode.topicResource === 'indicator')?.orderMode;
-        this.geoRessourceOrder = modes.find(
-          (mode) => mode.topicResource === 'georesource'
-        )?.orderMode;
+        this.indicatorOrder.set(
+          modes.find((mode) => mode.topicResource === 'indicator')?.orderMode
+        );
+        this.geoRessourceOrder.set(
+          modes.find((mode) => mode.topicResource === 'georesource')?.orderMode
+        );
       },
       error: () => {
         this.notificationService.showError('Die Sortiermodi konnten nicht geladen werden.');

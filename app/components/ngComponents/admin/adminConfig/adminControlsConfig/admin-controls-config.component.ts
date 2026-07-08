@@ -1,5 +1,14 @@
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import CodeMirror from 'codemirror';
 import { firstValueFrom } from 'rxjs';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -38,6 +47,7 @@ interface LintingIssue {
   styleUrls: ['./admin-controls-config.component.scss'],
   imports: [ExpandableBoxComponent, AdminContentViewComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
   private http = inject(HttpClient);
@@ -51,13 +61,16 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
   @ViewChild('currentCodeMirror') currentCodeMirrorElement!: ElementRef;
   @ViewChild('newCodeMirror') newCodeMirrorElement!: ElementRef;
 
-  loadingData = true;
+  // Signal: toggled from awaits/subscriptions (OnPush).
+  loadingData = signal(true);
   codeMirrorEditor!: CodeMirrorEditor;
   templateCodeMirrorEditor!: CodeMirrorEditor;
   currentCodeMirrorEditor!: CodeMirrorEditor;
   newCodeMirrorEditor!: CodeMirrorEditor;
-  missingRequiredParameters: string[] = [];
-  missingRequiredParameters_string = '';
+  // Signals: written from CodeMirror lint callbacks, which run outside
+  // Angular's template-event path (OnPush).
+  missingRequiredParameters = signal<string[]>([]);
+  missingRequiredParameters_string = signal('');
   keywordsInConfig = [
     'id',
     'groups',
@@ -81,7 +94,7 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
   controlsConfigTmp: string = '';
   controlsConfigCurrent: string = '';
   controlsConfigNew: string = '';
-  configSettingInvalid = false;
+  configSettingInvalid = signal(false);
   lintingIssues: LintingIssue[] = [];
   private dataLoaded = false;
 
@@ -156,7 +169,7 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
         { autohide: false }
       );
     } finally {
-      this.loadingData = false;
+      this.loadingData.set(false);
       this.dataLoaded = true;
     }
   }
@@ -267,10 +280,10 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
   isConfigSettingInvalid(configString: string): boolean {
     let isInvalid = true;
     isInvalid = !this.keywordsInConfig.every((keyword) => configString.includes(keyword));
-    this.missingRequiredParameters = this.keywordsInConfig.filter(
-      (keyword) => !configString.includes(keyword)
+    this.missingRequiredParameters.set(
+      this.keywordsInConfig.filter((keyword) => !configString.includes(keyword))
     );
-    this.missingRequiredParameters_string = JSON.stringify(this.missingRequiredParameters);
+    this.missingRequiredParameters_string.set(JSON.stringify(this.missingRequiredParameters()));
     if (this.lintingIssues && this.lintingIssues.length > 0) {
       const errors = this.lintingIssues.filter((issue) => issue.severity === 'error');
       if (errors && errors.length > 0) {
@@ -282,7 +295,7 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
 
   onChangeControlsConfig() {
     const configString = this.controlsConfigTmp;
-    this.configSettingInvalid = this.isConfigSettingInvalid(configString);
+    this.configSettingInvalid.set(this.isConfigSettingInvalid(configString));
     setTimeout(() => {
       this.controlsConfigNew = configString;
       if (this.newCodeMirrorEditor) {
@@ -292,7 +305,7 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
   }
 
   async editControlsConfig() {
-    this.loadingData = true;
+    this.loadingData.set(true);
     try {
       await firstValueFrom(
         this.kommonitorConfigStorageService.postControlsConfig(this.controlsConfigTmp)
@@ -317,7 +330,7 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
         { autohide: false }
       );
     } finally {
-      this.loadingData = false;
+      this.loadingData.set(false);
     }
   }
 }

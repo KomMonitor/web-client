@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Output, ViewChild, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Output,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { FormsModule } from '@angular/forms';
@@ -25,6 +33,7 @@ import { ScriptRefreshRequest } from '../script-refresh.model';
     ScriptStepContentComponent,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScriptAddModalComponent {
   activeModal = inject(NgbActiveModal);
@@ -49,11 +58,13 @@ export class ScriptAddModalComponent {
     associatedIndicatorId: '',
   };
 
-  loadingData: boolean = false;
+  // Signal-backed: written after the awaited script POST in addScript(), which
+  // would not trigger a re-render of this OnPush component otherwise.
+  loadingData = signal(false);
   // Alerts
-  showSuccessAlert: boolean = false;
-  showErrorAlert: boolean = false;
-  errorMessagePart: string = '';
+  showSuccessAlert = signal(false);
+  showErrorAlert = signal(false);
+  errorMessagePart = signal('');
   successMessagePart: string = '';
 
   resetForm(): void {
@@ -63,9 +74,9 @@ export class ScriptAddModalComponent {
       description: '',
       associatedIndicatorId: '',
     };
-    this.showSuccessAlert = false;
-    this.showErrorAlert = false;
-    this.errorMessagePart = '';
+    this.showSuccessAlert.set(false);
+    this.showErrorAlert.set(false);
+    this.errorMessagePart.set('');
     this.successMessagePart = '';
     this.scriptHelperService.reset();
     this.scriptStepContent?.reset();
@@ -77,10 +88,10 @@ export class ScriptAddModalComponent {
 
   // ---- Submit ----
   async addScript(): Promise<void> {
-    this.loadingData = true;
-    this.showSuccessAlert = false;
-    this.showErrorAlert = false;
-    this.errorMessagePart = '';
+    this.loadingData.set(true);
+    this.showSuccessAlert.set(false);
+    this.showErrorAlert.set(false);
+    this.errorMessagePart.set('');
     this.successMessagePart = '';
 
     // this.prepareParametersForScriptType();
@@ -92,22 +103,22 @@ export class ScriptAddModalComponent {
       await this.scriptHelperService.postNewScript(name, description, associatedIndicatorId);
 
       this.refreshRequested.emit({ crudType: 'add' });
-      this.showSuccessAlert = true;
-      this.loadingData = false;
+      this.showSuccessAlert.set(true);
+      this.loadingData.set(false);
     } catch (error: any) {
       const errData = error?.error || error;
-      this.errorMessagePart = JSON.stringify(errData, null, 2);
-      this.showErrorAlert = true;
-      this.loadingData = false;
+      this.errorMessagePart.set(JSON.stringify(errData, null, 2));
+      this.showErrorAlert.set(true);
+      this.loadingData.set(false);
     }
   }
 
   hideSuccessAlert(): void {
-    this.showSuccessAlert = false;
+    this.showSuccessAlert.set(false);
   }
 
   hideErrorAlert(): void {
-    this.showErrorAlert = false;
+    this.showErrorAlert.set(false);
   }
 
   isFormValid(): boolean {

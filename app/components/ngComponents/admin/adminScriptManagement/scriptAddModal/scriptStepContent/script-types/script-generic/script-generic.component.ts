@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
 
 import { ScriptIndicatorsComponent } from '../segments/script-indicators/script-indicators.component';
@@ -16,6 +16,7 @@ import { ScriptCodeComponent } from '../segments/script-code/script-code.compone
     ScriptParametersComponent,
     ScriptCodeComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScriptGenericComponent implements OnInit {
   private scriptHelperService = inject(ScriptHelperService);

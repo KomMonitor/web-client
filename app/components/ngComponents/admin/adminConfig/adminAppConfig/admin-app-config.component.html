@@ -47,7 +47,7 @@
           <br />
           <textarea #appConfigEditor id="appConfigEditor"></textarea>
         </div>
-        @if (configSettingInvalid) {
+        @if (configSettingInvalid()) {
           <div class="help-block with-errors">
             Bitte beachten Sie, dass alle notwendigen Parameter gem&auml;&szlig; der obigen Vorlage
             definiert werden m&uuml;ssen. Beachten Sie daher die vorgegebene JavaScript-Struktur.
@@ -55,9 +55,9 @@
             dass valides JavaScript geparsed werden kann.
           </div>
         }
-        @if (missingRequiredParameters && missingRequiredParameters.length > 0) {
+        @if (missingRequiredParameters().length > 0) {
           <div class="help-block with-errors">
-            Fehlende Parameter: {{ missingRequiredParameters_string }}
+            Fehlende Parameter: {{ missingRequiredParameters_string() }}
           </div>
         }
       </div>
@@ -77,7 +77,7 @@
           <button
             type="button"
             class="btn btn-success"
-            [disabled]="configSettingInvalid"
+            [disabled]="configSettingInvalid()"
             (click)="editAppConfig()"
           >
             App-Konfiguration speichern

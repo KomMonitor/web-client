@@ -15,7 +15,7 @@
   <br />
 
   <expandable-box title="Themenhierarchie - Indikatoren" [collapsed]="false">
-    @if (indicatorOrder) {
+    @if (indicatorOrder(); as indicatorOrder) {
       <div class="just-padding">
         <div>
           <div>Sortierung der Indikatoren:</div>
@@ -37,7 +37,7 @@
   </expandable-box>
 
   <expandable-box title="Themenhierarchie - Georessourcen" [collapsed]="false" borderColor="red">
-    @if (geoRessourceOrder) {
+    @if (geoRessourceOrder(); as geoRessourceOrder) {
       <div class="just-padding">
         <div>
           <div>Sortierung der Georessourcen:</div>

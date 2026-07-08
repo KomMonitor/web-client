@@ -30,33 +30,33 @@
 
     <button
       class="btn btn-link nav-link w-100 text-start"
-      (click)="isGeodataMgmtExpanded = !isGeodataMgmtExpanded"
-      [attr.aria-expanded]="isGeodataMgmtExpanded"
+      (click)="isGeodataMgmtExpanded.set(!isGeodataMgmtExpanded())"
+      [attr.aria-expanded]="isGeodataMgmtExpanded()"
     >
       <i class="fas fa-globe-americas"></i>
       <span class="label">Geodatenverwaltung</span>
       <span
         class="fa collapse-marker"
-        [class.fa-angle-down]="isGeodataMgmtExpanded"
-        [class.fa-angle-left]="!isGeodataMgmtExpanded"
+        [class.fa-angle-down]="isGeodataMgmtExpanded()"
+        [class.fa-angle-left]="!isGeodataMgmtExpanded()"
       ></span>
     </button>
 
-    <div [class.d-none]="!isGeodataMgmtExpanded" class="nav-item child">
+    <div [class.d-none]="!isGeodataMgmtExpanded()" class="nav-item child">
       <a class="nav-link" routerLink="spatial-units" routerLinkActive="active">
         <i class="fas fa-layer-group"></i>
         <span>Raumebenen</span>
       </a>
     </div>
 
-    <div [class.d-none]="!isGeodataMgmtExpanded" class="nav-item child">
+    <div [class.d-none]="!isGeodataMgmtExpanded()" class="nav-item child">
       <a class="nav-link" routerLink="indicators" routerLinkActive="active">
         <i class="fas fa-sitemap"></i>
         <span>Indikatoren</span>
       </a>
     </div>
 
-    <div [class.d-none]="!isGeodataMgmtExpanded" class="nav-item child">
+    <div [class.d-none]="!isGeodataMgmtExpanded()" class="nav-item child">
       <a class="nav-link" routerLink="georesources" routerLinkActive="active">
         <i class="fas fa-map-marked-alt"></i>
         <span>Georessourcen</span>
@@ -75,33 +75,33 @@
 
     <button
       class="btn btn-link nav-link w-100 text-start"
-      (click)="isSettingsExpanded = !isSettingsExpanded"
-      [attr.aria-expanded]="isSettingsExpanded"
+      (click)="isSettingsExpanded.set(!isSettingsExpanded())"
+      [attr.aria-expanded]="isSettingsExpanded()"
     >
       <i class="fas fa-tools"></i>
       <span class="label">Einstellungen</span>
       <span
         class="fa collapse-marker"
-        [class.fa-angle-down]="isSettingsExpanded"
-        [class.fa-angle-left]="!isSettingsExpanded"
+        [class.fa-angle-down]="isSettingsExpanded()"
+        [class.fa-angle-left]="!isSettingsExpanded()"
       ></span>
     </button>
 
-    <div [class.d-none]="!isSettingsExpanded" class="nav-item child">
+    <div [class.d-none]="!isSettingsExpanded()" class="nav-item child">
       <a class="nav-link" routerLink="settings" routerLinkActive="active">
         <i class="fas fa-cogs"></i>
         <span>Allgemeine Einstellungen</span>
       </a>
     </div>
 
-    <div [class.d-none]="!isSettingsExpanded" class="nav-item child">
+    <div [class.d-none]="!isSettingsExpanded()" class="nav-item child">
       <a class="nav-link" routerLink="widgets" routerLinkActive="active">
         <i class="far fa-eye-slash"></i>
         <span>Widget-Konfiguration</span>
       </a>
     </div>
 
-    <div [class.d-none]="!isSettingsExpanded" class="nav-item child">
+    <div [class.d-none]="!isSettingsExpanded()" class="nav-item child">
       <a class="nav-link" routerLink="filters" routerLinkActive="active">
         <i class="fa fa-filter"></i>
         <span>Filter-Konfiguration</span>

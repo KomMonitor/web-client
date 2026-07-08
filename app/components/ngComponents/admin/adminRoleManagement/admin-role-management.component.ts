@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -37,6 +37,7 @@ interface AccessControlTableEntry extends AccessControlMetadata {
     LoadingOverlayComponent,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminRoleManagementComponent implements OnInit {
   private modalService = inject(NgbModal);
@@ -47,10 +48,12 @@ export class AdminRoleManagementComponent implements OnInit {
   private notificationService = inject(NotificationService);
   protected keycloakHelperService = inject(KeycloakHelperService);
 
-  public loadingData: boolean = true;
+  // Signal-backed: written from the async access-control fetch callbacks,
+  // which would not trigger a re-render of this OnPush component otherwise.
+  public loadingData = signal(true);
   public tableViewSwitcher: boolean = false;
 
-  public rowData: AccessControlTableEntry[] = [];
+  public rowData = signal<AccessControlTableEntry[]>([]);
   public defaultColDef: ColDef = this.kommonitorDataGridHelperService.buildDefaultColDef();
   public gridOptions: GridOptions = {
     suppressRowClickSelection: true,
@@ -116,14 +119,15 @@ export class AdminRoleManagementComponent implements OnInit {
   ];
 
   private allAccessControl: AccessControlTableEntry[] = [];
-  protected selectedRows: AccessControlTableEntry[] = [];
+  // Signal-backed: updated from the AG Grid selection-changed callback.
+  protected selectedRows = signal<AccessControlTableEntry[]>([]);
 
   ngOnInit(): void {
     this.fetchAccessControlData(false);
   }
 
   private fetchAccessControlData(_useCache): void {
-    this.loadingData = true;
+    this.loadingData.set(true);
     this.metadataBootstrap
       .fetchAccessControlMetadata(this.accessControlService.currentKeycloakLoginRoles)
       .then(() => this.setData(this.accessControlService.accessControl))
@@ -135,7 +139,7 @@ export class AdminRoleManagementComponent implements OnInit {
       'Die Daten konnten nicht geladen werden! Bitte versuchen Sie es später erneut.'
     );
     console.error(error);
-    this.loadingData = false;
+    this.loadingData.set(false);
   }
 
   private setData(accessControl: AccessControlMetadata[]) {
@@ -158,7 +162,7 @@ export class AdminRoleManagementComponent implements OnInit {
       return dataItem as AccessControlTableEntry;
     });
     this.applyTableFilter();
-    this.loadingData = false;
+    this.loadingData.set(false);
   }
 
   onTableViewSwitch(): void {
@@ -167,9 +171,9 @@ export class AdminRoleManagementComponent implements OnInit {
 
   private applyTableFilter(): void {
     if (this.tableViewSwitcher) {
-      this.rowData = this.allAccessControl.filter((entry) => entry.datasetOwner === true);
+      this.rowData.set(this.allAccessControl.filter((entry) => entry.datasetOwner === true));
     } else {
-      this.rowData = [...this.allAccessControl];
+      this.rowData.set([...this.allAccessControl]);
     }
   }
 
@@ -217,7 +221,7 @@ export class AdminRoleManagementComponent implements OnInit {
       size: 'lg',
     });
 
-    modalRef.componentInstance.datasetsToDelete = this.selectedRows;
+    modalRef.componentInstance.datasetsToDelete = this.selectedRows();
 
     modalRef.result
       .then((reloadData) => reloadData && this.fetchAccessControlData(false))
@@ -245,6 +249,6 @@ export class AdminRoleManagementComponent implements OnInit {
   }
 
   selectionChanged($event: SelectionChangedEvent<AccessControlTableEntry, any>) {
-    this.selectedRows = $event.api.getSelectedRows();
+    this.selectedRows.set($event.api.getSelectedRows());
   }
 }

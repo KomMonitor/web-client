@@ -1,4 +1,13 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
@@ -28,6 +37,7 @@ import { collectSelectedRoleIds, ownerDefaultPermissionIds } from './role-manage
   templateUrl: './role-management-grid.component.html',
   imports: [AgGridAngular, FormsModule],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoleManagementGridComponent implements OnInit, OnChanges {
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
@@ -45,10 +55,13 @@ export class RoleManagementGridComponent implements OnInit, OnChanges {
   /** Nominal grid id handed to the grid helper (unique per usage). */
   @Input() gridId = 'roleManagementPanelGrid';
 
-  activeRolesOnly = true;
+  // Signal-backed because rebuild() also runs from async paths (access-control
+  // fetch) and from host components calling applyOwner()/applyPermissions()
+  // via @ViewChild — plain fields would not re-render under OnPush.
+  activeRolesOnly = signal(true);
 
-  columnDefs: ColDef[] = [];
-  rowData: AccessControlMetadata[] = [];
+  columnDefs = signal<ColDef[]>([]);
+  rowData = signal<AccessControlMetadata[]>([]);
   readonly components = this.roleManagementHelper.getRoleManagementComponents();
   readonly defaultColDef: ColDef = this.roleManagementHelper.buildRoleManagementDefaultColDef();
   readonly gridOptions = this.roleManagementHelper.buildRoleManagementGridOptionsPublic(
@@ -148,7 +161,7 @@ export class RoleManagementGridComponent implements OnInit, OnChanges {
     }));
 
     if (this.showActiveRolesOnlyToggle && this.selectedPermissionIds.length === 0) {
-      this.activeRolesOnly = false;
+      this.activeRolesOnly.set(false);
     }
 
     // Always pass null as previous options: the helper then builds fresh
@@ -164,14 +177,14 @@ export class RoleManagementGridComponent implements OnInit, OnChanges {
       return;
     }
 
-    this.columnDefs = this.tableOptions.columnDefs || [];
+    this.columnDefs.set(this.tableOptions.columnDefs || []);
     let rows = this.tableOptions.rowData || [];
-    if (this.showActiveRolesOnlyToggle && this.activeRolesOnly) {
+    if (this.showActiveRolesOnlyToggle && this.activeRolesOnly()) {
       rows = rows.filter(
         (row: AccessControlMetadata & { viewer?: boolean; editor?: boolean; creator?: boolean }) =>
           row.viewer || row.editor || row.creator
       );
     }
-    this.rowData = rows;
+    this.rowData.set(rows);
   }
 }

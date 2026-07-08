@@ -1,4 +1,4 @@
-import { Injectable, inject, DestroyRef } from '@angular/core';
+import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { mergeColorSchemes } from 'components/ngComponents/userInterface/kommonitorClassification/colors';
@@ -60,7 +60,26 @@ export class IndicatorAddFormStateService {
   ]);
 
   // Form data
-  loadingData = false;
+  /**
+   * Bumped whenever an async code path rewrites plain form-state fields in
+   * bulk (metadata file import, owner-organization fetch). The OnPush wizard
+   * shell and step components mirror this via an `effect` + `markForCheck`,
+   * so their templates re-read the plain fields afterwards.
+   */
+  readonly stateRevision = signal(0);
+  private bumpStateRevision(): void {
+    this.stateRevision.update((revision) => revision + 1);
+  }
+
+  // Signal-backed behind getter/setter shims: written across await boundaries
+  // by the wizard shell while its OnPush template reads them.
+  private readonly _loadingData = signal(false);
+  get loadingData(): boolean {
+    return this._loadingData();
+  }
+  set loadingData(value: boolean) {
+    this._loadingData.set(value);
+  }
 
   // Basic form data
   datasetName = '';
@@ -137,13 +156,31 @@ export class IndicatorAddFormStateService {
 
   // Import/Export functionality
   metadataImportSettings: any = null;
-  indicatorMetadataImportError = '';
+  private readonly _indicatorMetadataImportError = signal('');
+  get indicatorMetadataImportError(): string {
+    return this._indicatorMetadataImportError();
+  }
+  set indicatorMetadataImportError(value: string) {
+    this._indicatorMetadataImportError.set(value);
+  }
 
   // Success/Error data
   successMessage = '';
   errorMessage = '';
-  successMessagePart = '';
-  errorMessagePart = '';
+  private readonly _successMessagePart = signal('');
+  get successMessagePart(): string {
+    return this._successMessagePart();
+  }
+  set successMessagePart(value: string) {
+    this._successMessagePart.set(value);
+  }
+  private readonly _errorMessagePart = signal('');
+  get errorMessagePart(): string {
+    return this._errorMessagePart();
+  }
+  set errorMessagePart(value: string) {
+    this._errorMessagePart.set(value);
+  }
 
   // Available options
   availableSpatialUnits: any[] = [];
@@ -187,7 +224,15 @@ export class IndicatorAddFormStateService {
   // for admins, resource-creator subset otherwise); `filteredOrganizations` is the
   // filtered view of it shown in the dropdown.
   ownerOrganizations: any[] = [];
-  filteredOrganizations: any[] = [];
+  // Signal-backed shim: filled after the async access-control fetch while the
+  // OnPush step-7 template iterates it.
+  private readonly _filteredOrganizations = signal<any[]>([]);
+  get filteredOrganizations(): any[] {
+    return this._filteredOrganizations();
+  }
+  set filteredOrganizations(value: any[]) {
+    this._filteredOrganizations.set(value);
+  }
 
   // Advanced access control
   enableTimeRestrictedAccess = false;
@@ -932,6 +977,9 @@ export class IndicatorAddFormStateService {
       console.error(error);
       console.error('Uploaded Metadata File cannot be parsed.');
       this.indicatorMetadataImportError = 'Uploaded Metadata File cannot be parsed correctly';
+    } finally {
+      // The import rewrote plain fields bound by the wizard steps.
+      this.bumpStateRevision();
     }
   }
 
@@ -1821,6 +1869,8 @@ export class IndicatorAddFormStateService {
     // edit mode this pre-checks the indicator's existing permissions; in add mode it
     // stays empty until an owner is chosen.
     this.rebuildRoleManagementGrid();
+    // May run from the async access-control fetch (OnPush wizard steps).
+    this.bumpStateRevision();
   }
 
   private buildResourcesCreatorRights(): any[] {

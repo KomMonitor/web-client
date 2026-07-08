@@ -1,5 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -8,6 +10,7 @@ import {
   Output,
   ViewChild,
   inject,
+  signal,
 } from '@angular/core';
 import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
@@ -50,6 +53,7 @@ import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-ste
     KmDatePickerComponent,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy {
   activeModal = inject(NgbActiveModal);
@@ -65,6 +69,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   private envConfigService = inject(EnvConfigService);
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
+  private cdr = inject(ChangeDetectorRef);
 
   // Model-backed values for the dynamic converter/datasource parameter inputs
   // (formerly scraped from the DOM by element id)
@@ -78,14 +83,16 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   // Alert visibility (template binding; formerly toggled via document.getElementById).
   // Update success/error feedback is toasted via NotificationService; only the
   // inline mapping-config import error report remains.
-  mappingConfigImportErrorAlertVisible = false;
+  // Signal: written from the async FileReader callback (OnPush).
+  mappingConfigImportErrorAlertVisible = signal(false);
 
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
   @ViewChild('dataSourceInput', { static: false }) dataSourceInput!: ElementRef;
   @ViewChild('georesourceFeatureTable', { static: true }) georesourceFeatureTable!: AgGridAngular;
 
   // Component state
-  loadingData = false;
+  // Signal: toggled from subscriptions and grid-helper events (OnPush).
+  loadingData = signal(false);
   private _currentGeoresourceDataset: any;
   readonly stepper = new WizardStepper([
     { key: 'overview', label: 'Feature Übersicht' },
@@ -174,11 +181,13 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   isPartialUpdate = false;
 
   // Per-feature importer error report (shown inline; summaries are toasted)
-  importerErrors: any;
+  // Signal: filled from the PUT error callback (OnPush).
+  importerErrors = signal<any>(undefined);
   importedFeatures: any[] = [];
 
   // Mapping config import/export
-  georesourceMappingConfigImportError: string = '';
+  // Signal: written from the async FileReader callback (OnPush).
+  georesourceMappingConfigImportError = signal('');
   georesourceMappingConfigStructure_pretty: string = '';
 
   // Subscriptions
@@ -230,9 +239,9 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       )
       .subscribe((event) => {
         if (event.type === 'loadingStart') {
-          this.loadingData = true;
+          this.loadingData.set(true);
         } else if (event.type === 'loadingEnd') {
-          this.loadingData = false;
+          this.loadingData.set(false);
         } else if (event.type === 'featureDeleted') {
           this.refreshRequested.emit({
             crudType: 'edit',
@@ -278,7 +287,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     }
 
     console.log('Starting refresh of georesource features table...');
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     const url = `${this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/georesources/${this.currentGeoresourceDataset.georesourceId}/allFeatures`;
     console.log('Fetching from URL:', url);
@@ -343,12 +352,14 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
           this.gridApi.refreshCells();
         }
 
-        this.loadingData = false;
+        this.loadingData.set(false);
+        // The grid options / headers above were rebuilt in this async callback.
+        this.cdr.markForCheck();
       },
       error: (error) => {
         console.error('Error fetching georesource features:', error);
         this.handleError(error);
-        this.loadingData = false;
+        this.loadingData.set(false);
       },
     });
   }
@@ -386,7 +397,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
         'Sind Sie sicher, dass Sie alle Features dieser Georessource löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.'
       )
     ) {
-      this.loadingData = true;
+      this.loadingData.set(true);
 
       this.http
         .delete(
@@ -394,12 +405,12 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
         )
         .subscribe({
           next: (_response: any) => {
-            this.loadingData = false;
+            this.loadingData.set(false);
             this.refreshGeoresourceEditFeaturesOverviewTable();
             alert('Alle Features wurden erfolgreich gelöscht.');
           },
           error: (error: any) => {
-            this.loadingData = false;
+            this.loadingData.set(false);
             console.error('Error deleting features:', error);
             alert('Fehler beim Löschen der Features.');
           },
@@ -486,7 +497,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   // Import/Export methods
   onImportGeoresourceEditFeaturesMappingConfig(): void {
-    this.georesourceMappingConfigImportError = '';
+    this.georesourceMappingConfigImportError.set('');
     this.mappingConfigImportFile.nativeElement.click();
   }
 
@@ -505,10 +516,14 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
         this.parseFromMappingConfigFile(event);
       } catch {
         console.error('Uploaded Mapping Config File cannot be parsed.');
-        this.georesourceMappingConfigImportError =
-          'Uploaded Mapping Config File cannot be parsed correctly';
+        this.georesourceMappingConfigImportError.set(
+          'Uploaded Mapping Config File cannot be parsed correctly'
+        );
         this.showMappingConfigImportErrorAlert();
       }
+      // The import rewrites several ngModel-bound fields from an async callback —
+      // mark the OnPush view once instead of converting each field to a signal.
+      this.cdr.markForCheck();
     };
 
     fileReader.readAsText(file);
@@ -573,7 +588,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       return;
     }
 
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     // Build the request body
     const putBody = this.buildPutBody();
@@ -586,11 +601,12 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       .subscribe({
         next: (response: any) => {
           this.importedFeatures = response.importedFeatures || [];
+          this.cdr.markForCheck();
           this.refreshRequested.emit({
             crudType: 'edit',
             targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
           });
-          this.loadingData = false;
+          this.loadingData.set(false);
           const featureCount = this.importedFeatures.length;
           this.notificationService.showSuccess(
             `Die Features der Georessource "${this.currentGeoresourceDataset.datasetName}" wurden aktualisiert` +
@@ -600,11 +616,11 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
         },
         error: (error: any) => {
           // Keep the modal open so the per-feature importer error report stays visible.
-          this.importerErrors = error.error?.importerErrors || [];
+          this.importerErrors.set(error.error?.importerErrors || []);
           this.notificationService.showError(
             'Fehler beim Fortführen der Features: ' + getErrorMessage(error)
           );
-          this.loadingData = false;
+          this.loadingData.set(false);
         },
       });
   }
@@ -743,17 +759,17 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.bboxType = '';
     this.bboxRefSpatialUnit = undefined;
 
-    this.importerErrors = undefined;
+    this.importerErrors.set(undefined);
     this.importedFeatures = [];
   }
 
   // Alert methods (template-bound flags)
   showMappingConfigImportErrorAlert(): void {
-    this.mappingConfigImportErrorAlertVisible = true;
+    this.mappingConfigImportErrorAlertVisible.set(true);
   }
 
   hideMappingConfigErrorAlert(): void {
-    this.mappingConfigImportErrorAlertVisible = false;
+    this.mappingConfigImportErrorAlertVisible.set(false);
   }
 
   // Validation for form submission

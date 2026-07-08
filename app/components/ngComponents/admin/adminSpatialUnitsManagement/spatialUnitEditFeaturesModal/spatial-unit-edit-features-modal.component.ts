@@ -1,12 +1,15 @@
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
-  OnInit,
-  ViewChild,
-  ElementRef,
-  inject,
   DestroyRef,
-  Output,
+  ElementRef,
   EventEmitter,
+  OnInit,
+  Output,
+  ViewChild,
+  inject,
+  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
@@ -55,6 +58,7 @@ import { ResourceImportService } from 'services/resource-import-service/resource
   styleUrls: ['./spatial-unit-edit-features-modal.component.scss'],
   imports: [FormsModule, CommonModule, AgGridAngular, KmDatePickerComponent, StepperComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
@@ -71,6 +75,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private destroyRef = inject(DestroyRef);
   private resourceImportService = inject(ResourceImportService);
+  private cdr = inject(ChangeDetectorRef);
 
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
   @ViewChild('spatialUnitDataSourceInput', { static: false })
@@ -84,8 +89,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     { key: 'data', label: 'Räumlicher Datensatz' },
   ]);
 
-  // Form data
-  loadingData = false;
+  // Form data — signal: written from subscriptions/awaits/setTimeouts (OnPush).
+  loadingData = signal(false);
 
   // Current dataset being edited
   currentSpatialUnitDataset: SpatialUnitMetadata | null = null;
@@ -94,7 +99,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   spatialUnitFeaturesGeoJSON: any = null;
   remainingFeatureHeaders: string[] = [];
   spatialUnitMappingConfigStructure_pretty = '';
-  spatialUnitMappingConfigImportError = '';
+  // Signal: written from async import callbacks and a hide timer (OnPush).
+  spatialUnitMappingConfigImportError = signal('');
 
   // Period of validity
   periodOfValidity: { startDate: string; endDate: string } = {
@@ -137,8 +143,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   // Partial update
   isPartialUpdate = false;
 
-  // Import result data
-  importerErrors: any[] = [];
+  // Import result data — signal: written after importer responses (OnPush).
+  importerErrors = signal<any[]>([]);
 
   // Available options
   availableDatasourceTypes: DatasourceType[] = [];
@@ -222,9 +228,9 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
       )
       .subscribe((event) => {
         if (event.type === 'loadingStart') {
-          this.loadingData = true;
+          this.loadingData.set(true);
         } else if (event.type === 'loadingEnd') {
-          this.loadingData = false;
+          this.loadingData.set(false);
         } else if (event.type === 'featureDeleted') {
           // Handle individual feature deletion
           this.refreshRequested.emit({
@@ -326,6 +332,10 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
         this.headerHeightSetter();
       },
     };
+
+    // The grid bindings above are also reassigned from HTTP callbacks — mark
+    // the OnPush view once here instead of signalling each grid field.
+    this.cdr.markForCheck();
   }
 
   resetForm(): void {
@@ -363,7 +373,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     this.isPartialUpdate = false;
     this.enableDeleteFeatures = false;
     this.fileSelected = false;
-    this.importerErrors = [];
+    this.importerErrors.set([]);
   }
 
   onChangeConverter(_schema?: any): void {
@@ -418,7 +428,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
       return;
     }
 
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     const url = `${this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/spatial-units/${this.currentSpatialUnitDataset.spatialUnitId}/allFeatures`;
 
@@ -450,7 +460,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
 
         // Use setTimeout to ensure proper change detection and DOM updates
         setTimeout(() => {
-          this.loadingData = false;
+          this.loadingData.set(false);
 
           // If grid API is still not available, try to rebuild the grid
           if (!this.gridApi && this.spatialUnitFeatureTable) {
@@ -461,7 +471,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
       error: (error) => {
         this.handleError(error);
         setTimeout(() => {
-          this.loadingData = false;
+          this.loadingData.set(false);
         }, 500); // Increased timeout to show loading state longer
       },
     });
@@ -471,7 +481,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     const dataset = this.currentSpatialUnitDataset;
     if (!dataset) return;
 
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     const url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}/spatial-units/${dataset.spatialUnitId}/allFeatures`;
 
@@ -494,13 +504,13 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
         );
 
         setTimeout(() => {
-          this.loadingData = false;
+          this.loadingData.set(false);
         }, 500); // Increased timeout to show loading state longer
       },
       error: (error) => {
         this.handleError(error);
         setTimeout(() => {
-          this.loadingData = false;
+          this.loadingData.set(false);
         }, 500); // Increased timeout to show loading state longer
       },
     });
@@ -686,8 +696,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     const dataset = this.currentSpatialUnitDataset;
     if (!dataset) return;
 
-    this.loadingData = true;
-    this.importerErrors = [];
+    this.loadingData.set(true);
+    this.importerErrors.set([]);
 
     const missing = this.resourceImportService.collectMissingImporterFields({
       converter: this.converter,
@@ -712,7 +722,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     });
 
     if (missing.length > 0) {
-      this.loadingData = false;
+      this.loadingData.set(false);
       this.notificationService.showError(
         `Bitte füllen Sie alle Pflichtfelder in Schritt 2 aus. Fehlend: ${missing.join(', ')}.`
       );
@@ -721,7 +731,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
 
     const allDataSpecified = await this.buildImporterObjects();
     if (!allDataSpecified) {
-      this.loadingData = false;
+      this.loadingData.set(false);
       this.notificationService.showError('Bitte füllen Sie alle Pflichtfelder in Schritt 2 aus.');
       return;
     }
@@ -755,7 +765,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
           crudType: 'edit',
           targetSpatialUnitId: dataset.spatialUnitId,
         });
-        this.loadingData = false;
+        this.loadingData.set(false);
         this.notificationService.showSuccess(
           `Die Features der Raumebene "${dataset.spatialUnitLevel}" wurden aktualisiert.`
         );
@@ -763,18 +773,19 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
       } else {
         // Dry-run reported import errors: keep the modal open and list the
         // affected feature IDs inline; summarise via a toast.
-        this.importerErrors =
+        this.importerErrors.set(
           this.kommonitorImporterHelperService?.getErrorsFromImporterResponse(
             updateSpatialUnitResponse_dryRun
-          ) || [];
-        this.loadingData = false;
+          ) || []
+        );
+        this.loadingData.set(false);
         this.notificationService.showError(
           'Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.'
         );
       }
     } catch (error) {
       this.handleError(error);
-      this.loadingData = false;
+      this.loadingData.set(false);
     }
   }
 
@@ -790,7 +801,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
 
   // Import/Export functionality
   onImportSpatialUnitEditFeaturesMappingConfig(): void {
-    this.spatialUnitMappingConfigImportError = '';
+    this.spatialUnitMappingConfigImportError.set('');
     if (this.mappingConfigImportFile) {
       this.mappingConfigImportFile.nativeElement.click();
     }
@@ -801,14 +812,17 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     if (!file) {
       return;
     }
-    this.spatialUnitMappingConfigImportError = '';
+    this.spatialUnitMappingConfigImportError.set('');
     try {
       const json = await this.resourceImportService.readJsonFile(file);
       this.applyMappingConfig(this.resourceImportService.parseMappingConfig(json));
     } catch (error) {
-      this.spatialUnitMappingConfigImportError = getErrorMessage(error);
+      this.spatialUnitMappingConfigImportError.set(getErrorMessage(error));
       this.showMappingConfigErrorAlert();
     }
+    // The import rewrites many ngModel-bound fields after an await — mark the
+    // OnPush view once instead of converting each field to a signal.
+    this.cdr.markForCheck();
   }
 
   /** Applies a parsed mapping-config onto this modal's form fields. */
@@ -982,6 +996,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     // Transform and set data; the bound columnDefs/rowData (reassigned in
     // buildFeatureTable / here) are pushed to the grid by Angular.
     this.rowData = transformFeaturesForGrid(this.spatialUnitFeaturesGeoJSON?.features || []);
+    this.cdr.markForCheck();
     this.gridApi.refreshCells();
     this.gridApi.redrawRows();
 
@@ -995,7 +1010,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   }
 
   hideMappingConfigErrorAlert(): void {
-    this.spatialUnitMappingConfigImportError = '';
+    this.spatialUnitMappingConfigImportError.set('');
   }
 
   private handleError(error: any): void {

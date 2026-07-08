@@ -5,7 +5,7 @@
 
 <div class="modal-body">
   <!-- Loading Overlay -->
-  @if (loadingData) {
+  @if (loadingData()) {
     <div class="loading-overlay-admin-panel text-center">
       <i class="fas fa-spinner fa-spin fa-2x"></i>
     </div>
@@ -392,7 +392,7 @@
   }
 
   <!-- Success Alert -->
-  @if (showSuccessAlert) {
+  @if (showSuccessAlert()) {
     <div class="alert alert-success alert-dismissible position-absolute bottom-0 w-100">
       <button
         type="button"
@@ -405,13 +405,13 @@
         Georessourcen-Referenzen und Skripte, bei denen Indikatoren als Berechnungsgrundlage
         verwendet werden, wurden erfolgreich gelöscht
       </h4>
-      @if (successfullyDeletedDatasets.length > 0) {
+      @if (successfullyDeletedDatasets().length > 0) {
         <div>
           <h4>
             Gesamter Indikatorendatensatz (Metadaten sowie alle Zeitreihen-Werte und Raumebenen)
           </h4>
           <ul>
-            @for (dataset of successfullyDeletedDatasets; track dataset) {
+            @for (dataset of successfullyDeletedDatasets(); track dataset) {
               <li>{{ dataset.indicatorName }}</li>
             }
           </ul>
@@ -447,21 +447,21 @@
           }
         </div>
       }
-      @if (successfullyDeletedTimestamps.length > 0) {
+      @if (successfullyDeletedTimestamps().length > 0) {
         <div>
           <h4>Zeitschnitte</h4>
           <ul>
-            @for (timestamp of successfullyDeletedTimestamps; track timestamp) {
+            @for (timestamp of successfullyDeletedTimestamps(); track timestamp) {
               <li>{{ timestamp.timestamp }}</li>
             }
           </ul>
         </div>
       }
-      @if (successfullyDeletedSpatialUnits.length > 0) {
+      @if (successfullyDeletedSpatialUnits().length > 0) {
         <div>
           <h4>Raumebenen</h4>
           <ul>
-            @for (spatialUnit of successfullyDeletedSpatialUnits; track spatialUnit) {
+            @for (spatialUnit of successfullyDeletedSpatialUnits(); track spatialUnit) {
               <li>{{ spatialUnit.spatialUnitMetadata.spatialUnitLevel }}</li>
             }
           </ul>
@@ -471,7 +471,7 @@
   }
 
   <!-- Error Alert -->
-  @if (showErrorAlert) {
+  @if (showErrorAlert()) {
     <div class="alert alert-danger alert-dismissible position-absolute bottom-0 w-100">
       <button
         type="button"
@@ -482,7 +482,7 @@
       <h4><i class="fas fa-ban"></i> Löschen gescheitert</h4>
       Folgende Datensätze konnten nicht gelöscht werden.
       <br />
-      @if (failedDatasetsAndErrors.length > 0) {
+      @if (failedDatasetsAndErrors().length > 0) {
         <div>
           <table class="table table-bordered table-condensed">
             <thead>
@@ -492,7 +492,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (dataset of failedDatasetsAndErrors; track dataset) {
+              @for (dataset of failedDatasetsAndErrors(); track dataset) {
                 <tr>
                   <td>{{ dataset[0].indicatorName }}</td>
                   <td [innerHTML]="dataset[1]"></td>
@@ -502,7 +502,7 @@
           </table>
         </div>
       }
-      @if (failedTimestampsAndErrors.length > 0) {
+      @if (failedTimestampsAndErrors().length > 0) {
         <div>
           <table class="table table-bordered table-condensed">
             <thead>
@@ -512,7 +512,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (dataset of failedTimestampsAndErrors; track dataset) {
+              @for (dataset of failedTimestampsAndErrors(); track dataset) {
                 <tr>
                   <td>{{ dataset[0].timestamp }}</td>
                   <td [innerHTML]="dataset[1]"></td>
@@ -522,7 +522,7 @@
           </table>
         </div>
       }
-      @if (failedSpatialUnitsAndErrors.length > 0) {
+      @if (failedSpatialUnitsAndErrors().length > 0) {
         <div>
           <table class="table table-bordered table-condensed">
             <thead>
@@ -532,7 +532,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (dataset of failedSpatialUnitsAndErrors; track dataset) {
+              @for (dataset of failedSpatialUnitsAndErrors(); track dataset) {
                 <tr>
                   <td>{{ dataset[0].spatialUnitMetadata.spatialUnitLevel }}</td>
                   <td [innerHTML]="dataset[1]"></td>
@@ -551,13 +551,13 @@
   <button
     type="button"
     class="btn btn-danger"
-    [disabled]="!selectedIndicatorDataset || loadingData"
+    [disabled]="!selectedIndicatorDataset || loadingData()"
     (click)="deleteIndicatorData()"
   >
-    @if (!loadingData) {
+    @if (!loadingData()) {
       <i class="fas fa-trash"></i>
     }
-    @if (loadingData) {
+    @if (loadingData()) {
       <i class="fas fa-spinner fa-spin"></i>
     }
     Löschen

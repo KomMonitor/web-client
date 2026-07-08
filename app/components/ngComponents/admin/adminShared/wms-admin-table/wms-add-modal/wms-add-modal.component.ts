@@ -1,5 +1,14 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit, ViewChild, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnInit,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -34,6 +43,7 @@ import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-ste
     OwnerOrganizationSelectComponent,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WmsAddModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
@@ -41,6 +51,7 @@ export class WmsAddModalComponent implements OnInit {
   private topicStore = inject(TopicMetadataStoreService);
   private ogcService = inject(OgcService);
   protected envConfigService = inject(EnvConfigService);
+  private cdr = inject(ChangeDetectorRef);
 
   @Input() resourceType!: any;
 
@@ -61,12 +72,13 @@ export class WmsAddModalComponent implements OnInit {
   ]);
 
   isSubmitting = false;
-  errorMessage = false;
-  successMessage = false;
+  // Signals: toggled from async HTTP callbacks and read by the template (OnPush)
+  errorMessage = signal(false);
+  successMessage = signal(false);
   loadingData = false;
 
-  testErrorMessage = false;
-  testSuccessMessage = false;
+  testErrorMessage = signal(false);
+  testSuccessMessage = signal(false);
 
   wmsTestStatus: boolean | undefined = undefined;
 
@@ -98,8 +110,8 @@ export class WmsAddModalComponent implements OnInit {
   ownerOrganization = '';
   isPublic = false;
 
-  successMessagePart = '';
-  errorMessagePart = '';
+  successMessagePart = signal('');
+  errorMessagePart = signal('');
 
   ngOnInit(): void {
     this.availableTopics = this.topicStore.availableTopics.filter(
@@ -142,13 +154,16 @@ export class WmsAddModalComponent implements OnInit {
 
     this.ogcService.registerWms(data).subscribe({
       next: (response) => {
-        this.successMessagePart = response.title;
-        this.successMessage = true;
+        this.successMessagePart.set(response.title);
+        this.successMessage.set(true);
         this.resetWmsAddForm();
+        // resetWmsAddForm rewrites several plain template-bound fields
+        // (topic selections, owner, isPublic) from this async callback.
+        this.cdr.markForCheck();
       },
       error: (error) => {
-        this.errorMessagePart = error.message;
-        this.errorMessage = true;
+        this.errorMessagePart.set(error.message);
+        this.errorMessage.set(true);
       },
     });
   }
@@ -186,20 +201,20 @@ export class WmsAddModalComponent implements OnInit {
   }
 
   hideSuccessAlert(): void {
-    this.successMessage = false;
-    this.testSuccessMessage = false;
-    this.successMessagePart = '';
+    this.successMessage.set(false);
+    this.testSuccessMessage.set(false);
+    this.successMessagePart.set('');
   }
 
   hideErrorAlert(): void {
-    this.errorMessage = false;
-    this.testErrorMessage = false;
-    this.errorMessagePart = '';
+    this.errorMessage.set(false);
+    this.testErrorMessage.set(false);
+    this.errorMessagePart.set('');
   }
 
   testConnection() {
-    this.testErrorMessage = false;
-    this.testSuccessMessage = false;
+    this.testErrorMessage.set(false);
+    this.testSuccessMessage.set(false);
 
     const url = this.connectForm.controls.url.value;
     const layer = this.connectForm.controls.layer.value;
@@ -207,11 +222,11 @@ export class WmsAddModalComponent implements OnInit {
     if (url && layer) {
       this.ogcService.testConnection(url).subscribe({
         next: (response) => {
-          if (response.success === true) this.testSuccessMessage = true;
-          else this.testErrorMessage = true;
+          if (response.success === true) this.testSuccessMessage.set(true);
+          else this.testErrorMessage.set(true);
         },
         error: (error) => {
-          this.testErrorMessage = true;
+          this.testErrorMessage.set(true);
         },
       });
     }

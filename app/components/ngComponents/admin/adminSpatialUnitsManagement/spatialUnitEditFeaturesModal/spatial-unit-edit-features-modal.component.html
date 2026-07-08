@@ -11,7 +11,7 @@
 
 <div class="modal-body">
   <div align="center">
-    <div class="loading-overlay-admin-panel ng-hide" [class.ng-hide]="!loadingData">
+    <div class="loading-overlay-admin-panel ng-hide" [class.ng-hide]="!loadingData()">
       <i class="fas fa-spinner fa-spin fa-2x"></i>
     </div>
   </div>
@@ -793,12 +793,14 @@
 </div>
 
 <!-- Importer errors: affected feature IDs (modal stays open on import failure) -->
-@if (importerErrors.length > 0) {
+@if (importerErrors().length > 0) {
   <div id="spatialUnitEditFeaturesImporterErrors" class="alert alert-danger">
     <h4><i class="icon fa fa-ban"></i>Import gescheitert</h4>
-    <p>Bei den {{ importerErrors.length }} Raumeinheiten mit folgenden IDs scheitert der Import:</p>
+    <p>
+      Bei den {{ importerErrors().length }} Raumeinheiten mit folgenden IDs scheitert der Import:
+    </p>
     <ul style="overflow: auto; max-height: 500px">
-      @for (error of importerErrors; track error) {
+      @for (error of importerErrors(); track error) {
         <li>{{ error }}</li>
       }
     </ul>
@@ -807,7 +809,7 @@
 }
 
 <!-- Mapping Config Import Error Alert -->
-@if (spatialUnitMappingConfigImportError) {
+@if (spatialUnitMappingConfigImportError()) {
   <div
     id="spatialUnitEditFeaturesMappingConfigErrorAlert"
     style="position: absolute; bottom: 0px; width: 100%"
@@ -817,6 +819,6 @@
       &times;
     </button>
     <h4><i class="icon fa fa-ban"></i>Mapping-Konfiguration Fehler!</h4>
-    <pre [innerHTML]="spatialUnitMappingConfigImportError"></pre>
+    <pre [innerHTML]="spatialUnitMappingConfigImportError()"></pre>
   </div>
 }

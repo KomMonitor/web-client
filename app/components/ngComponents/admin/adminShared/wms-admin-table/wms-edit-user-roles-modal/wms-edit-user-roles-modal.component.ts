@@ -1,4 +1,4 @@
-import { Component, ViewChild, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewChild, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
@@ -23,6 +23,7 @@ import { OwnerOrganizationSelectComponent } from 'components/ngComponents/admin/
     OwnerOrganizationSelectComponent,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WmsEditUserRolesModalComponent {
   activeModal = inject(NgbActiveModal);
@@ -40,16 +41,17 @@ export class WmsEditUserRolesModalComponent {
   ]);
 
   isSubmitting = false;
-  errorMessage = false;
-  successMessage = false;
+  // Signals: toggled from async HTTP callbacks and read by the template (OnPush)
+  errorMessage = signal(false);
+  successMessage = signal(false);
   loadingData = false;
 
   // Role management (grid handled by <app-role-management-grid>)
   ownerOrganization = '';
   isPublic = false;
 
-  successMessagePart = '';
-  errorMessagePart = '';
+  successMessagePart = signal('');
+  errorMessagePart = signal('');
 
   close(): void {
     this.activeModal.close(true);
@@ -80,12 +82,12 @@ export class WmsEditUserRolesModalComponent {
       ),
     }).subscribe({
       next: (_response: any) => {
-        this.successMessagePart = this.currentGeoresourceDataset.title;
-        this.successMessage = true;
+        this.successMessagePart.set(this.currentGeoresourceDataset.title);
+        this.successMessage.set(true);
       },
       error: (error) => {
-        this.errorMessagePart = error.message;
-        this.errorMessage = true;
+        this.errorMessagePart.set(error.message);
+        this.errorMessage.set(true);
       },
     });
   }
@@ -107,10 +109,10 @@ export class WmsEditUserRolesModalComponent {
   }
 
   hideSuccessAlert(): void {
-    this.successMessage = false;
+    this.successMessage.set(false);
   }
 
   hideErrorAlert(): void {
-    this.errorMessage = false;
+    this.errorMessage.set(false);
   }
 }

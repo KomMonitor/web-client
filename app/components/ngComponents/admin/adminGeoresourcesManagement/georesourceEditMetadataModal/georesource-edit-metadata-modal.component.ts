@@ -1,12 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
-  inject,
   OnInit,
   Output,
   ViewChild,
+  inject,
+  signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -53,6 +56,7 @@ import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admi
     ResourceMetadataFormComponent,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeoresourceEditMetadataModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
@@ -67,11 +71,12 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
   private topicHierarchyService = inject(TopicHierarchyService);
   private http = inject(HttpClient);
   protected envConfigService = inject(EnvConfigService);
+  private cdr = inject(ChangeDetectorRef);
 
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
 
-  // Component state
-  loadingData = false;
+  // Component state — signal: toggled from the PATCH subscription (OnPush).
+  loadingData = signal(false);
   currentGeoresourceDataset: any;
   readonly stepper = new WizardStepper([
     { key: 'metadata', label: 'Metadaten der Georessource' },
@@ -127,7 +132,8 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
 
   // Import/Export
   metadataImportSettings: any;
-  georesourceMetadataImportError: string = '';
+  // Signal: written from the async FileReader callback (OnPush).
+  georesourceMetadataImportError = signal('');
   georesourceMetadataStructure: any;
   georesourceMetadataStructure_pretty: string = '';
 
@@ -145,7 +151,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
   // Alert visibility (template binding; formerly toggled via document.getElementById).
   // Success/error feedback is toasted via NotificationService; only the inline
   // metadata-import error report remains.
-  importErrorAlertVisible = false;
+  importErrorAlertVisible = signal(false);
 
   constructor() {
     this.initializeDefaultValues();
@@ -318,7 +324,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
 
   // Import/Export methods
   onImportGeoresourceEditMetadata(): void {
-    this.georesourceMetadataImportError = '';
+    this.georesourceMetadataImportError.set('');
     this.metadataImportFile.nativeElement.click();
   }
 
@@ -337,9 +343,14 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
         this.parseFromMetadataFile(event);
       } catch {
         console.error('Uploaded Metadata File cannot be parsed.');
-        this.georesourceMetadataImportError = 'Uploaded Metadata File cannot be parsed correctly';
+        this.georesourceMetadataImportError.set(
+          'Uploaded Metadata File cannot be parsed correctly'
+        );
         this.showMetadataImportErrorAlert();
       }
+      // The import rewrites many ngModel-bound fields from an async callback —
+      // mark the OnPush view once instead of converting each field to a signal.
+      this.cdr.markForCheck();
     };
 
     fileReader.readAsText(file);
@@ -350,8 +361,9 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
 
     if (!this.metadataImportSettings.metadata) {
       console.error('uploaded Metadata File cannot be parsed - wrong structure.');
-      this.georesourceMetadataImportError =
-        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.';
+      this.georesourceMetadataImportError.set(
+        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.'
+      );
       this.showMetadataImportErrorAlert();
       return;
     }
@@ -559,7 +571,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
       patchBody.topicReference = '';
     }
 
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     this.http
       .patch(
@@ -574,7 +586,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
             crudType: 'edit',
             targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
           });
-          this.loadingData = false;
+          this.loadingData.set(false);
           this.notificationService.showSuccess(
             `Metadaten der Georessource "${this.datasetName}" wurden aktualisiert.`
           );
@@ -587,18 +599,18 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
           this.notificationService.showError(
             'Fehler beim Aktualisieren der Metadaten: ' + getErrorMessage(error)
           );
-          this.loadingData = false;
+          this.loadingData.set(false);
         },
       });
   }
 
   // Alert methods (template-bound flags)
   showMetadataImportErrorAlert(): void {
-    this.importErrorAlertVisible = true;
+    this.importErrorAlertVisible.set(true);
   }
 
   hideMetadataErrorAlert(): void {
-    this.importErrorAlertVisible = false;
+    this.importErrorAlertVisible.set(false);
   }
 
   // Get filtered topics for georesource

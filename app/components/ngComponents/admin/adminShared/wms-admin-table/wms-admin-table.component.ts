@@ -1,4 +1,12 @@
-import { AfterViewInit, Component, Input, OnInit, ViewChild, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  OnInit,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import { WmsDataset, WmsResourceType } from 'components/ngComponents/models/services.models';
@@ -25,6 +33,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
   styleUrls: ['./wms-admin-table.component.scss'],
   imports: [ExpandableBoxComponent, AgGridAngular],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WmsAdminTableComponent implements OnInit, AfterViewInit {
   private ogcDataGridHelperServiceFactory = inject(OgcDataGridHelperServiceFactory);

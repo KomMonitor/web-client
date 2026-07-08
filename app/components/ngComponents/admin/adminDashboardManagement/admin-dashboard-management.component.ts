@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { merge } from 'rxjs';
 
@@ -101,6 +101,7 @@ const GEORESOURCE_TYPE_I18N: Record<string, string> = {
   imports: [SmallBoxComponent, TranslateModule, NgxEchartsDirective, AdminContentViewComponent],
   providers: [provideEchartsCore({ echarts })],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminDashboardManagementComponent {
   private translateService = inject(TranslateService);

@@ -6,29 +6,29 @@
 
 <div class="modal-body">
   <!-- Success Alert -->
-  @if (successMessagePart) {
+  @if (successMessagePart()) {
     <div class="alert alert-success alert-dismissible" id="indicatorEditMetadataSuccessAlert">
       <button type="button" class="close" (click)="hideSuccessAlert()">
         <span aria-hidden="true">&times;</span>
       </button>
-      <strong>Erfolg!</strong> Die Metadaten für den Indikator "{{ successMessagePart }}" wurden
+      <strong>Erfolg!</strong> Die Metadaten für den Indikator "{{ successMessagePart() }}" wurden
       erfolgreich aktualisiert.
     </div>
   }
 
   <!-- Error Alert -->
-  @if (errorMessagePart) {
+  @if (errorMessagePart()) {
     <div class="alert alert-danger alert-dismissible" id="indicatorEditMetadataErrorAlert">
       <button type="button" class="close" (click)="hideErrorAlert()">
         <span aria-hidden="true">&times;</span>
       </button>
       <strong>Fehler!</strong> Beim Aktualisieren der Metadaten ist ein Fehler aufgetreten.
-      <pre>{{ errorMessagePart }}</pre>
+      <pre>{{ errorMessagePart() }}</pre>
     </div>
   }
 
   <!-- Loading Overlay -->
-  @if (loadingData) {
+  @if (loadingData()) {
     <div class="loading-overlay">
       <div class="spinner-border text-primary" role="status">
         <span class="sr-only">Loading...</span>
@@ -760,9 +760,9 @@
     type="button"
     class="btn btn-primary"
     (click)="editIndicatorMetadata()"
-    [disabled]="loadingData || !indicatorEditMetadataForm.valid"
+    [disabled]="loadingData() || !indicatorEditMetadataForm.valid"
   >
-    @if (loadingData) {
+    @if (loadingData()) {
       <span class="spinner-border spinner-border-sm mr-1"></span>
     }
     Speichern

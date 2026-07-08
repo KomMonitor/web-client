@@ -1,4 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -40,6 +47,7 @@ import { RoleDelegatePutEntry } from '../admin-role-management.service';
     LoadingOverlayComponent,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoleAddModalComponent implements OnInit {
   protected activeModal = inject(NgbActiveModal);
@@ -49,8 +57,11 @@ export class RoleAddModalComponent implements OnInit {
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private adminRoleManagementService = inject(AdminRoleManagementService);
   private notificationService = inject(NotificationService);
+  private cdr = inject(ChangeDetectorRef);
 
-  processCreation: boolean = false;
+  // Signal-backed: written from the async create-request callbacks, which would
+  // not trigger a re-render of this OnPush component otherwise.
+  processCreation = signal(false);
   nameInvalid: boolean = false;
 
   roleDelegatesColumnDefs: ColDef[] = [];
@@ -64,10 +75,10 @@ export class RoleAddModalComponent implements OnInit {
   } = {};
   private roleDelegatesGridApi: GridApi | null = null;
 
-  errorMessagePart: string | undefined;
-  keycloakErrorMessagePart: string | undefined;
-  showErrorAlert: boolean = false;
-  showKeycloakErrorAlert: boolean = false;
+  errorMessagePart = signal<string | undefined>(undefined);
+  keycloakErrorMessagePart = signal<string | undefined>(undefined);
+  showErrorAlert = signal(false);
+  showKeycloakErrorAlert = signal(false);
 
   newOrganizationalUnit: {
     name?: string;
@@ -109,7 +120,7 @@ export class RoleAddModalComponent implements OnInit {
 
   get canSubmit(): boolean {
     if (
-      this.processCreation ||
+      this.processCreation() ||
       this.nameInvalid ||
       !this.isRealmAdmin ||
       !this.newOrganizationalUnit.name ||
@@ -130,10 +141,10 @@ export class RoleAddModalComponent implements OnInit {
 
   reset(): void {
     this.newOrganizationalUnit = { mandant: false, parentId: undefined };
-    this.errorMessagePart = undefined;
-    this.keycloakErrorMessagePart = undefined;
-    this.showErrorAlert = false;
-    this.showKeycloakErrorAlert = false;
+    this.errorMessagePart.set(undefined);
+    this.keycloakErrorMessagePart.set(undefined);
+    this.showErrorAlert.set(false);
+    this.showKeycloakErrorAlert.set(false);
     this.nameInvalid = false;
     this.stepper.reset();
 
@@ -209,6 +220,11 @@ export class RoleAddModalComponent implements OnInit {
       rowHeight: 42,
       onGridReady: (params) => this.onRoleDelegatesGridReady(params),
     };
+
+    // This method bulk-rewrites the grid inputs and also runs from the async
+    // access-control fetch, so mark the OnPush view for check once instead of
+    // converting each grid field to a signal.
+    this.cdr.markForCheck();
   }
 
   private buildRoleDelegatesPutBody(): RoleDelegatePutEntry[] {
@@ -229,9 +245,9 @@ export class RoleAddModalComponent implements OnInit {
     const { name, contact } = this.newOrganizationalUnit;
     if (!name || !contact) return;
 
-    this.errorMessagePart = undefined;
-    this.keycloakErrorMessagePart = undefined;
-    this.processCreation = true;
+    this.errorMessagePart.set(undefined);
+    this.keycloakErrorMessagePart.set(undefined);
+    this.processCreation.set(true);
 
     const postBody: OrganizationalUnitInputType = {
       name,
@@ -253,7 +269,7 @@ export class RoleAddModalComponent implements OnInit {
             `Die neue Organisationseinheit '${this.newOrganizationalUnit.name}' wurde erfolgreich erstellt..`
           );
           this.notificationService.showSuccess('Keycloak-Rollen erfolgreich angelegt.');
-          this.processCreation = false;
+          this.processCreation.set(false);
           this.activeModal.close(true);
         },
         error: (error: any) => {
@@ -261,16 +277,18 @@ export class RoleAddModalComponent implements OnInit {
 
           // Distinguish HTTP/backend errors from Keycloak/service errors by status presence
           if (error && error.status !== undefined) {
-            this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(payload);
-            this.showErrorAlert = true;
+            this.errorMessagePart.set(this.indicatorValueService.syntaxHighlightJSON(payload));
+            this.showErrorAlert.set(true);
           } else {
-            this.keycloakErrorMessagePart = this.indicatorValueService.syntaxHighlightJSON(payload);
-            if (!this.showErrorAlert) {
-              this.showKeycloakErrorAlert = true;
+            this.keycloakErrorMessagePart.set(
+              this.indicatorValueService.syntaxHighlightJSON(payload)
+            );
+            if (!this.showErrorAlert()) {
+              this.showKeycloakErrorAlert.set(true);
             }
           }
 
-          this.processCreation = false;
+          this.processCreation.set(false);
         },
       });
   }

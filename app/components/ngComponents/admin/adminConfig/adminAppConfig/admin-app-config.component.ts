@@ -1,5 +1,13 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ConfigStorageService } from '../../../../../services/config-storage-service/config-storage.service';
 
@@ -37,6 +45,7 @@ interface LintingIssue {
   styleUrls: ['./admin-app-config.component.scss'],
   imports: [ExpandableBoxComponent, AdminContentViewComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminAppConfigComponent implements OnInit {
   private http = inject(HttpClient);
@@ -46,13 +55,16 @@ export class AdminAppConfigComponent implements OnInit {
 
   @ViewChild('appConfigEditor') appConfigEditor!: ElementRef;
 
-  loadingData = true;
+  // Signal: toggled from awaits/subscriptions (OnPush).
+  loadingData = signal(true);
   codeMirrorEditor!: CodeMirrorEditor;
   templateCodeMirrorEditor!: CodeMirrorEditor;
   currentCodeMirrorEditor!: CodeMirrorEditor;
   newCodeMirrorEditor!: CodeMirrorEditor;
-  missingRequiredParameters: string[] = [];
-  missingRequiredParameters_string = '';
+  // Signals: written from CodeMirror lint callbacks, which run outside
+  // Angular's template-event path (OnPush).
+  missingRequiredParameters = signal<string[]>([]);
+  missingRequiredParameters_string = signal('');
   keywordsInConfig = [
     'window.__env',
     'window.__env.appTitle',
@@ -102,7 +114,7 @@ export class AdminAppConfigComponent implements OnInit {
   appConfigTmp: string = '';
   appConfigCurrent: string = '';
   appConfigNew: string = '';
-  configSettingInvalid = false;
+  configSettingInvalid = signal(false);
   lintingIssues: LintingIssue[] = [];
 
   constructor() {
@@ -148,7 +160,7 @@ export class AdminAppConfigComponent implements OnInit {
         { autohide: false }
       );
     } finally {
-      this.loadingData = false;
+      this.loadingData.set(false);
     }
   }
 
@@ -235,10 +247,10 @@ export class AdminAppConfigComponent implements OnInit {
   isConfigSettingInvalid(configString: string): boolean {
     let isInvalid = true;
     isInvalid = !this.keywordsInConfig.every((keyword) => configString.includes(keyword));
-    this.missingRequiredParameters = this.keywordsInConfig.filter(
-      (keyword) => !configString.includes(keyword)
+    this.missingRequiredParameters.set(
+      this.keywordsInConfig.filter((keyword) => !configString.includes(keyword))
     );
-    this.missingRequiredParameters_string = JSON.stringify(this.missingRequiredParameters);
+    this.missingRequiredParameters_string.set(JSON.stringify(this.missingRequiredParameters()));
     if (this.lintingIssues && this.lintingIssues.length > 0) {
       const errors = this.lintingIssues.filter((issue) => issue.severity === 'error');
       if (errors && errors.length > 0) {
@@ -250,7 +262,7 @@ export class AdminAppConfigComponent implements OnInit {
 
   onChangeAppConfig() {
     const configString = this.appConfigTmp;
-    this.configSettingInvalid = this.isConfigSettingInvalid(configString);
+    this.configSettingInvalid.set(this.isConfigSettingInvalid(configString));
     setTimeout(() => {
       this.appConfigNew = configString;
       if (this.newCodeMirrorEditor) {
@@ -260,7 +272,7 @@ export class AdminAppConfigComponent implements OnInit {
   }
 
   async editAppConfig() {
-    this.loadingData = true;
+    this.loadingData.set(true);
     try {
       await this.kommonitorConfigStorageService.postAppConfig(this.appConfigTmp).toPromise();
       this.kommonitorConfigStorageService.getAppConfig().subscribe({
@@ -272,16 +284,16 @@ export class AdminAppConfigComponent implements OnInit {
           this.notificationService.showSuccess(
             'App-Konfiguration gespeichert. Die neue Parametrisierung wird beim nächsten Start der Anwendung geladen.'
           );
-          this.loadingData = false;
+          this.loadingData.set(false);
         },
         error: (error: any) => {
           this.showSaveError(error);
-          this.loadingData = false;
+          this.loadingData.set(false);
         },
       });
     } catch (error: any) {
       this.showSaveError(error);
-      this.loadingData = false;
+      this.loadingData.set(false);
     }
   }
 

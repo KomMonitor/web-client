@@ -1,11 +1,14 @@
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
-  OnInit,
-  ViewChild,
   ElementRef,
-  inject,
-  Output,
   EventEmitter,
+  OnInit,
+  Output,
+  ViewChild,
+  inject,
+  signal,
 } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
@@ -60,6 +63,7 @@ import {
     ResourceMetadataFormComponent,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpatialUnitEditMetadataModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
@@ -70,6 +74,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   private broadcastService = inject(BroadcastService);
   private sanitizer = inject(DomSanitizer);
   private notificationService = inject(NotificationService);
+  private cdr = inject(ChangeDetectorRef);
 
   /** Emitted after metadata changed so the parent refreshes its table. */
   @Output() refreshRequested = new EventEmitter<SpatialUnitRefreshRequest>();
@@ -82,8 +87,8 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     { key: 'general', label: 'Allgemeine Metadaten' },
   ]);
 
-  // Form data
-  loadingData = false;
+  // Form data — signal: toggled across await boundaries (OnPush).
+  loadingData = signal(false);
 
   // Current dataset being edited
   currentSpatialUnitDataset: SpatialUnitMetadata | null = null;
@@ -126,7 +131,8 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
   // Import/Export functionality
   metadataImportSettings: any = null;
-  spatialUnitMetadataImportError = '';
+  // Signal: written from the async FileReader callback (OnPush).
+  spatialUnitMetadataImportError = signal('');
 
   // Add flag to track if SVGs have been injected
   private svgInjected = false;
@@ -149,7 +155,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   }
 
   private loadInitialData() {
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     // Load available spatial units
     if (this.spatialUnitStore.availableSpatialUnits) {
@@ -166,7 +172,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
       this.availableLoiDashArrayObjects = LABELED_LOI_DASH_ARRAY_OBJECTS;
     }
 
-    this.loadingData = false;
+    this.loadingData.set(false);
   }
 
   // Date picker change handler - now using ng-bootstrap's built-in functionality
@@ -296,7 +302,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     if (!this.currentSpatialUnitDataset) return;
 
     // Prevent multiple submissions
-    if (this.loadingData) return;
+    if (this.loadingData()) return;
 
     const spatialUnitName_old = this.currentSpatialUnitDataset.spatialUnitLevel;
     const spatialUnitName_new = this.spatialUnitLevel;
@@ -306,7 +312,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
     if (!validation.isValid) {
       this.notificationService.showError(validation.errors.join('\n'));
-      this.loadingData = false;
+      this.loadingData.set(false);
       return;
     }
 
@@ -330,7 +336,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
     // No role management in this version to match AngularJS
 
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     try {
       await this.http
@@ -351,7 +357,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
         this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable);
       }
 
-      this.loadingData = false;
+      this.loadingData.set(false);
       this.notificationService.showSuccess(
         `Metadaten für Raumebene "${this.currentSpatialUnitDataset.spatialUnitLevel}" erfolgreich aktualisiert.`
       );
@@ -363,13 +369,13 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
       this.notificationService.showError(
         'Fehler beim Aktualisieren der Metadaten: ' + getErrorMessage(error)
       );
-      this.loadingData = false;
+      this.loadingData.set(false);
     }
   }
 
   // Import/Export functionality
   onImportSpatialUnitEditMetadata() {
-    this.spatialUnitMetadataImportError = '';
+    this.spatialUnitMetadataImportError.set('');
     if (this.metadataImportFile) {
       this.metadataImportFile.nativeElement.click();
     }
@@ -389,8 +395,13 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
       try {
         this.parseFromMetadataFile(event);
       } catch {
-        this.spatialUnitMetadataImportError = 'Uploaded Metadata File cannot be parsed correctly';
+        this.spatialUnitMetadataImportError.set(
+          'Uploaded Metadata File cannot be parsed correctly'
+        );
       }
+      // The import rewrites many ngModel-bound fields from an async callback —
+      // mark the OnPush view once instead of converting each field to a signal.
+      this.cdr.markForCheck();
     };
 
     fileReader.readAsText(file);
@@ -400,8 +411,9 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     this.metadataImportSettings = JSON.parse(event.target.result);
 
     if (!this.metadataImportSettings.metadata) {
-      this.spatialUnitMetadataImportError =
-        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.';
+      this.spatialUnitMetadataImportError.set(
+        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.'
+      );
       return;
     }
 
@@ -494,7 +506,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   }
 
   hideMetadataErrorAlert() {
-    this.spatialUnitMetadataImportError = '';
+    this.spatialUnitMetadataImportError.set('');
   }
 
   cancel() {
@@ -508,7 +520,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     }
 
     // Only proceed if not already loading
-    if (!this.loadingData) {
+    if (!this.loadingData()) {
       this.editSpatialUnitMetadata();
     }
   }

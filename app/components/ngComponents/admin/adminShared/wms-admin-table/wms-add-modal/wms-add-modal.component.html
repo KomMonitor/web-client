@@ -461,7 +461,7 @@
 <div
   id="georesourceAddSuccessAlert"
   style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!successMessage"
+  [hidden]="!successMessage()"
   class="alert alert-success alert-dismissable"
 >
   <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
@@ -469,8 +469,8 @@
   </button>
   <h4><i class="icon fa fa-check"></i>Georessource registriert</h4>
   <p>
-    Eine neue Georessource mit Namen {{ successMessagePart }} wurde in KomMonitor registriert und in
-    die Übersichtstabelle eingetragen.
+    Eine neue Georessource mit Namen {{ successMessagePart() }} wurde in KomMonitor registriert und
+    in die Übersichtstabelle eingetragen.
   </p>
 </div>
 
@@ -478,7 +478,7 @@
 <div
   id="georesourceAddSuccessAlert"
   style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!testSuccessMessage"
+  [hidden]="!testSuccessMessage()"
   class="alert alert-success alert-dismissable"
 >
   <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
@@ -492,7 +492,7 @@
 <div
   id="georesourceAddErrorAlert"
   style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!testErrorMessage"
+  [hidden]="!testErrorMessage()"
   class="alert alert-danger alert-dismissable"
 >
   <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
@@ -505,14 +505,14 @@
 <div
   id="georesourceAddErrorAlert"
   style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!errorMessage"
+  [hidden]="!errorMessage()"
   class="alert alert-danger alert-dismissable"
 >
   <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
   <h4><i class="icon fa fa-ban"></i>Registrierung gescheitert</h4>
   Bei der Registrierung der Georessource ist ein Fehler aufgetreten. Fehlermeldung:
   <br />
-  <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessagePart"></pre>
+  <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessagePart()"></pre>
   <br />
   <br />
 </div>
