@@ -6,7 +6,12 @@
       {{ 'ADMIN_INDICATORS.ADD_MODAL.TITLE_CREATE' | translate }}
     }
   </h4>
-  <button type="button" class="btn-close" aria-label="Close" (click)="cancel()"></button>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="cancel()"
+  ></button>
 </div>
 
 <div class="modal-body">
@@ -124,7 +129,12 @@
         'ADMIN_INDICATORS.ADD_MODAL.MISSING_FIELDS_TITLE' | translate
       }}
     </h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+    <button
+      type="button"
+      class="btn-close"
+      [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+      (click)="modal.dismiss()"
+    ></button>
   </div>
   <div class="modal-body">
     <p>{{ 'ADMIN_INDICATORS.ADD_MODAL.MISSING_FIELDS_INTRO' | translate }}</p>

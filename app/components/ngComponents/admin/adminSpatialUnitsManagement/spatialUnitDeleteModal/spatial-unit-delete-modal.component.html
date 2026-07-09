@@ -1,6 +1,11 @@
 <div class="modal-header">
   <h4 class="modal-title">{{ 'ADMIN_SPATIAL_UNITS.DELETE_MODAL.TITLE' | translate }}</h4>
-  <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="closeModal()"
+  ></button>
 </div>
 
 <div class="modal-body">

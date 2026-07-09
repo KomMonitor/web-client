@@ -6,7 +6,12 @@
         | translate: { name: currentGeoresourceDataset?.datasetName }
     "
   ></h4>
-  <button type="button" class="btn-close" aria-label="Close" (click)="cancel()"></button>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="cancel()"
+  ></button>
 </div>
 
 <div class="modal-body">

@@ -1,5 +1,10 @@
 <div class="modal-header">
-  <button type="button" class="close" aria-label="Close" (click)="close()">
+  <button
+    type="button"
+    class="close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="close()"
+  >
     <span aria-hidden="true">&times;</span>
   </button>
   <h4 class="modal-title">{{ 'ADMIN_WMS.ADD.TITLE' | translate }}</h4>

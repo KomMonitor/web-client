@@ -2,7 +2,12 @@
   <h4 class="modal-title" id="modal-title">
     {{ 'ADMIN_INDICATORS.DELETE_MODAL.TITLE' | translate }}
   </h4>
-  <button type="button" class="btn-close" aria-label="Close" (click)="close()"></button>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="close()"
+  ></button>
 </div>
 
 <div class="modal-body">
@@ -419,7 +424,7 @@
         type="button"
         class="btn-close"
         (click)="hideSuccessAlert()"
-        aria-label="Close"
+        [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
       ></button>
       <h4>
         <i class="fas fa-check"></i>
@@ -495,7 +500,7 @@
         type="button"
         class="btn-close"
         (click)="hideErrorAlert()"
-        aria-label="Close"
+        [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
       ></button>
       <h4>
         <i class="fas fa-ban"></i> {{ 'ADMIN_INDICATORS.DELETE_MODAL.DELETE_FAILED' | translate }}
