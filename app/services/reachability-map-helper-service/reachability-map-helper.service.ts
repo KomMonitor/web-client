@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
 import * as L from 'leaflet';
 import 'leaflet.markercluster';
+import { createMarkerClusterGroup } from 'util/leaflet-cluster';
 import * as turf from '@turf/turf';
 import domtoimage from 'dom-to-image-more';
 
@@ -461,7 +462,7 @@ export class ReachabilityMapHelperService {
   ): L.Layer {
     let markers: L.Layer;
     if (useCluster) {
-      markers = (L as any).markerClusterGroup({
+      markers = createMarkerClusterGroup({
         iconCreateFunction: (cluster: any) => {
           const childCount = cluster.getChildCount();
           let c = 'cluster-';

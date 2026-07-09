@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import * as L from 'leaflet';
+import * as leafletNs from 'leaflet';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { PoiPresentationService } from 'services/poi-presentation-service/poi-presentation.service';
@@ -9,6 +9,15 @@ import 'leaflet-draw';
 import { IconTranslateService } from 'services/icon-translate/icon-translate.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { DEFAULT_POI_SIZE } from 'services/poi-presentation-service/poi-presentation.service';
+
+// UMD Leaflet plugins (leaflet.awesome-markers, leaflet-draw, ...) augment Leaflet's
+// *live* exports object with top-level members like `L.AwesomeMarkers` / `L.Draw`. In
+// production, Angular's esbuild ESM/CJS interop hands each module a *snapshot* of the
+// Leaflet namespace captured before those plugins run, so newly added top-level members
+// are missing from `import * as L` (see util/leaflet-cluster.ts for the full story).
+// Leaflet's UMD assigns its live exports to `window.L`, which the plugins do mutate, so
+// we bind `L` to that live object here; core `L.*` calls behave identically.
+const L: any = (window as unknown as { L?: typeof leafletNs }).L ?? leafletNs;
 
 @Injectable({
   providedIn: 'root',
