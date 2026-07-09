@@ -856,19 +856,21 @@
                           <tbody>
                             @for (
                               indicator of selectionState.selectedIndicator.referencedIndicators;
-                              track indicator
+                              track $index
                             ) {
-                              <tr>
-                                <td>{{ indicator.referencedIndicatorName }}</td>
-                                <td>
-                                  {{
-                                    indicatorStore.getIndicatorAbbreviationFromIndicatorId(
-                                      indicator.referencedIndicatorId
-                                    )
-                                  }}
-                                </td>
-                                <td>{{ indicator.referencedIndicatorDescription }}</td>
-                              </tr>
+                              @if (indicator) {
+                                <tr>
+                                  <td>{{ indicator.referencedIndicatorName }}</td>
+                                  <td>
+                                    {{
+                                      indicatorStore.getIndicatorAbbreviationFromIndicatorId(
+                                        indicator.referencedIndicatorId
+                                      )
+                                    }}
+                                  </td>
+                                  <td>{{ indicator.referencedIndicatorDescription }}</td>
+                                </tr>
+                              }
                             }
                           </tbody>
                         </table>
@@ -906,12 +908,14 @@
                             @for (
                               georesource of selectionState.selectedIndicator
                                 .referencedGeoresources;
-                              track georesource
+                              track $index
                             ) {
-                              <tr>
-                                <td>{{ georesource.referencedGeoresourceName }}</td>
-                                <td>{{ georesource.referencedGeoresourceDescription }}</td>
-                              </tr>
+                              @if (georesource) {
+                                <tr>
+                                  <td>{{ georesource.referencedGeoresourceName }}</td>
+                                  <td>{{ georesource.referencedGeoresourceDescription }}</td>
+                                </tr>
+                              }
                             }
                           </tbody>
                         </table>
