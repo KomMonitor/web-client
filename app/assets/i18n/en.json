@@ -939,6 +939,20 @@
     },
     "MSG": {
       "LOAD_FAILED": "The data could not be loaded! Please try again later."
+    },
+    "GRID": {
+      "COL_ACTIONS": "Edit functions",
+      "COL_ORG_UNIT": "Organizational unit",
+      "COL_PARENT": "Hierarchy - parent organizational unit",
+      "COL_CHILDREN": "Hierarchy - directly subordinate organizational units",
+      "COL_DESCRIPTION": "Description",
+      "COL_CONTACT": "Contact",
+      "COL_MANDANT": "Tenant",
+      "CHILD_GROUPS_COUNT": "{{count}} direct subgroup(s)",
+      "COL_READ": "Read",
+      "COL_EDIT": "Edit",
+      "COL_DELETE": "Delete",
+      "PUBLIC_ACCESS": "Public access"
     }
   },
   "ADMIN_TOPICS": {
@@ -1369,13 +1383,10 @@
       "NAME_LABEL": "Filter name (label in the web client)",
       "INDICATORS_TITLE": "Indicators",
       "INDICATORS_SUBTITLE": "Selection of the visible indicators",
-      "SHOW_ASSIGNED_INDICATORS": "Show only assigned indicators",
       "INDICATOR_TOPICS_TITLE": "Indicator topics",
       "INDICATOR_TOPICS_SUBTITLE": "Selection of the indicator-specific topics",
-      "SHOW_ASSIGNED_TOPICS": "Show only assigned topics",
       "GEORESOURCES_TITLE": "Georesources",
       "GEORESOURCES_SUBTITLE": "Selection of the visible georesources",
-      "SHOW_ASSIGNED_GEORESOURCES": "Show only assigned georesources",
       "GEORESOURCE_TOPICS_TITLE": "Georesource topics",
       "GEORESOURCE_TOPICS_SUBTITLE": "Selection of the georesource-specific topics",
       "MSG": {

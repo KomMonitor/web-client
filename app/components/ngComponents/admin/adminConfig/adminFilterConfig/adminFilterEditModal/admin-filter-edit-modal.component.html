@@ -39,41 +39,6 @@
               {{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATORS_SUBTITLE' | translate }}
             </h3>
 
-            <div class="row">
-              <div class="col-md-12 col-sm-12 col-12" ng-show="permissions.length != 0">
-                <div class="form-group vertical-align">
-                  <label class="margin-right">{{
-                    'ADMIN_CONFIG.FILTER_EDIT.SHOW_ASSIGNED_INDICATORS' | translate
-                  }}</label>
-                  <label class="switch">
-                    <input
-                      type="checkbox"
-                      value="showSelectedIndicatorsOnly"
-                      ng-model="showSelectedIndicatorsOnly"
-                      ng-change="onShowSelectedIndicatorsOnly()"
-                      ng-disabled="selectedIndicatorIds.length==0"
-                    />
-                    <span class="switchslider round"></span>
-                  </label>
-                </div>
-              </div>
-              <div class="col-md-2"></div>
-              <div class="col-md-8 col-12">
-                <!-- <ag-grid-angular
-                #roleManagementTable
-                id="georesourceEditRoleManagementTable"
-                style="height: 45vh; width: 100%;"
-                class="ag-theme-alpine"
-                [gridOptions]="roleManagementTableOptions"
-                [rowData]="roleManagementTableOptions.rowData || []"
-                [columnDefs]="roleManagementTableOptions.columnDefs || []"
-                (gridReady)="onGridReady($event)"
-                (firstDataRendered)="onFirstDataRendered($event)"
-                (columnResized)="onColumnResized($event)">
-              </ag-grid-angular>   -->
-              </div>
-              <div class="col-md-2"></div>
-            </div>
             <input
               type="button"
               name="next"
@@ -92,51 +57,6 @@
             <h3 class="fs-subtitle">
               {{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATOR_TOPICS_SUBTITLE' | translate }}
             </h3>
-
-            <div class="row">
-              <div class="col-md-12 col-sm-12 col-12" ng-show="permissions.length != 0">
-                <div class="form-group vertical-align">
-                  <label class="margin-right">{{
-                    'ADMIN_CONFIG.FILTER_EDIT.SHOW_ASSIGNED_TOPICS' | translate
-                  }}</label>
-                  <label class="switch">
-                    <input
-                      type="checkbox"
-                      value="showSelectedIndicatorsTopicsOnly"
-                      ng-model="showSelectedIndicatorsTopicsOnly"
-                      ng-disabled="selectedIndicatorTopicEditIds.length==0"
-                    />
-                    <span class="switchslider round"></span>
-                  </label>
-                </div>
-              </div>
-            </div>
-            <div class="row vertical-align">
-              <div class="list-group list-group-root well" style="text-align: left; width: 50vw">
-                <script type="text/ng-template" id="indicatorEditTree">
-                  <div class="list-group-item list-group-item-default list-group-item-grid-centered list-group-item-level-{{category.level}}">
-                    <a ng-if="category.subTopics.length>0" id="{{category.topicId}}" href="" ng-attr-title="{{category.topicDescription}}"
-                      class="editCollapseTrigger" style="color: white;">
-                      <i class="glyphicon glyphicon-chevron-right"></i>{{category.topicName}}</a>
-                    <p ng-if="category.subTopics.length==0">{{category.topicName}}</p>
-                    <input type="checkbox" id="editCheckbox-{{category.topicId}}" ng-model="category.selected" ng-change="onSelectedIndicatorEditItemsChange(category.topicId,category.selected)">
-
-                    <div style="display: none" id="editSubTopic-{{category.topicId}}">
-                      <div ng-if="category.subTopics" ng-repeat="category in category.subTopics" ng-include="'indicatorEditTree'"></div>
-                    </div>
-                  </div>
-                </script>
-
-                <div
-                  ng-repeat="category in indicatorTopicsEditTree | filter:{topicType:'main'}"
-                  ng-include="'indicatorEditTree'"
-                  ng-style="
-                    (checkIndicatorTopicsTreeVisibility(category) &&
-                      category.level == 0 && { display: 'block' }) || { display: 'none' }
-                  "
-                ></div>
-              </div>
-            </div>
 
             <input
               type="button"
@@ -164,35 +84,6 @@
               {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCES_SUBTITLE' | translate }}
             </h3>
 
-            <div class="row">
-              <div class="col-md-12 col-sm-12 col-12" ng-show="permissions.length != 0">
-                <div class="form-group vertical-align">
-                  <label class="margin-right">{{
-                    'ADMIN_CONFIG.FILTER_EDIT.SHOW_ASSIGNED_GEORESOURCES' | translate
-                  }}</label>
-                  <label class="switch">
-                    <input
-                      type="checkbox"
-                      value="showSelectedGeoresourcesOnly"
-                      ng-model="showSelectedGeoresourcesOnly"
-                      ng-change="onShowSelectedGeoresourcesOnly()"
-                      ng-disabled="selectedGeoresourceIds.length==0"
-                    />
-                    <span class="switchslider round"></span>
-                  </label>
-                </div>
-              </div>
-              <div class="col-md-2"></div>
-              <div class="col-md-8 col-12">
-                <div
-                  id="adminFilterEditGeoresourcesTable"
-                  style="height: 45vh"
-                  class="ag-theme-alpine"
-                ></div>
-              </div>
-              <div class="col-md-2"></div>
-            </div>
-
             <input
               type="button"
               name="previous"
@@ -218,51 +109,6 @@
             <h3 class="fs-subtitle">
               {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCE_TOPICS_SUBTITLE' | translate }}
             </h3>
-
-            <div class="row">
-              <div class="col-md-12 col-sm-12 col-12" ng-show="permissions.length != 0">
-                <div class="form-group vertical-align">
-                  <label class="margin-right">{{
-                    'ADMIN_CONFIG.FILTER_EDIT.SHOW_ASSIGNED_TOPICS' | translate
-                  }}</label>
-                  <label class="switch">
-                    <input
-                      type="checkbox"
-                      value="showSelectedGeoresourcesTopicsOnly"
-                      ng-model="showSelectedGeoresourcesTopicsOnly"
-                      ng-disabled="selectedGeoresourceTopicEditIds.length==0"
-                    />
-                    <span class="switchslider round"></span>
-                  </label>
-                </div>
-              </div>
-            </div>
-            <div class="row vertical-align">
-              <div class="list-group list-group-root well" style="text-align: left; width: 50vw">
-                <script type="text/ng-template" id="georesourceEditTree">
-                  <div class="list-group-item list-group-item-default list-group-item-grid-centered list-group-item-level-{{category.level}}">
-                    <a ng-if="category.subTopics.length>0" id="{{category.topicId}}" href="" ng-attr-title="{{category.topicDescription}}"
-                      class="editCollapseTrigger" style="color: white;">
-                      <i class="glyphicon glyphicon-chevron-right"></i>{{category.topicName}}</a>
-                    <p ng-if="category.subTopics.length==0">{{category.topicName}}</p>
-                    <input type="checkbox" id="editCheckbox-{{category.topicId}}" ng-model="category.selected" ng-change="onSelectedGeoresourceEditItemsChange(category.topicId,category.selected)">
-
-                    <div style="display: none" id="editSubTopic-{{category.topicId}}">
-                      <div ng-if="category.subTopics" ng-repeat="category in category.subTopics" ng-include="'georesourceEditTree'"></div>
-                    </div>
-                  </div>
-                </script>
-
-                <div
-                  ng-repeat="category in georesourceTopicsEditTree | filter:{topicType:'main'}"
-                  ng-include="'georesourceEditTree'"
-                  ng-style="
-                    (checkGeoresourcesTopicsTreeVisibility(category) &&
-                      category.level == 0 && { display: 'block' }) || { display: 'none' }
-                  "
-                ></div>
-              </div>
-            </div>
 
             <input
               type="button"

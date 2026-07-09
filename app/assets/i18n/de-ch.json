@@ -939,6 +939,20 @@
     },
     "MSG": {
       "LOAD_FAILED": "Die Daten konnten nicht geladen werden! Bitte versuchen Sie es später erneut."
+    },
+    "GRID": {
+      "COL_ACTIONS": "Editierfunktionen",
+      "COL_ORG_UNIT": "Organisationseinheit",
+      "COL_PARENT": "Hierarchie - übergeordnete Organisationseinheit",
+      "COL_CHILDREN": "Hierarchie - direkt untergeordnete Organisationseinheiten",
+      "COL_DESCRIPTION": "Beschreibung",
+      "COL_CONTACT": "Kontakt",
+      "COL_MANDANT": "Mandant",
+      "CHILD_GROUPS_COUNT": "{{count}} direkte Untergruppe(n)",
+      "COL_READ": "Lesen",
+      "COL_EDIT": "Editieren",
+      "COL_DELETE": "Löschen",
+      "PUBLIC_ACCESS": "Öffentlicher Zugriff"
     }
   },
   "ADMIN_TOPICS": {
@@ -1282,7 +1296,7 @@
       "CONNECTION_TEST_TITLE": "Verbindungstest",
       "CONNECTION_TEST_SUCCESS": "Die Verbindung wurde erfoglreich getestet",
       "CONNECTION_FAILED_TITLE": "Verbindungsaufbau gescheitert",
-      "CONNECTION_FAILED_TEXT": "Verbindungsaufbau gescheitert. Bitte überprüfen Sie die Verbindunsdaten."
+      "CONNECTION_FAILED_TEXT": "Verbindungsaufbau gescheitert. Bitte überprüfen Sie die Verbindungsdaten."
     },
     "ADD": {
       "TITLE": "Neuen WMS registrieren",
@@ -1311,7 +1325,7 @@
     },
     "EDIT_ROLES": {
       "TITLE": "WMS bearbeiten",
-      "SUCCESS_TEXT": "Zugrifssrechte für den Datensatz mit dem Namen {{name}} wurde in KomMonitor editiert."
+      "SUCCESS_TEXT": "Zugriffsrechte für den Datensatz mit dem Namen {{name}} wurde in KomMonitor editiert."
     }
   },
   "ADMIN_CONFIG": {
@@ -1369,13 +1383,10 @@
       "NAME_LABEL": "Filter-Name (Bezeichnung im Web-Client)",
       "INDICATORS_TITLE": "Indikatoren",
       "INDICATORS_SUBTITLE": "Auswahl der sichtbaren Indikatoren",
-      "SHOW_ASSIGNED_INDICATORS": "Zeige nur zugewiesene Indikatoren",
       "INDICATOR_TOPICS_TITLE": "Indikator-Themen",
       "INDICATOR_TOPICS_SUBTITLE": "Auswahl der Indikator-spezifischen Themen",
-      "SHOW_ASSIGNED_TOPICS": "Zeige nur zugewiesene Themen",
       "GEORESOURCES_TITLE": "Georesourcen",
       "GEORESOURCES_SUBTITLE": "Auswahl der sichtbaren Georesourcen",
-      "SHOW_ASSIGNED_GEORESOURCES": "Zeige nur zugewiesene Georesourcen",
       "GEORESOURCE_TOPICS_TITLE": "Georesource-Themen",
       "GEORESOURCE_TOPICS_SUBTITLE": "Auswahl der Georesource-spezifischen Themen",
       "MSG": {

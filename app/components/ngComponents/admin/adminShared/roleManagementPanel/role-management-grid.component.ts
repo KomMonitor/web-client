@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   Input,
   OnChanges,
   OnInit,
@@ -8,8 +9,10 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { merge } from 'rxjs';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
@@ -44,6 +47,8 @@ export class RoleManagementGridComponent implements OnInit, OnChanges {
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private accessControlService = inject(AccessControlService);
   private metadataBootstrap = inject(MetadataBootstrapService);
+  private translate = inject(TranslateService);
+  private destroyRef = inject(DestroyRef);
 
   /** Permission ids that are initially checked. */
   @Input() permissions: string[] | null | undefined = [];
@@ -78,6 +83,15 @@ export class RoleManagementGridComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.ensureAccessControlLoaded();
+    // Re-translate the helper-built column headers when the language changes
+    // (and on the async initial i18n load); rebuild() re-pulls fresh columnDefs.
+    merge(
+      this.translate.onLangChange,
+      this.translate.onDefaultLangChange,
+      this.translate.onTranslationChange
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.rebuild());
   }
 
   ngOnChanges(changes: SimpleChanges): void {

@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { merge } from 'rxjs';
 
 import { FormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -19,9 +28,8 @@ import { RoleActionsCellRendererComponent } from './role-actions-cell-renderer.c
 import { RoleEditGroupRightsModalComponent } from './roleEditGroupRightsModal/role-edit-group-rights-modal.component';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { NotificationService } from '../../common/notification/notification.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { TranslateService } from '@ngx-translate/core';
 interface AccessControlTableEntry extends AccessControlMetadata {
   parentName?: string;
   ownChildGroupNames?: string[];
@@ -69,58 +77,78 @@ export class AdminRoleManagementComponent implements OnInit {
   public paginationPageSize: number = 10;
   public paginationPageSizeSelector: number[] = [10, 25, 50, 100];
 
-  public columnDefs: ColDef<AccessControlTableEntry>[] = [
-    {
-      headerName: 'Editierfunktionen',
-      pinned: 'left',
-      maxWidth: 150,
-      checkboxSelection: true,
-      filter: false,
-      sortable: false,
-      cellRenderer: RoleActionsCellRendererComponent,
-      cellRendererParams: {
-        onEditMetadata: (dataset: AccessControlTableEntry) => this.openEditMetadataModal(dataset),
-        onEditGroupRights: (dataset: AccessControlTableEntry) =>
-          this.openEditGroupRightsModal(dataset),
+  // Tracks language switches and the async i18n load so the translated column
+  // headers below re-render once translations become available or change.
+  private translationsReady = toSignal(
+    merge(
+      this.translate.onLangChange,
+      this.translate.onDefaultLangChange,
+      this.translate.onTranslationChange
+    )
+  );
+
+  public columnDefs = computed<ColDef<AccessControlTableEntry>[]>(() => {
+    this.translationsReady(); // re-run when the language / translations change
+    return this.buildColumnDefs();
+  });
+
+  private buildColumnDefs(): ColDef<AccessControlTableEntry>[] {
+    return [
+      {
+        headerName: this.translate.instant('ADMIN_ROLES.GRID.COL_ACTIONS'),
+        pinned: 'left',
+        maxWidth: 150,
+        checkboxSelection: true,
+        filter: false,
+        sortable: false,
+        cellRenderer: RoleActionsCellRendererComponent,
+        cellRendererParams: {
+          onEditMetadata: (dataset: AccessControlTableEntry) => this.openEditMetadataModal(dataset),
+          onEditGroupRights: (dataset: AccessControlTableEntry) =>
+            this.openEditGroupRightsModal(dataset),
+        },
       },
-    },
-    {
-      headerName: 'Organisationseinheit',
-      field: 'name',
-      pinned: 'left',
-      minWidth: 250,
-    },
-    {
-      headerName: 'Hierarchie - übergeordnete Organisationseinheit',
-      field: 'parentName',
-    },
-    {
-      headerName: 'Hierarchie - direkt untergeordnete Organisationseinheiten',
-      cellRenderer: (param: ICellRendererParams<AccessControlTableEntry>) => {
-        const childGroupNames = param.data?.ownChildGroupNames ?? [];
-        return `${childGroupNames.length} direkte Untergruppe(n)<br/><br/>${childGroupNames}`;
+      {
+        headerName: this.translate.instant('ADMIN_ROLES.GRID.COL_ORG_UNIT'),
+        field: 'name',
+        pinned: 'left',
+        minWidth: 250,
       },
-    },
-    {
-      headerName: 'Beschreibung',
-      field: 'description',
-      minWidth: 350,
-      filter: 'agTextColumnFilter',
-    },
-    {
-      headerName: 'Kontakt',
-      field: 'contact',
-      minWidth: 250,
-      filter: 'agTextColumnFilter',
-    },
-    {
-      headerName: 'Mandant',
-      field: 'mandant',
-      minWidth: 120,
-      cellDataType: 'boolean',
-      filter: false,
-    },
-  ];
+      {
+        headerName: this.translate.instant('ADMIN_ROLES.GRID.COL_PARENT'),
+        field: 'parentName',
+      },
+      {
+        headerName: this.translate.instant('ADMIN_ROLES.GRID.COL_CHILDREN'),
+        cellRenderer: (param: ICellRendererParams<AccessControlTableEntry>) => {
+          const childGroupNames = param.data?.ownChildGroupNames ?? [];
+          const label = this.translate.instant('ADMIN_ROLES.GRID.CHILD_GROUPS_COUNT', {
+            count: childGroupNames.length,
+          });
+          return `${label}<br/><br/>${childGroupNames}`;
+        },
+      },
+      {
+        headerName: this.translate.instant('ADMIN_ROLES.GRID.COL_DESCRIPTION'),
+        field: 'description',
+        minWidth: 350,
+        filter: 'agTextColumnFilter',
+      },
+      {
+        headerName: this.translate.instant('ADMIN_ROLES.GRID.COL_CONTACT'),
+        field: 'contact',
+        minWidth: 250,
+        filter: 'agTextColumnFilter',
+      },
+      {
+        headerName: this.translate.instant('ADMIN_ROLES.GRID.COL_MANDANT'),
+        field: 'mandant',
+        minWidth: 120,
+        cellDataType: 'boolean',
+        filter: false,
+      },
+    ];
+  }
 
   private allAccessControl: AccessControlTableEntry[] = [];
   // Signal-backed: updated from the AG Grid selection-changed callback.

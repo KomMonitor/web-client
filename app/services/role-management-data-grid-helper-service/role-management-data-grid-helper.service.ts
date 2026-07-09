@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { GridOptions } from 'ag-grid-community';
 
 /**
@@ -22,6 +23,8 @@ import { GridOptions } from 'ag-grid-community';
   providedIn: 'root',
 })
 export class RoleManagementDataGridHelperService {
+  private translate = inject(TranslateService);
+
   /**
    * Build default column definition for role management grids
    */
@@ -109,7 +112,7 @@ export class RoleManagementDataGridHelperService {
     const data = JSON.parse(JSON.stringify(accessControlMetadata));
     for (const elem of data) {
       if (elem.name === 'public') {
-        elem.name = 'Öffentlicher Zugriff';
+        elem.name = this.translate.instant('ADMIN_ROLES.GRID.PUBLIC_ACCESS');
       }
       // Flatten permissions
       elem.viewer = false;
@@ -153,13 +156,13 @@ export class RoleManagementDataGridHelperService {
   private buildRoleManagementGridColumnConfig(reducedRoleManagement: boolean = false): any[] {
     const columnDefs = [
       {
-        headerName: 'Organisationseinheit',
+        headerName: this.translate.instant('ADMIN_ROLES.GRID.COL_ORG_UNIT'),
         field: 'name',
         minWidth: 200,
         cellClass: 'user-roles-normal',
       },
       {
-        headerName: 'Lesen',
+        headerName: this.translate.instant('ADMIN_ROLES.GRID.COL_READ'),
         field: 'viewer',
         filter: false,
         sortable: false,
@@ -168,7 +171,7 @@ export class RoleManagementDataGridHelperService {
         editable: true,
       },
       {
-        headerName: 'Editieren',
+        headerName: this.translate.instant('ADMIN_ROLES.GRID.COL_EDIT'),
         field: 'editor',
         filter: false,
         sortable: false,
@@ -179,7 +182,7 @@ export class RoleManagementDataGridHelperService {
     ];
     if (!reducedRoleManagement) {
       columnDefs.push({
-        headerName: 'Löschen',
+        headerName: this.translate.instant('ADMIN_ROLES.GRID.COL_DELETE'),
         field: 'creator',
         filter: false,
         sortable: false,
