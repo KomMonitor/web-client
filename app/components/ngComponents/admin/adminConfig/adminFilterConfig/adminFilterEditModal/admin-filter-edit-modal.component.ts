@@ -65,10 +65,10 @@ export class AdminFilterEditModalComponent {
 
   // Multi-step form
   readonly stepper = new WizardStepper([
-    { key: 'indicators', label: 'Indikatoren' },
-    { key: 'indicatorTopics', label: 'Indikator-Themen' },
-    { key: 'georesources', label: 'Georesourcen' },
-    { key: 'georesourceTopics', label: 'Georesource-Themen' },
+    { key: 'indicators', label: 'ADMIN_SHARED_UI.STEP_LABELS.INDICATORS' },
+    { key: 'indicatorTopics', label: 'ADMIN_SHARED_UI.STEP_LABELS.INDICATOR_TOPICS' },
+    { key: 'georesources', label: 'ADMIN_SHARED_UI.STEP_LABELS.GEORESOURCES' },
+    { key: 'georesourceTopics', label: 'ADMIN_SHARED_UI.STEP_LABELS.GEORESOURCE_TOPICS' },
   ]);
 
   /* 	var addClickListenerToEachCollapseTrigger(){

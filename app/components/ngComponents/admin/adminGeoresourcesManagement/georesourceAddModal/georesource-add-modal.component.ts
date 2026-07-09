@@ -106,15 +106,15 @@ export class GeoresourceAddModalComponent implements OnInit {
   // Multi-step form; the security step is only present when Keycloak is
   // enabled, mirroring the conditional fieldset in the template.
   readonly stepper = new WizardStepper([
-    { key: 'metadata', label: 'Metadaten der Georessource' },
-    { key: 'general', label: 'Allgemeine Metadaten' },
-    { key: 'topics', label: 'Themenhierarchie' },
+    { key: 'metadata', label: 'ADMIN_SHARED_UI.STEP_LABELS.GEORESOURCE_METADATA' },
+    { key: 'general', label: 'ADMIN_SHARED_UI.STEP_LABELS.GENERAL_METADATA' },
+    { key: 'topics', label: 'ADMIN_SHARED_UI.TOPICS.TITLE' },
     {
       key: 'security',
-      label: 'Zugriffsschutz und Eigentümerschaft',
+      label: 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE',
       when: () => this.envConfigService.enableKeycloakSecurity,
     },
-    { key: 'data', label: 'Räumlicher Datensatz' },
+    { key: 'data', label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_DATASET' },
   ]);
 
   // Form data

@@ -46,9 +46,9 @@ export class ScriptAddModalComponent {
   @Output() refreshRequested = new EventEmitter<ScriptRefreshRequest>();
 
   readonly stepper = new WizardStepper([
-    { key: 'intro', label: 'Einleitende Hinweise' },
-    { key: 'metadata', label: 'Metadaten des Indikators-Skripts' },
-    { key: 'script', label: 'Skriptinhalt und Parametrisierung' },
+    { key: 'intro', label: 'ADMIN_SHARED_UI.STEP_LABELS.INTRO_NOTES' },
+    { key: 'metadata', label: 'ADMIN_SHARED_UI.STEP_LABELS.SCRIPT_METADATA' },
+    { key: 'script', label: 'ADMIN_SHARED_UI.STEP_LABELS.SCRIPT_CONTENT' },
   ]);
 
   @ViewChild(ScriptStepContentComponent)

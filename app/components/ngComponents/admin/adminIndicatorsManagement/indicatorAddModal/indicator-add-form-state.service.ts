@@ -46,15 +46,15 @@ export class IndicatorAddFormStateService {
   // Multi-step form; the security step is only present when Keycloak is
   // enabled, mirroring the conditional step component in the template.
   readonly stepper = new WizardStepper([
-    { key: 'metadata', label: 'Metadaten des Indikators' },
-    { key: 'general', label: 'Allgemeine Metadaten' },
-    { key: 'topics', label: 'Themenhierarchie' },
-    { key: 'references', label: 'Referenzen zu Indikatoren/Georessourcen' },
-    { key: 'classification', label: 'Klassifizierungsoptionen' },
-    { key: 'referenceValues', label: 'regionale Vergleichswerte' },
+    { key: 'metadata', label: 'ADMIN_SHARED_UI.STEP_LABELS.INDICATOR_METADATA' },
+    { key: 'general', label: 'ADMIN_SHARED_UI.STEP_LABELS.GENERAL_METADATA' },
+    { key: 'topics', label: 'ADMIN_SHARED_UI.TOPICS.TITLE' },
+    { key: 'references', label: 'ADMIN_SHARED_UI.STEP_LABELS.REFERENCES' },
+    { key: 'classification', label: 'ADMIN_SHARED_UI.STEP_LABELS.CLASSIFICATION_OPTIONS' },
+    { key: 'referenceValues', label: 'ADMIN_SHARED_UI.STEP_LABELS.REGIONAL_REFERENCE_VALUES' },
     {
       key: 'security',
-      label: 'Zugriffsschutz und Eigentümerschaft',
+      label: 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE',
       when: () => this.envConfigService.enableKeycloakSecurity,
     },
   ]);

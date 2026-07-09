@@ -124,8 +124,8 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
 
   // Multi-step form
   readonly stepper = new WizardStepper([
-    { key: 'overview', label: 'Zeitreihen Übersicht' },
-    { key: 'data', label: 'Räumlicher Datensatz' },
+    { key: 'overview', label: 'ADMIN_SHARED_UI.STEP_LABELS.TIMESERIES_OVERVIEW' },
+    { key: 'data', label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_DATASET' },
   ]);
 
   ngOnInit(): void {

@@ -81,9 +81,9 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
   loadingData = signal(false);
   currentGeoresourceDataset: any;
   readonly stepper = new WizardStepper([
-    { key: 'metadata', label: 'Metadaten der Georessource' },
-    { key: 'general', label: 'Allgemeine Metadaten' },
-    { key: 'topics', label: 'Themenhierarchie' },
+    { key: 'metadata', label: 'ADMIN_SHARED_UI.STEP_LABELS.GEORESOURCE_METADATA' },
+    { key: 'general', label: 'ADMIN_SHARED_UI.STEP_LABELS.GENERAL_METADATA' },
+    { key: 'topics', label: 'ADMIN_SHARED_UI.TOPICS.TITLE' },
   ]);
 
   // Form data

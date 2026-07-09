@@ -63,12 +63,12 @@ export class WmsAddModalComponent implements OnInit {
   // enabled (fixes navigating onto a blank fourth step without Keycloak —
   // totalSteps was hard-coded to 4 before).
   readonly stepper = new WizardStepper([
-    { key: 'metadata', label: 'Metadaten' },
-    { key: 'connection', label: 'Anfrageparameter' },
-    { key: 'topics', label: 'Themenhierarchie' },
+    { key: 'metadata', label: 'ADMIN_SHARED_UI.STEP_LABELS.WMS_METADATA' },
+    { key: 'connection', label: 'ADMIN_SHARED_UI.STEP_LABELS.WMS_REQUEST_PARAMETERS' },
+    { key: 'topics', label: 'ADMIN_SHARED_UI.TOPICS.TITLE' },
     {
       key: 'security',
-      label: 'Zugriffsschutz und Eigentümerschaft',
+      label: 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE',
       when: () => this.envConfigService.enableKeycloakSecurity,
     },
   ]);

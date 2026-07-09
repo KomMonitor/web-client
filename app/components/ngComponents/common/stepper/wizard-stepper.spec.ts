@@ -7,18 +7,22 @@ describe('WizardStepper', () => {
   beforeEach(() => {
     securityEnabled = true;
     stepper = new WizardStepper([
-      { key: 'metadata', label: 'Metadaten' },
-      { key: 'security', label: 'Zugriffsschutz', when: () => securityEnabled },
-      { key: 'data', label: 'Datensatz' },
+      { key: 'metadata', label: 'STEP.METADATA' },
+      { key: 'security', label: 'STEP.SECURITY', when: () => securityEnabled },
+      { key: 'data', label: 'STEP.DATA' },
     ]);
   });
 
   it('exposes only visible steps and their count', () => {
-    expect(stepper.steps.map((s) => s.label)).toEqual(['Metadaten', 'Zugriffsschutz', 'Datensatz']);
+    expect(stepper.steps.map((s) => s.label)).toEqual([
+      'STEP.METADATA',
+      'STEP.SECURITY',
+      'STEP.DATA',
+    ]);
     expect(stepper.totalSteps).toBe(3);
 
     securityEnabled = false;
-    expect(stepper.steps.map((s) => s.label)).toEqual(['Metadaten', 'Datensatz']);
+    expect(stepper.steps.map((s) => s.label)).toEqual(['STEP.METADATA', 'STEP.DATA']);
     expect(stepper.totalSteps).toBe(2);
   });
 

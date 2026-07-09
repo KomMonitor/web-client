@@ -93,8 +93,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
 
   // Multi-step form
   readonly stepper = new WizardStepper([
-    { key: 'overview', label: 'Raumeinheit Übersicht' },
-    { key: 'data', label: 'Räumlicher Datensatz' },
+    { key: 'overview', label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_UNIT_OVERVIEW' },
+    { key: 'data', label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_DATASET' },
   ]);
 
   // Form data — signal: written from subscriptions/awaits/setTimeouts (OnPush).

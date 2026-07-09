@@ -62,8 +62,8 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
   activeDelegatedRolesOnly: boolean = true;
 
   protected readonly stepper = new WizardStepper([
-    { key: 'ownRights', label: 'Eigene Rechte an anderen Gruppen' },
-    { key: 'foreignRights', label: 'Rechte anderer Gruppen an gewählter Gruppe' },
+    { key: 'ownRights', label: 'ADMIN_SHARED_UI.STEP_LABELS.OWN_RIGHTS_OTHER_GROUPS' },
+    { key: 'foreignRights', label: 'ADMIN_SHARED_UI.STEP_LABELS.RIGHTS_OF_OTHER_GROUPS_SELECTED' },
   ]);
 
   // Authority table (step 1, read-only)

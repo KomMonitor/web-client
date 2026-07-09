@@ -12,7 +12,7 @@
       (click)="onStepClick(i + 1)"
     >
       <div class="stepper-circle" #circle>{{ i + 1 }}</div>
-      <div class="stepper-label">{{ step.label }}</div>
+      <div class="stepper-label">{{ step.label | translate }}</div>
     </div>
     <!-- Connector line between steps -->
     @if (i < steps.length - 1) {

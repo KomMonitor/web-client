@@ -85,8 +85,8 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
   // Multi-step form
   readonly stepper = new WizardStepper([
-    { key: 'metadata', label: 'Metadaten der Raumebene' },
-    { key: 'general', label: 'Allgemeine Metadaten' },
+    { key: 'metadata', label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_UNIT_METADATA' },
+    { key: 'general', label: 'ADMIN_SHARED_UI.STEP_LABELS.GENERAL_METADATA' },
   ]);
 
   // Form data — signal: toggled across await boundaries (OnPush).

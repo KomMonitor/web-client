@@ -4,6 +4,7 @@ import { StepperStep } from './stepper.component';
 export interface WizardStepDefinition {
   /** Stable identifier the templates address the step by (`isActive(key)`). */
   key: string;
+  /** ngx-translate key rendered by `<app-stepper>` via the `translate` pipe. */
   label: string;
   /** The step is part of the wizard only while this returns true (default: always). */
   when?: () => boolean;

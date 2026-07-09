@@ -97,9 +97,9 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   loadingData = signal(false);
   private _currentGeoresourceDataset: any;
   readonly stepper = new WizardStepper([
-    { key: 'overview', label: 'Feature Übersicht' },
-    { key: 'single', label: 'Import einzelner Features' },
-    { key: 'batch', label: 'Import mehrerer Features' },
+    { key: 'overview', label: 'ADMIN_SHARED_UI.STEP_LABELS.FEATURE_OVERVIEW' },
+    { key: 'single', label: 'ADMIN_SHARED_UI.STEP_LABELS.IMPORT_SINGLE_FEATURES' },
+    { key: 'batch', label: 'ADMIN_SHARED_UI.STEP_LABELS.IMPORT_MULTIPLE_FEATURES' },
   ]);
 
   get currentGeoresourceDataset(): any {

@@ -53,8 +53,8 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
 
   // Multi-step form
   readonly stepper = new WizardStepper([
-    { key: 'roles', label: 'Zugriffsschutz' },
-    { key: 'ownership', label: 'Eigentümerschaft' },
+    { key: 'roles', label: 'ADMIN_SHARED_UI.STEP_LABELS.ACCESS_PROTECTION' },
+    { key: 'ownership', label: 'ADMIN_SHARED_UI.STEP_LABELS.OWNERSHIP' },
   ]);
 
   // Signal: toggled across await boundaries (OnPush).

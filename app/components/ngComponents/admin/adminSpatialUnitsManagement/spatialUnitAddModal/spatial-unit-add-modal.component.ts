@@ -107,14 +107,14 @@ export class SpatialUnitAddModalComponent implements OnInit {
   // Multi-step form; the security step is only present when Keycloak is
   // enabled, mirroring the conditional fieldset in the template.
   readonly stepper = new WizardStepper([
-    { key: 'metadata', label: 'Metadaten der Raumebene' },
-    { key: 'general', label: 'Allgemeine Metadaten' },
+    { key: 'metadata', label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_UNIT_METADATA' },
+    { key: 'general', label: 'ADMIN_SHARED_UI.STEP_LABELS.GENERAL_METADATA' },
     {
       key: 'security',
-      label: 'Zugriffsschutz und Eigentümerschaft',
+      label: 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE',
       when: () => this.envConfigService.enableKeycloakSecurity,
     },
-    { key: 'data', label: 'Räumlicher Datensatz' },
+    { key: 'data', label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_DATASET' },
   ]);
 
   // Form data — signal: toggled across await boundaries (OnPush).

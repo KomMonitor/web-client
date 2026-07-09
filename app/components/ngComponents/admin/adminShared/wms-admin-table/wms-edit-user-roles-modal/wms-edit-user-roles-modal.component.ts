@@ -38,8 +38,8 @@ export class WmsEditUserRolesModalComponent {
   @ViewChild(RoleManagementGridComponent) roleGrid?: RoleManagementGridComponent;
 
   readonly stepper = new WizardStepper([
-    { key: 'roles', label: 'Zugriffsschutz' },
-    { key: 'ownership', label: 'Eigentümerschaft' },
+    { key: 'roles', label: 'ADMIN_SHARED_UI.STEP_LABELS.ACCESS_PROTECTION' },
+    { key: 'ownership', label: 'ADMIN_SHARED_UI.STEP_LABELS.OWNERSHIP' },
   ]);
 
   isSubmitting = false;

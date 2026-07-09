@@ -67,8 +67,8 @@ export class SpatialUnitEditUserRolesModalComponent {
   // OnPush component via plain fields.
   loadingData = signal(false);
   readonly stepper = new WizardStepper([
-    { key: 'roles', label: 'Zugriffsschutz' },
-    { key: 'ownership', label: 'Eigentümerschaft' },
+    { key: 'roles', label: 'ADMIN_SHARED_UI.STEP_LABELS.ACCESS_PROTECTION' },
+    { key: 'ownership', label: 'ADMIN_SHARED_UI.STEP_LABELS.OWNERSHIP' },
   ]);
 
   onChangeOwner(ownerOrganization: string): void {

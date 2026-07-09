@@ -14,8 +14,10 @@ import {
   OnChanges,
   OnDestroy,
 } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 export interface StepperStep {
+  /** ngx-translate key resolved in the template via the `translate` pipe. */
   label: string;
 }
 
@@ -25,7 +27,7 @@ export interface StepperStep {
   styleUrls: ['./stepper.component.scss'],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [],
+  imports: [TranslateModule],
 })
 export class StepperComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input({ required: true }) steps!: StepperStep[];

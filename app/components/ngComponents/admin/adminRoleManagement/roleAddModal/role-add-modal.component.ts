@@ -92,8 +92,8 @@ export class RoleAddModalComponent implements OnInit {
   } = {};
 
   protected readonly stepper = new WizardStepper([
-    { key: 'basics', label: 'Basisinformationen' },
-    { key: 'rights', label: 'Rechte anderer Gruppen an neuer Gruppe' },
+    { key: 'basics', label: 'ADMIN_SHARED_UI.STEP_LABELS.BASIC_INFO' },
+    { key: 'rights', label: 'ADMIN_SHARED_UI.STEP_LABELS.RIGHTS_OF_OTHER_GROUPS_NEW' },
   ]);
   protected accessControlOptions = [...this.accessControlService.accessControl].sort(
     (left, right) => left.name.localeCompare(right.name, 'de')

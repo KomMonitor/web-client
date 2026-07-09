@@ -56,9 +56,9 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
 
   // Multi-step form
   readonly stepper = new WizardStepper([
-    { key: 'metadataRoles', label: 'Zugriffsschutz Indikator-Metadaten' },
-    { key: 'timeseriesRoles', label: 'Zugriffsschutz Indikator-Zeitreihe pro Raumeinheit' },
-    { key: 'ownership', label: 'Eigentümerschaft' },
+    { key: 'metadataRoles', label: 'ADMIN_SHARED_UI.STEP_LABELS.ACCESS_INDICATOR_METADATA' },
+    { key: 'timeseriesRoles', label: 'ADMIN_SHARED_UI.STEP_LABELS.ACCESS_INDICATOR_TIMESERIES' },
+    { key: 'ownership', label: 'ADMIN_SHARED_UI.STEP_LABELS.OWNERSHIP' },
   ]);
 
   activeModal = inject(NgbActiveModal);
