@@ -16,7 +16,7 @@ import { WmsResourceType } from './../../models/services.models';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdownModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
-import { CellClickedEvent, ColDef, GridOptions, SelectionChangedEvent } from 'ag-grid-community';
+import { CellClickedEvent, ColDef, GridOptions } from 'ag-grid-community';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { WmsAdminTableComponent } from 'components/ngComponents/admin/adminShared/wms-admin-table/wms-admin-table.component';
 import { skip, Subscription } from 'rxjs';
@@ -70,7 +70,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   public columnDefs = signal<ColDef[]>([]);
   public rowData = signal<any[]>([]);
   public gridOptions: GridOptions = {};
-  public selectedRows: any[] = [];
 
   resourceType: WmsResourceType = WmsResourceType.INDICATOR;
 
@@ -210,14 +209,9 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       paginationPageSize: 10,
       paginationPageSizeSelector: [10, 25, 50, 100],
       suppressColumnVirtualisation: true,
-      rowSelection: 'multiple',
-      suppressRowClickSelection: true,
       onCellClicked: (event: CellClickedEvent) => this.onEditButtonsCellClicked(event),
       onViewportChanged: () => {
         this.typesetMath();
-      },
-      onSelectionChanged: (event: SelectionChangedEvent) => {
-        this.onSelectionChanged(event);
       },
     };
   }
@@ -228,10 +222,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         (window as any).MathJax.typesetPromise();
       }
     }, 250);
-  }
-
-  onSelectionChanged(event: SelectionChangedEvent): void {
-    this.selectedRows = event.api.getSelectedRows();
   }
 
   private getFilteredIndicators(): any[] {
@@ -481,9 +471,5 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   checkDeletePermission(): boolean {
     return this.accessControlService.checkDeletePermission();
-  }
-
-  getSelectedIndicatorsMetadata(): any[] {
-    return this.selectedRows;
   }
 }

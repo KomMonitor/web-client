@@ -1,5 +1,4 @@
 import { DestroyRef, Injectable, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { mergeColorSchemes } from 'components/ngComponents/userInterface/kommonitorClassification/colors';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
