@@ -1,5 +1,5 @@
 <div>
-  @for (notification of notificationService.notifications; track notification) {
+  @for (notification of notificationService.notifications(); track notification) {
     <ngb-toast
       [class]="notification.options.classname"
       [autohide]="notification.options.autohide ?? true"
