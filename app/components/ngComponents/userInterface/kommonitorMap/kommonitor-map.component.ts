@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/core';
 import * as L from 'leaflet';
 import 'leaflet.markercluster';
+import { createMarkerClusterGroup } from 'util/leaflet-cluster';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
@@ -1974,7 +1975,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   addPoiGeoresourceAsGeoJSON([georesourceMetadataAndGeoJSON, date, useCluster]) {
     let markers: any;
     if (useCluster) {
-      markers = new L.markerClusterGroup();
+      markers = createMarkerClusterGroup();
 
       georesourceMetadataAndGeoJSON.geoJSON.features.forEach((poiFeature) => {
         // index 0 should be longitude and index 1 should be latitude
@@ -2350,7 +2351,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     if (dataset.geometryType === 'POI') {
       if (useCluster) {
-        poiMarkerLayer = L.markerClusterGroup({
+        poiMarkerLayer = createMarkerClusterGroup({
           iconCreateFunction: function (cluster) {
             const childCount = cluster.getChildCount();
 
