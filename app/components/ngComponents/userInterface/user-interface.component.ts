@@ -1,7 +1,6 @@
 import { DisplayType } from 'components/ngComponents/common/custom-slider/custom-slider.component';
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { AdminLoginStateService } from 'services/admin-login-state-service/admin-login-state.service';
 import { RangeFilterStateService } from 'services/range-filter-state-service/range-filter-state.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
@@ -49,7 +48,6 @@ import { FormsModule } from '@angular/forms';
   ],
 })
 export class UserInterfaceComponent implements OnInit {
-  protected adminLoginState = inject(AdminLoginStateService);
   protected rangeFilterState = inject(RangeFilterStateService);
   protected chartDisplayState = inject(ChartDisplayStateService);
   private metadataBootstrap = inject(MetadataBootstrapService);
@@ -82,7 +80,6 @@ export class UserInterfaceComponent implements OnInit {
   diagramSubMenuOpen: boolean = false;
 
   showUserLogin = false;
-  password;
   showAdminLogin = false;
 
   userLoggedIn: boolean = false;
@@ -177,22 +174,6 @@ export class UserInterfaceComponent implements OnInit {
           if (part.length > 0) this.userGroupInformation[index].push(part);
         });
       });
-    }
-  }
-
-  tryLoginUser_withoutKeycloak() {
-    // TODO FIXME make generic user login once user/role concept is implemented
-
-    // currently only simple ADMIN user login is possible
-    console.log('Check user login');
-    if (
-      this.adminLoginState.adminUserName === this.metadataBootstrap.currentKeycloakUser &&
-      this.adminLoginState.adminPassword === this.password
-    ) {
-      // success login --> currently switch to ADMIN page directly
-      console.log('User Login success - redirect to Admin Page');
-      this.adminLoginState.adminIsLoggedIn = true;
-      location.href = '/administration';
     }
   }
 

@@ -10,7 +10,6 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'services/auth-service/auth.service';
-import { AdminLoginStateService } from 'services/admin-login-state-service/admin-login-state.service';
 import {
   MetadataBootstrapService,
   MetadataLoadingState,
@@ -42,7 +41,6 @@ interface KeycloakUser {
 })
 export class UserLoginComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
-  private adminLoginState = inject(AdminLoginStateService);
   private metadataBootstrap = inject(MetadataBootstrapService);
   private accessControlService = inject(AccessControlService);
   private router = inject(Router);
@@ -62,7 +60,6 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   currentKeycloakUser: KeycloakUser = {};
   userRoleInformation: UserRoleInformation = {};
   userGroupInformation: string[][] = [];
-  password: string = '';
 
   isUserLoginRolesCollapse = true;
   isUserLoginGroupesCollapse = true;
@@ -156,26 +153,9 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   }
 
   tryLoginUser(): void {
-    if (this.envConfigService.enableKeycloakSecurity) {
-      this.authService.login();
-    } else {
-      this.tryLoginUser_withoutKeycloak();
-    }
-  }
-
-  tryLoginUser_withoutKeycloak(): void {
-    // TODO FIXME make generic user login once user/role concept is implemented
-    // currently only simple ADMIN user login is possible
-    console.log('Check user login');
-    if (
-      this.adminLoginState.adminUserName === this.metadataBootstrap.currentKeycloakUser &&
-      this.adminLoginState.adminPassword === this.password
-    ) {
-      // success login --> currently switch to ADMIN page directly
-      console.log('User Login success - redirect to Admin Page');
-      this.adminLoginState.adminIsLoggedIn = true;
-      this.router.navigate(['/administration']);
-    }
+    // The login UI is only reachable with Keycloak security enabled (the popover
+    // is disabled otherwise), so delegate straight to the Keycloak login flow.
+    this.authService.login();
   }
 
   tryLogoutUser(): void {
