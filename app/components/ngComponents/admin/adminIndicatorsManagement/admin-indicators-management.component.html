@@ -56,7 +56,10 @@
 </ng-template>
 
 <ng-template #content>
-  <expandable-box [title]="'ADMIN_INDICATORS.OVERVIEW.METADATA_BOX' | translate">
+  <expandable-box
+    [title]="'ADMIN_INDICATORS.OVERVIEW.METADATA_BOX' | translate"
+    [collapsed]="false"
+  >
     <ag-grid-angular
       #agGrid
       style="height: 70vh"

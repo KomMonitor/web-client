@@ -1,3 +1,5 @@
+import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -11,14 +13,13 @@ import {
   effect,
   inject,
 } from '@angular/core';
-import { IndicatorRefreshRequest } from '../indicator-refresh.model';
-import { TranslateModule } from '@ngx-translate/core';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
-import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
-import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { CommonModule } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { IndicatorRefreshRequest } from '../indicator-refresh.model';
 import { IndicatorAddFormStateService } from './indicator-add-form-state.service';
 import { IndicatorAddStep1BasicComponent } from './steps/indicator-add-step1-basic.component';
 import { IndicatorAddStep2MetadataComponent } from './steps/indicator-add-step2-metadata.component';
@@ -56,6 +57,8 @@ export class IndicatorAddModalComponent implements OnInit {
   protected envConfigService = inject(EnvConfigService);
   private modalService = inject(NgbModal);
   private cdr = inject(ChangeDetectorRef);
+  private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   // Re-render this OnPush view whenever the shared form-state service reports
   // an async bulk rewrite of its plain fields (see stateRevision docs).
@@ -140,8 +143,19 @@ export class IndicatorAddModalComponent implements OnInit {
         targetIndicatorId,
       });
 
-      this.state.successMessagePart = this.state.postBody_indicators.datasetName;
       this.state.loadingData = false;
+
+      if (isEdit) {
+        this.notificationService.showSuccess(
+          this.translate.instant('ADMIN_INDICATORS.ADD_MODAL.SUCCESS_UPDATED_TEXT', {
+            name: this.state.postBody_indicators.datasetName,
+          })
+        );
+        this.activeModal.close('success');
+        return;
+      }
+
+      this.state.successMessagePart = this.state.postBody_indicators.datasetName;
 
       // Close modal with success result
       setTimeout(() => {
