@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from '../../../../../../services/broadcast-service/broadcast.service';
@@ -17,7 +18,7 @@ import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-ste
   standalone: true,
   templateUrl: './admin-filter-edit-modal.component.html',
   styleUrls: ['./admin-filter-edit-modal.component.scss'],
-  imports: [FormsModule, StepperComponent],
+  imports: [TranslateModule, FormsModule, StepperComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminFilterEditModalComponent {

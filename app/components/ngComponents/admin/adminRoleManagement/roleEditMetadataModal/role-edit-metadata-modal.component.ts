@@ -7,12 +7,13 @@ import { AccessControlService } from 'services/access-control-service/access-con
 import { AdminRoleManagementService } from '../admin-role-management.service';
 import { NotificationService } from '../../../common/notification/notification.service';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-role-edit-metadata-modal',
   templateUrl: './role-edit-metadata-modal.component.html',
   styleUrls: ['./role-edit-metadata-modal.component.scss'],
-  imports: [FormsModule, LoadingOverlayComponent],
+  imports: [FormsModule, LoadingOverlayComponent, TranslateModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

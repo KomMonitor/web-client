@@ -2,13 +2,13 @@
   <div class="row vertical-align">
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Beschreibung*</label>
+        <label>{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}*</label>
         <textarea
           rows="3"
           class="form-control"
           formControlName="description"
           name="description"
-          placeholder="Datensatz Beschreibung"
+          [placeholder]="'ADMIN_SHARED_UI.FORM.DESCRIPTION_PLACEHOLDER' | translate"
           required
         ></textarea>
         <div class="help-block with-errors"></div>
@@ -16,26 +16,26 @@
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Datenbasis</label>
+        <label>{{ 'ADMIN_SHARED_UI.FORM.DATABASIS' | translate }}</label>
         <textarea
           rows="3"
           class="form-control"
           formControlName="databasis"
           name="databasis"
-          placeholder="optionale Beschreibung etwaiger grundlegender Daten, die zur Erzeugung des Datensatzes beitragen"
+          [placeholder]="'ADMIN_SHARED_UI.FORM.DATABASIS_PLACEHOLDER' | translate"
         ></textarea>
         <div class="help-block with-errors"></div>
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Datenquelle*</label>
+        <label>{{ 'ADMIN_SHARED.DATASOURCE' | translate }}*</label>
         <textarea
           rows="3"
           class="form-control"
           formControlName="datasource"
           name="datasource"
-          placeholder="Beschreibung der Datenquelle"
+          [placeholder]="'ADMIN_SHARED_UI.FORM.DATASOURCE_PLACEHOLDER' | translate"
           required
         ></textarea>
         <div class="help-block with-errors"></div>
@@ -43,13 +43,13 @@
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Datenhalter und Kontakt*</label>
+        <label>{{ 'ADMIN_SHARED.DATA_HOLDER_CONTACT' | translate }}*</label>
         <textarea
           rows="3"
           class="form-control"
           formControlName="contact"
           name="contact"
-          placeholder="Beschreibung des Datenhalters und etwaiger Kontaktinformationen"
+          [placeholder]="'ADMIN_SHARED_UI.FORM.CONTACT_PLACEHOLDER' | translate"
           required
         ></textarea>
         <div class="help-block with-errors"></div>
@@ -59,14 +59,16 @@
   <div class="row vertical-align">
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Aktualisierungszyklus*</label>
+        <label>{{ 'ADMIN_SHARED_UI.FORM.UPDATE_INTERVAL' | translate }}*</label>
         <select
           formControlName="updateInterval"
           name="updateInterval"
           class="form-control"
           required
         >
-          <option [ngValue]="null">-- Aktualisierungszyklus wählen --</option>
+          <option [ngValue]="null">
+            {{ 'ADMIN_SHARED_UI.FORM.SELECT_UPDATE_INTERVAL' | translate }}
+          </option>
           @for (value of updateIntervalOptions; track value.apiName) {
             <option [ngValue]="value">
               {{ value.displayName }}
@@ -78,7 +80,7 @@
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Datum der letzten Aktualisierung*</label>
+        <label>{{ 'ADMIN_SHARED_UI.FORM.LAST_UPDATE_DATE' | translate }}*</label>
         <km-date-picker
           name="lastUpdate"
           placeholder="YYYY-MM-DD"
@@ -90,26 +92,26 @@
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Literatur</label>
+        <label>{{ 'ADMIN_SHARED_UI.FORM.LITERATURE' | translate }}</label>
         <textarea
           rows="3"
           class="form-control"
           formControlName="literature"
           name="literature"
-          placeholder="optionale Angaben zu Literatur"
+          [placeholder]="'ADMIN_SHARED_UI.FORM.LITERATURE_PLACEHOLDER' | translate"
         ></textarea>
         <div class="help-block with-errors"></div>
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Bemerkung</label>
+        <label>{{ 'ADMIN_SHARED_UI.FORM.NOTE' | translate }}</label>
         <textarea
           rows="3"
           class="form-control"
           formControlName="note"
           name="note"
-          placeholder="optionale Bemerkung"
+          [placeholder]="'ADMIN_SHARED_UI.FORM.NOTE_PLACEHOLDER' | translate"
         ></textarea>
         <div class="help-block with-errors"></div>
       </div>

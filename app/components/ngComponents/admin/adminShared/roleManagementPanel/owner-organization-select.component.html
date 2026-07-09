@@ -3,19 +3,20 @@
   <div class="col-md-6 col-sm-6 col-12">
     @if (mode === 'assign') {
       <div class="alert alert-info">
-        Bitte wählen Sie zunächst die Organisationseinheit aus, unter welcher Sie den Datensatz
-        anlegen möchten
+        {{ 'ADMIN_SHARED_UI.OWNER.SELECT_HINT' | translate }}
       </div>
-      <label for="targetUserRoleSelect">Eigentümer-Organisationseinheit*</label>
+      <label for="targetUserRoleSelect">{{ 'ADMIN_SHARED_UI.OWNER.ORG_LABEL' | translate }}*</label>
     } @else {
-      <label for="targetUserRoleSelect"><b>Eigentümerschaft übertragen an</b></label>
+      <label for="targetUserRoleSelect"
+        ><b>{{ 'ADMIN_SHARED_UI.OWNER.TRANSFER_TO' | translate }}</b></label
+      >
     }
     <div class="input-group">
       <span class="input-group-addon"><i class="fas fa-filter"></i></span>
       <input
         type="text"
         class="form-control input-sm"
-        placeholder="Stichwortfilter"
+        [placeholder]="'ADMIN_SHARED.KEYWORD_FILTER' | translate"
         [(ngModel)]="ownerOrgFilter"
         name="ownerOrgFilter"
         [ngModelOptions]="{ standalone: true }"
@@ -31,9 +32,11 @@
       [required]="mode === 'assign'"
     >
       @if (mode === 'assign') {
-        <option value="" disabled>-- Eigentümer-Organisationseinheit wählen --</option>
+        <option value="" disabled>{{ 'ADMIN_SHARED_UI.OWNER.SELECT_ORG' | translate }}</option>
       } @else {
-        <option value=""><b>Eigentümerschaft nicht übertragen</b></option>
+        <option value="">
+          <b>{{ 'ADMIN_SHARED_UI.OWNER.DO_NOT_TRANSFER' | translate }}</b>
+        </option>
       }
       @for (org of getFilteredOrganizations(); track org.organizationalUnitId) {
         <option [value]="org.organizationalUnitId">{{ org.name }}</option>
@@ -42,11 +45,11 @@
   </div>
   <div class="col-md-3">
     @if (mode === 'transfer') {
-      <label>aktuelle Eigentümer-Organisationseinheit</label>
+      <label>{{ 'ADMIN_SHARED_UI.OWNER.CURRENT_ORG' | translate }}</label>
       <p>{{ getCurrentOwnerName() }}</p>
       @if (isOwnershipChanging) {
         <div class="help-block" style="color: red">
-          <p>ACHTUNG: Sie sind dabei, die Eigentümerschaft an diesem Datensatz zu ändern.</p>
+          <p>{{ 'ADMIN_SHARED_UI.OWNER.CHANGE_WARNING' | translate }}</p>
         </div>
       }
     }

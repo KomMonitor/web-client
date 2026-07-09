@@ -6,6 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { OgcService } from 'services/ogcServices/ogc.service';
 
@@ -13,7 +14,7 @@ import { OgcService } from 'services/ogcServices/ogc.service';
   selector: 'app-wms-delete-modal',
   templateUrl: './wms-delete-modal.component.html',
   styleUrls: ['./wms-delete-modal.component.scss'],
-  imports: [],
+  imports: [TranslateModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

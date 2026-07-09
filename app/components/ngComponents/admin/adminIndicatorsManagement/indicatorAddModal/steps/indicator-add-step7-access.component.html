@@ -1,17 +1,19 @@
 <div>
-  <h2 class="fs-title">Zugriffsschutz und Eigentümerschaft</h2>
-  <h3 class="fs-subtitle">Angaben über Zugriffsrechte und Eigentümerschaft des Indikators</h3>
+  <h2 class="fs-title">{{ 'ADMIN_INDICATORS.ACCESS_AND_OWNERSHIP' | translate }}</h2>
+  <h3 class="fs-subtitle">{{ 'ADMIN_INDICATORS.STEP_ACCESS.SUBTITLE' | translate }}</h3>
   <p>
-    <b><i>* = Pflichtfeld</i></b>
+    <b
+      ><i>{{ 'ADMIN_INDICATORS.REQUIRED_FIELD' | translate }}</i></b
+    >
   </p>
   <div class="row vertical-align">
     <div class="col-md-12">
       <div class="form-group">
-        <label>Zugriffsschutz und Eigentümerschaft</label>
+        <label>{{ 'ADMIN_INDICATORS.ACCESS_AND_OWNERSHIP' | translate }}</label>
         <div class="alert alert-info">
           <i class="fas fa-shield-alt"></i>
-          <strong>Hinweis:</strong> Hier können Sie die Zugriffsrechte und Eigentümerschaft des
-          Indikators konfigurieren.
+          <strong>{{ 'ADMIN_INDICATORS.NOTE_LABEL' | translate }}</strong>
+          {{ 'ADMIN_INDICATORS.STEP_ACCESS.NOTE_TEXT' | translate }}
         </div>
       </div>
     </div>
@@ -19,14 +21,14 @@
   <div class="row vertical-align">
     <div class="col-md-6 col-sm-6 col-12">
       <div class="form-group">
-        <label>Eigentümer-Organisation*</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_ACCESS.OWNER_ORG' | translate }}*</label>
         <div class="input-group">
           <input
             type="text"
             class="form-control"
             [(ngModel)]="state.ownerOrgFilter"
             name="ownerOrgFilter"
-            placeholder="Organisation filtern"
+            [placeholder]="'ADMIN_INDICATORS.STEP_ACCESS.FILTER_ORG_PLACEHOLDER' | translate"
             (ngModelChange)="state.filterOrganizations()"
           />
           <span class="input-group-btn">
@@ -42,7 +44,9 @@
           class="form-control"
           required
         >
-          <option [ngValue]="null" disabled selected>-- Eigentümer-Organisation wählen --</option>
+          <option [ngValue]="null" disabled selected>
+            {{ 'ADMIN_INDICATORS.STEP_ACCESS.SELECT_OWNER_ORG_OPTION' | translate }}
+          </option>
           @for (org of state.filteredOrganizations; track org) {
             <option [ngValue]="org">
               {{ org.name }}
@@ -50,18 +54,18 @@
           }
         </select>
         <div class="help-block">
-          <p>
-            Organisation, die für den Indikator verantwortlich ist und die Zugriffsrechte verwaltet
-          </p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_ACCESS.OWNER_ORG_HINT' | translate }}</p>
         </div>
         <div class="help-block with-errors"></div>
       </div>
     </div>
     <div class="col-md-6 col-sm-6 col-12">
       <div class="form-group">
-        <label>Öffentlicher Zugriff</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_ACCESS.PUBLIC_ACCESS' | translate }}</label>
         <div class="form-group vertical-align">
-          <label class="margin-right" style="font-weight: normal">Öffentlich verfügbar</label>
+          <label class="margin-right" style="font-weight: normal">{{
+            'ADMIN_INDICATORS.STEP_ACCESS.PUBLICLY_AVAILABLE' | translate
+          }}</label>
           <label class="switch">
             <input
               type="checkbox"
@@ -73,7 +77,7 @@
           </label>
         </div>
         <div class="help-block">
-          <p>Bei Aktivierung ist der Indikator für alle Benutzer sichtbar und zugreifbar</p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_ACCESS.PUBLIC_ACCESS_HINT' | translate }}</p>
         </div>
       </div>
     </div>
@@ -84,8 +88,7 @@
         <div class="form-group">
           <div class="alert alert-info">
             <i class="fas fa-info-circle"></i>
-            Bitte wählen Sie zunächst eine Eigentümer-Organisation aus, um Zugriffsrechte an
-            Organisationseinheiten zu vergeben.
+            {{ 'ADMIN_INDICATORS.STEP_ACCESS.SELECT_OWNER_FIRST' | translate }}
           </div>
         </div>
       </div>
@@ -96,19 +99,17 @@
   <div class="row vertical-align" [style.display]="state.showRoleForm ? 'flex' : 'none'">
     <div class="col-md-12">
       <div class="form-group">
-        <label>Rollenbasierte Zugriffsrechte</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_ACCESS.ROLE_BASED_RIGHTS' | translate }}</label>
         <div class="alert alert-info">
           <i class="fas fa-users"></i>
-          Als Eigentümer-Organisation können Sie Lese- und Editier-Rechte an die eigene und weitere
-          Organisationseinheiten vergeben. Die Rechte der Eigentümer-Organisation sind fest gesetzt
-          und können nicht entfernt werden.
+          {{ 'ADMIN_INDICATORS.STEP_ACCESS.OWNER_RIGHTS_INFO' | translate }}
         </div>
         <app-role-management-grid
           gridId="indicatorAddRoleManagementTable"
           [reducedColumns]="true"
         ></app-role-management-grid>
         <div class="help-block">
-          <p>Wählen Sie die Organisationseinheiten aus, die Zugriff auf diesen Indikator haben.</p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_ACCESS.SELECT_ORG_UNITS_HINT' | translate }}</p>
         </div>
       </div>
     </div>
@@ -116,11 +117,11 @@
   <div class="row vertical-align">
     <div class="col-md-12">
       <div class="form-group">
-        <label>Erweiterte Zugriffskontrolle</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_ACCESS.ADVANCED_ACCESS' | translate }}</label>
         <div class="alert alert-info">
           <i class="fas fa-cogs"></i>
-          <strong>Erweiterte Einstellungen:</strong> Konfigurieren Sie zusätzliche
-          Zugriffskontrollen für spezielle Anforderungen.
+          <strong>{{ 'ADMIN_INDICATORS.STEP_ACCESS.ADVANCED_SETTINGS_LABEL' | translate }}</strong>
+          {{ 'ADMIN_INDICATORS.STEP_ACCESS.ADVANCED_SETTINGS_TEXT' | translate }}
         </div>
       </div>
     </div>
@@ -128,9 +129,11 @@
   <div class="row vertical-align">
     <div class="col-md-6 col-sm-6 col-12">
       <div class="form-group">
-        <label>Zugriffszeitraum</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_ACCESS.ACCESS_PERIOD' | translate }}</label>
         <div class="form-group vertical-align">
-          <label class="margin-right" style="font-weight: normal">Zeitlich begrenzt</label>
+          <label class="margin-right" style="font-weight: normal">{{
+            'ADMIN_INDICATORS.STEP_ACCESS.TIME_LIMITED' | translate
+          }}</label>
           <label class="switch">
             <input
               type="checkbox"
@@ -141,15 +144,17 @@
           </label>
         </div>
         <div class="help-block">
-          <p>Bei Aktivierung können Sie einen zeitlich begrenzten Zugriff konfigurieren</p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_ACCESS.TIME_LIMITED_HINT' | translate }}</p>
         </div>
       </div>
     </div>
     <div class="col-md-6 col-sm-6 col-12">
       <div class="form-group">
-        <label>Geografische Einschränkung</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_ACCESS.GEO_RESTRICTION' | translate }}</label>
         <div class="form-group vertical-align">
-          <label class="margin-right" style="font-weight: normal">Räumlich begrenzt</label>
+          <label class="margin-right" style="font-weight: normal">{{
+            'ADMIN_INDICATORS.STEP_ACCESS.SPATIALLY_LIMITED' | translate
+          }}</label>
           <label class="switch">
             <input
               type="checkbox"
@@ -160,7 +165,7 @@
           </label>
         </div>
         <div class="help-block">
-          <p>Bei Aktivierung können Sie eine geografische Zugriffsbeschränkung konfigurieren</p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_ACCESS.GEO_RESTRICTION_HINT' | translate }}</p>
         </div>
       </div>
     </div>
@@ -169,7 +174,7 @@
     <div class="row vertical-align">
       <div class="col-md-6 col-sm-6 col-12">
         <div class="form-group">
-          <label>Zugriff von</label>
+          <label>{{ 'ADMIN_INDICATORS.STEP_ACCESS.ACCESS_FROM' | translate }}</label>
           <div class="input-group date">
             <div class="input-group-addon">
               <i class="far fa-calendar-alt"></i>
@@ -183,13 +188,13 @@
             />
           </div>
           <div class="help-block">
-            <p>Startdatum für den Zugriff auf den Indikator</p>
+            <p>{{ 'ADMIN_INDICATORS.STEP_ACCESS.ACCESS_FROM_HINT' | translate }}</p>
           </div>
         </div>
       </div>
       <div class="col-md-6 col-sm-6 col-12">
         <div class="form-group">
-          <label>Zugriff bis</label>
+          <label>{{ 'ADMIN_INDICATORS.STEP_ACCESS.ACCESS_UNTIL' | translate }}</label>
           <div class="input-group date">
             <div class="input-group-addon">
               <i class="far fa-calendar-alt"></i>
@@ -203,7 +208,7 @@
             />
           </div>
           <div class="help-block">
-            <p>Enddatum für den Zugriff auf den Indikator</p>
+            <p>{{ 'ADMIN_INDICATORS.STEP_ACCESS.ACCESS_UNTIL_HINT' | translate }}</p>
           </div>
         </div>
       </div>
@@ -213,7 +218,7 @@
     <div class="row vertical-align">
       <div class="col-md-12">
         <div class="form-group">
-          <label>Erlaubte Regionen</label>
+          <label>{{ 'ADMIN_INDICATORS.STEP_ACCESS.ALLOWED_REGIONS' | translate }}</label>
           <select
             [(ngModel)]="state.allowedRegions"
             name="allowedRegions"
@@ -227,7 +232,7 @@
             }
           </select>
           <div class="help-block">
-            <p>Wählen Sie die Regionen aus, für die der Zugriff erlaubt ist</p>
+            <p>{{ 'ADMIN_INDICATORS.STEP_ACCESS.ALLOWED_REGIONS_HINT' | translate }}</p>
           </div>
         </div>
       </div>
@@ -236,9 +241,11 @@
   <div class="row vertical-align">
     <div class="col-md-12">
       <div class="form-group">
-        <label>Zugriffsprotokollierung</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_ACCESS.ACCESS_LOGGING' | translate }}</label>
         <div class="form-group vertical-align">
-          <label class="margin-right" style="font-weight: normal">Protokollierung aktivieren</label>
+          <label class="margin-right" style="font-weight: normal">{{
+            'ADMIN_INDICATORS.STEP_ACCESS.ENABLE_LOGGING' | translate
+          }}</label>
           <label class="switch">
             <input
               type="checkbox"
@@ -249,7 +256,7 @@
           </label>
         </div>
         <div class="help-block">
-          <p>Bei Aktivierung werden alle Zugriffe auf den Indikator protokolliert</p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_ACCESS.ACCESS_LOGGING_HINT' | translate }}</p>
         </div>
       </div>
     </div>
@@ -257,34 +264,53 @@
   <div class="row vertical-align">
     <div class="col-md-12">
       <div class="form-group">
-        <label>Zusammenfassung der Zugriffskonfiguration</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_ACCESS.SUMMARY' | translate }}</label>
         <div class="access-summary">
           <div class="summary-item">
-            <strong>Eigentümer:</strong>
-            {{ state.ownerOrganization?.name || 'Nicht ausgewählt' }}
+            <strong>{{ 'ADMIN_SHARED.OWNER' | translate }}:</strong>
+            {{
+              state.ownerOrganization?.name ||
+                ('ADMIN_INDICATORS.STEP_ACCESS.NOT_SELECTED' | translate)
+            }}
           </div>
           <div class="summary-item">
-            <strong>Öffentlicher Zugriff:</strong> {{ state.isPublic ? 'Ja' : 'Nein' }}
+            <strong>{{ 'ADMIN_INDICATORS.STEP_ACCESS.PUBLIC_ACCESS' | translate }}:</strong>
+            {{
+              state.isPublic
+                ? ('ADMIN_INDICATORS.YES' | translate)
+                : ('ADMIN_INDICATORS.NO' | translate)
+            }}
           </div>
           <div class="summary-item">
-            <strong>Zugriffsberechtigte Rollen:</strong>
-            {{ state.selectedRoleCount }} Rolle(n)
+            <strong>{{ 'ADMIN_INDICATORS.STEP_ACCESS.AUTHORIZED_ROLES' | translate }}</strong>
+            {{
+              'ADMIN_INDICATORS.STEP_ACCESS.ROLES_COUNT'
+                | translate: { count: state.selectedRoleCount }
+            }}
           </div>
           @if (state.enableTimeRestrictedAccess) {
             <div class="summary-item">
-              <strong>Zeitliche Begrenzung:</strong> {{ state.accessStartDate }} -
+              <strong>{{ 'ADMIN_INDICATORS.STEP_ACCESS.TIME_LIMIT' | translate }}</strong>
+              {{ state.accessStartDate }} -
               {{ state.accessEndDate }}
             </div>
           }
           @if (state.enableGeographicRestriction) {
             <div class="summary-item">
-              <strong>Geografische Begrenzung:</strong>
-              {{ state.allowedRegions.length || 0 }} Region(en)
+              <strong>{{ 'ADMIN_INDICATORS.STEP_ACCESS.GEO_LIMIT' | translate }}</strong>
+              {{
+                'ADMIN_INDICATORS.STEP_ACCESS.REGIONS_COUNT'
+                  | translate: { count: state.allowedRegions.length || 0 }
+              }}
             </div>
           }
           <div class="summary-item">
-            <strong>Protokollierung:</strong>
-            {{ state.enableAccessLogging ? 'Aktiviert' : 'Deaktiviert' }}
+            <strong>{{ 'ADMIN_INDICATORS.STEP_ACCESS.LOGGING' | translate }}</strong>
+            {{
+              state.enableAccessLogging
+                ? ('ADMIN_INDICATORS.STEP_ACCESS.ENABLED' | translate)
+                : ('ADMIN_INDICATORS.STEP_ACCESS.DISABLED' | translate)
+            }}
           </div>
         </div>
       </div>
@@ -294,14 +320,14 @@
     type="button"
     name="previous"
     class="previous previous_addIndicator action-button-previous"
-    value="Voriger Schritt"
+    [value]="'ADMIN_INDICATORS.PREVIOUS_STEP' | translate"
     (click)="state.previousStep()"
   />
   <input
     type="button"
     name="next"
     class="next next_addIndicator action-button"
-    value="Nächster Schritt"
+    [value]="'ADMIN_INDICATORS.NEXT_STEP' | translate"
     (click)="state.nextStep()"
   />
 </div>

@@ -20,6 +20,7 @@ import { StepperComponent } from 'components/ngComponents/common/stepper/stepper
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
 import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManagementPanel/owner-organization-select.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-spatial-unit-edit-user-roles-modal',
@@ -30,6 +31,7 @@ import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManageme
     StepperComponent,
     RoleManagementGridComponent,
     OwnerOrganizationSelectComponent,
+    TranslateModule,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

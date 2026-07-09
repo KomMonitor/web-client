@@ -21,11 +21,13 @@ import { StepperComponent } from '../../../common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { ScriptRefreshRequest } from '../script-refresh.model';
 
+import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-script-add-modal',
   templateUrl: './script-add-modal.component.html',
   styleUrls: ['./script-add-modal.component.scss'],
   imports: [
+    TranslateModule,
     FormsModule,
     StepperComponent,
     ScriptStepIntroductionComponent,

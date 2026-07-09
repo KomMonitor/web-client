@@ -51,12 +51,20 @@ import type {
   MappingConfigImport,
 } from 'services/resource-import-service/resource-import.model';
 import { ResourceImportService } from 'services/resource-import-service/resource-import.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-spatial-unit-edit-features-modal',
   templateUrl: './spatial-unit-edit-features-modal.component.html',
   styleUrls: ['./spatial-unit-edit-features-modal.component.scss'],
-  imports: [FormsModule, CommonModule, AgGridAngular, KmDatePickerComponent, StepperComponent],
+  imports: [
+    FormsModule,
+    CommonModule,
+    AgGridAngular,
+    KmDatePickerComponent,
+    StepperComponent,
+    TranslateModule,
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -9,6 +9,7 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { IndicatorAddFormStateService } from '../indicator-add-form-state.service';
 import { RoleManagementGridComponent } from '../../../adminShared/roleManagementPanel/role-management-grid.component';
@@ -17,7 +18,7 @@ import { RoleManagementGridComponent } from '../../../adminShared/roleManagement
   selector: 'app-indicator-add-step7-access',
   templateUrl: './indicator-add-step7-access.component.html',
   styleUrls: ['../indicator-add-form.shared.scss', './indicator-add-step7-access.component.scss'],
-  imports: [CommonModule, FormsModule, RoleManagementGridComponent],
+  imports: [TranslateModule, CommonModule, FormsModule, RoleManagementGridComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

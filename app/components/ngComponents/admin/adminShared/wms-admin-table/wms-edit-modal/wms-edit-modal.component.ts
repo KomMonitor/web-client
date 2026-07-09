@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   FormControl,
   FormGroup,
@@ -22,7 +23,13 @@ import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-ste
   selector: 'app-wms-edit-modal',
   templateUrl: './wms-edit-modal.component.html',
   styleUrls: ['./wms-edit-modal.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, AdminTopicsManagementComponent, StepperComponent],
+  imports: [
+    TranslateModule,
+    FormsModule,
+    ReactiveFormsModule,
+    AdminTopicsManagementComponent,
+    StepperComponent,
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

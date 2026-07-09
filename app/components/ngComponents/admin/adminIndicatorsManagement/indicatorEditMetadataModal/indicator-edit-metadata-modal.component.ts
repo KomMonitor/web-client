@@ -10,6 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
 import { FormsModule } from '@angular/forms';
@@ -28,7 +29,7 @@ import { IndicatorMetadataStoreService } from '../../../../../services/indicator
   selector: 'app-indicator-edit-metadata-modal',
   templateUrl: './indicator-edit-metadata-modal.component.html',
   styleUrls: ['./indicator-edit-metadata-modal.component.scss'],
-  imports: [FormsModule, FilterPipe],
+  imports: [TranslateModule, FormsModule, FilterPipe],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

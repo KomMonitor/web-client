@@ -1,4 +1,5 @@
 import { HttpClient } from '@angular/common/http';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -44,7 +45,7 @@ declare const $: any;
   selector: 'app-indicator-edit-features-modal',
   templateUrl: './indicator-edit-features-modal.component.html',
   styleUrls: ['./indicator-edit-features-modal.component.scss'],
-  imports: [FormsModule, FilterPipe, AgGridAngular, StepperComponent],
+  imports: [TranslateModule, FormsModule, FilterPipe, AgGridAngular, StepperComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

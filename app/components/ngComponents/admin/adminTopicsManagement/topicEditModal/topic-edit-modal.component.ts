@@ -20,12 +20,13 @@ import {
 import { AdminTopicsManagementService } from '../admin-topics-management.service';
 import { Topic } from '../topic.model';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-topic-edit-modal',
   templateUrl: './topic-edit-modal.component.html',
   styleUrls: ['./topic-edit-modal.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule],
+  imports: [FormsModule, ReactiveFormsModule, TranslateModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

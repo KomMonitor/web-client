@@ -31,6 +31,7 @@ import { WmsAdminTableComponent } from '../adminShared/wms-admin-table/wms-admin
 import { FormsModule } from '@angular/forms';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-admin-georesources-management',
@@ -43,6 +44,7 @@ import { NotificationService } from 'components/ngComponents/common/notification
     FormsModule,
     AdminContentViewComponent,
     NgbDropdownModule,
+    TranslateModule,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

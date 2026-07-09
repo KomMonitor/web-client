@@ -9,11 +9,13 @@ import { ScriptDefinitionWrapperComponent } from './script-definition-wrapper/sc
 import { FilterableSelectComponent } from '../../../../common/filterableSelect/filterable-select.component';
 import { ScriptGenericComponent } from './script-types/script-generic/script-generic.component';
 
+import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-script-step-content',
   templateUrl: './script-step-content.component.html',
   styleUrls: ['./script-step-content.component.scss'],
   imports: [
+    TranslateModule,
     FormsModule,
     ScriptDefinitionWrapperComponent,
     ScriptGenericComponent,

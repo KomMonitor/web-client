@@ -6,6 +6,7 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { ColorPaletteSelectComponent } from 'components/ngComponents/common/colorPaletteSelect/color-palette-select.component';
@@ -21,6 +22,7 @@ import { IndicatorAddFormStateService } from '../indicator-add-form-state.servic
     './indicator-add-step5-classification.component.scss',
   ],
   imports: [
+    TranslateModule,
     CommonModule,
     FormsModule,
     NgbNavModule,

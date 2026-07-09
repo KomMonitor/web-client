@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, output, signal } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
@@ -49,7 +50,7 @@ interface AffectedGeoresourceReference {
   selector: 'app-indicator-delete-modal',
   templateUrl: './indicator-delete-modal.component.html',
   styleUrls: ['./indicator-delete-modal.component.scss'],
-  imports: [FormsModule],
+  imports: [TranslateModule, FormsModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

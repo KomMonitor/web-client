@@ -35,6 +35,7 @@ import {
 } from '../../../customElements/line-pattern-picker/km-line-pattern-picker.component';
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { KmDatePickerComponent } from '../../../customElements/date-picker/km-date-picker.component';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
@@ -75,6 +76,7 @@ import {
     ResourceMetadataFormComponent,
     RoleManagementGridComponent,
     OwnerOrganizationSelectComponent,
+    TranslateModule,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

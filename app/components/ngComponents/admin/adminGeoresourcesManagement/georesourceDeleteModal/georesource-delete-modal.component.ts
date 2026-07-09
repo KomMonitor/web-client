@@ -21,6 +21,7 @@ import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-s
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { ProcessScriptMetadataStoreService } from 'services/process-script-metadata-store-service/process-script-metadata-store.service';
 import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
+import { TranslateModule } from '@ngx-translate/core';
 
 interface AffectedScript {
   scriptId: string;
@@ -48,7 +49,7 @@ interface AffectedIndicatorReference {
   selector: 'app-georesource-delete-modal',
   templateUrl: './georesource-delete-modal.component.html',
   styleUrls: ['./georesource-delete-modal.component.scss'],
-  imports: [LoadingOverlayComponent],
+  imports: [LoadingOverlayComponent, TranslateModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -29,11 +29,12 @@ import { ScriptRefreshRequest } from './script-refresh.model';
 import { ScriptAddModalComponent } from './scriptAddModal/script-add-modal.component';
 import { ScriptDeleteModalComponent } from './scriptDeleteModal/script-delete-modal.component';
 
+import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-admin-script-management',
   templateUrl: './admin-script-management.component.html',
   styleUrls: ['./admin-script-management.component.scss'],
-  imports: [AgGridAngular, FormsModule, AdminContentViewComponent],
+  imports: [TranslateModule, AgGridAngular, FormsModule, AdminContentViewComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

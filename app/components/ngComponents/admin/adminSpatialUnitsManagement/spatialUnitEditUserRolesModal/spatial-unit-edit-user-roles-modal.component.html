@@ -5,13 +5,13 @@
 </div>
 
 <div class="modal-header">
-  <h4 class="modal-title">
-    Zugriffsschutz und Eigentümerschaft für Raumeinheit
-    <i
-      ><b>{{ currentSpatialUnitDataset?.spatialUnitLevel }}</b></i
-    >
-    editieren
-  </h4>
+  <h4
+    class="modal-title"
+    [innerHTML]="
+      'ADMIN_SPATIAL_UNITS.EDIT_ROLES_MODAL.TITLE'
+        | translate: { name: currentSpatialUnitDataset?.spatialUnitLevel || '' }
+    "
+  ></h4>
   <button type="button" class="btn-close" aria-label="Close" (click)="onCancel()"></button>
 </div>
 
@@ -31,15 +31,14 @@
              state) survives navigating to step 2 -->
 
         <fieldset [style.display]="stepper.isActive('roles') ? 'block' : 'none'">
-          <h2 class="fs-title">Zugriffsschutz</h2>
+          <h2 class="fs-title">{{ 'ADMIN_SHARED.ACCESS_PROTECTION' | translate }}</h2>
           <h3 class="fs-subtitle">
-            Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro
-            Organisationseinheit
+            {{ 'ADMIN_SPATIAL_UNITS.SECURITY.SUBTITLE' | translate }}
           </h3>
-          <p>Zugriffsrechte (lesen, editieren) müssen explizit vergeben werden</p>
+          <p>{{ 'ADMIN_SPATIAL_UNITS.EDIT_ROLES_MODAL.ROLES_HINT' | translate }}</p>
           <div class="row">
             <div class="col-md-3">
-              <label>Öffentliche Lesefreigabe*</label>
+              <label>{{ 'ADMIN_SPATIAL_UNITS.SECURITY.PUBLIC_READ' | translate }}*</label>
               @if (currentSpatialUnitDataset; as dataset) {
                 <label class="switch">
                   <input
@@ -52,7 +51,7 @@
                 </label>
               }
               <div class="help-block">
-                <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
+                <p>{{ 'ADMIN_SPATIAL_UNITS.SECURITY.PUBLIC_READ_HINT' | translate }}</p>
               </div>
             </div>
             <div class="col-md-6 col-sm-6 col-12">
@@ -65,8 +64,7 @@
             </div>
             <div class="col-md-3">
               <div class="alert alert-info">
-                Als Eigentümer-Organisation des Datensatzes können Sie Lese- und Editier-Rechte an
-                die eigene und weitere Organisationseinheiten vergeben.
+                {{ 'ADMIN_SPATIAL_UNITS.SECURITY.OWNER_INFO' | translate }}
               </div>
             </div>
           </div>
@@ -74,20 +72,22 @@
             type="button"
             name="next"
             class="next next_editSpatialUnitRoles action-button"
-            value="Nächster Schritt"
+            [value]="'ADMIN_SPATIAL_UNITS.COMMON.NEXT_STEP' | translate"
             (click)="stepper.next()"
           />
         </fieldset>
 
         <fieldset [style.display]="stepper.isActive('ownership') ? 'block' : 'none'">
-          <h2 class="fs-title">Eigentümerschaft eines Datensatzes</h2>
+          <h2 class="fs-title">
+            {{ 'ADMIN_SPATIAL_UNITS.EDIT_ROLES_MODAL.OWNERSHIP_TITLE' | translate }}
+          </h2>
           <h3 class="fs-subtitle">
-            Übertragen der Eigentümerschaft von Datensätzen mit allen dazugehörigen Rechten
+            {{ 'ADMIN_SPATIAL_UNITS.EDIT_ROLES_MODAL.OWNERSHIP_SUBTITLE' | translate }}
           </h3>
           <div class="alert alert-danger">
-            Bitte beachten Sie, dass Sie beim Übertragen einer Eigentümerschaft einer Resource unter
-            Umständen jegliche Rechte eben dieser verlieren.<br />Die Rechte werden unwiderruflich
-            und sofort an den neuen Eigentümer übertragen.
+            {{ 'ADMIN_SPATIAL_UNITS.EDIT_ROLES_MODAL.OWNERSHIP_WARNING_1' | translate }}<br />{{
+              'ADMIN_SPATIAL_UNITS.EDIT_ROLES_MODAL.OWNERSHIP_WARNING_2' | translate
+            }}
           </div>
           <app-owner-organization-select
             [ownerId]="ownerOrganization"
@@ -98,7 +98,7 @@
             type="button"
             name="previous"
             class="previous next_editSpatialUnitRoles action-button-previous"
-            value="Voriger Schritt"
+            [value]="'ADMIN_SPATIAL_UNITS.COMMON.PREVIOUS_STEP' | translate"
             (click)="stepper.previous()"
           />
         </fieldset>
@@ -107,10 +107,14 @@
   </div>
 </div>
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="onCancel()">Schließen</button>
+  <button type="button" class="btn btn-default pull-left" (click)="onCancel()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
 
   <button type="button" class="btn btn-success" (click)="editSpatialUnitUserRoles()">
-    Aktualisieren
+    {{ 'ADMIN_SHARED.UPDATE' | translate }}
   </button>
-  <button type="button" class="btn btn-danger" (click)="resetForm()">Zurücksetzen</button>
+  <button type="button" class="btn btn-danger" (click)="resetForm()">
+    {{ 'ADMIN_SPATIAL_UNITS.COMMON.RESET' | translate }}
+  </button>
 </div>

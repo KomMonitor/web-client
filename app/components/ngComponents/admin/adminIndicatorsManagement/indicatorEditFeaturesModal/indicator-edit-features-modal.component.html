@@ -6,11 +6,11 @@
 
 <div class="modal-header">
   <h4 class="modal-title">
-    Zeitreihen des Indikators
+    {{ 'ADMIN_INDICATORS.EDIT_FEATURES.TITLE_PREFIX' | translate }}
     <i
       ><b>{{ currentIndicatorDataset?.indicatorName }}</b></i
     >
-    fortführen
+    {{ 'ADMIN_INDICATORS.EDIT_FEATURES.TITLE_SUFFIX' | translate }}
   </h4>
   <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
 </div>
@@ -31,19 +31,27 @@
         <!-- Step 1: Zeitreihen Übersicht -->
         @if (stepper.isActive('overview')) {
           <fieldset>
-            <h2 class="fs-title">Zeitreihen Übersicht</h2>
-            <h3 class="fs-subtitle">Optionale Anzeige der Zeitreihen-Details</h3>
+            <h2 class="fs-title">
+              {{ 'ADMIN_INDICATORS.EDIT_FEATURES.OVERVIEW_TITLE' | translate }}
+            </h2>
+            <h3 class="fs-subtitle">
+              {{ 'ADMIN_INDICATORS.EDIT_FEATURES.OVERVIEW_SUBTITLE' | translate }}
+            </h3>
             <div class="row vertical-align">
               <div class="col-md-4 col-sm-4 col-12">
                 <div class="form-group">
-                  <label>Raumebene wählen</label>
+                  <label>{{
+                    'ADMIN_INDICATORS.EDIT_FEATURES.SELECT_SPATIAL_UNIT_LABEL' | translate
+                  }}</label>
                   <select
                     [(ngModel)]="overviewTableTargetSpatialUnitMetadata"
                     [ngModelOptions]="{ standalone: true }"
                     class="form-control"
                     required
                   >
-                    <option [ngValue]="null" disabled>-- Ziel-Raumebene wählen --</option>
+                    <option [ngValue]="null" disabled>
+                      {{ 'ADMIN_INDICATORS.SELECT_TARGET_SPATIAL_UNIT_OPTION' | translate }}
+                    </option>
                     @for (
                       spatialUnit of spatialUnitStore.availableSpatialUnits
                         | filter: filterOverviewTargetSpatialUnits();
@@ -59,33 +67,26 @@
               </div>
               <div class="col-md-4 col-sm-4 col-12">
                 <div class="form-group">
-                  <label>Datenbank-Zeitreihen abrufen</label>
+                  <label>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.FETCH_TIMESERIES' | translate }}</label>
                   <button
                     class="btn btn-info"
                     (click)="refreshIndicatorEditFeaturesOverviewTable()"
                     [disabled]="!overviewTableTargetSpatialUnitMetadata"
                   >
-                    <i class="fas fa-sync-alt"></i>&nbsp;Zeige alle Zeitreihen
+                    <i class="fas fa-sync-alt"></i>&nbsp;{{
+                      'ADMIN_INDICATORS.EDIT_FEATURES.SHOW_ALL_TIMESERIES' | translate
+                    }}
                   </button>
                   <div class="help-block">
-                    <p>
-                      Das Anzeigen aller Zeitreihen des Indikators kann je nach Anzahl und
-                      Komplexität der Objekte einige Zeit in Anspruch nehmen
-                    </p>
-                    <p>
-                      Editieren einzelner Zellwerte via Doppelklick. Bestätigen der Editierung durch
-                      Enter oder Klicken in eine andere Zelle
-                    </p>
+                    <p>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.LOAD_TIME_HINT' | translate }}</p>
+                    <p>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.EDIT_CELLS_HINT' | translate }}</p>
                   </div>
                   <div class="help-block with-errors"></div>
                 </div>
               </div>
               <div class="col-md-4 col-sm-4 col-12">
                 <div class="form-group">
-                  <label
-                    >Datenbank-Zeitreihen bereinigen (Funktion muss zuerst aktiv eingeschaltet
-                    werden)</label
-                  >
+                  <label>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.CLEANUP_LABEL' | translate }}</label>
                   <label class="switch">
                     <input
                       class="elementCheckbox"
@@ -102,15 +103,12 @@
                     (click)="clearAllIndicatorFeatures()"
                     [disabled]="!enableDeleteFeatures"
                   >
-                    <i class="fas fa-trash"></i>&nbsp;Lösche Indikator-Zeitreihen der selektierten
-                    Raumebene
+                    <i class="fas fa-trash"></i>&nbsp;{{
+                      'ADMIN_INDICATORS.EDIT_FEATURES.DELETE_TIMESERIES_BUTTON' | translate
+                    }}
                   </button>
                   <div class="help-block">
-                    <p>
-                      Das Löschen aller Zeitreihen des Indikators für die selektierte Raumebene ist
-                      unwiderruflich. Der Datensatz als solches (Metadaten) sowie die
-                      Indikatorendaten der sonstigen Raumebenen bleiben dabei bestehen.
-                    </p>
+                    <p>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.DELETE_TIMESERIES_HINT' | translate }}</p>
                   </div>
                   <div class="help-block with-errors"></div>
                 </div>
@@ -119,13 +117,13 @@
             <div>
               @if (featureTableHelper.featureTable_indicator_lastUpdate_timestamp_success) {
                 <div style="background-color: #9dc89f">
-                  <b>Letztes erfolgreiches Update eines Einzeleintrags</b>
+                  <b>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.LAST_UPDATE_SUCCESS' | translate }}</b>
                   {{ featureTableHelper.featureTable_indicator_lastUpdate_timestamp_success }}
                 </div>
               }
               @if (featureTableHelper.featureTable_indicator_lastUpdate_timestamp_failure) {
                 <div style="background-color: #e79595">
-                  <b>Letztes gescheitertes Update eines Einzeleintrags</b>
+                  <b>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.LAST_UPDATE_FAILURE' | translate }}</b>
                   {{ featureTableHelper.featureTable_indicator_lastUpdate_timestamp_failure }}
                 </div>
               }
@@ -145,7 +143,7 @@
               type="button"
               name="next"
               class="next next_editFeaturesIndicator action-button"
-              value="Nächster Schritt"
+              [value]="'ADMIN_INDICATORS.NEXT_STEP' | translate"
               (click)="stepper.next()"
             />
           </fieldset>
@@ -159,9 +157,11 @@
                 type="button"
                 class="btn btn-info pull-left"
                 (click)="onImportIndicatorEditFeaturesMappingConfig()"
-                title="Importieren der Mapping-Konfigurationen aus einer Datei"
+                [title]="'ADMIN_INDICATORS.EDIT_FEATURES.MAPPING_IMPORT_TOOLTIP' | translate"
               >
-                <i class="fas fa-file-import"></i>&nbsp;&nbsp;Mapping-Import
+                <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
+                  'ADMIN_INDICATORS.EDIT_FEATURES.MAPPING_IMPORT' | translate
+                }}
               </button>
               <input
                 style="display: none"
@@ -176,22 +176,28 @@
                 style="margin-left: 6px"
                 class="btn btn-info pull-left"
                 (click)="onExportIndicatorEditFeaturesMappingConfig()"
-                title="Exportieren der Mapping-Konfigurationen in eine Datei"
+                [title]="'ADMIN_INDICATORS.EDIT_FEATURES.MAPPING_EXPORT_TOOLTIP' | translate"
               >
-                <i class="fas fa-file-export"></i>&nbsp;&nbsp;Mapping-Export
+                <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
+                  'ADMIN_INDICATORS.EDIT_FEATURES.MAPPING_EXPORT' | translate
+                }}
               </button>
             </div>
-            <h2 class="fs-title">Zeitreihen-Import</h2>
+            <h2 class="fs-title">
+              {{ 'ADMIN_INDICATORS.EDIT_FEATURES.IMPORT_TITLE' | translate }}
+            </h2>
             <h3 class="fs-subtitle">
-              Angaben über den Datensatz, aus dem die Indikatoren-Zeitreihen-Werte importiert werden
+              {{ 'ADMIN_INDICATORS.EDIT_FEATURES.IMPORT_SUBTITLE' | translate }}
             </h3>
             <p>
-              <b><i>* = Pflichtfeld</i></b>
+              <b
+                ><i>{{ 'ADMIN_INDICATORS.REQUIRED_FIELD' | translate }}</i></b
+              >
             </p>
             <div class="row vertical-align">
               <div class="col-md-3 col-sm-6 col-12">
                 <div class="form-group">
-                  <label>Datensatz-Quellformat*</label>
+                  <label>{{ 'ADMIN_INDICATORS.DATASET_SOURCE_FORMAT' | translate }}*</label>
                   <select
                     [(ngModel)]="converter"
                     [ngModelOptions]="{ standalone: true }"
@@ -199,7 +205,9 @@
                     class="form-control"
                     required
                   >
-                    <option [ngValue]="null" disabled>-- Quellformat wählen --</option>
+                    <option [ngValue]="null" disabled>
+                      {{ 'ADMIN_INDICATORS.SELECT_SOURCE_FORMAT_OPTION' | translate }}
+                    </option>
                     @for (converter of filteredConverters; track converter) {
                       <option [ngValue]="converter">
                         {{ converter.name }}
@@ -218,7 +226,9 @@
                         class="form-control"
                         required
                       >
-                        <option disabled selected value>-- Schema wählen --</option>
+                        <option disabled selected value>
+                          {{ 'ADMIN_INDICATORS.SELECT_SCHEMA_OPTION' | translate }}
+                        </option>
                         @for (schema of converter.schemas; track schema) {
                           <option [value]="schema">
                             {{ schema }}
@@ -232,7 +242,7 @@
                 @if (converter?.mimeTypes) {
                   <div>
                     <div class="form-group">
-                      <label>Quellformat*</label>
+                      <label>{{ 'ADMIN_INDICATORS.SOURCE_FORMAT' | translate }}*</label>
                       <select
                         [(ngModel)]="mimeType"
                         [ngModelOptions]="{ standalone: true }"
@@ -240,7 +250,9 @@
                         class="form-control"
                         required
                       >
-                        <option disabled selected value>-- Format wählen --</option>
+                        <option disabled selected value>
+                          {{ 'ADMIN_INDICATORS.EDIT_FEATURES.SELECT_FORMAT_OPTION' | translate }}
+                        </option>
                         @for (mimeType of converter.mimeTypes; track mimeType) {
                           <option [value]="mimeType">
                             {{ mimeType }}
@@ -283,20 +295,22 @@
                 <div class="form-group">
                   @if (!converter) {
                     <div>
-                      <p>bitte zuerst das Quellformat wählen</p>
+                      <p>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.SELECT_FORMAT_FIRST' | translate }}</p>
                     </div>
                   }
                   @if (converter) {
                     <div>
                       <div class="form-group">
-                        <label>Datenquelltyp*</label>
+                        <label>{{ 'ADMIN_INDICATORS.DATASOURCE_TYPE' | translate }}*</label>
                         <select
                           [(ngModel)]="datasourceType"
                           [ngModelOptions]="{ standalone: true }"
                           class="form-control"
                           required
                         >
-                          <option [ngValue]="null" disabled>-- Quelltyp wählen --</option>
+                          <option [ngValue]="null" disabled>
+                            {{ 'ADMIN_INDICATORS.SELECT_DATASOURCE_TYPE_OPTION' | translate }}
+                          </option>
                           @for (
                             datasourceType of importerHelperService.availableDatasourceTypes;
                             track datasourceType
@@ -310,7 +324,7 @@
                       </div>
                       @if (datasourceType?.type === 'FILE') {
                         <div>
-                          <label>Datei*</label>
+                          <label>{{ 'ADMIN_INDICATORS.FILE' | translate }}*</label>
                           <input
                             type="file"
                             class="form-control"
@@ -351,7 +365,7 @@
               </div>
               <div class="col-md-3 col-sm-6 col-12">
                 <div class="form-group">
-                  <label>ID Attributname der Raumeinheiten*</label>
+                  <label>{{ 'ADMIN_INDICATORS.SPATIAL_REF_KEY' | translate }}*</label>
                   <input
                     type="text"
                     class="form-control"
@@ -360,18 +374,14 @@
                     required
                   />
                   <div class="help-block">
-                    <p>
-                      Name des Attributs, welches den eindeutigen Identifier der Zeitreihe enthält.
-                      Dieser muss identisch sein mit den Raumeinheiten-IDs der selektierten
-                      Raumebene
-                    </p>
+                    <p>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.SPATIAL_REF_KEY_HINT' | translate }}</p>
                   </div>
                   <div class="help-block with-errors"></div>
                 </div>
               </div>
               <div class="col-md-3 col-sm-6 col-12">
                 <div class="form-group">
-                  <label>Ziel-Raumebene*</label>
+                  <label>{{ 'ADMIN_INDICATORS.TARGET_SPATIAL_UNIT' | translate }}*</label>
                   <select
                     [(ngModel)]="targetSpatialUnitMetadata"
                     [ngModelOptions]="{ standalone: true }"
@@ -379,7 +389,9 @@
                     class="form-control"
                     required
                   >
-                    <option [ngValue]="null" disabled>-- Ziel-Raumebene wählen --</option>
+                    <option [ngValue]="null" disabled>
+                      {{ 'ADMIN_INDICATORS.SELECT_TARGET_SPATIAL_UNIT_OPTION' | translate }}
+                    </option>
                     @for (
                       spatialUnit of spatialUnitStore.availableSpatialUnits;
                       track spatialUnit
@@ -398,19 +410,19 @@
                 <hr />
                 <br />
                 <h4>
-                  Vergabe der Zugriffsrechte auf die Datensatz-Zeitreihe für Raumebene
-                  {{ targetSpatialUnitMetadata?.spatialUnitLevel }}
+                  {{
+                    'ADMIN_INDICATORS.EDIT_FEATURES.ACCESS_RIGHTS_HEADING'
+                      | translate: { level: targetSpatialUnitMetadata?.spatialUnitLevel }
+                  }}
                 </h4>
                 <p>
-                  <strong
-                    >lesender Zugriff auf die Indikator-Zeitreihe wird nur den
-                    Organisationseinheiten gewährt, die auch lesenden Zugriff auf Metadaten der
-                    assoziierten Raumebene besitzen.</strong
-                  >
+                  <strong>{{
+                    'ADMIN_INDICATORS.EDIT_FEATURES.READ_ACCESS_NOTE' | translate
+                  }}</strong>
                 </p>
                 <div class="row vertical-align">
                   <div class="col-md-3">
-                    <label>Öffentliche Lesefreigabe*</label>
+                    <label>{{ 'ADMIN_INDICATORS.PUBLIC_READ' | translate }}*</label>
                     <label class="switch">
                       <input
                         type="checkbox"
@@ -421,7 +433,7 @@
                       <span class="switchslider round"></span>
                     </label>
                     <div class="help-block">
-                      <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
+                      <p>{{ 'ADMIN_INDICATORS.PUBLIC_READ_HINT' | translate }}</p>
                     </div>
                   </div>
                   <div class="col-md-6 col-sm-6 col-12">
@@ -433,13 +445,11 @@
                   </div>
                   <div class="col-md-3">
                     <div class="alert alert-info">
-                      Als Eigentümer-Organisation des Datensatzes können Sie Lese- und
-                      Editier-Rechte an die eigene und weitere Organisationseinheiten vergeben.
+                      {{ 'ADMIN_INDICATORS.OWNER_RIGHTS_INFO' | translate }}
                     </div>
                     <br />
                     <div class="alert alert-warning">
-                      Lese- und Editierrechte wurden anhand der selektierten Raumeinheit und für die
-                      von Eigentümer-Organisationseinheit vorab markiert.
+                      {{ 'ADMIN_INDICATORS.EDIT_FEATURES.PRESELECTED_RIGHTS_WARNING' | translate }}
                     </div>
                   </div>
                 </div>
@@ -448,13 +458,13 @@
             }
             <hr />
             <br />
-            <h4>Zeitreihen-Mapping</h4>
+            <h4>{{ 'ADMIN_INDICATORS.TIMESERIES_MAPPING' | translate }}</h4>
             <!-- todo -->
             <!-- <indicator-edit-timeseries-mapping></indicator-edit-timeseries-mapping> -->
             <div class="row vertical-align">
               <div class="col-md-6 col-sm-6 col-12">
                 <div class="form-group">
-                  <label>Fehlende/NULL Werte beibehalten (als NoData-Wert)*</label>
+                  <label>{{ 'ADMIN_INDICATORS.KEEP_MISSING_VALUES' | translate }}*</label>
                   <br />
                   <label class="switch">
                     <input
@@ -466,11 +476,9 @@
                     <span class="switchslider round"></span>
                   </label>
                   <div class="help-block">
-                    <p>
-                      Angabe, ob leere Attributwerte (<code>NULL</code>-Werte) übernommen werden.
-                      Diese werden wie <i>NoData</i>-Werte behandelt. Bei deaktivierter Option wird
-                      bei einem solchen Fall ein Fehler geworfen.
-                    </p>
+                    <p
+                      [innerHTML]="'ADMIN_INDICATORS.EDIT_FEATURES.KEEP_MISSING_HINT' | translate"
+                    ></p>
                   </div>
                 </div>
               </div>
@@ -479,7 +487,7 @@
               type="button"
               name="previous"
               class="previous previous_editFeaturesIndicator action-button-previous"
-              value="Voriger Schritt"
+              [value]="'ADMIN_INDICATORS.PREVIOUS_STEP' | translate"
               (click)="stepper.previous()"
             />
           </fieldset>
@@ -490,7 +498,9 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="closeModal()">Schließen</button>
+  <button type="button" class="btn btn-default pull-left" (click)="closeModal()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
   <button
     type="button"
     class="btn btn-success"
@@ -499,9 +509,9 @@
     "
     (click)="editIndicatorFeatures()"
   >
-    Zeitreihen fortführen
+    {{ 'ADMIN_INDICATORS.EDIT_FEATURES.CONTINUE_TIMESERIES' | translate }}
   </button>
   <button type="button" class="btn btn-danger" (click)="resetIndicatorEditFeaturesForm()">
-    Zurücksetzen
+    {{ 'ADMIN_INDICATORS.RESET' | translate }}
   </button>
 </div>

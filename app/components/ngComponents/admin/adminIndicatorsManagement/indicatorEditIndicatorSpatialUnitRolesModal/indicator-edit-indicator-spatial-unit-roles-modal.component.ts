@@ -9,6 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
@@ -30,6 +31,7 @@ import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManageme
   templateUrl: './indicator-edit-indicator-spatial-unit-roles-modal.component.html',
   styleUrls: ['./indicator-edit-indicator-spatial-unit-roles-modal.component.scss'],
   imports: [
+    TranslateModule,
     FormsModule,
     StepperComponent,
     RoleManagementGridComponent,

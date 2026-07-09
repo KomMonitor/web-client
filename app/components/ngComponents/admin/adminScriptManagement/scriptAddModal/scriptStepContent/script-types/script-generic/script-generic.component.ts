@@ -6,11 +6,13 @@ import { ScriptGeoresourcesComponent } from '../segments/script-georesources/scr
 import { ScriptParametersComponent } from '../segments/script-parameters/script-parameters.component';
 import { ScriptCodeComponent } from '../segments/script-code/script-code.component';
 
+import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-script-generic',
   templateUrl: './script-generic.component.html',
   standalone: true,
   imports: [
+    TranslateModule,
     ScriptIndicatorsComponent,
     ScriptGeoresourcesComponent,
     ScriptParametersComponent,

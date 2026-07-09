@@ -11,12 +11,13 @@ import { Topic, TopicResourceType } from '../topic.model';
 import { take } from 'rxjs/operators';
 import { FormsModule } from '@angular/forms';
 import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-admin-add-topic',
   templateUrl: './add-topic.component.html',
   styleUrls: ['./add-topic.component.scss'],
-  imports: [FormsModule],
+  imports: [FormsModule, TranslateModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -59,7 +60,8 @@ export class AddTopicComponent {
       });
   }
 
-  get typeLabel(): string {
-    return this.topicType === 'main' ? 'Hauptthema' : 'Unterthema';
+  /** Translation key of the topic-type noun, interpolated into the button/placeholder texts. */
+  get typeLabelKey(): string {
+    return this.topicType === 'main' ? 'ADMIN_TOPICS.ADD.MAIN_TOPIC' : 'ADMIN_TOPICS.ADD.SUB_TOPIC';
   }
 }

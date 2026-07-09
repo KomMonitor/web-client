@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, ViewChild, inject, signal } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
@@ -17,6 +18,7 @@ import { OwnerOrganizationSelectComponent } from 'components/ngComponents/admin/
   templateUrl: './wms-edit-user-roles-modal.component.html',
   styleUrls: ['./wms-edit-user-roles-modal.component.scss'],
   imports: [
+    TranslateModule,
     FormsModule,
     StepperComponent,
     RoleManagementGridComponent,

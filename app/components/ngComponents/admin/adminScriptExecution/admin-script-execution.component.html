@@ -1,6 +1,6 @@
 <app-admin-content-view
-  title="Indikatoren-Berechnung"
-  description="Anzeige und Ausführung von Prozessierungsjobs"
+  [title]="'ADMIN_SCRIPTS.EXECUTION.TITLE' | translate"
+  [description]="'ADMIN_SCRIPTS.EXECUTION.DESCRIPTION' | translate"
   [controlsTemplate]="controls"
   [contentTemplate]="content"
 >
@@ -8,20 +8,23 @@
 
 <ng-template #controls>
   <button class="btn btn-warning btn-sm" type="button" (click)="refreshJobOverviewTable()">
-    <i class="fas fa-sync-alt"></i> Refresh
+    <i class="fas fa-sync-alt"></i> {{ 'ADMIN_SCRIPTS.EXECUTION.REFRESH' | translate }}
   </button>
 </ng-template>
 <ng-template #content>
   @if (errorOccurred()) {
     <div class="alert alert-danger" role="alert">
       <i class="fas fa-exclamation-triangle"></i>
-      Fehler beim Laden der Job-Daten. Bitte versuche es erneut.
+      {{ 'ADMIN_SCRIPTS.EXECUTION.LOAD_ERROR' | translate }}
     </div>
   }
   @if (!errorOccurred()) {
-    <app-loading-overlay [loading]="loadingData()" message="Lade Daten...">
+    <app-loading-overlay
+      [loading]="loadingData()"
+      [message]="'ADMIN_SHARED.LOADING_DATA' | translate"
+    >
       <expandable-box
-        title="Übersicht Berechnungs-Jobs zur Indikatoren-Zeitreihen-fortführung"
+        [title]="'ADMIN_SCRIPTS.EXECUTION.DEFAULT_JOBS_TITLE' | translate"
         [collapsed]="false"
       >
         <div class="box-content">
@@ -30,7 +33,7 @@
               <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="defaultIndicatorJobHealth.queueStatus"
-                  descriptionText="Status der Job-Ausführung"
+                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.QUEUE_STATUS' | translate"
                   boxColor="#337ab7"
                   iconClass="fas fa-file-code"
                 ></app-small-box>
@@ -38,7 +41,7 @@
               <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="defaultIndicatorJobHealth.newestJobId.toString()"
-                  descriptionText="neueste Job-Id"
+                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.NEWEST_JOB_ID' | translate"
                   boxColor="#337ab7"
                   iconClass="fas fa-file-code"
                 ></app-small-box>
@@ -46,7 +49,7 @@
               <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="defaultIndicatorJobHealth.succeededJobs.toString()"
-                  descriptionText="abgeschlossene Jobs"
+                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.SUCCEEDED_JOBS' | translate"
                   boxColor="#00a65a"
                   iconClass="fas fa-file-code"
                 ></app-small-box>
@@ -54,7 +57,7 @@
               <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="defaultIndicatorJobHealth.failedJobs.toString()"
-                  descriptionText="gescheiterte Jobs"
+                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.FAILED_JOBS' | translate"
                   boxColor="#dd4b39"
                   iconClass="fas fa-file-code"
                 ></app-small-box>
@@ -66,7 +69,7 @@
               <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="defaultIndicatorJobHealth.activeJobs.toString()"
-                  descriptionText="laufende Jobs"
+                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.ACTIVE_JOBS' | translate"
                   boxColor="#00c0ef"
                   iconClass="fas fa-file-code"
                 ></app-small-box>
@@ -74,7 +77,7 @@
               <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="defaultIndicatorJobHealth.waitingJobs.toString()"
-                  descriptionText="wartende Jobs"
+                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.WAITING_JOBS' | translate"
                   boxColor="#FF851B"
                   iconClass="fas fa-file-code"
                 ></app-small-box>
@@ -82,7 +85,7 @@
               <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="defaultIndicatorJobHealth.delayedJobs.toString()"
-                  descriptionText="wartende Jobs"
+                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.DELAYED_JOBS' | translate"
                   boxColor="#d2d6de"
                   iconClass="fas fa-file-code"
                 ></app-small-box>
@@ -110,7 +113,7 @@
         </div>
       </expandable-box>
       <expandable-box
-        title="Übersicht Berechnungs-Jobs zur individuell-parametrisierten Indikatoren-Berechnung"
+        [title]="'ADMIN_SCRIPTS.EXECUTION.CUSTOMIZED_JOBS_TITLE' | translate"
         [collapsed]="false"
       >
         <div class="box-content customized-computation-content">
@@ -119,7 +122,7 @@
               <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="customizedIndicatorJobHealth.queueStatus"
-                  descriptionText="Status der Job-Ausführung"
+                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.QUEUE_STATUS' | translate"
                   boxColor="#337ab7"
                   iconClass="fas fa-file-code"
                 ></app-small-box>
@@ -127,7 +130,7 @@
               <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="customizedIndicatorJobHealth.newestJobId.toString()"
-                  descriptionText="neueste Job-Id"
+                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.NEWEST_JOB_ID' | translate"
                   boxColor="#337ab7"
                   iconClass="fas fa-file-code"
                 ></app-small-box>
@@ -135,7 +138,7 @@
               <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="customizedIndicatorJobHealth.succeededJobs.toString()"
-                  descriptionText="abgeschlossene Jobs"
+                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.SUCCEEDED_JOBS' | translate"
                   boxColor="#00a65a"
                   iconClass="fas fa-file-code"
                 ></app-small-box>
@@ -143,7 +146,7 @@
               <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="customizedIndicatorJobHealth.failedJobs.toString()"
-                  descriptionText="gescheiterte Jobs"
+                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.FAILED_JOBS' | translate"
                   boxColor="#dd4b39"
                   iconClass="fas fa-file-code"
                 ></app-small-box>
@@ -155,7 +158,7 @@
               <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="customizedIndicatorJobHealth.activeJobs.toString()"
-                  descriptionText="laufende Jobs"
+                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.ACTIVE_JOBS' | translate"
                   boxColor="#00c0ef"
                   iconClass="fas fa-file-code"
                 ></app-small-box>
@@ -163,7 +166,7 @@
               <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="customizedIndicatorJobHealth.waitingJobs.toString()"
-                  descriptionText="wartende Jobs"
+                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.WAITING_JOBS' | translate"
                   boxColor="#FF851B"
                   iconClass="fas fa-file-code"
                 ></app-small-box>
@@ -171,7 +174,7 @@
               <div class="col-md-3 col-sm-6 col-12">
                 <app-small-box
                   [titleText]="customizedIndicatorJobHealth.delayedJobs.toString()"
-                  descriptionText="wartende Jobs"
+                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.DELAYED_JOBS' | translate"
                   boxColor="#d2d6de"
                   iconClass="fas fa-file-code"
                 ></app-small-box>

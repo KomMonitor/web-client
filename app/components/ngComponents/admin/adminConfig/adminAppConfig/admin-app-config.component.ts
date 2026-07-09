@@ -1,4 +1,5 @@
 import { HttpClient } from '@angular/common/http';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -43,7 +44,7 @@ interface LintingIssue {
   selector: 'app-admin-app-config',
   templateUrl: './admin-app-config.component.html',
   styleUrls: ['./admin-app-config.component.scss'],
-  imports: [ExpandableBoxComponent, AdminContentViewComponent],
+  imports: [TranslateModule, ExpandableBoxComponent, AdminContentViewComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

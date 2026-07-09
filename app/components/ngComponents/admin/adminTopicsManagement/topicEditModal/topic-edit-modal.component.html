@@ -1,12 +1,17 @@
 <div class="modal-header">
   <h4 class="modal-title">
-    Metadaten des Themeneintrags
+    {{ 'ADMIN_TOPICS.EDIT_MODAL.TITLE_PREFIX' | translate }}
     <i>
       <b>{{ topic.topicName }}</b>
     </i>
-    editieren
+    {{ 'ADMIN_TOPICS.EDIT_MODAL.TITLE_SUFFIX' | translate }}
   </h4>
-  <button type="button" class="btn-close" aria-label="Close" (click)="cancel()"></button>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="cancel()"
+  ></button>
 </div>
 <div class="modal-body">
   <div>
@@ -18,7 +23,9 @@
   </div>
 
   <p>
-    <b><i>* = Pflichtfeld</i></b>
+    <b
+      ><i>{{ 'ADMIN_TOPICS.REQUIRED_FIELD' | translate }}</i></b
+    >
   </p>
 
   <form
@@ -27,17 +34,19 @@
     class="form-group"
     style="margin-bottom: 0px"
   >
-    <h4>Themen Metadaten</h4>
+    <h4>{{ 'ADMIN_TOPICS.EDIT_MODAL.FORM_TITLE' | translate }}</h4>
 
     <div class="row vertical-align">
       <div class="col-md-5">
-        <label for="topic-name-input">Name des Eintrags*</label>
+        <label for="topic-name-input"
+          >{{ 'ADMIN_TOPICS.EDIT_MODAL.NAME_LABEL' | translate }}*</label
+        >
         <input
           id="topic-name-input"
           style="width: 100%"
           class="form-control"
           type="text"
-          placeholder="Titel des Eintrags"
+          [placeholder]="'ADMIN_TOPICS.EDIT_MODAL.TITLE_PLACEHOLDER' | translate"
           formControlName="name"
           required
           [attr.aria-invalid]="topicForm.get('name')?.invalid && topicForm.get('name')?.touched"
@@ -47,18 +56,20 @@
         />
         @if (topicForm.get('name')?.invalid && topicForm.get('name')?.touched) {
           <div id="name-error" class="help-block with-errors" role="alert">
-            Name ist erforderlich
+            {{ 'ADMIN_TOPICS.EDIT_MODAL.NAME_REQUIRED' | translate }}
           </div>
         }
       </div>
       <div class="col-md-7">
-        <label for="topic-description-input">Beschreibung des Eintrags*</label>
+        <label for="topic-description-input"
+          >{{ 'ADMIN_TOPICS.EDIT_MODAL.DESCRIPTION_LABEL' | translate }}*</label
+        >
         <textarea
           id="topic-description-input"
           style="width: 100%"
           rows="5"
           class="form-control"
-          placeholder="Beschreibung des Eintrags"
+          [placeholder]="'ADMIN_TOPICS.EDIT_MODAL.DESCRIPTION_LABEL' | translate"
           formControlName="description"
           required
           [attr.aria-invalid]="
@@ -72,7 +83,7 @@
         ></textarea>
         @if (topicForm.get('description')?.invalid && topicForm.get('description')?.touched) {
           <div id="description-error" class="help-block with-errors" role="alert">
-            Beschreibung ist erforderlich
+            {{ 'ADMIN_TOPICS.EDIT_MODAL.DESCRIPTION_REQUIRED' | translate }}
           </div>
         }
       </div>
@@ -80,7 +91,9 @@
   </form>
 </div>
 <div class="modal-footer">
-  <button type="button" class="btn btn-outline-secondary" (click)="cancel()">Schließen</button>
+  <button type="button" class="btn btn-outline-secondary" (click)="cancel()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
   <div style="flex: 1"></div>
   <button
     type="button"
@@ -91,6 +104,6 @@
     @if (isSubmitting()) {
       <span class="spinner-border spinner-border-sm mr-1"></span>
     }
-    Eintrag aktualisieren
+    {{ 'ADMIN_TOPICS.EDIT_MODAL.UPDATE' | translate }}
   </button>
 </div>

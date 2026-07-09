@@ -8,6 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { WmsSharedComponentsService } from 'components/ngComponents/admin/adminShared/wms-admin-table/wms-admin-tables-shared.service';
+import { TranslateModule } from '@ngx-translate/core';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { WmsResourceType } from './../../models/services.models';
@@ -40,6 +41,7 @@ import { IndicatorEditIndicatorSpatialUnitRolesModalComponent } from './indicato
   templateUrl: './admin-indicators-management.component.html',
   styleUrls: ['./admin-indicators-management.component.scss'],
   imports: [
+    TranslateModule,
     ExpandableBoxComponent,
     AgGridAngular,
     WmsAdminTableComponent,

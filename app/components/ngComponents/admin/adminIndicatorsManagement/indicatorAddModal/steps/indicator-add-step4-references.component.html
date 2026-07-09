@@ -1,30 +1,29 @@
 <div>
-  <h2 class="fs-title">Referenzen zu Indikatoren/Georessourcen</h2>
-  <h3 class="fs-subtitle">Angaben über Referenzen zu anderen Indikatoren und Georessourcen</h3>
+  <h2 class="fs-title">{{ 'ADMIN_INDICATORS.STEP_REFERENCES.TITLE' | translate }}</h2>
+  <h3 class="fs-subtitle">{{ 'ADMIN_INDICATORS.STEP_REFERENCES.SUBTITLE' | translate }}</h3>
   <p>
-    <b><i>* = Pflichtfeld</i></b>
+    <b
+      ><i>{{ 'ADMIN_INDICATORS.REQUIRED_FIELD' | translate }}</i></b
+    >
   </p>
-  <p>
-    Hier werden Angaben &uuml;ber assoziierte Indikatoren und Georessourcen get&auml;tigt. Sie
-    eignen sich dazu, im System Querverbindungen zwischen Indikatoren und Georessourcen darzustellen
-    und dem Nutzer so die M&ouml;glichkeit zu geben, einen Themenkomplex, der durch mehrere
-    Datens&auml;tze abgebildet wird, besser zu verstehen.
-  </p>
+  <p>{{ 'ADMIN_INDICATORS.STEP_REFERENCES.INTRO' | translate }}</p>
   <!-- Indicator References Section -->
   <div class="row vertical-align">
     <div class="col-md-10 col-sm-12 col-12">
       <!-- box indicators -->
-      <expandable-box title="Referenzen zu anderen Indikatoren">
+      <expandable-box [title]="'ADMIN_INDICATORS.INDICATOR_REFERENCES' | translate">
         <div class="row vertical-align">
           <div class="col-md-4 col-sm-6 col-12">
             <div class="form-group">
-              <label>Indikator auswählen</label>
+              <label>{{ 'ADMIN_INDICATORS.SELECT_INDICATOR' | translate }}</label>
               <input
                 type="text"
                 class="form-control"
                 [(ngModel)]="state.indicatorNameFilter"
                 name="indicatorNameFilter"
-                placeholder="Indikatorname filtern"
+                [placeholder]="
+                  'ADMIN_INDICATORS.STEP_REFERENCES.FILTER_INDICATOR_PLACEHOLDER' | translate
+                "
                 (ngModelChange)="state.filterIndicators()"
               />
               <select
@@ -33,7 +32,9 @@
                 class="form-control"
                 size="8"
               >
-                <option [ngValue]="null" disabled>-- Indikator wählen --</option>
+                <option [ngValue]="null" disabled>
+                  {{ 'ADMIN_INDICATORS.SELECT_INDICATOR_OPTION' | translate }}
+                </option>
                 @for (indicator of state.filteredIndicators; track indicator) {
                   <option [ngValue]="indicator">
                     {{ indicator.datasetName }} ({{ indicator.indicatorType?.displayName }})
@@ -41,29 +42,25 @@
                 }
               </select>
               <div class="help-block">
-                <p>
-                  Wählen Sie einen Indikator aus der Liste aus, zu dem eine Referenz erstellt werden
-                  soll
-                </p>
+                <p>{{ 'ADMIN_INDICATORS.STEP_REFERENCES.INDICATOR_SELECT_HINT' | translate }}</p>
               </div>
             </div>
           </div>
           <div class="col-md-4 col-sm-6 col-12">
             <div class="form-group">
-              <label>Referenzbeschreibung*</label>
+              <label>{{ 'ADMIN_INDICATORS.REFERENCE_DESCRIPTION' | translate }}*</label>
               <textarea
                 rows="3"
                 class="form-control"
                 [(ngModel)]="state.tmpIndicatorReference_referenceDescription"
                 name="tmpIndicatorReference_referenceDescription"
-                placeholder="Beschreibung der Beziehung zum ausgewählten Indikator"
+                [placeholder]="
+                  'ADMIN_INDICATORS.STEP_REFERENCES.INDICATOR_REF_DESC_PLACEHOLDER' | translate
+                "
                 required
               ></textarea>
               <div class="help-block">
-                <p>
-                  Beschreiben Sie die Art der Beziehung zwischen diesem Indikator und dem
-                  ausgewählten Indikator
-                </p>
+                <p>{{ 'ADMIN_INDICATORS.STEP_REFERENCES.INDICATOR_REF_DESC_HINT' | translate }}</p>
               </div>
               <div class="help-block with-errors"></div>
             </div>
@@ -80,7 +77,8 @@
                 "
                 (click)="state.onAddOrUpdateIndicatorReference()"
               >
-                <i class="fas fa-plus"></i> Indikator-Referenz hinzufügen
+                <i class="fas fa-plus"></i>
+                {{ 'ADMIN_INDICATORS.STEP_REFERENCES.ADD_INDICATOR_REF' | translate }}
               </button>
             </div>
           </div>
@@ -89,15 +87,17 @@
           <div class="row vertical-align">
             <div class="col-md-12">
               <div class="form-group">
-                <label>Hinzugefügte Indikator-Referenzen</label>
+                <label>{{
+                  'ADMIN_INDICATORS.STEP_REFERENCES.ADDED_INDICATOR_REFS' | translate
+                }}</label>
                 <div class="table-responsive">
                   <table class="table table-striped table-bordered">
                     <thead>
                       <tr>
-                        <th>Indikator</th>
-                        <th>Typ</th>
-                        <th>Referenzbeschreibung</th>
-                        <th>Aktion</th>
+                        <th>{{ 'ADMIN_INDICATORS.INDICATOR' | translate }}</th>
+                        <th>{{ 'ADMIN_INDICATORS.TYPE' | translate }}</th>
+                        <th>{{ 'ADMIN_INDICATORS.REFERENCE_DESCRIPTION' | translate }}</th>
+                        <th>{{ 'ADMIN_INDICATORS.ACTION' | translate }}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -118,14 +118,14 @@
                               class="btn btn-warning btn-sm"
                               (click)="state.onClickEditIndicatorReference(reference)"
                             >
-                              <i class="fas fa-edit"></i> Bearbeiten
+                              <i class="fas fa-edit"></i> {{ 'ADMIN_INDICATORS.EDIT' | translate }}
                             </button>
                             <button
                               type="button"
                               class="btn btn-danger btn-sm"
                               (click)="state.onClickDeleteIndicatorReference(reference)"
                             >
-                              <i class="fas fa-trash"></i> Löschen
+                              <i class="fas fa-trash"></i> {{ 'ADMIN_SHARED.DELETE' | translate }}
                             </button>
                           </td>
                         </tr>
@@ -139,17 +139,19 @@
         }
       </expandable-box>
       <!-- box georesources -->
-      <expandable-box title="Referenzen zu Georessourcen">
+      <expandable-box [title]="'ADMIN_INDICATORS.GEORESOURCE_REFERENCES' | translate">
         <div class="row vertical-align">
           <div class="col-md-4 col-sm-6 col-12">
             <div class="form-group">
-              <label>Georessource auswählen</label>
+              <label>{{ 'ADMIN_INDICATORS.SELECT_GEORESOURCE' | translate }}</label>
               <input
                 type="text"
                 class="form-control"
                 [(ngModel)]="state.georesourceNameFilter"
                 name="georesourceNameFilter"
-                placeholder="Georessourcenname filtern"
+                [placeholder]="
+                  'ADMIN_INDICATORS.STEP_REFERENCES.FILTER_GEORESOURCE_PLACEHOLDER' | translate
+                "
                 (ngModelChange)="state.filterGeoresources()"
               />
               <select
@@ -158,7 +160,9 @@
                 class="form-control"
                 size="8"
               >
-                <option [ngValue]="null" disabled>-- Georessource wählen --</option>
+                <option [ngValue]="null" disabled>
+                  {{ 'ADMIN_INDICATORS.STEP_REFERENCES.SELECT_GEORESOURCE_OPTION' | translate }}
+                </option>
                 @for (georesource of state.filteredGeoresources; track georesource) {
                   <option [ngValue]="georesource">
                     {{ georesource.datasetName }} ({{ georesource.georesourceType?.displayName }})
@@ -166,28 +170,26 @@
                 }
               </select>
               <div class="help-block">
-                <p>
-                  Wählen Sie eine Georessource aus der Liste aus, zu der eine Referenz erstellt
-                  werden soll
-                </p>
+                <p>{{ 'ADMIN_INDICATORS.STEP_REFERENCES.GEORESOURCE_SELECT_HINT' | translate }}</p>
               </div>
             </div>
           </div>
           <div class="col-md-4 col-sm-6 col-12">
             <div class="form-group">
-              <label>Referenzbeschreibung*</label>
+              <label>{{ 'ADMIN_INDICATORS.REFERENCE_DESCRIPTION' | translate }}*</label>
               <textarea
                 rows="3"
                 class="form-control"
                 [(ngModel)]="state.tmpGeoresourceReference_referenceDescription"
                 name="tmpGeoresourceReference_referenceDescription"
-                placeholder="Beschreibung der Beziehung zur ausgewählten Georessource"
+                [placeholder]="
+                  'ADMIN_INDICATORS.STEP_REFERENCES.GEORESOURCE_REF_DESC_PLACEHOLDER' | translate
+                "
                 required
               ></textarea>
               <div class="help-block">
                 <p>
-                  Beschreiben Sie die Art der Beziehung zwischen diesem Indikator und der
-                  ausgewählten Georessource
+                  {{ 'ADMIN_INDICATORS.STEP_REFERENCES.GEORESOURCE_REF_DESC_HINT' | translate }}
                 </p>
               </div>
               <div class="help-block with-errors"></div>
@@ -205,7 +207,8 @@
                 "
                 (click)="state.onAddOrUpdateGeoresourceReference()"
               >
-                <i class="fas fa-plus"></i> Georessourcen-Referenz hinzufügen
+                <i class="fas fa-plus"></i>
+                {{ 'ADMIN_INDICATORS.STEP_REFERENCES.ADD_GEORESOURCE_REF' | translate }}
               </button>
             </div>
           </div>
@@ -214,15 +217,17 @@
           <div class="row vertical-align">
             <div class="col-md-12">
               <div class="form-group">
-                <label>Hinzugefügte Georessourcen-Referenzen</label>
+                <label>{{
+                  'ADMIN_INDICATORS.STEP_REFERENCES.ADDED_GEORESOURCE_REFS' | translate
+                }}</label>
                 <div class="table-responsive">
                   <table class="table table-striped table-bordered">
                     <thead>
                       <tr>
-                        <th>Georessource</th>
-                        <th>Typ</th>
-                        <th>Referenzbeschreibung</th>
-                        <th>Aktion</th>
+                        <th>{{ 'ADMIN_INDICATORS.GEORESOURCE' | translate }}</th>
+                        <th>{{ 'ADMIN_INDICATORS.TYPE' | translate }}</th>
+                        <th>{{ 'ADMIN_INDICATORS.REFERENCE_DESCRIPTION' | translate }}</th>
+                        <th>{{ 'ADMIN_INDICATORS.ACTION' | translate }}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -243,14 +248,14 @@
                               class="btn btn-warning btn-sm"
                               (click)="state.onClickEditGeoresourceReference(reference)"
                             >
-                              <i class="fas fa-edit"></i> Bearbeiten
+                              <i class="fas fa-edit"></i> {{ 'ADMIN_INDICATORS.EDIT' | translate }}
                             </button>
                             <button
                               type="button"
                               class="btn btn-danger btn-sm"
                               (click)="state.onClickDeleteGeoresourceReference(reference)"
                             >
-                              <i class="fas fa-trash"></i> Löschen
+                              <i class="fas fa-trash"></i> {{ 'ADMIN_SHARED.DELETE' | translate }}
                             </button>
                           </td>
                         </tr>
@@ -269,14 +274,14 @@
     type="button"
     name="previous"
     class="previous previous_addIndicator action-button-previous"
-    value="Voriger Schritt"
+    [value]="'ADMIN_INDICATORS.PREVIOUS_STEP' | translate"
     (click)="state.previousStep()"
   />
   <input
     type="button"
     name="next"
     class="next next_addIndicator action-button"
-    value="Nächster Schritt"
+    [value]="'ADMIN_INDICATORS.NEXT_STEP' | translate"
     (click)="state.nextStep()"
   />
 </div>

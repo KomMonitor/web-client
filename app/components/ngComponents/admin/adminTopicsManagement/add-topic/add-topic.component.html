@@ -6,7 +6,8 @@
       (click)="onAddTopic()"
       [disabled]="!newTopicTitle || !newTopicDescription"
     >
-      <i class="fas fa-plus"></i> &nbsp; &nbsp; {{ typeLabel }} hinzufügen
+      <i class="fas fa-plus"></i> &nbsp; &nbsp;
+      {{ 'ADMIN_TOPICS.ADD.ADD_BUTTON' | translate: { type: (typeLabelKey | translate) } }}
     </button>
   </div>
   <div class="col-4">
@@ -14,7 +15,9 @@
       style="width: 100%"
       class="form-control"
       type="text"
-      placeholder="Titel des {{ typeLabel }}s"
+      [placeholder]="
+        'ADMIN_TOPICS.ADD.TITLE_PLACEHOLDER' | translate: { type: (typeLabelKey | translate) }
+      "
       [(ngModel)]="newTopicTitle"
       name="newTopicTitle"
       required
@@ -27,7 +30,9 @@
       rows="1"
       class="form-control form-control-sm"
       type="text"
-      placeholder="Beschreibung des {{ typeLabel }}s"
+      [placeholder]="
+        'ADMIN_TOPICS.ADD.DESCRIPTION_PLACEHOLDER' | translate: { type: (typeLabelKey | translate) }
+      "
       [(ngModel)]="newTopicDescription"
       name="newTopicDescription"
       required

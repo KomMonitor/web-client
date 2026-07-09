@@ -6,6 +6,7 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
@@ -16,7 +17,13 @@ import { IndicatorAddFormStateService } from '../indicator-add-form-state.servic
   selector: 'app-indicator-add-step3-topics',
   templateUrl: './indicator-add-step3-topics.component.html',
   styleUrls: ['../indicator-add-form.shared.scss'],
-  imports: [CommonModule, FormsModule, NgbCollapseModule, AdminTopicsManagementComponent],
+  imports: [
+    TranslateModule,
+    CommonModule,
+    FormsModule,
+    NgbCollapseModule,
+    AdminTopicsManagementComponent,
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

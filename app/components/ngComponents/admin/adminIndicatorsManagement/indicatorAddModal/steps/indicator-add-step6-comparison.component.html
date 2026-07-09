@@ -1,17 +1,19 @@
 <div>
-  <h2 class="fs-title">Regionale Vergleichswerte</h2>
-  <h3 class="fs-subtitle">Angaben über regionale Vergleichswerte und Benchmarking</h3>
+  <h2 class="fs-title">{{ 'ADMIN_INDICATORS.REGIONAL_COMPARISON_VALUES' | translate }}</h2>
+  <h3 class="fs-subtitle">{{ 'ADMIN_INDICATORS.STEP_COMPARISON.SUBTITLE' | translate }}</h3>
   <p>
-    <b><i>* = Pflichtfeld</i></b>
+    <b
+      ><i>{{ 'ADMIN_INDICATORS.REQUIRED_FIELD' | translate }}</i></b
+    >
   </p>
   <div class="row vertical-align">
     <div class="col-md-12">
       <div class="form-group">
-        <label>Regionale Vergleichswerte (optional)</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.OPTIONAL_LABEL' | translate }}</label>
         <div class="alert alert-info">
           <i class="fas fa-info-circle"></i>
-          <strong>Hinweis:</strong> Hier können Sie regionale Vergleichswerte definieren, die als
-          Benchmark für die Bewertung der Indikatorwerte dienen.
+          <strong>{{ 'ADMIN_INDICATORS.NOTE_LABEL' | translate }}</strong>
+          {{ 'ADMIN_INDICATORS.STEP_COMPARISON.NOTE_TEXT' | translate }}
         </div>
       </div>
     </div>
@@ -19,39 +21,51 @@
   <div class="row vertical-align">
     <div class="col-md-6 col-sm-6 col-12">
       <div class="form-group">
-        <label>Vergleichswert-Typ</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.TYPE_LABEL' | translate }}</label>
         <select
           [(ngModel)]="state.comparisonValueType"
           name="comparisonValueType"
           (ngModelChange)="state.onComparisonValueTypeChange()"
           class="form-control"
         >
-          <option [ngValue]="null" selected>-- Vergleichswert-Typ wählen --</option>
-          <option value="target">Zielwert</option>
-          <option value="average">Durchschnittswert</option>
-          <option value="median">Medianwert</option>
+          <option [ngValue]="null" selected>
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.SELECT_TYPE_OPTION' | translate }}
+          </option>
+          <option value="target">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.TARGET' | translate }}
+          </option>
+          <option value="average">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.AVERAGE' | translate }}
+          </option>
+          <option value="median">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.MEDIAN' | translate }}
+          </option>
           <option value="best_practice">Best Practice</option>
-          <option value="threshold">Schwellenwert</option>
-          <option value="custom">Benutzerdefiniert</option>
+          <option value="threshold">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.THRESHOLD' | translate }}
+          </option>
+          <option value="custom">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.CUSTOM' | translate }}
+          </option>
         </select>
         <div class="help-block">
-          <p>Art des Vergleichswerts für die Bewertung der Indikatorwerte</p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.TYPE_HINT' | translate }}</p>
         </div>
       </div>
     </div>
     <div class="col-md-6 col-sm-6 col-12">
       <div class="form-group">
-        <label>Vergleichswert</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.VALUE_LABEL' | translate }}</label>
         <input
           type="number"
           class="form-control"
           [(ngModel)]="state.comparisonValue"
           name="comparisonValue"
-          placeholder="Numerischer Wert"
+          [placeholder]="'ADMIN_INDICATORS.STEP_COMPARISON.NUMERIC_PLACEHOLDER' | translate"
           step="0.01"
         />
         <div class="help-block">
-          <p>Numerischer Wert des Vergleichswerts</p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.VALUE_HINT' | translate }}</p>
         </div>
       </div>
     </div>
@@ -59,39 +73,63 @@
   <div class="row vertical-align">
     <div class="col-md-6 col-sm-6 col-12">
       <div class="form-group">
-        <label>Vergleichsregion</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.REGION' | translate }}</label>
         <select [(ngModel)]="state.comparisonRegion" name="comparisonRegion" class="form-control">
-          <option [ngValue]="null" selected>-- Vergleichsregion wählen --</option>
+          <option [ngValue]="null" selected>
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.SELECT_REGION_OPTION' | translate }}
+          </option>
           <option value="national">National</option>
-          <option value="state">Bundesland</option>
-          <option value="district">Kreis</option>
-          <option value="municipality">Gemeinde</option>
-          <option value="neighborhood">Stadtteil</option>
-          <option value="custom">Benutzerdefiniert</option>
+          <option value="state">{{ 'ADMIN_INDICATORS.STEP_COMPARISON.STATE' | translate }}</option>
+          <option value="district">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.DISTRICT' | translate }}
+          </option>
+          <option value="municipality">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.MUNICIPALITY' | translate }}
+          </option>
+          <option value="neighborhood">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.NEIGHBORHOOD' | translate }}
+          </option>
+          <option value="custom">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.CUSTOM' | translate }}
+          </option>
         </select>
         <div class="help-block">
-          <p>Räumliche Ebene der Vergleichsregion</p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.REGION_HINT' | translate }}</p>
         </div>
       </div>
     </div>
     <div class="col-md-6 col-sm-6 col-12">
       <div class="form-group">
-        <label>Vergleichszeitraum</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.TIMEFRAME' | translate }}</label>
         <select
           [(ngModel)]="state.comparisonTimeframe"
           name="comparisonTimeframe"
           class="form-control"
         >
-          <option [ngValue]="null" selected>-- Vergleichszeitraum wählen --</option>
-          <option value="current">Aktueller Zeitpunkt</option>
-          <option value="previous_year">Vorjahr</option>
-          <option value="five_years">5-Jahres-Durchschnitt</option>
-          <option value="ten_years">10-Jahres-Durchschnitt</option>
-          <option value="baseline">Baseline-Zeitpunkt</option>
-          <option value="custom">Benutzerdefiniert</option>
+          <option [ngValue]="null" selected>
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.SELECT_TIMEFRAME_OPTION' | translate }}
+          </option>
+          <option value="current">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.CURRENT' | translate }}
+          </option>
+          <option value="previous_year">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.PREVIOUS_YEAR' | translate }}
+          </option>
+          <option value="five_years">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.FIVE_YEARS' | translate }}
+          </option>
+          <option value="ten_years">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.TEN_YEARS' | translate }}
+          </option>
+          <option value="baseline">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.BASELINE' | translate }}
+          </option>
+          <option value="custom">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.CUSTOM' | translate }}
+          </option>
         </select>
         <div class="help-block">
-          <p>Zeitlicher Bezugspunkt für den Vergleichswert</p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.TIMEFRAME_HINT' | translate }}</p>
         </div>
       </div>
     </div>
@@ -99,18 +137,16 @@
   <div class="row vertical-align">
     <div class="col-md-12">
       <div class="form-group">
-        <label>Beschreibung des Vergleichswerts</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.DESCRIPTION_LABEL' | translate }}</label>
         <textarea
           rows="3"
           class="form-control"
           [(ngModel)]="state.comparisonDescription"
           name="comparisonDescription"
-          placeholder="Beschreibung der Herkunft und Bedeutung des Vergleichswerts"
+          [placeholder]="'ADMIN_INDICATORS.STEP_COMPARISON.DESCRIPTION_PLACEHOLDER' | translate"
         ></textarea>
         <div class="help-block">
-          <p>
-            Detaillierte Beschreibung der Herkunft, Berechnung und Bedeutung des Vergleichswerts
-          </p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.DESCRIPTION_HINT' | translate }}</p>
         </div>
       </div>
     </div>
@@ -118,37 +154,45 @@
   <div class="row vertical-align">
     <div class="col-md-6 col-sm-6 col-12">
       <div class="form-group">
-        <label>Bewertungsrichtung</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.EVAL_DIRECTION' | translate }}</label>
         <select
           [(ngModel)]="state.evaluationDirection"
           name="evaluationDirection"
           class="form-control"
         >
-          <option [ngValue]="null" selected>-- Bewertungsrichtung wählen --</option>
-          <option value="higher_better">Höhere Werte sind besser</option>
-          <option value="lower_better">Niedrigere Werte sind besser</option>
-          <option value="target_range">Optimaler Bereich</option>
+          <option [ngValue]="null" selected>
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.SELECT_EVAL_DIRECTION_OPTION' | translate }}
+          </option>
+          <option value="higher_better">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.HIGHER_BETTER' | translate }}
+          </option>
+          <option value="lower_better">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.LOWER_BETTER' | translate }}
+          </option>
+          <option value="target_range">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.TARGET_RANGE' | translate }}
+          </option>
           <option value="neutral">Neutral</option>
         </select>
         <div class="help-block">
-          <p>Richtung der Bewertung im Vergleich zum Vergleichswert</p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.EVAL_DIRECTION_HINT' | translate }}</p>
         </div>
       </div>
     </div>
     <div class="col-md-6 col-sm-6 col-12">
       <div class="form-group">
-        <label>Toleranzbereich (±)</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.TOLERANCE' | translate }}</label>
         <input
           type="number"
           class="form-control"
           [(ngModel)]="state.toleranceRange"
           name="toleranceRange"
-          placeholder="Toleranz in Prozent"
+          [placeholder]="'ADMIN_INDICATORS.STEP_COMPARISON.TOLERANCE_PLACEHOLDER' | translate"
           step="0.1"
           min="0"
         />
         <div class="help-block">
-          <p>Toleranzbereich um den Vergleichswert in Prozent</p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.TOLERANCE_HINT' | translate }}</p>
         </div>
       </div>
     </div>
@@ -156,11 +200,11 @@
   <div class="row vertical-align">
     <div class="col-md-12">
       <div class="form-group">
-        <label>Zusätzliche Vergleichswerte</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.ADDITIONAL_VALUES' | translate }}</label>
         <div class="alert alert-warning">
           <i class="fas fa-info-circle"></i>
-          <strong>Hinweis:</strong> Sie können mehrere Vergleichswerte für verschiedene Kontexte
-          hinzufügen.
+          <strong>{{ 'ADMIN_INDICATORS.NOTE_LABEL' | translate }}</strong>
+          {{ 'ADMIN_INDICATORS.STEP_COMPARISON.ADDITIONAL_VALUES_NOTE' | translate }}
         </div>
       </div>
     </div>
@@ -168,44 +212,58 @@
   <div class="row vertical-align">
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Typ</label>
+        <label>{{ 'ADMIN_INDICATORS.TYPE' | translate }}</label>
         <select
           [(ngModel)]="state.additionalComparisonType"
           name="additionalComparisonType"
           class="form-control"
         >
-          <option [ngValue]="null" selected>-- Typ wählen --</option>
-          <option value="target">Zielwert</option>
-          <option value="average">Durchschnittswert</option>
-          <option value="median">Medianwert</option>
+          <option [ngValue]="null" selected>
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.SELECT_TYPE_SHORT_OPTION' | translate }}
+          </option>
+          <option value="target">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.TARGET' | translate }}
+          </option>
+          <option value="average">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.AVERAGE' | translate }}
+          </option>
+          <option value="median">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.MEDIAN' | translate }}
+          </option>
           <option value="best_practice">Best Practice</option>
-          <option value="threshold">Schwellenwert</option>
-          <option value="custom">Benutzerdefiniert</option>
+          <option value="threshold">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.THRESHOLD' | translate }}
+          </option>
+          <option value="custom">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.CUSTOM' | translate }}
+          </option>
         </select>
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Wert</label>
+        <label>{{ 'ADMIN_INDICATORS.VALUE' | translate }}</label>
         <input
           type="number"
           class="form-control"
           [(ngModel)]="state.additionalComparisonValue"
           name="additionalComparisonValue"
-          placeholder="Numerischer Wert"
+          [placeholder]="'ADMIN_INDICATORS.STEP_COMPARISON.NUMERIC_PLACEHOLDER' | translate"
           step="0.01"
         />
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Beschreibung</label>
+        <label>{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}</label>
         <input
           type="text"
           class="form-control"
           [(ngModel)]="state.additionalComparisonDescription"
           name="additionalComparisonDescription"
-          placeholder="Kurze Beschreibung"
+          [placeholder]="
+            'ADMIN_INDICATORS.STEP_COMPARISON.SHORT_DESCRIPTION_PLACEHOLDER' | translate
+          "
         />
       </div>
     </div>
@@ -218,7 +276,7 @@
           [disabled]="!state.additionalComparisonType || !state.additionalComparisonValue"
           (click)="state.addAdditionalComparisonValue()"
         >
-          <i class="fas fa-plus"></i> Hinzufügen
+          <i class="fas fa-plus"></i> {{ 'ADMIN_INDICATORS.ADD' | translate }}
         </button>
       </div>
     </div>
@@ -227,15 +285,15 @@
     <div class="row vertical-align">
       <div class="col-md-12">
         <div class="form-group">
-          <label>Hinzugefügte Vergleichswerte</label>
+          <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.ADDED_VALUES' | translate }}</label>
           <div class="table-responsive">
             <table class="table table-striped table-bordered">
               <thead>
                 <tr>
-                  <th>Typ</th>
-                  <th>Wert</th>
-                  <th>Beschreibung</th>
-                  <th>Aktion</th>
+                  <th>{{ 'ADMIN_INDICATORS.TYPE' | translate }}</th>
+                  <th>{{ 'ADMIN_INDICATORS.VALUE' | translate }}</th>
+                  <th>{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}</th>
+                  <th>{{ 'ADMIN_INDICATORS.ACTION' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -254,7 +312,7 @@
                         class="btn btn-danger btn-sm"
                         (click)="state.removeAdditionalComparisonValue(i)"
                       >
-                        <i class="fas fa-trash"></i> Entfernen
+                        <i class="fas fa-trash"></i> {{ 'ADMIN_INDICATORS.REMOVE' | translate }}
                       </button>
                     </td>
                   </tr>
@@ -269,11 +327,11 @@
   <div class="row vertical-align">
     <div class="col-md-12">
       <div class="form-group">
-        <label>Benchmarking-Konfiguration</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.BENCHMARKING_CONFIG' | translate }}</label>
         <div class="alert alert-info">
           <i class="fas fa-chart-line"></i>
-          <strong>Benchmarking:</strong> Konfigurieren Sie, wie die Indikatorwerte im Vergleich zu
-          den Vergleichswerten dargestellt werden sollen.
+          <strong>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.BENCHMARKING_LABEL' | translate }}</strong>
+          {{ 'ADMIN_INDICATORS.STEP_COMPARISON.BENCHMARKING_TEXT' | translate }}
         </div>
       </div>
     </div>
@@ -281,9 +339,11 @@
   <div class="row vertical-align">
     <div class="col-md-6 col-sm-6 col-12">
       <div class="form-group">
-        <label>Benchmarking aktivieren</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.ENABLE_BENCHMARKING' | translate }}</label>
         <div class="form-group vertical-align">
-          <label class="margin-right" style="font-weight: normal">Aktivieren</label>
+          <label class="margin-right" style="font-weight: normal">{{
+            'ADMIN_INDICATORS.STEP_COMPARISON.ACTIVATE' | translate
+          }}</label>
           <label class="switch">
             <input
               type="checkbox"
@@ -294,27 +354,35 @@
           </label>
         </div>
         <div class="help-block">
-          <p>Bei Aktivierung werden Indikatorwerte im Vergleich zu den Vergleichswerten bewertet</p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.ENABLE_BENCHMARKING_HINT' | translate }}</p>
         </div>
       </div>
     </div>
     <div class="col-md-6 col-sm-6 col-12">
       <div class="form-group">
-        <label>Visualisierungstyp</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.VIS_TYPE' | translate }}</label>
         <select
           [(ngModel)]="state.benchmarkingVisualizationType"
           name="benchmarkingVisualizationType"
           class="form-control"
           [disabled]="!state.enableBenchmarking"
         >
-          <option [ngValue]="null" selected>-- Visualisierungstyp wählen --</option>
-          <option value="traffic_light">Ampelsystem</option>
-          <option value="percentage">Prozentuale Abweichung</option>
-          <option value="rating">Bewertungsskala</option>
-          <option value="trend">Trendindikator</option>
+          <option [ngValue]="null" selected>
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.SELECT_VIS_TYPE_OPTION' | translate }}
+          </option>
+          <option value="traffic_light">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.TRAFFIC_LIGHT' | translate }}
+          </option>
+          <option value="percentage">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.PERCENTAGE' | translate }}
+          </option>
+          <option value="rating">
+            {{ 'ADMIN_INDICATORS.STEP_COMPARISON.RATING' | translate }}
+          </option>
+          <option value="trend">{{ 'ADMIN_INDICATORS.STEP_COMPARISON.TREND' | translate }}</option>
         </select>
         <div class="help-block">
-          <p>Art der visuellen Darstellung der Benchmarking-Ergebnisse</p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.VIS_TYPE_HINT' | translate }}</p>
         </div>
       </div>
     </div>
@@ -323,64 +391,77 @@
     <div class="row vertical-align">
       <div class="col-md-6 col-sm-6 col-12">
         <div class="form-group">
-          <label>Schwellenwerte für Bewertung</label>
+          <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.THRESHOLDS' | translate }}</label>
           <div class="threshold-config">
             <div class="threshold-item">
-              <label>Grün (gut):</label>
+              <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.GREEN' | translate }}</label>
               <input
                 type="number"
                 class="form-control"
                 [(ngModel)]="state.greenThreshold"
                 name="greenThreshold"
-                placeholder="Schwellenwert"
+                [placeholder]="'ADMIN_INDICATORS.STEP_COMPARISON.THRESHOLD_PLACEHOLDER' | translate"
                 step="0.1"
               />
             </div>
             <div class="threshold-item">
-              <label>Gelb (mittel):</label>
+              <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.YELLOW' | translate }}</label>
               <input
                 type="number"
                 class="form-control"
                 [(ngModel)]="state.yellowThreshold"
                 name="yellowThreshold"
-                placeholder="Schwellenwert"
+                [placeholder]="'ADMIN_INDICATORS.STEP_COMPARISON.THRESHOLD_PLACEHOLDER' | translate"
                 step="0.1"
               />
             </div>
             <div class="threshold-item">
-              <label>Rot (schlecht):</label>
+              <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.RED' | translate }}</label>
               <input
                 type="number"
                 class="form-control"
                 [(ngModel)]="state.redThreshold"
                 name="redThreshold"
-                placeholder="Schwellenwert"
+                [placeholder]="'ADMIN_INDICATORS.STEP_COMPARISON.THRESHOLD_PLACEHOLDER' | translate"
                 step="0.1"
               />
             </div>
           </div>
           <div class="help-block">
-            <p>Schwellenwerte für die Bewertung der Abweichung vom Vergleichswert</p>
+            <p>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.THRESHOLDS_HINT' | translate }}</p>
           </div>
         </div>
       </div>
       <div class="col-md-6 col-sm-6 col-12">
         <div class="form-group">
-          <label>Vorschau der Bewertung</label>
+          <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.PREVIEW' | translate }}</label>
           <div class="benchmarking-preview">
             <div class="preview-item">
               <div class="preview-color green"></div>
-              <div class="preview-text">Gut (≤ {{ state.greenThreshold || 0 }}%)</div>
+              <div class="preview-text">
+                {{
+                  'ADMIN_INDICATORS.STEP_COMPARISON.PREVIEW_GOOD'
+                    | translate: { value: state.greenThreshold || 0 }
+                }}
+              </div>
             </div>
             <div class="preview-item">
               <div class="preview-color yellow"></div>
               <div class="preview-text">
-                Mittel ({{ state.greenThreshold || 0 }}% - {{ state.yellowThreshold || 0 }}%)
+                {{
+                  'ADMIN_INDICATORS.STEP_COMPARISON.PREVIEW_MEDIUM'
+                    | translate: { from: state.greenThreshold || 0, to: state.yellowThreshold || 0 }
+                }}
               </div>
             </div>
             <div class="preview-item">
               <div class="preview-color red"></div>
-              <div class="preview-text">Schlecht (> {{ state.yellowThreshold || 0 }}%)</div>
+              <div class="preview-text">
+                {{
+                  'ADMIN_INDICATORS.STEP_COMPARISON.PREVIEW_BAD'
+                    | translate: { value: state.yellowThreshold || 0 }
+                }}
+              </div>
             </div>
           </div>
         </div>
@@ -391,14 +472,14 @@
     type="button"
     name="previous"
     class="previous previous_addIndicator action-button-previous"
-    value="Voriger Schritt"
+    [value]="'ADMIN_INDICATORS.PREVIOUS_STEP' | translate"
     (click)="state.previousStep()"
   />
   <input
     type="button"
     name="next"
     class="next next_addIndicator action-button"
-    value="Nächster Schritt"
+    [value]="'ADMIN_INDICATORS.NEXT_STEP' | translate"
     (click)="state.nextStep()"
   />
 </div>

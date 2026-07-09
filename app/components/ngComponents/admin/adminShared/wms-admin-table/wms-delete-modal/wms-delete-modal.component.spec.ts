@@ -1,5 +1,6 @@
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslateModule } from '@ngx-translate/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
@@ -14,7 +15,7 @@ describe('WmsDeleteModalComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [WmsDeleteModalComponent],
+      imports: [WmsDeleteModalComponent, TranslateModule.forRoot()],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),

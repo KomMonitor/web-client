@@ -1,35 +1,39 @@
 <div class="label">
-  <b><i>* = Pflichtfeld</i></b>
+  <b
+    ><i>{{ 'ADMIN_SCRIPTS.REQUIRED_FIELD_HINT' | translate }}</i></b
+  >
 </div>
 
 <div class="row">
   <div class="col-md-4 col-sm-6">
     <div class="form-group">
-      <label>Skriptname*</label>
+      <label>{{ 'ADMIN_SCRIPTS.METADATA_STEP.NAME_LABEL' | translate }}</label>
       <input
         type="text"
         class="form-control"
         [ngModel]="metadata.name"
         (ngModelChange)="updateName($event)"
-        placeholder="Name"
+        [placeholder]="'ADMIN_SHARED.NAME' | translate"
         required
       />
-      <div class="help-block"><p>Name des anzulegenden Skripts.</p></div>
+      <div class="help-block">
+        <p>{{ 'ADMIN_SCRIPTS.METADATA_STEP.NAME_HELP' | translate }}</p>
+      </div>
     </div>
   </div>
   <div class="col-md-8 col-sm-6">
     <div class="form-group">
-      <label>Skript-Beschreibung*</label>
+      <label>{{ 'ADMIN_SCRIPTS.METADATA_STEP.DESCRIPTION_LABEL' | translate }}</label>
       <textarea
         rows="3"
         class="form-control"
         [ngModel]="metadata.description"
         (ngModelChange)="updateDescription($event)"
-        placeholder="Beschreibung"
+        [placeholder]="'ADMIN_SHARED.DESCRIPTION' | translate"
         required
       ></textarea>
       <div class="help-block">
-        <p>Hinweise über die Berechnung des Ziel-Indikators.</p>
+        <p>{{ 'ADMIN_SCRIPTS.METADATA_STEP.DESCRIPTION_HELP' | translate }}</p>
       </div>
     </div>
   </div>
@@ -38,13 +42,13 @@
 <div class="row">
   <div class="col-md-6 col-sm-6">
     <div class="form-group">
-      <label>Ziel-Indikator, der mittels des anzulegenden Skripts berechnet werden soll*</label>
+      <label>{{ 'ADMIN_SCRIPTS.METADATA_STEP.TARGET_INDICATOR_LABEL' | translate }}</label>
       <div class="input-group mb-2">
         <span class="input-group-text"><i class="fas fa-filter"></i></span>
         <input
           type="text"
           class="form-control form-control-sm"
-          placeholder="Stichwortfilter"
+          [placeholder]="'ADMIN_SHARED.KEYWORD_FILTER' | translate"
           [(ngModel)]="indicatorNameFilter"
         />
       </div>
@@ -54,7 +58,9 @@
         [ngModel]="metadata.associatedIndicatorId"
         (ngModelChange)="updateTargetIndicator($event)"
       >
-        <option disabled [ngValue]="null">-- Ziel-Indikator wählen --</option>
+        <option disabled [ngValue]="null">
+          {{ 'ADMIN_SCRIPTS.METADATA_STEP.SELECT_TARGET_INDICATOR_PLACEHOLDER' | translate }}
+        </option>
         @for (indicator of filteredComputationIndicators; track indicator) {
           <option [ngValue]="indicator">
             {{ indicator.indicatorName }} [{{ indicator.unit }}]
@@ -62,7 +68,7 @@
         }
       </select>
       <div class="help-block">
-        <p>Nur Indikatoren mit Fortführungstyp "Berechnung durch KomMonitor".</p>
+        <p>{{ 'ADMIN_SCRIPTS.METADATA_STEP.TARGET_INDICATOR_HELP' | translate }}</p>
       </div>
     </div>
   </div>
@@ -71,7 +77,7 @@
     <div class="row">
       <div class="col-md-6">
         <div class="form-group">
-          <label>ID des selektierten Ziel-Indikators</label>
+          <label>{{ 'ADMIN_SCRIPTS.METADATA_STEP.SELECTED_ID_LABEL' | translate }}</label>
           <input
             type="text"
             class="form-control form-control-sm"
@@ -82,7 +88,7 @@
       </div>
       <div class="col-md-6">
         <div class="form-group">
-          <label>Name des selektierten Ziel-Indikators</label>
+          <label>{{ 'ADMIN_SCRIPTS.METADATA_STEP.SELECTED_NAME_LABEL' | translate }}</label>
           <input
             type="text"
             class="form-control form-control-sm"
@@ -95,7 +101,7 @@
     <div class="row">
       <div class="col-md-6">
         <div class="form-group">
-          <label>Beschreibung des selektierten Ziel-Indikators</label>
+          <label>{{ 'ADMIN_SCRIPTS.METADATA_STEP.SELECTED_DESCRIPTION_LABEL' | translate }}</label>
           <textarea
             rows="4"
             class="form-control form-control-sm"
@@ -106,7 +112,7 @@
       </div>
       <div class="col-md-6">
         <div class="form-group">
-          <label>Einheit des selektierten Ziel-Indikators</label>
+          <label>{{ 'ADMIN_SCRIPTS.METADATA_STEP.SELECTED_UNIT_LABEL' | translate }}</label>
           <input
             type="text"
             class="form-control form-control-sm"

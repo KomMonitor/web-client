@@ -1,19 +1,27 @@
 <div class="modal-header">
   <h4 class="modal-title">
-    Gruppenspezifische Rechte der Organisationseinheit
+    {{ 'ADMIN_ROLES.EDIT_RIGHTS_MODAL.TITLE_PREFIX' | translate }}
     <i
       ><b>{{ currentDataset.name }}</b></i
     >
-    editieren
+    {{ 'ADMIN_ROLES.EDIT_TITLE_SUFFIX' | translate }}
   </h4>
-  <button type="button" class="btn-close" aria-label="Schließen" (click)="close()"></button>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="close()"
+  ></button>
 </div>
 
 <div class="modal-body">
-  <app-loading-overlay [loading]="loadingData" message="Lade Rollendaten...">
+  <app-loading-overlay
+    [loading]="loadingData"
+    [message]="'ADMIN_ROLES.EDIT_RIGHTS_MODAL.LOADING_ROLES' | translate"
+  >
     @if (showErrorAlert) {
       <div class="alert alert-danger" role="alert">
-        Fehler beim Aktualisieren der Rechte:
+        {{ 'ADMIN_ROLES.EDIT_RIGHTS_MODAL.UPDATE_ERROR' | translate }}
         <span [innerHTML]="errorMessagePart"></span>
       </div>
     }
@@ -28,23 +36,22 @@
 
     <!-- Step 1: Authority roles (read-only) -->
     @if (stepper.isActive('ownRights')) {
-      <h2 class="fs-title text-center">Zugewiesene administrative Rechte</h2>
-      <expandable-box title="Bedienhinweise" [collapsed]="true">
+      <h2 class="fs-title text-center">
+        {{ 'ADMIN_ROLES.EDIT_RIGHTS_MODAL.OWN_RIGHTS_TITLE' | translate }}
+      </h2>
+      <expandable-box [title]="'ADMIN_ROLES.USAGE_HINTS' | translate" [collapsed]="true">
         <p class="text-center">
-          Die Tabelle zeigt die administrativen Rechte, die die ausgewählte Gruppe für andere
-          Gruppen besitzt.
+          {{ 'ADMIN_ROLES.EDIT_RIGHTS_MODAL.OWN_RIGHTS_INTRO' | translate }}
         </p>
         <p class="text-center">
           <i>
-            Achtung: Die Tabelle ist nicht editierbar. Sie stellt dar, ob die gewählte Gruppe
-            überhaupt administrative Aufgaben für sich selbst oder andere Gruppen übernimmt.
+            {{ 'ADMIN_ROLES.EDIT_RIGHTS_MODAL.OWN_RIGHTS_READONLY_HINT' | translate }}
           </i>
         </p>
         <p class="text-center">
           <i>
             <b>
-              Wenn Sie der gewählten Gruppe Rechte geben wollen, so muss dies über das Menü "Rechte
-              anderer Gruppen" geschehen.
+              {{ 'ADMIN_ROLES.EDIT_RIGHTS_MODAL.OWN_RIGHTS_EDIT_HINT' | translate }}
             </b>
           </i>
         </p>
@@ -66,33 +73,22 @@
 
     <!-- Step 2: Delegated roles (editable) -->
     @if (stepper.isActive('foreignRights')) {
-      <h2 class="fs-title text-center">Delegierte administrative Rechte</h2>
-      <expandable-box title="Bedienhinweise" [collapsed]="true">
+      <h2 class="fs-title text-center">{{ 'ADMIN_ROLES.DELEGATED_RIGHTS_TITLE' | translate }}</h2>
+      <expandable-box [title]="'ADMIN_ROLES.USAGE_HINTS' | translate" [collapsed]="true">
         <p class="text-center">
-          Die Tabelle zeigt administrative Rechte, die andere Gruppen für die ausgewählte Gruppe
-          besitzen. Weitere administrative Rechte können hier durch entsprechende Häkchen an andere
-          Gruppen übertragen werden.
+          {{ 'ADMIN_ROLES.EDIT_RIGHTS_MODAL.FOREIGN_RIGHTS_INTRO' | translate }}
         </p>
         <p class="text-center">
           <i>
             <b>
-              Achtung: Auch die Rechte der gewählten Gruppe an sich selbst werden über dieses Menü
-              kontrolliert. In diesem Fall ist die gewählte Gruppe ebenfalls als 'andere Gruppe' zu
-              betrachten, für die entsprechende administrative Aufgaben zugewiesen werden können.
+              {{ 'ADMIN_ROLES.EDIT_RIGHTS_MODAL.SELF_RIGHTS_HINT' | translate }}
             </b>
           </i>
         </p>
         <p class="text-center">
           <i>
-            <b>Unterschied Diese Gruppe / Untergruppen:</b>
-            Diese Angabe kontrolliert, ob delegierte administrative Aufgaben nur für die gewählte
-            Gruppe explizit erlaubt werden, oder ob sich die delegierte Administration auch auf die
-            Untergruppen der gewählten Gruppe erstreckt. Beispiel: eine neue Gruppe 'Amt
-            Übergeordnet' (inkl. weiterer Untergruppen) wird erstellt und soll von einer bereits
-            vorhandenen Gruppe 'Amt Globaladmin' verwaltet werden. Wenn nun administrative Rechte an
-            'Amt Globaladmin' zugewiesen werden, muss entschieden werden, ob 'Amt Globaladmin' nur
-            die explizite Gruppe ('Amt Übergeordnet') verwalten darf, oder auch alle Ihre etwaigen
-            Untergruppen.
+            <b>{{ 'ADMIN_ROLES.GROUP_VS_SUBGROUPS_TITLE' | translate }}:</b>
+            {{ 'ADMIN_ROLES.GROUP_VS_SUBGROUPS_TEXT' | translate }}
           </i>
         </p>
       </expandable-box>
@@ -136,7 +132,7 @@
 
 <div class="modal-footer">
   <button type="button" class="btn btn-outline-secondary me-auto" (click)="close()">
-    Schließen
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
   </button>
   <button
     type="button"
@@ -144,7 +140,9 @@
     [disabled]="loadingData"
     (click)="updateDelegatedRoles()"
   >
-    Rechte aktualisieren
+    {{ 'ADMIN_ROLES.EDIT_RIGHTS_MODAL.UPDATE_RIGHTS' | translate }}
   </button>
-  <button type="button" class="btn btn-danger" (click)="reset()">Zurücksetzen</button>
+  <button type="button" class="btn btn-danger" (click)="reset()">
+    {{ 'ADMIN_ROLES.RESET' | translate }}
+  </button>
 </div>

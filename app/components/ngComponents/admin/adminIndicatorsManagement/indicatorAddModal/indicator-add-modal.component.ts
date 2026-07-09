@@ -12,6 +12,7 @@ import {
   inject,
 } from '@angular/core';
 import { IndicatorRefreshRequest } from '../indicator-refresh.model';
+import { TranslateModule } from '@ngx-translate/core';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
@@ -32,6 +33,7 @@ import { IndicatorAddStep7AccessComponent } from './steps/indicator-add-step7-ac
   templateUrl: './indicator-add-modal.component.html',
   styleUrls: ['./indicator-add-modal.component.scss', './indicator-add-form.shared.scss'],
   imports: [
+    TranslateModule,
     CommonModule,
     StepperComponent,
     IndicatorAddStep1BasicComponent,

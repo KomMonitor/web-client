@@ -7,7 +7,7 @@
         [(ngModel)]="orderMode"
         (ngModelChange)="setOption($event)"
       />
-      alphabetisch
+      {{ 'ADMIN_TOPICS.ORDER.ALPHABETICAL' | translate }}
     </label>
   </div>
 
@@ -19,7 +19,7 @@
         [(ngModel)]="orderMode"
         (ngModelChange)="setOption($event)"
       />
-      benutzerdefiniert
+      {{ 'ADMIN_TOPICS.ORDER.CUSTOM' | translate }}
     </label>
   </div>
 </div>

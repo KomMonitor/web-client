@@ -2,7 +2,7 @@
   <button type="button" class="close" aria-label="Close" (click)="close()">
     <span aria-hidden="true">&times;</span>
   </button>
-  <h4 class="modal-title">WMS Metadaten editieren</h4>
+  <h4 class="modal-title">{{ 'ADMIN_WMS.EDIT.TITLE' | translate }}</h4>
 </div>
 
 <div class="modal-body">
@@ -29,16 +29,18 @@
         <!-- fieldsets -->
         @if (stepper.isActive('metadata')) {
           <fieldset>
-            <h2 class="fs-title">Allgemeine Metadaten</h2>
-            <h3 class="fs-subtitle">Angaben über allgemeine Metadaten in KomMonitor</h3>
+            <h2 class="fs-title">{{ 'ADMIN_SHARED.GENERAL_METADATA' | translate }}</h2>
+            <h3 class="fs-subtitle">{{ 'ADMIN_WMS.COMMON.METADATA_SUBTITLE' | translate }}</h3>
             <p>
-              <b><i>* = Pflichtfeld</i></b>
+              <b
+                ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+              >
             </p>
             <form [formGroup]="metadataForm">
               <div class="row vertical-align">
                 <div class="col-md-3 col-sm-6 col-12">
                   <div class="form-group">
-                    <label>Name der Georessource*</label>
+                    <label>{{ 'ADMIN_WMS.COMMON.NAME_LABEL' | translate }}*</label>
                     <input
                       type="text"
                       class="form-control"
@@ -46,29 +48,26 @@
                       name="datasetName"
                       [value]="currentGeoresourceDataset.title"
                       (ngModelChange)="checkDatasetName()"
-                      placeholder="eindeutiger Name"
+                      [placeholder]="'ADMIN_WMS.COMMON.NAME_PLACEHOLDER' | translate"
                       required
                     />
                     <div class="help-block with-errors"></div>
                     @if (datasetNameInvalid) {
                       <div style="color: red">
-                        <p>
-                          Eingabe ungültig. Es existiert bereits eine Georessource mit gleichem
-                          Namen und gleichem Typ.
-                        </p>
+                        <p>{{ 'ADMIN_WMS.COMMON.NAME_INVALID' | translate }}</p>
                       </div>
                     }
                   </div>
                 </div>
                 <div class="col-md-3 col-sm-6 col-12">
                   <div class="form-group">
-                    <label>Beschreibung*</label>
+                    <label>{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}*</label>
                     <textarea
                       rows="3"
                       class="form-control"
                       formControlName="description"
                       name="metadataDescription"
-                      placeholder="Datensatz Beschreibung"
+                      [placeholder]="'ADMIN_SHARED_UI.FORM.DESCRIPTION_PLACEHOLDER' | translate"
                       required
                     ></textarea>
                     <div class="help-block with-errors"></div>
@@ -76,13 +75,13 @@
                 </div>
                 <div class="col-md-3 col-sm-6 col-12">
                   <div class="form-group">
-                    <label>Datenbasis</label>
+                    <label>{{ 'ADMIN_SHARED_UI.FORM.DATABASIS' | translate }}</label>
                     <textarea
                       rows="3"
                       class="form-control"
                       formControlName="databasis"
                       name="metadataDatabasis"
-                      placeholder="optionale Beschreibung etwaiger grundlegender Daten, die zur Erzeugung des Datensatzes beitragen"
+                      [placeholder]="'ADMIN_SHARED_UI.FORM.DATABASIS_PLACEHOLDER' | translate"
                     ></textarea>
                     <div class="help-block with-errors"></div>
                   </div>
@@ -91,13 +90,13 @@
               <div class="row vertical-align">
                 <div class="col-md-3 col-sm-6 col-12">
                   <div class="form-group">
-                    <label>Datenquelle*</label>
+                    <label>{{ 'ADMIN_SHARED.DATASOURCE' | translate }}*</label>
                     <textarea
                       rows="3"
                       class="form-control"
                       formControlName="datasource"
                       name="metadataDatasource"
-                      placeholder="Beschreibung der Datenquelle"
+                      [placeholder]="'ADMIN_SHARED_UI.FORM.DATASOURCE_PLACEHOLDER' | translate"
                       required
                     ></textarea>
                     <div class="help-block with-errors"></div>
@@ -105,13 +104,13 @@
                 </div>
                 <div class="col-md-3 col-sm-6 col-12">
                   <div class="form-group">
-                    <label>Datenhalter und Kontakt*</label>
+                    <label>{{ 'ADMIN_SHARED.DATA_HOLDER_CONTACT' | translate }}*</label>
                     <textarea
                       rows="3"
                       class="form-control"
                       formControlName="contact"
                       name="metadataContact"
-                      placeholder="Beschreibung des Datenhalters und etwaiger Kontaktinformationen"
+                      [placeholder]="'ADMIN_SHARED_UI.FORM.CONTACT_PLACEHOLDER' | translate"
                       required
                     ></textarea>
                     <div class="help-block with-errors"></div>
@@ -119,13 +118,13 @@
                 </div>
                 <div class="col-md-3 col-sm-6 col-12">
                   <div class="form-group">
-                    <label>Bemerkung</label>
+                    <label>{{ 'ADMIN_SHARED_UI.FORM.NOTE' | translate }}</label>
                     <textarea
                       rows="3"
                       class="form-control"
                       formControlName="note"
                       name="metadataNote"
-                      placeholder="optionale Bemerkung"
+                      [placeholder]="'ADMIN_SHARED_UI.FORM.NOTE_PLACEHOLDER' | translate"
                     ></textarea>
                     <div class="help-block with-errors"></div>
                   </div>
@@ -135,14 +134,14 @@
                 type="button"
                 name="previous"
                 class="previous previous_addGeoresource action-button-previous"
-                value="Voriger Schritt"
+                [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
                 (click)="stepper.previous()"
               />
               <input
                 type="button"
                 name="next"
                 class="next next_addGeoresource action-button"
-                value="Nächster Schritt"
+                [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
                 (click)="stepper.next()"
               />
             </form>
@@ -151,16 +150,18 @@
 
         @if (stepper.isActive('connection')) {
           <fieldset>
-            <h2 class="fs-title">Anfrageparameter</h2>
-            <h3 class="fs-subtitle">Angabe der Abruf-Informationen</h3>
+            <h2 class="fs-title">{{ 'ADMIN_WMS.COMMON.CONNECTION_TITLE' | translate }}</h2>
+            <h3 class="fs-subtitle">{{ 'ADMIN_WMS.COMMON.CONNECTION_SUBTITLE' | translate }}</h3>
             <p>
-              <b><i>* = Pflichtfeld</i></b>
+              <b
+                ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+              >
             </p>
             <form [formGroup]="connectForm">
               <div class="row vertical-align">
                 <div class="col-md-3 col-sm-6 col-12">
                   <div class="form-group">
-                    <label>URL der Resource*</label>
+                    <label>{{ 'ADMIN_WMS.COMMON.URL_LABEL' | translate }}*</label>
                     <input
                       type="text"
                       class="form-control"
@@ -174,12 +175,12 @@
                 </div>
                 <div class="col-md-3 col-sm-6 col-12">
                   <div class="form-group">
-                    <label>Layer*</label>
+                    <label>{{ 'ADMIN_WMS.COMMON.LAYER_LABEL' | translate }}*</label>
                     <input
                       class="form-control"
                       formControlName="layer"
                       name="datasetLayer"
-                      placeholder="Layer"
+                      [placeholder]="'ADMIN_WMS.COMMON.LAYER_LABEL' | translate"
                       required
                     />
                     <div class="help-block with-errors"></div>
@@ -189,25 +190,25 @@
               <div class="row vertical-align">
                 <button
                   class="btn btn-primary"
-                  value="Verbindung testen"
+                  [value]="'ADMIN_WMS.COMMON.TEST_CONNECTION' | translate"
                   (click)="testConnection()"
                   [disabled]="connectForm.invalid"
                 >
-                  Verbindung testen
+                  {{ 'ADMIN_WMS.COMMON.TEST_CONNECTION' | translate }}
                 </button>
               </div>
               <input
                 type="button"
                 name="previous"
                 class="previous previous_addGeoresource action-button-previous"
-                value="Voriger Schritt"
+                [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
                 (click)="stepper.previous()"
               />
               <input
                 type="button"
                 name="next"
                 class="next next_addGeoresource action-button"
-                value="Nächster Schritt"
+                [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
                 (click)="stepper.next()"
               />
             </form>
@@ -216,28 +217,28 @@
 
         @if (stepper.isActive('topics')) {
           <fieldset>
-            <h2 class="fs-title">Themenhierarchie</h2>
-            <h3 class="fs-subtitle">Angaben über die Themenhierarchie der Georessource</h3>
+            <h2 class="fs-title">{{ 'ADMIN_SHARED_UI.TOPICS.TITLE' | translate }}</h2>
+            <h3 class="fs-subtitle">{{ 'ADMIN_WMS.COMMON.TOPICS_SUBTITLE' | translate }}</h3>
             <p>
-              <b><i>* = Pflichtfeld</i></b>
+              <b
+                ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+              >
             </p>
-            <p>
-              Angabe der Themenhierarchie. Mindestens das Hauptthema muss gewählt werden. Vorhandene
-              Unterthemen erscheinen nach Auswahl eines Hauptthemas. Bis zu vier Themen-Ebenen sind
-              erlaubt.
-            </p>
-            <p>Das Aufklappen der unteren Box ermöglicht die Verwaltung des Themenkatalogs.</p>
+            <p>{{ 'ADMIN_SHARED_UI.TOPICS.SELECTION_HINT' | translate }}</p>
+            <p>{{ 'ADMIN_SHARED_UI.TOPICS.CATALOG_HINT' | translate }}</p>
             <div class="row vertical-align">
               <div class="col-md-3 col-sm-6 col-12">
                 <div class="form-group">
-                  <label>Hauptthema*</label>
+                  <label>{{ 'ADMIN_SHARED_UI.TOPICS.MAIN_TOPIC' | translate }}*</label>
                   <select
                     [(ngModel)]="georesourceTopic_mainTopic"
                     name="georesourceTopic_mainTopic"
                     class="form-control"
                     required
                   >
-                    <option disabled selected value>-- Hauptthema wählen --</option>
+                    <option disabled selected value>
+                      {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_MAIN_TOPIC' | translate }}
+                    </option>
                     @for (mainTopic of availableTopics; track mainTopic) {
                       <option [ngValue]="mainTopic">{{ mainTopic.topicName }}</option>
                     }
@@ -248,13 +249,15 @@
               <div class="col-md-3 col-sm-6 col-12">
                 @if (georesourceTopic_mainTopic?.subTopics?.length > 0) {
                   <div class="form-group">
-                    <label>Unterthema - erste Ebene</label>
+                    <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_1' | translate }}</label>
                     <select
                       [(ngModel)]="georesourceTopic_subTopic"
                       name="georesourceTopic_subTopic"
                       class="form-control"
                     >
-                      <option disabled selected value>-- Unterthema wählen --</option>
+                      <option disabled selected value>
+                        {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
+                      </option>
                       @for (subTopic of georesourceTopic_mainTopic.subTopics; track subTopic) {
                         <option [ngValue]="subTopic">{{ subTopic.topicName }}</option>
                       }
@@ -266,13 +269,15 @@
               <div class="col-md-3 col-sm-6 col-12">
                 @if (georesourceTopic_subTopic?.subTopics?.length > 0) {
                   <div class="form-group">
-                    <label>Unterthema - zweite Ebene</label>
+                    <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_2' | translate }}</label>
                     <select
                       [(ngModel)]="georesourceTopic_subsubTopic"
                       name="georesourceTopic_subsubTopic"
                       class="form-control"
                     >
-                      <option disabled selected value>-- Unterthema wählen --</option>
+                      <option disabled selected value>
+                        {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
+                      </option>
                       @for (subsubTopic of georesourceTopic_subTopic.subTopics; track subsubTopic) {
                         <option [ngValue]="subsubTopic">{{ subsubTopic.topicName }}</option>
                       }
@@ -284,13 +289,15 @@
               <div class="col-md-3 col-sm-6 col-12">
                 @if (georesourceTopic_subsubTopic?.subTopics?.length > 0) {
                   <div class="form-group">
-                    <label>Unterthema - dritte Ebene</label>
+                    <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_3' | translate }}</label>
                     <select
                       [(ngModel)]="georesourceTopic_subsubsubTopic"
                       name="georesourceTopic_subsubsubTopic"
                       class="form-control"
                     >
-                      <option disabled selected value>-- Unterthema wählen --</option>
+                      <option disabled selected value>
+                        {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
+                      </option>
                       @for (
                         subsubsubTopic of georesourceTopic_subsubTopic.subTopics;
                         track subsubsubTopic
@@ -315,7 +322,9 @@
                       style="background: #ebf0fd"
                     >
                       <div class="box-header">
-                        <h3 class="box-title">Themenkatalog</h3>
+                        <h3 class="box-title">
+                          {{ 'ADMIN_SHARED_UI.TOPICS.TOPIC_CATALOG' | translate }}
+                        </h3>
                         <div class="box-tools pull-right">
                           <button type="button" class="btn btn-box-tool" data-widget="collapse">
                             <i class="fa fa-plus"></i>
@@ -339,14 +348,14 @@
               type="button"
               name="previous"
               class="previous previous_addGeoresource action-button-previous"
-              value="Voriger Schritt"
+              [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
               (click)="stepper.previous()"
             />
             <input
               type="button"
               name="next"
               class="next next_addGeoresource action-button"
-              value="Nächster Schritt"
+              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
               (click)="stepper.next()"
             />
           </fieldset>
@@ -357,7 +366,9 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="close()">Schließen</button>
+  <button type="button" class="btn btn-default pull-left" (click)="close()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
 
   <button
     type="button"
@@ -365,9 +376,11 @@
     [disabled]="metadataForm.invalid || connectForm.invalid"
     (click)="editWms()"
   >
-    WMS editieren
+    {{ 'ADMIN_WMS.EDIT.SUBMIT' | translate }}
   </button>
-  <button type="button" class="btn btn-danger" (click)="resetWmsAddForm()">Zurücksetzen</button>
+  <button type="button" class="btn btn-danger" (click)="resetWmsAddForm()">
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
+  </button>
 </div>
 
 <!-- Success Alert -->
@@ -380,8 +393,8 @@
   <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
     &times;
   </button>
-  <h4><i class="icon fa fa-check"></i>Georessource editiert</h4>
-  <p>Die Georessource mit Namen {{ successMessagePart() }} wurde in KomMonitor editiert.</p>
+  <h4><i class="icon fa fa-check"></i>{{ 'ADMIN_WMS.EDIT.SUCCESS_TITLE' | translate }}</h4>
+  <p>{{ 'ADMIN_WMS.EDIT.SUCCESS_TEXT' | translate: { name: successMessagePart() } }}</p>
 </div>
 
 <!-- Test Success Alert -->
@@ -394,8 +407,10 @@
   <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
     &times;
   </button>
-  <h4><i class="icon fa fa-check"></i>Verbindungstest</h4>
-  <p>Die Verbindung wurde erfoglreich getestet</p>
+  <h4>
+    <i class="icon fa fa-check"></i>{{ 'ADMIN_WMS.COMMON.CONNECTION_TEST_TITLE' | translate }}
+  </h4>
+  <p>{{ 'ADMIN_WMS.COMMON.CONNECTION_TEST_SUCCESS' | translate }}</p>
 </div>
 
 <!-- Test Error Alert -->
@@ -406,8 +421,10 @@
   class="alert alert-danger alert-dismissable"
 >
   <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
-  <h4><i class="icon fa fa-ban"></i>Verbindungsaufbau gescheitert</h4>
-  Verbindungsaufbau gescheitert. Bitte &uuml;berpr&uuml;fen Sie die Verbindunsdaten.
+  <h4>
+    <i class="icon fa fa-ban"></i>{{ 'ADMIN_WMS.COMMON.CONNECTION_FAILED_TITLE' | translate }}
+  </h4>
+  {{ 'ADMIN_WMS.COMMON.CONNECTION_FAILED_TEXT' | translate }}
   <br />
 </div>
 
@@ -419,8 +436,8 @@
   class="alert alert-danger alert-dismissable"
 >
   <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
-  <h4><i class="icon fa fa-ban"></i>Editierung gescheitert</h4>
-  Bei der Editierung der Georessource ist ein Fehler aufgetreten. Fehlermeldung:
+  <h4><i class="icon fa fa-ban"></i>{{ 'ADMIN_WMS.EDIT.ERROR_TITLE' | translate }}</h4>
+  {{ 'ADMIN_WMS.EDIT.ERROR_TEXT' | translate }}
   <br />
   <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessagePart()"></pre>
   <br />

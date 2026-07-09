@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h4 class="modal-title">Georessourcen löschen</h4>
+  <h4 class="modal-title">{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.TITLE' | translate }}</h4>
   <button type="button" class="btn-close" aria-label="Close" (click)="cancel()">
     <span aria-hidden="true">&times;</span>
   </button>
@@ -7,13 +7,13 @@
 
 <div class="modal-body">
   <app-loading-overlay [loading]="loadingData()">
-    <h4><b>Sollen die folgenden Georessourcen wirklich gelöscht werden?</b></h4>
+    <h4>
+      <b>{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.CONFIRM_QUESTION' | translate }}</b>
+    </h4>
 
     @if (datasetsToDelete.length === 0) {
       <div>
-        <pre>
-kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert werden.</pre
-        >
+        <pre>{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.NO_DATASET_MARKED' | translate }}</pre>
       </div>
     }
 
@@ -54,17 +54,12 @@ kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert wer
 
     @if (datasetsToDelete.length > 0) {
       <div>
-        <h3>ACHTUNG!</h3>
-        <p>
-          Dabei werden auch sämtliche <b>Indikatoren-Referenzen</b> auf die betroffenen
-          Georessourcen dauerhaft aus dem System entfernt. Etwaige <b>Skripte</b>, in denen die
-          betroffenen Georessourcen als Berechnungsgrundlage verwendet werden, werden ebenfalls
-          ungültig und daher aus dem System gelöscht
-        </p>
-        <h4>Betroffene Indikatorenreferenzen</h4>
+        <h3>{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.ATTENTION' | translate }}</h3>
+        <p [innerHTML]="'ADMIN_GEORESOURCES.DELETE_MODAL.CASCADE_WARNING' | translate"></p>
+        <h4>{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.AFFECTED_INDICATOR_REFERENCES' | translate }}</h4>
         @if (affectedIndicatorReferences.length === 0) {
           <div>
-            <p>keine</p>
+            <p>{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.NONE' | translate }}</p>
           </div>
         }
         @if (affectedIndicatorReferences.length > 0) {
@@ -75,14 +70,18 @@ kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert wer
             >
               <thead>
                 <tr>
-                  <th>Indikatoren-ID</th>
-                  <th>Indikatoren-Name</th>
-                  <th>Indikatoren-Merkmal</th>
-                  <th>Indikatoren-Typ</th>
-                  <th>Indikatoren-Beschreibung</th>
-                  <th>referenzierte Georessource - ID</th>
-                  <th>referenzierte Georessource - Name</th>
-                  <th>referenzierte Georessource - Beschreibung</th>
+                  <th>{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.INDICATOR_ID' | translate }}</th>
+                  <th>{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.INDICATOR_NAME' | translate }}</th>
+                  <th>
+                    {{ 'ADMIN_GEORESOURCES.DELETE_MODAL.INDICATOR_CHARACTERISTIC' | translate }}
+                  </th>
+                  <th>{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.INDICATOR_TYPE' | translate }}</th>
+                  <th>{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.INDICATOR_DESCRIPTION' | translate }}</th>
+                  <th>{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.REF_GEORESOURCE_ID' | translate }}</th>
+                  <th>{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.REF_GEORESOURCE_NAME' | translate }}</th>
+                  <th>
+                    {{ 'ADMIN_GEORESOURCES.DELETE_MODAL.REF_GEORESOURCE_DESCRIPTION' | translate }}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -102,10 +101,10 @@ kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert wer
             </table>
           </div>
         }
-        <h4>Betroffene Skripte</h4>
+        <h4>{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.AFFECTED_SCRIPTS' | translate }}</h4>
         @if (affectedScripts.length === 0) {
           <div>
-            <p>keine</p>
+            <p>{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.NONE' | translate }}</p>
           </div>
         }
         @if (affectedScripts.length > 0) {
@@ -116,10 +115,10 @@ kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert wer
             >
               <thead>
                 <tr>
-                  <th>Skript-ID</th>
-                  <th>Skript-Name</th>
-                  <th>Skript-Beschreibung</th>
-                  <th>ID des berechneten Indikators</th>
+                  <th>{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.SCRIPT_ID' | translate }}</th>
+                  <th>{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.SCRIPT_NAME' | translate }}</th>
+                  <th>{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.SCRIPT_DESCRIPTION' | translate }}</th>
+                  <th>{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.COMPUTED_INDICATOR_ID' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -140,10 +139,13 @@ kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert wer
   </app-loading-overlay>
 
   <!-- Per-dataset failure report; success/error summaries are toasted via NotificationService -->
-  @if (failedDatasetsAndErrors.length > 0) {
+  @if (failedDatasetsAndErrors().length > 0) {
     <div class="alert alert-danger" role="alert">
-      <h4><i class="icon fa fa-ban"></i>Löschen gescheitert</h4>
-      <p>Folgende Datensätze konnten nicht gelöscht werden.</p>
+      <h4>
+        <i class="icon fa fa-ban"></i
+        >{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.DELETE_FAILED' | translate }}
+      </h4>
+      <p>{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.DELETE_FAILED_HINT' | translate }}</p>
       <br />
       <table
         class="table table-bordered table-condensed"
@@ -151,8 +153,8 @@ kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert wer
       >
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Fehlermeldung</th>
+            <th>{{ 'ADMIN_SHARED.NAME' | translate }}</th>
+            <th>{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.ERROR_MESSAGE' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -169,13 +171,15 @@ kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert wer
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="cancel()">Schließen</button>
+  <button type="button" class="btn btn-default pull-left" (click)="cancel()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
   <button
     type="button"
     class="btn btn-danger"
     (click)="deleteGeoresources()"
     [disabled]="datasetsToDelete.length === 0"
   >
-    Georessourcen unwiderruflich löschen
+    {{ 'ADMIN_GEORESOURCES.DELETE_MODAL.DELETE_PERMANENTLY' | translate }}
   </button>
 </div>

@@ -6,6 +6,7 @@ import {
   inject,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { ResourceMetadataFormComponent } from '../../../adminShared/resourceMetadataForm/resource-metadata-form.component';
 import { IndicatorAddFormStateService } from '../indicator-add-form-state.service';
 
@@ -13,7 +14,7 @@ import { IndicatorAddFormStateService } from '../indicator-add-form-state.servic
   selector: 'app-indicator-add-step2-metadata',
   templateUrl: './indicator-add-step2-metadata.component.html',
   styleUrls: ['../indicator-add-form.shared.scss'],
-  imports: [ReactiveFormsModule, ResourceMetadataFormComponent],
+  imports: [TranslateModule, ReactiveFormsModule, ResourceMetadataFormComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

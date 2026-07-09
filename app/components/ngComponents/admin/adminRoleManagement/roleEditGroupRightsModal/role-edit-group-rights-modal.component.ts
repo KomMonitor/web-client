@@ -29,6 +29,7 @@ import {
   collectSelectedPermissionIds,
   createAdvancedRoleComponents,
 } from '../advanced-role-permissions';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-role-edit-group-rights-modal',
@@ -40,6 +41,7 @@ import {
     StepperComponent,
     ExpandableBoxComponent,
     LoadingOverlayComponent,
+    TranslateModule,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

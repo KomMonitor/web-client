@@ -1,9 +1,12 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 
 interface AccordionItem {
+  /** Translation key of the box title (resolved via the translate pipe in the template). */
   title: string;
+  /** Translation key of the HTML content (resolved via the translate pipe, bound with innerHTML). */
   content: string;
   expanded?: boolean;
   nestedItems?: AccordionItem[];
@@ -13,340 +16,59 @@ interface AccordionItem {
   selector: 'app-admin-role-explanation',
   templateUrl: './admin-role-explanation.component.html',
   styleUrls: ['./admin-role-explanation.component.scss'],
-  imports: [ExpandableBoxComponent, AdminContentViewComponent],
+  imports: [ExpandableBoxComponent, AdminContentViewComponent, TranslateModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminRoleExplanationComponent {
   items: AccordionItem[] = [
     {
-      title: 'Was ist ein Mandant?',
-      content: `KomMonitor erlaubt das Anlegen unterschiedlicher Gruppen, um Verwaltungstrukturen
-      abzubilden und Zugriffsrechte dediziert zu vergeben.
-      <br>
-      Eine KomMonitor Gruppe kann durch den KomMonitor Superadministrator als Mandant
-      gekennzeichnet werden.
-
-      Wie ein Wurzelknoten in einem Hierarchie-Baum dient dieser Mandant dazu, weitere Untergruppen
-      abzubilden.
-
-      <br>
-      <br>
-      In einer KomMonitor Instanz können mehrere Mandanten unabhängig voneinander angelegt
-      werden,
-      um jeweils eigene, voneinander getrennte Untergruppenhierarchien, Raumebenen und Datensätze
-      zu verwalten.`,
+      title: 'ADMIN_ROLES.EXPLANATION.TENANT.TITLE',
+      content: 'ADMIN_ROLES.EXPLANATION.TENANT.CONTENT',
     },
     {
-      title: 'Wie werden neue Mandanten angelegt?',
-      content: `<i>
-        <ol type="1">
-          <li>
-            Einloggen als User mit KomMonitor Superadministrator-Rechten (Rolle
-            <code>kommonitor-creator</code>)
-          </li>
-          <li>
-            Zu Menu Gruppenverwaltung navigieren und Schaltfläche <code>Erstellen</code>
-            klicken
-          </li>
-          <li>
-            Beim Anlegen der neuen Gruppe den Haken für die
-            Mandanteneigenschaft
-            setzen
-          </li>
-          <li>
-            Restliche Metadaten angeben und Gruppe erstellen.
-          </li>
-          <li>
-            Damit die neue Gruppe sich selbst (und ggf. Untergruppen) verwalten darf,
-            müssen ihr noch entsprechende Rechte gegeben werden.
-            dazu in der Gruppenverwaltung in der Übersichtstabelle die Schaltfläche
-            <code>Gruppenspezifische Rechte editieren</code> klicken. Im entsprechenden
-            Menü in Schritt <code>2 - Rechte anderer</code> mindestens die Rechte zur
-            Verwaltung von Usern, Ressourcen und Themen für <code>diese Gruppe</code> setzen.
-            <br><br>
-            Das Setzen eines <code>Untergruppen</code> Häkchens erwirkt, dass diese Gruppe
-            auch alle
-            ihre Untergruppen bezüglich Usern, Themen oder Ressourcen mitadministrieren
-            darf.
-          </li>
-          <li>
-            Mandantenadministrator-User in Keycloak anlegen und der gleichnamigen Keycloak
-            Gruppe zuweisen.
-          </li>
-        </ol>
-      </i>
-      <br>
-      Ab diesem Zeitpunkt ist der neue Mandant handlungsfähig. Mandantenadministratoren haben
-      die Rechte,
-      innerhalb eines Mandanten weitere Untergruppen, User und Datensätze zu erzeugen.`,
+      title: 'ADMIN_ROLES.EXPLANATION.CREATE_TENANT.TITLE',
+      content: 'ADMIN_ROLES.EXPLANATION.CREATE_TENANT.CONTENT',
     },
     {
-      title: 'Was sind Untergruppen eines Mandanten?',
-      content: `Innerhalb eines Mandanten können optional beliebig viele Untergruppen erzeugt werden,
-      Während eine Mandantengruppe alleine bereits ausreicht, um Datensätze
-      vollumfänglich in KomMonitor zu verwalten,
-      erlaubt das Erstellen weiterer Untergruppen-Hierarchien eine feingranulare Aufteilung von
-      Zuständigkeiten und gezielteren Datensatzfreigaben innerhalb der Verwaltung.
-
-      <br><br>
-      Eine Untergruppe kann dabei auch von übergeordneten Gruppen hinsichtlich Usern, Ressourcen
-      und Themen mitadministriert werden - je nach gesetzten Rechten.`,
+      title: 'ADMIN_ROLES.EXPLANATION.SUBGROUPS.TITLE',
+      content: 'ADMIN_ROLES.EXPLANATION.SUBGROUPS.CONTENT',
     },
     {
-      title: 'Wie werden neue Untergruppen erstellt?',
-      content: `<i>
-        <ol type="1">
-          <li>
-            Einloggen als Mitglied-User einer Obergruppe mit User-Verwaltungsrechten
-          </li>
-          <li>
-            Zu Menu Gruppenverwaltung navigieren und Schaltfläche <code>Erstellen</code>
-            klicken
-          </li>
-          <li>
-            Beim Anlegen der neuen Untergruppe die entsprechende Obergruppe (Elterngruppe)
-            selektieren
-          </li>
-          <li>
-            Restliche Metadaten angeben und Untergruppe erstellen.
-          </li>
-          <li>
-            optional: Im Untermenü <code>2 - Rechte anderer</code> festlegen, ob bereits
-            existierende andere Gruppen administrative Aufgaben für die neue Untergruppe
-            übernehmen sollen.
-
-            <br><br>
-            Wenn die Obergruppe all ihre Untergruppen mitverwalten darf, muss dies hier nicht
-            noch einmal explizit gesetzt werden.
-          </li>
-          <li>
-            optional:
-            Wenn auch die Untergruppe ausgewählte administrative Aufgaben für sich selbst
-            (und ggf. weitere Untergruppen) übernehmen soll,
-            müssen ihr noch entsprechende Rechte gegeben werden.
-            Dazu in der Gruppenverwaltung in der Übersichtstabelle die Schaltfläche
-            <code>Gruppenspezifische Rechte editieren</code> klicken. Im entsprechenden
-            Menü in Schritt <code>2 - Rechte anderer</code> alle relevanten Rechte zur
-            Verwaltung von Usern, Ressourcen oder Themen für <code>diese Gruppe</code> setzen.
-            <br><br>
-            Das Setzen eines <code>Untergruppen</code> Häkchens erwirkt, dass diese Gruppe
-            auch alle
-            ihre Untergruppen bezüglich Usern, Themen oder Ressourcen mitadministrieren
-            darf.
-          </li>
-          <li>
-            Entsprechende User in Keycloak anlegen oder finden und der gleichnamigen Keycloak
-            Untergruppe zuweisen.
-          </li>
-        </ol>
-      </i>`,
+      title: 'ADMIN_ROLES.EXPLANATION.CREATE_SUBGROUPS.TITLE',
+      content: 'ADMIN_ROLES.EXPLANATION.CREATE_SUBGROUPS.CONTENT',
     },
     {
-      title: 'Was ist die Eigentümerschaft an Datensätzen?',
-      content: `Bei der Erstellung neuer Raumeinheiten, Indikatoren und Georessourcen ist die Angabe
-      erforderlich, welche Gruppe Eigentümer der Ressource ist.
-      <br>
-      <br>
-      Eine Ressource kann dabei nur genau einer Gruppe gehören. Nur Mitglieder der
-      Eigentümer-Gruppe einer Ressource besitzen das Recht, die Datenfreigabe des Datensatzes zu
-      kontrollieren sowie eine Ressource zu löschen.`,
+      title: 'ADMIN_ROLES.EXPLANATION.OWNERSHIP.TITLE',
+      content: 'ADMIN_ROLES.EXPLANATION.OWNERSHIP.CONTENT',
     },
     {
-      title: 'Kann die Eigentümerschaft verändert werden?',
-      content: `Ja, Superadministratoren mit der Rolle <code>kommonitor-creator</code> sowie Mitgliedern der
-      Eigentümer-Gruppe ist es möglich, die Eigentümerstellung an eine andere
-      existierende Gruppe zu übertragen.
-
-      <i>
-        <ol type="1">
-          <li>
-            Einloggen als Mitglied-User der Eigentümer-Gruppe
-          </li>
-          <li>
-            Zur Ressourcenverwaltung navigieren (Raumeinheiten, Indikatoren oder Georessourcen)
-            und Schaltfläche
-            <code>Zugriffsschutz und Eigentümerschaft editieren</code>
-            klicken
-          </li>
-          <li>
-            Im Untermenü <code>3 - Eigentümerschaft</code> die neue Gruppe selektieren
-            und die Eigentümerschaft via Schaltfläche <code>Aktualisieren</code>
-            unwiederuflich abtreten.
-          </li>
-        </ol>
-      </i>`,
+      title: 'ADMIN_ROLES.EXPLANATION.CHANGE_OWNERSHIP.TITLE',
+      content: 'ADMIN_ROLES.EXPLANATION.CHANGE_OWNERSHIP.CONTENT',
     },
     {
-      title: 'Wie erfolgt die gruppenspezifische Freigabe eines Datensatzes?',
-      content: `Mitglieder der Eigentümer-Gruppe eines Datensatzes (Raumeinheit, Indikator oder
-      Georessource) haben immer vollen Zugriff auf die Ressource (lesen, editieren, löschen).
-
-      <br>
-      <br>
-      Schon beim Anlegen einer Ressource legen Mitglieder der Eigentümer-Gruppe in Schritt
-      <code>Zugriffsschutz und Eigentümerschaft</code> fest, welchen
-      anderen Gruppen Lese- und Editierrechte eingeräumt werden.
-      In einer tabbellarischen Form werden dazu entsprechende Häkchen bei den zutreffenden
-      Gruppenzeilen gesetzt.
-
-      <br>
-      <br>
-      Eine nachträgliche Änderung ist jederzeit im jeweiligen Ressourcenverwaktungsmenü
-      mit der Schaltfläche <code>Zugriffsschutz und Eigentümerschaft</code> und in den
-      dortigen Untermenüs möglich. Anpassungen sind erst gültig, wenn der
-      <code>Aktualisieren</code> Button betätigt wird.`,
+      title: 'ADMIN_ROLES.EXPLANATION.GROUP_SHARING.TITLE',
+      content: 'ADMIN_ROLES.EXPLANATION.GROUP_SHARING.CONTENT',
     },
     {
-      title: 'Wie erfolgt die öffentliche Freigabe von Datensätzen?',
-      content: `Ähnlich wie bei der gruppenspezifischen Freigabe von Datensätzen ist es nur
-      Mitgliedern der Eigentümer-Gruppe eines Datensatzes (Raumeinheit, Indikator oder
-      Georessource) gestattet, einen öffentlichen Lesezugriff auf die Ressource einzurichten.
-
-      <br>
-      <br>
-      Schon beim Anlegen einer Ressource legen Mitglieder der Eigentümer-Gruppe in Schritt
-      <code>Zugriffsschutz und Eigentümerschaft</code> durch den Schalter
-      <code>Öffentliche Lesefreigabe</code> explizit fest, ob der Datensatz auch ohne User-Login
-      abgerufen werden darf.
-
-      <br>
-      <br>
-      Eine nachträgliche Änderung ist jederzeit im jeweiligen Ressourcenverwaktungsmenü
-      mit der Schaltfläche <code>Zugriffsschutz und Eigentümerschaft</code> und in den
-      dortigen Untermenüs möglich. Anpassungen sind erst gültig, wenn der
-      <code>Aktualisieren</code> Button betätigt wird.`,
+      title: 'ADMIN_ROLES.EXPLANATION.PUBLIC_SHARING.TITLE',
+      content: 'ADMIN_ROLES.EXPLANATION.PUBLIC_SHARING.CONTENT',
     },
     {
-      title: 'Wie funktioniert die Datenfreigabe von Indikatoren für bestimmte Raumeinheiten?',
-      content: `Bei der Freigabe (Lesen, Editieren) von Indikatoren gelten besondere Regeln.
-
-						Grundsätzlich unterscheidet KomMonitor bei Indikatoren zwischen der <i>Freigabe ihrer
-							Metadaten</i> und der <i>Freigabe konkreter Zeitreihen auf konkreten verknüpften
-							Raumeinheiten</i>. So ist es bspw. konfigurierbar, den Indikator bezogen auf dessen
-						Metadaten sowie Zeitreihen ausgewählter Raumeinheiten öffentlich freizugeben,
-						während Zeitreihen sehr kleinräumiger Raumeinheiten nur der internen Verwaltung zur
-						Verfügung stehen sollen.
-
-						<br>
-						<br>
-						Weiterhin ist neben der Freigabe der Indikatoren auch eine passgenaue Freigabe der Raumeinheiten
-						zu setzen.
-
-						Im Folgenden werden einige Beispielszenarien unteschieden und durch Einstellhinweise
-						verdeutlicht:
-
-						<br>
-						<br>`,
+      title: 'ADMIN_ROLES.EXPLANATION.INDICATOR_SHARING.TITLE',
+      content: 'ADMIN_ROLES.EXPLANATION.INDICATOR_SHARING.CONTENT',
       nestedItems: [
         {
-          title: 'Szenario Indikator nicht öffentlich',
-          content: `<table class="table">
-									<tr>
-										<th>
-											Indikatoren-Metadaten
-										</th>
-										<th>
-											Indikatoren-Zeitreihe pro Raumebene
-										</th>
-										<th>
-											Raumeinheiten-Metadaten
-										</th>
-									</tr>
-									<tr>
-										<td>
-											Schalter <code>Öffentliche Lesefreigabe</code> deaktivieren
-										</td>
-										<td>
-											<i>pro Raumeinheit:</i>
-											<br>
-											explizite Freigabe an relevante Gruppen (Lesen, Schreiben)
-
-											<i>unterschiedliche Konfigurationen je nach Raumeinheit denkbar</i>
-										</td>
-										<td>
-											Lesezugriff auf Raumeinheiten-Metadaten selbst muss analog für alle
-											relevanten Gruppen freigegeben werden.
-										</td>
-									</tr>
-								</table>`,
+          title: 'ADMIN_ROLES.EXPLANATION.INDICATOR_SHARING.SCENARIO_PRIVATE.TITLE',
+          content: 'ADMIN_ROLES.EXPLANATION.INDICATOR_SHARING.SCENARIO_PRIVATE.CONTENT',
         },
         {
-          title: 'Szenario Indikator teilweise öffentlich',
-          content: `<table class="table">
-									<tr>
-										<th>
-											Indikatoren-Metadaten
-										</th>
-										<th>
-											Indikatoren-Zeitreihe pro Raumebene
-										</th>
-										<th>
-											Raumeinheiten-Metadaten
-										</th>
-									</tr>
-									<tr>
-										<td>
-											Schalter <code>Öffentliche Lesefreigabe</code> aktivieren
-										</td>
-										<td>
-											<i>pro Raumeinheit:</i>
-											<br>
-											<li>für alle Raumeinheiten mit öffentlichem Zugriff aktivieren der
-												<code>Öffentliche Lesefreigabe</code> (weitere explizite Freigabe
-												an Gruppen nur bei Bedarf zwecks Editierrechten)
-											</li>
-											<li>für interne Raumeinheiten
-												<code>Öffentliche Lesefreigabe</code> deaktivieren –
-												stattdessen nur explizite Freigabe an relevante Gruppen (Lesen,
-												Schreiben)
-											</li>
-
-											<i>unterschiedliche Konfigurationen je nach Raumeinheit denkbar</i>
-										</td>
-										<td>
-											<i><code>öffentlicher Lesezugriff</code> für bestimmte
-												Raumeinheiten-Metadaten aktivieren</i>
-											<i>interner geschützter Lesezugriff auf sonstige
-												Raumeinheiten-Metadaten muss analog
-												für alle
-												relevanten Gruppen explizit freigegeben werden.
-											</i>
-										</td>
-									</tr>
-								</table>`,
+          title: 'ADMIN_ROLES.EXPLANATION.INDICATOR_SHARING.SCENARIO_PARTIAL.TITLE',
+          content: 'ADMIN_ROLES.EXPLANATION.INDICATOR_SHARING.SCENARIO_PARTIAL.CONTENT',
         },
         {
-          title: 'Szenario Indikator komplett öffentlich',
-          content: `<table class="table">
-									<tr>
-										<th>
-											Indikatoren-Metadaten
-										</th>
-										<th>
-											Indikatoren-Zeitreihe pro Raumebene
-										</th>
-										<th>
-											Raumeinheiten-Metadaten
-										</th>
-									</tr>
-									<tr>
-										<td>
-											Schalter <code>Öffentliche Lesefreigabe</code> aktivieren
-										</td>
-										<td>
-											für alle Raumeinheiten aktivieren der
-											<code>Öffentliche Lesefreigabe</code> (weitere explizite Freigabe
-											an Gruppen nur bei Bedarf zwecks Editierrechten)
-
-											<i>unterschiedliche Konfigurationen je nach Raumeinheit denkbar</i>
-										</td>
-										<td>
-											<code>öffentlicher Lesezugriff</code> bei betreffenden
-											Raumeinheiten-Metadaten selbst aktivieren
-										</td>
-									</tr>
-								</table>`,
+          title: 'ADMIN_ROLES.EXPLANATION.INDICATOR_SHARING.SCENARIO_PUBLIC.TITLE',
+          content: 'ADMIN_ROLES.EXPLANATION.INDICATOR_SHARING.SCENARIO_PUBLIC.CONTENT',
         },
       ],
     },

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
@@ -15,6 +16,7 @@ const SETTINGS_ROUTES = ['settings', 'widgets', 'filters'];
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.scss'],
   imports: [
+    TranslateModule,
     RouterOutlet,
     RouterLink,
     RouterLinkActive,

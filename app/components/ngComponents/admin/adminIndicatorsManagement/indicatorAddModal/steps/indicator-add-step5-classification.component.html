@@ -1,15 +1,17 @@
 <div>
-  <h2 class="fs-title">Klassifizierungsoptionen</h2>
-  <h3 class="fs-subtitle">Angaben über die Standard-Klassifizierung des Indikators</h3>
+  <h2 class="fs-title">{{ 'ADMIN_INDICATORS.CLASSIFICATION_OPTIONS' | translate }}</h2>
+  <h3 class="fs-subtitle">{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.SUBTITLE' | translate }}</h3>
   <p class="text-center">
-    <b><i>* = Pflichtfeld</i></b>
+    <b
+      ><i>{{ 'ADMIN_INDICATORS.REQUIRED_FIELD' | translate }}</i></b
+    >
   </p>
 
   <!-- STATUS indicator types: user picks the color palette -->
   @if (state.indicatorType?.apiName?.includes('STATUS')) {
     <div class="palette-row">
       <div class="form-group">
-        <label class="inline-label">Farbpalette*</label>
+        <label class="inline-label">{{ 'ADMIN_INDICATORS.COLOR_PALETTE' | translate }}*</label>
         <div class="control-inline">
           <app-color-palette-select
             [selectedColorScheme]="state.selectedColorBrewerPaletteEntry?.paletteName"
@@ -18,7 +20,9 @@
         </div>
       </div>
       <div class="form-group palette-preview">
-        <label class="inline-label">derzeit selektiert:</label>
+        <label class="inline-label">{{
+          'ADMIN_INDICATORS.STEP_CLASSIFICATION.CURRENTLY_SELECTED' | translate
+        }}</label>
         <app-color-palette-swatch
           [colors]="state.getSelectedPaletteColors()"
         ></app-color-palette-swatch>
@@ -51,14 +55,17 @@
   <!-- DYNAMIC indicator types: fixed two-color scheme, informational only -->
   @if (state.indicatorType?.apiName?.includes('DYNAMIC')) {
     <p class="fs-note text-center">
-      Da ein dynamischer Indikatortyp ('{{ state.indicatorType?.displayName }}') konfiguriert wurde,
-      ist hier keine Farbauswahl erforderlich. Es wird folgende zweifarbige Standard-Klassifizierung
-      verwendet
+      {{
+        'ADMIN_INDICATORS.STEP_CLASSIFICATION.DYNAMIC_NOTE'
+          | translate: { type: state.indicatorType?.displayName }
+      }}
     </p>
     <div class="row vertical-align">
       <div class="col-md-6 col-sm-6 col-12 text-center">
         <div class="form-group palette-preview">
-          <label class="inline-label">Farbspektrum für negative Werte:</label>
+          <label class="inline-label">{{
+            'ADMIN_INDICATORS.STEP_CLASSIFICATION.NEGATIVE_SPECTRUM' | translate
+          }}</label>
           <app-color-palette-swatch
             [colors]="state.getDynamicSchemeColors('decrease')"
           ></app-color-palette-swatch>
@@ -66,7 +73,9 @@
       </div>
       <div class="col-md-6 col-sm-6 col-12 text-center">
         <div class="form-group palette-preview">
-          <label class="inline-label">Farbspektrum für positive Werte:</label>
+          <label class="inline-label">{{
+            'ADMIN_INDICATORS.STEP_CLASSIFICATION.POSITIVE_SPECTRUM' | translate
+          }}</label>
           <app-color-palette-swatch
             [colors]="state.getDynamicSchemeColors('increase')"
           ></app-color-palette-swatch>
@@ -77,7 +86,7 @@
 
   <!-- Classification method + class count (centered, stacked) -->
   <div class="centered-field">
-    <label>Klassifizierungsmethode*</label>
+    <label>{{ 'ADMIN_INDICATORS.CLASSIFICATION_METHOD' | translate }}*</label>
     <div class="control-inline">
       <app-classification-method-select
         [defaultMethodId]="state.classificationMethod"
@@ -87,7 +96,7 @@
     </div>
   </div>
   <div class="centered-field">
-    <label>Anzahl Klassen pro Raumebene*</label>
+    <label>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.NUM_CLASSES' | translate }}*</label>
     <select
       [(ngModel)]="state.numClassesPerSpatialUnit"
       name="numClassesPerSpatialUnit"
@@ -100,7 +109,7 @@
       }
     </select>
     <div class="help-block text-center">
-      <p>Für jede Raumebene wird die gleiche Anzahl an Klassengrenzen vergeben</p>
+      <p>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.NUM_CLASSES_HINT' | translate }}</p>
     </div>
   </div>
 
@@ -109,11 +118,13 @@
     <div class="row vertical-align">
       <div class="col-md-12">
         <div class="form-group">
-          <label>Klassifizierung pro Raumebene</label>
+          <label>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.PER_SPATIAL_UNIT' | translate }}</label>
           <div class="alert alert-warning">
             <i class="fas fa-exclamation-triangle"></i>
-            <strong>Wichtig:</strong> Konfigurieren Sie die Klassengrenzen für jede Raumebene.
-            Ungültige Konfigurationen werden rot markiert.
+            <strong>{{
+              'ADMIN_INDICATORS.STEP_CLASSIFICATION.IMPORTANT_LABEL' | translate
+            }}</strong>
+            {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.IMPORTANT_TEXT' | translate }}
           </div>
         </div>
       </div>
@@ -137,7 +148,10 @@
                         <div class="col-md-6">
                           <div class="form-group">
                             <label class="breaks-heading">
-                              Klassengrenzen für die Ebene {{ spatialUnit.spatialUnitLevel }}
+                              {{
+                                'ADMIN_INDICATORS.STEP_CLASSIFICATION.BREAKS_FOR_LEVEL'
+                                  | translate: { level: spatialUnit.spatialUnitLevel }
+                              }}
                             </label>
                             <div class="class-breaks-container">
                               @for (
@@ -151,7 +165,10 @@
                                   [(ngModel)]="state.spatialUnitClassification[i].breaks[j]"
                                   (ngModelChange)="state.onBreaksChanged(i)"
                                   step="0.01"
-                                  placeholder="Klassengrenze"
+                                  [placeholder]="
+                                    'ADMIN_INDICATORS.STEP_CLASSIFICATION.BREAK_PLACEHOLDER'
+                                      | translate
+                                  "
                                 />
                               }
                             </div>
@@ -159,13 +176,25 @@
                         </div>
                         <div class="col-md-6">
                           <div class="form-group">
-                            <label>Legende</label>
+                            <label>{{
+                              'ADMIN_INDICATORS.STEP_CLASSIFICATION.LEGEND' | translate
+                            }}</label>
                             <table class="legend-table">
                               <thead>
                                 <tr>
-                                  <th>Symbolik</th>
-                                  <th>Wertebereich</th>
-                                  <th>Hinweis</th>
+                                  <th>
+                                    {{
+                                      'ADMIN_INDICATORS.STEP_CLASSIFICATION.SYMBOLOGY' | translate
+                                    }}
+                                  </th>
+                                  <th>
+                                    {{
+                                      'ADMIN_INDICATORS.STEP_CLASSIFICATION.VALUE_RANGE' | translate
+                                    }}
+                                  </th>
+                                  <th>
+                                    {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.HINT' | translate }}
+                                  </th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -199,11 +228,8 @@
     <div class="row vertical-align">
       <div class="col-md-12 text-center">
         <div class="help-block">
-          <p>Vollständig ausgefüllte Tabs werden grün hervorgehoben.</p>
-          <p>
-            Fehlerhaft ausgefüllte Tabs werden rot hervorgehoben. Die Klassengrenzen müssen von
-            niedrig nach hoch sortiert sein.
-          </p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.TABS_COMPLETE_HINT' | translate }}</p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.TABS_ERROR_HINT' | translate }}</p>
         </div>
       </div>
     </div>
@@ -212,8 +238,8 @@
         <div class="col-md-12">
           <div class="alert alert-danger">
             <i class="fas fa-exclamation-triangle"></i>
-            <strong>Fehler:</strong> Es gibt ungültige Klassifizierungskonfigurationen. Bitte
-            überprüfen Sie die rot markierten Tabs.
+            <strong>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.ERROR_LABEL' | translate }}</strong>
+            {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.INVALID_BREAKS' | translate }}
           </div>
         </div>
       </div>
@@ -223,14 +249,14 @@
     type="button"
     name="previous"
     class="previous previous_addIndicator action-button-previous"
-    value="Voriger Schritt"
+    [value]="'ADMIN_INDICATORS.PREVIOUS_STEP' | translate"
     (click)="state.previousStep()"
   />
   <input
     type="button"
     name="next"
     class="next next_addIndicator action-button"
-    value="Nächster Schritt"
+    [value]="'ADMIN_INDICATORS.NEXT_STEP' | translate"
     (click)="state.nextStep()"
   />
 </div>

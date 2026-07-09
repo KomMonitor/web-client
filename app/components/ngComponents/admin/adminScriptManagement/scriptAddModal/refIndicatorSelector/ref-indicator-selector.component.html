@@ -4,14 +4,16 @@
   </div>
   <div class="card-body">
     <div class="form-group">
-      <label>Auswahl des Referenzindikators</label>
+      <label>{{ 'ADMIN_SCRIPTS.REF_INDICATOR.SELECT_LABEL' | translate }}</label>
       <select
         class="form-control form-control-sm"
         size="4"
         [ngModel]="selection"
         (ngModelChange)="selectionChange.emit($event)"
       >
-        <option disabled [ngValue]="null">-- Indikator wählen --</option>
+        <option disabled [ngValue]="null">
+          {{ 'ADMIN_SCRIPTS.SELECT_INDICATOR_PLACEHOLDER' | translate }}
+        </option>
         @for (ind of availableIndicators; track ind) {
           <option [ngValue]="ind">
             {{ ind.indicatorName }}

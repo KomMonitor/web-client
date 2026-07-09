@@ -16,6 +16,7 @@ import { Topic, TopicOrderMode, TopicResourceType } from './topic.model';
 import { TopicListComponent } from './topicList/topicList.component';
 import { TopicOrderSelectionComponent } from './topicOrderSelection/topic-order-selection.component';
 import { NotificationService } from '../../common/notification/notification.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 // Re-exported for the many existing importers that reference these types via this component.
 export { Topic, TopicOrderMode, TopicResourceType } from './topic.model';
@@ -46,6 +47,7 @@ export class AdminTopicsManagementErrorHandlingService {
     TopicListComponent,
     AddTopicComponent,
     AdminContentViewComponent,
+    TranslateModule,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

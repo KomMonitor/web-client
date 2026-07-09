@@ -9,6 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
@@ -35,7 +36,7 @@ import { collectSelectedRoleIds, ownerDefaultPermissionIds } from './role-manage
 @Component({
   selector: 'app-role-management-grid',
   templateUrl: './role-management-grid.component.html',
-  imports: [AgGridAngular, FormsModule],
+  imports: [TranslateModule, AgGridAngular, FormsModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -33,6 +33,7 @@ import {
   createAdvancedRoleComponents,
 } from '../advanced-role-permissions';
 import { RoleDelegatePutEntry } from '../admin-role-management.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-role-add-modal',
@@ -45,6 +46,7 @@ import { RoleDelegatePutEntry } from '../admin-role-management.service';
     FilterableSelectComponent,
     ExpandableBoxComponent,
     LoadingOverlayComponent,
+    TranslateModule,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

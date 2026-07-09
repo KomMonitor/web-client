@@ -11,6 +11,7 @@ import {
   signal,
 } from '@angular/core';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
@@ -55,7 +56,7 @@ interface BatchListItem {
   selector: 'app-indicator-batch-update-modal',
   templateUrl: './indicator-batch-update-modal.component.html',
   styleUrls: ['./indicator-batch-update-modal.component.scss'],
-  imports: [FormsModule, CommonModule],
+  imports: [TranslateModule, FormsModule, CommonModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

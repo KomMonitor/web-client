@@ -42,6 +42,7 @@ import {
   ResourceMetadataFormValue,
 } from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
 import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-georesource-edit-metadata-modal',
@@ -54,6 +55,7 @@ import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admi
     KmColorPickerComponent,
     KmLinePatternPickerComponent,
     ResourceMetadataFormComponent,
+    TranslateModule,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

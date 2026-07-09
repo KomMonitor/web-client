@@ -37,6 +37,7 @@ import {
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { FormsModule } from '@angular/forms';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
+import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { SpatialUnitRefreshRequest } from './spatial-unit-refresh.model';
 
@@ -44,7 +45,13 @@ import { SpatialUnitRefreshRequest } from './spatial-unit-refresh.model';
   selector: 'app-admin-spatial-units-management',
   templateUrl: './admin-spatial-units-management.component.html',
   styleUrls: ['./admin-spatial-units-management.component.scss'],
-  imports: [ExpandableBoxComponent, AgGridAngular, FormsModule, AdminContentViewComponent],
+  imports: [
+    ExpandableBoxComponent,
+    AgGridAngular,
+    FormsModule,
+    AdminContentViewComponent,
+    TranslateModule,
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

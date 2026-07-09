@@ -6,11 +6,12 @@ import { forkJoin } from 'rxjs';
 import { AdminRoleManagementService } from '../admin-role-management.service';
 import { NotificationService } from '../../../common/notification/notification.service';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-role-delete-modal',
   templateUrl: './role-delete-modal.component.html',
-  imports: [LoadingOverlayComponent],
+  imports: [LoadingOverlayComponent, TranslateModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

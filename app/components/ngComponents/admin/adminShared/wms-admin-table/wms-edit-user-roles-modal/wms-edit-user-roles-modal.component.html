@@ -2,7 +2,7 @@
   <button type="button" class="close" aria-label="Close" (click)="close()">
     <span aria-hidden="true">&times;</span>
   </button>
-  <h4 class="modal-title">WMS bearbeiten</h4>
+  <h4 class="modal-title">{{ 'ADMIN_WMS.EDIT_ROLES.TITLE' | translate }}</h4>
 </div>
 
 <div class="modal-body">
@@ -30,16 +30,15 @@
              state) survives navigating between steps -->
         @if (envConfigService.enableKeycloakSecurity) {
           <fieldset [style.display]="stepper.isActive('roles') ? 'block' : 'none'">
-            <h2 class="fs-title">Zugriffsschutz</h2>
+            <h2 class="fs-title">{{ 'ADMIN_SHARED.ACCESS_PROTECTION' | translate }}</h2>
             <h3 class="fs-subtitle">
-              Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro
-              Organisationseinheit
+              {{ 'ADMIN_SHARED_UI.SECURITY.ASSIGN_RIGHTS_SUBTITLE' | translate }}
             </h3>
             <div id="georesourceRoleForm">
-              <label>Datensatz-Freigaben</label>
+              <label>{{ 'ADMIN_SHARED_UI.SECURITY.DATASET_PERMISSIONS' | translate }}</label>
               <div class="row vertical-align">
                 <div class="col-md-3">
-                  <label>Öffentliche Lesefreigabe*</label>
+                  <label>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label>
                   <label class="switch">
                     <input
                       type="checkbox"
@@ -50,7 +49,7 @@
                     <span class="switchslider round"></span>
                   </label>
                   <div class="help-block">
-                    <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
+                    <p>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ_HINT' | translate }}</p>
                   </div>
                 </div>
                 <div class="col-md-6 col-sm-6 col-12">
@@ -62,8 +61,7 @@
                 </div>
                 <div class="col-md-3">
                   <div class="alert alert-info">
-                    Als Eigentümer-Organisation des Datensatzes können Sie Lese- und Editier-Rechte
-                    an die eigene und weitere Organisationseinheiten vergeben.
+                    {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_RIGHTS_INFO' | translate }}
                   </div>
                 </div>
               </div>
@@ -72,22 +70,22 @@
               type="button"
               name="previous"
               class="previous previous_addGeoresource action-button-previous"
-              value="Voriger Schritt"
+              [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
               (click)="stepper.previous()"
             />
             <input
               type="button"
               name="next"
               class="next next_addGeoresource action-button"
-              value="Nächster Schritt"
+              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
               (click)="stepper.next()"
             />
           </fieldset>
 
           <fieldset [style.display]="stepper.isActive('ownership') ? 'block' : 'none'">
-            <h2 class="fs-title">Eigentümerschaft eines Datensatzes</h2>
+            <h2 class="fs-title">{{ 'ADMIN_SHARED_UI.SECURITY.OWNERSHIP_TITLE' | translate }}</h2>
             <h3 class="fs-subtitle">
-              Übertragen der Eigentümerschaft von Datensätzen mit allen dazugehörigen Rechten
+              {{ 'ADMIN_SHARED_UI.SECURITY.OWNERSHIP_SUBTITLE' | translate }}
             </h3>
             <app-owner-organization-select
               [ownerId]="ownerOrganization"
@@ -102,7 +100,9 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="close()">Schließen</button>
+  <button type="button" class="btn btn-default pull-left" (click)="close()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
 
   <button
     type="button"
@@ -110,9 +110,11 @@
     [disabled]="envConfigService.enableKeycloakSecurity && !ownerOrganization"
     (click)="editData()"
   >
-    WMS editieren
+    {{ 'ADMIN_WMS.EDIT.SUBMIT' | translate }}
   </button>
-  <button type="button" class="btn btn-danger" (click)="resetWmsEditForm()">Zurücksetzen</button>
+  <button type="button" class="btn btn-danger" (click)="resetWmsEditForm()">
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
+  </button>
 </div>
 
 <!-- Success Alert -->
@@ -125,11 +127,8 @@
   <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
     &times;
   </button>
-  <h4><i class="icon fa fa-check"></i>Georessource registriert</h4>
-  <p>
-    Zugrifssrechte für den Datensatz mit dem Namen {{ successMessagePart() }} wurde in KomMonitor
-    editiert.
-  </p>
+  <h4><i class="icon fa fa-check"></i>{{ 'ADMIN_WMS.ADD.SUCCESS_TITLE' | translate }}</h4>
+  <p>{{ 'ADMIN_WMS.EDIT_ROLES.SUCCESS_TEXT' | translate: { name: successMessagePart() } }}</p>
 </div>
 
 <!-- Error Alert -->
@@ -140,8 +139,8 @@
   class="alert alert-danger alert-dismissable"
 >
   <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
-  <h4><i class="icon fa fa-ban"></i>Editierung gescheitert</h4>
-  Bei der Editierung der Georessource ist ein Fehler aufgetreten. Fehlermeldung:
+  <h4><i class="icon fa fa-ban"></i>{{ 'ADMIN_WMS.EDIT.ERROR_TITLE' | translate }}</h4>
+  {{ 'ADMIN_WMS.EDIT.ERROR_TEXT' | translate }}
   <br />
   <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessagePart()"></pre>
   <br />

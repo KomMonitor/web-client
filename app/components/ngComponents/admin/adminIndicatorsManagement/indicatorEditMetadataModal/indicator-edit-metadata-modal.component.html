@@ -1,6 +1,6 @@
 <!-- Modal Template -->
 <div class="modal-header">
-  <h4 class="modal-title">Indikator Metadaten bearbeiten</h4>
+  <h4 class="modal-title">{{ 'ADMIN_INDICATORS.EDIT_METADATA.TITLE' | translate }}</h4>
   <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
 </div>
 
@@ -11,8 +11,10 @@
       <button type="button" class="close" (click)="hideSuccessAlert()">
         <span aria-hidden="true">&times;</span>
       </button>
-      <strong>Erfolg!</strong> Die Metadaten für den Indikator "{{ successMessagePart() }}" wurden
-      erfolgreich aktualisiert.
+      <strong>{{ 'ADMIN_SHARED.SUCCESS' | translate }}</strong>
+      {{
+        'ADMIN_INDICATORS.EDIT_METADATA.SUCCESS_TEXT' | translate: { name: successMessagePart() }
+      }}
     </div>
   }
 
@@ -22,7 +24,8 @@
       <button type="button" class="close" (click)="hideErrorAlert()">
         <span aria-hidden="true">&times;</span>
       </button>
-      <strong>Fehler!</strong> Beim Aktualisieren der Metadaten ist ein Fehler aufgetreten.
+      <strong>{{ 'ADMIN_SHARED.ERROR' | translate }}</strong>
+      {{ 'ADMIN_INDICATORS.EDIT_METADATA.ERROR_TEXT' | translate }}
       <pre>{{ errorMessagePart() }}</pre>
     </div>
   }
@@ -40,7 +43,7 @@
   <form id="indicatorEditMetadataForm" #indicatorEditMetadataForm="ngForm">
     <!-- Basic Information -->
     <div class="form-group">
-      <label for="datasetName">Indikatorname *</label>
+      <label for="datasetName">{{ 'ADMIN_INDICATORS.INDICATOR_NAME' | translate }} *</label>
       <input
         type="text"
         class="form-control"
@@ -52,12 +55,14 @@
         required
       />
       @if (datasetNameInvalid) {
-        <div class="invalid-feedback">Ein Indikator mit diesem Namen existiert bereits.</div>
+        <div class="invalid-feedback">
+          {{ 'ADMIN_INDICATORS.EDIT_METADATA.NAME_EXISTS' | translate }}
+        </div>
       }
     </div>
 
     <div class="form-group">
-      <label for="indicatorAbbreviation">Kürzel/Kennzeichen</label>
+      <label for="indicatorAbbreviation">{{ 'ADMIN_INDICATORS.ABBREVIATION' | translate }}</label>
       <input
         type="text"
         class="form-control"
@@ -68,7 +73,7 @@
     </div>
 
     <div class="form-group">
-      <label for="indicatorType">Indikator-Typ *</label>
+      <label for="indicatorType">{{ 'ADMIN_INDICATORS.INDICATOR_TYPE' | translate }} *</label>
       <select
         class="form-control"
         id="indicatorType"
@@ -76,7 +81,7 @@
         [(ngModel)]="indicatorType"
         required
       >
-        <option [ngValue]="null">Bitte wählen...</option>
+        <option [ngValue]="null">{{ 'ADMIN_INDICATORS.SELECT_PLEASE' | translate }}</option>
         @for (option of envConfigService.indicatorTypeOptions; track option) {
           <option [ngValue]="option">
             {{ option.displayName }}
@@ -94,12 +99,14 @@
           name="isHeadlineIndicator"
           [(ngModel)]="isHeadlineIndicator"
         />
-        <label class="form-check-label" for="isHeadlineIndicator"> Leitindikator </label>
+        <label class="form-check-label" for="isHeadlineIndicator">{{
+          'ADMIN_INDICATORS.HEADLINE_INDICATOR' | translate
+        }}</label>
       </div>
     </div>
 
     <div class="form-group">
-      <label for="indicatorUnit">Einheit *</label>
+      <label for="indicatorUnit">{{ 'ADMIN_INDICATORS.UNIT' | translate }} *</label>
       <select
         class="form-control"
         id="indicatorUnit"
@@ -108,7 +115,7 @@
         (change)="onChangeIndicatorUnit()"
         required
       >
-        <option value="">Bitte wählen...</option>
+        <option value="">{{ 'ADMIN_INDICATORS.SELECT_PLEASE' | translate }}</option>
         @for (unit of envConfigService.indicatorUnitOptions; track unit) {
           <option [value]="unit">
             {{ unit }}
@@ -120,7 +127,7 @@
           <input
             type="text"
             class="form-control"
-            placeholder="Freitext-Einheit eingeben"
+            [placeholder]="'ADMIN_INDICATORS.EDIT_METADATA.FREE_TEXT_UNIT_PLACEHOLDER' | translate"
             [(ngModel)]="indicatorUnit"
             name="indicatorUnitFreeText"
           />
@@ -129,7 +136,9 @@
     </div>
 
     <div class="form-group">
-      <label for="indicatorPrecision">Präzision</label>
+      <label for="indicatorPrecision">{{
+        'ADMIN_INDICATORS.EDIT_METADATA.PRECISION' | translate
+      }}</label>
       <div class="form-check">
         <input
           type="checkbox"
@@ -139,7 +148,7 @@
           [(ngModel)]="showCustomCommaValue"
         />
         <label class="form-check-label" for="showCustomCommaValue">
-          Benutzerdefinierte Dezimalstellen verwenden
+          {{ 'ADMIN_INDICATORS.EDIT_METADATA.CUSTOM_DECIMALS' | translate }}
         </label>
       </div>
       @if (showCustomCommaValue) {
@@ -156,7 +165,9 @@
     </div>
 
     <div class="form-group">
-      <label for="indicatorProcessDescription">Prozessbeschreibung</label>
+      <label for="indicatorProcessDescription">{{
+        'ADMIN_INDICATORS.EDIT_METADATA.PROCESS_DESCRIPTION' | translate
+      }}</label>
       <textarea
         class="form-control"
         id="indicatorProcessDescription"
@@ -167,7 +178,9 @@
     </div>
 
     <div class="form-group">
-      <label for="indicatorTagsString_withCommas">Tags (kommagetrennt)</label>
+      <label for="indicatorTagsString_withCommas">{{
+        'ADMIN_INDICATORS.EDIT_METADATA.TAGS' | translate
+      }}</label>
       <input
         type="text"
         class="form-control"
@@ -179,7 +192,9 @@
     </div>
 
     <div class="form-group">
-      <label for="indicatorInterpretation">Interpretation</label>
+      <label for="indicatorInterpretation">{{
+        'ADMIN_INDICATORS.INTERPRETATION' | translate
+      }}</label>
       <textarea
         class="form-control"
         id="indicatorInterpretation"
@@ -190,7 +205,9 @@
     </div>
 
     <div class="form-group">
-      <label for="indicatorCreationType">Erstellungstyp *</label>
+      <label for="indicatorCreationType"
+        >{{ 'ADMIN_INDICATORS.EDIT_METADATA.CREATION_TYPE' | translate }} *</label
+      >
       <select
         class="form-control"
         id="indicatorCreationType"
@@ -199,7 +216,7 @@
         (change)="onChangeCreationType()"
         required
       >
-        <option [ngValue]="null">Bitte wählen...</option>
+        <option [ngValue]="null">{{ 'ADMIN_INDICATORS.SELECT_PLEASE' | translate }}</option>
         @for (option of envConfigService.indicatorCreationTypeOptions; track option) {
           <option [ngValue]="option">
             {{ option.displayName }}
@@ -210,16 +227,16 @@
 
     @if (enableLowestSpatialUnitSelect) {
       <div class="form-group">
-        <label for="indicatorLowestSpatialUnitMetadataObjectForComputation"
-          >Niedrigste räumliche Einheit für Berechnung</label
-        >
+        <label for="indicatorLowestSpatialUnitMetadataObjectForComputation">{{
+          'ADMIN_INDICATORS.EDIT_METADATA.LOWEST_SPATIAL_UNIT' | translate
+        }}</label>
         <select
           class="form-control"
           id="indicatorLowestSpatialUnitMetadataObjectForComputation"
           name="indicatorLowestSpatialUnitMetadataObjectForComputation"
           [(ngModel)]="indicatorLowestSpatialUnitMetadataObjectForComputation"
         >
-          <option [ngValue]="null">Bitte wählen...</option>
+          <option [ngValue]="null">{{ 'ADMIN_INDICATORS.SELECT_PLEASE' | translate }}</option>
           @for (spatialUnit of spatialUnitStore.availableSpatialUnits; track spatialUnit) {
             <option [ngValue]="spatialUnit">
               {{ spatialUnit.spatialUnitLevel }}
@@ -230,7 +247,9 @@
     }
 
     <div class="form-group">
-      <label for="indicatorReferenceDateNote">Referenzdatum Notiz</label>
+      <label for="indicatorReferenceDateNote">{{
+        'ADMIN_INDICATORS.EDIT_METADATA.REFERENCE_DATE_NOTE' | translate
+      }}</label>
       <input
         type="text"
         class="form-control"
@@ -241,7 +260,9 @@
     </div>
 
     <div class="form-group">
-      <label for="displayOrder">Anzeigereihenfolge</label>
+      <label for="displayOrder">{{
+        'ADMIN_INDICATORS.EDIT_METADATA.DISPLAY_ORDER' | translate
+      }}</label>
       <input
         type="number"
         class="form-control"
@@ -253,10 +274,10 @@
     </div>
 
     <!-- Metadata Section -->
-    <h5>Metadaten</h5>
+    <h5>{{ 'ADMIN_SHARED.METADATA' | translate }}</h5>
 
     <div class="form-group">
-      <label for="metadata.note">Notiz</label>
+      <label for="metadata.note">{{ 'ADMIN_INDICATORS.EDIT_METADATA.NOTE' | translate }}</label>
       <textarea
         class="form-control"
         id="metadata.note"
@@ -267,7 +288,9 @@
     </div>
 
     <div class="form-group">
-      <label for="metadata.literature">Literatur</label>
+      <label for="metadata.literature">{{
+        'ADMIN_INDICATORS.EDIT_METADATA.LITERATURE' | translate
+      }}</label>
       <textarea
         class="form-control"
         id="metadata.literature"
@@ -278,14 +301,16 @@
     </div>
 
     <div class="form-group">
-      <label for="metadata.updateInterval">Aktualisierungsintervall</label>
+      <label for="metadata.updateInterval">{{
+        'ADMIN_INDICATORS.EDIT_METADATA.UPDATE_INTERVAL' | translate
+      }}</label>
       <select
         class="form-control"
         id="metadata.updateInterval"
         name="metadata.updateInterval"
         [(ngModel)]="metadata.updateInterval"
       >
-        <option [ngValue]="null">Bitte wählen...</option>
+        <option [ngValue]="null">{{ 'ADMIN_INDICATORS.SELECT_PLEASE' | translate }}</option>
         @for (option of envConfigService.updateIntervalOptions; track option) {
           <option [ngValue]="option">
             {{ option.displayName }}
@@ -306,7 +331,7 @@
     </div>
 
     <div class="form-group">
-      <label for="metadata.datasource">Datenquelle</label>
+      <label for="metadata.datasource">{{ 'ADMIN_SHARED.DATASOURCE' | translate }}</label>
       <input
         type="text"
         class="form-control"
@@ -317,7 +342,9 @@
     </div>
 
     <div class="form-group">
-      <label for="metadata.contact">Kontakt</label>
+      <label for="metadata.contact">{{
+        'ADMIN_INDICATORS.EDIT_METADATA.CONTACT' | translate
+      }}</label>
       <input
         type="text"
         class="form-control"
@@ -328,7 +355,9 @@
     </div>
 
     <div class="form-group">
-      <label for="metadata.lastUpdate">Letzte Aktualisierung</label>
+      <label for="metadata.lastUpdate">{{
+        'ADMIN_INDICATORS.EDIT_METADATA.LAST_UPDATE' | translate
+      }}</label>
       <input
         type="date"
         class="form-control"
@@ -339,7 +368,7 @@
     </div>
 
     <div class="form-group">
-      <label for="metadata.description">Beschreibung</label>
+      <label for="metadata.description">{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}</label>
       <textarea
         class="form-control"
         id="metadata.description"
@@ -350,7 +379,9 @@
     </div>
 
     <div class="form-group">
-      <label for="metadata.databasis">Datenbasis</label>
+      <label for="metadata.databasis">{{
+        'ADMIN_INDICATORS.EDIT_METADATA.DATA_BASIS' | translate
+      }}</label>
       <input
         type="text"
         class="form-control"
@@ -361,17 +392,17 @@
     </div>
 
     <!-- Topic Hierarchy Section -->
-    <h5>Themenhierarchie</h5>
+    <h5>{{ 'ADMIN_INDICATORS.TOPIC_HIERARCHY' | translate }}</h5>
 
     <div class="form-group">
-      <label for="indicatorTopic_mainTopic">Hauptthema</label>
+      <label for="indicatorTopic_mainTopic">{{ 'ADMIN_INDICATORS.MAIN_TOPIC' | translate }}</label>
       <select
         class="form-control"
         id="indicatorTopic_mainTopic"
         name="indicatorTopic_mainTopic"
         [(ngModel)]="indicatorTopic_mainTopic"
       >
-        <option [ngValue]="null">Bitte wählen...</option>
+        <option [ngValue]="null">{{ 'ADMIN_INDICATORS.SELECT_PLEASE' | translate }}</option>
         @for (
           topic of topicStore.availableTopics | filter: 'topicResource' : 'indicator';
           track topic
@@ -385,14 +416,16 @@
 
     @if (indicatorTopic_mainTopic?.subTopics?.length) {
       <div class="form-group">
-        <label for="indicatorTopic_subTopic">Unterthema</label>
+        <label for="indicatorTopic_subTopic">{{
+          'ADMIN_INDICATORS.EDIT_METADATA.SUB_TOPIC' | translate
+        }}</label>
         <select
           class="form-control"
           id="indicatorTopic_subTopic"
           name="indicatorTopic_subTopic"
           [(ngModel)]="indicatorTopic_subTopic"
         >
-          <option [ngValue]="null">Bitte wählen...</option>
+          <option [ngValue]="null">{{ 'ADMIN_INDICATORS.SELECT_PLEASE' | translate }}</option>
           @for (topic of indicatorTopic_mainTopic.subTopics; track topic) {
             <option [ngValue]="topic">
               {{ topic.topicName }}
@@ -404,14 +437,16 @@
 
     @if (indicatorTopic_subTopic?.subTopics?.length) {
       <div class="form-group">
-        <label for="indicatorTopic_subsubTopic">Unter-Unterthema</label>
+        <label for="indicatorTopic_subsubTopic">{{
+          'ADMIN_INDICATORS.EDIT_METADATA.SUB_SUB_TOPIC' | translate
+        }}</label>
         <select
           class="form-control"
           id="indicatorTopic_subsubTopic"
           name="indicatorTopic_subsubTopic"
           [(ngModel)]="indicatorTopic_subsubTopic"
         >
-          <option [ngValue]="null">Bitte wählen...</option>
+          <option [ngValue]="null">{{ 'ADMIN_INDICATORS.SELECT_PLEASE' | translate }}</option>
           @for (topic of indicatorTopic_subTopic.subTopics; track topic) {
             <option [ngValue]="topic">
               {{ topic.topicName }}
@@ -423,14 +458,16 @@
 
     @if (indicatorTopic_subsubTopic?.subTopics?.length) {
       <div class="form-group">
-        <label for="indicatorTopic_subsubsubTopic">Unter-Unter-Unterthema</label>
+        <label for="indicatorTopic_subsubsubTopic">{{
+          'ADMIN_INDICATORS.EDIT_METADATA.SUB_SUB_SUB_TOPIC' | translate
+        }}</label>
         <select
           class="form-control"
           id="indicatorTopic_subsubsubTopic"
           name="indicatorTopic_subsubsubTopic"
           [(ngModel)]="indicatorTopic_subsubsubTopic"
         >
-          <option [ngValue]="null">Bitte wählen...</option>
+          <option [ngValue]="null">{{ 'ADMIN_INDICATORS.SELECT_PLEASE' | translate }}</option>
           @for (topic of indicatorTopic_subsubTopic.subTopics; track topic) {
             <option [ngValue]="topic">
               {{ topic.topicName }}
@@ -441,29 +478,35 @@
     }
 
     <!-- References Section -->
-    <h5>Referenzen zu anderen Indikatoren</h5>
+    <h5>{{ 'ADMIN_INDICATORS.INDICATOR_REFERENCES' | translate }}</h5>
 
     <div class="form-group">
-      <label for="indicatorNameFilter">Indikator filtern</label>
+      <label for="indicatorNameFilter">{{
+        'ADMIN_INDICATORS.EDIT_METADATA.FILTER_INDICATOR' | translate
+      }}</label>
       <input
         type="text"
         class="form-control"
         id="indicatorNameFilter"
         name="indicatorNameFilter"
         [(ngModel)]="indicatorNameFilter"
-        placeholder="Indikatorname eingeben..."
+        [placeholder]="
+          'ADMIN_INDICATORS.EDIT_METADATA.INDICATOR_NAME_INPUT_PLACEHOLDER' | translate
+        "
       />
     </div>
 
     <div class="form-group">
-      <label for="tmpIndicatorReference_selectedIndicatorMetadata">Indikator auswählen</label>
+      <label for="tmpIndicatorReference_selectedIndicatorMetadata">{{
+        'ADMIN_INDICATORS.SELECT_INDICATOR' | translate
+      }}</label>
       <select
         class="form-control"
         id="tmpIndicatorReference_selectedIndicatorMetadata"
         name="tmpIndicatorReference_selectedIndicatorMetadata"
         [(ngModel)]="tmpIndicatorReference_selectedIndicatorMetadata"
       >
-        <option [ngValue]="null">Bitte wählen...</option>
+        <option [ngValue]="null">{{ 'ADMIN_INDICATORS.SELECT_PLEASE' | translate }}</option>
         @for (
           indicator of indicatorStore.availableIndicators
             | filter: 'indicatorName' : indicatorNameFilter;
@@ -477,7 +520,9 @@
     </div>
 
     <div class="form-group">
-      <label for="tmpIndicatorReference_referenceDescription">Referenzbeschreibung</label>
+      <label for="tmpIndicatorReference_referenceDescription">{{
+        'ADMIN_INDICATORS.REFERENCE_DESCRIPTION' | translate
+      }}</label>
       <input
         type="text"
         class="form-control"
@@ -493,19 +538,19 @@
       (click)="onAddOrUpdateIndicatorReference()"
       [disabled]="!tmpIndicatorReference_selectedIndicatorMetadata"
     >
-      Hinzufügen/Aktualisieren
+      {{ 'ADMIN_INDICATORS.EDIT_METADATA.ADD_UPDATE' | translate }}
     </button>
 
     <!-- Current References Table -->
     @if (indicatorReferences_adminView.length > 0) {
       <div class="mt-3">
-        <h6>Aktuelle Referenzen</h6>
+        <h6>{{ 'ADMIN_INDICATORS.EDIT_METADATA.CURRENT_REFERENCES' | translate }}</h6>
         <table class="table table-striped">
           <thead>
             <tr>
-              <th>Indikator</th>
-              <th>Beschreibung</th>
-              <th>Aktionen</th>
+              <th>{{ 'ADMIN_INDICATORS.INDICATOR' | translate }}</th>
+              <th>{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}</th>
+              <th>{{ 'ADMIN_INDICATORS.EDIT_METADATA.ACTIONS' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -519,14 +564,14 @@
                     class="btn btn-sm btn-info"
                     (click)="onClickEditIndicatorReference(reference)"
                   >
-                    Bearbeiten
+                    {{ 'ADMIN_INDICATORS.EDIT' | translate }}
                   </button>
                   <button
                     type="button"
                     class="btn btn-sm btn-danger"
                     (click)="onClickDeleteIndicatorReference(reference)"
                   >
-                    Löschen
+                    {{ 'ADMIN_SHARED.DELETE' | translate }}
                   </button>
                 </td>
               </tr>
@@ -537,31 +582,35 @@
     }
 
     <!-- Georesource References Section -->
-    <h5>Referenzen zu Georessourcen</h5>
+    <h5>{{ 'ADMIN_INDICATORS.GEORESOURCE_REFERENCES' | translate }}</h5>
 
     <div class="form-group">
-      <label for="georesourceNameFilter">Georessource filtern</label>
+      <label for="georesourceNameFilter">{{
+        'ADMIN_INDICATORS.EDIT_METADATA.FILTER_GEORESOURCE' | translate
+      }}</label>
       <input
         type="text"
         class="form-control"
         id="georesourceNameFilter"
         name="georesourceNameFilter"
         [(ngModel)]="georesourceNameFilter"
-        placeholder="Georessourcenname eingeben..."
+        [placeholder]="
+          'ADMIN_INDICATORS.EDIT_METADATA.GEORESOURCE_NAME_INPUT_PLACEHOLDER' | translate
+        "
       />
     </div>
 
     <div class="form-group">
-      <label for="tmpGeoresourceReference_selectedGeoresourceMetadata"
-        >Georessource auswählen</label
-      >
+      <label for="tmpGeoresourceReference_selectedGeoresourceMetadata">{{
+        'ADMIN_INDICATORS.SELECT_GEORESOURCE' | translate
+      }}</label>
       <select
         class="form-control"
         id="tmpGeoresourceReference_selectedGeoresourceMetadata"
         name="tmpGeoresourceReference_selectedGeoresourceMetadata"
         [(ngModel)]="tmpGeoresourceReference_selectedGeoresourceMetadata"
       >
-        <option [ngValue]="null">Bitte wählen...</option>
+        <option [ngValue]="null">{{ 'ADMIN_INDICATORS.SELECT_PLEASE' | translate }}</option>
         @for (
           georesource of georesourceStore.availableGeoresources
             | filter: 'datasetName' : georesourceNameFilter;
@@ -575,7 +624,9 @@
     </div>
 
     <div class="form-group">
-      <label for="tmpGeoresourceReference_referenceDescription">Referenzbeschreibung</label>
+      <label for="tmpGeoresourceReference_referenceDescription">{{
+        'ADMIN_INDICATORS.REFERENCE_DESCRIPTION' | translate
+      }}</label>
       <input
         type="text"
         class="form-control"
@@ -591,19 +642,19 @@
       (click)="onAddOrUpdateGeoresourceReference()"
       [disabled]="!tmpGeoresourceReference_selectedGeoresourceMetadata"
     >
-      Hinzufügen/Aktualisieren
+      {{ 'ADMIN_INDICATORS.EDIT_METADATA.ADD_UPDATE' | translate }}
     </button>
 
     <!-- Current Georesource References Table -->
     @if (georesourceReferences_adminView.length > 0) {
       <div class="mt-3">
-        <h6>Aktuelle Georessourcen-Referenzen</h6>
+        <h6>{{ 'ADMIN_INDICATORS.EDIT_METADATA.CURRENT_GEORESOURCE_REFERENCES' | translate }}</h6>
         <table class="table table-striped">
           <thead>
             <tr>
-              <th>Georessource</th>
-              <th>Beschreibung</th>
-              <th>Aktionen</th>
+              <th>{{ 'ADMIN_INDICATORS.GEORESOURCE' | translate }}</th>
+              <th>{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}</th>
+              <th>{{ 'ADMIN_INDICATORS.EDIT_METADATA.ACTIONS' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -617,14 +668,14 @@
                     class="btn btn-sm btn-info"
                     (click)="onClickEditGeoresourceReference(reference)"
                   >
-                    Bearbeiten
+                    {{ 'ADMIN_INDICATORS.EDIT' | translate }}
                   </button>
                   <button
                     type="button"
                     class="btn btn-sm btn-danger"
                     (click)="onClickDeleteGeoresourceReference(reference)"
                   >
-                    Löschen
+                    {{ 'ADMIN_SHARED.DELETE' | translate }}
                   </button>
                 </td>
               </tr>
@@ -635,10 +686,12 @@
     }
 
     <!-- Classification Section -->
-    <h5>Klassifizierungsoptionen</h5>
+    <h5>{{ 'ADMIN_INDICATORS.CLASSIFICATION_OPTIONS' | translate }}</h5>
 
     <div class="form-group">
-      <label for="numClassesPerSpatialUnit">Anzahl Klassen</label>
+      <label for="numClassesPerSpatialUnit">{{
+        'ADMIN_INDICATORS.EDIT_METADATA.NUM_CLASSES' | translate
+      }}</label>
       <select
         class="form-control"
         id="numClassesPerSpatialUnit"
@@ -646,7 +699,7 @@
         [(ngModel)]="numClassesPerSpatialUnit"
         (change)="onNumClassesChanged(numClassesPerSpatialUnit || 5)"
       >
-        <option [ngValue]="null">Bitte wählen...</option>
+        <option [ngValue]="null">{{ 'ADMIN_INDICATORS.SELECT_PLEASE' | translate }}</option>
         @for (num of numClassesArray; track num) {
           <option [ngValue]="num">
             {{ num }}
@@ -656,7 +709,9 @@
     </div>
 
     <div class="form-group">
-      <label for="classificationMethod">Klassifizierungsmethode</label>
+      <label for="classificationMethod">{{
+        'ADMIN_INDICATORS.CLASSIFICATION_METHOD' | translate
+      }}</label>
       <select
         class="form-control"
         id="classificationMethod"
@@ -664,13 +719,15 @@
         [(ngModel)]="classificationMethod"
       >
         <option value="jenks">Jenks Natural Breaks</option>
-        <option value="equal">Gleiche Intervalle</option>
-        <option value="manual">Manuell</option>
+        <option value="equal">
+          {{ 'ADMIN_INDICATORS.EDIT_METADATA.EQUAL_INTERVALS' | translate }}
+        </option>
+        <option value="manual">{{ 'ADMIN_INDICATORS.EDIT_METADATA.MANUAL' | translate }}</option>
       </select>
     </div>
 
     <div class="form-group">
-      <label>Farbpalette</label>
+      <label>{{ 'ADMIN_INDICATORS.COLOR_PALETTE' | translate }}</label>
       <div class="color-palette-grid">
         @for (palette of colorbrewerPalettes; track palette) {
           <div
@@ -695,7 +752,7 @@
     <!-- Spatial Unit Classification Tabs -->
     @if (spatialUnitClassification.length > 0) {
       <div class="mt-3">
-        <h6>Klassengrenzen pro räumliche Einheit</h6>
+        <h6>{{ 'ADMIN_INDICATORS.EDIT_METADATA.BREAKS_PER_SPATIAL_UNIT' | translate }}</h6>
         <ul class="nav nav-tabs">
           @for (classification of spatialUnitClassification; track classification; let i = $index) {
             <li class="nav-item">
@@ -719,13 +776,15 @@
           @for (classification of spatialUnitClassification; track classification; let i = $index) {
             <div class="tab-pane" [class.active]="i === 0" id="tab-{{ i }}">
               <div class="form-group">
-                <label>Klassengrenzen</label>
+                <label>{{ 'ADMIN_INDICATORS.EDIT_METADATA.CLASS_BREAKS' | translate }}</label>
                 @for (break of classification.breaks; track break; let j = $index) {
                   <div class="mb-2">
                     <input
                       type="number"
                       class="form-control"
-                      [placeholder]="'Grenze ' + (j + 1)"
+                      [placeholder]="
+                        'ADMIN_INDICATORS.EDIT_METADATA.BREAK_N' | translate: { n: j + 1 }
+                      "
                       [(ngModel)]="classification.breaks[j]"
                       (change)="onBreaksChanged(i)"
                     />
@@ -739,10 +798,10 @@
     }
 
     <!-- Regional Reference Values Section -->
-    <h5>Regionale Vergleichswerte</h5>
+    <h5>{{ 'ADMIN_INDICATORS.REGIONAL_COMPARISON_VALUES' | translate }}</h5>
 
     <div class="form-group">
-      <label>Vergleichswerte verwalten</label>
+      <label>{{ 'ADMIN_INDICATORS.EDIT_METADATA.MANAGE_COMPARISON_VALUES' | translate }}</label>
       <div
         id="indicatorRegionalReferenceValuesManagementTable"
         class="ag-theme-alpine"
@@ -755,7 +814,9 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-secondary" (click)="closeModal()">Abbrechen</button>
+  <button type="button" class="btn btn-secondary" (click)="closeModal()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
+  </button>
   <button
     type="button"
     class="btn btn-primary"
@@ -765,6 +826,6 @@
     @if (loadingData()) {
       <span class="spinner-border spinner-border-sm mr-1"></span>
     }
-    Speichern
+    {{ 'ADMIN_SHARED.SAVE' | translate }}
   </button>
 </div>

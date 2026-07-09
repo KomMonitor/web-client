@@ -1,52 +1,51 @@
 <div>
-  <h2 class="fs-title">Metadaten des Indikators</h2>
-  <h3 class="fs-subtitle">Angaben über Metadaten des Indikators</h3>
+  <h2 class="fs-title">{{ 'ADMIN_INDICATORS.STEP_BASIC.TITLE' | translate }}</h2>
+  <h3 class="fs-subtitle">{{ 'ADMIN_INDICATORS.STEP_BASIC.SUBTITLE' | translate }}</h3>
   <p>
-    <b><i>* = Pflichtfeld</i></b>
+    <b
+      ><i>{{ 'ADMIN_INDICATORS.REQUIRED_FIELD' | translate }}</i></b
+    >
   </p>
   <div class="row vertical-align">
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Indikatorname*</label>
+        <label>{{ 'ADMIN_INDICATORS.INDICATOR_NAME' | translate }}*</label>
         <input
           type="text"
           class="form-control"
           [(ngModel)]="state.datasetName"
           name="datasetName"
-          placeholder="Name"
+          [placeholder]="'ADMIN_SHARED.NAME' | translate"
           (ngModelChange)="state.checkDatasetName()"
           required
         />
         <div class="help-block with-errors"></div>
         <div class="help-block">
-          <p>Das Tupel aus 'Indikatorname' und 'Indikatoren-Typ' muss eindeutig sein.</p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.NAME_UNIQUE_HINT' | translate }}</p>
         </div>
         @if (state.datasetNameInvalid) {
           <div style="color: red">
-            <p>
-              Eingabe ungültig. Es existiert bereits ein Indikator mit gleichem Namen und gleichem
-              Typ.
-            </p>
+            <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.NAME_INVALID' | translate }}</p>
           </div>
         }
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Kürzel/Kennzeichen</label>
+        <label>{{ 'ADMIN_INDICATORS.ABBREVIATION' | translate }}</label>
         <input
           type="text"
           class="form-control"
           [(ngModel)]="state.indicatorAbbreviation"
           name="indicatorAbbreviation"
-          placeholder="optionales Kürzel"
+          [placeholder]="'ADMIN_INDICATORS.STEP_BASIC.ABBREVIATION_PLACEHOLDER' | translate"
         />
         <div class="help-block with-errors"></div>
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Indikatoren-Typ*</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_BASIC.TYPE' | translate }}*</label>
         <select
           [(ngModel)]="state.indicatorType"
           name="indicatorType"
@@ -54,7 +53,9 @@
           class="form-control"
           required
         >
-          <option [ngValue]="null" disabled selected>-- Indikatorentyp wählen --</option>
+          <option [ngValue]="null" disabled selected>
+            {{ 'ADMIN_INDICATORS.STEP_BASIC.SELECT_TYPE_OPTION' | translate }}
+          </option>
           @for (type of state.indicatorTypeOptions; track type) {
             <option [ngValue]="type">
               {{ type.displayName }}
@@ -63,21 +64,18 @@
         </select>
         <div class="help-block with-errors"></div>
         <div class="help-block">
-          <p>'Status'-Indikatoren enthalten Werte für je einen einzelnen Zeitpunkt.</p>
-          <p>
-            'Dynamik'-Indikatoren enthalten Werte, die sich auf eine Zeitperiode beziehen (bspw.
-            Veränderung innerhalb der letzten 5 Jahre), somit Zu- oder Abnahmen des Indikators.
-          </p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.TYPE_HINT_STATUS' | translate }}</p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.TYPE_HINT_DYNAMIC' | translate }}</p>
         </div>
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Nachkommastellen</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_BASIC.DECIMALS' | translate }}</label>
         <div class="form-group vertical-align">
-          <label class="margin-right" style="font-weight: normal"
-            >Individuelle Anzeige aktivieren</label
-          >
+          <label class="margin-right" style="font-weight: normal">{{
+            'ADMIN_INDICATORS.STEP_BASIC.DECIMALS_CUSTOM_TOGGLE' | translate
+          }}</label>
           <label class="switch">
             <input
               type="checkbox"
@@ -89,9 +87,10 @@
         </div>
         @if (!state.showCustomCommaValue) {
           <div>
-            Wird kein individueller Wert angegeben, so greift selbiger aus den Allgemeinen
-            Einstellungen.<br />
-            Zu finden unter <i>Einstellungen</i> - <i>Allgemeine Einstellungen</i> -
+            {{ 'ADMIN_INDICATORS.STEP_BASIC.DECIMALS_FALLBACK' | translate }}<br />
+            {{ 'ADMIN_INDICATORS.STEP_BASIC.DECIMALS_FALLBACK_LOCATION' | translate }}
+            <i>{{ 'ADMIN_INDICATORS.STEP_BASIC.SETTINGS' | translate }}</i> -
+            <i>{{ 'ADMIN_INDICATORS.STEP_BASIC.GENERAL_SETTINGS' | translate }}</i> -
             <i>"numberOfDecimals"</i>
           </div>
         }
@@ -106,9 +105,7 @@
               name="indicatorPrecision"
             />
             <div class="help-block">
-              <p>
-                Anzahl der angezeigten Nachkommastellen in allen Bereichen der Benutzeroberfläche
-              </p>
+              <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.DECIMALS_HINT' | translate }}</p>
             </div>
           </div>
         }
@@ -118,7 +115,7 @@
   <div class="row vertical-align">
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Einheit*</label>
+        <label>{{ 'ADMIN_INDICATORS.UNIT' | translate }}*</label>
         <select
           [(ngModel)]="state.indicatorUnit"
           name="indicatorUnit"
@@ -126,79 +123,80 @@
           class="form-control"
           required
         >
-          <option [ngValue]="null" disabled selected>-- Einheit wählen --</option>
-          <option value="-- Freitext --">-- Freitext --</option>
+          <option [ngValue]="null" disabled selected>
+            {{ 'ADMIN_INDICATORS.STEP_BASIC.SELECT_UNIT_OPTION' | translate }}
+          </option>
+          <option value="-- Freitext --">
+            {{ 'ADMIN_INDICATORS.STEP_BASIC.FREE_TEXT_OPTION' | translate }}
+          </option>
           @for (unit of envConfigService.indicatorUnitOptions; track unit) {
             <option [value]="unit">{{ unit }}</option>
           }
         </select>
         @if (state.enableFreeTextUnit) {
           <div>
-            <label>Freitexteingabe*</label>
+            <label>{{ 'ADMIN_INDICATORS.STEP_BASIC.FREE_TEXT_INPUT' | translate }}*</label>
             <input
               type="text"
               class="form-control"
               [(ngModel)]="state.indicatorUnit"
               name="indicatorUnit"
-              placeholder="Einheit"
+              [placeholder]="'ADMIN_INDICATORS.UNIT' | translate"
               required
             />
           </div>
         }
         <div class="help-block">
-          <p>
-            Enthält die Auswahlliste nicht das gewünschte Element, dann '-- Freitext --'
-            selektieren, um einen Freitext einzugeben
-          </p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.UNIT_HINT' | translate }}</p>
         </div>
         <div class="help-block with-errors"></div>
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Methodik (der Berechnung)</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_BASIC.METHOD' | translate }}</label>
         <textarea
           rows="3"
           class="form-control"
           [(ngModel)]="state.indicatorProcessDescription"
           name="indicatorProcessDescription"
-          placeholder="optionale Methodik"
+          [placeholder]="'ADMIN_INDICATORS.STEP_BASIC.METHOD_PLACEHOLDER' | translate"
         ></textarea>
         <div class="help-block">
-          <p>Hinweise über die Berechnungsvorschrift des Indikators</p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.METHOD_HINT' | translate }}</p>
         </div>
         <div class="help-block with-errors"></div>
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Interpretation*</label>
+        <label>{{ 'ADMIN_INDICATORS.INTERPRETATION' | translate }}*</label>
         <textarea
           rows="3"
           class="form-control"
           [(ngModel)]="state.indicatorInterpretation"
           name="indicatorInterpretation"
-          placeholder="optionale Interpretationshilfe"
+          [placeholder]="'ADMIN_INDICATORS.STEP_BASIC.INTERPRETATION_PLACEHOLDER' | translate"
           required
         ></textarea>
         <div class="help-block">
-          <p>Hinweise, um die Verständlichkeit der Werteverteilung des Indikators zu erhöhen</p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.INTERPRETATION_HINT' | translate }}</p>
         </div>
         <div class="help-block with-errors"></div>
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Tags (Komma-separierte Auflistung)</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_BASIC.TAGS' | translate }}</label>
         <input
           type="text"
           class="form-control"
           [(ngModel)]="state.indicatorTagsString_withCommas"
           name="indicatorTagsString_withCommas"
-          placeholder="optionale Komma-separierte Tags"
+          [placeholder]="'ADMIN_INDICATORS.STEP_BASIC.TAGS_PLACEHOLDER' | translate"
         />
         <div class="help-block">
-          <p>Eingabe als Freitext. Komma dient als Trennzeichen</p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.TAGS_HINT' | translate }}</p>
         </div>
         <div class="help-block with-errors"></div>
       </div>
@@ -207,7 +205,7 @@
   <div class="row vertical-align">
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Leitindikator*</label>
+        <label>{{ 'ADMIN_INDICATORS.HEADLINE_INDICATOR' | translate }}*</label>
         <label class="switch">
           <input
             type="checkbox"
@@ -217,33 +215,30 @@
           <span class="switchslider round"></span>
         </label>
         <div class="help-block">
-          <p>
-            Angabe, ob der Indikator ein Leitindikator ist. Leitindikatoren aggregieren in der Regel
-            Basisindikatoren zu einer höherwertigen Aussage
-          </p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.HEADLINE_HINT' | translate }}</p>
         </div>
         <div class="help-block with-errors"></div>
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Hinweistext zu Referenzdatum</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_BASIC.REFERENCE_DATE_NOTE' | translate }}</label>
         <textarea
           rows="3"
           class="form-control"
           [(ngModel)]="state.indicatorReferenceDateNote"
           name="indicatorReferenceDateNote"
-          placeholder="optionaler Hinweistext bzgl. Referenzdatum des Indikators"
+          [placeholder]="'ADMIN_INDICATORS.STEP_BASIC.REFERENCE_DATE_NOTE_PLACEHOLDER' | translate"
         ></textarea>
         <div class="help-block">
-          <p>Angabe des Referenzdatums oder Hinweise über die Fortführung des Indikators</p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.REFERENCE_DATE_NOTE_HINT' | translate }}</p>
         </div>
         <div class="help-block with-errors"></div>
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Fortführungstyp*</label>
+        <label>{{ 'ADMIN_INDICATORS.STEP_BASIC.CREATION_TYPE' | translate }}*</label>
         <select
           [(ngModel)]="state.indicatorCreationType"
           name="indicatorCreationType"
@@ -251,7 +246,9 @@
           class="form-control"
           required
         >
-          <option [ngValue]="null" disabled selected>-- Fortführungstyp wählen --</option>
+          <option [ngValue]="null" disabled selected>
+            {{ 'ADMIN_INDICATORS.STEP_BASIC.SELECT_CREATION_TYPE_OPTION' | translate }}
+          </option>
           @for (type of envConfigService.indicatorCreationTypeOptions; track type) {
             <option [ngValue]="type">
               {{ type.displayName }}
@@ -259,15 +256,8 @@
           }
         </select>
         <div class="help-block">
-          <p>
-            'manuell' bedeutet, dass die Zeitreihenfortführung manuell durch den Anwender
-            durchgeführt werden muss.
-          </p>
-          <p>
-            'automatisierte Berechnung durch KomMonitor' bedeutet, dass die Zeitreihenfortführung
-            mittels eines Skript-Mechanismus semi-automatisiert von KomMonitor durchgeführt werden
-            kann.
-          </p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.CREATION_TYPE_HINT_MANUAL' | translate }}</p>
+          <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.CREATION_TYPE_HINT_AUTO' | translate }}</p>
         </div>
         <div class="help-block with-errors"></div>
       </div>
@@ -275,13 +265,15 @@
     <div class="col-md-3 col-sm-6 col-12">
       @if (state.enableLowestSpatialUnitSelect) {
         <div class="form-group">
-          <label>Niedrigste Raumebene für automatisierte Berechnung</label>
+          <label>{{ 'ADMIN_INDICATORS.STEP_BASIC.LOWEST_SPATIAL_UNIT' | translate }}</label>
           <select
             [(ngModel)]="state.indicatorLowestSpatialUnitMetadataObjectForComputation"
             name="indicatorLowestSpatialUnitMetadataObjectForComputation"
             class="form-control"
           >
-            <option [ngValue]="null" disabled selected>-- Raumebene wählen --</option>
+            <option [ngValue]="null" disabled selected>
+              {{ 'ADMIN_INDICATORS.SELECT_SPATIAL_UNIT_OPTION' | translate }}
+            </option>
             @for (spatialUnit of state.availableSpatialUnits; track spatialUnit) {
               <option [ngValue]="spatialUnit">
                 {{ spatialUnit.spatialUnitLevel }}
@@ -289,11 +281,7 @@
             }
           </select>
           <div class="help-block">
-            <p>
-              Angabe der niedrigsten Raumebene, für die der automatisiert berechenbare Indikator
-              berechnet werden kann. Indikatorenwerte für höhere Raumebenen werden dabei automatisch
-              aus den niedrigeren Ebenen aggregiert berechnet.
-            </p>
+            <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.LOWEST_SPATIAL_UNIT_HINT' | translate }}</p>
           </div>
           <div class="help-block with-errors"></div>
         </div>
@@ -304,7 +292,7 @@
     type="button"
     name="next"
     class="next next_addIndicator action-button"
-    value="Nächster Schritt"
+    [value]="'ADMIN_INDICATORS.NEXT_STEP' | translate"
     (click)="state.nextStep()"
   />
 </div>

@@ -20,12 +20,13 @@ import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/me
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-spatial-unit-delete-modal',
   templateUrl: './spatial-unit-delete-modal.component.html',
   styleUrls: ['./spatial-unit-delete-modal.component.scss'],
-  imports: [LoadingOverlayComponent],
+  imports: [LoadingOverlayComponent, TranslateModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

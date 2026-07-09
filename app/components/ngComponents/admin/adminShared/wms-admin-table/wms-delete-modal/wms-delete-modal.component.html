@@ -2,7 +2,7 @@
   <button type="button" class="close" aria-label="Close" (click)="close()">
     <span aria-hidden="true">&times;</span>
   </button>
-  <h4 class="modal-title">WMS löschen</h4>
+  <h4 class="modal-title">{{ 'ADMIN_WMS.DELETE.TITLE' | translate }}</h4>
 </div>
 
 <div class="modal-body">
@@ -17,13 +17,13 @@
   <!-- MultiStep Form -->
   <div class="row">
     <div class="col-md-12">
-      <h4><b>Sollen die folgenden Georessourcen wirklich gelöscht werden?</b></h4>
+      <h4>
+        <b>{{ 'ADMIN_WMS.DELETE.CONFIRM_QUESTION' | translate }}</b>
+      </h4>
 
       @if (!datasetToDelete) {
         <div>
-          <pre>
-kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert werden.</pre
-          >
+          <pre>{{ 'ADMIN_WMS.DELETE.NO_DATASET_MARKED' | translate }}</pre>
         </div>
       }
 
@@ -38,14 +38,16 @@ kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert wer
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="close()">Schließen</button>
+  <button type="button" class="btn btn-default pull-left" (click)="close()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
   <button
     type="button"
     class="btn btn-danger"
     (click)="deleteGeoresources()"
     [disabled]="!datasetToDelete"
   >
-    WMS unwiderruflich löschen
+    {{ 'ADMIN_WMS.DELETE.SUBMIT' | translate }}
   </button>
 </div>
 
@@ -59,7 +61,7 @@ kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert wer
   <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
     &times;
   </button>
-  <h4><i class="icon fa fa-check"></i>Georessource erfolgreich entfernt</h4>
+  <h4><i class="icon fa fa-check"></i>{{ 'ADMIN_WMS.DELETE.SUCCESS_TITLE' | translate }}</h4>
 </div>
 
 <!-- Error Alert -->
@@ -70,8 +72,8 @@ kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert wer
   class="alert alert-danger alert-dismissable"
 >
   <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
-  <h4><i class="icon fa fa-ban"></i>Entfernen gescheitert</h4>
-  Bei der Entfernung der Georessource ist ein Fehler aufgetreten. Fehlermeldung:
+  <h4><i class="icon fa fa-ban"></i>{{ 'ADMIN_WMS.DELETE.ERROR_TITLE' | translate }}</h4>
+  {{ 'ADMIN_WMS.DELETE.ERROR_TEXT' | translate }}
   <br />
   <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessage()"></pre>
   <br />

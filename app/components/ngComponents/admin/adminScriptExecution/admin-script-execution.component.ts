@@ -18,11 +18,13 @@ import { IndicatorMetadataStoreService } from '../../../../services/indicator-me
 import { KommonitorDataGridHelperService } from '../../../../services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { LoadingOverlayComponent } from '../../common/loading-overlay/loading-overlay.component';
 
+import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-admin-script-execution',
   templateUrl: './admin-script-execution.component.html',
   styleUrls: ['./admin-script-execution.component.scss'],
   imports: [
+    TranslateModule,
     AdminContentViewComponent,
     ExpandableBoxComponent,
     SmallBoxComponent,

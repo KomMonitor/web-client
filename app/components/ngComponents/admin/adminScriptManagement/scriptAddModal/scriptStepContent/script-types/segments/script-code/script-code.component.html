@@ -1,8 +1,8 @@
-<expandable-box title="Skript Code (gemäß Skript Template)" borderColor="red">
+<expandable-box [title]="'ADMIN_SCRIPTS.CODE.TITLE' | translate" borderColor="red">
   <div class="row vertical-align">
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Einladen des Skript Codes aus einer Datei:</label>
+        <label>{{ 'ADMIN_SCRIPTS.CODE.IMPORT_LABEL' | translate }}</label>
         <input
           class="pull-left form-control"
           type="file"
@@ -12,7 +12,7 @@
         />
         <div class="help-block with-errors"></div>
         <div class="help-block">
-          Der Skript Code muss als Klartext Javascript Datei hochgeladen werden
+          {{ 'ADMIN_SCRIPTS.CODE.IMPORT_HELP' | translate }}
         </div>
       </div>
     </div>
@@ -21,7 +21,7 @@
   <div class="row vertical-align">
     <div class="col-md-12 col-sm-12 col-12">
       <div class="form-group">
-        <label>Vorschaufenster des Skript-Codes*</label>
+        <label>{{ 'ADMIN_SCRIPTS.CODE.PREVIEW_LABEL' | translate }}</label>
         @if (rawScriptCode()) {
           <div #scriptCodeMirrorContainer></div>
         }
@@ -38,20 +38,22 @@
     <button type="button" class="close" (click)="hideScriptCodeErrorAlert()" aria-hidden="true">
       &times;
     </button>
-    <h4><i class="icon fa fa-ban"></i> Script Code Import gescheitert</h4>
-    Beim Import des Script Codes aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
+    <h4>
+      <i class="icon fa fa-ban"></i> {{ 'ADMIN_SCRIPTS.CODE.IMPORT_FAILED_TITLE' | translate }}
+    </h4>
+    {{ 'ADMIN_SCRIPTS.CODE.IMPORT_FAILED_TEXT' | translate }}
     <br />
     <pre>{{ indicatorScriptCodeImportError() }}</pre>
     <br /><br />
     <p>
-      Bitte stellen Sie sicher, dass das
+      {{ 'ADMIN_SCRIPTS.CODE.IMPORT_FAILED_HINT_PREFIX' | translate }}
       <a
         href="./kommonitor-script-resources/kommonitor-script-template.js"
         rel="noopener noreferrer"
         target="_blank"
-        >KomMonitor Skript Template</a
+        >{{ 'ADMIN_SCRIPTS.SCRIPT_TEMPLATE_LINK' | translate }}</a
       >
-      eingehalten wird und die Datei den Code als einfachen String enth&auml;lt.
+      {{ 'ADMIN_SCRIPTS.CODE.IMPORT_FAILED_HINT_SUFFIX' | translate }}
     </p>
   </div>
 }

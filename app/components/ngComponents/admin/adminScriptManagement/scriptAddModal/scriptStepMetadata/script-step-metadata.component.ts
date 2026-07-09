@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { IndicatorMetadataStoreService } from '../../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { IndicatorsDataset } from '../../../../models/indicators.models';
 
+import { TranslateModule } from '@ngx-translate/core';
 export interface ScriptMetadata {
   name: string;
   description: string;
@@ -22,7 +23,7 @@ export interface ScriptMetadata {
   templateUrl: './script-step-metadata.component.html',
   styleUrls: ['./script-step-metadata.component.scss'],
   standalone: true,
-  imports: [FormsModule],
+  imports: [TranslateModule, FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScriptStepMetadataComponent {

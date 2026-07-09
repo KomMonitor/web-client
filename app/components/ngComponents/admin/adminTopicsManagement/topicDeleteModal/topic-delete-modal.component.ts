@@ -17,12 +17,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-topic-delete-modal',
   templateUrl: './topic-delete-modal.component.html',
   styleUrls: ['./topic-delete-modal.component.scss'],
-  imports: [LoadingOverlayComponent],
+  imports: [LoadingOverlayComponent, TranslateModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

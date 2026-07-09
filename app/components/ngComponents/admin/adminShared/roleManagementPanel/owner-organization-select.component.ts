@@ -7,6 +7,7 @@ import {
   inject,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
 import { collectCreatorRightOrganizations } from './role-management-panel.model';
@@ -27,7 +28,7 @@ import { collectCreatorRightOrganizations } from './role-management-panel.model'
 @Component({
   selector: 'app-owner-organization-select',
   templateUrl: './owner-organization-select.component.html',
-  imports: [FormsModule],
+  imports: [TranslateModule, FormsModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

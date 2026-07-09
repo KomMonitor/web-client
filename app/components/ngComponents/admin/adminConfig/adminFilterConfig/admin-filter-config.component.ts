@@ -8,6 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TranslateModule } from '@ngx-translate/core';
 import CodeMirror from 'codemirror';
 import { skip } from 'rxjs';
 
@@ -44,7 +45,7 @@ import { AdminContentViewComponent } from '../../admin-content-view/admin-conten
   selector: 'app-admin-filter-config',
   templateUrl: './admin-filter-config.component.html',
   styleUrls: ['./admin-filter-config.component.scss'],
-  imports: [AgGridAngular, ExpandableBoxComponent, AdminContentViewComponent],
+  imports: [TranslateModule, AgGridAngular, ExpandableBoxComponent, AdminContentViewComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

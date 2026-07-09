@@ -7,12 +7,13 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
 import { FilterableSelectComponent } from 'components/ngComponents/common/filterableSelect/filterable-select.component';
 import { IndicatorsDataset } from '../../../../../../../models/indicators.models';
 
+import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-script-indicators',
   templateUrl: './script-indicators.component.html',
   styleUrls: ['./script-indicators.component.scss'],
   standalone: true,
-  imports: [FormsModule, ExpandableBoxComponent, FilterableSelectComponent],
+  imports: [TranslateModule, FormsModule, ExpandableBoxComponent, FilterableSelectComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScriptIndicatorsComponent {

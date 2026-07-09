@@ -38,6 +38,7 @@ import { CommonModule } from '@angular/common';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { getErrorMessage } from '../spatial-unit-import.util';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { TranslateModule } from '@ngx-translate/core';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { ResourceMetadataFormComponent } from '../../adminShared/resourceMetadataForm/resource-metadata-form.component';
 import {
@@ -61,6 +62,7 @@ import {
     KmLinePatternPickerComponent,
     StepperComponent,
     ResourceMetadataFormComponent,
+    TranslateModule,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

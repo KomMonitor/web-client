@@ -19,6 +19,7 @@ import { RoleActionsCellRendererComponent } from './role-actions-cell-renderer.c
 import { RoleEditGroupRightsModalComponent } from './roleEditGroupRightsModal/role-edit-group-rights-modal.component';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { NotificationService } from '../../common/notification/notification.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 interface AccessControlTableEntry extends AccessControlMetadata {
   parentName?: string;
@@ -35,6 +36,7 @@ interface AccessControlTableEntry extends AccessControlMetadata {
     AdminContentViewComponent,
     ExpandableBoxComponent,
     LoadingOverlayComponent,
+    TranslateModule,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

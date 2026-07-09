@@ -15,10 +15,11 @@ import { IndicatorValueService } from 'services/indicator-value-service/indicato
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 import { ScriptRefreshRequest } from '../script-refresh.model';
 
+import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-script-delete-modal',
   templateUrl: './script-delete-modal.component.html',
-  imports: [],
+  imports: [TranslateModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -1,6 +1,6 @@
 <div class="modal-header">
   <h4 class="modal-title">
-    <b>Globale Filter editieren {{ filterName }}</b>
+    <b>{{ 'ADMIN_CONFIG.FILTER_EDIT.TITLE' | translate }} {{ filterName }}</b>
   </h4>
   <button
     type="button"
@@ -10,7 +10,7 @@
   ></button>
 </div>
 <div class="modal-body">
-  <label for="filter-name">Filter-Name (Bezeichnung im Web-Client)</label>
+  <label for="filter-name">{{ 'ADMIN_CONFIG.FILTER_EDIT.NAME_LABEL' | translate }}</label>
   <input
     type="text"
     name="filter-name"
@@ -34,13 +34,17 @@
         <!-- fieldsets -->
         @if (stepper.isActive('indicators')) {
           <fieldset>
-            <h2 class="fs-title">Indikatoren</h2>
-            <h3 class="fs-subtitle">Auswahl der sichtbaren Indikatoren</h3>
+            <h2 class="fs-title">{{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATORS_TITLE' | translate }}</h2>
+            <h3 class="fs-subtitle">
+              {{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATORS_SUBTITLE' | translate }}
+            </h3>
 
             <div class="row">
               <div class="col-md-12 col-sm-12 col-12" ng-show="permissions.length != 0">
                 <div class="form-group vertical-align">
-                  <label class="margin-right">Zeige nur zugewiesene Indikatoren</label>
+                  <label class="margin-right">{{
+                    'ADMIN_CONFIG.FILTER_EDIT.SHOW_ASSIGNED_INDICATORS' | translate
+                  }}</label>
                   <label class="switch">
                     <input
                       type="checkbox"
@@ -74,7 +78,7 @@
               type="button"
               name="next"
               class="next next_editAdminFilter action-button"
-              value="N&auml;chster Schritt"
+              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
               (click)="stepper.next()"
             />
           </fieldset>
@@ -82,13 +86,19 @@
 
         @if (stepper.isActive('indicatorTopics')) {
           <fieldset>
-            <h2 class="fs-title">Indikator-Themen</h2>
-            <h3 class="fs-subtitle">Auswahl der Indikator-spezifischen Themen</h3>
+            <h2 class="fs-title">
+              {{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATOR_TOPICS_TITLE' | translate }}
+            </h2>
+            <h3 class="fs-subtitle">
+              {{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATOR_TOPICS_SUBTITLE' | translate }}
+            </h3>
 
             <div class="row">
               <div class="col-md-12 col-sm-12 col-12" ng-show="permissions.length != 0">
                 <div class="form-group vertical-align">
-                  <label class="margin-right">Zeige nur zugewiesene Themen</label>
+                  <label class="margin-right">{{
+                    'ADMIN_CONFIG.FILTER_EDIT.SHOW_ASSIGNED_TOPICS' | translate
+                  }}</label>
                   <label class="switch">
                     <input
                       type="checkbox"
@@ -132,14 +142,14 @@
               type="button"
               name="previous"
               class="previous previous_editAdminFilter action-button-previous"
-              value="Voriger Schritt"
+              [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
               (click)="stepper.previous()"
             />
             <input
               type="button"
               name="next"
               class="next next_editAdminFilter action-button"
-              value="N&auml;chster Schritt"
+              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
               (click)="stepper.next()"
             />
           </fieldset>
@@ -147,13 +157,19 @@
 
         @if (stepper.isActive('georesources')) {
           <fieldset>
-            <h2 class="fs-title">Georesourcen</h2>
-            <h3 class="fs-subtitle">Auswahl der sichtbaren Georesourcen</h3>
+            <h2 class="fs-title">
+              {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCES_TITLE' | translate }}
+            </h2>
+            <h3 class="fs-subtitle">
+              {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCES_SUBTITLE' | translate }}
+            </h3>
 
             <div class="row">
               <div class="col-md-12 col-sm-12 col-12" ng-show="permissions.length != 0">
                 <div class="form-group vertical-align">
-                  <label class="margin-right">Zeige nur zugewiesene Georesourcen</label>
+                  <label class="margin-right">{{
+                    'ADMIN_CONFIG.FILTER_EDIT.SHOW_ASSIGNED_GEORESOURCES' | translate
+                  }}</label>
                   <label class="switch">
                     <input
                       type="checkbox"
@@ -181,14 +197,14 @@
               type="button"
               name="previous"
               class="previous previous_editAdminFilter action-button-previous"
-              value="Voriger Schritt"
+              [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
               (click)="stepper.previous()"
             />
             <input
               type="button"
               name="next"
               class="next next_editAdminFilter action-button"
-              value="N&auml;chster Schritt"
+              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
               (click)="stepper.next()"
             />
           </fieldset>
@@ -196,13 +212,19 @@
 
         @if (stepper.isActive('georesourceTopics')) {
           <fieldset>
-            <h2 class="fs-title">Georesource-Themen</h2>
-            <h3 class="fs-subtitle">Auswahl der Georesource-spezifischen Themen</h3>
+            <h2 class="fs-title">
+              {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCE_TOPICS_TITLE' | translate }}
+            </h2>
+            <h3 class="fs-subtitle">
+              {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCE_TOPICS_SUBTITLE' | translate }}
+            </h3>
 
             <div class="row">
               <div class="col-md-12 col-sm-12 col-12" ng-show="permissions.length != 0">
                 <div class="form-group vertical-align">
-                  <label class="margin-right">Zeige nur zugewiesene Themen</label>
+                  <label class="margin-right">{{
+                    'ADMIN_CONFIG.FILTER_EDIT.SHOW_ASSIGNED_TOPICS' | translate
+                  }}</label>
                   <label class="switch">
                     <input
                       type="checkbox"
@@ -246,7 +268,7 @@
               type="button"
               name="previous"
               class="previous previous_editAdminFilter action-button-previous"
-              value="Voriger Schritt"
+              [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
               (click)="stepper.previous()"
             />
           </fieldset>
@@ -266,7 +288,7 @@
         class="btn btn-outline-secondary"
         (click)="activeModal.close('Close click')"
       >
-        Schlie&szlig;en
+        {{ 'ADMIN_SHARED.CLOSE' | translate }}
       </button>
     </div>
   </div>

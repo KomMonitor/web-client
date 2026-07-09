@@ -1,4 +1,5 @@
 import { HttpClient } from '@angular/common/http';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -35,6 +36,7 @@ import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-ste
   templateUrl: './wms-add-modal.component.html',
   styleUrls: ['./wms-add-modal.component.scss'],
   imports: [
+    TranslateModule,
     FormsModule,
     ReactiveFormsModule,
     AdminTopicsManagementComponent,

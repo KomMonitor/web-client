@@ -40,6 +40,7 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 import { FeatureTableDataGridHelperService } from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-georesource-edit-features-modal',
@@ -51,6 +52,7 @@ import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-ste
     SingleFeatureEditComponent,
     StepperComponent,
     KmDatePickerComponent,
+    TranslateModule,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

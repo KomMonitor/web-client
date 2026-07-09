@@ -56,6 +56,7 @@ import {
 import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
 import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
 import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManagementPanel/owner-organization-select.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-georesource-add-modal',
@@ -70,6 +71,7 @@ import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManageme
     ResourceMetadataFormComponent,
     RoleManagementGridComponent,
     OwnerOrganizationSelectComponent,
+    TranslateModule,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

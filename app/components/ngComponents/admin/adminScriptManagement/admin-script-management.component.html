@@ -1,6 +1,6 @@
 <app-admin-content-view
-  title="Skriptverwaltung"
-  description="Steuerung der semi-automatisierten Indikatorenberechnung"
+  [title]="'ADMIN_SCRIPTS.MANAGEMENT.TITLE' | translate"
+  [description]="'ADMIN_SCRIPTS.MANAGEMENT.DESCRIPTION' | translate"
   [controlsTemplate]="controls"
   [contentTemplate]="content"
 ></app-admin-content-view>
@@ -8,7 +8,7 @@
 <ng-template #controls>
   <!-- TODO: needs to be integrated in button [disabled]="!dataExchangeService.checkCreatePermission()" -->
   <button class="btn btn-success btn-sm" type="button" (click)="onClickAddScript()">
-    <i class="fas fa-plus"></i> Erstellen
+    <i class="fas fa-plus"></i> {{ 'ADMIN_SHARED.CREATE' | translate }}
   </button>
 
   <!-- TODO: needs to be integrated in button [disabled]="!dataExchangeService.checkDeletePermission() || selectedRows.length === 0" -->
@@ -18,7 +18,7 @@
     [disabled]="selectedRows().length === 0"
     (click)="onClickDeleteScripts()"
   >
-    <i class="fas fa-trash"></i> Löschen
+    <i class="fas fa-trash"></i> {{ 'ADMIN_SHARED.DELETE' | translate }}
   </button>
 </ng-template>
 

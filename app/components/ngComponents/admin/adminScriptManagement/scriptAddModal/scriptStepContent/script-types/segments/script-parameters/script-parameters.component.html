@@ -1,39 +1,35 @@
-<expandable-box title="Optionale Skript-Parameter" borderColor="red">
-  <p>
-    Ein Skript-Parameter besteht aus einem <b>Namen</b>, einer <b>Beschreibung</b>, einem
-    festgelegten <b>Datentyp</b>, und einem <b>Standard-Wert</b>. Bei numerischen Parametern kann
-    darüber hinaus der gültige Wertebereich festgelegt werden.
-  </p>
+<expandable-box [title]="'ADMIN_SCRIPTS.PARAMETERS.TITLE' | translate" borderColor="red">
+  <p [innerHTML]="'ADMIN_SCRIPTS.PARAMETERS.INTRO' | translate"></p>
 
   <div class="row vertical-align">
     <div class="col-md-4 col-sm-6 col-12">
       <div class="form-group">
-        <label>Parametername*</label>
+        <label>{{ 'ADMIN_SCRIPTS.PARAMETERS.NAME_LABEL' | translate }}</label>
         <input
           type="text"
           class="form-control"
           [(ngModel)]="parameterName_tmp"
-          placeholder="Name"
+          [placeholder]="'ADMIN_SHARED.NAME' | translate"
           required
         />
         <div class="help-block with-errors"></div>
         <div class="help-block">
-          <p>Name des anzulegenden Skript-Parameters.</p>
+          <p>{{ 'ADMIN_SCRIPTS.PARAMETERS.NAME_HELP' | translate }}</p>
         </div>
       </div>
     </div>
     <div class="col-md-8 col-sm-6 col-12">
       <div class="form-group">
-        <label>Beschreibung*</label>
+        <label>{{ 'ADMIN_SCRIPTS.PARAMETERS.DESCRIPTION_LABEL' | translate }}</label>
         <textarea
           rows="3"
           class="form-control"
           [(ngModel)]="parameterDescription_tmp"
-          placeholder="Beschreibung"
+          [placeholder]="'ADMIN_SHARED.DESCRIPTION' | translate"
           required
         ></textarea>
         <div class="help-block">
-          <p>Hinweise über die Verwendung des Parameters innerhalb des Skripts</p>
+          <p>{{ 'ADMIN_SCRIPTS.PARAMETERS.DESCRIPTION_HELP' | translate }}</p>
         </div>
         <div class="help-block with-errors"></div>
       </div>
@@ -44,14 +40,16 @@
     <!-- Datentyp -->
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Datentyp des Parameters*</label>
+        <label>{{ 'ADMIN_SCRIPTS.PARAMETERS.DATA_TYPE_LABEL' | translate }}</label>
         <select
           [(ngModel)]="parameterDataType_tmp"
           size="5"
           class="form-control"
           (ngModelChange)="onChangeParameterDataType()"
         >
-          <option disabled selected [ngValue]="undefined">-- Parameter-Datentyp wählen --</option>
+          <option disabled selected [ngValue]="undefined">
+            {{ 'ADMIN_SCRIPTS.PARAMETERS.DATA_TYPE_PLACEHOLDER' | translate }}
+          </option>
           @for (dataType of scriptHelperService.availableScriptDataTypes; track dataType) {
             <option [ngValue]="dataType">
               {{ dataType.displayName }}
@@ -65,14 +63,14 @@
     <!-- Standard-Wert -->
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Standard-Wert*</label>
+        <label>{{ 'ADMIN_SCRIPTS.PARAMETERS.DEFAULT_VALUE_LABEL' | translate }}</label>
         @if (parameterDataType_tmp?.apiName === 'string') {
           <div>
             <input
               type="text"
               class="form-control"
               [(ngModel)]="parameterDefaultValue_tmp"
-              placeholder="textueller Standard-Wert"
+              [placeholder]="'ADMIN_SCRIPTS.PARAMETERS.DEFAULT_STRING_PLACEHOLDER' | translate"
               required
             />
           </div>
@@ -89,7 +87,7 @@
               step="1"
               class="form-control"
               [(ngModel)]="parameterDefaultValue_tmp"
-              placeholder="Ganzzahl Standard-Wert"
+              [placeholder]="'ADMIN_SCRIPTS.PARAMETERS.DEFAULT_INTEGER_PLACEHOLDER' | translate"
               required
             />
           </div>
@@ -101,20 +99,17 @@
               step="0.000000001"
               class="form-control"
               [(ngModel)]="parameterDefaultValue_tmp"
-              placeholder="Gleitkommazahl Standard-Wert"
+              [placeholder]="'ADMIN_SCRIPTS.PARAMETERS.DEFAULT_DOUBLE_PLACEHOLDER' | translate"
               required
             />
             <div class="help-block">
-              <p>Maximal 8 Nachkommastellen.</p>
+              <p>{{ 'ADMIN_SCRIPTS.PARAMETERS.MAX_DECIMALS_HELP' | translate }}</p>
             </div>
           </div>
         }
         <div class="help-block with-errors"></div>
         <div class="help-block">
-          <p>
-            Standard-Wert des anzulegenden Skript-Parameters, dessen Wert bei automatisierten
-            Indikatoren-Zeitreihen-Fortführung für diesen Parameter gesetzt wird.
-          </p>
+          <p>{{ 'ADMIN_SCRIPTS.PARAMETERS.DEFAULT_VALUE_HELP' | translate }}</p>
         </div>
       </div>
     </div>
@@ -123,20 +118,17 @@
     @if (parameterDataType_tmp?.apiName === 'integer') {
       <div class="col-md-3 col-sm-6 col-12">
         <div class="form-group">
-          <label>Minimaler Wert (untere Gültigkeitsgrenze)*</label>
+          <label>{{ 'ADMIN_SCRIPTS.PARAMETERS.MIN_VALUE_LABEL' | translate }}</label>
           <input
             type="number"
             step="1"
             class="form-control"
             [(ngModel)]="parameterNumericMinValue_tmp"
-            placeholder="Ganzzahl Min-Wert"
+            [placeholder]="'ADMIN_SCRIPTS.PARAMETERS.INTEGER_MIN_PLACEHOLDER' | translate"
           />
           <div class="help-block with-errors"></div>
           <div class="help-block">
-            <p>
-              Minimaler Wert des anzulegenden numerischen Skript-Parameters im Sinne eines
-              Gültigkeitsbereichs. Maximal 8 Nachkommastellen
-            </p>
+            <p>{{ 'ADMIN_SCRIPTS.PARAMETERS.MIN_VALUE_HELP' | translate }}</p>
           </div>
         </div>
       </div>
@@ -146,20 +138,17 @@
     @if (parameterDataType_tmp?.apiName === 'integer') {
       <div class="col-md-3 col-sm-6 col-12">
         <div class="form-group">
-          <label>Maximaler Wert (obere Gültigkeitsgrenze)*</label>
+          <label>{{ 'ADMIN_SCRIPTS.PARAMETERS.MAX_VALUE_LABEL' | translate }}</label>
           <input
             type="number"
             step="1"
             class="form-control"
             [(ngModel)]="parameterNumericMaxValue_tmp"
-            placeholder="Ganzzahl Max-Wert"
+            [placeholder]="'ADMIN_SCRIPTS.PARAMETERS.INTEGER_MAX_PLACEHOLDER' | translate"
           />
           <div class="help-block with-errors"></div>
           <div class="help-block">
-            <p>
-              Maximaler Wert des anzulegenden numerischen Skript-Parameters im Sinne eines
-              Gültigkeitsbereichs. Maximal 8 Nachkommastellen
-            </p>
+            <p>{{ 'ADMIN_SCRIPTS.PARAMETERS.MAX_VALUE_HELP' | translate }}</p>
           </div>
         </div>
       </div>
@@ -169,20 +158,17 @@
     @if (parameterDataType_tmp?.apiName === 'double') {
       <div class="col-md-3 col-sm-6 col-12">
         <div class="form-group">
-          <label>Minimaler Wert (untere Gültigkeitsgrenze)*</label>
+          <label>{{ 'ADMIN_SCRIPTS.PARAMETERS.MIN_VALUE_LABEL' | translate }}</label>
           <input
             type="number"
             step="0.000000001"
             class="form-control"
             [(ngModel)]="parameterNumericMinValue_tmp"
-            placeholder="Gleitkommazahl Min-Wert"
+            [placeholder]="'ADMIN_SCRIPTS.PARAMETERS.DOUBLE_MIN_PLACEHOLDER' | translate"
           />
           <div class="help-block with-errors"></div>
           <div class="help-block">
-            <p>
-              Minimaler Wert des anzulegenden numerischen Skript-Parameters im Sinne eines
-              Gültigkeitsbereichs. Maximal 8 Nachkommastellen
-            </p>
+            <p>{{ 'ADMIN_SCRIPTS.PARAMETERS.MIN_VALUE_HELP' | translate }}</p>
           </div>
         </div>
       </div>
@@ -192,20 +178,17 @@
     @if (parameterDataType_tmp?.apiName === 'double') {
       <div class="col-md-3 col-sm-6 col-12">
         <div class="form-group">
-          <label>Maximaler Wert (obere Gültigkeitsgrenze)*</label>
+          <label>{{ 'ADMIN_SCRIPTS.PARAMETERS.MAX_VALUE_LABEL' | translate }}</label>
           <input
             type="number"
             step="0.000000001"
             class="form-control"
             [(ngModel)]="parameterNumericMaxValue_tmp"
-            placeholder="Gleitkommazahl Max-Wert"
+            [placeholder]="'ADMIN_SCRIPTS.PARAMETERS.DOUBLE_MAX_PLACEHOLDER' | translate"
           />
           <div class="help-block with-errors"></div>
           <div class="help-block">
-            <p>
-              Maximaler Wert des anzulegenden numerischen Skript-Parameters im Sinne eines
-              Gültigkeitsbereichs. Maximal 8 Nachkommastellen
-            </p>
+            <p>{{ 'ADMIN_SCRIPTS.PARAMETERS.MAX_VALUE_HELP' | translate }}</p>
           </div>
         </div>
       </div>
@@ -220,7 +203,7 @@
           [disabled]="isAddParameterDisabled()"
           (click)="onAddScriptParameter()"
         >
-          Hinzufügen
+          {{ 'ADMIN_SCRIPTS.ADD' | translate }}
         </button>
         <div class="help-block with-errors"></div>
       </div>
@@ -232,17 +215,17 @@
   <!-- Tabelle der definierten Skript-Parameter -->
   <div class="row vertical-align">
     <div class="col-md-12 col-sm-12 col-12">
-      <label>Übersicht der definierten Skript-Parameter</label>
+      <label>{{ 'ADMIN_SCRIPTS.PARAMETERS.OVERVIEW_LABEL' | translate }}</label>
       <table class="table table-condensed">
         <thead>
           <tr>
-            <th>Editierfunktionen</th>
-            <th>Name des Parameters</th>
-            <th>Beschreibung</th>
-            <th>Datentyp</th>
-            <th>Standard-Wert</th>
-            <th>Min-Wert</th>
-            <th>Max-Wert</th>
+            <th>{{ 'ADMIN_SHARED.EDIT_FUNCTIONS' | translate }}</th>
+            <th>{{ 'ADMIN_SCRIPTS.PARAMETERS.PARAMETER_NAME' | translate }}</th>
+            <th>{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}</th>
+            <th>{{ 'ADMIN_SCRIPTS.PARAMETERS.DATA_TYPE' | translate }}</th>
+            <th>{{ 'ADMIN_SCRIPTS.PARAMETERS.DEFAULT_VALUE' | translate }}</th>
+            <th>{{ 'ADMIN_SCRIPTS.PARAMETERS.MIN_VALUE' | translate }}</th>
+            <th>{{ 'ADMIN_SCRIPTS.PARAMETERS.MAX_VALUE' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -257,7 +240,7 @@
                     class="btn btn-danger btn-sm"
                     type="button"
                     (click)="scriptHelperService.removeScriptParameter(scriptParameter)"
-                    title="Eintrag löschen"
+                    [title]="'ADMIN_SCRIPTS.DELETE_ENTRY' | translate"
                   >
                     <i class="fas fa-trash"></i>
                   </button>

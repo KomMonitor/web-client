@@ -1,9 +1,9 @@
 <div class="modal-header">
   <h4 class="modal-title">
     @if (state.editMode) {
-      Indikator bearbeiten
+      {{ 'ADMIN_INDICATORS.ADD_MODAL.TITLE_EDIT' | translate }}
     } @else {
-      Neuen Indikator registrieren
+      {{ 'ADMIN_INDICATORS.ADD_MODAL.TITLE_CREATE' | translate }}
     }
   </h4>
   <button type="button" class="btn-close" aria-label="Close" (click)="cancel()"></button>
@@ -68,14 +68,18 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="cancel()">Schließen</button>
+  <button type="button" class="btn btn-default pull-left" (click)="cancel()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
   <button
     type="button"
     class="btn btn-info pull-left"
     (click)="onImportIndicatorAddMetadata()"
-    title="Importieren der Metadaten aus einer Datei"
+    [title]="'ADMIN_INDICATORS.ADD_MODAL.METADATA_IMPORT_TOOLTIP' | translate"
   >
-    <i class="fas fa-file-import"></i>&nbsp;&nbsp;Metadaten-Import
+    <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
+      'ADMIN_INDICATORS.ADD_MODAL.METADATA_IMPORT' | translate
+    }}
   </button>
   <input
     style="display: none"
@@ -91,33 +95,39 @@
     style="margin-left: 6px"
     class="btn btn-info pull-left"
     (click)="state.onExportIndicatorAddMetadata()"
-    title="Exportieren der Metadaten in eine Datei"
+    [title]="'ADMIN_INDICATORS.ADD_MODAL.METADATA_EXPORT_TOOLTIP' | translate"
   >
-    <i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export
+    <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
+      'ADMIN_INDICATORS.ADD_MODAL.METADATA_EXPORT' | translate
+    }}
   </button>
 
   <div style="flex: 1"></div>
 
   <button type="button" class="btn btn-success" (click)="addIndicator()">
     @if (state.editMode) {
-      Änderungen speichern
+      {{ 'ADMIN_INDICATORS.ADD_MODAL.SAVE_CHANGES' | translate }}
     } @else {
-      Indikator-Metadaten registrieren
+      {{ 'ADMIN_INDICATORS.ADD_MODAL.REGISTER' | translate }}
     }
   </button>
-  <button type="button" class="btn btn-danger" (click)="state.resetForm()">Zurücksetzen</button>
+  <button type="button" class="btn btn-danger" (click)="state.resetForm()">
+    {{ 'ADMIN_INDICATORS.RESET' | translate }}
+  </button>
 </div>
 
 <!-- Missing required fields dialog (shown before sending when validation fails) -->
 <ng-template #missingFieldsModal let-modal>
   <div class="modal-header">
     <h4 class="modal-title">
-      <i class="fa fa-exclamation-triangle"></i>&nbsp;Pflichtfelder unvollständig
+      <i class="fa fa-exclamation-triangle"></i>&nbsp;{{
+        'ADMIN_INDICATORS.ADD_MODAL.MISSING_FIELDS_TITLE' | translate
+      }}
     </h4>
     <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
   </div>
   <div class="modal-body">
-    <p>Bitte füllen Sie die folgenden Pflichtfelder aus, bevor der Indikator registriert wird:</p>
+    <p>{{ 'ADMIN_INDICATORS.ADD_MODAL.MISSING_FIELDS_INTRO' | translate }}</p>
     <ul>
       @for (field of missingFields; track field.label) {
         <li>{{ field.label }}</li>
@@ -125,7 +135,9 @@
     </ul>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-default" (click)="modal.close()">Verstanden</button>
+    <button type="button" class="btn btn-default" (click)="modal.close()">
+      {{ 'ADMIN_INDICATORS.ADD_MODAL.MISSING_FIELDS_OK' | translate }}
+    </button>
   </div>
 </ng-template>
 
@@ -140,16 +152,26 @@
       &times;
     </button>
     @if (state.editMode) {
-      <h4><i class="icon fa fa-check"></i>Indikator-Metadaten aktualisiert</h4>
+      <h4>
+        <i class="icon fa fa-check"></i
+        >{{ 'ADMIN_INDICATORS.ADD_MODAL.SUCCESS_UPDATED_TITLE' | translate }}
+      </h4>
       <p>
-        Die Metadaten des Indikators {{ state.successMessagePart }} wurden in KomMonitor
-        aktualisiert.
+        {{
+          'ADMIN_INDICATORS.ADD_MODAL.SUCCESS_UPDATED_TEXT'
+            | translate: { name: state.successMessagePart }
+        }}
       </p>
     } @else {
-      <h4><i class="icon fa fa-check"></i>Indikator-Metadaten registriert</h4>
+      <h4>
+        <i class="icon fa fa-check"></i
+        >{{ 'ADMIN_INDICATORS.ADD_MODAL.SUCCESS_CREATED_TITLE' | translate }}
+      </h4>
       <p>
-        Eine neuer Indikator mit Namen {{ state.successMessagePart }} wurde in KomMonitor
-        registriert und in die Übersichtstabelle eingetragen.
+        {{
+          'ADMIN_INDICATORS.ADD_MODAL.SUCCESS_CREATED_TEXT'
+            | translate: { name: state.successMessagePart }
+        }}
       </p>
     }
   </div>
@@ -165,8 +187,10 @@
     <button type="button" class="close" (click)="state.hideErrorAlert()" aria-hidden="true">
       &times;
     </button>
-    <h4><i class="icon fa fa-ban"></i>Registrierung gescheitert</h4>
-    Bei der Registrierung des Indikators ist ein Fehler aufgetreten. Fehlermeldung:
+    <h4>
+      <i class="icon fa fa-ban"></i>{{ 'ADMIN_INDICATORS.ADD_MODAL.ERROR_TITLE' | translate }}
+    </h4>
+    {{ 'ADMIN_INDICATORS.ADD_MODAL.ERROR_TEXT' | translate }}
     <br />
     <pre style="overflow: auto; max-height: 500px" [innerHTML]="state.errorMessagePart"></pre>
     <br />
@@ -184,13 +208,16 @@
     <button type="button" class="close" (click)="state.hideMetadataErrorAlert()" aria-hidden="true">
       &times;
     </button>
-    <h4><i class="icon fa fa-ban"></i>Metadata Import gescheitert</h4>
-    Beim Import der Metadaten aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
+    <h4>
+      <i class="icon fa fa-ban"></i
+      >{{ 'ADMIN_INDICATORS.ADD_MODAL.IMPORT_ERROR_TITLE' | translate }}
+    </h4>
+    {{ 'ADMIN_INDICATORS.ADD_MODAL.IMPORT_ERROR_TEXT' | translate }}
     <br />
     <pre>{{ state.indicatorMetadataImportError }}</pre>
     <br />
     <br />
-    <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
+    <p>{{ 'ADMIN_INDICATORS.ADD_MODAL.IMPORT_ERROR_FORMAT_HINT' | translate }}</p>
     <pre id="indicatorsAddMetadataPre" style="overflow: auto; max-height: 500px">{{
       state.indicatorMetadataStructure_pretty
     }}</pre>

@@ -1,12 +1,12 @@
 <app-admin-content-view
-  title="Verwalten der Indikatoren"
-  description="Info"
+  [title]="'ADMIN_INDICATORS.OVERVIEW.TITLE' | translate"
+  [description]="'ADMIN_SHARED.INFO' | translate"
   [controlsTemplate]="controls"
   [contentTemplate]="content"
 >
 </app-admin-content-view>
 <ng-template #controls>
-  <div>Nur editierbare Datensätze anzeigen</div>
+  <div>{{ 'ADMIN_SHARED.SHOW_ONLY_EDITABLE' | translate }}</div>
   <div>
     <label class="switch">
       <input
@@ -24,21 +24,23 @@
     [disabled]="!checkEditorPermission()"
     (click)="onClickBatchUpdate()"
   >
-    <i class="fas fa-refresh"></i>&nbsp;&nbsp;Batch-Update
+    <i class="fas fa-refresh"></i>&nbsp;&nbsp;{{ 'ADMIN_INDICATORS.BATCH_UPDATE' | translate }}
   </button>
   <div ngbDropdown class="d-inline-block">
-    <button class="btn btn-success btn-sm" ngbDropdownToggle>+ Erstellen</button>
+    <button class="btn btn-success btn-sm" ngbDropdownToggle>
+      + {{ 'ADMIN_SHARED.CREATE' | translate }}
+    </button>
 
     <div ngbDropdownMenu class="addButton_dropdownWrapper">
       <button ngbDropdownItem type="button" (click)="openAddIndicatorModal()">
-        Indikator erstellen
+        {{ 'ADMIN_INDICATORS.OVERVIEW.CREATE_INDICATOR' | translate }}
       </button>
       <button
         ngbDropdownItem
         type="button"
         (click)="wmsSharedComponentsService.openAddModal(WmsResourceType.INDICATOR)"
       >
-        WMS erstellen
+        {{ 'ADMIN_INDICATORS.OVERVIEW.CREATE_WMS' | translate }}
       </button>
     </div>
   </div>
@@ -49,12 +51,12 @@
     [disabled]="!checkDeletePermission()"
     (click)="openDeleteIndicatorModal()"
   >
-    <i class="fas fa-trash"></i>&nbsp;&nbsp;Löschen
+    <i class="fas fa-trash"></i>&nbsp;&nbsp;{{ 'ADMIN_SHARED.DELETE' | translate }}
   </button>
 </ng-template>
 
 <ng-template #content>
-  <expandable-box title="Indikatoren-Metadaten">
+  <expandable-box [title]="'ADMIN_INDICATORS.OVERVIEW.METADATA_BOX' | translate">
     <ag-grid-angular
       #agGrid
       style="height: 70vh"

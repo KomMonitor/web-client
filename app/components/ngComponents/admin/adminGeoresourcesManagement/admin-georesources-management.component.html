@@ -1,13 +1,13 @@
 <app-admin-content-view
-  title="Verwalten der Geodaten"
-  description="Info"
+  [title]="'ADMIN_GEORESOURCES.TITLE' | translate"
+  [description]="'ADMIN_SHARED.INFO' | translate"
   [controlsTemplate]="controls"
   [contentTemplate]="content"
 >
 </app-admin-content-view>
 
 <ng-template #controls>
-  <span>Nur editierbare Datensätze anzeigen</span>
+  <span>{{ 'ADMIN_SHARED.SHOW_ONLY_EDITABLE' | translate }}</span>
   <div>
     <label class="switch">
       <input
@@ -19,18 +19,20 @@
     </label>
   </div>
   <div ngbDropdown class="d-inline-block">
-    <button class="btn btn-success btn-sm" ngbDropdownToggle>+ Erstellen</button>
+    <button class="btn btn-success btn-sm" ngbDropdownToggle>
+      + {{ 'ADMIN_SHARED.CREATE' | translate }}
+    </button>
 
     <div ngbDropdownMenu class="addButton_dropdownWrapper">
       <button ngbDropdownItem type="button" (click)="onClickAddGeoresource()">
-        POI / LOI / AOI erstellen
+        {{ 'ADMIN_GEORESOURCES.CREATE_POI_LOI_AOI' | translate }}
       </button>
       <button
         ngbDropdownItem
         type="button"
         (click)="wmsSharedComponentsService.openAddModal(WmsResourceType.GEORESOURCE)"
       >
-        WMS erstellen
+        {{ 'ADMIN_GEORESOURCES.CREATE_WMS' | translate }}
       </button>
     </div>
   </div>
