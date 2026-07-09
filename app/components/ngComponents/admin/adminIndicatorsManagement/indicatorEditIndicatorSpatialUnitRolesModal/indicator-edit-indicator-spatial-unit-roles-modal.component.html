@@ -48,7 +48,7 @@
           <p>{{ 'ADMIN_INDICATORS.EDIT_ROLES.EXPLICIT_RIGHTS_NOTE' | translate }}</p>
           <div class="row">
             <div class="col-md-3">
-              <label>{{ 'ADMIN_INDICATORS.PUBLIC_READ' | translate }}*</label>
+              <label>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label>
               @if (currentIndicatorDataset; as dataset) {
                 <label class="switch">
                   <input
@@ -61,7 +61,7 @@
                 </label>
               }
               <div class="help-block">
-                <p>{{ 'ADMIN_INDICATORS.PUBLIC_READ_HINT' | translate }}</p>
+                <p>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ_HINT' | translate }}</p>
               </div>
             </div>
             <div class="col-md-6 col-sm-6 col-12">
@@ -75,7 +75,7 @@
             </div>
             <div class="col-md-3">
               <div class="alert alert-info">
-                {{ 'ADMIN_INDICATORS.OWNER_RIGHTS_INFO' | translate }}
+                {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_RIGHTS_INFO' | translate }}
               </div>
             </div>
           </div>
@@ -83,7 +83,7 @@
             type="button"
             name="next"
             class="next next_editIndicatorRoles action-button"
-            [value]="'ADMIN_INDICATORS.NEXT_STEP' | translate"
+            [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
             (click)="stepper.next()"
           />
         </fieldset>
@@ -119,7 +119,7 @@
                 }
               </select>
               <br />
-              <label>{{ 'ADMIN_INDICATORS.PUBLIC_READ' | translate }}*</label>
+              <label>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label>
               @if (targetApplicableSpatialUnit; as spatialUnit) {
                 <label class="switch">
                   <input
@@ -132,7 +132,7 @@
                 </label>
               }
               <div class="help-block">
-                <p>{{ 'ADMIN_INDICATORS.PUBLIC_READ_HINT' | translate }}</p>
+                <p>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ_HINT' | translate }}</p>
               </div>
               <div class="form-group">
                 <div class="help-block with-errors"></div>
@@ -152,23 +152,23 @@
             type="button"
             name="next"
             class="next next_editIndicatorRoles action-button"
-            [value]="'ADMIN_INDICATORS.NEXT_STEP' | translate"
+            [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
             (click)="stepper.next()"
           />
           <input
             type="button"
             name="previous"
             class="previous previous_editIndicatorRoles action-button-previous"
-            [value]="'ADMIN_INDICATORS.PREVIOUS_STEP' | translate"
+            [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
             (click)="stepper.previous()"
           />
         </fieldset>
 
         <!-- Step 3: Eigentümerschaft -->
         <fieldset [style.display]="stepper.isActive('ownership') ? 'block' : 'none'">
-          <h2 class="fs-title">{{ 'ADMIN_INDICATORS.EDIT_ROLES.OWNERSHIP_TITLE' | translate }}</h2>
+          <h2 class="fs-title">{{ 'ADMIN_SHARED_UI.SECURITY.OWNERSHIP_TITLE' | translate }}</h2>
           <h3 class="fs-subtitle">
-            {{ 'ADMIN_INDICATORS.EDIT_ROLES.OWNERSHIP_SUBTITLE' | translate }}
+            {{ 'ADMIN_SHARED_UI.SECURITY.OWNERSHIP_SUBTITLE' | translate }}
           </h3>
           <div class="alert alert-danger">
             {{ 'ADMIN_INDICATORS.EDIT_ROLES.OWNERSHIP_WARNING_1' | translate }}<br />{{
@@ -184,7 +184,7 @@
             type="button"
             name="previous"
             class="previous previous_editIndicatorRoles action-button-previous"
-            [value]="'ADMIN_INDICATORS.PREVIOUS_STEP' | translate"
+            [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
             (click)="stepper.previous()"
           />
         </fieldset>
@@ -205,6 +205,6 @@
     class="btn btn-danger"
     (click)="resetIndicatorEditIndicatorSpatialUnitRolesForm()"
   >
-    {{ 'ADMIN_INDICATORS.RESET' | translate }}
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
 </div>

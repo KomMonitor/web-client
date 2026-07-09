@@ -85,7 +85,7 @@
         </div>
         @if (configSettingInvalid()) {
           <div class="help-block with-errors">
-            {{ 'ADMIN_CONFIG.COMMON.INVALID_HINT_JSON' | translate }}
+            {{ 'ADMIN_CONFIG.COMMON.INVALID_HINT' | translate: { format: 'JSON' } }}
           </div>
         }
         @if (missingRequiredParameters().length > 0) {

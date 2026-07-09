@@ -81,13 +81,13 @@
   <div class="stepper-buttons">
     @if (stepper.currentStep > 1) {
       <button type="button" class="btn btn-primary" (click)="stepper.previous()">
-        &lt; {{ 'ADMIN_SCRIPTS.ADD_MODAL.PREVIOUS_STEP' | translate }}
+        &lt; {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
       </button>
     }
 
     @if (stepper.currentStep < stepper.totalSteps) {
       <button type="button" class="btn btn-primary" (click)="stepper.next()">
-        {{ 'ADMIN_SCRIPTS.ADD_MODAL.NEXT_STEP' | translate }} &gt;
+        {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }} &gt;
       </button>
     }
   </div>
@@ -106,6 +106,6 @@
   </button>
 
   <button type="button" class="btn btn-danger" (click)="resetForm()">
-    {{ 'ADMIN_SCRIPTS.ADD_MODAL.RESET' | translate }}
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
 </div>

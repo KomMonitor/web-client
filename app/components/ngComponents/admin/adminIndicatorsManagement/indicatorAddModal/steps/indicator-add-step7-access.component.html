@@ -1,15 +1,15 @@
 <div>
-  <h2 class="fs-title">{{ 'ADMIN_INDICATORS.ACCESS_AND_OWNERSHIP' | translate }}</h2>
+  <h2 class="fs-title">{{ 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE' | translate }}</h2>
   <h3 class="fs-subtitle">{{ 'ADMIN_INDICATORS.STEP_ACCESS.SUBTITLE' | translate }}</h3>
   <p>
     <b
-      ><i>{{ 'ADMIN_INDICATORS.REQUIRED_FIELD' | translate }}</i></b
+      ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
     >
   </p>
   <div class="row vertical-align">
     <div class="col-md-12">
       <div class="form-group">
-        <label>{{ 'ADMIN_INDICATORS.ACCESS_AND_OWNERSHIP' | translate }}</label>
+        <label>{{ 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE' | translate }}</label>
         <div class="alert alert-info">
           <i class="fas fa-shield-alt"></i>
           <strong>{{ 'ADMIN_INDICATORS.NOTE_LABEL' | translate }}</strong>
@@ -320,14 +320,14 @@
     type="button"
     name="previous"
     class="previous previous_addIndicator action-button-previous"
-    [value]="'ADMIN_INDICATORS.PREVIOUS_STEP' | translate"
+    [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
     (click)="state.previousStep()"
   />
   <input
     type="button"
     name="next"
     class="next next_addIndicator action-button"
-    [value]="'ADMIN_INDICATORS.NEXT_STEP' | translate"
+    [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
     (click)="state.nextStep()"
   />
 </div>

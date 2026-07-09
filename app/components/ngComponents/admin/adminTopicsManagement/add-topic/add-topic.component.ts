@@ -62,6 +62,8 @@ export class AddTopicComponent {
 
   /** Translation key of the topic-type noun, interpolated into the button/placeholder texts. */
   get typeLabelKey(): string {
-    return this.topicType === 'main' ? 'ADMIN_TOPICS.ADD.MAIN_TOPIC' : 'ADMIN_TOPICS.ADD.SUB_TOPIC';
+    return this.topicType === 'main'
+      ? 'ADMIN_SHARED_UI.TOPICS.MAIN_TOPIC'
+      : 'ADMIN_TOPICS.ADD.SUB_TOPIC';
   }
 }

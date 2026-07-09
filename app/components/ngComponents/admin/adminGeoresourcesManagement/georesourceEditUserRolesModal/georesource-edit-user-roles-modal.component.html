@@ -39,12 +39,12 @@
           <fieldset [style.display]="stepper.isActive('roles') ? 'block' : 'none'">
             <h2 class="fs-title">{{ 'ADMIN_SHARED.ACCESS_PROTECTION' | translate }}</h2>
             <h3 class="fs-subtitle">
-              {{ 'ADMIN_GEORESOURCES.COMMON.ACCESS_SUBTITLE' | translate }}
+              {{ 'ADMIN_SHARED_UI.SECURITY.ASSIGN_RIGHTS_SUBTITLE' | translate }}
             </h3>
             <p>{{ 'ADMIN_GEORESOURCES.ROLES_MODAL.RIGHTS_EXPLICIT_HINT' | translate }}</p>
             <div class="row">
               <div class="col-md-3">
-                <label>{{ 'ADMIN_GEORESOURCES.COMMON.PUBLIC_READ' | translate }}*</label>
+                <label>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label>
                 @if (currentGeoresourceDataset; as dataset) {
                   <label class="switch">
                     <input
@@ -57,7 +57,7 @@
                   </label>
                 }
                 <div class="help-block">
-                  <p>{{ 'ADMIN_GEORESOURCES.COMMON.PUBLIC_READ_HINT' | translate }}</p>
+                  <p>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ_HINT' | translate }}</p>
                 </div>
               </div>
               <div class="col-md-6 col-sm-6 col-12">
@@ -70,7 +70,7 @@
               </div>
               <div class="col-md-3">
                 <div class="alert alert-info">
-                  {{ 'ADMIN_GEORESOURCES.COMMON.OWNER_RIGHTS_INFO' | translate }}
+                  {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_RIGHTS_INFO' | translate }}
                 </div>
               </div>
             </div>
@@ -78,7 +78,7 @@
               type="button"
               name="next"
               class="next next_editGeoresourceRoles action-button"
-              [value]="'ADMIN_GEORESOURCES.COMMON.NEXT_STEP' | translate"
+              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
               (click)="stepper.next()"
             />
           </fieldset>
@@ -86,10 +86,10 @@
 
         <fieldset [style.display]="stepper.isActive('ownership') ? 'block' : 'none'">
           <h2 class="fs-title">
-            {{ 'ADMIN_GEORESOURCES.ROLES_MODAL.OWNERSHIP_TITLE' | translate }}
+            {{ 'ADMIN_SHARED_UI.SECURITY.OWNERSHIP_TITLE' | translate }}
           </h2>
           <h3 class="fs-subtitle">
-            {{ 'ADMIN_GEORESOURCES.ROLES_MODAL.OWNERSHIP_SUBTITLE' | translate }}
+            {{ 'ADMIN_SHARED_UI.SECURITY.OWNERSHIP_SUBTITLE' | translate }}
           </h3>
           <div class="alert alert-danger">
             {{ 'ADMIN_GEORESOURCES.ROLES_MODAL.OWNERSHIP_WARNING_1' | translate }}<br />{{
@@ -105,7 +105,7 @@
             type="button"
             name="previous"
             class="previous previous_editGeoresourceRoles action-button-previous"
-            [value]="'ADMIN_GEORESOURCES.COMMON.PREVIOUS_STEP' | translate"
+            [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
             (click)="stepper.previous()"
           />
         </fieldset>
@@ -122,6 +122,6 @@
     {{ 'ADMIN_SHARED.UPDATE' | translate }}
   </button>
   <button type="button" class="btn btn-danger" (click)="resetGeoresourceEditUserRolesForm()">
-    {{ 'ADMIN_GEORESOURCES.COMMON.RESET' | translate }}
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
 </div>

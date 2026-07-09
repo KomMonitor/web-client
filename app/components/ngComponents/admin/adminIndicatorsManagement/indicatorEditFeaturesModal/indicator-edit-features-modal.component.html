@@ -148,7 +148,7 @@
               type="button"
               name="next"
               class="next next_editFeaturesIndicator action-button"
-              [value]="'ADMIN_INDICATORS.NEXT_STEP' | translate"
+              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
               (click)="stepper.next()"
             />
           </fieldset>
@@ -196,7 +196,7 @@
             </h3>
             <p>
               <b
-                ><i>{{ 'ADMIN_INDICATORS.REQUIRED_FIELD' | translate }}</i></b
+                ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
               >
             </p>
             <div class="row vertical-align">
@@ -427,7 +427,7 @@
                 </p>
                 <div class="row vertical-align">
                   <div class="col-md-3">
-                    <label>{{ 'ADMIN_INDICATORS.PUBLIC_READ' | translate }}*</label>
+                    <label>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label>
                     <label class="switch">
                       <input
                         type="checkbox"
@@ -438,7 +438,7 @@
                       <span class="switchslider round"></span>
                     </label>
                     <div class="help-block">
-                      <p>{{ 'ADMIN_INDICATORS.PUBLIC_READ_HINT' | translate }}</p>
+                      <p>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ_HINT' | translate }}</p>
                     </div>
                   </div>
                   <div class="col-md-6 col-sm-6 col-12">
@@ -450,7 +450,7 @@
                   </div>
                   <div class="col-md-3">
                     <div class="alert alert-info">
-                      {{ 'ADMIN_INDICATORS.OWNER_RIGHTS_INFO' | translate }}
+                      {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_RIGHTS_INFO' | translate }}
                     </div>
                     <br />
                     <div class="alert alert-warning">
@@ -492,7 +492,7 @@
               type="button"
               name="previous"
               class="previous previous_editFeaturesIndicator action-button-previous"
-              [value]="'ADMIN_INDICATORS.PREVIOUS_STEP' | translate"
+              [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
               (click)="stepper.previous()"
             />
           </fieldset>
@@ -517,6 +517,6 @@
     {{ 'ADMIN_INDICATORS.EDIT_FEATURES.CONTINUE_TIMESERIES' | translate }}
   </button>
   <button type="button" class="btn btn-danger" (click)="resetIndicatorEditFeaturesForm()">
-    {{ 'ADMIN_INDICATORS.RESET' | translate }}
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
 </div>

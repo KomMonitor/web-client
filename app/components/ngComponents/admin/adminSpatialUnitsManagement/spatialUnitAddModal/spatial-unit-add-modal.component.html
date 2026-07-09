@@ -36,7 +36,7 @@
         </h3>
         <p>
           <b
-            ><i>{{ 'ADMIN_SPATIAL_UNITS.COMMON.REQUIRED_FIELD_HINT' | translate }}</i></b
+            ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
           >
         </p>
         <div class="row vertical-align meta-row">
@@ -197,7 +197,7 @@
           type="button"
           name="next"
           class="next next_addSpatialUnit action-button"
-          [value]="'ADMIN_SPATIAL_UNITS.COMMON.NEXT_STEP' | translate"
+          [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
           (click)="stepper.next()"
         />
       </fieldset>
@@ -210,7 +210,7 @@
         <h3 class="fs-subtitle">{{ 'ADMIN_SPATIAL_UNITS.GENERAL_STEP.SUBTITLE' | translate }}</h3>
         <p>
           <b
-            ><i>{{ 'ADMIN_SPATIAL_UNITS.COMMON.REQUIRED_FIELD_HINT' | translate }}</i></b
+            ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
           >
         </p>
         <app-resource-metadata-form
@@ -221,14 +221,14 @@
           type="button"
           name="previous"
           class="previous previous_addSpatialUnit action-button-previous"
-          [value]="'ADMIN_SPATIAL_UNITS.COMMON.PREVIOUS_STEP' | translate"
+          [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
           (click)="stepper.previous()"
         />
         <input
           type="button"
           name="next"
           class="next next_addSpatialUnit action-button"
-          [value]="'ADMIN_SPATIAL_UNITS.COMMON.NEXT_STEP' | translate"
+          [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
           (click)="stepper.next()"
         />
       </fieldset>
@@ -239,9 +239,11 @@
          survives navigating between steps. -->
     @if (envConfigService.enableKeycloakSecurity) {
       <fieldset [style.display]="stepper.isActive('security') ? 'block' : 'none'">
-        <h2 class="fs-title">{{ 'ADMIN_SPATIAL_UNITS.SECURITY.TITLE' | translate }}</h2>
+        <h2 class="fs-title">
+          {{ 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE' | translate }}
+        </h2>
         <h3 class="fs-subtitle">
-          {{ 'ADMIN_SPATIAL_UNITS.SECURITY.SUBTITLE' | translate }}
+          {{ 'ADMIN_SHARED_UI.SECURITY.ASSIGN_RIGHTS_SUBTITLE' | translate }}
         </h3>
         <app-owner-organization-select
           mode="assign"
@@ -252,10 +254,10 @@
         <hr />
         <br />
         <div id="spatialUnitRoleForm" [style.display]="showRoleForm ? 'block' : 'none'">
-          <label>{{ 'ADMIN_SPATIAL_UNITS.SECURITY.DATASET_PERMISSIONS' | translate }}</label>
+          <label>{{ 'ADMIN_SHARED_UI.SECURITY.DATASET_PERMISSIONS' | translate }}</label>
           <div class="row vertical-align">
             <div class="col-md-3">
-              <label>{{ 'ADMIN_SPATIAL_UNITS.SECURITY.PUBLIC_READ' | translate }}*</label>
+              <label>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label>
               <label class="switch">
                 <input
                   type="checkbox"
@@ -266,7 +268,7 @@
                 <span class="switchslider round"></span>
               </label>
               <div class="help-block">
-                <p>{{ 'ADMIN_SPATIAL_UNITS.SECURITY.PUBLIC_READ_HINT' | translate }}</p>
+                <p>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ_HINT' | translate }}</p>
               </div>
             </div>
             <div class="col-md-6 col-sm-6 col-12">
@@ -277,11 +279,11 @@
             </div>
             <div class="col-md-3">
               <div class="alert alert-info">
-                {{ 'ADMIN_SPATIAL_UNITS.SECURITY.OWNER_INFO' | translate }}
+                {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_RIGHTS_INFO' | translate }}
               </div>
               <br />
               <div class="alert alert-warning">
-                {{ 'ADMIN_SPATIAL_UNITS.SECURITY.OWNER_MARKED_WARNING' | translate }}
+                {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_ROLES_MARKED' | translate }}
               </div>
             </div>
           </div>
@@ -290,14 +292,14 @@
           type="button"
           name="previous"
           class="previous previous_addSpatialUnit action-button-previous"
-          [value]="'ADMIN_SPATIAL_UNITS.COMMON.PREVIOUS_STEP' | translate"
+          [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
           (click)="stepper.previous()"
         />
         <input
           type="button"
           name="next"
           class="next next_addSpatialUnit action-button"
-          [value]="'ADMIN_SPATIAL_UNITS.COMMON.NEXT_STEP' | translate"
+          [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
           (click)="stepper.next()"
         />
       </fieldset>
@@ -342,7 +344,7 @@
       </h3>
       <p>
         <b
-          ><i>{{ 'ADMIN_SPATIAL_UNITS.COMMON.REQUIRED_FIELD_HINT' | translate }}</i></b
+          ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
         >
       </p>
 
@@ -905,7 +907,7 @@
         type="button"
         name="previous"
         class="previous previous_addSpatialUnit action-button-previous"
-        [value]="'ADMIN_SPATIAL_UNITS.COMMON.PREVIOUS_STEP' | translate"
+        [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
         (click)="stepper.previous()"
       />
     </fieldset>
@@ -967,7 +969,7 @@
     {{ 'ADMIN_SPATIAL_UNITS.ADD_MODAL.SUBMIT' | translate }}
   </button>
   <button type="button" class="btn btn-danger" (click)="resetForm()">
-    {{ 'ADMIN_SPATIAL_UNITS.COMMON.RESET' | translate }}
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
 </div>
 

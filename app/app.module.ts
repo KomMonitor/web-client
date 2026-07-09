@@ -64,6 +64,9 @@ export function HttpLoaderFactory(http: HttpClient) {
     ReactiveFormsModule,
     TranslateModule.forRoot({
       defaultLanguage: 'de',
+      // The de-* regional variants ship as empty bundles: every key falls back
+      // to the 'de' default language, so German strings live in de.json only.
+      useDefaultLang: true,
       loader: {
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,

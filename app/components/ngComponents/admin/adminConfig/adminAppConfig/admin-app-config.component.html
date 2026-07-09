@@ -48,7 +48,7 @@
         </div>
         @if (configSettingInvalid()) {
           <div class="help-block with-errors">
-            {{ 'ADMIN_CONFIG.COMMON.INVALID_HINT_JS' | translate }}
+            {{ 'ADMIN_CONFIG.COMMON.INVALID_HINT' | translate: { format: 'JavaScript' } }}
           </div>
         }
         @if (missingRequiredParameters().length > 0) {

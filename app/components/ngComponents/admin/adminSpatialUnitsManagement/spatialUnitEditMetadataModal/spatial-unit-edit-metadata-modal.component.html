@@ -47,7 +47,7 @@
             </h3>
             <p>
               <b
-                ><i>{{ 'ADMIN_SPATIAL_UNITS.COMMON.REQUIRED_FIELD_HINT' | translate }}</i></b
+                ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
               >
             </p>
             <div class="row vertical-align">
@@ -224,7 +224,7 @@
                 type="button"
                 name="next"
                 class="next next_editSpatialUnit action-button"
-                [value]="'ADMIN_SPATIAL_UNITS.COMMON.NEXT_STEP' | translate"
+                [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
                 (click)="stepper.next()"
               />
             </div>
@@ -239,7 +239,7 @@
             </h3>
             <p>
               <b
-                ><i>{{ 'ADMIN_SPATIAL_UNITS.COMMON.REQUIRED_FIELD_HINT' | translate }}</i></b
+                ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
               >
             </p>
             <app-resource-metadata-form
@@ -251,7 +251,7 @@
                 type="button"
                 name="previous"
                 class="previous previous_editSpatialUnit action-button-previous"
-                [value]="'ADMIN_SPATIAL_UNITS.COMMON.PREVIOUS_STEP' | translate"
+                [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
                 (click)="stepper.previous()"
               />
             </div>
@@ -321,7 +321,7 @@
   </button>
 
   <button type="button" class="btn btn-danger" (click)="resetForm()">
-    {{ 'ADMIN_SPATIAL_UNITS.COMMON.RESET' | translate }}
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
 </div>
 

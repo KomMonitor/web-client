@@ -44,7 +44,7 @@
           </h3>
           <p>
             <b
-              ><i>{{ 'ADMIN_GEORESOURCES.COMMON.REQUIRED_FIELD_HINT' | translate }}</i></b
+              ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
             >
           </p>
 
@@ -291,7 +291,7 @@
             type="button"
             name="next"
             class="next next_editGeoresourceMetadata action-button"
-            [value]="'ADMIN_GEORESOURCES.COMMON.NEXT_STEP' | translate"
+            [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
             (click)="stepper.next()"
           />
         </fieldset>
@@ -303,7 +303,7 @@
           </h3>
           <p>
             <b
-              ><i>{{ 'ADMIN_GEORESOURCES.COMMON.REQUIRED_FIELD_HINT' | translate }}</i></b
+              ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
             >
           </p>
 
@@ -316,7 +316,7 @@
             type="button"
             name="next"
             class="next next_editGeoresourceMetadata action-button"
-            [value]="'ADMIN_GEORESOURCES.COMMON.NEXT_STEP' | translate"
+            [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
             (click)="stepper.next()"
           />
 
@@ -324,33 +324,33 @@
             type="button"
             name="previous"
             class="previous previous_editGeoresourceMetadata action-button-previous"
-            [value]="'ADMIN_GEORESOURCES.COMMON.PREVIOUS_STEP' | translate"
+            [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
             (click)="stepper.previous()"
           />
         </fieldset>
 
         <fieldset [style.display]="stepper.isActive('topics') ? 'block' : 'none'">
-          <h2 class="fs-title">{{ 'ADMIN_GEORESOURCES.COMMON.TOPICS_TITLE' | translate }}</h2>
+          <h2 class="fs-title">{{ 'ADMIN_SHARED_UI.TOPICS.TITLE' | translate }}</h2>
           <h3 class="fs-subtitle">{{ 'ADMIN_GEORESOURCES.COMMON.TOPICS_SUBTITLE' | translate }}</h3>
 
           <p>
             <b
-              ><i>{{ 'ADMIN_GEORESOURCES.COMMON.REQUIRED_FIELD_HINT' | translate }}</i></b
+              ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
             >
           </p>
           <p>
-            {{ 'ADMIN_GEORESOURCES.COMMON.TOPICS_HINT' | translate }}
+            {{ 'ADMIN_SHARED_UI.TOPICS.SELECTION_HINT' | translate }}
           </p>
 
-          <p>{{ 'ADMIN_GEORESOURCES.COMMON.TOPICS_CATALOG_HINT' | translate }}</p>
+          <p>{{ 'ADMIN_SHARED_UI.TOPICS.CATALOG_HINT' | translate }}</p>
 
           <div class="row vertical-align">
             <div class="col-md-3 col-sm-6 col-12">
               <div class="form-group">
-                <label>{{ 'ADMIN_GEORESOURCES.COMMON.MAIN_TOPIC' | translate }}*</label>
+                <label>{{ 'ADMIN_SHARED_UI.TOPICS.MAIN_TOPIC' | translate }}*</label>
                 <select [(ngModel)]="georesourceTopic_mainTopic" class="form-control" required>
                   <option disabled selected value>
-                    {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_MAIN_TOPIC' | translate }}
+                    {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_MAIN_TOPIC' | translate }}
                   </option>
                   @for (mainTopic of getMainTopicsForGeoresource(); track mainTopic) {
                     <option [ngValue]="mainTopic">{{ mainTopic.topicName }}</option>
@@ -362,10 +362,10 @@
             <div class="col-md-3 col-sm-6 col-12">
               @if (georesourceTopic_mainTopic?.subTopics?.length > 0) {
                 <div class="form-group">
-                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.SUB_TOPIC_LEVEL_1' | translate }}</label>
+                  <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_1' | translate }}</label>
                   <select [(ngModel)]="georesourceTopic_subTopic" class="form-control">
                     <option disabled selected value>
-                      {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SUB_TOPIC' | translate }}
+                      {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
                     </option>
                     @for (subTopic of georesourceTopic_mainTopic.subTopics; track subTopic) {
                       <option [ngValue]="subTopic">{{ subTopic.topicName }}</option>
@@ -378,10 +378,10 @@
             <div class="col-md-3 col-sm-6 col-12">
               @if (georesourceTopic_subTopic?.subTopics?.length > 0) {
                 <div class="form-group">
-                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.SUB_TOPIC_LEVEL_2' | translate }}</label>
+                  <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_2' | translate }}</label>
                   <select [(ngModel)]="georesourceTopic_subsubTopic" class="form-control">
                     <option disabled selected value>
-                      {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SUB_TOPIC' | translate }}
+                      {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
                     </option>
                     @for (subsubTopic of georesourceTopic_subTopic.subTopics; track subsubTopic) {
                       <option [ngValue]="subsubTopic">{{ subsubTopic.topicName }}</option>
@@ -394,10 +394,10 @@
             <div class="col-md-3 col-sm-6 col-12">
               @if (georesourceTopic_subsubTopic?.subTopics?.length > 0) {
                 <div class="form-group">
-                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.SUB_TOPIC_LEVEL_3' | translate }}</label>
+                  <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_3' | translate }}</label>
                   <select [(ngModel)]="georesourceTopic_subsubsubTopic" class="form-control">
                     <option disabled selected value>
-                      {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SUB_TOPIC' | translate }}
+                      {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
                     </option>
                     @for (
                       subsubsubTopic of georesourceTopic_subsubTopic.subTopics;
@@ -427,7 +427,7 @@
                   >
                     <div class="box-header">
                       <h3 class="box-title">
-                        {{ 'ADMIN_GEORESOURCES.COMMON.TOPICS_CATALOG' | translate }}
+                        {{ 'ADMIN_SHARED_UI.TOPICS.TOPIC_CATALOG' | translate }}
                       </h3>
                       <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse">
@@ -456,7 +456,7 @@
             type="button"
             name="previous"
             class="previous previous_editGeoresourceMetadata action-button-previous"
-            [value]="'ADMIN_GEORESOURCES.COMMON.PREVIOUS_STEP' | translate"
+            [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
             (click)="stepper.previous()"
           />
         </fieldset>
@@ -510,7 +510,7 @@
     {{ 'ADMIN_GEORESOURCES.METADATA_MODAL.UPDATE_METADATA' | translate }}
   </button>
   <button type="button" class="btn btn-danger" (click)="resetGeoresourceEditMetadataForm()">
-    {{ 'ADMIN_GEORESOURCES.COMMON.RESET' | translate }}
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
 </div>
 
