@@ -22,6 +22,7 @@ import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-spatial-unit-delete-modal',
   templateUrl: './spatial-unit-delete-modal.component.html',
@@ -39,6 +40,7 @@ export class SpatialUnitDeleteModalComponent implements OnInit {
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private http = inject(HttpClient);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   @Input() datasetsToDelete: SpatialUnitMetadata[] = [];
 
@@ -97,12 +99,16 @@ export class SpatialUnitDeleteModalComponent implements OnInit {
         });
 
         this.notificationService.showSuccess(
-          `${this.successfullyDeletedDatasets().length} Raumebene(n) erfolgreich gelöscht.`
+          this.translate.instant('ADMIN_SPATIAL_UNITS.DELETE_MODAL.MSG.DELETED', {
+            count: this.successfullyDeletedDatasets().length,
+          })
         );
       }
 
       if (this.failedDatasetsAndErrors().length > 0) {
-        this.notificationService.showError('Einige Raumebenen konnten nicht gelöscht werden.');
+        this.notificationService.showError(
+          this.translate.instant('ADMIN_SPATIAL_UNITS.DELETE_MODAL.MSG.SOME_FAILED')
+        );
       }
 
       this.loadingData.set(false);
@@ -119,7 +125,9 @@ export class SpatialUnitDeleteModalComponent implements OnInit {
         });
       }
     } catch {
-      this.notificationService.showError('Ein unerwarteter Fehler ist aufgetreten.');
+      this.notificationService.showError(
+        this.translate.instant('ADMIN_SPATIAL_UNITS.DELETE_MODAL.MSG.UNEXPECTED_ERROR')
+      );
       this.loadingData.set(false);
     }
   }

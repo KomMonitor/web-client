@@ -58,6 +58,7 @@ import { RoleManagementGridComponent } from '../../adminShared/roleManagementPan
 import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManagementPanel/owner-organization-select.component';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-georesource-add-modal',
   templateUrl: './georesource-add-modal.component.html',
@@ -89,6 +90,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   private resourceImportService = inject(ResourceImportService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
   private topicHierarchyService = inject(TopicHierarchyService);
   protected envConfigService = inject(EnvConfigService);
   private broadcastService = inject(BroadcastService);
@@ -1111,7 +1113,9 @@ export class GeoresourceAddModalComponent implements OnInit {
     if (missing.length > 0) {
       this.loadingData.set(false);
       this.notificationService.showError(
-        `Bitte füllen Sie alle Pflichtfelder im Schritt "Räumlicher Datensatz" aus. Fehlend: ${missing.join(', ')}.`
+        this.translate.instant('ADMIN_GEORESOURCES.ADD_MODAL.MSG.REQUIRED_FIELDS_MISSING', {
+          missing: missing.join(', '),
+        })
       );
       return;
     }
@@ -1123,7 +1127,7 @@ export class GeoresourceAddModalComponent implements OnInit {
       if (!allDataSpecified) {
         this.loadingData.set(false);
         this.notificationService.showError(
-          'Bitte füllen Sie alle Pflichtfelder im Schritt "Räumlicher Datensatz" aus.'
+          this.translate.instant('ADMIN_GEORESOURCES.ADD_MODAL.MSG.REQUIRED_FIELDS')
         );
         return;
       }
@@ -1169,8 +1173,14 @@ export class GeoresourceAddModalComponent implements OnInit {
 
         const featureCount = this.importedFeatures.length;
         this.notificationService.showSuccess(
-          `Eine neue Georessource mit Namen "${this.postBody_georesources.datasetName}" wurde registriert` +
-            (featureCount > 0 ? ` (${featureCount} Features importiert).` : '.')
+          featureCount > 0
+            ? this.translate.instant('ADMIN_GEORESOURCES.ADD_MODAL.MSG.REGISTERED_WITH_FEATURES', {
+                name: this.postBody_georesources.datasetName,
+                count: featureCount,
+              })
+            : this.translate.instant('ADMIN_GEORESOURCES.ADD_MODAL.MSG.REGISTERED', {
+                name: this.postBody_georesources.datasetName,
+              })
         );
         this.activeModal.close(true);
       } else {
@@ -1182,12 +1192,14 @@ export class GeoresourceAddModalComponent implements OnInit {
           ) || []
         );
         this.notificationService.showError(
-          'Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.'
+          this.translate.instant('ADMIN_GEORESOURCES.ADD_MODAL.MSG.CRITICAL_FEATURE_ERRORS')
         );
       }
     } catch (error: any) {
       this.notificationService.showError(
-        'Fehler bei der Registrierung der Georessource: ' + getErrorMessage(error)
+        this.translate.instant('ADMIN_GEORESOURCES.ADD_MODAL.MSG.REGISTRATION_FAILED', {
+          error: getErrorMessage(error),
+        })
       );
       console.error('Error adding georesource:', error);
     } finally {
@@ -1228,7 +1240,9 @@ export class GeoresourceAddModalComponent implements OnInit {
       );
     } catch (error: any) {
       this.notificationService.showError(
-        'Fehler beim Aufbau der Datenquellen-Definition: ' + getErrorMessage(error)
+        this.translate.instant('ADMIN_GEORESOURCES.ADD_MODAL.MSG.DATASOURCE_BUILD_FAILED', {
+          error: getErrorMessage(error),
+        })
       );
       this.loadingData.set(false);
       return false;

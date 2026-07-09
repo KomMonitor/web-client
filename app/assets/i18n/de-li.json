@@ -97,7 +97,8 @@
     "SUCCESS": "Erfolg!",
     "ERROR": "Fehler!",
     "REQUIRED_FIELDS_HINT": "Pflichtfelder sind mit * markiert",
-    "KEYWORD_FILTER": "Stichwortfilter"
+    "KEYWORD_FILTER": "Stichwortfilter",
+    "UNKNOWN_ERROR": "Unbekannter Fehler"
   },
   "ADMIN_GEORESOURCES": {
     "TITLE": "Verwalten der Geodaten",
@@ -224,12 +225,25 @@
       "DATASET_PERMISSIONS": "Datensatz-Freigaben",
       "OWNER_RIGHTS_MARKED": "Lese- und Editierrechte wurden für die von Ihnen selektierte Eigentümer-Organisationseinheit markiert.",
       "REGISTER": "Georessource registrieren",
-      "REGISTRATION_FAILED": "Registrierung gescheitert"
+      "REGISTRATION_FAILED": "Registrierung gescheitert",
+      "MSG": {
+        "REQUIRED_FIELDS_MISSING": "Bitte füllen Sie alle Pflichtfelder im Schritt \"Räumlicher Datensatz\" aus. Fehlend: {{missing}}.",
+        "REQUIRED_FIELDS": "Bitte füllen Sie alle Pflichtfelder im Schritt \"Räumlicher Datensatz\" aus.",
+        "REGISTERED_WITH_FEATURES": "Eine neue Georessource mit Namen \"{{name}}\" wurde registriert ({{count}} Features importiert).",
+        "REGISTERED": "Eine neue Georessource mit Namen \"{{name}}\" wurde registriert.",
+        "CRITICAL_FEATURE_ERRORS": "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.",
+        "REGISTRATION_FAILED": "Fehler bei der Registrierung der Georessource: {{error}}",
+        "DATASOURCE_BUILD_FAILED": "Fehler beim Aufbau der Datenquellen-Definition: {{error}}"
+      }
     },
     "METADATA_MODAL": {
       "TITLE": "Metadaten der Georessource <i><b>{{name}}</b></i> editieren",
       "MAX_3_CHARS": "max. 3 Zeichen",
-      "UPDATE_METADATA": "Metadaten aktualisieren"
+      "UPDATE_METADATA": "Metadaten aktualisieren",
+      "MSG": {
+        "METADATA_UPDATED": "Metadaten der Georessource \"{{name}}\" wurden aktualisiert.",
+        "METADATA_UPDATE_FAILED": "Fehler beim Aktualisieren der Metadaten: {{error}}"
+      }
     },
     "FEATURES_MODAL": {
       "TITLE": "Features der Georessource <i><b>{{name}}</b></i> fortführen",
@@ -249,7 +263,16 @@
       "SINGLE_EDIT_REQUIRED_HINT": "Nur die mit * markierten Elemente müssen verpflichtend angegeben werden",
       "PARTIAL_UPDATE": "Partielles Update einzelner Geometrien",
       "PARTIAL_UPDATE_HINT": "Angabe, ob das Update nur einen Teil der räumlichen Objekte enthält (bspw. 20/50 Stadtteilen). Wird der vollständige Datensatz hochgeladen (Schalter deaktiviert), so vergleicht KomMonitor die in der Datenbank befindlichen Objekte und löscht solche Objekte, die nicht mehr im hochgeladenen Datensatz enthalten sind, aber im gleichen Lebenzeitintervall liegen.",
-      "EDIT_FEATURES_FAILED": "Features fortführen gescheitert"
+      "EDIT_FEATURES_FAILED": "Features fortführen gescheitert",
+      "MSG": {
+        "ALL_FEATURES_DELETED": "Alle Features wurden erfolgreich gelöscht.",
+        "DELETE_FEATURES_FAILED": "Fehler beim Löschen der Features.",
+        "FEATURES_UPDATED_WITH": "Die Features der Georessource \"{{name}}\" wurden aktualisiert ({{count}} Features importiert).",
+        "FEATURES_UPDATED": "Die Features der Georessource \"{{name}}\" wurden aktualisiert.",
+        "CONTINUE_FAILED": "Fehler beim Fortführen der Features: {{error}}",
+        "GENERIC_ERROR": "Ein Fehler ist aufgetreten: {{error}}",
+        "DELETE_ALL_CONFIRM": "Sind Sie sicher, dass Sie alle Features dieser Georessource löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden."
+      }
     },
     "DELETE_MODAL": {
       "TITLE": "Georessourcen löschen",
@@ -275,7 +298,11 @@
       "DELETE_FAILED": "Löschen gescheitert",
       "DELETE_FAILED_HINT": "Folgende Datensätze konnten nicht gelöscht werden.",
       "ERROR_MESSAGE": "Fehlermeldung",
-      "DELETE_PERMANENTLY": "Georessourcen unwiderruflich löschen"
+      "DELETE_PERMANENTLY": "Georessourcen unwiderruflich löschen",
+      "MSG": {
+        "DELETED": "{{count}} Georessource(n) sowie assoziierte Indikatorenreferenzen und Skripte erfolgreich gelöscht.",
+        "SOME_FAILED": "Einige Georessourcen konnten nicht gelöscht werden."
+      }
     },
     "ROLES_MODAL": {
       "TITLE": "Zugriffsschutz und Eigentümerschaft der Georesource <i><b>{{name}}</b></i> editieren",
@@ -283,7 +310,17 @@
       "OWNERSHIP_TITLE": "Eigentümerschaft eines Datensatzes",
       "OWNERSHIP_SUBTITLE": "Übertragen der Eigentümerschaft von Datensätzen mit allen dazugehörigen Rechten",
       "OWNERSHIP_WARNING_1": "Bitte beachten Sie, dass Sie beim Übertragen einer Eigentümerschaft einer Resource unter Umständen jegliche Rechte eben dieser verlieren.",
-      "OWNERSHIP_WARNING_2": "Die Rechte werden unwiderruflich und sofort an den neuen Eigentümer übertragen."
+      "OWNERSHIP_WARNING_2": "Die Rechte werden unwiderruflich und sofort an den neuen Eigentümer übertragen.",
+      "MSG": {
+        "OWNERSHIP_TRANSFER_CONFIRM": "Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?",
+        "RIGHTS_UPDATED": "Zugriffsrechte für Georessource \"{{name}}\" wurden aktualisiert.",
+        "RIGHTS_UPDATE_FAILED": "Fehler beim Aktualisieren der Zugriffsrechte: {{error}}",
+        "OWNERSHIP_UPDATE_FAILED": "Fehler beim Aktualisieren der Eigentümerschaft: {{error}}"
+      }
+    },
+    "MSG": {
+      "LOAD_LIST_FAILED": "Die Georessourcen konnten nicht geladen werden.",
+      "LOAD_ONE_FAILED": "Die Georessource konnte nicht geladen werden."
     }
   },
   "ADMIN_INDICATORS": {
@@ -687,7 +724,14 @@
       "READ_ACCESS_NOTE": "lesender Zugriff auf die Indikator-Zeitreihe wird nur den Organisationseinheiten gewährt, die auch lesenden Zugriff auf Metadaten der assoziierten Raumebene besitzen.",
       "PRESELECTED_RIGHTS_WARNING": "Lese- und Editierrechte wurden anhand der selektierten Raumeinheit und für die von Eigentümer-Organisationseinheit vorab markiert.",
       "KEEP_MISSING_HINT": "Angabe, ob leere Attributwerte (<code>NULL</code>-Werte) übernommen werden. Diese werden wie <i>NoData</i>-Werte behandelt. Bei deaktivierter Option wird bei einem solchen Fall ein Fehler geworfen.",
-      "CONTINUE_TIMESERIES": "Zeitreihen fortführen"
+      "CONTINUE_TIMESERIES": "Zeitreihen fortführen",
+      "MSG": {
+        "REQUIRED_FIELDS": "Bitte füllen Sie alle Pflichtfelder des Import-Formulars aus.",
+        "CONTINUE_SUCCESS": "Fortführen der Zeitreihen des Indikators mit Namen {{name}} war erfolgreich.",
+        "IMPORTED_TIMESERIES": "{{count}} Zeitreihen wurden dabei importiert.",
+        "CONTINUE_FAILED": "Zeitreihen fortführen gescheitert.",
+        "IMPORT_ERRORS": "({{count}} Zeitreihen mit Importfehlern)"
+      }
     },
     "EDIT_ROLES": {
       "TITLE_PREFIX": "Zugriffsschutz und Eigentümerschaft für Indikator",
@@ -700,7 +744,16 @@
       "OWNERSHIP_TITLE": "Eigentümerschaft eines Datensatzes",
       "OWNERSHIP_SUBTITLE": "Übertragen der Eigentümerschaft von Datensätzen mit allen dazugehörigen Rechten",
       "OWNERSHIP_WARNING_1": "Bitte beachten Sie, dass Sie beim Übertragen einer Eigentümerschaft einer Resource unter Umständen jegliche Rechte eben dieser verlieren.",
-      "OWNERSHIP_WARNING_2": "Die Rechte werden unwiderruflich und sofort an den neuen Eigentümer übertragen."
+      "OWNERSHIP_WARNING_2": "Die Rechte werden unwiderruflich und sofort an den neuen Eigentümer übertragen.",
+      "MSG": {
+        "UPDATED": "Zugriffsschutz und Eigentümerschaft für Indikator '{{name}}' aktualisiert.",
+        "UPDATED_LINKED_SPATIAL_UNIT": "Verknüpfte Raumebene '{{name}}' wurde ebenfalls aktualisiert.",
+        "METADATA_RIGHTS_FAILED": "Fehler beim Aktualisieren der Metadaten-Zugriffsrechte.",
+        "TIMESERIES_RIGHTS_FAILED": "Fehler beim Aktualisieren der Zugriffsrechte auf Zeitreihe der Raumeinheit {{name}}.",
+        "METADATA_OWNERSHIP_FAILED": "Fehler beim Aktualisieren der Metadaten-Eigentümerschaft.",
+        "TIMESERIES_OWNERSHIP_FAILED": "Fehler beim Aktualisieren der Zeitreihen-Eigentümerschaft der Raumeinheit {{name}}.",
+        "OWNERSHIP_TRANSFER_CONFIRM": "Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?"
+      }
     },
     "EDIT_METADATA": {
       "TITLE": "Indikator Metadaten bearbeiten",
@@ -783,7 +836,11 @@
       "HIERARCHY_HELP": "Wird keine übergeordnete Organisationseinheit festgelegt, wird die neue Organisationseinheit auf oberster Ebene der Hierarchie angelegt. Die Hierarchiebeziehung kann nachträglich angepasst werden.",
       "RIGHTS_INTRO": "Sollen bereits existierende Organisationseinheiten/Gruppen administrative Aufgaben für die neu anzulegende Gruppe übernehmen? Administrative Rechte können hier durch entsprechende Häkchen an andere Gruppen übertragen werden.",
       "RIGHTS_AFTER_CREATE_HINT": "Achtung: Die Rechte der neu angelegten Organisationseinheit können erst nach Erzeugung innerhalb des 'Rechte editieren' Menüs gesetzt werden.",
-      "SUBMIT": "Gruppe registrieren"
+      "SUBMIT": "Gruppe registrieren",
+      "MSG": {
+        "CREATED": "Die neue Organisationseinheit '{{name}}' wurde erfolgreich erstellt.",
+        "KEYCLOAK_ROLES_CREATED": "Keycloak-Rollen erfolgreich angelegt."
+      }
     },
     "DELETE_MODAL": {
       "TITLE": "Organisationseinheiten löschen",
@@ -791,7 +848,10 @@
       "CHILDREN_CONFLICT": "Beachten Sie, dass mindestens eine der gewählten Organisationseinheiten über Untergruppen verfügt. Bitte löschen Sie daher zuerst die Untergruppen.",
       "CONFIRM_QUESTION": "Sollen die folgenden Organisationseinheiten wirklich gelöscht werden?",
       "ORGANIZATION_ID": "Organisations-ID",
-      "DELETE_FOREVER": "Unwiderruflich löschen"
+      "DELETE_FOREVER": "Unwiderruflich löschen",
+      "MSG": {
+        "DELETED": "Die Organisationseinheit \"{{name}}\" wurde erfolgreich gelöscht."
+      }
     },
     "EDIT_RIGHTS_MODAL": {
       "TITLE_PREFIX": "Gruppenspezifische Rechte der Organisationseinheit",
@@ -803,7 +863,11 @@
       "OWN_RIGHTS_EDIT_HINT": "Wenn Sie der gewählten Gruppe Rechte geben wollen, so muss dies über das Menü \"Rechte anderer Gruppen\" geschehen.",
       "FOREIGN_RIGHTS_INTRO": "Die Tabelle zeigt administrative Rechte, die andere Gruppen für die ausgewählte Gruppe besitzen. Weitere administrative Rechte können hier durch entsprechende Häkchen an andere Gruppen übertragen werden.",
       "SELF_RIGHTS_HINT": "Achtung: Auch die Rechte der gewählten Gruppe an sich selbst werden über dieses Menü kontrolliert. In diesem Fall ist die gewählte Gruppe ebenfalls als 'andere Gruppe' zu betrachten, für die entsprechende administrative Aufgaben zugewiesen werden können.",
-      "UPDATE_RIGHTS": "Rechte aktualisieren"
+      "UPDATE_RIGHTS": "Rechte aktualisieren",
+      "MSG": {
+        "LOAD_FAILED": "Die Rollendaten konnten nicht geladen werden.",
+        "RIGHTS_UPDATED": "Gruppenrechte für '{{name}}' erfolgreich aktualisiert."
+      }
     },
     "EDIT_METADATA_MODAL": {
       "TITLE": "Metadaten der Organisationseinheit",
@@ -815,7 +879,11 @@
       "NAME_INVALID": "Eingabe ungültig. Es existiert bereits eine andere Rolle mit gleichem Namen.",
       "DESCRIPTION_PLACEHOLDER": "Abteilung 52",
       "CONTACT_PLACEHOLDER": "sekretariat@kommonitor.de",
-      "UPDATE_METADATA": "Metadaten aktualisieren"
+      "UPDATE_METADATA": "Metadaten aktualisieren",
+      "MSG": {
+        "METADATA_SAVED": "Metadaten von '{{name}}' erfolgreich gespeichert.",
+        "KEYCLOAK_ROLES_UPDATED": "Keycloak-Rollen für '{{name}}' erfolgreich aktualisiert."
+      }
     },
     "EXPLANATION": {
       "TITLE": "FAQ zu Mandantenkonzept und Zugriffsschutz auf Datensätze",
@@ -868,6 +936,9 @@
           "CONTENT": "<table class=\"table\"><tr><th>Indikatoren-Metadaten</th><th>Indikatoren-Zeitreihe pro Raumebene</th><th>Raumeinheiten-Metadaten</th></tr><tr><td>Schalter <code>Öffentliche Lesefreigabe</code> aktivieren</td><td>für alle Raumeinheiten aktivieren der <code>Öffentliche Lesefreigabe</code> (weitere explizite Freigabe an Gruppen nur bei Bedarf zwecks Editierrechten) <i>unterschiedliche Konfigurationen je nach Raumeinheit denkbar</i></td><td><code>öffentlicher Lesezugriff</code> bei betreffenden Raumeinheiten-Metadaten selbst aktivieren</td></tr></table>"
         }
       }
+    },
+    "MSG": {
+      "LOAD_FAILED": "Die Daten konnten nicht geladen werden! Bitte versuchen Sie es später erneut."
     }
   },
   "ADMIN_TOPICS": {
@@ -894,7 +965,11 @@
       "TITLE": "Themeneintrag löschen",
       "CONFIRM_QUESTION": "Soll folgender Themeneintrag wirklich gelöscht werden?",
       "CASCADE_HINT": "Dabei werden auch sämtliche Unterthemen dauerhaft aus dem System entfernt.",
-      "DELETE_FOREVER": "Themeneintrag unwiderruflich löschen"
+      "DELETE_FOREVER": "Themeneintrag unwiderruflich löschen",
+      "MSG": {
+        "DELETED": "Thema '{{name}}' wurde gelöscht.",
+        "DELETE_FAILED": "Das Thema konnte nicht gelöscht werden."
+      }
     },
     "EDIT_MODAL": {
       "TITLE_PREFIX": "Metadaten des Themeneintrags",
@@ -905,7 +980,15 @@
       "NAME_REQUIRED": "Name ist erforderlich",
       "DESCRIPTION_LABEL": "Beschreibung des Eintrags",
       "DESCRIPTION_REQUIRED": "Beschreibung ist erforderlich",
-      "UPDATE": "Eintrag aktualisieren"
+      "UPDATE": "Eintrag aktualisieren",
+      "MSG": {
+        "UPDATED": "Thema '{{name}}' wurde aktualisiert.",
+        "UPDATE_FAILED": "Das Thema konnte nicht aktualisiert werden."
+      }
+    },
+    "MSG": {
+      "SORT_SAVE_FAILED": "Die Sortierung konnte nicht gespeichert werden.",
+      "SORT_MODES_LOAD_FAILED": "Die Sortiermodi konnten nicht geladen werden."
     }
   },
   "ADMIN_SCRIPTS": {
@@ -1247,7 +1330,12 @@
       "BOX_TITLE": "App Konfiguration",
       "INTRO_PREFIX": "Nehmen Sie Anpassungen an variablen Parametern des Web-Clients vor und speichern sie diese. Die Editierungen erfolgen direkt im JavaScript-Format. Dies speichert die Konfiguration im",
       "EDITOR_LABEL": "Editierfenster der App-Einstellungen",
-      "SAVE": "App-Konfiguration speichern"
+      "SAVE": "App-Konfiguration speichern",
+      "MSG": {
+        "LOAD_FAILED": "Laden der App-Konfiguration gescheitert: {{error}}",
+        "SAVED": "App-Konfiguration gespeichert. Die neue Parametrisierung wird beim nächsten Start der Anwendung geladen.",
+        "SAVE_FAILED": "Speichern der App-Konfiguration in Config Storage Server gescheitert: {{error}}"
+      }
     },
     "CONTROLS": {
       "TITLE": "Web Client Steuerungselemente",
@@ -1255,7 +1343,12 @@
       "BOX_TITLE": "Steuerungselemente Konfiguration",
       "INTRO_PREFIX": "Nehmen Sie Anpassungen an den Steuerungselementen des Web-Clients vor und speichern sie diese. Die Editierungen erfolgen direkt im JavaScript-Format. Dies speichert die Konfiguration im",
       "EDITOR_LABEL": "Editierfenster der Steuerungselemente-Einstellungen",
-      "SAVE": "Steuerungselemente-Konfiguration speichern"
+      "SAVE": "Steuerungselemente-Konfiguration speichern",
+      "MSG": {
+        "LOAD_FAILED": "Laden der Controls-Konfiguration gescheitert: {{error}}",
+        "SAVED": "Controls-Konfiguration gespeichert.",
+        "SAVE_FAILED": "Speichern der Controls-Konfiguration gescheitert: {{error}}"
+      }
     },
     "FILTER": {
       "TITLE": "Konfiguration von globalen Inhaltsfiltern",
@@ -1264,7 +1357,12 @@
       "CONFIG_BOX_TITLE": "Globale Filter - Konfigurationsdatei",
       "INTRO": "Gruppieren Sie Indikatoren, Georessourcen und Themen zu globalen Filtern. Beim Aufruf eines solchen Filters, wird KomMonitor den im Filter definierten Inhalten geladen.",
       "EDITOR_LABEL": "Editierfenster der Filter-Konfiguration",
-      "SAVE": "Filter-Konfiguration speichern"
+      "SAVE": "Filter-Konfiguration speichern",
+      "MSG": {
+        "SAVED": "Filter-Konfiguration gespeichert.",
+        "SAVE_FAILED": "Speichern der Filter-Konfiguration gescheitert: {{error}}",
+        "DELETE_CONFIRM": "Wollen Sie den Filter {{name}} sicher dauerhaft löschen?"
+      }
     },
     "FILTER_EDIT": {
       "TITLE": "Globale Filter editieren",
@@ -1279,7 +1377,11 @@
       "GEORESOURCES_SUBTITLE": "Auswahl der sichtbaren Georesourcen",
       "SHOW_ASSIGNED_GEORESOURCES": "Zeige nur zugewiesene Georesourcen",
       "GEORESOURCE_TOPICS_TITLE": "Georesource-Themen",
-      "GEORESOURCE_TOPICS_SUBTITLE": "Auswahl der Georesource-spezifischen Themen"
+      "GEORESOURCE_TOPICS_SUBTITLE": "Auswahl der Georesource-spezifischen Themen",
+      "MSG": {
+        "SAVED": "Filter gespeichert.",
+        "NO_DATA_CONFIRM": "Sie haben weder Indikator- noch Georesource Daten zur späteren Ansicht ausgewählt. Trotzdem fortfahren?"
+      }
     }
   },
   "ADMIN_SPATIAL_UNITS": {
@@ -1402,7 +1504,14 @@
     },
     "ADD_MODAL": {
       "TITLE": "Neue Raumebene registrieren",
-      "SUBMIT": "Raumeinheit registrieren"
+      "SUBMIT": "Raumeinheit registrieren",
+      "MSG": {
+        "DATASOURCE_BUILD_FAILED": "Fehler beim Aufbau der Datenquellen-Definition: {{error}}",
+        "REGISTERED_WITH_FEATURES": "Eine neue Raumebene mit Namen \"{{name}}\" wurde registriert ({{count}} Raumeinheiten importiert).",
+        "REGISTERED": "Eine neue Raumebene mit Namen \"{{name}}\" wurde registriert.",
+        "CRITICAL_FEATURE_ERRORS": "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.",
+        "REGISTRATION_FAILED": "Fehler bei der Registrierung der Raumebene: {{error}}"
+      }
     },
     "DELETE_MODAL": {
       "TITLE": "Raumebenen löschen",
@@ -1412,12 +1521,21 @@
       "DELETE_PERMANENTLY": "Raumebenen unwiderruflich löschen",
       "DELETE_FAILED": "Löschen gescheitert",
       "DELETE_FAILED_TEXT": "Folgende Datensätze konnten nicht gelöscht werden.",
-      "ERROR_MESSAGE": "Fehlermeldung"
+      "ERROR_MESSAGE": "Fehlermeldung",
+      "MSG": {
+        "DELETED": "{{count}} Raumebene(n) erfolgreich gelöscht.",
+        "SOME_FAILED": "Einige Raumebenen konnten nicht gelöscht werden.",
+        "UNEXPECTED_ERROR": "Ein unerwarteter Fehler ist aufgetreten."
+      }
     },
     "EDIT_METADATA_MODAL": {
       "TITLE": "Metadaten der Raumebene <i><b>{{name}}</b></i> editieren",
       "UPDATE_METADATA": "Metadaten aktualisieren",
-      "UPDATING": "Aktualisiere..."
+      "UPDATING": "Aktualisiere...",
+      "MSG": {
+        "METADATA_UPDATED": "Metadaten für Raumebene \"{{name}}\" erfolgreich aktualisiert.",
+        "METADATA_UPDATE_FAILED": "Fehler beim Aktualisieren der Metadaten: {{error}}"
+      }
     },
     "EDIT_FEATURES_MODAL": {
       "TITLE": "Raumeinheiten der Raumebene <i><b>{{name}}</b></i> fortführen",
@@ -1434,7 +1552,15 @@
       "LAST_UPDATE_FAILURE": "Letztes gescheitertes Update eines Einzeleintrags",
       "PARTIAL_UPDATE": "Partielles Update einzelner Geometrien",
       "PARTIAL_UPDATE_HINT": "Angabe, ob das Update nur einen Teil der räumlichen Objekte enthält (bspw. 20/50 Stadtteilen). Wird der vollständige Datensatz hochgeladen (Schalter deaktiviert), so vergleicht KomMonitor die in der Datenbank befindlichen Objekte und löscht solche Objekte, die nicht mehr im hochgeladenen Datensatz enthalten sind, aber im gleichen Lebenzeitintervall liegen.",
-      "SUBMIT": "Raumeinheiten fortführen"
+      "SUBMIT": "Raumeinheiten fortführen",
+      "MSG": {
+        "ALL_FEATURES_DELETED": "Alle Features der Raumebene \"{{name}}\" wurden gelöscht.",
+        "REQUIRED_FIELDS_MISSING": "Bitte füllen Sie alle Pflichtfelder in Schritt 2 aus. Fehlend: {{missing}}.",
+        "REQUIRED_FIELDS": "Bitte füllen Sie alle Pflichtfelder in Schritt 2 aus.",
+        "FEATURES_UPDATED": "Die Features der Raumebene \"{{name}}\" wurden aktualisiert.",
+        "CRITICAL_FEATURE_ERRORS": "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.",
+        "GENERIC_ERROR": "Ein Fehler ist aufgetreten: {{error}}"
+      }
     },
     "EDIT_ROLES_MODAL": {
       "TITLE": "Zugriffsschutz und Eigentümerschaft für Raumeinheit <i><b>{{name}}</b></i> editieren",
@@ -1442,7 +1568,16 @@
       "OWNERSHIP_TITLE": "Eigentümerschaft eines Datensatzes",
       "OWNERSHIP_SUBTITLE": "Übertragen der Eigentümerschaft von Datensätzen mit allen dazugehörigen Rechten",
       "OWNERSHIP_WARNING_1": "Bitte beachten Sie, dass Sie beim Übertragen einer Eigentümerschaft einer Resource unter Umständen jegliche Rechte eben dieser verlieren.",
-      "OWNERSHIP_WARNING_2": "Die Rechte werden unwiderruflich und sofort an den neuen Eigentümer übertragen."
+      "OWNERSHIP_WARNING_2": "Die Rechte werden unwiderruflich und sofort an den neuen Eigentümer übertragen.",
+      "MSG": {
+        "OWNERSHIP_TRANSFER_CONFIRM": "Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?",
+        "RIGHTS_UPDATED": "Zugriffsrechte für Raumebene \"{{name}}\" wurden aktualisiert.",
+        "RIGHTS_UPDATE_FAILED": "Fehler beim Aktualisieren der Zugriffsrechte: {{error}}",
+        "OWNERSHIP_UPDATE_FAILED": "Fehler beim Aktualisieren der Eigentümerschaft: {{error}}"
+      }
+    },
+    "MSG": {
+      "LOAD_FAILED": "Die Raumebenen konnten nicht geladen werden."
     }
   }
 }

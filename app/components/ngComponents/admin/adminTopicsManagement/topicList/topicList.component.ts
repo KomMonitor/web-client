@@ -16,6 +16,7 @@ import { AddTopicComponent } from '../add-topic/add-topic.component';
 import { SortByOrderPipe } from '../sortByOrder.pipe';
 import { NotificationService } from '../../../common/notification/notification.service';
 
+import { TranslateService } from '@ngx-translate/core';
 @Injectable({ providedIn: 'root' })
 export class ExpandedService {
   expandedTopics: Set<string> = new Set<string>();
@@ -34,6 +35,7 @@ export class TopicListComponent {
   private srvc = inject(AdminTopicsManagementService);
   private expandedService = inject(ExpandedService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
 
   @Input({ required: true }) topics!: Topic[];
@@ -50,7 +52,9 @@ export class TopicListComponent {
 
     const revert = () => {
       moveItemInArray(this.topics, event.currentIndex, event.previousIndex);
-      this.notificationService.showError('Die Sortierung konnte nicht gespeichert werden.');
+      this.notificationService.showError(
+        this.translate.instant('ADMIN_TOPICS.MSG.SORT_SAVE_FAILED')
+      );
       // The in-place revert happens in an async error callback — re-render this
       // OnPush view so the list reflects the restored order.
       this.cdr.markForCheck();

@@ -37,6 +37,7 @@ import { FormsModule } from '@angular/forms';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 import { KmDatePickerComponent } from '../../../customElements/date-picker/km-date-picker.component';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
@@ -90,6 +91,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
   private resourceImportService = inject(ResourceImportService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -501,7 +503,9 @@ export class SpatialUnitAddModalComponent implements OnInit {
       );
     } catch (error: any) {
       this.notificationService.showError(
-        'Fehler beim Aufbau der Datenquellen-Definition: ' + getErrorMessage(error)
+        this.translate.instant('ADMIN_SPATIAL_UNITS.ADD_MODAL.MSG.DATASOURCE_BUILD_FAILED', {
+          error: getErrorMessage(error),
+        })
       );
       this.loadingData.set(false);
       return false;
@@ -601,8 +605,14 @@ export class SpatialUnitAddModalComponent implements OnInit {
           this.loadingData.set(false);
           const featureCount = this.importedFeatures().length;
           this.notificationService.showSuccess(
-            `Eine neue Raumebene mit Namen "${this.postBody_spatialUnits.spatialUnitLevel}" wurde registriert` +
-              (featureCount > 0 ? ` (${featureCount} Raumeinheiten importiert).` : '.')
+            featureCount > 0
+              ? this.translate.instant(
+                  'ADMIN_SPATIAL_UNITS.ADD_MODAL.MSG.REGISTERED_WITH_FEATURES',
+                  { name: this.postBody_spatialUnits.spatialUnitLevel, count: featureCount }
+                )
+              : this.translate.instant('ADMIN_SPATIAL_UNITS.ADD_MODAL.MSG.REGISTERED', {
+                  name: this.postBody_spatialUnits.spatialUnitLevel,
+                })
           );
           this.activeModal.close({ action: 'added' });
         } else {
@@ -615,7 +625,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
           this.loadingData.set(false);
           this.notificationService.showError(
-            'Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.'
+            this.translate.instant('ADMIN_SPATIAL_UNITS.ADD_MODAL.MSG.CRITICAL_FEATURE_ERRORS')
           );
         }
       } catch (error: any) {
@@ -628,7 +638,9 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
         this.loadingData.set(false);
         this.notificationService.showError(
-          'Fehler bei der Registrierung der Raumebene: ' + getErrorMessage(error)
+          this.translate.instant('ADMIN_SPATIAL_UNITS.ADD_MODAL.MSG.REGISTRATION_FAILED', {
+            error: getErrorMessage(error),
+          })
         );
       }
     }

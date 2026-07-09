@@ -19,6 +19,7 @@ import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-topic-delete-modal',
   templateUrl: './topic-delete-modal.component.html',
@@ -34,6 +35,7 @@ export class TopicDeleteModalComponent implements OnInit {
   private sanitizer = inject(DomSanitizer);
   private destroyRef = inject(DestroyRef);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   @Input() currentTopic?: Topic;
   topicToDeletePrettyPrint: SafeHtml | string = '';
@@ -65,7 +67,9 @@ export class TopicDeleteModalComponent implements OnInit {
       .subscribe({
         next: () => {
           this.notificationService.showSuccess(
-            `Thema '${this.currentTopic?.topicName}' wurde gelöscht.`
+            this.translate.instant('ADMIN_TOPICS.DELETE_MODAL.MSG.DELETED', {
+              name: this.currentTopic?.topicName,
+            })
           );
           this.activeModal.close({ action: 'deleted' });
         },
@@ -82,7 +86,7 @@ export class TopicDeleteModalComponent implements OnInit {
     if (error?.message) {
       return error.message;
     }
-    return 'Das Thema konnte nicht gelöscht werden.';
+    return this.translate.instant('ADMIN_TOPICS.DELETE_MODAL.MSG.DELETE_FAILED');
   }
 
   close() {

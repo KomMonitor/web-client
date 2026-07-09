@@ -18,6 +18,7 @@ import { TopicOrderSelectionComponent } from './topicOrderSelection/topic-order-
 import { NotificationService } from '../../common/notification/notification.service';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 // Re-exported for the many existing importers that reference these types via this component.
 export { Topic, TopicOrderMode, TopicResourceType } from './topic.model';
 
@@ -57,6 +58,7 @@ export class AdminTopicsManagementComponent implements OnInit {
   private topicSrvc = inject(AdminTopicsManagementService);
   private topicStore = inject(TopicMetadataStoreService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   showTopicIds = false;
   loadingData = false;
@@ -90,7 +92,9 @@ export class AdminTopicsManagementComponent implements OnInit {
   private setSorting(topic: TopicResourceType, order: TopicOrderMode) {
     this.topicSrvc.setOrderMode(topic, order).subscribe({
       error: () => {
-        this.notificationService.showError('Die Sortierung konnte nicht gespeichert werden.');
+        this.notificationService.showError(
+          this.translate.instant('ADMIN_TOPICS.MSG.SORT_SAVE_FAILED')
+        );
       },
     });
   }
@@ -106,7 +110,9 @@ export class AdminTopicsManagementComponent implements OnInit {
         );
       },
       error: () => {
-        this.notificationService.showError('Die Sortiermodi konnten nicht geladen werden.');
+        this.notificationService.showError(
+          this.translate.instant('ADMIN_TOPICS.MSG.SORT_MODES_LOAD_FAILED')
+        );
       },
     });
   }

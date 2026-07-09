@@ -22,6 +22,7 @@ import { RoleManagementGridComponent } from '../../adminShared/roleManagementPan
 import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManagementPanel/owner-organization-select.component';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-spatial-unit-edit-user-roles-modal',
   templateUrl: './spatial-unit-edit-user-roles-modal.component.html',
@@ -41,6 +42,7 @@ export class SpatialUnitEditUserRolesModalComponent {
   private envConfigService = inject(EnvConfigService);
   private http = inject(HttpClient);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   /** Emitted after roles/ownership changed so the parent refreshes its table. */
   @Output() refreshRequested = new EventEmitter<SpatialUnitRefreshRequest>();
@@ -88,8 +90,9 @@ export class SpatialUnitEditUserRolesModalComponent {
 
     const ownershipChanging = this.isOwnershipChanging();
     if (ownershipChanging) {
-      const confirmMessage =
-        'Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?';
+      const confirmMessage = this.translate.instant(
+        'ADMIN_SPATIAL_UNITS.EDIT_ROLES_MODAL.MSG.OWNERSHIP_TRANSFER_CONFIRM'
+      );
       if (!window.confirm(confirmMessage)) {
         return;
       }
@@ -112,7 +115,9 @@ export class SpatialUnitEditUserRolesModalComponent {
     }
 
     this.notificationService.showSuccess(
-      `Zugriffsrechte für Raumebene "${dataset.spatialUnitLevel}" wurden aktualisiert.`
+      this.translate.instant('ADMIN_SPATIAL_UNITS.EDIT_ROLES_MODAL.MSG.RIGHTS_UPDATED', {
+        name: dataset.spatialUnitLevel,
+      })
     );
     this.activeModal.close({
       action: 'updated',
@@ -149,7 +154,9 @@ export class SpatialUnitEditUserRolesModalComponent {
       return true;
     } catch (error: any) {
       this.notificationService.showError(
-        'Fehler beim Aktualisieren der Zugriffsrechte: ' + getErrorMessage(error)
+        this.translate.instant('ADMIN_SPATIAL_UNITS.EDIT_ROLES_MODAL.MSG.RIGHTS_UPDATE_FAILED', {
+          error: getErrorMessage(error),
+        })
       );
       return false;
     } finally {
@@ -182,7 +189,9 @@ export class SpatialUnitEditUserRolesModalComponent {
       return true;
     } catch (error: any) {
       this.notificationService.showError(
-        'Fehler beim Aktualisieren der Eigentümerschaft: ' + getErrorMessage(error)
+        this.translate.instant('ADMIN_SPATIAL_UNITS.EDIT_ROLES_MODAL.MSG.OWNERSHIP_UPDATE_FAILED', {
+          error: getErrorMessage(error),
+        })
       );
       return false;
     } finally {

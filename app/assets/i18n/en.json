@@ -97,7 +97,8 @@
     "SUCCESS": "Success!",
     "ERROR": "Error!",
     "REQUIRED_FIELDS_HINT": "Required fields are marked with *",
-    "KEYWORD_FILTER": "Keyword filter"
+    "KEYWORD_FILTER": "Keyword filter",
+    "UNKNOWN_ERROR": "Unknown error"
   },
   "ADMIN_GEORESOURCES": {
     "TITLE": "Manage geodata",
@@ -224,12 +225,25 @@
       "DATASET_PERMISSIONS": "Dataset permissions",
       "OWNER_RIGHTS_MARKED": "Read and edit rights have been marked for the owner organizational unit you selected.",
       "REGISTER": "Register georesource",
-      "REGISTRATION_FAILED": "Registration failed"
+      "REGISTRATION_FAILED": "Registration failed",
+      "MSG": {
+        "REQUIRED_FIELDS_MISSING": "Please fill in all required fields in the \"Spatial dataset\" step. Missing: {{missing}}.",
+        "REQUIRED_FIELDS": "Please fill in all required fields in the \"Spatial dataset\" step.",
+        "REGISTERED_WITH_FEATURES": "A new georesource named \"{{name}}\" was registered ({{count}} features imported).",
+        "REGISTERED": "A new georesource named \"{{name}}\" was registered.",
+        "CRITICAL_FEATURE_ERRORS": "Some of the features to be imported for the dataset have critical errors.",
+        "REGISTRATION_FAILED": "Error registering the georesource: {{error}}",
+        "DATASOURCE_BUILD_FAILED": "Error building the data source definition: {{error}}"
+      }
     },
     "METADATA_MODAL": {
       "TITLE": "Edit metadata of georesource <i><b>{{name}}</b></i>",
       "MAX_3_CHARS": "max. 3 characters",
-      "UPDATE_METADATA": "Update metadata"
+      "UPDATE_METADATA": "Update metadata",
+      "MSG": {
+        "METADATA_UPDATED": "The metadata of the georesource \"{{name}}\" were updated.",
+        "METADATA_UPDATE_FAILED": "Error updating the metadata: {{error}}"
+      }
     },
     "FEATURES_MODAL": {
       "TITLE": "Update features of georesource <i><b>{{name}}</b></i>",
@@ -249,7 +263,16 @@
       "SINGLE_EDIT_REQUIRED_HINT": "Only the elements marked with * are mandatory",
       "PARTIAL_UPDATE": "Partial update of individual geometries",
       "PARTIAL_UPDATE_HINT": "Specifies whether the update contains only a part of the spatial objects (e.g. 20/50 city districts). If the complete dataset is uploaded (switch disabled), KomMonitor compares the objects in the database and deletes those objects that are no longer contained in the uploaded dataset but lie within the same lifetime interval.",
-      "EDIT_FEATURES_FAILED": "Updating features failed"
+      "EDIT_FEATURES_FAILED": "Updating features failed",
+      "MSG": {
+        "ALL_FEATURES_DELETED": "All features were successfully deleted.",
+        "DELETE_FEATURES_FAILED": "Error deleting the features.",
+        "FEATURES_UPDATED_WITH": "The features of the georesource \"{{name}}\" were updated ({{count}} features imported).",
+        "FEATURES_UPDATED": "The features of the georesource \"{{name}}\" were updated.",
+        "CONTINUE_FAILED": "Error continuing the features: {{error}}",
+        "GENERIC_ERROR": "An error occurred: {{error}}",
+        "DELETE_ALL_CONFIRM": "Are you sure you want to delete all features of this georesource? This action cannot be undone."
+      }
     },
     "DELETE_MODAL": {
       "TITLE": "Delete georesources",
@@ -275,7 +298,11 @@
       "DELETE_FAILED": "Deletion failed",
       "DELETE_FAILED_HINT": "The following datasets could not be deleted.",
       "ERROR_MESSAGE": "Error message",
-      "DELETE_PERMANENTLY": "Delete georesources irreversibly"
+      "DELETE_PERMANENTLY": "Delete georesources irreversibly",
+      "MSG": {
+        "DELETED": "{{count}} georesource(s) as well as associated indicator references and scripts successfully deleted.",
+        "SOME_FAILED": "Some georesources could not be deleted."
+      }
     },
     "ROLES_MODAL": {
       "TITLE": "Edit access protection and ownership of georesource <i><b>{{name}}</b></i>",
@@ -283,7 +310,17 @@
       "OWNERSHIP_TITLE": "Ownership of a dataset",
       "OWNERSHIP_SUBTITLE": "Transfer the ownership of datasets with all associated rights",
       "OWNERSHIP_WARNING_1": "Please note that when transferring ownership of a resource you may lose all rights to it.",
-      "OWNERSHIP_WARNING_2": "The rights are transferred to the new owner irrevocably and immediately."
+      "OWNERSHIP_WARNING_2": "The rights are transferred to the new owner irrevocably and immediately.",
+      "MSG": {
+        "OWNERSHIP_TRANSFER_CONFIRM": "Are you sure you want to transfer and thereby permanently and irrevocably relinquish ownership of this resource?",
+        "RIGHTS_UPDATED": "Access rights for georesource \"{{name}}\" were updated.",
+        "RIGHTS_UPDATE_FAILED": "Error updating the access rights: {{error}}",
+        "OWNERSHIP_UPDATE_FAILED": "Error updating the ownership: {{error}}"
+      }
+    },
+    "MSG": {
+      "LOAD_LIST_FAILED": "The georesources could not be loaded.",
+      "LOAD_ONE_FAILED": "The georesource could not be loaded."
     }
   },
   "ADMIN_INDICATORS": {
@@ -687,7 +724,14 @@
       "READ_ACCESS_NOTE": "read access to the indicator time series is only granted to organizational units that also have read access to metadata of the associated spatial unit.",
       "PRESELECTED_RIGHTS_WARNING": "Read and edit rights have been pre-selected based on the selected spatial unit and for the owning organizational unit.",
       "KEEP_MISSING_HINT": "Indicates whether empty attribute values (<code>NULL</code> values) are adopted. These are treated like <i>NoData</i> values. If this option is disabled, an error is thrown in such a case.",
-      "CONTINUE_TIMESERIES": "Continue time series"
+      "CONTINUE_TIMESERIES": "Continue time series",
+      "MSG": {
+        "REQUIRED_FIELDS": "Please fill in all required fields of the import form.",
+        "CONTINUE_SUCCESS": "Continuing the time series of the indicator named {{name}} was successful.",
+        "IMPORTED_TIMESERIES": "{{count}} time series were imported in the process.",
+        "CONTINUE_FAILED": "Continuing the time series failed.",
+        "IMPORT_ERRORS": "({{count}} time series with import errors)"
+      }
     },
     "EDIT_ROLES": {
       "TITLE_PREFIX": "Edit access protection and ownership for indicator",
@@ -700,7 +744,16 @@
       "OWNERSHIP_TITLE": "Ownership of a dataset",
       "OWNERSHIP_SUBTITLE": "Transfer the ownership of datasets with all associated rights",
       "OWNERSHIP_WARNING_1": "Please note that when transferring ownership of a resource, you may lose all rights to it.",
-      "OWNERSHIP_WARNING_2": "The rights are transferred irrevocably and immediately to the new owner."
+      "OWNERSHIP_WARNING_2": "The rights are transferred irrevocably and immediately to the new owner.",
+      "MSG": {
+        "UPDATED": "Access protection and ownership for indicator '{{name}}' updated.",
+        "UPDATED_LINKED_SPATIAL_UNIT": "Linked spatial unit '{{name}}' was also updated.",
+        "METADATA_RIGHTS_FAILED": "Error updating the metadata access rights.",
+        "TIMESERIES_RIGHTS_FAILED": "Error updating the access rights to the time series of spatial unit {{name}}.",
+        "METADATA_OWNERSHIP_FAILED": "Error updating the metadata ownership.",
+        "TIMESERIES_OWNERSHIP_FAILED": "Error updating the time series ownership of spatial unit {{name}}.",
+        "OWNERSHIP_TRANSFER_CONFIRM": "Are you sure you want to transfer and thereby permanently and irrevocably relinquish ownership of this resource?"
+      }
     },
     "EDIT_METADATA": {
       "TITLE": "Edit indicator metadata",
@@ -783,7 +836,11 @@
       "HIERARCHY_HELP": "If no parent organizational unit is specified, the new organizational unit is created at the top level of the hierarchy. The hierarchy relationship can be adjusted later.",
       "RIGHTS_INTRO": "Should already existing organizational units/groups take over administrative tasks for the group to be created? Administrative rights can be transferred to other groups here by setting the corresponding checkmarks.",
       "RIGHTS_AFTER_CREATE_HINT": "Attention: The rights of the newly created organizational unit can only be set after creation within the 'Edit rights' menu.",
-      "SUBMIT": "Register group"
+      "SUBMIT": "Register group",
+      "MSG": {
+        "CREATED": "The new organizational unit '{{name}}' was successfully created.",
+        "KEYCLOAK_ROLES_CREATED": "Keycloak roles successfully created."
+      }
     },
     "DELETE_MODAL": {
       "TITLE": "Delete organizational units",
@@ -791,7 +848,10 @@
       "CHILDREN_CONFLICT": "Note that at least one of the selected organizational units has subgroups. Please delete the subgroups first.",
       "CONFIRM_QUESTION": "Do you really want to delete the following organizational units?",
       "ORGANIZATION_ID": "Organization ID",
-      "DELETE_FOREVER": "Delete irrevocably"
+      "DELETE_FOREVER": "Delete irrevocably",
+      "MSG": {
+        "DELETED": "The organizational unit \"{{name}}\" was successfully deleted."
+      }
     },
     "EDIT_RIGHTS_MODAL": {
       "TITLE_PREFIX": "Edit group-specific rights of the organizational unit",
@@ -803,7 +863,11 @@
       "OWN_RIGHTS_EDIT_HINT": "If you want to grant rights to the selected group, this must be done via the \"Rights of other groups\" menu.",
       "FOREIGN_RIGHTS_INTRO": "The table shows administrative rights that other groups hold for the selected group. Further administrative rights can be transferred to other groups here by setting the corresponding checkmarks.",
       "SELF_RIGHTS_HINT": "Attention: The rights of the selected group over itself are also controlled via this menu. In this case, the selected group is also to be regarded as an 'other group' to which corresponding administrative tasks can be assigned.",
-      "UPDATE_RIGHTS": "Update rights"
+      "UPDATE_RIGHTS": "Update rights",
+      "MSG": {
+        "LOAD_FAILED": "The role data could not be loaded.",
+        "RIGHTS_UPDATED": "Group rights for '{{name}}' successfully updated."
+      }
     },
     "EDIT_METADATA_MODAL": {
       "TITLE": "Edit metadata of the organizational unit",
@@ -815,7 +879,11 @@
       "NAME_INVALID": "Invalid input. Another role with the same name already exists.",
       "DESCRIPTION_PLACEHOLDER": "Department 52",
       "CONTACT_PLACEHOLDER": "sekretariat@kommonitor.de",
-      "UPDATE_METADATA": "Update metadata"
+      "UPDATE_METADATA": "Update metadata",
+      "MSG": {
+        "METADATA_SAVED": "Metadata of '{{name}}' successfully saved.",
+        "KEYCLOAK_ROLES_UPDATED": "Keycloak roles for '{{name}}' successfully updated."
+      }
     },
     "EXPLANATION": {
       "TITLE": "FAQ on the tenant concept and access protection for datasets",
@@ -868,6 +936,9 @@
           "CONTENT": "<table class=\"table\"><tr><th>Indicator metadata</th><th>Indicator time series per spatial level</th><th>Spatial unit metadata</th></tr><tr><td>Activate the <code>Public read access</code> switch</td><td>for all spatial units, activate the <code>Public read access</code> (further explicit sharing with groups only if needed for edit rights) <i>different configurations per spatial unit are conceivable</i></td><td>activate <code>public read access</code> on the affected spatial unit metadata itself</td></tr></table>"
         }
       }
+    },
+    "MSG": {
+      "LOAD_FAILED": "The data could not be loaded! Please try again later."
     }
   },
   "ADMIN_TOPICS": {
@@ -894,7 +965,11 @@
       "TITLE": "Delete topic entry",
       "CONFIRM_QUESTION": "Do you really want to delete the following topic entry?",
       "CASCADE_HINT": "This will also permanently remove all subtopics from the system.",
-      "DELETE_FOREVER": "Delete topic entry irrevocably"
+      "DELETE_FOREVER": "Delete topic entry irrevocably",
+      "MSG": {
+        "DELETED": "Topic '{{name}}' was deleted.",
+        "DELETE_FAILED": "The topic could not be deleted."
+      }
     },
     "EDIT_MODAL": {
       "TITLE_PREFIX": "Edit metadata of the topic entry",
@@ -905,7 +980,15 @@
       "NAME_REQUIRED": "Name is required",
       "DESCRIPTION_LABEL": "Description of the entry",
       "DESCRIPTION_REQUIRED": "Description is required",
-      "UPDATE": "Update entry"
+      "UPDATE": "Update entry",
+      "MSG": {
+        "UPDATED": "Topic '{{name}}' was updated.",
+        "UPDATE_FAILED": "The topic could not be updated."
+      }
+    },
+    "MSG": {
+      "SORT_SAVE_FAILED": "The sort order could not be saved.",
+      "SORT_MODES_LOAD_FAILED": "The sort modes could not be loaded."
     }
   },
   "ADMIN_SCRIPTS": {
@@ -1247,7 +1330,12 @@
       "BOX_TITLE": "App configuration",
       "INTRO_PREFIX": "Make adjustments to variable parameters of the web client and save them. Edits are made directly in JavaScript format. This stores the configuration in the",
       "EDITOR_LABEL": "Editor window for the app settings",
-      "SAVE": "Save app configuration"
+      "SAVE": "Save app configuration",
+      "MSG": {
+        "LOAD_FAILED": "Loading the app configuration failed: {{error}}",
+        "SAVED": "App configuration saved. The new parameterization will be loaded the next time the application starts.",
+        "SAVE_FAILED": "Saving the app configuration to the Config Storage Server failed: {{error}}"
+      }
     },
     "CONTROLS": {
       "TITLE": "Web Client Controls",
@@ -1255,7 +1343,12 @@
       "BOX_TITLE": "Controls configuration",
       "INTRO_PREFIX": "Make adjustments to the controls of the web client and save them. Edits are made directly in JavaScript format. This stores the configuration in the",
       "EDITOR_LABEL": "Editor window for the controls settings",
-      "SAVE": "Save controls configuration"
+      "SAVE": "Save controls configuration",
+      "MSG": {
+        "LOAD_FAILED": "Loading the controls configuration failed: {{error}}",
+        "SAVED": "Controls configuration saved.",
+        "SAVE_FAILED": "Saving the controls configuration failed: {{error}}"
+      }
     },
     "FILTER": {
       "TITLE": "Configuration of global content filters",
@@ -1264,7 +1357,12 @@
       "CONFIG_BOX_TITLE": "Global filters - configuration file",
       "INTRO": "Group indicators, georesources and topics into global filters. When such a filter is invoked, KomMonitor loads the contents defined in the filter.",
       "EDITOR_LABEL": "Editor window for the filter configuration",
-      "SAVE": "Save filter configuration"
+      "SAVE": "Save filter configuration",
+      "MSG": {
+        "SAVED": "Filter configuration saved.",
+        "SAVE_FAILED": "Saving the filter configuration failed: {{error}}",
+        "DELETE_CONFIRM": "Do you really want to permanently delete the filter {{name}}?"
+      }
     },
     "FILTER_EDIT": {
       "TITLE": "Edit global filter",
@@ -1279,7 +1377,11 @@
       "GEORESOURCES_SUBTITLE": "Selection of the visible georesources",
       "SHOW_ASSIGNED_GEORESOURCES": "Show only assigned georesources",
       "GEORESOURCE_TOPICS_TITLE": "Georesource topics",
-      "GEORESOURCE_TOPICS_SUBTITLE": "Selection of the georesource-specific topics"
+      "GEORESOURCE_TOPICS_SUBTITLE": "Selection of the georesource-specific topics",
+      "MSG": {
+        "SAVED": "Filter saved.",
+        "NO_DATA_CONFIRM": "You have selected neither indicator nor georesource data for later viewing. Continue anyway?"
+      }
     }
   },
   "ADMIN_SPATIAL_UNITS": {
@@ -1402,7 +1504,14 @@
     },
     "ADD_MODAL": {
       "TITLE": "Register new spatial unit level",
-      "SUBMIT": "Register spatial unit"
+      "SUBMIT": "Register spatial unit",
+      "MSG": {
+        "DATASOURCE_BUILD_FAILED": "Error building the data source definition: {{error}}",
+        "REGISTERED_WITH_FEATURES": "A new spatial unit named \"{{name}}\" was registered ({{count}} spatial units imported).",
+        "REGISTERED": "A new spatial unit named \"{{name}}\" was registered.",
+        "CRITICAL_FEATURE_ERRORS": "Some of the features to be imported for the dataset have critical errors.",
+        "REGISTRATION_FAILED": "Error registering the spatial unit: {{error}}"
+      }
     },
     "DELETE_MODAL": {
       "TITLE": "Delete spatial unit levels",
@@ -1412,12 +1521,21 @@
       "DELETE_PERMANENTLY": "Delete spatial unit levels irrevocably",
       "DELETE_FAILED": "Deletion failed",
       "DELETE_FAILED_TEXT": "The following datasets could not be deleted.",
-      "ERROR_MESSAGE": "Error message"
+      "ERROR_MESSAGE": "Error message",
+      "MSG": {
+        "DELETED": "{{count}} spatial unit(s) successfully deleted.",
+        "SOME_FAILED": "Some spatial units could not be deleted.",
+        "UNEXPECTED_ERROR": "An unexpected error occurred."
+      }
     },
     "EDIT_METADATA_MODAL": {
       "TITLE": "Edit metadata of spatial unit level <i><b>{{name}}</b></i>",
       "UPDATE_METADATA": "Update metadata",
-      "UPDATING": "Updating..."
+      "UPDATING": "Updating...",
+      "MSG": {
+        "METADATA_UPDATED": "Metadata for spatial unit \"{{name}}\" successfully updated.",
+        "METADATA_UPDATE_FAILED": "Error updating the metadata: {{error}}"
+      }
     },
     "EDIT_FEATURES_MODAL": {
       "TITLE": "Update spatial units of spatial unit level <i><b>{{name}}</b></i>",
@@ -1434,7 +1552,15 @@
       "LAST_UPDATE_FAILURE": "Last failed update of a single entry",
       "PARTIAL_UPDATE": "Partial update of individual geometries",
       "PARTIAL_UPDATE_HINT": "Specifies whether the update contains only a part of the spatial objects (e.g. 20/50 city districts). If the complete dataset is uploaded (switch disabled), KomMonitor compares the objects in the database and deletes those objects that are no longer contained in the uploaded dataset but lie within the same lifetime interval.",
-      "SUBMIT": "Update spatial units"
+      "SUBMIT": "Update spatial units",
+      "MSG": {
+        "ALL_FEATURES_DELETED": "All features of the spatial unit \"{{name}}\" were deleted.",
+        "REQUIRED_FIELDS_MISSING": "Please fill in all required fields in step 2. Missing: {{missing}}.",
+        "REQUIRED_FIELDS": "Please fill in all required fields in step 2.",
+        "FEATURES_UPDATED": "The features of the spatial unit \"{{name}}\" were updated.",
+        "CRITICAL_FEATURE_ERRORS": "Some of the features to be imported for the dataset have critical errors.",
+        "GENERIC_ERROR": "An error occurred: {{error}}"
+      }
     },
     "EDIT_ROLES_MODAL": {
       "TITLE": "Edit access protection and ownership for spatial unit <i><b>{{name}}</b></i>",
@@ -1442,7 +1568,16 @@
       "OWNERSHIP_TITLE": "Ownership of a dataset",
       "OWNERSHIP_SUBTITLE": "Transfer ownership of datasets with all associated rights",
       "OWNERSHIP_WARNING_1": "Please note that when transferring ownership of a resource you may lose all rights to it.",
-      "OWNERSHIP_WARNING_2": "The rights are transferred to the new owner irrevocably and immediately."
+      "OWNERSHIP_WARNING_2": "The rights are transferred to the new owner irrevocably and immediately.",
+      "MSG": {
+        "OWNERSHIP_TRANSFER_CONFIRM": "Are you sure you want to transfer and thereby permanently and irrevocably relinquish ownership of this resource?",
+        "RIGHTS_UPDATED": "Access rights for spatial unit \"{{name}}\" were updated.",
+        "RIGHTS_UPDATE_FAILED": "Error updating the access rights: {{error}}",
+        "OWNERSHIP_UPDATE_FAILED": "Error updating the ownership: {{error}}"
+      }
+    },
+    "MSG": {
+      "LOAD_FAILED": "The spatial units could not be loaded."
     }
   }
 }

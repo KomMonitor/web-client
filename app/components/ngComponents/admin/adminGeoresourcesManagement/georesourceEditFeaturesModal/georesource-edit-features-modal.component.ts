@@ -42,6 +42,7 @@ import { StepperComponent } from 'components/ngComponents/common/stepper/stepper
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-georesource-edit-features-modal',
   templateUrl: './georesource-edit-features-modal.component.html',
@@ -65,6 +66,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   private cacheHelperService = inject(CacheHelperServiceService);
   private indicatorValueService = inject(IndicatorValueService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   featureTableHelper = inject(FeatureTableDataGridHelperService);
@@ -395,9 +397,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     if (!this.enableDeleteFeatures || !this.currentGeoresourceDataset) return;
 
     if (
-      confirm(
-        'Sind Sie sicher, dass Sie alle Features dieser Georessource löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.'
-      )
+      confirm(this.translate.instant('ADMIN_GEORESOURCES.FEATURES_MODAL.MSG.DELETE_ALL_CONFIRM'))
     ) {
       this.loadingData.set(true);
 
@@ -409,12 +409,16 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
           next: (_response: any) => {
             this.loadingData.set(false);
             this.refreshGeoresourceEditFeaturesOverviewTable();
-            alert('Alle Features wurden erfolgreich gelöscht.');
+            alert(
+              this.translate.instant('ADMIN_GEORESOURCES.FEATURES_MODAL.MSG.ALL_FEATURES_DELETED')
+            );
           },
           error: (error: any) => {
             this.loadingData.set(false);
             console.error('Error deleting features:', error);
-            alert('Fehler beim Löschen der Features.');
+            alert(
+              this.translate.instant('ADMIN_GEORESOURCES.FEATURES_MODAL.MSG.DELETE_FEATURES_FAILED')
+            );
           },
         });
     }
@@ -611,8 +615,14 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
           this.loadingData.set(false);
           const featureCount = this.importedFeatures.length;
           this.notificationService.showSuccess(
-            `Die Features der Georessource "${this.currentGeoresourceDataset.datasetName}" wurden aktualisiert` +
-              (featureCount > 0 ? ` (${featureCount} Features importiert).` : '.')
+            featureCount > 0
+              ? this.translate.instant(
+                  'ADMIN_GEORESOURCES.FEATURES_MODAL.MSG.FEATURES_UPDATED_WITH',
+                  { name: this.currentGeoresourceDataset.datasetName, count: featureCount }
+                )
+              : this.translate.instant('ADMIN_GEORESOURCES.FEATURES_MODAL.MSG.FEATURES_UPDATED', {
+                  name: this.currentGeoresourceDataset.datasetName,
+                })
           );
           this.activeModal.close({ action: 'updated' });
         },
@@ -620,7 +630,9 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
           // Keep the modal open so the per-feature importer error report stays visible.
           this.importerErrors.set(error.error?.importerErrors || []);
           this.notificationService.showError(
-            'Fehler beim Fortführen der Features: ' + getErrorMessage(error)
+            this.translate.instant('ADMIN_GEORESOURCES.FEATURES_MODAL.MSG.CONTINUE_FAILED', {
+              error: getErrorMessage(error),
+            })
           );
           this.loadingData.set(false);
         },
@@ -815,7 +827,11 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   private handleError(error: any): void {
     console.error('Error occurred:', error);
-    this.notificationService.showError('Ein Fehler ist aufgetreten: ' + getErrorMessage(error));
+    this.notificationService.showError(
+      this.translate.instant('ADMIN_GEORESOURCES.FEATURES_MODAL.MSG.GENERIC_ERROR', {
+        error: getErrorMessage(error),
+      })
+    );
   }
 
   // Modal control

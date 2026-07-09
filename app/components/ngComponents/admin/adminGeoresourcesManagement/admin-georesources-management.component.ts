@@ -33,6 +33,7 @@ import { AdminContentViewComponent } from '../admin-content-view/admin-content-v
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-admin-georesources-management',
   templateUrl: './admin-georesources-management.component.html',
@@ -57,6 +58,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
   private kommonitorDataGridHelperService = inject(KommonitorGeoresourceDataGridHelperService);
   protected wmsSharedComponentsService = inject(WmsSharedComponentsService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   public tableViewSwitcher = signal(false);
 
@@ -113,7 +115,9 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
       this.kommonitorDataExchangeService
         .fetchGeoresourcesMetadata(this.kommonitorDataExchangeService.currentKeycloakLoginRoles)
         .catch(() => {
-          this.notificationService.showError('Die Georessourcen konnten nicht geladen werden.');
+          this.notificationService.showError(
+            this.translate.instant('ADMIN_GEORESOURCES.MSG.LOAD_LIST_FAILED')
+          );
         });
     }
   }
@@ -210,7 +214,9 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
       this.kommonitorDataExchangeService
         .fetchGeoresourcesMetadata(this.kommonitorDataExchangeService.currentKeycloakLoginRoles)
         .catch(() => {
-          this.notificationService.showError('Die Georessourcen konnten nicht geladen werden.');
+          this.notificationService.showError(
+            this.translate.instant('ADMIN_GEORESOURCES.MSG.LOAD_LIST_FAILED')
+          );
         });
     } else if (crudType === 'add' || crudType === 'edit') {
       this.cacheHelperService
@@ -223,7 +229,9 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
           }
         })
         .catch(() => {
-          this.notificationService.showError('Die Georessource konnte nicht geladen werden.');
+          this.notificationService.showError(
+            this.translate.instant('ADMIN_GEORESOURCES.MSG.LOAD_ONE_FAILED')
+          );
         });
     } else if (crudType === 'delete') {
       // targetGeoresourceId might be array in this case

@@ -39,6 +39,7 @@ import { NotificationService } from 'components/ngComponents/common/notification
 import { getErrorMessage } from '../spatial-unit-import.util';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { ResourceMetadataFormComponent } from '../../adminShared/resourceMetadataForm/resource-metadata-form.component';
 import {
@@ -76,6 +77,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   private broadcastService = inject(BroadcastService);
   private sanitizer = inject(DomSanitizer);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
 
   /** Emitted after metadata changed so the parent refreshes its table. */
@@ -361,7 +363,9 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
       this.loadingData.set(false);
       this.notificationService.showSuccess(
-        `Metadaten für Raumebene "${this.currentSpatialUnitDataset.spatialUnitLevel}" erfolgreich aktualisiert.`
+        this.translate.instant('ADMIN_SPATIAL_UNITS.EDIT_METADATA_MODAL.MSG.METADATA_UPDATED', {
+          name: this.currentSpatialUnitDataset.spatialUnitLevel,
+        })
       );
       this.activeModal.close({
         action: 'updated',
@@ -369,7 +373,10 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
       });
     } catch (error: any) {
       this.notificationService.showError(
-        'Fehler beim Aktualisieren der Metadaten: ' + getErrorMessage(error)
+        this.translate.instant(
+          'ADMIN_SPATIAL_UNITS.EDIT_METADATA_MODAL.MSG.METADATA_UPDATE_FAILED',
+          { error: getErrorMessage(error) }
+        )
       );
       this.loadingData.set(false);
     }

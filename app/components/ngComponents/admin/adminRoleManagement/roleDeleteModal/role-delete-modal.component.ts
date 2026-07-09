@@ -8,6 +8,7 @@ import { NotificationService } from '../../../common/notification/notification.s
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-role-delete-modal',
   templateUrl: './role-delete-modal.component.html',
@@ -18,6 +19,7 @@ import { TranslateModule } from '@ngx-translate/core';
 export class RoleDeleteModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
   private roleMgmgSrvc = inject(AdminRoleManagementService);
 
   @Input() datasetsToDelete: AccessControlMetadata[] = [];
@@ -73,7 +75,9 @@ export class RoleDeleteModalComponent implements OnInit {
       results.forEach((res) => {
         if (res.success) {
           this.notificationService.showSuccess(
-            `Die Organisationseinheit "${res.dataset.name}" wurde erfolgreich gelöscht.`
+            this.translate.instant('ADMIN_ROLES.DELETE_MODAL.MSG.DELETED', {
+              name: res.dataset.name,
+            })
           );
         } else {
           failed.push([res.dataset, res.error || JSON.stringify(res)]);

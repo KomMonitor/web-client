@@ -9,6 +9,7 @@ import { NotificationService } from '../../../common/notification/notification.s
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-role-edit-metadata-modal',
   templateUrl: './role-edit-metadata-modal.component.html',
@@ -22,6 +23,7 @@ export class RoleEditMetadataModalComponent implements OnInit {
   private accessControlService = inject(AccessControlService);
   private adminRoleManagementService = inject(AdminRoleManagementService);
   private notificationSrvc = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   @Input() currentDataset!: AccessControlMetadata;
 
@@ -73,7 +75,9 @@ export class RoleEditMetadataModalComponent implements OnInit {
         if (res.success) {
           this.successMessagePart = this.currentDataset.name;
           this.notificationSrvc.showSuccess(
-            `Metadaten von '${this.successMessagePart}' erfolgreich gespeichert.`
+            this.translate.instant('ADMIN_ROLES.EDIT_METADATA_MODAL.MSG.METADATA_SAVED', {
+              name: this.successMessagePart,
+            })
           );
 
           if (res.keycloakErrorMessagePart) {
@@ -81,7 +85,9 @@ export class RoleEditMetadataModalComponent implements OnInit {
             this.showKeycloakErrorAlert.set(true);
           } else {
             this.notificationSrvc.showSuccess(
-              `Keycloak-Rollen für '${this.successMessagePart}' erfolgreich aktualisiert.`
+              this.translate.instant('ADMIN_ROLES.EDIT_METADATA_MODAL.MSG.KEYCLOAK_ROLES_UPDATED', {
+                name: this.successMessagePart,
+              })
             );
           }
 

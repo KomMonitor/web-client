@@ -22,6 +22,7 @@ import { Topic } from '../topic.model';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-topic-edit-modal',
   templateUrl: './topic-edit-modal.component.html',
@@ -36,6 +37,7 @@ export class TopicEditModalComponent implements OnInit {
   private srvc = inject(AdminTopicsManagementService);
   private destroyRef = inject(DestroyRef);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   @Input({ required: true }) topic!: Topic;
 
@@ -89,7 +91,9 @@ export class TopicEditModalComponent implements OnInit {
       .subscribe({
         next: () => {
           this.isSubmitting.set(false);
-          this.notificationService.showSuccess(`Thema '${name}' wurde aktualisiert.`);
+          this.notificationService.showSuccess(
+            this.translate.instant('ADMIN_TOPICS.EDIT_MODAL.MSG.UPDATED', { name })
+          );
           this.activeModal.close(true);
         },
         error: (error) => {
@@ -106,7 +110,7 @@ export class TopicEditModalComponent implements OnInit {
     if (error?.message) {
       return error.message;
     }
-    return 'Das Thema konnte nicht aktualisiert werden.';
+    return this.translate.instant('ADMIN_TOPICS.EDIT_MODAL.MSG.UPDATE_FAILED');
   }
 
   cancel() {

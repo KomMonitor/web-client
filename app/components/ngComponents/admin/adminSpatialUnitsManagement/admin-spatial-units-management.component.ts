@@ -38,6 +38,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
 import { FormsModule } from '@angular/forms';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { SpatialUnitRefreshRequest } from './spatial-unit-refresh.model';
 
@@ -64,6 +65,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
   private cacheHelperService = inject(CacheHelperServiceService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
   private destroyRef = inject(DestroyRef);
 
   @ViewChild('spatialUnitOverviewTable', { static: true })
@@ -366,7 +368,9 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
       .fetchSpatialUnitsMetadata(currentRoles)
       // The data itself arrives via the store subscription in ngOnInit
       .catch(() => {
-        this.notificationService.showError('Die Raumebenen konnten nicht geladen werden.');
+        this.notificationService.showError(
+          this.translate.instant('ADMIN_SPATIAL_UNITS.MSG.LOAD_FAILED')
+        );
       })
       .finally(() => {
         this.loadingData = false;

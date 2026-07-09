@@ -31,6 +31,7 @@ import {
 } from '../advanced-role-permissions';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-role-edit-group-rights-modal',
   templateUrl: './role-edit-group-rights-modal.component.html',
@@ -52,6 +53,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private adminRoleManagementService = inject(AdminRoleManagementService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
 
   @Input() currentDataset!: AccessControlMetadata;
@@ -103,7 +105,9 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
       },
       error: (err) => {
         console.error(err);
-        this.notificationService.showError('Die Rollendaten konnten nicht geladen werden.');
+        this.notificationService.showError(
+          this.translate.instant('ADMIN_ROLES.EDIT_RIGHTS_MODAL.MSG.LOAD_FAILED')
+        );
         this.loadingData = false;
         this.cdr.markForCheck();
       },
@@ -223,7 +227,9 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
       .subscribe((result) => {
         if (result.success) {
           this.notificationService.showSuccess(
-            `Gruppenrechte für '${this.currentDataset.name}' erfolgreich aktualisiert.`
+            this.translate.instant('ADMIN_ROLES.EDIT_RIGHTS_MODAL.MSG.RIGHTS_UPDATED', {
+              name: this.currentDataset.name,
+            })
           );
           this.activeModal.close(true);
         } else {

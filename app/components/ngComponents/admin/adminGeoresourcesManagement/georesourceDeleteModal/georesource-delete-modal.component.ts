@@ -23,6 +23,7 @@ import { ProcessScriptMetadataStoreService } from 'services/process-script-metad
 import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 interface AffectedScript {
   scriptId: string;
   name: string;
@@ -61,6 +62,7 @@ export class GeoresourceDeleteModalComponent implements OnInit {
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private processScriptStore = inject(ProcessScriptMetadataStoreService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
   private http = inject(HttpClient);
 
   @Input() datasetsToDelete: GeoresourcesDataset[] = [];
@@ -185,12 +187,16 @@ export class GeoresourceDeleteModalComponent implements OnInit {
       });
 
       this.notificationService.showSuccess(
-        `${this.successfullyDeletedDatasets.length} Georessource(n) sowie assoziierte Indikatorenreferenzen und Skripte erfolgreich gelöscht.`
+        this.translate.instant('ADMIN_GEORESOURCES.DELETE_MODAL.MSG.DELETED', {
+          count: this.successfullyDeletedDatasets.length,
+        })
       );
     }
 
     if (this.failedDatasetsAndErrors().length > 0) {
-      this.notificationService.showError('Einige Georessourcen konnten nicht gelöscht werden.');
+      this.notificationService.showError(
+        this.translate.instant('ADMIN_GEORESOURCES.DELETE_MODAL.MSG.SOME_FAILED')
+      );
     }
 
     this.loadingData.set(false);

@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import CodeMirror from 'codemirror';
 import { skip } from 'rxjs';
 
@@ -62,6 +63,7 @@ export class AdminFilterConfigComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private envConfigService = inject(EnvConfigService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
 
@@ -309,7 +311,11 @@ export class AdminFilterConfigComponent implements OnInit {
 
     const item = this.mergedFilterConfig.filter((e) => e.filterId == itemId);
     if (item.length == 1) {
-      if (confirm('Wollen Sie den Filter ' + item[0].name + ' sicher dauerhaft löschen?')) {
+      if (
+        confirm(
+          this.translate.instant('ADMIN_CONFIG.FILTER.MSG.DELETE_CONFIRM', { name: item[0].name })
+        )
+      ) {
         const configNew = this.origConfig
           .filter((e, i) => i != itemId)
           .map((e) => {
@@ -505,7 +511,9 @@ export class AdminFilterConfigComponent implements OnInit {
     try {
       await this.kommonitorConfigStorageService.postFilterConfig(this.filterConfigTmp).subscribe({
         next: async (_response) => {
-          this.notificationService.showSuccess('Filter-Konfiguration gespeichert.');
+          this.notificationService.showSuccess(
+            this.translate.instant('ADMIN_CONFIG.FILTER.MSG.SAVED')
+          );
           this.loadingData = false;
 
           this.filterConfigCurrent = this.filterConfigTmp;
@@ -522,8 +530,13 @@ export class AdminFilterConfigComponent implements OnInit {
     } catch (error: any) {
       console.error('Error editing filter config:', error);
       this.notificationService.showError(
-        'Speichern der Filter-Konfiguration gescheitert: ' +
-          (error?.error?.message || error?.data || error?.message || 'Unbekannter Fehler'),
+        this.translate.instant('ADMIN_CONFIG.FILTER.MSG.SAVE_FAILED', {
+          error:
+            error?.error?.message ||
+            error?.data ||
+            error?.message ||
+            this.translate.instant('ADMIN_SHARED.UNKNOWN_ERROR'),
+        }),
         { autohide: false }
       );
       this.loadingData = false;

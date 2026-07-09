@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -56,6 +57,7 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
   private envConfigService = inject(EnvConfigService);
   private kommonitorScriptHelperService = inject(ScriptHelperService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   @ViewChild('controlsConfigEditor') controlsConfigEditor!: ElementRef;
   @ViewChild('templateCodeMirror') templateCodeMirrorElement!: ElementRef;
@@ -165,8 +167,12 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
     } catch (error: any) {
       console.error('Error initializing controls config:', error);
       this.notificationService.showError(
-        'Laden der Controls-Konfiguration gescheitert: ' +
-          (error?.error?.message || error?.message || 'Unbekannter Fehler'),
+        this.translate.instant('ADMIN_CONFIG.CONTROLS.MSG.LOAD_FAILED', {
+          error:
+            error?.error?.message ||
+            error?.message ||
+            this.translate.instant('ADMIN_SHARED.UNKNOWN_ERROR'),
+        }),
         { autohide: false }
       );
     } finally {
@@ -322,12 +328,18 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
       if (this.currentCodeMirrorEditor) {
         this.currentCodeMirrorEditor.setValue(this.controlsConfigCurrent);
       }
-      this.notificationService.showSuccess('Controls-Konfiguration gespeichert.');
+      this.notificationService.showSuccess(
+        this.translate.instant('ADMIN_CONFIG.CONTROLS.MSG.SAVED')
+      );
     } catch (error: any) {
       console.error('Error editing controls config:', error);
       this.notificationService.showError(
-        'Speichern der Controls-Konfiguration gescheitert: ' +
-          (error?.error?.message || error?.message || 'Unbekannter Fehler'),
+        this.translate.instant('ADMIN_CONFIG.CONTROLS.MSG.SAVE_FAILED', {
+          error:
+            error?.error?.message ||
+            error?.message ||
+            this.translate.instant('ADMIN_SHARED.UNKNOWN_ERROR'),
+        }),
         { autohide: false }
       );
     } finally {

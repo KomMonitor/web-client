@@ -44,6 +44,7 @@ import {
 import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-georesource-edit-metadata-modal',
   templateUrl: './georesource-edit-metadata-modal.component.html',
@@ -68,6 +69,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
   protected accessControlService = inject(AccessControlService);
   private indicatorValueService = inject(IndicatorValueService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
   private topicHierarchyService = inject(TopicHierarchyService);
@@ -590,7 +592,9 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
           });
           this.loadingData.set(false);
           this.notificationService.showSuccess(
-            `Metadaten der Georessource "${this.datasetName}" wurden aktualisiert.`
+            this.translate.instant('ADMIN_GEORESOURCES.METADATA_MODAL.MSG.METADATA_UPDATED', {
+              name: this.datasetName,
+            })
           );
           this.activeModal.close({
             action: 'updated',
@@ -599,7 +603,9 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
         },
         error: (error: any) => {
           this.notificationService.showError(
-            'Fehler beim Aktualisieren der Metadaten: ' + getErrorMessage(error)
+            this.translate.instant('ADMIN_GEORESOURCES.METADATA_MODAL.MSG.METADATA_UPDATE_FAILED', {
+              error: getErrorMessage(error),
+            })
           );
           this.loadingData.set(false);
         },

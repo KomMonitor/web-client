@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from '../../../../../../services/broadcast-service/broadcast.service';
@@ -29,6 +30,7 @@ export class AdminFilterEditModalComponent {
   private kommonitorConfigStorageService = inject(ConfigStorageService);
   private broadcastService = inject(BroadcastService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
 
   activeModal = inject(NgbActiveModal);
@@ -402,12 +404,7 @@ export class AdminFilterEditModalComponent {
       this.selectedIndicatorTopicEditIds.length == 0 &&
       this.selectedGeoresourceTopicEditIds.length == 0
     ) {
-      if (
-        !confirm(
-          'Sie haben weder Indikator- noch Georesource Daten zur späteren Ansicht ausgewählt. Trotzdem fortfahren?'
-        )
-      )
-        return;
+      if (!confirm(this.translate.instant('ADMIN_CONFIG.FILTER_EDIT.MSG.NO_DATA_CONFIRM'))) return;
     }
 
     const filterConfig = await this.kommonitorConfigStorageService.getFilterConfig();
@@ -433,7 +430,9 @@ export class AdminFilterEditModalComponent {
       JSON.stringify(filterConfig, null, '    ')
     );
 
-    this.notificationService.showSuccess('Filter gespeichert.');
+    this.notificationService.showSuccess(
+      this.translate.instant('ADMIN_CONFIG.FILTER_EDIT.MSG.SAVED')
+    );
     this.loadingData = false;
 
     this.refreshIndicatorsTable();

@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -65,6 +66,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   featureTableHelper = inject(FeatureTableDataGridHelperService);
   protected envConfigService = inject(EnvConfigService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   featureTableGridOptions: GridOptions = {};
 
@@ -521,7 +523,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       // Formerly triggered the bootstrap-validator jQuery plugin, which is not
       // loaded since the migration and threw a TypeError here.
       this.notificationService.showError(
-        'Bitte füllen Sie alle Pflichtfelder des Import-Formulars aus.'
+        this.translate.instant('ADMIN_INDICATORS.EDIT_FEATURES.MSG.REQUIRED_FIELDS')
       );
       this.loadingData.set(false);
       return;
@@ -610,9 +612,15 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
 
   // Alert management
   showSuccessAlert(): void {
-    let message = `Fortführen der Zeitreihen des Indikators mit Namen ${this.successMessagePart} war erfolgreich.`;
+    let message = this.translate.instant('ADMIN_INDICATORS.EDIT_FEATURES.MSG.CONTINUE_SUCCESS', {
+      name: this.successMessagePart,
+    });
     if (this.importedFeatures && this.importedFeatures.length > 0) {
-      message += ` ${this.importedFeatures.length} Zeitreihen wurden dabei importiert.`;
+      message +=
+        ' ' +
+        this.translate.instant('ADMIN_INDICATORS.EDIT_FEATURES.MSG.IMPORTED_TIMESERIES', {
+          count: this.importedFeatures.length,
+        });
     }
     this.notificationService.showSuccess(message);
   }
@@ -622,12 +630,16 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     const tmp = document.createElement('div');
     tmp.innerHTML = this.errorMessagePart || '';
     const detail = (tmp.textContent || '').trim();
-    let message = 'Zeitreihen fortführen gescheitert.';
+    let message = this.translate.instant('ADMIN_INDICATORS.EDIT_FEATURES.MSG.CONTINUE_FAILED');
     if (detail) {
       message += ' ' + detail;
     }
     if (this.importerErrors && this.importerErrors.length > 0) {
-      message += ` (${this.importerErrors.length} Zeitreihen mit Importfehlern)`;
+      message +=
+        ' ' +
+        this.translate.instant('ADMIN_INDICATORS.EDIT_FEATURES.MSG.IMPORT_ERRORS', {
+          count: this.importerErrors.length,
+        });
     }
     this.notificationService.showError(message, { autohide: false });
   }

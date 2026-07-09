@@ -21,6 +21,7 @@ import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-
 import { NotificationService } from '../../common/notification/notification.service';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 interface AccessControlTableEntry extends AccessControlMetadata {
   parentName?: string;
   ownChildGroupNames?: string[];
@@ -48,6 +49,7 @@ export class AdminRoleManagementComponent implements OnInit {
   private metadataBootstrap = inject(MetadataBootstrapService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
   protected keycloakHelperService = inject(KeycloakHelperService);
 
   // Signal-backed: written from the async access-control fetch callbacks,
@@ -137,9 +139,7 @@ export class AdminRoleManagementComponent implements OnInit {
   }
 
   private handleError(error: any) {
-    this.notificationService.showError(
-      'Die Daten konnten nicht geladen werden! Bitte versuchen Sie es später erneut.'
-    );
+    this.notificationService.showError(this.translate.instant('ADMIN_ROLES.MSG.LOAD_FAILED'));
     console.error(error);
     this.loadingData.set(false);
   }

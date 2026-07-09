@@ -25,6 +25,7 @@ import { RoleManagementGridComponent } from '../../adminShared/roleManagementPan
 import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManagementPanel/owner-organization-select.component';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-georesource-edit-user-roles-modal',
   templateUrl: './georesource-edit-user-roles-modal.component.html',
@@ -44,6 +45,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
   protected envConfigService = inject(EnvConfigService);
   private broadcastService = inject(BroadcastService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
   private http = inject(HttpClient);
 
   /** Emitted after a successful permissions/ownership update so the parent refreshes its table. */
@@ -112,8 +114,9 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
 
     const ownershipChanging = this.isOwnershipChanging();
     if (ownershipChanging) {
-      const confirmMessage =
-        'Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?';
+      const confirmMessage = this.translate.instant(
+        'ADMIN_GEORESOURCES.ROLES_MODAL.MSG.OWNERSHIP_TRANSFER_CONFIRM'
+      );
       if (!window.confirm(confirmMessage)) {
         return;
       }
@@ -136,7 +139,9 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     }
 
     this.notificationService.showSuccess(
-      `Zugriffsrechte für Georessource "${dataset.datasetName}" wurden aktualisiert.`
+      this.translate.instant('ADMIN_GEORESOURCES.ROLES_MODAL.MSG.RIGHTS_UPDATED', {
+        name: dataset.datasetName,
+      })
     );
     this.activeModal.close({
       action: 'updated',
@@ -173,7 +178,9 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
       return true;
     } catch (error: any) {
       this.notificationService.showError(
-        'Fehler beim Aktualisieren der Zugriffsrechte: ' + getErrorMessage(error)
+        this.translate.instant('ADMIN_GEORESOURCES.ROLES_MODAL.MSG.RIGHTS_UPDATE_FAILED', {
+          error: getErrorMessage(error),
+        })
       );
       return false;
     } finally {
@@ -206,7 +213,9 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
       return true;
     } catch (error: any) {
       this.notificationService.showError(
-        'Fehler beim Aktualisieren der Eigentümerschaft: ' + getErrorMessage(error)
+        this.translate.instant('ADMIN_GEORESOURCES.ROLES_MODAL.MSG.OWNERSHIP_UPDATE_FAILED', {
+          error: getErrorMessage(error),
+        })
       );
       return false;
     } finally {

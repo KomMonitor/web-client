@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -53,6 +54,7 @@ export class AdminAppConfigComponent implements OnInit {
   private kommonitorConfigStorageService = inject(ConfigStorageService);
   private kommonitorScriptHelperService = inject(ScriptHelperService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   @ViewChild('appConfigEditor') appConfigEditor!: ElementRef;
 
@@ -156,8 +158,12 @@ export class AdminAppConfigComponent implements OnInit {
     } catch (error: any) {
       console.error('Error initializing app config:', error);
       this.notificationService.showError(
-        'Laden der App-Konfiguration gescheitert: ' +
-          (error?.error?.message || error?.message || 'Unbekannter Fehler'),
+        this.translate.instant('ADMIN_CONFIG.APP.MSG.LOAD_FAILED', {
+          error:
+            error?.error?.message ||
+            error?.message ||
+            this.translate.instant('ADMIN_SHARED.UNKNOWN_ERROR'),
+        }),
         { autohide: false }
       );
     } finally {
@@ -283,7 +289,7 @@ export class AdminAppConfigComponent implements OnInit {
             this.currentCodeMirrorEditor.setValue(newCurrentConfig);
           }
           this.notificationService.showSuccess(
-            'App-Konfiguration gespeichert. Die neue Parametrisierung wird beim nächsten Start der Anwendung geladen.'
+            this.translate.instant('ADMIN_CONFIG.APP.MSG.SAVED')
           );
           this.loadingData.set(false);
         },
@@ -301,8 +307,13 @@ export class AdminAppConfigComponent implements OnInit {
   private showSaveError(error: any): void {
     console.error('Error saving app config:', error);
     this.notificationService.showError(
-      'Speichern der App-Konfiguration in Config Storage Server gescheitert: ' +
-        (error?.error?.message || error?.data || error?.message || 'Unbekannter Fehler'),
+      this.translate.instant('ADMIN_CONFIG.APP.MSG.SAVE_FAILED', {
+        error:
+          error?.error?.message ||
+          error?.data ||
+          error?.message ||
+          this.translate.instant('ADMIN_SHARED.UNKNOWN_ERROR'),
+      }),
       { autohide: false }
     );
   }

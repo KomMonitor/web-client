@@ -35,6 +35,7 @@ import {
 import { RoleDelegatePutEntry } from '../admin-role-management.service';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-role-add-modal',
   templateUrl: './role-add-modal.component.html',
@@ -59,6 +60,7 @@ export class RoleAddModalComponent implements OnInit {
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private adminRoleManagementService = inject(AdminRoleManagementService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
 
   // Signal-backed: written from the async create-request callbacks, which would
@@ -268,9 +270,13 @@ export class RoleAddModalComponent implements OnInit {
       .subscribe({
         next: () => {
           this.notificationService.showSuccess(
-            `Die neue Organisationseinheit '${this.newOrganizationalUnit.name}' wurde erfolgreich erstellt..`
+            this.translate.instant('ADMIN_ROLES.ADD_MODAL.MSG.CREATED', {
+              name: this.newOrganizationalUnit.name,
+            })
           );
-          this.notificationService.showSuccess('Keycloak-Rollen erfolgreich angelegt.');
+          this.notificationService.showSuccess(
+            this.translate.instant('ADMIN_ROLES.ADD_MODAL.MSG.KEYCLOAK_ROLES_CREATED')
+          );
           this.processCreation.set(false);
           this.activeModal.close(true);
         },

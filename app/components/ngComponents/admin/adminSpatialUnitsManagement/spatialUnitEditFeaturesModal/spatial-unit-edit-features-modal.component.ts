@@ -53,6 +53,7 @@ import type {
 import { ResourceImportService } from 'services/resource-import-service/resource-import.service';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-spatial-unit-edit-features-modal',
   templateUrl: './spatial-unit-edit-features-modal.component.html',
@@ -81,6 +82,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   /** Emitted after features changed so the parent refreshes its table. */
   @Output() refreshRequested = new EventEmitter<SpatialUnitRefreshRequest>();
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
   private destroyRef = inject(DestroyRef);
   private resourceImportService = inject(ResourceImportService);
   private cdr = inject(ChangeDetectorRef);
@@ -508,7 +510,10 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
         this.buildFeatureTable();
 
         this.notificationService.showSuccess(
-          `Alle Features der Raumebene "${dataset.spatialUnitLevel}" wurden gelöscht.`
+          this.translate.instant(
+            'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.MSG.ALL_FEATURES_DELETED',
+            { name: dataset.spatialUnitLevel }
+          )
         );
 
         setTimeout(() => {
@@ -732,7 +737,10 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     if (missing.length > 0) {
       this.loadingData.set(false);
       this.notificationService.showError(
-        `Bitte füllen Sie alle Pflichtfelder in Schritt 2 aus. Fehlend: ${missing.join(', ')}.`
+        this.translate.instant(
+          'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.MSG.REQUIRED_FIELDS_MISSING',
+          { missing: missing.join(', ') }
+        )
       );
       return;
     }
@@ -740,7 +748,9 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     const allDataSpecified = await this.buildImporterObjects();
     if (!allDataSpecified) {
       this.loadingData.set(false);
-      this.notificationService.showError('Bitte füllen Sie alle Pflichtfelder in Schritt 2 aus.');
+      this.notificationService.showError(
+        this.translate.instant('ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.MSG.REQUIRED_FIELDS')
+      );
       return;
     }
 
@@ -775,7 +785,9 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
         });
         this.loadingData.set(false);
         this.notificationService.showSuccess(
-          `Die Features der Raumebene "${dataset.spatialUnitLevel}" wurden aktualisiert.`
+          this.translate.instant('ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.MSG.FEATURES_UPDATED', {
+            name: dataset.spatialUnitLevel,
+          })
         );
         this.activeModal.close({ action: 'updated' });
       } else {
@@ -788,7 +800,9 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
         );
         this.loadingData.set(false);
         this.notificationService.showError(
-          'Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.'
+          this.translate.instant(
+            'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.MSG.CRITICAL_FEATURE_ERRORS'
+          )
         );
       }
     } catch (error) {
@@ -1022,7 +1036,11 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   }
 
   private handleError(error: any): void {
-    this.notificationService.showError('Ein Fehler ist aufgetreten: ' + getErrorMessage(error));
+    this.notificationService.showError(
+      this.translate.instant('ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.MSG.GENERIC_ERROR', {
+        error: getErrorMessage(error),
+      })
+    );
   }
 
   // Modal control methods

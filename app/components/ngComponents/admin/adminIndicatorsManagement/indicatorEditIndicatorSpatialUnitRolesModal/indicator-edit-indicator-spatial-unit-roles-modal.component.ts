@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
@@ -68,6 +69,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   private indicatorValueService = inject(IndicatorValueService);
   private envConfigService = inject(EnvConfigService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   @ViewChild('metadataRoleGrid') metadataRoleGrid?: RoleManagementGridComponent;
   @ViewChild('timeseriesRoleGrid') timeseriesRoleGrid?: RoleManagementGridComponent;
@@ -128,7 +130,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     if (ownershipChanging) {
       if (
         !confirm(
-          'Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?'
+          this.translate.instant('ADMIN_INDICATORS.EDIT_ROLES.MSG.OWNERSHIP_TRANSFER_CONFIRM')
         )
       ) {
         return;
@@ -150,9 +152,15 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
         targetIndicatorId: dataset.indicatorId,
       });
 
-      let message = `Zugriffsschutz und Eigentümerschaft für Indikator '${dataset.indicatorName}' aktualisiert.`;
+      let message = this.translate.instant('ADMIN_INDICATORS.EDIT_ROLES.MSG.UPDATED', {
+        name: dataset.indicatorName,
+      });
       if (this.targetApplicableSpatialUnit?.spatialUnitName) {
-        message += ` Verknüpfte Raumebene '${this.targetApplicableSpatialUnit.spatialUnitName}' wurde ebenfalls aktualisiert.`;
+        message +=
+          ' ' +
+          this.translate.instant('ADMIN_INDICATORS.EDIT_ROLES.MSG.UPDATED_LINKED_SPATIAL_UNIT', {
+            name: this.targetApplicableSpatialUnit.spatialUnitName,
+          });
       }
       this.notificationService.showSuccess(message);
       this.activeModal.close({
@@ -182,7 +190,10 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       );
       return true;
     } catch (error) {
-      this.showErrorAlert('Fehler beim Aktualisieren der Metadaten-Zugriffsrechte.', error);
+      this.showErrorAlert(
+        this.translate.instant('ADMIN_INDICATORS.EDIT_ROLES.MSG.METADATA_RIGHTS_FAILED'),
+        error
+      );
       return false;
     }
   }
@@ -213,9 +224,9 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       return true;
     } catch (error) {
       this.showErrorAlert(
-        'Fehler beim Aktualisieren der Zugriffsrechte auf Zeitreihe der Raumeinheit ' +
-          this.targetApplicableSpatialUnit.spatialUnitName +
-          '.',
+        this.translate.instant('ADMIN_INDICATORS.EDIT_ROLES.MSG.TIMESERIES_RIGHTS_FAILED', {
+          name: this.targetApplicableSpatialUnit.spatialUnitName,
+        }),
         error
       );
       return false;
@@ -237,7 +248,10 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       );
       return true;
     } catch (error) {
-      this.showErrorAlert('Fehler beim Aktualisieren der Metadaten-Eigentümerschaft.', error);
+      this.showErrorAlert(
+        this.translate.instant('ADMIN_INDICATORS.EDIT_ROLES.MSG.METADATA_OWNERSHIP_FAILED'),
+        error
+      );
       return false;
     }
   }
@@ -262,9 +276,9 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
         );
       } catch (error) {
         this.showErrorAlert(
-          'Fehler beim Aktualisieren der Zeitreihen-Eigentümerschaft der Raumeinheit ' +
-            indicatorSpatialUnit.spatialUnitName +
-            '.',
+          this.translate.instant('ADMIN_INDICATORS.EDIT_ROLES.MSG.TIMESERIES_OWNERSHIP_FAILED', {
+            name: indicatorSpatialUnit.spatialUnitName,
+          }),
           error
         );
         return false;
