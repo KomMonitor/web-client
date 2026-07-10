@@ -674,7 +674,8 @@ export class ReportingOverviewComponent implements OnInit {
                 previewPElementDom.appendChild(pElementDom.firstChild);
               }
               if (page.generatedData.mapImage) {
-                previewPElementDom.style.backgroundImage = 'url(' + page.generatedData.mapImage + ')';
+                previewPElementDom.style.backgroundImage =
+                  'url(' + page.generatedData.mapImage + ')';
                 previewPElementDom.style.backgroundSize = '100% 100%';
                 previewPElementDom.style.backgroundRepeat = 'no-repeat';
               }
@@ -909,7 +910,9 @@ export class ReportingOverviewComponent implements OnInit {
       // Leaflet does not reliably load tiles while off-screen (opacity: 0 / far off-canvas
       // position) — for preview pages, build the map inside the visible page DOM instead,
       // same workaround already used by indicator-add.component.ts's equivalent function.
-      const pageDomId = isPreview ? 'reporting-overview-page-' + pageIdx : 'reporting-background-page';
+      const pageDomId = isPreview
+        ? 'reporting-overview-page-' + pageIdx
+        : 'reporting-background-page';
       let pageDom: any = document.getElementById(pageDomId);
       const pageElementDomId = 'reporting-background-page-map-' + elementIdx;
       let pageElementDom: any = document.getElementById(pageElementDomId);
