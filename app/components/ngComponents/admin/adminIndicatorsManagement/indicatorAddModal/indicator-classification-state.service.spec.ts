@@ -133,7 +133,7 @@ describe('IndicatorClassificationStateService', () => {
       service.applyMapping(built);
 
       expect(service.classificationType).toBe('QUANTITATIVE');
-      expect(service.classificationMethod).toBe('regional_default');
+      expect(service.classificationMethod()).toBe('regional_default');
       expect(service.numClassesPerSpatialUnit).toBe(4);
       expect(service.selectedColorBrewerPaletteEntry.paletteName).toBe('Greens');
       expect(service.spatialUnitClassification[0].breaks).toEqual([1, 2, 3]);

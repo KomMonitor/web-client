@@ -95,7 +95,9 @@ export class IndicatorClassificationStateService {
   // Classification form data
   numClassesArray = [3, 4, 5, 6, 7, 8];
   numClassesPerSpatialUnit = 5;
-  classificationMethod = 'regional_default';
+  // Signal-backed so OnPush editors (e.g. the computed-methods info box) react when
+  // the method changes between two computed methods without remounting.
+  readonly classificationMethod = signal('regional_default');
   selectedColorBrewerPaletteEntry: ColorPaletteEntry | null = null;
   spatialUnitClassification: SpatialUnitClassification[] = [];
   classBreaksInvalid = false;
@@ -122,6 +124,18 @@ export class IndicatorClassificationStateService {
 
   // Currently active per-spatial-unit tab
   currentClassificationTab = 0;
+
+  /**
+   * Bumped whenever a structural change rewrites the plain state arrays in bulk
+   * (class/category count, breaks/labels/colors rebuild, mapping import, reset).
+   * The OnPush editor sub-components mirror it via an `effect` + `markForCheck`, so
+   * they re-read the rebuilt arrays even when they stay mounted (e.g. changing the
+   * class count without switching the classification method).
+   */
+  readonly revision = signal(0);
+  private bumpRevision(): void {
+    this.revision.update((value) => value + 1);
+  }
 
   /**
    * Loads the colorbrewer schemes/palettes and initializes the per-spatial-unit
@@ -167,7 +181,7 @@ export class IndicatorClassificationStateService {
   // Receives the full method object from app-classification-method-select; keep a
   // string fallback in case a bare id is passed.
   onClassificationMethodSelected(method: Classification | string) {
-    this.classificationMethod = typeof method === 'string' ? method : method.id;
+    this.classificationMethod.set(typeof method === 'string' ? method : method.id);
     // Reinitialize classification when method changes
     this.onNumClassesChanged(this.numClassesPerSpatialUnit);
   }
@@ -277,7 +291,7 @@ export class IndicatorClassificationStateService {
   }
 
   get isRegional(): boolean {
-    return this.classificationMethod === 'regional_default';
+    return this.classificationMethod() === 'regional_default';
   }
 
   get isComputed(): boolean {
@@ -295,7 +309,8 @@ export class IndicatorClassificationStateService {
 
   /** Display name of the currently selected classification method. */
   get currentMethodName(): string {
-    return this.methodNames[this.classificationMethod] ?? this.classificationMethod;
+    const method = this.classificationMethod();
+    return this.methodNames[method] ?? method;
   }
 
   /**
@@ -431,11 +446,13 @@ export class IndicatorClassificationStateService {
       categories.push({ value: '', label: '', customColor: null });
     }
     this.categories = categories;
+    this.bumpRevision();
   }
 
   /** Appends a new blank category. */
   addCategory() {
     this.categories = [...this.categories, { value: '', label: '', customColor: null }];
+    this.bumpRevision();
   }
 
   /** Removes a category (keeping at least two). */
@@ -444,6 +461,7 @@ export class IndicatorClassificationStateService {
       return;
     }
     this.categories = this.categories.filter((_, i) => i !== index);
+    this.bumpRevision();
   }
 
   // ---- API mapping (the single place that knows the extended backend fields) ----
@@ -478,7 +496,7 @@ export class IndicatorClassificationStateService {
         ? 'INDIVIDUAL'
         : (this.selectedColorBrewerPaletteEntry?.paletteName ?? ''),
       numClasses: this.numClassesPerSpatialUnit,
-      classificationMethod: this.classificationMethod?.toUpperCase() as
+      classificationMethod: this.classificationMethod()?.toUpperCase() as
         | ExtendedDefaultClassificationMapping['classificationMethod']
         | undefined,
     };
@@ -543,12 +561,13 @@ export class IndicatorClassificationStateService {
           customColor: individual ? (item.color ?? null) : null,
         }));
       }
+      this.bumpRevision();
       return;
     }
 
     // Numeric branch
     if (mapping.classificationMethod) {
-      this.classificationMethod = String(mapping.classificationMethod).toLowerCase();
+      this.classificationMethod.set(String(mapping.classificationMethod).toLowerCase());
     }
     if (mapping.numClasses) {
       this.numClassesPerSpatialUnit = mapping.numClasses;
@@ -578,6 +597,9 @@ export class IndicatorClassificationStateService {
         null
       );
     }
+
+    // numLabels / individualColors were rewritten after onNumClassesChanged's bump.
+    this.bumpRevision();
   }
 
   // Legend "Wertebereich" text for a class of a spatial unit (regional default).
@@ -638,6 +660,9 @@ export class IndicatorClassificationStateService {
 
     // Reset validation
     this.classBreaksInvalid = false;
+
+    // Arrays above were rebuilt in bulk: let mounted OnPush editors re-check.
+    this.bumpRevision();
   }
 
   onBreaksChanged(tabIndex: number) {
@@ -685,7 +710,7 @@ export class IndicatorClassificationStateService {
     this.classificationType = 'QUANTITATIVE';
     this.individualColorMode.set(false);
     this.numClassesPerSpatialUnit = 5;
-    this.classificationMethod = 'regional_default';
+    this.classificationMethod.set('regional_default');
     this.selectedColorBrewerPaletteEntry =
       this.colorbrewerPalettes && this.colorbrewerPalettes.length > 13
         ? this.colorbrewerPalettes[13]

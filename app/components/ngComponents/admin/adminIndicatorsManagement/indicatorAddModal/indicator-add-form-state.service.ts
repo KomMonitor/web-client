@@ -467,7 +467,7 @@ export class IndicatorAddFormStateService {
       defaultClassificationMapping: {
         colorBrewerSchemeName: this.classification.selectedColorBrewerPaletteEntry?.paletteName,
         numClasses: this.classification.numClassesPerSpatialUnit,
-        classificationMethod: this.classification.classificationMethod,
+        classificationMethod: this.classification.classificationMethod(),
         items: this.classification.spatialUnitClassification.map((classification) => ({
           spatialUnit: classification.spatialUnitId,
           breaks: classification.breaks.filter((breakVal) => breakVal !== null),
