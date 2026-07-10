@@ -21,6 +21,7 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { IndicatorRefreshRequest } from '../indicator-refresh.model';
 import { IndicatorAddFormStateService } from './indicator-add-form-state.service';
+import { IndicatorClassificationStateService } from './indicator-classification-state.service';
 import { IndicatorAddStep1BasicComponent } from './steps/indicator-add-step1-basic.component';
 import { IndicatorAddStep2MetadataComponent } from './steps/indicator-add-step2-metadata.component';
 import { IndicatorAddStep3TopicsComponent } from './steps/indicator-add-step3-topics.component';
@@ -45,7 +46,7 @@ import { IndicatorAddStep7AccessComponent } from './steps/indicator-add-step7-ac
     IndicatorAddStep6ComparisonComponent,
     IndicatorAddStep7AccessComponent,
   ],
-  providers: [IndicatorAddFormStateService],
+  providers: [IndicatorAddFormStateService, IndicatorClassificationStateService],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -168,7 +169,7 @@ export class IndicatorAddModalComponent implements OnInit {
   }
 
   onSubmit() {
-    if (!this.state.datasetNameInvalid && !this.state.classBreaksInvalid) {
+    if (!this.state.datasetNameInvalid && !this.state.classification.classBreaksInvalid) {
       this.addIndicator();
     }
   }

@@ -1,21 +1,21 @@
-import { DestroyRef, Injectable, inject, signal } from '@angular/core';
+import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
-import { mergeColorSchemes } from 'components/ngComponents/userInterface/kommonitorClassification/colors';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
-import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
-import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { downloadJson, readJsonFile } from 'util/json-file.util';
-import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
 import {
   buildResourceMetadataForm,
   patchMetadataFormFromApi,
   ResourceMetadataFormValue,
 } from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
+import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
+import { IndicatorClassificationStateService } from './indicator-classification-state.service';
 
 /**
  * Holds the entire form state and state-manipulating logic for the
@@ -34,6 +34,11 @@ export class IndicatorAddFormStateService {
   private accessControlService = inject(AccessControlService);
   private metadataBootstrap = inject(MetadataBootstrapService);
   private destroyRef = inject(DestroyRef);
+
+  // Classification (wizard step 5) state + logic, peeled off into its own service.
+  // Everything classification-related delegates here; templates read it via
+  // `state.classification.*`.
+  readonly classification = inject(IndicatorClassificationStateService);
 
   // Edit mode: when the wizard is opened to edit an existing indicator, this
   // holds the source dataset and its id. In this mode the modal submits a
@@ -129,15 +134,6 @@ export class IndicatorAddFormStateService {
   additionalSubTopics: any[] = [];
   additionalTopicAssignments: Array<{ topic: any; subTopic: any }> = [];
 
-  // Classification
-  numClassesArray = [3, 4, 5, 6, 7, 8];
-  numClassesPerSpatialUnit = 5;
-  classificationMethod = 'regional_default';
-  selectedColorBrewerPaletteEntry: any = null;
-  spatialUnitClassification: any[] = [];
-  classBreaksInvalid = false;
-  tabClasses: string[] = [];
-
   // Role management
   ownerOrganization: any = null;
   ownerOrgFilter = '';
@@ -185,16 +181,9 @@ export class IndicatorAddFormStateService {
   availableSpatialUnits: any[] = [];
   updateIntervalOptions: any[] = [];
   indicatorTypeOptions: any[] = [];
-  colorbrewerPalettes: any[] = [];
-  colorbrewerSchemes: any = {};
   availableIndicators: any[] = [];
   availableGeoresources: any[] = [];
   availableTopics: any[] = [];
-  colorbreweSchemeName_dynamicIncrease = 'Blues';
-  colorbreweSchemeName_dynamicDecrease = 'Reds';
-
-  // Step 5: Classification Options
-  currentClassificationTab = 0;
 
   // Step 6: Regional Comparison Values
   comparisonValueType: string | null = null;
@@ -298,8 +287,8 @@ export class IndicatorAddFormStateService {
       this.availableTopics = this.topicStore.availableTopics;
     }
 
-    // Load color brewer schemes
-    this.loadColorBrewerSchemes();
+    // Load color brewer schemes and initialize the per-spatial-unit classification tabs.
+    this.classification.init(this.availableSpatialUnits);
 
     // Initialize filtered lists for Step 4
     this.filteredIndicators = this.availableIndicators || [];
@@ -317,39 +306,8 @@ export class IndicatorAddFormStateService {
     // it is available (see prepareOwnerOrganizationList / rebuildRoleManagementGrid),
     // so nothing to build here up front.
 
-    // Initialize classification
-    this.onNumClassesChanged(this.numClassesPerSpatialUnit);
-  }
-
-  private loadColorBrewerSchemes() {
-    // Build the colorbrewer schemes from the bundled palettes merged with any custom
-    // schemes from config — the same reliable source app-color-palette-select uses.
-    // (window.colorbrewer is not loaded globally in the migrated app, so reading it
-    // here left the schemes/palettes empty and the selected palette unset.)
-    this.colorbrewerSchemes = mergeColorSchemes(this.envConfigService.customColorSchemes);
-
-    this.instantiateColorBrewerPalettes();
-  }
-
-  private instantiateColorBrewerPalettes() {
-    this.colorbrewerPalettes = [];
-
-    for (const key in this.colorbrewerSchemes) {
-      if (Object.prototype.hasOwnProperty.call(this.colorbrewerSchemes, key)) {
-        const colorPalettes = this.colorbrewerSchemes[key];
-
-        const paletteEntry = {
-          paletteName: key,
-          paletteArrayObject: colorPalettes,
-        };
-
-        this.colorbrewerPalettes.push(paletteEntry);
-      }
-    }
-
-    // Instantiate with palette 'Blues'
-    this.selectedColorBrewerPaletteEntry =
-      this.colorbrewerPalettes[13] || this.colorbrewerPalettes[0];
+    // Initialize classification tabs (palettes were already loaded in loadInitialData).
+    this.classification.onNumClassesChanged(this.classification.numClassesPerSpatialUnit);
   }
 
   checkDatasetName() {
@@ -507,10 +465,10 @@ export class IndicatorAddFormStateService {
       refrencesToOtherIndicators: this.indicatorReferences_apiRequest,
       refrencesToGeoresources: this.georesourceReferences_apiRequest,
       defaultClassificationMapping: {
-        colorBrewerSchemeName: this.selectedColorBrewerPaletteEntry?.paletteName,
-        numClasses: this.numClassesPerSpatialUnit,
-        classificationMethod: this.classificationMethod,
-        items: this.spatialUnitClassification.map((classification) => ({
+        colorBrewerSchemeName: this.classification.selectedColorBrewerPaletteEntry?.paletteName,
+        numClasses: this.classification.numClassesPerSpatialUnit,
+        classificationMethod: this.classification.classificationMethod,
+        items: this.classification.spatialUnitClassification.map((classification) => ({
           spatialUnit: classification.spatialUnitId,
           breaks: classification.breaks.filter((breakVal) => breakVal !== null),
         })),
@@ -606,11 +564,11 @@ export class IndicatorAddFormStateService {
         sridEPSG: this.metadata.sridEPSG || 4326,
       },
       defaultClassificationMapping: {
-        colorBrewerSchemeName: this.selectedColorBrewerPaletteEntry?.paletteName,
-        numClasses: this.numClassesPerSpatialUnit,
-        classificationMethod: this.classificationMethod?.toUpperCase(),
+        colorBrewerSchemeName: this.classification.selectedColorBrewerPaletteEntry?.paletteName,
+        numClasses: this.classification.numClassesPerSpatialUnit,
+        classificationMethod: this.classification.classificationMethod?.toUpperCase(),
         // Only send spatial units whose break values are fully filled in.
-        items: this.spatialUnitClassification
+        items: this.classification.spatialUnitClassification
           .filter((classification) => !classification.breaks.includes(null))
           .map((classification) => ({
             spatialUnitId: classification.spatialUnitId,
@@ -852,29 +810,29 @@ export class IndicatorAddFormStateService {
     // Step 5 — classification mapping
     const mapping = dataset.defaultClassificationMapping ?? {};
     if (mapping.classificationMethod) {
-      this.classificationMethod = String(mapping.classificationMethod).toLowerCase();
+      this.classification.classificationMethod = String(mapping.classificationMethod).toLowerCase();
     }
     if (mapping.numClasses) {
-      this.numClassesPerSpatialUnit = mapping.numClasses;
+      this.classification.numClassesPerSpatialUnit = mapping.numClasses;
       // Rebuild the per-spatial-unit tabs for the class count, then apply the
       // stored breaks onto the matching spatial unit.
-      this.onNumClassesChanged(this.numClassesPerSpatialUnit);
+      this.classification.onNumClassesChanged(this.classification.numClassesPerSpatialUnit);
       (mapping.items ?? []).forEach((item: any) => {
-        const index = this.spatialUnitClassification.findIndex(
+        const index = this.classification.spatialUnitClassification.findIndex(
           (classification) => classification.spatialUnitId === item.spatialUnitId
         );
         if (index > -1) {
-          this.spatialUnitClassification[index].breaks = item.breaks;
-          this.onBreaksChanged(index);
+          this.classification.spatialUnitClassification[index].breaks = item.breaks;
+          this.classification.onBreaksChanged(index);
         }
       });
     }
     if (mapping.colorBrewerSchemeName) {
-      const paletteEntry = this.colorbrewerPalettes.find(
+      const paletteEntry = this.classification.colorbrewerPalettes.find(
         (palette) => palette.paletteName === mapping.colorBrewerSchemeName
       );
       if (paletteEntry) {
-        this.selectedColorBrewerPaletteEntry = paletteEntry;
+        this.classification.selectedColorBrewerPaletteEntry = paletteEntry;
       }
     }
 
@@ -938,10 +896,10 @@ export class IndicatorAddFormStateService {
         sridEPSG: this.metadata.sridEPSG || 4326,
       },
       defaultClassificationMapping: {
-        colorBrewerSchemeName: this.selectedColorBrewerPaletteEntry?.paletteName,
-        numClasses: this.numClassesPerSpatialUnit,
-        classificationMethod: this.classificationMethod?.toUpperCase(),
-        items: this.spatialUnitClassification
+        colorBrewerSchemeName: this.classification.selectedColorBrewerPaletteEntry?.paletteName,
+        numClasses: this.classification.numClassesPerSpatialUnit,
+        classificationMethod: this.classification.classificationMethod?.toUpperCase(),
+        items: this.classification.spatialUnitClassification
           .filter((classification) => !classification.breaks.includes(null))
           .map((classification) => ({
             spatialUnitId: classification.spatialUnitId,
@@ -1077,25 +1035,26 @@ export class IndicatorAddFormStateService {
     // Parse classification mapping
     if (this.metadataImportSettings.defaultClassificationMapping) {
       const mapping = this.metadataImportSettings.defaultClassificationMapping;
-      this.numClassesPerSpatialUnit = mapping.numClasses || 5;
-      this.classificationMethod = mapping.classificationMethod || 'regional_default';
+      this.classification.numClassesPerSpatialUnit = mapping.numClasses || 5;
+      this.classification.classificationMethod = mapping.classificationMethod || 'regional_default';
 
       // Set color brewer palette
       if (mapping.colorBrewerSchemeName) {
-        this.selectedColorBrewerPaletteEntry = this.colorbrewerPalettes.find(
-          (palette) => palette.paletteName === mapping.colorBrewerSchemeName
-        );
+        this.classification.selectedColorBrewerPaletteEntry =
+          this.classification.colorbrewerPalettes.find(
+            (palette) => palette.paletteName === mapping.colorBrewerSchemeName
+          );
       }
 
       // Parse spatial unit classification
       if (mapping.items) {
-        this.onNumClassesChanged(this.numClassesPerSpatialUnit);
+        this.classification.onNumClassesChanged(this.classification.numClassesPerSpatialUnit);
         mapping.items.forEach((item: any) => {
-          const index = this.spatialUnitClassification.findIndex(
+          const index = this.classification.spatialUnitClassification.findIndex(
             (classification) => classification.spatialUnitId === item.spatialUnit
           );
           if (index > -1) {
-            this.spatialUnitClassification[index].breaks = item.breaks;
+            this.classification.spatialUnitClassification[index].breaks = item.breaks;
           }
         });
       }
@@ -1159,10 +1118,10 @@ export class IndicatorAddFormStateService {
 
     // Add classification mapping
     metadataExport.defaultClassificationMapping = {
-      colorBrewerSchemeName: this.selectedColorBrewerPaletteEntry?.paletteName,
-      numClasses: this.numClassesPerSpatialUnit,
-      classificationMethod: this.classificationMethod,
-      items: this.spatialUnitClassification.map((classification) => ({
+      colorBrewerSchemeName: this.classification.selectedColorBrewerPaletteEntry?.paletteName,
+      numClasses: this.classification.numClassesPerSpatialUnit,
+      classificationMethod: this.classification.classificationMethod,
+      items: this.classification.spatialUnitClassification.map((classification) => ({
         spatialUnit: classification.spatialUnitId,
         breaks: classification.breaks.filter((breakVal) => breakVal !== null),
       })),
@@ -1268,17 +1227,7 @@ export class IndicatorAddFormStateService {
     this.indicatorReferences_apiRequest = [];
     this.georesourceReferences_adminView = [];
     this.georesourceReferences_apiRequest = [];
-    this.numClassesPerSpatialUnit = 5;
-    this.classificationMethod = 'regional_default';
-    this.selectedColorBrewerPaletteEntry =
-      this.colorbrewerPalettes && this.colorbrewerPalettes.length > 13
-        ? this.colorbrewerPalettes[13]
-        : this.colorbrewerPalettes && this.colorbrewerPalettes.length > 0
-          ? this.colorbrewerPalettes[0]
-          : null;
-    this.spatialUnitClassification = [];
-    this.classBreaksInvalid = false;
-    this.tabClasses = [];
+    this.classification.reset();
     this.ownerOrganization = '';
     this.ownerOrgFilter = '';
     this.isPublic = false;
@@ -1308,8 +1257,7 @@ export class IndicatorAddFormStateService {
     this.filteredIndicators = this.availableIndicators || [];
     this.filteredGeoresources = this.availableGeoresources || [];
 
-    // Reset Step 5: Classification Options
-    this.currentClassificationTab = 0;
+    // Step 5 classification reset handled by this.classification.reset() above.
 
     // Reset Step 6: Regional Comparison Values
     this.comparisonValueType = null;
@@ -1337,9 +1285,6 @@ export class IndicatorAddFormStateService {
     this.allowedRegions = [];
     this.enableAccessLogging = false;
     this.loadOwnerOrganizations();
-
-    // Reinitialize classification
-    this.onNumClassesChanged(this.numClassesPerSpatialUnit);
   }
 
   hideSuccessAlert() {
@@ -1622,160 +1567,8 @@ export class IndicatorAddFormStateService {
     }));
   }
 
-  // Step 5: Classification Methods
-  getClassColor(classIndex: number, palette: any): string {
-    // Palette entries carry a colorbrewer `paletteArrayObject` keyed by class count
-    // (e.g. '5'), so resolve the color row for the currently selected class count.
-    const colors = palette?.paletteArrayObject?.[this.numClassesPerSpatialUnit?.toString()];
-    if (Array.isArray(colors) && classIndex >= 0 && classIndex < colors.length) {
-      return colors[classIndex];
-    }
-
-    return '#cccccc';
-  }
-
-  // Receives the full method object from app-classification-method-select; keep a
-  // string fallback in case a bare id is passed.
-  onClassificationMethodSelected(method: any) {
-    this.classificationMethod = method?.id ?? method;
-    // Reinitialize classification when method changes
-    this.onNumClassesChanged(this.numClassesPerSpatialUnit);
-  }
-
-  onClickColorBrewerEntry(colorPaletteEntry: any) {
-    this.selectedColorBrewerPaletteEntry = colorPaletteEntry;
-  }
-
-  // app-color-palette-select emits the scheme name; map it back to our palette entry.
-  onColorSchemeSelected(paletteName: string) {
-    const entry = this.colorbrewerPalettes.find((p) => p.paletteName === paletteName);
-    if (entry) {
-      this.onClickColorBrewerEntry(entry);
-    }
-  }
-
-  // Read-only 5-color spectrum for the standard two-color (negative/positive) classification.
-  getDynamicSchemeColors(direction: 'increase' | 'decrease'): string[] {
-    const name =
-      direction === 'increase'
-        ? this.colorbreweSchemeName_dynamicIncrease
-        : this.colorbreweSchemeName_dynamicDecrease;
-    return this.colorbrewerSchemes?.[name]?.['5'] ?? [];
-  }
-
-  // Read-only 5-color preview of the currently selected palette ("derzeit selektiert").
-  getSelectedPaletteColors(): string[] {
-    return this.selectedColorBrewerPaletteEntry?.paletteArrayObject?.['5'] ?? [];
-  }
-
-  // Colors of the selected palette for the current class count — one legend row each.
-  getClassColors(): string[] {
-    return (
-      this.selectedColorBrewerPaletteEntry?.paletteArrayObject?.[
-        this.numClassesPerSpatialUnit?.toString()
-      ] ?? []
-    );
-  }
-
-  // Legend "Wertebereich" text for a class of a spatial unit (regional default).
-  getLegendRange(tabIndex: number, classIndex: number): string {
-    const breaks: (number | null)[] = this.spatialUnitClassification[tabIndex]?.breaks ?? [];
-    const lastIndex = this.numClassesPerSpatialUnit - 1;
-    const fmt = (value: number | null | undefined) =>
-      value === null || value === undefined ? '[bitte eingeben]' : `${value}`;
-
-    if (classIndex === 0) {
-      return `Niedrigster Wert - < ${fmt(breaks[0])}`;
-    }
-    if (classIndex === lastIndex) {
-      return `${fmt(breaks[classIndex - 1])} - < Höchster Wert`;
-    }
-    return `${fmt(breaks[classIndex - 1])} - < ${fmt(breaks[classIndex])}`;
-  }
-
-  // Legend "Hinweis" text — only the lowest and highest class carry a note.
-  getLegendHint(tabIndex: number, classIndex: number): string {
-    const breaks: (number | null)[] = this.spatialUnitClassification[tabIndex]?.breaks ?? [];
-    const lastIndex = this.numClassesPerSpatialUnit - 1;
-
-    if (classIndex === 0 && breaks[0] !== null && breaks[0] !== undefined) {
-      return `Klasse wird bei Werten unter ${breaks[0]} hinzugefügt`;
-    }
-    if (
-      classIndex === lastIndex &&
-      breaks[classIndex - 1] !== null &&
-      breaks[classIndex - 1] !== undefined
-    ) {
-      return `Klasse wird bei Werten über ${breaks[classIndex - 1]} hinzugefügt`;
-    }
-    return '';
-  }
-
-  onNumClassesChanged(numClasses: number) {
-    this.numClassesPerSpatialUnit = numClasses;
-
-    // Initialize classification for each spatial unit
-    this.spatialUnitClassification = [];
-    this.tabClasses = [];
-
-    if (this.availableSpatialUnits && this.availableSpatialUnits.length > 0) {
-      this.availableSpatialUnits.forEach((spatialUnit, index) => {
-        // Initialize breaks array
-        const breaks: Array<number | null> = [];
-        for (let i = 0; i < numClasses - 1; i++) {
-          breaks.push(null);
-        }
-
-        this.spatialUnitClassification.push({
-          spatialUnitId: spatialUnit.spatialUnitId,
-          spatialUnitLevel: spatialUnit.spatialUnitLevel,
-          breaks: breaks,
-        });
-
-        // Initialize tab validation class (neutral until breaks are entered)
-        this.tabClasses[index] = '';
-      });
-    }
-
-    // Reset validation
-    this.classBreaksInvalid = false;
-  }
-
-  onBreaksChanged(tabIndex: number) {
-    if (!this.spatialUnitClassification[tabIndex]) {
-      return;
-    }
-
-    const breaks: (number | null)[] = this.spatialUnitClassification[tabIndex].breaks;
-
-    // Class breaks must be strictly ascending; empty (null) entries are ignored.
-    // A tab is green ('tab-valid') once every break is filled and correctly ordered,
-    // red ('tab-error') on any ordering violation, and neutral ('') while incomplete.
-    let hasError = false;
-    let filledCount = 0;
-    let lastValidBreak: number | null = null;
-    for (const classBreak of breaks) {
-      if (classBreak !== null && classBreak !== undefined) {
-        filledCount++;
-        if (lastValidBreak !== null && classBreak <= lastValidBreak) {
-          hasError = true;
-          break;
-        }
-        lastValidBreak = classBreak;
-      }
-    }
-
-    if (hasError) {
-      this.tabClasses[tabIndex] = 'tab-error';
-    } else if (breaks.length > 0 && filledCount === breaks.length) {
-      this.tabClasses[tabIndex] = 'tab-valid';
-    } else {
-      this.tabClasses[tabIndex] = '';
-    }
-
-    // Aggregate overall validity across all spatial-unit tabs.
-    this.classBreaksInvalid = this.tabClasses.some((cssClass) => cssClass === 'tab-error');
-  }
+  // Step 5 classification methods moved to IndicatorClassificationStateService
+  // (accessible via `this.classification`).
 
   // Step 6: Regional Comparison Methods
   onComparisonValueTypeChange() {

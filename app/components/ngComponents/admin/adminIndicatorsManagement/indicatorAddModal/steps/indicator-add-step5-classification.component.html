@@ -14,8 +14,10 @@
         <label class="inline-label">{{ 'ADMIN_INDICATORS.COLOR_PALETTE' | translate }}*</label>
         <div class="control-inline">
           <app-color-palette-select
-            [selectedColorScheme]="state.selectedColorBrewerPaletteEntry?.paletteName"
-            (colorSchemeSelected)="state.onColorSchemeSelected($event)"
+            [selectedColorScheme]="
+              state.classification.selectedColorBrewerPaletteEntry?.paletteName
+            "
+            (colorSchemeSelected)="state.classification.onColorSchemeSelected($event)"
           ></app-color-palette-select>
         </div>
       </div>
@@ -24,7 +26,7 @@
           'ADMIN_INDICATORS.STEP_CLASSIFICATION.CURRENTLY_SELECTED' | translate
         }}</label>
         <app-color-palette-swatch
-          [colors]="state.getSelectedPaletteColors()"
+          [colors]="state.classification.getSelectedPaletteColors()"
         ></app-color-palette-swatch>
       </div>
     </div>
@@ -37,7 +39,7 @@
         <div class="form-group palette-preview">
           <label class="inline-label">Farbspektrum für negative Werte:</label>
           <app-color-palette-swatch
-            [colors]="state.getDynamicSchemeColors('decrease')"
+            [colors]="state.classification.getDynamicSchemeColors('decrease')"
           ></app-color-palette-swatch>
         </div>
       </div>
@@ -45,7 +47,7 @@
         <div class="form-group palette-preview">
           <label class="inline-label">Farbspektrum für positive Werte:</label>
           <app-color-palette-swatch
-            [colors]="state.getDynamicSchemeColors('increase')"
+            [colors]="state.classification.getDynamicSchemeColors('increase')"
           ></app-color-palette-swatch>
         </div>
       </div>
@@ -67,7 +69,7 @@
             'ADMIN_INDICATORS.STEP_CLASSIFICATION.NEGATIVE_SPECTRUM' | translate
           }}</label>
           <app-color-palette-swatch
-            [colors]="state.getDynamicSchemeColors('decrease')"
+            [colors]="state.classification.getDynamicSchemeColors('decrease')"
           ></app-color-palette-swatch>
         </div>
       </div>
@@ -77,7 +79,7 @@
             'ADMIN_INDICATORS.STEP_CLASSIFICATION.POSITIVE_SPECTRUM' | translate
           }}</label>
           <app-color-palette-swatch
-            [colors]="state.getDynamicSchemeColors('increase')"
+            [colors]="state.classification.getDynamicSchemeColors('increase')"
           ></app-color-palette-swatch>
         </div>
       </div>
@@ -89,22 +91,22 @@
     <label>{{ 'ADMIN_INDICATORS.CLASSIFICATION_METHOD' | translate }}*</label>
     <div class="control-inline">
       <app-classification-method-select
-        [defaultMethodId]="state.classificationMethod"
+        [defaultMethodId]="state.classification.classificationMethod"
         [hiddenMethodIds]="['manual']"
-        (onMethodSelect)="state.onClassificationMethodSelected($event)"
+        (onMethodSelect)="state.classification.onClassificationMethodSelected($event)"
       ></app-classification-method-select>
     </div>
   </div>
   <div class="centered-field">
     <label>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.NUM_CLASSES' | translate }}*</label>
     <select
-      [(ngModel)]="state.numClassesPerSpatialUnit"
+      [(ngModel)]="state.classification.numClassesPerSpatialUnit"
       name="numClassesPerSpatialUnit"
-      (ngModelChange)="state.onNumClassesChanged($event)"
+      (ngModelChange)="state.classification.onNumClassesChanged($event)"
       class="form-control"
       required
     >
-      @for (numClass of state.numClassesArray; track numClass) {
+      @for (numClass of state.classification.numClassesArray; track numClass) {
         <option [ngValue]="numClass">{{ numClass }}</option>
       }
     </select>
@@ -114,7 +116,10 @@
   </div>
 
   <!-- Per-spatial-unit break editing — only for the regional default method -->
-  @if (state.numClassesPerSpatialUnit > 0 && state.classificationMethod === 'regional_default') {
+  @if (
+    state.classification.numClassesPerSpatialUnit > 0 &&
+    state.classification.classificationMethod === 'regional_default'
+  ) {
     <div class="row vertical-align">
       <div class="col-md-12">
         <div class="form-group">
@@ -136,11 +141,11 @@
             <ul
               ngbNav
               #classNav="ngbNav"
-              [(activeId)]="state.currentClassificationTab"
+              [(activeId)]="state.classification.currentClassificationTab"
               class="nav-tabs"
             >
               @for (spatialUnit of state.availableSpatialUnits; track spatialUnit; let i = $index) {
-                <li [ngbNavItem]="i" [ngClass]="state.tabClasses[i]">
+                <li [ngbNavItem]="i" [ngClass]="state.classification.tabClasses[i]">
                   <button ngbNavLink type="button">{{ spatialUnit.spatialUnitLevel }}</button>
                   <ng-template ngbNavContent>
                     <div class="classification-tab-content">
@@ -155,15 +160,17 @@
                             </label>
                             <div class="class-breaks-container">
                               @for (
-                                break of state.spatialUnitClassification[i]?.breaks;
+                                break of state.classification.spatialUnitClassification[i]?.breaks;
                                 track j;
                                 let j = $index
                               ) {
                                 <input
                                   type="number"
                                   class="form-control"
-                                  [(ngModel)]="state.spatialUnitClassification[i].breaks[j]"
-                                  (ngModelChange)="state.onBreaksChanged(i)"
+                                  [(ngModel)]="
+                                    state.classification.spatialUnitClassification[i].breaks[j]
+                                  "
+                                  (ngModelChange)="state.classification.onBreaksChanged(i)"
                                   step="0.01"
                                   [placeholder]="
                                     'ADMIN_INDICATORS.STEP_CLASSIFICATION.BREAK_PLACEHOLDER'
@@ -198,7 +205,11 @@
                                 </tr>
                               </thead>
                               <tbody>
-                                @for (color of state.getClassColors(); track k; let k = $index) {
+                                @for (
+                                  color of state.classification.getClassColors();
+                                  track k;
+                                  let k = $index
+                                ) {
                                   <tr>
                                     <td class="legend-symbol">
                                       <span
@@ -206,8 +217,12 @@
                                         [style.background-color]="color"
                                       ></span>
                                     </td>
-                                    <td class="legend-range">{{ state.getLegendRange(i, k) }}</td>
-                                    <td class="legend-hint">{{ state.getLegendHint(i, k) }}</td>
+                                    <td class="legend-range">
+                                      {{ state.classification.getLegendRange(i, k) }}
+                                    </td>
+                                    <td class="legend-hint">
+                                      {{ state.classification.getLegendHint(i, k) }}
+                                    </td>
                                   </tr>
                                 }
                               </tbody>
@@ -233,7 +248,7 @@
         </div>
       </div>
     </div>
-    @if (state.classBreaksInvalid) {
+    @if (state.classification.classBreaksInvalid) {
       <div class="row vertical-align">
         <div class="col-md-12">
           <div class="alert alert-danger">
