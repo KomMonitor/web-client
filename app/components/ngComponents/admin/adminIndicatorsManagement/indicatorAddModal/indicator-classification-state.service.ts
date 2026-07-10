@@ -50,6 +50,14 @@ export class IndicatorClassificationStateService {
   // selected palette color for that class. Non-null entries mean "individual color".
   individualColors: (string | null)[] = [];
 
+  // Categorical (qualitative) classification: manually defined categories, each
+  // with a value, an editable label and an optional individual color override.
+  categories: { value: string; label: string; customColor: string | null }[] =
+    this.createEmptyCategories(4);
+  // Fallback color for categories beyond the palette size (overflow) or without a
+  // dedicated color assigned.
+  defaultColor = '#c9ced4';
+
   // Colorbrewer schemes/palettes (built from bundled palettes + config custom schemes)
   colorbrewerPalettes: any[] = [];
   colorbrewerSchemes: any = {};
@@ -258,6 +266,100 @@ export class IndicatorClassificationStateService {
     this.individualColors = this.individualColors.map(() => null);
   }
 
+  // ---- categorical (qualitative) classification ----
+
+  /** Builds `count` blank category rows. */
+  private createEmptyCategories(count: number) {
+    return Array.from({ length: count }, () => ({ value: '', label: '', customColor: null }));
+  }
+
+  /** Number of categories (the categorical "class count"). */
+  get categoryCount(): number {
+    return this.categories.length;
+  }
+
+  /** Name of the selected qualitative palette (for overflow messaging). */
+  get categoricalSchemeName(): string {
+    return this.selectedColorBrewerPaletteEntry?.paletteName ?? '';
+  }
+
+  /**
+   * The largest color set of the selected qualitative palette. Colorbrewer palettes
+   * are keyed by class count (e.g. Accent has '3'..'8'); categorical assignment uses
+   * the maximum available so as many categories as possible get a distinct color.
+   */
+  categoricalPaletteColors(): string[] {
+    const paletteArrayObject = this.selectedColorBrewerPaletteEntry?.paletteArrayObject;
+    if (!paletteArrayObject) {
+      return [];
+    }
+    const maxKey = Object.keys(paletteArrayObject)
+      .map((key) => Number(key))
+      .filter((key) => !Number.isNaN(key))
+      .sort((a, b) => b - a)[0];
+    return paletteArrayObject[String(maxKey)] ?? [];
+  }
+
+  /** Number of distinct palette colors available for categories. */
+  get categoricalPaletteSize(): number {
+    return this.categoricalPaletteColors().length;
+  }
+
+  /** Whether there are more categories than palette colors (overflow → default color). */
+  get hasCategoryOverflow(): boolean {
+    return this.categoryCount > this.categoricalPaletteSize;
+  }
+
+  /**
+   * Effective color of a category: its individual override when set, otherwise the
+   * palette color at that position, or the default color when beyond the palette
+   * (overflow). The `overflow` flag marks categories that fell back to the default.
+   */
+  categoryColor(index: number): { color: string; overflow: boolean } {
+    const category = this.categories[index];
+    if (category?.customColor) {
+      return { color: category.customColor, overflow: false };
+    }
+    const palette = this.categoricalPaletteColors();
+    if (index < palette.length) {
+      return { color: palette[index], overflow: false };
+    }
+    return { color: this.defaultColor, overflow: true };
+  }
+
+  /** Sets an individual color override for a category. */
+  setCategoryColor(index: number, color: string) {
+    const next = this.categories.slice();
+    next[index] = { ...next[index], customColor: color };
+    this.categories = next;
+  }
+
+  /** Resizes the category list to `count` (min 2), preserving existing rows. */
+  onCatNumClassesChanged(count: number) {
+    let next = Math.floor(count);
+    if (!next || next < 2) {
+      next = 2;
+    }
+    const categories = this.categories.slice(0, next);
+    while (categories.length < next) {
+      categories.push({ value: '', label: '', customColor: null });
+    }
+    this.categories = categories;
+  }
+
+  /** Appends a new blank category. */
+  addCategory() {
+    this.categories = [...this.categories, { value: '', label: '', customColor: null }];
+  }
+
+  /** Removes a category (keeping at least two). */
+  removeCategory(index: number) {
+    if (this.categories.length <= 2) {
+      return;
+    }
+    this.categories = this.categories.filter((_, i) => i !== index);
+  }
+
   // Legend "Wertebereich" text for a class of a spatial unit (regional default).
   getLegendRange(tabIndex: number, classIndex: number): string {
     const breaks: (number | null)[] = this.spatialUnitClassification[tabIndex]?.breaks ?? [];
@@ -394,6 +496,9 @@ export class IndicatorClassificationStateService {
     // Clear per-class labels/colors; onNumClassesChanged repopulates them to defaults.
     this.numLabels = [];
     this.individualColors = [];
+    // Reset categorical state to four blank categories and the default overflow color.
+    this.categories = this.createEmptyCategories(4);
+    this.defaultColor = '#c9ced4';
     this.onNumClassesChanged(this.numClassesPerSpatialUnit);
   }
 }

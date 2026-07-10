@@ -56,9 +56,7 @@
   <!-- ========================== CATEGORICAL ========================== -->
   @if (state.classification.isCategorical) {
     <app-classification-palette-picker></app-classification-palette-picker>
-    <p class="fs-note text-center">
-      {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.CATEGORICAL_PLACEHOLDER' | translate }}
-    </p>
+    <app-classification-categorical></app-classification-categorical>
   }
 
   <input

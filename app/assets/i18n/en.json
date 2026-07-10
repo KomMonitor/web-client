@@ -460,7 +460,19 @@
       "LABEL_EDITABLE_HINT": "editable",
       "COMPUTED_INFO": "With the “{{method}}” method the class breaks are not fixed in advance — they are computed per spatial level automatically from the data. Colors and labels are assigned here per class position (top = lowest, bottom = highest class).",
       "INDIVIDUAL_COLOR_HINT": "Color swatches are clickable — assign an individual color to any class if needed.",
-      "RESET_COLORS": "Reset individual colors"
+      "RESET_COLORS": "Reset individual colors",
+      "CAT_TITLE": "Categories & color assignment",
+      "CAT_NO_AUTO": "No automatic detection from the data — categories are defined manually.",
+      "CAT_NUM_CLASSES_HINT": "Suggestions up to 12 — higher values can be entered manually. The same categories apply to every spatial level.",
+      "COL_VALUE": "Value",
+      "VALUE_PLACEHOLDER": "Value",
+      "LABEL_PLACEHOLDER": "Enter label",
+      "ADD_CLASS": "Add class",
+      "REMOVE_CLASS": "Remove class",
+      "DEFAULT_COLOR": "Default color",
+      "DEFAULT_COLOR_HINT": "for categories not listed (overflow when there are more classes than palette colors)",
+      "OVERFLOW_WARNING": "There are more categories ({{cats}}) than colors in the palette “{{scheme}}” ({{size}}). Excess categories get the default color and are marked below — assign them an individual color if needed.",
+      "OVERFLOW_BADGE": "DEFAULT"
     },
     "STEP_COMPARISON": {
       "SUBTITLE": "Information about regional comparison values and benchmarking",

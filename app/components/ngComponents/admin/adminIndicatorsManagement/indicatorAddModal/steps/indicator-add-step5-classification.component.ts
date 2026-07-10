@@ -10,6 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ColorPaletteSwatchComponent } from 'components/ngComponents/common/colorPaletteSwatch/color-palette-swatch.component';
 import { IndicatorAddFormStateService } from '../indicator-add-form-state.service';
 import { ClassificationNumericComponent } from './classification/classification-numeric.component';
+import { ClassificationCategoricalComponent } from './classification/classification-categorical.component';
 import { ClassificationPalettePickerComponent } from './classification/classification-palette-picker.component';
 import { ClassificationTypeToggleComponent } from './classification/classification-type-toggle.component';
 
@@ -27,6 +28,7 @@ import { ClassificationTypeToggleComponent } from './classification/classificati
     ClassificationTypeToggleComponent,
     ClassificationPalettePickerComponent,
     ClassificationNumericComponent,
+    ClassificationCategoricalComponent,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

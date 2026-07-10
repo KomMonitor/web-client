@@ -1,0 +1,122 @@
+<div class="categorical">
+  <h4 class="cat-title">{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.CAT_TITLE' | translate }}</h4>
+  <p class="cat-subtitle text-center">
+    {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.CAT_NO_AUTO' | translate }}
+  </p>
+
+  <div class="centered-field">
+    <label>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.NUM_CLASSES' | translate }}*</label>
+    <input
+      type="number"
+      min="2"
+      step="1"
+      list="catClassOptions"
+      class="form-control"
+      name="catNumClasses"
+      [ngModel]="state.categoryCount"
+      (ngModelChange)="state.onCatNumClassesChanged($event)"
+    />
+    <datalist id="catClassOptions">
+      @for (option of [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; track option) {
+        <option [value]="option"></option>
+      }
+    </datalist>
+    <div class="help-block text-center">
+      <p>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.CAT_NUM_CLASSES_HINT' | translate }}</p>
+    </div>
+  </div>
+
+  @if (state.hasCategoryOverflow) {
+    <div class="alert alert-warning cat-overflow">
+      <i class="fas fa-exclamation-triangle"></i>
+      {{
+        'ADMIN_INDICATORS.STEP_CLASSIFICATION.OVERFLOW_WARNING'
+          | translate
+            : {
+                cats: state.categoryCount,
+                scheme: state.categoricalSchemeName,
+                size: state.categoricalPaletteSize,
+              }
+      }}
+    </div>
+  }
+
+  <table class="cat-table">
+    <thead>
+      <tr>
+        <th>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_COLOR' | translate }}</th>
+        <th>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_VALUE' | translate }}</th>
+        <th>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_LABEL' | translate }}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (category of state.categories; track i; let i = $index) {
+        <tr [class.cat-row-overflow]="state.categoryColor(i).overflow">
+          <td class="col-color">
+            <km-color-picker
+              [color]="state.categoryColor(i).color"
+              (colorChange)="state.setCategoryColor(i, $event)"
+              [label]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_COLOR' | translate"
+            ></km-color-picker>
+          </td>
+          <td class="col-value">
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="category.value"
+              [name]="'catValue' + i"
+              [placeholder]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.VALUE_PLACEHOLDER' | translate"
+            />
+          </td>
+          <td class="col-label">
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="category.label"
+              [name]="'catLabel' + i"
+              [placeholder]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.LABEL_PLACEHOLDER' | translate"
+            />
+            @if (state.categoryColor(i).overflow) {
+              <span class="cat-overflow-badge">{{
+                'ADMIN_INDICATORS.STEP_CLASSIFICATION.OVERFLOW_BADGE' | translate
+              }}</span>
+            }
+          </td>
+          <td class="col-remove">
+            <button
+              type="button"
+              class="cat-remove"
+              [disabled]="state.categories.length <= 2"
+              [title]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.REMOVE_CLASS' | translate"
+              (click)="state.removeCategory(i)"
+            >
+              ×
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <div class="cat-footer">
+    <div class="cat-default">
+      <km-color-picker
+        [color]="state.defaultColor"
+        (colorChange)="state.defaultColor = $event"
+        [label]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.DEFAULT_COLOR' | translate"
+      ></km-color-picker>
+      <div class="cat-default-text">
+        <div class="cat-default-title">
+          {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.DEFAULT_COLOR' | translate }}
+        </div>
+        <div class="cat-default-hint">
+          {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.DEFAULT_COLOR_HINT' | translate }}
+        </div>
+      </div>
+    </div>
+    <button type="button" class="cat-add" (click)="state.addCategory()">
+      + {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.ADD_CLASS' | translate }}
+    </button>
+  </div>
+</div>

@@ -1,0 +1,147 @@
+.categorical {
+  max-width: 720px;
+  margin: 1.5rem auto 0;
+}
+
+.cat-title {
+  text-align: center;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 0.2rem;
+}
+
+.cat-subtitle {
+  font-size: 0.75rem;
+  color: #9aa6b2;
+  margin-bottom: 1rem;
+}
+
+/* Centered, width-constrained field block (class count) */
+.centered-field {
+  max-width: 340px;
+  margin: 0 auto 1.25rem;
+  text-align: center;
+
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+}
+
+.cat-overflow {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.cat-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead th {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #8a95a1;
+    text-align: left;
+    padding: 0 0.4rem 0.5rem;
+    border-bottom: 1px solid #e5e9ee;
+  }
+
+  tbody td {
+    padding: 0.55rem 0.4rem;
+    border-bottom: 1px solid #f2f4f7;
+    vertical-align: middle;
+  }
+
+  .col-color {
+    width: 120px;
+  }
+
+  .col-value {
+    width: 120px;
+  }
+
+  .col-remove {
+    width: 40px;
+    text-align: center;
+  }
+
+  .cat-row-overflow {
+    background: #fdf9ee;
+  }
+}
+
+.cat-overflow-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: #a08327;
+  background: #f6e6b8;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.cat-remove {
+  border: none;
+  background: transparent;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: #c2401f;
+  cursor: pointer;
+
+  &:disabled {
+    color: #d7dbe0;
+    cursor: not-allowed;
+  }
+}
+
+.cat-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e9ee;
+}
+
+.cat-default {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.cat-default-title {
+  font-weight: 600;
+  font-size: 0.78rem;
+  color: #3a4550;
+}
+
+.cat-default-hint {
+  font-size: 0.68rem;
+  color: #9aa6b2;
+}
+
+.cat-add {
+  flex: none;
+  border: none;
+  background: #2f6db3;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.78rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    background: #285e9b;
+  }
+}
