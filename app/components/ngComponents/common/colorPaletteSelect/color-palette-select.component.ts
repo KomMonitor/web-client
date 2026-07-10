@@ -34,6 +34,15 @@ export class ColorPaletteSelectComponent {
    */
   @Input() paletteTypes?: PaletteType[];
 
+  /**
+   * When true, offers an extra "Individuell" entry that emits the synthetic
+   * `'INDIVIDUAL'` scheme name — letting the parent switch to custom per-class colors.
+   */
+  @Input() allowIndividual = false;
+
+  /** Synthetic scheme name emitted by the "Individuell" entry. */
+  readonly individualScheme = 'INDIVIDUAL';
+
   clrSelectVisible = false;
 
   /** Prefer opening below the trigger, fall back to above when there's no room. */
@@ -57,6 +66,11 @@ export class ColorPaletteSelectComponent {
 
   onClickColorBrewerEntry(colorPaletteEntry) {
     this.colorSchemeSelected.emit(colorPaletteEntry.paletteName);
+    this.clrSelectVisible = false;
+  }
+
+  onClickIndividual() {
+    this.colorSchemeSelected.emit(this.individualScheme);
     this.clrSelectVisible = false;
   }
 

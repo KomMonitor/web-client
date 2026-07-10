@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { KmColorPickerComponent } from 'components/ngComponents/customElements/color-picker/km-color-picker.component';
 import { IndicatorClassificationStateService } from '../../indicator-classification-state.service';
+import { ClassificationColorPickerComponent } from './classification-color-picker.component';
 
 /**
  * Categorical (qualitative) classification editor: a manually defined list of
@@ -14,8 +14,8 @@ import { IndicatorClassificationStateService } from '../../indicator-classificat
 @Component({
   selector: 'app-classification-categorical',
   templateUrl: './classification-categorical.component.html',
-  styleUrls: ['./classification-categorical.component.scss'],
-  imports: [CommonModule, FormsModule, TranslateModule, KmColorPickerComponent],
+  styleUrls: ['./classification-fields.shared.scss', './classification-categorical.component.scss'],
+  imports: [CommonModule, FormsModule, TranslateModule, ClassificationColorPickerComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -1,0 +1,44 @@
+<div #container class="cls-color-picker">
+  <button
+    type="button"
+    class="cls-color-trigger"
+    [style.background-color]="color"
+    [title]="title"
+    (click)="toggle($event)"
+  ></button>
+
+  @if (isOpen) {
+    <div class="cls-color-backdrop" (click)="close()"></div>
+    <div class="cls-color-panel">
+      @if (paletteColors.length) {
+        <div class="cls-color-heading">
+          {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.PALETTE_COLORS' | translate }}
+        </div>
+        <div class="cls-color-grid">
+          @for (paletteColor of paletteColors; track $index) {
+            <button
+              type="button"
+              class="cls-color-cell"
+              [class.selected]="isSelected(paletteColor)"
+              [style.background-color]="paletteColor"
+              (click)="pick(paletteColor)"
+            ></button>
+          }
+        </div>
+      }
+
+      <div class="cls-color-heading">
+        {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.CUSTOM_COLOR' | translate }}
+      </div>
+      <div class="cls-color-custom">
+        <input
+          type="color"
+          class="cls-color-native"
+          [value]="color"
+          (input)="onNativeInput($event)"
+        />
+        <input type="text" class="cls-color-hex" [value]="color" (change)="onHexChange($event)" />
+      </div>
+    </div>
+  }
+</div>

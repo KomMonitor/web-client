@@ -1,4 +1,8 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
+import {
+  Classification,
+  ExtendedDefaultClassificationMapping,
+} from 'components/ngComponents/models/classification.models';
 import {
   mergeColorSchemes,
   QUALITATIVE_SCHEMES,
@@ -7,6 +11,52 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 
 /** The kind of classification the user configures in step 5. */
 export type ClassificationType = 'QUANTITATIVE' | 'QUALITATIVE';
+
+/** A colorbrewer scheme: hex color arrays keyed by class count (e.g. '3', '5'). */
+export type ColorScheme = Record<string, string[]>;
+
+/** A named colorbrewer palette: its scheme name and the class-count-keyed colors. */
+export interface ColorPaletteEntry {
+  paletteName: string;
+  paletteArrayObject: ColorScheme;
+}
+
+/** Minimal spatial-unit shape the classification step needs. */
+export interface ClassificationSpatialUnit {
+  spatialUnitId: string;
+  spatialUnitLevel: string;
+}
+
+/** One category of the qualitative classification. */
+export interface CategoryRow {
+  value: string;
+  label: string;
+  customColor: string | null;
+}
+
+/** Per-spatial-unit break configuration for the regional-default method. */
+export interface SpatialUnitClassification {
+  spatialUnitId: string;
+  spatialUnitLevel: string;
+  breaks: (number | null)[];
+}
+
+/**
+ * Loose shape of a stored `defaultClassificationMapping` accepted by
+ * {@link IndicatorClassificationStateService.applyMapping}. Tolerates both the
+ * extended shape and the legacy one (item key `spatialUnit` instead of
+ * `spatialUnitId`, no type/label fields), hence the optional/duplicated keys.
+ */
+export interface StoredClassificationMapping {
+  classificationType?: string;
+  colorBrewerSchemeName?: string;
+  classificationMethod?: string;
+  numClasses?: number;
+  labels?: string[];
+  individualColors?: string[];
+  items?: { spatialUnitId?: string; spatialUnit?: string; breaks: (number | null)[] }[];
+  categoricalData?: { categoricalValue?: string; color?: string; label?: string }[];
+}
 
 /** Default qualitative palette used when switching to categorical classification. */
 const DEFAULT_QUALITATIVE_SCHEME = 'Accent';
@@ -30,17 +80,24 @@ export class IndicatorClassificationStateService {
 
   // Spatial units the per-unit break tabs are built for. Set by the owning
   // form-state service from its shared `availableSpatialUnits` list.
-  availableSpatialUnits: any[] = [];
+  availableSpatialUnits: ClassificationSpatialUnit[] = [];
 
   // Numeric (sequential/diverging) vs categorical (qualitative) classification.
   classificationType: ClassificationType = 'QUANTITATIVE';
+
+  // Whether the "Individuell" palette option is active. Only then may the user pick
+  // per-class / per-category colors below; otherwise the colors are taken from the
+  // selected colorbrewer palette. `selectedColorBrewerPaletteEntry` keeps holding the
+  // last real palette (the base the individual colors were seeded from). Signal-backed
+  // so OnPush templates react to mode changes.
+  readonly individualColorMode = signal(false);
 
   // Classification form data
   numClassesArray = [3, 4, 5, 6, 7, 8];
   numClassesPerSpatialUnit = 5;
   classificationMethod = 'regional_default';
-  selectedColorBrewerPaletteEntry: any = null;
-  spatialUnitClassification: any[] = [];
+  selectedColorBrewerPaletteEntry: ColorPaletteEntry | null = null;
+  spatialUnitClassification: SpatialUnitClassification[] = [];
   classBreaksInvalid = false;
   tabClasses: string[] = [];
 
@@ -52,15 +109,14 @@ export class IndicatorClassificationStateService {
 
   // Categorical (qualitative) classification: manually defined categories, each
   // with a value, an editable label and an optional individual color override.
-  categories: { value: string; label: string; customColor: string | null }[] =
-    this.createEmptyCategories(4);
+  categories: CategoryRow[] = this.createEmptyCategories(4);
   // Fallback color for categories beyond the palette size (overflow) or without a
   // dedicated color assigned.
   defaultColor = '#c9ced4';
 
   // Colorbrewer schemes/palettes (built from bundled palettes + config custom schemes)
-  colorbrewerPalettes: any[] = [];
-  colorbrewerSchemes: any = {};
+  colorbrewerPalettes: ColorPaletteEntry[] = [];
+  colorbrewerSchemes: Record<string, ColorScheme> = {};
   colorbreweSchemeName_dynamicIncrease = 'Blues';
   colorbreweSchemeName_dynamicDecrease = 'Reds';
 
@@ -71,7 +127,7 @@ export class IndicatorClassificationStateService {
    * Loads the colorbrewer schemes/palettes and initializes the per-spatial-unit
    * classification tabs. Call once after `availableSpatialUnits` has been set.
    */
-  init(availableSpatialUnits: any[]): void {
+  init(availableSpatialUnits: ClassificationSpatialUnit[]): void {
     this.availableSpatialUnits = availableSpatialUnits ?? [];
     this.loadColorBrewerSchemes();
     this.onNumClassesChanged(this.numClassesPerSpatialUnit);
@@ -108,35 +164,55 @@ export class IndicatorClassificationStateService {
       this.colorbrewerPalettes[13] || this.colorbrewerPalettes[0];
   }
 
-  // Step 5: Classification Methods
-  getClassColor(classIndex: number, palette: any): string {
-    // Palette entries carry a colorbrewer `paletteArrayObject` keyed by class count
-    // (e.g. '5'), so resolve the color row for the currently selected class count.
-    const colors = palette?.paletteArrayObject?.[this.numClassesPerSpatialUnit?.toString()];
-    if (Array.isArray(colors) && classIndex >= 0 && classIndex < colors.length) {
-      return colors[classIndex];
-    }
-
-    return '#cccccc';
-  }
-
   // Receives the full method object from app-classification-method-select; keep a
   // string fallback in case a bare id is passed.
-  onClassificationMethodSelected(method: any) {
-    this.classificationMethod = method?.id ?? method;
+  onClassificationMethodSelected(method: Classification | string) {
+    this.classificationMethod = typeof method === 'string' ? method : method.id;
     // Reinitialize classification when method changes
     this.onNumClassesChanged(this.numClassesPerSpatialUnit);
   }
 
-  onClickColorBrewerEntry(colorPaletteEntry: any) {
+  onClickColorBrewerEntry(colorPaletteEntry: ColorPaletteEntry) {
     this.selectedColorBrewerPaletteEntry = colorPaletteEntry;
   }
 
   // app-color-palette-select emits the scheme name; map it back to our palette entry.
+  // The synthetic 'INDIVIDUAL' scheme enables the custom-color mode instead.
   onColorSchemeSelected(paletteName: string) {
+    if (paletteName === 'INDIVIDUAL') {
+      this.enableIndividualColors();
+      return;
+    }
     const entry = this.colorbrewerPalettes.find((p) => p.paletteName === paletteName);
     if (entry) {
+      this.individualColorMode.set(false);
       this.onClickColorBrewerEntry(entry);
+    }
+  }
+
+  /** Scheme name shown as selected in the palette dropdown ('INDIVIDUAL' in custom mode). */
+  get selectedSchemeName(): string {
+    return this.individualColorMode()
+      ? 'INDIVIDUAL'
+      : (this.selectedColorBrewerPaletteEntry?.paletteName ?? '');
+  }
+
+  /**
+   * Enables the custom-color mode and seeds the editable colors from the currently
+   * selected palette, so the user starts from the palette colors rather than blanks.
+   */
+  private enableIndividualColors() {
+    this.individualColorMode.set(true);
+    if (this.isCategorical) {
+      this.categories = this.categories.map((category, index) => ({
+        ...category,
+        customColor: category.customColor ?? this.paletteColorForCategory(index),
+      }));
+    } else {
+      const paletteColors = this.getClassColors();
+      this.individualColors = this.individualColors.map(
+        (override, index) => override ?? paletteColors[index] ?? '#cccccc'
+      );
     }
   }
 
@@ -159,6 +235,8 @@ export class IndicatorClassificationStateService {
       return;
     }
     this.classificationType = type;
+    // Leave the custom-color mode when the type changes; a fresh palette is chosen.
+    this.individualColorMode.set(false);
 
     const current = this.selectedColorBrewerPaletteEntry?.paletteName;
     const currentIsQualitative = !!current && QUALITATIVE_SCHEMES.has(current);
@@ -178,8 +256,14 @@ export class IndicatorClassificationStateService {
     return this.colorbrewerSchemes?.[name]?.['5'] ?? [];
   }
 
-  // Read-only 5-color preview of the currently selected palette ("derzeit selektiert").
+  // Preview colors for "derzeit selektiert": the individually chosen colors in custom
+  // mode, otherwise the selected palette's 5-color spectrum.
   getSelectedPaletteColors(): string[] {
+    if (this.individualColorMode()) {
+      return this.isCategorical
+        ? this.categories.map((_, index) => this.categoryColor(index).color)
+        : this.numericColors();
+    }
     return this.selectedColorBrewerPaletteEntry?.paletteArrayObject?.['5'] ?? [];
   }
 
@@ -229,20 +313,17 @@ export class IndicatorClassificationStateService {
     return String(position);
   }
 
-  /** Whether any class carries an individual color override. */
-  hasIndividualColors(): boolean {
-    return this.individualColors.some((color) => !!color);
-  }
-
   /**
-   * Effective color of a numeric class position: the individual override when set,
-   * otherwise the selected palette color for that class. Falls back to a neutral
+   * Effective color of a numeric class position: the individual override in custom
+   * mode, otherwise the selected palette color for that class. Falls back to a neutral
    * grey when the palette has no color for the position.
    */
   colorForClass(classIndex: number): string {
-    const override = this.individualColors[classIndex];
-    if (override) {
-      return override;
+    if (this.individualColorMode()) {
+      const override = this.individualColors[classIndex];
+      if (override) {
+        return override;
+      }
     }
     const paletteColors = this.getClassColors();
     return paletteColors[classIndex] ?? '#cccccc';
@@ -254,22 +335,17 @@ export class IndicatorClassificationStateService {
     return Array.from({ length: count }, (_, i) => this.colorForClass(i));
   }
 
-  /** Sets an individual color override for a class position. */
+  /** Sets an individual color override for a class position (custom-color mode only). */
   setIndividualColor(classIndex: number, color: string) {
     const next = this.individualColors.slice();
     next[classIndex] = color;
     this.individualColors = next;
   }
 
-  /** Clears all individual color overrides, reverting to the selected palette. */
-  clearIndividualColors() {
-    this.individualColors = this.individualColors.map(() => null);
-  }
-
   // ---- categorical (qualitative) classification ----
 
   /** Builds `count` blank category rows. */
-  private createEmptyCategories(count: number) {
+  private createEmptyCategories(count: number): CategoryRow[] {
     return Array.from({ length: count }, () => ({ value: '', label: '', customColor: null }));
   }
 
@@ -305,26 +381,36 @@ export class IndicatorClassificationStateService {
     return this.categoricalPaletteColors().length;
   }
 
-  /** Whether there are more categories than palette colors (overflow → default color). */
+  /**
+   * Whether there are more categories than palette colors (overflow → default color).
+   * Only relevant in palette mode; in custom-color mode the user colors every category.
+   */
   get hasCategoryOverflow(): boolean {
-    return this.categoryCount > this.categoricalPaletteSize;
+    return !this.individualColorMode() && this.categoryCount > this.categoricalPaletteSize;
+  }
+
+  /** Palette color for a category position, or the default color when beyond the palette. */
+  private paletteColorForCategory(index: number): string {
+    const palette = this.categoricalPaletteColors();
+    return index < palette.length ? palette[index] : this.defaultColor;
   }
 
   /**
-   * Effective color of a category: its individual override when set, otherwise the
-   * palette color at that position, or the default color when beyond the palette
-   * (overflow). The `overflow` flag marks categories that fell back to the default.
+   * Effective color of a category: in custom-color mode the individual override,
+   * otherwise the palette color at that position, or the default color when beyond
+   * the palette (overflow). The `overflow` flag marks palette-mode categories that
+   * fell back to the default.
    */
   categoryColor(index: number): { color: string; overflow: boolean } {
     const category = this.categories[index];
-    if (category?.customColor) {
+    if (this.individualColorMode() && category?.customColor) {
       return { color: category.customColor, overflow: false };
     }
     const palette = this.categoricalPaletteColors();
     if (index < palette.length) {
       return { color: palette[index], overflow: false };
     }
-    return { color: this.defaultColor, overflow: true };
+    return { color: this.defaultColor, overflow: !this.individualColorMode() };
   }
 
   /** Sets an individual color override for a category. */
@@ -360,6 +446,140 @@ export class IndicatorClassificationStateService {
     this.categories = this.categories.filter((_, i) => i !== index);
   }
 
+  // ---- API mapping (the single place that knows the extended backend fields) ----
+
+  /**
+   * Builds the `defaultClassificationMapping` payload from the current state. This
+   * is the ONLY place that emits the extended, prototype-proposed fields
+   * (`classificationType`, `labels`, `individualColors`, `categoricalData`); the
+   * form-state payload builders and the metadata export all call this. Adjust here
+   * (plus {@link applyMapping} and {@link ExtendedDefaultClassificationMapping})
+   * once the backend schema is finalized.
+   */
+  buildDefaultClassificationMapping(): ExtendedDefaultClassificationMapping {
+    if (this.isCategorical) {
+      return {
+        classificationType: 'QUALITATIVE',
+        colorBrewerSchemeName: this.individualColorMode()
+          ? 'INDIVIDUAL'
+          : this.categoricalSchemeName,
+        numClasses: this.categoryCount,
+        categoricalData: this.categories.map((category, index) => ({
+          categoricalValue: category.value,
+          color: this.categoryColor(index).color,
+          label: category.label,
+        })),
+      };
+    }
+
+    const mapping: ExtendedDefaultClassificationMapping = {
+      classificationType: 'QUANTITATIVE',
+      colorBrewerSchemeName: this.individualColorMode()
+        ? 'INDIVIDUAL'
+        : (this.selectedColorBrewerPaletteEntry?.paletteName ?? ''),
+      numClasses: this.numClassesPerSpatialUnit,
+      classificationMethod: this.classificationMethod?.toUpperCase() as
+        | ExtendedDefaultClassificationMapping['classificationMethod']
+        | undefined,
+    };
+
+    if (this.individualColorMode()) {
+      mapping.individualColors = this.numericColors();
+    }
+    if (this.numLabels.some((label) => label && label.length)) {
+      mapping.labels = this.numLabels.slice();
+    }
+    // Break values are only meaningful for the regional default method; only send
+    // spatial units whose breaks are fully filled in (so the filtered breaks are all
+    // numbers, matching the API's `number[]`).
+    if (this.isRegional) {
+      mapping.items = this.spatialUnitClassification
+        .filter((classification) => !classification.breaks.includes(null))
+        .map((classification) => ({
+          spatialUnitId: classification.spatialUnitId,
+          breaks: classification.breaks as number[],
+        }));
+    }
+
+    return mapping;
+  }
+
+  /**
+   * Applies a stored `defaultClassificationMapping` onto the state (the reverse of
+   * {@link buildDefaultClassificationMapping}). Accepts both the extended shape and
+   * the legacy one (item key `spatialUnit` instead of `spatialUnitId`, no type/label
+   * fields); missing type info defaults to numeric.
+   */
+  applyMapping(mapping: StoredClassificationMapping | null | undefined) {
+    if (!mapping) {
+      return;
+    }
+
+    this.classificationType =
+      mapping.classificationType === 'QUALITATIVE' || mapping.categoricalData
+        ? 'QUALITATIVE'
+        : 'QUANTITATIVE';
+
+    // 'INDIVIDUAL' scheme means the stored colors are custom (not from a palette).
+    this.individualColorMode.set(mapping.colorBrewerSchemeName === 'INDIVIDUAL');
+
+    // Palette: resolve a named scheme; INDIVIDUAL is handled via the color fields.
+    if (mapping.colorBrewerSchemeName && mapping.colorBrewerSchemeName !== 'INDIVIDUAL') {
+      const entry = this.colorbrewerPalettes.find(
+        (palette) => palette.paletteName === mapping.colorBrewerSchemeName
+      );
+      if (entry) {
+        this.selectedColorBrewerPaletteEntry = entry;
+      }
+    }
+
+    if (this.isCategorical) {
+      const data = mapping.categoricalData ?? [];
+      if (data.length) {
+        const individual = mapping.colorBrewerSchemeName === 'INDIVIDUAL';
+        this.categories = data.map((item) => ({
+          value: item.categoricalValue ?? '',
+          label: item.label ?? '',
+          customColor: individual ? (item.color ?? null) : null,
+        }));
+      }
+      return;
+    }
+
+    // Numeric branch
+    if (mapping.classificationMethod) {
+      this.classificationMethod = String(mapping.classificationMethod).toLowerCase();
+    }
+    if (mapping.numClasses) {
+      this.numClassesPerSpatialUnit = mapping.numClasses;
+    }
+    // Rebuild the per-spatial-unit tabs (also resets labels/individual colors), then
+    // apply the stored values on top.
+    this.onNumClassesChanged(this.numClassesPerSpatialUnit);
+
+    (mapping.items ?? []).forEach((item) => {
+      const spatialUnitId = item.spatialUnitId ?? item.spatialUnit;
+      const index = this.spatialUnitClassification.findIndex(
+        (classification) => classification.spatialUnitId === spatialUnitId
+      );
+      if (index > -1) {
+        this.spatialUnitClassification[index].breaks = item.breaks;
+        this.onBreaksChanged(index);
+      }
+    });
+
+    if (Array.isArray(mapping.labels)) {
+      this.numLabels = this.resizeArray(mapping.labels.slice(), this.numClassesPerSpatialUnit, '');
+    }
+    if (mapping.colorBrewerSchemeName === 'INDIVIDUAL' && Array.isArray(mapping.individualColors)) {
+      this.individualColors = this.resizeArray(
+        mapping.individualColors.slice(),
+        this.numClassesPerSpatialUnit,
+        null
+      );
+    }
+  }
+
   // Legend "Wertebereich" text for a class of a spatial unit (regional default).
   getLegendRange(tabIndex: number, classIndex: number): string {
     const breaks: (number | null)[] = this.spatialUnitClassification[tabIndex]?.breaks ?? [];
@@ -374,24 +594,6 @@ export class IndicatorClassificationStateService {
       return `${fmt(breaks[classIndex - 1])} - < Höchster Wert`;
     }
     return `${fmt(breaks[classIndex - 1])} - < ${fmt(breaks[classIndex])}`;
-  }
-
-  // Legend "Hinweis" text — only the lowest and highest class carry a note.
-  getLegendHint(tabIndex: number, classIndex: number): string {
-    const breaks: (number | null)[] = this.spatialUnitClassification[tabIndex]?.breaks ?? [];
-    const lastIndex = this.numClassesPerSpatialUnit - 1;
-
-    if (classIndex === 0 && breaks[0] !== null && breaks[0] !== undefined) {
-      return `Klasse wird bei Werten unter ${breaks[0]} hinzugefügt`;
-    }
-    if (
-      classIndex === lastIndex &&
-      breaks[classIndex - 1] !== null &&
-      breaks[classIndex - 1] !== undefined
-    ) {
-      return `Klasse wird bei Werten über ${breaks[classIndex - 1]} hinzugefügt`;
-    }
-    return '';
   }
 
   /** Resizes an array to `length`, keeping existing entries and padding with `fill`. */
@@ -481,6 +683,7 @@ export class IndicatorClassificationStateService {
    */
   reset() {
     this.classificationType = 'QUANTITATIVE';
+    this.individualColorMode.set(false);
     this.numClassesPerSpatialUnit = 5;
     this.classificationMethod = 'regional_default';
     this.selectedColorBrewerPaletteEntry =

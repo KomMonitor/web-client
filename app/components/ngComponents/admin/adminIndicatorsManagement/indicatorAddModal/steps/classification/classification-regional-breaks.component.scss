@@ -17,7 +17,8 @@
   gap: 10px;
 }
 
-/* Legend: Farbe / Label / Wertebereich */
+/* Legend: Farbe / Label / Wertebereich (prototype-styled; .color-swatch and the
+   label-field/input/pencil come from the shared field styles) */
 .legend-table {
   width: 100%;
   border-collapse: collapse;
@@ -25,20 +26,25 @@
 
   th {
     text-align: left;
-    font-weight: bold;
-    padding: 2px 8px 6px 0;
-    font-size: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #8a95a1;
+    padding: 0 8px 8px 0;
+    border-bottom: 1px solid #e5e9ee;
   }
 
   td {
-    padding: 4px 8px 4px 0;
+    padding: 9px 8px 9px 0;
     vertical-align: middle;
     font-size: 13px;
+    border-bottom: 1px solid #f2f4f7;
   }
 
   th:nth-child(1),
   td:nth-child(1) {
-    width: 120px;
+    width: 46px;
   }
 
   th:nth-child(2),

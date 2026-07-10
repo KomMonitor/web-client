@@ -1,0 +1,65 @@
+/* Shared field primitives for the classification editors (numeric regional/computed
+   and categorical), matching the prototype look. Included via styleUrls alongside
+   each component's own styles. */
+
+/* Read-only palette color chip (palette mode). */
+.color-swatch {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+}
+
+/* Editable label cell: input with a trailing pencil hint. */
+.label-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.label-input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid #dbe1e8;
+  background: #fbfcfd;
+  border-radius: 5px;
+  padding: 6px 8px;
+  font-size: 13px;
+  color: #3a4550;
+  margin: 0;
+
+  &:hover {
+    border-color: #b7c1cc;
+    background: #fff;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #2f6db3;
+    background: #fff;
+  }
+}
+
+.label-pencil {
+  flex: none;
+  color: #b6bfc9;
+  font-size: 12px;
+}
+
+/* Value input (categorical), a bolder sibling of .label-input. */
+.value-input {
+  width: 100%;
+  border: 1px solid #dfe4ea;
+  background: #fff;
+  border-radius: 5px;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #5a6570;
+
+  &:focus {
+    outline: none;
+    border-color: #2f6db3;
+  }
+}

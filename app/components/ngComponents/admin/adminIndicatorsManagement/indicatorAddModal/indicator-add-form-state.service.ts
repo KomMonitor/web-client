@@ -563,18 +563,7 @@ export class IndicatorAddFormStateService {
         lastUpdate: this.metadata.lastUpdate || null,
         sridEPSG: this.metadata.sridEPSG || 4326,
       },
-      defaultClassificationMapping: {
-        colorBrewerSchemeName: this.classification.selectedColorBrewerPaletteEntry?.paletteName,
-        numClasses: this.classification.numClassesPerSpatialUnit,
-        classificationMethod: this.classification.classificationMethod?.toUpperCase(),
-        // Only send spatial units whose break values are fully filled in.
-        items: this.classification.spatialUnitClassification
-          .filter((classification) => !classification.breaks.includes(null))
-          .map((classification) => ({
-            spatialUnitId: classification.spatialUnitId,
-            breaks: classification.breaks,
-          })),
-      },
+      defaultClassificationMapping: this.classification.buildDefaultClassificationMapping(),
       // optional top-level fields
       abbreviation: this.indicatorAbbreviation || null,
       indicatorType: this.indicatorType?.apiName,
@@ -633,18 +622,37 @@ export class IndicatorAddFormStateService {
     // Step 3 — topic hierarchy
     check(isBlank(body.topicReference), 'Heuptthema (Schritt 3)');
 
-    // Step 5 — classification mapping
+    // Step 5 — classification mapping. The required fields differ per classification
+    // type: categorical needs at least two fully-defined categories; numeric needs a
+    // method + class count, and the regional method additionally needs complete breaks.
     const mapping = body.defaultClassificationMapping;
     check(isBlank(mapping?.colorBrewerSchemeName), 'Klassifizierung: Farbschema (Schritt 5)');
-    check(isBlank(mapping?.classificationMethod), 'Klassifizierung: Methode (Schritt 5)');
-    check(
-      mapping?.numClasses === undefined || mapping?.numClasses === null,
-      'Klassifizierung: Klassenanzahl (Schritt 5)'
-    );
-    check(
-      !Array.isArray(mapping?.items) || mapping.items.length === 0,
-      'Klassifizierung: vollständige Klassengrenzen für mind. eine Raumeinheit (Schritt 5)'
-    );
+    if (mapping?.classificationType === 'QUALITATIVE') {
+      const categories: any[] = Array.isArray(mapping?.categoricalData)
+        ? mapping.categoricalData
+        : [];
+      check(categories.length < 2, 'Klassifizierung: mindestens 2 Kategorien (Schritt 5)');
+      check(
+        categories.some(
+          (category) => isBlank(category?.categoricalValue) || isBlank(category?.label)
+        ),
+        'Klassifizierung: Wert und Label für jede Kategorie (Schritt 5)'
+      );
+    } else {
+      check(isBlank(mapping?.classificationMethod), 'Klassifizierung: Methode (Schritt 5)');
+      check(
+        mapping?.numClasses === undefined || mapping?.numClasses === null,
+        'Klassifizierung: Klassenanzahl (Schritt 5)'
+      );
+      // Break values only exist for the regional default method (computed methods
+      // derive them from the data), so only require them there.
+      if (mapping?.classificationMethod === 'REGIONAL_DEFAULT') {
+        check(
+          !Array.isArray(mapping?.items) || mapping.items.length === 0,
+          'Klassifizierung: vollständige Klassengrenzen für mind. eine Raumeinheit (Schritt 5)'
+        );
+      }
+    }
 
     // Step 7 — ownership. Only required when creating a new indicator; the
     // metadata PATCH used in edit mode does not carry ownership (that is managed
@@ -807,34 +815,8 @@ export class IndicatorAddFormStateService {
         }
       });
 
-    // Step 5 — classification mapping
-    const mapping = dataset.defaultClassificationMapping ?? {};
-    if (mapping.classificationMethod) {
-      this.classification.classificationMethod = String(mapping.classificationMethod).toLowerCase();
-    }
-    if (mapping.numClasses) {
-      this.classification.numClassesPerSpatialUnit = mapping.numClasses;
-      // Rebuild the per-spatial-unit tabs for the class count, then apply the
-      // stored breaks onto the matching spatial unit.
-      this.classification.onNumClassesChanged(this.classification.numClassesPerSpatialUnit);
-      (mapping.items ?? []).forEach((item: any) => {
-        const index = this.classification.spatialUnitClassification.findIndex(
-          (classification) => classification.spatialUnitId === item.spatialUnitId
-        );
-        if (index > -1) {
-          this.classification.spatialUnitClassification[index].breaks = item.breaks;
-          this.classification.onBreaksChanged(index);
-        }
-      });
-    }
-    if (mapping.colorBrewerSchemeName) {
-      const paletteEntry = this.classification.colorbrewerPalettes.find(
-        (palette) => palette.paletteName === mapping.colorBrewerSchemeName
-      );
-      if (paletteEntry) {
-        this.classification.selectedColorBrewerPaletteEntry = paletteEntry;
-      }
-    }
+    // Step 5 — classification mapping (type, palette, breaks, labels, colors, categories)
+    this.classification.applyMapping(dataset.defaultClassificationMapping);
 
     // Step 7 — ownership / access. Pre-filled for display only; the metadata
     // PATCH does not carry ownership or permissions (managed separately).
@@ -895,17 +877,7 @@ export class IndicatorAddFormStateService {
         lastUpdate: this.metadata.lastUpdate || null,
         sridEPSG: this.metadata.sridEPSG || 4326,
       },
-      defaultClassificationMapping: {
-        colorBrewerSchemeName: this.classification.selectedColorBrewerPaletteEntry?.paletteName,
-        numClasses: this.classification.numClassesPerSpatialUnit,
-        classificationMethod: this.classification.classificationMethod?.toUpperCase(),
-        items: this.classification.spatialUnitClassification
-          .filter((classification) => !classification.breaks.includes(null))
-          .map((classification) => ({
-            spatialUnitId: classification.spatialUnitId,
-            breaks: classification.breaks,
-          })),
-      },
+      defaultClassificationMapping: this.classification.buildDefaultClassificationMapping(),
       refrencesToOtherIndicators: this.indicatorReferences_adminView.map((ref) => ({
         indicatorId: ref.indicatorMetadata.indicatorId,
         referenceDescription: ref.referenceDescription,
@@ -1032,32 +1004,9 @@ export class IndicatorAddFormStateService {
       });
     }
 
-    // Parse classification mapping
+    // Parse classification mapping (type, palette, breaks, labels, colors, categories)
     if (this.metadataImportSettings.defaultClassificationMapping) {
-      const mapping = this.metadataImportSettings.defaultClassificationMapping;
-      this.classification.numClassesPerSpatialUnit = mapping.numClasses || 5;
-      this.classification.classificationMethod = mapping.classificationMethod || 'regional_default';
-
-      // Set color brewer palette
-      if (mapping.colorBrewerSchemeName) {
-        this.classification.selectedColorBrewerPaletteEntry =
-          this.classification.colorbrewerPalettes.find(
-            (palette) => palette.paletteName === mapping.colorBrewerSchemeName
-          );
-      }
-
-      // Parse spatial unit classification
-      if (mapping.items) {
-        this.classification.onNumClassesChanged(this.classification.numClassesPerSpatialUnit);
-        mapping.items.forEach((item: any) => {
-          const index = this.classification.spatialUnitClassification.findIndex(
-            (classification) => classification.spatialUnitId === item.spatialUnit
-          );
-          if (index > -1) {
-            this.classification.spatialUnitClassification[index].breaks = item.breaks;
-          }
-        });
-      }
+      this.classification.applyMapping(this.metadataImportSettings.defaultClassificationMapping);
     }
 
     // Parse role permissions: pre-check the imported allowedRoles in the role grid.
@@ -1116,16 +1065,9 @@ export class IndicatorAddFormStateService {
     metadataExport.refrencesToOtherIndicators = this.indicatorReferences_apiRequest;
     metadataExport.refrencesToGeoresources = this.georesourceReferences_apiRequest;
 
-    // Add classification mapping
-    metadataExport.defaultClassificationMapping = {
-      colorBrewerSchemeName: this.classification.selectedColorBrewerPaletteEntry?.paletteName,
-      numClasses: this.classification.numClassesPerSpatialUnit,
-      classificationMethod: this.classification.classificationMethod,
-      items: this.classification.spatialUnitClassification.map((classification) => ({
-        spatialUnit: classification.spatialUnitId,
-        breaks: classification.breaks.filter((breakVal) => breakVal !== null),
-      })),
-    };
+    // Add classification mapping (same shape as the API payload, incl. extended fields)
+    metadataExport.defaultClassificationMapping =
+      this.classification.buildDefaultClassificationMapping();
 
     // Add role permissions
     metadataExport.allowedRoles = this.getSelectedRoleIds();

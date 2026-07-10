@@ -1,46 +1,68 @@
 <div class="computed-classes">
-  <div class="alert alert-info computed-info">
-    <i class="fas fa-info-circle"></i>
-    {{
-      'ADMIN_INDICATORS.STEP_CLASSIFICATION.COMPUTED_INFO'
-        | translate: { method: state.currentMethodName }
-    }}
+  <div class="computed-info">
+    <i class="fas fa-info-circle computed-info-icon"></i>
+    <div class="computed-info-text">
+      {{
+        'ADMIN_INDICATORS.STEP_CLASSIFICATION.COMPUTED_INFO'
+          | translate: { method: state.currentMethodName }
+      }}
+    </div>
   </div>
 
   <table class="computed-table">
     <thead>
       <tr>
-        <th>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_COLOR' | translate }}</th>
-        <th>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_POSITION' | translate }}</th>
-        <th>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_LABEL' | translate }}</th>
+        <th class="col-color">
+          {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_COLOR' | translate }}
+        </th>
+        <th class="col-position">
+          {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_POSITION' | translate }}
+        </th>
+        <th class="col-label">
+          {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_LABEL' | translate }}
+        </th>
       </tr>
     </thead>
     <tbody>
       @for (label of state.numLabels; track i; let i = $index) {
         <tr>
           <td class="col-color">
-            <km-color-picker
-              [color]="state.colorForClass(i)"
-              (colorChange)="state.setIndividualColor(i, $event)"
-              [label]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_COLOR' | translate"
-            ></km-color-picker>
+            @if (state.individualColorMode()) {
+              <app-classification-color-picker
+                [color]="state.colorForClass(i)"
+                [paletteColors]="state.getClassColors()"
+                [title]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_COLOR' | translate"
+                (colorChange)="state.setIndividualColor(i, $event)"
+              ></app-classification-color-picker>
+            } @else {
+              <span class="color-swatch" [style.background-color]="state.colorForClass(i)"></span>
+            }
           </td>
           <td class="col-position">{{ state.positionText(i) }}</td>
           <td class="col-label">
-            <input
-              type="text"
-              class="form-control"
-              [(ngModel)]="state.numLabels[i]"
-              [name]="'computedLabel' + i"
-              [placeholder]="'Klasse ' + (i + 1)"
-            />
+            <div class="label-field">
+              <input
+                type="text"
+                class="label-input"
+                [(ngModel)]="state.numLabels[i]"
+                [name]="'computedLabel' + i"
+                [placeholder]="'Klasse ' + (i + 1)"
+              />
+              <span
+                class="label-pencil"
+                [title]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_LABEL' | translate"
+                >&#9998;</span
+              >
+            </div>
           </td>
         </tr>
       }
     </tbody>
   </table>
 
-  <p class="individual-hint text-center">
-    {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.INDIVIDUAL_COLOR_HINT' | translate }}
-  </p>
+  @if (state.individualColorMode()) {
+    <p class="individual-hint text-center">
+      {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.INDIVIDUAL_COLOR_HINT' | translate }}
+    </p>
+  }
 </div>

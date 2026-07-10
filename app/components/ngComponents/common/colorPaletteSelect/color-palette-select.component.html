@@ -22,14 +22,25 @@
   <div class="clr-overlay-panel">
     <ul class="palette-list">
       @for (colorPaletteEntry of displayedPalettes; track colorPaletteEntry) {
-        <li [class.selected]="colorPaletteEntry.paletteName === selectedColorScheme">
-          <div (click)="onClickColorBrewerEntry(colorPaletteEntry)">
-            <app-color-palette-swatch
-              [colors]="colorPaletteEntry.paletteArrayObject['5']"
-            ></app-color-palette-swatch>
-          </div>
+        <li
+          [class.selected]="colorPaletteEntry.paletteName === selectedColorScheme"
+          (click)="onClickColorBrewerEntry(colorPaletteEntry)"
+        >
+          <app-color-palette-swatch
+            [colors]="colorPaletteEntry.paletteArrayObject['5']"
+          ></app-color-palette-swatch>
         </li>
       }
     </ul>
+    @if (allowIndividual) {
+      <button
+        type="button"
+        class="individual-option"
+        [class.selected]="selectedColorScheme === individualScheme"
+        (click)="onClickIndividual()"
+      >
+        Individuell
+      </button>
+    }
   </div>
 </ng-template>

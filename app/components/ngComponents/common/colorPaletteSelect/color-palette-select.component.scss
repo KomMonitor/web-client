@@ -16,7 +16,7 @@
     list-style: none;
 
     li {
-      margin-bottom: 10px;
+      margin-bottom: 4px;
       cursor: pointer;
       break-inside: avoid;
 
@@ -26,6 +26,31 @@
         outline-offset: 2px;
         border-radius: 2px;
       }
+    }
+  }
+
+  // "Individuell" action button below the palette list.
+  .individual-option {
+    display: block;
+    width: calc(100% - 2em);
+    margin: 0 1em 0.5em;
+    padding: 8px 10px;
+    border: 1px solid #cdd5dd;
+    border-radius: 4px;
+    background: #fff;
+    font-weight: 600;
+    font-size: 13px;
+    color: #2f6db3;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover {
+      background: #f4f6f8;
+    }
+
+    &.selected {
+      outline: 2px solid #0d6efd;
+      outline-offset: 2px;
     }
   }
 }

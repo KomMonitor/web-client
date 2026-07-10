@@ -40,30 +40,31 @@
 .cat-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 
   thead th {
-    font-size: 0.65rem;
+    font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: #8a95a1;
     text-align: left;
-    padding: 0 0.4rem 0.5rem;
+    padding: 0 6px 8px;
     border-bottom: 1px solid #e5e9ee;
   }
 
   tbody td {
-    padding: 0.55rem 0.4rem;
+    padding: 9px 6px;
     border-bottom: 1px solid #f2f4f7;
     vertical-align: middle;
   }
 
   .col-color {
-    width: 120px;
+    width: 52px;
   }
 
   .col-value {
-    width: 120px;
+    width: 96px;
   }
 
   .col-remove {
@@ -77,8 +78,7 @@
 }
 
 .cat-overflow-badge {
-  display: inline-block;
-  margin-left: 0.5rem;
+  flex: none;
   font-size: 0.6rem;
   font-weight: 600;
   letter-spacing: 0.03em;
@@ -86,6 +86,7 @@
   background: #f6e6b8;
   padding: 2px 6px;
   border-radius: 3px;
+  white-space: nowrap;
 }
 
 .cat-remove {

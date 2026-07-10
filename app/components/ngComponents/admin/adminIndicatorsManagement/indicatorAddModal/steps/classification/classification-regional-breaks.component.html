@@ -79,22 +79,39 @@
                             @for (label of state.numLabels; track k; let k = $index) {
                               <tr>
                                 <td class="legend-symbol">
-                                  <km-color-picker
-                                    [color]="state.colorForClass(k)"
-                                    (colorChange)="state.setIndividualColor(k, $event)"
-                                    [label]="
-                                      'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_COLOR' | translate
-                                    "
-                                  ></km-color-picker>
+                                  @if (state.individualColorMode()) {
+                                    <app-classification-color-picker
+                                      [color]="state.colorForClass(k)"
+                                      [paletteColors]="state.getClassColors()"
+                                      [title]="
+                                        'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_COLOR' | translate
+                                      "
+                                      (colorChange)="state.setIndividualColor(k, $event)"
+                                    ></app-classification-color-picker>
+                                  } @else {
+                                    <span
+                                      class="color-swatch"
+                                      [style.background-color]="state.colorForClass(k)"
+                                    ></span>
+                                  }
                                 </td>
                                 <td class="legend-label">
-                                  <input
-                                    type="text"
-                                    class="form-control"
-                                    [(ngModel)]="state.numLabels[k]"
-                                    [name]="'regionalLabel' + k"
-                                    [placeholder]="'Klasse ' + (k + 1)"
-                                  />
+                                  <div class="label-field">
+                                    <input
+                                      type="text"
+                                      class="label-input"
+                                      [(ngModel)]="state.numLabels[k]"
+                                      [name]="'regionalLabel' + k"
+                                      [placeholder]="'Klasse ' + (k + 1)"
+                                    />
+                                    <span
+                                      class="label-pencil"
+                                      [title]="
+                                        'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_LABEL' | translate
+                                      "
+                                      >&#9998;</span
+                                    >
+                                  </div>
                                 </td>
                                 <td class="legend-range">{{ state.getLegendRange(i, k) }}</td>
                               </tr>
@@ -120,7 +137,9 @@
     <div class="help-block">
       <p>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.TABS_COMPLETE_HINT' | translate }}</p>
       <p>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.TABS_ERROR_HINT' | translate }}</p>
-      <p>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.INDIVIDUAL_COLOR_HINT' | translate }}</p>
+      @if (state.individualColorMode()) {
+        <p>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.INDIVIDUAL_COLOR_HINT' | translate }}</p>
+      }
     </div>
   </div>
 </div>
