@@ -453,7 +453,14 @@
       "TYPE_NUMERIC_HINT": "sequentiell / divergierend",
       "TYPE_CATEGORICAL": "Kategoriale Werte",
       "TYPE_CATEGORICAL_HINT": "qualitativ",
-      "CATEGORICAL_PLACEHOLDER": "Der Editor für kategoriale Klassifizierung folgt in Kürze."
+      "CATEGORICAL_PLACEHOLDER": "Der Editor für kategoriale Klassifizierung folgt in Kürze.",
+      "COL_COLOR": "Farbe",
+      "COL_POSITION": "Position",
+      "COL_LABEL": "Label",
+      "LABEL_EDITABLE_HINT": "editierbar",
+      "COMPUTED_INFO": "Bei der Methode „{{method}}“ stehen die Klassengrenzen vorab nicht fest — sie werden pro Raumebene automatisch aus den Daten berechnet. Farben und Labels werden hier je Klassenposition vergeben (oben = niedrigste, unten = höchste Klasse).",
+      "INDIVIDUAL_COLOR_HINT": "Farbfelder sind anklickbar — weise jeder Klasse bei Bedarf eine eigene Farbe zu.",
+      "RESET_COLORS": "Individuelle Farben zurücksetzen"
     },
     "STEP_COMPARISON": {
       "SUBTITLE": "Angaben über regionale Vergleichswerte und Benchmarking",

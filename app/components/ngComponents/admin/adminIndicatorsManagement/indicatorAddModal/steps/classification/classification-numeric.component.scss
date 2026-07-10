@@ -1,0 +1,17 @@
+/* Centered, width-constrained field block (method + class count) */
+.centered-field {
+  max-width: 340px;
+  margin: 12px auto;
+  text-align: center;
+
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+}
+
+/* Center the method trigger control within its column */
+.control-inline {
+  display: inline-block;
+}

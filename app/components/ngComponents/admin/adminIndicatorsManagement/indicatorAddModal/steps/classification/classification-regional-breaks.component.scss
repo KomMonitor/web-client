@@ -1,0 +1,93 @@
+.classification-tab-content {
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 4px;
+}
+
+.breaks-heading {
+  display: block;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.class-breaks-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Legend: Farbe / Label / Wertebereich */
+.legend-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+
+  th {
+    text-align: left;
+    font-weight: bold;
+    padding: 2px 8px 6px 0;
+    font-size: 12px;
+  }
+
+  td {
+    padding: 4px 8px 4px 0;
+    vertical-align: middle;
+    font-size: 13px;
+  }
+
+  th:nth-child(1),
+  td:nth-child(1) {
+    width: 120px;
+  }
+
+  th:nth-child(2),
+  td:nth-child(2) {
+    width: 40%;
+  }
+
+  th:nth-child(3),
+  td:nth-child(3) {
+    width: auto;
+  }
+
+  .legend-range {
+    color: #6b7682;
+  }
+}
+
+.nav-tabs-custom {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+
+  .nav-tabs {
+    margin-bottom: 0;
+    background-color: #f8f9fa;
+  }
+
+  /* ngb-nav renders the active pane into this outlet */
+  .tab-content {
+    padding: 0;
+  }
+
+  /* Validation colouring of the per-spatial-unit tabs */
+  .nav-item.tab-error .nav-link {
+    color: #a94442;
+    font-weight: 600;
+
+    &.active {
+      background-color: #f2dede;
+      border-color: #ebccd1 #ebccd1 #f2dede;
+    }
+  }
+
+  .nav-item.tab-valid .nav-link {
+    color: #3c763d;
+
+    &.active {
+      background-color: #dff0d8;
+      border-color: #d6e9c6 #d6e9c6 #dff0d8;
+    }
+  }
+}

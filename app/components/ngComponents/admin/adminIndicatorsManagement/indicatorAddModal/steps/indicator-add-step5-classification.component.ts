@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -5,15 +6,12 @@ import {
   effect,
   inject,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { FormsModule } from '@angular/forms';
-import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { ColorPaletteSwatchComponent } from 'components/ngComponents/common/colorPaletteSwatch/color-palette-swatch.component';
-import { ClassificationMethodSelectComponent } from 'components/ngComponents/common/classificationMethodSelect/classification-method-select.component';
 import { IndicatorAddFormStateService } from '../indicator-add-form-state.service';
-import { ClassificationTypeToggleComponent } from './classification/classification-type-toggle.component';
+import { ClassificationNumericComponent } from './classification/classification-numeric.component';
 import { ClassificationPalettePickerComponent } from './classification/classification-palette-picker.component';
+import { ClassificationTypeToggleComponent } from './classification/classification-type-toggle.component';
 
 @Component({
   selector: 'app-indicator-add-step5-classification',
@@ -25,12 +23,10 @@ import { ClassificationPalettePickerComponent } from './classification/classific
   imports: [
     TranslateModule,
     CommonModule,
-    FormsModule,
-    NgbNavModule,
     ColorPaletteSwatchComponent,
-    ClassificationMethodSelectComponent,
     ClassificationTypeToggleComponent,
     ClassificationPalettePickerComponent,
+    ClassificationNumericComponent,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

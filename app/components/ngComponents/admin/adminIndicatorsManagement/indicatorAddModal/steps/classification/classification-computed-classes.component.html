@@ -1,0 +1,46 @@
+<div class="computed-classes">
+  <div class="alert alert-info computed-info">
+    <i class="fas fa-info-circle"></i>
+    {{
+      'ADMIN_INDICATORS.STEP_CLASSIFICATION.COMPUTED_INFO'
+        | translate: { method: state.currentMethodName }
+    }}
+  </div>
+
+  <table class="computed-table">
+    <thead>
+      <tr>
+        <th>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_COLOR' | translate }}</th>
+        <th>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_POSITION' | translate }}</th>
+        <th>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_LABEL' | translate }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (label of state.numLabels; track i; let i = $index) {
+        <tr>
+          <td class="col-color">
+            <km-color-picker
+              [color]="state.colorForClass(i)"
+              (colorChange)="state.setIndividualColor(i, $event)"
+              [label]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_COLOR' | translate"
+            ></km-color-picker>
+          </td>
+          <td class="col-position">{{ state.positionText(i) }}</td>
+          <td class="col-label">
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="state.numLabels[i]"
+              [name]="'computedLabel' + i"
+              [placeholder]="'Klasse ' + (i + 1)"
+            />
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <p class="individual-hint text-center">
+    {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.INDIVIDUAL_COLOR_HINT' | translate }}
+  </p>
+</div>

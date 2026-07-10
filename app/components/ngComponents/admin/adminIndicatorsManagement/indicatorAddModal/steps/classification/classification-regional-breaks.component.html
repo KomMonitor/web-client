@@ -1,0 +1,138 @@
+<div class="row vertical-align">
+  <div class="col-md-12">
+    <div class="form-group">
+      <label>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.PER_SPATIAL_UNIT' | translate }}</label>
+      <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        <strong>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.IMPORTANT_LABEL' | translate }}</strong>
+        {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.IMPORTANT_TEXT' | translate }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row vertical-align">
+  <div class="col-md-12">
+    <div class="form-group">
+      <div class="nav-tabs-custom">
+        <ul
+          ngbNav
+          #classNav="ngbNav"
+          [(activeId)]="state.currentClassificationTab"
+          class="nav-tabs"
+        >
+          @for (spatialUnit of state.availableSpatialUnits; track spatialUnit; let i = $index) {
+            <li [ngbNavItem]="i" [ngClass]="state.tabClasses[i]">
+              <button ngbNavLink type="button">{{ spatialUnit.spatialUnitLevel }}</button>
+              <ng-template ngbNavContent>
+                <div class="classification-tab-content">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="breaks-heading">
+                          {{
+                            'ADMIN_INDICATORS.STEP_CLASSIFICATION.BREAKS_FOR_LEVEL'
+                              | translate: { level: spatialUnit.spatialUnitLevel }
+                          }}
+                        </label>
+                        <div class="class-breaks-container">
+                          @for (
+                            break of state.spatialUnitClassification[i]?.breaks;
+                            track j;
+                            let j = $index
+                          ) {
+                            <input
+                              type="number"
+                              class="form-control"
+                              [(ngModel)]="state.spatialUnitClassification[i].breaks[j]"
+                              [name]="'break' + i + '_' + j"
+                              (ngModelChange)="state.onBreaksChanged(i)"
+                              step="0.01"
+                              [placeholder]="
+                                'ADMIN_INDICATORS.STEP_CLASSIFICATION.BREAK_PLACEHOLDER' | translate
+                              "
+                            />
+                          }
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>{{
+                          'ADMIN_INDICATORS.STEP_CLASSIFICATION.LEGEND' | translate
+                        }}</label>
+                        <table class="legend-table">
+                          <thead>
+                            <tr>
+                              <th>
+                                {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_COLOR' | translate }}
+                              </th>
+                              <th>
+                                {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_LABEL' | translate }}
+                              </th>
+                              <th>
+                                {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.VALUE_RANGE' | translate }}
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (label of state.numLabels; track k; let k = $index) {
+                              <tr>
+                                <td class="legend-symbol">
+                                  <km-color-picker
+                                    [color]="state.colorForClass(k)"
+                                    (colorChange)="state.setIndividualColor(k, $event)"
+                                    [label]="
+                                      'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_COLOR' | translate
+                                    "
+                                  ></km-color-picker>
+                                </td>
+                                <td class="legend-label">
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    [(ngModel)]="state.numLabels[k]"
+                                    [name]="'regionalLabel' + k"
+                                    [placeholder]="'Klasse ' + (k + 1)"
+                                  />
+                                </td>
+                                <td class="legend-range">{{ state.getLegendRange(i, k) }}</td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
+            </li>
+          }
+        </ul>
+        <div [ngbNavOutlet]="classNav" class="tab-content"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row vertical-align">
+  <div class="col-md-12 text-center">
+    <div class="help-block">
+      <p>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.TABS_COMPLETE_HINT' | translate }}</p>
+      <p>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.TABS_ERROR_HINT' | translate }}</p>
+      <p>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.INDIVIDUAL_COLOR_HINT' | translate }}</p>
+    </div>
+  </div>
+</div>
+
+@if (state.classBreaksInvalid) {
+  <div class="row vertical-align">
+    <div class="col-md-12">
+      <div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle"></i>
+        <strong>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.ERROR_LABEL' | translate }}</strong>
+        {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.INVALID_BREAKS' | translate }}
+      </div>
+    </div>
+  </div>
+}

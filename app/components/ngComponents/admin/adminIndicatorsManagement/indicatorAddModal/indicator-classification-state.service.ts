@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import {
   mergeColorSchemes,
   QUALITATIVE_SCHEMES,
@@ -43,6 +43,12 @@ export class IndicatorClassificationStateService {
   spatialUnitClassification: any[] = [];
   classBreaksInvalid = false;
   tabClasses: string[] = [];
+
+  // Per-class-position editable labels (shared across all spatial-unit levels).
+  numLabels: string[] = [];
+  // Per-class-position individual color overrides; a null entry falls back to the
+  // selected palette color for that class. Non-null entries mean "individual color".
+  individualColors: (string | null)[] = [];
 
   // Colorbrewer schemes/palettes (built from bundled palettes + config custom schemes)
   colorbrewerPalettes: any[] = [];
@@ -178,6 +184,80 @@ export class IndicatorClassificationStateService {
     );
   }
 
+  get isRegional(): boolean {
+    return this.classificationMethod === 'regional_default';
+  }
+
+  get isComputed(): boolean {
+    return this.isNumeric && !this.isRegional;
+  }
+
+  // Human-readable names for the classification methods (kept in sync with
+  // app-classification-method-select, which hardcodes the same German labels).
+  private readonly methodNames: Record<string, string> = {
+    regional_default: 'Regionaler Standard',
+    jenks: 'Jenks',
+    equal_interval: 'Gleiches Intervall',
+    quantile: 'Quantile',
+  };
+
+  /** Display name of the currently selected classification method. */
+  get currentMethodName(): string {
+    return this.methodNames[this.classificationMethod] ?? this.classificationMethod;
+  }
+
+  /**
+   * Position label for a numeric class in the computed-methods editor: the lowest
+   * and highest class are annotated, the rest just show their 1-based position.
+   */
+  positionText(classIndex: number): string {
+    const position = classIndex + 1;
+    if (classIndex === 0) {
+      return `${position} · niedrigste`;
+    }
+    if (classIndex === this.numClassesPerSpatialUnit - 1) {
+      return `${position} · höchste`;
+    }
+    return String(position);
+  }
+
+  /** Whether any class carries an individual color override. */
+  hasIndividualColors(): boolean {
+    return this.individualColors.some((color) => !!color);
+  }
+
+  /**
+   * Effective color of a numeric class position: the individual override when set,
+   * otherwise the selected palette color for that class. Falls back to a neutral
+   * grey when the palette has no color for the position.
+   */
+  colorForClass(classIndex: number): string {
+    const override = this.individualColors[classIndex];
+    if (override) {
+      return override;
+    }
+    const paletteColors = this.getClassColors();
+    return paletteColors[classIndex] ?? '#cccccc';
+  }
+
+  /** Effective colors for every numeric class (palette colors with individual overrides). */
+  numericColors(): string[] {
+    const count = this.numClassesPerSpatialUnit;
+    return Array.from({ length: count }, (_, i) => this.colorForClass(i));
+  }
+
+  /** Sets an individual color override for a class position. */
+  setIndividualColor(classIndex: number, color: string) {
+    const next = this.individualColors.slice();
+    next[classIndex] = color;
+    this.individualColors = next;
+  }
+
+  /** Clears all individual color overrides, reverting to the selected palette. */
+  clearIndividualColors() {
+    this.individualColors = this.individualColors.map(() => null);
+  }
+
   // Legend "Wertebereich" text for a class of a spatial unit (regional default).
   getLegendRange(tabIndex: number, classIndex: number): string {
     const breaks: (number | null)[] = this.spatialUnitClassification[tabIndex]?.breaks ?? [];
@@ -212,8 +292,22 @@ export class IndicatorClassificationStateService {
     return '';
   }
 
+  /** Resizes an array to `length`, keeping existing entries and padding with `fill`. */
+  private resizeArray<T>(source: T[], length: number, fill: T): T[] {
+    const next = source.slice(0, length);
+    while (next.length < length) {
+      next.push(fill);
+    }
+    return next;
+  }
+
   onNumClassesChanged(numClasses: number) {
     this.numClassesPerSpatialUnit = numClasses;
+
+    // Keep the per-class-position labels and individual color overrides in sync
+    // with the class count (preserving already-entered values).
+    this.numLabels = this.resizeArray(this.numLabels, numClasses, '');
+    this.individualColors = this.resizeArray(this.individualColors, numClasses, null);
 
     // Initialize classification for each spatial unit
     this.spatialUnitClassification = [];
@@ -297,6 +391,9 @@ export class IndicatorClassificationStateService {
     this.classBreaksInvalid = false;
     this.tabClasses = [];
     this.currentClassificationTab = 0;
+    // Clear per-class labels/colors; onNumClassesChanged repopulates them to defaults.
+    this.numLabels = [];
+    this.individualColors = [];
     this.onNumClassesChanged(this.numClassesPerSpatialUnit);
   }
 }

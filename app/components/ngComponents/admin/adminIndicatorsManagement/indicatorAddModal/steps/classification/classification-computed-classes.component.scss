@@ -1,0 +1,50 @@
+.computed-classes {
+  max-width: 720px;
+  margin: 1.5rem auto 0;
+}
+
+.computed-info {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.computed-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead th {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #8a95a1;
+    text-align: left;
+    padding: 0 0.4rem 0.5rem;
+    border-bottom: 1px solid #e5e9ee;
+  }
+
+  tbody td {
+    padding: 0.55rem 0.4rem;
+    border-bottom: 1px solid #f2f4f7;
+    vertical-align: middle;
+  }
+
+  .col-color {
+    width: 120px;
+  }
+
+  .col-position {
+    width: 150px;
+    font-size: 0.8rem;
+    color: #6b7682;
+  }
+}
+
+.individual-hint {
+  font-size: 0.72rem;
+  color: #9aa6b2;
+  margin-top: 0.9rem;
+}

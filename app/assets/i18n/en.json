@@ -453,7 +453,14 @@
       "TYPE_NUMERIC_HINT": "sequential / diverging",
       "TYPE_CATEGORICAL": "Categorical values",
       "TYPE_CATEGORICAL_HINT": "qualitative",
-      "CATEGORICAL_PLACEHOLDER": "The categorical classification editor is coming soon."
+      "CATEGORICAL_PLACEHOLDER": "The categorical classification editor is coming soon.",
+      "COL_COLOR": "Color",
+      "COL_POSITION": "Position",
+      "COL_LABEL": "Label",
+      "LABEL_EDITABLE_HINT": "editable",
+      "COMPUTED_INFO": "With the “{{method}}” method the class breaks are not fixed in advance — they are computed per spatial level automatically from the data. Colors and labels are assigned here per class position (top = lowest, bottom = highest class).",
+      "INDIVIDUAL_COLOR_HINT": "Color swatches are clickable — assign an individual color to any class if needed.",
+      "RESET_COLORS": "Reset individual colors"
     },
     "STEP_COMPARISON": {
       "SUBTITLE": "Information about regional comparison values and benchmarking",
