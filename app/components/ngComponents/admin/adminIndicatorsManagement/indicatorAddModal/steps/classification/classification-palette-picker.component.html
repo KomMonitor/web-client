@@ -1,0 +1,24 @@
+<div class="palette-picker">
+  <div class="palette-picker-col">
+    <label class="palette-picker-label">
+      {{ 'ADMIN_INDICATORS.COLOR_PALETTE' | translate }}*
+    </label>
+    <app-color-palette-select
+      [selectedColorScheme]="state.selectedColorBrewerPaletteEntry?.paletteName"
+      [paletteTypes]="paletteTypes"
+      (colorSchemeSelected)="state.onColorSchemeSelected($event)"
+    ></app-color-palette-select>
+  </div>
+
+  <div class="palette-picker-col">
+    <label class="palette-picker-label">
+      {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.CURRENTLY_SELECTED' | translate }}
+    </label>
+    <app-color-palette-swatch
+      [colors]="state.getSelectedPaletteColors()"
+    ></app-color-palette-swatch>
+    <div class="palette-picker-scheme">
+      {{ state.selectedColorBrewerPaletteEntry?.paletteName }}
+    </div>
+  </div>
+</div>

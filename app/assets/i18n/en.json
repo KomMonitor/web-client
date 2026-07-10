@@ -447,7 +447,13 @@
       "TABS_COMPLETE_HINT": "Fully completed tabs are highlighted in green.",
       "TABS_ERROR_HINT": "Incorrectly completed tabs are highlighted in red. The class breaks must be sorted from low to high.",
       "ERROR_LABEL": "Error:",
-      "INVALID_BREAKS": "There are invalid classification configurations. Please check the tabs marked in red."
+      "INVALID_BREAKS": "There are invalid classification configurations. Please check the tabs marked in red.",
+      "TYPE_LABEL": "Type of classification",
+      "TYPE_NUMERIC": "Numeric values",
+      "TYPE_NUMERIC_HINT": "sequential / diverging",
+      "TYPE_CATEGORICAL": "Categorical values",
+      "TYPE_CATEGORICAL_HINT": "qualitative",
+      "CATEGORICAL_PLACEHOLDER": "The categorical classification editor is coming soon."
     },
     "STEP_COMPARISON": {
       "SUBTITLE": "Information about regional comparison values and benchmarking",

@@ -1,6 +1,17 @@
 import { Injectable, inject } from '@angular/core';
-import { mergeColorSchemes } from 'components/ngComponents/userInterface/kommonitorClassification/colors';
+import {
+  mergeColorSchemes,
+  QUALITATIVE_SCHEMES,
+} from 'components/ngComponents/userInterface/kommonitorClassification/colors';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+
+/** The kind of classification the user configures in step 5. */
+export type ClassificationType = 'QUANTITATIVE' | 'QUALITATIVE';
+
+/** Default qualitative palette used when switching to categorical classification. */
+const DEFAULT_QUALITATIVE_SCHEME = 'Accent';
+/** Default sequential palette used when switching (back) to numeric classification. */
+const DEFAULT_SEQUENTIAL_SCHEME = 'Blues';
 
 /**
  * Holds the classification-step (wizard step 5) state and its manipulating logic,
@@ -20,6 +31,9 @@ export class IndicatorClassificationStateService {
   // Spatial units the per-unit break tabs are built for. Set by the owning
   // form-state service from its shared `availableSpatialUnits` list.
   availableSpatialUnits: any[] = [];
+
+  // Numeric (sequential/diverging) vs categorical (qualitative) classification.
+  classificationType: ClassificationType = 'QUANTITATIVE';
 
   // Classification form data
   numClassesArray = [3, 4, 5, 6, 7, 8];
@@ -109,6 +123,35 @@ export class IndicatorClassificationStateService {
     const entry = this.colorbrewerPalettes.find((p) => p.paletteName === paletteName);
     if (entry) {
       this.onClickColorBrewerEntry(entry);
+    }
+  }
+
+  get isNumeric(): boolean {
+    return this.classificationType === 'QUANTITATIVE';
+  }
+
+  get isCategorical(): boolean {
+    return this.classificationType === 'QUALITATIVE';
+  }
+
+  /**
+   * Switches between numeric and categorical classification. Keeps the selected
+   * palette consistent with the chosen type: switching to categorical picks a
+   * qualitative default palette (unless one is already selected), switching back
+   * to numeric picks a sequential default when a qualitative one was active.
+   */
+  setType(type: ClassificationType) {
+    if (this.classificationType === type) {
+      return;
+    }
+    this.classificationType = type;
+
+    const current = this.selectedColorBrewerPaletteEntry?.paletteName;
+    const currentIsQualitative = !!current && QUALITATIVE_SCHEMES.has(current);
+    if (type === 'QUALITATIVE' && !currentIsQualitative) {
+      this.onColorSchemeSelected(DEFAULT_QUALITATIVE_SCHEME);
+    } else if (type === 'QUANTITATIVE' && currentIsQualitative) {
+      this.onColorSchemeSelected(DEFAULT_SEQUENTIAL_SCHEME);
     }
   }
 
@@ -241,6 +284,7 @@ export class IndicatorClassificationStateService {
    * to have been instantiated already.
    */
   reset() {
+    this.classificationType = 'QUANTITATIVE';
     this.numClassesPerSpatialUnit = 5;
     this.classificationMethod = 'regional_default';
     this.selectedColorBrewerPaletteEntry =

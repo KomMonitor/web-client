@@ -9,10 +9,11 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
-import { ColorPaletteSelectComponent } from 'components/ngComponents/common/colorPaletteSelect/color-palette-select.component';
 import { ColorPaletteSwatchComponent } from 'components/ngComponents/common/colorPaletteSwatch/color-palette-swatch.component';
 import { ClassificationMethodSelectComponent } from 'components/ngComponents/common/classificationMethodSelect/classification-method-select.component';
 import { IndicatorAddFormStateService } from '../indicator-add-form-state.service';
+import { ClassificationTypeToggleComponent } from './classification/classification-type-toggle.component';
+import { ClassificationPalettePickerComponent } from './classification/classification-palette-picker.component';
 
 @Component({
   selector: 'app-indicator-add-step5-classification',
@@ -26,9 +27,10 @@ import { IndicatorAddFormStateService } from '../indicator-add-form-state.servic
     CommonModule,
     FormsModule,
     NgbNavModule,
-    ColorPaletteSelectComponent,
     ColorPaletteSwatchComponent,
     ClassificationMethodSelectComponent,
+    ClassificationTypeToggleComponent,
+    ClassificationPalettePickerComponent,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

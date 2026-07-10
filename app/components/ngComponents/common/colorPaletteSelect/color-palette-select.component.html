@@ -21,7 +21,7 @@
 >
   <div class="clr-overlay-panel">
     <ul class="palette-list">
-      @for (colorPaletteEntry of colorbrewerPalettes; track colorPaletteEntry) {
+      @for (colorPaletteEntry of displayedPalettes; track colorPaletteEntry) {
         <li [class.selected]="colorPaletteEntry.paletteName === selectedColorScheme">
           <div (click)="onClickColorBrewerEntry(colorPaletteEntry)">
             <app-color-palette-swatch

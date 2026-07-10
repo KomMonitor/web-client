@@ -447,7 +447,13 @@
       "TABS_COMPLETE_HINT": "Vollständig ausgefüllte Tabs werden grün hervorgehoben.",
       "TABS_ERROR_HINT": "Fehlerhaft ausgefüllte Tabs werden rot hervorgehoben. Die Klassengrenzen müssen von niedrig nach hoch sortiert sein.",
       "ERROR_LABEL": "Fehler:",
-      "INVALID_BREAKS": "Es gibt ungültige Klassifizierungskonfigurationen. Bitte überprüfen Sie die rot markierten Tabs."
+      "INVALID_BREAKS": "Es gibt ungültige Klassifizierungskonfigurationen. Bitte überprüfen Sie die rot markierten Tabs.",
+      "TYPE_LABEL": "Art der Klassifizierung",
+      "TYPE_NUMERIC": "Numerische Werte",
+      "TYPE_NUMERIC_HINT": "sequentiell / divergierend",
+      "TYPE_CATEGORICAL": "Kategoriale Werte",
+      "TYPE_CATEGORICAL_HINT": "qualitativ",
+      "CATEGORICAL_PLACEHOLDER": "Der Editor für kategoriale Klassifizierung folgt in Kürze."
     },
     "STEP_COMPARISON": {
       "SUBTITLE": "Angaben über regionale Vergleichswerte und Benchmarking",
