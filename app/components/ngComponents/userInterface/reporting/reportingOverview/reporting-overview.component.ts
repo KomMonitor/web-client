@@ -665,11 +665,22 @@ export class ReportingOverviewComponent implements OnInit {
             const previewPElementDom: any = document.querySelector(
               '#reporting-overview-page-' + idx + '-' + pageElement.type + '-' + elementIdx
             );
-            if (previewPElementDom && page.generatedData.mapImage) {
-              previewPElementDom.style.backgroundImage = 'url(' + page.generatedData.mapImage + ')';
-              previewPElementDom.style.backgroundSize = '100% 100%';
-              previewPElementDom.style.backgroundRepeat = 'no-repeat';
+            if (previewPElementDom) {
+              // move the rendered echarts canvas (the indicator choropleth) into the visible
+              // preview element — it only exists in the off-screen background container
+              // otherwise, so without this the indicator data never shows up in the overview
+              previewPElementDom.innerHTML = '';
+              while (pElementDom.firstChild) {
+                previewPElementDom.appendChild(pElementDom.firstChild);
+              }
+              if (page.generatedData.mapImage) {
+                previewPElementDom.style.backgroundImage = 'url(' + page.generatedData.mapImage + ')';
+                previewPElementDom.style.backgroundSize = '100% 100%';
+                previewPElementDom.style.backgroundRepeat = 'no-repeat';
+              }
             }
+          } else {
+            instance.dispose();
           }
         } else {
           await new Promise((resolve) => {
@@ -1057,7 +1068,14 @@ export class ReportingOverviewComponent implements OnInit {
         });
       });
 
-      leafletMap.invalidateSize(false);
+      // give the browser a beat to settle layout before Leaflet measures the container;
+      // only then add the tile layer, so its tile grid is computed against the real size
+      await new Promise<void>((resolve) => {
+        setTimeout(() => {
+          leafletMap.invalidateSize(false);
+          resolve();
+        }, 100);
+      });
       leafletLayer.addTo(leafletMap);
 
       pageElement.leafletMap = leafletMap;

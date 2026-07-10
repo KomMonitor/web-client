@@ -93,6 +93,14 @@ export class ReportingService {
     pageToProcess_overview: undefined,
   };
 
+  // drives the global "report is being prepared in the background" banner, shown
+  // outside the reporting modal too so the user can keep using the app while it runs
+  reportGenerationInProgress = false;
+  reportStatus: 'preparing' | 'finished' = 'preparing';
+  reportProgress = 0;
+  reportCountdown = 0;
+  reportingModalOpen = false;
+
   default: ReportingData = {
     workflowState: WorkflowState.workflowSelect,
     selectedTemplateId: 0,

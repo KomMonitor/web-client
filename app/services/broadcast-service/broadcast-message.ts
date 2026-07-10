@@ -16,6 +16,7 @@
  * sender(s) and receiver(s) together.
  */
 export const BroadcastMessage = {
+  AbortReportGeneration: 'abortReportGeneration',
   AddAoiGeoresourceAsGeoJSON: 'addAoiGeoresourceAsGeoJSON',
   AddFileLayerToMap: 'addFileLayerToMap',
   AddLoiGeoresourceAsGeoJSON: 'addLoiGeoresourceAsGeoJSON',

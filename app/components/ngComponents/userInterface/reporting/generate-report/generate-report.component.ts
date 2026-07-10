@@ -196,20 +196,24 @@ export class GenerateReportComponent implements OnInit {
 
       const pageConfig: ConfigData = page.templateSection.pageConfig;
 
+      // pages beyond the preview limit (isPageInPreview) are never rendered into this DOM —
+      // page.generatedData already holds their content, pElementDom is only a fallback
       const pageDom: any = document.querySelector('#reporting-overview-page-' + idx);
       for (const pageElement of page.pageElements) {
         let pElementDom;
-        if (pageElement.type === 'linechart') {
-          const arr = pageDom.querySelectorAll('.type-linechart');
-          if (pageElement.showPercentageChangeToPrevTimestamp) {
-            pElementDom = arr[1];
+        if (pageDom) {
+          if (pageElement.type === 'linechart') {
+            const arr = pageDom.querySelectorAll('.type-linechart');
+            if (pageElement.showPercentageChangeToPrevTimestamp) {
+              pElementDom = arr[1];
+            } else {
+              pElementDom = arr[0];
+            }
           } else {
-            pElementDom = arr[0];
+            pElementDom = pageDom.querySelector(
+              '#reporting-overview-page-' + idx + '-' + pageElement.type
+            );
           }
-        } else {
-          pElementDom = pageDom.querySelector(
-            '#reporting-overview-page-' + idx + '-' + pageElement.type
-          );
         }
 
         const pageElementDimensions: any = {};
@@ -579,20 +583,24 @@ export class GenerateReportComponent implements OnInit {
 
       const pageConfig: ConfigData = page.templateSection.pageConfig;
 
+      // pages beyond the preview limit (isPageInPreview) are never rendered into this DOM —
+      // page.generatedData already holds their content, pElementDom is only a fallback
       const pageDom: any = document.querySelector('#reporting-overview-page-' + idx);
       for (const pageElement of page.pageElements) {
         let pElementDom;
-        if (pageElement.type === 'linechart') {
-          const arr = pageDom.querySelectorAll('.type-linechart');
-          if (pageElement.showPercentageChangeToPrevTimestamp) {
-            pElementDom = arr[1];
+        if (pageDom) {
+          if (pageElement.type === 'linechart') {
+            const arr = pageDom.querySelectorAll('.type-linechart');
+            if (pageElement.showPercentageChangeToPrevTimestamp) {
+              pElementDom = arr[1];
+            } else {
+              pElementDom = arr[0];
+            }
           } else {
-            pElementDom = arr[0];
+            pElementDom = pageDom.querySelector(
+              '#reporting-overview-page-' + idx + '-' + pageElement.type
+            );
           }
-        } else {
-          pElementDom = pageDom.querySelector(
-            '#reporting-overview-page-' + idx + '-' + pageElement.type
-          );
         }
         // convert dimensions to millimeters here
         // that way we don't have to use pxToMilli everywhere we use coordinates in the pdf

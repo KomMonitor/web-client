@@ -260,6 +260,11 @@ export class IndicatorAddComponent implements OnInit {
             this.reportingIsochronesCalculationFinished(values);
           }
           break;
+        case BroadcastMessage.AbortReportGeneration:
+          {
+            this.onAbortPreparationClicked();
+          }
+          break;
       }
     });
 
@@ -2691,7 +2696,14 @@ export class IndicatorAddComponent implements OnInit {
       });
     });
 
-    leafletMap.invalidateSize(false);
+    // give the browser a beat to settle layout before Leaflet measures the container;
+    // only then add the tile layer, so its tile grid is computed against the real size
+    await new Promise<void>((resolve) => {
+      setTimeout(() => {
+        leafletMap.invalidateSize(false);
+        resolve();
+      }, 100);
+    });
     leafletLayer.addTo(leafletMap);
 
     const dataUrl = await screenshotPromise;
@@ -3869,12 +3881,16 @@ export class IndicatorAddComponent implements OnInit {
     this.loadingData = true;
     this.abortPreparation = false;
     this.preparationNeeded = false;
+    this.reportingService.reportGenerationInProgress = true;
+    this.reportingService.reportStatus = 'preparing';
+    this.reportingService.reportProgress = 0;
     try {
       await this.initializeAllDiagrams();
     } catch (error) {
       console.error('Report preparation failed:', error);
       this.mapErrorNotificationService.displayMapApplicationError(error);
       this.preparationNeeded = true;
+      this.reportingService.reportGenerationInProgress = false;
     } finally {
       this.loadingData = false;
     }
@@ -3883,6 +3899,7 @@ export class IndicatorAddComponent implements OnInit {
   onAbortPreparationClicked() {
     this.abortPreparation = true;
     this.preparationNeeded = true;
+    this.reportingService.reportGenerationInProgress = false;
   }
 
   // async
@@ -3935,8 +3952,14 @@ export class IndicatorAddComponent implements OnInit {
     let totalPreparedCount = 0;
 
     for (let i = 0; i < this.reportingService.clonedTemplate.pages.length; i++) {
-      if (this.abortPreparation) return;
-      if (!this.reportingService.clonedTemplate) return;
+      if (this.abortPreparation) {
+        this.reportingService.reportGenerationInProgress = false;
+        return;
+      }
+      if (!this.reportingService.clonedTemplate) {
+        this.reportingService.reportGenerationInProgress = false;
+        return;
+      }
 
       const page = this.reportingService.clonedTemplate.pages[i];
       if (this.isPageInPreview(page, i)) {
@@ -3944,18 +3967,29 @@ export class IndicatorAddComponent implements OnInit {
         processedPageIds.add(page.id);
         totalPreparedCount++;
         this.pagePreparationIndex = i;
+        this.reportingService.reportProgress = Math.round(
+          (totalPreparedCount / this.pagePreparationSize) * 100
+        );
       }
     }
 
     // Phase 2: Process remaining background pages
     for (let i = 0; i < this.reportingService.clonedTemplate.pages.length; i++) {
-      if (this.abortPreparation) return;
-      if (!this.reportingService.clonedTemplate) return;
+      if (this.abortPreparation) {
+        this.reportingService.reportGenerationInProgress = false;
+        return;
+      }
+      if (!this.reportingService.clonedTemplate) {
+        this.reportingService.reportGenerationInProgress = false;
+        return;
+      }
       if (
         !this.selectedIndicator &&
         !this.reportingService.clonedTemplate.name.includes('reachability')
-      )
+      ) {
+        this.reportingService.reportGenerationInProgress = false;
         return;
+      }
 
       const page = this.reportingService.clonedTemplate.pages[i];
       if (!processedPageIds.has(page.id)) {
@@ -3963,11 +3997,24 @@ export class IndicatorAddComponent implements OnInit {
         processedPageIds.add(page.id);
         totalPreparedCount++;
         this.pagePreparationIndex = i;
+        this.reportingService.reportProgress = Math.round(
+          (totalPreparedCount / this.pagePreparationSize) * 100
+        );
       }
     }
 
     this.lastPageOfAddedSectionPrepared = true;
     this.pagePreparationIndex = this.pagePreparationSize;
+    this.reportingService.reportStatus = 'finished';
+    this.reportingService.reportProgress = 100;
+    this.reportingService.reportCountdown = 5;
+    const countdownInterval = setInterval(() => {
+      this.reportingService.reportCountdown--;
+      if (this.reportingService.reportCountdown <= 0) {
+        clearInterval(countdownInterval);
+        this.reportingService.reportGenerationInProgress = false;
+      }
+    }, 1000);
 
     // Enable optional tabs for reachability after preparation is finished
     if (this.reportingService.clonedTemplate.name.includes('-reachability')) {

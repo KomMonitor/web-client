@@ -19,6 +19,7 @@ import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-servic
 import { Router } from '@angular/router';
 import { ReportingModalComponent } from './reporting/reporting-modal.component';
 import { ReportingBackgroundProcessorComponent } from './reporting/reporting-background-processor/reporting-background-processor.component';
+import { ReportingProgressBannerComponent } from './reporting/reporting-progress-banner/reporting-progress-banner.component';
 import { EnvConfigService } from '../../../services/env-config-service/env-config.service';
 import { MapService } from 'services/map-service/map.service';
 import { CommonModule } from '@angular/common';
@@ -46,6 +47,7 @@ import { FormsModule } from '@angular/forms';
     FormsModule,
     ExportMenuButtonComponent,
     ReportingBackgroundProcessorComponent,
+    ReportingProgressBannerComponent,
   ],
 })
 export class UserInterfaceComponent implements OnInit {
