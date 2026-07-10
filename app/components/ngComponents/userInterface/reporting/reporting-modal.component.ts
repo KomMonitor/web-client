@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { WorkflowSelectComponent } from './workflowSelect/workflow-select.component';
@@ -29,7 +29,7 @@ export interface reportingData {
     IndicatorAddComponent,
   ],
 })
-export class ReportingModalComponent implements OnInit {
+export class ReportingModalComponent implements OnInit, OnDestroy {
   protected reportingService = inject(ReportingService);
 
   activeModal = inject(NgbActiveModal);
@@ -37,9 +37,15 @@ export class ReportingModalComponent implements OnInit {
   workflowState = WorkflowState;
 
   ngOnInit() {
+    this.reportingService.reportingModalOpen = true;
+
     this.reportingService.reportingData$.subscribe((val) => {
       console.log('Wert geändert:', val);
     });
+  }
+
+  ngOnDestroy() {
+    this.reportingService.reportingModalOpen = false;
   }
 
   isWorkflowState(state: WorkflowState | WorkflowState[]) {
