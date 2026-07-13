@@ -41,78 +41,74 @@
     </div>
   }
 
-  <table class="cat-table">
-    <thead>
-      <tr>
-        <th>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_COLOR' | translate }}</th>
-        <th>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_VALUE' | translate }}</th>
-        <th>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_LABEL' | translate }}</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (category of state.categories; track i; let i = $index) {
-        <tr [class.cat-row-overflow]="state.categoryColor(i).overflow">
-          <td class="col-color">
-            @if (state.individualColorMode()) {
-              <app-classification-color-picker
-                [color]="state.categoryColor(i).color"
-                [paletteColors]="state.categoricalPaletteColors()"
-                [title]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_COLOR' | translate"
-                (colorChange)="state.setCategoryColor(i, $event)"
-              ></app-classification-color-picker>
-            } @else {
-              <span
-                class="color-swatch"
-                [style.background-color]="state.categoryColor(i).color"
-              ></span>
-            }
-          </td>
-          <td class="col-value">
+  <div class="cat-grid">
+    <div class="cls-grid-head">
+      <div>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_COLOR' | translate }}</div>
+      <div>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_VALUE' | translate }}</div>
+      <div>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_LABEL' | translate }}</div>
+      <div></div>
+    </div>
+    @for (category of state.categories; track i; let i = $index) {
+      <div class="cls-grid-row" [class.overflow]="state.categoryColor(i).overflow">
+        <div class="col-color">
+          @if (state.individualColorMode()) {
+            <app-classification-color-picker
+              [color]="state.categoryColor(i).color"
+              [paletteColors]="state.categoricalPaletteColors()"
+              [title]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_COLOR' | translate"
+              (colorChange)="state.setCategoryColor(i, $event)"
+            ></app-classification-color-picker>
+          } @else {
+            <span
+              class="color-swatch"
+              [style.background-color]="state.categoryColor(i).color"
+            ></span>
+          }
+        </div>
+        <div class="col-value">
+          <input
+            type="text"
+            class="value-input"
+            [(ngModel)]="category.value"
+            [name]="'catValue' + i"
+            [placeholder]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.VALUE_PLACEHOLDER' | translate"
+          />
+        </div>
+        <div class="col-label">
+          <div class="label-field">
             <input
               type="text"
-              class="value-input"
-              [(ngModel)]="category.value"
-              [name]="'catValue' + i"
-              [placeholder]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.VALUE_PLACEHOLDER' | translate"
+              class="label-input"
+              [(ngModel)]="category.label"
+              [name]="'catLabel' + i"
+              [placeholder]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.LABEL_PLACEHOLDER' | translate"
             />
-          </td>
-          <td class="col-label">
-            <div class="label-field">
-              <input
-                type="text"
-                class="label-input"
-                [(ngModel)]="category.label"
-                [name]="'catLabel' + i"
-                [placeholder]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.LABEL_PLACEHOLDER' | translate"
-              />
-              <span
-                class="label-pencil"
-                [title]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_LABEL' | translate"
-                >&#9998;</span
-              >
-              @if (state.categoryColor(i).overflow) {
-                <span class="cat-overflow-badge">{{
-                  'ADMIN_INDICATORS.STEP_CLASSIFICATION.OVERFLOW_BADGE' | translate
-                }}</span>
-              }
-            </div>
-          </td>
-          <td class="col-remove">
-            <button
-              type="button"
-              class="cat-remove"
-              [disabled]="state.categories.length <= 2"
-              [title]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.REMOVE_CLASS' | translate"
-              (click)="state.removeCategory(i)"
+            <span
+              class="label-pencil"
+              [title]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_LABEL' | translate"
+              >&#9998;</span
             >
-              ×
-            </button>
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
+            @if (state.categoryColor(i).overflow) {
+              <span class="cat-overflow-badge">{{
+                'ADMIN_INDICATORS.STEP_CLASSIFICATION.OVERFLOW_BADGE' | translate
+              }}</span>
+            }
+          </div>
+        </div>
+        <div class="col-remove">
+          <button
+            type="button"
+            class="cat-remove"
+            [disabled]="state.categories.length <= 2"
+            [title]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.REMOVE_CLASS' | translate"
+            (click)="state.removeCategory(i)"
+          >
+            ×
+          </button>
+        </div>
+      </div>
+    }
+  </div>
 
   <div class="cat-footer">
     @if (!state.individualColorMode()) {

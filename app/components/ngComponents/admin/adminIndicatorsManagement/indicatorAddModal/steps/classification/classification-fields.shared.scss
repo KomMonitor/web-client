@@ -2,6 +2,38 @@
    and categorical), matching the prototype look. Included via styleUrls alongside
    each component's own styles. */
 
+/* CSS-grid row layout shared by the editors (replaces the old <table>). Each editor
+   sets its own columns via --cls-grid-cols (and optionally --cls-grid-gap) on the
+   grid container; header and rows use the same template so columns align. */
+.cls-grid-head,
+.cls-grid-row {
+  display: grid;
+  grid-template-columns: var(--cls-grid-cols);
+  column-gap: var(--cls-grid-gap, 24px);
+  align-items: center;
+}
+
+.cls-grid-head {
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e9ee;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #8a95a1;
+  text-align: left;
+}
+
+.cls-grid-row {
+  padding: 9px 0;
+  border-bottom: 1px solid #f2f4f7;
+  font-size: 13px;
+
+  input {
+    margin: 0px;
+  }
+}
+
 /* Read-only palette color chip (palette mode). */
 .color-swatch {
   display: inline-block;

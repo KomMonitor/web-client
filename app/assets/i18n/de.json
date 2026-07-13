@@ -440,7 +440,6 @@
       "IMPORTANT_TEXT": "Konfigurieren Sie die Klassengrenzen für jede Raumebene. Ungültige Konfigurationen werden rot markiert.",
       "BREAKS_FOR_LEVEL": "Klassengrenzen für die Ebene {{level}}",
       "BREAK_PLACEHOLDER": "Klassengrenze",
-      "LEGEND": "Legende",
       "VALUE_RANGE": "Wertebereich",
       "TABS_COMPLETE_HINT": "Vollständig ausgefüllte Tabs werden grün hervorgehoben.",
       "TABS_ERROR_HINT": "Fehlerhaft ausgefüllte Tabs werden rot hervorgehoben. Die Klassengrenzen müssen von niedrig nach hoch sortiert sein.",
@@ -470,7 +469,10 @@
       "OVERFLOW_BADGE": "STANDARD",
       "INDIVIDUAL_COLORS": "Individuelle Farben",
       "PALETTE_COLORS": "Palettenfarben",
-      "CUSTOM_COLOR": "Eigene Farbe"
+      "CUSTOM_COLOR": "Eigene Farbe",
+      "LOWEST_VALUE": "kleinster Wert",
+      "HIGHEST_VALUE": "höchster Wert",
+      "RANGE_HINT": "Farbe · Label · Wertebereich (Grenzen editierbar, von niedrig nach hoch)"
     },
     "STEP_COMPARISON": {
       "SUBTITLE": "Angaben über regionale Vergleichswerte und Benchmarking",

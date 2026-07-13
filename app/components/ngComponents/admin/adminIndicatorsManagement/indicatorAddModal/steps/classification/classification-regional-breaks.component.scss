@@ -5,60 +5,74 @@
 }
 
 .breaks-heading {
-  display: block;
   text-align: center;
-  font-weight: bold;
-  margin-bottom: 15px;
+  font-weight: 700;
+  font-size: 13px;
+  color: #2c3e50;
+  margin: 6px 0 4px;
 }
 
-.class-breaks-container {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.range-hint {
+  text-align: center;
+  font-size: 11px;
+  color: #9aa6b2;
+  margin-bottom: 14px;
 }
 
-/* Legend: Farbe / Label / Wertebereich (prototype-styled; .color-swatch and the
-   label-field/input/pencil come from the shared field styles) */
-.legend-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
+/* Farbe · Label · Wertebereich grid (shared .cls-grid-head/.cls-grid-row); centered. */
+.regional-grid {
+  --cls-grid-cols: 46px 1fr 260px;
+  --cls-grid-gap: 32px;
+  max-width: 640px;
+  margin: 0 auto;
 
-  th {
-    text-align: left;
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #8a95a1;
-    padding: 0 8px 8px 0;
-    border-bottom: 1px solid #e5e9ee;
-  }
-
-  td {
-    padding: 9px 8px 9px 0;
-    vertical-align: middle;
-    font-size: 13px;
-    border-bottom: 1px solid #f2f4f7;
-  }
-
-  th:nth-child(1),
-  td:nth-child(1) {
-    width: 46px;
-  }
-
-  th:nth-child(2),
-  td:nth-child(2) {
-    width: 40%;
-  }
-
-  th:nth-child(3),
-  td:nth-child(3) {
-    width: auto;
+  .legend-symbol {
+    display: flex;
+    align-items: center;
   }
 
   .legend-range {
     color: #6b7682;
+  }
+}
+
+/* Value range cell: lower bound (read-only) – < editable upper break | highest value */
+.range {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #6b7682;
+}
+
+.range-lower {
+  min-width: 78px;
+  text-align: right;
+}
+
+.range-upper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.range-lt,
+.range-highest {
+  color: #9aa6b2;
+}
+
+.break-input {
+  width: 82px;
+  border: 1px solid #cdd5dd;
+  border-radius: 5px;
+  padding: 6px 8px;
+  font-size: 12px;
+  color: #3a4550;
+  text-align: right;
+
+  &:focus {
+    outline: none;
+    border-color: #2f6db3;
   }
 }
 

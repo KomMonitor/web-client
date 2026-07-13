@@ -440,7 +440,6 @@
       "IMPORTANT_TEXT": "Configure the class breaks for each spatial unit. Invalid configurations are marked in red.",
       "BREAKS_FOR_LEVEL": "Class breaks for the level {{level}}",
       "BREAK_PLACEHOLDER": "Class break",
-      "LEGEND": "Legend",
       "VALUE_RANGE": "Value range",
       "TABS_COMPLETE_HINT": "Fully completed tabs are highlighted in green.",
       "TABS_ERROR_HINT": "Incorrectly completed tabs are highlighted in red. The class breaks must be sorted from low to high.",
@@ -470,7 +469,10 @@
       "OVERFLOW_BADGE": "DEFAULT",
       "INDIVIDUAL_COLORS": "Individual colors",
       "PALETTE_COLORS": "Palette colors",
-      "CUSTOM_COLOR": "Custom color"
+      "CUSTOM_COLOR": "Custom color",
+      "LOWEST_VALUE": "lowest value",
+      "HIGHEST_VALUE": "highest value",
+      "RANGE_HINT": "Color · label · value range (breaks editable, low to high)"
     },
     "STEP_COMPARISON": {
       "SUBTITLE": "Information about regional comparison values and benchmarking",

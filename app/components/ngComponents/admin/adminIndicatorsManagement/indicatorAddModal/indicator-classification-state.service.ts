@@ -602,22 +602,6 @@ export class IndicatorClassificationStateService {
     this.bumpRevision();
   }
 
-  // Legend "Wertebereich" text for a class of a spatial unit (regional default).
-  getLegendRange(tabIndex: number, classIndex: number): string {
-    const breaks: (number | null)[] = this.spatialUnitClassification[tabIndex]?.breaks ?? [];
-    const lastIndex = this.numClassesPerSpatialUnit - 1;
-    const fmt = (value: number | null | undefined) =>
-      value === null || value === undefined ? '[bitte eingeben]' : `${value}`;
-
-    if (classIndex === 0) {
-      return `Niedrigster Wert - < ${fmt(breaks[0])}`;
-    }
-    if (classIndex === lastIndex) {
-      return `${fmt(breaks[classIndex - 1])} - < Höchster Wert`;
-    }
-    return `${fmt(breaks[classIndex - 1])} - < ${fmt(breaks[classIndex])}`;
-  }
-
   /** Resizes an array to `length`, keeping existing entries and padding with `fill`. */
   private resizeArray<T>(source: T[], length: number, fill: T): T[] {
     const next = source.slice(0, length);

@@ -28,44 +28,20 @@
   color: #3f5a76;
 }
 
-.computed-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-
-  thead th {
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #8a95a1;
-    text-align: left;
-    padding: 0 6px 8px;
-    border-bottom: 1px solid #e5e9ee;
-  }
-
-  tbody td {
-    padding: 9px 6px;
-    border-bottom: 1px solid #f2f4f7;
-    vertical-align: middle;
-  }
+/* Farbe · Position · Label — column widths for the shared .cls-grid-head/.cls-grid-row */
+.computed-grid {
+  --cls-grid-cols: 46px 150px 1fr;
 
   .col-color {
-    width: 60px;
-  }
-
-  .col-position {
-    width: 150px;
-    padding-left: 20px;
-    text-align: left;
-    font-size: 12px;
-    color: #6b7682;
+    display: flex;
+    align-items: center;
   }
 }
 
-/* Label cell reserves room on the right (shared .label-field/.label-input/.color-swatch). */
-.col-label .label-field {
-  padding-right: 14px;
+.col-position {
+  font-size: 12px;
+  color: #6b7682;
+  text-align: left;
 }
 
 .individual-hint {

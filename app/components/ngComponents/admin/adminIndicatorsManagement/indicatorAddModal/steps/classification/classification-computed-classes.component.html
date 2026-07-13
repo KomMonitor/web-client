@@ -9,51 +9,41 @@
     </div>
   </div>
 
-  <table class="computed-table">
-    <thead>
-      <tr>
-        <th class="col-color">
-          {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_COLOR' | translate }}
-        </th>
-        <th class="col-position">
-          {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_POSITION' | translate }}
-        </th>
-        <th class="col-label">
-          {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_LABEL' | translate }}
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (label of state.numLabels; track i; let i = $index) {
-        <tr>
-          <td class="col-color">
-            @if (state.individualColorMode()) {
-              <app-classification-color-picker
-                [color]="state.colorForClass(i)"
-                [paletteColors]="state.getClassColors()"
-                [title]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_COLOR' | translate"
-                (colorChange)="state.setIndividualColor(i, $event)"
-              ></app-classification-color-picker>
-            } @else {
-              <span class="color-swatch" [style.background-color]="state.colorForClass(i)"></span>
-            }
-          </td>
-          <td class="col-position">{{ state.positionText(i) }}</td>
-          <td class="col-label">
-            <div class="label-field">
-              <input
-                type="text"
-                class="label-input"
-                [(ngModel)]="state.numLabels[i]"
-                [name]="'computedLabel' + i"
-                [placeholder]="'Klasse ' + (i + 1)"
-              />
-            </div>
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
+  <div class="computed-grid">
+    <div class="cls-grid-head">
+      <div>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_COLOR' | translate }}</div>
+      <div>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_POSITION' | translate }}</div>
+      <div>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_LABEL' | translate }}</div>
+    </div>
+    @for (label of state.numLabels; track i; let i = $index) {
+      <div class="cls-grid-row">
+        <div class="col-color">
+          @if (state.individualColorMode()) {
+            <app-classification-color-picker
+              [color]="state.colorForClass(i)"
+              [paletteColors]="state.getClassColors()"
+              [title]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_COLOR' | translate"
+              (colorChange)="state.setIndividualColor(i, $event)"
+            ></app-classification-color-picker>
+          } @else {
+            <span class="color-swatch" [style.background-color]="state.colorForClass(i)"></span>
+          }
+        </div>
+        <div class="col-position">{{ state.positionText(i) }}</div>
+        <div class="col-label">
+          <div class="label-field">
+            <input
+              type="text"
+              class="label-input"
+              [(ngModel)]="state.numLabels[i]"
+              [name]="'computedLabel' + i"
+              [placeholder]="'Klasse ' + (i + 1)"
+            />
+          </div>
+        </div>
+      </div>
+    }
+  </div>
 
   @if (state.individualColorMode()) {
     <p class="individual-hint text-center">

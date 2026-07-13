@@ -37,43 +37,21 @@
   line-height: 1.5;
 }
 
-.cat-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
+/* Farbe · Wert · Label · × grid (shared .cls-grid-head/.cls-grid-row) */
+.cat-grid {
+  --cls-grid-cols: 52px 96px 1fr 40px;
 
-  thead th {
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #8a95a1;
-    text-align: left;
-    padding: 0 6px 8px;
-    border-bottom: 1px solid #e5e9ee;
-  }
-
-  tbody td {
-    padding: 9px 6px;
-    border-bottom: 1px solid #f2f4f7;
-    vertical-align: middle;
+  .cls-grid-row.overflow {
+    background: #fdf9ee;
   }
 
   .col-color {
-    width: 52px;
-  }
-
-  .col-value {
-    width: 96px;
+    display: flex;
+    align-items: center;
   }
 
   .col-remove {
-    width: 40px;
     text-align: center;
-  }
-
-  .cat-row-overflow {
-    background: #fdf9ee;
   }
 }
 
