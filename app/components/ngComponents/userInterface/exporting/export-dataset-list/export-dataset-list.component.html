@@ -11,66 +11,14 @@
       </button>
       <ng-template ngbNavContent>
         @for (item of srvc.indicatorItems(); track item) {
-          <div
-            [id]="item.dataset.id"
-            class="card mb-3"
-            [class.border-success]="isIndicatorItemValid(item)"
-          >
-            <div class="card-body">
-              <div style="display: flex">
-                <div>
-                  <h4>
-                    {{ item.dataset.name }}
-                    @if (isIndicatorItemValid(item)) {
-                      <i
-                        class="fas fa-check-circle text-success ms-1"
-                        title="Bereit für den Download"
-                      ></i>
-                    }
-                  </h4>
-                </div>
-                <div style="flex: 1"></div>
-                <button
-                  type="button"
-                  class="btn btn-danger"
-                  style="align-self: center; border-radius: 50%"
-                  (click)="srvc.removeIndicator(item.dataset.id)"
-                >
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-              <div class="row">
-                <div class="col-md-6">
-                  <div>Raumebene(n)</div>
-                  @if (srvc.exportType() === 'single' || srvc.exportType() === 'multiple') {
-                    <div>
-                      @for (lvl of getIndicatorLevels(item); track lvl) {
-                        <div class="form-check">
-                          <label class="form-check-label"
-                            ><input
-                              class="form-check-input"
-                              type="checkbox"
-                              [checked]="item.selectedSpatialUnitIds.includes(lvl.id)"
-                              (change)="srvc.toggleSpatialUnit(item, lvl.id)"
-                            />{{ lvl.name }}</label
-                          >
-                        </div>
-                      }
-                    </div>
-                  }
-                  @if (srvc.exportType() === 'spatialUnit') {
-                    <div>
-                      <div class="alert alert-info" role="alert">Bitte Ebene links wählen</div>
-                    </div>
-                  }
-                </div>
-                <div class="col-md-6">
-                  <app-export-item-time-selection [exportItem]="item" />
-                </div>
-              </div>
-              <app-export-format-selection [exportItem]="item" />
-            </div>
-          </div>
+          <app-export-indicator-card
+            [exportItem]="item"
+            [exportType]="srvc.exportType()"
+            [isValid]="isIndicatorItemValid(item)"
+            (spatialUnitToggle)="srvc.toggleSpatialUnit(item, $event)"
+            (formatToggle)="srvc.toggleFormat(item.dataset.id, $event)"
+            (remove)="srvc.removeIndicator(item.dataset.id)"
+          />
         }
       </ng-template>
     </li>
@@ -115,7 +63,11 @@
                     <app-export-item-time-selection [exportItem]="item" />
                   </div>
                 </div>
-                <app-export-format-selection [exportItem]="item" />
+                <app-export-format-selection
+                  [exportItem]="item"
+                  [exportType]="srvc.exportType()"
+                  (formatToggle)="srvc.toggleFormat(item.dataset.id, $event)"
+                />
               </div>
             </div>
           }

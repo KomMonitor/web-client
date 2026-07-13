@@ -1,0 +1,59 @@
+<div [id]="exportItem.dataset.id" class="card mb-3" [class.border-success]="isValid">
+  <div class="card-body">
+    <div style="display: flex">
+      <div>
+        <h4>
+          {{ exportItem.dataset.name }}
+          @if (isValid) {
+            <i class="fas fa-check-circle text-success ms-1" title="Bereit für den Download"></i>
+          }
+        </h4>
+      </div>
+      <div style="flex: 1"></div>
+      @if (showRemove) {
+        <button
+          type="button"
+          class="btn btn-danger"
+          style="align-self: center; border-radius: 50%"
+          (click)="remove.emit()"
+        >
+          <i class="fas fa-trash"></i>
+        </button>
+      }
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div>Raumebene(n)</div>
+        @if (exportType === 'single' || exportType === 'multiple') {
+          <div>
+            @for (lvl of getIndicatorLevels(); track lvl) {
+              <div class="form-check">
+                <label class="form-check-label"
+                  ><input
+                    class="form-check-input"
+                    type="checkbox"
+                    [checked]="exportItem.selectedSpatialUnitIds.includes(lvl.id)"
+                    (change)="spatialUnitToggle.emit(lvl.id)"
+                  />{{ lvl.name }}</label
+                >
+              </div>
+            }
+          </div>
+        }
+        @if (exportType === 'spatialUnit') {
+          <div>
+            <div class="alert alert-info" role="alert">Bitte Ebene links wählen</div>
+          </div>
+        }
+      </div>
+      <div class="col-md-6">
+        <app-export-item-time-selection [exportItem]="exportItem" />
+      </div>
+    </div>
+    <app-export-format-selection
+      [exportItem]="exportItem"
+      [exportType]="exportType"
+      (formatToggle)="formatToggle.emit($event)"
+    />
+  </div>
+</div>

@@ -1,0 +1,50 @@
+<div class="modal-content">
+  <div class="modal-header">
+    <h4 class="modal-title"><b>Export</b>&nbsp;&ndash;&nbsp;{{ indicator.name }}</h4>
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="activeModal.close('Close click')"
+    ></button>
+  </div>
+  <div class="modal-body">
+    <p class="hint">Konfigurieren und starten Sie den Export dieses Indikators.</p>
+
+    <app-export-indicator-card
+      [exportItem]="item()"
+      [exportType]="'single'"
+      [isValid]="isValid()"
+      [showRemove]="false"
+      (spatialUnitToggle)="toggleSpatialUnit($event)"
+      (formatToggle)="toggleFormat($event)"
+    />
+
+    <app-epsg-selector (epsgCodeChange)="onEpsgCodeChange($event)" class="mb-3 d-block" />
+
+    @if (isLoading()) {
+      <div class="alert alert-info py-2 mb-2" role="status">
+        <i class="fas fa-spinner fa-spin me-1"></i>
+        Export wird vorbereitet...
+      </div>
+    }
+    @if (!isValid()) {
+      <div class="alert alert-warning py-2 mb-2" role="alert">
+        <i class="fas fa-exclamation-triangle me-1"></i>
+        Bitte wählen Sie mindestens eine Raumebene und ein Downloadformat aus.
+      </div>
+    }
+
+    <div class="d-grid">
+      <button
+        type="button"
+        class="btn btn-primary"
+        (click)="startDownload()"
+        [disabled]="isLoading() || !isValid()"
+      >
+        <i class="fas fa-download"></i>
+        <span> Download starten</span>
+      </button>
+    </div>
+  </div>
+</div>

@@ -72,26 +72,8 @@
           >
             Metadatenblatt
           </button>
-          <button
-            id="downloadGeoJSON"
-            (click)="downloadIndicatorAsGeoJSON()"
-            class="btn btn-primary btn-sm"
-          >
-            GeoJSON
-          </button>
-          <button
-            id="downloadShape"
-            (click)="downloadIndicatorAsShape()"
-            class="btn btn-primary btn-sm"
-          >
-            ESRI Shape
-          </button>
-          <button
-            id="downloadCSV"
-            (click)="downloadIndicatorAsCSV()"
-            class="btn btn-primary btn-sm"
-          >
-            CSV
+          <button id="openExportModal" (click)="openExportModal()" class="btn btn-primary btn-sm">
+            Export
           </button>
         </div>
         <br />

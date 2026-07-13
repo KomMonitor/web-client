@@ -1,21 +1,22 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
-import {
-  GeoressourceExportItem,
-  IndicatorExportItem,
-  SpatialUnit,
-  sortTimestamps,
-} from '../models';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { GeoressourceExportItem, IndicatorExportItem, sortTimestamps } from '../models';
 
-import { ExportItemTimeSelectionComponent } from '../export-item-time-selection/export-item-time-selection.component';
-import { ExportFormatSelectionComponent } from '../export-format-selection/export-format-selection.component';
-import { ExportingStateService } from '../exporting-state.service';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
+import { ExportFormatSelectionComponent } from '../export-format-selection/export-format-selection.component';
+import { ExportIndicatorCardComponent } from '../export-indicator-card/export-indicator-card.component';
+import { ExportItemTimeSelectionComponent } from '../export-item-time-selection/export-item-time-selection.component';
+import { ExportingStateService } from '../exporting-state.service';
 
 @Component({
   selector: 'app-export-dataset-list',
   templateUrl: './export-dataset-list.component.html',
   styleUrls: ['./export-dataset-list.component.scss'],
-  imports: [ExportItemTimeSelectionComponent, ExportFormatSelectionComponent, NgbNavModule],
+  imports: [
+    ExportItemTimeSelectionComponent,
+    ExportFormatSelectionComponent,
+    ExportIndicatorCardComponent,
+    NgbNavModule,
+  ],
   standalone: true,
 })
 export class ExportDatasetListComponent implements OnInit {
@@ -39,10 +40,6 @@ export class ExportDatasetListComponent implements OnInit {
     if (this.srvc.indicatorItems().length === 0 && this.srvc.georessourceItems().length > 0) {
       this.activeTab = 'georessources';
     }
-  }
-
-  getIndicatorLevels(item: IndicatorExportItem): SpatialUnit[] {
-    return item.dataset.spatialUnits;
   }
 
   isIndicatorItemValid(item: IndicatorExportItem): boolean {

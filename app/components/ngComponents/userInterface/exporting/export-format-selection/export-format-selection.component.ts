@@ -1,7 +1,7 @@
-import { Component, Input, computed, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { ExportFormat, ExportItem } from '../models';
-import { ExportingStateService, ExportType } from '../exporting-state.service';
+import { ExportType } from '../exporting-state.service';
 
 export const FORMAT_CONFIG: Record<ExportType, ExportFormat[]> = {
   single: ['GeoPackage', 'Excel', 'CSV', 'GeoJSON'],
@@ -17,10 +17,16 @@ export const FORMAT_CONFIG: Record<ExportType, ExportFormat[]> = {
   standalone: true,
 })
 export class ExportFormatSelectionComponent {
-  protected srvc = inject(ExportingStateService);
-
   @Input({ required: true })
   public exportItem!: ExportItem;
 
-  AVAILABLE_FORMATS = computed(() => FORMAT_CONFIG[this.srvc.exportType()]);
+  @Input()
+  public exportType: ExportType = 'single';
+
+  @Output()
+  public formatToggle = new EventEmitter<ExportFormat>();
+
+  get availableFormats(): ExportFormat[] {
+    return FORMAT_CONFIG[this.exportType];
+  }
 }

@@ -1,14 +1,14 @@
 <div>
   <div>Downloadformate</div>
   <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
-    @for (fmt of AVAILABLE_FORMATS(); track fmt) {
+    @for (fmt of availableFormats; track fmt) {
       <input
         type="checkbox"
         class="btn-check"
         [id]="exportItem.dataset.id + '-' + fmt"
         autocomplete="off"
         [checked]="exportItem.selectedFormats.includes(fmt)"
-        (change)="srvc.toggleFormat(exportItem.dataset.id, fmt)"
+        (change)="formatToggle.emit(fmt)"
       />
       <label class="btn btn-outline-secondary" [for]="exportItem.dataset.id + '-' + fmt">{{
         fmt
