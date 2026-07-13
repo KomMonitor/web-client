@@ -1,12 +1,7 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Observable, switchMap, finalize, EMPTY } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import { ExportTypSelectionComponent } from '../export-typ-selection/export-typ-selection.component';
-import { ExportDatasetListComponent } from '../export-dataset-list/export-dataset-list.component';
-import { EpsgSelectorComponent } from '../epsg-selector/epsg-selector.component';
-import { ExportingStateService } from '../exporting-state.service';
-import { ExpandableBoxComponent } from '../../../common/expandable-box/expandable-box.component';
+import { EMPTY, finalize, Observable, switchMap } from 'rxjs';
 import {
   DownloadFormat,
   ExportingService,
@@ -19,6 +14,12 @@ import {
   SpatialUnitExportParams,
   TargetTime,
 } from '../../../../../services/exporting/exporting.service';
+import { ExpandableBoxComponent } from '../../../common/expandable-box/expandable-box.component';
+import { NotificationService } from '../../../common/notification/notification.service';
+import { EpsgSelectorComponent } from '../epsg-selector/epsg-selector.component';
+import { ExportDatasetListComponent } from '../export-dataset-list/export-dataset-list.component';
+import { ExportTypSelectionComponent } from '../export-typ-selection/export-typ-selection.component';
+import { ExportingStateService } from '../exporting-state.service';
 import { ExportFormat, SelectedTargetTime } from '../models';
 
 const FORMAT_MAP: Record<ExportFormat, DownloadFormat | null> = {
@@ -76,6 +77,7 @@ export class ExportMenuModalComponent {
   activeModal = inject(NgbActiveModal);
   stateSrvc = inject(ExportingStateService);
   exportSrvc = inject(ExportingService);
+  notificationSrvc = inject(NotificationService);
   isLoading = signal(false);
 
   downloadFile(url: string): Observable<Blob> {
@@ -111,6 +113,9 @@ export class ExportMenuModalComponent {
       .pipe(
         switchMap((result: ExportResponse) => {
           if (result.status === 'successful' && result.file?.href) {
+            this.notificationSrvc.showSuccess(
+              'Export wurde erstellt. Der Download wird gestartet …'
+            );
             return this.downloadFile(result.file.href);
           }
           return EMPTY;
@@ -130,6 +135,8 @@ export class ExportMenuModalComponent {
 
           document.body.removeChild(link);
           window.URL.revokeObjectURL(blobUrl);
+
+          this.notificationSrvc.showSuccess('Download abgeschlossen.');
         },
         error: (err) => {
           console.error('Error while exporting data', err);
