@@ -1,4 +1,6 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, inject, Input, OnChanges, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import {
   NgbCollapseModule,
   NgbDate,
@@ -6,31 +8,29 @@ import {
   NgbDateStruct,
   NgbModal,
 } from '@ng-bootstrap/ng-bootstrap';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
-import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
-import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
-import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
-import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
-import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
-import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
-import { LabelService } from 'services/label-service/label.service';
-import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
-import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
-import { ShareHelperService } from 'services/share-helper-service/share-helper.service';
-import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
-import { SpatialUnitNotificationModalComponent } from '../spatialUnitNotificationModal/spatial-unit-notification-modal.component';
-import shpwrite from '@mapbox/shp-write';
-import Papa from 'papaparse';
-import { OgcService } from 'services/ogcServices/ogc.service';
-import { MapService } from 'services/map-service/map.service';
-import { CommonModule } from '@angular/common';
-import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { FormsModule } from '@angular/forms';
-import { ActiveWmsFilter } from 'pipes/active-wms-filter.pipe';
-import { KommonitorClassificationComponent } from '../kommonitorClassification/kommonitor-classification.component';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { ActiveWmsFilter } from 'pipes/active-wms-filter.pipe';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
+import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { LabelService } from 'services/label-service/label.service';
+import { MapService } from 'services/map-service/map.service';
+import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
+import { OgcService } from 'services/ogcServices/ogc.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
+import { ShareHelperService } from 'services/share-helper-service/share-helper.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
+import { IndicatorExportModalComponent } from '../exporting/indicator-export-modal/indicator-export-modal.component';
+import { KommonitorClassificationComponent } from '../kommonitorClassification/kommonitor-classification.component';
+import { KommonitorDataSetupService } from '../sidebar/kommonitorDataSetup/kommonitor-data-setup.service';
+import { SpatialUnitNotificationModalComponent } from '../spatialUnitNotificationModal/spatial-unit-notification-modal.component';
 
 @Component({
   selector: 'app-kommonitor-legend',
@@ -65,6 +65,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   protected ogcService = inject(OgcService);
   private mapService = inject(MapService);
   protected envConfigService = inject(EnvConfigService);
+  private dataSetupService = inject(KommonitorDataSetupService);
 
   elementVisibilityData: any;
   visualStyleData: any;
@@ -330,217 +331,18 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     jspdf.save();
   }
 
-  downloadIndicatorAsGeoJSON() {
-    let fileName =
-      this.selectionState.selectedIndicator.indicatorName +
-      '_' +
-      this.selectionState.selectedSpatialUnit.spatialUnitLevel;
-
-    let geoJSON_string;
-    let geoJSON;
-
-    if (this.chartDisplayState.isBalanceChecked) {
-      geoJSON = jQuery.extend(
-        true,
-        {},
-        this.chartDisplayState.indicatorAndMetadataAsBalance.geoJSON
-      );
-      geoJSON = this.prepareBalanceGeoJSON(
-        geoJSON,
-        this.chartDisplayState.indicatorAndMetadataAsBalance
-      );
-      geoJSON_string = JSON.stringify(geoJSON);
-      fileName +=
-        '_Bilanz' +
-        this.chartDisplayState.indicatorAndMetadataAsBalance['fromDate'] +
-        ' - ' +
-        this.chartDisplayState.indicatorAndMetadataAsBalance['toDate'];
-    } else {
-      geoJSON_string = JSON.stringify(this.selectionState.selectedIndicator.geoJSON);
-      fileName += '_' + this.selectionState.selectedDate;
-    }
-
-    this.metadataExportService.generateAndDownloadIndicatorZIP(
-      geoJSON_string,
-      fileName,
-      '.geojson',
-      {}
+  openExportModal() {
+    const indicator = this.dataSetupService.toExportIndicator(
+      this.selectionState.selectedIndicator
     );
-  }
-
-  downloadIndicatorAsShape() {
-    let fileName =
-      this.selectionState.selectedIndicator.indicatorName +
-      '_' +
-      this.selectionState.selectedSpatialUnit.spatialUnitLevel;
-    const polygonName =
-      this.selectionState.selectedIndicator.indicatorName +
-      '_' +
-      this.selectionState.selectedSpatialUnit.spatialUnitLevel;
-
-    const options: any = {
-      folder: 'shape',
-      types: {
-        point: 'points',
-        polygon: polygonName,
-        line: 'lines',
-      },
-    };
-
-    let geoJSON;
-
-    if (this.chartDisplayState.isBalanceChecked) {
-      geoJSON = jQuery.extend(
-        true,
-        {},
-        this.chartDisplayState.indicatorAndMetadataAsBalance.geoJSON
-      );
-      geoJSON = this.prepareBalanceGeoJSON(
-        geoJSON,
-        this.chartDisplayState.indicatorAndMetadataAsBalance
-      );
-      fileName +=
-        '_Bilanz_' +
-        this.chartDisplayState.indicatorAndMetadataAsBalance['fromDate'] +
-        ' - ' +
-        this.chartDisplayState.indicatorAndMetadataAsBalance['toDate'];
-    } else {
-      geoJSON = jQuery.extend(true, {}, this.selectionState.selectedIndicator.geoJSON);
-      fileName += '_' + this.selectionState.selectedDate;
-    }
-
-    for (const feature of geoJSON.features) {
-      const properties = feature.properties;
-
-      // rename all properties due to char limit in shaoefiles
-      const keys = Object.keys(properties);
-
-      for (const key of keys) {
-        let newKey;
-        if (key.toLowerCase().includes('featureid')) {
-          newKey = 'ID';
-        } else if (key.toLowerCase().includes('featurename')) {
-          newKey = 'NAME';
-        } else if (key.toLowerCase().includes('date_')) {
-          // from DATE_2018-01-01
-          // to 20180101
-          newKey = key.split('_')[1].replace(/-|\s/g, '');
-        } else if (key.toLowerCase().includes('startdate')) {
-          newKey = 'validFrom';
-        } else if (key.toLowerCase().includes('enddate')) {
-          newKey = 'validTo';
-        }
-
-        if (newKey) {
-          properties[newKey] = properties[key];
-          delete properties[key];
-        }
-      }
-
-      // replace properties with the one with new keys
-      feature.properties = properties;
-    }
-
-    // shpwrite.download(geoJSON, options);
-    const arrayBuffer = shpwrite.zip(geoJSON, options);
-    this.metadataExportService.generateAndDownloadIndicatorZIP(
-      arrayBuffer,
-      fileName,
-      '_shape.zip',
-      { base64: true }
-    );
-  }
-
-  downloadIndicatorAsCSV() {
-    //todo
-    let fileName =
-      this.selectionState.selectedIndicator.indicatorName +
-      '_' +
-      this.selectionState.selectedSpatialUnit.spatialUnitLevel;
-
-    let geoJSON;
-
-    if (this.chartDisplayState.isBalanceChecked) {
-      geoJSON = jQuery.extend(
-        true,
-        {},
-        this.chartDisplayState.indicatorAndMetadataAsBalance.geoJSON
-      );
-      geoJSON = this.prepareBalanceGeoJSON(
-        geoJSON,
-        this.chartDisplayState.indicatorAndMetadataAsBalance
-      );
-      fileName +=
-        '_Bilanz_' +
-        this.chartDisplayState.indicatorAndMetadataAsBalance['fromDate'] +
-        ' - ' +
-        this.chartDisplayState.indicatorAndMetadataAsBalance['toDate'];
-    } else {
-      geoJSON = jQuery.extend(true, {}, this.selectionState.selectedIndicator.geoJSON);
-      fileName += '_' + this.selectionState.selectedDate;
-    }
-
-    const items: any[] = [];
-
-    for (const feature of geoJSON.features) {
-      const properties = feature.properties;
-
-      // rename all properties due to char limit in shaoefiles
-      const keys = Object.keys(properties);
-
-      for (const key of keys) {
-        let newKey;
-        if (key.toLowerCase().includes('featureid')) {
-          newKey = 'ID';
-        } else if (key.toLowerCase().includes('featurename')) {
-          newKey = 'NAME';
-        } else if (key.toLowerCase().includes('date_')) {
-          // from DATE_2018-01-01
-          // to 2018-01-01
-          // indicator values should be replaced.
-          // replace dot as decimal separator
-          properties[key] = this.getIndicatorValue_asFormattedText(properties[key]);
-          newKey = key.split('_')[1];
-        } else if (key.toLowerCase().includes('startdate')) {
-          newKey = 'validFrom';
-        } else if (key.toLowerCase().includes('enddate')) {
-          newKey = 'validTo';
-        }
-
-        if (newKey) {
-          properties[newKey] = properties[key];
-          delete properties[key];
-        }
-      }
-
-      // replace properties with the one with new keys
-      feature.properties = properties;
-
-      items.push(properties);
-    }
-
-    // var headers = {};
-
-    // for (const key in items[0]) {
-    // 	if (Object.hasOwnProperty.call(items[0], key)) {
-    // 		headers[key] = key;
-    // 	}
-    // }
-
-    const csv = Papa.unparse(items, {
-      quotes: false, //or array of booleans
-      quoteChar: '"',
-      escapeChar: '"',
-      delimiter: ';',
-      header: true,
-      newline: '\r\n',
-      skipEmptyLines: false, //other option is 'greedy', meaning skip delimiters, quotes, and whitespace.
-      columns: null, //or array of strings
+    const modalRef = this.modalService.open(IndicatorExportModalComponent, {
+      windowClass: 'modal-holder',
+      centered: true,
+      size: 'lg',
     });
-
-    this.metadataExportService.generateAndDownloadIndicatorZIP(csv, fileName, '.csv', {});
-
-    // exportCSVFile(headers, items, fileName);
+    modalRef.componentInstance.indicator = indicator;
+    modalRef.componentInstance.preselectedSpatialUnitId =
+      this.selectionState.selectedSpatialUnit?.spatialUnitId;
   }
 
   onClickShareLinkButton() {
@@ -564,35 +366,6 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       // open in new tab
       window.open(this.shareHelperService.currentShareLink, '_blank');
     }
-  }
-
-  prepareBalanceGeoJSON(geoJSON, indicatorMetadataAsBalance) {
-    const fromDate = indicatorMetadataAsBalance['fromDate'];
-    const toDate = indicatorMetadataAsBalance['toDate'];
-    const targetDate = this.selectionState.selectedDate;
-
-    for (const feature of geoJSON.features) {
-      const properties = feature.properties;
-
-      const targetValue = properties[this.envConfigService.indicatorDatePrefix + targetDate];
-      properties['balance'] = targetValue;
-
-      // rename all properties due to char limit in shaoefiles
-      const keys = Object.keys(properties);
-
-      for (const key of keys) {
-        if (key.toLowerCase().includes('date_')) {
-          // from DATE_2018-01-01
-          // to 20180101
-          delete properties[key];
-        }
-      }
-
-      // replace properties with the one with new keys
-      feature.properties = properties;
-    }
-
-    return geoJSON;
   }
 
   makeOutliersLowLegendString(outliersArray) {
