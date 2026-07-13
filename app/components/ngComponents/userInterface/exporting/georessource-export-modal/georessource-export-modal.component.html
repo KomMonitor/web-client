@@ -9,14 +9,13 @@
     ></button>
   </div>
   <div class="modal-body">
-    <p class="hint">Konfigurieren und starten Sie den Export dieses Indikators.</p>
+    <p class="hint">Konfigurieren und starten Sie den Export dieser Georessource.</p>
 
-    <app-export-indicator-card
+    <app-export-georessource-card
       [exportItem]="item()"
       [exportType]="'single'"
       [isValid]="isValid()"
       [showRemove]="false"
-      (spatialUnitToggle)="toggleSpatialUnit($event)"
       (formatToggle)="toggleFormat($event)"
     />
 
@@ -31,7 +30,7 @@
     @if (!isValid()) {
       <div class="alert alert-warning py-2 mb-2" role="alert">
         <i class="fas fa-exclamation-triangle me-1"></i>
-        Bitte wählen Sie mindestens eine Raumebene und ein Downloadformat aus.
+        Bitte wählen Sie mindestens ein Downloadformat aus.
       </div>
     }
 
