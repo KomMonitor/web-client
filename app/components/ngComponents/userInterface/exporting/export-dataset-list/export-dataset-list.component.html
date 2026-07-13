@@ -30,46 +30,13 @@
         </button>
         <ng-template ngbNavContent>
           @for (item of srvc.georessourceItems(); track item) {
-            <div
-              [id]="item.dataset.id"
-              class="card mb-3"
-              [class.border-success]="isGeoressourceItemValid(item)"
-            >
-              <div class="card-body">
-                <div style="display: flex">
-                  <div>
-                    <h4>
-                      {{ item.dataset.name }}
-                      @if (isGeoressourceItemValid(item)) {
-                        <i
-                          class="fas fa-check-circle text-success ms-1"
-                          title="Bereit für den Download"
-                        ></i>
-                      }
-                    </h4>
-                  </div>
-                  <div style="flex: 1"></div>
-                  <button
-                    type="button"
-                    class="btn btn-danger"
-                    style="align-self: center; border-radius: 50%"
-                    (click)="srvc.removeGeoressource(item.dataset.id)"
-                  >
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </div>
-                <div class="row">
-                  <div class="col-md-12">
-                    <app-export-item-time-selection [exportItem]="item" />
-                  </div>
-                </div>
-                <app-export-format-selection
-                  [exportItem]="item"
-                  [exportType]="srvc.exportType()"
-                  (formatToggle)="srvc.toggleFormat(item.dataset.id, $event)"
-                />
-              </div>
-            </div>
+            <app-export-georessource-card
+              [exportItem]="item"
+              [exportType]="srvc.exportType()"
+              [isValid]="isGeoressourceItemValid(item)"
+              (formatToggle)="srvc.toggleFormat(item.dataset.id, $event)"
+              (remove)="srvc.removeGeoressource(item.dataset.id)"
+            />
           }
         </ng-template>
       </li>

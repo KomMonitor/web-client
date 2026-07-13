@@ -1,15 +1,17 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
-import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
-import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
-import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
-import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
-import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
-import { MapService } from 'services/map-service/map.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
+import { GeoressourceExportModalComponent } from 'components/ngComponents/userInterface/exporting/georessource-export-modal/georessource-export-modal.component';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
+import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
+import { MapService } from 'services/map-service/map.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
+import { GeoresourceExportModeService } from './georesource-export-mode.service';
 
 /**
  * Encapsulates the side-effecting georesource layer logic that used to live in
@@ -27,10 +29,11 @@ export class GeoresourceLayerService {
   private cacheHelperService = inject(CacheHelperServiceService);
   private selectionState = inject(SelectionStateService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
-  private metadataExportService = inject(MetadataExportService);
   private mapService = inject(MapService);
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
+  private modalService = inject(NgbModal);
+  private exportMode = inject(GeoresourceExportModeService);
 
   /** Whether POI layers are clustered on the map. Bound by the settings header. */
   useCluster = true;
@@ -205,39 +208,14 @@ export class GeoresourceLayerService {
     }
   }
 
-  getExportLinkForGeoresource(resource: GeoresourcesDataset) {
-    const date = this.getQueryDate(resource);
-    const [year, month, day] = date.split('-');
-    const url = `${this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/georesources/${resource.georesourceId}/${year}/${month}/${day}`;
-    const fileName = `${resource.datasetName}-${year}-${month}-${day}`;
-    this.http.get(url).subscribe({
-      next: (response) => {
-        if (resource.isPOI) {
-          this.metadataExportService.generateAndDownloadGeoresourceZIP(
-            resource,
-            JSON.stringify(response),
-            fileName,
-            '.geojson',
-            {}
-          );
-        } else {
-          const a = document.createElement('a');
-          a.setAttribute(
-            'href',
-            'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(response))
-          );
-          a.setAttribute('download', fileName);
-          a.style.display = 'none';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-        }
-      },
-      error: (error) => {
-        this.loadingData = false;
-        this.mapErrorNotificationService.displayMapApplicationError(error);
-      },
+  openGeoresourceExportModal(resource: GeoresourcesDataset) {
+    const georessource = this.exportMode.toExportGeoresource(resource);
+    const modalRef = this.modalService.open(GeoressourceExportModalComponent, {
+      windowClass: 'modal-holder',
+      centered: true,
+      size: 'lg',
     });
+    modalRef.componentInstance.georessource = georessource;
   }
 
   handleWmsOnMap(dataset) {

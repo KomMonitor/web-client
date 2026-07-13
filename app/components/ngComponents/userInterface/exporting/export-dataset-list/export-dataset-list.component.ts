@@ -2,21 +2,15 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { GeoressourceExportItem, IndicatorExportItem, sortTimestamps } from '../models';
 
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
-import { ExportFormatSelectionComponent } from '../export-format-selection/export-format-selection.component';
+import { ExportGeoressourceCardComponent } from '../export-georessource-card/export-georessource-card.component';
 import { ExportIndicatorCardComponent } from '../export-indicator-card/export-indicator-card.component';
-import { ExportItemTimeSelectionComponent } from '../export-item-time-selection/export-item-time-selection.component';
 import { ExportingStateService } from '../exporting-state.service';
 
 @Component({
   selector: 'app-export-dataset-list',
   templateUrl: './export-dataset-list.component.html',
   styleUrls: ['./export-dataset-list.component.scss'],
-  imports: [
-    ExportItemTimeSelectionComponent,
-    ExportFormatSelectionComponent,
-    ExportIndicatorCardComponent,
-    NgbNavModule,
-  ],
+  imports: [ExportIndicatorCardComponent, ExportGeoressourceCardComponent, NgbNavModule],
   standalone: true,
 })
 export class ExportDatasetListComponent implements OnInit {
