@@ -30,6 +30,7 @@ import { CustomSliderComponent } from '../common/custom-slider/custom-slider.com
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ExportMenuButtonComponent } from './exporting/export-menu-button/export-menu-button.component';
 import { FormsModule } from '@angular/forms';
+import { NotificationComponent } from '../common/notification/notification.component';
 
 @Component({
   selector: 'user-interface-new',
@@ -46,6 +47,7 @@ import { FormsModule } from '@angular/forms';
     FormsModule,
     ExportMenuButtonComponent,
     ReportingBackgroundProcessorComponent,
+    NotificationComponent,
   ],
 })
 export class UserInterfaceComponent implements OnInit {
