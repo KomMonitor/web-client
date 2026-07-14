@@ -609,7 +609,6 @@ export class IndicatorAddFormStateService {
     // Step 1 — basic metadata
     check(isBlank(body.datasetName), 'Indikatorname (Schritt 1)');
     check(isBlank(body.unit), 'Einheit (Schritt 1)');
-    check(isBlank(body.processDescription), 'Methodik (der Berechnung) (Schritt 1)');
     check(isBlank(body.interpretation), 'Interpretation (Schritt 1)');
     check(isBlank(body.creationType), 'Fortführungstyp (Schritt 1)');
 

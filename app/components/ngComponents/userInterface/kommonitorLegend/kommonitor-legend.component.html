@@ -225,9 +225,12 @@
                 <br />
                 <div class="row" style="margin-right: 0px">
                   <div class="col-md-3"><b>Symbolik</b></div>
-                  <div class="col-md-6">
+                  <div [class]="hasClassificationLabels ? 'col-md-3' : 'col-md-6'">
                     <b>Wertebereich</b> [{{ selectionState.selectedIndicator.unit }}]
                   </div>
+                  @if (hasClassificationLabels) {
+                    <div class="col-md-3"><b>Labels</b></div>
+                  }
                   <div class="col-md-3"><b>Anzahl Raumeinheiten</b></div>
                   <br />
                 </div>
@@ -243,7 +246,12 @@
                           }"
                         ></i>
                       </div>
-                      <div class="col-md-6">Leerwert</div>
+                      <div [class]="hasClassificationLabels ? 'col-md-3' : 'col-md-6'">
+                        Leerwert
+                      </div>
+                      @if (hasClassificationLabels) {
+                        <div class="col-md-3"></div>
+                      }
                       <div class="col-md-3">{{ visualStyleService.featuresPerNoData }}</div>
                       <br />
                     </div>
@@ -253,9 +261,12 @@
                   <div>
                     <div class="row" style="margin-right: 0px">
                       <div class="col-md-3"><i ng-bind-html="svgString_outlierLow"></i></div>
-                      <div class="col-md-6">
+                      <div [class]="hasClassificationLabels ? 'col-md-3' : 'col-md-6'">
                         untere Ausrei&szlig;er {{ makeOutliersLowLegendString(outliers_low) }}
                       </div>
+                      @if (hasClassificationLabels) {
+                        <div class="col-md-3"></div>
+                      }
                       <div class="col-md-3">{{ visualStyleService.featuresPerOutlierLow }}</div>
                       <br />
                     </div>
@@ -265,9 +276,12 @@
                   <div>
                     <div class="row" style="margin-right: 0px">
                       <div class="col-md-3"><i ng-bind-html="svgString_outlierHigh"></i></div>
-                      <div class="col-md-6">
+                      <div [class]="hasClassificationLabels ? 'col-md-3' : 'col-md-6'">
                         obere Ausrei&szlig;er {{ makeOutliersHighLegendString(outliers_high) }}
                       </div>
+                      @if (hasClassificationLabels) {
+                        <div class="col-md-3"></div>
+                      }
                       <div class="col-md-3">{{ visualStyleService.featuresPerOutlierHigh }}</div>
                       <br />
                     </div>
@@ -288,7 +302,12 @@
                           }"
                         ></i>
                       </div>
-                      <div class="col-md-6">gefilterte Raumeinheiten</div>
+                      <div [class]="hasClassificationLabels ? 'col-md-3' : 'col-md-6'">
+                        gefilterte Raumeinheiten
+                      </div>
+                      @if (hasClassificationLabels) {
+                        <div class="col-md-3"></div>
+                      }
                       <div class="col-md-3">
                         {{ filterHelperService.filteredIndicatorFeatureIds.size }}
                       </div>
@@ -311,7 +330,10 @@
                             }"
                           ></i>
                         </div>
-                        <div class="col-md-6">0</div>
+                        <div [class]="hasClassificationLabels ? 'col-md-3' : 'col-md-6'">0</div>
+                        @if (hasClassificationLabels) {
+                          <div class="col-md-3"></div>
+                        }
                         <div class="col-md-3">{{ visualStyleService.featuresPerZero }}</div>
                         <br />
                       </div>
@@ -333,7 +355,7 @@
                           ></i>
                         </div>
                         @if (visualStyleService.measureOfValueBrew[1].breaks[i + 1]) {
-                          <div class="col-md-6">
+                          <div [class]="hasClassificationLabels ? 'col-md-3' : 'col-md-6'">
                             {{
                               getIndicatorValue_asFormattedText(
                                 visualStyleService.measureOfValueBrew[1].breaks[i]
@@ -348,13 +370,16 @@
                           </div>
                         }
                         @if (!visualStyleService.measureOfValueBrew[1].breaks[i + 1]) {
-                          <div class="col-md-6">
+                          <div [class]="hasClassificationLabels ? 'col-md-3' : 'col-md-6'">
                             {{
                               getIndicatorValue_asFormattedText(
                                 visualStyleService.measureOfValueBrew[1].breaks[i]
                               )
                             }}
                           </div>
+                        }
+                        @if (hasClassificationLabels) {
+                          <div class="col-md-3"></div>
                         }
                         <div class="col-md-3">
                           {{ visualStyleService.featuresPerColorMap.get(color) || 0 }}
@@ -378,7 +403,7 @@
                           ></i>
                         </div>
                         @if (visualStyleService.measureOfValueBrew[0].breaks[i + 1]) {
-                          <div class="col-md-6">
+                          <div [class]="hasClassificationLabels ? 'col-md-3' : 'col-md-6'">
                             {{
                               getIndicatorValue_asFormattedText(
                                 visualStyleService.measureOfValueBrew[0].breaks[i]
@@ -393,13 +418,16 @@
                           </div>
                         }
                         @if (!visualStyleService.measureOfValueBrew[0].breaks[i + 1]) {
-                          <div class="col-md-6">
+                          <div [class]="hasClassificationLabels ? 'col-md-3' : 'col-md-6'">
                             {{
                               getIndicatorValue_asFormattedText(
                                 visualStyleService.measureOfValueBrew[0].breaks[i]
                               )
                             }}
                           </div>
+                        }
+                        @if (hasClassificationLabels) {
+                          <div class="col-md-3"></div>
                         }
                         <div class="col-md-3">
                           {{ visualStyleService.featuresPerColorMap.get(color) || 0 }}
@@ -434,7 +462,7 @@
                               ></i>
                             </div>
                             @if (visualStyleService.dynamicBrew[1].breaks[i + 1]) {
-                              <div class="col-md-6">
+                              <div [class]="hasClassificationLabels ? 'col-md-3' : 'col-md-6'">
                                 {{
                                   getIndicatorValue_asFormattedText(
                                     visualStyleService.dynamicBrew[1].breaks[i]
@@ -449,13 +477,16 @@
                               </div>
                             }
                             @if (!visualStyleService.dynamicBrew[1].breaks[i + 1]) {
-                              <div class="col-md-6">
+                              <div [class]="hasClassificationLabels ? 'col-md-3' : 'col-md-6'">
                                 {{
                                   getIndicatorValue_asFormattedText(
                                     visualStyleService.dynamicBrew[1].breaks[i]
                                   )
                                 }}
                               </div>
+                            }
+                            @if (hasClassificationLabels) {
+                              <div class="col-md-3"></div>
                             }
                             <div class="col-md-3">
                               {{ visualStyleService.featuresPerColorMap.get(color) || 0 }}
@@ -476,7 +507,10 @@
                             }"
                           ></i>
                         </div>
-                        <div class="col-md-6">0</div>
+                        <div [class]="hasClassificationLabels ? 'col-md-3' : 'col-md-6'">0</div>
+                        @if (hasClassificationLabels) {
+                          <div class="col-md-3"></div>
+                        }
                         <div class="col-md-3">{{ visualStyleService.featuresPerZero }}</div>
                         <br />
                       </div>
@@ -500,7 +534,7 @@
                               ></i>
                             </div>
                             @if (visualStyleService.dynamicBrew[0].breaks[i + 1]) {
-                              <div class="col-md-6">
+                              <div [class]="hasClassificationLabels ? 'col-md-3' : 'col-md-6'">
                                 {{
                                   getIndicatorValue_asFormattedText(
                                     visualStyleService.dynamicBrew[0].breaks[i]
@@ -515,13 +549,16 @@
                               </div>
                             }
                             @if (!visualStyleService.dynamicBrew[0].breaks[i + 1]) {
-                              <div class="col-md-6">
+                              <div [class]="hasClassificationLabels ? 'col-md-3' : 'col-md-6'">
                                 {{
                                   getIndicatorValue_asFormattedText(
                                     visualStyleService.dynamicBrew[0].breaks[i]
                                   )
                                 }}
                               </div>
+                            }
+                            @if (hasClassificationLabels) {
+                              <div class="col-md-3"></div>
                             }
                             <div class="col-md-3">
                               {{ visualStyleService.featuresPerColorMap.get(color) || 0 }}
@@ -551,7 +588,10 @@
                             }"
                           ></i>
                         </div>
-                        <div class="col-md-6">0</div>
+                        <div [class]="hasClassificationLabels ? 'col-md-3' : 'col-md-6'">0</div>
+                        @if (hasClassificationLabels) {
+                          <div class="col-md-3"></div>
+                        }
                         <div class="col-md-3">{{ visualStyleService.featuresPerZero }}</div>
                         <br />
                       </div>
@@ -578,7 +618,7 @@
                                   </i>
                                 </div>
                                 @if (visualStyleService.manualBrew.breaks[i + 1]) {
-                                  <div class="col-md-6">
+                                  <div [class]="hasClassificationLabels ? 'col-md-3' : 'col-md-6'">
                                     {{
                                       getIndicatorValue_asFormattedText(
                                         visualStyleService.manualBrew.breaks[i]
@@ -593,13 +633,16 @@
                                   </div>
                                 }
                                 @if (!visualStyleService.manualBrew.breaks[i + 1]) {
-                                  <div class="col-md-6">
+                                  <div [class]="hasClassificationLabels ? 'col-md-3' : 'col-md-6'">
                                     {{
                                       getIndicatorValue_asFormattedText(
                                         visualStyleService.manualBrew.breaks[i]
                                       )
                                     }}
                                   </div>
+                                }
+                                @if (hasClassificationLabels) {
+                                  <div class="col-md-3">{{ classificationLabels[i] }}</div>
                                 }
                                 <div class="col-md-3">
                                   {{ visualStyleService.featuresPerColorMap.get(color) || 0 }}
@@ -626,7 +669,7 @@
                                   ></i>
                                 </div>
                                 @if (visualStyleService.defaultBrew.breaks[i + 1]) {
-                                  <div class="col-md-6">
+                                  <div [class]="hasClassificationLabels ? 'col-md-3' : 'col-md-6'">
                                     {{
                                       getIndicatorValue_asFormattedText(
                                         visualStyleService.defaultBrew.breaks[i]
@@ -641,13 +684,16 @@
                                   </div>
                                 }
                                 @if (!visualStyleService.defaultBrew.breaks[i + 1]) {
-                                  <div class="col-md-6">
+                                  <div [class]="hasClassificationLabels ? 'col-md-3' : 'col-md-6'">
                                     {{
                                       getIndicatorValue_asFormattedText(
                                         visualStyleService.defaultBrew.breaks[i]
                                       )
                                     }}
                                   </div>
+                                }
+                                @if (hasClassificationLabels) {
+                                  <div class="col-md-3">{{ classificationLabels[i] }}</div>
                                 }
                                 <div class="col-md-3">
                                   {{ visualStyleService.featuresPerColorMap.get(color) || 0 }}

@@ -102,6 +102,16 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
   @Input() onupdatelegenddisplaydata!: any;
 
+  /** Per-class labels of the current indicator's default classification, index-aligned to the class positions. */
+  protected get classificationLabels(): string[] {
+    return this.selectionState.selectedIndicator?.defaultClassificationMapping?.labels ?? [];
+  }
+
+  /** Whether the current indicator's classification defines at least one non-empty label. */
+  protected get hasClassificationLabels(): boolean {
+    return this.classificationLabels.some((label) => !!label && label.length > 0);
+  }
+
   // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
   protected getIndicatorValue_asFormattedText(indicatorValue, precision = undefined) {
     return this.indicatorValueService.getIndicatorValue_asFormattedText(
