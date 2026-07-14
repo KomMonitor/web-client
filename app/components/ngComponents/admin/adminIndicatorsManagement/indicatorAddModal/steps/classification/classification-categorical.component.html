@@ -48,7 +48,7 @@
       <div>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_LABEL' | translate }}</div>
       <div></div>
     </div>
-    @for (category of state.categories; track i; let i = $index) {
+    @for (category of state.categories(); track i; let i = $index) {
       <div class="cls-grid-row" [class.overflow]="state.categoryColor(i).overflow">
         <div class="col-color">
           @if (state.individualColorMode()) {
@@ -69,7 +69,8 @@
           <input
             type="text"
             class="value-input"
-            [(ngModel)]="category.value"
+            [ngModel]="category.value"
+            (ngModelChange)="state.setCategoryValue(i, $event)"
             [name]="'catValue' + i"
             [placeholder]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.VALUE_PLACEHOLDER' | translate"
           />
@@ -79,7 +80,8 @@
             <input
               type="text"
               class="label-input"
-              [(ngModel)]="category.label"
+              [ngModel]="category.label"
+              (ngModelChange)="state.setCategoryLabel(i, $event)"
               [name]="'catLabel' + i"
               [placeholder]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.LABEL_PLACEHOLDER' | translate"
             />
@@ -99,7 +101,7 @@
           <button
             type="button"
             class="cat-remove"
-            [disabled]="state.categories.length <= 2"
+            [disabled]="state.categories().length <= 2"
             [title]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.REMOVE_CLASS' | translate"
             (click)="state.removeCategory(i)"
           >
@@ -114,10 +116,10 @@
     @if (!state.individualColorMode()) {
       <div class="cat-default">
         <app-classification-color-picker
-          [color]="state.defaultColor"
+          [color]="state.defaultColor()"
           [paletteColors]="state.categoricalPaletteColors()"
           [title]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.DEFAULT_COLOR' | translate"
-          (colorChange)="state.defaultColor = $event"
+          (colorChange)="state.defaultColor.set($event)"
         ></app-classification-color-picker>
         <div class="cat-default-text">
           <div class="cat-default-title">

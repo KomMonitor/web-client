@@ -70,72 +70,62 @@ const DEFAULT_SEQUENTIAL_SCHEME = 'Blues';
  * which delegates to this instance for everything classification-related (palette
  * selection, class count, per-spatial-unit breaks, legend rendering).
  *
- * This first extraction is behaviour-preserving: the fields and methods are moved
- * verbatim from the form-state service. Later steps of the step-5 redesign extend
- * it (numeric/categorical type switch, individual colors, per-class labels).
+ * All user-editable state is signal-backed, so the OnPush editor sub-components
+ * re-render automatically when it changes (no manual change-detection wiring).
+ * Because signals cannot be two-way-bound to individual array elements, the
+ * templates bind `[ngModel]` + `(ngModelChange)` and write through the element
+ * setters below ({@link setNumLabel}, {@link setBreak}, {@link setCategoryValue},
+ * {@link setCategoryLabel}), which replace the array immutably.
  */
 @Injectable()
 export class IndicatorClassificationStateService {
   private envConfigService = inject(EnvConfigService);
 
   // Spatial units the per-unit break tabs are built for. Set by the owning
-  // form-state service from its shared `availableSpatialUnits` list.
+  // form-state service from its shared `availableSpatialUnits` list; constant after
+  // init() (set before step 5 renders), hence a plain field.
   availableSpatialUnits: ClassificationSpatialUnit[] = [];
 
   // Numeric (sequential/diverging) vs categorical (qualitative) classification.
-  classificationType: ClassificationType = 'QUANTITATIVE';
+  readonly classificationType = signal<ClassificationType>('QUANTITATIVE');
 
   // Whether the "Individuell" palette option is active. Only then may the user pick
   // per-class / per-category colors below; otherwise the colors are taken from the
   // selected colorbrewer palette. `selectedColorBrewerPaletteEntry` keeps holding the
-  // last real palette (the base the individual colors were seeded from). Signal-backed
-  // so OnPush templates react to mode changes.
+  // last real palette (the base the individual colors were seeded from).
   readonly individualColorMode = signal(false);
 
   // Classification form data
   numClassesArray = [3, 4, 5, 6, 7, 8];
-  numClassesPerSpatialUnit = 5;
-  // Signal-backed so OnPush editors (e.g. the computed-methods info box) react when
-  // the method changes between two computed methods without remounting.
+  readonly numClassesPerSpatialUnit = signal(5);
   readonly classificationMethod = signal('regional_default');
-  selectedColorBrewerPaletteEntry: ColorPaletteEntry | null = null;
-  spatialUnitClassification: SpatialUnitClassification[] = [];
-  classBreaksInvalid = false;
-  tabClasses: string[] = [];
+  readonly selectedColorBrewerPaletteEntry = signal<ColorPaletteEntry | null>(null);
+  readonly spatialUnitClassification = signal<SpatialUnitClassification[]>([]);
+  readonly classBreaksInvalid = signal(false);
+  readonly tabClasses = signal<string[]>([]);
 
   // Per-class-position editable labels (shared across all spatial-unit levels).
-  numLabels: string[] = [];
+  readonly numLabels = signal<string[]>([]);
   // Per-class-position individual color overrides; a null entry falls back to the
   // selected palette color for that class. Non-null entries mean "individual color".
-  individualColors: (string | null)[] = [];
+  readonly individualColors = signal<(string | null)[]>([]);
 
   // Categorical (qualitative) classification: manually defined categories, each
   // with a value, an editable label and an optional individual color override.
-  categories: CategoryRow[] = this.createEmptyCategories(4);
+  readonly categories = signal<CategoryRow[]>(this.createEmptyCategories(4));
   // Fallback color for categories beyond the palette size (overflow) or without a
   // dedicated color assigned.
-  defaultColor = '#c9ced4';
+  readonly defaultColor = signal('#c9ced4');
 
-  // Colorbrewer schemes/palettes (built from bundled palettes + config custom schemes)
+  // Colorbrewer schemes/palettes (built from bundled palettes + config custom schemes);
+  // set once in init(), hence plain fields.
   colorbrewerPalettes: ColorPaletteEntry[] = [];
   colorbrewerSchemes: Record<string, ColorScheme> = {};
   colorbreweSchemeName_dynamicIncrease = 'Blues';
   colorbreweSchemeName_dynamicDecrease = 'Reds';
 
   // Currently active per-spatial-unit tab
-  currentClassificationTab = 0;
-
-  /**
-   * Bumped whenever a structural change rewrites the plain state arrays in bulk
-   * (class/category count, breaks/labels/colors rebuild, mapping import, reset).
-   * The OnPush editor sub-components mirror it via an `effect` + `markForCheck`, so
-   * they re-read the rebuilt arrays even when they stay mounted (e.g. changing the
-   * class count without switching the classification method).
-   */
-  readonly revision = signal(0);
-  private bumpRevision(): void {
-    this.revision.update((value) => value + 1);
-  }
+  readonly currentClassificationTab = signal(0);
 
   /**
    * Loads the colorbrewer schemes/palettes and initializes the per-spatial-unit
@@ -144,7 +134,7 @@ export class IndicatorClassificationStateService {
   init(availableSpatialUnits: ClassificationSpatialUnit[]): void {
     this.availableSpatialUnits = availableSpatialUnits ?? [];
     this.loadColorBrewerSchemes();
-    this.onNumClassesChanged(this.numClassesPerSpatialUnit);
+    this.onNumClassesChanged(this.numClassesPerSpatialUnit());
   }
 
   private loadColorBrewerSchemes() {
@@ -174,8 +164,9 @@ export class IndicatorClassificationStateService {
     }
 
     // Instantiate with palette 'Blues'
-    this.selectedColorBrewerPaletteEntry =
-      this.colorbrewerPalettes[13] || this.colorbrewerPalettes[0];
+    this.selectedColorBrewerPaletteEntry.set(
+      this.colorbrewerPalettes[13] || this.colorbrewerPalettes[0]
+    );
   }
 
   // Receives the full method object from app-classification-method-select; keep a
@@ -183,11 +174,11 @@ export class IndicatorClassificationStateService {
   onClassificationMethodSelected(method: Classification | string) {
     this.classificationMethod.set(typeof method === 'string' ? method : method.id);
     // Reinitialize classification when method changes
-    this.onNumClassesChanged(this.numClassesPerSpatialUnit);
+    this.onNumClassesChanged(this.numClassesPerSpatialUnit());
   }
 
   onClickColorBrewerEntry(colorPaletteEntry: ColorPaletteEntry) {
-    this.selectedColorBrewerPaletteEntry = colorPaletteEntry;
+    this.selectedColorBrewerPaletteEntry.set(colorPaletteEntry);
   }
 
   // app-color-palette-select emits the scheme name; map it back to our palette entry.
@@ -208,7 +199,7 @@ export class IndicatorClassificationStateService {
   get selectedSchemeName(): string {
     return this.individualColorMode()
       ? 'INDIVIDUAL'
-      : (this.selectedColorBrewerPaletteEntry?.paletteName ?? '');
+      : (this.selectedColorBrewerPaletteEntry()?.paletteName ?? '');
   }
 
   /**
@@ -218,24 +209,28 @@ export class IndicatorClassificationStateService {
   private enableIndividualColors() {
     this.individualColorMode.set(true);
     if (this.isCategorical) {
-      this.categories = this.categories.map((category, index) => ({
-        ...category,
-        customColor: category.customColor ?? this.paletteColorForCategory(index),
-      }));
+      this.categories.set(
+        this.categories().map((category, index) => ({
+          ...category,
+          customColor: category.customColor ?? this.paletteColorForCategory(index),
+        }))
+      );
     } else {
       const paletteColors = this.getClassColors();
-      this.individualColors = this.individualColors.map(
-        (override, index) => override ?? paletteColors[index] ?? '#cccccc'
+      this.individualColors.set(
+        this.individualColors().map(
+          (override, index) => override ?? paletteColors[index] ?? '#cccccc'
+        )
       );
     }
   }
 
   get isNumeric(): boolean {
-    return this.classificationType === 'QUANTITATIVE';
+    return this.classificationType() === 'QUANTITATIVE';
   }
 
   get isCategorical(): boolean {
-    return this.classificationType === 'QUALITATIVE';
+    return this.classificationType() === 'QUALITATIVE';
   }
 
   /**
@@ -245,14 +240,14 @@ export class IndicatorClassificationStateService {
    * to numeric picks a sequential default when a qualitative one was active.
    */
   setType(type: ClassificationType) {
-    if (this.classificationType === type) {
+    if (this.classificationType() === type) {
       return;
     }
-    this.classificationType = type;
+    this.classificationType.set(type);
     // Leave the custom-color mode when the type changes; a fresh palette is chosen.
     this.individualColorMode.set(false);
 
-    const current = this.selectedColorBrewerPaletteEntry?.paletteName;
+    const current = this.selectedColorBrewerPaletteEntry()?.paletteName;
     const currentIsQualitative = !!current && QUALITATIVE_SCHEMES.has(current);
     if (type === 'QUALITATIVE' && !currentIsQualitative) {
       this.onColorSchemeSelected(DEFAULT_QUALITATIVE_SCHEME);
@@ -275,17 +270,17 @@ export class IndicatorClassificationStateService {
   getSelectedPaletteColors(): string[] {
     if (this.individualColorMode()) {
       return this.isCategorical
-        ? this.categories.map((_, index) => this.categoryColor(index).color)
+        ? this.categories().map((_, index) => this.categoryColor(index).color)
         : this.numericColors();
     }
-    return this.selectedColorBrewerPaletteEntry?.paletteArrayObject?.['5'] ?? [];
+    return this.selectedColorBrewerPaletteEntry()?.paletteArrayObject?.['5'] ?? [];
   }
 
   // Colors of the selected palette for the current class count — one legend row each.
   getClassColors(): string[] {
     return (
-      this.selectedColorBrewerPaletteEntry?.paletteArrayObject?.[
-        this.numClassesPerSpatialUnit?.toString()
+      this.selectedColorBrewerPaletteEntry()?.paletteArrayObject?.[
+        this.numClassesPerSpatialUnit()?.toString()
       ] ?? []
     );
   }
@@ -322,7 +317,7 @@ export class IndicatorClassificationStateService {
     if (classIndex === 0) {
       return `${position} · niedrigste`;
     }
-    if (classIndex === this.numClassesPerSpatialUnit - 1) {
+    if (classIndex === this.numClassesPerSpatialUnit() - 1) {
       return `${position} · höchste`;
     }
     return String(position);
@@ -335,7 +330,7 @@ export class IndicatorClassificationStateService {
    */
   colorForClass(classIndex: number): string {
     if (this.individualColorMode()) {
-      const override = this.individualColors[classIndex];
+      const override = this.individualColors()[classIndex];
       if (override) {
         return override;
       }
@@ -346,15 +341,37 @@ export class IndicatorClassificationStateService {
 
   /** Effective colors for every numeric class (palette colors with individual overrides). */
   numericColors(): string[] {
-    const count = this.numClassesPerSpatialUnit;
+    const count = this.numClassesPerSpatialUnit();
     return Array.from({ length: count }, (_, i) => this.colorForClass(i));
   }
 
   /** Sets an individual color override for a class position (custom-color mode only). */
   setIndividualColor(classIndex: number, color: string) {
-    const next = this.individualColors.slice();
+    const next = this.individualColors().slice();
     next[classIndex] = color;
-    this.individualColors = next;
+    this.individualColors.set(next);
+  }
+
+  /** Sets the editable label for a numeric class position. */
+  setNumLabel(classIndex: number, label: string) {
+    const next = this.numLabels().slice();
+    next[classIndex] = label;
+    this.numLabels.set(next);
+  }
+
+  /**
+   * Sets a single class break for a spatial unit and re-validates that unit's tab.
+   * Replaces the affected spatial-unit entry and its breaks array immutably so the
+   * OnPush editors react.
+   */
+  setBreak(spatialUnitIndex: number, breakIndex: number, value: number | null) {
+    const next = this.spatialUnitClassification().map((su, i) =>
+      i === spatialUnitIndex
+        ? { ...su, breaks: su.breaks.map((b, j) => (j === breakIndex ? value : b)) }
+        : su
+    );
+    this.spatialUnitClassification.set(next);
+    this.onBreaksChanged(spatialUnitIndex);
   }
 
   // ---- categorical (qualitative) classification ----
@@ -366,12 +383,12 @@ export class IndicatorClassificationStateService {
 
   /** Number of categories (the categorical "class count"). */
   get categoryCount(): number {
-    return this.categories.length;
+    return this.categories().length;
   }
 
   /** Name of the selected qualitative palette (for overflow messaging). */
   get categoricalSchemeName(): string {
-    return this.selectedColorBrewerPaletteEntry?.paletteName ?? '';
+    return this.selectedColorBrewerPaletteEntry()?.paletteName ?? '';
   }
 
   /**
@@ -380,7 +397,7 @@ export class IndicatorClassificationStateService {
    * the maximum available so as many categories as possible get a distinct color.
    */
   categoricalPaletteColors(): string[] {
-    const paletteArrayObject = this.selectedColorBrewerPaletteEntry?.paletteArrayObject;
+    const paletteArrayObject = this.selectedColorBrewerPaletteEntry()?.paletteArrayObject;
     if (!paletteArrayObject) {
       return [];
     }
@@ -407,7 +424,7 @@ export class IndicatorClassificationStateService {
   /** Palette color for a category position, or the default color when beyond the palette. */
   private paletteColorForCategory(index: number): string {
     const palette = this.categoricalPaletteColors();
-    return index < palette.length ? palette[index] : this.defaultColor;
+    return index < palette.length ? palette[index] : this.defaultColor();
   }
 
   /**
@@ -417,7 +434,7 @@ export class IndicatorClassificationStateService {
    * fell back to the default.
    */
   categoryColor(index: number): { color: string; overflow: boolean } {
-    const category = this.categories[index];
+    const category = this.categories()[index];
     if (this.individualColorMode() && category?.customColor) {
       return { color: category.customColor, overflow: false };
     }
@@ -425,14 +442,28 @@ export class IndicatorClassificationStateService {
     if (index < palette.length) {
       return { color: palette[index], overflow: false };
     }
-    return { color: this.defaultColor, overflow: !this.individualColorMode() };
+    return { color: this.defaultColor(), overflow: !this.individualColorMode() };
   }
 
   /** Sets an individual color override for a category. */
   setCategoryColor(index: number, color: string) {
-    const next = this.categories.slice();
+    const next = this.categories().slice();
     next[index] = { ...next[index], customColor: color };
-    this.categories = next;
+    this.categories.set(next);
+  }
+
+  /** Sets the (categorical) value of a category. */
+  setCategoryValue(index: number, value: string) {
+    const next = this.categories().slice();
+    next[index] = { ...next[index], value };
+    this.categories.set(next);
+  }
+
+  /** Sets the editable label of a category. */
+  setCategoryLabel(index: number, label: string) {
+    const next = this.categories().slice();
+    next[index] = { ...next[index], label };
+    this.categories.set(next);
   }
 
   /** Resizes the category list to `count` (min 2), preserving existing rows. */
@@ -441,27 +472,24 @@ export class IndicatorClassificationStateService {
     if (!next || next < 2) {
       next = 2;
     }
-    const categories = this.categories.slice(0, next);
+    const categories = this.categories().slice(0, next);
     while (categories.length < next) {
       categories.push({ value: '', label: '', customColor: null });
     }
-    this.categories = categories;
-    this.bumpRevision();
+    this.categories.set(categories);
   }
 
   /** Appends a new blank category. */
   addCategory() {
-    this.categories = [...this.categories, { value: '', label: '', customColor: null }];
-    this.bumpRevision();
+    this.categories.set([...this.categories(), { value: '', label: '', customColor: null }]);
   }
 
   /** Removes a category (keeping at least two). */
   removeCategory(index: number) {
-    if (this.categories.length <= 2) {
+    if (this.categories().length <= 2) {
       return;
     }
-    this.categories = this.categories.filter((_, i) => i !== index);
-    this.bumpRevision();
+    this.categories.set(this.categories().filter((_, i) => i !== index));
   }
 
   // ---- API mapping (the single place that knows the extended backend fields) ----
@@ -482,7 +510,7 @@ export class IndicatorClassificationStateService {
           ? 'INDIVIDUAL'
           : this.categoricalSchemeName,
         numClasses: this.categoryCount,
-        categoricalData: this.categories.map((category, index) => ({
+        categoricalData: this.categories().map((category, index) => ({
           categoricalValue: category.value,
           color: this.categoryColor(index).color,
           label: category.label,
@@ -494,8 +522,8 @@ export class IndicatorClassificationStateService {
       classificationType: 'QUANTITATIVE',
       colorBrewerSchemeName: this.individualColorMode()
         ? 'INDIVIDUAL'
-        : (this.selectedColorBrewerPaletteEntry?.paletteName ?? ''),
-      numClasses: this.numClassesPerSpatialUnit,
+        : (this.selectedColorBrewerPaletteEntry()?.paletteName ?? ''),
+      numClasses: this.numClassesPerSpatialUnit(),
       classificationMethod: this.classificationMethod()?.toUpperCase() as
         | ExtendedDefaultClassificationMapping['classificationMethod']
         | undefined,
@@ -504,14 +532,14 @@ export class IndicatorClassificationStateService {
     if (this.individualColorMode()) {
       mapping.individualColors = this.numericColors();
     }
-    if (this.numLabels.some((label) => label && label.length)) {
-      mapping.labels = this.numLabels.slice();
+    if (this.numLabels().some((label) => label && label.length)) {
+      mapping.labels = this.numLabels().slice();
     }
     // Break values are only meaningful for the regional default method; only send
     // spatial units whose breaks are fully filled in (so the filtered breaks are all
     // numbers, matching the API's `number[]`).
     if (this.isRegional) {
-      mapping.items = this.spatialUnitClassification
+      mapping.items = this.spatialUnitClassification()
         .filter((classification) => !classification.breaks.includes(null))
         .map((classification) => ({
           spatialUnitId: classification.spatialUnitId,
@@ -533,10 +561,11 @@ export class IndicatorClassificationStateService {
       return;
     }
 
-    this.classificationType =
+    this.classificationType.set(
       mapping.classificationType === 'QUALITATIVE' || mapping.categoricalData
         ? 'QUALITATIVE'
-        : 'QUANTITATIVE';
+        : 'QUANTITATIVE'
+    );
 
     // 'INDIVIDUAL' scheme means the stored colors are custom (not from a palette).
     this.individualColorMode.set(mapping.colorBrewerSchemeName === 'INDIVIDUAL');
@@ -547,7 +576,7 @@ export class IndicatorClassificationStateService {
         (palette) => palette.paletteName === mapping.colorBrewerSchemeName
       );
       if (entry) {
-        this.selectedColorBrewerPaletteEntry = entry;
+        this.selectedColorBrewerPaletteEntry.set(entry);
       }
     }
 
@@ -555,13 +584,14 @@ export class IndicatorClassificationStateService {
       const data = mapping.categoricalData ?? [];
       if (data.length) {
         const individual = mapping.colorBrewerSchemeName === 'INDIVIDUAL';
-        this.categories = data.map((item) => ({
-          value: item.categoricalValue ?? '',
-          label: item.label ?? '',
-          customColor: individual ? (item.color ?? null) : null,
-        }));
+        this.categories.set(
+          data.map((item) => ({
+            value: item.categoricalValue ?? '',
+            label: item.label ?? '',
+            customColor: individual ? (item.color ?? null) : null,
+          }))
+        );
       }
-      this.bumpRevision();
       return;
     }
 
@@ -570,36 +600,36 @@ export class IndicatorClassificationStateService {
       this.classificationMethod.set(String(mapping.classificationMethod).toLowerCase());
     }
     if (mapping.numClasses) {
-      this.numClassesPerSpatialUnit = mapping.numClasses;
+      this.numClassesPerSpatialUnit.set(mapping.numClasses);
     }
     // Rebuild the per-spatial-unit tabs (also resets labels/individual colors), then
     // apply the stored values on top.
-    this.onNumClassesChanged(this.numClassesPerSpatialUnit);
+    this.onNumClassesChanged(this.numClassesPerSpatialUnit());
 
     (mapping.items ?? []).forEach((item) => {
       const spatialUnitId = item.spatialUnitId ?? item.spatialUnit;
-      const index = this.spatialUnitClassification.findIndex(
+      const index = this.spatialUnitClassification().findIndex(
         (classification) => classification.spatialUnitId === spatialUnitId
       );
       if (index > -1) {
-        this.spatialUnitClassification[index].breaks = item.breaks;
+        // Replace the entry immutably, then re-validate that tab.
+        const next = this.spatialUnitClassification().slice();
+        next[index] = { ...next[index], breaks: item.breaks };
+        this.spatialUnitClassification.set(next);
         this.onBreaksChanged(index);
       }
     });
 
     if (Array.isArray(mapping.labels)) {
-      this.numLabels = this.resizeArray(mapping.labels.slice(), this.numClassesPerSpatialUnit, '');
-    }
-    if (mapping.colorBrewerSchemeName === 'INDIVIDUAL' && Array.isArray(mapping.individualColors)) {
-      this.individualColors = this.resizeArray(
-        mapping.individualColors.slice(),
-        this.numClassesPerSpatialUnit,
-        null
+      this.numLabels.set(
+        this.resizeArray(mapping.labels.slice(), this.numClassesPerSpatialUnit(), '')
       );
     }
-
-    // numLabels / individualColors were rewritten after onNumClassesChanged's bump.
-    this.bumpRevision();
+    if (mapping.colorBrewerSchemeName === 'INDIVIDUAL' && Array.isArray(mapping.individualColors)) {
+      this.individualColors.set(
+        this.resizeArray(mapping.individualColors.slice(), this.numClassesPerSpatialUnit(), null)
+      );
+    }
   }
 
   /** Resizes an array to `length`, keeping existing entries and padding with `fill`. */
@@ -612,16 +642,16 @@ export class IndicatorClassificationStateService {
   }
 
   onNumClassesChanged(numClasses: number) {
-    this.numClassesPerSpatialUnit = numClasses;
+    this.numClassesPerSpatialUnit.set(numClasses);
 
     // Keep the per-class-position labels and individual color overrides in sync
     // with the class count (preserving already-entered values).
-    this.numLabels = this.resizeArray(this.numLabels, numClasses, '');
-    this.individualColors = this.resizeArray(this.individualColors, numClasses, null);
+    this.numLabels.set(this.resizeArray(this.numLabels(), numClasses, ''));
+    this.individualColors.set(this.resizeArray(this.individualColors(), numClasses, null));
 
     // Initialize classification for each spatial unit
-    this.spatialUnitClassification = [];
-    this.tabClasses = [];
+    const spatialUnitClassification: SpatialUnitClassification[] = [];
+    const tabClasses: string[] = [];
 
     if (this.availableSpatialUnits && this.availableSpatialUnits.length > 0) {
       this.availableSpatialUnits.forEach((spatialUnit, index) => {
@@ -631,30 +661,31 @@ export class IndicatorClassificationStateService {
           breaks.push(null);
         }
 
-        this.spatialUnitClassification.push({
+        spatialUnitClassification.push({
           spatialUnitId: spatialUnit.spatialUnitId,
           spatialUnitLevel: spatialUnit.spatialUnitLevel,
           breaks: breaks,
         });
 
         // Initialize tab validation class (neutral until breaks are entered)
-        this.tabClasses[index] = '';
+        tabClasses[index] = '';
       });
     }
 
-    // Reset validation
-    this.classBreaksInvalid = false;
+    this.spatialUnitClassification.set(spatialUnitClassification);
+    this.tabClasses.set(tabClasses);
 
-    // Arrays above were rebuilt in bulk: let mounted OnPush editors re-check.
-    this.bumpRevision();
+    // Reset validation
+    this.classBreaksInvalid.set(false);
   }
 
   onBreaksChanged(tabIndex: number) {
-    if (!this.spatialUnitClassification[tabIndex]) {
+    const spatialUnit = this.spatialUnitClassification()[tabIndex];
+    if (!spatialUnit) {
       return;
     }
 
-    const breaks: (number | null)[] = this.spatialUnitClassification[tabIndex].breaks;
+    const breaks: (number | null)[] = spatialUnit.breaks;
 
     // Class breaks must be strictly ascending; empty (null) entries are ignored.
     // A tab is green ('tab-valid') once every break is filled and correctly ordered,
@@ -673,16 +704,21 @@ export class IndicatorClassificationStateService {
       }
     }
 
+    let cssClass: string;
     if (hasError) {
-      this.tabClasses[tabIndex] = 'tab-error';
+      cssClass = 'tab-error';
     } else if (breaks.length > 0 && filledCount === breaks.length) {
-      this.tabClasses[tabIndex] = 'tab-valid';
+      cssClass = 'tab-valid';
     } else {
-      this.tabClasses[tabIndex] = '';
+      cssClass = '';
     }
 
+    const tabClasses = this.tabClasses().slice();
+    tabClasses[tabIndex] = cssClass;
+    this.tabClasses.set(tabClasses);
+
     // Aggregate overall validity across all spatial-unit tabs.
-    this.classBreaksInvalid = this.tabClasses.some((cssClass) => cssClass === 'tab-error');
+    this.classBreaksInvalid.set(tabClasses.some((entry) => entry === 'tab-error'));
   }
 
   /**
@@ -691,26 +727,27 @@ export class IndicatorClassificationStateService {
    * to have been instantiated already.
    */
   reset() {
-    this.classificationType = 'QUANTITATIVE';
+    this.classificationType.set('QUANTITATIVE');
     this.individualColorMode.set(false);
-    this.numClassesPerSpatialUnit = 5;
+    this.numClassesPerSpatialUnit.set(5);
     this.classificationMethod.set('regional_default');
-    this.selectedColorBrewerPaletteEntry =
+    this.selectedColorBrewerPaletteEntry.set(
       this.colorbrewerPalettes && this.colorbrewerPalettes.length > 13
         ? this.colorbrewerPalettes[13]
         : this.colorbrewerPalettes && this.colorbrewerPalettes.length > 0
           ? this.colorbrewerPalettes[0]
-          : null;
-    this.spatialUnitClassification = [];
-    this.classBreaksInvalid = false;
-    this.tabClasses = [];
-    this.currentClassificationTab = 0;
+          : null
+    );
+    this.spatialUnitClassification.set([]);
+    this.classBreaksInvalid.set(false);
+    this.tabClasses.set([]);
+    this.currentClassificationTab.set(0);
     // Clear per-class labels/colors; onNumClassesChanged repopulates them to defaults.
-    this.numLabels = [];
-    this.individualColors = [];
+    this.numLabels.set([]);
+    this.individualColors.set([]);
     // Reset categorical state to four blank categories and the default overflow color.
-    this.categories = this.createEmptyCategories(4);
-    this.defaultColor = '#c9ced4';
-    this.onNumClassesChanged(this.numClassesPerSpatialUnit);
+    this.categories.set(this.createEmptyCategories(4));
+    this.defaultColor.set('#c9ced4');
+    this.onNumClassesChanged(this.numClassesPerSpatialUnit());
   }
 }

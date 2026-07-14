@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  effect,
-  inject,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { IndicatorClassificationStateService } from '../../indicator-classification-state.service';
@@ -30,12 +24,4 @@ import { ClassificationColorPickerComponent } from './classification-color-picke
 })
 export class ClassificationComputedClassesComponent {
   protected state = inject(IndicatorClassificationStateService);
-  private cdr = inject(ChangeDetectorRef);
-
-  // Re-check this OnPush view when the service rebuilds its plain state arrays in
-  // bulk (e.g. class-count change) while this editor stays mounted.
-  private readonly revisionSync = effect(() => {
-    this.state.revision();
-    this.cdr.markForCheck();
-  });
 }

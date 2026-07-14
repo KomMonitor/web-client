@@ -28,7 +28,7 @@ describe('IndicatorClassificationStateService', () => {
     });
 
     it('emits a regional-default mapping with only fully-filled spatial units', () => {
-      service.spatialUnitClassification[0].breaks = [10, 20, 30, 40];
+      service.spatialUnitClassification()[0].breaks = [10, 20, 30, 40];
       service.onBreaksChanged(0);
 
       const mapping = service.buildDefaultClassificationMapping();
@@ -74,7 +74,7 @@ describe('IndicatorClassificationStateService', () => {
     it('includes labels only when at least one is set', () => {
       expect(service.buildDefaultClassificationMapping().labels).toBeUndefined();
 
-      service.numLabels[1] = 'Medium';
+      service.numLabels()[1] = 'Medium';
       expect(service.buildDefaultClassificationMapping().labels?.[1]).toBe('Medium');
     });
 
@@ -95,8 +95,8 @@ describe('IndicatorClassificationStateService', () => {
 
     it('emits categoricalData for every category', () => {
       service.onCatNumClassesChanged(3);
-      service.categories[0].value = 'A';
-      service.categories[0].label = 'Alpha';
+      service.categories()[0].value = 'A';
+      service.categories()[0].label = 'Alpha';
 
       const mapping = service.buildDefaultClassificationMapping();
 
@@ -116,7 +116,7 @@ describe('IndicatorClassificationStateService', () => {
       expect(service.hasCategoryOverflow).toBe(true);
       const overflow = service.categoryColor(paletteSize);
       expect(overflow.overflow).toBe(true);
-      expect(overflow.color).toBe(service.defaultColor);
+      expect(overflow.color).toBe(service.defaultColor());
     });
   });
 
@@ -124,37 +124,37 @@ describe('IndicatorClassificationStateService', () => {
     it('restores numeric state from a stored mapping (round-trip)', () => {
       service.onColorSchemeSelected('Greens');
       service.onNumClassesChanged(4);
-      service.spatialUnitClassification[0].breaks = [1, 2, 3];
+      service.spatialUnitClassification()[0].breaks = [1, 2, 3];
       service.onBreaksChanged(0);
-      service.numLabels[0] = 'Low';
+      service.numLabels()[0] = 'Low';
       const built = service.buildDefaultClassificationMapping();
 
       service.reset();
       service.applyMapping(built);
 
-      expect(service.classificationType).toBe('QUANTITATIVE');
+      expect(service.classificationType()).toBe('QUANTITATIVE');
       expect(service.classificationMethod()).toBe('regional_default');
-      expect(service.numClassesPerSpatialUnit).toBe(4);
-      expect(service.selectedColorBrewerPaletteEntry.paletteName).toBe('Greens');
-      expect(service.spatialUnitClassification[0].breaks).toEqual([1, 2, 3]);
-      expect(service.numLabels[0]).toBe('Low');
+      expect(service.numClassesPerSpatialUnit()).toBe(4);
+      expect(service.selectedColorBrewerPaletteEntry()?.paletteName).toBe('Greens');
+      expect(service.spatialUnitClassification()[0].breaks).toEqual([1, 2, 3]);
+      expect(service.numLabels()[0]).toBe('Low');
     });
 
     it('restores categorical state from a stored mapping', () => {
       service.setType('QUALITATIVE');
       service.onColorSchemeSelected('Set1');
       service.onCatNumClassesChanged(2);
-      service.categories[0].value = 'X';
-      service.categories[0].label = 'Ex';
+      service.categories()[0].value = 'X';
+      service.categories()[0].label = 'Ex';
       const built = service.buildDefaultClassificationMapping();
 
       service.reset();
       service.applyMapping(built);
 
-      expect(service.classificationType).toBe('QUALITATIVE');
-      expect(service.categories.length).toBe(2);
-      expect(service.categories[0].value).toBe('X');
-      expect(service.categories[0].label).toBe('Ex');
+      expect(service.classificationType()).toBe('QUALITATIVE');
+      expect(service.categories().length).toBe(2);
+      expect(service.categories()[0].value).toBe('X');
+      expect(service.categories()[0].label).toBe('Ex');
     });
   });
 });

@@ -15,7 +15,7 @@
       <div>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_POSITION' | translate }}</div>
       <div>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.COL_LABEL' | translate }}</div>
     </div>
-    @for (label of state.numLabels; track i; let i = $index) {
+    @for (label of state.numLabels(); track i; let i = $index) {
       <div class="cls-grid-row">
         <div class="col-color">
           @if (state.individualColorMode()) {
@@ -35,7 +35,8 @@
             <input
               type="text"
               class="label-input"
-              [(ngModel)]="state.numLabels[i]"
+              [ngModel]="state.numLabels()[i]"
+              (ngModelChange)="state.setNumLabel(i, $event)"
               [name]="'computedLabel' + i"
               [placeholder]="'Klasse ' + (i + 1)"
             />

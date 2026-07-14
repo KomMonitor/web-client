@@ -307,7 +307,7 @@ export class IndicatorAddFormStateService {
     // so nothing to build here up front.
 
     // Initialize classification tabs (palettes were already loaded in loadInitialData).
-    this.classification.onNumClassesChanged(this.classification.numClassesPerSpatialUnit);
+    this.classification.onNumClassesChanged(this.classification.numClassesPerSpatialUnit());
   }
 
   checkDatasetName() {
@@ -465,10 +465,10 @@ export class IndicatorAddFormStateService {
       refrencesToOtherIndicators: this.indicatorReferences_apiRequest,
       refrencesToGeoresources: this.georesourceReferences_apiRequest,
       defaultClassificationMapping: {
-        colorBrewerSchemeName: this.classification.selectedColorBrewerPaletteEntry?.paletteName,
-        numClasses: this.classification.numClassesPerSpatialUnit,
+        colorBrewerSchemeName: this.classification.selectedColorBrewerPaletteEntry()?.paletteName,
+        numClasses: this.classification.numClassesPerSpatialUnit(),
         classificationMethod: this.classification.classificationMethod(),
-        items: this.classification.spatialUnitClassification.map((classification) => ({
+        items: this.classification.spatialUnitClassification().map((classification) => ({
           spatialUnit: classification.spatialUnitId,
           breaks: classification.breaks.filter((breakVal) => breakVal !== null),
         })),

@@ -169,7 +169,7 @@ export class IndicatorAddModalComponent implements OnInit {
   }
 
   onSubmit() {
-    if (!this.state.datasetNameInvalid && !this.state.classification.classBreaksInvalid) {
+    if (!this.state.datasetNameInvalid && !this.state.classification.classBreaksInvalid()) {
       this.addIndicator();
     }
   }

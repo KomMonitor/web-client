@@ -20,7 +20,7 @@
       #numClassesTrigger="cdkOverlayOrigin"
       (click)="numClassesOpen = !numClassesOpen"
     >
-      {{ state.numClassesPerSpatialUnit }}<span class="caret"></span>
+      {{ state.numClassesPerSpatialUnit() }}<span class="caret"></span>
     </button>
 
     <ng-template
@@ -38,7 +38,7 @@
           <button
             type="button"
             class="dropdown-item"
-            [class.active]="numClass === state.numClassesPerSpatialUnit"
+            [class.active]="numClass === state.numClassesPerSpatialUnit()"
             (click)="selectNumClasses(numClass)"
           >
             {{ numClass }}
@@ -52,7 +52,7 @@
   </div>
 </div>
 
-@if (state.numClassesPerSpatialUnit > 0) {
+@if (state.numClassesPerSpatialUnit() > 0) {
   @if (state.isRegional) {
     <app-classification-regional-breaks></app-classification-regional-breaks>
   } @else {

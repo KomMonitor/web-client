@@ -18,11 +18,12 @@
         <ul
           ngbNav
           #classNav="ngbNav"
-          [(activeId)]="state.currentClassificationTab"
+          [activeId]="state.currentClassificationTab()"
+          (activeIdChange)="state.currentClassificationTab.set($event)"
           class="nav-tabs"
         >
           @for (spatialUnit of state.availableSpatialUnits; track spatialUnit; let i = $index) {
-            <li [ngbNavItem]="i" [ngClass]="state.tabClasses[i]">
+            <li [ngbNavItem]="i" [ngClass]="state.tabClasses()[i]">
               <button ngbNavLink type="button">{{ spatialUnit.spatialUnitLevel }}</button>
               <ng-template ngbNavContent>
                 <div class="classification-tab-content">
@@ -43,7 +44,7 @@
                         {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.VALUE_RANGE' | translate }}
                       </div>
                     </div>
-                    @for (label of state.numLabels; track k; let k = $index) {
+                    @for (label of state.numLabels(); track k; let k = $index) {
                       <div class="cls-grid-row">
                         <div class="legend-symbol">
                           @if (state.individualColorMode()) {
@@ -65,7 +66,8 @@
                             <input
                               type="text"
                               class="label-input"
-                              [(ngModel)]="state.numLabels[k]"
+                              [ngModel]="state.numLabels()[k]"
+                              (ngModelChange)="state.setNumLabel(k, $event)"
                               [name]="'regionalLabel' + k"
                               [placeholder]="'Klasse ' + (k + 1)"
                             />
@@ -84,20 +86,20 @@
                                   'ADMIN_INDICATORS.STEP_CLASSIFICATION.LOWEST_VALUE' | translate
                                 }}
                               } @else {
-                                {{ state.spatialUnitClassification[i].breaks[k - 1] ?? '…' }}
+                                {{ state.spatialUnitClassification()[i].breaks[k - 1] ?? '…' }}
                               }
                             </span>
                             <span class="range-sep">–</span>
-                            @if (k < state.numClassesPerSpatialUnit - 1) {
+                            @if (k < state.numClassesPerSpatialUnit() - 1) {
                               <span class="range-upper">
                                 <span class="range-lt">&lt;</span>
                                 <input
                                   type="number"
                                   class="break-input"
                                   step="0.01"
-                                  [(ngModel)]="state.spatialUnitClassification[i].breaks[k]"
+                                  [ngModel]="state.spatialUnitClassification()[i].breaks[k]"
                                   [name]="'break' + i + '_' + k"
-                                  (ngModelChange)="state.onBreaksChanged(i)"
+                                  (ngModelChange)="state.setBreak(i, k, $event)"
                                   [placeholder]="
                                     'ADMIN_INDICATORS.STEP_CLASSIFICATION.BREAK_PLACEHOLDER'
                                       | translate
@@ -137,7 +139,7 @@
   </div>
 </div>
 
-@if (state.classBreaksInvalid) {
+@if (state.classBreaksInvalid()) {
   <div class="row vertical-align">
     <div class="col-md-12">
       <div class="alert alert-danger">
