@@ -8,7 +8,7 @@ export interface Classification {
 }
 
 /** Numeric (sequential/diverging) vs categorical (qualitative) classification. */
-export type ClassificationTypeEnum = 'QUANTITATIVE' | 'QUALITATIVE';
+export type ClassificationType = 'QUANTITATIVE' | 'QUALITATIVE';
 
 /** One category of a qualitative classification: its value, color and label. */
 export interface CategoricalClassificationItem {
@@ -32,7 +32,7 @@ export interface ExtendedDefaultClassificationMapping extends Omit<
   DefaultClassificationMappingType,
   'classificationMethod' | 'items'
 > {
-  classificationType: ClassificationTypeEnum;
+  classificationType: ClassificationType;
   /** Only present for numeric classification. */
   classificationMethod?: DefaultClassificationMappingType['classificationMethod'];
   /** Per-spatial-unit break values; only present for the regional default method. */

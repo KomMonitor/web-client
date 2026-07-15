@@ -1,6 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import {
   Classification,
+  ClassificationType,
   ExtendedDefaultClassificationMapping,
 } from 'components/ngComponents/models/classification.models';
 import {
@@ -8,9 +9,6 @@ import {
   QUALITATIVE_SCHEMES,
 } from 'components/ngComponents/userInterface/kommonitorClassification/colors';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
-
-/** The kind of classification the user configures in step 5. */
-export type ClassificationType = 'QUANTITATIVE' | 'QUALITATIVE';
 
 /** A colorbrewer scheme: hex color arrays keyed by class count (e.g. '3', '5'). */
 export type ColorScheme = Record<string, string[]>;
