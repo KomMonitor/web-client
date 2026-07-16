@@ -143,7 +143,7 @@ statt Broadcast.**
 - [x] `_replaceIndicatorLayer` reduziert auf: Housekeeping → Pipeline → **ein** `L.geoJSON` → Layer-Control/Broadcasts (~100 Zeilen statt ~410)
 - [x] `restyleCurrentLayer` reduziert auf: Pipeline → `eachLayer(setStyle(result.styleFor))` → Broadcasts (~65 Zeilen statt ~325)
 - [x] Unit-Tests: 13 Specs mit echtem `VisualStyleHelperServiceNew` + Mini-GeoJSON-Fixtures (Zero/NoData/Outlier/negativ, alle Zweige, Mode-Divergenzen)
-- [ ] ~~Signal-State + zustandsloser VisualStyleHelper~~ → **bewusst verschoben auf Phase 2b** (Userentscheidung): `kommonitor-classification.component` und das Legend-Template lesen/schreiben die mutablen VSH-Felder intensiv — deren Umbau wäre ein deutlich größerer Blast-Radius
+- [x] Signal-State + zustandsloser VisualStyleHelper → **Phase 2b, umgesetzt Juli 2026** (siehe eigener Abschnitt unten)
 
 **Umsetzungsnotizen:**
 - Mit umgezogen in den Service: `markOutliers`, `setNoDataValuesAsNull`, `applyDefaultClassificationSettings`, `applyRegionalDefaultClassification`, `checkAvailabilityOfRegionalDefault`, `setClassifyZeroForClassifyMethod`, `calcMOVBreaks`, `containsNegativeValues`, `prepFeatureModelForMapUse`, `updateDefault-/updateManualMOVBreaks…` (letzteres public mit `isDynamicOrNegative`-Parameter — Aufrufer: `changeBreaks`/`changeDynamicBreaks`/Time-Setup-Flow). Outlier-/Zero-/NoData-Befunde kommen als `result.facts` zurück; die Komponente übernimmt sie via `adoptClassificationResult()` (Legende, Diagramme, Outlier-Alert, Highlight-Code).
@@ -155,6 +155,15 @@ statt Broadcast.**
 2. **TypeError-Guard**: `updateDefaultManualBreaksFromMOVManualBreaks` schrieb unconditional in das frisch resettete `manualBrew` (latenter Crash bei Indikator-/Datumswechsel mit aktivem MOV) → jetzt `if (manualBrew)`-Guard, per Regressionstest abgedeckt.
 3. `styleFor` preppt das `tempData`-Tooltip-Modell auch beim Restyle (bisher nur replace) — idempotent, hält Tooltips konsistent.
 4. **Shadowing-Bug 1:1 beibehalten**: in `updateManualMOVBreaksFromDefaultManualBreaks` wurden die rekombinierten dynamischen Breaks nie verwendet (inneres `const breaks`); im Service dokumentiert + TODO, kein stiller Funktionswechsel.
+
+### Phase 2b — Signal-State + zustandsloser VisualStyleHelper ✅ (umgesetzt Juli 2026)
+
+- [x] Neuer `ClassificationStateService` (`app/services/classification-state-service/`, 211 Z.): **einziger Besitzer** des geteilten Klassifikations-States (`classifyMethod`, `numClasses`, die vier Brew-Objekte, alle Breaks-Listen, `isCustomComputation`, `currentIndicatorOpacity`, die `featuresPer*`-Legende-Zähler, Brew-Backups). Alle Felder als **signal-backed Accessor-Properties** — Property-Lese-/Schreibzugriffe und `[(ngModel)]` funktionieren unverändert, der State ist für reaktive Konsumenten vorbereitet.
+- [x] `VisualStyleHelperServiceNew` ist jetzt **zustandslos** (1266 → 1118 Z.): reine Brew-/Style-Fabrik plus statische Konstanten/Patterns/Styles; die `setup*Brew`-Methoden und Style-Zähler schreiben in den State-Service. Totes `classifyMethods`-Array und `outliers_high/low` entfernt; Arbeits-Arrays privat.
+- [x] Konsumenten umgestellt: `kommonitor-classification` (171 Referenzen ts+html — nutzt **nur noch** den State-Service, VSH-Injektion entfernt), `kommonitor-legend` (67 Template-Referenzen, dito), `kommonitor-map.component` (State→State-Service, Factory/Styles→VSH), `indicator-classification.service`, `single-feature-`/`reachability-map-helper` (inkl. Brew-Backup/-Restore), `user-interface` (ungenutzte VSH-Injektion entfernt)
+- [x] Spec für den State-Service (Accessors, Zähler, Backup/Restore); Pipeline-Spec auf State-Service umgestellt
+
+**Bewusste Einschränkung (dokumentiert im Service):** Die Brew-Objekte und Breaks-Arrays werden vom Classification-Panel weiterhin **in-place** mutiert (`manualBrew.breaks.push/splice/sort`) — solche Mutationen ändern den Signal-Wert nicht und laufen wie bisher über die Zone-Change-Detection. Eine vollständige Immutable-Umstellung würde die classyBrew-Interaktion neu erfinden und ist bewusst nicht Teil von 2b.
 
 ### Phase 3 — Layer-Manager abschälen ✅ (umgesetzt Juli 2026)
 
@@ -206,19 +215,18 @@ statt Broadcast.**
 | 0 | ✅ erledigt | keins | Lesbarkeit | — |
 | 1 | ✅ erledigt | gering | ein Refresh-Pfad, Timer weg | — |
 | 2 | ✅ erledigt (Pipeline) | mittel | −860 Zeilen in der Komponente, Pipeline getestet | — |
-| 2b | offen | hoch | Signal-State, zustandsloser VisualStyleHelper | braucht Umbau von Classification + Legende |
+| 2b | ✅ erledigt | hoch | Signal-State, zustandsloser VisualStyleHelper | — |
 | 3 | ✅ erledigt | mittel | Komponente schrumpft massiv | — |
 | 4 | ✅ erledigt | gering–mittel | saubere Init, kein Timer | — |
 | 5 | ✅ erledigt | mittel | Bus-Entkopplung | — |
 
-**Alle Phasen des Plans sind umgesetzt** (Phase 2 ohne den bewusst abgetrennten
-Signal-Teil); die jQuery-Toggles sind im Nachtrag zu Phase 4 ebenfalls ersetzt.
-Verbleibende, bewusst offene Punkte:
-- **Phase 2b**: Signal-Migration des Klassifikations-States (VisualStyleHelper
-  zustandslos machen) — eigenes Vorhaben, zieht Classification-Komponente und
-  Legende mit.
+**Alle Phasen des Plans inkl. 2b sind umgesetzt**; die jQuery-Toggles sind im
+Nachtrag zu Phase 4 ebenfalls ersetzt. Verbleibende, bewusst offene Punkte:
 - Die von der Map-Komponente **gesendeten** Bus-Messages (`UpdateLegendDisplay`,
   `UpdateDiagrams`, …) — typisierte Zustellung wäre der nächste Schritt, gehört
   aber zum Refactoring von Legende/Diagrammen.
 - Wirkungslose Opacity-/Farb-Regler für WMS/WFS (dokumentierte Sackgassen in
   `MapService`).
+- In-place-Mutation der Brew-/Breaks-Objekte durch das Classification-Panel
+  (dokumentiert im `ClassificationStateService`) — echte Immutable-/Signal-
+  Reaktivität wäre ein Folgeschritt beim Panel-Refactoring.

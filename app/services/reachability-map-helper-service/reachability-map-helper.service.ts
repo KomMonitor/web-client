@@ -15,6 +15,7 @@ import { IndicatorValueService } from 'services/indicator-value-service/indicato
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { ClassificationStateService } from 'services/classification-state-service/classification-state.service';
 import { FeaturePopupHelperService } from 'services/feature-popup-helper-service/feature-popup-helper.service';
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
@@ -26,6 +27,7 @@ import { ReachabilityStateService } from 'services/reachability-state-service/re
 export class ReachabilityMapHelperService {
   private http = inject(HttpClient);
   private envConfigService = inject(EnvConfigService);
+  private classificationState = inject(ClassificationStateService);
   private featurePopupHelperService = inject(FeaturePopupHelperService);
   private geometrySimplification = inject(GeometrySimplificationService);
   private mapOverlayState = inject(MapOverlayStateService);
@@ -738,13 +740,13 @@ export class ReachabilityMapHelperService {
       );
     }
 
-    this.visualStyleHelperService.backupCurrentBrewObjects_forMainMapIndicator();
+    this.classificationState.backupCurrentBrewObjects_forMainMapIndicator();
     const defaultBrew = this.visualStyleHelperService.setupDefaultBrew(
       indicatorMetadataAndGeoJSON.geoJSON,
       indicatorPropertyName,
       classificationMapping.numClasses,
       classificationMapping.colorBrewerSchemeName,
-      this.visualStyleHelperService.classifyMethod,
+      this.classificationState.classifyMethod,
       true,
       indicatorMetadataAndGeoJSON
     );
@@ -789,7 +791,7 @@ export class ReachabilityMapHelperService {
 
     this.invalidateMap(domId);
     this.mapPartsMap.set(domId, mapParts);
-    this.visualStyleHelperService.resetCurrentBrewObjects_forMainMapIndicator();
+    this.classificationState.resetCurrentBrewObjects_forMainMapIndicator();
   }
 
   generateIndicatorLegend(defaultBrew: any): L.Control {

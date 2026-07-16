@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import jStat from 'jstat';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
+import { ClassificationStateService } from 'services/classification-state-service/classification-state.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
@@ -77,6 +78,7 @@ type StyleBranch = 'mov' | 'default' | 'manual-default' | 'dynamic';
 })
 export class IndicatorClassificationService {
   private visualStyleHelperService = inject(VisualStyleHelperServiceNew);
+  private classificationState = inject(ClassificationStateService);
   private envConfigService = inject(EnvConfigService);
   private chartDisplayState = inject(ChartDisplayStateService);
   private selectionState = inject(SelectionStateService);
@@ -87,6 +89,7 @@ export class IndicatorClassificationService {
 
   buildClassification(input: ClassificationInput): ClassificationResult {
     const vsh = this.visualStyleHelperService;
+    const state = this.classificationState;
     const { mode, indicatorMetadataAndGeoJSON, indicatorPropertyName } = input;
     const indicatorType =
       mode === 'replace' ? indicatorMetadataAndGeoJSON.indicatorType : input.indicatorType || [];
@@ -104,13 +107,13 @@ export class IndicatorClassificationService {
     if (mode === 'replace') {
       // reset the shared classification state before any brew setup
       // (order preserved from the legacy replace path)
-      vsh.manualMOVBreaks = [];
-      vsh.regionalDefaultMOVBreaks = [];
-      vsh.regionalDefaultBreaks = [];
-      vsh.measureOfValueBrew = [];
-      vsh.manualBrew = undefined;
-      vsh.dynamicBrew = undefined;
-      vsh.dynamicBrewBreaks = [];
+      state.manualMOVBreaks = [];
+      state.regionalDefaultMOVBreaks = [];
+      state.regionalDefaultBreaks = [];
+      state.measureOfValueBrew = [];
+      state.manualBrew = undefined;
+      state.dynamicBrew = undefined;
+      state.dynamicBrewBreaks = [];
 
       this.setNoDataValuesAsNull(indicatorMetadataAndGeoJSON, indicatorPropertyName);
     } else {
@@ -158,11 +161,11 @@ export class IndicatorClassificationService {
         indicatorPropertyName,
         this.envConfigService.defaultColorBrewerPaletteForGtMovValues,
         this.envConfigService.defaultColorBrewerPaletteForLtMovValues,
-        vsh.classifyMethod,
+        state.classifyMethod,
         this.chartDisplayState.measureOfValue,
-        vsh.manualMOVBreaks,
-        vsh.regionalDefaultMOVBreaks,
-        vsh.numClasses
+        state.manualMOVBreaks,
+        state.regionalDefaultMOVBreaks,
+        state.numClasses
       );
       gtMeasureOfValueBrew = measureOfValueBrewArray[0];
       ltMeasureOfValueBrew = measureOfValueBrewArray[1];
@@ -170,11 +173,11 @@ export class IndicatorClassificationService {
       if (mode === 'replace') {
         // replace refills the MOV breaks from the fresh brews and syncs them
         // back into the manual breaks unconditionally
-        vsh.manualMOVBreaks = [];
-        vsh.manualMOVBreaks[0] = measureOfValueBrewArray[0]
+        state.manualMOVBreaks = [];
+        state.manualMOVBreaks[0] = measureOfValueBrewArray[0]
           ? measureOfValueBrewArray[0].breaks
           : [];
-        vsh.manualMOVBreaks[1] = measureOfValueBrewArray[1]
+        state.manualMOVBreaks[1] = measureOfValueBrewArray[1]
           ? measureOfValueBrewArray[1].breaks
           : [];
         this.updateDefaultManualBreaksFromMOVManualBreaks(isDynamicOrNegative());
@@ -185,15 +188,15 @@ export class IndicatorClassificationService {
             indicatorPropertyName,
             this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues,
             this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues,
-            vsh.classifyMethod,
-            vsh.numClasses,
+            state.classifyMethod,
+            state.numClasses,
             []
           );
           dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
           dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
           this.updateDefaultManualBreaksFromMOVManualBreaks(isDynamicOrNegative());
         }
-      } else if (vsh.classifyMethod == 'manual') {
+      } else if (state.classifyMethod == 'manual') {
         // restyle keeps the existing MOV breaks and only syncs for manual mode
         this.updateDefaultManualBreaksFromMOVManualBreaks(isDynamicOrNegative());
       }
@@ -206,9 +209,9 @@ export class IndicatorClassificationService {
             indicatorPropertyName,
             this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues,
             this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues,
-            vsh.classifyMethod,
-            vsh.numClasses,
-            vsh.dynamicBrewBreaks
+            state.classifyMethod,
+            state.numClasses,
+            state.dynamicBrewBreaks
           );
           dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
           dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
@@ -218,10 +221,10 @@ export class IndicatorClassificationService {
             indicatorPropertyName,
             indicatorMetadataAndGeoJSON.defaultClassificationMapping.numClasses || 5,
             indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName,
-            vsh.classifyMethod
+            state.classifyMethod
           );
         }
-        if (vsh.classifyMethod == 'regional_default') {
+        if (state.classifyMethod == 'regional_default') {
           ({ defaultBrew, dynamicIncreaseBrew, dynamicDecreaseBrew } =
             this.applyRegionalDefaultClassification(indicatorMetadataAndGeoJSON, {
               defaultBrew,
@@ -229,7 +232,7 @@ export class IndicatorClassificationService {
               dynamicDecreaseBrew,
             }));
         }
-        vsh.manualBrew = defaultBrew;
+        state.manualBrew = defaultBrew;
         styleBranch = 'default';
       } else if (indicatorType.includes('DYNAMIC')) {
         const dynamicIndicatorBrewArray = vsh.setupDynamicIndicatorBrew(
@@ -237,9 +240,9 @@ export class IndicatorClassificationService {
           indicatorPropertyName,
           this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues,
           this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues,
-          vsh.classifyMethod,
-          vsh.numClasses,
-          vsh.dynamicBrewBreaks
+          state.classifyMethod,
+          state.numClasses,
+          state.dynamicBrewBreaks
         );
         dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
         dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
@@ -255,14 +258,14 @@ export class IndicatorClassificationService {
           indicatorPropertyName,
           this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues,
           this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues,
-          vsh.classifyMethod,
-          vsh.numClasses,
-          vsh.dynamicBrewBreaks
+          state.classifyMethod,
+          state.numClasses,
+          state.dynamicBrewBreaks
         );
         dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
         dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
 
-        if (vsh.classifyMethod == 'regional_default') {
+        if (state.classifyMethod == 'regional_default') {
           ({ defaultBrew, dynamicIncreaseBrew, dynamicDecreaseBrew } =
             this.applyRegionalDefaultClassification(indicatorMetadataAndGeoJSON, {
               defaultBrew,
@@ -279,9 +282,9 @@ export class IndicatorClassificationService {
             indicatorPropertyName,
             this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues,
             this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues,
-            vsh.classifyMethod,
-            vsh.numClasses,
-            vsh.dynamicBrewBreaks
+            state.classifyMethod,
+            state.numClasses,
+            state.dynamicBrewBreaks
           );
           dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
           dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
@@ -291,46 +294,46 @@ export class IndicatorClassificationService {
           defaultBrew = vsh.setupDefaultBrew(
             geoJSON,
             indicatorPropertyName,
-            vsh.numClasses,
+            state.numClasses,
             indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName,
-            vsh.classifyMethod
+            state.classifyMethod
           );
         }
 
-        if (vsh.classifyMethod == 'regional_default') {
+        if (state.classifyMethod == 'regional_default') {
           ({ defaultBrew, dynamicIncreaseBrew, dynamicDecreaseBrew } =
             this.applyRegionalDefaultClassification(indicatorMetadataAndGeoJSON, {
               defaultBrew,
               dynamicIncreaseBrew,
               dynamicDecreaseBrew,
             }));
-        } else if (vsh.classifyMethod == 'manual') {
+        } else if (state.classifyMethod == 'manual') {
           manualBrew = vsh.setupManualBrew(
-            vsh.numClasses,
+            state.numClasses,
             indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName,
-            vsh.manualBrew.breaks
+            state.manualBrew.breaks
           );
-          vsh.manualBrew = manualBrew;
+          state.manualBrew = manualBrew;
         }
 
-        styleBranch = vsh.classifyMethod == 'manual' ? 'manual-default' : 'default';
+        styleBranch = state.classifyMethod == 'manual' ? 'manual-default' : 'default';
 
         this.updateManualMOVBreaksFromDefaultManualBreaks(isDynamicOrNegative());
       }
     }
 
     if (
-      vsh.classifyMethod == 'regional_default' &&
+      state.classifyMethod == 'regional_default' &&
       this.chartDisplayState.isMeasureOfValueChecked
     ) {
-      if (mode === 'restyle' && vsh.regionalDefaultBreaks.length == 0) {
+      if (mode === 'restyle' && state.regionalDefaultBreaks.length == 0) {
         // restyle-only bootstrap: derive the regional default breaks first
         defaultBrew = vsh.setupDefaultBrew(
           geoJSON,
           indicatorPropertyName,
-          vsh.numClasses,
+          state.numClasses,
           indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName,
-          vsh.classifyMethod
+          state.classifyMethod
         );
         ({ defaultBrew, dynamicIncreaseBrew, dynamicDecreaseBrew } =
           this.applyRegionalDefaultClassification(indicatorMetadataAndGeoJSON, {
@@ -340,8 +343,8 @@ export class IndicatorClassificationService {
           }));
       }
 
-      vsh.regionalDefaultMOVBreaks = this.calcMOVBreaks(
-        vsh.regionalDefaultBreaks,
+      state.regionalDefaultMOVBreaks = this.calcMOVBreaks(
+        state.regionalDefaultBreaks,
         this.chartDisplayState.measureOfValue
       );
       const measureOfValueBrewArray = vsh.setupMeasureOfValueBrew(
@@ -349,11 +352,11 @@ export class IndicatorClassificationService {
         indicatorPropertyName,
         this.envConfigService.defaultColorBrewerPaletteForGtMovValues,
         this.envConfigService.defaultColorBrewerPaletteForLtMovValues,
-        vsh.classifyMethod,
+        state.classifyMethod,
         this.chartDisplayState.measureOfValue,
-        vsh.manualMOVBreaks,
-        vsh.regionalDefaultMOVBreaks,
-        vsh.numClasses
+        state.manualMOVBreaks,
+        state.regionalDefaultMOVBreaks,
+        state.numClasses
       );
       gtMeasureOfValueBrew = measureOfValueBrewArray[0];
       ltMeasureOfValueBrew = measureOfValueBrewArray[1];
@@ -440,6 +443,7 @@ export class IndicatorClassificationService {
    */
   updateManualMOVBreaksFromDefaultManualBreaks(isDynamicOrNegative: boolean) {
     const vsh = this.visualStyleHelperService;
+    const state = this.classificationState;
     const gtBreaks: any[] = [];
     const ltBreaks: any[] = [];
     let breaks: any[] = [];
@@ -451,7 +455,7 @@ export class IndicatorClassificationService {
       // silently change the MOV break derivation for dynamic indicators.
       // TODO revisit deliberately (see MAP_REFACTORING_PLAN.md).
     } else {
-      breaks = vsh.manualBrew ? vsh.manualBrew.breaks : [];
+      breaks = state.manualBrew ? state.manualBrew.breaks : [];
     }
     breaks.forEach((br) => {
       if (br < this.chartDisplayState.measureOfValue) {
@@ -462,16 +466,17 @@ export class IndicatorClassificationService {
     });
     gtBreaks.push(this.chartDisplayState.measureOfValue);
     ltBreaks.unshift(this.chartDisplayState.measureOfValue);
-    vsh.manualMOVBreaks = [];
-    vsh.manualMOVBreaks[0] = ltBreaks;
-    vsh.manualMOVBreaks[1] = gtBreaks;
+    state.manualMOVBreaks = [];
+    state.manualMOVBreaks[0] = ltBreaks;
+    state.manualMOVBreaks[1] = gtBreaks;
   }
 
   /** Inverse of updateManualMOVBreaksFromDefaultManualBreaks: recombines the MOV break halves into the shared manual/dynamic breaks. */
   private updateDefaultManualBreaksFromMOVManualBreaks(isDynamicOrNegative: boolean) {
     const vsh = this.visualStyleHelperService;
-    const ltBreaks = [...vsh.manualMOVBreaks[0]];
-    const gtBreaks = [...vsh.manualMOVBreaks[1]];
+    const state = this.classificationState;
+    const ltBreaks = [...state.manualMOVBreaks[0]];
+    const gtBreaks = [...state.manualMOVBreaks[1]];
 
     ltBreaks.shift();
     gtBreaks.pop();
@@ -493,18 +498,19 @@ export class IndicatorClassificationService {
           increaseBreaks.push(br);
         }
       });
-      vsh.dynamicBrewBreaks = [[...increaseBreaks], [...decreaseBreaks]];
+      state.dynamicBrewBreaks = [[...increaseBreaks], [...decreaseBreaks]];
     }
 
     // guard: on a fresh replace the shared manualBrew is reset to undefined;
     // the legacy code wrote into it unconditionally (latent TypeError)
-    if (vsh.manualBrew) {
-      vsh.manualBrew.breaks = [...gtBreaks, ...ltBreaks];
+    if (state.manualBrew) {
+      state.manualBrew.breaks = [...gtBreaks, ...ltBreaks];
     }
   }
 
   private markOutliers(indicatorMetadataAndGeoJSON, indicatorPropertyName): IndicatorDataFacts {
     const vsh = this.visualStyleHelperService;
+    const state = this.classificationState;
     const facts: IndicatorDataFacts = {
       containsZeroValues: false,
       containsNoDataValues: false,
@@ -603,11 +609,11 @@ export class IndicatorClassificationService {
 
   private applyDefaultClassificationSettings(indicatorMetadataAndGeoJSON) {
     if (indicatorMetadataAndGeoJSON.defaultClassificationMapping.classificationMethod) {
-      this.visualStyleHelperService.classifyMethod =
+      this.classificationState.classifyMethod =
         indicatorMetadataAndGeoJSON.defaultClassificationMapping.classificationMethod.toLowerCase();
     }
     if (indicatorMetadataAndGeoJSON.defaultClassificationMapping.numClasses) {
-      this.visualStyleHelperService.numClasses =
+      this.classificationState.numClasses =
         indicatorMetadataAndGeoJSON.defaultClassificationMapping.numClasses;
     }
   }
@@ -636,10 +642,11 @@ export class IndicatorClassificationService {
     brews: { defaultBrew: any; dynamicIncreaseBrew: any; dynamicDecreaseBrew: any }
   ) {
     const vsh = this.visualStyleHelperService;
+    const state = this.classificationState;
     const { defaultBrew, dynamicIncreaseBrew, dynamicDecreaseBrew } = brews;
 
     if (indicatorMetadataAndGeoJSON.defaultClassificationMapping.numClasses) {
-      vsh.numClasses = indicatorMetadataAndGeoJSON.defaultClassificationMapping.numClasses;
+      state.numClasses = indicatorMetadataAndGeoJSON.defaultClassificationMapping.numClasses;
     }
 
     let firstBreak;
@@ -669,7 +676,7 @@ export class IndicatorClassificationService {
           );
           defaultBrew.breaks = regionalDefaultBreaks;
           defaultBrew.colors = brew.colors;
-          vsh.regionalDefaultBreaks = regionalDefaultBreaks;
+          state.regionalDefaultBreaks = regionalDefaultBreaks;
         } else {
           const decreaseBreaks = regionalDefaultBreaks.filter((n) => n < 0);
           if (
@@ -708,17 +715,17 @@ export class IndicatorClassificationService {
 
   /** Falls back from regional_default to equal_interval when no breaks exist for the selected spatial unit or a balance is shown. */
   private checkAvailabilityOfRegionalDefault(indicatorMetadataAndGeoJSON) {
-    const vsh = this.visualStyleHelperService;
+    const state = this.classificationState;
     let breaksAvailableForSelectedSpatialUnit = false;
     for (const item of indicatorMetadataAndGeoJSON.defaultClassificationMapping.items) {
       if (item.spatialUnitId == this.selectionState.selectedSpatialUnit.spatialUnitId) {
         breaksAvailableForSelectedSpatialUnit = true;
       }
     }
-    if (vsh.classifyMethod == 'regional_default') {
+    if (state.classifyMethod == 'regional_default') {
       if (!breaksAvailableForSelectedSpatialUnit || this.chartDisplayState.isBalanceChecked) {
-        vsh.classifyMethod = 'equal_interval';
-        vsh.numClasses = vsh.numClasses ? vsh.numClasses : 5;
+        state.classifyMethod = 'equal_interval';
+        state.numClasses = state.numClasses ? state.numClasses : 5;
       }
     }
   }
@@ -729,7 +736,7 @@ export class IndicatorClassificationService {
    * when leaving regional_default.
    */
   private setClassifyZeroForClassifyMethod() {
-    if (this.visualStyleHelperService.classifyMethod == 'regional_default') {
+    if (this.classificationState.classifyMethod == 'regional_default') {
       if (this.classifyZeroSeparately_backup == undefined) {
         this.classifyZeroSeparately_backup = this.envConfigService.classifyZeroSeparately;
       }

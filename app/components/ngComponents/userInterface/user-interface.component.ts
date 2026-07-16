@@ -18,7 +18,6 @@ import { MapService } from 'services/map-service/map.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { RangeFilterStateService } from 'services/range-filter-state-service/range-filter-state.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
-import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import { EnvConfigService } from '../../../services/env-config-service/env-config.service';
 import { CustomSliderComponent } from '../common/custom-slider/custom-slider.component';
 import { NotificationComponent } from '../common/notification/notification.component';
@@ -64,7 +63,6 @@ export class UserInterfaceComponent implements OnInit {
   private authService = inject(AuthService);
   private favService = inject(FavService);
   protected globalFilterHelperService = inject(GlobalFilterHelperService);
-  private visualStyleHelperService = inject(VisualStyleHelperServiceNew);
   private router = inject(Router);
   protected envConfigService = inject(EnvConfigService);
   private mapService = inject(MapService);

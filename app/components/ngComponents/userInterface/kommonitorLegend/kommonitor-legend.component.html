@@ -144,7 +144,7 @@
             >
               <div class="just-padding">
                 <h4>{{ selectionState.selectedIndicator.indicatorName }}</h4>
-                @if (visualStyleService.isCustomComputation) {
+                @if (classificationState.isCustomComputation) {
                   <h5>&nbsp;-&nbsp; <i>individuelles Berechnungsergebnis</i></h5>
                 }
                 <p [innerHTML]="selectionState.selectedIndicator.metadata.description"></p>
@@ -246,7 +246,7 @@
                           [ngStyle]="{
                             background: defaultColorForNoDataValues,
                             border: '2px solid ' + defaultBorderColorForNoDataValues,
-                            opacity: visualStyleService.currentIndicatorOpacity,
+                            opacity: classificationState.currentIndicatorOpacity,
                           }"
                         ></i>
                       </div>
@@ -254,7 +254,7 @@
                       @if (showLabelsColumn) {
                         <div class="col-md-3"></div>
                       }
-                      <div class="col-md-3">{{ visualStyleService.featuresPerNoData }}</div>
+                      <div class="col-md-3">{{ classificationState.featuresPerNoData }}</div>
                       <br />
                     </div>
                   </div>
@@ -269,7 +269,7 @@
                       @if (showLabelsColumn) {
                         <div class="col-md-3"></div>
                       }
-                      <div class="col-md-3">{{ visualStyleService.featuresPerOutlierLow }}</div>
+                      <div class="col-md-3">{{ classificationState.featuresPerOutlierLow }}</div>
                       <br />
                     </div>
                   </div>
@@ -284,7 +284,7 @@
                       @if (showLabelsColumn) {
                         <div class="col-md-3"></div>
                       }
-                      <div class="col-md-3">{{ visualStyleService.featuresPerOutlierHigh }}</div>
+                      <div class="col-md-3">{{ classificationState.featuresPerOutlierHigh }}</div>
                       <br />
                     </div>
                   </div>
@@ -300,7 +300,7 @@
                           [ngStyle]="{
                             background: defaultColorForFilteredValues,
                             border: '2px solid ' + defaultBorderColorForFilteredValues,
-                            opacity: visualStyleService.currentIndicatorOpacity,
+                            opacity: classificationState.currentIndicatorOpacity,
                           }"
                         ></i>
                       </div>
@@ -328,7 +328,7 @@
                           <i
                             [ngStyle]="{
                               background: defaultColorForZeroValues,
-                              opacity: visualStyleService.currentIndicatorOpacity,
+                              opacity: classificationState.currentIndicatorOpacity,
                             }"
                           ></i>
                         </div>
@@ -336,14 +336,14 @@
                         @if (showLabelsColumn) {
                           <div class="col-md-3"></div>
                         }
-                        <div class="col-md-3">{{ visualStyleService.featuresPerZero }}</div>
+                        <div class="col-md-3">{{ classificationState.featuresPerZero }}</div>
                         <br />
                       </div>
                     }
                     <br />
                     <!-- lesser than values -->
                     @for (
-                      color of visualStyleService.measureOfValueBrew[1].colors;
+                      color of classificationState.measureOfValueBrew[1].colors;
                       track color;
                       let i = $index
                     ) {
@@ -352,30 +352,30 @@
                           <i
                             [ngStyle]="{
                               background: color,
-                              opacity: visualStyleService.currentIndicatorOpacity,
+                              opacity: classificationState.currentIndicatorOpacity,
                             }"
                           ></i>
                         </div>
-                        @if (visualStyleService.measureOfValueBrew[1].breaks[i + 1]) {
+                        @if (classificationState.measureOfValueBrew[1].breaks[i + 1]) {
                           <div [class]="showLabelsColumn ? 'col-md-3' : 'col-md-6'">
                             {{
                               getIndicatorValue_asFormattedText(
-                                visualStyleService.measureOfValueBrew[1].breaks[i]
+                                classificationState.measureOfValueBrew[1].breaks[i]
                               )
                             }}
                             &dash; &lt;
                             {{
                               getIndicatorValue_asFormattedText(
-                                visualStyleService.measureOfValueBrew[1].breaks[i + 1]
+                                classificationState.measureOfValueBrew[1].breaks[i + 1]
                               )
                             }}
                           </div>
                         }
-                        @if (!visualStyleService.measureOfValueBrew[1].breaks[i + 1]) {
+                        @if (!classificationState.measureOfValueBrew[1].breaks[i + 1]) {
                           <div [class]="showLabelsColumn ? 'col-md-3' : 'col-md-6'">
                             {{
                               getIndicatorValue_asFormattedText(
-                                visualStyleService.measureOfValueBrew[1].breaks[i]
+                                classificationState.measureOfValueBrew[1].breaks[i]
                               )
                             }}
                           </div>
@@ -384,14 +384,14 @@
                           <div class="col-md-3"></div>
                         }
                         <div class="col-md-3">
-                          {{ visualStyleService.featuresPerColorMap.get(color) || 0 }}
+                          {{ classificationState.featuresPerColorMap.get(color) || 0 }}
                         </div>
                       </div>
                     }
                     <br />
                     <!-- higher than values -->
                     @for (
-                      color of visualStyleService.measureOfValueBrew[0].colors;
+                      color of classificationState.measureOfValueBrew[0].colors;
                       track color;
                       let i = $index
                     ) {
@@ -400,30 +400,30 @@
                           <i
                             [ngStyle]="{
                               background: color,
-                              opacity: visualStyleService.currentIndicatorOpacity,
+                              opacity: classificationState.currentIndicatorOpacity,
                             }"
                           ></i>
                         </div>
-                        @if (visualStyleService.measureOfValueBrew[0].breaks[i + 1]) {
+                        @if (classificationState.measureOfValueBrew[0].breaks[i + 1]) {
                           <div [class]="showLabelsColumn ? 'col-md-3' : 'col-md-6'">
                             {{
                               getIndicatorValue_asFormattedText(
-                                visualStyleService.measureOfValueBrew[0].breaks[i]
+                                classificationState.measureOfValueBrew[0].breaks[i]
                               )
                             }}
                             &dash; &lt;
                             {{
                               getIndicatorValue_asFormattedText(
-                                visualStyleService.measureOfValueBrew[0].breaks[i + 1]
+                                classificationState.measureOfValueBrew[0].breaks[i + 1]
                               )
                             }}
                           </div>
                         }
-                        @if (!visualStyleService.measureOfValueBrew[0].breaks[i + 1]) {
+                        @if (!classificationState.measureOfValueBrew[0].breaks[i + 1]) {
                           <div [class]="showLabelsColumn ? 'col-md-3' : 'col-md-6'">
                             {{
                               getIndicatorValue_asFormattedText(
-                                visualStyleService.measureOfValueBrew[0].breaks[i]
+                                classificationState.measureOfValueBrew[0].breaks[i]
                               )
                             }}
                           </div>
@@ -432,7 +432,7 @@
                           <div class="col-md-3"></div>
                         }
                         <div class="col-md-3">
-                          {{ visualStyleService.featuresPerColorMap.get(color) || 0 }}
+                          {{ classificationState.featuresPerColorMap.get(color) || 0 }}
                         </div>
                       </div>
                     }
@@ -447,10 +447,10 @@
                 ) {
                   <div>
                     <!-- < 0 values -->
-                    @if (visualStyleService.dynamicBrew && visualStyleService.dynamicBrew[1]) {
+                    @if (classificationState.dynamicBrew && classificationState.dynamicBrew[1]) {
                       <div>
                         @for (
-                          color of visualStyleService.dynamicBrew[1].colors;
+                          color of classificationState.dynamicBrew[1].colors;
                           track color;
                           let i = $index
                         ) {
@@ -459,30 +459,30 @@
                               <i
                                 [ngStyle]="{
                                   background: color,
-                                  opacity: visualStyleService.currentIndicatorOpacity,
+                                  opacity: classificationState.currentIndicatorOpacity,
                                 }"
                               ></i>
                             </div>
-                            @if (visualStyleService.dynamicBrew[1].breaks[i + 1]) {
+                            @if (classificationState.dynamicBrew[1].breaks[i + 1]) {
                               <div [class]="showLabelsColumn ? 'col-md-3' : 'col-md-6'">
                                 {{
                                   getIndicatorValue_asFormattedText(
-                                    visualStyleService.dynamicBrew[1].breaks[i]
+                                    classificationState.dynamicBrew[1].breaks[i]
                                   )
                                 }}
                                 &dash; &lt;
                                 {{
                                   getIndicatorValue_asFormattedText(
-                                    visualStyleService.dynamicBrew[1].breaks[i + 1]
+                                    classificationState.dynamicBrew[1].breaks[i + 1]
                                   )
                                 }}
                               </div>
                             }
-                            @if (!visualStyleService.dynamicBrew[1].breaks[i + 1]) {
+                            @if (!classificationState.dynamicBrew[1].breaks[i + 1]) {
                               <div [class]="showLabelsColumn ? 'col-md-3' : 'col-md-6'">
                                 {{
                                   getIndicatorValue_asFormattedText(
-                                    visualStyleService.dynamicBrew[1].breaks[i]
+                                    classificationState.dynamicBrew[1].breaks[i]
                                   )
                                 }}
                               </div>
@@ -491,7 +491,7 @@
                               <div class="col-md-3"></div>
                             }
                             <div class="col-md-3">
-                              {{ visualStyleService.featuresPerColorMap.get(color) || 0 }}
+                              {{ classificationState.featuresPerColorMap.get(color) || 0 }}
                             </div>
                           </div>
                         }
@@ -505,7 +505,7 @@
                           <i
                             [ngStyle]="{
                               background: defaultColorForZeroValues,
-                              opacity: visualStyleService.currentIndicatorOpacity,
+                              opacity: classificationState.currentIndicatorOpacity,
                             }"
                           ></i>
                         </div>
@@ -513,16 +513,16 @@
                         @if (showLabelsColumn) {
                           <div class="col-md-3"></div>
                         }
-                        <div class="col-md-3">{{ visualStyleService.featuresPerZero }}</div>
+                        <div class="col-md-3">{{ classificationState.featuresPerZero }}</div>
                         <br />
                       </div>
                     }
                     <br />
                     <!-- > 0 values -->
-                    @if (visualStyleService.dynamicBrew && visualStyleService.dynamicBrew[0]) {
+                    @if (classificationState.dynamicBrew && classificationState.dynamicBrew[0]) {
                       <div>
                         @for (
-                          color of visualStyleService.dynamicBrew[0].colors;
+                          color of classificationState.dynamicBrew[0].colors;
                           track color;
                           let i = $index
                         ) {
@@ -531,30 +531,30 @@
                               <i
                                 [ngStyle]="{
                                   background: color,
-                                  opacity: visualStyleService.currentIndicatorOpacity,
+                                  opacity: classificationState.currentIndicatorOpacity,
                                 }"
                               ></i>
                             </div>
-                            @if (visualStyleService.dynamicBrew[0].breaks[i + 1]) {
+                            @if (classificationState.dynamicBrew[0].breaks[i + 1]) {
                               <div [class]="showLabelsColumn ? 'col-md-3' : 'col-md-6'">
                                 {{
                                   getIndicatorValue_asFormattedText(
-                                    visualStyleService.dynamicBrew[0].breaks[i]
+                                    classificationState.dynamicBrew[0].breaks[i]
                                   )
                                 }}
                                 &dash; &lt;
                                 {{
                                   getIndicatorValue_asFormattedText(
-                                    visualStyleService.dynamicBrew[0].breaks[i + 1]
+                                    classificationState.dynamicBrew[0].breaks[i + 1]
                                   )
                                 }}
                               </div>
                             }
-                            @if (!visualStyleService.dynamicBrew[0].breaks[i + 1]) {
+                            @if (!classificationState.dynamicBrew[0].breaks[i + 1]) {
                               <div [class]="showLabelsColumn ? 'col-md-3' : 'col-md-6'">
                                 {{
                                   getIndicatorValue_asFormattedText(
-                                    visualStyleService.dynamicBrew[0].breaks[i]
+                                    classificationState.dynamicBrew[0].breaks[i]
                                   )
                                 }}
                               </div>
@@ -563,7 +563,7 @@
                               <div class="col-md-3"></div>
                             }
                             <div class="col-md-3">
-                              {{ visualStyleService.featuresPerColorMap.get(color) || 0 }}
+                              {{ classificationState.featuresPerColorMap.get(color) || 0 }}
                             </div>
                           </div>
                         }
@@ -591,14 +591,14 @@
                             <i
                               [ngStyle]="{
                                 background: category.color,
-                                opacity: visualStyleService.currentIndicatorOpacity,
+                                opacity: classificationState.currentIndicatorOpacity,
                               }"
                             ></i>
                           </div>
                           <div class="col-md-3">{{ category.categoricalValue }}</div>
                           <div class="col-md-3">{{ category.label }}</div>
                           <div class="col-md-3">
-                            {{ visualStyleService.featuresPerColorMap.get(category.color) || 0 }}
+                            {{ classificationState.featuresPerColorMap.get(category.color) || 0 }}
                           </div>
                         </div>
                       }
@@ -610,7 +610,7 @@
                             <i
                               [ngStyle]="{
                                 background: defaultColorForZeroValues,
-                                opacity: visualStyleService.currentIndicatorOpacity,
+                                opacity: classificationState.currentIndicatorOpacity,
                               }"
                             ></i>
                           </div>
@@ -618,18 +618,18 @@
                           @if (showLabelsColumn) {
                             <div class="col-md-3"></div>
                           }
-                          <div class="col-md-3">{{ visualStyleService.featuresPerZero }}</div>
+                          <div class="col-md-3">{{ classificationState.featuresPerZero }}</div>
                           <br />
                         </div>
                       }
                       <br />
                       <div>
-                        @switch (visualStyleService.classifyMethod) {
+                        @switch (classificationState.classifyMethod) {
                           @case ('manual') {
                             <div>
                               <!-- manual classification -->
                               @for (
-                                color of visualStyleService.manualBrew?.colors;
+                                color of classificationState.manualBrew?.colors;
                                 track color;
                                 let i = $index
                               ) {
@@ -638,31 +638,31 @@
                                     <i
                                       [ngStyle]="{
                                         background: color,
-                                        opacity: visualStyleService.currentIndicatorOpacity,
+                                        opacity: classificationState.currentIndicatorOpacity,
                                       }"
                                     >
                                     </i>
                                   </div>
-                                  @if (visualStyleService.manualBrew.breaks[i + 1]) {
+                                  @if (classificationState.manualBrew.breaks[i + 1]) {
                                     <div [class]="showLabelsColumn ? 'col-md-3' : 'col-md-6'">
                                       {{
                                         getIndicatorValue_asFormattedText(
-                                          visualStyleService.manualBrew.breaks[i]
+                                          classificationState.manualBrew.breaks[i]
                                         )
                                       }}
                                       &dash; &lt;
                                       {{
                                         getIndicatorValue_asFormattedText(
-                                          visualStyleService.manualBrew.breaks[i + 1]
+                                          classificationState.manualBrew.breaks[i + 1]
                                         )
                                       }}
                                     </div>
                                   }
-                                  @if (!visualStyleService.manualBrew.breaks[i + 1]) {
+                                  @if (!classificationState.manualBrew.breaks[i + 1]) {
                                     <div [class]="showLabelsColumn ? 'col-md-3' : 'col-md-6'">
                                       {{
                                         getIndicatorValue_asFormattedText(
-                                          visualStyleService.manualBrew.breaks[i]
+                                          classificationState.manualBrew.breaks[i]
                                         )
                                       }}
                                     </div>
@@ -671,7 +671,7 @@
                                     <div class="col-md-3">{{ classificationLabels[i] }}</div>
                                   }
                                   <div class="col-md-3">
-                                    {{ visualStyleService.featuresPerColorMap.get(color) || 0 }}
+                                    {{ classificationState.featuresPerColorMap.get(color) || 0 }}
                                   </div>
                                 </div>
                               }
@@ -681,7 +681,7 @@
                             <div>
                               <!-- default values -->
                               @for (
-                                color of visualStyleService.defaultBrew?.colors;
+                                color of classificationState.defaultBrew?.colors;
                                 track color;
                                 let i = $index
                               ) {
@@ -690,30 +690,30 @@
                                     <i
                                       [ngStyle]="{
                                         background: color,
-                                        opacity: visualStyleService.currentIndicatorOpacity,
+                                        opacity: classificationState.currentIndicatorOpacity,
                                       }"
                                     ></i>
                                   </div>
-                                  @if (visualStyleService.defaultBrew.breaks[i + 1]) {
+                                  @if (classificationState.defaultBrew.breaks[i + 1]) {
                                     <div [class]="showLabelsColumn ? 'col-md-3' : 'col-md-6'">
                                       {{
                                         getIndicatorValue_asFormattedText(
-                                          visualStyleService.defaultBrew.breaks[i]
+                                          classificationState.defaultBrew.breaks[i]
                                         )
                                       }}
                                       &dash; &lt;
                                       {{
                                         getIndicatorValue_asFormattedText(
-                                          visualStyleService.defaultBrew.breaks[i + 1]
+                                          classificationState.defaultBrew.breaks[i + 1]
                                         )
                                       }}
                                     </div>
                                   }
-                                  @if (!visualStyleService.defaultBrew.breaks[i + 1]) {
+                                  @if (!classificationState.defaultBrew.breaks[i + 1]) {
                                     <div [class]="showLabelsColumn ? 'col-md-3' : 'col-md-6'">
                                       {{
                                         getIndicatorValue_asFormattedText(
-                                          visualStyleService.defaultBrew.breaks[i]
+                                          classificationState.defaultBrew.breaks[i]
                                         )
                                       }}
                                     </div>
@@ -722,7 +722,7 @@
                                     <div class="col-md-3">{{ classificationLabels[i] }}</div>
                                   }
                                   <div class="col-md-3">
-                                    {{ visualStyleService.featuresPerColorMap.get(color) || 0 }}
+                                    {{ classificationState.featuresPerColorMap.get(color) || 0 }}
                                   </div>
                                   <!-- hier -->
                                 </div>

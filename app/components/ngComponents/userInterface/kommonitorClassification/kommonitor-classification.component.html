@@ -26,7 +26,7 @@
     <div title="Hier können Sie die Klassifizierungsmethode ändern.">
       <div style="font-weight: bold">Methode</div>
       <app-classification-method-select
-        [defaultMethodId]="visualStyleHelperService.classifyMethod"
+        [defaultMethodId]="classificationState.classifyMethod"
         [hiddenMethodIds]="hiddenMethodIds"
         (onMethodSelect)="onMethodSelected($event)"
       ></app-classification-method-select>
@@ -34,8 +34,8 @@
 
     <!-- number of classes -->
     @if (
-      visualStyleHelperService.classifyMethod !== 'manual' &&
-      visualStyleHelperService.classifyMethod !== 'regional_default'
+      classificationState.classifyMethod !== 'manual' &&
+      classificationState.classifyMethod !== 'regional_default'
     ) {
       <form class="nrClassSelection">
         <label>
@@ -45,17 +45,17 @@
             min="3"
             max="7"
             (change)="onChangeNumberOfClasses()"
-            value="{{ visualStyleHelperService.numClasses }}"
+            value="{{ classificationState.numClasses }}"
             class="form-control"
             name="numClasses"
-            [(ngModel)]="visualStyleHelperService.numClasses"
+            [(ngModel)]="classificationState.numClasses"
           />
         </label>
       </form>
     }
 
     <!-- manual breaks -->
-    @if (visualStyleHelperService.classifyMethod === 'manual') {
+    @if (classificationState.classifyMethod === 'manual') {
       <div>
         @if (
           selectionState.selectedIndicator.indicatorType.includes('STATUS') &&
@@ -88,20 +88,20 @@
               <div class="line"></div>
             </div>-->
               <!-- other breaks -->
-              @for (b of visualStyleHelperService.manualBrew.breaks; track b; let i = $index) {
+              @for (b of classificationState.manualBrew.breaks; track b; let i = $index) {
                 <div
                   class="breakWrapper"
                   [ngStyle]="{ top: getPercentage(b, 0) + '%' }"
                   (mousedown)="onBreakMouseDown($event, i, 0)"
                   (dblclick)="onBreakDblClick($event, i, 0)"
                   [ngClass]="{
-                    fixed: i === 0 || i === visualStyleHelperService.manualBrew.breaks.length - 1,
+                    fixed: i === 0 || i === classificationState.manualBrew.breaks.length - 1,
                   }"
                 >
                   <div
                     class="break"
                     [ngClass]="{
-                      fixed: i === 0 || i === visualStyleHelperService.manualBrew.breaks.length - 1,
+                      fixed: i === 0 || i === classificationState.manualBrew.breaks.length - 1,
                     }"
                   >
                     <!--<div class="colorBox"></div>-->
@@ -111,18 +111,17 @@
                       [ngModelOptions]="{ updateOn: 'blur' }"
                       disabled
                       [ngClass]="{
-                        fixed:
-                          i === 0 || i === visualStyleHelperService.manualBrew.breaks.length - 1,
+                        fixed: i === 0 || i === classificationState.manualBrew.breaks.length - 1,
                       }"
-                      min="{{ visualStyleHelperService.manualBrew.breaks[0] }}"
+                      min="{{ classificationState.manualBrew.breaks[0] }}"
                       max="{{
-                        visualStyleHelperService.manualBrew.breaks[
-                          visualStyleHelperService.manualBrew.breaks.length - 1
+                        classificationState.manualBrew.breaks[
+                          classificationState.manualBrew.breaks.length - 1
                         ]
                       }}"
-                      [(ngModel)]="visualStyleHelperService.manualBrew.breaks[i]"
+                      [(ngModel)]="classificationState.manualBrew.breaks[i]"
                     />
-                    @if (i != 0 && i != visualStyleHelperService.manualBrew.breaks.length - 1) {
+                    @if (i != 0 && i != classificationState.manualBrew.breaks.length - 1) {
                       <i class="fa-regular fa-trash-can" (click)="deleteBreak(i, 0)"></i>
                     }
                   </div>
@@ -132,13 +131,13 @@
             </div>
             <!-- bars -->
             <div class="histogram">
-              @for (b of visualStyleHelperService.manualBrew.breaks; track b; let i = $index) {
+              @for (b of classificationState.manualBrew.breaks; track b; let i = $index) {
                 <div
                   class="histogramBar"
                   [ngStyle]="{
                     height: getHeightForBar(i) + '%',
                     width: getWidthForHistogramBar(i) + '%',
-                    'background-color': visualStyleHelperService.manualBrew.colors[i],
+                    'background-color': classificationState.manualBrew.colors[i],
                   }"
                 ></div>
               }
@@ -172,7 +171,7 @@
                 <div class="line"></div>
               </div>
               <!-- other breaks -->
-              @for (b of visualStyleHelperService.manualBrew.breaks; track b; let i = $index) {
+              @for (b of classificationState.manualBrew.breaks; track b; let i = $index) {
                 <div
                   class="breakWrapper"
                   [ngStyle]="{ top: getPercentage(b, 0) + '%' }"
@@ -181,8 +180,8 @@
                   [ngClass]="{
                     fixed:
                       i === 0 ||
-                      i === visualStyleHelperService.manualBrew.breaks.length - 1 ||
-                      breakIsUnalterable(visualStyleHelperService.manualBrew.breaks[i]),
+                      i === classificationState.manualBrew.breaks.length - 1 ||
+                      breakIsUnalterable(classificationState.manualBrew.breaks[i]),
                   }"
                 >
                   <div
@@ -190,8 +189,8 @@
                     [ngClass]="{
                       fixed:
                         i === 0 ||
-                        i === visualStyleHelperService.manualBrew.breaks.length - 1 ||
-                        breakIsUnalterable(visualStyleHelperService.manualBrew.breaks[i]),
+                        i === classificationState.manualBrew.breaks.length - 1 ||
+                        breakIsUnalterable(classificationState.manualBrew.breaks[i]),
                     }"
                   >
                     <!--<div class="colorBox"></div>-->
@@ -203,21 +202,21 @@
                       [ngClass]="{
                         fixed:
                           i === 0 ||
-                          i === visualStyleHelperService.manualBrew.breaks.length - 1 ||
-                          breakIsUnalterable(visualStyleHelperService.manualBrew.breaks[i]),
+                          i === classificationState.manualBrew.breaks.length - 1 ||
+                          breakIsUnalterable(classificationState.manualBrew.breaks[i]),
                       }"
-                      min="{{ visualStyleHelperService.manualBrew.breaks[0] }}"
+                      min="{{ classificationState.manualBrew.breaks[0] }}"
                       max="{{
-                        visualStyleHelperService.manualBrew.breaks[
-                          visualStyleHelperService.manualBrew.breaks.length - 1
+                        classificationState.manualBrew.breaks[
+                          classificationState.manualBrew.breaks.length - 1
                         ]
                       }}"
-                      [(ngModel)]="visualStyleHelperService.manualBrew.breaks[i]"
+                      [(ngModel)]="classificationState.manualBrew.breaks[i]"
                     />
                     @if (
                       i != 0 &&
-                      i != visualStyleHelperService.manualBrew.breaks.length - 1 &&
-                      !breakIsUnalterable(visualStyleHelperService.manualBrew.breaks[i])
+                      i != classificationState.manualBrew.breaks.length - 1 &&
+                      !breakIsUnalterable(classificationState.manualBrew.breaks[i])
                     ) {
                       <i class="fa-regular fa-trash-can" (click)="deleteBreak(i, 0)"></i>
                     }
@@ -230,18 +229,17 @@
             <div class="histogram">
               <div>
                 @for (
-                  b of visualStyleHelperService.measureOfValueBrew[1].breaks;
+                  b of classificationState.measureOfValueBrew[1].breaks;
                   track b;
                   let i = $index
                 ) {
                   <div class="histogramBar">
-                    @if (i != visualStyleHelperService.measureOfValueBrew[1].breaks.length - 1) {
+                    @if (i != classificationState.measureOfValueBrew[1].breaks.length - 1) {
                       <div
                         [ngStyle]="{
                           height: getHeightForBarMOV(1, i) + '%',
                           width: getWidthForHistogramBarMOV(1, i) + '%',
-                          'background-color':
-                            visualStyleHelperService.measureOfValueBrew[1].colors[i],
+                          'background-color': classificationState.measureOfValueBrew[1].colors[i],
                         }"
                       ></div>
                     }
@@ -249,18 +247,17 @@
                 }
               </div>
               @for (
-                b of visualStyleHelperService.measureOfValueBrew[0].breaks;
+                b of classificationState.measureOfValueBrew[0].breaks;
                 track b;
                 let i = $index
               ) {
                 <div class="histogramBar">
-                  @if (i != visualStyleHelperService.measureOfValueBrew[0].breaks.length - 1) {
+                  @if (i != classificationState.measureOfValueBrew[0].breaks.length - 1) {
                     <div
                       [ngStyle]="{
                         height: getHeightForBarMOV(0, i) + '%',
                         width: getWidthForHistogramBarMOV(0, i) + '%',
-                        'background-color':
-                          visualStyleHelperService.measureOfValueBrew[0].colors[i],
+                        'background-color': classificationState.measureOfValueBrew[0].colors[i],
                       }"
                     ></div>
                   }
@@ -275,7 +272,7 @@
             selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') ||
             containsNegativeValues) &&
           !chartDisplayState.isMeasureOfValueChecked &&
-          visualStyleHelperService.dynamicBrew[1].breaks.length > 0
+          classificationState.dynamicBrew[1].breaks.length > 0
         ) {
           <div
             class="histogramTabWrapper editableHistogram editableHistogramDynamic"
@@ -292,22 +289,20 @@
                   <div class="line"></div>
                 </div>
               }
-              @for (b of visualStyleHelperService.dynamicBrew[1].breaks; track b; let i = $index) {
+              @for (b of classificationState.dynamicBrew[1].breaks; track b; let i = $index) {
                 <div
                   class="breakWrapper"
                   [ngStyle]="{ top: getPercentage(b, 1) + '%' }"
                   (mousedown)="onBreakMouseDown($event, i, 1)"
                   (click)="onBreakDblClick($event, i, 1)"
                   [ngClass]="{
-                    fixed:
-                      i === 0 || i === visualStyleHelperService.dynamicBrew[1].breaks.length - 1,
+                    fixed: i === 0 || i === classificationState.dynamicBrew[1].breaks.length - 1,
                   }"
                 >
                   <div
                     class="break"
                     [ngClass]="{
-                      fixed:
-                        i === 0 || i === visualStyleHelperService.dynamicBrew[1].breaks.length - 1,
+                      fixed: i === 0 || i === classificationState.dynamicBrew[1].breaks.length - 1,
                     }"
                   >
                     <input
@@ -317,12 +312,11 @@
                       disabled
                       [ngClass]="{
                         fixed:
-                          i === 0 ||
-                          i === visualStyleHelperService.dynamicBrew[1].breaks.length - 1,
+                          i === 0 || i === classificationState.dynamicBrew[1].breaks.length - 1,
                       }"
-                      [(ngModel)]="visualStyleHelperService.dynamicBrew[1].breaks[i]"
+                      [(ngModel)]="classificationState.dynamicBrew[1].breaks[i]"
                     />
-                    @if (i != 0 && i != visualStyleHelperService.dynamicBrew[1].breaks.length - 1) {
+                    @if (i != 0 && i != classificationState.dynamicBrew[1].breaks.length - 1) {
                       <i class="fa-regular fa-trash-can" (click)="deleteBreak(i, 1)"></i>
                     }
                   </div>
@@ -331,14 +325,14 @@
               }
             </div>
             <div class="histogram">
-              @for (b of visualStyleHelperService.dynamicBrew[1].breaks; track b; let i = $index) {
+              @for (b of classificationState.dynamicBrew[1].breaks; track b; let i = $index) {
                 <div class="histogramBar">
-                  @if (i != visualStyleHelperService.dynamicBrew[1].breaks.length - 1) {
+                  @if (i != classificationState.dynamicBrew[1].breaks.length - 1) {
                     <div
                       [ngStyle]="{
                         height: getHeightForBarDynamic(1, i) + '%',
                         width: getWidthForHistogramBarDynamic(1, i) + '%',
-                        'background-color': visualStyleHelperService.dynamicBrew[1].colors[i],
+                        'background-color': classificationState.dynamicBrew[1].colors[i],
                       }"
                     ></div>
                   }
@@ -353,7 +347,7 @@
             selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') ||
             containsNegativeValues) &&
           !chartDisplayState.isMeasureOfValueChecked &&
-          visualStyleHelperService.dynamicBrew[0].breaks.length > 0
+          classificationState.dynamicBrew[0].breaks.length > 0
         ) {
           <div
             class="histogramTabWrapper editableHistogram editableHistogramDynamic"
@@ -370,22 +364,20 @@
                   <div class="line"></div>
                 </div>
               }
-              @for (b of visualStyleHelperService.dynamicBrew[0].breaks; track b; let i = $index) {
+              @for (b of classificationState.dynamicBrew[0].breaks; track b; let i = $index) {
                 <div
                   class="breakWrapper"
                   [ngStyle]="{ top: getPercentage(b, 0) + '%' }"
                   (mousedown)="onBreakMouseDown($event, i, 0)"
                   (cblclick)="onBreakDblClick($event, i, 0)"
                   [ngClass]="{
-                    fixed:
-                      i === 0 || i === visualStyleHelperService.dynamicBrew[0].breaks.length - 1,
+                    fixed: i === 0 || i === classificationState.dynamicBrew[0].breaks.length - 1,
                   }"
                 >
                   <div
                     class="break"
                     [ngClass]="{
-                      fixed:
-                        i === 0 || i === visualStyleHelperService.dynamicBrew[0].breaks.length - 1,
+                      fixed: i === 0 || i === classificationState.dynamicBrew[0].breaks.length - 1,
                     }"
                   >
                     <input
@@ -395,12 +387,11 @@
                       disabled
                       [ngClass]="{
                         fixed:
-                          i === 0 ||
-                          i === visualStyleHelperService.dynamicBrew[0].breaks.length - 1,
+                          i === 0 || i === classificationState.dynamicBrew[0].breaks.length - 1,
                       }"
-                      [(ngModel)]="visualStyleHelperService.dynamicBrew[0].breaks[i]"
+                      [(ngModel)]="classificationState.dynamicBrew[0].breaks[i]"
                     />
-                    @if (i != 0 && i != visualStyleHelperService.dynamicBrew[0].breaks.length - 1) {
+                    @if (i != 0 && i != classificationState.dynamicBrew[0].breaks.length - 1) {
                       <i class="fa-regular fa-trash-can" (click)="deleteBreak(i, 0)"></i>
                     }
                   </div>
@@ -409,14 +400,14 @@
               }
             </div>
             <div class="histogram">
-              @for (b of visualStyleHelperService.dynamicBrew[0].breaks; track b; let i = $index) {
+              @for (b of classificationState.dynamicBrew[0].breaks; track b; let i = $index) {
                 <div class="histogramBar">
-                  @if (i != visualStyleHelperService.dynamicBrew[0].breaks.length - 1) {
+                  @if (i != classificationState.dynamicBrew[0].breaks.length - 1) {
                     <div
                       [ngStyle]="{
                         height: getHeightForBarDynamic(0, i) + '%',
                         width: getWidthForHistogramBarDynamic(0, i) + '%',
-                        'background-color': visualStyleHelperService.dynamicBrew[0].colors[i],
+                        'background-color': classificationState.dynamicBrew[0].colors[i],
                       }"
                     ></div>
                   }
@@ -461,8 +452,8 @@
 
     @if (
       containsZeroValues &&
-      visualStyleHelperService.classifyMethod !== 'manual' &&
-      visualStyleHelperService.classifyMethod !== 'regional_default'
+      classificationState.classifyMethod !== 'manual' &&
+      classificationState.classifyMethod !== 'regional_default'
     ) {
       <div class="classificationBoxToogleSlidersWrapper">
         <span class="classificationBoxToogleSlidersLbl"
@@ -482,8 +473,8 @@
 
     @if (
       (containsOutliers_high || containsOutliers_low) &&
-      visualStyleHelperService.classifyMethod !== 'manual' &&
-      visualStyleHelperService.classifyMethod !== 'regional_default'
+      classificationState.classifyMethod !== 'manual' &&
+      classificationState.classifyMethod !== 'regional_default'
     ) {
       <div class="classificationBoxToogleSlidersWrapper">
         <span class="classificationBoxToogleSlidersLbl"

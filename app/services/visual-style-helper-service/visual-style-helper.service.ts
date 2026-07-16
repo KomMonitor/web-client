@@ -8,6 +8,7 @@ import classyBrew from '../../../customizedExternalLibs/classyBrew.js';
 import L from 'leaflet';
 import 'leaflet.pattern';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { ClassificationStateService } from 'services/classification-state-service/classification-state.service';
 
 @Injectable({
   providedIn: 'root',
@@ -17,6 +18,7 @@ export class VisualStyleHelperServiceNew {
   private envConfigService = inject(EnvConfigService);
   private indicatorValueService = inject(IndicatorValueService);
   private selectionState = inject(SelectionStateService);
+  private classificationState = inject(ClassificationStateService);
 
   // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
   private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
@@ -28,44 +30,11 @@ export class VisualStyleHelperServiceNew {
 
   colorbrewer = colorbrewer;
 
-  defaultBrew: any = undefined;
-  measureOfValueBrew: any = undefined;
-  dynamicBrew: any = undefined;
-  manualBrew: any = undefined;
-
-  //allowesValues: equal_interval, quantile, jenks
-  classifyMethods = [
-    {
-      name: 'Jenks',
-      value: 'jenks',
-    },
-    {
-      name: 'Gleiches Intervall',
-      value: 'equal_interval',
-    },
-    {
-      name: 'Quantile',
-      value: 'quantile',
-    },
-  ];
-
-  manualMOVBreaks: any = undefined;
-  regionalDefaultMOVBreaks: any;
-  regionalDefaultBreaks: any;
-
-  greaterThanValues: any = [];
-  lesserThanValues: any = [];
-  positiveValues: any = [];
-  negativeValues: any = [];
-
-  defaultBrew_backup;
-  measureOfValueBrew_backup;
-  dynamicBrew_backup;
-  manualBrew_backup;
-
-  classifyMethod = this.envConfigService.defaultClassifyMethod || 'jenks';
-
-  isCustomComputation = false;
+  // transient work arrays of the brew setup methods
+  private greaterThanValues: any = [];
+  private lesserThanValues: any = [];
+  private positiveValues: any = [];
+  private negativeValues: any = [];
 
   private numberOfDecimals = this.envConfigService.numberOfDecimals;
   private defaultColorForFilteredValues = this.envConfigService.defaultColorForFilteredValues;
@@ -96,7 +65,6 @@ export class VisualStyleHelperServiceNew {
     this.envConfigService.defaultFillOpacityForNoDataValues;
 
   private indicatorTransparency = 1 - this.envConfigService.defaultFillOpacity;
-  currentIndicatorOpacity = this.envConfigService.defaultFillOpacity;
 
   private defaultColorForZeroValues = this.envConfigService.defaultColorForZeroValues;
   private defaultColorForOutliers_high = this.envConfigService.defaultColorForOutliers_high;
@@ -143,9 +111,6 @@ export class VisualStyleHelperServiceNew {
   noDataFillPattern = new L.Pattern({ width: 8, height: 8 });
   //noDataFillPattern = [];
   //noDataFillPattern.addShape(shape);
-
-  outliers_high = undefined;
-  outliers_low = undefined;
 
   outlierStyle_high = {
     weight: 1,
@@ -194,34 +159,9 @@ export class VisualStyleHelperServiceNew {
     fillColor: this.envConfigService.defaultColorForFilteredValues,
   };
 
-  featuresPerColorMap = new Map();
-  featuresPerNoData = 0;
-  featuresPerZero = 0;
-  featuresPerOutlierHigh = 0;
-  featuresPerOutlierLow = 0;
-
-  dynamicBrewBreaks: any = [];
-  numClasses;
-
-  resetFeaturesPerColorObjects() {
-    this.featuresPerColorMap = new Map();
-    this.featuresPerNoData = 0;
-    this.featuresPerZero = 0;
-    this.featuresPerOutlierLow = 0;
-    this.featuresPerOutlierHigh = 0;
-  }
-
-  incrementFeaturesPerColor(color) {
-    if (this.featuresPerColorMap.has(color)) {
-      this.featuresPerColorMap.set(color, this.featuresPerColorMap.get(color) + 1);
-    } else {
-      this.featuresPerColorMap.set(color, 1);
-    }
-  }
-
   getFillColorForZero(incrementFeatures) {
     if (incrementFeatures) {
-      this.featuresPerZero++;
+      this.classificationState.featuresPerZero++;
     }
     return this.defaultColorForZeroValues;
   }
@@ -255,7 +195,7 @@ export class VisualStyleHelperServiceNew {
     forceProvidedIndicator = false,
     indicator: IndicatorsDataset | false = false
   ) {
-    this.resetFeaturesPerColorObjects();
+    this.classificationState.resetFeatureCounters();
 
     let values = [];
 
@@ -270,13 +210,13 @@ export class VisualStyleHelperServiceNew {
       values = this.setupDefaultBrewValues_singleTimestamp(geoJSON, propertyName, values);
     }
 
-    this.defaultBrew = this.setupClassyBrew_usingFeatureCount(
+    this.classificationState.defaultBrew = this.setupClassyBrew_usingFeatureCount(
       values,
       colorCode,
       classifyMethod,
       numClasses
     );
-    return this.defaultBrew;
+    return this.classificationState.defaultBrew;
   }
 
   setupDefaultBrewValues_singleTimestamp(geoJSON, propertyName, values) {
@@ -325,7 +265,7 @@ export class VisualStyleHelperServiceNew {
   }
 
   setupManualBrew(numClasses, colorCode, breaks) {
-    this.resetFeaturesPerColorObjects();
+    this.classificationState.resetFeatureCounters();
 
     const colorBrewerInstance = this.createNewClassyBrewInstance();
     numClasses = breaks.length - 1;
@@ -383,7 +323,7 @@ export class VisualStyleHelperServiceNew {
     --> treat all other cases equally to measureOfValue
     */
 
-    this.resetFeaturesPerColorObjects();
+    this.classificationState.resetFeatureCounters();
 
     this.greaterThanValues = [];
     this.lesserThanValues = [];
@@ -449,8 +389,8 @@ export class VisualStyleHelperServiceNew {
       }
     }
 
-    this.measureOfValueBrew = [gtMeasureOfValueBrew, ltMeasureOfValueBrew];
-    return this.measureOfValueBrew;
+    this.classificationState.measureOfValueBrew = [gtMeasureOfValueBrew, ltMeasureOfValueBrew];
+    return this.classificationState.measureOfValueBrew;
   }
 
   setupMovBrewValues_singleTimestamp(geoJSON, propertyName, measureOfValue) {
@@ -640,7 +580,7 @@ export class VisualStyleHelperServiceNew {
     --> treat all other cases equally to measureOfValue
     */
 
-    this.resetFeaturesPerColorObjects();
+    this.classificationState.resetFeatureCounters();
 
     this.positiveValues = [];
     this.negativeValues = [];
@@ -683,9 +623,9 @@ export class VisualStyleHelperServiceNew {
       dynamicDecreaseBrew.colors = dynamicDecreaseBrew.colors.reverse();
     }
 
-    this.dynamicBrew = [dynamicIncreaseBrew, dynamicDecreaseBrew];
+    this.classificationState.dynamicBrew = [dynamicIncreaseBrew, dynamicDecreaseBrew];
 
-    return this.dynamicBrew;
+    return this.classificationState.dynamicBrew;
   }
 
   setupDynamicBrewValues_wholeTimeseries(geoJSON) {
@@ -764,7 +704,7 @@ export class VisualStyleHelperServiceNew {
 
   styleNoData(feature, incrementFeatures) {
     if (incrementFeatures) {
-      this.featuresPerNoData++;
+      this.classificationState.featuresPerNoData++;
     }
     return this.noDataStyle;
   }
@@ -775,12 +715,12 @@ export class VisualStyleHelperServiceNew {
       feature.properties[this.outlierPropertyName] === this.outlierPropertyValue_low_extreme
     ) {
       if (incrementFeatures) {
-        this.featuresPerOutlierLow++;
+        this.classificationState.featuresPerOutlierLow++;
       }
       return this.outlierStyle_low;
     } else {
       if (incrementFeatures) {
-        this.featuresPerOutlierHigh++;
+        this.classificationState.featuresPerOutlierHigh++;
       }
       return this.outlierStyle_high;
     }
@@ -793,7 +733,7 @@ export class VisualStyleHelperServiceNew {
   setOpacity(opacity) {
     opacity = Number(opacity);
     this.indicatorTransparency = Number((1 - opacity).toFixed(this.numberOfDecimals));
-    this.currentIndicatorOpacity = opacity;
+    this.classificationState.currentIndicatorOpacity = opacity;
 
     this.defaultFillOpacity = opacity;
     this.defaultFillOpacityForOutliers_low = opacity;
@@ -956,7 +896,7 @@ export class VisualStyleHelperServiceNew {
     }
 
     if (incrementFeatures) {
-      this.incrementFeaturesPerColor(color);
+      this.classificationState.incrementFeaturesPerColor(color);
     }
 
     return color;
@@ -1175,21 +1115,5 @@ export class VisualStyleHelperServiceNew {
         fillPattern: undefined,
       };
     }
-  }
-
-  backupCurrentBrewObjects_forMainMapIndicator() {
-    // backup all current brew objects
-    this.defaultBrew_backup = jQuery.extend(true, {}, this.defaultBrew);
-    this.measureOfValueBrew_backup = jQuery.extend(true, {}, this.measureOfValueBrew);
-    this.dynamicBrew_backup = jQuery.extend(true, {}, this.dynamicBrew);
-    this.manualBrew_backup = jQuery.extend(true, {}, this.manualBrew);
-  }
-
-  resetCurrentBrewObjects_forMainMapIndicator() {
-    // backup all current brew objects
-    this.defaultBrew = jQuery.extend(true, {}, this.defaultBrew_backup);
-    this.measureOfValueBrew = jQuery.extend(true, {}, this.measureOfValueBrew_backup);
-    this.dynamicBrew = jQuery.extend(true, {}, this.dynamicBrew_backup);
-    this.manualBrew = jQuery.extend(true, {}, this.manualBrew_backup);
   }
 }

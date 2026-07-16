@@ -8,6 +8,7 @@ import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
+import { ClassificationStateService } from 'services/classification-state-service/classification-state.service';
 import { FeaturePopupHelperService } from 'services/feature-popup-helper-service/feature-popup-helper.service';
 import { FileLayerManagerService } from 'services/file-layer-manager-service/file-layer-manager.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
@@ -61,6 +62,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   private http = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
   private visualStyleHelperService = inject(VisualStyleHelperServiceNew);
+  private classificationState = inject(ClassificationStateService);
   private indicatorClassificationService = inject(IndicatorClassificationService);
   private filterHelperService = inject(FilterHelperService);
   private genericMapHelperService = inject(GenericMapHelperService);
@@ -747,20 +749,20 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   }
 
   changeClassifyMethod(method) {
-    this.visualStyleHelperService.classifyMethod = method;
+    this.classificationState.classifyMethod = method;
 
     setTimeout(() => {
-      this.visualStyleHelperService.classifyMethod = method;
+      this.classificationState.classifyMethod = method;
     }, 350);
 
     this.restyleCurrentLayer(false);
   }
 
   changeNumClasses(num) {
-    this.visualStyleHelperService.numClasses = num;
+    this.classificationState.numClasses = num;
 
     setTimeout(() => {
-      this.visualStyleHelperService.numClasses = num;
+      this.classificationState.numClasses = num;
     }, 350);
 
     this.restyleCurrentLayer(false);
@@ -779,13 +781,13 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       return a - b;
     });
 
-    this.visualStyleHelperService.manualBrew.breaks = breaks;
+    this.classificationState.manualBrew.breaks = breaks;
     this.indicatorClassificationService.updateManualMOVBreaksFromDefaultManualBreaks(
       this.isDynamicOrNegativeLayer()
     );
 
     setTimeout(() => {
-      this.visualStyleHelperService.manualBrew.breaks = breaks;
+      this.classificationState.manualBrew.breaks = breaks;
       this.indicatorClassificationService.updateManualMOVBreaksFromDefaultManualBreaks(
         this.isDynamicOrNegativeLayer()
       );
@@ -803,21 +805,21 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       return a - b;
     });
 
-    this.visualStyleHelperService.dynamicBrewBreaks = breaks;
-    if (this.visualStyleHelperService.dynamicBrew[1]) {
-      this.visualStyleHelperService.dynamicBrew[1].breaks = breaks[1];
+    this.classificationState.dynamicBrewBreaks = breaks;
+    if (this.classificationState.dynamicBrew[1]) {
+      this.classificationState.dynamicBrew[1].breaks = breaks[1];
     }
-    if (this.visualStyleHelperService.dynamicBrew[0]) {
-      this.visualStyleHelperService.dynamicBrew[0].breaks = breaks[0];
+    if (this.classificationState.dynamicBrew[0]) {
+      this.classificationState.dynamicBrew[0].breaks = breaks[0];
     }
 
     setTimeout(() => {
-      this.visualStyleHelperService.dynamicBrewBreaks = breaks;
-      if (this.visualStyleHelperService.dynamicBrew[1]) {
-        this.visualStyleHelperService.dynamicBrew[1].breaks = breaks[1];
+      this.classificationState.dynamicBrewBreaks = breaks;
+      if (this.classificationState.dynamicBrew[1]) {
+        this.classificationState.dynamicBrew[1].breaks = breaks[1];
       }
-      if (this.visualStyleHelperService.dynamicBrew[0]) {
-        this.visualStyleHelperService.dynamicBrew[0].breaks = breaks[0];
+      if (this.classificationState.dynamicBrew[0]) {
+        this.classificationState.dynamicBrew[0].breaks = breaks[0];
       }
     }, 1);
     this.indicatorClassificationService.updateManualMOVBreaksFromDefaultManualBreaks(
@@ -1017,7 +1019,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
             false
           );
         } else {
-          if (this.visualStyleHelperService.classifyMethod == 'manual') {
+          if (this.classificationState.classifyMethod == 'manual') {
             style = this.visualStyleHelperService.styleDefault(
               layer.feature,
               this.manualBrew,
@@ -1143,7 +1145,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     isCustomComputation,
     justRestyling = false
   ) {
-    this.visualStyleHelperService.isCustomComputation = !!isCustomComputation;
+    this.classificationState.isCustomComputation = !!isCustomComputation;
     //reset opacity
     this.visualStyleHelperService.setOpacity(this.envConfigService.defaultFillOpacity);
 
@@ -1265,7 +1267,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   }
 
   onChangeSpatialUnit() {
-    this.visualStyleHelperService.dynamicBrewBreaks = null;
+    this.classificationState.dynamicBrewBreaks = null;
   }
 
   allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin() {
@@ -1314,9 +1316,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       if (!skipDiagramRefresh) {
         const justRestyling = true;
         const brewForDiagrams =
-          this.visualStyleHelperService.classifyMethod == 'manual'
-            ? this.manualBrew
-            : this.defaultBrew;
+          this.classificationState.classifyMethod == 'manual' ? this.manualBrew : this.defaultBrew;
 
         this.broadcastService.broadcast(BroadcastMessage.UpdateDiagrams, [
           this.currentIndicatorMetadataAndGeoJSON,

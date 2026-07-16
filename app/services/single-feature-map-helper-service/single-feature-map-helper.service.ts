@@ -5,6 +5,7 @@ import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { ClassificationStateService } from 'services/classification-state-service/classification-state.service';
 import { FeaturePopupHelperService } from 'services/feature-popup-helper-service/feature-popup-helper.service';
 
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
@@ -18,6 +19,7 @@ export class SingleFeatureMapHelperService {
   private broadcastService = inject(BroadcastService);
   private visualStyleHelperService = inject(VisualStyleHelperServiceNew);
   private envConfigService = inject(EnvConfigService);
+  private classificationState = inject(ClassificationStateService);
   private indicatorValueService = inject(IndicatorValueService);
   private selectionState = inject(SelectionStateService);
   private featurePopupHelperService = inject(FeaturePopupHelperService);
@@ -98,7 +100,7 @@ export class SingleFeatureMapHelperService {
       propertyName,
       indicatorMetadata.defaultClassificationMapping.numClasses || 5,
       indicatorMetadata.defaultClassificationMapping.colorBrewerSchemeName,
-      this.visualStyleHelperService.classifyMethod
+      this.classificationState.classifyMethod
     );
 
     const containsNegativeValues = geoJSON.features.some(
@@ -112,8 +114,8 @@ export class SingleFeatureMapHelperService {
         propertyName,
         this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues,
         this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues,
-        this.visualStyleHelperService.classifyMethod,
-        this.visualStyleHelperService.numClasses,
+        this.classificationState.classifyMethod,
+        this.classificationState.numClasses,
         []
       );
       dynamicIncreaseBrew = dynamicBrewArray[0];

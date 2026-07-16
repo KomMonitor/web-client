@@ -5,6 +5,7 @@ import $ from 'jquery';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
+import { ClassificationStateService } from 'services/classification-state-service/classification-state.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import { IndicatorClassificationService } from './indicator-classification.service';
 
@@ -58,6 +59,7 @@ function makeIndicatorDataset(values: (number | null)[], opts: FixtureOptions = 
 describe('IndicatorClassificationService', () => {
   let service: IndicatorClassificationService;
   let vsh: VisualStyleHelperServiceNew;
+  let state: ClassificationStateService;
   let chartDisplayState: ChartDisplayStateService;
   let selectionState: SelectionStateService;
   let filterHelper: FilterHelperService;
@@ -86,6 +88,7 @@ describe('IndicatorClassificationService', () => {
     });
     service = TestBed.inject(IndicatorClassificationService);
     vsh = TestBed.inject(VisualStyleHelperServiceNew);
+    state = TestBed.inject(ClassificationStateService);
     chartDisplayState = TestBed.inject(ChartDisplayStateService);
     selectionState = TestBed.inject(SelectionStateService);
     filterHelper = TestBed.inject(FilterHelperService);
@@ -104,14 +107,14 @@ describe('IndicatorClassificationService', () => {
     filterHelper.clearFilteredFeatures();
     filterHelper.clearSelectedFeatures();
 
-    vsh.classifyMethod = 'equal_interval';
-    vsh.numClasses = 3;
-    vsh.manualBrew = undefined;
-    vsh.dynamicBrew = undefined;
-    vsh.dynamicBrewBreaks = [];
-    vsh.manualMOVBreaks = [];
-    vsh.regionalDefaultBreaks = [];
-    vsh.regionalDefaultMOVBreaks = [];
+    state.classifyMethod = 'equal_interval';
+    state.numClasses = 3;
+    state.manualBrew = undefined;
+    state.dynamicBrew = undefined;
+    state.dynamicBrewBreaks = [];
+    state.manualMOVBreaks = [];
+    state.regionalDefaultBreaks = [];
+    state.regionalDefaultMOVBreaks = [];
   });
 
   it('classifies a STATUS indicator with a default brew and styles features from it (replace)', () => {
@@ -204,15 +207,15 @@ describe('IndicatorClassificationService', () => {
 
     expect(result.gtMeasureOfValueBrew).toBeTruthy();
     expect(result.ltMeasureOfValueBrew).toBeTruthy();
-    expect(vsh.manualMOVBreaks[0].length).toBeGreaterThan(0);
-    expect(vsh.manualMOVBreaks[1].length).toBeGreaterThan(0);
+    expect(state.manualMOVBreaks[0].length).toBeGreaterThan(0);
+    expect(state.manualMOVBreaks[1].length).toBeGreaterThan(0);
     expect(result.styleFor(dataset.geoJSON.features[0])).toBeTruthy();
   });
 
   it('rebuilds the manual brew from the existing breaks (restyle)', () => {
     const dataset = makeIndicatorDataset([1, 4, 7, 9]);
-    vsh.classifyMethod = 'manual';
-    vsh.manualBrew = vsh.setupManualBrew(3, 'Oranges', [0, 3, 6, 10]);
+    state.classifyMethod = 'manual';
+    state.manualBrew = vsh.setupManualBrew(3, 'Oranges', [0, 3, 6, 10]);
 
     const result = service.buildClassification({
       mode: 'restyle',
@@ -224,7 +227,7 @@ describe('IndicatorClassificationService', () => {
 
     expect(result.manualBrew).toBeTruthy();
     expect(result.manualBrew.breaks).toEqual([0, 3, 6, 10]);
-    expect(vsh.manualBrew).toBe(result.manualBrew);
+    expect(state.manualBrew).toBe(result.manualBrew);
 
     const style = result.styleFor(dataset.geoJSON.features[0]);
     expect(style.fillColor).toBeDefined();
@@ -242,9 +245,9 @@ describe('IndicatorClassificationService', () => {
       indicatorPropertyName: PROP,
     });
 
-    expect(vsh.classifyMethod).toBe('regional_default');
-    expect(vsh.regionalDefaultBreaks.length).toBeGreaterThanOrEqual(3);
-    expect(result.defaultBrew.breaks).toEqual(vsh.regionalDefaultBreaks);
+    expect(state.classifyMethod).toBe('regional_default');
+    expect(state.regionalDefaultBreaks.length).toBeGreaterThanOrEqual(3);
+    expect(result.defaultBrew.breaks).toEqual(state.regionalDefaultBreaks);
   });
 
   it('falls back to equal_interval when no regional default exists for the spatial unit (replace)', () => {
@@ -259,7 +262,7 @@ describe('IndicatorClassificationService', () => {
       indicatorPropertyName: PROP,
     });
 
-    expect(vsh.classifyMethod).toBe('equal_interval');
+    expect(state.classifyMethod).toBe('equal_interval');
   });
 
   it('returns the filtered style for filtered features', () => {
@@ -287,7 +290,7 @@ describe('IndicatorClassificationService', () => {
       indicatorPropertyName: PROP,
     });
     // replace derives the class count from the metadata default (6); note that
-    // applyDefaultClassificationSettings also syncs vsh.numClasses to it
+    // applyDefaultClassificationSettings also syncs state.numClasses to it
     expect(setupDefaultBrewSpy).toHaveBeenLastCalledWith(
       expect.anything(),
       PROP,
@@ -296,7 +299,7 @@ describe('IndicatorClassificationService', () => {
       'equal_interval'
     );
 
-    vsh.numClasses = 4;
+    state.numClasses = 4;
     service.buildClassification({
       mode: 'restyle',
       indicatorMetadataAndGeoJSON: makeIndicatorDataset([1, 4, 7, 9], { numClasses: 6 }),
@@ -315,9 +318,9 @@ describe('IndicatorClassificationService', () => {
   });
 
   it('resets the shared classification state on replace but keeps it on restyle', () => {
-    vsh.manualMOVBreaks = [[1], [2]];
-    vsh.regionalDefaultBreaks = [0, 5, 10];
-    vsh.dynamicBrewBreaks = [[1], [-1]];
+    state.manualMOVBreaks = [[1], [2]];
+    state.regionalDefaultBreaks = [0, 5, 10];
+    state.dynamicBrewBreaks = [[1], [-1]];
 
     service.buildClassification({
       mode: 'replace',
@@ -325,8 +328,8 @@ describe('IndicatorClassificationService', () => {
       indicatorPropertyName: PROP,
     });
 
-    expect(vsh.regionalDefaultBreaks).toEqual([]);
-    expect(vsh.dynamicBrewBreaks).toEqual([]);
+    expect(state.regionalDefaultBreaks).toEqual([]);
+    expect(state.dynamicBrewBreaks).toEqual([]);
   });
 
   it('converts NoData values to null on replace only', () => {
