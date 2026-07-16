@@ -81,12 +81,10 @@ reiner `any`-State-Bag (6/6 Felder untypisiert).
 - `GenericMapHelperService.initMap()` existiert, wird für die Hauptkarte aber **nicht**
   genutzt — die Komponente baut alles parallel selbst.
 
-**P5 — Totes Gewicht.**
-~100+ Zeilen auskommentierter AngularJS-Code in der Komponente, toter Legacy-Block in
-`visual-style-helper.service.ts:209–274`, `MapErrorNotificationService` laut eigenem
-Header weitgehend tot, doppelt injizierter `EnvConfigService` im
-`reachability-map-helper.service.ts` (`envConfigService` + `envConfService`), doppelte
-Getter `getMapParts_byDomId` / `getMapsParts_byDomId` (Tippfehler-Variante).
+**P5 — Totes Gewicht.** *(✅ behoben durch Phase 0.)*
+~~Auskommentierter AngularJS-Code, toter Legacy-Block im VisualStyleHelper, weitgehend
+toter `MapErrorNotificationService`, doppelte `EnvConfigService`-Injektion und
+Tippfehler-Getter im Reachability-Helper~~ — alles entfernt bzw. bereinigt.
 
 ### 1.3 Umfeld (Helper-Services)
 
@@ -117,14 +115,14 @@ statt Broadcast.**
 
 ## 3. Phasenplan
 
-### Phase 0 — Aufräumen (risikofrei, sofort)
+### Phase 0 — Aufräumen ✅ (umgesetzt Juli 2026)
 
-- [ ] Auskommentierte AngularJS-Blöcke in `kommonitor-map.component.ts` entfernen
-- [ ] Tote Broadcast-Cases (`'changeSpatialUnitViaInfoControl'`, `'toggleLegendControl'`) entfernen
-- [ ] Toten Legacy-Block `visual-style-helper.service.ts:209–274` entfernen
-- [ ] `MapErrorNotificationService` prüfen/entfernen (einziger realer Effekt: `HideLoadingIconOnMap`-Broadcast)
-- [ ] Doppelte `EnvConfigService`-Injektion + Doppel-Getter im Reachability-Helper bereinigen
-- [ ] `console.log`s entfernen
+- [x] Auskommentierte AngularJS-Blöcke in `kommonitor-map.component.ts` entfernt (~700 Zeilen; Komponente 3419 → **2653 Zeilen**)
+- [x] Tote Broadcast-Cases (`'changeSpatialUnitViaInfoControl'`, `'toggleLegendControl'`) samt Handler-Methoden entfernt; mit ihnen die nur noch aus totem Code referenzierten `appendSpatialUnitOptions()` und das Feld `showLegendControl`
+- [x] Toten Legacy-Wrapper-Block im `visual-style-helper.service.ts` entfernt
+- [x] `MapErrorNotificationService` auf den einzigen realen Effekt reduziert (`console.error` + `HideLoadingIconOnMap`-Broadcast); toter `errorMessage`-State, jQuery-Zugriff auf nicht existentes Markup und `setTimeout(1000)` entfernt — Service bleibt als Hook für eine künftige echte Fehler-UI
+- [x] Doppelte `EnvConfigService`-Injektion (`envConfService`) + Tippfehler-Getter (`getMapsParts_byDomId`) im Reachability-Helper bereinigt
+- [x] `console.log`s in `kommonitor-map.component.ts` und `map.service.ts` entfernt (Karten-Scope; App-weite Logs sind nicht Teil dieses Plans)
 
 ### Phase 1 — Indikator-Refresh-Kanal vereinheitlichen ✅ (umgesetzt Juli 2026)
 
@@ -185,7 +183,7 @@ statt Broadcast.**
 
 | Phase | Status | Risiko | Nutzen | Abhängigkeit |
 |---|---|---|---|---|
-| 0 | offen | keins | Lesbarkeit | — |
+| 0 | ✅ erledigt | keins | Lesbarkeit | — |
 | 1 | ✅ erledigt | gering | ein Refresh-Pfad, Timer weg | — |
 | 2 | ✅ erledigt (Pipeline) | mittel | −860 Zeilen in der Komponente, Pipeline getestet | — |
 | 2b | offen | hoch | Signal-State, zustandsloser VisualStyleHelper | braucht Umbau von Classification + Legende |
@@ -193,7 +191,7 @@ statt Broadcast.**
 | 4 | offen | gering–mittel | saubere Init, kein Timer/jQuery | unabhängig |
 | 5 | offen | mittel | Bus-Entkopplung | am besten nach 3 |
 
-**Empfehlung:** Nächster Schritt: **Phase 3** (Layer-Manager) oder **Phase 0/4**
-nebenher; Phase 2b (Signal-Migration des Klassifikations-States) als eigenes,
-größeres Vorhaben planen, wenn Classification-Komponente/Legende ohnehin
+**Empfehlung:** Nächster Schritt: **Phase 3** (Layer-Manager) oder **Phase 4**
+(Initialisierung); Phase 2b (Signal-Migration des Klassifikations-States) als
+eigenes, größeres Vorhaben planen, wenn Classification-Komponente/Legende ohnehin
 angefasst werden.

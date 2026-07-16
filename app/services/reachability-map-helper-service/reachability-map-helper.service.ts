@@ -33,7 +33,6 @@ export class ReachabilityMapHelperService {
   private genericMapHelperService = inject(GenericMapHelperService);
   private visualStyleHelperService = inject(VisualStyleHelperServiceNew);
   private reachabilityStateService = inject(ReachabilityStateService);
-  private envConfService = inject(EnvConfigService);
   private indicatorValueService = inject(IndicatorValueService);
   private selectionState = inject(SelectionStateService);
 
@@ -669,8 +668,9 @@ export class ReachabilityMapHelperService {
     defaultBrew: any,
     indicatorStatisticsCandidate: any
   ): Promise<L.GeoJSON> {
-    const outlierDetection_currentGLobalValue = this.envConfService.useOutlierDetectionOnIndicator;
-    this.envConfService.useOutlierDetectionOnIndicator = false;
+    const outlierDetection_currentGLobalValue =
+      this.envConfigService.useOutlierDetectionOnIndicator;
+    this.envConfigService.useOutlierDetectionOnIndicator = false;
     const layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
       style: (feature) =>
         this.visualStyleHelperService.styleDefault(
@@ -691,7 +691,7 @@ export class ReachabilityMapHelperService {
           indicatorStatisticsCandidate
         ),
     });
-    this.envConfService.useOutlierDetectionOnIndicator = outlierDetection_currentGLobalValue;
+    this.envConfigService.useOutlierDetectionOnIndicator = outlierDetection_currentGLobalValue;
     return layer;
   }
 
@@ -710,10 +710,6 @@ export class ReachabilityMapHelperService {
     );
     indicatorStatisticsCandidate.indicator.geoJSON = indicatorMetadataAndGeoJSON.geoJSON;
     return indicatorMetadataAndGeoJSON;
-  }
-
-  getMapsParts_byDomId(domId: string) {
-    return this.mapPartsMap.get(domId);
   }
 
   async replaceReachabilityIndicatorStatisticsOnMap(

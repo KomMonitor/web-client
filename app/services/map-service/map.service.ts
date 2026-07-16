@@ -146,7 +146,6 @@ export class MapService {
   }
 
   addWfsLayerToMap(wfs, opacity, useCluster) {
-    console.log('addWfsLayerToMap');
     this.broadcastService.broadcast(BroadcastMessage.AddWfsLayerToMap, [wfs, opacity, useCluster]);
   }
 
@@ -155,7 +154,6 @@ export class MapService {
   }
 
   addWmsLayerToMap(dataset, opacity) {
-    console.log('addWmsLayerToMap');
     this.broadcastService.broadcast(BroadcastMessage.AddWmsLayerToMap, [dataset, opacity]);
   }
 
