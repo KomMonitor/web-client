@@ -139,14 +139,24 @@ statt Broadcast.**
 - `mapRefreshState$` bleibt als Selektions-State-Kanal bestehen (Filter-Komponente nutzt ihn für die Measure-of-Value-Bar) — Konsolidierung davon ggf. in Phase 5.
 - Verhaltens-Delta: Filter-/Balance-Renders passieren jetzt sofort statt 1 s verzögert.
 
-### Phase 2 — Klassifikations-Pipeline extrahieren (größter Hebel)
+### Phase 2 — Klassifikations-Pipeline extrahieren ✅ (Pipeline-Teil umgesetzt Juli 2026)
 
-- [ ] Neuer Service `IndicatorClassificationService`: `buildClassification(geoJSON, metadata, options) → { brews, styleFn }` — die vier Zweige (Default / MOV / Dynamic / RegionalDefault) **einmal** implementieren
-- [ ] `_replaceIndicatorLayer` reduzieren auf: Pipeline aufrufen → Layer neu bauen
-- [ ] `restyleCurrentLayer` reduzieren auf: Pipeline aufrufen → `eachLayer(setStyle)`
-- [ ] Klassifikations-*Zustand* (classifyMethod, numClasses, breaks, brews) aus den öffentlichen Feldern des `VisualStyleHelperServiceNew` in einen Signal-basierten State-Service ziehen — konsistent mit der laufenden Signal-Umstellung der Klassifizierung (step-5-Commits)
-- [ ] `VisualStyleHelperServiceNew` wird zustandslose Brew-/Style-Fabrik
-- [ ] Unit-Tests für die Pipeline (reine Daten-Transformation, kein Leaflet nötig)
+- [x] Neuer Service `IndicatorClassificationService` (`app/services/indicator-classification-service/`): `buildClassification(input) → { brews, facts, styleFor }` — alle Zweige (Default / MOV / Dynamic / RegionalDefault) **einmal** implementiert; Mode-Divergenzen (`replace` vs. `restyle`) als kommentierte `if (mode === …)`-Stellen
+- [x] `_replaceIndicatorLayer` reduziert auf: Housekeeping → Pipeline → **ein** `L.geoJSON` → Layer-Control/Broadcasts (~100 Zeilen statt ~410)
+- [x] `restyleCurrentLayer` reduziert auf: Pipeline → `eachLayer(setStyle(result.styleFor))` → Broadcasts (~65 Zeilen statt ~325)
+- [x] Unit-Tests: 13 Specs mit echtem `VisualStyleHelperServiceNew` + Mini-GeoJSON-Fixtures (Zero/NoData/Outlier/negativ, alle Zweige, Mode-Divergenzen)
+- [ ] ~~Signal-State + zustandsloser VisualStyleHelper~~ → **bewusst verschoben auf Phase 2b** (Userentscheidung): `kommonitor-classification.component` und das Legend-Template lesen/schreiben die mutablen VSH-Felder intensiv — deren Umbau wäre ein deutlich größerer Blast-Radius
+
+**Umsetzungsnotizen:**
+- Mit umgezogen in den Service: `markOutliers`, `setNoDataValuesAsNull`, `applyDefaultClassificationSettings`, `applyRegionalDefaultClassification`, `checkAvailabilityOfRegionalDefault`, `setClassifyZeroForClassifyMethod`, `calcMOVBreaks`, `containsNegativeValues`, `prepFeatureModelForMapUse`, `updateDefault-/updateManualMOVBreaks…` (letzteres public mit `isDynamicOrNegative`-Parameter — Aufrufer: `changeBreaks`/`changeDynamicBreaks`/Time-Setup-Flow). Outlier-/Zero-/NoData-Befunde kommen als `result.facts` zurück; die Komponente übernimmt sie via `adoptClassificationResult()` (Legende, Diagramme, Outlier-Alert, Highlight-Code).
+- Tote VSH-Felder entfernt: `measureOfValueBrewArray`, `dynamicIncreaseBrew`, `dynamicDecreaseBrew` (Schreiber nur in der Map-Komponente, keine Leser).
+- `kommonitor-map.component.ts`: 4281 → **3419 Zeilen**.
+
+**Bewusste Verhaltensänderungen:**
+1. `replace` erzeugt nur noch **ein** `L.geoJSON` statt bis zu drei (nur der letzte gewann; Nebeneffekt: im MOV+DYNAMIC-Fall sind die `featuresPerColorMap`-Zähler der Legende jetzt korrekt befüllt statt leer).
+2. **TypeError-Guard**: `updateDefaultManualBreaksFromMOVManualBreaks` schrieb unconditional in das frisch resettete `manualBrew` (latenter Crash bei Indikator-/Datumswechsel mit aktivem MOV) → jetzt `if (manualBrew)`-Guard, per Regressionstest abgedeckt.
+3. `styleFor` preppt das `tempData`-Tooltip-Modell auch beim Restyle (bisher nur replace) — idempotent, hält Tooltips konsistent.
+4. **Shadowing-Bug 1:1 beibehalten**: in `updateManualMOVBreaksFromDefaultManualBreaks` wurden die rekombinierten dynamischen Breaks nie verwendet (inneres `const breaks`); im Service dokumentiert + TODO, kein stiller Funktionswechsel.
 
 ### Phase 3 — Layer-Manager abschälen
 
@@ -177,12 +187,13 @@ statt Broadcast.**
 |---|---|---|---|---|
 | 0 | offen | keins | Lesbarkeit | — |
 | 1 | ✅ erledigt | gering | ein Refresh-Pfad, Timer weg | — |
-| 2 | offen | mittel | −500 duplizierte Zeilen, testbar, stützt Signal-Umstellung | profitiert von 1 ✓ |
+| 2 | ✅ erledigt (Pipeline) | mittel | −860 Zeilen in der Komponente, Pipeline getestet | — |
+| 2b | offen | hoch | Signal-State, zustandsloser VisualStyleHelper | braucht Umbau von Classification + Legende |
 | 3 | offen | mittel | Komponente schrumpft massiv | unabhängig |
 | 4 | offen | gering–mittel | saubere Init, kein Timer/jQuery | unabhängig |
 | 5 | offen | mittel | Bus-Entkopplung | am besten nach 3 |
 
-**Empfehlung:** 0 → ~~1~~ → 2 als Kern zuerst; 3–5 danach häppchenweise, jeweils wenn der
-Bereich ohnehin angefasst wird. Nächster Schritt: **Phase 2** — sie unterstützt die
-laufende Signal-Umstellung der Klassifizierung direkt und bringt die größte
-Zeilen-/Risikoreduktion (Phase 0 kann jederzeit nebenher passieren).
+**Empfehlung:** Nächster Schritt: **Phase 3** (Layer-Manager) oder **Phase 0/4**
+nebenher; Phase 2b (Signal-Migration des Klassifikations-States) als eigenes,
+größeres Vorhaben planen, wenn Classification-Komponente/Legende ohnehin
+angefasst werden.

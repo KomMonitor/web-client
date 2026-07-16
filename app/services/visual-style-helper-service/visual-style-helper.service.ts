@@ -52,10 +52,6 @@ export class VisualStyleHelperServiceNew {
   manualMOVBreaks: any = undefined;
   regionalDefaultMOVBreaks: any;
   regionalDefaultBreaks: any;
-  measureOfValueBrewArray: any;
-  dynamicIncreaseBrew: any;
-  dynamicDecreaseBrew: any;
-  //noDataFillPattern:any;
 
   greaterThanValues: any = [];
   lesserThanValues: any = [];
