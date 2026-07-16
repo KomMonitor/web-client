@@ -8,6 +8,7 @@ import 'leaflet.awesome-markers';
 import 'leaflet-draw';
 import { IconTranslateService } from 'services/icon-translate/icon-translate.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { FeaturePopupHelperService } from 'services/feature-popup-helper-service/feature-popup-helper.service';
 import { DEFAULT_POI_SIZE } from 'services/poi-presentation-service/poi-presentation.service';
 
 // UMD Leaflet plugins (leaflet.awesome-markers, leaflet-draw, ...) augment Leaflet's
@@ -27,6 +28,7 @@ export class GenericMapHelperService {
   private broadcastService = inject(BroadcastService);
   private iconTranslate = inject(IconTranslateService);
   private envConfigService = inject(EnvConfigService);
+  private featurePopupHelperService = inject(FeaturePopupHelperService);
 
   resourceType_point = 'POINT';
   resourceType_line = 'LINE';
@@ -201,14 +203,10 @@ export class GenericMapHelperService {
   }
 
   addPoiMarker(markers, poiMarker) {
-    // var propertiesString = "<pre>" + JSON.stringify(poiMarker.feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
-
-    let popupContent =
-      '<div class="poiInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-    for (const p in poiMarker.feature.properties) {
-      popupContent += '<tr><td>' + p + '</td><td>' + poiMarker.feature.properties[p] + '</td></tr>';
-    }
-    popupContent += '</table></div>';
+    const popupContent = this.featurePopupHelperService.buildFeaturePropertiesPopup(
+      poiMarker.feature.properties,
+      'poiInfoPopupContent'
+    );
 
     if (poiMarker.feature.properties.name) {
       poiMarker.bindPopup(poiMarker.feature.properties.name + '\n\n' + popupContent);

@@ -15,6 +15,7 @@ import { IndicatorValueService } from 'services/indicator-value-service/indicato
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { FeaturePopupHelperService } from 'services/feature-popup-helper-service/feature-popup-helper.service';
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import { ReachabilityStateService } from 'services/reachability-state-service/reachability-state.service';
@@ -25,6 +26,7 @@ import { ReachabilityStateService } from 'services/reachability-state-service/re
 export class ReachabilityMapHelperService {
   private http = inject(HttpClient);
   private envConfigService = inject(EnvConfigService);
+  private featurePopupHelperService = inject(FeaturePopupHelperService);
   private geometrySimplification = inject(GeometrySimplificationService);
   private mapOverlayState = inject(MapOverlayStateService);
   private mapErrorNotificationService = inject(MapErrorNotificationService);
@@ -658,7 +660,11 @@ export class ReachabilityMapHelperService {
     const indicatorValueText = this.indicatorValueService.indicatorValueIsNoData(indicatorValue)
       ? 'NoData'
       : this.getIndicatorValue_asFormattedText(indicatorValue);
-    const tooltipHtml = `<b>${feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]}</b><br/>${indicatorValueText} [${this.selectionState.selectedIndicator.unit}]`;
+    const tooltipHtml = this.featurePopupHelperService.buildIndicatorTooltip(
+      feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME],
+      indicatorValueText,
+      this.selectionState.selectedIndicator.unit
+    );
     layer.bindTooltip(tooltipHtml, { sticky: false });
   }
 

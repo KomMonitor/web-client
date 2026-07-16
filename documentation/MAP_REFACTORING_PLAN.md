@@ -156,12 +156,19 @@ statt Broadcast.**
 3. `styleFor` preppt das `tempData`-Tooltip-Modell auch beim Restyle (bisher nur replace) — idempotent, hält Tooltips konsistent.
 4. **Shadowing-Bug 1:1 beibehalten**: in `updateManualMOVBreaksFromDefaultManualBreaks` wurden die rekombinierten dynamischen Breaks nie verwendet (inneres `const breaks`); im Service dokumentiert + TODO, kein stiller Funktionswechsel.
 
-### Phase 3 — Layer-Manager abschälen
+### Phase 3 — Layer-Manager abschälen ✅ (umgesetzt Juli 2026)
 
-- [ ] Gemeinsames Interface (`add / remove / setOpacity`) definieren
-- [ ] `GeoresourceLayerManager` (POI/LOI/AOI), `OgcLayerManager` (WMS/WFS), `FileLayerManager`, `ReachabilityLayerManager` extrahieren
-- [ ] Komponente reicht `MapContext` (`map`, `layerControl`) hinein — Instanz bleibt gekapselt
-- [ ] Popup-/Tooltip-Duplikate in gemeinsamen `FeaturePopupHelper` ziehen (eine Implementierung statt acht; auch `single-feature-` und `reachability-map-helper` umstellen)
+- [x] `MapContext` (`map`, `layerControl`, `updateSearchControl()`, `hideLoadingIcon()`) in `services/map-service/map-context.ts` definiert, plus geteilte Layer-Gruppen-Namen `MAP_LAYER_GROUPS`; die Komponente reicht den Kontext einmalig nach `initMap()` hinein — die Leaflet-Instanz bleibt gekapselt
+- [x] Extrahiert: `GeoresourceLayerManagerService` (POI/LOI/AOI, 170 Z.), `OgcLayerManagerService` (WMS/WFS inkl. Filter-Encoding, 233 Z.), `FileLayerManagerService` (146 Z.), `ReachabilityLayerManagerService` (Szenario-Marker/-Isochronen, 88 Z.) — die Broadcast-Cases der Komponente delegieren mit sauberer Destrukturierung
+- [x] `FeaturePopupHelperService` dedupliziert das Popup-/Tooltip-HTML (eine Implementierung statt acht): Map-Komponente (SpatialUnit-Popup, Indikator-Tooltip), Georesource-/OGC-/File-Manager, `generic-map-helper` (`addPoiMarker`), `single-feature-map-helper` (2 Stellen + Tooltip), `reachability-map-helper` (Tooltip)
+- [x] Specs: FeaturePopupHelper mit echten Assertions, Creation-Specs für die vier Manager
+
+**Umsetzungsnotizen / bewusste Verhaltensfixes:**
+- `RemoveLoiGeoresource` und `RemoveWfsLayerFromMap` reichten das Payload-**Array** als Dataset durch (`datasetName`/`title` = undefined) — die Entfernung dieser Layer lief seit jeher ins Leere. Beim Umhängen auf die Manager gefixt (Destrukturierung), im Switch kommentiert.
+- `RemoveFileLayerFromMap` hat weiterhin weder Sender noch Empfänger-Case — die Manager-Methode `removeFileLayer` existiert als API, die Verdrahtung ist Thema von Phase 5.
+- Die POI/AOI/LOI-Entfernung matcht wie bisher **nur über den Layer-Namen** (nicht über die Gruppe) — 1:1 beibehalten, im Manager kommentiert.
+- WFS-Fehlerpfad: `loadingData = false` lief bisher sofort, jetzt über `context.hideLoadingIcon()` (250 ms verzögert wie alle anderen Pfade).
+- `kommonitor-map.component.ts`: 2653 → **2020 Zeilen**.
 
 ### Phase 4 — Initialisierung entwirren
 
@@ -187,11 +194,12 @@ statt Broadcast.**
 | 1 | ✅ erledigt | gering | ein Refresh-Pfad, Timer weg | — |
 | 2 | ✅ erledigt (Pipeline) | mittel | −860 Zeilen in der Komponente, Pipeline getestet | — |
 | 2b | offen | hoch | Signal-State, zustandsloser VisualStyleHelper | braucht Umbau von Classification + Legende |
-| 3 | offen | mittel | Komponente schrumpft massiv | unabhängig |
+| 3 | ✅ erledigt | mittel | Komponente schrumpft massiv | — |
 | 4 | offen | gering–mittel | saubere Init, kein Timer/jQuery | unabhängig |
-| 5 | offen | mittel | Bus-Entkopplung | am besten nach 3 |
+| 5 | offen | mittel | Bus-Entkopplung | Weg frei (3 ✓) |
 
-**Empfehlung:** Nächster Schritt: **Phase 3** (Layer-Manager) oder **Phase 4**
-(Initialisierung); Phase 2b (Signal-Migration des Klassifikations-States) als
+**Empfehlung:** Nächster Schritt: **Phase 4** (Initialisierung entwirren) oder
+**Phase 5** (Broadcast-Abbau — die Manager sind jetzt die natürlichen Ziele für
+typisierte Zustellung). Phase 2b (Signal-Migration des Klassifikations-States) als
 eigenes, größeres Vorhaben planen, wenn Classification-Komponente/Legende ohnehin
 angefasst werden.

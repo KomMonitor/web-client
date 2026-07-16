@@ -5,6 +5,7 @@ import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { FeaturePopupHelperService } from 'services/feature-popup-helper-service/feature-popup-helper.service';
 
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
@@ -19,6 +20,7 @@ export class SingleFeatureMapHelperService {
   private envConfigService = inject(EnvConfigService);
   private indicatorValueService = inject(IndicatorValueService);
   private selectionState = inject(SelectionStateService);
+  private featurePopupHelperService = inject(FeaturePopupHelperService);
 
   // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
   private getIndicatorValue_asFormattedText(indicatorValue, precision = undefined) {
@@ -66,14 +68,12 @@ export class SingleFeatureMapHelperService {
       undefined,
       '',
       (feature, layer) => {
-        let popupContent =
-          '<div class="georesourceInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-        for (const p in feature.properties) {
-          popupContent += '<tr><td>' + p + '</td><td>' + feature.properties[p] + '</td></tr>';
-        }
-        popupContent += '</table></div>';
-
-        layer.bindPopup(popupContent);
+        layer.bindPopup(
+          this.featurePopupHelperService.buildFeaturePropertiesPopup(
+            feature.properties,
+            'georesourceInfoPopupContent'
+          )
+        );
 
         layer.on({
           click: () => {
@@ -154,7 +154,11 @@ export class SingleFeatureMapHelperService {
     }
     feature.tempData.unitText = this.selectionState.selectedIndicator.unit;
 
-    const tooltipHtml = `<b>${feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]}</b><br/>${feature.tempData.indicatorValueText} [${feature.tempData.unitText}]`;
+    const tooltipHtml = this.featurePopupHelperService.buildIndicatorTooltip(
+      feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME],
+      feature.tempData.indicatorValueText,
+      feature.tempData.unitText
+    );
     layer.bindTooltip(tooltipHtml, {
       sticky: false,
     });
@@ -220,14 +224,12 @@ export class SingleFeatureMapHelperService {
       undefined,
       '',
       (feature, layer) => {
-        let popupContent =
-          '<div class="georesourceInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-        for (const p in feature.properties) {
-          popupContent += '<tr><td>' + p + '</td><td>' + feature.properties[p] + '</td></tr>';
-        }
-        popupContent += '</table></div>';
-
-        layer.bindPopup(popupContent);
+        layer.bindPopup(
+          this.featurePopupHelperService.buildFeaturePropertiesPopup(
+            feature.properties,
+            'georesourceInfoPopupContent'
+          )
+        );
 
         layer.on({
           click: () => {
