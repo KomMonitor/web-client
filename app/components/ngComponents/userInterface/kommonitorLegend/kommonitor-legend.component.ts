@@ -9,6 +9,10 @@ import {
   NgbModal,
 } from '@ng-bootstrap/ng-bootstrap';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import {
+  CategoricalClassificationItem,
+  ExtendedDefaultClassificationMapping,
+} from 'components/ngComponents/models/classification.models';
 import { ActiveWmsFilter } from 'pipes/active-wms-filter.pipe';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
@@ -110,6 +114,32 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   /** Whether the current indicator's classification defines at least one non-empty label. */
   protected get hasClassificationLabels(): boolean {
     return this.classificationLabels.some((label) => !!label && label.length > 0);
+  }
+
+  /**
+   * Whether the classification table should render the Labels column. True for
+   * qualitative indicators (which always carry per-category labels) and for numeric
+   * indicators that define at least one label. Used to keep the shared header /
+   * no-data / outlier / filtered rows column-aligned with the class rows.
+   */
+  protected get showLabelsColumn(): boolean {
+    return this.hasClassificationLabels || this.isQualitativeClassification;
+  }
+
+  /** Whether the current indicator uses a qualitative (categorical) classification. */
+  protected get isQualitativeClassification(): boolean {
+    const mapping = this.selectionState.selectedIndicator?.defaultClassificationMapping as
+      | ExtendedDefaultClassificationMapping
+      | undefined;
+    return mapping?.classificationType === 'QUALITATIVE';
+  }
+
+  /** Category definitions (value/color/label) of the current qualitative classification. */
+  protected get categoricalClassification(): CategoricalClassificationItem[] {
+    const mapping = this.selectionState.selectedIndicator?.defaultClassificationMapping as
+      | ExtendedDefaultClassificationMapping
+      | undefined;
+    return mapping?.categoricalData ?? [];
   }
 
   // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
