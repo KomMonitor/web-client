@@ -1,29 +1,28 @@
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
   DualListBoxComponent,
   dualListInput,
-  item,
 } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import * as noUiSlider from 'nouislider';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { RangeFilterStateService } from 'services/range-filter-state-service/range-filter-state.service';
-import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
-import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
+import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
+import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
+import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
+import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { IndicatorRenderRequest, MapService } from 'services/map-service/map.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { RangeFilterStateService } from 'services/range-filter-state-service/range-filter-state.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
-import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
-import { MapService } from 'services/map-service/map.service';
-import * as noUiSlider from 'nouislider';
-import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
-import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-kommonitor-filter',
@@ -170,6 +169,16 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
           this.updateMeasureOfValueBar([value.values.date, value.values.indicator]);
       });
 
+    // re-setup the spatial unit filter whenever an already displayed indicator
+    // dataset is replaced with new feature values (filtering, balance)
+    this.mapService.indicatorRenderRequest$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((request) => {
+        if (request.source === 'dataset-replacement') {
+          this.onIndicatorDatasetReplaced(request);
+        }
+      });
+
     this.broadcastService.currentBroadcastMsg.subscribe((result) => {
       const msg = result.msg;
       const val: any = result.values;
@@ -178,11 +187,6 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
         case BroadcastMessage.OnChangeSelectedIndicator:
           {
             this.onOnChangeSelectedIndicator();
-          }
-          break;
-        case BroadcastMessage.ReplaceIndicatorAsGeoJSON:
-          {
-            this.replaceIndicatorAsGeoJSON(val);
           }
           break;
         case BroadcastMessage.UpdateMeasureOfValueBar:
@@ -334,13 +338,8 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     }	
   });
 */
-  replaceIndicatorAsGeoJSON([
-    indicatorMetadataAndGeoJSON,
-    spatialUnitName,
-    date,
-    justRestyling,
-    isCustomComputation,
-  ]) {
+  onIndicatorDatasetReplaced(request: IndicatorRenderRequest) {
+    const { indicator: indicatorMetadataAndGeoJSON, spatialUnitName, date } = request;
     this.setupSpatialUnitFilter(indicatorMetadataAndGeoJSON, spatialUnitName, date);
 
     if (!this.previouslySelectedIndicator) {

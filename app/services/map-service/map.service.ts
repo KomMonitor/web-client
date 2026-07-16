@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BehaviorSubject, ReplaySubject } from 'rxjs';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 
 export interface MapRefreshObject {
   values: MapRefreshValues;
@@ -15,6 +15,24 @@ export interface MapRefreshValues {
   date: any | undefined;
   justRestyling?: boolean | undefined;
   customComputation?: boolean | undefined;
+}
+
+/**
+ * Single typed request for rendering an indicator on the main map.
+ *
+ * `source` distinguishes why the render happens:
+ * - 'selection': the user selected indicator/spatial unit/date (data setup flow)
+ * - 'dataset-replacement': an already displayed dataset was replaced with new
+ *   feature values (filtering, balance computation) — consumers such as the
+ *   filter component only react to this variant
+ */
+export interface IndicatorRenderRequest {
+  indicator: any;
+  spatialUnitName: any;
+  date: any;
+  justRestyling: boolean;
+  isCustomComputation: boolean;
+  source: 'selection' | 'dataset-replacement';
 }
 
 export interface MapRecenterObject {
@@ -44,13 +62,11 @@ export class MapService {
   });
   mapRefreshState$ = this.mapRefreshStateSubject.asObservable();
 
-  private replaceIndicatorLayerSubject = new Subject<{
-    indicator: any;
-    spatialUnitName: string;
-    date: string;
-    isCustomComputation: boolean;
-  }>();
-  replaceIndicatorLayerSubject$ = this.replaceIndicatorLayerSubject.asObservable();
+  // ReplaySubject(1) so the map component still receives the latest render
+  // request even if it subscribes after the request was emitted (matches the
+  // replay behavior of the former BehaviorSubject-based refresh state).
+  private indicatorRenderRequestSubject = new ReplaySubject<IndicatorRenderRequest>(1);
+  indicatorRenderRequest$ = this.indicatorRenderRequestSubject.asObservable();
 
   private mapRecenterSubject = new BehaviorSubject<MapRecenterObject>({
     resize: false,
@@ -64,20 +80,6 @@ export class MapService {
     disabled: undefined,
   });
   dateSlider$ = this.dateSliderSubject.asObservable();
-
-  replaceIndicatorLayer(
-    indicator: any,
-    spatialUnitName: string,
-    date: string,
-    isCustomComputation: boolean
-  ) {
-    this.replaceIndicatorLayerSubject.next({
-      indicator,
-      spatialUnitName,
-      date,
-      isCustomComputation,
-    });
-  }
 
   setDateSliderValues(patch: Partial<DateSliderObject>) {
     this.dateSliderSubject.next({
@@ -98,6 +100,17 @@ export class MapService {
       ...this.mapRefreshStateSubject.value,
       values: values,
     });
+
+    if (this.readyForRefresh()) {
+      this.indicatorRenderRequestSubject.next({
+        indicator: values.indicator,
+        spatialUnitName: values.spatialUnit,
+        date: values.date,
+        justRestyling: !!values.justRestyling,
+        isCustomComputation: !!values.customComputation,
+        source: 'selection',
+      });
+    }
   }
 
   readyForRefresh(): boolean {
@@ -192,14 +205,14 @@ export class MapService {
     justRestyling,
     isCustomComputation = false
   ) {
-    //this.ajskommonitorMapServiceProvider.replaceIndicatorGeoJSON(indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation);
-    this.broadcastService.broadcast(BroadcastMessage.ReplaceIndicatorAsGeoJSON, [
-      indicatorMetadataAndGeoJSON,
+    this.indicatorRenderRequestSubject.next({
+      indicator: indicatorMetadataAndGeoJSON,
       spatialUnitName,
       date,
-      justRestyling,
+      justRestyling: !!justRestyling,
       isCustomComputation,
-    ]);
+      source: 'dataset-replacement',
+    });
   }
 
   addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster) {

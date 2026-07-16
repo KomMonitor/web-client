@@ -1,29 +1,29 @@
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/core';
-import * as L from 'leaflet';
-import 'leaflet.markercluster';
-import { createMarkerClusterGroup } from 'util/leaflet-cluster';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
-import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
-import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
-import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
-import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
-import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
-import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
-import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
-import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
-import jStat from 'jstat';
-import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
 import * as turf from '@turf/turf';
 import domtoimage from 'dom-to-image-more';
 import { saveAs } from 'file-saver';
+import jStat from 'jstat';
+import * as L from 'leaflet';
 import { OpenStreetMapProvider, SearchControl } from 'leaflet-geosearch';
 import 'leaflet-measure';
 import 'leaflet-search';
+import 'leaflet.markercluster';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
+import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
+import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
+import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
+import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
+import { createMarkerClusterGroup } from 'util/leaflet-cluster';
 
-import '../../../../../customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import {
@@ -31,14 +31,13 @@ import {
   FileUploadState,
 } from 'services/file-helper-service/file-helper.service';
 import { MapService } from 'services/map-service/map.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject } from 'rxjs';
+import '../../../../../customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol';
 
-import {
-  ReachabilityStateService,
-  GeoJSONFeature,
-} from 'services/reachability-state-service/reachability-state.service';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
+import {
+  GeoJSONFeature,
+  ReachabilityStateService,
+} from 'services/reachability-state-service/reachability-state.service';
 
 @Component({
   selector: 'app-kommonitor-map',
@@ -291,30 +290,18 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.initSpatialUnitOutlineLayer();
     }, 2000);
 
-    this.mapService.mapRefreshState$
+    // single render channel for indicator layers (selection changes as well as
+    // dataset replacements by filter/balance)
+    this.mapService.indicatorRenderRequest$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((value) => {
-        if (this.mapService.readyForRefresh())
-          this.onReplaceIndicatorAsGeoJSON([
-            value.values.indicator,
-            value.values.spatialUnit,
-            value.values.date,
-            value.values.justRestyling,
-            value.values.customComputation,
-          ]);
-      });
-
-    this.mapService.replaceIndicatorLayerSubject$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((params) => {
-        if (params) {
-          this._replaceIndicatorLayer(
-            params.indicator,
-            params.spatialUnitName,
-            params.date,
-            params.isCustomComputation
-          );
-        }
+      .subscribe((request) => {
+        this._replaceIndicatorLayer(
+          request.indicator,
+          request.spatialUnitName,
+          request.date,
+          request.isCustomComputation,
+          request.justRestyling
+        );
       });
 
     this.mapService.mapRecenter$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
@@ -348,12 +335,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         case BroadcastMessage.ChangeNumClasses:
           {
             this.changeNumClasses(values);
-          }
-          break;
-        case BroadcastMessage.ReplaceIndicatorAsGeoJSON:
-          {
-            // eigentlich alt, wird aber teilweise noch genutzt, todo
-            setTimeout(() => this.onReplaceIndicatorAsGeoJSON(values), 1000);
           }
           break;
         case BroadcastMessage.ChangeSpatialUnit:
@@ -3121,22 +3102,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           : this.envConfigService.classifyZeroSeparately;
       this.classifyZeroSeparately_backup = undefined;
     }
-  }
-
-  onReplaceIndicatorAsGeoJSON([
-    indicatorMetadataAndGeoJSON,
-    spatialUnitName,
-    date,
-    justRestyling,
-    isCustomComputation,
-  ]) {
-    this._replaceIndicatorLayer(
-      indicatorMetadataAndGeoJSON,
-      spatialUnitName,
-      date,
-      isCustomComputation,
-      justRestyling
-    );
   }
 
   private _replaceIndicatorLayer(

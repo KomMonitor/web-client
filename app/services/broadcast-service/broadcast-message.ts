@@ -96,7 +96,6 @@ export const BroadcastMessage = {
   RemoveWfsLayerFromMap: 'removeWfsLayerFromMap',
   RemoveWmsLayerFromMap: 'removeWmsLayerFromMap',
   ReopenBatchUpdateResultModal: 'reopenBatchUpdateResultModal',
-  ReplaceIndicatorAsGeoJSON: 'replaceIndicatorAsGeoJSON',
   ReplaceReachabilityScenarioOnMainMap: 'replaceReachabilityScenarioOnMainMap',
   ReportingIsochronesCalculationFinished: 'reportingIsochronesCalculationFinished',
   ReportingIsochronesCalculationStarted: 'reportingIsochronesCalculationStarted',
