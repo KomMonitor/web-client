@@ -4,11 +4,13 @@ Vorschlag, die freien String-Message-Namen des `BroadcastService` durch typisier
 Konstanten zu ersetzen, um spätere Refactorings abzusichern.
 Stand: 2026-06-26, Branch `feature/migration-bootstrap`.
 
-> **Update Juli 2026 (Map-Refactoring Phase 5, siehe `MAP_REFACTORING_PLAN.md`):**
-> Die Zahlen unten sind historisch. Die Map-Komponente ist **keine** Bus-Drehscheibe
-> mehr — alle vormals von ihr konsumierten Messages laufen über den typisierten
-> `MapService.mapCommand$`-Kanal; 40 verwaiste Einträge wurden aus
-> `BroadcastMessage` gelöscht (103 → 63 Message-Typen).
+> **Update Juli 2026 (Map-Refactoring Phase 5 + Nachträge, siehe `MAP_REFACTORING_PLAN.md`):**
+> Die Zahlen unten sind historisch. Die Map-Komponente ist **komplett vom Bus
+> entkoppelt** — konsumierte Messages laufen über `MapService.mapCommand$`,
+> gesendete über `MapService.mapEvent$`; insgesamt 49 verwaiste Einträge wurden
+> aus `BroadcastMessage` gelöscht (103 → 54 Message-Typen). Auch das prominent
+> erwähnte Tippfehler-Message `IndicatortMapDisplayFinished` existiert nicht
+> mehr (Sender ohne Empfänger, ersatzlos entfernt).
 Zahlen verifiziert per Code-Bestandsaufnahme am 2026-06-26 (siehe Abschnitt
 „Bestandsaufnahme").
 

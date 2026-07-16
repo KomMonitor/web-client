@@ -6,7 +6,7 @@ import { LabelService } from 'services/label-service/label.service';
 import * as echarts from 'echarts';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { MapService } from 'services/map-service/map.service';
+import { DiagramsUpdate, MapService } from 'services/map-service/map.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -61,26 +61,25 @@ export class KommonitorDiagramsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.mapService.mapEvent$.subscribe((event) => {
+      switch (event.type) {
+        case 'diagramsUpdate':
+          this.updateDiagrams(event.update);
+          break;
+        case 'featureHovered':
+          this.updateDiagramsForHoveredFeature(event.properties);
+          break;
+        case 'featureUnhovered':
+          this.updateDiagramsForUnhoveredFeature(event.properties);
+          break;
+      }
+    });
+
     this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
       const title = broadcastMsg.msg;
       const values: any = broadcastMsg.values;
 
       switch (title) {
-        case BroadcastMessage.UpdateDiagrams:
-          {
-            this.updateDiagrams(values);
-          }
-          break;
-        case BroadcastMessage.UpdateDiagramsForHoveredFeature:
-          {
-            this.updateDiagramsForHoveredFeature(values);
-          }
-          break;
-        case BroadcastMessage.UpdateDiagramsForUnhoveredFeature:
-          {
-            this.updateDiagramsForUnhoveredFeature(values);
-          }
-          break;
         case 'resizeDiagrams':
           {
             this.resizeDiagrams();
@@ -167,20 +166,21 @@ export class KommonitorDiagramsComponent implements OnInit {
     if (this.lineChart) this.lineChart.showLoading();
   }
 
-  updateDiagrams([
-    indicatorMetadataAndGeoJSON,
-    spatialUnitName,
-    spatialUnitId,
-    date,
-    defaultBrew,
-    gtMeasureOfValueBrew,
-    ltMeasureOfValueBrew,
-    dynamicIncreaseBrew,
-    dynamicDecreaseBrew,
-    isMeasureOfValueChecked,
-    measureOfValue,
-    justRestyling,
-  ]) {
+  updateDiagrams(update: DiagramsUpdate) {
+    const {
+      indicatorMetadataAndGeoJSON,
+      spatialUnitLevel: spatialUnitName,
+      spatialUnitId,
+      date,
+      brew: defaultBrew,
+      gtMeasureOfValueBrew,
+      ltMeasureOfValueBrew,
+      dynamicIncreaseBrew,
+      dynamicDecreaseBrew,
+      isMeasureOfValueChecked,
+      measureOfValue,
+      justRestyling,
+    } = update;
     console.log('Updating diagrams!');
 
     this.title = `Raumeinheits-Vergleich - ${spatialUnitName} - ${date}`;
@@ -362,7 +362,7 @@ export class KommonitorDiagramsComponent implements OnInit {
     }, 350);
   }
 
-  updateDiagramsForHoveredFeature([featureProperties]) {
+  updateDiagramsForHoveredFeature(featureProperties) {
     if (!this.lineOption) return;
 
     if (
@@ -481,7 +481,7 @@ export class KommonitorDiagramsComponent implements OnInit {
     }
   }
 
-  updateDiagramsForUnhoveredFeature([featureProperties]) {
+  updateDiagramsForUnhoveredFeature(featureProperties) {
     if (!this.lineChart) return;
 
     if (

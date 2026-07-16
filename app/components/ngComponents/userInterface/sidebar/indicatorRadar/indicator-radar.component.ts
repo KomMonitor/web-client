@@ -8,7 +8,7 @@ import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-servi
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { MapService } from 'services/map-service/map.service';
+import { DiagramsUpdate, MapService } from 'services/map-service/map.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -123,6 +123,20 @@ export class IndicatorRadarComponent implements OnInit {
       this.chartTitle = `Indikatorenradar - ${this.spatialUnitName}`;
     }, 2000);
 
+    this.mapService.mapEvent$.subscribe((event) => {
+      switch (event.type) {
+        case 'diagramsUpdate':
+          this.onUpdateDiagrams(event.update);
+          break;
+        case 'featureHovered':
+          this.onUpdateDiagramsForHoveredFeature(event.properties);
+          break;
+        case 'featureUnhovered':
+          this.onUpdateDiagramsForUnhoveredFeature(event.properties);
+          break;
+      }
+    });
+
     this.mapService.mapCommand$.subscribe((command) => {
       if (command.type === 'beginIndicatorTimeSetup')
         this.onAllIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
@@ -138,24 +152,9 @@ export class IndicatorRadarComponent implements OnInit {
             this.onResizeDiagrams();
           }
           break;
-        case BroadcastMessage.UpdateDiagrams:
-          {
-            this.onUpdateDiagrams(val);
-          }
-          break;
         case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupCompleted:
           {
             this.onAllIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_completed();
-          }
-          break;
-        case BroadcastMessage.UpdateDiagramsForHoveredFeature:
-          {
-            this.onUpdateDiagramsForHoveredFeature(val);
-          }
-          break;
-        case BroadcastMessage.UpdateDiagramsForUnhoveredFeature:
-          {
-            this.onUpdateDiagramsForUnhoveredFeature(val);
           }
           break;
       }
@@ -195,20 +194,21 @@ export class IndicatorRadarComponent implements OnInit {
     );
   }
 
-  onUpdateDiagrams([
-    indicatorMetadataAndGeoJSON,
-    spatialUnitName,
-    spatialUnitId,
-    date,
-    defaultBrew,
-    gtMeasureOfValueBrew,
-    ltMeasureOfValueBrew,
-    dynamicIncreaseBrew,
-    dynamicDecreaseBrew,
-    isMeasureOfValueChecked,
-    measureOfValue,
-    justRestyling,
-  ]) {
+  onUpdateDiagrams(update: DiagramsUpdate) {
+    const {
+      indicatorMetadataAndGeoJSON,
+      spatialUnitLevel: spatialUnitName,
+      spatialUnitId,
+      date,
+      brew: defaultBrew,
+      gtMeasureOfValueBrew,
+      ltMeasureOfValueBrew,
+      dynamicIncreaseBrew,
+      dynamicDecreaseBrew,
+      isMeasureOfValueChecked,
+      measureOfValue,
+      justRestyling,
+    } = update;
     // if the layer is just restyled (i.e. due to change of measureOfValue)
     // then we do not need to costly update the radar diagram
     if (justRestyling) {
@@ -616,7 +616,7 @@ export class IndicatorRadarComponent implements OnInit {
     }
   }
 
-  onUpdateDiagramsForHoveredFeature([featureProperties]) {
+  onUpdateDiagramsForHoveredFeature(featureProperties) {
     if (
       !this.radarChart ||
       !this.radarOption ||
@@ -764,7 +764,7 @@ export class IndicatorRadarComponent implements OnInit {
     }
   }
 
-  onUpdateDiagramsForUnhoveredFeature([featureProperties]) {
+  onUpdateDiagramsForUnhoveredFeature(featureProperties) {
     if (
       !this.radarChart ||
       !this.radarOption ||

@@ -4,8 +4,6 @@ import domtoimage from 'dom-to-image-more';
 import { saveAs } from 'file-saver';
 import * as L from 'leaflet';
 import 'leaflet.markercluster';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { ClassificationStateService } from 'services/classification-state-service/classification-state.service';
@@ -60,7 +58,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   private selectionState = inject(SelectionStateService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private http = inject(HttpClient);
-  private broadcastService = inject(BroadcastService);
   private visualStyleHelperService = inject(VisualStyleHelperServiceNew);
   private classificationState = inject(ClassificationStateService);
   private indicatorClassificationService = inject(IndicatorClassificationService);
@@ -891,18 +888,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.setTemporarilyHighlightedStyle(layer);
 
     // update diagrams for hovered feature
-    this.broadcastService.broadcast(BroadcastMessage.UpdateDiagramsForHoveredFeature, [
-      layer.feature.properties,
-    ]);
+    this.mapService.notifyFeatureHovered(layer.feature.properties);
   }
 
   highlightClickedFeature(layer) {
     this.setPermanentlyHighlightedStyle(layer);
 
     // update diagrams for hovered feature
-    this.broadcastService.broadcast(BroadcastMessage.UpdateDiagramsForHoveredFeature, [
-      layer.feature.properties,
-    ]);
+    this.mapService.notifyFeatureHovered(layer.feature.properties);
   }
 
   setPermanentlyHighlightedStyle(layer) {
@@ -972,10 +965,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           )
         ) {
           this.setPermanentlyHighlightedStyle(layer);
-          this.broadcastService.broadcast(
-            BroadcastMessage.UpdateDiagramsForHoveredFeature,
-            layer.feature.properties
-          );
+          // the legacy broadcast passed the properties unwrapped, so the
+          // receivers' array destructuring got undefined — fixed by the typed event
+          this.mapService.notifyFeatureHovered(layer.feature.properties);
         }
       }
     });
@@ -1063,9 +1055,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }
 
     //update diagrams for unhoveredFeature
-    this.broadcastService.broadcast(BroadcastMessage.UpdateDiagramsForUnhoveredFeature, [
-      layer.feature.properties,
-    ]);
+    this.mapService.notifyFeatureUnhovered(layer.feature.properties);
   }
 
   resetHighlightClickedFeature(layer) {
@@ -1199,16 +1189,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     });
     this.currentIndicatorLayer = layer;
 
-    this.broadcastService.broadcast(BroadcastMessage.UpdateLegendDisplay, [
-      this.currentIndicatorContainsZeroValues,
-      this.datasetContainsNegativeValues,
-      this.currentIndicatorContainsNoDataValues,
-      this.containsOutliers_high,
-      this.containsOutliers_low,
-      this.outliers_low,
-      this.outliers_high,
-      this.selectionState.selectedDate,
-    ]);
+    this.mapService.notifyLegendDisplayUpdated({
+      containsZeroValues: this.currentIndicatorContainsZeroValues,
+      datasetContainsNegativeValues: this.datasetContainsNegativeValues,
+      containsNoDataValues: this.currentIndicatorContainsNoDataValues,
+      containsOutliers_high: this.containsOutliers_high,
+      containsOutliers_low: this.containsOutliers_low,
+      outliers_low: this.outliers_low,
+      outliers_high: this.outliers_high,
+      selectedDate: this.selectionState.selectedDate,
+    });
 
     let layerName = indicatorMetadataAndGeoJSON.indicatorName + '_' + spatialUnitName + '_' + date;
 
@@ -1226,21 +1216,20 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.showOutlierInfoAlert = true;
     }
 
-    this.broadcastService.broadcast(BroadcastMessage.UpdateDiagrams, [
-      this.currentIndicatorMetadataAndGeoJSON,
-      this.selectionState.selectedSpatialUnit.spatialUnitLevel,
-      this.selectionState.selectedSpatialUnit.spatialUnitId,
+    this.mapService.notifyDiagramsUpdate({
+      indicatorMetadataAndGeoJSON: this.currentIndicatorMetadataAndGeoJSON,
+      spatialUnitLevel: this.selectionState.selectedSpatialUnit.spatialUnitLevel,
+      spatialUnitId: this.selectionState.selectedSpatialUnit.spatialUnitId,
       date,
-      this.defaultBrew,
-      this.gtMeasureOfValueBrew,
-      this.ltMeasureOfValueBrew,
-      this.dynamicIncreaseBrew,
-      this.dynamicDecreaseBrew,
-      this.chartDisplayState.isMeasureOfValueChecked,
-      this.chartDisplayState.measureOfValue,
+      brew: this.defaultBrew,
+      gtMeasureOfValueBrew: this.gtMeasureOfValueBrew,
+      ltMeasureOfValueBrew: this.ltMeasureOfValueBrew,
+      dynamicIncreaseBrew: this.dynamicIncreaseBrew,
+      dynamicDecreaseBrew: this.dynamicDecreaseBrew,
+      isMeasureOfValueChecked: this.chartDisplayState.isMeasureOfValueChecked,
+      measureOfValue: this.chartDisplayState.measureOfValue,
       justRestyling,
-    ]);
-    this.broadcastService.broadcast(BroadcastMessage.IndicatortMapDisplayFinished);
+    });
 
     this.map.invalidateSize(true);
     this.hideLoadingIconOnMap();
@@ -1305,36 +1294,36 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         layer.setStyle(result.styleFor(layer.feature));
       });
 
-      this.broadcastService.broadcast(BroadcastMessage.UpdateLegendDisplay, [
-        this.currentIndicatorContainsZeroValues,
-        this.datasetContainsNegativeValues,
-        this.currentIndicatorContainsNoDataValues,
-        this.containsOutliers_high,
-        this.containsOutliers_low,
-        this.outliers_low,
-        this.outliers_high,
-        this.selectionState.selectedDate,
-      ]);
+      this.mapService.notifyLegendDisplayUpdated({
+        containsZeroValues: this.currentIndicatorContainsZeroValues,
+        datasetContainsNegativeValues: this.datasetContainsNegativeValues,
+        containsNoDataValues: this.currentIndicatorContainsNoDataValues,
+        containsOutliers_high: this.containsOutliers_high,
+        containsOutliers_low: this.containsOutliers_low,
+        outliers_low: this.outliers_low,
+        outliers_high: this.outliers_high,
+        selectedDate: this.selectionState.selectedDate,
+      });
 
       if (!skipDiagramRefresh) {
         const justRestyling = true;
         const brewForDiagrams =
           this.classificationState.classifyMethod == 'manual' ? this.manualBrew : this.defaultBrew;
 
-        this.broadcastService.broadcast(BroadcastMessage.UpdateDiagrams, [
-          this.currentIndicatorMetadataAndGeoJSON,
-          this.selectionState.selectedSpatialUnit.spatialUnitLevel,
-          this.selectionState.selectedSpatialUnit.spatialUnitId,
-          this.date,
-          brewForDiagrams,
-          this.gtMeasureOfValueBrew,
-          this.ltMeasureOfValueBrew,
-          this.dynamicIncreaseBrew,
-          this.dynamicDecreaseBrew,
-          this.chartDisplayState.isMeasureOfValueChecked,
-          this.chartDisplayState.measureOfValue,
+        this.mapService.notifyDiagramsUpdate({
+          indicatorMetadataAndGeoJSON: this.currentIndicatorMetadataAndGeoJSON,
+          spatialUnitLevel: this.selectionState.selectedSpatialUnit.spatialUnitLevel,
+          spatialUnitId: this.selectionState.selectedSpatialUnit.spatialUnitId,
+          date: this.date,
+          brew: brewForDiagrams,
+          gtMeasureOfValueBrew: this.gtMeasureOfValueBrew,
+          ltMeasureOfValueBrew: this.ltMeasureOfValueBrew,
+          dynamicIncreaseBrew: this.dynamicIncreaseBrew,
+          dynamicDecreaseBrew: this.dynamicDecreaseBrew,
+          isMeasureOfValueChecked: this.chartDisplayState.isMeasureOfValueChecked,
+          measureOfValue: this.chartDisplayState.measureOfValue,
           justRestyling,
-        ]);
+        });
       }
 
       //ensure that highlighted feature remain highlighted

@@ -1,7 +1,5 @@
 import { Injectable, inject } from '@angular/core';
 import * as L from 'leaflet';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { FeaturePopupHelperService } from 'services/feature-popup-helper-service/feature-popup-helper.service';
 import {
@@ -22,7 +20,6 @@ export class FileLayerManagerService {
   private genericMapHelperService = inject(GenericMapHelperService);
   private envConfigService = inject(EnvConfigService);
   private fileHelperService = inject(FileHelperService);
-  private broadcastService = inject(BroadcastService);
   private featurePopupHelperService = inject(FeaturePopupHelperService);
 
   private context!: MapContext;
@@ -77,7 +74,10 @@ export class FileLayerManagerService {
       this.showFileLayer(fileLayer, dataset);
     } catch (error) {
       console.error(error);
-      this.broadcastService.broadcast(BroadcastMessage.FileLayerError, [error, dataset]);
+      // deliver parse errors through the same channel as display errors — the
+      // legacy FileLayerError broadcast never had a receiver, so these errors
+      // silently never reached the import UI
+      this.fileHelperService.setValue(FileUploadState.ERROR, [error, dataset]);
     }
   }
 

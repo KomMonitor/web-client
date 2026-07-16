@@ -87,6 +87,46 @@ export type MapCommand =
   | { type: 'openLayerControl' }
   | { type: 'onGlobalFilterChange' };
 
+/** Facts about the currently rendered indicator dataset, shown by legend + classification panel. */
+export interface LegendDisplayUpdate {
+  containsZeroValues: any;
+  datasetContainsNegativeValues: any;
+  containsNoDataValues: any;
+  containsOutliers_high: any;
+  containsOutliers_low: any;
+  outliers_low: any;
+  outliers_high: any;
+  selectedDate: any;
+}
+
+/** Rendering context the sidebar diagrams need to rebuild themselves after a map render. */
+export interface DiagramsUpdate {
+  indicatorMetadataAndGeoJSON: any;
+  spatialUnitLevel: any;
+  spatialUnitId: any;
+  date: any;
+  brew: any;
+  gtMeasureOfValueBrew: any;
+  ltMeasureOfValueBrew: any;
+  dynamicIncreaseBrew: any;
+  dynamicDecreaseBrew: any;
+  isMeasureOfValueChecked: any;
+  measureOfValue: any;
+  justRestyling: any;
+}
+
+/**
+ * Typed event emitted by the main map (map refactoring plan — replaces the
+ * former untyped BroadcastService messages the map component sent). Consumers:
+ * legend + classification panel (legendDisplayUpdated), the sidebar diagrams
+ * (diagramsUpdate, featureHovered/Unhovered).
+ */
+export type MapEvent =
+  | { type: 'legendDisplayUpdated'; update: LegendDisplayUpdate }
+  | { type: 'diagramsUpdate'; update: DiagramsUpdate }
+  | { type: 'featureHovered'; properties: any }
+  | { type: 'featureUnhovered'; properties: any };
+
 export interface MapRecenterObject {
   resize: boolean;
   recenter: boolean;
@@ -120,6 +160,9 @@ export class MapService {
 
   private mapCommandSubject = new Subject<MapCommand>();
   mapCommand$ = this.mapCommandSubject.asObservable();
+
+  private mapEventSubject = new Subject<MapEvent>();
+  mapEvent$ = this.mapEventSubject.asObservable();
 
   private mapRecenterSubject = new BehaviorSubject<MapRecenterObject>({
     resize: false,
@@ -209,6 +252,24 @@ export class MapService {
 
   command(command: MapCommand) {
     this.mapCommandSubject.next(command);
+  }
+
+  // --- events emitted by the map component ---
+
+  notifyLegendDisplayUpdated(update: LegendDisplayUpdate) {
+    this.mapEventSubject.next({ type: 'legendDisplayUpdated', update });
+  }
+
+  notifyDiagramsUpdate(update: DiagramsUpdate) {
+    this.mapEventSubject.next({ type: 'diagramsUpdate', update });
+  }
+
+  notifyFeatureHovered(properties) {
+    this.mapEventSubject.next({ type: 'featureHovered', properties });
+  }
+
+  notifyFeatureUnhovered(properties) {
+    this.mapEventSubject.next({ type: 'featureUnhovered', properties });
   }
 
   // --- indicator classification controls ---

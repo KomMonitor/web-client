@@ -4,14 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { ClassificationMethodSelectComponent } from 'components/ngComponents/common/classificationMethodSelect/classification-method-select.component';
 import { ColorPaletteSelectComponent } from 'components/ngComponents/common/colorPaletteSelect/color-palette-select.component';
 import { ColorPaletteSwatchComponent } from 'components/ngComponents/common/colorPaletteSwatch/color-palette-swatch.component';
-import { mergeColorSchemes } from './colors';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { MapService } from 'services/map-service/map.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
-import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { ClassificationStateService } from 'services/classification-state-service/classification-state.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { LegendDisplayUpdate, MapService } from 'services/map-service/map.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
+import { mergeColorSchemes } from './colors';
 
 @Component({
   selector: 'kommonitor-classification-component',
@@ -64,16 +63,15 @@ export class KommonitorClassificationComponent implements OnInit {
 
   ngOnInit(): void {
     // catch broadcast msgs
+    this.mapService.mapEvent$.subscribe((event) => {
+      if (event.type === 'legendDisplayUpdated') this.updateClassificationComponent(event.update);
+    });
+
     this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
       const title = broadcastMsg.msg;
       const values: any = broadcastMsg.values;
 
       switch (title) {
-        case BroadcastMessage.UpdateClassificationComponent:
-          {
-            this.updateClassificationComponent(values);
-          }
-          break;
         case 'updateShowRegionalDefaultOption':
           {
             this.updateShowRegionalDefaultOption(values);
@@ -87,21 +85,12 @@ export class KommonitorClassificationComponent implements OnInit {
     }
   }
 
-  updateClassificationComponent([
-    containsZeroValues,
-    containsNegativeValues,
-    containsNoData,
-    containsOutliers_high,
-    containsOutliers_low,
-    outliers_low,
-    outliers_high,
-    selectedDate,
-  ]) {
-    this.containsZeroValues = containsZeroValues;
-    this.containsNegativeValues = containsNegativeValues;
-    this.containsOutliers_high = containsOutliers_high;
-    this.containsOutliers_low = containsOutliers_low;
-    this.containsNoData = containsNoData;
+  updateClassificationComponent(update: LegendDisplayUpdate) {
+    this.containsZeroValues = update.containsZeroValues;
+    this.containsNegativeValues = update.datasetContainsNegativeValues;
+    this.containsOutliers_high = update.containsOutliers_high;
+    this.containsOutliers_low = update.containsOutliers_low;
+    this.containsNoData = update.containsNoDataValues;
   }
 
   updateShowRegionalDefaultOption([show]) {

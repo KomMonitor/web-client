@@ -7,7 +7,7 @@ import { MetadataFilterService } from 'services/metadata-filter-service/metadata
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { MapService } from 'services/map-service/map.service';
+import { DiagramsUpdate, MapService } from 'services/map-service/map.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { CommonModule } from '@angular/common';
@@ -122,26 +122,25 @@ export class RegressionDiagramComponent implements OnInit {
         this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
     });
 
+    this.mapService.mapEvent$.subscribe((event) => {
+      switch (event.type) {
+        case 'diagramsUpdate':
+          this.updateDiagrams(event.update);
+          break;
+        case 'featureHovered':
+          this.updateDiagramsForHoveredFeature(event.properties);
+          break;
+        case 'featureUnhovered':
+          this.updateDiagramsForUnhoveredFeature(event.properties);
+          break;
+      }
+    });
+
     this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
       const title = broadcastMsg.msg;
       const values: any = broadcastMsg.values;
 
       switch (title) {
-        case BroadcastMessage.UpdateDiagrams:
-          {
-            this.updateDiagrams(values);
-          }
-          break;
-        case BroadcastMessage.UpdateDiagramsForHoveredFeature:
-          {
-            this.updateDiagramsForHoveredFeature(values);
-          }
-          break;
-        case BroadcastMessage.UpdateDiagramsForUnhoveredFeature:
-          {
-            this.updateDiagramsForUnhoveredFeature(values);
-          }
-          break;
         case 'resizeDiagrams':
           {
             this.resizeDiagrams();
@@ -249,20 +248,21 @@ export class RegressionDiagramComponent implements OnInit {
     );
   }
 
-  updateDiagrams([
-    indicatorMetadataAndGeoJSON,
-    spatialUnitName,
-    spatialUnitId,
-    date,
-    defaultBrew,
-    gtMeasureOfValueBrew,
-    ltMeasureOfValueBrew,
-    dynamicIncreaseBrew,
-    dynamicDecreaseBrew,
-    isMeasureOfValueChecked,
-    measureOfValue,
-    justRestyling,
-  ]) {
+  updateDiagrams(update: DiagramsUpdate) {
+    const {
+      indicatorMetadataAndGeoJSON,
+      spatialUnitLevel: spatialUnitName,
+      spatialUnitId,
+      date,
+      brew: defaultBrew,
+      gtMeasureOfValueBrew,
+      ltMeasureOfValueBrew,
+      dynamicIncreaseBrew,
+      dynamicDecreaseBrew,
+      isMeasureOfValueChecked,
+      measureOfValue,
+      justRestyling,
+    } = update;
     this.correlation = undefined;
     this.linearRegression = undefined;
     this.regressionOption = undefined;
@@ -316,7 +316,7 @@ export class RegressionDiagramComponent implements OnInit {
     }, 500);
   }
 
-  updateDiagramsForHoveredFeature([featureProperties]) {
+  updateDiagramsForHoveredFeature(featureProperties) {
     if (!this.regressionChart) {
       return;
     }
@@ -351,7 +351,7 @@ export class RegressionDiagramComponent implements OnInit {
     }
   }
 
-  updateDiagramsForUnhoveredFeature([featureProperties]) {
+  updateDiagramsForUnhoveredFeature(featureProperties) {
     if (!this.regressionChart) {
       return;
     }

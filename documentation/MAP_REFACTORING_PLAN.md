@@ -237,10 +237,34 @@ Nachtrag zu Phase 4 ebenfalls ersetzt.
 - Der `MapService` ist damit **vollständig vom Broadcast-Bus entkoppelt**
   (keine `BroadcastService`-Injektion mehr).
 
-Verbleibende, bewusst offene Punkte:
-- Die von der Map-Komponente **gesendeten** Bus-Messages (`UpdateLegendDisplay`,
-  `UpdateDiagrams`, …) — typisierte Zustellung wäre der nächste Schritt, gehört
-  aber zum Refactoring von Legende/Diagrammen.
+**Nachtrag Juli 2026 — gesendete Bus-Messages typisiert (`MapEvent`-Kanal):**
+- `MapService` besitzt jetzt neben `mapCommand$` einen `mapEvent$`-Kanal
+  (`MapEvent`-Union: `legendDisplayUpdated` mit `LegendDisplayUpdate`,
+  `diagramsUpdate` mit `DiagramsUpdate`, `featureHovered`/`featureUnhovered`) —
+  die 9 verbliebenen Broadcasts der Map-Komponente laufen darüber; die
+  **Map-Komponente ist damit vollständig vom Bus entkoppelt** (keine
+  `BroadcastService`-Injektion mehr).
+- Empfänger umgestellt: Legende (+ totes `@Input onupdatelegenddisplaydata`
+  samt `ngOnChanges`-Duplikat entfernt), Classification-Panel (abonniert
+  `legendDisplayUpdated` jetzt **direkt** — das Legend-Relay
+  `UpdateClassificationComponent` ist gelöscht), Balken-/Radar-/
+  Regressions-Diagramme (Handler auf benannte Felder statt
+  12-Positions-Arrays).
+- **Bugfix Hover-Refresh:** `preserveHighlightedFeatures` sendete die
+  Feature-Properties ungewrappt, die Empfänger destrukturierten `[props]` →
+  `undefined`; der Diagramm-Hover-Zustand beim Erhalt der Highlights
+  funktioniert mit dem typisierten Event erstmals.
+- **Bugfix Datei-Import:** Der `FileLayerError`-Broadcast des
+  FileLayerManagers hatte keinen Empfänger — Parse-Fehler beim Datei-Upload
+  erreichten die Import-UI nie. Jetzt über `FileUploadState.ERROR`
+  (FileHelperService) zugestellt, den Kanal, auf den `kommonitor-data-import`
+  hört.
+- `IndicatortMapDisplayFinished` (Sender ohne Empfänger — das historische
+  Tippfehler-Message) ersatzlos gelöscht; insgesamt 7 weitere
+  `BroadcastMessage`-Einträge entfernt (Bus: 61 → **54** Message-Typen,
+  ursprünglich 104).
+
+Verbleibender, bewusst offener Punkt:
 - In-place-Mutation der Brew-/Breaks-Objekte durch das Classification-Panel
   (dokumentiert im `ClassificationStateService`) — echte Immutable-/Signal-
   Reaktivität wäre ein Folgeschritt beim Panel-Refactoring.

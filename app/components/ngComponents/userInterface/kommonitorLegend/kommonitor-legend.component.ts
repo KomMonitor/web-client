@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   NgbCollapseModule,
@@ -24,7 +24,7 @@ import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-s
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { LabelService } from 'services/label-service/label.service';
-import { MapService } from 'services/map-service/map.service';
+import { LegendDisplayUpdate, MapService } from 'services/map-service/map.service';
 import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
@@ -50,7 +50,7 @@ import { SpatialUnitNotificationModalComponent } from '../spatialUnitNotificatio
     ExpandableBoxComponent,
   ],
 })
-export class KommonitorLegendComponent implements OnInit, OnChanges {
+export class KommonitorLegendComponent implements OnInit {
   protected chartDisplayState = inject(ChartDisplayStateService);
   private indicatorValueService = inject(IndicatorValueService);
   protected selectionState = inject(SelectionStateService);
@@ -102,8 +102,6 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   isDisabledDate;
   datePickerDate;
 
-  @Input() onupdatelegenddisplaydata!: any;
-
   /** Per-class labels of the current indicator's default classification, index-aligned to the class positions. */
   protected get classificationLabels(): string[] {
     return this.selectionState.selectedIndicator?.defaultClassificationMapping?.labels ?? [];
@@ -148,31 +146,6 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     );
   }
 
-  ngOnChanges(changes: any): void {
-    if (changes.onupdatelegenddisplaydata) {
-      const data = changes.onupdatelegenddisplaydata.currentValue;
-
-      this.dateAsDate = data.dateAsDate;
-
-      this.containsZeroValues = data.containsZeroValues;
-      this.containsNegativeValues = data.containsNegativeValues;
-      this.containsOutliers_high = data.containsOutliers_high;
-      this.containsOutliers_low = data.containsOutliers_low;
-      this.outliers_high = data.outliers_high;
-      this.outliers_low = data.outliers_low;
-      this.containsNoData = data.containsNoData;
-
-      if (data.selectedDate) {
-        const dateComponents = data.selectedDate.split('-');
-        this.dateAsDate = new Date(
-          Number(dateComponents[0]),
-          Number(dateComponents[1]) - 1,
-          Number(dateComponents[2])
-        );
-      }
-    }
-  }
-
   ngOnInit(): void {
     $(document).ready(function () {
       $('.nav li.disabled a').click(function () {
@@ -182,6 +155,10 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
     this.mapService.mapCommand$.subscribe((command) => {
       if (command.type === 'onGlobalFilterChange') this.onGlobalFilterChange();
+    });
+
+    this.mapService.mapEvent$.subscribe((event) => {
+      if (event.type === 'legendDisplayUpdated') this.updateLegendDisplay(event.update);
     });
 
     this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
@@ -208,11 +185,6 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       const values: any = broadcastMsg.values;
 
       switch (title) {
-        case BroadcastMessage.UpdateLegendDisplay:
-          {
-            this.updateLegendDisplay(values);
-          }
-          break;
         case BroadcastMessage.UpdateDatePickerAvailableDates:
           {
             this.onUpdateDatePicker(values);
@@ -242,40 +214,20 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     this.datePickerDate = { year: date.year, month: date.month, day: date.day };
   }
 
-  updateLegendDisplay([
-    containsZeroValues,
-    containsNegativeValues,
-    containsNoData,
-    containsOutliers_high,
-    containsOutliers_low,
-    outliers_low,
-    outliers_high,
-    selectedDate,
-  ]) {
-    this.containsZeroValues = containsZeroValues;
-    this.containsNegativeValues = containsNegativeValues;
-    this.containsOutliers_high = containsOutliers_high;
-    this.containsOutliers_low = containsOutliers_low;
-    this.outliers_high = outliers_high;
-    this.outliers_low = outliers_low;
-    this.containsNoData = containsNoData;
-    const dateComponents = selectedDate.split('-');
+  updateLegendDisplay(update: LegendDisplayUpdate) {
+    this.containsZeroValues = update.containsZeroValues;
+    this.containsNegativeValues = update.datasetContainsNegativeValues;
+    this.containsOutliers_high = update.containsOutliers_high;
+    this.containsOutliers_low = update.containsOutliers_low;
+    this.outliers_high = update.outliers_high;
+    this.outliers_low = update.outliers_low;
+    this.containsNoData = update.containsNoDataValues;
+    const dateComponents = update.selectedDate.split('-');
     this.dateAsDate = new Date(
       Number(dateComponents[0]),
       Number(dateComponents[1]) - 1,
       Number(dateComponents[2])
     );
-
-    this.broadcastService.broadcast(BroadcastMessage.UpdateClassificationComponent, [
-      this.containsZeroValues,
-      this.containsNegativeValues,
-      this.containsNoData,
-      this.containsOutliers_high,
-      this.containsOutliers_low,
-      this.outliers_low,
-      this.outliers_high,
-      this.selectionState.selectedDate,
-    ]);
   }
 
   filteredSpatialUnits() {
