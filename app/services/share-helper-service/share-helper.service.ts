@@ -4,6 +4,7 @@ import { AuthService } from 'services/auth-service/auth.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { Location } from '@angular/common';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { MapViewportStateService } from 'services/map-viewport-state-service/map-viewport-state.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +16,7 @@ export class ShareHelperService {
   private selectionState = inject(SelectionStateService);
   private location = inject(Location);
   private envConfigService = inject(EnvConfigService);
+  private mapViewportState = inject(MapViewportStateService);
 
   queryParamMap = new Map();
   currentShareLink = '';
@@ -168,9 +170,9 @@ export class ShareHelperService {
   }
 
   setShareLinkParam_mapExtent() {
-    this.setShareLinkParam(this.paramName_latitude, this.envConfigService.currentLatitude);
-    this.setShareLinkParam(this.paramName_longitude, this.envConfigService.currentLongitude);
-    this.setShareLinkParam(this.paramName_zoomLevel, this.envConfigService.currentZoomLevel);
+    this.setShareLinkParam(this.paramName_latitude, this.mapViewportState.currentLatitude);
+    this.setShareLinkParam(this.paramName_longitude, this.mapViewportState.currentLongitude);
+    this.setShareLinkParam(this.paramName_zoomLevel, this.mapViewportState.currentZoomLevel);
     this.envConfigService.centerMapInitially = false;
   }
 }

@@ -373,28 +373,6 @@ export class EnvConfigService {
     return window.__env.useTransparencyOnIndicator;
   }
 
-  // --- Current map position (writable) ---
-  get currentLatitude(): any {
-    return window.__env.currentLatitude;
-  }
-  set currentLatitude(value: any) {
-    window.__env.currentLatitude = value;
-  }
-
-  get currentLongitude(): any {
-    return window.__env.currentLongitude;
-  }
-  set currentLongitude(value: any) {
-    window.__env.currentLongitude = value;
-  }
-
-  get currentZoomLevel(): any {
-    return window.__env.currentZoomLevel;
-  }
-  set currentZoomLevel(value: any) {
-    window.__env.currentZoomLevel = value;
-  }
-
   // --- Auth / Keycloak extended ---
   get keycloakConfig(): any {
     return window.__env.keycloakConfig;

@@ -3,9 +3,6 @@ import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/c
 import domtoimage from 'dom-to-image-more';
 import { saveAs } from 'file-saver';
 import * as L from 'leaflet';
-import { OpenStreetMapProvider, SearchControl } from 'leaflet-geosearch';
-import 'leaflet-measure';
-import 'leaflet-search';
 import 'leaflet.markercluster';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
@@ -21,8 +18,14 @@ import {
   IndicatorClassificationService,
 } from 'services/indicator-classification-service/indicator-classification.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { MapControlsService } from 'services/map-controls-service/map-controls.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
+import { MapViewportStateService } from 'services/map-viewport-state-service/map-viewport-state.service';
+import {
+  MetadataBootstrapService,
+  MetadataLoadingState,
+} from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
@@ -33,7 +36,6 @@ import { MAP_LAYER_GROUPS, MapContext } from 'services/map-service/map-context';
 import { MapService } from 'services/map-service/map.service';
 import { OgcLayerManagerService } from 'services/ogc-layer-manager-service/ogc-layer-manager.service';
 import { ReachabilityLayerManagerService } from 'services/reachability-layer-manager-service/reachability-layer-manager.service';
-import '../../../../../customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol';
 
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
 import {
@@ -71,12 +73,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   private ogcLayerManager = inject(OgcLayerManagerService);
   private fileLayerManager = inject(FileLayerManagerService);
   private reachabilityLayerManager = inject(ReachabilityLayerManagerService);
+  private mapControlsService = inject(MapControlsService);
+  private mapViewportState = inject(MapViewportStateService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
 
   private readonly destroyRef = inject(DestroyRef);
 
   private map;
-  searchControl: any;
-  geosearchControl: any;
+  private spatialUnitOutlineLayerInitialized = false;
 
   private singleMarkers: L.Marker[] = [];
 
@@ -182,7 +186,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   filteredStyle;
 
   // central map object
-  scaleBar: any = undefined;
   layerControl: any = undefined;
   showInfoControl = true;
   showLegend = true;
@@ -211,67 +214,13 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    L.TileLayer.Grayscale = L.TileLayer.extend({
-      options: {
-        quotaRed: 21,
-        quotaGreen: 71,
-        quotaBlue: 8,
-        quotaDividerTune: 0,
-        quotaDivider: function () {
-          return this.quotaRed + this.quotaGreen + this.quotaBlue + this.quotaDividerTune;
-        },
-      },
-
-      initialize: function (url, options) {
-        options = options || {};
-        options.crossOrigin = true;
-        L.TileLayer.prototype.initialize.call(this, url, options);
-
-        this.on('tileload', (e) => {
-          this._makeGrayscale(e.tile);
-        });
-      },
-
-      _createTile: function () {
-        const tile = L.TileLayer.prototype._createTile.call(this);
-        tile.crossOrigin = 'Anonymous';
-        return tile;
-      },
-
-      _makeGrayscale: function (img) {
-        if (img.getAttribute('data-grayscaled')) return;
-
-        img.crossOrigin = '';
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx!.drawImage(img, 0, 0);
-
-        const imgd = ctx!.getImageData(0, 0, canvas.width, canvas.height);
-        const pix = imgd.data;
-        for (let i = 0, n = pix.length; i < n; i += 4) {
-          pix[i] =
-            pix[i + 1] =
-            pix[i + 2] =
-              (this.options.quotaRed * pix[i] +
-                this.options.quotaGreen * pix[i + 1] +
-                this.options.quotaBlue * pix[i + 2]) /
-              this.options.quotaDivider();
-        }
-        ctx!.putImageData(imgd, 0, 0);
-        img.setAttribute('data-grayscaled', true);
-        img.src = canvas.toDataURL();
-      },
-    });
-
-    L.tileLayer.grayscale = function (url, options) {
-      return new L.TileLayer.Grayscale(url, options);
-    };
-
-    setTimeout(() => {
-      this.initSpatialUnitOutlineLayer();
-    }, 2000);
+    // add the spatial unit outline layers once the initial metadata bootstrap
+    // is complete (replaces the former blind setTimeout(2000))
+    this.metadataBootstrap.metadataLoading$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((state) => {
+        if (state === MetadataLoadingState.COMPLETE) this.tryInitSpatialUnitOutlineLayer();
+      });
 
     // single render channel for indicator layers (selection changes as well as
     // dataset replacements by filter/balance)
@@ -451,7 +400,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           break;
         case BroadcastMessage.OpenLayerControl:
           {
-            this.openLayerControl();
+            this.mapControlsService.openLayerControl();
           }
           break;
         case BroadcastMessage.HighlightFeatureOnMap:
@@ -471,7 +420,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           break;
         case BroadcastMessage.ToggleExpertControl:
           {
-            this.toggleExpertControl();
+            this.mapControlsService.toggleExpertControls();
           }
           break;
         case BroadcastMessage.AddFileLayerToMap:
@@ -517,8 +466,26 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.sortableLayers = ['Web Map Services (WMS)'];
     }
 
-    this.initSearch();
-    this.initMeasurement();
+    this.mapControlsService.initSearchControls();
+    this.mapControlsService.initMeasureControl();
+
+    // covers the case that the metadata bootstrap completed before the map view existed
+    this.tryInitSpatialUnitOutlineLayer();
+  }
+
+  private syncViewportState() {
+    const latLng = this.map.getCenter();
+    this.mapViewportState.setViewport(latLng.lat, latLng.lng, this.map.getZoom());
+  }
+
+  // runs once, as soon as both the map view and the metadata bootstrap are ready
+  private tryInitSpatialUnitOutlineLayer() {
+    if (this.spatialUnitOutlineLayerInitialized) return;
+    if (!this.layerControl) return;
+    if (this.metadataBootstrap.metadataLoadingState !== MetadataLoadingState.COMPLETE) return;
+
+    this.spatialUnitOutlineLayerInitialized = true;
+    this.initSpatialUnitOutlineLayer();
   }
 
   // hands the layer managers a narrow context; the Leaflet instance itself
@@ -527,7 +494,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     const context: MapContext = {
       map: this.map,
       layerControl: this.layerControl,
-      updateSearchControl: () => this.updateSearchControl(),
+      updateSearchControl: () => this.mapControlsService.updateSearchControl(),
       hideLoadingIcon: () => this.hideLoadingIconOnMap(),
     };
 
@@ -537,101 +504,13 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.reachabilityLayerManager.initialize(context);
   }
 
-  initSearch() {
-    const provider = new OpenStreetMapProvider({
-      params: {
-        'accept-language': 'de', // render results in Dutch
-        countrycodes: 'de', // limit search results to the Netherlands
-        addressdetails: 1, // include additional address detail parts
-        viewbox:
-          '' +
-          (Number(this.envConfigService.initialLongitude) - 0.001) +
-          ',' +
-          (Number(this.envConfigService.initialLatitude) - 0.001) +
-          ',' +
-          (Number(this.envConfigService.initialLongitude) + 0.001) +
-          ',' +
-          (Number(this.envConfigService.initialLatitude) + 0.001),
-      },
-      searchUrl: this.envConfigService.targetUrlToGeocoderService + '/search',
-      reverseUrl: this.envConfigService.targetUrlToGeocoderService + '/reverse',
-    });
-
-    this.geosearchControl = SearchControl({
-      position: 'topleft',
-      provider: provider,
-      style: 'button',
-      autoComplete: true,
-      autoCompleteDelay: 250,
-      showMarker: true, // optional: true|false  - default true
-      showPopup: false, // optional: true|false  - default false
-      marker: {
-        // optional: L.Marker    - default L.Icon.Default
-        icon: new L.Icon.Default(),
-        draggable: false,
-      },
-      popupFormat: ({ query, result }) => result.label, // optional: function    - default returns result label
-      maxMarkers: 1, // optional: number      - default 1
-      retainZoomLevel: false, // optional: true|false  - default false
-      animateZoom: true, // optional: true|false  - default true
-      autoClose: false, // optional: true|false  - default false
-      searchLabel: 'Suche nach Adressen ...', // optional: string      - default 'Enter address'
-      keepResult: false, // optional: true|false  - default false
-    });
-
-    this.map.addControl(this.geosearchControl);
-
-    this.searchControl = new this.MultipleResultsLeafletSearch({});
-    this.searchControl.addTo(this.map);
-
-    $('.geosearch').toggle();
-
-    $('.leaflet-control-search').toggle();
-  }
-
-  initMeasurement() {
-    const measureOptions = {
-      position: 'topleft',
-      primaryLengthUnit: 'meters',
-      secondaryLengthUnit: 'kilometers',
-      primaryAreaUnit: 'sqmeters',
-      activeColor: '#d15c54',
-      completedColor: '#d15c54',
-      decPoint: ',',
-      thousandsSep: '.',
-    };
-
-    const measureControl = new L.Control.Measure(measureOptions);
-    measureControl.addTo(this.map);
-
-    // blendet den button erstmalig aus
-    $('.leaflet-control-measure').toggle();
-
-    // fix map-jumping with every click
-    L.Control.Measure.include({
-      // Prevent auto-panning when the capture marker is placed
-      _setCaptureMarkerIcon: function () {
-        // Turn off autoPan
-        this._captureMarker.options.autoPanOnFocus = false;
-        // Call the original icon setup
-        this._captureMarker.setIcon(
-          L.divIcon({
-            iconSize: this._map.getSize().multiplyBy(2),
-          })
-        );
-      },
-
-      // override _startMeasure if necessary
-      // _startMeasure: function () {
-      //   // Your custom override
-      // },
-    });
-  }
-
   private initMap(): void {
     this.loadingData = true;
 
-    const baseLayerDefinitionsMap = new Map();
+    const baseLayersByName = this.genericMapHelperService.createBaseLayers(
+      this.envConfigService.baseLayers
+    );
+
     this.mapOverlayState.baseLayerDefinitionsArray = [
       {
         layerConfig: {
@@ -644,130 +523,40 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           maxZoomLevel: this.envConfigService.maxZoomLevel,
         },
       },
+      ...this.envConfigService.baseLayers
+        .filter((baseMapEntry) => baseLayersByName.has(baseMapEntry.name))
+        .map((baseMapEntry) => ({ layerConfig: baseMapEntry })),
     ];
-
-    for (const baseMapEntry of this.envConfigService.baseLayers) {
-      if (baseMapEntry.layerType === 'TILE_LAYER_GRAYSCALE') {
-        const grayscaleLayer = new L.tileLayer.grayscale(baseMapEntry.url, {
-          minZoom: baseMapEntry.minZoomLevel,
-          maxZoom: baseMapEntry.maxZoomLevel,
-          attribution: baseMapEntry.attribution_html,
-        });
-        baseLayerDefinitionsMap.set(baseMapEntry.name, grayscaleLayer);
-        this.mapOverlayState.baseLayerDefinitionsArray.push({
-          layerConfig: baseMapEntry,
-        });
-      } else if (baseMapEntry.layerType === 'TILE_LAYER') {
-        const tileLayer = new L.tileLayer(baseMapEntry.url, {
-          minZoom: baseMapEntry.minZoomLevel,
-          maxZoom: baseMapEntry.maxZoomLevel,
-          attribution: baseMapEntry.attribution_html,
-        });
-        baseLayerDefinitionsMap.set(baseMapEntry.name, tileLayer);
-        this.mapOverlayState.baseLayerDefinitionsArray.push({
-          layerConfig: baseMapEntry,
-        });
-      } else if (baseMapEntry.layerType === 'WMS') {
-        const wmsLayer = new L.tileLayer.wms(baseMapEntry.url, {
-          minZoom: baseMapEntry.minZoomLevel,
-          maxZoom: baseMapEntry.maxZoomLevel,
-          attribution: baseMapEntry.attribution_html,
-          layers: baseMapEntry.layerName_WMS,
-          format: 'image/png',
-        });
-        baseLayerDefinitionsMap.set(baseMapEntry.name, wmsLayer);
-        this.mapOverlayState.baseLayerDefinitionsArray.push({
-          layerConfig: baseMapEntry,
-        });
-      }
-    }
 
     this.map = L.map('ngMap', {
       center: [this.envConfigService.initialLatitude, this.envConfigService.initialLongitude],
       zoom: this.envConfigService.initialZoomLevel,
       zoomDelta: 0.5,
       zoomSnap: 0.5,
-      layers: [baseLayerDefinitionsMap.get(this.envConfigService.baseLayers[0].name)],
+      layers: [baseLayersByName.get(this.envConfigService.baseLayers[0].name)],
     });
 
-    this.envConfigService.currentLatitude = this.envConfigService.initialLatitude;
-    this.envConfigService.currentLongitude = this.envConfigService.initialLongitude;
-    this.envConfigService.currentZoomLevel = this.envConfigService.initialZoomLevel;
+    this.mapViewportState.setViewport(
+      this.envConfigService.initialLatitude,
+      this.envConfigService.initialLongitude,
+      this.envConfigService.initialZoomLevel
+    );
 
     // update zoom and extent
-    this.map.on('zoomend', (eo) => {
-      const latLng = this.map.getCenter();
-      this.envConfigService.currentLatitude = latLng.lat;
-      this.envConfigService.currentLongitude = latLng.lng;
-      this.envConfigService.currentZoomLevel = this.map.getZoom();
-    });
-    this.map.on('moveend', (eo) => {
-      const latLng = this.map.getCenter();
-      this.envConfigService.currentLatitude = latLng.lat;
-      this.envConfigService.currentLongitude = latLng.lng;
-      this.envConfigService.currentZoomLevel = this.map.getZoom();
-    });
+    this.map.on('zoomend', () => this.syncViewportState());
+    this.map.on('moveend', () => this.syncViewportState());
 
     this.baseMaps = [];
 
-    baseLayerDefinitionsMap.forEach((value, key, map) => {
+    baseLayersByName.forEach((value, key) => {
       this.baseMaps[key] = value;
     });
 
-    const groupedOverlays = {
-      indicatorLayerGroupName: {},
-      poiLayerGroupName: {},
-      loiLayerGroupName: {},
-      aoiLayerGroupName: {},
-      wmsLayerGroupName: {},
-      wfsLayerGroupName: {},
-      fileLayerGroupName: {},
-      reachabilityLayerGroupName: {},
-      spatialUnitOutlineLayerGroupName: {},
-    };
-
-    this.layerControl = L.control.groupedLayers(this.baseMaps, groupedOverlays, {
-      collapsed: false,
-      position: 'topleft',
-      layers: this.sortableLayers,
-    });
-
-    //backup ico groupedLayers not working properly
-    //this.layerControl = L.control.layers(this.baseMaps, [], {position: 'topleft'}).addTo(this.map);
-
-    delete this.layerControl._groupList;
-    this.layerControl._groupList = ['', 'Raumebene Umringe', 'Indikatoren'];
-
-    this.map.addControl(this.layerControl);
-
-    // Hide Leaflet layer control button in favor of a custom button for opening the layer control group
-    $('.leaflet-control-layers').hide();
-
-    // Disable dragging when user's cursor enters the element
-    this.layerControl.getContainer().addEventListener('mouseover', () => {
-      this.map.dragging.disable();
-      this.map.touchZoom.disable();
-      this.map.doubleClickZoom.disable();
-      this.map.scrollWheelZoom.disable();
-    });
-
-    // Re-enable dragging when user's cursor leaves the element
-    this.layerControl.getContainer().addEventListener('mouseout', () => {
-      this.map.dragging.enable();
-      this.map.touchZoom.enable();
-      this.map.doubleClickZoom.enable();
-      this.map.scrollWheelZoom.enable();
-    });
-
-    this.scaleBar = L.control.scale({ position: 'bottomleft' });
-    this.scaleBar.addTo(this.map);
-
-    // hatch patterns
-    // diagonalPattern = new L.PatternPath({ d: "M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" , fill: true });
-
-    // this.outlierFillPattern_high = new L.Pattern();
-    // this.outlierFillPattern_high.addShape(diagonalPattern);
-    // this.outlierFillPattern_high.addTo(this.map);
+    this.layerControl = this.mapControlsService.initializeLayerControl(
+      this.map,
+      this.baseMaps,
+      this.sortableLayers
+    );
 
     this.outlierFillPattern_low = this.visualStyleHelperService.outlierFillPattern_low;
     this.outlierFillPattern_low.addTo(this.map);
@@ -864,16 +653,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   onGlobalFilterChange() {
     // reset custom layers when global filters change. otherwise douplicates might be added
     this.layerControl._layers = this.layerControl._layers.filter((e) => e.overlay === undefined);
-  }
-
-  openLayerControl() {
-    $('.leaflet-control-layers').toggle();
-  }
-
-  toggleExpertControl() {
-    $('.leaflet-control-search').toggle();
-    $('.geosearch').toggle();
-    $('.leaflet-control-measure').toggle();
   }
 
   onCloseOutlierAlert() {
@@ -998,7 +777,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
             spatialUnit.spatialUnitLevel + '_Umringe',
             MAP_LAYER_GROUPS.spatialUnitOutline
           );
-          this.updateSearchControl();
+          this.mapControlsService.updateSearchControl();
         });
       }
     }
@@ -1031,306 +810,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
         this.mapErrorNotificationService.displayMapApplicationError(error);
       });
-  }
-
-  isKomMonitorSpecificProperty(propertyKey) {
-    let isKomMonitorSpecificProperty = false;
-
-    if (propertyKey == 'outlier') {
-      isKomMonitorSpecificProperty = true;
-    } else if (propertyKey == this.envConfigService.VALID_START_DATE_PROPERTY_NAME) {
-      isKomMonitorSpecificProperty = true;
-    } else if (propertyKey == this.envConfigService.VALID_END_DATE_PROPERTY_NAME) {
-      isKomMonitorSpecificProperty = true;
-    } else if (propertyKey == 'bbox') {
-      isKomMonitorSpecificProperty = true;
-    } else if (propertyKey.includes(this.envConfigService.indicatorDatePrefix)) {
-      isKomMonitorSpecificProperty = true;
-    }
-
-    return isKomMonitorSpecificProperty;
-  }
-
-  MultipleResultsLeafletSearch = L.Control.Search.extend({
-    _makeUniqueKey: function (featureName, featureId) {
-      return featureName + ' (Name) - ' + featureId + ' (ID)';
-    },
-
-    _searchInLayer: function (layer, retRecords, propName) {
-      // eslint-disable-next-line @typescript-eslint/no-this-alias -- Leaflet callback relies on the dynamic `this`
-      const self = this;
-      let loc;
-      let key_withUniqueID;
-
-      if (layer instanceof L.Control.Search.Marker) return;
-
-      if (layer instanceof L.Marker || layer instanceof L.CircleMarker) {
-        if (self._getPath(layer.options, propName)) {
-          loc = layer.getLatLng();
-          loc.layer = layer;
-          retRecords[self._getPath(layer.options, propName)] = loc;
-        } else if (self._getPath(layer.feature.properties, propName)) {
-          loc = layer.getLatLng();
-          loc.layer = layer;
-          key_withUniqueID = this._makeUniqueKey(
-            self._getPath(layer.feature.properties, propName),
-            layer.feature.properties.ID
-          );
-          retRecords[key_withUniqueID] = loc;
-        } else {
-          //throw new Error("propertyName '"+propName+"' not found in marker");
-          console.warn("propertyName '" + propName + "' not found in marker");
-        }
-      } else if (
-        layer instanceof L.Path ||
-        layer instanceof L.Polyline ||
-        layer instanceof L.Polygon
-      ) {
-        if (self._getPath(layer.options, propName)) {
-          loc = layer.getBounds().getCenter();
-          loc.layer = layer;
-          retRecords[self._getPath(layer.options, propName)] = loc;
-        } else if (self._getPath(layer.feature.properties, propName)) {
-          loc = layer.getBounds().getCenter();
-          loc.layer = layer;
-          key_withUniqueID = this._makeUniqueKey(
-            self._getPath(layer.feature.properties, propName),
-            layer.feature.properties.ID
-          );
-          retRecords[key_withUniqueID] = loc;
-        } else {
-          //throw new Error("propertyName '"+propName+"' not found in shape");
-          console.warn("propertyName '" + propName + "' not found in shape");
-        }
-      } else if (Object.prototype.hasOwnProperty.call(layer, 'feature')) //GeoJSON
-      {
-        if (Object.prototype.hasOwnProperty.call(layer.feature.properties, propName)) {
-          key_withUniqueID = this._makeUniqueKey(
-            self._getPath(layer.feature.properties, propName),
-            layer.feature.properties.ID
-          );
-          if (layer.getLatLng && typeof layer.getLatLng === 'function') {
-            loc = layer.getLatLng();
-            loc.layer = layer;
-            retRecords[key_withUniqueID] = loc;
-          } else if (layer.getBounds && typeof layer.getBounds === 'function') {
-            loc = layer.getBounds().getCenter();
-            loc.layer = layer;
-            retRecords[key_withUniqueID] = loc;
-          } else {
-            console.warn('Unknown type of Layer');
-          }
-        } else {
-          //throw new Error("propertyName '"+propName+"' not found in feature");
-          console.warn("propertyName '" + propName + "' not found in feature");
-        }
-      } else if (layer instanceof L.LayerGroup) {
-        layer.eachLayer(function (layer) {
-          self._searchInLayer(layer, retRecords, propName);
-        });
-      }
-    },
-    _defaultMoveToLocation: function (latlng, title, map) {
-      if (this.options.zoom) this._map.setView(latlng, this.options.zoom);
-      else this._map.panTo(latlng);
-
-      // add collapse after click on item
-      this.collapse();
-    },
-    _handleAutoresize: function () {
-      let maxWidth;
-
-      if (!this._map) {
-        this._map = this.map;
-      }
-
-      if (this._input.style.maxWidth !== this._map._container.offsetWidth) {
-        maxWidth = this._map._container.clientWidth;
-
-        // other side margin + padding + width border + width search-button + width search-cancel
-        maxWidth -= 10 + 20 + 1 + 30 + 22;
-
-        this._input.style.maxWidth = maxWidth.toString() + 'px';
-      }
-
-      if (
-        this.options.autoResize &&
-        this._container.offsetWidth + 20 < this._map._container.offsetWidth
-      ) {
-        this._input.size =
-          this._input.value.length < this._inputMinSize
-            ? this._inputMinSize
-            : this._input.value.length;
-      }
-    },
-  });
-
-  updateSearchControl() {
-    const isKomMonitorSpecificProperty = (propertyKey) => {
-      let isKomMonitorSpecificProperty = false;
-
-      if (propertyKey == 'outlier') {
-        isKomMonitorSpecificProperty = true;
-      } else if (propertyKey == this.envConfigService.VALID_START_DATE_PROPERTY_NAME) {
-        isKomMonitorSpecificProperty = true;
-      } else if (propertyKey == this.envConfigService.VALID_END_DATE_PROPERTY_NAME) {
-        isKomMonitorSpecificProperty = true;
-      } else if (propertyKey == 'bbox') {
-        isKomMonitorSpecificProperty = true;
-      } else if (propertyKey.includes(this.envConfigService.indicatorDatePrefix)) {
-        isKomMonitorSpecificProperty = true;
-      }
-
-      return isKomMonitorSpecificProperty;
-    };
-
-    setTimeout(() => {
-      if (this.searchControl) {
-        try {
-          this.map.removeControl(this.searchControl);
-          this.searchControl = undefined;
-        } catch (error) {
-          this.mapErrorNotificationService.displayMapApplicationError(error);
-        }
-      }
-
-      // build L.featureGroup of available POI layers
-      const featureLayers: any[] = [];
-
-      for (const layerEntry of this.layerControl._layers) {
-        if (layerEntry) {
-          if (layerEntry.overlay) {
-            if (this.map.hasLayer(layerEntry.layer)) {
-              if (
-                layerEntry.group.name === MAP_LAYER_GROUPS.poi ||
-                layerEntry.group.name === MAP_LAYER_GROUPS.loi ||
-                layerEntry.group.name === MAP_LAYER_GROUPS.aoi ||
-                layerEntry.group.name === MAP_LAYER_GROUPS.indicator ||
-                layerEntry.group.name === MAP_LAYER_GROUPS.wfs ||
-                layerEntry.group.name === MAP_LAYER_GROUPS.file
-              ) {
-                featureLayers.push(layerEntry.layer);
-              }
-            }
-          }
-        }
-      }
-
-      let layerGroup;
-      // if no relevant layers are currently displayed, then
-      if (featureLayers.length === 0) {
-        this.searchControl = new this.MultipleResultsLeafletSearch({});
-        this.searchControl.addTo(this.map);
-
-        $('.leaflet-control-search').toggle();
-      } else {
-        layerGroup = L.featureGroup(featureLayers);
-
-        this.searchControl = new this.MultipleResultsLeafletSearch({
-          position: 'topleft',
-          layer: layerGroup,
-          initial: false,
-          propertyName: this.envConfigService.FEATURE_NAME_PROPERTY_NAME,
-          textPlaceholder: 'Layer-Objekte nach Name und/oder ID filtern',
-          textCancel: 'Abbrechen',
-          textErr: 'Position nicht gefunden',
-          hideMarkerOnCollapse: true,
-          zoom: 15,
-          autoResize: true,
-          autoCollapse: false,
-          autoType: true,
-          formatData: function (json) {
-            //adds coordinates to name.
-            let propName = this.options.propertyName,
-              propLoc = this.options.propertyLoc,
-              i,
-              jsonret = {};
-            if (L.Util.isArray(propLoc))
-              for (i in json) {
-                if (!this._getPath(json[i], propName)) continue;
-                jsonret[
-                  this._getPath(json[i], propName) +
-                    ' (' +
-                    json[i][propLoc[0]] +
-                    ',' +
-                    json[i][propLoc[1]] +
-                    ')'
-                ] = L.latLng(json[i][propLoc[0]], json[i][propLoc[1]]);
-              }
-            else
-              for (i in json) {
-                if (!this._getPath(json[i], propName)) continue;
-                jsonret[
-                  this._getPath(json[i], propName) +
-                    ' (' +
-                    json[i][propLoc][0] +
-                    ',' +
-                    json[i][propLoc][1] +
-                    ')'
-                ] = L.latLng(this._getPath(json[i], propLoc));
-              }
-            return jsonret;
-          },
-          filterData: function (text, records) {
-            let I,
-              icase,
-              regSearch,
-              frecords = {};
-
-            text = text.replace(/[.*+?^${}()|[\]\\]/g, ''); //sanitize remove all special characters
-            if (text === '') return [];
-
-            I = this.options.initial ? '^' : ''; //search only initial text
-            icase = !this.options.casesensitive ? 'i' : undefined;
-
-            regSearch = new RegExp(I + text, icase);
-
-            for (const key in records) {
-              // make a searchable string from all relevant feature properties
-              let recordString = '';
-              const record = records[key];
-              const recordProperties = record.layer.feature.properties;
-
-              for (const propertyKey in recordProperties) {
-                if (recordProperties[propertyKey] && !isKomMonitorSpecificProperty(propertyKey)) {
-                  recordString += recordProperties[propertyKey];
-                }
-              }
-
-              if (regSearch.test(recordString)) frecords[key] = records[key];
-            }
-
-            return frecords;
-          },
-          buildTip: (text, val) => {
-            let emString = '';
-
-            if (val.layer.metadataObject) {
-              if (val.layer.metadataObject.isPOI) {
-                emString +=
-                  '<i style="width:14px;height:14px;float:left;" class="awesome-marker-legend awesome-marker-legend-icon-' +
-                  val.layer.metadataObject.poiMarkerColor +
-                  '">';
-                emString +=
-                  "<span style='margin-left:3px; top:-2px; font-size:0.7em; color:" +
-                  val.layer.metadataObject.poiSymbolColor +
-                  ";' align='center' class='glyphicon glyphicon-" +
-                  val.layer.metadataObject.poiSymbolBootstrap3Name +
-                  "' aria-hidden='true'></span>";
-                emString += '</i>';
-              }
-            } else {
-              emString += "<i style='font-size:1.0em;' class='fas fa-sitemap'></i>";
-            }
-            return '<a href="" class="search-tip">' + emString + '&nbsp;&nbsp;' + text + '</a>';
-          },
-        });
-
-        this.searchControl.addTo(this.map);
-
-        $('.leaflet-control-search').toggle();
-      }
-    }, 200);
   }
 
   showLoadingIconOnMap() {
@@ -1826,7 +1305,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     this.layerControl.addOverlay(layer, layerName, MAP_LAYER_GROUPS.indicator);
     layer.addTo(this.map);
-    this.updateSearchControl();
+    this.mapControlsService.updateSearchControl();
 
     this.fitBounds();
 

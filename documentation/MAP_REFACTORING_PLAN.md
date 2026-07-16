@@ -170,14 +170,17 @@ statt Broadcast.**
 - WFS-Fehlerpfad: `loadingData = false` lief bisher sofort, jetzt über `context.hideLoadingIcon()` (250 ms verzögert wie alle anderen Pfade).
 - `kommonitor-map.component.ts`: 2653 → **2020 Zeilen**.
 
-### Phase 4 — Initialisierung entwirren
+### Phase 4 — Initialisierung entwirren ✅ (umgesetzt Juli 2026)
 
-- [ ] Grayscale-Plugin in eigene Datei (`util/leaflet-grayscale.ts`)
-- [ ] Basemap-Aufbau in den `GenericMapHelperService` verlagern
-- [ ] `setTimeout(2000)` ersetzen: Outline-Layer auf das tatsächliche Ready-Signal des Metadaten-Setups reagieren lassen
-- [ ] Viewport-State (`currentLatitude`/`currentLongitude`/`currentZoomLevel`) aus `EnvConfigService` in einen `MapViewportStateService` (oder in den `MapService`)
-- [ ] Search-/Measure-/Layer-Control-Setup in einen `MapControlsService`
-- [ ] jQuery-Toggles durch Angular-State ersetzen (Info-/Legend-Controls perspektivisch als echte Komponenten, z. B. via `DomPortal` — kann später kommen)
+- [x] Grayscale-Plugin nach `util/leaflet-grayscale.ts` (Factory `createGrayscaleTileLayer`, Muster wie `util/leaflet-cluster.ts`)
+- [x] Basemap-Aufbau (`TILE_LAYER` / `TILE_LAYER_GRAYSCALE` / `WMS`) in `GenericMapHelperService.createBaseLayers()`
+- [x] `setTimeout(2000)` ersetzt: Outline-Layer initialisiert sich, sobald **beide** Bedingungen erfüllt sind — Map-View vorhanden **und** `metadataBootstrap.metadataLoading$` meldet `COMPLETE` (`tryInitSpatialUnitOutlineLayer`, läuft genau einmal)
+- [x] `MapViewportStateService` (neu): `currentLatitude`/`currentLongitude`/`currentZoomLevel` raus aus `EnvConfigService`/`window.__env`; Schreiber = Map-Komponente (zoomend/moveend), Leser = `share-helper.service`; die `current*`-Accessoren im `EnvConfigService` sind gelöscht
+- [x] `MapControlsService` (neu, 449 Z.): besitzt Layer-Control (inkl. `_groupList`-Hack, Drag-Disable, Hide-Button), Scale-Bar, Geosearch, Feature-Suche (inkl. der `MultipleResultsLeafletSearch`-Leaflet-Erweiterung und `updateSearchControl`) und Measure-Control; Komponente und Layer-Manager rufen `updateSearchControl()` über den Service/Kontext
+- [ ] jQuery-Toggles durch Angular-State ersetzen → **bewusst offen gelassen** (Leaflet-Controls sind DOM-basiert; echte Komponenten via `DomPortal` als späteres eigenes Vorhaben); die Toggles leben jetzt gebündelt im `MapControlsService` bzw. `toggleInfoControl` in der Komponente
+
+**Umsetzungsnotiz:** Die Reihenfolge „`initMap()` → env-`sortableLayers` zuweisen" wurde 1:1 beibehalten — d. h. das Layer-Control bekommt wie bisher den Default-Wert, die env-Konfiguration griff auch vorher nie fürs Control (dokumentierter Alt-Quirk, kein stiller Fix).
+`kommonitor-map.component.ts`: 2020 → **1499 Zeilen**.
 
 ### Phase 5 — Broadcast-Abbau
 
@@ -195,11 +198,12 @@ statt Broadcast.**
 | 2 | ✅ erledigt (Pipeline) | mittel | −860 Zeilen in der Komponente, Pipeline getestet | — |
 | 2b | offen | hoch | Signal-State, zustandsloser VisualStyleHelper | braucht Umbau von Classification + Legende |
 | 3 | ✅ erledigt | mittel | Komponente schrumpft massiv | — |
-| 4 | offen | gering–mittel | saubere Init, kein Timer/jQuery | unabhängig |
+| 4 | ✅ erledigt | gering–mittel | saubere Init, kein Timer | — |
 | 5 | offen | mittel | Bus-Entkopplung | Weg frei (3 ✓) |
 
-**Empfehlung:** Nächster Schritt: **Phase 4** (Initialisierung entwirren) oder
-**Phase 5** (Broadcast-Abbau — die Manager sind jetzt die natürlichen Ziele für
-typisierte Zustellung). Phase 2b (Signal-Migration des Klassifikations-States) als
-eigenes, größeres Vorhaben planen, wenn Classification-Komponente/Legende ohnehin
-angefasst werden.
+**Empfehlung:** Nächster Schritt: **Phase 5** (Broadcast-Abbau — die Manager und
+der `MapControlsService` sind jetzt die natürlichen Ziele für typisierte
+Zustellung). Phase 2b (Signal-Migration des Klassifikations-States) als eigenes,
+größeres Vorhaben planen, wenn Classification-Komponente/Legende ohnehin
+angefasst werden. Offener Rest aus Phase 4: jQuery-Toggles der Leaflet-Controls
+(gebündelt im `MapControlsService`).
