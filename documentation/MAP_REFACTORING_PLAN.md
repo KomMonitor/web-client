@@ -177,7 +177,7 @@ statt Broadcast.**
 - [x] `setTimeout(2000)` ersetzt: Outline-Layer initialisiert sich, sobald **beide** Bedingungen erfüllt sind — Map-View vorhanden **und** `metadataBootstrap.metadataLoading$` meldet `COMPLETE` (`tryInitSpatialUnitOutlineLayer`, läuft genau einmal)
 - [x] `MapViewportStateService` (neu): `currentLatitude`/`currentLongitude`/`currentZoomLevel` raus aus `EnvConfigService`/`window.__env`; Schreiber = Map-Komponente (zoomend/moveend), Leser = `share-helper.service`; die `current*`-Accessoren im `EnvConfigService` sind gelöscht
 - [x] `MapControlsService` (neu, 449 Z.): besitzt Layer-Control (inkl. `_groupList`-Hack, Drag-Disable, Hide-Button), Scale-Bar, Geosearch, Feature-Suche (inkl. der `MultipleResultsLeafletSearch`-Leaflet-Erweiterung und `updateSearchControl`) und Measure-Control; Komponente und Layer-Manager rufen `updateSearchControl()` über den Service/Kontext
-- [ ] jQuery-Toggles durch Angular-State ersetzen → **bewusst offen gelassen** (Leaflet-Controls sind DOM-basiert; echte Komponenten via `DomPortal` als späteres eigenes Vorhaben); die Toggles leben jetzt gebündelt im `MapControlsService` bzw. `toggleInfoControl` in der Komponente
+- [x] jQuery-Toggles ersetzt *(Nachtrag Juli 2026)*: `MapControlsService` hält die Sichtbarkeit als Zustand (`layerControlVisible`, `expertControlsVisible`) und wendet sie per `control.getContainer().style.display` an — wirkt damit nur noch auf die Controls der Hauptkarte, nicht mehr klassenbasiert auf fremde Karten. **Bugfix dabei:** das blinde `$('.leaflet-control-search').toggle()` nach jeder Neu-Erzeugung in `updateSearchControl` versteckte die Feature-Suche bei aktivem Experten-Modus nach jeder Layer-Änderung; jetzt wird der Experten-Zustand re-appliziert. Außerdem die komplett tote Info-Control-Kette entfernt (`toggleInfoControl` in Map/MapService/User-Interface — weder Auslöser im Template noch Ziel-DOM existierten). Map-Komponente und Map-Services sind jetzt jQuery-frei.
 
 **Umsetzungsnotiz:** Die Reihenfolge „`initMap()` → env-`sortableLayers` zuweisen" wurde 1:1 beibehalten — d. h. das Layer-Control bekommt wie bisher den Default-Wert, die env-Konfiguration griff auch vorher nie fürs Control (dokumentierter Alt-Quirk, kein stiller Fix).
 `kommonitor-map.component.ts`: 2020 → **1499 Zeilen**.
@@ -212,11 +212,11 @@ statt Broadcast.**
 | 5 | ✅ erledigt | mittel | Bus-Entkopplung | — |
 
 **Alle Phasen des Plans sind umgesetzt** (Phase 2 ohne den bewusst abgetrennten
-Signal-Teil). Verbleibende, bewusst offene Punkte:
+Signal-Teil); die jQuery-Toggles sind im Nachtrag zu Phase 4 ebenfalls ersetzt.
+Verbleibende, bewusst offene Punkte:
 - **Phase 2b**: Signal-Migration des Klassifikations-States (VisualStyleHelper
   zustandslos machen) — eigenes Vorhaben, zieht Classification-Komponente und
   Legende mit.
-- jQuery-Toggles der Leaflet-Controls (gebündelt im `MapControlsService`).
 - Die von der Map-Komponente **gesendeten** Bus-Messages (`UpdateLegendDisplay`,
   `UpdateDiagrams`, …) — typisierte Zustellung wäre der nächste Schritt, gehört
   aber zum Refactoring von Legende/Diagrammen.

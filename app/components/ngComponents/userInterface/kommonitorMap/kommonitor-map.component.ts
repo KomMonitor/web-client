@@ -187,7 +187,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   // central map object
   layerControl: any = undefined;
-  showInfoControl = true;
   showLegend = true;
   overlays: any[] = [];
   baseMaps: any[] = [];
@@ -369,9 +368,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         break;
       case 'exportMap':
         this.exportMap();
-        break;
-      case 'toggleInfoControl':
-        this.toggleInfoControl();
         break;
       case 'toggleExpertControls':
         this.mapControlsService.toggleExpertControls();
@@ -585,7 +581,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   }
 
   onCloseOutlierAlert() {
-    // $("#outlierInfo").hide();
     this.showOutlierInfoAlert = false;
   }
 
@@ -749,22 +744,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       this.loadingData = false;
     }, 250);
-  }
-
-  toggleInfoControl() {
-    if (this.showInfoControl === true) {
-      /* use jquery to select your DOM elements that has the class 'legend' */
-      $('.info').hide();
-      this.showInfoControl = false;
-
-      $('#toggleInfoControlButton').show();
-    } else {
-      $('.info').show();
-      this.showInfoControl = true;
-
-      // button is defined in kommonitor-user-interface component
-      $('#toggleInfoControlButton').hide();
-    }
   }
 
   changeClassifyMethod(method) {

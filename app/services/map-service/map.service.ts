@@ -84,7 +84,6 @@ export type MapCommand =
   | { type: 'showLoadingIcon' }
   | { type: 'hideLoadingIcon' }
   | { type: 'exportMap' }
-  | { type: 'toggleInfoControl' }
   | { type: 'toggleExpertControls' }
   | { type: 'openLayerControl' }
   | { type: 'onGlobalFilterChange' };
@@ -376,10 +375,6 @@ export class MapService {
 
   exportMap() {
     this.command({ type: 'exportMap' });
-  }
-
-  toggleInfoControl() {
-    this.command({ type: 'toggleInfoControl' });
   }
 
   toggleExpertControls() {

@@ -250,10 +250,6 @@ export class UserInterfaceComponent implements OnInit {
     this.mapService.openLayerControl();
   }
 
-  onToggleInfoControlButtonClick() {
-    this.mapService.toggleInfoControl();
-  }
-
   onExpertButtonClick() {
     this.expertToolbarVisible = !this.expertToolbarVisible;
     this.mapService.toggleExpertControls();

@@ -24,6 +24,18 @@ export class MapControlsService {
   private layerControl: any;
   private searchControl: any;
   private geosearchControl: any;
+  private measureControl: any;
+
+  private layerControlVisible = false;
+  private expertControlsVisible = false;
+
+  // replaces the former global jQuery class toggles: visibility is tracked as
+  // state and applied to the control's own container, so controls of other
+  // maps (reporting, single-feature editor) are never affected
+  private setControlVisibility(control: any, visible: boolean) {
+    const container = control?.getContainer?.();
+    if (container) container.style.display = visible ? '' : 'none';
+  }
 
   /** Creates the grouped layer control + scale bar and remembers the map. Returns the layer control. */
   initializeLayerControl(map: any, baseMaps: any, sortableLayers: string[]) {
@@ -53,7 +65,8 @@ export class MapControlsService {
     map.addControl(this.layerControl);
 
     // Hide Leaflet layer control button in favor of a custom button for opening the layer control group
-    $('.leaflet-control-layers').hide();
+    this.layerControlVisible = false;
+    this.setControlVisibility(this.layerControl, false);
 
     // Disable map interaction while the user's cursor is inside the control
     this.layerControl.getContainer().addEventListener('mouseover', () => {
@@ -122,8 +135,8 @@ export class MapControlsService {
     this.searchControl.addTo(this.map);
 
     // expert controls start hidden (shown via toggleExpertControls)
-    $('.geosearch').toggle();
-    $('.leaflet-control-search').toggle();
+    this.setControlVisibility(this.geosearchControl, this.expertControlsVisible);
+    this.setControlVisibility(this.searchControl, this.expertControlsVisible);
   }
 
   initMeasureControl() {
@@ -138,11 +151,11 @@ export class MapControlsService {
       thousandsSep: '.',
     };
 
-    const measureControl = new L.Control.Measure(measureOptions);
-    measureControl.addTo(this.map);
+    this.measureControl = new L.Control.Measure(measureOptions);
+    this.measureControl.addTo(this.map);
 
     // hide the button initially
-    $('.leaflet-control-measure').toggle();
+    this.setControlVisibility(this.measureControl, this.expertControlsVisible);
 
     // fix map-jumping with every click
     L.Control.Measure.include({
@@ -161,13 +174,15 @@ export class MapControlsService {
   }
 
   openLayerControl() {
-    $('.leaflet-control-layers').toggle();
+    this.layerControlVisible = !this.layerControlVisible;
+    this.setControlVisibility(this.layerControl, this.layerControlVisible);
   }
 
   toggleExpertControls() {
-    $('.leaflet-control-search').toggle();
-    $('.geosearch').toggle();
-    $('.leaflet-control-measure').toggle();
+    this.expertControlsVisible = !this.expertControlsVisible;
+    this.setControlVisibility(this.searchControl, this.expertControlsVisible);
+    this.setControlVisibility(this.geosearchControl, this.expertControlsVisible);
+    this.setControlVisibility(this.measureControl, this.expertControlsVisible);
   }
 
   /** Rebuilds the feature search index from the currently displayed searchable layers. */
@@ -225,7 +240,10 @@ export class MapControlsService {
         this.searchControl = new this.MultipleResultsLeafletSearch({});
         this.searchControl.addTo(this.map);
 
-        $('.leaflet-control-search').toggle();
+        // re-apply the expert mode state to the recreated control (the legacy
+        // blind jQuery toggle always hid it, so the feature search vanished
+        // after every layer change while expert mode was active)
+        this.setControlVisibility(this.searchControl, this.expertControlsVisible);
       } else {
         layerGroup = L.featureGroup(featureLayers);
 
@@ -331,7 +349,8 @@ export class MapControlsService {
 
         this.searchControl.addTo(this.map);
 
-        $('.leaflet-control-search').toggle();
+        // see above: apply state instead of blindly toggling the fresh control
+        this.setControlVisibility(this.searchControl, this.expertControlsVisible);
       }
     }, 200);
   }
