@@ -340,6 +340,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       case 'removeWfsLayer':
         this.ogcLayerManager.removeWfsLayer(command.dataset);
         break;
+      case 'adjustWfsLayerColor':
+        this.ogcLayerManager.adjustWfsColor(command.dataset, command.opacity);
+        break;
       // file layers
       case 'addFileLayer':
         this.fileLayerManager.addFileLayer(command.dataset, undefined);

@@ -436,8 +436,4 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   hasActiveWMSLayers() {
     return this.georesourceStore.wmsDatasets.filter((item) => item.isSelected).length > 0;
   }
-
-  adjustOpacityForWmsLayer(dataset, transparency) {
-    this.mapService.adjustOpacityForWmsLayer(dataset, transparency);
-  }
 }

@@ -17,8 +17,6 @@
  */
 export const BroadcastMessage = {
   AbortReportGeneration: 'abortReportGeneration',
-  AdjustColorForWfsLayer: 'adjustColorForWfsLayer',
-  AdjustOpacityForWmsLayer: 'adjustOpacityForWmsLayer',
   // NOTE: the name below contains spaces — kept verbatim as it is on the bus.
   AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupCompleted:
     'allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed',

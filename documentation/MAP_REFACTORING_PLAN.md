@@ -221,12 +221,26 @@ statt Broadcast.**
 | 5 | ✅ erledigt | mittel | Bus-Entkopplung | — |
 
 **Alle Phasen des Plans inkl. 2b sind umgesetzt**; die jQuery-Toggles sind im
-Nachtrag zu Phase 4 ebenfalls ersetzt. Verbleibende, bewusst offene Punkte:
+Nachtrag zu Phase 4 ebenfalls ersetzt.
+
+**Nachtrag Juli 2026 — Opacity-/Farb-Sackgassen aufgelöst:**
+- **WFS-Farbwechsel repariert** (echter Alt-Bug): Die Color-Picker der
+  Georessourcen-Tabs riefen `mapService.adjustColorForWfsLayer` auf, dessen
+  Broadcast nie einen Empfänger hatte. Jetzt typisiertes Kommando
+  `adjustWfsLayerColor` → `OgcLayerManagerService.adjustWfsColor()` (Restyle
+  per `getWfsStyle`, nach Legacy-Vorlage). Wie im Legacy-Verhalten bleiben
+  POI-WFS-Marker unverändert (Farbe steckt in Awesome-Marker-CSS).
+- **Tote WMS-Transparenz-Kette gelöscht**: `kommonitor-legend.adjustOpacityForWmsLayer`
+  hatte keinen Template-Aufrufer und nirgends existiert ein WMS-Transparenz-UI —
+  Legend-Methode, `MapService`-Methode und die beiden Enum-Einträge entfernt.
+  Ein echtes WMS-Transparenz-Feature bräuchte neues UI (eigenes Vorhaben).
+- Der `MapService` ist damit **vollständig vom Broadcast-Bus entkoppelt**
+  (keine `BroadcastService`-Injektion mehr).
+
+Verbleibende, bewusst offene Punkte:
 - Die von der Map-Komponente **gesendeten** Bus-Messages (`UpdateLegendDisplay`,
   `UpdateDiagrams`, …) — typisierte Zustellung wäre der nächste Schritt, gehört
   aber zum Refactoring von Legende/Diagrammen.
-- Wirkungslose Opacity-/Farb-Regler für WMS/WFS (dokumentierte Sackgassen in
-  `MapService`).
 - In-place-Mutation der Brew-/Breaks-Objekte durch das Classification-Panel
   (dokumentiert im `ClassificationStateService`) — echte Immutable-/Signal-
   Reaktivität wäre ein Folgeschritt beim Panel-Refactoring.

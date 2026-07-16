@@ -1,7 +1,5 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject, ReplaySubject, Subject } from 'rxjs';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 
 export interface MapRefreshObject {
   values: MapRefreshValues;
@@ -72,6 +70,7 @@ export type MapCommand =
   | { type: 'removeWmsLayer'; dataset: any }
   | { type: 'addWfsLayer'; dataset: any; opacity: any; useCluster: any }
   | { type: 'removeWfsLayer'; dataset: any }
+  | { type: 'adjustWfsLayerColor'; dataset: any; opacity: any }
   // file layers
   | { type: 'addFileLayer'; dataset: any }
   | { type: 'adjustFileLayerOpacity'; dataset: any; opacity: any }
@@ -103,8 +102,6 @@ export interface DateSliderObject {
   providedIn: 'root',
 })
 export class MapService {
-  private broadcastService = inject(BroadcastService);
-
   private mapRefreshStateSubject = new BehaviorSubject<MapRefreshObject>({
     values: {
       indicator: undefined,
@@ -314,23 +311,8 @@ export class MapService {
     this.command({ type: 'removeWfsLayer', dataset: wfs });
   }
 
-  /**
-   * Dead end kept from the legacy code: nothing ever consumed this message in
-   * the Angular app (the WMS opacity slider has no effect on the main map).
-   * Kept so the caller in kommonitor-legend keeps compiling until the feature
-   * is deliberately (re)implemented.
-   */
-  adjustOpacityForWmsLayer(dataset, opacity) {
-    this.broadcastService.broadcast(BroadcastMessage.AdjustOpacityForWmsLayer, [dataset, opacity]);
-  }
-
-  /**
-   * Dead end kept from the legacy code: nothing ever consumed this message in
-   * the Angular app. Kept so the caller in georesource-layer.service keeps
-   * compiling until the feature is deliberately (re)implemented.
-   */
   adjustColorForWfsLayer(dataset, opacity) {
-    this.broadcastService.broadcast(BroadcastMessage.AdjustColorForWfsLayer, [dataset, opacity]);
+    this.command({ type: 'adjustWfsLayerColor', dataset, opacity });
   }
 
   // --- file layers ---

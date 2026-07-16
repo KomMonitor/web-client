@@ -152,6 +152,22 @@ export class OgcLayerManagerService {
     this.removeLayersByTitle(dataset.title);
   }
 
+  /**
+   * Restyles a displayed WFS layer after its configured colors changed.
+   * NOTE (legacy behavior): for POI WFS layers the overlay is a marker feature
+   * group — FeatureGroup.setStyle only reaches children that support setStyle,
+   * so markers keep their color (it lives in awesome-marker CSS classes).
+   */
+  adjustWfsColor(dataset, opacity) {
+    const newStyle = this.getWfsStyle(dataset, opacity);
+
+    this.context.layerControl._layers.forEach((layer) => {
+      if (layer.group.name === MAP_LAYER_GROUPS.wfs && layer.name.includes(dataset.title)) {
+        layer.layer.setStyle(newStyle);
+      }
+    });
+  }
+
   // matches by layer name only (not by group), mirroring the legacy behavior
   private removeLayersByTitle(title: string) {
     this.context.layerControl._layers.forEach((layer) => {
