@@ -8,6 +8,7 @@ import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-servi
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { MapService } from 'services/map-service/map.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -29,6 +30,7 @@ export class IndicatorRadarComponent implements OnInit {
   private topicHierarchyStore = inject(TopicHierarchyStoreService);
   private filterHelperService = inject(FilterHelperService);
   private broadcastService = inject(BroadcastService);
+  private mapService = inject(MapService);
   private envConfigService = inject(EnvConfigService);
 
   activeTab = 0;
@@ -121,6 +123,11 @@ export class IndicatorRadarComponent implements OnInit {
       this.chartTitle = `Indikatorenradar - ${this.spatialUnitName}`;
     }, 2000);
 
+    this.mapService.mapCommand$.subscribe((command) => {
+      if (command.type === 'beginIndicatorTimeSetup')
+        this.onAllIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
+    });
+
     this.broadcastService.currentBroadcastMsg.subscribe((result) => {
       const msg = result.msg;
       const val: any = result.values;
@@ -136,11 +143,6 @@ export class IndicatorRadarComponent implements OnInit {
             this.onUpdateDiagrams(val);
           }
           break;
-        case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupBegin:
-          {
-            this.onAllIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
-          }
-          break;
         case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupCompleted:
           {
             this.onAllIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_completed();
@@ -154,11 +156,6 @@ export class IndicatorRadarComponent implements OnInit {
         case BroadcastMessage.UpdateDiagramsForUnhoveredFeature:
           {
             this.onUpdateDiagramsForUnhoveredFeature(val);
-          }
-          break;
-        case BroadcastMessage.UnselectAllFeatures:
-          {
-            // no-op
           }
           break;
       }
@@ -220,7 +217,7 @@ export class IndicatorRadarComponent implements OnInit {
     console.log('updating radar diagram');
     this.setupCompleted = false;
     this.updateRadarChart(indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date);
-    this.broadcastService.broadcast(BroadcastMessage.PreserveHighlightedFeatures);
+    this.mapService.preserveHighlightedFeatures();
   }
 
   // RADAR CHART TIME SERIES FUNCTION
@@ -596,9 +593,7 @@ export class IndicatorRadarComponent implements OnInit {
         const spatialFeatureName = params.data.name;
         // console.log(spatialFeatureName);
         if (spatialFeatureName) {
-          this.broadcastService.broadcast(BroadcastMessage.HighlightFeatureOnMap, [
-            spatialFeatureName,
-          ]);
+          this.mapService.highlightFeature(spatialFeatureName);
         }
       });
       this.radarChart.on('mouseOut', (params) => {
@@ -606,9 +601,7 @@ export class IndicatorRadarComponent implements OnInit {
         const spatialFeatureName = params.data.name;
         // console.log(spatialFeatureName);
         if (spatialFeatureName) {
-          this.broadcastService.broadcast(BroadcastMessage.UnhighlightFeatureOnMap, [
-            spatialFeatureName,
-          ]);
+          this.mapService.unhighlightFeature(spatialFeatureName);
         }
       });
       //disable feature removal for radar chart - seems to be unintuititve
@@ -616,7 +609,7 @@ export class IndicatorRadarComponent implements OnInit {
       // 	var spatialFeatureName = params.data.name;
       // 	// console.log(spatialFeatureName);
       // if(spatialFeatureName){
-      // 	this.broadcastService.broadcast(BroadcastMessage.SwitchHighlightFeatureOnMap, spatialFeatureName);
+      // 	this.mapService.switchHighlightFeature(spatialFeatureName);
       // }
       // });
       this.eventsRegistered = true;

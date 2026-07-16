@@ -3,6 +3,12 @@
 Vorschlag, die freien String-Message-Namen des `BroadcastService` durch typisierte
 Konstanten zu ersetzen, um spätere Refactorings abzusichern.
 Stand: 2026-06-26, Branch `feature/migration-bootstrap`.
+
+> **Update Juli 2026 (Map-Refactoring Phase 5, siehe `MAP_REFACTORING_PLAN.md`):**
+> Die Zahlen unten sind historisch. Die Map-Komponente ist **keine** Bus-Drehscheibe
+> mehr — alle vormals von ihr konsumierten Messages laufen über den typisierten
+> `MapService.mapCommand$`-Kanal; 40 verwaiste Einträge wurden aus
+> `BroadcastMessage` gelöscht (103 → 63 Message-Typen).
 Zahlen verifiziert per Code-Bestandsaufnahme am 2026-06-26 (siehe Abschnitt
 „Bestandsaufnahme").
 

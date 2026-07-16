@@ -6,6 +6,7 @@ import { LabelService } from 'services/label-service/label.service';
 import * as echarts from 'echarts';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { MapService } from 'services/map-service/map.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -28,6 +29,7 @@ export class KommonitorDiagramsComponent implements OnInit {
   protected labelService = inject(LabelService);
   private diagramHelperService = inject(DiagramHelperServiceService);
   private broadcastService = inject(BroadcastService);
+  private mapService = inject(MapService);
   private filterHelperService = inject(FilterHelperService);
   protected envConfigService = inject(EnvConfigService);
 
@@ -296,9 +298,7 @@ export class KommonitorDiagramsComponent implements OnInit {
         const spatialFeatureName = this.barOption.xAxis.data[dataIndex];
         if (spatialFeatureName) {
           // console.log(spatialFeatureName);
-          this.broadcastService.broadcast(BroadcastMessage.HighlightFeatureOnMap, [
-            spatialFeatureName,
-          ]);
+          this.mapService.highlightFeature(spatialFeatureName);
         }
       });
 
@@ -316,9 +316,7 @@ export class KommonitorDiagramsComponent implements OnInit {
         const spatialFeatureName = this.barOption.xAxis.data[dataIndex];
         // console.log(spatialFeatureName);
         if (spatialFeatureName) {
-          this.broadcastService.broadcast(BroadcastMessage.UnhighlightFeatureOnMap, [
-            spatialFeatureName,
-          ]);
+          this.mapService.unhighlightFeature(spatialFeatureName);
         }
       });
 
@@ -335,9 +333,7 @@ export class KommonitorDiagramsComponent implements OnInit {
         const spatialFeatureName = this.barOption.xAxis.data[dataIndex];
         // console.log(spatialFeatureName);
         if (spatialFeatureName) {
-          this.broadcastService.broadcast(BroadcastMessage.SwitchHighlightFeatureOnMap, [
-            spatialFeatureName,
-          ]);
+          this.mapService.switchHighlightFeature(spatialFeatureName);
         }
       });
 

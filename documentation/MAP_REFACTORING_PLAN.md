@@ -182,10 +182,20 @@ statt Broadcast.**
 **Umsetzungsnotiz:** Die Reihenfolge „`initMap()` → env-`sortableLayers` zuweisen" wurde 1:1 beibehalten — d. h. das Layer-Control bekommt wie bisher den Default-Wert, die env-Konfiguration griff auch vorher nie fürs Control (dokumentierter Alt-Quirk, kein stiller Fix).
 `kommonitor-map.component.ts`: 2020 → **1499 Zeilen**.
 
-### Phase 5 — Broadcast-Abbau
+### Phase 5 — Broadcast-Abbau ✅ (umgesetzt Juli 2026)
 
-- [ ] Die verbleibenden ~35 Broadcast-Cases schrittweise durch typisierte `MapService`-Methoden/Subjects ersetzen (Signaturen existieren im `MapService` bereits — es fehlt nur die direkte Zustellung statt des Umwegs über den globalen Bus)
-- [ ] Am Ende abonniert die Map-Komponente nur noch wenige typisierte Streams
+- [x] `MapService` besitzt jetzt einen typisierten Kanal `mapCommand$` mit der Discriminated Union `MapCommand` (~37 Kommandos) plus je einer Sender-Methode; **alle** vormals über den Bus konsumierten Map-Messages laufen darüber
+- [x] Die Map-Komponente hat **keine** `BroadcastService`-Subscription mehr — sie abonniert `mapCommand$` (ein exhaustiver, typisierter Dispatcher: Layer-Kommandos → Manager, Styling/Highlight/UI → eigene Handler) plus die bestehenden typisierten Streams (`indicatorRenderRequest$`, `mapRecenter$`, Reachability)
+- [x] Alle Sender umgehängt: `kommonitor-classification` (14 Aufrufe), `kommonitor-legend`, `user-interface` (5), `kommonitor-filter`, `kommonitor-data-setup` (9 Loading-Icon-Aufrufe), `georesource-layer.service`, `map-error-notification`, `kommonitor-diagrams`/`indicator-radar`/`regression-diagram` (Highlight/Preserve), `diagram-helper` (Time-Setup-Begin)
+- [x] Mit-Empfänger der geteilten Kommandos abonnieren jetzt ebenfalls `mapCommand$`: `kommonitor-data-setup` (`changeSpatialUnit`), `kommonitor-legend` (`onGlobalFilterChange`), `indicator-radar`/`regression-diagram` (`beginIndicatorTimeSetup`)
+- [x] **40 verwaiste `BroadcastMessage`-Einträge gelöscht** (Bus: 103 → 63 Message-Typen)
+
+**Umsetzungsnotizen / bewusste Änderungen:**
+- `mapCommand$` ist ein plain `Subject` (kein Replay). Der alte Bus replayte ohnehin nur die *letzte* Message beliebigen Typs an Spätabonnenten — praktisch kein Verlust; dokumentiert für den Fall früher Kommandos vor Map-Init.
+- **Datei-Layer-Entfernung gefixt:** `mapService.removeFileLayerFromMap` (Aufrufer: `kommonitor-data-import`, 3 Stellen) hatte auf dem Bus keinen Empfänger-Case — Datei-Layer konnten nie entfernt werden. Jetzt verdrahtet (`removeFileLayer`-Kommando → `FileLayerManagerService`).
+- Handler-Signaturen der Map-Komponente von Positions-Arrays auf benannte Parameter umgestellt (`changeBreaks(breaks)` statt `changeBreaks([breaks])` usw.); komponenteninterne `RestyleCurrentLayer`-Broadcasts (7 Stellen) sind direkte `this.restyleCurrentLayer(false)`-Aufrufe.
+- Bewusst als **dokumentierte Sackgassen** erhalten (Feature war schon vor dem Refactoring wirkungslos, Re-Implementierung wäre neues Feature): `adjustOpacityForWmsLayer` (Aufrufer: Legende) und `adjustColorForWfsLayer` (Aufrufer: `georesource-layer.service`) broadcasten weiter ins Leere; die vier komplett aufruferlosen `adjustOpacityFor{Aoi,Poi,Loi,Wfs}Layer`-Methoden sind gelöscht.
+- Die Map-Komponente **sendet** weiterhin auf dem Bus (`UpdateLegendDisplay`, `UpdateDiagrams`, `IndicatortMapDisplayFinished`, Hover-Updates) — deren Empfänger sind Legende/Diagramme; das ist deren Refactoring-Baustelle, nicht die der Karte.
 
 ---
 
@@ -199,11 +209,16 @@ statt Broadcast.**
 | 2b | offen | hoch | Signal-State, zustandsloser VisualStyleHelper | braucht Umbau von Classification + Legende |
 | 3 | ✅ erledigt | mittel | Komponente schrumpft massiv | — |
 | 4 | ✅ erledigt | gering–mittel | saubere Init, kein Timer | — |
-| 5 | offen | mittel | Bus-Entkopplung | Weg frei (3 ✓) |
+| 5 | ✅ erledigt | mittel | Bus-Entkopplung | — |
 
-**Empfehlung:** Nächster Schritt: **Phase 5** (Broadcast-Abbau — die Manager und
-der `MapControlsService` sind jetzt die natürlichen Ziele für typisierte
-Zustellung). Phase 2b (Signal-Migration des Klassifikations-States) als eigenes,
-größeres Vorhaben planen, wenn Classification-Komponente/Legende ohnehin
-angefasst werden. Offener Rest aus Phase 4: jQuery-Toggles der Leaflet-Controls
-(gebündelt im `MapControlsService`).
+**Alle Phasen des Plans sind umgesetzt** (Phase 2 ohne den bewusst abgetrennten
+Signal-Teil). Verbleibende, bewusst offene Punkte:
+- **Phase 2b**: Signal-Migration des Klassifikations-States (VisualStyleHelper
+  zustandslos machen) — eigenes Vorhaben, zieht Classification-Komponente und
+  Legende mit.
+- jQuery-Toggles der Leaflet-Controls (gebündelt im `MapControlsService`).
+- Die von der Map-Komponente **gesendeten** Bus-Messages (`UpdateLegendDisplay`,
+  `UpdateDiagrams`, …) — typisierte Zustellung wäre der nächste Schritt, gehört
+  aber zum Refactoring von Legende/Diagrammen.
+- Wirkungslose Opacity-/Farb-Regler für WMS/WFS (dokumentierte Sackgassen in
+  `MapService`).

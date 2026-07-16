@@ -33,7 +33,7 @@ import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-servic
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { MAP_LAYER_GROUPS, MapContext } from 'services/map-service/map-context';
-import { MapService } from 'services/map-service/map.service';
+import { MapCommand, MapService } from 'services/map-service/map.service';
 import { OgcLayerManagerService } from 'services/ogc-layer-manager-service/ogc-layer-manager.service';
 import { ReachabilityLayerManagerService } from 'services/reachability-layer-manager-service/reachability-layer-manager.service';
 
@@ -253,207 +253,136 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         }
       });
 
-    // catch broadcast msgs
-    this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
-      const title = broadcastMsg.msg;
-      const values: any = broadcastMsg.values;
+    // typed map command channel (map refactoring plan, Phase 5); this component
+    // is the single dispatcher for layer/styling/UI commands on the main map
+    this.mapService.mapCommand$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((command) => this.handleMapCommand(command));
+  }
 
-      switch (title) {
-        case BroadcastMessage.ChangeClassifyMethod:
-          {
-            this.changeClassifyMethod(values);
-          }
-          break;
-        case BroadcastMessage.ChangeNumClasses:
-          {
-            this.changeNumClasses(values);
-          }
-          break;
-        case BroadcastMessage.ChangeSpatialUnit:
-          {
-            this.onChangeSpatialUnit();
-          }
-          break;
-        case BroadcastMessage.ShowLoadingIconOnMap:
-          {
-            this.showLoadingIconOnMap();
-          }
-          break;
-        case BroadcastMessage.HideLoadingIconOnMap:
-          {
-            this.hideLoadingIconOnMap();
-          }
-          break;
-        case BroadcastMessage.AddPoiGeoresourceAsGeoJSON:
-          {
-            const [georesource, date, useCluster] = values;
-            this.georesourceLayerManager.addPoiGeoresource(georesource, date, useCluster);
-          }
-          break;
-        case BroadcastMessage.RemovePoiGeoresource:
-          {
-            const [georesource] = values;
-            this.georesourceLayerManager.removePoiGeoresource(georesource);
-          }
-          break;
-        case BroadcastMessage.AddWmsLayerToMap:
-          {
-            const [dataset, opacity] = values;
-            this.ogcLayerManager.addWmsLayer(dataset, opacity);
-          }
-          break;
-        case BroadcastMessage.RemoveWmsLayerFromMap:
-          {
-            const [dataset] = values;
-            this.ogcLayerManager.removeWmsLayer(dataset);
-          }
-          break;
-        case BroadcastMessage.AddWfsLayerToMap:
-          {
-            const [dataset, opacity, useCluster] = values;
-            this.ogcLayerManager.addWfsLayer(dataset, opacity, useCluster);
-          }
-          break;
-        case BroadcastMessage.RemoveWfsLayerFromMap:
-          {
-            // the legacy handler received the whole payload array as dataset,
-            // so removal silently never matched — fixed while extracting
-            const [dataset] = values;
-            this.ogcLayerManager.removeWfsLayer(dataset);
-          }
-          break;
-        case BroadcastMessage.AddLoiGeoresourceAsGeoJSON:
-          {
-            const [georesource, date] = values;
-            this.georesourceLayerManager.addLoiGeoresource(georesource, date);
-          }
-          break;
-        case BroadcastMessage.RemoveLoiGeoresource:
-          {
-            // the legacy handler received the whole payload array as dataset,
-            // so removal silently never matched — fixed while extracting
-            const [georesource] = values;
-            this.georesourceLayerManager.removeLoiGeoresource(georesource);
-          }
-          break;
-        case BroadcastMessage.AddAoiGeoresourceAsGeoJSON:
-          {
-            const [georesource, date] = values;
-            this.georesourceLayerManager.addAoiGeoresource(georesource, date);
-          }
-          break;
-        case BroadcastMessage.RemoveAoiGeoresource:
-          {
-            const [georesource] = values;
-            this.georesourceLayerManager.removeAoiGeoresource(georesource);
-          }
-          break;
-        case BroadcastMessage.ExportMap:
-          {
-            this.exportMap();
-          }
-          break;
-        case BroadcastMessage.ToggleInfoControl:
-          {
-            this.toggleInfoControl();
-          }
-          break;
-        case BroadcastMessage.ChangeDynamicBreaks:
-          {
-            this.changeDynamicBreaks(values);
-          }
-          break;
-        case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupBegin:
-          {
-            this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
-          }
-          break;
-        case BroadcastMessage.RestyleCurrentLayer:
-          {
-            this.restyleCurrentLayer(values);
-          }
-          break;
-        case BroadcastMessage.PreserveHighlightedFeatures:
-          {
-            this.preserveHighlightedFeatures();
-          }
-          break;
-        case BroadcastMessage.ChangeColorScheme:
-          {
-            this.changeColorScheme(values);
-          }
-          break;
-        case BroadcastMessage.ChangeBreaks:
-          {
-            this.changeBreaks(values);
-          }
-          break;
-        case BroadcastMessage.UnselectAllFeatures:
-          {
-            this.unselectAllFeatures();
-          }
-          break;
-        case BroadcastMessage.OnGlobalFilterChange:
-          {
-            this.onGlobalFilterChange();
-          }
-          break;
-        case BroadcastMessage.OpenLayerControl:
-          {
-            this.mapControlsService.openLayerControl();
-          }
-          break;
-        case BroadcastMessage.HighlightFeatureOnMap:
-          {
-            this.highlightFeatureOnMap(values);
-          }
-          break;
-        case BroadcastMessage.SwitchHighlightFeatureOnMap:
-          {
-            this.switchHighlightFeatureOnMap(values);
-          }
-          break;
-        case BroadcastMessage.UnhighlightFeatureOnMap:
-          {
-            this.unhighlightFeatureOnMap(values);
-          }
-          break;
-        case BroadcastMessage.ToggleExpertControl:
-          {
-            this.mapControlsService.toggleExpertControls();
-          }
-          break;
-        case BroadcastMessage.AddFileLayerToMap:
-          {
-            const [dataset, opacity] = values;
-            this.fileLayerManager.addFileLayer(dataset, opacity);
-          }
-          break;
-        case BroadcastMessage.AdjustOpacityForFileLayer:
-          {
-            const [dataset, opacity] = values;
-            this.fileLayerManager.adjustOpacity(dataset, opacity);
-          }
-          break;
-        case BroadcastMessage.AdjustColorForFileLayer:
-          {
-            // this message carries the dataset directly, not wrapped in an array
-            this.fileLayerManager.adjustColor(values);
-          }
-          break;
-        case BroadcastMessage.ReplaceReachabilityScenarioOnMainMap:
-          {
-            const [reachabilityScenario] = values;
-            this.reachabilityLayerManager.replaceScenario(reachabilityScenario);
-          }
-          break;
-        case BroadcastMessage.RemoveReachabilityScenarioFromMainMap:
-          {
-            this.reachabilityLayerManager.removeScenario();
-          }
-          break;
-      }
-    });
+  private handleMapCommand(command: MapCommand) {
+    switch (command.type) {
+      // indicator classification controls
+      case 'changeClassifyMethod':
+        this.changeClassifyMethod(command.method);
+        break;
+      case 'changeNumClasses':
+        this.changeNumClasses(command.numClasses);
+        break;
+      case 'changeColorScheme':
+        this.changeColorScheme(command.colorSchemeName);
+        break;
+      case 'changeBreaks':
+        this.changeBreaks(command.breaks);
+        break;
+      case 'changeDynamicBreaks':
+        this.changeDynamicBreaks(command.breaks);
+        break;
+      case 'restyleCurrentLayer':
+        this.restyleCurrentLayer(command.skipDiagramRefresh);
+        break;
+      case 'changeSpatialUnit':
+        this.onChangeSpatialUnit();
+        break;
+      case 'beginIndicatorTimeSetup':
+        this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
+        break;
+      // feature highlighting
+      case 'highlightFeature':
+        this.highlightFeatureOnMap(command.featureName);
+        break;
+      case 'unhighlightFeature':
+        this.unhighlightFeatureOnMap(command.featureName);
+        break;
+      case 'switchHighlightFeature':
+        this.switchHighlightFeatureOnMap(command.featureName);
+        break;
+      case 'preserveHighlightedFeatures':
+        this.preserveHighlightedFeatures();
+        break;
+      case 'unselectAllFeatures':
+        this.unselectAllFeatures();
+        break;
+      // georesource layers
+      case 'addPoiGeoresource':
+        this.georesourceLayerManager.addPoiGeoresource(
+          command.georesource,
+          command.date,
+          command.useCluster
+        );
+        break;
+      case 'removePoiGeoresource':
+        this.georesourceLayerManager.removePoiGeoresource(command.georesource);
+        break;
+      case 'addLoiGeoresource':
+        this.georesourceLayerManager.addLoiGeoresource(command.georesource, command.date);
+        break;
+      case 'removeLoiGeoresource':
+        this.georesourceLayerManager.removeLoiGeoresource(command.georesource);
+        break;
+      case 'addAoiGeoresource':
+        this.georesourceLayerManager.addAoiGeoresource(command.georesource, command.date);
+        break;
+      case 'removeAoiGeoresource':
+        this.georesourceLayerManager.removeAoiGeoresource(command.georesource);
+        break;
+      // OGC layers
+      case 'addWmsLayer':
+        this.ogcLayerManager.addWmsLayer(command.dataset, command.opacity);
+        break;
+      case 'removeWmsLayer':
+        this.ogcLayerManager.removeWmsLayer(command.dataset);
+        break;
+      case 'addWfsLayer':
+        this.ogcLayerManager.addWfsLayer(command.dataset, command.opacity, command.useCluster);
+        break;
+      case 'removeWfsLayer':
+        this.ogcLayerManager.removeWfsLayer(command.dataset);
+        break;
+      // file layers
+      case 'addFileLayer':
+        this.fileLayerManager.addFileLayer(command.dataset, undefined);
+        break;
+      case 'adjustFileLayerOpacity':
+        this.fileLayerManager.adjustOpacity(command.dataset, command.opacity);
+        break;
+      case 'adjustFileLayerColor':
+        this.fileLayerManager.adjustColor(command.dataset);
+        break;
+      case 'removeFileLayer':
+        // formerly unwired on the broadcast bus — file layers could never be removed
+        this.fileLayerManager.removeFileLayer(command.dataset);
+        break;
+      // reachability scenario
+      case 'replaceReachabilityScenario':
+        this.reachabilityLayerManager.replaceScenario(command.reachabilityScenario);
+        break;
+      case 'removeReachabilityScenario':
+        this.reachabilityLayerManager.removeScenario();
+        break;
+      // map UI
+      case 'showLoadingIcon':
+        this.showLoadingIconOnMap();
+        break;
+      case 'hideLoadingIcon':
+        this.hideLoadingIconOnMap();
+        break;
+      case 'exportMap':
+        this.exportMap();
+        break;
+      case 'toggleInfoControl':
+        this.toggleInfoControl();
+        break;
+      case 'toggleExpertControls':
+        this.mapControlsService.toggleExpertControls();
+        break;
+      case 'openLayerControl':
+        this.mapControlsService.openLayerControl();
+        break;
+      case 'onGlobalFilterChange':
+        this.onGlobalFilterChange();
+        break;
+    }
   }
 
   ngAfterViewInit(): void {
@@ -838,34 +767,34 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }
   }
 
-  changeClassifyMethod([method]) {
+  changeClassifyMethod(method) {
     this.visualStyleHelperService.classifyMethod = method;
 
     setTimeout(() => {
       this.visualStyleHelperService.classifyMethod = method;
     }, 350);
 
-    this.broadcastService.broadcast(BroadcastMessage.RestyleCurrentLayer, [false]);
+    this.restyleCurrentLayer(false);
   }
 
-  changeNumClasses([num]) {
+  changeNumClasses(num) {
     this.visualStyleHelperService.numClasses = num;
 
     setTimeout(() => {
       this.visualStyleHelperService.numClasses = num;
     }, 350);
 
-    this.broadcastService.broadcast(BroadcastMessage.RestyleCurrentLayer, [false]);
+    this.restyleCurrentLayer(false);
   }
 
-  changeColorScheme([colorSchemeName]) {
+  changeColorScheme(colorSchemeName) {
     this.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName =
       colorSchemeName;
 
-    this.broadcastService.broadcast(BroadcastMessage.RestyleCurrentLayer, [false]);
+    this.restyleCurrentLayer(false);
   }
 
-  changeBreaks([breaks]) {
+  changeBreaks(breaks) {
     breaks = [...new Set(breaks)];
     breaks.sort(function (a, b) {
       return a - b;
@@ -881,11 +810,11 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.indicatorClassificationService.updateManualMOVBreaksFromDefaultManualBreaks(
         this.isDynamicOrNegativeLayer()
       );
-      this.broadcastService.broadcast(BroadcastMessage.RestyleCurrentLayer, [false]);
+      this.restyleCurrentLayer(false);
     }, 1);
   }
 
-  changeDynamicBreaks([breaks]) {
+  changeDynamicBreaks(breaks) {
     breaks[0] = [...new Set(breaks[0])];
     breaks[0].sort(function (a, b) {
       return a - b;
@@ -916,7 +845,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.isDynamicOrNegativeLayer()
     );
 
-    this.broadcastService.broadcast(BroadcastMessage.RestyleCurrentLayer, [false]);
+    this.restyleCurrentLayer(false);
   }
 
   /**
@@ -1364,10 +1293,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.indicatorClassificationService.updateManualMOVBreaksFromDefaultManualBreaks(
       this.isDynamicOrNegativeLayer()
     );
-    this.broadcastService.broadcast(BroadcastMessage.RestyleCurrentLayer, [false]);
+    this.restyleCurrentLayer(false);
   }
 
-  restyleCurrentLayer([skipDiagramRefresh]) {
+  restyleCurrentLayer(skipDiagramRefresh) {
     this.refreshFilteredStyle();
     this.refreshOutliersStyle();
     this.refreshNoDataStyle();
@@ -1433,7 +1362,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.map.invalidateSize(true);
   }
 
-  highlightFeatureOnMap([spatialFeatureName]) {
+  highlightFeatureOnMap(spatialFeatureName) {
     if (!spatialFeatureName) {
       return;
     }
@@ -1452,7 +1381,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     });
   }
 
-  unhighlightFeatureOnMap([spatialFeatureName]) {
+  unhighlightFeatureOnMap(spatialFeatureName) {
     if (!spatialFeatureName) {
       return;
     }
@@ -1494,6 +1423,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   unselectAllFeatures() {
     this.filterHelperService.clearSelectedFeatures();
-    this.broadcastService.broadcast(BroadcastMessage.RestyleCurrentLayer, [false]);
+    this.restyleCurrentLayer(false);
   }
 }

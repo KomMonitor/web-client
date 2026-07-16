@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, ReplaySubject } from 'rxjs';
+import { BehaviorSubject, ReplaySubject, Subject } from 'rxjs';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 
@@ -35,6 +35,60 @@ export interface IndicatorRenderRequest {
   source: 'selection' | 'dataset-replacement';
 }
 
+/**
+ * Typed command for the main map (map refactoring plan, Phase 5 — replaces the
+ * former untyped BroadcastService messages consumed by KommonitorMapComponent).
+ * The map component is the single dispatcher: it forwards layer commands to the
+ * layer manager services and handles the styling/highlight/UI commands itself.
+ * A few sidebar components subscribe too, filtering for the commands they share
+ * with the map (changeSpatialUnit, unselectAllFeatures, beginIndicatorTimeSetup,
+ * onGlobalFilterChange).
+ */
+export type MapCommand =
+  // indicator classification controls
+  | { type: 'changeClassifyMethod'; method: any }
+  | { type: 'changeNumClasses'; numClasses: any }
+  | { type: 'changeColorScheme'; colorSchemeName: any }
+  | { type: 'changeBreaks'; breaks: any }
+  | { type: 'changeDynamicBreaks'; breaks: any }
+  | { type: 'restyleCurrentLayer'; skipDiagramRefresh: boolean }
+  | { type: 'changeSpatialUnit' }
+  | { type: 'beginIndicatorTimeSetup' }
+  // feature highlighting
+  | { type: 'highlightFeature'; featureName: any }
+  | { type: 'unhighlightFeature'; featureName: any }
+  | { type: 'switchHighlightFeature'; featureName: any }
+  | { type: 'preserveHighlightedFeatures' }
+  | { type: 'unselectAllFeatures' }
+  // georesource layers
+  | { type: 'addPoiGeoresource'; georesource: any; date: any; useCluster: any }
+  | { type: 'removePoiGeoresource'; georesource: any }
+  | { type: 'addLoiGeoresource'; georesource: any; date: any }
+  | { type: 'removeLoiGeoresource'; georesource: any }
+  | { type: 'addAoiGeoresource'; georesource: any; date: any }
+  | { type: 'removeAoiGeoresource'; georesource: any }
+  // OGC layers
+  | { type: 'addWmsLayer'; dataset: any; opacity: any }
+  | { type: 'removeWmsLayer'; dataset: any }
+  | { type: 'addWfsLayer'; dataset: any; opacity: any; useCluster: any }
+  | { type: 'removeWfsLayer'; dataset: any }
+  // file layers
+  | { type: 'addFileLayer'; dataset: any }
+  | { type: 'adjustFileLayerOpacity'; dataset: any; opacity: any }
+  | { type: 'adjustFileLayerColor'; dataset: any }
+  | { type: 'removeFileLayer'; dataset: any }
+  // reachability scenario
+  | { type: 'replaceReachabilityScenario'; reachabilityScenario: any }
+  | { type: 'removeReachabilityScenario' }
+  // map UI
+  | { type: 'showLoadingIcon' }
+  | { type: 'hideLoadingIcon' }
+  | { type: 'exportMap' }
+  | { type: 'toggleInfoControl' }
+  | { type: 'toggleExpertControls' }
+  | { type: 'openLayerControl' }
+  | { type: 'onGlobalFilterChange' };
+
 export interface MapRecenterObject {
   resize: boolean;
   recenter: boolean;
@@ -67,6 +121,9 @@ export class MapService {
   // replay behavior of the former BehaviorSubject-based refresh state).
   private indicatorRenderRequestSubject = new ReplaySubject<IndicatorRenderRequest>(1);
   indicatorRenderRequest$ = this.indicatorRenderRequestSubject.asObservable();
+
+  private mapCommandSubject = new Subject<MapCommand>();
+  mapCommand$ = this.mapCommandSubject.asObservable();
 
   private mapRecenterSubject = new BehaviorSubject<MapRecenterObject>({
     resize: false,
@@ -137,65 +194,6 @@ export class MapService {
     });
   }
 
-  removePoiGeoresource(reference) {
-    this.broadcastService.broadcast(BroadcastMessage.RemovePoiGeoresource, [reference]);
-  }
-
-  removeWfsLayerFromMap(wfs) {
-    this.broadcastService.broadcast(BroadcastMessage.RemoveWfsLayerFromMap, [wfs]);
-  }
-
-  addWfsLayerToMap(wfs, opacity, useCluster) {
-    this.broadcastService.broadcast(BroadcastMessage.AddWfsLayerToMap, [wfs, opacity, useCluster]);
-  }
-
-  removeLoiGeoresource(loiGeoresource) {
-    this.broadcastService.broadcast(BroadcastMessage.RemoveLoiGeoresource, [loiGeoresource]);
-  }
-
-  addWmsLayerToMap(dataset, opacity) {
-    this.broadcastService.broadcast(BroadcastMessage.AddWmsLayerToMap, [dataset, opacity]);
-  }
-
-  removeWmsLayerFromMap(dataset) {
-    this.broadcastService.broadcast(BroadcastMessage.RemoveWmsLayerFromMap, [dataset]);
-  }
-
-  adjustOpacityForWmsLayer(dataset, opacity) {
-    //this.ajskommonitorMapServiceProvider.adjustOpacityForWmsLayer(dataset, opacity);
-    this.broadcastService.broadcast(BroadcastMessage.AdjustOpacityForWmsLayer, [dataset, opacity]);
-  }
-
-  adjustOpacityForAoiLayer(dataset, opacity) {
-    //this.ajskommonitorMapServiceProvider.adjustOpacityForAoiLayer(dataset, opacity);
-    this.broadcastService.broadcast(BroadcastMessage.AdjustOpacityForAoiLayer, [dataset, opacity]);
-  }
-
-  adjustOpacityForPoiLayer(dataset, opacity) {
-    //this.ajskommonitorMapServiceProvider.adjustOpacityForPoiLayer(dataset, opacity);
-    this.broadcastService.broadcast(BroadcastMessage.AdjustOpacityForPoiLayer, [dataset, opacity]);
-  }
-
-  adjustOpacityForLoiLayer(dataset, opacity) {
-    //this.ajskommonitorMapServiceProvider.adjustOpacityForLoiLayer(dataset, opacity);
-    this.broadcastService.broadcast(BroadcastMessage.AdjustOpacityForLoiLayer, [dataset, opacity]);
-  }
-
-  adjustOpacityForWfsLayer(dataset, opacity) {
-    //this.ajskommonitorMapServiceProvider.adjustOpacityForWfsLayer(dataset, opacity);
-    this.broadcastService.broadcast(BroadcastMessage.AdjustOpacityForWfsLayer, [dataset, opacity]);
-  }
-
-  adjustColorForWfsLayer(dataset, opacity) {
-    //this.ajskommonitorMapServiceProvider.adjustColorForWfsLayer(dataset, opacity);
-    this.broadcastService.broadcast(BroadcastMessage.AdjustColorForWfsLayer, [dataset, opacity]);
-  }
-
-  restyleCurrentLayer() {
-    //this.ajskommonitorMapServiceProvider.restyleCurrentLayer();
-    this.broadcastService.broadcast(BroadcastMessage.RestyleCurrentLayer, [false]);
-  }
-
   replaceIndicatorGeoJSON(
     indicatorMetadataAndGeoJSON,
     spatialUnitName,
@@ -213,55 +211,186 @@ export class MapService {
     });
   }
 
-  addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster) {
-    this.broadcastService.broadcast(BroadcastMessage.AddPoiGeoresourceAsGeoJSON, [
-      poiGeoresource,
-      date,
-      useCluster,
-    ]);
+  command(command: MapCommand) {
+    this.mapCommandSubject.next(command);
   }
 
-  addAoiGeoresourceGeoJSON(aoiGeoresource, date) {
-    this.broadcastService.broadcast(BroadcastMessage.AddAoiGeoresourceAsGeoJSON, [
-      aoiGeoresource,
-      date,
-    ]);
+  // --- indicator classification controls ---
+
+  changeClassifyMethod(method) {
+    this.command({ type: 'changeClassifyMethod', method });
+  }
+
+  changeNumClasses(numClasses) {
+    this.command({ type: 'changeNumClasses', numClasses });
+  }
+
+  changeColorScheme(colorSchemeName) {
+    this.command({ type: 'changeColorScheme', colorSchemeName });
+  }
+
+  changeBreaks(breaks) {
+    this.command({ type: 'changeBreaks', breaks });
+  }
+
+  changeDynamicBreaks(breaks) {
+    this.command({ type: 'changeDynamicBreaks', breaks });
+  }
+
+  restyleCurrentLayer(skipDiagramRefresh = false) {
+    this.command({ type: 'restyleCurrentLayer', skipDiagramRefresh });
+  }
+
+  changeSpatialUnit() {
+    this.command({ type: 'changeSpatialUnit' });
+  }
+
+  beginIndicatorTimeSetup() {
+    this.command({ type: 'beginIndicatorTimeSetup' });
+  }
+
+  // --- feature highlighting ---
+
+  highlightFeature(featureName) {
+    this.command({ type: 'highlightFeature', featureName });
+  }
+
+  unhighlightFeature(featureName) {
+    this.command({ type: 'unhighlightFeature', featureName });
+  }
+
+  switchHighlightFeature(featureName) {
+    this.command({ type: 'switchHighlightFeature', featureName });
+  }
+
+  preserveHighlightedFeatures() {
+    this.command({ type: 'preserveHighlightedFeatures' });
+  }
+
+  unselectAllFeatures() {
+    this.command({ type: 'unselectAllFeatures' });
+  }
+
+  // --- georesource layers ---
+
+  addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster) {
+    this.command({ type: 'addPoiGeoresource', georesource: poiGeoresource, date, useCluster });
+  }
+
+  removePoiGeoresource(reference) {
+    this.command({ type: 'removePoiGeoresource', georesource: reference });
   }
 
   addLoiGeoresourceGeoJSON(loiGeoresource, date) {
-    this.broadcastService.broadcast(BroadcastMessage.AddLoiGeoresourceAsGeoJSON, [
-      loiGeoresource,
-      date,
-    ]);
+    this.command({ type: 'addLoiGeoresource', georesource: loiGeoresource, date });
+  }
+
+  removeLoiGeoresource(loiGeoresource) {
+    this.command({ type: 'removeLoiGeoresource', georesource: loiGeoresource });
+  }
+
+  addAoiGeoresourceGeoJSON(aoiGeoresource, date) {
+    this.command({ type: 'addAoiGeoresource', georesource: aoiGeoresource, date });
   }
 
   removeAoiGeoresource(aoiGeoresource) {
-    this.broadcastService.broadcast(BroadcastMessage.RemoveAoiGeoresource, [aoiGeoresource]);
+    this.command({ type: 'removeAoiGeoresource', georesource: aoiGeoresource });
   }
 
-  replaceReachabilityScenarioOnMainMap(reachabilityScenario) {
-    this.broadcastService.broadcast(BroadcastMessage.ReplaceReachabilityScenarioOnMainMap, [
-      reachabilityScenario,
-    ]);
+  // --- OGC layers ---
+
+  addWmsLayerToMap(dataset, opacity) {
+    this.command({ type: 'addWmsLayer', dataset, opacity });
   }
 
-  removeReachabilityScenarioFromMainMap() {
-    this.broadcastService.broadcast(BroadcastMessage.RemoveReachabilityScenarioFromMainMap);
+  removeWmsLayerFromMap(dataset) {
+    this.command({ type: 'removeWmsLayer', dataset });
   }
+
+  addWfsLayerToMap(wfs, opacity, useCluster) {
+    this.command({ type: 'addWfsLayer', dataset: wfs, opacity, useCluster });
+  }
+
+  removeWfsLayerFromMap(wfs) {
+    this.command({ type: 'removeWfsLayer', dataset: wfs });
+  }
+
+  /**
+   * Dead end kept from the legacy code: nothing ever consumed this message in
+   * the Angular app (the WMS opacity slider has no effect on the main map).
+   * Kept so the caller in kommonitor-legend keeps compiling until the feature
+   * is deliberately (re)implemented.
+   */
+  adjustOpacityForWmsLayer(dataset, opacity) {
+    this.broadcastService.broadcast(BroadcastMessage.AdjustOpacityForWmsLayer, [dataset, opacity]);
+  }
+
+  /**
+   * Dead end kept from the legacy code: nothing ever consumed this message in
+   * the Angular app. Kept so the caller in georesource-layer.service keeps
+   * compiling until the feature is deliberately (re)implemented.
+   */
+  adjustColorForWfsLayer(dataset, opacity) {
+    this.broadcastService.broadcast(BroadcastMessage.AdjustColorForWfsLayer, [dataset, opacity]);
+  }
+
+  // --- file layers ---
 
   addFileLayerToMap(dataset, _opacity) {
-    this.broadcastService.broadcast(BroadcastMessage.AddFileLayerToMap, [dataset]);
+    // NOTE: the opacity argument was never delivered in the legacy broadcast
+    // either — the file layer is added with its default opacity
+    this.command({ type: 'addFileLayer', dataset });
   }
 
   removeFileLayerFromMap(dataset) {
-    this.broadcastService.broadcast(BroadcastMessage.RemoveFileLayerFromMap, [dataset]);
+    this.command({ type: 'removeFileLayer', dataset });
   }
 
   adjustOpacityForFileLayer(dataset, opacity) {
-    this.broadcastService.broadcast(BroadcastMessage.AdjustOpacityForFileLayer, [dataset, opacity]);
+    this.command({ type: 'adjustFileLayerOpacity', dataset, opacity });
   }
 
   adjustColorForFileLayer(dataset) {
-    this.broadcastService.broadcast(BroadcastMessage.AdjustColorForFileLayer, dataset);
+    this.command({ type: 'adjustFileLayerColor', dataset });
+  }
+
+  // --- reachability scenario ---
+
+  replaceReachabilityScenarioOnMainMap(reachabilityScenario) {
+    this.command({ type: 'replaceReachabilityScenario', reachabilityScenario });
+  }
+
+  removeReachabilityScenarioFromMainMap() {
+    this.command({ type: 'removeReachabilityScenario' });
+  }
+
+  // --- map UI ---
+
+  showLoadingIcon() {
+    this.command({ type: 'showLoadingIcon' });
+  }
+
+  hideLoadingIcon() {
+    this.command({ type: 'hideLoadingIcon' });
+  }
+
+  exportMap() {
+    this.command({ type: 'exportMap' });
+  }
+
+  toggleInfoControl() {
+    this.command({ type: 'toggleInfoControl' });
+  }
+
+  toggleExpertControls() {
+    this.command({ type: 'toggleExpertControls' });
+  }
+
+  openLayerControl() {
+    this.command({ type: 'openLayerControl' });
+  }
+
+  onGlobalFilterChange() {
+    this.command({ type: 'onGlobalFilterChange' });
   }
 }

@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { MapService } from 'services/map-service/map.service';
 
 /**
  * Map application-error notification, extracted from DataExchangeService (Prio 7 / B4).
@@ -14,10 +13,10 @@ import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
   providedIn: 'root',
 })
 export class MapErrorNotificationService {
-  private broadcastService = inject(BroadcastService);
+  private mapService = inject(MapService);
 
   displayMapApplicationError(error) {
     console.error('Map application error:', error);
-    this.broadcastService.broadcast(BroadcastMessage.HideLoadingIconOnMap);
+    this.mapService.hideLoadingIcon();
   }
 }

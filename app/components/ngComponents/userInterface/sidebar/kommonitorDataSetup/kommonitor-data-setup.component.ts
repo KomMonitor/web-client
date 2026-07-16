@@ -87,6 +87,10 @@ export class KommonitorDataSetupComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((res) => (this.topicSorting = res));
 
+    this.mapService.mapCommand$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((command) => {
+      if (command.type === 'changeSpatialUnit') this.onChangeSelectedSpatialUnit();
+    });
+
     this.metadataBootstrap.metadataLoading$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
@@ -108,9 +112,6 @@ export class KommonitorDataSetupComponent implements OnInit {
         const values: any = res.values;
 
         switch (msg) {
-          case BroadcastMessage.ChangeSpatialUnit:
-            this.onChangeSelectedSpatialUnit();
-            break;
           case 'updateIndicatorOgcServices':
             this.dataSetupService.updateIndicatorOgcServices(values);
             break;
@@ -143,7 +144,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       );
       this.loadingData = false;
 
-      this.broadcastService.broadcast(BroadcastMessage.HideLoadingIconOnMap);
+      this.mapService.hideLoadingIcon();
 
       return;
     }
@@ -205,7 +206,7 @@ export class KommonitorDataSetupComponent implements OnInit {
         'Initiales Darstellen eines Indikators ist gescheitert.'
       );
       this.loadingData = false;
-      this.broadcastService.broadcast(BroadcastMessage.HideLoadingIconOnMap);
+      this.mapService.hideLoadingIcon();
 
       return;
     }
@@ -299,14 +300,14 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   private applyMeasureOfValueUpdate(): boolean {
     this.loadingData = true;
-    this.broadcastService.broadcast(BroadcastMessage.ShowLoadingIconOnMap);
+    this.mapService.showLoadingIcon();
 
     try {
       this.tryUpdateMeasureOfValueBarForIndicator();
     } catch (error) {
       console.error(error);
       this.loadingData = false;
-      this.broadcastService.broadcast(BroadcastMessage.HideLoadingIconOnMap);
+      this.mapService.hideLoadingIcon();
       this.mapErrorNotificationService.displayMapApplicationError(error);
       return false;
     }
@@ -318,7 +319,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     }
 
     this.loadingData = false;
-    this.broadcastService.broadcast(BroadcastMessage.HideLoadingIconOnMap);
+    this.mapService.hideLoadingIcon();
     return true;
   }
 
@@ -334,7 +335,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       error: (error) => {
         this.loadingData = false;
         this.mapErrorNotificationService.displayMapApplicationError(error);
-        this.broadcastService.broadcast(BroadcastMessage.HideLoadingIconOnMap);
+        this.mapService.hideLoadingIcon();
       },
     });
   }
@@ -387,7 +388,7 @@ export class KommonitorDataSetupComponent implements OnInit {
         // Hide the map's loading overlay too; onChangeSelectedIndicator showed it
         // via "showLoadingIconOnMap" and the success path only clears it after the
         // map renders, so without this the overlay stays stuck on a load failure.
-        this.broadcastService.broadcast(BroadcastMessage.HideLoadingIconOnMap);
+        this.mapService.hideLoadingIcon();
         this.mapErrorNotificationService.displayMapApplicationError(error);
       },
     });
@@ -398,7 +399,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     if (this.selectionState.selectedIndicator) {
       this.loadingData = true;
-      this.broadcastService.broadcast(BroadcastMessage.ShowLoadingIconOnMap);
+      this.mapService.showLoadingIcon();
 
       this.changeIndicatorWasClicked = true;
 
@@ -426,7 +427,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       } catch (error) {
         console.error(error);
         this.loadingData = false;
-        this.broadcastService.broadcast(BroadcastMessage.HideLoadingIconOnMap);
+        this.mapService.hideLoadingIcon();
 
         this.mapErrorNotificationService.displayMapApplicationError(error);
         return;

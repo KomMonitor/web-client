@@ -240,7 +240,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
       ? this.metadataBootstrap.fetchAllMetadata(this.globalFilterHelperService.applicationFilter)
       : this.metadataBootstrap.fetchAllMetadata();
 
-    this.broadcastService.broadcast(BroadcastMessage.OnGlobalFilterChange);
+    this.mapService.onGlobalFilterChange();
 
     // Clear the local spinner once the reload actually finishes (replaces the
     // former fixed 1s timeout). Consumers that need to react to the reload

@@ -239,24 +239,24 @@ export class UserInterfaceComponent implements OnInit {
   }
 
   onExportMapButtonClick() {
-    this.broadcastService.broadcast(BroadcastMessage.ExportMap);
+    this.mapService.exportMap();
   }
 
   onUnselectFeaturesButtonClick() {
-    this.broadcastService.broadcast(BroadcastMessage.UnselectAllFeatures);
+    this.mapService.unselectAllFeatures();
   }
 
   onOpenLayerControlButtonClick() {
-    this.broadcastService.broadcast(BroadcastMessage.OpenLayerControl);
+    this.mapService.openLayerControl();
   }
 
   onToggleInfoControlButtonClick() {
-    this.broadcastService.broadcast(BroadcastMessage.ToggleInfoControl);
+    this.mapService.toggleInfoControl();
   }
 
   onExpertButtonClick() {
     this.expertToolbarVisible = !this.expertToolbarVisible;
-    this.broadcastService.broadcast(BroadcastMessage.ToggleExpertControl);
+    this.mapService.toggleExpertControls();
   }
 
   onDiagramSubMenuOver() {

@@ -7,6 +7,7 @@ import { MetadataFilterService } from 'services/metadata-filter-service/metadata
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { MapService } from 'services/map-service/map.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { CommonModule } from '@angular/common';
@@ -40,6 +41,7 @@ export class RegressionDiagramComponent implements OnInit {
   private indicatorValueService = inject(IndicatorValueService);
   protected selectionState = inject(SelectionStateService);
   private broadcastService = inject(BroadcastService);
+  private mapService = inject(MapService);
   private filterHelperService = inject(FilterHelperService);
   private envConfigService = inject(EnvConfigService);
 
@@ -115,6 +117,11 @@ export class RegressionDiagramComponent implements OnInit {
     });
 
     // catch broadcast msgs
+    this.mapService.mapCommand$.subscribe((command) => {
+      if (command.type === 'beginIndicatorTimeSetup')
+        this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
+    });
+
     this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
       const title = broadcastMsg.msg;
       const values: any = broadcastMsg.values;
@@ -138,11 +145,6 @@ export class RegressionDiagramComponent implements OnInit {
         case 'resizeDiagrams':
           {
             this.resizeDiagrams();
-          }
-          break;
-        case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupBegin:
-          {
-            this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
           }
           break;
         case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupCompleted:
@@ -1063,7 +1065,7 @@ export class RegressionDiagramComponent implements OnInit {
 
         this.registerEventsIfNecessary();
 
-        this.broadcastService.broadcast(BroadcastMessage.PreserveHighlightedFeatures);
+        this.mapService.preserveHighlightedFeatures();
       }, 1500);
     }
   }
@@ -1076,9 +1078,7 @@ export class RegressionDiagramComponent implements OnInit {
         const spatialFeatureName = params.data.name;
         // console.log(spatialFeatureName);
         if (spatialFeatureName) {
-          this.broadcastService.broadcast(BroadcastMessage.HighlightFeatureOnMap, [
-            spatialFeatureName,
-          ]);
+          this.mapService.highlightFeature(spatialFeatureName);
         }
       });
 
@@ -1088,9 +1088,7 @@ export class RegressionDiagramComponent implements OnInit {
         const spatialFeatureName = params.data.name;
         // console.log(spatialFeatureName);
         if (spatialFeatureName) {
-          this.broadcastService.broadcast(BroadcastMessage.UnhighlightFeatureOnMap, [
-            spatialFeatureName,
-          ]);
+          this.mapService.unhighlightFeature(spatialFeatureName);
         }
       });
 
@@ -1098,9 +1096,7 @@ export class RegressionDiagramComponent implements OnInit {
         const spatialFeatureName = params.data.name;
         // console.log(spatialFeatureName);
         if (spatialFeatureName) {
-          this.broadcastService.broadcast(BroadcastMessage.SwitchHighlightFeatureOnMap, [
-            spatialFeatureName,
-          ]);
+          this.mapService.switchHighlightFeature(spatialFeatureName);
         }
       });
 

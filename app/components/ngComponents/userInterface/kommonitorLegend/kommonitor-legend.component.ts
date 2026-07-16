@@ -182,6 +182,10 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       });
     });
 
+    this.mapService.mapCommand$.subscribe((command) => {
+      if (command.type === 'onGlobalFilterChange') this.onGlobalFilterChange();
+    });
+
     this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
       const title = broadcastMsg.msg;
     });
@@ -219,11 +223,6 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
         case BroadcastMessage.UpdateDatePickerSelectedDate:
           {
             this.onUpdateDatePickerSelectedDate(values);
-          }
-          break;
-        case BroadcastMessage.OnGlobalFilterChange:
-          {
-            this.onGlobalFilterChange();
           }
           break;
       }
@@ -309,7 +308,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
         this.selectionState.selectedSpatialUnit.spatialUnitId != this.actualSelectedSpatialUnitId
       ) {
         this.actualSelectedSpatialUnitId = this.selectionState.selectedSpatialUnit.spatialUnitId;
-        this.broadcastService.broadcast(BroadcastMessage.ChangeSpatialUnit);
+        this.mapService.changeSpatialUnit();
 
         if (this.envConfigService.enableSpatialUnitNotificationSelection) {
           if (!(localStorage.getItem('hideKomMonitorSpatialUnitNotification') === 'true')) {

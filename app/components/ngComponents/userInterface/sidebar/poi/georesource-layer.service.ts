@@ -3,8 +3,6 @@ import { Injectable, inject } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
 import { GeoressourceExportModalComponent } from 'components/ngComponents/userInterface/exporting/georessource-export-modal/georessource-export-modal.component';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
@@ -30,7 +28,6 @@ export class GeoresourceLayerService {
   private selectionState = inject(SelectionStateService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private mapService = inject(MapService);
-  private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
   private modalService = inject(NgbModal);
   private exportMode = inject(GeoresourceExportModeService);
@@ -113,7 +110,7 @@ export class GeoresourceLayerService {
 
     setTimeout(() => {
       this.loadingData = true;
-      this.broadcastService.broadcast(BroadcastMessage.ShowLoadingIconOnMap);
+      this.mapService.showLoadingIcon();
     });
 
     setTimeout(() => {
@@ -164,7 +161,7 @@ export class GeoresourceLayerService {
 
   addGeoresourceLayerToMap(resource: GeoresourcesDataset) {
     this.loadingData = true;
-    this.broadcastService.broadcast(BroadcastMessage.ShowLoadingIconOnMap);
+    this.mapService.showLoadingIcon();
     const date = this.getQueryDate(resource);
     const [year, month, day] = date.split('-');
     const url = `${this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/georesources/${resource.georesourceId}/${year}/${month}/${day}`;
@@ -186,7 +183,7 @@ export class GeoresourceLayerService {
 
   removeGeoresourceLayerFromMap(resource: GeoresourcesDataset) {
     this.loadingData = true;
-    this.broadcastService.broadcast(BroadcastMessage.ShowLoadingIconOnMap);
+    this.mapService.showLoadingIcon();
     if (resource.isPOI) this.mapService.removePoiGeoresource(resource);
     else if (resource.isLOI) this.mapService.removeLoiGeoresource(resource);
     else if (resource.isAOI) this.mapService.removeAoiGeoresource(resource);

@@ -1,4 +1,5 @@
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { MapService } from 'services/map-service/map.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { Injectable, inject } from '@angular/core';
 import { ExportButtonVisibilityService } from 'services/export-button-visibility-service/export-button-visibility.service';
@@ -21,6 +22,7 @@ import * as ecStat from 'echarts-stat';
 })
 export class DiagramHelperServiceService {
   private broadcastService = inject(BroadcastService);
+  private mapService = inject(MapService);
   private exportButtonVisibility = inject(ExportButtonVisibilityService);
   private chartDisplayState = inject(ChartDisplayStateService);
   private mapErrorNotificationService = inject(MapErrorNotificationService);
@@ -168,9 +170,7 @@ export class DiagramHelperServiceService {
       return;
     }
 
-    this.broadcastService.broadcast(
-      BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupBegin
-    );
+    this.mapService.beginIndicatorTimeSetup();
 
     this.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
 
