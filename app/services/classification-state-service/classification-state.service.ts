@@ -11,11 +11,9 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
  * writes and the classification panel + map legend read.
  *
  * All fields are signal-backed accessor properties: plain property reads and
- * writes (incl. `[(ngModel)]` bindings) keep working, while the state is ready
- * for reactive consumers. NOTE: the brew objects and break arrays are still
- * mutated in place by the classification panel (push/splice/sort on
- * `manualBrew.breaks` etc.) — such mutations do not change the signal value
- * and rely on zone-based change detection, exactly as before the extraction.
+ * writes keep working, while the state is ready for reactive consumers.
+ * Break edits go through setManualBreaks/setDynamicBreaks, which replace the
+ * stored brew objects immutably so the signals actually fire.
  *
  * Not to be confused with the modal-scoped IndicatorClassificationStateService
  * of the admin indicator wizard (step 5).
@@ -168,6 +166,24 @@ export class ClassificationStateService {
   }
   set featuresPerOutlierLow(value: number) {
     this._featuresPerOutlierLow.set(value);
+  }
+
+  /**
+   * Replaces manualBrew with a new object carrying the given breaks, so the
+   * signal fires (spreading a classyBrew instance is safe: stored brews are
+   * only ever read via .breaks/.colors). No-op while no manualBrew exists.
+   */
+  setManualBreaks(breaks: any[]) {
+    if (!this.manualBrew) return;
+    this.manualBrew = { ...this.manualBrew, breaks: [...breaks] };
+  }
+
+  /** Replaces dynamicBrew[site] (and the outer array) with new objects carrying the given breaks. */
+  setDynamicBreaks(site: number, breaks: any[]) {
+    if (!this.dynamicBrew?.[site]) return;
+    const next = [...this.dynamicBrew];
+    next[site] = { ...next[site], breaks: [...breaks] };
+    this.dynamicBrew = next;
   }
 
   resetFeatureCounters() {

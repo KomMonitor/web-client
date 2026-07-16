@@ -501,11 +501,9 @@ export class IndicatorClassificationService {
       state.dynamicBrewBreaks = [[...increaseBreaks], [...decreaseBreaks]];
     }
 
-    // guard: on a fresh replace the shared manualBrew is reset to undefined;
-    // the legacy code wrote into it unconditionally (latent TypeError)
-    if (state.manualBrew) {
-      state.manualBrew.breaks = [...gtBreaks, ...ltBreaks];
-    }
+    // no-op on a fresh replace where the shared manualBrew is still undefined
+    // (the legacy code wrote into it unconditionally — latent TypeError)
+    state.setManualBreaks([...gtBreaks, ...ltBreaks]);
   }
 
   private markOutliers(indicatorMetadataAndGeoJSON, indicatorPropertyName): IndicatorDataFacts {

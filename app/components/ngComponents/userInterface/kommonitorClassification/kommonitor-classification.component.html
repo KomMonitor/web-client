@@ -119,7 +119,7 @@
                           classificationState.manualBrew.breaks.length - 1
                         ]
                       }}"
-                      [(ngModel)]="classificationState.manualBrew.breaks[i]"
+                      [ngModel]="classificationState.manualBrew.breaks[i]"
                     />
                     @if (i != 0 && i != classificationState.manualBrew.breaks.length - 1) {
                       <i class="fa-regular fa-trash-can" (click)="deleteBreak(i, 0)"></i>
@@ -211,7 +211,7 @@
                           classificationState.manualBrew.breaks.length - 1
                         ]
                       }}"
-                      [(ngModel)]="classificationState.manualBrew.breaks[i]"
+                      [ngModel]="classificationState.manualBrew.breaks[i]"
                     />
                     @if (
                       i != 0 &&
@@ -314,7 +314,7 @@
                         fixed:
                           i === 0 || i === classificationState.dynamicBrew[1].breaks.length - 1,
                       }"
-                      [(ngModel)]="classificationState.dynamicBrew[1].breaks[i]"
+                      [ngModel]="classificationState.dynamicBrew[1].breaks[i]"
                     />
                     @if (i != 0 && i != classificationState.dynamicBrew[1].breaks.length - 1) {
                       <i class="fa-regular fa-trash-can" (click)="deleteBreak(i, 1)"></i>
@@ -389,7 +389,7 @@
                         fixed:
                           i === 0 || i === classificationState.dynamicBrew[0].breaks.length - 1,
                       }"
-                      [(ngModel)]="classificationState.dynamicBrew[0].breaks[i]"
+                      [ngModel]="classificationState.dynamicBrew[0].breaks[i]"
                     />
                     @if (i != 0 && i != classificationState.dynamicBrew[0].breaks.length - 1) {
                       <i class="fa-regular fa-trash-can" (click)="deleteBreak(i, 0)"></i>

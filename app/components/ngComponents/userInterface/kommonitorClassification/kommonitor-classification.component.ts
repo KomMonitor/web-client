@@ -175,12 +175,12 @@ export class KommonitorClassificationComponent implements OnInit {
             breaks[0]
         );
         if (!this.classificationState.manualBrew.breaks.includes(newBreak)) {
-          this.classificationState.manualBrew.breaks.push(newBreak);
-          this.classificationState.manualBrew.breaks.sort(function (a, b) {
-            return a - b;
-          });
-
-          this.mapService.changeBreaks(this.classificationState.manualBrew.breaks);
+          // derive a new array instead of mutating the stored brew; the map's
+          // changeBreaks handler persists it immutably (signal fires)
+          const newBreaks = [...this.classificationState.manualBrew.breaks, newBreak].sort(
+            (a, b) => a - b
+          );
+          this.mapService.changeBreaks(newBreaks);
         }
 
         if (
@@ -209,22 +209,25 @@ export class KommonitorClassificationComponent implements OnInit {
             breaks[0]
         );
         if (!this.classificationState.dynamicBrew[site].breaks.includes(newBreak)) {
-          this.classificationState.dynamicBrew[site].breaks.push(newBreak);
-          this.classificationState.dynamicBrew[site].breaks.sort(function (a, b) {
-            return a - b;
-          });
-
-          const increaseBreaks = this.classificationState.dynamicBrew[0]
-            ? this.classificationState.dynamicBrew[0].breaks
-            : [];
-          const decreaseBreaks = this.classificationState.dynamicBrew[1]
-            ? this.classificationState.dynamicBrew[1].breaks
-            : [];
-
-          this.mapService.changeDynamicBreaks([increaseBreaks, decreaseBreaks]);
+          const newSiteBreaks = [
+            ...this.classificationState.dynamicBrew[site].breaks,
+            newBreak,
+          ].sort((a, b) => a - b);
+          this.mapService.changeDynamicBreaks([
+            this.dynamicSiteBreaks(0, site, newSiteBreaks),
+            this.dynamicSiteBreaks(1, site, newSiteBreaks),
+          ]);
         }
       }
     }
+  }
+
+  /** Break list for one dynamic site: the freshly edited array for the edited site, the stored one otherwise. */
+  private dynamicSiteBreaks(site: number, editedSite: number, editedBreaks: any[]) {
+    if (site === editedSite) return editedBreaks;
+    return this.classificationState.dynamicBrew[site]
+      ? this.classificationState.dynamicBrew[site].breaks
+      : [];
   }
 
   updateDynamicBreaksFromManualBreaks() {
@@ -285,25 +288,23 @@ export class KommonitorClassificationComponent implements OnInit {
       this.containsNegativeValues
     ) {
       if (this.chartDisplayState.isMeasureOfValueChecked) {
-        this.classificationState.manualBrew.breaks.splice(i, 1);
-
-        this.mapService.changeBreaks(this.classificationState.manualBrew.breaks);
+        this.mapService.changeBreaks(
+          this.classificationState.manualBrew.breaks.filter((_, index) => index !== i)
+        );
         this.updateDynamicBreaksFromManualBreaks();
       } else {
-        this.classificationState.dynamicBrew[site].breaks.splice(i, 1);
-        const increaseBreaks = this.classificationState.dynamicBrew[0]
-          ? this.classificationState.dynamicBrew[0].breaks
-          : [];
-        const decreaseBreaks = this.classificationState.dynamicBrew[1]
-          ? this.classificationState.dynamicBrew[1].breaks
-          : [];
-
-        this.mapService.changeDynamicBreaks([increaseBreaks, decreaseBreaks]);
+        const newSiteBreaks = this.classificationState.dynamicBrew[site].breaks.filter(
+          (_, index) => index !== i
+        );
+        this.mapService.changeDynamicBreaks([
+          this.dynamicSiteBreaks(0, site, newSiteBreaks),
+          this.dynamicSiteBreaks(1, site, newSiteBreaks),
+        ]);
       }
     } else {
-      this.classificationState.manualBrew.breaks.splice(i, 1);
-
-      this.mapService.changeBreaks(this.classificationState.manualBrew.breaks);
+      this.mapService.changeBreaks(
+        this.classificationState.manualBrew.breaks.filter((_, index) => index !== i)
+      );
     }
   }
 
@@ -316,20 +317,14 @@ export class KommonitorClassificationComponent implements OnInit {
       e.currentTarget.value >= breaks[breaks.length - 1] ||
       breaks.includes(Number(e.currentTarget.value))
     ) {
+      // invalid input: the stored breaks were never touched — just reset the input display
       e.currentTarget.value = breaks[i];
-
-      // todo, wrap into timeout if necessary
-      //setTimeout(function () {
-      e.currentTarget.value = breaks[i];
-      this.classificationState.manualBrew.breaks[i] = breaks[i];
-      //}, 10);
     } else {
-      this.classificationState.manualBrew.breaks[i] = Number(e.currentTarget.value);
-      this.classificationState.manualBrew.breaks.sort(function (a, b) {
-        return a - b;
-      });
+      const newBreaks = [...breaks];
+      newBreaks[i] = Number(e.currentTarget.value);
+      newBreaks.sort((a, b) => a - b);
 
-      this.mapService.changeBreaks(this.classificationState.manualBrew.breaks);
+      this.mapService.changeBreaks(newBreaks);
 
       if (
         (this.chartDisplayState.isBalanceChecked ||
@@ -351,24 +346,16 @@ export class KommonitorClassificationComponent implements OnInit {
       e.currentTarget.value >= breaks[breaks.length - 1] ||
       breaks.includes(Number(e.currentTarget.value))
     ) {
+      // invalid input: the stored breaks were never touched — just reset the input display
       e.currentTarget.value = breaks[i];
-
-      // todo, wrap in timeout if necessary
-      /* setTimeout(function () {
-       $apply(function(){ */
-      e.currentTarget.value = breaks[i];
-      this.classificationState.dynamicBrew[site].breaks[i] = breaks[i];
-      /*     });
-      }, 10); */
     } else {
-      this.classificationState.dynamicBrew[site].breaks[i] = Number(e.currentTarget.value);
-      this.classificationState.dynamicBrew[site].breaks.sort(function (a, b) {
-        return a - b;
-      });
+      const newBreaks = [...breaks];
+      newBreaks[i] = Number(e.currentTarget.value);
+      newBreaks.sort((a, b) => a - b);
 
       this.mapService.changeDynamicBreaks([
-        this.classificationState.dynamicBrew[0].breaks,
-        this.classificationState.dynamicBrew[1].breaks,
+        this.dynamicSiteBreaks(0, site, newBreaks),
+        this.dynamicSiteBreaks(1, site, newBreaks),
       ]);
     }
   }
@@ -597,13 +584,11 @@ export class KommonitorClassificationComponent implements OnInit {
           );
           if (newBreak > breaks[0] && newBreak < breaks[breaks.length - 1]) {
             this.draggingBreak.children[0].children[0].value = newBreak;
-            if (this.nrOfDraggingBreak)
-              this.classificationState.manualBrew.breaks[this.nrOfDraggingBreak] = newBreak;
-            this.classificationState.manualBrew.breaks.sort(function (a, b) {
-              return a - b;
-            });
+            const newBreaks = [...breaks];
+            if (this.nrOfDraggingBreak) newBreaks[this.nrOfDraggingBreak] = newBreak;
+            newBreaks.sort((a, b) => a - b);
 
-            this.mapService.changeBreaks(this.classificationState.manualBrew.breaks);
+            this.mapService.changeBreaks(newBreaks);
             if (
               (this.chartDisplayState.isBalanceChecked ||
                 this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') ||
@@ -649,23 +634,14 @@ export class KommonitorClassificationComponent implements OnInit {
             !breaks.includes(newBreak)
           ) {
             this.draggingBreak.children[0].children[0].value = newBreak;
-            if (this.nrOfDraggingBreak)
-              this.classificationState.dynamicBrew[this.dynamicDraggingSite].breaks[
-                this.nrOfDraggingBreak
-              ] = newBreak;
-            this.classificationState.dynamicBrew[this.dynamicDraggingSite].breaks.sort(
-              function (a, b) {
-                return a - b;
-              }
-            );
-            const increaseBreaks = this.classificationState.dynamicBrew[0]
-              ? this.classificationState.dynamicBrew[0].breaks
-              : [];
-            const decreaseBreaks = this.classificationState.dynamicBrew[1]
-              ? this.classificationState.dynamicBrew[1].breaks
-              : [];
+            const newBreaks = [...breaks];
+            if (this.nrOfDraggingBreak) newBreaks[this.nrOfDraggingBreak] = newBreak;
+            newBreaks.sort((a, b) => a - b);
 
-            this.mapService.changeDynamicBreaks([increaseBreaks, decreaseBreaks]);
+            this.mapService.changeDynamicBreaks([
+              this.dynamicSiteBreaks(0, this.dynamicDraggingSite, newBreaks),
+              this.dynamicSiteBreaks(1, this.dynamicDraggingSite, newBreaks),
+            ]);
           }
         })();
       }

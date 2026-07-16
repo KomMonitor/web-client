@@ -781,13 +781,13 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       return a - b;
     });
 
-    this.classificationState.manualBrew.breaks = breaks;
+    this.classificationState.setManualBreaks(breaks);
     this.indicatorClassificationService.updateManualMOVBreaksFromDefaultManualBreaks(
       this.isDynamicOrNegativeLayer()
     );
 
     setTimeout(() => {
-      this.classificationState.manualBrew.breaks = breaks;
+      this.classificationState.setManualBreaks(breaks);
       this.indicatorClassificationService.updateManualMOVBreaksFromDefaultManualBreaks(
         this.isDynamicOrNegativeLayer()
       );
@@ -806,21 +806,13 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     });
 
     this.classificationState.dynamicBrewBreaks = breaks;
-    if (this.classificationState.dynamicBrew[1]) {
-      this.classificationState.dynamicBrew[1].breaks = breaks[1];
-    }
-    if (this.classificationState.dynamicBrew[0]) {
-      this.classificationState.dynamicBrew[0].breaks = breaks[0];
-    }
+    this.classificationState.setDynamicBreaks(1, breaks[1]);
+    this.classificationState.setDynamicBreaks(0, breaks[0]);
 
     setTimeout(() => {
       this.classificationState.dynamicBrewBreaks = breaks;
-      if (this.classificationState.dynamicBrew[1]) {
-        this.classificationState.dynamicBrew[1].breaks = breaks[1];
-      }
-      if (this.classificationState.dynamicBrew[0]) {
-        this.classificationState.dynamicBrew[0].breaks = breaks[0];
-      }
+      this.classificationState.setDynamicBreaks(1, breaks[1]);
+      this.classificationState.setDynamicBreaks(0, breaks[0]);
     }, 1);
     this.indicatorClassificationService.updateManualMOVBreaksFromDefaultManualBreaks(
       this.isDynamicOrNegativeLayer()

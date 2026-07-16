@@ -264,7 +264,20 @@ Nachtrag zu Phase 4 ebenfalls ersetzt.
   `BroadcastMessage`-Einträge entfernt (Bus: 61 → **54** Message-Typen,
   ursprünglich 104).
 
-Verbleibender, bewusst offener Punkt:
-- In-place-Mutation der Brew-/Breaks-Objekte durch das Classification-Panel
-  (dokumentiert im `ClassificationStateService`) — echte Immutable-/Signal-
-  Reaktivität wäre ein Folgeschritt beim Panel-Refactoring.
+**Nachtrag Juli 2026 — In-place-Brew-Mutation aufgelöst (letzter offener Punkt):**
+- `ClassificationStateService` besitzt jetzt `setManualBreaks()` / `setDynamicBreaks(site, breaks)`:
+  immutable Ersetzung der gespeicherten Brew-Objekte per Objekt-Spread — die Signals
+  feuern bei jeder Break-Änderung. (Verifiziert sicher: gespeicherte Brews werden
+  app-weit nur über `.breaks`/`.colors` gelesen, classyBrew-Methoden laufen nur auf
+  frischen Fabrik-Instanzen.)
+- Alle 16 In-place-Mutationsstellen des Classification-Panels (Add/Delete/Input-Edit/
+  Drag, manuell + dynamisch) berechnen jetzt neue Arrays und schicken sie über den
+  bestehenden `changeBreaks`/`changeDynamicBreaks`-Command-Weg; der Map-Handler
+  persistiert via Helper. Die drei `[(ngModel)]`-Two-Way-Bindings auf Break-Indizes
+  sind One-Way (`[ngModel]`), Schreibweg ausschließlich über die Handler.
+- Ebenfalls umgestellt: die Map-Handler (`changeBreaks`/`changeDynamicBreaks`) und
+  die Pipeline-Stelle in `updateDefaultManualBreaksFromMOVManualBreaks`.
+- Der geteilte Klassifikations-State ist damit vollständig signal-konsistent —
+  reaktive Konsumenten (computed/OnPush) sind ab jetzt möglich.
+
+**Der Map-Refactoring-Plan ist damit vollständig abgeschlossen — keine offenen Punkte.**
