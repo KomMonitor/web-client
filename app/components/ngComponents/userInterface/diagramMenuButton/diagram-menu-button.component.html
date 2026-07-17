@@ -1,0 +1,121 @@
+<button
+  type="button"
+  style="display: block; position: relative; margin-top: 5px"
+  cdkOverlayOrigin
+  #diagramTrigger="cdkOverlayOrigin"
+  (click)="submenuOpen = !submenuOpen"
+  class="btn btn-custom btn-circle"
+  [ngClass]="{
+    'btn-docked btn-custom-docked': sidebarState.diagramSidebarActive(),
+    balanceActive: chartDisplayState.isBalanceChecked,
+  }"
+  data-toggle="tooltip"
+  title="statistische Diagramme"
+>
+  <i class="fas fa-chart-simple"></i>
+</button>
+
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="diagramTrigger"
+  [cdkConnectedOverlayOpen]="submenuOpen"
+  [cdkConnectedOverlayPositions]="overlayPositions"
+  [cdkConnectedOverlayHasBackdrop]="true"
+  cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+  (backdropClick)="submenuOpen = false"
+  (detach)="submenuOpen = false"
+>
+  <div class="diagram-submenu-panel">
+    @if (visibilityHelperService.elementVisibility.balance) {
+      <div class="subMenuButtonWrapper">
+        <button
+          type="button"
+          style="display: block; position: relative"
+          id="sidebarBalanceCollapse"
+          (click)="onSubmenuButtonClick($event)"
+          class="btn btn-custom btn-circle"
+          [ngClass]="{ balanceActive: chartDisplayState.isBalanceChecked }"
+          data-toggle="tooltip"
+          title="zeitliche Bilanzierung"
+        >
+          <i class="fas fa-chart-line"></i>
+        </button>
+        <div>
+          <b>Bilanzierung</b>
+          <p>
+            Erfasst und bewertet den Datenbestand &uuml;ber einen definierbaren Zeitraum hinweg.
+            Ermöglicht es, zeitliche Veränderungen transparent zu machen und Entwicklungen gezielt
+            zu analysieren.
+          </p>
+        </div>
+      </div>
+    }
+
+    @if (visibilityHelperService.elementVisibility.diagrams) {
+      <div class="subMenuButtonWrapper">
+        <button
+          type="button"
+          style="display: block; position: relative"
+          id="sidebarDiagramsCollapse"
+          (click)="onSubmenuButtonClick($event)"
+          class="btn btn-custom btn-circle"
+          data-toggle="tooltip"
+          title="statistische Diagramme"
+        >
+          <i class="fas fa-chart-bar"></i>
+        </button>
+        <div>
+          <b>Kennzahlen</b>
+          <p>&Uuml;bersicht der statistischen Kennzahlen der verschiedenen Teilindikatoren.</p>
+        </div>
+      </div>
+    }
+
+    @if (visibilityHelperService.elementVisibility.radarDiagram) {
+      <div class="subMenuButtonWrapper">
+        <button
+          type="button"
+          style="display: block; position: relative"
+          id="sidebarRadarDiagramCollapse"
+          (click)="onSubmenuButtonClick($event)"
+          class="btn btn-custom btn-circle"
+          data-toggle="tooltip"
+          title="Indikatorenradar"
+        >
+          <img src="icons/radarMap.svg" alt="" />
+        </button>
+        <div>
+          <b>Indikatoren-Radar</b>
+          <p>
+            Visualisiert mehrere Variablen gleichzeitig und zeigt Stärken sowie Schwächen auf einen
+            Blick. Es eignet sich ideal zum Vergleichen komplexer Profile oder Leistungsindikatoren.
+          </p>
+        </div>
+      </div>
+    }
+
+    @if (visibilityHelperService.elementVisibility.regressionDiagram) {
+      <div class="subMenuButtonWrapper">
+        <button
+          type="button"
+          style="display: block; position: relative"
+          id="sidebarRegressionDiagramCollapse"
+          (click)="onSubmenuButtonClick($event)"
+          class="btn btn-custom btn-circle"
+          data-toggle="tooltip"
+          title="Regressionsdiagramm"
+        >
+          <img src="icons/scatterPlot.svg" alt="" />
+        </button>
+        <div>
+          <b>Lineare Regression</b>
+          <p>
+            Zeigt den Zusammenhang zwischen zwei Variablen und veranschaulicht Trends oder
+            Abhängigkeiten in Daten. Es dient dazu, Prognosen zu treffen und Muster in Datensätzen
+            zu erkennen.
+          </p>
+        </div>
+      </div>
+    }
+  </div>
+</ng-template>

@@ -18,10 +18,12 @@ import { MapService } from 'services/map-service/map.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { RangeFilterStateService } from 'services/range-filter-state-service/range-filter-state.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
+import { SidebarStateService } from 'services/sidebar-state-service/sidebar-state.service';
 import { EnvConfigService } from '../../../services/env-config-service/env-config.service';
 import { CustomSliderComponent } from '../common/custom-slider/custom-slider.component';
 import { NotificationComponent } from '../common/notification/notification.component';
 import { UserLoginComponent } from '../common/userLogin/user-login.component';
+import { DiagramMenuButtonComponent } from './diagramMenuButton/diagram-menu-button.component';
 import { ExportMenuButtonComponent } from './exporting/export-menu-button/export-menu-button.component';
 import { InfoModal } from './infoModal/info-modal.component';
 import { KommonitorLegendComponent } from './kommonitorLegend/kommonitor-legend.component';
@@ -44,6 +46,7 @@ import { SidebarComponent } from './sidebar/sidebar.component';
     UserLoginComponent,
     CustomSliderComponent,
     FormsModule,
+    DiagramMenuButtonComponent,
     ExportMenuButtonComponent,
     ReportingBackgroundProcessorComponent,
     ReportingProgressBannerComponent,
@@ -66,6 +69,7 @@ export class UserInterfaceComponent implements OnInit {
   private router = inject(Router);
   protected envConfigService = inject(EnvConfigService);
   private mapService = inject(MapService);
+  protected sidebarState = inject(SidebarStateService);
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -79,14 +83,11 @@ export class UserInterfaceComponent implements OnInit {
   sliderDisabled: boolean = false;
 
   expertToolbarVisible = false;
-  diagramSubMenuOpen: boolean = false;
 
   showUserLogin = false;
   showAdminLogin = false;
 
   userLoggedIn: boolean = false;
-
-  sidebarElement = '';
 
   ngOnInit(): void {
     this.mapService.dateSlider$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
@@ -133,24 +134,13 @@ export class UserInterfaceComponent implements OnInit {
     //this.openReportingModal()
   }
 
-  onSidebarClose(event: any) {
-    this.sidebarElement = '';
+  onSidebarClose(_event: any) {
+    this.sidebarState.clearActive();
     this.mapService.setMapRecenterState({ recenter: true, resize: true });
   }
 
   onDateSliderChange(data: any) {
     this.mapService.setDateSliderValues({ selected: data[0] });
-  }
-
-  isDiagramSidebarOpened() {
-    const diagramElements = [
-      'sidebarDiagramsCollapse',
-      'sidebarRadarDiagramCollapse',
-      'sidebarRegressionDiagramCollapse',
-      'sidebarBalanceCollapse',
-    ];
-
-    return diagramElements.includes(this.sidebarElement);
   }
 
   prepUserInformation() {
@@ -184,30 +174,25 @@ export class UserInterfaceComponent implements OnInit {
   }
 
   openInfoModal() {
-    const modalRef = this.modalService.open(InfoModal, {
+    this.modalService.open(InfoModal, {
       windowClass: 'modal-holder',
       centered: true,
     });
   }
 
   openReportingModal() {
-    const reportingModalRef = this.modalService.open(ReportingModalComponent, {
+    this.modalService.open(ReportingModalComponent, {
       windowClass: 'modal-holder',
       centered: true,
     });
   }
 
   onSidebarButtonClick(event) {
-    this.closeDiagramSubmenu();
-
     let ident;
     if (event.target.id != '') ident = event.target.id;
     else ident = event.srcElement.parentElement.id;
 
-    if (ident != this.sidebarElement) this.sidebarElement = ident;
-    else this.sidebarElement = '';
-
-    this.mapService.setMapRecenterState({ recenter: true, resize: true });
+    this.sidebarState.toggleActive(ident);
   }
 
   /*
@@ -253,28 +238,12 @@ export class UserInterfaceComponent implements OnInit {
     this.mapService.toggleExpertControls();
   }
 
-  onDiagramSubMenuOver() {
-    if (!this.diagramSubMenuOpen) this.openDiagramSubmenu();
-  }
-
-  openDiagramSubmenu() {
-    this.diagramSubMenuOpen = true;
-  }
-
-  closeDiagramSubmenu() {
-    this.diagramSubMenuOpen = false;
-  }
-
-  onDiagramSubMenuButtonClick($event) {
-    this.onSidebarButtonClick($event);
-  }
-
   openFilterSidebar() {
-    this.sidebarElement = 'sidebarFilterCollapse';
+    this.sidebarState.setActive('sidebarFilterCollapse');
   }
 
   openBalanceSidebar() {
-    this.sidebarElement = 'sidebarBalanceCollapse';
+    this.sidebarState.setActive('sidebarBalanceCollapse');
   }
 
   onSpatialFilterCloseButtonClick() {

@@ -92,39 +92,6 @@
     position: absolute;
     display: flex;
     flex-direction: column;
-
-    #diagramSubMenu {
-      position: absolute;
-      top: 100px;
-      left: 8vh;
-      width: 30em;
-      background: #fff;
-      z-index: 1000;
-      padding: 0.5em;
-      border: 2px solid rgba(0, 0, 0, 0.2) !important;
-
-      &.hidden {
-        display: none !important;
-      }
-
-      .subMenuButtonWrapper {
-        display: grid;
-        grid-template-columns: 8vh auto;
-        font-size: 0.8em;
-        padding: 0.5em;
-        padding-left: 0 !important;
-
-        * {
-          margin-top: auto;
-          margin-bottom: auto;
-        }
-
-        b {
-          font-weight: 600;
-          text-decoration: underline;
-        }
-      }
-    }
   }
 }
 
