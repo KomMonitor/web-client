@@ -1,5 +1,5 @@
 {
     "hooks": {
-        "after:bump": "npx git-cliff -tag ${version} --offline --output ./CHANGELOG.md"
+        "after:bump": "npx git-cliff --tag ${version} --offline --output ./CHANGELOG.md"
     }
 }
