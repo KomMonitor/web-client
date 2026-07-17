@@ -80,6 +80,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   private map;
   private spatialUnitOutlineLayerInitialized = false;
+  // Lazily-populated outline overlays: placeholder layer -> its spatial unit + load state.
+  // The (potentially large) geometry is fetched only when the overlay is first enabled.
+  private outlineLayerRegistry = new Map<L.Layer, { spatialUnit: any; loaded: boolean }>();
 
   private singleMarkers: L.Marker[] = [];
 
@@ -476,6 +479,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.map.on('zoomend', () => this.syncViewportState());
     this.map.on('moveend', () => this.syncViewportState());
 
+    // lazily fetch outline geometry the first time an outline overlay is enabled
+    this.map.on('overlayadd', (e: any) => this.onOutlineOverlayAdded(e));
+
     this.baseMaps = [];
 
     baseLayersByName.forEach((value, key) => {
@@ -677,39 +683,61 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   initSpatialUnitOutlineLayer() {
     for (const spatialUnit of this.spatialUnitStore.availableSpatialUnits) {
-      if (spatialUnit.isOutlineLayer) {
-        const url =
-          this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
-          '/spatial-units/' +
-          spatialUnit.spatialUnitId +
-          '/allFeatures';
+      if (!spatialUnit.isOutlineLayer) continue;
 
-        this.http.get(url).subscribe((response: any) => {
-          const geoJSON = response;
+      // Register an empty placeholder overlay only. The geometry is fetched
+      // lazily in onOutlineOverlayAdded() the first time the user enables it,
+      // so the app start no longer downloads every outline layer up front.
+      const layer = L.geoJSON(undefined, {
+        style: () => ({
+          color: spatialUnit.outlineColor,
+          weight: spatialUnit.outlineWidth,
+          opacity: 1,
+          fillOpacity: 0,
+          fill: false,
+          dashArray: spatialUnit.outlineDashArrayString,
+        }),
+        onEachFeature: this.onEachFeatureSpatialUnit,
+      });
 
-          const layer = L.geoJSON(geoJSON, {
-            style: function (feature) {
-              return {
-                color: spatialUnit.outlineColor,
-                weight: spatialUnit.outlineWidth,
-                opacity: 1,
-                fillOpacity: 0,
-                fill: false,
-                dashArray: spatialUnit.outlineDashArrayString,
-              };
-            },
-            onEachFeature: this.onEachFeatureSpatialUnit,
-          });
+      this.outlineLayerRegistry.set(layer, { spatialUnit, loaded: false });
 
-          this.layerControl.addOverlay(
-            layer,
-            spatialUnit.spatialUnitLevel + '_Umringe',
-            MAP_LAYER_GROUPS.spatialUnitOutline
-          );
-          this.mapControlsService.updateSearchControl();
-        });
-      }
+      this.layerControl.addOverlay(
+        layer,
+        spatialUnit.spatialUnitLevel + '_Umringe',
+        MAP_LAYER_GROUPS.spatialUnitOutline
+      );
     }
+  }
+
+  // Lazily fetch the outline geometry the first time its overlay is enabled.
+  private onOutlineOverlayAdded(event: { layer: L.Layer }): void {
+    const entry = this.outlineLayerRegistry.get(event.layer);
+    if (!entry || entry.loaded) return;
+
+    // Guard against a duplicate fetch while the request is in flight.
+    entry.loaded = true;
+    this.showLoadingIconOnMap();
+
+    const url =
+      this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+      '/spatial-units/' +
+      entry.spatialUnit.spatialUnitId +
+      '/allFeatures';
+
+    this.http.get(url).subscribe({
+      next: (geoJSON: any) => {
+        (event.layer as L.GeoJSON).addData(geoJSON);
+        this.mapControlsService.updateSearchControl();
+        this.hideLoadingIconOnMap();
+      },
+      error: (error) => {
+        // allow a retry the next time the overlay is toggled on
+        entry.loaded = false;
+        this.hideLoadingIconOnMap();
+        this.mapErrorNotificationService.displayMapApplicationError(error);
+      },
+    });
   }
 
   filterForScreenshot(node) {
