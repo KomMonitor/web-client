@@ -346,7 +346,11 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   changeIndicatorDate() {
-    if (this.selectionState.selectedIndicator && this.selectionState.selectedDate) {
+    if (
+      !this.changeIndicatorWasClicked &&
+      this.selectionState.selectedIndicator &&
+      this.selectionState.selectedDate
+    ) {
       this.date = this.selectionState.selectedDate;
       this.selectedDate = this.selectionState.selectedDate;
 
@@ -406,6 +410,10 @@ export class KommonitorDataSetupComponent implements OnInit {
           justRestyling: false,
           customComputation: false,
         });
+        this.broadcastService.broadcast(BroadcastMessage.UpdateMeasureOfValueBar, [
+          this.selectionState.selectedDate,
+          this.selectionState.selectedIndicator,
+        ]);
         this.broadcastService.broadcast(BroadcastMessage.UpdateIndicatorValueRangeFilter, [
           this.selectionState.selectedDate,
           this.selectionState.selectedIndicator,
