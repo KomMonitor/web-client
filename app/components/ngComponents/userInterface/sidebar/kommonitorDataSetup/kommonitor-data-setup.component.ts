@@ -8,8 +8,8 @@ import {
   IndicatorsDataset,
   IndicatorsTopicsHierarchy,
 } from 'components/ngComponents/models/indicators.models';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
@@ -304,6 +304,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     try {
       this.tryUpdateMeasureOfValueBarForIndicator();
+      this.mapService.changeDate(this.selectionState.selectedDate);
     } catch (error) {
       console.error(error);
       this.loadingData = false;
@@ -353,7 +354,26 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   onChangeSelectedSpatialUnit() {
     if (!this.changeIndicatorWasClicked && this.selectionState.selectedIndicator) {
-      this.applyMeasureOfValueUpdate();
+      this.loadingData = true;
+      this.mapService.showLoadingIcon();
+
+      try {
+        this.getIndicatorFeatures();
+      } catch (error) {
+        console.error(error);
+        this.loadingData = false;
+        this.mapService.hideLoadingIcon();
+        this.mapErrorNotificationService.displayMapApplicationError(error);
+        return;
+      }
+
+      this.dataSetupService.modifyExports(false);
+
+      if (this.envConfigService.useNoDataToggle) {
+        this.broadcastService.broadcast(BroadcastMessage.ApplyNoDataDisplay);
+      }
+
+      this.loadingData = false;
     }
   }
 

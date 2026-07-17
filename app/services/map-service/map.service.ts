@@ -50,6 +50,7 @@ export type MapCommand =
   | { type: 'changeBreaks'; breaks: any }
   | { type: 'changeDynamicBreaks'; breaks: any }
   | { type: 'restyleCurrentLayer'; skipDiagramRefresh: boolean }
+  | { type: 'changeDate'; date: string }
   | { type: 'changeSpatialUnit' }
   | { type: 'beginIndicatorTimeSetup' }
   // feature highlighting
@@ -296,6 +297,10 @@ export class MapService {
 
   restyleCurrentLayer(skipDiagramRefresh = false) {
     this.command({ type: 'restyleCurrentLayer', skipDiagramRefresh });
+  }
+
+  changeDate(date: string) {
+    this.command({ type: 'changeDate', date });
   }
 
   changeSpatialUnit() {

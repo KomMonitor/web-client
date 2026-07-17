@@ -180,7 +180,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   drawControl = undefined;
 
   allDrawingToolsEnabled = false;
-  date = undefined;
+  date: string | undefined = undefined;
 
   filteredStyle;
 
@@ -278,6 +278,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         break;
       case 'restyleCurrentLayer':
         this.restyleCurrentLayer(command.skipDiagramRefresh);
+        break;
+      case 'changeDate':
+        this.onChangeDate(command.date);
         break;
       case 'changeSpatialUnit':
         this.onChangeSpatialUnit();
@@ -1250,6 +1253,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     );
   }
 
+  onChangeDate(date: string) {
+    if (!this.currentIndicatorLayer) return;
+
+    this.date = date;
+    this.indicatorPropertyName = this.envConfigService.indicatorDatePrefix + date;
+    this.propertyName = this.indicatorPropertyName;
+
+    this.restyleCurrentLayer(false);
+  }
+
   onChangeSpatialUnit() {
     this.classificationState.dynamicBrewBreaks = null;
   }
@@ -1284,6 +1297,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
       this.currentIndicatorLayer.eachLayer((layer) => {
         layer.setStyle(result.styleFor(layer.feature));
+
+        if (layer.getTooltip()) {
+          layer.setTooltipContent(
+            this.featurePopupHelperService.buildIndicatorTooltip(
+              layer.feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME],
+              layer.feature.tempData.indicatorValueText,
+              layer.feature.tempData.unitText
+            )
+          );
+        }
       });
 
       this.mapService.notifyLegendDisplayUpdated({
