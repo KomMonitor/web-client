@@ -334,13 +334,15 @@
         @if (exportButtonVisibility.showGeoresourceExportButtons) {
           <td class="text-center">
             <div style="text-align: center">
-              <a
-                href="{{ dataset.url }}service=WMS&request=GetCapabilities&version=1.3.0"
-                title="WMS GetCapabilities URL"
-                rel="noopener noreferrer"
-                target="_blank"
-                ><i class="fas fa-cloud-download-alt"></i
-              ></a>
+              @if (dataset.url) {
+                <a
+                  [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
+                  title="WMS GetCapabilities URL"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  ><i class="fas fa-cloud-download-alt"></i
+                ></a>
+              }
             </div>
           </td>
         }
