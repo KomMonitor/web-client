@@ -196,6 +196,12 @@ export class EnvConfigService {
   get simplifyGeometriesOptions(): any {
     return window.__env.simplifyGeometriesOptions;
   }
+  get simplifyGeometriesParameterName(): any {
+    return window.__env.simplifyGeometriesParameterName;
+  }
+  get simplifyGeometries(): any {
+    return window.__env.simplifyGeometries;
+  }
   get enabledGeoresourcesInfrastructure(): any {
     return window.__env.enabledGeoresourcesInfrastructure;
   }

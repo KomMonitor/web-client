@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 /**
  * Holds the geometry-simplification request config used when building Data
@@ -10,6 +11,8 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class GeometrySimplificationService {
-  simplifyGeometriesParameterName: any;
-  simplifyGeometries: any;
+  private envConfigService = inject(EnvConfigService);
+
+  simplifyGeometriesParameterName: any = this.envConfigService.simplifyGeometriesParameterName;
+  simplifyGeometries: any = this.envConfigService.simplifyGeometries;
 }

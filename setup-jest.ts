@@ -82,6 +82,8 @@ Object.assign(window.__env, {
   indicatorCreationTypeOptions: [],
   geodataSourceFormats: [],
   simplifyGeometriesOptions: [],
+  simplifyGeometriesParameterName: "simplifyGeometries",
+  simplifyGeometries: "medium",
 
   // Feature property names
   FEATURE_ID_PROPERTY_NAME: "ID",
