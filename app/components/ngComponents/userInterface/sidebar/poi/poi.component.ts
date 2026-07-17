@@ -1,30 +1,35 @@
+import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { FormsModule } from '@angular/forms';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { GeoresourceExportModeService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-export-mode.service';
+import { GeoresourceFavoritesService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-favorites.service';
+import { GeoresourceFilterService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-filter.service';
+import { GeoresourceLayerService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-layer.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import {
   MetadataBootstrapService,
   MetadataLoadingState,
 } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
-import { PoiPresentationService } from 'services/poi-presentation-service/poi-presentation.service';
+import {
+  POI_SIZES,
+  PoiPresentationService,
+} from 'services/poi-presentation-service/poi-presentation.service';
 import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
-import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
-import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
-import { GeoresourceLayerService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-layer.service';
-import { GeoresourceFavoritesService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-favorites.service';
-import { GeoresourceFilterService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-filter.service';
-import { GeoresourceExportModeService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-export-mode.service';
 import {
   GeoresourcesDataset,
   GeoresourcesTopicsHierarchy,
 } from '../../../models/georesources.models';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
-import { POI_SIZES } from 'services/poi-presentation-service/poi-presentation.service';
+import { GeoresourceCatalogueTabComponent } from './georesource-catalogue-tab/georesource-catalogue-tab.component';
 import { GeoresourceFavTabComponent } from './georesource-fav-tab/georesource-fav-tab.component';
 import { GeoresourceListTabComponent } from './georesource-list-tab/georesource-list-tab.component';
-import { GeoresourceCatalogueTabComponent } from './georesource-catalogue-tab/georesource-catalogue-tab.component';
+
+/** Which topic tree a "show all on topic" action operates on. */
+type TopicTreeSource = 'list' | 'favs';
 
 @Component({
   selector: 'app-poi',
@@ -77,11 +82,6 @@ export class PoiComponent implements OnInit {
         const title = broadcastMsg.msg;
 
         switch (title) {
-          case BroadcastMessage.SelectedIndicatorDateHasChanged:
-            {
-              this.layerService.selectedIndicatorDateHasChanged();
-            }
-            break;
           case BroadcastMessage.GeoFavItemsStored:
             {
               this.favoritesService.favItemsStored();
@@ -103,8 +103,7 @@ export class PoiComponent implements OnInit {
 
   searchGeoresourcesTopicsRecursive(
     dataset: GeoresourcesTopicsHierarchy,
-    tree: GeoresourcesTopicsHierarchy[],
-    type: string
+    tree: GeoresourcesTopicsHierarchy[]
   ): boolean {
     let match = false;
 
@@ -115,7 +114,7 @@ export class PoiComponent implements OnInit {
         match = true;
       } else {
         if (topic.subTopics.length) {
-          match = this.searchGeoresourcesTopicsRecursive(dataset, topic.subTopics, type);
+          match = this.searchGeoresourcesTopicsRecursive(dataset, topic.subTopics);
         }
       }
     });
@@ -123,19 +122,14 @@ export class PoiComponent implements OnInit {
     return match;
   }
 
-  handleShowAllOnTopic(topic: GeoresourcesTopicsHierarchy, type: string) {
+  handleShowAllOnTopic(topic: GeoresourcesTopicsHierarchy, source: TopicTreeSource) {
     // check sibling checkbox in favs/data-catalogue dataset
-    if (type == 'list')
-      this.searchGeoresourcesTopicsRecursive(
-        topic,
-        this.favoritesService.georesourceFavTopicsTree,
-        type
-      );
+    if (source === 'list')
+      this.searchGeoresourcesTopicsRecursive(topic, this.favoritesService.georesourceFavTopicsTree);
     else
       this.searchGeoresourcesTopicsRecursive(
         topic,
-        this.filterService.preppedTopicGeoresourceHierarchy,
-        type
+        this.filterService.preppedTopicGeoresourceHierarchy
       );
 
     for (const poi of topic.poiData) {
@@ -227,7 +221,7 @@ export class PoiComponent implements OnInit {
     return match;
   }
 
-  zoomToLayer(georesourceMetadata) {
+  zoomToLayer(_georesourceMetadata: GeoresourcesDataset) {
     // todo $rootScope.$broadcast("zoomToGeoresourceLayer", georesourceMetadata);
   }
 }

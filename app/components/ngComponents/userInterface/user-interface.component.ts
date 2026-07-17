@@ -23,14 +23,12 @@ import { EnvConfigService } from '../../../services/env-config-service/env-confi
 import { CustomSliderComponent } from '../common/custom-slider/custom-slider.component';
 import { NotificationComponent } from '../common/notification/notification.component';
 import { UserLoginComponent } from '../common/userLogin/user-login.component';
-import { DiagramMenuButtonComponent } from './diagramMenuButton/diagram-menu-button.component';
-import { ExportMenuButtonComponent } from './exporting/export-menu-button/export-menu-button.component';
 import { InfoModal } from './infoModal/info-modal.component';
 import { KommonitorLegendComponent } from './kommonitorLegend/kommonitor-legend.component';
 import { KommonitorMapComponent } from './kommonitorMap/kommonitor-map.component';
 import { ReportingBackgroundProcessorComponent } from './reporting/reporting-background-processor/reporting-background-processor.component';
-import { ReportingModalComponent } from './reporting/reporting-modal.component';
 import { ReportingProgressBannerComponent } from './reporting/reporting-progress-banner/reporting-progress-banner.component';
+import { SidebarButtonsComponent } from './sidebarButtons/sidebar-buttons.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 
 @Component({
@@ -43,11 +41,10 @@ import { SidebarComponent } from './sidebar/sidebar.component';
     KommonitorMapComponent,
     KommonitorLegendComponent,
     SidebarComponent,
+    SidebarButtonsComponent,
     UserLoginComponent,
     CustomSliderComponent,
     FormsModule,
-    DiagramMenuButtonComponent,
-    ExportMenuButtonComponent,
     ReportingBackgroundProcessorComponent,
     ReportingProgressBannerComponent,
     NotificationComponent,
@@ -134,11 +131,6 @@ export class UserInterfaceComponent implements OnInit {
     //this.openReportingModal()
   }
 
-  onSidebarClose(_event: any) {
-    this.sidebarState.clearActive();
-    this.mapService.setMapRecenterState({ recenter: true, resize: true });
-  }
-
   onDateSliderChange(data: any) {
     this.mapService.setDateSliderValues({ selected: data[0] });
   }
@@ -178,21 +170,6 @@ export class UserInterfaceComponent implements OnInit {
       windowClass: 'modal-holder',
       centered: true,
     });
-  }
-
-  openReportingModal() {
-    this.modalService.open(ReportingModalComponent, {
-      windowClass: 'modal-holder',
-      centered: true,
-    });
-  }
-
-  onSidebarButtonClick(event) {
-    let ident;
-    if (event.target.id != '') ident = event.target.id;
-    else ident = event.srcElement.parentElement.id;
-
-    this.sidebarState.toggleActive(ident);
   }
 
   /*
@@ -260,13 +237,5 @@ export class UserInterfaceComponent implements OnInit {
 
   onBalanceCloseButtonClick() {
     this.broadcastService.broadcast(BroadcastMessage.DisableBalance);
-  }
-
-  filterModusActive(): boolean {
-    return (
-      this.globalFilterHelperService.globalFilterApplied() ||
-      this.chartDisplayState.isMeasureOfValueChecked ||
-      this.rangeFilterState.rangeFilterIsApplied
-    );
   }
 }

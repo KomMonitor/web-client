@@ -3,6 +3,8 @@ import { Injectable, inject } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
 import { GeoressourceExportModalComponent } from 'components/ngComponents/userInterface/exporting/georessource-export-modal/georessource-export-modal.component';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
@@ -31,6 +33,15 @@ export class GeoresourceLayerService {
   private http = inject(HttpClient);
   private modalService = inject(NgbModal);
   private exportMode = inject(GeoresourceExportModeService);
+  private broadcastService = inject(BroadcastService);
+
+  constructor() {
+    this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
+      if (broadcastMsg.msg === BroadcastMessage.SelectedIndicatorDateHasChanged) {
+        this.selectedIndicatorDateHasChanged();
+      }
+    });
+  }
 
   /** Whether POI layers are clustered on the map. Bound by the settings header. */
   useCluster = true;

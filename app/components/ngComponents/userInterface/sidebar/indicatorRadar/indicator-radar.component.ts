@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import * as echarts from 'echarts';
 import { ExportButtonVisibilityService } from 'services/export-button-visibility-service/export-button-visibility.service';
@@ -22,7 +23,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
   standalone: true,
   imports: [CommonModule, FormsModule, IndicatorNameFilter, ExpandableBoxComponent],
 })
-export class IndicatorRadarComponent implements OnInit {
+export class IndicatorRadarComponent implements OnInit, AfterViewInit, OnDestroy {
   protected diagramHelperService = inject(DiagramHelperServiceService);
   protected exportButtonVisibility = inject(ExportButtonVisibilityService);
   private indicatorValueService = inject(IndicatorValueService);
@@ -32,6 +33,8 @@ export class IndicatorRadarComponent implements OnInit {
   private broadcastService = inject(BroadcastService);
   private mapService = inject(MapService);
   private envConfigService = inject(EnvConfigService);
+
+  private subscriptions = new Subscription();
 
   activeTab = 0;
 
@@ -123,42 +126,64 @@ export class IndicatorRadarComponent implements OnInit {
       this.chartTitle = `Indikatorenradar - ${this.spatialUnitName}`;
     }, 2000);
 
-    this.mapService.mapEvent$.subscribe((event) => {
-      switch (event.type) {
-        case 'diagramsUpdate':
-          this.onUpdateDiagrams(event.update);
-          break;
-        case 'featureHovered':
-          this.onUpdateDiagramsForHoveredFeature(event.properties);
-          break;
-        case 'featureUnhovered':
-          this.onUpdateDiagramsForUnhoveredFeature(event.properties);
-          break;
-      }
-    });
+    this.subscriptions.add(
+      this.mapService.mapEvent$.subscribe((event) => {
+        switch (event.type) {
+          case 'diagramsUpdate':
+            this.onUpdateDiagrams(event.update);
+            break;
+          case 'featureHovered':
+            this.onUpdateDiagramsForHoveredFeature(event.properties);
+            break;
+          case 'featureUnhovered':
+            this.onUpdateDiagramsForUnhoveredFeature(event.properties);
+            break;
+        }
+      })
+    );
 
-    this.mapService.mapCommand$.subscribe((command) => {
-      if (command.type === 'beginIndicatorTimeSetup')
-        this.onAllIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
-    });
+    this.subscriptions.add(
+      this.mapService.mapCommand$.subscribe((command) => {
+        if (command.type === 'beginIndicatorTimeSetup')
+          this.onAllIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
+      })
+    );
 
-    this.broadcastService.currentBroadcastMsg.subscribe((result) => {
-      const msg = result.msg;
-      const val: any = result.values;
+    this.subscriptions.add(
+      this.broadcastService.currentBroadcastMsg.subscribe((result) => {
+        const msg = result.msg;
+        const val: any = result.values;
 
-      switch (msg) {
-        case 'resizeDiagrams':
-          {
-            this.onResizeDiagrams();
-          }
-          break;
-        case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupCompleted:
-          {
-            this.onAllIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_completed();
-          }
-          break;
-      }
-    });
+        switch (msg) {
+          case 'resizeDiagrams':
+            {
+              this.onResizeDiagrams();
+            }
+            break;
+          case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupCompleted:
+            {
+              this.onAllIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_completed();
+            }
+            break;
+        }
+      })
+    );
+  }
+
+  ngAfterViewInit(): void {
+    // The component is created lazily (only when the radar panel opens), so it misses
+    // the diagramsUpdate event the map emitted earlier. Replay the latest one against
+    // the now-rendered chart container. Force justRestyling to false so the radar is
+    // actually built on open even if the last live map render was only a restyle.
+    const latestUpdate = this.mapService.latestDiagramsUpdate;
+    if (latestUpdate) {
+      this.onUpdateDiagrams({ ...latestUpdate, justRestyling: false });
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+    this.radarChart?.dispose();
   }
 
   // initialize any adminLTE box widgets

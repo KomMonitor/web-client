@@ -1,16 +1,16 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
-import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
-import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
-import { LabelService } from 'services/label-service/label.service';
+import { AfterViewInit, Component, inject, OnDestroy, OnInit } from '@angular/core';
 import * as echarts from 'echarts';
-import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DiagramsUpdate, MapService } from 'services/map-service/map.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
-import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { fromEvent, Observable, Subscription } from 'rxjs';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
+import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { LabelService } from 'services/label-service/label.service';
+import { DiagramsUpdate, MapService } from 'services/map-service/map.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 
 import { FormsModule } from '@angular/forms';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
@@ -22,7 +22,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
   standalone: true,
   imports: [FormsModule, ExpandableBoxComponent],
 })
-export class KommonitorDiagramsComponent implements OnInit {
+export class KommonitorDiagramsComponent implements OnInit, AfterViewInit, OnDestroy {
   protected chartDisplayState = inject(ChartDisplayStateService);
   private indicatorValueService = inject(IndicatorValueService);
   protected selectionState = inject(SelectionStateService);
@@ -60,38 +60,44 @@ export class KommonitorDiagramsComponent implements OnInit {
     );
   }
 
+  private subscriptions = new Subscription();
+
   ngOnInit(): void {
-    this.mapService.mapEvent$.subscribe((event) => {
-      switch (event.type) {
-        case 'diagramsUpdate':
-          this.updateDiagrams(event.update);
-          break;
-        case 'featureHovered':
-          this.updateDiagramsForHoveredFeature(event.properties);
-          break;
-        case 'featureUnhovered':
-          this.updateDiagramsForUnhoveredFeature(event.properties);
-          break;
-      }
-    });
+    this.subscriptions.add(
+      this.mapService.mapEvent$.subscribe((event) => {
+        switch (event.type) {
+          case 'diagramsUpdate':
+            this.updateDiagrams(event.update);
+            break;
+          case 'featureHovered':
+            this.updateDiagramsForHoveredFeature(event.properties);
+            break;
+          case 'featureUnhovered':
+            this.updateDiagramsForUnhoveredFeature(event.properties);
+            break;
+        }
+      })
+    );
 
-    this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
-      const title = broadcastMsg.msg;
-      const values: any = broadcastMsg.values;
+    this.subscriptions.add(
+      this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
+        const title = broadcastMsg.msg;
+        const values: any = broadcastMsg.values;
 
-      switch (title) {
-        case 'resizeDiagrams':
-          {
-            this.resizeDiagrams();
-          }
-          break;
-        case BroadcastMessage.AppendExportButtonsForTable:
-          {
-            this.AppendExportButtonsForTable(values);
-          }
-          break;
-      }
-    });
+        switch (title) {
+          case 'resizeDiagrams':
+            {
+              this.resizeDiagrams();
+            }
+            break;
+          case BroadcastMessage.AppendExportButtonsForTable:
+            {
+              this.AppendExportButtonsForTable(values);
+            }
+            break;
+        }
+      })
+    );
 
     this.resizeObservable$ = fromEvent(window, 'resize');
     this.resizeSubscription$ = this.resizeObservable$.subscribe((evt) => {
@@ -107,6 +113,22 @@ export class KommonitorDiagramsComponent implements OnInit {
         this.lineChart.resize();
       }
     });
+    this.subscriptions.add(this.resizeSubscription$);
+  }
+
+  ngAfterViewInit(): void {
+    const latestUpdate = this.mapService.latestDiagramsUpdate;
+    if (latestUpdate) {
+      this.updateDiagrams(latestUpdate);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+
+    this.histogramChart?.dispose();
+    this.barChart?.dispose();
+    this.lineChart?.dispose();
   }
 
   loadingData = false;
@@ -170,7 +192,6 @@ export class KommonitorDiagramsComponent implements OnInit {
     const {
       indicatorMetadataAndGeoJSON,
       spatialUnitLevel: spatialUnitName,
-      spatialUnitId,
       date,
       brew: defaultBrew,
       gtMeasureOfValueBrew,
@@ -179,9 +200,7 @@ export class KommonitorDiagramsComponent implements OnInit {
       dynamicDecreaseBrew,
       isMeasureOfValueChecked,
       measureOfValue,
-      justRestyling,
     } = update;
-    console.log('Updating diagrams!');
 
     this.title = `Raumeinheits-Vergleich - ${spatialUnitName} - ${date}`;
     this.lineTitle = `Zeitreihe - ${spatialUnitName}`;
@@ -286,7 +305,6 @@ export class KommonitorDiagramsComponent implements OnInit {
       // when hovering over elements of the chart then highlight them in the map.
       this.barChart.on('mouseOver', (params) => {
         // this.userHoveresOverBarItem = true;
-        const seriesIndex = params.seriesIndex;
         const dataIndex = params.dataIndex;
 
         // console.log("Series: " + seriesIndex + ", dataIndex: " + dataIndex);
@@ -304,7 +322,6 @@ export class KommonitorDiagramsComponent implements OnInit {
 
       this.barChart.on('mouseOut', (params) => {
         // this.userHoveresOverBarItem = false;
-        const seriesIndex = params.seriesIndex;
         const dataIndex = params.dataIndex;
 
         // console.log("Series: " + seriesIndex + ", dataIndex: " + dataIndex);
@@ -321,7 +338,6 @@ export class KommonitorDiagramsComponent implements OnInit {
       });
 
       this.barChart.on('click', (params) => {
-        const seriesIndex = params.seriesIndex;
         const dataIndex = params.dataIndex;
 
         // console.log("Series: " + seriesIndex + ", dataIndex: " + dataIndex);

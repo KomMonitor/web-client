@@ -3,7 +3,10 @@ import { ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
 import { Component, inject } from '@angular/core';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
-import { SidebarStateService } from 'services/sidebar-state-service/sidebar-state.service';
+import {
+  SidebarElement,
+  SidebarStateService,
+} from 'services/sidebar-state-service/sidebar-state.service';
 
 /**
  * The "statistische Diagramme" sidebar button with its dropdown submenu
@@ -36,11 +39,7 @@ export class DiagramMenuButtonComponent {
     { originX: 'start', originY: 'center', overlayX: 'end', overlayY: 'center', offsetX: -8 },
   ];
 
-  onSubmenuButtonClick(event: Event) {
-    // The active sidebar is derived from the clicked button's DOM id. The click
-    // may originate on the inner <i>/<img>, so fall back to the parent's id.
-    const target = event.target as HTMLElement;
-    const id = target.id !== '' ? target.id : (target.parentElement?.id ?? '');
+  onSubmenuClick(id: SidebarElement) {
     this.sidebarState.toggleActive(id);
     this.submenuOpen = false;
   }

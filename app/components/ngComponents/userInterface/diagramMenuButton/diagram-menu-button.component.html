@@ -31,8 +31,7 @@
         <button
           type="button"
           style="display: block; position: relative"
-          id="sidebarBalanceCollapse"
-          (click)="onSubmenuButtonClick($event)"
+          (click)="onSubmenuClick('sidebarBalanceCollapse')"
           class="btn btn-custom btn-circle"
           [ngClass]="{ balanceActive: chartDisplayState.isBalanceChecked }"
           data-toggle="tooltip"
@@ -56,8 +55,7 @@
         <button
           type="button"
           style="display: block; position: relative"
-          id="sidebarDiagramsCollapse"
-          (click)="onSubmenuButtonClick($event)"
+          (click)="onSubmenuClick('sidebarDiagramsCollapse')"
           class="btn btn-custom btn-circle"
           data-toggle="tooltip"
           title="statistische Diagramme"
@@ -76,8 +74,7 @@
         <button
           type="button"
           style="display: block; position: relative"
-          id="sidebarRadarDiagramCollapse"
-          (click)="onSubmenuButtonClick($event)"
+          (click)="onSubmenuClick('sidebarRadarDiagramCollapse')"
           class="btn btn-custom btn-circle"
           data-toggle="tooltip"
           title="Indikatorenradar"
@@ -99,8 +96,7 @@
         <button
           type="button"
           style="display: block; position: relative"
-          id="sidebarRegressionDiagramCollapse"
-          (click)="onSubmenuButtonClick($event)"
+          (click)="onSubmenuClick('sidebarRegressionDiagramCollapse')"
           class="btn btn-custom btn-circle"
           data-toggle="tooltip"
           title="Regressionsdiagramm"

@@ -262,7 +262,14 @@ export class MapService {
   }
 
   notifyDiagramsUpdate(update: DiagramsUpdate) {
+    this._latestDiagramsUpdate = update;
     this.mapEventSubject.next({ type: 'diagramsUpdate', update });
+  }
+
+  private _latestDiagramsUpdate: DiagramsUpdate | null = null;
+
+  get latestDiagramsUpdate(): DiagramsUpdate | null {
+    return this._latestDiagramsUpdate;
   }
 
   notifyFeatureHovered(properties) {

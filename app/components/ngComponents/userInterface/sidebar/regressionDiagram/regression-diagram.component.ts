@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import * as echarts from 'echarts';
 import * as ecStat from 'echarts-stat';
@@ -34,7 +35,7 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
     BaseIndicatorOfHeadlineIndicatorFilter,
   ],
 })
-export class RegressionDiagramComponent implements OnInit {
+export class RegressionDiagramComponent implements OnInit, AfterViewInit, OnDestroy {
   protected diagramHelperService = inject(DiagramHelperServiceService);
   private exportButtonVisibility = inject(ExportButtonVisibilityService);
   private metadataFilterService = inject(MetadataFilterService);
@@ -109,6 +110,8 @@ export class RegressionDiagramComponent implements OnInit {
     );
   }
 
+  private subscriptions = new Subscription();
+
   ngOnInit(): void {
     $(document).ready(function () {
       $('.nav li.disabled a').click(function () {
@@ -117,46 +120,69 @@ export class RegressionDiagramComponent implements OnInit {
     });
 
     // catch broadcast msgs
-    this.mapService.mapCommand$.subscribe((command) => {
-      if (command.type === 'beginIndicatorTimeSetup')
-        this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
-    });
+    this.subscriptions.add(
+      this.mapService.mapCommand$.subscribe((command) => {
+        if (command.type === 'beginIndicatorTimeSetup')
+          this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
+      })
+    );
 
-    this.mapService.mapEvent$.subscribe((event) => {
-      switch (event.type) {
-        case 'diagramsUpdate':
-          this.updateDiagrams(event.update);
-          break;
-        case 'featureHovered':
-          this.updateDiagramsForHoveredFeature(event.properties);
-          break;
-        case 'featureUnhovered':
-          this.updateDiagramsForUnhoveredFeature(event.properties);
-          break;
-      }
-    });
+    this.subscriptions.add(
+      this.mapService.mapEvent$.subscribe((event) => {
+        switch (event.type) {
+          case 'diagramsUpdate':
+            this.updateDiagrams(event.update);
+            break;
+          case 'featureHovered':
+            this.updateDiagramsForHoveredFeature(event.properties);
+            break;
+          case 'featureUnhovered':
+            this.updateDiagramsForUnhoveredFeature(event.properties);
+            break;
+        }
+      })
+    );
 
-    this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
-      const title = broadcastMsg.msg;
-      const values: any = broadcastMsg.values;
+    this.subscriptions.add(
+      this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
+        const title = broadcastMsg.msg;
+        const values: any = broadcastMsg.values;
 
-      switch (title) {
-        case 'resizeDiagrams':
-          {
-            this.resizeDiagrams();
-          }
-          break;
-        case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupCompleted:
-          {
-            this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_completed();
-          }
-          break;
-      }
-    });
+        switch (title) {
+          case 'resizeDiagrams':
+            {
+              this.resizeDiagrams();
+            }
+            break;
+          case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupCompleted:
+            {
+              this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_completed();
+            }
+            break;
+        }
+      })
+    );
 
     this.chartTitle = this.enableScatterPlotRegression
       ? `Lineare Regression - ${this.spatialUnitName}`
       : `Streudiagramm - ${this.spatialUnitName}`;
+  }
+
+  ngAfterViewInit(): void {
+    // The component is created lazily (only when the regression panel opens), so it
+    // misses the diagramsUpdate event the map emitted earlier. Replay the latest one
+    // to load the current map context (geoJSON, brews, spatial unit, date). Use
+    // justRestyling=true so setupCompleted stays true and no stale chart is built —
+    // the actual chart is only rendered once the user picks the X/Y indicators.
+    const latestUpdate = this.mapService.latestDiagramsUpdate;
+    if (latestUpdate) {
+      this.updateDiagrams({ ...latestUpdate, justRestyling: true });
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+    this.regressionChart?.dispose();
   }
 
   /*  

@@ -84,15 +84,6 @@
     /* border: 2px solid black;
     border-radius: 8px; */
   }
-
-  #sideBarButtons {
-    margin-top: 200px;
-    width: 90px;
-    /* height: 80vh; */
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-  }
 }
 
 ::ng-deep .leaflet-control-geosearch a.leaflet-bar-part::after {
