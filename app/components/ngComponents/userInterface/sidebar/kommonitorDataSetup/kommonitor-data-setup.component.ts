@@ -332,6 +332,10 @@ export class KommonitorDataSetupComponent implements OnInit {
           this.date,
           this.selectionState.selectedIndicator,
         ]);
+        this.broadcastService.broadcast(BroadcastMessage.UpdateIndicatorValueRangeFilter, [
+          this.selectionState.selectedDate,
+          this.selectionState.selectedIndicator,
+        ]);
       },
       error: (error) => {
         this.loadingData = false;
@@ -402,6 +406,10 @@ export class KommonitorDataSetupComponent implements OnInit {
           justRestyling: false,
           customComputation: false,
         });
+        this.broadcastService.broadcast(BroadcastMessage.UpdateIndicatorValueRangeFilter, [
+          this.selectionState.selectedDate,
+          this.selectionState.selectedIndicator,
+        ]);
       },
       error: (error) => {
         this.loadingData = false;

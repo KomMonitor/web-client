@@ -389,6 +389,12 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     }
 
     this.indicatorMetadataAndGeoJSON = indicatorMetadataAndGeoJSON;
+    if (!this.indicatorMetadataAndGeoJSON?.geoJSON?.features) {
+      console.warn(
+        'Filter range slider cannot be created yet, as the indicator geoJSON is not available.'
+      );
+      return;
+    }
 
     const values: any[] = [];
 

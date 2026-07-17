@@ -1,26 +1,26 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { GeometrySimplificationService } from 'services/geometry-simplification-service/geometry-simplification.service';
-import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
-import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
-import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
-import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
-import { MetadataFilterService } from 'services/metadata-filter-service/metadata-filter.service';
-import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
-import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
-import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { MapService } from 'services/map-service/map.service';
+import { TopicOrderMode } from 'components/ngComponents/admin/adminTopicsManagement/topic.model';
 import {
   IndicatorsDataset,
   IndicatorsTopicsHierarchy,
 } from 'components/ngComponents/models/indicators.models';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
-import { TopicOrderMode } from 'components/ngComponents/admin/adminTopicsManagement/topic.model';
 import { Indicator } from 'components/ngComponents/userInterface/exporting/models';
+import { Observable } from 'rxjs';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
+import { GeometrySimplificationService } from 'services/geometry-simplification-service/geometry-simplification.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
+import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
+import { MapService } from 'services/map-service/map.service';
+import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
+import { MetadataFilterService } from 'services/metadata-filter-service/metadata-filter.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 
 @Injectable({
   providedIn: 'root',
@@ -212,13 +212,6 @@ export class KommonitorDataSetupService {
     this.broadcastService.broadcast(BroadcastMessage.UpdateBalanceSlider, [
       this.selectionState.selectedDate,
     ]);
-    // time here seems to be crucial, "500" does not work
-    setTimeout(() => {
-      this.broadcastService.broadcast(BroadcastMessage.UpdateIndicatorValueRangeFilter, [
-        this.selectionState.selectedDate,
-        this.selectionState.selectedIndicator,
-      ]);
-    }, 1000);
   }
 
   updateIndicatorOgcServices([indicatorWmsUrl, indicatorWfsUrl]: [string, string]): void {
