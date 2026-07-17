@@ -73,7 +73,7 @@ angular
             // no value - feature ha NoData value - skip            
             continue;
           }
-          var value = +Number(feature.properties[targetDateProperty]).toFixed(__env.numberOfDecimals);
+          var value = kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDateProperty]);
 
           if(value >= minFilterValue && value <= maxFilterValue){
             // feature must not be filtered - make sure it is not marked as filtered
