@@ -99,9 +99,6 @@ export class UserInterfaceComponent implements OnInit {
         if (value) this.markerPosition = [value];
       });
 
-    // todo
-    //kommonitorShareHelperService.init();
-
     this.globalFilterHelperService.init();
 
     if (this.authService.isAuthenticated()) {
@@ -118,12 +115,6 @@ export class UserInterfaceComponent implements OnInit {
       .then(() => this.prepUserInformation());
 
     this.showAdminLogin = this.authService.hasAdminRights();
-
-    // open infoModal ico
-    /* if(!localStorage.getItem('hideKomMonitorAppGreeting') || localStorage.getItem('hideKomMonitorAppGreeting') === 'false')
-      this.openInfoModal(); */
-
-    //this.openReportingModal()
   }
 
   onDateSliderChange(data: any) {

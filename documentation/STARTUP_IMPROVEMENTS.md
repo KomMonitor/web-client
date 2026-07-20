@@ -1,7 +1,7 @@
 # Verbesserungspotential in der Initialisierungsphase
 
 Analyse der Startphase des Web-Clients (Stand: 2026-07-20, Branch `feature/migration-bootstrap`).
-**Fortschritt:** 4 von 12 Punkten erledigt (Punkte 1, 2, 3, 5, 2026-07-20).
+**Fortschritt:** 7 von 13 Punkten erledigt (Punkte 1, 2, 3, 4, 5, 7, 10, 2026-07-20).
 Betrachteter Pfad: `main.ts` → `APP_INITIALIZER` (`StartupService.initApp()`) → `AuthService` /
 `KeycloakHelperService` → `MainComponent` → Routing → `UserInterfaceComponent.ngOnInit()`.
 
@@ -68,8 +68,13 @@ In `startup.service.ts:18` wird die async-Methode nicht awaited, und sie wirft b
 und im selben Service injiziert ist. Direkt daneben (Z. 39–44) liegt ein totes `try/catch` um ein
 `console.debug` — Migrations-Überbleibsel.
 
-- [ ] `alert()` durch `NotificationService` ersetzen
-- [ ] Totes `try/catch` entfernen
+- [x] `alert()` durch `NotificationService` ersetzen
+- [x] Totes `try/catch` entfernen
+
+> **Status (2026-07-20, erledigt):** Das blockierende `alert()` im `.catch()` von `initKeycloak()`
+> ist durch `notificationSrvc.showError(...)` ersetzt (deutsche Meldung, `autohide: false`); der
+> `.catch(function () {...})` wurde dafür zur Arrow-Function, damit `this` gebunden ist. Das tote
+> `try/catch` um das `console.debug('Trying to bootstrap application.')` ist entfernt.
 
 ---
 
@@ -114,7 +119,11 @@ einen Netzwerk-Roundtrip in der blockierenden Startphase.
 `MainComponent.checkBrowser()` warnt vor IE 9/10/11 und Legacy-Edge. Angular 21 läuft auf keinem
 davon; der Code ist toter Ballast.
 
-- [ ] `checkBrowser()` entfernen
+- [x] `checkBrowser()` entfernen
+
+> **Status (2026-07-20, erledigt):** `checkBrowser()` samt der IE-/Legacy-Edge-Warnungen entfernt.
+> Da `ngOnInit()` dadurch leer wurde, ist auch das `OnInit`-Implement und der Import weggefallen —
+> `MainComponent` ist jetzt eine reine Shell mit `<router-outlet>`.
 
 ---
 
@@ -139,7 +148,11 @@ unterdrückt auch Logs von Drittbibliotheken und erschwert Support-Fälle.
 `kommonitorShareHelperService.init()`, `openInfoModal()`, `openReportingModal()` liegen als
 Kommentar-Leichen herum.
 
-- [ ] Ticket anlegen oder löschen
+- [x] Ticket anlegen oder löschen
+
+> **Status (2026-07-20, erledigt):** Die auskommentierten Zeilen (`kommonitorShareHelperService.init()`,
+> der `openInfoModal()`-Block und `openReportingModal()`) in `UserInterfaceComponent.ngOnInit()`
+> sind gelöscht. Die Methoden `openInfoModal()` / `openReportingModal()` selbst bleiben unangetastet.
 
 ### 11. Direkte `window.__env`-Zugriffe
 
@@ -147,6 +160,24 @@ Bereits in `PROPOSED_CHANGES.md` (Z. 277) erfasst: verbleibende direkte Zugriffe
 `EnvConfigService` umstellen, damit Config-Zugriffe typisiert und testbar sind.
 
 - [ ] Direkte `window.__env`-Reads migrieren (siehe `PROPOSED_CHANGES.md`)
+
+### 13. `MainComponent` / `AppModule` → Standalone-Bootstrap
+
+`MainComponent` ist inzwischen eine reine Shell: Ihr Template enthält nur noch `<router-outlet>`
+(nach Entfernen von `checkBrowser()`, Punkt 7). Sie existiert nur noch, weil das NgModule-Setup
+eine Root-Komponente braucht — `app.module.ts` referenziert sie in `bootstrap: [MainComponent]`,
+`index.html` in `<app-main>`. Weil sie zudem in `declarations: [...]` deklariert ist, muss sie
+explizit `standalone: false` tragen (seit Angular 19 ist `standalone: true` der Default) — der
+Kommentar `// TODO:_ resolve this later` markiert genau das.
+
+Fernziel wäre die vollständige Standalone-Migration: weg von `AppModule` hin zu
+`bootstrapApplication(...)` + `provideRouter(...)`. Dann entfielen sowohl das explizite
+`standalone: false` als auch die `MainComponent` als eigene Shell (der Router-Outlet würde direkt
+in der gebooteten Wurzel sitzen). Das ist ein größerer, eigenständiger Strang und hängt mit
+Punkt 8 (`provideAppInitializer()`) zusammen, der ohnehin Teil eines Standalone-Umbaus wäre.
+
+- [ ] `MainComponent` + `AppModule` auf Standalone-Bootstrap umstellen (mittel-/langfristig,
+      gekoppelt an Punkt 8)
 
 ---
 

@@ -36,19 +36,14 @@ export class AuthService {
           console.log(authenticated ? 'User is authenticated!' : 'User is not authenticated!');
           this.auth = keycloakAdapter;
           this.startCheckSessionExpiration();
-          try {
-            console.debug('Trying to bootstrap application.');
-          } catch (e) {
-            console.error('Application bootstrapping failed.');
-            console.error(e);
-          }
         })
-        .catch(function () {
+        .catch(() => {
           console.log(
             'Failed to initialize authentication adapter. Will try to bootstrap application without keycloak security'
           );
-          alert(
-            'Failed to initialize keycloak authentication adapter. Will try to bootstrap application without keycloak security'
+          this.notificationSrvc.showError(
+            'Die Keycloak-Authentifizierung konnte nicht initialisiert werden. Die Anwendung wird ohne Keycloak-Sicherheit gestartet.',
+            { autohide: false }
           );
         });
     }
