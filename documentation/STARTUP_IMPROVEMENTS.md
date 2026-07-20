@@ -1,7 +1,7 @@
 # Verbesserungspotential in der Initialisierungsphase
 
 Analyse der Startphase des Web-Clients (Stand: 2026-07-20, Branch `feature/migration-bootstrap`).
-**Fortschritt:** 10 von 13 Punkten erledigt (Punkte 1, 2, 3, 4, 5, 7, 8, 10, 12, 13, 2026-07-20).
+**Fortschritt:** 11 von 13 Punkten erledigt (Punkte 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 13, 2026-07-20).
 Betrachteter Pfad: `main.ts` → `APP_INITIALIZER` (`StartupService.initApp()`) → `AuthService` /
 `KeycloakHelperService` → `MainComponent` → Routing → `UserInterfaceComponent.ngOnInit()`.
 
@@ -112,7 +112,16 @@ auseinanderlaufen können.
 Dem Keycloak-Konstruktor kann direkt das bereits geladene Config-Objekt übergeben werden — spart
 einen Netzwerk-Roundtrip in der blockierenden Startphase.
 
-- [ ] Geladenes Config-Objekt an den Keycloak-Konstruktor übergeben
+- [x] Geladenes Config-Objekt an den Keycloak-Konstruktor übergeben
+
+> **Status (2026-07-20, erledigt):** `AuthService.initKeycloak()` erzeugt den Adapter jetzt über
+> `createKeycloakAdapter()`: Ist `window.__env.keycloakConfig` bereits vom `StartupService` geladen,
+> wird ein `KeycloakConfig`-Objekt (`{ url, realm, clientId }`) aus dem Installation-Format
+> (`auth-server-url` / `realm` / `resource`) gebaut und an `new Keycloak(...)` übergeben — damit
+> entfällt der zweite Fetch derselben `keycloak.json` durch `keycloak-js` in der blockierenden
+> Startphase. Fehlt die Config (Fetch fehlgeschlagen), bleibt der bisherige URL-Fallback erhalten,
+> bei dem `keycloak-js` die Config selbst lädt. (Der `KeycloakHelperService.init()`-Aufruf holt
+> ohnehin nur Rollen, nicht die Config, und nutzt bei vorhandener Config keinen weiteren Fetch.)
 
 ### 7. Obsoleter Browser-Check
 

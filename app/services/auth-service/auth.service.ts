@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import Keycloak, { KeycloakLoginOptions, KeycloakTokenParsed } from 'keycloak-js';
+import Keycloak, { KeycloakConfig, KeycloakLoginOptions, KeycloakTokenParsed } from 'keycloak-js';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { NotificationService } from '../../components/ngComponents/common/notification/notification.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -19,10 +19,7 @@ export class AuthService {
 
   async initKeycloak(): Promise<void> {
     if (this.envConfigService.enableKeycloakSecurity) {
-      const keycloakAdapter = new Keycloak(
-        this.envConfigService.configStorageServerConfig
-          .targetUrlToConfigStorageServer_keycloakConfig
-      );
+      const keycloakAdapter = this.createKeycloakAdapter();
 
       // https://www.keycloak.org/docs/latest/securing_apps/#session-status-iframe
       // https://www.keycloak.org/docs/latest/securing_apps/#_modern_browsers
@@ -47,6 +44,28 @@ export class AuthService {
           );
         });
     }
+  }
+
+  /**
+   * Builds the Keycloak adapter. StartupService has usually already fetched the
+   * keycloak.json into window.__env.keycloakConfig, so reuse it (mapping the
+   * installation-format keys to a KeycloakConfig) instead of letting keycloak-js
+   * re-fetch the same URL. Falls back to the URL form when it was not loaded.
+   */
+  private createKeycloakAdapter(): Keycloak {
+    const keycloakConfig = this.envConfigService.keycloakConfig;
+    if (keycloakConfig?.['auth-server-url']) {
+      const config: KeycloakConfig = {
+        url: keycloakConfig['auth-server-url'],
+        realm: keycloakConfig['realm'],
+        clientId: keycloakConfig['resource'],
+      };
+      return new Keycloak(config);
+    }
+
+    return new Keycloak(
+      this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig
+    );
   }
 
   hasAdminRights(): boolean {
