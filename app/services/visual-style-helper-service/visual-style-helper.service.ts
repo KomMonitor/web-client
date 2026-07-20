@@ -1,14 +1,14 @@
-import { colorbrewer } from './../../components/ngComponents/userInterface/kommonitorClassification/colors';
 import { Injectable, inject } from '@angular/core';
 import { IndicatorsDataset } from 'components/ngComponents/models/indicators.models';
+import L from 'leaflet';
+import 'leaflet.pattern';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
+import { ClassificationStateService } from 'services/classification-state-service/classification-state.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import classyBrew from '../../../customizedExternalLibs/classyBrew.js';
-import L from 'leaflet';
-import 'leaflet.pattern';
-import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { ClassificationStateService } from 'services/classification-state-service/classification-state.service';
+import { colorbrewer } from './../../components/ngComponents/userInterface/kommonitorClassification/colors';
 
 @Injectable({
   providedIn: 'root',
@@ -743,7 +743,25 @@ export class VisualStyleHelperServiceNew {
     this.defaultFillOpacityForFilteredFeatures = opacity;
   }
 
-  // style function to return
+  /**
+   * Builds the standard Leaflet path style shared by the classified-feature
+   * styles. `opacity` defaults to `fillOpacity` to preserve styleDefault's
+   * original behavior; callers wanting a fixed border opacity pass it explicitly.
+   */
+  private buildIndicatorStyle(fillColor, fillOpacity, opacity = fillOpacity) {
+    return {
+      weight: 1,
+      opacity,
+      color: this.selectionState.selectedSpatialUnitIsRaster()
+        ? undefined
+        : this.defaultBorderColor,
+      dashArray: '',
+      fillOpacity,
+      fillColor,
+      fillPattern: undefined,
+    };
+  }
+
   styleDefault(
     feature,
     defaultBrew,
@@ -767,139 +785,63 @@ export class VisualStyleHelperServiceNew {
       return this.styleOutlier(feature, incrementFeatures);
     }
 
-    let fillOpacity = 1;
-    if (useTransparencyOnIndicator) {
-      fillOpacity = this.defaultFillOpacity;
-    }
+    let fillOpacity = useTransparencyOnIndicator ? this.defaultFillOpacity : 1;
+    const value = this.getIndicatorValue_asNumber(feature.properties[propertyName]);
 
     let fillColor;
-    if (
-      this.envConfigService.classifyZeroSeparately &&
-      this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
-    ) {
+    if (this.envConfigService.classifyZeroSeparately && value == 0) {
       fillColor = this.getFillColorForZero(incrementFeatures);
       if (useTransparencyOnIndicator) {
         fillOpacity = this.defaultFillOpacityForZeroFeatures;
       }
     } else {
-      if (datasetContainsNegativeValues) {
-        if (this.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0) {
-          if (
-            this.envConfigService.classifyZeroSeparately &&
-            this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
-          ) {
-            fillColor = this.getFillColorForZero(incrementFeatures);
-            if (useTransparencyOnIndicator) {
-              fillOpacity = this.defaultFillOpacityForZeroFeatures;
-            }
-          } else {
-            fillColor = this.findColorInRange(
-              feature,
-              propertyName,
-              dynamicIncreaseBrew,
-              incrementFeatures
-            );
-          }
-
-          return {
-            weight: 1,
-            opacity: fillOpacity,
-            color: this.selectionState.selectedSpatialUnitIsRaster()
-              ? undefined
-              : this.defaultBorderColor,
-            dashArray: '',
-            fillOpacity: fillOpacity,
-            fillColor: fillColor,
-            fillPattern: undefined,
-          };
-        } else {
-          if (
-            this.envConfigService.classifyZeroSeparately &&
-            this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
-          ) {
-            fillColor = this.getFillColorForZero(incrementFeatures);
-            if (useTransparencyOnIndicator) {
-              fillOpacity = this.defaultFillOpacityForZeroFeatures;
-            }
-          } else {
-            // invert colors, so that lowest values will become strong colored!
-            fillColor = this.findColorInRange(
-              feature,
-              propertyName,
-              dynamicDecreaseBrew,
-              incrementFeatures
-            );
-          }
-
-          return {
-            weight: 1,
-            opacity: fillOpacity,
-            color: this.selectionState.selectedSpatialUnitIsRaster()
-              ? undefined
-              : this.defaultBorderColor,
-            dashArray: '',
-            fillOpacity: fillOpacity,
-            fillColor: fillColor,
-            fillPattern: undefined,
-          };
-        }
-      } else {
-        fillColor = this.findColorInRange(feature, propertyName, defaultBrew, incrementFeatures);
-      }
+      // With negative values present, positives and negatives use separate
+      // brews (the decrease brew has its colors inverted at setup, so the
+      // lowest values become strong-colored); otherwise the single default brew.
+      const brew = datasetContainsNegativeValues
+        ? value >= 0
+          ? dynamicIncreaseBrew
+          : dynamicDecreaseBrew
+        : defaultBrew;
+      fillColor = this.findColorInRange(feature, propertyName, brew, incrementFeatures);
     }
 
-    return {
-      weight: 1,
-      opacity: fillOpacity,
-      color: this.selectionState.selectedSpatialUnitIsRaster()
-        ? undefined
-        : this.defaultBorderColor,
-      dashArray: '',
-      fillOpacity: fillOpacity,
-      fillColor: fillColor,
-      fillPattern: undefined,
-    };
+    return this.buildIndicatorStyle(fillColor, fillOpacity);
   }
 
-  findColorInRange(feature, propertyName, colorBrewInstance, incrementFeatures) {
-    let color;
-
-    for (let index = 0; index < colorBrewInstance.breaks.length; index++) {
-      if (
-        this.getIndicatorValue_asNumber(feature.properties[propertyName]) ==
-        this.getIndicatorValue_asNumber(colorBrewInstance.breaks[index])
-      ) {
-        if (index < colorBrewInstance.breaks.length - 1) {
-          // min value
-          color = colorBrewInstance.colors[index];
-          break;
-        } else {
-          //max value
-          if (colorBrewInstance.colors[index]) {
-            color = colorBrewInstance.colors[index];
-          } else {
-            color = colorBrewInstance.colors[index - 1];
-          }
-          break;
-        }
-      } else {
-        if (
-          this.getIndicatorValue_asNumber(feature.properties[propertyName]) <
-          this.getIndicatorValue_asNumber(colorBrewInstance.breaks[index + 1])
-        ) {
-          if (colorBrewInstance.colors && colorBrewInstance.colors[index]) {
-            color = colorBrewInstance.colors[index];
-          }
-          break;
-        }
-      }
-    }
+  private findColorInRange(feature, propertyName, colorBrewInstance, incrementFeatures) {
+    const value = this.getIndicatorValue_asNumber(feature.properties[propertyName]);
+    const color = this.resolveClassColor(value, colorBrewInstance);
 
     if (incrementFeatures) {
       this.classificationState.incrementFeaturesPerColor(color);
     }
 
     return color;
+  }
+
+  private resolveClassColor(value, colorBrewInstance) {
+    const colors = colorBrewInstance?.colors;
+    const breaks = colorBrewInstance?.breaks;
+    if (!colors?.length || !breaks?.length || typeof value !== 'number') {
+      return undefined;
+    }
+
+    const lastColorIndex = colors.length - 1;
+
+    // Below the smallest break -> lowest class.
+    if (value < this.getIndicatorValue_asNumber(breaks[0])) {
+      return colors[0];
+    }
+
+    // First half-open interval [breaks[i], breaks[i + 1]) that contains value.
+    for (let index = 0; index < breaks.length - 1; index++) {
+      if (value < this.getIndicatorValue_asNumber(breaks[index + 1])) {
+        return colors[Math.min(index, lastColorIndex)];
+      }
+    }
+    // At or above the largest break -> highest class.
+    return colors[lastColorIndex];
   }
 
   // this.findColorInRange_invertedColorGradient (feature, propertyName, colorBrewInstance){
@@ -957,75 +899,27 @@ export class VisualStyleHelperServiceNew {
       return this.styleOutlier(feature, incrementFeatures);
     }
 
-    let fillOpacity = 1;
-    if (useTransparencyOnIndicator) {
-      fillOpacity = this.defaultFillOpacity;
-    }
+    let fillOpacity = useTransparencyOnIndicator ? this.defaultFillOpacity : 1;
+    const value = this.getIndicatorValue_asNumber(feature.properties[propertyName]);
 
     let fillColor;
-    if (
-      this.getIndicatorValue_asNumber(feature.properties[propertyName]) >=
-      this.chartDisplayState.measureOfValue
-    ) {
-      if (
-        this.envConfigService.classifyZeroSeparately &&
-        this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
-      ) {
-        fillColor = this.getFillColorForZero(incrementFeatures);
-        if (useTransparencyOnIndicator) {
-          fillOpacity = this.defaultFillOpacityForZeroFeatures;
-        }
-      } else {
-        fillColor = this.findColorInRange(
-          feature,
-          propertyName,
-          gtMeasureOfValueBrew,
-          incrementFeatures
-        );
+    if (this.envConfigService.classifyZeroSeparately && value == 0) {
+      fillColor = this.getFillColorForZero(incrementFeatures);
+      if (useTransparencyOnIndicator) {
+        fillOpacity = this.defaultFillOpacityForZeroFeatures;
       }
-
-      return {
-        weight: 1,
-        opacity: 1,
-        color: this.selectionState.selectedSpatialUnitIsRaster()
-          ? undefined
-          : this.defaultBorderColor,
-        dashArray: '',
-        fillOpacity: fillOpacity,
-        fillColor: fillColor,
-        fillPattern: undefined,
-      };
     } else {
-      if (
-        this.envConfigService.classifyZeroSeparately &&
-        this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
-      ) {
-        fillColor = this.getFillColorForZero(incrementFeatures);
-        if (useTransparencyOnIndicator) {
-          fillOpacity = this.defaultFillOpacityForZeroFeatures;
-        }
-      } else {
-        // invert colors, so that lowest values will become strong colored!
-        fillColor = this.findColorInRange(
-          feature,
-          propertyName,
-          ltMeasureOfValueBrew,
-          incrementFeatures
-        );
-      }
-
-      return {
-        weight: 1,
-        opacity: 1,
-        color: this.selectionState.selectedSpatialUnitIsRaster()
-          ? undefined
-          : this.defaultBorderColor,
-        dashArray: '',
-        fillOpacity: fillOpacity,
-        fillColor: fillColor,
-        fillPattern: undefined,
-      };
+      // At/above the measure of value uses the "greater-than" brew; below it the
+      // "lesser-than" brew (its colors inverted at setup, so the lowest values
+      // become strong-colored).
+      const brew =
+        value >= this.chartDisplayState.measureOfValue
+          ? gtMeasureOfValueBrew
+          : ltMeasureOfValueBrew;
+      fillColor = this.findColorInRange(feature, propertyName, brew, incrementFeatures);
     }
+
+    return this.buildIndicatorStyle(fillColor, fillOpacity, 1);
   }
 
   styleDynamicIndicator(
@@ -1049,71 +943,23 @@ export class VisualStyleHelperServiceNew {
       return this.styleOutlier(feature, incrementFeatures);
     }
 
-    let fillOpacity = 1;
-    if (useTransparencyOnIndicator) {
-      fillOpacity = this.defaultFillOpacity;
-    }
+    let fillOpacity = useTransparencyOnIndicator ? this.defaultFillOpacity : 1;
+    const value = this.getIndicatorValue_asNumber(feature.properties[propertyName]);
 
     let fillColor;
-    if (this.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0) {
-      if (
-        this.envConfigService.classifyZeroSeparately &&
-        this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
-      ) {
-        fillColor = this.getFillColorForZero(incrementFeatures);
-        if (useTransparencyOnIndicator) {
-          fillOpacity = this.defaultFillOpacityForZeroFeatures;
-        }
-      } else {
-        fillColor = this.findColorInRange(
-          feature,
-          propertyName,
-          dynamicIncreaseBrew,
-          incrementFeatures
-        );
+    if (this.envConfigService.classifyZeroSeparately && value == 0) {
+      fillColor = this.getFillColorForZero(incrementFeatures);
+      if (useTransparencyOnIndicator) {
+        fillOpacity = this.defaultFillOpacityForZeroFeatures;
       }
-
-      return {
-        weight: 1,
-        opacity: 1,
-        color: this.selectionState.selectedSpatialUnitIsRaster()
-          ? undefined
-          : this.defaultBorderColor,
-        dashArray: '',
-        fillOpacity: fillOpacity,
-        fillColor: fillColor,
-        fillPattern: undefined,
-      };
     } else {
-      if (
-        this.envConfigService.classifyZeroSeparately &&
-        this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
-      ) {
-        fillColor = this.getFillColorForZero(incrementFeatures);
-        if (useTransparencyOnIndicator) {
-          fillOpacity = this.defaultFillOpacityForZeroFeatures;
-        }
-      } else {
-        // invert colors, so that lowest values will become strong colored!
-        fillColor = this.findColorInRange(
-          feature,
-          propertyName,
-          dynamicDecreaseBrew,
-          incrementFeatures
-        );
-      }
-
-      return {
-        weight: 1,
-        opacity: 1,
-        color: this.selectionState.selectedSpatialUnitIsRaster()
-          ? undefined
-          : this.defaultBorderColor,
-        dashArray: '',
-        fillOpacity: fillOpacity,
-        fillColor: fillColor,
-        fillPattern: undefined,
-      };
+      // Non-negative values use the increase brew; negative values the decrease
+      // brew (its colors inverted at setup, so the lowest values become
+      // strong-colored).
+      const brew = value >= 0 ? dynamicIncreaseBrew : dynamicDecreaseBrew;
+      fillColor = this.findColorInRange(feature, propertyName, brew, incrementFeatures);
     }
+
+    return this.buildIndicatorStyle(fillColor, fillOpacity, 1);
   }
 }

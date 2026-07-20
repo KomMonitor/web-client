@@ -322,6 +322,16 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
   onOnChangeSelectedIndicator() {
     this.reappliedFilter = false;
+
+    // Clear any active feature filter when the selected indicator changes.
+    // Feature ids are per spatial unit and therefore identical across indicators
+    // on the same spatial unit, so stale filtered ids from the previous indicator
+    // would otherwise survive the switch and make styleFor() paint those features
+    // with the grey filteredStyle instead of a class color ("feature has no class").
+    // This broadcast fires synchronously before the (async) map render, so the
+    // filter is cleared in time. The value-range filter is meaningless for the new
+    // indicator anyway and its slider is reset via UpdateIndicatorValueRangeFilter.
+    this.filterHelperService.clearFilteredFeatures();
   }
   /* 
 
@@ -435,20 +445,33 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     this.inputLowerFilterValue = this.valueRangeMinValue;
     this.inputHigherFilterValue = this.valueRangeMaxValue;
 
-    this.slider.noUiSlider.updateOptions({
-      range: {
-        min: this.valueRangeMinValue,
-        max: this.valueRangeMaxValue,
+    // Pass fireSetEvent=false so this programmatic reset does NOT emit a 'set'
+    // event. Otherwise updateOptions triggers onChangeRangeFilter ->
+    // applyRangeFilter on every dataset / spatial-unit / indicator change and
+    // marks features outside the (pre-reset) handle positions as filtered,
+    // painting them with the grey filteredStyle instead of a class color and
+    // dropping them from the legend feature count.
+    this.slider.noUiSlider.updateOptions(
+      {
+        range: {
+          min: this.valueRangeMinValue,
+          max: this.valueRangeMaxValue,
+        },
+        start: [this.valueRangeMinValue, this.valueRangeMaxValue],
+        step: 0.01,
+        tooltips: true,
+        pips: {
+          mode: 'range',
+          density: 25,
+        },
       },
-      start: [this.valueRangeMinValue, this.valueRangeMaxValue],
-      step: 0.01,
-      tooltips: true,
-      pips: {
-        mode: 'range',
-        density: 25,
-      },
-    });
+      false
+    );
 
+    // Rebind the single user-interaction handler. setupRangeSliderForFilter runs
+    // again on every dataset change, so remove any previously bound handler first
+    // to avoid accumulating duplicate 'set' listeners on the shared slider.
+    this.slider.noUiSlider.off('set');
     this.slider.noUiSlider.on('set', () => {
       this.onChangeRangeFilter(this.getFormatedSliderReturn());
     });

@@ -442,7 +442,6 @@ export class IndicatorClassificationService {
    *   layer context)
    */
   updateManualMOVBreaksFromDefaultManualBreaks(isDynamicOrNegative: boolean) {
-    const vsh = this.visualStyleHelperService;
     const state = this.classificationState;
     const gtBreaks: any[] = [];
     const ltBreaks: any[] = [];
@@ -473,7 +472,6 @@ export class IndicatorClassificationService {
 
   /** Inverse of updateManualMOVBreaksFromDefaultManualBreaks: recombines the MOV break halves into the shared manual/dynamic breaks. */
   private updateDefaultManualBreaksFromMOVManualBreaks(isDynamicOrNegative: boolean) {
-    const vsh = this.visualStyleHelperService;
     const state = this.classificationState;
     const ltBreaks = [...state.manualMOVBreaks[0]];
     const gtBreaks = [...state.manualMOVBreaks[1]];
@@ -508,7 +506,6 @@ export class IndicatorClassificationService {
 
   private markOutliers(indicatorMetadataAndGeoJSON, indicatorPropertyName): IndicatorDataFacts {
     const vsh = this.visualStyleHelperService;
-    const state = this.classificationState;
     const facts: IndicatorDataFacts = {
       containsZeroValues: false,
       containsNoDataValues: false,
