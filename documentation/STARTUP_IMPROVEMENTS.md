@@ -1,7 +1,7 @@
 # Verbesserungspotential in der Initialisierungsphase
 
 Analyse der Startphase des Web-Clients (Stand: 2026-07-20, Branch `feature/migration-bootstrap`).
-**Fortschritt:** 1 von 12 Punkten erledigt (Punkt 1, 2026-07-20).
+**Fortschritt:** 2 von 12 Punkten erledigt (Punkte 1–2, 2026-07-20).
 Betrachteter Pfad: `main.ts` → `APP_INITIALIZER` (`StartupService.initApp()`) → `AuthService` /
 `KeycloakHelperService` → `MainComponent` → Routing → `UserInterfaceComponent.ngOnInit()`.
 
@@ -36,8 +36,19 @@ nach: `env_backup.js` wird zur Laufzeit nie geladen (nur vom Admin-Config-Editor
 gilt es genauso. Nur `keycloak_backup.json` hat einen echten Fallback (in
 `keycloak-helper.service.ts`).
 
-- [ ] Entweder den Fallback wirklich implementieren (Backup-Dateien im `catch`/`onerror` nachladen)
+- [x] Entweder den Fallback wirklich implementieren (Backup-Dateien im `catch`/`onerror` nachladen)
       oder die irreführenden Log-Meldungen korrigieren
+
+> **Status (2026-07-20, erledigt):** Beides umgesetzt, je nachdem, ob ein Backup existiert:
+> Für die **App-Config** gibt es jetzt einen echten Fallback — schlägt das Laden von `env.js` vom
+> Config-Server fehl, lädt `loadAppConfigScript()` das lokal ausgelieferte
+> `./config/env_backup.js` nach (Asset in `angular.json`, befüllt `window.__env` vollständig).
+> Für **Keycloak-/Controls-/Filter-Config** existieren keine lokalen Backups (die
+> `*_backup.json`-Dateien wurden laut `PROPOSED_CHANGES.md` gelöscht bzw. gab es nie als
+> Runtime-Fallback) — dort wurde die irreführende Meldung „Using local backup defaults" durch ein
+> ehrliches `console.warn` ersetzt; `keycloak_backup.json` greift weiterhin separat im
+> `KeycloakHelperService`. Abgedeckt durch einen neuen Test in `startup.service.spec.ts`
+> (Fallback-Kette der Script-Tags).
 
 ### 3. `KeycloakHelperService.init()` als floating Promise
 
