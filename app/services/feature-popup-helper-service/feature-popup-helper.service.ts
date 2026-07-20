@@ -32,7 +32,8 @@ export class FeaturePopupHelperService {
   }
 
   /** `<b>Name</b><br/>value [unit]` tooltip used for indicator features. */
-  buildIndicatorTooltip(featureName: any, indicatorValueText: any, unitText: any): string {
-    return '<b>' + featureName + '</b><br/>' + indicatorValueText + ' [' + unitText + ']';
+  buildIndicatorTooltip(featureName: any, indicatorValueText: any, unitText: any, label?: any): string {
+    let optionalLabel = label ? '<br/>' + label : '';
+    return '<b>' + featureName + '</b><br/>' + indicatorValueText + ' [' + unitText + ']' + optionalLabel;
   }
 }
