@@ -602,6 +602,24 @@
                           </div>
                         </div>
                       }
+                      <!-- "Sonstige": feature values matching no defined category -->
+                      @if (classificationState.featuresPerColorMap.get(categoricalOtherColor)) {
+                        <div class="row" style="margin-right: 0px">
+                          <div class="col-md-3">
+                            <i
+                              [ngStyle]="{
+                                background: categoricalOtherColor,
+                                opacity: classificationState.currentIndicatorOpacity,
+                              }"
+                            ></i>
+                          </div>
+                          <div class="col-md-3">Sonstige</div>
+                          <div class="col-md-3"></div>
+                          <div class="col-md-3">
+                            {{ classificationState.featuresPerColorMap.get(categoricalOtherColor) }}
+                          </div>
+                        </div>
+                      }
                     } @else {
                       <!-- zero -->
                       @if (envConfigService.classifyZeroSeparately && containsZeroValues) {

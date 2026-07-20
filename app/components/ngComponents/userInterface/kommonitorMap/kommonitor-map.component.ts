@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { CategoricalClassificationItem } from 'components/ngComponents/models/classification.models';
 import domtoimage from 'dom-to-image-more';
 import { saveAs } from 'file-saver';
 import * as L from 'leaflet';
@@ -149,6 +150,12 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   manualBrew = undefined;
   dynamicDecreaseBrew: any = undefined;
   dynamicIncreaseBrew: any = undefined;
+
+  // Categorical (qualitative) render state, read by the hover/click highlight-reset
+  // paths so they restyle categorical features by category instead of via the
+  // (absent) numeric brews.
+  isCategoricalLayer = false;
+  categoricalDataOfCurrentLayer: CategoricalClassificationItem[] = [];
 
   currentIndicatorMetadataAndGeoJSON;
   currentGeoJSONOfCurrentLayer;
@@ -1083,6 +1090,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         )
       ) {
         style = this.filteredStyle;
+      } else if (this.isCategoricalLayer) {
+        style = this.visualStyleHelperService.styleCategorical(
+          layer.feature,
+          this.categoricalDataOfCurrentLayer,
+          this.propertyName,
+          this.envConfigService.useTransparencyOnIndicator,
+          false
+        );
       } else if (!this.chartDisplayState.isMeasureOfValueChecked) {
         //this.currentIndicatorLayer.resetStyle(layer);
         if (this.indicatorTypeOfCurrentLayer.includes('DYNAMIC')) {
@@ -1148,6 +1163,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       )
     ) {
       layer.setStyle(this.filteredStyle);
+    } else if (this.isCategoricalLayer) {
+      style = this.visualStyleHelperService.styleCategorical(
+        layer.feature,
+        this.categoricalDataOfCurrentLayer,
+        this.propertyName,
+        this.envConfigService.useTransparencyOnIndicator,
+        false
+      );
+
+      layer.setStyle(style);
     } else if (!this.chartDisplayState.isMeasureOfValueChecked) {
       //this.currentIndicatorLayer.resetStyle(layer);
       if (this.indicatorTypeOfCurrentLayer.includes('DYNAMIC')) {
@@ -1331,6 +1356,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.containsOutliers_low = result.facts.containsOutliers_low;
     this.outliers_high = result.facts.outliers_high;
     this.outliers_low = result.facts.outliers_low;
+    this.isCategoricalLayer = result.isCategorical;
+    this.categoricalDataOfCurrentLayer = result.categoricalData;
   }
 
   private isDynamicOrNegativeLayer(): boolean {

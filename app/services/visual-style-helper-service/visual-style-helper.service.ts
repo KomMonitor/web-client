@@ -1,4 +1,8 @@
 import { Injectable, inject } from '@angular/core';
+import {
+  CATEGORICAL_OTHER_COLOR,
+  CategoricalClassificationItem,
+} from 'components/ngComponents/models/classification.models';
 import { IndicatorsDataset } from 'components/ngComponents/models/indicators.models';
 import L from 'leaflet';
 import 'leaflet.pattern';
@@ -807,6 +811,52 @@ export class VisualStyleHelperServiceNew {
     }
 
     return this.buildIndicatorStyle(fillColor, fillOpacity);
+  }
+
+  /**
+   * Styles a feature of a qualitative (categorical) indicator: its fill color is
+   * the color of the category whose `categoricalValue` matches the feature's raw
+   * property value. Values matching no category fall into the shared "other"
+   * bucket ({@link CATEGORICAL_OTHER_COLOR}). NoData values keep the standard
+   * NoData style. In every case the resulting color is counted into
+   * `featuresPerColorMap`, which the legend reads for the per-category count.
+   *
+   * Unlike the numeric styles this does not go through `resolveClassColor`
+   * (which requires a numeric value) — categories are matched as strings.
+   */
+  styleCategorical(
+    feature,
+    categoricalData: CategoricalClassificationItem[],
+    propertyName,
+    useTransparencyOnIndicator,
+    incrementFeatures
+  ) {
+    // check if feature is NoData
+    if (this.indicatorValueService.indicatorValueIsNoData(feature.properties[propertyName])) {
+      return this.styleNoData(feature, incrementFeatures);
+    }
+
+    const fillOpacity = useTransparencyOnIndicator ? this.defaultFillOpacity : 1;
+    const color = this.resolveCategoricalColor(feature.properties[propertyName], categoricalData);
+
+    if (incrementFeatures) {
+      this.classificationState.incrementFeaturesPerColor(color);
+    }
+
+    return this.buildIndicatorStyle(color, fillOpacity);
+  }
+
+  /**
+   * Resolves the fill color for a categorical feature value by matching it against
+   * the category definitions (normalized string comparison), returning the shared
+   * "other" color when nothing matches.
+   */
+  private resolveCategoricalColor(value, categoricalData: CategoricalClassificationItem[]): string {
+    const normalized = String(value).trim();
+    const match = categoricalData?.find(
+      (category) => String(category.categoricalValue).trim() === normalized
+    );
+    return match?.color ?? CATEGORICAL_OTHER_COLOR;
   }
 
   private findColorInRange(feature, propertyName, colorBrewInstance, incrementFeatures) {

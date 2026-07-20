@@ -177,6 +177,14 @@ export class IndicatorClassificationStateService {
 
   onClickColorBrewerEntry(colorPaletteEntry: ColorPaletteEntry) {
     this.selectedColorBrewerPaletteEntry.set(colorPaletteEntry);
+    // Actively picking a palette re-seeds categories from it: drop any per-category
+    // colors (individual overrides or ones loaded from a stored classification) so
+    // categoryColor derives from the newly selected palette again.
+    if (this.isCategorical) {
+      this.categories.set(
+        this.categories().map((category) => ({ ...category, customColor: null }))
+      );
+    }
   }
 
   // app-color-palette-select emits the scheme name; map it back to our palette entry.
@@ -433,7 +441,11 @@ export class IndicatorClassificationStateService {
    */
   categoryColor(index: number): { color: string; overflow: boolean } {
     const category = this.categories()[index];
-    if (this.individualColorMode() && category?.customColor) {
+    // A per-category color wins whenever one is set — either an individual override
+    // or a color carried over from a stored classification (see applyMapping). Only
+    // when no explicit color exists do we fall back to the palette position. Selecting
+    // a palette (onClickColorBrewerEntry) clears these so the palette drives again.
+    if (category?.customColor) {
       return { color: category.customColor, overflow: false };
     }
     const palette = this.categoricalPaletteColors();
@@ -581,12 +593,17 @@ export class IndicatorClassificationStateService {
     if (this.isCategorical) {
       const data = mapping.categoricalData ?? [];
       if (data.length) {
-        const individual = mapping.colorBrewerSchemeName === 'INDIVIDUAL';
+        // The stored per-category color is the authoritative source of truth: it is
+        // what the map (resolveCategoricalColor) and legend render from, regardless
+        // of whether it originally came from a palette or an individual choice. So
+        // always seed customColor from it (not only in INDIVIDUAL mode) — otherwise
+        // re-editing a palette-based categorical classification would re-derive the
+        // colors from the palette position and diverge from what is actually painted.
         this.categories.set(
           data.map((item) => ({
             value: item.categoricalValue ?? '',
             label: item.label ?? '',
-            customColor: individual ? (item.color ?? null) : null,
+            customColor: item.color ?? null,
           }))
         );
       }

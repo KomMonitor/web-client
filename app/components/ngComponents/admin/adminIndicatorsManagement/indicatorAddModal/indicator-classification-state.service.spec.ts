@@ -156,5 +156,41 @@ describe('IndicatorClassificationStateService', () => {
       expect(service.categories()[0].value).toBe('X');
       expect(service.categories()[0].label).toBe('Ex');
     });
+
+    it('uses the stored per-category colors, not re-derived palette colors', () => {
+      // A palette-based categorical mapping whose stored colors deliberately differ
+      // from the palette-position colors (the map/legend render from categoricalData,
+      // so the editor must reflect exactly those colors on re-edit).
+      service.applyMapping({
+        classificationType: 'QUALITATIVE',
+        colorBrewerSchemeName: 'Set1',
+        numClasses: 2,
+        categoricalData: [
+          { categoricalValue: 'X', label: 'Ex', color: '#123456' },
+          { categoricalValue: 'Y', label: 'Why', color: '#abcdef' },
+        ],
+      });
+
+      expect(service.categoryColor(0).color).toBe('#123456');
+      expect(service.categoryColor(1).color).toBe('#abcdef');
+    });
+
+    it('re-derives colors from the palette once a palette is actively selected', () => {
+      service.applyMapping({
+        classificationType: 'QUALITATIVE',
+        colorBrewerSchemeName: 'Set1',
+        numClasses: 2,
+        categoricalData: [
+          { categoricalValue: 'X', label: 'Ex', color: '#123456' },
+          { categoricalValue: 'Y', label: 'Why', color: '#abcdef' },
+        ],
+      });
+
+      service.onColorSchemeSelected('Set1');
+
+      // Stored overrides are dropped; colors now come from the palette position.
+      expect(service.categoryColor(0).color).not.toBe('#123456');
+      expect(service.categoryColor(0).color).toBe(service.categoricalPaletteColors()[0]);
+    });
   });
 });

@@ -367,4 +367,75 @@ describe('IndicatorClassificationService', () => {
 
     expect(dataset.geoJSON.features.length).toBe(2);
   });
+
+  describe('categorical (qualitative) classification', () => {
+    // Builds a dataset carrying string category values and a QUALITATIVE mapping.
+    function makeCategoricalDataset(values: (string | null)[]) {
+      const dataset: any = makeIndicatorDataset(values.map(() => 0));
+      dataset.defaultClassificationMapping = {
+        classificationType: 'QUALITATIVE',
+        colorBrewerSchemeName: 'Accent',
+        numClasses: 2,
+        categoricalData: [
+          { categoricalValue: 'A', color: '#ff0000', label: 'Kat A' },
+          { categoricalValue: 'B', color: '#00ff00', label: 'Kat B' },
+        ],
+      };
+      dataset.geoJSON.features.forEach((feature: any, index: number) => {
+        feature.properties[PROP] = values[index];
+      });
+      return dataset;
+    }
+
+    it('colors features by category and skips numeric brews (replace)', () => {
+      const dataset = makeCategoricalDataset(['A', 'B', 'A']);
+
+      const result = service.buildClassification({
+        mode: 'replace',
+        indicatorMetadataAndGeoJSON: dataset,
+        indicatorPropertyName: PROP,
+      });
+
+      // no numeric brews are built for categorical
+      expect(result.defaultBrew).toBeUndefined();
+      expect(result.manualBrew).toBeUndefined();
+      expect(result.isCategorical).toBe(true);
+      expect(result.categoricalData.length).toBe(2);
+
+      expect(result.styleFor(dataset.geoJSON.features[0]).fillColor).toBe('#ff0000');
+      expect(result.styleFor(dataset.geoJSON.features[1]).fillColor).toBe('#00ff00');
+    });
+
+    it('counts features per category color into featuresPerColorMap', () => {
+      const dataset = makeCategoricalDataset(['A', 'B', 'A']);
+
+      const result = service.buildClassification({
+        mode: 'replace',
+        indicatorMetadataAndGeoJSON: dataset,
+        indicatorPropertyName: PROP,
+      });
+
+      dataset.geoJSON.features.forEach((feature: any) => result.styleFor(feature));
+
+      expect(state.featuresPerColorMap.get('#ff0000')).toBe(2);
+      expect(state.featuresPerColorMap.get('#00ff00')).toBe(1);
+    });
+
+    it('maps unmatched values to the shared "other" color', () => {
+      const dataset = makeCategoricalDataset(['A', 'Z']);
+
+      const result = service.buildClassification({
+        mode: 'replace',
+        indicatorMetadataAndGeoJSON: dataset,
+        indicatorPropertyName: PROP,
+      });
+
+      // style each feature exactly once, then assert
+      const styles = dataset.geoJSON.features.map((feature: any) => result.styleFor(feature));
+
+      // '#c9ced4' is CATEGORICAL_OTHER_COLOR
+      expect(styles[1].fillColor).toBe('#c9ced4');
+      expect(state.featuresPerColorMap.get('#c9ced4')).toBe(1);
+    });
+  });
 });

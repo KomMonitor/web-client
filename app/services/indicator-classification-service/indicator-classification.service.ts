@@ -1,4 +1,8 @@
 import { Injectable, inject } from '@angular/core';
+import {
+  CategoricalClassificationItem,
+  isQualitativeMapping,
+} from 'components/ngComponents/models/classification.models';
 import jStat from 'jstat';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { ClassificationStateService } from 'services/classification-state-service/classification-state.service';
@@ -52,12 +56,14 @@ export interface ClassificationResult {
   dynamicDecreaseBrew: any;
   datasetContainsNegativeValues: boolean;
   facts: IndicatorDataFacts;
+  isCategorical: boolean;
+  categoricalData: CategoricalClassificationItem[];
   /** Complete Leaflet style for a feature: tempData prep + filtered check + branch style. */
   styleFor(feature: any): any;
 }
 
 /** Which style function the pipeline selected for the current render. */
-type StyleBranch = 'mov' | 'default' | 'manual-default' | 'dynamic';
+type StyleBranch = 'mov' | 'default' | 'manual-default' | 'dynamic' | 'categorical';
 
 /**
  * Single classification pipeline for the main-map indicator layer.
@@ -103,6 +109,19 @@ export class IndicatorClassificationService {
     // stale carry-over unless a branch below recomputes it (legacy semantics)
     let datasetContainsNegativeValues = !!input.datasetContainsNegativeValues;
     let styleBranch: StyleBranch = 'default';
+    let categoricalData: CategoricalClassificationItem[] = [];
+
+    // Qualitative (categorical) indicators are colored per category, independent of
+    // the numeric MOV/dynamic/negative branches. Detect it up front so the numeric
+    // regional-default / brew setup (which assumes numeric mapping fields such as
+    // `items`) is skipped, and so the categorical branch wins regardless of the
+    // MOV/balance toggles.
+    const mapping = indicatorMetadataAndGeoJSON.defaultClassificationMapping;
+    const isCategorical = isQualitativeMapping(mapping);
+    if (isCategorical) {
+      styleBranch = 'categorical';
+      categoricalData = mapping?.categoricalData ?? [];
+    }
 
     if (mode === 'replace') {
       // reset the shared classification state before any brew setup
@@ -143,7 +162,11 @@ export class IndicatorClassificationService {
       this.applyDefaultClassificationSettings(indicatorMetadataAndGeoJSON);
     }
 
-    this.checkAvailabilityOfRegionalDefault(indicatorMetadataAndGeoJSON);
+    // Regional-default availability is a numeric-classification concern and reads
+    // `mapping.items` (absent on categorical mappings); skip it for categorical.
+    if (!isCategorical) {
+      this.checkAvailabilityOfRegionalDefault(indicatorMetadataAndGeoJSON);
+    }
 
     if (mode === 'replace') {
       this.setClassifyZeroForClassifyMethod();
@@ -153,7 +176,12 @@ export class IndicatorClassificationService {
     const isDynamicOrNegative = () =>
       indicatorType.includes('DYNAMIC') || datasetContainsNegativeValues;
 
-    if (this.chartDisplayState.isMeasureOfValueChecked) {
+    if (isCategorical) {
+      // No numeric brews to build; styling happens per category in styleFor. The
+      // numeric setup*Brew calls normally reset the feature counters, so reset here
+      // explicitly before styleFor recounts features per category color.
+      state.resetFeatureCounters();
+    } else if (this.chartDisplayState.isMeasureOfValueChecked) {
       styleBranch = 'mov';
 
       const measureOfValueBrewArray = vsh.setupMeasureOfValueBrew(
@@ -323,6 +351,7 @@ export class IndicatorClassificationService {
     }
 
     if (
+      !isCategorical &&
       state.classifyMethod == 'regional_default' &&
       this.chartDisplayState.isMeasureOfValueChecked
     ) {
@@ -375,6 +404,14 @@ export class IndicatorClassificationService {
       }
 
       switch (styleBranch) {
+        case 'categorical':
+          return vsh.styleCategorical(
+            feature,
+            categoricalData,
+            indicatorPropertyName,
+            this.envConfigService.useTransparencyOnIndicator,
+            true
+          );
         case 'mov':
           return vsh.styleMeasureOfValue(
             feature,
@@ -427,6 +464,8 @@ export class IndicatorClassificationService {
       dynamicDecreaseBrew,
       datasetContainsNegativeValues,
       facts,
+      isCategorical,
+      categoricalData,
       styleFor,
     };
   }

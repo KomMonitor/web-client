@@ -18,6 +18,14 @@ export interface CategoricalClassificationItem {
 }
 
 /**
+ * Fill color for feature values that match none of the defined categories (the
+ * "Sonstige"/other bucket). Kept here as the single source shared by the map
+ * styling (VisualStyleHelperServiceNew.styleCategorical) and the legend row, so
+ * both color and count the same bucket. Matches the admin overflow default color.
+ */
+export const CATEGORICAL_OTHER_COLOR = '#c9ced4';
+
+/**
  * Client-side extension of the backend `DefaultClassificationMappingType` with the
  * fields introduced by the step-5 redesign prototype that are not (yet) part of the
  * generated OpenAPI schema: the numeric/categorical type switch, per-class labels,
@@ -43,4 +51,16 @@ export interface ExtendedDefaultClassificationMapping extends Omit<
   individualColors?: string[];
   /** Category definitions for categorical classification. */
   categoricalData?: CategoricalClassificationItem[];
+}
+
+/**
+ * Whether a stored classification mapping is qualitative (categorical). Defensive:
+ * the backend may not (yet) persist `classificationType`, so a present
+ * `categoricalData` array is treated as qualitative too (mirrors the admin
+ * wizard's `applyMapping`).
+ */
+export function isQualitativeMapping(
+  mapping: Partial<ExtendedDefaultClassificationMapping> | null | undefined
+): boolean {
+  return mapping?.classificationType === 'QUALITATIVE' || !!mapping?.categoricalData?.length;
 }

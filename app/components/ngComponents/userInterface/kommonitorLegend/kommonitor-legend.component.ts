@@ -10,6 +10,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import {
+  CATEGORICAL_OTHER_COLOR,
   CategoricalClassificationItem,
   ExtendedDefaultClassificationMapping,
 } from 'components/ngComponents/models/classification.models';
@@ -129,6 +130,9 @@ export class KommonitorLegendComponent implements OnInit {
         this.classificationState.numClasses
     );
   }
+
+  /** Fill color / legend swatch of the categorical "Sonstige" (unmatched) bucket. */
+  protected readonly categoricalOtherColor = CATEGORICAL_OTHER_COLOR;
 
   /** Whether the current indicator uses a qualitative (categorical) classification. */
   protected get isQualitativeClassification(): boolean {
