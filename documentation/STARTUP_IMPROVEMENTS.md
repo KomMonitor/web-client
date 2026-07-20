@@ -200,8 +200,8 @@ Punkt 8 (`provideAppInitializer()`) zusammen, der ohnehin Teil eines Standalone-
 > Template genutzt (nur in HTML-Kommentaren / legacy `ng-options`-Attributen). Build, Tests (243)
 > und Lint bleiben grün.
 >
-> **Resteintrag:** Die Datei `app/pipes/order-by.pipe.ts` ist damit verwaist (nirgends mehr
-> deklariert/importiert) — Löschung ist ein separater kleiner Cleanup außerhalb dieses Punkts.
+> **Nachtrag (2026-07-20):** Die dadurch verwaiste Datei `app/pipes/order-by.pipe.ts` wurde
+> gelöscht (Build/Tests/Lint weiterhin grün).
 
 ---
 
