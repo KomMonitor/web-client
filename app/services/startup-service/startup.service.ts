@@ -107,7 +107,7 @@ export class StartupService {
     });
   }
 
-  // Angular has not rendered anything yet while the APP_INITIALIZER is
+  // Angular has not rendered anything yet while the app initializer is
   // pending, so plain DOM manipulation is the only way to inform the user.
   private showStartupErrorPage(): void {
     document.body.innerHTML = `

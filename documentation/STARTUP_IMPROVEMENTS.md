@@ -1,7 +1,7 @@
 # Verbesserungspotential in der Initialisierungsphase
 
 Analyse der Startphase des Web-Clients (Stand: 2026-07-20, Branch `feature/migration-bootstrap`).
-**Fortschritt:** 7 von 13 Punkten erledigt (Punkte 1, 2, 3, 4, 5, 7, 10, 2026-07-20).
+**Fortschritt:** 9 von 13 Punkten erledigt (Punkte 1, 2, 3, 4, 5, 7, 8, 10, 13, 2026-07-20).
 Betrachteter Pfad: `main.ts` → `APP_INITIALIZER` (`StartupService.initApp()`) → `AuthService` /
 `KeycloakHelperService` → `MainComponent` → Routing → `UserInterfaceComponent.ngOnInit()`.
 
@@ -134,7 +134,12 @@ davon; der Code ist toter Ballast.
 Seit Angular 19 wird `provideAppInitializer()` empfohlen. Kleiner, sauberer Umbau in
 `app.module.ts` (inkl. Wegfall der Factory-Funktion `initializeApp`).
 
-- [ ] Auf `provideAppInitializer()` umstellen
+- [x] Auf `provideAppInitializer()` umstellen
+
+> **Status (2026-07-20, erledigt, zusammen mit Punkt 13):** Das `APP_INITIALIZER`-Multi-Provider-
+> Objekt und die Factory `initializeApp` sind entfallen. In der neuen `app.config.ts` steht
+> stattdessen `provideAppInitializer(() => inject(StartupService).initApp())`. Das Verhalten
+> (Rendering blockiert bis `initApp()` fertig) bleibt identisch.
 
 ### 9. Globales `console.log`-Patching
 
@@ -176,8 +181,27 @@ Fernziel wäre die vollständige Standalone-Migration: weg von `AppModule` hin z
 in der gebooteten Wurzel sitzen). Das ist ein größerer, eigenständiger Strang und hängt mit
 Punkt 8 (`provideAppInitializer()`) zusammen, der ohnehin Teil eines Standalone-Umbaus wäre.
 
-- [ ] `MainComponent` + `AppModule` auf Standalone-Bootstrap umstellen (mittel-/langfristig,
-      gekoppelt an Punkt 8)
+- [x] `MainComponent` + `AppModule` auf Standalone-Bootstrap umstellen (gekoppelt an Punkt 8)
+
+> **Status (2026-07-20, erledigt):** `AppModule` (`app.module.ts`) ist gelöscht. `main.ts`
+> bootstrapped jetzt via `bootstrapApplication(MainComponent, appConfig)`; die Provider liegen in
+> der neuen `app.config.ts` (`provideRouter(routes)` statt `RouterModule.forRoot`,
+> `provideAppInitializer(...)` statt `APP_INITIALIZER`, `provideHttpClient` + `AuthInterceptor`,
+> `provideZoneChangeDetection`, und `importProvidersFrom(TranslateModule.forRoot({...}))`).
+> `MainComponent` ist jetzt standalone (`imports: [RouterOutlet]`, kein `standalone: false` mehr,
+> `// TODO:_ resolve this later` entfernt). Der `MainComponent`-Spec nutzt jetzt `imports` +
+> `provideRouter([])` statt `declarations`.
+>
+> Die zahlreichen wirkungslosen Komponenten-Imports des alten `AppModule` (Sidebar, Legend,
+> UserLogin, Color-/Date-/Line-Pattern-Picker, ag-grid, DragDrop, Ngb-Accordion usw.) wurden dabei
+> **nicht** übernommen — die routing-geladenen Feature-Komponenten (`UserInterfaceComponent`,
+> `AdminComponent`) sind standalone und importieren ihre Abhängigkeiten selbst. Ebenso ist
+> `OrderByPipe` nicht übernommen: Er wurde in `AppModule` deklariert, aber in keinem lebenden
+> Template genutzt (nur in HTML-Kommentaren / legacy `ng-options`-Attributen). Build, Tests (243)
+> und Lint bleiben grün.
+>
+> **Resteintrag:** Die Datei `app/pipes/order-by.pipe.ts` ist damit verwaist (nirgends mehr
+> deklariert/importiert) — Löschung ist ein separater kleiner Cleanup außerhalb dieses Punkts.
 
 ---
 
