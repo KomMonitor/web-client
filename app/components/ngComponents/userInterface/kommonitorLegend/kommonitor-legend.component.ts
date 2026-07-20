@@ -119,7 +119,15 @@ export class KommonitorLegendComponent implements OnInit {
    * no-data / outlier / filtered rows column-aligned with the class rows.
    */
   protected get showLabelsColumn(): boolean {
-    return this.hasClassificationLabels || this.isQualitativeClassification;
+    return (
+      (this.hasClassificationLabels || this.isQualitativeClassification) &&
+      !this.chartDisplayState.isMeasureOfValueChecked &&
+      !this.chartDisplayState.isBalanceChecked &&
+      this.selectionState.selectedIndicator.defaultClassificationMapping.classificationMethod ==
+        this.classificationState.classifyMethod.toUpperCase() &&
+      this.selectionState.selectedIndicator.defaultClassificationMapping.numClasses ==
+        this.classificationState.numClasses
+    );
   }
 
   /** Whether the current indicator uses a qualitative (categorical) classification. */
