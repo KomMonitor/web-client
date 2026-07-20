@@ -6,10 +6,64 @@
     <base href="/" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!--
+      Static splash screen shown while the app initializer runs (loading the
+      runtime config and initializing Keycloak) before Angular renders. Angular
+      replaces the content of <app-main> on bootstrap, so this clears itself.
+      Must stay self-contained (no external resources) as it runs pre-bootstrap.
+    -->
+    <style>
+      #app-splash {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        background: #ffffff;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        color: #333333;
+      }
+      #app-splash .app-splash-spinner {
+        width: 48px;
+        height: 48px;
+        box-sizing: border-box;
+        border-radius: 50%;
+        border: 4px solid rgba(0, 0, 0, 0.12);
+        border-top-color: rgba(0, 123, 255, 0.85);
+        animation: app-splash-spin 1s linear infinite;
+      }
+      #app-splash .app-splash-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+      #app-splash .app-splash-message {
+        font-size: 0.9rem;
+        color: #666666;
+      }
+      @keyframes app-splash-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #app-splash .app-splash-spinner {
+          animation: none;
+        }
+      }
+    </style>
   </head>
 
   <body class="hold-transition skin-blue sidebar-mini">
     <p id="fontFamily-reference"></p>
-    <app-main></app-main>
+    <app-main>
+      <div id="app-splash">
+        <div class="app-splash-spinner" aria-hidden="true"></div>
+        <div class="app-splash-title">KomMonitor</div>
+        <div class="app-splash-message" role="status">Anwendung wird geladen …</div>
+      </div>
+    </app-main>
   </body>
 </html>

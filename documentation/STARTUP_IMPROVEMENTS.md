@@ -1,7 +1,7 @@
 # Verbesserungspotential in der Initialisierungsphase
 
 Analyse der Startphase des Web-Clients (Stand: 2026-07-20, Branch `feature/migration-bootstrap`).
-**Fortschritt:** 9 von 13 Punkten erledigt (Punkte 1, 2, 3, 4, 5, 7, 8, 10, 13, 2026-07-20).
+**Fortschritt:** 10 von 13 Punkten erledigt (Punkte 1, 2, 3, 4, 5, 7, 8, 10, 12, 13, 2026-07-20).
 Betrachteter Pfad: `main.ts` → `APP_INITIALIZER` (`StartupService.initApp()`) → `AuthService` /
 `KeycloakHelperService` → `MainComponent` → Routing → `UserInterfaceComponent.ngOnInit()`.
 
@@ -214,4 +214,11 @@ Punkt 8 (`provideAppInitializer()`) zusammen, der ohnehin Teil eines Standalone-
 statischer Lade-Hinweis direkt im `index.html` (den Angular beim Bootstrap ersetzt) wäre billig und
 würde die gefühlte Startzeit deutlich verbessern.
 
-- [ ] Statischen Splash-Screen in `index.html` ergänzen
+- [x] Statischen Splash-Screen in `index.html` ergänzen
+
+> **Status (2026-07-20, erledigt):** `index.html` zeigt jetzt einen statischen Splash (Spinner +
+> „KomMonitor" + „Anwendung wird geladen …") zwischen `<app-main>…</app-main>`. Angular ersetzt
+> den Host-Inhalt beim Bootstrap, der Splash räumt sich also selbst weg; scheitert der Start, greift
+> die Fehlerseite aus Punkt 1 (überschreibt den Body). Reines Inline-CSS/HTML ohne externe
+> Ressourcen (läuft vor dem Bootstrap), Spinner-Stil an der `loading-overlay`-Komponente
+> orientiert, mit `prefers-reduced-motion`-Fallback.
