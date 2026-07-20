@@ -864,11 +864,69 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     );
   };
 
+  getLabelForFeature(feature, propertyName, colorBrewInstance) {
+    let labelIndex;
+    for (let index = 0; index < colorBrewInstance.breaks.length; index++) {
+      if (
+        this.getIndicatorValue_asNumber(feature.properties[propertyName]) ==
+        this.getIndicatorValue_asNumber(colorBrewInstance.breaks[index])
+      ) {
+        if (index < colorBrewInstance.breaks.length - 1) {
+          // min value
+          labelIndex = index;
+          break;
+        } else {
+          //max value
+          if (colorBrewInstance.colors[index]) {
+            labelIndex = index;
+          } else {
+            labelIndex = index - 1;
+          }
+          break;
+        }
+      } else {
+        if (
+          this.getIndicatorValue_asNumber(feature.properties[propertyName]) <
+          this.getIndicatorValue_asNumber(colorBrewInstance.breaks[index + 1])
+        ) {
+          if (colorBrewInstance.colors && colorBrewInstance.colors[index]) {
+            labelIndex = index;
+          }
+          break;
+        }
+      }
+    }
+    return this.selectionState.selectedIndicator.defaultClassificationMapping.labels[labelIndex];
+  }
+
+  showClassLabels() {
+    if (
+      !this.chartDisplayState.isMeasureOfValueChecked &&
+      !this.chartDisplayState.isBalanceChecked &&
+      this.selectionState.selectedIndicator.defaultClassificationMapping.classificationMethod ==
+        this.classificationState.classifyMethod.toUpperCase() &&
+      this.selectionState.selectedIndicator.defaultClassificationMapping.numClasses ==
+        this.classificationState.numClasses
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   onEachFeatureIndicator(feature, layer) {
+    let label = undefined;
+    if (this.showClassLabels()) {
+      label = this.getLabelForFeature(
+        feature,
+        this.envConfigService.indicatorDatePrefix + this.selectionState.selectedDate,
+        this.classificationState.defaultBrew
+      );
+    }
     const tooltipHtml = this.featurePopupHelperService.buildIndicatorTooltip(
       feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME],
       feature.tempData.indicatorValueText,
-      feature.tempData.unitText
+      feature.tempData.unitText,
+      label
     );
     layer.bindTooltip(tooltipHtml, {
       sticky: false, // If true, the tooltip will follow the mouse instead of being fixed at the feature center.
@@ -1327,11 +1385,20 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         layer.setStyle(result.styleFor(layer.feature));
 
         if (layer.getTooltip()) {
+          let label = undefined;
+          if (this.showClassLabels()) {
+            label = this.getLabelForFeature(
+              layer.feature,
+              this.envConfigService.indicatorDatePrefix + this.selectionState.selectedDate,
+              this.classificationState.defaultBrew
+            );
+          }
           layer.setTooltipContent(
             this.featurePopupHelperService.buildIndicatorTooltip(
               layer.feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME],
               layer.feature.tempData.indicatorValueText,
-              layer.feature.tempData.unitText
+              layer.feature.tempData.unitText,
+              label
             )
           );
         }
