@@ -10,7 +10,6 @@ import { AuthService } from 'services/auth-service/auth.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
-import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 import { FavService } from 'services/fav-service/fav.service';
 import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
@@ -58,7 +57,6 @@ export class UserInterfaceComponent implements OnInit {
   private accessControlService = inject(AccessControlService);
   private modalService = inject(NgbModal);
   private broadcastService = inject(BroadcastService);
-  private configStorageService = inject(ConfigStorageService);
   protected visibilityHelperService = inject(ElementVisibilityHelperService);
   private authService = inject(AuthService);
   private favService = inject(FavService);
@@ -100,9 +98,6 @@ export class UserInterfaceComponent implements OnInit {
       .subscribe((value) => {
         if (value) this.markerPosition = [value];
       });
-
-    // load all app configs
-    this.configStorageService.getConfigs();
 
     // todo
     //kommonitorShareHelperService.init();

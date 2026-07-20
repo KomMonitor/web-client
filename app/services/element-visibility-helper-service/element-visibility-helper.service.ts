@@ -2,7 +2,6 @@ import { Injectable, inject } from '@angular/core';
 import { AuthService } from 'services/auth-service/auth.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
 import { ExportButtonVisibilityService } from 'services/export-button-visibility-service/export-button-visibility.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
@@ -12,7 +11,6 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 export class ElementVisibilityHelperService {
   private exportButtonVisibility = inject(ExportButtonVisibilityService);
   private broadcastService = inject(BroadcastService);
-  private configStorageService = inject(ConfigStorageService);
   private authService = inject(AuthService);
   private envConfigService = inject(EnvConfigService);
 
@@ -25,13 +23,11 @@ export class ElementVisibilityHelperService {
   advancedModeGroupName = 'fakeAdvancedModeGroup';
   advancedModeRoleName = 'fakeAdvancedModeRole';
 
-  controlsConfig: any;
-
   initElementVisibility() {
     this.exportButtonVisibility.showDiagramExportButtons = true;
     this.exportButtonVisibility.showGeoresourceExportButtons = true;
     this.elementVisibility = {};
-    this.configStorageService.controlsConfig.forEach((element) => {
+    (this.envConfigService.controlsConfig ?? []).forEach((element) => {
       this.elementVisibility[element.id] = this.checkElementVisibility(element.id);
     });
 
@@ -49,7 +45,7 @@ export class ElementVisibilityHelperService {
   }
 
   checkElementVisibility(id) {
-    const element = this.configStorageService.controlsConfig.filter(
+    const element = (this.envConfigService.controlsConfig ?? []).filter(
       (element) => element.id === id
     )[0];
 

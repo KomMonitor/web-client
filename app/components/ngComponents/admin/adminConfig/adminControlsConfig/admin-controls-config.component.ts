@@ -144,8 +144,9 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
         try {
           const config = this.envConfigService.controlsConfig;
           if (!config) {
-            await this.kommonitorConfigStorageService.getControlsConfig();
-            const storedConfig = this.kommonitorConfigStorageService.controlsConfig;
+            const storedConfig = await firstValueFrom(
+              this.kommonitorConfigStorageService.getControlsConfig()
+            );
             if (storedConfig) {
               this.controlsConfigTmp = JSON.stringify(storedConfig, null, '    ');
               this.controlsConfigCurrent = JSON.stringify(storedConfig, null, '    ');
@@ -317,14 +318,11 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
       await firstValueFrom(
         this.kommonitorConfigStorageService.postControlsConfig(this.controlsConfigTmp)
       );
-      // Call getControlsConfig which will update the service's controlsConfig property
-      this.kommonitorConfigStorageService.getControlsConfig();
-      // Use the updated controlsConfig from the service
-      this.controlsConfigCurrent = JSON.stringify(
-        this.kommonitorConfigStorageService.controlsConfig,
-        null,
-        '    '
+      // Re-fetch the stored config so the "current" view reflects the server state
+      const refreshedConfig = await firstValueFrom(
+        this.kommonitorConfigStorageService.getControlsConfig()
       );
+      this.controlsConfigCurrent = JSON.stringify(refreshedConfig, null, '    ');
       if (this.currentCodeMirrorEditor) {
         this.currentCodeMirrorEditor.setValue(this.controlsConfigCurrent);
       }

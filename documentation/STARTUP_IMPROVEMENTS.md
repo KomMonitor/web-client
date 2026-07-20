@@ -1,7 +1,7 @@
 # Verbesserungspotential in der Initialisierungsphase
 
 Analyse der Startphase des Web-Clients (Stand: 2026-07-20, Branch `feature/migration-bootstrap`).
-**Fortschritt:** 2 von 12 Punkten erledigt (Punkte 1–2, 2026-07-20).
+**Fortschritt:** 3 von 12 Punkten erledigt (Punkte 1, 2, 5, 2026-07-20).
 Betrachteter Pfad: `main.ts` → `APP_INITIALIZER` (`StartupService.initApp()`) → `AuthService` /
 `KeycloakHelperService` → `MainComponent` → Routing → `UserInterfaceComponent.ngOnInit()`.
 
@@ -79,8 +79,19 @@ werden; nur `getControlsConfig()` feuert tatsächlich. Der Aufruf in
 `window.__env.controlsConfig` geschrieben hat: **zwei Quellen für dieselbe Config**, die
 auseinanderlaufen können.
 
-- [ ] Wirkungslose Aufrufe entfernen oder `getConfigs()` ganz streichen
-- [ ] Eine einzige Quelle für die Controls-Config festlegen (idealerweise via `EnvConfigService`)
+- [x] Wirkungslose Aufrufe entfernen oder `getConfigs()` ganz streichen
+- [x] Eine einzige Quelle für die Controls-Config festlegen (idealerweise via `EnvConfigService`)
+
+> **Status (2026-07-20, erledigt):** `ConfigStorageService.getConfigs()` und die
+> `controlsConfig`-Instanzvariable sind entfernt; der wirkungslose Aufruf in
+> `UserInterfaceComponent.ngOnInit()` ist gestrichen. `ElementVisibilityHelperService` liest
+> Controls-Config jetzt ausschließlich über `EnvConfigService.controlsConfig`
+> (`window.__env.controlsConfig`, von `StartupService` befüllt) statt über die separate, nie
+> aktuell gehaltene Service-Property — es gibt jetzt nur noch eine Quelle. `getControlsConfig()`
+> ist zu einem reinen `Observable`-Getter geworden (analog zu `getAppConfig()` /
+> `getKeycloakConfig()`); die einzige verbliebene Aufruferin, `admin-controls-config.component.ts`,
+> subscribed jetzt explizit über `firstValueFrom(...)`, statt sich auf eine implizite
+> Service-Property zu verlassen.
 
 ### 6. Keycloak-Config wird bis zu dreimal geholt
 
