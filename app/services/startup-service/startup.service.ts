@@ -19,8 +19,21 @@ export class StartupService {
   }
 
   private async loadAllConfigs(): Promise<void> {
-    const response = await fetch('./config/config-storage-server.json');
-    const configStorageServerConfig = await response.json();
+    let configStorageServerConfig;
+    try {
+      const response = await fetch('./config/config-storage-server.json');
+      if (!response.ok) {
+        throw new Error(`Unexpected HTTP status ${response.status}`);
+      }
+      configStorageServerConfig = await response.json();
+    } catch (error) {
+      console.error(
+        'Failed to load ./config/config-storage-server.json — the client cannot start without it.',
+        error
+      );
+      this.showStartupErrorPage();
+      throw error;
+    }
     window.__env = window.__env || {};
     window.__env.configStorageServerConfig = configStorageServerConfig;
 
@@ -73,6 +86,28 @@ export class StartupService {
       };
       document.head.appendChild(script);
     });
+  }
+
+  // Angular has not rendered anything yet while the APP_INITIALIZER is
+  // pending, so plain DOM manipulation is the only way to inform the user.
+  private showStartupErrorPage(): void {
+    document.body.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;padding:1rem;">
+        <div style="max-width:36rem;text-align:center;">
+          <h1 style="font-size:1.4rem;margin-bottom:0.75rem;">KomMonitor konnte nicht gestartet werden</h1>
+          <p style="color:#555;margin-bottom:1.25rem;">
+            Die Basiskonfiguration (<code>config/config-storage-server.json</code>) konnte nicht geladen werden.
+            Bitte laden Sie die Seite erneut. Besteht das Problem weiterhin, wenden Sie sich an die Administration.
+          </p>
+          <button id="startup-error-reload" type="button"
+            style="padding:0.5rem 1.25rem;border:1px solid #ccc;border-radius:4px;background:#f5f5f5;cursor:pointer;">
+            Seite neu laden
+          </button>
+        </div>
+      </div>`;
+    document
+      .getElementById('startup-error-reload')
+      ?.addEventListener('click', () => window.location.reload());
   }
 
   private initEnvVariables(): void {
