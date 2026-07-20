@@ -15,7 +15,14 @@ export class StartupService {
     await this.loadAllConfigs();
     await this.authService.initKeycloak();
 
-    if (this.authService.isAuthenticated()) this.keycloakHelperService.init();
+    if (this.authService.isAuthenticated()) {
+      // Intentionally non-blocking: role loading must not hold up app start.
+      // Handle the rejection here so init()'s throw does not surface as an
+      // unhandled promise rejection.
+      this.keycloakHelperService.init().catch((error) => {
+        console.error('KeycloakHelperService initialization failed; continuing startup.', error);
+      });
+    }
   }
 
   private async loadAllConfigs(): Promise<void> {

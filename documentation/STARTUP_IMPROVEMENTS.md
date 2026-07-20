@@ -1,7 +1,7 @@
 # Verbesserungspotential in der Initialisierungsphase
 
 Analyse der Startphase des Web-Clients (Stand: 2026-07-20, Branch `feature/migration-bootstrap`).
-**Fortschritt:** 3 von 12 Punkten erledigt (Punkte 1, 2, 5, 2026-07-20).
+**Fortschritt:** 4 von 12 Punkten erledigt (Punkte 1, 2, 3, 5, 2026-07-20).
 Betrachteter Pfad: `main.ts` → `APP_INITIALIZER` (`StartupService.initApp()`) → `AuthService` /
 `KeycloakHelperService` → `MainComponent` → Routing → `UserInterfaceComponent.ngOnInit()`.
 
@@ -55,7 +55,12 @@ gilt es genauso. Nur `keycloak_backup.json` hat einen echten Fallback (in
 In `startup.service.ts:18` wird die async-Methode nicht awaited, und sie wirft bei Fehlern
 (`throw error`) → unhandled rejection. Bewusst nicht-blockierend ist okay, aber dann mit `.catch()`.
 
-- [ ] `.catch()` ergänzen oder bewusst awaiten
+- [x] `.catch()` ergänzen oder bewusst awaiten
+
+> **Status (2026-07-20, erledigt):** Der Aufruf bleibt bewusst nicht-blockierend (das Laden der
+> Rollen soll den App-Start nicht aufhalten), hat jetzt aber ein `.catch()`, das den Fehler loggt.
+> Damit taucht der `throw` aus `KeycloakHelperService.init()` nicht mehr als unhandled promise
+> rejection auf.
 
 ### 4. `alert()` bei Keycloak-Fehler + totes `try/catch`
 
