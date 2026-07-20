@@ -1,11 +1,11 @@
 import { Injectable, computed, effect, signal } from '@angular/core';
 import {
+  ExportFormat,
   Georessource,
   GeoressourceExportItem,
   Indicator,
   IndicatorExportItem,
   SpatialUnit,
-  ExportFormat,
 } from './models';
 
 const LS_INDICATOR_ITEMS = 'kommonitor.export.indicatorItems';
@@ -34,6 +34,8 @@ export class ExportingStateService {
 
   selectedSpatialUnit = signal<string | null>(null);
 
+  selectedSpatialUnitFormats = signal<ExportFormat[]>([]);
+
   indicatorItems = signal<IndicatorExportItem[]>(
     loadFromStorage<IndicatorExportItem>(LS_INDICATOR_ITEMS)
   );
@@ -55,7 +57,8 @@ export class ExportingStateService {
   isSpatialUnitExportValid = computed(
     () =>
       this.selectedSpatialUnit() !== null &&
-      this.indicatorItems().some((item) => item.selectedFormats.length > 0)
+      this.selectedSpatialUnitFormats().length > 0 &&
+      this.indicatorItems().length > 0
   );
 
   isMultipleExportValid = computed(() =>
@@ -71,7 +74,7 @@ export class ExportingStateService {
       return item.selectedSpatialUnitIds.length > 0 && item.selectedFormats.length > 0;
     }
     if (type === 'spatialUnit') {
-      return item.selectedFormats.length > 0;
+      return this.selectedSpatialUnit() !== null && this.selectedSpatialUnitFormats().length > 0;
     }
     return false;
   }
@@ -143,6 +146,15 @@ export class ExportingStateService {
         return item;
       })
     );
+  }
+
+  toggleSpatialUnitFormat(format: ExportFormat): void {
+    this.selectedSpatialUnitFormats.update((formats) => {
+      const set = new Set(formats);
+      if (set.has(format)) set.delete(format);
+      else set.add(format);
+      return [...set];
+    });
   }
 
   addIndicator(indicator: Indicator): void {
