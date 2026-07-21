@@ -871,49 +871,70 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     );
   };
 
-  getLabelForFeature(feature, propertyName, colorBrewInstance) {
-    let labelIndex;
-    for (let index = 0; index < colorBrewInstance.breaks.length; index++) {
-      if (
-        this.getIndicatorValue_asNumber(feature.properties[propertyName]) ==
-        this.getIndicatorValue_asNumber(colorBrewInstance.breaks[index])
-      ) {
-        if (index < colorBrewInstance.breaks.length - 1) {
-          // min value
-          labelIndex = index;
-          break;
-        } else {
-          //max value
-          if (colorBrewInstance.colors[index]) {
-            labelIndex = index;
-          } else {
-            labelIndex = index - 1;
-          }
-          break;
-        }
-      } else {
+  getLabelForFeature(feature, propertyName, classification, colorBrewInstance) {
+    if (classification.classificationType == 'QUANTITATIVE') {
+      let labelIndex;
+      for (let index = 0; index < colorBrewInstance.breaks.length; index++) {
         if (
-          this.getIndicatorValue_asNumber(feature.properties[propertyName]) <
-          this.getIndicatorValue_asNumber(colorBrewInstance.breaks[index + 1])
+          this.getIndicatorValue_asNumber(feature.properties[propertyName]) ==
+          this.getIndicatorValue_asNumber(colorBrewInstance.breaks[index])
         ) {
-          if (colorBrewInstance.colors && colorBrewInstance.colors[index]) {
+          if (index < colorBrewInstance.breaks.length - 1) {
+            // min value
             labelIndex = index;
+            break;
+          } else {
+            //max value
+            if (colorBrewInstance.colors[index]) {
+              labelIndex = index;
+            } else {
+              labelIndex = index - 1;
+            }
+            break;
           }
-          break;
+        } else {
+          if (
+            this.getIndicatorValue_asNumber(feature.properties[propertyName]) <
+            this.getIndicatorValue_asNumber(colorBrewInstance.breaks[index + 1])
+          ) {
+            if (colorBrewInstance.colors && colorBrewInstance.colors[index]) {
+              labelIndex = index;
+            }
+            break;
+          }
+        }
+      }
+      return this.selectionState.selectedIndicator.defaultClassificationMapping.labels[labelIndex];
+    }
+    if (classification.classificationType == 'QUALITATIVE') {
+      for (let index = 0; index < classification.categoricalData.length; index++) {
+        if (
+          this.getIndicatorValue_asNumber(feature.properties[propertyName]) ==
+          this.getIndicatorValue_asNumber(classification.categoricalData[index].categoricalValue)
+        ) {
+          return classification.categoricalData[index].label;
         }
       }
     }
-    return this.selectionState.selectedIndicator.defaultClassificationMapping.labels[labelIndex];
+    return '';
   }
 
   showClassLabels() {
     if (
+      this.selectionState.selectedIndicator.defaultClassificationMapping.classificationType ==
+        'QUANTITATIVE' &&
       !this.chartDisplayState.isMeasureOfValueChecked &&
       !this.chartDisplayState.isBalanceChecked &&
       this.selectionState.selectedIndicator.defaultClassificationMapping.classificationMethod ==
         this.classificationState.classifyMethod.toUpperCase() &&
       this.selectionState.selectedIndicator.defaultClassificationMapping.numClasses ==
         this.classificationState.numClasses
+    ) {
+      return true;
+    }
+    if (
+      this.selectionState.selectedIndicator.defaultClassificationMapping.classificationType ==
+      'QUALITATIVE'
     ) {
       return true;
     }
@@ -926,6 +947,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       label = this.getLabelForFeature(
         feature,
         this.envConfigService.indicatorDatePrefix + this.selectionState.selectedDate,
+        this.selectionState.selectedIndicator.defaultClassificationMapping,
         this.classificationState.defaultBrew
       );
     }
@@ -1417,6 +1439,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
             label = this.getLabelForFeature(
               layer.feature,
               this.envConfigService.indicatorDatePrefix + this.selectionState.selectedDate,
+              this.selectionState.selectedIndicator.defaultClassificationMapping.classificationType,
               this.classificationState.defaultBrew
             );
           }
