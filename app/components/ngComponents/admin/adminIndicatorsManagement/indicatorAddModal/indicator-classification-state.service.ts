@@ -96,7 +96,7 @@ export class IndicatorClassificationStateService {
   // Classification form data
   numClassesArray = [3, 4, 5, 6, 7, 8];
   readonly numClassesPerSpatialUnit = signal(5);
-  readonly classificationMethod = signal('regional_default');
+  readonly classificationMethod = signal('equal_interval');
   readonly selectedColorBrewerPaletteEntry = signal<ColorPaletteEntry | null>(null);
   readonly spatialUnitClassification = signal<SpatialUnitClassification[]>([]);
   readonly classBreaksInvalid = signal(false);
@@ -745,7 +745,7 @@ export class IndicatorClassificationStateService {
     this.classificationType.set('QUANTITATIVE');
     this.individualColorMode.set(false);
     this.numClassesPerSpatialUnit.set(5);
-    this.classificationMethod.set('regional_default');
+    this.classificationMethod.set('equal_interval');
     this.selectedColorBrewerPaletteEntry.set(
       this.colorbrewerPalettes && this.colorbrewerPalettes.length > 13
         ? this.colorbrewerPalettes[13]

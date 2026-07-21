@@ -36,11 +36,11 @@ export class ClassificationMethodSelectComponent implements OnInit, OnChanges {
   preppedMethods: Classification[] = [];
   methods: Classification[] = [
     {
-      name: 'Regionaler Standard',
-      id: 'regional_default',
-      imgPath: 'icons/classificationMethods/neu/manuell.svg',
+      name: 'Gleiches Intervall',
+      id: 'equal_interval',
+      imgPath: 'icons/classificationMethods/neu/gleichesIntervall.svg',
       description:
-        'Bei der regionalen Standard-Klassifizierung sind die Klassengrenzen vorgegeben (kann in Administrationsebene angepasst werden).',
+        'Mit der Methode Gleiches Intervall wird der Bereich der Attributwerte in gleich große Teilbereiche unterteilt.',
     },
     {
       name: 'Jenks',
@@ -50,17 +50,17 @@ export class ClassificationMethodSelectComponent implements OnInit, OnChanges {
         'Bei Jenks (Natürliche Unterbrechungen) werden Klassengrenzen identifiziert, die ähnliche Werte möglichst gut gruppieren und zugleich die Unterschiede zwischen den Klassen maximieren.',
     },
     {
-      name: 'Gleiches Intervall',
-      id: 'equal_interval',
-      imgPath: 'icons/classificationMethods/neu/gleichesIntervall.svg',
-      description:
-        'Mit der Methode Gleiches Intervall wird der Bereich der Attributwerte in gleich große Teilbereiche unterteilt.',
-    },
-    {
       name: 'Quantile',
       id: 'quantile',
       imgPath: 'icons/classificationMethods/neu/quantile_grau.svg',
       description: 'Bei der Quantil-Methode enthält jede Klasse die gleiche Anzahl von Features.',
+    },
+    {
+      name: 'Regionaler Standard',
+      id: 'regional_default',
+      imgPath: 'icons/classificationMethods/neu/manuell.svg',
+      description:
+        'Bei der regionalen Standard-Klassifizierung sind die Klassengrenzen vorgegeben (kann in Administrationsebene angepasst werden).',
     },
     {
       name: 'Manuell',
