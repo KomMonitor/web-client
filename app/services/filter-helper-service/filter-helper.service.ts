@@ -30,7 +30,6 @@ export class FilterHelperService {
     );
   }
 
-
   applyRangeFilter(features, targetDateProperty, minFilterValue, maxFilterValue) {
     //this.ajskommonitorFilterHelperServiceProvider.applyRangeFilter(features, dtargetDateProperty, minFilterValue, maxFilterValue);
     if (!this.filteredIndicatorFeatureIds) {
