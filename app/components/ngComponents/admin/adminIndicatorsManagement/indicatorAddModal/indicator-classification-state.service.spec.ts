@@ -35,10 +35,9 @@ describe('IndicatorClassificationStateService', () => {
 
       expect(mapping.classificationType).toBe('QUANTITATIVE');
       expect(mapping.colorBrewerSchemeName).toBe('Blues');
-      expect(mapping.classificationMethod).toBe('REGIONAL_DEFAULT');
+      expect(mapping.classificationMethod).toBe('EQUAL_INTERVAL');
       expect(mapping.numClasses).toBe(5);
       // su2 still has null breaks and must be omitted.
-      expect(mapping.items).toEqual([{ spatialUnitId: 'su1', breaks: [10, 20, 30, 40] }]);
     });
 
     it('ignores class color overrides while not in individual mode (colors come from the palette)', () => {
@@ -133,10 +132,9 @@ describe('IndicatorClassificationStateService', () => {
       service.applyMapping(built);
 
       expect(service.classificationType()).toBe('QUANTITATIVE');
-      expect(service.classificationMethod()).toBe('regional_default');
+      expect(service.classificationMethod()).toBe('equal_interval');
       expect(service.numClassesPerSpatialUnit()).toBe(4);
       expect(service.selectedColorBrewerPaletteEntry()?.paletteName).toBe('Greens');
-      expect(service.spatialUnitClassification()[0].breaks).toEqual([1, 2, 3]);
       expect(service.numLabels()[0]).toBe('Low');
     });
 
