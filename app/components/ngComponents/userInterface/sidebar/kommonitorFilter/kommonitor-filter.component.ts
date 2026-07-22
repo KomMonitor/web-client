@@ -74,6 +74,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
   lowerFilterInputNotValid = false;
   higherFilterInputNotValid = false;
   indicatorMetadataAndGeoJSON;
+  indicatorClassificationType;
 
   showManualSelectionSpatialFilter;
   showSelectionByFeatureSpatialFilter;
@@ -332,6 +333,9 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     // filter is cleared in time. The value-range filter is meaningless for the new
     // indicator anyway and its slider is reset via UpdateIndicatorValueRangeFilter.
     this.filterHelperService.clearFilteredFeatures();
+
+    this.indicatorClassificationType =
+      this.selectionState.selectedIndicator.defaultClassificationMapping.classificationType;
   }
   /* 
 

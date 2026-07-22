@@ -283,83 +283,90 @@
   <!-- SCHWELLENWERT FILTER -->
   @if (isFilterModeActive('kommonitorThresholdFilter')) {
     <expandable-box [title]="'Dynamische Schwellenwertklassifizierung'" [collapsed]="false">
-      <div style="text-align: justify">
-        <p>
-          Dieses Tool bietet eine spezielle Form der Klassifizierung der dargestellten
-          r&auml;mlichen Features. Mit Hilfe eines Schwellenwertes werden die Features zun&auml;chst
-          in zwei Kategorien unterteilt:
-        </p>
-        <ul>
-          <li>Features, deren Indikatorwert unter dem Schwellenwert liegt (Blau-T&ouml;ne)</li>
-          <li>
-            Features, deren Indikatorwert &uuml;ber dem Schwellenwert liegt (Orange-T&ouml;ne)
-          </li>
-        </ul>
-        <p>
-          Jedes Feature wird anschließend gem&auml;&szlig; seiner Kategorie in eine von 1-5
-          Abstufungen klassifiziert und entsprechend eingef&auml;rbt. Zum Aktivieren/Deaktivieren
-          der Schwellenwertklassifizierung bitte die unten stehende Checkbox nutzen.
-        </p>
-      </div>
-      <div style="text-align: center" class="form-group">
-        <strong>Schwellenwertklassifizierung aktivieren/deaktivieren</strong>
-        &nbsp;
-        <label class="switch">
-          <input
-            id="measureOfValueCheckbox"
-            type="checkbox"
-            (change)="onChangeUseMeasureOfValue()"
-            [(ngModel)]="chartDisplayState.isMeasureOfValueChecked"
-            (checked)="(chartDisplayState.isMeasureOfValueChecked)"
-          />
-          <span class="switchslider round"></span>
-        </label>
-        <div [hidden]="!chartDisplayState.isMeasureOfValueChecked">
-          <!-- <p>Verschieben des Schwellenwertes klassifiziert die dargestellten Indikatoren-Features unmittelbar neu. Ebenso passt sich die Anzahl an Klassen der beiden oben genannten Kategorien dynamisch an die Anzahl der zu klassifizierenden Features an.</p> -->
-          <br />
-          <div class="slidecontainer" style="position: relative">
-            <div id="measureOfValueSlider"></div>
-            <!-- <input [(ngModel)]="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" type="number" style="width:100px;" class="form-control" id="measureOfValueTextInput">
-                    <br/>
-                    <p>Schwellenwert: {{$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue}}</p> -->
-          </div>
-          <div style="text-align: center">
-            <br />
-            <label>Schwellenwert: </label
-            ><input
-              [(ngModel)]="chartDisplayState.measureOfValue"
-              (change)="onMeasureOfValueChangeByText()"
-              min="{{ movMinValue }}"
-              max="{{ movMaxValue }}"
-              step="0.01"
-              string-to-number
-              type="number"
-              style="width: 175px"
-              class="form-control input-sm"
-              id="measureOfValueTextInput"
+      @if (indicatorClassificationType == 'QUALITATIVE') {
+        <div class="alert alert-light py-3 mb-2 text-center" role="alert">
+          Nicht verfügbar für Indikatoren mit kategorialer Klassifikation
+        </div>
+      }
+      @if (indicatorClassificationType == 'QUANTITATIVE') {
+        <div style="text-align: justify">
+          <p>
+            Dieses Tool bietet eine spezielle Form der Klassifizierung der dargestellten
+            r&auml;mlichen Features. Mit Hilfe eines Schwellenwertes werden die Features
+            zun&auml;chst in zwei Kategorien unterteilt:
+          </p>
+          <ul>
+            <li>Features, deren Indikatorwert unter dem Schwellenwert liegt (Blau-T&ouml;ne)</li>
+            <li>
+              Features, deren Indikatorwert &uuml;ber dem Schwellenwert liegt (Orange-T&ouml;ne)
+            </li>
+          </ul>
+          <p>
+            Jedes Feature wird anschließend gem&auml;&szlig; seiner Kategorie in eine von 1-5
+            Abstufungen klassifiziert und entsprechend eingef&auml;rbt. Zum Aktivieren/Deaktivieren
+            der Schwellenwertklassifizierung bitte die unten stehende Checkbox nutzen.
+          </p>
+        </div>
+        <div style="text-align: center" class="form-group">
+          <strong>Schwellenwertklassifizierung aktivieren/deaktivieren</strong>
+          &nbsp;
+          <label class="switch">
+            <input
+              id="measureOfValueCheckbox"
+              type="checkbox"
+              (change)="onChangeUseMeasureOfValue()"
+              [(ngModel)]="chartDisplayState.isMeasureOfValueChecked"
+              (checked)="(chartDisplayState.isMeasureOfValueChecked)"
             />
-            <!-- <div *ngIf="inputNotValid">
-                    <p>Schwellenwert: {{$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue}}</p>
-                  </div> -->
-            @if (inputNotValid) {
-              <div>
-                <br />
-                <div class="alert alert-danger" style="margin-bottom: 0px">
-                  <strong
-                    ><i class="icon fas fa-ban"></i>Eingegebener Schwellenwert ist nicht
-                    g&uuml;ltig!</strong
-                  >
-                  <p></p>
-                  <p>
-                    <strong>Hinweis: </strong>Der Schwellenwert muss zwischen {{ movMinValue }} und
-                    {{ movMaxValue }} liegen.
-                  </p>
+            <span class="switchslider round"></span>
+          </label>
+          <div [hidden]="!chartDisplayState.isMeasureOfValueChecked">
+            <!-- <p>Verschieben des Schwellenwertes klassifiziert die dargestellten Indikatoren-Features unmittelbar neu. Ebenso passt sich die Anzahl an Klassen der beiden oben genannten Kategorien dynamisch an die Anzahl der zu klassifizierenden Features an.</p> -->
+            <br />
+            <div class="slidecontainer" style="position: relative">
+              <div id="measureOfValueSlider"></div>
+              <!-- <input [(ngModel)]="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" type="number" style="width:100px;" class="form-control" id="measureOfValueTextInput">
+                      <br/>
+                      <p>Schwellenwert: {{$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue}}</p> -->
+            </div>
+            <div style="text-align: center">
+              <br />
+              <label>Schwellenwert: </label
+              ><input
+                [(ngModel)]="chartDisplayState.measureOfValue"
+                (change)="onMeasureOfValueChangeByText()"
+                min="{{ movMinValue }}"
+                max="{{ movMaxValue }}"
+                step="0.01"
+                string-to-number
+                type="number"
+                style="width: 175px"
+                class="form-control input-sm"
+                id="measureOfValueTextInput"
+              />
+              <!-- <div *ngIf="inputNotValid">
+                      <p>Schwellenwert: {{$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue}}</p>
+                    </div> -->
+              @if (inputNotValid) {
+                <div>
+                  <br />
+                  <div class="alert alert-danger" style="margin-bottom: 0px">
+                    <strong
+                      ><i class="icon fas fa-ban"></i>Eingegebener Schwellenwert ist nicht
+                      g&uuml;ltig!</strong
+                    >
+                    <p></p>
+                    <p>
+                      <strong>Hinweis: </strong>Der Schwellenwert muss zwischen
+                      {{ movMinValue }} und {{ movMaxValue }} liegen.
+                    </p>
+                  </div>
                 </div>
-              </div>
-            }
+              }
+            </div>
           </div>
         </div>
-      </div>
+      }
     </expandable-box>
   }
 </div>

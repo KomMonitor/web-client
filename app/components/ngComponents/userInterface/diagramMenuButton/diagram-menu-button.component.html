@@ -26,7 +26,17 @@
   (detach)="submenuOpen = false"
 >
   <div class="diagram-submenu-panel">
-    @if (visibilityHelperService.elementVisibility.balance) {
+    <h4>statistische Diagramme</h4>
+    @if (indicatorClassificationType == 'QUALITATIVE') {
+      <div class="alert alert-light py-3 mb-2 text-center" role="alert">
+        Nicht verfügbar für Indikatoren mit kategorialer Klassifikation
+      </div>
+    }
+
+    @if (
+      visibilityHelperService.elementVisibility.balance &&
+      indicatorClassificationType == 'QUANTITATIVE'
+    ) {
       <div class="subMenuButtonWrapper">
         <button
           type="button"
@@ -50,7 +60,10 @@
       </div>
     }
 
-    @if (visibilityHelperService.elementVisibility.diagrams) {
+    @if (
+      visibilityHelperService.elementVisibility.diagrams &&
+      indicatorClassificationType == 'QUANTITATIVE'
+    ) {
       <div class="subMenuButtonWrapper">
         <button
           type="button"
@@ -69,7 +82,10 @@
       </div>
     }
 
-    @if (visibilityHelperService.elementVisibility.radarDiagram) {
+    @if (
+      visibilityHelperService.elementVisibility.radarDiagram &&
+      indicatorClassificationType == 'QUANTITATIVE'
+    ) {
       <div class="subMenuButtonWrapper">
         <button
           type="button"
@@ -91,7 +107,10 @@
       </div>
     }
 
-    @if (visibilityHelperService.elementVisibility.regressionDiagram) {
+    @if (
+      visibilityHelperService.elementVisibility.regressionDiagram &&
+      indicatorClassificationType == 'QUANTITATIVE'
+    ) {
       <div class="subMenuButtonWrapper">
         <button
           type="button"
