@@ -205,79 +205,86 @@
 
   <!-- DARSTELLUNGSFILTER -->
   <expandable-box [title]="'Wertebereich Filter'" [collapsed]="false">
-    <div style="text-align: middle">
-      <p>
-        Einschr&auml;nken der dargestellten Features anhand des Indikatorenwertebereichs. Bewegen
-        der Schieberegler mit Hilfe der Maus oder den Pfeiltasten der Tastatur.
-      </p>
-      <div id="rangeSliderForFilteringWrapper">
-        <div id="filterRangeSlider"></div>
+    @if (indicatorClassificationType == 'QUALITATIVE') {
+      <div class="alert alert-light py-3 mb-2 text-center" role="alert">
+        Nicht verfügbar für Indikatoren mit kategorialer Klassifikation
       </div>
-    </div>
-
-    <p></p>
-
-    <div class="row">
-      <div class="col-lg-6">
-        <div class="input-group">
-          <span class="input-group-addon">
-            <b>untere Grenze</b>
-          </span>
-          <input
-            id="inputLowerValue"
-            [(ngModel)]="inputLowerFilterValue"
-            (change)="onChangeLowerFilterValue(inputLowerFilterValue)"
-            string-to-number
-            type="number"
-            step="0.01"
-            class="form-control input-sm"
-          />
+    }
+    @if (indicatorClassificationType == 'QUANTITATIVE') {
+      <div style="text-align: middle">
+        <p>
+          Einschr&auml;nken der dargestellten Features anhand des Indikatorenwertebereichs. Bewegen
+          der Schieberegler mit Hilfe der Maus oder den Pfeiltasten der Tastatur.
+        </p>
+        <div id="rangeSliderForFilteringWrapper">
+          <div id="filterRangeSlider"></div>
         </div>
-        <p></p>
-
-        @if (lowerFilterInputNotValid) {
-          <div class="alert alert-danger" style="margin-bottom: 0px">
-            <strong><i class="icon fas fa-ban"></i>Untere Filtergrenze ung&uuml;ltig!</strong>
-            <p></p>
-            <p>
-              <strong>Hinweis: </strong>Der Wert muss zwischen {{ valueRangeMinValue }} und
-              {{ valueRangeMaxValue }} liegen und kleiner als die aktuelle obere Filtergrenze ({{
-                currentHigherFilterValue
-              }}) sein.
-            </p>
-          </div>
-        }
       </div>
-      <div class="col-lg-6">
-        <div class="input-group">
-          <span class="input-group-addon">
-            <b>obere Grenze</b>
-          </span>
-          <input
-            id="inputHigherValue"
-            [(ngModel)]="inputHigherFilterValue"
-            (change)="onChangeHigherFilterValue(inputHigherFilterValue)"
-            string-to-number
-            type="number"
-            step="0.01"
-            class="form-control input-sm"
-          />
+
+      <p></p>
+
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="input-group">
+            <span class="input-group-addon">
+              <b>untere Grenze</b>
+            </span>
+            <input
+              id="inputLowerValue"
+              [(ngModel)]="inputLowerFilterValue"
+              (change)="onChangeLowerFilterValue(inputLowerFilterValue)"
+              string-to-number
+              type="number"
+              step="0.01"
+              class="form-control input-sm"
+            />
+          </div>
+          <p></p>
+
+          @if (lowerFilterInputNotValid) {
+            <div class="alert alert-danger" style="margin-bottom: 0px">
+              <strong><i class="icon fas fa-ban"></i>Untere Filtergrenze ung&uuml;ltig!</strong>
+              <p></p>
+              <p>
+                <strong>Hinweis: </strong>Der Wert muss zwischen {{ valueRangeMinValue }} und
+                {{ valueRangeMaxValue }} liegen und kleiner als die aktuelle obere Filtergrenze ({{
+                  currentHigherFilterValue
+                }}) sein.
+              </p>
+            </div>
+          }
         </div>
-
-        <p></p>
-        @if (higherFilterInputNotValid) {
-          <div class="alert alert-danger" style="margin-bottom: 0px">
-            <strong><i class="icon fas fa-ban"></i>Obere Filtergrenze ung&uuml;ltig!</strong>
-            <p></p>
-            <p>
-              <strong>Hinweis: </strong>Der Wert muss zwischen {{ valueRangeMinValue }} und
-              {{ valueRangeMaxValue }} liegen und gr&ouml;ßer als die aktuelle untere Filtergrenze
-              ({{ currentLowerFilterValue }}) sein.
-            </p>
+        <div class="col-lg-6">
+          <div class="input-group">
+            <span class="input-group-addon">
+              <b>obere Grenze</b>
+            </span>
+            <input
+              id="inputHigherValue"
+              [(ngModel)]="inputHigherFilterValue"
+              (change)="onChangeHigherFilterValue(inputHigherFilterValue)"
+              string-to-number
+              type="number"
+              step="0.01"
+              class="form-control input-sm"
+            />
           </div>
-        }
+
+          <p></p>
+          @if (higherFilterInputNotValid) {
+            <div class="alert alert-danger" style="margin-bottom: 0px">
+              <strong><i class="icon fas fa-ban"></i>Obere Filtergrenze ung&uuml;ltig!</strong>
+              <p></p>
+              <p>
+                <strong>Hinweis: </strong>Der Wert muss zwischen {{ valueRangeMinValue }} und
+                {{ valueRangeMaxValue }} liegen und gr&ouml;ßer als die aktuelle untere Filtergrenze
+                ({{ currentLowerFilterValue }}) sein.
+              </p>
+            </div>
+          }
+        </div>
       </div>
-    </div>
+    }
   </expandable-box>
 
   <!-- SCHWELLENWERT FILTER -->
