@@ -4,7 +4,7 @@
       <b>Einstiegs-Modus</b>
       <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs nav-fill">
         <li [ngbNavItem]="1">
-          <button ngbNavLink (click)="onSinglePointSelection()">Einzelpunkt</button>
+          <button ngbNavLink (click)="onSinglePointSelection()">Adresse</button>
           <ng-template ngbNavContent>
             <div class="search-wrapper">
               <input
@@ -27,10 +27,18 @@
           </ng-template>
         </li>
         <li [ngbNavItem]="2">
-          <button ngbNavLink (click)="onMapSelection()">Karte</button>
+          <button ngbNavLink (click)="onMapSelection()">Einzelpunkt</button>
           <ng-template ngbNavContent>
-            @if (reachabilityStateService.locations.length == 0) {
-              <div class="mapSelection_info">Beliebige Standorte auf der Karte wählen</div>
+            @if (reachabilityStateService.locations.length==0 && !reachabilityStateService.manualMapSelectionMode) {
+              <p>Aktivieren Sie die Auswahl eines oder mehrerer Standorte direkt in der Hauptkarte durch klicken auf "Standorte auswählen".</p>
+            }
+            @if (reachabilityStateService.locations.length==0 && reachabilityStateService.manualMapSelectionMode) {
+              <div class="mapSelection_info">Standort in Hauptkarte selektieren</div>
+            }
+            @if (!reachabilityStateService.manualMapSelectionMode) { 
+              <button class="btn btn-primary btn-sm w-100" (click)="onClickActivateMapSelection()">Standorte auswählen</button>
+            } @else {
+              <button class="btn btn-primary btn-sm w-100" (click)="onClickDeactivateMapSelection()">Auswahl beenden</button>
             }
             @for (item of reachabilityStateService.locations; track item) {
               <div class="mapItem">
@@ -93,7 +101,8 @@
       </ul>
       <div [ngbNavOutlet]="nav" class="mt-2"></div>
       <br />
-      <button class="btn btn-primary btn-sm w-100 margin-bottom" (click)="startCalculation()">
+      <br />
+      <button class="btn btn-primary btn-sm w-100 margin-bottom" (click)="startCalculation()" [disabled]="!reachabilityStateService.featureSelected">
         Berechnung starten
       </button>
       <div class="button-wrapper">

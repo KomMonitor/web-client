@@ -285,7 +285,15 @@ export class KommonitorReachabilityComponent implements OnInit {
     this.reachabilityStateService.showOnMainMap = true;
     this.reachabilityStateService.resetLocations();
     this.reachabilityStateService.startPointsSource = 'manual';
+    this.reachabilityStateService.manualMapSelectionMode = false;
+  }
+
+  onClickActivateMapSelection() {
     this.reachabilityStateService.manualMapSelectionMode = true;
+  }
+
+  onClickDeactivateMapSelection() {
+    this.reachabilityStateService.manualMapSelectionMode = false;
   }
 
   onLayerSelection() {

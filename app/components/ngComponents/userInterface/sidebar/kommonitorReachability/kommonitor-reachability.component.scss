@@ -59,7 +59,7 @@
     font-size: 1.2em;
     background: var(--kommonitor-hierarchy-level-0);
     padding: 0.2em 0.5em;
-    margin: 0.15em;
+    margin: 0.15em 0;
     border-radius: 0.2em;
 
     * {
@@ -79,7 +79,7 @@
   .mapSelection_info {
     text-align: center;
     padding: 0.5em;
-    margin-top: 2em;
+    margin: 1em 0;
     background: var(--kommonitor-hierarchy-level-0);
     border: 2px dotted var(--kommonitor-primary);
     border-radius: 0.5em;

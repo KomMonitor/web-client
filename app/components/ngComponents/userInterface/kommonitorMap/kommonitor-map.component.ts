@@ -42,13 +42,14 @@ import {
   GeoJSONFeature,
   ReachabilityStateService,
 } from 'services/reachability-state-service/reachability-state.service';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-kommonitor-map',
   templateUrl: './kommonitor-map.component.html',
   styleUrls: ['./kommonitor-map.component.scss'],
   standalone: true,
-  imports: [],
+  imports: [NgClass],
 })
 export class KommonitorMapComponent implements OnInit, AfterViewInit {
   private mapOverlayState = inject(MapOverlayStateService);
@@ -66,7 +67,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   private genericMapHelperService = inject(GenericMapHelperService);
   private envConfigService = inject(EnvConfigService);
   private mapService = inject(MapService);
-  private reachabilityStateService = inject(ReachabilityStateService);
+  protected reachabilityStateService = inject(ReachabilityStateService);
   private reachabilityMapHelperService = inject(ReachabilityMapHelperService);
   private featurePopupHelperService = inject(FeaturePopupHelperService);
   private georesourceLayerManager = inject(GeoresourceLayerManagerService);
@@ -206,6 +207,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   highlightTimeout;
 
+  mouseX = 0;
+  mouseY = 0;
+  showMouseTooltip = false;
+
   // Local precision-resolving wrappers (formerly the DataExchangeService facade glue, Prio7 B1).
   private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
     return this.indicatorValueService.getIndicatorValue_asNumber(
@@ -219,6 +224,11 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       indicatorValue,
       this.selectionState.resolveSelectedPrecision(precision)
     );
+  }
+
+  onMouseMove(event: MouseEvent) {
+    this.mouseX = event.clientX;
+    this.mouseY = event.clientY;
   }
 
   ngOnInit(): void {

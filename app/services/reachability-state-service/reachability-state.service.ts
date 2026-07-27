@@ -353,6 +353,11 @@ export class ReachabilityStateService {
     );
   }
 
+  get featureSelected():boolean {
+    return (this.reachabilityMapSubject.value.features &&
+      this.reachabilityMapSubject.value.features.length > 0) || false;
+  }
+
   reset() {
     this.reachabilityMapSubject.value.scenarioTitle = undefined;
     this.reachabilityMapSubject.value.features = undefined;
