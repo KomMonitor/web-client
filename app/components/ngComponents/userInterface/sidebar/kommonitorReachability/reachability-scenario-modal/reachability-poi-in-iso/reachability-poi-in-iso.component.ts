@@ -63,39 +63,43 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
         if (value == MetadataLoadingState.COMPLETE) this.prepDisplayableGeoresources();
       });
 
-    this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
-      const title = broadcastMsg.msg;
-      const values: any = broadcastMsg.values;
+    this.broadcastService.currentBroadcastMsg
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((broadcastMsg) => {
+        const title = broadcastMsg.msg;
+        const values: any = broadcastMsg.values;
 
-      switch (title) {
-        case BroadcastMessage.ResetPoisInIsochrone:
-          {
-            this.resetPoisInIsochrone();
-          }
-          break;
-        case BroadcastMessage.IsochronesCalculationFinished:
-          {
-            this.isochronesCalculationFinished(values);
-          }
-          break;
-        case BroadcastMessage.SelectedIndicatorDateHasChanged:
-          {
-            this.selectedIndicatorDateHasChanged();
-          }
-          break;
-        case BroadcastMessage.ReinitPoisInReachabilityMap:
-          {
-            this.reachabilityMapHelperService.invalidateMap(this.domId);
-          }
-          break;
-      }
-    });
+        switch (title) {
+          case BroadcastMessage.ResetPoisInIsochrone:
+            {
+              this.resetPoisInIsochrone();
+            }
+            break;
+          case BroadcastMessage.IsochronesCalculationFinished:
+            {
+              this.isochronesCalculationFinished(values);
+            }
+            break;
+          case BroadcastMessage.SelectedIndicatorDateHasChanged:
+            {
+              this.selectedIndicatorDateHasChanged();
+            }
+            break;
+          case BroadcastMessage.ReinitPoisInReachabilityMap:
+            {
+              this.reachabilityMapHelperService.invalidateMap(this.domId);
+            }
+            break;
+        }
+      });
 
-    this.reachabilityStateService.reachabilityMapSubject$.subscribe((value) => {
-      if (value.scenarioState) {
-        this.isochronesCalculationFinished(true);
-      }
-    });
+    this.reachabilityStateService.reachabilityMapSubject$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        if (value.scenarioState) {
+          this.isochronesCalculationFinished(true);
+        }
+      });
   }
 
   //$('#manualDateDatepicker_reachabilityAnalysis').datepicker(this.dataExchangeService.datePickerOptions);

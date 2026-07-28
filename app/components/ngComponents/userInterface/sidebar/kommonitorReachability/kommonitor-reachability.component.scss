@@ -3,6 +3,18 @@
     &.margin-bottom {
       margin-bottom: 0.5em;
     }
+
+    &.green {
+      border: 1px solid #157347 !important;
+      color: #157347;
+      background: #15734720 !important;
+    }
+
+    &.red {
+      border: 1px solid #bb2d3b !important;
+      color: #bb2d3b;
+      background: #bb2d3b20 !important;
+    }
   }
 
   .button-wrapper {

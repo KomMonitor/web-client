@@ -30,15 +30,10 @@
           <button ngbNavLink (click)="onMapSelection()">Einzelpunkt</button>
           <ng-template ngbNavContent>
             @if (reachabilityStateService.locations.length==0 && !reachabilityStateService.manualMapSelectionMode) {
-              <p>Aktivieren Sie die Auswahl eines oder mehrerer Standorte direkt in der Hauptkarte durch klicken auf "Standorte auswählen".</p>
+              <p>Aktivieren Sie die Auswahl eines oder mehrerer Standorte direkt in der Hauptkarte durch klicken auf "Auswahl aktivieren".</p>
             }
             @if (reachabilityStateService.locations.length==0 && reachabilityStateService.manualMapSelectionMode) {
               <div class="mapSelection_info">Standort in Hauptkarte selektieren</div>
-            }
-            @if (!reachabilityStateService.manualMapSelectionMode) { 
-              <button class="btn btn-primary btn-sm w-100" (click)="onClickActivateMapSelection()">Standorte auswählen</button>
-            } @else {
-              <button class="btn btn-primary btn-sm w-100" (click)="onClickDeactivateMapSelection()">Auswahl beenden</button>
             }
             @for (item of reachabilityStateService.locations; track item) {
               <div class="mapItem">
@@ -48,6 +43,11 @@
                 ></i>
                 <p>{{ item.label }}</p>
               </div>
+            }
+            @if (!reachabilityStateService.manualMapSelectionMode) { 
+              <button class="btn btn-primary btn-sm w-100 green" (click)="onClickActivateMapSelection()">Auswahl aktivieren</button>
+            } @else {
+              <button class="btn btn-primary btn-sm w-100 red" (click)="onClickDeactivateMapSelection()">Auswahl beenden</button>
             }
           </ng-template>
         </li>
@@ -107,7 +107,7 @@
       </button>
       <div class="button-wrapper">
         <button
-          class="btn btn-primary btn-sm w-100"
+          class="btn btn-success btn-sm w-100"
           (click)="createScenario()"
           [disabled]="!reachabilityStateService.isValidCalculation"
         >
@@ -122,7 +122,7 @@
       </div>
     </expandable-box>
 
-    <expandable-box [title]="'Experten-Optionen'" [collapsed]="false">
+    <expandable-box [title]="'Experten-Optionen'" [collapsed]="true">
       <b>Verkehrsmittel</b>
       <div class="modeWrapper">
         <div

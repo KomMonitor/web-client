@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, OnInit, inject } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
@@ -27,6 +28,8 @@ export class SingleFeatureEditComponent implements OnInit {
   private http = inject(HttpClient);
   private envConfigService = inject(EnvConfigService);
 
+  private readonly destroyRef = inject(DestroyRef);
+
   domId = 'singleFeatureGeoMap';
 
   currentGeoresourceDataset: any = undefined;
@@ -51,38 +54,40 @@ export class SingleFeatureEditComponent implements OnInit {
 
   ngOnInit(): void {
     // catch broadcast msgs
-    this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
-      const title = broadcastMsg.msg;
-      const values: any = broadcastMsg.values;
+    this.broadcastService.currentBroadcastMsg
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((broadcastMsg) => {
+        const title = broadcastMsg.msg;
+        const values: any = broadcastMsg.values;
 
-      switch (title) {
-        case BroadcastMessage.OnEditGeoresourceFeatures:
-          {
-            this.onEditGeoresourceFeatures(values);
-          }
-          break;
-        case BroadcastMessage.ReinitSingleFeatureEdit:
-          {
-            this.reinitSingleFeatureEdit();
-          }
-          break;
-        case BroadcastMessage.ResetSingleFeatureEdit:
-          {
-            this.resetSingleFeatureEditState();
-          }
-          break;
-        case BroadcastMessage.SingleFeatureSelected:
-          {
-            this.singleFeatureSelected(values);
-          }
-          break;
-        case BroadcastMessage.OnUpdateSingleFeatureGeometry:
-          {
-            this.onUpdateSingleFeatureGeometry(values);
-          }
-          break;
-      }
-    });
+        switch (title) {
+          case BroadcastMessage.OnEditGeoresourceFeatures:
+            {
+              this.onEditGeoresourceFeatures(values);
+            }
+            break;
+          case BroadcastMessage.ReinitSingleFeatureEdit:
+            {
+              this.reinitSingleFeatureEdit();
+            }
+            break;
+          case BroadcastMessage.ResetSingleFeatureEdit:
+            {
+              this.resetSingleFeatureEditState();
+            }
+            break;
+          case BroadcastMessage.SingleFeatureSelected:
+            {
+              this.singleFeatureSelected(values);
+            }
+            break;
+          case BroadcastMessage.OnUpdateSingleFeatureGeometry:
+            {
+              this.onUpdateSingleFeatureGeometry(values);
+            }
+            break;
+        }
+      });
 
     this.singleFeatureMapHelperService.invalidateMap();
   }
