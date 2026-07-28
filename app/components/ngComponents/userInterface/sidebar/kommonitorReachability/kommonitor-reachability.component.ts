@@ -65,7 +65,7 @@ export class KommonitorReachabilityComponent implements OnInit {
 
   loadingData: boolean = false;
 
-  sliderRange: number[] = [1, 300];
+  sliderRange: number[] = [1, this.reachabilityStateService.defaults.distanceMax];
 
   loading$ = this.reachabilityStateService.loadingState$;
 
@@ -305,7 +305,7 @@ export class KommonitorReachabilityComponent implements OnInit {
 
   onFocusModeChange() {
     if (this.reachabilityStateService.quickCalcSettings.focus == 'distance')
-      this.sliderRange = [1, 300];
-    else this.sliderRange = [1, 15];
+      this.sliderRange = [1, this.reachabilityStateService.defaults.distanceMax];
+    else this.sliderRange = [1, this.reachabilityStateService.defaults.timeMax];
   }
 }

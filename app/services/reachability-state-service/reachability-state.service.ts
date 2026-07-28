@@ -104,6 +104,8 @@ export class ReachabilityStateService {
   defaults = {
     distanceRanges: [100, 200, 300, 400, 500],
     timeRanges: [5, 10, 15],
+    distanceMax: 10000,
+    timeMax: 30
   };
 
   // simplified settings driving the quick-calc sidebar UI (slider, transit mode buttons)

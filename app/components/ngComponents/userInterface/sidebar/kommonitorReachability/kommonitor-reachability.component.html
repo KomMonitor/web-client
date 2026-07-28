@@ -122,7 +122,7 @@
       </div>
     </expandable-box>
 
-    <expandable-box [title]="'Experten-Optionen'" [collapsed]="true">
+    <expandable-box [title]="'Experten-Optionen'" [collapsed]="false">
       <b>Verkehrsmittel</b>
       <div class="modeWrapper">
         <div
@@ -180,7 +180,7 @@
         [range]="sliderRange"
         [selectedValues]="reachabilityStateService.quickCalcSettings.ranges"
         [unit]="reachabilityStateService.quickCalcSettings.focusUnit"
-        (change)="reachabilityStateService.startQuickCalculation()"
+        (changer)="reachabilityStateService.startQuickCalculation()"
       ></multi-select-slider>
     </expandable-box>
 

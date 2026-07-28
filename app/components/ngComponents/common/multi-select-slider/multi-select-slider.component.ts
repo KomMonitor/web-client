@@ -28,18 +28,17 @@ export class MultiSelectSliderComponent implements AfterViewInit, OnChanges {
   @Input() selectedValues!: number[];
   @Input() unit!: string;
 
-  @Output() change = new EventEmitter<number[]>();
+  @Output() changer = new EventEmitter<number[]>();
 
   private sliderInstance: any;
 
-  defaultStartPosition: number = 0.25; // index (between 0 and 1, as there is only min and max)
+  defaultStartPosition: number = 0.3; // index (between 0 and 1, as there is only min and max)
   selectedValue!: number;
 
   private cdr = inject(ChangeDetectorRef);
 
   ngAfterViewInit() {
     this.sliderInstance = noUiSlider.create(this.sliderContainer.nativeElement, {
-      behaviour: 'drag',
       range: {
         min: 0,
         max: this.range.length - 1,
@@ -47,6 +46,16 @@ export class MultiSelectSliderComponent implements AfterViewInit, OnChanges {
       start: this.defaultStartPosition,
       tooltips: false,
       connect: false,
+      step: 0.1,
+      pips: {
+        mode: noUiSlider.PipsMode.Steps,
+        density: 10,
+        format: {
+          to: (value) => {
+            return Math.ceil(this.range[1] * value);
+          }
+        }
+      }
     });
 
     this.selectedValue = Math.ceil(this.range[1] * this.defaultStartPosition);
@@ -62,9 +71,12 @@ export class MultiSelectSliderComponent implements AfterViewInit, OnChanges {
       this.sliderInstance.updateOptions({
         start: this.defaultStartPosition,
       });
-
       this.selectedValue = Math.ceil(this.range[1] * this.defaultStartPosition);
     }
+  }
+
+  onValueChange(value: number) {
+    this.selectedValue = Math.min(this.range[1], Math.max(1, value));
   }
 
   addSelectedValue() {
@@ -88,6 +100,6 @@ export class MultiSelectSliderComponent implements AfterViewInit, OnChanges {
   }
 
   pushValues() {
-    this.change.emit(this.selectedValues);
+    this.changer.emit(this.selectedValues);
   }
 }
