@@ -32,5 +32,10 @@
       font-weight: 600;
       text-decoration: underline;
     }
+
+    .stat-img-button {
+      width: min(2.8vh, 30px);
+      height: auto;
+    }
   }
 }
