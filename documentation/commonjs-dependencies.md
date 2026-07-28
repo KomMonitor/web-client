@@ -13,34 +13,34 @@ transitiv über andere Libs.
 
 ## Direkt in unserem Code verwendet
 
-| Dep | Verwendet in |
-|---|---|
-| **codemirror** | Admin-Config-Editoren (`adminAppConfig`, `adminLandingpageConfig`, `adminControlsConfig`, `adminFilterConfig`) + `script-code.component` — Code-Editor für Skripte/Config |
-| **docx** | Reporting: `reporting-overview`, `generate-report` — DOCX-Export |
-| **dom-to-image-more** | `pdf-export.service`, `reachability-map-helper.service`, `leaflet-screenshot-cache-helper.service`, `kommonitor-map.component` — Karten/DOM → Bild |
-| **file-saver** | `pdf-export.service`, `generate-report`, `kommonitor-map.component` — Datei-Download |
-| **jspdf-autotable** | `pdf-export.service`, `generate-report` — Tabellen im PDF-Export |
-| **jstat** | `kommonitor-map.component`, `kommonitor-balance.component` — Statistik (Klassifikation/Balance) |
-| **jszip** | `pdf-export.service`, `generate-report`, `customizedExternalLibs/shpwrite.js` — ZIP (u. a. Shapefile-Export) |
-| **leaflet.markercluster** | `reachability-map-helper.service`, `kommonitor-map.component` — Marker-Clustering auf der Karte |
-| **papaparse** | `file-helper.service`, `kommonitor-legend.component` — CSV-Parsing |
-| **jquery** | `app/main.ts` — als globales `window.$` gesetzt |
-| **core-js** | `customizedExternalLibs/shpwrite.js` (1×) — *plus* transitiv (siehe unten) |
+| Dep                       | Verwendet in                                                                                                                                                              |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **codemirror**            | Admin-Config-Editoren (`adminAppConfig`, `adminLandingpageConfig`, `adminControlsConfig`, `adminFilterConfig`) + `script-code.component` — Code-Editor für Skripte/Config |
+| **docx**                  | Reporting: `reporting-overview`, `generate-report` — DOCX-Export                                                                                                          |
+| **dom-to-image-more**     | `pdf-export.service`, `reachability-map-helper.service`, `leaflet-screenshot-cache-helper.service`, `kommonitor-map.component` — Karten/DOM → Bild                        |
+| **file-saver**            | `pdf-export.service`, `generate-report`, `kommonitor-map.component` — Datei-Download                                                                                      |
+| **jspdf-autotable**       | `pdf-export.service`, `generate-report` — Tabellen im PDF-Export                                                                                                          |
+| **jstat**                 | `kommonitor-map.component`, `kommonitor-balance.component` — Statistik (Klassifikation/Balance)                                                                           |
+| **jszip**                 | `pdf-export.service`, `generate-report`, `customizedExternalLibs/shpwrite.js` — ZIP (u. a. Shapefile-Export)                                                              |
+| **leaflet.markercluster** | `reachability-map-helper.service`, `kommonitor-map.component` — Marker-Clustering auf der Karte                                                                           |
+| **papaparse**             | `file-helper.service`, `kommonitor-legend.component` — CSV-Parsing                                                                                                        |
+| **jquery**                | `app/main.ts` — als globales `window.$` gesetzt                                                                                                                           |
+| **core-js**               | `customizedExternalLibs/shpwrite.js` (1×) — _plus_ transitiv (siehe unten)                                                                                                |
 
 ## Transitiv (kein eigener Import, kommen nur über andere Libs rein)
 
-| Dep | Eltern-Lib |
-|---|---|
+| Dep                         | Eltern-Lib                                    |
+| --------------------------- | --------------------------------------------- |
 | **core-js** (14 Sub-Module) | `canvg` (SVG-Rendering, via jsPDF/PDF-Export) |
-| **raf** | `canvg` |
-| **rgbcolor** | `canvg` |
-| **js-sha256** | `keycloak-js` (Auth) |
-| **@turf/jsts** | `@turf/buffer` |
-| **concaveman** | `@turf/convex` |
-| **earcut** | `@turf/tesselate` |
-| **fast-deep-equal** | `@turf/line-overlap` |
-| **rbush** | `@turf/clusters-dbscan` |
-| **skmeans** | `@turf/clusters-kmeans` |
+| **raf**                     | `canvg`                                       |
+| **rgbcolor**                | `canvg`                                       |
+| **js-sha256**               | `keycloak-js` (Auth)                          |
+| **@turf/jsts**              | `@turf/buffer`                                |
+| **concaveman**              | `@turf/convex`                                |
+| **earcut**                  | `@turf/tesselate`                             |
+| **fast-deep-equal**         | `@turf/line-overlap`                          |
+| **rbush**                   | `@turf/clusters-dbscan`                       |
+| **skmeans**                 | `@turf/clusters-kmeans`                       |
 
 ## Kurzfazit
 
@@ -49,5 +49,5 @@ transitiv über andere Libs.
   dom-to-image-more), **CSV** (papaparse) und die **Admin-Code-Editoren** (codemirror).
 - **Transitiv:** alle `@turf/*`-Hilfspakete, die `canvg`-Kette (PDF/SVG) und `js-sha256`
   (Keycloak) — nicht direkt entfernbar, ohne die Eltern-Lib zu wechseln.
-</content>
-</invoke>
+  </content>
+  </invoke>

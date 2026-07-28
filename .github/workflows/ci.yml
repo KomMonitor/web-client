@@ -4,7 +4,7 @@ name: CI quality gate
 on:
   pull_request:
   push:
-    branches: [ master, develop, feature/migration-bootstrap ]
+    branches: [master, develop, feature/migration-bootstrap]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:

@@ -20,10 +20,7 @@
     "module": "ES2022",
     "useDefineForClassFields": false,
     "noImplicitAny": false,
-    "lib": [
-      "ES2022",
-      "dom"
-    ],
+    "lib": ["ES2022", "dom"],
     "allowSyntheticDefaultImports": true,
     "types": ["jquery"]
   },
@@ -31,9 +28,7 @@
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
-    "strictTemplates": true,
-
-
+    "strictTemplates": true
   },
   // Editor-only config (tsserver). Neither `ng build` (uses tsconfig.app.json)
   // nor `ng test` (uses tsconfig.spec.json) reads this file, so changes here
@@ -51,12 +46,6 @@
   // top level and collide in a shared program — that pollutes the global scope
   // for every other file.
   "include": ["app/**/*.ts"],
-  "exclude": [
-    "app/**/*.spec.ts",
-    "app/kommonitor-script-resources/**"
-  ],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.spec.json" }
-  ]
+  "exclude": ["app/**/*.spec.ts", "app/kommonitor-script-resources/**"],
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.spec.json" }]
 }

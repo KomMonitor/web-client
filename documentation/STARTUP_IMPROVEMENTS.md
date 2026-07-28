@@ -17,7 +17,7 @@ Sortierung innerhalb der Kategorien nach Relevanz. Die lohnendsten Punkte sind *
 `StartupService.loadAllConfigs()` holt `./config/config-storage-server.json` ohne `try/catch`
 (`app/services/startup-service/startup.service.ts:22`). Schlägt dieser Fetch fehl, rejected der
 `APP_INITIALIZER` und die App bootet gar nicht — weißer Bildschirm ohne Fehlermeldung. Alle
-*nachfolgenden* Configs sind fehlertolerant (`Promise.allSettled`), ausgerechnet die erste nicht.
+_nachfolgenden_ Configs sind fehlertolerant (`Promise.allSettled`), ausgerechnet die erste nicht.
 
 - [x] `try/catch` um den initialen Fetch + sinnvolle Fehlerbehandlung (Hinweisseite statt weißem Bildschirm)
 

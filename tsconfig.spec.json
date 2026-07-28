@@ -14,14 +14,7 @@
     // bundler but not under esModuleInterop+TS5.8 → TS2349). Type safety is still
     // fully enforced by the production build (tsconfig.app.json); tests only run.
     "isolatedModules": true,
-    "types": [
-      "jest",
-      "node",
-      "jquery"
-    ]
+    "types": ["jest", "node", "jquery"]
   },
-  "include": [
-    "app/**/*.spec.ts",
-    "app/**/*.d.ts"
-  ]
+  "include": ["app/**/*.spec.ts", "app/**/*.d.ts"]
 }

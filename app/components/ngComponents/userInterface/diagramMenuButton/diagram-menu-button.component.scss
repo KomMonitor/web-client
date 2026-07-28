@@ -12,6 +12,10 @@
   padding: 0.5em;
   border: 2px solid rgba(0, 0, 0, 0.2) !important;
 
+  h4 {
+    font-weight: bold !important;
+  }
+
   .subMenuButtonWrapper {
     display: grid;
     grid-template-columns: 8vh auto;

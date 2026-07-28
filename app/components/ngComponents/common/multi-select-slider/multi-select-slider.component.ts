@@ -53,9 +53,9 @@ export class MultiSelectSliderComponent implements AfterViewInit, OnChanges {
         format: {
           to: (value) => {
             return Math.ceil(this.range[1] * value);
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     this.selectedValue = Math.ceil(this.range[1] * this.defaultStartPosition);

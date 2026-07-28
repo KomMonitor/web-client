@@ -120,7 +120,7 @@ flowchart TB
 ## Hinweise zur Struktur
 
 - **Zwei Hauptzweige über Routing:** `MainComponent` hält nur `<router-outlet>`. Die
-  Aufteilung in *UserInterface* (`/**`) und *Administration* (`/administration`)
+  Aufteilung in _UserInterface_ (`/**`) und _Administration_ (`/administration`)
   geschieht in `app/app.routes.ts` — keine direkte Selektor-Verschachtelung.
 - **Sidebar-Panels sind alternativ** (`*ngIf` über `visibilityHelperService`), nicht
   gleichzeitig sichtbar. Jeder Sidebar-Button schaltet genau ein Panel frei.
@@ -134,42 +134,42 @@ flowchart TB
 
 ## Selektor → Komponente → Pfad
 
-| Selektor | Klasse | Pfad (unter `app/`) |
-|----------|--------|---------------------|
-| `app-main` | MainComponent | `mainComponent/main/` |
-| `user-interface-new` | UserInterfaceComponent | `components/ngComponents/userInterface/` |
-| `app-admin` | AdminComponent | `components/ngComponents/admin/` |
-| `app-sidebar` | SidebarComponent | `components/ngComponents/userInterface/sidebar/` |
-| `app-kommonitor-map` | KommonitorMapComponent | `components/ngComponents/userInterface/kommonitorMap/` |
-| `app-kommonitor-legend` | KommonitorLegendComponent | `components/ngComponents/userInterface/kommonitorLegend/` |
-| `kommonitor-classification-component` | KommonitorClassificationComponent | `components/ngComponents/userInterface/kommonitorClassification/` |
-| `app-classification-method-select` | ClassificationMethodSelectComponent | `components/ngComponents/common/classificationMethodSelect/` |
-| `expandable-box` | ExpandableBoxComponent | `components/ngComponents/common/expandable-box/` |
-| `custom-slider` | CustomSliderComponent | `components/ngComponents/common/custom-slider/` |
-| `app-user-login` | UserLoginComponent | `components/ngComponents/common/userLogin/` |
-| `app-export-menu-button` | ExportMenuButtonComponent | `components/ngComponents/userInterface/exporting/export-menu-button/` |
-| `app-kommonitor-data-setup` | KommonitorDataSetupComponent | `components/ngComponents/userInterface/sidebar/kommonitorDataSetup/` |
-| `app-poi` | PoiComponent | `components/ngComponents/userInterface/sidebar/poi/` |
-| `app-kommonitor-data-import` | KommonitorDataImportComponent | `components/ngComponents/userInterface/sidebar/kommonitorDataImport/` |
-| `app-kommonitor-filter` | KommonitorFilterComponent | `components/ngComponents/userInterface/sidebar/kommonitorFilter/` |
-| `app-kommonitor-balance` | KommonitorBalanceComponent | `components/ngComponents/userInterface/sidebar/kommonitorBalance/` |
-| `app-kommonitor-diagrams` | KommonitorDiagramsComponent | `components/ngComponents/userInterface/sidebar/kommonitorDiagrams/` |
-| `app-indicator-radar` | IndicatorRadarComponent | `components/ngComponents/userInterface/sidebar/indicatorRadar/` |
-| `app-regression-diagram` | RegressionDiagramComponent | `components/ngComponents/userInterface/sidebar/regressionDiagram/` |
-| `app-kommonitor-reachability` | KommonitorReachabilityComponent | `components/ngComponents/userInterface/sidebar/kommonitorReachability/` |
-| `app-admin-dashboard-management` | AdminDashboardManagementComponent | `components/ngComponents/admin/adminDashboardManagement/` |
-| `app-admin-content-view` | AdminContentViewComponent | `components/ngComponents/admin/admin-content-view/` |
-| `app-small-box` | SmallBoxComponent | `components/ngComponents/admin/adminDashboardManagement/small-box/` |
-| `app-admin-role-management` | AdminRoleManagementComponent | `components/ngComponents/admin/adminRoleManagement/` |
-| `app-admin-role-explanation` | AdminRoleExplanationComponent | `components/ngComponents/admin/adminRoleExplanation/` |
-| `app-admin-topics-management` | AdminTopicsManagementComponent | `components/ngComponents/admin/adminTopicsManagement/` |
-| `app-admin-spatial-units-management` | AdminSpatialUnitsManagementComponent | `components/ngComponents/admin/adminSpatialUnitsManagement/` |
-| `app-admin-indicators-management` | AdminIndicatorsManagementComponent | `components/ngComponents/admin/adminIndicatorsManagement/` |
-| `app-admin-georesources-management` | AdminGeoresourcesManagementComponent | `components/ngComponents/admin/adminGeoresourcesManagement/` |
-| `app-admin-script-management` | AdminScriptManagementComponent | `components/ngComponents/admin/adminScriptManagement/` |
-| `app-admin-script-execution` | AdminScriptExecutionComponent | `components/ngComponents/admin/adminScriptExecution/` |
-| `app-admin-app-config` | AdminAppConfigComponent | `components/ngComponents/admin/adminConfig/adminAppConfig/` |
-| `app-admin-controls-config` | AdminControlsConfigComponent | `components/ngComponents/admin/adminConfig/adminControlsConfig/` |
-| `app-admin-filter-config` | AdminFilterConfigComponent | `components/ngComponents/admin/adminConfig/adminFilterConfig/` |
-| `app-session-validity` | SessionValidityComponent | `components/ngComponents/common/userLogin/session-validity/` |
-| `app-notification` | NotificationComponent | `components/ngComponents/common/notification/` |
+| Selektor                              | Klasse                               | Pfad (unter `app/`)                                                     |
+| ------------------------------------- | ------------------------------------ | ----------------------------------------------------------------------- |
+| `app-main`                            | MainComponent                        | `mainComponent/main/`                                                   |
+| `user-interface-new`                  | UserInterfaceComponent               | `components/ngComponents/userInterface/`                                |
+| `app-admin`                           | AdminComponent                       | `components/ngComponents/admin/`                                        |
+| `app-sidebar`                         | SidebarComponent                     | `components/ngComponents/userInterface/sidebar/`                        |
+| `app-kommonitor-map`                  | KommonitorMapComponent               | `components/ngComponents/userInterface/kommonitorMap/`                  |
+| `app-kommonitor-legend`               | KommonitorLegendComponent            | `components/ngComponents/userInterface/kommonitorLegend/`               |
+| `kommonitor-classification-component` | KommonitorClassificationComponent    | `components/ngComponents/userInterface/kommonitorClassification/`       |
+| `app-classification-method-select`    | ClassificationMethodSelectComponent  | `components/ngComponents/common/classificationMethodSelect/`            |
+| `expandable-box`                      | ExpandableBoxComponent               | `components/ngComponents/common/expandable-box/`                        |
+| `custom-slider`                       | CustomSliderComponent                | `components/ngComponents/common/custom-slider/`                         |
+| `app-user-login`                      | UserLoginComponent                   | `components/ngComponents/common/userLogin/`                             |
+| `app-export-menu-button`              | ExportMenuButtonComponent            | `components/ngComponents/userInterface/exporting/export-menu-button/`   |
+| `app-kommonitor-data-setup`           | KommonitorDataSetupComponent         | `components/ngComponents/userInterface/sidebar/kommonitorDataSetup/`    |
+| `app-poi`                             | PoiComponent                         | `components/ngComponents/userInterface/sidebar/poi/`                    |
+| `app-kommonitor-data-import`          | KommonitorDataImportComponent        | `components/ngComponents/userInterface/sidebar/kommonitorDataImport/`   |
+| `app-kommonitor-filter`               | KommonitorFilterComponent            | `components/ngComponents/userInterface/sidebar/kommonitorFilter/`       |
+| `app-kommonitor-balance`              | KommonitorBalanceComponent           | `components/ngComponents/userInterface/sidebar/kommonitorBalance/`      |
+| `app-kommonitor-diagrams`             | KommonitorDiagramsComponent          | `components/ngComponents/userInterface/sidebar/kommonitorDiagrams/`     |
+| `app-indicator-radar`                 | IndicatorRadarComponent              | `components/ngComponents/userInterface/sidebar/indicatorRadar/`         |
+| `app-regression-diagram`              | RegressionDiagramComponent           | `components/ngComponents/userInterface/sidebar/regressionDiagram/`      |
+| `app-kommonitor-reachability`         | KommonitorReachabilityComponent      | `components/ngComponents/userInterface/sidebar/kommonitorReachability/` |
+| `app-admin-dashboard-management`      | AdminDashboardManagementComponent    | `components/ngComponents/admin/adminDashboardManagement/`               |
+| `app-admin-content-view`              | AdminContentViewComponent            | `components/ngComponents/admin/admin-content-view/`                     |
+| `app-small-box`                       | SmallBoxComponent                    | `components/ngComponents/admin/adminDashboardManagement/small-box/`     |
+| `app-admin-role-management`           | AdminRoleManagementComponent         | `components/ngComponents/admin/adminRoleManagement/`                    |
+| `app-admin-role-explanation`          | AdminRoleExplanationComponent        | `components/ngComponents/admin/adminRoleExplanation/`                   |
+| `app-admin-topics-management`         | AdminTopicsManagementComponent       | `components/ngComponents/admin/adminTopicsManagement/`                  |
+| `app-admin-spatial-units-management`  | AdminSpatialUnitsManagementComponent | `components/ngComponents/admin/adminSpatialUnitsManagement/`            |
+| `app-admin-indicators-management`     | AdminIndicatorsManagementComponent   | `components/ngComponents/admin/adminIndicatorsManagement/`              |
+| `app-admin-georesources-management`   | AdminGeoresourcesManagementComponent | `components/ngComponents/admin/adminGeoresourcesManagement/`            |
+| `app-admin-script-management`         | AdminScriptManagementComponent       | `components/ngComponents/admin/adminScriptManagement/`                  |
+| `app-admin-script-execution`          | AdminScriptExecutionComponent        | `components/ngComponents/admin/adminScriptExecution/`                   |
+| `app-admin-app-config`                | AdminAppConfigComponent              | `components/ngComponents/admin/adminConfig/adminAppConfig/`             |
+| `app-admin-controls-config`           | AdminControlsConfigComponent         | `components/ngComponents/admin/adminConfig/adminControlsConfig/`        |
+| `app-admin-filter-config`             | AdminFilterConfigComponent           | `components/ngComponents/admin/adminConfig/adminFilterConfig/`          |
+| `app-session-validity`                | SessionValidityComponent             | `components/ngComponents/common/userLogin/session-validity/`            |
+| `app-notification`                    | NotificationComponent                | `components/ngComponents/common/notification/`                          |

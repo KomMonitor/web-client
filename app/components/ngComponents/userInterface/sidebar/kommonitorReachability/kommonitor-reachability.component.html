@@ -29,10 +29,19 @@
         <li [ngbNavItem]="2">
           <button ngbNavLink (click)="onMapSelection()">Einzelpunkt</button>
           <ng-template ngbNavContent>
-            @if (reachabilityStateService.locations.length==0 && !reachabilityStateService.manualMapSelectionMode) {
-              <p>Aktivieren Sie die Auswahl eines oder mehrerer Standorte direkt in der Hauptkarte durch klicken auf "Auswahl aktivieren".</p>
+            @if (
+              reachabilityStateService.locations.length == 0 &&
+              !reachabilityStateService.manualMapSelectionMode
+            ) {
+              <p>
+                Aktivieren Sie die Auswahl eines oder mehrerer Standorte direkt in der Hauptkarte
+                durch klicken auf "Auswahl aktivieren".
+              </p>
             }
-            @if (reachabilityStateService.locations.length==0 && reachabilityStateService.manualMapSelectionMode) {
+            @if (
+              reachabilityStateService.locations.length == 0 &&
+              reachabilityStateService.manualMapSelectionMode
+            ) {
               <div class="mapSelection_info">Standort in Hauptkarte selektieren</div>
             }
             @for (item of reachabilityStateService.locations; track item) {
@@ -44,10 +53,20 @@
                 <p>{{ item.label }}</p>
               </div>
             }
-            @if (!reachabilityStateService.manualMapSelectionMode) { 
-              <button class="btn btn-primary btn-sm w-100 green" (click)="onClickActivateMapSelection()">Auswahl aktivieren</button>
+            @if (!reachabilityStateService.manualMapSelectionMode) {
+              <button
+                class="btn btn-primary btn-sm w-100 green"
+                (click)="onClickActivateMapSelection()"
+              >
+                Auswahl aktivieren
+              </button>
             } @else {
-              <button class="btn btn-primary btn-sm w-100 red" (click)="onClickDeactivateMapSelection()">Auswahl beenden</button>
+              <button
+                class="btn btn-primary btn-sm w-100 red"
+                (click)="onClickDeactivateMapSelection()"
+              >
+                Auswahl beenden
+              </button>
             }
           </ng-template>
         </li>
@@ -102,7 +121,11 @@
       <div [ngbNavOutlet]="nav" class="mt-2"></div>
       <br />
       <br />
-      <button class="btn btn-primary btn-sm w-100 margin-bottom" (click)="startCalculation()" [disabled]="!reachabilityStateService.featureSelected">
+      <button
+        class="btn btn-primary btn-sm w-100 margin-bottom"
+        (click)="startCalculation()"
+        [disabled]="!reachabilityStateService.featureSelected"
+      >
         Berechnung starten
       </button>
       <div class="button-wrapper">

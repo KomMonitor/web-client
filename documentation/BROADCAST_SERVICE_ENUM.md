@@ -11,8 +11,8 @@ Stand: 2026-06-26, Branch `feature/migration-bootstrap`.
 > aus `BroadcastMessage` gelöscht (103 → 54 Message-Typen). Auch das prominent
 > erwähnte Tippfehler-Message `IndicatortMapDisplayFinished` existiert nicht
 > mehr (Sender ohne Empfänger, ersatzlos entfernt).
-Zahlen verifiziert per Code-Bestandsaufnahme am 2026-06-26 (siehe Abschnitt
-„Bestandsaufnahme").
+> Zahlen verifiziert per Code-Bestandsaufnahme am 2026-06-26 (siehe Abschnitt
+> „Bestandsaufnahme").
 
 Betroffene Datei: `app/services/broadcast-service/broadcast.service.ts`.
 
@@ -72,7 +72,7 @@ Enum) und für späteres Löschen vormerken. Viele davon sind vermutlich Legacy-
 der AngularJS-Zeit (`$scope.$broadcast` ohne Angular-Bus-Gegenstück):
 
 > Korrektur (Cluster 7): `allIndicatorPropertiesForCurrentSpatialUnitAndTime setup
-> begin` und `… setup completed` standen hier zunächst irrtümlich — sie haben sehr wohl
+begin` und `… setup completed` standen hier zunächst irrtümlich — sie haben sehr wohl
 > einen **Multi-Line-Sender** in `diagram-helper` (`broadcast(\n 'name'\n)`), den das
 > zeilenbasierte Sender-Grep übersah. Sie sind jetzt im Enum und migriert.
 
@@ -128,8 +128,7 @@ export const BroadcastMessage = {
   // ... (vollständige Liste unten)
 } as const;
 
-export type BroadcastMessage =
-  (typeof BroadcastMessage)[keyof typeof BroadcastMessage];
+export type BroadcastMessage = (typeof BroadcastMessage)[keyof typeof BroadcastMessage];
 
 // Für die dynamischen Namen aus feature-table-data-grid-helper.service.ts:
 export const showLoadingIconFor = (resourceType: string) =>
@@ -154,29 +153,29 @@ broadcast(newMsg: BroadcastMessage | string, values: any = {}) {
 ```
 
 Sobald alle 226 Call-Sites umgestellt sind, kann `| string` entfernt werden — ab
-dann erzwingt der Compiler typisierte Namen auf Sende- *und* (per Vergleich gegen
+dann erzwingt der Compiler typisierte Namen auf Sende- _und_ (per Vergleich gegen
 `BroadcastMessage.*`) auf Empfängerseite.
 
 ## Bestandsaufnahme (verifiziert 2026-06-26)
 
-| Metrik | Wert |
-|---|---|
-| Sender-Call-Sites `.broadcast(...)` | 226 |
-| Eindeutige statische Namen | ~106 (Enum: 105 typisierte Namen) |
-| Dynamisch gebaute Muster | 3 (alle in `feature-table-data-grid-helper.service.ts`) |
-| Empfänger-Blöcke (`subscribe`) | 18 Dateien |
+| Metrik                              | Wert                                                    |
+| ----------------------------------- | ------------------------------------------------------- |
+| Sender-Call-Sites `.broadcast(...)` | 226                                                     |
+| Eindeutige statische Namen          | ~106 (Enum: 105 typisierte Namen)                       |
+| Dynamisch gebaute Muster            | 3 (alle in `feature-table-data-grid-helper.service.ts`) |
+| Empfänger-Blöcke (`subscribe`)      | 18 Dateien                                              |
 
 **Sender-Konzentration** (Top-4 ≈ 35 % aller Sends):
 
-| Datei | Sends |
-|---|---|
-| `map-service/map.service.ts` | 24 |
-| `kommonitorDataSetup/kommonitor-data-setup.component.ts` | 20 |
-| `kommonitorMap/kommonitor-map.component.ts` | 20 |
-| `kommonitorClassification/kommonitor-classification.component.ts` | 15 |
-| `admin/adminGeoresourcesManagement/admin-georesources-management.component.ts` | 10 |
-| `userInterface/user-interface.component.ts` | 7 |
-| `admin/adminIndicatorsManagement/admin-indicators-management.component.ts` | 7 |
+| Datei                                                                          | Sends |
+| ------------------------------------------------------------------------------ | ----- |
+| `map-service/map.service.ts`                                                   | 24    |
+| `kommonitorDataSetup/kommonitor-data-setup.component.ts`                       | 20    |
+| `kommonitorMap/kommonitor-map.component.ts`                                    | 20    |
+| `kommonitorClassification/kommonitor-classification.component.ts`              | 15    |
+| `admin/adminGeoresourcesManagement/admin-georesources-management.component.ts` | 10    |
+| `userInterface/user-interface.component.ts`                                    | 7     |
+| `admin/adminIndicatorsManagement/admin-indicators-management.component.ts`     | 7     |
 
 **Empfänger-Konzentration** (Anzahl `msg`-Vergleiche im `subscribe`):
 
@@ -193,39 +192,39 @@ Empfohlene Reihenfolge nach Kopplung/Risiko. Pro Schritt **Sender und zugehörig
 Empfänger zusammen** umstellen, sonst läuft ein typisierter Sender an einem
 String-Empfänger vorbei.
 
-1. **Map-Kern** ✅ *(erledigt 2026-06-26)* — `map.service` (24 Sender) +
+1. **Map-Kern** ✅ _(erledigt 2026-06-26)_ — `map.service` (24 Sender) +
    `kommonitor-map.component` (20 Sender, 35 von 38 `case`s) + `generic-map-helper`
    (3 Sender) + `single-feature-map-helper` (3 Sender, 1 `case`). Alle Roh-Strings →
-   `BroadcastMessage.*`. **Korrektur:** `reachability-map-helper` gehört *nicht* dazu —
+   `BroadcastMessage.*`. **Korrektur:** `reachability-map-helper` gehört _nicht_ dazu —
    es hat keine Broadcast-Stellen (der `case 'driving-car'`-Switch läuft auf
    `transitMode`, nicht auf `msg`). Damals als „tot" belassen: `changeSpatialUnitViaInfoControl`
    und `toggleLegendControl` (bleiben roh); `…setup begin` wurde in Cluster 7 nachmigriert.
-2. **Classification / Legend** ✅ *(erledigt 2026-06-26)* — `kommonitor-classification`
+2. **Classification / Legend** ✅ _(erledigt 2026-06-26)_ — `kommonitor-classification`
    (15 Sender, 2 von 3 `case`s) + `kommonitor-legend` (2 Sender, 4 `case`s). Ein
    `case 'onChangeSelectedIndicator' :` mit Leerzeichen vor dem Doppelpunkt manuell
    migriert; ein auskommentierter Legacy-`broadcast` in `kommonitor-legend` blieb
    Roh-String. Toter Empfänger `updateShowRegionalDefaultOption` (s. o.) blieb Roh-String.
-3. **DataSetup / Balance / Filter / POI** ✅ *(erledigt 2026-06-26)* — `kommonitor-data-setup`
+3. **DataSetup / Balance / Filter / POI** ✅ _(erledigt 2026-06-26)_ — `kommonitor-data-setup`
    (.component 20 Sender + 1 von 2 `case`s, .service 2 Sender) + `favorites-state.service`
    (1) + `kommonitor-balance` (2 `case`s) + `kommonitor-filter` (1 Sender, 5 `case`s) +
    `poi.component` (2 `case`s) + `georesource-layer.service` (3) + `georesource-favorites.service`
    (1). Enthält den **`DisableBalance`-Bugfix** und die **LIKE-Kommentar-Bereinigung**. Vier
    `case`s mit Leerzeichen vor `:` manuell migriert; toter Empfänger
    `updateIndicatorOgcServices` (s. o.) blieb Roh-String.
-4. **Diagramme** ✅ *(erledigt 2026-06-26)* — `kommonitor-diagrams` (3 Sender, 4 von 5 `case`s)
-   + `indicator-radar` (4 Sender, 4 von 7 `case`s) + `regression-diagram` (6 Sender, 3 von 6
-   `case`s). Ein `case 'updateDiagrams' :` mit Leerzeichen vor `:` manuell migriert; ein
-   auskommentierter `broadcast` in `indicator-radar` blieb Roh-String. Toter Empfänger
-   `resizeDiagrams` blieb Roh-String. (Die `…setup begin/completed`-`case`s blieben hier
-   zunächst roh und wurden in Cluster 7 nachmigriert, nachdem ihr Multi-Line-Sender
-   gefunden war.)
-5. **Reachability** ✅ *(erledigt 2026-06-26)* — `kommonitor-reachability` (2 Sender, 1 von 2
+4. **Diagramme** ✅ _(erledigt 2026-06-26)_ — `kommonitor-diagrams` (3 Sender, 4 von 5 `case`s)
+   - `indicator-radar` (4 Sender, 4 von 7 `case`s) + `regression-diagram` (6 Sender, 3 von 6
+     `case`s). Ein `case 'updateDiagrams' :` mit Leerzeichen vor `:` manuell migriert; ein
+     auskommentierter `broadcast` in `indicator-radar` blieb Roh-String. Toter Empfänger
+     `resizeDiagrams` blieb Roh-String. (Die `…setup begin/completed`-`case`s blieben hier
+     zunächst roh und wurden in Cluster 7 nachmigriert, nachdem ihr Multi-Line-Sender
+     gefunden war.)
+5. **Reachability** ✅ _(erledigt 2026-06-26)_ — `kommonitor-reachability` (2 Sender, 1 von 2
    `case`s) + `reachability-scenario-modal` (5 Sender, 1 `case`) + `reachability-helper.service`
    (3 Sender) + `reachability-scenario-configuration` (3 Sender, 3 von 5 `case`s) +
    `reachbility-scenario-setup` (1 Sender) + `reachability-indicator-statistics` (2 `case`s) +
    `reachability-poi-in-iso` (4 `case`s). Zwei Space-Variant-`case`s manuell migriert. Tote
    Empfänger `switchReportingMode` und `onManageReachabilityScenario` (s. o.) blieben Roh-String.
-6. **Admin** ✅ *(erledigt 2026-06-26)* — 30 Dateien: alle Georesources- / Indicators- /
+6. **Admin** ✅ _(erledigt 2026-06-26)_ — 30 Dateien: alle Georesources- / Indicators- /
    SpatialUnits- / Topics- / Scripts- / Dashboard- / Config-Komponenten + Modals,
    `admin-topics.service`, `feature-table-data-grid-helper`, `adminGeoresourceUnit/kommonitor-data-grid-helper`
    und `common/wms-admin-table`. Besonderheiten:
@@ -237,7 +236,7 @@ String-Empfänger vorbei.
      in den 3 Edit-Features-Modals entsprechend (Multi-Line-Konkatenation, `?.` entfernt).
    - 11 tote Empfänger gefunden (s. o.); `poi/loi/aoi`-`case`s unangetastet (Switch auf
      `georesourceType`, kein Broadcast).
-7. **Rest / verstreut** ✅ *(erledigt 2026-06-26)* — Sender/Empfänger außerhalb der
+7. **Rest / verstreut** ✅ _(erledigt 2026-06-26)_ — Sender/Empfänger außerhalb der
    Cluster 1–6, jeweils nur ein paar Stellen pro Datei:
    - Services: `access-control-service` (1), `diagram-helper-service` (4×
      `AppendExportButtonsForTable` + 2 Multi-Line-Sender), `element-visibility-helper-service`
@@ -256,18 +255,18 @@ String-Empfänger vorbei.
      `regression-diagram` wurden nachmigriert.
 
 > **Status: ✅ ABGESCHLOSSEN.** Cluster 1–7 erledigt; app-weit keine migrierbaren
-> Roh-Sender/-Empfänger mehr (geprüft via `grep` gegen alle Enum-Werte *und* compiler-
+> Roh-Sender/-Empfänger mehr (geprüft via `grep` gegen alle Enum-Werte _und_ compiler-
 > erzwungen, s. u.). Übrig nur bewusst belassene tote Empfänger (raw) und
 > auskommentierter Legacy-Code.
 >
 > **`| string` entfernt ✅:** Der Übergangstyp wurde durch die typisierten
-> `BroadcastMessage`-Namen ersetzt: ``broadcast(newMsg: BroadcastMessage, …)``. Der
+> `BroadcastMessage`-Namen ersetzt: `broadcast(newMsg: BroadcastMessage, …)`. Der
 > Compiler erzwingt damit typisierte Namen auf Senderseite — beliebige Roh-Strings
 > werden abgelehnt (Build EXIT 0 bestätigt: kein Roh-String-Sender mehr vorhanden).
 >
 > **`BehaviorSubject<any>` typisiert ✅:** Das Bus-Subject ist jetzt
 > `BehaviorSubject<BroadcastEnvelope>` (`{ msg: BroadcastMessage | (string & {});
-> values?: any }`). `msg` lässt bewusst beliebige Strings zu, damit die Empfängerseite
+values?: any }`). `msg` lässt bewusst beliebige Strings zu, damit die Empfängerseite
 > weiter gegen die toten Roh-Namen und den Seed `''` vergleichen kann; `values` bleibt
 > als heterogene Payload untypisiert.
 >
@@ -428,6 +427,7 @@ onDeleteFeatureEntry_${resourceType} -> onDeleteFeatureEntryFor(resourceType) # 
 ```
 
 > Diese Liste regenerieren mit:
+>
 > ```bash
 > grep -rhoE "\.broadcast\(\s*['\"\`][^'\"\`]+['\"\`]" app --include=*.ts \
 >   | sed -E "s/.*broadcast\(\s*['\"\`]//; s/['\"\`].*//" | sort -u

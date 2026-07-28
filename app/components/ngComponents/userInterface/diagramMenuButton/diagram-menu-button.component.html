@@ -10,7 +10,7 @@
     balanceActive: chartDisplayState.isBalanceChecked,
   }"
   data-toggle="tooltip"
-  title="statistische Diagramme"
+  title="Analysetools"
 >
   <i class="fas fa-chart-simple"></i>
 </button>
@@ -26,7 +26,7 @@
   (detach)="submenuOpen = false"
 >
   <div class="diagram-submenu-panel">
-    <h4>statistische Diagramme</h4>
+    <h4>Analysetools</h4>
     @if (indicatorClassificationType == 'QUALITATIVE') {
       <div class="alert alert-light py-3 mb-2 text-center" role="alert">
         Nicht verfügbar für Indikatoren mit kategorialer Klassifikation
@@ -76,7 +76,7 @@
           <i class="fas fa-chart-bar"></i>
         </button>
         <div>
-          <b>Kennzahlen</b>
+          <b>Statistische Diagramme</b>
           <p>&Uuml;bersicht der statistischen Kennzahlen der verschiedenen Teilindikatoren.</p>
         </div>
       </div>
