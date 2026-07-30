@@ -133,7 +133,9 @@
             @if (!reachabilityStateService.poiDataset.poiName) {
               <div>
                 <b>Berechnungen f&uuml;r Punktdatenquelle:</b>
-                <i>{{ reachabilityStateService.settings?.selectedStartPointLayer.datasetName }}</i>
+                <i>{{
+                  reachabilityStateService.settings?.selectedStartPointLayer?.datasetName
+                }}</i>
               </div>
             }
           </div>
