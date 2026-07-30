@@ -1,13 +1,15 @@
 <div>
-  <h2 class="fs-title">Themenhierarchie</h2>
-  <h3 class="fs-subtitle">Angaben über die Themenhierarchie in KomMonitor</h3>
+  <h2 class="fs-title">{{ 'ADMIN_SHARED_UI.TOPICS.TITLE' | translate }}</h2>
+  <h3 class="fs-subtitle">{{ 'ADMIN_INDICATORS.STEP_TOPICS.SUBTITLE' | translate }}</h3>
   <p>
-    <b><i>* = Pflichtfeld</i></b>
+    <b
+      ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+    >
   </p>
   <div class="row vertical-align">
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>Hauptthema*</label>
+        <label>{{ 'ADMIN_SHARED_UI.TOPICS.MAIN_TOPIC' | translate }}*</label>
         <select
           [(ngModel)]="state.selectedTopic"
           name="selectedTopic"
@@ -15,7 +17,9 @@
           class="form-control"
           required
         >
-          <option [ngValue]="null" disabled selected>-- Thema wählen --</option>
+          <option [ngValue]="null" disabled selected>
+            {{ 'ADMIN_INDICATORS.STEP_TOPICS.SELECT_TOPIC_OPTION' | translate }}
+          </option>
           @for (topic of state.availableTopics; track topic) {
             <option [ngValue]="topic">
               {{ topic.topicName }}
@@ -28,7 +32,7 @@
     <div class="col-md-3 col-sm-6 col-12">
       @if (state.availableSubTopics.length > 0) {
         <div class="form-group">
-          <label>Unterthema - erste Ebene</label>
+          <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_1' | translate }}</label>
           <select
             [(ngModel)]="state.selectedSubTopic"
             name="selectedSubTopic"
@@ -36,7 +40,9 @@
             class="form-control"
             required
           >
-            <option [ngValue]="null" disabled selected>-- Unterthema wählen --</option>
+            <option [ngValue]="null" disabled selected>
+              {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
+            </option>
             @for (subTopic of state.availableSubTopics; track subTopic) {
               <option [ngValue]="subTopic">
                 {{ subTopic.topicName }}
@@ -50,7 +56,7 @@
     <div class="col-md-3 col-sm-6 col-12">
       @if (state.availableSubSubTopics.length > 0) {
         <div class="form-group">
-          <label>Unterthema - zweite Ebene</label>
+          <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_2' | translate }}</label>
           <select
             [(ngModel)]="state.selectedSubSubTopic"
             name="selectedSubSubTopic"
@@ -58,7 +64,9 @@
             class="form-control"
             required
           >
-            <option [ngValue]="null" disabled selected>-- Unterthema wählen --</option>
+            <option [ngValue]="null" disabled selected>
+              {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
+            </option>
             @for (subsubTopic of state.availableSubSubTopics; track subsubTopic) {
               <option [ngValue]="subsubTopic">
                 {{ subsubTopic.topicName }}
@@ -72,7 +80,7 @@
     <div class="col-md-3 col-sm-6 col-12">
       @if (state.availableSubSubSubTopics.length > 0) {
         <div class="form-group">
-          <label>Unterthema - dritte Ebene</label>
+          <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_3' | translate }}</label>
           <select
             [(ngModel)]="state.selectedSubSubSubTopic"
             name="selectedSubSubSubTopic"
@@ -80,7 +88,9 @@
             class="form-control"
             required
           >
-            <option [ngValue]="null" disabled selected>-- Unterthema wählen --</option>
+            <option [ngValue]="null" disabled selected>
+              {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
+            </option>
             @for (subsubsubTopic of state.availableSubSubSubTopics; track subsubsubTopic) {
               <option [ngValue]="subsubsubTopic">
                 {{ subsubsubTopic.topicName }}
@@ -104,7 +114,9 @@
             style="background: #ebf0fd"
           >
             <div class="box-header">
-              <h3 class="box-title">Themenkatalog</h3>
+              <h3 class="box-title">
+                {{ 'ADMIN_SHARED_UI.TOPICS.TOPIC_CATALOG' | translate }}
+              </h3>
               <div class="box-tools pull-right">
                 <button
                   type="button"
@@ -230,14 +242,14 @@
     type="button"
     name="previous"
     class="previous previous_addIndicator action-button-previous"
-    value="Voriger Schritt"
+    [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
     (click)="state.previousStep()"
   />
   <input
     type="button"
     name="next"
     class="next next_addIndicator action-button"
-    value="Nächster Schritt"
+    [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
     (click)="state.nextStep()"
   />
 </div>

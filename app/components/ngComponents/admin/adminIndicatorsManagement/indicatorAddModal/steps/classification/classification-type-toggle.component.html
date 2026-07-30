@@ -1,0 +1,35 @@
+<div class="type-toggle-wrapper">
+  <div class="type-toggle-label">
+    {{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.TYPE_LABEL' | translate }}*
+  </div>
+  <div class="type-toggle" role="group">
+    <button
+      type="button"
+      class="type-toggle-option"
+      [class.active]="state.isNumeric"
+      [attr.aria-pressed]="state.isNumeric"
+      (click)="state.setType('QUANTITATIVE')"
+    >
+      <span class="type-toggle-title">{{
+        'ADMIN_INDICATORS.STEP_CLASSIFICATION.TYPE_NUMERIC' | translate
+      }}</span>
+      <span class="type-toggle-hint">{{
+        'ADMIN_INDICATORS.STEP_CLASSIFICATION.TYPE_NUMERIC_HINT' | translate
+      }}</span>
+    </button>
+    <button
+      type="button"
+      class="type-toggle-option"
+      [class.active]="state.isCategorical"
+      [attr.aria-pressed]="state.isCategorical"
+      (click)="state.setType('QUALITATIVE')"
+    >
+      <span class="type-toggle-title">{{
+        'ADMIN_INDICATORS.STEP_CLASSIFICATION.TYPE_CATEGORICAL' | translate
+      }}</span>
+      <span class="type-toggle-hint">{{
+        'ADMIN_INDICATORS.STEP_CLASSIFICATION.TYPE_CATEGORICAL_HINT' | translate
+      }}</span>
+    </button>
+  </div>
+</div>

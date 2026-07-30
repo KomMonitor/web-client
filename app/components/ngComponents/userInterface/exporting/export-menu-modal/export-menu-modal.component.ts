@@ -3,7 +3,6 @@ import { Component, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { EMPTY, finalize, Observable, switchMap } from 'rxjs';
 import {
-  DownloadFormat,
   ExportingService,
   ExportResponse,
   GeoressourceExportInput,
@@ -134,22 +133,15 @@ export class ExportMenuModalComponent {
 
   private buildSpatialUnitExportParams(crs: string): SpatialUnitExportParams {
     const spatialUnitId = this.stateSrvc.selectedSpatialUnit() ?? '';
-    const allFormats = new Set<DownloadFormat>();
-    const indicators = this.stateSrvc
-      .indicatorItems()
-      .filter((item) => item.selectedFormats.length > 0)
-      .map((item) => {
-        mapFormats(item.selectedFormats).forEach((f) => allFormats.add(f));
-        return {
-          indicator_id: item.dataset.id,
-          target_time: buildTargetTime(item.selectedTargetTime, item.dataset.availableTimestamps),
-        };
-      });
+    const indicators = this.stateSrvc.indicatorItems().map((item) => ({
+      indicator_id: item.dataset.id,
+      target_time: buildTargetTime(item.selectedTargetTime, item.dataset.availableTimestamps),
+    }));
 
     return {
       crs,
       spatial_unit_id: spatialUnitId,
-      download_format: [...allFormats],
+      download_format: mapFormats(this.stateSrvc.selectedSpatialUnitFormats()),
       indicators,
     };
   }

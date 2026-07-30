@@ -1,0 +1,27 @@
+.palette-picker {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 3rem;
+  margin: 1.5rem 0 0.5rem;
+}
+
+.palette-picker-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.palette-picker-label {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.palette-picker-scheme {
+  font-size: 0.7rem;
+  color: #9aa6b2;
+}

@@ -1,11 +1,13 @@
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef, Component, inject, OnChanges, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, inject, OnChanges, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { ReachabilityStateService } from 'services/reachability-state-service/reachability-state.service';
 import { ReachabilityScenarioConfigurationComponent } from './reachability-scenario-configuration/reachability-scenario-configuration.component';
 import { ReachabilityPoiInIsoComponent } from './reachability-poi-in-iso/reachability-poi-in-iso.component';
@@ -29,10 +31,13 @@ import { ReachabilityIndicatorStatisticsComponent } from './reachability-indicat
 })
 export class ReachabilityScenarioModalComponent implements OnInit {
   protected reachabilityStateService = inject(ReachabilityStateService);
+  private envConfigService = inject(EnvConfigService);
   private multiStepHelperService = inject(MultiStepHelperServiceService);
   private broadcastService = inject(BroadcastService);
   protected reachabilityScenarioHelperService = inject(ReachabilityScenarioHelperService);
   private cdr = inject(ChangeDetectorRef);
+
+  private readonly destroyRef = inject(DestroyRef);
 
   activeModal = inject(NgbActiveModal);
   emptyDatasetName = '-- leerer neuer Datensatz --';
@@ -47,22 +52,24 @@ export class ReachabilityScenarioModalComponent implements OnInit {
   ngOnInit(): void {
     this.multiStepHelperService.registerClickHandler('reachabilityScenarioForm');
 
-    this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
-      const title = broadcastMsg.msg;
-      const values: any = broadcastMsg.values;
+    this.broadcastService.currentBroadcastMsg
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((broadcastMsg) => {
+        const title = broadcastMsg.msg;
+        const values: any = broadcastMsg.values;
 
-      switch (title) {
-        case BroadcastMessage.GeoresourceGeoJSONUpdated:
-          {
-            if (this.reachabilityStateService.settings.selectedStartPointLayer) {
-              this.reachabilityStateService.settings.selectedStartPointLayer.geoJSON_reachability =
-                values[0];
-              this.reachabilityStateService.settings.selectedStartPointLayer.geoJSON = values[0];
+        switch (title) {
+          case BroadcastMessage.GeoresourceGeoJSONUpdated:
+            {
+              if (this.reachabilityStateService.settings.selectedStartPointLayer) {
+                this.reachabilityStateService.settings.selectedStartPointLayer.geoJSON_reachability =
+                  values[0];
+                this.reachabilityStateService.settings.selectedStartPointLayer.geoJSON = values[0];
+              }
             }
-          }
-          break;
-      }
-    });
+            break;
+        }
+      });
   }
 
   onEditFeaturesClick() {
@@ -74,6 +81,14 @@ export class ReachabilityScenarioModalComponent implements OnInit {
 
   onClickAddScenario() {
     this.reachabilityScenarioHelperService.addReachabilityScenario();
+
+    // Snapshot is already taken by addReachabilityScenario() above, so it's safe to now
+    // clear the live session (POI selections/diagrams on step 4, map layers on steps 4+5,
+    // quick-calc locations/isochrones). Without this, those linger on the shared
+    // georesource store / map registries and corrupt the next quick-calc scenario, which
+    // reuses the same step components and DOM ids (only a reload currently clears them).
+    this.resetReachabilityScenarioForm();
+
     this.activeModal.close();
   }
 
@@ -99,63 +114,6 @@ export class ReachabilityScenarioModalComponent implements OnInit {
     );
   }
 
-  /* 	$('#modal-manage-reachability-scenario').on('show.bs.modal', function (event) {
-				if (event.target.id === "modal-manage-reachability-scenario") {
-					$scope.initEmptyDataset();
-				}
-			});
-
-			$('#modal-manage-reachability-scenario').on('hidden.bs.modal', function (event) {
-				if (event.target.id === "modal-manage-reachability-scenario") {
-					$scope.cleanEmptyDataset();
-				}
-			});
-
-			$scope.initEmptyDataset = function () {
-				// add empty dataset to displayableGeoresources
-				// ensure to remove it again, if modal gets closed
-
-				// create empty georesource dataset and geoJSON 
-				let emptyDataset = {
-					"georesourceId": uuidv4(),
-					"datasetName": $scope.emptyDatasetName,
-					"isNewReachabilityDataSource": true,
-					"isPOI": true,
-					"availablePeriodsOfValidity": [
-						{
-							"startDate": undefined,
-							"endDate": undefined
-						}
-					],
-					"poiMarkerColor": "orange",
-					"poiSymbolBootstrap3Name": "pushpin",
-					"poiSymbolColor": "white",
-				};
-
-				emptyDataset.geoJSON_reachability = {
-					"type": "FeatureCollection",
-					"features": []
-				};
-
-				kommonitorDataExchangeService.displayableGeoresources.splice(0, 0, emptyDataset)
-
-				$timeout(function () {
-					$scope.$digest();
-				}, 250);
-			};
-
-			$scope.cleanEmptyDataset = function () {
-				// remove empty dataset again
-				// only if user has not renamed it
-
-				if (kommonitorDataExchangeService.displayableGeoresources[0].datasetName === $scope.emptyDatasetName) {
-					kommonitorDataExchangeService.displayableGeoresources.splice(0, 1);
-				}
-
-			};
-
-
-  */
   resetReachabilityScenarioForm() {
     // resets both the wizard's own working data and the quick-calc session (locations/
     // isochrones shown independently on the main map), so "Zurücksetzen" clears
@@ -170,6 +128,10 @@ export class ReachabilityScenarioModalComponent implements OnInit {
     this.broadcastService.broadcast(BroadcastMessage.ResetReachabilityScenarioConfiguration);
     this.broadcastService.broadcast(BroadcastMessage.ResetPoisInIsochrone);
     this.broadcastService.broadcast(BroadcastMessage.ResetReachabilityIndicatorStatistics);
+
+    // jump the wizard back to step 1, since its cleared working data no longer matches
+    // whichever step the user was on
+    this.multiStepHelperService.resetToFirstStep('reachabilityScenarioForm');
   }
 
   onManageReachabilityScenario(scenarioDataset) {
@@ -251,7 +213,7 @@ export class ReachabilityScenarioModalComponent implements OnInit {
 					kommonitorReachabilityHelperService.settings.selectedStartPointLayer.schemaObject = response.data;
 
 					for (var property in kommonitorReachabilityHelperService.settings.selectedStartPointLayer.schemaObject) {
-						if (property != __env.FEATURE_ID_PROPERTY_NAME && property != __env.FEATURE_NAME_PROPERTY_NAME && property != __env.VALID_START_DATE_PROPERTY_NAME && property != __env.VALID_END_DATE_PROPERTY_NAME) {
+						if (property != this.envConfigService.FEATURE_ID_PROPERTY_NAME && property != this.envConfigService.FEATURE_NAME_PROPERTY_NAME && property != this.envConfigService.VALID_START_DATE_PROPERTY_NAME && property != this.envConfigService.VALID_END_DATE_PROPERTY_NAME) {
 							kommonitorReachabilityHelperService.settings.selectedStartPointLayer.featureSchemaProperties.push(
 								{
 									property: property,

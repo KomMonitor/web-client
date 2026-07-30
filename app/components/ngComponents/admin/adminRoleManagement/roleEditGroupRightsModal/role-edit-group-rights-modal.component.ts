@@ -1,19 +1,22 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnInit,
+  inject,
+} from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridOptions, GridReadyEvent } from 'ag-grid-community';
-import {
-  AccessControlMetadata,
-  KommonitorDataExchangeService,
-} from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { AdminRoleManagementService, RoleDelegatePutEntry } from '../admin-role-management.service';
-import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { NotificationService } from '../../../common/notification/notification.service';
@@ -26,7 +29,9 @@ import {
   collectSelectedPermissionIds,
   createAdvancedRoleComponents,
 } from '../advanced-role-permissions';
+import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-role-edit-group-rights-modal',
   templateUrl: './role-edit-group-rights-modal.component.html',
@@ -37,15 +42,19 @@ import {
     StepperComponent,
     ExpandableBoxComponent,
     LoadingOverlayComponent,
+    TranslateModule,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoleEditGroupRightsModalComponent implements OnInit {
   protected activeModal = inject(NgbActiveModal);
-  protected kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  private accessControlService = inject(AccessControlService);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private adminRoleManagementService = inject(AdminRoleManagementService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
 
   @Input() currentDataset!: AccessControlMetadata;
 
@@ -54,11 +63,10 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
   errorMessagePart: string | undefined;
   activeDelegatedRolesOnly: boolean = true;
 
-  protected steps: StepperStep[] = [
-    { label: 'Eigene Rechte an anderen Gruppen' },
-    { label: 'Rechte anderer Gruppen an gewählter Gruppe' },
-  ];
-  protected currentStep: number = 1;
+  protected readonly stepper = new WizardStepper([
+    { key: 'ownRights', label: 'ADMIN_SHARED_UI.STEP_LABELS.OWN_RIGHTS_OTHER_GROUPS' },
+    { key: 'foreignRights', label: 'ADMIN_SHARED_UI.STEP_LABELS.RIGHTS_OF_OTHER_GROUPS_SELECTED' },
+  ]);
 
   // Authority table (step 1, read-only)
   authorityColumnDefs: ColDef[] = [];
@@ -91,11 +99,17 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
         this.buildAuthorityTable(authorities.authorityRoles);
         this.buildDelegatedTable(delegates.roleDelegates);
         this.loadingData = false;
+        // Both grids' bound fields were rebuilt in this async callback — mark
+        // the OnPush view once instead of converting each field to a signal.
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error(err);
-        this.notificationService.showError('Die Rollendaten konnten nicht geladen werden.');
+        this.notificationService.showError(
+          this.translate.instant('ADMIN_ROLES.EDIT_RIGHTS_MODAL.MSG.LOAD_FAILED')
+        );
         this.loadingData = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -111,7 +125,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
       r.adminRoles.map((role) => `${r.organizationalUnitId}-${role}`)
     );
 
-    const access = this.kommonitorDataExchangeService.accessControl.filter((item) =>
+    const access = this.accessControlService.accessControl.filter((item) =>
       authorityRoleIds.includes(item.organizationalUnitId)
     );
 
@@ -130,6 +144,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
     this.authorityGridOptions = {
       ...baseOptions,
       paginationPageSize: 5,
+      paginationPageSizeSelector: [5, 10, 25, 50],
       headerHeight: 52,
       rowHeight: 42,
     };
@@ -150,7 +165,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
       this.activeDelegatedRolesOnly = false;
     }
 
-    const allAccess = this.kommonitorDataExchangeService.accessControl;
+    const allAccess = this.accessControlService.accessControl;
     this.allDelegatedRowData = buildAdvancedRoleRowData(allAccess, delegatedPermissionIds, false);
 
     const components = createAdvancedRoleComponents();
@@ -165,6 +180,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
     this.delegatedGridOptions = {
       ...baseOptions,
       paginationPageSize: 5,
+      paginationPageSizeSelector: [5, 10, 25, 50],
       headerHeight: 52,
       rowHeight: 42,
       onGridReady: (params: GridReadyEvent) => {
@@ -194,8 +210,9 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
       this.delegatedGridApi,
       this.delegatedRowData
     );
-    return buildRoleDelegatesPutBody(selectedPermissionIds, (id) =>
-      this.kommonitorDataExchangeService.getAccessControlById(id)
+    return buildRoleDelegatesPutBody(
+      selectedPermissionIds,
+      (id) => this.accessControlService.getAccessControlById(id) ?? undefined
     );
   }
 
@@ -210,13 +227,16 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
       .subscribe((result) => {
         if (result.success) {
           this.notificationService.showSuccess(
-            `Gruppenrechte für '${this.currentDataset.name}' erfolgreich aktualisiert.`
+            this.translate.instant('ADMIN_ROLES.EDIT_RIGHTS_MODAL.MSG.RIGHTS_UPDATED', {
+              name: this.currentDataset.name,
+            })
           );
           this.activeModal.close(true);
         } else {
           this.errorMessagePart = result.errorMessagePart;
           this.showErrorAlert = true;
           this.loadingData = false;
+          this.cdr.markForCheck();
         }
       });
   }

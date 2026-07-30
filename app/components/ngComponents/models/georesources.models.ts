@@ -1,3 +1,9 @@
+import {
+  CommonMetadataType,
+  GeoresourceOverviewType,
+  PeriodOfValidityType,
+} from 'models/data-management-api';
+
 export interface GeoresourcesTopicsHierarchy {
   aoiCount: number;
   aoiData: GeoresourcesDataset[];
@@ -22,55 +28,36 @@ export interface GeoresourcesTopicsHierarchy {
   isSelected: boolean;
 }
 
-export interface GeoresourcesDataset {
-  aoiColor: string | null | undefined;
-  availablePeriodsOfValidity: GeoresourcesDateFormat[] | null | undefined;
-  datasetName: string | null | undefined;
-  georesourceName: string | null | undefined;
-  geoJSON: any | null | undefined;
-  georesourceId: string | null | undefined;
-  isAOI: boolean;
-  isLOI: boolean;
-  isPOI: boolean;
-  isPublic: boolean;
-  isSelected: boolean;
-  loiColor: null | undefined;
-  loiDashArrayString: string | null | undefined;
-  loiWidth: number | null | undefined;
-  metadata: GeoresourcesMetadata;
-  ownerId: string | null | undefined;
-  permissions: string[];
-  poiMarkerColor: string | null | undefined;
-  poiMarkerStyle: string | null | undefined;
-  poiMarkerText: string | null | undefined;
-  poiSymbolBootstrap3Name: string | null | undefined;
-  poiSymbolColor: string | null | undefined;
-  selectedDate: GeoresourcesDateFormat | null | undefined;
-  topicReference: string;
-  userPermissions: any | null | undefined;
-  wfsUrl: string | null | undefined;
-  wmsUrl: string | null | undefined;
+/**
+ * Georesource metadata as delivered by the Data Management API
+ * (GeoresourceOverviewType), plus fields the web client attaches on top.
+ */
+export interface GeoresourcesDataset extends Omit<
+  GeoresourceOverviewType,
+  'availablePeriodsOfValidity' | 'ownerId'
+> {
+  /** loosened vs. the API type: client-created temporary data layers (file imports) carry placeholder periods without dates */
+  availablePeriodsOfValidity: Partial<PeriodOfValidityType>[];
+  /** loosened vs. the API type: unset on client-created temporary data layers */
+  ownerId?: string;
+  /** legacy alias of datasetName still used in some views */
+  georesourceName?: string | null;
+  /** attached client-side once georesource features have been loaded */
+  geoJSON?: any;
+  isSelected?: boolean;
+  /** client-side selection flag used by the reachability (POI-in-isochrone) analysis */
+  isSelected_reachabilityAnalysis?: boolean;
+  selectedDate?: PeriodOfValidityType | null;
   isTmpDataLayer?: boolean;
-  displayColor?: string | undefined;
-  type?: string | undefined;
-  transparency?: any | undefined;
-  featureSchema?: any | undefined;
-  dataRows?: any | undefined;
+  displayColor?: string;
+  type?: string;
+  transparency?: any;
+  featureSchema?: any;
+  dataRows?: any;
 }
 
-export interface GeoresourcesMetadata {
-  contact: string;
-  databasis: any;
-  datasource: string;
-  description: string;
-  lastUpdate: string;
-  literature: any;
-  note: any;
-  sridEPSG: any;
-  updateInterval: string;
-}
+/** @deprecated import CommonMetadataType from 'models/data-management-api' instead */
+export type GeoresourcesMetadata = CommonMetadataType;
 
-export interface GeoresourcesDateFormat {
-  endDate: string | undefined;
-  startDate: string | undefined;
-}
+/** @deprecated import PeriodOfValidityType from 'models/data-management-api' instead */
+export type GeoresourcesDateFormat = PeriodOfValidityType;

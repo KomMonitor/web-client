@@ -1,23 +1,27 @@
 <div class="modal-header">
-  <h4 class="modal-title">Skripte löschen</h4>
-  <button type="button" class="btn-close" aria-label="Schließen" (click)="close()">
+  <h4 class="modal-title">{{ 'ADMIN_SCRIPTS.DELETE_MODAL.TITLE' | translate }}</h4>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="close()"
+  >
     <!-- <span aria-hidden="true">&times;</span> -->
   </button>
 </div>
 
 <div class="modal-body">
   <!-- Loading Overlay -->
-  @if (loadingData) {
+  @if (loadingData()) {
     <div class="loading-overlay-admin-panel text-center">
       <i class="fas fa-spinner fa-spin fa-2x"></i>
     </div>
   }
 
-  <h4><b>Sollen die folgenden Skripte wirklich gelöscht werden?</b></h4>
-  <p>
-    Der jeweilige Ziel-Indikator kann dann nicht mehr automatisiert durch KomMonitor berechnet
-    werden.
-  </p>
+  <h4>
+    <b>{{ 'ADMIN_SCRIPTS.DELETE_MODAL.CONFIRM_QUESTION' | translate }}</b>
+  </h4>
+  <p>{{ 'ADMIN_SCRIPTS.DELETE_MODAL.CONFIRM_HINT' | translate }}</p>
 
   @if (datasetsToDelete.length > 0) {
     <div>
@@ -31,21 +35,22 @@
 
   @if (datasetsToDelete.length === 0) {
     <div>
-      <pre>
-        Kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert werden.</pre
-      >
+      <pre>        {{ 'ADMIN_SCRIPTS.DELETE_MODAL.NO_DATASET_SELECTED' | translate }}</pre>
     </div>
   }
 
   <!-- Success Alert -->
-  @if (showSuccessAlert) {
+  @if (showSuccessAlert()) {
     <div class="alert alert-success alert-dismissable">
       <button type="button" class="btn-close" (click)="hideSuccessAlert()" aria-hidden="true">
         &times;
       </button>
-      <h4><i class="icon fa fa-check"></i> Folgende Skripte wurden erfolgreich gelöscht</h4>
+      <h4>
+        <i class="icon fa fa-check"></i>
+        {{ 'ADMIN_SCRIPTS.DELETE_MODAL.DELETE_SUCCESS_TITLE' | translate }}
+      </h4>
       <ul>
-        @for (dataset of successfullyDeletedDatasets; track dataset) {
+        @for (dataset of successfullyDeletedDatasets(); track dataset) {
           <li>
             {{ dataset.name }}
           </li>
@@ -55,25 +60,28 @@
   }
 
   <!-- Error Alert -->
-  @if (showErrorAlert) {
+  @if (showErrorAlert()) {
     <div class="alert alert-danger alert-dismissable">
       <button type="button" class="btn-close" (click)="hideErrorAlert()" aria-hidden="true">
         &times;
       </button>
-      <h4><i class="icon fa fa-ban"></i> Löschen gescheitert</h4>
-      <p>Folgende Datensätze konnten nicht gelöscht werden.</p>
+      <h4>
+        <i class="icon fa fa-ban"></i>
+        {{ 'ADMIN_SCRIPTS.DELETE_MODAL.DELETE_FAILED_TITLE' | translate }}
+      </h4>
+      <p>{{ 'ADMIN_SCRIPTS.DELETE_MODAL.DELETE_FAILED_TEXT' | translate }}</p>
       <table
         class="table table-bordered table-condensed"
         style="width: 100%; overflow: auto; font-size: 11px"
       >
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Fehlermeldung</th>
+            <th>{{ 'ADMIN_SHARED.NAME' | translate }}</th>
+            <th>{{ 'ADMIN_SCRIPTS.DELETE_MODAL.ERROR_MESSAGE' | translate }}</th>
           </tr>
         </thead>
         <tbody>
-          @for (entry of failedDatasetsAndErrors; track entry) {
+          @for (entry of failedDatasetsAndErrors(); track entry) {
             <tr>
               <td>{{ entry[0].name }}</td>
               <td [innerHTML]="entry[1]"></td>
@@ -86,14 +94,16 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-outline-secondary" (click)="close()">Schließen</button>
+  <button type="button" class="btn btn-outline-secondary" (click)="close()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
   <div style="flex: 1"></div>
   <button
     type="button"
     class="btn btn-danger"
-    [disabled]="datasetsToDelete.length === 0 || loadingData"
+    [disabled]="datasetsToDelete.length === 0 || loadingData()"
     (click)="deleteScripts()"
   >
-    Skripte unwiderruflich löschen
+    {{ 'ADMIN_SCRIPTS.DELETE_MODAL.DELETE_PERMANENTLY' | translate }}
   </button>
 </div>

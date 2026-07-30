@@ -1,6 +1,11 @@
 import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
+import {
+  CategoricalClassificationItem,
+  isQualitativeMapping,
+  resolveCategoricalColor,
+} from 'components/ngComponents/models/classification.models';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
@@ -134,11 +139,16 @@ export class IndicatorAddComponent implements OnInit {
   isochronesRangeUnits;
   insertDatatableRowsInterval;
   intervalArr: any[] = [];
-  updateDiagramsInterval_areas;
 
   indicatorNameFilter = '';
   poiNameFilter = '';
   selectedIndicator: any = undefined;
+
+  /** Whether the currently selected indicator uses qualitative (categorical) classification. */
+  get selectedIndicatorIsCategorical(): boolean {
+    return isQualitativeMapping(this.selectedIndicator?.defaultClassificationMapping);
+  }
+
   selectedPoiLayer: any = undefined;
   availablePoiLayers: any[] = [];
   displayableIndicatorsByNameTimeseries;
@@ -259,6 +269,11 @@ export class IndicatorAddComponent implements OnInit {
         case BroadcastMessage.ReportingIsochronesCalculationFinished:
           {
             this.reportingIsochronesCalculationFinished(values);
+          }
+          break;
+        case BroadcastMessage.AbortReportGeneration:
+          {
+            this.onAbortPreparationClicked();
           }
           break;
       }
@@ -509,9 +524,10 @@ export class IndicatorAddComponent implements OnInit {
   async onChangeSelectedBaseMap() {
     // reinitiate page building from the scratch as easiest solution
     this.loadingData = true;
+    this.preparationNeeded = true;
 
     this.leafletScreenshotCacheHelperService.resetCounter_keepingCurrentTargetFeatures(false);
-    await this.initializeAllDiagrams();
+    // new user workflow: onTriggerPreparationClicked is the only place to start page generation
 
     this.loadingData = false;
   }
@@ -574,53 +590,10 @@ export class IndicatorAddComponent implements OnInit {
   
   */
 
-  initSelectedDualListOption() {
-    const updateDiagramsInterval = setInterval(
-      () => {
-        if (this.diagramsPrepared) {
-          clearInterval(updateDiagramsInterval); // code below still executes once
-        } else {
-          return;
-        }
-
-        setTimeout(async () => {
-          try {
-            // indicator selection is optional in reachability template only
-            if (this.selectedIndicator) {
-              for (const timestamp of this.selectedTimestamps) {
-                const classifyUsingWholeTimeseries = false;
-                const isTimeseries = false;
-                this.prepareDiagrams(
-                  this.selectedIndicator,
-                  this.selectedSpatialUnit,
-                  timestamp.name,
-                  classifyUsingWholeTimeseries,
-                  isTimeseries,
-                  undefined,
-                  undefined
-                );
-              }
-            } else {
-              this.reachabilityTemplateGeoMapOptions = this.prepareReachabilityEchartsMap();
-            }
-            await this.initializeAllDiagrams();
-            this.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
-          } catch (error) {
-            console.error('Auto-initialization after indicator selection failed:', error);
-            this.mapErrorNotificationService.displayMapApplicationError(error);
-          } finally {
-            this.loadingData = false;
-          }
-        });
-      },
-      0,
-      100
-    );
-  }
-
   async onSelectedAreasChanged(newVal) {
     if (typeof this.reportingService.clonedTemplate === 'undefined') return;
     this.loadingData = true;
+    this.preparationNeeded = true;
 
     this.selectedAreas = newVal;
 
@@ -651,40 +624,9 @@ export class IndicatorAddComponent implements OnInit {
     if (this.reportingService.clonedTemplate.name.includes('reachability'))
       this.updateAreasForReachabilityTemplates(newVal);
 
-    this.updateDiagramsInterval_areas = setInterval(
-      async () => {
-        if (this.diagramsPrepared) {
-          clearInterval(this.updateDiagramsInterval_areas); // code below still executes once
-        } else {
-          return;
-        }
-        // diagrams are prepared, but dom has to be updated first, too
-        // we could filter the geoJson here to only include selected areas
-        // but for now we get all areas and filter them out after
-        let justChanged = false;
-        if (this.isFirstUpdateOnIndicatorOrPoiLayerSelection) {
-          // Skip the update but set variable to false, so diagrams get updated on time update
-          // (relevant for indicator selection only)
-          this.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
-          justChanged = true;
-        }
-        if (
-          this.reportingService.clonedTemplate.name.includes('reachability') ||
-          (this.isFirstUpdateOnIndicatorOrPoiLayerSelection == false && justChanged == false)
-        ) {
-          try {
-            await this.initializeAllDiagrams();
-          } catch (error) {
-            console.error('Diagram re-initialization after area change failed:', error);
-            this.mapErrorNotificationService.displayMapApplicationError(error);
-          } finally {
-            this.loadingData = false;
-          }
-        }
-      },
-      0,
-      100
-    );
+    // skip automatic diagram update; page/diagram generation only starts once the
+    // user clicks "Vorschau & Report-Seiten generieren"
+    this.loadingData = false;
   }
 
   removeCircularReferences(pages) {
@@ -961,6 +903,7 @@ export class IndicatorAddComponent implements OnInit {
 
     if (typeof this.reportingService.clonedTemplate === 'undefined') return;
     this.loadingData = true;
+    this.preparationNeeded = true;
 
     // get difference between old and new value (the timestamps selected / deselected)
     const difference = oldVal
@@ -1141,53 +1084,9 @@ export class IndicatorAddComponent implements OnInit {
       }
     }
 
-    const updateDiagramsInterval = setInterval(
-      () => {
-        if (this.diagramsPrepared) {
-          clearInterval(updateDiagramsInterval); // code below still executes once
-        } else {
-          return;
-        }
-
-        setTimeout(async () => {
-          if (this.isFirstUpdateOnIndicatorOrPoiLayerSelection) {
-            // Skip the update but set variable to false, so diagrams get updated on time update
-            // (relevant for indicator selection only)
-            this.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
-          } else {
-            try {
-              // indicator selection is optional in reachability template only
-              if (this.selectedIndicator) {
-                for (const timestamp of this.selectedTimestamps) {
-                  const classifyUsingWholeTimeseries = false;
-                  const isTimeseries = false;
-                  this.prepareDiagrams(
-                    this.selectedIndicator,
-                    this.selectedSpatialUnit,
-                    timestamp.name,
-                    classifyUsingWholeTimeseries,
-                    isTimeseries,
-                    undefined,
-                    undefined
-                  );
-                }
-              } else {
-                this.reachabilityTemplateGeoMapOptions = this.prepareReachabilityEchartsMap();
-              }
-
-              await this.initializeAllDiagrams();
-            } catch (error) {
-              console.error('Diagram re-initialization after timestamp change failed:', error);
-              this.mapErrorNotificationService.displayMapApplicationError(error);
-            } finally {
-              this.loadingData = false;
-            }
-          }
-        });
-      },
-      0,
-      100
-    );
+    // skip automatic diagram update; page/diagram generation only starts once the
+    // user clicks "Vorschau & Report-Seiten generieren"
+    this.loadingData = false;
   }
 
   reportingConfigureNewIndicatorShown() {
@@ -1256,6 +1155,7 @@ export class IndicatorAddComponent implements OnInit {
   async onSpatialUnitChanged() {
     this.selectedSpatialUnit = this.spatialUnitSelect.value;
     this.loadingData = true;
+    this.preparationNeeded = true;
     this.displayableIndicatorsByNameReachability = this.indicatorStore.displayableIndicators
       .filter(
         (e: any) =>
@@ -1433,11 +1333,8 @@ export class IndicatorAddComponent implements OnInit {
           this.reachabilityTemplateGeoMapOptions = this.prepareReachabilityEchartsMap();
         }
 
-        await this.initializeAllDiagrams();
-        // if(!this.reportingService.clonedTemplate.name.includes("reachability")) {
-        // 	// in reachability template we have to update leaflet maps, too
-        // 	this.loadingData = false;
-        // }
+        // page/diagram generation only starts once the user clicks
+        // "Vorschau & Report-Seiten generieren"
         this.loadingData = false;
       });
     }, 1000);
@@ -1750,6 +1647,7 @@ export class IndicatorAddComponent implements OnInit {
   //async
   async onPoiLayerSelected(poiLayer) {
     try {
+      this.preparationNeeded = true;
       this.absoluteLabelPositions = [];
       this.diagramsPrepared = false;
       this.isFirstUpdateOnIndicatorOrPoiLayerSelection = true;
@@ -1871,6 +1769,11 @@ export class IndicatorAddComponent implements OnInit {
         for (const tab of allTabs) {
           this.enableTab(tab);
         }
+
+        // mark that preparation is required; actual page/diagram generation only
+        // starts once the user clicks "Vorschau & Report-Seiten generieren"
+        this.preparationNeeded = true;
+        this.loadingData = false;
       }, 1000);
     } catch (error) {
       console.error(error);
@@ -1898,26 +1801,6 @@ export class IndicatorAddComponent implements OnInit {
       this.updateAreasForTimeseriesTemplates(this.selectedAreas);
     if (this.reportingService.clonedTemplate.name.includes('reachability'))
       this.updateAreasForReachabilityTemplates(this.selectedAreas);
-
-    const updateDiagramsInterval = setInterval(
-      () => {
-        if (this.diagramsPrepared) {
-          clearInterval(updateDiagramsInterval); // code below still executes once
-        } else {
-          return;
-        }
-
-        setTimeout(async () => {
-          // indicator selection is optional in reachability template only
-
-          await this.initializeAllDiagrams();
-          this.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
-          this.loadingData = false;
-        });
-      },
-      0,
-      100
-    );
   }
 
   calculateOverallBoundingBoxFromGeoJSON(features) {
@@ -2126,7 +2009,11 @@ export class IndicatorAddComponent implements OnInit {
       this.selectedIndicator = indicator;
 
       // get a new template (in case another indicator was selected previously)
-      //this.reportingService.clonedTemplate = this.getCleanTemplate();
+      this.reportingService.resetTemplateClone();
+      this.setAreaSpecificPagesVisibility();
+      for (const page of this.reportingService.clonedTemplate.pages) {
+        page.id = this.templatePageIdCounter++;
+      }
       this.reportingService.clonedTemplate.pageConfig = this.pageConfig;
 
       // set spatial unit to highest available one
@@ -2294,14 +2181,16 @@ export class IndicatorAddComponent implements OnInit {
         if (this.reportingService.clonedTemplate.name.includes('reachability'))
           this.updateAreasForReachabilityTemplates(areasListInput);
 
-        // call initSelectedDualListOption, as the selected Items have not been processed yet - only been selected on the dual lists
-        this.initSelectedDualListOption();
-
         if (this.selectedAreas.length > 0)
           this.leafletScreenshotCacheHelperService.resetCounter(
             this.selectedAreas.length + 1,
             false
           );
+
+        // mark that preparation is required; actual page/diagram generation only
+        // starts once the user clicks "Vorschau & Report-Seiten generieren"
+        this.preparationNeeded = true;
+        this.loadingData = false;
       }, 1000);
     } catch (error) {
       console.error(error);
@@ -2365,7 +2254,7 @@ export class IndicatorAddComponent implements OnInit {
       georesourceId: this.selectedPoiLayer ? this.selectedPoiLayer.georesourceId : '',
       spatialUnitName:
         this.selectedSpatialUnit.spatialUnitName ?? this.selectedSpatialUnit.spatialUnitLevel,
-      absoluteLabelPositions: this.reportingService.clonedTemplate.absoluteLabelPositions,
+      absoluteLabelPositions: this.absoluteLabelPositions,
       echartsRegisteredMapNames: this.echartsRegisteredMapNames,
       echartsMaps: [],
       pageConfig: jQuery.extend(true, {}, this.pageConfig),
@@ -2378,60 +2267,11 @@ export class IndicatorAddComponent implements OnInit {
       (e) => e.hidden !== true
     );
 
-    // for each page: add echarts configuration objects to the template
-    for (const [idx, page] of this.reportingService.clonedTemplate.pages.entries()) {
-      const pageDom: any = document.querySelector('#reporting-addIndicator-page-' + idx);
-
-      for (const pageElement of page.pageElements) {
-        let pElementDom;
-        if (pageElement.type === 'linechart') {
-          const arr = pageDom.querySelectorAll('.type-linechart');
-          if (pageElement.showPercentageChangeToPrevTimestamp) {
-            pElementDom = arr[1];
-          } else {
-            pElementDom = arr[0];
-          }
-        } else {
-          pElementDom = pageDom.querySelector(
-            '#reporting-addIndicator-page-' + idx + '-' + pageElement.type
-          );
-        }
-
-        if (
-          pageElement.type === 'map' ||
-          pageElement.type === 'barchart' ||
-          pageElement.type === 'linechart'
-        ) {
-          const instance: any = echarts.getInstanceByDom(pElementDom);
-          const options = JSON.parse(JSON.stringify(instance.getOption()));
-          pageElement.echartsOptions = options;
-
-          // for reachability we also have the leaflet bbox stored already
-          // store legend for first page
-        }
-
-        if (pageElement.type === 'datatable') {
-          // add some properties so we can recreate the table later
-          const columnHeaders = pageDom.querySelectorAll('th');
-          const columnNames: any[] = [];
-          for (const header of columnHeaders) {
-            columnNames.push(header.innerText);
-          }
-          pageElement.columnNames = columnNames;
-          const tableData: any[] = [];
-          const rows = pageDom.querySelectorAll('tbody tr');
-          for (const row of rows) {
-            const rowData: any[] = [];
-            const fields = row.querySelectorAll('td');
-            for (const field of fields) {
-              rowData.push(field.innerText);
-            }
-            tableData.push(rowData);
-          }
-          pageElement.tableData = tableData; // [ [...], [...], [...] ]
-        }
-      }
-
+    // echarts configs / table data were already captured onto each page/pageElement by
+    // preparePageForIndicatorAdd during generation (page.generatedData, pageElement.echartsOptions,
+    // pageElement.tableData) — most pages are never rendered into the visible preview DOM (only the
+    // first few area-specific/datatable pages are), so it can't be re-scraped from the DOM here.
+    for (const page of this.reportingService.clonedTemplate.pages) {
       page.templateSection = templateSection;
     }
 
@@ -2712,6 +2552,11 @@ export class IndicatorAddComponent implements OnInit {
       fadeAnimation: false,
       zoomAnimation: false,
     });
+    // Leaflet caches the container size at construction time; force it to re-measure
+    // now (after our explicit width/height are applied) so fitBounds() below computes
+    // against the real size instead of a stale/zero one — otherwise only the fraction
+    // of the container Leaflet thinks is visible gets tiles (classic top-left-only bug).
+    leafletMap.invalidateSize(false);
     // manually create a field for attribution so we can control the z-index.
     const prevAttributionDiv = pageDom.querySelector('.map-attribution');
     if (prevAttributionDiv) prevAttributionDiv.remove();
@@ -2862,7 +2707,14 @@ export class IndicatorAddComponent implements OnInit {
       });
     });
 
-    leafletMap.invalidateSize(false);
+    // give the browser a beat to settle layout before Leaflet measures the container;
+    // only then add the tile layer, so its tile grid is computed against the real size
+    await new Promise<void>((resolve) => {
+      setTimeout(() => {
+        leafletMap.invalidateSize(false);
+        resolve();
+      }, 100);
+    });
     leafletLayer.addTo(leafletMap);
 
     const dataUrl = await screenshotPromise;
@@ -3028,21 +2880,29 @@ export class IndicatorAddComponent implements OnInit {
           // get color from visual map to overwrite yellow color
           let color = 'rgba(0, 0, 0, 0.5)';
           let opacity = 1;
-          for (const [idx, piece] of options.visualMap.pieces.entries()) {
-            // for the last index (highest value) value can equal the upper boundary
-            if (idx === options.visualMap.pieces.length - 1) {
-              if (piece.min <= el.value && el.value <= piece.max) {
+          if (this.selectedIndicatorIsCategorical) {
+            // categorical values are matched by category, not by numeric range
+            color = resolveCategoricalColor(
+              el.value,
+              this.selectedIndicator.defaultClassificationMapping?.categoricalData ?? []
+            );
+          } else {
+            for (const [idx, piece] of options.visualMap.pieces.entries()) {
+              // for the last index (highest value) value can equal the upper boundary
+              if (idx === options.visualMap.pieces.length - 1) {
+                if (piece.min <= el.value && el.value <= piece.max) {
+                  color = piece.color;
+                  opacity = piece.opacity;
+                  break;
+                }
+              }
+
+              // for all other pieces check if it is withing the boundaries, (including lower one, excluding upper one)
+              if (piece.min <= el.value && el.value < piece.max) {
                 color = piece.color;
                 opacity = piece.opacity;
                 break;
               }
-            }
-
-            // for all other pieces check if it is withing the boundaries, (including lower one, excluding upper one)
-            if (piece.min <= el.value && el.value < piece.max) {
-              color = piece.color;
-              opacity = piece.opacity;
-              break;
             }
           }
           el.label.show = true;
@@ -3177,8 +3037,9 @@ export class IndicatorAddComponent implements OnInit {
     });
     const timestamp = dateElement.text;
 
+    // categorical indicators have no numeric average (see calculateAvg)
     const avg = this.calculateAvg(this.selectedIndicator, timestamp, calcForSelection);
-    pageElement.text = avg;
+    pageElement.text = avg ?? '';
     pageElement.css = 'border: solid 1px lightgray; padding: 2px;';
     pageElement.isPlaceholder = false;
   }
@@ -3187,8 +3048,9 @@ export class IndicatorAddComponent implements OnInit {
     // get the timeseries from slider, not from dom because dom might not be up to date yet
     const timeseries = this.getFormattedDateSliderValues(true);
 
+    // categorical indicators have no numeric "change over time" (see calculateChange)
     const change = this.calculateChange(this.selectedIndicator, timeseries, calcForSelection);
-    pageElement.text = change;
+    pageElement.text = change ?? '';
     pageElement.css = 'border: solid 1px lightgray; padding: 2px;';
     pageElement.isPlaceholder = false;
   }
@@ -3248,50 +3110,55 @@ export class IndicatorAddComponent implements OnInit {
       }
     });
 
-    // add data element for the overall average
-    const overallAvgValue = this.calculateAvg(this.selectedIndicator, timestamp, false);
-    const overallAvgElementName =
-      page.area && page.area.length
-        ? 'Durchschnitt\nder\nRaumeinheit'
-        : 'Durchschnitt der Raumeinheit';
-    const dataObjOverallAvg: any = {
-      name: overallAvgElementName,
-      value: overallAvgValue,
-      opacity: 1,
-    };
-    // get color for avg from visual map and disable opacity
-    let colorOverallAvg = '';
-    for (const piece of options.visualMap[0].pieces) {
-      if (piece.min <= dataObjOverallAvg.value && dataObjOverallAvg.value < piece.max) {
-        colorOverallAvg = piece.color;
+    // add average bars - skipped for categorical indicators, which have no meaningful average
+    if (!this.selectedIndicatorIsCategorical) {
+      // add data element for the overall average
+      const overallAvgValue = this.calculateAvg(this.selectedIndicator, timestamp, false);
+      const overallAvgElementName =
+        page.area && page.area.length
+          ? 'Durchschnitt\nder\nRaumeinheit'
+          : 'Durchschnitt der Raumeinheit';
+      const dataObjOverallAvg: any = {
+        name: overallAvgElementName,
+        value: overallAvgValue,
+        opacity: 1,
+      };
+      // get color for avg from visual map and disable opacity
+      let colorOverallAvg = '';
+      for (const piece of options.visualMap[0].pieces) {
+        if (piece.min <= dataObjOverallAvg.value && dataObjOverallAvg.value < piece.max) {
+          colorOverallAvg = piece.color;
+        }
+        piece.opacity = 1;
       }
-      piece.opacity = 1;
-    }
-    dataObjOverallAvg.color = colorOverallAvg;
-    options.series[0].data.push(dataObjOverallAvg);
-    options.xAxis.data.push(dataObjOverallAvg.name);
+      dataObjOverallAvg.color = colorOverallAvg;
+      options.series[0].data.push(dataObjOverallAvg);
+      options.xAxis.data.push(dataObjOverallAvg.name);
 
-    // same for selection average
-    // add more data elements for the overall and selection average
-    const selectionAvgValue = this.calculateAvg(this.selectedIndicator, timestamp, true);
-    const selectionAvgElementName =
-      page.area && page.area.length ? 'Durchschnitt\nder\nSelektion' : 'Durchschnitt der Selektion';
-    const dataObjSelectionAvg: any = {
-      name: selectionAvgElementName,
-      value: selectionAvgValue,
-      opacity: 1,
-    };
-    // get color for avg from visual map and disable opacity
-    let colorSelectionAvg = '';
-    for (const piece of options.visualMap[0].pieces) {
-      if (piece.min <= dataObjSelectionAvg.value && dataObjSelectionAvg.value < piece.max) {
-        colorSelectionAvg = piece.color;
+      // same for selection average
+      // add more data elements for the overall and selection average
+      const selectionAvgValue = this.calculateAvg(this.selectedIndicator, timestamp, true);
+      const selectionAvgElementName =
+        page.area && page.area.length
+          ? 'Durchschnitt\nder\nSelektion'
+          : 'Durchschnitt der Selektion';
+      const dataObjSelectionAvg: any = {
+        name: selectionAvgElementName,
+        value: selectionAvgValue,
+        opacity: 1,
+      };
+      // get color for avg from visual map and disable opacity
+      let colorSelectionAvg = '';
+      for (const piece of options.visualMap[0].pieces) {
+        if (piece.min <= dataObjSelectionAvg.value && dataObjSelectionAvg.value < piece.max) {
+          colorSelectionAvg = piece.color;
+        }
+        piece.opacity = 1;
       }
-      piece.opacity = 1;
+      dataObjSelectionAvg.color = colorSelectionAvg;
+      options.series[0].data.push(dataObjSelectionAvg);
+      options.xAxis.data.push(dataObjSelectionAvg.name);
     }
-    dataObjSelectionAvg.color = colorSelectionAvg;
-    options.series[0].data.push(dataObjSelectionAvg);
-    options.xAxis.data.push(dataObjSelectionAvg.name);
 
     options.series[0].emphasis.itemStyle = {}; // don't show border on hover
 
@@ -3542,8 +3409,11 @@ export class IndicatorAddComponent implements OnInit {
     // sort by area name
     rowsData.sort((a, b) => a.name.localeCompare(b.name));
 
-    // append average as last row if needed
-    if (this.reportingService.clonedTemplate.name.includes('timestamp')) {
+    // append average as last row if needed - categorical values have no meaningful average
+    if (
+      this.reportingService.clonedTemplate.name.includes('timestamp') &&
+      !this.selectedIndicatorIsCategorical
+    ) {
       rowsData.push({
         name: 'Durchschnitt Selektion',
         value: this.calculateAvg(this.selectedIndicator, timestamp, true),
@@ -3715,6 +3585,11 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   calculateAvg(indicator, timestamp, calcForSelection) {
+    // categorical values have no numeric average - callers must not display this as a value
+    if (isQualitativeMapping(indicator?.defaultClassificationMapping)) {
+      return null;
+    }
+
     // calculate avg from geoJSON property, which should be the currently selected spatial unit
     let features = indicator.geoJSON.features;
     if (calcForSelection) {
@@ -3743,6 +3618,11 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   calculateChange(indicator, timeseries, calcForSelection) {
+    // categorical values have no numeric "change over time" - callers must not display this as a value
+    if (isQualitativeMapping(indicator?.defaultClassificationMapping)) {
+      return null;
+    }
+
     let data = this.calculateSeriesDataForTimeseries(indicator.geoJSON.features, timeseries);
     if (calcForSelection) {
       data = data.filter((el) => {
@@ -3788,7 +3668,13 @@ export class IndicatorAddComponent implements OnInit {
     // must be treated as dynamic indicator
     const indicator = JSON.parse(JSON.stringify(selectedIndicator));
     const targetTimestamp = timestampName;
-    if (isTimeseries) {
+    const isCategorical = isQualitativeMapping(indicator.defaultClassificationMapping);
+    const categoricalData: CategoricalClassificationItem[] =
+      indicator.defaultClassificationMapping?.categoricalData ?? [];
+
+    // qualitative indicators have no numeric "change over time" concept - the
+    // timeseries/dynamic reinterpretation below only applies to numeric indicators
+    if (isTimeseries && !isCategorical) {
       const indicatorType = indicator.indicatorType;
       if (indicatorType.includes('ABSOLUTE')) {
         indicator.indicatorType = 'DYNAMIC_ABSOLUTE';
@@ -3819,38 +3705,46 @@ export class IndicatorAddComponent implements OnInit {
     }
 
     const timestampPrefix = this.envConfigService.indicatorDatePrefix + timestampName;
-    const numClasses = indicator.defaultClassificationMapping.numClasses
-      ? indicator.defaultClassificationMapping.numClasses
-      : 5;
-    const colorCodeStandard = indicator.defaultClassificationMapping.colorBrewerSchemeName;
-    const colorCodePositiveValues =
-      this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues;
-    const colorCodeNegativeValues =
-      this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues;
-    const classifyMethod = this.envConfigService.defaultClassifyMethod;
 
-    // setup brew
-    const defaultBrew = this.visualStyleHelperService.setupDefaultBrew(
-      indicator.geoJSON,
-      timestampPrefix,
-      numClasses,
-      colorCodeStandard,
-      classifyMethod,
-      true,
-      selectedIndicator
-    );
-    //let manualBrew = kommonitorVisualStyleHelperService.setupManualBrew(indicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod, true, selectedIndicator);
-    const dynamicBrewsArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
-      indicator.geoJSON,
-      timestampPrefix,
-      colorCodePositiveValues,
-      colorCodeNegativeValues,
-      classifyMethod,
-      numClasses,
-      ''
-    );
-    const dynamicIncreaseBrew = dynamicBrewsArray[0];
-    const dynamicDecreaseBrew = dynamicBrewsArray[1];
+    // categorical indicators have no numeric classes/breaks/classify method - the
+    // brew setup below is a purely quantitative concept and is skipped entirely
+    let defaultBrew;
+    let dynamicIncreaseBrew;
+    let dynamicDecreaseBrew;
+    if (!isCategorical) {
+      const numClasses = indicator.defaultClassificationMapping.numClasses
+        ? indicator.defaultClassificationMapping.numClasses
+        : 5;
+      const colorCodeStandard = indicator.defaultClassificationMapping.colorBrewerSchemeName;
+      const colorCodePositiveValues =
+        this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues;
+      const colorCodeNegativeValues =
+        this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues;
+      const classifyMethod = this.envConfigService.defaultClassifyMethod;
+
+      // setup brew
+      defaultBrew = this.visualStyleHelperService.setupDefaultBrew(
+        indicator.geoJSON,
+        timestampPrefix,
+        numClasses,
+        colorCodeStandard,
+        classifyMethod,
+        true,
+        selectedIndicator
+      );
+      //let manualBrew = kommonitorVisualStyleHelperService.setupManualBrew(indicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod, true, selectedIndicator);
+      const dynamicBrewsArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
+        indicator.geoJSON,
+        timestampPrefix,
+        colorCodePositiveValues,
+        colorCodeNegativeValues,
+        classifyMethod,
+        numClasses,
+        ''
+      );
+      dynamicIncreaseBrew = dynamicBrewsArray[0];
+      dynamicDecreaseBrew = dynamicBrewsArray[1];
+    }
 
     // setup diagram resources
     this.diagramHelperService.prepareAllDiagramResources_forReportingIndicator(
@@ -3864,7 +3758,9 @@ export class IndicatorAddComponent implements OnInit {
       dynamicDecreaseBrew,
       false,
       0,
-      true
+      true,
+      isCategorical,
+      categoricalData
     );
     // at this point the echarts instance has one map registered (geoMapChart).
     // that is the "default" map, which can be used to create individual maps for indicator + date + spatialUnit (+ area) combinations later
@@ -3875,7 +3771,7 @@ export class IndicatorAddComponent implements OnInit {
     this.envConfigService.classifyZeroSeparately = classifyZeroSeparately_backup;
 
     // copy and save echarts options so we can re-use them later
-    if (isTimeseries) {
+    if (isTimeseries && !isCategorical) {
       timestampName += '_relative'; // save relative indicator separately
     }
     this.echartsOptions.map[timestampName] = JSON.parse(
@@ -3891,7 +3787,7 @@ export class IndicatorAddComponent implements OnInit {
     );
 
     // if is timeseries then the original value for the toDate timestamp must be used instead of the computed change value above
-    if (isTimeseries) {
+    if (isTimeseries && !isCategorical) {
       // series[0] is average line
       // replace the value for same index same toDate
       const originalFeatures = selectedIndicator.geoJSON.features;
@@ -4040,12 +3936,16 @@ export class IndicatorAddComponent implements OnInit {
     this.loadingData = true;
     this.abortPreparation = false;
     this.preparationNeeded = false;
+    this.reportingService.reportGenerationInProgress = true;
+    this.reportingService.reportStatus = 'preparing';
+    this.reportingService.reportProgress = 0;
     try {
       await this.initializeAllDiagrams();
     } catch (error) {
       console.error('Report preparation failed:', error);
       this.mapErrorNotificationService.displayMapApplicationError(error);
       this.preparationNeeded = true;
+      this.reportingService.reportGenerationInProgress = false;
     } finally {
       this.loadingData = false;
     }
@@ -4054,6 +3954,7 @@ export class IndicatorAddComponent implements OnInit {
   onAbortPreparationClicked() {
     this.abortPreparation = true;
     this.preparationNeeded = true;
+    this.reportingService.reportGenerationInProgress = false;
   }
 
   // async
@@ -4106,8 +4007,14 @@ export class IndicatorAddComponent implements OnInit {
     let totalPreparedCount = 0;
 
     for (let i = 0; i < this.reportingService.clonedTemplate.pages.length; i++) {
-      if (this.abortPreparation) return;
-      if (!this.reportingService.clonedTemplate) return;
+      if (this.abortPreparation) {
+        this.reportingService.reportGenerationInProgress = false;
+        return;
+      }
+      if (!this.reportingService.clonedTemplate) {
+        this.reportingService.reportGenerationInProgress = false;
+        return;
+      }
 
       const page = this.reportingService.clonedTemplate.pages[i];
       if (this.isPageInPreview(page, i)) {
@@ -4115,18 +4022,29 @@ export class IndicatorAddComponent implements OnInit {
         processedPageIds.add(page.id);
         totalPreparedCount++;
         this.pagePreparationIndex = i;
+        this.reportingService.reportProgress = Math.round(
+          (totalPreparedCount / this.pagePreparationSize) * 100
+        );
       }
     }
 
     // Phase 2: Process remaining background pages
     for (let i = 0; i < this.reportingService.clonedTemplate.pages.length; i++) {
-      if (this.abortPreparation) return;
-      if (!this.reportingService.clonedTemplate) return;
+      if (this.abortPreparation) {
+        this.reportingService.reportGenerationInProgress = false;
+        return;
+      }
+      if (!this.reportingService.clonedTemplate) {
+        this.reportingService.reportGenerationInProgress = false;
+        return;
+      }
       if (
         !this.selectedIndicator &&
         !this.reportingService.clonedTemplate.name.includes('reachability')
-      )
+      ) {
+        this.reportingService.reportGenerationInProgress = false;
         return;
+      }
 
       const page = this.reportingService.clonedTemplate.pages[i];
       if (!processedPageIds.has(page.id)) {
@@ -4134,11 +4052,24 @@ export class IndicatorAddComponent implements OnInit {
         processedPageIds.add(page.id);
         totalPreparedCount++;
         this.pagePreparationIndex = i;
+        this.reportingService.reportProgress = Math.round(
+          (totalPreparedCount / this.pagePreparationSize) * 100
+        );
       }
     }
 
     this.lastPageOfAddedSectionPrepared = true;
     this.pagePreparationIndex = this.pagePreparationSize;
+    this.reportingService.reportStatus = 'finished';
+    this.reportingService.reportProgress = 100;
+    this.reportingService.reportCountdown = 5;
+    const countdownInterval = setInterval(() => {
+      this.reportingService.reportCountdown--;
+      if (this.reportingService.reportCountdown <= 0) {
+        clearInterval(countdownInterval);
+        this.reportingService.reportGenerationInProgress = false;
+      }
+    }, 1000);
 
     // Enable optional tabs for reachability after preparation is finished
     if (this.reportingService.clonedTemplate.name.includes('-reachability')) {
@@ -4242,6 +4173,9 @@ export class IndicatorAddComponent implements OnInit {
           );
           pageElement.isPlaceholder = false;
           page.generatedData.echarts[pageElement.type] = map.getDataURL({ pixelRatio: 2 });
+          // pageElement.echartsOptions (incl. the custom projection functions) is already
+          // set by initLeafletMapBeneathEchartsMap above — do not overwrite it with a
+          // JSON-cloned copy, which would silently drop those functions
 
           if (isPreview) {
             const previewEl =
@@ -4280,9 +4214,15 @@ export class IndicatorAddComponent implements OnInit {
         case 'barchart': {
           this.createPageElement_BarChartDiagram(pElementDom, page);
           pageElement.isPlaceholder = false;
-          page.generatedData.echarts[pageElement.type] = (
-            echarts.getInstanceByDom(pElementDom) as any
-          )?.getDataURL({ pixelRatio: 2 });
+          const barChartInstance = echarts.getInstanceByDom(pElementDom) as any;
+          page.generatedData.echarts[pageElement.type] = barChartInstance?.getDataURL({
+            pixelRatio: 2,
+          });
+          if (barChartInstance) {
+            // keep the object as returned by getOption() (not a JSON-cloned copy) so any
+            // function-valued option properties (formatters etc.) survive
+            pageElement.echartsOptions = barChartInstance.getOption();
+          }
           if (isPreview) {
             const previewEl = document.querySelector(
               '#reporting-addIndicator-page-' + idx + '-' + pageElement.type
@@ -4300,9 +4240,13 @@ export class IndicatorAddComponent implements OnInit {
           const chartKey = pageElement.showPercentageChangeToPrevTimestamp
             ? 'linechart_perc'
             : 'linechart';
-          page.generatedData.echarts[chartKey] = (
-            echarts.getInstanceByDom(pElementDom) as any
-          )?.getDataURL({ pixelRatio: 2 });
+          const lineChartInstance = echarts.getInstanceByDom(pElementDom) as any;
+          page.generatedData.echarts[chartKey] = lineChartInstance?.getDataURL({ pixelRatio: 2 });
+          if (lineChartInstance) {
+            // keep the object as returned by getOption() (not a JSON-cloned copy) so any
+            // function-valued option properties (formatters etc.) survive
+            pageElement.echartsOptions = lineChartInstance.getOption();
+          }
           if (isPreview) {
             const allLinechartEls = document.querySelectorAll(
               '#reporting-addIndicator-page-' + idx + ' .type-linechart'
@@ -4339,6 +4283,28 @@ export class IndicatorAddComponent implements OnInit {
             }
           }
           this.createPageElement_Datatable(pElementDom, page);
+
+          // capture the rendered table now; background pages never reach the visible
+          // preview DOM, so this can't be scraped later when the section is added
+          const columnHeaders = Array.from(pElementDom.querySelectorAll('th'));
+          const columnNames: any[] = [];
+          for (const header of columnHeaders) {
+            columnNames.push((header as HTMLElement).innerText);
+          }
+          pageElement.columnNames = columnNames;
+
+          const tableData: any[] = [];
+          const rows = Array.from(pElementDom.querySelectorAll('tbody tr'));
+          for (const row of rows) {
+            const rowData: any[] = [];
+            const fields = Array.from((row as HTMLElement).querySelectorAll('td'));
+            for (const field of fields) {
+              rowData.push((field as HTMLElement).innerText);
+            }
+            tableData.push(rowData);
+          }
+          pageElement.tableData = tableData;
+          page.generatedData.tableData = tableData;
           break;
         }
       }
@@ -4586,6 +4552,7 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   onChangeDateSliderInterval() {
+    this.preparationNeeded = true;
     this.loadingData = true;
     // needed to tell angular something has changed
 
@@ -4629,22 +4596,9 @@ export class IndicatorAddComponent implements OnInit {
       }
     }
 
-    const updateDiagramsInterval = setInterval(
-      () => {
-        if (this.diagramsPrepared) {
-          clearInterval(updateDiagramsInterval); // code below still executes once
-        } else {
-          return;
-        }
-        // diagrams are prepared, but dom has to be updated first, too
-        setTimeout(async () => {
-          await this.initializeAllDiagrams();
-          this.loadingData = false;
-        });
-      },
-      0,
-      100
-    );
+    // page/diagram generation only starts once the user clicks
+    // "Vorschau & Report-Seiten generieren"
+    this.loadingData = false;
   }
 
   getFormattedDateSliderValues(includeInBetweenValues) {

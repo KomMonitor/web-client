@@ -1,236 +1,76 @@
 <div>
-  <h2 class="fs-title">Klassifizierungsoptionen</h2>
-  <h3 class="fs-subtitle">Angaben über die Standard-Klassifizierung des Indikators</h3>
+  <h2 class="fs-title">{{ 'ADMIN_INDICATORS.CLASSIFICATION_OPTIONS' | translate }}</h2>
+  <h3 class="fs-subtitle">{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.SUBTITLE' | translate }}</h3>
   <p class="text-center">
-    <b><i>* = Pflichtfeld</i></b>
+    <b
+      ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+    >
   </p>
 
-  <!-- STATUS indicator types: user picks the color palette -->
-  @if (state.indicatorType?.apiName?.includes('STATUS')) {
-    <div class="palette-row">
-      <div class="form-group">
-        <label class="inline-label">Farbpalette*</label>
-        <div class="control-inline">
-          <app-color-palette-select
-            [selectedColorScheme]="state.selectedColorBrewerPaletteEntry?.paletteName"
-            (colorSchemeSelected)="state.onColorSchemeSelected($event)"
-          ></app-color-palette-select>
-        </div>
-      </div>
-      <div class="form-group palette-preview">
-        <label class="inline-label">derzeit selektiert:</label>
-        <app-color-palette-swatch
-          [colors]="state.getSelectedPaletteColors()"
-        ></app-color-palette-swatch>
-      </div>
-    </div>
-    <!-- <p class="fs-note text-center">
-      Sollte der Indikator negative und positive Werte enthalten, so wird in KomMonitor
-      standardmäßig folgende zweifarbige Klassifizierung verwendet
-    </p>
-    <div class="row vertical-align">
-      <div class="col-md-6 col-sm-6 col-12 text-center">
-        <div class="form-group palette-preview">
-          <label class="inline-label">Farbspektrum für negative Werte:</label>
-          <app-color-palette-swatch
-            [colors]="state.getDynamicSchemeColors('decrease')"
-          ></app-color-palette-swatch>
-        </div>
-      </div>
-      <div class="col-md-6 col-sm-6 col-12 text-center">
-        <div class="form-group palette-preview">
-          <label class="inline-label">Farbspektrum für positive Werte:</label>
-          <app-color-palette-swatch
-            [colors]="state.getDynamicSchemeColors('increase')"
-          ></app-color-palette-swatch>
-        </div>
-      </div>
-    </div> -->
-  }
+  <!-- Numeric vs. categorical classification type switch -->
+  <app-classification-type-toggle></app-classification-type-toggle>
 
-  <!-- DYNAMIC indicator types: fixed two-color scheme, informational only -->
-  @if (state.indicatorType?.apiName?.includes('DYNAMIC')) {
-    <p class="fs-note text-center">
-      Da ein dynamischer Indikatortyp ('{{ state.indicatorType?.displayName }}') konfiguriert wurde,
-      ist hier keine Farbauswahl erforderlich. Es wird folgende zweifarbige Standard-Klassifizierung
-      verwendet
-    </p>
-    <div class="row vertical-align">
-      <div class="col-md-6 col-sm-6 col-12 text-center">
-        <div class="form-group palette-preview">
-          <label class="inline-label">Farbspektrum für negative Werte:</label>
-          <app-color-palette-swatch
-            [colors]="state.getDynamicSchemeColors('decrease')"
-          ></app-color-palette-swatch>
-        </div>
-      </div>
-      <div class="col-md-6 col-sm-6 col-12 text-center">
-        <div class="form-group palette-preview">
-          <label class="inline-label">Farbspektrum für positive Werte:</label>
-          <app-color-palette-swatch
-            [colors]="state.getDynamicSchemeColors('increase')"
-          ></app-color-palette-swatch>
-        </div>
-      </div>
-    </div>
-  }
+  <!-- ============================ NUMERIC ============================ -->
+  @if (state.classification.isNumeric) {
+    <!-- STATUS indicator types: user picks the color palette -->
+    @if (state.indicatorType?.apiName?.includes('STATUS')) {
+      <app-classification-palette-picker></app-classification-palette-picker>
+    }
 
-  <!-- Classification method + class count (centered, stacked) -->
-  <div class="centered-field">
-    <label>Klassifizierungsmethode*</label>
-    <div class="control-inline">
-      <app-classification-method-select
-        [defaultMethodId]="state.classificationMethod"
-        [hiddenMethodIds]="['manual']"
-        (onMethodSelect)="state.onClassificationMethodSelected($event)"
-      ></app-classification-method-select>
-    </div>
-  </div>
-  <div class="centered-field">
-    <label>Anzahl Klassen pro Raumebene*</label>
-    <select
-      [(ngModel)]="state.numClassesPerSpatialUnit"
-      name="numClassesPerSpatialUnit"
-      (ngModelChange)="state.onNumClassesChanged($event)"
-      class="form-control"
-      required
-    >
-      @for (numClass of state.numClassesArray; track numClass) {
-        <option [ngValue]="numClass">{{ numClass }}</option>
-      }
-    </select>
-    <div class="help-block text-center">
-      <p>Für jede Raumebene wird die gleiche Anzahl an Klassengrenzen vergeben</p>
-    </div>
-  </div>
-
-  <!-- Per-spatial-unit break editing — only for the regional default method -->
-  @if (state.numClassesPerSpatialUnit > 0 && state.classificationMethod === 'regional_default') {
-    <div class="row vertical-align">
-      <div class="col-md-12">
-        <div class="form-group">
-          <label>Klassifizierung pro Raumebene</label>
-          <div class="alert alert-warning">
-            <i class="fas fa-exclamation-triangle"></i>
-            <strong>Wichtig:</strong> Konfigurieren Sie die Klassengrenzen für jede Raumebene.
-            Ungültige Konfigurationen werden rot markiert.
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row vertical-align">
-      <div class="col-md-12">
-        <div class="form-group">
-          <div class="nav-tabs-custom">
-            <ul
-              ngbNav
-              #classNav="ngbNav"
-              [(activeId)]="state.currentClassificationTab"
-              class="nav-tabs"
-            >
-              @for (spatialUnit of state.availableSpatialUnits; track spatialUnit; let i = $index) {
-                <li [ngbNavItem]="i" [ngClass]="state.tabClasses[i]">
-                  <button ngbNavLink type="button">{{ spatialUnit.spatialUnitLevel }}</button>
-                  <ng-template ngbNavContent>
-                    <div class="classification-tab-content">
-                      <div class="row">
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            <label class="breaks-heading">
-                              Klassengrenzen für die Ebene {{ spatialUnit.spatialUnitLevel }}
-                            </label>
-                            <div class="class-breaks-container">
-                              @for (
-                                break of state.spatialUnitClassification[i]?.breaks;
-                                track j;
-                                let j = $index
-                              ) {
-                                <input
-                                  type="number"
-                                  class="form-control"
-                                  [(ngModel)]="state.spatialUnitClassification[i].breaks[j]"
-                                  (ngModelChange)="state.onBreaksChanged(i)"
-                                  step="0.01"
-                                  placeholder="Klassengrenze"
-                                />
-                              }
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            <label>Legende</label>
-                            <table class="legend-table">
-                              <thead>
-                                <tr>
-                                  <th>Symbolik</th>
-                                  <th>Wertebereich</th>
-                                  <th>Hinweis</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                @for (color of state.getClassColors(); track k; let k = $index) {
-                                  <tr>
-                                    <td class="legend-symbol">
-                                      <span
-                                        class="legend-swatch"
-                                        [style.background-color]="color"
-                                      ></span>
-                                    </td>
-                                    <td class="legend-range">{{ state.getLegendRange(i, k) }}</td>
-                                    <td class="legend-hint">{{ state.getLegendHint(i, k) }}</td>
-                                  </tr>
-                                }
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </ng-template>
-                </li>
-              }
-            </ul>
-            <div [ngbNavOutlet]="classNav" class="tab-content"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row vertical-align">
-      <div class="col-md-12 text-center">
-        <div class="help-block">
-          <p>Vollständig ausgefüllte Tabs werden grün hervorgehoben.</p>
-          <p>
-            Fehlerhaft ausgefüllte Tabs werden rot hervorgehoben. Die Klassengrenzen müssen von
-            niedrig nach hoch sortiert sein.
-          </p>
-        </div>
-      </div>
-    </div>
-    @if (state.classBreaksInvalid) {
+    <!-- DYNAMIC indicator types: fixed two-color scheme, informational only -->
+    @if (state.indicatorType?.apiName?.includes('DYNAMIC')) {
+      <p class="fs-note text-center">
+        {{
+          'ADMIN_INDICATORS.STEP_CLASSIFICATION.DYNAMIC_NOTE'
+            | translate: { type: state.indicatorType?.displayName }
+        }}
+      </p>
       <div class="row vertical-align">
-        <div class="col-md-12">
-          <div class="alert alert-danger">
-            <i class="fas fa-exclamation-triangle"></i>
-            <strong>Fehler:</strong> Es gibt ungültige Klassifizierungskonfigurationen. Bitte
-            überprüfen Sie die rot markierten Tabs.
+        <div class="col-md-6 col-sm-6 col-12 text-center">
+          <div class="form-group palette-preview">
+            <label class="inline-label">{{
+              'ADMIN_INDICATORS.STEP_CLASSIFICATION.NEGATIVE_SPECTRUM' | translate
+            }}</label>
+            <app-color-palette-swatch
+              [colors]="state.classification.getDynamicSchemeColors('decrease')"
+            ></app-color-palette-swatch>
+          </div>
+        </div>
+        <div class="col-md-6 col-sm-6 col-12 text-center">
+          <div class="form-group palette-preview">
+            <label class="inline-label">{{
+              'ADMIN_INDICATORS.STEP_CLASSIFICATION.POSITIVE_SPECTRUM' | translate
+            }}</label>
+            <app-color-palette-swatch
+              [colors]="state.classification.getDynamicSchemeColors('increase')"
+            ></app-color-palette-swatch>
           </div>
         </div>
       </div>
     }
+
+    <!-- Method + class count + per-method break/color/label editor -->
+    <app-classification-numeric></app-classification-numeric>
   }
+
+  <!-- ========================== CATEGORICAL ========================== -->
+  @if (state.classification.isCategorical) {
+    <app-classification-palette-picker></app-classification-palette-picker>
+    <app-classification-categorical></app-classification-categorical>
+  }
+
   <input
     type="button"
     name="previous"
     class="previous previous_addIndicator action-button-previous"
-    value="Voriger Schritt"
+    [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
     (click)="state.previousStep()"
   />
   <input
     type="button"
     name="next"
     class="next next_addIndicator action-button"
-    value="Nächster Schritt"
+    [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
     (click)="state.nextStep()"
   />
 </div>

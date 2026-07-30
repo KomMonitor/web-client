@@ -1,17 +1,19 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GeocoderHelperService {
   private http = inject(HttpClient);
+  private envConfigService = inject(EnvConfigService);
 
   self = this;
   targetUrlToGeocoderInstance = '';
 
   constructor() {
-    this.targetUrlToGeocoderInstance = window.__env.targetUrlToGeocoderService;
+    this.targetUrlToGeocoderInstance = this.envConfigService.targetUrlToGeocoderService;
     // extract 'nominatim/' from the URL
     this.targetUrlToGeocoderInstance = this.targetUrlToGeocoderInstance.split('nominatim')[0];
   }

@@ -11,11 +11,11 @@ Stand: 2026-07-02, Branch `feature/migration-bootstrap`.
 
 Vor diesem Umbau teilten sich beide Pfade nur sehr wenige Daten und taten dies ineffizient, verteilt über **drei** lose synchronisierte State-Container:
 
-| Service | Pfad | Zeilen | Rolle |
-|---|---|---|---|
-| `ReachabilityCombinerService` | `app/services/reachability-combiner-service/` | 416 | `BehaviorSubject`-State für die Schnellberechnung (Locations, Ergebnis, Loading) |
-| `ReachabilityHelperService` | `app/services/reachbility-helper-service/` (Tippfehler im Ordnernamen) | 703 | Plain (nicht-observable) `settings`-Objekt **und** die eigentliche ORS-Berechnungs-Engine — von **beiden** Pfaden genutzt |
-| `ReachabilityScenarioHelperService` | `app/services/reachability-scenario-helper-service/` | 213 | `scenarios$` + `tmpActiveScenario`-Staging-Objekt für die Szenario-Persistenz |
+| Service                             | Pfad                                                                   | Zeilen | Rolle                                                                                                                     |
+| ----------------------------------- | ---------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------- |
+| `ReachabilityCombinerService`       | `app/services/reachability-combiner-service/`                          | 416    | `BehaviorSubject`-State für die Schnellberechnung (Locations, Ergebnis, Loading)                                          |
+| `ReachabilityHelperService`         | `app/services/reachbility-helper-service/` (Tippfehler im Ordnernamen) | 703    | Plain (nicht-observable) `settings`-Objekt **und** die eigentliche ORS-Berechnungs-Engine — von **beiden** Pfaden genutzt |
+| `ReachabilityScenarioHelperService` | `app/services/reachability-scenario-helper-service/`                   | 213    | `scenarios$` + `tmpActiveScenario`-Staging-Objekt für die Szenario-Persistenz                                             |
 
 **Konkrete Ineffizienzen:**
 

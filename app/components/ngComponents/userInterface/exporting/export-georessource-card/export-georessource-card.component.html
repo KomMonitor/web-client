@@ -27,7 +27,8 @@
       </div>
     </div>
     <app-export-format-selection
-      [exportItem]="exportItem()"
+      [selectedFormats]="exportItem().selectedFormats"
+      [idPrefix]="exportItem().dataset.id"
       [exportType]="exportType()"
       (formatToggle)="formatToggle.emit($event)"
     />

@@ -18,6 +18,10 @@ export class LeafletScreenshotCacheHelperService {
   // Initialize IndexedDB
   dbName = 'leafletScreenshotCache';
   storeName = 'screenshots';
+  // Bump this whenever the capture output changes incompatibly (e.g. the Firefox
+  // SVG-rasterization fix in captureNodeAsPngDataUrl): the upgrade handler wipes the
+  // store, so corrupt screenshots from older app versions are never served from cache.
+  dbVersion = 4;
   indexedDB!: IDBDatabase;
   indexedDbCount;
 
@@ -34,13 +38,8 @@ export class LeafletScreenshotCacheHelperService {
     this.envConfigService.localStoragePrefix + '_leaflet_screenshot_';
 
   constructor() {
-    const request = indexedDB.open(this.dbName, 2);
-    request.onupgradeneeded = (event: any) => {
-      this.indexedDB = event.target.result;
-      if (!this.indexedDB.objectStoreNames.contains(this.storeName)) {
-        this.indexedDB.createObjectStore(this.storeName);
-      }
-    };
+    const request = indexedDB.open(this.dbName, this.dbVersion);
+    request.onupgradeneeded = (event: any) => this.recreateStoreOnUpgrade(event);
     request.onsuccess = (event: any) => {
       this.indexedDB = event.target.result;
       console.log('Database initialized successfully');
@@ -48,6 +47,17 @@ export class LeafletScreenshotCacheHelperService {
     request.onerror = (event: any) => {
       console.error('Error initializing database:', event.target.error);
     };
+  }
+
+  // On a version upgrade, drop and recreate the store: screenshots persisted by an
+  // older app version may have been captured with broken tile positioning and must
+  // not survive into the new version's cache.
+  private recreateStoreOnUpgrade(event: any) {
+    this.indexedDB = event.target.result;
+    if (this.indexedDB.objectStoreNames.contains(this.storeName)) {
+      this.indexedDB.deleteObjectStore(this.storeName);
+    }
+    this.indexedDB.createObjectStore(this.storeName);
   }
 
   async init() {
@@ -174,24 +184,8 @@ export class LeafletScreenshotCacheHelperService {
         const el: HTMLElement = domElement;
 
         const capture = () => {
-          domtoimage
-            .toPng(el)
+          this.captureNodeAsPngDataUrl(el)
             .then(async (dataUrl: string) => {
-              if (dataUrl.startsWith('blob:')) {
-                try {
-                  const response = await fetch(dataUrl);
-                  const blob = await response.blob();
-                  dataUrl = await new Promise<string>((res, rej) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => res(reader.result as string);
-                    reader.onerror = rej;
-                    reader.readAsDataURL(blob);
-                  });
-                } catch (e) {
-                  console.error('Failed to convert blob URL to data URL:', e);
-                }
-              }
-
               await this.storeResourceInCache(
                 mapName,
                 spatialUnitId,
@@ -210,18 +204,68 @@ export class LeafletScreenshotCacheHelperService {
             });
         };
 
-        const tiles = el.querySelectorAll('.leaflet-tile');
-        if (tiles.length === 0) {
-          console.warn('No Leaflet tiles found in DOM yet. Retrying after short delay...');
-          setTimeout(() => capture(), 500);
-        } else {
-          capture();
-        }
+        this.waitForTilesToLoad(el).then(() => capture());
       }, 500);
     });
 
     this.pendingPromises.set(CacheKey, promise);
     return promise;
+  }
+
+  // dom-to-image's toPng() draws its intermediate SVG onto a canvas immediately after the
+  // image's load event fires. Firefox rasterizes SVG images asynchronously, so that immediate
+  // draw captures a partially-painted surface — only the top-left region of the map ends up in
+  // the PNG, the rest stays transparent (Chromium paints synchronously and is unaffected).
+  // Rasterize explicitly instead: take the SVG, wait for a full decode plus a settle delay,
+  // then draw it to a canvas ourselves.
+  private async captureNodeAsPngDataUrl(el: HTMLElement): Promise<string> {
+    const svgDataUri: string = await domtoimage.toSvg(el);
+    const img = new Image();
+    const loaded = new Promise<void>((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = () => reject(new Error('Failed to load screenshot SVG'));
+    });
+    img.src = svgDataUri;
+    await loaded;
+    if (img.decode) {
+      await img.decode().catch(() => undefined);
+    }
+    // decode() resolving still does not guarantee Firefox has painted the full surface
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
+    const scale = window.devicePixelRatio || 1;
+    const canvas = document.createElement('canvas');
+    canvas.width = el.offsetWidth * scale;
+    canvas.height = el.offsetHeight * scale;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Could not create 2d canvas context for screenshot');
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/png');
+  }
+
+  // Leaflet appends a tile's <img> to the DOM as soon as loading starts, well before the image
+  // data has actually downloaded — so checking for element presence alone (as this used to do)
+  // can capture a screenshot with some tiles still blank. Wait until every tile image has settled
+  // (loaded or failed — img.complete covers both) before letting the caller capture the DOM.
+  private waitForTilesToLoad(el: HTMLElement, timeoutMs = 8000): Promise<void> {
+    return new Promise((resolve) => {
+      const start = Date.now();
+      const check = () => {
+        const tiles = Array.from(el.querySelectorAll('.leaflet-tile')) as HTMLImageElement[];
+        const allSettled = tiles.length > 0 && tiles.every((tile) => tile.complete);
+        if (allSettled) {
+          resolve();
+          return;
+        }
+        if (Date.now() - start > timeoutMs) {
+          console.warn('Timed out waiting for Leaflet tiles to finish loading, capturing anyway.');
+          resolve();
+          return;
+        }
+        setTimeout(check, 100);
+      };
+      check();
+    });
   }
 
   clearScreenshotMap() {
@@ -257,11 +301,8 @@ export class LeafletScreenshotCacheHelperService {
 
   openIndexedDB() {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.dbName, 2);
-      request.onupgradeneeded = (event: any) => {
-        this.indexedDB = event.target.result;
-        this.indexedDB.createObjectStore(this.storeName);
-      };
+      const request = indexedDB.open(this.dbName, this.dbVersion);
+      request.onupgradeneeded = (event: any) => this.recreateStoreOnUpgrade(event);
       request.onsuccess = (event: any) => {
         this.indexedDB = event.target.result;
         this.getScreenshotCountFromIndexedDB();

@@ -26,6 +26,41 @@ export class MultiStepHelperServiceService {
     this.registerProgressBarItemClick(domId);
   }
 
+  /**
+   * Jumps the multi-step form back to its first fieldset/progressbar entry, e.g. when
+   * the form is reset ("Zurücksetzen"). Next/previous/progressbar clicks all set inline
+   * display/position styles that override the CSS defaults, so those must be reverted
+   * explicitly rather than relying on the initial CSS state.
+   */
+  resetToFirstStep(domId) {
+    const allFs: any = $('#' + domId).children('fieldset');
+    const progressBar_listItems: any = $('#' + domId + ' #progressbar > li');
+
+    for (let index = 0; index < allFs.length; index++) {
+      const fs = $(allFs.get(index));
+      if (index === 0) {
+        fs.show();
+        fs.css({ position: 'relative' });
+      } else {
+        fs.hide();
+        fs.css({ position: 'absolute' });
+      }
+    }
+
+    for (let index = 0; index < progressBar_listItems.length; index++) {
+      const li = $(progressBar_listItems.get(index));
+      if (index === 0) {
+        li.addClass('active');
+      } else {
+        li.removeClass('active');
+      }
+    }
+
+    this.current_fs = $(allFs.get(0));
+    this.previous_fs = undefined;
+    this.next_fs = undefined;
+  }
+
   registerProgressBarItemClick(domId) {
     setTimeout(() => {
       const progressBar_listItems: any = $('#' + domId + ' #progressbar > li');

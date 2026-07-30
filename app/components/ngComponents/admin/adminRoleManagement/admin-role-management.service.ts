@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {
-  AccessControlMetadata,
-  KommonitorDataExchangeService,
-} from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { OrganizationalUnitInputType } from 'models/data-management-api';
 import { KeycloakHelperService } from 'services/keycloak-helper-service/keycloak-helper.service';
 import { Observable, of, from, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
@@ -26,10 +27,12 @@ export interface RoleDelegatePutEntry {
 @Injectable({ providedIn: 'root' })
 export class AdminRoleManagementService {
   private http = inject(HttpClient);
-  private kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  private accessControlService = inject(AccessControlService);
+  private envConfigService = inject(EnvConfigService);
+  private indicatorValueService = inject(IndicatorValueService);
   private keycloakHelperService = inject(KeycloakHelperService);
 
-  private baseUrl = this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI;
+  private baseUrl = this.envConfigService.baseUrlToKomMonitorDataAPI;
 
   deleteOrganizationalUnit(dataset: AccessControlMetadata): Observable<{
     dataset: AccessControlMetadata;
@@ -54,16 +57,14 @@ export class AdminRoleManagementService {
   }
 
   addOrganizationalUnit(
-    postBody: any,
+    postBody: OrganizationalUnitInputType,
     parentOrganizationalUnit: AccessControlMetadata | null,
-    roleDelegatesPutBody: any[]
+    roleDelegatesPutBody: RoleDelegatePutEntry[]
   ): Observable<{ created?: AccessControlMetadata }> {
     return this.http.post(`${this.baseUrl}/organizationalUnits`, postBody).pipe(
       // after creation, refresh access control metadata
       map(() =>
-        this.kommonitorDataExchangeService.accessControl.find(
-          (entry) => entry.name === postBody.name
-        )
+        this.accessControlService.accessControl.find((entry) => entry.name === postBody.name)
       ),
       switchMap((created) => {
         if (!created) {
@@ -135,14 +136,14 @@ export class AdminRoleManagementService {
               .then(() => ({ success: true }))
               .catch((err) => ({
                 success: true,
-                keycloakErrorMessagePart: this.kommonitorDataExchangeService.syntaxHighlightJSON(
+                keycloakErrorMessagePart: this.indicatorValueService.syntaxHighlightJSON(
                   err?.error || err
                 ),
               }))
           )
         ),
         catchError((error) => {
-          const msg = this.kommonitorDataExchangeService.syntaxHighlightJSON(error?.error || error);
+          const msg = this.indicatorValueService.syntaxHighlightJSON(error?.error || error);
           return of({ success: false, errorMessagePart: msg });
         })
       );
@@ -169,7 +170,7 @@ export class AdminRoleManagementService {
       .pipe(
         map(() => ({ success: true })),
         catchError((error) => {
-          const msg = this.kommonitorDataExchangeService.syntaxHighlightJSON(error?.error || error);
+          const msg = this.indicatorValueService.syntaxHighlightJSON(error?.error || error);
           return of({ success: false, errorMessagePart: msg });
         })
       );

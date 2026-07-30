@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-small-box',
@@ -6,6 +6,7 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./small-box.component.scss'],
   imports: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SmallBoxComponent {
   @Input({ required: true }) titleText!: string;

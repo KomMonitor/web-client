@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import * as echarts from 'echarts';
 import { ExportButtonVisibilityService } from 'services/export-button-visibility-service/export-button-visibility.service';
@@ -8,6 +9,7 @@ import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-servi
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { DiagramsUpdate, MapService } from 'services/map-service/map.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -21,7 +23,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
   standalone: true,
   imports: [CommonModule, FormsModule, IndicatorNameFilter, ExpandableBoxComponent],
 })
-export class IndicatorRadarComponent implements OnInit {
+export class IndicatorRadarComponent implements OnInit, AfterViewInit, OnDestroy {
   protected diagramHelperService = inject(DiagramHelperServiceService);
   protected exportButtonVisibility = inject(ExportButtonVisibilityService);
   private indicatorValueService = inject(IndicatorValueService);
@@ -29,7 +31,10 @@ export class IndicatorRadarComponent implements OnInit {
   private topicHierarchyStore = inject(TopicHierarchyStoreService);
   private filterHelperService = inject(FilterHelperService);
   private broadcastService = inject(BroadcastService);
+  private mapService = inject(MapService);
   private envConfigService = inject(EnvConfigService);
+
+  private subscriptions = new Subscription();
 
   activeTab = 0;
 
@@ -121,48 +126,64 @@ export class IndicatorRadarComponent implements OnInit {
       this.chartTitle = `Indikatorenradar - ${this.spatialUnitName}`;
     }, 2000);
 
-    this.broadcastService.currentBroadcastMsg.subscribe((result) => {
-      const msg = result.msg;
-      const val: any = result.values;
+    this.subscriptions.add(
+      this.mapService.mapEvent$.subscribe((event) => {
+        switch (event.type) {
+          case 'diagramsUpdate':
+            this.onUpdateDiagrams(event.update);
+            break;
+          case 'featureHovered':
+            this.onUpdateDiagramsForHoveredFeature(event.properties);
+            break;
+          case 'featureUnhovered':
+            this.onUpdateDiagramsForUnhoveredFeature(event.properties);
+            break;
+        }
+      })
+    );
 
-      switch (msg) {
-        case 'resizeDiagrams':
-          {
-            this.onResizeDiagrams();
-          }
-          break;
-        case BroadcastMessage.UpdateDiagrams:
-          {
-            this.onUpdateDiagrams(val);
-          }
-          break;
-        case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupBegin:
-          {
-            this.onAllIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
-          }
-          break;
-        case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupCompleted:
-          {
-            this.onAllIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_completed();
-          }
-          break;
-        case BroadcastMessage.UpdateDiagramsForHoveredFeature:
-          {
-            this.onUpdateDiagramsForHoveredFeature(val);
-          }
-          break;
-        case BroadcastMessage.UpdateDiagramsForUnhoveredFeature:
-          {
-            this.onUpdateDiagramsForUnhoveredFeature(val);
-          }
-          break;
-        case BroadcastMessage.UnselectAllFeatures:
-          {
-            // no-op
-          }
-          break;
-      }
-    });
+    this.subscriptions.add(
+      this.mapService.mapCommand$.subscribe((command) => {
+        if (command.type === 'beginIndicatorTimeSetup')
+          this.onAllIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
+      })
+    );
+
+    this.subscriptions.add(
+      this.broadcastService.currentBroadcastMsg.subscribe((result) => {
+        const msg = result.msg;
+        const val: any = result.values;
+
+        switch (msg) {
+          case 'resizeDiagrams':
+            {
+              this.onResizeDiagrams();
+            }
+            break;
+          case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupCompleted:
+            {
+              this.onAllIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_completed();
+            }
+            break;
+        }
+      })
+    );
+  }
+
+  ngAfterViewInit(): void {
+    // The component is created lazily (only when the radar panel opens), so it misses
+    // the diagramsUpdate event the map emitted earlier. Replay the latest one against
+    // the now-rendered chart container. Force justRestyling to false so the radar is
+    // actually built on open even if the last live map render was only a restyle.
+    const latestUpdate = this.mapService.latestDiagramsUpdate;
+    if (latestUpdate) {
+      this.onUpdateDiagrams({ ...latestUpdate, justRestyling: false });
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+    this.radarChart?.dispose();
   }
 
   // initialize any adminLTE box widgets
@@ -198,20 +219,21 @@ export class IndicatorRadarComponent implements OnInit {
     );
   }
 
-  onUpdateDiagrams([
-    indicatorMetadataAndGeoJSON,
-    spatialUnitName,
-    spatialUnitId,
-    date,
-    defaultBrew,
-    gtMeasureOfValueBrew,
-    ltMeasureOfValueBrew,
-    dynamicIncreaseBrew,
-    dynamicDecreaseBrew,
-    isMeasureOfValueChecked,
-    measureOfValue,
-    justRestyling,
-  ]) {
+  onUpdateDiagrams(update: DiagramsUpdate) {
+    const {
+      indicatorMetadataAndGeoJSON,
+      spatialUnitLevel: spatialUnitName,
+      spatialUnitId,
+      date,
+      brew: defaultBrew,
+      gtMeasureOfValueBrew,
+      ltMeasureOfValueBrew,
+      dynamicIncreaseBrew,
+      dynamicDecreaseBrew,
+      isMeasureOfValueChecked,
+      measureOfValue,
+      justRestyling,
+    } = update;
     // if the layer is just restyled (i.e. due to change of measureOfValue)
     // then we do not need to costly update the radar diagram
     if (justRestyling) {
@@ -220,7 +242,7 @@ export class IndicatorRadarComponent implements OnInit {
     console.log('updating radar diagram');
     this.setupCompleted = false;
     this.updateRadarChart(indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date);
-    this.broadcastService.broadcast(BroadcastMessage.PreserveHighlightedFeatures);
+    this.mapService.preserveHighlightedFeatures();
   }
 
   // RADAR CHART TIME SERIES FUNCTION
@@ -596,9 +618,7 @@ export class IndicatorRadarComponent implements OnInit {
         const spatialFeatureName = params.data.name;
         // console.log(spatialFeatureName);
         if (spatialFeatureName) {
-          this.broadcastService.broadcast(BroadcastMessage.HighlightFeatureOnMap, [
-            spatialFeatureName,
-          ]);
+          this.mapService.highlightFeature(spatialFeatureName);
         }
       });
       this.radarChart.on('mouseOut', (params) => {
@@ -606,9 +626,7 @@ export class IndicatorRadarComponent implements OnInit {
         const spatialFeatureName = params.data.name;
         // console.log(spatialFeatureName);
         if (spatialFeatureName) {
-          this.broadcastService.broadcast(BroadcastMessage.UnhighlightFeatureOnMap, [
-            spatialFeatureName,
-          ]);
+          this.mapService.unhighlightFeature(spatialFeatureName);
         }
       });
       //disable feature removal for radar chart - seems to be unintuititve
@@ -616,14 +634,14 @@ export class IndicatorRadarComponent implements OnInit {
       // 	var spatialFeatureName = params.data.name;
       // 	// console.log(spatialFeatureName);
       // if(spatialFeatureName){
-      // 	this.broadcastService.broadcast(BroadcastMessage.SwitchHighlightFeatureOnMap, spatialFeatureName);
+      // 	this.mapService.switchHighlightFeature(spatialFeatureName);
       // }
       // });
       this.eventsRegistered = true;
     }
   }
 
-  onUpdateDiagramsForHoveredFeature([featureProperties]) {
+  onUpdateDiagramsForHoveredFeature(featureProperties) {
     if (
       !this.radarChart ||
       !this.radarOption ||
@@ -771,7 +789,7 @@ export class IndicatorRadarComponent implements OnInit {
     }
   }
 
-  onUpdateDiagramsForUnhoveredFeature([featureProperties]) {
+  onUpdateDiagramsForUnhoveredFeature(featureProperties) {
     if (
       !this.radarChart ||
       !this.radarOption ||

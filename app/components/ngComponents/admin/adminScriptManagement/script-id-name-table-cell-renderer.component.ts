@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';
 
@@ -17,8 +17,9 @@ interface IdNameTableParams extends ICellRendererParams {
   selector: 'app-script-id-name-table-cell-renderer',
   standalone: true,
   imports: [],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @if (rows.length > 0) {
+    @if (rows().length > 0) {
       <table class="table table-condensed table-bordered table-striped table-sm">
         <thead>
           <tr>
@@ -27,7 +28,7 @@ interface IdNameTableParams extends ICellRendererParams {
           </tr>
         </thead>
         <tbody>
-          @for (row of rows; track row.id) {
+          @for (row of rows(); track row.id) {
             <tr>
               <td>{{ row.id }}</td>
               <td>{{ row.name }}</td>
@@ -41,7 +42,9 @@ interface IdNameTableParams extends ICellRendererParams {
   `,
 })
 export class ScriptIdNameTableCellRendererComponent implements ICellRendererAngularComp {
-  rows: { id: string; name: string }[] = [];
+  // Signal-backed: refresh() is invoked by AG Grid outside Angular's change
+  // detection, so a plain field would leave this OnPush view stale.
+  rows = signal<{ id: string; name: string }[]>([]);
 
   agInit(params: IdNameTableParams): void {
     this.setRows(params);
@@ -54,6 +57,6 @@ export class ScriptIdNameTableCellRendererComponent implements ICellRendererAngu
 
   private setRows(params: IdNameTableParams): void {
     const ids: string[] = params.data?.[params.idsField] ?? [];
-    this.rows = ids.map((id) => ({ id, name: params.resolveName(id) }));
+    this.rows.set(ids.map((id) => ({ id, name: params.resolveName(id) })));
   }
 }

@@ -1,13 +1,18 @@
 import { HttpClient } from '@angular/common/http';
+import { TranslateModule } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   ElementRef,
   EventEmitter,
-  inject,
   OnInit,
   Output,
   ViewChild,
+  inject,
+  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
@@ -27,12 +32,11 @@ import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial
 import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 import { FeatureTableDataGridHelperService } from '../../../../../services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
-import { RoleManagementDataGridHelperService } from '../../../../../services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
+import { ownerDefaultPermissionIds } from '../../adminShared/roleManagementPanel/role-management-panel.model';
+import { ResourceImportService } from 'services/resource-import-service/resource-import.service';
 import { NotificationService } from '../../../common/notification/notification.service';
-import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { IndicatorRefreshRequest } from '../indicator-refresh.model';
 import { downloadJson } from 'util/json-file.util';
 
@@ -42,13 +46,15 @@ declare const $: any;
   selector: 'app-indicator-edit-features-modal',
   templateUrl: './indicator-edit-features-modal.component.html',
   styleUrls: ['./indicator-edit-features-modal.component.scss'],
-  imports: [FormsModule, FilterPipe, AgGridAngular, StepperComponent],
+  imports: [TranslateModule, FormsModule, FilterPipe, AgGridAngular, StepperComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IndicatorEditFeaturesModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   private broadcastService = inject(BroadcastService);
   private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
   private http = inject(HttpClient);
   private cacheHelperService = inject(CacheHelperServiceService);
   private accessControlService = inject(AccessControlService);
@@ -56,10 +62,11 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   indicatorStore = inject(IndicatorMetadataStoreService);
   importerHelperService = inject(KommonitorImporterHelperService);
+  private resourceImportService = inject(ResourceImportService);
   featureTableHelper = inject(FeatureTableDataGridHelperService);
-  private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   protected envConfigService = inject(EnvConfigService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   featureTableGridOptions: GridOptions = {};
 
@@ -78,6 +85,15 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   converter: any;
   schema: any;
   mimeType: any;
+
+  // ngModel-bound converter / data-source parameter values, keyed by parameter
+  // name. Passed to the import service as formValues so the importer helper
+  // never has to scrape the parameter inputs from the DOM.
+  converterParameterValues: { [key: string]: string } = {};
+  datasourceTypeParameterValues: { [key: string]: string } = {};
+
+  @ViewChild('indicatorDataSourceInput', { static: false })
+  indicatorDataSourceInput?: ElementRef;
   datasourceType: any;
   spatialUnitRefKeyProperty: string = '';
   targetSpatialUnitMetadata: any;
@@ -96,24 +112,23 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   // Timeseries mapping
   timeseriesMappingReference: any[] = [];
 
-  // Role management
-  roleManagementTableOptions: any;
-
   // Messages
   successMessagePart: string = '';
   errorMessagePart: string = '';
   importerErrors: any[] = [];
 
   // Loading states
-  loadingData: boolean = false;
+  // Signal: toggled from subscriptions, awaits and grid-helper events (OnPush).
+  loadingData = signal(false);
 
   // Imported features
   importedFeatures: any[] = [];
 
   // Multi-step form
-  currentStep: number = 1;
-  totalSteps: number = 2;
-  steps: StepperStep[] = [{ label: 'Zeitreihen Übersicht' }, { label: 'Räumlicher Datensatz' }];
+  readonly stepper = new WizardStepper([
+    { key: 'overview', label: 'ADMIN_SHARED_UI.STEP_LABELS.TIMESERIES_OVERVIEW' },
+    { key: 'data', label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_DATASET' },
+  ]);
 
   ngOnInit(): void {
     this.setupEventListeners();
@@ -134,6 +149,8 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
           );
         }
       }
+      // Bus callbacks swap template-bound fields on this OnPush view.
+      this.cdr.markForCheck();
     });
 
     // React to feature-table loading/delete events from the shared grid helper.
@@ -144,9 +161,9 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       )
       .subscribe((event) => {
         if (event.type === 'loadingStart') {
-          this.loadingData = true;
+          this.loadingData.set(true);
         } else if (event.type === 'loadingEnd') {
-          this.loadingData = false;
+          this.loadingData.set(false);
         } else if (event.type === 'featureDeleted') {
           this.refreshRequested.emit({
             crudType: 'edit',
@@ -193,7 +210,8 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
 
     this.indicatorFeaturesJSON = undefined;
     this.remainingFeatureHeaders = [];
-    this.overviewTableTargetSpatialUnitMetadata = undefined;
+    // null (not undefined) so the [ngValue]="null" placeholder option is selected
+    this.overviewTableTargetSpatialUnitMetadata = null;
 
     // Set default spatial unit
     for (const spatialUnitMetadataEntry of this.spatialUnitStore.availableSpatialUnits) {
@@ -207,22 +225,17 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       }
     }
 
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'indicatorEditFeaturesRoleManagementTable',
-      this.roleManagementTableOptions,
-      this.accessControlService.accessControl,
-      [],
-      true
-    );
-
     this.spatialUnitRefKeyProperty = '';
-    this.targetSpatialUnitMetadata = undefined;
+    // null (not undefined) so the [ngValue]="null" placeholder options are selected
+    this.targetSpatialUnitMetadata = null;
     this.targetApplicableSpatialUnit = undefined;
 
-    this.converter = undefined;
+    this.converter = null;
     this.schema = undefined;
     this.mimeType = undefined;
-    this.datasourceType = undefined;
+    this.datasourceType = null;
+    this.converterParameterValues = {};
+    this.datasourceTypeParameterValues = {};
 
     this.converterDefinition = undefined;
     this.datasourceTypeDefinition = undefined;
@@ -243,7 +256,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       return;
     }
 
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     const url =
       this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
@@ -282,12 +295,14 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
             this.overviewTableTargetSpatialUnitMetadata.spatialUnitId
           );
 
-        this.loadingData = false;
+        this.loadingData.set(false);
+        // The grid options above were rebuilt in this async callback.
+        this.cdr.markForCheck();
       },
       error: (error: any) => {
         this.errorMessagePart = this.indicatorValueService.formatError(error);
         this.showErrorAlert();
-        this.loadingData = false;
+        this.loadingData.set(false);
       },
     });
   }
@@ -297,7 +312,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       return;
     }
 
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     const url =
       this.envConfigService.baseUrlToKomMonitorDataAPI +
@@ -326,12 +341,14 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
 
         this.successMessagePart = this.currentIndicatorDataset.indicatorName;
         this.showSuccessAlert();
-        this.loadingData = false;
+        this.loadingData.set(false);
+        // The grid options above were reset in this async callback.
+        this.cdr.markForCheck();
       },
       error: (error: any) => {
         this.errorMessagePart = this.indicatorValueService.formatError(error);
         this.showErrorAlert();
-        this.loadingData = false;
+        this.loadingData.set(false);
       },
     });
   }
@@ -345,52 +362,33 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         break;
       }
     }
-
-    this.refreshRoles();
   }
 
-  refreshRoles(): void {
-    let permissions = this.targetApplicableSpatialUnit
-      ? this.targetApplicableSpatialUnit.permissions
-      : [];
-
-    if (this.currentIndicatorDataset) {
-      const ownerAccessControl = this.accessControlService.getAccessControlById(
-        this.currentIndicatorDataset.ownerId
-      );
-      const permissionIds_ownerUnit = (ownerAccessControl?.permissions || [])
-        .filter(
-          (permission: any) =>
-            permission.permissionLevel == 'viewer' || permission.permissionLevel == 'editor'
+  /**
+   * Roles pass-through for the importer PUT body and the mapping-config export:
+   * this modal does not manage permissions (that is the roles modal's job) — it
+   * echoes the target spatial unit's timeseries permissions plus the owner
+   * unit's default viewer/editor permissions. Historically this went through an
+   * invisible role grid that was never rendered.
+   */
+  private currentRolePermissionIds(): string[] {
+    const unitPermissions: string[] = this.targetApplicableSpatialUnit?.permissions ?? [];
+    const ownerDefaults = this.currentIndicatorDataset
+      ? ownerDefaultPermissionIds(
+          this.accessControlService.accessControl ?? [],
+          this.currentIndicatorDataset.ownerId
         )
-        .map((permission: any) => permission.permissionId);
-
-      permissions = permissions.concat(permissionIds_ownerUnit);
-    }
-
-    // Set datasetOwner to disable checkboxes for owned datasets in permissions-table
-    this.accessControlService.accessControl.forEach((item: any) => {
-      if (this.currentIndicatorDataset) {
-        if (item.organizationalUnitId == this.currentIndicatorDataset.ownerId) {
-          item.datasetOwner = true;
-        } else {
-          item.datasetOwner = false;
-        }
-      }
-    });
-
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'indicatorEditFeaturesRoleManagementTable',
-      this.roleManagementTableOptions,
-      this.accessControlService.accessControl,
-      permissions,
-      true
-    );
+      : [];
+    return Array.from(new Set([...unitPermissions, ...ownerDefaults]));
   }
 
   onChangeConverter(): void {
     this.schema = this.converter.schemas ? this.converter.schemas[0] : undefined;
     this.mimeType = this.converter.mimeTypes[0];
+    // Fresh parameter values for the newly selected converter. NOTE: CRS
+    // parameters are deliberately not seeded — the template hides them, so
+    // they were never sent historically either.
+    this.converterParameterValues = {};
   }
 
   onChangeMimeType(mimeType: string): void {
@@ -450,9 +448,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.datasourceTypeDefinition = await this.buildDatasourceTypeDefinition();
     this.propertyMappingDefinition = this.buildPropertyMappingDefinition();
 
-    const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-      this.roleManagementTableOptions
-    );
+    const roleIds = this.currentRolePermissionIds();
 
     const scopeProperties = {
       targetSpatialUnitMetadata: {
@@ -481,25 +477,26 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   }
 
   buildConverterDefinition(): any {
-    return this.importerHelperService.buildConverterDefinition(
-      this.converter,
-      'converterParameter_indicatorEditFeatures_',
-      this.schema,
-      this.mimeType
-    );
+    return this.resourceImportService.buildConverterDefinition({
+      converter: this.converter,
+      schema: this.schema,
+      mimeType: this.mimeType,
+      converterParameterValues: this.converterParameterValues,
+    });
   }
 
   async buildDatasourceTypeDefinition(): Promise<any> {
     try {
-      return await this.importerHelperService.buildDatasourceTypeDefinition(
-        this.datasourceType,
-        'datasourceTypeParameter_indicatorEditFeatures_',
-        'indicatorDataSourceInput_editFeatures'
-      );
+      return await this.resourceImportService.buildDatasourceTypeDefinition({
+        datasourceType: this.datasourceType,
+        datasourceTypeFormValues: this.datasourceTypeParameterValues,
+        selectedFile: null,
+        fileInputElement: this.indicatorDataSourceInput?.nativeElement,
+      });
     } catch (error: any) {
       this.errorMessagePart = this.indicatorValueService.formatError(error);
       this.showErrorAlert();
-      this.loadingData = false;
+      this.loadingData.set(false);
       return null;
     }
   }
@@ -514,7 +511,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   }
 
   async editIndicatorFeatures(): Promise<void> {
-    this.loadingData = true;
+    this.loadingData.set(true);
     this.importerErrors = [];
     this.successMessagePart = '';
     this.errorMessagePart = '';
@@ -523,9 +520,12 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     const allDataSpecified = await this.buildImporterObjects();
 
     if (!allDataSpecified) {
-      $('#indicatorEditFeaturesForm').validator('update');
-      $('#indicatorEditFeaturesForm').validator('validate');
-      this.loadingData = false;
+      // Formerly triggered the bootstrap-validator jQuery plugin, which is not
+      // loaded since the migration and threw a TypeError here.
+      this.notificationService.showError(
+        this.translate.instant('ADMIN_INDICATORS.EDIT_FEATURES.MSG.REQUIRED_FIELDS')
+      );
+      this.loadingData.set(false);
       return;
     }
 
@@ -565,7 +565,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
           ) || [];
 
         this.showSuccessAlert();
-        this.loadingData = false;
+        this.loadingData.set(false);
       } else {
         // Errors occurred
         this.errorMessagePart =
@@ -576,13 +576,13 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
           ) || [];
 
         this.showErrorAlert();
-        this.loadingData = false;
+        this.loadingData.set(false);
       }
     } catch (error: any) {
       this.errorMessagePart = this.indicatorValueService.formatError(error);
 
       this.showErrorAlert();
-      this.loadingData = false;
+      this.loadingData.set(false);
     }
   }
 
@@ -601,10 +601,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         permissions: [],
       };
 
-      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-        this.roleManagementTableOptions
-      );
-      mappingConfigExport.permissions = roleIds;
+      mappingConfigExport.permissions = this.currentRolePermissionIds();
 
       mappingConfigExport.isPublic = this.isPublic;
       mappingConfigExport.ownerId = this.currentIndicatorDataset.ownerId;
@@ -613,30 +610,17 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     });
   }
 
-  // Multi-step form navigation
-  nextStep(): void {
-    if (this.currentStep < this.totalSteps) {
-      this.currentStep++;
-    }
-  }
-
-  previousStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
-  }
-
-  goToStep(step: number): void {
-    if (step >= 1 && step <= this.totalSteps) {
-      this.currentStep = step;
-    }
-  }
-
   // Alert management
   showSuccessAlert(): void {
-    let message = `Fortführen der Zeitreihen des Indikators mit Namen ${this.successMessagePart} war erfolgreich.`;
+    let message = this.translate.instant('ADMIN_INDICATORS.EDIT_FEATURES.MSG.CONTINUE_SUCCESS', {
+      name: this.successMessagePart,
+    });
     if (this.importedFeatures && this.importedFeatures.length > 0) {
-      message += ` ${this.importedFeatures.length} Zeitreihen wurden dabei importiert.`;
+      message +=
+        ' ' +
+        this.translate.instant('ADMIN_INDICATORS.EDIT_FEATURES.MSG.IMPORTED_TIMESERIES', {
+          count: this.importedFeatures.length,
+        });
     }
     this.notificationService.showSuccess(message);
   }
@@ -646,12 +630,16 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     const tmp = document.createElement('div');
     tmp.innerHTML = this.errorMessagePart || '';
     const detail = (tmp.textContent || '').trim();
-    let message = 'Zeitreihen fortführen gescheitert.';
+    let message = this.translate.instant('ADMIN_INDICATORS.EDIT_FEATURES.MSG.CONTINUE_FAILED');
     if (detail) {
       message += ' ' + detail;
     }
     if (this.importerErrors && this.importerErrors.length > 0) {
-      message += ` (${this.importerErrors.length} Zeitreihen mit Importfehlern)`;
+      message +=
+        ' ' +
+        this.translate.instant('ADMIN_INDICATORS.EDIT_FEATURES.MSG.IMPORT_ERRORS', {
+          count: this.importerErrors.length,
+        });
     }
     this.notificationService.showError(message, { autohide: false });
   }

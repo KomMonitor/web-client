@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { ExportFormat, ExportItem } from '../models';
 import { ExportType } from '../exporting-state.service';
+import { ExportFormat } from '../models';
 
 export const FORMAT_CONFIG: Record<ExportType, ExportFormat[]> = {
   single: ['GeoPackage', 'Excel', 'CSV', 'GeoJSON'],
@@ -18,7 +18,10 @@ export const FORMAT_CONFIG: Record<ExportType, ExportFormat[]> = {
 })
 export class ExportFormatSelectionComponent {
   @Input({ required: true })
-  public exportItem!: ExportItem;
+  public selectedFormats: ExportFormat[] = [];
+
+  @Input({ required: true })
+  public idPrefix!: string;
 
   @Input()
   public exportType: ExportType = 'single';

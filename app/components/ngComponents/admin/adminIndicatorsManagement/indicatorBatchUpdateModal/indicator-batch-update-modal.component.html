@@ -1,6 +1,6 @@
 <!-- Loading overlay -->
 <div align="center">
-  @if (loadingData) {
+  @if (loadingData()) {
     <div class="loading-overlay-admin-panel ng-hide">
       <i class="fas fa-spinner fa-spin fa-2x"></i>
     </div>
@@ -8,30 +8,28 @@
 </div>
 
 <div class="modal-header">
-  <h4 class="modal-title">Batch-Update</h4>
-  <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+  <h4 class="modal-title">{{ 'ADMIN_INDICATORS.BATCH_UPDATE' | translate }}</h4>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="closeModal()"
+  ></button>
 </div>
 
 <div class="modal-body">
   <div class="row">
     <div class="col-md-12 col-sm-12 col-12">
+      <p>{{ 'ADMIN_INDICATORS.BATCH_MODAL.INTRO' | translate }}</p>
       <p>
-        Diese Funktion ermöglicht es, die Mapping-Parameter mehrerer Indikatoren gleichzeitig zu
-        aktualisieren.
+        <b>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</b>
       </p>
-      <p><b>* = Pflichtfeld</b></p>
     </div>
   </div>
 
   <div class="row">
     <div class="col-md-12 col-sm-12 col-12">
-      <form
-        id="indicatorBatchUpdateForm"
-        class="form-group"
-        role="form"
-        data-toggle="validator"
-        data-disable="true"
-      >
+      <form id="indicatorBatchUpdateForm" class="form-group" role="form">
         <!-- Batch list table -->
         <div class="batch-list-table-wrapper table-responsive">
           <table
@@ -52,13 +50,13 @@
                 <th
                   class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-2"
                 >
-                  Name*
+                  {{ 'ADMIN_SHARED.NAME' | translate }}*
                 </th>
-                <th>Mappingtabelle</th>
-                <th>Zeitreihen-Mapping*</th>
-                <th>Datensatz-Quellformat*</th>
+                <th>{{ 'ADMIN_INDICATORS.MAPPING_TABLE' | translate }}</th>
+                <th>{{ 'ADMIN_INDICATORS.TIMESERIES_MAPPING' | translate }}*</th>
+                <th>{{ 'ADMIN_INDICATORS.DATASET_SOURCE_FORMAT' | translate }}*</th>
                 @if (checkColumnsToShowSelectedConverter().length) {
-                  <th>Quellformat*</th>
+                  <th>{{ 'ADMIN_INDICATORS.SOURCE_FORMAT' | translate }}*</th>
                 }
                 @if (checkColumnsToShowSelectedConverter().length) {
                   <th>Encoding*</th>
@@ -66,7 +64,7 @@
                 @if (
                   checkColumnsToShowSelectedConverter().includes('Tabelle_Zeitreihe_zu_Indikator')
                 ) {
-                  <th>Trennzeichen*</th>
+                  <th>{{ 'ADMIN_INDICATORS.SEPARATOR' | translate }}*</th>
                 }
                 @if (checkColumnsToShowSelectedConverter().includes('WFS_v1')) {
                   <th>Schema*</th>
@@ -77,9 +75,9 @@
                 @if (checkColumnsToShowSelectedConverter().includes('WFS_v1')) {
                   <th>SCHEMA_LOCATION</th>
                 }
-                <th>Datenquelltyp*</th>
+                <th>{{ 'ADMIN_INDICATORS.DATASOURCE_TYPE' | translate }}*</th>
                 @if (checkIfSelectedDatasourceTypeIsFile()) {
-                  <th>Datei*</th>
+                  <th>{{ 'ADMIN_INDICATORS.FILE' | translate }}*</th>
                 }
                 @if (checkIfSelectedDatasourceTypeIsHttp()) {
                   <th>URL*</th>
@@ -87,9 +85,9 @@
                 @if (checkIfSelectedDatasourceTypeIsInline()) {
                   <th>Payload*</th>
                 }
-                <th>ID Attributname der Raumeinheiten*</th>
-                <th>Ziel-Raumebene*</th>
-                <th>Mappingtabelle speichern</th>
+                <th>{{ 'ADMIN_INDICATORS.SPATIAL_REF_KEY' | translate }}*</th>
+                <th>{{ 'ADMIN_INDICATORS.TARGET_SPATIAL_UNIT' | translate }}*</th>
+                <th>{{ 'ADMIN_INDICATORS.BATCH_MODAL.SAVE_MAPPING_TABLE' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -111,7 +109,9 @@
                       [(ngModel)]="indicator.name"
                       required
                     >
-                      <option [ngValue]="null">-- Indikator wählen --</option>
+                      <option [ngValue]="null">
+                        {{ 'ADMIN_INDICATORS.SELECT_INDICATOR_OPTION' | translate }}
+                      </option>
                       @for (avIndicator of indicatorStore.availableIndicators; track avIndicator) {
                         <option [ngValue]="avIndicator">
                           {{ avIndicator.indicatorName }}
@@ -136,13 +136,18 @@
                       (click)="onTimeseriesMappingBtnClicked($event, i)"
                       style="background-color: #5cb85c"
                     >
-                      Hinzufügen/Editieren
+                      {{ 'ADMIN_INDICATORS.BATCH_MODAL.ADD_EDIT' | translate }}
                     </button>
                   </td>
                   <!-- Datensatz-Quellformat -->
                   <td>
                     <select class="form-control" [(ngModel)]="indicator.selectedConverter" required>
-                      <option [ngValue]="null">-- Datensatz-Quellformat wählen --</option>
+                      <option [ngValue]="null">
+                        {{
+                          'ADMIN_INDICATORS.BATCH_MODAL.SELECT_DATASET_SOURCE_FORMAT_OPTION'
+                            | translate
+                        }}
+                      </option>
                       @for (converter of getAvailableConverters(); track converter) {
                         <option [ngValue]="converter">
                           {{ converter.name }}
@@ -158,7 +163,9 @@
                         [(ngModel)]="indicator.mappingObj.converter.mimeType"
                         required
                       >
-                        <option [ngValue]="null">-- Quellformat wählen --</option>
+                        <option [ngValue]="null">
+                          {{ 'ADMIN_INDICATORS.SELECT_SOURCE_FORMAT_OPTION' | translate }}
+                        </option>
                         @for (mimeType of indicator.selectedConverter?.mimeTypes; track mimeType) {
                           <option [ngValue]="mimeType">
                             {{ mimeType }}
@@ -175,7 +182,9 @@
                         [(ngModel)]="indicator.mappingObj.converter.encoding"
                         required
                       >
-                        <option [ngValue]="null">-- Encoding wählen --</option>
+                        <option [ngValue]="null">
+                          {{ 'ADMIN_INDICATORS.BATCH_MODAL.SELECT_ENCODING_OPTION' | translate }}
+                        </option>
                         @for (encoding of indicator.selectedConverter?.encodings; track encoding) {
                           <option [ngValue]="encoding">
                             {{ encoding }}
@@ -210,7 +219,9 @@
                         [disabled]="!indicator.selectedConverter?.name?.includes('WFS_v1')"
                         required
                       >
-                        <option [ngValue]="null">-- Schema wählen --</option>
+                        <option [ngValue]="null">
+                          {{ 'ADMIN_INDICATORS.SELECT_SCHEMA_OPTION' | translate }}
+                        </option>
                         @for (schema of indicator.selectedConverter?.schemas; track schema) {
                           <option [ngValue]="schema">
                             {{ schema }}
@@ -248,7 +259,9 @@
                       class="form-control"
                       required
                     >
-                      <option [ngValue]="null">-- Quelltyp wählen --</option>
+                      <option [ngValue]="null">
+                        {{ 'ADMIN_INDICATORS.SELECT_DATASOURCE_TYPE_OPTION' | translate }}
+                      </option>
                       @for (datasourceType of getAvailableDatasourceTypes(); track datasourceType) {
                         <option [ngValue]="datasourceType">
                           {{ datasourceType.type }}
@@ -309,7 +322,9 @@
                       class="form-control"
                       required
                     >
-                      <option [ngValue]="null">-- Raumebene wählen --</option>
+                      <option [ngValue]="null">
+                        {{ 'ADMIN_INDICATORS.SELECT_SPATIAL_UNIT_OPTION' | translate }}
+                      </option>
                       @for (
                         spatialUnit of spatialUnitStore.availableSpatialUnits;
                         track spatialUnit
@@ -347,13 +362,13 @@
                 <th
                   class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-2"
                 >
-                  Name*
+                  {{ 'ADMIN_SHARED.NAME' | translate }}*
                 </th>
-                <th>Mappingtabelle</th>
-                <th>Zeitreihen-Mapping*</th>
-                <th>Datensatz-Quellformat*</th>
+                <th>{{ 'ADMIN_INDICATORS.MAPPING_TABLE' | translate }}</th>
+                <th>{{ 'ADMIN_INDICATORS.TIMESERIES_MAPPING' | translate }}*</th>
+                <th>{{ 'ADMIN_INDICATORS.DATASET_SOURCE_FORMAT' | translate }}*</th>
                 @if (checkColumnsToShowSelectedConverter().length) {
-                  <th>Quellformat*</th>
+                  <th>{{ 'ADMIN_INDICATORS.SOURCE_FORMAT' | translate }}*</th>
                 }
                 @if (checkColumnsToShowSelectedConverter().length) {
                   <th>Encoding*</th>
@@ -361,7 +376,7 @@
                 @if (
                   checkColumnsToShowSelectedConverter().includes('Tabelle_Zeitreihe_zu_Indikator')
                 ) {
-                  <th>Trennzeichen*</th>
+                  <th>{{ 'ADMIN_INDICATORS.SEPARATOR' | translate }}*</th>
                 }
                 @if (checkColumnsToShowSelectedConverter().includes('WFS_v1')) {
                   <th>Schema*</th>
@@ -372,9 +387,9 @@
                 @if (checkColumnsToShowSelectedConverter().includes('WFS_v1')) {
                   <th>SCHEMA_LOCATION</th>
                 }
-                <th>Datenquelltyp*</th>
+                <th>{{ 'ADMIN_INDICATORS.DATASOURCE_TYPE' | translate }}*</th>
                 @if (checkIfSelectedDatasourceTypeIsFile()) {
-                  <th>Datei*</th>
+                  <th>{{ 'ADMIN_INDICATORS.FILE' | translate }}*</th>
                 }
                 @if (checkIfSelectedDatasourceTypeIsHttp()) {
                   <th>URL*</th>
@@ -382,19 +397,19 @@
                 @if (checkIfSelectedDatasourceTypeIsInline()) {
                   <th>Payload*</th>
                 }
-                <th>ID Attributname der Raumeinheiten*</th>
-                <th>Ziel-Raumebene*</th>
-                <th>Mappingtabelle speichern</th>
+                <th>{{ 'ADMIN_INDICATORS.SPATIAL_REF_KEY' | translate }}*</th>
+                <th>{{ 'ADMIN_INDICATORS.TARGET_SPATIAL_UNIT' | translate }}*</th>
+                <th>{{ 'ADMIN_INDICATORS.BATCH_MODAL.SAVE_MAPPING_TABLE' | translate }}</th>
               </tr>
             </tfoot>
           </table>
         </div>
 
         <button type="button" class="btn btn-primary" (click)="addNewRowToBatchList()">
-          neue Zeile hinzufügen
+          {{ 'ADMIN_INDICATORS.BATCH_MODAL.ADD_ROW' | translate }}
         </button>
         <button type="button" class="btn btn-danger" (click)="deleteSelectedRowsFromBatchList()">
-          ausgewählte Zeilen löschen
+          {{ 'ADMIN_INDICATORS.BATCH_MODAL.DELETE_SELECTED_ROWS' | translate }}
         </button>
       </form>
     </div>
@@ -407,7 +422,9 @@
     <div class="col-md-5 col-sm-5 col-12">
       <div class="box box-primary collapsed-box">
         <div class="box-header with-border">
-          <h3 class="box-title">Standardwert-Funktion</h3>
+          <h3 class="box-title">
+            {{ 'ADMIN_INDICATORS.BATCH_MODAL.DEFAULT_VALUE_FUNCTION' | translate }}
+          </h3>
           <div class="box-tools pull-right">
             <button type="button" class="btn btn-box-tool" data-widget="collapse">
               <i class="fa fa-plus"></i>
@@ -419,46 +436,55 @@
           <div class="form-group">
             <div class="help-block">
               <p>
-                Diese Funktion ermöglicht es, einen Standardwert für alle Zeilen einer variablen
-                Tabellenspalte zu setzen.<br />
-                Sofern die Checkbox aktiviert ist, wird der Wert für alle Zeilen gesetzt. Ist sie
-                deaktiviert, werden nur leere Tabellenfelder überschrieben, sodass bereits
-                eingetragene Werte erhalten bleiben.<br />
-                Beim Zeitreihen-Mapping kann über die Checkbox festgelegt werden, ob bestehende
-                Mappingeinträge für den angegebenen Attributnamen aktualisiert werden sollen. Neue
-                Attributnamen werden unabhängig davon für alle Zeilen hinzugefügt.<br />
-                Gesperrte (ausgegraute) Felder werden ignoriert.
+                {{ 'ADMIN_INDICATORS.BATCH_MODAL.DEFAULT_HELP_1' | translate }}<br />
+                {{ 'ADMIN_INDICATORS.BATCH_MODAL.DEFAULT_HELP_2' | translate }}<br />
+                {{ 'ADMIN_INDICATORS.BATCH_MODAL.DEFAULT_HELP_3' | translate }}<br />
+                {{ 'ADMIN_INDICATORS.BATCH_MODAL.DEFAULT_HELP_4' | translate }}
               </p>
             </div>
             <div class="row">
               <div class="col-md-6 col-sm-6 col-6">
-                <label for="indicatorColDefaultFunctionColSelectInput">Tabellenspalte:</label>
+                <label for="indicatorColDefaultFunctionColSelectInput"
+                  >{{ 'ADMIN_INDICATORS.BATCH_MODAL.TABLE_COLUMN' | translate }}:</label
+                >
                 <select
                   id="indicatorColDefaultFunctionColSelectInput"
                   class="form-control"
                   [(ngModel)]="colDefaultFunctionSelectedColumn"
                   (change)="colDefaultFunctionNewValue = undefined"
                 >
-                  <option [ngValue]="null">-- Tabellenspalte wählen --</option>
-                  <option value="mappingObj.propertyMapping.timeseriesMappings">
-                    Zeitreihen-Mapping*
+                  <option [ngValue]="null">
+                    {{ 'ADMIN_INDICATORS.BATCH_MODAL.SELECT_TABLE_COLUMN_OPTION' | translate }}
                   </option>
-                  <option value="selectedConverter">Datensatz-Quellformat*</option>
-                  <option value="mappingObj.converter.mimeType">Quellformat*</option>
+                  <option value="mappingObj.propertyMapping.timeseriesMappings">
+                    {{ 'ADMIN_INDICATORS.TIMESERIES_MAPPING' | translate }}*
+                  </option>
+                  <option value="selectedConverter">
+                    {{ 'ADMIN_INDICATORS.DATASET_SOURCE_FORMAT' | translate }}*
+                  </option>
+                  <option value="mappingObj.converter.mimeType">
+                    {{ 'ADMIN_INDICATORS.SOURCE_FORMAT' | translate }}*
+                  </option>
                   <option value="mappingObj.converter.encoding">Encoding*</option>
-                  <option value="mappingObj.converter.separator">Trennzeichen*</option>
+                  <option value="mappingObj.converter.separator">
+                    {{ 'ADMIN_INDICATORS.SEPARATOR' | translate }}*
+                  </option>
                   <option value="mappingObj.converter.schema">Schema*</option>
                   <option value="mappingObj.converter.schemaNamespace">NAMESPACE</option>
                   <option value="mappingObj.converter.schemaLocation">SCHEMA_LOCATION</option>
-                  <option value="selectedDatasourceType">Datenquelltyp*</option>
+                  <option value="selectedDatasourceType">
+                    {{ 'ADMIN_INDICATORS.DATASOURCE_TYPE' | translate }}*
+                  </option>
                   <option value="mappingObj.dataSource.URL">URL*</option>
                   <option value="mappingObj.dataSource.payload">Payload*</option>
                   <option value="mappingObj.propertyMapping.spatialReferenceKeyProperty">
-                    ID Attributname der Raumebenen-Features*
+                    {{ 'ADMIN_INDICATORS.BATCH_MODAL.SPATIAL_REF_KEY_FEATURES' | translate }}*
                   </option>
-                  <option value="selectedTargetSpatialUnit">Ziel-Raumebene*</option>
+                  <option value="selectedTargetSpatialUnit">
+                    {{ 'ADMIN_INDICATORS.TARGET_SPATIAL_UNIT' | translate }}*
+                  </option>
                 </select>
-                <label>Wert:</label>
+                <label>{{ 'ADMIN_INDICATORS.VALUE' | translate }}:</label>
                 <!-- default -->
                 @if (!colDefaultFunctionSelectedColumn) {
                   <input
@@ -466,7 +492,7 @@
                     class="form-control"
                     [(ngModel)]="colDefaultFunctionNewValue"
                     disabled
-                    placeholder="keine Tabellenspalte ausgewählt"
+                    [placeholder]="'ADMIN_INDICATORS.BATCH_MODAL.NO_COLUMN_SELECTED' | translate"
                   />
                 }
 
@@ -480,14 +506,16 @@
                     (click)="onDefaultTimeseriesMappingBtnClicked($event)"
                     style="background-color: #5cb85c"
                   >
-                    Hinzufügen/Editieren
+                    {{ 'ADMIN_INDICATORS.BATCH_MODAL.ADD_EDIT' | translate }}
                   </button>
                 }
 
                 <!-- Datensatz-Quellformat* -->
                 @if (colDefaultFunctionSelectedColumn === 'selectedConverter') {
                   <select class="form-control" [(ngModel)]="colDefaultFunctionNewValue">
-                    <option [ngValue]="null">-- Quellformat wählen --</option>
+                    <option [ngValue]="null">
+                      {{ 'ADMIN_INDICATORS.SELECT_SOURCE_FORMAT_OPTION' | translate }}
+                    </option>
                     @for (converter of getAvailableConverters(); track converter) {
                       <option [ngValue]="converter">
                         {{ converter.name }}
@@ -499,9 +527,9 @@
             </div>
             <div class="row">
               <div class="col-md-12 col-sm-12 col-12">
-                <label for="indicatorColDefaultFunctionAllRowsChb"
-                  >Vorhandene Werte überschreiben?</label
-                >
+                <label for="indicatorColDefaultFunctionAllRowsChb">{{
+                  'ADMIN_INDICATORS.BATCH_MODAL.OVERWRITE_EXISTING' | translate
+                }}</label>
                 <input
                   id="indicatorColDefaultFunctionAllRowsChb"
                   type="checkbox"
@@ -514,7 +542,7 @@
                   class="btn btn-primary"
                   (click)="onClickSaveColDefaultValue()"
                 >
-                  Standardwert eintragen
+                  {{ 'ADMIN_INDICATORS.BATCH_MODAL.APPLY_DEFAULT_VALUE' | translate }}
                 </button>
               </div>
             </div>
@@ -525,18 +553,14 @@
 
     <div class="col-md-4 col-sm-4 col-12">
       <div class="form-group">
-        <label>Fehlende/NULL Werte beibehalten (als NoData-Wert)*</label>
+        <label>{{ 'ADMIN_INDICATORS.KEEP_MISSING_VALUES' | translate }}*</label>
         <br />
         <label class="switch">
           <input type="checkbox" value="keepMissingValues" [(ngModel)]="keepMissingValues" />
           <span class="switchslider round"></span>
         </label>
         <div class="help-block">
-          <p>
-            Angabe, ob leere Attributwerte (<code>NULL</code>-Werte) übernommen werden. Diese werden
-            wie NoData-Werte behandelt. Bei deaktivierter Option wird bei einem solchen Fall ein
-            Fehler geworfen.
-          </p>
+          <p [innerHTML]="'ADMIN_INDICATORS.BATCH_MODAL.KEEP_MISSING_HINT' | translate"></p>
         </div>
       </div>
     </div>
@@ -545,8 +569,7 @@
       <div class="form-group">
         <div class="alert alert-warning">
           <b>
-            Falls für Indikatoren durch das Batch Update erstmalig neue Raumeinheiten verknüpft
-            werden, so werden die Zugriffsrechte aus den zugehörigen Metadaten übernommen
+            {{ 'ADMIN_INDICATORS.BATCH_MODAL.ACCESS_RIGHTS_WARNING' | translate }}
           </b>
         </div>
       </div>
@@ -561,21 +584,25 @@
         class="btn btn-info"
         (click)="onDefaultTimeseriesMappingBtnClicked($event)"
       >
-        Standard-Zeitreihen-Mapping bearbeiten
+        {{ 'ADMIN_INDICATORS.BATCH_MODAL.EDIT_DEFAULT_TIMESERIES_MAPPING' | translate }}
       </button>
     </div>
   </div>
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="closeModal()">Schließen</button>
+  <button type="button" class="btn btn-default pull-left" (click)="closeModal()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
   <button
     type="button"
     class="btn btn-info pull-left"
     (click)="loadIndicatorsBatchList()"
-    title="Importieren der Batch-Liste aus einer Datei"
+    [title]="'ADMIN_INDICATORS.BATCH_MODAL.IMPORT_BATCH_LIST_TOOLTIP' | translate"
   >
-    <i class="fas fa-file-import"></i>&nbsp;&nbsp;Batch-Liste importieren
+    <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
+      'ADMIN_INDICATORS.BATCH_MODAL.IMPORT_BATCH_LIST' | translate
+    }}
   </button>
 
   <input
@@ -595,9 +622,11 @@
     class="btn btn-info pull-left"
     [disabled]="false"
     (click)="saveBatchListToFile()"
-    title="Exportieren der Batch-Liste in eine Datei"
+    [title]="'ADMIN_INDICATORS.BATCH_MODAL.EXPORT_BATCH_LIST_TOOLTIP' | translate"
   >
-    <i class="fas fa-file-export"></i>&nbsp;&nbsp;Batch-Liste exportieren
+    <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
+      'ADMIN_INDICATORS.BATCH_MODAL.EXPORT_BATCH_LIST' | translate
+    }}
   </button>
 
   <button
@@ -607,7 +636,7 @@
     (click)="reopenResultModal()"
     [disabled]="!lastUpdateResponseObj"
   >
-    Ergebnis anzeigen
+    {{ 'ADMIN_INDICATORS.BATCH_MODAL.SHOW_RESULT' | translate }}
   </button>
 
   <button
@@ -617,10 +646,10 @@
     (click)="startBatchUpdate()"
     [disabled]="!checkIfNameAndFilesChosenInEachRow()"
   >
-    Update ausführen
+    {{ 'ADMIN_INDICATORS.BATCH_MODAL.RUN_UPDATE' | translate }}
   </button>
 
   <button type="button" class="btn btn-danger" (click)="resetBatchUpdateForm()">
-    Zurücksetzen
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
 </div>

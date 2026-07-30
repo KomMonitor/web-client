@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
 import { BehaviorSubject } from 'rxjs';
 import { PoiPresentationService } from 'services/poi-presentation-service/poi-presentation.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
@@ -21,13 +22,13 @@ export class KommonitorGeoresourceDataExchangeService {
   private topicHierarchyService = inject(TopicHierarchyService);
 
   // Private subjects for reactive updates if needed in the future
-  private georesourcesSubject = new BehaviorSubject<any[]>([]);
+  private georesourcesSubject = new BehaviorSubject<GeoresourcesDataset[]>([]);
   public georesources$ = this.georesourcesSubject.asObservable();
 
   /**
    * Get available georesources -
    */
-  get availableGeoresources(): any[] {
+  get availableGeoresources(): GeoresourcesDataset[] {
     return this.georesourceStore.availableGeoresources || [];
   }
 
@@ -69,14 +70,14 @@ export class KommonitorGeoresourceDataExchangeService {
   /**
    * Add single georesource metadata - delegates to AngularJS service
    */
-  addSingleGeoresourceMetadata(georesourceMetadata: any): void {
+  addSingleGeoresourceMetadata(georesourceMetadata: GeoresourcesDataset): void {
     this.georesourceStore.addSingleGeoresourceMetadata(georesourceMetadata);
   }
 
   /**
    * Replace single georesource metadata - delegates to AngularJS service
    */
-  replaceSingleGeoresourceMetadata(georesourceMetadata: any): void {
+  replaceSingleGeoresourceMetadata(georesourceMetadata: GeoresourcesDataset): void {
     this.georesourceStore.replaceSingleGeoresourceMetadata(georesourceMetadata);
   }
 
@@ -90,7 +91,7 @@ export class KommonitorGeoresourceDataExchangeService {
   /**
    * Get georesource metadata by ID - delegates to AngularJS service
    */
-  getGeoresourceMetadataById(georesourceId: string): any {
+  getGeoresourceMetadataById(georesourceId: string): GeoresourcesDataset | undefined {
     return this.georesourceStore.getGeoresourceMetadataById(georesourceId);
   }
 
@@ -111,7 +112,7 @@ export class KommonitorGeoresourceDataExchangeService {
   /**
    * Get topic hierarchy display string - delegates to AngularJS service
    */
-  getTopicHierarchyDisplayString(topicReference: any): string {
+  getTopicHierarchyDisplayString(topicReference: string): string {
     return this.topicHierarchyService.getTopicHierarchyDisplayString(
       this.topicStore.availableTopics,
       topicReference
@@ -121,7 +122,7 @@ export class KommonitorGeoresourceDataExchangeService {
   /**
    * Get all allowed roles string - delegates to AngularJS service
    */
-  getAllowedRolesString(permissions: any): string {
+  getAllowedRolesString(permissions: string[] | null | undefined): string {
     return this.accessControlService.getAllowedRolesString(permissions);
   }
 

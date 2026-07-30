@@ -1,5 +1,5 @@
 {
-    "hooks": {
-        "after:bump": "npx auto-changelog -p"
-    }
+  "hooks": {
+    "after:bump": "npx auto-changelog -p"
+  }
 }

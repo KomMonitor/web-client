@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { BroadcastEnvelope, BroadcastMessage } from './broadcast-message';
 
 @Injectable({
@@ -10,7 +10,13 @@ export class BroadcastService {
     /* intentionally empty */
   }
 
-  broadcastMsg = new BehaviorSubject<BroadcastEnvelope>({ msg: '', values: undefined });
+  // Plain Subject, not BehaviorSubject: this is a one-shot event bus, not sticky state.
+  // A BehaviorSubject replays its last emission to every new subscriber, so any component
+  // mounted after some other component fired e.g. IsochronesCalculationFinished would
+  // immediately re-run that handler on init against whatever (possibly unrelated/stale)
+  // state exists at that later point - which is exactly what broke the reachability
+  // scenario wizard when opened after a quick-calculation had run.
+  broadcastMsg = new Subject<BroadcastEnvelope>();
 
   currentBroadcastMsg = this.broadcastMsg.asObservable();
 

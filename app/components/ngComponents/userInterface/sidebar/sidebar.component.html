@@ -1,28 +1,32 @@
-<!--  [ngClass]="{'disabled': (element===undefined || element=='')}" -->
+@let element = sidebarState.activeElement();
 <div
   id="sidebarContentWrapper"
   [ngClass]="{
-    disabled: element === undefined || element === '',
-    expWidth: expandedWidthElements.includes(element),
+    disabled: element === '',
+    expWidth: isExpandedWidth,
   }"
 >
   <div class="close" (click)="closeSidebar()"><i class="fas fa-xmark"></i></div>
   <app-kommonitor-data-setup
     [hidden]="element !== 'sidebarIndicatorConfigCollapse'"
   ></app-kommonitor-data-setup>
-  <app-poi [hidden]="element !== 'sidebarPoiCollapse'"></app-poi>
+  @if (element === 'sidebarPoiCollapse') {
+    <app-poi></app-poi>
+  }
   <app-kommonitor-data-import
     [hidden]="element !== 'sidebarDataImportCollapse'"
   ></app-kommonitor-data-import>
   <app-kommonitor-filter [hidden]="element !== 'sidebarFilterCollapse'"></app-kommonitor-filter>
   <app-kommonitor-balance [hidden]="element !== 'sidebarBalanceCollapse'"></app-kommonitor-balance>
-  <app-kommonitor-diagrams
-    [hidden]="element !== 'sidebarDiagramsCollapse'"
-  ></app-kommonitor-diagrams>
-  <app-indicator-radar [hidden]="element !== 'sidebarRadarDiagramCollapse'"></app-indicator-radar>
-  <app-regression-diagram
-    [hidden]="element !== 'sidebarRegressionDiagramCollapse'"
-  ></app-regression-diagram>
+  @if (element === 'sidebarDiagramsCollapse') {
+    <app-kommonitor-diagrams></app-kommonitor-diagrams>
+  }
+  @if (element === 'sidebarRadarDiagramCollapse') {
+    <app-indicator-radar></app-indicator-radar>
+  }
+  @if (element === 'sidebarRegressionDiagramCollapse') {
+    <app-regression-diagram></app-regression-diagram>
+  }
   <app-kommonitor-reachability
     [hidden]="element !== 'sidebarReachabilityCollapse'"
   ></app-kommonitor-reachability>

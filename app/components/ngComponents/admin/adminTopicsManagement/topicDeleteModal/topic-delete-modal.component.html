@@ -1,12 +1,19 @@
 <div class="modal-header">
-  <h4 class="modal-title">Themeneintrag löschen</h4>
-  <button type="button" class="btn-close" aria-label="Close" (click)="close()"></button>
+  <h4 class="modal-title">{{ 'ADMIN_TOPICS.DELETE_MODAL.TITLE' | translate }}</h4>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="close()"
+  ></button>
 </div>
 
 <div class="modal-body">
-  <app-loading-overlay [loading]="loadingData">
-    <h4><b>Soll folgender Themeneintrag wirklich gelöscht werden?</b></h4>
-    <p>Dabei werden auch sämtliche Unterthemen dauerhaft aus dem System entfernt.</p>
+  <app-loading-overlay [loading]="loadingData()">
+    <h4>
+      <b>{{ 'ADMIN_TOPICS.DELETE_MODAL.CONFIRM_QUESTION' | translate }}</b>
+    </h4>
+    <p>{{ 'ADMIN_TOPICS.DELETE_MODAL.CASCADE_HINT' | translate }}</p>
 
     <pre
       id="deleteTopicPre"
@@ -17,9 +24,11 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-outline-secondary" (click)="close()">Schließen</button>
+  <button type="button" class="btn btn-outline-secondary" (click)="close()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
   <div style="flex: 1"></div>
   <button type="button" class="btn btn-danger" (click)="deleteTopic()" [disabled]="!currentTopic">
-    Themeneintrag unwiderruflich löschen
+    {{ 'ADMIN_TOPICS.DELETE_MODAL.DELETE_FOREVER' | translate }}
   </button>
 </div>

@@ -9,7 +9,14 @@
 <div class="sliderWrapper">
   <div #sliderContainer class="slider"></div>
   <div class="selectedValue">
-    <input [(ngModel)]="selectedValue" type="number" class="form-control" />
+    <input
+      [(ngModel)]="selectedValue"
+      type="number"
+      class="form-control"
+      [min]="1"
+      [max]="range[1]"
+      (ngModelChange)="onValueChange($event)"
+    />
   </div>
   <i class="fa-solid fa-circle-plus" (click)="addSelectedValue()"></i>
 </div>

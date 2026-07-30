@@ -1,94 +1,128 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, DestroyRef, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  ElementRef,
+  EventEmitter,
+  inject,
+  OnInit,
+  Output,
+  ViewChild,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { KmColorPickerComponent } from 'components/ngComponents/customElements/color-picker/km-color-picker.component';
+import {
+  KmLinePatternPickerComponent,
+  LinePatternOption,
+} from 'components/ngComponents/customElements/line-pattern-picker/km-line-pattern-picker.component';
 import { skip } from 'rxjs';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import {
   MetadataBootstrapService,
   MetadataLoadingState,
 } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
 
 import { FormsModule } from '@angular/forms';
+import { getErrorMessage } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.util';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import {
   LOI_DASH_ARRAY_OBJECTS,
   POI_MARKER_COLORS,
 } from 'services/poi-presentation-service/poi-presentation.service';
-import { AccessControlService } from 'services/access-control-service/access-control.service';
-import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
-import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { ResourceImportService } from 'services/resource-import-service/resource-import.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
-import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
-import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
-import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
+import { ResourceMetadataFormComponent } from '../../adminShared/resourceMetadataForm/resource-metadata-form.component';
 import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
+  buildResourceMetadataForm,
+  metadataFormToApi,
+  patchMetadataFormFromApi,
+  ResourceMetadataFormValue,
+} from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
+import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
+import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
+import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManagementPanel/owner-organization-select.component';
+import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-georesource-add-modal',
   templateUrl: './georesource-add-modal.component.html',
   styleUrls: ['./georesource-add-modal.component.scss'],
-  imports: [FormsModule, AdminTopicsManagementComponent, StepperComponent],
+  imports: [
+    FormsModule,
+    AdminTopicsManagementComponent,
+    StepperComponent,
+    KmColorPickerComponent,
+    KmLinePatternPickerComponent,
+    ResourceMetadataFormComponent,
+    RoleManagementGridComponent,
+    OwnerOrganizationSelectComponent,
+    TranslateModule,
+  ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeoresourceAddModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
+
+  /** Emitted after a successful registration so the parent refreshes its table. */
+  @Output() refreshRequested = new EventEmitter<GeoresourceRefreshRequest>();
   protected accessControlService = inject(AccessControlService);
   private indicatorValueService = inject(IndicatorValueService);
   georesourceStore = inject(GeoresourceMetadataStoreService);
   spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
-  roleManagementHelper = inject(RoleManagementDataGridHelperService);
+  private resourceImportService = inject(ResourceImportService);
+  private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
   private topicHierarchyService = inject(TopicHierarchyService);
   protected envConfigService = inject(EnvConfigService);
   private broadcastService = inject(BroadcastService);
   private metadataBootstrap = inject(MetadataBootstrapService);
   private destroyRef = inject(DestroyRef);
   private http = inject(HttpClient);
+  private cdr = inject(ChangeDetectorRef);
 
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
   @ViewChild('georesourceDataSourceInput', { static: false })
   georesourceDataSourceInput!: ElementRef;
+  @ViewChild(RoleManagementGridComponent) roleGrid?: RoleManagementGridComponent;
 
-  // Multi-step form
-  currentStep = 1;
-  totalSteps = 4; // Will be adjusted based on security settings
-
-  // Stepper labels — the security step is only present when Keycloak is enabled,
-  // mirroring the conditional fieldsets below. References are stable so the
-  // stepper only re-evaluates when the security flag actually changes.
-  private readonly stepsWithSecurity: StepperStep[] = [
-    { label: 'Metadaten der Georessource' },
-    { label: 'Allgemeine Metadaten' },
-    { label: 'Themenhierarchie' },
-    { label: 'Zugriffsschutz und Eigentümerschaft' },
-    { label: 'Räumlicher Datensatz' },
-  ];
-  private readonly stepsWithoutSecurity: StepperStep[] = [
-    { label: 'Metadaten der Georessource' },
-    { label: 'Allgemeine Metadaten' },
-    { label: 'Themenhierarchie' },
-    { label: 'Räumlicher Datensatz' },
-  ];
-  get steps(): StepperStep[] {
-    return this.envConfigService.enableKeycloakSecurity
-      ? this.stepsWithSecurity
-      : this.stepsWithoutSecurity;
-  }
+  // Multi-step form; the security step is only present when Keycloak is
+  // enabled, mirroring the conditional fieldset in the template.
+  readonly stepper = new WizardStepper([
+    { key: 'metadata', label: 'ADMIN_SHARED_UI.STEP_LABELS.GEORESOURCE_METADATA' },
+    { key: 'general', label: 'ADMIN_SHARED_UI.STEP_LABELS.GENERAL_METADATA' },
+    { key: 'topics', label: 'ADMIN_SHARED_UI.TOPICS.TITLE' },
+    {
+      key: 'security',
+      label: 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE',
+      when: () => this.envConfigService.enableKeycloakSecurity,
+    },
+    { key: 'data', label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_DATASET' },
+  ]);
 
   // Form data
   isSubmitting = false;
-  errorMessage = '';
-  successMessage = '';
-  loadingData = false;
+  // Signal: toggled across await boundaries during registration (OnPush).
+  loadingData = signal(false);
 
   // Basic form data
   datasetName = '';
@@ -99,17 +133,11 @@ export class GeoresourceAddModalComponent implements OnInit {
   isAOI = false;
 
   // Metadata
-  metadata: any = {
-    description: '',
-    databasis: '',
-    datasource: '',
-    contact: '',
-    updateInterval: null,
-    lastUpdate: '',
-    literature: '',
-    note: '',
-    sridEPSG: 4326,
-  };
+  metadataForm = buildResourceMetadataForm();
+  /** Read-only view of the metadata form value for post-body/export building. */
+  get metadata(): ResourceMetadataFormValue {
+    return this.metadataForm.getRawValue();
+  }
 
   // Topic hierarchy
   georesourceTopic_mainTopic: any = null;
@@ -120,7 +148,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   // Visual styling
   selectedPoiMarkerColor: any = null;
   selectedPoiSymbolColor: any = null;
-  selectedLoiDashArrayObject: any = null;
+  selectedLoiDashArrayObject: LinePatternOption | null = null;
   loiColor = '#bf3d2c';
   loiWidth = 3;
   aoiColor = '#bf3d2c';
@@ -140,7 +168,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   availableTopics: any[] = [];
   updateIntervalOptions: any[] = [];
   availablePoiMarkerColors: any[] = [];
-  availableLoiDashArrayObjects: any[] = [];
+  availableLoiDashArrayObjects: LinePatternOption[] = [];
   availableDatasourceTypes: any[] = [];
 
   // Importer functionality
@@ -156,6 +184,16 @@ export class GeoresourceAddModalComponent implements OnInit {
   // Bbox parameters for OGCAPI_FEATURES
   bboxType: string = '';
   bboxRefSpatialUnit: any = null;
+  bbox_minx: any = null;
+  bbox_miny: any = null;
+  bbox_maxx: any = null;
+  bbox_maxy: any = null;
+
+  // ngModel-bound converter / data-source parameter values, keyed by parameter
+  // name. Passed to the import service as formValues so the importer helper
+  // never has to scrape the parameter inputs from the DOM.
+  converterParameterValues: { [key: string]: string } = {};
+  datasourceTypeParameterValues: { [key: string]: string } = {};
 
   // Attribute mapping
   attributeMapping_sourceAttributeName = '';
@@ -170,12 +208,9 @@ export class GeoresourceAddModalComponent implements OnInit {
   validityStartDate_perFeature = '';
   validityEndDate_perFeature = '';
 
-  // Role management
-  roleManagementTableOptions: any = null;
+  // Role management (grid handled by <app-role-management-grid>)
   ownerOrganization = '';
-  ownerOrgFilter = '';
   isPublic = false;
-  resourcesCreatorRights: any[] = [];
 
   // GeoJSON data
   geoJsonString: any = null;
@@ -184,13 +219,13 @@ export class GeoresourceAddModalComponent implements OnInit {
   // Import/Export functionality
   metadataImportSettings: any = null;
   mappingConfigImportSettings: any = null;
-  georesourceMetadataImportError = '';
-  georesourceMappingConfigImportError = '';
+  // Signals: written from async file-import callbacks (OnPush).
+  georesourceMetadataImportError = signal('');
+  georesourceMappingConfigImportError = signal('');
 
-  // Success/Error data
-  successMessagePart = '';
-  errorMessagePart = '';
-  importerErrors: any[] = [];
+  // Per-feature importer error report (shown inline; summaries are toasted)
+  // Signal: written after importer responses (OnPush).
+  importerErrors = signal<any[]>([]);
   importedFeatures: any[] = [];
 
   // Metadata structure for import/export
@@ -270,9 +305,6 @@ export class GeoresourceAddModalComponent implements OnInit {
 
     // Load available options
     this.loadAvailableOptions();
-
-    // Adjust total steps based on security settings
-    this.totalSteps = this.envConfigService.enableKeycloakSecurity ? 5 : 4;
   }
 
   private setupEventListeners(): void {
@@ -283,14 +315,14 @@ export class GeoresourceAddModalComponent implements OnInit {
       .pipe(skip(1), takeUntilDestroyed(this.destroyRef))
       .subscribe((state) => {
         if (state === MetadataLoadingState.COMPLETE) {
-          this.refreshRoles();
+          this.roleGrid?.reset();
         }
       });
 
     // Listen for broadcast messages
     this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
       if (data.msg === BroadcastMessage.AvailableRolesUpdate) {
-        this.refreshRoles();
+        this.roleGrid?.reset();
       }
     });
   }
@@ -299,7 +331,11 @@ export class GeoresourceAddModalComponent implements OnInit {
     // Load available options from services
     this.updateIntervalOptions = this.envConfigService.updateIntervalOptions || [];
     this.availablePoiMarkerColors = POI_MARKER_COLORS || [];
-    this.availableLoiDashArrayObjects = LOI_DASH_ARRAY_OBJECTS || [];
+    this.availableLoiDashArrayObjects = LOI_DASH_ARRAY_OBJECTS.map((option) => ({
+      label: option.dashArrayValue || 'durchgezogen',
+      dashArrayValue: option.dashArrayValue,
+      svgString: option.svgString,
+    }));
     this.availableTopics = this.topicStore.availableTopics || [];
     this.availableDatasourceTypes =
       this.kommonitorImporterHelperService.availableDatasourceTypes || [];
@@ -311,34 +347,6 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.georesourceMappingConfigStructure_pretty = this.indicatorValueService.syntaxHighlightJSON(
       this.kommonitorImporterHelperService.mappingConfigStructure
     );
-  }
-
-  private refreshRoles(): void {
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'georesourceAddRoleManagementTable',
-      this.roleManagementTableOptions,
-      this.accessControlService.accessControl,
-      []
-    );
-  }
-
-  // Multi-step form navigation
-  goToStep(step: number): void {
-    if (step >= 1 && step <= this.totalSteps) {
-      this.currentStep = step;
-    }
-  }
-
-  nextStep(): void {
-    if (this.currentStep < this.totalSteps) {
-      this.currentStep++;
-    }
-  }
-
-  previousStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
   }
 
   // Form validation methods
@@ -391,7 +399,8 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   onChangeOwner(orgUnitId: string): void {
     this.ownerOrganization = orgUnitId;
-    this.refreshRoles();
+    // Seed the grid with the owner unit's default viewer/editor permissions
+    this.roleGrid?.applyOwner(orgUnitId);
   }
 
   onChangeIsPublic(isPublic: boolean): void {
@@ -421,7 +430,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.selectedPoiSymbolColor = symbolColor;
   }
 
-  onChangeLoiDashArray(loiDashArrayObject: any): void {
+  onChangeLoiDashArray(loiDashArrayObject: LinePatternOption | null): void {
     this.selectedLoiDashArrayObject = loiDashArrayObject;
   }
 
@@ -486,7 +495,7 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   // Import/Export methods
   onImportGeoresourceAddMetadata(): void {
-    this.georesourceMetadataImportError = '';
+    this.georesourceMetadataImportError.set('');
     this.metadataImportFile.nativeElement.click();
   }
 
@@ -509,18 +518,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     metadataExport.metadata.databasis = this.metadata.databasis || '';
     metadataExport.datasetName = this.datasetName || '';
 
-    metadataExport.allowedRoles = [];
-
-    if (this.roleManagementTableOptions) {
-      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-        this.roleManagementTableOptions
-      );
-      if (roleIds && Array.isArray(roleIds)) {
-        for (const roleId of roleIds) {
-          metadataExport.allowedRoles.push(roleId);
-        }
-      }
-    }
+    metadataExport.allowedRoles = this.roleGrid?.getSelectedRoleIds() ?? [];
 
     if (this.metadata.updateInterval) {
       metadataExport.metadata.updateInterval = this.metadata.updateInterval.apiName;
@@ -548,7 +546,7 @@ export class GeoresourceAddModalComponent implements OnInit {
       metadataExport['poiSymbolColor'] = '';
       metadataExport['poiMarkerColor'] = '';
 
-      metadataExport['loiDashArrayString'] = this.selectedLoiDashArrayObject.dashArrayValue;
+      metadataExport['loiDashArrayString'] = this.selectedLoiDashArrayObject?.dashArrayValue ?? '';
       metadataExport['loiColor'] = this.loiColor;
       metadataExport['loiWidth'] = this.loiWidth;
 
@@ -590,7 +588,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   }
 
   onImportGeoresourceAddMappingConfig(): void {
-    this.georesourceMappingConfigImportError = '';
+    this.georesourceMappingConfigImportError.set('');
     this.mappingConfigImportFile.nativeElement.click();
   }
 
@@ -641,9 +639,14 @@ export class GeoresourceAddModalComponent implements OnInit {
       } catch (error) {
         console.error(error);
         console.error('Uploaded Metadata File cannot be parsed.');
-        this.georesourceMetadataImportError = 'Uploaded Metadata File cannot be parsed correctly';
+        this.georesourceMetadataImportError.set(
+          'Uploaded Metadata File cannot be parsed correctly'
+        );
         this.showMetadataErrorAlert();
       }
+      // The import rewrites many ngModel-bound fields in an async callback —
+      // mark the OnPush view once instead of converting each field to a signal.
+      this.cdr.markForCheck();
     };
 
     fileReader.readAsText(file);
@@ -658,10 +661,13 @@ export class GeoresourceAddModalComponent implements OnInit {
       } catch (error) {
         console.error(error);
         console.error('Uploaded MappingConfig File cannot be parsed.');
-        this.georesourceMappingConfigImportError =
-          'Uploaded MappingConfig File cannot be parsed correctly';
+        this.georesourceMappingConfigImportError.set(
+          'Uploaded MappingConfig File cannot be parsed correctly'
+        );
         this.showMappingConfigErrorAlert();
       }
+      // Same bulk-rewrite situation as the metadata import above.
+      this.cdr.markForCheck();
     };
 
     fileReader.readAsText(file);
@@ -672,37 +678,22 @@ export class GeoresourceAddModalComponent implements OnInit {
 
     if (!this.metadataImportSettings.metadata) {
       console.error('uploaded Metadata File cannot be parsed - wrong structure.');
-      this.georesourceMetadataImportError =
-        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.';
+      this.georesourceMetadataImportError.set(
+        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.'
+      );
       this.showMetadataErrorAlert();
       return;
     }
 
-    this.metadata = {};
-    this.metadata.note = this.metadataImportSettings.metadata.note;
-    this.metadata.literature = this.metadataImportSettings.metadata.literature;
-
-    this.updateIntervalOptions.forEach((option: any) => {
-      if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
-        this.metadata.updateInterval = option;
-      }
-    });
-
-    this.metadata.sridEPSG = this.metadataImportSettings.metadata.sridEPSG;
-    this.metadata.datasource = this.metadataImportSettings.metadata.datasource;
-    this.metadata.contact = this.metadataImportSettings.metadata.contact;
-    this.metadata.lastUpdate = this.metadataImportSettings.metadata.lastUpdate;
-    this.metadata.description = this.metadataImportSettings.metadata.description;
-    this.metadata.databasis = this.metadataImportSettings.metadata.databasis;
+    patchMetadataFormFromApi(
+      this.metadataForm,
+      this.metadataImportSettings.metadata,
+      this.updateIntervalOptions
+    );
 
     this.datasetName = this.metadataImportSettings.datasetName;
 
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'georesourceAddRoleManagementTable',
-      this.roleManagementTableOptions,
-      this.accessControlService.accessControl,
-      this.metadataImportSettings.allowedRoles
-    );
+    this.roleGrid?.applyPermissions(this.metadataImportSettings.allowedRoles || []);
 
     // georesource specific properties
     this.isPOI = this.metadataImportSettings.isPOI;
@@ -766,8 +757,9 @@ export class GeoresourceAddModalComponent implements OnInit {
       !this.mappingConfigImportSettings.propertyMapping
     ) {
       console.error('uploaded MappingConfig File cannot be parsed - wrong structure.');
-      this.georesourceMappingConfigImportError =
-        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.';
+      this.georesourceMappingConfigImportError.set(
+        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.'
+      );
       this.showMappingConfigErrorAlert();
       return;
     }
@@ -815,27 +807,23 @@ export class GeoresourceAddModalComponent implements OnInit {
     }
 
     // converter parameters
+    this.converterParameterValues = {};
     if (this.converter) {
-      for (const convParameter of this.mappingConfigImportSettings.converter.parameters) {
-        const element = document.getElementById(
-          'converterParameter_georesourceAdd_' + convParameter.name
-        ) as HTMLInputElement;
-        if (element) {
-          element.value = convParameter.value;
-        }
+      for (const convParameter of this.mappingConfigImportSettings.converter.parameters ?? []) {
+        this.converterParameterValues[convParameter.name] = convParameter.value ?? '';
       }
     }
 
-    // datasourceTypes parameters
+    // datasourceTypes parameters (bbox settings are applied to their dedicated fields)
+    this.datasourceTypeParameterValues = {};
     if (this.datasourceType) {
-      for (const dsParameter of this.mappingConfigImportSettings.dataSource.parameters) {
-        const element = document.getElementById(
-          'datasourceTypeParameter_georesourceAdd_' + dsParameter.name
-        ) as HTMLInputElement;
-        if (element) {
-          element.value = dsParameter.value;
+      const dsParameters = this.mappingConfigImportSettings.dataSource.parameters ?? [];
+      for (const dsParameter of dsParameters) {
+        if (dsParameter.name !== 'bbox' && dsParameter.name !== 'bboxType') {
+          this.datasourceTypeParameterValues[dsParameter.name] = dsParameter.value ?? '';
         }
       }
+      this.applyBbox(dsParameters);
     }
 
     // property Mapping
@@ -876,6 +864,28 @@ export class GeoresourceAddModalComponent implements OnInit {
     }
   }
 
+  /** Applies imported bbox data-source parameters onto the dedicated bbox form fields. */
+  private applyBbox(dsParams: { name: string; value: string }[]): void {
+    const bboxTypeParam = dsParams.find((p) => p.name === 'bboxType');
+    if (bboxTypeParam) {
+      this.bboxType = bboxTypeParam.value || '';
+    }
+    const bboxParam = dsParams.find((p) => p.name === 'bbox');
+    if (bboxParam && typeof bboxParam.value === 'string') {
+      if (this.bboxType === 'ref') {
+        this.bboxRefSpatialUnit = bboxParam.value;
+      } else {
+        const parts = bboxParam.value.split(',');
+        if (parts.length === 4) {
+          this.bbox_minx = parts[0];
+          this.bbox_miny = parts[1];
+          this.bbox_maxx = parts[2];
+          this.bbox_maxy = parts[3];
+        }
+      }
+    }
+  }
+
   private downloadFile(content: string, fileName: string): void {
     const blob = new Blob([content], { type: 'application/json' });
     const data = URL.createObjectURL(blob);
@@ -892,20 +902,12 @@ export class GeoresourceAddModalComponent implements OnInit {
   }
 
   // Alert methods
-  hideSuccessAlert(): void {
-    this.successMessage = '';
-  }
-
-  hideErrorAlert(): void {
-    this.errorMessage = '';
-  }
-
   hideMetadataErrorAlert(): void {
-    this.georesourceMetadataImportError = '';
+    this.georesourceMetadataImportError.set('');
   }
 
   hideMappingConfigErrorAlert(): void {
-    this.georesourceMappingConfigImportError = '';
+    this.georesourceMappingConfigImportError.set('');
   }
 
   private showMetadataErrorAlert(): void {
@@ -918,31 +920,14 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   // Form reset
   resetGeoresourceAddForm(): void {
-    this.importerErrors = [];
-    this.successMessagePart = '';
-    this.errorMessagePart = '';
+    this.importerErrors.set([]);
 
     this.datasetName = '';
     this.datasetNameInvalid = false;
 
-    this.metadata = {
-      note: '',
-      literature: '',
-      updateInterval: null,
-      sridEPSG: 4326,
-      datasource: '',
-      databasis: '',
-      contact: '',
-      lastUpdate: '',
-      description: '',
-    };
+    this.metadataForm.reset();
 
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'georesourceAddRoleManagementTable',
-      null,
-      this.accessControlService.accessControl,
-      []
-    );
+    this.roleGrid?.reset();
 
     this.georesourceTopic_mainTopic = null;
     this.georesourceTopic_subTopic = null;
@@ -984,6 +969,15 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.mimeType = '';
     this.datasourceType = null;
 
+    this.converterParameterValues = {};
+    this.datasourceTypeParameterValues = {};
+    this.bboxType = '';
+    this.bboxRefSpatialUnit = null;
+    this.bbox_minx = null;
+    this.bbox_miny = null;
+    this.bbox_maxx = null;
+    this.bbox_maxy = null;
+
     this.converterDefinition = null;
     this.datasourceTypeDefinition = null;
     this.propertyMappingDefinition = null;
@@ -1002,13 +996,12 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.keepMissingValues = true;
 
     this.ownerOrganization = '';
-    this.ownerOrgFilter = '';
     this.isPublic = false;
 
     this.metadataImportSettings = null;
     this.mappingConfigImportSettings = null;
-    this.georesourceMetadataImportError = '';
-    this.georesourceMappingConfigImportError = '';
+    this.georesourceMetadataImportError.set('');
+    this.georesourceMappingConfigImportError.set('');
   }
 
   // Build post body for API request
@@ -1016,17 +1009,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     const postBody: any = {
       geoJsonString: '', // will be set by importer
       allowedRoles: [],
-      metadata: {
-        note: this.metadata.note,
-        literature: this.metadata.literature,
-        updateInterval: this.metadata.updateInterval?.apiName,
-        sridEPSG: this.metadata.sridEPSG || 4326,
-        datasource: this.metadata.datasource,
-        contact: this.metadata.contact,
-        lastUpdate: this.metadata.lastUpdate,
-        description: this.metadata.description,
-        databasis: this.metadata.databasis,
-      },
+      metadata: metadataFormToApi(this.metadataForm),
       jsonSchema: null,
       datasetName: this.datasetName,
       periodOfValidity: {
@@ -1041,16 +1024,7 @@ export class GeoresourceAddModalComponent implements OnInit {
       isPublic: this.isPublic,
     };
 
-    if (this.roleManagementTableOptions) {
-      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-        this.roleManagementTableOptions
-      );
-      if (roleIds && Array.isArray(roleIds)) {
-        for (const roleId of roleIds) {
-          postBody.allowedRoles.push(roleId);
-        }
-      }
-    }
+    postBody.allowedRoles.push(...(this.roleGrid?.getSelectedRoleIds() ?? []));
 
     if (this.isPOI) {
       postBody['poiSymbolBootstrap3Name'] = this.selectedPoiIconName;
@@ -1109,18 +1083,52 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   // Main add method
   async addGeoresource(): Promise<void> {
-    this.loadingData = true;
-    this.importerErrors = [];
-    this.successMessagePart = '';
-    this.errorMessagePart = '';
+    this.loadingData.set(true);
+    this.importerErrors.set([]);
+
+    // Name the missing required importer fields instead of aborting silently
+    // (the historical behavior left the user without any feedback).
+    const missing = this.resourceImportService.collectMissingImporterFields({
+      converter: this.converter,
+      schema: this.schema,
+      mimeType: this.mimeType,
+      converterParameters: this.converterParameterValues,
+      datasourceType: this.datasourceType,
+      datasourceTypeParameters: this.datasourceTypeParameterValues,
+      hasFile: !!this.georesourceDataSourceInput?.nativeElement?.files?.[0],
+      bboxType: this.bboxType,
+      bboxRefSpatialUnitLevel: this.bboxRefSpatialUnit,
+      bboxLiteral: {
+        minx: this.bbox_minx,
+        miny: this.bbox_miny,
+        maxx: this.bbox_maxx,
+        maxy: this.bbox_maxy,
+      },
+      idProperty: this.georesourceDataSourceIdProperty,
+      nameProperty: this.georesourceDataSourceNameProperty,
+      startDate: this.periodOfValidity.startDate,
+      periodOfValidityInvalid: this.periodOfValidityInvalid,
+    });
+
+    if (missing.length > 0) {
+      this.loadingData.set(false);
+      this.notificationService.showError(
+        this.translate.instant('ADMIN_GEORESOURCES.ADD_MODAL.MSG.REQUIRED_FIELDS_MISSING', {
+          missing: missing.join(', '),
+        })
+      );
+      return;
+    }
 
     try {
       // Build importer objects
       const allDataSpecified = await this.buildImporterObjects();
 
       if (!allDataSpecified) {
-        // Validation failed
-        this.loadingData = false;
+        this.loadingData.set(false);
+        this.notificationService.showError(
+          this.translate.instant('ADMIN_GEORESOURCES.ADD_MODAL.MSG.REQUIRED_FIELDS')
+        );
         return;
       }
 
@@ -1149,108 +1157,109 @@ export class GeoresourceAddModalComponent implements OnInit {
             false
           );
 
-        // Broadcast refresh events
-        this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTable, {
-          action: 'add',
-          id: this.kommonitorImporterHelperService.getIdFromImporterResponse(
-            newGeoresourceResponse
-          ),
+        // Ask the management component to refresh its table. The former broadcast
+        // sent mismatched payload keys (action/id), which always forced the
+        // full-refetch fallback; the emit uses the proper request shape.
+        this.refreshRequested.emit({
+          crudType: 'add',
+          targetGeoresourceId:
+            this.kommonitorImporterHelperService.getIdFromImporterResponse(newGeoresourceResponse),
         });
 
-        // refresh all admin dashboard diagrams due to modified metadata
-        setTimeout(() => {
-          this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
-        }, 500);
-
-        this.successMessagePart = this.postBody_georesources.datasetName;
         this.importedFeatures =
           this.kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(
             newGeoresourceResponse
           ) || [];
 
-        this.successMessage = 'Georessource erfolgreich registriert';
+        const featureCount = this.importedFeatures.length;
+        this.notificationService.showSuccess(
+          featureCount > 0
+            ? this.translate.instant('ADMIN_GEORESOURCES.ADD_MODAL.MSG.REGISTERED_WITH_FEATURES', {
+                name: this.postBody_georesources.datasetName,
+                count: featureCount,
+              })
+            : this.translate.instant('ADMIN_GEORESOURCES.ADD_MODAL.MSG.REGISTERED', {
+                name: this.postBody_georesources.datasetName,
+              })
+        );
         this.activeModal.close(true);
       } else {
-        // errors occurred
-        this.errorMessagePart =
-          'Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf';
-        this.importerErrors =
+        // Dry-run reported import errors: keep the modal open and list the
+        // affected feature IDs inline; summarise via a toast.
+        this.importerErrors.set(
           this.kommonitorImporterHelperService.getErrorsFromImporterResponse(
             newGeoresourceResponse_dryRun
-          ) || [];
-        this.errorMessage = 'Validierung fehlgeschlagen';
+          ) || []
+        );
+        this.notificationService.showError(
+          this.translate.instant('ADMIN_GEORESOURCES.ADD_MODAL.MSG.CRITICAL_FEATURE_ERRORS')
+        );
       }
     } catch (error: any) {
-      if (error.data) {
-        this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.data);
-      } else {
-        this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
-      }
-
-      this.errorMessage = 'Fehler beim Registrieren der Georessource';
+      this.notificationService.showError(
+        this.translate.instant('ADMIN_GEORESOURCES.ADD_MODAL.MSG.REGISTRATION_FAILED', {
+          error: getErrorMessage(error),
+        })
+      );
       console.error('Error adding georesource:', error);
     } finally {
-      this.loadingData = false;
+      this.loadingData.set(false);
     }
   }
 
   private async buildImporterObjects(): Promise<boolean> {
-    this.converterDefinition = this.buildConverterDefinition();
-    this.datasourceTypeDefinition = await this.buildDatasourceTypeDefinition();
-    this.propertyMappingDefinition = this.buildPropertyMappingDefinition();
-    this.postBody_georesources = this.buildPostBody_georesources();
-
-    if (
-      !this.converterDefinition ||
-      !this.datasourceTypeDefinition ||
-      !this.propertyMappingDefinition ||
-      !this.postBody_georesources
-    ) {
-      return false;
-    }
-
-    return true;
-  }
-
-  private buildConverterDefinition(): any {
-    return this.kommonitorImporterHelperService.buildConverterDefinition(
-      this.converter,
-      'converterParameter_georesourceAdd_',
-      this.schema,
-      this.mimeType
-    );
-  }
-
-  private async buildDatasourceTypeDefinition(): Promise<any> {
     try {
-      return await this.kommonitorImporterHelperService.buildDatasourceTypeDefinition(
-        this.datasourceType,
-        'datasourceTypeParameter_georesourceAdd_',
-        'georesourceDataSourceInput_add'
+      const definitions = await this.resourceImportService.buildImporterObjects({
+        converter: this.converter,
+        schema: this.schema,
+        mimeType: this.mimeType,
+        converterParameterValues: this.converterParameterValues,
+        datasourceType: this.datasourceType,
+        datasourceTypeFormValues: this.assembleDatasourceFormValues(),
+        selectedFile: null,
+        fileInputElement: this.georesourceDataSourceInput?.nativeElement,
+        idProperty: this.georesourceDataSourceIdProperty,
+        nameProperty: this.georesourceDataSourceNameProperty,
+        validStartDate: this.validityStartDate_perFeature,
+        validEndDate: this.validityEndDate_perFeature,
+        keepAttributes: this.keepAttributes,
+        keepMissingValues: this.keepMissingValues,
+        attributeMappings: this.attributeMappings_adminView,
+      });
+
+      this.converterDefinition = definitions.converterDefinition;
+      this.datasourceTypeDefinition = definitions.datasourceTypeDefinition;
+      this.propertyMappingDefinition = definitions.propertyMappingDefinition;
+      this.postBody_georesources = this.buildPostBody_georesources();
+
+      return !!(
+        this.converterDefinition &&
+        this.datasourceTypeDefinition &&
+        this.propertyMappingDefinition &&
+        this.postBody_georesources
       );
     } catch (error: any) {
-      if (error.data) {
-        this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.data);
-      } else {
-        this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
-      }
-
-      this.loadingData = false;
-      return null;
+      this.notificationService.showError(
+        this.translate.instant('ADMIN_GEORESOURCES.ADD_MODAL.MSG.DATASOURCE_BUILD_FAILED', {
+          error: getErrorMessage(error),
+        })
+      );
+      this.loadingData.set(false);
+      return false;
     }
   }
 
-  private buildPropertyMappingDefinition(): any {
-    return this.kommonitorImporterHelperService.buildPropertyMapping_spatialResource(
-      this.georesourceDataSourceNameProperty,
-      this.georesourceDataSourceIdProperty,
-      this.validityStartDate_perFeature,
-      this.validityEndDate_perFeature,
-      '',
-      this.keepAttributes,
-      this.keepMissingValues,
-      this.attributeMappings_adminView
-    );
+  /** Data-source form values for the import service; bbox fields are always included. */
+  private assembleDatasourceFormValues(): { [key: string]: string } {
+    return {
+      ...this.datasourceTypeParameterValues,
+      bboxType: this.bboxType,
+      bboxRef: this.bboxRefSpatialUnit,
+      bbox_minx: this.bbox_minx,
+      bbox_miny: this.bbox_miny,
+      bbox_maxx: this.bbox_maxx,
+      bbox_maxy: this.bbox_maxy,
+    } as { [key: string]: string };
   }
 
   // Modal control methods

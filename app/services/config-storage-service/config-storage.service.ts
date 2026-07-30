@@ -15,14 +15,6 @@ export class ConfigStorageService {
   private httpClient = inject(HttpClient);
   private envConfigService = inject(EnvConfigService);
 
-  controlsConfig: any;
-
-  getConfigs() {
-    this.getControlsConfig();
-    this.getAppConfig();
-    this.getKeycloakConfig();
-  }
-
   postKeycloakConfig(jsonString): Observable<any> {
     console.log('Trying to POST to config storage service to upload new keycloak config.');
     const formdata = new FormData();
@@ -105,20 +97,10 @@ export class ConfigStorageService {
     );
   }
 
-  getControlsConfig() {
-    this.httpClient
-      .get(
-        this.envConfigService.configStorageServerConfig
-          .targetUrlToConfigStorageServer_controlsConfig
-      )
-      .subscribe({
-        next: (response) => {
-          this.controlsConfig = response;
-        },
-        error: (error) => {
-          console.error(error);
-        },
-      });
+  getControlsConfig(): Observable<any> {
+    return this.httpClient.get(
+      this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_controlsConfig
+    );
   }
 
   getAppConfig(): Observable<any> {

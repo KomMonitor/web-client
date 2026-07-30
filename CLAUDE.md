@@ -57,6 +57,7 @@ When implementing features, work in the `ngComponents` / `services` (TypeScript)
 ### Files that look like backups but are loaded at runtime
 
 `app/config/` mixes deletable backups with **intentional runtime fallbacks** that ship with the app (referenced in `angular.json` assets):
+
 - `env_backup.js` — fallback app config.
 - `keycloak_backup.json` — fallback Keycloak config (used by `keycloak-helper.service.ts`).
 - `*_forAdminViewExplanation.txt` — example text shown in admin config views.
@@ -68,6 +69,7 @@ Do not delete these. Other `*_backup*` / `*_old` files are genuine cruft.
 ### Startup & runtime configuration
 
 The app is configured at **runtime**, not build time. `StartupService` (`app/services/startup-service/startup.service.ts`) runs as an Angular `APP_INITIALIZER` and, before the app renders:
+
 1. Fetches `./config/config-storage-server.json` (URLs of the external **Client Config Service**).
 2. Loads app config (`env.js`), Keycloak config, controls config, and filter config from that service — falling back to the local `app/config/*_backup*` files when unreachable.
 3. Populates the global **`window.__env`** object (typed loosely in `app/globals.d.ts`).
@@ -86,6 +88,7 @@ Keycloak (`keycloak-js`) provides optional role-based access. `AuthInterceptor` 
 ### Components
 
 Under `app/components/ngComponents/`:
+
 - `userInterface/` — the end-user app: `kommonitorMap`, `kommonitorClassification`, `kommonitorLegend`, `sidebar`, `exporting`, `reporting`, modals.
 - `admin/` — management pages: indicators, georesources, spatial units, topics, scripts, roles, dashboard, and `adminConfig/` (app/landingpage/filter/controls config editors).
 - `common/` — shared widgets (loading overlay, notification, stepper, user login, language switcher, etc.).
@@ -96,6 +99,7 @@ Under `app/components/ngComponents/`:
 `app/services/` holds the bulk of the application logic — most components are thin orchestrators over these. Convention: one folder per service, `*.service.ts` + `*.service.spec.ts`.
 
 Key central services (high fan-in; change carefully):
+
 - **`data-exchange-service`** — central data cache + API access + shared UI state (~1290 lines; a shrinking "god service"). Responsibilities have been progressively peeled off into dedicated services (e.g. `*-metadata-store-service`, `metadata-filter-service`, `selection-state-service`, `cache-helper-service`). See `documentation/PRIO7_GOD_SERVICE_SPLIT.md` for the incremental split roadmap and progress.
 - **`map-service`** / `generic-map-helper-service` / `single-feature-map-helper-service` — Leaflet map orchestration.
 - **`diagram-helper-service`** — ECharts chart construction.
@@ -113,6 +117,7 @@ Note: the admin data services in `app/services/adminSpatialUnit/` and `app/servi
 ## Runtime dependencies (external KomMonitor services)
 
 The client is non-functional without these backends (configured via the runtime config above):
+
 - **Data Management API** — main data retrieval/modification.
 - **Client Config Service** — serves app/keycloak/controls/filter config on startup.
 - **Importer** — spatial insert/update for spatial-units, georesources, indicators (admin pages).
@@ -123,6 +128,7 @@ The client is non-functional without these backends (configured via the runtime 
 ## Conventions
 
 - TypeScript is `strict` (`tsconfig.json`), but `noImplicitAny` is **off** — untyped values are common, especially around `window.__env` and legacy data. Angular `strictTemplates` is on.
+- **API types:** Types for the Data Management API are generated from its OpenAPI spec (`api-specs/`, see `api-specs/README.md`) via `npm run generate:api-types` into `app/models/data-management-api.generated.ts`. Import the named re-exports from `models/data-management-api` (e.g. `IndicatorOverviewType`); client-side extensions (extra fields the client attaches) live in `app/components/ngComponents/models/*.models.ts` (e.g. `IndicatorsDataset`, `GeoresourcesDataset`). Prefer these over `any` for API payloads in new/touched code.
 - Path imports are baseUrl-relative to `app/` (e.g. `import { StartupService } from 'services/startup-service/startup.service'`), not just relative paths.
 - jQuery and Bootstrap JS are globals (set up in `main.ts` and loaded via `angular.json`); some components and vendored libs rely on `window.$`.
 - i18n via `@ngx-translate` (default language `de`, files in `app/assets/i18n/`) is set up but inconsistently used — many German labels are still hardcoded.

@@ -1,13 +1,21 @@
 <div class="modal-header">
-  <h4 class="modal-title">Organisationseinheiten löschen</h4>
-  <button type="button" class="btn-close" aria-label="Schließen" (click)="close()"></button>
+  <h4 class="modal-title">{{ 'ADMIN_ROLES.DELETE_MODAL.TITLE' | translate }}</h4>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="close()"
+  ></button>
 </div>
 
 <div class="modal-body">
-  <app-loading-overlay [loading]="deletingInProgress" message="Lösche...">
-    @if (failedDatasetsAndErrors.length) {
+  <app-loading-overlay
+    [loading]="deletingInProgress()"
+    [message]="'ADMIN_ROLES.DELETE_MODAL.DELETING' | translate"
+  >
+    @if (failedDatasetsAndErrors().length) {
       <div class="alert alert-danger" role="alert">
-        @for (entry of failedDatasetsAndErrors; track entry) {
+        @for (entry of failedDatasetsAndErrors(); track entry) {
           <div>
             <b>{{ entry[0].name }}</b
             >: {{ entry[1] }}
@@ -18,13 +26,12 @@
 
     @if (hasChildrenConflict()) {
       <div class="alert alert-danger">
-        Beachten Sie, dass mindestens eine der gewählten Organisationseinheiten über Untergruppen
-        verfügt. Bitte löschen Sie daher zuerst die Untergruppen.
+        {{ 'ADMIN_ROLES.DELETE_MODAL.CHILDREN_CONFLICT' | translate }}
       </div>
     }
 
     <h5>
-      <b>Sollen die folgenden Organisationseinheiten wirklich gelöscht werden?</b>
+      <b>{{ 'ADMIN_ROLES.DELETE_MODAL.CONFIRM_QUESTION' | translate }}</b>
     </h5>
 
     @if (datasetsToDelete.length > 0) {
@@ -32,8 +39,8 @@
         <table class="table table-bordered table-sm" style="overflow: auto; font-size: 11px">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Organisations-ID</th>
+              <th>{{ 'ADMIN_SHARED.NAME' | translate }}</th>
+              <th>{{ 'ADMIN_ROLES.DELETE_MODAL.ORGANIZATION_ID' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -53,14 +60,16 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-outline-secondary" (click)="close()">Schließen</button>
+  <button type="button" class="btn btn-outline-secondary" (click)="close()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
   <div style="flex: 1"></div>
   <button
     type="button"
     class="btn btn-danger"
-    [disabled]="deletingInProgress || datasetsToDelete.length === 0"
+    [disabled]="deletingInProgress() || datasetsToDelete.length === 0"
     (click)="deleteOrganizationalUnits()"
   >
-    Unwiderruflich löschen
+    {{ 'ADMIN_ROLES.DELETE_MODAL.DELETE_FOREVER' | translate }}
   </button>
 </div>

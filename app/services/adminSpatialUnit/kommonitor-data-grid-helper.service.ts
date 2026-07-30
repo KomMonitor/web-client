@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GridOptions, ColDef } from 'ag-grid-community';
+import { ColDef, GridOptions } from 'ag-grid-community';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +14,7 @@ export class KommonitorDataGridHelperService {
   buildDefaultColDef(): ColDef {
     return {
       editable: false,
+      cellDataType: false,
       sortable: true,
       flex: 1,
       minWidth: 200,
@@ -44,6 +45,7 @@ export class KommonitorDataGridHelperService {
       ensureDomOrder: true,
       pagination: true,
       paginationPageSize: 10,
+      paginationPageSizeSelector: [10, 25, 50, 100],
       suppressColumnVirtualisation: true,
     };
   }

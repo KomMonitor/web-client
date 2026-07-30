@@ -1,0 +1,34 @@
+/* Centered, width-constrained field block (method + class count) */
+.centered-field {
+  max-width: 340px;
+  margin: 12px auto;
+  text-align: center;
+
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+}
+
+/* Center the method / class-count trigger controls within their column */
+.control-inline {
+  display: inline-block;
+}
+
+/* Class-count dropdown trigger: wider, with the caret pushed to the right edge. */
+.num-classes-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 100px;
+  text-align: left;
+}
+
+/* Class-count dropdown menu (CDK overlay), mirroring the method/palette selects. */
+.num-classes-menu {
+  display: block;
+  min-width: 100px;
+  max-height: 60vh;
+  overflow-y: auto;
+}

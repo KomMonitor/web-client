@@ -1,6 +1,7 @@
 import { Injectable, NgZone, inject } from '@angular/core';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
@@ -17,6 +18,7 @@ export class ReachabilityCoverageReportsHelperService {
   private kommonitorReachabilityMapHelperService = inject(ReachabilityMapHelperService);
   private zone = inject(NgZone);
   private indicatorValueService = inject(IndicatorValueService);
+  private envConfigService = inject(EnvConfigService);
   private selectionState = inject(SelectionStateService);
 
   // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
@@ -490,7 +492,7 @@ export class ReachabilityCoverageReportsHelperService {
     doc.setFont(this.fontName, 'bolditalic');
     doc.setFontSize(12);
     const poiCoverageTitle = doc.splitTextToSize(
-      `Versorgung der Raumebene "${spatialUnitLayer.feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME]}"`,
+      `Versorgung der Raumebene "${spatialUnitLayer.feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]}"`,
       180
     );
     doc.text(poiCoverageTitle, this.initX, this.nextLineY, { baseline: 'top' });
@@ -517,7 +519,7 @@ export class ReachabilityCoverageReportsHelperService {
         ' von ' +
         this.getIndicatorValue_asFormattedText(
           spatialUnitLayer.feature.properties[
-            window.__env.indicatorDatePrefix + indicatorStatistic.timestamp
+            this.envConfigService.indicatorDatePrefix + indicatorStatistic.timestamp
           ]
         ) +
         ' [' +
@@ -569,7 +571,7 @@ export class ReachabilityCoverageReportsHelperService {
       doc.setFont(this.fontName, 'bolditalic');
       doc.setFontSize(12);
       const poiCoverageTitle = doc.splitTextToSize(
-        `Versorgung der Raumebene "${spatialUnitLayer.feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME]}"`,
+        `Versorgung der Raumebene "${spatialUnitLayer.feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]}"`,
         180
       );
       doc.text(poiCoverageTitle, this.initX, this.nextLineY, { baseline: 'top' });
@@ -644,7 +646,7 @@ export class ReachabilityCoverageReportsHelperService {
     doc.setFont(this.fontName, 'bolditalic');
     doc.setFontSize(12);
     const poiCoverageTitle = doc.splitTextToSize(
-      `Versorgung durch Punkt "${marker.feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME]}"`,
+      `Versorgung durch Punkt "${marker.feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]}"`,
       180
     );
     doc.text(poiCoverageTitle, this.initX, this.nextLineY, { baseline: 'top' });
@@ -693,9 +695,9 @@ export class ReachabilityCoverageReportsHelperService {
             spatialUnitFeatureId
           );
         const spatialUnitFeatureName =
-          indicatorFeature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME];
+          indicatorFeature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME];
 
-        coverage_spatialUnit_range += `${spatialUnitFeatureName}\n${this.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].absoluteCoverage)} von ${indicatorFeature.properties[window.__env.indicatorDatePrefix + indicatorStatistic.timestamp]} [${indicatorStatistic.indicator.unit}]  =>  entspricht ${this.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].relativeCoverage * 100)} [%]\n\n`;
+        coverage_spatialUnit_range += `${spatialUnitFeatureName}\n${this.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].absoluteCoverage)} von ${indicatorFeature.properties[this.envConfigService.indicatorDatePrefix + indicatorStatistic.timestamp]} [${indicatorStatistic.indicator.unit}]  =>  entspricht ${this.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].relativeCoverage * 100)} [%]\n\n`;
       }
 
       coverage_spatialUnit_range = coverage_spatialUnit_range.slice(0, -2);
@@ -739,7 +741,7 @@ export class ReachabilityCoverageReportsHelperService {
       doc.setFont(this.fontName, 'bolditalic');
       doc.setFontSize(12);
       const poiCoverageTitle = doc.splitTextToSize(
-        `Versorgung durch Punkt "${marker.feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME]}"`,
+        `Versorgung durch Punkt "${marker.feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]}"`,
         180
       );
       doc.text(poiCoverageTitle, this.initX, this.nextLineY, { baseline: 'top' });
@@ -988,7 +990,7 @@ export class ReachabilityCoverageReportsHelperService {
 
           if (
             spatialUnitFeatureId ==
-            indicatorFeature.properties[window.__env.FEATURE_ID_PROPERTY_NAME]
+            indicatorFeature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
           ) {
             if (indicatorFeature.properties.overallCoverages[range]) {
               indicatorFeature.properties.overallCoverages[range].absoluteCoverage +=
@@ -997,11 +999,11 @@ export class ReachabilityCoverageReportsHelperService {
                 spatialUnitCoverageEntry.coverage[0].relativeCoverage;
               if (
                 !indicatorFeature.properties.overallCoverages[range].poiFeatureIds.includes(
-                  poiFeature.properties[window.__env.FEATURE_ID_PROPERTY_NAME]
+                  poiFeature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
                 )
               ) {
                 indicatorFeature.properties.overallCoverages[range].poiFeatureIds.push(
-                  poiFeature.properties[window.__env.FEATURE_ID_PROPERTY_NAME]
+                  poiFeature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
                 );
               }
             } else {
@@ -1009,7 +1011,9 @@ export class ReachabilityCoverageReportsHelperService {
                 absoluteCoverage: spatialUnitCoverageEntry.coverage[0].absoluteCoverage,
                 relativeCoverage: spatialUnitCoverageEntry.coverage[0].relativeCoverage,
                 range: range,
-                poiFeatureIds: [poiFeature.properties[window.__env.FEATURE_ID_PROPERTY_NAME]],
+                poiFeatureIds: [
+                  poiFeature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME],
+                ],
               };
             }
           }

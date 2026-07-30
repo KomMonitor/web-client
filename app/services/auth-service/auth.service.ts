@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import Keycloak, { KeycloakLoginOptions, KeycloakTokenParsed } from 'keycloak-js';
+import Keycloak, { KeycloakConfig, KeycloakLoginOptions, KeycloakTokenParsed } from 'keycloak-js';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { NotificationService } from '../../components/ngComponents/common/notification/notification.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -19,10 +19,7 @@ export class AuthService {
 
   async initKeycloak(): Promise<void> {
     if (this.envConfigService.enableKeycloakSecurity) {
-      const keycloakAdapter = new Keycloak(
-        this.envConfigService.configStorageServerConfig
-          .targetUrlToConfigStorageServer_keycloakConfig
-      );
+      const keycloakAdapter = this.createKeycloakAdapter();
 
       // https://www.keycloak.org/docs/latest/securing_apps/#session-status-iframe
       // https://www.keycloak.org/docs/latest/securing_apps/#_modern_browsers
@@ -36,22 +33,39 @@ export class AuthService {
           console.log(authenticated ? 'User is authenticated!' : 'User is not authenticated!');
           this.auth = keycloakAdapter;
           this.startCheckSessionExpiration();
-          try {
-            console.debug('Trying to bootstrap application.');
-          } catch (e) {
-            console.error('Application bootstrapping failed.');
-            console.error(e);
-          }
         })
-        .catch(function () {
+        .catch(() => {
           console.log(
             'Failed to initialize authentication adapter. Will try to bootstrap application without keycloak security'
           );
-          alert(
-            'Failed to initialize keycloak authentication adapter. Will try to bootstrap application without keycloak security'
+          this.notificationSrvc.showError(
+            'Die Keycloak-Authentifizierung konnte nicht initialisiert werden. Die Anwendung wird ohne Keycloak-Sicherheit gestartet.',
+            { autohide: false }
           );
         });
     }
+  }
+
+  /**
+   * Builds the Keycloak adapter. StartupService has usually already fetched the
+   * keycloak.json into window.__env.keycloakConfig, so reuse it (mapping the
+   * installation-format keys to a KeycloakConfig) instead of letting keycloak-js
+   * re-fetch the same URL. Falls back to the URL form when it was not loaded.
+   */
+  private createKeycloakAdapter(): Keycloak {
+    const keycloakConfig = this.envConfigService.keycloakConfig;
+    if (keycloakConfig?.['auth-server-url']) {
+      const config: KeycloakConfig = {
+        url: keycloakConfig['auth-server-url'],
+        realm: keycloakConfig['realm'],
+        clientId: keycloakConfig['resource'],
+      };
+      return new Keycloak(config);
+    }
+
+    return new Keycloak(
+      this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig
+    );
   }
 
   hasAdminRights(): boolean {
@@ -75,6 +89,26 @@ export class AuthService {
 
   public getToken(): string | undefined {
     return this.auth?.token;
+  }
+
+  /**
+   * Refreshes the access token if it is expired or about to expire within
+   * minValidity seconds, then returns the (possibly refreshed) token.
+   * updateToken() is a no-op network-wise if the current token is still
+   * valid long enough, so this is safe to call before every request.
+   */
+  public async ensureValidToken(minValidity = 30): Promise<string | undefined> {
+    if (!this.auth) {
+      return undefined;
+    }
+    try {
+      await this.auth.updateToken(minValidity);
+    } catch {
+      console.error('Failed to refresh Keycloak token. Redirecting to login.');
+      this.auth.login();
+      return undefined;
+    }
+    return this.auth.token;
   }
 
   public getTokenParsed(): KeycloakTokenParsed | undefined {

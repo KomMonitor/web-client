@@ -1,4 +1,4 @@
-import { Injectable, TemplateRef } from '@angular/core';
+import { Injectable, TemplateRef, signal } from '@angular/core';
 
 export interface NotificationOptions {
   header?: string;
@@ -14,17 +14,14 @@ interface Notification {
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
-  notifications: Notification[] = [];
+  readonly notifications = signal<Notification[]>([]);
 
   show(message: string, options: Partial<NotificationOptions> = {}): void {
-    this.notifications.push({
-      content: message,
-      options,
-    });
+    this.push({ content: message, options });
   }
 
   showSuccess(message: string, options: Partial<NotificationOptions> = {}): void {
-    this.notifications.push({
+    this.push({
       content: message,
       options: {
         classname: 'bg-success text-light',
@@ -34,7 +31,7 @@ export class NotificationService {
   }
 
   showError(errorText: string, options: Partial<NotificationOptions> = {}): void {
-    this.notifications.push({
+    this.push({
       content: errorText,
       options: {
         classname: 'bg-danger text-light',
@@ -44,17 +41,18 @@ export class NotificationService {
   }
 
   showTemplate(template: TemplateRef<any>, options: Partial<NotificationOptions> = {}): void {
-    this.notifications.push({
-      content: template,
-      options,
-    });
+    this.push({ content: template, options });
   }
 
   remove(notification: Notification): void {
-    this.notifications = this.notifications.filter((t) => t !== notification);
+    this.notifications.update((list) => list.filter((t) => t !== notification));
   }
 
   clear(): void {
-    this.notifications.splice(0, this.notifications.length);
+    this.notifications.set([]);
+  }
+
+  private push(notification: Notification): void {
+    this.notifications.update((list) => [...list, notification]);
   }
 }

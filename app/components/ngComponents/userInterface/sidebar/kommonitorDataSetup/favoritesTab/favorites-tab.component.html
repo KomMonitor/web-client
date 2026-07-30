@@ -1,3 +1,14 @@
+@if (exportModeService.exportMode()) {
+  <div class="fav-export-bulk-actions">
+    <button type="button" class="btn btn-sm btn-outline-primary" (click)="selectAllForExport()">
+      <i class="fas fa-check-double"></i> Alle in Export übernehmen
+    </button>
+    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="deselectAllForExport()">
+      <i class="fas fa-xmark"></i> Auswahl aufheben
+    </button>
+  </div>
+}
+
 <div class="list-group list-group-root well" style="text-align: left">
   <ng-template #FavsRecursive let-list="list">
     @for (

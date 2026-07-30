@@ -1,38 +1,39 @@
 <div class="modal-header">
-  <h4 class="modal-title" id="modal-title">Indikatoren löschen</h4>
-  <button type="button" class="btn-close" aria-label="Close" (click)="close()">
-    <span aria-hidden="true">&times;</span>
-  </button>
+  <h4 class="modal-title" id="modal-title">
+    {{ 'ADMIN_INDICATORS.DELETE_MODAL.TITLE' | translate }}
+  </h4>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="close()"
+  ></button>
 </div>
 
 <div class="modal-body">
   <!-- Loading Overlay -->
-  @if (loadingData) {
+  @if (loadingData()) {
     <div class="loading-overlay-admin-panel text-center">
       <i class="fas fa-spinner fa-spin fa-2x"></i>
     </div>
   }
 
   <div class="text-center">
-    <h2 class="fs-title">Indikatoren-Daten löschen</h2>
-    <h3 class="fs-subtitle">
-      Hier können einzelne Zeitschnitte oder Raumebenen sowie ganze Indikatoren-Datensätze aus dem
-      System entfernt werden.
-    </h3>
+    <div class="fs-title">{{ 'ADMIN_INDICATORS.DELETE_MODAL.HEADING' | translate }}</div>
+    <div class="fs-subtitle">{{ 'ADMIN_INDICATORS.DELETE_MODAL.SUBTITLE' | translate }}</div>
   </div>
 
-  <div class="row vertical-align">
-    <div class="col-md-6 col-sm-6 col-12">
+  <div class="row align-items-center">
+    <div class="col-12">
       <div class="input-group mb-3">
         <span class="input-group-text"><i class="fas fa-filter"></i></span>
         <input
           type="text"
           class="form-control form-control-sm"
-          placeholder="Stichwortfilter"
+          [placeholder]="'ADMIN_SHARED.KEYWORD_FILTER' | translate"
           [(ngModel)]="indicatorNameFilter"
         />
       </div>
-      <br />
       <div>
         <select
           class="form-control"
@@ -41,7 +42,9 @@
           (ngModelChange)="onChangeSelectedIndicator()"
           required
         >
-          <option [ngValue]="null" disabled>-- Indikator wählen --</option>
+          <option [ngValue]="null" disabled>
+            {{ 'ADMIN_INDICATORS.SELECT_INDICATOR_OPTION' | translate }}
+          </option>
           @for (indicator of getFilteredIndicators(); track indicator) {
             <option [ngValue]="indicator">
               {{ indicator.indicatorName }}
@@ -50,73 +53,57 @@
         </select>
       </div>
     </div>
-    <div class="col-md-6 col-sm-6 col-12">
-      <div class="form-group">
-        <label>Typ*</label>
-        <select [(ngModel)]="indicatorDeleteType" class="form-control" required>
-          @for (deleteType of indicatorDeleteTypes; track deleteType) {
-            <option [ngValue]="deleteType">
-              {{ deleteType.displayName }}
-            </option>
-          }
-        </select>
-        <div class="help-block">
-          <p>Diese Auswahl bestimmt, welche Aspekte des Indikators gelöscht werden sollen.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <br /><br />
-
-  <!-- Indicator Metadata -->
-  @if (selectedIndicatorDataset) {
-    <div class="row vertical-align">
-      <div class="col-md-10 col-sm-12 col-12">
-        <div class="card card-info">
-          <div
-            class="card-header"
-            [attr.data-bs-toggle]="'collapse'"
-            [attr.data-bs-target]="'#indicatorMetadataCollapse'"
-          >
-            <h3 class="card-title">Metadaten des selektierten Indikators</h3>
-            <div class="card-tools">
-              <button
-                type="button"
-                class="btn btn-tool"
-                data-bs-toggle="collapse"
-                data-bs-target="#indicatorMetadataCollapse"
-              >
-                <i class="fas fa-plus"></i>
-              </button>
-            </div>
+    @if (selectedIndicatorDataset) {
+      <div class="col-12 metadata-section">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0 fs-6">
+              {{ 'ADMIN_INDICATORS.DELETE_MODAL.SELECTED_METADATA' | translate }}
+            </h3>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-secondary"
+              (click)="toggleMetadataDetails()"
+              [attr.aria-expanded]="showMetadata()"
+              [attr.aria-label]="'ADMIN_INDICATORS.DELETE_MODAL.TOGGLE_METADATA' | translate"
+            >
+              <i
+                class="fas"
+                [class.fa-chevron-down]="!showMetadata()"
+                [class.fa-chevron-up]="showMetadata()"
+              ></i>
+            </button>
           </div>
-          <div id="indicatorMetadataCollapse" class="collapse">
+          @if (showMetadata()) {
             <div class="card-body">
               <div class="admin-table-wrapper">
                 <table class="table table-bordered table-condensed table-striped">
                   <thead>
                     <tr>
-                      <th>Id</th>
-                      <th>Name</th>
-                      <th>Kürzel/Kennzeichen</th>
-                      <th>Leitindikator</th>
-                      <th>Indikator-Typ</th>
-                      <th>Merkmal</th>
-                      <th>Art der Fortführung</th>
-                      <th>Einheit</th>
-                      <th>Beschreibung</th>
-                      <th>Interpretation</th>
-                      <th>Methodik</th>
-                      <th>Datenquelle</th>
-                      <th>Datengrundlage</th>
-                      <th>Tags/Stichworte</th>
-                      <th>Themenhierarchie</th>
-                      <th>Verfügbare Raumebenen</th>
-                      <th>Verfügbare Zeitpunkte</th>
-                      <th>Datenhalter und Kontakt</th>
-                      <th>zuletzt aktualisiert am</th>
-                      <th>Koordinatensystem</th>
+                      <th>{{ 'ADMIN_SHARED.ID' | translate }}</th>
+                      <th>{{ 'ADMIN_SHARED.NAME' | translate }}</th>
+                      <th>{{ 'ADMIN_INDICATORS.ABBREVIATION' | translate }}</th>
+                      <th>{{ 'ADMIN_INDICATORS.HEADLINE_INDICATOR' | translate }}</th>
+                      <th>{{ 'ADMIN_INDICATORS.INDICATOR_TYPE' | translate }}</th>
+                      <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.CHARACTERISTIC' | translate }}</th>
+                      <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.CREATION_KIND' | translate }}</th>
+                      <th>{{ 'ADMIN_INDICATORS.UNIT' | translate }}</th>
+                      <th>{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}</th>
+                      <th>{{ 'ADMIN_INDICATORS.INTERPRETATION' | translate }}</th>
+                      <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.METHOD' | translate }}</th>
+                      <th>{{ 'ADMIN_SHARED.DATASOURCE' | translate }}</th>
+                      <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.DATA_BASIS' | translate }}</th>
+                      <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.TAGS' | translate }}</th>
+                      <th>{{ 'ADMIN_SHARED_UI.TOPICS.TITLE' | translate }}</th>
+                      <th>
+                        {{ 'ADMIN_INDICATORS.DELETE_MODAL.AVAILABLE_SPATIAL_UNITS' | translate }}
+                      </th>
+                      <th>
+                        {{ 'ADMIN_INDICATORS.DELETE_MODAL.AVAILABLE_TIMESTAMPS' | translate }}
+                      </th>
+                      <th>{{ 'ADMIN_SHARED.DATA_HOLDER_CONTACT' | translate }}</th>
+                      <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.LAST_UPDATED' | translate }}</th>
+                      <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.CRS' | translate }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -124,7 +111,13 @@
                       <td>{{ selectedIndicatorDataset?.indicatorId }}</td>
                       <td>{{ selectedIndicatorDataset?.indicatorName }}</td>
                       <td>{{ selectedIndicatorDataset?.abbreviation }}</td>
-                      <td>{{ selectedIndicatorDataset?.isHeadlineIndicator ? 'Ja' : 'Nein' }}</td>
+                      <td>
+                        {{
+                          selectedIndicatorDataset?.isHeadlineIndicator
+                            ? ('ADMIN_INDICATORS.YES' | translate)
+                            : ('ADMIN_INDICATORS.NO' | translate)
+                        }}
+                      </td>
                       <td>{{ selectedIndicatorDataset?.indicatorType }}</td>
                       <td>{{ selectedIndicatorDataset?.characteristicValue }}</td>
                       <td>{{ selectedIndicatorDataset?.creationType }}</td>
@@ -135,7 +128,11 @@
                       <td>{{ selectedIndicatorDataset?.datasource }}</td>
                       <td>{{ selectedIndicatorDataset?.datasetName }}</td>
                       <td>
-                        @for (tag of selectedIndicatorDataset?.tags; track tag; let last = $last) {
+                        @for (
+                          tag of selectedIndicatorDataset?.tags;
+                          track $index;
+                          let last = $last
+                        ) {
                           <span>
                             {{ tag }}
                             @if (!last) {
@@ -144,20 +141,7 @@
                           </span>
                         }
                       </td>
-                      <td>
-                        @for (
-                          topic of selectedIndicatorDataset?.topicReference;
-                          track topic;
-                          let last = $last
-                        ) {
-                          <span>
-                            {{ topic }}
-                            @if (!last) {
-                              <span>, </span>
-                            }
-                          </span>
-                        }
-                      </td>
+                      <td [innerHTML]="getTopicHierarchyDisplayString()"></td>
                       <td>
                         @for (
                           spatialUnit of selectedIndicatorDataset?.applicableSpatialUnits;
@@ -175,7 +159,7 @@
                       <td>
                         @for (
                           date of selectedIndicatorDataset?.applicableDates;
-                          track date;
+                          track $index;
                           let last = $last
                         ) {
                           <span>
@@ -194,41 +178,45 @@
                 </table>
               </div>
             </div>
-          </div>
+          }
+        </div>
+      </div>
+    }
+    <div class="col-12">
+      <div class="form-group">
+        <label>{{ 'ADMIN_INDICATORS.TYPE' | translate }}*</label>
+        <select [(ngModel)]="indicatorDeleteType" class="form-control" required>
+          @for (deleteType of indicatorDeleteTypes; track deleteType) {
+            <option [ngValue]="deleteType">
+              {{ deleteType.displayName }}
+            </option>
+          }
+        </select>
+        <div class="help-block">
+          <p>{{ 'ADMIN_INDICATORS.DELETE_MODAL.TYPE_HINT' | translate }}</p>
         </div>
       </div>
     </div>
-  }
+  </div>
+
+  <!-- Indicator Metadata -->
 
   @if (selectedIndicatorDataset) {
-    <form
-      class="multiStepForm form-group"
-      id="indicatorDeleteForm"
-      role="form"
-      style="margin-bottom: 0px"
-    >
+    <form id="indicatorDeleteForm" role="form" style="margin-bottom: 0px">
       <fieldset>
         <!-- Complete Dataset Deletion -->
         @if (selectedIndicatorDataset && indicatorDeleteType.apiName === 'indicatorDataset') {
           <div>
-            <h4>Vollständigen Datensatz entfernen</h4>
+            <h4>{{ 'ADMIN_INDICATORS.DELETE_MODAL.DELETE_DATASET_HEADING' | translate }}</h4>
             <p style="color: red">
-              Durch betätigen des Löschen-Buttons wird der gesamte Indikatoren-Datensatz aus dem
-              System unwiderruflich entfernt (Metadaten sowie alle Indikatoren-Werte aller
-              Raumebenen und Zeitschnitte)
+              {{ 'ADMIN_INDICATORS.DELETE_MODAL.DELETE_DATASET_WARNING' | translate }}
             </p>
-            <h3>ACHTUNG!</h3>
-            <p>
-              Dabei werden auch sämtliche <b>Indikatoren-Referenzen</b> und
-              <b>Georessourcen-Referenzen</b> auf den betroffene Indikator dauerhaft aus dem System
-              entfernt. Etwaige <b>Skripte</b>, in denen der betroffene Indikator als
-              Berechnungsgrundlage verwendet werden, werden ebenfalls ungültig und daher aus dem
-              System gelöscht
-            </p>
-            <h4>Betroffene Georessourcen-Referenzen</h4>
+            <h3>{{ 'ADMIN_INDICATORS.DELETE_MODAL.ATTENTION' | translate }}</h3>
+            <p [innerHTML]="'ADMIN_INDICATORS.DELETE_MODAL.CASCADE_WARNING_HTML' | translate"></p>
+            <h4>{{ 'ADMIN_INDICATORS.DELETE_MODAL.AFFECTED_GEORESOURCE_REFS' | translate }}</h4>
             @if (affectedGeoresourceReferences.length === 0) {
               <div>
-                <p>keine</p>
+                <p>{{ 'ADMIN_INDICATORS.DELETE_MODAL.NONE' | translate }}</p>
               </div>
             }
             @if (affectedGeoresourceReferences.length > 0) {
@@ -236,9 +224,13 @@
                 <table class="table table-bordered table-condensed">
                   <thead>
                     <tr>
-                      <th>referenzierte Georessource - ID</th>
-                      <th>referenzierte Georessource - Name</th>
-                      <th>referenzierte Georessource - Beschreibung</th>
+                      <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.REF_GEORESOURCE_ID' | translate }}</th>
+                      <th>
+                        {{ 'ADMIN_INDICATORS.DELETE_MODAL.REF_GEORESOURCE_NAME' | translate }}
+                      </th>
+                      <th>
+                        {{ 'ADMIN_INDICATORS.DELETE_MODAL.REF_GEORESOURCE_DESC' | translate }}
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -253,10 +245,10 @@
                 </table>
               </div>
             }
-            <h4>Betroffene Indikator-Referenzen</h4>
+            <h4>{{ 'ADMIN_INDICATORS.DELETE_MODAL.AFFECTED_INDICATOR_REFS' | translate }}</h4>
             @if (affectedIndicatorReferences.length === 0) {
               <div>
-                <p>keine</p>
+                <p>{{ 'ADMIN_INDICATORS.DELETE_MODAL.NONE' | translate }}</p>
               </div>
             }
             @if (affectedIndicatorReferences.length > 0) {
@@ -264,9 +256,9 @@
                 <table class="table table-bordered table-condensed">
                   <thead>
                     <tr>
-                      <th>referenzierter Indikator - ID</th>
-                      <th>referenzierter Indikator - Name</th>
-                      <th>referenzierter Indikator - Beschreibung</th>
+                      <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.REF_INDICATOR_ID' | translate }}</th>
+                      <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.REF_INDICATOR_NAME' | translate }}</th>
+                      <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.REF_INDICATOR_DESC' | translate }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -281,10 +273,10 @@
                 </table>
               </div>
             }
-            <h4>Betroffene Skripte</h4>
+            <h4>{{ 'ADMIN_INDICATORS.DELETE_MODAL.AFFECTED_SCRIPTS' | translate }}</h4>
             @if (affectedScripts.length === 0) {
               <div>
-                <p>keine</p>
+                <p>{{ 'ADMIN_INDICATORS.DELETE_MODAL.NONE' | translate }}</p>
               </div>
             }
             @if (affectedScripts.length > 0) {
@@ -292,14 +284,16 @@
                 <table class="table table-bordered table-condensed">
                   <thead>
                     <tr>
-                      <th>Skript-ID</th>
-                      <th>Skript-Name</th>
-                      <th>Skript-Beschreibung</th>
-                      <th>ID des berechneten Indikators</th>
+                      <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.SCRIPT_ID' | translate }}</th>
+                      <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.SCRIPT_NAME' | translate }}</th>
+                      <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.SCRIPT_DESC' | translate }}</th>
+                      <th>
+                        {{ 'ADMIN_INDICATORS.DELETE_MODAL.COMPUTED_INDICATOR_ID' | translate }}
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    @for (script of affectedScripts; track trackByIndex($index, script)) {
+                    @for (script of affectedScripts; track script.scriptId) {
                       <tr>
                         <td>{{ script.scriptId }}</td>
                         <td>{{ script.name }}</td>
@@ -316,8 +310,8 @@
         <!-- Timestamp Deletion -->
         @if (selectedIndicatorDataset && indicatorDeleteType.apiName === 'indicatorTimestamp') {
           <div>
-            <h4>Zeitschnitte entfernen</h4>
-            <p>Hier können einzelne Zeitschnitte für alle verfügbaren Raumebenen entfernt werden</p>
+            <h4>{{ 'ADMIN_INDICATORS.DELETE_MODAL.DELETE_TIMESTAMPS_HEADING' | translate }}</h4>
+            <p>{{ 'ADMIN_INDICATORS.DELETE_MODAL.DELETE_TIMESTAMPS_HINT' | translate }}</p>
             <div class="form-check">
               <input
                 class="form-check-input"
@@ -327,7 +321,12 @@
                 (change)="onChangeSelectIndicatorTimestampEntries()"
               />
               <label class="form-check-label" for="selectAllTimestamps">
-                Alle Zeitschnitte {{ selectIndicatorTimestampsInput ? 'ab' : '' }}wählen
+                {{
+                  (selectIndicatorTimestampsInput
+                    ? 'ADMIN_INDICATORS.DELETE_MODAL.DESELECT_ALL_TIMESTAMPS'
+                    : 'ADMIN_INDICATORS.DELETE_MODAL.SELECT_ALL_TIMESTAMPS'
+                  ) | translate
+                }}
               </label>
             </div>
             @if (currentApplicableDates.length > 0) {
@@ -336,8 +335,8 @@
                   <table class="table table-bordered table-condensed">
                     <thead>
                       <tr>
-                        <th>Auswählen</th>
-                        <th>Zeitschnitt</th>
+                        <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.SELECT_COLUMN' | translate }}</th>
+                        <th>{{ 'ADMIN_INDICATORS.TIMESTAMP' | translate }}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -348,6 +347,7 @@
                               type="checkbox"
                               class="form-check-input"
                               [(ngModel)]="date.isSelected"
+                              [ngModelOptions]="{ standalone: true }"
                             />
                           </td>
                           <td>{{ date.timestamp }}</td>
@@ -363,8 +363,8 @@
         <!-- Spatial Unit Deletion -->
         @if (selectedIndicatorDataset && indicatorDeleteType.apiName === 'indicatorSpatialUnit') {
           <div>
-            <h4>Raumebenen entfernen</h4>
-            <p>Hier können einzelne Raumebenen für alle verfügbaren Zeitschnitte entfernt werden</p>
+            <h4>{{ 'ADMIN_INDICATORS.DELETE_MODAL.DELETE_SPATIAL_UNITS_HEADING' | translate }}</h4>
+            <p>{{ 'ADMIN_INDICATORS.DELETE_MODAL.DELETE_SPATIAL_UNITS_HINT' | translate }}</p>
             <div class="form-check">
               <input
                 class="form-check-input"
@@ -374,7 +374,12 @@
                 (change)="onChangeSelectIndicatorSpatialUnitsEntries()"
               />
               <label class="form-check-label" for="selectAllSpatialUnits">
-                Alle Raumebenen {{ selectIndicatorSpatialUnitsInput ? 'ab' : '' }}wählen
+                {{
+                  (selectIndicatorSpatialUnitsInput
+                    ? 'ADMIN_INDICATORS.DELETE_MODAL.DESELECT_ALL_SPATIAL_UNITS'
+                    : 'ADMIN_INDICATORS.DELETE_MODAL.SELECT_ALL_SPATIAL_UNITS'
+                  ) | translate
+                }}
               </label>
             </div>
             @if (currentApplicableSpatialUnits.length > 0) {
@@ -383,8 +388,8 @@
                   <table class="table table-bordered table-condensed">
                     <thead>
                       <tr>
-                        <th>Auswählen</th>
-                        <th>Raumebene</th>
+                        <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.SELECT_COLUMN' | translate }}</th>
+                        <th>{{ 'ADMIN_INDICATORS.SPATIAL_UNIT' | translate }}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -395,6 +400,7 @@
                               type="checkbox"
                               class="form-check-input"
                               [(ngModel)]="spatialUnit.isSelected"
+                              [ngModelOptions]="{ standalone: true }"
                             />
                           </td>
                           <td>{{ spatialUnit.spatialUnitMetadata.spatialUnitLevel }}</td>
@@ -412,32 +418,29 @@
   }
 
   <!-- Success Alert -->
-  @if (showSuccessAlert) {
+  @if (showSuccessAlert()) {
     <div class="alert alert-success alert-dismissible position-absolute bottom-0 w-100">
       <button
         type="button"
         class="btn-close"
         (click)="hideSuccessAlert()"
-        aria-label="Close"
+        [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
       ></button>
       <h4>
-        <i class="fas fa-check"></i> Folgende Indikatoren-Daten sowie assoziierte Indikatoren- und
-        Georessourcen-Referenzen und Skripte, bei denen Indikatoren als Berechnungsgrundlage
-        verwendet werden, wurden erfolgreich gelöscht
+        <i class="fas fa-check"></i>
+        {{ 'ADMIN_INDICATORS.DELETE_MODAL.SUCCESS_HEADING' | translate }}
       </h4>
-      @if (successfullyDeletedDatasets.length > 0) {
+      @if (successfullyDeletedDatasets().length > 0) {
         <div>
-          <h4>
-            Gesamter Indikatorendatensatz (Metadaten sowie alle Zeitreihen-Werte und Raumebenen)
-          </h4>
+          <h4>{{ 'ADMIN_INDICATORS.DELETE_MODAL.SUCCESS_DATASET_HEADING' | translate }}</h4>
           <ul>
-            @for (dataset of successfullyDeletedDatasets; track dataset) {
+            @for (dataset of successfullyDeletedDatasets(); track dataset) {
               <li>{{ dataset.indicatorName }}</li>
             }
           </ul>
           @if (affectedScripts.length > 0) {
             <div>
-              <h4>Skripte</h4>
+              <h4>{{ 'ADMIN_INDICATORS.DELETE_MODAL.SCRIPTS' | translate }}</h4>
               <ul>
                 @for (script of affectedScripts; track script) {
                   <li>{{ script.name }}</li>
@@ -447,7 +450,7 @@
           }
           @if (affectedGeoresourceReferences.length > 0) {
             <div>
-              <h4>Referenzen zu Georessourcen</h4>
+              <h4>{{ 'ADMIN_INDICATORS.GEORESOURCE_REFERENCES' | translate }}</h4>
               <ul>
                 @for (reference of affectedGeoresourceReferences; track reference) {
                   <li>{{ reference.georesourceReference.referencedGeoresourceName }}</li>
@@ -457,7 +460,7 @@
           }
           @if (affectedIndicatorReferences.length > 0) {
             <div>
-              <h4>Referenzen zu anderen Indikatoren</h4>
+              <h4>{{ 'ADMIN_INDICATORS.INDICATOR_REFERENCES' | translate }}</h4>
               <ul>
                 @for (reference of affectedIndicatorReferences; track reference) {
                   <li>{{ reference.indicatorReference.referencedIndicatorName }}</li>
@@ -467,21 +470,21 @@
           }
         </div>
       }
-      @if (successfullyDeletedTimestamps.length > 0) {
+      @if (successfullyDeletedTimestamps().length > 0) {
         <div>
-          <h4>Zeitschnitte</h4>
+          <h4>{{ 'ADMIN_INDICATORS.DELETE_MODAL.TIMESTAMPS' | translate }}</h4>
           <ul>
-            @for (timestamp of successfullyDeletedTimestamps; track timestamp) {
+            @for (timestamp of successfullyDeletedTimestamps(); track timestamp) {
               <li>{{ timestamp.timestamp }}</li>
             }
           </ul>
         </div>
       }
-      @if (successfullyDeletedSpatialUnits.length > 0) {
+      @if (successfullyDeletedSpatialUnits().length > 0) {
         <div>
-          <h4>Raumebenen</h4>
+          <h4>{{ 'ADMIN_INDICATORS.DELETE_MODAL.SPATIAL_UNITS' | translate }}</h4>
           <ul>
-            @for (spatialUnit of successfullyDeletedSpatialUnits; track spatialUnit) {
+            @for (spatialUnit of successfullyDeletedSpatialUnits(); track spatialUnit) {
               <li>{{ spatialUnit.spatialUnitMetadata.spatialUnitLevel }}</li>
             }
           </ul>
@@ -491,28 +494,30 @@
   }
 
   <!-- Error Alert -->
-  @if (showErrorAlert) {
+  @if (showErrorAlert()) {
     <div class="alert alert-danger alert-dismissible position-absolute bottom-0 w-100">
       <button
         type="button"
         class="btn-close"
         (click)="hideErrorAlert()"
-        aria-label="Close"
+        [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
       ></button>
-      <h4><i class="fas fa-ban"></i> Löschen gescheitert</h4>
-      Folgende Datensätze konnten nicht gelöscht werden.
+      <h4>
+        <i class="fas fa-ban"></i> {{ 'ADMIN_INDICATORS.DELETE_MODAL.DELETE_FAILED' | translate }}
+      </h4>
+      {{ 'ADMIN_INDICATORS.DELETE_MODAL.DELETE_FAILED_TEXT' | translate }}
       <br />
-      @if (failedDatasetsAndErrors.length > 0) {
+      @if (failedDatasetsAndErrors().length > 0) {
         <div>
           <table class="table table-bordered table-condensed">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Fehlermeldung</th>
+                <th>{{ 'ADMIN_SHARED.NAME' | translate }}</th>
+                <th>{{ 'ADMIN_INDICATORS.ERROR_MESSAGE' | translate }}</th>
               </tr>
             </thead>
             <tbody>
-              @for (dataset of failedDatasetsAndErrors; track dataset) {
+              @for (dataset of failedDatasetsAndErrors(); track dataset) {
                 <tr>
                   <td>{{ dataset[0].indicatorName }}</td>
                   <td [innerHTML]="dataset[1]"></td>
@@ -522,17 +527,17 @@
           </table>
         </div>
       }
-      @if (failedTimestampsAndErrors.length > 0) {
+      @if (failedTimestampsAndErrors().length > 0) {
         <div>
           <table class="table table-bordered table-condensed">
             <thead>
               <tr>
-                <th>Zeitschnitt</th>
-                <th>Fehlermeldung</th>
+                <th>{{ 'ADMIN_INDICATORS.TIMESTAMP' | translate }}</th>
+                <th>{{ 'ADMIN_INDICATORS.ERROR_MESSAGE' | translate }}</th>
               </tr>
             </thead>
             <tbody>
-              @for (dataset of failedTimestampsAndErrors; track dataset) {
+              @for (dataset of failedTimestampsAndErrors(); track dataset) {
                 <tr>
                   <td>{{ dataset[0].timestamp }}</td>
                   <td [innerHTML]="dataset[1]"></td>
@@ -542,17 +547,17 @@
           </table>
         </div>
       }
-      @if (failedSpatialUnitsAndErrors.length > 0) {
+      @if (failedSpatialUnitsAndErrors().length > 0) {
         <div>
           <table class="table table-bordered table-condensed">
             <thead>
               <tr>
-                <th>Raumebene</th>
-                <th>Fehlermeldung</th>
+                <th>{{ 'ADMIN_INDICATORS.SPATIAL_UNIT' | translate }}</th>
+                <th>{{ 'ADMIN_INDICATORS.ERROR_MESSAGE' | translate }}</th>
               </tr>
             </thead>
             <tbody>
-              @for (dataset of failedSpatialUnitsAndErrors; track dataset) {
+              @for (dataset of failedSpatialUnitsAndErrors(); track dataset) {
                 <tr>
                   <td>{{ dataset[0].spatialUnitMetadata.spatialUnitLevel }}</td>
                   <td [innerHTML]="dataset[1]"></td>
@@ -567,19 +572,21 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-secondary" (click)="close()">Abbrechen</button>
+  <button type="button" class="btn btn-secondary" (click)="close()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
+  </button>
   <button
     type="button"
     class="btn btn-danger"
-    [disabled]="!selectedIndicatorDataset || loadingData"
+    [disabled]="!selectedIndicatorDataset || loadingData()"
     (click)="deleteIndicatorData()"
   >
-    @if (!loadingData) {
+    @if (!loadingData()) {
       <i class="fas fa-trash"></i>
     }
-    @if (loadingData) {
+    @if (loadingData()) {
       <i class="fas fa-spinner fa-spin"></i>
     }
-    Löschen
+    {{ 'ADMIN_SHARED.DELETE' | translate }}
   </button>
 </div>

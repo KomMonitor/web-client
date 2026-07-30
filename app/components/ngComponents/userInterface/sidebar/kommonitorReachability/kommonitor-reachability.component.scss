@@ -3,6 +3,18 @@
     &.margin-bottom {
       margin-bottom: 0.5em;
     }
+
+    &.green {
+      border: 1px solid #157347 !important;
+      color: #157347;
+      background: #15734720 !important;
+    }
+
+    &.red {
+      border: 1px solid #bb2d3b !important;
+      color: #bb2d3b;
+      background: #bb2d3b20 !important;
+    }
   }
 
   .button-wrapper {
@@ -59,7 +71,7 @@
     font-size: 1.2em;
     background: var(--kommonitor-hierarchy-level-0);
     padding: 0.2em 0.5em;
-    margin: 0.15em;
+    margin: 0.15em 0;
     border-radius: 0.2em;
 
     * {
@@ -79,7 +91,7 @@
   .mapSelection_info {
     text-align: center;
     padding: 0.5em;
-    margin-top: 2em;
+    margin: 1em 0;
     background: var(--kommonitor-hierarchy-level-0);
     border: 2px dotted var(--kommonitor-primary);
     border-radius: 0.5em;

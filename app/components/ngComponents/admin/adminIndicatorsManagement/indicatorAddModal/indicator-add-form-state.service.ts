@@ -1,14 +1,21 @@
-import { Injectable, inject } from '@angular/core';
-import { downloadJson, readJsonFile } from 'util/json-file.util';
+import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
-import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
-import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
-import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
-import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
-import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { StepperStep } from 'components/ngComponents/common/stepper/stepper.component';
-import { mergeColorSchemes } from 'components/ngComponents/userInterface/kommonitorClassification/colors';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
+import { downloadJson, readJsonFile } from 'util/json-file.util';
+import {
+  buildResourceMetadataForm,
+  patchMetadataFormFromApi,
+  ResourceMetadataFormValue,
+} from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
+import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
+import { IndicatorClassificationStateService } from './indicator-classification-state.service';
 
 /**
  * Holds the entire form state and state-manipulating logic for the
@@ -18,46 +25,65 @@ import { mergeColorSchemes } from 'components/ngComponents/userInterface/kommoni
  */
 @Injectable()
 export class IndicatorAddFormStateService {
-  protected accessControlService = inject(AccessControlService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
-  private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private envConfigService = inject(EnvConfigService);
+  private topicHierarchyService = inject(TopicHierarchyService);
+  private accessControlService = inject(AccessControlService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
+  private destroyRef = inject(DestroyRef);
 
-  // Multi-step form
-  currentStep = 1;
-  totalSteps = 7; // Will be adjusted based on security settings
+  // Classification (wizard step 5) state + logic, peeled off into its own service.
+  // Everything classification-related delegates here; templates read it via
+  // `state.classification.*`.
+  readonly classification = inject(IndicatorClassificationStateService);
 
-  // Stepper labels — the security step is only present when Keycloak is enabled,
-  // mirroring the conditional fieldset below. References are stable so the
-  // stepper only re-evaluates when the security flag actually changes.
-  private readonly stepsWithSecurity: StepperStep[] = [
-    { label: 'Metadaten des Indikators' },
-    { label: 'Allgemeine Metadaten' },
-    { label: 'Themenhierarchie' },
-    { label: 'Referenzen zu Indikatoren/Georessourcen' },
-    { label: 'Klassifizierungsoptionen' },
-    { label: 'regionale Vergleichswerte' },
-    { label: 'Zugriffsschutz und Eigentümerschaft' },
-  ];
-  private readonly stepsWithoutSecurity: StepperStep[] = [
-    { label: 'Metadaten des Indikators' },
-    { label: 'Allgemeine Metadaten' },
-    { label: 'Themenhierarchie' },
-    { label: 'Referenzen zu Indikatoren/Georessourcen' },
-    { label: 'Klassifizierungsoptionen' },
-    { label: 'regionale Vergleichswerte' },
-  ];
-  get steps(): StepperStep[] {
-    return this.envConfigService.enableKeycloakSecurity
-      ? this.stepsWithSecurity
-      : this.stepsWithoutSecurity;
-  }
+  // Edit mode: when the wizard is opened to edit an existing indicator, this
+  // holds the source dataset and its id. In this mode the modal submits a
+  // metadata PATCH (see buildPatchBody_indicators_v3) instead of a POST.
+  editMode = false;
+  editIndicatorDataset: any = null;
+  editIndicatorId: string | null = null;
+
+  // Multi-step form; the security step is only present when Keycloak is
+  // enabled, mirroring the conditional step component in the template.
+  readonly stepper = new WizardStepper([
+    { key: 'metadata', label: 'ADMIN_SHARED_UI.STEP_LABELS.INDICATOR_METADATA' },
+    { key: 'general', label: 'ADMIN_SHARED_UI.STEP_LABELS.GENERAL_METADATA' },
+    { key: 'topics', label: 'ADMIN_SHARED_UI.TOPICS.TITLE' },
+    { key: 'references', label: 'ADMIN_SHARED_UI.STEP_LABELS.REFERENCES' },
+    { key: 'classification', label: 'ADMIN_SHARED_UI.STEP_LABELS.CLASSIFICATION_OPTIONS' },
+    { key: 'referenceValues', label: 'ADMIN_SHARED_UI.STEP_LABELS.REGIONAL_REFERENCE_VALUES' },
+    {
+      key: 'security',
+      label: 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE',
+      when: () => this.envConfigService.enableKeycloakSecurity,
+    },
+  ]);
 
   // Form data
-  loadingData = false;
+  /**
+   * Bumped whenever an async code path rewrites plain form-state fields in
+   * bulk (metadata file import, owner-organization fetch). The OnPush wizard
+   * shell and step components mirror this via an `effect` + `markForCheck`,
+   * so their templates re-read the plain fields afterwards.
+   */
+  readonly stateRevision = signal(0);
+  private bumpStateRevision(): void {
+    this.stateRevision.update((revision) => revision + 1);
+  }
+
+  // Signal-backed behind getter/setter shims: written across await boundaries
+  // by the wizard shell while its OnPush template reads them.
+  private readonly _loadingData = signal(false);
+  get loadingData(): boolean {
+    return this._loadingData();
+  }
+  set loadingData(value: boolean) {
+    this._loadingData.set(value);
+  }
 
   // Basic form data
   datasetName = '';
@@ -77,17 +103,11 @@ export class IndicatorAddFormStateService {
   showCustomCommaValue = false;
 
   // Metadata
-  metadata: any = {
-    description: '',
-    databasis: '',
-    datasource: '',
-    contact: '',
-    updateInterval: null,
-    lastUpdate: '',
-    literature: '',
-    note: '',
-    sridEPSG: 4326,
-  };
+  metadataForm = buildResourceMetadataForm();
+  /** Read-only view of the metadata form value for post-/patch-body building. */
+  get metadata(): ResourceMetadataFormValue {
+    return this.metadataForm.getRawValue();
+  }
 
   // References
   indicatorReferences_adminView: any[] = [];
@@ -114,46 +134,56 @@ export class IndicatorAddFormStateService {
   additionalSubTopics: any[] = [];
   additionalTopicAssignments: Array<{ topic: any; subTopic: any }> = [];
 
-  // Classification
-  numClassesArray = [3, 4, 5, 6, 7, 8];
-  numClassesPerSpatialUnit = 5;
-  classificationMethod = 'regional_default';
-  selectedColorBrewerPaletteEntry: any = null;
-  spatialUnitClassification: any[] = [];
-  classBreaksInvalid = false;
-  tabClasses: string[] = [];
-
   // Role management
-  roleManagementTableOptions: any = null;
   ownerOrganization: any = null;
   ownerOrgFilter = '';
   isPublic = false;
 
+  // The role grid is the shared <app-role-management-grid> rendered by the step-7
+  // access component. Because the step components are created/destroyed while
+  // navigating the wizard, step 7 attaches its grid here on view init and detaches
+  // it on destroy; the selection is harvested into `storedPermissionIds` so it
+  // survives leaving the step. The grid only appears once an owner organization is
+  // chosen (`showRoleForm`), mirroring the sibling spatial-unit/georesource add modals.
+  showRoleForm = false;
+  private attachedRoleGrid: RoleManagementGridComponent | null = null;
+  private storedPermissionIds: string[] | null = null;
+
   // Import/Export functionality
   metadataImportSettings: any = null;
-  indicatorMetadataImportError = '';
+  private readonly _indicatorMetadataImportError = signal('');
+  get indicatorMetadataImportError(): string {
+    return this._indicatorMetadataImportError();
+  }
+  set indicatorMetadataImportError(value: string) {
+    this._indicatorMetadataImportError.set(value);
+  }
 
   // Success/Error data
   successMessage = '';
   errorMessage = '';
-  successMessagePart = '';
-  errorMessagePart = '';
+  private readonly _successMessagePart = signal('');
+  get successMessagePart(): string {
+    return this._successMessagePart();
+  }
+  set successMessagePart(value: string) {
+    this._successMessagePart.set(value);
+  }
+  private readonly _errorMessagePart = signal('');
+  get errorMessagePart(): string {
+    return this._errorMessagePart();
+  }
+  set errorMessagePart(value: string) {
+    this._errorMessagePart.set(value);
+  }
 
   // Available options
   availableSpatialUnits: any[] = [];
   updateIntervalOptions: any[] = [];
   indicatorTypeOptions: any[] = [];
-  colorbrewerPalettes: any[] = [];
-  colorbrewerSchemes: any = {};
   availableIndicators: any[] = [];
   availableGeoresources: any[] = [];
   availableTopics: any[] = [];
-  accessControl: any[] = [];
-  colorbreweSchemeName_dynamicIncrease = 'Blues';
-  colorbreweSchemeName_dynamicDecrease = 'Reds';
-
-  // Step 5: Classification Options
-  currentClassificationTab = 0;
 
   // Step 6: Regional Comparison Values
   comparisonValueType: string | null = null;
@@ -178,10 +208,19 @@ export class IndicatorAddFormStateService {
   redThreshold: number | null = null;
 
   // Step 7: Access Control and Ownership
-  filteredOrganizations: any[] = [];
-  roleFilter = '';
-  filteredRoles: any[] = [];
-  selectedRoles: any[] = [];
+  // Base list of organizations the user may assign as owner (full accessControl
+  // for admins, resource-creator subset otherwise); `filteredOrganizations` is the
+  // filtered view of it shown in the dropdown.
+  ownerOrganizations: any[] = [];
+  // Signal-backed shim: filled after the async access-control fetch while the
+  // OnPush step-7 template iterates it.
+  private readonly _filteredOrganizations = signal<any[]>([]);
+  get filteredOrganizations(): any[] {
+    return this._filteredOrganizations();
+  }
+  set filteredOrganizations(value: any[]) {
+    this._filteredOrganizations.set(value);
+  }
 
   // Advanced access control
   enableTimeRestrictedAccess = false;
@@ -248,77 +287,27 @@ export class IndicatorAddFormStateService {
       this.availableTopics = this.topicStore.availableTopics;
     }
 
-    // Load access control
-    if (this.accessControlService.accessControl) {
-      this.accessControl = this.accessControlService.accessControl;
-    }
-
-    // Load color brewer schemes
-    this.loadColorBrewerSchemes();
+    // Load color brewer schemes and initialize the per-spatial-unit classification tabs.
+    this.classification.init(this.availableSpatialUnits);
 
     // Initialize filtered lists for Step 4
     this.filteredIndicators = this.availableIndicators || [];
     this.filteredGeoresources = this.availableGeoresources || [];
 
     // Initialize data for Step 7
-    this.filteredOrganizations = this.accessControl || [];
-    this.filteredRoles = this.accessControl || [];
+    this.loadOwnerOrganizations();
     this.availableRegions = this.availableSpatialUnits || [];
 
     this.loadingData = false;
   }
 
   initializeMultiStepForm() {
-    // Initialize multi-step form based on security settings
-    if (this.envConfigService.enableKeycloakSecurity) {
-      this.totalSteps = 7; // Include role management step
-    } else {
-      this.totalSteps = 6;
-    }
+    // The role-management grid is (re)built from the admin access-control data once
+    // it is available (see prepareOwnerOrganizationList / rebuildRoleManagementGrid),
+    // so nothing to build here up front.
 
-    // Initialize role management if available
-    if (this.accessControlService.accessControl && this.roleManagementHelper) {
-      this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-        'indicatorAddRoleManagementTable',
-        this.roleManagementTableOptions,
-        this.accessControlService.accessControl,
-        []
-      );
-    }
-
-    // Initialize classification
-    this.onNumClassesChanged(this.numClassesPerSpatialUnit);
-  }
-
-  private loadColorBrewerSchemes() {
-    // Build the colorbrewer schemes from the bundled palettes merged with any custom
-    // schemes from config — the same reliable source app-color-palette-select uses.
-    // (window.colorbrewer is not loaded globally in the migrated app, so reading it
-    // here left the schemes/palettes empty and the selected palette unset.)
-    this.colorbrewerSchemes = mergeColorSchemes(this.envConfigService.customColorSchemes);
-
-    this.instantiateColorBrewerPalettes();
-  }
-
-  private instantiateColorBrewerPalettes() {
-    this.colorbrewerPalettes = [];
-
-    for (const key in this.colorbrewerSchemes) {
-      if (Object.prototype.hasOwnProperty.call(this.colorbrewerSchemes, key)) {
-        const colorPalettes = this.colorbrewerSchemes[key];
-
-        const paletteEntry = {
-          paletteName: key,
-          paletteArrayObject: colorPalettes,
-        };
-
-        this.colorbrewerPalettes.push(paletteEntry);
-      }
-    }
-
-    // Instantiate with palette 'Blues'
-    this.selectedColorBrewerPaletteEntry =
-      this.colorbrewerPalettes[13] || this.colorbrewerPalettes[0];
+    // Initialize classification tabs (palettes were already loaded in loadInitialData).
+    this.classification.onNumClassesChanged(this.classification.numClassesPerSpatialUnit());
   }
 
   checkDatasetName() {
@@ -476,10 +465,10 @@ export class IndicatorAddFormStateService {
       refrencesToOtherIndicators: this.indicatorReferences_apiRequest,
       refrencesToGeoresources: this.georesourceReferences_apiRequest,
       defaultClassificationMapping: {
-        colorBrewerSchemeName: this.selectedColorBrewerPaletteEntry?.paletteName,
-        numClasses: this.numClassesPerSpatialUnit,
-        classificationMethod: this.classificationMethod,
-        items: this.spatialUnitClassification.map((classification) => ({
+        colorBrewerSchemeName: this.classification.selectedColorBrewerPaletteEntry()?.paletteName,
+        numClasses: this.classification.numClassesPerSpatialUnit(),
+        classificationMethod: this.classification.classificationMethod(),
+        items: this.classification.spatialUnitClassification().map((classification) => ({
           spatialUnit: classification.spatialUnitId,
           breaks: classification.breaks.filter((breakVal) => breakVal !== null),
         })),
@@ -510,18 +499,401 @@ export class IndicatorAddFormStateService {
     }
 
     // Add role permissions
-    if (this.roleManagementTableOptions && this.roleManagementHelper) {
-      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-        this.roleManagementTableOptions
-      );
-      if (roleIds && Array.isArray(roleIds)) {
-        for (const roleId of roleIds) {
-          postBody.allowedRoles.push(roleId);
-        }
-      }
+    postBody.allowedRoles.push(...this.getSelectedRoleIds());
+
+    return postBody;
+  }
+
+  /**
+   * Builds the POST body strictly following the KomMonitor Data Management API v3
+   * schema `IndicatorPOSTInputType` (verified against the OpenAPI docs). Unlike
+   * {@link buildPostBody_indicators} this method:
+   *  - sends every required field unconditionally (`tags`, `topicReference`,
+   *    `characteristicValue`, `ownerId`, `isPublic`, `permissions`),
+   *  - uses the correct field names (`permissions` not `allowedRoles`,
+   *    classification item key `spatialUnitId` not `spatialUnit`),
+   *  - uppercases `classificationMethod` to match the API enum,
+   *  - emits references in the `{ indicatorId | georesourceId, referenceDescription }`
+   *    shape, built directly from the admin-view lists (no shared state).
+   * Kept alongside the legacy builder so both can be compared against the live API.
+   */
+  buildPostBody_indicators_v3() {
+    // Resolve the selected topic id from the deepest selected hierarchy level.
+    const topicReference =
+      this.indicatorTopic_subsubsubTopic?.topicId ??
+      this.indicatorTopic_subsubTopic?.topicId ??
+      this.indicatorTopic_subTopic?.topicId ??
+      this.indicatorTopic_mainTopic?.topicId ??
+      '';
+
+    // Tags: always an array (required field), empty when none entered.
+    const tags = this.indicatorTagsString_withCommas
+      ? this.indicatorTagsString_withCommas.split(',').map((tag: string) => tag.trim())
+      : [];
+
+    // Permissions: role ids selected in the role-management grid (required array).
+    const permissions: string[] = [...this.getSelectedRoleIds()];
+
+    const postBody: any = {
+      // required
+      datasetName: this.datasetName,
+      characteristicValue: '', // no dedicated UI field yet; API requires the property
+      creationType: this.indicatorCreationType?.apiName,
+      isHeadlineIndicator: this.isHeadlineIndicator,
+      interpretation: this.indicatorInterpretation,
+      processDescription: this.indicatorProcessDescription,
+      unit: this.indicatorUnit,
+      topicReference,
+      tags,
+      permissions,
+      // ownerOrganization holds the full org object from the picker; the API
+      // expects only its identifier. Fall back to the raw value if a bare id is set.
+      ownerId: this.ownerOrganization?.organizationalUnitId ?? this.ownerOrganization,
+      isPublic: this.isPublic ? true : false,
+      metadata: {
+        // required metadata fields
+        contact: this.metadata.contact,
+        datasource: this.metadata.datasource,
+        description: this.metadata.description,
+        updateInterval: this.metadata.updateInterval?.apiName,
+        // optional / nullable metadata fields
+        note: this.metadata.note || null,
+        literature: this.metadata.literature || null,
+        databasis: this.metadata.databasis || null,
+        lastUpdate: this.metadata.lastUpdate || null,
+        sridEPSG: this.metadata.sridEPSG || 4326,
+      },
+      defaultClassificationMapping: this.classification.buildDefaultClassificationMapping(),
+      // optional top-level fields
+      abbreviation: this.indicatorAbbreviation || null,
+      indicatorType: this.indicatorType?.apiName,
+      displayOrder: this.displayOrder,
+      referenceDateNote: this.indicatorReferenceDateNote || null,
+      lowestSpatialUnitForComputation:
+        this.indicatorLowestSpatialUnitMetadataObjectForComputation?.spatialUnitLevel ?? null,
+      refrencesToOtherIndicators: this.indicatorReferences_adminView.map((ref) => ({
+        indicatorId: ref.indicatorMetadata.indicatorId,
+        referenceDescription: ref.referenceDescription,
+      })),
+      refrencesToGeoresources: this.georesourceReferences_adminView.map((ref) => ({
+        georesourceId: ref.georesourceMetadata.georesourceId,
+        referenceDescription: ref.referenceDescription,
+      })),
+    };
+
+    // Precision is optional; only send it when a custom value is enabled.
+    if (this.showCustomCommaValue && this.indicatorPrecision !== null) {
+      postBody.precision = this.indicatorPrecision;
     }
 
     return postBody;
+  }
+
+  /**
+   * Returns the required `IndicatorPOSTInputType` fields that are still blank in
+   * the API-v3 body, as `{ label }` entries for a user-facing validation dialog.
+   * (Booleans, `tags`/`permissions` empty-arrays and `characteristicValue` — which
+   * has no UI field yet — are intentionally not treated as missing.)
+   */
+  getV3MissingRequiredFields(): { label: string }[] {
+    const body = this.buildPostBody_indicators_v3();
+    const missing: { label: string }[] = [];
+    const isBlank = (value: any) =>
+      value === undefined || value === null || (typeof value === 'string' && value.trim() === '');
+    const check = (blank: boolean, label: string) => {
+      if (blank) missing.push({ label });
+    };
+
+    // Ordered by wizard step so the resulting list is already sorted by step.
+
+    // Step 1 — basic metadata
+    check(isBlank(body.datasetName), 'Indikatorname (Schritt 1)');
+    check(isBlank(body.unit), 'Einheit (Schritt 1)');
+    check(isBlank(body.interpretation), 'Interpretation (Schritt 1)');
+    check(isBlank(body.creationType), 'Fortführungstyp (Schritt 1)');
+
+    // Step 2 — general metadata
+    check(isBlank(body.metadata?.description), 'Beschreibung (Schritt 2)');
+    check(isBlank(body.metadata?.datasource), 'Datenquelle (Schritt 2)');
+    check(isBlank(body.metadata?.contact), 'Datenhalter und Kontakt (Schritt 2)');
+    check(isBlank(body.metadata?.updateInterval), 'Aktualisierungszyklus (Schritt 2)');
+
+    // Step 3 — topic hierarchy
+    check(isBlank(body.topicReference), 'Heuptthema (Schritt 3)');
+
+    // Step 5 — classification mapping. The required fields differ per classification
+    // type: categorical needs at least two fully-defined categories; numeric needs a
+    // method + class count, and the regional method additionally needs complete breaks.
+    const mapping = body.defaultClassificationMapping;
+    check(isBlank(mapping?.colorBrewerSchemeName), 'Klassifizierung: Farbschema (Schritt 5)');
+    if (mapping?.classificationType === 'QUALITATIVE') {
+      const categories: any[] = Array.isArray(mapping?.categoricalData)
+        ? mapping.categoricalData
+        : [];
+      check(categories.length < 2, 'Klassifizierung: mindestens 2 Kategorien (Schritt 5)');
+      check(
+        categories.some(
+          (category) => isBlank(category?.categoricalValue) || isBlank(category?.label)
+        ),
+        'Klassifizierung: Wert und Label für jede Kategorie (Schritt 5)'
+      );
+    } else {
+      check(isBlank(mapping?.classificationMethod), 'Klassifizierung: Methode (Schritt 5)');
+      check(
+        mapping?.numClasses === undefined || mapping?.numClasses === null,
+        'Klassifizierung: Klassenanzahl (Schritt 5)'
+      );
+      // Break values only exist for the regional default method (computed methods
+      // derive them from the data), so only require them there.
+      if (mapping?.classificationMethod === 'REGIONAL_DEFAULT') {
+        check(
+          !Array.isArray(mapping?.items) || mapping.items.length === 0,
+          'Klassifizierung: vollständige Klassengrenzen für mind. eine Raumeinheit (Schritt 5)'
+        );
+      }
+    }
+
+    // Step 7 — ownership. Only required when creating a new indicator; the
+    // metadata PATCH used in edit mode does not carry ownership (that is managed
+    // through separate ownership/permission endpoints).
+    if (!this.editMode) {
+      check(isBlank(body.ownerId), 'Eigentümer-Organisation (Schritt 7)');
+    }
+
+    return missing;
+  }
+
+  /**
+   * Enters edit mode for an existing indicator: stores the source dataset and
+   * pre-fills every wizard field from it. Must be called after
+   * {@link loadInitialData} and {@link initializeMultiStepForm} so the option
+   * lists, colorbrewer palettes and per-spatial-unit classification tabs already
+   * exist to be matched/populated against.
+   */
+  enterEditMode(dataset: any) {
+    this.editMode = true;
+    this.editIndicatorDataset = dataset;
+    this.editIndicatorId = dataset?.indicatorId ?? null;
+    this.populateFromExistingIndicator(dataset);
+    // Rebuild the role grid now that editMode/dataset are set: when the access-control
+    // data was already cached, prepareOwnerOrganizationList ran before this and built
+    // an empty grid; this pass pre-checks the indicator's existing permissions. When
+    // the data is still loading, the async prepare pass rebuilds it instead.
+    this.rebuildRoleManagementGrid();
+  }
+
+  /**
+   * Maps a runtime indicator metadata object onto the wizard's form-state fields
+   * (the reverse of {@link buildPostBody_indicators_v3}). Resolves option objects
+   * by their `apiName`, the topic hierarchy from `topicReference`, references from
+   * the stored `referenced*` lists, and the classification breaks per spatial unit.
+   */
+  private populateFromExistingIndicator(dataset: any) {
+    if (!dataset) {
+      return;
+    }
+
+    // Step 1 — basic metadata
+    this.datasetName = dataset.indicatorName ?? '';
+    this.datasetNameInvalid = false;
+    this.indicatorAbbreviation = dataset.abbreviation ?? '';
+    this.isHeadlineIndicator = dataset.isHeadlineIndicator ?? false;
+    this.indicatorUnit = dataset.unit ?? '';
+    this.indicatorProcessDescription = dataset.processDescription ?? '';
+    this.indicatorInterpretation = dataset.interpretation ?? '';
+    this.indicatorReferenceDateNote = dataset.referenceDateNote ?? '';
+    this.displayOrder = dataset.displayOrder ?? 0;
+    this.indicatorTagsString_withCommas = Array.isArray(dataset.tags) ? dataset.tags.join(',') : '';
+
+    // Free-text unit toggle: enabled unless the unit matches a configured option.
+    this.enableFreeTextUnit = true;
+    this.envConfigService.indicatorUnitOptions?.forEach((option: any) => {
+      if (option === dataset.unit) {
+        this.enableFreeTextUnit = false;
+      }
+    });
+
+    // Precision
+    this.indicatorPrecision = dataset.precision ?? null;
+    this.showCustomCommaValue = dataset.defaultPrecision === false;
+
+    // Indicator type (resolve the option object by apiName)
+    this.indicatorTypeOptions?.forEach((option: any) => {
+      if (option.apiName === dataset.indicatorType) {
+        this.indicatorType = option;
+      }
+    });
+
+    // Creation type
+    this.indicatorCreationType = null;
+    this.envConfigService.indicatorCreationTypeOptions?.forEach((option: any) => {
+      if (option.apiName === dataset.creationType) {
+        this.indicatorCreationType = option;
+      }
+    });
+    this.enableLowestSpatialUnitSelect = this.indicatorCreationType?.apiName === 'COMPUTATION';
+
+    // Lowest spatial unit for computation
+    this.indicatorLowestSpatialUnitMetadataObjectForComputation = null;
+    for (const spatialUnit of this.availableSpatialUnits) {
+      if (spatialUnit.spatialUnitLevel === dataset.lowestSpatialUnitForComputation) {
+        this.indicatorLowestSpatialUnitMetadataObjectForComputation = spatialUnit;
+        break;
+      }
+    }
+
+    // Step 2 — general metadata
+    patchMetadataFormFromApi(this.metadataForm, dataset.metadata, this.updateIntervalOptions ?? []);
+
+    // Step 3 — topic hierarchy
+    this.indicatorTopic_mainTopic = null;
+    this.indicatorTopic_subTopic = null;
+    this.indicatorTopic_subsubTopic = null;
+    this.indicatorTopic_subsubsubTopic = null;
+    this.selectedTopic = null;
+    this.selectedSubTopic = null;
+    this.selectedSubSubTopic = null;
+    this.selectedSubSubSubTopic = null;
+    this.availableSubTopics = [];
+    this.availableSubSubTopics = [];
+    this.availableSubSubSubTopics = [];
+    const topicHierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(
+      this.topicStore.availableTopics,
+      dataset.topicReference
+    );
+    if (topicHierarchy?.[0]) {
+      this.indicatorTopic_mainTopic = topicHierarchy[0];
+      this.selectedTopic = topicHierarchy[0];
+      this.availableSubTopics = topicHierarchy[0].subTopics ?? [];
+    }
+    if (topicHierarchy?.[1]) {
+      this.indicatorTopic_subTopic = topicHierarchy[1];
+      this.selectedSubTopic = topicHierarchy[1];
+      this.availableSubSubTopics = topicHierarchy[1].subTopics ?? [];
+    }
+    if (topicHierarchy?.[2]) {
+      this.indicatorTopic_subsubTopic = topicHierarchy[2];
+      this.selectedSubSubTopic = topicHierarchy[2];
+      this.availableSubSubSubTopics = topicHierarchy[2].subTopics ?? [];
+    }
+    if (topicHierarchy?.[3]) {
+      this.indicatorTopic_subsubsubTopic = topicHierarchy[3];
+      this.selectedSubSubSubTopic = topicHierarchy[3];
+    }
+
+    // Step 4 — references (stored here as { indicatorMetadata | georesourceMetadata,
+    // referenceDescription }, matching what the step-4 component and the body
+    // builders expect).
+    this.indicatorReferences_adminView = [];
+    (dataset.referencedIndicators ?? [])
+      .filter((entry: any) => entry != null)
+      .forEach((ref: any) => {
+        const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(
+          ref.referencedIndicatorId
+        );
+        if (indicatorMetadata) {
+          this.indicatorReferences_adminView.push({
+            indicatorMetadata,
+            referenceDescription: ref.referencedIndicatorDescription,
+          });
+        }
+      });
+
+    this.georesourceReferences_adminView = [];
+    (dataset.referencedGeoresources ?? [])
+      .filter((entry: any) => entry != null)
+      .forEach((ref: any) => {
+        const georesourceMetadata = this.georesourceStore.getGeoresourceMetadataById(
+          ref.referencedGeoresourceId
+        );
+        if (georesourceMetadata) {
+          this.georesourceReferences_adminView.push({
+            georesourceMetadata,
+            referenceDescription: ref.referencedGeoresourceDescription,
+          });
+        }
+      });
+
+    // Step 5 — classification mapping (type, palette, breaks, labels, colors, categories)
+    this.classification.applyMapping(dataset.defaultClassificationMapping);
+
+    // Step 7 — ownership / access. Pre-filled for display only; the metadata
+    // PATCH does not carry ownership or permissions (managed separately).
+    this.isPublic = dataset.isPublic ?? false;
+    const ownerOrg = (this.accessControlService.accessControl ?? []).find(
+      (org: any) => org.organizationalUnitId === dataset.ownerId
+    );
+    this.ownerOrganization = ownerOrg ?? dataset.ownerId ?? '';
+    // The role grid (pre-checking dataset.permissions) is (re)built by enterEditMode /
+    // the async access-control load via rebuildRoleManagementGrid.
+  }
+
+  /**
+   * Builds the metadata PATCH body for editing an existing indicator, following
+   * the KomMonitor Data Management API v3 schema `IndicatorMetadataPATCHInputType`.
+   * Mirrors {@link buildPostBody_indicators_v3} but omits ownership/permissions
+   * (handled via separate endpoints) and preserves the indicator's existing
+   * `characteristicValue` and `regionalReferenceValues`, which this wizard does
+   * not edit.
+   */
+  buildPatchBody_indicators_v3() {
+    const topicReference =
+      this.indicatorTopic_subsubsubTopic?.topicId ??
+      this.indicatorTopic_subsubTopic?.topicId ??
+      this.indicatorTopic_subTopic?.topicId ??
+      this.indicatorTopic_mainTopic?.topicId ??
+      '';
+
+    const tags = this.indicatorTagsString_withCommas
+      ? this.indicatorTagsString_withCommas.split(',').map((tag: string) => tag.trim())
+      : [];
+
+    const patchBody: any = {
+      datasetName: this.datasetName,
+      // Preserve values the wizard does not edit rather than overwriting them.
+      characteristicValue: this.editIndicatorDataset?.characteristicValue ?? null,
+      creationType: this.indicatorCreationType?.apiName,
+      interpretation: this.indicatorInterpretation || '',
+      processDescription: this.indicatorProcessDescription || '',
+      unit: this.indicatorUnit,
+      topicReference,
+      tags,
+      abbreviation: this.indicatorAbbreviation || null,
+      indicatorType: this.indicatorType?.apiName,
+      isHeadlineIndicator: this.isHeadlineIndicator || false,
+      displayOrder: this.displayOrder,
+      referenceDateNote: this.indicatorReferenceDateNote || null,
+      lowestSpatialUnitForComputation:
+        this.indicatorLowestSpatialUnitMetadataObjectForComputation?.spatialUnitLevel ?? null,
+      metadata: {
+        contact: this.metadata.contact,
+        datasource: this.metadata.datasource,
+        description: this.metadata.description,
+        updateInterval: this.metadata.updateInterval?.apiName,
+        note: this.metadata.note || null,
+        literature: this.metadata.literature || null,
+        databasis: this.metadata.databasis || null,
+        lastUpdate: this.metadata.lastUpdate || null,
+        sridEPSG: this.metadata.sridEPSG || 4326,
+      },
+      defaultClassificationMapping: this.classification.buildDefaultClassificationMapping(),
+      refrencesToOtherIndicators: this.indicatorReferences_adminView.map((ref) => ({
+        indicatorId: ref.indicatorMetadata.indicatorId,
+        referenceDescription: ref.referenceDescription,
+      })),
+      refrencesToGeoresources: this.georesourceReferences_adminView.map((ref) => ({
+        georesourceId: ref.georesourceMetadata.georesourceId,
+        referenceDescription: ref.referenceDescription,
+      })),
+      // Preserve the existing regional reference values unchanged (not edited here).
+      regionalReferenceValues: this.editIndicatorDataset?.regionalReferenceValues ?? [],
+    };
+
+    if (this.showCustomCommaValue && this.indicatorPrecision !== null) {
+      patchBody.precision = this.indicatorPrecision;
+    }
+
+    return patchBody;
   }
 
   // Import/Export functionality
@@ -533,6 +905,9 @@ export class IndicatorAddFormStateService {
       console.error(error);
       console.error('Uploaded Metadata File cannot be parsed.');
       this.indicatorMetadataImportError = 'Uploaded Metadata File cannot be parsed correctly';
+    } finally {
+      // The import rewrote plain fields bound by the wizard steps.
+      this.bumpStateRevision();
     }
   }
 
@@ -545,24 +920,11 @@ export class IndicatorAddFormStateService {
     }
 
     // Parse metadata
-    this.metadata = {};
-    this.metadata.note = this.metadataImportSettings.metadata.note;
-    this.metadata.literature = this.metadataImportSettings.metadata.literature;
-
-    if (this.envConfigService && this.envConfigService.updateIntervalOptions) {
-      this.envConfigService.updateIntervalOptions.forEach((option: any) => {
-        if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
-          this.metadata.updateInterval = option;
-        }
-      });
-    }
-
-    this.metadata.sridEPSG = this.metadataImportSettings.metadata.sridEPSG;
-    this.metadata.datasource = this.metadataImportSettings.metadata.datasource;
-    this.metadata.contact = this.metadataImportSettings.metadata.contact;
-    this.metadata.lastUpdate = this.metadataImportSettings.metadata.lastUpdate;
-    this.metadata.description = this.metadataImportSettings.metadata.description;
-    this.metadata.databasis = this.metadataImportSettings.metadata.databasis;
+    patchMetadataFormFromApi(
+      this.metadataForm,
+      this.metadataImportSettings.metadata,
+      this.envConfigService?.updateIntervalOptions ?? []
+    );
 
     // Parse basic fields
     this.datasetName = this.metadataImportSettings.datasetName || '';
@@ -641,45 +1003,15 @@ export class IndicatorAddFormStateService {
       });
     }
 
-    // Parse classification mapping
+    // Parse classification mapping (type, palette, breaks, labels, colors, categories)
     if (this.metadataImportSettings.defaultClassificationMapping) {
-      const mapping = this.metadataImportSettings.defaultClassificationMapping;
-      this.numClassesPerSpatialUnit = mapping.numClasses || 5;
-      this.classificationMethod = mapping.classificationMethod || 'regional_default';
-
-      // Set color brewer palette
-      if (mapping.colorBrewerSchemeName) {
-        this.selectedColorBrewerPaletteEntry = this.colorbrewerPalettes.find(
-          (palette) => palette.paletteName === mapping.colorBrewerSchemeName
-        );
-      }
-
-      // Parse spatial unit classification
-      if (mapping.items) {
-        this.onNumClassesChanged(this.numClassesPerSpatialUnit);
-        mapping.items.forEach((item: any) => {
-          const index = this.spatialUnitClassification.findIndex(
-            (classification) => classification.spatialUnitId === item.spatialUnit
-          );
-          if (index > -1) {
-            this.spatialUnitClassification[index].breaks = item.breaks;
-          }
-        });
-      }
+      this.classification.applyMapping(this.metadataImportSettings.defaultClassificationMapping);
     }
 
-    // Parse role permissions
-    if (
-      this.accessControlService.accessControl &&
-      this.metadataImportSettings.allowedRoles &&
-      this.roleManagementHelper
-    ) {
-      this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-        'indicatorAddRoleManagementTable',
-        this.roleManagementTableOptions,
-        this.accessControlService.accessControl,
-        this.metadataImportSettings.allowedRoles
-      );
+    // Parse role permissions: pre-check the imported allowedRoles in the role grid.
+    if (this.metadataImportSettings.allowedRoles) {
+      this.storedPermissionIds = [...this.metadataImportSettings.allowedRoles];
+      this.attachedRoleGrid?.applyPermissions(this.storedPermissionIds);
     }
   }
 
@@ -732,29 +1064,12 @@ export class IndicatorAddFormStateService {
     metadataExport.refrencesToOtherIndicators = this.indicatorReferences_apiRequest;
     metadataExport.refrencesToGeoresources = this.georesourceReferences_apiRequest;
 
-    // Add classification mapping
-    metadataExport.defaultClassificationMapping = {
-      colorBrewerSchemeName: this.selectedColorBrewerPaletteEntry?.paletteName,
-      numClasses: this.numClassesPerSpatialUnit,
-      classificationMethod: this.classificationMethod,
-      items: this.spatialUnitClassification.map((classification) => ({
-        spatialUnit: classification.spatialUnitId,
-        breaks: classification.breaks.filter((breakVal) => breakVal !== null),
-      })),
-    };
+    // Add classification mapping (same shape as the API payload, incl. extended fields)
+    metadataExport.defaultClassificationMapping =
+      this.classification.buildDefaultClassificationMapping();
 
     // Add role permissions
-    metadataExport.allowedRoles = [];
-    if (this.roleManagementTableOptions && this.roleManagementHelper) {
-      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-        this.roleManagementTableOptions
-      );
-      if (roleIds && Array.isArray(roleIds)) {
-        for (const roleId of roleIds) {
-          metadataExport.allowedRoles.push(roleId);
-        }
-      }
-    }
+    metadataExport.allowedRoles = this.getSelectedRoleIds();
 
     const name = this.datasetName;
     const metadataJSON = JSON.stringify(metadataExport);
@@ -812,7 +1127,7 @@ export class IndicatorAddFormStateService {
   }
 
   resetForm() {
-    this.currentStep = 1;
+    this.stepper.reset();
     this.datasetName = '';
     this.datasetNameInvalid = false;
     this.indicatorAbbreviation = '';
@@ -853,21 +1168,13 @@ export class IndicatorAddFormStateService {
     this.indicatorReferences_apiRequest = [];
     this.georesourceReferences_adminView = [];
     this.georesourceReferences_apiRequest = [];
-    this.numClassesPerSpatialUnit = 5;
-    this.classificationMethod = 'regional_default';
-    this.selectedColorBrewerPaletteEntry =
-      this.colorbrewerPalettes && this.colorbrewerPalettes.length > 13
-        ? this.colorbrewerPalettes[13]
-        : this.colorbrewerPalettes && this.colorbrewerPalettes.length > 0
-          ? this.colorbrewerPalettes[0]
-          : null;
-    this.spatialUnitClassification = [];
-    this.classBreaksInvalid = false;
-    this.tabClasses = [];
+    this.classification.reset();
     this.ownerOrganization = '';
     this.ownerOrgFilter = '';
     this.isPublic = false;
-    this.roleManagementTableOptions = null;
+    this.showRoleForm = false;
+    this.storedPermissionIds = null;
+    this.seedAttachedRoleGrid();
     this.metadataImportSettings = null;
     this.indicatorMetadataImportError = '';
     this.successMessagePart = '';
@@ -877,17 +1184,7 @@ export class IndicatorAddFormStateService {
     this.successMessage = '';
 
     // Reset metadata
-    this.metadata = {
-      description: '',
-      databasis: '',
-      datasource: '',
-      contact: '',
-      updateInterval: null,
-      lastUpdate: '',
-      literature: '',
-      note: '',
-      sridEPSG: 4326,
-    };
+    this.metadataForm.reset();
 
     // Reset temporary variables
     this.indicatorNameFilter = '';
@@ -901,8 +1198,7 @@ export class IndicatorAddFormStateService {
     this.filteredIndicators = this.availableIndicators || [];
     this.filteredGeoresources = this.availableGeoresources || [];
 
-    // Reset Step 5: Classification Options
-    this.currentClassificationTab = 0;
+    // Step 5 classification reset handled by this.classification.reset() above.
 
     // Reset Step 6: Regional Comparison Values
     this.comparisonValueType = null;
@@ -923,26 +1219,26 @@ export class IndicatorAddFormStateService {
     this.redThreshold = null;
 
     // Reset Step 7: Access Control and Ownership
-    this.roleFilter = '';
-    this.selectedRoles = [];
     this.enableTimeRestrictedAccess = false;
     this.enableGeographicRestriction = false;
     this.accessStartDate = '';
     this.accessEndDate = '';
     this.allowedRegions = [];
     this.enableAccessLogging = false;
-    this.filteredOrganizations = this.accessControl || [];
-    this.filteredRoles = this.accessControl || [];
-
-    // Reinitialize classification
-    this.onNumClassesChanged(this.numClassesPerSpatialUnit);
+    this.loadOwnerOrganizations();
   }
 
   hideSuccessAlert() {
+    // The success alert is shown via `successMessagePart`, so clear that field
+    // (the legacy `successMessage` alone did not control visibility).
+    this.successMessagePart = '';
     this.successMessage = '';
   }
 
   hideErrorAlert() {
+    // The error alert is shown via `errorMessagePart`, so clear that field
+    // (the legacy `errorMessage` alone did not control visibility).
+    this.errorMessagePart = '';
     this.errorMessage = '';
   }
 
@@ -968,10 +1264,95 @@ export class IndicatorAddFormStateService {
 
   onChangeOwner(ownerOrganization: any) {
     this.ownerOrganization = ownerOrganization;
+    // Selecting an owner reveals the role grid and pre-checks the owner's own
+    // viewer/editor permissions (its row is then locked as dataset owner).
+    this.rebuildRoleManagementGrid();
   }
 
   onChangeIsPublic(isPublic: boolean) {
     this.isPublic = isPublic;
+  }
+
+  // Resolves the currently selected owner organizational-unit id. The dropdown binds
+  // the whole org object, edit mode carries only the stored ownerId — handle both.
+  private getSelectedOwnerId(): string | undefined {
+    if (this.editMode) {
+      return this.editIndicatorDataset?.ownerId;
+    }
+    return this.ownerOrganization?.organizationalUnitId ?? this.ownerOrganization ?? undefined;
+  }
+
+  // Permission ids that should be pre-checked in the role grid: the indicator's
+  // existing permissions in edit mode, otherwise the selected owner's own
+  // viewer/editor permissions (mirrors the legacy `refreshRoles`).
+  private getPreCheckedPermissionIds(ownerId: string | undefined): string[] {
+    if (this.editMode) {
+      return this.editIndicatorDataset?.permissions ?? [];
+    }
+    if (!ownerId) {
+      return [];
+    }
+    const ownerUnit = this.accessControlService.getAccessControlById(ownerId);
+    return (ownerUnit?.permissions ?? [])
+      .filter((permission) => ['viewer', 'editor'].includes(permission.permissionLevel))
+      .map((permission) => permission.permissionId);
+  }
+
+  /**
+   * Called by the step-7 access component when its role grid enters the view.
+   * Seeds the grid with the harvested selection (or the pre-checked defaults)
+   * and the current owner.
+   */
+  attachRoleGrid(grid: RoleManagementGridComponent) {
+    this.attachedRoleGrid = grid;
+    this.seedAttachedRoleGrid();
+  }
+
+  /**
+   * Called by the step-7 access component on destroy: harvests the grid's
+   * selection so it survives navigating to another wizard step.
+   */
+  detachRoleGrid(grid: RoleManagementGridComponent) {
+    if (this.attachedRoleGrid === grid) {
+      this.storedPermissionIds = grid.getSelectedRoleIds();
+      this.attachedRoleGrid = null;
+    }
+  }
+
+  /** Currently selected role permission ids (live grid if attached, else harvested state). */
+  getSelectedRoleIds(): string[] {
+    if (this.attachedRoleGrid) {
+      return this.attachedRoleGrid.getSelectedRoleIds();
+    }
+    return this.storedPermissionIds ?? this.getPreCheckedPermissionIds(this.getSelectedOwnerId());
+  }
+
+  /**
+   * Re-seeds the role selection from the current owner/edit-mode state,
+   * discarding manual edits. Toggles `showRoleForm` so the grid is only shown
+   * once an owner is selected (or always in edit mode).
+   */
+  rebuildRoleManagementGrid() {
+    const ownerId = this.getSelectedOwnerId();
+    this.showRoleForm = !!ownerId;
+    this.storedPermissionIds = null;
+    this.seedAttachedRoleGrid();
+  }
+
+  private seedAttachedRoleGrid() {
+    if (!this.attachedRoleGrid) {
+      return;
+    }
+    const ownerId = this.getSelectedOwnerId();
+    this.attachedRoleGrid.permissions =
+      this.storedPermissionIds ?? this.getPreCheckedPermissionIds(ownerId);
+    this.attachedRoleGrid.ownerId = ownerId ?? null;
+    this.attachedRoleGrid.reset();
+  }
+
+  // Number of currently checked role permissions in the grid (for the summary line).
+  get selectedRoleCount(): number {
+    return this.getSelectedRoleIds().length;
   }
 
   // Step 3: Topic Hierarchy Methods
@@ -1127,160 +1508,8 @@ export class IndicatorAddFormStateService {
     }));
   }
 
-  // Step 5: Classification Methods
-  getClassColor(classIndex: number, palette: any): string {
-    // Palette entries carry a colorbrewer `paletteArrayObject` keyed by class count
-    // (e.g. '5'), so resolve the color row for the currently selected class count.
-    const colors = palette?.paletteArrayObject?.[this.numClassesPerSpatialUnit?.toString()];
-    if (Array.isArray(colors) && classIndex >= 0 && classIndex < colors.length) {
-      return colors[classIndex];
-    }
-
-    return '#cccccc';
-  }
-
-  // Receives the full method object from app-classification-method-select; keep a
-  // string fallback in case a bare id is passed.
-  onClassificationMethodSelected(method: any) {
-    this.classificationMethod = method?.id ?? method;
-    // Reinitialize classification when method changes
-    this.onNumClassesChanged(this.numClassesPerSpatialUnit);
-  }
-
-  onClickColorBrewerEntry(colorPaletteEntry: any) {
-    this.selectedColorBrewerPaletteEntry = colorPaletteEntry;
-  }
-
-  // app-color-palette-select emits the scheme name; map it back to our palette entry.
-  onColorSchemeSelected(paletteName: string) {
-    const entry = this.colorbrewerPalettes.find((p) => p.paletteName === paletteName);
-    if (entry) {
-      this.onClickColorBrewerEntry(entry);
-    }
-  }
-
-  // Read-only 5-color spectrum for the standard two-color (negative/positive) classification.
-  getDynamicSchemeColors(direction: 'increase' | 'decrease'): string[] {
-    const name =
-      direction === 'increase'
-        ? this.colorbreweSchemeName_dynamicIncrease
-        : this.colorbreweSchemeName_dynamicDecrease;
-    return this.colorbrewerSchemes?.[name]?.['5'] ?? [];
-  }
-
-  // Read-only 5-color preview of the currently selected palette ("derzeit selektiert").
-  getSelectedPaletteColors(): string[] {
-    return this.selectedColorBrewerPaletteEntry?.paletteArrayObject?.['5'] ?? [];
-  }
-
-  // Colors of the selected palette for the current class count — one legend row each.
-  getClassColors(): string[] {
-    return (
-      this.selectedColorBrewerPaletteEntry?.paletteArrayObject?.[
-        this.numClassesPerSpatialUnit?.toString()
-      ] ?? []
-    );
-  }
-
-  // Legend "Wertebereich" text for a class of a spatial unit (regional default).
-  getLegendRange(tabIndex: number, classIndex: number): string {
-    const breaks: (number | null)[] = this.spatialUnitClassification[tabIndex]?.breaks ?? [];
-    const lastIndex = this.numClassesPerSpatialUnit - 1;
-    const fmt = (value: number | null | undefined) =>
-      value === null || value === undefined ? '[bitte eingeben]' : `${value}`;
-
-    if (classIndex === 0) {
-      return `Niedrigster Wert - < ${fmt(breaks[0])}`;
-    }
-    if (classIndex === lastIndex) {
-      return `${fmt(breaks[classIndex - 1])} - < Höchster Wert`;
-    }
-    return `${fmt(breaks[classIndex - 1])} - < ${fmt(breaks[classIndex])}`;
-  }
-
-  // Legend "Hinweis" text — only the lowest and highest class carry a note.
-  getLegendHint(tabIndex: number, classIndex: number): string {
-    const breaks: (number | null)[] = this.spatialUnitClassification[tabIndex]?.breaks ?? [];
-    const lastIndex = this.numClassesPerSpatialUnit - 1;
-
-    if (classIndex === 0 && breaks[0] !== null && breaks[0] !== undefined) {
-      return `Klasse wird bei Werten unter ${breaks[0]} hinzugefügt`;
-    }
-    if (
-      classIndex === lastIndex &&
-      breaks[classIndex - 1] !== null &&
-      breaks[classIndex - 1] !== undefined
-    ) {
-      return `Klasse wird bei Werten über ${breaks[classIndex - 1]} hinzugefügt`;
-    }
-    return '';
-  }
-
-  onNumClassesChanged(numClasses: number) {
-    this.numClassesPerSpatialUnit = numClasses;
-
-    // Initialize classification for each spatial unit
-    this.spatialUnitClassification = [];
-    this.tabClasses = [];
-
-    if (this.availableSpatialUnits && this.availableSpatialUnits.length > 0) {
-      this.availableSpatialUnits.forEach((spatialUnit, index) => {
-        // Initialize breaks array
-        const breaks: Array<number | null> = [];
-        for (let i = 0; i < numClasses - 1; i++) {
-          breaks.push(null);
-        }
-
-        this.spatialUnitClassification.push({
-          spatialUnitId: spatialUnit.spatialUnitId,
-          spatialUnitLevel: spatialUnit.spatialUnitLevel,
-          breaks: breaks,
-        });
-
-        // Initialize tab validation class (neutral until breaks are entered)
-        this.tabClasses[index] = '';
-      });
-    }
-
-    // Reset validation
-    this.classBreaksInvalid = false;
-  }
-
-  onBreaksChanged(tabIndex: number) {
-    if (!this.spatialUnitClassification[tabIndex]) {
-      return;
-    }
-
-    const breaks: (number | null)[] = this.spatialUnitClassification[tabIndex].breaks;
-
-    // Class breaks must be strictly ascending; empty (null) entries are ignored.
-    // A tab is green ('tab-valid') once every break is filled and correctly ordered,
-    // red ('tab-error') on any ordering violation, and neutral ('') while incomplete.
-    let hasError = false;
-    let filledCount = 0;
-    let lastValidBreak: number | null = null;
-    for (const classBreak of breaks) {
-      if (classBreak !== null && classBreak !== undefined) {
-        filledCount++;
-        if (lastValidBreak !== null && classBreak <= lastValidBreak) {
-          hasError = true;
-          break;
-        }
-        lastValidBreak = classBreak;
-      }
-    }
-
-    if (hasError) {
-      this.tabClasses[tabIndex] = 'tab-error';
-    } else if (breaks.length > 0 && filledCount === breaks.length) {
-      this.tabClasses[tabIndex] = 'tab-valid';
-    } else {
-      this.tabClasses[tabIndex] = '';
-    }
-
-    // Aggregate overall validity across all spatial-unit tabs.
-    this.classBreaksInvalid = this.tabClasses.some((cssClass) => cssClass === 'tab-error');
-  }
+  // Step 5 classification methods moved to IndicatorClassificationStateService
+  // (accessible via `this.classification`).
 
   // Step 6: Regional Comparison Methods
   onComparisonValueTypeChange() {
@@ -1333,13 +1562,110 @@ export class IndicatorAddFormStateService {
   }
 
   // Step 7: Access Control Methods
+
+  /**
+   * Loads the access-control data backing the owner-organization picker. The list
+   * is populated straight away when the admin service already holds it, otherwise
+   * it is fetched lazily (cache-first) and the picker is built once it arrives.
+   */
+  loadOwnerOrganizations() {
+    if (this.accessControlService.accessControl?.length > 0) {
+      this.prepareOwnerOrganizationList();
+    } else {
+      this.metadataBootstrap
+        .fetchAccessControlMetadata(this.accessControlService.currentKeycloakLoginRoles)
+        .then(() => this.prepareOwnerOrganizationList())
+        .catch(() => {
+          this.ownerOrganizations = [];
+          this.filteredOrganizations = [];
+        });
+    }
+  }
+
+  /**
+   * Builds the list of organizations the current user may assign as the indicator's
+   * owner, mirroring the legacy addIndicator modal:
+   *  - realm admins may pick any organizational unit (full accessControl list);
+   *  - other users may only pick units they hold resource-creator rights for
+   *    (`unit-resources-creator` directly, `client-resources-creator` including all
+   *    descendant units — see {@link gatherCreatorRightsChildren}).
+   * Seeds the base list and refreshes the filtered view shown in the dropdown.
+   */
+  prepareOwnerOrganizationList() {
+    if (this.accessControlService.checkAdminPermission()) {
+      this.ownerOrganizations = this.accessControlService.accessControl || [];
+    } else {
+      this.ownerOrganizations = this.buildResourcesCreatorRights();
+    }
+    this.filterOrganizations();
+    // Access-control data is now present, so (re)build the role-management grid. In
+    // edit mode this pre-checks the indicator's existing permissions; in add mode it
+    // stays empty until an owner is chosen.
+    this.rebuildRoleManagementGrid();
+    // May run from the async access-control fetch (OnPush wizard steps).
+    this.bumpStateRevision();
+  }
+
+  private buildResourcesCreatorRights(): any[] {
+    const roleNames = this.accessControlService.currentKomMonitorLoginRoleNames || [];
+    if (roleNames.length === 0) {
+      return [];
+    }
+
+    const creatorRights: string[] = [];
+    const creatorRightsChildren: string[] = [];
+    roleNames.forEach((role: string) => {
+      const orgName = role.split('.')[0];
+      const roleSuffix = role.split('.')[1];
+
+      if (roleSuffix === 'unit-resources-creator' && !creatorRights.includes(orgName)) {
+        creatorRights.push(orgName);
+      }
+      // client-resources-creator grants rights on the whole subtree; gather the
+      // unit ids first, then resolve all descendant units below.
+      if (roleSuffix === 'client-resources-creator' && !creatorRightsChildren.includes(orgName)) {
+        creatorRightsChildren.push(orgName);
+      }
+    });
+
+    this.gatherCreatorRightsChildren(creatorRights, creatorRightsChildren);
+
+    return (this.accessControlService.accessControl || []).filter((unit) =>
+      creatorRights.includes(unit.name)
+    );
+  }
+
+  // Recursively collect the names of all descendant units for the given parent
+  // units (client-resources-creator implies rights on every child unit).
+  private gatherCreatorRightsChildren(creatorRights: string[], creatorRightsChildren: string[]) {
+    if (creatorRightsChildren.length === 0) {
+      return;
+    }
+
+    const accessControl = this.accessControlService.accessControl || [];
+    accessControl
+      .filter((unit) => creatorRightsChildren.includes(unit.name))
+      .flatMap((unit) => unit.children || [])
+      .forEach((childId: string) => {
+        accessControl
+          .filter((unit) => unit.organizationalUnitId === childId)
+          .forEach((childUnit) => {
+            if (!creatorRights.includes(childUnit.name)) {
+              creatorRights.push(childUnit.name);
+            }
+            this.gatherCreatorRightsChildren(creatorRights, [childUnit.name]);
+          });
+      });
+  }
+
   filterOrganizations() {
+    const baseList = this.ownerOrganizations || [];
     if (!this.ownerOrgFilter || this.ownerOrgFilter.trim() === '') {
-      this.filteredOrganizations = this.accessControl || [];
+      this.filteredOrganizations = baseList;
     } else {
       const filter = this.ownerOrgFilter.toLowerCase().trim();
-      this.filteredOrganizations = (this.accessControl || []).filter(
-        (org) => org.organizationName && org.organizationName.toLowerCase().includes(filter)
+      this.filteredOrganizations = baseList.filter(
+        (org) => org.name && org.name.toLowerCase().includes(filter)
       );
     }
   }
@@ -1349,64 +1675,18 @@ export class IndicatorAddFormStateService {
     this.filterOrganizations();
   }
 
-  filterRoles() {
-    if (!this.roleFilter || this.roleFilter.trim() === '') {
-      this.filteredRoles = this.accessControl || [];
-    } else {
-      const filter = this.roleFilter.toLowerCase().trim();
-      this.filteredRoles = (this.accessControl || []).filter(
-        (role) => role.roleName && role.roleName.toLowerCase().includes(filter)
-      );
-    }
-  }
-
-  isRoleSelected(role: any): boolean {
-    return this.selectedRoles.some((selectedRole) => selectedRole.roleId === role.roleId);
-  }
-
-  toggleRoleSelection(role: any) {
-    if (this.isRoleSelected(role)) {
-      this.removeRole(role);
-    } else {
-      this.addRole(role);
-    }
-  }
-
-  addRole(role: any) {
-    if (!this.isRoleSelected(role)) {
-      this.selectedRoles.push(role);
-    }
-  }
-
-  removeRole(role: any) {
-    const index = this.selectedRoles.findIndex(
-      (selectedRole) => selectedRole.roleId === role.roleId
-    );
-    if (index >= 0) {
-      this.selectedRoles.splice(index, 1);
-    }
-  }
-
-  // Multi-step navigation
+  // Multi-step navigation (delegates kept: the seven step components bind
+  // state.nextStep()/state.previousStep() in their templates)
   nextStep() {
-    const maxSteps = this.envConfigService.enableKeycloakSecurity ? 7 : 6;
-    if (this.currentStep < maxSteps) {
-      this.currentStep++;
-    }
+    this.stepper.next();
   }
 
   previousStep() {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
+    this.stepper.previous();
   }
 
   goToStep(step: number) {
-    const maxSteps = this.envConfigService.enableKeycloakSecurity ? 7 : 6;
-
     // Allow navigation to any step without validation (like old AngularJS counterpart)
-    if (step >= 1 && step <= maxSteps) {
-      this.currentStep = step;
-    }
+    this.stepper.goTo(step);
   }
 }

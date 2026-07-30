@@ -1,0 +1,61 @@
+<!-- Classification method + class count (centered, stacked) -->
+<div class="centered-field">
+  <label>{{ 'ADMIN_INDICATORS.CLASSIFICATION_METHOD' | translate }}*</label>
+  <div class="control-inline">
+    <app-classification-method-select
+      [defaultMethodId]="state.classificationMethod()"
+      [hiddenMethodIds]="['manual']"
+      (onMethodSelect)="state.onClassificationMethodSelected($event)"
+    ></app-classification-method-select>
+  </div>
+</div>
+
+<div class="centered-field">
+  <label>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.NUM_CLASSES' | translate }}*</label>
+  <div class="control-inline">
+    <button
+      type="button"
+      class="btn btn-outline-secondary dropdown-toggle btn-sm num-classes-toggle"
+      cdkOverlayOrigin
+      #numClassesTrigger="cdkOverlayOrigin"
+      (click)="numClassesOpen = !numClassesOpen"
+    >
+      {{ state.numClassesPerSpatialUnit() }}<span class="caret"></span>
+    </button>
+
+    <ng-template
+      cdkConnectedOverlay
+      [cdkConnectedOverlayOrigin]="numClassesTrigger"
+      [cdkConnectedOverlayOpen]="numClassesOpen"
+      [cdkConnectedOverlayPositions]="overlayPositions"
+      [cdkConnectedOverlayHasBackdrop]="true"
+      cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+      (backdropClick)="numClassesOpen = false"
+      (detach)="numClassesOpen = false"
+    >
+      <div class="dropdown-menu show num-classes-menu">
+        @for (numClass of state.numClassesArray; track numClass) {
+          <button
+            type="button"
+            class="dropdown-item"
+            [class.active]="numClass === state.numClassesPerSpatialUnit()"
+            (click)="selectNumClasses(numClass)"
+          >
+            {{ numClass }}
+          </button>
+        }
+      </div>
+    </ng-template>
+  </div>
+  <div class="help-block text-center">
+    <p>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.NUM_CLASSES_HINT' | translate }}</p>
+  </div>
+</div>
+
+@if (state.numClassesPerSpatialUnit() > 0) {
+  @if (state.isRegional) {
+    <app-classification-regional-breaks></app-classification-regional-breaks>
+  } @else {
+    <app-classification-computed-classes></app-classification-computed-classes>
+  }
+}

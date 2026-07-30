@@ -1,73 +1,38 @@
 <div class="row">
   <div class="col-md-9">
-    <p>
-      KomMonitor erlaubt die automatisierte Fortführung/Berechnung von Indikatoren aus Georessourcen
-      oder anderen (Sub-)Indikatoren. Dazu sind zwei Schritte notwendig:
-    </p>
+    <p>{{ 'ADMIN_SCRIPTS.INTRO.OVERVIEW' | translate }}</p>
     <ol class="list-unstyled">
-      <li>
-        <b><u>Erster Schritt:</u></b>
-        Auswahl / Anlegen des zu berechnenden
-        <b><i>Ziel-Indikators</i></b> mittels Indikatoren-Verwaltung. Dabei müssen folgende Punkte
-        berücksichtigt werden:
-      </li>
+      <li [innerHTML]="'ADMIN_SCRIPTS.INTRO.FIRST_STEP' | translate"></li>
       <br />
       <li>
         <ul class="list-unstyled">
           <li class="checklist-item">
             <i class="fas fa-check-square checklist-icon"></i>
-            <span
-              >Der Fortführungstyp des Ziel-Indikators ist auf
-              <b><i>"automatische Berechnung durch KomMonitor"</i></b>
-              eingestellt.</span
-            >
+            <span [innerHTML]="'ADMIN_SCRIPTS.INTRO.CHECK_CONTINUATION_TYPE' | translate"></span>
           </li>
           <li class="checklist-item">
             <i class="fas fa-check-square checklist-icon"></i>
-            <span
-              >Der Aktualisierungszyklus des Ziel-Indikators ist <b>nicht</b> auf "beliebig"
-              eingestellt.</span
-            >
+            <span [innerHTML]="'ADMIN_SCRIPTS.INTRO.CHECK_UPDATE_INTERVAL' | translate"></span>
           </li>
           <li class="checklist-item">
             <i class="fas fa-check-square checklist-icon"></i>
-            <span
-              >Die Skriptberechnung erfolgt nur für fehlende Zeitschnitte. Um eine Neuberechnung
-              anzutriggern, kann über das Indikatoren-Lösch-Menü ein ganzer Zeitschnitt des
-              Ziel-Indikators entfernt werden.</span
-            >
+            <span>{{ 'ADMIN_SCRIPTS.INTRO.CHECK_MISSING_TIMESTAMPS' | translate }}</span>
           </li>
           <li class="checklist-item">
             <i class="fas fa-check-square checklist-icon"></i>
-            <span
-              >Eine nachträgliche Bearbeitung der Skript-Konfiguration zur Berechnung des
-              Ziel-Indikators ist derzeit nicht möglich. Stattdessen muss ein vorhandenes Skript
-              entfernt und neu angelegt werden.</span
-            >
+            <span>{{ 'ADMIN_SCRIPTS.INTRO.CHECK_NO_EDITING' | translate }}</span>
           </li>
         </ul>
       </li>
       <br />
-      <li>
-        <b><u>Zweiter Schritt:</u></b>
-        Anlegen des Berechnungs-Skripts mittels Skriptverwaltung unter Auswahl des zuvor definierten
-        Ziel-Indikators.
-      </li>
+      <li [innerHTML]="'ADMIN_SCRIPTS.INTRO.SECOND_STEP' | translate"></li>
     </ol>
     <br />
-    <p>
-      Das KomMonitor Gesamtsystem umfasst einen sogenannten
-      <b>Processing Scheduler</b>, der anhand der Skript- und Indikatoren-Metadaten automatisch die
-      Berechnung der Ziel-Indikatoren-Zeitschnitte antriggert. Die Berechnung selbst erfolgt über
-      die <b>Processing Engine</b> Komponente.
-    </p>
+    <p [innerHTML]="'ADMIN_SCRIPTS.INTRO.SCHEDULER_INFO' | translate"></p>
   </div>
   <div class="col-md-3">
     <div class="alert alert-warning">
-      <b
-        >Falls für Indikatoren durch das Berechnungsskript erstmalig neue Raumeinheiten verknüpft
-        werden, so werden die Zugriffsrechte aus den zugehörigen Metadaten übernommen.</b
-      >
+      <b>{{ 'ADMIN_SCRIPTS.INTRO.ACCESS_RIGHTS_WARNING' | translate }}</b>
     </div>
   </div>
 </div>

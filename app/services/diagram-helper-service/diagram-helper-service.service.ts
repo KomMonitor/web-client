@@ -1,4 +1,10 @@
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import {
+  CATEGORICAL_OTHER_COLOR,
+  CategoricalClassificationItem,
+  resolveCategoricalColor,
+} from 'components/ngComponents/models/classification.models';
+import { MapService } from 'services/map-service/map.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { Injectable, inject } from '@angular/core';
 import { ExportButtonVisibilityService } from 'services/export-button-visibility-service/export-button-visibility.service';
@@ -21,6 +27,7 @@ import * as ecStat from 'echarts-stat';
 })
 export class DiagramHelperServiceService {
   private broadcastService = inject(BroadcastService);
+  private mapService = inject(MapService);
   private exportButtonVisibility = inject(ExportButtonVisibilityService);
   private chartDisplayState = inject(ChartDisplayStateService);
   private mapErrorNotificationService = inject(MapErrorNotificationService);
@@ -168,9 +175,7 @@ export class DiagramHelperServiceService {
       return;
     }
 
-    this.broadcastService.broadcast(
-      BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupBegin
-    );
+    this.mapService.beginIndicatorTimeSetup();
 
     this.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
 
@@ -286,7 +291,9 @@ export class DiagramHelperServiceService {
     dynamicIncreaseBrew,
     dynamicDecreaseBrew,
     isMeasureOfValueChecked,
-    measureOfValue
+    measureOfValue,
+    isCategorical = false,
+    categoricalData: CategoricalClassificationItem[] = []
   ) {
     let color;
 
@@ -302,6 +309,11 @@ export class DiagramHelperServiceService {
       )
     ) {
       color = this.defaultColorForFilteredValues;
+    } else if (isCategorical) {
+      // Qualitative indicators are colored per category, independent of the numeric
+      // zero/outlier/MOV/dynamic/default branches below (mirrors
+      // IndicatorClassificationService.buildClassification on the live map).
+      color = resolveCategoricalColor(feature.properties[targetDate], categoricalData);
     } else if (
       this.envConfigService.classifyZeroSeparately &&
       this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == 0
@@ -479,7 +491,9 @@ export class DiagramHelperServiceService {
     dynamicDecreaseBrew,
     isMeasureOfValueChecked,
     measureOfValue,
-    filterOutFutureDates
+    filterOutFutureDates,
+    isCategorical = false,
+    categoricalData: CategoricalClassificationItem[] = []
   ) {
     this.prepareAllDiagramResources(
       indicatorMetadataAndGeoJSON,
@@ -494,7 +508,9 @@ export class DiagramHelperServiceService {
       measureOfValue,
       filterOutFutureDates,
       true,
-      true
+      true,
+      isCategorical,
+      categoricalData
     );
   }
 
@@ -511,7 +527,9 @@ export class DiagramHelperServiceService {
     measureOfValue,
     filterOutFutureDates,
     forceUseSubmittedIndicatorForTimeseries,
-    fixedPrecision = false
+    fixedPrecision = false,
+    isCategorical = false,
+    categoricalData: CategoricalClassificationItem[] = []
   ) {
     this.indicatorPropertyName = this.INDICATOR_DATE_PREFIX + date;
 
@@ -535,6 +553,9 @@ export class DiagramHelperServiceService {
         )
       ) {
         indicatorValue = null;
+      } else if (isCategorical) {
+        // categorical values are labels, not numbers - keep the raw category value
+        indicatorValue = cartographicFeature.properties[this.indicatorPropertyName];
       } else {
         if (!fixedPrecision)
           indicatorValue = this.getIndicatorValue_asNumber(
@@ -566,7 +587,9 @@ export class DiagramHelperServiceService {
         dynamicIncreaseBrew,
         dynamicDecreaseBrew,
         isMeasureOfValueChecked,
-        measureOfValue
+        measureOfValue,
+        isCategorical,
+        categoricalData
       );
 
       const seriesItem = {
@@ -762,7 +785,9 @@ export class DiagramHelperServiceService {
       measureOfValue,
       meanLineLabel,
       meanLineValue,
-      enableHorizontalMeanLine
+      enableHorizontalMeanLine,
+      isCategorical,
+      categoricalData
     );
 
     this.setGeoMapChartOptions(
@@ -777,7 +802,9 @@ export class DiagramHelperServiceService {
       dynamicIncreaseBrew,
       dynamicDecreaseBrew,
       isMeasureOfValueChecked,
-      measureOfValue
+      measureOfValue,
+      isCategorical,
+      categoricalData
     );
   }
 
@@ -793,7 +820,9 @@ export class DiagramHelperServiceService {
     dynamicIncreaseBrew,
     dynamicDecreaseBrew,
     isMeasureOfValueChecked,
-    measureOfValue
+    measureOfValue,
+    isCategorical = false,
+    categoricalData: CategoricalClassificationItem[] = []
   ) {
     indicatorMetadataAndGeoJSON.geoJSON.features.forEach((feature) => {
       feature.properties.name =
@@ -818,7 +847,9 @@ export class DiagramHelperServiceService {
       dynamicIncreaseBrew,
       dynamicDecreaseBrew,
       isMeasureOfValueChecked,
-      measureOfValue
+      measureOfValue,
+      isCategorical,
+      categoricalData
     );
 
     // default fontSize of echarts
@@ -1012,7 +1043,9 @@ export class DiagramHelperServiceService {
     measureOfValue,
     meanLineLabel,
     meanLineValue,
-    enableHorizontalMeanLine
+    enableHorizontalMeanLine,
+    isCategorical = false,
+    categoricalData: CategoricalClassificationItem[] = []
   ) {
     // specify chart configuration item and data
     const labelOption_singleBars = {
@@ -1053,7 +1086,9 @@ export class DiagramHelperServiceService {
       dynamicIncreaseBrew,
       dynamicDecreaseBrew,
       isMeasureOfValueChecked,
-      measureOfValue
+      measureOfValue,
+      isCategorical,
+      categoricalData
     );
 
     const barOption: any = {
@@ -1609,7 +1644,9 @@ export class DiagramHelperServiceService {
     dynamicIncreaseBrew,
     dynamicDecreaseBrew,
     isMeasureOfValueChecked,
-    _measureOfValue
+    _measureOfValue,
+    isCategorical = false,
+    categoricalData: CategoricalClassificationItem[] = []
   ) {
     /*
     pieces: [
@@ -1627,6 +1664,14 @@ export class DiagramHelperServiceService {
           {max: 5}
       ]
     */
+
+    if (isCategorical) {
+      return this.setupVisualMapForCategoricalIndicator(
+        indicatorMetadataAndGeoJSON,
+        date,
+        categoricalData
+      );
+    }
 
     const indicatorType = indicatorMetadataAndGeoJSON.indicatorType;
 
@@ -1834,6 +1879,47 @@ export class DiagramHelperServiceService {
           }
         }
       }
+    }
+
+    return pieces;
+  }
+
+  /**
+   * Legend pieces for a qualitative (categorical) indicator: one swatch per
+   * defined category, plus a "Sonstige" (other) swatch for feature values
+   * matching no category - mirroring the live map's legend (see
+   * KommonitorLegendComponent's "Sonstige" row). Pieces don't carry a real
+   * min/max/value range because per-feature colors are already resolved via
+   * itemStyle in prepareAllDiagramResources; this only feeds the legend widget.
+   */
+  private setupVisualMapForCategoricalIndicator(
+    indicatorMetadataAndGeoJSON,
+    date,
+    categoricalData: CategoricalClassificationItem[]
+  ) {
+    let propertyName = date;
+    if (!propertyName.includes(this.envConfigService.indicatorDatePrefix)) {
+      propertyName = this.envConfigService.indicatorDatePrefix + propertyName;
+    }
+
+    const pieces: any = categoricalData.map((category, index) => ({
+      value: index,
+      label: category.label,
+      color: category.color,
+    }));
+
+    const hasOtherValues = indicatorMetadataAndGeoJSON.geoJSON.features.some(
+      (feature) =>
+        !this.indicatorValueService.indicatorValueIsNoData(feature.properties[propertyName]) &&
+        resolveCategoricalColor(feature.properties[propertyName], categoricalData) ===
+          CATEGORICAL_OTHER_COLOR
+    );
+    if (hasOtherValues) {
+      pieces.push({
+        value: pieces.length,
+        label: 'Sonstige',
+        color: CATEGORICAL_OTHER_COLOR,
+      });
     }
 
     return pieces;

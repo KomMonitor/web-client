@@ -1,10 +1,14 @@
 <div class="card mb-3">
-  <div class="card-header"><h5>Notwendige (Basis-)Indikatoren</h5></div>
+  <div class="card-header">
+    <h5>{{ 'ADMIN_SCRIPTS.REQUIRED_INDICATORS' | translate }}</h5>
+  </div>
   <div class="card-body">
     <div class="row mb-2">
       <div class="col-md-9">
         <select class="form-control form-control-sm" [(ngModel)]="tmpSelection" size="4">
-          <option disabled [ngValue]="null">-- Indikator wählen --</option>
+          <option disabled [ngValue]="null">
+            {{ 'ADMIN_SCRIPTS.SELECT_INDICATOR_PLACEHOLDER' | translate }}
+          </option>
           @for (ind of availableIndicators; track ind) {
             <option [ngValue]="ind">
               {{ ind.indicatorName }}
@@ -14,7 +18,7 @@
       </div>
       <div class="col-md-3">
         <button class="btn btn-success btn-sm w-100" (click)="onAdd()" [disabled]="!tmpSelection">
-          <i class="fas fa-plus"></i> Hinzufügen
+          <i class="fas fa-plus"></i> {{ 'ADMIN_SCRIPTS.ADD' | translate }}
         </button>
       </div>
     </div>
@@ -24,8 +28,8 @@
         <table class="table table-condensed table-bordered table-striped" style="font-size: 12px">
           <thead>
             <tr>
-              <th>Id</th>
-              <th>Name</th>
+              <th>{{ 'ADMIN_SHARED.ID' | translate }}</th>
+              <th>{{ 'ADMIN_SHARED.NAME' | translate }}</th>
               <th></th>
             </tr>
           </thead>
@@ -47,7 +51,7 @@
     }
 
     @if (selectedIndicators.length === 0) {
-      <p class="text-muted">Noch keine Basis-Indikatoren hinzugefügt.</p>
+      <p class="text-muted">{{ 'ADMIN_SCRIPTS.INDICATOR_LIST.EMPTY' | translate }}</p>
     }
   </div>
 </div>

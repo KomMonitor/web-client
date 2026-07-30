@@ -1,0 +1,535 @@
+<div class="modal-header">
+  <button
+    type="button"
+    class="close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="close()"
+  >
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <h4 class="modal-title">{{ 'ADMIN_WMS.ADD.TITLE' | translate }}</h4>
+</div>
+
+<div class="modal-body">
+  <div align="center">
+    @if (loadingData) {
+      <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData">
+        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+      </div>
+    }
+  </div>
+
+  <!-- MultiStep Form -->
+  <div class="row">
+    <div class="col-md-12">
+      <form
+        class="multiStepForm form-group"
+        #georesourceAddForm="ngForm"
+        (ngSubmit)="addWms()"
+        style="margin-bottom: 0px"
+      >
+        <!-- progressbar -->
+        <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
+
+        <!-- fieldsets -->
+        @if (stepper.isActive('metadata')) {
+          <fieldset>
+            <h2 class="fs-title">{{ 'ADMIN_SHARED.GENERAL_METADATA' | translate }}</h2>
+            <h3 class="fs-subtitle">{{ 'ADMIN_WMS.COMMON.METADATA_SUBTITLE' | translate }}</h3>
+            <p>
+              <b
+                ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+              >
+            </p>
+            <form [formGroup]="metadataForm">
+              <div class="row vertical-align">
+                <div class="col-md-3 col-sm-6 col-12">
+                  <div class="form-group">
+                    <label>{{ 'ADMIN_WMS.COMMON.NAME_LABEL' | translate }}*</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      formControlName="title"
+                      name="datasetName"
+                      (ngModelChange)="checkDatasetName()"
+                      [placeholder]="'ADMIN_WMS.COMMON.NAME_PLACEHOLDER' | translate"
+                      required
+                    />
+                    <div class="help-block with-errors"></div>
+                    @if (datasetNameInvalid) {
+                      <div style="color: red">
+                        <p>{{ 'ADMIN_WMS.COMMON.NAME_INVALID' | translate }}</p>
+                      </div>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-12">
+                  <div class="form-group">
+                    <label>{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}*</label>
+                    <textarea
+                      rows="3"
+                      class="form-control"
+                      formControlName="description"
+                      name="metadataDescription"
+                      [placeholder]="'ADMIN_SHARED_UI.FORM.DESCRIPTION_PLACEHOLDER' | translate"
+                      required
+                    ></textarea>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-12">
+                  <div class="form-group">
+                    <label>{{ 'ADMIN_SHARED_UI.FORM.DATABASIS' | translate }}</label>
+                    <textarea
+                      rows="3"
+                      class="form-control"
+                      formControlName="databasis"
+                      name="metadataDatabasis"
+                      [placeholder]="'ADMIN_SHARED_UI.FORM.DATABASIS_PLACEHOLDER' | translate"
+                    ></textarea>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="row vertical-align">
+                <div class="col-md-3 col-sm-6 col-12">
+                  <div class="form-group">
+                    <label>{{ 'ADMIN_SHARED.DATASOURCE' | translate }}*</label>
+                    <textarea
+                      rows="3"
+                      class="form-control"
+                      formControlName="datasource"
+                      name="metadataDatasource"
+                      [placeholder]="'ADMIN_SHARED_UI.FORM.DATASOURCE_PLACEHOLDER' | translate"
+                      required
+                    ></textarea>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-12">
+                  <div class="form-group">
+                    <label>{{ 'ADMIN_SHARED.DATA_HOLDER_CONTACT' | translate }}*</label>
+                    <textarea
+                      rows="3"
+                      class="form-control"
+                      formControlName="contact"
+                      name="metadataContact"
+                      [placeholder]="'ADMIN_SHARED_UI.FORM.CONTACT_PLACEHOLDER' | translate"
+                      required
+                    ></textarea>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-12">
+                  <div class="form-group">
+                    <label>{{ 'ADMIN_SHARED_UI.FORM.NOTE' | translate }}</label>
+                    <textarea
+                      rows="3"
+                      class="form-control"
+                      formControlName="note"
+                      name="metadataNote"
+                      [placeholder]="'ADMIN_SHARED_UI.FORM.NOTE_PLACEHOLDER' | translate"
+                    ></textarea>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                </div>
+              </div>
+              <input
+                type="button"
+                name="previous"
+                class="previous previous_addGeoresource action-button-previous"
+                [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
+                (click)="stepper.previous()"
+              />
+              <input
+                type="button"
+                name="next"
+                class="next next_addGeoresource action-button"
+                [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
+                (click)="stepper.next()"
+              />
+            </form>
+          </fieldset>
+        }
+
+        @if (stepper.isActive('connection')) {
+          <fieldset>
+            <h2 class="fs-title">{{ 'ADMIN_WMS.COMMON.CONNECTION_TITLE' | translate }}</h2>
+            <h3 class="fs-subtitle">{{ 'ADMIN_WMS.COMMON.CONNECTION_SUBTITLE' | translate }}</h3>
+            <p>
+              <b
+                ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+              >
+            </p>
+            <form [formGroup]="connectForm">
+              <div class="row vertical-align">
+                <div class="col-md-3 col-sm-6 col-12">
+                  <div class="form-group">
+                    <label>{{ 'ADMIN_WMS.COMMON.URL_LABEL' | translate }}*</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      formControlName="url"
+                      name="datasetURL"
+                      placeholder="http://..."
+                      required
+                    />
+                    <div class="help-block with-errors"></div>
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-12">
+                  <div class="form-group">
+                    <label>{{ 'ADMIN_WMS.COMMON.LAYER_LABEL' | translate }}*</label>
+                    <input
+                      class="form-control"
+                      formControlName="layer"
+                      name="datasetLayer"
+                      [placeholder]="'ADMIN_WMS.COMMON.LAYER_LABEL' | translate"
+                      required
+                    />
+                    <div class="help-block with-errors"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="row vertical-align">
+                <button
+                  class="btn btn-primary"
+                  [value]="'ADMIN_WMS.COMMON.TEST_CONNECTION' | translate"
+                  (click)="testConnection()"
+                  [disabled]="connectForm.invalid"
+                >
+                  {{ 'ADMIN_WMS.COMMON.TEST_CONNECTION' | translate }}
+                </button>
+              </div>
+              <div class="row vertical-align">
+                @if (wmsTestStatus === true) {
+                  <div class="wmsTest_success">
+                    {{ 'ADMIN_WMS.COMMON.TEST_SUCCESS' | translate }}
+                  </div>
+                }
+                @if (wmsTestStatus === false) {
+                  <div class="wmsTest_error">
+                    {{ 'ADMIN_WMS.COMMON.TEST_FAILURE' | translate }}
+                  </div>
+                }
+              </div>
+              <input
+                type="button"
+                name="previous"
+                class="previous previous_addGeoresource action-button-previous"
+                [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
+                (click)="stepper.previous()"
+              />
+              <input
+                type="button"
+                name="next"
+                class="next next_addGeoresource action-button"
+                [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
+                (click)="stepper.next()"
+              />
+            </form>
+          </fieldset>
+        }
+
+        @if (stepper.isActive('topics')) {
+          <fieldset>
+            <h2 class="fs-title">{{ 'ADMIN_SHARED_UI.TOPICS.TITLE' | translate }}</h2>
+            <h3 class="fs-subtitle">{{ 'ADMIN_WMS.COMMON.TOPICS_SUBTITLE' | translate }}</h3>
+            <p>
+              <b
+                ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+              >
+            </p>
+            <p>{{ 'ADMIN_SHARED_UI.TOPICS.SELECTION_HINT' | translate }}</p>
+            <p>{{ 'ADMIN_SHARED_UI.TOPICS.CATALOG_HINT' | translate }}</p>
+            <div class="row vertical-align">
+              <div class="col-md-3 col-sm-6 col-12">
+                <div class="form-group">
+                  <label>{{ 'ADMIN_SHARED_UI.TOPICS.MAIN_TOPIC' | translate }}*</label>
+                  <select
+                    [(ngModel)]="georesourceTopic_mainTopic"
+                    name="georesourceTopic_mainTopic"
+                    class="form-control"
+                    required
+                  >
+                    <option disabled selected value>
+                      {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_MAIN_TOPIC' | translate }}
+                    </option>
+                    @for (mainTopic of availableTopics; track mainTopic) {
+                      <option [ngValue]="mainTopic">{{ mainTopic.topicName }}</option>
+                    }
+                  </select>
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6 col-12">
+                @if (georesourceTopic_mainTopic?.subTopics?.length > 0) {
+                  <div class="form-group">
+                    <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_1' | translate }}</label>
+                    <select
+                      [(ngModel)]="georesourceTopic_subTopic"
+                      name="georesourceTopic_subTopic"
+                      class="form-control"
+                    >
+                      <option disabled selected value>
+                        {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
+                      </option>
+                      @for (subTopic of georesourceTopic_mainTopic.subTopics; track subTopic) {
+                        <option [ngValue]="subTopic">{{ subTopic.topicName }}</option>
+                      }
+                    </select>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                }
+              </div>
+              <div class="col-md-3 col-sm-6 col-12">
+                @if (georesourceTopic_subTopic?.subTopics?.length > 0) {
+                  <div class="form-group">
+                    <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_2' | translate }}</label>
+                    <select
+                      [(ngModel)]="georesourceTopic_subsubTopic"
+                      name="georesourceTopic_subsubTopic"
+                      class="form-control"
+                    >
+                      <option disabled selected value>
+                        {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
+                      </option>
+                      @for (subsubTopic of georesourceTopic_subTopic.subTopics; track subsubTopic) {
+                        <option [ngValue]="subsubTopic">{{ subsubTopic.topicName }}</option>
+                      }
+                    </select>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                }
+              </div>
+              <div class="col-md-3 col-sm-6 col-12">
+                @if (georesourceTopic_subsubTopic?.subTopics?.length > 0) {
+                  <div class="form-group">
+                    <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_3' | translate }}</label>
+                    <select
+                      [(ngModel)]="georesourceTopic_subsubsubTopic"
+                      name="georesourceTopic_subsubsubTopic"
+                      class="form-control"
+                    >
+                      <option disabled selected value>
+                        {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
+                      </option>
+                      @for (
+                        subsubsubTopic of georesourceTopic_subsubTopic.subTopics;
+                        track subsubsubTopic
+                      ) {
+                        <option [ngValue]="subsubsubTopic">{{ subsubsubTopic.topicName }}</option>
+                      }
+                    </select>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                }
+              </div>
+            </div>
+            <hr />
+            <br />
+            @if (accessControlService.checkAdminPermission()) {
+              <div class="row vertical-align">
+                <div class="col-md-10 col-sm-12 col-12">
+                  <div style="text-align: left">
+                    <div
+                      id="georesourceAddAdmin_topicsManagement"
+                      class="box box-primary collapsed-box"
+                      style="background: #ebf0fd"
+                    >
+                      <div class="box-header">
+                        <h3 class="box-title">
+                          {{ 'ADMIN_SHARED_UI.TOPICS.TOPIC_CATALOG' | translate }}
+                        </h3>
+                        <div class="box-tools pull-right">
+                          <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                            <i class="fa fa-plus"></i>
+                          </button>
+                        </div>
+                      </div>
+                      <div class="box-body">
+                        <style>
+                          #georesourceAddAdmin_topicsManagement #indicatorTopicsManagement {
+                            display: none;
+                          }
+                        </style>
+                        <app-admin-topics-management></app-admin-topics-management>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+            <input
+              type="button"
+              name="previous"
+              class="previous previous_addGeoresource action-button-previous"
+              [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
+              (click)="stepper.previous()"
+            />
+            <input
+              type="button"
+              name="next"
+              class="next next_addGeoresource action-button"
+              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
+              (click)="stepper.next()"
+            />
+          </fieldset>
+        }
+
+        <!-- Step 4: access protection and ownership.
+             Switched via display (not @if) so the role grid's checked state
+             survives navigating between steps. -->
+        @if (envConfigService.enableKeycloakSecurity) {
+          <fieldset [style.display]="stepper.isActive('security') ? 'block' : 'none'">
+            <h2 class="fs-title">
+              {{ 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE' | translate }}
+            </h2>
+            <h3 class="fs-subtitle">
+              {{ 'ADMIN_SHARED_UI.SECURITY.ASSIGN_RIGHTS_SUBTITLE' | translate }}
+            </h3>
+            <app-owner-organization-select
+              mode="assign"
+              [ownerId]="ownerOrganization"
+              (ownerIdChange)="onChangeOwner($event)"
+            ></app-owner-organization-select>
+            <br />
+            <hr />
+            <br />
+            <div id="georesourceRoleForm" [style.display]="ownerOrganization ? 'block' : 'none'">
+              <label>{{ 'ADMIN_SHARED_UI.SECURITY.DATASET_PERMISSIONS' | translate }}</label>
+              <div class="row vertical-align">
+                <div class="col-md-3">
+                  <label>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label>
+                  <label class="switch">
+                    <input
+                      type="checkbox"
+                      [(ngModel)]="isPublic"
+                      name="isPublic"
+                      (ngModelChange)="onChangeIsPublic($event)"
+                    />
+                    <span class="switchslider round"></span>
+                  </label>
+                  <div class="help-block">
+                    <p>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ_HINT' | translate }}</p>
+                  </div>
+                </div>
+                <div class="col-md-6 col-sm-6 col-12">
+                  <app-role-management-grid
+                    gridId="wmsAddRoleManagementTable"
+                  ></app-role-management-grid>
+                </div>
+                <div class="col-md-3">
+                  <div class="alert alert-info">
+                    {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_RIGHTS_INFO' | translate }}
+                  </div>
+                  <br />
+                  <div class="alert alert-warning">
+                    {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_ROLES_MARKED' | translate }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <input
+              type="button"
+              name="previous"
+              class="previous previous_addGeoresource action-button-previous"
+              [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
+              (click)="stepper.previous()"
+            />
+            <input
+              type="button"
+              name="next"
+              class="next next_addGeoresource action-button"
+              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
+              (click)="stepper.next()"
+            />
+          </fieldset>
+        }
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-default pull-left" (click)="close()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
+
+  <button
+    type="button"
+    class="btn btn-success"
+    [disabled]="
+      metadataForm.invalid ||
+      connectForm.invalid ||
+      (envConfigService.enableKeycloakSecurity && !ownerOrganization)
+    "
+    (click)="addWms()"
+  >
+    {{ 'ADMIN_WMS.ADD.SUBMIT' | translate }}
+  </button>
+  <button type="button" class="btn btn-danger" (click)="resetWmsAddForm()">
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
+  </button>
+</div>
+
+<!-- Success Alert -->
+<div
+  id="georesourceAddSuccessAlert"
+  style="position: absolute; bottom: 0px; width: 100%"
+  [hidden]="!successMessage()"
+  class="alert alert-success alert-dismissable"
+>
+  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
+    &times;
+  </button>
+  <h4><i class="icon fa fa-check"></i>{{ 'ADMIN_WMS.ADD.SUCCESS_TITLE' | translate }}</h4>
+  <p>{{ 'ADMIN_WMS.ADD.SUCCESS_TEXT' | translate: { name: successMessagePart() } }}</p>
+</div>
+
+<!-- Test Success Alert -->
+<div
+  id="georesourceAddSuccessAlert"
+  style="position: absolute; bottom: 0px; width: 100%"
+  [hidden]="!testSuccessMessage()"
+  class="alert alert-success alert-dismissable"
+>
+  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
+    &times;
+  </button>
+  <h4>
+    <i class="icon fa fa-check"></i>{{ 'ADMIN_WMS.COMMON.CONNECTION_TEST_TITLE' | translate }}
+  </h4>
+  <p>{{ 'ADMIN_WMS.COMMON.CONNECTION_TEST_SUCCESS' | translate }}</p>
+</div>
+
+<!-- Test Error Alert -->
+<div
+  id="georesourceAddErrorAlert"
+  style="position: absolute; bottom: 0px; width: 100%"
+  [hidden]="!testErrorMessage()"
+  class="alert alert-danger alert-dismissable"
+>
+  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
+  <h4>
+    <i class="icon fa fa-ban"></i>{{ 'ADMIN_WMS.COMMON.CONNECTION_FAILED_TITLE' | translate }}
+  </h4>
+  {{ 'ADMIN_WMS.COMMON.CONNECTION_FAILED_TEXT' | translate }}
+  <br />
+</div>
+
+<!-- Error Alert -->
+<div
+  id="georesourceAddErrorAlert"
+  style="position: absolute; bottom: 0px; width: 100%"
+  [hidden]="!errorMessage()"
+  class="alert alert-danger alert-dismissable"
+>
+  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-ban"></i>{{ 'ADMIN_WMS.ADD.ERROR_TITLE' | translate }}</h4>
+  {{ 'ADMIN_WMS.ADD.ERROR_TEXT' | translate }}
+  <br />
+  <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessagePart()"></pre>
+  <br />
+  <br />
+</div>

@@ -1,0 +1,26 @@
+@if (showActiveRolesOnlyToggle) {
+  <div class="form-group vertical-align">
+    <label class="margin-right">{{ 'ADMIN_SHARED.SHOW_ONLY_ASSIGNED_ROLES' | translate }}</label>
+    <label class="switch">
+      <input
+        type="checkbox"
+        [ngModel]="activeRolesOnly()"
+        name="activeRolesOnly"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="activeRolesOnly.set($event); onActiveRolesOnlyChange()"
+      />
+      <span class="switchslider round"></span>
+    </label>
+  </div>
+}
+<ag-grid-angular
+  class="ag-theme-alpine"
+  style="height: 45vh; width: 100%"
+  [columnDefs]="columnDefs()"
+  [rowData]="rowData()"
+  [defaultColDef]="defaultColDef"
+  [gridOptions]="gridOptions"
+  [components]="components"
+  (gridReady)="onGridReady($event)"
+>
+</ag-grid-angular>

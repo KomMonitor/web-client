@@ -1,11 +1,11 @@
 <app-admin-content-view
-  title="Themenverwaltung"
-  description="Management der Themenhierarchien für Indikatoren und Georessourcen"
+  [title]="'ADMIN_TOPICS.TITLE' | translate"
+  [description]="'ADMIN_TOPICS.DESCRIPTION' | translate"
   [contentTemplate]="content"
 >
 </app-admin-content-view>
 <ng-template #content>
-  <b>Zeige IDs</b>
+  <b>{{ 'ADMIN_TOPICS.SHOW_IDS' | translate }}</b>
   &nbsp;
   <label class="switch">
     <input type="checkbox" [(ngModel)]="showTopicIds" />
@@ -14,11 +14,11 @@
 
   <br />
 
-  <expandable-box title="Themenhierarchie - Indikatoren" [collapsed]="false">
-    @if (indicatorOrder) {
+  <expandable-box [title]="'ADMIN_TOPICS.INDICATOR_HIERARCHY' | translate" [collapsed]="false">
+    @if (indicatorOrder(); as indicatorOrder) {
       <div class="just-padding">
         <div>
-          <div>Sortierung der Indikatoren:</div>
+          <div>{{ 'ADMIN_TOPICS.INDICATOR_SORTING' | translate }}</div>
           <app-topic-order-selection
             [orderMode]="indicatorOrder"
             (selectedOptionChange)="setIndicatorSorting($event)"
@@ -36,11 +36,15 @@
     }
   </expandable-box>
 
-  <expandable-box title="Themenhierarchie - Georessourcen" [collapsed]="false" borderColor="red">
-    @if (geoRessourceOrder) {
+  <expandable-box
+    [title]="'ADMIN_TOPICS.GEORESOURCE_HIERARCHY' | translate"
+    [collapsed]="false"
+    borderColor="red"
+  >
+    @if (geoRessourceOrder(); as geoRessourceOrder) {
       <div class="just-padding">
         <div>
-          <div>Sortierung der Georessourcen:</div>
+          <div>{{ 'ADMIN_TOPICS.GEORESOURCE_SORTING' | translate }}</div>
           <app-topic-order-selection
             [orderMode]="geoRessourceOrder"
             (selectedOptionChange)="setGeoRessourceSorting($event)"
@@ -62,7 +66,7 @@
   @if (errorHandlingService.errorMessagePart) {
     <div id="topicsErrorAlert" class="alert alert-danger alert-dismissible">
       <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-      <h4><i class="icon fa fa-ban"></i> Fehler!</h4>
+      <h4><i class="icon fa fa-ban"></i> {{ 'ADMIN_SHARED.ERROR' | translate }}</h4>
       <div [innerHTML]="errorHandlingService.errorMessagePart"></div>
     </div>
   }

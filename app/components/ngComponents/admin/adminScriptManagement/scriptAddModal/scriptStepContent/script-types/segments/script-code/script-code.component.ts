@@ -1,16 +1,25 @@
-import { Component, ViewChild, ElementRef, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 
 import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import CodeMirror from 'codemirror';
 import 'codemirror/mode/javascript/javascript.js';
 
+import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-script-code',
   templateUrl: './script-code.component.html',
   styleUrls: ['./script-code.component.scss'],
   standalone: true,
-  imports: [ExpandableBoxComponent],
+  imports: [TranslateModule, ExpandableBoxComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScriptCodeComponent {
   private scriptHelperService = inject(ScriptHelperService);
@@ -18,9 +27,12 @@ export class ScriptCodeComponent {
   @ViewChild('scriptCodeMirrorContainer')
   scriptCodeMirrorContainerEl?: ElementRef<HTMLElement>;
 
-  rawScriptCode: string = '';
-  indicatorScriptCodeImportError: string = '';
-  showScriptCodeErrorAlert: boolean = false;
+  // Signals: written from the async FileReader callback (OnPush). Setting
+  // rawScriptCode must also re-render before the CodeMirror init timeout runs,
+  // so the @if container element exists in the DOM.
+  rawScriptCode = signal('');
+  indicatorScriptCodeImportError = signal('');
+  showScriptCodeErrorAlert = signal(false);
 
   private codeMirrorEditor: any = null;
 
@@ -46,14 +58,15 @@ export class ScriptCodeComponent {
     fileReader.onload = (event) => {
       const result = event.target?.result as string;
       if (!result || !this.fileStringIncludesScriptKeywords(result)) {
-        this.indicatorScriptCodeImportError =
-          'Uploaded Script Code File is null or does not follow script template.';
-        this.showScriptCodeErrorAlert = true;
+        this.indicatorScriptCodeImportError.set(
+          'Uploaded Script Code File is null or does not follow script template.'
+        );
+        this.showScriptCodeErrorAlert.set(true);
         return;
       }
 
       this.scriptHelperService.prettifyScriptCodePreview(result);
-      this.rawScriptCode = result;
+      this.rawScriptCode.set(result);
 
       // Nach Angular Change Detection warten, damit das *ngIf-Element im DOM erscheint
       setTimeout(() => this.initOrUpdateCodeMirror(result), 0);
@@ -80,6 +93,6 @@ export class ScriptCodeComponent {
   }
 
   hideScriptCodeErrorAlert(): void {
-    this.showScriptCodeErrorAlert = false;
+    this.showScriptCodeErrorAlert.set(false);
   }
 }

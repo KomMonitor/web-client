@@ -1,7 +1,17 @@
-import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { skip } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import CodeMirror from 'codemirror';
+import { skip } from 'rxjs';
 
 // CodeMirror module is not loaded properly (why?!), reload necessary files
 import 'codemirror/mode/css/css.js';
@@ -14,30 +24,31 @@ import { HttpClient } from '@angular/common/http';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions, GridReadyEvent, SelectionChangedEvent } from 'ag-grid-community';
 
-import { KommonitorFilterDataGridHelperService } from '../../../../../services/adminFilterConfig/kommonitor-data-grid-helper.service';
-import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from '../../../../../services/broadcast-service/broadcast-message';
-import { ConfigStorageService } from '../../../../../services/config-storage-service/config-storage.service';
-import { GeoresourceMetadataStoreService } from '../../../../../services/georesource-metadata-store-service/georesource-metadata-store.service';
-import { TopicMetadataStoreService } from '../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
-import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
+import { GlobalFilterEntry } from 'components/ngComponents/models/globalFilters.models';
 import {
   MetadataBootstrapService,
   MetadataLoadingState,
 } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { KommonitorFilterDataGridHelperService } from '../../../../../services/adminFilterConfig/kommonitor-data-grid-helper.service';
+import { BroadcastMessage } from '../../../../../services/broadcast-service/broadcast-message';
+import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
+import { ConfigStorageService } from '../../../../../services/config-storage-service/config-storage.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
+import { GeoresourceMetadataStoreService } from '../../../../../services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { ScriptHelperService } from '../../../../../services/script-helper-service/script-helper.service';
+import { TopicMetadataStoreService } from '../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 import { ExpandableBoxComponent } from '../../../common/expandable-box/expandable-box.component';
 import { NotificationService } from '../../../common/notification/notification.service';
 import { AdminContentViewComponent } from '../../admin-content-view/admin-content-view.component';
-import { GlobalFilterEntry } from 'components/ngComponents/models/globalFilters.models';
 
 @Component({
   selector: 'app-admin-filter-config',
   templateUrl: './admin-filter-config.component.html',
   styleUrls: ['./admin-filter-config.component.scss'],
-  imports: [AgGridAngular, ExpandableBoxComponent, AdminContentViewComponent],
+  imports: [TranslateModule, AgGridAngular, ExpandableBoxComponent, AdminContentViewComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminFilterConfigComponent implements OnInit {
   private georesourceStore = inject(GeoresourceMetadataStoreService);
@@ -52,12 +63,14 @@ export class AdminFilterConfigComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private envConfigService = inject(EnvConfigService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
 
   // AG Grid properties
-  public columnDefs: ColDef[] = [];
-  public rowData: any[] = [];
+  // Signals: rebuilt from config fetches and broadcast callbacks (OnPush).
+  public columnDefs = signal<ColDef[]>([]);
+  public rowData = signal<any[]>([]);
   public gridOptions: GridOptions = {};
   public selectedRows: any[] = [];
 
@@ -65,8 +78,10 @@ export class AdminFilterConfigComponent implements OnInit {
   codeMirrorEditor: any = undefined;
   lintingIssues;
 
-  missingRequiredParameters = [];
-  missingRequiredParameters_string = '';
+  // Signals: written from CodeMirror lint callbacks, which run outside
+  // Angular's template-event path (OnPush).
+  missingRequiredParameters = signal<string[]>([]);
+  missingRequiredParameters_string = signal('');
 
   keywordsInConfig = [];
 
@@ -77,7 +92,7 @@ export class AdminFilterConfigComponent implements OnInit {
   origConfig: any = undefined;
   mergedFilterConfig: any = undefined;
 
-  configSettingInvalid = false;
+  configSettingInvalid = signal(false);
 
   async ngOnInit() {
     this.httpClient
@@ -151,18 +166,18 @@ export class AdminFilterConfigComponent implements OnInit {
       this.setupGridOptions(this.origConfig);
 
       // Use the data grid helper service to build column definitions and row data
-      this.columnDefs = this.kommonitorDataGridHelperService.buildDataGridColumnConfig_filters(
-        this.origConfig
+      this.columnDefs.set(
+        this.kommonitorDataGridHelperService.buildDataGridColumnConfig_filters(this.origConfig)
       );
-      this.rowData = this.kommonitorDataGridHelperService.buildDataGridRowData_filters(
-        this.origConfig
+      this.rowData.set(
+        this.kommonitorDataGridHelperService.buildDataGridRowData_filters(this.origConfig)
       );
 
       // Force change detection
       setTimeout(() => {
         if (this.agGrid && this.agGrid.api) {
-          this.agGrid.api.setRowData(this.rowData);
-          this.agGrid.api.setColumnDefs(this.columnDefs);
+          this.agGrid.api.setGridOption('rowData', this.rowData());
+          this.agGrid.api.setGridOption('columnDefs', this.columnDefs());
           this.agGrid.api.refreshCells();
         }
       }, 200);
@@ -176,6 +191,7 @@ export class AdminFilterConfigComponent implements OnInit {
     this.gridOptions = {
       defaultColDef: {
         editable: false,
+        cellDataType: false,
         sortable: true,
         flex: 1,
         minWidth: 200,
@@ -215,6 +231,7 @@ export class AdminFilterConfigComponent implements OnInit {
       ensureDomOrder: true,
       pagination: true,
       paginationPageSize: 10,
+      paginationPageSizeSelector: [10, 25, 50, 100],
       suppressColumnVirtualisation: true,
       rowSelection: 'multiple',
       suppressRowClickSelection: true,
@@ -246,9 +263,9 @@ export class AdminFilterConfigComponent implements OnInit {
   // Grid event handlers
   onGridReady(params: GridReadyEvent): void {
     // If we have data, set it now
-    if (this.rowData && this.rowData.length > 0) {
-      params.api.setRowData(this.rowData);
-      params.api.setColumnDefs(this.columnDefs);
+    if (this.rowData().length > 0) {
+      params.api.setGridOption('rowData', this.rowData());
+      params.api.setGridOption('columnDefs', this.columnDefs());
     } else {
       // If no data is available, try to load it
     }
@@ -294,7 +311,11 @@ export class AdminFilterConfigComponent implements OnInit {
 
     const item = this.mergedFilterConfig.filter((e) => e.filterId == itemId);
     if (item.length == 1) {
-      if (confirm('Wollen Sie den Filter ' + item[0].name + ' sicher dauerhaft löschen?')) {
+      if (
+        confirm(
+          this.translate.instant('ADMIN_CONFIG.FILTER.MSG.DELETE_CONFIRM', { name: item[0].name })
+        )
+      ) {
         const configNew = this.origConfig
           .filter((e, i) => i != itemId)
           .map((e) => {
@@ -448,10 +469,10 @@ export class AdminFilterConfigComponent implements OnInit {
     let isInvalid = true;
 
     isInvalid = !this.keywordsInConfig.every((keyword) => configString.includes(keyword));
-    this.missingRequiredParameters = this.keywordsInConfig.filter(
-      (keyword) => !configString.includes(keyword)
+    this.missingRequiredParameters.set(
+      this.keywordsInConfig.filter((keyword) => !configString.includes(keyword))
     );
-    this.missingRequiredParameters_string = JSON.stringify(this.missingRequiredParameters);
+    this.missingRequiredParameters_string.set(JSON.stringify(this.missingRequiredParameters()));
 
     if (this.lintingIssues && this.lintingIssues.length > 0) {
       isInvalid = true;
@@ -469,7 +490,7 @@ export class AdminFilterConfigComponent implements OnInit {
       configString = JSON.stringify(configString, null, '    ');
     }
 
-    this.configSettingInvalid = this.isConfigSettingInvalid(configString);
+    this.configSettingInvalid.set(this.isConfigSettingInvalid(configString));
 
     setTimeout(() => {
       this.filterConfigNew = configString;
@@ -490,7 +511,9 @@ export class AdminFilterConfigComponent implements OnInit {
     try {
       await this.kommonitorConfigStorageService.postFilterConfig(this.filterConfigTmp).subscribe({
         next: async (_response) => {
-          this.notificationService.showSuccess('Filter-Konfiguration gespeichert.');
+          this.notificationService.showSuccess(
+            this.translate.instant('ADMIN_CONFIG.FILTER.MSG.SAVED')
+          );
           this.loadingData = false;
 
           this.filterConfigCurrent = this.filterConfigTmp;
@@ -507,8 +530,13 @@ export class AdminFilterConfigComponent implements OnInit {
     } catch (error: any) {
       console.error('Error editing filter config:', error);
       this.notificationService.showError(
-        'Speichern der Filter-Konfiguration gescheitert: ' +
-          (error?.error?.message || error?.data || error?.message || 'Unbekannter Fehler'),
+        this.translate.instant('ADMIN_CONFIG.FILTER.MSG.SAVE_FAILED', {
+          error:
+            error?.error?.message ||
+            error?.data ||
+            error?.message ||
+            this.translate.instant('ADMIN_SHARED.UNKNOWN_ERROR'),
+        }),
         { autohide: false }
       );
       this.loadingData = false;

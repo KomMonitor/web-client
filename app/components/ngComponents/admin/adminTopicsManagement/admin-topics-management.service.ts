@@ -56,7 +56,7 @@ export class AdminTopicsManagementService {
       }
       // Build the PUT body from a copy so the bound (signal-backed) parent topic is not
       // mutated before the request succeeds; reloadTopics() refreshes from the server on success.
-      const updatedSubTopics = [...parentTopic.subTopics, newTopic];
+      const updatedSubTopics = [...(parentTopic.subTopics ?? []), newTopic];
       const putBody: Topic = {
         topicId: parentTopic.topicId,
         topicName: parentTopic.topicName,
@@ -140,11 +140,11 @@ export class AdminTopicsManagementService {
     );
   }
 
-  private alreadyInSubtopics(topicName: string, existingTopics: Topic[]): boolean {
-    return existingTopics.find((st) => st.topicName === topicName) !== undefined;
+  private alreadyInSubtopics(topicName: string, existingTopics: Topic[] | undefined): boolean {
+    return existingTopics?.find((st) => st.topicName === topicName) !== undefined;
   }
 
-  private prepareSubTopics(subTopics: Topic[]) {
+  private prepareSubTopics(subTopics: Topic[] | undefined) {
     return subTopics?.map((e) => this.prepareTopic(e));
   }
 

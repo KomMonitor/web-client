@@ -1,19 +1,25 @@
-import { Component, OnInit, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { OrganizationalUnitInputType } from 'models/data-management-api';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridOptions, GridReadyEvent } from 'ag-grid-community';
-import {
-  AccessControlMetadata,
-  KommonitorDataExchangeService,
-} from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { AdminRoleManagementService } from '../admin-role-management.service';
-import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { FilterableSelectComponent } from 'components/ngComponents/common/filterableSelect/filterable-select.component';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { NotificationService } from '../../../common/notification/notification.service';
@@ -27,7 +33,9 @@ import {
   createAdvancedRoleComponents,
 } from '../advanced-role-permissions';
 import { RoleDelegatePutEntry } from '../admin-role-management.service';
+import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-role-add-modal',
   templateUrl: './role-add-modal.component.html',
@@ -39,17 +47,25 @@ import { RoleDelegatePutEntry } from '../admin-role-management.service';
     FilterableSelectComponent,
     ExpandableBoxComponent,
     LoadingOverlayComponent,
+    TranslateModule,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoleAddModalComponent implements OnInit {
   protected activeModal = inject(NgbActiveModal);
-  protected kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  protected accessControlService = inject(AccessControlService);
+  private indicatorValueService = inject(IndicatorValueService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private adminRoleManagementService = inject(AdminRoleManagementService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
 
-  processCreation: boolean = false;
+  // Signal-backed: written from the async create-request callbacks, which would
+  // not trigger a re-render of this OnPush component otherwise.
+  processCreation = signal(false);
   nameInvalid: boolean = false;
 
   roleDelegatesColumnDefs: ColDef[] = [];
@@ -63,10 +79,10 @@ export class RoleAddModalComponent implements OnInit {
   } = {};
   private roleDelegatesGridApi: GridApi | null = null;
 
-  errorMessagePart: string | undefined;
-  keycloakErrorMessagePart: string | undefined;
-  showErrorAlert: boolean = false;
-  showKeycloakErrorAlert: boolean = false;
+  errorMessagePart = signal<string | undefined>(undefined);
+  keycloakErrorMessagePart = signal<string | undefined>(undefined);
+  showErrorAlert = signal(false);
+  showKeycloakErrorAlert = signal(false);
 
   newOrganizationalUnit: {
     name?: string;
@@ -77,30 +93,29 @@ export class RoleAddModalComponent implements OnInit {
     organizationalUnitId?: string;
   } = {};
 
-  protected steps: StepperStep[] = [
-    { label: 'Basisinformationen' },
-    { label: 'Rechte anderer Gruppen an neuer Gruppe' },
-  ];
-  protected currentStep: number = 1;
-  protected accessControlOptions = [...this.kommonitorDataExchangeService.accessControl].sort(
+  protected readonly stepper = new WizardStepper([
+    { key: 'basics', label: 'ADMIN_SHARED_UI.STEP_LABELS.BASIC_INFO' },
+    { key: 'rights', label: 'ADMIN_SHARED_UI.STEP_LABELS.RIGHTS_OF_OTHER_GROUPS_NEW' },
+  ]);
+  protected accessControlOptions = [...this.accessControlService.accessControl].sort(
     (left, right) => left.name.localeCompare(right.name, 'de')
   );
 
   ngOnInit(): void {
     this.reset();
 
-    if (this.kommonitorDataExchangeService.accessControl.length > 0) {
+    if (this.accessControlService.accessControl.length > 0) {
       this.buildRoleDelegatesTable();
       return;
     }
 
-    this.kommonitorDataExchangeService.fetchAccessControlMetadata(true).subscribe({
-      next: () => this.buildRoleDelegatesTable(),
-    });
+    this.metadataBootstrap
+      .fetchAccessControlMetadata(this.accessControlService.currentKeycloakLoginRoles)
+      .then(() => this.buildRoleDelegatesTable());
   }
 
   get isRealmAdmin(): boolean {
-    return this.kommonitorDataExchangeService.checkAdminPermission();
+    return this.accessControlService.checkAdminPermission();
   }
 
   get parentSelected(): boolean {
@@ -109,7 +124,7 @@ export class RoleAddModalComponent implements OnInit {
 
   get canSubmit(): boolean {
     if (
-      this.processCreation ||
+      this.processCreation() ||
       this.nameInvalid ||
       !this.isRealmAdmin ||
       !this.newOrganizationalUnit.name ||
@@ -130,20 +145,20 @@ export class RoleAddModalComponent implements OnInit {
 
   reset(): void {
     this.newOrganizationalUnit = { mandant: false, parentId: undefined };
-    this.errorMessagePart = undefined;
-    this.keycloakErrorMessagePart = undefined;
-    this.showErrorAlert = false;
-    this.showKeycloakErrorAlert = false;
+    this.errorMessagePart.set(undefined);
+    this.keycloakErrorMessagePart.set(undefined);
+    this.showErrorAlert.set(false);
+    this.showKeycloakErrorAlert.set(false);
     this.nameInvalid = false;
-    this.currentStep = 1;
+    this.stepper.reset();
 
-    if (this.kommonitorDataExchangeService.accessControl.length > 0) {
+    if (this.accessControlService.accessControl.length > 0) {
       this.buildRoleDelegatesTable();
     }
   }
 
   checkName(): void {
-    this.nameInvalid = this.kommonitorDataExchangeService.accessControl.some(
+    this.nameInvalid = this.accessControlService.accessControl.some(
       (ou) => ou.name === this.newOrganizationalUnit.name
     );
   }
@@ -172,9 +187,7 @@ export class RoleAddModalComponent implements OnInit {
     }
 
     return (
-      this.kommonitorDataExchangeService.getAccessControlById(
-        this.newOrganizationalUnit.parentId
-      ) || null
+      this.accessControlService.getAccessControlById(this.newOrganizationalUnit.parentId) || null
     );
   }
 
@@ -183,7 +196,7 @@ export class RoleAddModalComponent implements OnInit {
   }
 
   private buildRoleDelegatesTable(): void {
-    const rowData = buildAdvancedRoleRowData(this.kommonitorDataExchangeService.accessControl, []);
+    const rowData = buildAdvancedRoleRowData(this.accessControlService.accessControl, []);
     const components = createAdvancedRoleComponents();
 
     this.roleDelegatesColumnDefs = buildAdvancedColumnDefs();
@@ -206,10 +219,16 @@ export class RoleAddModalComponent implements OnInit {
     this.roleDelegatesGridOptions = {
       ...baseGridOptions,
       paginationPageSize: 5,
+      paginationPageSizeSelector: [5, 10, 25, 50],
       headerHeight: 52,
       rowHeight: 42,
       onGridReady: (params) => this.onRoleDelegatesGridReady(params),
     };
+
+    // This method bulk-rewrites the grid inputs and also runs from the async
+    // access-control fetch, so mark the OnPush view for check once instead of
+    // converting each grid field to a signal.
+    this.cdr.markForCheck();
   }
 
   private buildRoleDelegatesPutBody(): RoleDelegatePutEntry[] {
@@ -217,22 +236,27 @@ export class RoleAddModalComponent implements OnInit {
       this.roleDelegatesGridApi,
       this.roleDelegatesRowData
     );
-    return buildRoleDelegatesPutBody(selectedPermissionIds, (id) =>
-      this.kommonitorDataExchangeService.getAccessControlById(id)
+    return buildRoleDelegatesPutBody(
+      selectedPermissionIds,
+      (id) => this.accessControlService.getAccessControlById(id) ?? undefined
     );
   }
 
   addOrganizationalUnit(): void {
     if (!this.canSubmit) return;
 
-    this.errorMessagePart = undefined;
-    this.keycloakErrorMessagePart = undefined;
-    this.processCreation = true;
+    // canSubmit already ensures these are set; the local check narrows the types
+    const { name, contact } = this.newOrganizationalUnit;
+    if (!name || !contact) return;
 
-    const postBody = {
-      name: this.newOrganizationalUnit.name,
+    this.errorMessagePart.set(undefined);
+    this.keycloakErrorMessagePart.set(undefined);
+    this.processCreation.set(true);
+
+    const postBody: OrganizationalUnitInputType = {
+      name,
       description: this.newOrganizationalUnit.description,
-      contact: this.newOrganizationalUnit.contact,
+      contact,
       mandant: !!this.newOrganizationalUnit.mandant,
       parentId: this.newOrganizationalUnit.parentId,
     };
@@ -246,10 +270,14 @@ export class RoleAddModalComponent implements OnInit {
       .subscribe({
         next: () => {
           this.notificationService.showSuccess(
-            `Die neue Organisationseinheit '${this.newOrganizationalUnit.name}' wurde erfolgreich erstellt..`
+            this.translate.instant('ADMIN_ROLES.ADD_MODAL.MSG.CREATED', {
+              name: this.newOrganizationalUnit.name,
+            })
           );
-          this.notificationService.showSuccess('Keycloak-Rollen erfolgreich angelegt.');
-          this.processCreation = false;
+          this.notificationService.showSuccess(
+            this.translate.instant('ADMIN_ROLES.ADD_MODAL.MSG.KEYCLOAK_ROLES_CREATED')
+          );
+          this.processCreation.set(false);
           this.activeModal.close(true);
         },
         error: (error: any) => {
@@ -257,17 +285,18 @@ export class RoleAddModalComponent implements OnInit {
 
           // Distinguish HTTP/backend errors from Keycloak/service errors by status presence
           if (error && error.status !== undefined) {
-            this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(payload);
-            this.showErrorAlert = true;
+            this.errorMessagePart.set(this.indicatorValueService.syntaxHighlightJSON(payload));
+            this.showErrorAlert.set(true);
           } else {
-            this.keycloakErrorMessagePart =
-              this.kommonitorDataExchangeService.syntaxHighlightJSON(payload);
-            if (!this.showErrorAlert) {
-              this.showKeycloakErrorAlert = true;
+            this.keycloakErrorMessagePart.set(
+              this.indicatorValueService.syntaxHighlightJSON(payload)
+            );
+            if (!this.showErrorAlert()) {
+              this.showKeycloakErrorAlert.set(true);
             }
           }
 
-          this.processCreation = false;
+          this.processCreation.set(false);
         },
       });
   }

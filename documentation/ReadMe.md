@@ -5,27 +5,26 @@ The objective of this guide is to give you the knowledge needed to extend KomMon
 **Table of Content**
 
 - [KomMonitor Web Client User Guide](#kommonitor-web-client-user-guide)
-    - [Folder Structure](#folder-structure)
-    - [Project fundamental Libraries](#project-fundamental-libraries)
-        - [Bootstrap](#bootstrap)
-        - [Leaflet](#leaflet)
-        - [AngularJS](#angularjs)
-            - [MVC Pattern](#mvc-pattern)
-            - [Angular Component Structure](#angular-component-structure)
-            - [Working with AngularJS Services](#working-with-angularjs-services)
-    - [Adding new Libraries](#adding-new-libraries)
-    - [Adding new Functionalities](#adding-new-functionalities)
-
+  - [Folder Structure](#folder-structure)
+  - [Project fundamental Libraries](#project-fundamental-libraries)
+    - [Bootstrap](#bootstrap)
+    - [Leaflet](#leaflet)
+    - [AngularJS](#angularjs)
+      - [MVC Pattern](#mvc-pattern)
+      - [Angular Component Structure](#angular-component-structure)
+      - [Working with AngularJS Services](#working-with-angularjs-services)
+  - [Adding new Libraries](#adding-new-libraries)
+  - [Adding new Functionalities](#adding-new-functionalities)
 
 ## Folder Structure
 
 After you downloaded or cloned the Web Client the main folder contains the subfolders "app", "customizedExternalLibs", "documentation" and "misc" as well as some files. Most of these files are used in the building process. During the build process another folder named "node_modules" is created. This folder contains ...
 Some third-party libraries had to be modified or extended. To differentiate them form unmodified libraries they are placed in a separate folder ("customizedExternalLibs"). The "app" folder is the most important folder, because it contains most of the source code.
-The "app" folder contains the "components", "icons", "logos", "util" and (after the build process) "dependencies" subfolders. You can also find the index.html app.css files here. The "index.html" file is the starting point of the application. It is mainly used to load all needed scripts. All CSS rules (besides very few inline CSS declarations) can be found in the "app.css" file. "env.js" (an abbreviation for "environment") is a configuration file for important variables. E.g. it contains the list of predefined WMS layers (window.__env.wmsDatasets), which could be edited if you wanted to add a specific WMS layer permanently.
+The "app" folder contains the "components", "icons", "logos", "util" and (after the build process) "dependencies" subfolders. You can also find the index.html app.css files here. The "index.html" file is the starting point of the application. It is mainly used to load all needed scripts. All CSS rules (besides very few inline CSS declarations) can be found in the "app.css" file. "env.js" (an abbreviation for "environment") is a configuration file for important variables. E.g. it contains the list of predefined WMS layers (window.\_\_env.wmsDatasets), which could be edited if you wanted to add a specific WMS layer permanently.
 The folders "logos" and "icons" contain various images used in different locations of the Web Client. The data-exchange-service, an AngularJS service, can be found in the "util" folder.
 All AngularJS components are located inside the "components" folder. For more information about AngularJS components in general see the [AngularJS section below](#AngularJS). The subfolder "kommonitorAdmin" refers to the administration panel and "kommonitorUserInterface" to the main application. The components are named and structured by their functionality. Some component names are preceded by the term "kommonitor", but there is no meaning in that.
 Lets say you were looking for the source code of the reachability function. You can find the corresponding component "kommonitorReachability" inside the "kommonitorControls" folder.
-For the main application the "kommonitor-user-interface" component defines the structural layout of the user interface. All other (sub-)components are referenced in this component. The component itself is referenced indirectly in the index.html file by the \<ng-view> tag. You could say that instead of the index.html file, this component defines the layout. For the admin interface the same applies for the "kommonitor-admin" component. 
+For the main application the "kommonitor-user-interface" component defines the structural layout of the user interface. All other (sub-)components are referenced in this component. The component itself is referenced indirectly in the index.html file by the \<ng-view> tag. You could say that instead of the index.html file, this component defines the layout. For the admin interface the same applies for the "kommonitor-admin" component.
 
 ## Fundamental Libraries
 
@@ -84,67 +83,65 @@ You can read more about AngularJS components [here](https://docs.angularjs.org/g
 A Service is a function or object, that is only available within a specific application. There are two different kinds of services.
 
 ##### Build-in Services
+
 Build-in Services are provided by AngularJS. They act as a kind of wrapper around different functionalities, making sure that changes are processed correctly throughout the application. If a build-in Service is available, it is always preferred to use it instead of manually handling things. Here is an example:
 
 The \$http service is a function to communicate with a remote HTTP server.
 As an Example, let's say we have the following JSON file on an arbitrary HTTP server.
-    
-```json
-    {
-      "products": [
-        {
-          "id": "12345",
-          "name": "foo"
-        }, {
-          "id": "54321",
-          "name": "bar"
-        }
-      ]
-    }
 
+```json
+{
+  "products": [
+    {
+      "id": "12345",
+      "name": "foo"
+    },
+    {
+      "id": "54321",
+      "name": "bar"
+    }
+  ]
+}
 ```
 
 In our HTML-template we want to show the details for on of the two products when the user clicks on a button. Clicking the button sends a request to the server. Without using the /$http service it could look like this:
 
 ```javascript
-
-    $scope.sendRequest = function() {
-      var xmlHttp = new XMLHttpRequest();
-	  xmlHttp.onreadystatechange = function() { 
-		if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-		  $scope.productDetails = xmlHttp.responseText
-		}
-	  }
-      var url = www.someServer.com/products/12345
-	  xmlHttp.open("GET", url, true);
-	  xmlHttp.send(null);
-	}
-
+$scope.sendRequest = function () {
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.onreadystatechange = function () {
+    if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+      $scope.productDetails = xmlHttp.responseText;
+    }
+  };
+  var url = www.someServer.com / products / 12345;
+  xmlHttp.open('GET', url, true);
+  xmlHttp.send(null);
+};
 ```
 
 The scope is updated as soon as the response is available. However, this approach will not work. Even though we get the correct response and update the variable productDetails, our HTML-template is not updated. The reason for this is that angularJS does not get notified about the update. We could fix this by notifying angularJS manually, but this is exactly what the \$http service is for. Let's see what our example looks like with the \$http service.
 The code below is (slightly modified) taken from the [\$http service documentation](https://docs.angularjs.org/api/ng/service/$http).
 
 ```javascript
-
-    $http({
-        method: 'GET',
-        url: 'http://someServer.com/products/12345'
-    }).then(function successCallback(response) {
-
-        $scope.productDetails= response.data
-
-    }, function errorCallback(response) {
-        //do nothing
-    });
-
+$http({
+  method: 'GET',
+  url: 'http://someServer.com/products/12345',
+}).then(
+  function successCallback(response) {
+    $scope.productDetails = response.data;
+  },
+  function errorCallback(response) {
+    //do nothing
+  }
+);
 ```
 
 Our HTML template is updated as soon as the response is available.
 
 ##### Own Services
 
-Is is possible to create your own services as well. Methods and variables owned by a service are available to all components this service is injected in. In KomMonitor this is used to provide variables and methods usable across multiple components. Note that services are always singleton objects, meaning that there can only be one instance of each service. 
+Is is possible to create your own services as well. Methods and variables owned by a service are available to all components this service is injected in. In KomMonitor this is used to provide variables and methods usable across multiple components. Note that services are always singleton objects, meaning that there can only be one instance of each service.
 
 Own services can be created in two ways:
 
@@ -152,22 +149,21 @@ Own services can be created in two ways:
 2. By using the service method
 
 In KomMonitor services are created by using the service method, which is why we will focus on this method. Services are part of modules. You can decide if you create an extra module just for your service or if you add a service to an existing module.
-The most important service in KomMonitor is the kommonitorDataExchangeService. 
+The most important service in KomMonitor is the kommonitorDataExchangeService.
 
 ```javascript
-
-    angular
-	  .module('kommonitorDataExchange', ['datatables'])
-	  .service(
-	    'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', '$http', '__env', 'DTOptionsBuilder', '$q',
-	      function($rootScope, $timeout, kommonitorMapService, $http, __env, DTOptionsBuilder, $q) {
-
-                //variables and methods provided by the service can be placed here
-
-          }
-        ]
-      )
-
+angular.module('kommonitorDataExchange', ['datatables']).service('kommonitorDataExchangeService', [
+  '$rootScope',
+  '$timeout',
+  'kommonitorMapService',
+  '$http',
+  '__env',
+  'DTOptionsBuilder',
+  '$q',
+  function ($rootScope, $timeout, kommonitorMapService, $http, __env, DTOptionsBuilder, $q) {
+    //variables and methods provided by the service can be placed here
+  },
+]);
 ```
 
 As you can see, dependencies are added to a service in the same way they are added to a component. They can then be used inside the service in the same way.
@@ -194,7 +190,5 @@ You can read more about AngularJS Services [here](https://docs.angularjs.org/gui
 [FAQ](https://docs.angularjs.org/misc/faq)
 
 ## Adding new Libraries
-
-
 
 ## Adding new Functionalities

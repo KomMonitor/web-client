@@ -15,6 +15,8 @@ import { IndicatorValueService } from 'services/indicator-value-service/indicato
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { ClassificationStateService } from 'services/classification-state-service/classification-state.service';
+import { FeaturePopupHelperService } from 'services/feature-popup-helper-service/feature-popup-helper.service';
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import { ReachabilityStateService } from 'services/reachability-state-service/reachability-state.service';
@@ -25,6 +27,8 @@ import { ReachabilityStateService } from 'services/reachability-state-service/re
 export class ReachabilityMapHelperService {
   private http = inject(HttpClient);
   private envConfigService = inject(EnvConfigService);
+  private classificationState = inject(ClassificationStateService);
+  private featurePopupHelperService = inject(FeaturePopupHelperService);
   private geometrySimplification = inject(GeometrySimplificationService);
   private mapOverlayState = inject(MapOverlayStateService);
   private mapErrorNotificationService = inject(MapErrorNotificationService);
@@ -33,7 +37,6 @@ export class ReachabilityMapHelperService {
   private genericMapHelperService = inject(GenericMapHelperService);
   private visualStyleHelperService = inject(VisualStyleHelperServiceNew);
   private reachabilityStateService = inject(ReachabilityStateService);
-  private envConfService = inject(EnvConfigService);
   private indicatorValueService = inject(IndicatorValueService);
   private selectionState = inject(SelectionStateService);
 
@@ -659,7 +662,11 @@ export class ReachabilityMapHelperService {
     const indicatorValueText = this.indicatorValueService.indicatorValueIsNoData(indicatorValue)
       ? 'NoData'
       : this.getIndicatorValue_asFormattedText(indicatorValue);
-    const tooltipHtml = `<b>${feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]}</b><br/>${indicatorValueText} [${this.selectionState.selectedIndicator.unit}]`;
+    const tooltipHtml = this.featurePopupHelperService.buildIndicatorTooltip(
+      feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME],
+      indicatorValueText,
+      this.selectionState.selectedIndicator.unit
+    );
     layer.bindTooltip(tooltipHtml, { sticky: false });
   }
 
@@ -669,8 +676,9 @@ export class ReachabilityMapHelperService {
     defaultBrew: any,
     indicatorStatisticsCandidate: any
   ): Promise<L.GeoJSON> {
-    const outlierDetection_currentGLobalValue = this.envConfService.useOutlierDetectionOnIndicator;
-    this.envConfService.useOutlierDetectionOnIndicator = false;
+    const outlierDetection_currentGLobalValue =
+      this.envConfigService.useOutlierDetectionOnIndicator;
+    this.envConfigService.useOutlierDetectionOnIndicator = false;
     const layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
       style: (feature) =>
         this.visualStyleHelperService.styleDefault(
@@ -691,7 +699,7 @@ export class ReachabilityMapHelperService {
           indicatorStatisticsCandidate
         ),
     });
-    this.envConfService.useOutlierDetectionOnIndicator = outlierDetection_currentGLobalValue;
+    this.envConfigService.useOutlierDetectionOnIndicator = outlierDetection_currentGLobalValue;
     return layer;
   }
 
@@ -700,6 +708,9 @@ export class ReachabilityMapHelperService {
     const { spatialUnitId } = indicatorStatisticsCandidate.spatialUnit;
     const { timestamp } = indicatorStatisticsCandidate;
     const indicatorMetadataAndGeoJSON = this.indicatorStore.getIndicatorMetadataById(indicatorId);
+    if (!indicatorMetadataAndGeoJSON) {
+      throw new Error(`Indicator metadata not found in store for id '${indicatorId}'`);
+    }
     indicatorMetadataAndGeoJSON.geoJSON = await this.fetchIndicatorForSpatialUnit(
       indicatorId,
       spatialUnitId,
@@ -707,10 +718,6 @@ export class ReachabilityMapHelperService {
     );
     indicatorStatisticsCandidate.indicator.geoJSON = indicatorMetadataAndGeoJSON.geoJSON;
     return indicatorMetadataAndGeoJSON;
-  }
-
-  getMapsParts_byDomId(domId: string) {
-    return this.mapPartsMap.get(domId);
   }
 
   async replaceReachabilityIndicatorStatisticsOnMap(
@@ -726,13 +733,20 @@ export class ReachabilityMapHelperService {
     const { timestamp } = indicatorStatisticsCandidate;
     const indicatorPropertyName = this.envConfigService.indicatorDatePrefix + timestamp;
 
-    this.visualStyleHelperService.backupCurrentBrewObjects_forMainMapIndicator();
+    const classificationMapping = indicatorMetadataAndGeoJSON.defaultClassificationMapping;
+    if (!classificationMapping) {
+      throw new Error(
+        `Indicator '${indicatorMetadataAndGeoJSON.indicatorId}' has no default classification mapping`
+      );
+    }
+
+    this.classificationState.backupCurrentBrewObjects_forMainMapIndicator();
     const defaultBrew = this.visualStyleHelperService.setupDefaultBrew(
       indicatorMetadataAndGeoJSON.geoJSON,
       indicatorPropertyName,
-      indicatorMetadataAndGeoJSON.defaultClassificationMapping.numClasses,
-      indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName,
-      this.visualStyleHelperService.classifyMethod,
+      classificationMapping.numClasses,
+      classificationMapping.colorBrewerSchemeName,
+      this.classificationState.classifyMethod,
       true,
       indicatorMetadataAndGeoJSON
     );
@@ -777,7 +791,7 @@ export class ReachabilityMapHelperService {
 
     this.invalidateMap(domId);
     this.mapPartsMap.set(domId, mapParts);
-    this.visualStyleHelperService.resetCurrentBrewObjects_forMainMapIndicator();
+    this.classificationState.resetCurrentBrewObjects_forMainMapIndicator();
   }
 
   generateIndicatorLegend(defaultBrew: any): L.Control {

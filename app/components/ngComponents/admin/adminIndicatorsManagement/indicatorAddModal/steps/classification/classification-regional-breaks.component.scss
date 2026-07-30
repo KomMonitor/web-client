@@ -1,0 +1,113 @@
+.classification-tab-content {
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 4px;
+}
+
+.breaks-heading {
+  text-align: center;
+  font-weight: 700;
+  font-size: 13px;
+  color: #2c3e50;
+  margin: 6px 0 4px;
+}
+
+.range-hint {
+  text-align: center;
+  font-size: 11px;
+  color: #9aa6b2;
+  margin-bottom: 14px;
+}
+
+/* Farbe · Label · Wertebereich grid (shared .cls-grid-head/.cls-grid-row); centered. */
+.regional-grid {
+  --cls-grid-cols: 46px 1fr 260px;
+  --cls-grid-gap: 32px;
+  max-width: 640px;
+  margin: 0 auto;
+
+  .legend-symbol {
+    display: flex;
+    align-items: center;
+  }
+
+  .legend-range {
+    color: #6b7682;
+  }
+}
+
+/* Value range cell: lower bound (read-only) – < editable upper break | highest value */
+.range {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #6b7682;
+}
+
+.range-lower {
+  min-width: 78px;
+  text-align: right;
+}
+
+.range-upper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.range-lt,
+.range-highest {
+  color: #9aa6b2;
+}
+
+.break-input {
+  width: 82px;
+  border: 1px solid #cdd5dd;
+  border-radius: 5px;
+  padding: 6px 8px;
+  font-size: 12px;
+  color: #3a4550;
+  text-align: right;
+
+  &:focus {
+    outline: none;
+    border-color: #2f6db3;
+  }
+}
+
+.nav-tabs-custom {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+
+  .nav-tabs {
+    margin-bottom: 0;
+    background-color: #f8f9fa;
+  }
+
+  /* ngb-nav renders the active pane into this outlet */
+  .tab-content {
+    padding: 0;
+  }
+
+  /* Validation colouring of the per-spatial-unit tabs */
+  .nav-item.tab-error .nav-link {
+    color: #a94442;
+    font-weight: 600;
+
+    &.active {
+      background-color: #f2dede;
+      border-color: #ebccd1 #ebccd1 #f2dede;
+    }
+  }
+
+  .nav-item.tab-valid .nav-link {
+    color: #3c763d;
+
+    &.active {
+      background-color: #dff0d8;
+      border-color: #d6e9c6 #d6e9c6 #dff0d8;
+    }
+  }
+}

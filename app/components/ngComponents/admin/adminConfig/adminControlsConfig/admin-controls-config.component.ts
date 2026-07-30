@@ -1,7 +1,19 @@
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import CodeMirror from 'codemirror';
 import { firstValueFrom } from 'rxjs';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { ConfigStorageService } from '../../../../../services/config-storage-service/config-storage.service';
 
 // CodeMirror module is not loaded properly (why?!), reload necessary files
@@ -35,27 +47,33 @@ interface LintingIssue {
   selector: 'app-admin-controls-config',
   templateUrl: './admin-controls-config.component.html',
   styleUrls: ['./admin-controls-config.component.scss'],
-  imports: [ExpandableBoxComponent, AdminContentViewComponent],
+  imports: [TranslateModule, ExpandableBoxComponent, AdminContentViewComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
   private http = inject(HttpClient);
   private kommonitorConfigStorageService = inject(ConfigStorageService);
+  private envConfigService = inject(EnvConfigService);
   private kommonitorScriptHelperService = inject(ScriptHelperService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   @ViewChild('controlsConfigEditor') controlsConfigEditor!: ElementRef;
   @ViewChild('templateCodeMirror') templateCodeMirrorElement!: ElementRef;
   @ViewChild('currentCodeMirror') currentCodeMirrorElement!: ElementRef;
   @ViewChild('newCodeMirror') newCodeMirrorElement!: ElementRef;
 
-  loadingData = true;
+  // Signal: toggled from awaits/subscriptions (OnPush).
+  loadingData = signal(true);
   codeMirrorEditor!: CodeMirrorEditor;
   templateCodeMirrorEditor!: CodeMirrorEditor;
   currentCodeMirrorEditor!: CodeMirrorEditor;
   newCodeMirrorEditor!: CodeMirrorEditor;
-  missingRequiredParameters: string[] = [];
-  missingRequiredParameters_string = '';
+  // Signals: written from CodeMirror lint callbacks, which run outside
+  // Angular's template-event path (OnPush).
+  missingRequiredParameters = signal<string[]>([]);
+  missingRequiredParameters_string = signal('');
   keywordsInConfig = [
     'id',
     'groups',
@@ -79,7 +97,7 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
   controlsConfigTmp: string = '';
   controlsConfigCurrent: string = '';
   controlsConfigNew: string = '';
-  configSettingInvalid = false;
+  configSettingInvalid = signal(false);
   lintingIssues: LintingIssue[] = [];
   private dataLoaded = false;
 
@@ -124,10 +142,11 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
           );
         }
         try {
-          const config = (window as any).__env?.controlsConfig;
+          const config = this.envConfigService.controlsConfig;
           if (!config) {
-            await this.kommonitorConfigStorageService.getControlsConfig();
-            const storedConfig = this.kommonitorConfigStorageService.controlsConfig;
+            const storedConfig = await firstValueFrom(
+              this.kommonitorConfigStorageService.getControlsConfig()
+            );
             if (storedConfig) {
               this.controlsConfigTmp = JSON.stringify(storedConfig, null, '    ');
               this.controlsConfigCurrent = JSON.stringify(storedConfig, null, '    ');
@@ -149,12 +168,16 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
     } catch (error: any) {
       console.error('Error initializing controls config:', error);
       this.notificationService.showError(
-        'Laden der Controls-Konfiguration gescheitert: ' +
-          (error?.error?.message || error?.message || 'Unbekannter Fehler'),
+        this.translate.instant('ADMIN_CONFIG.CONTROLS.MSG.LOAD_FAILED', {
+          error:
+            error?.error?.message ||
+            error?.message ||
+            this.translate.instant('ADMIN_SHARED.UNKNOWN_ERROR'),
+        }),
         { autohide: false }
       );
     } finally {
-      this.loadingData = false;
+      this.loadingData.set(false);
       this.dataLoaded = true;
     }
   }
@@ -265,10 +288,10 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
   isConfigSettingInvalid(configString: string): boolean {
     let isInvalid = true;
     isInvalid = !this.keywordsInConfig.every((keyword) => configString.includes(keyword));
-    this.missingRequiredParameters = this.keywordsInConfig.filter(
-      (keyword) => !configString.includes(keyword)
+    this.missingRequiredParameters.set(
+      this.keywordsInConfig.filter((keyword) => !configString.includes(keyword))
     );
-    this.missingRequiredParameters_string = JSON.stringify(this.missingRequiredParameters);
+    this.missingRequiredParameters_string.set(JSON.stringify(this.missingRequiredParameters()));
     if (this.lintingIssues && this.lintingIssues.length > 0) {
       const errors = this.lintingIssues.filter((issue) => issue.severity === 'error');
       if (errors && errors.length > 0) {
@@ -280,7 +303,7 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
 
   onChangeControlsConfig() {
     const configString = this.controlsConfigTmp;
-    this.configSettingInvalid = this.isConfigSettingInvalid(configString);
+    this.configSettingInvalid.set(this.isConfigSettingInvalid(configString));
     setTimeout(() => {
       this.controlsConfigNew = configString;
       if (this.newCodeMirrorEditor) {
@@ -290,32 +313,35 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
   }
 
   async editControlsConfig() {
-    this.loadingData = true;
+    this.loadingData.set(true);
     try {
       await firstValueFrom(
         this.kommonitorConfigStorageService.postControlsConfig(this.controlsConfigTmp)
       );
-      // Call getControlsConfig which will update the service's controlsConfig property
-      this.kommonitorConfigStorageService.getControlsConfig();
-      // Use the updated controlsConfig from the service
-      this.controlsConfigCurrent = JSON.stringify(
-        this.kommonitorConfigStorageService.controlsConfig,
-        null,
-        '    '
+      // Re-fetch the stored config so the "current" view reflects the server state
+      const refreshedConfig = await firstValueFrom(
+        this.kommonitorConfigStorageService.getControlsConfig()
       );
+      this.controlsConfigCurrent = JSON.stringify(refreshedConfig, null, '    ');
       if (this.currentCodeMirrorEditor) {
         this.currentCodeMirrorEditor.setValue(this.controlsConfigCurrent);
       }
-      this.notificationService.showSuccess('Controls-Konfiguration gespeichert.');
+      this.notificationService.showSuccess(
+        this.translate.instant('ADMIN_CONFIG.CONTROLS.MSG.SAVED')
+      );
     } catch (error: any) {
       console.error('Error editing controls config:', error);
       this.notificationService.showError(
-        'Speichern der Controls-Konfiguration gescheitert: ' +
-          (error?.error?.message || error?.message || 'Unbekannter Fehler'),
+        this.translate.instant('ADMIN_CONFIG.CONTROLS.MSG.SAVE_FAILED', {
+          error:
+            error?.error?.message ||
+            error?.message ||
+            this.translate.instant('ADMIN_SHARED.UNKNOWN_ERROR'),
+        }),
         { autohide: false }
       );
     } finally {
-      this.loadingData = false;
+      this.loadingData.set(false);
     }
   }
 }

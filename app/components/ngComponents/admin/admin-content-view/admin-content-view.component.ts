@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, TemplateRef } from '@angular/core';
 
 @Component({
   selector: 'app-admin-content-view',
@@ -7,6 +7,7 @@ import { Component, Input, TemplateRef } from '@angular/core';
   styleUrls: ['./admin-content-view.component.scss'],
   imports: [CommonModule],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminContentViewComponent {
   @Input({ required: true }) title!: string;

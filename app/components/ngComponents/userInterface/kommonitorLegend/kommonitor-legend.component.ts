@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   NgbCollapseModule,
@@ -9,24 +9,28 @@ import {
   NgbModal,
 } from '@ng-bootstrap/ng-bootstrap';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import {
+  CATEGORICAL_OTHER_COLOR,
+  CategoricalClassificationItem,
+  ExtendedDefaultClassificationMapping,
+} from 'components/ngComponents/models/classification.models';
 import { ActiveWmsFilter } from 'pipes/active-wms-filter.pipe';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
-import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
+import { ClassificationStateService } from 'services/classification-state-service/classification-state.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { LabelService } from 'services/label-service/label.service';
-import { MapService } from 'services/map-service/map.service';
+import { LegendDisplayUpdate, MapService } from 'services/map-service/map.service';
 import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { ShareHelperService } from 'services/share-helper-service/share-helper.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
-import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import { IndicatorExportModalComponent } from '../exporting/indicator-export-modal/indicator-export-modal.component';
 import { KommonitorClassificationComponent } from '../kommonitorClassification/kommonitor-classification.component';
 import { KommonitorDataSetupService } from '../sidebar/kommonitorDataSetup/kommonitor-data-setup.service';
@@ -47,7 +51,7 @@ import { SpatialUnitNotificationModalComponent } from '../spatialUnitNotificatio
     ExpandableBoxComponent,
   ],
 })
-export class KommonitorLegendComponent implements OnInit, OnChanges {
+export class KommonitorLegendComponent implements OnInit {
   protected chartDisplayState = inject(ChartDisplayStateService);
   private indicatorValueService = inject(IndicatorValueService);
   protected selectionState = inject(SelectionStateService);
@@ -56,9 +60,8 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   protected indicatorStore = inject(IndicatorMetadataStoreService);
   protected metadataExportService = inject(MetadataExportService);
   protected labelService = inject(LabelService);
-  private elementVisibilityService = inject(ElementVisibilityHelperService);
   private shareHelperService = inject(ShareHelperService);
-  protected visualStyleService = inject(VisualStyleHelperServiceNew);
+  protected classificationState = inject(ClassificationStateService);
   protected filterHelperService = inject(FilterHelperService);
   private broadcastService = inject(BroadcastService);
   private modalService = inject(NgbModal);
@@ -100,7 +103,52 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   isDisabledDate;
   datePickerDate;
 
-  @Input() onupdatelegenddisplaydata!: any;
+  /** Per-class labels of the current indicator's default classification, index-aligned to the class positions. */
+  protected get classificationLabels(): string[] {
+    return this.selectionState.selectedIndicator?.defaultClassificationMapping?.labels ?? [];
+  }
+
+  /** Whether the current indicator's classification defines at least one non-empty label. */
+  protected get hasClassificationLabels(): boolean {
+    return this.classificationLabels.some((label) => !!label && label.length > 0);
+  }
+
+  /**
+   * Whether the classification table should render the Labels column. True for
+   * qualitative indicators (which always carry per-category labels) and for numeric
+   * indicators that define at least one label. Used to keep the shared header /
+   * no-data / outlier / filtered rows column-aligned with the class rows.
+   */
+  protected get showLabelsColumn(): boolean {
+    return (
+      (this.hasClassificationLabels || this.isQualitativeClassification) &&
+      !this.chartDisplayState.isMeasureOfValueChecked &&
+      !this.chartDisplayState.isBalanceChecked &&
+      this.selectionState.selectedIndicator.defaultClassificationMapping.classificationMethod ==
+        this.classificationState.classifyMethod.toUpperCase() &&
+      this.selectionState.selectedIndicator.defaultClassificationMapping.numClasses ==
+        this.classificationState.numClasses
+    );
+  }
+
+  /** Fill color / legend swatch of the categorical "Sonstige" (unmatched) bucket. */
+  protected readonly categoricalOtherColor = CATEGORICAL_OTHER_COLOR;
+
+  /** Whether the current indicator uses a qualitative (categorical) classification. */
+  protected get isQualitativeClassification(): boolean {
+    const mapping = this.selectionState.selectedIndicator?.defaultClassificationMapping as
+      | ExtendedDefaultClassificationMapping
+      | undefined;
+    return mapping?.classificationType === 'QUALITATIVE';
+  }
+
+  /** Category definitions (value/color/label) of the current qualitative classification. */
+  protected get categoricalClassification(): CategoricalClassificationItem[] {
+    const mapping = this.selectionState.selectedIndicator?.defaultClassificationMapping as
+      | ExtendedDefaultClassificationMapping
+      | undefined;
+    return mapping?.categoricalData ?? [];
+  }
 
   // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
   protected getIndicatorValue_asFormattedText(indicatorValue, precision = undefined) {
@@ -110,36 +158,19 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     );
   }
 
-  ngOnChanges(changes: any): void {
-    if (changes.onupdatelegenddisplaydata) {
-      const data = changes.onupdatelegenddisplaydata.currentValue;
-
-      this.dateAsDate = data.dateAsDate;
-
-      this.containsZeroValues = data.containsZeroValues;
-      this.containsNegativeValues = data.containsNegativeValues;
-      this.containsOutliers_high = data.containsOutliers_high;
-      this.containsOutliers_low = data.containsOutliers_low;
-      this.outliers_high = data.outliers_high;
-      this.outliers_low = data.outliers_low;
-      this.containsNoData = data.containsNoData;
-
-      if (data.selectedDate) {
-        const dateComponents = data.selectedDate.split('-');
-        this.dateAsDate = new Date(
-          Number(dateComponents[0]),
-          Number(dateComponents[1]) - 1,
-          Number(dateComponents[2])
-        );
-      }
-    }
-  }
-
   ngOnInit(): void {
     $(document).ready(function () {
       $('.nav li.disabled a').click(function () {
         return false;
       });
+    });
+
+    this.mapService.mapCommand$.subscribe((command) => {
+      if (command.type === 'onGlobalFilterChange') this.onGlobalFilterChange();
+    });
+
+    this.mapService.mapEvent$.subscribe((event) => {
+      if (event.type === 'legendDisplayUpdated') this.updateLegendDisplay(event.update);
     });
 
     this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
@@ -166,11 +197,6 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       const values: any = broadcastMsg.values;
 
       switch (title) {
-        case BroadcastMessage.UpdateLegendDisplay:
-          {
-            this.updateLegendDisplay(values);
-          }
-          break;
         case BroadcastMessage.UpdateDatePickerAvailableDates:
           {
             this.onUpdateDatePicker(values);
@@ -179,11 +205,6 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
         case BroadcastMessage.UpdateDatePickerSelectedDate:
           {
             this.onUpdateDatePickerSelectedDate(values);
-          }
-          break;
-        case BroadcastMessage.OnGlobalFilterChange:
-          {
-            this.onGlobalFilterChange();
           }
           break;
       }
@@ -205,40 +226,20 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     this.datePickerDate = { year: date.year, month: date.month, day: date.day };
   }
 
-  updateLegendDisplay([
-    containsZeroValues,
-    containsNegativeValues,
-    containsNoData,
-    containsOutliers_high,
-    containsOutliers_low,
-    outliers_low,
-    outliers_high,
-    selectedDate,
-  ]) {
-    this.containsZeroValues = containsZeroValues;
-    this.containsNegativeValues = containsNegativeValues;
-    this.containsOutliers_high = containsOutliers_high;
-    this.containsOutliers_low = containsOutliers_low;
-    this.outliers_high = outliers_high;
-    this.outliers_low = outliers_low;
-    this.containsNoData = containsNoData;
-    const dateComponents = selectedDate.split('-');
+  updateLegendDisplay(update: LegendDisplayUpdate) {
+    this.containsZeroValues = update.containsZeroValues;
+    this.containsNegativeValues = update.datasetContainsNegativeValues;
+    this.containsOutliers_high = update.containsOutliers_high;
+    this.containsOutliers_low = update.containsOutliers_low;
+    this.outliers_high = update.outliers_high;
+    this.outliers_low = update.outliers_low;
+    this.containsNoData = update.containsNoDataValues;
+    const dateComponents = update.selectedDate.split('-');
     this.dateAsDate = new Date(
       Number(dateComponents[0]),
       Number(dateComponents[1]) - 1,
       Number(dateComponents[2])
     );
-
-    this.broadcastService.broadcast(BroadcastMessage.UpdateClassificationComponent, [
-      this.containsZeroValues,
-      this.containsNegativeValues,
-      this.containsNoData,
-      this.containsOutliers_high,
-      this.containsOutliers_low,
-      this.outliers_low,
-      this.outliers_high,
-      this.selectionState.selectedDate,
-    ]);
   }
 
   filteredSpatialUnits() {
@@ -269,7 +270,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
         this.selectionState.selectedSpatialUnit.spatialUnitId != this.actualSelectedSpatialUnitId
       ) {
         this.actualSelectedSpatialUnitId = this.selectionState.selectedSpatialUnit.spatialUnitId;
-        this.broadcastService.broadcast(BroadcastMessage.ChangeSpatialUnit);
+        this.mapService.changeSpatialUnit();
 
         if (this.envConfigService.enableSpatialUnitNotificationSelection) {
           if (!(localStorage.getItem('hideKomMonitorSpatialUnitNotification') === 'true')) {
@@ -398,9 +399,5 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
   hasActiveWMSLayers() {
     return this.georesourceStore.wmsDatasets.filter((item) => item.isSelected).length > 0;
-  }
-
-  adjustOpacityForWmsLayer(dataset, transparency) {
-    this.mapService.adjustOpacityForWmsLayer(dataset, transparency);
   }
 }

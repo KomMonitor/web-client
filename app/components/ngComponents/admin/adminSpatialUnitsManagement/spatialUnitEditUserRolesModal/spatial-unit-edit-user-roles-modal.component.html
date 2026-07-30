@@ -1,18 +1,23 @@
 <div align="center">
-  <div class="loading-overlay-admin-panel ng-hide" [class.ng-hide]="!loadingData">
+  <div class="loading-overlay-admin-panel ng-hide" [class.ng-hide]="!loadingData()">
     <i class="fas fa-spinner fa-spin fa-2x"></i>
   </div>
 </div>
 
 <div class="modal-header">
-  <h4 class="modal-title">
-    Zugriffsschutz und Eigentümerschaft für Raumeinheit
-    <i
-      ><b>{{ currentSpatialUnitDataset?.spatialUnitLevel }}</b></i
-    >
-    editieren
-  </h4>
-  <button type="button" class="btn-close" aria-label="Close" (click)="onCancel()"></button>
+  <h4
+    class="modal-title"
+    [innerHTML]="
+      'ADMIN_SPATIAL_UNITS.EDIT_ROLES_MODAL.TITLE'
+        | translate: { name: currentSpatialUnitDataset?.spatialUnitLevel || '' }
+    "
+  ></h4>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="onCancel()"
+  ></button>
 </div>
 
 <div class="modal-body">
@@ -23,182 +28,98 @@
         role="form"
         class="multiStepForm form-group"
         id="spatialUnitEditUserRolesForm"
-        data-toggle="validator"
         style="margin-bottom: 0px"
       >
         <!-- progressbar -->
-        <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
-        <!-- fieldsets -->
+        <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
+        <!-- fieldsets: switched via display so the role grid (and its checked
+             state) survives navigating to step 2 -->
 
-        @if (currentStep === 1) {
-          <fieldset>
-            <h2 class="fs-title">Zugriffsschutz</h2>
-            <h3 class="fs-subtitle">
-              Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro
-              Organisationseinheit
-            </h3>
-            <p>Zugriffsrechte (lesen, editieren) müssen explizit vergeben werden</p>
-            <div class="row">
-              <div class="col-md-12 col-sm-12 col-12">
-                <div class="form-group vertical-align">
-                  <label class="margin-right">Zeige nur zugewiesene Rechte</label>
-                  <label class="switch">
-                    <input
-                      type="checkbox"
-                      value="activeRolesOnly"
-                      [(ngModel)]="activeRolesOnly"
-                      name="activeRolesOnly"
-                      [ngModelOptions]="{ standalone: true }"
-                      (ngModelChange)="onActiveRolesOnlyChange()"
-                    />
-                    <span class="switchslider round"></span>
-                  </label>
-                </div>
-              </div>
-              <div class="col-md-3">
-                <label>Öffentliche Lesefreigabe*</label>
-                @if (currentSpatialUnitDataset; as dataset) {
-                  <label class="switch">
-                    <input
-                      type="checkbox"
-                      [(ngModel)]="dataset.isPublic"
-                      name="isPublic"
-                      [ngModelOptions]="{ standalone: true }"
-                    />
-                    <span class="switchslider round"></span>
-                  </label>
-                }
-                <div class="help-block">
-                  <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
-                </div>
-              </div>
-              <div class="col-md-6 col-sm-6 col-12">
-                <ag-grid-angular
-                  #roleManagementGrid
-                  class="ag-theme-alpine"
-                  style="height: 45vh; width: 100%"
-                  [columnDefs]="roleManagementColumnDefs"
-                  [rowData]="roleManagementRowData"
-                  [defaultColDef]="roleManagementDefaultColDef"
-                  [gridOptions]="roleManagementGridOptions"
-                  [components]="roleManagementHelper.getRoleManagementComponents()"
-                  [suppressRowClickSelection]="true"
-                  [rowSelection]="'multiple'"
-                  [enableCellTextSelection]="true"
-                  [ensureDomOrder]="true"
-                  [pagination]="true"
-                  [paginationPageSize]="10"
-                  [suppressColumnVirtualisation]="true"
-                  (gridReady)="onRoleManagementGridReady($event)"
-                >
-                </ag-grid-angular>
-              </div>
-              <div class="col-md-3">
-                <div class="alert alert-info">
-                  Als Eigentümer-Organisation des Datensatzes können Sie Lese- und Editier-Rechte an
-                  die eigene und weitere Organisationseinheiten vergeben.
-                </div>
-              </div>
-            </div>
-            <input
-              type="button"
-              name="next"
-              class="next next_editSpatialUnitRoles action-button"
-              value="Nächster Schritt"
-              (click)="nextStep()"
-            />
-          </fieldset>
-        }
-
-        @if (currentStep === 2) {
-          <fieldset>
-            <h2 class="fs-title">Eigentümerschaft eines Datensatzes</h2>
-            <h3 class="fs-subtitle">
-              Übertragen der Eigentümerschaft von Datensätzen mit allen dazugehörigen Rechten
-            </h3>
-            <div class="alert alert-danger">
-              Bitte beachten Sie, dass Sie beim Übertragen einer Eigentümerschaft einer Resource
-              unter Umständen jegliche Rechte eben dieser verlieren.<br />Die Rechte werden
-              unwiderruflich und sofort an den neuen Eigentümer übertragen.
-            </div>
-            <div class="row">
-              <div class="col-md-3"></div>
-              <div class="col-md-6 col-sm-6 col-12">
-                <label for="targetUserRoleSelect"><b>Eigentümerschaft übertragen an</b></label>
-                <div class="input-group">
-                  <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+        <fieldset [style.display]="stepper.isActive('roles') ? 'block' : 'none'">
+          <h2 class="fs-title">{{ 'ADMIN_SHARED.ACCESS_PROTECTION' | translate }}</h2>
+          <h3 class="fs-subtitle">
+            {{ 'ADMIN_SHARED_UI.SECURITY.ASSIGN_RIGHTS_SUBTITLE' | translate }}
+          </h3>
+          <p>{{ 'ADMIN_SPATIAL_UNITS.EDIT_ROLES_MODAL.ROLES_HINT' | translate }}</p>
+          <div class="row">
+            <div class="col-md-3">
+              <label>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label>
+              @if (currentSpatialUnitDataset; as dataset) {
+                <label class="switch">
                   <input
-                    type="text"
-                    class="form-control input-sm"
-                    placeholder="Stichwortfilter"
-                    [(ngModel)]="ownerOrgFilter"
-                    name="ownerOrgFilter"
+                    type="checkbox"
+                    [(ngModel)]="dataset.isPublic"
+                    name="isPublic"
                     [ngModelOptions]="{ standalone: true }"
                   />
-                </div>
-                @if (kommonitorDataExchangeService.checkAdminPermission()) {
-                  <select
-                    id="targetUserRoleSelect"
-                    [(ngModel)]="ownerOrganization"
-                    name="ownerOrganization"
-                    [ngModelOptions]="{ standalone: true }"
-                    class="form-control"
-                    (ngModelChange)="onChangeOwner(ownerOrganization)"
-                    required
-                  >
-                    <option selected value><b>Eigentümerschaft nicht übertragen</b></option>
-                    @for (org of getFilteredOrganizations(); track org) {
-                      <option [value]="org.organizationalUnitId">{{ org.name }}</option>
-                    }
-                  </select>
-                }
-                @if (!kommonitorDataExchangeService.checkAdminPermission()) {
-                  <select
-                    id="addSpatialUnitUserRoleSelect"
-                    [(ngModel)]="ownerOrganization"
-                    name="ownerOrganizationNonAdmin"
-                    [ngModelOptions]="{ standalone: true }"
-                    class="form-control"
-                    (ngModelChange)="onChangeOwner(ownerOrganization)"
-                    required
-                  >
-                    <option selected value><b>Eigentümerschaft nicht übertragen</b></option>
-                    @for (org of getFilteredOrganizations(); track org) {
-                      <option [value]="org.organizationalUnitId">{{ org.name }}</option>
-                    }
-                  </select>
-                }
-              </div>
-              <div class="col-md-3">
-                <label>aktuelle Eigentümer-Organisationseinheit</label>
-                <p>{{ getCurrentOwnerName() }}</p>
-                @if (isOwnershipChanging()) {
-                  <div class="help-block" style="color: red">
-                    <p>
-                      ACHTUNG: Sie sind dabei, die Eigentümerschaft an diesem Datensatz zu ändern.
-                    </p>
-                  </div>
-                }
+                  <span class="switchslider round"></span>
+                </label>
+              }
+              <div class="help-block">
+                <p>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ_HINT' | translate }}</p>
               </div>
             </div>
-            <input
-              type="button"
-              name="previous"
-              class="previous next_editSpatialUnitRoles action-button-previous"
-              value="Voriger Schritt"
-              (click)="previousStep()"
-            />
-          </fieldset>
-        }
+            <div class="col-md-6 col-sm-6 col-12">
+              <app-role-management-grid
+                gridId="spatialUnitEditRoleManagementTable"
+                [permissions]="currentSpatialUnitDataset?.permissions"
+                [ownerId]="currentSpatialUnitDataset?.ownerId"
+                [showActiveRolesOnlyToggle]="true"
+              ></app-role-management-grid>
+            </div>
+            <div class="col-md-3">
+              <div class="alert alert-info">
+                {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_RIGHTS_INFO' | translate }}
+              </div>
+            </div>
+          </div>
+          <input
+            type="button"
+            name="next"
+            class="next next_editSpatialUnitRoles action-button"
+            [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
+            (click)="stepper.next()"
+          />
+        </fieldset>
+
+        <fieldset [style.display]="stepper.isActive('ownership') ? 'block' : 'none'">
+          <h2 class="fs-title">
+            {{ 'ADMIN_SHARED_UI.SECURITY.OWNERSHIP_TITLE' | translate }}
+          </h2>
+          <h3 class="fs-subtitle">
+            {{ 'ADMIN_SHARED_UI.SECURITY.OWNERSHIP_SUBTITLE' | translate }}
+          </h3>
+          <div class="alert alert-danger">
+            {{ 'ADMIN_SPATIAL_UNITS.EDIT_ROLES_MODAL.OWNERSHIP_WARNING_1' | translate }}<br />{{
+              'ADMIN_SPATIAL_UNITS.EDIT_ROLES_MODAL.OWNERSHIP_WARNING_2' | translate
+            }}
+          </div>
+          <app-owner-organization-select
+            [ownerId]="ownerOrganization"
+            [currentOwnerId]="currentSpatialUnitDataset?.ownerId"
+            (ownerIdChange)="onChangeOwner($event)"
+          ></app-owner-organization-select>
+          <input
+            type="button"
+            name="previous"
+            class="previous next_editSpatialUnitRoles action-button-previous"
+            [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
+            (click)="stepper.previous()"
+          />
+        </fieldset>
       </form>
     </div>
   </div>
 </div>
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="onCancel()">Schließen</button>
+  <button type="button" class="btn btn-default pull-left" (click)="onCancel()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
 
   <button type="button" class="btn btn-success" (click)="editSpatialUnitUserRoles()">
-    Aktualisieren
+    {{ 'ADMIN_SHARED.UPDATE' | translate }}
   </button>
-  <button type="button" class="btn btn-danger" (click)="resetForm()">Zurücksetzen</button>
+  <button type="button" class="btn btn-danger" (click)="resetForm()">
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
+  </button>
 </div>

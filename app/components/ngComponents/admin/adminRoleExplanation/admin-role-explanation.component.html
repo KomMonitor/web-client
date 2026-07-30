@@ -1,6 +1,6 @@
 <app-admin-content-view
-  title="FAQ zu Mandantenkonzept und Zugriffsschutz auf Datensätze"
-  description="Übersicht und Bedienhinweise der ab KomMonitor Version 4 eingeführten Zugriffskontrolle"
+  [title]="'ADMIN_ROLES.EXPLANATION.TITLE' | translate"
+  [description]="'ADMIN_ROLES.EXPLANATION.DESCRIPTION' | translate"
   [contentTemplate]="content"
 >
 </app-admin-content-view>
@@ -9,14 +9,17 @@
     @for (item of items; track item.title) {
       <div class="col-md-6">
         <div class="box-wrapper">
-          <expandable-box [title]="item.title" [collapsed]="!item.expanded">
+          <expandable-box [title]="item.title | translate" [collapsed]="!item.expanded">
             <div class="box-content">
-              <div [innerHTML]="item.content"></div>
+              <div [innerHTML]="item.content | translate"></div>
               @if (item.nestedItems) {
                 <div class="nested-accordion">
                   @for (nestedItem of item.nestedItems; track nestedItem.title) {
-                    <expandable-box [title]="nestedItem.title" [collapsed]="!nestedItem.expanded">
-                      <div [innerHTML]="nestedItem.content"></div>
+                    <expandable-box
+                      [title]="nestedItem.title | translate"
+                      [collapsed]="!nestedItem.expanded"
+                    >
+                      <div [innerHTML]="nestedItem.content | translate"></div>
                     </expandable-box>
                   }
                 </div>

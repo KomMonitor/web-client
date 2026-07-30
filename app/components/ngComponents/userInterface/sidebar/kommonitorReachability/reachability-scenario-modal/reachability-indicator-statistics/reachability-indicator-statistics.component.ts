@@ -43,7 +43,8 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
   selectedIndicatorForStatistics: any;
   selectedIndicatorId: any;
   indicatorNameFilter: any;
-  selectedSpatialUnit: any;
+  // null (not undefined) so the [ngValue]="null" placeholder option is selected
+  selectedSpatialUnit: any = null;
   selectedIndicatorDate: any;
 
   filteredIndicators = this.indicatorStore.displayableIndicators;
@@ -87,34 +88,38 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
           this.availableIndicators = this.indicatorStore.displayableIndicators;
       });
 
-    this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
-      const title = broadcastMsg.msg;
-      const values: any = broadcastMsg.values;
+    this.broadcastService.currentBroadcastMsg
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((broadcastMsg) => {
+        const title = broadcastMsg.msg;
+        const values: any = broadcastMsg.values;
 
-      switch (title) {
-        case BroadcastMessage.IsochronesCalculationFinished:
-          {
-            this.isochronesCalculationFinished(values);
-          }
-          break;
-        case BroadcastMessage.ReinitIndicatorStatisticsConfiguration:
-          {
-            this.reachabilityMapHelperService.invalidateMap(this.domId);
-          }
-          break;
-        case BroadcastMessage.ResetReachabilityIndicatorStatistics:
-          {
-            this.resetIndicatorStatisticsMap();
-          }
-          break;
-      }
-    });
+        switch (title) {
+          case BroadcastMessage.IsochronesCalculationFinished:
+            {
+              this.isochronesCalculationFinished(values);
+            }
+            break;
+          case BroadcastMessage.ReinitIndicatorStatisticsConfiguration:
+            {
+              this.reachabilityMapHelperService.invalidateMap(this.domId);
+            }
+            break;
+          case BroadcastMessage.ResetReachabilityIndicatorStatistics:
+            {
+              this.resetIndicatorStatisticsMap();
+            }
+            break;
+        }
+      });
 
-    this.reachabilityStateService.reachabilityMapSubject$.subscribe((value) => {
-      if (value.scenarioState) {
-        this.isochronesCalculationFinished();
-      }
-    });
+    this.reachabilityStateService.reachabilityMapSubject$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        if (value.scenarioState) {
+          this.isochronesCalculationFinished();
+        }
+      });
   }
 
   init() {

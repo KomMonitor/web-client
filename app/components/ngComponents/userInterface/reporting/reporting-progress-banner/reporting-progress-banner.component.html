@@ -1,0 +1,69 @@
+@if (reportingService.reportGenerationInProgress) {
+  <div
+    class="reporting-progress-banner alert"
+    [ngClass]="{
+      'alert-info': reportingService.reportStatus === 'preparing',
+      'alert-success': reportingService.reportStatus === 'finished',
+    }"
+  >
+    @if (reportingService.reportStatus === 'preparing') {
+      <div>
+        <i class="fa fa-info-circle"></i> <b>Hinweis:</b> Im Hintergrund wird ein Bericht
+        vorbereitet. Dies kann die Anwendung verlangsamen.
+
+        <div class="row" style="margin-top: 10px; margin-bottom: 5px; margin-right: 0">
+          <div class="col-sm-10">
+            <div class="progress" style="margin-bottom: 0; height: 20px">
+              <div
+                class="progress-bar progress-bar-striped active"
+                role="progressbar"
+                [ngStyle]="{ width: reportingService.reportProgress + '%' }"
+                style="line-height: 20px; font-weight: bold"
+              >
+                {{ reportingService.reportProgress | number: '1.0-0' }}%
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-2 text-right">
+            <button type="button" class="btn btn-danger btn-xs" (click)="onAbortClicked()">
+              <i class="fa fa-times"></i> Abbrechen
+            </button>
+          </div>
+        </div>
+
+        @if (!reportingService.reportingModalOpen) {
+          <div style="margin-top: 5px">
+            <button
+              type="button"
+              class="btn btn-info btn-xs"
+              (click)="onOpenReportingModalClicked()"
+            >
+              <i class="fas fa-file-alt"></i> &nbsp; Zum Berichtsmenü
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+    @if (reportingService.reportStatus === 'finished') {
+      <div>
+        <i class="fa fa-check-circle"></i> <b>Erfolg:</b> Die Berichtgenerierung wurde
+        abgeschlossen! Der im Hintergrund vorbereitete Bericht kann nun hinzugefügt werden. Kehren
+        Sie dazu zum Berichtserstellungsdialog zurück.
+        <span class="pull-right">
+          @if (!reportingService.reportingModalOpen) {
+            <button
+              type="button"
+              class="btn btn-success btn-xs"
+              style="margin-top: -3px; margin-right: 15px"
+              (click)="onOpenReportingModalClicked()"
+            >
+              <i class="fas fa-file-alt"></i> &nbsp; Zum Berichtsmenü
+            </button>
+          }
+          Banner schließt in {{ reportingService.reportCountdown }}s
+        </span>
+      </div>
+    }
+  </div>
+}

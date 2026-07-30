@@ -1,11 +1,16 @@
 <div class="modal-header">
-  <h4 class="modal-title">Neue Raumebene registrieren</h4>
-  <button type="button" class="btn-close" aria-label="Close" (click)="cancel()"></button>
+  <h4 class="modal-title">{{ 'ADMIN_SPATIAL_UNITS.ADD_MODAL.TITLE' | translate }}</h4>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="cancel()"
+  ></button>
 </div>
 
 <div class="modal-body">
   <div align="center">
-    @if (loadingData) {
+    @if (loadingData()) {
       <div class="loading-overlay-admin-panel">
         <i class="fas fa-spinner fa-spin fa-2x"></i>
       </div>
@@ -20,48 +25,58 @@
     style="margin-bottom: 0px"
   >
     <!-- progressbar -->
-    <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
+    <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
 
     <!-- Step 1: Metadaten der Raumebene -->
-    @if (currentStep === 1) {
+    @if (stepper.isActive('metadata')) {
       <fieldset>
-        <h2 class="fs-title">Metadaten der Raumebene</h2>
-        <h3 class="fs-subtitle">Angaben über die neue Raumebene</h3>
+        <h2 class="fs-title">{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.TITLE' | translate }}</h2>
+        <h3 class="fs-subtitle">
+          {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SUBTITLE_ADD' | translate }}
+        </h3>
         <p>
-          <b><i>* = Pflichtfeld</i></b>
+          <b
+            ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+          >
         </p>
         <div class="row vertical-align meta-row">
           <div class="col-md-4 col-sm-4 col-4">
             <div class="form-group">
-              <label>Name der Raumebene*</label>
+              <label>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NAME_LABEL' | translate }}*</label>
               <input
                 type="text"
                 class="form-control"
                 [(ngModel)]="spatialUnitLevel"
                 name="spatialUnitLevel"
                 (ngModelChange)="checkSpatialUnitName()"
-                placeholder="eindeutiger Name"
+                [placeholder]="
+                  'ADMIN_SPATIAL_UNITS.METADATA_STEP.UNIQUE_NAME_PLACEHOLDER' | translate
+                "
                 required
               />
               <div class="help-block with-errors"></div>
               @if (spatialUnitLevelInvalid) {
                 <div style="color: red">
-                  <p>Eingabe ungültig. Es existiert bereits eine Raumebene mit gleichem Namen.</p>
+                  <p>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NAME_INVALID' | translate }}</p>
                 </div>
               }
             </div>
           </div>
           <div class="col-md-4 col-sm-4 col-4">
             <div class="form-group">
-              <label>Hierarchie: nächst niedrigere Ebene</label>
+              <label>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_LOWER' | translate }}</label>
               <select
                 [(ngModel)]="nextLowerHierarchySpatialUnit"
                 name="nextLowerHierarchy"
                 (ngModelChange)="checkSpatialUnitHierarchy()"
                 class="form-control"
               >
-                <option [ngValue]="null">-- Raumebene wählen --</option>
-                <option [ngValue]="null">-- keine (neue unterste Ebene) --</option>
+                <option [ngValue]="null">
+                  {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_SPATIAL_UNIT' | translate }}
+                </option>
+                <option [ngValue]="null">
+                  {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NONE_NEW_LOWEST' | translate }}
+                </option>
                 @for (value of availableSpatialUnits; track value) {
                   <option [ngValue]="value">
                     {{ value.spatialUnitLevel }}
@@ -69,27 +84,31 @@
                 }
               </select>
               <div class="help-block">
-                <p>Eintrag kann im Nachhinein mittels Metadaten-Editier-Funktion gesetzt werden</p>
+                <p>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_HINT' | translate }}</p>
               </div>
               <div class="help-block with-errors"></div>
               @if (hierarchyInvalid) {
                 <div style="color: red">
-                  <p>Eingabe ungültig. Definierte Hierarchie ist nicht erlaubt.</p>
+                  <p>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_INVALID' | translate }}</p>
                 </div>
               }
             </div>
           </div>
           <div class="col-md-4 col-sm-4 col-4">
             <div class="form-group">
-              <label>Hierarchie: nächst höhere Ebene</label>
+              <label>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_UPPER' | translate }}</label>
               <select
                 [(ngModel)]="nextUpperHierarchySpatialUnit"
                 name="nextUpperHierarchy"
                 (ngModelChange)="checkSpatialUnitHierarchy()"
                 class="form-control"
               >
-                <option [ngValue]="null">-- Raumebene wählen --</option>
-                <option [ngValue]="null">-- keine (neue oberste Ebene) --</option>
+                <option [ngValue]="null">
+                  {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_SPATIAL_UNIT' | translate }}
+                </option>
+                <option [ngValue]="null">
+                  {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NONE_NEW_UPPERMOST' | translate }}
+                </option>
                 @for (value of availableSpatialUnits; track value) {
                   <option [ngValue]="value">
                     {{ value.spatialUnitLevel }}
@@ -97,12 +116,12 @@
                 }
               </select>
               <div class="help-block">
-                <p>Eintrag kann im Nachhinein mittels Metadaten-Editier-Funktion gesetzt werden</p>
+                <p>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_HINT' | translate }}</p>
               </div>
               <div class="help-block with-errors"></div>
               @if (hierarchyInvalid) {
                 <div style="color: red">
-                  <p>Eingabe ungültig. Definierte Hierarchie ist nicht erlaubt.</p>
+                  <p>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_INVALID' | translate }}</p>
                 </div>
               }
             </div>
@@ -111,15 +130,17 @@
         <div class="row vertical-align">
           <div class="col-md-3 col-sm-3 col-12">
             <div class="form-group">
-              <label>als Umringslayer markieren?</label> <br />
+              <label>{{
+                'ADMIN_SPATIAL_UNITS.METADATA_STEP.MARK_AS_OUTLINE_LAYER' | translate
+              }}</label>
+              <br />
               <label class="switch">
                 <input type="checkbox" [(ngModel)]="isOutlineLayer" name="isOutlineLayer" />
                 <span class="switchslider round"></span>
               </label>
               <div class="help-block">
                 <p>
-                  wenn markiert, dann wird in der Kartenapplikation in der Layersteuerung ein
-                  entsprechender Eintrag zur Darstellung der Raumebenenumringe angeboten
+                  {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_LAYER_HINT' | translate }}
                 </p>
               </div>
             </div>
@@ -127,10 +148,10 @@
           @if (isOutlineLayer) {
             <div class="col-md-3 col-sm-3 col-12">
               <div class="form-group outline-color-group" align="center">
-                <label>Linienfarbe (Umringslayer)</label>
+                <label>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_COLOR' | translate }}</label>
                 <km-color-picker
                   [(color)]="outlineColor"
-                  label="Linienfarbe wählen"
+                  [label]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_OUTLINE_COLOR' | translate"
                 ></km-color-picker>
                 <div class="help-block with-errors"></div>
               </div>
@@ -139,7 +160,7 @@
           @if (isOutlineLayer) {
             <div class="col-md-3 col-sm-3 col-12">
               <div class="form-group" align="center">
-                <label>Linienbreite (Umringslayer)</label>
+                <label>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_WIDTH' | translate }}</label>
                 <br />
                 <input
                   style="width: auto"
@@ -160,8 +181,10 @@
                 <km-line-pattern-picker
                   [selectedPattern]="selectedOutlineDashArrayObject"
                   [options]="availableLinePatternOptions"
-                  [label]="'Linienmuster (Umringslayer)'"
-                  [placeholder]="'Linienmuster wählen'"
+                  [label]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_PATTERN' | translate"
+                  [placeholder]="
+                    'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_OUTLINE_PATTERN' | translate
+                  "
                   [width]="'200px'"
                   (patternChange)="onChangeOutlineDashArray($event)"
                 >
@@ -174,304 +197,126 @@
           type="button"
           name="next"
           class="next next_addSpatialUnit action-button"
-          value="Nächster Schritt"
-          (click)="nextStep()"
+          [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
+          (click)="stepper.next()"
         />
       </fieldset>
     }
 
     <!-- Step 2: Allgemeine Metadaten -->
-    @if (currentStep === 2) {
+    @if (stepper.isActive('general')) {
       <fieldset>
-        <h2 class="fs-title">Allgemeine Metadaten</h2>
-        <h3 class="fs-subtitle">Angaben über allgemeine Metadaten in KomMonitor</h3>
+        <h2 class="fs-title">{{ 'ADMIN_SHARED.GENERAL_METADATA' | translate }}</h2>
+        <h3 class="fs-subtitle">{{ 'ADMIN_SPATIAL_UNITS.GENERAL_STEP.SUBTITLE' | translate }}</h3>
         <p>
-          <b><i>* = Pflichtfeld</i></b>
+          <b
+            ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+          >
         </p>
-        <div class="row vertical-align">
-          <div class="col-md-3 col-sm-6 col-12">
-            <div class="form-group">
-              <label>Beschreibung*</label>
-              <textarea
-                rows="3"
-                class="form-control"
-                [(ngModel)]="metadata.description"
-                name="description"
-                placeholder="Datensatz Beschreibung"
-                required
-              ></textarea>
-              <div class="help-block with-errors"></div>
-            </div>
-          </div>
-          <div class="col-md-3 col-sm-6 col-12">
-            <div class="form-group">
-              <label>Datenbasis</label>
-              <textarea
-                rows="3"
-                class="form-control"
-                [(ngModel)]="metadata.databasis"
-                name="databasis"
-                placeholder="optionale Beschreibung etwaiger grundlegender Daten, die zur Erzeugung des Datensatzes beitragen"
-              ></textarea>
-              <div class="help-block with-errors"></div>
-            </div>
-          </div>
-          <div class="col-md-3 col-sm-6 col-12">
-            <div class="form-group">
-              <label>Datenquelle*</label>
-              <textarea
-                rows="3"
-                class="form-control"
-                [(ngModel)]="metadata.datasource"
-                name="datasource"
-                placeholder="Beschreibung der Datenquelle"
-                required
-              ></textarea>
-              <div class="help-block with-errors"></div>
-            </div>
-          </div>
-          <div class="col-md-3 col-sm-6 col-12">
-            <div class="form-group">
-              <label>Datenhalter und Kontakt*</label>
-              <textarea
-                rows="3"
-                class="form-control"
-                [(ngModel)]="metadata.contact"
-                name="contact"
-                placeholder="Beschreibung des Datenhalters und etwaiger Kontaktinformationen"
-                required
-              ></textarea>
-              <div class="help-block with-errors"></div>
-            </div>
-          </div>
-        </div>
-        <div class="row vertical-align">
-          <div class="col-md-3 col-sm-6 col-12">
-            <div class="form-group">
-              <label>Aktualisierungszyklus*</label>
-              <select
-                [(ngModel)]="metadata.updateInterval"
-                name="updateInterval"
-                class="form-control"
-                required
-              >
-                <option [ngValue]="null">-- Aktualisierungszyklus wählen --</option>
-                @for (value of updateIntervalOptions; track value) {
-                  <option [ngValue]="value">
-                    {{ value.displayName }}
-                  </option>
-                }
-              </select>
-              <div class="help-block with-errors"></div>
-            </div>
-          </div>
-          <div class="col-md-3 col-sm-6 col-12">
-            <div class="form-group">
-              <label>Datum der letzten Aktualisierung*</label>
-              <km-date-picker
-                name="lastUpdate"
-                placeholder="YYYY-MM-DD"
-                [(ngModel)]="metadata.lastUpdate"
-                [required]="true"
-              ></km-date-picker>
-              <div class="help-block with-errors"></div>
-            </div>
-          </div>
-          <div class="col-md-3 col-sm-6 col-12">
-            <div class="form-group">
-              <label>Literatur</label>
-              <textarea
-                rows="3"
-                class="form-control"
-                [(ngModel)]="metadata.literature"
-                name="literature"
-                placeholder="optionale Angaben zu Literatur"
-              ></textarea>
-              <div class="help-block with-errors"></div>
-            </div>
-          </div>
-          <div class="col-md-3 col-sm-6 col-12">
-            <div class="form-group">
-              <label>Bemerkung</label>
-              <textarea
-                rows="3"
-                class="form-control"
-                [(ngModel)]="metadata.note"
-                name="note"
-                placeholder="optionale Bemerkung"
-              ></textarea>
-              <div class="help-block with-errors"></div>
-            </div>
-          </div>
-        </div>
+        <app-resource-metadata-form
+          [form]="metadataForm"
+          [updateIntervalOptions]="updateIntervalOptions"
+        ></app-resource-metadata-form>
         <input
           type="button"
           name="previous"
           class="previous previous_addSpatialUnit action-button-previous"
-          value="Voriger Schritt"
-          (click)="previousStep()"
+          [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
+          (click)="stepper.previous()"
         />
         <input
           type="button"
           name="next"
           class="next next_addSpatialUnit action-button"
-          value="Nächster Schritt"
-          (click)="nextStep()"
+          [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
+          (click)="stepper.next()"
         />
       </fieldset>
     }
 
-    <!-- Step 3: Zugriffsschutz und Eigentümerschaft (Security) -->
-    @if (currentStep === 3 && kommonitorDataExchangeService.enableKeycloakSecurity) {
-      <fieldset>
-        <h2 class="fs-title">Zugriffsschutz und Eigentümerschaft</h2>
+    <!-- Step 3: Zugriffsschutz und Eigentümerschaft (Security).
+         Switched via display (not @if) so the role grid's checked state
+         survives navigating between steps. -->
+    @if (envConfigService.enableKeycloakSecurity) {
+      <fieldset [style.display]="stepper.isActive('security') ? 'block' : 'none'">
+        <h2 class="fs-title">
+          {{ 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE' | translate }}
+        </h2>
         <h3 class="fs-subtitle">
-          Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro Organisationseinheit
+          {{ 'ADMIN_SHARED_UI.SECURITY.ASSIGN_RIGHTS_SUBTITLE' | translate }}
         </h3>
-        <div class="row">
-          <div class="col-md-3"></div>
-          <div class="col-md-6 col-sm-6 col-12">
-            <div class="alert alert-info">
-              Bitte wählen Sie zunächst die Organisationseinheit aus, unter welcher Sie den
-              Datensatz anlegen möchten
-            </div>
-            <label for="addSpatialUnitUserRoleSelect">Eigentümer-Organisationseinheit*</label>
-            <div class="input-group owner-filter-group">
-              <span class="input-group-addon"><i class="fas fa-filter"></i></span>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Stichwortfilter"
-                [(ngModel)]="ownerOrgFilter"
-                name="ownerOrgFilter"
-              />
-            </div>
-            @if (kommonitorDataExchangeService.checkAdminPermission()) {
-              <select
-                id="addSpatialUnitUserRoleSelect"
-                [(ngModel)]="ownerOrganization"
-                name="ownerOrganization"
-                class="form-control"
-                (ngModelChange)="onChangeOwner(ownerOrganization)"
-                required
-              >
-                <option [ngValue]="null">-- Eigentümer-Organisationseinheit wählen --</option>
-                @for (org of filteredAccessControl; track org) {
-                  <option [value]="org.organizationalUnitId">{{ org.name }}</option>
-                }
-              </select>
-            }
-            @if (!kommonitorDataExchangeService.checkAdminPermission()) {
-              <select
-                id="addSpatialUnitUserRoleSelect"
-                [(ngModel)]="ownerOrganization"
-                name="ownerOrganization"
-                class="form-control"
-                (ngModelChange)="onChangeOwner(ownerOrganization)"
-                required
-              >
-                <option [ngValue]="null">-- Eigentümer-Organisationseinheit wählen --</option>
-                @for (org of filteredResourcesCreatorRights; track org) {
-                  <option [value]="org.organizationalUnitId">{{ org.name }}</option>
-                }
-              </select>
-            }
-            <p></p>
-          </div>
-          <div class="col-md-3"></div>
-        </div>
+        <app-owner-organization-select
+          mode="assign"
+          [ownerId]="ownerOrganization"
+          (ownerIdChange)="onChangeOwner($event)"
+        ></app-owner-organization-select>
         <br />
         <hr />
         <br />
-        @if (showRoleForm) {
-          <div id="spatialUnitRoleForm">
-            <label>Datensatz-Freigaben</label>
-            <div class="row vertical-align">
-              <div class="col-md-3">
-                <label>Öffentliche Lesefreigabe*</label>
-                <label class="switch">
-                  <input
-                    type="checkbox"
-                    [(ngModel)]="isPublic"
-                    name="isPublic"
-                    (ngModelChange)="onChangeIsPublic(isPublic)"
-                  />
-                  <span class="switchslider round"></span>
-                </label>
-                <div class="help-block">
-                  <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
-                </div>
+        <div id="spatialUnitRoleForm" [style.display]="showRoleForm ? 'block' : 'none'">
+          <label>{{ 'ADMIN_SHARED_UI.SECURITY.DATASET_PERMISSIONS' | translate }}</label>
+          <div class="row vertical-align">
+            <div class="col-md-3">
+              <label>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="isPublic"
+                  name="isPublic"
+                  (ngModelChange)="onChangeIsPublic(isPublic)"
+                />
+                <span class="switchslider round"></span>
+              </label>
+              <div class="help-block">
+                <p>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ_HINT' | translate }}</p>
               </div>
-              <div class="col-md-6 col-sm-6 col-12">
-                <ag-grid-angular
-                  #roleManagementGrid
-                  class="ag-theme-alpine"
-                  style="height: 45vh; width: 100%"
-                  [columnDefs]="roleManagementColumnDefs"
-                  [rowData]="roleManagementRowData"
-                  [defaultColDef]="roleManagementDefaultColDef"
-                  [gridOptions]="roleManagementGridOptions"
-                  [components]="roleManagementTableOptions?.components"
-                  [suppressRowClickSelection]="true"
-                  [rowSelection]="'multiple'"
-                  [enableCellTextSelection]="true"
-                  [ensureDomOrder]="true"
-                  [pagination]="false"
-                  [suppressColumnVirtualisation]="true"
-                  (gridReady)="onRoleManagementGridReady($event)"
-                  (firstDataRendered)="onRoleManagementFirstDataRendered($event)"
-                  (columnResized)="onRoleManagementColumnResized($event)"
-                >
-                </ag-grid-angular>
+            </div>
+            <div class="col-md-6 col-sm-6 col-12">
+              <app-role-management-grid
+                gridId="spatialUnitAddRoleManagementTable"
+                [reducedColumns]="false"
+              ></app-role-management-grid>
+            </div>
+            <div class="col-md-3">
+              <div class="alert alert-info">
+                {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_RIGHTS_INFO' | translate }}
               </div>
-              <div class="col-md-3">
-                <div class="alert alert-info">
-                  Als Eigentümer-Organisation des Datensatzes können Sie Lese- und Editier-Rechte an
-                  die eigene und weitere Organisationseinheiten vergeben.
-                </div>
-                <br />
-                <div class="alert alert-warning">
-                  Lese- und Editierrechte wurden für die von Ihnen selektierte
-                  Eigentümer-Organisationseinheit markiert.
-                </div>
+              <br />
+              <div class="alert alert-warning">
+                {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_ROLES_MARKED' | translate }}
               </div>
             </div>
           </div>
-        }
+        </div>
         <input
           type="button"
           name="previous"
           class="previous previous_addSpatialUnit action-button-previous"
-          value="Voriger Schritt"
-          (click)="previousStep()"
+          [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
+          (click)="stepper.previous()"
         />
         <input
           type="button"
           name="next"
           class="next next_addSpatialUnit action-button"
-          value="Nächster Schritt"
-          (click)="nextStep()"
+          [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
+          (click)="stepper.next()"
         />
       </fieldset>
     }
 
     <!-- Step 3/4: Räumlicher Datensatz -->
-    <fieldset
-      [hidden]="
-        !(
-          (currentStep === 3 && !kommonitorDataExchangeService.enableKeycloakSecurity) ||
-          (currentStep === 4 && kommonitorDataExchangeService.enableKeycloakSecurity)
-        )
-      "
-    >
+    <fieldset [hidden]="!stepper.isActive('data')">
       <div style="position: absolute">
         <button
           type="button"
           class="btn btn-info pull-left"
           (click)="onImportSpatialUnitAddMappingConfig()"
-          title="Importieren der Mapping-Konfigurationen aus einer Datei"
+          [title]="'ADMIN_SPATIAL_UNITS.COMMON.IMPORT_MAPPING_TITLE' | translate"
         >
-          <i class="fas fa-file-import"></i>&nbsp;&nbsp;Mapping-Import
+          <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
+            'ADMIN_SPATIAL_UNITS.COMMON.MAPPING_IMPORT' | translate
+          }}
         </button>
         <input
           style="display: none"
@@ -486,23 +331,27 @@
           style="margin-left: 6px"
           class="btn btn-info pull-left"
           (click)="onExportSpatialUnitAddMappingConfig()"
-          title="Exportieren der Mapping-Konfigurationen in eine Datei"
+          [title]="'ADMIN_SPATIAL_UNITS.COMMON.EXPORT_MAPPING_TITLE' | translate"
         >
-          <i class="fas fa-file-export"></i>&nbsp;&nbsp;Mapping-Export
+          <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
+            'ADMIN_SPATIAL_UNITS.COMMON.MAPPING_EXPORT' | translate
+          }}
         </button>
       </div>
-      <h2 class="fs-title">Räumlicher Datensatz</h2>
+      <h2 class="fs-title">{{ 'ADMIN_SHARED.SPATIAL_DATASET' | translate }}</h2>
       <h3 class="fs-subtitle">
-        Angaben über den räumlichen Datensatz, aus dem die Raumeinheiten importiert werden
+        {{ 'ADMIN_SPATIAL_UNITS.DATA.SUBTITLE' | translate }}
       </h3>
       <p>
-        <b><i>* = Pflichtfeld</i></b>
+        <b
+          ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+        >
       </p>
 
       <div class="row vertical-align">
         <div class="col-md-3 col-sm-6 col-12">
           <div class="form-group">
-            <label>Geodaten-Quellformat*</label>
+            <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_FORMAT_GEO' | translate }}*</label>
             <select
               [(ngModel)]="converter"
               name="converter"
@@ -510,7 +359,9 @@
               class="form-control"
               required
             >
-              <option [ngValue]="null">-- Quellformat wählen --</option>
+              <option [ngValue]="null">
+                {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SOURCE_FORMAT' | translate }}
+              </option>
               @for (
                 converter of kommonitorImporterHelperService.getAvailableConverters();
                 track converter
@@ -525,9 +376,11 @@
           @if (converter?.schemas) {
             <div>
               <div class="form-group">
-                <label>Schema*</label>
+                <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SCHEMA' | translate }}*</label>
                 <select [(ngModel)]="schema" name="schema" class="form-control" required>
-                  <option [ngValue]="''">-- Schema wählen --</option>
+                  <option [ngValue]="''">
+                    {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SCHEMA' | translate }}
+                  </option>
                   @for (schema of converter.schemas; track schema) {
                     <option [ngValue]="schema">
                       {{ schema }}
@@ -541,7 +394,7 @@
           @if (converter?.mimeTypes) {
             <div>
               <div class="form-group">
-                <label>Quellformat*</label>
+                <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_FORMAT' | translate }}*</label>
                 <select
                   [(ngModel)]="mimeType"
                   name="mimeType"
@@ -549,7 +402,9 @@
                   class="form-control"
                   required
                 >
-                  <option [ngValue]="''">-- Format wählen --</option>
+                  <option [ngValue]="''">
+                    {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_FORMAT' | translate }}
+                  </option>
                   @for (mimeType of converter.mimeTypes; track mimeType) {
                     <option [ngValue]="mimeType">
                       {{ mimeType }}
@@ -584,8 +439,7 @@
                 @if (parameter.name === 'CRS') {
                   <div class="help-block with-errors" style="color: red">
                     <p>
-                      CRS aufmerksam setzen. Falsche Angaben führen zur fehlerhaften Koordinaten der
-                      Raumeinheiten
+                      {{ 'ADMIN_SPATIAL_UNITS.DATA.CRS_WARNING' | translate }}
                     </p>
                   </div>
                 }
@@ -597,13 +451,13 @@
         <div class="col-md-3 col-sm-6 col-12">
           @if (!converter) {
             <div class="form-group">
-              <p>bitte zuerst das Quellformat wählen</p>
+              <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.CHOOSE_SOURCE_FORMAT_FIRST' | translate }}</p>
             </div>
           }
           @if (converter) {
             <div>
               <div class="form-group">
-                <label>Datenquelltyp*</label>
+                <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.DATASOURCE_TYPE' | translate }}*</label>
                 <select
                   [(ngModel)]="datasourceType"
                   name="datasourceType"
@@ -611,7 +465,9 @@
                   class="form-control"
                   required
                 >
-                  <option [ngValue]="null">-- Quelltyp wählen --</option>
+                  <option [ngValue]="null">
+                    {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SOURCE_TYPE' | translate }}
+                  </option>
                   @for (datasourceType of availableDatasourceTypes; track datasourceType) {
                     <option [ngValue]="datasourceType">
                       {{ datasourceType.type }}
@@ -622,7 +478,7 @@
               </div>
               @if (datasourceType?.type === 'FILE') {
                 <div>
-                  <label>Datei*</label>
+                  <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.FILE' | translate }}*</label>
                   <input
                     id="spatialUnitDataSourceInput"
                     type="file"
@@ -633,14 +489,19 @@
                   />
                   @if (selectedDataSourceFile) {
                     <div class="help-block">
-                      <p>Ausgewählt: {{ selectedDataSourceFile.name }}</p>
+                      <p>
+                        {{
+                          'ADMIN_SPATIAL_UNITS.DATA.SELECTED_FILE'
+                            | translate: { name: selectedDataSourceFile.name }
+                        }}
+                      </p>
                     </div>
                   }
                 </div>
               }
               @if (datasourceType?.type === 'OGCAPI_FEATURES') {
                 <div>
-                  <label>Räumlicher Filter*</label>
+                  <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SPATIAL_FILTER' | translate }}*</label>
                   <select
                     id="datasourceTypeParameter_spatialUnitAdd_bboxType"
                     [(ngModel)]="bboxType"
@@ -648,9 +509,15 @@
                     class="form-control"
                     required
                   >
-                    <option value="">-- Filter wählen --</option>
-                    <option value="ref">Referenzraumebene</option>
-                    <option value="literal">Manueller Begrenzungsrahmen</option>
+                    <option value="">
+                      {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_FILTER' | translate }}
+                    </option>
+                    <option value="ref">
+                      {{ 'ADMIN_SPATIAL_UNITS.DATA.REFERENCE_SPATIAL_UNIT' | translate }}
+                    </option>
+                    <option value="literal">
+                      {{ 'ADMIN_SPATIAL_UNITS.DATA.MANUAL_BBOX' | translate }}
+                    </option>
                   </select>
                   @if (bboxType === 'ref') {
                     <div>
@@ -662,7 +529,9 @@
                         class="form-control"
                         required
                       >
-                        <option [ngValue]="null">-- Raumebene wählen --</option>
+                        <option [ngValue]="null">
+                          {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_SPATIAL_UNIT' | translate }}
+                        </option>
                         @for (spatialUnit of availableSpatialUnits; track spatialUnit) {
                           <option [ngValue]="spatialUnit.spatialUnitId">
                             {{ spatialUnit.spatialUnitLevel }}
@@ -670,13 +539,13 @@
                         }
                       </select>
                       <div class="help-block">
-                        <p>Raumebene aus welchem ein umschließendes Rechteck extrahiert wird</p>
+                        <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.BBOX_REF_HINT' | translate }}</p>
                       </div>
                     </div>
                   }
                   @if (bboxType === 'literal') {
                     <div>
-                      <label>Begrenzungsrahmen*</label>
+                      <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.BBOX' | translate }}*</label>
                       <input
                         id="datasourceTypeParameter_spatialUnitAdd_bbox_minx"
                         class="form-control"
@@ -688,7 +557,7 @@
                         name="bbox_minx"
                       />
                       <div class="help-block">
-                        <p>Minimale x-Koordinate</p>
+                        <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.MIN_X' | translate }}</p>
                       </div>
                       <input
                         id="datasourceTypeParameter_spatialUnitAdd_bbox_miny"
@@ -701,7 +570,7 @@
                         name="bbox_miny"
                       />
                       <div class="help-block">
-                        <p>Minimale y-Koordinate</p>
+                        <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.MIN_Y' | translate }}</p>
                       </div>
                       <input
                         id="datasourceTypeParameter_spatialUnitAdd_bbox_maxx"
@@ -714,7 +583,7 @@
                         name="bbox_maxx"
                       />
                       <div class="help-block">
-                        <p>Maximale x-Koordinate</p>
+                        <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.MAX_X' | translate }}</p>
                       </div>
                       <input
                         id="datasourceTypeParameter_spatialUnitAdd_bbox_maxy"
@@ -727,7 +596,7 @@
                         name="bbox_maxy"
                       />
                       <div class="help-block">
-                        <p>Maximale y-Koordinate</p>
+                        <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.MAX_Y' | translate }}</p>
                       </div>
                     </div>
                   }
@@ -770,7 +639,7 @@
         </div>
         <div class="col-md-3 col-sm-6 col-12">
           <div class="form-group">
-            <label>ID Attributname*</label>
+            <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.ID_ATTRIBUTE' | translate }}*</label>
             <input
               type="text"
               class="form-control"
@@ -780,13 +649,13 @@
             />
             <div class="help-block">
               <p>
-                Name des Attributs, welches den eindeutigen Identifier des Raumeinheiten enthält.
+                {{ 'ADMIN_SPATIAL_UNITS.DATA.ID_ATTRIBUTE_HINT' | translate }}
               </p>
             </div>
             <div class="help-block with-errors"></div>
           </div>
           <div class="form-group">
-            <label>NAME Attributname*</label>
+            <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.NAME_ATTRIBUTE' | translate }}*</label>
             <input
               type="text"
               class="form-control"
@@ -795,14 +664,14 @@
               required
             />
             <div class="help-block">
-              <p>Name des Attributs, welches den eindeutigen Namen des Raumeinheiten enthält.</p>
+              <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.NAME_ATTRIBUTE_HINT' | translate }}</p>
             </div>
             <div class="help-block with-errors"></div>
           </div>
         </div>
         <div class="col-md-3 col-sm-6 col-12">
           <div class="form-group">
-            <label>Lebenszeit-Beginn Attributname</label>
+            <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_START' | translate }}</label>
             <input
               type="text"
               [(ngModel)]="validityStartDate_perFeature"
@@ -811,14 +680,13 @@
             />
             <div class="help-block">
               <p>
-                Eintrag nur, falls die räumlichen Raumeinheiten über ein Attribut für den
-                Lebenszeitraum (Beginn) verfügen.
+                {{ 'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_START_HINT' | translate }}
               </p>
             </div>
             <div class="help-block with-errors"></div>
           </div>
           <div class="form-group">
-            <label>Lebenszeit-Ende Attributname</label>
+            <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_END' | translate }}</label>
             <input
               type="text"
               [(ngModel)]="validityEndDate_perFeature"
@@ -827,8 +695,7 @@
             />
             <div class="help-block">
               <p>
-                Eintrag nur, falls die räumlichen Raumeinheiten über ein Attribut für den
-                Lebenszeitraum (Ende) verfügen.
+                {{ 'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_END_HINT' | translate }}
               </p>
             </div>
             <div class="help-block with-errors"></div>
@@ -839,7 +706,7 @@
       <div class="row vertical-align">
         <div class="col-md-6 col-sm-6 col-12">
           <div class="form-group">
-            <label>Gültigkeitszeitraum: gültig seit*</label>
+            <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.VALID_FROM' | translate }}*</label>
             <km-date-picker
               name="periodStartDate"
               placeholder="YYYY-MM-DD"
@@ -851,21 +718,20 @@
             ></km-date-picker>
             <div class="help-block">
               <p>
-                Eintrag ist immer erforderlich, selbst wenn die räumlichen Raumeinheiten über ein
-                Lebenszeitraum-Attribut verfügen.
+                {{ 'ADMIN_SPATIAL_UNITS.DATA.VALID_FROM_HINT' | translate }}
               </p>
             </div>
             <div class="help-block with-errors"></div>
             @if (periodOfValidityInvalid) {
               <div style="color: red">
-                <p>Eingabe ungültig. Definiertes Zeitintervall ist nicht erlaubt.</p>
+                <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.PERIOD_INVALID' | translate }}</p>
               </div>
             }
           </div>
         </div>
         <div class="col-md-6 col-sm-6 col-12">
           <div class="form-group">
-            <label>Gültigkeitszeitraum: gültig bis</label>
+            <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.VALID_TO' | translate }}</label>
             <km-date-picker
               name="periodEndDate"
               placeholder="YYYY-MM-DD"
@@ -876,15 +742,13 @@
             ></km-date-picker>
             <div class="help-block">
               <p>
-                Eintrag ist erforderlich, falls die räumlichen Raumeinheiten nicht selbst über ein
-                Lebenszeitraum-Attribut verfügen. Enddatum darf leer sein, um anzuzeigen, dass es
-                sich um aktuell gültige Raumeinheiten handelt.
+                {{ 'ADMIN_SPATIAL_UNITS.DATA.VALID_TO_HINT' | translate }}
               </p>
             </div>
             <div class="help-block with-errors"></div>
             @if (periodOfValidityInvalid) {
               <div style="color: red">
-                <p>Eingabe ungültig. Definiertes Zeitintervall ist nicht erlaubt.</p>
+                <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.PERIOD_INVALID' | translate }}</p>
               </div>
             }
           </div>
@@ -897,7 +761,7 @@
       <div class="row vertical-align">
         <div class="col-md-6 col-sm-6 col-12">
           <div class="form-group">
-            <label>Import weiterer Attribute*</label>
+            <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.KEEP_ATTRIBUTES' | translate }}*</label>
             <br />
             <label class="switch">
               <input type="checkbox" [(ngModel)]="keepAttributes" name="keepAttributes" />
@@ -905,9 +769,7 @@
             </label>
             <div class="help-block">
               <p>
-                Angabe, ob alle sonstigen Attribute des importierten Datensatzes mit gleichem Namen
-                übernommen werden sollen. Falls nicht, so lassen sich einzelne Attribut-Importe
-                definieren.
+                {{ 'ADMIN_SPATIAL_UNITS.DATA.KEEP_ATTRIBUTES_HINT' | translate }}
               </p>
             </div>
           </div>
@@ -915,18 +777,16 @@
         @if (!keepAttributes) {
           <div class="col-md-6 col-sm-6 col-12">
             <div class="form-group">
-              <label>Fehlende/NULL Werte beibehalten*</label>
+              <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.KEEP_MISSING_VALUES' | translate }}*</label>
               <br />
               <label class="switch">
                 <input type="checkbox" [(ngModel)]="keepMissingValues" name="keepMissingValues" />
                 <span class="switchslider round"></span>
               </label>
               <div class="help-block">
-                <p>
-                  Angabe, ob fehlende Attribute oder leere Attributwerte (<code>NULL</code>-Werte)
-                  übernommen werden. Bei deaktivierter Option wird bei einem solchen Fall ein Fehler
-                  geworfen.
-                </p>
+                <p
+                  [innerHTML]="'ADMIN_SPATIAL_UNITS.DATA.KEEP_MISSING_VALUES_HINT' | translate"
+                ></p>
               </div>
             </div>
           </div>
@@ -937,36 +797,38 @@
         <div class="row vertical-align">
           <div class="col-md-6 col-sm-6 col-12">
             <div class="form-group">
-              <label>Attributname im zu importierenden Datensatz*</label>
+              <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_ATTRIBUTE' | translate }}*</label>
               <input
                 type="text"
                 class="form-control input-sm"
-                placeholder="Quell-Attributname"
+                [placeholder]="'ADMIN_SPATIAL_UNITS.DATA.SOURCE_ATTRIBUTE_PLACEHOLDER' | translate"
                 [(ngModel)]="attributeMapping_sourceAttributeName"
                 name="attributeMapping_sourceAttributeName"
               />
               <div class="help-block with-errors"></div>
             </div>
             <div class="form-group">
-              <label>Ziel-Attributname in Datenbank nach Import*</label>
+              <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.TARGET_ATTRIBUTE' | translate }}*</label>
               <input
                 type="text"
                 class="form-control input-sm"
-                placeholder="Ziel-Attributname"
+                [placeholder]="'ADMIN_SPATIAL_UNITS.DATA.TARGET_ATTRIBUTE_PLACEHOLDER' | translate"
                 [(ngModel)]="attributeMapping_destinationAttributeName"
                 name="attributeMapping_destinationAttributeName"
               />
               <div class="help-block with-errors"></div>
             </div>
             <div class="form-group">
-              <label>Datentyp*</label>
+              <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.DATA_TYPE' | translate }}*</label>
               <select
                 [(ngModel)]="attributeMapping_attributeType"
                 name="attributeMapping_attributeType"
                 class="form-control"
                 required
               >
-                <option [ngValue]="null">-- Datentyp wählen --</option>
+                <option [ngValue]="null">
+                  {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_DATA_TYPE' | translate }}
+                </option>
                 @for (
                   type of kommonitorImporterHelperService.getAttributeMappingTypes();
                   track type
@@ -988,20 +850,20 @@
                 "
                 (click)="onAddOrUpdateAttributeMapping()"
               >
-                Hinzufügen/Editieren
+                {{ 'ADMIN_SPATIAL_UNITS.DATA.ADD_OR_EDIT' | translate }}
               </button>
               <div class="help-block with-errors"></div>
             </div>
           </div>
           <div class="col-md-6 col-sm-6 col-12">
-            <label>Übersicht der definierten Attribut-Mappings</label>
+            <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.MAPPINGS_OVERVIEW' | translate }}</label>
             <table class="table table-condensed">
               <thead>
                 <tr>
-                  <th>Editierfunktionen</th>
-                  <th>Quell-Attributname im Datensatz</th>
-                  <th>Ziel-Attributname nach Import</th>
-                  <th>Datentyp</th>
+                  <th>{{ 'ADMIN_SHARED.EDIT_FUNCTIONS' | translate }}</th>
+                  <th>{{ 'ADMIN_SPATIAL_UNITS.DATA.TABLE_SOURCE_ATTRIBUTE' | translate }}</th>
+                  <th>{{ 'ADMIN_SPATIAL_UNITS.DATA.TABLE_TARGET_ATTRIBUTE' | translate }}</th>
+                  <th>{{ 'ADMIN_SPATIAL_UNITS.DATA.DATA_TYPE' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1016,7 +878,7 @@
                           class="btn btn-warning btn-sm"
                           type="button"
                           (click)="onClickEditAttributeMapping(attributeMappingEntry)"
-                          title="Referenz editieren"
+                          [title]="'ADMIN_SPATIAL_UNITS.DATA.EDIT_REFERENCE' | translate"
                         >
                           <i class="fas fa-pencil-alt"></i>
                         </button>
@@ -1024,7 +886,7 @@
                           class="btn btn-danger btn-sm"
                           type="button"
                           (click)="onClickDeleteAttributeMapping(attributeMappingEntry)"
-                          title="Referenz löschen"
+                          [title]="'ADMIN_SPATIAL_UNITS.DATA.DELETE_REFERENCE' | translate"
                         >
                           <i class="fas fa-trash"></i>
                         </button>
@@ -1045,8 +907,8 @@
         type="button"
         name="previous"
         class="previous previous_addSpatialUnit action-button-previous"
-        value="Voriger Schritt"
-        (click)="previousStep()"
+        [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
+        (click)="stepper.previous()"
       />
     </fieldset>
   </form>
@@ -1054,14 +916,18 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="cancel()">Schließen</button>
+  <button type="button" class="btn btn-default pull-left" (click)="cancel()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
   <button
     type="button"
     class="btn btn-info pull-left"
     (click)="onImportSpatialUnitAddMetadata()"
-    title="Importieren der Metadaten aus einer Datei"
+    [title]="'ADMIN_SPATIAL_UNITS.COMMON.IMPORT_METADATA_TITLE' | translate"
   >
-    <i class="fas fa-file-import"></i>&nbsp;&nbsp;Metadaten-Import
+    <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
+      'ADMIN_SPATIAL_UNITS.COMMON.METADATA_IMPORT' | translate
+    }}
   </button>
   <input
     style="display: none"
@@ -1076,9 +942,11 @@
     style="margin-left: 6px"
     class="btn btn-info pull-left"
     (click)="onExportSpatialUnitAddMetadata()"
-    title="Exportieren der Metadaten in eine Datei"
+    [title]="'ADMIN_SPATIAL_UNITS.COMMON.EXPORT_METADATA_TITLE' | translate"
   >
-    <i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export
+    <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
+      'ADMIN_SPATIAL_UNITS.COMMON.METADATA_EXPORT' | translate
+    }}
   </button>
   <button
     type="button"
@@ -1086,11 +954,7 @@
     (click)="addSpatialUnit()"
     [disabled]="
       !spatialUnitLevel ||
-      !metadata.description ||
-      !metadata.datasource ||
-      !metadata.contact ||
-      !metadata.updateInterval ||
-      !metadata.lastUpdate ||
+      metadataForm.invalid ||
       !spatialUnitDataSourceIdProperty ||
       !spatialUnitDataSourceNameProperty ||
       !periodOfValidity.startDate ||
@@ -1102,27 +966,36 @@
       !ownerOrganization
     "
   >
-    Raumeinheit registrieren
+    {{ 'ADMIN_SPATIAL_UNITS.ADD_MODAL.SUBMIT' | translate }}
   </button>
-  <button type="button" class="btn btn-danger" (click)="resetForm()">Zurücksetzen</button>
+  <button type="button" class="btn btn-danger" (click)="resetForm()">
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
+  </button>
 </div>
 
 <!-- Importer errors: affected feature IDs (modal stays open on import failure) -->
-@if (importerErrors.length > 0) {
+@if (importerErrors().length > 0) {
   <div id="spatialUnitAddImporterErrors" class="alert alert-danger">
-    <h4><i class="icon fa fa-ban"></i>Import gescheitert</h4>
-    <p>Bei den {{ importerErrors.length }} Raumeinheiten mit folgenden IDs scheitert der Import:</p>
+    <h4>
+      <i class="icon fa fa-ban"></i>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.IMPORT_FAILED' | translate }}
+    </h4>
+    <p>
+      {{
+        'ADMIN_SPATIAL_UNITS.ERRORS.IMPORT_FAILED_IDS'
+          | translate: { count: importerErrors().length }
+      }}
+    </p>
     <ul style="overflow: auto; max-height: 500px">
-      @for (error of importerErrors; track error) {
+      @for (error of importerErrors(); track error) {
         <li>{{ error }}</li>
       }
     </ul>
-    <p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
+    <p>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.IMPORT_FAILED_HINT' | translate }}</p>
   </div>
 }
 
 <!-- Metadata Import Error Alert -->
-@if (spatialUnitMetadataImportError) {
+@if (spatialUnitMetadataImportError()) {
   <div
     id="spatialUnitMetadataImportErrorAlert"
     style="position: absolute; bottom: 0px; width: 100%"
@@ -1131,13 +1004,16 @@
     <button type="button" class="close" (click)="hideMetadataErrorAlert()" aria-hidden="true">
       &times;
     </button>
-    <h4><i class="icon fa fa-ban"></i>Metadata Import gescheitert</h4>
-    Beim Import der Metadaten aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
+    <h4>
+      <i class="icon fa fa-ban"></i
+      >{{ 'ADMIN_SPATIAL_UNITS.ERRORS.METADATA_IMPORT_FAILED' | translate }}
+    </h4>
+    {{ 'ADMIN_SPATIAL_UNITS.ERRORS.METADATA_IMPORT_FAILED_TEXT' | translate }}
     <br />
-    <pre>{{ spatialUnitMetadataImportError }}</pre>
+    <pre>{{ spatialUnitMetadataImportError() }}</pre>
     <br />
     <br />
-    <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
+    <p>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.JSON_FORMAT_HINT' | translate }}</p>
     <pre
       id="spatialUnitsAddMetadataPre"
       style="overflow: auto; max-height: 500px"
@@ -1147,7 +1023,7 @@
 }
 
 <!-- Mapping Config Import Error Alert -->
-@if (spatialUnitMappingConfigImportError) {
+@if (spatialUnitMappingConfigImportError()) {
   <div
     id="spatialUnitMappingConfigImportErrorAlert"
     style="position: absolute; bottom: 0px; width: 100%"
@@ -1156,13 +1032,16 @@
     <button type="button" class="close" (click)="hideMappingConfigErrorAlert()" aria-hidden="true">
       &times;
     </button>
-    <h4><i class="icon fa fa-ban"></i>Mapping-Konfiguration Import gescheitert</h4>
-    Beim Import der Mapping-Konfiguration aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
+    <h4>
+      <i class="icon fa fa-ban"></i
+      >{{ 'ADMIN_SPATIAL_UNITS.ERRORS.MAPPING_IMPORT_FAILED' | translate }}
+    </h4>
+    {{ 'ADMIN_SPATIAL_UNITS.ERRORS.MAPPING_IMPORT_FAILED_TEXT' | translate }}
     <br />
-    <pre [innerHTML]="spatialUnitMappingConfigImportError"></pre>
+    <pre [innerHTML]="spatialUnitMappingConfigImportError()"></pre>
     <br />
     <br />
-    <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
+    <p>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.JSON_FORMAT_HINT' | translate }}</p>
     <pre
       id="spatialUnitsAddMappingConfigPre"
       style="overflow: auto; max-height: 500px"

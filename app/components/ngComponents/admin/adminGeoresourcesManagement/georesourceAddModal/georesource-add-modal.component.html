@@ -1,12 +1,17 @@
 <div class="modal-header">
-  <h4 class="modal-title">Neue Georessource registrieren</h4>
-  <button type="button" class="btn-close" aria-label="Close" (click)="cancel()"></button>
+  <h4 class="modal-title">{{ 'ADMIN_GEORESOURCES.ADD_MODAL.TITLE' | translate }}</h4>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="cancel()"
+  ></button>
 </div>
 
 <div class="modal-body">
   <div align="center">
-    @if (loadingData) {
-      <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData">
+    @if (loadingData()) {
+      <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData()">
         <i class="fas fa-spinner fa-spin fa-2x"></i>
       </div>
     }
@@ -19,40 +24,41 @@
         class="multiStepForm form-group"
         #georesourceAddForm="ngForm"
         (ngSubmit)="addGeoresource()"
-        data-toggle="validator"
-        data-disable="true"
         style="margin-bottom: 0px"
       >
         <!-- progressbar -->
-        <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
+        <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
 
         <!-- fieldsets -->
-        @if (currentStep === 1) {
+        @if (stepper.isActive('metadata')) {
           <fieldset>
-            <h2 class="fs-title">Metadaten der Georessource</h2>
-            <h3 class="fs-subtitle">Angaben über Metadaten der Georessource</h3>
+            <h2 class="fs-title">{{ 'ADMIN_GEORESOURCES.COMMON.METADATA_TITLE' | translate }}</h2>
+            <h3 class="fs-subtitle">
+              {{ 'ADMIN_GEORESOURCES.COMMON.METADATA_SUBTITLE' | translate }}
+            </h3>
             <p>
-              <b><i>* = Pflichtfeld</i></b>
+              <b
+                ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+              >
             </p>
             <div class="row vertical-align">
               <div class="col-md-6 col-sm-6 col-12">
                 <div class="form-group">
-                  <label>Name der Georessource*</label>
+                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.NAME_LABEL' | translate }}*</label>
                   <input
                     type="text"
                     class="form-control"
                     [(ngModel)]="datasetName"
                     name="datasetName"
                     (ngModelChange)="checkDatasetName()"
-                    placeholder="eindeutiger Name"
+                    [placeholder]="'ADMIN_GEORESOURCES.COMMON.UNIQUE_NAME_PLACEHOLDER' | translate"
                     required
                   />
                   <div class="help-block with-errors"></div>
                   @if (datasetNameInvalid) {
                     <div style="color: red">
                       <p>
-                        Eingabe ungültig. Es existiert bereits eine Georessource mit gleichem Namen
-                        und gleichem Typ.
+                        {{ 'ADMIN_GEORESOURCES.COMMON.NAME_INVALID' | translate }}
                       </p>
                     </div>
                   }
@@ -60,7 +66,7 @@
               </div>
               <div class="col-md-6 col-sm-6 col-12">
                 <div class="form-group">
-                  <label>Typ*</label>
+                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.TYPE' | translate }}*</label>
                   <select
                     [(ngModel)]="georesourceType"
                     name="georesourceType"
@@ -80,23 +86,26 @@
               <div class="row vertical-align">
                 <div class="col-md-3 col-sm-6 col-12">
                   <div class="form-group" align="center">
-                    <label>Farbe des Punktmarkers*</label>
+                    <label>{{ 'ADMIN_GEORESOURCES.COMMON.MARKER_COLOR' | translate }}*</label>
                     <div class="dropdown customColorPicker">
                       <button
                         type="button"
                         class="btn btn-info dropdown-toggle"
-                        data-toggle="dropdown"
+                        data-bs-toggle="dropdown"
                         aria-haspopup="true"
                         aria-expanded="false"
                       >
                         <i [style.background]="selectedPoiMarkerColor?.colorValue || '#ccc'"></i>
-                        {{ selectedPoiMarkerColor?.colorName || 'Farbe wählen' }}
+                        {{
+                          selectedPoiMarkerColor?.colorName ||
+                            ('ADMIN_GEORESOURCES.COMMON.CHOOSE_COLOR' | translate)
+                        }}
                         <span class="caret"></span>
                       </button>
                       <ul class="dropdown-menu dropdown-menu-center">
                         @for (markerColor of availablePoiMarkerColors; track markerColor) {
                           <li (click)="onChangeMarkerColor(markerColor)">
-                            <a href=""
+                            <a style="cursor: pointer"
                               ><i [style.background]="markerColor?.colorValue || '#ccc'"></i
                               >{{ markerColor?.colorName || markerColor }}</a
                             >
@@ -109,12 +118,12 @@
                 </div>
                 <div class="col-md-3 col-sm-6 col-12">
                   <div class="form-group" align="center">
-                    <label>Art*</label>
+                    <label>{{ 'ADMIN_GEORESOURCES.COMMON.MARKER_STYLE' | translate }}*</label>
                     <div class="dropdown customColorPicker">
                       <button
                         type="button"
                         class="btn btn-info dropdown-toggle"
-                        data-toggle="dropdown"
+                        data-bs-toggle="dropdown"
                         aria-haspopup="true"
                         aria-expanded="false"
                       >
@@ -126,10 +135,14 @@
                       </button>
                       <ul class="dropdown-menu dropdown-menu-center">
                         <li (click)="onChangeMarkerStyle('symbol')">
-                          <a href="">Symbol</a>
+                          <a style="cursor: pointer">{{
+                            'ADMIN_GEORESOURCES.COMMON.SYMBOL' | translate
+                          }}</a>
                         </li>
                         <li (click)="onChangeMarkerStyle('text')">
-                          <a href="">Text</a>
+                          <a style="cursor: pointer">{{
+                            'ADMIN_GEORESOURCES.COMMON.TEXT' | translate
+                          }}</a>
                         </li>
                       </ul>
                       <div class="help-block with-errors"></div>
@@ -139,9 +152,18 @@
                 @if (selectedPoiMarkerStyle === 'symbol') {
                   <div class="col-md-3 col-sm-6 col-12">
                     <div class="form-group" align="center">
-                      <label>Symbol*</label>
+                      <label>{{ 'ADMIN_GEORESOURCES.COMMON.SYMBOL' | translate }}*</label>
                       <br />
-                      <button id="poiSymbolPicker" class="btn btn-info"></button>
+                      <input
+                        type="text"
+                        class="form-control"
+                        style="width: auto; display: inline-block"
+                        [(ngModel)]="selectedPoiIconName"
+                        name="poiSymbolName"
+                        [placeholder]="'ADMIN_GEORESOURCES.COMMON.SYMBOL_PLACEHOLDER' | translate"
+                        [title]="'ADMIN_GEORESOURCES.COMMON.SYMBOL_NAME_TITLE' | translate"
+                        required
+                      />
                       <div class="help-block with-errors"></div>
                     </div>
                   </div>
@@ -149,7 +171,7 @@
                 @if (selectedPoiMarkerStyle === 'text') {
                   <div class="col-md-3 col-sm-6 col-12">
                     <div class="form-group" align="center">
-                      <label>Text*</label>
+                      <label>{{ 'ADMIN_GEORESOURCES.COMMON.TEXT' | translate }}*</label>
                       <br />
                       <input
                         type="text"
@@ -161,10 +183,12 @@
                         maxlength="3"
                         required
                       />
-                      <div class="help-block with-errors">0-3 Zeichen</div>
+                      <div class="help-block with-errors">
+                        {{ 'ADMIN_GEORESOURCES.ADD_MODAL.TEXT_LENGTH_HINT' | translate }}
+                      </div>
                       @if (poiMarkerTextInvalid) {
                         <div style="color: red">
-                          <p>Text darf maximal 3 Zeichen lang sein.</p>
+                          <p>{{ 'ADMIN_GEORESOURCES.ADD_MODAL.TEXT_TOO_LONG' | translate }}</p>
                         </div>
                       }
                     </div>
@@ -173,27 +197,30 @@
                 <div class="col-md-3 col-sm-6 col-12">
                   <div class="form-group" align="center">
                     @if (selectedPoiMarkerStyle === 'symbol') {
-                      <label>Farbe des Punktsymbols*</label>
+                      <label>{{ 'ADMIN_GEORESOURCES.COMMON.SYMBOL_COLOR' | translate }}*</label>
                     }
                     @if (selectedPoiMarkerStyle === 'text') {
-                      <label>Textfarbe*</label>
+                      <label>{{ 'ADMIN_GEORESOURCES.COMMON.TEXT_COLOR' | translate }}*</label>
                     }
                     <div class="dropdown customColorPicker">
                       <button
                         type="button"
                         class="btn btn-info dropdown-toggle"
-                        data-toggle="dropdown"
+                        data-bs-toggle="dropdown"
                         aria-haspopup="true"
                         aria-expanded="false"
                       >
                         <i [style.background]="selectedPoiSymbolColor?.colorValue || '#ccc'"></i>
-                        {{ selectedPoiSymbolColor?.colorName || 'Farbe wählen' }}
+                        {{
+                          selectedPoiSymbolColor?.colorName ||
+                            ('ADMIN_GEORESOURCES.COMMON.CHOOSE_COLOR' | translate)
+                        }}
                         <span class="caret"></span>
                       </button>
                       <ul class="dropdown-menu dropdown-menu-center">
                         @for (symbolColor of availablePoiMarkerColors; track symbolColor) {
                           <li (click)="onChangeSymbolColor(symbolColor)">
-                            <a href=""
+                            <a style="cursor: pointer"
                               ><i [style.background]="symbolColor?.colorValue || '#ccc'"></i
                               >{{ symbolColor?.colorName || symbolColor }}</a
                             >
@@ -210,31 +237,18 @@
               <div class="row vertical-align">
                 <div class="col-md-4 col-sm-4 col-12">
                   <div class="form-group" align="center">
-                    <label>Linienfarbe*</label>
-                    <div id="loiColorPicker" class="input-group" style="width: 50px">
-                      <input
-                        type="text"
-                        style="display: none"
-                        class="form-control input-sm"
-                        [(ngModel)]="loiColor"
-                        name="loiColor"
-                        placeholder="Line of Interest Farbauswahl"
-                        value="#bf3d2c"
-                        required
-                      />
-                      <span
-                        title="Klicken, um die Farbe anzupassen"
-                        style="border: 1px solid #ccc; width: 100%"
-                        class="input-group-addon btn btn-info btn-sm"
-                        ><i></i
-                      ></span>
-                    </div>
+                    <label>{{ 'ADMIN_GEORESOURCES.COMMON.LINE_COLOR' | translate }}*</label>
+                    <br />
+                    <km-color-picker
+                      [(color)]="loiColor"
+                      [label]="'ADMIN_GEORESOURCES.COMMON.CHOOSE_LINE_COLOR' | translate"
+                    ></km-color-picker>
                     <div class="help-block with-errors"></div>
                   </div>
                 </div>
                 <div class="col-md-4 col-sm-4 col-12">
                   <div class="form-group" align="center">
-                    <label>Linienbreite*</label>
+                    <label>{{ 'ADMIN_GEORESOURCES.COMMON.LINE_WIDTH' | translate }}*</label>
                     <br />
                     <input
                       style="width: auto"
@@ -250,38 +264,16 @@
                 </div>
                 <div class="col-md-4 col-sm-4 col-12">
                   <div class="form-group" align="center">
-                    <label>Linienmuster*</label>
-                    <div class="dropdown">
-                      <button
-                        type="button"
-                        width="200px"
-                        class="btn btn-info dropdown-toggle"
-                        data-toggle="dropdown"
-                        aria-haspopup="true"
-                        aria-expanded="false"
-                      >
-                        <div id="loiDashArrayDropdownButton_addGeoresource">
-                          {{ selectedLoiDashArrayObject?.displayName }}
-                        </div>
-                        <span class="caret"></span>
-                      </button>
-                      <ul class="dropdown-menu dropdown-menu-center">
-                        @for (
-                          loiDashArrayObject of availableLoiDashArrayObjects;
-                          track loiDashArrayObject;
-                          let i = $index
-                        ) {
-                          <li (click)="onChangeLoiDashArray(loiDashArrayObject)">
-                            <a href="">
-                              <div id="loiDashArrayDropdownItem-{{ i }}">
-                                {{ loiDashArrayObject.displayName }}
-                              </div>
-                            </a>
-                          </li>
-                        }
-                      </ul>
-                      <div class="help-block with-errors"></div>
-                    </div>
+                    <km-line-pattern-picker
+                      [selectedPattern]="selectedLoiDashArrayObject"
+                      [options]="availableLoiDashArrayObjects"
+                      [label]="('ADMIN_GEORESOURCES.COMMON.LINE_PATTERN' | translate) + '*'"
+                      [placeholder]="'ADMIN_GEORESOURCES.COMMON.CHOOSE_LINE_PATTERN' | translate"
+                      [width]="'200px'"
+                      (patternChange)="onChangeLoiDashArray($event)"
+                    >
+                    </km-line-pattern-picker>
+                    <div class="help-block with-errors"></div>
                   </div>
                 </div>
               </div>
@@ -290,25 +282,12 @@
               <div class="row vertical-align">
                 <div class="col-md-12 col-sm-12 col-12">
                   <div class="form-group" align="center">
-                    <label>Objektfarbe*</label>
-                    <div id="aoiColorPicker" class="input-group" style="width: 50px">
-                      <input
-                        type="text"
-                        style="display: none"
-                        class="form-control input-sm"
-                        [(ngModel)]="aoiColor"
-                        name="aoiColor"
-                        placeholder="Area of Interest Farbauswahl"
-                        value="#bf3d2c"
-                        required
-                      />
-                      <span
-                        title="Klicken, um die Farbe anzupassen"
-                        style="border: 1px solid #ccc; width: 100%"
-                        class="input-group-addon btn btn-info btn-sm"
-                        ><i></i
-                      ></span>
-                    </div>
+                    <label>{{ 'ADMIN_GEORESOURCES.COMMON.AREA_COLOR' | translate }}*</label>
+                    <br />
+                    <km-color-picker
+                      [(color)]="aoiColor"
+                      [label]="'ADMIN_GEORESOURCES.COMMON.CHOOSE_AREA_COLOR' | translate"
+                    ></km-color-picker>
                     <div class="help-block with-errors"></div>
                   </div>
                 </div>
@@ -318,182 +297,72 @@
               type="button"
               name="next"
               class="next next_addGeoresource action-button"
-              value="Nächster Schritt"
-              (click)="nextStep()"
+              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
+              (click)="stepper.next()"
             />
           </fieldset>
         }
 
-        @if (currentStep === 2) {
+        @if (stepper.isActive('general')) {
           <fieldset>
-            <h2 class="fs-title">Allgemeine Metadaten</h2>
-            <h3 class="fs-subtitle">Angaben über allgemeine Metadaten in KomMonitor</h3>
+            <h2 class="fs-title">{{ 'ADMIN_SHARED.GENERAL_METADATA' | translate }}</h2>
+            <h3 class="fs-subtitle">
+              {{ 'ADMIN_GEORESOURCES.COMMON.GENERAL_METADATA_SUBTITLE' | translate }}
+            </h3>
             <p>
-              <b><i>* = Pflichtfeld</i></b>
+              <b
+                ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+              >
             </p>
-            <div class="row vertical-align">
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>Beschreibung*</label>
-                  <textarea
-                    rows="3"
-                    class="form-control"
-                    [(ngModel)]="metadata.description"
-                    name="metadataDescription"
-                    placeholder="Datensatz Beschreibung"
-                    required
-                  ></textarea>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>Datenbasis</label>
-                  <textarea
-                    rows="3"
-                    class="form-control"
-                    [(ngModel)]="metadata.databasis"
-                    name="metadataDatabasis"
-                    placeholder="optionale Beschreibung etwaiger grundlegender Daten, die zur Erzeugung des Datensatzes beitragen"
-                  ></textarea>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>Datenquelle*</label>
-                  <textarea
-                    rows="3"
-                    class="form-control"
-                    [(ngModel)]="metadata.datasource"
-                    name="metadataDatasource"
-                    placeholder="Beschreibung der Datenquelle"
-                    required
-                  ></textarea>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>Datenhalter und Kontakt*</label>
-                  <textarea
-                    rows="3"
-                    class="form-control"
-                    [(ngModel)]="metadata.contact"
-                    name="metadataContact"
-                    placeholder="Beschreibung des Datenhalters und etwaiger Kontaktinformationen"
-                    required
-                  ></textarea>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-            </div>
-            <div class="row vertical-align">
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>Aktualisierungszyklus*</label>
-                  <select
-                    [(ngModel)]="metadata.updateInterval"
-                    name="metadataUpdateInterval"
-                    class="form-control"
-                    required
-                  >
-                    <option disabled selected value>-- Aktualisierungszyklus wählen --</option>
-                    @for (interval of updateIntervalOptions; track interval) {
-                      <option [ngValue]="interval">{{ interval.displayName }}</option>
-                    }
-                  </select>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>Datum der letzten Aktualisierung*</label>
-                  <div class="input-group date">
-                    <div class="input-group-addon">
-                      <i class="far fa-calendar-alt"></i>
-                    </div>
-                    <input
-                      type="text"
-                      [(ngModel)]="metadata.lastUpdate"
-                      name="metadataLastUpdate"
-                      class="form-control pull-right"
-                      id="georesourceAddLastUpdateDatepicker"
-                      placeholder="YYYY-MM-DD"
-                      required
-                    />
-                  </div>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>Literatur</label>
-                  <textarea
-                    rows="3"
-                    class="form-control"
-                    [(ngModel)]="metadata.literature"
-                    name="metadataLiterature"
-                    placeholder="optionale Angaben zu Literatur"
-                  ></textarea>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>Bemerkung</label>
-                  <textarea
-                    rows="3"
-                    class="form-control"
-                    [(ngModel)]="metadata.note"
-                    name="metadataNote"
-                    placeholder="optionale Bemerkung"
-                  ></textarea>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-            </div>
+            <app-resource-metadata-form
+              [form]="metadataForm"
+              [updateIntervalOptions]="updateIntervalOptions"
+            ></app-resource-metadata-form>
             <input
               type="button"
               name="previous"
               class="previous previous_addGeoresource action-button-previous"
-              value="Voriger Schritt"
-              (click)="previousStep()"
+              [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
+              (click)="stepper.previous()"
             />
             <input
               type="button"
               name="next"
               class="next next_addGeoresource action-button"
-              value="Nächster Schritt"
-              (click)="nextStep()"
+              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
+              (click)="stepper.next()"
             />
           </fieldset>
         }
 
-        @if (currentStep === 3) {
+        @if (stepper.isActive('topics')) {
           <fieldset>
-            <h2 class="fs-title">Themenhierarchie</h2>
-            <h3 class="fs-subtitle">Angaben über die Themenhierarchie der Georessource</h3>
+            <h2 class="fs-title">{{ 'ADMIN_SHARED_UI.TOPICS.TITLE' | translate }}</h2>
+            <h3 class="fs-subtitle">
+              {{ 'ADMIN_GEORESOURCES.COMMON.TOPICS_SUBTITLE' | translate }}
+            </h3>
             <p>
-              <b><i>* = Pflichtfeld</i></b>
+              <b
+                ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+              >
             </p>
             <p>
-              Angabe der Themenhierarchie. Mindestens das Hauptthema muss gewählt werden. Vorhandene
-              Unterthemen erscheinen nach Auswahl eines Hauptthemas. Bis zu vier Themen-Ebenen sind
-              erlaubt.
+              {{ 'ADMIN_SHARED_UI.TOPICS.SELECTION_HINT' | translate }}
             </p>
-            <p>Das Aufklappen der unteren Box ermöglicht die Verwaltung des Themenkatalogs.</p>
+            <p>{{ 'ADMIN_SHARED_UI.TOPICS.CATALOG_HINT' | translate }}</p>
             <div class="row vertical-align">
               <div class="col-md-3 col-sm-6 col-12">
                 <div class="form-group">
-                  <label>Hauptthema*</label>
+                  <label>{{ 'ADMIN_SHARED_UI.TOPICS.MAIN_TOPIC' | translate }}*</label>
                   <select
                     [(ngModel)]="georesourceTopic_mainTopic"
                     name="georesourceTopic_mainTopic"
                     class="form-control"
                     required
                   >
-                    <option disabled selected value>-- Hauptthema wählen --</option>
+                    <option disabled selected value>
+                      {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_MAIN_TOPIC' | translate }}
+                    </option>
                     @for (mainTopic of availableTopics; track mainTopic) {
                       <option [ngValue]="mainTopic">{{ mainTopic.topicName }}</option>
                     }
@@ -504,13 +373,15 @@
               <div class="col-md-3 col-sm-6 col-12">
                 @if (georesourceTopic_mainTopic?.subTopics?.length > 0) {
                   <div class="form-group">
-                    <label>Unterthema - erste Ebene</label>
+                    <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_1' | translate }}</label>
                     <select
                       [(ngModel)]="georesourceTopic_subTopic"
                       name="georesourceTopic_subTopic"
                       class="form-control"
                     >
-                      <option disabled selected value>-- Unterthema wählen --</option>
+                      <option disabled selected value>
+                        {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
+                      </option>
                       @for (subTopic of georesourceTopic_mainTopic.subTopics; track subTopic) {
                         <option [ngValue]="subTopic">{{ subTopic.topicName }}</option>
                       }
@@ -522,13 +393,15 @@
               <div class="col-md-3 col-sm-6 col-12">
                 @if (georesourceTopic_subTopic?.subTopics?.length > 0) {
                   <div class="form-group">
-                    <label>Unterthema - zweite Ebene</label>
+                    <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_2' | translate }}</label>
                     <select
                       [(ngModel)]="georesourceTopic_subsubTopic"
                       name="georesourceTopic_subsubTopic"
                       class="form-control"
                     >
-                      <option disabled selected value>-- Unterthema wählen --</option>
+                      <option disabled selected value>
+                        {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
+                      </option>
                       @for (subsubTopic of georesourceTopic_subTopic.subTopics; track subsubTopic) {
                         <option [ngValue]="subsubTopic">{{ subsubTopic.topicName }}</option>
                       }
@@ -540,13 +413,15 @@
               <div class="col-md-3 col-sm-6 col-12">
                 @if (georesourceTopic_subsubTopic?.subTopics?.length > 0) {
                   <div class="form-group">
-                    <label>Unterthema - dritte Ebene</label>
+                    <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_3' | translate }}</label>
                     <select
                       [(ngModel)]="georesourceTopic_subsubsubTopic"
                       name="georesourceTopic_subsubsubTopic"
                       class="form-control"
                     >
-                      <option disabled selected value>-- Unterthema wählen --</option>
+                      <option disabled selected value>
+                        {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
+                      </option>
                       @for (
                         subsubsubTopic of georesourceTopic_subsubTopic.subTopics;
                         track subsubsubTopic
@@ -571,7 +446,9 @@
                       style="background: #ebf0fd"
                     >
                       <div class="box-header">
-                        <h3 class="box-title">Themenkatalog</h3>
+                        <h3 class="box-title">
+                          {{ 'ADMIN_SHARED_UI.TOPICS.TOPIC_CATALOG' | translate }}
+                        </h3>
                         <div class="box-tools pull-right">
                           <button type="button" class="btn btn-box-tool" data-widget="collapse">
                             <i class="fa fa-plus"></i>
@@ -595,84 +472,43 @@
               type="button"
               name="previous"
               class="previous previous_addGeoresource action-button-previous"
-              value="Voriger Schritt"
-              (click)="previousStep()"
+              [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
+              (click)="stepper.previous()"
             />
             <input
               type="button"
               name="next"
               class="next next_addGeoresource action-button"
-              value="Nächster Schritt"
-              (click)="nextStep()"
+              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
+              (click)="stepper.next()"
             />
           </fieldset>
         }
 
-        @if (currentStep === 4 && envConfigService.enableKeycloakSecurity) {
-          <fieldset>
-            <h2 class="fs-title">Zugriffsschutz und Eigentümerschaft</h2>
+        <!-- Step 4: Zugriffsschutz und Eigentümerschaft (Security).
+             Switched via display (not @if) so the role grid's checked state
+             survives navigating between steps. -->
+        @if (envConfigService.enableKeycloakSecurity) {
+          <fieldset [style.display]="stepper.isActive('security') ? 'block' : 'none'">
+            <h2 class="fs-title">
+              {{ 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE' | translate }}
+            </h2>
             <h3 class="fs-subtitle">
-              Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro
-              Organisationseinheit
+              {{ 'ADMIN_SHARED_UI.SECURITY.ASSIGN_RIGHTS_SUBTITLE' | translate }}
             </h3>
-            <div class="row">
-              <div class="col-md-3"></div>
-              <div class="col-md-6 col-sm-6 col-12">
-                <div class="alert alert-info">
-                  Bitte wählen Sie zunächst die Organisationseinheit aus, unter welcher Sie den
-                  Datensatz anlegen möchten
-                </div>
-                <label for="addGeoresourceUserRoleSelect">Eigentümer-Organisationseinheit*</label>
-                <div class="input-group">
-                  <span class="input-group-addon"><i class="fas fa-filter"></i></span>
-                  <input
-                    type="text"
-                    class="form-control input-sm"
-                    placeholder="Stichwortfilter"
-                    [(ngModel)]="ownerOrgFilter"
-                    name="ownerOrgFilter"
-                  />
-                </div>
-                @if (accessControlService.checkAdminPermission()) {
-                  <select
-                    id="addGeoresourceUserRoleSelect"
-                    [(ngModel)]="ownerOrganization"
-                    name="ownerOrganization"
-                    class="form-control"
-                    (ngModelChange)="onChangeOwner($event)"
-                    required
-                  >
-                    @for (org of accessControlService.accessControl; track org) {
-                      <option [value]="org.organizationalUnitId">{{ org.name }}</option>
-                    }
-                  </select>
-                }
-                @if (!accessControlService.checkAdminPermission()) {
-                  <select
-                    id="addGeoresourceUserRoleSelect"
-                    [(ngModel)]="ownerOrganization"
-                    name="ownerOrganization"
-                    class="form-control"
-                    (ngModelChange)="onChangeOwner($event)"
-                    required
-                  >
-                    @for (org of resourcesCreatorRights; track org) {
-                      <option [value]="org.organizationalUnitId">{{ org.name }}</option>
-                    }
-                  </select>
-                }
-                <p></p>
-              </div>
-              <div class="col-md-3"></div>
-            </div>
+            <app-owner-organization-select
+              mode="assign"
+              [ownerId]="ownerOrganization"
+              (ownerIdChange)="onChangeOwner($event)"
+            ></app-owner-organization-select>
             <br />
             <hr />
             <br />
             <div id="georesourceRoleForm">
-              <label>Datensatz-Freigaben</label>
+              <label>{{ 'ADMIN_SHARED_UI.SECURITY.DATASET_PERMISSIONS' | translate }}</label>
               <div class="row vertical-align">
                 <div class="col-md-3">
-                  <label>Öffentliche Lesefreigabe*</label>
+                  <label>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label>
                   <label class="switch">
                     <input
                       type="checkbox"
@@ -683,25 +519,22 @@
                     <span class="switchslider round"></span>
                   </label>
                   <div class="help-block">
-                    <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
+                    <p>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ_HINT' | translate }}</p>
                   </div>
                 </div>
                 <div class="col-md-6 col-sm-6 col-12">
-                  <div
-                    id="georesourceAddRoleManagementTable"
-                    style="height: 45vh"
-                    class="ag-theme-alpine"
-                  ></div>
+                  <app-role-management-grid
+                    gridId="georesourceAddRoleManagementTable"
+                    [reducedColumns]="false"
+                  ></app-role-management-grid>
                 </div>
                 <div class="col-md-3">
                   <div class="alert alert-info">
-                    Als Eigentümer-Organisation des Datensatzes können Sie Lese- und Editier-Rechte
-                    an die eigene und weitere Organisationseinheiten vergeben.
+                    {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_RIGHTS_INFO' | translate }}
                   </div>
                   <br />
                   <div class="alert alert-warning">
-                    Lese- und Editierrechte wurden für die von Ihnen selektierte
-                    Eigentümer-Organisationseinheit markiert.
+                    {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_ROLES_MARKED' | translate }}
                   </div>
                 </div>
               </div>
@@ -710,32 +543,31 @@
               type="button"
               name="previous"
               class="previous previous_addGeoresource action-button-previous"
-              value="Voriger Schritt"
-              (click)="previousStep()"
+              [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
+              (click)="stepper.previous()"
             />
             <input
               type="button"
               name="next"
               class="next next_addGeoresource action-button"
-              value="Nächster Schritt"
-              (click)="nextStep()"
+              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
+              (click)="stepper.next()"
             />
           </fieldset>
         }
 
-        @if (
-          (currentStep === 4 && !envConfigService.enableKeycloakSecurity) ||
-          (currentStep === 5 && envConfigService.enableKeycloakSecurity)
-        ) {
+        @if (stepper.isActive('data')) {
           <fieldset>
             <div style="position: absolute">
               <button
                 type="button"
                 class="btn btn-info pull-left"
                 (click)="onImportGeoresourceAddMappingConfig()"
-                title="Importieren der Mapping-Konfigurationen aus einer Datei"
+                [title]="'ADMIN_GEORESOURCES.COMMON.IMPORT_MAPPING_TITLE' | translate"
               >
-                <i class="fas fa-file-import"></i>&nbsp;&nbsp;Mapping-Import
+                <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
+                  'ADMIN_GEORESOURCES.COMMON.MAPPING_IMPORT' | translate
+                }}
               </button>
               <input
                 style="display: none"
@@ -752,22 +584,28 @@
                 style="margin-left: 6px"
                 class="btn btn-info pull-left"
                 (click)="onExportGeoresourceAddMappingConfig()"
-                title="Exportieren der Mapping-Konfigurationen in eine Datei"
+                [title]="'ADMIN_GEORESOURCES.COMMON.EXPORT_MAPPING_TITLE' | translate"
               >
-                <i class="fas fa-file-export"></i>&nbsp;&nbsp;Mapping-Export
+                <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
+                  'ADMIN_GEORESOURCES.COMMON.MAPPING_EXPORT' | translate
+                }}
               </button>
             </div>
-            <h2 class="fs-title">Räumlicher Datensatz</h2>
+            <h2 class="fs-title">{{ 'ADMIN_SHARED.SPATIAL_DATASET' | translate }}</h2>
             <h3 class="fs-subtitle">
-              Angaben über den räumlichen Datensatz, aus dem die Features importiert werden
+              {{ 'ADMIN_GEORESOURCES.COMMON.SPATIAL_DATASET_SUBTITLE' | translate }}
             </h3>
             <p>
-              <b><i>* = Pflichtfeld</i></b>
+              <b
+                ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+              >
             </p>
             <div class="row vertical-align">
               <div class="col-md-3 col-sm-6 col-12">
                 <div class="form-group">
-                  <label>Geodaten-Quellformat*</label>
+                  <label
+                    >{{ 'ADMIN_GEORESOURCES.COMMON.GEODATA_SOURCE_FORMAT' | translate }}*</label
+                  >
                   <select
                     [(ngModel)]="converter"
                     name="converter"
@@ -775,7 +613,9 @@
                     class="form-control"
                     required
                   >
-                    <option disabled selected value>-- Quellformat wählen --</option>
+                    <option disabled selected value>
+                      {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SOURCE_FORMAT' | translate }}
+                    </option>
                     @for (conv of kommonitorImporterHelperService.availableConverters; track conv) {
                       <option [ngValue]="conv">{{ conv.name }}</option>
                     }
@@ -785,9 +625,11 @@
                 @if (converter?.schemas) {
                   <div>
                     <div class="form-group">
-                      <label>Schema*</label>
+                      <label>{{ 'ADMIN_GEORESOURCES.COMMON.SCHEMA' | translate }}*</label>
                       <select [(ngModel)]="schema" name="schema" class="form-control" required>
-                        <option disabled selected value>-- Schema wählen --</option>
+                        <option disabled selected value>
+                          {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SCHEMA' | translate }}
+                        </option>
                         @for (schemaOption of converter.schemas; track schemaOption) {
                           <option [value]="schemaOption">{{ schemaOption }}</option>
                         }
@@ -799,7 +641,7 @@
                 @if (converter?.mimeTypes) {
                   <div>
                     <div class="form-group">
-                      <label>Quellformat*</label>
+                      <label>{{ 'ADMIN_GEORESOURCES.COMMON.SOURCE_FORMAT' | translate }}*</label>
                       <select
                         [(ngModel)]="mimeType"
                         name="mimeType"
@@ -807,7 +649,9 @@
                         class="form-control"
                         required
                       >
-                        <option disabled selected value>-- Format wählen --</option>
+                        <option disabled selected value>
+                          {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_FORMAT' | translate }}
+                        </option>
                         @for (mimeTypeOption of converter.mimeTypes; track mimeTypeOption) {
                           <option [value]="mimeTypeOption">{{ mimeTypeOption }}</option>
                         }
@@ -827,9 +671,10 @@
                       </label>
                       <input
                         type="text"
-                        [id]="'converterParameter_georesourceAdd_' + parameter.name"
                         class="form-control"
                         [placeholder]="parameter.name"
+                        [(ngModel)]="converterParameterValues[parameter.name]"
+                        [name]="'converterParameter_' + parameter.name"
                         [required]="parameter.mandatory"
                       />
                       <div class="help-block">
@@ -838,8 +683,7 @@
                       @if (parameter.name === 'CRS') {
                         <div class="help-block with-errors" style="color: red">
                           <p>
-                            CRS aufmerksam setzen. Falsche Angaben führen zur fehlerhaften
-                            Koordinaten der Features
+                            {{ 'ADMIN_GEORESOURCES.COMMON.CRS_WARNING' | translate }}
                           </p>
                         </div>
                       }
@@ -852,13 +696,17 @@
                 <div class="form-group">
                   @if (!converter) {
                     <div>
-                      <p>bitte zuerst das Quellformat wählen</p>
+                      <p>
+                        {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SOURCE_FORMAT_FIRST' | translate }}
+                      </p>
                     </div>
                   }
                   @if (converter) {
                     <div>
                       <div class="form-group">
-                        <label>Datenquelltyp*</label>
+                        <label
+                          >{{ 'ADMIN_GEORESOURCES.COMMON.DATASOURCE_TYPE' | translate }}*</label
+                        >
                         <select
                           [(ngModel)]="datasourceType"
                           name="datasourceType"
@@ -866,7 +714,9 @@
                           class="form-control"
                           required
                         >
-                          <option disabled selected value>-- Quelltyp wählen --</option>
+                          <option disabled selected value>
+                            {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SOURCE_TYPE' | translate }}
+                          </option>
                           @for (dsType of availableDatasourceTypes; track dsType) {
                             <option [ngValue]="dsType">{{ dsType.type }}</option>
                           }
@@ -875,7 +725,7 @@
                       </div>
                       @if (datasourceType?.type === 'FILE') {
                         <div>
-                          <label>Datei*</label>
+                          <label>{{ 'ADMIN_GEORESOURCES.COMMON.FILE' | translate }}*</label>
                           <input
                             type="file"
                             class="form-control"
@@ -887,28 +737,39 @@
                       }
                       @if (datasourceType?.type === 'OGCAPI_FEATURES') {
                         <div>
-                          <label>Räumlicher Filter*</label>
+                          <label
+                            >{{ 'ADMIN_GEORESOURCES.COMMON.SPATIAL_FILTER' | translate }}*</label
+                          >
                           <select
-                            [id]="'datasourceTypeParameter_georesourceAdd_bboxType'"
                             [(ngModel)]="bboxType"
                             name="bboxType"
                             class="form-control"
                             required
                           >
-                            <option disabled selected value>-- Filter wählen --</option>
-                            <option value="ref">Referenzraumebene</option>
-                            <option value="literal">Manueller Begrenzungsrahmen</option>
+                            <option disabled selected value>
+                              {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_FILTER' | translate }}
+                            </option>
+                            <option value="ref">
+                              {{
+                                'ADMIN_GEORESOURCES.COMMON.FILTER_REFERENCE_SPATIAL_UNIT'
+                                  | translate
+                              }}
+                            </option>
+                            <option value="literal">
+                              {{ 'ADMIN_GEORESOURCES.COMMON.FILTER_MANUAL_BBOX' | translate }}
+                            </option>
                           </select>
                           @if (bboxType === 'ref') {
                             <div>
                               <select
-                                [id]="'datasourceTypeParameter_georesourceAdd_bboxRef'"
                                 [(ngModel)]="bboxRefSpatialUnit"
                                 name="bboxRefSpatialUnit"
                                 class="form-control"
                                 [required]="bboxType === 'ref'"
                               >
-                                <option disabled selected value>-- Raumebene wählen --</option>
+                                <option disabled selected value>
+                                  {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SPATIAL_UNIT' | translate }}
+                                </option>
                                 @for (
                                   spatialUnit of spatialUnitStore.availableSpatialUnits;
                                   track spatialUnit
@@ -920,57 +781,72 @@
                               </select>
                               <div class="help-block">
                                 <p>
-                                  Raumebene aus welchem ein umschließendes Rechteck extrahiert wird
+                                  {{
+                                    'ADMIN_GEORESOURCES.COMMON.BBOX_FROM_SPATIAL_UNIT_HINT'
+                                      | translate
+                                  }}
                                 </p>
                               </div>
                             </div>
                           }
                           @if (bboxType === 'literal') {
                             <div>
-                              <label>Begrenzungsrahmen*</label>
+                              <label>{{ 'ADMIN_GEORESOURCES.COMMON.BBOX' | translate }}*</label>
                               <input
-                                [id]="'datasourceTypeParameter_georesourceAdd_bbox_minx'"
                                 class="form-control"
                                 type="number"
                                 lang="us"
                                 placeholder="-180"
+                                [(ngModel)]="bbox_minx"
+                                name="bbox_minx"
                                 [required]="bboxType === 'literal'"
                               />
                               <div class="help-block">
-                                <p>Minimale x-Koordinate (Longitude)</p>
+                                <p>
+                                  {{ 'ADMIN_GEORESOURCES.COMMON.MIN_X' | translate }} (Longitude)
+                                </p>
                               </div>
                               <input
-                                [id]="'datasourceTypeParameter_georesourceAdd_bbox_miny'"
                                 class="form-control"
                                 type="number"
                                 lang="us"
                                 placeholder="-90"
+                                [(ngModel)]="bbox_miny"
+                                name="bbox_miny"
                                 [required]="bboxType === 'literal'"
                               />
                               <div class="help-block">
-                                <p>Minimale y-Koordinate (Latitude)</p>
+                                <p>
+                                  {{ 'ADMIN_GEORESOURCES.COMMON.MIN_Y' | translate }} (Latitude)
+                                </p>
                               </div>
                               <input
-                                [id]="'datasourceTypeParameter_georesourceAdd_bbox_maxx'"
                                 class="form-control"
                                 type="number"
                                 lang="us"
                                 placeholder="180"
+                                [(ngModel)]="bbox_maxx"
+                                name="bbox_maxx"
                                 [required]="bboxType === 'literal'"
                               />
                               <div class="help-block">
-                                <p>Maximale x-Koordinate (Longitude)</p>
+                                <p>
+                                  {{ 'ADMIN_GEORESOURCES.COMMON.MAX_X' | translate }} (Longitude)
+                                </p>
                               </div>
                               <input
-                                [id]="'datasourceTypeParameter_georesourceAdd_bbox_maxy'"
                                 class="form-control"
                                 type="number"
                                 lang="us"
                                 placeholder="90"
+                                [(ngModel)]="bbox_maxy"
+                                name="bbox_maxy"
                                 [required]="bboxType === 'literal'"
                               />
                               <div class="help-block">
-                                <p>Maximale y-Koordinate (Latitude)</p>
+                                <p>
+                                  {{ 'ADMIN_GEORESOURCES.COMMON.MAX_Y' | translate }} (Latitude)
+                                </p>
                               </div>
                             </div>
                           }
@@ -990,11 +866,10 @@
                                   }
                                   <textarea
                                     rows="1"
-                                    [id]="
-                                      'datasourceTypeParameter_georesourceAdd_' + parameter.name
-                                    "
                                     class="form-control"
                                     [placeholder]="parameter.name"
+                                    [(ngModel)]="datasourceTypeParameterValues[parameter.name]"
+                                    [name]="'datasourceTypeParameter_' + parameter.name"
                                     [required]="parameter.mandatory"
                                   ></textarea>
                                   <div class="help-block">
@@ -1012,14 +887,19 @@
                   <div class="help-block with-errors"></div>
                   @if (georesourceDataSourceInputInvalid) {
                     <div style="color: red">
-                      <p>Eingabe ungültig. Grund: {{ georesourceDataSourceInputInvalidReason }}</p>
+                      <p>
+                        {{
+                          'ADMIN_GEORESOURCES.COMMON.INPUT_INVALID_REASON'
+                            | translate: { reason: georesourceDataSourceInputInvalidReason }
+                        }}
+                      </p>
                     </div>
                   }
                 </div>
               </div>
               <div class="col-md-3 col-sm-6 col-12">
                 <div class="form-group">
-                  <label>ID Attributname*</label>
+                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.ID_ATTRIBUTE' | translate }}*</label>
                   <input
                     type="text"
                     class="form-control"
@@ -1029,21 +909,20 @@
                   />
                   <div class="help-block">
                     <p>
-                      Name des Attributs, welches den eindeutigen Identifier des Features enthält.
+                      {{ 'ADMIN_GEORESOURCES.COMMON.ID_ATTRIBUTE_HINT' | translate }}
                     </p>
                   </div>
                   <div class="help-block with-errors"></div>
                   @if (idPropertyNotFound) {
                     <div style="color: red">
                       <p>
-                        Eingabe ungültig. Angegebenes Attribut nicht gefunden oder enthält
-                        NULL-Werte.
+                        {{ 'ADMIN_GEORESOURCES.COMMON.ATTRIBUTE_NOT_FOUND' | translate }}
                       </p>
                     </div>
                   }
                 </div>
                 <div class="form-group">
-                  <label>NAME Attributname*</label>
+                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.NAME_ATTRIBUTE' | translate }}*</label>
                   <input
                     type="text"
                     class="form-control"
@@ -1052,14 +931,13 @@
                     required
                   />
                   <div class="help-block">
-                    <p>Name des Attributs, welches den eindeutigen Namen des Features enthält.</p>
+                    <p>{{ 'ADMIN_GEORESOURCES.COMMON.NAME_ATTRIBUTE_HINT' | translate }}</p>
                   </div>
                   <div class="help-block with-errors"></div>
                   @if (namePropertyNotFound) {
                     <div style="color: red">
                       <p>
-                        Eingabe ungültig. Angegebenes Attribut nicht gefunden oder enthält
-                        NULL-Werte.
+                        {{ 'ADMIN_GEORESOURCES.COMMON.ATTRIBUTE_NOT_FOUND' | translate }}
                       </p>
                     </div>
                   }
@@ -1067,7 +945,9 @@
               </div>
               <div class="col-md-3 col-sm-6 col-12">
                 <div class="form-group">
-                  <label>Lebenszeit-Beginn Attributname</label>
+                  <label>{{
+                    'ADMIN_GEORESOURCES.COMMON.LIFETIME_START_ATTRIBUTE' | translate
+                  }}</label>
                   <input
                     type="text"
                     [(ngModel)]="validityStartDate_perFeature"
@@ -1076,14 +956,15 @@
                   />
                   <div class="help-block">
                     <p>
-                      Eintrag nur, falls die räumlichen Features über ein Attribut für den
-                      Lebenszeitraum (Beginn) verfügen.
+                      {{ 'ADMIN_GEORESOURCES.COMMON.LIFETIME_START_HINT' | translate }}
                     </p>
                   </div>
                   <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group">
-                  <label>Lebenszeit-Ende Attributname</label>
+                  <label>{{
+                    'ADMIN_GEORESOURCES.COMMON.LIFETIME_END_ATTRIBUTE' | translate
+                  }}</label>
                   <input
                     type="text"
                     [(ngModel)]="validityEndDate_perFeature"
@@ -1092,8 +973,7 @@
                   />
                   <div class="help-block">
                     <p>
-                      Eintrag nur, falls die räumlichen Features über ein Attribut für den
-                      Lebenszeitraum (Ende) verfügen.
+                      {{ 'ADMIN_GEORESOURCES.COMMON.LIFETIME_END_HINT' | translate }}
                     </p>
                   </div>
                   <div class="help-block with-errors"></div>
@@ -1103,7 +983,7 @@
             <div class="row vertical-align">
               <div class="col-md-6 col-sm-6 col-12">
                 <div class="form-group">
-                  <label>Gültigkeitszeitraum: gültig seit*</label>
+                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.VALID_FROM' | translate }}*</label>
                   <div class="input-group date">
                     <div class="input-group-addon">
                       <i class="far fa-calendar-alt"></i>
@@ -1121,21 +1001,20 @@
                   </div>
                   <div class="help-block">
                     <p>
-                      Eintrag ist immer erforderlich, selbst wenn die räumlichen Features über ein
-                      Lebenszeitraum-Attribut verfügen.
+                      {{ 'ADMIN_GEORESOURCES.COMMON.VALID_FROM_HINT' | translate }}
                     </p>
                   </div>
                   <div class="help-block with-errors"></div>
                   @if (periodOfValidityInvalid) {
                     <div style="color: red">
-                      <p>Eingabe ungültig. Definiertes Zeitintervall ist nicht erlaubt.</p>
+                      <p>{{ 'ADMIN_GEORESOURCES.COMMON.PERIOD_INVALID' | translate }}</p>
                     </div>
                   }
                 </div>
               </div>
               <div class="col-md-6 col-sm-6 col-12">
                 <div class="form-group">
-                  <label>Gültigkeitszeitraum: gültig bis</label>
+                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.VALID_TO' | translate }}</label>
                   <div class="input-group date">
                     <div class="input-group-addon">
                       <i class="far fa-calendar-alt"></i>
@@ -1152,15 +1031,13 @@
                   </div>
                   <div class="help-block">
                     <p>
-                      Eintrag ist erforderlich, falls die räumlichen Features nicht selbst über ein
-                      Lebenszeitraum-Attribut verfügen. Enddatum darf leer sein, um anzuzeigen, dass
-                      es sich um aktuell gültige Features handelt.
+                      {{ 'ADMIN_GEORESOURCES.COMMON.VALID_TO_HINT' | translate }}
                     </p>
                   </div>
                   <div class="help-block with-errors"></div>
                   @if (periodOfValidityInvalid) {
                     <div style="color: red">
-                      <p>Eingabe ungültig. Definiertes Zeitintervall ist nicht erlaubt.</p>
+                      <p>{{ 'ADMIN_GEORESOURCES.COMMON.PERIOD_INVALID' | translate }}</p>
                     </div>
                   }
                 </div>
@@ -1171,7 +1048,7 @@
             <div class="row vertical-align">
               <div class="col-md-6 col-sm-6 col-12">
                 <div class="form-group">
-                  <label>Import weiterer Attribute*</label>
+                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.KEEP_ATTRIBUTES' | translate }}*</label>
                   <br />
                   <label class="switch">
                     <input type="checkbox" [(ngModel)]="keepAttributes" name="keepAttributes" />
@@ -1179,9 +1056,7 @@
                   </label>
                   <div class="help-block">
                     <p>
-                      Angabe, ob alle sonstigen Attribute des importierten Datensatzes mit gleichem
-                      Namen übernommen werden sollen. Falls nicht, so lassen sich einzelne
-                      Attribut-Importe definieren.
+                      {{ 'ADMIN_GEORESOURCES.COMMON.KEEP_ATTRIBUTES_HINT' | translate }}
                     </p>
                   </div>
                 </div>
@@ -1189,7 +1064,9 @@
               @if (!keepAttributes) {
                 <div class="col-md-6 col-sm-6 col-12">
                   <div class="form-group">
-                    <label>Fehlende/NULL Werte beibehalten*</label>
+                    <label
+                      >{{ 'ADMIN_GEORESOURCES.COMMON.KEEP_MISSING_VALUES' | translate }}*</label
+                    >
                     <br />
                     <label class="switch">
                       <input
@@ -1200,11 +1077,11 @@
                       <span class="switchslider round"></span>
                     </label>
                     <div class="help-block">
-                      <p>
-                        Angabe, ob fehlende Attribute oder leere Attributwerte
-                        (<code>NULL</code>-Werte) übernommen werden. Bei deaktivierter Option wird
-                        bei einem solchen Fall ein Fehler geworfen.
-                      </p>
+                      <p
+                        [innerHTML]="
+                          'ADMIN_GEORESOURCES.COMMON.KEEP_MISSING_VALUES_HINT' | translate
+                        "
+                      ></p>
                     </div>
                   </div>
                 </div>
@@ -1214,36 +1091,42 @@
               <div class="row vertical-align">
                 <div class="col-md-6 col-sm-6 col-12">
                   <div class="form-group">
-                    <label>Attributname im zu importierenden Datensatz*</label>
+                    <label>{{ 'ADMIN_GEORESOURCES.COMMON.SOURCE_ATTRIBUTE' | translate }}*</label>
                     <input
                       type="text"
                       class="form-control input-sm"
-                      placeholder="Quell-Attributname"
+                      [placeholder]="
+                        'ADMIN_GEORESOURCES.COMMON.SOURCE_ATTRIBUTE_PLACEHOLDER' | translate
+                      "
                       [(ngModel)]="attributeMapping_sourceAttributeName"
                       name="attributeMapping_sourceAttributeName"
                     />
                     <div class="help-block with-errors"></div>
                   </div>
                   <div class="form-group">
-                    <label>Ziel-Attributname in Datenbank nach Import*</label>
+                    <label>{{ 'ADMIN_GEORESOURCES.COMMON.TARGET_ATTRIBUTE' | translate }}*</label>
                     <input
                       type="text"
                       class="form-control input-sm"
-                      placeholder="Ziel-Attributname"
+                      [placeholder]="
+                        'ADMIN_GEORESOURCES.COMMON.TARGET_ATTRIBUTE_PLACEHOLDER' | translate
+                      "
                       [(ngModel)]="attributeMapping_destinationAttributeName"
                       name="attributeMapping_destinationAttributeName"
                     />
                     <div class="help-block with-errors"></div>
                   </div>
                   <div class="form-group">
-                    <label>Datentyp*</label>
+                    <label>{{ 'ADMIN_GEORESOURCES.COMMON.DATA_TYPE' | translate }}*</label>
                     <select
                       [(ngModel)]="attributeMapping_attributeType"
                       name="attributeMapping_attributeType"
                       class="form-control"
                       required
                     >
-                      <option disabled selected value>-- Datentyp wählen --</option>
+                      <option disabled selected value>
+                        {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_DATA_TYPE' | translate }}
+                      </option>
                       @for (
                         type of kommonitorImporterHelperService.attributeMapping_attributeTypes;
                         track type
@@ -1263,20 +1146,24 @@
                       "
                       (click)="onAddOrUpdateAttributeMapping()"
                     >
-                      Hinzufügen/Editieren
+                      {{ 'ADMIN_GEORESOURCES.COMMON.ADD_OR_EDIT' | translate }}
                     </button>
                     <div class="help-block with-errors"></div>
                   </div>
                 </div>
                 <div class="col-md-6 col-sm-6 col-12">
-                  <label>Übersicht der definierten Attribut-Mappings</label>
+                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.MAPPINGS_OVERVIEW' | translate }}</label>
                   <table class="table table-condensed">
                     <thead>
                       <tr>
-                        <th>Editierfunktionen</th>
-                        <th>Quell-Attributname im Datensatz</th>
-                        <th>Ziel-Attributname nach Import</th>
-                        <th>Datentyp</th>
+                        <th>{{ 'ADMIN_SHARED.EDIT_FUNCTIONS' | translate }}</th>
+                        <th>
+                          {{ 'ADMIN_GEORESOURCES.COMMON.SOURCE_ATTRIBUTE_COLUMN' | translate }}
+                        </th>
+                        <th>
+                          {{ 'ADMIN_GEORESOURCES.COMMON.TARGET_ATTRIBUTE_COLUMN' | translate }}
+                        </th>
+                        <th>{{ 'ADMIN_GEORESOURCES.COMMON.DATA_TYPE' | translate }}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1291,7 +1178,7 @@
                                 class="btn btn-warning btn-sm"
                                 type="button"
                                 (click)="onClickEditAttributeMapping(attributeMappingEntry)"
-                                title="Referenz editieren"
+                                [title]="'ADMIN_GEORESOURCES.COMMON.EDIT_REFERENCE' | translate"
                               >
                                 <i class="fas fa-pencil-alt"></i>
                               </button>
@@ -1299,7 +1186,7 @@
                                 class="btn btn-danger btn-sm"
                                 type="button"
                                 (click)="onClickDeleteAttributeMapping(attributeMappingEntry)"
-                                title="Referenz löschen"
+                                [title]="'ADMIN_GEORESOURCES.COMMON.DELETE_REFERENCE' | translate"
                               >
                                 <i class="fas fa-trash"></i>
                               </button>
@@ -1319,8 +1206,8 @@
               type="button"
               name="previous"
               class="previous previous_addGeoresource action-button-previous"
-              value="Voriger Schritt"
-              (click)="previousStep()"
+              [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
+              (click)="stepper.previous()"
             />
           </fieldset>
         }
@@ -1330,14 +1217,18 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="cancel()">Schließen</button>
+  <button type="button" class="btn btn-default pull-left" (click)="cancel()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
   <button
     type="button"
     class="btn btn-info pull-left"
     (click)="onImportGeoresourceAddMetadata()"
-    title="Importieren der Metadaten aus einer Datei"
+    [title]="'ADMIN_GEORESOURCES.COMMON.IMPORT_METADATA_TITLE' | translate"
   >
-    <i class="fas fa-file-import"></i>&nbsp;&nbsp;Metadaten-Import
+    <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
+      'ADMIN_GEORESOURCES.COMMON.METADATA_IMPORT' | translate
+    }}
   </button>
   <input
     style="display: none"
@@ -1354,9 +1245,11 @@
     style="margin-left: 6px"
     class="btn btn-info pull-left"
     (click)="onExportGeoresourceAddMetadata()"
-    title="Exportieren der Metadaten in eine Datei"
+    [title]="'ADMIN_GEORESOURCES.COMMON.EXPORT_METADATA_TITLE' | translate"
   >
-    <i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export
+    <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
+      'ADMIN_GEORESOURCES.COMMON.METADATA_EXPORT' | translate
+    }}
   </button>
 
   <button
@@ -1364,11 +1257,7 @@
     class="btn btn-success"
     [disabled]="
       !datasetName ||
-      !metadata.description ||
-      !metadata.datasource ||
-      !metadata.contact ||
-      !metadata.updateInterval ||
-      !metadata.lastUpdate ||
+      metadataForm.invalid ||
       !georesourceDataSourceIdProperty ||
       !georesourceDataSourceNameProperty ||
       !periodOfValidity.startDate ||
@@ -1381,80 +1270,58 @@
     "
     (click)="addGeoresource()"
   >
-    Georessource registrieren
+    {{ 'ADMIN_GEORESOURCES.ADD_MODAL.REGISTER' | translate }}
   </button>
   <button type="button" class="btn btn-danger" (click)="resetGeoresourceAddForm()">
-    Zurücksetzen
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
 </div>
 
-<!-- Success Alert -->
-<div
-  id="georesourceAddSuccessAlert"
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!successMessage"
-  class="alert alert-success alert-dismissable"
->
-  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
-    &times;
-  </button>
-  <h4><i class="icon fa fa-check"></i>Georessource registriert</h4>
-  <p>
-    Eine neue Georessource mit Namen {{ successMessagePart }} wurde in KomMonitor registriert und in
-    die Übersichtstabelle eingetragen.
-    @if (importedFeatures && importedFeatures.length > 0) {
-      <span> {{ importedFeatures.length }} Features wurden dabei importiert. </span>
-    }
-  </p>
-</div>
-
-<!-- Error Alert -->
-<div
-  id="georesourceAddErrorAlert"
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!errorMessage"
-  class="alert alert-danger alert-dismissable"
->
-  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
-  <h4><i class="icon fa fa-ban"></i>Registrierung gescheitert</h4>
-  Bei der Registrierung der Georessource ist ein Fehler aufgetreten. Fehlermeldung:
-  <br />
-  <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessagePart"></pre>
-  <br />
-  <br />
-
-  @if (importerErrors) {
-    <div>
-      <p>Bei den {{ importerErrors.length }} Features mit folgenden IDs scheitert der Import:</p>
-      <pre style="overflow: auto; max-height: 500px">
-                          <ul>
-                            @for (error of importerErrors; track error) {
-                              <li>{{error}}</li>
-                            }
-                          </ul>
-                        </pre>
-      <p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
-    </div>
-  }
-</div>
+<!-- Registration success/error summaries are toasted via NotificationService; the
+     per-feature importer error report stays inline. -->
+@if (importerErrors().length > 0) {
+  <div class="alert alert-danger">
+    <h4>
+      <i class="icon fa fa-ban"></i
+      >{{ 'ADMIN_GEORESOURCES.ADD_MODAL.REGISTRATION_FAILED' | translate }}
+    </h4>
+    <p>
+      {{
+        'ADMIN_GEORESOURCES.COMMON.IMPORTER_ERRORS_INTRO'
+          | translate: { count: importerErrors().length }
+      }}
+    </p>
+    <pre style="overflow: auto; max-height: 500px">
+                        <ul>
+                          @for (error of importerErrors(); track error) {
+                            <li>{{error}}</li>
+                          }
+                        </ul>
+                      </pre>
+    <p>{{ 'ADMIN_GEORESOURCES.COMMON.FIX_ERRORS_HINT' | translate }}</p>
+  </div>
+}
 
 <!-- Metadata Import Error Alert -->
 <div
   id="georesourceMetadataImportErrorAlert"
   style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!georesourceMetadataImportError"
+  [hidden]="!georesourceMetadataImportError()"
   class="alert alert-danger alert-dismissable"
 >
   <button type="button" class="close" (click)="hideMetadataErrorAlert()" aria-hidden="true">
     &times;
   </button>
-  <h4><i class="icon fa fa-ban"></i>Metadata Import gescheitert</h4>
-  Beim Import der Metadaten aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
+  <h4>
+    <i class="icon fa fa-ban"></i
+    >{{ 'ADMIN_GEORESOURCES.COMMON.METADATA_IMPORT_FAILED' | translate }}
+  </h4>
+  {{ 'ADMIN_GEORESOURCES.COMMON.METADATA_IMPORT_ERROR' | translate }}
   <br />
-  <pre>{{ georesourceMetadataImportError }}</pre>
+  <pre>{{ georesourceMetadataImportError() }}</pre>
   <br />
   <br />
-  <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
+  <p>{{ 'ADMIN_GEORESOURCES.COMMON.JSON_FORMAT_HINT' | translate }}</p>
   <pre
     id="georesourcesAddMetadataPre"
     style="overflow: auto; max-height: 500px"
@@ -1466,19 +1333,22 @@
 <div
   id="georesourceMappingConfigImportErrorAlert"
   style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!georesourceMappingConfigImportError"
+  [hidden]="!georesourceMappingConfigImportError()"
   class="alert alert-danger alert-dismissable"
 >
   <button type="button" class="close" (click)="hideMappingConfigErrorAlert()" aria-hidden="true">
     &times;
   </button>
-  <h4><i class="icon fa fa-ban"></i>Mapping-Konfiguration Import gescheitert</h4>
-  Beim Import der Mapping-Konfiguration aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
+  <h4>
+    <i class="icon fa fa-ban"></i
+    >{{ 'ADMIN_GEORESOURCES.COMMON.MAPPING_IMPORT_FAILED' | translate }}
+  </h4>
+  {{ 'ADMIN_GEORESOURCES.COMMON.MAPPING_IMPORT_ERROR' | translate }}
   <br />
-  <pre [innerHTML]="georesourceMappingConfigImportError"></pre>
+  <pre [innerHTML]="georesourceMappingConfigImportError()"></pre>
   <br />
   <br />
-  <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
+  <p>{{ 'ADMIN_GEORESOURCES.COMMON.JSON_FORMAT_HINT' | translate }}</p>
   <pre
     id="georesourcesAddMappingConfigPre"
     style="overflow: auto; max-height: 500px"

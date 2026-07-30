@@ -65,7 +65,7 @@ export class KommonitorReachabilityComponent implements OnInit {
 
   loadingData: boolean = false;
 
-  sliderRange: number[] = [1, 300];
+  sliderRange: number[] = [1, this.reachabilityStateService.defaults.distanceMax];
 
   loading$ = this.reachabilityStateService.loadingState$;
 
@@ -254,6 +254,15 @@ export class KommonitorReachabilityComponent implements OnInit {
       this.reachabilityStateService.showOnMainMap = false;
       this.active = 1;
       this.onSinglePointSelection();
+
+      // clear the wizard's own detailed settings (transit mode, ranges, point source, ...)
+      // so a fresh "Szenario anlegen" doesn't inherit whatever the quick-calc sidebar was
+      // last configured with. When editing an existing scenario, this is immediately
+      // overwritten by its snapshot via onManageReachabilityScenario() below.
+      this.reachabilityStateService.resetSettings();
+      // also clear the shared isochrone legend, otherwise step 3 wrongly claims the
+      // point source "changed" by comparing against the quick-calc's leftover legend
+      this.mapOverlayState.isochroneLegend = false;
     }
 
     const modalRef = this.modalService.open(ReachabilityScenarioModalComponent, {
@@ -285,7 +294,15 @@ export class KommonitorReachabilityComponent implements OnInit {
     this.reachabilityStateService.showOnMainMap = true;
     this.reachabilityStateService.resetLocations();
     this.reachabilityStateService.startPointsSource = 'manual';
+    this.reachabilityStateService.manualMapSelectionMode = false;
+  }
+
+  onClickActivateMapSelection() {
     this.reachabilityStateService.manualMapSelectionMode = true;
+  }
+
+  onClickDeactivateMapSelection() {
+    this.reachabilityStateService.manualMapSelectionMode = false;
   }
 
   onLayerSelection() {
@@ -297,7 +314,7 @@ export class KommonitorReachabilityComponent implements OnInit {
 
   onFocusModeChange() {
     if (this.reachabilityStateService.quickCalcSettings.focus == 'distance')
-      this.sliderRange = [1, 300];
-    else this.sliderRange = [1, 15];
+      this.sliderRange = [1, this.reachabilityStateService.defaults.distanceMax];
+    else this.sliderRange = [1, this.reachabilityStateService.defaults.timeMax];
   }
 }

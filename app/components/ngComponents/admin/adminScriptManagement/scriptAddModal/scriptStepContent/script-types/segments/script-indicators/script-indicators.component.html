@@ -1,11 +1,11 @@
-<expandable-box title="Notwendige (Basis-)Indikatoren" borderColor="red">
+<expandable-box [title]="'ADMIN_SCRIPTS.REQUIRED_INDICATORS' | translate" borderColor="red">
   <div class="row vertical-align">
     <div class="col-md-12 col-sm-12 col-12">
       <app-filterable-select
-        label="Auswahl der für die Berechnung erforderlichen (Basis-)Indikatoren"
+        [label]="'ADMIN_SCRIPTS.INDICATORS.SELECT_LABEL' | translate"
         propertyKey="indicatorName"
-        filterPlaceholder="Stichwortfilter"
-        selectPlaceholder="-- Indikator als Berechnungsgrundlage wählen --"
+        [filterPlaceholder]="'ADMIN_SHARED.KEYWORD_FILTER' | translate"
+        [selectPlaceholder]="'ADMIN_SCRIPTS.INDICATORS.SELECT_PLACEHOLDER' | translate"
         [options]="indicatorStore.availableIndicators"
         (selectedItemChange)="onChangeIndicator($event)"
       ></app-filterable-select>
@@ -15,12 +15,12 @@
   <div class="row vertical-align">
     <div class="col-md-6 col-sm-6 col-12">
       <div class="form-group">
-        <label>ID des selektierten Indikators</label>
+        <label>{{ 'ADMIN_SCRIPTS.INDICATORS.SELECTED_ID_LABEL' | translate }}</label>
         <input
           type="text"
           class="form-control input-sm"
           disabled
-          placeholder="IndikatorenId"
+          [placeholder]="'ADMIN_SCRIPTS.INDICATOR_ID_PLACEHOLDER' | translate"
           [value]="selectedIndicator?.indicatorId || ''"
         />
         <div class="help-block with-errors"></div>
@@ -28,12 +28,12 @@
     </div>
     <div class="col-md-6 col-sm-6 col-12">
       <div class="form-group">
-        <label>Name des selektierten Indikators</label>
+        <label>{{ 'ADMIN_SCRIPTS.INDICATORS.SELECTED_NAME_LABEL' | translate }}</label>
         <input
           type="text"
           class="form-control input-sm"
           disabled
-          placeholder="IndikatorenName"
+          [placeholder]="'ADMIN_SCRIPTS.INDICATOR_NAME_PLACEHOLDER' | translate"
           [value]="selectedIndicator?.indicatorName || ''"
         />
         <div class="help-block with-errors"></div>
@@ -49,7 +49,7 @@
           [disabled]="!selectedIndicator"
           (click)="scriptHelperService.addBaseIndicator(selectedIndicator)"
         >
-          Hinzufügen
+          {{ 'ADMIN_SCRIPTS.ADD' | translate }}
         </button>
         <div class="help-block with-errors"></div>
       </div>
@@ -59,15 +59,15 @@
   <!-- Tabelle der definierten (Basis-)Indikatoren -->
   <div class="row vertical-align">
     <div class="col-md-12 col-sm-12 col-12">
-      <label>Übersicht der definierten (Basis-)Indikatoren</label>
+      <label>{{ 'ADMIN_SCRIPTS.INDICATORS.OVERVIEW_LABEL' | translate }}</label>
       <table class="table table-condensed">
         <thead>
           <tr>
-            <th>Editierfunktionen</th>
-            <th>ID des Indikators</th>
-            <th>Name des Indikators</th>
-            <th>Beschreibung</th>
-            <th>Einheit</th>
+            <th>{{ 'ADMIN_SHARED.EDIT_FUNCTIONS' | translate }}</th>
+            <th>{{ 'ADMIN_SCRIPTS.INDICATORS.INDICATOR_ID' | translate }}</th>
+            <th>{{ 'ADMIN_SCRIPTS.INDICATORS.INDICATOR_NAME' | translate }}</th>
+            <th>{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}</th>
+            <th>{{ 'ADMIN_SCRIPTS.INDICATORS.UNIT' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -79,7 +79,7 @@
                     class="btn btn-danger btn-sm"
                     type="button"
                     (click)="scriptHelperService.removeBaseIndicator(baseIndicator)"
-                    title="Eintrag löschen"
+                    [title]="'ADMIN_SCRIPTS.DELETE_ENTRY' | translate"
                   >
                     <i class="fas fa-trash"></i>
                   </button>

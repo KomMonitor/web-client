@@ -32,13 +32,18 @@
     display: flex;
     gap: 1em;
     align-items: center;
+    margin-bottom: 2em;
+
+    .slider {
+      margin-right: 1em;
+    }
 
     .selectedValue {
       font-weight: bold;
       font-size: 14px;
 
       input {
-        width: 80px;
+        width: 90px;
       }
     }
 

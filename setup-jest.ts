@@ -5,16 +5,16 @@
 
 // Define the global $localize used at runtime by ng-bootstrap components (e.g. ngb-toast),
 // matching the @angular/localize/init polyfill registered in angular.json for the app build.
-import "@angular/localize/init";
+import '@angular/localize/init';
 
 // Polyfill HTMLCanvasElement.getContext (jsdom has none). Needed by Leaflet,
 // ECharts and other canvas-based libs that components/services touch on init.
-import "jest-canvas-mock";
-import { TextEncoder, TextDecoder } from "util";
-import { deserialize, serialize } from "node:v8";
+import 'jest-canvas-mock';
+import { TextEncoder, TextDecoder } from 'util';
+import { deserialize, serialize } from 'node:v8';
 // fake-indexeddb/auto installs a global indexedDB implementation. Needed by
 // leaflet-screenshot-cache-helper.service (indexedDB.open in its constructor).
-import "fake-indexeddb/auto";
+import 'fake-indexeddb/auto';
 
 // jsdom lacks TextEncoder/TextDecoder; Node provides them via `util`. Required
 // by shpjs / leaflet-geosearch and other libs pulled in transitively.
@@ -24,7 +24,7 @@ Object.assign(globalThis, { TextEncoder, TextDecoder });
 // visible inside the sandbox). Polyfill via V8 structured clone, which preserves
 // Dates/Maps/Sets/TypedArrays (unlike a JSON round-trip). Used e.g. by
 // reporting.service to clone template configs.
-if (typeof (globalThis as { structuredClone?: unknown }).structuredClone !== "function") {
+if (typeof (globalThis as { structuredClone?: unknown }).structuredClone !== 'function') {
   (globalThis as { structuredClone?: unknown }).structuredClone = (value: unknown) =>
     deserialize(serialize(value));
 }
@@ -32,9 +32,9 @@ if (typeof (globalThis as { structuredClone?: unknown }).structuredClone !== "fu
 // DiagramHelperServiceService reads getComputedStyle(querySelector('#fontFamily-reference'))
 // in a field initializer; without the element, getComputedStyle(null) throws. Provide it
 // so the (ECharts-using) diagram services/components can be constructed in jsdom.
-if (!document.getElementById("fontFamily-reference")) {
-  const fontFamilyRef = document.createElement("div");
-  fontFamilyRef.id = "fontFamily-reference";
+if (!document.getElementById('fontFamily-reference')) {
+  const fontFamilyRef = document.createElement('div');
+  fontFamilyRef.id = 'fontFamily-reference';
   document.body.appendChild(fontFamilyRef);
 }
 
@@ -53,8 +53,8 @@ if (!document.getElementById("fontFamily-reference")) {
 window.__env = window.__env || {};
 Object.assign(window.__env, {
   // API URLs (baseUrlToKomMonitorDataAPI concatenates these)
-  apiUrl: "http://localhost:8085",
-  basePath: "/management",
+  apiUrl: 'http://localhost:8085',
+  basePath: '/management',
 
   // Map defaults
   initialLatitude: 51.5,
@@ -73,7 +73,7 @@ Object.assign(window.__env, {
   enabledGeoresourcesGeoservices: [],
 
   // Geocoder (GeocoderHelperService calls .split("nominatim") on this URL)
-  targetUrlToGeocoderService: "http://localhost/nominatim/",
+  targetUrlToGeocoderService: 'http://localhost/nominatim/',
 
   // Dropdown option arrays (some getters call .sort()/iterate)
   indicatorUnitOptions: [],
@@ -82,18 +82,20 @@ Object.assign(window.__env, {
   indicatorCreationTypeOptions: [],
   geodataSourceFormats: [],
   simplifyGeometriesOptions: [],
+  simplifyGeometriesParameterName: 'simplifyGeometries',
+  simplifyGeometries: 'medium',
 
   // Feature property names
-  FEATURE_ID_PROPERTY_NAME: "ID",
-  FEATURE_NAME_PROPERTY_NAME: "NAME",
-  VALID_START_DATE_PROPERTY_NAME: "validStartDate",
-  VALID_END_DATE_PROPERTY_NAME: "validEndDate",
+  FEATURE_ID_PROPERTY_NAME: 'ID',
+  FEATURE_NAME_PROPERTY_NAME: 'NAME',
+  VALID_START_DATE_PROPERTY_NAME: 'validStartDate',
+  VALID_END_DATE_PROPERTY_NAME: 'validEndDate',
 
   // Auth
   enableKeycloakSecurity: false,
 
   // Misc
-  localStoragePrefix: "kommonitor_test",
+  localStoragePrefix: 'kommonitor_test',
   enableDebug: false,
   filterConfig: {},
   filterModes: [],

@@ -1,17 +1,16 @@
 <app-admin-content-view
-  title="Web Client Steuerungselemente"
-  description="Anpassen der Steuerungselemente (u.a. Buttons, Menüs, Toolbars)"
+  [title]="'ADMIN_CONFIG.CONTROLS.TITLE' | translate"
+  [description]="'ADMIN_CONFIG.CONTROLS.DESCRIPTION' | translate"
   [contentTemplate]="content"
 >
 </app-admin-content-view>
 
 <ng-template #content>
-  <expandable-box title="Steuerungselemente Konfiguration" [isCollapsible]="false">
+  <expandable-box [title]="'ADMIN_CONFIG.CONTROLS.BOX_TITLE' | translate" [isCollapsible]="false">
     <p>
-      Nehmen Sie Anpassungen an den Steuerungselementen des Web-Clients vor und speichern sie diese.
-      Die Editierungen erfolgen direkt im JavaScript-Format. Dies speichert die Konfiguration im
-      <b>Config Storage Service</b> von KomMonitor, von dem die Daten beim Start der Anwendung
-      geladen werden. Setzen Sie die Werte daher sorgf&auml;ltig.
+      {{ 'ADMIN_CONFIG.CONTROLS.INTRO_PREFIX' | translate }}
+      <b>Config Storage Service</b>
+      {{ 'ADMIN_CONFIG.COMMON.INTRO_SUFFIX' | translate }}
     </p>
 
     <hr />
@@ -20,7 +19,7 @@
     <div class="row vertical-align">
       <div class="col-md-6 col-sm-6 col-12">
         <div class="form-group">
-          <label>Vorlage (Struktur und Standard-Einstellung)</label>
+          <label>{{ 'ADMIN_CONFIG.COMMON.TEMPLATE_LABEL' | translate }}</label>
           <br />
           <br />
           <div #templateCodeMirror id="templateCodeMirror" style="height: 450px"></div>
@@ -28,7 +27,7 @@
       </div>
       <div class="col-md-6 col-sm-6 col-12">
         <div class="form-group">
-          <label>derzeitige Konfiguration (aktuelle Wertbelegung)</label>
+          <label>{{ 'ADMIN_CONFIG.COMMON.CURRENT_LABEL' | translate }}</label>
           <br />
           <br />
           <div #currentCodeMirror id="currentCodeMirror" style="height: 450px"></div>
@@ -42,28 +41,26 @@
     <div class="row vertical-align">
       <div class="col-md-6 col-sm-6 col-12">
         <div class="form-group">
-          <label>Editierfenster der Steuerungselemente-Einstellungen</label>
+          <label>{{ 'ADMIN_CONFIG.CONTROLS.EDITOR_LABEL' | translate }}</label>
           <br />
           <br />
           <textarea #controlsConfigEditor id="controlsConfigEditor"></textarea>
         </div>
-        @if (configSettingInvalid) {
+        @if (configSettingInvalid()) {
           <div class="help-block with-errors">
-            Bitte beachten Sie, dass alle notwendigen Parameter gem&auml;&szlig; der obigen Vorlage
-            definiert werden m&uuml;ssen. Beachten Sie daher die vorgegebene JSON-Struktur. Der Text
-            wird auf Schl&uuml;sselw&ouml;rter gepr&uuml;ft und es wird sichergestellt, dass valides
-            JSON geparsed werden kann.
+            {{ 'ADMIN_CONFIG.COMMON.INVALID_HINT' | translate: { format: 'JSON' } }}
           </div>
         }
-        @if (missingRequiredParameters && missingRequiredParameters.length > 0) {
+        @if (missingRequiredParameters().length > 0) {
           <div class="help-block with-errors">
-            Fehlende Parameter: {{ missingRequiredParameters_string }}
+            {{ 'ADMIN_CONFIG.COMMON.MISSING_PARAMETERS' | translate }}
+            {{ missingRequiredParameters_string() }}
           </div>
         }
       </div>
       <div class="col-md-6 col-sm-6 col-12">
         <div class="form-group">
-          <label>Vorschaufenster (neue Wertbelegung)</label>
+          <label>{{ 'ADMIN_CONFIG.COMMON.PREVIEW_LABEL' | translate }}</label>
           <br />
           <br />
           <div #newCodeMirror id="newCodeMirror" style="height: 450px"></div>
@@ -77,10 +74,10 @@
           <button
             type="button"
             class="btn btn-success"
-            [disabled]="configSettingInvalid"
+            [disabled]="configSettingInvalid()"
             (click)="editControlsConfig()"
           >
-            Steuerungselemente-Konfiguration speichern
+            {{ 'ADMIN_CONFIG.CONTROLS.SAVE' | translate }}
           </button>
         </div>
       </div>

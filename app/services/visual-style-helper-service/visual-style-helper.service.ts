@@ -1,12 +1,18 @@
-import { colorbrewer } from './../../components/ngComponents/userInterface/kommonitorClassification/colors';
 import { Injectable, inject } from '@angular/core';
+import {
+  CategoricalClassificationItem,
+  resolveCategoricalColor,
+} from 'components/ngComponents/models/classification.models';
+import { IndicatorsDataset } from 'components/ngComponents/models/indicators.models';
+import L from 'leaflet';
+import 'leaflet.pattern';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
+import { ClassificationStateService } from 'services/classification-state-service/classification-state.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import classyBrew from '../../../customizedExternalLibs/classyBrew.js';
-import L from 'leaflet';
-import 'leaflet.pattern';
-import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { colorbrewer } from './../../components/ngComponents/userInterface/kommonitorClassification/colors';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +22,7 @@ export class VisualStyleHelperServiceNew {
   private envConfigService = inject(EnvConfigService);
   private indicatorValueService = inject(IndicatorValueService);
   private selectionState = inject(SelectionStateService);
+  private classificationState = inject(ClassificationStateService);
 
   // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
   private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
@@ -27,48 +34,11 @@ export class VisualStyleHelperServiceNew {
 
   colorbrewer = colorbrewer;
 
-  defaultBrew: any = undefined;
-  measureOfValueBrew: any = undefined;
-  dynamicBrew: any = undefined;
-  manualBrew: any = undefined;
-
-  //allowesValues: equal_interval, quantile, jenks
-  classifyMethods = [
-    {
-      name: 'Jenks',
-      value: 'jenks',
-    },
-    {
-      name: 'Gleiches Intervall',
-      value: 'equal_interval',
-    },
-    {
-      name: 'Quantile',
-      value: 'quantile',
-    },
-  ];
-
-  manualMOVBreaks: any = undefined;
-  regionalDefaultMOVBreaks: any;
-  regionalDefaultBreaks: any;
-  measureOfValueBrewArray: any;
-  dynamicIncreaseBrew: any;
-  dynamicDecreaseBrew: any;
-  //noDataFillPattern:any;
-
-  greaterThanValues: any = [];
-  lesserThanValues: any = [];
-  positiveValues: any = [];
-  negativeValues: any = [];
-
-  defaultBrew_backup;
-  measureOfValueBrew_backup;
-  dynamicBrew_backup;
-  manualBrew_backup;
-
-  classifyMethod = this.envConfigService.defaultClassifyMethod || 'jenks';
-
-  isCustomComputation = false;
+  // transient work arrays of the brew setup methods
+  private greaterThanValues: any = [];
+  private lesserThanValues: any = [];
+  private positiveValues: any = [];
+  private negativeValues: any = [];
 
   private numberOfDecimals = this.envConfigService.numberOfDecimals;
   private defaultColorForFilteredValues = this.envConfigService.defaultColorForFilteredValues;
@@ -99,7 +69,6 @@ export class VisualStyleHelperServiceNew {
     this.envConfigService.defaultFillOpacityForNoDataValues;
 
   private indicatorTransparency = 1 - this.envConfigService.defaultFillOpacity;
-  currentIndicatorOpacity = this.envConfigService.defaultFillOpacity;
 
   private defaultColorForZeroValues = this.envConfigService.defaultColorForZeroValues;
   private defaultColorForOutliers_high = this.envConfigService.defaultColorForOutliers_high;
@@ -146,9 +115,6 @@ export class VisualStyleHelperServiceNew {
   noDataFillPattern = new L.Pattern({ width: 8, height: 8 });
   //noDataFillPattern = [];
   //noDataFillPattern.addShape(shape);
-
-  outliers_high = undefined;
-  outliers_low = undefined;
 
   outlierStyle_high = {
     weight: 1,
@@ -197,101 +163,9 @@ export class VisualStyleHelperServiceNew {
     fillColor: this.envConfigService.defaultColorForFilteredValues,
   };
 
-  featuresPerColorMap = new Map();
-  featuresPerNoData = 0;
-  featuresPerZero = 0;
-  featuresPerOutlierHigh = 0;
-  featuresPerOutlierLow = 0;
-
-  dynamicBrewBreaks: any = [];
-  numClasses;
-  /* 
-  setOpacity(opacity) {
-    this.ajskommonitorVisualStyleHelperServiceProvider.setOpacity(opacity);
-  }
-
-  setupMeasureOfValueBrew(
-    currentGeoJSONOfCurrentLayer, 
-    indicatorPropertyName, 
-    defaultColorBrewerPaletteForGtMovValues, 
-    defaultColorBrewerPaletteForLtMovValues, 
-    classifyMethod, 
-    measureOfValue,
-    manualMOVBreaks,
-    regionalDefaultMOVBreaks,
-    numClasses
-  ) {
-    return this.ajskommonitorVisualStyleHelperServiceProvider.setupMeasureOfValueBrew(
-      currentGeoJSONOfCurrentLayer, 
-      indicatorPropertyName, 
-      defaultColorBrewerPaletteForGtMovValues, 
-      defaultColorBrewerPaletteForLtMovValues, 
-      classifyMethod, 
-      measureOfValue,
-      manualMOVBreaks,
-      regionalDefaultMOVBreaks,
-      numClasses
-    );
-  }
-
-  setupDynamicIndicatorBrew(
-    geoJSON, 
-    indicatorPropertyName, 
-    defaultColorBrewerPaletteForBalanceIncreasingValues, 
-    defaultColorBrewerPaletteForBalanceDecreasingValues, 
-    classifyMethod,
-    numClasses,
-    val) {
-      return this.ajskommonitorVisualStyleHelperServiceProvider.setupDynamicIndicatorBrew(
-        geoJSON, 
-        indicatorPropertyName, 
-        defaultColorBrewerPaletteForBalanceIncreasingValues, 
-        defaultColorBrewerPaletteForBalanceDecreasingValues, 
-        classifyMethod,
-        numClasses,
-        val);
-  }
-
-  setupManualBrew(numClasses, colorBrewerSchemeName, regionalDefaultBreaks) {
-    return this.ajskommonitorVisualStyleHelperServiceProvider.setupManualBrew(numClasses, colorBrewerSchemeName, regionalDefaultBreaks);
-  }
-
-  setupDefaultBrew(geoJSON, indicatorPropertyName, numClasses, colorBrewerSchemeName, classifyMethod) {
-    return this.ajskommonitorVisualStyleHelperServiceProvider.setupDefaultBrew(geoJSON, indicatorPropertyName, numClasses, colorBrewerSchemeName, classifyMethod);
-  }
-
-  styleMeasureOfValue(feature, gtMeasureOfValueBrew, ltMeasureOfValueBrew, propertyName, useTransparencyOnIndicator, bolVal) {
-    return this.ajskommonitorVisualStyleHelperServiceProvider.styleMeasureOfValue(feature, gtMeasureOfValueBrew, ltMeasureOfValueBrew, propertyName, useTransparencyOnIndicator, bolVal);
-  }
-
-  styleDynamicIndicator(feature, dynamicIncreaseBrew, dynamicDecreaseBrew, propertyName, useTransparencyOnIndicator, bolVal) {
-    return this.ajskommonitorVisualStyleHelperServiceProvider.styleDynamicIndicator(feature, dynamicIncreaseBrew, dynamicDecreaseBrew, propertyName, useTransparencyOnIndicator, bolVal);
-  }
-
-  styleDefault(feature, manualBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, propertyName, useTransparencyOnIndicator, datasetContainsNegativeValues, bolVal) {
-    return this.ajskommonitorVisualStyleHelperServiceProvider.styleDefault(feature, manualBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, propertyName, useTransparencyOnIndicator, datasetContainsNegativeValues, bolVal);
-  } */
-
-  //
-  resetFeaturesPerColorObjects() {
-    this.featuresPerColorMap = new Map();
-    this.featuresPerNoData = 0;
-    this.featuresPerZero = 0;
-    this.featuresPerOutlierLow = 0;
-    this.featuresPerOutlierHigh = 0;
-  }
-
-  incrementFeaturesPerColor(color) {
-    if (this.featuresPerColorMap.has(color)) {
-      this.featuresPerColorMap.set(color, this.featuresPerColorMap.get(color) + 1);
-    } else {
-      this.featuresPerColorMap.set(color, 1);
-    }
-  }
-
   getFillColorForZero(incrementFeatures) {
     if (incrementFeatures) {
-      this.featuresPerZero++;
+      this.classificationState.featuresPerZero++;
     }
     return this.defaultColorForZeroValues;
   }
@@ -323,9 +197,9 @@ export class VisualStyleHelperServiceNew {
     colorCode,
     classifyMethod,
     forceProvidedIndicator = false,
-    indicator = false
+    indicator: IndicatorsDataset | false = false
   ) {
-    this.resetFeaturesPerColorObjects();
+    this.classificationState.resetFeatureCounters();
 
     let values = [];
 
@@ -340,13 +214,13 @@ export class VisualStyleHelperServiceNew {
       values = this.setupDefaultBrewValues_singleTimestamp(geoJSON, propertyName, values);
     }
 
-    this.defaultBrew = this.setupClassyBrew_usingFeatureCount(
+    this.classificationState.defaultBrew = this.setupClassyBrew_usingFeatureCount(
       values,
       colorCode,
       classifyMethod,
       numClasses
     );
-    return this.defaultBrew;
+    return this.classificationState.defaultBrew;
   }
 
   setupDefaultBrewValues_singleTimestamp(geoJSON, propertyName, values) {
@@ -395,7 +269,7 @@ export class VisualStyleHelperServiceNew {
   }
 
   setupManualBrew(numClasses, colorCode, breaks) {
-    this.resetFeaturesPerColorObjects();
+    this.classificationState.resetFeatureCounters();
 
     const colorBrewerInstance = this.createNewClassyBrewInstance();
     numClasses = breaks.length - 1;
@@ -453,7 +327,7 @@ export class VisualStyleHelperServiceNew {
     --> treat all other cases equally to measureOfValue
     */
 
-    this.resetFeaturesPerColorObjects();
+    this.classificationState.resetFeatureCounters();
 
     this.greaterThanValues = [];
     this.lesserThanValues = [];
@@ -519,8 +393,8 @@ export class VisualStyleHelperServiceNew {
       }
     }
 
-    this.measureOfValueBrew = [gtMeasureOfValueBrew, ltMeasureOfValueBrew];
-    return this.measureOfValueBrew;
+    this.classificationState.measureOfValueBrew = [gtMeasureOfValueBrew, ltMeasureOfValueBrew];
+    return this.classificationState.measureOfValueBrew;
   }
 
   setupMovBrewValues_singleTimestamp(geoJSON, propertyName, measureOfValue) {
@@ -710,7 +584,7 @@ export class VisualStyleHelperServiceNew {
     --> treat all other cases equally to measureOfValue
     */
 
-    this.resetFeaturesPerColorObjects();
+    this.classificationState.resetFeatureCounters();
 
     this.positiveValues = [];
     this.negativeValues = [];
@@ -753,9 +627,9 @@ export class VisualStyleHelperServiceNew {
       dynamicDecreaseBrew.colors = dynamicDecreaseBrew.colors.reverse();
     }
 
-    this.dynamicBrew = [dynamicIncreaseBrew, dynamicDecreaseBrew];
+    this.classificationState.dynamicBrew = [dynamicIncreaseBrew, dynamicDecreaseBrew];
 
-    return this.dynamicBrew;
+    return this.classificationState.dynamicBrew;
   }
 
   setupDynamicBrewValues_wholeTimeseries(geoJSON) {
@@ -834,7 +708,7 @@ export class VisualStyleHelperServiceNew {
 
   styleNoData(feature, incrementFeatures) {
     if (incrementFeatures) {
-      this.featuresPerNoData++;
+      this.classificationState.featuresPerNoData++;
     }
     return this.noDataStyle;
   }
@@ -845,12 +719,12 @@ export class VisualStyleHelperServiceNew {
       feature.properties[this.outlierPropertyName] === this.outlierPropertyValue_low_extreme
     ) {
       if (incrementFeatures) {
-        this.featuresPerOutlierLow++;
+        this.classificationState.featuresPerOutlierLow++;
       }
       return this.outlierStyle_low;
     } else {
       if (incrementFeatures) {
-        this.featuresPerOutlierHigh++;
+        this.classificationState.featuresPerOutlierHigh++;
       }
       return this.outlierStyle_high;
     }
@@ -863,7 +737,7 @@ export class VisualStyleHelperServiceNew {
   setOpacity(opacity) {
     opacity = Number(opacity);
     this.indicatorTransparency = Number((1 - opacity).toFixed(this.numberOfDecimals));
-    this.currentIndicatorOpacity = opacity;
+    this.classificationState.currentIndicatorOpacity = opacity;
 
     this.defaultFillOpacity = opacity;
     this.defaultFillOpacityForOutliers_low = opacity;
@@ -873,7 +747,25 @@ export class VisualStyleHelperServiceNew {
     this.defaultFillOpacityForFilteredFeatures = opacity;
   }
 
-  // style function to return
+  /**
+   * Builds the standard Leaflet path style shared by the classified-feature
+   * styles. `opacity` defaults to `fillOpacity` to preserve styleDefault's
+   * original behavior; callers wanting a fixed border opacity pass it explicitly.
+   */
+  private buildIndicatorStyle(fillColor, fillOpacity, opacity = fillOpacity) {
+    return {
+      weight: 1,
+      opacity,
+      color: this.selectionState.selectedSpatialUnitIsRaster()
+        ? undefined
+        : this.defaultBorderColor,
+      dashArray: '',
+      fillOpacity,
+      fillColor,
+      fillPattern: undefined,
+    };
+  }
+
   styleDefault(
     feature,
     defaultBrew,
@@ -897,139 +789,96 @@ export class VisualStyleHelperServiceNew {
       return this.styleOutlier(feature, incrementFeatures);
     }
 
-    let fillOpacity = 1;
-    if (useTransparencyOnIndicator) {
-      fillOpacity = this.defaultFillOpacity;
-    }
+    let fillOpacity = useTransparencyOnIndicator ? this.defaultFillOpacity : 1;
+    const value = this.getIndicatorValue_asNumber(feature.properties[propertyName]);
 
     let fillColor;
-    if (
-      this.envConfigService.classifyZeroSeparately &&
-      this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
-    ) {
+    if (this.envConfigService.classifyZeroSeparately && value == 0) {
       fillColor = this.getFillColorForZero(incrementFeatures);
       if (useTransparencyOnIndicator) {
         fillOpacity = this.defaultFillOpacityForZeroFeatures;
       }
     } else {
-      if (datasetContainsNegativeValues) {
-        if (this.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0) {
-          if (
-            this.envConfigService.classifyZeroSeparately &&
-            this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
-          ) {
-            fillColor = this.getFillColorForZero(incrementFeatures);
-            if (useTransparencyOnIndicator) {
-              fillOpacity = this.defaultFillOpacityForZeroFeatures;
-            }
-          } else {
-            fillColor = this.findColorInRange(
-              feature,
-              propertyName,
-              dynamicIncreaseBrew,
-              incrementFeatures
-            );
-          }
-
-          return {
-            weight: 1,
-            opacity: fillOpacity,
-            color: this.selectionState.selectedSpatialUnitIsRaster()
-              ? undefined
-              : this.defaultBorderColor,
-            dashArray: '',
-            fillOpacity: fillOpacity,
-            fillColor: fillColor,
-            fillPattern: undefined,
-          };
-        } else {
-          if (
-            this.envConfigService.classifyZeroSeparately &&
-            this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
-          ) {
-            fillColor = this.getFillColorForZero(incrementFeatures);
-            if (useTransparencyOnIndicator) {
-              fillOpacity = this.defaultFillOpacityForZeroFeatures;
-            }
-          } else {
-            // invert colors, so that lowest values will become strong colored!
-            fillColor = this.findColorInRange(
-              feature,
-              propertyName,
-              dynamicDecreaseBrew,
-              incrementFeatures
-            );
-          }
-
-          return {
-            weight: 1,
-            opacity: fillOpacity,
-            color: this.selectionState.selectedSpatialUnitIsRaster()
-              ? undefined
-              : this.defaultBorderColor,
-            dashArray: '',
-            fillOpacity: fillOpacity,
-            fillColor: fillColor,
-            fillPattern: undefined,
-          };
-        }
-      } else {
-        fillColor = this.findColorInRange(feature, propertyName, defaultBrew, incrementFeatures);
-      }
+      // With negative values present, positives and negatives use separate
+      // brews (the decrease brew has its colors inverted at setup, so the
+      // lowest values become strong-colored); otherwise the single default brew.
+      const brew = datasetContainsNegativeValues
+        ? value >= 0
+          ? dynamicIncreaseBrew
+          : dynamicDecreaseBrew
+        : defaultBrew;
+      fillColor = this.findColorInRange(feature, propertyName, brew, incrementFeatures);
     }
 
-    return {
-      weight: 1,
-      opacity: fillOpacity,
-      color: this.selectionState.selectedSpatialUnitIsRaster()
-        ? undefined
-        : this.defaultBorderColor,
-      dashArray: '',
-      fillOpacity: fillOpacity,
-      fillColor: fillColor,
-      fillPattern: undefined,
-    };
+    return this.buildIndicatorStyle(fillColor, fillOpacity);
   }
 
-  findColorInRange(feature, propertyName, colorBrewInstance, incrementFeatures) {
-    let color;
-
-    for (let index = 0; index < colorBrewInstance.breaks.length; index++) {
-      if (
-        this.getIndicatorValue_asNumber(feature.properties[propertyName]) ==
-        this.getIndicatorValue_asNumber(colorBrewInstance.breaks[index])
-      ) {
-        if (index < colorBrewInstance.breaks.length - 1) {
-          // min value
-          color = colorBrewInstance.colors[index];
-          break;
-        } else {
-          //max value
-          if (colorBrewInstance.colors[index]) {
-            color = colorBrewInstance.colors[index];
-          } else {
-            color = colorBrewInstance.colors[index - 1];
-          }
-          break;
-        }
-      } else {
-        if (
-          this.getIndicatorValue_asNumber(feature.properties[propertyName]) <
-          this.getIndicatorValue_asNumber(colorBrewInstance.breaks[index + 1])
-        ) {
-          if (colorBrewInstance.colors && colorBrewInstance.colors[index]) {
-            color = colorBrewInstance.colors[index];
-          }
-          break;
-        }
-      }
+  /**
+   * Styles a feature of a qualitative (categorical) indicator: its fill color is
+   * the color of the category whose `categoricalValue` matches the feature's raw
+   * property value. Values matching no category fall into the shared "other"
+   * bucket ({@link CATEGORICAL_OTHER_COLOR}). NoData values keep the standard
+   * NoData style. In every case the resulting color is counted into
+   * `featuresPerColorMap`, which the legend reads for the per-category count.
+   *
+   * Unlike the numeric styles this does not go through `resolveClassColor`
+   * (which requires a numeric value) — categories are matched as strings.
+   */
+  styleCategorical(
+    feature,
+    categoricalData: CategoricalClassificationItem[],
+    propertyName,
+    useTransparencyOnIndicator,
+    incrementFeatures
+  ) {
+    // check if feature is NoData
+    if (this.indicatorValueService.indicatorValueIsNoData(feature.properties[propertyName])) {
+      return this.styleNoData(feature, incrementFeatures);
     }
 
+    const fillOpacity = useTransparencyOnIndicator ? this.defaultFillOpacity : 1;
+    const color = resolveCategoricalColor(feature.properties[propertyName], categoricalData);
+
     if (incrementFeatures) {
-      this.incrementFeaturesPerColor(color);
+      this.classificationState.incrementFeaturesPerColor(color);
+    }
+
+    return this.buildIndicatorStyle(color, fillOpacity);
+  }
+
+  private findColorInRange(feature, propertyName, colorBrewInstance, incrementFeatures) {
+    const value = this.getIndicatorValue_asNumber(feature.properties[propertyName]);
+    const color = this.resolveClassColor(value, colorBrewInstance);
+
+    if (incrementFeatures) {
+      this.classificationState.incrementFeaturesPerColor(color);
     }
 
     return color;
+  }
+
+  private resolveClassColor(value, colorBrewInstance) {
+    const colors = colorBrewInstance?.colors;
+    const breaks = colorBrewInstance?.breaks;
+    if (!colors?.length || !breaks?.length || typeof value !== 'number') {
+      return undefined;
+    }
+
+    const lastColorIndex = colors.length - 1;
+
+    // Below the smallest break -> lowest class.
+    if (value < this.getIndicatorValue_asNumber(breaks[0])) {
+      return colors[0];
+    }
+
+    // First half-open interval [breaks[i], breaks[i + 1]) that contains value.
+    for (let index = 0; index < breaks.length - 1; index++) {
+      if (value < this.getIndicatorValue_asNumber(breaks[index + 1])) {
+        return colors[Math.min(index, lastColorIndex)];
+      }
+    }
+    // At or above the largest break -> highest class.
+    return colors[lastColorIndex];
   }
 
   // this.findColorInRange_invertedColorGradient (feature, propertyName, colorBrewInstance){
@@ -1087,75 +936,27 @@ export class VisualStyleHelperServiceNew {
       return this.styleOutlier(feature, incrementFeatures);
     }
 
-    let fillOpacity = 1;
-    if (useTransparencyOnIndicator) {
-      fillOpacity = this.defaultFillOpacity;
-    }
+    let fillOpacity = useTransparencyOnIndicator ? this.defaultFillOpacity : 1;
+    const value = this.getIndicatorValue_asNumber(feature.properties[propertyName]);
 
     let fillColor;
-    if (
-      this.getIndicatorValue_asNumber(feature.properties[propertyName]) >=
-      this.chartDisplayState.measureOfValue
-    ) {
-      if (
-        this.envConfigService.classifyZeroSeparately &&
-        this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
-      ) {
-        fillColor = this.getFillColorForZero(incrementFeatures);
-        if (useTransparencyOnIndicator) {
-          fillOpacity = this.defaultFillOpacityForZeroFeatures;
-        }
-      } else {
-        fillColor = this.findColorInRange(
-          feature,
-          propertyName,
-          gtMeasureOfValueBrew,
-          incrementFeatures
-        );
+    if (this.envConfigService.classifyZeroSeparately && value == 0) {
+      fillColor = this.getFillColorForZero(incrementFeatures);
+      if (useTransparencyOnIndicator) {
+        fillOpacity = this.defaultFillOpacityForZeroFeatures;
       }
-
-      return {
-        weight: 1,
-        opacity: 1,
-        color: this.selectionState.selectedSpatialUnitIsRaster()
-          ? undefined
-          : this.defaultBorderColor,
-        dashArray: '',
-        fillOpacity: fillOpacity,
-        fillColor: fillColor,
-        fillPattern: undefined,
-      };
     } else {
-      if (
-        this.envConfigService.classifyZeroSeparately &&
-        this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
-      ) {
-        fillColor = this.getFillColorForZero(incrementFeatures);
-        if (useTransparencyOnIndicator) {
-          fillOpacity = this.defaultFillOpacityForZeroFeatures;
-        }
-      } else {
-        // invert colors, so that lowest values will become strong colored!
-        fillColor = this.findColorInRange(
-          feature,
-          propertyName,
-          ltMeasureOfValueBrew,
-          incrementFeatures
-        );
-      }
-
-      return {
-        weight: 1,
-        opacity: 1,
-        color: this.selectionState.selectedSpatialUnitIsRaster()
-          ? undefined
-          : this.defaultBorderColor,
-        dashArray: '',
-        fillOpacity: fillOpacity,
-        fillColor: fillColor,
-        fillPattern: undefined,
-      };
+      // At/above the measure of value uses the "greater-than" brew; below it the
+      // "lesser-than" brew (its colors inverted at setup, so the lowest values
+      // become strong-colored).
+      const brew =
+        value >= this.chartDisplayState.measureOfValue
+          ? gtMeasureOfValueBrew
+          : ltMeasureOfValueBrew;
+      fillColor = this.findColorInRange(feature, propertyName, brew, incrementFeatures);
     }
+
+    return this.buildIndicatorStyle(fillColor, fillOpacity, 1);
   }
 
   styleDynamicIndicator(
@@ -1179,87 +980,23 @@ export class VisualStyleHelperServiceNew {
       return this.styleOutlier(feature, incrementFeatures);
     }
 
-    let fillOpacity = 1;
-    if (useTransparencyOnIndicator) {
-      fillOpacity = this.defaultFillOpacity;
-    }
+    let fillOpacity = useTransparencyOnIndicator ? this.defaultFillOpacity : 1;
+    const value = this.getIndicatorValue_asNumber(feature.properties[propertyName]);
 
     let fillColor;
-    if (this.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0) {
-      if (
-        this.envConfigService.classifyZeroSeparately &&
-        this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
-      ) {
-        fillColor = this.getFillColorForZero(incrementFeatures);
-        if (useTransparencyOnIndicator) {
-          fillOpacity = this.defaultFillOpacityForZeroFeatures;
-        }
-      } else {
-        fillColor = this.findColorInRange(
-          feature,
-          propertyName,
-          dynamicIncreaseBrew,
-          incrementFeatures
-        );
+    if (this.envConfigService.classifyZeroSeparately && value == 0) {
+      fillColor = this.getFillColorForZero(incrementFeatures);
+      if (useTransparencyOnIndicator) {
+        fillOpacity = this.defaultFillOpacityForZeroFeatures;
       }
-
-      return {
-        weight: 1,
-        opacity: 1,
-        color: this.selectionState.selectedSpatialUnitIsRaster()
-          ? undefined
-          : this.defaultBorderColor,
-        dashArray: '',
-        fillOpacity: fillOpacity,
-        fillColor: fillColor,
-        fillPattern: undefined,
-      };
     } else {
-      if (
-        this.envConfigService.classifyZeroSeparately &&
-        this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
-      ) {
-        fillColor = this.getFillColorForZero(incrementFeatures);
-        if (useTransparencyOnIndicator) {
-          fillOpacity = this.defaultFillOpacityForZeroFeatures;
-        }
-      } else {
-        // invert colors, so that lowest values will become strong colored!
-        fillColor = this.findColorInRange(
-          feature,
-          propertyName,
-          dynamicDecreaseBrew,
-          incrementFeatures
-        );
-      }
-
-      return {
-        weight: 1,
-        opacity: 1,
-        color: this.selectionState.selectedSpatialUnitIsRaster()
-          ? undefined
-          : this.defaultBorderColor,
-        dashArray: '',
-        fillOpacity: fillOpacity,
-        fillColor: fillColor,
-        fillPattern: undefined,
-      };
+      // Non-negative values use the increase brew; negative values the decrease
+      // brew (its colors inverted at setup, so the lowest values become
+      // strong-colored).
+      const brew = value >= 0 ? dynamicIncreaseBrew : dynamicDecreaseBrew;
+      fillColor = this.findColorInRange(feature, propertyName, brew, incrementFeatures);
     }
-  }
 
-  backupCurrentBrewObjects_forMainMapIndicator() {
-    // backup all current brew objects
-    this.defaultBrew_backup = jQuery.extend(true, {}, this.defaultBrew);
-    this.measureOfValueBrew_backup = jQuery.extend(true, {}, this.measureOfValueBrew);
-    this.dynamicBrew_backup = jQuery.extend(true, {}, this.dynamicBrew);
-    this.manualBrew_backup = jQuery.extend(true, {}, this.manualBrew);
-  }
-
-  resetCurrentBrewObjects_forMainMapIndicator() {
-    // backup all current brew objects
-    this.defaultBrew = jQuery.extend(true, {}, this.defaultBrew_backup);
-    this.measureOfValueBrew = jQuery.extend(true, {}, this.measureOfValueBrew_backup);
-    this.dynamicBrew = jQuery.extend(true, {}, this.dynamicBrew_backup);
-    this.manualBrew = jQuery.extend(true, {}, this.manualBrew_backup);
+    return this.buildIndicatorStyle(fillColor, fillOpacity, 1);
   }
 }

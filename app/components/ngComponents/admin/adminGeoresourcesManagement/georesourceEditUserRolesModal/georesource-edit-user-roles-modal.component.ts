@@ -1,52 +1,66 @@
-import { Component, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
-import { Subscription } from 'rxjs';
-import { AgGridAngular } from 'ag-grid-angular';
-import {
-  GridOptions,
-  GridApi,
-  ColumnApi,
-  GridReadyEvent,
-  FirstDataRenderedEvent,
-  ColumnResizedEvent,
-} from 'ag-grid-community';
-import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
+import { Subscription, firstValueFrom } from 'rxjs';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import { getErrorMessage } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.util';
+import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
 import { FormsModule } from '@angular/forms';
-import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
+import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
+import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManagementPanel/owner-organization-select.component';
+import { TranslateModule } from '@ngx-translate/core';
 
-declare const __env: any;
-
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-georesource-edit-user-roles-modal',
   templateUrl: './georesource-edit-user-roles-modal.component.html',
   styleUrls: ['./georesource-edit-user-roles-modal.component.scss'],
-  imports: [FormsModule, AgGridAngular, StepperComponent],
+  imports: [
+    FormsModule,
+    StepperComponent,
+    RoleManagementGridComponent,
+    OwnerOrganizationSelectComponent,
+    TranslateModule,
+  ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy {
   activeModal = inject(NgbActiveModal);
-  kommonitorDataExchangeService = inject<any>('kommonitorDataExchangeService' as any);
-  private roleManagementHelper = inject(RoleManagementDataGridHelperService);
+  protected envConfigService = inject(EnvConfigService);
   private broadcastService = inject(BroadcastService);
+  private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
   private http = inject(HttpClient);
 
-  @ViewChild('roleManagementTable', { static: true }) roleManagementTable!: AgGridAngular;
+  /** Emitted after a successful permissions/ownership update so the parent refreshes its table. */
+  @Output() refreshRequested = new EventEmitter<GeoresourceRefreshRequest>();
+
+  @ViewChild(RoleManagementGridComponent) roleGrid?: RoleManagementGridComponent;
 
   // Multi-step form
-  currentStep = 1;
-  totalSteps = 2;
-  steps: StepperStep[] = [{ label: 'Zugriffsschutz' }, { label: 'Eigentümerschaft' }];
+  readonly stepper = new WizardStepper([
+    { key: 'roles', label: 'ADMIN_SHARED_UI.STEP_LABELS.ACCESS_PROTECTION' },
+    { key: 'ownership', label: 'ADMIN_SHARED_UI.STEP_LABELS.OWNERSHIP' },
+  ]);
 
-  // Form data
-  loadingData = false;
-  errorMessage = '';
-  successMessage = '';
+  // Signal: toggled across await boundaries (OnPush).
+  loadingData = signal(false);
 
   // Current dataset being edited
   private _currentGeoresourceDataset: any;
@@ -56,458 +70,166 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
   }
 
   set currentGeoresourceDataset(value: any) {
-    console.log('Setting currentGeoresourceDataset:', value);
     this._currentGeoresourceDataset = value;
     if (value) {
-      setTimeout(() => {
-        this.resetGeoresourceEditUserRolesForm();
-      }, 100);
+      this.resetGeoresourceEditUserRolesForm();
     }
   }
 
-  // Role management
-  roleManagementTableOptions: GridOptions = {};
-  private gridApi!: GridApi;
-  private columnApi!: ColumnApi;
+  /** Target owner selected in step 2; empty keeps the current owner. */
+  ownerOrganization: string = '';
 
-  // Form fields
-  activeRolesOnly = true;
-  permissions: any[] = [];
-  resourcesCreatorRights: any[] = [];
-  ownerOrgFilter = '';
-  ownerOrganization: any;
-
-  // Messages
-  successMessagePart = '';
-  errorMessagePart = '';
-
-  // Subscriptions
   private subscriptions: Subscription[] = [];
 
-  constructor() {
-    console.log('GeoresourceEditUserRolesModalComponent constructor initialized');
-  }
-
   ngOnInit(): void {
-    console.log('GeoresourceEditUserRolesModalComponent ngOnInit');
-    console.log('kommonitorDataExchangeService:', this.kommonitorDataExchangeService);
-    console.log('accessControl:', this.kommonitorDataExchangeService?.accessControl);
-
-    this.setupEventListeners();
-    this.prepareCreatorList();
+    // Rebuild the grid when the available roles changed elsewhere (role admin area)
+    const broadcastSubscription = this.broadcastService.currentBroadcastMsg.subscribe(
+      (broadcastMsg) => {
+        if (broadcastMsg?.msg === BroadcastMessage.AvailableRolesUpdate) {
+          this.roleGrid?.reset();
+        }
+      }
+    );
+    this.subscriptions.push(broadcastSubscription);
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
-  private setupEventListeners(): void {
-    // Setup broadcast listeners
-    const broadcastSubscription = this.broadcastService.currentBroadcastMsg.subscribe(
-      (broadcastMsg) => {
-        if (broadcastMsg) {
-          if (broadcastMsg.msg === 'onEditGeoresourcesUserRoles') {
-            this.onEditGeoresourcesUserRoles(broadcastMsg.values);
-          } else if (broadcastMsg.msg === BroadcastMessage.AvailableRolesUpdate) {
-            this.refreshRoleManagementTable();
-          }
-        }
-      }
-    );
-
-    this.subscriptions.push(broadcastSubscription);
-  }
-
-  onEditGeoresourcesUserRoles(georesourceDataset: any): void {
-    this.currentGeoresourceDataset = georesourceDataset;
-    this.prepareCreatorList();
-    this.resetGeoresourceEditUserRolesForm();
-  }
-
-  prepareCreatorList(): void {
-    if (this.kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.length > 0) {
-      const creatorRights: string[] = [];
-      const creatorRightsChildren: string[] = [];
-
-      this.kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.forEach(
-        (roles: string) => {
-          const key = roles.split('.')[0];
-          const role = roles.split('.')[1];
-
-          // case unit-resources-creator
-          if (role === 'unit-resources-creator' && !this.resourcesCreatorRights.includes(key)) {
-            creatorRights.push(key);
-          }
-
-          // case client-resources-creator, gather unit-ids first, then fetch all unit-data
-          if (role === 'client-resources-creator' && !creatorRightsChildren.includes(key)) {
-            creatorRightsChildren.push(key);
-          }
-        }
-      );
-
-      // gather all children
-      this.gatherCreatorRightsChildren(creatorRights, creatorRightsChildren);
-
-      this.resourcesCreatorRights = this.kommonitorDataExchangeService.accessControl.filter(
-        (elem: any) => creatorRights.includes(elem.name)
-      );
-    }
-  }
-
-  private gatherCreatorRightsChildren(
-    creatorRights: string[],
-    creatorRightsChildren: string[]
-  ): void {
-    if (creatorRightsChildren.length > 0) {
-      this.kommonitorDataExchangeService.accessControl
-        .filter((elem: any) => creatorRightsChildren.includes(elem.name))
-        .flatMap((res: any) => res.children)
-        .forEach((child: any) => {
-          this.kommonitorDataExchangeService.accessControl
-            .filter((elem: any) => elem.organizationalUnitId === child)
-            .forEach((childData: any) => {
-              creatorRights.push(childData.name);
-              this.gatherCreatorRightsChildren(creatorRights, [childData.name]);
-            });
-        });
-    }
-  }
-
-  refreshRoleManagementTable(): void {
-    console.log('refreshRoleManagementTable called');
-    console.log('currentGeoresourceDataset:', this.currentGeoresourceDataset);
-
-    this.permissions = this.currentGeoresourceDataset
-      ? this.currentGeoresourceDataset.permissions
-      : [];
-    console.log('permissions:', this.permissions);
-
-    // set datasetOwner to disable checkboxes for owned datasets in permissions-table
-    if (this.kommonitorDataExchangeService.accessControl) {
-      this.kommonitorDataExchangeService.accessControl.forEach((item: any) => {
-        if (this.currentGeoresourceDataset) {
-          if (item.organizationalUnitId === this.currentGeoresourceDataset.ownerId) {
-            item.datasetOwner = true;
-          } else {
-            item.datasetOwner = false;
-          }
-        }
-      });
-    }
-
-    if (this.permissions.length === 0) {
-      this.activeRolesOnly = false;
-    }
-
-    let access = this.kommonitorDataExchangeService.accessControl || [];
-    console.log('accessControl before filter:', access);
-
-    if (this.permissions.length > 0 && this.activeRolesOnly) {
-      access = this.kommonitorDataExchangeService.accessControl.filter((unit: any) => {
-        return (
-          unit.permissions.filter((unitPermission: any) =>
-            this.permissions.includes(unitPermission.permissionId)
-          ).length > 0
-        );
-      });
-    }
-
-    console.log('accessControl after filter:', access);
-
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'georesourceEditRoleManagementTable',
-      this.roleManagementTableOptions,
-      access,
-      this.permissions,
-      true
-    );
-
-    console.log('roleManagementTableOptions created:', this.roleManagementTableOptions);
-  }
-
-  onActiveRolesOnlyChange(): void {
-    this.activeRolesOnly = !this.activeRolesOnly;
-    this.refreshRoleManagementTable();
-  }
-
-  onChangeOwner(ownerOrganization: any): void {
+  onChangeOwner(ownerOrganization: string): void {
     this.ownerOrganization = ownerOrganization;
-    console.log('Target creator role selected to be', this.ownerOrganization);
-    this.refreshRoles(ownerOrganization);
+    this.roleGrid?.applyOwner(ownerOrganization);
   }
 
-  private refreshRoles(orgUnitId: any): void {
-    const permissionIds_ownerUnit = orgUnitId
-      ? this.kommonitorDataExchangeService
-          .getAccessControlById(orgUnitId)
-          .permissions.filter(
-            (permission: any) =>
-              permission.permissionLevel === 'viewer' || permission.permissionLevel === 'editor'
-          )
-          .map((permission: any) => permission.permissionId)
-      : [];
-
-    // set datasetOwner to disable checkboxes for owned datasets in permissions-table
-    this.kommonitorDataExchangeService.accessControl.forEach((item: any) => {
-      if (item.organizationalUnitId === orgUnitId) {
-        item.datasetOwner = true;
-      } else {
-        item.datasetOwner = false;
-      }
-    });
-
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'georesourceEditRoleManagementTable',
-      this.roleManagementTableOptions,
-      this.kommonitorDataExchangeService.accessControl,
-      permissionIds_ownerUnit,
-      true
-    );
+  resetGeoresourceEditUserRolesForm(): void {
+    this.ownerOrganization = this.currentGeoresourceDataset?.ownerId ?? '';
+    this.stepper.reset();
+    this.roleGrid?.reset();
   }
 
-  // Step navigation
-  nextStep(): void {
-    if (this.currentStep < this.totalSteps) {
-      this.currentStep++;
-    }
-  }
+  async editGeoresourceEditUserRolesForm(): Promise<void> {
+    const dataset = this.currentGeoresourceDataset;
+    if (!dataset) return;
 
-  previousStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
-  }
-
-  goToStep(step: number): void {
-    if (step >= 1 && step <= this.totalSteps) {
-      this.currentStep = step;
-    }
-  }
-
-  // AG Grid event handlers
-  onGridReady(event: GridReadyEvent): void {
-    this.gridApi = event.api;
-    this.columnApi = event.columnApi;
-    console.log('Role management grid is ready, API initialized');
-  }
-
-  onFirstDataRendered(_event: FirstDataRenderedEvent): void {
-    // Handle first data rendered event
-  }
-
-  onColumnResized(_event: ColumnResizedEvent): void {
-    // Handle column resize event
-  }
-
-  // Form actions
-  editGeoresourceEditUserRolesForm(): void {
-    if (
-      this.ownerOrganization !== undefined &&
-      this.ownerOrganization !== this.currentGeoresourceDataset.ownerId
-    ) {
-      if (
-        !confirm(
-          'Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?'
-        )
-      ) {
+    const ownershipChanging = this.isOwnershipChanging();
+    if (ownershipChanging) {
+      const confirmMessage = this.translate.instant(
+        'ADMIN_GEORESOURCES.ROLES_MODAL.MSG.OWNERSHIP_TRANSFER_CONFIRM'
+      );
+      if (!window.confirm(confirmMessage)) {
         return;
       }
     }
 
-    this.putUserRoles();
-    this.putOwnership();
-  }
-
-  putUserRoles(): void {
-    this.loadingData = true;
-
-    const putBody = {
-      permissions: this.getSelectedRoleIds(),
-      isPublic: this.currentGeoresourceDataset.isPublic,
-    };
-
-    this.http
-      .put(
-        `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/georesources/${this.currentGeoresourceDataset.georesourceId}/permissions`,
-        putBody,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-      .subscribe({
-        next: (_response: any) => {
-          this.successMessagePart = this.currentGeoresourceDataset.datasetName;
-          this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTable, {
-            crudType: 'edit',
-            targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
-          });
-          this.showSuccessAlert();
-          setTimeout(() => {
-            this.loadingData = false;
-          }, 250);
-        },
-        error: (error: any) => {
-          this.errorMessagePart =
-            'Fehler beim Aktualisieren der Zugriffsrechte. Fehler lautet: \n\n';
-          if (error.data) {
-            this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(
-              error.data
-            );
-          } else {
-            this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
-          }
-          this.showErrorAlert();
-          setTimeout(() => {
-            this.loadingData = false;
-          }, 250);
-        },
-      });
-  }
-
-  putOwnership(): void {
-    this.loadingData = true;
-
-    const putBody = {
-      ownerId:
-        this.ownerOrganization === undefined
-          ? this.currentGeoresourceDataset.ownerId
-          : this.ownerOrganization,
-    };
-
-    this.http
-      .put(
-        `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/georesources/${this.currentGeoresourceDataset.georesourceId}/ownership`,
-        putBody,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-      .subscribe({
-        next: (_response: any) => {
-          this.successMessagePart = this.currentGeoresourceDataset.datasetName;
-          this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTable, {
-            crudType: 'edit',
-            targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
-          });
-          this.showSuccessAlert();
-          setTimeout(() => {
-            this.loadingData = false;
-          }, 250);
-        },
-        error: (error: any) => {
-          this.errorMessagePart =
-            'Fehler beim Aktualisieren der Eigentümerschaft. Fehler lautet: \n\n';
-          if (error.data) {
-            this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(
-              error.data
-            );
-          } else {
-            this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
-          }
-          this.showErrorAlert();
-          setTimeout(() => {
-            this.loadingData = false;
-          }, 250);
-        },
-      });
-  }
-
-  resetGeoresourceEditUserRolesForm(): void {
-    this.ownerOrganization = this.currentGeoresourceDataset?.ownerId;
-    this.refreshRoleManagementTable();
-    this.ownerOrgFilter = '';
-    this.successMessagePart = '';
-    this.errorMessagePart = '';
-    this.hideSuccessAlert();
-    this.hideErrorAlert();
-
-    setTimeout(() => {
-      // Trigger change detection if needed
-    }, 250);
-  }
-
-  // Helper methods
-  getFilteredOrganizations(): any[] {
-    if (!this.ownerOrgFilter) {
-      return this.kommonitorDataExchangeService.accessControl || [];
+    // Persist the permissions first. If that fails, abort: otherwise an
+    // ownership transfer could succeed and mask the failure while the
+    // permissions were never saved.
+    const rolesSaved = await this.putUserRoles();
+    if (!rolesSaved) {
+      return;
     }
-    return (
-      this.kommonitorDataExchangeService.accessControl?.filter((org: any) =>
-        org.name.toLowerCase().includes(this.ownerOrgFilter.toLowerCase())
-      ) || []
-    );
-  }
 
-  getFilteredCreatorRights(): any[] {
-    if (!this.ownerOrgFilter) {
-      return this.resourcesCreatorRights;
+    // Only transfer ownership when it actually changed.
+    if (ownershipChanging) {
+      const ownershipSaved = await this.putOwnership();
+      if (!ownershipSaved) {
+        return;
+      }
     }
-    return this.resourcesCreatorRights.filter((org: any) =>
-      org.name.toLowerCase().includes(this.ownerOrgFilter.toLowerCase())
+
+    this.notificationService.showSuccess(
+      this.translate.instant('ADMIN_GEORESOURCES.ROLES_MODAL.MSG.RIGHTS_UPDATED', {
+        name: dataset.datasetName,
+      })
     );
+    this.activeModal.close({
+      action: 'updated',
+      georesourceId: dataset.georesourceId,
+    });
   }
 
-  getCurrentOwnerName(): string {
-    if (this.currentGeoresourceDataset?.ownerId) {
-      const owner = this.kommonitorDataExchangeService.getAccessControlById(
-        this.currentGeoresourceDataset.ownerId
+  private async putUserRoles(): Promise<boolean> {
+    const dataset = this.currentGeoresourceDataset;
+    if (!dataset) return false;
+    try {
+      this.loadingData.set(true);
+
+      const putBody = {
+        permissions: this.roleGrid?.getSelectedRoleIds() ?? [],
+        isPublic: dataset.isPublic,
+      };
+
+      await firstValueFrom(
+        this.http.put(
+          `${this.envConfigService.baseUrlToKomMonitorDataAPI}/georesources/${dataset.georesourceId}/permissions`,
+          putBody,
+          { headers: { 'Content-Type': 'application/json' } }
+        )
       );
-      return owner ? owner.name : '';
-    }
-    return '';
-  }
 
-  // Helper method to get selected role IDs from the grid
-  private getSelectedRoleIds(): string[] {
-    const ids: string[] = [];
-    const deselectedIds: string[] = [];
-
-    if (this.gridApi) {
-      this.gridApi.forEachNode((node: any, _index: number) => {
-        if (node.data) {
-          for (const permission of node.data.permissions) {
-            if (permission) {
-              if (permission.isChecked) {
-                if (!deselectedIds.includes(permission.permissionId)) {
-                  ids.push(permission.permissionId);
-                }
-              } else {
-                deselectedIds.push(permission.permissionId);
-              }
-            }
-          }
-        }
+      this.refreshRequested.emit({
+        crudType: 'edit',
+        targetGeoresourceId: dataset.georesourceId,
       });
+      // Persist latest selection locally so the grid reflects changes on refresh
+      dataset.permissions = putBody.permissions;
+      this.roleGrid?.reset();
+      return true;
+    } catch (error: any) {
+      this.notificationService.showError(
+        this.translate.instant('ADMIN_GEORESOURCES.ROLES_MODAL.MSG.RIGHTS_UPDATE_FAILED', {
+          error: getErrorMessage(error),
+        })
+      );
+      return false;
+    } finally {
+      this.loadingData.set(false);
     }
-
-    return ids;
   }
 
-  // Alert methods
-  showSuccessAlert(): void {
-    this.successMessage = 'Zugriffsschutz und Eigentümerschaft erfolgreich aktualisiert';
-    setTimeout(() => this.hideSuccessAlert(), 5000);
+  private async putOwnership(): Promise<boolean> {
+    const dataset = this.currentGeoresourceDataset;
+    if (!dataset) return false;
+    try {
+      this.loadingData.set(true);
+
+      const putBody = {
+        ownerId: this.ownerOrganization || dataset.ownerId,
+      };
+
+      await firstValueFrom(
+        this.http.put(
+          `${this.envConfigService.baseUrlToKomMonitorDataAPI}/georesources/${dataset.georesourceId}/ownership`,
+          putBody,
+          { headers: { 'Content-Type': 'application/json' } }
+        )
+      );
+
+      this.refreshRequested.emit({
+        crudType: 'edit',
+        targetGeoresourceId: dataset.georesourceId,
+      });
+      return true;
+    } catch (error: any) {
+      this.notificationService.showError(
+        this.translate.instant('ADMIN_GEORESOURCES.ROLES_MODAL.MSG.OWNERSHIP_UPDATE_FAILED', {
+          error: getErrorMessage(error),
+        })
+      );
+      return false;
+    } finally {
+      this.loadingData.set(false);
+    }
   }
 
-  hideSuccessAlert(): void {
-    this.successMessage = '';
+  isOwnershipChanging(): boolean {
+    return !!(
+      this.ownerOrganization && this.ownerOrganization !== this.currentGeoresourceDataset?.ownerId
+    );
   }
 
-  showErrorAlert(): void {
-    setTimeout(() => this.hideErrorAlert(), 10000);
-  }
-
-  hideErrorAlert(): void {
-    this.errorMessage = '';
-    this.errorMessagePart = '';
-  }
-
-  // Modal control methods
+  // Modal control
   cancel(): void {
     this.activeModal.dismiss();
   }

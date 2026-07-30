@@ -1,9 +1,15 @@
-import { Component, EventEmitter, Output, ViewChild, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Output,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { FormsModule } from '@angular/forms';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
 import { ScriptStepIntroductionComponent } from './scriptStepIntroduction/script-step-introduction.component';
 import {
@@ -11,14 +17,17 @@ import {
   ScriptStepMetadataComponent,
 } from './scriptStepMetadata/script-step-metadata.component';
 import { ScriptStepContentComponent } from './scriptStepContent/script-step-content.component';
-import { StepperComponent, StepperStep } from '../../../common/stepper/stepper.component';
+import { StepperComponent } from '../../../common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { ScriptRefreshRequest } from '../script-refresh.model';
 
+import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-script-add-modal',
   templateUrl: './script-add-modal.component.html',
   styleUrls: ['./script-add-modal.component.scss'],
   imports: [
+    TranslateModule,
     FormsModule,
     StepperComponent,
     ScriptStepIntroductionComponent,
@@ -26,23 +35,21 @@ import { ScriptRefreshRequest } from '../script-refresh.model';
     ScriptStepContentComponent,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScriptAddModalComponent {
   activeModal = inject(NgbActiveModal);
   scriptHelperService = inject(ScriptHelperService);
-  private broadcastService = inject(BroadcastService);
 
   // Asks the management component to refresh the overview table; replaces the
   // former RefreshScriptOverviewTable broadcast round-trip.
   @Output() refreshRequested = new EventEmitter<ScriptRefreshRequest>();
 
-  currentStep: number = 1;
-
-  readonly stepperSteps: StepperStep[] = [
-    { label: 'Einleitende Hinweise' },
-    { label: 'Metadaten des Indikators-Skripts' },
-    { label: 'Skriptinhalt und Parametrisierung' },
-  ];
+  readonly stepper = new WizardStepper([
+    { key: 'intro', label: 'ADMIN_SHARED_UI.STEP_LABELS.INTRO_NOTES' },
+    { key: 'metadata', label: 'ADMIN_SHARED_UI.STEP_LABELS.SCRIPT_METADATA' },
+    { key: 'script', label: 'ADMIN_SHARED_UI.STEP_LABELS.SCRIPT_CONTENT' },
+  ]);
 
   @ViewChild(ScriptStepContentComponent)
   scriptStepContent!: ScriptStepContentComponent;
@@ -53,23 +60,25 @@ export class ScriptAddModalComponent {
     associatedIndicatorId: '',
   };
 
-  loadingData: boolean = false;
+  // Signal-backed: written after the awaited script POST in addScript(), which
+  // would not trigger a re-render of this OnPush component otherwise.
+  loadingData = signal(false);
   // Alerts
-  showSuccessAlert: boolean = false;
-  showErrorAlert: boolean = false;
-  errorMessagePart: string = '';
+  showSuccessAlert = signal(false);
+  showErrorAlert = signal(false);
+  errorMessagePart = signal('');
   successMessagePart: string = '';
 
   resetForm(): void {
-    this.currentStep = 1;
+    this.stepper.reset();
     this.scriptMetadata = {
       name: '',
       description: '',
       associatedIndicatorId: '',
     };
-    this.showSuccessAlert = false;
-    this.showErrorAlert = false;
-    this.errorMessagePart = '';
+    this.showSuccessAlert.set(false);
+    this.showErrorAlert.set(false);
+    this.errorMessagePart.set('');
     this.successMessagePart = '';
     this.scriptHelperService.reset();
     this.scriptStepContent?.reset();
@@ -79,24 +88,12 @@ export class ScriptAddModalComponent {
     this.activeModal.dismiss('closed');
   }
 
-  nextStep(): void {
-    if (this.currentStep < this.stepperSteps.length) {
-      this.currentStep++;
-    }
-  }
-
-  previousStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
-  }
-
   // ---- Submit ----
   async addScript(): Promise<void> {
-    this.loadingData = true;
-    this.showSuccessAlert = false;
-    this.showErrorAlert = false;
-    this.errorMessagePart = '';
+    this.loadingData.set(true);
+    this.showSuccessAlert.set(false);
+    this.showErrorAlert.set(false);
+    this.errorMessagePart.set('');
     this.successMessagePart = '';
 
     // this.prepareParametersForScriptType();
@@ -108,23 +105,22 @@ export class ScriptAddModalComponent {
       await this.scriptHelperService.postNewScript(name, description, associatedIndicatorId);
 
       this.refreshRequested.emit({ crudType: 'add' });
-      this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
-      this.showSuccessAlert = true;
-      this.loadingData = false;
+      this.showSuccessAlert.set(true);
+      this.loadingData.set(false);
     } catch (error: any) {
       const errData = error?.error || error;
-      this.errorMessagePart = JSON.stringify(errData, null, 2);
-      this.showErrorAlert = true;
-      this.loadingData = false;
+      this.errorMessagePart.set(JSON.stringify(errData, null, 2));
+      this.showErrorAlert.set(true);
+      this.loadingData.set(false);
     }
   }
 
   hideSuccessAlert(): void {
-    this.showSuccessAlert = false;
+    this.showSuccessAlert.set(false);
   }
 
   hideErrorAlert(): void {
-    this.showErrorAlert = false;
+    this.showErrorAlert.set(false);
   }
 
   isFormValid(): boolean {

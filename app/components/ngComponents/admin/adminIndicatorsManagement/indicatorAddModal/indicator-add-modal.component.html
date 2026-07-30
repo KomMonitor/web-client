@@ -1,6 +1,17 @@
 <div class="modal-header">
-  <h4 class="modal-title">Neuen Indikator registrieren</h4>
-  <button type="button" class="btn-close" aria-label="Close" (click)="cancel()"></button>
+  <h4 class="modal-title">
+    @if (state.editMode) {
+      {{ 'ADMIN_INDICATORS.ADD_MODAL.TITLE_EDIT' | translate }}
+    } @else {
+      {{ 'ADMIN_INDICATORS.ADD_MODAL.TITLE_CREATE' | translate }}
+    }
+  </h4>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="cancel()"
+  ></button>
 </div>
 
 <div class="modal-body">
@@ -17,40 +28,43 @@
     <div class="col-md-12">
       <div class="multiStepForm form-group" id="indicatorAddForm" style="margin-bottom: 0px">
         <!-- progressbar -->
-        <app-stepper [steps]="state.steps" [(currentStep)]="state.currentStep"></app-stepper>
+        <app-stepper
+          [steps]="state.stepper.steps"
+          [(currentStep)]="state.stepper.currentStep"
+        ></app-stepper>
 
         <!-- Step 1: Basic Indicator Metadata -->
-        @if (state.currentStep === 1) {
+        @if (state.stepper.isActive('metadata')) {
           <app-indicator-add-step1-basic></app-indicator-add-step1-basic>
         }
 
         <!-- Step 2: General Metadata -->
-        @if (state.currentStep === 2) {
+        @if (state.stepper.isActive('general')) {
           <app-indicator-add-step2-metadata></app-indicator-add-step2-metadata>
         }
 
         <!-- Step 3: Topic Hierarchy -->
-        @if (state.currentStep === 3) {
+        @if (state.stepper.isActive('topics')) {
           <app-indicator-add-step3-topics></app-indicator-add-step3-topics>
         }
 
         <!-- Step 4: References to Indicators/Georesources -->
-        @if (state.currentStep === 4) {
+        @if (state.stepper.isActive('references')) {
           <app-indicator-add-step4-references></app-indicator-add-step4-references>
         }
 
         <!-- Step 5: Classification Options -->
-        @if (state.currentStep === 5) {
+        @if (state.stepper.isActive('classification')) {
           <app-indicator-add-step5-classification></app-indicator-add-step5-classification>
         }
 
         <!-- Step 6: Regional Comparison Values -->
-        @if (state.currentStep === 6) {
+        @if (state.stepper.isActive('referenceValues')) {
           <app-indicator-add-step6-comparison></app-indicator-add-step6-comparison>
         }
 
         <!-- Step 7: Access Control and Ownership -->
-        @if (state.currentStep === 7) {
+        @if (state.stepper.isActive('security')) {
           <app-indicator-add-step7-access></app-indicator-add-step7-access>
         }
       </div>
@@ -59,14 +73,18 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="cancel()">Schließen</button>
+  <button type="button" class="btn btn-default pull-left" (click)="cancel()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
   <button
     type="button"
     class="btn btn-info pull-left"
     (click)="onImportIndicatorAddMetadata()"
-    title="Importieren der Metadaten aus einer Datei"
+    [title]="'ADMIN_INDICATORS.ADD_MODAL.METADATA_IMPORT_TOOLTIP' | translate"
   >
-    <i class="fas fa-file-import"></i>&nbsp;&nbsp;Metadaten-Import
+    <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
+      'ADMIN_INDICATORS.ADD_MODAL.METADATA_IMPORT' | translate
+    }}
   </button>
   <input
     style="display: none"
@@ -82,36 +100,56 @@
     style="margin-left: 6px"
     class="btn btn-info pull-left"
     (click)="state.onExportIndicatorAddMetadata()"
-    title="Exportieren der Metadaten in eine Datei"
+    [title]="'ADMIN_INDICATORS.ADD_MODAL.METADATA_EXPORT_TOOLTIP' | translate"
   >
-    <i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export
+    <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
+      'ADMIN_INDICATORS.ADD_MODAL.METADATA_EXPORT' | translate
+    }}
   </button>
 
   <div style="flex: 1"></div>
 
-  <button
-    type="button"
-    class="btn btn-success"
-    [disabled]="
-      !state.datasetName ||
-      !state.metadata.description ||
-      !state.metadata.datasource ||
-      !state.metadata.contact ||
-      !state.metadata.updateInterval ||
-      !state.metadata.lastUpdate ||
-      !state.indicatorType ||
-      !state.indicatorCreationType ||
-      !state.indicatorInterpretation ||
-      state.datasetNameInvalid ||
-      !state.indicatorUnit ||
-      state.classBreaksInvalid
-    "
-    (click)="addIndicator()"
-  >
-    Indikator-Metadaten registrieren
+  <button type="button" class="btn btn-success" (click)="addIndicator()">
+    @if (state.editMode) {
+      {{ 'ADMIN_INDICATORS.ADD_MODAL.SAVE_CHANGES' | translate }}
+    } @else {
+      {{ 'ADMIN_INDICATORS.ADD_MODAL.REGISTER' | translate }}
+    }
   </button>
-  <button type="button" class="btn btn-danger" (click)="state.resetForm()">Zurücksetzen</button>
+  <button type="button" class="btn btn-danger" (click)="state.resetForm()">
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
+  </button>
 </div>
+
+<!-- Missing required fields dialog (shown before sending when validation fails) -->
+<ng-template #missingFieldsModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">
+      <i class="fa fa-exclamation-triangle"></i>&nbsp;{{
+        'ADMIN_INDICATORS.ADD_MODAL.MISSING_FIELDS_TITLE' | translate
+      }}
+    </h4>
+    <button
+      type="button"
+      class="btn-close"
+      [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+      (click)="modal.dismiss()"
+    ></button>
+  </div>
+  <div class="modal-body">
+    <p>{{ 'ADMIN_INDICATORS.ADD_MODAL.MISSING_FIELDS_INTRO' | translate }}</p>
+    <ul>
+      @for (field of missingFields; track field.label) {
+        <li>{{ field.label }}</li>
+      }
+    </ul>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" (click)="modal.close()">
+      {{ 'ADMIN_INDICATORS.ADD_MODAL.MISSING_FIELDS_OK' | translate }}
+    </button>
+  </div>
+</ng-template>
 
 <!-- Success Alert -->
 @if (state.successMessagePart) {
@@ -123,11 +161,29 @@
     <button type="button" class="close" (click)="state.hideSuccessAlert()" aria-hidden="true">
       &times;
     </button>
-    <h4><i class="icon fa fa-check"></i>Indikator-Metadaten registriert</h4>
-    <p>
-      Eine neuer Indikator mit Namen {{ state.successMessagePart }} wurde in KomMonitor registriert
-      und in die Übersichtstabelle eingetragen.
-    </p>
+    @if (state.editMode) {
+      <h4>
+        <i class="icon fa fa-check"></i
+        >{{ 'ADMIN_INDICATORS.ADD_MODAL.SUCCESS_UPDATED_TITLE' | translate }}
+      </h4>
+      <p>
+        {{
+          'ADMIN_INDICATORS.ADD_MODAL.SUCCESS_UPDATED_TEXT'
+            | translate: { name: state.successMessagePart }
+        }}
+      </p>
+    } @else {
+      <h4>
+        <i class="icon fa fa-check"></i
+        >{{ 'ADMIN_INDICATORS.ADD_MODAL.SUCCESS_CREATED_TITLE' | translate }}
+      </h4>
+      <p>
+        {{
+          'ADMIN_INDICATORS.ADD_MODAL.SUCCESS_CREATED_TEXT'
+            | translate: { name: state.successMessagePart }
+        }}
+      </p>
+    }
   </div>
 }
 
@@ -141,8 +197,10 @@
     <button type="button" class="close" (click)="state.hideErrorAlert()" aria-hidden="true">
       &times;
     </button>
-    <h4><i class="icon fa fa-ban"></i>Registrierung gescheitert</h4>
-    Bei der Registrierung des Indikators ist ein Fehler aufgetreten. Fehlermeldung:
+    <h4>
+      <i class="icon fa fa-ban"></i>{{ 'ADMIN_INDICATORS.ADD_MODAL.ERROR_TITLE' | translate }}
+    </h4>
+    {{ 'ADMIN_INDICATORS.ADD_MODAL.ERROR_TEXT' | translate }}
     <br />
     <pre style="overflow: auto; max-height: 500px" [innerHTML]="state.errorMessagePart"></pre>
     <br />
@@ -160,13 +218,16 @@
     <button type="button" class="close" (click)="state.hideMetadataErrorAlert()" aria-hidden="true">
       &times;
     </button>
-    <h4><i class="icon fa fa-ban"></i>Metadata Import gescheitert</h4>
-    Beim Import der Metadaten aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
+    <h4>
+      <i class="icon fa fa-ban"></i
+      >{{ 'ADMIN_INDICATORS.ADD_MODAL.IMPORT_ERROR_TITLE' | translate }}
+    </h4>
+    {{ 'ADMIN_INDICATORS.ADD_MODAL.IMPORT_ERROR_TEXT' | translate }}
     <br />
     <pre>{{ state.indicatorMetadataImportError }}</pre>
     <br />
     <br />
-    <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
+    <p>{{ 'ADMIN_INDICATORS.ADD_MODAL.IMPORT_ERROR_FORMAT_HINT' | translate }}</p>
     <pre id="indicatorsAddMetadataPre" style="overflow: auto; max-height: 500px">{{
       state.indicatorMetadataStructure_pretty
     }}</pre>

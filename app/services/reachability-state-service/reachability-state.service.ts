@@ -104,6 +104,8 @@ export class ReachabilityStateService {
   defaults = {
     distanceRanges: [100, 200, 300, 400, 500],
     timeRanges: [5, 10, 15],
+    distanceMax: 10000,
+    timeMax: 30,
   };
 
   // simplified settings driving the quick-calc sidebar UI (slider, transit mode buttons)
@@ -349,6 +351,14 @@ export class ReachabilityStateService {
         this.reachabilityMapSubject.value.features.length > 0 &&
         this.reachabilityMapSubject.value.isochronesGeoJson &&
         !this.reachabilityMapSubject.value.loadingState) ||
+      false
+    );
+  }
+
+  get featureSelected(): boolean {
+    return (
+      (this.reachabilityMapSubject.value.features &&
+        this.reachabilityMapSubject.value.features.length > 0) ||
       false
     );
   }

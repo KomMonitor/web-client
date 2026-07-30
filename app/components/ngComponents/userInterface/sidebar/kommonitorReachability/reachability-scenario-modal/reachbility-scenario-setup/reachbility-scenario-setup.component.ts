@@ -1,6 +1,7 @@
 import { UserFavourites } from 'components/ngComponents/models/favorites.models';
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ReachabilityStateService } from 'services/reachability-state-service/reachability-state.service';
 import { ColorPickerDirective } from 'ngx-color-picker';
@@ -18,12 +19,16 @@ export class ReachbilityScenarioSetupComponent implements OnInit {
   protected reachabilityStateService = inject(ReachabilityStateService);
   private broadcastService = inject(BroadcastService);
 
+  private readonly destroyRef = inject(DestroyRef);
+
   ngOnInit(): void {
-    this.reachabilityStateService.reachabilityMapSubject$.subscribe((value) => {
-      if (value.scenarioState) {
-        this.importScenarioFromQuickSetup();
-      }
-    });
+    this.reachabilityStateService.reachabilityMapSubject$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        if (value.scenarioState) {
+          this.importScenarioFromQuickSetup();
+        }
+      });
   }
 
   importScenarioFromQuickSetup() {

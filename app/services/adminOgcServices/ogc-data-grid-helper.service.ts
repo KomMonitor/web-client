@@ -1,10 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { AgGridAngular } from 'ag-grid-angular';
-import { GridOptions, ColDef } from 'ag-grid-community';
-import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
+import { ColDef, GridOptions } from 'ag-grid-community';
+import { Topic } from 'components/ngComponents/admin/adminTopicsManagement/topic.model';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
-import { Topic } from 'components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
 import { OgcService } from 'services/ogcServices/ogc.service';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 
 @Injectable({
   providedIn: 'root',
@@ -45,7 +45,7 @@ export class OgcDataGridHelperService {
   private updateColumnDefinitions(): void {
     if (this.wmsGrid && this.wmsGrid.api) {
       const wmsColumnDefs = this.getWmsColumnDefinitions();
-      this.wmsGrid.api.setColumnDefs(wmsColumnDefs);
+      this.wmsGrid.api.setGridOption('columnDefs', wmsColumnDefs);
     }
   }
 
@@ -74,8 +74,8 @@ export class OgcDataGridHelperService {
     const columnDefs = this.getWmsColumnDefinitions();
 
     try {
-      this.wmsGrid.api?.setRowData(georesourcesArray);
-      this.wmsGrid.api?.setColumnDefs(columnDefs);
+      this.wmsGrid.api?.setGridOption('rowData', georesourcesArray);
+      this.wmsGrid.api?.setGridOption('columnDefs', columnDefs);
     } catch (error) {
       console.error('Error updating POI grid:', error);
     }
@@ -104,6 +104,7 @@ export class OgcDataGridHelperService {
       ensureDomOrder: true,
       pagination: true,
       paginationPageSize: 10,
+      paginationPageSizeSelector: [10, 25, 50, 100],
       suppressColumnVirtualisation: true,
     };
   }
@@ -279,7 +280,7 @@ export class OgcDataGridHelperService {
       return '<div class="btn-group btn-group-sm">No data</div>';
     }
 
-    const topic: Topic = this.topicStore.availableTopics.find(
+    const topic: Topic | undefined = this.topicStore.availableTopics.find(
       (e: Topic) => e.topicId == params.data.topicReference
     );
 

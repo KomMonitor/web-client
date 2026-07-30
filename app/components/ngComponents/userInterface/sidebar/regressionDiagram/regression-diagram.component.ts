@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import * as echarts from 'echarts';
 import * as ecStat from 'echarts-stat';
@@ -7,6 +8,7 @@ import { MetadataFilterService } from 'services/metadata-filter-service/metadata
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { DiagramsUpdate, MapService } from 'services/map-service/map.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { CommonModule } from '@angular/common';
@@ -33,13 +35,14 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
     BaseIndicatorOfHeadlineIndicatorFilter,
   ],
 })
-export class RegressionDiagramComponent implements OnInit {
+export class RegressionDiagramComponent implements OnInit, AfterViewInit, OnDestroy {
   protected diagramHelperService = inject(DiagramHelperServiceService);
   private exportButtonVisibility = inject(ExportButtonVisibilityService);
   private metadataFilterService = inject(MetadataFilterService);
   private indicatorValueService = inject(IndicatorValueService);
   protected selectionState = inject(SelectionStateService);
   private broadcastService = inject(BroadcastService);
+  private mapService = inject(MapService);
   private filterHelperService = inject(FilterHelperService);
   private envConfigService = inject(EnvConfigService);
 
@@ -107,6 +110,8 @@ export class RegressionDiagramComponent implements OnInit {
     );
   }
 
+  private subscriptions = new Subscription();
+
   ngOnInit(): void {
     $(document).ready(function () {
       $('.nav li.disabled a').click(function () {
@@ -115,47 +120,69 @@ export class RegressionDiagramComponent implements OnInit {
     });
 
     // catch broadcast msgs
-    this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
-      const title = broadcastMsg.msg;
-      const values: any = broadcastMsg.values;
+    this.subscriptions.add(
+      this.mapService.mapCommand$.subscribe((command) => {
+        if (command.type === 'beginIndicatorTimeSetup')
+          this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
+      })
+    );
 
-      switch (title) {
-        case BroadcastMessage.UpdateDiagrams:
-          {
-            this.updateDiagrams(values);
-          }
-          break;
-        case BroadcastMessage.UpdateDiagramsForHoveredFeature:
-          {
-            this.updateDiagramsForHoveredFeature(values);
-          }
-          break;
-        case BroadcastMessage.UpdateDiagramsForUnhoveredFeature:
-          {
-            this.updateDiagramsForUnhoveredFeature(values);
-          }
-          break;
-        case 'resizeDiagrams':
-          {
-            this.resizeDiagrams();
-          }
-          break;
-        case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupBegin:
-          {
-            this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
-          }
-          break;
-        case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupCompleted:
-          {
-            this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_completed();
-          }
-          break;
-      }
-    });
+    this.subscriptions.add(
+      this.mapService.mapEvent$.subscribe((event) => {
+        switch (event.type) {
+          case 'diagramsUpdate':
+            this.updateDiagrams(event.update);
+            break;
+          case 'featureHovered':
+            this.updateDiagramsForHoveredFeature(event.properties);
+            break;
+          case 'featureUnhovered':
+            this.updateDiagramsForUnhoveredFeature(event.properties);
+            break;
+        }
+      })
+    );
+
+    this.subscriptions.add(
+      this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
+        const title = broadcastMsg.msg;
+        const values: any = broadcastMsg.values;
+
+        switch (title) {
+          case 'resizeDiagrams':
+            {
+              this.resizeDiagrams();
+            }
+            break;
+          case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupCompleted:
+            {
+              this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_completed();
+            }
+            break;
+        }
+      })
+    );
 
     this.chartTitle = this.enableScatterPlotRegression
       ? `Lineare Regression - ${this.spatialUnitName}`
       : `Streudiagramm - ${this.spatialUnitName}`;
+  }
+
+  ngAfterViewInit(): void {
+    // The component is created lazily (only when the regression panel opens), so it
+    // misses the diagramsUpdate event the map emitted earlier. Replay the latest one
+    // to load the current map context (geoJSON, brews, spatial unit, date). Use
+    // justRestyling=true so setupCompleted stays true and no stale chart is built —
+    // the actual chart is only rendered once the user picks the X/Y indicators.
+    const latestUpdate = this.mapService.latestDiagramsUpdate;
+    if (latestUpdate) {
+      this.updateDiagrams({ ...latestUpdate, justRestyling: true });
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+    this.regressionChart?.dispose();
   }
 
   /*  
@@ -247,20 +274,21 @@ export class RegressionDiagramComponent implements OnInit {
     );
   }
 
-  updateDiagrams([
-    indicatorMetadataAndGeoJSON,
-    spatialUnitName,
-    spatialUnitId,
-    date,
-    defaultBrew,
-    gtMeasureOfValueBrew,
-    ltMeasureOfValueBrew,
-    dynamicIncreaseBrew,
-    dynamicDecreaseBrew,
-    isMeasureOfValueChecked,
-    measureOfValue,
-    justRestyling,
-  ]) {
+  updateDiagrams(update: DiagramsUpdate) {
+    const {
+      indicatorMetadataAndGeoJSON,
+      spatialUnitLevel: spatialUnitName,
+      spatialUnitId,
+      date,
+      brew: defaultBrew,
+      gtMeasureOfValueBrew,
+      ltMeasureOfValueBrew,
+      dynamicIncreaseBrew,
+      dynamicDecreaseBrew,
+      isMeasureOfValueChecked,
+      measureOfValue,
+      justRestyling,
+    } = update;
     this.correlation = undefined;
     this.linearRegression = undefined;
     this.regressionOption = undefined;
@@ -314,7 +342,7 @@ export class RegressionDiagramComponent implements OnInit {
     }, 500);
   }
 
-  updateDiagramsForHoveredFeature([featureProperties]) {
+  updateDiagramsForHoveredFeature(featureProperties) {
     if (!this.regressionChart) {
       return;
     }
@@ -349,7 +377,7 @@ export class RegressionDiagramComponent implements OnInit {
     }
   }
 
-  updateDiagramsForUnhoveredFeature([featureProperties]) {
+  updateDiagramsForUnhoveredFeature(featureProperties) {
     if (!this.regressionChart) {
       return;
     }
@@ -1063,7 +1091,7 @@ export class RegressionDiagramComponent implements OnInit {
 
         this.registerEventsIfNecessary();
 
-        this.broadcastService.broadcast(BroadcastMessage.PreserveHighlightedFeatures);
+        this.mapService.preserveHighlightedFeatures();
       }, 1500);
     }
   }
@@ -1076,9 +1104,7 @@ export class RegressionDiagramComponent implements OnInit {
         const spatialFeatureName = params.data.name;
         // console.log(spatialFeatureName);
         if (spatialFeatureName) {
-          this.broadcastService.broadcast(BroadcastMessage.HighlightFeatureOnMap, [
-            spatialFeatureName,
-          ]);
+          this.mapService.highlightFeature(spatialFeatureName);
         }
       });
 
@@ -1088,9 +1114,7 @@ export class RegressionDiagramComponent implements OnInit {
         const spatialFeatureName = params.data.name;
         // console.log(spatialFeatureName);
         if (spatialFeatureName) {
-          this.broadcastService.broadcast(BroadcastMessage.UnhighlightFeatureOnMap, [
-            spatialFeatureName,
-          ]);
+          this.mapService.unhighlightFeature(spatialFeatureName);
         }
       });
 
@@ -1098,9 +1122,7 @@ export class RegressionDiagramComponent implements OnInit {
         const spatialFeatureName = params.data.name;
         // console.log(spatialFeatureName);
         if (spatialFeatureName) {
-          this.broadcastService.broadcast(BroadcastMessage.SwitchHighlightFeatureOnMap, [
-            spatialFeatureName,
-          ]);
+          this.mapService.switchHighlightFeature(spatialFeatureName);
         }
       });
 

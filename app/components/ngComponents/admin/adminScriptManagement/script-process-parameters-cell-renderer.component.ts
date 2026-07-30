@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';
 
@@ -15,8 +15,9 @@ interface VariableProcessParameter {
   selector: 'app-script-process-parameters-cell-renderer',
   standalone: true,
   imports: [],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @if (parameters && parameters.length > 0) {
+    @if (parameters().length > 0) {
       <table class="table table-condensed table-bordered table-striped table-sm">
         <thead>
           <tr>
@@ -28,7 +29,7 @@ interface VariableProcessParameter {
           </tr>
         </thead>
         <tbody>
-          @for (p of parameters; track p) {
+          @for (p of parameters(); track p) {
             <tr>
               <td>{{ p.name }}</td>
               <td>{{ p.description }}</td>
@@ -52,7 +53,9 @@ interface VariableProcessParameter {
   `,
 })
 export class ScriptProcessParametersCellRendererComponent implements ICellRendererAngularComp {
-  parameters: VariableProcessParameter[] = [];
+  // Signal-backed: refresh() is invoked by AG Grid outside Angular's change
+  // detection, so a plain field would leave this OnPush view stale.
+  parameters = signal<VariableProcessParameter[]>([]);
 
   agInit(params: ICellRendererParams): void {
     this.setParams(params);
@@ -64,7 +67,7 @@ export class ScriptProcessParametersCellRendererComponent implements ICellRender
   }
 
   private setParams(params: ICellRendererParams): void {
-    this.parameters = params.data?.variableProcessParameters ?? [];
+    this.parameters.set(params.data?.variableProcessParameters ?? []);
   }
 
   isNumeric(dataType: string): boolean {

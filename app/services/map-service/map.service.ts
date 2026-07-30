@@ -1,7 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, ReplaySubject, Subject } from 'rxjs';
 
 export interface MapRefreshObject {
   values: MapRefreshValues;
@@ -16,6 +14,119 @@ export interface MapRefreshValues {
   justRestyling?: boolean | undefined;
   customComputation?: boolean | undefined;
 }
+
+/**
+ * Single typed request for rendering an indicator on the main map.
+ *
+ * `source` distinguishes why the render happens:
+ * - 'selection': the user selected indicator/spatial unit/date (data setup flow)
+ * - 'dataset-replacement': an already displayed dataset was replaced with new
+ *   feature values (filtering, balance computation) — consumers such as the
+ *   filter component only react to this variant
+ */
+export interface IndicatorRenderRequest {
+  indicator: any;
+  spatialUnitName: any;
+  date: any;
+  justRestyling: boolean;
+  isCustomComputation: boolean;
+  source: 'selection' | 'dataset-replacement';
+}
+
+/**
+ * Typed command for the main map (map refactoring plan, Phase 5 — replaces the
+ * former untyped BroadcastService messages consumed by KommonitorMapComponent).
+ * The map component is the single dispatcher: it forwards layer commands to the
+ * layer manager services and handles the styling/highlight/UI commands itself.
+ * A few sidebar components subscribe too, filtering for the commands they share
+ * with the map (changeSpatialUnit, unselectAllFeatures, beginIndicatorTimeSetup,
+ * onGlobalFilterChange).
+ */
+export type MapCommand =
+  // indicator classification controls
+  | { type: 'changeClassifyMethod'; method: any }
+  | { type: 'changeNumClasses'; numClasses: any }
+  | { type: 'changeColorScheme'; colorSchemeName: any }
+  | { type: 'changeBreaks'; breaks: any }
+  | { type: 'changeDynamicBreaks'; breaks: any }
+  | { type: 'restyleCurrentLayer'; skipDiagramRefresh: boolean }
+  | { type: 'changeDate'; date: string }
+  | { type: 'changeSpatialUnit' }
+  | { type: 'beginIndicatorTimeSetup' }
+  // feature highlighting
+  | { type: 'highlightFeature'; featureName: any }
+  | { type: 'unhighlightFeature'; featureName: any }
+  | { type: 'switchHighlightFeature'; featureName: any }
+  | { type: 'preserveHighlightedFeatures' }
+  | { type: 'unselectAllFeatures' }
+  // georesource layers
+  | { type: 'addPoiGeoresource'; georesource: any; date: any; useCluster: any }
+  | { type: 'removePoiGeoresource'; georesource: any }
+  | { type: 'addLoiGeoresource'; georesource: any; date: any }
+  | { type: 'removeLoiGeoresource'; georesource: any }
+  | { type: 'addAoiGeoresource'; georesource: any; date: any }
+  | { type: 'removeAoiGeoresource'; georesource: any }
+  // OGC layers
+  | { type: 'addWmsLayer'; dataset: any; opacity: any }
+  | { type: 'removeWmsLayer'; dataset: any }
+  | { type: 'addWfsLayer'; dataset: any; opacity: any; useCluster: any }
+  | { type: 'removeWfsLayer'; dataset: any }
+  | { type: 'adjustWfsLayerColor'; dataset: any; opacity: any }
+  // file layers
+  | { type: 'addFileLayer'; dataset: any }
+  | { type: 'adjustFileLayerOpacity'; dataset: any; opacity: any }
+  | { type: 'adjustFileLayerColor'; dataset: any }
+  | { type: 'removeFileLayer'; dataset: any }
+  // reachability scenario
+  | { type: 'replaceReachabilityScenario'; reachabilityScenario: any }
+  | { type: 'removeReachabilityScenario' }
+  // map UI
+  | { type: 'showLoadingIcon' }
+  | { type: 'hideLoadingIcon' }
+  | { type: 'exportMap' }
+  | { type: 'toggleExpertControls' }
+  | { type: 'openLayerControl' }
+  | { type: 'onGlobalFilterChange' };
+
+/** Facts about the currently rendered indicator dataset, shown by legend + classification panel. */
+export interface LegendDisplayUpdate {
+  containsZeroValues: any;
+  datasetContainsNegativeValues: any;
+  containsNoDataValues: any;
+  containsOutliers_high: any;
+  containsOutliers_low: any;
+  outliers_low: any;
+  outliers_high: any;
+  selectedDate: any;
+}
+
+/** Rendering context the sidebar diagrams need to rebuild themselves after a map render. */
+export interface DiagramsUpdate {
+  indicatorMetadataAndGeoJSON: any;
+  spatialUnitLevel: any;
+  spatialUnitId: any;
+  date: any;
+  brew: any;
+  gtMeasureOfValueBrew: any;
+  ltMeasureOfValueBrew: any;
+  dynamicIncreaseBrew: any;
+  dynamicDecreaseBrew: any;
+  isMeasureOfValueChecked: any;
+  measureOfValue: any;
+  justRestyling: any;
+}
+
+/**
+ * Typed event emitted by the main map (map refactoring plan — replaces the
+ * former untyped BroadcastService messages the map component sent). Consumers:
+ * legend + classification panel (legendDisplayUpdated), the sidebar diagrams
+ * (diagramsUpdate, featureHovered/Unhovered).
+ */
+export type MapEvent =
+  | { type: 'legendDisplayUpdated'; update: LegendDisplayUpdate }
+  | { type: 'diagramsUpdate'; update: DiagramsUpdate }
+  | { type: 'featureHovered'; properties: any }
+  | { type: 'featureUnhovered'; properties: any };
 
 export interface MapRecenterObject {
   resize: boolean;
@@ -32,8 +143,6 @@ export interface DateSliderObject {
   providedIn: 'root',
 })
 export class MapService {
-  private broadcastService = inject(BroadcastService);
-
   private mapRefreshStateSubject = new BehaviorSubject<MapRefreshObject>({
     values: {
       indicator: undefined,
@@ -44,13 +153,17 @@ export class MapService {
   });
   mapRefreshState$ = this.mapRefreshStateSubject.asObservable();
 
-  private replaceIndicatorLayerSubject = new Subject<{
-    indicator: any;
-    spatialUnitName: string;
-    date: string;
-    isCustomComputation: boolean;
-  }>();
-  replaceIndicatorLayerSubject$ = this.replaceIndicatorLayerSubject.asObservable();
+  // ReplaySubject(1) so the map component still receives the latest render
+  // request even if it subscribes after the request was emitted (matches the
+  // replay behavior of the former BehaviorSubject-based refresh state).
+  private indicatorRenderRequestSubject = new ReplaySubject<IndicatorRenderRequest>(1);
+  indicatorRenderRequest$ = this.indicatorRenderRequestSubject.asObservable();
+
+  private mapCommandSubject = new Subject<MapCommand>();
+  mapCommand$ = this.mapCommandSubject.asObservable();
+
+  private mapEventSubject = new Subject<MapEvent>();
+  mapEvent$ = this.mapEventSubject.asObservable();
 
   private mapRecenterSubject = new BehaviorSubject<MapRecenterObject>({
     resize: false,
@@ -64,20 +177,6 @@ export class MapService {
     disabled: undefined,
   });
   dateSlider$ = this.dateSliderSubject.asObservable();
-
-  replaceIndicatorLayer(
-    indicator: any,
-    spatialUnitName: string,
-    date: string,
-    isCustomComputation: boolean
-  ) {
-    this.replaceIndicatorLayerSubject.next({
-      indicator,
-      spatialUnitName,
-      date,
-      isCustomComputation,
-    });
-  }
 
   setDateSliderValues(patch: Partial<DateSliderObject>) {
     this.dateSliderSubject.next({
@@ -98,6 +197,17 @@ export class MapService {
       ...this.mapRefreshStateSubject.value,
       values: values,
     });
+
+    if (this.readyForRefresh()) {
+      this.indicatorRenderRequestSubject.next({
+        indicator: values.indicator,
+        spatialUnitName: values.spatialUnit,
+        date: values.date,
+        justRestyling: !!values.justRestyling,
+        isCustomComputation: !!values.customComputation,
+        source: 'selection',
+      });
+    }
   }
 
   readyForRefresh(): boolean {
@@ -124,67 +234,6 @@ export class MapService {
     });
   }
 
-  removePoiGeoresource(reference) {
-    this.broadcastService.broadcast(BroadcastMessage.RemovePoiGeoresource, [reference]);
-  }
-
-  removeWfsLayerFromMap(wfs) {
-    this.broadcastService.broadcast(BroadcastMessage.RemoveWfsLayerFromMap, [wfs]);
-  }
-
-  addWfsLayerToMap(wfs, opacity, useCluster) {
-    console.log('addWfsLayerToMap');
-    this.broadcastService.broadcast(BroadcastMessage.AddWfsLayerToMap, [wfs, opacity, useCluster]);
-  }
-
-  removeLoiGeoresource(loiGeoresource) {
-    this.broadcastService.broadcast(BroadcastMessage.RemoveLoiGeoresource, [loiGeoresource]);
-  }
-
-  addWmsLayerToMap(dataset, opacity) {
-    console.log('addWmsLayerToMap');
-    this.broadcastService.broadcast(BroadcastMessage.AddWmsLayerToMap, [dataset, opacity]);
-  }
-
-  removeWmsLayerFromMap(dataset) {
-    this.broadcastService.broadcast(BroadcastMessage.RemoveWmsLayerFromMap, [dataset]);
-  }
-
-  adjustOpacityForWmsLayer(dataset, opacity) {
-    //this.ajskommonitorMapServiceProvider.adjustOpacityForWmsLayer(dataset, opacity);
-    this.broadcastService.broadcast(BroadcastMessage.AdjustOpacityForWmsLayer, [dataset, opacity]);
-  }
-
-  adjustOpacityForAoiLayer(dataset, opacity) {
-    //this.ajskommonitorMapServiceProvider.adjustOpacityForAoiLayer(dataset, opacity);
-    this.broadcastService.broadcast(BroadcastMessage.AdjustOpacityForAoiLayer, [dataset, opacity]);
-  }
-
-  adjustOpacityForPoiLayer(dataset, opacity) {
-    //this.ajskommonitorMapServiceProvider.adjustOpacityForPoiLayer(dataset, opacity);
-    this.broadcastService.broadcast(BroadcastMessage.AdjustOpacityForPoiLayer, [dataset, opacity]);
-  }
-
-  adjustOpacityForLoiLayer(dataset, opacity) {
-    //this.ajskommonitorMapServiceProvider.adjustOpacityForLoiLayer(dataset, opacity);
-    this.broadcastService.broadcast(BroadcastMessage.AdjustOpacityForLoiLayer, [dataset, opacity]);
-  }
-
-  adjustOpacityForWfsLayer(dataset, opacity) {
-    //this.ajskommonitorMapServiceProvider.adjustOpacityForWfsLayer(dataset, opacity);
-    this.broadcastService.broadcast(BroadcastMessage.AdjustOpacityForWfsLayer, [dataset, opacity]);
-  }
-
-  adjustColorForWfsLayer(dataset, opacity) {
-    //this.ajskommonitorMapServiceProvider.adjustColorForWfsLayer(dataset, opacity);
-    this.broadcastService.broadcast(BroadcastMessage.AdjustColorForWfsLayer, [dataset, opacity]);
-  }
-
-  restyleCurrentLayer() {
-    //this.ajskommonitorMapServiceProvider.restyleCurrentLayer();
-    this.broadcastService.broadcast(BroadcastMessage.RestyleCurrentLayer, [false]);
-  }
-
   replaceIndicatorGeoJSON(
     indicatorMetadataAndGeoJSON,
     spatialUnitName,
@@ -192,65 +241,206 @@ export class MapService {
     justRestyling,
     isCustomComputation = false
   ) {
-    //this.ajskommonitorMapServiceProvider.replaceIndicatorGeoJSON(indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation);
-    this.broadcastService.broadcast(BroadcastMessage.ReplaceIndicatorAsGeoJSON, [
-      indicatorMetadataAndGeoJSON,
+    this.indicatorRenderRequestSubject.next({
+      indicator: indicatorMetadataAndGeoJSON,
       spatialUnitName,
       date,
-      justRestyling,
+      justRestyling: !!justRestyling,
       isCustomComputation,
-    ]);
+      source: 'dataset-replacement',
+    });
   }
+
+  command(command: MapCommand) {
+    this.mapCommandSubject.next(command);
+  }
+
+  // --- events emitted by the map component ---
+
+  notifyLegendDisplayUpdated(update: LegendDisplayUpdate) {
+    this.mapEventSubject.next({ type: 'legendDisplayUpdated', update });
+  }
+
+  notifyDiagramsUpdate(update: DiagramsUpdate) {
+    this._latestDiagramsUpdate = update;
+    this.mapEventSubject.next({ type: 'diagramsUpdate', update });
+  }
+
+  private _latestDiagramsUpdate: DiagramsUpdate | null = null;
+
+  get latestDiagramsUpdate(): DiagramsUpdate | null {
+    return this._latestDiagramsUpdate;
+  }
+
+  notifyFeatureHovered(properties) {
+    this.mapEventSubject.next({ type: 'featureHovered', properties });
+  }
+
+  notifyFeatureUnhovered(properties) {
+    this.mapEventSubject.next({ type: 'featureUnhovered', properties });
+  }
+
+  // --- indicator classification controls ---
+
+  changeClassifyMethod(method) {
+    this.command({ type: 'changeClassifyMethod', method });
+  }
+
+  changeNumClasses(numClasses) {
+    this.command({ type: 'changeNumClasses', numClasses });
+  }
+
+  changeColorScheme(colorSchemeName) {
+    this.command({ type: 'changeColorScheme', colorSchemeName });
+  }
+
+  changeBreaks(breaks) {
+    this.command({ type: 'changeBreaks', breaks });
+  }
+
+  changeDynamicBreaks(breaks) {
+    this.command({ type: 'changeDynamicBreaks', breaks });
+  }
+
+  restyleCurrentLayer(skipDiagramRefresh = false) {
+    this.command({ type: 'restyleCurrentLayer', skipDiagramRefresh });
+  }
+
+  changeDate(date: string) {
+    this.command({ type: 'changeDate', date });
+  }
+
+  changeSpatialUnit() {
+    this.command({ type: 'changeSpatialUnit' });
+  }
+
+  beginIndicatorTimeSetup() {
+    this.command({ type: 'beginIndicatorTimeSetup' });
+  }
+
+  // --- feature highlighting ---
+
+  highlightFeature(featureName) {
+    this.command({ type: 'highlightFeature', featureName });
+  }
+
+  unhighlightFeature(featureName) {
+    this.command({ type: 'unhighlightFeature', featureName });
+  }
+
+  switchHighlightFeature(featureName) {
+    this.command({ type: 'switchHighlightFeature', featureName });
+  }
+
+  preserveHighlightedFeatures() {
+    this.command({ type: 'preserveHighlightedFeatures' });
+  }
+
+  unselectAllFeatures() {
+    this.command({ type: 'unselectAllFeatures' });
+  }
+
+  // --- georesource layers ---
 
   addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster) {
-    this.broadcastService.broadcast(BroadcastMessage.AddPoiGeoresourceAsGeoJSON, [
-      poiGeoresource,
-      date,
-      useCluster,
-    ]);
+    this.command({ type: 'addPoiGeoresource', georesource: poiGeoresource, date, useCluster });
   }
 
-  addAoiGeoresourceGeoJSON(aoiGeoresource, date) {
-    this.broadcastService.broadcast(BroadcastMessage.AddAoiGeoresourceAsGeoJSON, [
-      aoiGeoresource,
-      date,
-    ]);
+  removePoiGeoresource(reference) {
+    this.command({ type: 'removePoiGeoresource', georesource: reference });
   }
 
   addLoiGeoresourceGeoJSON(loiGeoresource, date) {
-    this.broadcastService.broadcast(BroadcastMessage.AddLoiGeoresourceAsGeoJSON, [
-      loiGeoresource,
-      date,
-    ]);
+    this.command({ type: 'addLoiGeoresource', georesource: loiGeoresource, date });
+  }
+
+  removeLoiGeoresource(loiGeoresource) {
+    this.command({ type: 'removeLoiGeoresource', georesource: loiGeoresource });
+  }
+
+  addAoiGeoresourceGeoJSON(aoiGeoresource, date) {
+    this.command({ type: 'addAoiGeoresource', georesource: aoiGeoresource, date });
   }
 
   removeAoiGeoresource(aoiGeoresource) {
-    this.broadcastService.broadcast(BroadcastMessage.RemoveAoiGeoresource, [aoiGeoresource]);
+    this.command({ type: 'removeAoiGeoresource', georesource: aoiGeoresource });
   }
 
-  replaceReachabilityScenarioOnMainMap(reachabilityScenario) {
-    this.broadcastService.broadcast(BroadcastMessage.ReplaceReachabilityScenarioOnMainMap, [
-      reachabilityScenario,
-    ]);
+  // --- OGC layers ---
+
+  addWmsLayerToMap(dataset, opacity) {
+    this.command({ type: 'addWmsLayer', dataset, opacity });
   }
 
-  removeReachabilityScenarioFromMainMap() {
-    this.broadcastService.broadcast(BroadcastMessage.RemoveReachabilityScenarioFromMainMap);
+  removeWmsLayerFromMap(dataset) {
+    this.command({ type: 'removeWmsLayer', dataset });
   }
+
+  addWfsLayerToMap(wfs, opacity, useCluster) {
+    this.command({ type: 'addWfsLayer', dataset: wfs, opacity, useCluster });
+  }
+
+  removeWfsLayerFromMap(wfs) {
+    this.command({ type: 'removeWfsLayer', dataset: wfs });
+  }
+
+  adjustColorForWfsLayer(dataset, opacity) {
+    this.command({ type: 'adjustWfsLayerColor', dataset, opacity });
+  }
+
+  // --- file layers ---
 
   addFileLayerToMap(dataset, _opacity) {
-    this.broadcastService.broadcast(BroadcastMessage.AddFileLayerToMap, [dataset]);
+    // NOTE: the opacity argument was never delivered in the legacy broadcast
+    // either — the file layer is added with its default opacity
+    this.command({ type: 'addFileLayer', dataset });
   }
 
   removeFileLayerFromMap(dataset) {
-    this.broadcastService.broadcast(BroadcastMessage.RemoveFileLayerFromMap, [dataset]);
+    this.command({ type: 'removeFileLayer', dataset });
   }
 
   adjustOpacityForFileLayer(dataset, opacity) {
-    this.broadcastService.broadcast(BroadcastMessage.AdjustOpacityForFileLayer, [dataset, opacity]);
+    this.command({ type: 'adjustFileLayerOpacity', dataset, opacity });
   }
 
   adjustColorForFileLayer(dataset) {
-    this.broadcastService.broadcast(BroadcastMessage.AdjustColorForFileLayer, dataset);
+    this.command({ type: 'adjustFileLayerColor', dataset });
+  }
+
+  // --- reachability scenario ---
+
+  replaceReachabilityScenarioOnMainMap(reachabilityScenario) {
+    this.command({ type: 'replaceReachabilityScenario', reachabilityScenario });
+  }
+
+  removeReachabilityScenarioFromMainMap() {
+    this.command({ type: 'removeReachabilityScenario' });
+  }
+
+  // --- map UI ---
+
+  showLoadingIcon() {
+    this.command({ type: 'showLoadingIcon' });
+  }
+
+  hideLoadingIcon() {
+    this.command({ type: 'hideLoadingIcon' });
+  }
+
+  exportMap() {
+    this.command({ type: 'exportMap' });
+  }
+
+  toggleExpertControls() {
+    this.command({ type: 'toggleExpertControls' });
+  }
+
+  openLayerControl() {
+    this.command({ type: 'openLayerControl' });
+  }
+
+  onGlobalFilterChange() {
+    this.command({ type: 'onGlobalFilterChange' });
   }
 }

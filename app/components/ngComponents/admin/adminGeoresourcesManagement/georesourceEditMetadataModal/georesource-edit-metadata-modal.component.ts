@@ -1,59 +1,92 @@
-import { Component, OnInit, ViewChild, ElementRef, OnDestroy, inject } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
-import { Subscription } from 'rxjs';
-import { AccessControlService } from 'services/access-control-service/access-control.service';
-import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
-import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
-import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
-import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
-import { FormsModule } from '@angular/forms';
-
-import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
 import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
-import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
-import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
-import { DATE_PICKER_OPTIONS } from 'util/date-picker.constants';
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  OnInit,
+  Output,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { getErrorMessage } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.util';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
+import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
+
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
+import { KmColorPickerComponent } from 'components/ngComponents/customElements/color-picker/km-color-picker.component';
+import {
+  KmLinePatternPickerComponent,
+  LinePatternOption,
+} from 'components/ngComponents/customElements/line-pattern-picker/km-line-pattern-picker.component';
 import {
   LOI_DASH_ARRAY_OBJECTS,
   POI_MARKER_COLORS,
 } from 'services/poi-presentation-service/poi-presentation.service';
+import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
+import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
+import { ResourceMetadataFormComponent } from '../../adminShared/resourceMetadataForm/resource-metadata-form.component';
+import {
+  buildResourceMetadataForm,
+  metadataFormToApi,
+  patchMetadataFormFromApi,
+  ResourceMetadataFormValue,
+} from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
+import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
+import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-georesource-edit-metadata-modal',
   templateUrl: './georesource-edit-metadata-modal.component.html',
   styleUrls: ['./georesource-edit-metadata-modal.component.scss'],
-  imports: [FormsModule, AdminTopicsManagementComponent, StepperComponent],
+  imports: [
+    FormsModule,
+    AdminTopicsManagementComponent,
+    StepperComponent,
+    KmColorPickerComponent,
+    KmLinePatternPickerComponent,
+    ResourceMetadataFormComponent,
+    TranslateModule,
+  ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy {
+export class GeoresourceEditMetadataModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
+
+  /** Emitted after a successful metadata update so the parent refreshes its table. */
+  @Output() refreshRequested = new EventEmitter<GeoresourceRefreshRequest>();
   protected accessControlService = inject(AccessControlService);
   private indicatorValueService = inject(IndicatorValueService);
+  private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
-  roleManagementHelper = inject(RoleManagementDataGridHelperService);
-  private broadcastService = inject(BroadcastService);
   private topicHierarchyService = inject(TopicHierarchyService);
   private http = inject(HttpClient);
   protected envConfigService = inject(EnvConfigService);
+  private cdr = inject(ChangeDetectorRef);
 
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
 
-  // Component state
-  loadingData = false;
+  // Component state — signal: toggled from the PATCH subscription (OnPush).
+  loadingData = signal(false);
   currentGeoresourceDataset: any;
-  currentStep = 1;
-  steps: StepperStep[] = [
-    { label: 'Metadaten der Georessource' },
-    { label: 'Allgemeine Metadaten' },
-    { label: 'Themenhierarchie' },
-  ];
+  readonly stepper = new WizardStepper([
+    { key: 'metadata', label: 'ADMIN_SHARED_UI.STEP_LABELS.GEORESOURCE_METADATA' },
+    { key: 'general', label: 'ADMIN_SHARED_UI.STEP_LABELS.GENERAL_METADATA' },
+    { key: 'topics', label: 'ADMIN_SHARED_UI.TOPICS.TITLE' },
+  ]);
 
   // Form data
   datasetName: string = '';
@@ -62,17 +95,11 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   poiMarkerTextInvalid = false;
 
   // Metadata
-  metadata: any = {
-    note: '',
-    literature: '',
-    updateInterval: undefined,
-    sridEPSG: 4326,
-    datasource: '',
-    contact: '',
-    lastUpdate: '',
-    description: '',
-    databasis: '',
-  };
+  metadataForm = buildResourceMetadataForm();
+  /** Read-only view of the metadata form value for patch-body/export building. */
+  get metadata(): ResourceMetadataFormValue {
+    return this.metadataForm.getRawValue();
+  }
 
   // Georesource type
   georesourceType: string = 'poi';
@@ -100,36 +127,45 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   georesourceTopic_subsubTopic: any;
   georesourceTopic_subsubsubTopic: any;
 
-  // Role management
-  roleManagementTableOptions: any;
+  // Roles pass-through for PATCH/export: metadata editing does not manage
+  // permissions (that is the edit-user-roles modal's job, like in the
+  // spatial-unit area) — the current roles are just echoed back. Sourced from
+  // the dataset on reset and from an imported metadata file. Historically this
+  // went through an invisible role grid that was never rendered.
+  allowedRoles: string[] = [];
 
   // Import/Export
   metadataImportSettings: any;
-  georesourceMetadataImportError: string = '';
+  // Signal: written from the async FileReader callback (OnPush).
+  georesourceMetadataImportError = signal('');
   georesourceMetadataStructure: any;
   georesourceMetadataStructure_pretty: string = '';
 
-  // Success/Error messages
-  successMessagePart: string = '';
-  errorMessagePart: string = '';
-
-  // Subscriptions
-  private subscriptions: Subscription[] = [];
-
-  readonly loiDashArrayObjects = LOI_DASH_ARRAY_OBJECTS;
   readonly poiMarkerColors = POI_MARKER_COLORS;
+
+  /** LOI dash patterns mapped for the Angular line-pattern picker. */
+  readonly availableLinePatternOptions: LinePatternOption[] = LOI_DASH_ARRAY_OBJECTS.map(
+    (option) => ({
+      label: option.dashArrayValue || 'durchgezogen',
+      dashArrayValue: option.dashArrayValue,
+      svgString: option.svgString,
+    })
+  );
+
+  // Alert visibility (template binding; formerly toggled via document.getElementById).
+  // Success/error feedback is toasted via NotificationService; only the inline
+  // metadata-import error report remains.
+  importErrorAlertVisible = signal(false);
 
   constructor() {
     this.initializeDefaultValues();
   }
 
   ngOnInit(): void {
-    this.setupEventListeners();
+    // The dataset arrives via the componentInstance input set by the management
+    // component; the former OnEditGeoresourceMetadata broadcast subscription read
+    // a non-existent payload field and never fired with data.
     this.initializeMetadataStructure();
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
   private initializeDefaultValues(): void {
@@ -175,71 +211,22 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     );
   }
 
-  private setupEventListeners(): void {
-    // Listen for edit georesource metadata event
-    const editSub = this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
-      if (data.msg === BroadcastMessage.OnEditGeoresourceMetadata) {
-        this.currentGeoresourceDataset = data.georesourceDataset;
-        this.resetGeoresourceEditMetadataForm();
-      }
-    });
-    this.subscriptions.push(editSub);
-
-    // Listen for available roles update
-    const rolesSub = this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
-      if (data.msg === BroadcastMessage.AvailableRolesUpdate) {
-        this.refreshRoles();
-      }
-    });
-    this.subscriptions.push(rolesSub);
-  }
-
-  private refreshRoles(): void {
-    const allowedRoles = this.currentGeoresourceDataset
-      ? this.currentGeoresourceDataset.allowedRoles
-      : [];
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'georesourceEditRoleManagementTable',
-      this.roleManagementTableOptions,
-      this.accessControlService.accessControl,
-      allowedRoles
-    );
-  }
-
   // Form methods
   resetGeoresourceEditMetadataForm(): void {
     if (!this.currentGeoresourceDataset) return;
 
-    this.currentStep = 1;
+    this.stepper.reset();
     this.datasetName = this.currentGeoresourceDataset.datasetName;
     this.datasetNameInvalid = false;
 
-    // Reset metadata
-    this.metadata = {
-      note: this.currentGeoresourceDataset.metadata.note,
-      literature: this.currentGeoresourceDataset.metadata.literature,
-      sridEPSG: 4326,
-      datasource: this.currentGeoresourceDataset.metadata.datasource,
-      databasis: this.currentGeoresourceDataset.metadata.databasis,
-      contact: this.currentGeoresourceDataset.metadata.contact,
-      description: this.currentGeoresourceDataset.metadata.description,
-      lastUpdate: this.currentGeoresourceDataset.metadata.lastUpdate,
-    };
-
-    // Set update interval
-    this.envConfigService.updateIntervalOptions.forEach((option: any) => {
-      if (option.apiName === this.currentGeoresourceDataset.metadata.updateInterval) {
-        this.metadata.updateInterval = option;
-      }
-    });
-
-    // Set role management
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'georesourceEditRoleManagementTable',
-      this.roleManagementTableOptions,
-      this.accessControlService.accessControl,
-      this.currentGeoresourceDataset.allowedRoles
+    // Reset metadata from the dataset being edited
+    patchMetadataFormFromApi(
+      this.metadataForm,
+      this.currentGeoresourceDataset.metadata,
+      this.envConfigService.updateIntervalOptions
     );
+
+    this.allowedRoles = [...(this.currentGeoresourceDataset.allowedRoles ?? [])];
 
     // Set georesource type
     this.isPOI = this.currentGeoresourceDataset.isPOI;
@@ -265,10 +252,9 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     });
 
     // Set LOI properties
-    LOI_DASH_ARRAY_OBJECTS.forEach((option: any) => {
+    this.availableLinePatternOptions.forEach((option) => {
       if (option.dashArrayValue === this.currentGeoresourceDataset.loiDashArrayString) {
         this.selectedLoiDashArrayObject = option;
-        this.onChangeLoiDashArray(this.selectedLoiDashArrayObject);
       }
     });
 
@@ -294,90 +280,6 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     }
     if (topicHierarchy && topicHierarchy[3]) {
       this.georesourceTopic_subsubsubTopic = topicHierarchy[3];
-    }
-
-    // Reset messages
-    this.successMessagePart = '';
-    this.errorMessagePart = '';
-
-    // Initialize date picker
-    setTimeout(() => {
-      this.initializeDatePickers();
-    }, 250);
-  }
-
-  private initializeDatePickers(): void {
-    try {
-      const datePicker = document.getElementById('georesourceEditLastUpdateDatepicker');
-      if (datePicker && (window as any).$) {
-        (window as any).$('#georesourceEditLastUpdateDatepicker').datepicker(DATE_PICKER_OPTIONS);
-        (window as any)
-          .$('#georesourceEditLastUpdateDatepicker')
-          .datepicker('setDate', this.metadata.lastUpdate);
-      }
-
-      // Initialize color pickers
-      const loiColorPicker = document.getElementById('loiColorEditPicker');
-      const aoiColorPicker = document.getElementById('aoiColorEditPicker');
-
-      if (loiColorPicker && (window as any).$) {
-        (window as any).$('#loiColorEditPicker').colorpicker();
-        (window as any).$('#loiColorEditPicker').colorpicker('setValue', this.loiColor);
-      }
-
-      if (aoiColorPicker && (window as any).$) {
-        (window as any).$('#aoiColorEditPicker').colorpicker();
-        (window as any).$('#aoiColorEditPicker').colorpicker('setValue', this.aoiColor);
-      }
-
-      // Initialize icon picker
-      const iconPicker = document.getElementById('poiSymbolEditPicker');
-      if (iconPicker && (window as any).$) {
-        const iconPickerOptions = {
-          align: 'center',
-          arrowClass: 'btn-default',
-          arrowPrevIconClass: 'fas fa-angle-left',
-          arrowNextIconClass: 'fas fa-angle-right',
-          cols: 10,
-          footer: true,
-          header: true,
-          icon: 'glyphicon-' + this.selectedPoiIconName,
-          iconset: 'glyphicon',
-          labelHeader: '{0} von {1} Seiten',
-          labelFooter: '{0} - {1} von {2} Icons',
-          placement: 'bottom',
-          rows: 6,
-          search: true,
-          searchText: 'Stichwortsuche (Bootstrap Glyphicons)',
-          selectedClass: 'btn-success',
-          unselectedClass: '',
-        };
-
-        (window as any).$('#poiSymbolEditPicker').iconpicker(iconPickerOptions);
-        (window as any).$('#poiSymbolEditPicker').on('change', (e: any) => {
-          this.selectedPoiIconName = e.icon.substring(e.icon.indexOf('-') + 1);
-        });
-        (window as any)
-          .$('#poiSymbolEditPicker')
-          .iconpicker('setIcon', 'glyphicon-' + this.selectedPoiIconName);
-      }
-
-      // Initialize LOI dash array dropdown
-      setTimeout(() => {
-        for (let i = 0; i < LOI_DASH_ARRAY_OBJECTS.length; i++) {
-          const element = document.getElementById('loiDashArrayEditDropdownItem-' + i);
-          if (element) {
-            element.innerHTML = LOI_DASH_ARRAY_OBJECTS[i].svgString;
-          }
-        }
-
-        const buttonElement = document.getElementById('loiDashArrayEditDropdownButton');
-        if (buttonElement) {
-          buttonElement.innerHTML = this.selectedLoiDashArrayObject.svgString;
-        }
-      }, 1000);
-    } catch (error) {
-      console.warn('Date picker/color picker initialization failed:', error);
     }
   }
 
@@ -420,17 +322,13 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   }
 
   // LOI methods
-  onChangeLoiDashArray(loiDashArrayObject: any): void {
+  onChangeLoiDashArray(loiDashArrayObject: LinePatternOption | null): void {
     this.selectedLoiDashArrayObject = loiDashArrayObject;
-    const buttonElement = document.getElementById('loiDashArrayEditDropdownButton');
-    if (buttonElement) {
-      buttonElement.innerHTML = loiDashArrayObject.svgString;
-    }
   }
 
   // Import/Export methods
   onImportGeoresourceEditMetadata(): void {
-    this.georesourceMetadataImportError = '';
+    this.georesourceMetadataImportError.set('');
     this.metadataImportFile.nativeElement.click();
   }
 
@@ -449,13 +347,14 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
         this.parseFromMetadataFile(event);
       } catch {
         console.error('Uploaded Metadata File cannot be parsed.');
-        this.georesourceMetadataImportError = 'Uploaded Metadata File cannot be parsed correctly';
-        const preElement = document.getElementById('georesourcesEditMetadataPre');
-        if (preElement) {
-          preElement.innerHTML = this.georesourceMetadataStructure_pretty;
-        }
+        this.georesourceMetadataImportError.set(
+          'Uploaded Metadata File cannot be parsed correctly'
+        );
         this.showMetadataImportErrorAlert();
       }
+      // The import rewrites many ngModel-bound fields from an async callback —
+      // mark the OnPush view once instead of converting each field to a signal.
+      this.cdr.markForCheck();
     };
 
     fileReader.readAsText(file);
@@ -466,44 +365,23 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
     if (!this.metadataImportSettings.metadata) {
       console.error('uploaded Metadata File cannot be parsed - wrong structure.');
-      this.georesourceMetadataImportError =
-        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.';
-      const preElement = document.getElementById('georesourcesEditMetadataPre');
-      if (preElement) {
-        preElement.innerHTML = this.georesourceMetadataStructure_pretty;
-      }
+      this.georesourceMetadataImportError.set(
+        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.'
+      );
       this.showMetadataImportErrorAlert();
       return;
     }
 
     // Parse metadata
-    this.metadata = {
-      note: this.metadataImportSettings.metadata.note,
-      literature: this.metadataImportSettings.metadata.literature,
-      sridEPSG: this.metadataImportSettings.metadata.sridEPSG,
-      datasource: this.metadataImportSettings.metadata.datasource,
-      contact: this.metadataImportSettings.metadata.contact,
-      lastUpdate: this.metadataImportSettings.metadata.lastUpdate,
-      description: this.metadataImportSettings.metadata.description,
-      databasis: this.metadataImportSettings.metadata.databasis,
-    };
-
-    // Set update interval
-    this.envConfigService.updateIntervalOptions.forEach((option: any) => {
-      if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
-        this.metadata.updateInterval = option;
-      }
-    });
+    patchMetadataFormFromApi(
+      this.metadataForm,
+      this.metadataImportSettings.metadata,
+      this.envConfigService.updateIntervalOptions
+    );
 
     this.datasetName = this.metadataImportSettings.datasetName;
 
-    // Set role management
-    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'georesourceEditRoleManagementTable',
-      this.roleManagementTableOptions,
-      this.accessControlService.accessControl,
-      this.metadataImportSettings.allowedRoles
-    );
+    this.allowedRoles = [...(this.metadataImportSettings.allowedRoles ?? [])];
 
     // Set georesource specific properties
     this.isPOI = this.metadataImportSettings.isPOI;
@@ -529,10 +407,9 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     });
 
     // Set LOI properties
-    LOI_DASH_ARRAY_OBJECTS.forEach((option: any) => {
+    this.availableLinePatternOptions.forEach((option) => {
       if (option.dashArrayValue === this.metadataImportSettings.loiDashArrayString) {
         this.selectedLoiDashArrayObject = option;
-        this.onChangeLoiDashArray(this.selectedLoiDashArrayObject);
       }
     });
 
@@ -540,20 +417,6 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     this.loiWidth = this.metadataImportSettings.loiWidth;
     this.aoiColor = this.metadataImportSettings.aoiColor;
     this.selectedPoiIconName = this.metadataImportSettings.poiSymbolBootstrap3Name;
-
-    // Set color pickers
-    setTimeout(() => {
-      if ((window as any).$) {
-        (window as any).$('#loiColorEditPicker').colorpicker('setValue', this.loiColor);
-        (window as any).$('#aoiColorEditPicker').colorpicker('setValue', this.aoiColor);
-        (window as any)
-          .$('#poiSymbolEditPicker')
-          .iconpicker(
-            'setIcon',
-            'glyphicon-' + this.metadataImportSettings.poiSymbolBootstrap3Name
-          );
-      }
-    }, 200);
 
     // Set topic hierarchy
     const topicHierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(
@@ -588,14 +451,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     metadataExport.metadata.databasis = this.metadata.databasis || '';
     metadataExport.datasetName = this.datasetName || '';
 
-    metadataExport.allowedRoles = [];
-
-    const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-      this.roleManagementTableOptions
-    );
-    for (const roleId of roleIds) {
-      metadataExport.allowedRoles.push(roleId);
-    }
+    metadataExport.allowedRoles = [...this.allowedRoles];
 
     if (this.metadata.updateInterval) {
       metadataExport.metadata.updateInterval = this.metadata.updateInterval.apiName;
@@ -671,31 +527,14 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   // Main edit method
   editGeoresourceMetadata(): void {
     const patchBody: any = {
-      metadata: {
-        note: this.metadata.note,
-        literature: this.metadata.literature,
-        updateInterval: this.metadata.updateInterval.apiName,
-        sridEPSG: this.metadata.sridEPSG,
-        datasource: this.metadata.datasource,
-        contact: this.metadata.contact,
-        lastUpdate: this.metadata.lastUpdate,
-        description: this.metadata.description,
-        databasis: this.metadata.databasis,
-      },
-      allowedRoles: [],
+      metadata: metadataFormToApi(this.metadataForm),
+      allowedRoles: [...this.allowedRoles],
       datasetName: this.datasetName,
       isAOI: this.isAOI,
       isLOI: this.isLOI,
       isPOI: this.isPOI,
       topicReference: null,
     };
-
-    const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
-      this.roleManagementTableOptions
-    );
-    for (const roleId of roleIds) {
-      patchBody.allowedRoles.push(roleId);
-    }
 
     if (this.isPOI) {
       patchBody.poiSymbolBootstrap3Name = this.selectedPoiIconName;
@@ -736,7 +575,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       patchBody.topicReference = '';
     }
 
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     this.http
       .patch(
@@ -747,67 +586,39 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       )
       .subscribe({
         next: (_response: any) => {
-          this.successMessagePart = this.datasetName;
-          this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTable, {
+          this.refreshRequested.emit({
             crudType: 'edit',
             targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
           });
-          this.showSuccessAlert();
-          this.loadingData = false;
+          this.loadingData.set(false);
+          this.notificationService.showSuccess(
+            this.translate.instant('ADMIN_GEORESOURCES.METADATA_MODAL.MSG.METADATA_UPDATED', {
+              name: this.datasetName,
+            })
+          );
+          this.activeModal.close({
+            action: 'updated',
+            georesourceId: this.currentGeoresourceDataset.georesourceId,
+          });
         },
         error: (error: any) => {
-          if (error.data) {
-            this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.data);
-          } else {
-            this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
-          }
-          this.showErrorAlert();
-          this.loadingData = false;
+          this.notificationService.showError(
+            this.translate.instant('ADMIN_GEORESOURCES.METADATA_MODAL.MSG.METADATA_UPDATE_FAILED', {
+              error: getErrorMessage(error),
+            })
+          );
+          this.loadingData.set(false);
         },
       });
   }
 
-  // Alert methods
-  showSuccessAlert(): void {
-    const alertElement = document.getElementById('georesourceEditMetadataSuccessAlert');
-    if (alertElement) {
-      alertElement.hidden = false;
-    }
-  }
-
-  showErrorAlert(): void {
-    const alertElement = document.getElementById('georesourceEditMetadataErrorAlert');
-    if (alertElement) {
-      alertElement.hidden = false;
-    }
-  }
-
+  // Alert methods (template-bound flags)
   showMetadataImportErrorAlert(): void {
-    const alertElement = document.getElementById('georesourceEditMetadataImportErrorAlert');
-    if (alertElement) {
-      alertElement.hidden = false;
-    }
-  }
-
-  hideSuccessAlert(): void {
-    const alertElement = document.getElementById('georesourceEditMetadataSuccessAlert');
-    if (alertElement) {
-      alertElement.hidden = true;
-    }
-  }
-
-  hideErrorAlert(): void {
-    const alertElement = document.getElementById('georesourceEditMetadataErrorAlert');
-    if (alertElement) {
-      alertElement.hidden = true;
-    }
+    this.importErrorAlertVisible.set(true);
   }
 
   hideMetadataErrorAlert(): void {
-    const alertElement = document.getElementById('georesourceEditMetadataImportErrorAlert');
-    if (alertElement) {
-      alertElement.hidden = true;
-    }
+    this.importErrorAlertVisible.set(false);
   }
 
   // Get filtered topics for georesource
@@ -819,34 +630,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
   // Validation for form submission
   canSubmitForm(): boolean {
-    return (
-      !this.datasetNameInvalid &&
-      !!this.metadata.description &&
-      !!this.metadata.datasource &&
-      !!this.metadata.contact &&
-      !!this.metadata.updateInterval &&
-      !!this.metadata.lastUpdate &&
-      !this.poiMarkerTextInvalid
-    );
-  }
-
-  // Step navigation
-  nextStep(): void {
-    if (this.currentStep < 3) {
-      this.currentStep++;
-    }
-  }
-
-  previousStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
-  }
-
-  goToStep(step: number): void {
-    if (step >= 1 && step <= 3) {
-      this.currentStep = step;
-    }
+    return !this.datasetNameInvalid && this.metadataForm.valid && !this.poiMarkerTextInvalid;
   }
 
   // Modal control

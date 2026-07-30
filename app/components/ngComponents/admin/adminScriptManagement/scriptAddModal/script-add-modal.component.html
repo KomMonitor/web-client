@@ -1,11 +1,16 @@
 <div class="modal-header">
-  <h4 class="modal-title">Neues Indikatoren-Berechnungs-Skript registrieren</h4>
-  <button type="button" class="btn-close" aria-label="Schließen" (click)="close()"></button>
+  <h4 class="modal-title">{{ 'ADMIN_SCRIPTS.ADD_MODAL.TITLE' | translate }}</h4>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="close()"
+  ></button>
 </div>
 
 <div class="modal-body" style="position: relative">
   <!-- Loading Overlay -->
-  @if (loadingData) {
+  @if (loadingData()) {
     <div
       class="loading-overlay-admin-panel text-center"
       style="
@@ -27,62 +32,62 @@
 
   <!-- Progress Stepper -->
   <app-stepper
-    [steps]="stepperSteps"
-    [(currentStep)]="currentStep"
+    [steps]="stepper.steps"
+    [(currentStep)]="stepper.currentStep"
     [allStepsClickable]="true"
   ></app-stepper>
 
   <!-- ===================== STEP 1: INTRODUCTION ===================== -->
-  @if (currentStep === 1) {
+  @if (stepper.isActive('intro')) {
     <div>
-      <div class="intro-heading">{{ stepperSteps[0].label }}</div>
+      <div class="intro-heading">{{ stepper.steps[0].label }}</div>
       <app-script-step-introduction></app-script-step-introduction>
     </div>
   }
 
   <!-- ===================== STEP 2: METADATA ===================== -->
-  @if (currentStep === 2) {
+  @if (stepper.isActive('metadata')) {
     <div>
-      <div class="intro-heading">{{ stepperSteps[1].label }}</div>
-      <div class="sub-heading">Angaben über Metadaten des Indikatoren-Berechnungs-Skripts</div>
+      <div class="intro-heading">{{ stepper.steps[1].label }}</div>
+      <div class="sub-heading">{{ 'ADMIN_SCRIPTS.ADD_MODAL.METADATA_SUBHEADING' | translate }}</div>
       <app-script-step-metadata [(metadata)]="scriptMetadata"></app-script-step-metadata>
     </div>
   }
 
   <!-- ===================== STEP 3: SCRIPT CONTENT ===================== -->
-  @if (currentStep === 3) {
+  @if (stepper.isActive('script')) {
     <div>
-      <div class="intro-heading">{{ stepperSteps[2].label }}</div>
-      <div class="sub-heading">Angaben über den Skript-Code und notwendige Skript-Parameter</div>
+      <div class="intro-heading">{{ stepper.steps[2].label }}</div>
+      <div class="sub-heading">{{ 'ADMIN_SCRIPTS.ADD_MODAL.SCRIPT_SUBHEADING' | translate }}</div>
       <app-script-step-content></app-script-step-content>
     </div>
   }
 
   <!-- ---- SUCCESS / ERROR ALERTS ---- -->
-  @if (showSuccessAlert) {
+  @if (showSuccessAlert()) {
     <div class="alert alert-success mt-3">
       <button type="button" class="btn-close" (click)="hideSuccessAlert()">&times;</button>
-      <i class="fas fa-check"></i> Skript wurde erfolgreich registriert.
+      <i class="fas fa-check"></i> {{ 'ADMIN_SCRIPTS.ADD_MODAL.REGISTER_SUCCESS' | translate }}
     </div>
   }
-  @if (showErrorAlert) {
+  @if (showErrorAlert()) {
     <div class="alert alert-danger mt-3">
       <button type="button" class="btn-close" (click)="hideErrorAlert()">&times;</button>
-      <i class="fas fa-ban"></i> Fehler beim Registrieren des Skripts.
-      <pre>{{ errorMessagePart }}</pre>
+      <i class="fas fa-ban"></i> {{ 'ADMIN_SCRIPTS.ADD_MODAL.REGISTER_ERROR' | translate }}
+      <pre>{{ errorMessagePart() }}</pre>
     </div>
   }
 
   <div class="stepper-buttons">
-    @if (currentStep > 1) {
-      <button type="button" class="btn btn-primary" (click)="previousStep()">
-        &lt; Voriger Schritt
+    @if (stepper.currentStep > 1) {
+      <button type="button" class="btn btn-primary" (click)="stepper.previous()">
+        &lt; {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
       </button>
     }
 
-    @if (currentStep < stepperSteps.length) {
-      <button type="button" class="btn btn-primary" (click)="nextStep()">
-        Nächster Schritt &gt;
+    @if (stepper.currentStep < stepper.totalSteps) {
+      <button type="button" class="btn btn-primary" (click)="stepper.next()">
+        {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }} &gt;
       </button>
     }
   </div>
@@ -90,13 +95,17 @@
 
 <!-- Footer with nav buttons -->
 <div class="modal-footer">
-  <button type="button" class="btn btn-outline-secondary" (click)="close()">Schließen</button>
+  <button type="button" class="btn btn-outline-secondary" (click)="close()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
 
   <div style="flex: 1"></div>
 
   <button type="button" class="btn btn-success" [disabled]="!isFormValid()" (click)="addScript()">
-    Skript registrieren
+    {{ 'ADMIN_SCRIPTS.ADD_MODAL.REGISTER_SCRIPT' | translate }}
   </button>
 
-  <button type="button" class="btn btn-danger" (click)="resetForm()">Zurücksetzen</button>
+  <button type="button" class="btn btn-danger" (click)="resetForm()">
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
+  </button>
 </div>

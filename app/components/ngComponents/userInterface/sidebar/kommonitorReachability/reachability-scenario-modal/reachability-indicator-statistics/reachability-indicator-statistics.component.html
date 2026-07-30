@@ -48,12 +48,12 @@
                 (change)="onChangeSelectedSpatialUnit()"
                 required
               >
-                <option disabled selected value>-- Raumeinheit w&auml;hlen --</option>
+                <option [ngValue]="null" disabled>-- Raumeinheit w&auml;hlen --</option>
                 @for (
                   spatialUnit of selectedIndicatorForStatistics.applicableSpatialUnits;
                   track spatialUnit
                 ) {
-                  <option [value]="spatialUnit">
+                  <option [ngValue]="spatialUnit">
                     {{ spatialUnit.spatialUnitName }}
                   </option>
                 }
@@ -133,7 +133,7 @@
             @if (!reachabilityStateService.poiDataset.poiName) {
               <div>
                 <b>Berechnungen f&uuml;r Punktdatenquelle:</b>
-                <i>{{ reachabilityStateService.settings?.selectedStartPointLayer.datasetName }}</i>
+                <i>{{ reachabilityStateService.settings?.selectedStartPointLayer?.datasetName }}</i>
               </div>
             }
           </div>

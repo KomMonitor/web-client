@@ -53,9 +53,9 @@
       </div>
     }
     <p title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></p>
-  <!--   @if (showAdminLogin) {
+    @if (showAdminLogin) {
       <p (click)="openAdminUI()" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></p>
-    } -->
+    }
     <p (click)="openInfoModal()" title="Information&nbsp;&nbsp;">
       <span class="glyphicon glyphicon-info-sign"></span>
     </p>
@@ -65,228 +65,9 @@
   <!-- <a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a> -->
 </header>
 <div id="userInterface-content">
-  <app-sidebar [element]="sidebarElement" (sidebarClosed)="onSidebarClose($event)"></app-sidebar>
+  <app-sidebar></app-sidebar>
   <div id="mapWrapper">
-    <div id="sideBarButtons">
-      @if (visibilityHelperService.elementVisibility.indicatorConfig) {
-        <button
-          type="button"
-          style="display: block; position: relative; margin-top: 5px"
-          id="sidebarIndicatorConfigCollapse"
-          (click)="onSidebarButtonClick($event)"
-          (mouseover)="closeDiagramSubmenu()"
-          class="btn btn-custom btn-circle"
-          [ngClass]="{
-            'btn-docked btn-custom-docked': sidebarElement === 'sidebarIndicatorConfigCollapse',
-          }"
-          data-toggle="tooltip"
-          title="Indikatorenauswahl"
-        >
-          <i class="fas fa-sitemap"></i>
-        </button>
-      }
-
-      @if (visibilityHelperService.elementVisibility.poi) {
-        <button
-          type="button"
-          style="display: block; position: relative; margin-top: 5px"
-          id="sidebarPoiCollapse"
-          (click)="onSidebarButtonClick($event)"
-          (mouseover)="closeDiagramSubmenu()"
-          class="btn btn-custom btn-circle"
-          [ngClass]="{ 'btn-docked btn-custom-docked': sidebarElement === 'sidebarPoiCollapse' }"
-          data-toggle="tooltip"
-          title="Infrastrukturdaten"
-        >
-          <i class="fas fa-map-marker-alt"></i>
-        </button>
-      }
-
-      @if (visibilityHelperService.elementVisibility.dataImport) {
-        <button
-          type="button"
-          style="display: block; position: relative; margin-top: 5px"
-          id="sidebarDataImportCollapse"
-          (click)="onSidebarButtonClick($event)"
-          (mouseover)="closeDiagramSubmenu()"
-          class="btn btn-custom btn-circle"
-          [ngClass]="{
-            'btn-docked btn-custom-docked': sidebarElement === 'sidebarDataImportCollapse',
-          }"
-          data-toggle="tooltip"
-          title="Datenimport"
-        >
-          <i class="fas fa-file-import"></i>
-        </button>
-      }
-
-      @if (visibilityHelperService.elementVisibility.filter) {
-        <button
-          type="button"
-          style="display: block; position: relative; margin-top: 5px"
-          id="sidebarFilterCollapse"
-          (click)="onSidebarButtonClick($event)"
-          (mouseover)="closeDiagramSubmenu()"
-          class="btn btn-custom btn-circle"
-          [ngClass]="{
-            'btn-docked btn-custom-docked': sidebarElement === 'sidebarFilterCollapse',
-            filterActive: filterModusActive(),
-          }"
-          data-toggle="tooltip"
-          title="Darstellungsfilter"
-        >
-          <i class="fas fa-filter"></i>
-        </button>
-      }
-
-      <div>
-        <button
-          type="button"
-          style="display: block; position: relative; margin-top: 5px"
-          (mouseover)="onDiagramSubMenuOver()"
-          class="btn btn-custom btn-circle"
-          [ngClass]="{
-            'btn-docked btn-custom-docked': isDiagramSidebarOpened(),
-            balanceActive: chartDisplayState.isBalanceChecked,
-          }"
-          data-toggle="tooltip"
-          title="statistische Diagramme"
-        >
-          <i class="fas fa-chart-simple"></i>
-        </button>
-
-        <div id="diagramSubMenu" [ngClass]="{ hidden: !diagramSubMenuOpen }">
-          @if (visibilityHelperService.elementVisibility.balance) {
-            <div class="subMenuButtonWrapper">
-              <button
-                type="button"
-                style="display: block; position: relative"
-                id="sidebarBalanceCollapse"
-                (click)="onDiagramSubMenuButtonClick($event)"
-                class="btn btn-custom btn-circle"
-                [ngClass]="{ balanceActive: chartDisplayState.isBalanceChecked }"
-                data-toggle="tooltip"
-                title="zeitliche Bilanzierung"
-              >
-                <i class="fas fa-chart-line"></i>
-              </button>
-              <div>
-                <b>Bilanzierung</b>
-                <p>
-                  Erfasst und bewertet den Datenbestand &uuml;ber einen definierbaren Zeitraum
-                  hinweg. Ermöglicht es, zeitliche Veränderungen transparent zu machen und
-                  Entwicklungen gezielt zu analysieren.
-                </p>
-              </div>
-            </div>
-          }
-
-          @if (visibilityHelperService.elementVisibility.diagrams) {
-            <div class="subMenuButtonWrapper">
-              <button
-                type="button"
-                style="display: block; position: relative"
-                id="sidebarDiagramsCollapse"
-                (click)="onDiagramSubMenuButtonClick($event)"
-                class="btn btn-custom btn-circle"
-                data-toggle="tooltip"
-                title="statistische Diagramme"
-              >
-                <i class="fas fa-chart-bar"></i>
-              </button>
-              <div>
-                <b>Kennzahlen</b>
-                <p>
-                  &Uuml;bersicht der statistischen Kennzahlen der verschiedenen Teilindikatoren.
-                </p>
-              </div>
-            </div>
-          }
-
-          @if (visibilityHelperService.elementVisibility.radarDiagram) {
-            <div class="subMenuButtonWrapper">
-              <button
-                type="button"
-                style="display: block; position: relative"
-                id="sidebarRadarDiagramCollapse"
-                (click)="onDiagramSubMenuButtonClick($event)"
-                class="btn btn-custom btn-circle"
-                data-toggle="tooltip"
-                title="Indikatorenradar"
-              >
-                <img src="icons/radarMap.svg" />
-              </button>
-              <div>
-                <b>Indikatoren-Radar</b>
-                <p>
-                  Visualisiert mehrere Variablen gleichzeitig und zeigt Stärken sowie Schwächen auf
-                  einen Blick. Es eignet sich ideal zum Vergleichen komplexer Profile oder
-                  Leistungsindikatoren.
-                </p>
-              </div>
-            </div>
-          }
-
-          @if (visibilityHelperService.elementVisibility.regressionDiagram) {
-            <div class="subMenuButtonWrapper">
-              <button
-                type="button"
-                style="display: block; position: relative"
-                id="sidebarRegressionDiagramCollapse"
-                (click)="onDiagramSubMenuButtonClick($event)"
-                class="btn btn-custom btn-circle"
-                data-toggle="tooltip"
-                title="Regressionsdiagramm"
-              >
-                <img src="icons/scatterPlot.svg" />
-              </button>
-              <div>
-                <b>Lineare Regression</b>
-                <p>
-                  Zeigt den Zusammenhang zwischen zwei Variablen und veranschaulicht Trends oder
-                  Abhängigkeiten in Daten. Es dient dazu, Prognosen zu treffen und Muster in
-                  Datensätzen zu erkennen.
-                </p>
-              </div>
-            </div>
-          }
-        </div>
-      </div>
-
-      @if (visibilityHelperService.elementVisibility.reachability) {
-        <button
-          type="button"
-          style="display: block; position: relative; margin-top: 5px"
-          id="sidebarReachabilityCollapse"
-          (click)="onSidebarButtonClick($event)"
-          (mouseover)="closeDiagramSubmenu()"
-          class="btn btn-custom btn-circle"
-          [ngClass]="{
-            'btn-docked btn-custom-docked': sidebarElement === 'sidebarReachabilityCollapse',
-          }"
-          data-toggle="tooltip"
-          title="Erreichbarkeitsanalyse"
-        >
-          <i class="fas fa-route"></i>
-        </button>
-      }
-
-    <!--   @if (visibilityHelperService.elementVisibility.reportingButton) {
-        <button
-          type="button"
-          style="display: block; position: relative; margin-top: 5px"
-          (click)="openReportingModal()"
-          (mouseover)="closeDiagramSubmenu()"
-          class="btn btn-custom btn-circle"
-          data-toggle="modal"
-          title="Report erstellen"
-        >
-          <i class="fas fa-file-alt"></i>
-        </button>
-      } -->
-
-      <app-export-menu-button></app-export-menu-button>
-    </div>
+    <app-sidebar-buttons></app-sidebar-buttons>
 
     <div id="mapUtilButtons">
       <button
@@ -436,12 +217,14 @@
       <div id="dateSlider"></div>
     </div>
 
-    <app-kommonitor-map (click)="closeDiagramSubmenu()"></app-kommonitor-map>
+    <app-kommonitor-map></app-kommonitor-map>
   </div>
 </div>
 
 <app-kommonitor-legend></app-kommonitor-legend>
 
 <app-reporting-background-processor></app-reporting-background-processor>
+
+<app-reporting-progress-banner></app-reporting-progress-banner>
 
 <app-notification></app-notification>

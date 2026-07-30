@@ -5,14 +5,12 @@
       <input
         type="checkbox"
         class="btn-check"
-        [id]="exportItem.dataset.id + '-' + fmt"
+        [id]="idPrefix + '-' + fmt"
         autocomplete="off"
-        [checked]="exportItem.selectedFormats.includes(fmt)"
+        [checked]="selectedFormats.includes(fmt)"
         (change)="formatToggle.emit(fmt)"
       />
-      <label class="btn btn-outline-secondary" [for]="exportItem.dataset.id + '-' + fmt">{{
-        fmt
-      }}</label>
+      <label class="btn btn-outline-secondary" [for]="idPrefix + '-' + fmt">{{ fmt }}</label>
     }
   </div>
 </div>

@@ -1,45 +1,38 @@
 <app-admin-content-view
-  title="Verwalten der Geodaten"
-  description="Info"
+  [title]="'ADMIN_GEORESOURCES.TITLE' | translate"
+  [description]="'ADMIN_SHARED.INFO' | translate"
   [controlsTemplate]="controls"
   [contentTemplate]="content"
 >
 </app-admin-content-view>
 
 <ng-template #controls>
-  <span>Nur editierbare Datensätze anzeigen</span>
+  <span>{{ 'ADMIN_SHARED.SHOW_ONLY_EDITABLE' | translate }}</span>
   <div>
     <label class="switch">
       <input
         type="checkbox"
-        [(ngModel)]="tableViewSwitcher"
-        (ngModelChange)="onTableViewSwitch()"
+        [ngModel]="tableViewSwitcher()"
+        (ngModelChange)="tableViewSwitcher.set($event)"
       />
       <span class="switchslider round"></span>
     </label>
   </div>
-  <!-- batch update georesources -->
-  <button
-    class="btn btn-success btn-sm"
-    type="button"
-    [disabled]="!checkEditorPermission()"
-    (click)="onClickBatchUpdateGeoresource()"
-  >
-    <i class="fas fa-refresh"></i>&nbsp;&nbsp;Batch-Update
-  </button>
   <div ngbDropdown class="d-inline-block">
-    <button class="btn btn-success btn-sm" ngbDropdownToggle>+ Erstellen</button>
+    <button class="btn btn-success btn-sm" ngbDropdownToggle>
+      + {{ 'ADMIN_SHARED.CREATE' | translate }}
+    </button>
 
     <div ngbDropdownMenu class="addButton_dropdownWrapper">
       <button ngbDropdownItem type="button" (click)="onClickAddGeoresource()">
-        POI / LOI / AOI erstellen
+        {{ 'ADMIN_GEORESOURCES.CREATE_POI_LOI_AOI' | translate }}
       </button>
       <button
         ngbDropdownItem
         type="button"
         (click)="wmsSharedComponentsService.openAddModal(WmsResourceType.GEORESOURCE)"
       >
-        WMS erstellen
+        {{ 'ADMIN_GEORESOURCES.CREATE_WMS' | translate }}
       </button>
     </div>
   </div>
@@ -51,25 +44,16 @@
 <ng-template #content>
   <expandable-box title="Points of Interest">
     <ag-grid-angular
-      #poiGrid
       class="ag-theme-alpine"
       style="height: 70vh; width: 100%"
-      [rowData]="[]"
-      [columnDefs]="[]"
-      [gridOptions]="poiGridOptions"
-      [defaultColDef]="{
-        editable: false,
-        sortable: true,
-        filter: true,
-        floatingFilter: true,
-        resizable: true,
-        wrapText: true,
-        autoHeight: true,
-      }"
+      [rowData]="poiRowData()"
+      [columnDefs]="poiColumnDefs"
+      [defaultColDef]="defaultColDef"
       [suppressRowClickSelection]="true"
       [rowSelection]="'multiple'"
       [pagination]="true"
       [paginationPageSize]="10"
+      [paginationPageSizeSelector]="paginationPageSizeSelector"
       [enableCellTextSelection]="true"
       [ensureDomOrder]="true"
       [suppressColumnVirtualisation]="true"
@@ -79,25 +63,16 @@
 
   <expandable-box title="Lines of Interest">
     <ag-grid-angular
-      #loiGrid
       class="ag-theme-alpine"
       style="height: 70vh; width: 100%"
-      [rowData]="[]"
-      [columnDefs]="[]"
-      [gridOptions]="loiGridOptions"
-      [defaultColDef]="{
-        editable: false,
-        sortable: true,
-        filter: true,
-        floatingFilter: true,
-        resizable: true,
-        wrapText: true,
-        autoHeight: true,
-      }"
+      [rowData]="loiRowData()"
+      [columnDefs]="loiColumnDefs"
+      [defaultColDef]="defaultColDef"
       [suppressRowClickSelection]="true"
       [rowSelection]="'multiple'"
       [pagination]="true"
       [paginationPageSize]="10"
+      [paginationPageSizeSelector]="paginationPageSizeSelector"
       [enableCellTextSelection]="true"
       [ensureDomOrder]="true"
       [suppressColumnVirtualisation]="true"
@@ -107,25 +82,16 @@
 
   <expandable-box title="Areas of Interest">
     <ag-grid-angular
-      #aoiGrid
       class="ag-theme-alpine"
       style="height: 70vh; width: 100%"
-      [rowData]="[]"
-      [columnDefs]="[]"
-      [gridOptions]="aoiGridOptions"
-      [defaultColDef]="{
-        editable: false,
-        sortable: true,
-        filter: true,
-        floatingFilter: true,
-        resizable: true,
-        wrapText: true,
-        autoHeight: true,
-      }"
+      [rowData]="aoiRowData()"
+      [columnDefs]="aoiColumnDefs"
+      [defaultColDef]="defaultColDef"
       [suppressRowClickSelection]="true"
       [rowSelection]="'multiple'"
       [pagination]="true"
       [paginationPageSize]="10"
+      [paginationPageSizeSelector]="paginationPageSizeSelector"
       [enableCellTextSelection]="true"
       [ensureDomOrder]="true"
       [suppressColumnVirtualisation]="true"

@@ -1,8 +1,12 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import {
+  AccessControlMetadata,
+  AvailableRole,
+} from 'components/ngComponents/models/permissions.models';
+import { KeycloakTokenParsed } from 'keycloak-js';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 /**
  * Permissions / roles / access-control state and logic extracted from
@@ -21,36 +25,36 @@ export class AccessControlService {
   private broadcastService = inject(BroadcastService);
 
   isRealmAdmin: boolean = false;
-  currentKeycloakLoginGroupNames: any;
+  currentKeycloakLoginGroupNames: string[] = [];
 
   availablePermissions: any[] = [];
   availableUsers: any[] = [];
 
   // Signal-backed so reactive consumers (computed/templates) re-derive on change,
   // while existing imperative reads/assignments keep working via the getter/setter shim.
-  private _accessControl = signal<any[]>([]);
-  get accessControl(): any[] {
+  private _accessControl = signal<AccessControlMetadata[]>([]);
+  get accessControl(): AccessControlMetadata[] {
     return this._accessControl();
   }
-  set accessControl(value: any[]) {
+  set accessControl(value: AccessControlMetadata[]) {
     this._accessControl.set(value);
   }
-  accessControl_map = new Map();
-  allowedAccessControl: any[] = [];
+  accessControl_map = new Map<string, AccessControlMetadata>();
+  allowedAccessControl: AccessControlMetadata[] = [];
 
-  currentKeycloakLoginRoles: any[] = [];
-  currentKomMonitorLoginRoleNames: any[] = [];
-  currentKeycloakLoginGroups: any[] = [];
-  currentKomMonitorLoginOrganizationalUnits: any[] = [];
+  currentKeycloakLoginRoles: string[] = [];
+  currentKomMonitorLoginRoleNames: string[] = [];
+  currentKeycloakLoginGroups: string[] = [];
+  currentKomMonitorLoginOrganizationalUnits: AccessControlMetadata[] = [];
 
-  availableRoles: any[] = [];
+  availableRoles: AvailableRole[] = [];
 
   /**
    * Populate the current login roles/groups/admin flag from a parsed Keycloak token
    * (Prio 7 / B2 — moved out of the DataExchangeService bootstrap, which should not
    * own auth state derivation).
    */
-  applyLoginStateFromToken(tokenParsed: any) {
+  applyLoginStateFromToken(tokenParsed: KeycloakTokenParsed | undefined) {
     if (tokenParsed && tokenParsed.realm_access && tokenParsed.realm_access.roles) {
       this.currentKeycloakLoginRoles = tokenParsed.realm_access.roles;
       if (
@@ -90,8 +94,11 @@ export class AccessControlService {
     return false;
   }
 
-  getAllowedRolesString(allowedPermissionIds) {
-    const permissions: any[] = [];
+  getAllowedRolesString(allowedPermissionIds: string[] | null | undefined): string {
+    if (!allowedPermissionIds) {
+      return '';
+    }
+    const permissions: string[] = [];
     for (const organizationalUnit of this.accessControl) {
       for (const permission of organizationalUnit.permissions) {
         if (allowedPermissionIds.includes(permission.permissionId)) {
@@ -102,7 +109,7 @@ export class AccessControlService {
     return permissions.join(', ');
   }
 
-  getRoleTitle(organizationalUnitId) {
+  getRoleTitle(organizationalUnitId: string): string {
     const roles = this.accessControl.filter((e) => e.organizationalUnitId == organizationalUnitId);
     if (roles && roles.length > 0) {
       return roles[0].name;
@@ -141,38 +148,39 @@ export class AccessControlService {
     );
   }
 
-  setAccessControl(input) {
+  setAccessControl(input: AccessControlMetadata[]) {
     this.accessControl_map = new Map(input.map((e) => [e.organizationalUnitId, e]));
     this.accessControl = Array.from(this.accessControl_map.values());
     this.updateAvailableRoles();
     this.allowedAccessControl = this.filterAllowedAccessControl(this.accessControl);
   }
 
-  private filterAllowedAccessControl(acArray) {
+  private filterAllowedAccessControl(acArray: AccessControlMetadata[]): AccessControlMetadata[] {
     if (this.checkAdminPermission()) {
       return acArray;
     }
 
     const clientUserRoles = this.filterClientUserAdminRoles();
-    const filtered: any[] = [];
-    const existingOrgaIds: any[] = [];
+    const filtered: AccessControlMetadata[] = [];
+    const existingOrgaIds: string[] = [];
 
-    acArray.forEach((orga) => {
-      const currentOrga = orga;
+    acArray.forEach((currentOrga) => {
+      let orga: AccessControlMetadata | undefined = currentOrga;
       while (orga) {
+        const orgaCandidate = orga;
         clientUserRoles.forEach((role) => {
           const roleNameParts = role.split('.');
           const orgaName = roleNameParts[roleNameParts.length - 2];
 
           if (
-            orgaName === orga.name &&
+            orgaName === orgaCandidate.name &&
             !existingOrgaIds.includes(currentOrga.organizationalUnitId)
           ) {
             filtered.push(currentOrga);
             existingOrgaIds.push(currentOrga.organizationalUnitId);
           }
         });
-        orga = this.accessControl_map.get(orga.parentId);
+        orga = orga.parentId ? this.accessControl_map.get(orga.parentId) : undefined;
       }
     });
     return filtered;

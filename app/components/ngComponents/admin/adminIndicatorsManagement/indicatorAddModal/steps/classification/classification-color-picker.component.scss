@@ -1,0 +1,93 @@
+.cls-color-picker {
+  position: relative;
+  display: inline-block;
+}
+
+/* Trigger: plain color swatch, no hex text. */
+.cls-color-trigger {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 3px rgba(47, 109, 179, 0.35);
+}
+
+.cls-color-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+.cls-color-panel {
+  position: absolute;
+  z-index: 1001;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 300px;
+  padding: 15px 16px;
+  background: #fff;
+  border: 1px solid #d6dde4;
+  border-radius: 9px;
+  box-shadow: 0 10px 30px rgba(38, 55, 74, 0.22);
+}
+
+.cls-color-heading {
+  font-weight: 600;
+  font-size: 11px;
+  color: #6b7682;
+  margin-bottom: 9px;
+}
+
+.cls-color-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.cls-color-cell {
+  aspect-ratio: 1;
+  padding: 0;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &.selected {
+    box-shadow:
+      0 0 0 2px #fff,
+      0 0 0 3px #2c3e50;
+  }
+}
+
+.cls-color-custom {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+}
+
+.cls-color-native {
+  width: 30px;
+  height: 30px;
+  padding: 2px;
+  border: 1px solid #ccd2d8;
+  border-radius: 7px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.cls-color-hex {
+  flex: 1;
+  padding: 9px 11px;
+  border: 1px solid #ccd2d8;
+  border-radius: 6px;
+  font:
+    400 13px ui-monospace,
+    Menlo,
+    monospace;
+  color: #3a4550;
+  text-transform: uppercase;
+}

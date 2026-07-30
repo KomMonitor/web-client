@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
 
 import { ScriptIndicatorsComponent } from '../segments/script-indicators/script-indicators.component';
@@ -6,16 +6,19 @@ import { ScriptGeoresourcesComponent } from '../segments/script-georesources/scr
 import { ScriptParametersComponent } from '../segments/script-parameters/script-parameters.component';
 import { ScriptCodeComponent } from '../segments/script-code/script-code.component';
 
+import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-script-generic',
   templateUrl: './script-generic.component.html',
   standalone: true,
   imports: [
+    TranslateModule,
     ScriptIndicatorsComponent,
     ScriptGeoresourcesComponent,
     ScriptParametersComponent,
     ScriptCodeComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScriptGenericComponent implements OnInit {
   private scriptHelperService = inject(ScriptHelperService);

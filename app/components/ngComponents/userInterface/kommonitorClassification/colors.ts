@@ -3,6 +3,45 @@ export function mergeColorSchemes(customSchemes?: Record<string, any>): Record<s
   return { ...colorbrewer, ...(customSchemes ?? {}) };
 }
 
+/** ColorBrewer palette families (see http://colorbrewer2.org). */
+export type PaletteType = 'sequential' | 'diverging' | 'qualitative';
+
+/** Diverging colorbrewer scheme names. */
+export const DIVERGING_SCHEMES = new Set<string>([
+  'PuOr',
+  'BrBG',
+  'PRGn',
+  'PiYG',
+  'RdBu',
+  'RdGy',
+  'RdYlBu',
+  'Spectral',
+  'RdYlGn',
+]);
+
+/** Qualitative colorbrewer scheme names. */
+export const QUALITATIVE_SCHEMES = new Set<string>([
+  'Accent',
+  'Dark2',
+  'Paired',
+  'Pastel1',
+  'Pastel2',
+  'Set1',
+  'Set2',
+  'Set3',
+]);
+
+/**
+ * Classifies a colorbrewer scheme name into its palette family. Everything that is
+ * not explicitly diverging or qualitative is treated as sequential (the default,
+ * and also the safe fallback for custom schemes from config).
+ */
+export function getPaletteType(name: string): PaletteType {
+  if (QUALITATIVE_SCHEMES.has(name)) return 'qualitative';
+  if (DIVERGING_SCHEMES.has(name)) return 'diverging';
+  return 'sequential';
+}
+
 export const colorbrewer = {
   YlGn: {
     3: ['#f7fcb9', '#addd8e', '#31a354'],

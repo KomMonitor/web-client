@@ -1,0 +1,57 @@
+<div class="row">
+  <div class="col-md-3"></div>
+  <div class="col-md-6 col-sm-6 col-12">
+    @if (mode === 'assign') {
+      <div class="alert alert-info">
+        {{ 'ADMIN_SHARED_UI.OWNER.SELECT_HINT' | translate }}
+      </div>
+      <label for="targetUserRoleSelect">{{ 'ADMIN_SHARED_UI.OWNER.ORG_LABEL' | translate }}*</label>
+    } @else {
+      <label for="targetUserRoleSelect"
+        ><b>{{ 'ADMIN_SHARED_UI.OWNER.TRANSFER_TO' | translate }}</b></label
+      >
+    }
+    <div class="input-group">
+      <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+      <input
+        type="text"
+        class="form-control input-sm"
+        [placeholder]="'ADMIN_SHARED.KEYWORD_FILTER' | translate"
+        [(ngModel)]="ownerOrgFilter"
+        name="ownerOrgFilter"
+        [ngModelOptions]="{ standalone: true }"
+      />
+    </div>
+    <select
+      id="targetUserRoleSelect"
+      class="form-control"
+      [ngModel]="ownerId"
+      (ngModelChange)="onChangeOwner($event)"
+      name="ownerOrganization"
+      [ngModelOptions]="{ standalone: true }"
+      [required]="mode === 'assign'"
+    >
+      @if (mode === 'assign') {
+        <option value="" disabled>{{ 'ADMIN_SHARED_UI.OWNER.SELECT_ORG' | translate }}</option>
+      } @else {
+        <option value="">
+          <b>{{ 'ADMIN_SHARED_UI.OWNER.DO_NOT_TRANSFER' | translate }}</b>
+        </option>
+      }
+      @for (org of getFilteredOrganizations(); track org.organizationalUnitId) {
+        <option [value]="org.organizationalUnitId">{{ org.name }}</option>
+      }
+    </select>
+  </div>
+  <div class="col-md-3">
+    @if (mode === 'transfer') {
+      <label>{{ 'ADMIN_SHARED_UI.OWNER.CURRENT_ORG' | translate }}</label>
+      <p>{{ getCurrentOwnerName() }}</p>
+      @if (isOwnershipChanging) {
+        <div class="help-block" style="color: red">
+          <p>{{ 'ADMIN_SHARED_UI.OWNER.CHANGE_WARNING' | translate }}</p>
+        </div>
+      }
+    }
+  </div>
+</div>

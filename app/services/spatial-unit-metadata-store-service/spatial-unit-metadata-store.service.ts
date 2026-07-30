@@ -1,4 +1,6 @@
 import { Injectable, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { SpatialUnitOverviewType } from 'models/data-management-api';
 
 /**
  * Spatial-unit metadata store extracted from DataExchangeService
@@ -14,21 +16,56 @@ import { Injectable, signal } from '@angular/core';
 export class SpatialUnitMetadataStoreService {
   // Signal-backed so reactive consumers (computed/templates) re-derive on change,
   // while existing imperative reads/assignments keep working via the getter/setter shim.
-  private _availableSpatialUnits = signal<any[]>([]);
-  get availableSpatialUnits(): any[] {
+  private _availableSpatialUnits = signal<SpatialUnitOverviewType[]>([]);
+  get availableSpatialUnits(): SpatialUnitOverviewType[] {
     return this._availableSpatialUnits();
   }
-  set availableSpatialUnits(value: any[]) {
+  set availableSpatialUnits(value: SpatialUnitOverviewType[]) {
     this._availableSpatialUnits.set(value);
   }
-  availableSpatialUnits_map = new Map();
+  availableSpatialUnits_map = new Map<string, SpatialUnitOverviewType>();
 
-  setSpatialUnits(spatialUnitsArray) {
+  /** Stream over the signal for rxjs consumers (e.g. the admin overview page). */
+  readonly availableSpatialUnits$ = toObservable(this._availableSpatialUnits);
+
+  setSpatialUnits(spatialUnitsArray: SpatialUnitOverviewType[]) {
     this.availableSpatialUnits_map = new Map(spatialUnitsArray.map((u) => [u.spatialUnitId, u]));
     this.availableSpatialUnits = Array.from(this.availableSpatialUnits_map.values());
   }
 
-  getSpatialUnitMetadataById(spatialUnitId) {
+  getSpatialUnitMetadataById(spatialUnitId: string): SpatialUnitOverviewType | undefined {
     return this.availableSpatialUnits_map.get(spatialUnitId);
+  }
+
+  addSingleSpatialUnitMetadata(spatialUnitMetadata: SpatialUnitOverviewType) {
+    const withDefaults = {
+      ...spatialUnitMetadata,
+      userPermissions: spatialUnitMetadata.userPermissions || [],
+    };
+    this.availableSpatialUnits_map.set(withDefaults.spatialUnitId, withDefaults);
+    this.availableSpatialUnits = [withDefaults, ...this.availableSpatialUnits];
+  }
+
+  replaceSingleSpatialUnitMetadata(spatialUnitMetadata: SpatialUnitOverviewType) {
+    const withDefaults = {
+      ...spatialUnitMetadata,
+      userPermissions: spatialUnitMetadata.userPermissions || [],
+    };
+    const index = this.availableSpatialUnits.findIndex(
+      (u) => u.spatialUnitId === withDefaults.spatialUnitId
+    );
+    if (index !== -1) {
+      this.availableSpatialUnits = this.availableSpatialUnits.map((it, i) =>
+        i === index ? withDefaults : it
+      );
+    }
+    this.availableSpatialUnits_map.set(withDefaults.spatialUnitId, withDefaults);
+  }
+
+  deleteSingleSpatialUnitMetadata(spatialUnitId: string) {
+    this.availableSpatialUnits = this.availableSpatialUnits.filter(
+      (u) => u.spatialUnitId !== spatialUnitId
+    );
+    this.availableSpatialUnits_map.delete(spatialUnitId);
   }
 }

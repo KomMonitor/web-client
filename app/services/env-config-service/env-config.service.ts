@@ -196,6 +196,12 @@ export class EnvConfigService {
   get simplifyGeometriesOptions(): any {
     return window.__env.simplifyGeometriesOptions;
   }
+  get simplifyGeometriesParameterName(): any {
+    return window.__env.simplifyGeometriesParameterName;
+  }
+  get simplifyGeometries(): any {
+    return window.__env.simplifyGeometries;
+  }
   get enabledGeoresourcesInfrastructure(): any {
     return window.__env.enabledGeoresourcesInfrastructure;
   }
@@ -334,6 +340,10 @@ export class EnvConfigService {
     window.__env.initialSpatialUnitName = value;
   }
 
+  get controlsConfig(): any {
+    return window.__env.controlsConfig;
+  }
+
   // --- Filters ---
   get filterConfig(): any {
     return window.__env.filterConfig;
@@ -367,28 +377,6 @@ export class EnvConfigService {
   // --- Transparency ---
   get useTransparencyOnIndicator(): any {
     return window.__env.useTransparencyOnIndicator;
-  }
-
-  // --- Current map position (writable) ---
-  get currentLatitude(): any {
-    return window.__env.currentLatitude;
-  }
-  set currentLatitude(value: any) {
-    window.__env.currentLatitude = value;
-  }
-
-  get currentLongitude(): any {
-    return window.__env.currentLongitude;
-  }
-  set currentLongitude(value: any) {
-    window.__env.currentLongitude = value;
-  }
-
-  get currentZoomLevel(): any {
-    return window.__env.currentZoomLevel;
-  }
-  set currentZoomLevel(value: any) {
-    window.__env.currentZoomLevel = value;
   }
 
   // --- Auth / Keycloak extended ---

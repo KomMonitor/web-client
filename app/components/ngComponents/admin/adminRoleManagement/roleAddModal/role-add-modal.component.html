@@ -1,42 +1,52 @@
 <div class="modal-header">
-  <h4 class="modal-title">Neue Organisationseinheit registrieren</h4>
-  <button type="button" class="btn-close" aria-label="Schließen" (click)="close()"></button>
+  <h4 class="modal-title">{{ 'ADMIN_ROLES.ADD_MODAL.TITLE' | translate }}</h4>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="close()"
+  ></button>
 </div>
 
 <div class="modal-body">
-  <app-loading-overlay [loading]="processCreation" message="Erstelle Organisationseinheit...">
-    @if (showErrorAlert) {
+  <app-loading-overlay
+    [loading]="processCreation()"
+    [message]="'ADMIN_ROLES.ADD_MODAL.CREATING' | translate"
+  >
+    @if (showErrorAlert()) {
       <div class="alert alert-danger" role="alert">
-        Fehler beim Erstellen der Organisationseinheit:
-        <span [innerHTML]="errorMessagePart"></span>
+        {{ 'ADMIN_ROLES.ADD_MODAL.CREATE_ERROR' | translate }}
+        <span [innerHTML]="errorMessagePart()"></span>
       </div>
     }
-    @if (showKeycloakErrorAlert) {
+    @if (showKeycloakErrorAlert()) {
       <div class="alert alert-danger" role="alert">
-        Fehler beim Anlegen der Keycloak-Rollen:
-        <span [innerHTML]="keycloakErrorMessagePart"></span>
+        {{ 'ADMIN_ROLES.ADD_MODAL.KEYCLOAK_ROLES_ERROR' | translate }}
+        <span [innerHTML]="keycloakErrorMessagePart()"></span>
       </div>
     }
 
     <div class="stepper-wrapper">
-      <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
+      <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
     </div>
 
-    @if (currentStep === 1) {
+    @if (stepper.isActive('basics')) {
       <form (ngSubmit)="addOrganizationalUnit()">
-        <h2 class="fs-title text-center">Basisinformationen</h2>
-        <p class="help-block">Angaben über die neue Organisationseinheit</p>
+        <h2 class="fs-title text-center">{{ 'ADMIN_ROLES.ADD_MODAL.BASICS_TITLE' | translate }}</h2>
+        <p class="help-block">{{ 'ADMIN_ROLES.ADD_MODAL.BASICS_HELP' | translate }}</p>
         <p class="text-center">
-          <b><i>* = Pflichtfeld</i></b>
+          <b
+            ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+          >
         </p>
         <div class="row">
           <div class="col-md-4">
             <div class="form-group">
-              <label>Name*</label>
+              <label>{{ 'ADMIN_SHARED.NAME' | translate }}*</label>
               <input
                 class="form-control"
                 type="text"
-                placeholder="z.B. Fachbereich 52"
+                [placeholder]="'ADMIN_ROLES.ADD_MODAL.NAME_PLACEHOLDER' | translate"
                 [(ngModel)]="newOrganizationalUnit.name"
                 name="name"
                 (ngModelChange)="checkName()"
@@ -44,19 +54,18 @@
               />
               @if (nameInvalid) {
                 <div class="text-danger">
-                  Eingabe ungültig. Es existiert bereits eine andere Organisationseinheit mit
-                  gleichem Namen.
+                  {{ 'ADMIN_ROLES.ADD_MODAL.NAME_INVALID' | translate }}
                 </div>
               }
             </div>
           </div>
           <div class="col-md-4">
             <div class="form-group">
-              <label>Beschreibung*</label>
+              <label>{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}*</label>
               <textarea
                 class="form-control"
                 rows="4"
-                placeholder="z.B. Abteilung 52 von Musterstadt"
+                [placeholder]="'ADMIN_ROLES.ADD_MODAL.DESCRIPTION_PLACEHOLDER' | translate"
                 [(ngModel)]="newOrganizationalUnit.description"
                 name="description"
                 required
@@ -65,11 +74,11 @@
           </div>
           <div class="col-md-4">
             <div class="form-group">
-              <label>Kontakt*</label>
+              <label>{{ 'ADMIN_ROLES.CONTACT' | translate }}*</label>
               <textarea
                 class="form-control"
                 rows="4"
-                placeholder="z.B. sekretariat@kommonitor.de"
+                [placeholder]="'ADMIN_ROLES.ADD_MODAL.CONTACT_PLACEHOLDER' | translate"
                 [(ngModel)]="newOrganizationalUnit.contact"
                 name="contact"
                 required
@@ -82,14 +91,15 @@
             <div class="col-md-4">
               @if (parentSelected) {
                 <div class="alert alert-info compact-alert">
-                  Zum Anlegen eines Mandanten muss die übergeordnete Organisationseinheit entfernt
-                  werden.
+                  {{ 'ADMIN_ROLES.ADD_MODAL.MANDANT_REMOVE_PARENT_HINT' | translate }}
                 </div>
               }
               @if (!parentSelected) {
                 <div class="form-group">
                   <div class="toggle-row">
-                    <label class="toggle-label">Mandant*</label>
+                    <label class="toggle-label"
+                      >{{ 'ADMIN_ROLES.ADD_MODAL.MANDANT_LABEL' | translate }}*</label
+                    >
                     <label class="switch" for="mandant-toggle">
                       <input
                         id="mandant-toggle"
@@ -102,9 +112,7 @@
                     </label>
                   </div>
                   <p class="toggle-help-text">
-                    Als Mandant markierte Organisationseinheiten können eigene
-                    Untergruppenhierarchien, Themenbäume, Raumeinheiten und User vollständig
-                    isoliert von weiteren Mandanten derselben KomMonitor-Instanz verwalten.
+                    {{ 'ADMIN_ROLES.ADD_MODAL.MANDANT_HELP' | translate }}
                   </p>
                 </div>
               }
@@ -112,25 +120,23 @@
           }
           <div [class]="isRealmAdmin ? 'col-md-4' : 'col-md-8'">
             <label for="parentOrganizationalUnitSelect">
-              <b>Hierarchische Einordnung - Angabe der übergeordneten Organisationseinheit</b>
+              <b>{{ 'ADMIN_ROLES.ADD_MODAL.HIERARCHY_LABEL' | translate }}</b>
             </label>
             @if (newOrganizationalUnit.mandant) {
               <div class="alert alert-info compact-alert">
-                Mandanten können keine übergeordnete Organisationseinheit haben.
+                {{ 'ADMIN_ROLES.ADD_MODAL.MANDANT_NO_PARENT' | translate }}
               </div>
             }
             @if (!newOrganizationalUnit.mandant) {
               <app-filterable-select
                 propertyKey="name"
-                filterPlaceholder="Stichwortfilter"
-                selectPlaceholder="keine - neuer Wurzelknoten"
+                [filterPlaceholder]="'ADMIN_SHARED.KEYWORD_FILTER' | translate"
+                [selectPlaceholder]="'ADMIN_ROLES.ADD_MODAL.NO_PARENT_OPTION' | translate"
                 [options]="accessControlOptions"
                 (selectedItemChange)="onParentOrganizationalUnitChange($event)"
               ></app-filterable-select>
               <p class="help-block hierarchy-help-block">
-                Wird keine übergeordnete Organisationseinheit festgelegt, wird die neue
-                Organisationseinheit auf oberster Ebene der Hierarchie angelegt. Die
-                Hierarchiebeziehung kann nachträglich angepasst werden.
+                {{ 'ADMIN_ROLES.ADD_MODAL.HIERARCHY_HELP' | translate }}
               </p>
             }
           </div>
@@ -138,33 +144,23 @@
       </form>
     }
 
-    @if (currentStep === 2) {
-      <h2 class="fs-title text-center">Delegierte administrative Rechte</h2>
-      <expandable-box title="Bedienhinweise" borderColor="cyan">
+    @if (stepper.isActive('rights')) {
+      <h2 class="fs-title text-center">{{ 'ADMIN_ROLES.DELEGATED_RIGHTS_TITLE' | translate }}</h2>
+      <expandable-box [title]="'ADMIN_ROLES.USAGE_HINTS' | translate" borderColor="cyan">
         <div class="info-panel">
           <p class="text-center">
-            Sollen bereits existierende Organisationseinheiten/Gruppen administrative Aufgaben für
-            die neu anzulegende Gruppe übernehmen? Administrative Rechte können hier durch
-            entsprechende Häkchen an andere Gruppen übertragen werden.
+            {{ 'ADMIN_ROLES.ADD_MODAL.RIGHTS_INTRO' | translate }}
           </p>
           <p class="text-center">
             <i>
-              <b>Unterschied Diese Gruppe / Untergruppen</b>: Diese Angabe kontrolliert, ob
-              delegierte administrative Aufgaben nur für die gewählte Gruppe explizit erlaubt
-              werden, oder ob sich die delegierte Administration auch auf die Untergruppen der
-              gewählten Gruppe erstreckt. Beispiel: eine neue Gruppe 'Amt Übergeordnet' (inkl.
-              weiterer Untergruppen) wird erstellt und soll von einer bereits vorhandenen Gruppe
-              'Amt Globaladmin' verwaltet werden. Wenn nun administrative Rechte an 'Amt
-              Globaladmin' zugewiesen werden, muss entschieden werden, ob 'Amt Globaladmin' nur die
-              explizite Gruppe ('Amt Übergeordnet') verwalten darf, oder auch alle Ihre etwaigen
-              Untergruppen.
+              <b>{{ 'ADMIN_ROLES.GROUP_VS_SUBGROUPS_TITLE' | translate }}</b
+              >: {{ 'ADMIN_ROLES.GROUP_VS_SUBGROUPS_TEXT' | translate }}
             </i>
           </p>
           <p class="text-center">
             <i>
               <b>
-                Achtung: Die Rechte der neu angelegten Organisationseinheit können erst nach
-                Erzeugung innerhalb des 'Rechte editieren' Menüs gesetzt werden.
+                {{ 'ADMIN_ROLES.ADD_MODAL.RIGHTS_AFTER_CREATE_HINT' | translate }}
               </b>
             </i>
           </p>
@@ -184,7 +180,9 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-outline-secondary" (click)="close()">Schließen</button>
+  <button type="button" class="btn btn-outline-secondary" (click)="close()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
   <div style="flex: 1"></div>
   <button
     type="button"
@@ -192,7 +190,9 @@
     [disabled]="!canSubmit"
     (click)="addOrganizationalUnit()"
   >
-    Gruppe registrieren
+    {{ 'ADMIN_ROLES.ADD_MODAL.SUBMIT' | translate }}
   </button>
-  <button type="button" class="btn btn-danger" (click)="reset()">Zurücksetzen</button>
+  <button type="button" class="btn btn-danger" (click)="reset()">
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
+  </button>
 </div>

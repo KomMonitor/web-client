@@ -6,105 +6,105 @@
       <b>KomMonitor</b>
     </a>
   </header>
-  <div class="sidebar-subheader">Administration</div>
+  <div class="sidebar-subheader">{{ 'ADMIN_SHELL.ADMINISTRATION' | translate }}</div>
   <div class="nav-pills flex-column">
     <a class="nav-link" routerLink="overview" routerLinkActive="active">
       <i class="fas fa-tachometer-alt"></i>
-      <span>Übersicht</span>
+      <span>{{ 'ADMIN_SHELL.NAV.OVERVIEW' | translate }}</span>
     </a>
 
     <a class="nav-link" routerLink="groups" routerLinkActive="active">
       <i class="fas fa-users"></i>
-      <span>Gruppenverwaltung</span>
+      <span>{{ 'ADMIN_SHELL.NAV.GROUPS' | translate }}</span>
     </a>
 
     <a class="nav-link" routerLink="permissions" routerLinkActive="active">
       <i class="fa-solid fa-user-lock"></i>
-      <span>Gruppen-/Rechtekonzept</span>
+      <span>{{ 'ADMIN_SHELL.NAV.PERMISSIONS' | translate }}</span>
     </a>
 
     <a class="nav-link" routerLink="topics" routerLinkActive="active">
       <i class="fas fa-book"></i>
-      <span>Themenverwaltung</span>
+      <span>{{ 'ADMIN_SHELL.NAV.TOPICS' | translate }}</span>
     </a>
 
     <button
       class="btn btn-link nav-link w-100 text-start"
-      (click)="isGeodataMgmtExpanded = !isGeodataMgmtExpanded"
-      [attr.aria-expanded]="isGeodataMgmtExpanded"
+      (click)="isGeodataMgmtExpanded.set(!isGeodataMgmtExpanded())"
+      [attr.aria-expanded]="isGeodataMgmtExpanded()"
     >
       <i class="fas fa-globe-americas"></i>
-      <span class="label">Geodatenverwaltung</span>
+      <span class="label">{{ 'ADMIN_SHELL.NAV.GEODATA_MGMT' | translate }}</span>
       <span
         class="fa collapse-marker"
-        [class.fa-angle-down]="isGeodataMgmtExpanded"
-        [class.fa-angle-left]="!isGeodataMgmtExpanded"
+        [class.fa-angle-down]="isGeodataMgmtExpanded()"
+        [class.fa-angle-left]="!isGeodataMgmtExpanded()"
       ></span>
     </button>
 
-    <div [class.d-none]="!isGeodataMgmtExpanded" class="nav-item child">
+    <div [class.d-none]="!isGeodataMgmtExpanded()" class="nav-item child">
       <a class="nav-link" routerLink="spatial-units" routerLinkActive="active">
         <i class="fas fa-layer-group"></i>
-        <span>Raumebenen</span>
+        <span>{{ 'ADMIN_SHELL.NAV.SPATIAL_UNITS' | translate }}</span>
       </a>
     </div>
 
-    <div [class.d-none]="!isGeodataMgmtExpanded" class="nav-item child">
+    <div [class.d-none]="!isGeodataMgmtExpanded()" class="nav-item child">
       <a class="nav-link" routerLink="indicators" routerLinkActive="active">
         <i class="fas fa-sitemap"></i>
-        <span>Indikatoren</span>
+        <span>{{ 'ADMIN_SHELL.NAV.INDICATORS' | translate }}</span>
       </a>
     </div>
 
-    <div [class.d-none]="!isGeodataMgmtExpanded" class="nav-item child">
+    <div [class.d-none]="!isGeodataMgmtExpanded()" class="nav-item child">
       <a class="nav-link" routerLink="georesources" routerLinkActive="active">
         <i class="fas fa-map-marked-alt"></i>
-        <span>Georessourcen</span>
+        <span>{{ 'ADMIN_SHELL.NAV.GEORESOURCES' | translate }}</span>
       </a>
     </div>
 
     <a class="nav-link" routerLink="scripts" routerLinkActive="active">
       <i class="far fa-file-code"></i>
-      <span>Skriptverwaltung</span>
+      <span>{{ 'ADMIN_SHELL.NAV.SCRIPTS' | translate }}</span>
     </a>
 
     <a class="nav-link" routerLink="indicator-calculation" routerLinkActive="active">
       <i class="far fa-file-code"></i>
-      <span>Indikatorenberechnung</span>
+      <span>{{ 'ADMIN_SHELL.NAV.INDICATOR_CALCULATION' | translate }}</span>
     </a>
 
     <button
       class="btn btn-link nav-link w-100 text-start"
-      (click)="isSettingsExpanded = !isSettingsExpanded"
-      [attr.aria-expanded]="isSettingsExpanded"
+      (click)="isSettingsExpanded.set(!isSettingsExpanded())"
+      [attr.aria-expanded]="isSettingsExpanded()"
     >
       <i class="fas fa-tools"></i>
-      <span class="label">Einstellungen</span>
+      <span class="label">{{ 'ADMIN_SHELL.NAV.SETTINGS' | translate }}</span>
       <span
         class="fa collapse-marker"
-        [class.fa-angle-down]="isSettingsExpanded"
-        [class.fa-angle-left]="!isSettingsExpanded"
+        [class.fa-angle-down]="isSettingsExpanded()"
+        [class.fa-angle-left]="!isSettingsExpanded()"
       ></span>
     </button>
 
-    <div [class.d-none]="!isSettingsExpanded" class="nav-item child">
+    <div [class.d-none]="!isSettingsExpanded()" class="nav-item child">
       <a class="nav-link" routerLink="settings" routerLinkActive="active">
         <i class="fas fa-cogs"></i>
-        <span>Allgemeine Einstellungen</span>
+        <span>{{ 'ADMIN_SHELL.NAV.GENERAL_SETTINGS' | translate }}</span>
       </a>
     </div>
 
-    <div [class.d-none]="!isSettingsExpanded" class="nav-item child">
+    <div [class.d-none]="!isSettingsExpanded()" class="nav-item child">
       <a class="nav-link" routerLink="widgets" routerLinkActive="active">
         <i class="far fa-eye-slash"></i>
-        <span>Widget-Konfiguration</span>
+        <span>{{ 'ADMIN_SHELL.NAV.WIDGET_CONFIG' | translate }}</span>
       </a>
     </div>
 
-    <div [class.d-none]="!isSettingsExpanded" class="nav-item child">
+    <div [class.d-none]="!isSettingsExpanded()" class="nav-item child">
       <a class="nav-link" routerLink="filters" routerLinkActive="active">
         <i class="fa fa-filter"></i>
-        <span>Filter-Konfiguration</span>
+        <span>{{ 'ADMIN_SHELL.NAV.FILTER_CONFIG' | translate }}</span>
       </a>
     </div>
   </div>
@@ -114,7 +114,7 @@
   <header>
     <button type="button" class="btn btn-danger btn-sm" (click)="switchToMapApplication()">
       <i class="fas fa-user-cog"></i>
-      <span>Administration verlassen</span>
+      <span>{{ 'ADMIN_SHELL.LEAVE_ADMIN' | translate }}</span>
     </button>
     <div class="spacer"></div>
     <div class="validity-info">
@@ -129,7 +129,7 @@
 
   <footer>
     <strong>Copyright &copy; <a href="http://kommonitor.de">KomMonitor-Team</a>.</strong>
-    <div class="d-none d-sm-block">Vielen Dank f&uuml;r die Nutzung von KomMonitor</div>
+    <div class="d-none d-sm-block">{{ 'ADMIN_SHELL.FOOTER_THANKS' | translate }}</div>
   </footer>
 </div>
 

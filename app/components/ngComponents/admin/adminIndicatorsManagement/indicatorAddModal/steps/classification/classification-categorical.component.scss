@@ -1,0 +1,126 @@
+.categorical {
+  max-width: 720px;
+  margin: 1.5rem auto 0;
+}
+
+.cat-title {
+  text-align: center;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 0.2rem;
+}
+
+.cat-subtitle {
+  font-size: 0.75rem;
+  color: #9aa6b2;
+  margin-bottom: 1rem;
+}
+
+/* Centered, width-constrained field block (class count) */
+.centered-field {
+  max-width: 340px;
+  margin: 0 auto 1.25rem;
+  text-align: center;
+
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+}
+
+.cat-overflow {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+/* Farbe · Wert · Label · × grid (shared .cls-grid-head/.cls-grid-row) */
+.cat-grid {
+  --cls-grid-cols: 52px 96px 1fr 40px;
+
+  .cls-grid-row.overflow {
+    background: #fdf9ee;
+  }
+
+  .col-color {
+    display: flex;
+    align-items: center;
+  }
+
+  .col-remove {
+    text-align: center;
+  }
+}
+
+.cat-overflow-badge {
+  flex: none;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: #a08327;
+  background: #f6e6b8;
+  padding: 2px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.cat-remove {
+  border: none;
+  background: transparent;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: #c2401f;
+  cursor: pointer;
+
+  &:disabled {
+    color: #d7dbe0;
+    cursor: not-allowed;
+  }
+}
+
+.cat-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e9ee;
+}
+
+.cat-default {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.cat-default-title {
+  font-weight: 600;
+  font-size: 0.78rem;
+  color: #3a4550;
+}
+
+.cat-default-hint {
+  font-size: 0.68rem;
+  color: #9aa6b2;
+}
+
+.cat-add {
+  flex: none;
+  border: none;
+  background: #2f6db3;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.78rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    background: #285e9b;
+  }
+}

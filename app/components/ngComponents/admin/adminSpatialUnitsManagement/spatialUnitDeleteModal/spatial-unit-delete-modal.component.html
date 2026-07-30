@@ -1,15 +1,21 @@
 <div class="modal-header">
-  <h4 class="modal-title">Raumebenen löschen</h4>
-  <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+  <h4 class="modal-title">{{ 'ADMIN_SPATIAL_UNITS.DELETE_MODAL.TITLE' | translate }}</h4>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="closeModal()"
+  ></button>
 </div>
 
 <div class="modal-body">
-  <app-loading-overlay [loading]="loadingData">
-    <h4><b>Sollen die folgenden Raumebenen wirklich gelöscht werden?</b></h4>
+  <app-loading-overlay [loading]="loadingData()">
+    <h4>
+      <b>{{ 'ADMIN_SPATIAL_UNITS.DELETE_MODAL.CONFIRM_QUESTION' | translate }}</b>
+    </h4>
 
     <p>
-      Dabei werden auch sämtliche Indikatoren-Datensätze der angezeigten Raumebenen dauerhaft aus
-      dem System entfernt.
+      {{ 'ADMIN_SPATIAL_UNITS.DELETE_MODAL.CASCADE_WARNING' | translate }}
     </p>
 
     @if (datasetsToDelete.length > 0) {
@@ -24,30 +30,33 @@
 
     @if (!datasetsToDelete.length) {
       <div>
-        <pre>
-kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert werden.</pre
-        >
+        <pre>{{ 'ADMIN_SPATIAL_UNITS.DELETE_MODAL.NO_DATASET_SELECTED' | translate }}</pre>
       </div>
     }
   </app-loading-overlay>
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="closeModal()">Schließen</button>
+  <button type="button" class="btn btn-default pull-left" (click)="closeModal()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
   <button
     type="button"
     class="btn btn-danger"
     (click)="deleteSpatialUnits()"
     [disabled]="!datasetsToDelete.length"
   >
-    Raumebenen unwiderruflich löschen
+    {{ 'ADMIN_SPATIAL_UNITS.DELETE_MODAL.DELETE_PERMANENTLY' | translate }}
   </button>
 </div>
 
-@if (failedDatasetsAndErrors.length > 0) {
+@if (failedDatasetsAndErrors().length > 0) {
   <div id="spatialUnitsDeleteErrorReport" class="alert alert-danger">
-    <h4><i class="icon fa fa-ban"></i>Löschen gescheitert</h4>
-    Folgende Datensätze konnten nicht gelöscht werden.
+    <h4>
+      <i class="icon fa fa-ban"></i
+      >{{ 'ADMIN_SPATIAL_UNITS.DELETE_MODAL.DELETE_FAILED' | translate }}
+    </h4>
+    {{ 'ADMIN_SPATIAL_UNITS.DELETE_MODAL.DELETE_FAILED_TEXT' | translate }}
     <br />
     <table
       class="table table-bordered table-condensed"
@@ -55,12 +64,12 @@ kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert wer
     >
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Fehlermeldung</th>
+          <th>{{ 'ADMIN_SHARED.NAME' | translate }}</th>
+          <th>{{ 'ADMIN_SPATIAL_UNITS.DELETE_MODAL.ERROR_MESSAGE' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (dataset of failedDatasetsAndErrors; track dataset) {
+        @for (dataset of failedDatasetsAndErrors(); track dataset) {
           <tr>
             <td>{{ dataset[0].spatialUnitLevel }}</td>
             <td [innerHTML]="dataset[1]"></td>

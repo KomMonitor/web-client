@@ -1,0 +1,41 @@
+// The host only wraps the trigger button; keep it a block so it behaves like the
+// former wrapper <div> in the #sideBarButtons flex column.
+:host {
+  display: block;
+}
+
+// Rendered inside the CDK overlay container (positioning handled by
+// cdkConnectedOverlay), so this only carries the panel's visual styling.
+.diagram-submenu-panel {
+  width: 30em;
+  background: #fff;
+  padding: 0.5em;
+  border: 2px solid rgba(0, 0, 0, 0.2) !important;
+
+  h4 {
+    font-weight: bold !important;
+  }
+
+  .subMenuButtonWrapper {
+    display: grid;
+    grid-template-columns: 8vh auto;
+    font-size: 0.8em;
+    padding: 0.5em;
+    padding-left: 0 !important;
+
+    * {
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+
+    b {
+      font-weight: 600;
+      text-decoration: underline;
+    }
+
+    .stat-img-button {
+      width: min(2.8vh, 30px);
+      height: auto;
+    }
+  }
+}

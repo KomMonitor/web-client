@@ -1,5 +1,16 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { firstValueFrom } from 'rxjs';
+import {
+  DefaultClassificationMappingType,
+  GeoresourcePOSTInputType,
+  GeoresourcePUTInputType,
+  IndicatorPOSTInputType,
+  IndicatorPUTInputType,
+  SpatialUnitPOSTInputType,
+  SpatialUnitPUTInputType,
+} from 'models/data-management-api';
 
 // TypeScript interfaces for better type safety
 export interface ConverterDefinition {
@@ -248,11 +259,11 @@ export class KommonitorImporterHelperService {
   };
 
   private http = inject(HttpClient);
+  private envConfigService = inject(EnvConfigService);
 
   constructor() {
-    // Get the target URL from environment or configuration
     this.targetUrlToImporterService =
-      (window as any).__env?.targetUrlToImporterService || '/api/importer/';
+      this.envConfigService.targetUrlToImporterService || '/api/importer/';
 
     // Initialize resources
     this.fetchResourcesFromImporter();
@@ -320,9 +331,9 @@ export class KommonitorImporterHelperService {
    * Fetch converters from importer service
    */
   async fetchConverters(): Promise<Converter[]> {
-    return this.http
-      .get<Converter[]>(`${this.targetUrlToImporterService}converters`)
-      .toPromise()
+    return firstValueFrom(
+      this.http.get<Converter[]>(`${this.targetUrlToImporterService}converters`)
+    )
       .then((result) => result || [])
       .catch((error) => {
         console.error('Error while fetching converters from importer.', error);
@@ -334,9 +345,9 @@ export class KommonitorImporterHelperService {
    * Fetch converter details from importer service
    */
   async fetchConverterDetails(converter: Converter): Promise<Converter> {
-    return this.http
-      .get<Converter>(`${this.targetUrlToImporterService}converters/${converter.name}`)
-      .toPromise()
+    return firstValueFrom(
+      this.http.get<Converter>(`${this.targetUrlToImporterService}converters/${converter.name}`)
+    )
       .then((result) => {
         if (!result) {
           throw new Error(`Converter ${converter.name} not found`);
@@ -356,9 +367,9 @@ export class KommonitorImporterHelperService {
    * Fetch datasource types from importer service
    */
   async fetchDatasourceTypes(): Promise<DatasourceType[]> {
-    return this.http
-      .get<DatasourceType[]>(`${this.targetUrlToImporterService}datasourceTypes`)
-      .toPromise()
+    return firstValueFrom(
+      this.http.get<DatasourceType[]>(`${this.targetUrlToImporterService}datasourceTypes`)
+    )
       .then((result) => result || [])
       .catch((error) => {
         console.error('Error while fetching datasourceTypes from importer.', error);
@@ -370,11 +381,11 @@ export class KommonitorImporterHelperService {
    * Fetch datasource type details from importer service
    */
   async fetchDatasourceTypeDetails(datasourceType: DatasourceType): Promise<DatasourceType> {
-    return this.http
-      .get<DatasourceType>(
+    return firstValueFrom(
+      this.http.get<DatasourceType>(
         `${this.targetUrlToImporterService}datasourceTypes/${datasourceType.type}`
       )
-      .toPromise()
+    )
       .then((result) => {
         if (!result) {
           throw new Error(`DatasourceType ${datasourceType.type} not found`);
@@ -400,11 +411,11 @@ export class KommonitorImporterHelperService {
     formdata.append('filename', fileName);
     formdata.append('file', fileData);
 
-    return this.http
-      .post(`${this.targetUrlToImporterService}upload`, formdata, {
+    return firstValueFrom(
+      this.http.post(`${this.targetUrlToImporterService}upload`, formdata, {
         responseType: 'text',
       })
-      .toPromise()
+    )
       .then((result) => result || '')
       .catch((error) => {
         console.error('Error while posting to importer service.', error);
@@ -413,14 +424,14 @@ export class KommonitorImporterHelperService {
   }
 
   /**
-   * Build converter definition from form values
+   * Build converter definition from the modal's ngModel-bound form values
+   * (keyed by parameter name). Returns null while required fields are missing.
    */
   buildConverterDefinition(
     selectedConverter: Converter,
-    converterParameterPrefix: string,
     schema: string,
     mimeType: string,
-    formValues?: { [key: string]: string }
+    formValues: { [key: string]: string }
   ): ConverterDefinition | null {
     const converterDefinition: ConverterDefinition = {
       encoding: selectedConverter.encodings[0],
@@ -444,10 +455,7 @@ export class KommonitorImporterHelperService {
     if (selectedConverter.parameters && selectedConverter.parameters.length > 0) {
       for (const parameter of selectedConverter.parameters) {
         const parameterName = parameter.name;
-        const parameterValue = formValues
-          ? formValues[parameterName]
-          : (document.getElementById(converterParameterPrefix + parameterName) as HTMLInputElement)
-              ?.value;
+        const parameterValue = formValues[parameterName];
 
         if (
           parameter.mandatory &&
@@ -480,119 +488,63 @@ export class KommonitorImporterHelperService {
   }
 
   /**
-   * Build datasource type definition from form values
+   * Build a non-FILE datasource type definition from the modal's ngModel-bound
+   * form values (keyed by parameter name; bbox settings via the dedicated
+   * bboxType/bboxRef/bbox_* keys). FILE data sources are handled by
+   * `ResourceImportService` (file upload first) and return null here.
    */
-  async buildDatasourceTypeDefinition(
+  buildDatasourceTypeDefinition(
     selectedDatasourceType: DatasourceType,
-    datasourceTypeParameterPrefix: string,
-    datasourceFileInputId: string,
-    formValues?: { [key: string]: string }
-  ): Promise<DatasourceTypeDefinition | null> {
+    formValues: { [key: string]: string }
+  ): DatasourceTypeDefinition | null {
     const datasourceTypeDefinition: DatasourceTypeDefinition = {
       parameters: [],
       type: selectedDatasourceType.type,
     };
 
     if (selectedDatasourceType.type === 'FILE') {
-      const fileInput = document.getElementById(datasourceFileInputId) as HTMLInputElement;
-      const file = fileInput?.files?.[0];
+      return null;
+    }
 
-      if (file === null || file === undefined) {
-        return null;
-      }
+    if (selectedDatasourceType.parameters.length > 0) {
+      for (const parameter of selectedDatasourceType.parameters) {
+        const parameterName = parameter.name;
+        if (parameterName === 'bbox') {
+          const bboxType = formValues['bboxType'];
 
-      let fileUploadName: string;
-      try {
-        fileUploadName = await this.uploadNewFile(file, file.name);
-      } catch (error) {
-        console.error('Error while uploading file to importer.', error);
-        throw error;
-      }
+          datasourceTypeDefinition.parameters.push({
+            name: 'bboxType',
+            value: bboxType,
+          });
 
-      datasourceTypeDefinition.parameters.push({
-        name: 'NAME',
-        value: fileUploadName,
-      });
-    } else {
-      if (selectedDatasourceType.parameters.length > 0) {
-        for (const parameter of selectedDatasourceType.parameters) {
-          const parameterName = parameter.name;
-          if (parameterName === 'bbox') {
-            const bboxType = formValues
-              ? formValues['bboxType']
-              : (
-                  document.getElementById(
-                    datasourceTypeParameterPrefix + 'bboxType'
-                  ) as HTMLInputElement
-                )?.value;
-
-            datasourceTypeDefinition.parameters.push({
-              name: 'bboxType',
-              value: bboxType,
-            });
-
-            let value: string | undefined;
-            if (bboxType === 'ref') {
-              value = formValues
-                ? formValues['bboxRef']
-                : (
-                    document.getElementById(
-                      datasourceTypeParameterPrefix + 'bboxRef'
-                    ) as HTMLInputElement
-                  )?.value;
-            } else {
-              const minx = formValues
-                ? formValues['bbox_minx']
-                : (
-                    document.getElementById(
-                      datasourceTypeParameterPrefix + 'bbox_minx'
-                    ) as HTMLInputElement
-                  )?.value;
-              const miny = formValues
-                ? formValues['bbox_miny']
-                : (
-                    document.getElementById(
-                      datasourceTypeParameterPrefix + 'bbox_miny'
-                    ) as HTMLInputElement
-                  )?.value;
-              const maxx = formValues
-                ? formValues['bbox_maxx']
-                : (
-                    document.getElementById(
-                      datasourceTypeParameterPrefix + 'bbox_maxx'
-                    ) as HTMLInputElement
-                  )?.value;
-              const maxy = formValues
-                ? formValues['bbox_maxy']
-                : (
-                    document.getElementById(
-                      datasourceTypeParameterPrefix + 'bbox_maxy'
-                    ) as HTMLInputElement
-                  )?.value;
-              value = minx + ',' + miny + ',' + maxx + ',' + maxy;
-            }
-
-            datasourceTypeDefinition.parameters.push({
-              name: 'bbox',
-              value: value,
-            });
+          let value: string | undefined;
+          if (bboxType === 'ref') {
+            value = formValues['bboxRef'];
           } else {
-            const parameterValue = formValues
-              ? formValues[parameterName]
-              : (
-                  document.getElementById(
-                    datasourceTypeParameterPrefix + parameterName
-                  ) as HTMLInputElement
-                )?.value;
+            value =
+              formValues['bbox_minx'] +
+              ',' +
+              formValues['bbox_miny'] +
+              ',' +
+              formValues['bbox_maxx'] +
+              ',' +
+              formValues['bbox_maxy'];
+          }
 
-            if (parameterValue === undefined || parameterValue === null) {
-              return datasourceTypeDefinition;
-            } else {
-              datasourceTypeDefinition.parameters.push({
-                name: parameterName,
-                value: parameterValue,
-              });
-            }
+          datasourceTypeDefinition.parameters.push({
+            name: 'bbox',
+            value: value,
+          });
+        } else {
+          const parameterValue = formValues[parameterName];
+
+          if (parameterValue === undefined || parameterValue === null) {
+            return datasourceTypeDefinition;
+          } else {
+            datasourceTypeDefinition.parameters.push({
+              name: parameterName,
+              value: parameterValue,
+            });
           }
         }
       }
@@ -669,7 +621,11 @@ export class KommonitorImporterHelperService {
    * Build the PUT body for an indicator update (ported from legacy
    * KommonitorImporterHelperService — see ADMIN_AREA_BRIDGE_MIGRATION.md, Modal 3).
    */
-  buildPutBody_indicators(scopeProperties: any): any {
+  // Note: defaultClassificationMapping is sent although IndicatorPUTInputType does not
+  // define it — the backend accepts and applies it on update.
+  buildPutBody_indicators(
+    scopeProperties: any
+  ): IndicatorPUTInputType & { defaultClassificationMapping?: DefaultClassificationMappingType } {
     return {
       indicatorValues: [],
       applicableSpatialUnit: scopeProperties.targetSpatialUnitMetadata.spatialUnitLevel,
@@ -688,7 +644,7 @@ export class KommonitorImporterHelperService {
     converterDefinition: ConverterDefinition,
     datasourceTypeDefinition: DatasourceTypeDefinition,
     propertyMappingDefinition: PropertyMappingDefinition,
-    spatialUnitPostBody_managementAPI: any,
+    spatialUnitPostBody_managementAPI: SpatialUnitPOSTInputType,
     isDryRun: boolean
   ): Promise<ImporterResponse> {
     console.log('Trying to POST to importer service to register new spatial unit.');
@@ -701,13 +657,17 @@ export class KommonitorImporterHelperService {
       dryRun: isDryRun,
     };
 
-    return this.http
-      .post<ImporterResponse>(`${this.targetUrlToImporterService}spatial-units`, postBody, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      .toPromise()
+    return firstValueFrom(
+      this.http.post<ImporterResponse>(
+        `${this.targetUrlToImporterService}spatial-units`,
+        postBody,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    )
       .then((result) => {
         if (!result) {
           throw new Error('No response from importer service');
@@ -728,7 +688,7 @@ export class KommonitorImporterHelperService {
     datasourceTypeDefinition: DatasourceTypeDefinition,
     propertyMappingDefinition: PropertyMappingDefinition,
     spatialUnitId: string,
-    spatialUnitPutBody_managementAPI: any,
+    spatialUnitPutBody_managementAPI: SpatialUnitPUTInputType,
     isDryRun: boolean
   ): Promise<ImporterResponse> {
     console.log(
@@ -744,13 +704,17 @@ export class KommonitorImporterHelperService {
       dryRun: isDryRun,
     };
 
-    return this.http
-      .post<ImporterResponse>(`${this.targetUrlToImporterService}spatial-units/update`, postBody, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      .toPromise()
+    return firstValueFrom(
+      this.http.post<ImporterResponse>(
+        `${this.targetUrlToImporterService}spatial-units/update`,
+        postBody,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    )
       .then((result) => {
         if (!result) {
           throw new Error('No response from importer service');
@@ -770,7 +734,7 @@ export class KommonitorImporterHelperService {
     converterDefinition: ConverterDefinition,
     datasourceTypeDefinition: DatasourceTypeDefinition,
     propertyMappingDefinition: PropertyMappingDefinition,
-    georesourcePostBody_managementAPI: any,
+    georesourcePostBody_managementAPI: GeoresourcePOSTInputType,
     isDryRun: boolean
   ): Promise<ImporterResponse> {
     console.log('Trying to POST to importer service to register new georesource.');
@@ -783,13 +747,13 @@ export class KommonitorImporterHelperService {
       dryRun: isDryRun,
     };
 
-    return this.http
-      .post<ImporterResponse>(`${this.targetUrlToImporterService}georesources`, postBody, {
+    return firstValueFrom(
+      this.http.post<ImporterResponse>(`${this.targetUrlToImporterService}georesources`, postBody, {
         headers: {
           'Content-Type': 'application/json',
         },
       })
-      .toPromise()
+    )
       .then((result) => {
         if (!result) {
           throw new Error('No response from importer service');
@@ -810,7 +774,7 @@ export class KommonitorImporterHelperService {
     datasourceTypeDefinition: DatasourceTypeDefinition,
     propertyMappingDefinition: PropertyMappingDefinition,
     georesourceId: string,
-    georesourcePutBody_managementAPI: any,
+    georesourcePutBody_managementAPI: GeoresourcePUTInputType,
     isDryRun: boolean
   ): Promise<ImporterResponse> {
     console.log(
@@ -826,13 +790,17 @@ export class KommonitorImporterHelperService {
       dryRun: isDryRun,
     };
 
-    return this.http
-      .post<ImporterResponse>(`${this.targetUrlToImporterService}georesources/update`, postBody, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      .toPromise()
+    return firstValueFrom(
+      this.http.post<ImporterResponse>(
+        `${this.targetUrlToImporterService}georesources/update`,
+        postBody,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    )
       .then((result) => {
         if (!result) {
           throw new Error('No response from importer service');
@@ -852,7 +820,7 @@ export class KommonitorImporterHelperService {
     converterDefinition: ConverterDefinition,
     datasourceTypeDefinition: DatasourceTypeDefinition,
     propertyMappingDefinition: PropertyMappingDefinition,
-    indicatorPostBody_managementAPI: any,
+    indicatorPostBody_managementAPI: IndicatorPOSTInputType,
     isDryRun: boolean
   ): Promise<ImporterResponse> {
     console.log('Trying to POST to importer service to register new indicator.');
@@ -865,13 +833,13 @@ export class KommonitorImporterHelperService {
       dryRun: isDryRun,
     };
 
-    return this.http
-      .post<ImporterResponse>(`${this.targetUrlToImporterService}indicators`, postBody, {
+    return firstValueFrom(
+      this.http.post<ImporterResponse>(`${this.targetUrlToImporterService}indicators`, postBody, {
         headers: {
           'Content-Type': 'application/json',
         },
       })
-      .toPromise()
+    )
       .then((result) => {
         if (!result) {
           throw new Error('No response from importer service');
@@ -892,7 +860,7 @@ export class KommonitorImporterHelperService {
     datasourceTypeDefinition: DatasourceTypeDefinition,
     propertyMappingDefinition: PropertyMappingDefinition,
     indicatorId: string,
-    indicatorPutBody_managementAPI: any,
+    indicatorPutBody_managementAPI: IndicatorPUTInputType,
     isDryRun: boolean
   ): Promise<ImporterResponse> {
     console.log(`Trying to POST to importer service to update indicator with id '${indicatorId}'`);
@@ -906,13 +874,17 @@ export class KommonitorImporterHelperService {
       dryRun: isDryRun,
     };
 
-    return this.http
-      .post<ImporterResponse>(`${this.targetUrlToImporterService}indicators/update`, postBody, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      .toPromise()
+    return firstValueFrom(
+      this.http.post<ImporterResponse>(
+        `${this.targetUrlToImporterService}indicators/update`,
+        postBody,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    )
       .then((result) => {
         if (!result) {
           throw new Error('No response from importer service');

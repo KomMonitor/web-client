@@ -1,4 +1,13 @@
-import { Component, OnInit, NgZone, ViewChild, inject, DestroyRef } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  NgZone,
+  OnInit,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import {
   MetadataBootstrapService,
   MetadataLoadingState,
@@ -12,11 +21,10 @@ import { SpatialUnitEditMetadataModalComponent } from './spatialUnitEditMetadata
 import { SpatialUnitEditFeaturesModalComponent } from './spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.component';
 import { SpatialUnitEditUserRolesModalComponent } from './spatialUnitEditUserRolesModal/spatial-unit-edit-user-roles-modal.component';
 import { SpatialUnitDeleteModalComponent } from './spatialUnitDeleteModal/spatial-unit-delete-modal.component';
-import {
-  KommonitorDataExchangeService,
-  SpatialUnitMetadata,
-} from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
-import { KommonitorCacheHelperService } from 'services/adminSpatialUnit/kommonitor-cache-helper.service';
+import { SpatialUnitOverviewType as SpatialUnitMetadata } from 'models/data-management-api';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { AgGridAngular } from 'ag-grid-angular';
 import {
@@ -29,6 +37,8 @@ import {
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { FormsModule } from '@angular/forms';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
+import { TranslateModule } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { SpatialUnitRefreshRequest } from './spatial-unit-refresh.model';
 
@@ -36,17 +46,26 @@ import { SpatialUnitRefreshRequest } from './spatial-unit-refresh.model';
   selector: 'app-admin-spatial-units-management',
   templateUrl: './admin-spatial-units-management.component.html',
   styleUrls: ['./admin-spatial-units-management.component.scss'],
-  imports: [ExpandableBoxComponent, AgGridAngular, FormsModule, AdminContentViewComponent],
+  imports: [
+    ExpandableBoxComponent,
+    AgGridAngular,
+    FormsModule,
+    AdminContentViewComponent,
+    TranslateModule,
+  ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminSpatialUnitsManagementComponent implements OnInit {
   private zone = inject(NgZone);
   private modalService = inject(NgbModal);
   private metadataBootstrap = inject(MetadataBootstrapService);
-  kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
-  private kommonitorCacheHelperService = inject(KommonitorCacheHelperService);
+  protected accessControlService = inject(AccessControlService);
+  private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
+  private cacheHelperService = inject(CacheHelperServiceService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
   private destroyRef = inject(DestroyRef);
 
   @ViewChild('spatialUnitOverviewTable', { static: true })
@@ -150,10 +169,10 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
       headerName: 'Rollen',
       minWidth: 400,
       cellRenderer: (params: ICellRendererParams) =>
-        this.kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions),
+        this.accessControlService.getAllowedRolesString(params.data.permissions),
       filter: 'agTextColumnFilter',
       filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-        '' + this.kommonitorDataExchangeService.getAllowedRolesString(params.data!.permissions),
+        '' + this.accessControlService.getAllowedRolesString(params.data!.permissions),
     },
     {
       headerName: 'Öffentlich sichtbar',
@@ -167,10 +186,10 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
       headerName: 'Eigentümer',
       minWidth: 400,
       cellRenderer: (params: ICellRendererParams) =>
-        this.kommonitorDataExchangeService.getRoleTitle(params.data.ownerId),
+        this.accessControlService.getRoleTitle(params.data.ownerId),
       filter: 'agTextColumnFilter',
       filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-        '' + this.kommonitorDataExchangeService.getRoleTitle(params.data!.ownerId),
+        '' + this.accessControlService.getRoleTitle(params.data!.ownerId ?? ''),
     },
     {
       headerName: 'Linienfarbe (Umringslayer)',
@@ -200,7 +219,9 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
         '' + (params.data!.outlineDashArrayString || '-'),
     },
   ];
-  public rowData: SpatialUnitMetadata[] = [];
+  // Signal-backed: written from the store subscription and fetch callbacks,
+  // which would not trigger a re-render of this OnPush component otherwise.
+  public rowData = signal<SpatialUnitMetadata[]>([]);
   public defaultColDef: ColDef = this.kommonitorDataGridHelperService.buildDefaultColDef();
   public gridOptions: GridOptions = {};
 
@@ -216,30 +237,14 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
   }
 
   private setupSubscriptions(): void {
-    // Subscribe to spatial units data
-    this.kommonitorDataExchangeService.spatialUnits$
+    // Subscribe to spatial units data (canonical store stream)
+    this.spatialUnitStore.availableSpatialUnits$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((spatialUnits) => {
         if (spatialUnits && spatialUnits.length > 0) {
           this.loadingData = false;
           this.allSpatialUnits = spatialUnits;
           this.applyTableViewFilter();
-        }
-      });
-
-    // Subscribe to loading state
-    this.kommonitorDataExchangeService.loading$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((loading) => {
-        this.loadingData = loading;
-      });
-
-    // Subscribe to error state
-    this.kommonitorDataExchangeService.error$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((error) => {
-        if (error) {
-          this.notificationService.showError('Die Raumebenen konnten nicht geladen werden.');
         }
       });
   }
@@ -251,8 +256,8 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
         this.fetchSpatialUnitsData();
 
         if (
-          !this.kommonitorDataExchangeService.availableSpatialUnits ||
-          this.kommonitorDataExchangeService.availableSpatialUnits.length === 0
+          !this.spatialUnitStore.availableSpatialUnits ||
+          this.spatialUnitStore.availableSpatialUnits.length === 0
         ) {
           this.loadingData = false;
         }
@@ -356,17 +361,20 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
    * Fetch spatial units data from the service
    */
   private fetchSpatialUnitsData(): void {
-    // Get current roles or use empty array as fallback
-    const currentRoles = this.kommonitorDataExchangeService.currentKeycloakLoginRoles || [];
+    const currentRoles = this.accessControlService.currentKeycloakLoginRoles || [];
 
-    this.kommonitorDataExchangeService.fetchSpatialUnitsMetadata(currentRoles).subscribe({
-      next: (_spatialUnits) => {
-        // The data will be handled by the subscription in ngOnInit
-      },
-      error: (_error) => {
+    this.loadingData = true;
+    this.metadataBootstrap
+      .fetchSpatialUnitsMetadata(currentRoles)
+      // The data itself arrives via the store subscription in ngOnInit
+      .catch(() => {
+        this.notificationService.showError(
+          this.translate.instant('ADMIN_SPATIAL_UNITS.MSG.LOAD_FAILED')
+        );
+      })
+      .finally(() => {
         this.loadingData = false;
-      },
-    });
+      });
   }
 
   public initializeOrRefreshOverviewTable(): void {
@@ -380,9 +388,11 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
   }
 
   private applyTableViewFilter(): void {
-    this.rowData = this.tableViewSwitcher
-      ? this.allSpatialUnits.filter((su) => su.userPermissions?.includes('editor'))
-      : this.allSpatialUnits;
+    this.rowData.set(
+      this.tableViewSwitcher
+        ? this.allSpatialUnits.filter((su) => su.userPermissions?.includes('editor'))
+        : this.allSpatialUnits
+    );
   }
 
   // Alias for the add spatial unit modal (matching HTML template)
@@ -503,7 +513,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
 
   // Utility methods
   checkCreatePermission(): boolean {
-    return this.kommonitorDataExchangeService.checkCreatePermission();
+    return this.accessControlService.checkCreatePermission();
   }
 
   refreshSpatialUnitOverviewTable(
@@ -512,59 +522,39 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
   ): void {
     if (!crudType || !targetSpatialUnitId) {
       // Refetch all metadata from spatial units to update table
-      this.kommonitorDataExchangeService
-        .fetchSpatialUnitsMetadata(this.kommonitorDataExchangeService.currentKeycloakLoginRoles)
-        .subscribe({
-          next: (_response) => {
-            this.initializeOrRefreshOverviewTable();
-            this.loadingData = false;
-          },
-          error: (_response) => {
-            this.loadingData = false;
-          },
-        });
+      this.fetchSpatialUnitsData();
     } else if (crudType && targetSpatialUnitId) {
       if (crudType === 'edit') {
         // Fetch single spatial unit metadata and update the table
-        this.kommonitorCacheHelperService
-          .fetchSingleSpatialUnitMetadata(
-            targetSpatialUnitId as string,
-            this.kommonitorDataExchangeService.currentKeycloakLoginRoles
-          )
-          .subscribe({
-            next: (data) => {
-              this.kommonitorDataExchangeService.replaceSingleSpatialUnitMetadata(data);
-              this.initializeOrRefreshOverviewTable();
-              this.loadingData = false;
-            },
-            error: (_response) => {
-              this.loadingData = false;
-            },
+        this.cacheHelperService
+          .fetchSingleSpatialUnitMetadata(targetSpatialUnitId as string)
+          .then((data) => {
+            this.spatialUnitStore.replaceSingleSpatialUnitMetadata(data);
+            this.initializeOrRefreshOverviewTable();
+            this.loadingData = false;
+          })
+          .catch(() => {
+            this.loadingData = false;
           });
       } else if (crudType === 'add') {
         // Fetch single spatial unit metadata and add to table
-        this.kommonitorCacheHelperService
-          .fetchSingleSpatialUnitMetadata(
-            targetSpatialUnitId as string,
-            this.kommonitorDataExchangeService.currentKeycloakLoginRoles
-          )
-          .subscribe({
-            next: (data) => {
-              this.kommonitorDataExchangeService.addSingleSpatialUnitMetadata(data);
-              this.initializeOrRefreshOverviewTable();
-              this.loadingData = false;
-            },
-            error: (_response) => {
-              this.loadingData = false;
-            },
+        this.cacheHelperService
+          .fetchSingleSpatialUnitMetadata(targetSpatialUnitId as string)
+          .then((data) => {
+            this.spatialUnitStore.addSingleSpatialUnitMetadata(data);
+            this.initializeOrRefreshOverviewTable();
+            this.loadingData = false;
+          })
+          .catch(() => {
+            this.loadingData = false;
           });
       } else if (crudType === 'delete') {
         // Handle delete operation
         if (typeof targetSpatialUnitId === 'string') {
-          this.kommonitorDataExchangeService.deleteSingleSpatialUnitMetadata(targetSpatialUnitId);
+          this.spatialUnitStore.deleteSingleSpatialUnitMetadata(targetSpatialUnitId);
         } else if (Array.isArray(targetSpatialUnitId)) {
           for (const id of targetSpatialUnitId) {
-            this.kommonitorDataExchangeService.deleteSingleSpatialUnitMetadata(id);
+            this.spatialUnitStore.deleteSingleSpatialUnitMetadata(id);
           }
         }
         this.initializeOrRefreshOverviewTable();

@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { RoleManagementDataGridHelperService } from './role-management-data-grid-helper.service';
 
@@ -9,6 +10,7 @@ describe('RoleManagementDataGridHelperService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot()],
       providers: [provideHttpClient(), provideHttpClientTesting()],
     });
     service = TestBed.inject(RoleManagementDataGridHelperService);
@@ -39,33 +41,30 @@ describe('RoleManagementDataGridHelperService', () => {
     expect(components.CheckboxRenderer_creator).toBeDefined();
   });
 
-  it('getSelectedRoleIds_roleManagementGrid collects checked permission ids from table options (no live grid)', () => {
-    const roleManagementTableOptions = {
-      rowData: [
-        {
-          name: 'org-A',
-          permissions: [
-            { permissionId: 'p1', permissionLevel: 'viewer', isChecked: true },
-            { permissionId: 'p2', permissionLevel: 'editor', isChecked: false },
-          ],
-        },
-        {
-          name: 'org-B',
-          permissions: [{ permissionId: 'p3', permissionLevel: 'creator', isChecked: true }],
-        },
-      ],
-    };
+  // Selected-id collection moved to the shared role-management panel; see
+  // adminShared/roleManagementPanel/role-management-panel.model.spec.ts.
 
-    const ids = service.getSelectedRoleIds_roleManagementGrid(roleManagementTableOptions);
+  it('buildRoleManagementGrid pre-checks the selected permission ids in the row data', () => {
+    const accessControl = [
+      { name: 'public', organizationalUnitId: '0', permissions: [] },
+      { name: 'kommonitor', organizationalUnitId: '1', permissions: [] },
+      {
+        name: 'org-A',
+        organizationalUnitId: '2',
+        permissions: [
+          { permissionId: 'p1', permissionLevel: 'viewer' },
+          { permissionId: 'p2', permissionLevel: 'editor' },
+        ],
+      },
+    ];
 
-    expect(ids).toContain('p1');
-    expect(ids).toContain('p3');
-    expect(ids).not.toContain('p2');
-    expect(ids.length).toBe(2);
-  });
+    const options = service.buildRoleManagementGrid('grid', null, accessControl, ['p1'], true);
 
-  it('getSelectedRoleIds_roleManagementGrid returns an empty array for empty/invalid input', () => {
-    expect(service.getSelectedRoleIds_roleManagementGrid({ rowData: [] })).toEqual([]);
-    expect(service.getSelectedRoleIds_roleManagementGrid({})).toEqual([]);
+    const orgA = options.rowData.find((row: any) => row.name === 'org-A');
+    expect(orgA.viewer).toBe(true);
+    expect(orgA.editor).toBe(false);
+    expect(orgA.permissions.find((p: any) => p.permissionId === 'p1').isChecked).toBe(true);
+    // reduced mode: no creator ("Löschen") column
+    expect(options.columnDefs.some((col: any) => col.field === 'creator')).toBe(false);
   });
 });

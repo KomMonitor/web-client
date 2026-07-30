@@ -1,0 +1,86 @@
+<div class="modal-header">
+  <button
+    type="button"
+    class="close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="close()"
+  >
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <h4 class="modal-title">{{ 'ADMIN_WMS.DELETE.TITLE' | translate }}</h4>
+</div>
+
+<div class="modal-body">
+  <div align="center">
+    @if (loadingData) {
+      <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData">
+        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+      </div>
+    }
+  </div>
+
+  <!-- MultiStep Form -->
+  <div class="row">
+    <div class="col-md-12">
+      <h4>
+        <b>{{ 'ADMIN_WMS.DELETE.CONFIRM_QUESTION' | translate }}</b>
+      </h4>
+
+      @if (!datasetToDelete) {
+        <div>
+          <pre>{{ 'ADMIN_WMS.DELETE.NO_DATASET_MARKED' | translate }}</pre>
+        </div>
+      }
+
+      @if (datasetToDelete) {
+        <div>
+          <h4>WMS</h4>
+          <span>{{ datasetToDelete.title }}</span>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-default pull-left" (click)="close()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
+  <button
+    type="button"
+    class="btn btn-danger"
+    (click)="deleteGeoresources()"
+    [disabled]="!datasetToDelete"
+  >
+    {{ 'ADMIN_WMS.DELETE.SUBMIT' | translate }}
+  </button>
+</div>
+
+<!-- Success Alert -->
+<div
+  id="georesourceAddSuccessAlert"
+  style="position: absolute; bottom: 0px; width: 100%"
+  [hidden]="!showSuccessAlert()"
+  class="alert alert-success alert-dismissable"
+>
+  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
+    &times;
+  </button>
+  <h4><i class="icon fa fa-check"></i>{{ 'ADMIN_WMS.DELETE.SUCCESS_TITLE' | translate }}</h4>
+</div>
+
+<!-- Error Alert -->
+<div
+  id="georesourceAddErrorAlert"
+  style="position: absolute; bottom: 0px; width: 100%"
+  [hidden]="!showErrorAlert()"
+  class="alert alert-danger alert-dismissable"
+>
+  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-ban"></i>{{ 'ADMIN_WMS.DELETE.ERROR_TITLE' | translate }}</h4>
+  {{ 'ADMIN_WMS.DELETE.ERROR_TEXT' | translate }}
+  <br />
+  <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessage()"></pre>
+  <br />
+  <br />
+</div>

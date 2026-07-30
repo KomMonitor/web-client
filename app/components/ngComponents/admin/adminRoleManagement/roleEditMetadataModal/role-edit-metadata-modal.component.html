@@ -1,66 +1,77 @@
 <div class="modal-header">
   <h4 class="modal-title">
-    Metadaten der Organisationseinheit
+    {{ 'ADMIN_ROLES.EDIT_METADATA_MODAL.TITLE' | translate }}
     <i
       ><b>{{ oldName }}</b></i
     >
-    editieren
+    {{ 'ADMIN_ROLES.EDIT_TITLE_SUFFIX' | translate }}
   </h4>
-  <button type="button" class="btn-close" aria-label="Schließen" (click)="close()"></button>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="close()"
+  ></button>
 </div>
 
 <div class="modal-body">
-  <app-loading-overlay [loading]="loadingData" message="Speichere...">
-    @if (showErrorAlert) {
+  <app-loading-overlay
+    [loading]="loadingData()"
+    [message]="'ADMIN_ROLES.EDIT_METADATA_MODAL.SAVING' | translate"
+  >
+    @if (showErrorAlert()) {
       <div class="alert alert-danger" role="alert">
-        Fehler beim Speichern:
-        <span [innerHTML]="errorMessagePart"></span>
+        {{ 'ADMIN_ROLES.EDIT_METADATA_MODAL.SAVE_ERROR' | translate }}
+        <span [innerHTML]="errorMessagePart()"></span>
       </div>
     }
-    @if (showKeycloakErrorAlert) {
+    @if (showKeycloakErrorAlert()) {
       <div class="alert alert-danger" role="alert">
-        Fehler beim Umbenennen der Keycloak-Rolle:
-        <span [innerHTML]="keycloakErrorMessagePart"></span>
+        {{ 'ADMIN_ROLES.EDIT_METADATA_MODAL.KEYCLOAK_RENAME_ERROR' | translate }}
+        <span [innerHTML]="keycloakErrorMessagePart()"></span>
       </div>
     }
 
     <form (ngSubmit)="editMetadata()">
-      <h2 class="fs-title text-center">Metadaten der Organisationseinheit</h2>
+      <h2 class="fs-title text-center">
+        {{ 'ADMIN_ROLES.EDIT_METADATA_MODAL.TITLE' | translate }}
+      </h2>
       <p class="text-center">
-        <b><i>* = Pflichtfeld</i></b>
+        <b
+          ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+        >
       </p>
 
       <div class="row">
         <div class="col-md-4">
           <div class="form-group">
-            <label>Name*</label>
+            <label>{{ 'ADMIN_SHARED.NAME' | translate }}*</label>
             <input
               class="form-control"
               type="text"
-              placeholder="Rollenname"
+              [placeholder]="'ADMIN_ROLES.EDIT_METADATA_MODAL.NAME_PLACEHOLDER' | translate"
               [(ngModel)]="currentDataset.name"
               name="name"
               (ngModelChange)="checkName()"
               required
             />
             <div class="help-block">
-              Eindeutiger Name der Rolle. Der identische Rollenname muss auch in Keycloak definiert
-              werden.
+              {{ 'ADMIN_ROLES.EDIT_METADATA_MODAL.NAME_HELP' | translate }}
             </div>
             @if (nameInvalid) {
               <div class="text-danger">
-                Eingabe ungültig. Es existiert bereits eine andere Rolle mit gleichem Namen.
+                {{ 'ADMIN_ROLES.EDIT_METADATA_MODAL.NAME_INVALID' | translate }}
               </div>
             }
           </div>
         </div>
         <div class="col-md-4">
           <div class="form-group">
-            <label>Beschreibung*</label>
+            <label>{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}*</label>
             <textarea
               class="form-control"
               rows="4"
-              placeholder="Abteilung 52"
+              [placeholder]="'ADMIN_ROLES.EDIT_METADATA_MODAL.DESCRIPTION_PLACEHOLDER' | translate"
               [(ngModel)]="currentDataset.description"
               name="description"
               required
@@ -69,11 +80,11 @@
         </div>
         <div class="col-md-4">
           <div class="form-group">
-            <label>Kontakt*</label>
+            <label>{{ 'ADMIN_ROLES.CONTACT' | translate }}*</label>
             <textarea
               class="form-control"
               rows="4"
-              placeholder="sekretariat@kommonitor.de"
+              [placeholder]="'ADMIN_ROLES.EDIT_METADATA_MODAL.CONTACT_PLACEHOLDER' | translate"
               [(ngModel)]="currentDataset.contact"
               name="contact"
               required
@@ -86,14 +97,16 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-outline-secondary" (click)="close()">Schließen</button>
+  <button type="button" class="btn btn-outline-secondary" (click)="close()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
   <div style="flex: 1"></div>
   <button
     type="button"
     class="btn btn-success"
-    [disabled]="loadingData || nameInvalid"
+    [disabled]="loadingData() || nameInvalid"
     (click)="editMetadata()"
   >
-    Metadaten aktualisieren
+    {{ 'ADMIN_ROLES.EDIT_METADATA_MODAL.UPDATE_METADATA' | translate }}
   </button>
 </div>

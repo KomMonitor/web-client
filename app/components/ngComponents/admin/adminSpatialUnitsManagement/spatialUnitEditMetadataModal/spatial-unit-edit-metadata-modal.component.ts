@@ -1,21 +1,30 @@
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
-  OnInit,
-  ViewChild,
   ElementRef,
-  inject,
-  Output,
   EventEmitter,
+  OnInit,
+  Output,
+  ViewChild,
+  inject,
+  signal,
 } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import { HttpClient } from '@angular/common/http';
+import { SpatialUnitOverviewType as SpatialUnitMetadata } from 'models/data-management-api';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import {
-  KommonitorDataExchangeService,
-  SpatialUnitMetadata,
-} from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+  LABELED_LOI_DASH_ARRAY_OBJECTS,
+  SPATIAL_UNIT_METADATA_STRUCTURE,
+  buildSpatialUnitMetadataExport,
+  buildSpatialUnitMetadataPatchBody,
+  validateSpatialUnitMetadata,
+} from 'services/adminSpatialUnit/spatial-unit-metadata.util';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 
 import { KmColorPickerComponent } from '../../../customElements/color-picker/km-color-picker.component';
@@ -28,10 +37,16 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { getErrorMessage } from '../spatial-unit-import.util';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { TranslateModule } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
+import { ResourceMetadataFormComponent } from '../../adminShared/resourceMetadataForm/resource-metadata-form.component';
 import {
-  StepperComponent,
-  StepperStep,
-} from 'components/ngComponents/common/stepper/stepper.component';
+  buildResourceMetadataForm,
+  patchMetadataFormFromApi,
+  ResourceMetadataFormValue,
+} from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
 
 // Remove jQuery declaration - no longer needed
 // declare var $: any;
@@ -47,17 +62,23 @@ import {
     KmColorPickerComponent,
     KmLinePatternPickerComponent,
     StepperComponent,
+    ResourceMetadataFormComponent,
+    TranslateModule,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpatialUnitEditMetadataModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
-  kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  protected envConfigService = inject(EnvConfigService);
+  private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
   private http = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
   private sanitizer = inject(DomSanitizer);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
 
   /** Emitted after metadata changed so the parent refreshes its table. */
   @Output() refreshRequested = new EventEmitter<SpatialUnitRefreshRequest>();
@@ -65,12 +86,13 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
 
   // Multi-step form
-  currentStep = 1;
-  totalSteps = 2;
-  steps: StepperStep[] = [{ label: 'Metadaten der Raumebene' }, { label: 'Allgemeine Metadaten' }];
+  readonly stepper = new WizardStepper([
+    { key: 'metadata', label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_UNIT_METADATA' },
+    { key: 'general', label: 'ADMIN_SHARED_UI.STEP_LABELS.GENERAL_METADATA' },
+  ]);
 
-  // Form data
-  loadingData = false;
+  // Form data — signal: toggled across await boundaries (OnPush).
+  loadingData = signal(false);
 
   // Current dataset being edited
   currentSpatialUnitDataset: SpatialUnitMetadata | null = null;
@@ -78,17 +100,11 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   // Basic form data
   spatialUnitLevel = '';
   spatialUnitLevelInvalid = false;
-  metadata: any = {
-    description: '',
-    databasis: '',
-    datasource: '',
-    contact: '',
-    updateInterval: null,
-    lastUpdate: '',
-    literature: '',
-    note: '',
-    sridEPSG: 4326,
-  };
+  metadataForm = buildResourceMetadataForm();
+  /** Read-only view of the metadata form value for patch-body/export building. */
+  get metadata(): ResourceMetadataFormValue {
+    return this.metadataForm.getRawValue();
+  }
 
   // Date picker model for ng-bootstrap - using string format directly
   // Remove the custom visibility control since ng-bootstrap handles it
@@ -119,19 +135,18 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
   // Import/Export functionality
   metadataImportSettings: any = null;
-  spatialUnitMetadataImportError = '';
+  // Signal: written from the async FileReader callback (OnPush).
+  spatialUnitMetadataImportError = signal('');
 
   // Add flag to track if SVGs have been injected
   private svgInjected = false;
 
   get availableLinePatternOptions(): LinePatternOption[] {
-    return (this.kommonitorDataExchangeService.availableLoiDashArrayObjects || []).map(
-      (option) => ({
-        label: option.label,
-        dashArrayValue: option.dashArrayValue,
-        svgString: option.svgString,
-      })
-    );
+    return (LABELED_LOI_DASH_ARRAY_OBJECTS || []).map((option) => ({
+      label: option.label,
+      dashArrayValue: option.dashArrayValue,
+      svgString: option.svgString,
+    }));
   }
 
   ngOnInit() {
@@ -144,28 +159,24 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   }
 
   private loadInitialData() {
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     // Load available spatial units
-    if (this.kommonitorDataExchangeService.availableSpatialUnits) {
-      this.availableSpatialUnits = this.kommonitorDataExchangeService.availableSpatialUnits;
+    if (this.spatialUnitStore.availableSpatialUnits) {
+      this.availableSpatialUnits = this.spatialUnitStore.availableSpatialUnits;
     }
 
     // Load update interval options
-    if (this.kommonitorDataExchangeService.updateIntervalOptions) {
-      this.updateIntervalOptions = this.kommonitorDataExchangeService.updateIntervalOptions;
+    if (this.envConfigService.updateIntervalOptions) {
+      this.updateIntervalOptions = this.envConfigService.updateIntervalOptions;
     }
 
     // Load available dash array objects
-    if (this.kommonitorDataExchangeService.availableLoiDashArrayObjects) {
-      this.availableLoiDashArrayObjects =
-        this.kommonitorDataExchangeService.availableLoiDashArrayObjects;
+    if (LABELED_LOI_DASH_ARRAY_OBJECTS) {
+      this.availableLoiDashArrayObjects = LABELED_LOI_DASH_ARRAY_OBJECTS;
     }
 
-    // Always 2 steps to match AngularJS version
-    this.totalSteps = 2;
-
-    this.loadingData = false;
+    this.loadingData.set(false);
   }
 
   // Date picker change handler - now using ng-bootstrap's built-in functionality
@@ -181,34 +192,12 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     this.spatialUnitLevel = dataset.spatialUnitLevel;
     this.spatialUnitLevelInvalid = false;
 
-    // Reset metadata with null checks
-    const metadata = dataset.metadata || {};
-    this.metadata = {
-      note: metadata.note || '',
-      literature: metadata.literature || '',
-      sridEPSG: 4326,
-      datasource: metadata.datasource || '',
-      databasis: metadata.databasis || '',
-      contact: metadata.contact || '',
-      description: metadata.description || '',
-      lastUpdate: metadata.lastUpdate || '',
-      updateInterval: null,
-    };
+    // Reset metadata from the dataset being edited
+    patchMetadataFormFromApi(this.metadataForm, dataset.metadata, this.updateIntervalOptions);
 
-    // km-date-picker binds directly to string; no separate model needed
-
-    // Set update interval with null check
-    if (metadata.updateInterval) {
-      this.updateIntervalOptions.forEach((option) => {
-        if (option.apiName === metadata.updateInterval) {
-          this.metadata.updateInterval = option;
-        }
-      });
-    } else {
-      // If no update interval is set, try to find a default one
-      if (this.updateIntervalOptions && this.updateIntervalOptions.length > 0) {
-        this.metadata.updateInterval = this.updateIntervalOptions[0];
-      }
+    // If no update interval is set, fall back to the first available option
+    if (!this.metadataForm.controls.updateInterval.value && this.updateIntervalOptions.length > 0) {
+      this.metadataForm.controls.updateInterval.setValue(this.updateIntervalOptions[0]);
     }
 
     // Set hierarchy
@@ -264,7 +253,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     // No role management in this version to match AngularJS
 
     // Reset to first step
-    this.currentStep = 1;
+    this.stepper.reset();
   }
 
   checkSpatialUnitName() {
@@ -317,25 +306,22 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     if (!this.currentSpatialUnitDataset) return;
 
     // Prevent multiple submissions
-    if (this.loadingData) return;
+    if (this.loadingData()) return;
 
     const spatialUnitName_old = this.currentSpatialUnitDataset.spatialUnitLevel;
     const spatialUnitName_new = this.spatialUnitLevel;
 
     // Validate using service method
-    const validation = this.kommonitorDataExchangeService.validateSpatialUnitMetadata(
-      this.metadata,
-      this.spatialUnitLevel
-    );
+    const validation = validateSpatialUnitMetadata(this.metadata, this.spatialUnitLevel);
 
     if (!validation.isValid) {
       this.notificationService.showError(validation.errors.join('\n'));
-      this.loadingData = false;
+      this.loadingData.set(false);
       return;
     }
 
     // Build patch body using service method
-    const patchBody = this.kommonitorDataExchangeService.buildSpatialUnitMetadataPatchBody(
+    const patchBody = buildSpatialUnitMetadataPatchBody(
       this.spatialUnitLevel,
       this.metadata,
       this.nextLowerHierarchySpatialUnit
@@ -354,12 +340,12 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
     // No role management in this version to match AngularJS
 
-    this.loadingData = true;
+    this.loadingData.set(true);
 
     try {
       await this.http
         .patch(
-          `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/spatial-units/${this.currentSpatialUnitDataset.spatialUnitId}`,
+          `${this.envConfigService.baseUrlToKomMonitorDataAPI}/spatial-units/${this.currentSpatialUnitDataset.spatialUnitId}`,
           patchBody
         )
         .toPromise();
@@ -375,9 +361,11 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
         this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable);
       }
 
-      this.loadingData = false;
+      this.loadingData.set(false);
       this.notificationService.showSuccess(
-        `Metadaten für Raumebene "${this.currentSpatialUnitDataset.spatialUnitLevel}" erfolgreich aktualisiert.`
+        this.translate.instant('ADMIN_SPATIAL_UNITS.EDIT_METADATA_MODAL.MSG.METADATA_UPDATED', {
+          name: this.currentSpatialUnitDataset.spatialUnitLevel,
+        })
       );
       this.activeModal.close({
         action: 'updated',
@@ -385,34 +373,18 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
       });
     } catch (error: any) {
       this.notificationService.showError(
-        'Fehler beim Aktualisieren der Metadaten: ' + getErrorMessage(error)
+        this.translate.instant(
+          'ADMIN_SPATIAL_UNITS.EDIT_METADATA_MODAL.MSG.METADATA_UPDATE_FAILED',
+          { error: getErrorMessage(error) }
+        )
       );
-      this.loadingData = false;
-    }
-  }
-
-  // Multi-step form navigation
-  nextStep() {
-    if (this.currentStep < this.totalSteps) {
-      this.currentStep++;
-    }
-  }
-
-  previousStep() {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
-  }
-
-  goToStep(step: number) {
-    if (step >= 1 && step <= this.totalSteps) {
-      this.currentStep = step;
+      this.loadingData.set(false);
     }
   }
 
   // Import/Export functionality
   onImportSpatialUnitEditMetadata() {
-    this.spatialUnitMetadataImportError = '';
+    this.spatialUnitMetadataImportError.set('');
     if (this.metadataImportFile) {
       this.metadataImportFile.nativeElement.click();
     }
@@ -432,8 +404,13 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
       try {
         this.parseFromMetadataFile(event);
       } catch {
-        this.spatialUnitMetadataImportError = 'Uploaded Metadata File cannot be parsed correctly';
+        this.spatialUnitMetadataImportError.set(
+          'Uploaded Metadata File cannot be parsed correctly'
+        );
       }
+      // The import rewrites many ngModel-bound fields from an async callback —
+      // mark the OnPush view once instead of converting each field to a signal.
+      this.cdr.markForCheck();
     };
 
     fileReader.readAsText(file);
@@ -443,32 +420,18 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     this.metadataImportSettings = JSON.parse(event.target.result);
 
     if (!this.metadataImportSettings.metadata) {
-      this.spatialUnitMetadataImportError =
-        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.';
+      this.spatialUnitMetadataImportError.set(
+        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.'
+      );
       return;
     }
 
-    // Apply imported metadata using service method for consistency
-    this.metadata = {
-      note: this.metadataImportSettings.metadata.note,
-      literature: this.metadataImportSettings.metadata.literature,
-      sridEPSG: this.metadataImportSettings.metadata.sridEPSG,
-      datasource: this.metadataImportSettings.metadata.datasource,
-      contact: this.metadataImportSettings.metadata.contact,
-      lastUpdate: this.metadataImportSettings.metadata.lastUpdate,
-      description: this.metadataImportSettings.metadata.description,
-      databasis: this.metadataImportSettings.metadata.databasis,
-      updateInterval: null,
-    };
-
-    // km-date-picker binds directly to string; no separate model needed
-
-    // Set update interval
-    this.updateIntervalOptions.forEach((option) => {
-      if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
-        this.metadata.updateInterval = option;
-      }
-    });
+    // Apply imported metadata
+    patchMetadataFormFromApi(
+      this.metadataForm,
+      this.metadataImportSettings.metadata,
+      this.updateIntervalOptions
+    );
 
     // Set hierarchy
     this.availableSpatialUnits.forEach((spatialUnit) => {
@@ -509,7 +472,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
   onExportSpatialUnitEditMetadata() {
     // Build export data using service method
-    const metadataExport = this.kommonitorDataExchangeService.buildSpatialUnitMetadataExport(
+    const metadataExport = buildSpatialUnitMetadataExport(
       this.metadata,
       this.spatialUnitLevel,
       this.nextLowerHierarchySpatialUnit
@@ -548,11 +511,11 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
   // Metadata structure for export - now using service
   get spatialUnitMetadataStructure() {
-    return this.kommonitorDataExchangeService.spatialUnitMetadataStructure;
+    return SPATIAL_UNIT_METADATA_STRUCTURE;
   }
 
   hideMetadataErrorAlert() {
-    this.spatialUnitMetadataImportError = '';
+    this.spatialUnitMetadataImportError.set('');
   }
 
   cancel() {
@@ -566,7 +529,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     }
 
     // Only proceed if not already loading
-    if (!this.loadingData) {
+    if (!this.loadingData()) {
       this.editSpatialUnitMetadata();
     }
   }

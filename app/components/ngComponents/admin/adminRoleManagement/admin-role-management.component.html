@@ -1,14 +1,14 @@
 <app-admin-content-view
-  title="Mandanten- und Gruppenverwaltung"
-  description="Userverwaltung via Keycloak"
+  [title]="'ADMIN_ROLES.TITLE' | translate"
+  [description]="'ADMIN_ROLES.KEYCLOAK_USER_MANAGEMENT' | translate"
   [controlsTemplate]="controls"
   [contentTemplate]="content"
 >
 </app-admin-content-view>
 
 <ng-template #controls>
-  @if (kommonitorDataExchangeService.enableKeycloakSecurity) {
-    <span>Nur editierbare Datensätze anzeigen</span>
+  @if (envConfigService.enableKeycloakSecurity) {
+    <span>{{ 'ADMIN_SHARED.SHOW_ONLY_EDITABLE' | translate }}</span>
     <div>
       <label class="switch">
         <input
@@ -20,69 +20,74 @@
       </label>
     </div>
     <button
-      [disabled]="!kommonitorDataExchangeService.checkCreatePermission()"
+      [disabled]="!accessControlService.checkCreatePermission()"
       class="btn btn-success btn-sm"
       type="button"
       (click)="openAddModal()"
     >
-      <i class="fas fa-plus"></i> Erstellen
+      <i class="fas fa-plus"></i> {{ 'ADMIN_SHARED.CREATE' | translate }}
     </button>
     <button
-      [disabled]="
-        !kommonitorDataExchangeService.checkCreatePermission() || selectedRows.length === 0
-      "
+      [disabled]="!accessControlService.checkCreatePermission() || selectedRows().length === 0"
       class="btn btn-danger btn-sm"
       type="button"
       (click)="openDeleteModal()"
     >
-      <i class="fas fa-trash"></i> Löschen
+      <i class="fas fa-trash"></i> {{ 'ADMIN_SHARED.DELETE' | translate }}
     </button>
   }
 </ng-template>
 
 <ng-template #content>
-  @if (!kommonitorDataExchangeService.enableKeycloakSecurity) {
+  @if (!envConfigService.enableKeycloakSecurity) {
     <div>
-      <expandable-box title="Zugriffskontrolle" [isCollapsible]="false">
+      <expandable-box
+        [title]="'ADMIN_ROLES.ACCESS_CONTROL_BOX_TITLE' | translate"
+        [isCollapsible]="false"
+      >
         <p>
-          KomMonitor nutzt die Open Source Software <b>Keycloak</b> zum Nutzer- und
-          Rechtenmanagement.
+          {{ 'ADMIN_ROLES.KEYCLOAK_INTRO_PREFIX' | translate }} <b>Keycloak</b>
+          {{ 'ADMIN_ROLES.KEYCLOAK_INTRO_SUFFIX' | translate }}
         </p>
         <h4>
-          In der Konfiguration ist der Zugriffsschutz jedoch deaktiviert. Es muss zuerst aktiviert
-          und mit einer validen Keycloak-Instanz konfiguriert werden, bevor die Zugriffskontrolle
-          verwaltet werden kann.
+          {{ 'ADMIN_ROLES.SECURITY_DISABLED_HINT' | translate }}
         </h4>
       </expandable-box>
     </div>
   }
 
-  @if (kommonitorDataExchangeService.enableKeycloakSecurity) {
+  @if (envConfigService.enableKeycloakSecurity) {
     <div>
-      <expandable-box title="Mandantenspezifische Gruppenverwaltung" [isCollapsible]="false">
-        <i>Hinweise und Erläuterungen sind unter <b>Gruppen-/Rechtekonzept</b> zu finden</i>
+      <expandable-box
+        [title]="'ADMIN_ROLES.GROUP_MANAGEMENT_BOX_TITLE' | translate"
+        [isCollapsible]="false"
+      >
+        <i
+          >{{ 'ADMIN_ROLES.CONCEPT_HINT_PREFIX' | translate }}
+          <b>{{ 'ADMIN_ROLES.CONCEPT_MENU_NAME' | translate }}</b>
+          {{ 'ADMIN_ROLES.CONCEPT_HINT_SUFFIX' | translate }}</i
+        >
         <h5>
-          Zur
+          {{ 'ADMIN_ROLES.KEYCLOAK_LINK_PREFIX' | translate }}
           <a
             class="kommonitor-theme"
             [href]="keycloakHelperService.targetRealmUrlToKeycloakInstance"
             target="_blank"
             rel="noopener noreferrer"
-            >Userverwaltung via Keycloak</a
+            >{{ 'ADMIN_ROLES.KEYCLOAK_USER_MANAGEMENT' | translate }}</a
           >
         </h5>
         <p>
-          (Beim Neuanlegen von Usern müssen diese direkt einer oder mehrerer Gruppen zugeteilt
-          werden)
+          {{ 'ADMIN_ROLES.NEW_USER_HINT' | translate }}
         </p>
-        <app-loading-overlay [loading]="loadingData">
+        <app-loading-overlay [loading]="loadingData()">
           <ag-grid-angular
             #roleOverviewTable
             id="roleOverviewTable"
             style="height: 70vh"
             class="ag-theme-alpine"
-            [columnDefs]="columnDefs"
-            [rowData]="rowData"
+            [columnDefs]="columnDefs()"
+            [rowData]="rowData()"
             [defaultColDef]="defaultColDef"
             [gridOptions]="gridOptions"
             [pagination]="true"

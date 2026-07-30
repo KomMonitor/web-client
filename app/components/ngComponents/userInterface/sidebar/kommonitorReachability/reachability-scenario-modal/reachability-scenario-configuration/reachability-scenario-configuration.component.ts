@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
@@ -21,6 +22,8 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
   private reachabilityMapHelperService = inject(ReachabilityMapHelperService);
   protected mapOverlayState = inject(MapOverlayStateService);
   private broadcastService = inject(BroadcastService);
+
+  private readonly destroyRef = inject(DestroyRef);
 
   isUsedInReporting = false;
 
@@ -58,52 +61,59 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // must run before the subscriptions below: isochronesCalculationFinished() reads
+    // mapPartsMap for this.domId, and a scenario adopted from quick-calc already has
+    // scenarioState=true, so reachabilityMapSubject$ fires synchronously on subscribe
+    this.mapParts = this.reachabilityMapHelperService.initReachabilityGeoMap(this.domId);
+
     // catch broadcast msgs
-    this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
-      const title = broadcastMsg.msg;
-      const values: any = broadcastMsg.values;
+    this.broadcastService.currentBroadcastMsg
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((broadcastMsg) => {
+        const title = broadcastMsg.msg;
+        const values: any = broadcastMsg.values;
 
-      switch (title) {
-        case 'switchReportingMode':
-          {
-            this.switchReportingMode(values);
-          }
-          break;
-        case BroadcastMessage.ReportingPoiLayerSelected:
-          {
-            this.reportingPoiLayerSelected(values);
-          }
-          break;
-        case 'onManageReachabilityScenario':
-          {
-            this.onManageReachabilityScenario(values);
-          }
-          break;
-        case BroadcastMessage.IsochronesCalculationFinished:
-          {
-            this.isochronesCalculationFinished();
-          }
-          break;
-        case BroadcastMessage.ReinitReachabilityConfiguration:
-          {
-            this.reachabilityMapHelperService.invalidateMap(this.domId);
-          }
-          break;
-        case BroadcastMessage.ResetReachabilityScenarioConfiguration:
-          {
-            this.resetReachabilityConfigurationMap();
-          }
-          break;
-      }
+        switch (title) {
+          case 'switchReportingMode':
+            {
+              this.switchReportingMode(values);
+            }
+            break;
+          case BroadcastMessage.ReportingPoiLayerSelected:
+            {
+              this.reportingPoiLayerSelected(values);
+            }
+            break;
+          case 'onManageReachabilityScenario':
+            {
+              this.onManageReachabilityScenario(values);
+            }
+            break;
+          case BroadcastMessage.IsochronesCalculationFinished:
+            {
+              this.isochronesCalculationFinished();
+            }
+            break;
+          case BroadcastMessage.ReinitReachabilityConfiguration:
+            {
+              this.reachabilityMapHelperService.invalidateMap(this.domId);
+            }
+            break;
+          case BroadcastMessage.ResetReachabilityScenarioConfiguration:
+            {
+              this.resetReachabilityConfigurationMap();
+            }
+            break;
+        }
+      });
 
-      this.reachabilityStateService.reachabilityMapSubject$.subscribe((value) => {
+    this.reachabilityStateService.reachabilityMapSubject$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
         if (value.scenarioState) {
           this.isochronesCalculationFinished();
         }
       });
-    });
-
-    this.mapParts = this.reachabilityMapHelperService.initReachabilityGeoMap(this.domId);
   }
 
   /* 

@@ -30,10 +30,18 @@ export class GeoresourceLayerService {
   private selectionState = inject(SelectionStateService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private mapService = inject(MapService);
-  private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
   private modalService = inject(NgbModal);
   private exportMode = inject(GeoresourceExportModeService);
+  private broadcastService = inject(BroadcastService);
+
+  constructor() {
+    this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
+      if (broadcastMsg.msg === BroadcastMessage.SelectedIndicatorDateHasChanged) {
+        this.selectedIndicatorDateHasChanged();
+      }
+    });
+  }
 
   /** Whether POI layers are clustered on the map. Bound by the settings header. */
   useCluster = true;
@@ -113,7 +121,7 @@ export class GeoresourceLayerService {
 
     setTimeout(() => {
       this.loadingData = true;
-      this.broadcastService.broadcast(BroadcastMessage.ShowLoadingIconOnMap);
+      this.mapService.showLoadingIcon();
     });
 
     setTimeout(() => {
@@ -164,7 +172,7 @@ export class GeoresourceLayerService {
 
   addGeoresourceLayerToMap(resource: GeoresourcesDataset) {
     this.loadingData = true;
-    this.broadcastService.broadcast(BroadcastMessage.ShowLoadingIconOnMap);
+    this.mapService.showLoadingIcon();
     const date = this.getQueryDate(resource);
     const [year, month, day] = date.split('-');
     const url = `${this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/georesources/${resource.georesourceId}/${year}/${month}/${day}`;
@@ -186,7 +194,7 @@ export class GeoresourceLayerService {
 
   removeGeoresourceLayerFromMap(resource: GeoresourcesDataset) {
     this.loadingData = true;
-    this.broadcastService.broadcast(BroadcastMessage.ShowLoadingIconOnMap);
+    this.mapService.showLoadingIcon();
     if (resource.isPOI) this.mapService.removePoiGeoresource(resource);
     else if (resource.isLOI) this.mapService.removeLoiGeoresource(resource);
     else if (resource.isAOI) this.mapService.removeAoiGeoresource(resource);

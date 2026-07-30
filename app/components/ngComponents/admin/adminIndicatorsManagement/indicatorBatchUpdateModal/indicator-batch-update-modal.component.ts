@@ -1,5 +1,17 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Input, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
@@ -44,11 +56,13 @@ interface BatchListItem {
   selector: 'app-indicator-batch-update-modal',
   templateUrl: './indicator-batch-update-modal.component.html',
   styleUrls: ['./indicator-batch-update-modal.component.scss'],
-  imports: [FormsModule, CommonModule],
+  imports: [TranslateModule, FormsModule, CommonModule],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   private broadcastService = inject(BroadcastService);
+  private cdr = inject(ChangeDetectorRef);
   protected indicatorStore = inject(IndicatorMetadataStoreService);
   protected spatialUnitStore = inject(SpatialUnitMetadataStoreService);
 
@@ -62,7 +76,8 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   public keepMissingValues: boolean = true;
   public batchList: BatchListItem[] = [];
   public allRowsSelected: boolean = false;
-  public loadingData: boolean = false;
+  // Signal: kept for future async batch flows (OnPush).
+  public loadingData = signal(false);
 
   private subscriptions: Subscription[] = [];
   private keyDownHandler: (event: KeyboardEvent) => void;
@@ -99,6 +114,8 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
       } else if (data.msg === 'timeseriesMappingChanged') {
         this.timeseriesMappingReference = (data as any).mapping;
       }
+      // Bus callbacks mutate template-bound fields on this OnPush view.
+      this.cdr.markForCheck();
     });
     this.subscriptions.push(sub1);
   }
@@ -192,6 +209,8 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error parsing batch list file:', error);
     }
+    // The import rewrote the template-bound batch list after an await (OnPush).
+    this.cdr.markForCheck();
   }
 
   private processParsedBatchList(newBatchList: any[]): void {

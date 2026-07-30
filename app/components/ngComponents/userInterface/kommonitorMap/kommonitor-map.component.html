@@ -14,5 +14,18 @@
     ></p>
   </div>
 
-  <div id="ngMap" style="z-index: 2"></div>
+  <div
+    id="ngMap"
+    style="z-index: 2"
+    [ngClass]="{ manualMapSelection: reachabilityStateService.manualMapSelectionMode }"
+    (mousemove)="onMouseMove($event)"
+    (mouseenter)="showMouseTooltip = true"
+    (mouseleave)="showMouseTooltip = false"
+  >
+    @if (reachabilityStateService.manualMapSelectionMode && showMouseTooltip) {
+      <div id="mouseTooltip" [style.left.px]="mouseX + 12" [style.top.px]="mouseY + 12">
+        Standort setzen
+      </div>
+    }
+  </div>
 </div>

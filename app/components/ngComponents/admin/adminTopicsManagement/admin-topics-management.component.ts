@@ -1,4 +1,11 @@
-import { Component, Injectable, OnInit, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Injectable,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TopicMetadataStoreService } from '../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 import { ExpandableBoxComponent } from '../../common/expandable-box/expandable-box.component';
@@ -9,13 +16,24 @@ import { Topic, TopicOrderMode, TopicResourceType } from './topic.model';
 import { TopicListComponent } from './topicList/topicList.component';
 import { TopicOrderSelectionComponent } from './topicOrderSelection/topic-order-selection.component';
 import { NotificationService } from '../../common/notification/notification.service';
+import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateService } from '@ngx-translate/core';
 // Re-exported for the many existing importers that reference these types via this component.
 export { Topic, TopicOrderMode, TopicResourceType } from './topic.model';
 
 @Injectable()
 export class AdminTopicsManagementErrorHandlingService {
-  errorMessagePart: string = '';
+  // Signal-backed behind a getter/setter shim: the add-topic child writes this
+  // from an async subscribe callback while the OnPush overview template reads
+  // it — the signal read makes the overview re-render without further wiring.
+  private readonly _errorMessagePart = signal('');
+  get errorMessagePart(): string {
+    return this._errorMessagePart();
+  }
+  set errorMessagePart(value: string) {
+    this._errorMessagePart.set(value);
+  }
 }
 
 @Component({
@@ -30,20 +48,24 @@ export class AdminTopicsManagementErrorHandlingService {
     TopicListComponent,
     AddTopicComponent,
     AdminContentViewComponent,
+    TranslateModule,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminTopicsManagementComponent implements OnInit {
   protected errorHandlingService = inject(AdminTopicsManagementErrorHandlingService);
   private topicSrvc = inject(AdminTopicsManagementService);
   private topicStore = inject(TopicMetadataStoreService);
   private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   showTopicIds = false;
   loadingData = false;
 
-  indicatorOrder: TopicOrderMode | undefined;
-  geoRessourceOrder: TopicOrderMode | undefined;
+  // Signals: assigned from the order-mode fetch subscription (OnPush).
+  indicatorOrder = signal<TopicOrderMode | undefined>(undefined);
+  geoRessourceOrder = signal<TopicOrderMode | undefined>(undefined);
 
   get filteredIndicatorTopics(): Topic[] {
     return this.topicStore.availableTopics.filter(
@@ -58,19 +80,21 @@ export class AdminTopicsManagementComponent implements OnInit {
   }
 
   setIndicatorSorting(order: TopicOrderMode) {
-    this.indicatorOrder = order;
+    this.indicatorOrder.set(order);
     this.setSorting('indicator', order);
   }
 
   setGeoRessourceSorting(order: TopicOrderMode) {
-    this.geoRessourceOrder = order;
+    this.geoRessourceOrder.set(order);
     this.setSorting('georesource', order);
   }
 
   private setSorting(topic: TopicResourceType, order: TopicOrderMode) {
     this.topicSrvc.setOrderMode(topic, order).subscribe({
       error: () => {
-        this.notificationService.showError('Die Sortierung konnte nicht gespeichert werden.');
+        this.notificationService.showError(
+          this.translate.instant('ADMIN_TOPICS.MSG.SORT_SAVE_FAILED')
+        );
       },
     });
   }
@@ -78,13 +102,17 @@ export class AdminTopicsManagementComponent implements OnInit {
   ngOnInit(): void {
     this.topicSrvc.getOrderModes().subscribe({
       next: (modes) => {
-        this.indicatorOrder = modes.find((mode) => mode.topicResource === 'indicator')?.orderMode;
-        this.geoRessourceOrder = modes.find(
-          (mode) => mode.topicResource === 'georesource'
-        )?.orderMode;
+        this.indicatorOrder.set(
+          modes.find((mode) => mode.topicResource === 'indicator')?.orderMode
+        );
+        this.geoRessourceOrder.set(
+          modes.find((mode) => mode.topicResource === 'georesource')?.orderMode
+        );
       },
       error: () => {
-        this.notificationService.showError('Die Sortiermodi konnten nicht geladen werden.');
+        this.notificationService.showError(
+          this.translate.instant('ADMIN_TOPICS.MSG.SORT_MODES_LOAD_FAILED')
+        );
       },
     });
   }

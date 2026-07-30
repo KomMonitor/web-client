@@ -1,29 +1,28 @@
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
   DualListBoxComponent,
   dualListInput,
-  item,
 } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import * as noUiSlider from 'nouislider';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { RangeFilterStateService } from 'services/range-filter-state-service/range-filter-state.service';
-import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
-import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
+import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
+import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
+import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
+import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { IndicatorRenderRequest, MapService } from 'services/map-service/map.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { RangeFilterStateService } from 'services/range-filter-state-service/range-filter-state.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
-import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
-import { MapService } from 'services/map-service/map.service';
-import * as noUiSlider from 'nouislider';
-import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
-import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-kommonitor-filter',
@@ -75,6 +74,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
   lowerFilterInputNotValid = false;
   higherFilterInputNotValid = false;
   indicatorMetadataAndGeoJSON;
+  indicatorClassificationType;
 
   showManualSelectionSpatialFilter;
   showSelectionByFeatureSpatialFilter;
@@ -170,6 +170,16 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
           this.updateMeasureOfValueBar([value.values.date, value.values.indicator]);
       });
 
+    // re-setup the spatial unit filter whenever an already displayed indicator
+    // dataset is replaced with new feature values (filtering, balance)
+    this.mapService.indicatorRenderRequest$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((request) => {
+        if (request.source === 'dataset-replacement') {
+          this.onIndicatorDatasetReplaced(request);
+        }
+      });
+
     this.broadcastService.currentBroadcastMsg.subscribe((result) => {
       const msg = result.msg;
       const val: any = result.values;
@@ -178,11 +188,6 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
         case BroadcastMessage.OnChangeSelectedIndicator:
           {
             this.onOnChangeSelectedIndicator();
-          }
-          break;
-        case BroadcastMessage.ReplaceIndicatorAsGeoJSON:
-          {
-            this.replaceIndicatorAsGeoJSON(val);
           }
           break;
         case BroadcastMessage.UpdateMeasureOfValueBar:
@@ -236,7 +241,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
       ? this.metadataBootstrap.fetchAllMetadata(this.globalFilterHelperService.applicationFilter)
       : this.metadataBootstrap.fetchAllMetadata();
 
-    this.broadcastService.broadcast(BroadcastMessage.OnGlobalFilterChange);
+    this.mapService.onGlobalFilterChange();
 
     // Clear the local spinner once the reload actually finishes (replaces the
     // former fixed 1s timeout). Consumers that need to react to the reload
@@ -318,6 +323,19 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
   onOnChangeSelectedIndicator() {
     this.reappliedFilter = false;
+
+    // Clear any active feature filter when the selected indicator changes.
+    // Feature ids are per spatial unit and therefore identical across indicators
+    // on the same spatial unit, so stale filtered ids from the previous indicator
+    // would otherwise survive the switch and make styleFor() paint those features
+    // with the grey filteredStyle instead of a class color ("feature has no class").
+    // This broadcast fires synchronously before the (async) map render, so the
+    // filter is cleared in time. The value-range filter is meaningless for the new
+    // indicator anyway and its slider is reset via UpdateIndicatorValueRangeFilter.
+    this.filterHelperService.clearFilteredFeatures();
+
+    this.indicatorClassificationType =
+      this.selectionState.selectedIndicator.defaultClassificationMapping.classificationType;
   }
   /* 
 
@@ -334,13 +352,8 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     }	
   });
 */
-  replaceIndicatorAsGeoJSON([
-    indicatorMetadataAndGeoJSON,
-    spatialUnitName,
-    date,
-    justRestyling,
-    isCustomComputation,
-  ]) {
+  onIndicatorDatasetReplaced(request: IndicatorRenderRequest) {
+    const { indicator: indicatorMetadataAndGeoJSON, spatialUnitName, date } = request;
     this.setupSpatialUnitFilter(indicatorMetadataAndGeoJSON, spatialUnitName, date);
 
     if (!this.previouslySelectedIndicator) {
@@ -390,6 +403,12 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     }
 
     this.indicatorMetadataAndGeoJSON = indicatorMetadataAndGeoJSON;
+    if (!this.indicatorMetadataAndGeoJSON?.geoJSON?.features) {
+      console.warn(
+        'Filter range slider cannot be created yet, as the indicator geoJSON is not available.'
+      );
+      return;
+    }
 
     const values: any[] = [];
 
@@ -430,20 +449,33 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     this.inputLowerFilterValue = this.valueRangeMinValue;
     this.inputHigherFilterValue = this.valueRangeMaxValue;
 
-    this.slider.noUiSlider.updateOptions({
-      range: {
-        min: this.valueRangeMinValue,
-        max: this.valueRangeMaxValue,
+    // Pass fireSetEvent=false so this programmatic reset does NOT emit a 'set'
+    // event. Otherwise updateOptions triggers onChangeRangeFilter ->
+    // applyRangeFilter on every dataset / spatial-unit / indicator change and
+    // marks features outside the (pre-reset) handle positions as filtered,
+    // painting them with the grey filteredStyle instead of a class color and
+    // dropping them from the legend feature count.
+    this.slider.noUiSlider.updateOptions(
+      {
+        range: {
+          min: this.valueRangeMinValue,
+          max: this.valueRangeMaxValue,
+        },
+        start: [this.valueRangeMinValue, this.valueRangeMaxValue],
+        step: 0.01,
+        tooltips: true,
+        pips: {
+          mode: 'range',
+          density: 25,
+        },
       },
-      start: [this.valueRangeMinValue, this.valueRangeMaxValue],
-      step: 0.01,
-      tooltips: true,
-      pips: {
-        mode: 'range',
-        density: 25,
-      },
-    });
+      false
+    );
 
+    // Rebind the single user-interaction handler. setupRangeSliderForFilter runs
+    // again on every dataset change, so remove any previously bound handler first
+    // to avoid accumulating duplicate 'set' listeners on the shared slider.
+    this.slider.noUiSlider.off('set');
     this.slider.noUiSlider.on('set', () => {
       this.onChangeRangeFilter(this.getFormatedSliderReturn());
     });

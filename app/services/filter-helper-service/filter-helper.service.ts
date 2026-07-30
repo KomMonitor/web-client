@@ -5,6 +5,7 @@ import { ChartDisplayStateService } from 'services/chart-display-state-service/c
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { MapService } from 'services/map-service/map.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import * as turf from '@turf/turf';
 
 @Injectable({
@@ -16,10 +17,18 @@ export class FilterHelperService {
   private mapService = inject(MapService);
   private broadcastService = inject(BroadcastService);
   private envConfigService = inject(EnvConfigService);
+  private indicatorValueService = inject(IndicatorValueService);
 
   filteredIndicatorFeatureIds = new Map();
   selectedIndicatorFeatureIds = new Map();
   completelyRemoveFilteredFeaturesFromDisplay = true;
+
+  private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asNumber(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
 
   applyRangeFilter(features, targetDateProperty, minFilterValue, maxFilterValue) {
     //this.ajskommonitorFilterHelperServiceProvider.applyRangeFilter(features, dtargetDateProperty, minFilterValue, maxFilterValue);
@@ -27,9 +36,7 @@ export class FilterHelperService {
       this.filteredIndicatorFeatureIds = new Map();
     }
     for (const feature of features) {
-      const value = +Number(feature.properties[targetDateProperty]).toFixed(
-        this.envConfigService.numberOfDecimals
-      );
+      const value = this.getIndicatorValue_asNumber(feature.properties[targetDateProperty]);
       if (value >= minFilterValue && value <= maxFilterValue) {
         // feature must not be filtered - make sure it is not marked as filtered
         if (

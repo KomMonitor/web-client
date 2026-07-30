@@ -8,6 +8,8 @@ import 'leaflet.awesome-markers';
 import 'leaflet-draw';
 import { IconTranslateService } from 'services/icon-translate/icon-translate.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { FeaturePopupHelperService } from 'services/feature-popup-helper-service/feature-popup-helper.service';
+import { createGrayscaleTileLayer } from 'util/leaflet-grayscale';
 import { DEFAULT_POI_SIZE } from 'services/poi-presentation-service/poi-presentation.service';
 
 // UMD Leaflet plugins (leaflet.awesome-markers, leaflet-draw, ...) augment Leaflet's
@@ -27,6 +29,7 @@ export class GenericMapHelperService {
   private broadcastService = inject(BroadcastService);
   private iconTranslate = inject(IconTranslateService);
   private envConfigService = inject(EnvConfigService);
+  private featurePopupHelperService = inject(FeaturePopupHelperService);
 
   resourceType_point = 'POINT';
   resourceType_line = 'LINE';
@@ -201,14 +204,10 @@ export class GenericMapHelperService {
   }
 
   addPoiMarker(markers, poiMarker) {
-    // var propertiesString = "<pre>" + JSON.stringify(poiMarker.feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
-
-    let popupContent =
-      '<div class="poiInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-    for (const p in poiMarker.feature.properties) {
-      popupContent += '<tr><td>' + p + '</td><td>' + poiMarker.feature.properties[p] + '</td></tr>';
-    }
-    popupContent += '</table></div>';
+    const popupContent = this.featurePopupHelperService.buildFeaturePropertiesPopup(
+      poiMarker.feature.properties,
+      'poiInfoPopupContent'
+    );
 
     if (poiMarker.feature.properties.name) {
       poiMarker.bindPopup(poiMarker.feature.properties.name + '\n\n' + popupContent);
@@ -333,6 +332,50 @@ export class GenericMapHelperService {
     });
   }
 
+  /**
+   * Builds the configured base layers (TILE_LAYER, TILE_LAYER_GRAYSCALE, WMS)
+   * for the main map, keyed by their configured name. Entries with an unknown
+   * layer type are skipped (map refactoring plan, Phase 4).
+   */
+  createBaseLayers(baseLayerConfigs: any[]): Map<string, any> {
+    const baseLayersByName = new Map<string, any>();
+
+    for (const baseMapEntry of baseLayerConfigs) {
+      if (baseMapEntry.layerType === 'TILE_LAYER_GRAYSCALE') {
+        baseLayersByName.set(
+          baseMapEntry.name,
+          createGrayscaleTileLayer(baseMapEntry.url, {
+            minZoom: baseMapEntry.minZoomLevel,
+            maxZoom: baseMapEntry.maxZoomLevel,
+            attribution: baseMapEntry.attribution_html,
+          })
+        );
+      } else if (baseMapEntry.layerType === 'TILE_LAYER') {
+        baseLayersByName.set(
+          baseMapEntry.name,
+          L.tileLayer(baseMapEntry.url, {
+            minZoom: baseMapEntry.minZoomLevel,
+            maxZoom: baseMapEntry.maxZoomLevel,
+            attribution: baseMapEntry.attribution_html,
+          })
+        );
+      } else if (baseMapEntry.layerType === 'WMS') {
+        baseLayersByName.set(
+          baseMapEntry.name,
+          L.tileLayer.wms(baseMapEntry.url, {
+            minZoom: baseMapEntry.minZoomLevel,
+            maxZoom: baseMapEntry.maxZoomLevel,
+            attribution: baseMapEntry.attribution_html,
+            layers: baseMapEntry.layerName_WMS,
+            format: 'image/png',
+          })
+        );
+      }
+    }
+
+    return baseLayersByName;
+  }
+
   initLayerControl(map, backgroundLayer) {
     const baseLayers = {
       'OpenStreetMap Graustufen': backgroundLayer,
@@ -357,10 +400,10 @@ export class GenericMapHelperService {
           'accept-language': 'de', // render results in Dutch
           countrycodes: 'de', // limit search results to the Netherlands
           addressdetails: 1, // include additional address detail parts  
-          viewbox: "" + (Number(__env.initialLongitude) - 0.001) + "," + (Number(__env.initialLatitude) - 0.001) + "," + (Number(__env.initialLongitude) + 0.001) + "," + (Number(__env.initialLatitude) + 0.001)
+          viewbox: "" + (Number(this.envConfigService.initialLongitude) - 0.001) + "," + (Number(this.envConfigService.initialLatitude) - 0.001) + "," + (Number(this.envConfigService.initialLongitude) + 0.001) + "," + (Number(this.envConfigService.initialLatitude) + 0.001)
         },
-        searchUrl: __env.targetUrlToGeocoderService + '/search',
-        reverseUrl: __env.targetUrlToGeocoderService + '/reverse'
+        searchUrl: this.envConfigService.targetUrlToGeocoderService + '/search',
+        reverseUrl: this.envConfigService.targetUrlToGeocoderService + '/reverse'
       }
     );
 

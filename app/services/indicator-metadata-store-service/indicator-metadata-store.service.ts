@@ -1,4 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
+import { IndicatorsDataset } from 'components/ngComponents/models/indicators.models';
+import { SpatialUnitOverviewType } from 'models/data-management-api';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 /**
@@ -20,36 +22,37 @@ export class IndicatorMetadataStoreService {
 
   // Signal-backed so reactive consumers (computed/templates) re-derive on change,
   // while existing imperative reads/assignments keep working via the getter/setter shim.
-  private _availableIndicators = signal<any[]>([]);
-  get availableIndicators(): any[] {
+  private _availableIndicators = signal<IndicatorsDataset[]>([]);
+  get availableIndicators(): IndicatorsDataset[] {
     return this._availableIndicators();
   }
-  set availableIndicators(value: any[]) {
+  set availableIndicators(value: IndicatorsDataset[]) {
     this._availableIndicators.set(value);
   }
-  availableIndicators_map = new Map();
-  displayableIndicators: any;
+  availableIndicators_map = new Map<string, IndicatorsDataset>();
+  displayableIndicators: IndicatorsDataset[] = [];
 
-  getIndicatorAbbreviationFromIndicatorId(indicatorId) {
+  getIndicatorAbbreviationFromIndicatorId(indicatorId: string): string | undefined {
     for (const indicatorMetadata of this.availableIndicators) {
       if (indicatorMetadata.indicatorId === indicatorId) {
         return indicatorMetadata.abbreviation;
       }
     }
+    return undefined;
   }
 
-  setIndicators(indicatorsArray) {
+  setIndicators(indicatorsArray: IndicatorsDataset[]) {
     this.availableIndicators = this.modifyIndicators(indicatorsArray);
     this.availableIndicators_map = new Map(this.availableIndicators.map((i) => [i.indicatorId, i]));
   }
 
-  addSingleIndicatorMetadata(indicatorMetadata) {
+  addSingleIndicatorMetadata(indicatorMetadata: IndicatorsDataset) {
     const modified = this.modifySingleIndicator(indicatorMetadata);
     this.availableIndicators = [modified, ...this.availableIndicators];
     this.availableIndicators_map.set(indicatorMetadata.indicatorId, modified);
   }
 
-  replaceSingleIndicatorMetadata(indicatorMetadata) {
+  replaceSingleIndicatorMetadata(indicatorMetadata: IndicatorsDataset) {
     const modified = this.modifySingleIndicator(indicatorMetadata);
     const index = this.availableIndicators.findIndex(
       (i) => i.indicatorId === indicatorMetadata.indicatorId
@@ -61,23 +64,23 @@ export class IndicatorMetadataStoreService {
     this.availableIndicators_map.set(indicatorMetadata.indicatorId, modified);
   }
 
-  getIndicatorMetadataById(indicatorId) {
+  getIndicatorMetadataById(indicatorId: string): IndicatorsDataset | undefined {
     return this.availableIndicators_map.get(indicatorId);
   }
 
-  deleteSingleIndicatorMetadata(indicatorId) {
+  deleteSingleIndicatorMetadata(indicatorId: string) {
     const index = this.availableIndicators.findIndex((i) => i.indicatorId === indicatorId);
     if (index !== -1)
       this.availableIndicators = this.availableIndicators.filter((_, i) => i !== index);
     this.availableIndicators_map.delete(indicatorId);
   }
 
-  modifySingleIndicator(indicator) {
+  modifySingleIndicator(indicator: IndicatorsDataset): IndicatorsDataset {
     const temp = this.modifyIndicators([indicator]);
     return temp[0];
   }
 
-  modifyIndicators(indicators) {
+  modifyIndicators(indicators: IndicatorsDataset[]): IndicatorsDataset[] {
     let decimalDefault = 2;
     if (this.envConfigService.numberOfDecimals !== undefined)
       decimalDefault = this.envConfigService.numberOfDecimals;
@@ -98,8 +101,10 @@ export class IndicatorMetadataStoreService {
    * by the facade (SpatialUnitMetadataStoreService). The B4 keyword-filtered snapshot is
    * derived by the facade afterwards.
    */
-  modifyIndicatorApplicableSpatialUnitsForLoginRoles(availableSpatialUnits) {
-    const availableSpatialUnitNames: any[] = [];
+  modifyIndicatorApplicableSpatialUnitsForLoginRoles(
+    availableSpatialUnits: SpatialUnitOverviewType[]
+  ) {
+    const availableSpatialUnitNames: string[] = [];
     for (const spatialUnit of availableSpatialUnits) {
       availableSpatialUnitNames.push(spatialUnit.spatialUnitLevel);
     }

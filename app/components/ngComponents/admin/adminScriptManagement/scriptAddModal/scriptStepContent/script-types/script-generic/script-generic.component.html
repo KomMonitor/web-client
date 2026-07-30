@@ -2,20 +2,15 @@
 <app-script-georesources></app-script-georesources>
 
 <p>
-  Skript-Parameter sind optional und dienen dazu, variable Berechnungsparameter zu definieren (bspw.
-  Radius eines Einzugsgebiets, Gewichtung). Jeder der definierten Skript-Parameter sollte im
-  Skript-Code auch Verwendung finden.
+  {{ 'ADMIN_SCRIPTS.GENERIC.PARAMETERS_INFO' | translate }}
 </p>
 <app-script-parameters></app-script-parameters>
 
 <p>
-  Der eigentliche Skript Code kann beliebige Berechnungslogik enthalten. Unter Verwendung der obigen
-  (Basis-)Indikatoren, Georessourcen und Skript-Parameter kann mittels des hinterlegten Skript Codes
-  die Zeitreihe des Ziel-Indikators berechnet werden.
+  {{ 'ADMIN_SCRIPTS.GENERIC.CODE_INFO' | translate }}
 </p>
 <p>
-  <b>HINWEIS:</b> Die hier angegebenen Skript-Inhalte werden nicht validiert oder auf Code-Fehler
-  &uuml;berpr&uuml;ft. Bitte achten Sie selbst sorgf&auml;ltig darauf, dass der hochzuladende Code
-  g&uuml;ltig ist.
+  <b>{{ 'ADMIN_SCRIPTS.GENERIC.CODE_HINT_LABEL' | translate }}</b>
+  {{ 'ADMIN_SCRIPTS.GENERIC.CODE_HINT_TEXT' | translate }}
 </p>
 <app-script-code></app-script-code>

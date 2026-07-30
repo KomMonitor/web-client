@@ -1,11 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { ExportingStateService, ExportType } from '../exporting-state.service';
+import { ExportFormatSelectionComponent } from '../export-format-selection/export-format-selection.component';
 
 @Component({
   selector: 'app-export-typ-selection',
   templateUrl: './export-typ-selection.component.html',
   styleUrls: ['./export-typ-selection.component.scss'],
-  imports: [],
+  imports: [ExportFormatSelectionComponent],
   standalone: true,
 })
 export class ExportTypSelectionComponent {
