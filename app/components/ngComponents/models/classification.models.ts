@@ -64,3 +64,22 @@ export function isQualitativeMapping(
 ): boolean {
   return mapping?.classificationType === 'QUALITATIVE' || !!mapping?.categoricalData?.length;
 }
+
+/**
+ * Resolves the fill color for a categorical feature value by matching it against the
+ * category definitions (normalized string comparison), returning the shared "other"
+ * color ({@link CATEGORICAL_OTHER_COLOR}) when nothing matches. Shared by the map
+ * styling (VisualStyleHelperServiceNew.styleCategorical) and the reporting diagram
+ * pipeline (DiagramHelperServiceService.getColorForFeature) so both color categorical
+ * features identically.
+ */
+export function resolveCategoricalColor(
+  value: unknown,
+  categoricalData: CategoricalClassificationItem[] | null | undefined
+): string {
+  const normalized = String(value).trim();
+  const match = categoricalData?.find(
+    (category) => String(category.categoricalValue).trim() === normalized
+  );
+  return match?.color ?? CATEGORICAL_OTHER_COLOR;
+}

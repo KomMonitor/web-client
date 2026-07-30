@@ -1,6 +1,11 @@
 import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
+import {
+  CategoricalClassificationItem,
+  isQualitativeMapping,
+  resolveCategoricalColor,
+} from 'components/ngComponents/models/classification.models';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
@@ -138,6 +143,12 @@ export class IndicatorAddComponent implements OnInit {
   indicatorNameFilter = '';
   poiNameFilter = '';
   selectedIndicator: any = undefined;
+
+  /** Whether the currently selected indicator uses qualitative (categorical) classification. */
+  get selectedIndicatorIsCategorical(): boolean {
+    return isQualitativeMapping(this.selectedIndicator?.defaultClassificationMapping);
+  }
+
   selectedPoiLayer: any = undefined;
   availablePoiLayers: any[] = [];
   displayableIndicatorsByNameTimeseries;
@@ -2869,21 +2880,29 @@ export class IndicatorAddComponent implements OnInit {
           // get color from visual map to overwrite yellow color
           let color = 'rgba(0, 0, 0, 0.5)';
           let opacity = 1;
-          for (const [idx, piece] of options.visualMap.pieces.entries()) {
-            // for the last index (highest value) value can equal the upper boundary
-            if (idx === options.visualMap.pieces.length - 1) {
-              if (piece.min <= el.value && el.value <= piece.max) {
+          if (this.selectedIndicatorIsCategorical) {
+            // categorical values are matched by category, not by numeric range
+            color = resolveCategoricalColor(
+              el.value,
+              this.selectedIndicator.defaultClassificationMapping?.categoricalData ?? []
+            );
+          } else {
+            for (const [idx, piece] of options.visualMap.pieces.entries()) {
+              // for the last index (highest value) value can equal the upper boundary
+              if (idx === options.visualMap.pieces.length - 1) {
+                if (piece.min <= el.value && el.value <= piece.max) {
+                  color = piece.color;
+                  opacity = piece.opacity;
+                  break;
+                }
+              }
+
+              // for all other pieces check if it is withing the boundaries, (including lower one, excluding upper one)
+              if (piece.min <= el.value && el.value < piece.max) {
                 color = piece.color;
                 opacity = piece.opacity;
                 break;
               }
-            }
-
-            // for all other pieces check if it is withing the boundaries, (including lower one, excluding upper one)
-            if (piece.min <= el.value && el.value < piece.max) {
-              color = piece.color;
-              opacity = piece.opacity;
-              break;
             }
           }
           el.label.show = true;
@@ -3018,8 +3037,9 @@ export class IndicatorAddComponent implements OnInit {
     });
     const timestamp = dateElement.text;
 
+    // categorical indicators have no numeric average (see calculateAvg)
     const avg = this.calculateAvg(this.selectedIndicator, timestamp, calcForSelection);
-    pageElement.text = avg;
+    pageElement.text = avg ?? '';
     pageElement.css = 'border: solid 1px lightgray; padding: 2px;';
     pageElement.isPlaceholder = false;
   }
@@ -3028,8 +3048,9 @@ export class IndicatorAddComponent implements OnInit {
     // get the timeseries from slider, not from dom because dom might not be up to date yet
     const timeseries = this.getFormattedDateSliderValues(true);
 
+    // categorical indicators have no numeric "change over time" (see calculateChange)
     const change = this.calculateChange(this.selectedIndicator, timeseries, calcForSelection);
-    pageElement.text = change;
+    pageElement.text = change ?? '';
     pageElement.css = 'border: solid 1px lightgray; padding: 2px;';
     pageElement.isPlaceholder = false;
   }
@@ -3089,50 +3110,55 @@ export class IndicatorAddComponent implements OnInit {
       }
     });
 
-    // add data element for the overall average
-    const overallAvgValue = this.calculateAvg(this.selectedIndicator, timestamp, false);
-    const overallAvgElementName =
-      page.area && page.area.length
-        ? 'Durchschnitt\nder\nRaumeinheit'
-        : 'Durchschnitt der Raumeinheit';
-    const dataObjOverallAvg: any = {
-      name: overallAvgElementName,
-      value: overallAvgValue,
-      opacity: 1,
-    };
-    // get color for avg from visual map and disable opacity
-    let colorOverallAvg = '';
-    for (const piece of options.visualMap[0].pieces) {
-      if (piece.min <= dataObjOverallAvg.value && dataObjOverallAvg.value < piece.max) {
-        colorOverallAvg = piece.color;
+    // add average bars - skipped for categorical indicators, which have no meaningful average
+    if (!this.selectedIndicatorIsCategorical) {
+      // add data element for the overall average
+      const overallAvgValue = this.calculateAvg(this.selectedIndicator, timestamp, false);
+      const overallAvgElementName =
+        page.area && page.area.length
+          ? 'Durchschnitt\nder\nRaumeinheit'
+          : 'Durchschnitt der Raumeinheit';
+      const dataObjOverallAvg: any = {
+        name: overallAvgElementName,
+        value: overallAvgValue,
+        opacity: 1,
+      };
+      // get color for avg from visual map and disable opacity
+      let colorOverallAvg = '';
+      for (const piece of options.visualMap[0].pieces) {
+        if (piece.min <= dataObjOverallAvg.value && dataObjOverallAvg.value < piece.max) {
+          colorOverallAvg = piece.color;
+        }
+        piece.opacity = 1;
       }
-      piece.opacity = 1;
-    }
-    dataObjOverallAvg.color = colorOverallAvg;
-    options.series[0].data.push(dataObjOverallAvg);
-    options.xAxis.data.push(dataObjOverallAvg.name);
+      dataObjOverallAvg.color = colorOverallAvg;
+      options.series[0].data.push(dataObjOverallAvg);
+      options.xAxis.data.push(dataObjOverallAvg.name);
 
-    // same for selection average
-    // add more data elements for the overall and selection average
-    const selectionAvgValue = this.calculateAvg(this.selectedIndicator, timestamp, true);
-    const selectionAvgElementName =
-      page.area && page.area.length ? 'Durchschnitt\nder\nSelektion' : 'Durchschnitt der Selektion';
-    const dataObjSelectionAvg: any = {
-      name: selectionAvgElementName,
-      value: selectionAvgValue,
-      opacity: 1,
-    };
-    // get color for avg from visual map and disable opacity
-    let colorSelectionAvg = '';
-    for (const piece of options.visualMap[0].pieces) {
-      if (piece.min <= dataObjSelectionAvg.value && dataObjSelectionAvg.value < piece.max) {
-        colorSelectionAvg = piece.color;
+      // same for selection average
+      // add more data elements for the overall and selection average
+      const selectionAvgValue = this.calculateAvg(this.selectedIndicator, timestamp, true);
+      const selectionAvgElementName =
+        page.area && page.area.length
+          ? 'Durchschnitt\nder\nSelektion'
+          : 'Durchschnitt der Selektion';
+      const dataObjSelectionAvg: any = {
+        name: selectionAvgElementName,
+        value: selectionAvgValue,
+        opacity: 1,
+      };
+      // get color for avg from visual map and disable opacity
+      let colorSelectionAvg = '';
+      for (const piece of options.visualMap[0].pieces) {
+        if (piece.min <= dataObjSelectionAvg.value && dataObjSelectionAvg.value < piece.max) {
+          colorSelectionAvg = piece.color;
+        }
+        piece.opacity = 1;
       }
-      piece.opacity = 1;
+      dataObjSelectionAvg.color = colorSelectionAvg;
+      options.series[0].data.push(dataObjSelectionAvg);
+      options.xAxis.data.push(dataObjSelectionAvg.name);
     }
-    dataObjSelectionAvg.color = colorSelectionAvg;
-    options.series[0].data.push(dataObjSelectionAvg);
-    options.xAxis.data.push(dataObjSelectionAvg.name);
 
     options.series[0].emphasis.itemStyle = {}; // don't show border on hover
 
@@ -3383,8 +3409,11 @@ export class IndicatorAddComponent implements OnInit {
     // sort by area name
     rowsData.sort((a, b) => a.name.localeCompare(b.name));
 
-    // append average as last row if needed
-    if (this.reportingService.clonedTemplate.name.includes('timestamp')) {
+    // append average as last row if needed - categorical values have no meaningful average
+    if (
+      this.reportingService.clonedTemplate.name.includes('timestamp') &&
+      !this.selectedIndicatorIsCategorical
+    ) {
       rowsData.push({
         name: 'Durchschnitt Selektion',
         value: this.calculateAvg(this.selectedIndicator, timestamp, true),
@@ -3556,6 +3585,11 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   calculateAvg(indicator, timestamp, calcForSelection) {
+    // categorical values have no numeric average - callers must not display this as a value
+    if (isQualitativeMapping(indicator?.defaultClassificationMapping)) {
+      return null;
+    }
+
     // calculate avg from geoJSON property, which should be the currently selected spatial unit
     let features = indicator.geoJSON.features;
     if (calcForSelection) {
@@ -3584,6 +3618,11 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   calculateChange(indicator, timeseries, calcForSelection) {
+    // categorical values have no numeric "change over time" - callers must not display this as a value
+    if (isQualitativeMapping(indicator?.defaultClassificationMapping)) {
+      return null;
+    }
+
     let data = this.calculateSeriesDataForTimeseries(indicator.geoJSON.features, timeseries);
     if (calcForSelection) {
       data = data.filter((el) => {
@@ -3629,7 +3668,13 @@ export class IndicatorAddComponent implements OnInit {
     // must be treated as dynamic indicator
     const indicator = JSON.parse(JSON.stringify(selectedIndicator));
     const targetTimestamp = timestampName;
-    if (isTimeseries) {
+    const isCategorical = isQualitativeMapping(indicator.defaultClassificationMapping);
+    const categoricalData: CategoricalClassificationItem[] =
+      indicator.defaultClassificationMapping?.categoricalData ?? [];
+
+    // qualitative indicators have no numeric "change over time" concept - the
+    // timeseries/dynamic reinterpretation below only applies to numeric indicators
+    if (isTimeseries && !isCategorical) {
       const indicatorType = indicator.indicatorType;
       if (indicatorType.includes('ABSOLUTE')) {
         indicator.indicatorType = 'DYNAMIC_ABSOLUTE';
@@ -3660,38 +3705,46 @@ export class IndicatorAddComponent implements OnInit {
     }
 
     const timestampPrefix = this.envConfigService.indicatorDatePrefix + timestampName;
-    const numClasses = indicator.defaultClassificationMapping.numClasses
-      ? indicator.defaultClassificationMapping.numClasses
-      : 5;
-    const colorCodeStandard = indicator.defaultClassificationMapping.colorBrewerSchemeName;
-    const colorCodePositiveValues =
-      this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues;
-    const colorCodeNegativeValues =
-      this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues;
-    const classifyMethod = this.envConfigService.defaultClassifyMethod;
 
-    // setup brew
-    const defaultBrew = this.visualStyleHelperService.setupDefaultBrew(
-      indicator.geoJSON,
-      timestampPrefix,
-      numClasses,
-      colorCodeStandard,
-      classifyMethod,
-      true,
-      selectedIndicator
-    );
-    //let manualBrew = kommonitorVisualStyleHelperService.setupManualBrew(indicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod, true, selectedIndicator);
-    const dynamicBrewsArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
-      indicator.geoJSON,
-      timestampPrefix,
-      colorCodePositiveValues,
-      colorCodeNegativeValues,
-      classifyMethod,
-      numClasses,
-      ''
-    );
-    const dynamicIncreaseBrew = dynamicBrewsArray[0];
-    const dynamicDecreaseBrew = dynamicBrewsArray[1];
+    // categorical indicators have no numeric classes/breaks/classify method - the
+    // brew setup below is a purely quantitative concept and is skipped entirely
+    let defaultBrew;
+    let dynamicIncreaseBrew;
+    let dynamicDecreaseBrew;
+    if (!isCategorical) {
+      const numClasses = indicator.defaultClassificationMapping.numClasses
+        ? indicator.defaultClassificationMapping.numClasses
+        : 5;
+      const colorCodeStandard = indicator.defaultClassificationMapping.colorBrewerSchemeName;
+      const colorCodePositiveValues =
+        this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues;
+      const colorCodeNegativeValues =
+        this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues;
+      const classifyMethod = this.envConfigService.defaultClassifyMethod;
+
+      // setup brew
+      defaultBrew = this.visualStyleHelperService.setupDefaultBrew(
+        indicator.geoJSON,
+        timestampPrefix,
+        numClasses,
+        colorCodeStandard,
+        classifyMethod,
+        true,
+        selectedIndicator
+      );
+      //let manualBrew = kommonitorVisualStyleHelperService.setupManualBrew(indicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod, true, selectedIndicator);
+      const dynamicBrewsArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
+        indicator.geoJSON,
+        timestampPrefix,
+        colorCodePositiveValues,
+        colorCodeNegativeValues,
+        classifyMethod,
+        numClasses,
+        ''
+      );
+      dynamicIncreaseBrew = dynamicBrewsArray[0];
+      dynamicDecreaseBrew = dynamicBrewsArray[1];
+    }
 
     // setup diagram resources
     this.diagramHelperService.prepareAllDiagramResources_forReportingIndicator(
@@ -3705,7 +3758,9 @@ export class IndicatorAddComponent implements OnInit {
       dynamicDecreaseBrew,
       false,
       0,
-      true
+      true,
+      isCategorical,
+      categoricalData
     );
     // at this point the echarts instance has one map registered (geoMapChart).
     // that is the "default" map, which can be used to create individual maps for indicator + date + spatialUnit (+ area) combinations later
@@ -3716,7 +3771,7 @@ export class IndicatorAddComponent implements OnInit {
     this.envConfigService.classifyZeroSeparately = classifyZeroSeparately_backup;
 
     // copy and save echarts options so we can re-use them later
-    if (isTimeseries) {
+    if (isTimeseries && !isCategorical) {
       timestampName += '_relative'; // save relative indicator separately
     }
     this.echartsOptions.map[timestampName] = JSON.parse(
@@ -3732,7 +3787,7 @@ export class IndicatorAddComponent implements OnInit {
     );
 
     // if is timeseries then the original value for the toDate timestamp must be used instead of the computed change value above
-    if (isTimeseries) {
+    if (isTimeseries && !isCategorical) {
       // series[0] is average line
       // replace the value for same index same toDate
       const originalFeatures = selectedIndicator.geoJSON.features;

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import {
-  CATEGORICAL_OTHER_COLOR,
   CategoricalClassificationItem,
+  resolveCategoricalColor,
 } from 'components/ngComponents/models/classification.models';
 import { IndicatorsDataset } from 'components/ngComponents/models/indicators.models';
 import L from 'leaflet';
@@ -837,26 +837,13 @@ export class VisualStyleHelperServiceNew {
     }
 
     const fillOpacity = useTransparencyOnIndicator ? this.defaultFillOpacity : 1;
-    const color = this.resolveCategoricalColor(feature.properties[propertyName], categoricalData);
+    const color = resolveCategoricalColor(feature.properties[propertyName], categoricalData);
 
     if (incrementFeatures) {
       this.classificationState.incrementFeaturesPerColor(color);
     }
 
     return this.buildIndicatorStyle(color, fillOpacity);
-  }
-
-  /**
-   * Resolves the fill color for a categorical feature value by matching it against
-   * the category definitions (normalized string comparison), returning the shared
-   * "other" color when nothing matches.
-   */
-  private resolveCategoricalColor(value, categoricalData: CategoricalClassificationItem[]): string {
-    const normalized = String(value).trim();
-    const match = categoricalData?.find(
-      (category) => String(category.categoricalValue).trim() === normalized
-    );
-    return match?.color ?? CATEGORICAL_OTHER_COLOR;
   }
 
   private findColorInRange(feature, propertyName, colorBrewInstance, incrementFeatures) {
