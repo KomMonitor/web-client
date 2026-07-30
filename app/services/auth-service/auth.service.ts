@@ -91,6 +91,26 @@ export class AuthService {
     return this.auth?.token;
   }
 
+  /**
+   * Refreshes the access token if it is expired or about to expire within
+   * minValidity seconds, then returns the (possibly refreshed) token.
+   * updateToken() is a no-op network-wise if the current token is still
+   * valid long enough, so this is safe to call before every request.
+   */
+  public async ensureValidToken(minValidity = 30): Promise<string | undefined> {
+    if (!this.auth) {
+      return undefined;
+    }
+    try {
+      await this.auth.updateToken(minValidity);
+    } catch {
+      console.error('Failed to refresh Keycloak token. Redirecting to login.');
+      this.auth.login();
+      return undefined;
+    }
+    return this.auth.token;
+  }
+
   public getTokenParsed(): KeycloakTokenParsed | undefined {
     return this.auth?.tokenParsed;
   }
