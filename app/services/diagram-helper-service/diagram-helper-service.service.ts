@@ -1666,7 +1666,11 @@ export class DiagramHelperServiceService {
     */
 
     if (isCategorical) {
-      return this.setupVisualMapForCategoricalIndicator(indicatorMetadataAndGeoJSON, date, categoricalData);
+      return this.setupVisualMapForCategoricalIndicator(
+        indicatorMetadataAndGeoJSON,
+        date,
+        categoricalData
+      );
     }
 
     const indicatorType = indicatorMetadataAndGeoJSON.indicatorType;
