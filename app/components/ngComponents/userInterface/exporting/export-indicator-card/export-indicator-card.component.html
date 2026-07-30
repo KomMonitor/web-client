@@ -50,13 +50,6 @@
         <app-export-item-time-selection [exportItem]="exportItem()" />
       </div>
     </div>
-<<<<<<< HEAD
-    <app-export-format-selection
-      [exportItem]="exportItem()"
-      [exportType]="exportType()"
-      (formatToggle)="formatToggle.emit($event)"
-    />
-=======
     @if (exportType() === 'spatialUnit') {
       <div class="alert alert-info mb-0 mt-2" role="alert">Downloadformat links wählen</div>
     } @else {
@@ -67,6 +60,5 @@
         (formatToggle)="formatToggle.emit($event)"
       />
     }
->>>>>>> feature/migration-bootstrap
   </div>
 </div>
