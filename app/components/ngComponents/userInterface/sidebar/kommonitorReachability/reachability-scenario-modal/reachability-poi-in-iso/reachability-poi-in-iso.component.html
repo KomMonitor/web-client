@@ -1,11 +1,11 @@
 @if (!reachabilityStateService.currentIsochronesGeoJSON) {
-  <div style="text-align: center">
-    <p>Bitte f&uuml;hren Sie zuerst eine Isochronenberechnung durch.</p>
+  <div style="text-align: left">
+    <p class="reachability-text-content">Bitte f&uuml;hren Sie zuerst eine Isochronenberechnung durch.</p>
   </div>
 }
 
-<div style="text-align: center" [hidden]="!reachabilityStateService.currentIsochronesGeoJSON">
-  <div class="row vertical-align">
+<div style="text-align: left" [hidden]="!reachabilityStateService.currentIsochronesGeoJSON">
+  <div class="row vertical-align reachability-content-wrapper">
     <!-- reachability config -->
     <div class="col-md-4 col-sm-4 col-12" style="padding-left: 5px; padding-right: 5px">
       <div

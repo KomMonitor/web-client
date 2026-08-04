@@ -152,6 +152,12 @@ try {
   window.__env.targetUrlToSpatialDataProcessorInstance = 'http://localhost:8090/';
   window.__env.spatialDataProcessor_processName_indicatorReachabilityStatistics = "isochrone-prune";
 
+  // Reachability scenario modal: max-width (in px) for long-form text content.
+  // When the modal body is wider than this value, descriptive text flows into
+  // multiple CSS columns instead of long single-line paragraphs. Set to null/undefined
+  // to disable the constraint (text uses full available width, single column).
+  window.__env.reachabilityScenarioMaxTextWidth = 800;
+
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
   // allowed values and meaning:

@@ -1,5 +1,5 @@
 <app-loading-overlay [loading]="reachabilityStateService.settings.loadingData">
-  <div class="row vertical-align">
+  <div class="row vertical-align reachability-content-wrapper">
     <!-- reachability config -->
     <div
       [ngClass]="{
@@ -83,7 +83,7 @@
             <hr />
             <br />
 
-            <div>
+            <div class="form-group">
               <label>Isochronendefinition</label>
               <p>
                 Geben Sie die gew&uuml;nschten Isochronengrenzen kommagetrennt ein (Beispiel:
@@ -117,6 +117,7 @@
                     />
                     100,200,300,400,500 Meter</label
                   >
+                  &nbsp;&nbsp;
                   <label class="radio-inline"
                     ><input
                       type="radio"
@@ -144,6 +145,7 @@
                     />
                     5,10,15 Minuten</label
                   >
+                  &nbsp;&nbsp;
                   <label class="radio-inline"
                     ><input
                       type="radio"
@@ -182,7 +184,7 @@
               </div>
             }
 
-            <div style="text-align: center">
+            <div style="text-align: left">
               <!-- <div>
               <b>Isochronen vereinigen</b> (erh&ouml;ht die Laufzeit der Berechnung)
               &nbsp;
@@ -238,7 +240,7 @@
                   <!-- Legend -->
                   <div class="just-padding">
                     <div [hidden]="!mapOverlayState.isochroneLegend">
-                      <div style="text-align: center">
+                      <div style="text-align: left">
                         <div class="legend" style="text-align: left">
                           <label>Punktdatenquelle: </label>&nbsp;
                           {{ mapOverlayState.isochroneLegend.datasetName }}

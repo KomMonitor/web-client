@@ -1,0 +1,42 @@
+:host {
+  // Ensure all text in the scenario setup form is consistently left-aligned.
+  .vertical-align,
+  .vertical-align > div {
+    text-align: left;
+  }
+
+  // Help text and description paragraphs use the configurable max-width
+  // with optional multi-column layout for improved readability.
+  .help-block,
+  .fs-subtitle {
+    .reachability-text-content {
+      max-width: var(--reachability-max-text-width, 600px);
+      width: 100%;
+      margin: 0 auto;
+      padding: 0.5em;
+
+      // Subtle background to visually set off explanation text from surrounding
+      // form controls.
+      background-color: #f8f9fa;
+
+      // Rounded corners for a friendlier appearance.
+      border-radius: 0.5em;
+
+      // Split long text into multiple columns when the container is wider
+      // than the configured max-width.
+      columns: auto var(--reachability-max-text-width, 600px);
+      column-gap: 2em;
+      column-rule: 1px solid #e0e0e0;
+      column-fill: balance;
+
+      @media (max-width: 768px) {
+        columns: auto;
+        column-gap: 0;
+        column-rule: none;
+        max-width: 100%;
+        width: 100%;
+        margin: 0 auto;
+      }
+    }
+  }
+}

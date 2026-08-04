@@ -6,4 +6,15 @@
   .align-top {
     align-items: start;
   }
+
+  // Ensure all text is consistently left-aligned within the indicator statistics form.
+  .vertical-align,
+  .vertical-align > div {
+    text-align: left;
+  }
+
+  // Explanation text blocks get consistent bottom spacing.
+  .reachability-text-content {
+    margin-bottom: 1em;
+  }
 }

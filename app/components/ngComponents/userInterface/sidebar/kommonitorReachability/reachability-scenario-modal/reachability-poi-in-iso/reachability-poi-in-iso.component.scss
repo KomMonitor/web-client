@@ -4,4 +4,15 @@
       margin: 0;
     }
   }
+
+  // Ensure all text in the POI-in-iso sub-form is consistently left-aligned.
+  .vertical-align,
+  .vertical-align > div {
+    text-align: left;
+  }
+
+  // Explanation text blocks get consistent bottom spacing.
+  .reachability-text-content {
+    margin-bottom: 1em;
+  }
 }

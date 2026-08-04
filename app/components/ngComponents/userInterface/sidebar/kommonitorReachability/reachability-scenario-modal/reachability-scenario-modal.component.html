@@ -6,7 +6,11 @@
     </button>
   </div>
   <div class="modal-body">
-    <div class="modal-body" style="text-align: justify">
+    <div
+      class="modal-body reachability-scenario-modal-body"
+      style="text-align: left"
+      [ngStyle]="{ '--reachability-max-text-width': maxTextWidth + 'px' }"
+    >
       <!-- MultiStep Form -->
       <div class="row">
         <div class="col-md-12">
@@ -53,7 +57,7 @@
 
             <fieldset>
               <h2 class="fs-title">Manuelles Bearbeiten der Datensatz-Objekte</h2>
-              <p class="fs-subtitle">
+              <p class="fs-subtitle reachability-text-content">
                 Eine interaktive Karte sowie Eingabefelder erlauben das Editieren einzelner Features
                 hinsichtlich r&auml;umlicher Lage und/oder Sachdaten. Weiterhin k&ouml;nnen
                 vorhandene Punkte entfernt oder neue Punkte erg&auml;nzt werden. Die &Auml;nderungen
@@ -63,7 +67,9 @@
                 Nur die mit * markierten Elemente müssen verpflichtend angegeben werden
               </p>
 
-              <app-single-feature-edit></app-single-feature-edit>
+              <div class="reachability-content-wrapper">
+                <app-single-feature-edit></app-single-feature-edit>
+              </div>
 
               <input
                 type="button"
@@ -82,7 +88,7 @@
 
             <fieldset>
               <h2 class="fs-title">Einzugsgebiets-Definition mittels OpenRouteService</h2>
-              <p class="fs-subtitle">
+              <p class="fs-subtitle reachability-text-content">
                 Konfiguration der Berechnung von Einzugsgebieten f&uuml;r alle Punkte der
                 Szenarien-Punktdatenquelle. Die Einstellungen umfassen Fortbewegungsmittel und
                 Erreichbarkeitszonen (Distanz oder Zeit).
@@ -107,7 +113,7 @@
 
             <fieldset style="padding: 0px 10px">
               <h2 class="fs-title">Punkte in Einzugsgebieten</h2>
-              <p class="fs-subtitle">
+              <p class="fs-subtitle reachability-text-content">
                 Bestimmen Sie ein Referenzdatum und selektieren relevante Punktlayer in der Tabelle.
                 F&uuml;r jeden Punktlayer werden gem&auml;&szlig; des Referenzdatums die
                 g&uuml;ltigen Punktobjekte geladen und mit den zuvor berechneten Isochronen
@@ -133,7 +139,7 @@
 
             <fieldset>
               <h2 class="fs-title">Indikatoren-Statistiken</h2>
-              <p class="fs-subtitle">
+              <p class="fs-subtitle reachability-text-content">
                 Beantworten Sie Fragestellungen zur Versorgung durch Punkt-Einzugsgebiete, in dem
                 die berechneten Isochronen mit Indikatoren verschnitten werden (fl&auml;chenenteil
                 oder besser &uuml;berlappende Wohngebiete). Die Sch&auml;tzwerte werden umso

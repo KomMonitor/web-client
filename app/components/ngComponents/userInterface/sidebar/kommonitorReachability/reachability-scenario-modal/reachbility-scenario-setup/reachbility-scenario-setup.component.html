@@ -1,21 +1,19 @@
 <h2 class="fs-title">Name und Punktdatenquelle</h2>
-<p>
+<p class="fs-subtitle reachability-text-content">
   Definition eines eindeutigen Namens pro Szenario und Wahl der Punktdatenquelle, f&uuml;r die
   Einzugsgebiete berechnet werden sollen
 </p>
 
-<div class="row vertical-align">
+<div class="row vertical-align reachability-content-wrapper">
   <div class="col-md-6 col-sm-6 col-12">
     <div class="form-group">
+      <label>Sprechender Name</label>
       <input
         [(ngModel)]="reachabilityStateService.scenarioTitle"
         placeholder="sprechender Name, der Szenario passend umschreibt"
       />
 
       <div class="help-block">
-        <p>
-          Vergeben Sie einen Namen, der m&ouml;glichst gut darstellt, was das Szenario beinhaltet.
-        </p>
         <p>Beispiel 1: <i>Kitas2022_ist_5min_10min_15min_fusslaeufig</i></p>
         <p>Beispiel 2: <i>Kitas2024_planung_5min_10min_15min_fusslaeufig</i></p>
       </div>

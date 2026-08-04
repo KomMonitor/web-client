@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, DestroyRef, inject, OnChanges, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
@@ -21,6 +22,7 @@ import { ReachabilityIndicatorStatisticsComponent } from './reachability-indicat
   templateUrl: './reachability-scenario-modal.component.html',
   styleUrls: ['./reachability-scenario-modal.component.scss'],
   imports: [
+    CommonModule,
     FormsModule,
     ReachabilityScenarioConfigurationComponent,
     ReachabilityPoiInIsoComponent,
@@ -49,7 +51,19 @@ export class ReachabilityScenarioModalComponent implements OnInit {
 
   activeScenarioDataset: any;
 
+  // Configurable max-width (in px) for long-form text in the scenario modal.
+  // When the modal body is wider than this value, descriptive text flows into
+  // multiple CSS columns for improved readability. Falls back to 600px.
+  maxTextWidth: number = 800;
+
   ngOnInit(): void {
+    const configured = this.envConfigService.reachabilityScenarioMaxTextWidth;
+    if (configured) {
+      const parsed = typeof configured === 'number' ? configured : parseInt(configured, 10);
+      if (!isNaN(parsed) && parsed > 0) {
+        this.maxTextWidth = parsed;
+      }
+    }
     this.multiStepHelperService.registerClickHandler('reachabilityScenarioForm');
 
     this.broadcastService.currentBroadcastMsg

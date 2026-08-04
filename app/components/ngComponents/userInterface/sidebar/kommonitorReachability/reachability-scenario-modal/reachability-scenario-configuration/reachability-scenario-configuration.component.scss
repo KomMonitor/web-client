@@ -1,4 +1,14 @@
 :host {
+  // Ensure all text in the configuration form is consistently left-aligned.
+  .vertical-align,
+  .vertical-align > div {
+    text-align: left;
+  }
+
+  // Explanation text blocks get consistent bottom spacing.
+  .reachability-text-content {
+    margin-bottom: 1em;
+  }
 }
 
 ::ng-deep .leaflet-marker-shadow {

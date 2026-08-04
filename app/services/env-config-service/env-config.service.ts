@@ -430,6 +430,11 @@ export class EnvConfigService {
   get targetUrlToSpatialDataProcessorInstance(): any {
     return window.__env.targetUrlToSpatialDataProcessorInstance;
   }
+
+  // --- Reachability scenario modal ---
+  get reachabilityScenarioMaxTextWidth(): any {
+    return window.__env.reachabilityScenarioMaxTextWidth;
+  }
   get spatialDataProcessor_processName_indicatorReachabilityStatistics(): any {
     return window.__env.spatialDataProcessor_processName_indicatorReachabilityStatistics;
   }
