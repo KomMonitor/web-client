@@ -147,3 +147,12 @@
 ::ng-deep .reachability-content-wrapper p, ::ng-deep .reachability-content-wrapper label{
   text-align: left;
 }
+
+::ng-deep .fs-title {
+    font-size: 18px;
+    text-transform: none !important;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    letter-spacing: 0px !important;
+    font-weight: bold;
+}
