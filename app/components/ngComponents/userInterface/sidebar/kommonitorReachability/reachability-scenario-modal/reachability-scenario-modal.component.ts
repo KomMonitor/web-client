@@ -43,6 +43,7 @@ export class ReachabilityScenarioModalComponent implements OnInit {
 
   activeModal = inject(NgbActiveModal);
   emptyDatasetName = '-- leerer neuer Datensatz --';
+  // Der Platzhalter-Text muss mit dem in reachbility-scenario-setup.component.html übereinstimmen
 
   filteredDisplayableGeoresources: any[] = [];
   selectedPoiResource: any;
@@ -129,9 +130,8 @@ export class ReachabilityScenarioModalComponent implements OnInit {
   }
 
   resetReachabilityScenarioForm() {
-    // resets both the wizard's own working data and the quick-calc session (locations/
-    // isochrones shown independently on the main map), so "Zurücksetzen" clears
-    // everything reachability-related
+    // Setzt alle Eingaben im Szenario-Formular und die Berechnungsergebnisse auf der
+    // Hauptkarte zurück, sodass "Zurücksetzen" alle Erreichbarkeits-Daten löscht.
     this.reachabilityStateService.resetScenarioSession();
 
     // clear each step's own local UI state and rendered map layers. This is deliberately

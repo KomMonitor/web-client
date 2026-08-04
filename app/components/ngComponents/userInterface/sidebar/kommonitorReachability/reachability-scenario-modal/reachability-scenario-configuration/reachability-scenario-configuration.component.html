@@ -84,10 +84,11 @@
             <br />
 
             <div class="form-group">
-              <label>Isochronendefinition</label>
+              <label>Erreichbarkeit grenzen</label>
               <p>
-                Geben Sie die gew&uuml;nschten Isochronengrenzen kommagetrennt ein (Beispiel:
-                '100,200,300' in Metern oder '5,10,20' f&uuml;r Minuten).
+                Definieren Sie die Schwellwerte, die die Erreichbarkeit begrenzen. Geben Sie die
+                Werte kommagetrennt ein &ndash; z.&nbsp;B. &lsquo;100,200,300&rsquo; für
+                Entfernungen in Metern oder &lsquo;5,10,20&rsquo; für Zeiten in Minuten.
               </p>
               <div>
                 <input
@@ -95,7 +96,7 @@
                   id="isochroneCutInput"
                   type="text"
                   style="width: 95%"
-                  placeholder="Isochronengrenzen angeben"
+                  placeholder="z.&nbsp;B. 100,200,300"
                 />
               </div>
 
@@ -103,7 +104,7 @@
 
               @if (!isTime) {
                 <div>
-                  <label>Voreinstellungsoptionen</label>
+                  <label>Voreingestellte Werte</label>
                   <br />
                   <label class="radio-inline"
                     ><input
@@ -133,7 +134,7 @@
 
               @if (isTime) {
                 <div>
-                  <label>Voreinstellungsoptionen</label>
+                  <label>Voreingestellte Werte</label>
                   <br />
                   <label class="radio-inline"
                     ><input
@@ -175,8 +176,7 @@
             ) {
               <div>
                 <label style="color: red"
-                  >Punktdatenquelle des Szenarios ge&auml;ndert - Neuberechnung erforderlich
-                  f&uuml;r
+                  >Datenquelle geändert &ndash; bitte neu berechnen f&uuml;r
                   <i>{{
                     reachabilityStateService.settings.selectedStartPointLayer?.datasetName
                   }}</i></label
@@ -215,7 +215,7 @@
                         "
                         (click)="startAnalysis()"
                       >
-                        <i class="fa-solid fa-hourglass-start"></i>&nbsp; Start
+                        <i class="fa-solid fa-hourglass-start"></i>&nbsp; Berechnen
                         @if (reachabilityStateService.settings.loadingData) {
                           <span class="glyphicon glyphicon-refresh icon-spin"></span>
                         }
@@ -230,7 +230,7 @@
                         [hidden]="!reachabilityStateService.currentIsochronesGeoJSON"
                         (click)="downloadIsochrones()"
                       >
-                        <i class="fa-solid fa-file-arrow-down"></i> &nbsp; Isochronen
+                        <i class="fa-solid fa-file-arrow-down"></i> &nbsp; Erreichbarkeit herunterladen
                       </button>
                     </label>
                   </div>
@@ -242,13 +242,13 @@
                     <div [hidden]="!mapOverlayState.isochroneLegend">
                       <div style="text-align: left">
                         <div class="legend" style="text-align: left">
-                          <label>Punktdatenquelle: </label>&nbsp;
+                          <label>Datenquelle: </label>&nbsp;
                           {{ mapOverlayState.isochroneLegend.datasetName }}
                           <br />
-                          <label>Fortbewegungsart: </label>&nbsp;
+                          <label>Verkehrsmittel: </label>&nbsp;
                           {{ mapOverlayState.isochroneLegend.transitMode }}
                           <br />
-                          <label>Abbruchkriterium: </label>&nbsp;
+                          <label>Messgröße: </label>&nbsp;
                           {{ mapOverlayState.isochroneLegend.reachMode }}
                           <br />
                           <label>Einheit: </label>&nbsp;
@@ -277,7 +277,7 @@
           <br />
           <div class="alert alert-danger">
             <strong>Fehler</strong>
-            Bei der Verarbeitung ist ein Fehler aufgetreten.
+            Bei der Berechnung der Erreichbarkeit ist ein Fehler aufgetreten.
             <p></p>
             <strong>Fehlernachricht: </strong>
             <pre>{{ error }}</pre>

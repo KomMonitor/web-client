@@ -1,31 +1,31 @@
-<h2 class="fs-title">Name und Punktdatenquelle</h2>
+<h2 class="fs-title">Name und Datenquelle</h2>
 <p class="fs-subtitle reachability-text-content">
-  Definition eines eindeutigen Namens pro Szenario und Wahl der Punktdatenquelle, f&uuml;r die
-  Einzugsgebiete berechnet werden sollen
+  Geben Sie einen Namen für das Szenario ein und wählen Sie die Punktedatenquelle,
+  für die die Erreichbarkeit berechnet werden soll.
 </p>
 
 <div class="row vertical-align reachability-content-wrapper">
   <div class="col-md-6 col-sm-6 col-12">
     <div class="form-group">
-      <label>Sprechender Name</label>
+      <label>Name</label>
       <input
         [(ngModel)]="reachabilityStateService.scenarioTitle"
-        placeholder="sprechender Name, der Szenario passend umschreibt"
+        placeholder="z.&nbsp;B.: Kitas_5min_10min_15min_zu_Fuß"
       />
 
       <div class="help-block">
-        <p>Beispiel 1: <i>Kitas2022_ist_5min_10min_15min_fusslaeufig</i></p>
-        <p>Beispiel 2: <i>Kitas2024_planung_5min_10min_15min_fusslaeufig</i></p>
+        <p>Beispiel: <i>Kitas_2022_5min_10min_15min_zu_Fuß</i></p>
       </div>
       <div class="help-block with-errors"></div>
     </div>
   </div>
   <div class="col-md-6 col-sm-6 col-12">
     <div class="form-group">
-      <label>Auswahl von Punktdatenquelle und Zeitpunkt</label>
+      <label>Datenquelle und Zeitpunkt</label>
       <p>
-        mit der Option <i>'--leerer neuer Datensatz --'</i> kann ein neuer leerer Datensatz angelegt
-        werden, um neue Punkte zu erfassen
+        Wählen Sie eine Punktedatenquelle und einen Zeitpunkt. Mit der Option
+        <i>&lsquo;-- leerer neuer Datensatz --&rsquo;</i> legen Sie eine neue, leere
+        Datenquelle an, um neue Punkte hinzuzufügen.
       </p>
 
       <div class="row vertical-align" style="margin-right: 0px">
@@ -37,14 +37,14 @@
                   reachabilityStateService.selectedStartPointLayer.geoJSON_reachability.features
                     .length
                 }}</b>
-                Startpunkte im selektierten Layer
+                Startpunkte in der ausgewählten Datenquelle
               </p>
             </div>
           }
 
           @if (!reachabilityStateService.selectedStartPointLayer) {
             <div class="horizontal-align">
-              <p>noch kein Layer selektiert</p>
+              <p>noch keine Datenquelle ausgewählt</p>
             </div>
           }
 
@@ -54,7 +54,7 @@
           ) {
             <div class="horizontal-align">
               <p style="color: red">
-                zum angegebenen Zeitwert konnten keine validen Feature-Daten abgerufen werden
+                Für das ausgewählte Datum konnten keine Punkte geladen werden
               </p>
             </div>
           }
@@ -68,7 +68,7 @@
             class="form-control"
             required
           >
-            <option disabled value>-- Punkt-Layer w&auml;hlen --</option>
+            <option disabled value>-- Datenquelle wählen --</option>
             @for (poi of reachabilityStateService.filteredDisplayableGeoresources; track poi) {
               <option [ngValue]="poi">
                 {{ poi.datasetName }}
@@ -81,7 +81,7 @@
           ) {
             <div>
               <br />
-              <label>Name des neuen Datensatzes (Umbenennung)</label>
+              <label>Name des neuen Datensatzes</label>
               <input
                 [(ngModel)]="reachabilityStateService.settings.selectedStartPointLayer.datasetName"
               />

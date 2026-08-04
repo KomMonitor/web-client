@@ -196,9 +196,9 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
     const geoJSON_string = JSON.stringify(this.reachabilityStateService.currentIsochronesGeoJSON);
 
     const fileName =
-      'Erreichbarkeitsisochronen_via-' +
+      'Erreichbarkeit_' +
       this.reachabilityStateService.settings.transitMode +
-      '_Abbruchkriterium-' +
+      '_' +
       this.reachabilityStateService.settings.focus +
       '.geojson';
 

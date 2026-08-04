@@ -405,7 +405,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
         );
         const newChartNode = document.createElement('div');
         newChartNode.innerHTML =
-          '<hr><h4>Analyse Einzugsgebiet ' +
+          '<hr><h4>Punkte in Erreichbarkeit ' +
           nextEntry_keyRange_label +
           ' [' +
           this.mapOverlayState.isochroneLegend.cutOffUnit +

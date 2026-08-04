@@ -52,13 +52,13 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
   weightStrategyOptions = [
     {
       apiName: 'simple',
-      displayName: 'überlappende Fläche',
-      tooltip: 'einfache Gewichtung anhand der geschnittenen Fläche pro Raumeinheit',
+      displayName: 'nach Fläche',
+      tooltip: 'Gewichtet nach dem überlappenden Flächenanteil pro Gebiets-Ebene.',
     },
     {
       apiName: 'residential_areas',
-      displayName: 'überlappende Wohngebiete',
-      tooltip: 'beücksichtigt nur geschnittene Wohnflächen pro Raumeinheit',
+      displayName: 'nach Wohnfläche',
+      tooltip: 'Berücksichtigt nur den überlappenden Wohnungsflächenanteil pro Gebiets-Ebene für genauere Schätzwerte.',
     },
   ];
   weightStrategy: any = this.weightStrategyOptions[0];
@@ -191,16 +191,20 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
       if (jobStatus == undefined || jobStatus.status == undefined || jobStatus.status == 'failed') {
         jobCompletedOrFailed = true;
         this.modifyJobStatus(jobId, 'failed');
-        // todo
-        //kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler in Indikatoren-Statistik-Berechnung", "Versuchen Sie es bitte erneut. Probieren Sie, falls möglich, andere Raumeinheiten oder Indikatoren. Wenden Sie sich bei anhaltenden Problemen an das KomMonitor-Team");
+        // kommonitorToastHelperService.displayErrorToast_upperLeft(
+        //   'Berechnung fehlgeschlagen',
+        //   'Bitte versuchen Sie es erneut. Falls das Problem bestehen bleibt, wählen Sie andere Gebiets-Ebenen oder Indikatoren oder wenden Sie sich an das KomMonitor-Team.'
+        // );
         return;
       } else if (jobStatus.status == 'finished') {
         jobCompletedOrFailed = true;
 
         // trigger result retrieval
         if (jobStatus.status == 'finished') {
-          // todo
-          //kommonitorToastHelperService.displaySuccessToast_upperLeft("Indikatoren-Statistik-Berechnung erfolgreich", "Ergebnisse wurden in die Tabelle eingetragen");
+          // kommonitorToastHelperService.displaySuccessToast_upperLeft(
+          //   'Statistik berechnet',
+          //   'Die Ergebnisse wurden in der Tabelle unten angezeigt.'
+          // );
           this.retrieveJobResult(jobId);
         }
       }

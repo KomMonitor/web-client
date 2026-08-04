@@ -26,18 +26,18 @@
             <div>
               <!-- progressbar -->
               <ul id="progressbar">
-                <li style="width: 20%" class="active">Szenario-Metadaten</li>
+                <li style="width: 20%" class="active">Name &amp; Datenquelle</li>
                 <li style="width: 20%" (click)="onEditFeaturesClick()">
-                  Bearbeiten der Punktdatenquelle
+                  Punkte bearbeiten
                 </li>
                 <li style="width: 20%" (click)="onReachbilityConfigurationClick()">
-                  Einzugsgebiets-Definition
+                  Erreichbarkeit berechnen
                 </li>
                 <li style="width: 20%" (click)="onPoisInReachabilityClick()">
-                  Punkte in Einzugsgebieten
+                  Punkte in Erreichbarkeit
                 </li>
                 <li style="width: 20%" (click)="onIndicatorStatisticsClick()">
-                  Indikatoren-Statistiken
+                  Indikatoren-Statistik
                 </li>
               </ul>
             </div>
@@ -56,15 +56,14 @@
             </fieldset>
 
             <fieldset>
-              <h2 class="fs-title">Manuelles Bearbeiten der Datensatz-Objekte</h2>
+              <h2 class="fs-title">Punkte bearbeiten</h2>
               <p class="fs-subtitle reachability-text-content">
-                Eine interaktive Karte sowie Eingabefelder erlauben das Editieren einzelner Features
-                hinsichtlich r&auml;umlicher Lage und/oder Sachdaten. Weiterhin k&ouml;nnen
-                vorhandene Punkte entfernt oder neue Punkte erg&auml;nzt werden. Die &Auml;nderungen
-                gelten nur im Rahmen dieses Erreichbarkeits-Szenarios und werden nicht in der
-                Datenbank gespeichert.
+                Verschieben Sie Punkte per Drag&amp;Drop auf der Karte oder ändern Sie ihre
+                Eigenschaften in den Eingabefeldern. Entfernen Sie vorhandene Punkte oder fügen
+                Sie neue hinzu. Die Änderungen gelten nur in diesem Szenario und werden nicht
+                dauerhaft gespeichert.
                 <br />
-                Nur die mit * markierten Elemente müssen verpflichtend angegeben werden
+                Felder mit * sind Pflicht.
               </p>
 
               <div class="reachability-content-wrapper">
@@ -87,11 +86,11 @@
             </fieldset>
 
             <fieldset>
-              <h2 class="fs-title">Einzugsgebiets-Definition mittels OpenRouteService</h2>
+              <h2 class="fs-title">Erreichbarkeit berechnen</h2>
               <p class="fs-subtitle reachability-text-content">
-                Konfiguration der Berechnung von Einzugsgebieten f&uuml;r alle Punkte der
-                Szenarien-Punktdatenquelle. Die Einstellungen umfassen Fortbewegungsmittel und
-                Erreichbarkeitszonen (Distanz oder Zeit).
+                Berechnen Sie die Erreichbarkeitsbereiche für alle Punkte. Wählen Sie
+                anschließend das Fortbewegungsmittel sowie das Kriterium (Entfernung oder Zeit)
+                und geben Sie die gewünschten Schwellwerte ein.
               </p>
 
               <app-reachability-scenario-configuration></app-reachability-scenario-configuration>
@@ -112,12 +111,11 @@
             </fieldset>
 
             <fieldset style="padding: 0px 10px">
-              <h2 class="fs-title">Punkte in Einzugsgebieten</h2>
+              <h2 class="fs-title">Punkte in Erreichbarkeit</h2>
               <p class="fs-subtitle reachability-text-content">
-                Bestimmen Sie ein Referenzdatum und selektieren relevante Punktlayer in der Tabelle.
-                F&uuml;r jeden Punktlayer werden gem&auml;&szlig; des Referenzdatums die
-                g&uuml;ltigen Punktobjekte geladen und mit den zuvor berechneten Isochronen
-                verschnitten.
+                Wählen Sie eine Punktedatenquelle aus und wählen Sie einen Zeitpunkt. Die
+                Anwendung lädt die Punkte für diesen Zeitpunkt und zeigt, welche davon innerhalb
+                der berechneten Erreichbarkeitsbereiche liegen.
               </p>
 
               <app-reachability-poi-in-iso></app-reachability-poi-in-iso>
@@ -138,12 +136,11 @@
             </fieldset>
 
             <fieldset>
-              <h2 class="fs-title">Indikatoren-Statistiken</h2>
+              <h2 class="fs-title">Indikatoren-Statistik</h2>
               <p class="fs-subtitle reachability-text-content">
-                Beantworten Sie Fragestellungen zur Versorgung durch Punkt-Einzugsgebiete, in dem
-                die berechneten Isochronen mit Indikatoren verschnitten werden (fl&auml;chenenteil
-                oder besser &uuml;berlappende Wohngebiete). Die Sch&auml;tzwerte werden umso
-                genauer, je kleinr&auml;umiger der Indikator mit eingeht.
+                Prüfen Sie, wie gut die Erreichbarkeitsbereiche mit Indikatoren-Statistiken
+                (z.&nbsp;B. Bevölkerung, Einrichtungen) überlappen. Je feiner die räumliche
+                Einteilung des Indikators ist, desto genauer werden die Ergebnisse.
               </p>
 
               <app-reachability-indicator-statistics></app-reachability-indicator-statistics>
@@ -180,7 +177,7 @@
           "
           (click)="onClickAddScenario()"
         >
-          Szenario anlegen/aktualisieren
+          Szenario speichern
         </button>
         <button type="button" class="btn btn-danger" (click)="resetReachabilityScenarioForm()">
           Zur&uuml;cksetzen

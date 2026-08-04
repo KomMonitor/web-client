@@ -1,6 +1,6 @@
 @if (!reachabilityStateService.currentIsochronesGeoJSON) {
   <div style="text-align: left">
-    <p class="reachability-text-content">Bitte f&uuml;hren Sie zuerst eine Isochronenberechnung durch.</p>
+    <p class="reachability-text-content">Bitte berechnen Sie zuerst die Erreichbarkeit im vorherigen Schritt.</p>
   </div>
 }
 
@@ -21,8 +21,7 @@
             ) {
               <div>
                 <label style="color: red"
-                  >Punktdatenquelle des Szenarios ge&auml;ndert - Neuberechnung erforderlich
-                  f&uuml;r
+                  >Datenquelle geändert &ndash; bitte neu berechnen f&uuml;r
                   <i>{{
                     reachabilityStateService.settings.selectedStartPointLayer.datasetName
                   }}</i></label
@@ -87,7 +86,7 @@
                   reachabilityStateService.settings.dateSelectionType.selectedDateType ===
                   reachabilityStateService.settings.dateSelectionType_valuePerDataset
                 ) {
-                  <th>Zeitschnitt</th>
+                  <th>Zeitraum</th>
                 }
               </tr>
             </thead>

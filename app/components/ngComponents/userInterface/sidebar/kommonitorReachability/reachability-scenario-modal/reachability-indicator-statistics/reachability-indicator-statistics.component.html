@@ -1,6 +1,6 @@
 @if (!reachabilityStateService.currentIsochronesGeoJSON) {
   <div style="text-align: left">
-    <p class="reachability-text-content">Bitte f&uuml;hren Sie zuerst eine Isochronenberechnung durch.</p>
+    <p class="reachability-text-content">Bitte berechnen Sie zuerst die Erreichbarkeit im vorherigen Schritt.</p>
   </div>
 }
 
@@ -39,7 +39,7 @@
         @if (selectedIndicatorForStatistics) {
           <div class="row" style="margin-right: 0px">
             <div class="col-sm-4">
-              <div class="text-left"><label>Raumebene</label></div>
+              <div class="text-left"><label>Gebiets-Ebene</label></div>
               <select
                 id="spatialUnitSelection_reachabilityStatistic"
                 style="font-size: 12px"
@@ -48,7 +48,7 @@
                 (change)="onChangeSelectedSpatialUnit()"
                 required
               >
-                <option [ngValue]="null" disabled>-- Raumeinheit w&auml;hlen --</option>
+                <option [ngValue]="null" disabled>-- Gebiets-Ebene wählen --</option>
                 @for (
                   spatialUnit of selectedIndicatorForStatistics.applicableSpatialUnits;
                   track spatialUnit
@@ -60,7 +60,7 @@
               </select>
             </div>
             <div class="col-sm-3">
-              <div class="text-left"><label>Indikatoren-Zeitschnitt</label></div>
+              <div class="text-left"><label>Zeitpunkt</label></div>
               <!-- <input id="indicatorDate_reachabilityStatistic" type="text" placeholder="YYYY-MM-DD"
               [(ngModel)]="selectionState.selectedDate" (change)="onChangeIndicatorDatepickerDate()"
               [disabled]="dataExchangeService.disableIndicatorDatePicker"> -->
@@ -82,9 +82,9 @@
             <div class="col-sm-5">
               <div
                 class="text-left"
-                title="Berechnung der Sch&auml;tzwerte erfolgt durch &Uuml;berdeckung zwischen Einzugsgebieten und fl&auml;chigen Indikatoren-Statistiken. &Uuml;berlappende Wohngebiete ist zeitlich aufwendiger, ber&uuml;cksichtigt aber nur &Uuml;berlagerungen von Einzugsgebieten mit Siedlungsfl&auml;chen zur genaueren Sch&auml;tzung versorgter Personengruppen."
+                title="Wie die Ergebnisse gewichtet werden: &lsquo;Fläche&rsquo; verteilt die Werte nach dem &uuml;berlappenden Fl&auml;chenanteil. &lsquo;Wohngebiete&rsquo; ber&uuml;cksichtigt nur den &uuml;berlappenden Wohnungsfl&auml;chenanteil f&uuml;r genauere Sch&auml;tzwerte."
               >
-                <label>Gewichtung geschnittener Raumebenen</label>&nbsp;<i
+                <label>Wie die Ergebnisse gewichtet werden</label>&nbsp;<i
                   style="font-size: 1.3em"
                   class="fa-solid fa-circle-question"
                 ></i>
@@ -113,8 +113,7 @@
               ) {
                 <div>
                   <label style="color: red"
-                    >Punktdatenquelle des Szenarios ge&auml;ndert - Neuberechnung erforderlich
-                    f&uuml;r
+                    >Datenquelle geändert &ndash; bitte neu berechnen f&uuml;r
                     <i>{{
                       reachabilityStateService.settings.selectedStartPointLayer.datasetName
                     }}</i></label
@@ -143,7 +142,7 @@
               (click)="computeReachabilityIndicatorStatistic()"
               type="button"
             >
-              <i class="fas fa-plus"></i>&nbsp;&nbsp;Indikatoren-Statistik generieren
+              <i class="fas fa-plus"></i>&nbsp;&nbsp;Statistik berechnen
             </button>
           </div>
         </div>
@@ -155,10 +154,10 @@
               <thead>
                 <tr>
                   <th>Indikator</th>
-                  <th>Raumeinheit</th>
-                  <th>Zeitschnitt</th>
+                  <th>Gebiets-Ebene</th>
+                  <th>Zeitpunkt</th>
                   <th>Gewichtung</th>
-                  <th>&Uuml;berdeckung / Versorgung</th>
+                  <th>Erreichbarkeit / Versorgung</th>
                 </tr>
               </thead>
               <tbody>

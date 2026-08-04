@@ -2000,7 +2000,7 @@ export class DiagramHelperServiceService {
         containLabel: true,
       },
       title: {
-        text: 'Analyse Einzugsgebiet ' + rangeValue,
+        text: 'Punkte in Erreichbarkeit ' + rangeValue,
         left: 'center',
         fontSize: '10',
         show: false,
