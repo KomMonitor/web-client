@@ -53,12 +53,12 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
     {
       apiName: 'simple',
       displayName: 'nach Fläche',
-      tooltip: 'Gewichtet nach dem überlappenden Flächenanteil pro Gebiets-Ebene.',
+      tooltip: 'Gewichtet nach dem überlappenden Flächenanteil pro Raumeinheit.',
     },
     {
       apiName: 'residential_areas',
       displayName: 'nach Wohnfläche',
-      tooltip: 'Berücksichtigt nur den überlappenden Wohnungsflächenanteil pro Gebiets-Ebene für genauere Schätzwerte.',
+      tooltip: 'Berücksichtigt nur den überlappenden Wohnungsflächenanteil pro Raumeinheit für genauere Schätzwerte.',
     },
   ];
   weightStrategy: any = this.weightStrategyOptions[0];

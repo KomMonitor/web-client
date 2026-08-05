@@ -39,7 +39,7 @@
         @if (selectedIndicatorForStatistics) {
           <div class="row" style="margin-right: 0px">
             <div class="col-sm-4">
-              <div class="text-left"><label>Gebiets-Ebene</label></div>
+              <div class="text-left"><label>Raumebene</label></div>
               <select
                 id="spatialUnitSelection_reachabilityStatistic"
                 style="font-size: 12px"
@@ -48,7 +48,7 @@
                 (change)="onChangeSelectedSpatialUnit()"
                 required
               >
-                <option [ngValue]="null" disabled>-- Gebiets-Ebene wählen --</option>
+                <option [ngValue]="null" disabled>-- Raumebene wählen --</option>
                 @for (
                   spatialUnit of selectedIndicatorForStatistics.applicableSpatialUnits;
                   track spatialUnit
@@ -154,7 +154,7 @@
               <thead>
                 <tr>
                   <th>Indikator</th>
-                  <th>Gebiets-Ebene</th>
+                  <th>Raumebene</th>
                   <th>Zeitpunkt</th>
                   <th>Gewichtung</th>
                   <th>Erreichbarkeit / Versorgung</th>
