@@ -76,16 +76,18 @@
   }
 }
 
-// Configurable max-width for long-form text, with optional multi-column layout.
+// Configurable max-width for long-form text, with multi-column layout.
 // The CSS custom property --reachability-max-text-width is set inline on the
 // modal-body element from the component TS (reads from EnvConfigService).
 .reachability-text-content,
 ::ng-deep .reachability-text-content {
-  text-align: left;
-  max-width: var(--reachability-max-text-width, 600px);
+  text-align: left; // left-align explanation texts in the modal - same as title
+ 
+  // max-width: var(--reachability-max-text-width, 600px);
+  max-width: 50%; // to not show explanation texts throughout the whole horizontal space
   width: 100%;
-  margin: 0 auto 1em;
-  padding: 0.5em;
+  // margin: 0 auto 1em;  // no margin to also start explanation texts left-aligned
+  padding: 0.5em; // small padding to let background color beter indicate explanation texts 
   // Subtle background to visually set off explanation text from surrounding form controls.
   background-color: #f8f9fa;
 
@@ -144,11 +146,16 @@
     position: relative;
 }
 
-::ng-deep .reachability-content-wrapper p, ::ng-deep .reachability-content-wrapper label{
-  text-align: left;
+// ::ng-deep .reachability-content-wrapper p, ::ng-deep .reachability-content-wrapper label{
+//   text-align: left !important;
+// }
+
+::ng-deep .reachability-content-wrapper{
+  text-align: left !important;
 }
 
 ::ng-deep .fs-title {
+    text-align: left; // left align step titles
     font-size: 18px;
     text-transform: none !important;
     color: #2c3e50;
