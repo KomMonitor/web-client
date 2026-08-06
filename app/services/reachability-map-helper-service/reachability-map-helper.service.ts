@@ -604,16 +604,6 @@ export class ReachabilityMapHelperService {
     );
     indicatorLayer.addTo(mapParts.map);
 
-    // after replacing the indicator we should zoom to it
-    // use a small timeout for this
-    setTimeout(() => {
-        this.genericMapHelperService.zoomToLayer(
-          mapParts.map,
-          mapParts.mainIndicatorLayer
-        );
-      }, 300 // wait 300ms before zooming to avoid flick 
-    );
-
 
     // the indicator layer we just (re-)added may have landed on top of isochrones that
     // were already calculated and shown on this map (e.g. on a tab-switch reinit) —
