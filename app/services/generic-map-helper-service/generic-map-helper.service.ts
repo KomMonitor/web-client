@@ -272,13 +272,6 @@ export class GenericMapHelperService {
     // clean any old map instance
     const domNode: any = document.getElementById(domId);
 
-    // should domNode not be existant  the rest of the code must be skipped and a warn message be sent to console
-    if(!domNode) {
-      console.warn(`No DOM element with id ${domId} found to initiate map!`)
-      return; 
-    }
-
-
     while (domNode.hasChildNodes()) {
       domNode.removeChild(domNode.lastChild);
     }
@@ -568,7 +561,10 @@ export class GenericMapHelperService {
   }
 
   zoomToLayer(map, layer) {
-    if (map && layer && layer.getBounds()) {
+    // guard against plain L.layerGroup()/other layer types that don't implement
+    // getBounds() (only FeatureGroup/GeoJSON/Path layers etc. do) — calling it
+    // unconditionally would throw "layer.getBounds is not a function"
+    if (map && layer && typeof layer.getBounds === 'function' && layer.getBounds()) {
       // just wait a bit in order to ensure that map element is visible to make invalidateSize actually work
       setTimeout(function () {
         map.fitBounds(layer.getBounds());
