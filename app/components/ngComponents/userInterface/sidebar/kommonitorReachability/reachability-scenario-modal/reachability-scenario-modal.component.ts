@@ -97,11 +97,9 @@ export class ReachabilityScenarioModalComponent implements OnInit {
   }
 
   /**
-   * Activates the step at `index` (both for a click on its nav tile and for the
-   * "next"/"previous" buttons inside a fieldset) and, when arriving at steps 2-5,
-   * fires the same reinit broadcast the old progressbar/next-button click handlers
-   * used to fire. Going to a previous step never re-triggers a reinit broadcast,
-   * matching the original wizard's behaviour.
+   * Activates the step at `index` when its nav tile is clicked, and fires the same
+   * reinit broadcast each step's map/content used to react to on tab switch (e.g. to
+   * fix up leaflet's cached size after being hidden while another step was active).
    */
   goToStep(index: number, notify: boolean = true) {
     this.currentStepIndex = index;
@@ -111,6 +109,9 @@ export class ReachabilityScenarioModalComponent implements OnInit {
     }
 
     switch (index) {
+      case 0:
+        this.onScenarioSetupClick();
+        break;
       case 1:
         this.onEditFeaturesClick();
         break;
@@ -124,6 +125,10 @@ export class ReachabilityScenarioModalComponent implements OnInit {
         this.onIndicatorStatisticsClick();
         break;
     }
+  }
+
+  onScenarioSetupClick() {
+    setTimeout(() => this.broadcastService.broadcast(BroadcastMessage.ReinitScenarioSetupMap), 250);
   }
 
   onEditFeaturesClick() {
@@ -177,6 +182,7 @@ export class ReachabilityScenarioModalComponent implements OnInit {
     // distinct from the "Reinit*" broadcasts (fired on tab switch), which only
     // resize/redraw against whatever dataset is currently selected — reusing those here
     // would just re-fetch and re-render the stale (now cleared) dataset
+    this.broadcastService.broadcast(BroadcastMessage.ResetReachabilityScenarioSetup);
     this.broadcastService.broadcast(BroadcastMessage.ResetSingleFeatureEdit);
     this.broadcastService.broadcast(BroadcastMessage.ResetReachabilityScenarioConfiguration);
     this.broadcastService.broadcast(BroadcastMessage.ResetPoisInIsochrone);

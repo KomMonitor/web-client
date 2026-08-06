@@ -7,21 +7,34 @@ import { ReachabilityStateService } from 'services/reachability-state-service/re
 import { ColorPickerDirective } from 'ngx-color-picker';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 
 @Component({
   standalone: true,
   selector: 'app-reachbility-scenario-setup',
   templateUrl: './reachbility-scenario-setup.component.html',
   styleUrls: ['./reachbility-scenario-setup.component.scss'],
-  imports: [FormsModule],
+  imports: [FormsModule, LoadingOverlayComponent],
 })
 export class ReachbilityScenarioSetupComponent implements OnInit {
   protected reachabilityStateService = inject(ReachabilityStateService);
   private broadcastService = inject(BroadcastService);
+  private reachabilityMapHelperService = inject(ReachabilityMapHelperService);
 
   private readonly destroyRef = inject(DestroyRef);
 
+  // DOM id of the interactive map showing the currently selected point data
+  // source, mirroring the map used in the "Erreichbarkeit berechnen" step.
+  domId = 'reachabilityScenarioSetupGeoMap';
+
   ngOnInit(): void {
+    this.reachabilityMapHelperService.initReachabilityGeoMap(this.domId);
+    // reflect whatever data source is already selected (e.g. re-opening the
+    // modal on an existing scenario, or after a quick-calc import) — otherwise
+    // the map would stay empty until the user changes the selection.
+    this.updateMapLayer();
+
     this.reachabilityStateService.reachabilityMapSubject$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
@@ -29,6 +42,40 @@ export class ReachbilityScenarioSetupComponent implements OnInit {
           this.importScenarioFromQuickSetup();
         }
       });
+
+    this.broadcastService.currentBroadcastMsg
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((broadcastMsg) => {
+        switch (broadcastMsg.msg) {
+          case BroadcastMessage.ReinitScenarioSetupMap:
+            {
+              // fixes leaflet's internal size cache after this step's fieldset was
+              // hidden (display:none) while the user was on another step
+              this.reachabilityMapHelperService.invalidateMap(this.domId);
+            }
+            break;
+          case BroadcastMessage.ResetReachabilityScenarioSetup:
+            {
+              this.resetScenarioSetupMap();
+            }
+            break;
+        }
+      });
+  }
+
+  /** Displays the currently selected start point layer's POI dataset on the map,
+   * replacing whatever layer was shown for a previously selected data source/date. */
+  updateMapLayer() {
+    this.reachabilityMapHelperService.replaceStartPointLayer(
+      this.domId,
+      this.reachabilityStateService.settings.selectedStartPointLayer
+    );
+  }
+
+  /** Clears this step's own point layer, e.g. when the scenario modal is fully reset. */
+  resetScenarioSetupMap() {
+    this.reachabilityMapHelperService.removeStartPointLayer(this.domId);
+    this.reachabilityMapHelperService.invalidateMap(this.domId);
   }
 
   importScenarioFromQuickSetup() {
@@ -44,6 +91,7 @@ export class ReachbilityScenarioSetupComponent implements OnInit {
         this.reachabilityStateService.settings.selectedStartPointLayer.isTmpDataLayer
       ) {
         this.initPoiResourceEditFeaturesMenu();
+        this.updateMapLayer();
       } else {
         this.fetchPoiResourceGeoJSON();
       }
@@ -55,6 +103,7 @@ export class ReachbilityScenarioSetupComponent implements OnInit {
       this.reachabilityStateService.selectedStartPointLayer;
 
     if (!this.reachabilityStateService.settings.selectedStartPointLayer) {
+      this.updateMapLayer();
       return;
     }
 
@@ -81,6 +130,7 @@ export class ReachbilityScenarioSetupComponent implements OnInit {
 
       // init geoMap with empty dataset
       this.initPoiResourceEditFeaturesMenu();
+      this.updateMapLayer();
       return;
     }
 
@@ -105,9 +155,18 @@ export class ReachbilityScenarioSetupComponent implements OnInit {
     return o1 && o2 ? o1.georesourceId === o2.georesourceId : o1 === o2;
   }
 
-  fetchPoiResourceGeoJSON() {
-    this.reachabilityStateService.fetchPoiResourceGeoJSON(false);
+  async fetchPoiResourceGeoJSON() {
+    // clear the previous data source's/date's map layer immediately, so its markers
+    // don't linger on the map while the new dataset is still loading (mirrors how
+    // fetchGeoJSONForIsochrones clears its previous result before recalculating)
+    this.reachabilityStateService.settings.selectedStartPointLayer.geoJSON_reachability = undefined;
+    this.updateMapLayer();
+
+    // awaiting this ensures the map layer (and loading spinner) update only after the
+    // GeoJSON has actually arrived and been attached to the selected start point layer
+    await this.reachabilityStateService.fetchPoiResourceGeoJSON(false);
     this.initPoiResourceEditFeaturesMenu();
+    this.updateMapLayer();
   }
 
   initPoiResourceEditFeaturesMenu() {

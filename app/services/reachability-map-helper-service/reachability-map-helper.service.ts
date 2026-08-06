@@ -99,6 +99,10 @@ export class ReachabilityMapHelperService {
       poiInIsoLayers: new Map(),
     };
 
+    mapParts.setupLayers = {
+      poiLayer: undefined,
+    };
+
     this.mapPartsMap.set(domId, mapParts);
     return mapParts;
   }
@@ -455,6 +459,62 @@ export class ReachabilityMapHelperService {
         mapParts.map,
         mapParts.isochroneLayers.isochroneLayer
       );
+    }
+  }
+
+  zoomToStartPointLayer(domId: string) {
+    const mapParts = this.mapPartsMap.get(domId);
+    if (mapParts && mapParts.map && mapParts.setupLayers && mapParts.setupLayers.poiLayer) {
+      this.genericMapHelperService.zoomToLayer(mapParts.map, mapParts.setupLayers.poiLayer);
+    }
+  }
+
+  /**
+   * Displays the given start point layer's POI dataset (property `geoJSON_reachability`)
+   * on the "Name & Datenquelle" step's own map, replacing whatever was shown for a
+   * previously selected data source/date. Passing a layer with no features (or no layer
+   * at all) just clears the map, e.g. for a freshly opened modal or an empty dataset.
+   */
+  replaceStartPointLayer(domId: string, startPointLayer: any) {
+    const mapParts = this.mapPartsMap.get(domId);
+    if (!mapParts) {
+      return;
+    }
+
+    this.removeStartPointLayer(domId);
+
+    const hasFeatures = startPointLayer?.geoJSON_reachability?.features?.length > 0;
+    if (hasFeatures) {
+      mapParts.setupLayers = mapParts.setupLayers || {};
+      mapParts.setupLayers.poiLayer = this.generatePoiMarkers(
+        startPointLayer,
+        false,
+        'geoJSON_reachability'
+      );
+      mapParts.layerControl.addOverlay(mapParts.setupLayers.poiLayer, startPointLayer.datasetName);
+      mapParts.setupLayers.poiLayer.addTo(mapParts.map);
+
+      this.invalidateMap(domId);
+      this.zoomToStartPointLayer(domId);
+    } else {
+      this.invalidateMap(domId);
+    }
+
+    this.mapPartsMap.set(domId, mapParts);
+  }
+
+  removeStartPointLayer(domId: string) {
+    const mapParts = this.mapPartsMap.get(domId);
+    if (mapParts && mapParts.setupLayers && mapParts.setupLayers.poiLayer) {
+      this.genericMapHelperService.removeLayerFromLayerControl(
+        mapParts.layerControl,
+        mapParts.setupLayers.poiLayer
+      );
+      this.genericMapHelperService.removeLayerFromMap(
+        mapParts.map,
+        mapParts.setupLayers.poiLayer
+      );
+      mapParts.setupLayers.poiLayer = undefined;
     }
   }
 

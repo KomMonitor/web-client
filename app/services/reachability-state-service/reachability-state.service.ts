@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { DestroyRef, Injectable, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
-import { BehaviorSubject, distinctUntilChanged, map } from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, lastValueFrom, map } from 'rxjs';
 import * as turf from '@turf/turf';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -581,28 +581,51 @@ export class ReachabilityStateService {
     );
   }
 
-  fetchPoiResourceGeoJSON(globalModel = true) {
+  /**
+   * Fetches the GeoJSON for the currently selected start point layer/date.
+   *
+   * Returns a Promise resolving once the fetch has completed (and the relevant
+   * side effects below have been applied), so callers such as the scenario
+   * modal's "Name & Datenquelle" step can await it before refreshing their own
+   * map layer. The Promise never rejects — errors are logged, matching the
+   * previous subscribe-and-swallow behaviour.
+   */
+  fetchPoiResourceGeoJSON(globalModel = true): Promise<any> {
     const url = this.buildGeoresourceGeoJSONUrl(
       this.selectedStartPointLayer.georesourceId,
       this.selectedStartDate
     );
 
-    this.http.get(url).subscribe({
-      next: (response: any) => {
-        if (globalModel)
+    // Only the scenario modal's own step (globalModel=false) drives its loading
+    // spinner off this flag, mirroring how the other wizard steps' fetches already
+    // toggle it. The globalModel=true path (sidebar quick-calc) has its own
+    // loading$/loadingState indicator and is left untouched.
+    if (!globalModel) {
+      this.settings.loadingData = true;
+    }
+
+    return lastValueFrom(this.http.get(url))
+      .then((response: any) => {
+        if (globalModel) {
           this.reachabilityMapSubject.next({
             ...this.reachabilityMapSubject.value,
             features: response.features,
           });
-        else {
+        } else {
           this.settings.selectedStartPointLayer.geoJSON_reachability = response;
           this.settings.selectedStartPointLayer.geoJSON = response;
         }
-      },
-      error: (error) => {
+        return response;
+      })
+      .catch((error) => {
         console.log(error);
-      },
-    });
+        return undefined;
+      })
+      .finally(() => {
+        if (!globalModel) {
+          this.settings.loadingData = false;
+        }
+      });
   }
 
   setTransitMode(mode: ReachabilityTransitModeTypes) {

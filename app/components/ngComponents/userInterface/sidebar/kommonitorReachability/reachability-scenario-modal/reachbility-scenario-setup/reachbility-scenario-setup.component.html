@@ -1,120 +1,129 @@
-<h2 class="fs-title">Name und Datenquelle</h2>
-<p class="fs-subtitle reachability-text-content">
-  Geben Sie einen Namen für das Szenario ein und wählen Sie die Punktedatenquelle,
-  für die die Erreichbarkeit berechnet werden soll.
-</p>
+<app-loading-overlay [loading]="reachabilityStateService.settings.loadingData">
+  <h2 class="fs-title">Name und Datenquelle</h2>
+  <p class="fs-subtitle reachability-text-content">
+    Geben Sie einen Namen für das Szenario ein und wählen Sie die Punktedatenquelle,
+    für die die Erreichbarkeit berechnet werden soll.
+  </p>
 
-<div class="row vertical-align reachability-content-wrapper">
-  <div class="col-md-6 col-sm-6 col-12">
-    <div class="form-group">
-      <label>Name</label>
-      <input
-        [(ngModel)]="reachabilityStateService.scenarioTitle"
-        placeholder="z.&nbsp;B.: Kitas_5min_10min_15min_zu_Fuß"
-      />
+  <div class="row vertical-align reachability-content-wrapper">
+    <!-- name + data source, stacked vertically to match the other steps' content height -->
+    <div class="col-md-4 col-sm-4 col-12">
+      <div class="form-group">
+        <label>Name</label>
+        <input
+          [(ngModel)]="reachabilityStateService.scenarioTitle"
+          placeholder="z.&nbsp;B.: Kitas_5min_10min_15min_zu_Fuß"
+        />
 
-      <div class="help-block">
-        <p>Beispiel: <i>Kitas_2022_5min_10min_15min_zu_Fuß</i></p>
-      </div>
-      <div class="help-block with-errors"></div>
-    </div>
-  </div>
-  <div class="col-md-6 col-sm-6 col-12">
-    <div class="form-group">
-      <label>Datenquelle und Zeitpunkt</label>
-      <p>
-        Wählen Sie eine Punktedatenquelle und einen Zeitpunkt. Mit der Option
-        <i>&lsquo;-- leerer neuer Datensatz --&rsquo;</i> legen Sie eine neue, leere
-        Datenquelle an, um neue Punkte hinzuzufügen.
-      </p>
-
-      <div class="row vertical-align" style="margin-right: 0px">
-        <div class="col-md-6 col-sm-6 col-6">
-          @if (reachabilityStateService.selectedStartPointLayer?.geoJSON_reachability) {
-            <div class="horizontal-align">
-              <p>
-                <b>{{
-                  reachabilityStateService.selectedStartPointLayer.geoJSON_reachability.features
-                    .length
-                }}</b>
-                Startpunkte in der ausgewählten Datenquelle
-              </p>
-            </div>
-          }
-
-          @if (!reachabilityStateService.selectedStartPointLayer) {
-            <div class="horizontal-align">
-              <p>noch keine Datenquelle ausgewählt</p>
-            </div>
-          }
-
-          @if (
-            reachabilityStateService.selectedStartPointLayer &&
-            !reachabilityStateService.selectedStartPointLayer?.geoJSON_reachability
-          ) {
-            <div class="horizontal-align">
-              <p style="color: red">
-                Für das ausgewählte Datum konnten keine Punkte geladen werden
-              </p>
-            </div>
-          }
+        <div class="help-block">
+          <p>Beispiel: <i>Kitas_2022_5min_10min_15min_zu_Fuß</i></p>
         </div>
-        <div class="col-md-6 col-sm-6 col-6">
-          <select
-            style="font-size: 12px"
-            [(ngModel)]="reachabilityStateService.selectedStartPointLayer"
-            (change)="onChangePoiResource()"
-            [compareWith]="compareLayers"
-            class="form-control"
-            required
-          >
-            <option disabled value>-- Datenquelle wählen --</option>
-            @for (poi of reachabilityStateService.filteredDisplayableGeoresources; track poi) {
-              <option [ngValue]="poi">
-                {{ poi.datasetName }}
-              </option>
+        <div class="help-block with-errors"></div>
+      </div>
+
+      <div class="form-group">
+        <label>Datenquelle und Zeitpunkt</label>
+        <p>
+          Wählen Sie eine Punktedatenquelle und einen Zeitpunkt. Mit der Option
+          <i>&lsquo;-- leerer neuer Datensatz --&rsquo;</i> legen Sie eine neue, leere
+          Datenquelle an, um neue Punkte hinzuzufügen.
+        </p>
+
+        <div class="row vertical-align" style="margin-right: 0px">
+          <div class="col-md-6 col-sm-6 col-6">
+            @if (reachabilityStateService.selectedStartPointLayer?.geoJSON_reachability) {
+              <div class="horizontal-align">
+                <p>
+                  <b>{{
+                    reachabilityStateService.selectedStartPointLayer.geoJSON_reachability.features
+                      .length
+                  }}</b>
+                  Startpunkte in der ausgewählten Datenquelle
+                </p>
+              </div>
             }
-          </select>
 
-          @if (
-            reachabilityStateService.settings.selectedStartPointLayer?.isNewReachabilityDataSource
-          ) {
-            <div>
-              <br />
-              <label>Name des neuen Datensatzes</label>
-              <input
-                [(ngModel)]="reachabilityStateService.settings.selectedStartPointLayer.datasetName"
-              />
-            </div>
-          }
+            @if (!reachabilityStateService.selectedStartPointLayer) {
+              <div class="horizontal-align">
+                <p>noch keine Datenquelle ausgewählt</p>
+              </div>
+            }
 
-          @if (
-            reachabilityStateService.selectedStartPointLayer &&
-            !reachabilityStateService.selectedStartPointLayer?.isNewReachabilityDataSource &&
-            !reachabilityStateService.selectedStartPointLayer?.isTmpDataLayer
-          ) {
-            <div>
-              <select
-                style="font-size: 11px; width: 135px; padding: 0px"
-                [(ngModel)]="reachabilityStateService.selectedStartDate"
-                (change)="fetchPoiResourceGeoJSON()"
-                class="form-control"
-                required
-              >
-                @for (
-                  date of reachabilityStateService.filteredAvailablePeriodsOfValidity;
-                  track date;
-                  let i = $index
-                ) {
-                  <option [value]="date.startDate">{{ date.startDate }}</option>
-                }
-              </select>
-            </div>
-          }
+            @if (
+              reachabilityStateService.selectedStartPointLayer &&
+              !reachabilityStateService.selectedStartPointLayer?.geoJSON_reachability
+            ) {
+              <div class="horizontal-align">
+                <p style="color: red">
+                  Für das ausgewählte Datum konnten keine Punkte geladen werden
+                </p>
+              </div>
+            }
+          </div>
+          <div class="col-md-6 col-sm-6 col-6">
+            <select
+              style="font-size: 12px"
+              [(ngModel)]="reachabilityStateService.selectedStartPointLayer"
+              (change)="onChangePoiResource()"
+              [compareWith]="compareLayers"
+              class="form-control"
+              required
+            >
+              <option disabled value>-- Datenquelle wählen --</option>
+              @for (poi of reachabilityStateService.filteredDisplayableGeoresources; track poi) {
+                <option [ngValue]="poi">
+                  {{ poi.datasetName }}
+                </option>
+              }
+            </select>
+
+            @if (
+              reachabilityStateService.settings.selectedStartPointLayer?.isNewReachabilityDataSource
+            ) {
+              <div>
+                <br />
+                <label>Name des neuen Datensatzes</label>
+                <input
+                  [(ngModel)]="reachabilityStateService.settings.selectedStartPointLayer.datasetName"
+                />
+              </div>
+            }
+
+            @if (
+              reachabilityStateService.selectedStartPointLayer &&
+              !reachabilityStateService.selectedStartPointLayer?.isNewReachabilityDataSource &&
+              !reachabilityStateService.selectedStartPointLayer?.isTmpDataLayer
+            ) {
+              <div>
+                <select
+                  style="font-size: 11px; width: 135px; padding: 0px"
+                  [(ngModel)]="reachabilityStateService.selectedStartDate"
+                  (change)="fetchPoiResourceGeoJSON()"
+                  class="form-control"
+                  required
+                >
+                  @for (
+                    date of reachabilityStateService.filteredAvailablePeriodsOfValidity;
+                    track date;
+                    let i = $index
+                  ) {
+                    <option [value]="date.startDate">{{ date.startDate }}</option>
+                  }
+                </select>
+              </div>
+            }
+          </div>
         </div>
-      </div>
 
-      <div class="help-block with-errors"></div>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+
+    <!-- interactive map showing the currently selected point data source, matching the
+         map used in the "Erreichbarkeit berechnen" step -->
+    <div class="col-md-8 col-sm-8 col-12">
+      <br />
+      <div id="reachabilityScenarioSetupGeoMap" style="height: 57vh"></div>
     </div>
   </div>
-</div>
+</app-loading-overlay>
