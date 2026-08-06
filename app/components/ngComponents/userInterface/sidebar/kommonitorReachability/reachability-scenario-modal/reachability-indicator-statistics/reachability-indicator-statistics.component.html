@@ -4,9 +4,10 @@
   </div>
 }
 
-@if (reachabilityStateService.currentIsochronesGeoJSON){
+
 <div style="text-align: left">
   <div class="row vertical-align align-top reachability-content-wrapper">
+    @if (reachabilityStateService.currentIsochronesGeoJSON){
       <div class="col-md-6 col-sm-6 col-12">
         <div class="input-wrapper">
           <span class="icon"><i class="fas fa-filter"></i></span>
@@ -363,10 +364,11 @@
           </div>
         </div>
       </div>
+    }  
     
     <div class="col-md-6 col-sm-6 col-12">
       <div id="reachabilityScenarioIsochroneStatisticsGeoMap" style="height: 57vh"></div>
     </div>
   </div>
 </div>
-}
+

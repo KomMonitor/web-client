@@ -163,3 +163,106 @@
     letter-spacing: 0px !important;
     font-weight: bold;
 }
+
+// Vertical, tile-based step navigation for the reachability scenario wizard.
+// Left column: clickable step tiles (mirrors the .modeItem tile design used in
+// the kommonitor-reachability sidebar component). Right column: the fieldset
+// belonging to the active step, using at least 3/4 of the wizard's width.
+.reachability-wizard-layout {
+  display: grid;
+  // Nav column never grows past 230px / 20% of the available width, so the
+  // content column always keeps at least ~80% of the horizontal space.
+  grid-template-columns: clamp(160px, 20%, 230px) 1fr;
+  gap: 1em;
+  align-items: stretch;
+}
+
+.reachability-step-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+  // Grid row stretches this column to the height of the content column, so
+  // the tiles below can grow to use all available vertical space.
+  height: 100%;
+}
+
+.reachability-step-tile {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  min-height: 4.5em;
+  padding: 1em 0.5em;
+  border: 1px solid lightgray;
+  border-radius: 0.5em;
+  // Subtle default background so the tiles read as clickable at a glance.
+  background: color-mix(in srgb, var(--kommonitor-hierarchy-level-2) 45%, white);
+  color: gray;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+
+  i {
+    font-size: 20px;
+  }
+
+  span {
+    font-size: 13px;
+    font-weight: bold;
+    line-height: 1.2;
+  }
+
+  &:hover {
+    border-color: var(--kommonitor-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--kommonitor-primary);
+    outline-offset: 2px;
+  }
+
+  &.active {
+    background: var(--kommonitor-hierarchy-level-2);
+    border: 1px solid var(--kommonitor-primary);
+    color: var(--kommonitor-primary);
+  }
+}
+
+.reachability-step-content {
+  min-width: 0; // allow the grid column to shrink instead of overflowing
+
+  // The shared .multiStepForm rules (app.scss) assume only the first fieldset
+  // is ever visible and hide the rest via CSS. Here visibility is driven by
+  // the [hidden] attribute bound to the active wizard step instead, so every
+  // fieldset must remain eligible to be shown, not just the first one.
+  fieldset {
+    display: block !important;
+
+    &[hidden] {
+      display: none !important;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .reachability-wizard-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .reachability-step-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    height: auto;
+  }
+
+  .reachability-step-tile {
+    flex: 1 1 30%;
+    min-height: 3.5em;
+  }
+}

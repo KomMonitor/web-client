@@ -22,142 +22,86 @@
             data-disable="true"
             style="margin-bottom: 0px; margin-top: 0px"
           >
-            <!-- div required for click logic -->
-            <div>
-              <!-- progressbar -->
-              <ul id="progressbar">
-                <li style="width: 20%" class="active">Name &amp; Datenquelle</li>
-                <li style="width: 20%" (click)="onEditFeaturesClick()">
-                  Punkte bearbeiten
-                </li>
-                <li style="width: 20%" (click)="onReachbilityConfigurationClick()">
-                  Erreichbarkeit berechnen
-                </li>
-                <li style="width: 20%" (click)="onPoisInReachabilityClick()">
-                  Punkte in Erreichbarkeit
-                </li>
-                <li style="width: 20%" (click)="onIndicatorStatisticsClick()">
-                  Indikatoren-Statistik
-                </li>
-              </ul>
-            </div>
+            <div class="reachability-wizard-layout">
+              <!-- Vertical, tile-based step navigation. Replaces the former horizontal
+                   progressbar; each tile activates the fieldset at the same index. -->
+              <nav class="reachability-step-nav" aria-label="Schritte des Erreichbarkeitsszenarios">
+                @for (step of steps; track step.label; let i = $index) {
+                  <div
+                    class="reachability-step-tile"
+                    [class.active]="currentStepIndex === i"
+                    role="button"
+                    tabindex="0"
+                    (click)="goToStep(i)"
+                    (keyup.enter)="goToStep(i)"
+                  >
+                    <i [class]="step.icon"></i>
+                    <span>{{ step.label }}</span>
+                  </div>
+                }
+              </nav>
 
-            <!-- fieldsets -->
-            <fieldset>
-              <app-reachbility-scenario-setup></app-reachbility-scenario-setup>
+              <!-- Step content: only the fieldset matching the active step is shown. -->
+              <div class="reachability-step-content">
+                <fieldset [hidden]="currentStepIndex !== 0">
+                  <app-reachbility-scenario-setup></app-reachbility-scenario-setup>
 
-              <input
-                type="button"
-                name="next"
-                class="next action-button"
-                value="N&auml;chster Schritt"
-                (click)="onEditFeaturesClick()"
-              />
-            </fieldset>
+                </fieldset>
 
-            <fieldset>
-              <h2 class="fs-title">Punkte bearbeiten</h2>
-              <p class="fs-subtitle reachability-text-content">
-                Verschieben Sie Punkte per Drag&amp;Drop auf der Karte oder ändern Sie ihre
-                Eigenschaften in den Eingabefeldern. Entfernen Sie vorhandene Punkte oder fügen
-                Sie neue hinzu. Die Änderungen gelten nur in diesem Szenario und werden nicht
-                dauerhaft gespeichert.
-                <br />
-                Felder mit * sind Pflicht.
-              </p>
+                <fieldset [hidden]="currentStepIndex !== 1">
+                  <h2 class="fs-title">Punkte bearbeiten</h2>
+                  <p class="fs-subtitle reachability-text-content">
+                    Verschieben Sie Punkte per Drag&amp;Drop auf der Karte oder ändern Sie ihre
+                    Eigenschaften in den Eingabefeldern. Entfernen Sie vorhandene Punkte oder fügen
+                    Sie neue hinzu. Die Änderungen gelten nur in diesem Szenario und werden nicht
+                    dauerhaft gespeichert.
+                    <br />
+                    Felder mit * sind Pflicht.
+                  </p>
 
-              <div class="reachability-content-wrapper">
-                <app-single-feature-edit></app-single-feature-edit>
+                  <div class="reachability-content-wrapper">
+                    <app-single-feature-edit></app-single-feature-edit>
+                  </div>
+            
+                </fieldset>
+
+                <fieldset [hidden]="currentStepIndex !== 2">
+                  <h2 class="fs-title">Erreichbarkeit berechnen</h2>
+                  <p class="fs-subtitle reachability-text-content">
+                    Berechnen Sie die Erreichbarkeitsbereiche für alle Punkte. Wählen Sie
+                    anschließend das Fortbewegungsmittel sowie das Kriterium (Entfernung oder Zeit)
+                    und geben Sie die gewünschten Schwellwerte ein.
+                  </p>
+
+                  <app-reachability-scenario-configuration></app-reachability-scenario-configuration>
+
+                </fieldset>
+
+                <fieldset style="padding: 0px 10px" [hidden]="currentStepIndex !== 3">
+                  <h2 class="fs-title">Punkte in Erreichbarkeit</h2>
+                  <p class="fs-subtitle reachability-text-content">
+                    Wählen Sie eine Punktedatenquelle aus und wählen Sie einen Zeitpunkt. Die
+                    Anwendung lädt die Punkte für diesen Zeitpunkt und zeigt, welche davon innerhalb
+                    der berechneten Erreichbarkeitsbereiche liegen.
+                  </p>
+
+                  <app-reachability-poi-in-iso></app-reachability-poi-in-iso>
+
+                </fieldset>
+
+                <fieldset style="padding: 0px 10px" [hidden]="currentStepIndex !== 4">
+                  <h2 class="fs-title">Indikatoren-Statistik</h2>
+                  <p class="fs-subtitle reachability-text-content">
+                    Prüfen Sie, wie gut die Erreichbarkeitsbereiche mit Indikatoren-Statistiken
+                    (z.&nbsp;B. Bevölkerung, Einrichtungen) überlappen. Je feiner die räumliche
+                    Einteilung des Indikators ist, desto genauer werden die Ergebnisse.
+                  </p>
+
+                  <app-reachability-indicator-statistics></app-reachability-indicator-statistics>
+
+                </fieldset>
               </div>
-
-              <input
-                type="button"
-                name="previous"
-                class="previous action-button-previous"
-                value="Voriger Schritt"
-              />
-              <input
-                type="button"
-                name="next"
-                class="next action-button"
-                value="N&auml;chster Schritt"
-                (click)="onReachbilityConfigurationClick()"
-              />
-            </fieldset>
-
-            <fieldset>
-              <h2 class="fs-title">Erreichbarkeit berechnen</h2>
-              <p class="fs-subtitle reachability-text-content">
-                Berechnen Sie die Erreichbarkeitsbereiche für alle Punkte. Wählen Sie
-                anschließend das Fortbewegungsmittel sowie das Kriterium (Entfernung oder Zeit)
-                und geben Sie die gewünschten Schwellwerte ein.
-              </p>
-
-              <app-reachability-scenario-configuration></app-reachability-scenario-configuration>
-
-              <input
-                type="button"
-                name="previous"
-                class="previous action-button-previous"
-                value="Voriger Schritt"
-              />
-              <input
-                type="button"
-                name="next"
-                class="next action-button"
-                value="N&auml;chster Schritt"
-                (click)="onPoisInReachabilityClick()"
-              />
-            </fieldset>
-
-            <fieldset style="padding: 0px 10px">
-              <h2 class="fs-title">Punkte in Erreichbarkeit</h2>
-              <p class="fs-subtitle reachability-text-content">
-                Wählen Sie eine Punktedatenquelle aus und wählen Sie einen Zeitpunkt. Die
-                Anwendung lädt die Punkte für diesen Zeitpunkt und zeigt, welche davon innerhalb
-                der berechneten Erreichbarkeitsbereiche liegen.
-              </p>
-
-              <app-reachability-poi-in-iso></app-reachability-poi-in-iso>
-
-              <input
-                type="button"
-                name="previous"
-                class="previous action-button-previous"
-                value="Voriger Schritt"
-              />
-              <input
-                type="button"
-                name="next"
-                class="next action-button"
-                value="N&auml;chster Schritt"
-                (click)="onIndicatorStatisticsClick()"
-              />
-            </fieldset>
-
-            <fieldset style="padding: 0px 10px">
-              <h2 class="fs-title">Indikatoren-Statistik</h2>
-              <p class="fs-subtitle reachability-text-content">
-                Prüfen Sie, wie gut die Erreichbarkeitsbereiche mit Indikatoren-Statistiken
-                (z.&nbsp;B. Bevölkerung, Einrichtungen) überlappen. Je feiner die räumliche
-                Einteilung des Indikators ist, desto genauer werden die Ergebnisse.
-              </p>
-
-              <app-reachability-indicator-statistics></app-reachability-indicator-statistics>
-
-              <input
-                type="button"
-                name="previous"
-                class="previous action-button-previous"
-                value="Voriger Schritt"
-              />
-              <input
-                type="button"
-                name="next"
-                class="next action-button"
-                value="N&auml;chster Schritt"
-              />
-            </fieldset>
+            </div>
           </form>
         </div>
       </div>

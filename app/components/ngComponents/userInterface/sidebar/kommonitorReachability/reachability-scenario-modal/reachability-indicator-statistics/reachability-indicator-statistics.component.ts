@@ -123,6 +123,7 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
   }
 
   init() {
+
     this.mapParts = this.reachabilityMapHelperService.initReachabilityIndicatorStatisticsGeoMap(
       this.domId
     );

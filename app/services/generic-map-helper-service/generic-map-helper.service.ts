@@ -272,6 +272,13 @@ export class GenericMapHelperService {
     // clean any old map instance
     const domNode: any = document.getElementById(domId);
 
+    // should domNode not be existant  the rest of the code must be skipped and a warn message be sent to console
+    if(!domNode) {
+      console.warn(`No DOM element with id ${domId} found to initiate map!`)
+      return; 
+    }
+
+
     while (domNode.hasChildNodes()) {
       domNode.removeChild(domNode.lastChild);
     }

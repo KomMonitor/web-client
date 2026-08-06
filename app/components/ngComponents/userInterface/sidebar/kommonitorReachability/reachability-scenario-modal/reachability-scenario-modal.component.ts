@@ -6,7 +6,6 @@ import { CommonModule } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { ReachabilityStateService } from 'services/reachability-state-service/reachability-state.service';
@@ -34,7 +33,6 @@ import { ReachabilityIndicatorStatisticsComponent } from './reachability-indicat
 export class ReachabilityScenarioModalComponent implements OnInit {
   protected reachabilityStateService = inject(ReachabilityStateService);
   private envConfigService = inject(EnvConfigService);
-  private multiStepHelperService = inject(MultiStepHelperServiceService);
   private broadcastService = inject(BroadcastService);
   protected reachabilityScenarioHelperService = inject(ReachabilityScenarioHelperService);
   private cdr = inject(ChangeDetectorRef);
@@ -57,6 +55,19 @@ export class ReachabilityScenarioModalComponent implements OnInit {
   // multiple CSS columns for improved readability. Falls back to 600px.
   maxTextWidth: number = 800;
 
+  // Steps shown as vertical, clickable tiles on the left of the wizard. Each
+  // step's content is rendered in the fieldset at the same index on the right.
+  readonly steps: { label: string; icon: string }[] = [
+    { label: 'Name & Datenquelle', icon: 'fa-solid fa-file-signature' },
+    { label: 'Punkte bearbeiten', icon: 'fa-solid fa-location-dot' },
+    { label: 'Erreichbarkeit berechnen', icon: 'fa-solid fa-route' },
+    { label: 'Punkte in Erreichbarkeit', icon: 'fa-solid fa-map-location-dot' },
+    { label: 'Indikatoren-Statistik', icon: 'fa-solid fa-chart-column' },
+  ];
+
+  // Index of the step whose fieldset is currently visible on the right.
+  currentStepIndex = 0;
+
   ngOnInit(): void {
     const configured = this.envConfigService.reachabilityScenarioMaxTextWidth;
     if (configured) {
@@ -65,8 +76,6 @@ export class ReachabilityScenarioModalComponent implements OnInit {
         this.maxTextWidth = parsed;
       }
     }
-    this.multiStepHelperService.registerClickHandler('reachabilityScenarioForm');
-
     this.broadcastService.currentBroadcastMsg
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((broadcastMsg) => {
@@ -85,6 +94,36 @@ export class ReachabilityScenarioModalComponent implements OnInit {
             break;
         }
       });
+  }
+
+  /**
+   * Activates the step at `index` (both for a click on its nav tile and for the
+   * "next"/"previous" buttons inside a fieldset) and, when arriving at steps 2-5,
+   * fires the same reinit broadcast the old progressbar/next-button click handlers
+   * used to fire. Going to a previous step never re-triggers a reinit broadcast,
+   * matching the original wizard's behaviour.
+   */
+  goToStep(index: number, notify: boolean = true) {
+    this.currentStepIndex = index;
+
+    if (!notify) {
+      return;
+    }
+
+    switch (index) {
+      case 1:
+        this.onEditFeaturesClick();
+        break;
+      case 2:
+        this.onReachbilityConfigurationClick();
+        break;
+      case 3:
+        this.onPoisInReachabilityClick();
+        break;
+      case 4:
+        this.onIndicatorStatisticsClick();
+        break;
+    }
   }
 
   onEditFeaturesClick() {
@@ -145,7 +184,7 @@ export class ReachabilityScenarioModalComponent implements OnInit {
 
     // jump the wizard back to step 1, since its cleared working data no longer matches
     // whichever step the user was on
-    this.multiStepHelperService.resetToFirstStep('reachabilityScenarioForm');
+    this.currentStepIndex = 0;
   }
 
   onManageReachabilityScenario(scenarioDataset) {
