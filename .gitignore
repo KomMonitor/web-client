@@ -13,3 +13,5 @@ dist
 .angular
 
 .vscode/settings.json
+
+.claude/
