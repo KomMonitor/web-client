@@ -34,6 +34,9 @@ export class ReachbilityScenarioSetupComponent implements OnInit {
     // modal on an existing scenario, or after a quick-calc import) — otherwise
     // the map would stay empty until the user changes the selection.
     this.updateMapLayer();
+    // show the indicator currently selected on KomMonitor's main map as an additional
+    // context layer, same as on the "Punkte bearbeiten" step
+    this.reachabilityMapHelperService.replaceMainIndicatorContextLayer(this.domId);
 
     this.reachabilityStateService.reachabilityMapSubject$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -52,6 +55,9 @@ export class ReachbilityScenarioSetupComponent implements OnInit {
               // fixes leaflet's internal size cache after this step's fieldset was
               // hidden (display:none) while the user was on another step
               this.reachabilityMapHelperService.invalidateMap(this.domId);
+              // refresh the main-indicator context layer in case the user changed the
+              // selected indicator/date on the main map while on another step
+              this.reachabilityMapHelperService.replaceMainIndicatorContextLayer(this.domId);
             }
             break;
           case BroadcastMessage.ResetReachabilityScenarioSetup:
@@ -75,6 +81,7 @@ export class ReachbilityScenarioSetupComponent implements OnInit {
   /** Clears this step's own point layer, e.g. when the scenario modal is fully reset. */
   resetScenarioSetupMap() {
     this.reachabilityMapHelperService.removeStartPointLayer(this.domId);
+    this.reachabilityMapHelperService.removeMainIndicatorContextLayer(this.domId);
     this.reachabilityMapHelperService.invalidateMap(this.domId);
   }
 

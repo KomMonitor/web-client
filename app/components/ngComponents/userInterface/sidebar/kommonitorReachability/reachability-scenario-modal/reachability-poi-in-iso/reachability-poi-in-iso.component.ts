@@ -88,6 +88,9 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
           case BroadcastMessage.ReinitPoisInReachabilityMap:
             {
               this.reachabilityMapHelperService.invalidateMap(this.domId);
+              // refresh the main-indicator context layer in case the user changed the
+              // selected indicator/date on the main map while on another step
+              this.reachabilityMapHelperService.replaceMainIndicatorContextLayer(this.domId);
             }
             break;
         }
@@ -106,6 +109,9 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
 
   init() {
     this.mapParts = this.reachabilityMapHelperService.initReachabilityGeoMap(this.domId);
+    // show the indicator currently selected on KomMonitor's main map as an additional
+    // context layer, same as on the "Punkte bearbeiten" step
+    this.reachabilityMapHelperService.replaceMainIndicatorContextLayer(this.domId);
   }
 
   onNameFilterChange(name: any) {
@@ -163,6 +169,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
     // also clear this step's own isochrone/marker layer, e.g. when the scenario modal
     // is fully reset — otherwise it keeps showing the isochrones of the cleared session
     this.reachabilityMapHelperService.removeReachabilityLayers(this.domId);
+    this.reachabilityMapHelperService.removeMainIndicatorContextLayer(this.domId);
     this.reachabilityMapHelperService.invalidateMap(this.domId);
   }
 

@@ -65,6 +65,14 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
     // mapPartsMap for this.domId, and a scenario adopted from quick-calc already has
     // scenarioState=true, so reachabilityMapSubject$ fires synchronously on subscribe
     this.mapParts = this.reachabilityMapHelperService.initReachabilityGeoMap(this.domId);
+    // reflect whatever start point layer is already selected on the "Name &
+    // Datenquelle" step (e.g. re-opening the modal on an existing scenario, or simply
+    // navigating here after picking a data source) — otherwise this step's map would
+    // stay empty until the isochrones are actually calculated
+    this.updateStartPointLayer();
+    // show the indicator currently selected on KomMonitor's main map as an additional
+    // context layer, same as on the "Punkte bearbeiten" step
+    this.reachabilityMapHelperService.replaceMainIndicatorContextLayer(this.domId);
 
     // catch broadcast msgs
     this.broadcastService.currentBroadcastMsg
@@ -97,6 +105,12 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
           case BroadcastMessage.ReinitReachabilityConfiguration:
             {
               this.reachabilityMapHelperService.invalidateMap(this.domId);
+              // refresh the start point layer in case the user changed the selected
+              // data source/date on the "Name & Datenquelle" step while on another step
+              this.updateStartPointLayer();
+              // refresh the main-indicator context layer in case the user changed the
+              // selected indicator/date on the main map while on another step
+              this.reachabilityMapHelperService.replaceMainIndicatorContextLayer(this.domId);
             }
             break;
           case BroadcastMessage.ResetReachabilityScenarioConfiguration:
@@ -185,10 +199,22 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
     this.reachabilityStateService.settings.loadingData = false;
   }
 
+  /** Displays the currently selected start point layer's POI dataset on this step's own
+   * map, replacing whatever was shown for a previously selected data source/date —
+   * mirrors the map on the "Name & Datenquelle" step. */
+  updateStartPointLayer() {
+    this.reachabilityMapHelperService.replaceStartPointLayer(
+      this.domId,
+      this.reachabilityStateService.settings.selectedStartPointLayer
+    );
+  }
+
   /** Clears this step's own isochrone/marker layers, e.g. when the scenario modal is fully reset. */
   resetReachabilityConfigurationMap() {
     this.error = undefined;
     this.removeReachabilityLayers();
+    this.reachabilityMapHelperService.removeStartPointLayer(this.domId);
+    this.reachabilityMapHelperService.removeMainIndicatorContextLayer(this.domId);
     this.reachabilityMapHelperService.invalidateMap(this.domId);
   }
 
@@ -353,10 +379,11 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
   }
 
   isochronesCalculationFinished() {
-    this.reachabilityMapHelperService.replaceIsochroneMarker(
-      this.domId,
-      this.reachabilityStateService.settings.locationsArray
-    );
+    // do not show blue isochrone start point markers
+    // this.reachabilityMapHelperService.replaceIsochroneMarker(
+    //   this.domId,
+    //   this.reachabilityStateService.settings.locationsArray
+    // );
     this.reachabilityMapHelperService.replaceIsochroneGeoJSON(
       this.domId,
       this.reachabilityStateService.settings.selectedStartPointLayer.datasetName,

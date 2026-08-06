@@ -103,6 +103,10 @@ export class ReachabilityMapHelperService {
       poiLayer: undefined,
     };
 
+    // context layer showing the indicator currently selected on KomMonitor's main map,
+    // see replaceMainIndicatorContextLayer()
+    mapParts.mainIndicatorLayer = undefined;
+
     this.mapPartsMap.set(domId, mapParts);
     return mapParts;
   }
@@ -518,6 +522,128 @@ export class ReachabilityMapHelperService {
     }
   }
 
+  /**
+   * Adds the indicator currently selected on KomMonitor's main map (if any) as an
+   * additional, togglable context layer on this reachability step's own map — mirrors
+   * `SingleFeatureMapHelperService.addContextLayerToSingleFeatureGeoMap_indicator()`
+   * (used by the "Punkte bearbeiten" step), styled the same way via the shared
+   * classification/brew helpers, but registered through this map's layer control like
+   * the other reachability layers so it can be toggled independently.
+   *
+   * Replaces whatever main-indicator layer was already shown, e.g. after the main map's
+   * selected indicator/date changes, or on tab switch/reinit. If no indicator is
+   * currently selected on the main map (or its GeoJSON has not been loaded yet), this
+   * just clears any previously shown layer.
+   */
+  replaceMainIndicatorContextLayer(domId: string) {
+    const mapParts = this.mapPartsMap.get(domId);
+    if (!mapParts) {
+      return;
+    }
+
+    this.removeMainIndicatorContextLayer(domId);
+
+    const indicatorMetadata = this.selectionState.selectedIndicator;
+    const geoJSON = indicatorMetadata?.geoJSON;
+    if (!geoJSON) {
+      return;
+    }
+
+    const date = this.selectionState.selectedDate;
+    const propertyName = this.envConfigService.indicatorDatePrefix + date;
+
+    // Simplified styling setup based on kommonitor-map.component (same as the
+    // single-feature-edit step's context layer)
+    const defaultBrew = this.visualStyleHelperService.setupDefaultBrew(
+      geoJSON,
+      propertyName,
+      indicatorMetadata.defaultClassificationMapping?.numClasses || 5,
+      indicatorMetadata.defaultClassificationMapping?.colorBrewerSchemeName,
+      this.classificationState.classifyMethod
+    );
+
+    const containsNegativeValues = geoJSON.features.some(
+      (feature: any) => feature.properties[propertyName] < 0
+    );
+
+    let dynamicIncreaseBrew, dynamicDecreaseBrew;
+    if (containsNegativeValues) {
+      const dynamicBrewArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
+        geoJSON,
+        propertyName,
+        this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues,
+        this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues,
+        this.classificationState.classifyMethod,
+        this.classificationState.numClasses,
+        []
+      );
+      dynamicIncreaseBrew = dynamicBrewArray[0];
+      dynamicDecreaseBrew = dynamicBrewArray[1];
+    }
+
+    const indicatorLayer = L.geoJSON(geoJSON, {
+      style: (feature) =>
+        this.visualStyleHelperService.styleDefault(
+          feature,
+          defaultBrew,
+          dynamicIncreaseBrew,
+          dynamicDecreaseBrew,
+          propertyName,
+          this.envConfigService.useTransparencyOnIndicator,
+          containsNegativeValues,
+          false
+        ),
+      onEachFeature: (feature, layer) =>
+        this.onEachFeatureIndicator(feature, layer, propertyName, undefined),
+    });
+
+    mapParts.mainIndicatorLayer = indicatorLayer;
+    mapParts.layerControl.addOverlay(
+      indicatorLayer,
+      `${indicatorMetadata.indicatorName} [${indicatorMetadata.unit}]`
+    );
+    indicatorLayer.addTo(mapParts.map);
+
+    // the indicator layer we just (re-)added may have landed on top of isochrones that
+    // were already calculated and shown on this map (e.g. on a tab-switch reinit) —
+    // raise the isochrone layer back above it so isochrones stay visible
+    this.bringIsochroneLayerToFront(domId);
+
+    this.mapPartsMap.set(domId, mapParts);
+  }
+
+  removeMainIndicatorContextLayer(domId: string) {
+    const mapParts = this.mapPartsMap.get(domId);
+    if (mapParts && mapParts.mainIndicatorLayer) {
+      this.genericMapHelperService.removeLayerFromLayerControl(
+        mapParts.layerControl,
+        mapParts.mainIndicatorLayer
+      );
+      this.genericMapHelperService.removeLayerFromMap(mapParts.map, mapParts.mainIndicatorLayer);
+      mapParts.mainIndicatorLayer = undefined;
+    }
+  }
+
+  /**
+   * Re-adds this map's isochrone layer (if it currently exists and is shown), so it
+   * renders above any overlay added afterwards. Leaflet stacks overlays within a pane
+   * in the order they were added to the map, so simply removing and re-adding an
+   * already-present layer raises it to the top — no-op if there is no isochrone layer
+   * for this map, or it isn't currently shown on the map.
+   *
+   * Used to keep the reachability isochrone layer visually on top of the main-indicator
+   * context layer (and the indicator-statistics layer) in every step of the scenario
+   * modal, since those can be (re-)added later than the isochrones, e.g. on tab switch.
+   */
+  bringIsochroneLayerToFront(domId: string) {
+    const mapParts = this.mapPartsMap.get(domId);
+    const isochroneLayer = mapParts?.isochroneLayers?.isochroneLayer;
+    if (isochroneLayer && mapParts.map.hasLayer(isochroneLayer)) {
+      mapParts.map.removeLayer(isochroneLayer);
+      isochroneLayer.addTo(mapParts.map);
+    }
+  }
+
   generatePoiMarkers(
     georesourceMetadataAndGeoJSON: any,
     useCluster: boolean,
@@ -839,15 +965,8 @@ export class ReachabilityMapHelperService {
     );
     indicatorLayer.addTo(mapParts.map);
 
-    if (
-      mapParts &&
-      mapParts.isochroneLayers &&
-      mapParts.isochroneLayers.isochroneLayer &&
-      mapParts.layerControl
-    ) {
-      mapParts.map.removeLayer(mapParts.isochroneLayers.isochroneLayer);
-      mapParts.isochroneLayers.isochroneLayer.addTo(mapParts.map);
-    }
+    // keep the isochrone layer on top of the poi/indicator layers we just (re-)added
+    this.bringIsochroneLayerToFront(domId);
 
     this.invalidateMap(domId);
     this.mapPartsMap.set(domId, mapParts);
