@@ -136,7 +136,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			showPageNumber: true,
 			// max number of spatial units bundled into a single linechart_overview/boxplot_overview chart before
 			// selectedAreas gets split into several consecutive chart pages (keeps legends/labels readable)
-			maxAreasPerOverviewChart: 6,
+			maxAreasPerOverviewChart: 5,
 			sections: {
 				showOverviewSection_unclassified: true,
 				showOverviewSection_classified: true,
