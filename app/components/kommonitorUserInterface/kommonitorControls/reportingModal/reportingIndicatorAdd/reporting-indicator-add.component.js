@@ -1348,6 +1348,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 				}
 			}
+			// built as a per-feature union of date properties, so the insertion order can end up
+			// chronologically wrong (e.g. spatial units with gaps in their date coverage) - always
+			// sort here once, so every caller reliably gets a chronologically ordered result
+			validTimestamps.sort();
 			return validTimestamps;
 		}
 
@@ -1880,7 +1884,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// select most recent timestamp that is valid for the largest spatial unit
 				let dates = $scope.selectedIndicator.applicableDates;
 				let timestampsForSelectedSpatialUnit = getValidTimestampsForSpatialUnit( $scope.selectedSpatialUnit);
-				timestampsForSelectedSpatialUnit.sort();
 				
 				let availableTimestamps = dates
 					.filter( name => { // filter dates to only show the ones valid for selected spatial unit 
