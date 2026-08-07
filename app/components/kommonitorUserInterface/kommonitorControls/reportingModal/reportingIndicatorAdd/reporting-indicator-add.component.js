@@ -55,51 +55,61 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES = 3;
 		$scope.MAX_PREVIEW_DATATABLE_PAGES = 3;
 
+		// fixed palette for spatial-unit lines drawn on the linechart_overview/boxplot_overview group charts,
+		// indexed by the spatial unit's position within its group - this is what keeps a given spatial unit's
+		// line color identical between the timeseries chart and the boxplot chart of the same group.
+		$scope.OVERVIEW_CHART_LINE_COLORS = ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4', '#ea7ccc'];
+		$scope.getOverviewChartLineColor = function(areaIndexWithinGroup) {
+			return $scope.OVERVIEW_CHART_LINE_COLORS[areaIndexWithinGroup % $scope.OVERVIEW_CHART_LINE_COLORS.length];
+		};
+
+		// page types that can be split into several consecutive pages (area_specific/datatable pre-existing,
+		// linechart_overview/boxplot_overview added for the spatial-unit-group charts) and therefore need the
+		// same "only render the first few live, rest in background" preview throttling.
+		$scope.PAGINATED_PAGE_TYPES = ['area_specific', 'datatable', 'linechart_overview', 'boxplot_overview'];
+
 		$scope.isPageInPreview = function(page, index) {
-			if(page.type !== 'area_specific' && page.type !== 'datatable') {
+			if(!$scope.PAGINATED_PAGE_TYPES.includes(page.type)) {
 				return true;
 			}
-			
-			if (page.type === 'area_specific') {
-				// find index of this page among area_specific pages
-				let areaSpecificPages = $scope.template.pages.filter(p => p.type === 'area_specific');
-				let areaIdx = areaSpecificPages.indexOf(page);
-				return areaIdx < $scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES;
-			}
-			
+
+			// find index of this page among pages of the same type
+			let samePages = $scope.template.pages.filter(p => p.type === page.type);
+			let idx = samePages.indexOf(page);
+
 			if (page.type === 'datatable') {
-				// find index of this page among datatable pages
-				let datatablePages = $scope.template.pages.filter(p => p.type === 'datatable');
-				let datatableIdx = datatablePages.indexOf(page);
-				return datatableIdx < $scope.MAX_PREVIEW_DATATABLE_PAGES;
+				return idx < $scope.MAX_PREVIEW_DATATABLE_PAGES;
 			}
+			// area_specific, linechart_overview, boxplot_overview
+			return idx < $scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES;
 		};
 
 		$scope.isLastPreviewPage = function(page, index) {
-			if (page.type === 'area_specific') {
-				let areaSpecificPages = $scope.template.pages.filter(p => p.type === 'area_specific');
-				let areaIdx = areaSpecificPages.indexOf(page);
-				return areaIdx === ($scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES - 1);
+			if(!$scope.PAGINATED_PAGE_TYPES.includes(page.type)) {
+				return false;
 			}
+
+			let samePages = $scope.template.pages.filter(p => p.type === page.type);
+			let idx = samePages.indexOf(page);
+
 			if (page.type === 'datatable') {
-				let datatablePages = $scope.template.pages.filter(p => p.type === 'datatable');
-				let datatableIdx = datatablePages.indexOf(page);
-				return datatableIdx === ($scope.MAX_PREVIEW_DATATABLE_PAGES - 1);
+				return idx === ($scope.MAX_PREVIEW_DATATABLE_PAGES - 1);
 			}
-			return false;
+			return idx === ($scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES - 1);
 		};
 
 		$scope.countBackgroundPages = function(page) {
 			if (!$scope.template || !page) return 0;
-			if (page.type === 'area_specific') {
-				let areaSpecificPages = $scope.template.pages.filter(p => p.type === 'area_specific');
-				return Math.max(0, areaSpecificPages.length - $scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES);
+			if(!$scope.PAGINATED_PAGE_TYPES.includes(page.type)) {
+				return 0;
 			}
+
+			let samePages = $scope.template.pages.filter(p => p.type === page.type);
+
 			if (page.type === 'datatable') {
-				let datatablePages = $scope.template.pages.filter(p => p.type === 'datatable');
-				return Math.max(0, datatablePages.length - $scope.MAX_PREVIEW_DATATABLE_PAGES);
+				return Math.max(0, samePages.length - $scope.MAX_PREVIEW_DATATABLE_PAGES);
 			}
-			return 0;
+			return Math.max(0, samePages.length - $scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES);
 		};
 
 		$scope.isochronesTypeOfMovementMapping = {
@@ -124,6 +134,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			showLogo: true,
 			showFooterCreationInfo: true,
 			showPageNumber: true,
+			// max number of spatial units bundled into a single linechart_overview/boxplot_overview chart before
+			// selectedAreas gets split into several consecutive chart pages (keeps legends/labels readable)
+			maxAreasPerOverviewChart: 6,
 			sections: {
 				showOverviewSection_unclassified: true,
 				showOverviewSection_classified: true,
@@ -232,6 +245,15 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$timeout(function(){
 				$scope.loadingData = false; 
 			}) 
+		}
+
+		$scope.onChangeMaxAreasPerOverviewChart = function(){
+			if(!$scope.pageConfig.maxAreasPerOverviewChart || $scope.pageConfig.maxAreasPerOverviewChart < 1) {
+				$scope.pageConfig.maxAreasPerOverviewChart = 1;
+			}
+			$scope.updateOverviewChartGroupsForTimeseriesTemplates($scope.selectedAreas);
+			$scope.preparationNeeded = true; // regenerated pages are placeholders again until re-prepared
+			$scope.onChangePageConfig();
 		}
 
 		$scope.onChangeShowPageSection = function(){
@@ -349,8 +371,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			if($scope.template.name.includes("timestamp"))
 				$scope.updateAreasForTimestampTemplates(newVal)
-			if($scope.template.name.includes("timeseries"))
+			if($scope.template.name.includes("timeseries")) {
+				// must run first: it recalculates indexOfFirstAreaSpecificPage, which updateAreasForTimeseriesTemplates relies on
+				$scope.updateOverviewChartGroupsForTimeseriesTemplates(newVal)
 				$scope.updateAreasForTimeseriesTemplates(newVal)
+			}
 			if($scope.template.name.includes("reachability"))
 				$scope.updateAreasForReachabilityTemplates(newVal)
 
@@ -514,6 +539,80 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			for(let page of pagesToInsert)
 				page.id = $scope.templatePageIdCounter++;
 			$scope.template.pages.splice($scope.indexOfFirstAreaSpecificPage, 0, ...pagesToInsert)
+		}
+
+		// splits selectedAreas into groups of at most pageConfig.maxAreasPerOverviewChart spatial units and
+		// re-creates the linechart_overview/boxplot_overview pages accordingly (one pair of pages per group),
+		// so that each resulting chart keeps a readable legend/label for the spatial units it contains.
+		// always rebuilt from scratch from the untouched template, mirroring updateAreasForTimeseriesTemplates.
+		$scope.updateOverviewChartGroupsForTimeseriesTemplates = function(newVal) {
+			let untouchedTemplate = angular.fromJson($scope.untouchedTemplateAsString);
+			let linechartPrototype = untouchedTemplate.pages.find(p => p.type === 'linechart_overview');
+			let boxplotPrototype = untouchedTemplate.pages.find(p => p.type === 'boxplot_overview');
+
+			if(!linechartPrototype && !boxplotPrototype) return;
+
+			// remember where the overview pages currently sit, then remove all of them - they get rebuilt from the prototype
+			let insertionIndex = $scope.template.pages.findIndex(p => p.type === 'linechart_overview' || p.type === 'boxplot_overview');
+			if(insertionIndex === -1) insertionIndex = $scope.indexOfFirstAreaSpecificPage;
+
+			$scope.template.pages = $scope.template.pages.filter( page => {
+				return page.type !== 'linechart_overview' && page.type !== 'boxplot_overview';
+			});
+
+			let areaNames = (newVal || []).map( el => el.name );
+			let groupSize = $scope.pageConfig.maxAreasPerOverviewChart;
+			if(!groupSize || groupSize < 1) groupSize = 6;
+
+			let groups = [];
+			for(let i = 0; i < areaNames.length; i += groupSize) {
+				groups.push(areaNames.slice(i, i + groupSize));
+			}
+			// keep a single (empty) placeholder group so the overview charts stay visible before any area is selected
+			if(groups.length === 0) groups.push([]);
+
+			let setupClonedOverviewPage = function(prototype, areaGroup, groupIndex, groupCount) {
+				let page = angular.copy(prototype);
+				page.areaGroup = areaGroup;
+				page.overviewGroupIndex = groupIndex;
+				page.overviewGroupCount = groupCount;
+				page.id = $scope.templatePageIdCounter++;
+
+				let titleEl = page.pageElements.find( el => el.type.includes("indicatorTitle-"));
+				if(titleEl && $scope.selectedIndicator) {
+					titleEl.text = $scope.selectedIndicator.indicatorName + " [" + $scope.selectedIndicator.unit + "]";
+					if(groupCount > 1) titleEl.text += " – Gruppe " + (groupIndex + 1) + "/" + groupCount;
+					titleEl.isPlaceholder = false;
+				}
+
+				let dateEl = page.pageElements.find( el => el.type.includes("dataTimeseries-"));
+				if(dateEl) {
+					let includeInBetweenValues = false;
+					let dsValues = $scope.getFormattedDateSliderValues(includeInBetweenValues);
+					dateEl.text = dsValues.from + " - " + dsValues.to;
+					dateEl.isPlaceholder = false;
+				}
+
+				return page;
+			};
+
+			let newOverviewPages = [];
+			// keep the original relative order: all linechart groups first, then all boxplot groups
+			if(linechartPrototype) {
+				groups.forEach( (areaGroup, groupIndex) => {
+					newOverviewPages.push(setupClonedOverviewPage(linechartPrototype, areaGroup, groupIndex, groups.length));
+				});
+			}
+			if(boxplotPrototype) {
+				groups.forEach( (areaGroup, groupIndex) => {
+					newOverviewPages.push(setupClonedOverviewPage(boxplotPrototype, areaGroup, groupIndex, groups.length));
+				});
+			}
+
+			$scope.template.pages.splice(insertionIndex, 0, ...newOverviewPages);
+
+			// area-specific pages are always inserted right after the (now variable-length) overview section
+			$scope.indexOfFirstAreaSpecificPage = insertionIndex + newOverviewPages.length;
 		}
 
 		$scope.updateAreasForReachabilityTemplates = function(newVal) {
@@ -2913,11 +3012,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			
 			
 			if(pageElement.showAreas) {
-				
+
 				let areaNames = [];
 				// in area specific part only add one line
 				if(page.area && page.area.length) {
 					areaNames.push(page.area);
+				} else if(page.areaGroup) {
+					// linechart_overview page representing one (possibly split) group of the selected areas
+					areaNames = page.areaGroup;
 				} else {
 					// else add one line for each selected area
 					areaNames = $scope.selectedAreas.map( el => {
@@ -2925,17 +3027,17 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					});
 				}
 
-				for(let areaName of areaNames) {
+				for(let [areaIdx, areaName] of areaNames.entries()) {
 					let data = [];
 					let filtered = $scope.selectedIndicator.geoJSON.features.filter( feature => {
 						return feature.properties.NAME === areaName;
 					});
-				
+
 					for(let timestamp of timeline) {
 						let value = filtered[0].properties[__env.indicatorDatePrefix + timestamp];
 						data.push(value)
 					}
-				
+
 					let series = {};
 					series.name = areaName;
 					series.type = "line";
@@ -2951,8 +3053,25 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							borderWidth: 3
 						}
 					}
-				
+
+					if(page.type === 'linechart_overview') {
+						// fixed, index-based color so this spatial unit's line matches its color on the
+						// boxplot_overview chart of the same group (see showBoxplots branch below)
+						let color = $scope.getOverviewChartLineColor(areaIdx);
+						series.lineStyle.normal.color = color;
+						series.itemStyle.normal.color = color;
+					}
+
 					options.series.push(series)
+				}
+
+				if(page.type === 'linechart_overview') {
+					// give each spatial unit a legend entry so the exported screenshot stays readable on its own
+					options.legend.show = true;
+					options.legend.data = options.series.map( series => series.name );
+					options.legend.textStyle = { fontSize: 9 };
+					options.legend.itemGap = 6;
+					options.grid.bottom = 45; // leave room for the legend below the plot area
 				}
 			}
 
@@ -2968,9 +3087,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			if(pageElement.showBoxplots) {
 				// we assume that boxplots are only shown when showAreas is false (might change in the future).
-				// so we have to get the data of all areas first
-				let areaNames = [];
-				areaNames = $scope.selectedAreas.map( el => {
+				// the boxplot itself always aggregates ALL selected spatial units per timestamp - it must stay
+				// identical across every group page. only the overlaid per-unit lines below are group-specific.
+				let allAreaNames = $scope.selectedAreas.map( el => {
 					return el.name;
 				});
 
@@ -2978,9 +3097,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				let datasetSource = [];
 				for(let timestamp of timeline) {
 					let valuesForTimestamp = [];
-					// filter features to selected areas
+					// filter features to ALL selected areas, not just this page's group
 					let selectedAreasFeatures = $scope.selectedIndicator.geoJSON.features.filter( feature => {
-						return areaNames.includes( feature.properties.NAME );
+						return allAreaNames.includes( feature.properties.NAME );
 					});
 					// get values for each feature
 					for(let feature of selectedAreasFeatures) {
@@ -2990,7 +3109,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 					datasetSource.push(valuesForTimestamp)
 				}
-				
+
 				let xAxisLabels = options.xAxis.data;
 				options.dataset = [
 					{
@@ -2999,7 +3118,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					{
 						transform: {
 							type: 'boxplot',
-							config: { 
+							config: {
 								// params is 0, 1, 2, ...
 								// we can use this as an index to get the actual label and return it
 								itemNameFormatter: function (params) {
@@ -3016,10 +3135,64 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 				// add a new series that references the boxplots
 				options.series.push({
-					name: 'boxplot',
+					name: 'Boxplot',
 					type: 'boxplot',
 					datasetIndex: 1 // overlap boxplots and avg. line
 				})
+
+				// overlay one line per spatial unit of THIS page's group, same as the showAreas branch above,
+				// so the (always identical) boxplot backdrop can be related to the group's own spatial units
+				let groupAreaNames = page.areaGroup ? page.areaGroup : allAreaNames;
+				for(let [areaIdx, areaName] of groupAreaNames.entries()) {
+					let data = [];
+					let filtered = $scope.selectedIndicator.geoJSON.features.filter( feature => {
+						return feature.properties.NAME === areaName;
+					});
+
+					for(let timestamp of timeline) {
+						let value = filtered[0].properties[__env.indicatorDatePrefix + timestamp];
+						data.push(value)
+					}
+
+					let series = {};
+					series.name = areaName;
+					series.type = "line";
+					series.data = data;
+					series.lineStyle = {
+						normal: {
+							width: 2,
+							type: "solid"
+						}
+					}
+					series.itemStyle = {
+						normal: {
+							borderWidth: 3
+						}
+					}
+
+					if(page.type === 'boxplot_overview') {
+						// same index-based color as the matching linechart_overview page of this group
+						let color = $scope.getOverviewChartLineColor(areaIdx);
+						series.lineStyle.normal.color = color;
+						series.itemStyle.normal.color = color;
+					}
+
+					options.series.push(series)
+				}
+
+				if(page.type === 'boxplot_overview') {
+					// legend now covers the average line, the group's spatial-unit lines and the boxplot series
+					options.legend.show = true;
+					options.legend.data = options.series.map( series => series.name );
+					options.legend.textStyle = { fontSize: 9 };
+					options.legend.itemGap = 6;
+					options.grid.bottom = 45; // leave room for the legend below the plot area
+				}
+			}
+
+			if(page.overviewGroupCount && page.overviewGroupCount > 1) {
+				// clarify which subset of spatial units this particular chart page covers
+				options.title.text += " (Gruppe " + (page.overviewGroupIndex + 1) + "/" + page.overviewGroupCount + ")";
 			}
 
 			lineChart.setOption(options, {

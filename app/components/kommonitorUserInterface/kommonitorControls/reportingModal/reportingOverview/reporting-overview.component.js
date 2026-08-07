@@ -54,51 +54,53 @@ angular.module('reportingOverview').component('reportingOverview', {
 			return templateSection.indicatorId ? (templateSection.indicatorId + "_" + templateSection.spatialUnitName) : (templateSection.poiLayerName + "_" + templateSection.spatialUnitName);
 		};
 
+		// page types that can be split into several consecutive pages (area_specific/datatable pre-existing,
+		// linechart_overview/boxplot_overview added for the spatial-unit-group charts) and therefore need the
+		// same "only render the first few live, rest in background" preview throttling.
+		$scope.PAGINATED_PAGE_TYPES = ['area_specific', 'datatable', 'linechart_overview', 'boxplot_overview'];
+
 		$scope.isPageInPreview = function(page, index) {
-			if(page.type !== 'area_specific' && page.type !== 'datatable') {
+			if(!$scope.PAGINATED_PAGE_TYPES.includes(page.type)) {
 				return true;
 			}
 
-			if (page.type === 'area_specific') {
-				// find index of this page among area_specific pages
-				let areaSpecificPages = $scope.config.pages.filter(p => p.type === 'area_specific');
-				let areaIdx = areaSpecificPages.indexOf(page);
-				return areaIdx < $scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES;
-			}
+			// find index of this page among pages of the same type
+			let samePages = $scope.config.pages.filter(p => p.type === page.type);
+			let idx = samePages.indexOf(page);
 
 			if (page.type === 'datatable') {
-				// find index of this page among datatable pages
-				let datatablePages = $scope.config.pages.filter(p => p.type === 'datatable');
-				let datatableIdx = datatablePages.indexOf(page);
-				return datatableIdx < $scope.MAX_PREVIEW_DATATABLE_PAGES;
+				return idx < $scope.MAX_PREVIEW_DATATABLE_PAGES;
 			}
+			// area_specific, linechart_overview, boxplot_overview
+			return idx < $scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES;
 		};
 
 		$scope.isLastPreviewPage = function(page, index) {
-			if (page.type === 'area_specific') {
-				let areaSpecificPages = $scope.config.pages.filter(p => p.type === 'area_specific');
-				let areaIdx = areaSpecificPages.indexOf(page);
-				return areaIdx === ($scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES - 1);
+			if(!$scope.PAGINATED_PAGE_TYPES.includes(page.type)) {
+				return false;
 			}
+
+			let samePages = $scope.config.pages.filter(p => p.type === page.type);
+			let idx = samePages.indexOf(page);
+
 			if (page.type === 'datatable') {
-				let datatablePages = $scope.config.pages.filter(p => p.type === 'datatable');
-				let datatableIdx = datatablePages.indexOf(page);
-				return datatableIdx === ($scope.MAX_PREVIEW_DATATABLE_PAGES - 1);
+				return idx === ($scope.MAX_PREVIEW_DATATABLE_PAGES - 1);
 			}
-			return false;
+			return idx === ($scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES - 1);
 		};
 
 		$scope.countBackgroundPages = function(page) {
 			if (!$scope.config || !page) return 0;
-			if (page.type === 'area_specific') {
-				let areaSpecificPages = $scope.config.pages.filter(p => p.type === 'area_specific');
-				return Math.max(0, areaSpecificPages.length - $scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES);
+			if(!$scope.PAGINATED_PAGE_TYPES.includes(page.type)) {
+				return 0;
 			}
+
+			let samePages = $scope.config.pages.filter(p => p.type === page.type);
+
 			if (page.type === 'datatable') {
-				let datatablePages = $scope.config.pages.filter(p => p.type === 'datatable');
-				return Math.max(0, datatablePages.length - $scope.MAX_PREVIEW_DATATABLE_PAGES);
+				return Math.max(0, samePages.length - $scope.MAX_PREVIEW_DATATABLE_PAGES);
 			}
-			return 0;
+			return Math.max(0, samePages.length - $scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES);
 		};
 
     $scope.customFontFamily = undefined;
