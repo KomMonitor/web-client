@@ -2959,7 +2959,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// no need to get a timestamp here
 
 			let lineChart = echarts.init( wrapper );
-			let timeline = $scope.getFormattedDateSliderValues(true).dates;
 			// get standard options, create a copy of the options to not change anything in the service
 			let options = JSON.parse(JSON.stringify( $scope.echartsOptions.line ));
 
@@ -2984,7 +2983,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// future dates (compared to max slider value) were already filtered in prepareDiagrams
 			// we have to remove dates older than min slider value here
 			// we also have to filter xAxis labels accordingly
-			let timeseries = $scope.getFormattedDateSliderValues(true);
+			// (only .from is needed here, so skip computing the in-between dates list)
+			let timeseries = $scope.getFormattedDateSliderValues(false);
 			let oldestSelectedTimestamp = timeseries.from;
 			let timestampsToRemoveCounter = 0;
 			// use the axis labels to find out how many data points have to be removed later
@@ -3033,7 +3033,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						return feature.properties.NAME === areaName;
 					});
 
-					for(let timestamp of timeline) {
+					// iterate options.xAxis.data itself (not a separately-derived date list) so each value
+					// lines up with the exact same date at the exact same index as the rendered x-axis label
+					for(let timestamp of options.xAxis.data) {
 						let value = filtered[0].properties[__env.indicatorDatePrefix + timestamp];
 						data.push(value)
 					}
@@ -3094,8 +3096,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				});
 
 				// create a nested array with each inner array containing all area-values for one timestamp
+				// iterate options.xAxis.data itself (not a separately-derived date list) so datasetSource[i]
+				// always corresponds to options.xAxis.data[i] - itemNameFormatter below relies on that
 				let datasetSource = [];
-				for(let timestamp of timeline) {
+				for(let timestamp of options.xAxis.data) {
 					let valuesForTimestamp = [];
 					// filter features to ALL selected areas, not just this page's group
 					let selectedAreasFeatures = $scope.selectedIndicator.geoJSON.features.filter( feature => {
@@ -3149,7 +3153,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						return feature.properties.NAME === areaName;
 					});
 
-					for(let timestamp of timeline) {
+					// same reasoning as the showAreas branch above: use options.xAxis.data itself, not a
+					// separately-derived date list, so each value lines up with the correct date/box
+					for(let timestamp of options.xAxis.data) {
 						let value = filtered[0].properties[__env.indicatorDatePrefix + timestamp];
 						data.push(value)
 					}
