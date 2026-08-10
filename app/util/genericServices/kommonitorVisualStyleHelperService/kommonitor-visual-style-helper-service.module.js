@@ -461,13 +461,13 @@ angular
           colorBrewerInstance.colors.shift(); // remove first element of array
         }
         else {
-          // no positive values
-          // colorBrewerInstance = undefined;
-          colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['3'];
+          // no values at all for this side (e.g. no negative values when classifying decreases,
+          // or no positive values when classifying increases) - keep colors and breaks both empty,
+          // matching the length invariant of every other branch above, so that consumers such as
+          // setupVisualMap's "for (j = 0; j < colors.length; j++)" loops correctly emit zero pieces
+          // instead of one bounds-less "phantom" piece that renders as an unlimited legend range.
+          colorBrewerInstance.colors = [];
           colorBrewerInstance.breaks = [];
-
-          colorBrewerInstance.colors.shift(); // remove first element of array
-          colorBrewerInstance.colors.shift(); // remove first element of array
         }
 
         // round values 

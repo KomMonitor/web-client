@@ -261,6 +261,16 @@
                                                     <span class="switchslider round"></span>
                                                 </label>
                                                 Boxplot-Diagramm - &Uuml;bersicht
+
+                                                <br/>
+
+                                                <label title="Maximale Anzahl an Raumeinheiten, die in einem Zeitreihen-/Boxplot-&Uuml;bersichtsdiagramm zusammengefasst werden. Werden mehr Raumeinheiten ausgew&auml;hlt, werden mehrere aufeinanderfolgende Diagrammseiten erzeugt.">
+                                                    Max. Raumeinheiten pro &Uuml;bersichtsdiagramm
+                                                    <input type="number" min="1" step="1"
+                                                        style="width: 60px;"
+                                                        ng-model="pageConfig.maxAreasPerOverviewChart"
+                                                        ng-change="onChangeMaxAreasPerOverviewChart()">
+                                                </label>
                                             </div>
 
                                             <div ng-show="template.name.includes('-reachability')">
