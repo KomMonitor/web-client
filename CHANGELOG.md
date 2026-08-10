@@ -5,12 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [5.1.5]
-> 10 Aug 2026
-
-### Added
-
-- Add version info for next hotfix version ([5749e88](https://github.com/KomMonitor/web-client/commit/5749e881d1a87755840c169c0a6f4841b8af8d83))
 
 ## [5.1.5]
 > 10 Aug 2026
@@ -19,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add config for git cliff and regenerate changelog ([e0b3c59](https://github.com/KomMonitor/web-client/commit/e0b3c59f17490df5490dd16300bba04c17edbf46))
 - Add cliff to release hook ([04c76fe](https://github.com/KomMonitor/web-client/commit/04c76fed8b2ddb9adb519b5de9954469c65c2282))
+- Add version info for next hotfix version ([5749e88](https://github.com/KomMonitor/web-client/commit/5749e881d1a87755840c169c0a6f4841b8af8d83))
 
 ### Changed
 
@@ -4387,7 +4382,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Raise some dependency version by using npm audit fix ([3b55651](https://github.com/KomMonitor/web-client/commit/3b55651bed28779b895f508f22a742ea2af60b01))
 - Raise some dependency versions by using npm audit fix ([ca220e8](https://github.com/KomMonitor/web-client/commit/ca220e88a9ba951eb4edbfca487d1e0ca192c394))
 
-[5.1.5]: https://github.com/KomMonitor/web-client/compare/5.1.5..5.1.5
 [5.1.5]: https://github.com/KomMonitor/web-client/compare/5.1.4..5.1.5
 [5.1.4]: https://github.com/KomMonitor/web-client/compare/5.1.3..5.1.4
 [5.1.3]: https://github.com/KomMonitor/web-client/compare/5.1.2..5.1.3
