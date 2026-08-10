@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.1.5]
+> 10 Aug 2026
+
+### Added
+
+- Add version info for next hotfix version ([5749e88](https://github.com/KomMonitor/web-client/commit/5749e881d1a87755840c169c0a6f4841b8af8d83))
+
+## [5.1.5]
+> 10 Aug 2026
+
+### Added
+
+- Add config for git cliff and regenerate changelog ([e0b3c59](https://github.com/KomMonitor/web-client/commit/e0b3c59f17490df5490dd16300bba04c17edbf46))
+- Add cliff to release hook ([04c76fe](https://github.com/KomMonitor/web-client/commit/04c76fed8b2ddb9adb519b5de9954469c65c2282))
+
+### Changed
+
+- Enhance boxplot and timeseries overview charts within timeseries reports ([f785c13](https://github.com/KomMonitor/web-client/commit/f785c13f4e29437af56d6497cf769b1a189b8681))
+- Set maxAreasPerOverviewChart to 5 as default for reporting timeseries and boxplot diagams ([4e934a2](https://github.com/KomMonitor/web-client/commit/4e934a26b07442c1ef904519d8cbf3fec97dd13c))
+
+### Fixed
+
+- Fix git cliff command ([624ca58](https://github.com/KomMonitor/web-client/commit/624ca587219e199ca3bd038263dcb67202e71025))
+- Fix an unlimited choropleth legend entry if no negative values are present ([7c40dc9](https://github.com/KomMonitor/web-client/commit/7c40dc906e2d5817d5525d8d0adad8b86e6d62be))
+- Fix inconsistent timeseries reporting charts (might happened if dates were integrated unsorted) ([8fd8a49](https://github.com/KomMonitor/web-client/commit/8fd8a49f7baa60e3f2c8019c50eb9ee25ad8941d))
+- Fix root cause of reporting unsorted timeseries problems (false values for false dates) ([4c45f63](https://github.com/KomMonitor/web-client/commit/4c45f639e0c6c17aad450d96048642e9e4cd56ca))
+
 ## [5.1.4]
 > 17 Jul 2026
 
@@ -4360,6 +4387,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Raise some dependency version by using npm audit fix ([3b55651](https://github.com/KomMonitor/web-client/commit/3b55651bed28779b895f508f22a742ea2af60b01))
 - Raise some dependency versions by using npm audit fix ([ca220e8](https://github.com/KomMonitor/web-client/commit/ca220e88a9ba951eb4edbfca487d1e0ca192c394))
 
+[5.1.5]: https://github.com/KomMonitor/web-client/compare/5.1.5..5.1.5
+[5.1.5]: https://github.com/KomMonitor/web-client/compare/5.1.4..5.1.5
 [5.1.4]: https://github.com/KomMonitor/web-client/compare/5.1.3..5.1.4
 [5.1.3]: https://github.com/KomMonitor/web-client/compare/5.1.2..5.1.3
 [5.1.2]: https://github.com/KomMonitor/web-client/compare/5.1.1..5.1.2
