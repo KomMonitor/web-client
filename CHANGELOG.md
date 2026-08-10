@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.4.5]
+> 10 Aug 2026
+
+### Added
+
+- Add config for git cliff ([14838ef](https://github.com/KomMonitor/web-client/commit/14838ef2c90ab6799cd84ed5eca4a4f70542c046))
+- Add version info ([ac2e247](https://github.com/KomMonitor/web-client/commit/ac2e2471ac53e8ac39ae4240ac044124e50e1a32))
+
+### Changed
+
+- Downport timeseries chart in reports fix ([7772234](https://github.com/KomMonitor/web-client/commit/777223464a5d8942fa9ff145341dd09b811b7fc4))
+
 ## [4.4.4]
 > 17 Jul 2026
 
@@ -4227,6 +4239,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Raise some dependency version by using npm audit fix ([3b55651](https://github.com/KomMonitor/web-client/commit/3b55651bed28779b895f508f22a742ea2af60b01))
 - Raise some dependency versions by using npm audit fix ([ca220e8](https://github.com/KomMonitor/web-client/commit/ca220e88a9ba951eb4edbfca487d1e0ca192c394))
 
+[4.4.5]: https://github.com/KomMonitor/web-client/compare/4.4.4..4.4.5
 [4.4.4]: https://github.com/KomMonitor/web-client/compare/4.4.3..4.4.4
 [4.4.3]: https://github.com/KomMonitor/web-client/compare/4.4.2..4.4.3
 [4.4.2]: https://github.com/KomMonitor/web-client/compare/4.4.1..4.4.2
