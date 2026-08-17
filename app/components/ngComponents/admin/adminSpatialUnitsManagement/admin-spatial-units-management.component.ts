@@ -78,147 +78,162 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
   // "show only editable datasets" table-view filter.
   private allSpatialUnits: SpatialUnitMetadata[] = [];
 
-  // AG Grid properties
-  public columnDefs: ColDef[] = [
-    {
-      headerName: 'Editierfunktionen',
-      pinned: 'left',
-      maxWidth: 170,
-      checkboxSelection: false,
-      headerCheckboxSelection: false,
-      headerCheckboxSelectionFilteredOnly: true,
-      filter: false,
-      sortable: false,
-      cellRenderer: (params: ICellRendererParams<SpatialUnitMetadata>) =>
-        this.displayEditButtons_spatialUnits(params),
-      onCellClicked: (event: CellClickedEvent<SpatialUnitMetadata>) =>
-        this.onEditButtonsCellClicked(event),
-    },
-    { headerName: 'Id', field: 'spatialUnitId', pinned: 'left', maxWidth: 125 },
-    {
-      headerName: 'Name',
-      field: 'spatialUnitLevel',
-      pinned: 'left',
-      minWidth: 300,
-    },
-    {
-      headerName: 'Beschreibung',
-      minWidth: 400,
-      cellRenderer: (params: ICellRendererParams) => params.data.metadata.description,
-      filter: 'agTextColumnFilter',
-      filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-        '' + params.data!.metadata.description,
-    },
-    {
-      headerName: 'Nächst niedrigere Raumebene',
-      field: 'nextLowerHierarchyLevel',
-      minWidth: 250,
-    },
-    {
-      headerName: 'Nächst höhere Raumebene',
-      field: 'nextUpperHierarchyLevel',
-      minWidth: 250,
-    },
-    {
-      headerName: 'Gültigkeitszeitraum',
-      minWidth: 400,
-      cellRenderer: (params: ICellRendererParams) => {
-        let html =
-          '<ul style="columns: 5; -webkit-columns: 5; -moz-columns: 5; word-break: break-word !important;">';
-        for (const periodOfValidity of params.data.availablePeriodsOfValidity) {
-          html += '<li style="margin-right: 15px;">';
-          if (periodOfValidity.endDate) {
-            html +=
-              '<p>' + periodOfValidity.startDate + ' &ndash; ' + periodOfValidity.endDate + '</p>';
-          } else {
-            html += '<p>' + periodOfValidity.startDate + ' &ndash; heute</p>';
+  // AG Grid properties. Built in ngOnInit rather than as a field initializer:
+  // the headers are resolved through translate.instant().
+  public columnDefs: ColDef[] = [];
+
+  private buildColumnDefs(): ColDef[] {
+    return [
+      {
+        headerName: this.translate.instant('ADMIN_SHARED.EDIT_FUNCTIONS'),
+        pinned: 'left',
+        maxWidth: 170,
+        checkboxSelection: false,
+        headerCheckboxSelection: false,
+        headerCheckboxSelectionFilteredOnly: true,
+        filter: false,
+        sortable: false,
+        cellRenderer: (params: ICellRendererParams<SpatialUnitMetadata>) =>
+          this.displayEditButtons_spatialUnits(params),
+        onCellClicked: (event: CellClickedEvent<SpatialUnitMetadata>) =>
+          this.onEditButtonsCellClicked(event),
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SHARED.ID'),
+        field: 'spatialUnitId',
+        pinned: 'left',
+        maxWidth: 125,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SHARED.NAME'),
+        field: 'spatialUnitLevel',
+        pinned: 'left',
+        minWidth: 300,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SHARED.DESCRIPTION'),
+        minWidth: 400,
+        cellRenderer: (params: ICellRendererParams) => params.data.metadata.description,
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
+          '' + params.data!.metadata.description,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SPATIAL_UNITS.GRID.COL_NEXT_LOWER_LEVEL'),
+        field: 'nextLowerHierarchyLevel',
+        minWidth: 250,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SPATIAL_UNITS.GRID.COL_NEXT_UPPER_LEVEL'),
+        field: 'nextUpperHierarchyLevel',
+        minWidth: 250,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SHARED.PERIOD_OF_VALIDITY'),
+        minWidth: 400,
+        cellRenderer: (params: ICellRendererParams) => {
+          let html =
+            '<ul style="columns: 5; -webkit-columns: 5; -moz-columns: 5; word-break: break-word !important;">';
+          for (const periodOfValidity of params.data.availablePeriodsOfValidity) {
+            html += '<li style="margin-right: 15px;">';
+            if (periodOfValidity.endDate) {
+              html +=
+                '<p>' +
+                periodOfValidity.startDate +
+                ' &ndash; ' +
+                periodOfValidity.endDate +
+                '</p>';
+            } else {
+              html += '<p>' + periodOfValidity.startDate + ' &ndash; heute</p>';
+            }
+            html += '</li>';
           }
-          html += '</li>';
-        }
-        html += '</ul>';
-        return html;
+          html += '</ul>';
+          return html;
+        },
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) => {
+          if (
+            params.data!.availablePeriodsOfValidity &&
+            params.data!.availablePeriodsOfValidity.length > 1
+          ) {
+            return '' + JSON.stringify(params.data!.availablePeriodsOfValidity);
+          }
+          return params.data!.availablePeriodsOfValidity;
+        },
       },
-      filter: 'agTextColumnFilter',
-      filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) => {
-        if (
-          params.data!.availablePeriodsOfValidity &&
-          params.data!.availablePeriodsOfValidity.length > 1
-        ) {
-          return '' + JSON.stringify(params.data!.availablePeriodsOfValidity);
-        }
-        return params.data!.availablePeriodsOfValidity;
+      {
+        headerName: this.translate.instant('ADMIN_SHARED.DATASOURCE'),
+        minWidth: 400,
+        cellRenderer: (params: ICellRendererParams) => params.data.metadata.datasource,
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
+          '' + params.data!.metadata.datasource,
       },
-    },
-    {
-      headerName: 'Datenquelle',
-      minWidth: 400,
-      cellRenderer: (params: ICellRendererParams) => params.data.metadata.datasource,
-      filter: 'agTextColumnFilter',
-      filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-        '' + params.data!.metadata.datasource,
-    },
-    {
-      headerName: 'Datenhalter und Kontakt',
-      minWidth: 400,
-      cellRenderer: (params: ICellRendererParams) => params.data.metadata.contact,
-      filter: 'agTextColumnFilter',
-      filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-        '' + params.data!.metadata.contact,
-    },
-    {
-      headerName: 'Rollen',
-      minWidth: 400,
-      cellRenderer: (params: ICellRendererParams) =>
-        this.accessControlService.getAllowedRolesString(params.data.permissions),
-      filter: 'agTextColumnFilter',
-      filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-        '' + this.accessControlService.getAllowedRolesString(params.data!.permissions),
-    },
-    {
-      headerName: 'Öffentlich sichtbar',
-      minWidth: 400,
-      cellRenderer: (params: ICellRendererParams) => (params.data.isPublic ? 'ja' : 'nein'),
-      filter: 'agTextColumnFilter',
-      filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-        '' + (params.data!.isPublic ? 'ja' : 'nein'),
-    },
-    {
-      headerName: 'Eigentümer',
-      minWidth: 400,
-      cellRenderer: (params: ICellRendererParams) =>
-        this.accessControlService.getRoleTitle(params.data.ownerId),
-      filter: 'agTextColumnFilter',
-      filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-        '' + this.accessControlService.getRoleTitle(params.data!.ownerId ?? ''),
-    },
-    {
-      headerName: 'Linienfarbe (Umringslayer)',
-      minWidth: 200,
-      cellRenderer: (params: ICellRendererParams<SpatialUnitMetadata>) =>
-        params.data!.outlineColor || '-',
-      filter: 'agTextColumnFilter',
-      filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-        '' + (params.data!.outlineColor || '-'),
-    },
-    {
-      headerName: 'Linienbreite (Umringslayer)',
-      minWidth: 200,
-      cellRenderer: (params: ICellRendererParams<SpatialUnitMetadata>) =>
-        params.data!.outlineWidth || '-',
-      filter: 'agTextColumnFilter',
-      filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-        '' + (params.data!.outlineWidth || '-'),
-    },
-    {
-      headerName: 'Linienmuster (Umringslayer)',
-      minWidth: 200,
-      cellRenderer: (params: ICellRendererParams<SpatialUnitMetadata>) =>
-        params.data!.outlineDashArrayString || '-',
-      filter: 'agTextColumnFilter',
-      filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-        '' + (params.data!.outlineDashArrayString || '-'),
-    },
-  ];
+      {
+        headerName: this.translate.instant('ADMIN_SHARED.DATA_HOLDER_CONTACT'),
+        minWidth: 400,
+        cellRenderer: (params: ICellRendererParams) => params.data.metadata.contact,
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
+          '' + params.data!.metadata.contact,
+      },
+      {
+        headerName: this.translate.instant('COMMON.ROLES'),
+        minWidth: 400,
+        cellRenderer: (params: ICellRendererParams) =>
+          this.accessControlService.getAllowedRolesString(params.data.permissions),
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
+          '' + this.accessControlService.getAllowedRolesString(params.data!.permissions),
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SHARED.PUBLIC_VISIBLE'),
+        minWidth: 400,
+        cellRenderer: (params: ICellRendererParams) => (params.data.isPublic ? 'ja' : 'nein'),
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
+          '' + (params.data!.isPublic ? 'ja' : 'nein'),
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SHARED.OWNER'),
+        minWidth: 400,
+        cellRenderer: (params: ICellRendererParams) =>
+          this.accessControlService.getRoleTitle(params.data.ownerId),
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
+          '' + this.accessControlService.getRoleTitle(params.data!.ownerId ?? ''),
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SPATIAL_UNITS.GRID.COL_OUTLINE_LINE_COLOR'),
+        minWidth: 200,
+        cellRenderer: (params: ICellRendererParams<SpatialUnitMetadata>) =>
+          params.data!.outlineColor || '-',
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
+          '' + (params.data!.outlineColor || '-'),
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SPATIAL_UNITS.GRID.COL_OUTLINE_LINE_WIDTH'),
+        minWidth: 200,
+        cellRenderer: (params: ICellRendererParams<SpatialUnitMetadata>) =>
+          params.data!.outlineWidth || '-',
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
+          '' + (params.data!.outlineWidth || '-'),
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SPATIAL_UNITS.GRID.COL_OUTLINE_LINE_PATTERN'),
+        minWidth: 200,
+        cellRenderer: (params: ICellRendererParams<SpatialUnitMetadata>) =>
+          params.data!.outlineDashArrayString || '-',
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
+          '' + (params.data!.outlineDashArrayString || '-'),
+      },
+    ];
+  }
+
   // Signal-backed: written from the store subscription and fetch callbacks,
   // which would not trigger a re-render of this OnPush component otherwise.
   public rowData = signal<SpatialUnitMetadata[]>([]);
@@ -230,6 +245,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
   public paginationPageSizeSelector: number[] = [10, 25, 50, 100];
 
   ngOnInit(): void {
+    this.columnDefs = this.buildColumnDefs();
     this.setupSubscriptions();
     this.setupEventListeners();
     this.fetchSpatialUnitsData();
@@ -273,7 +289,9 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
       html +=
         '<button id="btn_spatialUnit_editMetadata_' +
         data.spatialUnitId +
-        '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" title="Metadaten editieren" ' +
+        '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" title="' +
+        this.translate.instant('ADMIN_SHARED_UI.GRID.EDIT_METADATA_TITLE') +
+        '" ' +
         (data.userPermissions.includes('editor') ? '' : 'disabled') +
         '><i class="fas fa-pencil-alt"></i></button>';
 
@@ -281,7 +299,9 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
       html +=
         '<button id="btn_spatialUnit_editFeatures_' +
         data.spatialUnitId +
-        '" class="btn btn-warning btn-sm spatialUnitEditFeaturesBtn" type="button" title="Features fortführen" ' +
+        '" class="btn btn-warning btn-sm spatialUnitEditFeaturesBtn" type="button" title="' +
+        this.translate.instant('ADMIN_SHARED.EDIT_FEATURES') +
+        '" ' +
         (data.userPermissions.includes('editor') ? '' : 'disabled') +
         '><i class="fas fa-draw-polygon"></i></button>';
 
@@ -289,7 +309,9 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
       html +=
         '<button id="btn_spatialUnit_editUserRoles_' +
         data.spatialUnitId +
-        '" class="btn btn-warning btn-sm spatialUnitEditUserRolesBtn" type="button" title="Zugriffsschutz und Eigentümerschaft editieren" ' +
+        '" class="btn btn-warning btn-sm spatialUnitEditUserRolesBtn" type="button" title="' +
+        this.translate.instant('ADMIN_SHARED_UI.GRID.EDIT_ACCESS_TITLE') +
+        '" ' +
         (data.userPermissions.includes('creator') ? '' : 'disabled') +
         '><i class="fas fa-user-lock"></i></button>';
 
@@ -297,7 +319,9 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
       html +=
         '<button id="btn_spatialUnit_deleteSpatialUnit_' +
         data.spatialUnitId +
-        '" class="btn btn-danger btn-sm spatialUnitDeleteBtn" type="button" title="Raumebene entfernen" ' +
+        '" class="btn btn-danger btn-sm spatialUnitDeleteBtn" type="button" title="' +
+        this.translate.instant('ADMIN_SPATIAL_UNITS.GRID.DELETE_TITLE') +
+        '" ' +
         (data.userPermissions.includes('creator') ? '' : 'disabled') +
         '><i class="fas fa-trash"></i></button>';
 

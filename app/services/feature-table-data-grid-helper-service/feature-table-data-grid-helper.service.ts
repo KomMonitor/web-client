@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { Injectable, inject, signal } from '@angular/core';
 import { CellClickedEvent, ColDef, GridApi, GridOptions } from 'ag-grid-community';
+import { TranslateService } from '@ngx-translate/core';
 
 /** Resource kinds that own an editable feature table. */
 export type FeatureTableResourceType = 'spatialUnit' | 'georesource' | 'indicator';
@@ -104,6 +105,7 @@ const DELETE_BUTTON_CLASS = 'featureTableDeleteRecordBtn';
 export class FeatureTableDataGridHelperService {
   private http = inject(HttpClient);
   private envConfigService = inject(EnvConfigService);
+  private translate = inject(TranslateService);
 
   /**
    * Grid options for the spatial-unit / georesource feature table (GeoJSON
@@ -223,12 +225,33 @@ export class FeatureTableDataGridHelperService {
    * through this column's `onCellClicked`.
    */
   private renderDeleteButton(recordLabel: string): string {
+    const title = this.translate.instant('ADMIN_SHARED_UI.GRID.DELETE_RECORD_TITLE');
     return (
       `<button class="btn btn-danger btn-sm ${DELETE_BUTTON_CLASS}" type="button" ` +
-      `title="Datenobjekt unwiderruflich entfernen">` +
+      `title="${title}">` +
       `<i class="fas fa-trash"></i></button>` +
       recordLabel
     );
+  }
+
+  /**
+   * Header texts of the fixed columns, shared by both feature tables.
+   *
+   * NOTE: only the labels are shared. The `field` names deliberately are not:
+   * the spatial-resource table hardcodes 'ID'/'NAME'/'validStartDate'/
+   * 'validEndDate' while the indicator table reads the configurable
+   * `EnvConfigService.*_PROPERTY_NAME` values. They agree in the default config
+   * but would diverge in a deployment that overrides them — unifying that is a
+   * behaviour change, not a rename.
+   */
+  private fixedColumnHeaders(): Record<'recordId' | 'featureId' | 'name' | 'from' | 'to', string> {
+    return {
+      recordId: this.translate.instant('ADMIN_SHARED_UI.GRID.COL_DB_RECORD_ID'),
+      featureId: this.translate.instant('ADMIN_SHARED_UI.GRID.COL_FEATURE_ID'),
+      name: this.translate.instant('ADMIN_SHARED.NAME'),
+      from: this.translate.instant('ADMIN_SHARED_UI.GRID.COL_VALID_START'),
+      to: this.translate.instant('ADMIN_SHARED_UI.GRID.COL_VALID_END'),
+    };
   }
 
   /**
@@ -254,11 +277,12 @@ export class FeatureTableDataGridHelperService {
     callbacks: FeatureTableCallbacks
   ): ColDef[] {
     const enableDelete = config.enableDelete ?? false;
+    const headers = this.fixedColumnHeaders();
 
     const columnDefs: ColDef[] = [
       {
-        // DB-Record-Id doubles as the delete-button column
-        headerName: 'DB-Record-Id',
+        // The record-id column doubles as the delete-button column
+        headerName: headers.recordId,
         field: 'kommonitorRecordId',
         pinned: 'left',
         editable: false,
@@ -274,7 +298,7 @@ export class FeatureTableDataGridHelperService {
         ),
       },
       {
-        headerName: 'Feature-Id',
+        headerName: headers.featureId,
         field: 'ID',
         pinned: 'left',
         editable: false,
@@ -282,18 +306,18 @@ export class FeatureTableDataGridHelperService {
         maxWidth: 125,
       },
       {
-        headerName: 'Name',
+        headerName: headers.name,
         field: 'NAME',
         pinned: 'left',
         minWidth: 150,
       },
       {
-        headerName: 'Lebenszeitbeginn',
+        headerName: headers.from,
         field: 'validStartDate',
         minWidth: 150,
       },
       {
-        headerName: 'Lebenszeitende',
+        headerName: headers.to,
         field: 'validEndDate',
         minWidth: 150,
       },
@@ -413,10 +437,11 @@ export class FeatureTableDataGridHelperService {
     callbacks: FeatureTableCallbacks
   ): ColDef[] {
     const enableDelete = config.enableDelete ?? false;
+    const headers = this.fixedColumnHeaders();
 
     const columnDefs: ColDef[] = [
       {
-        headerName: 'DB-Record-Id',
+        headerName: headers.recordId,
         field: 'fid',
         pinned: 'left',
         editable: false,
@@ -432,7 +457,7 @@ export class FeatureTableDataGridHelperService {
         ),
       },
       {
-        headerName: 'Feature-Id',
+        headerName: headers.featureId,
         field: this.envConfigService.FEATURE_ID_PROPERTY_NAME,
         pinned: 'left',
         editable: false,
@@ -440,7 +465,7 @@ export class FeatureTableDataGridHelperService {
         maxWidth: 125,
       },
       {
-        headerName: 'Name',
+        headerName: headers.name,
         field: this.envConfigService.FEATURE_NAME_PROPERTY_NAME,
         pinned: 'left',
         minWidth: 200,
@@ -448,14 +473,14 @@ export class FeatureTableDataGridHelperService {
         cellClass: 'grid-non-editable',
       },
       {
-        headerName: 'Lebenszeitbeginn',
+        headerName: headers.from,
         field: this.envConfigService.VALID_START_DATE_PROPERTY_NAME,
         minWidth: 125,
         editable: false,
         cellClass: 'grid-non-editable',
       },
       {
-        headerName: 'Lebenszeitende',
+        headerName: headers.to,
         field: this.envConfigService.VALID_END_DATE_PROPERTY_NAME,
         minWidth: 125,
         editable: false,

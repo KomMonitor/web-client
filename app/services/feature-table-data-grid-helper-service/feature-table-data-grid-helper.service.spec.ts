@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { TranslateModule } from '@ngx-translate/core';
 
 import {
   DeletedFeatureRef,
@@ -32,6 +33,7 @@ describe('FeatureTableDataGridHelperService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot()],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),

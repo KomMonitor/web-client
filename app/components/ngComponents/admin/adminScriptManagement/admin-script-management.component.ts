@@ -30,6 +30,7 @@ import { ScriptAddModalComponent } from './scriptAddModal/script-add-modal.compo
 import { ScriptDeleteModalComponent } from './scriptDeleteModal/script-delete-modal.component';
 
 import { TranslateModule } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-admin-script-management',
   templateUrl: './admin-script-management.component.html',
@@ -46,6 +47,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
+  private translate = inject(TranslateService);
 
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
 
@@ -106,7 +108,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   private buildColumnDefs(): void {
     this.columnDefs = [
       {
-        headerName: 'Id',
+        headerName: this.translate.instant('ADMIN_SHARED.ID'),
         field: 'scriptId',
         pinned: 'left',
         maxWidth: 125,
@@ -114,23 +116,32 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
         headerCheckboxSelection: true,
         headerCheckboxSelectionFilteredOnly: true,
       },
-      { headerName: 'Name', field: 'name', pinned: 'left', maxWidth: 300 },
       {
-        headerName: 'Ziel-Indikatoren-Id',
+        headerName: this.translate.instant('ADMIN_SHARED.NAME'),
+        field: 'name',
+        pinned: 'left',
+        maxWidth: 300,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_TARGET_INDICATOR_ID'),
         field: 'indicatorId',
         maxWidth: 125,
       },
       {
-        headerName: 'Ziel-Indikatoren-Name',
+        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_TARGET_INDICATOR_NAME'),
         minWidth: 200,
         valueGetter: (params: any) =>
           (this.indicatorStore.getIndicatorMetadataById(params.data?.indicatorId) as any)
             ?.indicatorName ?? '',
         filter: 'agTextColumnFilter',
       },
-      { headerName: 'Beschreibung', field: 'description', minWidth: 300 },
       {
-        headerName: 'notwendige Basis-Indikatoren',
+        headerName: this.translate.instant('ADMIN_SHARED.DESCRIPTION'),
+        field: 'description',
+        minWidth: 300,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_REQUIRED_BASE_INDICATORS'),
         minWidth: 300,
         cellRenderer: ScriptIdNameTableCellRendererComponent,
         cellRendererParams: {
@@ -143,7 +154,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
           params.data?.requiredIndicatorIds?.join(', ') ?? 'keine',
       },
       {
-        headerName: 'notwendige Basis-Georessourcen',
+        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_REQUIRED_BASE_GEORESOURCES'),
         minWidth: 300,
         cellRenderer: ScriptIdNameTableCellRendererComponent,
         cellRendererParams: {
@@ -156,7 +167,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
           params.data?.requiredGeoresourceIds?.join(', ') ?? 'keine',
       },
       {
-        headerName: 'Prozessparameter',
+        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_PROCESS_PARAMETERS'),
         minWidth: 600,
         cellRenderer: ScriptProcessParametersCellRendererComponent,
         filter: 'agTextColumnFilter',

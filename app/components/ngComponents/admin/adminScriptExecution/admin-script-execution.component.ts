@@ -19,6 +19,7 @@ import { KommonitorDataGridHelperService } from '../../../../services/adminSpati
 import { LoadingOverlayComponent } from '../../common/loading-overlay/loading-overlay.component';
 
 import { TranslateModule } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-admin-script-execution',
   templateUrl: './admin-script-execution.component.html',
@@ -39,6 +40,7 @@ export class AdminScriptExecutionComponent implements OnInit {
   private indicatorValueService = inject(IndicatorValueService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
+  private translate = inject(TranslateService);
 
   // Signals: all filled from the forkJoin subscription (OnPush).
   protected defaultIndicatorJobHealth = signal<IndicatorJobHealth | undefined>(undefined);
@@ -49,74 +51,90 @@ export class AdminScriptExecutionComponent implements OnInit {
 
   protected loadingData = signal(true);
 
-  public columnDefs: ColDef[] = [
-    {
-      headerName: 'Job-Id',
-      field: 'jobId',
-      pinned: 'left',
-      maxWidth: 125,
-      checkboxSelection: true,
-      headerCheckboxSelection: true,
-      headerCheckboxSelectionFilteredOnly: true,
-    },
-    {
-      headerName: 'Script-Id',
-      field: 'jobData.scriptId',
-      pinned: 'left',
-      maxWidth: 125,
-    },
-    {
-      headerName: 'Ziel-Indikator',
-      pinned: 'left',
-      maxWidth: 250,
-      cellRenderer: (params) => {
-        if (params.data.jobData && params.data.jobData.targetIndicatorId) {
-          const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(
-            params.data.jobData.targetIndicatorId
-          );
-          if (indicatorMetadata) {
-            return indicatorMetadata.indicatorName;
-          }
-        }
-        return '';
+  // Assigned in ngOnInit rather than here: the headers resolve through
+  // translate.instant(). Both job grids bind this same array.
+  public columnDefs: ColDef[] = [];
+
+  private buildColumnDefs(): ColDef[] {
+    return [
+      {
+        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_JOB_ID'),
+        field: 'jobId',
+        pinned: 'left',
+        maxWidth: 125,
+        checkboxSelection: true,
+        headerCheckboxSelection: true,
+        headerCheckboxSelectionFilteredOnly: true,
       },
-      filter: 'agTextColumnFilter',
-      filterValueGetter: (params) => {
-        if (params.data.jobData && params.data.jobData.targetIndicatorId) {
-          const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(
-            params.data.jobData.targetIndicatorId
-          );
-          if (indicatorMetadata) {
-            return indicatorMetadata.indicatorName;
-          }
-        }
-        return '';
+      {
+        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_SCRIPT_ID'),
+        field: 'jobData.scriptId',
+        pinned: 'left',
+        maxWidth: 125,
       },
-    },
-    { headerName: 'Job-Status', field: 'status', maxWidth: 125 },
-    { headerName: 'Job-Fortschritt', field: 'progress', maxWidth: 125 },
-    {
-      headerName: 'Job-Data',
-      field: 'jobData',
-      minWidth: 500,
-      cellRenderer: (params) => this.indicatorValueService.syntaxHighlightJSON(params.data.jobData),
-      filter: 'agTextColumnFilter',
-    },
-    {
-      field: 'logs',
-      headerName: 'Job-Logs',
-      maxWidth: 160,
-      cellRenderer: JobLogsCellRendererComponent,
-      filter: 'agTextColumnFilter',
-    },
-    {
-      headerName: 'Job-Summary',
-      minWidth: 1000,
-      cellRenderer: JobSummaryCellRendererComponent,
-      filter: 'agTextColumnFilter',
-      filterValueGetter: (params) => JSON.stringify(params.data.spatialUnitIntegrationSummary),
-    },
-  ];
+      {
+        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_TARGET_INDICATOR'),
+        pinned: 'left',
+        maxWidth: 250,
+        cellRenderer: (params) => {
+          if (params.data.jobData && params.data.jobData.targetIndicatorId) {
+            const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(
+              params.data.jobData.targetIndicatorId
+            );
+            if (indicatorMetadata) {
+              return indicatorMetadata.indicatorName;
+            }
+          }
+          return '';
+        },
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params) => {
+          if (params.data.jobData && params.data.jobData.targetIndicatorId) {
+            const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(
+              params.data.jobData.targetIndicatorId
+            );
+            if (indicatorMetadata) {
+              return indicatorMetadata.indicatorName;
+            }
+          }
+          return '';
+        },
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_JOB_STATUS'),
+        field: 'status',
+        maxWidth: 125,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_JOB_PROGRESS'),
+        field: 'progress',
+        maxWidth: 125,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_JOB_DATA'),
+        field: 'jobData',
+        minWidth: 500,
+        cellRenderer: (params) =>
+          this.indicatorValueService.syntaxHighlightJSON(params.data.jobData),
+        filter: 'agTextColumnFilter',
+      },
+      {
+        field: 'logs',
+        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_JOB_LOGS'),
+        maxWidth: 160,
+        cellRenderer: JobLogsCellRendererComponent,
+        filter: 'agTextColumnFilter',
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_JOB_SUMMARY'),
+        minWidth: 1000,
+        cellRenderer: JobSummaryCellRendererComponent,
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params) => JSON.stringify(params.data.spatialUnitIntegrationSummary),
+      },
+    ];
+  }
+
   public defaultColDef: ColDef = this.kommonitorDataGridHelperService.buildDefaultColDef();
   public gridOptions: GridOptions = {
     suppressRowClickSelection: true,
@@ -133,6 +151,7 @@ export class AdminScriptExecutionComponent implements OnInit {
   public paginationPageSizeSelector: number[] = [10, 25, 50, 100];
 
   ngOnInit() {
+    this.columnDefs = this.buildColumnDefs();
     this.loadData();
   }
 

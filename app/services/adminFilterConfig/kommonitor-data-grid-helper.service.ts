@@ -3,12 +3,14 @@ import { ColDef } from 'ag-grid-community';
 import { GlobalFilterEntry } from 'components/ngComponents/models/globalFilters.models';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AdminFilterEditModalComponent } from 'components/ngComponents/admin/adminConfig/adminFilterConfig/adminFilterEditModal/admin-filter-edit-modal.component';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root',
 })
 export class KommonitorFilterDataGridHelperService {
   private modalService = inject(NgbModal);
+  private translate = inject(TranslateService);
 
   /**
    * Builds data grid for indicators - now returns column definitions and row data for AG Grid Angular
@@ -29,7 +31,7 @@ export class KommonitorFilterDataGridHelperService {
   buildDataGridColumnConfig_filters(_globalFilterArray: GlobalFilterEntry[]): any[] {
     const columnDefs = [
       {
-        headerName: 'Editierfunktionen',
+        headerName: this.translate.instant('ADMIN_SHARED.EDIT_FUNCTIONS'),
         pinned: 'left',
         maxWidth: 150,
         checkboxSelection: false,
@@ -37,8 +39,17 @@ export class KommonitorFilterDataGridHelperService {
         sortable: false,
         cellRenderer: (params: any) => this.displayEditButtons_filters(params),
       },
-      { headerName: 'Name', field: 'name', pinned: 'left', minWidth: 300 },
-      { headerName: 'Indikatoren', field: 'indicators', minWidth: 200 },
+      {
+        headerName: this.translate.instant('ADMIN_SHARED.NAME'),
+        field: 'name',
+        pinned: 'left',
+        minWidth: 300,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_CONFIG.FILTER.GRID.COL_INDICATORS'),
+        field: 'indicators',
+        minWidth: 200,
+      },
     ];
 
     return columnDefs;

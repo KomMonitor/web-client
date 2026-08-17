@@ -83,7 +83,9 @@
     "SUCCESS": "Success!",
     "ERROR": "Error!",
     "KEYWORD_FILTER": "Keyword filter",
-    "UNKNOWN_ERROR": "Unknown error"
+    "UNKNOWN_ERROR": "Unknown error",
+    "PUBLIC_VISIBLE": "Publicly visible",
+    "PERIOD_OF_VALIDITY": "Period of validity"
   },
   "ADMIN_GEORESOURCES": {
     "TITLE": "Manage geodata",
@@ -283,6 +285,16 @@
     "MSG": {
       "LOAD_LIST_FAILED": "The georesources could not be loaded.",
       "LOAD_ONE_FAILED": "The georesource could not be loaded."
+    },
+    "GRID": {
+      "COL_SYMBOL_COLOR": "Symbol color",
+      "COL_SYMBOL_NAME": "Symbol name",
+      "COL_MARKER_COLOR": "Marker color",
+      "COL_LINE_COLOR": "Line color",
+      "COL_LINE_WIDTH": "Line width",
+      "COL_LINE_PATTERN": "Line pattern",
+      "COL_POLYGON_COLOR": "Polygon color",
+      "DELETE_TITLE": "Remove georesource"
     }
   },
   "ADMIN_INDICATORS": {
@@ -763,6 +775,24 @@
       "CLASS_BREAKS": "Class breaks",
       "BREAK_N": "Break {{n}}",
       "MANAGE_COMPARISON_VALUES": "Manage comparison values"
+    },
+    "GRID": {
+      "COL_UNIT": "Unit",
+      "COL_METHODOLOGY": "Methodology",
+      "COL_AVAILABLE_SPATIAL_UNITS": "Available spatial units",
+      "COL_AVAILABLE_TIMESTAMPS": "Available time steps",
+      "COL_ABBREVIATION": "Abbreviation",
+      "COL_HEADLINE_INDICATOR": "Headline indicator",
+      "COL_INDICATOR_TYPE": "Indicator type",
+      "COL_CHARACTERISTIC": "Characteristic",
+      "COL_UPDATE_INTERVAL": "Update interval",
+      "COL_TAGS": "Tags/keywords",
+      "COL_DECIMALS": "Decimal places",
+      "COL_DATE": "Date",
+      "COL_REGIONAL_SUM": "regional total",
+      "COL_REGIONAL_AVERAGE": "regional average",
+      "COL_SPATIALLY_UNASSIGNABLE": "spatially unassignable",
+      "DELETE_TITLE": "Remove indicator"
     }
   },
   "ADMIN_ROLES": {
@@ -920,7 +950,13 @@
       "COL_READ": "Read",
       "COL_EDIT": "Edit",
       "COL_DELETE": "Delete",
-      "PUBLIC_ACCESS": "Public access"
+      "PUBLIC_ACCESS": "Public access",
+      "COL_THIS_GROUP": "This group",
+      "COL_SUBGROUPS": "Subgroups",
+      "GROUP_MANAGE_USERS": "Managing users",
+      "GROUP_MANAGE_RESOURCES": "Managing resources",
+      "GROUP_MANAGE_TOPICS": "Managing topics",
+      "EDIT_GROUP_RIGHTS_TITLE": "Edit group rights"
     }
   },
   "ADMIN_TOPICS": {
@@ -1132,6 +1168,53 @@
       "DELETE_FAILED_TEXT": "The following datasets could not be deleted.",
       "ERROR_MESSAGE": "Error message",
       "DELETE_PERMANENTLY": "Delete scripts irrevocably"
+    },
+    "GRID": {
+      "COL_TARGET_INDICATOR_ID": "Target indicator id",
+      "COL_TARGET_INDICATOR_NAME": "Target indicator name",
+      "COL_REQUIRED_BASE_INDICATORS": "required base indicators",
+      "COL_REQUIRED_BASE_GEORESOURCES": "required base georesources",
+      "COL_PROCESS_PARAMETERS": "Process parameters",
+      "COL_JOB_ID": "Job id",
+      "COL_SCRIPT_ID": "Script id",
+      "COL_TARGET_INDICATOR": "Target indicator",
+      "COL_JOB_STATUS": "Job status",
+      "COL_JOB_PROGRESS": "Job progress",
+      "COL_JOB_DATA": "Job data",
+      "COL_JOB_LOGS": "Job logs",
+      "COL_JOB_SUMMARY": "Job summary"
+    },
+    "DATA_TYPES": {
+      "STRING": "Text (string)",
+      "BOOLEAN": "Boolean",
+      "INTEGER": "Integer",
+      "DOUBLE": "Floating-point number (double)"
+    },
+    "TEMPORAL_UNITS": {
+      "YEARS": "year(s)",
+      "MONTHS": "month(s)",
+      "DAYS": "day(s)"
+    },
+    "SCRIPT_TYPES": {
+      "GENERIC": "Generic definition",
+      "INDICATOR_SUM": "Indicators - sum of all indicators",
+      "INDICATOR_SUBTRACT": "Indicators - subtraction of base indicators from a reference indicator",
+      "INDICATOR_PERCENTAGE": "Indicators - percentage share (quotient of base indicators and a reference indicator)",
+      "INDICATOR_SHARE": "Indicators - share (quotient of base indicators and a reference indicator)",
+      "INDICATOR_DIVISION": "Indicators - division (quotient of two indicators)",
+      "INDICATOR_TREND": "Indicators - trend (via linear regression)",
+      "INDICATOR_CONTINUITY": "Indicators - continuity (via Pearson correlation)",
+      "INDICATOR_CHANGE_ABSOLUTE": "Indicators - absolute change",
+      "INDICATOR_CHANGE_ABSOLUTE_REF_DATE": "Indicators - absolute change against a fixed reference date",
+      "INDICATOR_CHANGE_RELATIVE_REF_DATE": "Indicators - percentage change against a fixed reference date",
+      "INDICATOR_CHANGE_RELATIVE": "Indicators - percentage change",
+      "INDICATOR_PROMILLE": "Indicators - per-mille value (quotient of base indicators and a reference indicator)",
+      "INDICATOR_HEADLINE_INDICATOR": "Headline indicator - chained computation (rank, min-max normalization, aggregation)",
+      "INDICATOR_MULTIPLICATION": "Indicators - product of all indicators",
+      "GEORESOURCE_POINTS_IN_POLYGON": "Georesources - number of points in polygon",
+      "GEORESOURCE_STATISTICS": "Georesources - statistics by feature property (point datasets)",
+      "GEORESOURCE_SUBSET_SHARE": "Georesources - percentage share by feature property (point datasets)",
+      "LINE_SEGMENT_IN_POLYGON": "Georesources - summed line length per polygon"
     }
   },
   "ADMIN_SHELL": {
@@ -1239,6 +1322,16 @@
       "REFERENCES": "References to indicators/georesources",
       "CLASSIFICATION_OPTIONS": "Classification options",
       "REGIONAL_REFERENCE_VALUES": "Regional reference values"
+    },
+    "GRID": {
+      "COL_DB_RECORD_ID": "DB record id",
+      "COL_FEATURE_ID": "Feature id",
+      "COL_VALID_START": "Start of validity",
+      "COL_VALID_END": "End of validity",
+      "EDIT_METADATA_TITLE": "Edit metadata",
+      "EDIT_ACCESS_TITLE": "Edit access protection and ownership",
+      "DELETE_RECORD_TITLE": "Irrevocably remove data object",
+      "CONFIRM_WITH_ENTER": "confirm with Enter"
     }
   },
   "ADMIN_WMS": {
@@ -1288,6 +1381,9 @@
     "EDIT_ROLES": {
       "TITLE": "Edit WMS",
       "SUCCESS_TEXT": "Access rights for the dataset named {{name}} have been edited in KomMonitor."
+    },
+    "GRID": {
+      "COL_LEGEND": "Legend"
     }
   },
   "ADMIN_CONFIG": {
@@ -1337,6 +1433,9 @@
         "SAVED": "Filter configuration saved.",
         "SAVE_FAILED": "Saving the filter configuration failed: {{error}}",
         "DELETE_CONFIRM": "Do you really want to permanently delete the filter {{name}}?"
+      },
+      "GRID": {
+        "COL_INDICATORS": "Indicators"
       }
     },
     "FILTER_EDIT": {
@@ -1396,7 +1495,6 @@
     "GENERAL_STEP": {
       "SUBTITLE": "Information about general metadata in KomMonitor"
     },
-    "SECURITY": {},
     "DATA": {
       "SUBTITLE": "Information about the spatial dataset from which the spatial units are imported",
       "SOURCE_FORMAT_GEO": "Geodata source format",
@@ -1536,6 +1634,14 @@
     },
     "MSG": {
       "LOAD_FAILED": "The spatial units could not be loaded."
+    },
+    "GRID": {
+      "COL_NEXT_LOWER_LEVEL": "Next lower spatial unit level",
+      "COL_NEXT_UPPER_LEVEL": "Next higher spatial unit level",
+      "COL_OUTLINE_LINE_COLOR": "Line color (outline layer)",
+      "COL_OUTLINE_LINE_WIDTH": "Line width (outline layer)",
+      "COL_OUTLINE_LINE_PATTERN": "Line pattern (outline layer)",
+      "DELETE_TITLE": "Remove spatial unit level"
     }
   }
 }

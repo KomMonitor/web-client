@@ -1,6 +1,7 @@
 import { ColDef, GridApi } from 'ag-grid-community';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
 import { RoleDelegatePutEntry } from './admin-role-management.service';
+import { TranslateService } from '@ngx-translate/core';
 
 /**
  * Shared building blocks for the "advanced" role-delegation grid used by both
@@ -40,28 +41,29 @@ type AdvancedDisableKey =
   | '_disable_unit_themes_creator';
 
 export const ADVANCED_PERMISSION_GROUPS: Array<{
-  headerName: string;
+  /** i18n key of the group header; resolved in buildAdvancedColumnDefs(). */
+  headerNameKey: string;
   groupLevel: AdvancedPermissionLevel;
   subGroupLevel: AdvancedPermissionLevel;
   groupRenderer: string;
   subGroupRenderer: string;
 }> = [
   {
-    headerName: 'Verwalten von Nutzern',
+    headerNameKey: 'ADMIN_ROLES.GRID.GROUP_MANAGE_USERS',
     groupLevel: 'unit-users-creator',
     subGroupLevel: 'client-users-creator',
     groupRenderer: 'checkboxRenderer_UM_group',
     subGroupRenderer: 'checkboxRenderer_UM_subGroup',
   },
   {
-    headerName: 'Verwalten von Ressourcen',
+    headerNameKey: 'ADMIN_ROLES.GRID.GROUP_MANAGE_RESOURCES',
     groupLevel: 'unit-resources-creator',
     subGroupLevel: 'client-resources-creator',
     groupRenderer: 'checkboxRenderer_RM_group',
     subGroupRenderer: 'checkboxRenderer_RM_subGroup',
   },
   {
-    headerName: 'Verwalten von Themen',
+    headerNameKey: 'ADMIN_ROLES.GRID.GROUP_MANAGE_TOPICS',
     groupLevel: 'unit-themes-creator',
     subGroupLevel: 'client-themes-creator',
     groupRenderer: 'checkboxRenderer_TM_group',
@@ -226,19 +228,24 @@ export function buildAdvancedRoleRowData(
     .sort((left, right) => left.name.localeCompare(right.name, 'de'));
 }
 
-export function buildAdvancedColumnDefs(): ColDef[] {
+/**
+ * The permission grid's column defs. Takes the TranslateService from the calling
+ * modal: the group titles live in a module-level constant that is evaluated at
+ * import time, so they cannot be resolved through DI where they are declared.
+ */
+export function buildAdvancedColumnDefs(translate: TranslateService): ColDef[] {
   return [
     {
-      headerName: 'Organisationseinheit',
+      headerName: translate.instant('ADMIN_ROLES.GRID.COL_ORG_UNIT'),
       field: 'name',
       minWidth: 220,
       pinned: 'left',
     },
-    ...ADVANCED_PERMISSION_GROUPS.map(({ headerName, groupRenderer, subGroupRenderer }) => ({
-      headerName,
+    ...ADVANCED_PERMISSION_GROUPS.map(({ headerNameKey, groupRenderer, subGroupRenderer }) => ({
+      headerName: translate.instant(headerNameKey),
       children: [
         {
-          headerName: 'Diese Gruppe',
+          headerName: translate.instant('ADMIN_ROLES.GRID.COL_THIS_GROUP'),
           field: groupRenderer,
           filter: false,
           sortable: false,
@@ -246,7 +253,7 @@ export function buildAdvancedColumnDefs(): ColDef[] {
           cellRenderer: groupRenderer,
         },
         {
-          headerName: 'Untergruppen',
+          headerName: translate.instant('ADMIN_ROLES.GRID.COL_SUBGROUPS'),
           field: subGroupRenderer,
           filter: false,
           sortable: false,

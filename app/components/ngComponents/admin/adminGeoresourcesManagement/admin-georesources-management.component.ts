@@ -78,9 +78,11 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
   loiRowData = computed(() => this.visibleGeoresources().filter((item) => item.isLOI));
   aoiRowData = computed(() => this.visibleGeoresources().filter((item) => item.isAOI));
 
-  poiColumnDefs: ColDef[] = this.buildColumnDefs('poi');
-  loiColumnDefs: ColDef[] = this.buildColumnDefs('loi');
-  aoiColumnDefs: ColDef[] = this.buildColumnDefs('aoi');
+  // Assigned in ngOnInit rather than here: the headers resolve through
+  // translate.instant().
+  poiColumnDefs: ColDef[] = [];
+  loiColumnDefs: ColDef[] = [];
+  aoiColumnDefs: ColDef[] = [];
 
   public defaultColDef: ColDef = {
     editable: false,
@@ -100,6 +102,9 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
   resourceType: WmsResourceType = WmsResourceType.GEORESOURCE;
 
   ngOnInit(): void {
+    this.poiColumnDefs = this.buildColumnDefs('poi');
+    this.loiColumnDefs = this.buildColumnDefs('loi');
+    this.aoiColumnDefs = this.buildColumnDefs('aoi');
     // The admin modals report changes via their refreshRequested outputs; this
     // broadcast listener remains only for external senders (wms-admin-table).
     const broadcastSub = this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
@@ -141,7 +146,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
    */
   private buildEditButtonsColumn(): ColDef {
     return {
-      headerName: 'Editierfunktionen',
+      headerName: this.translate.instant('ADMIN_SHARED.EDIT_FUNCTIONS'),
       pinned: 'left',
       maxWidth: 200,
       minWidth: 180,
@@ -167,19 +172,27 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
 
     let html = '<div class="btn-group btn-group-sm">';
     html +=
-      '<button class="btn btn-warning btn-sm georesourceEditMetadataBtn" type="button" title="Metadaten editieren" ' +
+      '<button class="btn btn-warning btn-sm georesourceEditMetadataBtn" type="button" title="' +
+      this.translate.instant('ADMIN_SHARED_UI.GRID.EDIT_METADATA_TITLE') +
+      '" ' +
       (hasEditorPermission ? '' : 'disabled') +
       '><i class="fas fa-pencil-alt"></i></button>';
     html +=
-      '<button class="btn btn-warning btn-sm georesourceEditFeaturesBtn" type="button" title="Features fortführen" ' +
+      '<button class="btn btn-warning btn-sm georesourceEditFeaturesBtn" type="button" title="' +
+      this.translate.instant('ADMIN_SHARED.EDIT_FEATURES') +
+      '" ' +
       (hasEditorPermission ? '' : 'disabled') +
       '><i class="fas fa-draw-polygon"></i></button>';
     html +=
-      '<button class="btn btn-warning btn-sm georesourceEditUserRolesBtn" type="button" title="Zugriffsschutz und Eigentümerschaft editieren" ' +
+      '<button class="btn btn-warning btn-sm georesourceEditUserRolesBtn" type="button" title="' +
+      this.translate.instant('ADMIN_SHARED_UI.GRID.EDIT_ACCESS_TITLE') +
+      '" ' +
       (hasCreatorPermission ? '' : 'disabled') +
       '><i class="fas fa-user-lock"></i></button>';
     html +=
-      '<button class="btn btn-danger btn-sm georesourceDeleteBtn" type="button" title="Georessource entfernen" ' +
+      '<button class="btn btn-danger btn-sm georesourceDeleteBtn" type="button" title="' +
+      this.translate.instant('ADMIN_GEORESOURCES.GRID.DELETE_TITLE') +
+      '" ' +
       (hasCreatorPermission ? '' : 'disabled') +
       '><i class="fas fa-trash"></i></button>';
     html += '</div>';

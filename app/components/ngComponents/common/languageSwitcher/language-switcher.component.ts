@@ -2,6 +2,12 @@ import { Component, OnInit, OnDestroy, AfterViewInit, inject } from '@angular/co
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 
+import {
+  DEFAULT_LANGUAGE_CODE,
+  LANGUAGE_STORAGE_KEY,
+  SupportedLanguageCode,
+} from 'util/i18n.constants';
+
 declare const $: any;
 
 @Component({
@@ -10,8 +16,14 @@ declare const $: any;
   styleUrls: ['./language-switcher.component.scss'],
 })
 export class LanguageSwitcherComponent implements OnInit, OnDestroy, AfterViewInit {
-  currentLanguage: string = 'de';
-  supportedLanguages = [
+  currentLanguage: string = DEFAULT_LANGUAGE_CODE;
+
+  /**
+   * The languages offered in the dropdown. Typed against
+   * `SupportedLanguageCode` so this display list and the codes the startup
+   * accepts from localStorage cannot drift apart unnoticed.
+   */
+  supportedLanguages: Array<{ code: SupportedLanguageCode; name: string; flag: string }> = [
     { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
     { code: 'de-at', name: 'Deutsch (Österreich)', flag: '🇦🇹' },
     { code: 'de-li', name: 'Deutsch (Liechtenstein)', flag: '🇱🇮' },
@@ -25,33 +37,13 @@ export class LanguageSwitcherComponent implements OnInit, OnDestroy, AfterViewIn
   translateService = inject(TranslateService);
 
   ngOnInit(): void {
-    // Get current language from service
-    this.currentLanguage = this.translateService.currentLang || 'de';
+    // StartupService resolved the stored preference and awaited its bundle
+    // before the app rendered; this component only reflects and changes it.
+    this.currentLanguage = this.translateService.currentLang || DEFAULT_LANGUAGE_CODE;
 
-    // Set default language if none is set
-    if (!this.translateService.currentLang) {
-      this.translateService.setDefaultLang('de');
-      this.translateService.use('de');
-    }
-
-    // Subscribe to language changes to update the component state
     this.languageChangeSubscription = this.translateService.onLangChange.subscribe((event) => {
       this.currentLanguage = event.lang;
-      console.log('Language changed to:', event.lang);
     });
-
-    // Load saved language preference
-    const savedLanguage = localStorage.getItem('preferredLanguage');
-    if (
-      savedLanguage &&
-      ['de', 'de-at', 'de-li', 'de-lu', 'de-ch', 'en'].includes(savedLanguage) &&
-      savedLanguage !== this.currentLanguage
-    ) {
-      this.changeLanguage(savedLanguage);
-    }
-
-    // Test translation service
-    this.testTranslationService();
   }
 
   ngAfterViewInit(): void {
@@ -69,20 +61,14 @@ export class LanguageSwitcherComponent implements OnInit, OnDestroy, AfterViewIn
 
   changeLanguage(languageCode: string): void {
     try {
-      console.log('Changing language to:', languageCode);
-
       this.currentLanguage = languageCode;
       this.translateService.use(languageCode);
-
-      // Store language preference in localStorage
-      localStorage.setItem('preferredLanguage', languageCode);
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, languageCode);
 
       // Close dropdown after selection
       if (typeof $ !== 'undefined') {
         $('#languageDropdown').dropdown('hide');
       }
-
-      console.log('Language changed successfully to:', languageCode);
     } catch (error) {
       console.error('Error changing language:', error);
     }
@@ -96,20 +82,5 @@ export class LanguageSwitcherComponent implements OnInit, OnDestroy, AfterViewIn
   getCurrentLanguageFlag(): string {
     const lang = this.supportedLanguages.find((l) => l.code === this.currentLanguage);
     return lang ? lang.flag : '🇩🇪';
-  }
-
-  private testTranslationService(): void {
-    // Test if translation service is working
-    setTimeout(() => {
-      const testKey = 'COMMON.LOGIN';
-      const translation = this.translateService.instant(testKey);
-      console.log(`Translation test for "${testKey}":`, translation);
-
-      if (translation === testKey) {
-        console.warn('Translation service might not be working properly - key returned as-is');
-      } else {
-        console.log('Translation service is working correctly');
-      }
-    }, 1000);
   }
 }

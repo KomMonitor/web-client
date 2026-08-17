@@ -83,7 +83,9 @@
     "SUCCESS": "Erfolg!",
     "ERROR": "Fehler!",
     "KEYWORD_FILTER": "Stichwortfilter",
-    "UNKNOWN_ERROR": "Unbekannter Fehler"
+    "UNKNOWN_ERROR": "Unbekannter Fehler",
+    "PUBLIC_VISIBLE": "Öffentlich sichtbar",
+    "PERIOD_OF_VALIDITY": "Gültigkeitszeitraum"
   },
   "ADMIN_GEORESOURCES": {
     "TITLE": "Verwalten der Geodaten",
@@ -283,6 +285,16 @@
     "MSG": {
       "LOAD_LIST_FAILED": "Die Georessourcen konnten nicht geladen werden.",
       "LOAD_ONE_FAILED": "Die Georessource konnte nicht geladen werden."
+    },
+    "GRID": {
+      "COL_SYMBOL_COLOR": "Symbolfarbe",
+      "COL_SYMBOL_NAME": "Symbolname",
+      "COL_MARKER_COLOR": "Markerfarbe",
+      "COL_LINE_COLOR": "Linienfarbe",
+      "COL_LINE_WIDTH": "Linienbreite",
+      "COL_LINE_PATTERN": "Linienmuster",
+      "COL_POLYGON_COLOR": "Polygonfarbe",
+      "DELETE_TITLE": "Georessource entfernen"
     }
   },
   "ADMIN_INDICATORS": {
@@ -763,6 +775,24 @@
       "CLASS_BREAKS": "Klassengrenzen",
       "BREAK_N": "Grenze {{n}}",
       "MANAGE_COMPARISON_VALUES": "Vergleichswerte verwalten"
+    },
+    "GRID": {
+      "COL_UNIT": "Einheit",
+      "COL_METHODOLOGY": "Methodik",
+      "COL_AVAILABLE_SPATIAL_UNITS": "Verfügbare Raumebenen",
+      "COL_AVAILABLE_TIMESTAMPS": "Verfügbare Zeitschnitte",
+      "COL_ABBREVIATION": "Kürzel",
+      "COL_HEADLINE_INDICATOR": "Leitindikator",
+      "COL_INDICATOR_TYPE": "Indikator-Typ",
+      "COL_CHARACTERISTIC": "Merkmal",
+      "COL_UPDATE_INTERVAL": "Art der Fortführung",
+      "COL_TAGS": "Tags/Stichworte",
+      "COL_DECIMALS": "Nachkommastellen",
+      "COL_DATE": "Zeitpunkt",
+      "COL_REGIONAL_SUM": "regionale Gesamtsumme",
+      "COL_REGIONAL_AVERAGE": "regionaler Mittelwert",
+      "COL_SPATIALLY_UNASSIGNABLE": "räumlich nicht zuordenbar",
+      "DELETE_TITLE": "Indikator entfernen"
     }
   },
   "ADMIN_ROLES": {
@@ -920,7 +950,13 @@
       "COL_READ": "Lesen",
       "COL_EDIT": "Editieren",
       "COL_DELETE": "Löschen",
-      "PUBLIC_ACCESS": "Öffentlicher Zugriff"
+      "PUBLIC_ACCESS": "Öffentlicher Zugriff",
+      "COL_THIS_GROUP": "Diese Gruppe",
+      "COL_SUBGROUPS": "Untergruppen",
+      "GROUP_MANAGE_USERS": "Verwalten von Nutzern",
+      "GROUP_MANAGE_RESOURCES": "Verwalten von Ressourcen",
+      "GROUP_MANAGE_TOPICS": "Verwalten von Themen",
+      "EDIT_GROUP_RIGHTS_TITLE": "Gruppenrechte bearbeiten"
     }
   },
   "ADMIN_TOPICS": {
@@ -1132,6 +1168,53 @@
       "DELETE_FAILED_TEXT": "Folgende Datensätze konnten nicht gelöscht werden.",
       "ERROR_MESSAGE": "Fehlermeldung",
       "DELETE_PERMANENTLY": "Skripte unwiderruflich löschen"
+    },
+    "GRID": {
+      "COL_TARGET_INDICATOR_ID": "Ziel-Indikatoren-Id",
+      "COL_TARGET_INDICATOR_NAME": "Ziel-Indikatoren-Name",
+      "COL_REQUIRED_BASE_INDICATORS": "notwendige Basis-Indikatoren",
+      "COL_REQUIRED_BASE_GEORESOURCES": "notwendige Basis-Georessourcen",
+      "COL_PROCESS_PARAMETERS": "Prozessparameter",
+      "COL_JOB_ID": "Job-Id",
+      "COL_SCRIPT_ID": "Script-Id",
+      "COL_TARGET_INDICATOR": "Ziel-Indikator",
+      "COL_JOB_STATUS": "Job-Status",
+      "COL_JOB_PROGRESS": "Job-Fortschritt",
+      "COL_JOB_DATA": "Job-Data",
+      "COL_JOB_LOGS": "Job-Logs",
+      "COL_JOB_SUMMARY": "Job-Summary"
+    },
+    "DATA_TYPES": {
+      "STRING": "Textuell (String)",
+      "BOOLEAN": "Wahrheitswert (Boolean)",
+      "INTEGER": "Ganzzahl (Integer)",
+      "DOUBLE": "Gleitkommazahl (Double)"
+    },
+    "TEMPORAL_UNITS": {
+      "YEARS": "Jahr(e)",
+      "MONTHS": "Monat(e)",
+      "DAYS": "Tag(e)"
+    },
+    "SCRIPT_TYPES": {
+      "GENERIC": "Generische Definition",
+      "INDICATOR_SUM": "Indikatoren - Summe aller Indikatoren",
+      "INDICATOR_SUBTRACT": "Indikatoren - Subtraktion von Basis-Indikatoren von einem Referenzindikator",
+      "INDICATOR_PERCENTAGE": "Indikatoren - Prozentualer Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
+      "INDICATOR_SHARE": "Indikatoren - Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
+      "INDICATOR_DIVISION": "Indikatoren - Division (Quotient zweier Indikatoren)",
+      "INDICATOR_TREND": "Indikatoren - Trend (mittels linearer Regression)",
+      "INDICATOR_CONTINUITY": "Indikatoren - Kontinuität (mittels Pearson Korrelation)",
+      "INDICATOR_CHANGE_ABSOLUTE": "Indikatoren - Veränderung absolut",
+      "INDICATOR_CHANGE_ABSOLUTE_REF_DATE": "Indikatoren - Veränderung absolut mit festem Referenz-Zeitpunkt",
+      "INDICATOR_CHANGE_RELATIVE_REF_DATE": "Indikatoren - Veränderung prozentual mit festem Referenz-Zeitpunkt",
+      "INDICATOR_CHANGE_RELATIVE": "Indikatoren - Veränderung prozentual",
+      "INDICATOR_PROMILLE": "Indikatoren - Promille-Wert (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
+      "INDICATOR_HEADLINE_INDICATOR": "Leitindikator - verkettete Berechnung (Rank, Min-Max-Normalisierung, Aggregation)",
+      "INDICATOR_MULTIPLICATION": "Indikatoren - Produkt aller Indikatoren",
+      "GEORESOURCE_POINTS_IN_POLYGON": "Georessourcen - Anzahl Punkte in Polygon",
+      "GEORESOURCE_STATISTICS": "Georessourcen - Statistiken anhand Objekteigenschaft (Punktdatensätze)",
+      "GEORESOURCE_SUBSET_SHARE": "Georessourcen - Prozentualer Anteil anhand Objekteigenschaft (Punktdatensätze)",
+      "LINE_SEGMENT_IN_POLYGON": "Georessourcen - Summierte Linienlänge je Polygon"
     }
   },
   "ADMIN_SHELL": {
@@ -1239,6 +1322,16 @@
       "REFERENCES": "Referenzen zu Indikatoren/Georessourcen",
       "CLASSIFICATION_OPTIONS": "Klassifizierungsoptionen",
       "REGIONAL_REFERENCE_VALUES": "regionale Vergleichswerte"
+    },
+    "GRID": {
+      "COL_DB_RECORD_ID": "DB-Record-Id",
+      "COL_FEATURE_ID": "Feature-Id",
+      "COL_VALID_START": "Lebenszeitbeginn",
+      "COL_VALID_END": "Lebenszeitende",
+      "EDIT_METADATA_TITLE": "Metadaten editieren",
+      "EDIT_ACCESS_TITLE": "Zugriffsschutz und Eigentümerschaft editieren",
+      "DELETE_RECORD_TITLE": "Datenobjekt unwiderruflich entfernen",
+      "CONFIRM_WITH_ENTER": "mit Enter bestätigen"
     }
   },
   "ADMIN_WMS": {
@@ -1288,6 +1381,9 @@
     "EDIT_ROLES": {
       "TITLE": "WMS bearbeiten",
       "SUCCESS_TEXT": "Zugriffsrechte für den Datensatz mit dem Namen {{name}} wurde in KomMonitor editiert."
+    },
+    "GRID": {
+      "COL_LEGEND": "Legende"
     }
   },
   "ADMIN_CONFIG": {
@@ -1337,6 +1433,9 @@
         "SAVED": "Filter-Konfiguration gespeichert.",
         "SAVE_FAILED": "Speichern der Filter-Konfiguration gescheitert: {{error}}",
         "DELETE_CONFIRM": "Wollen Sie den Filter {{name}} sicher dauerhaft löschen?"
+      },
+      "GRID": {
+        "COL_INDICATORS": "Indikatoren"
       }
     },
     "FILTER_EDIT": {
@@ -1396,7 +1495,6 @@
     "GENERAL_STEP": {
       "SUBTITLE": "Angaben über allgemeine Metadaten in KomMonitor"
     },
-    "SECURITY": {},
     "DATA": {
       "SUBTITLE": "Angaben über den räumlichen Datensatz, aus dem die Raumeinheiten importiert werden",
       "SOURCE_FORMAT_GEO": "Geodaten-Quellformat",
@@ -1536,6 +1634,14 @@
     },
     "MSG": {
       "LOAD_FAILED": "Die Raumebenen konnten nicht geladen werden."
+    },
+    "GRID": {
+      "COL_NEXT_LOWER_LEVEL": "Nächst niedrigere Raumebene",
+      "COL_NEXT_UPPER_LEVEL": "Nächst höhere Raumebene",
+      "COL_OUTLINE_LINE_COLOR": "Linienfarbe (Umringslayer)",
+      "COL_OUTLINE_LINE_WIDTH": "Linienbreite (Umringslayer)",
+      "COL_OUTLINE_LINE_PATTERN": "Linienmuster (Umringslayer)",
+      "DELETE_TITLE": "Raumebene entfernen"
     }
   }
 }

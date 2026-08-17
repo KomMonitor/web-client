@@ -132,7 +132,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
     const rowData = buildAdvancedRoleRowData(access, authorityPermissionIds, true);
     const components = createAdvancedRoleComponents();
 
-    this.authorityColumnDefs = buildAdvancedColumnDefs();
+    this.authorityColumnDefs = buildAdvancedColumnDefs(this.translate);
     this.authorityRowData = rowData;
     this.authorityDefaultColDef = {
       ...this.roleManagementHelper.buildRoleManagementDefaultColDef(),
@@ -169,7 +169,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
     this.allDelegatedRowData = buildAdvancedRoleRowData(allAccess, delegatedPermissionIds, false);
 
     const components = createAdvancedRoleComponents();
-    this.delegatedColumnDefs = buildAdvancedColumnDefs();
+    this.delegatedColumnDefs = buildAdvancedColumnDefs(this.translate);
     this.delegatedDefaultColDef = {
       ...this.roleManagementHelper.buildRoleManagementDefaultColDef(),
       filter: true,

@@ -199,7 +199,7 @@ export class RoleAddModalComponent implements OnInit {
     const rowData = buildAdvancedRoleRowData(this.accessControlService.accessControl, []);
     const components = createAdvancedRoleComponents();
 
-    this.roleDelegatesColumnDefs = buildAdvancedColumnDefs();
+    this.roleDelegatesColumnDefs = buildAdvancedColumnDefs(this.translate);
     this.roleDelegatesRowData = rowData;
     this.roleDelegatesDefaultColDef = {
       ...this.roleManagementHelper.buildRoleManagementDefaultColDef(),
