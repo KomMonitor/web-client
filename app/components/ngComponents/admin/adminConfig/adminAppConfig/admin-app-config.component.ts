@@ -1,81 +1,33 @@
 import { HttpClient } from '@angular/common/http';
-import { TranslateModule } from '@ngx-translate/core';
-import { TranslateService } from '@ngx-translate/core';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  OnInit,
-  ViewChild,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { ConfigStorageService } from '../../../../../services/config-storage-service/config-storage.service';
 
 import CodeMirror from 'codemirror';
 
-import 'codemirror/mode/css/css.js';
-import 'codemirror/mode/htmlmixed/htmlmixed.js';
-import 'codemirror/mode/javascript/javascript.js';
-import 'codemirror/mode/xml/xml.js';
+import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { ConfigEditorComponent } from '../configEditor/config-editor.component';
+import { ConfigEditorDescriptor } from '../configEditor/config-editor.model';
 
-import { AdminContentViewComponent } from '../../admin-content-view/admin-content-view.component';
-
-// import 'codemirror/addon/display/autoRefresh.js';
-import { ScriptHelperService } from '../../../../../services/script-helper-service/script-helper.service';
-import { ExpandableBoxComponent } from '../../../common/expandable-box/expandable-box.component';
-import { NotificationService } from '../../../common/notification/notification.service';
-
-interface CodeMirrorEditor {
-  getValue(): string;
-  setValue(value: string): void;
-  setSize(width: number | null, height: number): void;
-  on(event: string, callback: (cm: any) => void): void;
-}
-
-interface LintingIssue {
-  severity: 'error' | 'warning';
-  message: string;
-  from: { line: number; ch: number };
-  to: { line: number; ch: number };
-}
-
+/**
+ * The /administration app-config route. All UI and editor mechanics live in
+ * <app-config-editor>; this component only describes what is specific to the
+ * JavaScript-based app config.
+ */
 @Component({
   selector: 'app-admin-app-config',
   templateUrl: './admin-app-config.component.html',
-  styleUrls: ['./admin-app-config.component.scss'],
-  imports: [TranslateModule, ExpandableBoxComponent, AdminContentViewComponent],
+  imports: [ConfigEditorComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AdminAppConfigComponent implements OnInit {
+export class AdminAppConfigComponent {
   private http = inject(HttpClient);
-  private kommonitorConfigStorageService = inject(ConfigStorageService);
-  private kommonitorScriptHelperService = inject(ScriptHelperService);
-  private notificationService = inject(NotificationService);
-  private translate = inject(TranslateService);
+  private configStorageService = inject(ConfigStorageService);
+  private envConfigService = inject(EnvConfigService);
 
-  // The content lives in an <ng-template> that admin-content-view renders via
-  // outlet, so these resolve only after the first change detection — not with
-  // { static: true }. initCodeEditor() runs after the config fetch and therefore
-  // after the first render.
-  @ViewChild('appConfigEditor') appConfigEditor!: ElementRef;
-  @ViewChild('templateCodeMirror') templateCodeMirrorElement!: ElementRef;
-  @ViewChild('currentCodeMirror') currentCodeMirrorElement!: ElementRef;
-  @ViewChild('newCodeMirror') newCodeMirrorElement!: ElementRef;
-
-  // Signal: toggled from awaits/subscriptions (OnPush).
-  loadingData = signal(true);
-  codeMirrorEditor!: CodeMirrorEditor;
-  templateCodeMirrorEditor!: CodeMirrorEditor;
-  currentCodeMirrorEditor!: CodeMirrorEditor;
-  newCodeMirrorEditor!: CodeMirrorEditor;
-  // Signals: written from CodeMirror lint callbacks, which run outside
-  // Angular's template-event path (OnPush).
-  missingRequiredParameters = signal<string[]>([]);
-  missingRequiredParameters_string = signal('');
-  keywordsInConfig = [
+  /** Keys env.js has to define; checked verbatim against the editor content. */
+  private static readonly REQUIRED_KEYWORDS = [
     'window.__env',
     'window.__env.appTitle',
     'window.__env.enableKeycloakSecurity',
@@ -120,210 +72,21 @@ export class AdminAppConfigComponent implements OnInit {
     'window.__env.customGreetingsContact_organisation',
     'window.__env.customGreetingsContact_mail',
   ];
-  appConfigTemplate: string = '';
-  appConfigTmp: string = '';
-  appConfigCurrent: string = '';
-  appConfigNew: string = '';
-  configSettingInvalid = signal(false);
-  lintingIssues: LintingIssue[] = [];
 
-  constructor() {
-    if (!this.kommonitorScriptHelperService) {
-      console.error('kommonitorScriptHelperService is not available');
-    }
-  }
-
-  ngOnInit() {
-    this.init();
-  }
-
-  async init() {
-    try {
-      if (!this.kommonitorScriptHelperService) {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
-
-      const response = await firstValueFrom(
-        this.http.get('./config/env_backup.js', { responseType: 'text' })
-      );
-      if (typeof response === 'string') {
-        this.appConfigTemplate = response;
-        if (this.kommonitorScriptHelperService) {
-          this.kommonitorScriptHelperService.prettifyScriptCodePreview('appConfig_backupTemplate');
-        }
-
-        // set in app.js
-        this.appConfigTmp = (window as any).__env.appConfig;
-        this.appConfigCurrent = (window as any).__env.appConfig;
-        this.appConfigNew = (window as any).__env.appConfig;
-        if (this.kommonitorScriptHelperService) {
-          this.kommonitorScriptHelperService.prettifyScriptCodePreview('appConfig_current');
-        }
-        this.initCodeEditor();
-        this.onChangeAppConfig();
-      }
-    } catch (error: any) {
-      console.error('Error initializing app config:', error);
-      this.notificationService.showError(
-        this.translate.instant('ADMIN_CONFIG.APP.MSG.LOAD_FAILED', {
-          error:
-            error?.error?.message ||
-            error?.message ||
-            this.translate.instant('ADMIN_SHARED.UNKNOWN_ERROR'),
-        }),
-        { autohide: false }
-      );
-    } finally {
-      this.loadingData.set(false);
-    }
-  }
-
-  initCodeEditor() {
-    if (!this.appConfigEditor?.nativeElement) {
-      console.error('Could not find appConfigEditor element');
-      return;
-    }
-
-    // Initialize main editor
-    this.codeMirrorEditor = CodeMirror.fromTextArea(this.appConfigEditor.nativeElement, {
-      lineNumbers: true,
-      autoRefresh: true,
-      mode: 'javascript',
-      gutters: ['CodeMirror-lint-markers'],
-      lint: {
-        getAnnotations: this.validateCode.bind(this),
-        async: true,
-      },
-    });
-    this.codeMirrorEditor.setSize(null, 450);
-    this.codeMirrorEditor.on('change', (_cMirror: any) => {
-      this.appConfigTmp = this.codeMirrorEditor.getValue();
-    });
-    this.codeMirrorEditor.setValue(this.appConfigCurrent);
-
-    // Initialize template editor
-    if (this.templateCodeMirrorElement?.nativeElement) {
-      this.templateCodeMirrorEditor = CodeMirror(this.templateCodeMirrorElement.nativeElement, {
-        lineNumbers: true,
-        autoRefresh: true,
-        mode: 'javascript',
-        readOnly: true,
-        theme: 'panda-syntax',
-        lineWrapping: true,
-      });
-      this.templateCodeMirrorEditor.setSize(null, 450);
-      this.templateCodeMirrorEditor.setValue(this.appConfigTemplate);
-    }
-
-    // Initialize current editor
-    if (this.currentCodeMirrorElement?.nativeElement) {
-      this.currentCodeMirrorEditor = CodeMirror(this.currentCodeMirrorElement.nativeElement, {
-        lineNumbers: true,
-        autoRefresh: true,
-        mode: 'javascript',
-        readOnly: true,
-        theme: 'panda-syntax',
-        lineWrapping: true,
-      });
-      this.currentCodeMirrorEditor.setSize(null, 450);
-      this.currentCodeMirrorEditor.setValue(this.appConfigCurrent);
-    }
-
-    // Initialize new editor
-    if (this.newCodeMirrorElement?.nativeElement) {
-      this.newCodeMirrorEditor = CodeMirror(this.newCodeMirrorElement.nativeElement, {
-        lineNumbers: true,
-        autoRefresh: true,
-        mode: 'javascript',
-        readOnly: true,
-        theme: 'panda-syntax',
-        lineWrapping: true,
-      });
-      this.newCodeMirrorEditor.setSize(null, 450);
-      this.newCodeMirrorEditor.setValue(this.appConfigNew);
-    }
-  }
-
-  validateCode(cm: any, updateLinting: (issues: LintingIssue[]) => void, options: any) {
-    try {
-      this.lintingIssues = CodeMirror.lint.javascript(cm, options);
-      updateLinting(this.lintingIssues);
-    } catch (error) {
-      console.error('Error while linting app config script code. Error is: \n' + error);
-    }
-    this.onChangeAppConfig();
-  }
-
-  isConfigSettingInvalid(configString: string): boolean {
-    let isInvalid = true;
-    isInvalid = !this.keywordsInConfig.every((keyword) => configString.includes(keyword));
-    this.missingRequiredParameters.set(
-      this.keywordsInConfig.filter((keyword) => !configString.includes(keyword))
-    );
-    this.missingRequiredParameters_string.set(JSON.stringify(this.missingRequiredParameters()));
-    if (this.lintingIssues && this.lintingIssues.length > 0) {
-      const errors = this.lintingIssues.filter((issue) => issue.severity === 'error');
-      if (errors && errors.length > 0) {
-        isInvalid = true;
-      }
-    }
-    return isInvalid;
-  }
-
-  onChangeAppConfig() {
-    const configString = this.appConfigTmp;
-    this.configSettingInvalid.set(this.isConfigSettingInvalid(configString));
-    setTimeout(() => {
-      this.appConfigNew = configString;
-      if (this.newCodeMirrorEditor) {
-        this.newCodeMirrorEditor.setValue(configString);
-      }
-    });
-  }
-
-  async editAppConfig() {
-    this.loadingData.set(true);
-    try {
-      await this.kommonitorConfigStorageService.postAppConfig(this.appConfigTmp).toPromise();
-      this.kommonitorConfigStorageService.getAppConfig().subscribe({
-        next: (newCurrentConfig: string) => {
-          this.appConfigCurrent = newCurrentConfig;
-          if (this.currentCodeMirrorEditor) {
-            this.currentCodeMirrorEditor.setValue(newCurrentConfig);
-          }
-          this.notificationService.showSuccess(
-            this.translate.instant('ADMIN_CONFIG.APP.MSG.SAVED')
-          );
-          this.loadingData.set(false);
-        },
-        error: (error: any) => {
-          this.showSaveError(error);
-          this.loadingData.set(false);
-        },
-      });
-    } catch (error: any) {
-      this.showSaveError(error);
-      this.loadingData.set(false);
-    }
-  }
-
-  private showSaveError(error: any): void {
-    console.error('Error saving app config:', error);
-    this.notificationService.showError(
-      this.translate.instant('ADMIN_CONFIG.APP.MSG.SAVE_FAILED', {
-        error:
-          error?.error?.message ||
-          error?.data ||
-          error?.message ||
-          this.translate.instant('ADMIN_SHARED.UNKNOWN_ERROR'),
-      }),
-      { autohide: false }
-    );
-  }
+  readonly descriptor: ConfigEditorDescriptor = {
+    i18nPrefix: 'ADMIN_CONFIG.APP',
+    mode: 'javascript',
+    formatLabel: 'JavaScript',
+    requiredKeywords: AdminAppConfigComponent.REQUIRED_KEYWORDS,
+    lint: (cm, options) => CodeMirror.lint.javascript(cm, options),
+    loadTemplate: () =>
+      firstValueFrom(this.http.get('./config/env_backup.js', { responseType: 'text' })),
+    // Populated by env.js at startup, so it is read from the runtime config
+    // rather than re-fetched.
+    loadCurrent: async () => this.envConfigService.appConfig,
+    save: async (value) => {
+      await firstValueFrom(this.configStorageService.postAppConfig(value));
+      return await firstValueFrom(this.configStorageService.getAppConfig());
+    },
+  };
 }
-
-/* // Downgrade the component
-angular.module('adminAppConfig')
-  .directive('adminAppConfigNew',
-    downgradeComponent({ component: AdminAppConfigComponent }) as angular.IDirectiveFactory
-  );  */

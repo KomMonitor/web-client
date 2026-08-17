@@ -1,0 +1,89 @@
+/*
+ * Merged from the two former twins' stylesheets (183 + 123 lines). Everything
+ * that styled markup these templates do not contain was dropped: the .box*,
+ * .content*, .alert* and .prettyprint/.linenums blocks (the page uses
+ * expandable-box, NotificationService toasts and no prettyprint), plus the
+ * #controlsConfigEditSuccessAlert / #controlsConfigEditErrorAlert rules whose
+ * elements were removed when the inline alerts became toasts.
+ *
+ * Two values had to be picked where the twins disagreed:
+ *  - .btn-success: was #5cb85c (app config) vs #00a65a (controls config); now
+ *    #27ae60, the green the rest of the admin area uses.
+ *  - .vertical-align: was `center` vs `stretch`; now `stretch`, so the two
+ *    450px editor columns share a height.
+ */
+
+.vertical-align {
+  display: flex;
+  align-items: stretch;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.help-block {
+  display: block;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  color: #a94442;
+}
+
+.with-errors {
+  color: #a94442;
+}
+
+.btn-success {
+  color: #fff;
+  background-color: #27ae60;
+  border-color: #27ae60;
+}
+
+.btn-success:hover {
+  background-color: #229954;
+  border-color: #229954;
+}
+
+.btn-success:disabled {
+  background-color: #b5bbb8;
+  border-color: #9ea3a1;
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.CodeMirror {
+  height: 450px;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.CodeMirror.CodeMirror-readonly {
+  background-color: #f5f5f5;
+}
+
+.CodeMirror-focused {
+  border-color: #66afe9;
+  outline: 0;
+  box-shadow:
+    inset 0 1px 1px rgba(0, 0, 0, 0.075),
+    0 0 8px rgba(102, 175, 233, 0.6);
+}
+
+textarea {
+  width: 100%;
+  min-height: 450px;
+}
+
+@media (max-width: 768px) {
+  .vertical-align {
+    display: block;
+  }
+
+  .CodeMirror {
+    margin-bottom: 20px;
+  }
+}
