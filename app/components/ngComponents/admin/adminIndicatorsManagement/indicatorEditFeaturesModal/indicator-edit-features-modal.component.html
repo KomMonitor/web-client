@@ -120,21 +120,22 @@
               </div>
             </div>
             <div>
-              @if (featureTableHelper.featureTable_indicator_lastUpdate_timestamp_success) {
+              @if (featureTableStatus.lastSuccess()) {
                 <div style="background-color: #9dc89f">
                   <b>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.LAST_UPDATE_SUCCESS' | translate }}</b>
-                  {{ featureTableHelper.featureTable_indicator_lastUpdate_timestamp_success }}
+                  {{ featureTableStatus.lastSuccess() }}
                 </div>
               }
-              @if (featureTableHelper.featureTable_indicator_lastUpdate_timestamp_failure) {
+              @if (featureTableStatus.lastFailure()) {
                 <div style="background-color: #e79595">
                   <b>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.LAST_UPDATE_FAILURE' | translate }}</b>
-                  {{ featureTableHelper.featureTable_indicator_lastUpdate_timestamp_failure }}
+                  {{ featureTableStatus.lastFailure() }}
                 </div>
               }
             </div>
             <div class="admin-table-wrapper featureTableWrapper">
               <ag-grid-angular
+                #indicatorFeatureTable
                 id="indicatorFeatureTable"
                 style="height: 50vh; width: 100%"
                 class="ag-theme-alpine"

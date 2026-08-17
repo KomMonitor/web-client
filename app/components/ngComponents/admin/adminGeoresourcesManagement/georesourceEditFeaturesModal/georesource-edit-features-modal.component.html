@@ -105,16 +105,16 @@
           </div>
 
           <div>
-            @if (featureTableHelper.featureTable_georesource_lastUpdate_timestamp_success) {
+            @if (featureTableStatus.lastSuccess()) {
               <div style="background-color: #9dc89f">
                 <b>{{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.LAST_UPDATE_SUCCESS' | translate }}</b>
-                {{ featureTableHelper.featureTable_georesource_lastUpdate_timestamp_success }}
+                {{ featureTableStatus.lastSuccess() }}
               </div>
             }
-            @if (featureTableHelper.featureTable_georesource_lastUpdate_timestamp_failure) {
+            @if (featureTableStatus.lastFailure()) {
               <div style="background-color: #e79595">
                 <b>{{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.LAST_UPDATE_FAILURE' | translate }}</b>
-                {{ featureTableHelper.featureTable_georesource_lastUpdate_timestamp_failure }}
+                {{ featureTableStatus.lastFailure() }}
               </div>
             }
           </div>

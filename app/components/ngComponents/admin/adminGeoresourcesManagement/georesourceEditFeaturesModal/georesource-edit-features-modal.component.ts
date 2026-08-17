@@ -25,7 +25,7 @@ import {
   GridOptions,
   GridReadyEvent,
 } from 'ag-grid-community';
-import { Subscription, filter } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 
@@ -37,7 +37,11 @@ import { CacheHelperServiceService } from 'services/cache-helper-service/cache-h
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { FeatureTableDataGridHelperService } from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
+import {
+  FeatureTableCallbacks,
+  FeatureTableDataGridHelperService,
+  FeatureTableEditStatus,
+} from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { TranslateModule } from '@ngx-translate/core';
@@ -93,6 +97,9 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
   @ViewChild('dataSourceInput', { static: false }) dataSourceInput!: ElementRef;
   @ViewChild('georesourceFeatureTable', { static: true }) georesourceFeatureTable!: AgGridAngular;
+  /** Same element, read as host node: scopes the header measurement to this grid. */
+  @ViewChild('georesourceFeatureTable', { static: true, read: ElementRef })
+  georesourceFeatureTableEl!: ElementRef<HTMLElement>;
 
   // Component state
   // Signal: toggled from subscriptions and grid-helper events (OnPush).
@@ -116,6 +123,9 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   enableDeleteFeatures = false;
   georesourceFeaturesGeoJSON: any;
   remainingFeatureHeaders: any[] = [];
+
+  /** Last edit/delete outcome of this modal's feature table (own instance). */
+  readonly featureTableStatus = new FeatureTableEditStatus();
 
   // AG-Grid configuration
   featureTableGridOptions: GridOptions = {};
@@ -235,26 +245,22 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       }
     );
     this.subscriptions.push(broadcastSubscription);
+  }
 
-    // React to feature-table loading/delete events from the shared grid helper.
-    const featureTableSubscription = this.featureTableHelper.featureTableEvents$
-      .pipe(
-        filter((event) => event.resourceType === this.featureTableHelper.resourceType_georesource)
-      )
-      .subscribe((event) => {
-        if (event.type === 'loadingStart') {
-          this.loadingData.set(true);
-        } else if (event.type === 'loadingEnd') {
-          this.loadingData.set(false);
-        } else if (event.type === 'featureDeleted') {
-          this.refreshRequested.emit({
-            crudType: 'edit',
-            targetGeoresourceId: this.currentGeoresourceDataset?.georesourceId,
-          });
-          this.refreshGeoresourceEditFeaturesOverviewTable();
-        }
-      });
-    this.subscriptions.push(featureTableSubscription);
+  /** Callbacks this modal's feature table reports its edits and deletes through. */
+  private featureTableCallbacks(): FeatureTableCallbacks {
+    return {
+      onDeleteStart: () => this.loadingData.set(true),
+      onDeleteSuccess: () => {
+        this.refreshRequested.emit({
+          crudType: 'edit',
+          targetGeoresourceId: this.currentGeoresourceDataset?.georesourceId,
+        });
+        this.refreshGeoresourceEditFeaturesOverviewTable();
+      },
+      onDeleteError: () => this.loadingData.set(false),
+      onCellEditResult: (success) => this.featureTableStatus.record(success),
+    };
   }
 
   onEditGeoresourceFeatures(georesourceDataset: any): void {
@@ -272,16 +278,18 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   // Feature table management
-  private buildFeatureTable(): void {
-    this.featureTableGridOptions =
-      this.featureTableHelper.buildDataGrid_featureTable_spatialResource(
-        'georesourceFeatureTable',
-        [],
-        [],
-        undefined,
-        this.featureTableHelper.resourceType_georesource,
-        this.enableDeleteFeatures
-      );
+  private buildFeatureTable(headers: string[] = [], features: any[] = []): void {
+    this.featureTableGridOptions = this.featureTableHelper.buildSpatialResourceFeatureTable(
+      {
+        headers,
+        features,
+        resourceId: this.currentGeoresourceDataset?.georesourceId,
+        resourceType: 'georesource',
+        enableDelete: this.enableDeleteFeatures,
+        gridRoot: () => this.georesourceFeatureTableEl?.nativeElement,
+      },
+      this.featureTableCallbacks()
+    );
   }
 
   refreshGeoresourceEditFeaturesOverviewTable(): void {
@@ -325,15 +333,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
         console.log('Features count:', this.georesourceFeaturesGeoJSON.features?.length || 0);
 
         // Rebuild the grid options with new data
-        this.featureTableGridOptions =
-          this.featureTableHelper.buildDataGrid_featureTable_spatialResource(
-            'georesourceFeatureTable',
-            tmpRemainingHeaders,
-            this.georesourceFeaturesGeoJSON.features,
-            this.currentGeoresourceDataset.georesourceId,
-            this.featureTableHelper.resourceType_georesource,
-            this.enableDeleteFeatures
-          );
+        this.buildFeatureTable(tmpRemainingHeaders, this.georesourceFeaturesGeoJSON.features);
 
         // If grid API is available, update the data directly
         if (this.gridApi) {
@@ -375,15 +375,10 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       this.remainingFeatureHeaders &&
       this.georesourceFeaturesGeoJSON
     ) {
-      this.featureTableGridOptions =
-        this.featureTableHelper.buildDataGrid_featureTable_spatialResource(
-          'georesourceFeatureTable',
-          this.remainingFeatureHeaders,
-          this.georesourceFeaturesGeoJSON.features || [],
-          this.currentGeoresourceDataset.georesourceId,
-          this.featureTableHelper.resourceType_georesource,
-          this.enableDeleteFeatures
-        );
+      this.buildFeatureTable(
+        this.remainingFeatureHeaders,
+        this.georesourceFeaturesGeoJSON.features || []
+      );
 
       // Update grid if API is available
       if (this.gridApi && this.featureTableGridOptions && this.featureTableGridOptions.columnDefs) {

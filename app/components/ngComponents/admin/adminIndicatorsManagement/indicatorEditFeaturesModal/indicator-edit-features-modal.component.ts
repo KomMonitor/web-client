@@ -5,7 +5,6 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  DestroyRef,
   ElementRef,
   EventEmitter,
   OnInit,
@@ -14,8 +13,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { filter } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -31,7 +28,11 @@ import { IndicatorValueService } from '../../../../../services/indicator-value-s
 import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
-import { FeatureTableDataGridHelperService } from '../../../../../services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
+import {
+  FeatureTableCallbacks,
+  FeatureTableDataGridHelperService,
+  FeatureTableEditStatus,
+} from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
 import { ownerDefaultPermissionIds } from '../../adminShared/roleManagementPanel/role-management-panel.model';
 import { ResourceImportService } from 'services/resource-import-service/resource-import.service';
 import { NotificationService } from '../../../common/notification/notification.service';
@@ -53,7 +54,6 @@ declare const $: any;
 export class IndicatorEditFeaturesModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   private broadcastService = inject(BroadcastService);
-  private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
   private http = inject(HttpClient);
   private cacheHelperService = inject(CacheHelperServiceService);
@@ -70,7 +70,13 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
 
   featureTableGridOptions: GridOptions = {};
 
+  /** Last edit/delete outcome of this modal's feature table (own instance). */
+  readonly featureTableStatus = new FeatureTableEditStatus();
+
   @ViewChild('modal') modal!: ElementRef;
+  /** Grid host node: scopes the header measurement to this modal's grid. */
+  @ViewChild('indicatorFeatureTable', { read: ElementRef })
+  indicatorFeatureTableEl?: ElementRef<HTMLElement>;
 
   @Output() refreshRequested = new EventEmitter<IndicatorRefreshRequest>();
 
@@ -152,26 +158,37 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       // Bus callbacks swap template-bound fields on this OnPush view.
       this.cdr.markForCheck();
     });
+  }
 
-    // React to feature-table loading/delete events from the shared grid helper.
-    this.featureTableHelper.featureTableEvents$
-      .pipe(
-        filter((event) => event.resourceType === this.featureTableHelper.resourceType_indicator),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe((event) => {
-        if (event.type === 'loadingStart') {
-          this.loadingData.set(true);
-        } else if (event.type === 'loadingEnd') {
-          this.loadingData.set(false);
-        } else if (event.type === 'featureDeleted') {
-          this.refreshRequested.emit({
-            crudType: 'edit',
-            targetIndicatorId: this.currentIndicatorDataset.indicatorId,
-          });
-          this.refreshIndicatorEditFeaturesOverviewTable();
-        }
-      });
+  /** Callbacks this modal's feature table reports its edits and deletes through. */
+  private featureTableCallbacks(): FeatureTableCallbacks {
+    return {
+      onDeleteStart: () => this.loadingData.set(true),
+      onDeleteSuccess: () => {
+        this.refreshRequested.emit({
+          crudType: 'edit',
+          targetIndicatorId: this.currentIndicatorDataset.indicatorId,
+        });
+        this.refreshIndicatorEditFeaturesOverviewTable();
+      },
+      onDeleteError: () => this.loadingData.set(false),
+      onCellEditResult: (success) => this.featureTableStatus.record(success),
+    };
+  }
+
+  /** (Re)build this modal's indicator feature table. */
+  private buildFeatureTable(headers: string[] = [], features: any[] = []): void {
+    this.featureTableGridOptions = this.featureTableHelper.buildIndicatorFeatureTable(
+      {
+        headers,
+        features,
+        resourceId: this.currentIndicatorDataset?.indicatorId,
+        spatialUnitId: this.overviewTableTargetSpatialUnitMetadata?.spatialUnitId,
+        enableDelete: this.enableDeleteFeatures,
+        gridRoot: () => this.indicatorFeatureTableEl?.nativeElement,
+      },
+      this.featureTableCallbacks()
+    );
   }
 
   private initializeForm(): void {
@@ -188,12 +205,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
 
     this.currentIndicatorDataset = indicatorDataset;
     this.resetIndicatorEditFeaturesForm();
-    this.featureTableGridOptions =
-      this.featureTableHelper.buildDataGrid_featureTable_indicatorResource(
-        'indicatorFeatureTable',
-        [],
-        []
-      );
+    this.buildFeatureTable();
   }
 
   closeModal(): void {
@@ -205,8 +217,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.enableDeleteFeatures = false;
 
     // Reset edit banners
-    this.featureTableHelper.featureTable_indicator_lastUpdate_timestamp_success = undefined;
-    this.featureTableHelper.featureTable_indicator_lastUpdate_timestamp_failure = undefined;
+    this.featureTableStatus.reset();
 
     this.indicatorFeaturesJSON = undefined;
     this.remainingFeatureHeaders = [];
@@ -284,16 +295,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
 
         this.remainingFeatureHeaders = tmpRemainingHeaders;
 
-        this.featureTableGridOptions =
-          this.featureTableHelper.buildDataGrid_featureTable_indicatorResource(
-            'indicatorFeatureTable',
-            tmpRemainingHeaders,
-            this.indicatorFeaturesJSON,
-            this.currentIndicatorDataset.indicatorId,
-            this.featureTableHelper.resourceType_indicator,
-            this.enableDeleteFeatures,
-            this.overviewTableTargetSpatialUnitMetadata.spatialUnitId
-          );
+        this.buildFeatureTable(tmpRemainingHeaders, this.indicatorFeaturesJSON);
 
         this.loadingData.set(false);
         // The grid options above were rebuilt in this async callback.
@@ -332,12 +334,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         });
 
         // Force empty feature overview table on successful deletion of entries
-        this.featureTableGridOptions =
-          this.featureTableHelper.buildDataGrid_featureTable_indicatorResource(
-            'indicatorFeatureTable',
-            [],
-            []
-          );
+        this.buildFeatureTable();
 
         this.successMessagePart = this.currentIndicatorDataset.indicatorName;
         this.showSuccessAlert();

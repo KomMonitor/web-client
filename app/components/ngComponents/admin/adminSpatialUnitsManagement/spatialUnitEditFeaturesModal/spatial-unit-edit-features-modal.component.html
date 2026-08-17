@@ -101,26 +101,20 @@
               </div>
             </div>
             <div>
-              @if (featureTableHelper.featureTable_spatialUnit_lastUpdate_timestamp_success) {
+              @if (featureTableStatus.lastSuccess()) {
                 <div class="timestamp-success">
                   <b>{{
                     'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.LAST_UPDATE_SUCCESS' | translate
                   }}</b>
-                  {{
-                    featureTableHelper.featureTable_spatialUnit_lastUpdate_timestamp_success
-                      | date: 'medium'
-                  }}
+                  {{ featureTableStatus.lastSuccess() | date: 'medium' }}
                 </div>
               }
-              @if (featureTableHelper.featureTable_spatialUnit_lastUpdate_timestamp_failure) {
+              @if (featureTableStatus.lastFailure()) {
                 <div class="timestamp-error">
                   <b>{{
                     'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.LAST_UPDATE_FAILURE' | translate
                   }}</b>
-                  {{
-                    featureTableHelper.featureTable_spatialUnit_lastUpdate_timestamp_failure
-                      | date: 'medium'
-                  }}
+                  {{ featureTableStatus.lastFailure() | date: 'medium' }}
                 </div>
               }
             </div>

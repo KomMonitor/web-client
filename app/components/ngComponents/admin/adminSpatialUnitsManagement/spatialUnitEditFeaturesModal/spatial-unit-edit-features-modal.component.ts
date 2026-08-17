@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  DestroyRef,
   ElementRef,
   EventEmitter,
   OnInit,
@@ -11,12 +10,14 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { filter } from 'rxjs';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import { HttpClient } from '@angular/common/http';
-import { FeatureTableDataGridHelperService } from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
+import {
+  FeatureTableCallbacks,
+  FeatureTableDataGridHelperService,
+  FeatureTableEditStatus,
+} from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
 import { SpatialUnitOverviewType as SpatialUnitMetadata } from 'models/data-management-api';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
@@ -83,7 +84,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   @Output() refreshRequested = new EventEmitter<SpatialUnitRefreshRequest>();
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
-  private destroyRef = inject(DestroyRef);
   private resourceImportService = inject(ResourceImportService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -91,6 +91,9 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   @ViewChild('spatialUnitDataSourceInput', { static: false })
   spatialUnitDataSourceInput!: ElementRef;
   @ViewChild('spatialUnitFeatureTable', { static: true }) spatialUnitFeatureTable!: AgGridAngular;
+  /** Same element, read as host node: scopes the header measurement to this grid. */
+  @ViewChild('spatialUnitFeatureTable', { static: true, read: ElementRef })
+  spatialUnitFeatureTableEl!: ElementRef<HTMLElement>;
   // km-date-picker handles its own datepicker internally; no ngb refs needed
 
   // Multi-step form
@@ -172,6 +175,9 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   // Feature table settings
   enableDeleteFeatures = false;
 
+  /** Last edit/delete outcome of this modal's feature table (own instance). */
+  readonly featureTableStatus = new FeatureTableEditStatus();
+
   // Grid options for feature table
   featureTableGridOptions: GridOptions = {};
   private gridApi!: GridApi;
@@ -193,7 +199,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.initializeForm();
-    this.setupEventListeners();
     await this.loadAvailableOptions();
     this.buildFeatureTable();
     this.ensureGridConfiguration();
@@ -229,27 +234,20 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     }
   }
 
-  private setupEventListeners(): void {
-    // React to feature-table loading/delete events from the shared grid helper.
-    this.featureTableHelper.featureTableEvents$
-      .pipe(
-        filter((event) => event.resourceType === this.featureTableHelper.resourceType_spatialUnit),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe((event) => {
-        if (event.type === 'loadingStart') {
-          this.loadingData.set(true);
-        } else if (event.type === 'loadingEnd') {
-          this.loadingData.set(false);
-        } else if (event.type === 'featureDeleted') {
-          // Handle individual feature deletion
-          this.refreshRequested.emit({
-            crudType: 'edit',
-            targetSpatialUnitId: this.currentSpatialUnitDataset?.spatialUnitId,
-          });
-          this.refreshSpatialUnitEditFeaturesOverviewTable();
-        }
-      });
+  /** Callbacks this modal's feature table reports its edits and deletes through. */
+  private featureTableCallbacks(): FeatureTableCallbacks {
+    return {
+      onDeleteStart: () => this.loadingData.set(true),
+      onDeleteSuccess: () => {
+        this.refreshRequested.emit({
+          crudType: 'edit',
+          targetSpatialUnitId: this.currentSpatialUnitDataset?.spatialUnitId,
+        });
+        this.refreshSpatialUnitEditFeaturesOverviewTable();
+      },
+      onDeleteError: () => this.loadingData.set(false),
+      onCellEditResult: (success) => this.featureTableStatus.record(success),
+    };
   }
 
   private async loadAvailableOptions(): Promise<void> {
@@ -270,78 +268,22 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   }
 
   private buildFeatureTable(): void {
-    // Get base configuration from service
-    const baseGridOptions = this.featureTableHelper.buildDataGrid_featureTable_spatialResource(
-      'spatialUnitFeatureTable',
-      this.remainingFeatureHeaders || [],
-      this.spatialUnitFeaturesGeoJSON?.features || [],
-      this.currentSpatialUnitDataset?.spatialUnitId,
-      this.featureTableHelper.resourceType_spatialUnit,
-      this.enableDeleteFeatures
+    this.featureTableGridOptions = this.featureTableHelper.buildSpatialResourceFeatureTable(
+      {
+        headers: this.remainingFeatureHeaders || [],
+        features: this.spatialUnitFeaturesGeoJSON?.features || [],
+        resourceId: this.currentSpatialUnitDataset?.spatialUnitId,
+        resourceType: 'spatialUnit',
+        enableDelete: this.enableDeleteFeatures,
+        gridRoot: () => this.spatialUnitFeatureTableEl?.nativeElement,
+      },
+      this.featureTableCallbacks()
     );
 
-    // Extract service configuration
-    const columnDefs = baseGridOptions.columnDefs || [];
-    const rowData = baseGridOptions.rowData || [];
-    const defaultColDef = baseGridOptions.defaultColDef || {};
-
-    // Bind to template inputs
-    this.columnDefs = columnDefs;
-    this.rowData = rowData;
-    this.defaultColDef = {
-      ...defaultColDef,
-      editable: true,
-      sortable: true,
-      flex: 1,
-      minWidth: 150,
-      filter: true,
-      floatingFilter: true,
-      resizable: true,
-      wrapText: true,
-      autoHeight: true,
-      cellEditor: 'agLargeTextCellEditor',
-      cellStyle: {
-        'font-size': '12px',
-        'white-space': 'normal !important',
-        'line-height': '20px !important',
-        'word-break': 'break-word !important',
-        'padding-top': '17px',
-        'padding-bottom': '17px',
-      },
-    };
-
-    // Override with component-specific settings
-    this.featureTableGridOptions = {
-      ...baseGridOptions,
-      columnDefs: this.columnDefs,
-      rowData: this.rowData,
-      defaultColDef: this.defaultColDef,
-      // Pagination settings
-      pagination: true,
-      paginationPageSize: this.paginationPageSize,
-      paginationPageSizeSelector: this.paginationPageSizeSelector,
-      // Grid features
-      suppressRowClickSelection: true,
-      rowSelection: 'multiple',
-      enableCellTextSelection: true,
-      ensureDomOrder: true,
-      suppressColumnVirtualisation: true,
-      // enables undo / redo
-      undoRedoCellEditing: true,
-      undoRedoCellEditingLimit: 10,
-      // enables flashing to help see cell changes
-      enableCellChangeFlash: true,
-      onGridReady: (params: any) => {
-        this.gridApi = params.api;
-      },
-      onFirstDataRendered: () => {
-        this.headerHeightSetter();
-        this.registerFeatureTableClickHandlers();
-      },
-      onColumnResized: () => {
-        this.headerHeightSetter();
-      },
-    };
+    // Bind the pieces the template feeds to <ag-grid-angular> individually
+    this.columnDefs = this.featureTableGridOptions.columnDefs as ColDef[];
+    this.rowData = this.featureTableGridOptions.rowData || [];
+    this.defaultColDef = this.featureTableGridOptions.defaultColDef || {};
 
     // The grid bindings above are also reassigned from HTTP callbacks — mark
     // the OnPush view once here instead of signalling each grid field.
@@ -350,10 +292,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
 
   resetForm(): void {
     // Reset edit banners
-    if (this.featureTableHelper) {
-      this.featureTableHelper.featureTable_spatialUnit_lastUpdate_timestamp_success = undefined;
-      this.featureTableHelper.featureTable_spatialUnit_lastUpdate_timestamp_failure = undefined;
-    }
+    this.featureTableStatus.reset();
 
     // Reset form data
     this.spatialUnitFeaturesGeoJSON = null;
@@ -456,17 +395,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
 
         // Update the grid with new data
         this.updateGridWithData();
-
-        // Register click handlers if delete features is enabled
-        if (this.enableDeleteFeatures) {
-          setTimeout(() => {
-            this.featureTableHelper.registerFeatureTableClickHandlers(
-              this.currentSpatialUnitDataset?.spatialUnitId,
-              this.featureTableHelper.resourceType_spatialUnit,
-              this.enableDeleteFeatures
-            );
-          }, 100);
-        }
 
         // Use setTimeout to ensure proper change detection and DOM updates
         setTimeout(() => {
@@ -925,15 +853,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
 
       // Force refresh of the grid to show/hide delete buttons
       this.gridApi.refreshCells();
-
-      // Register click handlers after grid update
-      setTimeout(() => {
-        this.featureTableHelper.registerFeatureTableClickHandlers(
-          this.currentSpatialUnitDataset?.spatialUnitId,
-          this.featureTableHelper.resourceType_spatialUnit,
-          this.enableDeleteFeatures
-        );
-      }, 100);
     }
   }
 
@@ -973,41 +892,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     if (this.featureTableGridOptions.pagination) {
       this.gridApi.paginationGoToPage(0);
     }
-  }
-
-  private headerHeightSetter(): void {
-    if (this.gridApi) {
-      const headerHeight = this.headerHeightGetter();
-      this.gridApi.setGridOption('headerHeight', headerHeight);
-    }
-  }
-
-  private headerHeightGetter(): number {
-    const headerElement = document.querySelector('.ag-header');
-    if (headerElement) {
-      const headerTextElements = headerElement.querySelectorAll('.ag-header-cell-text');
-      let maxHeight = 0;
-      headerTextElements.forEach((element) => {
-        const height = element.scrollHeight;
-        if (height > maxHeight) {
-          maxHeight = height;
-        }
-      });
-      return Math.max(maxHeight + 20, 50); // Add padding and minimum height
-    }
-    return 50;
-  }
-
-  private registerFeatureTableClickHandlers(): void {
-    if (!this.enableDeleteFeatures) return;
-
-    setTimeout(() => {
-      this.featureTableHelper.registerFeatureTableClickHandlers(
-        this.currentSpatialUnitDataset?.spatialUnitId,
-        this.featureTableHelper.resourceType_spatialUnit,
-        this.enableDeleteFeatures
-      );
-    }, 100);
   }
 
   private updateGridWithData(): void {

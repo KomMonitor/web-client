@@ -1,350 +1,328 @@
 import { HttpClient } from '@angular/common/http';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { Injectable, inject } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
-import { GridApi, GridOptions, GridReadyEvent } from 'ag-grid-community';
+import { Injectable, inject, signal } from '@angular/core';
+import { CellClickedEvent, ColDef, GridApi, GridOptions } from 'ag-grid-community';
 
-// Declare environment variables
-/** Kinds of feature-table events the grid helper emits to its owning modal. */
-export type FeatureTableEventType = 'loadingStart' | 'loadingEnd' | 'featureDeleted';
+/** Resource kinds that own an editable feature table. */
+export type FeatureTableResourceType = 'spatialUnit' | 'georesource' | 'indicator';
 
-/**
- * Event emitted by the shared feature-table grid helper towards the
- * edit-features modal that owns the grid. `resourceType` discriminates which
- * modal (spatialUnit / georesource / indicator) the event belongs to; the id
- * fields are only populated for `featureDeleted`.
- */
-export interface FeatureTableEvent {
-  resourceType: string;
-  type: FeatureTableEventType;
-  datasetId?: string;
+/** Identifies the feature record a delete request removed. */
+export interface DeletedFeatureRef {
+  datasetId: string;
+  /** Only set for indicator timeseries records. */
   spatialUnitId?: string;
-  featureId?: string;
-  recordId?: string;
+  featureId: string;
+  recordId: string;
 }
 
 /**
- * Feature-table grid logic extracted from KommonitorDataGridHelperService
- * (Prio 7 / A2 — see documentation/PRIO7_GOD_SERVICE_SPLIT.md). Owns the editable
- * feature table used in the spatial-unit / georesource / indicator edit-features modals,
- * including its grid construction, click/delete handlers (HTTP DELETE), inline cell
- * editing (HTTP PUT) and the per-resource update timestamps.
+ * Hooks the owning modal passes in when it builds its grid. They replace the
+ * former service-wide event Subject: each grid reports back to the component
+ * that created it, so two feature tables open at the same time cannot steer
+ * each other.
+ */
+export interface FeatureTableCallbacks {
+  /** A delete request was fired (the modal shows its spinner). */
+  onDeleteStart?: () => void;
+  /** A feature record was deleted; the modal refreshes its table. */
+  onDeleteSuccess?: (deleted: DeletedFeatureRef) => void;
+  /** A delete request failed (the modal hides its spinner again). */
+  onDeleteError?: (error: unknown) => void;
+  /** An inline cell edit was persisted (`true`) or rejected (`false`). */
+  onCellEditResult?: (success: boolean) => void;
+}
+
+/** Shared parts of both feature-table flavours. */
+interface FeatureTableConfigBase {
+  /** Dynamic (non-fixed) column headers. */
+  headers: string[];
+  resourceId?: string;
+  enableDelete?: boolean;
+  /**
+   * Accessor for the grid's host element. The header measurement is scoped to
+   * it so a second open feature table cannot be measured instead.
+   */
+  gridRoot?: () => Element | null | undefined;
+}
+
+export interface SpatialFeatureTableConfig extends FeatureTableConfigBase {
+  resourceType: Extract<FeatureTableResourceType, 'spatialUnit' | 'georesource'>;
+  /** GeoJSON features. */
+  features: any[];
+}
+
+export interface IndicatorFeatureTableConfig extends FeatureTableConfigBase {
+  /** Flat indicator timeseries records. */
+  features: any[];
+  /** Spatial unit the indicator timeseries belongs to. */
+  spatialUnitId?: string;
+}
+
+/**
+ * Success/failure timestamps of the last inline edit or delete in one feature
+ * table. Lives on the owning modal (not on the service) so both timestamps and
+ * the grid they describe share a lifetime; signal-backed for OnPush templates.
+ */
+export class FeatureTableEditStatus {
+  readonly lastSuccess = signal<Date | undefined>(undefined);
+  readonly lastFailure = signal<Date | undefined>(undefined);
+
+  /** Record the outcome of an edit/delete round trip. */
+  record(success: boolean): void {
+    if (success) {
+      this.lastSuccess.set(new Date());
+    } else {
+      this.lastFailure.set(new Date());
+    }
+  }
+
+  /** Clear both banners (called from the modals' resetForm). */
+  reset(): void {
+    this.lastSuccess.set(undefined);
+    this.lastFailure.set(undefined);
+  }
+}
+
+/** Marker class on the delete buttons; dispatched via AG Grid's onCellClicked. */
+const DELETE_BUTTON_CLASS = 'featureTableDeleteRecordBtn';
+
+/**
+ * Builds the editable feature table used in the spatial-unit / georesource /
+ * indicator edit-features modals, and performs its inline edit (HTTP PUT) and
+ * record delete (HTTP DELETE) requests.
+ *
+ * The service is stateless: it holds neither the grid API, the current resource
+ * id nor the update timestamps. Every build call returns self-contained
+ * `GridOptions` that close over the caller's config and callbacks — the owning
+ * modal keeps the grid API, its `FeatureTableEditStatus` and its loading flag.
+ * That is what makes two simultaneously open edit-features modals safe; the
+ * former root-provided instance fields let the last opened grid win.
  */
 @Injectable({
   providedIn: 'root',
 })
 export class FeatureTableDataGridHelperService {
-  // Store the data grid options
-  private dataGridOptions_featureTable: GridOptions | null = null;
-  private gridApi_featureTable: GridApi | null = null;
-
-  // Store current resource ID for delete handlers
-  private currentResourceId: string | undefined;
-
-  // Store current spatial unit ID for indicator delete/edit handlers
-  private currentSpatialUnitId: string | undefined;
-
-  // Resource type constants
-  readonly resourceType_spatialUnit = 'spatialUnit';
-  readonly resourceType_georesource = 'georesource';
-  readonly resourceType_indicator = 'indicator';
-
-  // Timestamp properties for feature table updates
-  featureTable_spatialUnit_lastUpdate_timestamp_success: Date | undefined = undefined;
-  featureTable_spatialUnit_lastUpdate_timestamp_failure: Date | undefined = undefined;
-  featureTable_georesource_lastUpdate_timestamp_success: Date | undefined = undefined;
-  featureTable_georesource_lastUpdate_timestamp_failure: Date | undefined = undefined;
-  featureTable_indicator_lastUpdate_timestamp_success: Date | undefined = undefined;
-  featureTable_indicator_lastUpdate_timestamp_failure: Date | undefined = undefined;
-
   private http = inject(HttpClient);
   private envConfigService = inject(EnvConfigService);
 
-  private readonly featureTableEvents = new Subject<FeatureTableEvent>();
-  /** Loading/delete events for the feature table, discriminated by resourceType. */
-  readonly featureTableEvents$: Observable<FeatureTableEvent> =
-    this.featureTableEvents.asObservable();
-
   /**
-   * Build feature table data grid for spatial resources
-   * @param tableId - DOM ID of the table container
-   * @param headers - Array of column headers
-   * @param features - Array of GeoJSON features
-   * @param resourceId - ID of the spatial resource
-   * @param resourceType - Type of resource (spatialUnit, georesource, indicator)
-   * @param enableDelete - Whether to enable delete functionality
+   * Grid options for the spatial-unit / georesource feature table (GeoJSON
+   * features, editable attribute columns, optional per-record delete button).
    */
-  buildDataGrid_featureTable_spatialResource(
-    tableId: string,
-    headers: string[],
-    features: any[] = [],
-    resourceId?: string,
-    resourceType?: string,
-    enableDelete: boolean = false
+  buildSpatialResourceFeatureTable(
+    config: SpatialFeatureTableConfig,
+    callbacks: FeatureTableCallbacks = {}
   ): GridOptions {
-    // Store current resource ID for delete handlers
-    this.currentResourceId = resourceId;
-
-    const gridContainer = document.querySelector('#' + tableId);
-    if (!gridContainer) {
-      return this.buildFeatureTableGridOptions(
-        headers,
-        features,
-        resourceId,
-        resourceType,
-        enableDelete
-      );
-    }
-
-    if (
-      this.dataGridOptions_featureTable &&
-      this.gridApi_featureTable &&
-      gridContainer.childElementCount > 0
-    ) {
-      // Grid already exists, just update the data
-      this.saveGridStore_featureTable(this.dataGridOptions_featureTable);
-      const newRowData = this.buildFeatureTableRowData(features);
-      this.gridApi_featureTable.setGridOption('rowData', newRowData);
-      this.restoreGridStore_featureTable(this.dataGridOptions_featureTable);
-    } else {
-      // Create new grid options
-      this.dataGridOptions_featureTable = this.buildFeatureTableGridOptions(
-        headers,
-        features,
-        resourceId,
-        resourceType,
-        enableDelete
-      );
-
-      // The actual grid creation should be done in the component template
-    }
-
-    return this.dataGridOptions_featureTable!;
+    return {
+      ...this.buildSharedGridOptions(config),
+      defaultColDef: {
+        ...this.buildSharedDefaultColDef(),
+        onCellValueChanged: (newValueParams: any) =>
+          this.persistSpatialResourceCellEdit(newValueParams, config, callbacks),
+      },
+      columnDefs: this.buildSpatialResourceColumnDefs(config, callbacks),
+      rowData: this.buildSpatialResourceRowData(config.features),
+      rowSelection: 'multiple',
+    };
   }
 
   /**
-   * Measure the tallest rendered header text so multi-line column titles are not
-   * clipped. Mirrors the role-management grid helper.
+   * Grid options for the indicator feature table. Only the date-keyed value
+   * columns are editable; the identifying and validity columns are read-only.
    */
-  private headerHeightGetter(): number {
-    const columnHeaderTexts = document.querySelectorAll('.ag-header-cell-text');
-    let maxHeight = 0;
+  buildIndicatorFeatureTable(
+    config: IndicatorFeatureTableConfig,
+    callbacks: FeatureTableCallbacks = {}
+  ): GridOptions {
+    return {
+      ...this.buildSharedGridOptions(config),
+      defaultColDef: {
+        ...this.buildSharedDefaultColDef(),
+        onCellValueChanged: (newValueParams: any) =>
+          this.persistIndicatorCellEdit(newValueParams, config, callbacks),
+      },
+      columnDefs: this.buildIndicatorColumnDefs(config, callbacks),
+      rowData: this.buildIndicatorRowData(config.features),
+    };
+  }
 
-    columnHeaderTexts.forEach((element: any) => {
-      const height = element.offsetHeight;
+  /**
+   * Measure the tallest rendered header text so multi-line column titles are
+   * not clipped, and apply it to the given grid. Scoped to `gridRoot` — a
+   * document-wide query would pick up another open grid's headers.
+   */
+  applyHeaderHeight(api: GridApi | null | undefined, gridRoot?: Element | null): void {
+    if (!api) return;
+    api.setGridOption('headerHeight', this.measureHeaderHeight(gridRoot));
+  }
+
+  /** Tallest header-cell text within `gridRoot`, plus padding (minimum 50px). */
+  measureHeaderHeight(gridRoot?: Element | null): number {
+    if (!gridRoot) return 50;
+
+    let maxHeight = 0;
+    gridRoot.querySelectorAll('.ag-header-cell-text').forEach((element) => {
+      const height = Math.max((element as HTMLElement).offsetHeight, element.scrollHeight);
       if (height > maxHeight) {
         maxHeight = height;
       }
     });
 
-    return Math.max(maxHeight + 20, 50); // Add padding, minimum 50px
+    return Math.max(maxHeight + 20, 50);
   }
 
-  /**
-   * Apply the measured header height to the feature-table grid. Guards on the grid
-   * API since this runs from grid callbacks (onFirstDataRendered / onColumnResized).
-   */
-  private headerHeightSetter(): void {
-    if (this.gridApi_featureTable) {
-      this.gridApi_featureTable.setHeaderHeight(this.headerHeightGetter());
-    }
-  }
+  // ---------------------------------------------------------------------------
+  // Shared grid configuration
+  // ---------------------------------------------------------------------------
 
-  /**
-   * Build grid options for feature table
-   */
-  private buildFeatureTableGridOptions(
-    headers: string[],
-    features: any[],
-    resourceId?: string,
-    resourceType?: string,
-    enableDelete: boolean = false
-  ): any {
-    const columnDefs = this.buildFeatureTableColumnConfig(headers, enableDelete, resourceType);
-    const rowData = this.buildFeatureTableRowData(features);
-
-    const gridOptions = {
-      defaultColDef: {
-        editable: true,
-        sortable: true,
-        flex: 1,
-        minWidth: 150,
-        filter: true,
-        floatingFilter: true,
-        resizable: true,
-        wrapText: true,
-        autoHeight: true,
-        cellEditor: 'agLargeTextCellEditor',
-        cellStyle: {
-          'font-size': '12px',
-          'white-space': 'normal !important',
-          'line-height': '20px !important',
-          'word-break': 'break-word !important',
-          'padding-top': '17px',
-          'padding-bottom': '17px',
-        },
-        onCellValueChanged: (newValueParams: any) => {
-          // Handle cell value changes for date validation and API updates
-          this.handleCellValueChanged(newValueParams, resourceId, resourceType);
-        },
-      },
-      components: {
-        deleteButtonRenderer: this.deleteButtonRenderer.bind(this),
-      },
-      columnDefs: columnDefs,
-      rowData: rowData,
-      // enables undo / redo
+  private buildSharedGridOptions(config: FeatureTableConfigBase): GridOptions {
+    return {
+      // enables undo / redo, restricted to 10 steps
       undoRedoCellEditing: true,
-      // restricts the number of undo / redo steps to 10
       undoRedoCellEditingLimit: 10,
       // enables flashing to help see cell changes
       enableCellChangeFlash: true,
       suppressRowClickSelection: true,
-      rowSelection: 'multiple',
       enableCellTextSelection: true,
       ensureDomOrder: true,
-      // Pagination settings
       pagination: true,
       paginationPageSize: 20,
       paginationPageSizeSelector: [10, 20, 50, 100],
-      // Filtering is controlled via defaultColDef.filter and per-column filters
-      // Grid features
       suppressColumnVirtualisation: true,
-      onFirstDataRendered: () => {
-        this.registerFeatureTableClickHandlers(resourceId, resourceType, enableDelete);
-        this.headerHeightSetter();
-      },
-      onColumnResized: () => {
-        this.headerHeightSetter();
-      },
-      onGridReady: (params: GridReadyEvent) => {
-        this.gridApi_featureTable = params.api;
-      },
-      onRowDataChanged: () => {
-        this.registerFeatureTableClickHandlers(resourceId, resourceType, enableDelete);
-      },
-      onModelUpdated: () => {
-        this.registerFeatureTableClickHandlers(resourceId, resourceType, enableDelete);
-      },
-      onViewportChanged: () => {
-        this.registerFeatureTableClickHandlers(resourceId, resourceType, enableDelete);
+      onFirstDataRendered: (event) => this.applyHeaderHeight(event.api, config.gridRoot?.()),
+      onColumnResized: (event) => this.applyHeaderHeight(event.api, config.gridRoot?.()),
+    };
+  }
+
+  private buildSharedDefaultColDef(): ColDef {
+    return {
+      editable: true,
+      sortable: true,
+      flex: 1,
+      minWidth: 150,
+      filter: true,
+      floatingFilter: true,
+      resizable: true,
+      wrapText: true,
+      autoHeight: true,
+      cellEditor: 'agLargeTextCellEditor',
+      cellStyle: {
+        'font-size': '12px',
+        'white-space': 'normal !important',
+        'line-height': '20px !important',
+        'word-break': 'break-word !important',
+        'padding-top': '17px',
+        'padding-bottom': '17px',
       },
     };
-
-    return gridOptions;
   }
 
   /**
-   * Build column configuration for feature table
+   * Renders the per-record delete button. The row data carries the ids, so the
+   * button needs no encoded element id — the click is dispatched by CSS class
+   * through this column's `onCellClicked`.
    */
-  private buildFeatureTableColumnConfig(
-    headers: string[],
-    enableDelete: boolean,
-    resourceType?: string
-  ): any[] {
-    const columnDefs: any[] = [];
+  private renderDeleteButton(recordLabel: string): string {
+    return (
+      `<button class="btn btn-danger btn-sm ${DELETE_BUTTON_CLASS}" type="button" ` +
+      `title="Datenobjekt unwiderruflich entfernen">` +
+      `<i class="fas fa-trash"></i></button>` +
+      recordLabel
+    );
+  }
 
-    // Add DB-Record-Id column with delete button (always first, combines both functionalities)
-    columnDefs.push({
-      headerName: 'DB-Record-Id',
-      field: 'kommonitorRecordId',
-      pinned: 'left',
-      editable: false,
-      maxWidth: 125,
-      cellClass: 'grid-non-editable',
-      cellRenderer: (params: any) => {
-        let html = '';
+  /**
+   * Dispatch a click inside the record-id cell to `handler`, but only when the
+   * delete button itself was hit. Replaces the former global
+   * `document.querySelectorAll(...).addEventListener` registration (which
+   * attached to every open grid's buttons and needed setTimeout re-runs).
+   */
+  private onDeleteButtonClicked(handler: (event: CellClickedEvent) => void) {
+    return (event: CellClickedEvent): void => {
+      const target = event.event?.target as HTMLElement | null;
+      if (!target?.closest('.' + DELETE_BUTTON_CLASS)) return;
+      handler(event);
+    };
+  }
 
-        // Add delete button if enabled
-        if (enableDelete) {
-          const datasetId = this.currentResourceId || '';
-          const featureId = params.data['ID'] || params.data['featureId'] || '';
-          const recordId = params.data.kommonitorRecordId || params.data.id || '';
+  // ---------------------------------------------------------------------------
+  // Spatial unit / georesource feature table
+  // ---------------------------------------------------------------------------
 
-          if (resourceType === this.resourceType_spatialUnit) {
-            html +=
-              `<button id="btn__spatialUnit__deleteFeatureEntry__${datasetId}__${featureId}__${recordId}" ` +
-              `class="btn btn-danger btn-sm spatialUnitDeleteFeatureRecordBtn" type="button" ` +
-              `title="Datenobjekt unwiderruflich entfernen" ${enableDelete ? '' : 'disabled'}>` +
-              `<i class="fas fa-trash"></i></button>`;
-          } else {
-            html +=
-              `<button id="btn__georesource__deleteFeatureEntry__${datasetId}__${featureId}__${recordId}" ` +
-              `class="btn btn-danger btn-sm georesourceDeleteFeatureRecordBtn" type="button" ` +
-              `title="Datenobjekt unwiderruflich entfernen" ${enableDelete ? '' : 'disabled'}>` +
-              `<i class="fas fa-trash"></i></button>`;
-          }
-          html += '<br/>';
-        }
+  private buildSpatialResourceColumnDefs(
+    config: SpatialFeatureTableConfig,
+    callbacks: FeatureTableCallbacks
+  ): ColDef[] {
+    const enableDelete = config.enableDelete ?? false;
 
-        // Add the record ID
-        html += params.data.kommonitorRecordId || params.data.id || '';
-
-        return html;
+    const columnDefs: ColDef[] = [
+      {
+        // DB-Record-Id doubles as the delete-button column
+        headerName: 'DB-Record-Id',
+        field: 'kommonitorRecordId',
+        pinned: 'left',
+        editable: false,
+        maxWidth: 125,
+        cellClass: 'grid-non-editable',
+        cellRenderer: (params: any) => {
+          const recordLabel = params.data.kommonitorRecordId || params.data.id || '';
+          if (!enableDelete) return recordLabel;
+          return this.renderDeleteButton('<br/>' + recordLabel);
+        },
+        onCellClicked: this.onDeleteButtonClicked((event) =>
+          this.deleteSpatialResourceFeature(event.data, config, callbacks)
+        ),
       },
-    });
+      {
+        headerName: 'Feature-Id',
+        field: 'ID',
+        pinned: 'left',
+        editable: false,
+        cellClass: 'grid-non-editable',
+        maxWidth: 125,
+      },
+      {
+        headerName: 'Name',
+        field: 'NAME',
+        pinned: 'left',
+        minWidth: 150,
+      },
+      {
+        headerName: 'Lebenszeitbeginn',
+        field: 'validStartDate',
+        minWidth: 150,
+      },
+      {
+        headerName: 'Lebenszeitende',
+        field: 'validEndDate',
+        minWidth: 150,
+      },
+    ];
 
-    // Add Feature-Id column
-    columnDefs.push({
-      headerName: 'Feature-Id',
-      field: 'ID',
-      pinned: 'left',
-      editable: false,
-      cellClass: 'grid-non-editable',
-      maxWidth: 125,
-    });
-
-    // Add Name column
-    columnDefs.push({
-      headerName: 'Name',
-      field: 'NAME',
-      pinned: 'left',
-      minWidth: 150,
-    });
-
-    // Add validity date columns
-    columnDefs.push({
-      headerName: 'Lebenszeitbeginn',
-      field: 'validStartDate',
-      minWidth: 150,
-    });
-
-    columnDefs.push({
-      headerName: 'Lebenszeitende',
-      field: 'validEndDate',
-      minWidth: 150,
-    });
-
-    // Add dynamic headers
-    for (const header of headers) {
-      columnDefs.push({
-        headerName: header,
-        field: header,
-        minWidth: 125,
-      });
+    for (const header of config.headers) {
+      columnDefs.push({ headerName: header, field: header, minWidth: 125 });
     }
 
     return columnDefs;
   }
 
   /**
-   * Build row data for feature table
+   * Flatten GeoJSON features for the grid: geometry and database record id are
+   * copied into the properties so the edit handler can rebuild the feature.
    */
-  private buildFeatureTableRowData(features: any[]): any[] {
+  private buildSpatialResourceRowData(features: any[]): any[] {
     if (!features || !Array.isArray(features)) {
       return [];
     }
 
     return features.map((feature) => {
-      // If the feature has properties (GeoJSON format), add geometry and record ID to properties
       if (feature.properties) {
-        // Add geometry and database record ID to properties to be available within data grid object
         feature.properties.kommonitorGeometry = feature.geometry;
         feature.properties.kommonitorRecordId = feature.id;
         return feature.properties;
       }
 
-      // If it's already a flat object, ensure it has the required fields
+      // Already a flat object — make sure the record id is present
       if (feature.id && !feature.kommonitorRecordId) {
         feature.kommonitorRecordId = feature.id;
       }
@@ -353,225 +331,67 @@ export class FeatureTableDataGridHelperService {
     });
   }
 
-  /**
-   * Delete button renderer for feature table
-   */
-  private deleteButtonRenderer(params: any): string {
-    const featureId =
-      params.data.properties?.[this.envConfigService.FEATURE_ID_PROPERTY_NAME] ||
-      params.data[this.envConfigService.FEATURE_ID_PROPERTY_NAME] ||
-      '';
-    const resourceType = params.resourceType || 'spatialUnit';
-
-    return `<button id="btn_deleteFeature_${resourceType}_${featureId}"
-                    class="btn btn-danger btn-sm ${resourceType}DeleteFeatureRecordBtn"
-                    type="button"
-                    title="Feature entfernen"
-                    ${params.disabled ? 'disabled' : ''}>
-              <i class="fas fa-trash"></i>
-            </button>`;
-  }
-
-  /**
-   * Register click handlers for feature table delete buttons
-   */
-  registerFeatureTableClickHandlers(
-    resourceId?: string,
-    resourceType?: string,
-    enableDelete?: boolean
+  private deleteSpatialResourceFeature(
+    rowData: any,
+    config: SpatialFeatureTableConfig,
+    callbacks: FeatureTableCallbacks
   ): void {
-    if (!enableDelete) return;
+    const datasetId = config.resourceId;
+    const featureId = rowData?.['ID'] || rowData?.['featureId'] || '';
+    const recordId = rowData?.kommonitorRecordId || rowData?.id || '';
+    if (!datasetId || !featureId || !recordId) return;
 
-    setTimeout(() => {
-      // Remove existing handlers to prevent duplicates
-      const deleteButtons = document.querySelectorAll(
-        '.spatialUnitDeleteFeatureRecordBtn, .georesourceDeleteFeatureRecordBtn'
-      );
-      deleteButtons.forEach((button) => {
-        button.removeEventListener('click', this.handleFeatureDeleteClick);
-      });
+    const collection = config.resourceType === 'georesource' ? 'georesources' : 'spatial-units';
+    const url =
+      `${this.envConfigService.baseUrlToKomMonitorDataAPI}/${collection}/${datasetId}` +
+      `/singleFeature/${featureId}/singleFeatureRecord/${recordId}`;
 
-      // Add new handlers
-      deleteButtons.forEach((button) => {
-        button.addEventListener('click', this.handleFeatureDeleteClick);
-      });
-    }, 100);
-  }
-
-  /**
-   * Handle delete button click for feature table
-   */
-  private handleFeatureDeleteClick = (event: Event): void => {
-    event.preventDefault();
-    event.stopPropagation();
-    event.stopImmediatePropagation();
-
-    const button = event.target as HTMLElement;
-    const buttonElement = button.closest('button') || button;
-    const buttonId = buttonElement.id;
-
-    // Parse button ID: btn__spatialUnit__deleteFeatureEntry__{datasetId}__{featureId}__{recordId}
-    const idParts = buttonId.split('__');
-    if (idParts.length < 6) {
-      return;
-    }
-
-    const resourceType = idParts[1]; // spatialUnit or georesource
-    const datasetId = idParts[3];
-    const featureId = idParts[4];
-    const recordId = idParts[5];
-
-    // Signal loading start to the owning modal
-    this.featureTableEvents.next({ resourceType, type: 'loadingStart' });
-
-    // Determine URL based on resource type
-    let url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}`;
-    if (resourceType === 'spatialUnit') {
-      url += `/spatial-units/${datasetId}/singleFeature/${featureId}/singleFeatureRecord/${recordId}`;
-    } else if (resourceType === 'georesource') {
-      url += `/georesources/${datasetId}/singleFeature/${featureId}/singleFeatureRecord/${recordId}`;
-    } else {
-      return;
-    }
-
-    // Make DELETE request
+    callbacks.onDeleteStart?.();
     this.http.delete(url).subscribe({
       next: () => {
-        // Update timestamps
-        if (resourceType === 'georesource') {
-          this.featureTable_georesource_lastUpdate_timestamp_success = this.getCurrentTimestamp();
-        } else {
-          this.featureTable_spatialUnit_lastUpdate_timestamp_success = this.getCurrentTimestamp();
-        }
-
-        // Signal the deletion to the owning modal
-        this.featureTableEvents.next({
-          resourceType,
-          type: 'featureDeleted',
-          datasetId,
-          featureId,
-          recordId,
-        });
+        callbacks.onCellEditResult?.(true);
+        callbacks.onDeleteSuccess?.({ datasetId, featureId, recordId });
       },
-      error: () => {
-        // Signal loading end to the owning modal
-        this.featureTableEvents.next({ resourceType, type: 'loadingEnd' });
-
-        // Update failure timestamps
-        if (resourceType === 'georesource') {
-          this.featureTable_georesource_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
-        } else {
-          this.featureTable_spatialUnit_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
-        }
+      error: (error) => {
+        callbacks.onCellEditResult?.(false);
+        callbacks.onDeleteError?.(error);
       },
     });
-  };
-
-  /**
-   * Get current timestamp
-   */
-  private getCurrentTimestamp(): Date {
-    return new Date();
   }
 
-  /**
-   * Save grid state for feature table
-   */
-  private saveGridStore_featureTable(gridOptions: any): void {
-    if (gridOptions && this.gridApi_featureTable) {
-      const selectedNodes = this.gridApi_featureTable.getSelectedNodes();
-      gridOptions._savedState = {
-        selectedIds: selectedNodes.map((node: any) => {
-          const featureId =
-            node.data.properties?.[this.envConfigService.FEATURE_ID_PROPERTY_NAME] ||
-            node.data[this.envConfigService.FEATURE_ID_PROPERTY_NAME] ||
-            '';
-          return featureId;
-        }),
-      };
-    }
-  }
-
-  /**
-   * Restore grid state for feature table
-   */
-  private restoreGridStore_featureTable(gridOptions: any): void {
-    if (gridOptions && this.gridApi_featureTable && gridOptions._savedState) {
-      setTimeout(() => {
-        this.gridApi_featureTable?.forEachNode((node: any) => {
-          const featureId =
-            node.data.properties?.[this.envConfigService.FEATURE_ID_PROPERTY_NAME] ||
-            node.data[this.envConfigService.FEATURE_ID_PROPERTY_NAME] ||
-            '';
-          if (gridOptions._savedState.selectedIds.includes(featureId)) {
-            node.setSelected(true);
-          }
-        });
-      }, 100);
-    }
-  }
-
-  /**
-   * Get currently selected features from feature table
-   */
-  getSelectedFeatures(): any[] {
-    const selectedFeatures: any[] = [];
-
-    if (this.dataGridOptions_featureTable && this.gridApi_featureTable) {
-      const selectedNodes = this.gridApi_featureTable.getSelectedNodes();
-      for (const selectedNode of selectedNodes) {
-        selectedFeatures.push(selectedNode.data);
-      }
-    }
-
-    return selectedFeatures;
-  }
-
-  /**
-   * Clear feature table data
-   */
-  clearFeatureTable(): void {
-    if (this.dataGridOptions_featureTable && this.gridApi_featureTable) {
-      this.gridApi_featureTable.setGridOption('rowData', []);
-    }
-  }
-
-  /**
-   * Refresh feature table with new data
-   */
-  refreshFeatureTable(features: any[]): void {
-    if (this.dataGridOptions_featureTable && this.gridApi_featureTable) {
-      const newRowData = this.buildFeatureTableRowData(features);
-      this.gridApi_featureTable.setGridOption('rowData', newRowData);
-    }
-  }
-
-  /**
-   * Get current feature table grid options
-   */
-  getFeatureTableGridOptions(): GridOptions | null {
-    return this.dataGridOptions_featureTable;
-  }
-
-  /**
-   * Handle cell value changes for feature table
-   */
-  private handleCellValueChanged(
+  private persistSpatialResourceCellEdit(
     newValueParams: any,
-    resourceId?: string,
-    resourceType?: string
+    config: SpatialFeatureTableConfig,
+    callbacks: FeatureTableCallbacks
   ): void {
-    // Validate date properties
-    if (!newValueParams.data.validStartDate) {
-      newValueParams.data.validStartDate = newValueParams.oldValue;
-    }
+    this.normalizeValidityDates(newValueParams);
 
+    // Rebuild the GeoJSON feature from the edited row
+    const geoJSON: any = {
+      type: 'Feature',
+      geometry: JSON.parse(JSON.stringify(newValueParams.data.kommonitorGeometry)),
+      id: JSON.parse(JSON.stringify(newValueParams.data.kommonitorRecordId)),
+      properties: JSON.parse(JSON.stringify(newValueParams.data)),
+    };
+    delete geoJSON.properties.kommonitorGeometry;
+    delete geoJSON.properties.kommonitorRecordId;
+
+    const collection = config.resourceType === 'georesource' ? 'georesources' : 'spatial-units';
+    const url =
+      `${this.envConfigService.baseUrlToKomMonitorDataAPI}/${collection}/${config.resourceId}` +
+      `/singleFeature/${newValueParams.data.ID}/singleFeatureRecord/${newValueParams.data.kommonitorRecordId}`;
+
+    this.putCellEdit(url, geoJSON, newValueParams, callbacks);
+  }
+
+  /** Keep the validity dates parseable; fall back to the previous value. */
+  private normalizeValidityDates(newValueParams: any): void {
     const isDate = (date: any) => {
       const dateObj = new Date(date);
       return dateObj.toString() !== 'Invalid Date' && !isNaN(dateObj.getTime());
     };
 
-    if (!isDate(newValueParams.data.validStartDate)) {
+    if (!newValueParams.data.validStartDate || !isDate(newValueParams.data.validStartDate)) {
       newValueParams.data.validStartDate = newValueParams.oldValue;
     }
 
@@ -579,223 +399,22 @@ export class FeatureTableDataGridHelperService {
       newValueParams.data.validEndDate = undefined;
     }
 
-    if (newValueParams.data.validEndDate) {
-      if (!isDate(newValueParams.data.validEndDate)) {
-        newValueParams.data.validEndDate = newValueParams.oldValue;
-      }
+    if (newValueParams.data.validEndDate && !isDate(newValueParams.data.validEndDate)) {
+      newValueParams.data.validEndDate = newValueParams.oldValue;
     }
-
-    // Build GeoJSON for API request
-    const geoJSON: any = {
-      type: 'Feature',
-      geometry: null,
-      properties: null,
-      id: null,
-    };
-
-    // Clone properties and extract geometry/ID
-    geoJSON.geometry = JSON.parse(JSON.stringify(newValueParams.data.kommonitorGeometry));
-    geoJSON.id = JSON.parse(JSON.stringify(newValueParams.data.kommonitorRecordId));
-    geoJSON.properties = JSON.parse(JSON.stringify(newValueParams.data));
-
-    // Remove internal properties
-    delete geoJSON.properties.kommonitorGeometry;
-    delete geoJSON.properties.kommonitorRecordId;
-
-    // Build URL
-    let url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}`;
-    if (resourceType === this.resourceType_georesource) {
-      url += '/georesources/';
-    } else {
-      url += '/spatial-units/';
-    }
-
-    url += `${resourceId}/singleFeature/${newValueParams.data.ID}/singleFeatureRecord/${newValueParams.data.kommonitorRecordId}`;
-
-    // Make HTTP PUT request
-    this.http
-      .put(url, geoJSON, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      .subscribe({
-        next: () => {
-          // On success: mark grid cell with green background
-          newValueParams.colDef.cellStyle = (p: any) =>
-            p.rowIndex.toString() === newValueParams.node.id
-              ? { 'background-color': '#9DC89F' }
-              : '';
-
-          newValueParams.api.refreshCells({
-            force: true,
-            columns: [newValueParams.column.getId()],
-            rowNodes: [newValueParams.node],
-          });
-
-          // Update success timestamp
-          if (resourceType === this.resourceType_georesource) {
-            this.featureTable_georesource_lastUpdate_timestamp_success = this.getCurrentTimestamp();
-          } else {
-            this.featureTable_spatialUnit_lastUpdate_timestamp_success = this.getCurrentTimestamp();
-          }
-        },
-        error: () => {
-          // Reset cell value as an error occurred
-          newValueParams.data[newValueParams.column.colId] = newValueParams.oldValue;
-
-          // On failure: mark grid cell with red background
-          newValueParams.colDef.cellStyle = (p: any) =>
-            p.rowIndex.toString() === newValueParams.node.id
-              ? { 'background-color': '#E79595' }
-              : '';
-
-          newValueParams.api.refreshCells({
-            force: true,
-            columns: [newValueParams.column.getId()],
-            rowNodes: [newValueParams.node],
-          });
-
-          // Update failure timestamp
-          if (resourceType === this.resourceType_georesource) {
-            this.featureTable_georesource_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
-          } else {
-            this.featureTable_spatialUnit_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
-          }
-        },
-      });
   }
 
-  /**
-   * Build feature table data grid for indicator resources.
-   * @param spatialUnitId - target spatial unit the indicator timeseries belongs to
-   */
-  buildDataGrid_featureTable_indicatorResource(
-    tableId: string,
-    headers: string[],
-    features: any[] = [],
-    resourceId?: string,
-    resourceType?: string,
-    enableDelete: boolean = false,
-    spatialUnitId?: string
-  ): GridOptions {
-    this.currentResourceId = resourceId;
-    this.currentSpatialUnitId = spatialUnitId;
+  // ---------------------------------------------------------------------------
+  // Indicator feature table
+  // ---------------------------------------------------------------------------
 
-    const gridContainer = document.querySelector('#' + tableId);
-    if (!gridContainer) {
-      return this.buildIndicatorFeatureTableGridOptions(
-        headers,
-        features,
-        resourceId,
-        resourceType,
-        enableDelete,
-        spatialUnitId
-      );
-    }
+  private buildIndicatorColumnDefs(
+    config: IndicatorFeatureTableConfig,
+    callbacks: FeatureTableCallbacks
+  ): ColDef[] {
+    const enableDelete = config.enableDelete ?? false;
 
-    if (
-      this.dataGridOptions_featureTable &&
-      this.gridApi_featureTable &&
-      gridContainer.childElementCount > 0
-    ) {
-      const newRowData = this.buildIndicatorFeatureTableRowData(features);
-      this.gridApi_featureTable.setGridOption('rowData', newRowData);
-    } else {
-      this.dataGridOptions_featureTable = this.buildIndicatorFeatureTableGridOptions(
-        headers,
-        features,
-        resourceId,
-        resourceType,
-        enableDelete,
-        spatialUnitId
-      );
-    }
-
-    return this.dataGridOptions_featureTable!;
-  }
-
-  private buildIndicatorFeatureTableGridOptions(
-    headers: string[],
-    features: any[],
-    resourceId?: string,
-    resourceType?: string,
-    enableDelete: boolean = false,
-    spatialUnitId?: string
-  ): any {
-    const columnDefs = this.buildIndicatorFeatureTableColumnConfig(
-      headers,
-      enableDelete,
-      resourceId,
-      spatialUnitId
-    );
-    const rowData = this.buildIndicatorFeatureTableRowData(features);
-
-    return {
-      defaultColDef: {
-        editable: true,
-        sortable: true,
-        flex: 1,
-        minWidth: 150,
-        filter: true,
-        floatingFilter: true,
-        resizable: true,
-        wrapText: true,
-        autoHeight: true,
-        cellEditor: 'agLargeTextCellEditor',
-        cellStyle: {
-          'font-size': '12px',
-          'white-space': 'normal !important',
-          'line-height': '20px !important',
-          'word-break': 'break-word !important',
-          'padding-top': '17px',
-          'padding-bottom': '17px',
-        },
-        onCellValueChanged: (newValueParams: any) => {
-          this.handleIndicatorCellValueChanged(newValueParams, resourceId, spatialUnitId);
-        },
-      },
-      columnDefs: columnDefs,
-      rowData: rowData,
-      undoRedoCellEditing: true,
-      undoRedoCellEditingLimit: 10,
-      enableCellChangeFlash: true,
-      suppressRowClickSelection: true,
-      enableCellTextSelection: true,
-      ensureDomOrder: true,
-      pagination: true,
-      paginationPageSize: 20,
-      paginationPageSizeSelector: [10, 20, 50, 100],
-      suppressColumnVirtualisation: true,
-      onFirstDataRendered: () => {
-        this.registerIndicatorFeatureTableClickHandlers(resourceType, enableDelete);
-        this.headerHeightSetter();
-      },
-      onColumnResized: () => {
-        this.headerHeightSetter();
-      },
-      onGridReady: (params: GridReadyEvent) => {
-        this.gridApi_featureTable = params.api;
-      },
-      onRowDataChanged: () => {
-        this.registerIndicatorFeatureTableClickHandlers(resourceType, enableDelete);
-      },
-      onModelUpdated: () => {
-        this.registerIndicatorFeatureTableClickHandlers(resourceType, enableDelete);
-      },
-      onViewportChanged: () => {
-        this.registerIndicatorFeatureTableClickHandlers(resourceType, enableDelete);
-      },
-    };
-  }
-
-  private buildIndicatorFeatureTableColumnConfig(
-    headers: string[],
-    enableDelete: boolean,
-    datasetId?: string,
-    spatialUnitId?: string
-  ): any[] {
-    const columnDefs: any[] = [
+    const columnDefs: ColDef[] = [
       {
         headerName: 'DB-Record-Id',
         field: 'fid',
@@ -804,16 +423,13 @@ export class FeatureTableDataGridHelperService {
         cellClass: 'grid-non-editable',
         maxWidth: 125,
         cellRenderer: (params: any) => {
-          const featureId = params.data[this.envConfigService.FEATURE_ID_PROPERTY_NAME] || '';
-          let html =
-            `<button id="btn__indicator__deleteFeatureEntry__${datasetId}__${spatialUnitId}__${featureId}__${params.data.fid}" ` +
-            `class="btn btn-danger btn-sm indicatorDeleteFeatureRecordBtn" type="button" ` +
-            `title="Datenobjekt unwiderruflich entfernen" ${enableDelete ? '' : 'disabled'}>` +
-            `<i class="fas fa-trash"></i></button>`;
-          html += '&nbsp;&nbsp;';
-          html += params.data.fid ?? '';
-          return html;
+          const recordLabel = params.data.fid ?? '';
+          if (!enableDelete) return recordLabel;
+          return this.renderDeleteButton('&nbsp;&nbsp;' + recordLabel);
         },
+        onCellClicked: this.onDeleteButtonClicked((event) =>
+          this.deleteIndicatorFeature(event.data, config, callbacks)
+        ),
       },
       {
         headerName: 'Feature-Id',
@@ -848,14 +464,14 @@ export class FeatureTableDataGridHelperService {
     ];
 
     // Date-keyed value columns are the only editable ones
-    for (const header of headers) {
+    for (const header of config.headers) {
       columnDefs.push({ headerName: '' + header, field: '' + header, minWidth: 125 });
     }
 
     return columnDefs;
   }
 
-  private buildIndicatorFeatureTableRowData(features: any[]): any[] {
+  private buildIndicatorRowData(features: any[]): any[] {
     if (!features || !Array.isArray(features)) {
       return [];
     }
@@ -866,84 +482,50 @@ export class FeatureTableDataGridHelperService {
     });
   }
 
-  private registerIndicatorFeatureTableClickHandlers(
-    resourceType?: string,
-    enableDelete?: boolean
+  private deleteIndicatorFeature(
+    rowData: any,
+    config: IndicatorFeatureTableConfig,
+    callbacks: FeatureTableCallbacks
   ): void {
-    if (!enableDelete) return;
-
-    setTimeout(() => {
-      const deleteButtons = document.querySelectorAll('.indicatorDeleteFeatureRecordBtn');
-      deleteButtons.forEach((button) => {
-        button.removeEventListener('click', this.handleIndicatorFeatureDeleteClick);
-        button.addEventListener('click', this.handleIndicatorFeatureDeleteClick);
-      });
-    }, 100);
-  }
-
-  private handleIndicatorFeatureDeleteClick = (event: Event): void => {
-    event.preventDefault();
-    event.stopPropagation();
-    event.stopImmediatePropagation();
-
-    const button = event.target as HTMLElement;
-    const buttonElement = button.closest('button') || button;
-
-    // id: btn__indicator__deleteFeatureEntry__{datasetId}__{spatialUnitId}__{featureId}__{recordId}
-    const idParts = buttonElement.id.split('__');
-    if (idParts.length < 7) {
-      return;
-    }
-
-    const resourceType = idParts[1]; // 'indicator'
-    const datasetId = idParts[3];
-    const spatialUnitId = idParts[4];
-    const featureId = idParts[5];
-    const recordId = idParts[6];
-
-    this.featureTableEvents.next({ resourceType, type: 'loadingStart' });
+    const datasetId = config.resourceId;
+    const spatialUnitId = config.spatialUnitId;
+    const featureId = rowData?.[this.envConfigService.FEATURE_ID_PROPERTY_NAME] || '';
+    const recordId = rowData?.fid ?? '';
+    if (!datasetId || !spatialUnitId || !featureId || recordId === '') return;
 
     const url =
       `${this.envConfigService.baseUrlToKomMonitorDataAPI}` +
       `/indicators/${datasetId}/${spatialUnitId}/singleFeature/${featureId}/singleFeatureRecord/${recordId}`;
 
+    callbacks.onDeleteStart?.();
     this.http.delete(url).subscribe({
       next: () => {
-        this.featureTable_indicator_lastUpdate_timestamp_success = this.getCurrentTimestamp();
-        this.featureTableEvents.next({
-          resourceType,
-          type: 'featureDeleted',
-          datasetId,
-          spatialUnitId,
-          featureId,
-          recordId,
-        });
+        callbacks.onCellEditResult?.(true);
+        callbacks.onDeleteSuccess?.({ datasetId, spatialUnitId, featureId, recordId });
       },
-      error: () => {
-        this.featureTableEvents.next({ resourceType, type: 'loadingEnd' });
-        this.featureTable_indicator_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
+      error: (error) => {
+        callbacks.onCellEditResult?.(false);
+        callbacks.onDeleteError?.(error);
       },
     });
-  };
+  }
 
-  private handleIndicatorCellValueChanged(
+  private persistIndicatorCellEdit(
     newValueParams: any,
-    datasetId?: string,
-    spatialUnitId?: string
+    config: IndicatorFeatureTableConfig,
+    callbacks: FeatureTableCallbacks
   ): void {
-    // Only the indicator's feature id, the DB record id (fid) and the date-prefixed
-    // value columns are sent on update.
+    // Only the indicator's feature id, the DB record id (fid) and the
+    // date-prefixed value columns are sent on update.
     const json: any = JSON.parse(JSON.stringify(newValueParams.data));
     const allowedProperties = [this.envConfigService.FEATURE_ID_PROPERTY_NAME, 'fid'];
 
-    for (const key in json) {
-      if (Object.prototype.hasOwnProperty.call(json, key)) {
-        if (
-          !key.includes(this.envConfigService.indicatorDatePrefix) &&
-          !allowedProperties.includes(key)
-        ) {
-          delete json[key];
-        }
+    for (const key of Object.keys(json)) {
+      if (
+        !key.includes(this.envConfigService.indicatorDatePrefix) &&
+        !allowedProperties.includes(key)
+      ) {
+        delete json[key];
       }
     }
     delete json[this.envConfigService.VALID_START_DATE_PROPERTY_NAME];
@@ -951,49 +533,58 @@ export class FeatureTableDataGridHelperService {
     delete json[this.envConfigService.FEATURE_NAME_PROPERTY_NAME];
 
     // Empty value cells are transmitted as null
-    for (const key in json) {
-      if (Object.prototype.hasOwnProperty.call(json, key)) {
-        if (key.includes(this.envConfigService.indicatorDatePrefix) && json[key] === '') {
-          json[key] = null;
-        }
+    for (const key of Object.keys(json)) {
+      if (key.includes(this.envConfigService.indicatorDatePrefix) && json[key] === '') {
+        json[key] = null;
       }
     }
 
     const url =
       `${this.envConfigService.baseUrlToKomMonitorDataAPI}` +
-      `/indicators/${datasetId}/${spatialUnitId}/singleFeature/` +
+      `/indicators/${config.resourceId}/${config.spatialUnitId}/singleFeature/` +
       `${newValueParams.data[this.envConfigService.FEATURE_ID_PROPERTY_NAME]}/singleFeatureRecord/${newValueParams.data.fid}`;
 
-    this.http
-      .put(url, json, {
-        headers: { 'Content-Type': 'application/json' },
-      })
-      .subscribe({
-        next: () => {
-          newValueParams.colDef.cellStyle = (p: any) =>
-            p.rowIndex.toString() === newValueParams.node.id
-              ? { 'background-color': '#9DC89F' }
-              : '';
-          newValueParams.api.refreshCells({
-            force: true,
-            columns: [newValueParams.column.getId()],
-            rowNodes: [newValueParams.node],
-          });
-          this.featureTable_indicator_lastUpdate_timestamp_success = this.getCurrentTimestamp();
-        },
-        error: () => {
-          newValueParams.data[newValueParams.column.colId] = newValueParams.oldValue;
-          newValueParams.colDef.cellStyle = (p: any) =>
-            p.rowIndex.toString() === newValueParams.node.id
-              ? { 'background-color': '#E79595' }
-              : '';
-          newValueParams.api.refreshCells({
-            force: true,
-            columns: [newValueParams.column.getId()],
-            rowNodes: [newValueParams.node],
-          });
-          this.featureTable_indicator_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
-        },
-      });
+    this.putCellEdit(url, json, newValueParams, callbacks);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Shared inline-edit round trip
+  // ---------------------------------------------------------------------------
+
+  /**
+   * PUT one edited record and colour the cell by the outcome (green on success,
+   * red plus value rollback on failure).
+   */
+  private putCellEdit(
+    url: string,
+    body: any,
+    newValueParams: any,
+    callbacks: FeatureTableCallbacks
+  ): void {
+    this.http.put(url, body, { headers: { 'Content-Type': 'application/json' } }).subscribe({
+      next: () => {
+        this.markEditedCell(newValueParams, '#9DC89F');
+        callbacks.onCellEditResult?.(true);
+      },
+      error: () => {
+        // Reset cell value as an error occurred
+        newValueParams.data[newValueParams.column.colId] = newValueParams.oldValue;
+        this.markEditedCell(newValueParams, '#E79595');
+        callbacks.onCellEditResult?.(false);
+      },
+    });
+  }
+
+  private markEditedCell(newValueParams: any, backgroundColor: string): void {
+    newValueParams.colDef.cellStyle = (p: any) =>
+      p.rowIndex.toString() === newValueParams.node.id
+        ? { 'background-color': backgroundColor }
+        : '';
+
+    newValueParams.api.refreshCells({
+      force: true,
+      columns: [newValueParams.column.getId()],
+      rowNodes: [newValueParams.node],
+    });
   }
 }
