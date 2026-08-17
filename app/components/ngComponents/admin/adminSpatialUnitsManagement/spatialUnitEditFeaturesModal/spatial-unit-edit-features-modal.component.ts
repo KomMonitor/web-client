@@ -618,19 +618,17 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     };
   }
 
-  /** True when a data-source file is selected (via ngModel flag or the DOM input). */
+  /**
+   * True when a data-source file is selected: either the change handler set the
+   * flag, or the file input itself carries a file (it survives a form reset that
+   * only clears the flag).
+   */
   private hasSelectedDataSourceFile(): boolean {
     if (this.fileSelected) {
       return true;
     }
     const inputEl = this.spatialUnitDataSourceInput?.nativeElement as HTMLInputElement | undefined;
-    if (inputEl?.files?.length) {
-      return true;
-    }
-    const fallbackEl = document.getElementById(
-      'spatialUnitDataSourceInput_editFeatures'
-    ) as HTMLInputElement | null;
-    return !!fallbackEl?.files?.length;
+    return !!inputEl?.files?.length;
   }
 
   async editSpatialUnitFeatures(): Promise<void> {

@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
   OnInit,
   ViewChild,
   inject,
@@ -66,6 +67,9 @@ export class AdminFilterConfigComponent implements OnInit {
   private translate = inject(TranslateService);
 
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
+  // Resolves only after the first change detection: the content sits in an
+  // <ng-template> that admin-content-view renders through an outlet.
+  @ViewChild('filterConfigEditor') filterConfigEditor!: ElementRef;
 
   // AG Grid properties
   // Signals: rebuilt from config fetches and broadcast callbacks (OnPush).
@@ -406,19 +410,18 @@ export class AdminFilterConfigComponent implements OnInit {
 
   async reloadCodeEditor() {
     const confNew = await this.kommonitorConfigStorageService.getFilterConfig();
-    //this.filterConfigCurrent = JSON.stringify(confNew, null, "    ");
-
-    /* document.getElementById('filterConfig_current')!.innerHTML = 
-      PR.prettyPrintOne(JSON.stringify(confNew, null, "    "),
-      'javascript', true); */
-
     this.codeMirrorEditor.setValue(JSON.stringify(confNew, null, '    '));
 
     this.onChangeFilterConfig();
   }
 
   initCodeEditor() {
-    this.codeMirrorEditor = CodeMirror.fromTextArea(document.getElementById('filterConfigEditor'), {
+    if (!this.filterConfigEditor?.nativeElement) {
+      console.error('Could not find filterConfigEditor element');
+      return;
+    }
+
+    this.codeMirrorEditor = CodeMirror.fromTextArea(this.filterConfigEditor.nativeElement, {
       lineNumbers: true,
       autoRefresh: true,
       mode: 'application/json',
@@ -495,12 +498,6 @@ export class AdminFilterConfigComponent implements OnInit {
     setTimeout(() => {
       this.filterConfigNew = configString;
     });
-
-    setTimeout(() => {
-      /*  document.getElementById('filterConfig_new')!.innerHTML = 
-        PR.prettyPrintOne(this.filterConfigNew,
-        'javascript', true); */
-    }, 250);
   }
 
   async editFilterConfig() {

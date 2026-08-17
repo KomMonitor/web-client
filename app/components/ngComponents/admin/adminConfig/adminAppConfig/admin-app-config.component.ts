@@ -56,7 +56,14 @@ export class AdminAppConfigComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
 
+  // The content lives in an <ng-template> that admin-content-view renders via
+  // outlet, so these resolve only after the first change detection — not with
+  // { static: true }. initCodeEditor() runs after the config fetch and therefore
+  // after the first render.
   @ViewChild('appConfigEditor') appConfigEditor!: ElementRef;
+  @ViewChild('templateCodeMirror') templateCodeMirrorElement!: ElementRef;
+  @ViewChild('currentCodeMirror') currentCodeMirrorElement!: ElementRef;
+  @ViewChild('newCodeMirror') newCodeMirrorElement!: ElementRef;
 
   // Signal: toggled from awaits/subscriptions (OnPush).
   loadingData = signal(true);
@@ -172,14 +179,13 @@ export class AdminAppConfigComponent implements OnInit {
   }
 
   initCodeEditor() {
-    const editorElement = document.getElementById('appConfigEditor');
-    if (!editorElement) {
+    if (!this.appConfigEditor?.nativeElement) {
       console.error('Could not find appConfigEditor element');
       return;
     }
 
     // Initialize main editor
-    this.codeMirrorEditor = CodeMirror.fromTextArea(editorElement, {
+    this.codeMirrorEditor = CodeMirror.fromTextArea(this.appConfigEditor.nativeElement, {
       lineNumbers: true,
       autoRefresh: true,
       mode: 'javascript',
@@ -196,9 +202,8 @@ export class AdminAppConfigComponent implements OnInit {
     this.codeMirrorEditor.setValue(this.appConfigCurrent);
 
     // Initialize template editor
-    const templateElement = document.getElementById('templateCodeMirror');
-    if (templateElement) {
-      this.templateCodeMirrorEditor = CodeMirror(templateElement, {
+    if (this.templateCodeMirrorElement?.nativeElement) {
+      this.templateCodeMirrorEditor = CodeMirror(this.templateCodeMirrorElement.nativeElement, {
         lineNumbers: true,
         autoRefresh: true,
         mode: 'javascript',
@@ -211,9 +216,8 @@ export class AdminAppConfigComponent implements OnInit {
     }
 
     // Initialize current editor
-    const currentElement = document.getElementById('currentCodeMirror');
-    if (currentElement) {
-      this.currentCodeMirrorEditor = CodeMirror(currentElement, {
+    if (this.currentCodeMirrorElement?.nativeElement) {
+      this.currentCodeMirrorEditor = CodeMirror(this.currentCodeMirrorElement.nativeElement, {
         lineNumbers: true,
         autoRefresh: true,
         mode: 'javascript',
@@ -226,9 +230,8 @@ export class AdminAppConfigComponent implements OnInit {
     }
 
     // Initialize new editor
-    const newElement = document.getElementById('newCodeMirror');
-    if (newElement) {
-      this.newCodeMirrorEditor = CodeMirror(newElement, {
+    if (this.newCodeMirrorElement?.nativeElement) {
+      this.newCodeMirrorEditor = CodeMirror(this.newCodeMirrorElement.nativeElement, {
         lineNumbers: true,
         autoRefresh: true,
         mode: 'javascript',

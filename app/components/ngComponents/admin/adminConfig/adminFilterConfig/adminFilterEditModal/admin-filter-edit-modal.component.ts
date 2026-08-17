@@ -14,6 +14,29 @@ import { NotificationService } from '../../../../common/notification/notificatio
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 
+/**
+ * One node of the editable topic tree.
+ *
+ * `selected`/`disabled`/`expanded` are the view state. They used to live in the
+ * DOM (`editCheckbox-<id>.checked` / `.disabled`, `editSubTopic-<id>.style.display`)
+ * and were written through `document.getElementById`. Since the tree UI itself was
+ * never migrated to the Angular template, those elements do not exist and every
+ * one of those writes silently no-opped. The flags now live here so a future
+ * tree template can bind to them.
+ */
+export interface TopicTreeNode {
+  topicId: string;
+  subTopics: TopicTreeNode[];
+  level: number;
+  /** Explicitly selected — either by the user or loaded from the filter config. */
+  selected: boolean;
+  /** Implied by a selected ancestor: checked, but not changeable on its own. */
+  disabled: boolean;
+  /** Whether this node's sub-topics are revealed. */
+  expanded: boolean;
+  [key: string]: any;
+}
+
 @Component({
   selector: 'app-admin-filter-edit-modal',
   standalone: true,
@@ -50,11 +73,11 @@ export class AdminFilterEditModalComponent {
   preppedGeoresourceData: any[] = [];
   preppedIndicatorData: any[] = [];
 
-  indicatorTopicsEditTree: any[] = [];
-  selectedIndicatorTopicEditIds: any[] = [];
+  indicatorTopicsEditTree: TopicTreeNode[] = [];
+  selectedIndicatorTopicEditIds: string[] = [];
 
-  georesourceTopicsEditTree: any[] = [];
-  selectedGeoresourceTopicEditIds: any[] = [];
+  georesourceTopicsEditTree: TopicTreeNode[] = [];
+  selectedGeoresourceTopicEditIds: string[] = [];
 
   showSelectedIndicatorsOnly = false;
   showSelectedGeoresourcesOnly = false;
@@ -73,22 +96,9 @@ export class AdminFilterEditModalComponent {
     { key: 'georesourceTopics', label: 'ADMIN_SHARED_UI.STEP_LABELS.GEORESOURCE_TOPICS' },
   ]);
 
-  /* 	var addClickListenerToEachCollapseTrigger(){
-
-			setTimeout(function(){
-				$('.list-group-item > .editCollapseTrigger').on('click', function() {
-			    $('.glyphicon', this)
-			      .toggleClass('glyphicon-chevron-right')
-			      .toggleClass('glyphicon-chevron-down');
-						// manage entries
-						var clickedTopicId = $(this).attr('id');
-            if(document.getElementById('editSubTopic-'+clickedTopicId).style.display=='none')
-              document.getElementById('editSubTopic-'+clickedTopicId).style.display = 'block';
-            else
-              document.getElementById('editSubTopic-'+clickedTopicId).style.display = 'none';
-			  });
-			}, 500);
-		}; */
+  // The former AngularJS addClickListenerToEachCollapseTrigger() lived here: it
+  // wired a jQuery click handler that toggled editSubTopic-<id>.style.display.
+  // Superseded by the `expanded` flag on TopicTreeNode.
 
   // make sure that initial fetching of availableRoles has happened
   /* this.$on("initialMetadataLoadingCompleted", (event) {
@@ -141,19 +151,29 @@ export class AdminFilterEditModalComponent {
 		});  */
 
   // georesource tree
-  onSelectedGeoresourceEditItemsChange(id, selected) {
-    if (selected === true) {
-      if (!this.selectedGeoresourceTopicEditIds.includes(id))
-        this.selectedGeoresourceTopicEditIds.push(id);
-    } else
-      this.selectedGeoresourceTopicEditIds = this.selectedGeoresourceTopicEditIds.filter(
-        (e) => e != id
-      );
+  onSelectedGeoresourceEditItemsChange(id: string, selected: boolean): void {
+    this.selectedGeoresourceTopicEditIds = this.applyTopicSelection(
+      this.georesourceTopicsEditTree,
+      this.selectedGeoresourceTopicEditIds,
+      id,
+      selected
+    );
 
     if (this.selectedGeoresourceTopicEditIds.length == 0)
       this.showSelectedGeoresourcesTopicsOnly = false;
+  }
 
-    this.searchGeoresourceItemRecursive(this.georesourceTopicsEditTree, id, selected);
+  // indicator tree
+  onSelectedIndicatorEditItemsChange(id: string, selected: boolean): void {
+    this.selectedIndicatorTopicEditIds = this.applyTopicSelection(
+      this.indicatorTopicsEditTree,
+      this.selectedIndicatorTopicEditIds,
+      id,
+      selected
+    );
+
+    if (this.selectedIndicatorTopicEditIds.length == 0)
+      this.showSelectedIndicatorsTopicsOnly = false;
   }
 
   onShowSelectedIndicatorsOnly() {
@@ -163,130 +183,69 @@ export class AdminFilterEditModalComponent {
     this.refreshGeoresourcesTable();
   }
 
-  searchGeoresourceItemRecursive(tree, id, selected) {
-    let ret = false;
+  /**
+   * Select or deselect one topic and bring the tree flags in line.
+   *
+   * Selecting a topic implies all of its sub-topics: they are marked selected and
+   * disabled, and — deliberately — dropped from the id list, so only the highest
+   * checked level is persisted. Returns the new id list.
+   *
+   * Was one pair of near-identical methods per resource type
+   * (searchXItemRecursive / checkXItemsRecursive); the only difference was which
+   * id list they mutated, which is now a parameter.
+   */
+  applyTopicSelection(
+    tree: TopicTreeNode[],
+    selectedIds: string[],
+    id: string,
+    selected: boolean
+  ): string[] {
+    let nextIds =
+      selected === true
+        ? selectedIds.includes(id)
+          ? [...selectedIds]
+          : [...selectedIds, id]
+        : selectedIds.filter((e) => e != id);
 
-    tree.forEach((entry) => {
-      if (entry.topicId == id) {
-        if (selected === true && document.getElementById('editCheckbox-' + id)) {
-          const elem: any = document.getElementById('editCheckbox-' + id);
+    const applyToSubtree = (nodes: TopicTreeNode[]): void => {
+      nodes.forEach((node) => {
+        node.selected = selected;
+        node.disabled = selected;
+        // Drop every lower level, in case a level higher up was checked afterwards
+        nextIds = nextIds.filter((e) => e != node.topicId);
+        applyToSubtree(node.subTopics);
+      });
+    };
 
-          elem.checked = true;
-          elem.style.display = 'block';
+    // Expand the ancestors of the touched node so it is reachable in the tree
+    const walk = (nodes: TopicTreeNode[]): boolean => {
+      let found = false;
+
+      nodes.forEach((node) => {
+        if (node.topicId == id) {
+          node.selected = selected;
+          node.expanded = true;
+          applyToSubtree(node.subTopics);
+          found = true;
+        } else if (walk(node.subTopics)) {
+          node.expanded = true;
+          found = true;
         }
+      });
 
-        this.checkGeoresourceItemsRecursive(entry.subTopics, selected);
+      return found;
+    };
 
-        ret = true;
-      } else {
-        const itemFound = this.searchGeoresourceItemRecursive(entry.subTopics, id, selected);
-        if (itemFound === true && document.getElementById('editSubTopic-' + entry.topicId)) {
-          const elem: any = document.getElementById('editSubTopic-' + entry.topicId);
-          elem.style.display = 'block';
-          ret = true;
-        }
-      }
-    });
-
-    return ret;
+    walk(tree);
+    return nextIds;
   }
 
-  checkGeoresourceItemsRecursive(tree, selected) {
-    tree.forEach((entry) => {
-      if (document.getElementById('editCheckbox-' + entry.topicId)) {
-        const elem: any = document.getElementById('editCheckbox-' + entry.topicId);
-
-        if (selected === true) {
-          elem.checked = true;
-          elem.disabled = true;
-        } else {
-          elem.checked = false;
-          elem.disabled = false;
-        }
-      }
-
-      // delete all downlevel items if they exists, just in case a level higher up has been checked afterwards
-      this.selectedGeoresourceTopicEditIds = this.selectedGeoresourceTopicEditIds.filter(
-        (e) => e != entry.topicId
-      );
-
-      if (entry.subTopics.length > 0)
-        this.checkGeoresourceItemsRecursive(entry.subTopics, selected);
-    });
-  }
-  // end
-
-  // indicator tree
-  onSelectedIndicatorEditItemsChange(id, selected) {
-    if (selected === true) {
-      if (!this.selectedIndicatorTopicEditIds.includes(id))
-        this.selectedIndicatorTopicEditIds.push(id);
-    } else
-      this.selectedIndicatorTopicEditIds = this.selectedIndicatorTopicEditIds.filter(
-        (e) => e != id
-      );
-
-    if (this.selectedIndicatorTopicEditIds.length == 0)
-      this.showSelectedIndicatorsTopicsOnly = false;
-
-    this.searchIndicatorItemRecursive(this.indicatorTopicsEditTree, id, selected);
-  }
-
-  searchIndicatorItemRecursive(tree, id, selected) {
-    let ret = false;
-
-    tree.forEach((entry) => {
-      if (entry.topicId == id) {
-        if (selected === true && document.getElementById('editCheckbox-' + id)) {
-          const elem: any = document.getElementById('editCheckbox-' + id);
-
-          elem.checked = true;
-          elem.style.display = 'block';
-        }
-
-        this.checkIndicatorItemsRecursive(entry.subTopics, selected);
-
-        ret = true;
-      } else {
-        const itemFound = this.searchIndicatorItemRecursive(entry.subTopics, id, selected);
-        if (itemFound === true && document.getElementById('editSubTopic-' + entry.topicId)) {
-          document.getElementById('editSubTopic-' + entry.topicId)!.style.display = 'block';
-          ret = true;
-        }
-      }
-    });
-
-    return ret;
-  }
-
-  checkIndicatorItemsRecursive(tree, selected) {
-    tree.forEach((entry) => {
-      if (document.getElementById('editCheckbox-' + entry.topicId)) {
-        const elem: any = document.getElementById('editCheckbox-' + entry.topicId);
-
-        if (selected === true) {
-          elem.checked = true;
-          elem.disabled = true;
-        } else {
-          elem.checked = false;
-          elem.disabled = false;
-        }
-      }
-
-      // delete all downlevel items if they exists, just in case a level higher up has been checked afterwards
-      this.selectedIndicatorTopicEditIds = this.selectedIndicatorTopicEditIds.filter(
-        (e) => e != entry.topicId
-      );
-
-      if (entry.subTopics.length > 0) this.checkIndicatorItemsRecursive(entry.subTopics, selected);
-    });
-  }
-  // end
-
-  prepTopicsTree(tree, level, selectedItemIds) {
+  prepTopicsTree(tree, level, selectedItemIds): TopicTreeNode[] {
     tree.forEach((entry) => {
       entry.level = level;
       entry.selected = selectedItemIds.includes(entry.topicId);
+      entry.disabled = entry.disabled ?? false;
+      entry.expanded = entry.expanded ?? false;
 
       if (entry.subTopics.length > 0) {
         const newLevel = level + 1;
@@ -336,18 +295,21 @@ export class AdminFilterEditModalComponent {
     return ret;
   }
 
-  resetTreeSelection(tree) {
+  /**
+   * Clear the whole tree's view state.
+   *
+   * The DOM version recursed *inside* the "does the checkbox element exist" guard,
+   * so a node without a rendered checkbox also left its entire subtree untouched.
+   * With the flags on the nodes there is nothing to guard, and the subtree is
+   * always reset.
+   */
+  resetTreeSelection(tree: TopicTreeNode[]): void {
     tree.forEach((entry) => {
-      if (document.getElementById('editCheckbox-' + entry.topicId)) {
-        const elem: any = document.getElementById('editCheckbox-' + entry.topicId);
+      entry.selected = false;
+      entry.disabled = false;
+      entry.expanded = false;
 
-        elem.checked = false;
-        elem.disabled = false;
-
-        elem.style.display = 'none';
-
-        if (entry.subTopics.length > 0) this.resetTreeSelection(entry.subTopics);
-      }
+      if (entry.subTopics.length > 0) this.resetTreeSelection(entry.subTopics);
     });
   }
 
@@ -469,12 +431,24 @@ export class AdminFilterEditModalComponent {
           this.selectedGeoresourceTopicEditIds
         );
 
-        this.selectedIndicatorTopicEditIds.forEach((e) => {
-          this.searchIndicatorItemRecursive(this.indicatorTopicsEditTree, e, true);
+        // Iterate snapshots: applyTopicSelection prunes sub-topic ids from the
+        // lists as it goes (the DOM version mutated them the same way).
+        [...this.selectedIndicatorTopicEditIds].forEach((e) => {
+          this.selectedIndicatorTopicEditIds = this.applyTopicSelection(
+            this.indicatorTopicsEditTree,
+            this.selectedIndicatorTopicEditIds,
+            e,
+            true
+          );
         });
 
-        this.selectedGeoresourceTopicEditIds.forEach((e) => {
-          this.searchGeoresourceItemRecursive(this.georesourceTopicsEditTree, e, true);
+        [...this.selectedGeoresourceTopicEditIds].forEach((e) => {
+          this.selectedGeoresourceTopicEditIds = this.applyTopicSelection(
+            this.georesourceTopicsEditTree,
+            this.selectedGeoresourceTopicEditIds,
+            e,
+            true
+          );
         });
 
         this.selectedIndicatorIds = elem.indicators;
