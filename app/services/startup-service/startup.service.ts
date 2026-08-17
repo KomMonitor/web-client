@@ -107,6 +107,7 @@ export class StartupService {
   private async loadAppConfigScript(scriptUrl: string): Promise<void> {
     if (await this.appendScript(scriptUrl)) {
       console.log('env.js loaded');
+      await this.fetchAppConfigSource(scriptUrl);
       return;
     }
 
@@ -115,10 +116,34 @@ export class StartupService {
     );
     if (await this.appendScript('./config/env_backup.js')) {
       console.log('env_backup.js loaded');
+      await this.fetchAppConfigSource('./config/env_backup.js');
     } else {
       console.error(
         'Failed to load the local fallback app config (./config/env_backup.js). The app will start without an app config.'
       );
+    }
+  }
+
+  /**
+   * Keep the app config's source text around in `window.__env.appConfig`.
+   *
+   * The config is loaded by executing it as a script (above), which populates
+   * `window.__env` but discards the source. The admin app-config editor edits
+   * exactly that source, so it needs a copy — the deleted AngularJS app.js used
+   * to fetch the same URL a second time for this. The browser serves it from
+   * cache here, since the script tag just requested it.
+   */
+  private async fetchAppConfigSource(url: string): Promise<void> {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Unexpected HTTP status ${response.status}`);
+      }
+      window.__env.appConfig = await response.text();
+    } catch (error) {
+      // Only the admin app-config editor consumes this; the app itself runs off
+      // the values the script already set.
+      console.warn(`Could not read the app config source text from ${url}.`, error);
     }
   }
 

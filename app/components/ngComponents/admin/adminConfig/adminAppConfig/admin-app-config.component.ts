@@ -81,9 +81,11 @@ export class AdminAppConfigComponent {
     lint: (cm, options) => CodeMirror.lint.javascript(cm, options),
     loadTemplate: () =>
       firstValueFrom(this.http.get('./config/env_backup.js', { responseType: 'text' })),
-    // Populated by env.js at startup, so it is read from the runtime config
-    // rather than re-fetched.
-    loadCurrent: async () => this.envConfigService.appConfig,
+    // StartupService keeps the source of the executed env.js in the runtime
+    // config, so prefer that; fall back to the stored config if it is missing.
+    loadCurrent: async () =>
+      this.envConfigService.appConfig ||
+      (await firstValueFrom(this.configStorageService.getAppConfig())),
     save: async (value) => {
       await firstValueFrom(this.configStorageService.postAppConfig(value));
       return await firstValueFrom(this.configStorageService.getAppConfig());

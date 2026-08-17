@@ -151,6 +151,25 @@ describe('ConfigEditorComponent', () => {
       expect(paneOptions.readOnly).toBe(true);
     });
 
+    // Regression: window.__env.appConfig was never populated after the AngularJS
+    // app.js went away, so loadCurrent() handed back undefined. CodeMirror's
+    // setValue() throws on a non-string, which aborted initCodeEditor() before
+    // the three preview panes were built — every pane on the page stayed empty.
+    it('still opens every pane when the descriptor yields no value', async () => {
+      fixture.componentRef.setInput(
+        'descriptor',
+        buildDescriptor({ loadCurrent: () => Promise.resolve(undefined as unknown as string) })
+      );
+      fixture.detectChanges();
+      await (component as any).dataReady;
+      await Promise.resolve();
+
+      expect(component.configCurrent).toBe('');
+      const editable = (CodeMirror as any).fromTextArea.mock.results[0].value;
+      expect(editable.setValue).toHaveBeenCalledWith('');
+      expect(CodeMirror as unknown as jest.Mock).toHaveBeenCalledTimes(3);
+    });
+
     it('loads template and current config through the descriptor', async () => {
       await (component as any).loadConfigData();
 

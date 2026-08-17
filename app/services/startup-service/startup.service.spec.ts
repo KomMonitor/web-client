@@ -56,6 +56,27 @@ describe('StartupService', () => {
     await expect(loadPromise).resolves.toBeUndefined();
   });
 
+  // Regression: executing env.js as a script populates window.__env but drops the
+  // source text. The admin app-config editor edits that source, and without it
+  // the page rendered four empty panes.
+  it('keeps the app config source text in window.__env.appConfig', async () => {
+    window.__env = {};
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      text: () => Promise.resolve('window.__env.apiUrl = "https://example.org";'),
+    } as unknown as Response);
+    const scriptsBefore = document.head.querySelectorAll('script').length;
+
+    const loadPromise: Promise<void> = (service as any).loadAppConfigScript(
+      'http://config-server/env.js'
+    );
+    document.head.querySelectorAll('script')[scriptsBefore].dispatchEvent(new Event('load'));
+    await loadPromise;
+
+    expect(global.fetch).toHaveBeenCalledWith('http://config-server/env.js');
+    expect(window.__env.appConfig).toBe('window.__env.apiUrl = "https://example.org";');
+  });
+
   it('shows an error notice and rejects when the bootstrap config returns a non-ok status', async () => {
     jest.spyOn(console, 'error').mockImplementation(() => undefined);
     global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 404 } as Response);

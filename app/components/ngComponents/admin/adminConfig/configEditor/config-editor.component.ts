@@ -24,6 +24,21 @@ import { NotificationService } from '../../../common/notification/notification.s
 import { CodeMirrorEditor, ConfigEditorDescriptor, LintingIssue } from './config-editor.model';
 
 /**
+ * Coerce a descriptor's value into something CodeMirror accepts.
+ *
+ * `setValue()` throws on anything but a string, and the panes are built in one
+ * sequence — so a single non-string would leave *all four* panes of the page
+ * empty. Descriptors read from runtime config that is not guaranteed to be
+ * populated, so an empty pane is the intended degradation here.
+ */
+function asEditorText(value: unknown): string {
+  if (typeof value === 'string') {
+    return value;
+  }
+  return value == null ? '' : String(value);
+}
+
+/**
  * The shared editor page behind /administration's app-config and controls-config
  * routes: a read-only template pane, a read-only "currently active" pane, the
  * editable config and a preview of the pending value.
@@ -97,8 +112,8 @@ export class ConfigEditorComponent implements OnInit, AfterViewInit {
 
   private async loadConfigData(): Promise<void> {
     try {
-      this.configTemplate = await this.descriptor.loadTemplate();
-      const current = await this.descriptor.loadCurrent();
+      this.configTemplate = asEditorText(await this.descriptor.loadTemplate());
+      const current = asEditorText(await this.descriptor.loadCurrent());
       this.configTmp = current;
       this.configCurrent = current;
       this.configNew = current;
@@ -121,6 +136,8 @@ export class ConfigEditorComponent implements OnInit, AfterViewInit {
       lineNumbers: true,
       autoRefresh: true,
       mode,
+      // No theme on purpose: CodeMirror's light default sets the one editable
+      // pane apart from the three dark read-only panes.
       lineWrapping: true,
       gutters: ['CodeMirror-lint-markers'],
       lint: {
@@ -202,7 +219,7 @@ export class ConfigEditorComponent implements OnInit, AfterViewInit {
   async saveConfig(): Promise<void> {
     this.loadingData.set(true);
     try {
-      this.configCurrent = await this.descriptor.save(this.configTmp);
+      this.configCurrent = asEditorText(await this.descriptor.save(this.configTmp));
       this.currentCodeMirrorEditor?.setValue(this.configCurrent);
       this.notificationService.showSuccess(this.translate.instant(`${this.i18n}.MSG.SAVED`));
     } catch (error: any) {

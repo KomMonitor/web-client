@@ -22,6 +22,11 @@
   margin-bottom: 15px;
 }
 
+// the four pane captions; Bootstrap renders <label> at normal weight
+.form-group > label {
+  font-weight: bold;
+}
+
 .help-block {
   display: block;
   margin-top: 5px;
@@ -51,27 +56,14 @@
   cursor: not-allowed;
 }
 
-.CodeMirror {
-  height: 450px;
-  width: 100%;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-family: monospace;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.CodeMirror.CodeMirror-readonly {
-  background-color: #f5f5f5;
-}
-
-.CodeMirror-focused {
-  border-color: #66afe9;
-  outline: 0;
-  box-shadow:
-    inset 0 1px 1px rgba(0, 0, 0, 0.075),
-    0 0 8px rgba(102, 175, 233, 0.6);
-}
+/*
+ * No .CodeMirror rules here: CodeMirror builds its DOM in JavaScript, so those
+ * elements never get the _ngcontent attribute that emulated encapsulation
+ * scopes styles by — every rule the twins carried for them was dead code. The
+ * editors are styled by the global stylesheets instead: `.CodeMirror` in
+ * app.scss (border), codemirror.css and the panda-syntax theme from
+ * angular.json's `styles`, plus the programmatic setSize(null, 450).
+ */
 
 textarea {
   width: 100%;
@@ -83,7 +75,8 @@ textarea {
     display: block;
   }
 
-  .CodeMirror {
+  // stacked columns need the gap the flex row provided
+  .form-group {
     margin-bottom: 20px;
   }
 }
