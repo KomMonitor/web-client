@@ -1,1 +1,21 @@
-<app-config-editor [descriptor]="descriptor"></app-config-editor>
+<app-admin-content-view
+  [title]="'ADMIN_CONFIG.CONTROLS.TITLE' | translate"
+  [description]="'ADMIN_CONFIG.CONTROLS.DESCRIPTION' | translate"
+  [contentTemplate]="content"
+>
+</app-admin-content-view>
+
+<ng-template #content>
+  <expandable-box [title]="'ADMIN_CONFIG.CONTROLS.BOX_TITLE' | translate" [isCollapsible]="false">
+    <p>
+      {{ 'ADMIN_CONFIG.CONTROLS.INTRO_PREFIX' | translate }}
+      <b>Config Storage Service</b>
+      {{ 'ADMIN_CONFIG.COMMON.INTRO_SUFFIX' | translate }}
+    </p>
+
+    <hr />
+    <br />
+
+    <app-config-editor-panes [descriptor]="descriptor"></app-config-editor-panes>
+  </expandable-box>
+</ng-template>

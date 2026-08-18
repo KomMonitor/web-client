@@ -18,8 +18,6 @@ import 'codemirror/mode/htmlmixed/htmlmixed.js';
 import 'codemirror/mode/javascript/javascript.js';
 import 'codemirror/mode/xml/xml.js';
 
-import { AdminContentViewComponent } from '../../admin-content-view/admin-content-view.component';
-import { ExpandableBoxComponent } from '../../../common/expandable-box/expandable-box.component';
 import { NotificationService } from '../../../common/notification/notification.service';
 import { CodeMirrorEditor, ConfigEditorDescriptor, LintingIssue } from './config-editor.model';
 
@@ -39,32 +37,33 @@ function asEditorText(value: unknown): string {
 }
 
 /**
- * The shared editor page behind /administration's app-config and controls-config
- * routes: a read-only template pane, a read-only "currently active" pane, the
- * editable config and a preview of the pending value.
+ * The four editor panes every config page shares: a read-only template pane, a
+ * read-only "currently active" pane, the editable config and a preview of the
+ * pending value — plus the save button and the validation hints.
  *
- * Both routes used to be copy-paste twins (~330 lines of TS and an 86-line
- * template each) that differed only in the CodeMirror mode, the linter, the
- * required-keyword list, the i18n prefix and where the config is read from and
- * written to. All of that is now a `ConfigEditorDescriptor` the route supplies.
+ * The component is embedded by every page that edits a configuration — app
+ * config, controls config and, below its overview grid, the filter config.
+ * Each of them brings its own page frame and passes a `ConfigEditorDescriptor`
+ * saying what to load, lint and save.
  */
 @Component({
-  selector: 'app-config-editor',
-  templateUrl: './config-editor.component.html',
-  styleUrls: ['./config-editor.component.scss'],
-  imports: [TranslateModule, ExpandableBoxComponent, AdminContentViewComponent],
+  selector: 'app-config-editor-panes',
+  templateUrl: './config-editor-panes.component.html',
+  styleUrls: ['./config-editor-panes.component.scss'],
+  imports: [TranslateModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ConfigEditorComponent implements OnInit, AfterViewInit {
+export class ConfigEditorPanesComponent implements OnInit, AfterViewInit {
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
 
   @Input({ required: true }) descriptor!: ConfigEditorDescriptor;
 
-  // These live in an <ng-template> that admin-content-view renders through an
-  // outlet, so they resolve only after the first change detection — never with
-  // { static: true }. ngAfterViewInit is therefore the earliest safe point.
+  // Hosts are resolved in ngAfterViewInit, never with { static: true }: the
+  // embedding pages render this component inside an <ng-template> that
+  // admin-content-view pulls through an outlet, so the view exists only after
+  // the first change detection.
   @ViewChild('configEditor') configEditor!: ElementRef;
   @ViewChild('templateCodeMirror') templateCodeMirrorElement!: ElementRef;
   @ViewChild('currentCodeMirror') currentCodeMirrorElement!: ElementRef;
@@ -89,6 +88,9 @@ export class ConfigEditorComponent implements OnInit, AfterViewInit {
 
   private lintingIssues: LintingIssue[] = [];
 
+  /** Set by setStoredConfig() before the editor exists; applied by initCodeEditor(). */
+  private pendingStoredConfig: string | null = null;
+
   /** Resolves once template and current config are in `configTemplate`/`configCurrent`. */
   private dataReady!: Promise<void>;
 
@@ -107,6 +109,29 @@ export class ConfigEditorComponent implements OnInit, AfterViewInit {
     // signal writes triggered by the initial setValue cannot land mid-check.
     await this.dataReady;
     this.initCodeEditor();
+    this.onChangeConfig();
+  }
+
+  /**
+   * Adopts `value` as the stored configuration: the editable pane and the
+   * "current" pane both take it over.
+   *
+   * For pages that change the configuration outside this component —
+   * adminFilterConfig deletes filters from its overview grid and writes the
+   * result back to the config storage service.
+   */
+  setStoredConfig(value: string): void {
+    const text = asEditorText(value);
+    this.configTmp = text;
+    this.configCurrent = text;
+
+    if (!this.codeMirrorEditor) {
+      this.pendingStoredConfig = text;
+      return;
+    }
+
+    this.codeMirrorEditor.setValue(text);
+    this.currentCodeMirrorEditor?.setValue(text);
     this.onChangeConfig();
   }
 
@@ -150,7 +175,8 @@ export class ConfigEditorComponent implements OnInit, AfterViewInit {
       this.configTmp = this.codeMirrorEditor.getValue();
       this.onChangeConfig();
     });
-    this.codeMirrorEditor.setValue(this.configCurrent);
+    this.codeMirrorEditor.setValue(this.pendingStoredConfig ?? this.configCurrent);
+    this.pendingStoredConfig = null;
 
     this.templateCodeMirrorEditor = this.initReadOnlyPane(
       this.templateCodeMirrorElement,

@@ -1430,6 +1430,7 @@
       "EDITOR_LABEL": "Editierfenster der Filter-Konfiguration",
       "SAVE": "Filter-Konfiguration speichern",
       "MSG": {
+        "LOAD_FAILED": "Laden der Filter-Konfiguration gescheitert: {{error}}",
         "SAVED": "Filter-Konfiguration gespeichert.",
         "SAVE_FAILED": "Speichern der Filter-Konfiguration gescheitert: {{error}}",
         "DELETE_CONFIRM": "Wollen Sie den Filter {{name}} sicher dauerhaft löschen?"

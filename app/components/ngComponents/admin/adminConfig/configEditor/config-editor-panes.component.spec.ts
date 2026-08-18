@@ -34,7 +34,7 @@ jest.mock('codemirror', () => {
 
 import CodeMirror from 'codemirror';
 
-import { ConfigEditorComponent } from './config-editor.component';
+import { ConfigEditorPanesComponent } from './config-editor-panes.component';
 import { ConfigEditorDescriptor, LintingIssue } from './config-editor.model';
 
 function buildDescriptor(overrides: Partial<ConfigEditorDescriptor> = {}): ConfigEditorDescriptor {
@@ -51,18 +51,18 @@ function buildDescriptor(overrides: Partial<ConfigEditorDescriptor> = {}): Confi
   };
 }
 
-describe('ConfigEditorComponent', () => {
-  let component: ConfigEditorComponent;
-  let fixture: ComponentFixture<ConfigEditorComponent>;
+describe('ConfigEditorPanesComponent', () => {
+  let component: ConfigEditorPanesComponent;
+  let fixture: ComponentFixture<ConfigEditorPanesComponent>;
 
   beforeEach(() => {
     // The CodeMirror stub is module-level; drop the calls recorded by earlier tests
     jest.clearAllMocks();
 
     TestBed.configureTestingModule({
-      imports: [ConfigEditorComponent, TranslateModule.forRoot()],
+      imports: [ConfigEditorPanesComponent, TranslateModule.forRoot()],
     });
-    fixture = TestBed.createComponent(ConfigEditorComponent);
+    fixture = TestBed.createComponent(ConfigEditorPanesComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('descriptor', buildDescriptor());
   });
@@ -74,9 +74,9 @@ describe('ConfigEditorComponent', () => {
   describe('CodeMirror host elements', () => {
     // The panes used to be looked up with document.getElementById, and the two
     // former twins used identical ids for three of them. They are view queries
-    // now — and because the content sits in an <ng-template> that
-    // admin-content-view renders through an outlet, they resolve only after the
-    // first change detection, never with { static: true }.
+    // now — and because the embedding pages render this component inside an
+    // <ng-template> that admin-content-view pulls through an outlet, they
+    // resolve only after the first change detection, never with { static: true }.
     it('does not resolve the refs before the first change detection', () => {
       expect(component.configEditor).toBeUndefined();
       expect(component.templateCodeMirrorElement).toBeUndefined();
@@ -201,6 +201,38 @@ describe('ConfigEditorComponent', () => {
 
       expect(component.configCurrent).toBe('untouched');
       expect(component.loadingData()).toBe(false);
+    });
+  });
+  describe('setStoredConfig', () => {
+    it('pushes the value into the editable and the current pane', async () => {
+      fixture.detectChanges();
+      await (component as any).dataReady;
+      await Promise.resolve();
+
+      const editable = (CodeMirror as any).fromTextArea.mock.results[0].value;
+      // call order matches initCodeEditor: template, current, new
+      const currentPane = (CodeMirror as unknown as jest.Mock).mock.results[1].value;
+      editable.setValue.mockClear();
+      currentPane.setValue.mockClear();
+
+      component.setStoredConfig('[{ "name": "reloaded" }]');
+
+      expect(editable.setValue).toHaveBeenCalledWith('[{ "name": "reloaded" }]');
+      expect(currentPane.setValue).toHaveBeenCalledWith('[{ "name": "reloaded" }]');
+      expect(component.configCurrent).toBe('[{ "name": "reloaded" }]');
+    });
+
+    // The embedding page may push a value in before the editor exists —
+    // adminFilterConfig reloads it from a setTimeout after deleting a filter.
+    it('defers to initCodeEditor when the editor is not built yet', async () => {
+      component.setStoredConfig('[{ "name": "early" }]');
+
+      fixture.detectChanges();
+      await (component as any).dataReady;
+      await Promise.resolve();
+
+      const editable = (CodeMirror as any).fromTextArea.mock.results[0].value;
+      expect(editable.setValue).toHaveBeenCalledWith('[{ "name": "early" }]');
     });
   });
 });

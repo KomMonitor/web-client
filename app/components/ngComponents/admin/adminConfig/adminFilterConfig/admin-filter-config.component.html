@@ -1,23 +1,22 @@
 <app-admin-content-view
   [title]="'ADMIN_CONFIG.FILTER.TITLE' | translate"
   [description]="'ADMIN_CONFIG.FILTER.DESCRIPTION' | translate"
+  [controlsTemplate]="controls"
   [contentTemplate]="content"
 >
 </app-admin-content-view>
+
+<ng-template #controls>
+  <button class="btn btn-success btn-sm" type="button" (click)="onAddFilter()">
+    <i class="fas fa-plus"></i>&nbsp;&nbsp;{{ 'ADMIN_SHARED.CREATE' | translate }}
+  </button>
+</ng-template>
 
 <ng-template #content>
   <expandable-box [title]="'ADMIN_CONFIG.FILTER.TABLE_BOX_TITLE' | translate" [collapsed]="false">
     <p>
       {{ 'ADMIN_CONFIG.FILTER.INTRO' | translate }}
     </p>
-
-    <div class="adminTableButtonWrapper">
-      <button class="btn btn-success btn-sm" type="button" (click)="onAddFilter()">
-        <i class="fas fa-plus"></i>&nbsp;&nbsp;{{ 'ADMIN_SHARED.CREATE' | translate }}
-      </button>
-    </div>
-    <hr />
-    <br />
 
     <ag-grid-angular
       #agGrid
@@ -45,90 +44,7 @@
 
     <hr />
     <br />
-    <div class="row">
-      <div class="col-md-6 col-sm-6 col-12">
-        <div class="form-group">
-          <label>{{ 'ADMIN_CONFIG.COMMON.TEMPLATE_LABEL' | translate }}</label>
-          <br />
-          <br />
-          <pre
-            class="prettyprint linenums"
-            style="max-height: 300px; overflow: auto; text-align: left"
-            id="filterConfig_backupTemplate"
-          ><code class="language-javascript" [innerHTML]="filterConfigTemplate"></code></pre>
-        </div>
-      </div>
-      <div class="col-md-6 col-sm-6 col-12">
-        <div class="form-group">
-          <label>{{ 'ADMIN_CONFIG.COMMON.CURRENT_LABEL' | translate }}</label>
-          <br />
-          <br />
-          <pre
-            class="prettyprint linenums"
-            style="max-height: 300px; overflow: auto; text-align: left"
-            id="filterConfig_current"
-          ><code class="language-javascript" [innerHTML]="filterConfigCurrent"></code></pre>
-        </div>
-      </div>
-    </div>
 
-    <hr />
-    <br />
-
-    <div class="row">
-      <div class="col-md-6 col-sm-6 col-12">
-        <div class="form-group">
-          <label>{{ 'ADMIN_CONFIG.FILTER.EDITOR_LABEL' | translate }}</label>
-          <br />
-          <br />
-          <textarea #filterConfigEditor id="filterConfigEditor"></textarea>
-        </div>
-        @if (configSettingInvalid()) {
-          <div class="help-block with-errors">
-            {{ 'ADMIN_CONFIG.COMMON.INVALID_HINT' | translate: { format: 'JSON' } }}
-          </div>
-        }
-        @if (missingRequiredParameters().length > 0) {
-          <div class="help-block with-errors">
-            {{ 'ADMIN_CONFIG.COMMON.MISSING_PARAMETERS' | translate }}
-            {{ missingRequiredParameters_string() }}
-          </div>
-        }
-      </div>
-      <div class="col-md-6 col-sm-6 col-12">
-        <div class="form-group">
-          <label>{{ 'ADMIN_CONFIG.COMMON.PREVIEW_LABEL' | translate }}</label>
-          <br />
-          <br />
-          <pre
-            class="prettyprint linenums"
-            style="max-height: 300px; overflow: auto; text-align: left"
-            id="filterConfig_new"
-          ><code class="language-javascript" [innerHTML]="filterConfigNew"></code></pre>
-        </div>
-      </div>
-    </div>
-
-    <div class="row vertical-align">
-      <!-- hide button to reset content as this will actually break the settings due to localhost standard config  -->
-      <!-- <div class="col-md-6 col-sm-6 col-12">
-            <div class="form-group">
-              <button type="button" class="btn btn-warning vertical-align horizontal-align"
-              (click)="resetDefaultConfig()">Standard-Einstellungen wiederherstellen</button>
-            </div>
-          </div>					 -->
-      <div class="col-md-12 text-center">
-        <div class="form-group">
-          <button
-            type="button"
-            class="btn btn-success vertical-align horizontal-align"
-            ng-disabled="configSettingInvalid()"
-            (click)="editFilterConfig()"
-          >
-            {{ 'ADMIN_CONFIG.FILTER.SAVE' | translate }}
-          </button>
-        </div>
-      </div>
-    </div>
+    <app-config-editor-panes [descriptor]="descriptor"></app-config-editor-panes>
   </expandable-box>
 </ng-template>

@@ -15,15 +15,15 @@ export interface LintingIssue {
 
 /**
  * Everything that differs between the config editors (app config, controls
- * config). The shared `<app-config-editor>` renders the UI and drives the four
- * CodeMirror panes; the hosting route component supplies one of these.
+ * config, filter config). `<app-config-editor-panes>` renders the four
+ * CodeMirror panes and drives them; the hosting page supplies one of these.
  */
 export interface ConfigEditorDescriptor {
   /**
-   * i18n namespace of the page-specific texts. Must provide `TITLE`,
-   * `DESCRIPTION`, `BOX_TITLE`, `INTRO_PREFIX`, `EDITOR_LABEL`, `SAVE` and
-   * `MSG.SAVED` / `MSG.SAVE_FAILED` / `MSG.LOAD_FAILED`; everything else comes
-   * from `ADMIN_CONFIG.COMMON.*`.
+   * i18n namespace of the page-specific texts. The panes need `EDITOR_LABEL`,
+   * `SAVE` and `MSG.SAVED` / `MSG.SAVE_FAILED` / `MSG.LOAD_FAILED`; everything
+   * else comes from `ADMIN_CONFIG.COMMON.*`. The page frame around the panes is
+   * the hosting component's own template and uses the same namespace.
    */
   i18nPrefix: string;
 

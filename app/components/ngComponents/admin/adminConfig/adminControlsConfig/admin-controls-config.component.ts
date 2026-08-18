@@ -1,23 +1,31 @@
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 
 import CodeMirror from 'codemirror';
 
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { ConfigEditorComponent } from '../configEditor/config-editor.component';
+import { AdminContentViewComponent } from '../../admin-content-view/admin-content-view.component';
+import { ExpandableBoxComponent } from '../../../common/expandable-box/expandable-box.component';
 import { ConfigEditorDescriptor } from '../configEditor/config-editor.model';
+import { ConfigEditorPanesComponent } from '../configEditor/config-editor-panes.component';
 
 /**
- * The /administration controls-config route. All UI and editor mechanics live in
- * <app-config-editor>; this component only describes what is specific to the
- * JSON-based controls config.
+ * The /administration controls-config route: the page frame lives in the
+ * template, all editor mechanics in <app-config-editor-panes>. This component
+ * only describes what is specific to the JSON-based controls config.
  */
 @Component({
   selector: 'app-admin-controls-config',
   templateUrl: './admin-controls-config.component.html',
-  imports: [ConfigEditorComponent],
+  imports: [
+    TranslateModule,
+    ExpandableBoxComponent,
+    AdminContentViewComponent,
+    ConfigEditorPanesComponent,
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
