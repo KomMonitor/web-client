@@ -13,6 +13,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { AgGridAngular } from 'ag-grid-angular';
+import { ColDef, GridOptions } from 'ag-grid-community';
 import { firstValueFrom } from 'rxjs';
 import { BroadcastService } from '../../../../../../services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from '../../../../../../services/broadcast-service/broadcast-message';
@@ -81,6 +83,7 @@ interface FilterConfigEntry {
     TranslateModule,
     FormsModule,
     NgTemplateOutlet,
+    AgGridAngular,
     StepperComponent,
     LoadingOverlayComponent,
   ],
@@ -122,15 +125,36 @@ export class AdminFilterEditModalComponent implements OnInit {
   georesourceTopicsEditTree: TopicTreeNode[] = [];
   selectedGeoresourceTopicEditIds: string[] = [];
 
-  showSelectedIndicatorsOnly = false;
-  showSelectedGeoresourcesOnly = false;
   showSelectedIndicatorsTopicsOnly = false;
   showSelectedGeoresourcesTopicsOnly = false;
 
-  indicatorSearchTerm = '';
-  georesourceSearchTerm = '';
+  /** Column definitions of the two dataset grids (built in ngOnInit, for i18n). */
+  indicatorDatasetColumns: ColDef[] = [];
+  georesourceDatasetColumns: ColDef[] = [];
 
   filterName!: string | undefined;
+
+  /** Shared grid setup of both dataset steps. */
+  readonly datasetGridOptions: GridOptions = {
+    defaultColDef: {
+      editable: false,
+      cellDataType: false,
+      sortable: true,
+      filter: true,
+      resizable: true,
+      wrapText: true,
+      autoHeight: true,
+      flex: 1,
+      minWidth: 150,
+    },
+    enableCellTextSelection: true,
+    ensureDomOrder: true,
+    pagination: true,
+    paginationPageSize: 5,
+    paginationPageSizeSelector: [5, 10, 25, 50, 100],
+    suppressColumnVirtualisation: true,
+    suppressCellFocus: true,
+  };
 
   // Multi-step form
   readonly stepper = new WizardStepper([
@@ -141,6 +165,9 @@ export class AdminFilterEditModalComponent implements OnInit {
   ]);
 
   ngOnInit(): void {
+    this.indicatorDatasetColumns = this.buildDatasetColumns('indicator');
+    this.georesourceDatasetColumns = this.buildDatasetColumns('georesource');
+
     this.initialize();
 
     // The admin area can open this modal before the metadata bootstrap has
@@ -430,27 +457,59 @@ export class AdminFilterEditModalComponent implements OnInit {
         checked: this.selectedGeoresourceIds.includes(element.georesourceId),
       })
     );
-
-    if (this.selectedIndicatorIds.length == 0) this.showSelectedIndicatorsOnly = false;
-    if (this.selectedGeoresourceIds.length == 0) this.showSelectedGeoresourcesOnly = false;
   }
 
-  /** The rows of a dataset step, after the search term and the selected-only toggle. */
-  visibleItems(kind: FilterResourceKind): FilterSelectableItem[] {
-    const isIndicator = kind === 'indicator';
-    const items = isIndicator ? this.preppedIndicatorData : this.preppedGeoresourceData;
-    const showSelectedOnly = isIndicator
-      ? this.showSelectedIndicatorsOnly
-      : this.showSelectedGeoresourcesOnly;
-    const searchTerm = (isIndicator ? this.indicatorSearchTerm : this.georesourceSearchTerm)
-      .trim()
-      .toLowerCase();
+  /**
+   * Columns of a dataset step: name, id, description and the "visible" checkbox
+   * that holds the selection. Sorting, the column filters and the pagination
+   * come from the grid, which is why the step needs no controls of its own.
+   */
+  private buildDatasetColumns(kind: FilterResourceKind): ColDef[] {
+    return [
+      {
+        headerName: this.translate.instant('ADMIN_SHARED.NAME'),
+        field: 'name',
+        sort: 'asc',
+        minWidth: 200,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SHARED.ID'),
+        field: 'id',
+        minWidth: 200,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SHARED.DESCRIPTION'),
+        field: 'description',
+        minWidth: 200,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_CONFIG.FILTER_EDIT.COL_VISIBLE'),
+        // No `field`: the cell is the checkbox itself, the value only sorts
+        valueGetter: (params: any) => params.data?.checked === true,
+        filter: false,
+        flex: 0,
+        width: 120,
+        minWidth: 120,
+        cellStyle: { 'text-align': 'center' },
+        cellRenderer: (params: any) => this.buildSelectionCheckbox(kind, params.data),
+      },
+    ];
+  }
 
-    return items.filter((item) => {
-      if (showSelectedOnly && !item.checked) return false;
-      if (!searchTerm) return true;
-      return (item.name ?? '').toLowerCase().includes(searchTerm);
-    });
+  /** The checkbox cell of the "visible" column, kept in sync with the row's item. */
+  private buildSelectionCheckbox(kind: FilterResourceKind, item: FilterSelectableItem | undefined) {
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.className = 'form-check-input dataset-check';
+
+    if (!item) return checkbox;
+
+    checkbox.checked = item.checked;
+    checkbox.addEventListener('change', () =>
+      this.onItemSelectionChange(kind, item, checkbox.checked)
+    );
+
+    return checkbox;
   }
 
   onItemSelectionChange(kind: FilterResourceKind, item: FilterSelectableItem, checked: boolean) {
@@ -460,15 +519,14 @@ export class AdminFilterEditModalComponent implements OnInit {
       this.selectedIndicatorIds = this.preppedIndicatorData
         .filter((e) => e.checked)
         .map((e) => e.id);
-
-      if (this.selectedIndicatorIds.length == 0) this.showSelectedIndicatorsOnly = false;
     } else {
       this.selectedGeoresourceIds = this.preppedGeoresourceData
         .filter((e) => e.checked)
         .map((e) => e.id);
-
-      if (this.selectedGeoresourceIds.length == 0) this.showSelectedGeoresourcesOnly = false;
     }
+
+    // The checkbox lives in a grid cell, outside this component's template
+    this.cdr.markForCheck();
   }
 
   // ---------------------------------------------------------------------------
@@ -559,12 +617,8 @@ export class AdminFilterEditModalComponent implements OnInit {
     this.selectedGeoresourceIds = [];
     this.selectedIndicatorTopicEditIds = [];
     this.selectedGeoresourceTopicEditIds = [];
-    this.showSelectedIndicatorsOnly = false;
-    this.showSelectedGeoresourcesOnly = false;
     this.showSelectedIndicatorsTopicsOnly = false;
     this.showSelectedGeoresourcesTopicsOnly = false;
-    this.indicatorSearchTerm = '';
-    this.georesourceSearchTerm = '';
 
     this.resetTreeSelection(this.indicatorTopicsEditTree);
     this.resetTreeSelection(this.georesourceTopicsEditTree);

@@ -4,51 +4,159 @@
   transform: none !important;
 }
 
-.dataset-controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 0.5rem;
+.dataset-grid {
+  display: block;
+  height: 45vh;
+  margin-bottom: 1rem;
+}
 
-  .form-control {
-    max-width: 20rem;
-  }
+// `.multiStepForm input { width: 100% }` in app.scss applies to every input of
+// the wizard form — the checkboxes of the dataset grid and of the topic trees
+// have to opt out of it, or they stretch across their whole cell/row.
+::ng-deep .dataset-grid .dataset-check,
+input[type='checkbox'] {
+  width: 1em;
+  min-width: 1em;
+  height: 1em;
+  margin: 0;
+  flex-shrink: 0;
+  float: none;
+  vertical-align: middle;
+  border-radius: 0.25em;
 }
 
 .selection-toggle {
-  margin-bottom: 0.5rem;
-  white-space: nowrap;
+  // Neutralizes Bootstrap's .form-check layout (floated input, left padding)
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-left: 0;
+  margin-bottom: 0.75rem;
+  color: #495057;
+
+  .form-check-label {
+    cursor: pointer;
+    user-select: none;
+  }
 }
 
-.dataset-list,
 .topic-tree {
   max-height: 45vh;
   overflow-y: auto;
   border: 1px solid #dee2e6;
-  border-radius: 0.25rem;
+  border-radius: 0.5rem;
+  background-color: #fff;
   padding: 0.5rem;
   margin-bottom: 1rem;
   text-align: left;
 }
 
-.dataset-item {
-  padding-block: 0.15rem;
+.topic-tree-empty {
+  margin: 0;
+  padding: 1rem;
+  text-align: center;
+  color: #6c757d;
 }
 
 .topic-row {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.5rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.35rem;
+  transition: background-color 0.15s ease-in-out;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+
+  // Explicitly checked — this is the level that ends up in the configuration
+  &.is-selected {
+    background-color: var(--kommonitor-hierarchy-level-2);
+
+    .topic-label {
+      font-weight: 600;
+    }
+  }
+
+  // Implied by a selected ancestor: checked, but not changeable on its own
+  &.is-implied {
+    background-color: var(--kommonitor-hierarchy-level-3);
+
+    .topic-label {
+      font-weight: 400;
+      color: #6c757d;
+      cursor: default;
+    }
+
+    .topic-check {
+      cursor: not-allowed;
+    }
+  }
+}
+
+// Indentation with a guide line, one level per nesting step
+.topic-children {
+  margin-left: 1rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid #e3e6ea;
 }
 
 .topic-toggle {
-  padding: 0 0.25rem;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
   border: none;
+  border-radius: 0.25rem;
   background: none;
+  color: #6c757d;
+  font-size: 0.75rem;
+  transition:
+    color 0.15s ease-in-out,
+    background-color 0.15s ease-in-out;
+
+  i {
+    transition: transform 0.15s ease-in-out;
+  }
+
+  &.is-expanded i {
+    transform: rotate(90deg);
+  }
+
+  &:hover {
+    color: var(--kommonitor-primary);
+    background-color: rgba(0, 0, 0, 0.06);
+  }
 }
 
 .topic-toggle-placeholder {
-  display: inline-block;
+  flex: 0 0 1.5rem;
   width: 1.5rem;
+}
+
+.topic-check {
+  cursor: pointer;
+}
+
+.topic-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+// Number of sub-topics, so a collapsed branch still says how much it hides
+.topic-count {
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background-color: #f0f2f5;
+  color: #6c757d;
+  font-size: 0.7rem;
+  line-height: 1.5;
 }

@@ -1466,7 +1466,8 @@
       "SUBMIT_ADD": "Register filter",
       "SUBMIT_EDIT": "Save filter",
       "SHOW_SELECTED_ONLY": "Only show selected entries",
-      "NO_ENTRIES": "No entries available."
+      "NO_ENTRIES": "No entries available.",
+      "COL_VISIBLE": "visible"
     }
   },
   "ADMIN_SPATIAL_UNITS": {

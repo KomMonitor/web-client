@@ -259,17 +259,100 @@ describe('AdminFilterEditModalComponent', () => {
 
       expect(component.selectedIndicatorTopicEditIds).toEqual(['main-1']);
       expect(component.indicatorTopicsEditTree[0].subTopics[0].disabled).toBe(true);
+
+      // the row states the two levels are in, which is what the styling keys on
+      const rows = fixture.nativeElement.querySelectorAll('.topic-row');
+      expect(rows[0].classList).toContain('is-selected');
+      expect(rows[0].classList).not.toContain('is-implied');
+      expect(rows[1].classList).toContain('is-implied');
     });
 
-    it('checking an indicator adds it to the selection', () => {
+    it('shows how many sub-topics a branch holds', () => {
       seedStores();
       fixture.detectChanges();
+      component.stepper.goTo(2);
+      fixture.detectChanges();
 
-      const checkbox = fixture.nativeElement.querySelector('#dataset-indicator-i-1');
+      const count = fixture.nativeElement.querySelector('.topic-count');
+      expect(count.textContent.trim()).toBe('1');
+    });
+
+    it('shows the dataset grid columns of the screenshot', () => {
+      seedStores();
+
+      fixture.detectChanges();
+
+      const headers = Array.from(
+        fixture.nativeElement.querySelectorAll('.ag-header-cell-text')
+      ).map((cell: any) => cell.textContent.trim());
+      expect(headers).toEqual([
+        'ADMIN_SHARED.NAME',
+        'ADMIN_SHARED.ID',
+        'ADMIN_SHARED.DESCRIPTION',
+        'ADMIN_CONFIG.FILTER_EDIT.COL_VISIBLE',
+      ]);
+    });
+
+    it('feeds the grid with one row per available indicator', () => {
+      seedStores();
+
+      fixture.detectChanges();
+
+      expect(component.preppedIndicatorData).toEqual([
+        { id: 'i-1', name: 'Indicator One', description: 'desc', checked: false },
+      ]);
+      expect(fixture.nativeElement.innerHTML).toContain('Indicator One');
+    });
+  });
+
+  describe('dataset grid columns', () => {
+    // The checkbox cell is a plain DOM element built by the column's
+    // cellRenderer (the pattern the admin grids use), so it is exercised
+    // through that function rather than through the rendered grid.
+    beforeEach(() => {
+      fixture.detectChanges();
+    });
+
+    function checkboxOf(item: any): HTMLInputElement {
+      const visibleColumn: any = component.indicatorDatasetColumns[3];
+      return visibleColumn.cellRenderer({ data: item });
+    }
+
+    it('renders the checkbox in the state of its row', () => {
+      expect(checkboxOf({ id: 'i-1', checked: false }).checked).toBe(false);
+      expect(checkboxOf({ id: 'i-1', checked: true }).checked).toBe(true);
+    });
+
+    it('checking a row adds the indicator to the selection', () => {
+      component.preppedIndicatorData = [
+        { id: 'i-1', name: 'One', checked: false },
+        { id: 'i-2', name: 'Two', checked: false },
+      ];
+
+      const checkbox = checkboxOf(component.preppedIndicatorData[1]);
       checkbox.checked = true;
       checkbox.dispatchEvent(new Event('change'));
 
-      expect(component.selectedIndicatorIds).toEqual(['i-1']);
+      expect(component.selectedIndicatorIds).toEqual(['i-2']);
+      expect(component.preppedIndicatorData[1].checked).toBe(true);
+    });
+
+    it('unchecking a row removes it again', () => {
+      component.preppedIndicatorData = [{ id: 'i-1', name: 'One', checked: true }];
+      component.selectedIndicatorIds = ['i-1'];
+
+      const checkbox = checkboxOf(component.preppedIndicatorData[0]);
+      checkbox.checked = false;
+      checkbox.dispatchEvent(new Event('change'));
+
+      expect(component.selectedIndicatorIds).toEqual([]);
+    });
+
+    it('sorts the visible column by the row state', () => {
+      const visibleColumn: any = component.indicatorDatasetColumns[3];
+
+      expect(visibleColumn.valueGetter({ data: { checked: true } })).toBe(true);
+      expect(visibleColumn.valueGetter({ data: undefined })).toBe(false);
     });
   });
 

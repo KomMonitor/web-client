@@ -44,10 +44,10 @@
           <!-- fieldsets -->
           @if (stepper.isActive('indicators')) {
             <fieldset>
-              <h2 class="fs-title">
+              <h2 class="fs-title text-center">
                 {{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATORS_TITLE' | translate }}
               </h2>
-              <h3 class="fs-subtitle">
+              <h3 class="fs-subtitle text-center">
                 {{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATORS_SUBTITLE' | translate }}
               </h3>
 
@@ -67,10 +67,10 @@
 
           @if (stepper.isActive('indicatorTopics')) {
             <fieldset>
-              <h2 class="fs-title">
+              <h2 class="fs-title text-center">
                 {{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATOR_TOPICS_TITLE' | translate }}
               </h2>
-              <h3 class="fs-subtitle">
+              <h3 class="fs-subtitle text-center">
                 {{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATOR_TOPICS_SUBTITLE' | translate }}
               </h3>
 
@@ -90,7 +90,9 @@
 
               <div class="topic-tree">
                 @if (indicatorTopicsEditTree.length === 0) {
-                  <p class="text-muted">{{ 'ADMIN_CONFIG.FILTER_EDIT.NO_ENTRIES' | translate }}</p>
+                  <p class="topic-tree-empty">
+                    {{ 'ADMIN_CONFIG.FILTER_EDIT.NO_ENTRIES' | translate }}
+                  </p>
                 }
                 <ng-container
                   *ngTemplateOutlet="
@@ -119,10 +121,10 @@
 
           @if (stepper.isActive('georesources')) {
             <fieldset>
-              <h2 class="fs-title">
+              <h2 class="fs-title text-center">
                 {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCES_TITLE' | translate }}
               </h2>
-              <h3 class="fs-subtitle">
+              <h3 class="fs-subtitle text-center">
                 {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCES_SUBTITLE' | translate }}
               </h3>
 
@@ -149,10 +151,10 @@
 
           @if (stepper.isActive('georesourceTopics')) {
             <fieldset>
-              <h2 class="fs-title">
+              <h2 class="fs-title text-center">
                 {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCE_TOPICS_TITLE' | translate }}
               </h2>
-              <h3 class="fs-subtitle">
+              <h3 class="fs-subtitle text-center">
                 {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCE_TOPICS_SUBTITLE' | translate }}
               </h3>
 
@@ -172,7 +174,9 @@
 
               <div class="topic-tree">
                 @if (georesourceTopicsEditTree.length === 0) {
-                  <p class="text-muted">{{ 'ADMIN_CONFIG.FILTER_EDIT.NO_ENTRIES' | translate }}</p>
+                  <p class="topic-tree-empty">
+                    {{ 'ADMIN_CONFIG.FILTER_EDIT.NO_ENTRIES' | translate }}
+                  </p>
                 }
                 <ng-container
                   *ngTemplateOutlet="
@@ -216,62 +220,12 @@
 
 <!-- One dataset selection step (indicators / georesources), addressed by `kind`. -->
 <ng-template #datasetStep let-kind="kind">
-  <div class="dataset-controls">
-    <input
-      type="text"
-      class="form-control"
-      [placeholder]="'ADMIN_SHARED.KEYWORD_FILTER' | translate"
-      [ngModel]="kind === 'indicator' ? indicatorSearchTerm : georesourceSearchTerm"
-      (ngModelChange)="
-        kind === 'indicator' ? (indicatorSearchTerm = $event) : (georesourceSearchTerm = $event)
-      "
-      [ngModelOptions]="{ standalone: true }"
-    />
-
-    <div class="form-check selection-toggle">
-      <input
-        class="form-check-input"
-        type="checkbox"
-        [id]="'showSelected-' + kind"
-        [ngModel]="kind === 'indicator' ? showSelectedIndicatorsOnly : showSelectedGeoresourcesOnly"
-        (ngModelChange)="
-          kind === 'indicator'
-            ? (showSelectedIndicatorsOnly = $event)
-            : (showSelectedGeoresourcesOnly = $event)
-        "
-        [ngModelOptions]="{ standalone: true }"
-        [disabled]="
-          (kind === 'indicator' ? selectedIndicatorIds.length : selectedGeoresourceIds.length) === 0
-        "
-      />
-      <label class="form-check-label" [for]="'showSelected-' + kind">
-        {{ 'ADMIN_CONFIG.FILTER_EDIT.SHOW_SELECTED_ONLY' | translate }}
-      </label>
-    </div>
-  </div>
-
-  <div class="dataset-list">
-    @for (item of visibleItems(kind); track item.id) {
-      <div class="form-check dataset-item">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          [id]="'dataset-' + kind + '-' + item.id"
-          [checked]="item.checked"
-          (change)="onItemSelectionChange(kind, item, $any($event.target).checked)"
-        />
-        <label
-          class="form-check-label"
-          [for]="'dataset-' + kind + '-' + item.id"
-          [title]="item.description || ''"
-        >
-          {{ item.name }}
-        </label>
-      </div>
-    } @empty {
-      <p class="text-muted">{{ 'ADMIN_CONFIG.FILTER_EDIT.NO_ENTRIES' | translate }}</p>
-    }
-  </div>
+  <ag-grid-angular
+    class="dataset-grid ag-theme-alpine"
+    [gridOptions]="datasetGridOptions"
+    [columnDefs]="kind === 'indicator' ? indicatorDatasetColumns : georesourceDatasetColumns"
+    [rowData]="kind === 'indicator' ? preppedIndicatorData : preppedGeoresourceData"
+  ></ag-grid-angular>
 </ng-template>
 
 <!-- Recursive topic tree, rendered for both resource kinds. -->
@@ -279,47 +233,52 @@
   @for (node of nodes; track node.topicId) {
     @if (isTopicVisible(kind, node)) {
       <div class="topic-node">
-        <div class="topic-row" [style.padding-left.px]="node.level * 20">
+        <div
+          class="topic-row"
+          [class.is-selected]="node.selected"
+          [class.is-implied]="node.disabled"
+        >
           @if (node.subTopics.length > 0) {
             <button
               type="button"
-              class="btn btn-sm topic-toggle"
+              class="topic-toggle"
+              [class.is-expanded]="node.expanded"
               [attr.aria-expanded]="node.expanded"
+              [attr.aria-label]="node.topicName"
               (click)="toggleTopicNode(node)"
             >
-              <i
-                class="fas"
-                [class.fa-chevron-right]="!node.expanded"
-                [class.fa-chevron-down]="node.expanded"
-              ></i>
+              <i class="fas fa-chevron-right"></i>
             </button>
           } @else {
             <span class="topic-toggle-placeholder"></span>
           }
 
-          <div class="form-check">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              [id]="'topic-' + kind + '-' + node.topicId"
-              [checked]="node.selected"
-              [disabled]="node.disabled"
-              (change)="onTopicSelectionChange(kind, node.topicId, $any($event.target).checked)"
-            />
-            <label
-              class="form-check-label"
-              [for]="'topic-' + kind + '-' + node.topicId"
-              [title]="node.topicDescription || ''"
-            >
-              {{ node.topicName }}
-            </label>
-          </div>
+          <input
+            class="form-check-input topic-check"
+            type="checkbox"
+            [id]="'topic-' + kind + '-' + node.topicId"
+            [checked]="node.selected"
+            [disabled]="node.disabled"
+            (change)="onTopicSelectionChange(kind, node.topicId, $any($event.target).checked)"
+          />
+          <label
+            class="topic-label"
+            [for]="'topic-' + kind + '-' + node.topicId"
+            [title]="node.topicDescription || ''"
+          >
+            {{ node.topicName }}
+            @if (node.subTopics.length > 0) {
+              <span class="topic-count">{{ node.subTopics.length }}</span>
+            }
+          </label>
         </div>
 
         @if (node.expanded && node.subTopics.length > 0) {
-          <ng-container
-            *ngTemplateOutlet="topicTree; context: { nodes: node.subTopics, kind: kind }"
-          ></ng-container>
+          <div class="topic-children">
+            <ng-container
+              *ngTemplateOutlet="topicTree; context: { nodes: node.subTopics, kind: kind }"
+            ></ng-container>
+          </div>
         }
       </div>
     }

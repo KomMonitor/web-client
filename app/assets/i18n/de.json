@@ -1466,7 +1466,8 @@
       "SUBMIT_ADD": "Filter registrieren",
       "SUBMIT_EDIT": "Filter speichern",
       "SHOW_SELECTED_ONLY": "Nur ausgewählte Einträge anzeigen",
-      "NO_ENTRIES": "Keine Einträge vorhanden."
+      "NO_ENTRIES": "Keine Einträge vorhanden.",
+      "COL_VISIBLE": "sichtbar"
     }
   },
   "ADMIN_SPATIAL_UNITS": {
