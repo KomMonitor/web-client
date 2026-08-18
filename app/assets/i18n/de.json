@@ -1433,10 +1433,16 @@
         "LOAD_FAILED": "Laden der Filter-Konfiguration gescheitert: {{error}}",
         "SAVED": "Filter-Konfiguration gespeichert.",
         "SAVE_FAILED": "Speichern der Filter-Konfiguration gescheitert: {{error}}",
-        "DELETE_CONFIRM": "Wollen Sie den Filter {{name}} sicher dauerhaft löschen?"
+        "DELETE_CONFIRM": "Wollen Sie den Filter {{name}} sicher dauerhaft löschen?",
+        "DELETED": "Filter {{name}} wurde gelöscht."
       },
       "GRID": {
-        "COL_INDICATORS": "Indikatoren"
+        "COL_INDICATORS": "Indikatoren",
+        "COL_INDICATOR_TOPICS": "Indikator-Themen",
+        "COL_GEORESOURCES": "Georesourcen",
+        "COL_GEORESOURCE_TOPICS": "Georesource-Themen",
+        "EDIT_TITLE": "Filter editieren",
+        "DELETE_TITLE": "Filter unwiderruflich entfernen"
       }
     },
     "FILTER_EDIT": {
@@ -1452,8 +1458,15 @@
       "GEORESOURCE_TOPICS_SUBTITLE": "Auswahl der Georesource-spezifischen Themen",
       "MSG": {
         "SAVED": "Filter gespeichert.",
-        "NO_DATA_CONFIRM": "Sie haben weder Indikator- noch Georesource Daten zur späteren Ansicht ausgewählt. Trotzdem fortfahren?"
-      }
+        "NO_DATA_CONFIRM": "Sie haben weder Indikator- noch Georesource Daten zur späteren Ansicht ausgewählt. Trotzdem fortfahren?",
+        "CREATED": "Filter {{name}} wurde registriert.",
+        "DUPLICATE_NAME": "Es existiert bereits ein Filter mit dem Namen {{name}}."
+      },
+      "ADD_TITLE": "Neuen globalen Filter erstellen",
+      "SUBMIT_ADD": "Filter registrieren",
+      "SUBMIT_EDIT": "Filter speichern",
+      "SHOW_SELECTED_ONLY": "Nur ausgewählte Einträge anzeigen",
+      "NO_ENTRIES": "Keine Einträge vorhanden."
     }
   },
   "ADMIN_SPATIAL_UNITS": {

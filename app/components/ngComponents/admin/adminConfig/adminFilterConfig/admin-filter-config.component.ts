@@ -15,6 +15,7 @@ import { firstValueFrom, skip } from 'rxjs';
 
 import { HttpClient } from '@angular/common/http';
 import { AgGridAngular } from 'ag-grid-angular';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ColDef, GridOptions, GridReadyEvent, SelectionChangedEvent } from 'ag-grid-community';
 
 import { GlobalFilterEntry } from 'components/ngComponents/models/globalFilters.models';
@@ -31,9 +32,11 @@ import { GeoresourceMetadataStoreService } from '../../../../../services/georeso
 import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { TopicMetadataStoreService } from '../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 import { ExpandableBoxComponent } from '../../../common/expandable-box/expandable-box.component';
+import { NotificationService } from '../../../common/notification/notification.service';
 import { AdminContentViewComponent } from '../../admin-content-view/admin-content-view.component';
 import { ConfigEditorDescriptor } from '../configEditor/config-editor.model';
 import { ConfigEditorPanesComponent } from '../configEditor/config-editor-panes.component';
+import { AdminFilterEditModalComponent } from './adminFilterEditModal/admin-filter-edit-modal.component';
 
 /** JSON indentation the filter config is stored and displayed with. */
 const CONFIG_INDENT = '    ';
@@ -64,6 +67,8 @@ export class AdminFilterConfigComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private envConfigService = inject(EnvConfigService);
   private translate = inject(TranslateService);
+  private modalService = inject(NgbModal);
+  private notificationService = inject(NotificationService);
 
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
   // Resolves only after the first change detection: the content sits in an
@@ -116,7 +121,6 @@ export class AdminFilterConfigComponent implements OnInit {
     this.kommonitorConfigStorageService.getFilterConfig().subscribe({
       next: (response) => {
         this.origConfig = response;
-        this.mergedFilterConfig = response;
 
         this.initializeOrRefreshOverviewTable();
       },
@@ -139,7 +143,7 @@ export class AdminFilterConfigComponent implements OnInit {
       const values: any = broadcastMsg.values;
 
       switch (title) {
-        case 'onGlobalFilterDelete':
+        case BroadcastMessage.OnGlobalFilterDelete:
           {
             this.onGlobalFilterDelete(values);
           }
@@ -154,32 +158,40 @@ export class AdminFilterConfigComponent implements OnInit {
   }
 
   public initializeOrRefreshOverviewTable(): void {
-    if (this.origConfig && this.origConfig.length > 0) {
-      this.loadingData = false;
-
-      // Set up grid options first
-      this.setupGridOptions(this.origConfig);
-
-      // Use the data grid helper service to build column definitions and row data
-      this.columnDefs.set(
-        this.kommonitorDataGridHelperService.buildDataGridColumnConfig_filters(this.origConfig)
-      );
-      this.rowData.set(
-        this.kommonitorDataGridHelperService.buildDataGridRowData_filters(this.origConfig)
-      );
-
-      // Force change detection
-      setTimeout(() => {
-        if (this.agGrid && this.agGrid.api) {
-          this.agGrid.api.setGridOption('rowData', this.rowData());
-          this.agGrid.api.setGridOption('columnDefs', this.columnDefs());
-          this.agGrid.api.refreshCells();
-        }
-      }, 200);
-    } else {
+    if (!this.origConfig) {
       // Data not ready yet, keep loading
       this.loadingData = true;
+      return;
     }
+
+    // An empty configuration is a valid state (the last filter was deleted) and
+    // has to clear the grid rather than leave the removed rows on screen.
+    this.loadingData = false;
+
+    // The grid shows names, the configuration stores ids
+    this.prepGlobalFilterData();
+
+    // Set up grid options first
+    this.setupGridOptions(this.mergedFilterConfig);
+
+    // Use the data grid helper service to build column definitions and row data
+    this.columnDefs.set(
+      this.kommonitorDataGridHelperService.buildDataGridColumnConfig_filters(
+        this.mergedFilterConfig
+      )
+    );
+    this.rowData.set(
+      this.kommonitorDataGridHelperService.buildDataGridRowData_filters(this.mergedFilterConfig)
+    );
+
+    // Force change detection
+    setTimeout(() => {
+      if (this.agGrid && this.agGrid.api) {
+        this.agGrid.api.setGridOption('rowData', this.rowData());
+        this.agGrid.api.setGridOption('columnDefs', this.columnDefs());
+        this.agGrid.api.refreshCells();
+      }
+    }, 200);
   }
 
   private setupGridOptions(globalFilterArray: GlobalFilterEntry[]): void {
@@ -251,8 +263,17 @@ export class AdminFilterConfigComponent implements OnInit {
     };
   }
 
+  /**
+   * Opens the filter wizard without a `selectedItem`, which puts it into add
+   * mode. The modal broadcasts RefreshAdminFilterOverview after a successful
+   * save, which refreshes the grid and the editor below.
+   */
   onAddFilter() {
-    this.broadcastService.broadcast(BroadcastMessage.OnOpenAddFilterModal);
+    this.modalService.open(AdminFilterEditModalComponent, {
+      windowClass: 'modal-holder',
+      size: 'xl',
+      centered: true,
+    });
   }
 
   // Grid event handlers
@@ -295,97 +316,107 @@ export class AdminFilterConfigComponent implements OnInit {
 
   // make sure that initial fetching of availableRoles has happened
   initialMetadataLoadingCompleted() {
-    this.prepGlobalFilterData();
+    // The stores are filled now, so the ids in the configuration resolve to names
     this.initializeOrRefreshOverviewTable();
   }
 
-  async onGlobalFilterDelete([itemId]) {
-    console.log('delete', itemId);
+  /**
+   * Removes one filter from the stored configuration. `filterIndex` is the grid
+   * row's `filterId`, i.e. the entry's position in the configuration array.
+   */
+  async onGlobalFilterDelete(filterIndex: number) {
+    let storedConfig: any[];
+    try {
+      storedConfig = await this.fetchFilterConfig();
+    } catch (error) {
+      this.notificationService.showError(
+        this.translate.instant('ADMIN_CONFIG.FILTER.MSG.LOAD_FAILED', {
+          error: this.describeError(error),
+        })
+      );
+      return;
+    }
 
-    this.origConfig = await firstValueFrom(this.kommonitorConfigStorageService.getFilterConfig());
+    const item = storedConfig[filterIndex];
+    if (!item) return;
 
-    const item = this.mergedFilterConfig.filter((e) => e.filterId == itemId);
-    if (item.length == 1) {
-      if (
-        confirm(
-          this.translate.instant('ADMIN_CONFIG.FILTER.MSG.DELETE_CONFIRM', { name: item[0].name })
-        )
-      ) {
-        const configNew = this.origConfig
-          .filter((e, i) => i != itemId)
-          .map((e) => {
-            delete e.filterId;
-            return e;
-          });
+    if (
+      !confirm(
+        this.translate.instant('ADMIN_CONFIG.FILTER.MSG.DELETE_CONFIRM', { name: item.name })
+      )
+    ) {
+      return;
+    }
 
-        await firstValueFrom(
-          this.kommonitorConfigStorageService.postFilterConfig(this.stringifyConfig(configNew))
-        );
+    const configNew = storedConfig.filter((_entry, index) => index !== filterIndex);
 
-        this.origConfig = await firstValueFrom(
-          this.kommonitorConfigStorageService.getFilterConfig()
-        );
-        this.mergedFilterConfig = configNew;
+    try {
+      await firstValueFrom(
+        this.kommonitorConfigStorageService.postFilterConfig(this.stringifyConfig(configNew))
+      );
+    } catch (error) {
+      this.notificationService.showError(
+        this.translate.instant('ADMIN_CONFIG.FILTER.MSG.SAVE_FAILED', {
+          error: this.describeError(error),
+        })
+      );
+      return;
+    }
 
-        setTimeout(() => {
-          this.prepGlobalFilterData();
-          this.initializeOrRefreshOverviewTable();
-        }, 250);
+    this.notificationService.showSuccess(
+      this.translate.instant('ADMIN_CONFIG.FILTER.MSG.DELETED', { name: item.name })
+    );
 
-        setTimeout(() => {
-          this.reloadCodeEditor();
-        }, 1000);
-      }
-    } else console.log('Filter id not found');
+    await this.refreshAdminFilterOverview();
   }
 
   async refreshAdminFilterOverview() {
-    this.origConfig = await firstValueFrom(this.kommonitorConfigStorageService.getFilterConfig());
-    this.mergedFilterConfig = this.origConfig;
-    setTimeout(() => {
-      this.prepGlobalFilterData();
-      this.initializeOrRefreshOverviewTable();
-    }, 250);
+    this.origConfig = await this.fetchFilterConfig();
+    this.initializeOrRefreshOverviewTable();
 
-    setTimeout(() => {
-      this.reloadCodeEditor();
-    }, 1000);
+    await this.reloadCodeEditor();
   }
 
+  /**
+   * Projects the stored configuration onto the rows the grid displays: the
+   * configuration holds ids, the table shows the corresponding names.
+   *
+   * This used to overwrite the id arrays of `mergedFilterConfig` in place, which
+   * made it a one-shot operation — a second run would have looked the names up
+   * as ids and blanked the table. Building a copy keeps `origConfig` the single
+   * source of truth, so the rows can be rebuilt whenever the metadata stores
+   * fill up or the configuration changes.
+   */
   prepGlobalFilterData() {
-    if (this.mergedFilterConfig) {
-      this.mergedFilterConfig.forEach((filter, filterIndex) => {
-        this.mergedFilterConfig[filterIndex].filterId = filterIndex;
+    if (!this.origConfig) return;
 
-        filter.indicators.forEach((indicatorElement, indicatorIndex) => {
-          this.mergedFilterConfig[filterIndex].indicators[indicatorIndex] =
-            this.indicatorStore.availableIndicators
-              .filter((e) => e.indicatorId == indicatorElement)
-              .map((e) => e.indicatorName)[0];
-        });
-        filter.georesources.forEach((georesourceElement, georesourceIndex) => {
-          this.mergedFilterConfig[filterIndex].georesources[georesourceIndex] =
-            this.georesourceStore.availableGeoresources
-              .filter((e) => e.georesourceId == georesourceElement)
-              .map((e) => e.datasetName)[0];
-        });
+    const indicatorTopics = this.topicStore.availableTopics.filter(
+      (e) => e.topicResource == 'indicator'
+    );
+    const georesourceTopics = this.topicStore.availableTopics.filter(
+      (e) => e.topicResource == 'georesource'
+    );
 
-        filter.indicatorTopics.forEach((indicatorTopicElement, indicatorTopicIndex) => {
-          this.mergedFilterConfig[filterIndex].indicatorTopics[indicatorTopicIndex] =
-            this.searchTopicRecursive(
-              this.topicStore.availableTopics.filter((e) => e.topicResource == 'indicator'),
-              indicatorTopicElement
-            );
-        });
-        filter.georesourceTopics.forEach((georesourceTopicElement, georesourceTopicIndex) => {
-          this.mergedFilterConfig[filterIndex].georesourceTopics[georesourceTopicIndex] =
-            this.searchTopicRecursive(
-              this.topicStore.availableTopics.filter((e) => e.topicResource == 'georesource'),
-              georesourceTopicElement
-            );
-        });
-      });
-    }
+    this.mergedFilterConfig = this.origConfig.map((filter, filterIndex) => ({
+      ...filter,
+      filterId: filterIndex,
+      indicators: (filter.indicators ?? []).map(
+        (indicatorId) =>
+          this.indicatorStore.availableIndicators.find((e) => e.indicatorId == indicatorId)
+            ?.indicatorName
+      ),
+      georesources: (filter.georesources ?? []).map(
+        (georesourceId) =>
+          this.georesourceStore.availableGeoresources.find((e) => e.georesourceId == georesourceId)
+            ?.datasetName
+      ),
+      indicatorTopics: (filter.indicatorTopics ?? []).map((topicId) =>
+        this.searchTopicRecursive(indicatorTopics, topicId)
+      ),
+      georesourceTopics: (filter.georesourceTopics ?? []).map((topicId) =>
+        this.searchTopicRecursive(georesourceTopics, topicId)
+      ),
+    }));
   }
 
   searchTopicRecursive(topicsTree, itemId) {
@@ -393,8 +424,9 @@ export class AdminFilterConfigComponent implements OnInit {
       if (elem.topicId == itemId) {
         return elem.topicName;
       } else {
-        if (elem.subTopics.length > 0) {
-          const found = this.searchTopicRecursive(elem.subTopics, itemId);
+        const subTopics = elem.subTopics ?? [];
+        if (subTopics.length > 0) {
+          const found = this.searchTopicRecursive(subTopics, itemId);
           if (found) return found;
         }
       }
@@ -414,12 +446,23 @@ export class AdminFilterConfigComponent implements OnInit {
     return JSON.stringify(config, null, CONFIG_INDENT);
   }
 
+  private async fetchFilterConfig(): Promise<any[]> {
+    const response = await firstValueFrom(this.kommonitorConfigStorageService.getFilterConfig());
+    return Array.isArray(response) ? response : [];
+  }
+
+  private describeError(error: any): string {
+    return (
+      error?.error?.message ??
+      error?.message ??
+      this.translate.instant('ADMIN_SHARED.UNKNOWN_ERROR')
+    );
+  }
+
   /** Rebuilds the overview grid from the configuration the panes just saved. */
   private adoptSavedConfig(savedValue: string): void {
     this.origConfig = JSON.parse(savedValue);
-    this.mergedFilterConfig = JSON.parse(savedValue);
 
-    this.prepGlobalFilterData();
     this.initializeOrRefreshOverviewTable();
   }
 }

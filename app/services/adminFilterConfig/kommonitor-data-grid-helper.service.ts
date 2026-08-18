@@ -4,6 +4,8 @@ import { GlobalFilterEntry } from 'components/ngComponents/models/globalFilters.
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AdminFilterEditModalComponent } from 'components/ngComponents/admin/adminConfig/adminFilterConfig/adminFilterEditModal/admin-filter-edit-modal.component';
 import { TranslateService } from '@ngx-translate/core';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +13,7 @@ import { TranslateService } from '@ngx-translate/core';
 export class KommonitorFilterDataGridHelperService {
   private modalService = inject(NgbModal);
   private translate = inject(TranslateService);
+  private broadcastService = inject(BroadcastService);
 
   /**
    * Builds data grid for indicators - now returns column definitions and row data for AG Grid Angular
@@ -50,16 +53,35 @@ export class KommonitorFilterDataGridHelperService {
         field: 'indicators',
         minWidth: 200,
       },
+      {
+        headerName: this.translate.instant('ADMIN_CONFIG.FILTER.GRID.COL_INDICATOR_TOPICS'),
+        field: 'indicatorTopics',
+        minWidth: 200,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_CONFIG.FILTER.GRID.COL_GEORESOURCES'),
+        field: 'georesources',
+        minWidth: 200,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_CONFIG.FILTER.GRID.COL_GEORESOURCE_TOPICS'),
+        field: 'georesourceTopics',
+        minWidth: 200,
+      },
     ];
 
     return columnDefs;
   }
 
   /**
-   * Builds row data for indicators
+   * Builds the grid's rows. The entries are expected to be display-ready (ids
+   * already resolved to names by the overview component).
    */
   buildDataGridRowData_filters(globalFilterArray: GlobalFilterEntry[]): any[] {
-    return globalFilterArray;
+    // The row's position in the stored configuration is what the edit modal
+    // addresses the entry by, so carry it along explicitly instead of relying
+    // on the grid's display index (which sorting and filtering change).
+    return globalFilterArray.map((entry: any, index: number) => ({ ...entry, filterId: index }));
   }
 
   /**
@@ -69,28 +91,39 @@ export class KommonitorFilterDataGridHelperService {
     // Safety check for data
     if (!params) return '<div class="btn-group btn-group-sm">No data</div>';
 
+    // Same button group the other admin grids render their row actions in.
     const container = document.createElement('div');
+    container.className = 'btn-group btn-group-sm';
+    container.setAttribute('role', 'group');
 
     const editButton = document.createElement('button');
+    editButton.type = 'button';
     editButton.innerHTML = '<i class="fas fa-pencil-alt"></i>';
     editButton.className = 'btn btn-warning btn-sm';
-    editButton.title = 'Filter editieren';
+    editButton.title = this.translate.instant('ADMIN_CONFIG.FILTER.GRID.EDIT_TITLE');
 
     editButton.addEventListener('click', () => {
       const modalRef = this.modalService.open(AdminFilterEditModalComponent, {
         windowClass: 'modal-holder',
+        size: 'xl',
         centered: true,
       });
+      // Without the index the modal would create a new filter instead of
+      // editing this one.
+      modalRef.componentInstance.selectedItem = params.data.filterId;
       modalRef.componentInstance.filterName = params.data.name;
     });
 
     const deleteButton = document.createElement('button');
-    deleteButton.innerHTML = '<i class="fas fa-pencil-alt"></i>';
+    deleteButton.type = 'button';
+    deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
     deleteButton.className = 'btn btn-danger btn-sm';
-    deleteButton.title = 'Filter entfernen';
+    deleteButton.title = this.translate.instant('ADMIN_CONFIG.FILTER.GRID.DELETE_TITLE');
 
+    // The overview component owns the configuration and the editor below the
+    // grid, so it performs the deletion and refreshes both.
     deleteButton.addEventListener('click', () => {
-      //myClickHandler(params.data);
+      this.broadcastService.broadcast(BroadcastMessage.OnGlobalFilterDelete, params.data.filterId);
     });
 
     container.appendChild(editButton);

@@ -42,7 +42,7 @@ export const BroadcastMessage = {
   OnAddedFeatureToSelection: 'onAddedFeatureToSelection',
   OnChangeSelectedIndicator: 'onChangeSelectedIndicator',
   OnEditGeoresourceFeatures: 'onEditGeoresourceFeatures',
-  OnOpenAddFilterModal: 'onOpenAddFilterModal',
+  OnGlobalFilterDelete: 'onGlobalFilterDelete',
   OnRemovedFeatureFromSelection: 'onRemovedFeatureFromSelection',
   OnUpdateSingleFeatureGeometry: 'onUpdateSingleFeatureGeometry',
   RefreshAdminFilterOverview: 'refreshAdminFilterOverview',

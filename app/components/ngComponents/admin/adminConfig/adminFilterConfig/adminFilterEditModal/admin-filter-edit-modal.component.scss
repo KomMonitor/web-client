@@ -3,3 +3,52 @@
   width: 50%;
   transform: none !important;
 }
+
+.dataset-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+
+  .form-control {
+    max-width: 20rem;
+  }
+}
+
+.selection-toggle {
+  margin-bottom: 0.5rem;
+  white-space: nowrap;
+}
+
+.dataset-list,
+.topic-tree {
+  max-height: 45vh;
+  overflow-y: auto;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.dataset-item {
+  padding-block: 0.15rem;
+}
+
+.topic-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.topic-toggle {
+  padding: 0 0.25rem;
+  line-height: 1;
+  border: none;
+  background: none;
+}
+
+.topic-toggle-placeholder {
+  display: inline-block;
+  width: 1.5rem;
+}

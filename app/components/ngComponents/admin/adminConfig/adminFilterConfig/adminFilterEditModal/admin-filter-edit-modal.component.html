@@ -1,141 +1,327 @@
 <div class="modal-header">
   <h4 class="modal-title">
-    <b>{{ 'ADMIN_CONFIG.FILTER_EDIT.TITLE' | translate }} {{ filterName }}</b>
+    <b>
+      @if (isAddMode) {
+        {{ 'ADMIN_CONFIG.FILTER_EDIT.ADD_TITLE' | translate }}
+      } @else {
+        {{ 'ADMIN_CONFIG.FILTER_EDIT.TITLE' | translate }} {{ filterName }}
+      }
+    </b>
   </h4>
   <button
     type="button"
     class="btn-close"
     [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
-    (click)="activeModal.close('Close click')"
+    (click)="close()"
   ></button>
 </div>
 <div class="modal-body">
-  <label for="filter-name">{{ 'ADMIN_CONFIG.FILTER_EDIT.NAME_LABEL' | translate }}</label>
-  <input
-    type="text"
-    name="filter-name"
-    id="filter-name"
-    [(ngModel)]="filterName"
-    class="form-control"
-  />
+  <app-loading-overlay
+    [loading]="loadingData()"
+    [message]="'ADMIN_SHARED.LOADING_DATA' | translate"
+  >
+    <label for="filter-name">{{ 'ADMIN_CONFIG.FILTER_EDIT.NAME_LABEL' | translate }}*</label>
+    <input
+      type="text"
+      name="filter-name"
+      id="filter-name"
+      [(ngModel)]="filterName"
+      class="form-control"
+    />
 
-  <!-- MultiStep Form -->
-  <div class="row">
-    <div class="col-md-12">
-      <form
-        class="multiStepForm form-group"
-        id="adminFilterEditForm"
-        role="form"
-        style="margin-bottom: 0px"
-      >
-        <!-- progressbar -->
-        <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
+    <!-- MultiStep Form -->
+    <div class="row">
+      <div class="col-md-12">
+        <form
+          class="multiStepForm form-group"
+          id="adminFilterEditForm"
+          role="form"
+          style="margin-bottom: 0px"
+        >
+          <!-- progressbar -->
+          <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
 
-        <!-- fieldsets -->
-        @if (stepper.isActive('indicators')) {
-          <fieldset>
-            <h2 class="fs-title">{{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATORS_TITLE' | translate }}</h2>
-            <h3 class="fs-subtitle">
-              {{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATORS_SUBTITLE' | translate }}
-            </h3>
+          <!-- fieldsets -->
+          @if (stepper.isActive('indicators')) {
+            <fieldset>
+              <h2 class="fs-title">
+                {{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATORS_TITLE' | translate }}
+              </h2>
+              <h3 class="fs-subtitle">
+                {{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATORS_SUBTITLE' | translate }}
+              </h3>
 
-            <input
-              type="button"
-              name="next"
-              class="next next_editAdminFilter action-button"
-              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-              (click)="stepper.next()"
-            />
-          </fieldset>
-        }
+              <ng-container
+                *ngTemplateOutlet="datasetStep; context: { kind: 'indicator' }"
+              ></ng-container>
 
-        @if (stepper.isActive('indicatorTopics')) {
-          <fieldset>
-            <h2 class="fs-title">
-              {{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATOR_TOPICS_TITLE' | translate }}
-            </h2>
-            <h3 class="fs-subtitle">
-              {{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATOR_TOPICS_SUBTITLE' | translate }}
-            </h3>
+              <input
+                type="button"
+                name="next"
+                class="next next_editAdminFilter action-button"
+                [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
+                (click)="stepper.next()"
+              />
+            </fieldset>
+          }
 
-            <input
-              type="button"
-              name="previous"
-              class="previous previous_editAdminFilter action-button-previous"
-              [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-              (click)="stepper.previous()"
-            />
-            <input
-              type="button"
-              name="next"
-              class="next next_editAdminFilter action-button"
-              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-              (click)="stepper.next()"
-            />
-          </fieldset>
-        }
+          @if (stepper.isActive('indicatorTopics')) {
+            <fieldset>
+              <h2 class="fs-title">
+                {{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATOR_TOPICS_TITLE' | translate }}
+              </h2>
+              <h3 class="fs-subtitle">
+                {{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATOR_TOPICS_SUBTITLE' | translate }}
+              </h3>
 
-        @if (stepper.isActive('georesources')) {
-          <fieldset>
-            <h2 class="fs-title">
-              {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCES_TITLE' | translate }}
-            </h2>
-            <h3 class="fs-subtitle">
-              {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCES_SUBTITLE' | translate }}
-            </h3>
+              <div class="form-check selection-toggle">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="showSelectedIndicatorTopicsOnly"
+                  [(ngModel)]="showSelectedIndicatorsTopicsOnly"
+                  [ngModelOptions]="{ standalone: true }"
+                  [disabled]="selectedIndicatorTopicEditIds.length === 0"
+                />
+                <label class="form-check-label" for="showSelectedIndicatorTopicsOnly">
+                  {{ 'ADMIN_CONFIG.FILTER_EDIT.SHOW_SELECTED_ONLY' | translate }}
+                </label>
+              </div>
 
-            <input
-              type="button"
-              name="previous"
-              class="previous previous_editAdminFilter action-button-previous"
-              [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-              (click)="stepper.previous()"
-            />
-            <input
-              type="button"
-              name="next"
-              class="next next_editAdminFilter action-button"
-              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-              (click)="stepper.next()"
-            />
-          </fieldset>
-        }
+              <div class="topic-tree">
+                @if (indicatorTopicsEditTree.length === 0) {
+                  <p class="text-muted">{{ 'ADMIN_CONFIG.FILTER_EDIT.NO_ENTRIES' | translate }}</p>
+                }
+                <ng-container
+                  *ngTemplateOutlet="
+                    topicTree;
+                    context: { nodes: indicatorTopicsEditTree, kind: 'indicator' }
+                  "
+                ></ng-container>
+              </div>
 
-        @if (stepper.isActive('georesourceTopics')) {
-          <fieldset>
-            <h2 class="fs-title">
-              {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCE_TOPICS_TITLE' | translate }}
-            </h2>
-            <h3 class="fs-subtitle">
-              {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCE_TOPICS_SUBTITLE' | translate }}
-            </h3>
+              <input
+                type="button"
+                name="previous"
+                class="previous previous_editAdminFilter action-button-previous"
+                [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
+                (click)="stepper.previous()"
+              />
+              <input
+                type="button"
+                name="next"
+                class="next next_editAdminFilter action-button"
+                [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
+                (click)="stepper.next()"
+              />
+            </fieldset>
+          }
 
-            <input
-              type="button"
-              name="previous"
-              class="previous previous_editAdminFilter action-button-previous"
-              [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-              (click)="stepper.previous()"
-            />
-          </fieldset>
-        }
-      </form>
+          @if (stepper.isActive('georesources')) {
+            <fieldset>
+              <h2 class="fs-title">
+                {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCES_TITLE' | translate }}
+              </h2>
+              <h3 class="fs-subtitle">
+                {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCES_SUBTITLE' | translate }}
+              </h3>
+
+              <ng-container
+                *ngTemplateOutlet="datasetStep; context: { kind: 'georesource' }"
+              ></ng-container>
+
+              <input
+                type="button"
+                name="previous"
+                class="previous previous_editAdminFilter action-button-previous"
+                [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
+                (click)="stepper.previous()"
+              />
+              <input
+                type="button"
+                name="next"
+                class="next next_editAdminFilter action-button"
+                [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
+                (click)="stepper.next()"
+              />
+            </fieldset>
+          }
+
+          @if (stepper.isActive('georesourceTopics')) {
+            <fieldset>
+              <h2 class="fs-title">
+                {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCE_TOPICS_TITLE' | translate }}
+              </h2>
+              <h3 class="fs-subtitle">
+                {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCE_TOPICS_SUBTITLE' | translate }}
+              </h3>
+
+              <div class="form-check selection-toggle">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="showSelectedGeoresourceTopicsOnly"
+                  [(ngModel)]="showSelectedGeoresourcesTopicsOnly"
+                  [ngModelOptions]="{ standalone: true }"
+                  [disabled]="selectedGeoresourceTopicEditIds.length === 0"
+                />
+                <label class="form-check-label" for="showSelectedGeoresourceTopicsOnly">
+                  {{ 'ADMIN_CONFIG.FILTER_EDIT.SHOW_SELECTED_ONLY' | translate }}
+                </label>
+              </div>
+
+              <div class="topic-tree">
+                @if (georesourceTopicsEditTree.length === 0) {
+                  <p class="text-muted">{{ 'ADMIN_CONFIG.FILTER_EDIT.NO_ENTRIES' | translate }}</p>
+                }
+                <ng-container
+                  *ngTemplateOutlet="
+                    topicTree;
+                    context: { nodes: georesourceTopicsEditTree, kind: 'georesource' }
+                  "
+                ></ng-container>
+              </div>
+
+              <input
+                type="button"
+                name="previous"
+                class="previous previous_editAdminFilter action-button-previous"
+                [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
+                (click)="stepper.previous()"
+              />
+            </fieldset>
+          }
+        </form>
+      </div>
     </div>
-  </div>
-  <!-- /.MultiStep Form -->
+    <!-- /.MultiStep Form -->
+  </app-loading-overlay>
 </div>
 <div class="modal-footer">
-  <div class="row">
-    <div class="col-md-8"></div>
-    <div class="col-md-2"></div>
-    <div class="col-md-2">
-      <button
-        type="button"
-        class="btn btn-outline-secondary"
-        (click)="activeModal.close('Close click')"
-      >
-        {{ 'ADMIN_SHARED.CLOSE' | translate }}
-      </button>
+  <button type="button" class="btn btn-outline-secondary" (click)="close()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
+  <div style="flex: 1"></div>
+  <button type="button" class="btn btn-success" [disabled]="!canSubmit" (click)="saveAdminFilter()">
+    @if (isAddMode) {
+      {{ 'ADMIN_CONFIG.FILTER_EDIT.SUBMIT_ADD' | translate }}
+    } @else {
+      {{ 'ADMIN_CONFIG.FILTER_EDIT.SUBMIT_EDIT' | translate }}
+    }
+  </button>
+  <button type="button" class="btn btn-danger" (click)="resetAdminFilterEditForm()">
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
+  </button>
+</div>
+
+<!-- One dataset selection step (indicators / georesources), addressed by `kind`. -->
+<ng-template #datasetStep let-kind="kind">
+  <div class="dataset-controls">
+    <input
+      type="text"
+      class="form-control"
+      [placeholder]="'ADMIN_SHARED.KEYWORD_FILTER' | translate"
+      [ngModel]="kind === 'indicator' ? indicatorSearchTerm : georesourceSearchTerm"
+      (ngModelChange)="
+        kind === 'indicator' ? (indicatorSearchTerm = $event) : (georesourceSearchTerm = $event)
+      "
+      [ngModelOptions]="{ standalone: true }"
+    />
+
+    <div class="form-check selection-toggle">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        [id]="'showSelected-' + kind"
+        [ngModel]="kind === 'indicator' ? showSelectedIndicatorsOnly : showSelectedGeoresourcesOnly"
+        (ngModelChange)="
+          kind === 'indicator'
+            ? (showSelectedIndicatorsOnly = $event)
+            : (showSelectedGeoresourcesOnly = $event)
+        "
+        [ngModelOptions]="{ standalone: true }"
+        [disabled]="
+          (kind === 'indicator' ? selectedIndicatorIds.length : selectedGeoresourceIds.length) === 0
+        "
+      />
+      <label class="form-check-label" [for]="'showSelected-' + kind">
+        {{ 'ADMIN_CONFIG.FILTER_EDIT.SHOW_SELECTED_ONLY' | translate }}
+      </label>
     </div>
   </div>
-</div>
+
+  <div class="dataset-list">
+    @for (item of visibleItems(kind); track item.id) {
+      <div class="form-check dataset-item">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          [id]="'dataset-' + kind + '-' + item.id"
+          [checked]="item.checked"
+          (change)="onItemSelectionChange(kind, item, $any($event.target).checked)"
+        />
+        <label
+          class="form-check-label"
+          [for]="'dataset-' + kind + '-' + item.id"
+          [title]="item.description || ''"
+        >
+          {{ item.name }}
+        </label>
+      </div>
+    } @empty {
+      <p class="text-muted">{{ 'ADMIN_CONFIG.FILTER_EDIT.NO_ENTRIES' | translate }}</p>
+    }
+  </div>
+</ng-template>
+
+<!-- Recursive topic tree, rendered for both resource kinds. -->
+<ng-template #topicTree let-nodes="nodes" let-kind="kind">
+  @for (node of nodes; track node.topicId) {
+    @if (isTopicVisible(kind, node)) {
+      <div class="topic-node">
+        <div class="topic-row" [style.padding-left.px]="node.level * 20">
+          @if (node.subTopics.length > 0) {
+            <button
+              type="button"
+              class="btn btn-sm topic-toggle"
+              [attr.aria-expanded]="node.expanded"
+              (click)="toggleTopicNode(node)"
+            >
+              <i
+                class="fas"
+                [class.fa-chevron-right]="!node.expanded"
+                [class.fa-chevron-down]="node.expanded"
+              ></i>
+            </button>
+          } @else {
+            <span class="topic-toggle-placeholder"></span>
+          }
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              [id]="'topic-' + kind + '-' + node.topicId"
+              [checked]="node.selected"
+              [disabled]="node.disabled"
+              (change)="onTopicSelectionChange(kind, node.topicId, $any($event.target).checked)"
+            />
+            <label
+              class="form-check-label"
+              [for]="'topic-' + kind + '-' + node.topicId"
+              [title]="node.topicDescription || ''"
+            >
+              {{ node.topicName }}
+            </label>
+          </div>
+        </div>
+
+        @if (node.expanded && node.subTopics.length > 0) {
+          <ng-container
+            *ngTemplateOutlet="topicTree; context: { nodes: node.subTopics, kind: kind }"
+          ></ng-container>
+        }
+      </div>
+    }
+  }
+</ng-template>

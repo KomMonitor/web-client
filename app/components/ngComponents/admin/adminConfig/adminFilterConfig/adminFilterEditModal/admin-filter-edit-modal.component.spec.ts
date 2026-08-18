@@ -6,7 +6,12 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { of, throwError } from 'rxjs';
 
+import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { AdminFilterEditModalComponent, TopicTreeNode } from './admin-filter-edit-modal.component';
 
 /** Builds a node with the flags defaulted, so tests only state what matters. */
@@ -37,8 +42,21 @@ function buildTree(): { tree: TopicTreeNode[]; find: (id: string) => TopicTreeNo
 describe('AdminFilterEditModalComponent', () => {
   let component: AdminFilterEditModalComponent;
   let fixture: ComponentFixture<AdminFilterEditModalComponent>;
+  let storedConfig: any[];
+  let postedConfig: string | undefined;
+  let configStorageStub: Partial<ConfigStorageService>;
 
   beforeEach(() => {
+    storedConfig = [];
+    postedConfig = undefined;
+    configStorageStub = {
+      getFilterConfig: () => of(storedConfig),
+      postFilterConfig: (jsonString: string) => {
+        postedConfig = jsonString;
+        return of('ok');
+      },
+    };
+
     TestBed.configureTestingModule({
       imports: [AdminFilterEditModalComponent, TranslateModule.forRoot()],
       providers: [
@@ -47,6 +65,7 @@ describe('AdminFilterEditModalComponent', () => {
         provideRouter([]),
         provideNoopAnimations(),
         NgbActiveModal,
+        { provide: ConfigStorageService, useValue: configStorageStub },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     });
@@ -54,8 +73,204 @@ describe('AdminFilterEditModalComponent', () => {
     component = fixture.componentInstance;
   });
 
+  describe('saveAdminFilter', () => {
+    it('appends a new entry when no filter is being edited (add mode)', async () => {
+      storedConfig = [
+        {
+          name: 'existing',
+          indicatorTopics: [],
+          indicators: [],
+          georesourceTopics: [],
+          georesources: [],
+        },
+      ];
+      component.filterName = 'new filter';
+      component.selectedIndicatorIds = ['indicator-1'];
+      component.selectedGeoresourceTopicEditIds = ['topic-1'];
+
+      await component.saveAdminFilter();
+
+      expect(component.isAddMode).toBe(true);
+      expect(JSON.parse(postedConfig!)).toEqual([
+        storedConfig[0],
+        {
+          name: 'new filter',
+          indicatorTopics: [],
+          indicators: ['indicator-1'],
+          georesourceTopics: ['topic-1'],
+          georesources: [],
+        },
+      ]);
+    });
+
+    it('replaces the edited entry in edit mode', async () => {
+      storedConfig = [
+        {
+          name: 'first',
+          indicatorTopics: [],
+          indicators: [],
+          georesourceTopics: [],
+          georesources: [],
+        },
+        {
+          name: 'second',
+          indicatorTopics: [],
+          indicators: [],
+          georesourceTopics: [],
+          georesources: [],
+        },
+      ];
+      component.selectedItem = 1;
+      component.filterName = 'renamed';
+      component.selectedIndicatorIds = ['indicator-1'];
+
+      await component.saveAdminFilter();
+
+      const posted = JSON.parse(postedConfig!);
+      expect(posted).toHaveLength(2);
+      expect(posted[0].name).toBe('first');
+      expect(posted[1]).toEqual({
+        name: 'renamed',
+        indicatorTopics: [],
+        indicators: ['indicator-1'],
+        georesourceTopics: [],
+        georesources: [],
+      });
+    });
+
+    it('rejects a name another filter already uses', async () => {
+      storedConfig = [
+        {
+          name: 'taken',
+          indicatorTopics: [],
+          indicators: [],
+          georesourceTopics: [],
+          georesources: [],
+        },
+      ];
+      const notificationService = TestBed.inject(NotificationService);
+      const showError = jest.spyOn(notificationService, 'showError');
+      component.filterName = 'taken';
+      component.selectedIndicatorIds = ['indicator-1'];
+
+      await component.saveAdminFilter();
+
+      expect(postedConfig).toBeUndefined();
+      expect(showError).toHaveBeenCalled();
+    });
+
+    it('keeps its own name in edit mode', async () => {
+      storedConfig = [
+        {
+          name: 'taken',
+          indicatorTopics: [],
+          indicators: [],
+          georesourceTopics: [],
+          georesources: [],
+        },
+      ];
+      component.selectedItem = 0;
+      component.filterName = 'taken';
+      component.selectedIndicatorIds = ['indicator-1'];
+
+      await component.saveAdminFilter();
+
+      expect(postedConfig).toBeDefined();
+    });
+
+    it('does nothing without a name', async () => {
+      component.filterName = '   ';
+
+      await component.saveAdminFilter();
+
+      expect(postedConfig).toBeUndefined();
+    });
+
+    it('reports a failed save and stops the loading state', async () => {
+      configStorageStub.postFilterConfig = () => throwError(() => new Error('boom'));
+      const notificationService = TestBed.inject(NotificationService);
+      const showError = jest.spyOn(notificationService, 'showError');
+      component.filterName = 'new filter';
+      component.selectedIndicatorIds = ['indicator-1'];
+
+      await component.saveAdminFilter();
+
+      expect(showError).toHaveBeenCalled();
+      expect(component.loadingData()).toBe(false);
+    });
+  });
+
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('template', () => {
+    // The wizard's steps had no content at all until the create button was
+    // wired up, so this renders them through the real DOM once.
+    function seedStores(): void {
+      TestBed.inject(TopicMetadataStoreService).availableTopics = [
+        {
+          topicId: 'main-1',
+          topicName: 'Main',
+          topicResource: 'indicator',
+          topicType: 'main',
+          subTopics: [
+            {
+              topicId: 'sub-1',
+              topicName: 'Sub',
+              topicResource: 'indicator',
+              topicType: 'sub',
+              subTopics: [],
+            },
+          ],
+        },
+      ] as any;
+      TestBed.inject(IndicatorMetadataStoreService).availableIndicators = [
+        { indicatorId: 'i-1', indicatorName: 'Indicator One', metadata: { description: 'desc' } },
+      ] as any;
+    }
+
+    it('lists the available indicators on the first step', () => {
+      seedStores();
+
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.innerHTML).toContain('Indicator One');
+    });
+
+    it('renders the topic tree and cascades a selection to the sub-topics', () => {
+      seedStores();
+      fixture.detectChanges();
+      component.stepper.goTo(2);
+      fixture.detectChanges();
+
+      // sub-topics stay hidden until their parent is expanded
+      expect(fixture.nativeElement.innerHTML).toContain('Main');
+      expect(fixture.nativeElement.innerHTML).not.toContain('Sub');
+
+      fixture.nativeElement.querySelector('.topic-toggle').click();
+      fixture.detectChanges();
+      expect(fixture.nativeElement.innerHTML).toContain('Sub');
+
+      const rootCheckbox = fixture.nativeElement.querySelector('#topic-indicator-main-1');
+      rootCheckbox.checked = true;
+      rootCheckbox.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      expect(component.selectedIndicatorTopicEditIds).toEqual(['main-1']);
+      expect(component.indicatorTopicsEditTree[0].subTopics[0].disabled).toBe(true);
+    });
+
+    it('checking an indicator adds it to the selection', () => {
+      seedStores();
+      fixture.detectChanges();
+
+      const checkbox = fixture.nativeElement.querySelector('#dataset-indicator-i-1');
+      checkbox.checked = true;
+      checkbox.dispatchEvent(new Event('change'));
+
+      expect(component.selectedIndicatorIds).toEqual(['i-1']);
+    });
   });
 
   describe('applyTopicSelection', () => {
