@@ -7,10 +7,10 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { FormsModule } from '@angular/forms';
 import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { AdminTopicsManagementComponent } from '../../../adminTopicsManagement/admin-topics-management.component';
+import { TopicHierarchyFormComponent } from '../../../adminShared/topicHierarchyForm/topic-hierarchy-form.component';
 import { IndicatorAddFormStateService } from '../indicator-add-form-state.service';
 
 @Component({
@@ -20,9 +20,9 @@ import { IndicatorAddFormStateService } from '../indicator-add-form-state.servic
   imports: [
     TranslateModule,
     CommonModule,
-    FormsModule,
     NgbCollapseModule,
     AdminTopicsManagementComponent,
+    TopicHierarchyFormComponent,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

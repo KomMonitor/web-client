@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IndicatorAddFormStateService } from '../indicator-add-form-state.service';
 
 @Component({
@@ -17,7 +17,7 @@ import { IndicatorAddFormStateService } from '../indicator-add-form-state.servic
     '../indicator-add-form.shared.scss',
     './indicator-add-step6-comparison.component.scss',
   ],
-  imports: [TranslateModule, CommonModule, FormsModule],
+  imports: [TranslateModule, CommonModule, FormsModule, ReactiveFormsModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

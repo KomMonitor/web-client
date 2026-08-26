@@ -6,102 +6,11 @@
       ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
     >
   </p>
-  <div class="row vertical-align">
-    <div class="col-md-3 col-sm-6 col-12">
-      <div class="form-group">
-        <label>{{ 'ADMIN_SHARED_UI.TOPICS.MAIN_TOPIC' | translate }}*</label>
-        <select
-          [(ngModel)]="state.selectedTopic"
-          name="selectedTopic"
-          (ngModelChange)="state.onTopicChange()"
-          class="form-control"
-          required
-        >
-          <option [ngValue]="null" disabled selected>
-            {{ 'ADMIN_INDICATORS.STEP_TOPICS.SELECT_TOPIC_OPTION' | translate }}
-          </option>
-          @for (topic of state.availableTopics; track topic) {
-            <option [ngValue]="topic">
-              {{ topic.topicName }}
-            </option>
-          }
-        </select>
-        <div class="help-block with-errors"></div>
-      </div>
-    </div>
-    <div class="col-md-3 col-sm-6 col-12">
-      @if (state.availableSubTopics.length > 0) {
-        <div class="form-group">
-          <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_1' | translate }}</label>
-          <select
-            [(ngModel)]="state.selectedSubTopic"
-            name="selectedSubTopic"
-            (ngModelChange)="state.onSubTopicChange()"
-            class="form-control"
-            required
-          >
-            <option [ngValue]="null" disabled selected>
-              {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
-            </option>
-            @for (subTopic of state.availableSubTopics; track subTopic) {
-              <option [ngValue]="subTopic">
-                {{ subTopic.topicName }}
-              </option>
-            }
-          </select>
-          <div class="help-block with-errors"></div>
-        </div>
-      }
-    </div>
-    <div class="col-md-3 col-sm-6 col-12">
-      @if (state.availableSubSubTopics.length > 0) {
-        <div class="form-group">
-          <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_2' | translate }}</label>
-          <select
-            [(ngModel)]="state.selectedSubSubTopic"
-            name="selectedSubSubTopic"
-            (ngModelChange)="state.onSubSubTopicChange()"
-            class="form-control"
-            required
-          >
-            <option [ngValue]="null" disabled selected>
-              {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
-            </option>
-            @for (subsubTopic of state.availableSubSubTopics; track subsubTopic) {
-              <option [ngValue]="subsubTopic">
-                {{ subsubTopic.topicName }}
-              </option>
-            }
-          </select>
-          <div class="help-block with-errors"></div>
-        </div>
-      }
-    </div>
-    <div class="col-md-3 col-sm-6 col-12">
-      @if (state.availableSubSubSubTopics.length > 0) {
-        <div class="form-group">
-          <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_3' | translate }}</label>
-          <select
-            [(ngModel)]="state.selectedSubSubSubTopic"
-            name="selectedSubSubSubTopic"
-            (ngModelChange)="state.onSubSubSubTopicChange()"
-            class="form-control"
-            required
-          >
-            <option [ngValue]="null" disabled selected>
-              {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
-            </option>
-            @for (subsubsubTopic of state.availableSubSubSubTopics; track subsubsubTopic) {
-              <option [ngValue]="subsubsubTopic">
-                {{ subsubsubTopic.topicName }}
-              </option>
-            }
-          </select>
-          <div class="help-block with-errors"></div>
-        </div>
-      }
-    </div>
-  </div>
+  <app-topic-hierarchy-form
+    [form]="state.addForm.controls.topics"
+    [availableTopics]="state.availableTopics"
+    idPrefix="ind-topics"
+  />
   @if (accessControlService.checkAdminPermission()) {
     <hr />
     <br />

@@ -1,4 +1,4 @@
-<div>
+<div [formGroup]="state.addForm.controls.basic">
   <h2 class="fs-title">{{ 'ADMIN_INDICATORS.STEP_BASIC.TITLE' | translate }}</h2>
   <h3 class="fs-subtitle">{{ 'ADMIN_INDICATORS.STEP_BASIC.SUBTITLE' | translate }}</h3>
   <p>
@@ -13,10 +13,8 @@
         <input
           type="text"
           class="form-control"
-          [(ngModel)]="state.datasetName"
-          name="datasetName"
+          formControlName="datasetName"
           [placeholder]="'ADMIN_SHARED.NAME' | translate"
-          (ngModelChange)="state.checkDatasetName()"
           required
         />
         <div class="help-block with-errors"></div>
@@ -36,8 +34,7 @@
         <input
           type="text"
           class="form-control"
-          [(ngModel)]="state.indicatorAbbreviation"
-          name="indicatorAbbreviation"
+          formControlName="indicatorAbbreviation"
           [placeholder]="'ADMIN_INDICATORS.STEP_BASIC.ABBREVIATION_PLACEHOLDER' | translate"
         />
         <div class="help-block with-errors"></div>
@@ -46,13 +43,7 @@
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
         <label>{{ 'ADMIN_INDICATORS.STEP_BASIC.TYPE' | translate }}*</label>
-        <select
-          [(ngModel)]="state.indicatorType"
-          name="indicatorType"
-          (ngModelChange)="state.checkDatasetName()"
-          class="form-control"
-          required
-        >
+        <select formControlName="indicatorType" class="form-control" required>
           <option [ngValue]="null" disabled selected>
             {{ 'ADMIN_INDICATORS.STEP_BASIC.SELECT_TYPE_OPTION' | translate }}
           </option>
@@ -77,11 +68,7 @@
             'ADMIN_INDICATORS.STEP_BASIC.DECIMALS_CUSTOM_TOGGLE' | translate
           }}</label>
           <label class="switch">
-            <input
-              type="checkbox"
-              [(ngModel)]="state.showCustomCommaValue"
-              name="showCustomCommaValue"
-            />
+            <input type="checkbox" formControlName="showCustomCommaValue" />
             <span class="switchslider round"></span>
           </label>
         </div>
@@ -101,8 +88,7 @@
               type="number"
               min="0"
               max="4"
-              [(ngModel)]="state.indicatorPrecision"
-              name="indicatorPrecision"
+              formControlName="indicatorPrecision"
             />
             <div class="help-block">
               <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.DECIMALS_HINT' | translate }}</p>
@@ -117,9 +103,8 @@
       <div class="form-group">
         <label>{{ 'ADMIN_INDICATORS.UNIT' | translate }}*</label>
         <select
-          [(ngModel)]="state.indicatorUnit"
-          name="indicatorUnit"
-          (ngModelChange)="state.onChangeIndicatorUnit()"
+          formControlName="indicatorUnit"
+          (change)="state.onChangeIndicatorUnit()"
           class="form-control"
           required
         >
@@ -139,8 +124,7 @@
             <input
               type="text"
               class="form-control"
-              [(ngModel)]="state.indicatorUnit"
-              name="indicatorUnit"
+              formControlName="indicatorUnit"
               [placeholder]="'ADMIN_INDICATORS.UNIT' | translate"
               required
             />
@@ -158,8 +142,7 @@
         <textarea
           rows="3"
           class="form-control"
-          [(ngModel)]="state.indicatorProcessDescription"
-          name="indicatorProcessDescription"
+          formControlName="indicatorProcessDescription"
           [placeholder]="'ADMIN_INDICATORS.STEP_BASIC.METHOD_PLACEHOLDER' | translate"
         ></textarea>
         <div class="help-block">
@@ -174,8 +157,7 @@
         <textarea
           rows="3"
           class="form-control"
-          [(ngModel)]="state.indicatorInterpretation"
-          name="indicatorInterpretation"
+          formControlName="indicatorInterpretation"
           [placeholder]="'ADMIN_INDICATORS.STEP_BASIC.INTERPRETATION_PLACEHOLDER' | translate"
           required
         ></textarea>
@@ -191,8 +173,7 @@
         <input
           type="text"
           class="form-control"
-          [(ngModel)]="state.indicatorTagsString_withCommas"
-          name="indicatorTagsString_withCommas"
+          formControlName="indicatorTagsString_withCommas"
           [placeholder]="'ADMIN_INDICATORS.STEP_BASIC.TAGS_PLACEHOLDER' | translate"
         />
         <div class="help-block">
@@ -207,11 +188,7 @@
       <div class="form-group">
         <label>{{ 'ADMIN_INDICATORS.HEADLINE_INDICATOR' | translate }}*</label>
         <label class="switch">
-          <input
-            type="checkbox"
-            [(ngModel)]="state.isHeadlineIndicator"
-            name="isHeadlineIndicator"
-          />
+          <input type="checkbox" formControlName="isHeadlineIndicator" />
           <span class="switchslider round"></span>
         </label>
         <div class="help-block">
@@ -226,8 +203,7 @@
         <textarea
           rows="3"
           class="form-control"
-          [(ngModel)]="state.indicatorReferenceDateNote"
-          name="indicatorReferenceDateNote"
+          formControlName="indicatorReferenceDateNote"
           [placeholder]="'ADMIN_INDICATORS.STEP_BASIC.REFERENCE_DATE_NOTE_PLACEHOLDER' | translate"
         ></textarea>
         <div class="help-block">
@@ -240,9 +216,8 @@
       <div class="form-group">
         <label>{{ 'ADMIN_INDICATORS.STEP_BASIC.CREATION_TYPE' | translate }}*</label>
         <select
-          [(ngModel)]="state.indicatorCreationType"
-          name="indicatorCreationType"
-          (ngModelChange)="state.onChangeCreationType()"
+          formControlName="indicatorCreationType"
+          (change)="state.onChangeCreationType()"
           class="form-control"
           required
         >
@@ -267,8 +242,7 @@
         <div class="form-group">
           <label>{{ 'ADMIN_INDICATORS.STEP_BASIC.LOWEST_SPATIAL_UNIT' | translate }}</label>
           <select
-            [(ngModel)]="state.indicatorLowestSpatialUnitMetadataObjectForComputation"
-            name="indicatorLowestSpatialUnitMetadataObjectForComputation"
+            formControlName="indicatorLowestSpatialUnitMetadataObjectForComputation"
             class="form-control"
           >
             <option [ngValue]="null" disabled selected>

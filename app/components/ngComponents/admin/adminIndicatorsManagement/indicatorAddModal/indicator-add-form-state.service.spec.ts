@@ -358,7 +358,11 @@ describe('IndicatorAddFormStateService', () => {
       expect(body.regionalReferenceValues).toEqual([]);
     });
 
-    it('uses empty-string / false defaults where the POST body passes values through raw', () => {
+    it('sends empty-string / false defaults in both bodies', () => {
+      // Was: the POST body passed an `undefined` field through raw while the
+      // PATCH body normalised it. The typed form makes that state
+      // unrepresentable — the controls are `nonNullable` with a '' / false
+      // default, so both bodies now agree.
       service.indicatorInterpretation = undefined as any;
       service.indicatorProcessDescription = undefined as any;
       service.isHeadlineIndicator = undefined as any;
@@ -369,9 +373,9 @@ describe('IndicatorAddFormStateService', () => {
       expect(patch.interpretation).toBe('');
       expect(patch.processDescription).toBe('');
       expect(patch.isHeadlineIndicator).toBe(false);
-      // the POST body deliberately does not normalise these
-      expect(post.interpretation).toBeUndefined();
-      expect(post.processDescription).toBeUndefined();
+      expect(post.interpretation).toBe('');
+      expect(post.processDescription).toBe('');
+      expect(post.isHeadlineIndicator).toBe(false);
     });
   });
 

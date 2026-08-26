@@ -1,4 +1,5 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -10,10 +11,19 @@ import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hi
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { downloadJson, readJsonFile } from 'util/json-file.util';
 import {
-  buildResourceMetadataForm,
   patchMetadataFormFromApi,
+  ResourceMetadataFormGroup,
   ResourceMetadataFormValue,
 } from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
+import {
+  patchTopicHierarchyFromChain,
+  topicHierarchyToApi,
+  topicOptionsFor,
+} from '../../adminShared/topicHierarchyForm/topic-hierarchy-form.model';
+import {
+  buildIndicatorAddForm,
+  buildIndicatorReferenceDraftForm,
+} from './indicator-add-form.model';
 import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
 import { IndicatorClassificationStateService } from './indicator-classification-state.service';
 
@@ -85,25 +95,145 @@ export class IndicatorAddFormStateService {
     this._loadingData.set(value);
   }
 
+  /**
+   * Typed model of the wizard, one child group per stepper step. The accessors
+   * below keep the historic property names working for the body builders, the
+   * step templates and the spec.
+   */
+  readonly addForm = buildIndicatorAddForm({
+    existingIndicators: () => (this.indicatorStore.availableIndicators ?? []) as any[],
+    currentDatasetName: () => this.editIndicatorDataset?.datasetName ?? null,
+  });
+
+  private get basicStep() {
+    return this.addForm.controls.basic;
+  }
+
+  constructor() {
+    // The name uniqueness rule is scoped per indicator type, so a type change
+    // has to re-run it. The name control revalidates itself on its own change.
+    this.basicStep.controls.indicatorType.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.basicStep.controls.datasetName.updateValueAndValidity());
+
+    // Side effects that used to hang off (ngModelChange) in the step templates.
+    const security = this.addForm.controls.security;
+    security.controls.ownerOrgFilter.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.filterOrganizations());
+    security.controls.ownerOrganization.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.rebuildRoleManagementGrid());
+    this.addForm.controls.referenceValues.controls.comparisonValueType.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.onComparisonValueTypeChange());
+  }
+
   // Basic form data
-  datasetName = '';
-  datasetNameInvalid = false;
-  indicatorAbbreviation = '';
-  indicatorType: any = null;
-  isHeadlineIndicator = false;
-  indicatorUnit = '';
-  enableFreeTextUnit = false;
-  indicatorProcessDescription = '';
-  indicatorTagsString_withCommas = '';
-  indicatorInterpretation = '';
-  indicatorCreationType: any = null;
-  indicatorLowestSpatialUnitMetadataObjectForComputation: any = null;
-  enableLowestSpatialUnitSelect = false;
-  indicatorPrecision: any = null;
-  showCustomCommaValue = false;
+  get datasetName(): string {
+    return this.basicStep.controls.datasetName.value;
+  }
+  set datasetName(value: string) {
+    this.basicStep.controls.datasetName.setValue(value ?? '');
+  }
+  get datasetNameInvalid(): boolean {
+    return this.basicStep.controls.datasetName.hasError('uniqueName');
+  }
+  get indicatorAbbreviation(): string {
+    return this.basicStep.controls.indicatorAbbreviation.value;
+  }
+  set indicatorAbbreviation(value: string) {
+    this.basicStep.controls.indicatorAbbreviation.setValue(value ?? '');
+  }
+  get indicatorType(): any {
+    return this.basicStep.controls.indicatorType.value;
+  }
+  set indicatorType(value: any) {
+    this.basicStep.controls.indicatorType.setValue(value ?? null);
+  }
+  get isHeadlineIndicator(): boolean {
+    return this.basicStep.controls.isHeadlineIndicator.value;
+  }
+  set isHeadlineIndicator(value: boolean) {
+    this.basicStep.controls.isHeadlineIndicator.setValue(!!value);
+  }
+  get indicatorUnit(): string {
+    return this.basicStep.controls.indicatorUnit.value;
+  }
+  set indicatorUnit(value: string) {
+    this.basicStep.controls.indicatorUnit.setValue(value ?? '');
+  }
+  get enableFreeTextUnit(): boolean {
+    return this.basicStep.controls.enableFreeTextUnit.value;
+  }
+  set enableFreeTextUnit(value: boolean) {
+    this.basicStep.controls.enableFreeTextUnit.setValue(!!value);
+  }
+  get indicatorProcessDescription(): string {
+    return this.basicStep.controls.indicatorProcessDescription.value;
+  }
+  set indicatorProcessDescription(value: string) {
+    this.basicStep.controls.indicatorProcessDescription.setValue(value ?? '');
+  }
+  get indicatorTagsString_withCommas(): string {
+    return this.basicStep.controls.indicatorTagsString_withCommas.value;
+  }
+  set indicatorTagsString_withCommas(value: string) {
+    this.basicStep.controls.indicatorTagsString_withCommas.setValue(value ?? '');
+  }
+  get indicatorInterpretation(): string {
+    return this.basicStep.controls.indicatorInterpretation.value;
+  }
+  set indicatorInterpretation(value: string) {
+    this.basicStep.controls.indicatorInterpretation.setValue(value ?? '');
+  }
+  get indicatorCreationType(): any {
+    return this.basicStep.controls.indicatorCreationType.value;
+  }
+  set indicatorCreationType(value: any) {
+    this.basicStep.controls.indicatorCreationType.setValue(value ?? null);
+  }
+  get indicatorLowestSpatialUnitMetadataObjectForComputation(): any {
+    return this.basicStep.controls.indicatorLowestSpatialUnitMetadataObjectForComputation.value;
+  }
+  set indicatorLowestSpatialUnitMetadataObjectForComputation(value: any) {
+    this.basicStep.controls.indicatorLowestSpatialUnitMetadataObjectForComputation.setValue(
+      value ?? null
+    );
+  }
+  get enableLowestSpatialUnitSelect(): boolean {
+    return this.basicStep.controls.enableLowestSpatialUnitSelect.value;
+  }
+  set enableLowestSpatialUnitSelect(value: boolean) {
+    this.basicStep.controls.enableLowestSpatialUnitSelect.setValue(!!value);
+  }
+  get indicatorPrecision(): any {
+    return this.basicStep.controls.indicatorPrecision.value;
+  }
+  set indicatorPrecision(value: any) {
+    this.basicStep.controls.indicatorPrecision.setValue(value ?? null);
+  }
+  get showCustomCommaValue(): boolean {
+    return this.basicStep.controls.showCustomCommaValue.value;
+  }
+  set showCustomCommaValue(value: boolean) {
+    this.basicStep.controls.showCustomCommaValue.setValue(!!value);
+  }
+  get indicatorReferenceDateNote(): string {
+    return this.basicStep.controls.indicatorReferenceDateNote.value;
+  }
+  set indicatorReferenceDateNote(value: string) {
+    this.basicStep.controls.indicatorReferenceDateNote.setValue(value ?? '');
+  }
 
   // Metadata
-  metadataForm = buildResourceMetadataForm();
+  /**
+   * The shared "Allgemeine Metadaten" block. Returns the same instance on every
+   * call — never rebuild it here.
+   */
+  get metadataForm(): ResourceMetadataFormGroup {
+    return this.addForm.controls.general;
+  }
   /** Read-only view of the metadata form value for post-/patch-body building. */
   get metadata(): ResourceMetadataFormValue {
     return this.metadataForm.getRawValue();
@@ -115,29 +245,95 @@ export class IndicatorAddFormStateService {
   georesourceReferences_adminView: any[] = [];
   georesourceReferences_apiRequest: any[] = [];
 
-  // Topic hierarchy
-  indicatorTopic_mainTopic: any = null;
-  indicatorTopic_subTopic: any = null;
-  indicatorTopic_subsubTopic: any = null;
-  indicatorTopic_subsubsubTopic: any = null;
+  // Topic hierarchy. `indicatorTopic_*` (payload side) and `selected*Topic*`
+  // (UI side) used to be two parallel field sets kept in sync by hand; both are
+  // views of the shared four-level cascade now.
+  get indicatorTopic_mainTopic(): any {
+    return this.addForm.controls.topics.controls.mainTopic.value;
+  }
+  set indicatorTopic_mainTopic(value: any) {
+    this.addForm.controls.topics.controls.mainTopic.setValue(value ?? null);
+  }
+  get indicatorTopic_subTopic(): any {
+    return this.addForm.controls.topics.controls.subTopic.value;
+  }
+  set indicatorTopic_subTopic(value: any) {
+    this.addForm.controls.topics.controls.subTopic.setValue(value ?? null);
+  }
+  get indicatorTopic_subsubTopic(): any {
+    return this.addForm.controls.topics.controls.subsubTopic.value;
+  }
+  set indicatorTopic_subsubTopic(value: any) {
+    this.addForm.controls.topics.controls.subsubTopic.setValue(value ?? null);
+  }
+  get indicatorTopic_subsubsubTopic(): any {
+    return this.addForm.controls.topics.controls.subsubsubTopic.value;
+  }
+  set indicatorTopic_subsubsubTopic(value: any) {
+    this.addForm.controls.topics.controls.subsubsubTopic.setValue(value ?? null);
+  }
 
-  // Step 3: Topic Hierarchy
-  selectedTopic: any = null;
-  selectedSubTopic: any = null;
-  selectedSubSubTopic: any = null;
-  selectedSubSubSubTopic: any = null;
-  availableSubTopics: any[] = [];
-  availableSubSubTopics: any[] = [];
-  availableSubSubSubTopics: any[] = [];
+  // Step 3: Topic Hierarchy — the shared four-level cascade.
+  get selectedTopic(): any {
+    return this.addForm.controls.topics.controls.mainTopic.value;
+  }
+  set selectedTopic(value: any) {
+    this.addForm.controls.topics.controls.mainTopic.setValue(value ?? null);
+  }
+  get selectedSubTopic(): any {
+    return this.addForm.controls.topics.controls.subTopic.value;
+  }
+  set selectedSubTopic(value: any) {
+    this.addForm.controls.topics.controls.subTopic.setValue(value ?? null);
+  }
+  get selectedSubSubTopic(): any {
+    return this.addForm.controls.topics.controls.subsubTopic.value;
+  }
+  set selectedSubSubTopic(value: any) {
+    this.addForm.controls.topics.controls.subsubTopic.setValue(value ?? null);
+  }
+  get selectedSubSubSubTopic(): any {
+    return this.addForm.controls.topics.controls.subsubsubTopic.value;
+  }
+  set selectedSubSubSubTopic(value: any) {
+    this.addForm.controls.topics.controls.subsubsubTopic.setValue(value ?? null);
+  }
+  // Option lists per level, derived from the level above.
+  get availableSubTopics(): any[] {
+    return [...topicOptionsFor(this.addForm.controls.topics, 'subTopic', this.availableTopics)];
+  }
+  get availableSubSubTopics(): any[] {
+    return [...topicOptionsFor(this.addForm.controls.topics, 'subsubTopic', this.availableTopics)];
+  }
+  get availableSubSubSubTopics(): any[] {
+    return [
+      ...topicOptionsFor(this.addForm.controls.topics, 'subsubsubTopic', this.availableTopics),
+    ];
+  }
   additionalTopic: any = null;
   additionalSubTopic: any = null;
   additionalSubTopics: any[] = [];
   additionalTopicAssignments: Array<{ topic: any; subTopic: any }> = [];
 
   // Role management
-  ownerOrganization: any = null;
-  ownerOrgFilter = '';
-  isPublic = false;
+  get ownerOrganization(): any {
+    return this.addForm.controls.security.controls.ownerOrganization.value;
+  }
+  set ownerOrganization(value: any) {
+    this.addForm.controls.security.controls.ownerOrganization.setValue(value ?? null);
+  }
+  get ownerOrgFilter(): string {
+    return this.addForm.controls.security.controls.ownerOrgFilter.value;
+  }
+  set ownerOrgFilter(value: string) {
+    this.addForm.controls.security.controls.ownerOrgFilter.setValue(value ?? '');
+  }
+  get isPublic(): boolean {
+    return this.addForm.controls.security.controls.isPublic.value;
+  }
+  set isPublic(value: boolean) {
+    this.addForm.controls.security.controls.isPublic.setValue(!!value);
+  }
 
   // The role grid is the shared <app-role-management-grid> rendered by the step-7
   // access component. Because the step components are created/destroyed while
@@ -186,26 +382,104 @@ export class IndicatorAddFormStateService {
   availableTopics: any[] = [];
 
   // Step 6: Regional Comparison Values
-  comparisonValueType: string | null = null;
-  comparisonValue: number | null = null;
-  comparisonRegion: string | null = null;
-  comparisonTimeframe: string | null = null;
-  comparisonDescription = '';
-  evaluationDirection: string | null = null;
-  toleranceRange: number | null = null;
+  private get referenceValuesStep() {
+    return this.addForm.controls.referenceValues;
+  }
+  get comparisonValueType(): string | null {
+    return this.referenceValuesStep.controls.comparisonValueType.value;
+  }
+  set comparisonValueType(value: string | null) {
+    this.referenceValuesStep.controls.comparisonValueType.setValue(value ?? null);
+  }
+  get comparisonValue(): number | null {
+    return this.referenceValuesStep.controls.comparisonValue.value;
+  }
+  set comparisonValue(value: number | null) {
+    this.referenceValuesStep.controls.comparisonValue.setValue(value ?? null);
+  }
+  get comparisonRegion(): string | null {
+    return this.referenceValuesStep.controls.comparisonRegion.value;
+  }
+  set comparisonRegion(value: string | null) {
+    this.referenceValuesStep.controls.comparisonRegion.setValue(value ?? null);
+  }
+  get comparisonTimeframe(): string | null {
+    return this.referenceValuesStep.controls.comparisonTimeframe.value;
+  }
+  set comparisonTimeframe(value: string | null) {
+    this.referenceValuesStep.controls.comparisonTimeframe.setValue(value ?? null);
+  }
+  get comparisonDescription(): string {
+    return this.referenceValuesStep.controls.comparisonDescription.value;
+  }
+  set comparisonDescription(value: string) {
+    this.referenceValuesStep.controls.comparisonDescription.setValue(value ?? '');
+  }
+  get evaluationDirection(): string | null {
+    return this.referenceValuesStep.controls.evaluationDirection.value;
+  }
+  set evaluationDirection(value: string | null) {
+    this.referenceValuesStep.controls.evaluationDirection.setValue(value ?? null);
+  }
+  get toleranceRange(): number | null {
+    return this.referenceValuesStep.controls.toleranceRange.value;
+  }
+  set toleranceRange(value: number | null) {
+    this.referenceValuesStep.controls.toleranceRange.setValue(value ?? null);
+  }
 
-  // Additional comparison values
-  additionalComparisonType: string | null = null;
-  additionalComparisonValue: number | null = null;
-  additionalComparisonDescription = '';
+  // Additional comparison values (staging row + the collected list)
+  get additionalComparisonType(): string | null {
+    return this.referenceValuesStep.controls.additionalComparisonType.value;
+  }
+  set additionalComparisonType(value: string | null) {
+    this.referenceValuesStep.controls.additionalComparisonType.setValue(value ?? null);
+  }
+  get additionalComparisonValue(): number | null {
+    return this.referenceValuesStep.controls.additionalComparisonValue.value;
+  }
+  set additionalComparisonValue(value: number | null) {
+    this.referenceValuesStep.controls.additionalComparisonValue.setValue(value ?? null);
+  }
+  get additionalComparisonDescription(): string {
+    return this.referenceValuesStep.controls.additionalComparisonDescription.value;
+  }
+  set additionalComparisonDescription(value: string) {
+    this.referenceValuesStep.controls.additionalComparisonDescription.setValue(value ?? '');
+  }
   additionalComparisonValues: Array<{ type: string; value: number; description: string }> = [];
 
   // Benchmarking configuration
-  enableBenchmarking = false;
-  benchmarkingVisualizationType: string | null = null;
-  greenThreshold: number | null = null;
-  yellowThreshold: number | null = null;
-  redThreshold: number | null = null;
+  get enableBenchmarking(): boolean {
+    return this.referenceValuesStep.controls.enableBenchmarking.value;
+  }
+  set enableBenchmarking(value: boolean) {
+    this.referenceValuesStep.controls.enableBenchmarking.setValue(!!value);
+  }
+  get benchmarkingVisualizationType(): string | null {
+    return this.referenceValuesStep.controls.benchmarkingVisualizationType.value;
+  }
+  set benchmarkingVisualizationType(value: string | null) {
+    this.referenceValuesStep.controls.benchmarkingVisualizationType.setValue(value ?? null);
+  }
+  get greenThreshold(): number | null {
+    return this.referenceValuesStep.controls.greenThreshold.value;
+  }
+  set greenThreshold(value: number | null) {
+    this.referenceValuesStep.controls.greenThreshold.setValue(value ?? null);
+  }
+  get yellowThreshold(): number | null {
+    return this.referenceValuesStep.controls.yellowThreshold.value;
+  }
+  set yellowThreshold(value: number | null) {
+    this.referenceValuesStep.controls.yellowThreshold.setValue(value ?? null);
+  }
+  get redThreshold(): number | null {
+    return this.referenceValuesStep.controls.redThreshold.value;
+  }
+  set redThreshold(value: number | null) {
+    this.referenceValuesStep.controls.redThreshold.setValue(value ?? null);
+  }
 
   // Step 7: Access Control and Ownership
   // Base list of organizations the user may assign as owner (full accessControl
@@ -222,22 +496,82 @@ export class IndicatorAddFormStateService {
     this._filteredOrganizations.set(value);
   }
 
-  // Advanced access control
-  enableTimeRestrictedAccess = false;
-  enableGeographicRestriction = false;
-  accessStartDate = '';
-  accessEndDate = '';
-  allowedRegions: any[] = [];
+  // Advanced access control. Bound in the step-7 template but never part of the
+  // payload — kept so the template keeps working, not because the API reads it.
+  private get securityStep() {
+    return this.addForm.controls.security;
+  }
+  get enableTimeRestrictedAccess(): boolean {
+    return this.securityStep.controls.enableTimeRestrictedAccess.value;
+  }
+  set enableTimeRestrictedAccess(value: boolean) {
+    this.securityStep.controls.enableTimeRestrictedAccess.setValue(!!value);
+  }
+  get enableGeographicRestriction(): boolean {
+    return this.securityStep.controls.enableGeographicRestriction.value;
+  }
+  set enableGeographicRestriction(value: boolean) {
+    this.securityStep.controls.enableGeographicRestriction.setValue(!!value);
+  }
+  get accessStartDate(): string {
+    return this.securityStep.controls.accessStartDate.value;
+  }
+  set accessStartDate(value: string) {
+    this.securityStep.controls.accessStartDate.setValue(value ?? '');
+  }
+  get accessEndDate(): string {
+    return this.securityStep.controls.accessEndDate.value;
+  }
+  set accessEndDate(value: string) {
+    this.securityStep.controls.accessEndDate.setValue(value ?? '');
+  }
+  get allowedRegions(): any[] {
+    return this.securityStep.controls.allowedRegions.value;
+  }
+  set allowedRegions(value: any[]) {
+    this.securityStep.controls.allowedRegions.setValue(value ?? []);
+  }
   availableRegions: any[] = [];
-  enableAccessLogging = false;
+  get enableAccessLogging(): boolean {
+    return this.securityStep.controls.enableAccessLogging.value;
+  }
+  set enableAccessLogging(value: boolean) {
+    this.securityStep.controls.enableAccessLogging.setValue(!!value);
+  }
 
   // Temporary variables for references
   indicatorNameFilter = '';
-  tmpIndicatorReference_selectedIndicatorMetadata: any = null;
-  tmpIndicatorReference_referenceDescription = '';
+  /**
+   * Staging rows of the two reference tables. Deliberately outside `addForm`:
+   * they are not submitted, and their required rules must not gate the wizard.
+   */
+  readonly indicatorReferenceDraft = buildIndicatorReferenceDraftForm();
+  readonly georesourceReferenceDraft = buildIndicatorReferenceDraftForm();
+  get tmpIndicatorReference_selectedIndicatorMetadata(): any {
+    return this.indicatorReferenceDraft.controls.selected.value;
+  }
+  set tmpIndicatorReference_selectedIndicatorMetadata(value: any) {
+    this.indicatorReferenceDraft.controls.selected.setValue(value ?? null);
+  }
+  get tmpIndicatorReference_referenceDescription(): string {
+    return this.indicatorReferenceDraft.controls.referenceDescription.value;
+  }
+  set tmpIndicatorReference_referenceDescription(value: string) {
+    this.indicatorReferenceDraft.controls.referenceDescription.setValue(value ?? '');
+  }
   georesourceNameFilter = '';
-  tmpGeoresourceReference_selectedGeoresourceMetadata: any = null;
-  tmpGeoresourceReference_referenceDescription = '';
+  get tmpGeoresourceReference_selectedGeoresourceMetadata(): any {
+    return this.georesourceReferenceDraft.controls.selected.value;
+  }
+  set tmpGeoresourceReference_selectedGeoresourceMetadata(value: any) {
+    this.georesourceReferenceDraft.controls.selected.setValue(value ?? null);
+  }
+  get tmpGeoresourceReference_referenceDescription(): string {
+    return this.georesourceReferenceDraft.controls.referenceDescription.value;
+  }
+  set tmpGeoresourceReference_referenceDescription(value: string) {
+    this.georesourceReferenceDraft.controls.referenceDescription.setValue(value ?? '');
+  }
 
   // Step 4: Filtered lists for references
   filteredIndicators: any[] = [];
@@ -246,8 +580,6 @@ export class IndicatorAddFormStateService {
   // Post body
   postBody_indicators: any = null;
 
-  // Reference date
-  indicatorReferenceDateNote = '';
   displayOrder = 0;
 
   loadInitialData() {
@@ -310,20 +642,12 @@ export class IndicatorAddFormStateService {
     this.classification.onNumClassesChanged(this.classification.numClassesPerSpatialUnit());
   }
 
+  /**
+   * The rule is `indicatorNameUniqueValidator` on the control now — it reads the
+   * sibling indicator-type control, so a type change has to re-run it too.
+   */
   checkDatasetName() {
-    this.datasetNameInvalid = false;
-
-    if (this.datasetName && this.indicatorType && this.indicatorStore.availableIndicators) {
-      this.indicatorStore.availableIndicators.forEach((indicator: any) => {
-        if (
-          indicator.datasetName === this.datasetName &&
-          indicator.indicatorType === this.indicatorType.apiName
-        ) {
-          this.datasetNameInvalid = true;
-          return;
-        }
-      });
-    }
+    this.addForm.controls.basic.controls.datasetName.updateValueAndValidity();
   }
 
   // Reference management methods
@@ -476,14 +800,9 @@ export class IndicatorAddFormStateService {
     };
 
     // Add topic reference if selected
-    if (this.indicatorTopic_subsubsubTopic) {
-      postBody.topicReference = this.indicatorTopic_subsubsubTopic.topicId;
-    } else if (this.indicatorTopic_subsubTopic) {
-      postBody.topicReference = this.indicatorTopic_subsubTopic.topicId;
-    } else if (this.indicatorTopic_subTopic) {
-      postBody.topicReference = this.indicatorTopic_subTopic.topicId;
-    } else if (this.indicatorTopic_mainTopic) {
-      postBody.topicReference = this.indicatorTopic_mainTopic.topicId;
+    const deepestTopicId = topicHierarchyToApi(this.addForm.controls.topics);
+    if (deepestTopicId) {
+      postBody.topicReference = deepestTopicId;
     }
 
     // Add tags if provided
@@ -519,12 +838,7 @@ export class IndicatorAddFormStateService {
    */
   buildPostBody_indicators_v3() {
     // Resolve the selected topic id from the deepest selected hierarchy level.
-    const topicReference =
-      this.indicatorTopic_subsubsubTopic?.topicId ??
-      this.indicatorTopic_subsubTopic?.topicId ??
-      this.indicatorTopic_subTopic?.topicId ??
-      this.indicatorTopic_mainTopic?.topicId ??
-      '';
+    const topicReference = topicHierarchyToApi(this.addForm.controls.topics);
 
     // Tags: always an array (required field), empty when none entered.
     const tags = this.indicatorTagsString_withCommas
@@ -695,7 +1009,6 @@ export class IndicatorAddFormStateService {
 
     // Step 1 — basic metadata
     this.datasetName = dataset.indicatorName ?? '';
-    this.datasetNameInvalid = false;
     this.indicatorAbbreviation = dataset.abbreviation ?? '';
     this.isHeadlineIndicator = dataset.isHeadlineIndicator ?? false;
     this.indicatorUnit = dataset.unit ?? '';
@@ -754,32 +1067,11 @@ export class IndicatorAddFormStateService {
     this.selectedSubTopic = null;
     this.selectedSubSubTopic = null;
     this.selectedSubSubSubTopic = null;
-    this.availableSubTopics = [];
-    this.availableSubSubTopics = [];
-    this.availableSubSubSubTopics = [];
     const topicHierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(
       this.topicStore.availableTopics,
       dataset.topicReference
     );
-    if (topicHierarchy?.[0]) {
-      this.indicatorTopic_mainTopic = topicHierarchy[0];
-      this.selectedTopic = topicHierarchy[0];
-      this.availableSubTopics = topicHierarchy[0].subTopics ?? [];
-    }
-    if (topicHierarchy?.[1]) {
-      this.indicatorTopic_subTopic = topicHierarchy[1];
-      this.selectedSubTopic = topicHierarchy[1];
-      this.availableSubSubTopics = topicHierarchy[1].subTopics ?? [];
-    }
-    if (topicHierarchy?.[2]) {
-      this.indicatorTopic_subsubTopic = topicHierarchy[2];
-      this.selectedSubSubTopic = topicHierarchy[2];
-      this.availableSubSubSubTopics = topicHierarchy[2].subTopics ?? [];
-    }
-    if (topicHierarchy?.[3]) {
-      this.indicatorTopic_subsubsubTopic = topicHierarchy[3];
-      this.selectedSubSubSubTopic = topicHierarchy[3];
-    }
+    patchTopicHierarchyFromChain(this.addForm.controls.topics, topicHierarchy);
 
     // Step 4 — references (stored here as { indicatorMetadata | georesourceMetadata,
     // referenceDescription }, matching what the step-4 component and the body
@@ -1129,7 +1421,6 @@ export class IndicatorAddFormStateService {
   resetForm() {
     this.stepper.reset();
     this.datasetName = '';
-    this.datasetNameInvalid = false;
     this.indicatorAbbreviation = '';
     this.indicatorType =
       this.indicatorTypeOptions && this.indicatorTypeOptions.length > 0
@@ -1159,7 +1450,6 @@ export class IndicatorAddFormStateService {
     // Reset Step 3: Topic Hierarchy
     this.selectedTopic = null;
     this.selectedSubTopic = null;
-    this.availableSubTopics = [];
     this.additionalTopic = null;
     this.additionalSubTopic = null;
     this.additionalSubTopics = [];
@@ -1262,11 +1552,13 @@ export class IndicatorAddFormStateService {
     }
   }
 
+  /**
+   * Selecting an owner reveals the role grid and pre-checks the owner's own
+   * viewer/editor permissions. The rebuild hangs off the control's
+   * `valueChanges` now; this stays as a programmatic entry point.
+   */
   onChangeOwner(ownerOrganization: any) {
     this.ownerOrganization = ownerOrganization;
-    // Selecting an owner reveals the role grid and pre-checks the owner's own
-    // viewer/editor permissions (its row is then locked as dataset owner).
-    this.rebuildRoleManagementGrid();
   }
 
   onChangeIsPublic(isPublic: boolean) {
@@ -1355,66 +1647,23 @@ export class IndicatorAddFormStateService {
     return this.getSelectedRoleIds().length;
   }
 
-  // Step 3: Topic Hierarchy Methods
+  // Step 3: Topic Hierarchy Methods.
+  // The shared cascade clears the deeper levels and derives the option lists,
+  // so these are only template hooks now.
   onTopicChange() {
-    if (this.selectedTopic) {
-      // Load sub-topics for the selected topic
-      this.availableSubTopics = this.selectedTopic.subTopics || [];
-      this.selectedSubTopic = null;
-
-      // Update main topic reference
-      this.indicatorTopic_mainTopic = this.selectedTopic;
-      this.indicatorTopic_subTopic = null;
-      this.indicatorTopic_subsubTopic = null;
-      this.indicatorTopic_subsubsubTopic = null;
-    } else {
-      this.availableSubTopics = [];
-      this.availableSubSubTopics = [];
-      this.availableSubSubSubTopics = [];
-      this.selectedSubTopic = null;
-      this.selectedSubSubTopic = null;
-      this.selectedSubSubSubTopic = null;
-    }
+    // handled by the shared topic cascade
   }
 
   onSubTopicChange() {
-    if (this.selectedSubTopic) {
-      // Load sub-topics for the selected topic
-      this.availableSubSubTopics = this.selectedSubTopic.subTopics || [];
-      this.selectedSubSubTopic = null;
-
-      // Update sub topic reference
-      this.indicatorTopic_subTopic = this.selectedSubTopic;
-      this.indicatorTopic_subsubTopic = null;
-      this.indicatorTopic_subsubsubTopic = null;
-    } else {
-      this.availableSubSubTopics = [];
-      this.availableSubSubSubTopics = [];
-      this.selectedSubSubTopic = null;
-      this.selectedSubSubSubTopic = null;
-    }
+    // handled by the shared topic cascade
   }
 
   onSubSubTopicChange() {
-    if (this.selectedSubSubTopic) {
-      // Load sub-topics for the selected topic
-      this.availableSubSubSubTopics = this.selectedSubSubTopic.subTopics || [];
-      this.selectedSubSubSubTopic = null;
-
-      // Update sub topic reference
-      this.indicatorTopic_subsubTopic = this.selectedSubSubTopic;
-      this.indicatorTopic_subsubsubTopic = null;
-    } else {
-      this.availableSubSubSubTopics = [];
-      this.selectedSubSubSubTopic = null;
-    }
+    // handled by the shared topic cascade
   }
 
   onSubSubSubTopicChange() {
-    if (this.selectedSubSubSubTopic) {
-      // Update sub topic reference
-      this.indicatorTopic_subsubsubTopic = this.selectedSubSubSubTopic;
-    }
+    // handled by the shared topic cascade
   }
 
   onAdditionalTopicChange() {

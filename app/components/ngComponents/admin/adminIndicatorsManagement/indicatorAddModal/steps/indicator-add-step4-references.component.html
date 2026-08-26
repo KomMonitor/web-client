@@ -27,7 +27,7 @@
                 (ngModelChange)="state.filterIndicators()"
               />
               <select
-                [(ngModel)]="state.tmpIndicatorReference_selectedIndicatorMetadata"
+                [formControl]="state.indicatorReferenceDraft.controls.selected"
                 name="tmpIndicatorReference_selectedIndicatorMetadata"
                 class="form-control"
                 size="8"
@@ -52,7 +52,7 @@
               <textarea
                 rows="3"
                 class="form-control"
-                [(ngModel)]="state.tmpIndicatorReference_referenceDescription"
+                [formControl]="state.indicatorReferenceDraft.controls.referenceDescription"
                 name="tmpIndicatorReference_referenceDescription"
                 [placeholder]="
                   'ADMIN_INDICATORS.STEP_REFERENCES.INDICATOR_REF_DESC_PLACEHOLDER' | translate
@@ -155,7 +155,7 @@
                 (ngModelChange)="state.filterGeoresources()"
               />
               <select
-                [(ngModel)]="state.tmpGeoresourceReference_selectedGeoresourceMetadata"
+                [formControl]="state.georesourceReferenceDraft.controls.selected"
                 name="tmpGeoresourceReference_selectedGeoresourceMetadata"
                 class="form-control"
                 size="8"
@@ -180,7 +180,7 @@
               <textarea
                 rows="3"
                 class="form-control"
-                [(ngModel)]="state.tmpGeoresourceReference_referenceDescription"
+                [formControl]="state.georesourceReferenceDraft.controls.referenceDescription"
                 name="tmpGeoresourceReference_referenceDescription"
                 [placeholder]="
                   'ADMIN_INDICATORS.STEP_REFERENCES.GEORESOURCE_REF_DESC_PLACEHOLDER' | translate

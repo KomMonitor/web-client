@@ -1,4 +1,4 @@
-<div>
+<div [formGroup]="state.addForm.controls.security">
   <h2 class="fs-title">{{ 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE' | translate }}</h2>
   <h3 class="fs-subtitle">{{ 'ADMIN_INDICATORS.STEP_ACCESS.SUBTITLE' | translate }}</h3>
   <p>
@@ -26,10 +26,8 @@
           <input
             type="text"
             class="form-control"
-            [(ngModel)]="state.ownerOrgFilter"
-            name="ownerOrgFilter"
+            formControlName="ownerOrgFilter"
             [placeholder]="'ADMIN_INDICATORS.STEP_ACCESS.FILTER_ORG_PLACEHOLDER' | translate"
-            (ngModelChange)="state.filterOrganizations()"
           />
           <span class="input-group-btn">
             <button class="btn btn-default" type="button" (click)="state.clearOwnerFilter()">
@@ -37,13 +35,7 @@
             </button>
           </span>
         </div>
-        <select
-          [(ngModel)]="state.ownerOrganization"
-          name="ownerOrganization"
-          (ngModelChange)="state.onChangeOwner($event)"
-          class="form-control"
-          required
-        >
+        <select formControlName="ownerOrganization" class="form-control" required>
           <option [ngValue]="null" disabled selected>
             {{ 'ADMIN_INDICATORS.STEP_ACCESS.SELECT_OWNER_ORG_OPTION' | translate }}
           </option>
@@ -67,12 +59,7 @@
             'ADMIN_INDICATORS.STEP_ACCESS.PUBLICLY_AVAILABLE' | translate
           }}</label>
           <label class="switch">
-            <input
-              type="checkbox"
-              [(ngModel)]="state.isPublic"
-              name="isPublic"
-              (ngModelChange)="state.onChangeIsPublic($event)"
-            />
+            <input type="checkbox" formControlName="isPublic" />
             <span class="switchslider round"></span>
           </label>
         </div>
@@ -135,11 +122,7 @@
             'ADMIN_INDICATORS.STEP_ACCESS.TIME_LIMITED' | translate
           }}</label>
           <label class="switch">
-            <input
-              type="checkbox"
-              [(ngModel)]="state.enableTimeRestrictedAccess"
-              name="enableTimeRestrictedAccess"
-            />
+            <input type="checkbox" formControlName="enableTimeRestrictedAccess" />
             <span class="switchslider round"></span>
           </label>
         </div>
@@ -156,11 +139,7 @@
             'ADMIN_INDICATORS.STEP_ACCESS.SPATIALLY_LIMITED' | translate
           }}</label>
           <label class="switch">
-            <input
-              type="checkbox"
-              [(ngModel)]="state.enableGeographicRestriction"
-              name="enableGeographicRestriction"
-            />
+            <input type="checkbox" formControlName="enableGeographicRestriction" />
             <span class="switchslider round"></span>
           </label>
         </div>
@@ -181,8 +160,7 @@
             </div>
             <input
               type="text"
-              [(ngModel)]="state.accessStartDate"
-              name="accessStartDate"
+              formControlName="accessStartDate"
               class="form-control pull-right"
               placeholder="YYYY-MM-DD"
             />
@@ -201,8 +179,7 @@
             </div>
             <input
               type="text"
-              [(ngModel)]="state.accessEndDate"
-              name="accessEndDate"
+              formControlName="accessEndDate"
               class="form-control pull-right"
               placeholder="YYYY-MM-DD"
             />
@@ -219,12 +196,7 @@
       <div class="col-md-12">
         <div class="form-group">
           <label>{{ 'ADMIN_INDICATORS.STEP_ACCESS.ALLOWED_REGIONS' | translate }}</label>
-          <select
-            [(ngModel)]="state.allowedRegions"
-            name="allowedRegions"
-            class="form-control"
-            multiple
-          >
+          <select formControlName="allowedRegions" class="form-control" multiple>
             @for (region of state.availableRegions; track region) {
               <option [ngValue]="region">
                 {{ region.regionName }}
@@ -247,11 +219,7 @@
             'ADMIN_INDICATORS.STEP_ACCESS.ENABLE_LOGGING' | translate
           }}</label>
           <label class="switch">
-            <input
-              type="checkbox"
-              [(ngModel)]="state.enableAccessLogging"
-              name="enableAccessLogging"
-            />
+            <input type="checkbox" formControlName="enableAccessLogging" />
             <span class="switchslider round"></span>
           </label>
         </div>
