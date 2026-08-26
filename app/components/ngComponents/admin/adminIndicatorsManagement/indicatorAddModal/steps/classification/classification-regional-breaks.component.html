@@ -66,9 +66,8 @@
                             <input
                               type="text"
                               class="label-input"
-                              [ngModel]="state.numLabels()[k]"
-                              (ngModelChange)="state.setNumLabel(k, $event)"
-                              [name]="'regionalLabel' + k"
+                              [value]="state.numLabels()[k]"
+                              (input)="state.setNumLabel(k, $any($event.target).value)"
                               [placeholder]="'Klasse ' + (k + 1)"
                             />
                             <span
@@ -97,9 +96,16 @@
                                   type="number"
                                   class="break-input"
                                   step="0.01"
-                                  [ngModel]="state.spatialUnitClassification()[i].breaks[k]"
-                                  [name]="'break' + i + '_' + k"
-                                  (ngModelChange)="state.setBreak(i, k, $event)"
+                                  [value]="state.spatialUnitClassification()[i].breaks[k]"
+                                  (input)="
+                                    state.setBreak(
+                                      i,
+                                      k,
+                                      $any($event.target).value === ''
+                                        ? null
+                                        : +$any($event.target).value
+                                    )
+                                  "
                                   [placeholder]="
                                     'ADMIN_INDICATORS.STEP_CLASSIFICATION.BREAK_PLACEHOLDER'
                                       | translate

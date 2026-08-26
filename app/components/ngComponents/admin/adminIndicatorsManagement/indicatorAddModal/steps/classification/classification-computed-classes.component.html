@@ -35,9 +35,8 @@
             <input
               type="text"
               class="label-input"
-              [ngModel]="state.numLabels()[i]"
-              (ngModelChange)="state.setNumLabel(i, $event)"
-              [name]="'computedLabel' + i"
+              [value]="state.numLabels()[i]"
+              (input)="state.setNumLabel(i, $any($event.target).value)"
               [placeholder]="'Klasse ' + (i + 1)"
             />
           </div>

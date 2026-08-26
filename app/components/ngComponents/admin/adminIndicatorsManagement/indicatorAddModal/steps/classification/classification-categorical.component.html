@@ -12,9 +12,8 @@
       step="1"
       list="catClassOptions"
       class="form-control"
-      name="catNumClasses"
-      [ngModel]="state.categoryCount"
-      (ngModelChange)="state.onCatNumClassesChanged($event)"
+      [value]="state.categoryCount"
+      (change)="state.onCatNumClassesChanged(+$any($event.target).value)"
     />
     <datalist id="catClassOptions">
       @for (option of [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; track option) {
@@ -69,9 +68,8 @@
           <input
             type="text"
             class="value-input"
-            [ngModel]="category.value"
-            (ngModelChange)="state.setCategoryValue(i, $event)"
-            [name]="'catValue' + i"
+            [value]="category.value"
+            (input)="state.setCategoryValue(i, $any($event.target).value)"
             [placeholder]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.VALUE_PLACEHOLDER' | translate"
           />
         </div>
@@ -80,9 +78,8 @@
             <input
               type="text"
               class="label-input"
-              [ngModel]="category.label"
-              (ngModelChange)="state.setCategoryLabel(i, $event)"
-              [name]="'catLabel' + i"
+              [value]="category.label"
+              (input)="state.setCategoryLabel(i, $any($event.target).value)"
               [placeholder]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.LABEL_PLACEHOLDER' | translate"
             />
             <span

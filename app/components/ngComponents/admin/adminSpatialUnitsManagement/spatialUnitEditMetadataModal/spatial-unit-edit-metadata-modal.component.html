@@ -40,7 +40,7 @@
         <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
 
         @if (stepper.isActive('metadata')) {
-          <fieldset>
+          <fieldset [formGroup]="editForm">
             <h2 class="fs-title">{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.TITLE' | translate }}</h2>
             <h3 class="fs-subtitle">
               {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SUBTITLE_EDIT' | translate }}
@@ -57,22 +57,22 @@
                   <input
                     type="text"
                     class="form-control"
-                    [(ngModel)]="spatialUnitLevel"
-                    name="spatialUnitLevel"
-                    (ngModelChange)="checkSpatialUnitName()"
+                    formControlName="spatialUnitLevel"
+                    appAria="sum-name"
                     [placeholder]="
                       'ADMIN_SPATIAL_UNITS.METADATA_STEP.UNIQUE_NAME_PLACEHOLDER' | translate
                     "
                     required
                   />
-                  <div class="help-block with-errors"></div>
-                  @if (spatialUnitLevelInvalid) {
-                    <div style="color: red">
-                      <p>
-                        {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NAME_INVALID' | translate }}
-                      </p>
-                    </div>
-                  }
+                  <app-form-error
+                    [control]="editForm.controls.spatialUnitLevel"
+                    for="sum-name"
+                    [keyOverride]="
+                      editForm.controls.spatialUnitLevel.hasError('uniqueName')
+                        ? 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NAME_INVALID'
+                        : ''
+                    "
+                  />
                 </div>
               </div>
               <div class="col-md-4 col-sm-6 col-12">
@@ -80,12 +80,7 @@
                   <label>{{
                     'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_LOWER' | translate
                   }}</label>
-                  <select
-                    [(ngModel)]="nextLowerHierarchySpatialUnit"
-                    name="nextLowerHierarchy"
-                    (ngModelChange)="checkSpatialUnitHierarchy()"
-                    class="form-control"
-                  >
+                  <select formControlName="nextLowerHierarchySpatialUnit" class="form-control">
                     <option [ngValue]="null" disabled [selected]="!nextLowerHierarchySpatialUnit">
                       {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_SPATIAL_UNIT' | translate }}
                     </option>
@@ -104,11 +99,11 @@
                     </p>
                   </div>
                   <div class="help-block with-errors"></div>
-                  @if (hierarchyInvalid) {
-                    <div style="color: red">
-                      <p>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_INVALID' | translate }}</p>
-                    </div>
-                  }
+                  <app-form-error
+                    [control]="editForm"
+                    keyOverride="ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_INVALID"
+                    showWhen="always"
+                  />
                 </div>
               </div>
               <div class="col-md-4 col-sm-6 col-12">
@@ -116,12 +111,7 @@
                   <label>{{
                     'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_UPPER' | translate
                   }}</label>
-                  <select
-                    [(ngModel)]="nextUpperHierarchySpatialUnit"
-                    name="nextUpperHierarchy"
-                    (ngModelChange)="checkSpatialUnitHierarchy()"
-                    class="form-control"
-                  >
+                  <select formControlName="nextUpperHierarchySpatialUnit" class="form-control">
                     <option [ngValue]="null" disabled [selected]="!nextUpperHierarchySpatialUnit">
                       {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_SPATIAL_UNIT' | translate }}
                     </option>
@@ -140,11 +130,11 @@
                     </p>
                   </div>
                   <div class="help-block with-errors"></div>
-                  @if (hierarchyInvalid) {
-                    <div style="color: red">
-                      <p>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_INVALID' | translate }}</p>
-                    </div>
-                  }
+                  <app-form-error
+                    [control]="editForm"
+                    keyOverride="ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_INVALID"
+                    showWhen="always"
+                  />
                 </div>
               </div>
             </div>
@@ -156,7 +146,7 @@
                   }}</label>
                   <br />
                   <label class="switch">
-                    <input type="checkbox" [(ngModel)]="isOutlineLayer" name="isOutlineLayer" />
+                    <input type="checkbox" formControlName="isOutlineLayer" />
                     <span class="switchslider round"></span>
                   </label>
                   <div class="help-block">
@@ -174,7 +164,7 @@
                     }}</label>
                     <br />
                     <km-color-picker
-                      [(color)]="outlineColor"
+                      formControlName="outlineColor"
                       [label]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_OUTLINE_COLOR' | translate"
                     ></km-color-picker>
                     <div class="help-block with-errors"></div>
@@ -191,8 +181,7 @@
                     <input
                       style="width: auto"
                       type="number"
-                      [(ngModel)]="outlineWidth"
-                      name="outlineWidth"
+                      formControlName="outlineWidth"
                       min="1"
                       max="5"
                       step="1"
@@ -205,14 +194,13 @@
                 @if (isOutlineLayer) {
                   <div class="form-group" align="center">
                     <km-line-pattern-picker
-                      [selectedPattern]="selectedOutlineDashArrayObject"
+                      formControlName="outlineDashArray"
                       [options]="availableLinePatternOptions"
                       [label]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_PATTERN' | translate"
                       [placeholder]="
                         'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_OUTLINE_PATTERN' | translate
                       "
                       [width]="'200px'"
-                      (patternChange)="onChangeOutlineDashArray($event)"
                     >
                     </km-line-pattern-picker>
                   </div>
@@ -307,7 +295,7 @@
       !spatialUnitLevel ||
       spatialUnitLevelInvalid ||
       metadataForm.invalid ||
-      hierarchyInvalid ||
+      editForm.hasError('spatialUnitHierarchy') ||
       loadingData()
     "
     (click)="onSubmit()"

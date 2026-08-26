@@ -8,8 +8,8 @@ Basis: Codebestand verifiziert gegen alle Dokumente in `documentation/` und `PRO
 
 | Gate                   | Ergebnis                                            |
 | ---------------------- | --------------------------------------------------- |
-| `npm test`             | 133 Suites / **700 Tests**, 0 failed, **0 skipped** |
-| `npm run lint`         | **0 Errors**, 1283 Warnings                         |
+| `npm test`             | 137 Suites / **752 Tests**, 0 failed, **0 skipped** |
+| `npm run lint`         | **0 Errors**, 1280 Warnings                         |
 | `npm run build`        | EXIT 0                                              |
 | `npm run format:check` | **grün** (alle Dateien Prettier-konform)            |
 
@@ -36,17 +36,55 @@ Beide referenzieren Services, die es nicht mehr gibt (`kommonitorDataExchangeSer
 nicht 1:1 portierbar. **Entscheidung nötig:** migrieren oder löschen. Erst danach ist Prio 2 aus
 `PROPOSED_CHANGES.md` wirklich abgeschlossen.
 
+### A2. Zeitreihen-Mapping des Indikator-Imports — ✅ behoben (2026-08-26)
+
+Der Migrationsbranch hatte den Zeitreihen-Editor des Indikator-Imports verloren: die AngularJS-Komponente
+`indicatorEditTimeseriesMapping` wurde am 2026-06-15 (`39862b75`) gelöscht, ohne portiert zu werden. Im
+Angular-Modal war sie nur noch als `<!-- todo -->` auskommentiert, `timeseriesMappingReference` wurde
+allein von einem Broadcast **ohne Sender** gefüllt, und das Submit-Gate hatte die entsprechende Klausel
+verloren. Folge: **der Einzel-Indikator-Import schickte immer `timeseriesMappings: []`** — der Importer
+akzeptierte den Request und importierte keine Werte. Auf `master` ist ein nicht-leeres Mapping Pflicht
+(`indicator-edit-features-modal.template.html:431`).
+
+Behoben durch den geteilten Baustein `adminShared/timeseriesMappingForm/` (`ControlValueAccessor` über
+`TimeseriesMapping[]`, `km-date-picker` statt jQuery-Datepicker, Draft-Zeile als typisierte
+`FormGroup`). Das Edit-Features-Modal bindet ihn per `formControlName`; `timeseriesMappingsRequiredValidator`
+stellt die historische Gate-Klausel wieder her. Die vier Broadcast-Kanäle der Vorlage entfallen — inklusive
+Enum-Member `ResetTimeseriesMapping` und des untypisierten `'timeseriesMappingChanged'`.
+
+**Browser-Prüfung nötig** (siehe [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md),
+Punkt 8): ein echter Einzel-Import mit gefülltem Mapping ist automatisiert nicht erreichbar.
+
+### A3. Divergenz `master` ↔ `feature/migration-bootstrap`
+
+Fork-Punkt ist `0ca8f810` (2025-01-10); seither sind **560 Commits** auf `master` gelandet, darunter
+fachliche Arbeit bis 2026-08-10 (Reporting-Zeitreihen-Fixes, Choropleth-Legende, konfigurierbares
+Geocoding, Filter-Config für Resource-Creator, Indikator-Range-Filter-Präzision). A2 und B1/Batch-Update
+sind aus diesem Spalt entstanden — vermutlich nicht als einzige.
+
+Zwei bereits belegte Fälle:
+
+- **Aggregations-Mapping des Indikator-Imports fehlt vollständig.** `master` schickt im Importer-Body ein
+  Feld `aggregations` und hat dafür UI im Edit-Features-Modal (13 Template-Stellen); in Angular existiert
+  davon nichts, `updateIndicator()` hat den Parameter nicht. Anders als A2 keine Port-Regression, sondern
+  nie erhaltene Weiterentwicklung: die Aggregationen kamen am 2025-09-09 (`b9cd8b5c`, `c3cff91a`), der
+  Port des Modals war am 2025-07-18 (`772e1c89`).
+- **Batch-Update** — siehe B1.
+
+Ein systematischer Abgleich ist vor einem Merge nach `develop` ohnehin unumgänglich.
+
 ---
 
 ## B. Laufende / begonnene Refactorings
 
 ### B1. Reactive Forms im Admin-Bereich (aktuelle Baustelle)
 
-**Fundament steht, 11 von ~14 Admin-Formularen sind umgestellt.** Aktueller Stand:
+**Alle Admin-Formulare sind umgestellt; offen sind nur noch bewusste Ausnahmen.** Stand:
 
-- **299 `ngModel`-Bindings in 59 Templates** unter `ngComponents/` (davon **141 in 31 Templates**
-  im Admin-Bereich; rund die Hälfte davon ist Grid-/Filter-Zustand, kein Formular)
-- **20 Templates** nutzen `formGroup`/`formControlName`/`[formControl]`
+- **255 `ngModel`-Bindings in 51 Templates** unter `ngComponents/` (davon **97 in 25 Templates**
+  im Admin-Bereich — durchweg Grid-Zustand, Filterfelder und kontrollierte Kind-Inputs, kein
+  template-getriebenes Formular mehr)
+- **23 Templates** nutzen `formGroup`/`formControlName`/`[formControl]`
 
 #### Erledigt
 
@@ -93,6 +131,13 @@ der tote `checkDatasetName`-Hook entfernt), `add-topic`, `roleEditMetadataModal`
 jetzt eine (4 / 8 / 12 Tests), die Namens-Eindeutigkeit, Submit-Gate und das Zurückschreiben auf
 das übergebene Dataset-Objekt festhalten.
 
+Zum Abschluss die beiden **`editMetadata`-Modals** (Geo 12→0, Raumebene 8→0) und die
+**Parameter-Entwurfszeile des Skript-Wizards** (12→0). Der Name-/Typ-/Stil-Block der Georessourcen
+ist jetzt als `buildGeoresourceMetadataStep()` mit dem Add-Wizard geteilt; beide `editMetadata`-Modals
+nutzen die geteilte Topic-Komponente und die geteilten Validatoren. Dabei ist eine Divergenz
+zwischen den Raumebenen-Zwillingen verschwunden: das Edit-Modal wertete zwei dem Store unbekannte
+Hierarchie-Ebenen als **ungültig** (`-1 <= -1`), das Add-Modal als gültig (`undefined <= undefined`)
+— beide folgen jetzt der Add-Modal-Semantik.
 Die **Verhaltensänderungen** dabei, jeweils durch einen umbenannten oder neu benannten Test
 dokumentiert: gleiches Start-/Enddatum wird bei Georessourcen jetzt abgelehnt (`===` verglich zwei frische
 `Date`-Objekte); die Themen-Kaskade leert tiefere Ebenen, statt eine veraltete Referenz aus einem
@@ -113,17 +158,22 @@ automatisiert nicht erreichbar.
 
 #### Offen
 
-| Block                                                            | `ngModel` | Anmerkung                                                                                                 |
-| ---------------------------------------------------------------- | --------: | --------------------------------------------------------------------------------------------------------- |
-| `scriptAddModal` (4 Dateien)                                     |        24 | eigener `@Input`/`@Output`-Schrittvertrag, kein Netz                                                      |
-| `indicatorBatchUpdateModal`                                      |        21 | echter `FormArray`-Fall, eigenes Projekt, kein Netz                                                       |
-| 2 × `editMetadata`-Modal (Geo 12, SU 8)                          |        20 | Allgemein-Block schon reaktiv; dort steht auch die Entscheidung zu `buildSpatialUnitMetadataPatchBody` an |
-| Klassifikation im Indikator-Wizard (3 Dateien)                   |        12 | `FormArray`-Fall, aber mit vorhandenem Netz (194 Zeilen)                                                  |
-| `indicatorDeleteModal`, `adminFilterEditModal`                   |       ~13 | überwiegend Filterfelder und Zeilen-Checkboxen                                                            |
-| _Nicht-Formular_ (Grid-Toggles, Filterfelder, Zeilen-Checkboxen) |       ~50 | bewusst außen vor                                                                                         |
+| Block                                                | `ngModel` | Warum offen                                                                                                                                                                                                                                |
+| ---------------------------------------------------- | --------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `indicatorBatchUpdateModal`                          |        21 | **Feature-Regression, wird zurückportiert** (Entscheidung 2026-08-26, siehe unten) — 12 `TODO(batch-update)`, `startBatchUpdate` ist ein No-op. Der Reactive-Forms-Umbau ist Teil des Ports, nicht davor.                                  |
+| Skript-Wizard: kontrollierte Kind-Inputs (4 Dateien) |        14 | `[ngModel]` + `@Output`-Emit bzw. Filterfelder — der bewusste `@Input`/`@Output`-Schrittvertrag, kein template-getriebenes Formular. Die Selects binden Objekte über `[ngValue]`; ein Umbau auf `[value]` würde die Objektbindung brechen. |
+| Grid-Toggles, Filterfelder, Zeilen-Checkboxen        |       ~62 | bewusst außen vor                                                                                                                                                                                                                          |
 
-Drei Punkte aus dem bereits umgebauten Teil:
+Vier Punkte aus dem bereits umgebauten Teil:
 
+- **Die Klassifikation (Schritt 5)** ist bewusst **nicht** auf `FormArray` umgebaut. Ihre sechs
+  Bindings waren `[ngModel]` + `(ngModelChange)` auf einen signal-basierten Store mit expliziten,
+  immutablen Settern — kein `*Invalid`-Flag, kein handgerolltes `[disabled]`, kein untypisierter
+  State. Ein `FormArray` hätte drei Signal-Arrays, alle daraus abgeleiteten Berechnungen und die
+  194-Zeilen-Spec betroffen; der Gewinn wäre nur die Stepper-Markierung gewesen, weil der Wizard
+  ohnehin per Dialog gatet. Die irreführenden `ngModel`-Marker sind durch `[value]`/`(input)`
+  ersetzt, der Store ist unverändert. Wenn die Regeln („mindestens 2 Kategorien", „Wert und Label
+  je Kategorie") echte Validatoren werden sollen, ist das ein eigenes Vorhaben.
 - **`stateRevision` + die sieben `effect(…markForCheck())`** im Indikator-Wizard sind geblieben.
   Die Form-Direktiven aktualisieren gebundene Inputs von selbst, aber die Step-Templates lesen
   Felder auch in `@if`-Bedingungen und Interpolationen — die sind weiterhin nicht reaktiv. Ihr
@@ -132,6 +182,19 @@ Drei Punkte aus dem bereits umgebauten Teil:
   stehen geblieben — sie sind der Grund, warum die Sicherheitsnetz-Specs über jeden
   Zwischenschritt unverändert grün blieben. Ihr Abbau (plus Umschreiben der Spec-Setups auf
   `patchValue`) ist ein eigener Folgeschritt.
+- **Batch-Update: zurückportieren, nicht entfernen** (Entscheidung 2026-08-26). Die Annahme
+  „nicht funktionsfähiges Gerüst" war falsch: `origin/master` (`e1a0af90`, 2026-08-10, **nicht**
+  Vorfahr dieses Branches) liefert das Feature funktionsfähig aus — `kommonitorBatchUpdateHelperService`
+  (1282 Z.) ruft pro Zeile den Importer auf, Dry-Run vor Commit, für Indikatoren **und**
+  Georessourcen. Das CHANGELOG-Zitat „only the UI exists (mostly)" (v1.2.0) beschreibt nur den
+  ersten Stand von 2021-04-16; `5932a712` (2021-05-04) hat es fertiggestellt. Der Angular-Port
+  `540d1acb` (2025-07-19) hat nur das Template übernommen und einen `setTimeout(2000)`-Fake-Erfolg
+  erfunden (entfernt in `c4fdf7b6`); die Logik lag im geteilten Helper, gelöscht am 2026-06-15
+  (`39862b75`) samt Ergebnis-Modal und Zeitreihen-Editor. Vorlage liegt verbatim in git.
+  Reihenfolge: Zeitreihen-Mapping (A2, ✅) → `BatchUpdateService` → Zeilenmodell/Reactive Forms →
+  Run → Ergebnis-Modal; Georessourcen optional danach. Der Georessourcen-Zwilling wurde in
+  `d9875a2a` gelöscht, mit der ausdrücklichen Empfehlung, ein künftiges Batch-Update als
+  **ressourcen-agnostischen** Baustein neu zu bauen — genau so ist der Port angelegt.
 - **`allowedRoles` vs. `permissions`:** `buildPostBody_georesources` sendet `allowedRoles`,
   während `GeoresourcePOSTInputType` das Feld `permissions` nennt (der Raumebenen-Zwilling
   schreibt bereits `permissions`). Georessourcen-Berechtigungen werden vermutlich still
@@ -224,7 +287,7 @@ _Kein Problem:_ `de-at/de-ch/de-li/de-lu.json` sind absichtlich leere `{}` und f
 
 ### C5. Lint-Warnungs-Backlog
 
-1283 Warnings bei 0 Errors. Der in `PROPOSED_CHANGES.md` genannte Ratchet-Ansatz gilt
+1280 Warnings bei 0 Errors. Der in `PROPOSED_CHANGES.md` genannte Ratchet-Ansatz gilt
 weiter: erst die echten Funde (`no-debugger`, `no-dupe-else-if`, `no-self-assign`,
 `no-constant-binary-expression`) auf `error` ziehen, dann `no-console` (nach C2).
 
@@ -287,11 +350,13 @@ Verifiziert gegen den Code am 2026-08-26.
 
 1. **Manuelle Tests** — [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md)
    abarbeiten. Elf umgestellte Formulare hängen daran, keines war bisher im Browser.
-2. **B1** — Rest zu Ende führen: die beiden `editMetadata`-Modals, dann die Klassifikation
-   (`FormArray`, Netz vorhanden), zuletzt `indicatorBatchUpdateModal` und `scriptAddModal` als
-   jeweils eigenes Vorhaben.
-3. **A1** — Entscheidung zu `feedbackModal` / `individualIndicatorComputation`; damit fällt auch
+2. **Batch-Update zurückportieren** — B1/Batch, Schritte 2 ff.: `BatchUpdateService`,
+   Zeilenmodell + Reactive Forms, Run, Ergebnis-Modal. Schritt 1 (Zeitreihen-Mapping, A2) ist
+   erledigt.
+3. **B1-Restposten** — die Übergangs-Accessoren abbauen, `stateRevision` auflösen und die
+   `allowedRoles`/`permissions`-Frage klären.
+4. **A1** — Entscheidung zu `feedbackModal` / `individualIndicatorComputation`; damit fällt auch
    ein Teil von C3 weg.
-4. **C2 + C3** — Logger-Service, danach `no-console` auf `error`; Rest der `__env`-Zugriffe.
-5. **B3 + D** — Kommentar- und Doku-Bereinigung (billig, hoher Orientierungswert).
-6. **Laufend:** B2 (große Services) und C4 (i18n UserInterface) im Zuge regulärer Feature-Arbeit.
+5. **C2 + C3** — Logger-Service, danach `no-console` auf `error`; Rest der `__env`-Zugriffe.
+6. **B3 + D** — Kommentar- und Doku-Bereinigung (billig, hoher Orientierungswert).
+7. **Laufend:** B2 (große Services) und C4 (i18n UserInterface) im Zuge regulärer Feature-Arbeit.

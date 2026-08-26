@@ -92,9 +92,15 @@ export interface GeoresourceAddFormOptions {
   existingDatasetNames: () => readonly string[];
 }
 
-export function buildGeoresourceAddForm(
-  options: GeoresourceAddFormOptions
-): GeoresourceAddFormGroup {
+/**
+ * The name + type + style block, shared with the georesource edit-metadata
+ * modal. `currentDatasetName` lets the edit modal exclude its own record from
+ * the uniqueness rule.
+ */
+export function buildGeoresourceMetadataStep(options: {
+  existingDatasetNames: () => readonly string[];
+  currentDatasetName?: () => string | null;
+}): GeoresourceMetadataStepGroup {
   const style: GeoresourceStyleGroup = new FormGroup({
     poiIconName: new FormControl(DEFAULT_POI_ICON_NAME, { nonNullable: true }),
     poiMarkerStyle: new FormControl(DEFAULT_POI_MARKER_STYLE, { nonNullable: true }),
@@ -110,13 +116,24 @@ export function buildGeoresourceAddForm(
     aoiColor: new FormControl(DEFAULT_AOI_COLOR, { nonNullable: true }),
   });
 
-  const metadata: GeoresourceMetadataStepGroup = new FormGroup({
+  return new FormGroup({
     datasetName: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, uniqueNameValidator(options.existingDatasetNames)],
+      validators: [
+        Validators.required,
+        uniqueNameValidator(options.existingDatasetNames, { ignore: options.currentDatasetName }),
+      ],
     }),
     georesourceType: new FormControl<GeoresourceType>('poi', { nonNullable: true }),
     style,
+  });
+}
+
+export function buildGeoresourceAddForm(
+  options: GeoresourceAddFormOptions
+): GeoresourceAddFormGroup {
+  const metadata = buildGeoresourceMetadataStep({
+    existingDatasetNames: options.existingDatasetNames,
   });
 
   const data: GeoresourceDataStepGroup = new FormGroup({
