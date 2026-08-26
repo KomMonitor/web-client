@@ -2,9 +2,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  EventEmitter,
   Input,
   OnDestroy,
   OnInit,
+  Output,
   ViewChild,
   computed,
   inject,
@@ -13,8 +15,14 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
+import { BatchUpdateService } from 'services/batch-update-service/batch-update.service';
+import {
+  BatchUpdateRowResult,
+  summariseBatchResults,
+} from 'services/batch-update-service/batch-update.model';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import type {
@@ -37,6 +45,8 @@ import {
   visibleConverterParameterNames,
   visibleDatasourceParameterNames,
 } from './indicator-batch-update-form.model';
+import { prepareBatchRows } from './indicator-batch-update-run.model';
+import type { IndicatorRefreshRequest } from '../indicator-refresh.model';
 import {
   BatchListFileRow,
   batchListFileRowToRow,
@@ -48,11 +58,12 @@ import {
  * Batch update for indicator time series: one table row per indicator, each with
  * its own converter, data source and time-series mapping.
  *
- * WORK IN PROGRESS — the form is complete, the run is not: `startBatchUpdate()`
- * is still a no-op (`TODO(batch-update)`). The orchestration it will call already
- * exists as `BatchUpdateService`; wiring it up, the result surface and the
- * default-value function are the remaining steps. Do not treat a click on
- * "Update ausführen" as a completed update yet.
+ * The run is wired to `BatchUpdateService`: every row is dry-run first and only
+ * committed when the importer reports no errors, and a failing row does not stop
+ * the others — so a batch can end partially applied, which the summary reports.
+ *
+ * Still missing (`TODO(batch-update)`): the per-row result table and the
+ * default-value function that fills a column across all rows at once.
  */
 @Component({
   selector: 'app-indicator-batch-update-modal',
@@ -71,9 +82,13 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   protected indicatorStore = inject(IndicatorMetadataStoreService);
   protected spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private importerHelper = inject(KommonitorImporterHelperService);
+  private batchUpdateService = inject(BatchUpdateService);
+  private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   @ViewChild('batchListFileInput') batchListFileInput!: ElementRef<HTMLInputElement>;
   @Input() modalRef?: NgbModalRef;
+  @Output() refreshRequested = new EventEmitter<IndicatorRefreshRequest>();
 
   readonly form: BatchUpdateFormGroup = buildBatchUpdateForm();
 
@@ -82,6 +97,12 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
 
   /** Row index whose time-series mapping panel is expanded, or null. */
   readonly expandedMappingRow = signal<number | null>(null);
+
+  /** Results of the last run, kept for the result surface. */
+  readonly lastResults = signal<BatchUpdateRowResult[] | null>(null);
+
+  /** Rows already processed during a run, for the progress label. */
+  readonly runProgress = signal<{ done: number; total: number } | null>(null);
 
   /** Emits on every value/status event of the form, driving the computeds below. */
   private readonly formEvent = toSignal(this.form.events, { initialValue: null });
@@ -317,11 +338,68 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
 
   // ------------------------------------------------------------------ the run
 
-  startBatchUpdate(): void {
-    // TODO(batch-update): map the rows onto BatchUpdateRow (indicator metadata,
-    // property mapping, PUT body) and hand them to
-    // BatchUpdateService.runBatchUpdate, then show the result surface.
-    // Still a no-op — nothing is persisted.
+  /**
+   * Runs the whole list. As in the released client **every** row runs — the row
+   * checkbox drives deletion only, not selection for the run.
+   */
+  async startBatchUpdate(): Promise<void> {
+    if (this.runBlockers().length > 0) {
+      return;
+    }
+
+    const prepared = prepareBatchRows(this.form, {
+      // Looked up per run, not captured in the row: an earlier row of the same
+      // run may already have changed the indicator's metadata.
+      findIndicator: (indicatorId) => this.indicatorStore.getIndicatorMetadataById(indicatorId),
+      findSpatialUnitLevel: (spatialUnitId) =>
+        (this.spatialUnitStore.availableSpatialUnits ?? []).find(
+          (unit: any) => unit.spatialUnitId === spatialUnitId
+        )?.spatialUnitLevel,
+      builders: {
+        buildPropertyMapping: (spatialReferenceKeyProperty, timeseriesMappings, keepMissing) =>
+          this.importerHelper.buildPropertyMapping_indicatorResource(
+            spatialReferenceKeyProperty,
+            timeseriesMappings,
+            keepMissing
+          ),
+        buildPutBody: (scopeProperties) =>
+          this.importerHelper.buildPutBody_indicators(scopeProperties),
+      },
+    });
+
+    this.loadingData.set(true);
+    this.runProgress.set({ done: 0, total: prepared.rows.length });
+
+    try {
+      const results = await this.batchUpdateService.runBatchUpdate('indicator', prepared.rows, {
+        onProgress: (done, total) => this.runProgress.set({ done, total }),
+      });
+
+      this.finishRun([...prepared.failures, ...results]);
+    } finally {
+      this.loadingData.set(false);
+      this.runProgress.set(null);
+    }
+  }
+
+  private finishRun(results: BatchUpdateRowResult[]): void {
+    this.lastResults.set(results);
+
+    const summary = summariseBatchResults(results);
+    const message = this.translate.instant('ADMIN_INDICATORS.BATCH_MODAL.RUN_SUMMARY', summary);
+    if (summary.error > 0) {
+      this.notificationService.showError(message);
+    } else {
+      this.notificationService.showSuccess(message);
+    }
+
+    // A partially applied batch still changed data, so refresh either way.
+    if (summary.success > 0) {
+      this.refreshRequested.emit({ crudType: 'edit' });
+    }
+
+    // TODO(batch-update): show the per-row result table (shared result modal)
+    // instead of only the summary toast.
   }
 
   resetBatchUpdateForm(): void {
@@ -330,6 +408,7 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
     }
     this.form.controls.keepMissingValues.setValue(true);
     this.expandedMappingRow.set(null);
+    this.lastResults.set(null);
     this.addNewRowToBatchList();
   }
 

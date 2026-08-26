@@ -637,7 +637,10 @@
       "BLOCKER_SPATIAL_REF_KEY": "The ID attribute name of the spatial unit features* is missing in at least one row.",
       "BLOCKER_TARGET_SPATIAL_UNIT": "The Target spatial unit* column is not set in every row.",
       "ENCODING_DEFAULT_OPTION": "-- converter default --",
-      "FILE_COLUMN": "File"
+      "FILE_COLUMN": "File",
+      "ROW_METADATA_MISSING": "Indicator or target spatial unit no longer exists; the row was skipped.",
+      "RUN_SUMMARY": "{{success}} of {{total}} datasets updated, {{error}} failed.",
+      "RUN_PROGRESS": "Row {{done}} of {{total}}"
     },
     "DELETE_MODAL": {
       "TITLE": "Delete indicators",

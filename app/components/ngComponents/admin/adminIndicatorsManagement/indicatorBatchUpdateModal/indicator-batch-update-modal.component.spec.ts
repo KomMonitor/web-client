@@ -2,6 +2,8 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
+import { BatchUpdateService } from 'services/batch-update-service/batch-update.service';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import type {
@@ -55,8 +57,43 @@ const HTTP_SOURCE: DatasourceType = {
 describe('IndicatorBatchUpdateModalComponent', () => {
   let fixture: ComponentFixture<IndicatorBatchUpdateModalComponent>;
   let component: IndicatorBatchUpdateModalComponent;
+  let batchUpdate: { runBatchUpdate: jest.Mock };
+  let notifications: { showSuccess: jest.Mock; showError: jest.Mock };
+  let importerHelper: {
+    getAvailableConverters: () => Converter[];
+    getAvailableDatasourceTypes: () => DatasourceType[];
+    filterConverters: (resourceType: string) => (converter: Converter) => boolean;
+    buildPropertyMapping_indicatorResource: jest.Mock;
+    buildPutBody_indicators: jest.Mock;
+  };
+
+  /** Fills the single starting row so the run gate opens. */
+  function completeFirstRow(): void {
+    component.rows[0].patchValue({
+      indicatorId: 'ind-1',
+      timeseriesMappings: [{ indicatorValueProperty: 'DATE_2026', timestamp: '2026-01-01' }],
+      converter: CSV,
+      mimeType: 'text/csv',
+      datasourceType: HTTP_SOURCE,
+      spatialReferenceKeyProperty: 'ags',
+      targetSpatialUnitId: 'su-1',
+    });
+    component.rows[0].controls.converterParameters.controls['Trennzeichen'].setValue(';');
+    component.rows[0].controls.datasourceTypeParameters.controls['URL'].setValue('https://x/d.csv');
+  }
 
   beforeEach(() => {
+    batchUpdate = { runBatchUpdate: jest.fn().mockResolvedValue([]) };
+    notifications = { showSuccess: jest.fn(), showError: jest.fn() };
+    importerHelper = {
+      getAvailableConverters: () => [CSV, WFS, GEOCODING],
+      getAvailableDatasourceTypes: () => [FILE_SOURCE, HTTP_SOURCE],
+      filterConverters: (resourceType: string) => (converter: Converter) =>
+        !(resourceType === 'indicator' && converter.name.includes('Geokodierung')),
+      buildPropertyMapping_indicatorResource: jest.fn().mockReturnValue({ mapping: true }),
+      buildPutBody_indicators: jest.fn().mockReturnValue({ putBody: true }),
+    };
+
     TestBed.configureTestingModule({
       imports: [IndicatorBatchUpdateModalComponent, TranslateModule.forRoot()],
       providers: [
@@ -64,6 +101,18 @@ describe('IndicatorBatchUpdateModalComponent', () => {
           provide: IndicatorMetadataStoreService,
           useValue: {
             availableIndicators: [{ indicatorId: 'ind-1', indicatorName: 'Bevölkerung' }],
+            getIndicatorMetadataById: (indicatorId: string) =>
+              indicatorId === 'ind-1'
+                ? {
+                    indicatorId: 'ind-1',
+                    indicatorName: 'Bevölkerung',
+                    permissions: ['viewer'],
+                    ownerId: 'org',
+                    isPublic: false,
+                    defaultClassificationMapping: { numClasses: 5 },
+                    applicableSpatialUnits: [],
+                  }
+                : undefined,
           },
         },
         {
@@ -73,15 +122,9 @@ describe('IndicatorBatchUpdateModalComponent', () => {
           },
         },
         // Must be stubbed: the real service fires GETs from its constructor.
-        {
-          provide: KommonitorImporterHelperService,
-          useValue: {
-            getAvailableConverters: () => [CSV, WFS, GEOCODING],
-            getAvailableDatasourceTypes: () => [FILE_SOURCE, HTTP_SOURCE],
-            filterConverters: (resourceType: string) => (converter: Converter) =>
-              !(resourceType === 'indicator' && converter.name.includes('Geokodierung')),
-          },
-        },
+        { provide: KommonitorImporterHelperService, useValue: importerHelper },
+        { provide: BatchUpdateService, useValue: batchUpdate },
+        { provide: NotificationService, useValue: notifications },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     });
@@ -240,7 +283,120 @@ describe('IndicatorBatchUpdateModalComponent', () => {
     expect(component.indicatorName('missing')).toBe('');
   });
 
-  it('does not persist anything yet — startBatchUpdate is still a no-op', () => {
-    expect(() => component.startBatchUpdate()).not.toThrow();
+  // ------------------------------------------------------------------- the run
+
+  it('does not run while the gate is closed', async () => {
+    await component.startBatchUpdate();
+
+    expect(batchUpdate.runBatchUpdate).not.toHaveBeenCalled();
+  });
+
+  it('hands one prepared row per list row to the batch update service', async () => {
+    completeFirstRow();
+
+    await component.startBatchUpdate();
+
+    expect(batchUpdate.runBatchUpdate).toHaveBeenCalledTimes(1);
+    const [resourceType, rows] = batchUpdate.runBatchUpdate.mock.calls[0];
+    expect(resourceType).toBe('indicator');
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      label: 'Bevölkerung',
+      resourceId: 'ind-1',
+      propertyMapping: { mapping: true },
+      putBody: { putBody: true },
+    });
+  });
+
+  it('keeps the default classification mapping in the PUT body scope', async () => {
+    completeFirstRow();
+
+    await component.startBatchUpdate();
+
+    expect(importerHelper.buildPutBody_indicators).toHaveBeenCalledWith(
+      expect.objectContaining({
+        currentIndicatorDataset: { defaultClassificationMapping: { numClasses: 5 } },
+        targetSpatialUnitMetadata: { spatialUnitLevel: 'Stadtteile' },
+      })
+    );
+  });
+
+  it('toasts a success summary and asks the parent to refresh', async () => {
+    completeFirstRow();
+    batchUpdate.runBatchUpdate.mockResolvedValue([
+      { label: 'Bevölkerung', resourceId: 'ind-1', status: 'success', message: '' },
+    ]);
+    const refresh = jest.fn();
+    component.refreshRequested.subscribe(refresh);
+
+    await component.startBatchUpdate();
+
+    expect(notifications.showSuccess).toHaveBeenCalled();
+    expect(notifications.showError).not.toHaveBeenCalled();
+    expect(refresh).toHaveBeenCalledWith({ crudType: 'edit' });
+  });
+
+  it('toasts an error summary when a row failed but still refreshes the successful ones', async () => {
+    completeFirstRow();
+    batchUpdate.runBatchUpdate.mockResolvedValue([
+      { label: 'A', resourceId: 'a', status: 'success', message: '' },
+      { label: 'B', resourceId: 'b', status: 'error', message: 'boom' },
+    ]);
+    const refresh = jest.fn();
+    component.refreshRequested.subscribe(refresh);
+
+    await component.startBatchUpdate();
+
+    expect(notifications.showError).toHaveBeenCalled();
+    expect(refresh).toHaveBeenCalledWith({ crudType: 'edit' });
+  });
+
+  it('does not ask for a refresh when every row failed', async () => {
+    completeFirstRow();
+    batchUpdate.runBatchUpdate.mockResolvedValue([
+      { label: 'B', resourceId: 'b', status: 'error', message: 'boom' },
+    ]);
+    const refresh = jest.fn();
+    component.refreshRequested.subscribe(refresh);
+
+    await component.startBatchUpdate();
+
+    expect(refresh).not.toHaveBeenCalled();
+  });
+
+  it('keeps the results of the last run and clears the loading state', async () => {
+    completeFirstRow();
+    const results = [{ label: 'A', resourceId: 'a', status: 'success' as const, message: '' }];
+    batchUpdate.runBatchUpdate.mockResolvedValue(results);
+
+    await component.startBatchUpdate();
+
+    expect(component.lastResults()).toEqual(results);
+    expect(component.loadingData()).toBe(false);
+    expect(component.runProgress()).toBeNull();
+  });
+
+  it('reports a row whose indicator vanished without sending it', async () => {
+    completeFirstRow();
+    // The row passes the gate, but the indicator is gone from the store by the
+    // time the run starts — deleted in another tab, say.
+    jest
+      .spyOn(TestBed.inject(IndicatorMetadataStoreService), 'getIndicatorMetadataById')
+      .mockReturnValue(undefined);
+
+    await component.startBatchUpdate();
+
+    expect(batchUpdate.runBatchUpdate).toHaveBeenCalledWith('indicator', [], expect.anything());
+    expect(component.lastResults()).toHaveLength(1);
+    expect(component.lastResults()![0].status).toBe('error');
+  });
+
+  it('clears the stored results on reset', async () => {
+    completeFirstRow();
+    await component.startBatchUpdate();
+
+    component.resetBatchUpdateForm();
+
+    expect(component.lastResults()).toBeNull();
   });
 });

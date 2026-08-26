@@ -399,6 +399,9 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       // Pass the modal reference to the component
       const modalComponent = modalRef.componentInstance as IndicatorBatchUpdateModalComponent;
       modalComponent.modalRef = modalRef;
+      modalComponent.refreshRequested.subscribe((request: IndicatorRefreshRequest) =>
+        this.handleRefreshRequest(request)
+      );
 
       modalRef.result
         .then((result) => {
@@ -425,8 +428,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     const roles = this.accessControlService.currentKeycloakLoginRoles;
 
     // Re-render the table and notify open modals that the refresh finished.
-    // The completed broadcast is consumed by the edit-features and batch-update
-    // modals to refresh their own view — it must fire even on error.
+    // The completed broadcast is consumed by the edit-features modal to refresh
+    // its own view — it must fire even on error.
     const complete = () => {
       this.initializeOrRefreshOverviewTable();
       this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTableCompleted);

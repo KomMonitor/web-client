@@ -8,7 +8,7 @@ Basis: Codebestand verifiziert gegen alle Dokumente in `documentation/` und `PRO
 
 | Gate                   | Ergebnis                                            |
 | ---------------------- | --------------------------------------------------- |
-| `npm test`             | 142 Suites / **828 Tests**, 0 failed, **0 skipped** |
+| `npm test`             | 143 Suites / **847 Tests**, 0 failed, **0 skipped** |
 | `npm run lint`         | **0 Errors**, 1278 Warnings                         |
 | `npm run build`        | EXIT 0                                              |
 | `npm run format:check` | **grün** (alle Dateien Prettier-konform)            |
@@ -160,7 +160,7 @@ automatisiert nicht erreichbar.
 
 | Block                                                | `ngModel` | Warum offen                                                                                                                                                                                                                                |
 | ---------------------------------------------------- | --------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `indicatorBatchUpdateModal`                          |         0 | **Port läuft.** Formular umgestellt (0 `ngModel`), `BatchUpdateService` steht; offen sind nur noch der Run selbst (2 `TODO(batch-update)`), das Ergebnis-Modal und die Standardwert-Funktion.                                              |
+| `indicatorBatchUpdateModal`                          |         0 | **Port läuft.** Formular umgestellt (0 `ngModel`), `BatchUpdateService` steht, der Run ist verdrahtet; offen sind nur noch das Ergebnis-Modal und die Standardwert-Funktion (2 `TODO(batch-update)`).                                      |
 | Skript-Wizard: kontrollierte Kind-Inputs (4 Dateien) |        14 | `[ngModel]` + `@Output`-Emit bzw. Filterfelder — der bewusste `@Input`/`@Output`-Schrittvertrag, kein template-getriebenes Formular. Die Selects binden Objekte über `[ngValue]`; ein Umbau auf `[value]` würde die Objektbindung brechen. |
 | Grid-Toggles, Filterfelder, Zeilen-Checkboxen        |       ~62 | bewusst außen vor                                                                                                                                                                                                                          |
 

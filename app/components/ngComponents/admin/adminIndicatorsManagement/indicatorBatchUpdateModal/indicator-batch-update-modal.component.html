@@ -3,6 +3,9 @@
   @if (loadingData()) {
     <div class="loading-overlay-admin-panel ng-hide">
       <i class="fas fa-spinner fa-spin fa-2x"></i>
+      @if (runProgress(); as progress) {
+        <p>{{ 'ADMIN_INDICATORS.BATCH_MODAL.RUN_PROGRESS' | translate: progress }}</p>
+      }
     </div>
   }
 </div>
