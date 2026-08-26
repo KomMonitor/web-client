@@ -433,10 +433,13 @@ export class KommonitorImporterHelperService {
     selectedConverter: Converter,
     schema: string,
     mimeType: string,
-    formValues: { [key: string]: string }
+    formValues: { [key: string]: string },
+    // Only the batch update offers a per-row encoding choice; the other modals
+    // pass nothing and keep the converter's first encoding.
+    encoding?: string
   ): ConverterDefinition | null {
     const converterDefinition: ConverterDefinition = {
-      encoding: selectedConverter.encodings[0],
+      encoding: encoding || selectedConverter.encodings[0],
       mimeType: selectedConverter.mimeTypes.filter((element) => element === mimeType)[0],
       name: selectedConverter.name,
       parameters: [],

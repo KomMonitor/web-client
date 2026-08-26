@@ -56,6 +56,12 @@ export interface ImporterObjectsConfig {
   converter: Converter | null;
   schema: string;
   mimeType: string;
+  /**
+   * Source encoding. Optional: only the batch update lets the user pick one per
+   * row; everywhere else the converter's first encoding is used, which is what
+   * the importer helper falls back to.
+   */
+  encoding?: string;
   converterParameterValues: { [key: string]: string };
   datasourceType: DatasourceType | null;
   datasourceTypeFormValues: { [key: string]: string };

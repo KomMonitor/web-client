@@ -1,0 +1,246 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslateModule } from '@ngx-translate/core';
+import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import type {
+  Converter,
+  DatasourceType,
+} from 'services/resource-import-service/resource-import.model';
+import { IndicatorBatchUpdateModalComponent } from './indicator-batch-update-modal.component';
+import { BATCH_RUN_BLOCKER_KEYS } from './indicator-batch-update-form.model';
+
+/**
+ * First spec of this modal — it had none before the reactive-forms rework.
+ *
+ * Like the other admin modal specs the fixture is not rendered; what is pinned
+ * is the row mechanics, the derived parameter columns and the run gate. The run
+ * itself is still a no-op at this point (`TODO(batch-update)`).
+ */
+
+const CSV: Converter = {
+  name: 'Tabelle_Zeitreihe_zu_Indikator',
+  type: 'indicator',
+  mimeTypes: ['text/csv'],
+  encodings: ['UTF-8', 'ISO-8859-1'],
+  parameters: [
+    { name: 'Trennzeichen', mandatory: true },
+    { name: 'CRS', mandatory: false },
+  ],
+};
+
+const WFS: Converter = {
+  name: 'WFS_v1',
+  type: 'indicator',
+  mimeTypes: ['text/xml'],
+  encodings: ['UTF-8'],
+  schemas: ['default'],
+  parameters: [{ name: 'NAMESPACE', mandatory: false }],
+};
+
+const GEOCODING: Converter = {
+  name: 'Geokodierung',
+  type: 'georesource',
+  mimeTypes: ['text/csv'],
+  encodings: ['UTF-8'],
+};
+
+const FILE_SOURCE: DatasourceType = { type: 'FILE', parameters: [] };
+const HTTP_SOURCE: DatasourceType = {
+  type: 'HTTP',
+  parameters: [{ name: 'URL', mandatory: true }],
+};
+
+describe('IndicatorBatchUpdateModalComponent', () => {
+  let fixture: ComponentFixture<IndicatorBatchUpdateModalComponent>;
+  let component: IndicatorBatchUpdateModalComponent;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [IndicatorBatchUpdateModalComponent, TranslateModule.forRoot()],
+      providers: [
+        {
+          provide: IndicatorMetadataStoreService,
+          useValue: {
+            availableIndicators: [{ indicatorId: 'ind-1', indicatorName: 'Bevölkerung' }],
+          },
+        },
+        {
+          provide: SpatialUnitMetadataStoreService,
+          useValue: {
+            availableSpatialUnits: [{ spatialUnitId: 'su-1', spatialUnitLevel: 'Stadtteile' }],
+          },
+        },
+        // Must be stubbed: the real service fires GETs from its constructor.
+        {
+          provide: KommonitorImporterHelperService,
+          useValue: {
+            getAvailableConverters: () => [CSV, WFS, GEOCODING],
+            getAvailableDatasourceTypes: () => [FILE_SOURCE, HTTP_SOURCE],
+            filterConverters: (resourceType: string) => (converter: Converter) =>
+              !(resourceType === 'indicator' && converter.name.includes('Geokodierung')),
+          },
+        },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    });
+
+    fixture = TestBed.createComponent(IndicatorBatchUpdateModalComponent);
+    component = fixture.componentInstance;
+    component.ngOnInit();
+  });
+
+  it('starts with exactly one empty row', () => {
+    expect(component.rows).toHaveLength(1);
+    expect(component.rows[0].controls.indicatorId.value).toBe('');
+  });
+
+  it('adds and deletes rows through the form array', () => {
+    component.addNewRowToBatchList();
+    expect(component.rows).toHaveLength(2);
+
+    component.rows[0].controls.selected.setValue(false);
+    component.deleteSelectedRowsFromBatchList();
+
+    expect(component.rows).toHaveLength(1);
+    expect(component.rows[0].controls.selected.value).toBe(false);
+  });
+
+  it('reflects and toggles the select-all state', () => {
+    component.addNewRowToBatchList();
+    expect(component.allRowsSelected).toBe(true);
+
+    component.onChangeSelectAllRows({ target: { checked: false } } as unknown as Event);
+    expect(component.rows.every((row) => !row.controls.selected.value)).toBe(true);
+    expect(component.allRowsSelected).toBe(false);
+
+    component.onChangeSelectAllRows({ target: { checked: true } } as unknown as Event);
+    expect(component.allRowsSelected).toBe(true);
+  });
+
+  it('offers only the converters the importer allows for indicators', () => {
+    expect(component.availableConverters().map((converter) => converter.name)).toEqual([
+      'Tabelle_Zeitreihe_zu_Indikator',
+      'WFS_v1',
+    ]);
+  });
+
+  it('rebuilds the parameter controls when a row changes converter', () => {
+    const row = component.rows[0];
+
+    row.controls.converter.setValue(CSV);
+    expect(Object.keys(row.controls.converterParameters.controls)).toEqual(['Trennzeichen', 'CRS']);
+
+    row.controls.converter.setValue(WFS);
+    expect(Object.keys(row.controls.converterParameters.controls)).toEqual(['NAMESPACE']);
+  });
+
+  it('keeps a same-named parameter value across a converter change', () => {
+    const row = component.rows[0];
+    row.controls.converter.setValue(CSV);
+    row.controls.converterParameters.controls['CRS'].setValue('EPSG:25832');
+
+    row.controls.converter.setValue({ ...WFS, parameters: [{ name: 'CRS', mandatory: false }] });
+
+    expect(row.controls.converterParameters.controls['CRS'].value).toBe('EPSG:25832');
+  });
+
+  it('preselects the only mime type a converter offers and clears the schema', () => {
+    const row = component.rows[0];
+    row.controls.schema.setValue('stale');
+
+    row.controls.converter.setValue(CSV);
+
+    expect(row.controls.mimeType.value).toBe('text/csv');
+    expect(row.controls.schema.value).toBe('');
+  });
+
+  it('derives the parameter columns from all rows', () => {
+    component.rows[0].controls.converter.setValue(CSV);
+    component.addNewRowToBatchList();
+    component.rows[1].controls.converter.setValue(WFS);
+    component.rows[1].controls.datasourceType.setValue(HTTP_SOURCE);
+
+    expect(component.converterParameterColumns()).toEqual(['Trennzeichen', 'CRS', 'NAMESPACE']);
+    expect(component.datasourceParameterColumns()).toEqual(['URL']);
+    expect(component.showFileColumn()).toBe(false);
+
+    component.rows[0].controls.datasourceType.setValue(FILE_SOURCE);
+    expect(component.showFileColumn()).toBe(true);
+  });
+
+  it('drops the file when a row switches away from a FILE data source', () => {
+    const row = component.rows[0];
+    row.controls.datasourceType.setValue(FILE_SOURCE);
+    row.controls.selectedFile.setValue(new File(['a'], 'a.csv'));
+
+    row.controls.datasourceType.setValue(HTTP_SOURCE);
+
+    expect(row.controls.selectedFile.value).toBeNull();
+  });
+
+  it('keeps the run gated while the list is incomplete', () => {
+    expect(component.runBlockers()).toContain(BATCH_RUN_BLOCKER_KEYS.name);
+
+    component.rows[0].patchValue({
+      indicatorId: 'ind-1',
+      timeseriesMappings: [{ indicatorValueProperty: 'DATE_2026', timestamp: '2026-01-01' }],
+      converter: CSV,
+      datasourceType: HTTP_SOURCE,
+      spatialReferenceKeyProperty: 'ags',
+      targetSpatialUnitId: 'su-1',
+    });
+    component.rows[0].controls.converterParameters.controls['Trennzeichen'].setValue(';');
+    component.rows[0].controls.datasourceTypeParameters.controls['URL'].setValue('https://x/d.csv');
+
+    expect(component.runBlockers()).toEqual([]);
+  });
+
+  it('expands one timeseries mapping panel at a time', () => {
+    component.addNewRowToBatchList();
+
+    component.toggleTimeseriesMapping(1);
+    expect(component.expandedMappingRow()).toBe(1);
+
+    component.toggleTimeseriesMapping(0);
+    expect(component.expandedMappingRow()).toBe(0);
+
+    component.toggleTimeseriesMapping(0);
+    expect(component.expandedMappingRow()).toBeNull();
+  });
+
+  it('takes the file of a row from the input event', () => {
+    const file = new File(['a'], 'a.csv');
+
+    component.onDataSourceFileSelected(
+      { target: { files: [file] } } as unknown as Event,
+      component.rows[0]
+    );
+
+    expect(component.rows[0].controls.selectedFile.value).toBe(file);
+  });
+
+  it('resets to a single empty row and restores the keep-missing default', () => {
+    component.rows[0].controls.indicatorId.setValue('ind-1');
+    component.addNewRowToBatchList();
+    component.form.controls.keepMissingValues.setValue(false);
+    component.toggleTimeseriesMapping(0);
+
+    component.resetBatchUpdateForm();
+
+    expect(component.rows).toHaveLength(1);
+    expect(component.rows[0].controls.indicatorId.value).toBe('');
+    expect(component.form.controls.keepMissingValues.value).toBe(true);
+    expect(component.expandedMappingRow()).toBeNull();
+  });
+
+  it('resolves an indicator name for the mapping export file name', () => {
+    expect(component.indicatorName('ind-1')).toBe('Bevölkerung');
+    expect(component.indicatorName('missing')).toBe('');
+  });
+
+  it('does not persist anything yet — startBatchUpdate is still a no-op', () => {
+    expect(() => component.startBatchUpdate()).not.toThrow();
+  });
+});

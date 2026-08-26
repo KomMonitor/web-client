@@ -627,7 +627,17 @@
       "EXPORT_BATCH_LIST_TOOLTIP": "Export the batch list to a file",
       "EXPORT_BATCH_LIST": "Export batch list",
       "SHOW_RESULT": "Show result",
-      "RUN_UPDATE": "Run update"
+      "RUN_UPDATE": "Run update",
+      "BLOCKER_EMPTY_LIST": "The batch list is empty.",
+      "BLOCKER_NAME": "The Name* column is not set in every row.",
+      "BLOCKER_TIMESERIES_MAPPING": "The time-series mapping* is missing in at least one row.",
+      "BLOCKER_CONVERTER": "Converter details are missing or incomplete in at least one row.",
+      "BLOCKER_DATASOURCE_TYPE": "The Data source type* column is not set in every row.",
+      "BLOCKER_DATASOURCE": "Data source details (file, URL or payload) are missing in at least one row.",
+      "BLOCKER_SPATIAL_REF_KEY": "The ID attribute name of the spatial unit features* is missing in at least one row.",
+      "BLOCKER_TARGET_SPATIAL_UNIT": "The Target spatial unit* column is not set in every row.",
+      "ENCODING_DEFAULT_OPTION": "-- converter default --",
+      "FILE_COLUMN": "File"
     },
     "DELETE_MODAL": {
       "TITLE": "Delete indicators",
@@ -1351,7 +1361,10 @@
       "TOPIC_REQUIRED": "Please select at least a main topic.",
       "UNKNOWN": "The input is invalid.",
       "TIMESTAMP_SOURCE_REQUIRED": "Please provide the time stamp — as an attribute name or as a date, depending on the toggle.",
-      "TIMESERIES_MAPPING_REQUIRED": "Please map at least one time slice."
+      "TIMESERIES_MAPPING_REQUIRED": "Please map at least one time slice.",
+      "MIME_TYPE_REQUIRED": "Please choose a source format.",
+      "SCHEMA_REQUIRED": "Please choose a schema.",
+      "FILE_REQUIRED": "Please choose a file."
     },
     "TIMESERIES_MAPPING": {
       "INTRO": "Define the attribute mapping for every time slice to import. Each mapping consists of the attribute holding the indicator values plus either a directly entered time stamp or an attribute containing the time stamp in ISO8601 form.",

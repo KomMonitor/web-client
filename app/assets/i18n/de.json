@@ -627,7 +627,17 @@
       "EXPORT_BATCH_LIST_TOOLTIP": "Exportieren der Batch-Liste in eine Datei",
       "EXPORT_BATCH_LIST": "Batch-Liste exportieren",
       "SHOW_RESULT": "Ergebnis anzeigen",
-      "RUN_UPDATE": "Update ausführen"
+      "RUN_UPDATE": "Update ausführen",
+      "BLOCKER_EMPTY_LIST": "Die Batch-Liste ist leer.",
+      "BLOCKER_NAME": "Die Spalte Name* ist nicht in allen Zeilen gesetzt.",
+      "BLOCKER_TIMESERIES_MAPPING": "Das Zeitreihen-Mapping* fehlt in mindestens einer Zeile.",
+      "BLOCKER_CONVERTER": "Konverter-Angaben fehlen oder sind unvollständig in mindestens einer Zeile.",
+      "BLOCKER_DATASOURCE_TYPE": "Die Spalte Datenquelltyp* ist nicht in allen Zeilen gesetzt.",
+      "BLOCKER_DATASOURCE": "Angaben zur Datenquelle (Datei, URL bzw. Payload) fehlen in mindestens einer Zeile.",
+      "BLOCKER_SPATIAL_REF_KEY": "Der ID-Attributname der Raumebenen-Features* fehlt in mindestens einer Zeile.",
+      "BLOCKER_TARGET_SPATIAL_UNIT": "Die Spalte Ziel-Raumebene* ist nicht in allen Zeilen gesetzt.",
+      "ENCODING_DEFAULT_OPTION": "-- Standard des Konverters --",
+      "FILE_COLUMN": "Datei"
     },
     "DELETE_MODAL": {
       "TITLE": "Indikatoren löschen",
@@ -1351,7 +1361,10 @@
       "TOPIC_REQUIRED": "Bitte mindestens ein Hauptthema wählen.",
       "UNKNOWN": "Die Eingabe ist ungültig.",
       "TIMESTAMP_SOURCE_REQUIRED": "Bitte den Zeitstempel angeben — je nach Umschalter als Attributname oder als Datum.",
-      "TIMESERIES_MAPPING_REQUIRED": "Bitte mindestens einen Zeitschnitt zuordnen."
+      "TIMESERIES_MAPPING_REQUIRED": "Bitte mindestens einen Zeitschnitt zuordnen.",
+      "MIME_TYPE_REQUIRED": "Bitte ein Quellformat wählen.",
+      "SCHEMA_REQUIRED": "Bitte ein Schema wählen.",
+      "FILE_REQUIRED": "Bitte eine Datei wählen."
     },
     "TIMESERIES_MAPPING": {
       "INTRO": "Angabe des Attribut-Mappings für jeden zu importierenden Zeitschnitt. Jedes Mapping umfasst dabei das Attribut, in dem die Indikatorenwerte hinterlegt sind, sowie entweder einen direkt definierten Zeitstempel oder ein Attribut, welches den Zeitstempel gemäß ISO8601 enthält.",

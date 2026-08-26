@@ -8,8 +8,8 @@ Basis: Codebestand verifiziert gegen alle Dokumente in `documentation/` und `PRO
 
 | Gate                   | Ergebnis                                            |
 | ---------------------- | --------------------------------------------------- |
-| `npm test`             | 137 Suites / **752 Tests**, 0 failed, **0 skipped** |
-| `npm run lint`         | **0 Errors**, 1280 Warnings                         |
+| `npm test`             | 142 Suites / **828 Tests**, 0 failed, **0 skipped** |
+| `npm run lint`         | **0 Errors**, 1278 Warnings                         |
 | `npm run build`        | EXIT 0                                              |
 | `npm run format:check` | **grün** (alle Dateien Prettier-konform)            |
 
@@ -81,10 +81,10 @@ Ein systematischer Abgleich ist vor einem Merge nach `develop` ohnehin unumgäng
 
 **Alle Admin-Formulare sind umgestellt; offen sind nur noch bewusste Ausnahmen.** Stand:
 
-- **255 `ngModel`-Bindings in 51 Templates** unter `ngComponents/` (davon **97 in 25 Templates**
+- **234 `ngModel`-Bindings in 52 Templates** unter `ngComponents/` (davon **76 in 24 Templates**
   im Admin-Bereich — durchweg Grid-Zustand, Filterfelder und kontrollierte Kind-Inputs, kein
   template-getriebenes Formular mehr)
-- **23 Templates** nutzen `formGroup`/`formControlName`/`[formControl]`
+- **25 Templates** nutzen `formGroup`/`formControlName`/`[formControl]`
 
 #### Erledigt
 
@@ -160,7 +160,7 @@ automatisiert nicht erreichbar.
 
 | Block                                                | `ngModel` | Warum offen                                                                                                                                                                                                                                |
 | ---------------------------------------------------- | --------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `indicatorBatchUpdateModal`                          |        21 | **Feature-Regression, wird zurückportiert** (Entscheidung 2026-08-26, siehe unten) — 12 `TODO(batch-update)`, `startBatchUpdate` ist ein No-op. Der Reactive-Forms-Umbau ist Teil des Ports, nicht davor.                                  |
+| `indicatorBatchUpdateModal`                          |         0 | **Port läuft.** Formular umgestellt (0 `ngModel`), `BatchUpdateService` steht; offen sind nur noch der Run selbst (2 `TODO(batch-update)`), das Ergebnis-Modal und die Standardwert-Funktion.                                              |
 | Skript-Wizard: kontrollierte Kind-Inputs (4 Dateien) |        14 | `[ngModel]` + `@Output`-Emit bzw. Filterfelder — der bewusste `@Input`/`@Output`-Schrittvertrag, kein template-getriebenes Formular. Die Selects binden Objekte über `[ngValue]`; ein Umbau auf `[value]` würde die Objektbindung brechen. |
 | Grid-Toggles, Filterfelder, Zeilen-Checkboxen        |       ~62 | bewusst außen vor                                                                                                                                                                                                                          |
 

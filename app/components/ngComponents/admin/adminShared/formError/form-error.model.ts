@@ -30,6 +30,9 @@ export const FORM_ERROR_KEY_MAP: Readonly<Record<string, string>> = {
   topicRequired: 'TOPIC_REQUIRED',
   timestampSourceRequired: 'TIMESTAMP_SOURCE_REQUIRED',
   timeseriesMappingRequired: 'TIMESERIES_MAPPING_REQUIRED',
+  mimeTypeRequired: 'MIME_TYPE_REQUIRED',
+  schemaRequired: 'SCHEMA_REQUIRED',
+  fileRequired: 'FILE_REQUIRED',
 };
 
 /**
@@ -43,6 +46,9 @@ export const FORM_ERROR_PRIORITY: readonly string[] = [
   'topicRequired',
   'timeseriesMappingRequired',
   'timestampSourceRequired',
+  'fileRequired',
+  'mimeTypeRequired',
+  'schemaRequired',
   'dateFormat',
   'pattern',
   'minlength',

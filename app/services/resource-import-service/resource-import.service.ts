@@ -13,7 +13,7 @@ import type {
 /** The converter-related subset of {@link ImporterObjectsConfig}. */
 export type ConverterConfig = Pick<
   ImporterObjectsConfig,
-  'converter' | 'schema' | 'mimeType' | 'converterParameterValues'
+  'converter' | 'schema' | 'mimeType' | 'encoding' | 'converterParameterValues'
 >;
 
 /** The data-source-related subset of {@link ImporterObjectsConfig}. */
@@ -71,7 +71,8 @@ export class ResourceImportService {
           config.converter,
           config.schema,
           config.mimeType,
-          config.converterParameterValues
+          config.converterParameterValues,
+          config.encoding
         )
       : null;
   }

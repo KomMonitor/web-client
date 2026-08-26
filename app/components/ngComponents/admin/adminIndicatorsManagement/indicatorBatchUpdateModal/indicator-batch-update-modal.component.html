@@ -17,9 +17,9 @@
   ></button>
 </div>
 
-<div class="modal-body">
+<div class="modal-body" [formGroup]="form">
   <div class="row">
-    <div class="col-md-12 col-sm-12 col-12">
+    <div class="col-12">
       <p>{{ 'ADMIN_INDICATORS.BATCH_MODAL.INTRO' | translate }}</p>
       <p>
         <b>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</b>
@@ -28,390 +28,266 @@
   </div>
 
   <div class="row">
-    <div class="col-md-12 col-sm-12 col-12">
-      <form id="indicatorBatchUpdateForm" class="form-group" role="form">
-        <!-- Batch list table -->
-        <div class="batch-list-table-wrapper table-responsive">
-          <table
-            class="batch-list-table table table-bordered table-condensed table-striped"
-            style="width: 100%; overflow: auto; font-size: 11px"
-          >
-            <thead>
-              <tr>
-                <th
-                  class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-1"
-                >
+    <div class="col-12">
+      <div class="batch-list-table-wrapper table-responsive">
+        <table
+          class="batch-list-table table table-bordered table-condensed table-striped"
+          style="width: 100%; overflow: auto; font-size: 11px"
+        >
+          <thead>
+            <tr>
+              <th
+                class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-1"
+              >
+                <input
+                  type="checkbox"
+                  [checked]="allRowsSelected"
+                  (change)="onChangeSelectAllRows($event)"
+                  [attr.aria-label]="'ADMIN_SHARED_UI.GRID.CONFIRM_WITH_ENTER' | translate"
+                />
+              </th>
+              <th
+                class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-2"
+              >
+                {{ 'ADMIN_SHARED.NAME' | translate }}*
+              </th>
+              <th>{{ 'ADMIN_INDICATORS.MAPPING_TABLE' | translate }}</th>
+              <th>{{ 'ADMIN_INDICATORS.TIMESERIES_MAPPING' | translate }}*</th>
+              <th>{{ 'ADMIN_INDICATORS.DATASET_SOURCE_FORMAT' | translate }}*</th>
+              <th>{{ 'ADMIN_INDICATORS.SOURCE_FORMAT' | translate }}*</th>
+              <th>Encoding</th>
+              <th>Schema</th>
+              @for (name of converterParameterColumns(); track name) {
+                <th>{{ name }}</th>
+              }
+              <th>{{ 'ADMIN_INDICATORS.DATASOURCE_TYPE' | translate }}*</th>
+              @if (showFileColumn()) {
+                <th>{{ 'ADMIN_INDICATORS.FILE' | translate }}*</th>
+              }
+              @for (name of datasourceParameterColumns(); track name) {
+                <th>{{ name }}</th>
+              }
+              <th>{{ 'ADMIN_INDICATORS.SPATIAL_REF_KEY' | translate }}*</th>
+              <th>{{ 'ADMIN_INDICATORS.TARGET_SPATIAL_UNIT' | translate }}*</th>
+              <th>{{ 'ADMIN_INDICATORS.BATCH_MODAL.SAVE_MAPPING_TABLE' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody formArrayName="rows">
+            @for (row of rows; track row; let i = $index) {
+              <tr
+                [formGroupName]="i"
+                [class.batch-list-odd-rows]="i % 2 === 0"
+                [class.batch-list-even-rows]="i % 2 === 1"
+              >
+                <!-- selected -->
+                <td class="batch-list-table-sticky-column batch-list-table-sticky-column-1">
                   <input
                     type="checkbox"
-                    [(ngModel)]="allRowsSelected"
-                    (change)="onChangeSelectAllRows()"
+                    formControlName="selected"
+                    [attr.aria-label]="'ADMIN_SHARED.NAME' | translate"
                   />
-                </th>
-                <th
-                  class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-2"
-                >
-                  {{ 'ADMIN_SHARED.NAME' | translate }}*
-                </th>
-                <th>{{ 'ADMIN_INDICATORS.MAPPING_TABLE' | translate }}</th>
-                <th>{{ 'ADMIN_INDICATORS.TIMESERIES_MAPPING' | translate }}*</th>
-                <th>{{ 'ADMIN_INDICATORS.DATASET_SOURCE_FORMAT' | translate }}*</th>
-                @if (checkColumnsToShowSelectedConverter().length) {
-                  <th>{{ 'ADMIN_INDICATORS.SOURCE_FORMAT' | translate }}*</th>
-                }
-                @if (checkColumnsToShowSelectedConverter().length) {
-                  <th>Encoding*</th>
-                }
-                @if (
-                  checkColumnsToShowSelectedConverter().includes('Tabelle_Zeitreihe_zu_Indikator')
-                ) {
-                  <th>{{ 'ADMIN_INDICATORS.SEPARATOR' | translate }}*</th>
-                }
-                @if (checkColumnsToShowSelectedConverter().includes('WFS_v1')) {
-                  <th>Schema*</th>
-                }
-                @if (checkColumnsToShowSelectedConverter().includes('WFS_v1')) {
-                  <th>NAMESPACE</th>
-                }
-                @if (checkColumnsToShowSelectedConverter().includes('WFS_v1')) {
-                  <th>SCHEMA_LOCATION</th>
-                }
-                <th>{{ 'ADMIN_INDICATORS.DATASOURCE_TYPE' | translate }}*</th>
-                @if (checkIfSelectedDatasourceTypeIsFile()) {
-                  <th>{{ 'ADMIN_INDICATORS.FILE' | translate }}*</th>
-                }
-                @if (checkIfSelectedDatasourceTypeIsHttp()) {
-                  <th>URL*</th>
-                }
-                @if (checkIfSelectedDatasourceTypeIsInline()) {
-                  <th>Payload*</th>
-                }
-                <th>{{ 'ADMIN_INDICATORS.SPATIAL_REF_KEY' | translate }}*</th>
-                <th>{{ 'ADMIN_INDICATORS.TARGET_SPATIAL_UNIT' | translate }}*</th>
-                <th>{{ 'ADMIN_INDICATORS.BATCH_MODAL.SAVE_MAPPING_TABLE' | translate }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (indicator of batchList; track indicator; let i = $index) {
-                <tr
-                  [ngClass]="{
-                    'batch-list-odd-rows': i % 2 === 0,
-                    'batch-list-even-rows': i % 2 === 1,
-                  }"
-                >
-                  <!-- isSelected -->
-                  <td class="batch-list-table-sticky-column batch-list-table-sticky-column-1">
-                    <input type="checkbox" [(ngModel)]="indicator.isSelected" />
-                  </td>
-                  <!-- Name -->
-                  <td class="batch-list-table-sticky-column batch-list-table-sticky-column-2">
-                    <select
-                      class="form-control batch-list-table-name-field"
-                      [(ngModel)]="indicator.name"
-                      required
-                    >
-                      <option [ngValue]="null">
-                        {{ 'ADMIN_INDICATORS.SELECT_INDICATOR_OPTION' | translate }}
+                </td>
+                <!-- Name -->
+                <td class="batch-list-table-sticky-column batch-list-table-sticky-column-2">
+                  <select
+                    class="form-control batch-list-table-name-field"
+                    formControlName="indicatorId"
+                  >
+                    <option value="">
+                      {{ 'ADMIN_INDICATORS.SELECT_INDICATOR_OPTION' | translate }}
+                    </option>
+                    @for (
+                      avIndicator of indicatorStore.availableIndicators;
+                      track avIndicator.indicatorId
+                    ) {
+                      <option [value]="avIndicator.indicatorId">
+                        {{ avIndicator.indicatorName }}
                       </option>
-                      @for (avIndicator of indicatorStore.availableIndicators; track avIndicator) {
-                        <option [ngValue]="avIndicator">
-                          {{ avIndicator.indicatorName }}
-                        </option>
+                    }
+                  </select>
+                </td>
+                <!-- Mapping table file -->
+                <td>
+                  <input
+                    class="form-control"
+                    type="file"
+                    accept=".json"
+                    [attr.aria-label]="'ADMIN_INDICATORS.MAPPING_TABLE' | translate"
+                    (change)="onMappingTableSelected($event, row)"
+                  />
+                </td>
+                <!-- Timeseries mapping -->
+                <td>
+                  <button
+                    type="button"
+                    class="form-control btn btn-success btn-sm"
+                    [class.btn-warning]="row.controls.timeseriesMappings.invalid"
+                    (click)="toggleTimeseriesMapping(i)"
+                  >
+                    {{ 'ADMIN_INDICATORS.BATCH_MODAL.ADD_EDIT' | translate }}
+                    ({{ row.controls.timeseriesMappings.value.length }})
+                  </button>
+                </td>
+                <!-- Converter -->
+                <td>
+                  <select class="form-control" formControlName="converter">
+                    <option [ngValue]="null">
+                      {{
+                        'ADMIN_INDICATORS.BATCH_MODAL.SELECT_DATASET_SOURCE_FORMAT_OPTION'
+                          | translate
+                      }}
+                    </option>
+                    @for (converter of availableConverters(); track converter.name) {
+                      <option [ngValue]="converter">{{ converter.name }}</option>
+                    }
+                  </select>
+                </td>
+                <!-- Mime type -->
+                <td>
+                  <select class="form-control" formControlName="mimeType">
+                    <option value="">
+                      {{ 'ADMIN_INDICATORS.SELECT_SOURCE_FORMAT_OPTION' | translate }}
+                    </option>
+                    @for (mimeType of row.controls.converter.value?.mimeTypes; track mimeType) {
+                      <option [value]="mimeType">{{ mimeType }}</option>
+                    }
+                  </select>
+                </td>
+                <!-- Encoding -->
+                <td>
+                  <select class="form-control" formControlName="encoding">
+                    <option value="">
+                      {{ 'ADMIN_INDICATORS.BATCH_MODAL.ENCODING_DEFAULT_OPTION' | translate }}
+                    </option>
+                    @for (encoding of row.controls.converter.value?.encodings; track encoding) {
+                      <option [value]="encoding">{{ encoding }}</option>
+                    }
+                  </select>
+                </td>
+                <!-- Schema -->
+                <td>
+                  @if (row.controls.converter.value?.schemas?.length) {
+                    <select class="form-control" formControlName="schema">
+                      <option value="">
+                        {{ 'ADMIN_INDICATORS.SELECT_SCHEMA_OPTION' | translate }}
+                      </option>
+                      @for (schema of row.controls.converter.value?.schemas; track schema) {
+                        <option [value]="schema">{{ schema }}</option>
                       }
                     </select>
-                  </td>
-                  <!-- Mappingtabelle -->
-                  <td>
-                    <input
-                      [id]="'indicatorMappingTableSelect' + i"
-                      class="form-control indicatorMappingTableInputField"
-                      type="file"
-                      (change)="onMappingTableSelected($event, i)"
-                    />
-                  </td>
-                  <!-- Zeitreihen Mapping* -->
-                  <td>
-                    <button
-                      [id]="'indicatorTimeseriesMappingBtn' + i"
-                      class="form-control btn btn-success btn-sm indicatorTimeseriesMappingBtn"
-                      (click)="onTimeseriesMappingBtnClicked($event, i)"
-                      style="background-color: #5cb85c"
-                    >
-                      {{ 'ADMIN_INDICATORS.BATCH_MODAL.ADD_EDIT' | translate }}
-                    </button>
-                  </td>
-                  <!-- Datensatz-Quellformat -->
-                  <td>
-                    <select class="form-control" [(ngModel)]="indicator.selectedConverter" required>
-                      <option [ngValue]="null">
-                        {{
-                          'ADMIN_INDICATORS.BATCH_MODAL.SELECT_DATASET_SOURCE_FORMAT_OPTION'
-                            | translate
-                        }}
-                      </option>
-                      @for (converter of getAvailableConverters(); track converter) {
-                        <option [ngValue]="converter">
-                          {{ converter.name }}
-                        </option>
-                      }
-                    </select>
-                  </td>
-                  <!-- Quellformat -->
-                  @if (checkColumnsToShowSelectedConverter().length > 0) {
-                    <td>
-                      <select
-                        class="form-control"
-                        [(ngModel)]="indicator.mappingObj.converter.mimeType"
-                        required
-                      >
-                        <option [ngValue]="null">
-                          {{ 'ADMIN_INDICATORS.SELECT_SOURCE_FORMAT_OPTION' | translate }}
-                        </option>
-                        @for (mimeType of indicator.selectedConverter?.mimeTypes; track mimeType) {
-                          <option [ngValue]="mimeType">
-                            {{ mimeType }}
-                          </option>
-                        }
-                      </select>
-                    </td>
                   }
-                  <!-- Encoding -->
-                  @if (checkColumnsToShowSelectedConverter().length > 0) {
-                    <td>
-                      <select
-                        class="form-control"
-                        [(ngModel)]="indicator.mappingObj.converter.encoding"
-                        required
-                      >
-                        <option [ngValue]="null">
-                          {{ 'ADMIN_INDICATORS.BATCH_MODAL.SELECT_ENCODING_OPTION' | translate }}
-                        </option>
-                        @for (encoding of indicator.selectedConverter?.encodings; track encoding) {
-                          <option [ngValue]="encoding">
-                            {{ encoding }}
-                          </option>
-                        }
-                      </select>
-                    </td>
-                  }
-                  <!-- Trennzeichen -->
-                  @if (
-                    checkColumnsToShowSelectedConverter().includes('Tabelle_Zeitreihe_zu_Indikator')
-                  ) {
-                    <td>
+                </td>
+                <!-- Converter parameters -->
+                @for (name of converterParameterColumns(); track name) {
+                  <td>
+                    @if (rowHasConverterParameter(row, name)) {
+                      <ng-container formGroupName="converterParameters">
+                        <input
+                          class="form-control"
+                          type="text"
+                          [formControlName]="name"
+                          [attr.aria-label]="name"
+                        />
+                      </ng-container>
+                    }
+                  </td>
+                }
+                <!-- Data source type -->
+                <td>
+                  <select class="form-control" formControlName="datasourceType">
+                    <option [ngValue]="null">
+                      {{ 'ADMIN_INDICATORS.SELECT_DATASOURCE_TYPE_OPTION' | translate }}
+                    </option>
+                    @for (datasourceType of availableDatasourceTypes(); track datasourceType.type) {
+                      <option [ngValue]="datasourceType">{{ datasourceType.type }}</option>
+                    }
+                  </select>
+                </td>
+                <!-- File -->
+                @if (showFileColumn()) {
+                  <td>
+                    @if (isFileDatasource(row)) {
                       <input
                         class="form-control"
-                        [(ngModel)]="indicator.mappingObj.converter.separator"
-                        type="text"
-                        [disabled]="
-                          !indicator.selectedConverter?.name?.includes(
-                            'Tabelle_Zeitreihe_zu_Indikator'
-                          )
-                        "
-                      />
-                    </td>
-                  }
-                  <!-- Schema -->
-                  @if (checkColumnsToShowSelectedConverter().includes('WFS_v1')) {
-                    <td>
-                      <select
-                        class="form-control"
-                        [(ngModel)]="indicator.mappingObj.converter.schema"
-                        [disabled]="!indicator.selectedConverter?.name?.includes('WFS_v1')"
-                        required
-                      >
-                        <option [ngValue]="null">
-                          {{ 'ADMIN_INDICATORS.SELECT_SCHEMA_OPTION' | translate }}
-                        </option>
-                        @for (schema of indicator.selectedConverter?.schemas; track schema) {
-                          <option [ngValue]="schema">
-                            {{ schema }}
-                          </option>
-                        }
-                      </select>
-                    </td>
-                  }
-                  <!-- NAMESPACE -->
-                  @if (checkColumnsToShowSelectedConverter().includes('WFS_v1')) {
-                    <td>
-                      <input
-                        class="form-control"
-                        [(ngModel)]="indicator.mappingObj.converter.schemaNamespace"
-                        type="text"
-                        [disabled]="!indicator.selectedConverter?.name?.includes('WFS_v1')"
-                      />
-                    </td>
-                  }
-                  <!-- SCHEMA_LOCATION -->
-                  @if (checkColumnsToShowSelectedConverter().includes('WFS_v1')) {
-                    <td>
-                      <input
-                        class="form-control"
-                        [(ngModel)]="indicator.mappingObj.converter.schemaLocation"
-                        type="text"
-                        [disabled]="!indicator.selectedConverter?.name?.includes('WFS_v1')"
-                      />
-                    </td>
-                  }
-                  <!-- Datenquelltyp -->
-                  <td>
-                    <select
-                      [(ngModel)]="indicator.selectedDatasourceType"
-                      class="form-control"
-                      required
-                    >
-                      <option [ngValue]="null">
-                        {{ 'ADMIN_INDICATORS.SELECT_DATASOURCE_TYPE_OPTION' | translate }}
-                      </option>
-                      @for (datasourceType of getAvailableDatasourceTypes(); track datasourceType) {
-                        <option [ngValue]="datasourceType">
-                          {{ datasourceType.type }}
-                        </option>
-                      }
-                    </select>
-                  </td>
-                  <!-- Datei -->
-                  @if (checkIfSelectedDatasourceTypeIsFile()) {
-                    <td>
-                      <input
-                        [id]="'indicatorDataSourceFileInputField' + i"
-                        class="form-control indicatorDataSourceFileInputField"
                         type="file"
-                        [disabled]="!indicator.selectedDatasourceType?.type?.includes('FILE')"
-                        (change)="onDataSourceFileSelected($event, i)"
-                        required
+                        [attr.aria-label]="'ADMIN_INDICATORS.FILE' | translate"
+                        (change)="onDataSourceFileSelected($event, row)"
                       />
-                    </td>
-                  }
-                  <!-- URL -->
-                  @if (checkIfSelectedDatasourceTypeIsHttp()) {
-                    <td>
-                      <input
-                        class="form-control"
-                        type="text"
-                        [(ngModel)]="indicator.mappingObj.dataSource.url"
-                        [disabled]="!indicator.selectedDatasourceType?.type?.includes('HTTP')"
-                        required
-                      />
-                    </td>
-                  }
-                  <!-- Payload -->
-                  @if (checkIfSelectedDatasourceTypeIsInline()) {
-                    <td>
-                      <input
-                        class="form-control"
-                        type="text"
-                        [(ngModel)]="indicator.mappingObj.dataSource.payload"
-                        [disabled]="!indicator.selectedDatasourceType?.type?.includes('INLINE')"
-                        required
-                      />
-                    </td>
-                  }
-                  <!-- ID Attributname der Raumebenen-Features* -->
-                  <td>
-                    <input
-                      class="form-control"
-                      [(ngModel)]="indicator.mappingObj.propertyMapping.spatialReferenceKeyProperty"
-                      type="text"
-                      required
-                    />
+                    }
                   </td>
-                  <!-- Ziel-Raumebene -->
+                }
+                <!-- Data source parameters -->
+                @for (name of datasourceParameterColumns(); track name) {
                   <td>
-                    <select
-                      [(ngModel)]="indicator.selectedTargetSpatialUnit"
-                      class="form-control"
-                      required
-                    >
-                      <option [ngValue]="null">
-                        {{ 'ADMIN_INDICATORS.SELECT_SPATIAL_UNIT_OPTION' | translate }}
+                    @if (rowHasDatasourceParameter(row, name)) {
+                      <ng-container formGroupName="datasourceTypeParameters">
+                        <input
+                          class="form-control"
+                          type="text"
+                          [formControlName]="name"
+                          [attr.aria-label]="name"
+                        />
+                      </ng-container>
+                    }
+                  </td>
+                }
+                <!-- Spatial reference key -->
+                <td>
+                  <input
+                    class="form-control"
+                    type="text"
+                    formControlName="spatialReferenceKeyProperty"
+                    [attr.aria-label]="'ADMIN_INDICATORS.SPATIAL_REF_KEY' | translate"
+                  />
+                </td>
+                <!-- Target spatial unit -->
+                <td>
+                  <select class="form-control" formControlName="targetSpatialUnitId">
+                    <option value="">
+                      {{ 'ADMIN_INDICATORS.SELECT_SPATIAL_UNIT_OPTION' | translate }}
+                    </option>
+                    @for (
+                      spatialUnit of spatialUnitStore.availableSpatialUnits;
+                      track spatialUnit.spatialUnitId
+                    ) {
+                      <option [value]="spatialUnit.spatialUnitId">
+                        {{ spatialUnit.spatialUnitLevel }}
                       </option>
-                      @for (
-                        spatialUnit of spatialUnitStore.availableSpatialUnits;
-                        track spatialUnit
-                      ) {
-                        <option [ngValue]="spatialUnit">
-                          {{ spatialUnit.spatialUnitLevel }}
-                        </option>
-                      }
-                    </select>
-                  </td>
-                  <!-- Mappingtabelle speichern -->
-                  <td>
-                    <button
-                      [id]="'indicatorMappingTableSave' + i"
-                      type="button"
-                      class="btn btn-primary fas fa-save"
-                      (click)="saveMappingObjectToFile($event, i)"
-                    ></button>
+                    }
+                  </select>
+                </td>
+                <!-- Save mapping table -->
+                <td>
+                  <button
+                    type="button"
+                    class="btn btn-primary fas fa-save"
+                    [title]="'ADMIN_INDICATORS.BATCH_MODAL.SAVE_MAPPING_TABLE' | translate"
+                    [attr.aria-label]="
+                      'ADMIN_INDICATORS.BATCH_MODAL.SAVE_MAPPING_TABLE' | translate
+                    "
+                    (click)="saveMappingObjectToFile(row)"
+                  ></button>
+                </td>
+              </tr>
+              @if (expandedMappingRow() === i) {
+                <tr>
+                  <td [attr.colspan]="99">
+                    <app-timeseries-mapping-form [formControl]="row.controls.timeseriesMappings" />
+                    <app-form-error [control]="row.controls.timeseriesMappings" showWhen="always" />
                   </td>
                 </tr>
               }
-            </tbody>
+            }
+          </tbody>
+        </table>
+      </div>
 
-            <tfoot>
-              <tr>
-                <th
-                  class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-1"
-                >
-                  <input
-                    type="checkbox"
-                    [(ngModel)]="allRowsSelected"
-                    (change)="onChangeSelectAllRows()"
-                  />
-                </th>
-                <th
-                  class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-2"
-                >
-                  {{ 'ADMIN_SHARED.NAME' | translate }}*
-                </th>
-                <th>{{ 'ADMIN_INDICATORS.MAPPING_TABLE' | translate }}</th>
-                <th>{{ 'ADMIN_INDICATORS.TIMESERIES_MAPPING' | translate }}*</th>
-                <th>{{ 'ADMIN_INDICATORS.DATASET_SOURCE_FORMAT' | translate }}*</th>
-                @if (checkColumnsToShowSelectedConverter().length) {
-                  <th>{{ 'ADMIN_INDICATORS.SOURCE_FORMAT' | translate }}*</th>
-                }
-                @if (checkColumnsToShowSelectedConverter().length) {
-                  <th>Encoding*</th>
-                }
-                @if (
-                  checkColumnsToShowSelectedConverter().includes('Tabelle_Zeitreihe_zu_Indikator')
-                ) {
-                  <th>{{ 'ADMIN_INDICATORS.SEPARATOR' | translate }}*</th>
-                }
-                @if (checkColumnsToShowSelectedConverter().includes('WFS_v1')) {
-                  <th>Schema*</th>
-                }
-                @if (checkColumnsToShowSelectedConverter().includes('WFS_v1')) {
-                  <th>NAMESPACE</th>
-                }
-                @if (checkColumnsToShowSelectedConverter().includes('WFS_v1')) {
-                  <th>SCHEMA_LOCATION</th>
-                }
-                <th>{{ 'ADMIN_INDICATORS.DATASOURCE_TYPE' | translate }}*</th>
-                @if (checkIfSelectedDatasourceTypeIsFile()) {
-                  <th>{{ 'ADMIN_INDICATORS.FILE' | translate }}*</th>
-                }
-                @if (checkIfSelectedDatasourceTypeIsHttp()) {
-                  <th>URL*</th>
-                }
-                @if (checkIfSelectedDatasourceTypeIsInline()) {
-                  <th>Payload*</th>
-                }
-                <th>{{ 'ADMIN_INDICATORS.SPATIAL_REF_KEY' | translate }}*</th>
-                <th>{{ 'ADMIN_INDICATORS.TARGET_SPATIAL_UNIT' | translate }}*</th>
-                <th>{{ 'ADMIN_INDICATORS.BATCH_MODAL.SAVE_MAPPING_TABLE' | translate }}</th>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-
-        <button type="button" class="btn btn-primary" (click)="addNewRowToBatchList()">
-          {{ 'ADMIN_INDICATORS.BATCH_MODAL.ADD_ROW' | translate }}
-        </button>
-        <button type="button" class="btn btn-danger" (click)="deleteSelectedRowsFromBatchList()">
-          {{ 'ADMIN_INDICATORS.BATCH_MODAL.DELETE_SELECTED_ROWS' | translate }}
-        </button>
-      </form>
+      <button type="button" class="btn btn-primary" (click)="addNewRowToBatchList()">
+        {{ 'ADMIN_INDICATORS.BATCH_MODAL.ADD_ROW' | translate }}
+      </button>
+      <button type="button" class="btn btn-danger" (click)="deleteSelectedRowsFromBatchList()">
+        {{ 'ADMIN_INDICATORS.BATCH_MODAL.DELETE_SELECTED_ROWS' | translate }}
+      </button>
     </div>
   </div>
 
@@ -419,144 +295,12 @@
   <br />
 
   <div class="row vertical-align">
-    <div class="col-md-5 col-sm-5 col-12">
-      <div class="box box-primary collapsed-box">
-        <div class="box-header with-border">
-          <h3 class="box-title">
-            {{ 'ADMIN_INDICATORS.BATCH_MODAL.DEFAULT_VALUE_FUNCTION' | translate }}
-          </h3>
-          <div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse">
-              <i class="fa fa-plus"></i>
-            </button>
-          </div>
-        </div>
-        <!-- /.box-header -->
-        <div class="box-body">
-          <div class="form-group">
-            <div class="help-block">
-              <p>
-                {{ 'ADMIN_INDICATORS.BATCH_MODAL.DEFAULT_HELP_1' | translate }}<br />
-                {{ 'ADMIN_INDICATORS.BATCH_MODAL.DEFAULT_HELP_2' | translate }}<br />
-                {{ 'ADMIN_INDICATORS.BATCH_MODAL.DEFAULT_HELP_3' | translate }}<br />
-                {{ 'ADMIN_INDICATORS.BATCH_MODAL.DEFAULT_HELP_4' | translate }}
-              </p>
-            </div>
-            <div class="row">
-              <div class="col-md-6 col-sm-6 col-6">
-                <label for="indicatorColDefaultFunctionColSelectInput"
-                  >{{ 'ADMIN_INDICATORS.BATCH_MODAL.TABLE_COLUMN' | translate }}:</label
-                >
-                <select
-                  id="indicatorColDefaultFunctionColSelectInput"
-                  class="form-control"
-                  [(ngModel)]="colDefaultFunctionSelectedColumn"
-                  (change)="colDefaultFunctionNewValue = undefined"
-                >
-                  <option [ngValue]="null">
-                    {{ 'ADMIN_INDICATORS.BATCH_MODAL.SELECT_TABLE_COLUMN_OPTION' | translate }}
-                  </option>
-                  <option value="mappingObj.propertyMapping.timeseriesMappings">
-                    {{ 'ADMIN_INDICATORS.TIMESERIES_MAPPING' | translate }}*
-                  </option>
-                  <option value="selectedConverter">
-                    {{ 'ADMIN_INDICATORS.DATASET_SOURCE_FORMAT' | translate }}*
-                  </option>
-                  <option value="mappingObj.converter.mimeType">
-                    {{ 'ADMIN_INDICATORS.SOURCE_FORMAT' | translate }}*
-                  </option>
-                  <option value="mappingObj.converter.encoding">Encoding*</option>
-                  <option value="mappingObj.converter.separator">
-                    {{ 'ADMIN_INDICATORS.SEPARATOR' | translate }}*
-                  </option>
-                  <option value="mappingObj.converter.schema">Schema*</option>
-                  <option value="mappingObj.converter.schemaNamespace">NAMESPACE</option>
-                  <option value="mappingObj.converter.schemaLocation">SCHEMA_LOCATION</option>
-                  <option value="selectedDatasourceType">
-                    {{ 'ADMIN_INDICATORS.DATASOURCE_TYPE' | translate }}*
-                  </option>
-                  <option value="mappingObj.dataSource.URL">URL*</option>
-                  <option value="mappingObj.dataSource.payload">Payload*</option>
-                  <option value="mappingObj.propertyMapping.spatialReferenceKeyProperty">
-                    {{ 'ADMIN_INDICATORS.BATCH_MODAL.SPATIAL_REF_KEY_FEATURES' | translate }}*
-                  </option>
-                  <option value="selectedTargetSpatialUnit">
-                    {{ 'ADMIN_INDICATORS.TARGET_SPATIAL_UNIT' | translate }}*
-                  </option>
-                </select>
-                <label>{{ 'ADMIN_INDICATORS.VALUE' | translate }}:</label>
-                <!-- default -->
-                @if (!colDefaultFunctionSelectedColumn) {
-                  <input
-                    type="text"
-                    class="form-control"
-                    [(ngModel)]="colDefaultFunctionNewValue"
-                    disabled
-                    [placeholder]="'ADMIN_INDICATORS.BATCH_MODAL.NO_COLUMN_SELECTED' | translate"
-                  />
-                }
-
-                <!-- Zeitreihen-Mapping* -->
-                @if (
-                  colDefaultFunctionSelectedColumn ===
-                  'mappingObj.propertyMapping.timeseriesMappings'
-                ) {
-                  <button
-                    class="form-control btn btn-success btn-sm"
-                    (click)="onDefaultTimeseriesMappingBtnClicked($event)"
-                    style="background-color: #5cb85c"
-                  >
-                    {{ 'ADMIN_INDICATORS.BATCH_MODAL.ADD_EDIT' | translate }}
-                  </button>
-                }
-
-                <!-- Datensatz-Quellformat* -->
-                @if (colDefaultFunctionSelectedColumn === 'selectedConverter') {
-                  <select class="form-control" [(ngModel)]="colDefaultFunctionNewValue">
-                    <option [ngValue]="null">
-                      {{ 'ADMIN_INDICATORS.SELECT_SOURCE_FORMAT_OPTION' | translate }}
-                    </option>
-                    @for (converter of getAvailableConverters(); track converter) {
-                      <option [ngValue]="converter">
-                        {{ converter.name }}
-                      </option>
-                    }
-                  </select>
-                }
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-12 col-sm-12 col-12">
-                <label for="indicatorColDefaultFunctionAllRowsChb">{{
-                  'ADMIN_INDICATORS.BATCH_MODAL.OVERWRITE_EXISTING' | translate
-                }}</label>
-                <input
-                  id="indicatorColDefaultFunctionAllRowsChb"
-                  type="checkbox"
-                  [(ngModel)]="colDefaultFunctionAllRowsChb"
-                />
-              </div>
-              <div class="col-md-12 col-sm-12 col-12">
-                <button
-                  type="button"
-                  class="btn btn-primary"
-                  (click)="onClickSaveColDefaultValue()"
-                >
-                  {{ 'ADMIN_INDICATORS.BATCH_MODAL.APPLY_DEFAULT_VALUE' | translate }}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="col-md-4 col-sm-4 col-12">
       <div class="form-group">
         <label>{{ 'ADMIN_INDICATORS.KEEP_MISSING_VALUES' | translate }}*</label>
         <br />
         <label class="switch">
-          <input type="checkbox" value="keepMissingValues" [(ngModel)]="keepMissingValues" />
+          <input type="checkbox" formControlName="keepMissingValues" />
           <span class="switchslider round"></span>
         </label>
         <div class="help-block">
@@ -565,27 +309,24 @@
       </div>
     </div>
 
-    <div class="col-md-3 col-sm-3 col-12">
+    <div class="col-md-4 col-sm-4 col-12">
       <div class="form-group">
         <div class="alert alert-warning">
-          <b>
-            {{ 'ADMIN_INDICATORS.BATCH_MODAL.ACCESS_RIGHTS_WARNING' | translate }}
-          </b>
+          <b>{{ 'ADMIN_INDICATORS.BATCH_MODAL.ACCESS_RIGHTS_WARNING' | translate }}</b>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Default timeseries mapping -->
-  <div class="row mt-3">
-    <div class="col-md-12">
-      <button
-        type="button"
-        class="btn btn-info"
-        (click)="onDefaultTimeseriesMappingBtnClicked($event)"
-      >
-        {{ 'ADMIN_INDICATORS.BATCH_MODAL.EDIT_DEFAULT_TIMESERIES_MAPPING' | translate }}
-      </button>
+    <div class="col-md-4 col-sm-4 col-12">
+      @if (runBlockers().length) {
+        <div class="alert alert-info">
+          <ul class="mb-0">
+            @for (blocker of runBlockers(); track blocker) {
+              <li>{{ blocker | translate }}</li>
+            }
+          </ul>
+        </div>
+      }
     </div>
   </div>
 </div>
@@ -608,11 +349,9 @@
   <input
     #batchListFileInput
     style="display: none"
-    class="pull-left"
     type="file"
-    class="form-control"
-    id="indicatorsBatchListFile"
-    accept=".json,"
+    accept=".json"
+    [attr.aria-label]="'ADMIN_INDICATORS.BATCH_MODAL.IMPORT_BATCH_LIST' | translate"
     (change)="onBatchListFileSelected($event)"
   />
 
@@ -620,7 +359,6 @@
     type="button"
     style="margin-left: 6px"
     class="btn btn-info pull-left"
-    [disabled]="false"
     (click)="saveBatchListToFile()"
     [title]="'ADMIN_INDICATORS.BATCH_MODAL.EXPORT_BATCH_LIST_TOOLTIP' | translate"
   >
@@ -630,21 +368,15 @@
   </button>
 
   <button
-    id="indicator-reopen-results-btn"
-    type="button"
-    class="btn btn-info"
-    (click)="reopenResultModal()"
-    [disabled]="!lastUpdateResponseObj"
-  >
-    {{ 'ADMIN_INDICATORS.BATCH_MODAL.SHOW_RESULT' | translate }}
-  </button>
-
-  <button
     id="indicator-batch-update-btn"
     type="button"
     class="btn btn-success"
+    [disabled]="runBlockers().length > 0"
+    [title]="
+      (runBlockers().length ? runBlockers()[0] : 'ADMIN_INDICATORS.BATCH_MODAL.RUN_UPDATE')
+        | translate
+    "
     (click)="startBatchUpdate()"
-    [disabled]="!checkIfNameAndFilesChosenInEachRow()"
   >
     {{ 'ADMIN_INDICATORS.BATCH_MODAL.RUN_UPDATE' | translate }}
   </button>
