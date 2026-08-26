@@ -2,8 +2,10 @@ import { FormControl, FormGroup, FormRecord, Validators } from '@angular/forms';
 import type {
   Converter,
   DatasourceType,
+  TimeseriesMapping,
 } from 'services/resource-import-service/resource-import.model';
 import { ImporterParameterRecord } from '../../adminShared/importerForm/importer-form.model';
+import { timeseriesMappingsRequiredValidator } from '../../adminShared/timeseriesMappingForm/timeseries-mapping-form.model';
 
 /**
  * Typed model of the indicator "edit features" modal — the data step.
@@ -17,8 +19,11 @@ import { ImporterParameterRecord } from '../../adminShared/importerForm/importer
  * The overview step (feature table, delete toggle, its own spatial-unit select)
  * is grid state and stays outside this form.
  *
- * The required controls mirror the historic four-clause submit gate exactly:
- * converter, data source, target spatial unit and reference key.
+ * The required controls mirror the historic submit gate exactly: converter,
+ * data source, target spatial unit, reference key and a non-empty time-series
+ * mapping. The mapping clause was missing between the AngularJS port and the
+ * reactive-forms conversion, because the time-series editor it depends on had
+ * not been ported — the importer silently received `timeseriesMappings: []`.
  */
 
 export type IndicatorEditFeaturesFormGroup = FormGroup<{
@@ -30,6 +35,7 @@ export type IndicatorEditFeaturesFormGroup = FormGroup<{
   datasourceTypeParameters: ImporterParameterRecord;
   targetSpatialUnitMetadata: FormControl<any | null>;
   spatialUnitRefKeyProperty: FormControl<string>;
+  timeseriesMappings: FormControl<TimeseriesMapping[]>;
   keepMissingValues: FormControl<boolean>;
   isPublic: FormControl<boolean>;
 }>;
@@ -46,6 +52,10 @@ export function buildIndicatorEditFeaturesForm(): IndicatorEditFeaturesFormGroup
     spatialUnitRefKeyProperty: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required],
+    }),
+    timeseriesMappings: new FormControl<TimeseriesMapping[]>([], {
+      nonNullable: true,
+      validators: [timeseriesMappingsRequiredValidator],
     }),
     keepMissingValues: new FormControl(true, { nonNullable: true }),
     isPublic: new FormControl(false, { nonNullable: true }),

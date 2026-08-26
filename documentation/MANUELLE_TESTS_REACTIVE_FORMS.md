@@ -161,6 +161,33 @@ Konfiguration mit `enableKeycloakSecurity: false`:
       führenden/nachgestellten Leerzeichen eingeben → wird jetzt als Dublette abgelehnt.
       Vorher lief das durch und kollidierte erst serverseitig.
 
+## 9. Zeitreihen-Mapping des Indikator-Imports — neu portiert
+
+Bezug: A2 in [`OFFENE_PUNKTE.md`](OFFENE_PUNKTE.md). Die Komponente ersetzt einen jQuery-Datepicker
+und vier Broadcast-Kanäle; der Datei-Round-Trip und das Widget sind automatisiert nicht erreichbar.
+
+Indikator → „Sachdaten bearbeiten" → Schritt „Räumlicher Datensatz", Abschnitt
+„Zeitreihen-Mapping":
+
+- [ ] Attributname eingeben, Datum über den Datepicker wählen → „Hinzufügen/Editieren" wird aktiv,
+      der Eintrag erscheint in der Übersichtstabelle
+- [ ] Umschalter „Zeitstempel aus einem Attribut entnehmen" an → das Datumsfeld wird gegen ein
+      Textfeld getauscht, ein vorher gewähltes Datum ist geleert (und umgekehrt)
+- [ ] Denselben Attributnamen erneut hinzufügen → der bestehende Eintrag wird **ersetzt**, es
+      entsteht keine zweite Zeile
+- [ ] Editier-Button lädt den Eintrag zurück in die Eingabezeile, Umschalter steht passend
+- [ ] Löschen-Button entfernt die Zeile
+- [ ] Bei leerer Tabelle ist „Zeitreihen fortführen" **deaktiviert** und die Meldung „Bitte
+      mindestens einen Zeitschnitt zuordnen" steht unter dem Abschnitt.
+      **Verhaltensänderung:** vorher war der Button aktiv und der Import lief mit leerem Mapping
+      durch, ohne Werte zu importieren.
+- [ ] Datumsfeld leeren → bleibt leer (wird **nicht** auf „heute" gesetzt) und das Gate greift
+- [ ] Schrittwechsel zur Zeitreihen-Übersicht und zurück: die Tabelle ist noch gefüllt (eine
+      halb ausgefüllte Eingabezeile geht dabei bewusst verloren)
+- [ ] **Echter Import:** Mapping füllen und „Zeitreihen fortführen" ausführen → im Netzwerk-Tab
+      enthält der POST auf `indicators/update` ein gefülltes `propertyMapping.timeseriesMappings`,
+      und die importierten Werte erscheinen danach in der Zeitreihen-Übersicht
+
 ---
 
 ## Noch offen / nicht in diesem Umbau geprüft

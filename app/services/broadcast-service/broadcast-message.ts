@@ -66,7 +66,6 @@ export const BroadcastMessage = {
   ResetReachabilityIndicatorStatistics: 'resetReachabilityIndicatorStatistics',
   ResetReachabilityScenarioConfiguration: 'resetReachabilityScenarioConfiguration',
   ResetSingleFeatureEdit: 'resetSingleFeatureEdit',
-  ResetTimeseriesMapping: 'resetTimeseriesMapping',
   ScreenshotsForCurrentSpatialUnitUpdate: 'screenshotsForCurrentSpatialUnitUpdate',
   SelectedIndicatorDateHasChanged: 'selectedIndicatorDateHasChanged',
   SingleFeatureSelected: 'singleFeatureSelected',

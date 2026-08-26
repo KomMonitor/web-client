@@ -1349,7 +1349,25 @@
       "SPATIAL_UNIT_HIERARCHY": "Die übergeordnete Raumebene muss gröber sein als die untergeordnete.",
       "BBOX_INCOMPLETE": "Bitte alle vier Werte des Begrenzungsrahmens angeben.",
       "TOPIC_REQUIRED": "Bitte mindestens ein Hauptthema wählen.",
-      "UNKNOWN": "Die Eingabe ist ungültig."
+      "UNKNOWN": "Die Eingabe ist ungültig.",
+      "TIMESTAMP_SOURCE_REQUIRED": "Bitte den Zeitstempel angeben — je nach Umschalter als Attributname oder als Datum.",
+      "TIMESERIES_MAPPING_REQUIRED": "Bitte mindestens einen Zeitschnitt zuordnen."
+    },
+    "TIMESERIES_MAPPING": {
+      "INTRO": "Angabe des Attribut-Mappings für jeden zu importierenden Zeitschnitt. Jedes Mapping umfasst dabei das Attribut, in dem die Indikatorenwerte hinterlegt sind, sowie entweder einen direkt definierten Zeitstempel oder ein Attribut, welches den Zeitstempel gemäß ISO8601 enthält.",
+      "VALUE_PROPERTY": "Attributname der Indikatorenwerte",
+      "VALUE_PROPERTY_PLACEHOLDER": "Attributname für Indikatorenwerte",
+      "USE_PROPERTY": "Zeitstempel aus einem Attribut entnehmen",
+      "USE_PROPERTY_HINT": "Angabe, ob der Zeitstempel aus einem Attribut entnommen werden soll",
+      "TIMESTAMP_PROPERTY": "Attributname des Zeitstempels",
+      "TIMESTAMP_PROPERTY_PLACEHOLDER": "Attributname für Zeitstempel",
+      "TIMESTAMP": "Zeitstempel (direkte Angabe)",
+      "ADD_EDIT": "Hinzufügen/Editieren",
+      "OVERVIEW": "Übersicht der definierten Indikatoren-Zeitreihen-Mappings",
+      "EDIT_FUNCTIONS": "Editierfunktionen",
+      "EDIT_ENTRY": "Mapping editieren",
+      "DELETE_ENTRY": "Mapping löschen",
+      "EMPTY": "Noch kein Zeitreihen-Mapping definiert."
     }
   },
   "ADMIN_WMS": {

@@ -33,6 +33,20 @@ export interface AttributeMappingRow {
 }
 
 /**
+ * One entry of an indicator time-series mapping: the attribute holding the
+ * indicator values for a single time slice, plus the time stamp that slice
+ * belongs to — either given directly (`timestamp`) or read from another
+ * attribute in ISO8601 form (`timestampProperty`). Exactly one of the two is
+ * set. Consumed by
+ * `KommonitorImporterHelperService.buildPropertyMapping_indicatorResource`.
+ */
+export interface TimeseriesMapping {
+  indicatorValueProperty: string;
+  timestamp?: string;
+  timestampProperty?: string;
+}
+
+/**
  * Everything `ResourceImportService.buildImporterObjects` needs from a modal
  * to assemble the three importer definitions. The per-modal differences
  * (parameter-name prefixes, the data-source file input id, and the pre-assembled

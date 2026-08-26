@@ -1349,7 +1349,25 @@
       "SPATIAL_UNIT_HIERARCHY": "The upper spatial unit level must be coarser than the lower one.",
       "BBOX_INCOMPLETE": "Please provide all four bounding box values.",
       "TOPIC_REQUIRED": "Please select at least a main topic.",
-      "UNKNOWN": "The input is invalid."
+      "UNKNOWN": "The input is invalid.",
+      "TIMESTAMP_SOURCE_REQUIRED": "Please provide the time stamp — as an attribute name or as a date, depending on the toggle.",
+      "TIMESERIES_MAPPING_REQUIRED": "Please map at least one time slice."
+    },
+    "TIMESERIES_MAPPING": {
+      "INTRO": "Define the attribute mapping for every time slice to import. Each mapping consists of the attribute holding the indicator values plus either a directly entered time stamp or an attribute containing the time stamp in ISO8601 form.",
+      "VALUE_PROPERTY": "Attribute name of the indicator values",
+      "VALUE_PROPERTY_PLACEHOLDER": "Attribute name for indicator values",
+      "USE_PROPERTY": "Read the time stamp from an attribute",
+      "USE_PROPERTY_HINT": "Whether the time stamp should be read from an attribute",
+      "TIMESTAMP_PROPERTY": "Attribute name of the time stamp",
+      "TIMESTAMP_PROPERTY_PLACEHOLDER": "Attribute name for time stamp",
+      "TIMESTAMP": "Time stamp (entered directly)",
+      "ADD_EDIT": "Add/edit",
+      "OVERVIEW": "Overview of the defined indicator time-series mappings",
+      "EDIT_FUNCTIONS": "Edit functions",
+      "EDIT_ENTRY": "Edit mapping",
+      "DELETE_ENTRY": "Delete mapping",
+      "EMPTY": "No time-series mapping defined yet."
     }
   },
   "ADMIN_WMS": {

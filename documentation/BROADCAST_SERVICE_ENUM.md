@@ -59,7 +59,6 @@ Typisierung prüfen und ggf. löschen statt ins Enum aufnehmen:
 ```
 onAddedFeatureToSelection
 reopenBatchUpdateResultModal
-resetTimeseriesMapping
 onOpenAddFilterModal
 CSVFromFileFinished_indicatorRegionalReferenceValues   # file-helper.service; Multi-Line-Sender, kein Empfänger
 ```
@@ -85,7 +84,6 @@ resizeDiagrams                                              # kommonitor-diagram
 switchReportingMode                                        # kommonitor-reachability / reachability-scenario-configuration switch; nur Legacy-$scope.$broadcast in indicator-add, kein Angular-Bus-Sender
 onManageReachabilityScenario                               # reachability-scenario-configuration switch; kein Sender
 onGlobalFilterDelete                                        # admin-filter-config switch; kein Sender
-timeseriesMappingChanged                                   # indicator-edit-features-modal; kein Sender
 onEditIndicatorFeatures                                    # admin-indicators-management; kein Sender
 onEditIndicatorMetadata                                    # indicator-edit-metadata-modal; kein Sender
 onDeleteIndicators                                         # indicator-delete-modal; kein Sender
@@ -393,7 +391,6 @@ reportingIsochronesCalculationFinished
 reportingIsochronesCalculationStarted
 reportingPoiLayerSelected
 resetPoisInIsochrone
-resetTimeseriesMapping
 restyleCurrentLayer
 screenshotsForCurrentSpatialUnitUpdate
 selectedIndicatorDateHasChanged

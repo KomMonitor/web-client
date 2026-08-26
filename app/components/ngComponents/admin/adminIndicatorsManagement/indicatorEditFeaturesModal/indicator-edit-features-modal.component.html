@@ -436,9 +436,9 @@
             }
             <hr />
             <br />
-            <h4>{{ 'ADMIN_INDICATORS.TIMESERIES_MAPPING' | translate }}</h4>
-            <!-- todo -->
-            <!-- <indicator-edit-timeseries-mapping></indicator-edit-timeseries-mapping> -->
+            <h4>{{ 'ADMIN_INDICATORS.TIMESERIES_MAPPING' | translate }}*</h4>
+            <app-timeseries-mapping-form formControlName="timeseriesMappings" />
+            <app-form-error [control]="editForm.controls.timeseriesMappings" showWhen="always" />
             <div class="row vertical-align">
               <div class="col-md-6 col-sm-6 col-12">
                 <div class="form-group">

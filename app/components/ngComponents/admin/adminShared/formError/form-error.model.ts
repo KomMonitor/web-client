@@ -28,6 +28,8 @@ export const FORM_ERROR_KEY_MAP: Readonly<Record<string, string>> = {
   spatialUnitHierarchy: 'SPATIAL_UNIT_HIERARCHY',
   bboxIncomplete: 'BBOX_INCOMPLETE',
   topicRequired: 'TOPIC_REQUIRED',
+  timestampSourceRequired: 'TIMESTAMP_SOURCE_REQUIRED',
+  timeseriesMappingRequired: 'TIMESERIES_MAPPING_REQUIRED',
 };
 
 /**
@@ -39,6 +41,8 @@ export const FORM_ERROR_PRIORITY: readonly string[] = [
   'required',
   'requiredTrue',
   'topicRequired',
+  'timeseriesMappingRequired',
+  'timestampSourceRequired',
   'dateFormat',
   'pattern',
   'minlength',

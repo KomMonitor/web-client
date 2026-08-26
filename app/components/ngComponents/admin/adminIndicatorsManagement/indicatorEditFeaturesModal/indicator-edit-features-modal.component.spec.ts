@@ -227,7 +227,9 @@ describe('IndicatorEditFeaturesModalComponent', () => {
   describe('buildPropertyMappingDefinition', () => {
     it('passes the reference key, the timeseries mapping and the keep flag', () => {
       component.spatialUnitRefKeyProperty = 'ags';
-      component.timeseriesMappingReference = [{ year: 2026 }];
+      component.timeseriesMappingReference = [
+        { indicatorValueProperty: 'DATE_2026', timestamp: '2026-01-01' },
+      ];
       component.keepMissingValues = false;
 
       component.buildPropertyMappingDefinition();
@@ -235,12 +237,25 @@ describe('IndicatorEditFeaturesModalComponent', () => {
       const helper = TestBed.inject(KommonitorImporterHelperService) as any;
       expect(helper.buildPropertyMapping_indicatorResource).toHaveBeenCalledWith(
         'ags',
-        [{ year: 2026 }],
+        [{ indicatorValueProperty: 'DATE_2026', timestamp: '2026-01-01' }],
         false
       );
     });
 
-    it('falls back to an empty timeseries mapping', () => {
+    it('blocks the submit while the timeseries mapping is empty', () => {
+      // Behaviour change: an empty mapping used to be sent as `timeseriesMappings: []`,
+      // which made the importer accept the request and import nothing. The historic
+      // AngularJS gate required a non-empty mapping; the required validator restores it.
+      component.spatialUnitRefKeyProperty = 'ags';
+      component.timeseriesMappingReference = [];
+
+      expect(
+        component.editForm.controls.timeseriesMappings.hasError('timeseriesMappingRequired')
+      ).toBe(true);
+      expect(component.editForm.invalid).toBe(true);
+    });
+
+    it('coerces a missing timeseries mapping to an empty list', () => {
       component.spatialUnitRefKeyProperty = 'ags';
       component.timeseriesMappingReference = undefined as never;
 

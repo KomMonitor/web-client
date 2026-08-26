@@ -44,6 +44,8 @@ import { syncParameterControls } from '../../adminShared/importerForm/importer-f
 import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
 import { FormControlAriaDirective } from '../../adminShared/formError/form-control-aria.directive';
 import { controlInvalidSignal } from '../../adminShared/forms/control-state';
+import { TimeseriesMappingFormComponent } from '../../adminShared/timeseriesMappingForm/timeseries-mapping-form.component';
+import type { TimeseriesMapping } from 'services/resource-import-service/resource-import.model';
 import { buildIndicatorEditFeaturesForm } from './indicator-edit-features-form.model';
 
 declare const $: any;
@@ -61,6 +63,7 @@ declare const $: any;
     FilterPipe,
     AgGridAngular,
     StepperComponent,
+    TimeseriesMappingFormComponent,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -180,8 +183,13 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   }
   enableDeleteFeatures: boolean = false;
 
-  // Timeseries mapping
-  timeseriesMappingReference: any[] = [];
+  // Timeseries mapping — edited by <app-timeseries-mapping-form> through the form.
+  get timeseriesMappingReference(): TimeseriesMapping[] {
+    return this.editForm.controls.timeseriesMappings.value;
+  }
+  set timeseriesMappingReference(value: TimeseriesMapping[]) {
+    this.editForm.controls.timeseriesMappings.setValue(value ?? []);
+  }
 
   // Messages
   successMessagePart: string = '';
@@ -213,11 +221,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   private setupEventListeners(): void {
     // Bus listener kept for cross-area indicator triggers.
     this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
-      // NOTE: timeseriesMappingChanged has no sender yet (the timeseries-mapping
-      // modal is not built); the branch is a deliberate WIP hook.
-      if (data.msg === 'timeseriesMappingChanged') {
-        this.timeseriesMappingReference = data.mapping;
-      } else if (data.msg === BroadcastMessage.RefreshIndicatorOverviewTableCompleted) {
+      if (data.msg === BroadcastMessage.RefreshIndicatorOverviewTableCompleted) {
         if (this.currentIndicatorDataset) {
           this.currentIndicatorDataset = this.indicatorStore.getIndicatorMetadataById(
             this.currentIndicatorDataset.indicatorId
@@ -328,7 +332,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.errorMessagePart = '';
     this.importerErrors = [];
 
-    this.broadcastService.broadcast(BroadcastMessage.ResetTimeseriesMapping);
+    this.timeseriesMappingReference = [];
   }
 
   refreshIndicatorEditFeaturesOverviewTable(): void {
@@ -568,7 +572,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   }
 
   buildPropertyMappingDefinition(): any {
-    const timeseriesMappingForImporter = this.timeseriesMappingReference || [];
+    const timeseriesMappingForImporter = this.timeseriesMappingReference;
     return this.importerHelperService.buildPropertyMapping_indicatorResource(
       this.spatialUnitRefKeyProperty,
       timeseriesMappingForImporter,

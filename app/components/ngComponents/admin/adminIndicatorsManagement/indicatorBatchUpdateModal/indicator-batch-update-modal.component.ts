@@ -71,7 +71,6 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
 
   public isFirstStart: boolean = true;
   public lastUpdateResponseObj: any;
-  public timeseriesMappingReference: any;
   public selected: any = { value: null };
   public keepMissingValues: boolean = true;
   public batchList: BatchListItem[] = [];
@@ -111,8 +110,6 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
         this.lastUpdateResponseObj = data;
       } else if (data.msg === BroadcastMessage.RefreshIndicatorOverviewTableCompleted) {
         this.refreshNameColumn();
-      } else if (data.msg === 'timeseriesMappingChanged') {
-        this.timeseriesMappingReference = (data as any).mapping;
       }
       // Bus callbacks mutate template-bound fields on this OnPush view.
       this.cdr.markForCheck();
