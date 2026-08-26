@@ -19,6 +19,8 @@ import { TranslateModule } from '@ngx-translate/core';
 export interface StepperStep {
   /** ngx-translate key resolved in the template via the `translate` pipe. */
   label: string;
+  /** Renders the bubble as invalid; never affects whether the step is clickable. */
+  invalid?: boolean;
 }
 
 @Component({

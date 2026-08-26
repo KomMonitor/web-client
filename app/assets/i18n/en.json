@@ -1257,7 +1257,8 @@
     "STEP": {
       "PREVIOUS": "Previous step",
       "NEXT": "Next step",
-      "REQUIRED_FIELD_MARKER": "* = required field"
+      "REQUIRED_FIELD_MARKER": "* = required field",
+      "INVALID_HINT": "contains invalid input"
     },
     "OWNER": {
       "SELECT_HINT": "Please first select the organizational unit under which you want to create the dataset",
@@ -1332,6 +1333,23 @@
       "EDIT_ACCESS_TITLE": "Edit access protection and ownership",
       "DELETE_RECORD_TITLE": "Irrevocably remove data object",
       "CONFIRM_WITH_ENTER": "confirm with Enter"
+    },
+    "VALIDATION": {
+      "REQUIRED": "This field is required.",
+      "MIN_LENGTH": "At least {{requiredLength}} characters required.",
+      "MAX_LENGTH": "At most {{requiredLength}} characters allowed.",
+      "MIN": "The value must be at least {{min}}.",
+      "MAX": "The value must be at most {{max}}.",
+      "PATTERN": "The input does not have the expected format.",
+      "DATE_FORMAT": "Invalid date. Expected format: YYYY-MM-DD.",
+      "MIN_DATE": "The date is before the earliest allowed date ({{value}}).",
+      "MAX_DATE": "The date is after the latest allowed date ({{value}}).",
+      "UNIQUE_NAME": "The name \"{{name}}\" is already taken.",
+      "PERIOD_OF_VALIDITY": "The start date must lie before the end date.",
+      "SPATIAL_UNIT_HIERARCHY": "The upper spatial unit level must be coarser than the lower one.",
+      "BBOX_INCOMPLETE": "Please provide all four bounding box values.",
+      "TOPIC_REQUIRED": "Please select at least a main topic.",
+      "UNKNOWN": "The input is invalid."
     }
   },
   "ADMIN_WMS": {

@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   ElementRef,
   EventEmitter,
   OnInit,
@@ -10,6 +11,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import { NgbActiveModal, NgbDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { KommonitorImporterHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service';
@@ -23,7 +25,6 @@ import {
   SPATIAL_UNIT_METADATA_STRUCTURE,
   buildMappingConfigExport,
   buildSpatialUnitMetadataExport,
-  validatePeriodOfValidity,
 } from 'services/adminSpatialUnit/spatial-unit-metadata.util';
 import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
 import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManagementPanel/owner-organization-select.component';
@@ -33,7 +34,7 @@ import {
   KmLinePatternPickerComponent,
   LinePatternOption,
 } from '../../../customElements/line-pattern-picker/km-line-pattern-picker.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -45,7 +46,6 @@ import {
   addOrUpdateAttributeMapping,
   getErrorMessage,
   removeAttributeMapping,
-  toIsoDateString,
 } from '../spatial-unit-import.util';
 import type {
   AttributeMappingRow,
@@ -55,12 +55,37 @@ import type {
 } from 'services/resource-import-service/resource-import.model';
 import { ResourceImportService } from 'services/resource-import-service/resource-import.service';
 import { ResourceMetadataFormComponent } from '../../adminShared/resourceMetadataForm/resource-metadata-form.component';
+import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
+import { FormControlAriaDirective } from '../../adminShared/formError/form-control-aria.directive';
 import {
-  buildResourceMetadataForm,
-  metadataFormToApi,
   patchMetadataFormFromApi,
+  ResourceMetadataFormGroup,
   ResourceMetadataFormValue,
 } from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
+import { controlInvalidSignal } from '../../adminShared/forms/control-state';
+import { patchPeriodOfValidityForm } from '../../adminShared/periodOfValidityForm/period-of-validity-form.model';
+import {
+  attributeMappingDraftToRow,
+  buildAttributeMappingDraftForm,
+  patchAttributeMappingDraft,
+  resetAttributeMappingDraft,
+} from '../../adminShared/attributeMappingDraftForm/attribute-mapping-draft-form.model';
+import {
+  BboxType,
+  ImporterFormGroup,
+  importerFormToConfig,
+  patchBboxFromDataSourceParameters,
+  patchImporterFormFromMappingConfig,
+  syncConverterParameterControls,
+  syncDatasourceParameterControls,
+} from '../../adminShared/importerForm/importer-form.model';
+import {
+  DEFAULT_OUTLINE_COLOR,
+  DEFAULT_OUTLINE_WIDTH,
+  SpatialUnitAddPostBody,
+  buildSpatialUnitAddForm,
+  spatialUnitAddFormToApi,
+} from './spatial-unit-add-form.model';
 
 // Removed in favor of standalone km-date-picker component providers
 
@@ -70,11 +95,14 @@ import {
   styleUrls: ['./spatial-unit-add-modal.component.scss'],
   imports: [
     FormsModule,
+    ReactiveFormsModule,
     KmColorPickerComponent,
     KmLinePatternPickerComponent,
     KmDatePickerComponent,
     StepperComponent,
     ResourceMetadataFormComponent,
+    FormErrorComponent,
+    FormControlAriaDirective,
     RoleManagementGridComponent,
     OwnerOrganizationSelectComponent,
     TranslateModule,
@@ -94,6 +122,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   private translate = inject(TranslateService);
   private resourceImportService = inject(ResourceImportService);
   private cdr = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
 
   /** Emitted after a spatial unit was added so the parent refreshes its table. */
   @Output() refreshRequested = new EventEmitter<SpatialUnitRefreshRequest>();
@@ -106,46 +135,130 @@ export class SpatialUnitAddModalComponent implements OnInit {
   // datepickers handled by km-date-picker
   @ViewChild('lastUpdateDatepicker', { static: false }) lastUpdateDatepicker!: NgbDatepicker;
 
+  // Form data — signal: toggled across await boundaries (OnPush).
+  loadingData = signal(false);
+
+  /**
+   * Typed model of the whole wizard, one child group per stepper step. The
+   * fields below are being migrated onto it step by step; until that is
+   * finished they stay as plain properties.
+   */
+  readonly addForm = buildSpatialUnitAddForm({
+    withSecurity: this.envConfigService.enableKeycloakSecurity,
+    existingLevelNames: () =>
+      (this.availableSpatialUnits ?? []).map((unit: any) => unit.spatialUnitLevel),
+    orderedSpatialUnits: () => this.spatialUnitStore.availableSpatialUnits ?? [],
+  });
+
+  // Per-step validity for the stepper marking. Reading these signals from the
+  // template re-renders this OnPush host, which in turn hands <app-stepper> a
+  // new steps array.
+  private readonly metadataStepInvalid = controlInvalidSignal(this.addForm.controls.metadata, {
+    whenTouched: true,
+  });
+  private readonly generalStepInvalid = controlInvalidSignal(this.addForm.controls.general, {
+    whenTouched: true,
+  });
+  private readonly securityStepInvalid = controlInvalidSignal(this.addForm.controls.security, {
+    whenTouched: true,
+  });
+  private readonly dataStepInvalid = controlInvalidSignal(this.addForm.controls.data, {
+    whenTouched: true,
+  });
+
   // Multi-step form; the security step is only present when Keycloak is
   // enabled, mirroring the conditional fieldset in the template.
   readonly stepper = new WizardStepper([
-    { key: 'metadata', label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_UNIT_METADATA' },
-    { key: 'general', label: 'ADMIN_SHARED_UI.STEP_LABELS.GENERAL_METADATA' },
+    {
+      key: 'metadata',
+      label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_UNIT_METADATA',
+      invalid: this.metadataStepInvalid,
+    },
+    {
+      key: 'general',
+      label: 'ADMIN_SHARED_UI.STEP_LABELS.GENERAL_METADATA',
+      invalid: this.generalStepInvalid,
+    },
     {
       key: 'security',
       label: 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE',
       when: () => this.envConfigService.enableKeycloakSecurity,
+      invalid: this.securityStepInvalid,
     },
-    { key: 'data', label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_DATASET' },
+    {
+      key: 'data',
+      label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_DATASET',
+      invalid: this.dataStepInvalid,
+    },
   ]);
 
-  // Form data — signal: toggled across await boundaries (OnPush).
-  loadingData = signal(false);
+  // Basic form data — transitional accessors onto addForm.controls.metadata.
+  get spatialUnitLevel(): string {
+    return this.addForm.controls.metadata.controls.spatialUnitLevel.value;
+  }
+  set spatialUnitLevel(value: string) {
+    this.addForm.controls.metadata.controls.spatialUnitLevel.setValue(value ?? '');
+  }
+  get spatialUnitLevelInvalid(): boolean {
+    return this.addForm.controls.metadata.controls.spatialUnitLevel.hasError('uniqueName');
+  }
 
-  // Basic form data
-  spatialUnitLevel = '';
-  spatialUnitLevelInvalid = false;
-  metadataForm = buildResourceMetadataForm();
+  /**
+   * The shared "Allgemeine Metadaten" block. Returns the same instance on every
+   * call — never rebuild it here, or `<app-resource-metadata-form>` would
+   * rebind a fresh group on each change-detection pass.
+   */
+  get metadataForm(): ResourceMetadataFormGroup {
+    return this.addForm.controls.general;
+  }
+
   /** Read-only view of the metadata form value for post-body/export building. */
   get metadata(): ResourceMetadataFormValue {
     return this.metadataForm.getRawValue();
   }
 
   // Hierarchy
-  nextLowerHierarchySpatialUnit: any = null;
-  nextUpperHierarchySpatialUnit: any = null;
-  hierarchyInvalid = false;
+  get nextLowerHierarchySpatialUnit(): any {
+    return this.addForm.controls.metadata.controls.nextLowerHierarchySpatialUnit.value;
+  }
+  set nextLowerHierarchySpatialUnit(value: any) {
+    this.addForm.controls.metadata.controls.nextLowerHierarchySpatialUnit.setValue(value ?? null);
+  }
+  get nextUpperHierarchySpatialUnit(): any {
+    return this.addForm.controls.metadata.controls.nextUpperHierarchySpatialUnit.value;
+  }
+  set nextUpperHierarchySpatialUnit(value: any) {
+    this.addForm.controls.metadata.controls.nextUpperHierarchySpatialUnit.setValue(value ?? null);
+  }
+  get hierarchyInvalid(): boolean {
+    return this.addForm.controls.metadata.hasError('spatialUnitHierarchy');
+  }
 
   // Outline layer settings
-  isOutlineLayer = false;
-  outlineWidth = 3;
+  get isOutlineLayer(): boolean {
+    return this.addForm.controls.metadata.controls.isOutlineLayer.value;
+  }
+  set isOutlineLayer(value: boolean) {
+    this.addForm.controls.metadata.controls.isOutlineLayer.setValue(!!value);
+  }
+  get outlineWidth(): number {
+    return this.addForm.controls.metadata.controls.outlineWidth.value;
+  }
+  set outlineWidth(value: number) {
+    this.addForm.controls.metadata.controls.outlineWidth.setValue(value ?? DEFAULT_OUTLINE_WIDTH);
+  }
 
-  // Period of validity
-  periodOfValidity: { startDate: any; endDate: any } = {
-    startDate: '',
-    endDate: '',
-  };
-  periodOfValidityInvalid = false;
+  // Period of validity — transitional accessors onto
+  // addForm.controls.data.controls.periodOfValidity.
+  get periodOfValidity(): { startDate: any; endDate: any } {
+    return this.addForm.controls.data.controls.periodOfValidity.getRawValue();
+  }
+  set periodOfValidity(value: { startDate: any; endDate: any } | null | undefined) {
+    patchPeriodOfValidityForm(this.addForm.controls.data.controls.periodOfValidity, value);
+  }
+  get periodOfValidityInvalid(): boolean {
+    return this.addForm.controls.data.controls.periodOfValidity.hasError('periodOfValidity');
+  }
 
   // Available options
   availableSpatialUnits: any[] = [];
@@ -153,42 +266,140 @@ export class SpatialUnitAddModalComponent implements OnInit {
   availableDatasourceTypes: DatasourceType[] = [];
   availableLoiDashArrayObjects: any[] = [];
 
-  // Importer functionality
-  converter: any = null;
-  schema: string = '';
-  mimeType: string = '';
-  datasourceType: any = null;
+  // Importer functionality — the shared typed sub-form.
+  get importerForm(): ImporterFormGroup {
+    return this.addForm.controls.data.controls.importer;
+  }
+
+  // Transitional accessors onto the importer form.
+  get converter(): any {
+    return this.importerForm.controls.converter.value;
+  }
+  set converter(value: any) {
+    this.importerForm.controls.converter.setValue(value ?? null);
+  }
+  get schema(): string {
+    return this.importerForm.controls.schema.value;
+  }
+  set schema(value: string) {
+    this.importerForm.controls.schema.setValue(value ?? '');
+  }
+  get mimeType(): string {
+    return this.importerForm.controls.mimeType.value;
+  }
+  set mimeType(value: string) {
+    this.importerForm.controls.mimeType.setValue(value ?? '');
+  }
+  get datasourceType(): any {
+    return this.importerForm.controls.datasourceType.value;
+  }
+  set datasourceType(value: any) {
+    this.importerForm.controls.datasourceType.setValue(value ?? null);
+  }
   selectedDataSourceFile: File | null = null;
-  spatialUnitDataSourceIdProperty = '';
-  spatialUnitDataSourceNameProperty = '';
+  get spatialUnitDataSourceIdProperty(): string {
+    return this.importerForm.controls.idProperty.value;
+  }
+  set spatialUnitDataSourceIdProperty(value: string) {
+    this.importerForm.controls.idProperty.setValue(value ?? '');
+  }
+  get spatialUnitDataSourceNameProperty(): string {
+    return this.importerForm.controls.nameProperty.value;
+  }
+  set spatialUnitDataSourceNameProperty(value: string) {
+    this.importerForm.controls.nameProperty.setValue(value ?? '');
+  }
 
   // Bbox parameters for OGCAPI_FEATURES
-  bboxType: string = '';
-  bboxRefSpatialUnit: any = null;
-  bbox_minx: any = null;
-  bbox_miny: any = null;
-  bbox_maxx: any = null;
-  bbox_maxy: any = null;
+  get bboxType(): string {
+    return this.importerForm.controls.bboxType.value;
+  }
+  set bboxType(value: string) {
+    this.importerForm.controls.bboxType.setValue((value ?? '') as BboxType);
+  }
+  get bboxRefSpatialUnit(): any {
+    return this.importerForm.controls.bboxRefSpatialUnitId.value;
+  }
+  set bboxRefSpatialUnit(value: any) {
+    this.importerForm.controls.bboxRefSpatialUnitId.setValue(value ?? '');
+  }
 
   // Attribute mapping
-  attributeMapping_sourceAttributeName = '';
-  attributeMapping_destinationAttributeName = '';
-  attributeMapping_attributeType: any = null;
+  /**
+   * Staging row above the mapping table. Deliberately *not* part of `addForm`:
+   * it is not submitted, and its required rules must not gate the wizard.
+   */
+  readonly attributeMappingDraft = buildAttributeMappingDraftForm();
+  get attributeMapping_sourceAttributeName(): string {
+    return this.attributeMappingDraft.controls.sourceName.value;
+  }
+  set attributeMapping_sourceAttributeName(value: string) {
+    this.attributeMappingDraft.controls.sourceName.setValue(value ?? '');
+  }
+  get attributeMapping_destinationAttributeName(): string {
+    return this.attributeMappingDraft.controls.destinationName.value;
+  }
+  set attributeMapping_destinationAttributeName(value: string) {
+    this.attributeMappingDraft.controls.destinationName.setValue(value ?? '');
+  }
+  get attributeMapping_attributeType(): any {
+    return this.attributeMappingDraft.controls.dataType.value;
+  }
+  set attributeMapping_attributeType(value: any) {
+    this.attributeMappingDraft.controls.dataType.setValue(value ?? null);
+  }
   attributeMappings_adminView: AttributeMappingRow[] = [];
-  keepAttributes = true;
-  keepMissingValues = true;
+  get keepAttributes(): boolean {
+    return this.importerForm.controls.keepAttributes.value;
+  }
+  set keepAttributes(value: boolean) {
+    this.importerForm.controls.keepAttributes.setValue(!!value);
+  }
+  get keepMissingValues(): boolean {
+    return this.importerForm.controls.keepMissingValues.value;
+  }
+  set keepMissingValues(value: boolean) {
+    this.importerForm.controls.keepMissingValues.setValue(!!value);
+  }
 
   // Persisted parameter values for converter and datasource type
-  converterParameterValues: { [key: string]: string } = {};
-  datasourceTypeParameterValues: { [key: string]: string } = {};
+  get converterParameterValues(): { [key: string]: string } {
+    return this.importerForm.controls.converterParameters.getRawValue();
+  }
+  get datasourceTypeParameterValues(): { [key: string]: string } {
+    return this.importerForm.controls.datasourceTypeParameters.getRawValue();
+  }
 
   // Validity dates per feature
-  validityStartDate_perFeature = '';
-  validityEndDate_perFeature = '';
+  get validityStartDate_perFeature(): string {
+    return this.importerForm.controls.validStartDateProperty.value;
+  }
+  set validityStartDate_perFeature(value: string) {
+    this.importerForm.controls.validStartDateProperty.setValue(value ?? '');
+  }
+  get validityEndDate_perFeature(): string {
+    return this.importerForm.controls.validEndDateProperty.value;
+  }
+  set validityEndDate_perFeature(value: string) {
+    this.importerForm.controls.validEndDateProperty.setValue(value ?? '');
+  }
 
-  // Role management (grid handled by <app-role-management-grid>)
-  ownerOrganization = '';
-  isPublic = false;
+  // Role management (grid handled by <app-role-management-grid>).
+  // Transitional accessors onto addForm.controls.security — they keep the
+  // existing call sites and the component spec working while the template is
+  // migrated, and are removed in the final clean-up step.
+  get ownerOrganization(): string {
+    return this.addForm.controls.security.controls.ownerOrganization.value;
+  }
+  set ownerOrganization(value: string) {
+    this.addForm.controls.security.controls.ownerOrganization.setValue(value ?? '');
+  }
+  get isPublic(): boolean {
+    return this.addForm.controls.security.controls.isPublic.value;
+  }
+  set isPublic(value: boolean) {
+    this.addForm.controls.security.controls.isPublic.setValue(!!value);
+  }
 
   // Import/Export functionality
   metadataImportSettings: any = null;
@@ -207,8 +418,18 @@ export class SpatialUnitAddModalComponent implements OnInit {
   postBody_spatialUnits: any = null;
 
   // Missing properties from original component
-  outlineColor = '#000000';
-  selectedOutlineDashArrayObject: LinePatternOption | null = null;
+  get outlineColor(): string {
+    return this.addForm.controls.metadata.controls.outlineColor.value;
+  }
+  set outlineColor(value: string) {
+    this.addForm.controls.metadata.controls.outlineColor.setValue(value || DEFAULT_OUTLINE_COLOR);
+  }
+  get selectedOutlineDashArrayObject(): LinePatternOption | null {
+    return this.addForm.controls.metadata.controls.outlineDashArray.value;
+  }
+  set selectedOutlineDashArrayObject(value: LinePatternOption | null) {
+    this.addForm.controls.metadata.controls.outlineDashArray.setValue(value ?? null);
+  }
   spatialUnitMetadataStructure_pretty: string = '';
   spatialUnitMappingConfigStructure: any = {};
 
@@ -218,18 +439,43 @@ export class SpatialUnitAddModalComponent implements OnInit {
   // Color picker handled by km-color-picker
   // Line pattern picker handled by km-line-pattern-picker
 
-  get availableLinePatternOptions(): LinePatternOption[] {
-    return (LABELED_LOI_DASH_ARRAY_OBJECTS || []).map((option) => ({
-      label: option.label,
-      dashArrayValue: option.dashArrayValue,
-      svgString: option.svgString,
-    }));
-  }
+  // Built once: a getter would hand out fresh objects on every change-detection
+  // pass, which breaks reference identity with the selected option (and makes
+  // the picker's ngOnChanges fire forever).
+  readonly availableLinePatternOptions: LinePatternOption[] = (
+    LABELED_LOI_DASH_ARRAY_OBJECTS || []
+  ).map((option) => ({
+    label: option.label,
+    dashArrayValue: option.dashArrayValue,
+    svgString: option.svgString,
+  }));
 
   ngOnInit() {
     this.loadInitialData();
     this.initializeOutlineLayerSettings();
     this.initializeMetadataStructures();
+
+    // Side effects of picking an owning organization; the value itself lives in
+    // the form now.
+    this.addForm.controls.security.controls.ownerOrganization.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((ownerOrganization) => this.applyOwnerOrganization(ownerOrganization));
+
+    // The importer selects no longer carry (change) handlers; their dependent
+    // fields and parameter controls are rebuilt from the form instead.
+    this.importerForm.controls.converter.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.onChangeConverter());
+    this.importerForm.controls.datasourceType.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((datasourceType) => this.applyDatasourceTypeChange(datasourceType));
+  }
+
+  /** Seeds the role grid and reveals the permission block for a chosen owner. */
+  private applyOwnerOrganization(ownerOrganization: string): void {
+    this.roleGrid?.applyOwner(ownerOrganization);
+    this.showRoleForm = !!ownerOrganization;
+    this.cdr.markForCheck();
   }
 
   private async loadInitialData() {
@@ -298,17 +544,8 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   private initializeOutlineLayerSettings() {
-    const availableOptions = LABELED_LOI_DASH_ARRAY_OBJECTS || [];
-    if (availableOptions.length > 0) {
-      this.selectedOutlineDashArrayObject = {
-        label: availableOptions[0].label,
-        dashArrayValue: availableOptions[0].dashArrayValue,
-        svgString: availableOptions[0].svgString,
-      };
-    } else {
-      this.selectedOutlineDashArrayObject = null;
-    }
-    this.availableLoiDashArrayObjects = availableOptions;
+    this.selectedOutlineDashArrayObject = this.defaultOutlineDashArray();
+    this.availableLoiDashArrayObjects = LABELED_LOI_DASH_ARRAY_OBJECTS || [];
   }
 
   private initializeMetadataStructures() {
@@ -319,82 +556,41 @@ export class SpatialUnitAddModalComponent implements OnInit {
       this.kommonitorImporterHelperService.mappingConfigStructure;
   }
 
+  /**
+   * Kept as an entry point for callers that used to trigger the check by hand;
+   * the rule itself is `uniqueNameValidator` on the control now.
+   */
   checkSpatialUnitName() {
-    this.spatialUnitLevelInvalid = false;
-    const level = this.spatialUnitLevel;
-
-    if (level) {
-      this.availableSpatialUnits.forEach((spatialUnit) => {
-        if (spatialUnit.spatialUnitLevel === level) {
-          this.spatialUnitLevelInvalid = true;
-          return;
-        }
-      });
-    }
+    this.addForm.controls.metadata.controls.spatialUnitLevel.updateValueAndValidity();
   }
 
+  /** See `checkSpatialUnitName` — the rule is `spatialUnitHierarchyValidator`. */
   checkSpatialUnitHierarchy() {
-    this.hierarchyInvalid = false;
-
-    // smaller indices represent higher spatial units
-    // i.e. city districts will have a smaller index than building blocks
-    if (this.nextLowerHierarchySpatialUnit && this.nextUpperHierarchySpatialUnit) {
-      let indexOfLowerHierarchyUnit: number;
-      let indexOfUpperHierarchyUnit: number;
-
-      for (let i = 0; i < this.spatialUnitStore.availableSpatialUnits.length; i++) {
-        const spatialUnit = this.spatialUnitStore.availableSpatialUnits[i];
-        if (spatialUnit.spatialUnitLevel === this.nextLowerHierarchySpatialUnit.spatialUnitLevel) {
-          indexOfLowerHierarchyUnit = i;
-        }
-        if (spatialUnit.spatialUnitLevel === this.nextUpperHierarchySpatialUnit.spatialUnitLevel) {
-          indexOfUpperHierarchyUnit = i;
-        }
-      }
-
-      if (indexOfLowerHierarchyUnit! <= indexOfUpperHierarchyUnit!) {
-        // failure
-        this.hierarchyInvalid = true;
-      }
-    }
+    this.addForm.controls.metadata.updateValueAndValidity();
   }
 
+  /** See `checkSpatialUnitName` — the rule is `periodOfValidityValidator`. */
   checkPeriodOfValidity() {
-    // Normalize to ISO strings first (handles NgbDateStruct or string)
-    const startIso = toIsoDateString(this.periodOfValidity.startDate);
-    const endIso = toIsoDateString(this.periodOfValidity.endDate);
-
-    // Use service validation (guards optional end)
-    const validation = validatePeriodOfValidity(startIso as any, endIso as any);
-
-    this.periodOfValidityInvalid = !validation.isValid;
-
-    if (!validation.isValid && validation.error) {
-      // no action required here
-    }
+    this.addForm.controls.data.controls.periodOfValidity.updateValueAndValidity();
   }
 
   // Attribute mapping methods
   onAddOrUpdateAttributeMapping() {
     this.attributeMappings_adminView = addOrUpdateAttributeMapping(
       this.attributeMappings_adminView,
-      {
-        sourceName: this.attributeMapping_sourceAttributeName,
-        destinationName: this.attributeMapping_destinationAttributeName,
-        dataType: this.attributeMapping_attributeType,
-      }
+      attributeMappingDraftToRow(this.attributeMappingDraft)
     );
 
-    this.attributeMapping_sourceAttributeName = '';
-    this.attributeMapping_destinationAttributeName = '';
-    const attributeMappingTypes = this.kommonitorImporterHelperService.getAttributeMappingTypes();
-    this.attributeMapping_attributeType = attributeMappingTypes[0];
+    resetAttributeMappingDraft(this.attributeMappingDraft, this.defaultAttributeMappingType());
   }
 
   onClickEditAttributeMapping(attributeMappingEntry: any) {
-    this.attributeMapping_sourceAttributeName = attributeMappingEntry.sourceName;
-    this.attributeMapping_destinationAttributeName = attributeMappingEntry.destinationName;
-    this.attributeMapping_attributeType = attributeMappingEntry.dataType;
+    patchAttributeMappingDraft(this.attributeMappingDraft, attributeMappingEntry);
+  }
+
+  /** First attribute-mapping type offered by the importer, if it has loaded. */
+  private defaultAttributeMappingType(): any {
+    return this.kommonitorImporterHelperService.getAttributeMappingTypes()?.[0] ?? null;
   }
 
   onClickDeleteAttributeMapping(attributeMappingEntry: any) {
@@ -404,10 +600,12 @@ export class SpatialUnitAddModalComponent implements OnInit {
     );
   }
 
+  /** Seeds schema/mime type and rebuilds the parameter controls for a converter. */
   onChangeConverter(_schema?: any) {
-    this.schema = this.converter.schemas ? this.converter.schemas[0] : undefined;
-    this.mimeType = this.converter.mimeTypes ? this.converter.mimeTypes[0] : undefined;
-    this.converterParameterValues = {};
+    const converter = this.converter;
+    this.schema = converter?.schemas ? converter.schemas[0] : '';
+    this.mimeType = converter?.mimeTypes ? converter.mimeTypes[0] : '';
+    syncConverterParameterControls(this.importerForm, converter);
   }
 
   onChangeMimeType(mimeType: any) {
@@ -415,19 +613,21 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   onChangeDatasourceType(datasourceType: any) {
-    // Handle datasource type change
     this.datasourceType = datasourceType;
-    // Reset related fields when datasource type changes
+  }
+
+  /**
+   * Clears everything that depends on the data source type. Called from the
+   * control's `valueChanges`, so it must not write the control back.
+   */
+  private applyDatasourceTypeChange(datasourceType: any): void {
     this.selectedDataSourceFile = null;
     this.spatialUnitDataSourceIdProperty = '';
     this.spatialUnitDataSourceNameProperty = '';
     this.bboxType = '';
-    this.bboxRefSpatialUnit = null;
-    this.bbox_minx = null;
-    this.bbox_miny = null;
-    this.bbox_maxx = null;
-    this.bbox_maxy = null;
-    this.datasourceTypeParameterValues = {};
+    this.bboxRefSpatialUnit = '';
+    this.importerForm.controls.bbox.reset();
+    syncDatasourceParameterControls(this.importerForm, datasourceType);
   }
 
   onSpatialUnitFileSelected(event: any) {
@@ -436,10 +636,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   onChangeOutlineDashArray(outlineDashArrayObject: LinePatternOption | null) {
-    // Handle outline dash array change
     this.selectedOutlineDashArrayObject = outlineDashArrayObject;
-
-    // No need to update dropdown display or close dropdown - handled by km-line-pattern-picker
   }
 
   // Color picker logic removed; handled by km-color-picker
@@ -474,15 +671,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   /** Add-modal data-source params: bbox fields are always included. */
   private assembleDatasourceFormValues(): { [key: string]: string } {
-    return {
-      ...this.datasourceTypeParameterValues,
-      bboxType: this.bboxType,
-      bboxRef: this.bboxRefSpatialUnit,
-      bbox_minx: this.bbox_minx,
-      bbox_miny: this.bbox_miny,
-      bbox_maxx: this.bbox_maxx,
-      bbox_maxy: this.bbox_maxy,
-    } as { [key: string]: string };
+    return importerFormToConfig(this.importerForm).datasourceTypeFormValues;
   }
 
   async buildImporterObjects() {
@@ -512,43 +701,9 @@ export class SpatialUnitAddModalComponent implements OnInit {
     }
   }
 
-  buildPostBody_spatialUnits() {
-    const postBody: any = {
-      geoJsonString: '', // will be set by importer
-      metadata: metadataFormToApi(this.metadataForm),
-      jsonSchema: undefined,
-      permissions: [] as string[], // Changed from allowedRoles to match original
-      nextLowerHierarchyLevel: this.nextLowerHierarchySpatialUnit
-        ? this.nextLowerHierarchySpatialUnit.spatialUnitLevel
-        : null,
-      spatialUnitLevel: this.spatialUnitLevel,
-      periodOfValidity: {
-        endDate: toIsoDateString(
-          this.periodOfValidity && this.periodOfValidity.endDate
-            ? this.periodOfValidity.endDate
-            : null
-        ),
-        startDate: toIsoDateString(
-          this.periodOfValidity && this.periodOfValidity.startDate
-            ? this.periodOfValidity.startDate
-            : null
-        ),
-      },
-      nextUpperHierarchyLevel: this.nextUpperHierarchySpatialUnit
-        ? this.nextUpperHierarchySpatialUnit.spatialUnitLevel
-        : null,
-      // Add missing outline layer properties
-      isOutlineLayer: this.isOutlineLayer,
-      outlineColor: this.outlineColor,
-      outlineWidth: this.outlineWidth,
-      outlineDashArrayString: this.selectedOutlineDashArrayObject?.dashArrayValue,
-      ownerId: this.ownerOrganization,
-      isPublic: this.isPublic,
-    };
-
-    postBody.permissions.push(...(this.roleGrid?.getSelectedRoleIds() ?? []));
-
-    return postBody;
+  /** POST body for the importer; the role grid stays imperative. */
+  buildPostBody_spatialUnits(): SpatialUnitAddPostBody {
+    return spatialUnitAddFormToApi(this.addForm, this.roleGrid?.getSelectedRoleIds() ?? []);
   }
 
   async addSpatialUnit() {
@@ -775,26 +930,14 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   /** Applies a parsed mapping-config onto this modal's form fields. */
   private applyMappingConfig(parsed: MappingConfigImport): void {
-    this.converter = parsed.converter;
-    this.schema = parsed.schema;
-    this.mimeType = parsed.mimeType;
-    this.converterParameterValues = parsed.converterParameters;
-    this.datasourceType = parsed.datasourceType;
-    this.datasourceTypeParameterValues = parsed.datasourceTypeParameters;
+    // Covers converter/schema/mime type, both parameter records, the data
+    // source, the property names, the keep flags and the bbox.
+    patchImporterFormFromMappingConfig(this.importerForm, parsed);
 
-    this.applyBbox(parsed.dataSourceParameters);
-
-    this.spatialUnitDataSourceNameProperty = parsed.nameProperty;
-    this.spatialUnitDataSourceIdProperty = parsed.idProperty;
-    this.validityStartDate_perFeature = parsed.validStartDate;
-    this.validityEndDate_perFeature = parsed.validEndDate;
-    this.keepAttributes = parsed.keepAttributes;
-    this.keepMissingValues = parsed.keepMissingValues;
     this.attributeMappings_adminView = parsed.attributeMappings;
 
     if (parsed.periodOfValidity) {
       this.periodOfValidity = parsed.periodOfValidity;
-      this.periodOfValidityInvalid = false;
     }
 
     this.spatialUnitMappingConfigStructure =
@@ -803,24 +946,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   /** Add-modal bbox interpretation: reads a dedicated bboxType parameter. */
   private applyBbox(dsParams: { name: string; value: string }[]): void {
-    const bboxTypeParam = dsParams.find((p) => p.name === 'bboxType');
-    if (bboxTypeParam) {
-      this.bboxType = bboxTypeParam.value || '';
-    }
-    const bboxParam = dsParams.find((p) => p.name === 'bbox');
-    if (bboxParam && typeof bboxParam.value === 'string') {
-      if (this.bboxType === 'ref') {
-        this.bboxRefSpatialUnit = bboxParam.value;
-      } else {
-        const parts = bboxParam.value.split(',');
-        if (parts.length === 4) {
-          this.bbox_minx = parts[0];
-          this.bbox_miny = parts[1];
-          this.bbox_maxx = parts[2];
-          this.bbox_maxy = parts[3];
-        }
-      }
-    }
+    patchBboxFromDataSourceParameters(this.importerForm, dsParams);
   }
 
   onExportSpatialUnitAddMetadataTemplate() {
@@ -886,55 +1012,19 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   resetForm() {
     this.stepper.reset();
-    this.spatialUnitLevel = '';
-    this.spatialUnitLevelInvalid = false;
-    this.metadataForm.reset();
-    this.nextLowerHierarchySpatialUnit = null;
-    this.nextUpperHierarchySpatialUnit = null;
-    this.hierarchyInvalid = false;
-    this.periodOfValidity = { startDate: '', endDate: '' };
-    this.periodOfValidityInvalid = false;
 
-    // Reset outline layer settings
-    this.isOutlineLayer = false;
-    this.outlineColor = '#000000';
-    this.outlineWidth = 3;
-    const availableOptions = LABELED_LOI_DASH_ARRAY_OBJECTS || [];
-    if (availableOptions.length > 0) {
-      this.selectedOutlineDashArrayObject = {
-        label: availableOptions[0].label,
-        dashArrayValue: availableOptions[0].dashArrayValue,
-        svgString: availableOptions[0].svgString,
-      };
-    } else {
-      this.selectedOutlineDashArrayObject = null;
-    }
-    this.spatialUnitMappingConfigStructure = {};
+    // One reset for the whole wizard: every scalar control is nonNullable with
+    // its real default, so this restores '#000000', width 3, the keep flags and
+    // SRID 4326 rather than nulling them.
+    this.addForm.reset();
+    syncConverterParameterControls(this.importerForm, null);
+    syncDatasourceParameterControls(this.importerForm, null);
+    // Runtime default: the pattern options are not known at construction time.
+    this.selectedOutlineDashArrayObject = this.defaultOutlineDashArray();
+    resetAttributeMappingDraft(this.attributeMappingDraft, this.defaultAttributeMappingType());
 
-    // Line pattern picker will handle the display automatically
-
-    this.converter = null;
-    this.schema = '';
-    this.mimeType = '';
-    this.datasourceType = null;
     this.selectedDataSourceFile = null;
-    this.spatialUnitDataSourceIdProperty = '';
-    this.spatialUnitDataSourceNameProperty = '';
-    this.validityStartDate_perFeature = '';
-    this.validityEndDate_perFeature = '';
-    this.converterParameterValues = {};
-    this.datasourceTypeParameterValues = {};
-    this.bboxType = '';
-    this.bboxRefSpatialUnit = null;
-    this.bbox_minx = null;
-    this.bbox_miny = null;
-    this.bbox_maxx = null;
-    this.bbox_maxy = null;
-    this.attributeMapping_sourceAttributeName = '';
-    this.attributeMapping_destinationAttributeName = '';
     this.attributeMappings_adminView = [];
-    this.keepAttributes = true;
-    this.keepMissingValues = true;
     this.importerErrors.set([]);
     this.importedFeatures.set([]);
     this.converterDefinition = null;
@@ -942,9 +1032,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.propertyMappingDefinition = null;
     this.postBody_spatialUnits = null;
 
-    // Reset role management
-    this.ownerOrganization = '';
-    this.isPublic = false;
     this.showRoleForm = false;
     this.roleGrid?.reset();
 
@@ -953,8 +1040,11 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.spatialUnitMappingConfigImportError.set('');
     this.spatialUnitMappingConfigStructure = {};
     this.spatialUnitMetadataStructure_pretty = '';
-    const attributeMappingTypes = this.kommonitorImporterHelperService.getAttributeMappingTypes();
-    this.attributeMapping_attributeType = attributeMappingTypes[0];
+  }
+
+  /** First available outline pattern, or null while the options are empty. */
+  private defaultOutlineDashArray(): LinePatternOption | null {
+    return this.availableLinePatternOptions[0] ?? null;
   }
 
   hideMetadataErrorAlert() {
@@ -963,21 +1053,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   hideMappingConfigErrorAlert() {
     this.spatialUnitMappingConfigImportError.set('');
-  }
-
-  onChangeOwner(ownerOrganization: string) {
-    this.ownerOrganization = ownerOrganization;
-
-    // Seed the grid with the owner unit's default viewer/editor permissions
-    this.roleGrid?.applyOwner(ownerOrganization);
-
-    // Show/hide the role form based on whether an organization is selected
-    this.showRoleForm = !!ownerOrganization;
-  }
-
-  onChangeIsPublic(isPublic: boolean) {
-    // Handle public access change
-    this.isPublic = isPublic;
   }
 
   cancel() {

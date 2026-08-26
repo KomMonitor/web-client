@@ -20,18 +20,13 @@
   <!-- MultiStep Form -->
   <div class="row">
     <div class="col-md-12">
-      <form
-        class="multiStepForm form-group"
-        #georesourceAddForm="ngForm"
-        (ngSubmit)="addGeoresource()"
-        style="margin-bottom: 0px"
-      >
+      <div class="multiStepForm form-group" style="margin-bottom: 0px">
         <!-- progressbar -->
         <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
 
         <!-- fieldsets -->
         @if (stepper.isActive('metadata')) {
-          <fieldset>
+          <fieldset [formGroup]="addForm.controls.metadata">
             <h2 class="fs-title">{{ 'ADMIN_GEORESOURCES.COMMON.METADATA_TITLE' | translate }}</h2>
             <h3 class="fs-subtitle">
               {{ 'ADMIN_GEORESOURCES.COMMON.METADATA_SUBTITLE' | translate }}
@@ -48,32 +43,25 @@
                   <input
                     type="text"
                     class="form-control"
-                    [(ngModel)]="datasetName"
-                    name="datasetName"
-                    (ngModelChange)="checkDatasetName()"
+                    formControlName="datasetName"
+                    appAria="gr-metadata-name"
                     [placeholder]="'ADMIN_GEORESOURCES.COMMON.UNIQUE_NAME_PLACEHOLDER' | translate"
-                    required
                   />
-                  <div class="help-block with-errors"></div>
-                  @if (datasetNameInvalid) {
-                    <div style="color: red">
-                      <p>
-                        {{ 'ADMIN_GEORESOURCES.COMMON.NAME_INVALID' | translate }}
-                      </p>
-                    </div>
-                  }
+                  <app-form-error
+                    [control]="addForm.controls.metadata.controls.datasetName"
+                    for="gr-metadata-name"
+                    [keyOverride]="
+                      addForm.controls.metadata.controls.datasetName.hasError('uniqueName')
+                        ? 'ADMIN_GEORESOURCES.COMMON.NAME_INVALID'
+                        : ''
+                    "
+                  />
                 </div>
               </div>
               <div class="col-md-6 col-sm-6 col-12">
                 <div class="form-group">
                   <label>{{ 'ADMIN_GEORESOURCES.COMMON.TYPE' | translate }}*</label>
-                  <select
-                    [(ngModel)]="georesourceType"
-                    name="georesourceType"
-                    (ngModelChange)="onChangeGeoresourceType()"
-                    class="form-control"
-                    required
-                  >
+                  <select formControlName="georesourceType" class="form-control">
                     <option value="poi" selected>Points of Interest</option>
                     <option value="loi">Lines of Interest</option>
                     <option value="aoi">Areas of Interest</option>
@@ -158,13 +146,12 @@
                         type="text"
                         class="form-control"
                         style="width: auto; display: inline-block"
-                        [(ngModel)]="selectedPoiIconName"
-                        name="poiSymbolName"
+                        [formControl]="
+                          addForm.controls.metadata.controls.style.controls.poiIconName
+                        "
                         [placeholder]="'ADMIN_GEORESOURCES.COMMON.SYMBOL_PLACEHOLDER' | translate"
                         [title]="'ADMIN_GEORESOURCES.COMMON.SYMBOL_NAME_TITLE' | translate"
-                        required
                       />
-                      <div class="help-block with-errors"></div>
                     </div>
                   </div>
                 }
@@ -176,21 +163,20 @@
                       <input
                         type="text"
                         class="form-control"
-                        [(ngModel)]="poiMarkerText"
-                        name="poiMarkerText"
-                        (ngModelChange)="checkPoiMarkerText()"
+                        [formControl]="
+                          addForm.controls.metadata.controls.style.controls.poiMarkerText
+                        "
+                        appAria="gr-metadata-marker-text"
                         placeholder=""
-                        maxlength="3"
-                        required
                       />
                       <div class="help-block with-errors">
                         {{ 'ADMIN_GEORESOURCES.ADD_MODAL.TEXT_LENGTH_HINT' | translate }}
                       </div>
-                      @if (poiMarkerTextInvalid) {
-                        <div style="color: red">
-                          <p>{{ 'ADMIN_GEORESOURCES.ADD_MODAL.TEXT_TOO_LONG' | translate }}</p>
-                        </div>
-                      }
+                      <app-form-error
+                        [control]="addForm.controls.metadata.controls.style.controls.poiMarkerText"
+                        for="gr-metadata-marker-text"
+                        keyOverride="ADMIN_GEORESOURCES.ADD_MODAL.TEXT_TOO_LONG"
+                      />
                     </div>
                   </div>
                 }
@@ -253,8 +239,7 @@
                     <input
                       style="width: auto"
                       type="number"
-                      [(ngModel)]="loiWidth"
-                      name="loiWidth"
+                      [formControl]="addForm.controls.metadata.controls.style.controls.loiWidth"
                       min="1"
                       max="5"
                       step="1"
@@ -350,90 +335,11 @@
               {{ 'ADMIN_SHARED_UI.TOPICS.SELECTION_HINT' | translate }}
             </p>
             <p>{{ 'ADMIN_SHARED_UI.TOPICS.CATALOG_HINT' | translate }}</p>
-            <div class="row vertical-align">
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>{{ 'ADMIN_SHARED_UI.TOPICS.MAIN_TOPIC' | translate }}*</label>
-                  <select
-                    [(ngModel)]="georesourceTopic_mainTopic"
-                    name="georesourceTopic_mainTopic"
-                    class="form-control"
-                    required
-                  >
-                    <option disabled selected value>
-                      {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_MAIN_TOPIC' | translate }}
-                    </option>
-                    @for (mainTopic of availableTopics; track mainTopic) {
-                      <option [ngValue]="mainTopic">{{ mainTopic.topicName }}</option>
-                    }
-                  </select>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                @if (georesourceTopic_mainTopic?.subTopics?.length > 0) {
-                  <div class="form-group">
-                    <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_1' | translate }}</label>
-                    <select
-                      [(ngModel)]="georesourceTopic_subTopic"
-                      name="georesourceTopic_subTopic"
-                      class="form-control"
-                    >
-                      <option disabled selected value>
-                        {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
-                      </option>
-                      @for (subTopic of georesourceTopic_mainTopic.subTopics; track subTopic) {
-                        <option [ngValue]="subTopic">{{ subTopic.topicName }}</option>
-                      }
-                    </select>
-                    <div class="help-block with-errors"></div>
-                  </div>
-                }
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                @if (georesourceTopic_subTopic?.subTopics?.length > 0) {
-                  <div class="form-group">
-                    <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_2' | translate }}</label>
-                    <select
-                      [(ngModel)]="georesourceTopic_subsubTopic"
-                      name="georesourceTopic_subsubTopic"
-                      class="form-control"
-                    >
-                      <option disabled selected value>
-                        {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
-                      </option>
-                      @for (subsubTopic of georesourceTopic_subTopic.subTopics; track subsubTopic) {
-                        <option [ngValue]="subsubTopic">{{ subsubTopic.topicName }}</option>
-                      }
-                    </select>
-                    <div class="help-block with-errors"></div>
-                  </div>
-                }
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                @if (georesourceTopic_subsubTopic?.subTopics?.length > 0) {
-                  <div class="form-group">
-                    <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_3' | translate }}</label>
-                    <select
-                      [(ngModel)]="georesourceTopic_subsubsubTopic"
-                      name="georesourceTopic_subsubsubTopic"
-                      class="form-control"
-                    >
-                      <option disabled selected value>
-                        {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
-                      </option>
-                      @for (
-                        subsubsubTopic of georesourceTopic_subsubTopic.subTopics;
-                        track subsubsubTopic
-                      ) {
-                        <option [ngValue]="subsubsubTopic">{{ subsubsubTopic.topicName }}</option>
-                      }
-                    </select>
-                    <div class="help-block with-errors"></div>
-                  </div>
-                }
-              </div>
-            </div>
+            <app-topic-hierarchy-form
+              [form]="addForm.controls.topics"
+              [availableTopics]="availableTopics"
+              idPrefix="gr-topics"
+            />
             <hr />
             <br />
             @if (accessControlService.checkAdminPermission()) {
@@ -489,7 +395,10 @@
              Switched via display (not @if) so the role grid's checked state
              survives navigating between steps. -->
         @if (envConfigService.enableKeycloakSecurity) {
-          <fieldset [style.display]="stepper.isActive('security') ? 'block' : 'none'">
+          <fieldset
+            [formGroup]="addForm.controls.security"
+            [style.display]="stepper.isActive('security') ? 'block' : 'none'"
+          >
             <h2 class="fs-title">
               {{ 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE' | translate }}
             </h2>
@@ -498,8 +407,7 @@
             </h3>
             <app-owner-organization-select
               mode="assign"
-              [ownerId]="ownerOrganization"
-              (ownerIdChange)="onChangeOwner($event)"
+              formControlName="ownerOrganization"
             ></app-owner-organization-select>
             <br />
             <hr />
@@ -510,12 +418,7 @@
                 <div class="col-md-3">
                   <label>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label>
                   <label class="switch">
-                    <input
-                      type="checkbox"
-                      [(ngModel)]="isPublic"
-                      name="isPublic"
-                      (ngModelChange)="onChangeIsPublic($event)"
-                    />
+                    <input type="checkbox" formControlName="isPublic" />
                     <span class="switchslider round"></span>
                   </label>
                   <div class="help-block">
@@ -557,7 +460,7 @@
         }
 
         @if (stepper.isActive('data')) {
-          <fieldset>
+          <fieldset [formGroup]="addForm.controls.data.controls.importer">
             <div style="position: absolute">
               <button
                 type="button"
@@ -606,13 +509,7 @@
                   <label
                     >{{ 'ADMIN_GEORESOURCES.COMMON.GEODATA_SOURCE_FORMAT' | translate }}*</label
                   >
-                  <select
-                    [(ngModel)]="converter"
-                    name="converter"
-                    (ngModelChange)="onChangeConverter()"
-                    class="form-control"
-                    required
-                  >
+                  <select formControlName="converter" class="form-control">
                     <option disabled selected value>
                       {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SOURCE_FORMAT' | translate }}
                     </option>
@@ -626,7 +523,7 @@
                   <div>
                     <div class="form-group">
                       <label>{{ 'ADMIN_GEORESOURCES.COMMON.SCHEMA' | translate }}*</label>
-                      <select [(ngModel)]="schema" name="schema" class="form-control" required>
+                      <select formControlName="schema" class="form-control">
                         <option disabled selected value>
                           {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SCHEMA' | translate }}
                         </option>
@@ -642,13 +539,7 @@
                   <div>
                     <div class="form-group">
                       <label>{{ 'ADMIN_GEORESOURCES.COMMON.SOURCE_FORMAT' | translate }}*</label>
-                      <select
-                        [(ngModel)]="mimeType"
-                        name="mimeType"
-                        (ngModelChange)="onChangeMimeType($event)"
-                        class="form-control"
-                        required
-                      >
+                      <select formControlName="mimeType" class="form-control">
                         <option disabled selected value>
                           {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_FORMAT' | translate }}
                         </option>
@@ -673,7 +564,7 @@
                         type="text"
                         class="form-control"
                         [placeholder]="parameter.name"
-                        [(ngModel)]="converterParameterValues[parameter.name]"
+                        [formControlName]="parameter.name"
                         [name]="'converterParameter_' + parameter.name"
                         [required]="parameter.mandatory"
                       />
@@ -707,13 +598,7 @@
                         <label
                           >{{ 'ADMIN_GEORESOURCES.COMMON.DATASOURCE_TYPE' | translate }}*</label
                         >
-                        <select
-                          [(ngModel)]="datasourceType"
-                          name="datasourceType"
-                          (ngModelChange)="onChangeDatasourceType($event)"
-                          class="form-control"
-                          required
-                        >
+                        <select formControlName="datasourceType" class="form-control" required>
                           <option disabled selected value>
                             {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SOURCE_TYPE' | translate }}
                           </option>
@@ -741,7 +626,7 @@
                             >{{ 'ADMIN_GEORESOURCES.COMMON.SPATIAL_FILTER' | translate }}*</label
                           >
                           <select
-                            [(ngModel)]="bboxType"
+                            formControlName="bboxType"
                             name="bboxType"
                             class="form-control"
                             required
@@ -762,7 +647,7 @@
                           @if (bboxType === 'ref') {
                             <div>
                               <select
-                                [(ngModel)]="bboxRefSpatialUnit"
+                                formControlName="bboxRefSpatialUnitId"
                                 name="bboxRefSpatialUnit"
                                 class="form-control"
                                 [required]="bboxType === 'ref'"
@@ -797,7 +682,7 @@
                                 type="number"
                                 lang="us"
                                 placeholder="-180"
-                                [(ngModel)]="bbox_minx"
+                                formControlName="minx"
                                 name="bbox_minx"
                                 [required]="bboxType === 'literal'"
                               />
@@ -811,7 +696,7 @@
                                 type="number"
                                 lang="us"
                                 placeholder="-90"
-                                [(ngModel)]="bbox_miny"
+                                formControlName="miny"
                                 name="bbox_miny"
                                 [required]="bboxType === 'literal'"
                               />
@@ -825,7 +710,7 @@
                                 type="number"
                                 lang="us"
                                 placeholder="180"
-                                [(ngModel)]="bbox_maxx"
+                                formControlName="maxx"
                                 name="bbox_maxx"
                                 [required]="bboxType === 'literal'"
                               />
@@ -839,7 +724,7 @@
                                 type="number"
                                 lang="us"
                                 placeholder="90"
-                                [(ngModel)]="bbox_maxy"
+                                formControlName="maxy"
                                 name="bbox_maxy"
                                 [required]="bboxType === 'literal'"
                               />
@@ -868,7 +753,7 @@
                                     rows="1"
                                     class="form-control"
                                     [placeholder]="parameter.name"
-                                    [(ngModel)]="datasourceTypeParameterValues[parameter.name]"
+                                    [formControlName]="parameter.name"
                                     [name]="'datasourceTypeParameter_' + parameter.name"
                                     [required]="parameter.mandatory"
                                   ></textarea>
@@ -885,16 +770,6 @@
                     </div>
                   }
                   <div class="help-block with-errors"></div>
-                  @if (georesourceDataSourceInputInvalid) {
-                    <div style="color: red">
-                      <p>
-                        {{
-                          'ADMIN_GEORESOURCES.COMMON.INPUT_INVALID_REASON'
-                            | translate: { reason: georesourceDataSourceInputInvalidReason }
-                        }}
-                      </p>
-                    </div>
-                  }
                 </div>
               </div>
               <div class="col-md-3 col-sm-6 col-12">
@@ -903,7 +778,7 @@
                   <input
                     type="text"
                     class="form-control"
-                    [(ngModel)]="georesourceDataSourceIdProperty"
+                    formControlName="idProperty"
                     name="georesourceDataSourceIdProperty"
                     required
                   />
@@ -913,20 +788,13 @@
                     </p>
                   </div>
                   <div class="help-block with-errors"></div>
-                  @if (idPropertyNotFound) {
-                    <div style="color: red">
-                      <p>
-                        {{ 'ADMIN_GEORESOURCES.COMMON.ATTRIBUTE_NOT_FOUND' | translate }}
-                      </p>
-                    </div>
-                  }
                 </div>
                 <div class="form-group">
                   <label>{{ 'ADMIN_GEORESOURCES.COMMON.NAME_ATTRIBUTE' | translate }}*</label>
                   <input
                     type="text"
                     class="form-control"
-                    [(ngModel)]="georesourceDataSourceNameProperty"
+                    formControlName="nameProperty"
                     name="georesourceDataSourceNameProperty"
                     required
                   />
@@ -934,13 +802,6 @@
                     <p>{{ 'ADMIN_GEORESOURCES.COMMON.NAME_ATTRIBUTE_HINT' | translate }}</p>
                   </div>
                   <div class="help-block with-errors"></div>
-                  @if (namePropertyNotFound) {
-                    <div style="color: red">
-                      <p>
-                        {{ 'ADMIN_GEORESOURCES.COMMON.ATTRIBUTE_NOT_FOUND' | translate }}
-                      </p>
-                    </div>
-                  }
                 </div>
               </div>
               <div class="col-md-3 col-sm-6 col-12">
@@ -950,7 +811,7 @@
                   }}</label>
                   <input
                     type="text"
-                    [(ngModel)]="validityStartDate_perFeature"
+                    formControlName="validStartDateProperty"
                     name="validityStartDate_perFeature"
                     class="form-control pull-right"
                   />
@@ -967,7 +828,7 @@
                   }}</label>
                   <input
                     type="text"
-                    [(ngModel)]="validityEndDate_perFeature"
+                    formControlName="validEndDateProperty"
                     name="validityEndDate_perFeature"
                     class="form-control pull-right"
                   />
@@ -980,66 +841,50 @@
                 </div>
               </div>
             </div>
-            <div class="row vertical-align">
+            <div
+              class="row vertical-align"
+              [formGroup]="addForm.controls.data.controls.periodOfValidity"
+            >
               <div class="col-md-6 col-sm-6 col-12">
                 <div class="form-group">
                   <label>{{ 'ADMIN_GEORESOURCES.COMMON.VALID_FROM' | translate }}*</label>
-                  <div class="input-group date">
-                    <div class="input-group-addon">
-                      <i class="far fa-calendar-alt"></i>
-                    </div>
-                    <input
-                      type="text"
-                      [(ngModel)]="periodOfValidity.startDate"
-                      name="periodOfValidityStart"
-                      (ngModelChange)="checkPeriodOfValidity()"
-                      class="form-control pull-right"
-                      id="georesourceAddDatepickerStart"
-                      placeholder="YYYY-MM-DD"
-                      required
-                    />
-                  </div>
+                  <km-date-picker
+                    placeholder="YYYY-MM-DD"
+                    formControlName="startDate"
+                    [invalid]="periodOfValidityInvalid"
+                    [showErrors]="false"
+                  ></km-date-picker>
                   <div class="help-block">
                     <p>
                       {{ 'ADMIN_GEORESOURCES.COMMON.VALID_FROM_HINT' | translate }}
                     </p>
                   </div>
-                  <div class="help-block with-errors"></div>
-                  @if (periodOfValidityInvalid) {
-                    <div style="color: red">
-                      <p>{{ 'ADMIN_GEORESOURCES.COMMON.PERIOD_INVALID' | translate }}</p>
-                    </div>
-                  }
+                  <app-form-error
+                    [control]="addForm.controls.data.controls.periodOfValidity"
+                    keyOverride="ADMIN_GEORESOURCES.COMMON.PERIOD_INVALID"
+                    showWhen="always"
+                  />
                 </div>
               </div>
               <div class="col-md-6 col-sm-6 col-12">
                 <div class="form-group">
                   <label>{{ 'ADMIN_GEORESOURCES.COMMON.VALID_TO' | translate }}</label>
-                  <div class="input-group date">
-                    <div class="input-group-addon">
-                      <i class="far fa-calendar-alt"></i>
-                    </div>
-                    <input
-                      type="text"
-                      [(ngModel)]="periodOfValidity.endDate"
-                      name="periodOfValidityEnd"
-                      (ngModelChange)="checkPeriodOfValidity()"
-                      class="form-control pull-right"
-                      id="georesourceAddDatepickerEnd"
-                      placeholder="YYYY-MM-DD"
-                    />
-                  </div>
+                  <km-date-picker
+                    placeholder="YYYY-MM-DD"
+                    formControlName="endDate"
+                    [invalid]="periodOfValidityInvalid"
+                    [showErrors]="false"
+                  ></km-date-picker>
                   <div class="help-block">
                     <p>
                       {{ 'ADMIN_GEORESOURCES.COMMON.VALID_TO_HINT' | translate }}
                     </p>
                   </div>
-                  <div class="help-block with-errors"></div>
-                  @if (periodOfValidityInvalid) {
-                    <div style="color: red">
-                      <p>{{ 'ADMIN_GEORESOURCES.COMMON.PERIOD_INVALID' | translate }}</p>
-                    </div>
-                  }
+                  <app-form-error
+                    [control]="addForm.controls.data.controls.periodOfValidity"
+                    keyOverride="ADMIN_GEORESOURCES.COMMON.PERIOD_INVALID"
+                    showWhen="always"
+                  />
                 </div>
               </div>
             </div>
@@ -1051,7 +896,7 @@
                   <label>{{ 'ADMIN_GEORESOURCES.COMMON.KEEP_ATTRIBUTES' | translate }}*</label>
                   <br />
                   <label class="switch">
-                    <input type="checkbox" [(ngModel)]="keepAttributes" name="keepAttributes" />
+                    <input type="checkbox" formControlName="keepAttributes" />
                     <span class="switchslider round"></span>
                   </label>
                   <div class="help-block">
@@ -1071,7 +916,7 @@
                     <label class="switch">
                       <input
                         type="checkbox"
-                        [(ngModel)]="keepMissingValues"
+                        formControlName="keepMissingValues"
                         name="keepMissingValues"
                       />
                       <span class="switchslider round"></span>
@@ -1089,7 +934,7 @@
             </div>
             @if (!keepAttributes) {
               <div class="row vertical-align">
-                <div class="col-md-6 col-sm-6 col-12">
+                <div class="col-md-6 col-sm-6 col-12" [formGroup]="attributeMappingDraft">
                   <div class="form-group">
                     <label>{{ 'ADMIN_GEORESOURCES.COMMON.SOURCE_ATTRIBUTE' | translate }}*</label>
                     <input
@@ -1098,7 +943,7 @@
                       [placeholder]="
                         'ADMIN_GEORESOURCES.COMMON.SOURCE_ATTRIBUTE_PLACEHOLDER' | translate
                       "
-                      [(ngModel)]="attributeMapping_sourceAttributeName"
+                      formControlName="sourceName"
                       name="attributeMapping_sourceAttributeName"
                     />
                     <div class="help-block with-errors"></div>
@@ -1111,7 +956,7 @@
                       [placeholder]="
                         'ADMIN_GEORESOURCES.COMMON.TARGET_ATTRIBUTE_PLACEHOLDER' | translate
                       "
-                      [(ngModel)]="attributeMapping_destinationAttributeName"
+                      formControlName="destinationName"
                       name="attributeMapping_destinationAttributeName"
                     />
                     <div class="help-block with-errors"></div>
@@ -1119,7 +964,7 @@
                   <div class="form-group">
                     <label>{{ 'ADMIN_GEORESOURCES.COMMON.DATA_TYPE' | translate }}*</label>
                     <select
-                      [(ngModel)]="attributeMapping_attributeType"
+                      formControlName="dataType"
                       name="attributeMapping_attributeType"
                       class="form-control"
                       required
@@ -1211,7 +1056,7 @@
             />
           </fieldset>
         }
-      </form>
+      </div>
     </div>
   </div>
 </div>
@@ -1255,19 +1100,7 @@
   <button
     type="button"
     class="btn btn-success"
-    [disabled]="
-      !datasetName ||
-      metadataForm.invalid ||
-      !georesourceDataSourceIdProperty ||
-      !georesourceDataSourceNameProperty ||
-      !periodOfValidity.startDate ||
-      datasetNameInvalid ||
-      poiMarkerTextInvalid ||
-      periodOfValidityInvalid ||
-      !converter ||
-      !datasourceType ||
-      (envConfigService.enableKeycloakSecurity && !ownerOrganization)
-    "
+    [disabled]="addForm.invalid"
     (click)="addGeoresource()"
   >
     {{ 'ADMIN_GEORESOURCES.ADD_MODAL.REGISTER' | translate }}

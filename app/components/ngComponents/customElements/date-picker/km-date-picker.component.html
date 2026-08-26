@@ -32,7 +32,7 @@
     </div>
   </div>
 
-  @if (shouldShowInvalid) {
+  @if (showErrors && shouldShowInvalid) {
     <div class="invalid-feedback d-block mt-1">
       @if (hasError('required')) {
         <span>Dieses Feld ist erforderlich.</span>

@@ -64,7 +64,13 @@ describe('SpatialUnitAddModalComponent', () => {
   let component: SpatialUnitAddModalComponent;
   let fixture: ComponentFixture<SpatialUnitAddModalComponent>;
 
-  beforeEach(() => {
+  /**
+   * Builds a fixture with the standard stub set. `env` overrides the
+   * EnvConfigService stub, so a test can run the modal with Keycloak off.
+   */
+  function createFixture(
+    env: Record<string, unknown> = {}
+  ): ComponentFixture<SpatialUnitAddModalComponent> {
     TestBed.configureTestingModule({
       imports: [SpatialUnitAddModalComponent, TranslateModule.forRoot()],
       providers: [
@@ -75,7 +81,7 @@ describe('SpatialUnitAddModalComponent', () => {
         NgbActiveModal,
         {
           provide: EnvConfigService,
-          useValue: { enableKeycloakSecurity: true, updateIntervalOptions: [] },
+          useValue: { enableKeycloakSecurity: true, updateIntervalOptions: [], ...env },
         },
         {
           provide: SpatialUnitMetadataStoreService,
@@ -119,9 +125,14 @@ describe('SpatialUnitAddModalComponent', () => {
       schemas: [NO_ERRORS_SCHEMA],
     });
 
-    fixture = TestBed.createComponent(SpatialUnitAddModalComponent);
+    const created = TestBed.createComponent(SpatialUnitAddModalComponent);
+    created.componentInstance.availableSpatialUnits = SPATIAL_UNITS;
+    return created;
+  }
+
+  beforeEach(() => {
+    fixture = createFixture();
     component = fixture.componentInstance;
-    component.availableSpatialUnits = SPATIAL_UNITS;
   });
 
   it('should create', () => {
@@ -361,6 +372,179 @@ describe('SpatialUnitAddModalComponent', () => {
       component.checkPeriodOfValidity();
 
       expect(component.periodOfValidityInvalid).toBe(false);
+    });
+  });
+  // ---------------------------------------------------------------------------
+
+  describe('resetForm', () => {
+    it('restores the non-empty defaults instead of nulling them', () => {
+      component.isOutlineLayer = true;
+      component.outlineColor = '#ffffff';
+      component.outlineWidth = 5;
+      component.keepAttributes = false;
+      component.keepMissingValues = false;
+      component.isPublic = true;
+
+      component.resetForm();
+
+      expect(component.isOutlineLayer).toBe(false);
+      expect(component.outlineColor).toBe('#000000');
+      expect(component.outlineWidth).toBe(3);
+      expect(component.keepAttributes).toBe(true);
+      expect(component.keepMissingValues).toBe(true);
+      expect(component.isPublic).toBe(false);
+    });
+
+    it('clears the entered values and the wizard step', () => {
+      component.spatialUnitLevel = 'Quartiere';
+      component.nextLowerHierarchySpatialUnit = SPATIAL_UNITS[2];
+      component.periodOfValidity = { startDate: '2026-01-01', endDate: '2026-12-31' };
+      component.spatialUnitDataSourceIdProperty = 'id';
+      component.ownerOrganization = 'org-1';
+      component.stepper.next();
+
+      component.resetForm();
+
+      expect(component.spatialUnitLevel).toBe('');
+      expect(component.nextLowerHierarchySpatialUnit).toBeNull();
+      expect(component.periodOfValidity).toEqual({ startDate: '', endDate: '' });
+      expect(component.spatialUnitDataSourceIdProperty).toBe('');
+      expect(component.ownerOrganization).toBe('');
+      expect(component.stepper.currentStep).toBe(1);
+      expect(component.attributeMappings_adminView).toEqual([]);
+    });
+
+    it('resets the shared metadata block', () => {
+      component.metadataForm.patchValue({ description: 'Beschreibung', sridEPSG: 25832 });
+
+      component.resetForm();
+
+      expect(component.metadata.description).toBe('');
+      expect(component.metadata.sridEPSG).toBe(4326);
+    });
+  });
+  // ---------------------------------------------------------------------------
+
+  describe('submit gate', () => {
+    /** Fills everything the POST body requires. */
+    const fillRequired = () => {
+      component.spatialUnitLevel = 'Quartiere';
+      component.metadataForm.patchValue({
+        description: 'Beschreibung',
+        datasource: 'Quelle',
+        contact: 'Kontakt',
+        lastUpdate: '2026-01-01',
+        updateInterval: { apiName: 'YEARLY', displayName: 'jährlich' },
+      });
+      component.periodOfValidity = { startDate: '2026-01-01', endDate: '' };
+      component.spatialUnitDataSourceIdProperty = 'id';
+      component.spatialUnitDataSourceNameProperty = 'name';
+      component.converter = { name: 'GeoJSON', mimeTypes: [], encodings: [], type: 'geojson' };
+      component.datasourceType = { type: 'FILE', parameters: [] };
+    };
+
+    it('stays closed while required fields are missing', () => {
+      expect(component.addForm.invalid).toBe(true);
+    });
+
+    it('opens once every required field including the owner is filled', () => {
+      fillRequired();
+      expect(component.addForm.invalid).toBe(true); // owner still missing
+
+      component.ownerOrganization = 'org-1';
+
+      expect(component.addForm.valid).toBe(true);
+    });
+
+    it('does not demand an owner when Keycloak is disabled', () => {
+      // Guards the historic bug: the `!ownerOrganization` clause of the submit
+      // gate was unconditional although the field only exists with Keycloak on.
+      TestBed.resetTestingModule();
+      const plainFixture = createFixture({ enableKeycloakSecurity: false });
+      const plain = plainFixture.componentInstance;
+
+      plain.spatialUnitLevel = 'Quartiere';
+      plain.metadataForm.patchValue({
+        description: 'Beschreibung',
+        datasource: 'Quelle',
+        contact: 'Kontakt',
+        lastUpdate: '2026-01-01',
+        updateInterval: { apiName: 'YEARLY', displayName: 'jährlich' },
+      });
+      plain.periodOfValidity = { startDate: '2026-01-01', endDate: '' };
+      plain.spatialUnitDataSourceIdProperty = 'id';
+      plain.spatialUnitDataSourceNameProperty = 'name';
+      plain.converter = { name: 'GeoJSON', mimeTypes: [], encodings: [], type: 'geojson' };
+      plain.datasourceType = { type: 'FILE', parameters: [] };
+
+      expect(plain.ownerOrganization).toBe('');
+      expect(plain.addForm.valid).toBe(true);
+    });
+  });
+  // ---------------------------------------------------------------------------
+
+  describe('importer form wiring', () => {
+    const CONVERTER = {
+      name: 'GeoJSON',
+      type: 'geojson',
+      mimeTypes: ['application/json', 'text/csv'],
+      encodings: ['UTF-8'],
+      schemas: ['default'],
+      parameters: [
+        { name: 'delimiter', mandatory: true },
+        { name: 'comment', mandatory: false },
+      ],
+    };
+
+    beforeEach(() => {
+      // The subscriptions live in ngOnInit; the fixture is never rendered, so
+      // the hook is invoked directly (its async loads are stubbed out).
+      component.ngOnInit();
+    });
+
+    it('seeds schema and mime type when a converter is picked', () => {
+      component.importerForm.controls.converter.setValue(CONVERTER as never);
+
+      expect(component.schema).toBe('default');
+      expect(component.mimeType).toBe('application/json');
+    });
+
+    it('creates one control per converter parameter, required where mandatory', () => {
+      component.importerForm.controls.converter.setValue(CONVERTER as never);
+
+      const record = component.importerForm.controls.converterParameters;
+      expect(Object.keys(record.controls)).toEqual(['delimiter', 'comment']);
+      expect(record.controls['delimiter'].hasError('required')).toBe(true);
+    });
+
+    it('clears the bbox and property names when the data source type changes', () => {
+      component.spatialUnitDataSourceIdProperty = 'id';
+      component.bboxType = 'ref';
+      component.bboxRefSpatialUnit = 'su-42';
+
+      component.importerForm.controls.datasourceType.setValue({
+        type: 'FILE',
+        parameters: [],
+      } as never);
+
+      expect(component.spatialUnitDataSourceIdProperty).toBe('');
+      expect(component.bboxType).toBe('');
+      expect(component.bboxRefSpatialUnit).toBe('');
+    });
+
+    it('rebuilds the data-source parameter controls, skipping the synthetic bbox ones', () => {
+      component.importerForm.controls.datasourceType.setValue({
+        type: 'OGCAPI_FEATURES',
+        parameters: [
+          { name: 'url', mandatory: true },
+          { name: 'bbox', mandatory: false },
+          { name: 'bboxType', mandatory: false },
+        ],
+      } as never);
+
+      expect(
+        Object.keys(component.importerForm.controls.datasourceTypeParameters.controls)
+      ).toEqual(['url']);
     });
   });
 });

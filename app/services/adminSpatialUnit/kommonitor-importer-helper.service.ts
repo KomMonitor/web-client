@@ -52,24 +52,26 @@ export interface AttributeMappingType {
   apiName: string;
 }
 
+/** One configurable parameter of a converter or data-source type. */
+export interface ImporterParameter {
+  name: string;
+  mandatory: boolean;
+  /** Optional hint rendered next to the input in the admin modals. */
+  description?: string;
+}
+
 export interface Converter {
   name: string;
   type: string;
   mimeTypes: string[];
   encodings: string[];
   schemas?: string[];
-  parameters?: Array<{
-    name: string;
-    mandatory: boolean;
-  }>;
+  parameters?: ImporterParameter[];
 }
 
 export interface DatasourceType {
   type: string;
-  parameters: Array<{
-    name: string;
-    mandatory: boolean;
-  }>;
+  parameters: ImporterParameter[];
 }
 
 export interface MappingConfigStructure {

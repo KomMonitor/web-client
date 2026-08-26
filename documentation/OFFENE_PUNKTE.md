@@ -8,7 +8,7 @@ Basis: Codebestand verifiziert gegen alle Dokumente in `documentation/` und `PRO
 
 | Gate                   | Ergebnis                                            |
 | ---------------------- | --------------------------------------------------- |
-| `npm test`             | 114 Suites / **391 Tests**, 0 failed, **0 skipped** |
+| `npm test`             | 129 Suites / **610 Tests**, 0 failed, **0 skipped** |
 | `npm run lint`         | **0 Errors**, 1296 Warnings                         |
 | `npm run build`        | EXIT 0                                              |
 | `npm run format:check` | **grün** (alle Dateien Prettier-konform)            |
@@ -23,22 +23,7 @@ Die folgende Liste ist das, was danach noch offen ist — sortiert nach Nutzen.
 
 ## A. Funktionale Lücken
 
-### A1. Reporting unterstützt keine kategorischen Indikatoren
-
-**Status: analysiert, nicht umgesetzt.** Details:
-[`REPORTING_CATEGORICAL_INDICATOR_GAP.md`](REPORTING_CATEGORICAL_INDICATOR_GAP.md).
-
-Hauptkarte, Klassifikation und Legende beherrschen `ClassificationType = 'QUALITATIVE'`
-vollständig. Das Reporting hat eine eigene, parallele, rein numerische Klassifikations-Pipeline
-und ruft weder `IndicatorClassificationService.buildClassification()` noch `styleCategorical()`
-auf. Folge: Ein kategorischer Indikator lässt sich in einen Report einfügen, produziert dort
-aber **falsche Farben, eine leere/falsche Legende und sinnlose Kennzahlen**
-(Durchschnittswerte über Kategorie-Strings).
-
-Das ist der einzige bekannte echte **Funktionsfehler** in der Liste — alles Weitere ist
-Struktur/Hygiene.
-
-### A2. Zwei AngularJS-Features ohne Angular-Pendant
+### A1. Zwei AngularJS-Features ohne Angular-Pendant
 
 Unter `app/components/kommonitorUserInterface/kommonitorControls/` liegen noch 5 Legacy-Dateien
 (~156 KB), die **nicht gebaut und nicht geladen** werden:
@@ -57,14 +42,71 @@ nicht 1:1 portierbar. **Entscheidung nötig:** migrieren oder löschen. Erst dan
 
 ### B1. Reactive Forms im Admin-Bereich (aktuelle Baustelle)
 
-Die letzten Commits bereiten das vor (`test(admin): request-body builders before the
-reactive-forms rework`). Aktueller Stand:
+**Fundament steht, 2 von ~14 Admin-Formularen sind umgestellt.** Aktueller Stand:
 
-- **538 `ngModel`-Bindings in 69 Templates** unter `ngComponents/`
-- nur **5 Templates** nutzen `formGroup`/`formControlName`
+- **462 `ngModel`-Bindings in 67 Templates** unter `ngComponents/` (davon **304 in 39 Templates**
+  im Admin-Bereich)
+- **10 Templates** nutzen `formGroup`/`formControlName`/`[formControl]`
 
-Der typisierte Baustein existiert bereits (`adminShared/resourceMetadataForm/` mit
-`buildResourceMetadataForm`) — er muss auf die restlichen Modals/Wizards ausgerollt werden.
+#### Erledigt
+
+Das **geteilte Fundament** unter `adminShared/` — es hat alle weiteren Umbauten blockiert:
+
+| Baustein                                                               | Inhalt                                                                                                       |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `validators/`                                                          | `uniqueNameValidator`, `periodOfValidityValidator`, `spatialUnitHierarchyValidator`, `bboxCompleteValidator` |
+| `formError/`                                                           | `<app-form-error>` (signalbasiert über `control.events`) + `[appAria]`-Direktive                             |
+| `importerForm/`                                                        | Konverter/Datenquelle inkl. der laufzeit-verschlüsselten Parameter als `FormRecord`                          |
+| `topicHierarchyForm/`                                                  | Modell **und** Komponente; leert tiefere Ebenen beim Wechsel                                                 |
+| `periodOfValidityForm/`, `attributeMappingDraftForm/`, `securityForm/` | kleine geteilte Gruppen                                                                                      |
+| `forms/control-state.ts`                                               | `controlInvalidSignal` für die Stepper-Markierung                                                            |
+
+Dazu: `ControlValueAccessor` nachgerüstet an `km-color-picker`, `km-line-pattern-picker` und
+`app-owner-organization-select`; `km-date-picker` um `registerOnValidatorChange` und
+`showErrors` ergänzt. `<app-stepper>` markiert ungültige Schritte rot (Navigation bleibt bewusst
+frei). Neuer i18n-Namespace `ADMIN_SHARED_UI.VALIDATION.*`, de/en synchron.
+
+Darauf umgestellt sind die beiden **Add-Wizards** (`spatialUnitAddModal`, `georesourceAddModal`):
+je eine typisierte Root-`FormGroup` mit einer Child-Group pro Stepper-Schritt, **0 `ngModel`**,
+die 11-klauseligen `[disabled]`-Ausdrücke durch je ein `addForm.invalid` ersetzt, die
+`<form>`-Elemente entfernt (sie hatten kein `type="submit"` und ihre Template-Ref wurde nie
+gelesen), die Body-Builder als pure, TestBed-freie Funktionen extrahiert.
+
+Drei **Verhaltensänderungen** dabei, jeweils durch einen umbenannten Test dokumentiert:
+gleiches Start-/Enddatum wird bei Georessourcen jetzt abgelehnt (`===` verglich zwei frische
+`Date`-Objekte); die Themen-Kaskade leert tiefere Ebenen, statt eine veraltete Referenz aus einem
+fremden Ast zu posten; Raumebenen lassen sich ohne Keycloak überhaupt anlegen (die Klausel
+`!ownerOrganization` war unbedingt, obwohl das Feld hinter `@if (enableKeycloakSecurity)` liegt).
+Zusätzlich prüft die Namens-Eindeutigkeit jetzt getrimmt und case-insensitiv.
+
+**Manuell zu prüfen:** [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md) —
+Widgets im Browser, Objekt-Identität in Selects und die Datei-Import-Round-Trips sind
+automatisiert nicht erreichbar.
+
+#### Offen
+
+| Block                                                                     | `ngModel` | Anmerkung                                                                             |
+| ------------------------------------------------------------------------- | --------: | ------------------------------------------------------------------------------------- |
+| `indicatorAddModal` (5 Steps + 3 Klassifikations-Komponenten)             |        76 | größter Rest; dort entfallen zusätzlich `stateRevision` + 7 `effect(…markForCheck())` |
+| 3 × `editFeatures`-Modal (Geo 37, SU 27, Indikator 24)                    |        88 | großteils der geteilte Importer-Block, der jetzt bereitliegt                          |
+| `scriptAddModal` (5 Dateien)                                              |        26 | eigener `@Input`/`@Output`-Schrittvertrag                                             |
+| `indicatorBatchUpdateModal`                                               |        21 | echter `FormArray`-Fall, eigenes Projekt                                              |
+| Rollen-Modals (5 Stück)                                                   |        24 | klein                                                                                 |
+| 2 × `editMetadata`-Modal                                                  |        20 | Allgemein-Block schon reaktiv, Rest offen                                             |
+| WMS add/edit                                                              |        12 | Hybride: haben bereits `formGroup`, nur die Topic-Reste fehlen                        |
+| Kleinkram (`add-topic`, `adminFilterEditModal`, `indicatorDeleteModal` …) |       ~23 |                                                                                       |
+| _Nicht-Formular_ (Grid-Toggles, Filterfelder, Zeilen-Checkboxen)          |       ~14 | bewusst außen vor                                                                     |
+
+Zwei Punkte aus dem bereits umgebauten Teil:
+
+- Die **Übergangs-Accessoren** (`get/set spatialUnitLevel` usw.) in beiden Wizards sind bewusst
+  stehen geblieben — sie sind der Grund, warum die Sicherheitsnetz-Specs über jeden
+  Zwischenschritt unverändert grün blieben. Ihr Abbau (plus Umschreiben der Spec-Setups auf
+  `patchValue`) ist ein eigener Folgeschritt.
+- **`allowedRoles` vs. `permissions`:** `buildPostBody_georesources` sendet `allowedRoles`,
+  während `GeoresourcePOSTInputType` das Feld `permissions` nennt (der Raumebenen-Zwilling
+  schreibt bereits `permissions`). Georessourcen-Berechtigungen werden vermutlich still
+  verworfen — braucht eine Backend-Prüfung, das aktuelle Verhalten ist im Test nur gepinnt.
 
 ### B2. Verbleibende große Services
 
@@ -130,7 +172,7 @@ danach kann `no-console` auf `error` hochgezogen werden.
 | `diagram-helper-service`                                             |       4 | umstellbar                                         |
 | `access-control-service`                                             |       3 | umstellbar                                         |
 | `map-viewport-state-service`, `auth-service`, `resourceMetadataForm` |    je 1 | umstellbar                                         |
-| die 2 toten AngularJS-Dateien (A2)                                   |       6 | erledigt sich mit A2                               |
+| die 2 toten AngularJS-Dateien (A1)                                   |       6 | erledigt sich mit A1                               |
 
 Der reale Rest ist also klein (~10 Stellen); für `admin-app-config` braucht es eine bewusste
 Entscheidung (Schreibzugriff vs. getypte Setter im `EnvConfigService`).
@@ -196,7 +238,7 @@ Verifiziert gegen den Code am 2026-08-26.
 | [`ReadMe.md`](ReadMe.md)                                   | **Vollständig überholt.** Ist der AngularJS-Ära-User-Guide: MVC-Pattern, `$scope`/`ng-view`, Ordner `kommonitorAdmin/`, `app/dependencies/`, `app.css`, „data-exchange-service im util-Ordner". Nichts davon existiert noch. Entweder neu schreiben (als Angular-Entwicklerguide) oder löschen — `CLAUDE.md` deckt den Inhalt heute besser ab. **Auch `MVC-pattern.png` gehört dazu.**                        |
 | [`commonjs-dependencies.md`](commonjs-dependencies.md)     | **Überholt.** Nennt den Builder `@angular-devkit/build-angular:browser` (Webpack) — heute ist es `:application` (esbuild). Behauptet „Build danach mit 0 Warnungen" — heute 9 Nicht-ESM-Warnungen (siehe C6). Verweist auf gelöschte Artefakte (`adminLandingpageConfig`, `customizedExternalLibs/shpwrite.js`) und nennt 21 statt 20 Einträge. Neu erheben oder löschen.                                     |
 | [`PRIO7_GOD_SERVICE_SPLIT.md`](PRIO7_GOD_SERVICE_SPLIT.md) | **Teilweise überholt.** Beschreibt `DataExchangeService` (2063 Z., 108 Konsumenten) und einen Fassaden-Delegationsplan mit offenen Schritten B1/B3/B6/B7 — das ist alles erledigt, der Service existiert nicht mehr. Nennt außerdem den falschen Branch (`…-cleanup`) und eine veraltete Test-Baseline (70/1). **Wert erhalten:** Abschnitt „Wiederholbares Rezept pro Schritt" ist weiter gültig (siehe B2). |
-| `PROPOSED_CHANGES.md` (Repo-Root)                          | **Teilweise überholt.** Prio 4 steht als „erledigt bis Angular 18" (tatsächlich 21); Prio 6 nennt „42 passed / 29 skipped" (tatsächlich 391/0); die `format:check`-Begründung „443 unformatierte Dateien" ist inzwischen per Nachtrag korrigiert (C1); die esbuild-Migration gilt dort als „aufgeschoben", ist aber erfolgt. Als **Historie** weiter wertvoll — nur nicht als Statusquelle lesen.                                  |
+| `PROPOSED_CHANGES.md` (Repo-Root)                          | **Teilweise überholt.** Prio 4 steht als „erledigt bis Angular 18" (tatsächlich 21); Prio 6 nennt „42 passed / 29 skipped" (tatsächlich 391/0); die `format:check`-Begründung „443 unformatierte Dateien" ist inzwischen per Nachtrag korrigiert (C1); die esbuild-Migration gilt dort als „aufgeschoben", ist aber erfolgt. Als **Historie** weiter wertvoll — nur nicht als Statusquelle lesen.             |
 
 ### Größtenteils abgearbeitet — als Historie lesen
 
@@ -206,18 +248,19 @@ Verifiziert gegen den Code am 2026-08-26.
 | [`BROADCAST_SERVICE_ENUM.md`](BROADCAST_SERVICE_ENUM.md)                           | **Aktuell und abgeschlossen** („Status: ✅ ABGESCHLOSSEN", Cluster 1–7). Kann als Referenz für das Broadcast-Typsystem stehen bleiben.                                                                                                                                                                                                                                                                                               |
 | [`REACHABILITY_STATE_UNIFICATION.md`](REACHABILITY_STATE_UNIFICATION.md)           | **Aktuell und abgeschlossen.** Die dort selbst notierten Ausklammerungen (Map-Helper + Coverage-Reports, beide >1000 Z.) sind in B2 übernommen.                                                                                                                                                                                                                                                                                      |
 | [`STARTUP_IMPROVEMENTS.md`](STARTUP_IMPROVEMENTS.md)                               | **Aktuell**, 11 von 13 Punkten erledigt. Die zwei offenen sind hier als C2 und C3 geführt.                                                                                                                                                                                                                                                                                                                                           |
-| [`REPORTING_CATEGORICAL_INDICATOR_GAP.md`](REPORTING_CATEGORICAL_INDICATOR_GAP.md) | **Aktuell und offen** — siehe A1. Die dort genannten Zeilennummern sind nicht nachgeprüft worden.                                                                                                                                                                                                                                                                                                                                    |
+| [`REPORTING_CATEGORICAL_INDICATOR_GAP.md`](REPORTING_CATEGORICAL_INDICATOR_GAP.md) | **Aktuell und offen.** Führt die Reporting-Lücke bei kategorischen Indikatoren eigenständig — der einzige bekannte echte Funktionsfehler. Die dort genannten Zeilennummern sind nicht nachgeprüft worden.                                                                                                                                                                                                                            |
+| [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md)             | **Aktuell und offen.** Manuelle Testpfade für den Reactive-Forms-Umbau der beiden Add-Wizards — genau das, was die automatisierten Tests nicht erreichen (Widgets, Objekt-Identität in Selects, Import-Round-Trips). Nach Risiko sortiert, mit Ankreuzkästchen.                                                                                                                                                                      |
 | [`COMPONENT_NESTING_TREE.md`](COMPONENT_NESTING_TREE.md)                           | **Inhaltlich korrekt, aber unvollständig.** Alle 34 dort genannten Selektoren existieren. Es fehlen die seither entstandenen geteilten Admin-Bausteine (`app-resource-metadata-form`, `app-role-management-grid`, `app-config-editor-panes`, `app-owner-organization-select`) sowie ein `Stand:`-Datum.                                                                                                                              |
 
 ---
 
 ## Empfohlene Reihenfolge
 
-1. ~~**C1** — `format:check` ins CI-Gate.~~ ✅ erledigt.
-2. **A1** — Reporting/kategorische Indikatoren: der einzige echte Funktionsfehler.
-3. **B1** — Reactive-Forms-Umbau zu Ende führen (bereits angefangen, Bausteine liegen bereit).
-4. **A2** — Entscheidung zu `feedbackModal` / `individualIndicatorComputation`; damit fällt auch
+1. **B1** — Reactive-Forms-Umbau zu Ende führen. Fundament und die beiden Add-Wizards sind
+   durch; als Nächstes bieten sich die drei `editFeatures`-Modals an (sie teilen sich den bereits
+   fertigen Importer-Block), danach `indicatorAddModal`.
+2. **A1** — Entscheidung zu `feedbackModal` / `individualIndicatorComputation`; damit fällt auch
    ein Teil von C3 weg.
-5. **C2 + C3** — Logger-Service, danach `no-console` auf `error`; Rest der `__env`-Zugriffe.
-6. **B3 + D** — Kommentar- und Doku-Bereinigung (billig, hoher Orientierungswert).
-7. **Laufend:** B2 (große Services) und C4 (i18n UserInterface) im Zuge regulärer Feature-Arbeit.
+3. **C2 + C3** — Logger-Service, danach `no-console` auf `error`; Rest der `__env`-Zugriffe.
+4. **B3 + D** — Kommentar- und Doku-Bereinigung (billig, hoher Orientierungswert).
+5. **Laufend:** B2 (große Services) und C4 (i18n UserInterface) im Zuge regulärer Feature-Arbeit.

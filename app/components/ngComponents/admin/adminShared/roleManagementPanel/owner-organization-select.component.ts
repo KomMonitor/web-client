@@ -1,12 +1,14 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
   Output,
+  forwardRef,
   inject,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
@@ -24,6 +26,9 @@ import { collectCreatorRightOrganizations } from './role-management-panel.model'
  *   keeps the current owner; shows the current-owner column with a warning.
  * - 'assign' (add modals): mandatory choice of the owning unit for a new
  *   dataset; no current-owner column.
+ *
+ * Usable both two-way bound (`[(ownerId)]`) and as a reactive form control
+ * (`formControlName`); without a form directive the CVA callbacks stay no-ops.
  */
 @Component({
   selector: 'app-owner-organization-select',
@@ -31,9 +36,17 @@ import { collectCreatorRightOrganizations } from './role-management-panel.model'
   imports: [TranslateModule, FormsModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => OwnerOrganizationSelectComponent),
+      multi: true,
+    },
+  ],
 })
-export class OwnerOrganizationSelectComponent {
+export class OwnerOrganizationSelectComponent implements ControlValueAccessor {
   private accessControlService = inject(AccessControlService);
+  private cdr = inject(ChangeDetectorRef);
 
   /** 'transfer': optional ownership transfer (edit); 'assign': mandatory owner choice (add). */
   @Input() mode: 'transfer' | 'assign' = 'transfer';
@@ -43,7 +56,13 @@ export class OwnerOrganizationSelectComponent {
   @Input() ownerId = '';
   @Output() ownerIdChange = new EventEmitter<string>();
 
+  /** Set through `setDisabledState` when used as a form control. */
+  disabled = false;
+
   ownerOrgFilter = '';
+
+  private onChange: (value: string) => void = () => undefined;
+  private onTouched: () => void = () => undefined;
 
   private cachedCreatorOrgs: AccessControlMetadata[] = [];
   private cachedCreatorOrgsSource: AccessControlMetadata[] | null = null;
@@ -55,6 +74,28 @@ export class OwnerOrganizationSelectComponent {
   onChangeOwner(value: string): void {
     this.ownerId = value;
     this.ownerIdChange.emit(value);
+    this.onChange(value);
+    this.onTouched();
+  }
+
+  // --- ControlValueAccessor ---------------------------------------------
+
+  writeValue(value: string | null | undefined): void {
+    this.ownerId = value ?? '';
+    this.cdr.markForCheck();
+  }
+
+  registerOnChange(fn: (value: string) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+    this.cdr.markForCheck();
   }
 
   getCurrentOwnerName(): string {

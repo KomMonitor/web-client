@@ -15,7 +15,7 @@
     <div class="km-color-overlay" (click)="onContainerClick($event)" [style.z-index]="zIndex">
       <color-sketch
         [color]="color"
-        (onChange)="onChange($event)"
+        (onChange)="onPickerChange($event)"
         (onChangeComplete)="onChangeComplete($event)"
         [disableAlpha]="true"
         [width]="220"

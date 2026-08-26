@@ -141,13 +141,16 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   // Add flag to track if SVGs have been injected
   private svgInjected = false;
 
-  get availableLinePatternOptions(): LinePatternOption[] {
-    return (LABELED_LOI_DASH_ARRAY_OBJECTS || []).map((option) => ({
-      label: option.label,
-      dashArrayValue: option.dashArrayValue,
-      svgString: option.svgString,
-    }));
-  }
+  // Built once: a getter would hand out fresh objects on every change-detection
+  // pass, which breaks reference identity with the selected option (and makes
+  // the picker's ngOnChanges fire forever).
+  readonly availableLinePatternOptions: LinePatternOption[] = (
+    LABELED_LOI_DASH_ARRAY_OBJECTS || []
+  ).map((option) => ({
+    label: option.label,
+    dashArrayValue: option.dashArrayValue,
+    svgString: option.svgString,
+  }));
 
   ngOnInit() {
     this.loadInitialData();

@@ -1257,7 +1257,8 @@
     "STEP": {
       "PREVIOUS": "Voriger Schritt",
       "NEXT": "Nächster Schritt",
-      "REQUIRED_FIELD_MARKER": "* = Pflichtfeld"
+      "REQUIRED_FIELD_MARKER": "* = Pflichtfeld",
+      "INVALID_HINT": "enthält ungültige Eingaben"
     },
     "OWNER": {
       "SELECT_HINT": "Bitte wählen Sie zunächst die Organisationseinheit aus, unter welcher Sie den Datensatz anlegen möchten",
@@ -1332,6 +1333,23 @@
       "EDIT_ACCESS_TITLE": "Zugriffsschutz und Eigentümerschaft editieren",
       "DELETE_RECORD_TITLE": "Datenobjekt unwiderruflich entfernen",
       "CONFIRM_WITH_ENTER": "mit Enter bestätigen"
+    },
+    "VALIDATION": {
+      "REQUIRED": "Dieses Feld ist erforderlich.",
+      "MIN_LENGTH": "Mindestens {{requiredLength}} Zeichen erforderlich.",
+      "MAX_LENGTH": "Höchstens {{requiredLength}} Zeichen erlaubt.",
+      "MIN": "Der Wert muss mindestens {{min}} sein.",
+      "MAX": "Der Wert darf höchstens {{max}} sein.",
+      "PATTERN": "Die Eingabe hat nicht das erwartete Format.",
+      "DATE_FORMAT": "Ungültiges Datum. Erwartetes Format: JJJJ-MM-TT.",
+      "MIN_DATE": "Das Datum liegt vor dem frühestmöglichen Datum ({{value}}).",
+      "MAX_DATE": "Das Datum liegt nach dem spätestmöglichen Datum ({{value}}).",
+      "UNIQUE_NAME": "Der Name „{{name}}“ ist bereits vergeben.",
+      "PERIOD_OF_VALIDITY": "Der Startzeitpunkt muss vor dem Endzeitpunkt liegen.",
+      "SPATIAL_UNIT_HIERARCHY": "Die übergeordnete Raumebene muss gröber sein als die untergeordnete.",
+      "BBOX_INCOMPLETE": "Bitte alle vier Werte des Begrenzungsrahmens angeben.",
+      "TOPIC_REQUIRED": "Bitte mindestens ein Hauptthema wählen.",
+      "UNKNOWN": "Die Eingabe ist ungültig."
     }
   },
   "ADMIN_WMS": {

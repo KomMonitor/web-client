@@ -60,4 +60,42 @@ describe('WizardStepper', () => {
     stepper.previous();
     expect(stepper.currentStep).toBe(1);
   });
+  it('surfaces the invalid flag of each step', () => {
+    let metadataInvalid = false;
+    const marked = new WizardStepper([
+      { key: 'metadata', label: 'M', invalid: () => metadataInvalid },
+      { key: 'data', label: 'D' },
+    ]);
+
+    expect(marked.steps.map((step) => step.invalid)).toEqual([false, false]);
+
+    metadataInvalid = true;
+
+    expect(marked.steps.map((step) => step.invalid)).toEqual([true, false]);
+  });
+
+  it('rebuilds the memoised step array when an invalid flag flips', () => {
+    let invalid = false;
+    const marked = new WizardStepper([{ key: 'metadata', label: 'M', invalid: () => invalid }]);
+    const first = marked.steps;
+    expect(marked.steps).toBe(first);
+
+    invalid = true;
+
+    expect(marked.steps).not.toBe(first);
+  });
+
+  it('ignores the invalid flag of a hidden step', () => {
+    let securityVisible = false;
+    const marked = new WizardStepper([
+      { key: 'metadata', label: 'M' },
+      { key: 'security', label: 'S', when: () => securityVisible, invalid: () => true },
+    ]);
+
+    expect(marked.steps.some((step) => step.invalid)).toBe(false);
+
+    securityVisible = true;
+
+    expect(marked.steps.some((step) => step.invalid)).toBe(true);
+  });
 });

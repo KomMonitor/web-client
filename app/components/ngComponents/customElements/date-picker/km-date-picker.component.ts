@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 
 import {
+  ControlValueAccessor,
   FormControl,
   FormsModule,
   NG_VALIDATORS,
@@ -139,7 +140,7 @@ export class NgbDateStringAdapter extends NgbDateAdapter<string> {
     { provide: NgbDateAdapter, useClass: NgbDateStringAdapter },
   ],
 })
-export class KmDatePickerComponent implements OnInit, OnChanges, Validator {
+export class KmDatePickerComponent implements OnInit, OnChanges, ControlValueAccessor, Validator {
   @Input() placeholder: string = 'YYYY-MM-DD';
   @Input() name: string = '';
   @Input() id: string = '';
@@ -154,6 +155,12 @@ export class KmDatePickerComponent implements OnInit, OnChanges, Validator {
   @Input() size: 'sm' | 'md' | 'lg' = 'md';
   @Input() coerceEmptyToToday: boolean = true; // align with original Add/Edit components
   @Input() coerceInvalidToToday: boolean = true;
+  /**
+   * Renders the built-in message block. Set to false where the host shows the
+   * message itself (e.g. next to an `<app-form-error>`), so the field is still
+   * outlined red but the text is not duplicated.
+   */
+  @Input() showErrors: boolean = true;
 
   @Output() valueChange = new EventEmitter<string | null>();
   @Output() blur = new EventEmitter<void>();
@@ -170,6 +177,9 @@ export class KmDatePickerComponent implements OnInit, OnChanges, Validator {
   private onTouched: () => void = () => {
     /* set via registerOnTouched */
   };
+  private onValidatorChange: () => void = () => {
+    /* set via registerOnValidatorChange */
+  };
 
   ngOnInit(): void {
     this.control.valueChanges.subscribe((value) => {
@@ -185,6 +195,12 @@ export class KmDatePickerComponent implements OnInit, OnChanges, Validator {
   ngOnChanges(changes: SimpleChanges): void {
     if (Object.prototype.hasOwnProperty.call(changes, 'disabled')) {
       this.setDisabledState(!!this.disabled);
+    }
+    // `validate()` reads these inputs, so a parent control has to re-run its
+    // validation when they change — e.g. a `[required]` bound to another field.
+    if (changes['required'] || changes['min'] || changes['max']) {
+      this.onValidatorChange();
+      this.emitValidity();
     }
   }
 
@@ -212,6 +228,10 @@ export class KmDatePickerComponent implements OnInit, OnChanges, Validator {
   }
 
   // Validator
+  registerOnValidatorChange(fn: () => void): void {
+    this.onValidatorChange = fn;
+  }
+
   validate(): ValidationErrors | null {
     const value = this.control.value as unknown;
 

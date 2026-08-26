@@ -121,3 +121,21 @@
 .stepper-line.completed {
   background: #1a73e8;
 }
+
+/* ── invalid step marking (visual only, navigation stays free) ── */
+.stepper-step.invalid .stepper-circle {
+  border-color: #d93025;
+  color: #d93025;
+  background: #fff;
+}
+
+.stepper-step.invalid.active .stepper-circle,
+.stepper-step.invalid.completed .stepper-circle {
+  background: #d93025;
+  border-color: #d93025;
+  color: #fff;
+}
+
+.stepper-step.invalid .stepper-label {
+  color: #d93025;
+}

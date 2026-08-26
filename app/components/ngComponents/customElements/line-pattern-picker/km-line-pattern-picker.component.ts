@@ -4,11 +4,14 @@ import {
   EventEmitter,
   HostListener,
   Input,
-  OnInit,
+  OnChanges,
   Output,
+  SimpleChanges,
   ViewChild,
+  forwardRef,
   inject,
 } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 export interface LinePatternOption {
@@ -17,14 +20,29 @@ export interface LinePatternOption {
   svgString: string;
 }
 
+/**
+ * Dropdown for picking a line dash pattern.
+ *
+ * Works both as a plain `[selectedPattern]` + `(patternChange)` widget and as a
+ * reactive form control (`formControlName`). The control value is the
+ * `LinePatternOption` *object*, not its dash-array string, because the API body
+ * builders read `.dashArrayValue` off it.
+ */
 @Component({
   selector: 'km-line-pattern-picker',
   standalone: true,
   imports: [],
   templateUrl: './km-line-pattern-picker.component.html',
   styleUrls: ['./km-line-pattern-picker.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => KmLinePatternPickerComponent),
+      multi: true,
+    },
+  ],
 })
-export class KmLinePatternPickerComponent implements OnInit {
+export class KmLinePatternPickerComponent implements OnChanges, ControlValueAccessor {
   private sanitizer = inject(DomSanitizer);
 
   @Input() selectedPattern: LinePatternOption | null = null;
@@ -43,10 +61,14 @@ export class KmLinePatternPickerComponent implements OnInit {
   isOpen: boolean = false;
   private svgSanitizeCache: Map<string, SafeHtml> = new Map();
 
-  ngOnInit(): void {
-    // If no pattern is selected and options are available, optionally select the first one
-    if (!this.selectedPattern && this.options.length > 0) {
-      // Don't auto-select - let the parent component decide
+  private onChange: (value: LinePatternOption | null) => void = () => undefined;
+  private onTouched: () => void = () => undefined;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // `options` can arrive after writeValue() (they are loaded asynchronously in
+    // some hosts), so re-resolve the current value against the new list.
+    if (changes['options'] && this.selectedPattern) {
+      this.selectedPattern = this.resolveOption(this.selectedPattern);
     }
   }
 
@@ -65,6 +87,9 @@ export class KmLinePatternPickerComponent implements OnInit {
     if (event) {
       event.preventDefault();
       event.stopPropagation();
+    }
+    if (this.isOpen) {
+      this.onTouched();
     }
     this.isOpen = false;
   }
@@ -87,6 +112,7 @@ export class KmLinePatternPickerComponent implements OnInit {
     this.selectedPattern = pattern;
     this.patternChange.emit(pattern);
     this.selectionChange.emit(pattern);
+    this.onChange(pattern);
     this.close();
   }
 
@@ -103,6 +129,7 @@ export class KmLinePatternPickerComponent implements OnInit {
     this.selectedPattern = null;
     this.patternChange.emit(null);
     this.selectionChange.emit(null);
+    this.onChange(null);
     this.close();
   }
 
@@ -134,12 +161,12 @@ export class KmLinePatternPickerComponent implements OnInit {
     const targetNode = event.target as Node | null;
     const hostEl = this.dropdownContainer?.nativeElement;
     if (!hostEl || !targetNode) {
-      this.isOpen = false;
+      this.close();
       return;
     }
 
     if (!hostEl.contains(targetNode)) {
-      this.isOpen = false;
+      this.close();
     }
   }
 
@@ -153,5 +180,38 @@ export class KmLinePatternPickerComponent implements OnInit {
 
   get displayText(): string {
     return this.selectedPattern?.label || this.placeholder;
+  }
+
+  // --- ControlValueAccessor ---------------------------------------------
+
+  writeValue(value: LinePatternOption | null | undefined): void {
+    this.selectedPattern = value ? this.resolveOption(value) : null;
+  }
+
+  registerOnChange(fn: (value: LinePatternOption | null) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+    if (isDisabled) {
+      this.isOpen = false;
+    }
+  }
+
+  /**
+   * Values patched in from an import are structurally equal but not identical
+   * to the entries in `options`; resolve by dash-array value so the dropdown
+   * highlights the right row. Unknown values are kept as-is.
+   */
+  private resolveOption(value: LinePatternOption): LinePatternOption {
+    return (
+      (this.options ?? []).find((option) => option?.dashArrayValue === value.dashArrayValue) ??
+      value
+    );
   }
 }

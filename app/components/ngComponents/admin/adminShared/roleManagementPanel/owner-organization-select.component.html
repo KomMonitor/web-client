@@ -30,6 +30,7 @@
       name="ownerOrganization"
       [ngModelOptions]="{ standalone: true }"
       [required]="mode === 'assign'"
+      [disabled]="disabled"
     >
       @if (mode === 'assign') {
         <option value="" disabled>{{ 'ADMIN_SHARED_UI.OWNER.SELECT_ORG' | translate }}</option>

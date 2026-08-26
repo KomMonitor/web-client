@@ -1,0 +1,81 @@
+<div class="row" [formGroup]="form">
+  <div class="col-md-3 col-sm-6 col-12">
+    <div class="form-group">
+      <label [attr.for]="idPrefix + '-main'"
+        >{{ 'ADMIN_SHARED_UI.TOPICS.MAIN_TOPIC' | translate }}*</label
+      >
+      <select
+        class="form-control"
+        formControlName="mainTopic"
+        [attr.id]="idPrefix + '-main'"
+        [attr.aria-describedby]="idPrefix + '-main-error'"
+      >
+        <option [ngValue]="null" disabled>
+          {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_MAIN_TOPIC' | translate }}
+        </option>
+        @for (topic of optionsFor('mainTopic'); track topic.topicId) {
+          <option [ngValue]="topic">{{ topic.topicName }}</option>
+        }
+      </select>
+      <app-form-error [control]="form.controls.mainTopic" [for]="idPrefix + '-main'" />
+    </div>
+  </div>
+
+  <div class="col-md-3 col-sm-6 col-12">
+    @if (hasOptions('subTopic')) {
+      <div class="form-group">
+        <label [attr.for]="idPrefix + '-sub'">{{
+          'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_1' | translate
+        }}</label>
+        <select class="form-control" formControlName="subTopic" [attr.id]="idPrefix + '-sub'">
+          <option [ngValue]="null">
+            {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
+          </option>
+          @for (topic of optionsFor('subTopic'); track topic.topicId) {
+            <option [ngValue]="topic">{{ topic.topicName }}</option>
+          }
+        </select>
+      </div>
+    }
+  </div>
+
+  <div class="col-md-3 col-sm-6 col-12">
+    @if (hasOptions('subsubTopic')) {
+      <div class="form-group">
+        <label [attr.for]="idPrefix + '-subsub'">{{
+          'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_2' | translate
+        }}</label>
+        <select class="form-control" formControlName="subsubTopic" [attr.id]="idPrefix + '-subsub'">
+          <option [ngValue]="null">
+            {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
+          </option>
+          @for (topic of optionsFor('subsubTopic'); track topic.topicId) {
+            <option [ngValue]="topic">{{ topic.topicName }}</option>
+          }
+        </select>
+      </div>
+    }
+  </div>
+
+  <div class="col-md-3 col-sm-6 col-12">
+    @if (hasOptions('subsubsubTopic')) {
+      <div class="form-group">
+        <label [attr.for]="idPrefix + '-subsubsub'">{{
+          'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_3' | translate
+        }}</label>
+        <select
+          class="form-control"
+          formControlName="subsubsubTopic"
+          [attr.id]="idPrefix + '-subsubsub'"
+        >
+          <option [ngValue]="null">
+            {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
+          </option>
+          @for (topic of optionsFor('subsubsubTopic'); track topic.topicId) {
+            <option [ngValue]="topic">{{ topic.topicName }}</option>
+          }
+        </select>
+      </div>
+    }
+  </div>
+</div>

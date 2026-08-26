@@ -16,6 +16,7 @@ export type {
   ConverterDefinition,
   DatasourceType,
   DatasourceTypeDefinition,
+  ImporterParameter,
   PropertyMappingDefinition,
   ImporterResponse,
 } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
