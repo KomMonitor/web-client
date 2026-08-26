@@ -41,7 +41,7 @@ Tests **are runnable now**. The `test` target uses **Jest** via `@angular-builde
 
 **ESLint and Prettier are set up** (flat config). ESLint uses `eslint.config.js` (root) / `app/eslint.config.js` with `angular-eslint`; Prettier uses `.prettierrc.json` + `.prettierignore`. Use `npm run lint` / `npm run format`.
 
-**CI:** `.github/workflows/ci.yml` (job `quality-gate`) runs `npm run lint` → `npm test` → `npm run build` on every pull request and on pushes to `master`/`develop` (Node 24 via `.nvmrc`, `npm ci --force`). Keep these three green — lint tolerates warnings but **0 errors**. `format:check` is intentionally **not** gated yet (large unformatted backlog). The other workflows under `.github/workflows/` only build/push the Docker image.
+**CI:** `.github/workflows/ci.yml` (job `quality-gate`) runs `npm run format:check` → `npm run lint` → `npm test` → `npm run build` on every pull request and on pushes to `master`/`develop`/`feature/migration-bootstrap` (Node 24 via `.nvmrc`, `npm ci --force`). Keep all four green — lint tolerates warnings but **0 errors**; the format backlog is cleared, so Prettier is enforced. The same `format:check` also runs locally as a husky `pre-commit` hook (`.husky/pre-commit`, installed via the `prepare` script). The other workflows under `.github/workflows/` only build/push the Docker image.
 
 ## Migration status — read this before editing
 

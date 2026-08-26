@@ -95,12 +95,20 @@ jeden, der neu in den Code kommt (und für Agenten). Mechanische Bereinigung.
 
 ## C. Hygiene & Tooling
 
-### C1. `format:check` kann jetzt ins CI-Gate
+### C1. `format:check` im CI-Gate — ✅ erledigt
 
-`PROPOSED_CHANGES.md` begründet die Ausklammerung mit „443 unformatierten Bestands-Dateien" —
-**das stimmt nicht mehr**: `npm run format:check` läuft heute vollständig grün. Der Schritt
-lässt sich ohne Aufwand in `.github/workflows/ci.yml` (Job `quality-gate`) aufnehmen und
-verhindert künftiges Abdriften. **Kleinster Aufwand / bester Ertrag in dieser Liste.**
+**Status: umgesetzt.** Die in `PROPOSED_CHANGES.md` genannte Begründung für die Ausklammerung
+(„443 unformatierte Bestands-Dateien") ist hinfällig — `npm run format:check` läuft vollständig
+grün (verifiziert 2026-08-26).
+
+- `.github/workflows/ci.yml` (Job `quality-gate`) führt `format:check` als **ersten** Schritt aus,
+  vor `lint` → `test` → `build`. Getriggert bei jedem Pull Request sowie bei Push auf
+  `master`/`develop`/`feature/migration-bootstrap`.
+- Derselbe Check läuft lokal als Husky-`pre-commit`-Hook (`.husky/pre-commit`); Contributors
+  bekommen ihn automatisch über das `prepare`-Script beim `npm install`
+  (`core.hooksPath = .husky/_`).
+
+Damit ist das Gate gegen künftiges Format-Abdriften geschlossen; hier ist nichts mehr offen.
 
 ### C2. `console.log` und das globale `console`-Patching
 
@@ -188,7 +196,7 @@ Verifiziert gegen den Code am 2026-08-26.
 | [`ReadMe.md`](ReadMe.md)                                   | **Vollständig überholt.** Ist der AngularJS-Ära-User-Guide: MVC-Pattern, `$scope`/`ng-view`, Ordner `kommonitorAdmin/`, `app/dependencies/`, `app.css`, „data-exchange-service im util-Ordner". Nichts davon existiert noch. Entweder neu schreiben (als Angular-Entwicklerguide) oder löschen — `CLAUDE.md` deckt den Inhalt heute besser ab. **Auch `MVC-pattern.png` gehört dazu.**                        |
 | [`commonjs-dependencies.md`](commonjs-dependencies.md)     | **Überholt.** Nennt den Builder `@angular-devkit/build-angular:browser` (Webpack) — heute ist es `:application` (esbuild). Behauptet „Build danach mit 0 Warnungen" — heute 9 Nicht-ESM-Warnungen (siehe C6). Verweist auf gelöschte Artefakte (`adminLandingpageConfig`, `customizedExternalLibs/shpwrite.js`) und nennt 21 statt 20 Einträge. Neu erheben oder löschen.                                     |
 | [`PRIO7_GOD_SERVICE_SPLIT.md`](PRIO7_GOD_SERVICE_SPLIT.md) | **Teilweise überholt.** Beschreibt `DataExchangeService` (2063 Z., 108 Konsumenten) und einen Fassaden-Delegationsplan mit offenen Schritten B1/B3/B6/B7 — das ist alles erledigt, der Service existiert nicht mehr. Nennt außerdem den falschen Branch (`…-cleanup`) und eine veraltete Test-Baseline (70/1). **Wert erhalten:** Abschnitt „Wiederholbares Rezept pro Schritt" ist weiter gültig (siehe B2). |
-| `PROPOSED_CHANGES.md` (Repo-Root)                          | **Teilweise überholt.** Prio 4 steht als „erledigt bis Angular 18" (tatsächlich 21); Prio 6 nennt „42 passed / 29 skipped" (tatsächlich 391/0); die `format:check`-Begründung „443 unformatierte Dateien" stimmt nicht mehr (C1); die esbuild-Migration gilt dort als „aufgeschoben", ist aber erfolgt. Als **Historie** weiter wertvoll — nur nicht als Statusquelle lesen.                                  |
+| `PROPOSED_CHANGES.md` (Repo-Root)                          | **Teilweise überholt.** Prio 4 steht als „erledigt bis Angular 18" (tatsächlich 21); Prio 6 nennt „42 passed / 29 skipped" (tatsächlich 391/0); die `format:check`-Begründung „443 unformatierte Dateien" ist inzwischen per Nachtrag korrigiert (C1); die esbuild-Migration gilt dort als „aufgeschoben", ist aber erfolgt. Als **Historie** weiter wertvoll — nur nicht als Statusquelle lesen.                                  |
 
 ### Größtenteils abgearbeitet — als Historie lesen
 
@@ -205,7 +213,7 @@ Verifiziert gegen den Code am 2026-08-26.
 
 ## Empfohlene Reihenfolge
 
-1. **C1** — `format:check` ins CI-Gate (Minuten, verhindert Rückfall).
+1. ~~**C1** — `format:check` ins CI-Gate.~~ ✅ erledigt.
 2. **A1** — Reporting/kategorische Indikatoren: der einzige echte Funktionsfehler.
 3. **B1** — Reactive-Forms-Umbau zu Ende führen (bereits angefangen, Bausteine liegen bereit).
 4. **A2** — Entscheidung zu `feedbackModal` / `individualIndicatorComputation`; damit fällt auch
