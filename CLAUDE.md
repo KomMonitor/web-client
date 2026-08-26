@@ -37,7 +37,7 @@ Production deployment is a static build served by nginx (see `Dockerfile`, `ngin
 
 ### Tests, lint & format
 
-Tests **are runnable now**. The `test` target uses **Jest** via `@angular-builders/jest` (config in `jest.config.js` + `tsconfig.spec.json`, setup in `setup-jest.ts`); there are ~84 `*.spec.ts` files. The old Karma/Jasmine setup is gone. Run `npm test` (single pass) or `npm run test:watch`. Note `jest.config.js` carries a hand-tuned `transformIgnorePatterns` / `moduleNameMapper` for ESM-only deps (leaflet-geosearch, echarts/zrender, d3) — extend it there when a new ESM package breaks a test transform.
+Tests **are runnable now**. The `test` target uses **Jest** via `@angular-builders/jest` (config in `jest.config.js` + `tsconfig.spec.json`, setup in `setup-jest.ts`); there are ~114 `*.spec.ts` files (391 tests, all green, no skips). The old Karma/Jasmine setup is gone. Run `npm test` (single pass) or `npm run test:watch`. Note `jest.config.js` carries a hand-tuned `transformIgnorePatterns` / `moduleNameMapper` for ESM-only deps (leaflet-geosearch, echarts/zrender, d3) — extend it there when a new ESM package breaks a test transform.
 
 **ESLint and Prettier are set up** (flat config). ESLint uses `eslint.config.js` (root) / `app/eslint.config.js` with `angular-eslint`; Prettier uses `.prettierrc.json` + `.prettierignore`. Use `npm run lint` / `npm run format`.
 
@@ -47,12 +47,14 @@ Tests **are runnable now**. The `test` target uses **Jest** via `@angular-builde
 
 This codebase was migrated **from AngularJS 1.8 → Angular** and now runs on **Angular 21** (TypeScript 5.9). The migration is complete at runtime; what remains is cleanup of leftover legacy files. This is the single most important thing to understand before touching code:
 
-- The live app bootstraps **pure Angular** via `app/main.ts` → `app/app.module.ts` → `MainComponent` (`app/mainComponent/main/main.component.ts`). There is **no ngUpgrade/hybrid bootstrap**, and `@angular/upgrade` has been removed from `package.json`.
+- The live app bootstraps **pure Angular, fully standalone**: `app/main.ts` calls `bootstrapApplication(MainComponent, appConfig)`; all root providers live in `app/app.config.ts` (`provideRouter`, `provideAppInitializer`, `provideHttpClient` + `AuthInterceptor`, `provideZoneChangeDetection`, `TranslateModule.forRoot`). There is **no `AppModule`** (deleted) and no ngUpgrade/hybrid bootstrap; `@angular/upgrade` is gone from `package.json`. Every component in the app is standalone.
 - The old AngularJS entry point `app/app.js` has been **deleted**. `app/index.html` includes no scripts; `angular.json` only loads jQuery/Bootstrap.
-- Most of the legacy AngularJS source has been removed. A small remnant survives under `app/components/kommonitorUserInterface/` (only ~2 `*.component.js` files left); `kommonitorAdmin/` and the legacy `common/` dirs are gone. Treat any remaining `*.component.js` / `*.template.html` files as **not loaded by the running app** — reference-only.
+- Most of the legacy AngularJS source has been removed. Exactly two features survive under `app/components/kommonitorUserInterface/kommonitorControls/` as migration reference: `feedbackModal` and `kommonitorIndividualIndicatorComputation` (5 `*.component.js`/`*.module.js` + templates). `kommonitorAdmin/` and the legacy `common/` dirs are gone. These files are **not loaded by the running app** — reference-only, and they still reference services that no longer exist. Never copy code from them verbatim.
 - **All active code is Angular and lives under `app/components/ngComponents/`** plus `app/services/`, `app/pipes/`, `app/guards/`, `app/mainComponent/`, `app/util/interceptors/`.
 
-When implementing features, work in the `ngComponents` / `services` (TypeScript) world. Treat any leftover AngularJS files as a reference for behavior, not as live code. `PROPOSED_CHANGES.md` (German) is the authoritative cleanup/roadmap doc — consult it for what is dead, what is intentionally kept, and the recommended refactor order.
+When implementing features, work in the `ngComponents` / `services` (TypeScript) world. Treat any leftover AngularJS files as a reference for behavior, not as live code.
+
+**Roadmap docs (German):** `PROPOSED_CHANGES.md` records the original cleanup plan and what was done for each priority — Prio 2–7 are finished. `documentation/OFFENE_PUNKTE.md` is the current list of what is still open, and which of the `documentation/*.md` files are outdated. Read the latter before trusting an older analysis doc.
 
 ### Files that look like backups but are loaded at runtime
 
@@ -68,14 +70,14 @@ Do not delete these. Other `*_backup*` / `*_old` files are genuine cruft.
 
 ### Startup & runtime configuration
 
-The app is configured at **runtime**, not build time. `StartupService` (`app/services/startup-service/startup.service.ts`) runs as an Angular `APP_INITIALIZER` and, before the app renders:
+The app is configured at **runtime**, not build time. `StartupService` (`app/services/startup-service/startup.service.ts`) runs via `provideAppInitializer(...)` in `app/app.config.ts` and, before the app renders:
 
 1. Fetches `./config/config-storage-server.json` (URLs of the external **Client Config Service**).
-2. Loads app config (`env.js`), Keycloak config, controls config, and filter config from that service — falling back to the local `app/config/*_backup*` files when unreachable.
+2. Loads app config (`env.js`), Keycloak config, controls config, and filter config from that service. Only two of those have a local fallback: app config → `./config/env_backup.js`, Keycloak config → `keycloak_backup.json` (in `KeycloakHelperService`). **Controls and filter config have no local fallback** — despite a misleading "Using local backup defaults" log message.
 3. Populates the global **`window.__env`** object (typed loosely in `app/globals.d.ts`).
 4. Initializes Keycloak auth via `AuthService` / `KeycloakHelperService`.
 
-**Access config through `EnvConfigService`** (`app/services/env-config-service/env-config.service.ts`), which wraps `window.__env` with typed getters. Some legacy direct `window.__env` reads still exist; prefer the service in new code.
+**Access config through `EnvConfigService`** (`app/services/env-config-service/env-config.service.ts`), which wraps `window.__env` with typed getters. Direct `window.__env` reads are almost gone from live code — the notable exception is `adminAppConfig/admin-app-config.component.ts`, which edits the config object itself. Always use the service in new code.
 
 ### Auth
 
@@ -83,16 +85,16 @@ Keycloak (`keycloak-js`) provides optional role-based access. `AuthInterceptor` 
 
 ### Routing
 
-`app/app.routes.ts` is tiny and the structural backbone: `/administration` → `AdminComponent` (guarded), everything else (`**`) → `UserInterfaceComponent`. The two top-level feature areas are the **user interface** (map/charts/exploration) and **administration** (data & config management).
+`app/app.routes.ts` is the structural backbone: `/administration` → `AdminComponent` (guarded by `authAdminGuard`) with 12 child routes, everything else (`**`) → `UserInterfaceComponent`. The two top-level feature areas are the **user interface** (map/charts/exploration) and **administration** (data & config management). The **entire admin area is lazy-loaded** — every admin route uses `loadComponent`, so it stays out of the initial bundle; keep it that way when adding admin pages (no static import of an admin component from user-interface code).
 
 ### Components
 
 Under `app/components/ngComponents/`:
 
 - `userInterface/` — the end-user app: `kommonitorMap`, `kommonitorClassification`, `kommonitorLegend`, `sidebar`, `exporting`, `reporting`, modals.
-- `admin/` — management pages: indicators, georesources, spatial units, topics, scripts, roles, dashboard, and `adminConfig/` (app/landingpage/filter/controls config editors).
+- `admin/` — management pages: indicators, georesources, spatial units, topics, scripts, roles, dashboard, and `adminConfig/` (app/filter/controls config editors sharing `configEditor/`).
 - `common/` — shared widgets (loading overlay, notification, stepper, user login, language switcher, etc.).
-- `customElements/` — reusable form controls (color picker, date picker, line-pattern picker, dual-list-box) — several are standalone components imported directly into `AppModule`.
+- `customElements/` — reusable form controls (color picker, date picker, line-pattern picker, dual-list-box), imported directly by the feature components that use them.
 
 ### Services (the core logic layer)
 
@@ -100,7 +102,7 @@ Under `app/components/ngComponents/`:
 
 Key central services (high fan-in; change carefully):
 
-- **`data-exchange-service`** — central data cache + API access + shared UI state (~1290 lines; a shrinking "god service"). Responsibilities have been progressively peeled off into dedicated services (e.g. `*-metadata-store-service`, `metadata-filter-service`, `selection-state-service`, `cache-helper-service`). See `documentation/PRIO7_GOD_SERVICE_SPLIT.md` for the incremental split roadmap and progress.
+- **Metadata & selection state** — the former `data-exchange-service` god service is **fully dissolved**; there is no `DataExchangeService` any more. Its responsibilities now live in ~70 focused services, notably `*-metadata-store-service` (indicator/georesource/spatial-unit/topic/process-script), `metadata-bootstrap-service` (initial fetch orchestration), `metadata-filter-service`, `selection-state-service`, `access-control-service`, `cache-helper-service`. Several file-header comments still speak of a "DataExchangeService facade" — that facade is gone; treat those comments as historical. `documentation/PRIO7_GOD_SERVICE_SPLIT.md` documents how the split was done (its "still open" section is finished).
 - **`map-service`** / `generic-map-helper-service` / `single-feature-map-helper-service` — Leaflet map orchestration.
 - **`diagram-helper-service`** — ECharts chart construction.
 - **`reachability-*` services** — isochrone/routing analysis via Open Route Service.
@@ -108,11 +110,11 @@ Key central services (high fan-in; change carefully):
 - **`config-storage-service` / `env-config-service`** — config plumbing.
 - **`keycloak-helper-service` / `auth-service`** — auth.
 
-Note: the admin data services in `app/services/adminSpatialUnit/` and `app/services/adminGeoresourceUnit/` were also oversized and are being split. The largest remaining pieces are `adminSpatialUnit/kommonitor-data-exchange.service.ts` (~1150 lines) and the `kommonitor-data-grid-helper` / `kommonitor-importer-helper` / `kommonitor-cache-helper` services peeled off from them. Per `PROPOSED_CHANGES.md` / `documentation/PRIO7_GOD_SERVICE_SPLIT.md`, keep peeling off responsibilities when you touch these rather than doing a big-bang rewrite.
+Note: the admin data services in `app/services/adminSpatialUnit/` and `app/services/adminGeoresourceUnit/` were also oversized and have been split down — both `kommonitor-data-exchange.service.ts` god services are gone (only a 135-line georesource remnant is left), and the grid helpers are now stateless ColDef builders. The largest remaining admin service is `adminSpatialUnit/kommonitor-importer-helper.service.ts` (~960 lines). The biggest services overall are `reporting-service` (~3400) and `diagram-helper-service` (~2750) — both still unsplit. Keep peeling off responsibilities when you touch these rather than doing a big-bang rewrite.
 
 ### Vendored libraries
 
-`customizedExternalLibs/` holds patched copies of third-party libs (Leaflet plugins, classybrew, colorbrewer, shp-write, etc.) that diverge from their npm versions. The `*_old` variants there are stale.
+`customizedExternalLibs/` holds patched copies of third-party libs (Leaflet plugins, classybrew, colorbrewer, ecStat, Excalibur-Dual-List, etc.) that diverge from their npm versions.
 
 ## Runtime dependencies (external KomMonitor services)
 
@@ -136,4 +138,4 @@ The client is non-functional without these backends (configured via the runtime 
 
 ## Branching
 
-`master` = stable releases. `develop` = main integration branch. Feature/fix work happens on dedicated branches (current work is on `feature/migration-bootstrap-cleanup`).
+`master` = stable releases. `develop` = main integration branch. Feature/fix work happens on dedicated branches (current work is on `feature/migration-bootstrap`).
