@@ -24,10 +24,9 @@
   <!-- MultiStep Form -->
   <div class="row">
     <div class="col-md-12">
-      <form
+      <div
         class="multiStepForm form-group"
         id="indicatorEditFeaturesForm"
-        role="form"
         style="margin-bottom: 0px"
       >
         <!-- Progress bar -->
@@ -157,7 +156,7 @@
 
         <!-- Step 2: Räumlicher Datensatz -->
         @if (stepper.isActive('data')) {
-          <fieldset>
+          <fieldset [formGroup]="editForm">
             <div style="position: absolute">
               <button
                 type="button"
@@ -204,13 +203,7 @@
               <div class="col-md-3 col-sm-6 col-12">
                 <div class="form-group">
                   <label>{{ 'ADMIN_INDICATORS.DATASET_SOURCE_FORMAT' | translate }}*</label>
-                  <select
-                    [(ngModel)]="converter"
-                    [ngModelOptions]="{ standalone: true }"
-                    (change)="onChangeConverter()"
-                    class="form-control"
-                    required
-                  >
+                  <select formControlName="converter" class="form-control">
                     <option [ngValue]="null" disabled>
                       {{ 'ADMIN_INDICATORS.SELECT_SOURCE_FORMAT_OPTION' | translate }}
                     </option>
@@ -220,18 +213,13 @@
                       </option>
                     }
                   </select>
-                  <div class="help-block with-errors"></div>
+                  <app-form-error [control]="editForm.controls.converter" />
                 </div>
                 @if (converter?.schemas) {
                   <div>
                     <div class="form-group">
                       <label>Schema*</label>
-                      <select
-                        [(ngModel)]="schema"
-                        [ngModelOptions]="{ standalone: true }"
-                        class="form-control"
-                        required
-                      >
+                      <select formControlName="schema" class="form-control">
                         <option disabled selected value>
                           {{ 'ADMIN_INDICATORS.SELECT_SCHEMA_OPTION' | translate }}
                         </option>
@@ -241,7 +229,7 @@
                           </option>
                         }
                       </select>
-                      <div class="help-block with-errors"></div>
+                      <app-form-error [control]="editForm.controls.schema" />
                     </div>
                   </div>
                 }
@@ -249,13 +237,7 @@
                   <div>
                     <div class="form-group">
                       <label>{{ 'ADMIN_INDICATORS.SOURCE_FORMAT' | translate }}*</label>
-                      <select
-                        [(ngModel)]="mimeType"
-                        [ngModelOptions]="{ standalone: true }"
-                        (change)="onChangeMimeType(mimeType)"
-                        class="form-control"
-                        required
-                      >
+                      <select formControlName="mimeType" class="form-control">
                         <option disabled selected value>
                           {{ 'ADMIN_INDICATORS.EDIT_FEATURES.SELECT_FORMAT_OPTION' | translate }}
                         </option>
@@ -265,7 +247,7 @@
                           </option>
                         }
                       </select>
-                      <div class="help-block with-errors"></div>
+                      <app-form-error [control]="editForm.controls.mimeType" />
                     </div>
                   </div>
                 }
@@ -283,15 +265,14 @@
                           type="text"
                           class="form-control"
                           placeholder="{{ parameter.name }}"
-                          [(ngModel)]="converterParameterValues[parameter.name]"
-                          [name]="'converterParameter_' + parameter.name"
-                          [ngModelOptions]="{ standalone: true }"
-                          [required]="parameter.mandatory"
+                          [formControlName]="parameter.name"
                         />
                         <div class="help-block">
                           <p>{{ parameter.description }}</p>
                         </div>
-                        <div class="help-block with-errors"></div>
+                        <app-form-error
+                          [control]="editForm.controls.converterParameters.get(parameter.name)"
+                        />
                       </div>
                     </div>
                   }
@@ -308,12 +289,7 @@
                     <div>
                       <div class="form-group">
                         <label>{{ 'ADMIN_INDICATORS.DATASOURCE_TYPE' | translate }}*</label>
-                        <select
-                          [(ngModel)]="datasourceType"
-                          [ngModelOptions]="{ standalone: true }"
-                          class="form-control"
-                          required
-                        >
+                        <select formControlName="datasourceType" class="form-control">
                           <option [ngValue]="null" disabled>
                             {{ 'ADMIN_INDICATORS.SELECT_DATASOURCE_TYPE_OPTION' | translate }}
                           </option>
@@ -326,7 +302,7 @@
                             </option>
                           }
                         </select>
-                        <div class="help-block with-errors"></div>
+                        <app-form-error [control]="editForm.controls.datasourceType" />
                       </div>
                       @if (datasourceType?.type === 'FILE') {
                         <div>
@@ -350,15 +326,16 @@
                                   rows="1"
                                   class="form-control"
                                   placeholder="{{ parameter.name }}"
-                                  [(ngModel)]="datasourceTypeParameterValues[parameter.name]"
-                                  [name]="'datasourceTypeParameter_' + parameter.name"
-                                  [ngModelOptions]="{ standalone: true }"
-                                  required
+                                  [formControlName]="parameter.name"
                                 ></textarea>
                                 <div class="help-block">
                                   <p>{{ parameter.description }}</p>
                                 </div>
-                                <div class="help-block with-errors"></div>
+                                <app-form-error
+                                  [control]="
+                                    editForm.controls.datasourceTypeParameters.get(parameter.name)
+                                  "
+                                />
                               </div>
                             </div>
                           }
@@ -375,25 +352,25 @@
                   <input
                     type="text"
                     class="form-control"
-                    [(ngModel)]="spatialUnitRefKeyProperty"
-                    [ngModelOptions]="{ standalone: true }"
-                    required
+                    formControlName="spatialUnitRefKeyProperty"
+                    appAria="ie-data-ref-key"
                   />
                   <div class="help-block">
                     <p>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.SPATIAL_REF_KEY_HINT' | translate }}</p>
                   </div>
-                  <div class="help-block with-errors"></div>
+                  <app-form-error
+                    [control]="editForm.controls.spatialUnitRefKeyProperty"
+                    for="ie-data-ref-key"
+                  />
                 </div>
               </div>
               <div class="col-md-3 col-sm-6 col-12">
                 <div class="form-group">
                   <label>{{ 'ADMIN_INDICATORS.TARGET_SPATIAL_UNIT' | translate }}*</label>
                   <select
-                    [(ngModel)]="targetSpatialUnitMetadata"
-                    [ngModelOptions]="{ standalone: true }"
+                    formControlName="targetSpatialUnitMetadata"
                     (change)="onChangeSelectedSpatialUnit(targetSpatialUnitMetadata)"
                     class="form-control"
-                    required
                   >
                     <option [ngValue]="null" disabled>
                       {{ 'ADMIN_INDICATORS.SELECT_TARGET_SPATIAL_UNIT_OPTION' | translate }}
@@ -407,7 +384,7 @@
                       </option>
                     }
                   </select>
-                  <div class="help-block with-errors"></div>
+                  <app-form-error [control]="editForm.controls.targetSpatialUnitMetadata" />
                 </div>
               </div>
             </div>
@@ -430,12 +407,7 @@
                   <div class="col-md-3">
                     <label>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label>
                     <label class="switch">
-                      <input
-                        type="checkbox"
-                        [(ngModel)]="isPublic"
-                        [ngModelOptions]="{ standalone: true }"
-                        (change)="onChangeIsPublic(isPublic)"
-                      />
+                      <input type="checkbox" formControlName="isPublic" />
                       <span class="switchslider round"></span>
                     </label>
                     <div class="help-block">
@@ -476,8 +448,7 @@
                     <input
                       type="checkbox"
                       value="keepMissingValues"
-                      [(ngModel)]="keepMissingValues"
-                      [ngModelOptions]="{ standalone: true }"
+                      formControlName="keepMissingValues"
                     />
                     <span class="switchslider round"></span>
                   </label>
@@ -498,7 +469,7 @@
             />
           </fieldset>
         }
-      </form>
+      </div>
     </div>
   </div>
 </div>
@@ -510,9 +481,7 @@
   <button
     type="button"
     class="btn btn-success"
-    [disabled]="
-      !converter || !datasourceType || !targetSpatialUnitMetadata || !spatialUnitRefKeyProperty
-    "
+    [disabled]="editForm.invalid"
     (click)="editIndicatorFeatures()"
   >
     {{ 'ADMIN_INDICATORS.EDIT_FEATURES.CONTINUE_TIMESERIES' | translate }}

@@ -8,8 +8,8 @@ Basis: Codebestand verifiziert gegen alle Dokumente in `documentation/` und `PRO
 
 | Gate                   | Ergebnis                                            |
 | ---------------------- | --------------------------------------------------- |
-| `npm test`             | 129 Suites / **610 Tests**, 0 failed, **0 skipped** |
-| `npm run lint`         | **0 Errors**, 1296 Warnings                         |
+| `npm test`             | 130 Suites / **676 Tests**, 0 failed, **0 skipped** |
+| `npm run lint`         | **0 Errors**, 1295 Warnings                         |
 | `npm run build`        | EXIT 0                                              |
 | `npm run format:check` | **grün** (alle Dateien Prettier-konform)            |
 
@@ -42,11 +42,11 @@ nicht 1:1 portierbar. **Entscheidung nötig:** migrieren oder löschen. Erst dan
 
 ### B1. Reactive Forms im Admin-Bereich (aktuelle Baustelle)
 
-**Fundament steht, 2 von ~14 Admin-Formularen sind umgestellt.** Aktueller Stand:
+**Fundament steht, 5 von ~14 Admin-Formularen sind umgestellt.** Aktueller Stand:
 
-- **462 `ngModel`-Bindings in 67 Templates** unter `ngComponents/` (davon **304 in 39 Templates**
+- **381 `ngModel`-Bindings in 67 Templates** unter `ngComponents/` (davon **223 in 39 Templates**
   im Admin-Bereich)
-- **10 Templates** nutzen `formGroup`/`formControlName`/`[formControl]`
+- **13 Templates** nutzen `formGroup`/`formControlName`/`[formControl]`
 
 #### Erledigt
 
@@ -72,12 +72,24 @@ die 11-klauseligen `[disabled]`-Ausdrücke durch je ein `addForm.invalid` ersetz
 `<form>`-Elemente entfernt (sie hatten kein `type="submit"` und ihre Template-Ref wurde nie
 gelesen), die Body-Builder als pure, TestBed-freie Funktionen extrahiert.
 
-Drei **Verhaltensänderungen** dabei, jeweils durch einen umbenannten Test dokumentiert:
-gleiches Start-/Enddatum wird bei Georessourcen jetzt abgelehnt (`===` verglich zwei frische
+Ebenso die drei **`editFeatures`-Modals** (Raumebene 27→1, Georessource 37→2, Indikator 24→4
+`ngModel`; die Reste sind Grid-Zustand im Übersichtsschritt, kein Formular). Zwei davon hatten nur
+einen `should create`-Smoke-Test, eines gar keine Spec — vor jedem Umbau ist eine
+Charakterisierungs-Spec entstanden (21 / 34 / 13 Tests). Das Indikator-Modal ist bewusst **nicht**
+auf `ImporterFormGroup` gebaut: es importiert Zeitreihen statt Geometrien und hat weder
+ID-/NAME-Attribut noch Begrenzungsrahmen; es teilt nur die Form der Parameter-`FormRecord`s. Es ist
+zugleich das erste Modal mit flächendeckender `<app-form-error>`-Anzeige.
+
+Die **Verhaltensänderungen** dabei, jeweils durch einen umbenannten oder neu benannten Test
+dokumentiert: gleiches Start-/Enddatum wird bei Georessourcen jetzt abgelehnt (`===` verglich zwei frische
 `Date`-Objekte); die Themen-Kaskade leert tiefere Ebenen, statt eine veraltete Referenz aus einem
 fremden Ast zu posten; Raumebenen lassen sich ohne Keycloak überhaupt anlegen (die Klausel
 `!ownerOrganization` war unbedingt, obwohl das Feld hinter `@if (enableKeycloakSecurity)` liegt).
-Zusätzlich prüft die Namens-Eindeutigkeit jetzt getrimmt und case-insensitiv.
+Zusätzlich prüft die Namens-Eindeutigkeit jetzt getrimmt und case-insensitiv. In
+`georesourceEditFeaturesModal` ist das Submit-Gate strenger geworden (Pflicht-Konverterparameter
+zählen mit — vorher scheiterte der Import erst serverseitig), und das Referenzraumebenen-Select
+hält dort die Id statt des ganzen Datensatz-Objekts (gleiches Wire-Format, ein
+Objekt-Identitäts-Select weniger).
 
 **Manuell zu prüfen:** [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md) —
 Widgets im Browser, Objekt-Identität in Selects und die Datei-Import-Round-Trips sind
@@ -88,7 +100,6 @@ automatisiert nicht erreichbar.
 | Block                                                                     | `ngModel` | Anmerkung                                                                             |
 | ------------------------------------------------------------------------- | --------: | ------------------------------------------------------------------------------------- |
 | `indicatorAddModal` (5 Steps + 3 Klassifikations-Komponenten)             |        76 | größter Rest; dort entfallen zusätzlich `stateRevision` + 7 `effect(…markForCheck())` |
-| 3 × `editFeatures`-Modal (Geo 37, SU 27, Indikator 24)                    |        88 | großteils der geteilte Importer-Block, der jetzt bereitliegt                          |
 | `scriptAddModal` (5 Dateien)                                              |        26 | eigener `@Input`/`@Output`-Schrittvertrag                                             |
 | `indicatorBatchUpdateModal`                                               |        21 | echter `FormArray`-Fall, eigenes Projekt                                              |
 | Rollen-Modals (5 Stück)                                                   |        24 | klein                                                                                 |
@@ -256,9 +267,9 @@ Verifiziert gegen den Code am 2026-08-26.
 
 ## Empfohlene Reihenfolge
 
-1. **B1** — Reactive-Forms-Umbau zu Ende führen. Fundament und die beiden Add-Wizards sind
-   durch; als Nächstes bieten sich die drei `editFeatures`-Modals an (sie teilen sich den bereits
-   fertigen Importer-Block), danach `indicatorAddModal`.
+1. **B1** — Reactive-Forms-Umbau zu Ende führen. Fundament, die beiden Add-Wizards und die drei
+   `editFeatures`-Modals sind durch; als Nächstes `indicatorAddModal` (größter Rest, hat bereits
+   eine 777-zeilige Charakterisierungs-Spec), danach die kleinen Modals als Lückenfüller.
 2. **A1** — Entscheidung zu `feedbackModal` / `individualIndicatorComputation`; damit fällt auch
    ein Teil von C3 weg.
 3. **C2 + C3** — Logger-Service, danach `no-console` auf `error`; Rest der `__env`-Zugriffe.

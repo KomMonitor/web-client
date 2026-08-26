@@ -13,7 +13,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import { GridOptions } from 'ag-grid-community';
@@ -40,6 +40,11 @@ import { StepperComponent } from 'components/ngComponents/common/stepper/stepper
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { IndicatorRefreshRequest } from '../indicator-refresh.model';
 import { downloadJson } from 'util/json-file.util';
+import { syncParameterControls } from '../../adminShared/importerForm/importer-form.model';
+import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
+import { FormControlAriaDirective } from '../../adminShared/formError/form-control-aria.directive';
+import { controlInvalidSignal } from '../../adminShared/forms/control-state';
+import { buildIndicatorEditFeaturesForm } from './indicator-edit-features-form.model';
 
 declare const $: any;
 
@@ -47,7 +52,16 @@ declare const $: any;
   selector: 'app-indicator-edit-features-modal',
   templateUrl: './indicator-edit-features-modal.component.html',
   styleUrls: ['./indicator-edit-features-modal.component.scss'],
-  imports: [TranslateModule, FormsModule, FilterPipe, AgGridAngular, StepperComponent],
+  imports: [
+    TranslateModule,
+    FormsModule,
+    ReactiveFormsModule,
+    FormErrorComponent,
+    FormControlAriaDirective,
+    FilterPipe,
+    AgGridAngular,
+    StepperComponent,
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -87,22 +101,63 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   indicatorFeaturesJSON: any;
   remainingFeatureHeaders: any[] = [];
 
-  // Converter settings
-  converter: any;
-  schema: any;
-  mimeType: any;
+  /**
+   * Typed model of the data step. The overview step is the AG-Grid feature
+   * table and stays imperative. The accessors below keep the historic property
+   * names working for the importer-definition builders and the spec.
+   */
+  readonly editForm = buildIndicatorEditFeaturesForm();
 
-  // ngModel-bound converter / data-source parameter values, keyed by parameter
-  // name. Passed to the import service as formValues so the importer helper
-  // never has to scrape the parameter inputs from the DOM.
-  converterParameterValues: { [key: string]: string } = {};
-  datasourceTypeParameterValues: { [key: string]: string } = {};
+  private readonly dataStepInvalid = controlInvalidSignal(this.editForm, { whenTouched: true });
+
+  // Converter settings
+  get converter(): any {
+    return this.editForm.controls.converter.value;
+  }
+  set converter(value: any) {
+    this.editForm.controls.converter.setValue(value ?? null);
+  }
+  get schema(): any {
+    return this.editForm.controls.schema.value;
+  }
+  set schema(value: any) {
+    this.editForm.controls.schema.setValue(value ?? '');
+  }
+  get mimeType(): any {
+    return this.editForm.controls.mimeType.value;
+  }
+  set mimeType(value: any) {
+    this.editForm.controls.mimeType.setValue(value ?? '');
+  }
+
+  // Converter / data-source parameter values, keyed by parameter name.
+  get converterParameterValues(): { [key: string]: string } {
+    return this.editForm.controls.converterParameters.getRawValue();
+  }
+  get datasourceTypeParameterValues(): { [key: string]: string } {
+    return this.editForm.controls.datasourceTypeParameters.getRawValue();
+  }
 
   @ViewChild('indicatorDataSourceInput', { static: false })
   indicatorDataSourceInput?: ElementRef;
-  datasourceType: any;
-  spatialUnitRefKeyProperty: string = '';
-  targetSpatialUnitMetadata: any;
+  get datasourceType(): any {
+    return this.editForm.controls.datasourceType.value;
+  }
+  set datasourceType(value: any) {
+    this.editForm.controls.datasourceType.setValue(value ?? null);
+  }
+  get spatialUnitRefKeyProperty(): string {
+    return this.editForm.controls.spatialUnitRefKeyProperty.value;
+  }
+  set spatialUnitRefKeyProperty(value: string) {
+    this.editForm.controls.spatialUnitRefKeyProperty.setValue(value ?? '');
+  }
+  get targetSpatialUnitMetadata(): any {
+    return this.editForm.controls.targetSpatialUnitMetadata.value;
+  }
+  set targetSpatialUnitMetadata(value: any) {
+    this.editForm.controls.targetSpatialUnitMetadata.setValue(value ?? null);
+  }
 
   // Importer objects
   converterDefinition: any;
@@ -111,8 +166,18 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   putBody_indicators: any;
 
   // Settings
-  keepMissingValues: boolean = true;
-  isPublic: boolean = false;
+  get keepMissingValues(): boolean {
+    return this.editForm.controls.keepMissingValues.value;
+  }
+  set keepMissingValues(value: boolean) {
+    this.editForm.controls.keepMissingValues.setValue(!!value);
+  }
+  get isPublic(): boolean {
+    return this.editForm.controls.isPublic.value;
+  }
+  set isPublic(value: boolean) {
+    this.editForm.controls.isPublic.setValue(!!value);
+  }
   enableDeleteFeatures: boolean = false;
 
   // Timeseries mapping
@@ -133,7 +198,11 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   // Multi-step form
   readonly stepper = new WizardStepper([
     { key: 'overview', label: 'ADMIN_SHARED_UI.STEP_LABELS.TIMESERIES_OVERVIEW' },
-    { key: 'data', label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_DATASET' },
+    {
+      key: 'data',
+      label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_DATASET',
+      invalid: this.dataStepInvalid,
+    },
   ]);
 
   ngOnInit(): void {
@@ -245,8 +314,8 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.schema = undefined;
     this.mimeType = undefined;
     this.datasourceType = null;
-    this.converterParameterValues = {};
-    this.datasourceTypeParameterValues = {};
+    syncParameterControls(this.editForm.controls.converterParameters, []);
+    syncParameterControls(this.editForm.controls.datasourceTypeParameters, []);
 
     this.converterDefinition = undefined;
     this.datasourceTypeDefinition = undefined;
@@ -380,12 +449,12 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   }
 
   onChangeConverter(): void {
-    this.schema = this.converter.schemas ? this.converter.schemas[0] : undefined;
-    this.mimeType = this.converter.mimeTypes[0];
-    // Fresh parameter values for the newly selected converter. NOTE: CRS
+    this.schema = this.converter?.schemas ? this.converter.schemas[0] : undefined;
+    this.mimeType = this.converter?.mimeTypes?.[0];
+    // Fresh parameter controls for the newly selected converter. NOTE: CRS
     // parameters are deliberately not seeded — the template hides them, so
     // they were never sent historically either.
-    this.converterParameterValues = {};
+    syncParameterControls(this.editForm.controls.converterParameters, this.converter?.parameters);
   }
 
   onChangeMimeType(mimeType: string): void {

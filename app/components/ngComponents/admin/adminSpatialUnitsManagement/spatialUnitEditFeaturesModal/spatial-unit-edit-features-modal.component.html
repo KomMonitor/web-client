@@ -24,7 +24,7 @@
   <!-- MultiStep Form -->
   <div class="row">
     <div class="col-md-12">
-      <form
+      <div
         id="spatialUnitEditFeaturesForm"
         class="multiStepForm form-group"
         style="margin-bottom: 0px"
@@ -152,7 +152,7 @@
         }
 
         <!-- Step 2: Spatial Dataset -->
-        <fieldset [hidden]="!stepper.isActive('data')">
+        <fieldset [hidden]="!stepper.isActive('data')" [formGroup]="importerForm">
           <div style="position: absolute">
             <button
               type="button"
@@ -204,11 +204,8 @@
                 <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_FORMAT_GEO' | translate }}*</label>
                 <select
                   class="form-control"
-                  [(ngModel)]="converter"
-                  name="converter"
+                  formControlName="converter"
                   [compareWith]="compareConverter"
-                  (change)="onChangeConverter()"
-                  required
                 >
                   <option value="" disabled>
                     {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SOURCE_FORMAT' | translate }}
@@ -224,7 +221,7 @@
               @if (converter?.schemas) {
                 <div class="form-group">
                   <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SCHEMA' | translate }}*</label>
-                  <select class="form-control" [(ngModel)]="schema" name="schema" required>
+                  <select class="form-control" formControlName="schema">
                     <option value="" disabled>
                       {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SCHEMA' | translate }}
                     </option>
@@ -240,13 +237,7 @@
               @if (converter?.mimeTypes) {
                 <div class="form-group">
                   <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_FORMAT' | translate }}*</label>
-                  <select
-                    class="form-control"
-                    [(ngModel)]="mimeType"
-                    name="mimeType"
-                    (change)="onChangeMimeType(mimeType)"
-                    required
-                  >
+                  <select class="form-control" formControlName="mimeType">
                     <option value="" disabled>
                       {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_FORMAT' | translate }}
                     </option>
@@ -272,9 +263,7 @@
                     class="form-control"
                     [id]="'converterParameter_spatialUnitEditFeatures_' + parameter.name"
                     [placeholder]="parameter.name"
-                    [required]="parameter.mandatory"
-                    [name]="'converterParameter_spatialUnitEditFeatures_' + parameter.name"
-                    [(ngModel)]="converterParameters[parameter.name]"
+                    [formControlName]="parameter.name"
                   />
                   <div class="help-block">
                     <p>{{ parameter.description }}</p>
@@ -304,11 +293,8 @@
                     <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.DATASOURCE_TYPE' | translate }}*</label>
                     <select
                       class="form-control"
-                      [(ngModel)]="datasourceType"
-                      name="datasourceType"
+                      formControlName="datasourceType"
                       [compareWith]="compareDatasourceType"
-                      (change)="onChangeDatasourceType(datasourceType)"
-                      required
                     >
                       <option value="" disabled>
                         {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SOURCE_TYPE' | translate }}
@@ -349,9 +335,7 @@
                       <select
                         class="form-control"
                         id="datasourceTypeParameter_spatialUnitEditFeatures_bboxType"
-                        [(ngModel)]="bboxType"
-                        name="bboxType"
-                        required
+                        formControlName="bboxType"
                       >
                         <option value="" disabled>
                           {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_FILTER' | translate }}
@@ -368,9 +352,7 @@
                           <select
                             class="form-control"
                             id="datasourceTypeParameter_spatialUnitEditFeatures_bboxRef"
-                            [(ngModel)]="bboxRefSpatialUnitLevel"
-                            name="bboxRefSpatialUnit"
-                            required
+                            formControlName="bboxRefSpatialUnitId"
                           >
                             <option value="" disabled>
                               {{
@@ -396,9 +378,7 @@
                             class="form-control"
                             id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_minx"
                             placeholder="-180"
-                            required
-                            [(ngModel)]="bbox_minx"
-                            name="bbox_minx"
+                            formControlName="minx"
                           />
                           <div class="help-block">
                             <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.MIN_X' | translate }}</p>
@@ -408,9 +388,7 @@
                             class="form-control"
                             id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_miny"
                             placeholder="-90"
-                            required
-                            [(ngModel)]="bbox_miny"
-                            name="bbox_miny"
+                            formControlName="miny"
                           />
                           <div class="help-block">
                             <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.MIN_Y' | translate }}</p>
@@ -420,9 +398,7 @@
                             class="form-control"
                             id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_maxx"
                             placeholder="180"
-                            required
-                            [(ngModel)]="bbox_maxx"
-                            name="bbox_maxx"
+                            formControlName="maxx"
                           />
                           <div class="help-block">
                             <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.MAX_X' | translate }}</p>
@@ -432,9 +408,7 @@
                             class="form-control"
                             id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_maxy"
                             placeholder="90"
-                            required
-                            [(ngModel)]="bbox_maxy"
-                            name="bbox_maxy"
+                            formControlName="maxy"
                           />
                           <div class="help-block">
                             <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.MAX_Y' | translate }}</p>
@@ -462,11 +436,7 @@
                               'datasourceTypeParameter_spatialUnitEditFeatures_' + parameter.name
                             "
                             [placeholder]="parameter.name"
-                            [required]="parameter.mandatory"
-                            [name]="
-                              'datasourceTypeParameter_spatialUnitEditFeatures_' + parameter.name
-                            "
-                            [(ngModel)]="datasourceTypeParameters[parameter.name]"
+                            [formControlName]="parameter.name"
                           ></textarea>
                           <div class="help-block">
                             <p>{{ parameter.description }}</p>
@@ -486,9 +456,8 @@
                 <input
                   type="text"
                   class="form-control"
-                  [(ngModel)]="spatialUnitDataSourceIdProperty"
-                  name="spatialUnitDataSourceIdProperty"
-                  required
+                  formControlName="idProperty"
+                  appAria="sue-data-id-property"
                 />
                 <div class="help-block">
                   <p>
@@ -502,9 +471,8 @@
                 <input
                   type="text"
                   class="form-control"
-                  [(ngModel)]="spatialUnitDataSourceNameProperty"
-                  name="spatialUnitDataSourceNameProperty"
-                  required
+                  formControlName="nameProperty"
+                  appAria="sue-data-name-property"
                 />
                 <div class="help-block">
                   <p>
@@ -518,12 +486,7 @@
             <div class="col-md-3 col-sm-6 col-12">
               <div class="form-group">
                 <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_START' | translate }}</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="validityStartDate_perFeature"
-                  name="validityStartDate_perFeature"
-                />
+                <input type="text" class="form-control" formControlName="validStartDateProperty" />
                 <div class="help-block">
                   <p>
                     {{ 'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_START_HINT' | translate }}
@@ -533,12 +496,7 @@
 
               <div class="form-group">
                 <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_END' | translate }}</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="validityEndDate_perFeature"
-                  name="validityEndDate_perFeature"
-                />
+                <input type="text" class="form-control" formControlName="validEndDateProperty" />
                 <div class="help-block">
                   <p>
                     {{ 'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_END_HINT' | translate }}
@@ -554,25 +512,22 @@
               <div class="form-group">
                 <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.VALID_FROM' | translate }}*</label>
                 <km-date-picker
-                  name="periodOfValidityStartDate"
                   placeholder="YYYY-MM-DD"
-                  [(ngModel)]="periodOfValidity.startDate"
-                  (ngModelChange)="checkPeriodOfValidity()"
-                  (valueChange)="checkPeriodOfValidity()"
+                  [formControl]="editForm.controls.periodOfValidity.controls.startDate"
+                  (blur)="onPeriodStartBlur()"
                   [invalid]="periodOfValidityInvalid"
-                  [required]="true"
+                  [showErrors]="false"
                 ></km-date-picker>
                 <div class="help-block">
                   <p>
                     {{ 'ADMIN_SPATIAL_UNITS.DATA.VALID_FROM_HINT' | translate }}
                   </p>
                 </div>
-                <div class="help-block with-errors"></div>
-                @if (periodOfValidityInvalid) {
-                  <div style="color: red">
-                    <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.PERIOD_INVALID' | translate }}</p>
-                  </div>
-                }
+                <app-form-error
+                  [control]="editForm.controls.periodOfValidity"
+                  keyOverride="ADMIN_SPATIAL_UNITS.DATA.PERIOD_INVALID"
+                  showWhen="always"
+                />
               </div>
             </div>
 
@@ -580,24 +535,22 @@
               <div class="form-group">
                 <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.VALID_TO' | translate }}</label>
                 <km-date-picker
-                  name="periodOfValidityEndDate"
                   placeholder="YYYY-MM-DD"
-                  [(ngModel)]="periodOfValidity.endDate"
-                  (ngModelChange)="checkPeriodOfValidity()"
-                  (valueChange)="checkPeriodOfValidity()"
+                  [formControl]="editForm.controls.periodOfValidity.controls.endDate"
+                  (blur)="onPeriodEndBlur()"
                   [invalid]="periodOfValidityInvalid"
+                  [showErrors]="false"
                 ></km-date-picker>
                 <div class="help-block">
                   <p>
                     {{ 'ADMIN_SPATIAL_UNITS.DATA.VALID_TO_HINT' | translate }}
                   </p>
                 </div>
-                <div class="help-block with-errors"></div>
-                @if (periodOfValidityInvalid) {
-                  <div style="color: red">
-                    <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.PERIOD_INVALID' | translate }}</p>
-                  </div>
-                }
+                <app-form-error
+                  [control]="editForm.controls.periodOfValidity"
+                  keyOverride="ADMIN_SPATIAL_UNITS.DATA.PERIOD_INVALID"
+                  showWhen="always"
+                />
               </div>
             </div>
           </div>
@@ -619,8 +572,7 @@
                     <input
                       type="checkbox"
                       value="isPartialUpdate"
-                      [(ngModel)]="isPartialUpdate"
-                      name="isPartialUpdate"
+                      [formControl]="editForm.controls.isPartialUpdate"
                     />
                     <span class="switchslider round"></span>
                   </label>
@@ -647,8 +599,7 @@
                     <input
                       type="checkbox"
                       value="keepAttributes"
-                      [(ngModel)]="keepAttributes"
-                      name="keepAttributes"
+                      formControlName="keepAttributes"
                     />
                     <span class="switchslider round"></span>
                   </label>
@@ -670,8 +621,7 @@
                     <input
                       type="checkbox"
                       value="keepMissingValues"
-                      [(ngModel)]="keepMissingValues"
-                      name="keepMissingValues"
+                      formControlName="keepMissingValues"
                     />
                     <span class="switchslider round"></span>
                   </label>
@@ -688,17 +638,16 @@
           <!-- Attribute Mapping -->
           @if (!keepAttributes) {
             <div class="row vertical-align">
-              <div class="col-md-6 col-sm-6 col-12">
+              <div class="col-md-6 col-sm-6 col-12" [formGroup]="attributeMappingDraft">
                 <div class="form-group">
                   <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_ATTRIBUTE' | translate }}*</label>
                   <input
                     type="text"
                     class="form-control"
-                    [(ngModel)]="attributeMapping_sourceAttributeName"
+                    formControlName="sourceName"
                     [placeholder]="
                       'ADMIN_SPATIAL_UNITS.DATA.SOURCE_ATTRIBUTE_PLACEHOLDER' | translate
                     "
-                    name="attributeMapping_sourceAttributeName"
                   />
                 </div>
                 <div class="form-group">
@@ -706,21 +655,15 @@
                   <input
                     type="text"
                     class="form-control"
-                    [(ngModel)]="attributeMapping_destinationAttributeName"
+                    formControlName="destinationName"
                     [placeholder]="
                       'ADMIN_SPATIAL_UNITS.DATA.TARGET_ATTRIBUTE_PLACEHOLDER' | translate
                     "
-                    name="attributeMapping_destinationAttributeName"
                   />
                 </div>
                 <div class="form-group">
                   <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.DATA_TYPE' | translate }}*</label>
-                  <select
-                    class="form-control"
-                    [(ngModel)]="attributeMapping_attributeType"
-                    name="attributeMapping_attributeType"
-                    required
-                  >
+                  <select class="form-control" formControlName="dataType">
                     <option value="" disabled>
                       {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_DATA_TYPE' | translate }}
                     </option>
@@ -804,7 +747,7 @@
             (click)="stepper.previous()"
           />
         </fieldset>
-      </form>
+      </div>
     </div>
   </div>
 </div>
@@ -817,15 +760,7 @@
   <button
     type="button"
     class="btn btn-success"
-    [disabled]="
-      !currentSpatialUnitDataset?.spatialUnitLevel ||
-      !spatialUnitDataSourceIdProperty ||
-      !spatialUnitDataSourceNameProperty ||
-      !periodOfValidity.startDate ||
-      periodOfValidityInvalid ||
-      !converter ||
-      !datasourceType
-    "
+    [disabled]="!currentSpatialUnitDataset?.spatialUnitLevel || editForm.invalid"
     (click)="editSpatialUnitFeatures()"
   >
     <i class="fas fa-upload"></i>&nbsp;{{

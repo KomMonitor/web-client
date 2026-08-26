@@ -1,8 +1,8 @@
 # Manuelle Tests — Reactive-Forms-Umbau der Admin-Wizards
 
 Stand: 2026-08-26, Branch `feature/migration-bootstrap`.
-Bezug: B1 aus [`OFFENE_PUNKTE.md`](OFFENE_PUNKTE.md) — Fundament plus die beiden großen
-Add-Wizards (`spatialUnitAddModal`, `georesourceAddModal`).
+Bezug: B1 aus [`OFFENE_PUNKTE.md`](OFFENE_PUNKTE.md) — Fundament, die beiden großen Add-Wizards
+(`spatialUnitAddModal`, `georesourceAddModal`) und die drei `editFeatures`-Modals.
 
 Diese Liste deckt genau das ab, was die automatisierten Tests **nicht** erreichen: Widgets im
 Browser, Objekt-Identität in Selects und die Datei-Import-Round-Trips. Alles andere
@@ -20,7 +20,8 @@ Die beiden Parameter-Dictionaries sind jetzt `FormRecord`s, deren Controls zur L
 Konverter- bzw. Datenquelltyp-Auswahl gebaut werden. Rendert das Template ein `formControlName`,
 für das noch kein Control existiert, wirft Angular `Cannot find control with name: …`.
 
-Raumebene anlegen → Schritt „Räumlicher Datensatz" (bei Georessourcen identisch prüfen):
+Raumebene anlegen → Schritt „Räumlicher Datensatz". **Identisch prüfen** in: Georessource
+anlegen, sowie in allen drei „Sachdaten bearbeiten"-Modals (Raumebene, Georessource, Indikator):
 
 - [ ] Konverter wählen → Schema und Quellformat füllen sich automatisch, Parameterfelder erscheinen
 - [ ] Konverter **wechseln** → Parameterfelder werden ausgetauscht; Werte gleichnamiger Parameter
@@ -31,8 +32,10 @@ Raumebene anlegen → Schritt „Räumlicher Datensatz" (bei Georessourcen ident
 - [ ] Keine Exception in der Konsole
 
 Bei Fehlern: `adminShared/importerForm/importer-form.model.ts` →
-`syncConverterParameterControls` / `syncDatasourceParameterControls`; die Aufrufe hängen an den
-`valueChanges` der beiden Selects in `ngOnInit` bzw. `setupEventListeners`.
+`syncConverterParameterControls` / `syncDatasourceParameterControls` (im Indikator-Modal das
+generische `syncParameterControls`). Die Aufrufe hängen an den `valueChanges` der beiden Selects —
+in den Add-Wizards und dem Raumebenen-Edit-Modal in `ngOnInit`, im Georessourcen-Edit-Modal im
+Konstruktor.
 
 ## 2. Farb- und Musterauswahl im reaktiven Formular
 
@@ -62,11 +65,43 @@ Raumebenen-Zwilling.
 - [ ] Gleiches Start- und Enddatum wird jetzt **abgelehnt** (vorher stillschweigend akzeptiert,
       weil `startDate === endDate` zwei frische `Date`-Objekte verglich)
 
+## 3b. „Sachdaten bearbeiten" — die drei editFeatures-Modals
+
+Diese drei sind später umgestellt worden als die Add-Wizards und noch gar nicht im Browser
+gelaufen.
+
+**Raumebene → Sachdaten bearbeiten:**
+
+- [ ] Schritt 1 (Feature-Tabelle): Zellen bearbeiten, Feature löschen — der Schalter „Löschen
+      aktivieren" ist bewusst **kein** Formularfeld geblieben und muss weiter funktionieren
+- [ ] Schritt 2: Gültigkeitsdatum leer anklicken und Feld verlassen → wird mit heute gefüllt;
+      Unsinn eintippen und verlassen → wird ebenfalls auf heute korrigiert.
+      **Diese Korrektur hätte der Umbau still kaputt gemacht** (sie schrieb in einen
+      Wert-Snapshot statt ins Control) — hier genau hinsehen.
+- [ ] Kompletter Durchlauf: Datei wählen, Attribut-Mapping anlegen, absenden
+
+**Georessource → Sachdaten bearbeiten:**
+
+- [ ] Räumlichen Filter auf „Referenzraumebene" stellen und eine Raumebene wählen. Das Select
+      hält jetzt die **Id** statt des ganzen Datensatz-Objekts — das Wire-Format ist unverändert,
+      aber die Auswahl muss stehen bleiben und beim Absenden ankommen.
+- [ ] **Verhaltensänderung:** Konverter mit Pflichtparameter wählen und das Feld leer lassen →
+      der Absenden-Button bleibt jetzt deaktiviert. Vorher ließ sich absenden und der Importer
+      scheiterte erst serverseitig.
+- [ ] Kompletter Durchlauf inkl. Teil-Aktualisierung („Partial Update")
+
+**Indikator → Sachdaten bearbeiten:**
+
+- [ ] Erstes Modal mit flächendeckender Fehleranzeige: Pflichtfelder (Konverter, Datenquelltyp,
+      Zielraumebene, Raumbezugsschlüssel) antippen und leer lassen → unter jedem Feld erscheint
+      eine Meldung, der Schritt wird im Stepper rot markiert
+- [ ] Kompletter Zeitreihen-Import über Datei
+
 ## 4. Import-Round-Trip
 
 Der Pfad, an dem Objekt-Identität in Selects erfahrungsgemäß bricht.
 
-Für **beide** Wizards:
+Für **beide** Add-Wizards:
 
 - [ ] Metadaten exportieren → Modal neu öffnen → importieren. Danach müssen korrekt
       vorausgewählt sein: Aktualisierungszyklus, Linienmuster, Thema, und bei Georessourcen der
@@ -74,6 +109,12 @@ Für **beide** Wizards:
 - [ ] Mapping-Config exportieren → importieren. Danach müssen stimmen: Konverter, Schema,
       Quellformat, Datenquelltyp, **beide** Parameterblöcke, Begrenzungsrahmen, ID-/NAME-Attribut,
       die Keep-Schalter und die Attribut-Mappings
+
+Und in den beiden räumlichen `editFeatures`-Modals:
+
+- [ ] Mapping-Config importieren. Achtung, die bbox-Auswertung unterscheidet sich hier bewusst
+      von den Add-Wizards: es gibt keinen eigenen `bboxType`-Parameter, der Typ wird aus dem Wert
+      abgeleitet und nur für OGCAPI-Datenquellen angewendet.
 
 Hinweis: Eine Metadaten-Datei ohne gesetztes `isPOI`/`isLOI`/`isAOI` landet jetzt auf „Areas of
 Interest" statt in einem Zustand ohne Stil-Felder — die drei Flags sind auf ein einzelnes
@@ -95,6 +136,8 @@ Die 11-klauseligen `[disabled]`-Ausdrücke sind je durch ein `addForm.invalid` e
 
 - [ ] Je einen vollständigen Datensatz anlegen: **Raumebene** und **Georessource** (End-to-End
       inkl. Importer-Lauf)
+- [ ] In allen drei `editFeatures`-Modals: der Absenden-Button gibt frei, sobald die Pflichtfelder
+      gefüllt sind
 - [ ] Der „Anlegen"-Button gibt frei, sobald alle Pflichtfelder gefüllt sind — und nicht früher
 - [ ] Schritte mit Pflichtfeldfehlern werden im Stepper rot mit Ausrufezeichen markiert, bleiben
       aber anklickbar (Navigation wurde bewusst **nicht** gesperrt)
