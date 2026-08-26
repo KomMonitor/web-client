@@ -1368,6 +1368,9 @@
       "EDIT_ENTRY": "Mapping editieren",
       "DELETE_ENTRY": "Mapping löschen",
       "EMPTY": "Noch kein Zeitreihen-Mapping definiert."
+    },
+    "BATCH_UPDATE": {
+      "ROW_INCOMPLETE": "Zeile unvollständig — Konverter oder Datenquelle fehlen; die Zeile wurde übersprungen."
     }
   },
   "ADMIN_WMS": {

@@ -1368,6 +1368,9 @@
       "EDIT_ENTRY": "Edit mapping",
       "DELETE_ENTRY": "Delete mapping",
       "EMPTY": "No time-series mapping defined yet."
+    },
+    "BATCH_UPDATE": {
+      "ROW_INCOMPLETE": "Row incomplete — converter or data source missing; the row was skipped."
     }
   },
   "ADMIN_WMS": {
