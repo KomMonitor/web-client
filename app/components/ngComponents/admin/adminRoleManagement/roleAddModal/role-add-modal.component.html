@@ -47,16 +47,16 @@
                 class="form-control"
                 type="text"
                 [placeholder]="'ADMIN_ROLES.ADD_MODAL.NAME_PLACEHOLDER' | translate"
-                [(ngModel)]="newOrganizationalUnit.name"
-                name="name"
-                (ngModelChange)="checkName()"
-                required
+                [formControl]="form.controls.name"
               />
-              @if (nameInvalid) {
-                <div class="text-danger">
-                  {{ 'ADMIN_ROLES.ADD_MODAL.NAME_INVALID' | translate }}
-                </div>
-              }
+              <app-form-error
+                [control]="form.controls.name"
+                [keyOverride]="
+                  form.controls.name.hasError('uniqueName')
+                    ? 'ADMIN_ROLES.ADD_MODAL.NAME_INVALID'
+                    : ''
+                "
+              />
             </div>
           </div>
           <div class="col-md-4">
@@ -66,7 +66,7 @@
                 class="form-control"
                 rows="4"
                 [placeholder]="'ADMIN_ROLES.ADD_MODAL.DESCRIPTION_PLACEHOLDER' | translate"
-                [(ngModel)]="newOrganizationalUnit.description"
+                [formControl]="form.controls.description"
                 name="description"
                 required
               ></textarea>
@@ -79,7 +79,7 @@
                 class="form-control"
                 rows="4"
                 [placeholder]="'ADMIN_ROLES.ADD_MODAL.CONTACT_PLACEHOLDER' | translate"
-                [(ngModel)]="newOrganizationalUnit.contact"
+                [formControl]="form.controls.contact"
                 name="contact"
                 required
               ></textarea>
@@ -104,9 +104,8 @@
                       <input
                         id="mandant-toggle"
                         type="checkbox"
-                        [(ngModel)]="newOrganizationalUnit.mandant"
-                        name="mandant"
-                        (ngModelChange)="onMandantChange()"
+                        [formControl]="form.controls.mandant"
+                        (change)="onMandantChange()"
                       />
                       <span class="switchslider round"></span>
                     </label>

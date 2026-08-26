@@ -8,8 +8,8 @@ Basis: Codebestand verifiziert gegen alle Dokumente in `documentation/` und `PRO
 
 | Gate                   | Ergebnis                                            |
 | ---------------------- | --------------------------------------------------- |
-| `npm test`             | 130 Suites / **676 Tests**, 0 failed, **0 skipped** |
-| `npm run lint`         | **0 Errors**, 1295 Warnings                         |
+| `npm test`             | 133 Suites / **700 Tests**, 0 failed, **0 skipped** |
+| `npm run lint`         | **0 Errors**, 1283 Warnings                         |
 | `npm run build`        | EXIT 0                                              |
 | `npm run format:check` | **grün** (alle Dateien Prettier-konform)            |
 
@@ -42,11 +42,11 @@ nicht 1:1 portierbar. **Entscheidung nötig:** migrieren oder löschen. Erst dan
 
 ### B1. Reactive Forms im Admin-Bereich (aktuelle Baustelle)
 
-**Fundament steht, 5 von ~14 Admin-Formularen sind umgestellt.** Aktueller Stand:
+**Fundament steht, 11 von ~14 Admin-Formularen sind umgestellt.** Aktueller Stand:
 
-- **381 `ngModel`-Bindings in 67 Templates** unter `ngComponents/` (davon **223 in 39 Templates**
-  im Admin-Bereich)
-- **13 Templates** nutzen `formGroup`/`formControlName`/`[formControl]`
+- **299 `ngModel`-Bindings in 59 Templates** unter `ngComponents/` (davon **141 in 31 Templates**
+  im Admin-Bereich; rund die Hälfte davon ist Grid-/Filter-Zustand, kein Formular)
+- **20 Templates** nutzen `formGroup`/`formControlName`/`[formControl]`
 
 #### Erledigt
 
@@ -80,6 +80,19 @@ auf `ImporterFormGroup` gebaut: es importiert Zeitreihen statt Geometrien und ha
 ID-/NAME-Attribut noch Begrenzungsrahmen; es teilt nur die Form der Parameter-`FormRecord`s. Es ist
 zugleich das erste Modal mit flächendeckender `<app-form-error>`-Anzeige.
 
+Danach der **`indicatorAddModal`** (76 → 18, davon 12 Klassifikation und 6 tot bzw. Filterfelder).
+Dabei ist die Doppelung der Themen-Felder verschwunden: `indicatorTopic_*` (Payload) und
+`selected*Topic*` (UI) waren zwei parallel von Hand synchronisierte Feldsätze plus drei
+`available*Topics`-Arrays — alles sind jetzt Sichten auf die geteilte Kaskade, die drei
+`on*TopicChange`-Handler sind leere Hooks. Indikatornamen sind nur **pro Indikatortyp** eindeutig,
+dafür gibt es einen eigenen `indicatorNameUniqueValidator`, der das Geschwister-Control liest.
+
+Zuletzt die **kleinen Modals**: die beiden WMS-Modals (Topic-Reste auf die geteilte Komponente,
+der tote `checkDatasetName`-Hook entfernt), `add-topic`, `roleEditMetadataModal` und
+`roleAddModal` — zusammen 24 Bindings auf 0. Die drei letztgenannten hatten keine Spec; sie haben
+jetzt eine (4 / 8 / 12 Tests), die Namens-Eindeutigkeit, Submit-Gate und das Zurückschreiben auf
+das übergebene Dataset-Objekt festhalten.
+
 Die **Verhaltensänderungen** dabei, jeweils durch einen umbenannten oder neu benannten Test
 dokumentiert: gleiches Start-/Enddatum wird bei Georessourcen jetzt abgelehnt (`===` verglich zwei frische
 `Date`-Objekte); die Themen-Kaskade leert tiefere Ebenen, statt eine veraltete Referenz aus einem
@@ -89,7 +102,10 @@ Zusätzlich prüft die Namens-Eindeutigkeit jetzt getrimmt und case-insensitiv. 
 `georesourceEditFeaturesModal` ist das Submit-Gate strenger geworden (Pflicht-Konverterparameter
 zählen mit — vorher scheiterte der Import erst serverseitig), und das Referenzraumebenen-Select
 hält dort die Id statt des ganzen Datensatz-Objekts (gleiches Wire-Format, ein
-Objekt-Identitäts-Select weniger).
+Objekt-Identitäts-Select weniger). Im Indikator-Wizard sendete der POST-Body für
+`interpretation`/`processDescription`/`isHeadlineIndicator` ein durchgereichtes `undefined`,
+während der PATCH-Body normalisierte — mit `nonNullable`-Controls ist dieser Zustand nicht mehr
+darstellbar, beide Bodies senden jetzt `''`/`false`.
 
 **Manuell zu prüfen:** [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md) —
 Widgets im Browser, Objekt-Identität in Selects und die Datei-Import-Round-Trips sind
@@ -97,19 +113,21 @@ automatisiert nicht erreichbar.
 
 #### Offen
 
-| Block                                                                     | `ngModel` | Anmerkung                                                                             |
-| ------------------------------------------------------------------------- | --------: | ------------------------------------------------------------------------------------- |
-| `indicatorAddModal` (5 Steps + 3 Klassifikations-Komponenten)             |        76 | größter Rest; dort entfallen zusätzlich `stateRevision` + 7 `effect(…markForCheck())` |
-| `scriptAddModal` (5 Dateien)                                              |        26 | eigener `@Input`/`@Output`-Schrittvertrag                                             |
-| `indicatorBatchUpdateModal`                                               |        21 | echter `FormArray`-Fall, eigenes Projekt                                              |
-| Rollen-Modals (5 Stück)                                                   |        24 | klein                                                                                 |
-| 2 × `editMetadata`-Modal                                                  |        20 | Allgemein-Block schon reaktiv, Rest offen                                             |
-| WMS add/edit                                                              |        12 | Hybride: haben bereits `formGroup`, nur die Topic-Reste fehlen                        |
-| Kleinkram (`add-topic`, `adminFilterEditModal`, `indicatorDeleteModal` …) |       ~23 |                                                                                       |
-| _Nicht-Formular_ (Grid-Toggles, Filterfelder, Zeilen-Checkboxen)          |       ~14 | bewusst außen vor                                                                     |
+| Block                                                            | `ngModel` | Anmerkung                                                                                                 |
+| ---------------------------------------------------------------- | --------: | --------------------------------------------------------------------------------------------------------- |
+| `scriptAddModal` (4 Dateien)                                     |        24 | eigener `@Input`/`@Output`-Schrittvertrag, kein Netz                                                      |
+| `indicatorBatchUpdateModal`                                      |        21 | echter `FormArray`-Fall, eigenes Projekt, kein Netz                                                       |
+| 2 × `editMetadata`-Modal (Geo 12, SU 8)                          |        20 | Allgemein-Block schon reaktiv; dort steht auch die Entscheidung zu `buildSpatialUnitMetadataPatchBody` an |
+| Klassifikation im Indikator-Wizard (3 Dateien)                   |        12 | `FormArray`-Fall, aber mit vorhandenem Netz (194 Zeilen)                                                  |
+| `indicatorDeleteModal`, `adminFilterEditModal`                   |       ~13 | überwiegend Filterfelder und Zeilen-Checkboxen                                                            |
+| _Nicht-Formular_ (Grid-Toggles, Filterfelder, Zeilen-Checkboxen) |       ~50 | bewusst außen vor                                                                                         |
 
-Zwei Punkte aus dem bereits umgebauten Teil:
+Drei Punkte aus dem bereits umgebauten Teil:
 
+- **`stateRevision` + die sieben `effect(…markForCheck())`** im Indikator-Wizard sind geblieben.
+  Die Form-Direktiven aktualisieren gebundene Inputs von selbst, aber die Step-Templates lesen
+  Felder auch in `@if`-Bedingungen und Interpolationen — die sind weiterhin nicht reaktiv. Ihr
+  Abbau braucht signal-gestützte Lesezugriffe für diese abgeleiteten Stellen.
 - Die **Übergangs-Accessoren** (`get/set spatialUnitLevel` usw.) in beiden Wizards sind bewusst
   stehen geblieben — sie sind der Grund, warum die Sicherheitsnetz-Specs über jeden
   Zwischenschritt unverändert grün blieben. Ihr Abbau (plus Umschreiben der Spec-Setups auf
@@ -206,7 +224,7 @@ _Kein Problem:_ `de-at/de-ch/de-li/de-lu.json` sind absichtlich leere `{}` und f
 
 ### C5. Lint-Warnungs-Backlog
 
-1296 Warnings bei 0 Errors. Der in `PROPOSED_CHANGES.md` genannte Ratchet-Ansatz gilt
+1283 Warnings bei 0 Errors. Der in `PROPOSED_CHANGES.md` genannte Ratchet-Ansatz gilt
 weiter: erst die echten Funde (`no-debugger`, `no-dupe-else-if`, `no-self-assign`,
 `no-constant-binary-expression`) auf `error` ziehen, dann `no-console` (nach C2).
 
@@ -260,18 +278,20 @@ Verifiziert gegen den Code am 2026-08-26.
 | [`REACHABILITY_STATE_UNIFICATION.md`](REACHABILITY_STATE_UNIFICATION.md)           | **Aktuell und abgeschlossen.** Die dort selbst notierten Ausklammerungen (Map-Helper + Coverage-Reports, beide >1000 Z.) sind in B2 übernommen.                                                                                                                                                                                                                                                                                      |
 | [`STARTUP_IMPROVEMENTS.md`](STARTUP_IMPROVEMENTS.md)                               | **Aktuell**, 11 von 13 Punkten erledigt. Die zwei offenen sind hier als C2 und C3 geführt.                                                                                                                                                                                                                                                                                                                                           |
 | [`REPORTING_CATEGORICAL_INDICATOR_GAP.md`](REPORTING_CATEGORICAL_INDICATOR_GAP.md) | **Aktuell und offen.** Führt die Reporting-Lücke bei kategorischen Indikatoren eigenständig — der einzige bekannte echte Funktionsfehler. Die dort genannten Zeilennummern sind nicht nachgeprüft worden.                                                                                                                                                                                                                            |
-| [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md)             | **Aktuell und offen.** Manuelle Testpfade für den Reactive-Forms-Umbau der beiden Add-Wizards — genau das, was die automatisierten Tests nicht erreichen (Widgets, Objekt-Identität in Selects, Import-Round-Trips). Nach Risiko sortiert, mit Ankreuzkästchen.                                                                                                                                                                      |
+| [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md)             | **Aktuell und offen.** Manuelle Testpfade für den Reactive-Forms-Umbau — genau das, was die automatisierten Tests nicht erreichen (Widgets, Objekt-Identität in Selects, Import-Round-Trips). Nach Risiko sortiert, mit Ankreuzkästchen.                                                                                                                                                                                             |
 | [`COMPONENT_NESTING_TREE.md`](COMPONENT_NESTING_TREE.md)                           | **Inhaltlich korrekt, aber unvollständig.** Alle 34 dort genannten Selektoren existieren. Es fehlen die seither entstandenen geteilten Admin-Bausteine (`app-resource-metadata-form`, `app-role-management-grid`, `app-config-editor-panes`, `app-owner-organization-select`) sowie ein `Stand:`-Datum.                                                                                                                              |
 
 ---
 
 ## Empfohlene Reihenfolge
 
-1. **B1** — Reactive-Forms-Umbau zu Ende führen. Fundament, die beiden Add-Wizards und die drei
-   `editFeatures`-Modals sind durch; als Nächstes `indicatorAddModal` (größter Rest, hat bereits
-   eine 777-zeilige Charakterisierungs-Spec), danach die kleinen Modals als Lückenfüller.
-2. **A1** — Entscheidung zu `feedbackModal` / `individualIndicatorComputation`; damit fällt auch
+1. **Manuelle Tests** — [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md)
+   abarbeiten. Elf umgestellte Formulare hängen daran, keines war bisher im Browser.
+2. **B1** — Rest zu Ende führen: die beiden `editMetadata`-Modals, dann die Klassifikation
+   (`FormArray`, Netz vorhanden), zuletzt `indicatorBatchUpdateModal` und `scriptAddModal` als
+   jeweils eigenes Vorhaben.
+3. **A1** — Entscheidung zu `feedbackModal` / `individualIndicatorComputation`; damit fällt auch
    ein Teil von C3 weg.
-3. **C2 + C3** — Logger-Service, danach `no-console` auf `error`; Rest der `__env`-Zugriffe.
-4. **B3 + D** — Kommentar- und Doku-Bereinigung (billig, hoher Orientierungswert).
-5. **Laufend:** B2 (große Services) und C4 (i18n UserInterface) im Zuge regulärer Feature-Arbeit.
+4. **C2 + C3** — Logger-Service, danach `no-console` auf `error`; Rest der `__env`-Zugriffe.
+5. **B3 + D** — Kommentar- und Doku-Bereinigung (billig, hoher Orientierungswert).
+6. **Laufend:** B2 (große Services) und C4 (i18n UserInterface) im Zuge regulärer Feature-Arbeit.

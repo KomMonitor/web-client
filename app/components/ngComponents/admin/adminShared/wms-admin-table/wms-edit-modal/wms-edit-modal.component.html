@@ -50,18 +50,9 @@
                       type="text"
                       class="form-control"
                       formControlName="title"
-                      name="datasetName"
-                      [value]="currentGeoresourceDataset.title"
-                      (ngModelChange)="checkDatasetName()"
                       [placeholder]="'ADMIN_WMS.COMMON.NAME_PLACEHOLDER' | translate"
-                      required
                     />
-                    <div class="help-block with-errors"></div>
-                    @if (datasetNameInvalid) {
-                      <div style="color: red">
-                        <p>{{ 'ADMIN_WMS.COMMON.NAME_INVALID' | translate }}</p>
-                      </div>
-                    }
+                    <app-form-error [control]="metadataForm.controls.title" />
                   </div>
                 </div>
                 <div class="col-md-3 col-sm-6 col-12">
@@ -231,90 +222,11 @@
             </p>
             <p>{{ 'ADMIN_SHARED_UI.TOPICS.SELECTION_HINT' | translate }}</p>
             <p>{{ 'ADMIN_SHARED_UI.TOPICS.CATALOG_HINT' | translate }}</p>
-            <div class="row vertical-align">
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>{{ 'ADMIN_SHARED_UI.TOPICS.MAIN_TOPIC' | translate }}*</label>
-                  <select
-                    [(ngModel)]="georesourceTopic_mainTopic"
-                    name="georesourceTopic_mainTopic"
-                    class="form-control"
-                    required
-                  >
-                    <option disabled selected value>
-                      {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_MAIN_TOPIC' | translate }}
-                    </option>
-                    @for (mainTopic of availableTopics; track mainTopic) {
-                      <option [ngValue]="mainTopic">{{ mainTopic.topicName }}</option>
-                    }
-                  </select>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                @if (georesourceTopic_mainTopic?.subTopics?.length > 0) {
-                  <div class="form-group">
-                    <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_1' | translate }}</label>
-                    <select
-                      [(ngModel)]="georesourceTopic_subTopic"
-                      name="georesourceTopic_subTopic"
-                      class="form-control"
-                    >
-                      <option disabled selected value>
-                        {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
-                      </option>
-                      @for (subTopic of georesourceTopic_mainTopic.subTopics; track subTopic) {
-                        <option [ngValue]="subTopic">{{ subTopic.topicName }}</option>
-                      }
-                    </select>
-                    <div class="help-block with-errors"></div>
-                  </div>
-                }
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                @if (georesourceTopic_subTopic?.subTopics?.length > 0) {
-                  <div class="form-group">
-                    <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_2' | translate }}</label>
-                    <select
-                      [(ngModel)]="georesourceTopic_subsubTopic"
-                      name="georesourceTopic_subsubTopic"
-                      class="form-control"
-                    >
-                      <option disabled selected value>
-                        {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
-                      </option>
-                      @for (subsubTopic of georesourceTopic_subTopic.subTopics; track subsubTopic) {
-                        <option [ngValue]="subsubTopic">{{ subsubTopic.topicName }}</option>
-                      }
-                    </select>
-                    <div class="help-block with-errors"></div>
-                  </div>
-                }
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                @if (georesourceTopic_subsubTopic?.subTopics?.length > 0) {
-                  <div class="form-group">
-                    <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_3' | translate }}</label>
-                    <select
-                      [(ngModel)]="georesourceTopic_subsubsubTopic"
-                      name="georesourceTopic_subsubsubTopic"
-                      class="form-control"
-                    >
-                      <option disabled selected value>
-                        {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
-                      </option>
-                      @for (
-                        subsubsubTopic of georesourceTopic_subsubTopic.subTopics;
-                        track subsubsubTopic
-                      ) {
-                        <option [ngValue]="subsubsubTopic">{{ subsubsubTopic.topicName }}</option>
-                      }
-                    </select>
-                    <div class="help-block with-errors"></div>
-                  </div>
-                }
-              </div>
-            </div>
+            <app-topic-hierarchy-form
+              [form]="topicsForm"
+              [availableTopics]="availableTopics"
+              idPrefix="wms-edit-topics"
+            />
             <hr />
             <br />
             @if (accessControlService.checkAdminPermission()) {

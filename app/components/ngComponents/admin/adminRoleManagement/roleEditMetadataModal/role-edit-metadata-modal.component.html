@@ -50,19 +50,20 @@
               class="form-control"
               type="text"
               [placeholder]="'ADMIN_ROLES.EDIT_METADATA_MODAL.NAME_PLACEHOLDER' | translate"
-              [(ngModel)]="currentDataset.name"
-              name="name"
-              (ngModelChange)="checkName()"
+              [formControl]="form.controls.name"
               required
             />
             <div class="help-block">
               {{ 'ADMIN_ROLES.EDIT_METADATA_MODAL.NAME_HELP' | translate }}
             </div>
-            @if (nameInvalid) {
-              <div class="text-danger">
-                {{ 'ADMIN_ROLES.EDIT_METADATA_MODAL.NAME_INVALID' | translate }}
-              </div>
-            }
+            <app-form-error
+              [control]="form.controls.name"
+              [keyOverride]="
+                form.controls.name.hasError('uniqueName')
+                  ? 'ADMIN_ROLES.EDIT_METADATA_MODAL.NAME_INVALID'
+                  : ''
+              "
+            />
           </div>
         </div>
         <div class="col-md-4">
@@ -72,7 +73,7 @@
               class="form-control"
               rows="4"
               [placeholder]="'ADMIN_ROLES.EDIT_METADATA_MODAL.DESCRIPTION_PLACEHOLDER' | translate"
-              [(ngModel)]="currentDataset.description"
+              [formControl]="form.controls.description"
               name="description"
               required
             ></textarea>
@@ -85,7 +86,7 @@
               class="form-control"
               rows="4"
               [placeholder]="'ADMIN_ROLES.EDIT_METADATA_MODAL.CONTACT_PLACEHOLDER' | translate"
-              [(ngModel)]="currentDataset.contact"
+              [formControl]="form.controls.contact"
               name="contact"
               required
             ></textarea>
@@ -104,7 +105,7 @@
   <button
     type="button"
     class="btn btn-success"
-    [disabled]="loadingData() || nameInvalid"
+    [disabled]="loadingData() || form.invalid"
     (click)="editMetadata()"
   >
     {{ 'ADMIN_ROLES.EDIT_METADATA_MODAL.UPDATE_METADATA' | translate }}

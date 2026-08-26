@@ -7,7 +7,9 @@ import {
   signal,
 } from '@angular/core';
 
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { uniqueNameValidator } from '../../adminShared/validators/admin-validators';
+import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { OrganizationalUnitInputType } from 'models/data-management-api';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -41,7 +43,8 @@ import { TranslateService } from '@ngx-translate/core';
   templateUrl: './role-add-modal.component.html',
   styleUrls: ['./role-add-modal.component.scss'],
   imports: [
-    FormsModule,
+    ReactiveFormsModule,
+    FormErrorComponent,
     StepperComponent,
     AgGridAngular,
     FilterableSelectComponent,
@@ -66,7 +69,6 @@ export class RoleAddModalComponent implements OnInit {
   // Signal-backed: written from the async create-request callbacks, which would
   // not trigger a re-render of this OnPush component otherwise.
   processCreation = signal(false);
-  nameInvalid: boolean = false;
 
   roleDelegatesColumnDefs: ColDef[] = [];
   roleDelegatesRowData: AdvancedAccessControlRow[] = [];
@@ -84,14 +86,50 @@ export class RoleAddModalComponent implements OnInit {
   showErrorAlert = signal(false);
   showKeycloakErrorAlert = signal(false);
 
-  newOrganizationalUnit: {
+  /**
+   * The four editable fields. `parentId` is not an input — it is set from the
+   * parent-organization picker — so it stays a plain field and is merged into
+   * `newOrganizationalUnit` for the payload.
+   */
+  readonly form = new FormGroup({
+    name: new FormControl('', {
+      nonNullable: true,
+      validators: [
+        Validators.required,
+        uniqueNameValidator(
+          () => (this.accessControlService.accessControl ?? []).map((ou) => ou.name),
+          { caseSensitive: true }
+        ),
+      ],
+    }),
+    description: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    contact: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    mandant: new FormControl(false, { nonNullable: true }),
+  });
+
+  parentId?: string;
+
+  get nameInvalid(): boolean {
+    return this.form.controls.name.hasError('uniqueName');
+  }
+
+  /** Assembled view of the edited unit, as the service and the payload expect it. */
+  get newOrganizationalUnit(): {
     name?: string;
     description?: string;
     contact?: string;
     mandant?: boolean;
     parentId?: string;
-    organizationalUnitId?: string;
-  } = {};
+  } {
+    const value = this.form.getRawValue();
+    return {
+      name: value.name,
+      description: value.description,
+      contact: value.contact,
+      mandant: value.mandant,
+      parentId: this.parentId,
+    };
+  }
 
   protected readonly stepper = new WizardStepper([
     { key: 'basics', label: 'ADMIN_SHARED_UI.STEP_LABELS.BASIC_INFO' },
@@ -119,37 +157,24 @@ export class RoleAddModalComponent implements OnInit {
   }
 
   get parentSelected(): boolean {
-    return !!this.newOrganizationalUnit.parentId;
+    return !!this.parentId;
   }
 
   get canSubmit(): boolean {
-    if (
-      this.processCreation() ||
-      this.nameInvalid ||
-      !this.isRealmAdmin ||
-      !this.newOrganizationalUnit.name ||
-      !this.newOrganizationalUnit.description ||
-      !this.newOrganizationalUnit.contact
-    ) {
+    if (this.processCreation() || this.form.invalid || !this.isRealmAdmin) {
       return false;
     }
-
-    if (
-      this.newOrganizationalUnit.mandant === true ||
-      this.newOrganizationalUnit.parentId !== undefined
-    ) {
-      return true;
-    }
-    return false;
+    // A unit is either its own tenant or hangs below a parent.
+    return this.form.controls.mandant.value === true || this.parentId !== undefined;
   }
 
   reset(): void {
-    this.newOrganizationalUnit = { mandant: false, parentId: undefined };
+    this.form.reset();
+    this.parentId = undefined;
     this.errorMessagePart.set(undefined);
     this.keycloakErrorMessagePart.set(undefined);
     this.showErrorAlert.set(false);
     this.showKeycloakErrorAlert.set(false);
-    this.nameInvalid = false;
     this.stepper.reset();
 
     if (this.accessControlService.accessControl.length > 0) {
@@ -157,10 +182,9 @@ export class RoleAddModalComponent implements OnInit {
     }
   }
 
+  /** The rule is `uniqueNameValidator` on the control now. */
   checkName(): void {
-    this.nameInvalid = this.accessControlService.accessControl.some(
-      (ou) => ou.name === this.newOrganizationalUnit.name
-    );
+    this.form.controls.name.updateValueAndValidity();
   }
 
   close(): void {
@@ -168,27 +192,25 @@ export class RoleAddModalComponent implements OnInit {
   }
 
   onMandantChange(): void {
-    if (this.newOrganizationalUnit.mandant) {
-      this.newOrganizationalUnit.parentId = undefined;
+    if (this.form.controls.mandant.value) {
+      this.parentId = undefined;
     }
   }
 
   onParentOrganizationalUnitChange(parent: AccessControlMetadata): void {
-    this.newOrganizationalUnit.parentId = parent.organizationalUnitId || undefined;
+    this.parentId = parent.organizationalUnitId || undefined;
 
-    if (this.newOrganizationalUnit.parentId) {
-      this.newOrganizationalUnit.mandant = false;
+    if (this.parentId) {
+      this.form.controls.mandant.setValue(false);
     }
   }
 
   getParentOrganizationalUnit(): AccessControlMetadata | null {
-    if (!this.newOrganizationalUnit.parentId) {
+    if (!this.parentId) {
       return null;
     }
 
-    return (
-      this.accessControlService.getAccessControlById(this.newOrganizationalUnit.parentId) || null
-    );
+    return this.accessControlService.getAccessControlById(this.parentId) || null;
   }
 
   onRoleDelegatesGridReady(params: GridReadyEvent): void {

@@ -4,7 +4,7 @@
       type="button"
       class="btn btn-success btn-sm"
       (click)="onAddTopic()"
-      [disabled]="!newTopicTitle || !newTopicDescription"
+      [disabled]="form.invalid"
     >
       <i class="fas fa-plus"></i> &nbsp; &nbsp;
       {{ 'ADMIN_TOPICS.ADD.ADD_BUTTON' | translate: { type: (typeLabelKey | translate) } }}
@@ -18,7 +18,7 @@
       [placeholder]="
         'ADMIN_TOPICS.ADD.TITLE_PLACEHOLDER' | translate: { type: (typeLabelKey | translate) }
       "
-      [(ngModel)]="newTopicTitle"
+      [formControl]="form.controls.title"
       name="newTopicTitle"
       required
     />
@@ -33,7 +33,7 @@
       [placeholder]="
         'ADMIN_TOPICS.ADD.DESCRIPTION_PLACEHOLDER' | translate: { type: (typeLabelKey | translate) }
       "
-      [(ngModel)]="newTopicDescription"
+      [formControl]="form.controls.description"
       name="newTopicDescription"
       required
     ></textarea>

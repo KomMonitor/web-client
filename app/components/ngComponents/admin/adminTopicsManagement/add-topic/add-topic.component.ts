@@ -9,7 +9,7 @@ import { AdminTopicsManagementService } from '../admin-topics-management.service
 import { AdminTopicsManagementErrorHandlingService } from '../admin-topics-management.component';
 import { Topic, TopicResourceType } from '../topic.model';
 import { take } from 'rxjs/operators';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -17,7 +17,7 @@ import { TranslateModule } from '@ngx-translate/core';
   selector: 'app-admin-add-topic',
   templateUrl: './add-topic.component.html',
   styleUrls: ['./add-topic.component.scss'],
-  imports: [FormsModule, TranslateModule],
+  imports: [ReactiveFormsModule, TranslateModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -31,8 +31,17 @@ export class AddTopicComponent {
   @Input() topicType: 'main' | 'sub' = 'main';
   @Input() parentTopic!: Topic;
 
-  newTopicDescription: string = '';
-  newTopicTitle: string = '';
+  /** Both fields are mandatory; the add button gates on `form.invalid`. */
+  readonly form = new FormGroup({
+    title: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    description: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+  });
+  get newTopicTitle(): string {
+    return this.form.controls.title.value;
+  }
+  get newTopicDescription(): string {
+    return this.form.controls.description.value;
+  }
 
   onAddTopic() {
     this.srvc
@@ -46,9 +55,8 @@ export class AddTopicComponent {
       .pipe(take(1))
       .subscribe({
         next: () => {
-          this.newTopicDescription = '';
-          this.newTopicTitle = '';
-          // ngModel fields reset in an async callback (OnPush).
+          this.form.reset();
+          // The form is reset from an async callback (OnPush).
           this.cdr.markForCheck();
         },
         error: (error) => {

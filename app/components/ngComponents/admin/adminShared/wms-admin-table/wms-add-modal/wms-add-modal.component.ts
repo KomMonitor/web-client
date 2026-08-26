@@ -4,6 +4,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   Input,
   OnInit,
   ViewChild,
@@ -30,6 +31,14 @@ import { OwnerOrganizationSelectComponent } from 'components/ngComponents/admin/
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
+import { TopicHierarchyFormComponent } from '../../topicHierarchyForm/topic-hierarchy-form.component';
+import { FormErrorComponent } from '../../formError/form-error.component';
+import {
+  buildTopicHierarchyForm,
+  topicHierarchyToApi,
+} from '../../topicHierarchyForm/topic-hierarchy-form.model';
+import { buildSecurityStepForm } from '../../securityForm/security-form.model';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-wms-add-modal',
@@ -40,6 +49,8 @@ import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-ste
     FormsModule,
     ReactiveFormsModule,
     AdminTopicsManagementComponent,
+    TopicHierarchyFormComponent,
+    FormErrorComponent,
     StepperComponent,
     RoleManagementGridComponent,
     OwnerOrganizationSelectComponent,
@@ -54,6 +65,7 @@ export class WmsAddModalComponent implements OnInit {
   private ogcService = inject(OgcService);
   protected envConfigService = inject(EnvConfigService);
   private cdr = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
 
   @Input() resourceType!: any;
 
@@ -98,19 +110,21 @@ export class WmsAddModalComponent implements OnInit {
     layer: new FormControl<string>('', Validators.required),
   });
 
-  datasetNameInvalid: boolean = false;
-
-  // Topic hierarchy
-  georesourceTopic_mainTopic: any = null;
-  georesourceTopic_subTopic: any = null;
-  georesourceTopic_subsubTopic: any = null;
-  georesourceTopic_subsubsubTopic: any = null;
+  // Topic hierarchy — the shared four-level cascade.
+  readonly topicsForm = buildTopicHierarchyForm({ requireMainTopic: true });
 
   availableTopics!: any;
 
   // Role management (grid handled by <app-role-management-grid>)
-  ownerOrganization = '';
-  isPublic = false;
+  readonly securityForm = buildSecurityStepForm({
+    withSecurity: this.envConfigService.enableKeycloakSecurity,
+  });
+  get ownerOrganization(): string {
+    return this.securityForm.controls.ownerOrganization.value;
+  }
+  get isPublic(): boolean {
+    return this.securityForm.controls.isPublic.value;
+  }
 
   successMessagePart = signal('');
   errorMessagePart = signal('');
@@ -119,6 +133,11 @@ export class WmsAddModalComponent implements OnInit {
     this.availableTopics = this.topicStore.availableTopics.filter(
       (e) => e.topicResource == this.resourceType
     );
+
+    // Seeding the role grid used to hang off the owner select's output.
+    this.securityForm.controls.ownerOrganization.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((ownerId) => this.roleGrid?.applyOwner(ownerId));
   }
 
   close(): void {
@@ -126,14 +145,6 @@ export class WmsAddModalComponent implements OnInit {
   }
 
   addWms() {
-    let topicRef = this.georesourceTopic_mainTopic;
-
-    if (this.georesourceTopic_subTopic) topicRef = this.georesourceTopic_subTopic;
-
-    if (this.georesourceTopic_subsubTopic) topicRef = this.georesourceTopic_subsubTopic;
-
-    if (this.georesourceTopic_subsubsubTopic) topicRef = this.georesourceTopic_subsubsubTopic;
-
     const data = {
       title: this.metadataForm.controls.title.value,
       description: this.metadataForm.controls.description.value,
@@ -147,7 +158,7 @@ export class WmsAddModalComponent implements OnInit {
         layerName: this.connectForm.controls.layer.value,
         serviceType: 'wms',
       },
-      topicReference: topicRef.topicId,
+      topicReference: topicHierarchyToApi(this.topicsForm),
       ownerId: this.ownerOrganization,
       serviceResource: this.resourceType,
       isPublic: this.isPublic,
@@ -170,33 +181,14 @@ export class WmsAddModalComponent implements OnInit {
     });
   }
 
-  checkDatasetName() {
-    // no-op: WMS datasets require no name-uniqueness check
-  }
-
-  onChangeOwner(orgUnitId: string): void {
-    this.ownerOrganization = orgUnitId;
-    // Seed the grid with the owner unit's default viewer/editor permissions
-    this.roleGrid?.applyOwner(orgUnitId);
-  }
-
-  onChangeIsPublic(isPublic: boolean): void {
-    this.isPublic = isPublic;
-  }
-
   resetWmsAddForm() {
     this.metadataForm.reset();
     this.connectForm.reset();
-
-    this.georesourceTopic_mainTopic = null;
-    this.georesourceTopic_subTopic = null;
-    this.georesourceTopic_subsubTopic = null;
-    this.georesourceTopic_subsubsubTopic = null;
+    this.topicsForm.reset();
+    this.securityForm.reset();
 
     this.wmsTestStatus = undefined;
 
-    this.ownerOrganization = '';
-    this.isPublic = false;
     this.roleGrid?.reset();
 
     this.stepper.reset();
