@@ -77,6 +77,25 @@ Enum-Member `ResetTimeseriesMapping` und des untypisierten `'timeseriesMappingCh
 **Browser-Prüfung nötig** (siehe [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md),
 Punkt 8): ein echter Einzel-Import mit gefülltem Mapping ist automatisiert nicht erreichbar.
 
+### A4. MathJax-Formeldarstellung fehlt vollständig (gefunden 2026-08-27)
+
+`master` rendert LaTeX in Indikator-Beschreibungen: `index.html:72,156` konfiguriert MathJax und
+lädt `dependencies/mathjax/tex-chtml.js`, `app.js:218` registriert die Direktive `mathjaxBind`, die
+per `$watch` den Ausdruck setzt und `MathJax.typesetPromise([element])` aufruft. Im Migrationsbranch
+existiert **weder das Script noch die Direktive** — nur `@types/mathjax` steht noch in
+`package.json`. Folgen:
+
+- `kommonitor-map.component.html`: das `<p id="indicatorProcessDescription">` bleibt leer (das
+  Attribut `mathjax-bind=` war ein wirkungsloser String und ist jetzt ein TODO-Kommentar).
+- `pdf-export.service.ts:282-288`: bei Indikatoren mit `$` in der `processDescription` fotografiert
+  `domtoimage.toJpeg(node)` genau diesen leeren Absatz — **im PDF-Report fehlt die Formel**.
+- `admin-indicators-management.component.ts:221`: der Aufruf steht hinter
+  `if (window.MathJax …)` und läuft daher nie.
+- `kommonitor-legend.component.html:874`: eine `[mathjax]`-Bindung ist auskommentiert.
+
+Aufwand klein (Script laden + eine Direktive oder ein `afterRenderEffect`), die Entscheidung ist,
+ob MathJax überhaupt zurück soll — es ist die einzige Stelle, an der der Client Formeln darstellt.
+
 ### A3. Divergenz `master` ↔ `feature/migration-bootstrap`
 
 Fork-Punkt ist `0ca8f810` (2025-01-10); seither sind **560 Commits** auf `master` gelandet, darunter
@@ -321,30 +340,76 @@ grün (verifiziert 2026-08-26).
 
 Damit ist das Gate gegen künftiges Format-Abdriften geschlossen; hier ist nichts mehr offen.
 
-### C2. `console.log` und das globale `console`-Patching
+### C2. `console.log` und das globale `console`-Patching — ⏸️ zurückgestellt (2026-08-27)
 
-- **143 `console.log`** in 51 Dateien (ohne Specs). Lint-Regel `no-console` steht auf `warn`.
+**Entscheidung: der Logger-Service wird vorerst nicht umgesetzt.** Der Befund bleibt bestehen,
+die Sanierung ist bewusst aufgeschoben — der aktuelle Zustand gilt bis auf Weiteres als hingenommen:
+
+- **143 `console.log`** in 51 Dateien (ohne Specs). Lint-Regel `no-console` bleibt damit auf `warn`.
 - `StartupService.initEnvVariables()` ersetzt weiterhin `window.console.log` durch eine No-op,
   wenn `enableDebug` fehlt — das unterdrückt auch Logs von Drittbibliotheken und erschwert
   Support-Fälle (offener Punkt 9 in [`STARTUP_IMPROVEMENTS.md`](STARTUP_IMPROVEMENTS.md)).
 
-Beides hängt zusammen: ein schlanker Logger-Service mit Log-Leveln löst es in einem Zug,
-danach kann `no-console` auf `error` hochgezogen werden.
+Beides hängt zusammen: ein schlanker Logger-Service mit Log-Leveln würde es in einem Zug lösen,
+danach könnte `no-console` auf `error` hochgezogen werden. Das bleibt der Weg, falls der Punkt
+wieder aufgenommen wird.
 
-### C3. Verbleibende `window.__env`-Direktzugriffe
+### C3. Verbleibende `window.__env`-Direktzugriffe — ✅ erledigt (2026-08-27)
 
-75 Treffer (vorher 81; die 6 Treffer der toten AngularJS-Dateien sind mit A1 entfallen), aber
-stark konzentriert (offener Punkt 11 in `STARTUP_IMPROVEMENTS.md`):
+**Es gibt keine mehr.** Die frühere Zählung („75 Treffer", offener Punkt 11 in
+`STARTUP_IMPROVEMENTS.md`) war ein reines Textsuchen-Artefakt: nachgeprüft am 2026-08-27 ist
+jeder verbliebene Treffer entweder legitim oder gar kein Property-Zugriff.
 
-| Datei                                                                | Treffer | Bewertung                                          |
-| -------------------------------------------------------------------- | ------: | -------------------------------------------------- |
-| `adminConfig/adminAppConfig/admin-app-config.component.ts`           |      43 | bearbeitet das Config-Objekt selbst — ggf. legitim |
-| `diagram-helper-service`                                             |       4 | umstellbar                                         |
-| `access-control-service`                                             |       3 | umstellbar                                         |
-| `map-viewport-state-service`, `auth-service`, `resourceMetadataForm` |    je 1 | umstellbar                                         |
+Vollständige Aufschlüsselung der 204 `__env`-Treffer (ohne Specs, `globals.d.ts` und
+`config/env_backup.js`):
 
-Der reale Rest ist also klein (~10 Stellen); für `admin-app-config` braucht es eine bewusste
-Entscheidung (Schreibzugriff vs. getypte Setter im `EnvConfigService`).
+| Datei                                                                | Treffer | Was es wirklich ist                                                                                       |
+| -------------------------------------------------------------------- | ------: | --------------------------------------------------------------------------------------------------------- |
+| `env-config-service/env-config.service.ts`                           |     130 | der typisierte Wrapper selbst — **soll so**                                                               |
+| `adminConfig/adminAppConfig/admin-app-config.component.ts`           |      43 | **String-Literale** (`'window.__env.appTitle'` …): die Schlüsselliste zum Erzeugen der `env.js`-Textdatei |
+| `userInterface/versionInfo/version-info.component.html`              |      12 | `<code>`-Beispiele im Hilfetext für Administratoren                                                       |
+| `startup-service/startup.service.ts`                                 |       7 | **füllt** `window.__env` beim Start — soll so                                                             |
+| `diagram-helper-service/…`                                           |       4 | auskommentierter Code                                                                                     |
+| `access-control-service/…`                                           |       3 | Blockkommentar; der Code darunter liest bereits über `EnvConfigService`                                    |
+| `map-viewport-state-service`, `auth-service`, `resourceMetadataForm`  |    je 1 | Doc-Kommentare                                                                                            |
+| `util/genericServices/…ReachabilityScenarioHelperService/*.module.js` |       2 | toter AngularJS-Rest (siehe unten)                                                                        |
+
+Damit entfällt auch die als offen notierte Entscheidung zu `admin-app-config` (Schreibzugriff vs.
+getypte Setter im `EnvConfigService`): die Komponente greift das Objekt nicht an, sie kennt nur
+die Schlüsselnamen als Text.
+
+**Nebenfund — Datei gelöscht (2026-08-27):**
+`app/util/genericServices/kommonitorReachabilityScenarioHelperService/kommonitor-reachability-scenario-helper-service.module.js`
+(228 Z.) war übersehener AngularJS-Code — `angular.module(...)`, injizierte `__env` und
+`kommonitorDataExchangeService`, von nirgends referenziert (nicht in `angular.json`, kein Import,
+nicht in Lint-/Prettier-/Jest-Konfiguration). Nach A1 war das die letzte AngularJS-Datei im Baum;
+der Angular-Ersatz liegt unter `services/reachability-scenario-helper-service/`. `app/util/` enthält
+jetzt nur noch `interceptors/`.
+
+Mitgeräumt wurden die `$ctrl.*`-Reste in den Reachability-Templates. **Korrektur zur ersten
+Einschätzung:** das waren keine zur Laufzeit toten Bindings, sondern auskommentierte
+AngularJS-Markup-Blöcke — die drei Buttons in `kommonitor-reachability.component.html` sind direkt
+darunter als Icon-Variante live vorhanden, und die beiden PDF-Report-Blöcke in
+`reachability-indicator-statistics.component.html` sind auch auf `origin/master` auskommentiert
+(inkl. der Begründung „a spatial unit wise report is more complicated"). Die Begründung ist als
+Prosa-Kommentar erhalten, das Markup entfernt.
+
+Dabei zwei echte Funde:
+
+- **Fortschrittstext des POI-Coverage-Reports wiederhergestellt.** `master` zeigt während des
+  Reports `progressText_poiCoverage` (`n / gesamt`); der Port hatte die Stelle auskommentiert und
+  durch ein leeres `<span>&nbsp;</span>` ersetzt. Der Service pflegt das Feld weiter
+  (`reachability-coverage-reports-helper.service.ts:371,411`), nur las es niemand — das Template
+  bindet es jetzt wieder.
+- **MathJax fehlt komplett** — siehe A4.
+
+Verbleibend und **nicht angefasst**: 22 `$ctrl`-Treffer in auskommentiertem Markup in vier
+Templates (`reachability-poi-in-iso` 12, `kommonitor-filter` 4, `regression-diagram` 3,
+`user-interface` 3). Teils markieren sie nicht portierte UI (z. B. die `dateSelectionType`-Radios),
+darum sind sie bewusst stehen geblieben und gehören zu B3. Die zwei **aktiven** toten Attribute sind
+weg: `value="$ctrl…enableScatterPlotRegression"` am Regressions-Schalter (die Live-Bindung ist
+`[(ngModel)]`) und `mathjax-bind=` in `kommonitor-map.component.html` (durch einen TODO-Kommentar
+ersetzt, siehe A4).
 
 ### C4. i18n: der UserInterface-Bereich ist komplett unübersetzt
 
@@ -366,7 +431,8 @@ _Kein Problem:_ `de-at/de-ch/de-li/de-lu.json` sind absichtlich leere `{}` und f
 
 1280 Warnings bei 0 Errors. Der in `PROPOSED_CHANGES.md` genannte Ratchet-Ansatz gilt
 weiter: erst die echten Funde (`no-debugger`, `no-dupe-else-if`, `no-self-assign`,
-`no-constant-binary-expression`) auf `error` ziehen, dann `no-console` (nach C2).
+`no-constant-binary-expression`) auf `error` ziehen. Der `no-console`-Schritt hängt an C2
+und entfällt damit vorerst (Logger-Service zurückgestellt).
 
 **Achtung, dokumentierte Falle:** Ein `eslint --fix`-Massenlauf ist bereits einmal
 verworfen worden — der `prefer-const`-Fixer schreibt `let x = []` zu `const x = []` um und
@@ -416,7 +482,7 @@ Verifiziert gegen den Code am 2026-08-26.
 | [`ADMIN_REFACTORING_ANALYSIS.md`](ADMIN_REFACTORING_ANALYSIS.md)                   | Analyse von 2026-07-07 plus 34 Fortschrittseinträge. Teil 34 (2026-08-27) hält den Batch-Update-Port fest; davor endete die Kette am 2026-07-09, obwohl die Arbeit weiterlief (Config-Editor-Zusammenführung, Filter-Config, i18n der TS-Strings, statusloser Feature-Table-Helper) — **diese Schritte sind weiterhin nicht dokumentiert.** Von der 5-Punkte-Empfehlung am Ende sind 1–3 und 5 erledigt, 4 (adminSpatialUnit-Fassade) ebenfalls; der Reactive-Forms-Umbau (B1) ist inzwischen ebenfalls durch. |
 | [`BROADCAST_SERVICE_ENUM.md`](BROADCAST_SERVICE_ENUM.md)                           | **Aktuell und abgeschlossen** („Status: ✅ ABGESCHLOSSEN", Cluster 1–7). Kann als Referenz für das Broadcast-Typsystem stehen bleiben.                                                                                                                                                                                                                                                                                                                                                                         |
 | [`REACHABILITY_STATE_UNIFICATION.md`](REACHABILITY_STATE_UNIFICATION.md)           | **Aktuell und abgeschlossen.** Die dort selbst notierten Ausklammerungen (Map-Helper + Coverage-Reports, beide >1000 Z.) sind in B2 übernommen.                                                                                                                                                                                                                                                                                                                                                                |
-| [`STARTUP_IMPROVEMENTS.md`](STARTUP_IMPROVEMENTS.md)                               | **Aktuell**, 11 von 13 Punkten erledigt. Die zwei offenen sind hier als C2 und C3 geführt.                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| [`STARTUP_IMPROVEMENTS.md`](STARTUP_IMPROVEMENTS.md)                               | **Aktuell**, 12 von 13 Punkten erledigt: Punkt 11 (`__env`-Direktzugriffe) ist mit C3 abgeschlossen, offen ist nur noch Punkt 9 (`console`-Patching) — hier als C2 geführt und zurückgestellt.                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | [`REPORTING_CATEGORICAL_INDICATOR_GAP.md`](REPORTING_CATEGORICAL_INDICATOR_GAP.md) | **Aktuell und offen.** Führt die Reporting-Lücke bei kategorischen Indikatoren eigenständig — der einzige bekannte echte Funktionsfehler. Die dort genannten Zeilennummern sind nicht nachgeprüft worden.                                                                                                                                                                                                                                                                                                      |
 | [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md)             | **Aktuell und offen.** Manuelle Testpfade für den Reactive-Forms-Umbau — genau das, was die automatisierten Tests nicht erreichen (Widgets, Objekt-Identität in Selects, Import-Round-Trips). Nach Risiko sortiert, mit Ankreuzkästchen.                                                                                                                                                                                                                                                                       |
 | [`COMPONENT_NESTING_TREE.md`](COMPONENT_NESTING_TREE.md)                           | **Inhaltlich korrekt, aber unvollständig.** Alle 34 dort genannten Selektoren existieren. Es fehlen die seither entstandenen geteilten Admin-Bausteine (`app-resource-metadata-form`, `app-role-management-grid`, `app-config-editor-panes`, `app-owner-organization-select`) sowie ein `Stand:`-Datum.                                                                                                                                                                                                        |
@@ -432,6 +498,7 @@ Verifiziert gegen den Code am 2026-08-26.
    Verhaltensänderungen brauchen noch die Browser-Prüfung aus Punkt 11 der manuellen Tests.
 3. ~~**A1**~~ — ✅ erledigt am 2026-08-27: beide Features gelöscht (siehe A1). Der zugehörige
    Teil von C3 ist damit weggefallen.
-4. **C2 + C3** — Logger-Service, danach `no-console` auf `error`; Rest der `__env`-Zugriffe.
+4. ~~**C2 + C3**~~ — C2 (Logger-Service) ⏸️ zurückgestellt, C3 ✅ erledigt, beides am
+   2026-08-27. Offen bleibt daraus nur der Löschkandidat aus C3 (letzte AngularJS-Datei).
 5. **B3 + D** — Kommentar- und Doku-Bereinigung (billig, hoher Orientierungswert).
 6. **Laufend:** B2 (große Services) und C4 (i18n UserInterface) im Zuge regulärer Feature-Arbeit.
