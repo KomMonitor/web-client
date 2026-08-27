@@ -2,8 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { MapService } from 'services/map-service/map.service';
 
 /**
- * Map application-error notification. Extracted in the Prio 7 god-service split
- * (see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ * Map application-error notification. Extracted in the Prio 7 god-service split.
  *
  * The legacy error banner (`errorMessage` + `.mapApplicationErrorAlert` DOM node)
  * no longer exists in the Angular app, so the only observable effect is hiding

@@ -23,8 +23,7 @@ export enum MetadataLoadingState {
 }
 
 /**
- * Initial metadata bootstrap orchestration. Extracted in the Prio 7 god-service
- * split (see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ * Initial metadata bootstrap orchestration. Extracted in the Prio 7 god-service split.
  *
  * Owns the app-startup metadata flow: auth/user-profile load, the parallel
  * fetch of topics/spatial-units/georesources/indicators/services into their

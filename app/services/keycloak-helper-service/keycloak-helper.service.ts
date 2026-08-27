@@ -14,9 +14,8 @@ interface KeycloakRole {
  * Keycloak Admin REST access for the role-management area: keeps KomMonitor
  * organizational units in sync with Keycloak realm roles and groups.
  *
- * Rewritten as part of the god-service cleanup (step 4 of the admin
- * refactoring — see documentation/ADMIN_REFACTORING_ANALYSIS.md). The former
- * 1375-line version had two structural problems:
+ * Rewritten as part of the admin god-service cleanup. The former 1375-line
+ * version had two structural problems:
  *
  * 1. Every HTTP method returned `await http.…().subscribe(...)` — i.e. the
  *    rxjs Subscription, not the response. Awaits resolved immediately, the

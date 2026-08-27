@@ -1,10 +1,10 @@
 # Offene Punkte — Stand nach Abschluss der Migration
 
 Stand: 2026-08-27, Branch `feature/migration-bootstrap`.
-Basis: Codebestand verifiziert gegen alle Dokumente in `documentation/` und `PROPOSED_CHANGES.md`.
+Basis: Codebestand verifiziert gegen alle Dokumente in `documentation/`.
 
-**Ausgangslage:** Die AngularJS → Angular-Migration und der Modernisierungsplan aus
-`PROPOSED_CHANGES.md` (Prio 2–7) sind durch. Der Baum ist grün:
+**Ausgangslage:** Die AngularJS → Angular-Migration und der Modernisierungsplan (Prio 2–7)
+sind durch. Der Baum ist grün:
 
 | Gate                   | Ergebnis                                            |
 | ---------------------- | --------------------------------------------------- |
@@ -27,7 +27,7 @@ Die folgende Liste ist das, was danach noch offen ist — sortiert nach Nutzen.
 
 Entscheidung: **löschen**. `app/components/kommonitorUserInterface/` ist weg (14 Dateien, 156 KB —
 je `.ts`, `.js`, `.js.map`, Template); unter `app/components/` liegt nur noch `ngComponents/`. Damit
-ist Prio 2 aus `PROPOSED_CHANGES.md` vollständig abgeschlossen.
+ist Prio 2 des Modernisierungsplans vollständig abgeschlossen.
 
 Ausschlaggebend war ein Abgleich mit `origin/master`: **beide Features sind auch dort abgeschaltet**,
 es ging also keine laufende Funktion verloren. Das ist der Unterschied zu A2 und B1, wo die Vorlage
@@ -236,7 +236,7 @@ mussten nur die **asynchron geschriebenen Template-Lesestellen** reaktiv werden 
 `controlInvalidSignal` in `adminShared/forms/control-state.ts`), die beiden
 `*References_adminView`-Listen (signalgestützte Shims; alle `push`/`splice`-Stellen ersetzen das
 Array jetzt, statt es in place zu mutieren) und `showRoleForm`. `selectedRoleCount` liest eine
-eigene `roleGridRevision`. Die bekannte Grenze bleibt: ein Häkchen *im* Rollen-Grid aktualisiert
+eigene `roleGridRevision`. Die bekannte Grenze bleibt: ein Häkchen _im_ Rollen-Grid aktualisiert
 die Zusammenfassungszeile nicht, weil das Grid kein Output emittiert, das Schritt 7 bindet.
 
 **3. `allowedRoles` vs. `permissions` geklärt — es war ein Wire-Bug.** Keine Backend-Frage:
@@ -292,9 +292,23 @@ Dazu diese Punkte aus dem bereits umgebauten Teil — der letzte hält die Batch
   ist damit fertig**; offen sind die manuellen Browser-Tests und optional die Georessourcen-Variante,
   für die `BatchUpdateService` und Ergebnis-Modal unverändert nutzbar sind. Mit dem Ergebnis-Modal sind auch die beiden Enum-Member
   `BatchUpdateCompleted`/`ReopenBatchUpdateResultModal` gelöscht — die in
-  `ADMIN_REFACTORING_ANALYSIS.md:186` notierte Restschuld ist damit abgetragen. Der Georessourcen-Zwilling wurde in
+  in der Admin-Analyse notierte Restschuld ist damit abgetragen. Der Georessourcen-Zwilling wurde in
   `d9875a2a` gelöscht, mit der ausdrücklichen Empfehlung, ein künftiges Batch-Update als
   **ressourcen-agnostischen** Baustein neu zu bauen — genau so ist der Port angelegt.
+
+### B4. Restbestände des Admin-Refactorings
+
+Aus der Admin-Analyse von 2026-07-07 sind Konsolidierungsplan und Querschnittsthemen
+abgearbeitet (jQuery 33→0, OnPush 0→166, i18n 2 Templates→1732 `| translate`, Reactive Forms
+via B1, Lazy Loading, API-Typen, Specs 8→146 Suites). Vier Reste sind geblieben, keiner
+blockierend, alle beim nächsten Anfassen der jeweiligen Datei mitzunehmen:
+
+| Rest                                                       | Treffer | Anmerkung                                                                                 |
+| ---------------------------------------------------------- | ------: | ----------------------------------------------------------------------------------------- |
+| `show/hideSuccessAlert`-Muster neben `NotificationService` |      70 | statische Alert-Divs; das ältere der beiden Feedback-Systeme, meist ohne Fehlertext       |
+| `setTimeout`-Timing-Hacks                                  |      19 | Rest der Modal-Choreografien (waren 79)                                                   |
+| `document.getElementById`                                  |       6 | Rest von 59; der `formValues`-Pfad des Importer-Helpers existiert, der DOM-Pfad lebt noch |
+| deprecated `.toPromise()`                                  |       3 | app-weit                                                                                  |
 
 ### B2. Verbleibende große Services
 
@@ -310,16 +324,73 @@ angefasst:
 | `reachability-map-helper-service/…`                      |   1017 | Leaflet-Rendering, in der Unifikation ausgeklammert    |
 | `visual-style-helper-service/…`                          |   1002 | —                                                      |
 | `adminSpatialUnit/kommonitor-importer-helper.service.ts` |    960 | größter verbliebener Admin-Service                     |
+| `indicatorAddModal/indicator-add-form-state.service.ts`  |   1886 | modal-scoped, bedient Add **und** Edit über 7 Steps    |
 
-Das Rezept dafür steht in [`PRIO7_GOD_SERVICE_SPLIT.md`](PRIO7_GOD_SERVICE_SPLIT.md)
-(Abschnitt „Wiederholbares Rezept pro Schritt") und hat sich bewährt — es ist nur auf diese
-Services noch nicht angewandt worden.
+#### Rezept pro Schnitt
 
-### B3. Historische Kommentare zur aufgelösten Fassade
+Aus dem Prio-7-Split übernommen (dort auf ~20 Schnitte angewandt), **ohne** dessen
+Fassaden-Delegation — die war ein Übergangsmechanismus für einen God-Service mit 108
+Konsumenten und hat am Ende ~100 irreführende Kommentare hinterlassen (siehe B3). Bei
+Services dieser Größe die Konsumenten direkt umhängen:
 
-~80 Datei-Header und Inline-Kommentare sprechen noch von „the `DataExchangeService` facade
-re-exposes …". Diese Fassade **existiert nicht mehr**. Die Kommentare sind irreführend für
-jeden, der neu in den Code kommt (und für Agenten). Mechanische Bereinigung.
+1. Neuen Service unter `app/services/<name>/<name>.service.ts` anlegen,
+   `@Injectable({ providedIn: 'root' })`, ein Ordner pro Service.
+2. Einen kohärenten Cluster aus Methoden **und** zugehörigen Feldern verschieben — nicht
+   Methoden ohne ihren State. Geteilter State als `signal()`, Abgeleitetes als `computed()`,
+   RxJS nur für echte Streams.
+3. Konsumenten im selben Schritt direkt auf den neuen Service umhängen (Sichtbarkeit und
+   HTML-Bindings mitziehen). `git grep <member>` bestätigt danach 0 verbliebene Nutzer.
+4. `<name>.service.spec.ts` nach Standardrezept: `TestBed.configureTestingModule({ providers:
+[provideHttpClient(), provideHttpClientTesting()] })`, ggf. `provideRouter([])`; gemeinsame
+   Helfer aus [`app/testing/test-providers.ts`](../app/testing/test-providers.ts).
+5. Pro Schnitt alle vier Gates grün (`format:check`, `lint`, `test`, `build`), bevor der
+   nächste beginnt. Ein Cluster pro Commit.
+
+**Fallstricke aus dem Prio-7-Split, die sich wiederholen werden:** vermeintliche Konsumenten
+liegen in `/* */`-Blöcken (per Klammer-Balance prüfen, nicht per Textsuche); gleiche
+Methodennamen in mehreren Services führen bei der Konsumentenzählung in die Irre — nach
+**injiziertem Typ** suchen, nicht nach Variablenname; Felder, die nie geschrieben werden,
+liefern still `undefined` an ihre Leser.
+
+### B3. Historische Kommentare zur aufgelösten Fassade — ✅ erledigt (2026-08-27)
+
+Es waren **100 Treffer**, nicht ~80, und sie zerfielen in vier Töpfe. Heute liefert
+`grep -rn DataExchangeService app --include="*.ts"` **null Treffer**.
+
+**Ein Topf war lebender Code.** `app/services/adminGeoresourceUnit/kommonitor-data-exchange.service.ts`
+(135 Z.) war die **letzte echte Fassade** — reine Durchreiche ohne eigene Logik, 2 Konsumenten,
+14 Aufrufstellen. Sie ist gelöscht; `admin-georesources-management.component` und
+`kommonitor-data-grid-helper.service` injizieren jetzt direkt `AccessControlService`,
+`GeoresourceMetadataStoreService`, `MetadataBootstrapService`, `PoiPresentationService` und
+`TopicHierarchyService`. Mitgelöscht, weil nachweislich tot: das nie gefüllte `georesources$`-Subject,
+`getGeoresourceMetadataById`, `getBaseUrlToKomMonitorDataAPI_spatialResource` und die drei
+`check*Permission()`-Durchreichen der Übersichtskomponente — **die Rechte-Gates der Admin-Buttons
+sind also sichtbar ungebaut**, was der TODO in `admin-script-management.component.html` jetzt
+korrekt benennt. `MetadataBootstrapService.fetchGeoresourcesMetadata` hat dabei den fehlenden
+Default `filter: any = undefined` bekommen (wie seine Geschwister; die Fassade hatte ihn gestellt).
+
+**~20 Datei-Header** behaupteten im Präsens etwas Falsches („The facade re-exposes … so its
+consumers stay unchanged"). Sie beschreiben jetzt, was der Service heute tut; der Herkunftshinweis
+ist auf „Extracted in the Prio 7 god-service split (see …)" eingedampft. Vier Sonderfälle mit
+konkret falscher Aussage sind korrigiert: `topic-hierarchy.service.ts` („DataExchangeService uses
+this service" → `TopicHierarchyStoreService`), der kaputte TSDoc-Link `{@link DataExchangeService}`
+in `georesource-list-tab.component.ts`, `pdf-export.service.ts` und `access-control.service.ts:52`.
+
+**14 wortgleiche** `// Local precision-resolving wrapper (formerly the DataExchangeService facade
+glue, Prio7 B1)` sagen jetzt, was der Wrapper tut, statt auf ein Nichts zu verweisen.
+
+**~340 Zeilen toter AngularJS-Code gelöscht** — darunter ein einzelner 220-Zeilen-Block
+(`diagram-helper-service.service.ts`, auskommentiertes `setHistogramChartOptions`), acht
+`$scope`/`$http`/jQuery-Blöcke (u. a. `user-interface.component.ts`, zwei in
+`reachability-scenario-modal`, vier in `indicator-add.component.ts`), vier identische
+`ng-repeat`-Tabellen am Kopf **lebender** `optionToContent`-Callbacks und die leere No-op-Methode
+`removeAoiGeoresource` im Georessourcen-Store (der echte Pfad läuft über `MapService`).
+
+**Bewusst stehen geblieben:** die 22 `$ctrl`-Treffer in auskommentiertem Markup in vier Templates
+(`reachability-poi-in-iso` 12, `kommonitor-filter` 4, `user-interface` 3, `regression-diagram` 3) —
+sie markieren teils nicht portierte UI. Damit bleiben 5 Namens-Treffer in 3 `.html`-Dateien; in
+`.ts` ist es null. Ebenso unangetastet: auskommentierte ECharts-Konfigurationsalternativen in
+`diagram-helper` — die gehören zu B2.
 
 ---
 
@@ -327,7 +398,7 @@ jeden, der neu in den Code kommt (und für Agenten). Mechanische Bereinigung.
 
 ### C1. `format:check` im CI-Gate — ✅ erledigt
 
-**Status: umgesetzt.** Die in `PROPOSED_CHANGES.md` genannte Begründung für die Ausklammerung
+**Status: umgesetzt.** Die damalige Begründung für die Ausklammerung
 („443 unformatierte Bestands-Dateien") ist hinfällig — `npm run format:check` läuft vollständig
 grün (verifiziert 2026-08-26).
 
@@ -363,14 +434,14 @@ jeder verbliebene Treffer entweder legitim oder gar kein Property-Zugriff.
 Vollständige Aufschlüsselung der 204 `__env`-Treffer (ohne Specs, `globals.d.ts` und
 `config/env_backup.js`):
 
-| Datei                                                                | Treffer | Was es wirklich ist                                                                                       |
-| -------------------------------------------------------------------- | ------: | --------------------------------------------------------------------------------------------------------- |
-| `env-config-service/env-config.service.ts`                           |     130 | der typisierte Wrapper selbst — **soll so**                                                               |
-| `adminConfig/adminAppConfig/admin-app-config.component.ts`           |      43 | **String-Literale** (`'window.__env.appTitle'` …): die Schlüsselliste zum Erzeugen der `env.js`-Textdatei |
-| `userInterface/versionInfo/version-info.component.html`              |      12 | `<code>`-Beispiele im Hilfetext für Administratoren                                                       |
-| `startup-service/startup.service.ts`                                 |       7 | **füllt** `window.__env` beim Start — soll so                                                             |
-| `diagram-helper-service/…`                                           |       4 | auskommentierter Code                                                                                     |
-| `access-control-service/…`                                           |       3 | Blockkommentar; der Code darunter liest bereits über `EnvConfigService`                                    |
+| Datei                                                                 | Treffer | Was es wirklich ist                                                                                       |
+| --------------------------------------------------------------------- | ------: | --------------------------------------------------------------------------------------------------------- |
+| `env-config-service/env-config.service.ts`                            |     130 | der typisierte Wrapper selbst — **soll so**                                                               |
+| `adminConfig/adminAppConfig/admin-app-config.component.ts`            |      43 | **String-Literale** (`'window.__env.appTitle'` …): die Schlüsselliste zum Erzeugen der `env.js`-Textdatei |
+| `userInterface/versionInfo/version-info.component.html`               |      12 | `<code>`-Beispiele im Hilfetext für Administratoren                                                       |
+| `startup-service/startup.service.ts`                                  |       7 | **füllt** `window.__env` beim Start — soll so                                                             |
+| `diagram-helper-service/…`                                            |       4 | auskommentierter Code                                                                                     |
+| `access-control-service/…`                                            |       3 | Blockkommentar; der Code darunter liest bereits über `EnvConfigService`                                   |
 | `map-viewport-state-service`, `auth-service`, `resourceMetadataForm`  |    je 1 | Doc-Kommentare                                                                                            |
 | `util/genericServices/…ReachabilityScenarioHelperService/*.module.js` |       2 | toter AngularJS-Rest (siehe unten)                                                                        |
 
@@ -419,7 +490,7 @@ Der Admin-Bereich ist zu 100 % über `ngx-translate` geführt (1790 `| translate
 - **0 von 52 Templates** unter `ngComponents/userInterface/` nutzen `| translate`
 - alle Labels sind hartkodiert deutsch
 
-Das ist die größte verbliebene i18n-Lücke (Prio 9 in `PROPOSED_CHANGES.md`). Das Rezept aus
+Das ist die größte verbliebene i18n-Lücke (Prio 9 des Modernisierungsplans). Das Rezept aus
 dem Admin-Strang (Namespaces pro Feature, alle Sprachdateien gleichzeitig pflegen) ist direkt
 übertragbar.
 
@@ -429,8 +500,7 @@ _Kein Problem:_ `de-at/de-ch/de-li/de-lu.json` sind absichtlich leere `{}` und f
 
 ### C5. Lint-Warnungs-Backlog
 
-1280 Warnings bei 0 Errors. Der in `PROPOSED_CHANGES.md` genannte Ratchet-Ansatz gilt
-weiter: erst die echten Funde (`no-debugger`, `no-dupe-else-if`, `no-self-assign`,
+1280 Warnings bei 0 Errors. Der Ratchet-Ansatz gilt weiter: erst die echten Funde (`no-debugger`, `no-dupe-else-if`, `no-self-assign`,
 `no-constant-binary-expression`) auf `error` ziehen. Der `no-console`-Schritt hängt an C2
 und entfällt damit vorerst (Logger-Service zurückgestellt).
 
@@ -464,28 +534,28 @@ offen ist die Namens-/Deployment-Entscheidung, nicht der Aufwand.
 
 ## D. Zustand der Dokumentation
 
-Verifiziert gegen den Code am 2026-08-26.
+Verifiziert gegen den Code am 2026-08-26, Bereinigung am 2026-08-27.
 
-### Überholt — vor Verwendung nicht vertrauen
+### Überholt — ✅ bereinigt (2026-08-27)
 
-| Datei                                                      | Befund                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`ReadMe.md`](ReadMe.md)                                   | **Vollständig überholt.** Ist der AngularJS-Ära-User-Guide: MVC-Pattern, `$scope`/`ng-view`, Ordner `kommonitorAdmin/`, `app/dependencies/`, `app.css`, „data-exchange-service im util-Ordner". Nichts davon existiert noch. Entweder neu schreiben (als Angular-Entwicklerguide) oder löschen — `CLAUDE.md` deckt den Inhalt heute besser ab. **Auch `MVC-pattern.png` gehört dazu.**                        |
-| [`commonjs-dependencies.md`](commonjs-dependencies.md)     | **Überholt.** Nennt den Builder `@angular-devkit/build-angular:browser` (Webpack) — heute ist es `:application` (esbuild). Behauptet „Build danach mit 0 Warnungen" — heute 9 Nicht-ESM-Warnungen (siehe C6). Verweist auf gelöschte Artefakte (`adminLandingpageConfig`, `customizedExternalLibs/shpwrite.js`) und nennt 21 statt 20 Einträge. Neu erheben oder löschen.                                     |
-| [`PRIO7_GOD_SERVICE_SPLIT.md`](PRIO7_GOD_SERVICE_SPLIT.md) | **Teilweise überholt.** Beschreibt `DataExchangeService` (2063 Z., 108 Konsumenten) und einen Fassaden-Delegationsplan mit offenen Schritten B1/B3/B6/B7 — das ist alles erledigt, der Service existiert nicht mehr. Nennt außerdem den falschen Branch (`…-cleanup`) und eine veraltete Test-Baseline (70/1). **Wert erhalten:** Abschnitt „Wiederholbares Rezept pro Schritt" ist weiter gültig (siehe B2). |
-| `PROPOSED_CHANGES.md` (Repo-Root)                          | **Teilweise überholt.** Prio 4 steht als „erledigt bis Angular 18" (tatsächlich 21); Prio 6 nennt „42 passed / 29 skipped" (tatsächlich 391/0); die `format:check`-Begründung „443 unformatierte Dateien" ist inzwischen per Nachtrag korrigiert (C1); die esbuild-Migration gilt dort als „aufgeschoben", ist aber erfolgt. Als **Historie** weiter wertvoll — nur nicht als Statusquelle lesen.             |
+| Datei                                                  | Was passiert ist                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ReadMe.md` + `MVC-pattern.png`                        | **Gelöscht.** War der AngularJS-Ära-User-Guide (MVC-Pattern, `$scope`/`ng-view`, `kommonitorAdmin/`, `app/dependencies/`, `app.css`) mit drei leeren Kapiteln. `CLAUDE.md` deckt den Zweck ab; ein neuer Angular-Entwicklerguide wurde bewusst **nicht** geschrieben.                                                                                                                                               |
+| [`commonjs-dependencies.md`](commonjs-dependencies.md) | **Neu erhoben.** Builder korrigiert (`:application`/esbuild), 20 statt 21 Einträge gegen `angular.json` gegengelesen, gelöschte Artefakte raus, „0 Warnungen" ersetzt durch die **9 real fehlenden Nicht-ESM-Module** als eigene Tabelle. Ein kaputtes `</content>`-Artefakt am Dateiende ist mit weg.                                                                                                              |
+| `PRIO7_GOD_SERVICE_SPLIT.md`                           | **Gelöscht.** Beschrieb einen Service, den es nicht mehr gibt, und als Vorgehen die Fassaden-Delegation, die inzwischen vollständig abgebaut ist. Seine beiden noch als offen geführten Befunde (latenter Feature-Table-Header-Height-Bug, toter Broadcast-Pfad der Raumebenen-Übersicht) sind beide erledigt — nachgeprüft am 2026-08-27. Das Rezept ist als „Rezept pro Schnitt" nach B2 gewandert. Liegt in git. |
+| `PROPOSED_CHANGES.md` (Repo-Root)                      | **Gelöscht.** Der Modernisierungsplan von 2026-06 war als Statusquelle durchgehend irreführend (Prio 4 „bis Angular 18" statt 21, „42 passed / 29 skipped" statt 894/0, esbuild als „aufgeschoben" statt erledigt) und als Historie durch dieses Dokument abgelöst. Liegt in git.                                                                                                                                   |
 
 ### Größtenteils abgearbeitet — als Historie lesen
 
-| Datei                                                                              | Befund                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`ADMIN_REFACTORING_ANALYSIS.md`](ADMIN_REFACTORING_ANALYSIS.md)                   | Analyse von 2026-07-07 plus 34 Fortschrittseinträge. Teil 34 (2026-08-27) hält den Batch-Update-Port fest; davor endete die Kette am 2026-07-09, obwohl die Arbeit weiterlief (Config-Editor-Zusammenführung, Filter-Config, i18n der TS-Strings, statusloser Feature-Table-Helper) — **diese Schritte sind weiterhin nicht dokumentiert.** Von der 5-Punkte-Empfehlung am Ende sind 1–3 und 5 erledigt, 4 (adminSpatialUnit-Fassade) ebenfalls; der Reactive-Forms-Umbau (B1) ist inzwischen ebenfalls durch. |
-| [`BROADCAST_SERVICE_ENUM.md`](BROADCAST_SERVICE_ENUM.md)                           | **Aktuell und abgeschlossen** („Status: ✅ ABGESCHLOSSEN", Cluster 1–7). Kann als Referenz für das Broadcast-Typsystem stehen bleiben.                                                                                                                                                                                                                                                                                                                                                                         |
-| [`REACHABILITY_STATE_UNIFICATION.md`](REACHABILITY_STATE_UNIFICATION.md)           | **Aktuell und abgeschlossen.** Die dort selbst notierten Ausklammerungen (Map-Helper + Coverage-Reports, beide >1000 Z.) sind in B2 übernommen.                                                                                                                                                                                                                                                                                                                                                                |
-| [`STARTUP_IMPROVEMENTS.md`](STARTUP_IMPROVEMENTS.md)                               | **Aktuell**, 12 von 13 Punkten erledigt: Punkt 11 (`__env`-Direktzugriffe) ist mit C3 abgeschlossen, offen ist nur noch Punkt 9 (`console`-Patching) — hier als C2 geführt und zurückgestellt.                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| [`REPORTING_CATEGORICAL_INDICATOR_GAP.md`](REPORTING_CATEGORICAL_INDICATOR_GAP.md) | **Aktuell und offen.** Führt die Reporting-Lücke bei kategorischen Indikatoren eigenständig — der einzige bekannte echte Funktionsfehler. Die dort genannten Zeilennummern sind nicht nachgeprüft worden.                                                                                                                                                                                                                                                                                                      |
-| [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md)             | **Aktuell und offen.** Manuelle Testpfade für den Reactive-Forms-Umbau — genau das, was die automatisierten Tests nicht erreichen (Widgets, Objekt-Identität in Selects, Import-Round-Trips). Nach Risiko sortiert, mit Ankreuzkästchen.                                                                                                                                                                                                                                                                       |
-| [`COMPONENT_NESTING_TREE.md`](COMPONENT_NESTING_TREE.md)                           | **Inhaltlich korrekt, aber unvollständig.** Alle 34 dort genannten Selektoren existieren. Es fehlen die seither entstandenen geteilten Admin-Bausteine (`app-resource-metadata-form`, `app-role-management-grid`, `app-config-editor-panes`, `app-owner-organization-select`) sowie ein `Stand:`-Datum.                                                                                                                                                                                                        |
+| Datei                                                                              | Befund                                                                                                                                                                                                                                                                                                                                                                  |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ADMIN_REFACTORING_ANALYSIS.md`                                                    | **Gelöscht.** Die Analyse von 2026-07-07 war abgearbeitet, nicht falsch: Konsolidierungsplan (5 Punkte) und Querschnittsthemen sind umgesetzt — jQuery 33→0, OnPush 0→166, i18n 2 Templates→1732 `                                                                                                                                                                      | translate`, Reactive Forms via B1, Lazy Loading, API-Typen, Specs 8→146 Suites; die Add-Wizards teilen heute `WizardStepper`, `ResourceImportService`, `ResourceMetadataForm`und`RoleManagementGrid`. Die 35 Fortschrittseinträge waren reine Historie. Was offen blieb, steht jetzt in B4 (Restbestände) und B2 (`indicator-add-form-state.service.ts`, 1886 Z.). Liegt in git. |
+| [`BROADCAST_SERVICE_ENUM.md`](BROADCAST_SERVICE_ENUM.md)                           | **Aktuell und abgeschlossen** („Status: ✅ ABGESCHLOSSEN", Cluster 1–7). Kann als Referenz für das Broadcast-Typsystem stehen bleiben.                                                                                                                                                                                                                                  |
+| [`REACHABILITY_STATE_UNIFICATION.md`](REACHABILITY_STATE_UNIFICATION.md)           | **Aktuell und abgeschlossen.** Die dort selbst notierten Ausklammerungen (Map-Helper + Coverage-Reports, beide >1000 Z.) sind in B2 übernommen.                                                                                                                                                                                                                         |
+| [`STARTUP_IMPROVEMENTS.md`](STARTUP_IMPROVEMENTS.md)                               | **Aktuell**, 12 von 13 Punkten erledigt: Punkt 11 (`__env`-Direktzugriffe) ist mit C3 abgeschlossen, offen ist nur noch Punkt 9 (`console`-Patching) — hier als C2 geführt und zurückgestellt.                                                                                                                                                                          |
+| [`REPORTING_CATEGORICAL_INDICATOR_GAP.md`](REPORTING_CATEGORICAL_INDICATOR_GAP.md) | **Aktuell und offen.** Führt die Reporting-Lücke bei kategorischen Indikatoren eigenständig — der einzige bekannte echte Funktionsfehler. Die dort genannten Zeilennummern sind nicht nachgeprüft worden.                                                                                                                                                               |
+| [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md)             | **Aktuell und offen.** Manuelle Testpfade für den Reactive-Forms-Umbau — genau das, was die automatisierten Tests nicht erreichen (Widgets, Objekt-Identität in Selects, Import-Round-Trips). Nach Risiko sortiert, mit Ankreuzkästchen.                                                                                                                                |
+| [`COMPONENT_NESTING_TREE.md`](COMPONENT_NESTING_TREE.md)                           | **Aktuell (2026-08-27).** Die vier geteilten Admin-Bausteine (`app-resource-metadata-form`, `app-role-management-grid`, `app-owner-organization-select`, `app-config-editor-panes`) sind in der Selektor-Tabelle ergänzt, mit einer Notiz, warum sie in den Diagrammen fehlen (sie sitzen in Modals, und Modals sind aus dem Baum ausgenommen). `Stand:`-Datum ergänzt. |
 
 ---
 
@@ -500,5 +570,9 @@ Verifiziert gegen den Code am 2026-08-26.
    Teil von C3 ist damit weggefallen.
 4. ~~**C2 + C3**~~ — C2 (Logger-Service) ⏸️ zurückgestellt, C3 ✅ erledigt, beides am
    2026-08-27. Offen bleibt daraus nur der Löschkandidat aus C3 (letzte AngularJS-Datei).
-5. **B3 + D** — Kommentar- und Doku-Bereinigung (billig, hoher Orientierungswert).
+5. ~~**B3 + D**~~ — ✅ erledigt am 2026-08-27: letzte Fassade aufgelöst, ~100 irreführende
+   Kommentare und ~340 Zeilen toter AngularJS-Code entfernt; `ReadMe.md`,
+   `PROPOSED_CHANGES.md`, `PRIO7_GOD_SERVICE_SPLIT.md` und `ADMIN_REFACTORING_ANALYSIS.md`
+   gelöscht (ihre noch gültigen Teile nach B2/B4 gerettet), `commonjs-dependencies.md`
+   neu erhoben. `documentation/` ist damit von 13 auf 8 Dateien geschrumpft.
 6. **Laufend:** B2 (große Services) und C4 (i18n UserInterface) im Zuge regulärer Feature-Arbeit.

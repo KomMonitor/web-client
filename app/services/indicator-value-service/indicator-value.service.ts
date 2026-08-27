@@ -2,8 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 /**
- * Pure indicator value / formatting utilities. Extracted in the Prio 7 god-service
- * split (see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ * Pure indicator value / formatting utilities. Extracted in the Prio 7 god-service split.
  *
  * Deliberately stateless: depends only on EnvConfigService (decimals / date prefix)
  * and its parameters. The selection-derived `precision` is passed in by each caller

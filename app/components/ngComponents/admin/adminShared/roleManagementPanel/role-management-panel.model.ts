@@ -5,8 +5,7 @@ import { AccessControlMetadata } from 'components/ngComponents/models/permission
  * (`<app-role-management-grid>` / `<app-owner-organization-select>`).
  *
  * Extracted from the previously copy-pasted blocks in the spatial-unit and
- * georesource edit-user-roles/add modals (step-3 consolidation, see
- * `documentation/ADMIN_REFACTORING_ANALYSIS.md`).
+ * georesource edit-user-roles/add modals.
  */
 
 /**

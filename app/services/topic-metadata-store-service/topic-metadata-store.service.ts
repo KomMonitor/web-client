@@ -2,8 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { TopicOverviewType } from 'models/data-management-api';
 
 /**
- * Topic metadata store. Extracted in the Prio 7 god-service split
- * (see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ * Topic metadata store. Extracted in the Prio 7 god-service split.
  *
  * Holds the available topics collection.
  */

@@ -9,8 +9,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 /**
- * Permissions / roles / access-control state and logic. Extracted in the Prio 7
- * god-service split (see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ * Permissions / roles / access-control state and logic. Extracted in the Prio 7 god-service split.
  *
  * Cohesive block: owns its own state (Keycloak/KomMonitor login info, accessControl
  * collections, available roles) and only mutates that state.

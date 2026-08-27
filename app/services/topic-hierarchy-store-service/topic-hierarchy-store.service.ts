@@ -4,7 +4,7 @@ import { IndicatorsTopicsHierarchy } from 'components/ngComponents/models/indica
 
 /**
  * Holds the built topic/indicator/georesource hierarchies. Extracted in the Prio 7
- * god-service split (see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ * god-service split.
  *
  * Owns no source data: the input collections (availableTopics,
  * displayable*_keywordFiltered, wms/wfs datasets, process scripts) are passed in by

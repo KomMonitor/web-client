@@ -1,5 +1,7 @@
 # Komponenten-Verschachtelungsbaum
 
+Stand: 2026-08-27.
+
 Dieses Dokument zeigt, wie die **Hauptkomponenten** der KomMonitor Web-App ineinander
 verschachtelt sind. Die Verschachtelung ergibt sich aus den Selektoren, die in den
 jeweiligen Component-Templates verwendet werden.
@@ -131,6 +133,11 @@ flowchart TB
   `UserInterfaceComponent`).
 - **Blattkomponenten** ohne eigene Unterkomponenten sind v. a. `app-kommonitor-map`
   (reine Leaflet-Orchestrierung) und `custom-slider`.
+- **Geteilte Admin-Bausteine** unter `admin/adminShared/` (`app-resource-metadata-form`,
+  `app-role-management-grid`, `app-owner-organization-select`) und
+  `admin/adminConfig/configEditor/` (`app-config-editor-panes`) tauchen in den Diagrammen
+  nicht auf: sie werden überwiegend **innerhalb der Modals** eingebettet, und Modals sind
+  aus dem Baum ausgenommen (siehe oben).
 
 ## Selektor → Komponente → Pfad
 
@@ -173,3 +180,7 @@ flowchart TB
 | `app-admin-filter-config`             | AdminFilterConfigComponent           | `components/ngComponents/admin/adminConfig/adminFilterConfig/`          |
 | `app-session-validity`                | SessionValidityComponent             | `components/ngComponents/common/userLogin/session-validity/`            |
 | `app-notification`                    | NotificationComponent                | `components/ngComponents/common/notification/`                          |
+| `app-resource-metadata-form`          | ResourceMetadataFormComponent        | `components/ngComponents/admin/adminShared/resourceMetadataForm/`       |
+| `app-role-management-grid`            | RoleManagementGridComponent          | `components/ngComponents/admin/adminShared/roleManagementPanel/`        |
+| `app-owner-organization-select`       | OwnerOrganizationSelectComponent     | `components/ngComponents/admin/adminShared/roleManagementPanel/`        |
+| `app-config-editor-panes`             | ConfigEditorPanesComponent           | `components/ngComponents/admin/adminConfig/configEditor/`               |

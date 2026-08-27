@@ -1,33 +1,31 @@
 # CommonJS-Abhängigkeiten
 
-Stand: 2026-06-15.
+Stand: 2026-08-27, verifiziert gegen `angular.json` und einen vollständigen `npm run build`.
 
-Diese Pakete werden vom Angular-Build (`@angular-devkit/build-angular:browser`, Webpack)
-als CommonJS/AMD erkannt und lösten „optimization bailout"-Warnungen aus. Sie sind in
-`angular.json` unter `build.options.allowedCommonJsDependencies` freigegeben (21 Einträge,
-jeweils der Paketname — Angular reduziert Deep-Imports wie `codemirror/mode/...` bzw.
-`core-js/modules/...` auf den Paketnamen). Build danach mit **0** Warnungen.
+Der Angular-Build (`@angular-devkit/build-angular:application`, **esbuild** — der Webpack-`browser`-Builder
+ist seit 2026-06-17 abgelöst) erkennt manche Pakete als CommonJS/AMD und meldet
+„optimization bailout"-Warnungen. Freigegebene Pakete stehen in `angular.json` unter
+`build.options.allowedCommonJsDependencies` (**20 Einträge**, jeweils der Paketname — Angular
+reduziert Deep-Imports wie `codemirror/mode/...` bzw. `core-js/modules/...` auf den Paketnamen).
 
-Diese Liste dokumentiert, **wo** die Deps genutzt werden — direkt in unserem Code vs.
-transitiv über andere Libs.
+**Die Liste ist nicht mehr vollständig:** der Build meldet weiterhin 9 Warnungen (siehe unten).
 
-## Direkt in unserem Code verwendet
+## Freigegeben und direkt in unserem Code verwendet
 
-| Dep                       | Verwendet in                                                                                                                                                              |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **codemirror**            | Admin-Config-Editoren (`adminAppConfig`, `adminLandingpageConfig`, `adminControlsConfig`, `adminFilterConfig`) + `script-code.component` — Code-Editor für Skripte/Config |
-| **docx**                  | Reporting: `reporting-overview`, `generate-report` — DOCX-Export                                                                                                          |
-| **dom-to-image-more**     | `pdf-export.service`, `reachability-map-helper.service`, `leaflet-screenshot-cache-helper.service`, `kommonitor-map.component` — Karten/DOM → Bild                        |
-| **file-saver**            | `pdf-export.service`, `generate-report`, `kommonitor-map.component` — Datei-Download                                                                                      |
-| **jspdf-autotable**       | `pdf-export.service`, `generate-report` — Tabellen im PDF-Export                                                                                                          |
-| **jstat**                 | `kommonitor-map.component`, `kommonitor-balance.component` — Statistik (Klassifikation/Balance)                                                                           |
-| **jszip**                 | `pdf-export.service`, `generate-report`, `customizedExternalLibs/shpwrite.js` — ZIP (u. a. Shapefile-Export)                                                              |
-| **leaflet.markercluster** | `reachability-map-helper.service`, `kommonitor-map.component` — Marker-Clustering auf der Karte                                                                           |
-| **papaparse**             | `file-helper.service`, `kommonitor-legend.component` — CSV-Parsing                                                                                                        |
-| **jquery**                | `app/main.ts` — als globales `window.$` gesetzt                                                                                                                           |
-| **core-js**               | `customizedExternalLibs/shpwrite.js` (1×) — _plus_ transitiv (siehe unten)                                                                                                |
+| Dep                       | Verwendet in                                                                                                                               |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| **codemirror**            | Admin-Config-Editoren (`adminAppConfig`, `adminControlsConfig`, `adminFilterConfig`, `configEditor`) + `script-code.component`             |
+| **docx**                  | Reporting: `reporting-overview`, `generate-report` — DOCX-Export                                                                           |
+| **dom-to-image-more**     | `pdf-export.service`, `reachability-map-helper.service`, `leaflet-screenshot-cache-helper.service`, `kommonitor-map.component`             |
+| **file-saver**            | `pdf-export.service`, `generate-report`, `kommonitor-map.component` — Datei-Download                                                       |
+| **jspdf-autotable**       | `pdf-export.service` (Seiteneffekt-Import), `generate-report` — Tabellen im PDF-Export                                                     |
+| **jstat**                 | `indicator-classification.service`, `kommonitor-balance.component` — Statistik (Klassifikation/Balance)                                    |
+| **jszip**                 | `pdf-export.service`, `generate-report` — ZIP (u. a. Shapefile-Export)                                                                     |
+| **leaflet.markercluster** | `app/util/leaflet-cluster.ts` (UMD-Plugin, Seiteneffekt-Import), genutzt von `reachability-map-helper.service`, `kommonitor-map.component` |
+| **papaparse**             | `file-helper.service` — CSV-Parsing                                                                                                        |
+| **jquery**                | als globales `window.$` über den Script-Eintrag in `angular.json` geladen (nicht mehr per Import aus `main.ts`)                            |
 
-## Transitiv (kein eigener Import, kommen nur über andere Libs rein)
+## Freigegeben, aber nur transitiv (kein eigener Import)
 
 | Dep                         | Eltern-Lib                                    |
 | --------------------------- | --------------------------------------------- |
@@ -42,12 +40,31 @@ transitiv über andere Libs.
 | **rbush**                   | `@turf/clusters-dbscan`                       |
 | **skmeans**                 | `@turf/clusters-kmeans`                       |
 
+## Offen: 9 nicht freigegebene Nicht-ESM-Module
+
+Diese lösen bei jedem `npm run build` eine Warnung aus und fehlen in
+`allowedCommonJsDependencies`:
+
+| Dep                         | Herkunft                                        |
+| --------------------------- | ----------------------------------------------- |
+| **leaflet**                 | eigener Import (Karte, überall)                 |
+| **leaflet-draw**            | eigener Import (`map-controls.service`)         |
+| **leaflet-measure**         | eigener Import (`map-controls.service`)         |
+| **leaflet-search**          | eigener Import (`map-controls.service`)         |
+| **leaflet.pattern**         | eigener Import (Kartenschraffuren)              |
+| **leaflet.awesome-markers** | eigener Import (Marker-Icons)                   |
+| **echarts-stat**            | eigener Import (`regression-diagram.component`) |
+| **html2canvas**             | transitiv über `jspdf`                          |
+| **dompurify**               | transitiv über `jspdf`                          |
+
+Nachtragen wäre rein kosmetisch (die Warnung verschwindet, das Bundle ändert sich nicht);
+siehe C6 in [`OFFENE_PUNKTE.md`](OFFENE_PUNKTE.md).
+
 ## Kurzfazit
 
 - **Eigene Imports:** im Wesentlichen **Export-/Reporting** (docx, jspdf-autotable, jszip,
-  file-saver, dom-to-image-more), **Karte** (leaflet.markercluster, jstat,
-  dom-to-image-more), **CSV** (papaparse) und die **Admin-Code-Editoren** (codemirror).
-- **Transitiv:** alle `@turf/*`-Hilfspakete, die `canvg`-Kette (PDF/SVG) und `js-sha256`
-  (Keycloak) — nicht direkt entfernbar, ohne die Eltern-Lib zu wechseln.
-  </content>
-  </invoke>
+  file-saver, dom-to-image-more), **Karte** (leaflet + Plugins, leaflet.markercluster, jstat),
+  **CSV** (papaparse) und die **Admin-Code-Editoren** (codemirror).
+- **Transitiv:** alle `@turf/*`-Hilfspakete, die `canvg`-Kette (PDF/SVG), `js-sha256`
+  (Keycloak) sowie `html2canvas`/`dompurify` über `jspdf` — nicht direkt entfernbar, ohne die
+  Eltern-Lib zu wechseln.

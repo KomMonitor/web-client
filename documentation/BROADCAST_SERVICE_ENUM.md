@@ -281,8 +281,7 @@ values?: any }`). `msg` lässt bewusst beliebige Strings zu, damit die Empfänge
 
 ## Migrationsweg (kein Big-Bang)
 
-Passend zum inkrementellen Vorgehen aus `PROPOSED_CHANGES.md` /
-`PRIO7_GOD_SERVICE_SPLIT.md`:
+Passend zum inkrementellen Vorgehen des God-Service-Splits:
 
 1. `broadcast-message.ts` mit allen gesammelten Namen + Helpern anlegen.
 2. `broadcast()`-Signatur auf `BroadcastMessage | string` setzen (bricht nichts).

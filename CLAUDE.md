@@ -54,7 +54,7 @@ This codebase was migrated **from AngularJS 1.8 → Angular** and now runs on **
 
 When implementing features, work in the `ngComponents` / `services` (TypeScript) world. Where behavior is unclear, the AngularJS original on `origin/master` is the reference — but it is history, not code to copy.
 
-**Roadmap docs (German):** `PROPOSED_CHANGES.md` records the original cleanup plan and what was done for each priority — Prio 2–7 are finished. `documentation/OFFENE_PUNKTE.md` is the current list of what is still open, and which of the `documentation/*.md` files are outdated. Read the latter before trusting an older analysis doc.
+**Roadmap doc (German):** `documentation/OFFENE_PUNKTE.md` is the current list of what is still open, and which of the `documentation/*.md` files are outdated. Read it before trusting an older analysis doc. (The original cleanup plan, `PROPOSED_CHANGES.md`, was deleted on 2026-08-27 — its priorities 2–7 are all finished; it is still in git history if you need the rationale.)
 
 ### Files that look like backups but are loaded at runtime
 
@@ -102,7 +102,7 @@ Under `app/components/ngComponents/`:
 
 Key central services (high fan-in; change carefully):
 
-- **Metadata & selection state** — the former `data-exchange-service` god service is **fully dissolved**; there is no `DataExchangeService` any more. Its responsibilities now live in ~70 focused services, notably `*-metadata-store-service` (indicator/georesource/spatial-unit/topic/process-script), `metadata-bootstrap-service` (initial fetch orchestration), `metadata-filter-service`, `selection-state-service`, `access-control-service`, `cache-helper-service`. Several file-header comments still speak of a "DataExchangeService facade" — that facade is gone; treat those comments as historical. `documentation/PRIO7_GOD_SERVICE_SPLIT.md` documents how the split was done (its "still open" section is finished).
+- **Metadata & selection state** — the former `data-exchange-service` god service is **fully dissolved**; there is no `DataExchangeService` any more. Its responsibilities now live in ~70 focused services, notably `*-metadata-store-service` (indicator/georesource/spatial-unit/topic/process-script), `metadata-bootstrap-service` (initial fetch orchestration), `metadata-filter-service`, `selection-state-service`, `access-control-service`, `cache-helper-service`. No service in the tree carries the name `DataExchangeService` any more, and the file headers describe what each service does today. The recipe for splitting the remaining oversized services is in `documentation/OFFENE_PUNKTE.md` (B2).
 - **`map-service`** / `generic-map-helper-service` / `single-feature-map-helper-service` — Leaflet map orchestration.
 - **`diagram-helper-service`** — ECharts chart construction.
 - **`reachability-*` services** — isochrone/routing analysis via Open Route Service.
@@ -110,7 +110,7 @@ Key central services (high fan-in; change carefully):
 - **`config-storage-service` / `env-config-service`** — config plumbing.
 - **`keycloak-helper-service` / `auth-service`** — auth.
 
-Note: the admin data services in `app/services/adminSpatialUnit/` and `app/services/adminGeoresourceUnit/` were also oversized and have been split down — both `kommonitor-data-exchange.service.ts` god services are gone (only a 135-line georesource remnant is left), and the grid helpers are now stateless ColDef builders. The largest remaining admin service is `adminSpatialUnit/kommonitor-importer-helper.service.ts` (~960 lines). The biggest services overall are `reporting-service` (~3400) and `diagram-helper-service` (~2750) — both still unsplit. Keep peeling off responsibilities when you touch these rather than doing a big-bang rewrite.
+Note: the admin data services in `app/services/adminSpatialUnit/` and `app/services/adminGeoresourceUnit/` were also oversized and have been split down — both `kommonitor-data-exchange.service.ts` god services are gone, and the grid helpers are now stateless ColDef builders. The largest remaining admin service is `adminSpatialUnit/kommonitor-importer-helper.service.ts` (~960 lines). The biggest services overall are `reporting-service` (~3400) and `diagram-helper-service` (~2750) — both still unsplit. Keep peeling off responsibilities when you touch these rather than doing a big-bang rewrite.
 
 ### Vendored libraries
 

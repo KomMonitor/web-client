@@ -6,8 +6,7 @@ import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-s
 import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
 
 /**
- * Indicator keyword/type filtering. Extracted in the Prio 7 god-service split
- * (see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ * Indicator keyword/type filtering. Extracted in the Prio 7 god-service split.
  *
  * The georesource filtering lives in GeoresourceMetadataStoreService; this service
  * holds the indicator keyword filter and owns displayableIndicators_keywordFiltered.

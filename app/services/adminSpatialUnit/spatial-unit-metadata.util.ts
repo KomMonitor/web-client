@@ -1,8 +1,6 @@
 /**
- * Pure spatial-unit metadata helpers extracted from the former
- * `adminSpatialUnit` data-exchange god service (step 4 of the
- * admin refactoring — see documentation/ADMIN_REFACTORING_ANALYSIS.md). The
- * facade delegates to these; new code can import them directly.
+ * Pure spatial-unit metadata helpers extracted from the former `adminSpatialUnit`
+ * data-exchange god service, which has since been deleted — import them directly.
  */
 
 /** Convert empty strings/undefined to null for API payloads. */

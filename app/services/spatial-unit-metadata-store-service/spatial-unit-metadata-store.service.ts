@@ -3,8 +3,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { SpatialUnitOverviewType } from 'models/data-management-api';
 
 /**
- * Spatial-unit metadata store. Extracted in the Prio 7 god-service split
- * (see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ * Spatial-unit metadata store. Extracted in the Prio 7 god-service split.
  *
  * Holds the available spatial-unit collection + id-lookup map.
  */

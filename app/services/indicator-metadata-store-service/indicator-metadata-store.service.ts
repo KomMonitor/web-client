@@ -4,8 +4,7 @@ import { SpatialUnitOverviewType } from 'models/data-management-api';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 /**
- * Indicator metadata store. Extracted in the Prio 7 god-service split
- * (see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ * Indicator metadata store. Extracted in the Prio 7 god-service split.
  *
  * Owns the indicator collection (availableIndicators + id-map) and the derived
  * displayableIndicators. Depends only on EnvConfigService (decimals / hide-substrings).

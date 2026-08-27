@@ -2,8 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { ProcessScriptOverviewType } from 'models/data-management-api';
 
 /**
- * Process-script metadata store. Extracted in the Prio 7 god-service split
- * (see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ * Process-script metadata store. Extracted in the Prio 7 god-service split.
  *
  * Holds the available process-script collection + id-lookup map.
  */

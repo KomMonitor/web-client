@@ -7,8 +7,7 @@ import { WmsResourceType, WmsDataset } from 'components/ngComponents/models/serv
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
 
 /**
- * Georesource / WMS / WFS metadata store + filtering. Extracted in the Prio 7
- * god-service split (see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ * Georesource / WMS / WFS metadata store + filtering. Extracted in the Prio 7 god-service split.
  *
  * Combines the georesource/WMS/WFS domain store with its keyword/type filtering
  * because the two are mutually coupled (setGeoresources <-> onChangeGeoresourceKeywordFilter).

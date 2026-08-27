@@ -84,7 +84,7 @@ Alte Dateien `reachability-combiner.service.ts`/`reachability-helper.service.ts`
 - 5 Services → 4 (2 gelöscht, 1 neu, 1 verschlankt); Netto **−1658 / +361 Zeilen**.
 - Keine funktionale Verhaltensänderung außer dem behobenen „Szenario speichern"-Button-Bug (Stage B) und dem entskippten Test.
 - `Reachbility`-Tippfehler auf Service-Ebene korrigiert (`ReachabilityHelperService` → `ReachabilityStateService`); Komponenten-/Ordner-Tippfehler (`reachbility-scenario-setup`, `ReachbilityScenarioSetupComponent`) bewusst **nicht** angefasst — höherer Diff (Ordner-/Selektor-/Routing-Referenzen) für einen rein kosmetischen Fix, außerhalb des Scopes dieser Service-Reorganisation.
-- `ReachabilityMapHelperService` und `ReachabilityCoverageReportsHelperService` (Leaflet-Rendering bzw. PDF-Export) wurden **nicht** intern restrukturiert — nur ihre Injektionen/Aufrufstellen wurden mechanisch auf `ReachabilityStateService` umgehängt. Beide sind mit >1000 Zeilen weiterhin Kandidaten für eine eigene Aufteilung nach dem in `PRIO7_GOD_SERVICE_SPLIT.md` etablierten Rezept, falls das gewünscht ist.
+- `ReachabilityMapHelperService` und `ReachabilityCoverageReportsHelperService` (Leaflet-Rendering bzw. PDF-Export) wurden **nicht** intern restrukturiert — nur ihre Injektionen/Aufrufstellen wurden mechanisch auf `ReachabilityStateService` umgehängt. Beide sind mit >1000 Zeilen weiterhin Kandidaten für eine eigene Aufteilung nach dem Rezept in `OFFENE_PUNKTE.md` (B2, „Rezept pro Schnitt"), falls das gewünscht ist.
 
 ## Wiederholbares Muster (falls weitere Konsolidierung ansteht)
 
@@ -92,4 +92,4 @@ Alte Dateien `reachability-combiner.service.ts`/`reachability-helper.service.ts`
 2. Bei gleichnamigen Feldern mit unterschiedlicher Bedeutung (`settings` in beiden Alt-Services) **vor** dem Merge einen eindeutigen Namen für mindestens eines der beiden Felder festlegen.
 3. Zirkuläre Abhängigkeiten (hier: `Injector`-Lazy-Lookup) beim Merge auflösen, nicht nur mitverschieben — meist verschwindet die Zirkularität von selbst, wenn die beiden Enden in denselben Service wandern.
 4. Bei Persistenz-Services mit Staging-Objekt (`tmpActiveScenario`-Muster): auf Snapshot/Restore gegen den Live-State umstellen, statt Felder einzeln zu synchronisieren.
-5. Nach jedem Schritt `tsc --noEmit` + `npm run build` + `npm run lint` + `npm test` grün, bevor der nächste beginnt (wie in `PRIO7_GOD_SERVICE_SPLIT.md`).
+5. Nach jedem Schritt `tsc --noEmit` + `npm run build` + `npm run lint` + `npm test` grün, bevor der nächste beginnt.
