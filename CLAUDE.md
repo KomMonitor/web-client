@@ -45,14 +45,14 @@ Tests **are runnable now**. The `test` target uses **Jest** via `@angular-builde
 
 ## Migration status — read this before editing
 
-This codebase was migrated **from AngularJS 1.8 → Angular** and now runs on **Angular 21** (TypeScript 5.9). The migration is complete at runtime; what remains is cleanup of leftover legacy files. This is the single most important thing to understand before touching code:
+This codebase was migrated **from AngularJS 1.8 → Angular** and now runs on **Angular 21** (TypeScript 5.9). The migration is complete: no AngularJS source is left in the tree. This is the single most important thing to understand before touching code:
 
 - The live app bootstraps **pure Angular, fully standalone**: `app/main.ts` calls `bootstrapApplication(MainComponent, appConfig)`; all root providers live in `app/app.config.ts` (`provideRouter`, `provideAppInitializer`, `provideHttpClient` + `AuthInterceptor`, `provideZoneChangeDetection`, `TranslateModule.forRoot`). There is **no `AppModule`** (deleted) and no ngUpgrade/hybrid bootstrap; `@angular/upgrade` is gone from `package.json`. Every component in the app is standalone.
 - The old AngularJS entry point `app/app.js` has been **deleted**. `app/index.html` includes no scripts; `angular.json` only loads jQuery/Bootstrap.
-- Most of the legacy AngularJS source has been removed. Exactly two features survive under `app/components/kommonitorUserInterface/kommonitorControls/` as migration reference: `feedbackModal` and `kommonitorIndividualIndicatorComputation` (5 `*.component.js`/`*.module.js` + templates). `kommonitorAdmin/` and the legacy `common/` dirs are gone. These files are **not loaded by the running app** — reference-only, and they still reference services that no longer exist. Never copy code from them verbatim.
+- The legacy AngularJS source is **completely gone**. `app/components/kommonitorUserInterface/` was removed on 2026-08-27 along with its last two features (`feedbackModal`, `kommonitorIndividualIndicatorComputation`) — both were already switched off on `origin/master`, so nothing live was lost. `app/components/` now contains only `ngComponents/`. If you need the old AngularJS implementation of a feature as a behavioral reference, read it from `origin/master` in git; never copy it verbatim, it targets services that no longer exist.
 - **All active code is Angular and lives under `app/components/ngComponents/`** plus `app/services/`, `app/pipes/`, `app/guards/`, `app/mainComponent/`, `app/util/interceptors/`.
 
-When implementing features, work in the `ngComponents` / `services` (TypeScript) world. Treat any leftover AngularJS files as a reference for behavior, not as live code.
+When implementing features, work in the `ngComponents` / `services` (TypeScript) world. Where behavior is unclear, the AngularJS original on `origin/master` is the reference — but it is history, not code to copy.
 
 **Roadmap docs (German):** `PROPOSED_CHANGES.md` records the original cleanup plan and what was done for each priority — Prio 2–7 are finished. `documentation/OFFENE_PUNKTE.md` is the current list of what is still open, and which of the `documentation/*.md` files are outdated. Read the latter before trusting an older analysis doc.
 

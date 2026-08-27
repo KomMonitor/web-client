@@ -13,7 +13,7 @@ Analysebasis: Codebestand, `angular.json`, `webpack.config.js`, `package.json`, 
 
 **Maßnahme:**
 
-1. Vorher prüfen, ob zwei Features ohne Angular-Pendant noch gebraucht werden: `feedbackModal` und `kommonitorIndividualIndicatorComputation` (beide unter `app/components/kommonitorUserInterface/kommonitorControls/`). Falls ja → migrieren; falls nein → mit löschen.
+1. Vorher prüfen, ob zwei Features ohne Angular-Pendant noch gebraucht werden: `feedbackModal` und `kommonitorIndividualIndicatorComputation` (beide unter `app/components/kommonitorUserInterface/kommonitorControls/`). Falls ja → migrieren; falls nein → mit löschen. (→ gelöscht, siehe Nachtrag unten)
 2. Alle `*.component.js`/`*.module.js`, `app/app.js` und zugehörige AngularJS-Templates löschen.
 3. Danach aus `package.json` entfernen: `angular`, `angular-route`, `angular-resource`, `angular-sanitize`, `angular-animations`, `angular-ui-bootstrap`, `angularjs-dropdown-multiselect`, `angular-legacy-sortablejs-maintained`, `ui-select`, `@angular/upgrade`, `babel-plugin-angularjs-annotate` sowie alle `@types/angular*`-Pakete.
 4. Auskommentierten Hybrid-Code in `app/mainComponent/main/main.component.ts` entfernen.
@@ -22,12 +22,28 @@ Analysebasis: Codebestand, `angular.json`, `webpack.config.js`, `package.json`, 
 
 **Status (2026-06-15, erledigt):** Schritte 2–4 umgesetzt. Gelöscht: `app/app.js`, `app/components/common/`, `app/components/kommonitorAdmin/`, `app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/` (Angular-Pendant unter `app/components/ngComponents/userInterface/sidebar/kommonitorReachability/`), `app/util/genericServices/`. Die o. g. AngularJS-`package.json`-Einträge entfernt. Zwei aktive ngComponents (`reporting-overview`, `indicator-add`) nutzten noch `fromJson`/`toJson` aus `angular` — auf natives `JSON.parse`/`JSON.stringify` umgestellt.
 
-> **TODO — offene AngularJS-Migration (bewusst behalten):** Zwei Features unter `app/components/kommonitorUserInterface/kommonitorControls/` haben noch kein Angular-Pendant und sind als Migrationsreferenz im Repo geblieben (werden nicht gebaut/geladen):
+> **Nachtrag (2026-08-27) — Schritt 1 erledigt, Prio 2 damit vollständig abgeschlossen:** Die zwei
+> zurückgestellten Features `feedbackModal` und `kommonitorIndividualIndicatorComputation` sind
+> gelöscht; `app/components/kommonitorUserInterface/` existiert nicht mehr, unter `app/components/`
+> liegt nur noch `ngComponents/`.
 >
-> - `feedbackModal` — im aktiven UI nur über einen auskommentierten Link in `user-interface.component.html` referenziert.
-> - `kommonitorIndividualIndicatorComputation` ("Interaktive parametrisierte Neuberechnung eines Indikators") — in der README als Key-Feature gelistet, im aktiven Code aktuell nicht eingebunden.
+> Ausschlaggebend war ein Abgleich mit `origin/master`: **beide Features sind auch dort abgeschaltet**,
+> es ging also keine laufende Funktion verloren.
 >
-> Beide nach Angular (`ngComponents/`) migrieren oder nach finaler Produktentscheidung löschen. Erst danach ist Prio 2 vollständig abgeschlossen.
+> - `feedbackModal` — `<feedback-modal>` wird auf `master` zwar instanziiert
+>   (`kommonitor-user-interface.template.html:169`), der einzige Öffnen-Link daneben ist aber
+>   auskommentiert (Zeile 141). Der zweite Pfad, `$scope.showFeedbackForm()`
+>   (`infoModal/info-modal.component.js:74`), wird von keinem Template aufgerufen. Das Modal war dort
+>   unerreichbar.
+> - `kommonitorIndividualIndicatorComputation` — steht auf `master` in einem auskommentierten Block,
+>   mit Begründung im Code: `<!-- hide processing button and menu, as it must be greatly improved -->`
+>   (`kommonitor-user-interface.template.html:231-233`).
+>
+> Mitgelöscht: die Lint-/Prettier-Ausnahmen für beide Ordner (`eslint.config.js`, `.prettierignore`)
+> und der auskommentierte Feedback-Link in `user-interface.component.html`. Der Feature-Punkt
+> "customizable indicator computation" in `README.md` ist als derzeit nicht enthalten markiert.
+> Sollen die Features fachlich zurückkommen, ist ein Neubau gegen die heutigen Services der Weg —
+> die AngularJS-Vorlage liegt verbatim auf `origin/master`.
 
 ---
 

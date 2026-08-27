@@ -23,18 +23,40 @@ Die folgende Liste ist das, was danach noch offen ist — sortiert nach Nutzen.
 
 ## A. Funktionale Lücken
 
-### A1. Zwei AngularJS-Features ohne Angular-Pendant
+### A1. Zwei AngularJS-Features ohne Angular-Pendant — ✅ gelöscht (2026-08-27)
 
-Unter `app/components/kommonitorUserInterface/kommonitorControls/` liegen noch 5 Legacy-Dateien
-(~156 KB), die **nicht gebaut und nicht geladen** werden:
+Entscheidung: **löschen**. `app/components/kommonitorUserInterface/` ist weg (14 Dateien, 156 KB —
+je `.ts`, `.js`, `.js.map`, Template); unter `app/components/` liegt nur noch `ngComponents/`. Damit
+ist Prio 2 aus `PROPOSED_CHANGES.md` vollständig abgeschlossen.
 
-- `feedbackModal/` — im aktiven UI nur über einen auskommentierten Link referenziert.
-- `kommonitorIndividualIndicatorComputation/` — „Interaktive parametrisierte Neuberechnung eines
-  Indikators", in der README als Key-Feature gelistet, im aktiven Code nicht eingebunden.
+Ausschlaggebend war ein Abgleich mit `origin/master`: **beide Features sind auch dort abgeschaltet**,
+es ging also keine laufende Funktion verloren. Das ist der Unterschied zu A2 und B1, wo die Vorlage
+funktionsfähig war und der Port etwas verloren hatte.
 
-Beide referenzieren Services, die es nicht mehr gibt (`kommonitorDataExchangeService`), sind also
-nicht 1:1 portierbar. **Entscheidung nötig:** migrieren oder löschen. Erst danach ist Prio 2 aus
-`PROPOSED_CHANGES.md` wirklich abgeschlossen.
+- `feedbackModal` — auf `master` wird `<feedback-modal>` zwar instanziiert
+  (`kommonitor-user-interface.template.html:169`), der einzige Öffnen-Link daneben ist aber
+  auskommentiert (Zeile 141). Der zweite Pfad, `$scope.showFeedbackForm()`
+  (`infoModal/info-modal.component.js:74`), wird von keinem Template aufgerufen — das Modal war dort
+  unerreichbar.
+- `kommonitorIndividualIndicatorComputation` — steht auf `master` in einem auskommentierten Block,
+  mit Begründung im Code: `<!-- hide processing button and menu, as it must be greatly improved -->`
+  (`kommonitor-user-interface.template.html:231-233`).
+
+Mitgelöscht: die Lint-/Prettier-Ausnahmen für beide Ordner (`eslint.config.js`, `.prettierignore`)
+und der auskommentierte Feedback-Link in `user-interface.component.html`. In `README.md` ist der
+Feature-Punkt „customizable indicator computation" als derzeit nicht enthalten markiert.
+
+**Falls die Features fachlich zurückkommen sollen:** Neubau gegen die heutigen Services, kein Port.
+Die Vorlage liegt verbatim auf `origin/master`. Ausgangslage dafür:
+
+- Feedback-Formular: POST `${targetUrlToProcessingEngine}feedback-mail` mit
+  `{recipientMail, subject, body, attachment}` (Base64); Empfänger aus `__env.feedbackMailRecipient`
+  (weiterhin in `env_backup.js:317` gesetzt). Klein — offen ist nicht der Aufwand, sondern ob der
+  Endpunkt in der Processing Engine noch existiert und wo im UI der Trigger hin soll.
+- Parametrisierte Neuberechnung: Angular hat davon bereits den Monitoring-Teil —
+  `admin-script-execution.service.ts` liest Jobs und Health per GET von
+  `script-engine/customizableIndicatorComputation`. Was fehlt, ist das Auslösen (POST mit
+  Skript-Parametern) und die Anzeige des Ergebnisses auf der Karte.
 
 ### A2. Zeitreihen-Mapping des Indikator-Imports — ✅ behoben (2026-08-26)
 
@@ -311,7 +333,8 @@ danach kann `no-console` auf `error` hochgezogen werden.
 
 ### C3. Verbleibende `window.__env`-Direktzugriffe
 
-81 Treffer, aber stark konzentriert (offener Punkt 11 in `STARTUP_IMPROVEMENTS.md`):
+75 Treffer (vorher 81; die 6 Treffer der toten AngularJS-Dateien sind mit A1 entfallen), aber
+stark konzentriert (offener Punkt 11 in `STARTUP_IMPROVEMENTS.md`):
 
 | Datei                                                                | Treffer | Bewertung                                          |
 | -------------------------------------------------------------------- | ------: | -------------------------------------------------- |
@@ -319,7 +342,6 @@ danach kann `no-console` auf `error` hochgezogen werden.
 | `diagram-helper-service`                                             |       4 | umstellbar                                         |
 | `access-control-service`                                             |       3 | umstellbar                                         |
 | `map-viewport-state-service`, `auth-service`, `resourceMetadataForm` |    je 1 | umstellbar                                         |
-| die 2 toten AngularJS-Dateien (A1)                                   |       6 | erledigt sich mit A1                               |
 
 Der reale Rest ist also klein (~10 Stellen); für `admin-app-config` braucht es eine bewusste
 Entscheidung (Schreibzugriff vs. getypte Setter im `EnvConfigService`).
@@ -408,8 +430,8 @@ Verifiziert gegen den Code am 2026-08-26.
    nichts davon war bisher im Browser. Punkt 10 braucht einen laufenden Importer.
 2. ~~**B1-Restposten**~~ — ✅ erledigt am 2026-08-27 (siehe B1). Die dort behobenen
    Verhaltensänderungen brauchen noch die Browser-Prüfung aus Punkt 11 der manuellen Tests.
-3. **A1** — Entscheidung zu `feedbackModal` / `individualIndicatorComputation`; damit fällt auch
-   ein Teil von C3 weg.
+3. ~~**A1**~~ — ✅ erledigt am 2026-08-27: beide Features gelöscht (siehe A1). Der zugehörige
+   Teil von C3 ist damit weggefallen.
 4. **C2 + C3** — Logger-Service, danach `no-console` auf `error`; Rest der `__env`-Zugriffe.
 5. **B3 + D** — Kommentar- und Doku-Bereinigung (billig, hoher Orientierungswert).
 6. **Laufend:** B2 (große Services) und C4 (i18n UserInterface) im Zuge regulärer Feature-Arbeit.
