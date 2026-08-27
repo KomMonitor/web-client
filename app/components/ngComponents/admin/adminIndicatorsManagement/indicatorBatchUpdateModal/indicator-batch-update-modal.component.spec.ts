@@ -1,5 +1,6 @@
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { BatchUpdateService } from 'services/batch-update-service/batch-update.service';
@@ -12,6 +13,7 @@ import type {
 } from 'services/resource-import-service/resource-import.model';
 import { IndicatorBatchUpdateModalComponent } from './indicator-batch-update-modal.component';
 import { BATCH_RUN_BLOCKER_KEYS } from './indicator-batch-update-form.model';
+import { formatColumnTarget } from './indicator-batch-update-defaults.model';
 
 /**
  * First spec of this modal — it had none before the reactive-forms rework.
@@ -59,6 +61,8 @@ describe('IndicatorBatchUpdateModalComponent', () => {
   let component: IndicatorBatchUpdateModalComponent;
   let batchUpdate: { runBatchUpdate: jest.Mock };
   let notifications: { showSuccess: jest.Mock; showError: jest.Mock };
+  let modalService: { open: jest.Mock };
+  let openedResultModal: { resourceType?: string; results?: unknown };
   let importerHelper: {
     getAvailableConverters: () => Converter[];
     getAvailableDatasourceTypes: () => DatasourceType[];
@@ -85,6 +89,13 @@ describe('IndicatorBatchUpdateModalComponent', () => {
   beforeEach(() => {
     batchUpdate = { runBatchUpdate: jest.fn().mockResolvedValue([]) };
     notifications = { showSuccess: jest.fn(), showError: jest.fn() };
+    openedResultModal = {};
+    modalService = {
+      open: jest.fn(() => ({
+        componentInstance: openedResultModal,
+        result: Promise.resolve(),
+      })),
+    };
     importerHelper = {
       getAvailableConverters: () => [CSV, WFS, GEOCODING],
       getAvailableDatasourceTypes: () => [FILE_SOURCE, HTTP_SOURCE],
@@ -125,6 +136,7 @@ describe('IndicatorBatchUpdateModalComponent', () => {
         { provide: KommonitorImporterHelperService, useValue: importerHelper },
         { provide: BatchUpdateService, useValue: batchUpdate },
         { provide: NotificationService, useValue: notifications },
+        { provide: NgbModal, useValue: modalService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     });
@@ -398,5 +410,87 @@ describe('IndicatorBatchUpdateModalComponent', () => {
     component.resetBatchUpdateForm();
 
     expect(component.lastResults()).toBeNull();
+  });
+
+  // ------------------------------------------------------------ result surface
+
+  it('opens the result modal with the rows of the finished run', async () => {
+    completeFirstRow();
+    const results = [{ label: 'A', resourceId: 'a', status: 'success' as const, message: '' }];
+    batchUpdate.runBatchUpdate.mockResolvedValue(results);
+
+    await component.startBatchUpdate();
+
+    expect(modalService.open).toHaveBeenCalledTimes(1);
+    expect(openedResultModal.resourceType).toBe('indicator');
+    expect(openedResultModal.results).toEqual(results);
+  });
+
+  it('reopens the result modal on demand', async () => {
+    completeFirstRow();
+    await component.startBatchUpdate();
+    modalService.open.mockClear();
+
+    component.openResultModal();
+
+    expect(modalService.open).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not open the result modal before a run happened', () => {
+    component.openResultModal();
+
+    expect(modalService.open).not.toHaveBeenCalled();
+  });
+
+  // ------------------------------------------------------- default-value panel
+
+  it('offers the parameter columns of the current list', () => {
+    component.rows[0].controls.converter.setValue(CSV);
+    component.rows[0].controls.datasourceType.setValue(HTTP_SOURCE);
+
+    expect(component.columnTargets()).toContainEqual({
+      kind: 'converterParameter',
+      name: 'Trennzeichen',
+    });
+    expect(component.columnTargets()).toContainEqual({ kind: 'datasourceParameter', name: 'URL' });
+  });
+
+  it('fills a column across all rows and reports how many changed', () => {
+    component.addNewRowToBatchList();
+    component.defaultValueForm.patchValue({
+      column: formatColumnTarget({ kind: 'text', control: 'spatialReferenceKeyProperty' }),
+      textValue: 'ags',
+    });
+
+    component.onClickSaveColDefaultValue();
+
+    expect(component.rows.map((row) => row.controls.spatialReferenceKeyProperty.value)).toEqual([
+      'ags',
+      'ags',
+    ]);
+    expect(notifications.showSuccess).toHaveBeenCalled();
+  });
+
+  it('clears the staged value when the target column changes', () => {
+    component.defaultValueForm.patchValue({ textValue: 'stale', converterValue: CSV });
+
+    component.onChangeDefaultColumn();
+
+    expect(component.defaultValueForm.controls.textValue.value).toBe('');
+    expect(component.defaultValueForm.controls.converterValue.value).toBeNull();
+  });
+
+  it('offers the union of converter mime types for the mime-type column', () => {
+    expect(component.columnTargetOptions({ kind: 'text', control: 'mimeType' })).toEqual([
+      'text/csv',
+      'text/xml',
+    ]);
+  });
+
+  it('offers no option list for a free-text column', () => {
+    expect(
+      component.columnTargetOptions({ kind: 'text', control: 'spatialReferenceKeyProperty' })
+    ).toEqual([]);
+    expect(component.columnTargetOptions(null)).toEqual([]);
   });
 });

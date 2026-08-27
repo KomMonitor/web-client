@@ -14,7 +14,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
-import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { BatchUpdateService } from 'services/batch-update-service/batch-update.service';
@@ -31,6 +31,8 @@ import type {
   TimeseriesMapping,
 } from 'services/resource-import-service/resource-import.model';
 import { downloadJson, readJsonFile } from 'util/json-file.util';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { BatchUpdateResultModalComponent } from '../../adminShared/batchUpdateResultModal/batch-update-result-modal.component';
 import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
 import { TimeseriesMappingFormComponent } from '../../adminShared/timeseriesMappingForm/timeseries-mapping-form.component';
 import { isValidTimeseriesMappingList } from '../../adminShared/timeseriesMappingForm/timeseries-mapping-form.model';
@@ -45,6 +47,17 @@ import {
   visibleConverterParameterNames,
   visibleDatasourceParameterNames,
 } from './indicator-batch-update-form.model';
+import {
+  BatchColumnTarget,
+  DefaultValueFormGroup,
+  applyColumnDefault,
+  availableColumnTargets,
+  buildDefaultValueForm,
+  columnTargetLabelKey,
+  columnTargetPlainLabel,
+  formatColumnTarget,
+  parseColumnTarget,
+} from './indicator-batch-update-defaults.model';
 import { prepareBatchRows } from './indicator-batch-update-run.model';
 import type { IndicatorRefreshRequest } from '../indicator-refresh.model';
 import {
@@ -62,8 +75,9 @@ import {
  * committed when the importer reports no errors, and a failing row does not stop
  * the others — so a batch can end partially applied, which the summary reports.
  *
- * Still missing (`TODO(batch-update)`): the per-row result table and the
- * default-value function that fills a column across all rows at once.
+ * The per-row result table and the default-value function that fills one column
+ * across all rows are wired up as well; what the released AngularJS client had
+ * and this one does not is the georesource variant of the same list.
  */
 @Component({
   selector: 'app-indicator-batch-update-modal',
@@ -74,6 +88,7 @@ import {
     ReactiveFormsModule,
     FormErrorComponent,
     TimeseriesMappingFormComponent,
+    ExpandableBoxComponent,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -85,12 +100,16 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   private batchUpdateService = inject(BatchUpdateService);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
+  private modalService = inject(NgbModal);
 
   @ViewChild('batchListFileInput') batchListFileInput!: ElementRef<HTMLInputElement>;
   @Input() modalRef?: NgbModalRef;
   @Output() refreshRequested = new EventEmitter<IndicatorRefreshRequest>();
 
   readonly form: BatchUpdateFormGroup = buildBatchUpdateForm();
+
+  /** Staging form of the "fill one column across all rows" panel. */
+  readonly defaultValueForm: DefaultValueFormGroup = buildDefaultValueForm();
 
   /** Signal: set from awaits and (later) the batch run itself (OnPush). */
   readonly loadingData = signal(false);
@@ -127,6 +146,12 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   readonly showFileColumn = computed(() => {
     this.formEvent();
     return hasFileDatasourceRow(this.form);
+  });
+
+  /** Columns the default-value panel can fill, derived from the current list. */
+  readonly columnTargets = computed(() => {
+    this.formEvent();
+    return availableColumnTargets(this.form);
   });
 
   /** i18n keys of everything that keeps the run button disabled. */
@@ -398,8 +423,32 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
       this.refreshRequested.emit({ crudType: 'edit' });
     }
 
-    // TODO(batch-update): show the per-row result table (shared result modal)
-    // instead of only the summary toast.
+    this.openResultModal();
+  }
+
+  /**
+   * Shows the per-row result table. Opened on top of this modal — nesting an
+   * `NgbModal` inside an `NgbModal` is supported, but has no other precedent in
+   * this repo yet, so it is worth a look in the browser.
+   */
+  openResultModal(): void {
+    const results = this.lastResults();
+    if (!results) {
+      return;
+    }
+
+    const modalRef = this.modalService.open(BatchUpdateResultModalComponent, {
+      size: 'xl',
+      container: 'body',
+      animation: false,
+    });
+    const instance = modalRef.componentInstance as BatchUpdateResultModalComponent;
+    instance.resourceType = 'indicator';
+    instance.results = results;
+
+    modalRef.result.catch(() => {
+      // Dismissed via backdrop or Escape.
+    });
   }
 
   resetBatchUpdateForm(): void {
@@ -410,6 +459,59 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
     this.expandedMappingRow.set(null);
     this.lastResults.set(null);
     this.addNewRowToBatchList();
+  }
+
+  // ------------------------------------------------------- default-value panel
+
+  /** The parsed target of the panel's column select, or null while unset. */
+  selectedColumnTarget(): BatchColumnTarget | null {
+    return parseColumnTarget(this.defaultValueForm.controls.column.value);
+  }
+
+  columnTargetValue(target: BatchColumnTarget): string {
+    return formatColumnTarget(target);
+  }
+
+  columnTargetLabelKey(target: BatchColumnTarget): string | null {
+    return columnTargetLabelKey(target);
+  }
+
+  columnTargetPlainLabel(target: BatchColumnTarget): string {
+    return columnTargetPlainLabel(target);
+  }
+
+  /** Text targets that are picked from a list rather than typed. */
+  columnTargetOptions(target: BatchColumnTarget | null): string[] {
+    if (target?.kind !== 'text') {
+      return [];
+    }
+    switch (target.control) {
+      case 'mimeType':
+        return unique(this.availableConverters().flatMap((converter) => converter.mimeTypes ?? []));
+      case 'encoding':
+        return unique(this.availableConverters().flatMap((converter) => converter.encodings ?? []));
+      case 'schema':
+        return unique(this.availableConverters().flatMap((converter) => converter.schemas ?? []));
+      default:
+        return [];
+    }
+  }
+
+  onChangeDefaultColumn(): void {
+    this.defaultValueForm.patchValue({
+      textValue: '',
+      converterValue: null,
+      datasourceTypeValue: null,
+      timeseriesMappings: [],
+    });
+  }
+
+  onClickSaveColDefaultValue(): void {
+    const changed = applyColumnDefault(this.form, this.defaultValueForm);
+
+    this.notificationService.showSuccess(
+      this.translate.instant('ADMIN_INDICATORS.BATCH_MODAL.DEFAULT_APPLIED', { changed })
+    );
   }
 
   // ------------------------------------------------------------------ helpers
@@ -425,4 +527,8 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   closeModal(): void {
     this.modalRef?.close();
   }
+}
+
+function unique(values: readonly string[]): string[] {
+  return [...new Set(values)];
 }

@@ -605,7 +605,6 @@
       "SAVE_MAPPING_TABLE": "Mappingtabelle speichern",
       "ADD_EDIT": "Hinzufügen/Editieren",
       "SELECT_DATASET_SOURCE_FORMAT_OPTION": "-- Datensatz-Quellformat wählen --",
-      "SELECT_ENCODING_OPTION": "-- Encoding wählen --",
       "ADD_ROW": "neue Zeile hinzufügen",
       "DELETE_SELECTED_ROWS": "ausgewählte Zeilen löschen",
       "DEFAULT_VALUE_FUNCTION": "Standardwert-Funktion",
@@ -621,7 +620,6 @@
       "APPLY_DEFAULT_VALUE": "Standardwert eintragen",
       "KEEP_MISSING_HINT": "Angabe, ob leere Attributwerte (<code>NULL</code>-Werte) übernommen werden. Diese werden wie NoData-Werte behandelt. Bei deaktivierter Option wird bei einem solchen Fall ein Fehler geworfen.",
       "ACCESS_RIGHTS_WARNING": "Falls für Indikatoren durch das Batch Update erstmalig neue Raumeinheiten verknüpft werden, so werden die Zugriffsrechte aus den zugehörigen Metadaten übernommen",
-      "EDIT_DEFAULT_TIMESERIES_MAPPING": "Standard-Zeitreihen-Mapping bearbeiten",
       "IMPORT_BATCH_LIST_TOOLTIP": "Importieren der Batch-Liste aus einer Datei",
       "IMPORT_BATCH_LIST": "Batch-Liste importieren",
       "EXPORT_BATCH_LIST_TOOLTIP": "Exportieren der Batch-Liste in eine Datei",
@@ -637,10 +635,10 @@
       "BLOCKER_SPATIAL_REF_KEY": "Der ID-Attributname der Raumebenen-Features* fehlt in mindestens einer Zeile.",
       "BLOCKER_TARGET_SPATIAL_UNIT": "Die Spalte Ziel-Raumebene* ist nicht in allen Zeilen gesetzt.",
       "ENCODING_DEFAULT_OPTION": "-- Standard des Konverters --",
-      "FILE_COLUMN": "Datei",
       "ROW_METADATA_MISSING": "Indikator oder Ziel-Raumebene sind nicht mehr vorhanden; die Zeile wurde übersprungen.",
       "RUN_SUMMARY": "{{success}} von {{total}} Datensätzen aktualisiert, {{error}} fehlgeschlagen.",
-      "RUN_PROGRESS": "Zeile {{done}} von {{total}}"
+      "RUN_PROGRESS": "Zeile {{done}} von {{total}}",
+      "DEFAULT_APPLIED": "{{changed}} Zeile(n) aktualisiert."
     },
     "DELETE_MODAL": {
       "TITLE": "Indikatoren löschen",
@@ -1386,7 +1384,17 @@
       "EMPTY": "Noch kein Zeitreihen-Mapping definiert."
     },
     "BATCH_UPDATE": {
-      "ROW_INCOMPLETE": "Zeile unvollständig — Konverter oder Datenquelle fehlen; die Zeile wurde übersprungen."
+      "ROW_INCOMPLETE": "Zeile unvollständig — Konverter oder Datenquelle fehlen; die Zeile wurde übersprungen.",
+      "RESULT_TITLE": "Ergebnis des Batch-Updates",
+      "RESOURCE_INDICATOR": "Indikator",
+      "RESOURCE_GEORESOURCE": "Georessource",
+      "STATUS": "Status",
+      "SUCCESS": "Erfolg",
+      "ERROR": "Fehler",
+      "SHOW_DETAIL": "Details anzeigen",
+      "NO_ROWS": "Keine Zeilen verarbeitet.",
+      "RUN_SUMMARY": "{{success}} von {{total}} Datensätzen aktualisiert, {{error}} fehlgeschlagen.",
+      "PARTIALLY_APPLIED": "Der Lauf wurde teilweise angewendet: erfolgreiche Zeilen bleiben gespeichert, es gibt kein Zurücksetzen. Korrigieren Sie die fehlgeschlagenen Zeilen und starten Sie nur diese erneut."
     }
   },
   "ADMIN_WMS": {

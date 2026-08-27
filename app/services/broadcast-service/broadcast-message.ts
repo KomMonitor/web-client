@@ -23,7 +23,6 @@ export const BroadcastMessage = {
   AppendExportButtonsForTable: 'AppendExportButtonsForTable',
   ApplyNoDataDisplay: 'applyNoDataDisplay',
   AvailableRolesUpdate: 'availableRolesUpdate',
-  BatchUpdateCompleted: 'batchUpdateCompleted',
   CSVFromFileFinishedIndicatorRegionalReferenceValues:
     'CSVFromFileFinished_indicatorRegionalReferenceValues',
   ChangeIndicatorDate: 'changeIndicatorDate',
@@ -58,7 +57,6 @@ export const BroadcastMessage = {
   RemoveAllDrawnPoints: 'removeAllDrawnPoints',
   RemovePotentialDrawnStartingPoints: 'removePotentialDrawnStartingPoints',
   RemoveRangeFilter: 'removeRangeFilter',
-  ReopenBatchUpdateResultModal: 'reopenBatchUpdateResultModal',
   ReportingIsochronesCalculationFinished: 'reportingIsochronesCalculationFinished',
   ReportingIsochronesCalculationStarted: 'reportingIsochronesCalculationStarted',
   ReportingPoiLayerSelected: 'reportingPoiLayerSelected',

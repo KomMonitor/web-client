@@ -1,13 +1,19 @@
-# Manuelle Tests — Reactive-Forms-Umbau der Admin-Wizards
+# Manuelle Tests — Admin-Formulare und Batch-Update
 
-Stand: 2026-08-26, Branch `feature/migration-bootstrap`.
-Bezug: B1 aus [`OFFENE_PUNKTE.md`](OFFENE_PUNKTE.md) — Fundament, die beiden großen Add-Wizards
-(`spatialUnitAddModal`, `georesourceAddModal`) und die drei `editFeatures`-Modals.
+Stand: 2026-08-27, Branch `feature/migration-bootstrap`.
+Bezug: B1 aus [`OFFENE_PUNKTE.md`](OFFENE_PUNKTE.md).
+
+- **Punkte 1–8:** der Reactive-Forms-Umbau — Fundament, die beiden großen Add-Wizards
+  (`spatialUnitAddModal`, `georesourceAddModal`) und die drei `editFeatures`-Modals.
+- **Punkt 9:** das neu portierte Zeitreihen-Mapping (A2) — betrifft den **Einzel**-Import.
+- **Punkt 10:** das zurückportierte Batch-Update. Braucht als einziger Punkt einen laufenden
+  Importer und schreibt echte Daten.
 
 Diese Liste deckt genau das ab, was die automatisierten Tests **nicht** erreichen: Widgets im
-Browser, Objekt-Identität in Selects und die Datei-Import-Round-Trips. Alles andere
-(Validatoren, Body-Builder, Patcher, Serialisierer, Stepper-Logik) ist TestBed-frei abgedeckt
-und läuft über `npm test`.
+Browser, Objekt-Identität in Selects, die Datei-Round-Trips und alles, was einen echten Importer
+voraussetzt. Alles andere (Validatoren, Body-Builder, Patcher, Serialisierer, Stepper-Logik,
+Blocker-Listen, die Batch-Schleife mit ihrem Dry-Run-Gate) ist TestBed-frei abgedeckt und läuft
+über `npm test`.
 
 **Start:** `npm start` → `http://localhost:8000/administration`. Browser-Konsole offen lassen —
 die riskanteste Fehlerklasse (Punkt 1) äußert sich dort als Exception, nicht sichtbar im UI.
@@ -187,6 +193,78 @@ Indikator → „Sachdaten bearbeiten" → Schritt „Räumlicher Datensatz", Ab
 - [ ] **Echter Import:** Mapping füllen und „Zeitreihen fortführen" ausführen → im Netzwerk-Tab
       enthält der POST auf `indicators/update` ein gefülltes `propertyMapping.timeseriesMappings`,
       und die importierten Werte erscheinen danach in der Zeitreihen-Übersicht
+
+## 10. Batch-Update für Indikatoren — zurückportiertes Feature
+
+Bezug: B1/Batch in [`OFFENE_PUNKTE.md`](OFFENE_PUNKTE.md). Das Feature war auf diesem Branch seit
+der Migration funktionslos und ist gegen `origin/master` neu aufgebaut. **Nichts davon war bisher
+im Browser**, und Punkt 10.4 braucht einen laufenden Importer und schreibt echte Daten — am besten
+auf einer Testinstanz.
+
+Indikatoren-Übersicht → Knopf „Batch-Update".
+
+### 10.1 Tabelle und abgeleitete Spalten
+
+- [ ] Zeile hinzufügen/löschen, „alle auswählen" hakt alle Zeilen an und wieder ab
+- [ ] Konverter in einer Zeile wählen → die Parameterspalten dieses Konverters erscheinen
+      (z. B. `Trennzeichen`, `CRS`), Zellen anderer Zeilen ohne diesen Parameter bleiben leer
+- [ ] **Zwei Zeilen mit verschiedenen Konvertern** → die Spaltenüberschriften sind die Vereinigung
+      beider Parametersätze, keine `Cannot find control with name: …`-Exception in der Konsole.
+      Das ist die riskanteste Fehlerklasse des Umbaus (`FormRecord`, vgl. Punkt 1)
+- [ ] Konverter wechseln → gleichnamige Parameterwerte bleiben erhalten, fremde verschwinden
+- [ ] Datenquelltyp `FILE` in einer Zeile → die Datei-Spalte erscheint; Wechsel auf `HTTP` →
+      die gewählte Datei ist verworfen und das URL-Feld erscheint
+- [ ] Indikator- und Ziel-Raumebenen-Select behalten ihre Auswahl, nachdem die Übersichtstabelle
+      im Hintergrund neu geladen wurde (die Selects binden jetzt Ids statt Objekte)
+
+### 10.2 Zeitreihen-Mapping pro Zeile
+
+- [ ] Knopf in der Spalte „Zeitreihen-Mapping" klappt die Zeile auf, der Zähler am Knopf stimmt
+- [ ] Es ist immer nur **eine** Zeile aufgeklappt
+- [ ] Eintrag anlegen (Datepicker!), editieren, löschen — wie in Punkt 9
+
+### 10.3 Standardwert-Funktion
+
+Klappbox „Standardwert-Funktion" unter der Tabelle:
+
+- [ ] Die Spaltenliste enthält die Parameter der aktuell gewählten Konverter/Datenquelltypen
+- [ ] Wert setzen, **ohne** „Bestehende überschreiben" → nur leere Zellen werden gefüllt, der Toast
+      nennt die Anzahl geänderter Zeilen
+- [ ] Mit „Bestehende überschreiben" → alle Zellen werden gesetzt
+- [ ] Spalte „Zeitreihen-Mapping" wählen → das Mapping-Widget erscheint; Anwenden ergänzt die
+      Zeilen-Mappings, ersetzt gleichnamige Einträge aber nur bei „Bestehende überschreiben"
+- [ ] Spaltenwechsel leert den zuvor eingestellten Wert
+- [ ] Die Klappbox lässt sich auf- und zuklappen (sie nutzt jetzt `<expandable-box>`; der alte
+      AdminLTE-Knopf war seit der Migration tot)
+
+### 10.4 Echter Lauf gegen den Importer
+
+- [ ] Solange Pflichtfelder fehlen, ist „Update ausführen" deaktiviert und die Blocker-Liste rechts
+      nennt konkret, was fehlt (Tooltip = erster Blocker)
+- [ ] Zwei Zeilen füllen, **eine davon mit einer absichtlich defekten Datei** → Lauf starten
+- [ ] Während des Laufs erscheint der Fortschritt („Zeile 1 von 2")
+- [ ] Ergebnis-Modal öffnet sich: gemischte Tabelle, die Fehlerzeile hat ein aufklappbares Detail,
+      der Warnhinweis „teilweise angewendet" ist sichtbar
+- [ ] **Verschachteltes Modal prüfen** — Backdrop, Scrollen und Schließen des Ergebnis-Modals über
+      dem Batch-Modal. Dafür gibt es im Repo keinen Präzedenzfall; fällt es durch, kommt das
+      Ergebnis stattdessen inline unter die Tabelle
+- [ ] Nach dem Schließen: „Ergebnis anzeigen" öffnet dieselbe Tabelle erneut
+- [ ] Die Übersichtstabelle zeigt die aktualisierten Zeitreihen
+- [ ] **Klassifikation prüfen:** den erfolgreich aktualisierten Indikator öffnen — die
+      Standard-Klassifikation muss unverändert sein. Fehlt `defaultClassificationMapping` im
+      PUT-Body, leert das Backend sie; im Test ist das gepinnt, im echten Aufruf nicht
+- [ ] **Zugriffsrechte prüfen:** Rechte und Eigentümerschaft des Indikators sind unverändert.
+      Bei einer **neu** verknüpften Ziel-Raumebene erbt sie die Rechte der Metadaten — genau das
+      sagt der Warnbanner im Modal an
+
+### 10.5 Batch-Liste als Datei
+
+- [ ] Liste exportieren, Modal zurücksetzen, wieder importieren → alle Felder stehen wie zuvor
+- [ ] **Eine mit dem alten Client (`master`) exportierte Liste importieren** → Konverter,
+      Datenquelltyp, Parameter, Zeitreihen-Mapping und Ziel-Raumebene werden aufgelöst
+- [ ] Eine FILE-Zeile exportieren → in der Datei steht **kein** Dateiname (ein Upload-Name ist
+      einmalig); nach dem Import muss die Datei neu gewählt werden
+- [ ] Mapping-Tabelle pro Zeile speichern und wieder einlesen
 
 ---
 

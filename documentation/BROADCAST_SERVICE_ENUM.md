@@ -58,7 +58,6 @@ Typisierung prüfen und ggf. löschen statt ins Enum aufnehmen:
 
 ```
 onAddedFeatureToSelection
-reopenBatchUpdateResultModal
 onOpenAddFilterModal
 CSVFromFileFinished_indicatorRegionalReferenceValues   # file-helper.service; Multi-Line-Sender, kein Empfänger
 ```
@@ -326,7 +325,6 @@ allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed # Multi-Line-
 AppendExportButtonsForTable
 applyNoDataDisplay
 availableRolesUpdate
-batchUpdateCompleted
 CSVFromFileFinished_indicatorRegionalReferenceValues   # Multi-Line-Sender (file-helper), kein Empfänger
 changeBreaks
 changeClassifyMethod
@@ -384,7 +382,6 @@ removeRangeFilter
 removeReachabilityScenarioFromMainMap
 removeWfsLayerFromMap
 removeWmsLayerFromMap
-reopenBatchUpdateResultModal
 replaceIndicatorAsGeoJSON
 replaceReachabilityScenarioOnMainMap
 reportingIsochronesCalculationFinished

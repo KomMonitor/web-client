@@ -8,7 +8,7 @@ Basis: Codebestand verifiziert gegen alle Dokumente in `documentation/` und `PRO
 
 | Gate                   | Ergebnis                                            |
 | ---------------------- | --------------------------------------------------- |
-| `npm test`             | 143 Suites / **847 Tests**, 0 failed, **0 skipped** |
+| `npm test`             | 145 Suites / **889 Tests**, 0 failed, **0 skipped** |
 | `npm run lint`         | **0 Errors**, 1278 Warnings                         |
 | `npm run build`        | EXIT 0                                              |
 | `npm run format:check` | **grün** (alle Dateien Prettier-konform)            |
@@ -160,11 +160,11 @@ automatisiert nicht erreichbar.
 
 | Block                                                | `ngModel` | Warum offen                                                                                                                                                                                                                                |
 | ---------------------------------------------------- | --------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `indicatorBatchUpdateModal`                          |         0 | **Port läuft.** Formular umgestellt (0 `ngModel`), `BatchUpdateService` steht, der Run ist verdrahtet; offen sind nur noch das Ergebnis-Modal und die Standardwert-Funktion (2 `TODO(batch-update)`).                                      |
+| `indicatorBatchUpdateModal`                          |         0 | **Port durch** — Formular, `BatchUpdateService`, Run, Ergebnis-Modal und Standardwert-Funktion stehen, kein `TODO(batch-update)` mehr. Offen: manuelle Browser-Tests.                                                                      |
 | Skript-Wizard: kontrollierte Kind-Inputs (4 Dateien) |        14 | `[ngModel]` + `@Output`-Emit bzw. Filterfelder — der bewusste `@Input`/`@Output`-Schrittvertrag, kein template-getriebenes Formular. Die Selects binden Objekte über `[ngValue]`; ein Umbau auf `[value]` würde die Objektbindung brechen. |
 | Grid-Toggles, Filterfelder, Zeilen-Checkboxen        |       ~62 | bewusst außen vor                                                                                                                                                                                                                          |
 
-Vier Punkte aus dem bereits umgebauten Teil:
+Dazu diese Punkte aus dem bereits umgebauten Teil — der letzte hält die Batch-Update-Entscheidung fest:
 
 - **Die Klassifikation (Schritt 5)** ist bewusst **nicht** auf `FormArray` umgebaut. Ihre sechs
   Bindings waren `[ngModel]` + `(ngModelChange)` auf einen signal-basierten Store mit expliziten,
@@ -191,8 +191,12 @@ Vier Punkte aus dem bereits umgebauten Teil:
   `540d1acb` (2025-07-19) hat nur das Template übernommen und einen `setTimeout(2000)`-Fake-Erfolg
   erfunden (entfernt in `c4fdf7b6`); die Logik lag im geteilten Helper, gelöscht am 2026-06-15
   (`39862b75`) samt Ergebnis-Modal und Zeitreihen-Editor. Vorlage liegt verbatim in git.
-  Reihenfolge: Zeitreihen-Mapping (A2, ✅) → `BatchUpdateService` → Zeilenmodell/Reactive Forms →
-  Run → Ergebnis-Modal; Georessourcen optional danach. Der Georessourcen-Zwilling wurde in
+  Reihenfolge: Zeitreihen-Mapping (A2, ✅) → `BatchUpdateService` (✅) → Zeilenmodell/Reactive
+  Forms (✅) → Run (✅) → Ergebnis-Modal (✅) → Standardwert-Funktion (✅). **Der Indikator-Port
+  ist damit fertig**; offen sind die manuellen Browser-Tests und optional die Georessourcen-Variante,
+  für die `BatchUpdateService` und Ergebnis-Modal unverändert nutzbar sind. Mit dem Ergebnis-Modal sind auch die beiden Enum-Member
+  `BatchUpdateCompleted`/`ReopenBatchUpdateResultModal` gelöscht — die in
+  `ADMIN_REFACTORING_ANALYSIS.md:186` notierte Restschuld ist damit abgetragen. Der Georessourcen-Zwilling wurde in
   `d9875a2a` gelöscht, mit der ausdrücklichen Empfehlung, ein künftiges Batch-Update als
   **ressourcen-agnostischen** Baustein neu zu bauen — genau so ist der Port angelegt.
 - **`allowedRoles` vs. `permissions`:** `buildPostBody_georesources` sendet `allowedRoles`,
@@ -334,29 +338,27 @@ Verifiziert gegen den Code am 2026-08-26.
 
 ### Größtenteils abgearbeitet — als Historie lesen
 
-| Datei                                                                              | Befund                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [`ADMIN_REFACTORING_ANALYSIS.md`](ADMIN_REFACTORING_ANALYSIS.md)                   | Analyse von 2026-07-07 plus 33 Fortschrittseinträge; der letzte stammt vom 2026-07-09. Die Arbeit lief danach weiter (Config-Editor-Zusammenführung, Filter-Config, i18n der TS-Strings, statusloser Feature-Table-Helper) — **diese Schritte sind nicht dokumentiert.** Von der 5-Punkte-Empfehlung am Ende sind 1–3 und 5 erledigt, 4 (adminSpatialUnit-Fassade) ebenfalls. Offen bleibt daraus nur der Reactive-Forms-Umbau (B1). |
-| [`BROADCAST_SERVICE_ENUM.md`](BROADCAST_SERVICE_ENUM.md)                           | **Aktuell und abgeschlossen** („Status: ✅ ABGESCHLOSSEN", Cluster 1–7). Kann als Referenz für das Broadcast-Typsystem stehen bleiben.                                                                                                                                                                                                                                                                                               |
-| [`REACHABILITY_STATE_UNIFICATION.md`](REACHABILITY_STATE_UNIFICATION.md)           | **Aktuell und abgeschlossen.** Die dort selbst notierten Ausklammerungen (Map-Helper + Coverage-Reports, beide >1000 Z.) sind in B2 übernommen.                                                                                                                                                                                                                                                                                      |
-| [`STARTUP_IMPROVEMENTS.md`](STARTUP_IMPROVEMENTS.md)                               | **Aktuell**, 11 von 13 Punkten erledigt. Die zwei offenen sind hier als C2 und C3 geführt.                                                                                                                                                                                                                                                                                                                                           |
-| [`REPORTING_CATEGORICAL_INDICATOR_GAP.md`](REPORTING_CATEGORICAL_INDICATOR_GAP.md) | **Aktuell und offen.** Führt die Reporting-Lücke bei kategorischen Indikatoren eigenständig — der einzige bekannte echte Funktionsfehler. Die dort genannten Zeilennummern sind nicht nachgeprüft worden.                                                                                                                                                                                                                            |
-| [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md)             | **Aktuell und offen.** Manuelle Testpfade für den Reactive-Forms-Umbau — genau das, was die automatisierten Tests nicht erreichen (Widgets, Objekt-Identität in Selects, Import-Round-Trips). Nach Risiko sortiert, mit Ankreuzkästchen.                                                                                                                                                                                             |
-| [`COMPONENT_NESTING_TREE.md`](COMPONENT_NESTING_TREE.md)                           | **Inhaltlich korrekt, aber unvollständig.** Alle 34 dort genannten Selektoren existieren. Es fehlen die seither entstandenen geteilten Admin-Bausteine (`app-resource-metadata-form`, `app-role-management-grid`, `app-config-editor-panes`, `app-owner-organization-select`) sowie ein `Stand:`-Datum.                                                                                                                              |
+| Datei                                                                              | Befund                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`ADMIN_REFACTORING_ANALYSIS.md`](ADMIN_REFACTORING_ANALYSIS.md)                   | Analyse von 2026-07-07 plus 34 Fortschrittseinträge. Teil 34 (2026-08-27) hält den Batch-Update-Port fest; davor endete die Kette am 2026-07-09, obwohl die Arbeit weiterlief (Config-Editor-Zusammenführung, Filter-Config, i18n der TS-Strings, statusloser Feature-Table-Helper) — **diese Schritte sind weiterhin nicht dokumentiert.** Von der 5-Punkte-Empfehlung am Ende sind 1–3 und 5 erledigt, 4 (adminSpatialUnit-Fassade) ebenfalls; der Reactive-Forms-Umbau (B1) ist inzwischen ebenfalls durch. |
+| [`BROADCAST_SERVICE_ENUM.md`](BROADCAST_SERVICE_ENUM.md)                           | **Aktuell und abgeschlossen** („Status: ✅ ABGESCHLOSSEN", Cluster 1–7). Kann als Referenz für das Broadcast-Typsystem stehen bleiben.                                                                                                                                                                                                                                                                                                                                                                         |
+| [`REACHABILITY_STATE_UNIFICATION.md`](REACHABILITY_STATE_UNIFICATION.md)           | **Aktuell und abgeschlossen.** Die dort selbst notierten Ausklammerungen (Map-Helper + Coverage-Reports, beide >1000 Z.) sind in B2 übernommen.                                                                                                                                                                                                                                                                                                                                                                |
+| [`STARTUP_IMPROVEMENTS.md`](STARTUP_IMPROVEMENTS.md)                               | **Aktuell**, 11 von 13 Punkten erledigt. Die zwei offenen sind hier als C2 und C3 geführt.                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| [`REPORTING_CATEGORICAL_INDICATOR_GAP.md`](REPORTING_CATEGORICAL_INDICATOR_GAP.md) | **Aktuell und offen.** Führt die Reporting-Lücke bei kategorischen Indikatoren eigenständig — der einzige bekannte echte Funktionsfehler. Die dort genannten Zeilennummern sind nicht nachgeprüft worden.                                                                                                                                                                                                                                                                                                      |
+| [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md)             | **Aktuell und offen.** Manuelle Testpfade für den Reactive-Forms-Umbau — genau das, was die automatisierten Tests nicht erreichen (Widgets, Objekt-Identität in Selects, Import-Round-Trips). Nach Risiko sortiert, mit Ankreuzkästchen.                                                                                                                                                                                                                                                                       |
+| [`COMPONENT_NESTING_TREE.md`](COMPONENT_NESTING_TREE.md)                           | **Inhaltlich korrekt, aber unvollständig.** Alle 34 dort genannten Selektoren existieren. Es fehlen die seither entstandenen geteilten Admin-Bausteine (`app-resource-metadata-form`, `app-role-management-grid`, `app-config-editor-panes`, `app-owner-organization-select`) sowie ein `Stand:`-Datum.                                                                                                                                                                                                        |
 
 ---
 
 ## Empfohlene Reihenfolge
 
 1. **Manuelle Tests** — [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md)
-   abarbeiten. Elf umgestellte Formulare hängen daran, keines war bisher im Browser.
-2. **Batch-Update zurückportieren** — B1/Batch, Schritte 2 ff.: `BatchUpdateService`,
-   Zeilenmodell + Reactive Forms, Run, Ergebnis-Modal. Schritt 1 (Zeitreihen-Mapping, A2) ist
-   erledigt.
-3. **B1-Restposten** — die Übergangs-Accessoren abbauen, `stateRevision` auflösen und die
+   abarbeiten. Elf umgestellte Formulare plus das zurückportierte Batch-Update hängen daran,
+   nichts davon war bisher im Browser. Punkt 10 braucht einen laufenden Importer.
+2. **B1-Restposten** — die Übergangs-Accessoren abbauen, `stateRevision` auflösen und die
    `allowedRoles`/`permissions`-Frage klären.
-4. **A1** — Entscheidung zu `feedbackModal` / `individualIndicatorComputation`; damit fällt auch
+3. **A1** — Entscheidung zu `feedbackModal` / `individualIndicatorComputation`; damit fällt auch
    ein Teil von C3 weg.
-5. **C2 + C3** — Logger-Service, danach `no-console` auf `error`; Rest der `__env`-Zugriffe.
-6. **B3 + D** — Kommentar- und Doku-Bereinigung (billig, hoher Orientierungswert).
-7. **Laufend:** B2 (große Services) und C4 (i18n UserInterface) im Zuge regulärer Feature-Arbeit.
+4. **C2 + C3** — Logger-Service, danach `no-console` auf `error`; Rest der `__env`-Zugriffe.
+5. **B3 + D** — Kommentar- und Doku-Bereinigung (billig, hoher Orientierungswert).
+6. **Laufend:** B2 (große Services) und C4 (i18n UserInterface) im Zuge regulärer Feature-Arbeit.

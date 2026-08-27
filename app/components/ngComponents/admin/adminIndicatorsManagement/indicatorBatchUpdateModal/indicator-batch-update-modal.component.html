@@ -297,6 +297,174 @@
   <hr />
   <br />
 
+  <!-- Fill one column across all rows -->
+  <div class="row">
+    <div class="col-12">
+      <expandable-box
+        [title]="'ADMIN_INDICATORS.BATCH_MODAL.DEFAULT_VALUE_FUNCTION' | translate"
+        [collapsed]="true"
+      >
+        <div [formGroup]="defaultValueForm">
+          <div class="help-block">
+            <p>
+              {{ 'ADMIN_INDICATORS.BATCH_MODAL.DEFAULT_HELP_1' | translate }}<br />
+              {{ 'ADMIN_INDICATORS.BATCH_MODAL.DEFAULT_HELP_2' | translate }}<br />
+              {{ 'ADMIN_INDICATORS.BATCH_MODAL.DEFAULT_HELP_3' | translate }}<br />
+              {{ 'ADMIN_INDICATORS.BATCH_MODAL.DEFAULT_HELP_4' | translate }}
+            </p>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-sm-6 col-12">
+              <div class="form-group">
+                <label for="batch-default-column">
+                  {{ 'ADMIN_INDICATORS.BATCH_MODAL.TABLE_COLUMN' | translate }}
+                </label>
+                <select
+                  id="batch-default-column"
+                  class="form-control"
+                  formControlName="column"
+                  (change)="onChangeDefaultColumn()"
+                >
+                  <option value="">
+                    {{ 'ADMIN_INDICATORS.BATCH_MODAL.SELECT_TABLE_COLUMN_OPTION' | translate }}
+                  </option>
+                  @for (target of columnTargets(); track columnTargetValue(target)) {
+                    <option [value]="columnTargetValue(target)">
+                      @if (columnTargetLabelKey(target); as key) {
+                        {{ key | translate }}
+                      } @else {
+                        {{ columnTargetPlainLabel(target) }}
+                      }
+                    </option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <div class="col-md-6 col-sm-6 col-12">
+              <div class="form-group">
+                <label for="batch-default-value">
+                  {{ 'ADMIN_INDICATORS.VALUE' | translate }}
+                </label>
+
+                @if (selectedColumnTarget(); as target) {
+                  @switch (target.kind) {
+                    @case ('timeseriesMappings') {
+                      <app-timeseries-mapping-form formControlName="timeseriesMappings" />
+                    }
+                    @case ('converter') {
+                      <select
+                        id="batch-default-value"
+                        class="form-control"
+                        formControlName="converterValue"
+                      >
+                        <option [ngValue]="null">
+                          {{
+                            'ADMIN_INDICATORS.BATCH_MODAL.SELECT_DATASET_SOURCE_FORMAT_OPTION'
+                              | translate
+                          }}
+                        </option>
+                        @for (converter of availableConverters(); track converter.name) {
+                          <option [ngValue]="converter">{{ converter.name }}</option>
+                        }
+                      </select>
+                    }
+                    @case ('datasourceType') {
+                      <select
+                        id="batch-default-value"
+                        class="form-control"
+                        formControlName="datasourceTypeValue"
+                      >
+                        <option [ngValue]="null">
+                          {{ 'ADMIN_INDICATORS.SELECT_DATASOURCE_TYPE_OPTION' | translate }}
+                        </option>
+                        @for (
+                          datasourceType of availableDatasourceTypes();
+                          track datasourceType.type
+                        ) {
+                          <option [ngValue]="datasourceType">{{ datasourceType.type }}</option>
+                        }
+                      </select>
+                    }
+                    @default {
+                      @if (target.kind === 'text' && target.control === 'targetSpatialUnitId') {
+                        <select
+                          id="batch-default-value"
+                          class="form-control"
+                          formControlName="textValue"
+                        >
+                          <option value="">
+                            {{ 'ADMIN_INDICATORS.SELECT_SPATIAL_UNIT_OPTION' | translate }}
+                          </option>
+                          @for (
+                            spatialUnit of spatialUnitStore.availableSpatialUnits;
+                            track spatialUnit.spatialUnitId
+                          ) {
+                            <option [value]="spatialUnit.spatialUnitId">
+                              {{ spatialUnit.spatialUnitLevel }}
+                            </option>
+                          }
+                        </select>
+                      } @else if (columnTargetOptions(target).length) {
+                        <select
+                          id="batch-default-value"
+                          class="form-control"
+                          formControlName="textValue"
+                        >
+                          <option value="">
+                            {{ 'ADMIN_INDICATORS.SELECT_SOURCE_FORMAT_OPTION' | translate }}
+                          </option>
+                          @for (option of columnTargetOptions(target); track option) {
+                            <option [value]="option">{{ option }}</option>
+                          }
+                        </select>
+                      } @else {
+                        <input
+                          id="batch-default-value"
+                          type="text"
+                          class="form-control"
+                          formControlName="textValue"
+                        />
+                      }
+                    }
+                  }
+                } @else {
+                  <input
+                    id="batch-default-value"
+                    type="text"
+                    class="form-control"
+                    disabled
+                    [placeholder]="'ADMIN_INDICATORS.BATCH_MODAL.NO_COLUMN_SELECTED' | translate"
+                  />
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-12">
+              <label for="batch-default-replace-all">
+                {{ 'ADMIN_INDICATORS.BATCH_MODAL.OVERWRITE_EXISTING' | translate }}
+              </label>
+              <input id="batch-default-replace-all" type="checkbox" formControlName="replaceAll" />
+            </div>
+            <div class="col-12">
+              <button
+                type="button"
+                class="btn btn-primary"
+                [disabled]="!selectedColumnTarget()"
+                (click)="onClickSaveColDefaultValue()"
+              >
+                {{ 'ADMIN_INDICATORS.BATCH_MODAL.APPLY_DEFAULT_VALUE' | translate }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </expandable-box>
+    </div>
+  </div>
+
   <div class="row vertical-align">
     <div class="col-md-4 col-sm-4 col-12">
       <div class="form-group">
@@ -368,6 +536,16 @@
     <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
       'ADMIN_INDICATORS.BATCH_MODAL.EXPORT_BATCH_LIST' | translate
     }}
+  </button>
+
+  <button
+    id="indicator-reopen-results-btn"
+    type="button"
+    class="btn btn-info"
+    [disabled]="!lastResults()"
+    (click)="openResultModal()"
+  >
+    {{ 'ADMIN_INDICATORS.BATCH_MODAL.SHOW_RESULT' | translate }}
   </button>
 
   <button
