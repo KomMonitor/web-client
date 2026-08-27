@@ -4,15 +4,14 @@ import { SpatialUnitOverviewType } from 'models/data-management-api';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 /**
- * Indicator metadata store extracted from DataExchangeService
- * (Prio 7 / B6d — see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ * Indicator metadata store. Extracted in the Prio 7 god-service split
+ * (see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
  *
  * Owns the indicator collection (availableIndicators + id-map) and the derived
  * displayableIndicators. Depends only on EnvConfigService (decimals / hide-substrings).
  * Cross-domain inputs are passed in: modifyIndicatorApplicableSpatialUnitsForLoginRoles
- * receives availableSpatialUnits as a param; the B4 field displayableIndicators_keywordFiltered
- * stays in the DataExchangeService facade. The facade re-exposes availableIndicators /
- * displayableIndicators via getters so its consumers stay unchanged.
+ * receives availableSpatialUnits as a param; the keyword-filtered view
+ * (displayableIndicators_keywordFiltered) lives in MetadataFilterService.
  */
 @Injectable({
   providedIn: 'root',

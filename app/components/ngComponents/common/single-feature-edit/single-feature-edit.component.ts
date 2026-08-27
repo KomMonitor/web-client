@@ -93,8 +93,6 @@ export class SingleFeatureEditComponent implements OnInit {
   }
 
   // init datepickers
-  /* $('#georesourceSingleFeatureDatepickerEnd').datepicker(kommonitorDataExchangeService.datePickerOptions);
-        $('#georesourceSingleFeatureDatepickerStart').datepicker(kommonitorDataExchangeService.datePickerOptions); */
 
   onEditGeoresourceFeatures([georesourceDataset, isReachabilityDatasetOnly]) {
     if (

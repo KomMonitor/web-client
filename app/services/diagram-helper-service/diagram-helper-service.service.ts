@@ -40,7 +40,8 @@ export class DiagramHelperServiceService {
   private indicatorValueService = inject(IndicatorValueService);
   private selectionState = inject(SelectionStateService);
 
-  // Local precision-resolving wrappers (formerly the DataExchangeService facade glue, Prio7 B1).
+  // Resolve the indicator precision from the current selection before
+  // delegating to IndicatorValueService.
   private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
     return this.indicatorValueService.getIndicatorValue_asNumber(
       indicatorValue,
@@ -186,17 +187,6 @@ export class DiagramHelperServiceService {
         indicatorCandidateYears.push(date.split('-')[0]);
       });
 
-      // if (indicatorCandidateYears.includes(targetYear) && indicatorMetadata.applicableSpatialUnits.some(o => o.spatialUnitName ===  kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)) {
-      //   var selectableIndicatorEntry = {};
-      //   selectableIndicatorEntry.indicatorProperties = null;
-      //   // per default show no indicators on radar
-      //   selectableIndicatorEntry.isSelected = false;
-      //   selectableIndicatorEntry.indicatorMetadata = indicatorMetadata;
-      //   selectableIndicatorEntry.closestTimestamp = undefined;
-
-      //   this.indicatorPropertiesForCurrentSpatialUnitAndTime.push(selectableIndicatorEntry);
-      // }
-
       if (
         indicatorMetadata.applicableSpatialUnits.some(
           (o) => o.spatialUnitName === this.selectionState.selectedSpatialUnit.spatialUnitLevel
@@ -236,7 +226,6 @@ export class DiagramHelperServiceService {
       this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties === null ||
       this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties === undefined
     ) {
-      // var dateComps = kommonitorDataExchangeService.selectedDate.split("-");
       //
       // 	var year = dateComps[0];
       // 	var month = dateComps[1];
@@ -742,7 +731,6 @@ export class DiagramHelperServiceService {
             typeof regionalReferenceValuesEntry.regionalAverage == 'number'
           ) {
             meanLineValue = regionalReferenceValuesEntry.regionalAverage;
-            // meanLineValue = parseFloat(kommonitorDataExchangeService.allFeaturesRegionalMean.replace(/\./g, '').replace(/,/g, '.'));
             meanLineLabel = 'gesamtregionaler Durchschnitt';
             regionalMeanValueUsed = true;
           }
@@ -1330,21 +1318,6 @@ export class DiagramHelperServiceService {
             title: 'Datenansicht',
             lang: ['Datenansicht - Zeitreihe', 'schlie&szlig;en', 'refresh'],
             optionToContent: (opt) => {
-              // 	<table class="table table-condensed table-hover">
-              // 	<thead>
-              // 		<tr>
-              // 			<th>Indikator-Name</th>
-              // 			<th>Beschreibung der Verkn&uuml;pfung</th>
-              // 		</tr>
-              // 	</thead>
-              // 	<tbody>
-              // 		<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
-              // 			<td>{{indicator.referencedIndicatorName}}</td>
-              // 			<td>{{indicator.referencedIndicatorDescription}}</td>
-              // 		</tr>
-              // 	</tbody>
-              // </table>
-
               const lineSeries = opt.series;
               const timestamps = opt.xAxis[0].data;
 
@@ -2533,225 +2506,4 @@ export class DiagramHelperServiceService {
 
     return copy;
   }
-
-  /* 
-  setHistogramChartOptions = function (indicatorMetadataAndGeoJSON, indicatorValueArray, spatialUnitName, date) {
-    var bins;
-    try {
-      bins = ecStat.histogram(indicatorValueArray);
-    }
-    catch (error) {
-      console.log("Histogram chart cannot be drawn - error in bins creation");
-      // kommonitorDataExchangeService.displayMapApplicationError(error);          
-    }
-
-    // default fontSize of echarts title
-    var fontSize = 18;
-    var histogramChartTitel = 'Histogramm - ' + spatialUnitName + ' - ';
-    if (indicatorMetadataAndGeoJSON.fromDate) {
-      histogramChartTitel += "Bilanz " + indicatorMetadataAndGeoJSON.fromDate + " - " + indicatorMetadataAndGeoJSON.toDate;
-      fontSize = 14;
-    }
-    else {
-      histogramChartTitel += date;
-    }
-
-    var histogramOption = {
-      // grid get rid of whitespace around chart
-      grid: {
-        left: '4%',
-        top: 32,
-        right: '4%',
-        bottom: 35,
-        containLabel: true
-      },
-      title: {
-        text: histogramChartTitel,
-        left: 'center',
-        textStyle: {
-          fontSize: fontSize
-        },
-        show: false
-        // top: 15
-      },
-      tooltip: {
-        trigger: 'item',
-        confine: 'true',
-        axisPointer: {
-          type: 'line',
-          crossStyle: {
-            color: '#999'
-          }
-        }
-      },
-      toolbox: {
-        show: true,
-        right: '15',
-        feature: {
-          // mark : {show: true},
-          dataView: {
-            show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Histogramm', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
-
-              // 	<table class="table table-condensed table-hover">
-              // 	<thead>
-              // 		<tr>
-              // 			<th>Indikator-Name</th>
-              // 			<th>Beschreibung der Verkn&uuml;pfung</th>
-              // 		</tr>
-              // 	</thead>
-              // 	<tbody>
-              // 		<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
-              // 			<td>{{indicator.referencedIndicatorName}}</td>
-              // 			<td>{{indicator.referencedIndicatorDescription}}</td>
-              // 		</tr>
-              // 	</tbody>
-              // </table>
-
-              var histogramData = opt.series[0].data;
-
-              var dataTableId = "histogramDataTable_" + Math.random();
-              var tableExportName = opt.xAxis[0].name + " - " + opt.title[0].text;
-
-              var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
-              htmlString += "<thead>";
-              htmlString += "<tr>";
-              htmlString += "<th style='text-align:center;'>Wertintervall</th>";
-              htmlString += "<th style='text-align:center;'>H&auml;ufigkeit</th>";
-              htmlString += "</tr>";
-              htmlString += "</thead>";
-
-              htmlString += "<tbody>";
-
-              for (var i = 0; i < histogramData.length; i++) {
-                htmlString += "<tr>";
-                htmlString += "<td>" + histogramData[i][0] + " &mdash; " + histogramData[i][1] + "</td>";
-                htmlString += "<td>" + histogramData[i][2] + "</td>";
-                htmlString += "</tr>";
-              }
-
-              htmlString += "</tbody>";
-              htmlString += "</table>";
-
-              $rootScope.$broadcast("AppendExportButtonsForTable", dataTableId, tableExportName);
-
-              return htmlString;
-            }
-          },
-          restore: { show: false, title: "Erneuern" },
-          saveAsImage: { show: true, title: "Export", pixelRatio: 4 }
-        }
-      },
-      xAxis: [{
-        name: indicatorMetadataAndGeoJSON.indicatorName,
-        nameLocation: 'center',
-        nameGap: 22,
-        scale: true,
-      }],
-      yAxis: {
-        name: 'Anzahl Features',
-        axisLabel: {
-          formatter: function (value, index) {
-            return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value);
-          }
-        }
-        // nameGap: 35,
-        // nameLocation: 'center',
-        // nameRotate: 90,
-      },
-      series: [{
-        type: 'custom',
-        name: indicatorMetadataAndGeoJSON.indicatorName,
-        renderItem: function (params, api) {
-          var yValue = api.value(2);
-          var start = api.coord([api.value(0), yValue]);
-          var size = api.size([api.value(1) - api.value(0), yValue]);
-          return {
-            type: 'rect',
-            shape: {
-              x: start[0],
-              y: start[1],
-              width: size[0] * 0.99,
-              height: size[1]
-            },
-            style: api.style()
-          };
-        },
-        itemStyle: {
-          color: '#337ab7'
-        },
-        // label: {
-        //     normal: {
-        //         show: true,
-        //         position: 'insideTop'
-        //     }
-        // },
-        dimensions: ['untere Intervallgrenze', 'obere Intervallgrenze', 'Anzahl'],
-        encode: {
-          x: [0, 1],
-          y: 2,
-          tooltip: [0, 1, 2]
-        },
-        data: bins ? bins.customData : undefined
-      }]
-    };
-
-    // var option = {
-    //     title: {
-    //         text: 'Histogram Chart',
-    //         left: 'center',
-    //         top: 20
-    //     },
-    // 		tooltip: {
-    // 					trigger: 'axis',
-    // 					axisPointer: {
-    // 							type: 'line',
-    // 							crossStyle: {
-    // 									color: '#999'
-    // 							}
-    // 					}
-    // 				},
-    //     color: ['rgb(25, 183, 207)'],
-    //     grid: {
-    //         left: '3%',
-    //         right: '3%',
-    //         bottom: '3%',
-    //         containLabel: true
-    //     },
-    // 		xAxis: [{
-    // 				type: 'value',
-    // 					name: 'Wertintervalle',
-    // 					nameLocation: 'center',
-    // 					nameGap: 15,
-    //             scale: true,
-    //         }],
-    //         yAxis: {
-    // 					type: 'value',
-    // 					name: 'Anzahl Features',
-    // 					nameGap: 22,
-    // 					nameLocation: 'center',
-    // 					nameRotate: 90,
-    //         },
-    //     series: [{
-    //         name: 'Anzahl',
-    //         type: 'bar',
-    // 				barWidth: '99,3%',
-    //         // label: {
-    //         //     normal: {
-    //         //         show: true,
-    //         //         position: 'insideTop',
-    //         //         formatter: function (params) {
-    //         //             return params.value[1];
-    //         //         }
-    //         //     }
-    //         // },
-    //         data: bins.data
-    //     }]
-    // };
-
-    if (onlyContainsPositiveNumbers(indicatorValueArray)) {
-      histogramOption.xAxis.min = 0;
-    }
-
-    self.histogramChartOptions = histogramOption;
-  }; */
 }

@@ -116,32 +116,6 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
       });
   }
 
-  /* 
-			$('#manualDateDatepicker_reachabilityConfig').datepicker(kommonitorDataExchangeService.datePickerOptions);
- 
-  let input = document.getElementById("isochroneCutInput");
-  input.addEventListener("keypress", function isInputAllowed(evt) {
-    var code = (evt.keyCode ? evt.keyCode : evt.which);
-    if (code == 8) { //Backspace key press
-      return true;
-    } else {
-      var ch = String.fromCharCode(evt.which);
-      if (!(/[0-9,]/.test(ch))) {
-        evt.preventDefault();
-      }
-    }
-  });
-
-  // If the reporting modal is shown we want to integrate this component there.
-  // A couple of modifications need to be done to achieve that.
-  // These are controlled by setting a variable and checking it when needed.
-  $('#reporting-modal').on('hidden.bs.modal', function (e) {
-    this.isUsedInReporting = false;
-    $timeout(function () {
-      this.$digest();
-    });
-  })*/
-
   switchReportingMode([isUsedInReporting]) {
     this.isUsedInReporting = isUsedInReporting;
   }

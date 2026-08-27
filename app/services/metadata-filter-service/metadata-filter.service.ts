@@ -6,13 +6,13 @@ import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-s
 import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
 
 /**
- * Indicator keyword/type filtering extracted from DataExchangeService
- * (Prio 7 / B4 — see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ * Indicator keyword/type filtering. Extracted in the Prio 7 god-service split
+ * (see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
  *
- * The georesource filtering moved with B6e into GeoresourceMetadataStoreService; this service
- * holds the remaining indicator keyword filter. It reads the (already extracted) metadata stores
- * and triggers the indicator hierarchy rebuilds via TopicHierarchyStoreService. The
- * DataExchangeService facade re-exposes displayableIndicators_keywordFiltered + the methods.
+ * The georesource filtering lives in GeoresourceMetadataStoreService; this service
+ * holds the indicator keyword filter and owns displayableIndicators_keywordFiltered.
+ * It reads the metadata stores and triggers the indicator hierarchy rebuilds via
+ * TopicHierarchyStoreService.
  */
 @Injectable({
   providedIn: 'root',

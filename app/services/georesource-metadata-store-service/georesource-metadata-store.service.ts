@@ -7,14 +7,13 @@ import { WmsResourceType, WmsDataset } from 'components/ngComponents/models/serv
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
 
 /**
- * Georesource / WMS / WFS metadata store + filtering, extracted from DataExchangeService
- * (Prio 7 / B6e + B4-georesource — see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ * Georesource / WMS / WFS metadata store + filtering. Extracted in the Prio 7
+ * god-service split (see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
  *
- * Combines the georesource/WMS/WFS domain store (B6e) with its keyword/type filtering (B4)
+ * Combines the georesource/WMS/WFS domain store with its keyword/type filtering
  * because the two are mutually coupled (setGeoresources <-> onChangeGeoresourceKeywordFilter).
  * Cross-domain inputs come from injected stores (availableTopics from TopicMetadataStoreService;
- * hierarchy build via TopicHierarchyStoreService). The DataExchangeService facade re-exposes the
- * fields via getters so its consumers stay unchanged.
+ * hierarchy build via TopicHierarchyStoreService).
  */
 @Injectable({
   providedIn: 'root',
@@ -364,10 +363,6 @@ export class GeoresourceMetadataStoreService {
         return false;
       }
     });
-  }
-
-  removeAoiGeoresource(_aoiGeoresource) {
-    //return this.ajskommonitorDataExchangeServiceeProvider.removeAoiGeoresource(aoiGeoresource);
   }
 
   isDisplayableGeoresource(item) {

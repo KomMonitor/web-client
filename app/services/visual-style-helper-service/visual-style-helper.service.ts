@@ -24,7 +24,8 @@ export class VisualStyleHelperServiceNew {
   private selectionState = inject(SelectionStateService);
   private classificationState = inject(ClassificationStateService);
 
-  // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
+  // Resolve the indicator precision from the current selection before
+  // delegating to IndicatorValueService.
   private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
     return this.indicatorValueService.getIndicatorValue_asNumber(
       indicatorValue,

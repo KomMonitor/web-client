@@ -6,12 +6,12 @@
 ></app-admin-content-view>
 
 <ng-template #controls>
-  <!-- TODO: needs to be integrated in button [disabled]="!dataExchangeService.checkCreatePermission()" -->
+  <!-- TODO: gate this button on AccessControlService.checkCreatePermission() -->
   <button class="btn btn-success btn-sm" type="button" (click)="onClickAddScript()">
     <i class="fas fa-plus"></i> {{ 'ADMIN_SHARED.CREATE' | translate }}
   </button>
 
-  <!-- TODO: needs to be integrated in button [disabled]="!dataExchangeService.checkDeletePermission() || selectedRows.length === 0" -->
+  <!-- TODO: additionally gate this button on AccessControlService.checkDeletePermission() -->
   <button
     class="btn btn-danger btn-sm"
     type="button"

@@ -2,13 +2,13 @@ import { Injectable, inject } from '@angular/core';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 /**
- * Pure indicator value / formatting utilities extracted from DataExchangeService
- * (Prio 7 / B1 — see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ * Pure indicator value / formatting utilities. Extracted in the Prio 7 god-service
+ * split (see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
  *
  * Deliberately stateless: depends only on EnvConfigService (decimals / date prefix)
- * and its parameters. The selection-derived `precision` (formerly read from
- * `selectedIndicator.precision`) is passed in by the DataExchangeService facade, so
- * this service never touches shared selection state.
+ * and its parameters. The selection-derived `precision` is passed in by each caller
+ * (see their local precision-resolving wrappers), so this service never touches
+ * shared selection state.
  */
 @Injectable({
   providedIn: 'root',

@@ -158,28 +158,6 @@ export class UserInterfaceComponent implements OnInit {
     });
   }
 
-  /*
-
-		$scope.checkBalanceButtonAndMenueState = function(){
-			// disable if indicator is dynamic or if indicator only contains 1 or less timeseries entries
-			if(this.selectionState.selectedIndicator && (this.selectionState.selectedIndicator.indicatorType.includes("DYNAMIC") || this.selectionState.selectedIndicator.applicableDates.length < 2)){
-				$scope.buttonBalanceClass = "btn btn-custom btn-circle disabled";
-				$scope.sidebarBalanceClass = "disappear";
-			}
-			else{
-				$scope.buttonBalanceClass = "btn btn-custom btn-circle";		
-        if (kommonitorDataExchangeService.isBalanceChecked) {
-					$scope.buttonBalanceClass = "btn btn-custom btn-circle balanceActive";
-				}
-			}
-		};
-
-		$scope.$on("checkBalanceMenueAndButton", function(event){
-			$scope.checkBalanceButtonAndMenueState();
-		});
-
-
- */
   onRecenterMapButtonClick() {
     this.mapService.setMapRecenterState({ recenter: true });
   }

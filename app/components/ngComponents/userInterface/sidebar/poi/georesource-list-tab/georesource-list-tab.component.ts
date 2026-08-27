@@ -17,7 +17,7 @@ import { GeoresourceExportModeService } from 'components/ngComponents/userInterf
 /**
  * The "Alphabetische Listen" tab: per-type expandable boxes (POI/LOI/AOI/WMS/WFS)
  * listing the keyword-filtered georesources alphabetically. Reads the filtered
- * collections from {@link DataExchangeService}; layer/favourite side effects come
+ * collections from {@link GeoresourceMetadataStoreService}; layer/favourite side effects come
  * from the shared services. Tree-coupled selection (toggle/zoom) is delegated to
  * the host {@link PoiComponent}.
  */

@@ -102,8 +102,6 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
       });
   }
 
-  //$('#manualDateDatepicker_reachabilityAnalysis').datepicker(this.dataExchangeService.datePickerOptions);
-
   init() {
     this.mapParts = this.reachabilityMapHelperService.initReachabilityGeoMap(this.domId);
   }

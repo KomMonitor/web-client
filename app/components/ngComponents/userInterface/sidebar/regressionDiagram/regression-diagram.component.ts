@@ -95,7 +95,8 @@ export class RegressionDiagramComponent implements OnInit, AfterViewInit, OnDest
 
   chartTitle!: string;
 
-  // Local precision-resolving wrappers (formerly the DataExchangeService facade glue, Prio7 B1).
+  // Resolve the indicator precision from the current selection before
+  // delegating to IndicatorValueService.
   private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
     return this.indicatorValueService.getIndicatorValue_asNumber(
       indicatorValue,
@@ -883,21 +884,6 @@ export class RegressionDiagramComponent implements OnInit, AfterViewInit, OnDest
                 title: 'Datenansicht',
                 lang: [dataViewTitle, 'schlie&szlig;en', 'refresh'],
                 optionToContent: (opt) => {
-                  // 	<table class="table table-condensed table-hover">
-                  // 	<thead>
-                  // 		<tr>
-                  // 			<th>Indikator-Name</th>
-                  // 			<th>Beschreibung der Verkn&uuml;pfung</th>
-                  // 		</tr>
-                  // 	</thead>
-                  // 	<tbody>
-                  // 		<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
-                  // 			<td>{{indicator.referencedIndicatorName}}</td>
-                  // 			<td>{{indicator.referencedIndicatorDescription}}</td>
-                  // 		</tr>
-                  // 	</tbody>
-                  // </table>
-
                   // has properties "name" and "value"
                   // value: [Number(xAxisDataElement.toFixed(4)), Number(yAxisDataElement.toFixed(4))]
                   const scatterSeries = opt.series[0].data;

@@ -197,45 +197,4 @@ export class ReachabilityScenarioModalComponent implements OnInit {
             return 1;
         });
       } */
-
-  /*
-			$scope.initFeatureSchema = async function () {
-				kommonitorReachabilityHelperService.settings.selectedStartPointLayer.featureSchemaProperties = [];
-
-				return await $http({
-					url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + kommonitorReachabilityHelperService.settings.selectedStartPointLayer.georesourceId + "/schema",
-					method: "GET",
-					// headers: {
-					//    'Content-Type': undefined
-					// }
-				}).then(function successCallback(response) {
-
-					kommonitorReachabilityHelperService.settings.selectedStartPointLayer.schemaObject = response.data;
-
-					for (var property in kommonitorReachabilityHelperService.settings.selectedStartPointLayer.schemaObject) {
-						if (property != this.envConfigService.FEATURE_ID_PROPERTY_NAME && property != this.envConfigService.FEATURE_NAME_PROPERTY_NAME && property != this.envConfigService.VALID_START_DATE_PROPERTY_NAME && property != this.envConfigService.VALID_END_DATE_PROPERTY_NAME) {
-							kommonitorReachabilityHelperService.settings.selectedStartPointLayer.featureSchemaProperties.push(
-								{
-									property: property,
-									value: undefined
-								}
-							);
-						}
-					}
-
-					return kommonitorReachabilityHelperService.settings.selectedStartPointLayer.schemaObject;
-
-				}, function errorCallback(error) {
-
-				});
-			};
- */
-
-  /* 
-			// react on events from single feature edit menu
-			$scope.$on("georesourceGeoJSONUpdated", function(event, geoJSON){
-				// simply update geoJSON of reachability layer
-				kommonitorReachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability = geoJSON;
-			});			
- */
 }

@@ -9,13 +9,11 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 /**
- * Permissions / roles / access-control state and logic extracted from
- * DataExchangeService (Prio 7 / B3 — see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ * Permissions / roles / access-control state and logic. Extracted in the Prio 7
+ * god-service split (see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
  *
  * Cohesive block: owns its own state (Keycloak/KomMonitor login info, accessControl
- * collections, available roles) and only mutates that state. The DataExchangeService
- * facade re-exposes the externally/orchestration-used fields via get/set delegation,
- * so its consumers and the remaining auth/fetch orchestration stay unchanged.
+ * collections, available roles) and only mutates that state.
  */
 @Injectable({
   providedIn: 'root',
@@ -51,8 +49,8 @@ export class AccessControlService {
 
   /**
    * Populate the current login roles/groups/admin flag from a parsed Keycloak token
-   * (Prio 7 / B2 — moved out of the DataExchangeService bootstrap, which should not
-   * own auth state derivation).
+   * (moved out of the metadata bootstrap in the Prio 7 god-service split — the
+   * bootstrap should not own auth state derivation).
    */
   applyLoginStateFromToken(tokenParsed: KeycloakTokenParsed | undefined) {
     if (tokenParsed && tokenParsed.realm_access && tokenParsed.realm_access.roles) {
