@@ -1,6 +1,6 @@
 # Offene Punkte — Stand nach Abschluss der Migration
 
-Stand: 2026-08-26, Branch `feature/migration-bootstrap`.
+Stand: 2026-08-27, Branch `feature/migration-bootstrap`.
 Basis: Codebestand verifiziert gegen alle Dokumente in `documentation/` und `PROPOSED_CHANGES.md`.
 
 **Ausgangslage:** Die AngularJS → Angular-Migration und der Modernisierungsplan aus
@@ -8,8 +8,8 @@ Basis: Codebestand verifiziert gegen alle Dokumente in `documentation/` und `PRO
 
 | Gate                   | Ergebnis                                            |
 | ---------------------- | --------------------------------------------------- |
-| `npm test`             | 145 Suites / **889 Tests**, 0 failed, **0 skipped** |
-| `npm run lint`         | **0 Errors**, 1278 Warnings                         |
+| `npm test`             | 146 Suites / **894 Tests**, 0 failed, **0 skipped** |
+| `npm run lint`         | **0 Errors**, 1274 Warnings                         |
 | `npm run build`        | EXIT 0                                              |
 | `npm run format:check` | **grün** (alle Dateien Prettier-konform)            |
 
@@ -164,6 +164,69 @@ automatisiert nicht erreichbar.
 | Skript-Wizard: kontrollierte Kind-Inputs (4 Dateien) |        14 | `[ngModel]` + `@Output`-Emit bzw. Filterfelder — der bewusste `@Input`/`@Output`-Schrittvertrag, kein template-getriebenes Formular. Die Selects binden Objekte über `[ngValue]`; ein Umbau auf `[value]` würde die Objektbindung brechen. |
 | Grid-Toggles, Filterfelder, Zeilen-Checkboxen        |       ~62 | bewusst außen vor                                                                                                                                                                                                                          |
 
+#### B1-Restposten — ✅ erledigt (2026-08-27)
+
+Die drei in der „Empfohlenen Reihenfolge" als Punkt 2 geführten Restposten sind umgesetzt.
+
+**1. Übergangs-Accessoren abgebaut.** Beide Add-Wizards hatten je ~25 `get/set`-Paare, die
+Formular-Controls unter den historischen Feldnamen spiegelten. Sie sind weg; die Aufrufstellen
+lesen und schreiben die typisierte Form direkt, die Templates lesen sie über `@let`-Bindungen
+(`@let selectedConverter = importerForm.controls.converter.value;` usw.), die Specs über
+`patchValue`/`getRawValue` statt über die Accessoren. Erhalten geblieben sind nur die echten
+Konvenienz-Getter (`metadataForm`, `metadata`, `importerForm`, `styleGroup`, die `*Invalid`-Sichten
+und die abgeleiteten `isPOI`/`isLOI`/`isAOI`). Nebenbei mitgenommen:
+
+- `importerObjectsConfig()` bzw. der Importer-Aufruf in beiden Wizards bauen ihre 15 Felder jetzt
+  über das geteilte `importerFormToConfig(...)` statt Feld für Feld.
+- Die Entwurfszeile des Attribut-Mappings der Georessourcen nutzt die geteilten Helfer
+  (`attributeMappingDraftToRow`/`patchAttributeMappingDraft`/`resetAttributeMappingDraft`,
+  `addOrUpdateAttributeMapping`) und ihr Button-Gate ist wie beim Zwilling ein
+  `attributeMappingDraft.invalid`.
+- Die beiden Farbwähler der Georessourcen hängen per `[formControl]` am Stil-Formular statt per
+  `[(color)]` an einem Accessor; `PoiMarkerColor` hat sein `colorValue` jetzt typisiert (bis dahin
+  lief der Template-Zugriff über `any`).
+- Zwei tote Handler (`onChangeMimeType`, `onChangeDatasourceType`) und der No-op
+  `this.georesourceType = this.georesourceType` sind entfallen.
+
+**2. `stateRevision` aufgelöst.** Der Zähler und die sieben (mit der Schale: acht)
+`effect(() => { state.stateRevision(); cdr.markForCheck(); })` sind gelöscht. Statt aller Felder
+mussten nur die **asynchron geschriebenen Template-Lesestellen** reaktiv werden — das waren fünf:
+`indicatorType` und `datasetNameInvalid` (neues `controlStateSignal(...)` neben
+`controlInvalidSignal` in `adminShared/forms/control-state.ts`), die beiden
+`*References_adminView`-Listen (signalgestützte Shims; alle `push`/`splice`-Stellen ersetzen das
+Array jetzt, statt es in place zu mutieren) und `showRoleForm`. `selectedRoleCount` liest eine
+eigene `roleGridRevision`. Die bekannte Grenze bleibt: ein Häkchen *im* Rollen-Grid aktualisiert
+die Zusammenfassungszeile nicht, weil das Grid kein Output emittiert, das Schritt 7 bindet.
+
+**3. `allowedRoles` vs. `permissions` geklärt — es war ein Wire-Bug.** Keine Backend-Frage:
+`origin/master` schickt in **allen** Admin-Modalen `permissions`, und zwar seit `cbc8640a`, also
+schon vor dem Fork-Punkt; `GeoresourcePOSTInputType`, `SpatialUnitPOSTInputType` und
+`IndicatorPOSTInputType` nennen das Feld ebenfalls so (bei den letzten beiden ist es `required`).
+`allowedRoles` war eine Rückkehr des alten Namens im Angular-Port. Behoben:
+
+- `buildPostBody_georesources` sendet `permissions` — **Georessourcen-Berechtigungen kamen bisher
+  gar nicht an.**
+- Metadaten-Import/-Export von Georessource und Indikator lesen/schreiben `permissions`; die
+  Platzhalter `allowedRoles: ['roleId']` in den drei Beispielstrukturen und im
+  Raumebenen-Export-Builder (der Platzhalter landete real in der Exportdatei) heißen jetzt so.
+- Das Georessourcen-`editMetadata`-Modal schickt **kein** Berechtigungsfeld mehr im PATCH:
+  `GeoresourcePATCHInputType` hat keins und `master` sendet keins. Die Durchleitung las ohnehin
+  `dataset.allowedRoles`, was die API nie liefert — sie war immer leer. Das Modal hatte keine
+  Spec; es hat jetzt eine (4 Tests), die genau das festhält.
+- Der nie aufgerufene Alt-Builder `buildPostBody_indicators` (mit `allowedRoles`) ist gelöscht,
+  samt `convertReferencesToApiFormat` und den beiden `*_apiRequest`-Arrays. Dadurch fiel auf, dass
+  der **Indikator-Metadaten-Export seine Referenzen aus einem nie gefüllten Array las** —
+  interaktiv angelegte Referenzen fehlten in der Datei. Er leitet sie jetzt wie `master` aus der
+  Admin-Sicht ab.
+
+Nicht behoben (eigenständiger Fund, im Test als Fehler benannt und gepinnt): `applyMetadataImport()`
+des Indikator-Wizards legt Referenzzeilen der Form `{ indicatorId, … }` an, während alle anderen
+Aufrufer `{ indicatorMetadata, … }` erwarten — ein Import gefolgt von „Anlegen" wirft einen
+`TypeError`.
+
+**Browser-Prüfung nötig:** [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md),
+neuer Punkt 11 (plus die Ergänzungen in Punkt 2).
+
 Dazu diese Punkte aus dem bereits umgebauten Teil — der letzte hält die Batch-Update-Entscheidung fest:
 
 - **Die Klassifikation (Schritt 5)** ist bewusst **nicht** auf `FormArray` umgebaut. Ihre sechs
@@ -174,14 +237,6 @@ Dazu diese Punkte aus dem bereits umgebauten Teil — der letzte hält die Batch
   ohnehin per Dialog gatet. Die irreführenden `ngModel`-Marker sind durch `[value]`/`(input)`
   ersetzt, der Store ist unverändert. Wenn die Regeln („mindestens 2 Kategorien", „Wert und Label
   je Kategorie") echte Validatoren werden sollen, ist das ein eigenes Vorhaben.
-- **`stateRevision` + die sieben `effect(…markForCheck())`** im Indikator-Wizard sind geblieben.
-  Die Form-Direktiven aktualisieren gebundene Inputs von selbst, aber die Step-Templates lesen
-  Felder auch in `@if`-Bedingungen und Interpolationen — die sind weiterhin nicht reaktiv. Ihr
-  Abbau braucht signal-gestützte Lesezugriffe für diese abgeleiteten Stellen.
-- Die **Übergangs-Accessoren** (`get/set spatialUnitLevel` usw.) in beiden Wizards sind bewusst
-  stehen geblieben — sie sind der Grund, warum die Sicherheitsnetz-Specs über jeden
-  Zwischenschritt unverändert grün blieben. Ihr Abbau (plus Umschreiben der Spec-Setups auf
-  `patchValue`) ist ein eigener Folgeschritt.
 - **Batch-Update: zurückportieren, nicht entfernen** (Entscheidung 2026-08-26). Die Annahme
   „nicht funktionsfähiges Gerüst" war falsch: `origin/master` (`e1a0af90`, 2026-08-10, **nicht**
   Vorfahr dieses Branches) liefert das Feature funktionsfähig aus — `kommonitorBatchUpdateHelperService`
@@ -199,10 +254,6 @@ Dazu diese Punkte aus dem bereits umgebauten Teil — der letzte hält die Batch
   `ADMIN_REFACTORING_ANALYSIS.md:186` notierte Restschuld ist damit abgetragen. Der Georessourcen-Zwilling wurde in
   `d9875a2a` gelöscht, mit der ausdrücklichen Empfehlung, ein künftiges Batch-Update als
   **ressourcen-agnostischen** Baustein neu zu bauen — genau so ist der Port angelegt.
-- **`allowedRoles` vs. `permissions`:** `buildPostBody_georesources` sendet `allowedRoles`,
-  während `GeoresourcePOSTInputType` das Feld `permissions` nennt (der Raumebenen-Zwilling
-  schreibt bereits `permissions`). Georessourcen-Berechtigungen werden vermutlich still
-  verworfen — braucht eine Backend-Prüfung, das aktuelle Verhalten ist im Test nur gepinnt.
 
 ### B2. Verbleibende große Services
 
@@ -355,8 +406,8 @@ Verifiziert gegen den Code am 2026-08-26.
 1. **Manuelle Tests** — [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md)
    abarbeiten. Elf umgestellte Formulare plus das zurückportierte Batch-Update hängen daran,
    nichts davon war bisher im Browser. Punkt 10 braucht einen laufenden Importer.
-2. **B1-Restposten** — die Übergangs-Accessoren abbauen, `stateRevision` auflösen und die
-   `allowedRoles`/`permissions`-Frage klären.
+2. ~~**B1-Restposten**~~ — ✅ erledigt am 2026-08-27 (siehe B1). Die dort behobenen
+   Verhaltensänderungen brauchen noch die Browser-Prüfung aus Punkt 11 der manuellen Tests.
 3. **A1** — Entscheidung zu `feedbackModal` / `individualIndicatorComputation`; damit fällt auch
    ein Teil von C3 weg.
 4. **C2 + C3** — Logger-Service, danach `no-console` auf `error`; Rest der `__env`-Zugriffe.

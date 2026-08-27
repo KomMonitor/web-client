@@ -43,6 +43,8 @@ export type GeoresourceType = 'poi' | 'loi' | 'aoi';
 /** Entry of `POI_MARKER_COLORS`; the API stores the `colorName`. */
 export interface PoiMarkerColor {
   colorName: string;
+  /** Swatch colour, rendered by the marker/symbol colour dropdowns. */
+  colorValue: string;
   [key: string]: unknown;
 }
 
@@ -153,15 +155,18 @@ export function buildGeoresourceAddForm(
 /**
  * POST body for `/georesources`.
  *
- * Two divergences are preserved verbatim from the pre-Reactive-Forms builder:
- * the permission field is named `allowedRoles` although
- * `GeoresourcePOSTInputType` calls it `permissions` (the spatial-unit twin
- * already sends `permissions`), and the validity dates are passed through
- * without normalisation.
+ * The permission field is named `permissions`, matching
+ * `GeoresourcePOSTInputType`, the spatial-unit twin and the AngularJS original
+ * (which renamed `allowedRoles` to `permissions` in `cbc8640a`, long before the
+ * fork point). The Angular port had reintroduced the old name, which silently
+ * dropped every georesource permission.
+ *
+ * One divergence is preserved verbatim from the pre-Reactive-Forms builder: the
+ * validity dates are passed through without normalisation.
  */
 export interface GeoresourceAddPostBody {
   geoJsonString: string;
-  allowedRoles: string[];
+  permissions: string[];
   metadata: ReturnType<typeof metadataFormToApi>;
   jsonSchema: null;
   datasetName: string;
@@ -185,7 +190,7 @@ export interface GeoresourceAddPostBody {
 
 export function georesourceAddFormToApi(
   form: GeoresourceAddFormGroup,
-  allowedRoles: readonly string[] = []
+  permissions: readonly string[] = []
 ): GeoresourceAddPostBody {
   const metadata = form.controls.metadata.getRawValue();
   const style = metadata.style;
@@ -195,7 +200,7 @@ export function georesourceAddFormToApi(
 
   return {
     geoJsonString: '', // will be set by the importer
-    allowedRoles: [...allowedRoles],
+    permissions: [...permissions],
     metadata: metadataFormToApi(form.controls.general),
     jsonSchema: null,
     datasetName: metadata.datasetName,

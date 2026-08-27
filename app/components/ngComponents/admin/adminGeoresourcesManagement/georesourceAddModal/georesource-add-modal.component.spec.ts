@@ -21,6 +21,7 @@ import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-
 import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 
+import { patchPeriodOfValidityForm } from '../../adminShared/periodOfValidityForm/period-of-validity-form.model';
 import { GeoresourceAddModalComponent } from './georesource-add-modal.component';
 
 /**
@@ -129,6 +130,19 @@ describe('GeoresourceAddModalComponent', () => {
     component = fixture.componentInstance;
   });
 
+  // The component no longer mirrors its controls in plain accessors, so the
+  // tests write and read the typed form directly.
+  const metadataGroup = () => component.addForm.controls.metadata;
+  const styleGroup = () => component.addForm.controls.metadata.controls.style;
+  const topicsGroup = () => component.addForm.controls.topics;
+  const importerGroup = () => component.addForm.controls.data.controls.importer;
+  const securityGroup = () => component.addForm.controls.security;
+  const periodGroup = () => component.addForm.controls.data.controls.periodOfValidity;
+  const setPeriod = (value: { startDate: unknown; endDate: unknown }) =>
+    patchPeriodOfValidityForm(periodGroup(), value as never);
+  const setType = (value: string) =>
+    metadataGroup().controls.georesourceType.setValue(value as never);
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -137,7 +151,7 @@ describe('GeoresourceAddModalComponent', () => {
 
   describe('buildPostBody_georesources — envelope', () => {
     beforeEach(() => {
-      component.datasetName = 'Spielplätze neu';
+      metadataGroup().controls.datasetName.setValue('Spielplätze neu');
       component.metadataForm.patchValue({
         description: 'Beschreibung',
         datasource: 'Quelle',
@@ -145,9 +159,8 @@ describe('GeoresourceAddModalComponent', () => {
         lastUpdate: '2026-01-01',
         updateInterval: { apiName: 'YEARLY', displayName: 'jährlich' },
       });
-      component.periodOfValidity = { startDate: '2026-01-01', endDate: '2026-12-31' };
-      component.ownerOrganization = 'org-1';
-      component.isPublic = true;
+      setPeriod({ startDate: '2026-01-01', endDate: '2026-12-31' });
+      securityGroup().patchValue({ ownerOrganization: 'org-1', isPublic: true });
     });
 
     it('carries the fields the API marks required', () => {
@@ -182,20 +195,21 @@ describe('GeoresourceAddModalComponent', () => {
       });
     });
 
-    it('names the permission field allowedRoles', () => {
-      // Divergence from GeoresourcePOSTInputType, which calls it `permissions`
-      // (the spatial-unit twin already sends `permissions`). Pinned as-is; the
-      // rework must not change the wire format silently.
+    it('names the permission field permissions', () => {
+      // Behaviour change: the port had sent `allowedRoles`, a name the AngularJS
+      // original dropped in cbc8640a. GeoresourcePOSTInputType and the
+      // spatial-unit twin both say `permissions`, so every georesource
+      // permission was silently discarded.
       const body = component.buildPostBody_georesources();
 
-      expect(Object.keys(body)).toContain('allowedRoles');
-      expect(Object.keys(body)).not.toContain('permissions');
+      expect(Object.keys(body)).toContain('permissions');
+      expect(Object.keys(body)).not.toContain('allowedRoles');
     });
 
     it('passes the validity period through unnormalised', () => {
       // Unlike the spatial-unit twin there is no toIsoDateString() here, because
       // the dates come from raw text inputs rather than <km-date-picker>.
-      component.periodOfValidity = { startDate: '01.01.2026', endDate: '' };
+      setPeriod({ startDate: '01.01.2026', endDate: '' });
 
       const body = component.buildPostBody_georesources();
 
@@ -225,13 +239,15 @@ describe('GeoresourceAddModalComponent', () => {
     ];
 
     it('writes all nine style keys for a POI dataset', () => {
-      component.georesourceType = 'poi';
+      setType('poi');
       component.onChangeGeoresourceType();
-      component.selectedPoiIconName = 'tree';
-      component.selectedPoiMarkerStyle = 'text';
-      component.poiMarkerText = 'ABC';
-      component.selectedPoiMarkerColor = { colorName: 'red' };
-      component.selectedPoiSymbolColor = { colorName: 'white' };
+      styleGroup().patchValue({
+        poiIconName: 'tree',
+        poiMarkerStyle: 'text',
+        poiMarkerText: 'ABC',
+        poiMarkerColor: { colorName: 'red', colorValue: '#f00' },
+        poiSymbolColor: { colorName: 'white', colorValue: '#fff' },
+      });
 
       const body = component.buildPostBody_georesources();
 
@@ -244,7 +260,7 @@ describe('GeoresourceAddModalComponent', () => {
     });
 
     it('keeps loiWidth at 3 rather than null in the POI branch', () => {
-      component.georesourceType = 'poi';
+      setType('poi');
       component.onChangeGeoresourceType();
 
       const body = component.buildPostBody_georesources();
@@ -256,10 +272,9 @@ describe('GeoresourceAddModalComponent', () => {
     });
 
     it('falls back to an empty string for unset POI colours', () => {
-      component.georesourceType = 'poi';
+      setType('poi');
       component.onChangeGeoresourceType();
-      component.selectedPoiMarkerColor = null;
-      component.selectedPoiSymbolColor = null;
+      styleGroup().patchValue({ poiMarkerColor: null, poiSymbolColor: null });
 
       const body = component.buildPostBody_georesources();
 
@@ -268,15 +283,13 @@ describe('GeoresourceAddModalComponent', () => {
     });
 
     it('writes the line style for a LOI dataset', () => {
-      component.georesourceType = 'loi';
+      setType('loi');
       component.onChangeGeoresourceType();
-      component.loiColor = '#123456';
-      component.loiWidth = 7;
-      component.selectedLoiDashArrayObject = {
-        label: 'gestrichelt',
-        dashArrayValue: '5,5',
-        svgString: '',
-      };
+      styleGroup().patchValue({
+        loiColor: '#123456',
+        loiWidth: 7,
+        loiDashArray: { label: 'gestrichelt', dashArrayValue: '5,5', svgString: '' },
+      });
 
       const body = component.buildPostBody_georesources();
 
@@ -288,17 +301,17 @@ describe('GeoresourceAddModalComponent', () => {
     });
 
     it('uses an empty string, not null, for a missing LOI dash array', () => {
-      component.georesourceType = 'loi';
+      setType('loi');
       component.onChangeGeoresourceType();
-      component.selectedLoiDashArrayObject = null;
+      styleGroup().controls.loiDashArray.setValue(null);
 
       expect(component.buildPostBody_georesources().loiDashArrayString).toBe('');
     });
 
     it('writes the area colour for an AOI dataset', () => {
-      component.georesourceType = 'aoi';
+      setType('aoi');
       component.onChangeGeoresourceType();
-      component.aoiColor = '#abcdef';
+      styleGroup().controls.aoiColor.setValue('#abcdef');
 
       const body = component.buildPostBody_georesources();
 
@@ -311,8 +324,10 @@ describe('GeoresourceAddModalComponent', () => {
       // Was: a metadata import carrying none of the three flags fell through
       // the if/else and produced a body without any style key. isPOI/isLOI/isAOI
       // are derived from the single georesourceType control now, so that state
-      // is no longer representable; an import without a flag lands on 'aoi'.
-      component.georesourceType = 'unbekannt';
+      // is no longer representable — the control is typed to the three values
+      // and onChangeGeoresourceType() normalises anything else to 'poi'.
+      setType('unbekannt');
+      component.onChangeGeoresourceType();
 
       const body = component.buildPostBody_georesources();
 
@@ -321,7 +336,7 @@ describe('GeoresourceAddModalComponent', () => {
     });
 
     it('reports the flags it was given', () => {
-      component.georesourceType = 'loi';
+      setType('loi');
       component.onChangeGeoresourceType();
 
       const body = component.buildPostBody_georesources();
@@ -334,31 +349,31 @@ describe('GeoresourceAddModalComponent', () => {
 
   describe('buildPostBody_georesources — topic reference', () => {
     it('uses the main topic when only that is selected', () => {
-      component.georesourceTopic_mainTopic = MAIN;
+      topicsGroup().controls.mainTopic.setValue(MAIN);
 
       expect(component.buildPostBody_georesources().topicReference).toBe('t-1');
     });
 
     it('prefers the second level over the first', () => {
-      component.georesourceTopic_mainTopic = MAIN;
-      component.georesourceTopic_subTopic = SUB;
+      topicsGroup().controls.mainTopic.setValue(MAIN);
+      topicsGroup().controls.subTopic.setValue(SUB);
 
       expect(component.buildPostBody_georesources().topicReference).toBe('t-1-1');
     });
 
     it('prefers the third level', () => {
-      component.georesourceTopic_mainTopic = MAIN;
-      component.georesourceTopic_subTopic = SUB;
-      component.georesourceTopic_subsubTopic = SUB_SUB;
+      topicsGroup().controls.mainTopic.setValue(MAIN);
+      topicsGroup().controls.subTopic.setValue(SUB);
+      topicsGroup().controls.subsubTopic.setValue(SUB_SUB);
 
       expect(component.buildPostBody_georesources().topicReference).toBe('t-1-1-1');
     });
 
     it('prefers the fourth level', () => {
-      component.georesourceTopic_mainTopic = MAIN;
-      component.georesourceTopic_subTopic = SUB;
-      component.georesourceTopic_subsubTopic = SUB_SUB;
-      component.georesourceTopic_subsubsubTopic = SUB_SUB_SUB;
+      topicsGroup().controls.mainTopic.setValue(MAIN);
+      topicsGroup().controls.subTopic.setValue(SUB);
+      topicsGroup().controls.subsubTopic.setValue(SUB_SUB);
+      topicsGroup().controls.subsubsubTopic.setValue(SUB_SUB_SUB);
 
       expect(component.buildPostBody_georesources().topicReference).toBe('t-1-1-1-1');
     });
@@ -370,11 +385,11 @@ describe('GeoresourceAddModalComponent', () => {
     it('clears the deeper levels when the main topic changes', () => {
       // Was: nothing cleared the deeper levels, so a stale reference from a
       // foreign branch was POSTed. The shared topic cascade fixes it.
-      component.georesourceTopic_mainTopic = MAIN;
-      component.georesourceTopic_subsubTopic = SUB_SUB;
-      component.georesourceTopic_mainTopic = { topicId: 't-2', topicName: 'Soziales' };
+      topicsGroup().controls.mainTopic.setValue(MAIN);
+      topicsGroup().controls.subsubTopic.setValue(SUB_SUB);
+      topicsGroup().controls.mainTopic.setValue({ topicId: 't-2', topicName: 'Soziales' });
 
-      expect(component.georesourceTopic_subsubTopic).toBeNull();
+      expect(topicsGroup().controls.subsubTopic.value).toBeNull();
       expect(component.buildPostBody_georesources().topicReference).toBe('t-2');
     });
   });
@@ -385,11 +400,11 @@ describe('GeoresourceAddModalComponent', () => {
     it('takes the selected role ids from the grid', () => {
       (component as any).roleGrid = fakeRoleGrid(['role-1', 'role-2']);
 
-      expect(component.buildPostBody_georesources().allowedRoles).toEqual(['role-1', 'role-2']);
+      expect(component.buildPostBody_georesources().permissions).toEqual(['role-1', 'role-2']);
     });
 
     it('sends an empty list while the grid is unresolved', () => {
-      expect(component.buildPostBody_georesources().allowedRoles).toEqual([]);
+      expect(component.buildPostBody_georesources().permissions).toEqual([]);
     });
   });
 
@@ -397,7 +412,7 @@ describe('GeoresourceAddModalComponent', () => {
 
   describe('checkDatasetName', () => {
     it('flags a dataset name that already exists', () => {
-      component.datasetName = 'Schulen';
+      metadataGroup().controls.datasetName.setValue('Schulen');
 
       component.checkDatasetName();
 
@@ -405,7 +420,7 @@ describe('GeoresourceAddModalComponent', () => {
     });
 
     it('accepts a new dataset name', () => {
-      component.datasetName = 'Spielplätze neu';
+      metadataGroup().controls.datasetName.setValue('Spielplätze neu');
 
       component.checkDatasetName();
 
@@ -413,7 +428,7 @@ describe('GeoresourceAddModalComponent', () => {
     });
 
     it('accepts an empty name (the submit button gates on that separately)', () => {
-      component.datasetName = '';
+      metadataGroup().controls.datasetName.setValue('');
 
       component.checkDatasetName();
 
@@ -421,10 +436,10 @@ describe('GeoresourceAddModalComponent', () => {
     });
 
     it('clears a previous verdict on re-check', () => {
-      component.datasetName = 'Schulen';
+      metadataGroup().controls.datasetName.setValue('Schulen');
       component.checkDatasetName();
 
-      component.datasetName = 'Spielplätze neu';
+      metadataGroup().controls.datasetName.setValue('Spielplätze neu');
       component.checkDatasetName();
 
       expect(component.datasetNameInvalid).toBe(false);
@@ -435,7 +450,7 @@ describe('GeoresourceAddModalComponent', () => {
 
   describe('checkPeriodOfValidity', () => {
     it('accepts a start before the end', () => {
-      component.periodOfValidity = { startDate: '2026-01-01', endDate: '2026-12-31' };
+      setPeriod({ startDate: '2026-01-01', endDate: '2026-12-31' });
 
       component.checkPeriodOfValidity();
 
@@ -443,7 +458,7 @@ describe('GeoresourceAddModalComponent', () => {
     });
 
     it('rejects an end before the start', () => {
-      component.periodOfValidity = { startDate: '2026-12-31', endDate: '2026-01-01' };
+      setPeriod({ startDate: '2026-12-31', endDate: '2026-01-01' });
 
       component.checkPeriodOfValidity();
 
@@ -451,7 +466,7 @@ describe('GeoresourceAddModalComponent', () => {
     });
 
     it('accepts an open-ended period', () => {
-      component.periodOfValidity = { startDate: '2026-01-01', endDate: '' };
+      setPeriod({ startDate: '2026-01-01', endDate: '' });
 
       component.checkPeriodOfValidity();
 
@@ -462,7 +477,7 @@ describe('GeoresourceAddModalComponent', () => {
       // Was accepted: the check compared two freshly constructed Date objects
       // with `===`, which is never true. Now routed through the shared
       // validator, matching the spatial-unit twin.
-      component.periodOfValidity = { startDate: '2026-01-01', endDate: '2026-01-01' };
+      setPeriod({ startDate: '2026-01-01', endDate: '2026-01-01' });
 
       component.checkPeriodOfValidity();
 
@@ -470,7 +485,7 @@ describe('GeoresourceAddModalComponent', () => {
     });
 
     it('accepts unparseable dates instead of guessing', () => {
-      component.periodOfValidity = { startDate: 'gestern', endDate: 'morgen' };
+      setPeriod({ startDate: 'gestern', endDate: 'morgen' });
 
       component.checkPeriodOfValidity();
 
@@ -482,7 +497,7 @@ describe('GeoresourceAddModalComponent', () => {
 
   describe('checkPoiMarkerText', () => {
     it('accepts an empty marker text', () => {
-      component.poiMarkerText = '';
+      styleGroup().controls.poiMarkerText.setValue('');
 
       component.checkPoiMarkerText();
 
@@ -490,7 +505,7 @@ describe('GeoresourceAddModalComponent', () => {
     });
 
     it('accepts three characters', () => {
-      component.poiMarkerText = 'ABC';
+      styleGroup().controls.poiMarkerText.setValue('ABC');
 
       component.checkPoiMarkerText();
 
@@ -498,7 +513,7 @@ describe('GeoresourceAddModalComponent', () => {
     });
 
     it('rejects more than three characters', () => {
-      component.poiMarkerText = 'ABCD';
+      styleGroup().controls.poiMarkerText.setValue('ABCD');
 
       component.checkPoiMarkerText();
 
@@ -506,10 +521,10 @@ describe('GeoresourceAddModalComponent', () => {
     });
 
     it('clears a previous verdict on re-check', () => {
-      component.poiMarkerText = 'ABCD';
+      styleGroup().controls.poiMarkerText.setValue('ABCD');
       component.checkPoiMarkerText();
 
-      component.poiMarkerText = 'AB';
+      styleGroup().controls.poiMarkerText.setValue('AB');
       component.checkPoiMarkerText();
 
       expect(component.poiMarkerTextInvalid).toBe(false);
@@ -525,7 +540,7 @@ describe('GeoresourceAddModalComponent', () => {
       ['aoi', [false, false, true]],
       ['unbekannt', [true, false, false]],
     ])('maps %s onto the three flags', (type, expected) => {
-      component.georesourceType = type as string;
+      setType(type as string);
 
       component.onChangeGeoresourceType();
 
@@ -537,67 +552,71 @@ describe('GeoresourceAddModalComponent', () => {
 
   describe('resetGeoresourceAddForm', () => {
     beforeEach(() => {
-      component.availablePoiMarkerColors = [{ colorName: 'red' }, { colorName: 'white' }];
+      component.availablePoiMarkerColors = [
+        { colorName: 'red', colorValue: '#f00' },
+        { colorName: 'white', colorValue: '#fff' },
+      ];
       component.availableLoiDashArrayObjects = [
         { label: 'durchgezogen', dashArrayValue: '', svgString: '' },
       ];
     });
 
     it('restores the non-empty style defaults', () => {
-      component.loiColor = '#000000';
-      component.loiWidth = 9;
-      component.aoiColor = '#000000';
-      component.selectedPoiIconName = 'tree';
-      component.selectedPoiMarkerStyle = 'text';
+      styleGroup().patchValue({
+        loiColor: '#000000',
+        loiWidth: 9,
+        aoiColor: '#000000',
+        poiIconName: 'tree',
+        poiMarkerStyle: 'text',
+      });
 
       component.resetGeoresourceAddForm();
 
-      expect(component.loiColor).toBe('#bf3d2c');
-      expect(component.loiWidth).toBe(3);
-      expect(component.aoiColor).toBe('#bf3d2c');
-      expect(component.selectedPoiIconName).toBe('home');
-      expect(component.selectedPoiMarkerStyle).toBe('symbol');
+      const style = styleGroup().getRawValue();
+      expect(style.loiColor).toBe('#bf3d2c');
+      expect(style.loiWidth).toBe(3);
+      expect(style.aoiColor).toBe('#bf3d2c');
+      expect(style.poiIconName).toBe('home');
+      expect(style.poiMarkerStyle).toBe('symbol');
     });
 
     it('restores the type flags to a POI dataset', () => {
-      component.georesourceType = 'aoi';
+      setType('aoi');
       component.onChangeGeoresourceType();
 
       component.resetGeoresourceAddForm();
 
-      expect(component.georesourceType).toBe('poi');
+      expect(metadataGroup().controls.georesourceType.value).toBe('poi');
       expect([component.isPOI, component.isLOI, component.isAOI]).toEqual([true, false, false]);
     });
 
     it('restores the keep flags and clears ownership', () => {
-      component.keepAttributes = false;
-      component.keepMissingValues = false;
-      component.isPublic = true;
-      component.ownerOrganization = 'org-1';
+      importerGroup().patchValue({ keepAttributes: false, keepMissingValues: false });
+      securityGroup().patchValue({ isPublic: true, ownerOrganization: 'org-1' });
 
       component.resetGeoresourceAddForm();
 
-      expect(component.keepAttributes).toBe(true);
-      expect(component.keepMissingValues).toBe(true);
-      expect(component.isPublic).toBe(false);
-      expect(component.ownerOrganization).toBe('');
+      expect(importerGroup().controls.keepAttributes.value).toBe(true);
+      expect(importerGroup().controls.keepMissingValues.value).toBe(true);
+      expect(securityGroup().controls.isPublic.value).toBe(false);
+      expect(securityGroup().controls.ownerOrganization.value).toBe('');
     });
 
     it('clears the entered values, the topics and the metadata block', () => {
-      component.datasetName = 'Spielplätze neu';
+      metadataGroup().controls.datasetName.setValue('Spielplätze neu');
       component.metadataForm.patchValue({ description: 'Beschreibung', sridEPSG: 25832 });
-      component.georesourceTopic_mainTopic = MAIN;
-      component.periodOfValidity = { startDate: '2026-01-01', endDate: '2026-12-31' };
-      component.georesourceDataSourceIdProperty = 'id';
+      topicsGroup().controls.mainTopic.setValue(MAIN);
+      setPeriod({ startDate: '2026-01-01', endDate: '2026-12-31' });
+      importerGroup().controls.idProperty.setValue('id');
 
       component.resetGeoresourceAddForm();
 
-      expect(component.datasetName).toBe('');
+      expect(metadataGroup().controls.datasetName.value).toBe('');
       expect(component.metadata.description).toBe('');
       expect(component.metadata.sridEPSG).toBe(4326);
-      expect(component.georesourceTopic_mainTopic).toBeNull();
-      expect(component.periodOfValidity).toEqual({ startDate: '', endDate: '' });
-      expect(component.georesourceDataSourceIdProperty).toBe('');
+      expect(topicsGroup().controls.mainTopic.value).toBeNull();
+      expect(periodGroup().getRawValue()).toEqual({ startDate: '', endDate: '' });
+      expect(importerGroup().controls.idProperty.value).toBe('');
       expect(component.attributeMappings_adminView).toEqual([]);
     });
   });

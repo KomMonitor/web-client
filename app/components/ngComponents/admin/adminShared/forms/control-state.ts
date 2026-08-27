@@ -25,3 +25,30 @@ export function controlInvalidSignal(
     return options.whenTouched ? control.invalid && control.touched : control.invalid;
   });
 }
+
+/**
+ * Signal mirroring an arbitrary derived read of a control, recomputed on every
+ * control event (value, status, pristine, touched, reset).
+ *
+ * Use it where an OnPush template needs a control's *value* — or one specific
+ * error — instead of its overall validity. A plain `control.value` read in a
+ * template is not reactive: user input re-renders the view only because the
+ * event handler that caused it lives in the same view, so an asynchronous
+ * `setValue` (a metadata file import, say) would leave the view stale.
+ *
+ * Must be called in an injection context (field initializer or constructor)
+ * unless an explicit `injector` is passed.
+ */
+export function controlStateSignal<T>(
+  control: AbstractControl,
+  read: () => T,
+  options: { injector?: Injector } = {}
+): Signal<T> {
+  const event = toSignal(control.events, { initialValue: null, injector: options.injector });
+
+  return computed(() => {
+    // Registers the dependency; the event value itself is not needed.
+    event();
+    return read();
+  });
+}

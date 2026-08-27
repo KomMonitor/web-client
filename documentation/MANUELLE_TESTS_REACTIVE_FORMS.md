@@ -53,7 +53,14 @@ aber nicht identisch sind.
       Wert bleibt stehen
 - [ ] Linienmuster wählen → Auswahl bleibt in der Liste markiert
 - [ ] Linienbreite ändern
-- [ ] Georessourcen: LOI-Farbe, LOI-Muster und AOI-Farbe analog
+- [ ] Georessourcen: LOI-Farbe, LOI-Muster und AOI-Farbe analog. **Neu (2026-08-27):** die
+      beiden Farbwähler dort hängen jetzt per `[formControl]` am Stil-Formular statt per
+      `[(color)]` an einem Komponenten-Accessor — Auswahl, Zurücksetzen und der Metadaten-Import
+      müssen den Wert im Wähler sichtbar setzen
+- [ ] Georessourcen → Metadaten: Marker-Farbe, Marker-Stil (Symbol/Text) und Symbolfarbe über die
+      drei Bootstrap-Dropdowns wählen. Die Templates lesen den Formularwert jetzt über `@let`;
+      der Text im Button und die abhängigen Blöcke (Symbolname vs. Markertext) müssen sofort
+      umschalten
 
 Bei Fehlern: `writeValue` in `customElements/color-picker/km-color-picker.component.ts` bzw.
 `customElements/line-pattern-picker/km-line-pattern-picker.component.ts`.
@@ -268,14 +275,58 @@ Klappbox „Standardwert-Funktion" unter der Tabelle:
 
 ---
 
+## 11. Nachwirkungen des B1-Abschlusses (2026-08-27)
+
+Die drei B1-Restposten sind umgesetzt; was sie im Browser berühren, steht hier.
+
+### 11.1 Georessourcen-Berechtigungen — behobener Wire-Bug
+
+`buildPostBody_georesources` sendete `allowedRoles`; das Feld heißt in
+`GeoresourcePOSTInputType`, beim Raumebenen-Zwilling und in der AngularJS-Vorlage
+`permissions` (dort seit `cbc8640a`, also schon vor dem Fork-Punkt). Alle
+Georessourcen-Berechtigungen liefen damit ins Leere.
+
+- [ ] Georessource mit gesetzten Rollen anlegen → die Rollen stehen danach in der
+      Rechteverwaltung (das war vorher **nicht** der Fall)
+- [ ] Metadaten-Export einer Georessource enthält `permissions` (nicht `allowedRoles`);
+      Re-Import setzt die Häkchen im Rollen-Grid
+- [ ] Gleiches für Raumebene und Indikator — dort steht in der Exportdatei kein
+      `allowedRoles: ["roleId"]`-Platzhalter mehr
+- [ ] „Metadaten bearbeiten" einer Georessource speichern → der PATCH enthält **kein**
+      Berechtigungsfeld mehr (wie auf `master`); die Rechte bleiben unverändert
+
+### 11.2 Indikator-Metadaten-Export — Referenzen
+
+Der Export las die Referenzen aus einem Array, das nur ein Metadaten-Import füllte; interaktiv
+angelegte Referenzen fehlten in der Datei.
+
+- [ ] Im Indikator-Wizard Indikator- und Georessourcen-Referenzen anlegen, Metadaten exportieren
+      → beide Listen stehen in der Datei (`{ indicatorId | georesourceId, referenceDescription }`)
+- [ ] Datei wieder importieren → die Referenztabellen sind gefüllt
+
+### 11.3 OnPush ohne `stateRevision`
+
+`stateRevision` und die sieben `effect(…markForCheck())` im Indikator-Wizard sind weg; die
+asynchron geschriebenen Lesestellen sind jetzt signalgestützt. Das ist genau die Klasse von
+Fehlern, die kein Test sieht — **eine stehengebliebene Ansicht**.
+
+- [ ] Indikator anlegen → Metadatendatei importieren. Danach müssen **sofort**, ohne Klick und
+      ohne Schrittwechsel, aktualisiert sein: Name/Kürzel/Einheit (Schritt 1), der Indikatortyp
+      und die davon abhängige Anzeige in Schritt 5, die Referenztabellen (Schritt 4), die Themen
+      (Schritt 3) und die Häkchen im Rollen-Grid (Schritt 7)
+- [ ] Namens-Dublette per Import erzeugen → die Fehlermeldung „Name bereits vergeben" erscheint
+      sofort in Schritt 1
+- [ ] Eigentümerorganisation wählen → das Rollen-Grid erscheint und die Zusammenfassungszeile
+      („n Rollen ausgewählt") stimmt
+- [ ] **Bekannte Grenze, unverändert:** ein Häkchen *im* Grid aktualisiert die
+      Zusammenfassungszeile nicht sofort — das Grid gibt kein Output, das Schritt 7 bindet
+
+---
+
 ## Noch offen / nicht in diesem Umbau geprüft
 
-- **`allowedRoles` vs. `permissions`:** `buildPostBody_georesources` sendet `allowedRoles`,
-  während `GeoresourcePOSTInputType` das Feld `permissions` nennt (der Raumebenen-Zwilling
-  schreibt bereits `permissions`). Georessourcen-Berechtigungen werden vermutlich still
-  verworfen. Braucht eine Backend-Prüfung — das aktuelle Verhalten ist im Test nur gepinnt.
-  → **Konkret zu prüfen:** eine Georessource mit gesetzten Rollen anlegen und danach in der
-  Rechteverwaltung nachsehen, ob die Rollen tatsächlich angekommen sind.
-- Die Übergangs-Accessoren (`get/set spatialUnitLevel` usw.) in beiden Komponenten sind bewusst
-  stehen geblieben, damit die Sicherheitsnetz-Specs unverändert grün bleiben. Ihr Abbau ist ein
-  eigener Folgeschritt.
+- Die **Referenz-Datenform** des Indikator-Wizards divergiert weiter: `applyMetadataImport()`
+  legt `{ indicatorId, … }`-Zeilen an, alle anderen Aufrufer erwarten
+  `{ indicatorMetadata, … }`. Ein Import gefolgt von „Anlegen" wirft deshalb einen `TypeError`
+  — als Fehler benannt und in `indicator-add-form-state.service.spec.ts` gepinnt, aber nicht
+  behoben.

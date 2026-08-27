@@ -1,3 +1,4 @@
+import { effect } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
@@ -676,7 +677,7 @@ describe('IndicatorAddFormStateService', () => {
   });
 
   // ---------------------------------------------------------------------------
-  // Owner organisations + the stateRevision signal
+  // Owner organisations
   // ---------------------------------------------------------------------------
 
   describe('loadOwnerOrganizations', () => {
@@ -687,12 +688,21 @@ describe('IndicatorAddFormStateService', () => {
       expect(service.ownerOrganizations).toEqual([OWNER_UNIT]);
     });
 
-    it('bumps stateRevision so the OnPush wizard steps re-render', () => {
-      const before = service.stateRevision();
+    it('publishes the organisations through a signal so OnPush step 7 re-renders', () => {
+      // Was: a `stateRevision` counter that every wizard step mirrored with an
+      // `effect` + `markForCheck`. The asynchronously written reads are
+      // signal-backed instead, so the counter and the seven effects are gone.
+      const seen: any[][] = [];
+      TestBed.runInInjectionContext(() => {
+        effect(() => seen.push(service.filteredOrganizations));
+      });
+      TestBed.tick();
 
       service.loadOwnerOrganizations();
+      TestBed.tick();
 
-      expect(service.stateRevision()).toBeGreaterThan(before);
+      expect(seen.length).toBeGreaterThan(1);
+      expect(seen.at(-1)).toEqual([OWNER_UNIT]);
     });
 
     it('fetches the access control when nothing is cached', async () => {
@@ -725,16 +735,29 @@ describe('IndicatorAddFormStateService', () => {
   describe('parseMetadataFromFile', () => {
     const asFile = (content: string) => new File([content], 'metadata.json');
 
-    it('applies a valid metadata file and bumps stateRevision', async () => {
-      const before = service.stateRevision();
-
+    it('applies a valid metadata file', async () => {
       await service.parseMetadataFromFile(
         asFile(JSON.stringify({ datasetName: 'Importiert', metadata: { description: 'B' } }))
       );
 
       expect(service.datasetName).toBe('Importiert');
       expect(service.indicatorMetadataImportError).toBe('');
-      expect(service.stateRevision()).toBeGreaterThan(before);
+    });
+
+    it('publishes the imported references through a signal', () => {
+      // The other half of the former stateRevision contract: step 4 iterates
+      // these lists, and the import rewrites them after an await.
+      const seen: any[][] = [];
+      TestBed.runInInjectionContext(() => {
+        effect(() => seen.push(service.indicatorReferences_adminView));
+      });
+      TestBed.tick();
+
+      service.indicatorReferences_adminView = [{ indicatorMetadata: { indicatorId: 'ind-1' } }];
+      TestBed.tick();
+
+      expect(seen.length).toBeGreaterThan(1);
+      expect(seen.at(-1)).toHaveLength(1);
     });
 
     it('reports unparsable content instead of throwing', async () => {

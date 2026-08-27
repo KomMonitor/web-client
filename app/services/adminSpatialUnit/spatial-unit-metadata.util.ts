@@ -69,7 +69,9 @@ export function buildSpatialUnitMetadataExport(
       description: convertEmptyToNull(metadata.description),
       databasis: convertEmptyToNull(metadata.databasis),
     },
-    allowedRoles: ['roleId'],
+    // Placeholder, overwritten with the real role ids by the add modal; the
+    // API and the AngularJS original both call this field `permissions`.
+    permissions: ['roleId'],
     spatialUnitLevel: spatialUnitLevel || null,
     nextLowerHierarchyLevel,
     nextUpperHierarchyLevel,
@@ -93,7 +95,7 @@ export const SPATIAL_UNIT_METADATA_STRUCTURE = {
     description: 'description about spatial unit dataset',
     databasis: 'text about data basis',
   },
-  allowedRoles: ['roleId'],
+  permissions: ['roleId'],
   nextLowerHierarchyLevel: 'Name of lower hierarchy level',
   spatialUnitLevel: 'Name of spatial unit dataset',
   nextUpperHierarchyLevel: 'Name of upper hierarchy level',

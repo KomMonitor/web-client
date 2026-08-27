@@ -250,12 +250,14 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
     this.topicsForm.controls.subsubsubTopic.setValue(value ?? null);
   }
 
-  // Roles pass-through for PATCH/export: metadata editing does not manage
-  // permissions (that is the edit-user-roles modal's job, like in the
-  // spatial-unit area) — the current roles are just echoed back. Sourced from
-  // the dataset on reset and from an imported metadata file. Historically this
-  // went through an invisible role grid that was never rendered.
-  allowedRoles: string[] = [];
+  // Roles pass-through for the metadata export only: metadata editing does not
+  // manage permissions (that is the edit-user-roles modal's job, like in the
+  // spatial-unit area), and GeoresourcePATCHInputType has no permission field —
+  // so these are written to an exported metadata file but never PATCHed.
+  // Sourced from the dataset on reset and from an imported metadata file.
+  // Historically this went through an invisible role grid that was never
+  // rendered.
+  permissions: string[] = [];
 
   // Import/Export
   metadataImportSettings: any;
@@ -310,7 +312,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
         description: 'description about spatial unit dataset',
         databasis: 'text about data basis',
       },
-      allowedRoles: ['roleId'],
+      permissions: ['roleId'],
       datasetName: 'Name of georesource dataset',
       isPOI:
         'boolean parameter for point of interest dataset - only one of isPOI, isLOI, isAOI can be true',
@@ -348,7 +350,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
       this.envConfigService.updateIntervalOptions
     );
 
-    this.allowedRoles = [...(this.currentGeoresourceDataset.allowedRoles ?? [])];
+    this.permissions = [...(this.currentGeoresourceDataset.permissions ?? [])];
 
     // Set georesource type
     this.georesourceType = this.currentGeoresourceDataset.isPOI
@@ -486,7 +488,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
 
     this.datasetName = this.metadataImportSettings.datasetName;
 
-    this.allowedRoles = [...(this.metadataImportSettings.allowedRoles ?? [])];
+    this.permissions = [...(this.metadataImportSettings.permissions ?? [])];
 
     // Set georesource specific properties
     this.georesourceType = this.metadataImportSettings.isPOI
@@ -547,7 +549,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
     metadataExport.metadata.databasis = this.metadata.databasis || '';
     metadataExport.datasetName = this.datasetName || '';
 
-    metadataExport.allowedRoles = [...this.allowedRoles];
+    metadataExport.permissions = [...this.permissions];
 
     if (this.metadata.updateInterval) {
       metadataExport.metadata.updateInterval = this.metadata.updateInterval.apiName;
@@ -612,9 +614,10 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
 
   // Main edit method
   editGeoresourceMetadata(): void {
+    // No permission field: GeoresourcePATCHInputType does not declare one and
+    // the AngularJS original never sent one either.
     const patchBody: any = {
       metadata: metadataFormToApi(this.metadataForm),
-      allowedRoles: [...this.allowedRoles],
       datasetName: this.datasetName,
       isAOI: this.isAOI,
       isLOI: this.isLOI,

@@ -150,18 +150,20 @@ describe('georesource add form model', () => {
       expect(body.geoJsonString).toBe('');
       expect(body.jsonSchema).toBeNull();
       expect(body.datasetName).toBe('Spielplätze neu');
-      expect(body.allowedRoles).toEqual(['role-1']);
+      expect(body.permissions).toEqual(['role-1']);
       expect(body.ownerId).toBe('org-1');
       expect(body.isPublic).toBe(true);
       expect(body.periodOfValidity).toEqual({ startDate: '2026-01-01', endDate: '2026-12-31' });
       expect(body.metadata.updateInterval).toBe('YEARLY');
     });
 
-    it('names the permission field allowedRoles, not permissions', () => {
+    it('names the permission field permissions, not allowedRoles', () => {
+      // Behaviour change: `allowedRoles` was a regression of the Angular port —
+      // see the note on GeoresourceAddPostBody.
       const body = georesourceAddFormToApi(buildForm());
 
-      expect(Object.keys(body)).toContain('allowedRoles');
-      expect(Object.keys(body)).not.toContain('permissions');
+      expect(Object.keys(body)).toContain('permissions');
+      expect(Object.keys(body)).not.toContain('allowedRoles');
     });
 
     it('passes the validity dates through unnormalised', () => {
@@ -283,8 +285,8 @@ describe('georesource add form model', () => {
       expect(georesourceAddFormToApi(form).topicReference).toBe('t-2');
     });
 
-    it('defaults allowedRoles to an empty array', () => {
-      expect(georesourceAddFormToApi(buildForm()).allowedRoles).toEqual([]);
+    it('defaults permissions to an empty array', () => {
+      expect(georesourceAddFormToApi(buildForm()).permissions).toEqual([]);
     });
   });
 });

@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -10,7 +9,6 @@ import {
   Output,
   TemplateRef,
   ViewChild,
-  effect,
   inject,
 } from '@angular/core';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -57,16 +55,8 @@ export class IndicatorAddModalComponent implements OnInit {
   private http = inject(HttpClient);
   protected envConfigService = inject(EnvConfigService);
   private modalService = inject(NgbModal);
-  private cdr = inject(ChangeDetectorRef);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
-
-  // Re-render this OnPush view whenever the shared form-state service reports
-  // an async bulk rewrite of its plain fields (see stateRevision docs).
-  private readonly stateSync = effect(() => {
-    this.state.stateRevision();
-    this.cdr.markForCheck();
-  });
 
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
   @ViewChild('missingFieldsModal', { static: false }) missingFieldsModalTpl!: TemplateRef<unknown>;

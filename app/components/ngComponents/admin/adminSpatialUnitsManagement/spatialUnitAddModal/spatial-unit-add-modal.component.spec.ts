@@ -15,6 +15,7 @@ import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommo
 import { ResourceImportService } from 'services/resource-import-service/resource-import.service';
 import { SpatialUnitPOSTInputType } from 'models/data-management-api';
 
+import { patchPeriodOfValidityForm } from '../../adminShared/periodOfValidityForm/period-of-validity-form.model';
 import { SpatialUnitAddModalComponent } from './spatial-unit-add-modal.component';
 import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
 
@@ -130,6 +131,16 @@ describe('SpatialUnitAddModalComponent', () => {
     return created;
   }
 
+  // The component no longer mirrors its controls in plain accessors, so the
+  // tests write and read the typed form directly. `on` defaults to `component`
+  // so the Keycloak-off fixture can be driven through the same helpers.
+  const metadataGroup = (on = component) => on.addForm.controls.metadata;
+  const importerGroup = (on = component) => on.addForm.controls.data.controls.importer;
+  const securityGroup = (on = component) => on.addForm.controls.security;
+  const periodGroup = (on = component) => on.addForm.controls.data.controls.periodOfValidity;
+  const setPeriod = (value: { startDate: unknown; endDate: unknown }, on = component) =>
+    patchPeriodOfValidityForm(periodGroup(on), value as never);
+
   beforeEach(() => {
     fixture = createFixture();
     component = fixture.componentInstance;
@@ -145,10 +156,9 @@ describe('SpatialUnitAddModalComponent', () => {
 
   describe('buildPostBody_spatialUnits', () => {
     beforeEach(() => {
-      component.spatialUnitLevel = 'Quartiere';
-      component.periodOfValidity = { startDate: '2026-01-01', endDate: '2026-12-31' };
-      component.ownerOrganization = 'org-1';
-      component.isPublic = true;
+      metadataGroup().controls.spatialUnitLevel.setValue('Quartiere');
+      setPeriod({ startDate: '2026-01-01', endDate: '2026-12-31' });
+      securityGroup().patchValue({ ownerOrganization: 'org-1', isPublic: true });
       component.metadataForm.patchValue({
         description: 'Beschreibung',
         datasource: 'Quelle',
@@ -169,8 +179,10 @@ describe('SpatialUnitAddModalComponent', () => {
     });
 
     it('reduces the hierarchy selections to their level names', () => {
-      component.nextLowerHierarchySpatialUnit = SPATIAL_UNITS[2];
-      component.nextUpperHierarchySpatialUnit = SPATIAL_UNITS[0];
+      metadataGroup().patchValue({
+        nextLowerHierarchySpatialUnit: SPATIAL_UNITS[2],
+        nextUpperHierarchySpatialUnit: SPATIAL_UNITS[0],
+      });
 
       const body = component.buildPostBody_spatialUnits();
 
@@ -192,7 +204,7 @@ describe('SpatialUnitAddModalComponent', () => {
     });
 
     it('keeps the period keys present when no dates are set', () => {
-      component.periodOfValidity = { startDate: '', endDate: '' };
+      setPeriod({ startDate: '', endDate: '' });
 
       const body = component.buildPostBody_spatialUnits();
 
@@ -201,9 +213,8 @@ describe('SpatialUnitAddModalComponent', () => {
     });
 
     it('emits the outline fields even when the outline layer is off', () => {
-      component.isOutlineLayer = false;
+      metadataGroup().patchValue({ isOutlineLayer: false, outlineWidth: 5 });
       component.outlineColor = '#123456';
-      component.outlineWidth = 5;
 
       const body = component.buildPostBody_spatialUnits();
 
@@ -257,7 +268,7 @@ describe('SpatialUnitAddModalComponent', () => {
 
   describe('checkSpatialUnitName', () => {
     it('flags a level name that already exists', () => {
-      component.spatialUnitLevel = 'Stadtteile';
+      metadataGroup().controls.spatialUnitLevel.setValue('Stadtteile');
 
       component.checkSpatialUnitName();
 
@@ -265,7 +276,7 @@ describe('SpatialUnitAddModalComponent', () => {
     });
 
     it('accepts a new level name', () => {
-      component.spatialUnitLevel = 'Quartiere';
+      metadataGroup().controls.spatialUnitLevel.setValue('Quartiere');
 
       component.checkSpatialUnitName();
 
@@ -273,7 +284,7 @@ describe('SpatialUnitAddModalComponent', () => {
     });
 
     it('accepts an empty name (the submit button gates on that separately)', () => {
-      component.spatialUnitLevel = '';
+      metadataGroup().controls.spatialUnitLevel.setValue('');
 
       component.checkSpatialUnitName();
 
@@ -281,10 +292,10 @@ describe('SpatialUnitAddModalComponent', () => {
     });
 
     it('clears a previous verdict on re-check', () => {
-      component.spatialUnitLevel = 'Stadtteile';
+      metadataGroup().controls.spatialUnitLevel.setValue('Stadtteile');
       component.checkSpatialUnitName();
 
-      component.spatialUnitLevel = 'Quartiere';
+      metadataGroup().controls.spatialUnitLevel.setValue('Quartiere');
       component.checkSpatialUnitName();
 
       expect(component.spatialUnitLevelInvalid).toBe(false);
@@ -293,8 +304,10 @@ describe('SpatialUnitAddModalComponent', () => {
 
   describe('checkSpatialUnitHierarchy', () => {
     it('accepts a lower level that is finer than the upper one', () => {
-      component.nextLowerHierarchySpatialUnit = SPATIAL_UNITS[2]; // Baublöcke (index 2)
-      component.nextUpperHierarchySpatialUnit = SPATIAL_UNITS[0]; // Stadt (index 0)
+      metadataGroup().patchValue({
+        nextLowerHierarchySpatialUnit: SPATIAL_UNITS[2], // Baublöcke (index 2)
+        nextUpperHierarchySpatialUnit: SPATIAL_UNITS[0], // Stadt (index 0)
+      });
 
       component.checkSpatialUnitHierarchy();
 
@@ -302,8 +315,10 @@ describe('SpatialUnitAddModalComponent', () => {
     });
 
     it('rejects a lower level that is coarser than the upper one', () => {
-      component.nextLowerHierarchySpatialUnit = SPATIAL_UNITS[0];
-      component.nextUpperHierarchySpatialUnit = SPATIAL_UNITS[2];
+      metadataGroup().patchValue({
+        nextLowerHierarchySpatialUnit: SPATIAL_UNITS[0],
+        nextUpperHierarchySpatialUnit: SPATIAL_UNITS[2],
+      });
 
       component.checkSpatialUnitHierarchy();
 
@@ -311,8 +326,10 @@ describe('SpatialUnitAddModalComponent', () => {
     });
 
     it('rejects the same level on both ends', () => {
-      component.nextLowerHierarchySpatialUnit = SPATIAL_UNITS[1];
-      component.nextUpperHierarchySpatialUnit = SPATIAL_UNITS[1];
+      metadataGroup().patchValue({
+        nextLowerHierarchySpatialUnit: SPATIAL_UNITS[1],
+        nextUpperHierarchySpatialUnit: SPATIAL_UNITS[1],
+      });
 
       component.checkSpatialUnitHierarchy();
 
@@ -320,8 +337,10 @@ describe('SpatialUnitAddModalComponent', () => {
     });
 
     it('stays valid while only one end is selected', () => {
-      component.nextLowerHierarchySpatialUnit = SPATIAL_UNITS[0];
-      component.nextUpperHierarchySpatialUnit = null;
+      metadataGroup().patchValue({
+        nextLowerHierarchySpatialUnit: SPATIAL_UNITS[0],
+        nextUpperHierarchySpatialUnit: null,
+      });
 
       component.checkSpatialUnitHierarchy();
 
@@ -329,8 +348,10 @@ describe('SpatialUnitAddModalComponent', () => {
     });
 
     it('stays valid when a selected level is unknown to the store', () => {
-      component.nextLowerHierarchySpatialUnit = { spatialUnitLevel: 'Fremd' } as any;
-      component.nextUpperHierarchySpatialUnit = { spatialUnitLevel: 'Auch fremd' } as any;
+      metadataGroup().patchValue({
+        nextLowerHierarchySpatialUnit: { spatialUnitLevel: 'Fremd' } as any,
+        nextUpperHierarchySpatialUnit: { spatialUnitLevel: 'Auch fremd' } as any,
+      });
 
       component.checkSpatialUnitHierarchy();
 
@@ -340,7 +361,7 @@ describe('SpatialUnitAddModalComponent', () => {
 
   describe('checkPeriodOfValidity', () => {
     it('accepts a start before the end', () => {
-      component.periodOfValidity = { startDate: '2026-01-01', endDate: '2026-12-31' };
+      setPeriod({ startDate: '2026-01-01', endDate: '2026-12-31' });
 
       component.checkPeriodOfValidity();
 
@@ -348,7 +369,7 @@ describe('SpatialUnitAddModalComponent', () => {
     });
 
     it('rejects an end that is not after the start', () => {
-      component.periodOfValidity = { startDate: '2026-12-31', endDate: '2026-01-01' };
+      setPeriod({ startDate: '2026-12-31', endDate: '2026-01-01' });
 
       component.checkPeriodOfValidity();
 
@@ -356,7 +377,7 @@ describe('SpatialUnitAddModalComponent', () => {
     });
 
     it('accepts an open-ended period', () => {
-      component.periodOfValidity = { startDate: '2026-01-01', endDate: '' };
+      setPeriod({ startDate: '2026-01-01', endDate: '' });
 
       component.checkPeriodOfValidity();
 
@@ -364,10 +385,10 @@ describe('SpatialUnitAddModalComponent', () => {
     });
 
     it('accepts NgbDateStruct values from the datepicker', () => {
-      component.periodOfValidity = {
-        startDate: { year: 2026, month: 1, day: 1 } as any,
-        endDate: { year: 2026, month: 12, day: 31 } as any,
-      };
+      setPeriod({
+        startDate: { year: 2026, month: 1, day: 1 },
+        endDate: { year: 2026, month: 12, day: 31 },
+      });
 
       component.checkPeriodOfValidity();
 
@@ -378,38 +399,38 @@ describe('SpatialUnitAddModalComponent', () => {
 
   describe('resetForm', () => {
     it('restores the non-empty defaults instead of nulling them', () => {
-      component.isOutlineLayer = true;
+      metadataGroup().patchValue({ isOutlineLayer: true, outlineWidth: 5 });
       component.outlineColor = '#ffffff';
-      component.outlineWidth = 5;
-      component.keepAttributes = false;
-      component.keepMissingValues = false;
-      component.isPublic = true;
+      importerGroup().patchValue({ keepAttributes: false, keepMissingValues: false });
+      securityGroup().controls.isPublic.setValue(true);
 
       component.resetForm();
 
-      expect(component.isOutlineLayer).toBe(false);
+      expect(metadataGroup().controls.isOutlineLayer.value).toBe(false);
       expect(component.outlineColor).toBe('#000000');
-      expect(component.outlineWidth).toBe(3);
-      expect(component.keepAttributes).toBe(true);
-      expect(component.keepMissingValues).toBe(true);
-      expect(component.isPublic).toBe(false);
+      expect(metadataGroup().controls.outlineWidth.value).toBe(3);
+      expect(importerGroup().controls.keepAttributes.value).toBe(true);
+      expect(importerGroup().controls.keepMissingValues.value).toBe(true);
+      expect(securityGroup().controls.isPublic.value).toBe(false);
     });
 
     it('clears the entered values and the wizard step', () => {
-      component.spatialUnitLevel = 'Quartiere';
-      component.nextLowerHierarchySpatialUnit = SPATIAL_UNITS[2];
-      component.periodOfValidity = { startDate: '2026-01-01', endDate: '2026-12-31' };
-      component.spatialUnitDataSourceIdProperty = 'id';
-      component.ownerOrganization = 'org-1';
+      metadataGroup().patchValue({
+        spatialUnitLevel: 'Quartiere',
+        nextLowerHierarchySpatialUnit: SPATIAL_UNITS[2],
+      });
+      setPeriod({ startDate: '2026-01-01', endDate: '2026-12-31' });
+      importerGroup().controls.idProperty.setValue('id');
+      securityGroup().controls.ownerOrganization.setValue('org-1');
       component.stepper.next();
 
       component.resetForm();
 
-      expect(component.spatialUnitLevel).toBe('');
-      expect(component.nextLowerHierarchySpatialUnit).toBeNull();
-      expect(component.periodOfValidity).toEqual({ startDate: '', endDate: '' });
-      expect(component.spatialUnitDataSourceIdProperty).toBe('');
-      expect(component.ownerOrganization).toBe('');
+      expect(metadataGroup().controls.spatialUnitLevel.value).toBe('');
+      expect(metadataGroup().controls.nextLowerHierarchySpatialUnit.value).toBeNull();
+      expect(periodGroup().getRawValue()).toEqual({ startDate: '', endDate: '' });
+      expect(importerGroup().controls.idProperty.value).toBe('');
+      expect(securityGroup().controls.ownerOrganization.value).toBe('');
       expect(component.stepper.currentStep).toBe(1);
       expect(component.attributeMappings_adminView).toEqual([]);
     });
@@ -427,20 +448,22 @@ describe('SpatialUnitAddModalComponent', () => {
 
   describe('submit gate', () => {
     /** Fills everything the POST body requires. */
-    const fillRequired = () => {
-      component.spatialUnitLevel = 'Quartiere';
-      component.metadataForm.patchValue({
+    const fillRequired = (on = component) => {
+      metadataGroup(on).controls.spatialUnitLevel.setValue('Quartiere');
+      on.metadataForm.patchValue({
         description: 'Beschreibung',
         datasource: 'Quelle',
         contact: 'Kontakt',
         lastUpdate: '2026-01-01',
         updateInterval: { apiName: 'YEARLY', displayName: 'jährlich' },
       });
-      component.periodOfValidity = { startDate: '2026-01-01', endDate: '' };
-      component.spatialUnitDataSourceIdProperty = 'id';
-      component.spatialUnitDataSourceNameProperty = 'name';
-      component.converter = { name: 'GeoJSON', mimeTypes: [], encodings: [], type: 'geojson' };
-      component.datasourceType = { type: 'FILE', parameters: [] };
+      setPeriod({ startDate: '2026-01-01', endDate: '' }, on);
+      importerGroup(on).patchValue({
+        idProperty: 'id',
+        nameProperty: 'name',
+        converter: { name: 'GeoJSON', mimeTypes: [], encodings: [], type: 'geojson' },
+        datasourceType: { type: 'FILE', parameters: [] },
+      });
     };
 
     it('stays closed while required fields are missing', () => {
@@ -451,7 +474,7 @@ describe('SpatialUnitAddModalComponent', () => {
       fillRequired();
       expect(component.addForm.invalid).toBe(true); // owner still missing
 
-      component.ownerOrganization = 'org-1';
+      securityGroup().controls.ownerOrganization.setValue('org-1');
 
       expect(component.addForm.valid).toBe(true);
     });
@@ -463,21 +486,9 @@ describe('SpatialUnitAddModalComponent', () => {
       const plainFixture = createFixture({ enableKeycloakSecurity: false });
       const plain = plainFixture.componentInstance;
 
-      plain.spatialUnitLevel = 'Quartiere';
-      plain.metadataForm.patchValue({
-        description: 'Beschreibung',
-        datasource: 'Quelle',
-        contact: 'Kontakt',
-        lastUpdate: '2026-01-01',
-        updateInterval: { apiName: 'YEARLY', displayName: 'jährlich' },
-      });
-      plain.periodOfValidity = { startDate: '2026-01-01', endDate: '' };
-      plain.spatialUnitDataSourceIdProperty = 'id';
-      plain.spatialUnitDataSourceNameProperty = 'name';
-      plain.converter = { name: 'GeoJSON', mimeTypes: [], encodings: [], type: 'geojson' };
-      plain.datasourceType = { type: 'FILE', parameters: [] };
+      fillRequired(plain);
 
-      expect(plain.ownerOrganization).toBe('');
+      expect(securityGroup(plain).controls.ownerOrganization.value).toBe('');
       expect(plain.addForm.valid).toBe(true);
     });
   });
@@ -505,8 +516,8 @@ describe('SpatialUnitAddModalComponent', () => {
     it('seeds schema and mime type when a converter is picked', () => {
       component.importerForm.controls.converter.setValue(CONVERTER as never);
 
-      expect(component.schema).toBe('default');
-      expect(component.mimeType).toBe('application/json');
+      expect(importerGroup().controls.schema.value).toBe('default');
+      expect(importerGroup().controls.mimeType.value).toBe('application/json');
     });
 
     it('creates one control per converter parameter, required where mandatory', () => {
@@ -518,18 +529,20 @@ describe('SpatialUnitAddModalComponent', () => {
     });
 
     it('clears the bbox and property names when the data source type changes', () => {
-      component.spatialUnitDataSourceIdProperty = 'id';
-      component.bboxType = 'ref';
-      component.bboxRefSpatialUnit = 'su-42';
+      importerGroup().patchValue({
+        idProperty: 'id',
+        bboxType: 'ref',
+        bboxRefSpatialUnitId: 'su-42',
+      });
 
       component.importerForm.controls.datasourceType.setValue({
         type: 'FILE',
         parameters: [],
       } as never);
 
-      expect(component.spatialUnitDataSourceIdProperty).toBe('');
-      expect(component.bboxType).toBe('');
-      expect(component.bboxRefSpatialUnit).toBe('');
+      expect(importerGroup().controls.idProperty.value).toBe('');
+      expect(importerGroup().controls.bboxType.value).toBe('');
+      expect(importerGroup().controls.bboxRefSpatialUnitId.value).toBe('');
     });
 
     it('rebuilds the data-source parameter controls, skipping the synthetic bbox ones', () => {

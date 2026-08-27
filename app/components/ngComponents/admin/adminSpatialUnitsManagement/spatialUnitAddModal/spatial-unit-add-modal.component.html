@@ -292,6 +292,12 @@
 
     <!-- Step 3/4: Räumlicher Datensatz -->
     <fieldset [hidden]="!stepper.isActive('data')">
+      <!-- Reads of the importer form used by the conditionals below; the
+           component no longer mirrors these controls in plain accessors. -->
+      @let selectedConverter = importerForm.controls.converter.value;
+      @let selectedDatasourceType = importerForm.controls.datasourceType.value;
+      @let selectedBboxType = importerForm.controls.bboxType.value;
+      @let keepAttrs = importerForm.controls.keepAttributes.value;
       <div style="position: absolute">
         <button
           type="button"
@@ -352,7 +358,7 @@
             </select>
             <div class="help-block with-errors"></div>
           </div>
-          @if (converter?.schemas) {
+          @if (selectedConverter?.schemas; as converterSchemas) {
             <div>
               <div class="form-group">
                 <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SCHEMA' | translate }}*</label>
@@ -360,7 +366,7 @@
                   <option [ngValue]="''">
                     {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SCHEMA' | translate }}
                   </option>
-                  @for (schema of converter.schemas; track schema) {
+                  @for (schema of converterSchemas; track schema) {
                     <option [ngValue]="schema">
                       {{ schema }}
                     </option>
@@ -370,7 +376,7 @@
               </div>
             </div>
           }
-          @if (converter?.mimeTypes) {
+          @if (selectedConverter?.mimeTypes; as converterMimeTypes) {
             <div>
               <div class="form-group">
                 <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_FORMAT' | translate }}*</label>
@@ -378,7 +384,7 @@
                   <option [ngValue]="''">
                     {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_FORMAT' | translate }}
                   </option>
-                  @for (mimeType of converter.mimeTypes; track mimeType) {
+                  @for (mimeType of converterMimeTypes; track mimeType) {
                     <option [ngValue]="mimeType">
                       {{ mimeType }}
                     </option>
@@ -388,7 +394,7 @@
               </div>
             </div>
           }
-          @for (parameter of converter?.parameters; track parameter.name) {
+          @for (parameter of selectedConverter?.parameters; track parameter.name) {
             <div formGroupName="converterParameters">
               <div class="form-group">
                 <label
@@ -420,12 +426,12 @@
           }
         </div>
         <div class="col-md-3 col-sm-6 col-12">
-          @if (!converter) {
+          @if (!selectedConverter) {
             <div class="form-group">
               <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.CHOOSE_SOURCE_FORMAT_FIRST' | translate }}</p>
             </div>
           }
-          @if (converter) {
+          @if (selectedConverter) {
             <div>
               <div class="form-group">
                 <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.DATASOURCE_TYPE' | translate }}*</label>
@@ -441,7 +447,7 @@
                 </select>
                 <div class="help-block"></div>
               </div>
-              @if (datasourceType?.type === 'FILE') {
+              @if (selectedDatasourceType?.type === 'FILE') {
                 <div>
                   <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.FILE' | translate }}*</label>
                   <input
@@ -464,7 +470,7 @@
                   }
                 </div>
               }
-              @if (datasourceType?.type === 'OGCAPI_FEATURES') {
+              @if (selectedDatasourceType?.type === 'OGCAPI_FEATURES') {
                 <div>
                   <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SPATIAL_FILTER' | translate }}*</label>
                   <select
@@ -482,7 +488,7 @@
                       {{ 'ADMIN_SPATIAL_UNITS.DATA.MANUAL_BBOX' | translate }}
                     </option>
                   </select>
-                  @if (bboxType === 'ref') {
+                  @if (selectedBboxType === 'ref') {
                     <div>
                       <!-- select available spatialUnits -->
                       <select
@@ -504,7 +510,7 @@
                       </div>
                     </div>
                   }
-                  @if (bboxType === 'literal') {
+                  @if (selectedBboxType === 'literal') {
                     <div formGroupName="bbox">
                       <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.BBOX' | translate }}*</label>
                       <input
@@ -555,9 +561,9 @@
                   }
                 </div>
               }
-              @if (datasourceType && datasourceType.type !== 'FILE') {
+              @if (selectedDatasourceType && selectedDatasourceType.type !== 'FILE') {
                 <div formGroupName="datasourceTypeParameters">
-                  @for (parameter of datasourceType.parameters; track parameter.name) {
+                  @for (parameter of selectedDatasourceType.parameters; track parameter.name) {
                     <div>
                       @if (parameter.name !== 'bbox') {
                         <div class="form-group">
@@ -714,7 +720,7 @@
             </div>
           </div>
         </div>
-        @if (!keepAttributes) {
+        @if (!keepAttrs) {
           <div class="col-md-6 col-sm-6 col-12">
             <div class="form-group">
               <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.KEEP_MISSING_VALUES' | translate }}*</label>
@@ -733,7 +739,7 @@
         }
       </div>
 
-      @if (!keepAttributes) {
+      @if (!keepAttrs) {
         <div class="row vertical-align">
           <div class="col-md-6 col-sm-6 col-12" [formGroup]="attributeMappingDraft">
             <div class="form-group">

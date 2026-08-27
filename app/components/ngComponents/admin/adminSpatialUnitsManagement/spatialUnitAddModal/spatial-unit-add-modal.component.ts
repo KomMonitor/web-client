@@ -192,13 +192,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     },
   ]);
 
-  // Basic form data — transitional accessors onto addForm.controls.metadata.
-  get spatialUnitLevel(): string {
-    return this.addForm.controls.metadata.controls.spatialUnitLevel.value;
-  }
-  set spatialUnitLevel(value: string) {
-    this.addForm.controls.metadata.controls.spatialUnitLevel.setValue(value ?? '');
-  }
   get spatialUnitLevelInvalid(): boolean {
     return this.addForm.controls.metadata.controls.spatialUnitLevel.hasError('uniqueName');
   }
@@ -217,45 +210,10 @@ export class SpatialUnitAddModalComponent implements OnInit {
     return this.metadataForm.getRawValue();
   }
 
-  // Hierarchy
-  get nextLowerHierarchySpatialUnit(): any {
-    return this.addForm.controls.metadata.controls.nextLowerHierarchySpatialUnit.value;
-  }
-  set nextLowerHierarchySpatialUnit(value: any) {
-    this.addForm.controls.metadata.controls.nextLowerHierarchySpatialUnit.setValue(value ?? null);
-  }
-  get nextUpperHierarchySpatialUnit(): any {
-    return this.addForm.controls.metadata.controls.nextUpperHierarchySpatialUnit.value;
-  }
-  set nextUpperHierarchySpatialUnit(value: any) {
-    this.addForm.controls.metadata.controls.nextUpperHierarchySpatialUnit.setValue(value ?? null);
-  }
   get hierarchyInvalid(): boolean {
     return this.addForm.controls.metadata.hasError('spatialUnitHierarchy');
   }
 
-  // Outline layer settings
-  get isOutlineLayer(): boolean {
-    return this.addForm.controls.metadata.controls.isOutlineLayer.value;
-  }
-  set isOutlineLayer(value: boolean) {
-    this.addForm.controls.metadata.controls.isOutlineLayer.setValue(!!value);
-  }
-  get outlineWidth(): number {
-    return this.addForm.controls.metadata.controls.outlineWidth.value;
-  }
-  set outlineWidth(value: number) {
-    this.addForm.controls.metadata.controls.outlineWidth.setValue(value ?? DEFAULT_OUTLINE_WIDTH);
-  }
-
-  // Period of validity — transitional accessors onto
-  // addForm.controls.data.controls.periodOfValidity.
-  get periodOfValidity(): { startDate: any; endDate: any } {
-    return this.addForm.controls.data.controls.periodOfValidity.getRawValue();
-  }
-  set periodOfValidity(value: { startDate: any; endDate: any } | null | undefined) {
-    patchPeriodOfValidityForm(this.addForm.controls.data.controls.periodOfValidity, value);
-  }
   get periodOfValidityInvalid(): boolean {
     return this.addForm.controls.data.controls.periodOfValidity.hasError('periodOfValidity');
   }
@@ -271,58 +229,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     return this.addForm.controls.data.controls.importer;
   }
 
-  // Transitional accessors onto the importer form.
-  get converter(): any {
-    return this.importerForm.controls.converter.value;
-  }
-  set converter(value: any) {
-    this.importerForm.controls.converter.setValue(value ?? null);
-  }
-  get schema(): string {
-    return this.importerForm.controls.schema.value;
-  }
-  set schema(value: string) {
-    this.importerForm.controls.schema.setValue(value ?? '');
-  }
-  get mimeType(): string {
-    return this.importerForm.controls.mimeType.value;
-  }
-  set mimeType(value: string) {
-    this.importerForm.controls.mimeType.setValue(value ?? '');
-  }
-  get datasourceType(): any {
-    return this.importerForm.controls.datasourceType.value;
-  }
-  set datasourceType(value: any) {
-    this.importerForm.controls.datasourceType.setValue(value ?? null);
-  }
   selectedDataSourceFile: File | null = null;
-  get spatialUnitDataSourceIdProperty(): string {
-    return this.importerForm.controls.idProperty.value;
-  }
-  set spatialUnitDataSourceIdProperty(value: string) {
-    this.importerForm.controls.idProperty.setValue(value ?? '');
-  }
-  get spatialUnitDataSourceNameProperty(): string {
-    return this.importerForm.controls.nameProperty.value;
-  }
-  set spatialUnitDataSourceNameProperty(value: string) {
-    this.importerForm.controls.nameProperty.setValue(value ?? '');
-  }
-
-  // Bbox parameters for OGCAPI_FEATURES
-  get bboxType(): string {
-    return this.importerForm.controls.bboxType.value;
-  }
-  set bboxType(value: string) {
-    this.importerForm.controls.bboxType.setValue((value ?? '') as BboxType);
-  }
-  get bboxRefSpatialUnit(): any {
-    return this.importerForm.controls.bboxRefSpatialUnitId.value;
-  }
-  set bboxRefSpatialUnit(value: any) {
-    this.importerForm.controls.bboxRefSpatialUnitId.setValue(value ?? '');
-  }
 
   // Attribute mapping
   /**
@@ -330,76 +237,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
    * it is not submitted, and its required rules must not gate the wizard.
    */
   readonly attributeMappingDraft = buildAttributeMappingDraftForm();
-  get attributeMapping_sourceAttributeName(): string {
-    return this.attributeMappingDraft.controls.sourceName.value;
-  }
-  set attributeMapping_sourceAttributeName(value: string) {
-    this.attributeMappingDraft.controls.sourceName.setValue(value ?? '');
-  }
-  get attributeMapping_destinationAttributeName(): string {
-    return this.attributeMappingDraft.controls.destinationName.value;
-  }
-  set attributeMapping_destinationAttributeName(value: string) {
-    this.attributeMappingDraft.controls.destinationName.setValue(value ?? '');
-  }
-  get attributeMapping_attributeType(): any {
-    return this.attributeMappingDraft.controls.dataType.value;
-  }
-  set attributeMapping_attributeType(value: any) {
-    this.attributeMappingDraft.controls.dataType.setValue(value ?? null);
-  }
   attributeMappings_adminView: AttributeMappingRow[] = [];
-  get keepAttributes(): boolean {
-    return this.importerForm.controls.keepAttributes.value;
-  }
-  set keepAttributes(value: boolean) {
-    this.importerForm.controls.keepAttributes.setValue(!!value);
-  }
-  get keepMissingValues(): boolean {
-    return this.importerForm.controls.keepMissingValues.value;
-  }
-  set keepMissingValues(value: boolean) {
-    this.importerForm.controls.keepMissingValues.setValue(!!value);
-  }
-
-  // Persisted parameter values for converter and datasource type
-  get converterParameterValues(): { [key: string]: string } {
-    return this.importerForm.controls.converterParameters.getRawValue();
-  }
-  get datasourceTypeParameterValues(): { [key: string]: string } {
-    return this.importerForm.controls.datasourceTypeParameters.getRawValue();
-  }
-
-  // Validity dates per feature
-  get validityStartDate_perFeature(): string {
-    return this.importerForm.controls.validStartDateProperty.value;
-  }
-  set validityStartDate_perFeature(value: string) {
-    this.importerForm.controls.validStartDateProperty.setValue(value ?? '');
-  }
-  get validityEndDate_perFeature(): string {
-    return this.importerForm.controls.validEndDateProperty.value;
-  }
-  set validityEndDate_perFeature(value: string) {
-    this.importerForm.controls.validEndDateProperty.setValue(value ?? '');
-  }
-
-  // Role management (grid handled by <app-role-management-grid>).
-  // Transitional accessors onto addForm.controls.security — they keep the
-  // existing call sites and the component spec working while the template is
-  // migrated, and are removed in the final clean-up step.
-  get ownerOrganization(): string {
-    return this.addForm.controls.security.controls.ownerOrganization.value;
-  }
-  set ownerOrganization(value: string) {
-    this.addForm.controls.security.controls.ownerOrganization.setValue(value ?? '');
-  }
-  get isPublic(): boolean {
-    return this.addForm.controls.security.controls.isPublic.value;
-  }
-  set isPublic(value: boolean) {
-    this.addForm.controls.security.controls.isPublic.setValue(!!value);
-  }
 
   // Import/Export functionality
   metadataImportSettings: any = null;
@@ -496,7 +334,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     // Initialize attribute mapping types
     const attributeMappingTypes = this.kommonitorImporterHelperService.getAttributeMappingTypes();
     if (attributeMappingTypes && attributeMappingTypes.length > 0) {
-      this.attributeMapping_attributeType = attributeMappingTypes[0];
+      this.attributeMappingDraft.controls.dataType.setValue(attributeMappingTypes[0]);
     }
 
     // Ensure importer resources are fetched before reading converters/datasource types
@@ -602,18 +440,12 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   /** Seeds schema/mime type and rebuilds the parameter controls for a converter. */
   onChangeConverter(_schema?: any) {
-    const converter = this.converter;
-    this.schema = converter?.schemas ? converter.schemas[0] : '';
-    this.mimeType = converter?.mimeTypes ? converter.mimeTypes[0] : '';
+    const converter = this.importerForm.controls.converter.value;
+    this.importerForm.controls.schema.setValue(converter?.schemas ? converter.schemas[0] : '');
+    this.importerForm.controls.mimeType.setValue(
+      converter?.mimeTypes ? converter.mimeTypes[0] : ''
+    );
     syncConverterParameterControls(this.importerForm, converter);
-  }
-
-  onChangeMimeType(mimeType: any) {
-    this.mimeType = mimeType;
-  }
-
-  onChangeDatasourceType(datasourceType: any) {
-    this.datasourceType = datasourceType;
   }
 
   /**
@@ -622,10 +454,10 @@ export class SpatialUnitAddModalComponent implements OnInit {
    */
   private applyDatasourceTypeChange(datasourceType: any): void {
     this.selectedDataSourceFile = null;
-    this.spatialUnitDataSourceIdProperty = '';
-    this.spatialUnitDataSourceNameProperty = '';
-    this.bboxType = '';
-    this.bboxRefSpatialUnit = '';
+    this.importerForm.controls.idProperty.setValue('');
+    this.importerForm.controls.nameProperty.setValue('');
+    this.importerForm.controls.bboxType.setValue('' as BboxType);
+    this.importerForm.controls.bboxRefSpatialUnitId.setValue('');
     this.importerForm.controls.bbox.reset();
     syncDatasourceParameterControls(this.importerForm, datasourceType);
   }
@@ -650,28 +482,18 @@ export class SpatialUnitAddModalComponent implements OnInit {
   // Importer object building methods
   /** Snapshot of the current form state passed to the shared import service. */
   private importerObjectsConfig(): ImporterObjectsConfig {
+    // importerFormToConfig() covers converter, schema, mime type, both
+    // parameter records, the data source type incl. the always-present bbox
+    // fields, the property names and the two keep flags.
+    const importer = this.importerForm.getRawValue();
     return {
-      converter: this.converter,
-      schema: this.schema,
-      mimeType: this.mimeType,
-      converterParameterValues: this.converterParameterValues,
-      datasourceType: this.datasourceType,
-      datasourceTypeFormValues: this.assembleDatasourceFormValues(),
+      ...importerFormToConfig(this.importerForm),
       selectedFile: this.selectedDataSourceFile,
       fileInputElement: this.spatialUnitDataSourceInput?.nativeElement,
-      idProperty: this.spatialUnitDataSourceIdProperty,
-      nameProperty: this.spatialUnitDataSourceNameProperty,
-      validStartDate: this.validityStartDate_perFeature,
-      validEndDate: this.validityEndDate_perFeature,
-      keepAttributes: this.keepAttributes,
-      keepMissingValues: this.keepMissingValues,
+      validStartDate: importer.validStartDateProperty,
+      validEndDate: importer.validEndDateProperty,
       attributeMappings: this.attributeMappings_adminView,
     };
-  }
-
-  /** Add-modal data-source params: bbox fields are always included. */
-  private assembleDatasourceFormValues(): { [key: string]: string } {
-    return importerFormToConfig(this.importerForm).datasourceTypeFormValues;
   }
 
   async buildImporterObjects() {
@@ -867,6 +689,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   parseFromMetadataFile(event: any) {
+    const metadata = this.addForm.controls.metadata;
     this.metadataImportSettings = JSON.parse(event.target.result);
 
     if (!this.metadataImportSettings.metadata) {
@@ -894,17 +717,19 @@ export class SpatialUnitAddModalComponent implements OnInit {
     // Parse hierarchy
     this.spatialUnitStore.availableSpatialUnits.forEach((spatialUnit: any) => {
       if (spatialUnit.spatialUnitLevel === this.metadataImportSettings.nextLowerHierarchyLevel) {
-        this.nextLowerHierarchySpatialUnit = spatialUnit;
+        metadata.controls.nextLowerHierarchySpatialUnit.setValue(spatialUnit);
       }
       if (spatialUnit.spatialUnitLevel === this.metadataImportSettings.nextUpperHierarchyLevel) {
-        this.nextUpperHierarchySpatialUnit = spatialUnit;
+        metadata.controls.nextUpperHierarchySpatialUnit.setValue(spatialUnit);
       }
     });
 
     // Parse outline layer settings
-    this.isOutlineLayer = this.metadataImportSettings.isOutlineLayer || false;
+    metadata.controls.isOutlineLayer.setValue(!!this.metadataImportSettings.isOutlineLayer);
     this.outlineColor = this.metadataImportSettings.outlineColor || '#000000';
-    this.outlineWidth = this.metadataImportSettings.outlineWidth || 3;
+    metadata.controls.outlineWidth.setValue(
+      this.metadataImportSettings.outlineWidth || DEFAULT_OUTLINE_WIDTH
+    );
 
     LABELED_LOI_DASH_ARRAY_OBJECTS?.forEach((option: any) => {
       if (option.dashArrayValue === this.metadataImportSettings.outlineDashArrayString) {
@@ -919,9 +744,11 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
     // Line pattern picker will handle the display automatically
 
-    this.spatialUnitLevel = this.metadataImportSettings.spatialUnitLevel;
-    this.ownerOrganization = this.metadataImportSettings.ownerId;
-    this.isPublic = this.metadataImportSettings.isPublic;
+    metadata.controls.spatialUnitLevel.setValue(this.metadataImportSettings.spatialUnitLevel ?? '');
+    this.addForm.controls.security.patchValue({
+      ownerOrganization: this.metadataImportSettings.ownerId ?? '',
+      isPublic: !!this.metadataImportSettings.isPublic,
+    });
 
     // Initialize metadata structures
     this.spatialUnitMappingConfigStructure =
@@ -937,7 +764,10 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.attributeMappings_adminView = parsed.attributeMappings;
 
     if (parsed.periodOfValidity) {
-      this.periodOfValidity = parsed.periodOfValidity;
+      patchPeriodOfValidityForm(
+        this.addForm.controls.data.controls.periodOfValidity,
+        parsed.periodOfValidity
+      );
     }
 
     this.spatialUnitMappingConfigStructure =
@@ -957,15 +787,18 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   onExportSpatialUnitAddMetadata() {
+    const metadata = this.addForm.controls.metadata.getRawValue();
+    const security = this.addForm.controls.security.getRawValue();
+
     // Use service method to build export structure
     const metadataExport = buildSpatialUnitMetadataExport(
       this.metadata,
-      this.spatialUnitLevel,
-      this.nextLowerHierarchySpatialUnit?.spatialUnitLevel || null,
-      this.nextUpperHierarchySpatialUnit?.spatialUnitLevel || null,
-      this.isOutlineLayer,
+      metadata.spatialUnitLevel,
+      metadata.nextLowerHierarchySpatialUnit?.spatialUnitLevel || null,
+      metadata.nextUpperHierarchySpatialUnit?.spatialUnitLevel || null,
+      metadata.isOutlineLayer,
       this.outlineColor,
-      this.outlineWidth,
+      metadata.outlineWidth,
       this.selectedOutlineDashArrayObject?.dashArrayValue || null
     );
 
@@ -973,10 +806,10 @@ export class SpatialUnitAddModalComponent implements OnInit {
     metadataExport.permissions = this.roleGrid?.getSelectedRoleIds() ?? [];
 
     // Add owner properties
-    metadataExport.ownerId = this.ownerOrganization;
-    metadataExport.isPublic = this.isPublic;
+    metadataExport.ownerId = security.ownerOrganization;
+    metadataExport.isPublic = security.isPublic;
 
-    const name = this.spatialUnitLevel;
+    const name = metadata.spatialUnitLevel;
     const fileName = `Raumebene_Metadaten_Export${name ? '-' + name : ''}.json`;
     this.resourceImportService.downloadJson(fileName, metadataExport);
   }
@@ -991,10 +824,10 @@ export class SpatialUnitAddModalComponent implements OnInit {
       definitions.converterDefinition,
       definitions.datasourceTypeDefinition,
       definitions.propertyMappingDefinition,
-      this.periodOfValidity
+      this.addForm.controls.data.controls.periodOfValidity.getRawValue()
     );
 
-    const name = this.spatialUnitLevel;
+    const name = this.addForm.controls.metadata.controls.spatialUnitLevel.value;
     const fileName = `KomMonitor-Import-Mapping-Konfiguration_Export${name ? '-' + name : ''}.json`;
     this.resourceImportService.downloadJson(fileName, mappingConfigExport);
   }

@@ -1,11 +1,9 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   OnDestroy,
   ViewChild,
-  effect,
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -30,14 +28,6 @@ import { RoleManagementGridComponent } from '../../../adminShared/roleManagement
 })
 export class IndicatorAddStep7AccessComponent implements AfterViewInit, OnDestroy {
   protected state = inject(IndicatorAddFormStateService);
-  private cdr = inject(ChangeDetectorRef);
-
-  // Re-render this OnPush view whenever the shared form-state service reports
-  // an async bulk rewrite of its plain fields (see stateRevision docs).
-  private readonly stateSync = effect(() => {
-    this.state.stateRevision();
-    this.cdr.markForCheck();
-  });
 
   @ViewChild(RoleManagementGridComponent) roleGrid?: RoleManagementGridComponent;
 

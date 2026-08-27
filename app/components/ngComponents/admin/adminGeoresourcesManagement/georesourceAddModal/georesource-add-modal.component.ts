@@ -29,7 +29,10 @@ import {
 import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { getErrorMessage } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.util';
+import {
+  addOrUpdateAttributeMapping,
+  getErrorMessage,
+} from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.util';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
@@ -68,12 +71,10 @@ import {
   georesourceAddFormToApi,
 } from './georesource-add-form.model';
 import {
-  BboxType,
   ImporterFormGroup,
   importerFormToConfig,
   importerFormToMissingFieldsInput,
   patchBboxFromDataSourceParameters,
-  patchImporterFormFromMappingConfig,
   syncConverterParameterControls,
   syncDatasourceParameterControls,
 } from '../../adminShared/importerForm/importer-form.model';
@@ -84,7 +85,10 @@ import {
   resetAttributeMappingDraft,
 } from '../../adminShared/attributeMappingDraftForm/attribute-mapping-draft-form.model';
 import { patchPeriodOfValidityForm } from '../../adminShared/periodOfValidityForm/period-of-validity-form.model';
-import { patchTopicHierarchyFromChain } from '../../adminShared/topicHierarchyForm/topic-hierarchy-form.model';
+import {
+  patchTopicHierarchyFromChain,
+  topicHierarchyToApi,
+} from '../../adminShared/topicHierarchyForm/topic-hierarchy-form.model';
 import { controlInvalidSignal } from '../../adminShared/forms/control-state';
 import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
 import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
@@ -204,35 +208,33 @@ export class GeoresourceAddModalComponent implements OnInit {
     },
   ]);
 
-  private get styleGroup() {
+  /** Name, type and the nine style fields; read by the template. */
+  protected get metadataStepGroup() {
+    return this.addForm.controls.metadata;
+  }
+  protected get styleGroup() {
     return this.addForm.controls.metadata.controls.style;
   }
 
-  // Basic form data
-  get datasetName(): string {
-    return this.addForm.controls.metadata.controls.datasetName.value;
-  }
-  set datasetName(value: string) {
-    this.addForm.controls.metadata.controls.datasetName.setValue(value ?? '');
-  }
   get datasetNameInvalid(): boolean {
     return this.addForm.controls.metadata.controls.datasetName.hasError('uniqueName');
   }
-  get georesourceType(): GeoresourceType {
-    return this.addForm.controls.metadata.controls.georesourceType.value;
-  }
-  set georesourceType(value: string) {
+
+  /** Normalises an unknown value to 'poi', as the former setter did. */
+  private setGeoresourceType(value: string): void {
     const type: GeoresourceType = value === 'loi' || value === 'aoi' ? value : 'poi';
     this.addForm.controls.metadata.controls.georesourceType.setValue(type);
   }
+
+  // Derived views on the single `georesourceType` control.
   get isPOI(): boolean {
-    return this.georesourceType === 'poi';
+    return this.addForm.controls.metadata.controls.georesourceType.value === 'poi';
   }
   get isLOI(): boolean {
-    return this.georesourceType === 'loi';
+    return this.addForm.controls.metadata.controls.georesourceType.value === 'loi';
   }
   get isAOI(): boolean {
-    return this.georesourceType === 'aoi';
+    return this.addForm.controls.metadata.controls.georesourceType.value === 'aoi';
   }
 
   // Metadata
@@ -248,97 +250,12 @@ export class GeoresourceAddModalComponent implements OnInit {
     return this.metadataForm.getRawValue();
   }
 
-  // Topic hierarchy
-  get georesourceTopic_mainTopic(): any {
-    return this.addForm.controls.topics.controls.mainTopic.value;
-  }
-  set georesourceTopic_mainTopic(value: any) {
-    this.addForm.controls.topics.controls.mainTopic.setValue(value ?? null);
-  }
-  get georesourceTopic_subTopic(): any {
-    return this.addForm.controls.topics.controls.subTopic.value;
-  }
-  set georesourceTopic_subTopic(value: any) {
-    this.addForm.controls.topics.controls.subTopic.setValue(value ?? null);
-  }
-  get georesourceTopic_subsubTopic(): any {
-    return this.addForm.controls.topics.controls.subsubTopic.value;
-  }
-  set georesourceTopic_subsubTopic(value: any) {
-    this.addForm.controls.topics.controls.subsubTopic.setValue(value ?? null);
-  }
-  get georesourceTopic_subsubsubTopic(): any {
-    return this.addForm.controls.topics.controls.subsubsubTopic.value;
-  }
-  set georesourceTopic_subsubsubTopic(value: any) {
-    this.addForm.controls.topics.controls.subsubsubTopic.setValue(value ?? null);
-  }
-
-  // Visual styling
-  get selectedPoiMarkerColor(): any {
-    return this.styleGroup.controls.poiMarkerColor.value;
-  }
-  set selectedPoiMarkerColor(value: any) {
-    this.styleGroup.controls.poiMarkerColor.setValue(value ?? null);
-  }
-  get selectedPoiSymbolColor(): any {
-    return this.styleGroup.controls.poiSymbolColor.value;
-  }
-  set selectedPoiSymbolColor(value: any) {
-    this.styleGroup.controls.poiSymbolColor.setValue(value ?? null);
-  }
-  get selectedLoiDashArrayObject(): LinePatternOption | null {
-    return this.styleGroup.controls.loiDashArray.value;
-  }
-  set selectedLoiDashArrayObject(value: LinePatternOption | null) {
-    this.styleGroup.controls.loiDashArray.setValue(value ?? null);
-  }
-  get loiColor(): string {
-    return this.styleGroup.controls.loiColor.value;
-  }
-  set loiColor(value: string) {
-    this.styleGroup.controls.loiColor.setValue(value || DEFAULT_LOI_COLOR);
-  }
-  get loiWidth(): number {
-    return this.styleGroup.controls.loiWidth.value;
-  }
-  set loiWidth(value: number) {
-    this.styleGroup.controls.loiWidth.setValue(value ?? DEFAULT_LOI_WIDTH);
-  }
-  get aoiColor(): string {
-    return this.styleGroup.controls.aoiColor.value;
-  }
-  set aoiColor(value: string) {
-    this.styleGroup.controls.aoiColor.setValue(value || DEFAULT_AOI_COLOR);
-  }
-  get selectedPoiIconName(): string {
-    return this.styleGroup.controls.poiIconName.value;
-  }
-  set selectedPoiIconName(value: string) {
-    this.styleGroup.controls.poiIconName.setValue(value || DEFAULT_POI_ICON_NAME);
-  }
-  get selectedPoiMarkerStyle(): string {
-    return this.styleGroup.controls.poiMarkerStyle.value;
-  }
-  set selectedPoiMarkerStyle(value: string) {
-    this.styleGroup.controls.poiMarkerStyle.setValue(value || DEFAULT_POI_MARKER_STYLE);
-  }
-  get poiMarkerText(): string {
-    return this.styleGroup.controls.poiMarkerText.value;
-  }
-  set poiMarkerText(value: string) {
-    this.styleGroup.controls.poiMarkerText.setValue(value ?? '');
-  }
   get poiMarkerTextInvalid(): boolean {
     return this.styleGroup.controls.poiMarkerText.hasError('maxlength');
   }
 
-  // Period of validity
-  get periodOfValidity(): { startDate: string; endDate: string } {
-    return this.addForm.controls.data.controls.periodOfValidity.getRawValue();
-  }
-  set periodOfValidity(value: { startDate: any; endDate: any } | null | undefined) {
-    patchPeriodOfValidityForm(this.addForm.controls.data.controls.periodOfValidity, value);
+  protected get periodOfValidityGroup() {
+    return this.addForm.controls.data.controls.periodOfValidity;
   }
   get periodOfValidityInvalid(): boolean {
     return this.addForm.controls.data.controls.periodOfValidity.hasError('periodOfValidity');
@@ -355,129 +272,12 @@ export class GeoresourceAddModalComponent implements OnInit {
   get importerForm(): ImporterFormGroup {
     return this.addForm.controls.data.controls.importer;
   }
-  get converter(): any {
-    return this.importerForm.controls.converter.value;
-  }
-  set converter(value: any) {
-    this.importerForm.controls.converter.setValue(value ?? null);
-  }
-  get schema(): string {
-    return this.importerForm.controls.schema.value;
-  }
-  set schema(value: string) {
-    this.importerForm.controls.schema.setValue(value ?? '');
-  }
-  get mimeType(): string {
-    return this.importerForm.controls.mimeType.value;
-  }
-  set mimeType(value: string) {
-    this.importerForm.controls.mimeType.setValue(value ?? '');
-  }
-  get datasourceType(): any {
-    return this.importerForm.controls.datasourceType.value;
-  }
-  set datasourceType(value: any) {
-    this.importerForm.controls.datasourceType.setValue(value ?? null);
-  }
-  get georesourceDataSourceIdProperty(): string {
-    return this.importerForm.controls.idProperty.value;
-  }
-  set georesourceDataSourceIdProperty(value: string) {
-    this.importerForm.controls.idProperty.setValue(value ?? '');
-  }
-  get georesourceDataSourceNameProperty(): string {
-    return this.importerForm.controls.nameProperty.value;
-  }
-  set georesourceDataSourceNameProperty(value: string) {
-    this.importerForm.controls.nameProperty.setValue(value ?? '');
-  }
-
-  // Bbox parameters for OGCAPI_FEATURES
-  get bboxType(): string {
-    return this.importerForm.controls.bboxType.value;
-  }
-  set bboxType(value: string) {
-    this.importerForm.controls.bboxType.setValue((value ?? '') as BboxType);
-  }
-  get bboxRefSpatialUnit(): any {
-    return this.importerForm.controls.bboxRefSpatialUnitId.value;
-  }
-  set bboxRefSpatialUnit(value: any) {
-    this.importerForm.controls.bboxRefSpatialUnitId.setValue(value ?? '');
-  }
-
-  // Converter / data-source parameter values, keyed by parameter name.
-  get converterParameterValues(): { [key: string]: string } {
-    return this.importerForm.controls.converterParameters.getRawValue();
-  }
-  get datasourceTypeParameterValues(): { [key: string]: string } {
-    return this.importerForm.controls.datasourceTypeParameters.getRawValue();
-  }
-
   /**
    * Staging row above the mapping table. Deliberately not part of `addForm`:
    * it is not submitted, and its required rules must not gate the wizard.
    */
   readonly attributeMappingDraft = buildAttributeMappingDraftForm();
-  get attributeMapping_sourceAttributeName(): string {
-    return this.attributeMappingDraft.controls.sourceName.value;
-  }
-  set attributeMapping_sourceAttributeName(value: string) {
-    this.attributeMappingDraft.controls.sourceName.setValue(value ?? '');
-  }
-  get attributeMapping_destinationAttributeName(): string {
-    return this.attributeMappingDraft.controls.destinationName.value;
-  }
-  set attributeMapping_destinationAttributeName(value: string) {
-    this.attributeMappingDraft.controls.destinationName.setValue(value ?? '');
-  }
-  get attributeMapping_attributeType(): any {
-    return this.attributeMappingDraft.controls.dataType.value;
-  }
-  set attributeMapping_attributeType(value: any) {
-    this.attributeMappingDraft.controls.dataType.setValue(value ?? null);
-  }
   attributeMappings_adminView: any[] = [];
-  get keepAttributes(): boolean {
-    return this.importerForm.controls.keepAttributes.value;
-  }
-  set keepAttributes(value: boolean) {
-    this.importerForm.controls.keepAttributes.setValue(!!value);
-  }
-  get keepMissingValues(): boolean {
-    return this.importerForm.controls.keepMissingValues.value;
-  }
-  set keepMissingValues(value: boolean) {
-    this.importerForm.controls.keepMissingValues.setValue(!!value);
-  }
-
-  // Validity dates per feature
-  get validityStartDate_perFeature(): string {
-    return this.importerForm.controls.validStartDateProperty.value;
-  }
-  set validityStartDate_perFeature(value: string) {
-    this.importerForm.controls.validStartDateProperty.setValue(value ?? '');
-  }
-  get validityEndDate_perFeature(): string {
-    return this.importerForm.controls.validEndDateProperty.value;
-  }
-  set validityEndDate_perFeature(value: string) {
-    this.importerForm.controls.validEndDateProperty.setValue(value ?? '');
-  }
-
-  // Role management (grid handled by <app-role-management-grid>)
-  get ownerOrganization(): string {
-    return this.addForm.controls.security.controls.ownerOrganization.value;
-  }
-  set ownerOrganization(value: string) {
-    this.addForm.controls.security.controls.ownerOrganization.setValue(value ?? '');
-  }
-  get isPublic(): boolean {
-    return this.addForm.controls.security.controls.isPublic.value;
-  }
-  set isPublic(value: boolean) {
-    this.addForm.controls.security.controls.isPublic.setValue(!!value);
-  }
 
   // Import/Export functionality
   metadataImportSettings: any = null;
@@ -504,7 +304,7 @@ export class GeoresourceAddModalComponent implements OnInit {
       description: 'description about spatial unit dataset',
       databasis: 'text about data basis',
     },
-    allowedRoles: ['roleId'],
+    permissions: ['roleId'],
     datasetName: 'Name of georesource dataset',
     isPOI:
       'boolean parameter for point of interest dataset - only one of isPOI, isLOI, isAOI can be true',
@@ -638,34 +438,28 @@ export class GeoresourceAddModalComponent implements OnInit {
    * Kept as a template hook.
    */
   onChangeGeoresourceType(): void {
-    this.georesourceType = this.georesourceType;
+    this.setGeoresourceType(this.addForm.controls.metadata.controls.georesourceType.value);
   }
 
   onChangeOwner(orgUnitId: string): void {
-    this.ownerOrganization = orgUnitId;
+    this.addForm.controls.security.controls.ownerOrganization.setValue(orgUnitId ?? '');
     // Seed the grid with the owner unit's default viewer/editor permissions
     this.roleGrid?.applyOwner(orgUnitId);
   }
 
   onChangeIsPublic(isPublic: boolean): void {
-    this.isPublic = isPublic;
+    this.addForm.controls.security.controls.isPublic.setValue(!!isPublic);
   }
 
   // Importer methods
   /** Seeds schema/mime type and rebuilds the parameter controls for a converter. */
   onChangeConverter(): void {
-    const converter = this.converter;
-    this.schema = converter?.schemas ? converter.schemas[0] : '';
-    this.mimeType = converter?.mimeTypes ? converter.mimeTypes[0] : '';
+    const converter = this.importerForm.controls.converter.value;
+    this.importerForm.controls.schema.setValue(converter?.schemas ? converter.schemas[0] : '');
+    this.importerForm.controls.mimeType.setValue(
+      converter?.mimeTypes ? converter.mimeTypes[0] : ''
+    );
     syncConverterParameterControls(this.importerForm, converter);
-  }
-
-  onChangeMimeType(mimeType: string): void {
-    this.mimeType = mimeType;
-  }
-
-  onChangeDatasourceType(datasourceType: any): void {
-    this.datasourceType = datasourceType;
   }
 
   /**
@@ -678,19 +472,19 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   // Color and styling methods
   onChangeMarkerColor(markerColor: any): void {
-    this.selectedPoiMarkerColor = markerColor;
+    this.styleGroup.controls.poiMarkerColor.setValue(markerColor ?? null);
   }
 
   onChangeSymbolColor(symbolColor: any): void {
-    this.selectedPoiSymbolColor = symbolColor;
+    this.styleGroup.controls.poiSymbolColor.setValue(symbolColor ?? null);
   }
 
   onChangeLoiDashArray(loiDashArrayObject: LinePatternOption | null): void {
-    this.selectedLoiDashArrayObject = loiDashArrayObject;
+    this.styleGroup.controls.loiDashArray.setValue(loiDashArrayObject ?? null);
   }
 
   onChangeMarkerStyle(markerStyle: string): void {
-    this.selectedPoiMarkerStyle = markerStyle;
+    this.styleGroup.controls.poiMarkerStyle.setValue(markerStyle || DEFAULT_POI_MARKER_STYLE);
   }
 
   /** The rule is `Validators.maxLength(3)` on the control now. */
@@ -700,40 +494,19 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   // Attribute mapping methods
   onAddOrUpdateAttributeMapping(): void {
-    const tmpAttributeMapping_adminView = {
-      sourceName: this.attributeMapping_sourceAttributeName,
-      destinationName: this.attributeMapping_destinationAttributeName,
-      dataType: this.attributeMapping_attributeType,
-    };
+    this.attributeMappings_adminView = addOrUpdateAttributeMapping(
+      this.attributeMappings_adminView,
+      attributeMappingDraftToRow(this.attributeMappingDraft)
+    );
 
-    let processed = false;
-
-    for (let index = 0; index < this.attributeMappings_adminView.length; index++) {
-      const attributeMappingEntry_adminView = this.attributeMappings_adminView[index];
-
-      if (attributeMappingEntry_adminView.sourceName === tmpAttributeMapping_adminView.sourceName) {
-        // replace object
-        this.attributeMappings_adminView[index] = tmpAttributeMapping_adminView;
-        processed = true;
-        break;
-      }
-    }
-
-    if (!processed) {
-      // new entry
-      this.attributeMappings_adminView.push(tmpAttributeMapping_adminView);
-    }
-
-    this.attributeMapping_sourceAttributeName = '';
-    this.attributeMapping_destinationAttributeName = '';
-    this.attributeMapping_attributeType =
-      this.kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
+    resetAttributeMappingDraft(
+      this.attributeMappingDraft,
+      this.kommonitorImporterHelperService.attributeMapping_attributeTypes[0]
+    );
   }
 
   onClickEditAttributeMapping(attributeMappingEntry: any): void {
-    this.attributeMapping_sourceAttributeName = attributeMappingEntry.sourceName;
-    this.attributeMapping_destinationAttributeName = attributeMappingEntry.destinationName;
-    this.attributeMapping_attributeType = attributeMappingEntry.dataType;
+    patchAttributeMappingDraft(this.attributeMappingDraft, attributeMappingEntry);
   }
 
   onClickDeleteAttributeMapping(attributeMappingEntry: any): void {
@@ -759,6 +532,8 @@ export class GeoresourceAddModalComponent implements OnInit {
   }
 
   onExportGeoresourceAddMetadata(): void {
+    const metadata = this.addForm.controls.metadata.getRawValue();
+    const style = metadata.style;
     const metadataExport = JSON.parse(JSON.stringify(this.georesourceMetadataStructure));
 
     metadataExport.metadata.note = this.metadata.note || '';
@@ -769,15 +544,15 @@ export class GeoresourceAddModalComponent implements OnInit {
     metadataExport.metadata.lastUpdate = this.metadata.lastUpdate || '';
     metadataExport.metadata.description = this.metadata.description || '';
     metadataExport.metadata.databasis = this.metadata.databasis || '';
-    metadataExport.datasetName = this.datasetName || '';
+    metadataExport.datasetName = metadata.datasetName || '';
 
-    metadataExport.allowedRoles = this.roleGrid?.getSelectedRoleIds() ?? [];
+    metadataExport.permissions = this.roleGrid?.getSelectedRoleIds() ?? [];
 
     if (this.metadata.updateInterval) {
       metadataExport.metadata.updateInterval = this.metadata.updateInterval.apiName;
     }
 
-    const name = this.datasetName;
+    const name = metadata.datasetName;
 
     // georesource specific properties
     metadataExport.isPOI = this.isPOI;
@@ -785,9 +560,9 @@ export class GeoresourceAddModalComponent implements OnInit {
     metadataExport.isAOI = this.isAOI;
 
     if (this.isPOI) {
-      metadataExport['poiSymbolBootstrap3Name'] = this.selectedPoiIconName;
-      metadataExport['poiSymbolColor'] = (this.selectedPoiSymbolColor as any)?.colorName || '';
-      metadataExport['poiMarkerColor'] = (this.selectedPoiMarkerColor as any)?.colorName || '';
+      metadataExport['poiSymbolBootstrap3Name'] = style.poiIconName;
+      metadataExport['poiSymbolColor'] = (style.poiSymbolColor as any)?.colorName || '';
+      metadataExport['poiMarkerColor'] = (style.poiMarkerColor as any)?.colorName || '';
 
       metadataExport['loiDashArrayString'] = '';
       metadataExport['loiColor'] = '';
@@ -799,9 +574,9 @@ export class GeoresourceAddModalComponent implements OnInit {
       metadataExport['poiSymbolColor'] = '';
       metadataExport['poiMarkerColor'] = '';
 
-      metadataExport['loiDashArrayString'] = this.selectedLoiDashArrayObject?.dashArrayValue ?? '';
-      metadataExport['loiColor'] = this.loiColor;
-      metadataExport['loiWidth'] = this.loiWidth;
+      metadataExport['loiDashArrayString'] = style.loiDashArray?.dashArrayValue ?? '';
+      metadataExport['loiColor'] = style.loiColor;
+      metadataExport['loiWidth'] = style.loiWidth;
 
       metadataExport['aoiColor'] = '';
     } else if (this.isAOI) {
@@ -813,21 +588,11 @@ export class GeoresourceAddModalComponent implements OnInit {
       metadataExport['loiColor'] = '';
       metadataExport['loiWidth'] = '';
 
-      metadataExport['aoiColor'] = this.aoiColor;
+      metadataExport['aoiColor'] = style.aoiColor;
     }
 
-    // Topic reference
-    if (this.georesourceTopic_subsubsubTopic) {
-      metadataExport.topicReference = this.georesourceTopic_subsubsubTopic.topicId;
-    } else if (this.georesourceTopic_subsubTopic) {
-      metadataExport.topicReference = this.georesourceTopic_subsubTopic.topicId;
-    } else if (this.georesourceTopic_subTopic) {
-      metadataExport.topicReference = this.georesourceTopic_subTopic.topicId;
-    } else if (this.georesourceTopic_mainTopic) {
-      metadataExport.topicReference = this.georesourceTopic_mainTopic.topicId;
-    } else {
-      metadataExport.topicReference = '';
-    }
+    // Topic reference: deepest selected hierarchy level, '' when none is set.
+    metadataExport.topicReference = topicHierarchyToApi(this.addForm.controls.topics) || '';
 
     const metadataJSON = JSON.stringify(metadataExport);
     let fileName = 'Georessource_Metadaten_Export';
@@ -853,9 +618,9 @@ export class GeoresourceAddModalComponent implements OnInit {
         propertyMapping: this.propertyMappingDefinition,
       };
 
-      mappingConfigExport.periodOfValidity = this.periodOfValidity;
+      mappingConfigExport.periodOfValidity = this.periodOfValidityGroup.getRawValue();
 
-      const name = this.datasetName;
+      const name = this.addForm.controls.metadata.controls.datasetName.value;
       const metadataJSON = JSON.stringify(mappingConfigExport);
       let fileName = 'KomMonitor-Import-Mapping-Konfiguration_Export';
 
@@ -944,40 +709,43 @@ export class GeoresourceAddModalComponent implements OnInit {
       this.updateIntervalOptions
     );
 
-    this.datasetName = this.metadataImportSettings.datasetName;
+    this.addForm.controls.metadata.controls.datasetName.setValue(
+      this.metadataImportSettings.datasetName ?? ''
+    );
 
-    this.roleGrid?.applyPermissions(this.metadataImportSettings.allowedRoles || []);
+    this.roleGrid?.applyPermissions(this.metadataImportSettings.permissions || []);
 
     // georesource specific properties; the three API flags collapse into the
     // single georesourceType control (isPOI/isLOI/isAOI are derived from it).
     if (this.metadataImportSettings.isPOI) {
-      this.georesourceType = 'poi';
+      this.setGeoresourceType('poi');
     } else if (this.metadataImportSettings.isLOI) {
-      this.georesourceType = 'loi';
+      this.setGeoresourceType('loi');
     } else {
-      this.georesourceType = 'aoi';
+      this.setGeoresourceType('aoi');
     }
 
     this.availablePoiMarkerColors.forEach((option: any) => {
       if (option.colorName === this.metadataImportSettings.poiMarkerColor) {
-        this.selectedPoiMarkerColor = option;
+        this.styleGroup.controls.poiMarkerColor.setValue(option);
       }
       if (option.colorName === this.metadataImportSettings.poiSymbolColor) {
-        this.selectedPoiSymbolColor = option;
+        this.styleGroup.controls.poiSymbolColor.setValue(option);
       }
     });
 
     this.availableLoiDashArrayObjects.forEach((option: any) => {
       if (option.dashArrayValue === this.metadataImportSettings.loiDashArrayString) {
-        this.selectedLoiDashArrayObject = option;
-        this.onChangeLoiDashArray(this.selectedLoiDashArrayObject);
+        this.onChangeLoiDashArray(option);
       }
     });
 
-    this.loiColor = this.metadataImportSettings.loiColor;
-    this.loiWidth = this.metadataImportSettings.loiWidth;
-    this.aoiColor = this.metadataImportSettings.aoiColor;
-    this.selectedPoiIconName = this.metadataImportSettings.poiSymbolBootstrap3Name;
+    this.styleGroup.patchValue({
+      loiColor: this.metadataImportSettings.loiColor || DEFAULT_LOI_COLOR,
+      loiWidth: this.metadataImportSettings.loiWidth ?? DEFAULT_LOI_WIDTH,
+      aoiColor: this.metadataImportSettings.aoiColor || DEFAULT_AOI_COLOR,
+      poiIconName: this.metadataImportSettings.poiSymbolBootstrap3Name || DEFAULT_POI_ICON_NAME,
+    });
 
     const topicHierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(
       this.topicStore.availableTopics,
@@ -1003,58 +771,49 @@ export class GeoresourceAddModalComponent implements OnInit {
       return;
     }
 
-    this.converter = undefined;
-    for (const converter of this.kommonitorImporterHelperService.availableConverters) {
-      if (converter.name === this.mappingConfigImportSettings.converter.name) {
-        this.converter = converter;
-        break;
-      }
-    }
+    const importedConverter =
+      this.kommonitorImporterHelperService.availableConverters.find(
+        (converter: any) => converter.name === this.mappingConfigImportSettings.converter.name
+      ) ?? null;
+    this.importerForm.controls.converter.setValue(importedConverter);
 
-    this.schema = '';
-    if (
-      this.converter &&
-      this.converter.schemas &&
-      this.mappingConfigImportSettings.converter.schema
-    ) {
-      for (const schema of this.converter.schemas) {
+    let importedSchema = '';
+    if (importedConverter?.schemas && this.mappingConfigImportSettings.converter.schema) {
+      for (const schema of importedConverter.schemas) {
         if (schema === this.mappingConfigImportSettings.converter.schema) {
-          this.schema = schema;
+          importedSchema = schema;
         }
       }
     }
+    this.importerForm.controls.schema.setValue(importedSchema);
 
-    this.mimeType = '';
-    if (
-      this.converter &&
-      this.converter.mimeTypes &&
-      this.mappingConfigImportSettings.converter.mimeType
-    ) {
-      for (const mimeType of this.converter.mimeTypes) {
+    let importedMimeType = '';
+    if (importedConverter?.mimeTypes && this.mappingConfigImportSettings.converter.mimeType) {
+      for (const mimeType of importedConverter.mimeTypes) {
         if (mimeType === this.mappingConfigImportSettings.converter.mimeType) {
-          this.mimeType = mimeType;
+          importedMimeType = mimeType;
         }
       }
     }
+    this.importerForm.controls.mimeType.setValue(importedMimeType);
 
-    this.datasourceType = undefined;
-    for (const datasourceType of this.kommonitorImporterHelperService.availableDatasourceTypes) {
-      if (datasourceType.type === this.mappingConfigImportSettings.dataSource.type) {
-        this.datasourceType = datasourceType;
-        break;
-      }
-    }
+    const importedDatasourceType =
+      this.kommonitorImporterHelperService.availableDatasourceTypes.find(
+        (datasourceType: any) =>
+          datasourceType.type === this.mappingConfigImportSettings.dataSource.type
+      ) ?? null;
+    this.importerForm.controls.datasourceType.setValue(importedDatasourceType);
 
     // Rebuild both parameter records for the selected converter / data source
     // and apply the imported values; bbox settings go to their dedicated fields.
-    syncConverterParameterControls(this.importerForm, this.converter);
-    syncDatasourceParameterControls(this.importerForm, this.datasourceType);
+    syncConverterParameterControls(this.importerForm, importedConverter);
+    syncDatasourceParameterControls(this.importerForm, importedDatasourceType);
     for (const convParameter of this.mappingConfigImportSettings.converter.parameters ?? []) {
       this.importerForm.controls.converterParameters.controls[convParameter.name]?.setValue(
         convParameter.value ?? ''
       );
     }
-    if (this.datasourceType) {
+    if (importedDatasourceType) {
       const dsParameters = this.mappingConfigImportSettings.dataSource.parameters ?? [];
       for (const dsParameter of dsParameters) {
         this.importerForm.controls.datasourceTypeParameters.controls[dsParameter.name]?.setValue(
@@ -1065,17 +824,15 @@ export class GeoresourceAddModalComponent implements OnInit {
     }
 
     // property Mapping
-    this.georesourceDataSourceNameProperty =
-      this.mappingConfigImportSettings.propertyMapping.nameProperty;
-    this.georesourceDataSourceIdProperty =
-      this.mappingConfigImportSettings.propertyMapping.identifierProperty;
-    this.validityStartDate_perFeature =
-      this.mappingConfigImportSettings.propertyMapping.validStartDateProperty;
-    this.validityEndDate_perFeature =
-      this.mappingConfigImportSettings.propertyMapping.validEndDateProperty;
-    this.keepAttributes = this.mappingConfigImportSettings.propertyMapping.keepAttributes;
-    this.keepMissingValues =
-      this.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueAttributes;
+    const propertyMapping = this.mappingConfigImportSettings.propertyMapping;
+    this.importerForm.patchValue({
+      nameProperty: propertyMapping.nameProperty ?? '',
+      idProperty: propertyMapping.identifierProperty ?? '',
+      validStartDateProperty: propertyMapping.validStartDateProperty ?? '',
+      validEndDateProperty: propertyMapping.validEndDateProperty ?? '',
+      keepAttributes: !!propertyMapping.keepAttributes,
+      keepMissingValues: !!propertyMapping.keepMissingOrNullValueAttributes,
+    });
     this.attributeMappings_adminView = [];
 
     for (const attributeMapping of this.mappingConfigImportSettings.propertyMapping.attributes) {
@@ -1094,10 +851,10 @@ export class GeoresourceAddModalComponent implements OnInit {
     }
 
     if (this.mappingConfigImportSettings.periodOfValidity) {
-      this.periodOfValidity = {
+      patchPeriodOfValidityForm(this.periodOfValidityGroup, {
         startDate: this.mappingConfigImportSettings.periodOfValidity.startDate,
         endDate: this.mappingConfigImportSettings.periodOfValidity.endDate,
-      };
+      });
     }
   }
 
@@ -1151,9 +908,11 @@ export class GeoresourceAddModalComponent implements OnInit {
     resetAttributeMappingDraft(this.attributeMappingDraft, this.defaultAttributeMappingType());
 
     // Runtime defaults: these option lists are loaded asynchronously.
-    this.selectedPoiMarkerColor = this.availablePoiMarkerColors[0] || null;
-    this.selectedPoiSymbolColor = this.availablePoiMarkerColors[1] || null;
-    this.selectedLoiDashArrayObject = this.availableLoiDashArrayObjects[0] || null;
+    this.styleGroup.patchValue({
+      poiMarkerColor: this.availablePoiMarkerColors[0] || null,
+      poiSymbolColor: this.availablePoiMarkerColors[1] || null,
+      loiDashArray: this.availableLoiDashArrayObjects[0] || null,
+    });
 
     this.roleGrid?.reset();
 
@@ -1190,7 +949,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     const missing = this.resourceImportService.collectMissingImporterFields(
       importerFormToMissingFieldsInput(this.importerForm, {
         hasFile: !!this.georesourceDataSourceInput?.nativeElement?.files?.[0],
-        startDate: this.periodOfValidity.startDate,
+        startDate: this.periodOfValidityGroup.getRawValue().startDate,
         periodOfValidityInvalid: this.periodOfValidityInvalid,
       })
     );
@@ -1294,21 +1053,16 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   private async buildImporterObjects(): Promise<boolean> {
     try {
+      // importerFormToConfig() covers converter, schema, mime type, both
+      // parameter records, the data source type incl. the always-present bbox
+      // fields, the property names and the two keep flags.
+      const importer = this.importerForm.getRawValue();
       const definitions = await this.resourceImportService.buildImporterObjects({
-        converter: this.converter,
-        schema: this.schema,
-        mimeType: this.mimeType,
-        converterParameterValues: this.converterParameterValues,
-        datasourceType: this.datasourceType,
-        datasourceTypeFormValues: this.assembleDatasourceFormValues(),
+        ...importerFormToConfig(this.importerForm),
         selectedFile: null,
         fileInputElement: this.georesourceDataSourceInput?.nativeElement,
-        idProperty: this.georesourceDataSourceIdProperty,
-        nameProperty: this.georesourceDataSourceNameProperty,
-        validStartDate: this.validityStartDate_perFeature,
-        validEndDate: this.validityEndDate_perFeature,
-        keepAttributes: this.keepAttributes,
-        keepMissingValues: this.keepMissingValues,
+        validStartDate: importer.validStartDateProperty,
+        validEndDate: importer.validEndDateProperty,
         attributeMappings: this.attributeMappings_adminView,
       });
 
@@ -1332,11 +1086,6 @@ export class GeoresourceAddModalComponent implements OnInit {
       this.loadingData.set(false);
       return false;
     }
-  }
-
-  /** Data-source form values for the import service; bbox fields are always included. */
-  private assembleDatasourceFormValues(): { [key: string]: string } {
-    return importerFormToConfig(this.importerForm).datasourceTypeFormValues;
   }
 
   // Modal control methods
