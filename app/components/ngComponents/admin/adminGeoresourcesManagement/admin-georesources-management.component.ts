@@ -15,7 +15,9 @@ import { Subscription } from 'rxjs';
 import { NgbDropdownModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from '../../../../services/broadcast-service/broadcast-message';
-import { KommonitorGeoresourceDataExchangeService } from '../../../../services/adminGeoresourceUnit/kommonitor-data-exchange.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { KommonitorGeoresourceDataGridHelperService } from '../../../../services/adminGeoresourceUnit/kommonitor-data-grid-helper.service';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -53,7 +55,9 @@ import { TranslateService } from '@ngx-translate/core';
 export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
   private modalService = inject(NgbModal);
   private broadcastService = inject(BroadcastService);
-  kommonitorDataExchangeService = inject(KommonitorGeoresourceDataExchangeService);
+  private accessControlService = inject(AccessControlService);
+  private georesourceStore = inject(GeoresourceMetadataStoreService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
   private cacheHelperService = inject(CacheHelperServiceService);
   private kommonitorDataGridHelperService = inject(KommonitorGeoresourceDataGridHelperService);
   protected wmsSharedComponentsService = inject(WmsSharedComponentsService);
@@ -66,7 +70,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
   // store mutation (full refetch, single add/replace/delete, view switch)
   // re-renders the grids without imperative rebuild calls or timing hacks.
   private visibleGeoresources = computed(() => {
-    const georesources = this.kommonitorDataExchangeService.availableGeoresources;
+    const georesources = this.georesourceStore.availableGeoresources;
     if (!this.tableViewSwitcher()) {
       return georesources;
     }
@@ -116,9 +120,9 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
 
     // The route-level bootstrap normally provides the metadata; refetch only
     // when the store is still empty (e.g. deep link with a failed bootstrap).
-    if (this.kommonitorDataExchangeService.availableGeoresources.length === 0) {
-      this.kommonitorDataExchangeService
-        .fetchGeoresourcesMetadata(this.kommonitorDataExchangeService.currentKeycloakLoginRoles)
+    if (this.georesourceStore.availableGeoresources.length === 0) {
+      this.metadataBootstrap
+        .fetchGeoresourcesMetadata(this.accessControlService.currentKeycloakLoginRoles)
         .catch(() => {
           this.notificationService.showError(
             this.translate.instant('ADMIN_GEORESOURCES.MSG.LOAD_LIST_FAILED')
@@ -224,8 +228,8 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
     // this only has to bring the store up to date.
     if (!crudType || !targetGeoresourceId) {
       // refetch all metadata from georesources to update table
-      this.kommonitorDataExchangeService
-        .fetchGeoresourcesMetadata(this.kommonitorDataExchangeService.currentKeycloakLoginRoles)
+      this.metadataBootstrap
+        .fetchGeoresourcesMetadata(this.accessControlService.currentKeycloakLoginRoles)
         .catch(() => {
           this.notificationService.showError(
             this.translate.instant('ADMIN_GEORESOURCES.MSG.LOAD_LIST_FAILED')
@@ -236,9 +240,9 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
         .fetchSingleGeoresourceMetadata(targetGeoresourceId)
         .then((data) => {
           if (crudType === 'add') {
-            this.kommonitorDataExchangeService.addSingleGeoresourceMetadata(data);
+            this.georesourceStore.addSingleGeoresourceMetadata(data);
           } else {
-            this.kommonitorDataExchangeService.replaceSingleGeoresourceMetadata(data);
+            this.georesourceStore.replaceSingleGeoresourceMetadata(data);
           }
         })
         .catch(() => {
@@ -250,7 +254,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
       // targetGeoresourceId might be array in this case
       const ids = Array.isArray(targetGeoresourceId) ? targetGeoresourceId : [targetGeoresourceId];
       for (const id of ids) {
-        this.kommonitorDataExchangeService.deleteSingleGeoresourceMetadata(id);
+        this.georesourceStore.deleteSingleGeoresourceMetadata(id);
       }
     }
   }
@@ -350,18 +354,5 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
     );
 
     modalRef.result.catch(() => undefined);
-  }
-
-  // Utility methods
-  checkCreatePermission(): boolean {
-    return this.kommonitorDataExchangeService.checkCreatePermission();
-  }
-
-  checkEditorPermission(): boolean {
-    return this.kommonitorDataExchangeService.checkEditorPermission();
-  }
-
-  checkDeletePermission(): boolean {
-    return this.kommonitorDataExchangeService.checkDeletePermission();
   }
 }

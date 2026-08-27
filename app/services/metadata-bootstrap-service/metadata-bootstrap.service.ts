@@ -193,7 +193,7 @@ export class MetadataBootstrapService {
     );
   }
 
-  async fetchGeoresourcesMetadata(keycloakRolesArray, filter) {
+  async fetchGeoresourcesMetadata(keycloakRolesArray, filter: any = undefined) {
     this.georesourceStore.setGeoresources(
       await this.cacheHelperService.fetchGeoresourceMetadata(keycloakRolesArray, filter)
     );

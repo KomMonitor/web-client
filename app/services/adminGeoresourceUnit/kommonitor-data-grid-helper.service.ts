@@ -1,7 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { ColDef } from 'ag-grid-community';
-import { KommonitorGeoresourceDataExchangeService } from './kommonitor-data-exchange.service';
 import { TranslateService } from '@ngx-translate/core';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { PoiPresentationService } from 'services/poi-presentation-service/poi-presentation.service';
+import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 
 export type GeoresourceGridType = 'poi' | 'loi' | 'aoi';
 
@@ -17,7 +20,10 @@ export type GeoresourceGridType = 'poi' | 'loi' | 'aoi';
   providedIn: 'root',
 })
 export class KommonitorGeoresourceDataGridHelperService {
-  private kommonitorDataExchangeService = inject(KommonitorGeoresourceDataExchangeService);
+  private accessControlService = inject(AccessControlService);
+  private poiPresentationService = inject(PoiPresentationService);
+  private topicHierarchyService = inject(TopicHierarchyService);
+  private topicStore = inject(TopicMetadataStoreService);
   private translate = inject(TranslateService);
 
   /**
@@ -85,7 +91,7 @@ export class KommonitorGeoresourceDataGridHelperService {
             filter: false,
             sortable: false,
             cellRenderer: (params: any) =>
-              this.kommonitorDataExchangeService.getLoiDashSvgFromStringValue(
+              this.poiPresentationService.getLoiDashSvgFromStringValue(
                 params.data.loiDashArrayString
               ),
           },
@@ -145,7 +151,8 @@ export class KommonitorGeoresourceDataGridHelperService {
         headerName: this.translate.instant('ADMIN_SHARED_UI.TOPICS.TITLE'),
         minWidth: 400,
         cellRenderer: (params: any) =>
-          this.kommonitorDataExchangeService.getTopicHierarchyDisplayString(
+          this.topicHierarchyService.getTopicHierarchyDisplayString(
+            this.topicStore.availableTopics,
             params.data.topicReference
           ),
       },
@@ -163,7 +170,7 @@ export class KommonitorGeoresourceDataGridHelperService {
         headerName: this.translate.instant('COMMON.ROLES'),
         minWidth: 400,
         cellRenderer: (params: any) =>
-          this.kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions),
+          this.accessControlService.getAllowedRolesString(params.data.permissions),
       },
       {
         headerName: this.translate.instant('ADMIN_SHARED.PUBLIC_VISIBLE'),
@@ -173,8 +180,7 @@ export class KommonitorGeoresourceDataGridHelperService {
       {
         headerName: this.translate.instant('ADMIN_SHARED.OWNER'),
         minWidth: 400,
-        cellRenderer: (params: any) =>
-          this.kommonitorDataExchangeService.getRoleTitle(params.data.ownerId),
+        cellRenderer: (params: any) => this.accessControlService.getRoleTitle(params.data.ownerId),
       },
     ];
   }
