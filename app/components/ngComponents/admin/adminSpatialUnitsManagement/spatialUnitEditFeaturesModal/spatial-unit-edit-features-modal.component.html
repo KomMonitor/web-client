@@ -251,7 +251,7 @@
               }
 
               @for (parameter of converter?.parameters; track parameter) {
-                <div class="form-group">
+                <div class="form-group" formGroupName="converterParameters">
                   <label
                     >{{ parameter.name }}
                     @if (parameter.mandatory) {
@@ -371,7 +371,7 @@
                         </div>
                       }
                       @if (bboxType === 'literal') {
-                        <div>
+                        <div formGroupName="bbox">
                           <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.BBOX' | translate }}*</label>
                           <input
                             type="number"
@@ -422,7 +422,7 @@
                   ) {
                     <div>
                       @for (parameter of datasourceType?.parameters; track parameter) {
-                        <div class="form-group">
+                        <div class="form-group" formGroupName="datasourceTypeParameters">
                           @if (parameter.mandatory) {
                             <label>{{ parameter.name }}*</label>
                           }

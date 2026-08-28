@@ -253,7 +253,7 @@
                 }
                 @for (parameter of converter?.parameters; track parameter) {
                   @if (!parameter.name.includes('CRS')) {
-                    <div>
+                    <div formGroupName="converterParameters">
                       <div class="form-group">
                         <label
                           >{{ parameter.name }}
@@ -319,7 +319,7 @@
                       @if (!(datasourceType?.type === 'FILE')) {
                         <div>
                           @for (parameter of datasourceType?.parameters; track parameter) {
-                            <div>
+                            <div formGroupName="datasourceTypeParameters">
                               <div class="form-group">
                                 <label>{{ parameter.name }}*</label>
                                 <textarea

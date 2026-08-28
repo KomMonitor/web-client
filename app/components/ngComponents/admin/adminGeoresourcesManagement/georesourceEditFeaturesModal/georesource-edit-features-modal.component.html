@@ -272,7 +272,7 @@
               }
 
               @for (parameter of converter?.parameters; track parameter) {
-                <div>
+                <div formGroupName="converterParameters">
                   <div class="form-group">
                     <label
                       >{{ parameter.name }}
@@ -386,7 +386,7 @@
                           </div>
                         }
                         @if (bboxType === 'literal') {
-                          <div>
+                          <div formGroupName="bbox">
                             <label>{{ 'ADMIN_GEORESOURCES.COMMON.BBOX' | translate }}*</label>
                             <input
                               class="form-control"
@@ -439,7 +439,7 @@
                     @if (datasourceType?.type !== 'FILE') {
                       <div>
                         @for (parameter of getFilteredDatasourceParameters(); track parameter) {
-                          <div>
+                          <div formGroupName="datasourceTypeParameters">
                             <div class="form-group">
                               @if (parameter.mandatory) {
                                 <label>{{ parameter.name }}*</label>

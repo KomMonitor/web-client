@@ -75,6 +75,7 @@ import {
   importerFormToConfig,
   importerFormToMissingFieldsInput,
   patchBboxFromDataSourceParameters,
+  SYNTHETIC_DATASOURCE_PARAMETERS,
   syncConverterParameterControls,
   syncDatasourceParameterControls,
 } from '../../adminShared/importerForm/importer-form.model';
@@ -272,6 +273,12 @@ export class GeoresourceAddModalComponent implements OnInit {
   get importerForm(): ImporterFormGroup {
     return this.addForm.controls.data.controls.importer;
   }
+
+  /**
+   * Parameter names the template must skip: they have no control in
+   * `datasourceTypeParameters` because the bbox block renders them.
+   */
+  readonly syntheticDatasourceParameters = SYNTHETIC_DATASOURCE_PARAMETERS;
   /**
    * Staging row above the mapping table. Deliberately not part of `addForm`:
    * it is not submitted, and its required rules must not gate the wizard.

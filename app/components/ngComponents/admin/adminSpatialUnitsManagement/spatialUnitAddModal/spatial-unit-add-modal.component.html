@@ -565,7 +565,7 @@
                 <div formGroupName="datasourceTypeParameters">
                   @for (parameter of selectedDatasourceType.parameters; track parameter.name) {
                     <div>
-                      @if (parameter.name !== 'bbox') {
+                      @if (!syntheticDatasourceParameters.includes(parameter.name)) {
                         <div class="form-group">
                           @if (parameter.mandatory) {
                             <label>{{ parameter.name }}*</label>

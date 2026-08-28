@@ -50,6 +50,7 @@ import { TranslateService } from '@ngx-translate/core';
 import {
   BboxType,
   ImporterFormGroup,
+  SYNTHETIC_DATASOURCE_PARAMETERS,
   syncConverterParameterControls,
   syncDatasourceParameterControls,
 } from '../../adminShared/importerForm/importer-form.model';
@@ -882,9 +883,16 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     );
   }
 
+  /**
+   * The data-source parameters the template renders as plain fields: the
+   * synthetic bbox entries have no control in `datasourceTypeParameters`,
+   * they are rendered by the dedicated bbox block.
+   */
   getFilteredDatasourceParameters(): any[] {
     if (!this.datasourceType?.parameters) return [];
-    return this.datasourceType.parameters.filter((param: any) => param.name !== 'bbox');
+    return this.datasourceType.parameters.filter(
+      (param: any) => !SYNTHETIC_DATASOURCE_PARAMETERS.includes(param.name)
+    );
   }
 
   // Form reset

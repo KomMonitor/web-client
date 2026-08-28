@@ -60,6 +60,8 @@ const CONVERTER_WITHOUT_SCHEMAS = {
 
 const FILE_DATASOURCE = { type: 'FILE', parameters: [] };
 
+const HTTP_DATASOURCE = { type: 'HTTP', parameters: [{ name: 'url', mandatory: true }] };
+
 describe('IndicatorEditFeaturesModalComponent', () => {
   let component: IndicatorEditFeaturesModalComponent;
   let fixture: ComponentFixture<IndicatorEditFeaturesModalComponent>;
@@ -184,6 +186,73 @@ describe('IndicatorEditFeaturesModalComponent', () => {
       component.onChangeConverter();
 
       expect(component.converterParameterValues).toEqual({});
+    });
+
+    it('builds one control per parameter the template renders', () => {
+      component.converter = CONVERTER;
+
+      component.onChangeConverter();
+
+      expect(Object.keys(component.editForm.controls.converterParameters.controls)).toEqual([
+        'delimiter',
+        'comment',
+      ]);
+    });
+
+    it('skips the CRS parameters the template hides, so they cannot block the submit gate', () => {
+      component.converter = { ...CONVERTER, parameters: [{ name: 'CRS', mandatory: true }] };
+
+      component.onChangeConverter();
+
+      expect(component.editForm.controls.converterParameters.controls['CRS']).toBeUndefined();
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+
+  describe('onChangeDatasourceType', () => {
+    it('builds one control per parameter the template renders', () => {
+      component.datasourceType = HTTP_DATASOURCE;
+
+      component.onChangeDatasourceType();
+
+      expect(Object.keys(component.editForm.controls.datasourceTypeParameters.controls)).toEqual([
+        'url',
+      ]);
+    });
+
+    it('leaves the record empty for a FILE data source, which renders no parameters', () => {
+      component.datasourceType = HTTP_DATASOURCE;
+      component.onChangeDatasourceType();
+
+      component.datasourceType = FILE_DATASOURCE;
+      component.onChangeDatasourceType();
+
+      expect(component.editForm.controls.datasourceTypeParameters.controls).toEqual({});
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+
+  describe('parameter controls follow the selects', () => {
+    /**
+     * The selects carry no (change) handler; without the valueChanges wiring the
+     * template renders `formControlName`s for controls that do not exist and
+     * Angular throws `Cannot find control with name: …`.
+     */
+    it('rebuilds both records when the form values change', () => {
+      component.ngOnInit();
+
+      component.editForm.controls.converter.setValue(CONVERTER as any);
+      component.editForm.controls.datasourceType.setValue(HTTP_DATASOURCE as any);
+
+      expect(Object.keys(component.editForm.controls.converterParameters.controls)).toEqual([
+        'delimiter',
+        'comment',
+      ]);
+      expect(Object.keys(component.editForm.controls.datasourceTypeParameters.controls)).toEqual([
+        'url',
+      ]);
     });
   });
 

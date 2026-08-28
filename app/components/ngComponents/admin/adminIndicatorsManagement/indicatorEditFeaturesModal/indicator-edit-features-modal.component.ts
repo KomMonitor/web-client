@@ -5,6 +5,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   ElementRef,
   EventEmitter,
   OnInit,
@@ -13,6 +14,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -45,7 +47,10 @@ import { FormErrorComponent } from '../../adminShared/formError/form-error.compo
 import { FormControlAriaDirective } from '../../adminShared/formError/form-control-aria.directive';
 import { controlInvalidSignal } from '../../adminShared/forms/control-state';
 import { TimeseriesMappingFormComponent } from '../../adminShared/timeseriesMappingForm/timeseries-mapping-form.component';
-import type { TimeseriesMapping } from 'services/resource-import-service/resource-import.model';
+import type {
+  ImporterParameter,
+  TimeseriesMapping,
+} from 'services/resource-import-service/resource-import.model';
 import { buildIndicatorEditFeaturesForm } from './indicator-edit-features-form.model';
 
 declare const $: any;
@@ -72,6 +77,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   private broadcastService = inject(BroadcastService);
   private cdr = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
   private http = inject(HttpClient);
   private cacheHelperService = inject(CacheHelperServiceService);
   private accessControlService = inject(AccessControlService);
@@ -216,6 +222,16 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   ngOnInit(): void {
     this.setupEventListeners();
     this.initializeForm();
+
+    // The importer selects carry no (change) handlers; the runtime-keyed
+    // parameter controls are rebuilt from the form instead. Without this the
+    // template renders `formControlName`s that have no control.
+    this.editForm.controls.converter.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.onChangeConverter());
+    this.editForm.controls.datasourceType.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.onChangeDatasourceType());
   }
 
   private setupEventListeners(): void {
@@ -457,8 +473,30 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.mimeType = this.converter?.mimeTypes?.[0];
     // Fresh parameter controls for the newly selected converter. NOTE: CRS
     // parameters are deliberately not seeded — the template hides them, so
-    // they were never sent historically either.
-    syncParameterControls(this.editForm.controls.converterParameters, this.converter?.parameters);
+    // they were never sent historically either. Skipping them here keeps the
+    // record in step with the template and stops a hidden mandatory CRS field
+    // from blocking the submit gate.
+    syncParameterControls(
+      this.editForm.controls.converterParameters,
+      this.visibleConverterParameters()
+    );
+  }
+
+  /** The converter parameters the template actually renders. */
+  private visibleConverterParameters(): ImporterParameter[] {
+    return (this.converter?.parameters ?? []).filter(
+      (parameter: ImporterParameter) => !parameter.name.includes('CRS')
+    );
+  }
+
+  /**
+   * Rebuilds the data-source parameter controls. FILE data sources render no
+   * parameter fields at all, so they get an empty record.
+   */
+  onChangeDatasourceType(): void {
+    const parameters =
+      this.datasourceType?.type === 'FILE' ? [] : (this.datasourceType?.parameters ?? []);
+    syncParameterControls(this.editForm.controls.datasourceTypeParameters, parameters);
   }
 
   onChangeMimeType(mimeType: string): void {

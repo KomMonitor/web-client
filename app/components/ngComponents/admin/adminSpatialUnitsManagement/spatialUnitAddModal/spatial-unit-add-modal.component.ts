@@ -76,6 +76,7 @@ import {
   importerFormToConfig,
   patchBboxFromDataSourceParameters,
   patchImporterFormFromMappingConfig,
+  SYNTHETIC_DATASOURCE_PARAMETERS,
   syncConverterParameterControls,
   syncDatasourceParameterControls,
 } from '../../adminShared/importerForm/importer-form.model';
@@ -228,6 +229,12 @@ export class SpatialUnitAddModalComponent implements OnInit {
   get importerForm(): ImporterFormGroup {
     return this.addForm.controls.data.controls.importer;
   }
+
+  /**
+   * Parameter names the template must skip: they have no control in
+   * `datasourceTypeParameters` because the bbox block renders them.
+   */
+  readonly syntheticDatasourceParameters = SYNTHETIC_DATASOURCE_PARAMETERS;
 
   selectedDataSourceFile: File | null = null;
 

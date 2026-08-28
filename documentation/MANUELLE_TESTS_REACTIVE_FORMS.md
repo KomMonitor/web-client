@@ -37,6 +37,20 @@ anlegen, sowie in allen drei „Sachdaten bearbeiten"-Modals (Raumebene, Georess
       „manuell" stellen, jeweils Werte eintragen
 - [ ] Keine Exception in der Konsole
 
+**Vorab statisch geprüft und behoben (2026-08-28):** genau diese Fehlerklasse war in vier der
+fünf Modals real. Nur `spatialUnitAddModal` hatte die nötigen `formGroupName`-Wrapper; in
+`georesourceAddModal`, beiden räumlichen `editFeatures`-Modals und dem Indikator-Modal hingen
+`[formControlName]="parameter.name"` und die vier Begrenzungsrahmen-Felder (`minx`…`maxy`)
+direkt am Importer-Formular statt an `converterParameters` / `datasourceTypeParameters` / `bbox`
+— jede Konverter- oder Datenquelltyp-Auswahl mit Parametern hätte geworfen. Im Indikator-Modal
+wurden beide Parameter-Records zusätzlich **nie** synchronisiert (`onChangeConverter` war toter
+Code, ein Datenquelltyp-Pendant fehlte ganz). Außerdem filtern die Templates jetzt beide
+synthetischen Namen (`bbox` **und** `bboxType`, wie die AngularJS-Vorlage mit ihrem
+Substring-Filter `!bbox`), damit Template und `syncParameterControls` dieselbe Liste sehen.
+Neuer Wächter: `adminShared/importerForm/importer-template-bindings.spec.ts` prüft die
+Wrapper in allen fünf Templates. Die Liste unten bleibt trotzdem zu laufen — der Wächter sieht
+nur die Verdrahtung, nicht das Verhalten.
+
 Bei Fehlern: `adminShared/importerForm/importer-form.model.ts` →
 `syncConverterParameterControls` / `syncDatasourceParameterControls` (im Indikator-Modal das
 generische `syncParameterControls`). Die Aufrufe hängen an den `valueChanges` der beiden Selects —
