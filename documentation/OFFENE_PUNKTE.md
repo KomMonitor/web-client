@@ -260,10 +260,18 @@ schon vor dem Fork-Punkt; `GeoresourcePOSTInputType`, `SpatialUnitPOSTInputType`
   interaktiv angelegte Referenzen fehlten in der Datei. Er leitet sie jetzt wie `master` aus der
   Admin-Sicht ab.
 
-Nicht behoben (eigenständiger Fund, im Test als Fehler benannt und gepinnt): `applyMetadataImport()`
-des Indikator-Wizards legt Referenzzeilen der Form `{ indicatorId, … }` an, während alle anderen
-Aufrufer `{ indicatorMetadata, … }` erwarten — ein Import gefolgt von „Anlegen" wirft einen
-`TypeError`.
+**4. Referenz-Datenform nach Metadaten-Import — ✅ behoben (2026-08-28).** `applyMetadataImport()`
+des Indikator-Wizards legte Referenzzeilen der Form `{ indicatorId, … }` an, während alle anderen
+Aufrufer `{ indicatorMetadata, … }` erwarten — ein Import gefolgt von „Anlegen" warf einen
+`TypeError`, und die Referenztabellen in Schritt 4 konnten die Zeilen nicht rendern. Die Zeilen
+tragen jetzt das über `getIndicatorMetadataById` / `getGeoresourceMetadataById` aufgelöste
+Metadatenobjekt (unbekannte Ids werden verworfen); der defensive `?? ref.indicatorId`-Fallback im
+Export ist damit weg. Der pinnende BUG-Test ist durch einen echten Round-Trip-Test ersetzt
+(Import → `buildPostBody_indicators_v3`), dazu ein Test auf die aufgelöste Zeilenform.
+Mitgenommen: `applyMetadataImport()` und `applyEditDataset()` schrieben die beiden
+signalgestützten Listen per `push` in place — sie bauen jetzt lokal und weisen einmal zu.
+**Browser-Prüfung:** [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md),
+Punkt 11.4.
 
 **Browser-Prüfung nötig:** [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md),
 neuer Punkt 11 (plus die Ergänzungen in Punkt 2).

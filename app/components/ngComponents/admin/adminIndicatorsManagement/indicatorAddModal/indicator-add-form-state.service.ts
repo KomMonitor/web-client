@@ -1022,7 +1022,8 @@ export class IndicatorAddFormStateService {
     // Step 4 — references (stored here as { indicatorMetadata | georesourceMetadata,
     // referenceDescription }, matching what the step-4 component and the body
     // builders expect).
-    this.indicatorReferences_adminView = [];
+    // Both lists are signal-backed, so they are built locally and assigned once.
+    const indicatorReferences: any[] = [];
     (dataset.referencedIndicators ?? [])
       .filter((entry: any) => entry != null)
       .forEach((ref: any) => {
@@ -1030,14 +1031,15 @@ export class IndicatorAddFormStateService {
           ref.referencedIndicatorId
         );
         if (indicatorMetadata) {
-          this.indicatorReferences_adminView.push({
+          indicatorReferences.push({
             indicatorMetadata,
             referenceDescription: ref.referencedIndicatorDescription,
           });
         }
       });
+    this.indicatorReferences_adminView = indicatorReferences;
 
-    this.georesourceReferences_adminView = [];
+    const georesourceReferences: any[] = [];
     (dataset.referencedGeoresources ?? [])
       .filter((entry: any) => entry != null)
       .forEach((ref: any) => {
@@ -1045,12 +1047,13 @@ export class IndicatorAddFormStateService {
           ref.referencedGeoresourceId
         );
         if (georesourceMetadata) {
-          this.georesourceReferences_adminView.push({
+          georesourceReferences.push({
             georesourceMetadata,
             referenceDescription: ref.referencedGeoresourceDescription,
           });
         }
       });
+    this.georesourceReferences_adminView = georesourceReferences;
 
     // Step 5 — classification mapping (type, palette, breaks, labels, colors, categories)
     this.classification.applyMapping(dataset.defaultClassificationMapping);
@@ -1195,45 +1198,39 @@ export class IndicatorAddFormStateService {
       this.indicatorTagsString_withCommas = this.metadataImportSettings.tags.join(', ');
     }
 
-    // Parse references
-    if (
-      this.metadataImportSettings.refrencesToOtherIndicators &&
-      this.indicatorStore.availableIndicators
-    ) {
-      // Populate admin view
-      this.indicatorReferences_adminView = [];
+    // Parse references. The file stores them flat ({ indicatorId, referenceDescription }),
+    // while the admin-view rows carry the resolved metadata object — that is the shape
+    // step 4 renders, the edit/delete handlers match on and both body builders read.
+    // Rows holding only the flat id made the following "create" throw a TypeError.
+    // Assigned in one go: the lists are signal-backed, so in-place pushes would not notify.
+    if (this.metadataImportSettings.refrencesToOtherIndicators) {
+      const indicatorReferences: any[] = [];
       this.metadataImportSettings.refrencesToOtherIndicators.forEach((ref: any) => {
-        const indicator = this.indicatorStore.availableIndicators.find(
-          (ind: any) => ind.indicatorId === ref.indicatorId
-        );
-        if (indicator) {
-          this.indicatorReferences_adminView.push({
-            indicatorId: ref.indicatorId,
+        const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(ref.indicatorId);
+        if (indicatorMetadata) {
+          indicatorReferences.push({
+            indicatorMetadata,
             referenceDescription: ref.referenceDescription,
-            indicatorName: indicator.indicatorName,
           });
         }
       });
+      this.indicatorReferences_adminView = indicatorReferences;
     }
 
-    if (
-      this.metadataImportSettings.refrencesToGeoresources &&
-      this.georesourceStore.availableGeoresources
-    ) {
-      // Populate admin view
-      this.georesourceReferences_adminView = [];
+    if (this.metadataImportSettings.refrencesToGeoresources) {
+      const georesourceReferences: any[] = [];
       this.metadataImportSettings.refrencesToGeoresources.forEach((ref: any) => {
-        const georesource = this.georesourceStore.availableGeoresources.find(
-          (geo: any) => geo.georesourceId === ref.georesourceId
+        const georesourceMetadata = this.georesourceStore.getGeoresourceMetadataById(
+          ref.georesourceId
         );
-        if (georesource) {
-          this.georesourceReferences_adminView.push({
-            georesourceId: ref.georesourceId,
+        if (georesourceMetadata) {
+          georesourceReferences.push({
+            georesourceMetadata,
             referenceDescription: ref.referenceDescription,
-            georesourceName: georesource.georesourceName,
           });
         }
       });
+      this.georesourceReferences_adminView = georesourceReferences;
     }
 
     // Parse classification mapping (type, palette, breaks, labels, colors, categories)
@@ -1293,20 +1290,18 @@ export class IndicatorAddFormStateService {
       metadataExport.metadata.updateInterval = this.metadata.updateInterval.apiName;
     }
 
-    // Add references, in the same shape the POST body and the import expect.
+    // Add references, in the flat shape the POST body and the import expect.
     // These used to be read from `*_apiRequest`, which only a metadata import
     // ever filled — interactively added references never reached the file.
-    // `indicatorMetadata`/`georesourceMetadata` is the interactive shape, the
-    // flat id the one applyMetadataImport() produces (see the pinned shape bug).
     metadataExport.refrencesToOtherIndicators = this.indicatorReferences_adminView.map(
       (ref: any) => ({
-        indicatorId: ref.indicatorMetadata?.indicatorId ?? ref.indicatorId,
+        indicatorId: ref.indicatorMetadata.indicatorId,
         referenceDescription: ref.referenceDescription,
       })
     );
     metadataExport.refrencesToGeoresources = this.georesourceReferences_adminView.map(
       (ref: any) => ({
-        georesourceId: ref.georesourceMetadata?.georesourceId ?? ref.georesourceId,
+        georesourceId: ref.georesourceMetadata.georesourceId,
         referenceDescription: ref.referenceDescription,
       })
     );

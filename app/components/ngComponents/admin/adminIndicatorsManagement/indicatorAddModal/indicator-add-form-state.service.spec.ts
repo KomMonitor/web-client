@@ -26,7 +26,7 @@ import { RoleManagementGridComponent } from '../../adminShared/roleManagementPan
  * (`wizard-stepper.spec.ts`).
  *
  * Several assertions below pin behaviour that looks wrong. Those are marked BUG
- * and documented in `documentation/ADMIN_REFACTORING_OPEN_ITEMS.md`; the tests
+ * and documented in `documentation/OFFENE_PUNKTE.md`; the tests
  * hold the CURRENT behaviour so the rework has a baseline, they are not a
  * statement that it is correct.
  */
@@ -313,14 +313,33 @@ describe('IndicatorAddFormStateService', () => {
       expect(build).toHaveBeenCalled();
     });
 
-    it('BUG: throws after a metadata import brought in references (documented)', () => {
-      // applyMetadataImport pushes { indicatorId, ... } rows while every consumer
-      // expects { indicatorMetadata, ... }, so the builder dereferences undefined.
-      service.indicatorReferences_adminView = [
-        { indicatorId: 'ind-1', referenceDescription: 'Basis' } as any,
-      ];
+    it('emits references that came in through a metadata import', async () => {
+      // Was a documented bug: applyMetadataImport() pushed flat { indicatorId, ... }
+      // rows while every consumer expects { indicatorMetadata, ... }, so the builder
+      // dereferenced undefined — an import followed by "create" threw a TypeError.
+      await service.parseMetadataFromFile(
+        new File(
+          [
+            JSON.stringify({
+              metadata: {},
+              refrencesToOtherIndicators: [{ indicatorId: 'ind-1', referenceDescription: 'Basis' }],
+              refrencesToGeoresources: [
+                { georesourceId: 'geo-1', referenceDescription: 'Standorte' },
+              ],
+            }),
+          ],
+          'metadata.json'
+        )
+      );
 
-      expect(() => service.buildPostBody_indicators_v3()).toThrow(TypeError);
+      const body = service.buildPostBody_indicators_v3();
+
+      expect(body.refrencesToOtherIndicators).toEqual([
+        { indicatorId: 'ind-1', referenceDescription: 'Basis' },
+      ]);
+      expect(body.refrencesToGeoresources).toEqual([
+        { georesourceId: 'geo-1', referenceDescription: 'Standorte' },
+      ]);
     });
   });
 
@@ -758,6 +777,37 @@ describe('IndicatorAddFormStateService', () => {
 
       expect(seen.length).toBeGreaterThan(1);
       expect(seen.at(-1)).toHaveLength(1);
+    });
+
+    it('resolves imported references to the metadata objects step 4 renders', async () => {
+      await service.parseMetadataFromFile(
+        asFile(
+          JSON.stringify({
+            metadata: {},
+            refrencesToOtherIndicators: [
+              { indicatorId: 'ind-1', referenceDescription: 'Basis' },
+              // Unknown ids are dropped — the row could not be rendered anyway.
+              { indicatorId: 'nicht-vorhanden', referenceDescription: 'weg' },
+            ],
+            refrencesToGeoresources: [
+              { georesourceId: 'geo-1', referenceDescription: 'Standorte' },
+            ],
+          })
+        )
+      );
+
+      expect(service.indicatorReferences_adminView).toEqual([
+        {
+          indicatorMetadata: { indicatorId: 'ind-1', indicatorName: 'Bevölkerung' },
+          referenceDescription: 'Basis',
+        },
+      ]);
+      expect(service.georesourceReferences_adminView).toEqual([
+        {
+          georesourceMetadata: { georesourceId: 'geo-1', datasetName: 'Schulen' },
+          referenceDescription: 'Standorte',
+        },
+      ]);
     });
 
     it('reports unparsable content instead of throwing', async () => {

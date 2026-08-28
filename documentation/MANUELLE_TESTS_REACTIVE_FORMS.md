@@ -321,12 +321,24 @@ Fehlern, die kein Test sieht — **eine stehengebliebene Ansicht**.
 - [ ] **Bekannte Grenze, unverändert:** ein Häkchen *im* Grid aktualisiert die
       Zusammenfassungszeile nicht sofort — das Grid gibt kein Output, das Schritt 7 bindet
 
+### 11.4 Referenz-Datenform nach Metadaten-Import — behoben (2026-08-28)
+
+`applyMetadataImport()` legte `{ indicatorId, … }`-Zeilen an, während Schritt 4, die
+Bearbeiten-/Löschen-Handler und beide Body-Builder `{ indicatorMetadata, … }` erwarten. Ein
+Import gefolgt von „Anlegen" warf einen `TypeError`. Die Zeilen tragen jetzt das aufgelöste
+Metadatenobjekt aus dem Store.
+
+- [ ] Metadatendatei mit Indikator- **und** Georessourcen-Referenzen importieren → die beiden
+      Tabellen in Schritt 4 zeigen Name und Typ (vorher blieben die Spalten leer bzw. die
+      Ansicht brach ab)
+- [ ] Eine importierte Referenz bearbeiten und eine löschen → beides greift die richtige Zeile
+- [ ] Danach „Anlegen" → der POST geht raus (**kein** `TypeError` in der Konsole) und enthält
+      `refrencesToOtherIndicators` / `refrencesToGeoresources` mit den importierten Einträgen
+- [ ] Referenz auf einen inzwischen gelöschten Indikator importieren → die Zeile wird
+      stillschweigend verworfen, der Rest des Imports bleibt vollständig
+
 ---
 
 ## Noch offen / nicht in diesem Umbau geprüft
 
-- Die **Referenz-Datenform** des Indikator-Wizards divergiert weiter: `applyMetadataImport()`
-  legt `{ indicatorId, … }`-Zeilen an, alle anderen Aufrufer erwarten
-  `{ indicatorMetadata, … }`. Ein Import gefolgt von „Anlegen" wirft deshalb einen `TypeError`
-  — als Fehler benannt und in `indicator-add-form-state.service.spec.ts` gepinnt, aber nicht
-  behoben.
+- (nichts)
