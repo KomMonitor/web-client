@@ -23,10 +23,16 @@ import { RoleManagementGridComponent } from '../../adminShared/roleManagementPan
  * Safety net for the POST-body builder and the three hand-written validation
  * flags, ahead of the planned typing / Reactive-Forms rework.
  *
- * The fixture is deliberately never rendered (`detectChanges()` is not called),
- * following the other modal specs in this repo: ngOnInit would fire the importer
- * fetch and the access-control bootstrap, and rendering would instantiate AG Grid
- * for the role panel. The builder and the validators need neither.
+ * Two tiers, like the three edit-features modals:
+ *
+ * - The blocks below drive the component directly and never render: ngOnInit
+ *   would fire the importer fetch and the access-control bootstrap, and the
+ *   builder and validators need neither.
+ * - `describe('rendered data step')` renders — the only tier that catches a
+ *   `formControlName` without a control (`Cannot find control with name: …`).
+ *   It runs the modal with Keycloak off, which drops the whole security
+ *   fieldset from the template and with it the role grid's AG Grid; the other
+ *   steps sit behind `@if (stepper.isActive(…))` and stay unrendered.
  *
  * Not re-tested here (own specs): `metadataFormToApi` / the metadata form model,
  * `toIsoDateString` and `getErrorMessage`, `ResourceImportService`, and the
@@ -49,6 +55,43 @@ const SPATIAL_UNITS = [
   { spatialUnitId: 'su-district', spatialUnitLevel: 'Stadtteile' },
   { spatialUnitId: 'su-block', spatialUnitLevel: 'Baublöcke' },
 ];
+
+/**
+ * Importer resources for the rendered tier. They must carry parameters,
+ * otherwise the rendered tests prove nothing — a parameterless converter and a
+ * FILE data source render no parameter fields at all.
+ */
+const CSV_CONVERTER = {
+  name: 'CSV',
+  type: 'csv',
+  mimeTypes: ['text/csv'],
+  encodings: ['UTF-8'],
+  parameters: [
+    { name: 'delimiter', mandatory: true },
+    { name: 'comment', mandatory: false },
+  ],
+};
+
+/** Shares `delimiter` with CSV_CONVERTER, but not `comment`. */
+const CSV_CONVERTER_COMPACT = {
+  name: 'CSV kompakt',
+  type: 'csv-compact',
+  mimeTypes: ['text/csv'],
+  encodings: ['UTF-8'],
+  parameters: [{ name: 'delimiter', mandatory: true }],
+};
+
+const HTTP_DATASOURCE = { type: 'HTTP', parameters: [{ name: 'url', mandatory: true }] };
+/** Carries the synthetic bbox entries the bbox block renders instead. */
+const OGC_DATASOURCE = {
+  type: 'OGCAPI_FEATURES',
+  parameters: [
+    { name: 'url', mandatory: true },
+    { name: 'bbox', mandatory: false },
+    { name: 'bboxType', mandatory: false },
+  ],
+};
+const FILE_DATASOURCE = { type: 'FILE', parameters: [] };
 
 /** The role grid is a collaborator; only getSelectedRoleIds() is read here. */
 function fakeRoleGrid(selected: string[] = []) {
@@ -103,8 +146,8 @@ describe('SpatialUnitAddModalComponent', () => {
           useValue: {
             mappingConfigStructure: {},
             getAttributeMappingTypes: () => [],
-            getAvailableConverters: () => [],
-            getAvailableDatasourceTypes: () => [],
+            getAvailableConverters: () => [CSV_CONVERTER, CSV_CONVERTER_COMPACT],
+            getAvailableDatasourceTypes: () => [HTTP_DATASOURCE, OGC_DATASOURCE, FILE_DATASOURCE],
             fetchResourcesFromImporter: jest.fn().mockResolvedValue(undefined),
             registerNewSpatialUnit: jest.fn(),
             importerResponseContainsErrors: jest.fn().mockReturnValue(false),
@@ -558,6 +601,184 @@ describe('SpatialUnitAddModalComponent', () => {
       expect(
         Object.keys(component.importerForm.controls.datasourceTypeParameters.controls)
       ).toEqual(['url']);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+
+  /**
+   * The rendered tier — see the file header. Everything goes through the real
+   * widgets: picking a converter, data source or spatial filter dispatches a
+   * `change` on its `<select>`, filling a field dispatches an `input`.
+   */
+  describe('rendered data step', () => {
+    let rendered: SpatialUnitAddModalComponent;
+    let renderedFixture: ComponentFixture<SpatialUnitAddModalComponent>;
+
+    beforeEach(async () => {
+      // Keycloak off: the security fieldset — and with it the role grid — is
+      // behind `@if (envConfigService.enableKeycloakSecurity)`, so this keeps
+      // AG Grid out of the DOM without stubbing anything.
+      TestBed.resetTestingModule();
+      renderedFixture = createFixture({ enableKeycloakSecurity: false });
+      rendered = renderedFixture.componentInstance;
+
+      // Steps without security: metadata, general, data. The first two are
+      // behind `@if (stepper.isActive(…))` and stay unrendered.
+      rendered.stepper.goTo(3);
+      renderedFixture.detectChanges();
+      // loadInitialData awaits the importer resources before the data source
+      // types reach the select.
+      await renderedFixture.whenStable();
+      renderedFixture.detectChanges();
+    });
+
+    const query = <T extends HTMLElement>(selector: string): T | null =>
+      renderedFixture.nativeElement.querySelector(selector);
+
+    /** Parameter fields carry no `formcontrolname` attribute — the binding is
+     * dynamic — but their placeholder is the parameter name. */
+    const parameterField = (name: string): HTMLElement | null => query(`[placeholder="${name}"]`);
+
+    /** `formGroupName` is static markup, so it survives into the DOM. */
+    const bboxField = (corner: string): HTMLInputElement | null =>
+      query(`[formgroupname="bbox"] [formcontrolname="${corner}"]`);
+
+    const dispatchOn = (select: HTMLSelectElement, value: string): void => {
+      select.value = value;
+      select.dispatchEvent(new Event('change'));
+      renderedFixture.detectChanges();
+    };
+
+    /** For `[ngValue]` selects, whose option keys the accessor owns. */
+    const chooseOption = (selector: string, label: string): void => {
+      const select = query<HTMLSelectElement>(selector);
+      if (!select) {
+        throw new Error(`no <select> for "${selector}"`);
+      }
+      const option = Array.from(select.options).find((o) => o.textContent?.trim() === label);
+      if (!option) {
+        throw new Error(`no option "${label}" in "${selector}"`);
+      }
+      dispatchOn(select, option.value);
+    };
+
+    /** For plain `[value]` selects such as the spatial filter. */
+    const chooseValue = (selector: string, value: string): void => {
+      const select = query<HTMLSelectElement>(selector);
+      if (!select) {
+        throw new Error(`no <select> for "${selector}"`);
+      }
+      dispatchOn(select, value);
+    };
+
+    const typeInto = (element: HTMLElement | null, value: string): void => {
+      if (!element) {
+        throw new Error('field not rendered');
+      }
+      (element as HTMLInputElement).value = value;
+      element.dispatchEvent(new Event('input'));
+      renderedFixture.detectChanges();
+    };
+
+    const chooseConverter = (label: string): void =>
+      chooseOption('select[formcontrolname="converter"]', label);
+    const chooseDatasourceType = (label: string): void =>
+      chooseOption('select[formcontrolname="datasourceType"]', label);
+
+    it('keeps the role grid out of the DOM', () => {
+      // Guards the assumption this whole tier rests on.
+      expect(query('ag-grid-angular')).toBeNull();
+      expect(query('app-role-management-grid')).toBeNull();
+    });
+
+    it('renders a field per converter parameter', () => {
+      // Without `formGroupName="converterParameters"` around the loop this
+      // throws `Cannot find control with name: delimiter`.
+      expect(() => chooseConverter('CSV')).not.toThrow();
+      expect(parameterField('delimiter')).not.toBeNull();
+      expect(parameterField('comment')).not.toBeNull();
+    });
+
+    it('writes what is typed into a parameter field to its control', () => {
+      chooseConverter('CSV');
+
+      typeInto(parameterField('delimiter'), ';');
+
+      expect(rendered.importerForm.controls.converterParameters.controls['delimiter'].value).toBe(
+        ';'
+      );
+    });
+
+    it('swaps the fields on a converter switch and keeps the shared value', () => {
+      chooseConverter('CSV');
+      typeInto(parameterField('delimiter'), ';');
+
+      chooseConverter('CSV kompakt');
+
+      expect(parameterField('delimiter')).not.toBeNull();
+      expect(parameterField('comment')).toBeNull();
+      expect(rendered.importerForm.controls.converterParameters.getRawValue()).toEqual({
+        delimiter: ';',
+      });
+    });
+
+    it('renders a field per data source parameter', () => {
+      chooseConverter('CSV');
+
+      expect(() => chooseDatasourceType('HTTP')).not.toThrow();
+      expect(parameterField('url')).not.toBeNull();
+    });
+
+    it('never renders the synthetic bbox parameters as plain fields', () => {
+      chooseConverter('CSV');
+
+      chooseDatasourceType('OGCAPI_FEATURES');
+
+      // They have no control in the record — the bbox block renders them.
+      expect(parameterField('bbox')).toBeNull();
+      expect(parameterField('bboxType')).toBeNull();
+      expect(parameterField('url')).not.toBeNull();
+    });
+
+    it('renders the manual bounding box inside its form group', () => {
+      chooseConverter('CSV');
+      chooseDatasourceType('OGCAPI_FEATURES');
+
+      // Without `formGroupName="bbox"` this throws
+      // `Cannot find control with name: minx`.
+      expect(() => chooseValue('select[formcontrolname="bboxType"]', 'literal')).not.toThrow();
+      expect(bboxField('minx')).not.toBeNull();
+      expect(bboxField('maxy')).not.toBeNull();
+
+      typeInto(bboxField('minx'), '7');
+
+      // A number input hands the accessor a number, not the declared string.
+      expect(`${rendered.importerForm.controls.bbox.controls.minx.value}`).toBe('7');
+    });
+
+    it('offers the reference spatial units for the other filter mode', () => {
+      chooseConverter('CSV');
+      chooseDatasourceType('OGCAPI_FEATURES');
+
+      chooseValue('select[formcontrolname="bboxType"]', 'ref');
+      chooseOption('select[formcontrolname="bboxRefSpatialUnitId"]', 'Stadtteile');
+
+      expect(bboxField('minx')).toBeNull();
+      expect(rendered.importerForm.controls.bboxRefSpatialUnitId.value).toBe('su-district');
+    });
+
+    it('drops the bounding box entries when switching to a FILE upload', () => {
+      chooseConverter('CSV');
+      chooseDatasourceType('OGCAPI_FEATURES');
+      chooseValue('select[formcontrolname="bboxType"]', 'literal');
+      typeInto(bboxField('minx'), '7');
+
+      chooseDatasourceType('FILE');
+
+      expect(bboxField('minx')).toBeNull();
+      expect(rendered.importerForm.controls.bbox.controls.minx.value).toBeFalsy();
+      expect(query('input[type="file"]')).not.toBeNull();
     });
   });
 });

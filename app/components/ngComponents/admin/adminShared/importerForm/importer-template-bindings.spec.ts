@@ -11,7 +11,11 @@ import { join } from 'path';
  *
  * The check is a text scan, not a parser: for every binding it looks at the
  * nearest preceding `formGroupName`, which in these templates is the wrapping
- * element.
+ * element. All five modals now also have a rendered tier
+ * (`describe('rendered data step')` / `'rendered batch step'` in their component
+ * specs) that proves the same thing by actually throwing. This scan stays as the
+ * cheap structural invariant: it covers markup no rendered test happens to
+ * exercise, and it names the offending file directly.
  */
 
 const TEMPLATES = [

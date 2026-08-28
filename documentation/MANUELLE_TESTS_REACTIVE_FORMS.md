@@ -47,8 +47,13 @@ wurden beide Parameter-Records zusätzlich **nie** synchronisiert (`onChangeConv
 Code, ein Datenquelltyp-Pendant fehlte ganz). Außerdem filtern die Templates jetzt beide
 synthetischen Namen (`bbox` **und** `bboxType`, wie die AngularJS-Vorlage mit ihrem
 Substring-Filter `!bbox`), damit Template und `syncParameterControls` dieselbe Liste sehen.
-Neuer Wächter: `adminShared/importerForm/importer-template-bindings.spec.ts` prüft die
-Wrapper in allen fünf Templates. Die Liste unten bleibt trotzdem zu laufen — der Wächter sieht
+Neue Wächter: `adminShared/importerForm/importer-template-bindings.spec.ts` prüft die
+Wrapper in allen fünf Templates, und **alle fünf Modals** haben jetzt einen gerenderten
+Spec-Block (`describe('rendered data step')` bzw. `'rendered batch step'`), der den
+Importer-Schritt wirklich aufbaut und Konverter, Datenquelltyp und räumlichen Filter über
+die echten Selects wählt — inklusive manuellem Begrenzungsrahmen. Punkt 1 ist damit
+automatisiert abgedeckt; die Liste unten bleibt für alles zu laufen, was ein Test nicht
+sieht: echte Importer-Antworten, Objekt-Identität nach einem Datei-Import und die Optik. Die Liste unten bleibt trotzdem zu laufen — der Wächter sieht
 nur die Verdrahtung, nicht das Verhalten.
 
 Bei Fehlern: `adminShared/importerForm/importer-form.model.ts` →

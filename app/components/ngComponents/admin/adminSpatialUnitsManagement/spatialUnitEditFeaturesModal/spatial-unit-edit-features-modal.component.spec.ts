@@ -20,18 +20,74 @@ import { SpatialUnitEditFeaturesModalComponent } from './spatial-unit-edit-featu
 
 /**
  * Safety net for the PUT-body builder, the period-of-validity flag, the date
- * blur coercion, the attribute-mapping table and the reset defaults, ahead of
- * the planned typing / Reactive-Forms rework. This modal had no spec at all.
+ * blur coercion, the attribute-mapping table and the reset defaults, plus the
+ * rendered data step.
  *
- * Like the other modal specs in this repo, the fixture is deliberately never
- * rendered (`detectChanges()` is not called): ngOnInit awaits the importer
- * resources and builds an AG Grid feature table.
+ * Two tiers, mirroring `indicatorEditFeaturesModal`:
+ *
+ * - The blocks below drive the component directly and never render.
+ * - `describe('rendered data step')` renders. The overview step sits behind
+ *   `@if (stepper.isActive('overview'))`, so moving the stepper to the data
+ *   step before the first change detection keeps `<ag-grid-angular>` out of the
+ *   DOM and no child stubbing is needed. Unlike the indicator modal, `ngOnInit`
+ *   here is async (it awaits the importer resources), so the render helper
+ *   awaits stability before the fields are asserted on.
+ *
+ * That second tier is the only thing that catches a `formControlName` rendered
+ * for a control that does not exist — it throws `Cannot find control with
+ * name: …` at render time and nowhere else. This modal carries three such
+ * dictionaries: both parameter records and the bounding box group.
  */
 
 const ATTRIBUTE_MAPPING_TYPES = [
   { displayName: 'Text', apiName: 'string' },
   { displayName: 'Ganzzahl', apiName: 'integer' },
 ];
+
+const SPATIAL_UNITS = [
+  { spatialUnitLevel: 'Stadtteile', spatialUnitId: 'su-1' },
+  { spatialUnitLevel: 'Baublöcke', spatialUnitId: 'su-2' },
+];
+
+/**
+ * Converters and data source types come from the importer at runtime. They must
+ * carry parameters, otherwise the rendered tests prove nothing — a parameterless
+ * converter and a FILE data source render no parameter fields at all.
+ */
+const CONVERTER = {
+  name: 'CSV',
+  type: 'csv',
+  mimeTypes: ['text/csv'],
+  encodings: ['UTF-8'],
+  schemas: ['default'],
+  parameters: [
+    { name: 'delimiter', mandatory: true },
+    { name: 'comment', mandatory: false },
+  ],
+};
+
+/** Shares `delimiter` with CONVERTER, but not `comment`. */
+const CONVERTER_SHARING_A_PARAMETER = {
+  name: 'CSV kompakt',
+  type: 'csv-compact',
+  mimeTypes: ['text/csv'],
+  encodings: ['UTF-8'],
+  parameters: [{ name: 'delimiter', mandatory: true }],
+};
+
+const HTTP_DATASOURCE = { type: 'HTTP', parameters: [{ name: 'url', mandatory: true }] };
+
+/** Carries the synthetic bbox entries the bbox block renders instead. */
+const OGC_DATASOURCE = {
+  type: 'OGCAPI_FEATURES',
+  parameters: [
+    { name: 'url', mandatory: true },
+    { name: 'bbox', mandatory: false },
+    { name: 'bboxType', mandatory: false },
+  ],
+};
+
+const FILE_DATASOURCE = { type: 'FILE', parameters: [] };
 
 describe('SpatialUnitEditFeaturesModalComponent', () => {
   let component: SpatialUnitEditFeaturesModalComponent;
@@ -47,7 +103,10 @@ describe('SpatialUnitEditFeaturesModalComponent', () => {
         provideNoopAnimations(),
         NgbActiveModal,
         { provide: EnvConfigService, useValue: { enableKeycloakSecurity: true } },
-        { provide: SpatialUnitMetadataStoreService, useValue: { availableSpatialUnits: [] } },
+        {
+          provide: SpatialUnitMetadataStoreService,
+          useValue: { availableSpatialUnits: SPATIAL_UNITS },
+        },
         { provide: CacheHelperServiceService, useValue: {} },
         { provide: IndicatorValueService, useValue: { syntaxHighlightJSON: () => '' } },
         {
@@ -55,8 +114,15 @@ describe('SpatialUnitEditFeaturesModalComponent', () => {
           useValue: { showError: jest.fn(), showSuccess: jest.fn() },
         },
         {
+          // buildSpatialResourceFeatureTable runs in ngOnInit and its result is
+          // destructured right after, so it must return grid options.
           provide: FeatureTableDataGridHelperService,
-          useValue: { buildFeatureTableGrid: jest.fn() },
+          useValue: {
+            buildFeatureTableGrid: jest.fn(),
+            buildSpatialResourceFeatureTable: jest
+              .fn()
+              .mockReturnValue({ columnDefs: [], rowData: [], defaultColDef: {} }),
+          },
         },
         // Must be stubbed: the real service fires GETs from its constructor.
         {
@@ -65,8 +131,8 @@ describe('SpatialUnitEditFeaturesModalComponent', () => {
             mappingConfigStructure: {},
             attributeMapping_attributeTypes: ATTRIBUTE_MAPPING_TYPES,
             getAttributeMappingTypes: () => ATTRIBUTE_MAPPING_TYPES,
-            getAvailableConverters: () => [],
-            getAvailableDatasourceTypes: () => [],
+            getAvailableConverters: () => [CONVERTER, CONVERTER_SHARING_A_PARAMETER],
+            getAvailableDatasourceTypes: () => [HTTP_DATASOURCE, OGC_DATASOURCE, FILE_DATASOURCE],
             fetchResourcesFromImporter: jest.fn().mockResolvedValue(undefined),
           },
         },
@@ -326,6 +392,170 @@ describe('SpatialUnitEditFeaturesModalComponent', () => {
       expect(component.datasourceType).toBeNull();
       expect(component.validityStartDate_perFeature).toBe('');
       expect(component.attributeMappings_adminView).toEqual([]);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+
+  /**
+   * The rendered tier — see the file header. Everything goes through the real
+   * widgets: picking a converter, data source or spatial filter dispatches a
+   * `change` on its `<select>`, filling a field dispatches an `input`.
+   */
+  describe('rendered data step', () => {
+    /**
+     * Step 2 is 'data'. Going there before the first change detection keeps the
+     * overview step's AG Grid unrendered; the first `detectChanges()` starts the
+     * async `ngOnInit`, whose `loadAvailableOptions()` fills the two selects.
+     */
+    const renderDataStep = async (): Promise<void> => {
+      component.stepper.goTo(2);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    const query = <T extends HTMLElement>(selector: string): T | null =>
+      fixture.nativeElement.querySelector(selector);
+
+    /** Parameter fields carry no `formcontrolname` attribute — the binding is
+     * dynamic — but their placeholder is the parameter name. */
+    const parameterField = (name: string): HTMLElement | null => query(`[placeholder="${name}"]`);
+
+    const bboxField = (corner: string): HTMLInputElement | null =>
+      query(`#datasourceTypeParameter_spatialUnitEditFeatures_bbox_${corner}`);
+
+    const dispatchOn = (select: HTMLSelectElement, value: string): void => {
+      select.value = value;
+      select.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+    };
+
+    /** For `[ngValue]` selects, whose option keys the accessor owns. */
+    const chooseOption = (selector: string, label: string): void => {
+      const select = query<HTMLSelectElement>(selector);
+      if (!select) {
+        throw new Error(`no <select> for "${selector}"`);
+      }
+      const option = Array.from(select.options).find((o) => o.textContent?.trim() === label);
+      if (!option) {
+        throw new Error(`no option "${label}" in "${selector}"`);
+      }
+      dispatchOn(select, option.value);
+    };
+
+    /** For plain `[value]` selects such as the spatial filter. */
+    const chooseValue = (selector: string, value: string): void => {
+      const select = query<HTMLSelectElement>(selector);
+      if (!select) {
+        throw new Error(`no <select> for "${selector}"`);
+      }
+      dispatchOn(select, value);
+    };
+
+    const typeInto = (element: HTMLInputElement | HTMLElement | null, value: string): void => {
+      if (!element) {
+        throw new Error('field not rendered');
+      }
+      (element as HTMLInputElement).value = value;
+      element.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+    };
+
+    const chooseConverter = (label: string): void =>
+      chooseOption('select[formcontrolname="converter"]', label);
+    const chooseDatasourceType = (label: string): void =>
+      chooseOption('select[formcontrolname="datasourceType"]', label);
+
+    it('keeps the AG Grid feature table out of the DOM', async () => {
+      await renderDataStep();
+
+      // Guards the assumption this whole tier rests on.
+      expect(query('ag-grid-angular')).toBeNull();
+    });
+
+    it('renders a field per converter parameter', async () => {
+      await renderDataStep();
+
+      // Without `formGroupName="converterParameters"` around the loop this
+      // throws `Cannot find control with name: delimiter`.
+      expect(() => chooseConverter('CSV')).not.toThrow();
+      expect(parameterField('delimiter')).not.toBeNull();
+      expect(parameterField('comment')).not.toBeNull();
+    });
+
+    it('writes what is typed into a parameter field to its control', async () => {
+      await renderDataStep();
+      chooseConverter('CSV');
+
+      typeInto(parameterField('delimiter'), ';');
+
+      expect(component.importerForm.controls.converterParameters.controls['delimiter'].value).toBe(
+        ';'
+      );
+    });
+
+    it('swaps the fields on a converter switch and keeps the shared value', async () => {
+      await renderDataStep();
+      chooseConverter('CSV');
+      typeInto(parameterField('delimiter'), ';');
+
+      chooseConverter('CSV kompakt');
+
+      expect(parameterField('delimiter')).not.toBeNull();
+      expect(parameterField('comment')).toBeNull();
+      expect(component.converterParameters).toEqual({ delimiter: ';' });
+    });
+
+    it('renders a field per data source parameter', async () => {
+      await renderDataStep();
+      chooseConverter('CSV');
+
+      expect(() => chooseDatasourceType('HTTP')).not.toThrow();
+      expect(parameterField('url')).not.toBeNull();
+    });
+
+    it('renders the manual bounding box inside its form group', async () => {
+      await renderDataStep();
+      chooseConverter('CSV');
+      chooseDatasourceType('OGCAPI_FEATURES');
+
+      // Without `formGroupName="bbox"` this throws
+      // `Cannot find control with name: minx`.
+      expect(() => chooseValue('select[formcontrolname="bboxType"]', 'literal')).not.toThrow();
+      expect(bboxField('minx')).not.toBeNull();
+      expect(bboxField('maxy')).not.toBeNull();
+
+      typeInto(bboxField('minx'), '7');
+
+      // A number input hands the accessor a number, not the declared string.
+      expect(`${component.importerForm.controls.bbox.controls.minx.value}`).toBe('7');
+    });
+
+    it('offers the reference spatial units for the other filter mode', async () => {
+      await renderDataStep();
+      chooseConverter('CSV');
+      chooseDatasourceType('OGCAPI_FEATURES');
+
+      chooseValue('select[formcontrolname="bboxType"]', 'ref');
+      chooseValue('select[formcontrolname="bboxRefSpatialUnitId"]', 'Stadtteile');
+
+      expect(bboxField('minx')).toBeNull();
+      expect(component.importerForm.controls.bboxRefSpatialUnitId.value).toBe('Stadtteile');
+    });
+
+    it('drops the bounding box entries when switching to a FILE upload', async () => {
+      await renderDataStep();
+      chooseConverter('CSV');
+      chooseDatasourceType('OGCAPI_FEATURES');
+      chooseValue('select[formcontrolname="bboxType"]', 'literal');
+      typeInto(bboxField('minx'), '7');
+
+      chooseDatasourceType('FILE');
+
+      expect(bboxField('minx')).toBeNull();
+      expect(component.importerForm.controls.bbox.controls.minx.value).toBeFalsy();
+      expect(query('input[type="file"]')).not.toBeNull();
     });
   });
 });

@@ -864,10 +864,12 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       }
     }
 
-    // Add other datasource parameters
+    // Add other datasource parameters. The synthetic bbox entries are already
+    // handled above and have no control in the record — emitting them here
+    // would put an empty `bboxType` into the importer body.
     if (this.datasourceType.parameters) {
       this.datasourceType.parameters.forEach((param: any) => {
-        if (param.name !== 'bbox') {
+        if (!SYNTHETIC_DATASOURCE_PARAMETERS.includes(param.name)) {
           parameters[param.name] = this.datasourceParameterValues[param.name] ?? '';
         }
       });

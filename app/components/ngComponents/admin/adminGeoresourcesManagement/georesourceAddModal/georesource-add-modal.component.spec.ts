@@ -31,10 +31,16 @@ import { GeoresourceAddModalComponent } from './georesource-add-modal.component'
  * known divergences called out inline — so the rework can prove it changed
  * nothing it did not mean to change.
  *
- * Like the other modal specs in this repo, the fixture is deliberately never
- * rendered (`detectChanges()` is not called): ngOnInit resets the form, fetches
- * importer resources and subscribes to two streams, and rendering would
- * instantiate AG Grid for the role panel.
+ * Two tiers, like the other importer modals:
+ *
+ * - The blocks below drive the component directly and never render: ngOnInit
+ *   resets the form, fetches importer resources and subscribes to two streams,
+ *   none of which the builder or the validators need.
+ * - `describe('rendered data step')` renders — the only tier that catches a
+ *   `formControlName` without a control (`Cannot find control with name: …`).
+ *   It runs the modal with Keycloak off, which drops the whole security
+ *   fieldset and with it the role panel's AG Grid; the other steps sit behind
+ *   `@if (stepper.isActive(…))` and stay unrendered.
  */
 
 const GEORESOURCES = [{ datasetName: 'Spielplätze' }, { datasetName: 'Schulen' }];
@@ -45,6 +51,49 @@ const SUB = { topicId: 't-1-1', topicName: 'Ebene 2', subTopics: [SUB_SUB] };
 const MAIN = { topicId: 't-1', topicName: 'Umwelt', subTopics: [SUB] };
 
 const ATTRIBUTE_MAPPING_TYPES = [{ displayName: 'Text', apiName: 'string' }];
+
+const SPATIAL_UNITS = [
+  { spatialUnitId: 'su-district', spatialUnitLevel: 'Stadtteile' },
+  { spatialUnitId: 'su-block', spatialUnitLevel: 'Baublöcke' },
+];
+
+/**
+ * Importer resources for the rendered tier. They must carry parameters,
+ * otherwise the rendered tests prove nothing — a parameterless converter and a
+ * FILE data source render no parameter fields at all.
+ */
+const CSV_CONVERTER = {
+  name: 'CSV',
+  type: 'csv',
+  mimeTypes: ['text/csv'],
+  encodings: ['UTF-8'],
+  parameters: [
+    { name: 'delimiter', mandatory: true },
+    { name: 'comment', mandatory: false },
+  ],
+};
+
+/** Shares `delimiter` with CSV_CONVERTER, but not `comment`. */
+const CSV_CONVERTER_COMPACT = {
+  name: 'CSV kompakt',
+  type: 'csv-compact',
+  mimeTypes: ['text/csv'],
+  encodings: ['UTF-8'],
+  parameters: [{ name: 'delimiter', mandatory: true }],
+};
+
+const HTTP_DATASOURCE = { type: 'HTTP', parameters: [{ name: 'url', mandatory: true }] };
+/** Carries the synthetic bbox entries the bbox block renders instead. */
+const OGC_DATASOURCE = {
+  type: 'OGCAPI_FEATURES',
+  parameters: [
+    { name: 'url', mandatory: true },
+    { name: 'bbox', mandatory: false },
+    { name: 'bboxType', mandatory: false },
+  ],
+};
+const FILE_DATASOURCE = { type: 'FILE', parameters: [] };
+const DATASOURCE_TYPES = [HTTP_DATASOURCE, OGC_DATASOURCE, FILE_DATASOURCE];
 
 /** Minimal stand-in for the AG-Grid role panel read through @ViewChild. */
 function fakeRoleGrid(selected: string[] = []) {
@@ -60,7 +109,13 @@ describe('GeoresourceAddModalComponent', () => {
   let component: GeoresourceAddModalComponent;
   let fixture: ComponentFixture<GeoresourceAddModalComponent>;
 
-  beforeEach(() => {
+  /**
+   * Builds a fixture with the standard stub set. `env` overrides the
+   * EnvConfigService stub, so the rendered tier can run with Keycloak off.
+   */
+  function createFixture(
+    env: Record<string, unknown> = {}
+  ): ComponentFixture<GeoresourceAddModalComponent> {
     TestBed.configureTestingModule({
       imports: [GeoresourceAddModalComponent, TranslateModule.forRoot()],
       providers: [
@@ -71,13 +126,16 @@ describe('GeoresourceAddModalComponent', () => {
         NgbActiveModal,
         {
           provide: EnvConfigService,
-          useValue: { enableKeycloakSecurity: true, updateIntervalOptions: [] },
+          useValue: { enableKeycloakSecurity: true, updateIntervalOptions: [], ...env },
         },
         {
           provide: GeoresourceMetadataStoreService,
           useValue: { availableGeoresources: GEORESOURCES },
         },
-        { provide: SpatialUnitMetadataStoreService, useValue: { availableSpatialUnits: [] } },
+        {
+          provide: SpatialUnitMetadataStoreService,
+          useValue: { availableSpatialUnits: SPATIAL_UNITS },
+        },
         { provide: TopicMetadataStoreService, useValue: { availableTopics: [MAIN] } },
         { provide: TopicHierarchyService, useValue: { getTopicHierarchyForTopicId: () => [] } },
         {
@@ -105,10 +163,11 @@ describe('GeoresourceAddModalComponent', () => {
           useValue: {
             mappingConfigStructure: {},
             attributeMapping_attributeTypes: ATTRIBUTE_MAPPING_TYPES,
-            availableDatasourceTypes: [],
+            availableConverters: [CSV_CONVERTER, CSV_CONVERTER_COMPACT],
+            availableDatasourceTypes: DATASOURCE_TYPES,
             getAttributeMappingTypes: () => ATTRIBUTE_MAPPING_TYPES,
-            getAvailableConverters: () => [],
-            getAvailableDatasourceTypes: () => [],
+            getAvailableConverters: () => [CSV_CONVERTER, CSV_CONVERTER_COMPACT],
+            getAvailableDatasourceTypes: () => DATASOURCE_TYPES,
             fetchResourcesFromImporter: jest.fn().mockResolvedValue(undefined),
           },
         },
@@ -126,7 +185,11 @@ describe('GeoresourceAddModalComponent', () => {
       schemas: [NO_ERRORS_SCHEMA],
     });
 
-    fixture = TestBed.createComponent(GeoresourceAddModalComponent);
+    return TestBed.createComponent(GeoresourceAddModalComponent);
+  }
+
+  beforeEach(() => {
+    fixture = createFixture();
     component = fixture.componentInstance;
   });
 
@@ -618,6 +681,185 @@ describe('GeoresourceAddModalComponent', () => {
       expect(periodGroup().getRawValue()).toEqual({ startDate: '', endDate: '' });
       expect(importerGroup().controls.idProperty.value).toBe('');
       expect(component.attributeMappings_adminView).toEqual([]);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+
+  /**
+   * The rendered tier — see the file header. Everything goes through the real
+   * widgets: picking a converter, data source or spatial filter dispatches a
+   * `change` on its `<select>`, filling a field dispatches an `input`.
+   */
+  describe('rendered data step', () => {
+    let rendered: GeoresourceAddModalComponent;
+    let renderedFixture: ComponentFixture<GeoresourceAddModalComponent>;
+
+    beforeEach(() => {
+      // Keycloak off: the security fieldset — and with it the role panel's
+      // AG Grid — is behind `@if (envConfigService.enableKeycloakSecurity)`.
+      TestBed.resetTestingModule();
+      renderedFixture = createFixture({ enableKeycloakSecurity: false });
+      rendered = renderedFixture.componentInstance;
+
+      // Steps without security: metadata, general, topics, data. The first
+      // three are behind `@if (stepper.isActive(…))` and stay unrendered.
+      rendered.stepper.goTo(4);
+      renderedFixture.detectChanges();
+    });
+
+    const query = <T extends HTMLElement>(selector: string): T | null =>
+      renderedFixture.nativeElement.querySelector(selector);
+
+    /** Parameter fields carry no `formcontrolname` attribute — the binding is
+     * dynamic — but their placeholder is the parameter name. */
+    const parameterField = (name: string): HTMLElement | null => query(`[placeholder="${name}"]`);
+
+    /** `formGroupName` is static markup, so it survives into the DOM. */
+    const bboxField = (corner: string): HTMLInputElement | null =>
+      query(`[formgroupname="bbox"] [formcontrolname="${corner}"]`);
+
+    const dispatchOn = (select: HTMLSelectElement, value: string): void => {
+      select.value = value;
+      select.dispatchEvent(new Event('change'));
+      renderedFixture.detectChanges();
+    };
+
+    /** For `[ngValue]` selects, whose option keys the accessor owns. */
+    const chooseOption = (selector: string, label: string): void => {
+      const select = query<HTMLSelectElement>(selector);
+      if (!select) {
+        throw new Error(`no <select> for "${selector}"`);
+      }
+      const option = Array.from(select.options).find((o) => o.textContent?.trim() === label);
+      if (!option) {
+        throw new Error(`no option "${label}" in "${selector}"`);
+      }
+      dispatchOn(select, option.value);
+    };
+
+    /** For plain `[value]` selects such as the spatial filter. */
+    const chooseValue = (selector: string, value: string): void => {
+      const select = query<HTMLSelectElement>(selector);
+      if (!select) {
+        throw new Error(`no <select> for "${selector}"`);
+      }
+      dispatchOn(select, value);
+    };
+
+    const typeInto = (element: HTMLElement | null, value: string): void => {
+      if (!element) {
+        throw new Error('field not rendered');
+      }
+      (element as HTMLInputElement).value = value;
+      element.dispatchEvent(new Event('input'));
+      renderedFixture.detectChanges();
+    };
+
+    const chooseConverter = (label: string): void =>
+      chooseOption('select[formcontrolname="converter"]', label);
+    const chooseDatasourceType = (label: string): void =>
+      chooseOption('select[formcontrolname="datasourceType"]', label);
+
+    it('keeps the role panel out of the DOM', () => {
+      // Guards the assumption this whole tier rests on.
+      expect(query('ag-grid-angular')).toBeNull();
+      expect(query('app-role-management-grid')).toBeNull();
+    });
+
+    it('renders a field per converter parameter', () => {
+      // Without `formGroupName="converterParameters"` around the loop this
+      // throws `Cannot find control with name: delimiter`.
+      expect(() => chooseConverter('CSV')).not.toThrow();
+      expect(parameterField('delimiter')).not.toBeNull();
+      expect(parameterField('comment')).not.toBeNull();
+    });
+
+    it('writes what is typed into a parameter field to its control', () => {
+      chooseConverter('CSV');
+
+      typeInto(parameterField('delimiter'), ';');
+
+      expect(rendered.importerForm.controls.converterParameters.controls['delimiter'].value).toBe(
+        ';'
+      );
+    });
+
+    it('swaps the fields on a converter switch and keeps the shared value', () => {
+      chooseConverter('CSV');
+      typeInto(parameterField('delimiter'), ';');
+
+      chooseConverter('CSV kompakt');
+
+      expect(parameterField('delimiter')).not.toBeNull();
+      expect(parameterField('comment')).toBeNull();
+      expect(rendered.importerForm.controls.converterParameters.getRawValue()).toEqual({
+        delimiter: ';',
+      });
+    });
+
+    it('renders a field per data source parameter', () => {
+      chooseConverter('CSV');
+
+      expect(() => chooseDatasourceType('HTTP')).not.toThrow();
+      expect(parameterField('url')).not.toBeNull();
+    });
+
+    it('never renders the synthetic bbox parameters as plain fields', () => {
+      chooseConverter('CSV');
+
+      chooseDatasourceType('OGCAPI_FEATURES');
+
+      // They have no control in the record — the bbox block renders them.
+      expect(parameterField('bbox')).toBeNull();
+      expect(parameterField('bboxType')).toBeNull();
+      expect(parameterField('url')).not.toBeNull();
+    });
+
+    it('renders the manual bounding box inside its form group', () => {
+      chooseConverter('CSV');
+      chooseDatasourceType('OGCAPI_FEATURES');
+
+      // Without `formGroupName="bbox"` this throws
+      // `Cannot find control with name: minx`.
+      expect(() => chooseValue('select[formcontrolname="bboxType"]', 'literal')).not.toThrow();
+      expect(bboxField('minx')).not.toBeNull();
+      expect(bboxField('maxy')).not.toBeNull();
+
+      typeInto(bboxField('minx'), '7');
+
+      // A number input hands the accessor a number, not the declared string.
+      expect(`${rendered.importerForm.controls.bbox.controls.minx.value}`).toBe('7');
+    });
+
+    it('offers the reference spatial units for the other filter mode', () => {
+      chooseConverter('CSV');
+      chooseDatasourceType('OGCAPI_FEATURES');
+
+      chooseValue('select[formcontrolname="bboxType"]', 'ref');
+      chooseValue('select[formcontrolname="bboxRefSpatialUnitId"]', 'su-district');
+
+      expect(bboxField('minx')).toBeNull();
+      expect(rendered.importerForm.controls.bboxRefSpatialUnitId.value).toBe('su-district');
+    });
+
+    it('hides the bounding box when switching to a FILE upload', () => {
+      chooseConverter('CSV');
+      chooseDatasourceType('OGCAPI_FEATURES');
+      chooseValue('select[formcontrolname="bboxType"]', 'literal');
+      typeInto(bboxField('minx'), '7');
+
+      chooseDatasourceType('FILE');
+
+      expect(bboxField('minx')).toBeNull();
+      expect(query('input[type="file"]')).not.toBeNull();
+      // Documented divergence: both georesource modals keep the bbox state on a
+      // data source switch, while both spatial-unit modals clear bboxType, the
+      // reference id and the bbox group. Harmless for the wire format (the body
+      // keys off `bboxType` *and* the OGCAPI type), but switching back to
+      // OGCAPI restores the old corners.
+      expect(`${rendered.importerForm.controls.bbox.controls.minx.value}`).toBe('7');
+      expect(rendered.importerForm.controls.bboxType.value).toBe('literal');
     });
   });
 });
