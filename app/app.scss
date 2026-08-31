@@ -16,7 +16,9 @@
   --kommonitor-hierarchy-level-2: #d6e4f1;
   --kommonitor-hierarchy-level-3: #eaf1f8;
 
-  --custom-font-family: 'Source Sans Pro', sans-serif;
+  // Self-hosted via @fontsource-variable/source-sans-3 (wired up in angular.json styles).
+  // 'Source Sans 3' / 'Source Sans Pro' cover users who have either installed locally.
+  --custom-font-family: 'Source Sans 3 Variable', 'Source Sans 3', 'Source Sans Pro', sans-serif;
 
   --body_gradient_left: #7200d0;
   --body_gradient_right: #c800c1;

@@ -121,7 +121,7 @@
   --ag-row-hover-color: #f5f5f5;
   --ag-selected-row-background-color: #e3f2fd;
   --ag-font-size: 13px;
-  --ag-font-family: 'Source Sans Pro', sans-serif;
+  --ag-font-family: var(--custom-font-family);
   font-family: var(--ag-font-family);
 }
 

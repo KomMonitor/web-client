@@ -55,7 +55,8 @@
     "INDICATORS_PER_SPATIAL_UNIT": "Indikatoren pro Raumeinheit",
     "POINTS_OF_INTEREST": "Points of Interest",
     "LINES_OF_INTEREST": "Lines of Interest",
-    "AREAS_OF_INTEREST": "Areas of Interest"
+    "AREAS_OF_INTEREST": "Areas of Interest",
+    "INDICATORS_PER_SPATIAL_UNIT_TOP": "Indikatoren pro Raumeinheit (Top {{count}})"
   },
   "ADMIN_SHARED": {
     "CANCEL": "Abbrechen",

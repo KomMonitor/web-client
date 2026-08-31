@@ -14,8 +14,7 @@
   --ag-row-hover-color: #e9ecef;
   --ag-selected-row-background-color: #007bff;
   --ag-font-size: 14px;
-  --ag-font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --ag-font-family: var(--custom-font-family);
 }
 
 .modal-header,
@@ -804,8 +803,7 @@ fieldset {
   border-radius: 4px !important;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
   margin-top: 2px !important;
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+  font-family: var(--custom-font-family) !important;
   width: 320px !important;
   left: 0 !important;
   top: 100% !important;

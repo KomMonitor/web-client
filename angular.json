@@ -93,6 +93,8 @@
             "styles": [
               "node_modules/@angular/cdk/overlay-prebuilt.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "node_modules/@fontsource-variable/source-sans-3/wght.css",
+              "node_modules/@fontsource-variable/source-sans-3/wght-italic.css",
               "app/app.scss",
               "node_modules/nouislider/dist/nouislider.css",
               "node_modules/ag-grid-community/styles/ag-grid.css",
