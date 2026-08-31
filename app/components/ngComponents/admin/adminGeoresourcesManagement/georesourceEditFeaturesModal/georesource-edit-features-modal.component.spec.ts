@@ -270,8 +270,14 @@ describe('GeoresourceEditFeaturesModalComponent', () => {
       setConverterParameters({ CRS: 'EPSG:25832' });
 
       expect(putBody().converterDefinition).toEqual({
+        // schema and mimeType ride along because selecting the converter seeds them.
         name: 'GeoJSON',
-        parameters: { CRS: 'EPSG:25832', comment: '' },
+        parameters: {
+          CRS: 'EPSG:25832',
+          comment: '',
+          schema: CONVERTER.schemas[0],
+          mimeType: CONVERTER.mimeTypes[0],
+        },
       });
     });
 
@@ -285,6 +291,9 @@ describe('GeoresourceEditFeaturesModalComponent', () => {
     });
 
     it('omits schema and mime type while they are unset', () => {
+      component.schema = '';
+      component.mimeType = '';
+
       const parameters = putBody().converterDefinition.parameters;
 
       expect(Object.keys(parameters)).not.toContain('schema');
@@ -451,16 +460,21 @@ describe('GeoresourceEditFeaturesModalComponent', () => {
   // ---------------------------------------------------------------------------
 
   describe('onChangeConverter', () => {
-    it('clears schema, mime type and the data source', () => {
-      component.schema = 'default';
-      component.mimeType = 'application/json';
+    it('seeds schema and mime type from the converter and clears the data source', () => {
       component.datasourceType = FILE_DATASOURCE;
 
-      component.onChangeConverter();
+      component.converter = CONVERTER;
+
+      expect(component.schema).toBe(CONVERTER.schemas[0]);
+      expect(component.mimeType).toBe(CONVERTER.mimeTypes[0]);
+      expect(component.datasourceType).toBeFalsy();
+    });
+
+    it('leaves schema empty for a converter that declares none', () => {
+      component.converter = { ...CONVERTER, schemas: undefined };
 
       expect(component.schema).toBe('');
-      expect(component.mimeType).toBe('');
-      expect(component.datasourceType).toBeFalsy();
+      expect(component.mimeType).toBe(CONVERTER.mimeTypes[0]);
     });
   });
 

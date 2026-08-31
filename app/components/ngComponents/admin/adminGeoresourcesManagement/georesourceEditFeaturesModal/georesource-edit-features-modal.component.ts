@@ -263,7 +263,15 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   // Available options
-  availableDatasourceTypes: any[] = [];
+  /**
+   * Read live from the helper service instead of copying the array once: the
+   * helper *replaces* availableDatasourceTypes when its importer fetch resolves,
+   * so a copy taken during ngOnInit stays empty forever and the data source
+   * select renders no options at all.
+   */
+  get availableDatasourceTypes(): any[] {
+    return this.kommonitorImporterHelperService.availableDatasourceTypes ?? [];
+  }
   availableSpatialUnits: any[] = [];
 
   // Converter parameters
@@ -370,9 +378,13 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     // dependent fields and parameter controls hang off the form instead.
     // Wired here rather than in ngOnInit so the controls exist as soon as a
     // converter or data source is selected, however that happens.
-    this.importerForm.controls.converter.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => syncConverterParameterControls(this.importerForm, this.converter));
+    this.importerForm.controls.converter.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      syncConverterParameterControls(this.importerForm, this.converter);
+      // Without this call onChangeConverter() was dead code — the template has
+      // no (change) handler — so schema and source format stayed empty and the
+      // stale data source survived a converter switch.
+      this.onChangeConverter();
+    });
     this.importerForm.controls.datasourceType.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((datasourceType) => this.applyDatasourceTypeChange(datasourceType));
@@ -391,7 +403,6 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   private initializeDefaultValues(): void {
     this.attributeMapping_attributeType =
       this.kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
-    this.availableDatasourceTypes = this.kommonitorImporterHelperService.availableDatasourceTypes;
     this.availableSpatialUnits = this.spatialUnitStore.availableSpatialUnits;
   }
 
@@ -587,8 +598,11 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   // Converter and data source methods
   onChangeConverter(): void {
-    this.schema = '';
-    this.mimeType = '';
+    // Seed the dependent fields from the converter, like the spatial-unit twin
+    // and the AngularJS original: schema and source format default to the
+    // converter's first entry, the data source has to be picked again.
+    this.schema = this.converter?.schemas ? this.converter.schemas[0] : '';
+    this.mimeType = this.converter?.mimeTypes ? this.converter.mimeTypes[0] : '';
     this.datasourceType = undefined;
   }
 

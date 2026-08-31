@@ -267,7 +267,15 @@ export class GeoresourceAddModalComponent implements OnInit {
   updateIntervalOptions: any[] = [];
   availablePoiMarkerColors: any[] = [];
   availableLoiDashArrayObjects: LinePatternOption[] = [];
-  availableDatasourceTypes: any[] = [];
+  /**
+   * Read live from the helper service instead of copying the array once: the
+   * helper *replaces* availableDatasourceTypes when its importer fetch resolves,
+   * so a copy taken during ngOnInit stays empty forever and the data source
+   * select renders no options at all.
+   */
+  get availableDatasourceTypes(): any[] {
+    return this.kommonitorImporterHelperService.availableDatasourceTypes ?? [];
+  }
 
   // Importer functionality — the shared typed sub-form.
   get importerForm(): ImporterFormGroup {
@@ -416,8 +424,6 @@ export class GeoresourceAddModalComponent implements OnInit {
       svgString: option.svgString,
     }));
     this.availableTopics = this.topicStore.availableTopics || [];
-    this.availableDatasourceTypes =
-      this.kommonitorImporterHelperService.availableDatasourceTypes || [];
 
     // Initialize metadata structure pretty print
     this.georesourceMetadataStructure_pretty = this.indicatorValueService.syntaxHighlightJSON(
