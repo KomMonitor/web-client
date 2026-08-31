@@ -33,16 +33,16 @@ Realm-Admin), in allen fünf Modals: Raumebene anlegen, Georessource anlegen und
 - [x] Konverter wählen → Schema und Quellformat füllen sich automatisch, Parameterfelder erscheinen
 - [x] Konverter **wechseln** → Parameterfelder werden ausgetauscht; Werte gleichnamiger Parameter
       bleiben erhalten
-      *(Indikator-Modal: nicht prüfbar — von den dort angebotenen Konvertern teilen sich zwei keinen
-      Parameternamen; die Wertübernahme deckt der Spec-Block ab.)*
+      _(Indikator-Modal: nicht prüfbar — von den dort angebotenen Konvertern teilen sich zwei keinen
+      Parameternamen; die Wertübernahme deckt der Spec-Block ab.)_
 - [x] Datenquelltyp wählen und wechseln → Parameterfelder passen sich an
 - [x] Datenquelltyp `OGCAPI_FEATURES`: räumlichen Filter auf „Referenzraumebene" und auf
       „manuell" stellen, jeweils Werte eintragen
-      *(Indikator-Modal: entfällt — dort gibt es wie auf `master` keinen Filterblock; `bbox` und
-      `bboxType` erscheinen als gewöhnliche Parameterfelder, ebenfalls wie auf `master`.)*
+      _(Indikator-Modal: entfällt — dort gibt es wie auf `master` keinen Filterblock; `bbox` und
+      `bboxType` erscheinen als gewöhnliche Parameterfelder, ebenfalls wie auf `master`.)_
 - [x] Keine Exception in der Konsole
-      *(übrig bleiben nur `NG0956` (track-by-Identität) und eine Leaflet-Deprecation-Warnung —
-      beide bestehen unabhängig von diesem Umbau.)*
+      _(übrig bleiben nur `NG0956` (track-by-Identität) und eine Leaflet-Deprecation-Warnung —
+      beide bestehen unabhängig von diesem Umbau.)_
 
 ### Was der Durchlauf gefunden hat
 
@@ -248,7 +248,7 @@ gültigen Zeitraum, ein geleertes Enddatum bleibt leer, und das Startdatum wird 
 gezwungen. Neu abgesichert durch `customElements/date-picker/km-date-picker.component.spec.ts`.
 
 Randbeobachtung: tippt man Unsinn in „gültig bis", greift weiterhin `coerceInvalidToToday` und es
-steht heute im Feld. Nur ein *geleertes* Feld bleibt leer.
+steht heute im Feld. Nur ein _geleertes_ Feld bleibt leer.
 
 ### Zweiter Fund: „Georessource → Sachdaten bearbeiten" schreibt ins Leere
 
@@ -385,7 +385,7 @@ eigener Verdacht — ohne echten Importer-Lauf nicht zu entscheiden, deshalb hie
   (`"10"` statt `10`). Beide Formen werden beim Bauen des Parameters zu `"10,20,30,40"`
   verkettet; der Re-Export ist zeichengleich, das Wire-Format also unverändert.
 - Die exportierte `dataSource.parameters`-Liste enthält `bboxType` **zweimal**: der Importer
-  deklariert `bbox` *und* `bboxType` als Parameter, und der Builder schreibt `bboxType` einmal im
+  deklariert `bbox` _und_ `bboxType` als Parameter, und der Builder schreibt `bboxType` einmal im
   `bbox`-Zweig und einmal in der allgemeinen Schleife. Auf `master` passiert exakt dasselbe —
   vorbestehend, kein Migrationsfehler.
 
@@ -397,11 +397,11 @@ eigener Verdacht — ohne echten Importer-Lauf nicht zu entscheiden, deshalb hie
       `subTopic`, `subsubTopic` und `subsubsubTopic` leer und die tieferen Selects gar nicht mehr
       im DOM. (Die Demo-Instanz hat maximal drei Ebenen, die vierte war nicht auslösbar.)
 - [~] Ein Datensatz mit tief gewähltem Thema anlegen und in der Übersicht prüfen — **nicht
-      ausgeführt**, das schreibt echte Daten. Stattdessen bis zum fertigen Request-Body geprüft:
-      `buildPostBody_georesources().topicReference` trägt bei tiefer Auswahl die Id der
-      **tiefsten** Ebene (`Basis-Altersklassen`) und nach dem Hauptthema-Wechsel die Id des
-      **neuen** Hauptthemas. Die alte Fehlerklasse — eine stehengebliebene tiefere Auswahl gewinnt
-      und postet eine Referenz aus einem fremden Themenast — ist damit ausgeschlossen.
+  ausgeführt**, das schreibt echte Daten. Stattdessen bis zum fertigen Request-Body geprüft:
+  `buildPostBody_georesources().topicReference` trägt bei tiefer Auswahl die Id der
+  **tiefsten** Ebene (`Basis-Altersklassen`) und nach dem Hauptthema-Wechsel die Id des
+  **neuen** Hauptthemas. Die alte Fehlerklasse — eine stehengebliebene tiefere Auswahl gewinnt
+  und postet eine Referenz aus einem fremden Themenast — ist damit ausgeschlossen.
 
 Die Kaskade selbst steckt in `adminShared/topicHierarchyForm/`; dieselbe Komponente benutzen auch
 das Georessourcen-Metadaten-Modal, der Indikator-Wizard (Schritt 3) und die beiden WMS-Modals.
@@ -494,7 +494,7 @@ geprüft.
 **Zur Methode, wichtig für die Bewertung:** geprüft wurde durch Umlegen von
 `window.__env.enableKeycloakSecurity` zur Laufzeit, bei weiterhin angemeldeter Sitzung — genau der
 Wert, den die Client-Config setzen würde. Damit ist das **Verhalten der Oberfläche** belegt. Ein
-echter tokenloser Betrieb ist damit *nicht* geprüft: die Demo-Instanz beantwortet ohne Token jede
+echter tokenloser Betrieb ist damit _nicht_ geprüft: die Demo-Instanz beantwortet ohne Token jede
 Anfrage mit 401, ein wirklich Keycloak-freier Lauf braucht ein offenes Backend.
 
 Der eigentliche Anlege-Klick ist wie überall nicht ausgeführt worden (schreibt echte Daten);
@@ -513,7 +513,7 @@ geprüft ist der Zustand bis zum freigegebenen Knopf samt fertigem Request-Body.
 ### Was der Durchlauf gefunden hat
 
 **Im Indikator-Wizard greift die Dublettenprüfung überhaupt nicht** — nicht einmal bei einem
-*exakt* gleichen Namen. `indicatorNameUniqueValidator()` vergleicht
+_exakt_ gleichen Namen. `indicatorNameUniqueValidator()` vergleicht
 
 ```ts
 existingIndicators().some((indicator) => indicator?.datasetName === name && …)
@@ -525,7 +525,7 @@ falsch. Im Browser nachgestellt: „A1 - SGB II-Bezug" mit dem passenden Typ `ST
 eingetippt → kein Fehler, Feld gültig.
 
 Auf `master` stand an der Stelle `indicator.indicatorName === $scope.datasetName` — dort
-funktionierte die Prüfung. Beim Umbau wurde auf den Namen des *Formularfelds* umbenannt statt auf
+funktionierte die Prüfung. Beim Umbau wurde auf den Namen des _Formularfelds_ umbenannt statt auf
 den des API-Feldes. Die Kollision fällt jetzt erst serverseitig auf, also genau das Verhalten, das
 dieser Punkt für die anderen Ressourcen als behoben verbucht.
 
@@ -542,13 +542,13 @@ markiert.
 Im Browser gegengeprüft: „A1 - SGB II-Bezug" mit Typ `STATUS_ABSOLUTE` wird jetzt abgelehnt,
 ebenso die Groß-/Kleinschreibungs- und Leerzeichen-Varianten; derselbe Name unter einem anderen
 Typ und ein neuer Name gehen durch. Im Bearbeiten-Modus behält der Indikator seinen eigenen Namen
-ohne Fehler, ein *anderer* vorhandener Name desselben Typs wird weiterhin abgelehnt. Neu
+ohne Fehler, ein _anderer_ vorhandener Name desselben Typs wird weiterhin abgelehnt. Neu
 abgesichert durch neun Tests in `indicatorAddModal/indicator-add-form.model.spec.ts`.
 
 ### Randnotiz
 
 Die Fehlermeldung der Georessource lautet „Es existiert bereits eine Georessource mit gleichem
-Namen **und gleichem Typ**", die Prüfung vergleicht aber gegen *alle* Georessourcen ohne
+Namen **und gleichem Typ**", die Prüfung vergleicht aber gegen _alle_ Georessourcen ohne
 Typbezug. Auf `master` war es genauso (Text wie Logik) — reine Textungenauigkeit, kein
 Migrationsfehler.
 
@@ -566,7 +566,7 @@ Indikator → „Sachdaten bearbeiten" → Schritt „Räumlicher Datensatz", Ab
       Textfeld getauscht, ein vorher gewähltes Datum ist geleert; zurückgeschaltet ist umgekehrt
       der Attributname leer und der Datepicker wieder da
 - [x] Denselben Attributnamen erneut hinzufügen → der bestehende Eintrag wird **ersetzt** (die
-      Zeile trug danach den neuen Zeitstempel), es entsteht keine zweite Zeile; ein *anderer*
+      Zeile trug danach den neuen Zeitstempel), es entsteht keine zweite Zeile; ein _anderer_
       Name legt sehr wohl eine zweite an
 - [x] Editier-Button lädt den Eintrag zurück in die Eingabezeile, der Umschalter steht passend
 - [x] Löschen-Button entfernt die Zeile
@@ -594,8 +594,9 @@ Kein Fehler gefunden; keine Exception in der Konsole.
 
 ## 10. Batch-Update für Indikatoren — zurückportiertes Feature ✅ geprüft 2026-08-31
 
-Bezug: B1/Batch in [`OFFENE_PUNKTE.md`](OFFENE_PUNKTE.md). Alles außer 10.4 ist lesend prüfbar und
-wurde am 2026-08-31 im Browser durchlaufen; der echte Lauf gegen den Importer steht weiter aus.
+Bezug: B1/Batch in [`OFFENE_PUNKTE.md`](OFFENE_PUNKTE.md). Am 2026-08-31 vollständig im Browser
+durchlaufen, einschließlich des echten Laufs gegen den Importer (10.4) gegen eigens angelegte
+Wegwerf-Daten.
 
 ### 10.1 Tabelle und abgeleitete Spalten
 
@@ -630,14 +631,95 @@ wurde am 2026-08-31 im Browser durchlaufen; der echte Lauf gegen den Importer st
 - [x] Spaltenwechsel leert den zuvor eingestellten Wert
 - [x] Die Klappbox lässt sich auf- und zuklappen
 
-### 10.4 Echter Lauf gegen den Importer
+### 10.4 Echter Lauf gegen den Importer ✅ echt ausgeführt 2026-08-31
+
+Testdaten: eine Wegwerf-Raumebene `ZZ TEST P104 462346` mit zwei Flächen (`zz-test-1`,
+`zz-test-2`) und zwei Wegwerf-Indikatoren `ZZ TEST P104 A` / `B`. Zeile 1 bekam eine gültige
+CSV-Datei (`gid;wert_2020;wert_2021`), Zeile 2 eine kaputte ohne Raumbezugsspalte. Alle drei
+Datensätze wurden nach dem Lauf wieder gelöscht, der Bestand steht wieder bei 147 Indikatoren und
+47 Raumebenen.
 
 - [x] Solange Pflichtfelder fehlen, ist „Update ausführen" deaktiviert und die Blocker-Liste nennt
       konkret, was fehlt; der Tooltip des Knopfes ist der erste Blocker. Die Texte sind übersetzt,
       keine rohen `ADMIN_…`-Schlüssel.
-- [ ] Alles Übrige (zwei Zeilen füllen, Lauf mit einer defekten Datei, Fortschritt, Ergebnis-Modal,
-      verschachteltes Modal, „Ergebnis anzeigen", Klassifikation und Zugriffsrechte danach) —
-      **nicht ausgeführt**, das schreibt echte Daten.
+- [x] Zwei Zeilen füllen und laufen lassen — der Verkehr ist genau der vorgesehene, **pro Zeile
+      nacheinander**: `POST {importer}/upload`, `POST {importer}/indicators/update` mit
+      `dryRun: true`, und nur bei fehlerfreiem Probelauf derselbe Aufruf mit `dryRun: false`.
+- [x] Lauf mit einer defekten Datei — Zeile 2 wird nach dem Probelauf abgewiesen, es folgt **kein**
+      `dryRun: false`; der Lauf bricht deswegen nicht ab, Zeile 1 ist committet. Die Fehlermeldung
+      steht als reiner Text im Klappblock (`No valid Indicator could be parsed from the specified
+  data source`), nicht als HTML.
+- [x] Fortschritt — das Signal läuft `0/2 → 1/2 → 2/2 → null`, die Ladeanzeige zeigt das Label
+      tatsächlich an (siehe die kleine Abweichung unten).
+- [x] Ergebnis-Modal — „1 von 2 Datensätzen aktualisiert, 1 fehlgeschlagen.", Zeile 1 grün, Zeile 2
+      rot mit Klappblock, und der Warnhinweis „Der Lauf wurde teilweise angewendet …". Bei einem
+      Lauf, in dem **alle** Zeilen scheitern, fehlt dieser Warnhinweis zu Recht.
+- [x] Verschachteltes Modal — zwei `ngb-modal-window` gleichzeitig, das Ergebnis liegt oben, das
+      Batch-Modal bleibt darunter geöffnet und ist nach dem Schließen wieder bedienbar. Zwei
+      Backdrops, keine Exception.
+- [x] „Ergebnis anzeigen" — vor dem ersten Lauf deaktiviert, danach offen und zeigt dasselbe
+      Ergebnis erneut.
+- [x] Klassifikation und Zugriffsrechte danach — `defaultClassificationMapping` steht unverändert
+      (`QUANTITATIVE / EQUAL_INTERVAL / Blues / 5`), `isPublic`, `ownerId` und die beiden
+      Berechtigungen ebenfalls. Die neu verknüpfte Raumebene erbt genau diese Rechte des
+      Indikators — das ist das Verhalten, das `buildIndicatorScopeProperties()` beschreibt, wenn es
+      noch keinen Join-Eintrag gab. Der fehlgeschlagene Indikator B hat weiterhin **keine**
+      Raumebene.
+- [x] Die Werte sind wirklich angekommen: `GET {dataManagement}/management/indicators/{id}/{su}/without-geometry`
+      liefert `zz-test-1 → DATE_2020-12-31: 111, DATE_2021-12-31: 121` und
+      `zz-test-2 → 222 / 232`, also beide Zeitschnitte aus dem Zeitreihen-Mapping.
+
+### Was 10.4 gefunden hat — beides behoben 2026-08-31
+
+**Eine importierte Batch-Liste mit `FILE`-Zeilen lässt sich nie ausführen.** Die Liste importiert
+sauber (das ist 10.5), aber „Update ausführen" bleibt gesperrt, und zwar nicht behebbar: der
+Blocker heißt „Datenquellen-Angaben fehlen oder sind unvollständig", die Tabelle zeigt dazu aber
+keine einzige Spalte. Nachgemessen im offenen Modal:
+
+```
+datasourceParameterColumns()               -> []                       (keine Spalte)
+datasourceTypeParameters.controls.NAME     -> { required: true }        (aber Pflicht-Control)
+```
+
+Es ist derselbe interne `NAME`-Parameter des Datenquelltyps `FILE`, den Fund 3 aus 10.1 schon
+entfernt hatte — nur kommt er auf dem Import-Weg zurück: `batchListFileRowToRow()` ruft
+`syncParameterControls(row.controls.datasourceTypeParameters, datasourceType?.parameters)` direkt
+auf und umgeht damit die FILE-Filterung, die `syncBatchRowParameterControls()` vornimmt
+(`indicator-batch-update-file.model.ts` gegen `indicator-batch-update-form.model.ts:161`). 10.5 fiel
+das nicht auf, weil dort nur die Werte verglichen wurden, nicht die Lauffähigkeit.
+
+In der Oberfläche gab es nur einen Umweg: den Datenquelltyp der Zeile weg- und wieder auf `FILE`
+stellen, dann baut `onDatasourceTypeChanged()` die Parameter neu und das `NAME`-Control ist weg —
+allerdings wird dabei auch die gewählte Datei verworfen, sie muss danach neu gesetzt werden. Genau
+so wurde der Lauf oben durchgeführt.
+
+**Behoben:** `batchListFileRowToRow()` ruft nicht mehr zweimal `syncParameterControls()` von Hand
+auf, sondern einmal `syncBatchRowParameterControls(row)` — dort wohnt die FILE-Regel. Im Browser
+gegengeprüft: direkt nach dem Import hat die Zeile keine Datenquell-Parameter-Controls
+(`datasourceTypeParameters` gültig, `row.errors` nur `fileRequired` und `mimeTypeRequired`), und
+nach Mime-Typ, Ziel-Raumebene und Datei ist der Lauf offen, **ohne** das Dropdown anzufassen. Der
+bisherige Test „never restores a FILE data source name" hielt genau das falsche Verhalten fest
+(`{ NAME: '' }`) und erwartet jetzt `{}`; dazu kommt ein Test, der belegt, dass eine importierte
+FILE-Zeile nur noch an der fehlenden Datei hängt.
+
+**Kleine Abweichung:** die Ladeanzeige zeigte „Zeile 0 von 2", während Zeile 1 lief.
+`runProgress` zählt **abgeschlossene** Zeilen, das Label `RUN_PROGRESS` (`Zeile {{done}} von
+{{total}}`) liest sich aber wie ein 1-basierter Index.
+
+**Behoben:** der Zähler des Dienstes bleibt, wie er ist — das neue `runProgressLabel()` verschiebt
+für die Anzeige um eins und deckelt bei `total`, das Template liest es statt `runProgress()`. Damit
+steht „Zeile 1 von 2", während Zeile 1 läuft, und „Zeile 2 von 2" bei Zeile 2; die Schlussmeldung
+`2/2` liest sich nicht mehr als „Zeile 3 von 2". Gemessen: `0/2 → {done:1}`, `1/2 → {done:2}`,
+`2/2 → {done:2}`.
+
+**Randnotiz, nicht neu:** eine handgeschriebene Liste ohne `mimeType` lässt die Zeile mit dem
+Blocker „Konverter-Angaben fehlen …" stehen, weil `Tabelle_Zeitreihe_zu_Indikator` zwei Mime-Typen
+anbietet (`text/csv`, `application/excel-spreadsheet`) und keiner davon vorbelegt werden kann. Das
+ist in der Zeile behebbar und damit korrekt; Listen, die der Client selbst exportiert, tragen den
+Mime-Typ mit.
+
+**Wie in allen Schreib-Durchläufen:** die zwei bzw. vier hochgeladenen Dateien bleiben im
+Dateispeicher des Importers liegen — der Client hat dafür kein DELETE.
 
 ### 10.5 Batch-Liste als Datei
 
@@ -645,7 +727,7 @@ wurde am 2026-08-31 im Browser durchlaufen; der echte Lauf gegen den Importer st
       Datenquelltyp, Raumbezugsschlüssel, Ziel-Raumebene und Zeitreihen-Mapping stehen wie zuvor
 - [x] **Eine Liste im Format des alten Clients importieren** → Konverter, Datenquelltyp samt
       Parametern, beide Zeitreihen-Varianten (Datum und Attributname) und die über den
-      *Namen* referenzierte Ziel-Raumebene werden aufgelöst
+      _Namen_ referenzierte Ziel-Raumebene werden aufgelöst
 - [x] Eine FILE-Zeile exportieren → in der Datei steht **kein** Dateiname; nach dem Import muss die
       Datei neu gewählt werden
 - [x] Mapping-Tabelle pro Zeile speichern und wieder einlesen — war kaputt, siehe unten; nach der
@@ -669,7 +751,7 @@ kommen aus den bereits geladenen Stores.
 `addNewRowToBatchList()` die Zeile mit `isSelected = false` an. Ein Klick auf „ausgewählte Zeilen
 löschen" räumte damit die **komplette** Liste ab, ohne dass der Benutzer je ein Häkchen gesetzt
 hatte. Der Export schreibt selbst `isSelected: false` — auch das sprach dafür, dass `true` ein
-Versehen war. **Behoben:** neue Zeilen starten ungehakt. (Der *Import* einer Datei ohne
+Versehen war. **Behoben:** neue Zeilen starten ungehakt. (Der _Import_ einer Datei ohne
 `isSelected` setzt die Zeile weiterhin auf ausgewählt; das ist eine eigene, von einem Test
 festgehaltene Entscheidung und blieb unangetastet.)
 
@@ -737,7 +819,7 @@ Fehlern, die kein Test sieht — **eine stehengebliebene Ansicht**.
       sofort in Schritt 1
 - [ ] Eigentümerorganisation wählen → das Rollen-Grid erscheint und die Zusammenfassungszeile
       („n Rollen ausgewählt") stimmt
-- [ ] **Bekannte Grenze, unverändert:** ein Häkchen *im* Grid aktualisiert die
+- [ ] **Bekannte Grenze, unverändert:** ein Häkchen _im_ Grid aktualisiert die
       Zusammenfassungszeile nicht sofort — das Grid gibt kein Output, das Schritt 7 bindet
 
 ### 11.4 Referenz-Datenform nach Metadaten-Import — behoben (2026-08-28)

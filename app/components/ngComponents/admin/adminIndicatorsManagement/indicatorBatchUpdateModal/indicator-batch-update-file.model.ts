@@ -3,9 +3,11 @@ import type {
   DatasourceType,
   TimeseriesMapping,
 } from 'services/resource-import-service/resource-import.model';
-import { syncParameterControls } from '../../adminShared/importerForm/importer-form.model';
 import { isValidTimeseriesMappingList } from '../../adminShared/timeseriesMappingForm/timeseries-mapping-form.model';
-import { BatchRowFormGroup } from './indicator-batch-update-form.model';
+import {
+  BatchRowFormGroup,
+  syncBatchRowParameterControls,
+} from './indicator-batch-update-form.model';
 
 /**
  * On-disk format of the batch list, kept **byte-compatible with the AngularJS
@@ -124,8 +126,16 @@ export function batchListFileRowToRow(
   // The parameter records follow the resolved converter / data-source type, so
   // rebuild them before applying the file's values; a converter the importer no
   // longer offers therefore drops its parameters rather than inventing controls.
-  syncParameterControls(row.controls.converterParameters, converter?.parameters);
-  syncParameterControls(row.controls.datasourceTypeParameters, datasourceType?.parameters);
+  //
+  // Goes through `syncBatchRowParameterControls` rather than calling
+  // `syncParameterControls` twice by hand, because that is where the FILE rule
+  // lives: a FILE data source contributes no parameter controls. Building them
+  // unfiltered here re-created the importer's mandatory `NAME` parameter — the
+  // uploaded file's server-side name — as a required control with no column in
+  // the table, so an imported FILE row was invalid with a blocker ("data source
+  // details missing") pointing at a field the user cannot see, and the run
+  // button stayed disabled for good.
+  syncBatchRowParameterControls(row);
   applyParameters(row.controls.converterParameters, mapping.converter?.parameters);
   applyParameters(row.controls.datasourceTypeParameters, mapping.dataSource?.parameters, ['NAME']);
 }

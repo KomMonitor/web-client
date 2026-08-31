@@ -122,8 +122,25 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   /** Results of the last run, kept for the result surface. */
   readonly lastResults = signal<BatchUpdateRowResult[] | null>(null);
 
-  /** Rows already processed during a run, for the progress label. */
+  /** Rows already **finished** during a run, as `BatchUpdateService` reports them. */
   readonly runProgress = signal<{ done: number; total: number } | null>(null);
+
+  /**
+   * What the progress label shows: the row the run is currently working on.
+   *
+   * `runProgress` counts finished rows, so it is 0 while the first row runs —
+   * and the label reads "row {{done}} of {{total}}", which then said "row 0 of
+   * 2". Shifting by one here keeps the service's counter honest and still reads
+   * correctly; it is capped at `total` for the final report, where the run is
+   * over and the overlay disappears anyway.
+   */
+  readonly runProgressLabel = computed(() => {
+    const progress = this.runProgress();
+    if (!progress) {
+      return null;
+    }
+    return { done: Math.min(progress.done + 1, progress.total), total: progress.total };
+  });
 
   /** Emits on every value/status event of the form, driving the computeds below. */
   private readonly formEvent = toSignal(this.form.events, { initialValue: null });

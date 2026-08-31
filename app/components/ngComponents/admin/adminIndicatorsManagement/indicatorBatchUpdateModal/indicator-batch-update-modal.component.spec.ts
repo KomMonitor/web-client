@@ -460,6 +460,26 @@ describe('IndicatorBatchUpdateModalComponent', () => {
     expect(component.runProgress()).toBeNull();
   });
 
+  /**
+   * `BatchUpdateService` reports *finished* rows, so the raw counter is 0 while
+   * the first row runs and the "row {{done}} of {{total}}" label read "row 0 of
+   * 2". The label shifts by one; the counter itself stays honest.
+   */
+  it('labels the progress with the row that is running, not the finished count', () => {
+    expect(component.runProgressLabel()).toBeNull();
+
+    component.runProgress.set({ done: 0, total: 3 });
+    expect(component.runProgressLabel()).toEqual({ done: 1, total: 3 });
+
+    component.runProgress.set({ done: 1, total: 3 });
+    expect(component.runProgressLabel()).toEqual({ done: 2, total: 3 });
+
+    // The final report arrives when the run is over; the label must not read
+    // "row 4 of 3" in the moment before the overlay disappears.
+    component.runProgress.set({ done: 3, total: 3 });
+    expect(component.runProgressLabel()).toEqual({ done: 3, total: 3 });
+  });
+
   it('reports a row whose indicator vanished without sending it', async () => {
     completeFirstRow();
     // The row passes the gate, but the indicator is gone from the store by the

@@ -108,7 +108,14 @@ describe('batchListFileRowToRow', () => {
     });
   });
 
-  it('never restores a FILE data source name — an upload name is single-use', () => {
+  /**
+   * An imported FILE row used to come back with a *required* `NAME` control that
+   * the table never renders a column for, so the row was permanently invalid and
+   * "run update" stayed disabled with a blocker naming a field the user cannot
+   * see. The FILE rule belongs to `syncBatchRowParameterControls`, and the
+   * import has to go through it like every other path.
+   */
+  it('gives a FILE data source no parameter controls at all', () => {
     const row = buildBatchRow();
 
     batchListFileRowToRow(
@@ -123,8 +130,34 @@ describe('batchListFileRowToRow', () => {
       CONTEXT
     );
 
-    expect(row.controls.datasourceTypeParameters.getRawValue()).toEqual({ NAME: '' });
+    expect(row.controls.datasourceTypeParameters.getRawValue()).toEqual({});
+    expect(row.controls.datasourceTypeParameters.valid).toBe(true);
+    // The upload name is single-use, so the file itself is never restored.
     expect(row.controls.selectedFile.value).toBeNull();
+  });
+
+  it('leaves an imported FILE row blocked by nothing but the missing file', () => {
+    const row = buildBatchRow();
+
+    batchListFileRowToRow(
+      row,
+      {
+        ...LEGACY_ROW,
+        mappingObj: {
+          ...LEGACY_ROW.mappingObj,
+          dataSource: { type: 'FILE', parameters: [] },
+        },
+      },
+      CONTEXT
+    );
+
+    expect(row.errors).toEqual({ fileRequired: true });
+    expect(row.controls.datasourceTypeParameters.valid).toBe(true);
+
+    row.controls.selectedFile.setValue(new File(['gid;wert'], 'werte.csv'));
+
+    expect(row.errors).toBeNull();
+    expect(row.valid).toBe(true);
   });
 
   it('leaves the converter unresolved when the importer no longer offers it', () => {
