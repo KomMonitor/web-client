@@ -1,6 +1,9 @@
 :host {
   .view-header {
-    padding: 15px;
+    // Horizontal padding matches the Bootstrap gutter of the .container-fluid
+    // below (--bs-gutter-x * .5 = 12px), so the title lines up with the content
+    // instead of sitting 3px to its right. Vertical spacing stays at 15px.
+    padding: 15px 12px;
     display: flex;
     align-items: center;
     gap: 10px;

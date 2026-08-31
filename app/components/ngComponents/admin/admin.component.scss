@@ -104,9 +104,12 @@
       padding: 0 15px;
       gap: 20px;
 
-      .btn-danger {
+      // Keyed off .btn, not a colour class, so the icon stays aligned if the
+      // button's variant changes. The gap matches the sidebar nav links.
+      .btn {
         display: flex;
         align-items: center;
+        gap: 5px;
       }
 
       .spacer {

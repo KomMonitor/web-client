@@ -1582,12 +1582,6 @@ th {
   z-index: 1150 !important;
 }
 
-@media (min-width: 992px) {
-  .modal-xl {
-    width: 1500px;
-  }
-}
-
 /* Custom width for Spatial Unit Add modal (ng-bootstrap modalDialogClass) */
 @media (min-width: 768px) {
   .modal-dialog.modal-large {
