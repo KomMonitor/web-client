@@ -291,7 +291,10 @@
     }
 
     <!-- Step 3/4: Räumlicher Datensatz -->
-    <fieldset [hidden]="!stepper.isActive('data')">
+    <!-- Toggled via an inline display, not [hidden]: the legacy jQuery-wizard rule
+         `.multiStepForm fieldset:not(:first-of-type) { display: none }` in app.scss
+         outranks the [hidden] attribute, so this step would stay invisible. -->
+    <fieldset [style.display]="stepper.isActive('data') ? 'block' : 'none'">
       <!-- Reads of the importer form used by the conditionals below; the
            component no longer mirrors these controls in plain accessors. -->
       @let selectedConverter = importerForm.controls.converter.value;

@@ -152,7 +152,13 @@
         }
 
         <!-- Step 2: Spatial Dataset -->
-        <fieldset [hidden]="!stepper.isActive('data')" [formGroup]="importerForm">
+        <!-- Inline display rather than [hidden]: the legacy jQuery-wizard rule
+             `.multiStepForm fieldset:not(:first-of-type) { display: none }` in app.scss
+             outranks [hidden] and would keep this step invisible. -->
+        <fieldset
+          [style.display]="stepper.isActive('data') ? 'block' : 'none'"
+          [formGroup]="importerForm"
+        >
           <div style="position: absolute">
             <button
               type="button"

@@ -66,5 +66,39 @@ describe('importer templates bind their runtime-keyed controls inside the right 
         });
       });
     });
+
+    /**
+     * Second failure class, found in the browser: `.multiStepForm fieldset` in
+     * app.scss still carries the jQuery-wizard rules
+     * `:not(:first-of-type) { display: none }` / `:first-of-type { display: block }`.
+     * They outrank the `[hidden]` attribute and any @if, so a step whose fieldset
+     * is preceded by a permanently rendered sibling (the security step, which
+     * only toggles an inline display) stays invisible however Angular marks it
+     * active — the whole importer step rendered as an empty modal body. An inline
+     * display on the fieldset itself is what wins; Jest does not load global
+     * styles, so no rendered test can catch this.
+     */
+    it('keeps the importer step visible next to a permanently rendered sibling', () => {
+      const at = template.indexOf('formControlName="converter"');
+      expect(at).toBeGreaterThan(-1);
+
+      const fieldsetStart = template.lastIndexOf('<fieldset', at);
+      expect(fieldsetStart).toBeGreaterThan(-1);
+      const tagOf = (start: number) => template.slice(start, template.indexOf('>', start));
+      const importerTag = tagOf(fieldsetStart);
+
+      // A sibling that only toggles an inline display stays in the DOM, so the
+      // importer fieldset is no longer `:first-of-type` and needs an inline
+      // display of its own. Where every step is @if-guarded, the active fieldset
+      // is the only one and the stylesheet shows it.
+      const hasPersistentSibling = indicesOf(template, '<fieldset')
+        .filter((start) => start !== fieldsetStart)
+        .some((start) => tagOf(start).includes('[style.display]'));
+
+      expect(importerTag).not.toContain('[hidden]');
+      if (hasPersistentSibling) {
+        expect(importerTag).toMatch(/\[style\.display\]|style="display:/);
+      }
+    });
   });
 });

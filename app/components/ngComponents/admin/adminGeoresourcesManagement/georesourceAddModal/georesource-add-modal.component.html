@@ -463,7 +463,12 @@
         }
 
         @if (stepper.isActive('data')) {
-          <fieldset [formGroup]="addForm.controls.data.controls.importer">
+          <!-- The inline display is required, not cosmetic: the security fieldset above
+               stays in the DOM (hidden inline), so this one is no longer
+               `fieldset:first-of-type` and the legacy jQuery-wizard rule
+               `.multiStepForm fieldset:not(:first-of-type) { display: none }` in app.scss
+               would keep the whole importer step invisible. -->
+          <fieldset style="display: block" [formGroup]="addForm.controls.data.controls.importer">
             <!-- Reads of the importer form used by the conditionals below. -->
             @let selectedConverter = importerForm.controls.converter.value;
             @let selectedDatasourceType = importerForm.controls.datasourceType.value;
