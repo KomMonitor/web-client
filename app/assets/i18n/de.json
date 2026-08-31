@@ -1,6 +1,8 @@
 {
   "COMMON": {
     "LOGIN": "Login",
+    "USER_LOGIN": "Benutzeranmeldung",
+    "LOGIN_INFO_DEFAULT": "Melden Sie sich mit Ihrem Konto an, um geschützte Daten abzurufen.",
     "LOGOUT": "Logout",
     "RELOGIN": "Relogin",
     "USERNAME": "Nutzername",

@@ -1,6 +1,8 @@
 {
   "COMMON": {
     "LOGIN": "Login",
+    "USER_LOGIN": "User Login",
+    "LOGIN_INFO_DEFAULT": "Sign in with your account to access protected data.",
     "LOGOUT": "Logout",
     "RELOGIN": "Relogin",
     "USERNAME": "Username",

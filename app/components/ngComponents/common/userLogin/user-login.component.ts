@@ -20,6 +20,7 @@ import { SessionValidityComponent } from './session-validity/session-validity.co
 import { BehaviorSubject, Subject, combineLatest, of, timer } from 'rxjs';
 import { distinctUntilChanged, map, skip, switchMap, takeUntil } from 'rxjs/operators';
 import { EnvConfigService } from '../../../../services/env-config-service/env-config.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 interface UserRoleInformation {
   [key: string]: string[];
@@ -36,7 +37,13 @@ interface KeycloakUser {
   selector: 'app-user-login',
   templateUrl: './user-login.component.html',
   styleUrls: ['./user-login.component.scss'],
-  imports: [CommonModule, NgbCollapseModule, NgbPopoverModule, SessionValidityComponent],
+  imports: [
+    CommonModule,
+    NgbCollapseModule,
+    NgbPopoverModule,
+    SessionValidityComponent,
+    TranslateModule,
+  ],
   standalone: true,
 })
 export class UserLoginComponent implements OnInit, OnDestroy {

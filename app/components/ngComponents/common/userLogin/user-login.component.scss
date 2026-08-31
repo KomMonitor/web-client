@@ -9,13 +9,6 @@
   padding: 15px;
 }
 
-.controls {
-  .btn {
-    text-transform: uppercase;
-    font-weight: bold;
-  }
-}
-
 /* Responsive design */
 @media screen and (max-width: 768px) {
   ::ng-deep .user-login-popover {
