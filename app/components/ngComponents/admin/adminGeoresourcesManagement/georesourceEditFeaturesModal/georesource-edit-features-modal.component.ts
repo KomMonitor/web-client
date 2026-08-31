@@ -51,9 +51,13 @@ import {
   BboxType,
   ImporterFormGroup,
   SYNTHETIC_DATASOURCE_PARAMETERS,
+  patchImporterFormFromMappingConfig,
   syncConverterParameterControls,
   syncDatasourceParameterControls,
 } from '../../adminShared/importerForm/importer-form.model';
+import type { MappingConfigImport } from 'services/resource-import-service/resource-import.model';
+import { ResourceImportService } from 'services/resource-import-service/resource-import.service';
+import { buildMappingConfigExport } from 'services/adminSpatialUnit/spatial-unit-metadata.util';
 import { patchPeriodOfValidityForm } from '../../adminShared/periodOfValidityForm/period-of-validity-form.model';
 import {
   attributeMappingDraftToRow,
@@ -96,6 +100,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   private translate = inject(TranslateService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
+  private resourceImportService = inject(ResourceImportService);
   featureTableHelper = inject(FeatureTableDataGridHelperService);
   private envConfigService = inject(EnvConfigService);
   private broadcastService = inject(BroadcastService);
@@ -673,85 +678,137 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.mappingConfigImportFile.nativeElement.click();
   }
 
-  onMappingConfigFileSelected(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      this.parseMappingConfigFromFile(file);
+  async onMappingConfigFileSelected(event: any): Promise<void> {
+    const file = event?.target?.files?.[0];
+    if (!file) {
+      return;
+    }
+    this.georesourceMappingConfigImportError.set('');
+    try {
+      const json = await this.resourceImportService.readJsonFile(file);
+      this.applyMappingConfig(this.resourceImportService.parseMappingConfig(json));
+    } catch (error) {
+      this.georesourceMappingConfigImportError.set(getErrorMessage(error));
+      this.showMappingConfigImportErrorAlert();
+    }
+    // The import rewrites many ngModel-bound fields after an await — mark the
+    // OnPush view once instead of converting each field to a signal.
+    this.cdr.markForCheck();
+  }
+
+  /** Applies a parsed mapping-config onto this modal's form fields. */
+  private applyMappingConfig(parsed: MappingConfigImport): void {
+    this.converter = parsed.converter;
+    this.schema = parsed.schema;
+    this.mimeType = parsed.mimeType;
+    this.datasourceType = parsed.datasourceType;
+
+    // Covers converter/schema/mime type, both parameter records, the data
+    // source, the property names and the keep flags. The bbox is handled by
+    // this modal's own interpretation right below.
+    patchImporterFormFromMappingConfig(this.importerForm, parsed);
+    this.applyBbox(parsed.dataSourceParameters);
+
+    this.attributeMappings_adminView = parsed.attributeMappings;
+
+    if (parsed.periodOfValidity) {
+      this.periodOfValidity = parsed.periodOfValidity;
+      this.checkPeriodOfValidity();
     }
   }
 
-  private parseMappingConfigFromFile(file: File): void {
-    const fileReader = new FileReader();
+  /**
+   * Edit-features bbox interpretation, mirroring the spatial-unit twin: unlike
+   * the add modal there is no dedicated `bboxType` parameter, so the type is
+   * inferred from the bbox value itself — and only for OGCAPI data sources.
+   */
+  private applyBbox(dsParams: { name: string; value: string }[]): void {
+    if (this.datasourceType?.type !== 'OGCAPI_FEATURES') {
+      return;
+    }
+    const bboxParam = dsParams.find((p) => p.name === 'bbox');
+    if (!bboxParam || typeof bboxParam.value !== 'string') {
+      return;
+    }
+    const parts = bboxParam.value.split(',').map((v) => v.trim());
+    if (parts.length === 4 && parts.every((p) => p !== '')) {
+      this.bboxType = 'literal';
+      this.importerForm.controls.bbox.setValue({
+        minx: parts[0],
+        miny: parts[1],
+        maxx: parts[2],
+        maxy: parts[3],
+      });
+    } else {
+      this.bboxType = 'ref';
+      this.bboxRefSpatialUnitId = bboxParam.value;
+    }
+  }
 
-    fileReader.onload = (event: any) => {
-      try {
-        this.parseFromMappingConfigFile(event);
-      } catch {
-        console.error('Uploaded Mapping Config File cannot be parsed.');
-        this.georesourceMappingConfigImportError.set(
-          'Uploaded Mapping Config File cannot be parsed correctly'
-        );
-        this.showMappingConfigImportErrorAlert();
+  /** Data-source form values for the definition builders: bbox only for OGCAPI. */
+  private assembleDatasourceFormValues(): { [key: string]: string } {
+    const formValues: { [key: string]: string } = { ...this.datasourceParameterValues };
+    if (this.datasourceType?.type === 'OGCAPI_FEATURES' && this.bboxType) {
+      formValues['bboxType'] = this.bboxType;
+      if (this.bboxType === 'ref' && this.bboxRefSpatialUnitId) {
+        formValues['bboxRef'] = this.bboxRefSpatialUnitId;
+      } else if (this.bboxType === 'literal') {
+        formValues['bbox_minx'] = this.bboxMinX;
+        formValues['bbox_miny'] = this.bboxMinY;
+        formValues['bbox_maxx'] = this.bboxMaxX;
+        formValues['bbox_maxy'] = this.bboxMaxY;
       }
-      // The import rewrites several ngModel-bound fields from an async callback —
-      // mark the OnPush view once instead of converting each field to a signal.
-      this.cdr.markForCheck();
-    };
-
-    fileReader.readAsText(file);
+    }
+    return formValues;
   }
 
-  private parseFromMappingConfigFile(event: any): void {
-    const mappingConfig = JSON.parse(event.target.result);
-
-    // Apply mapping configuration
-    if (mappingConfig.converter) {
-      this.converter = mappingConfig.converter;
-    }
-    if (mappingConfig.datasourceType) {
-      this.datasourceType = mappingConfig.datasourceType;
-    }
-    if (mappingConfig.propertyMapping) {
-      this.attributeMappings_adminView = mappingConfig.propertyMapping || [];
-    }
-    // Add more mapping config properties as needed
-  }
-
+  /**
+   * Writes the shared mapping-config format (`converter` / `dataSource` /
+   * `propertyMapping` / `periodOfValidity`) that the other importer modals and
+   * the AngularJS original use, so a file written here can be read back by this
+   * modal's own import and by its siblings. The definitions are built directly
+   * from the helper rather than through `buildImporterObjects()`, which would
+   * upload a selected file as a side effect of an export.
+   */
   onExportGeoresourceEditFeaturesMappingConfig(): void {
-    const mappingConfig = {
-      converter: this.converter,
-      datasourceType: this.datasourceType,
-      propertyMapping: this.attributeMappings_adminView,
-      idProperty: this.georesourceDataSourceIdProperty,
-      nameProperty: this.georesourceDataSourceNameProperty,
-      validityStartDate: this.validityStartDate_perFeature,
-      validityEndDate: this.validityEndDate_perFeature,
-      keepAttributes: this.keepAttributes,
-      keepMissingValues: this.keepMissingValues,
-      isPartialUpdate: this.isPartialUpdate,
-    };
+    const converterDefinition = this.converter
+      ? this.kommonitorImporterHelperService.buildConverterDefinition(
+          this.converter,
+          this.schema,
+          this.mimeType,
+          this.converterParameterValues
+        )
+      : null;
 
-    const mappingJSON = JSON.stringify(mappingConfig, null, 2);
-    let fileName = 'Georessource_Features_Mapping_Export';
+    const datasourceTypeDefinition = this.datasourceType
+      ? this.kommonitorImporterHelperService.buildDatasourceTypeDefinition(
+          this.datasourceType,
+          this.assembleDatasourceFormValues()
+        )
+      : null;
 
-    if (this.currentGeoresourceDataset?.datasetName) {
-      fileName += '-' + this.currentGeoresourceDataset.datasetName;
-    }
+    const propertyMappingDefinition =
+      this.kommonitorImporterHelperService.buildPropertyMapping_spatialResource(
+        this.georesourceDataSourceNameProperty,
+        this.georesourceDataSourceIdProperty,
+        this.validityStartDate_perFeature,
+        this.validityEndDate_perFeature,
+        '',
+        this.keepAttributes,
+        this.keepMissingValues,
+        this.attributeMappings_adminView
+      );
 
-    fileName += '.json';
+    const mappingConfigExport = buildMappingConfigExport(
+      converterDefinition,
+      datasourceTypeDefinition,
+      propertyMappingDefinition,
+      this.periodOfValidity
+    );
 
-    const blob = new Blob([mappingJSON], { type: 'application/json' });
-    const data = URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.download = fileName;
-    a.href = data;
-    a.textContent = 'JSON';
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    a.click();
-
-    a.remove();
+    const name = this.currentGeoresourceDataset?.datasetName;
+    const fileName = `KomMonitor-Import-Mapping-Konfiguration_Export${name ? '-' + name : ''}.json`;
+    this.resourceImportService.downloadJson(fileName, mappingConfigExport);
   }
 
   // Main edit method

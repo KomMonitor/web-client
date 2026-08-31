@@ -480,6 +480,125 @@ describe('GeoresourceEditFeaturesModalComponent', () => {
 
   // ---------------------------------------------------------------------------
 
+  /**
+   * The mapping-config import was a stub until 2026-08-31: it put the raw JSON
+   * converter object into the control, looked for a `datasourceType` key that
+   * the file format does not have, and assigned the whole `propertyMapping`
+   * object to the attribute-mapping list. Everything else — schema, source
+   * format, both parameter blocks, the property names, the keep flags and the
+   * bounding box — was never applied.
+   */
+  describe('applyMappingConfig', () => {
+    const parsed = (overrides: Record<string, unknown> = {}) => ({
+      converter: CSV_CONVERTER,
+      schema: 'default',
+      mimeType: 'text/csv',
+      converterParameters: { delimiter: ';' },
+      datasourceType: OGC_DATASOURCE,
+      datasourceTypeParameters: { url: 'https://example.org/ogcapi' },
+      dataSourceParameters: [
+        { name: 'url', value: 'https://example.org/ogcapi' },
+        { name: 'bbox', value: '10,20,30,40' },
+      ],
+      idProperty: 'gid',
+      nameProperty: 'gen',
+      validStartDate: '',
+      validEndDate: '',
+      keepAttributes: false,
+      keepMissingValues: false,
+      attributeMappings: [
+        { sourceName: 'EWZ', destinationName: 'Einwohner', dataType: ATTRIBUTE_MAPPING_TYPES[0] },
+      ],
+      periodOfValidity: { startDate: '2020-01-01', endDate: '' },
+      ...overrides,
+    });
+
+    const apply = (config: unknown) =>
+      (component as unknown as { applyMappingConfig: (c: unknown) => void }).applyMappingConfig(
+        config
+      );
+
+    it('takes the converter from the catalogue, with schema and source format', () => {
+      apply(parsed());
+
+      expect(component.converter).toBe(CSV_CONVERTER);
+      expect(component.schema).toBe('default');
+      expect(component.mimeType).toBe('text/csv');
+      expect(component.datasourceType).toBe(OGC_DATASOURCE);
+    });
+
+    it('fills both parameter records', () => {
+      apply(parsed());
+
+      expect(component.importerForm.controls.converterParameters.getRawValue()).toEqual({
+        delimiter: ';',
+        comment: '',
+      });
+      expect(component.importerForm.controls.datasourceTypeParameters.getRawValue()).toEqual({
+        url: 'https://example.org/ogcapi',
+      });
+    });
+
+    it('fills the property names and the keep flags', () => {
+      apply(parsed());
+
+      expect(component.georesourceDataSourceIdProperty).toBe('gid');
+      expect(component.georesourceDataSourceNameProperty).toBe('gen');
+      expect(component.keepAttributes).toBe(false);
+      expect(component.keepMissingValues).toBe(false);
+    });
+
+    it('takes the attribute mappings from the attributes array', () => {
+      apply(parsed());
+
+      expect(component.attributeMappings_adminView).toEqual([
+        { sourceName: 'EWZ', destinationName: 'Einwohner', dataType: ATTRIBUTE_MAPPING_TYPES[0] },
+      ]);
+    });
+
+    it('infers a literal bounding box from the four corners', () => {
+      apply(parsed());
+
+      expect(component.bboxType).toBe('literal');
+      expect(component.importerForm.controls.bbox.getRawValue()).toEqual({
+        minx: '10',
+        miny: '20',
+        maxx: '30',
+        maxy: '40',
+      });
+    });
+
+    it('reads a single value as a reference spatial unit id', () => {
+      apply(
+        parsed({
+          dataSourceParameters: [{ name: 'bbox', value: 'su-42' }],
+        })
+      );
+
+      expect(component.bboxType).toBe('ref');
+      expect(component.bboxRefSpatialUnitId).toBe('su-42');
+    });
+
+    it('leaves the bounding box alone for a non-OGCAPI data source', () => {
+      apply(
+        parsed({
+          datasourceType: HTTP_DATASOURCE,
+          dataSourceParameters: [{ name: 'bbox', value: '10,20,30,40' }],
+        })
+      );
+
+      expect(component.bboxType).toBe('');
+    });
+
+    it('applies the period of validity', () => {
+      apply(parsed());
+
+      expect(component.periodOfValidity.startDate).toBe('2020-01-01');
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+
   describe('attribute mappings', () => {
     beforeEach(() => {
       component.attributeMapping_attributeType = ATTRIBUTE_MAPPING_TYPES[0];
