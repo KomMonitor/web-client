@@ -20,41 +20,92 @@ die riskanteste Fehlerklasse (Punkt 1) äußert sich dort als Exception, nicht s
 
 ---
 
-## 1. Importer-Parameter — höchstes Risiko
+## 1. Importer-Parameter — höchstes Risiko ✅ durchgeführt 2026-08-31
 
 Die beiden Parameter-Dictionaries sind jetzt `FormRecord`s, deren Controls zur Laufzeit aus der
 Konverter- bzw. Datenquelltyp-Auswahl gebaut werden. Rendert das Template ein `formControlName`,
 für das noch kein Control existiert, wirft Angular `Cannot find control with name: …`.
 
-Raumebene anlegen → Schritt „Räumlicher Datensatz". **Identisch prüfen** in: Georessource
-anlegen, sowie in allen drei „Sachdaten bearbeiten"-Modals (Raumebene, Georessource, Indikator):
+**Durchgeführt am 2026-08-31** gegen `demo.kommonitor.de.52north.org` (Chrome, angemeldet als
+Realm-Admin), in allen fünf Modals: Raumebene anlegen, Georessource anlegen und die drei
+„Sachdaten bearbeiten"-Modals (Raumebene, Georessource, Indikator).
 
-- [ ] Konverter wählen → Schema und Quellformat füllen sich automatisch, Parameterfelder erscheinen
-- [ ] Konverter **wechseln** → Parameterfelder werden ausgetauscht; Werte gleichnamiger Parameter
+- [x] Konverter wählen → Schema und Quellformat füllen sich automatisch, Parameterfelder erscheinen
+- [x] Konverter **wechseln** → Parameterfelder werden ausgetauscht; Werte gleichnamiger Parameter
       bleiben erhalten
-- [ ] Datenquelltyp wählen und wechseln → Parameterfelder passen sich an
-- [ ] Datenquelltyp `OGCAPI_FEATURES`: räumlichen Filter auf „Referenzraumebene" und auf
+      *(Indikator-Modal: nicht prüfbar — von den dort angebotenen Konvertern teilen sich zwei keinen
+      Parameternamen; die Wertübernahme deckt der Spec-Block ab.)*
+- [x] Datenquelltyp wählen und wechseln → Parameterfelder passen sich an
+- [x] Datenquelltyp `OGCAPI_FEATURES`: räumlichen Filter auf „Referenzraumebene" und auf
       „manuell" stellen, jeweils Werte eintragen
-- [ ] Keine Exception in der Konsole
+      *(Indikator-Modal: entfällt — dort gibt es wie auf `master` keinen Filterblock; `bbox` und
+      `bboxType` erscheinen als gewöhnliche Parameterfelder, ebenfalls wie auf `master`.)*
+- [x] Keine Exception in der Konsole
+      *(übrig bleiben nur `NG0956` (track-by-Identität) und eine Leaflet-Deprecation-Warnung —
+      beide bestehen unabhängig von diesem Umbau.)*
 
-**Vorab statisch geprüft und behoben (2026-08-28):** genau diese Fehlerklasse war in vier der
-fünf Modals real. Nur `spatialUnitAddModal` hatte die nötigen `formGroupName`-Wrapper; in
-`georesourceAddModal`, beiden räumlichen `editFeatures`-Modals und dem Indikator-Modal hingen
-`[formControlName]="parameter.name"` und die vier Begrenzungsrahmen-Felder (`minx`…`maxy`)
-direkt am Importer-Formular statt an `converterParameters` / `datasourceTypeParameters` / `bbox`
-— jede Konverter- oder Datenquelltyp-Auswahl mit Parametern hätte geworfen. Im Indikator-Modal
-wurden beide Parameter-Records zusätzlich **nie** synchronisiert (`onChangeConverter` war toter
-Code, ein Datenquelltyp-Pendant fehlte ganz). Außerdem filtern die Templates jetzt beide
-synthetischen Namen (`bbox` **und** `bboxType`, wie die AngularJS-Vorlage mit ihrem
-Substring-Filter `!bbox`), damit Template und `syncParameterControls` dieselbe Liste sehen.
-Neue Wächter: `adminShared/importerForm/importer-template-bindings.spec.ts` prüft die
-Wrapper in allen fünf Templates, und **alle fünf Modals** haben jetzt einen gerenderten
-Spec-Block (`describe('rendered data step')` bzw. `'rendered batch step'`), der den
-Importer-Schritt wirklich aufbaut und Konverter, Datenquelltyp und räumlichen Filter über
-die echten Selects wählt — inklusive manuellem Begrenzungsrahmen. Punkt 1 ist damit
-automatisiert abgedeckt; die Liste unten bleibt für alles zu laufen, was ein Test nicht
-sieht: echte Importer-Antworten, Objekt-Identität nach einem Datei-Import und die Optik. Die Liste unten bleibt trotzdem zu laufen — der Wächter sieht
-nur die Verdrahtung, nicht das Verhalten.
+### Was der Durchlauf gefunden hat
+
+Der Schritt war **in keinem Modal erreichbar**, bevor vier Fehler behoben waren. Keiner davon war
+für einen Test sichtbar: zwei hängen an globalem CSS bzw. an der Reihenfolge zweier
+Startup-Ereignisse, einer an einer nie verdrahteten Methode, einer an einer Pipe-Signatur.
+
+1. **Alle Rechte weg nach dem Start** (`common/userLogin/user-login.component.ts`).
+   `checkAuthentication()` setzte `accessControlService.currentKeycloakLoginRoles = []`. In der
+   AngularJS-Vorlage lief das **vor** `fetchAllMetadata()`, hier hängt es am Ereignis
+   „Metadaten vollständig geladen" — also **nach** dem Befüllen. Ergebnis: jede
+   `check*Permission()` lieferte für den Rest der Sitzung `false`, sämtliche Erstellen-,
+   Bearbeiten- und Löschen-Knöpfe der Administration blieben deaktiviert, auch für einen
+   Realm-Admin. Zusätzlich setzt `applyLoginStateFromToken()` jetzt `isRealmAdmin` zurück, wenn es
+   die Rollen leert — vorher blieb das Flag auf `true` stehen und widersprach den Rollen.
+2. **Der Importer-Schritt rendert nichts** (`spatialUnitAddModal`, `georesourceAddModal`).
+   In `app.scss` steht noch die jQuery-Wizard-Regel
+   `.multiStepForm fieldset:not(:first-of-type) { display: none }`. Sie schlägt `[hidden]` und
+   jedes `@if`. Sobald ein dauerhaft gerendertes Geschwister-Fieldset davor steht — der
+   Zugriffsschutz-Schritt, der nur ein Inline-`display` umschaltet — ist der Importer-Schritt
+   nicht mehr `:first-of-type` und bleibt unsichtbar: leerer Modalkörper zwischen Stepper und
+   Buttons. Behoben durch ein Inline-`display` am Fieldset (Raumebene: `[style.display]` statt
+   `[hidden]`, Georessource: `style="display: block"`). Die CSS-Regel selbst bleibt stehen — das
+   Erreichbarkeits-Szenario-Modal ist der letzte echte jQuery-Wizard und hängt daran.
+3. **Keine Datenquelltypen in beiden Georessourcen-Modals**
+   (`georesourceAddModal`, `georesourceEditFeaturesModal`). Beide kopierten
+   `kommonitorImporterHelperService.availableDatasourceTypes` einmalig in `ngOnInit`. Der
+   Helper **ersetzt** das Array, wenn sein Importer-Abruf zurückkommt — die Kopie blieb also für
+   immer leer und das Auswahlfeld ohne eine einzige Option. Ohne Datenquelltyp lässt sich keine
+   Georessource anlegen. Jetzt lesen beide live über einen Getter.
+4. **Das Indikator-Modal war komplett kaputt** (`pipes/filter.pipe.ts`). Das Template übergibt
+   `| filter: filterOverviewTargetSpatialUnits()` eine **Prädikatfunktion** (AngularJS-Semantik),
+   die Pipe erwartete einen Suchtext und warf bei jedem Change-Detection-Lauf
+   `TypeError: searchText.toLowerCase is not a function`. Damit rendert der ganze
+   Übersichtsschritt nicht: kein Stepper, keine Ziel-Raumebene, kein Weg zum Importer-Schritt.
+   Die Pipe akzeptiert jetzt beides.
+
+Zusätzlich behoben, weil es an derselben Stelle auffiel: `onChangeConverter()` im
+Georessourcen-`editFeatures`-Modal war **toter Code** — das Template hat keinen `(change)`-Handler
+und niemand rief die Methode auf. Schema und Quellformat blieben daher leer (auf `master` werden
+sie mit dem ersten Eintrag des Konverters vorbelegt) und ein veralteter Datenquelltyp überlebte
+den Konverterwechsel. Sie hängt jetzt an den `valueChanges` des Konverter-Controls und belegt vor,
+statt zu leeren.
+
+### Noch offen aus diesem Durchlauf
+
+- **Datenquelltypen werden nicht nach Konverter gefiltert.** Auf `master` schneidet jedes Modal die
+  Liste auf `converter.datasources` zu; auf diesem Branch macht das nur
+  `spatialUnitEditFeaturesModal`. Die beiden Add-Wizards und das Georessourcen-`editFeatures`-Modal
+  bieten deshalb auch Kombinationen an, die der Konverter nicht unterstützt (z. B.
+  `OGCAPI_FEATURES` für GeoJSON) — sie scheitern erst serverseitig. Kein Blocker, aber eine
+  Abweichung von `master`.
+
+### Automatisierte Absicherung
+
+`adminShared/importerForm/importer-template-bindings.spec.ts` prüft weiterhin statisch die
+`formGroupName`-Wrapper in allen fünf Templates und **neu** die Sichtbarkeitsregel aus Fehler 2
+(Inline-`display` am Importer-Fieldset, sobald ein dauerhaft gerendertes Geschwister-Fieldset
+existiert; Jest lädt keine globalen Styles, ein gerenderter Test kann das nie sehen). Alle fünf
+Modals haben zusätzlich einen gerenderten Spec-Block (`describe('rendered data step')` bzw.
+`'rendered batch step'`), der Konverter, Datenquelltyp und räumlichen Filter über die echten
+Selects wählt. Neu dazu: `common/userLogin/user-login.component.spec.ts` (Fehler 1) und
+`pipes/filter.pipe.spec.ts` (Fehler 4).
 
 Bei Fehlern: `adminShared/importerForm/importer-form.model.ts` →
 `syncConverterParameterControls` / `syncDatasourceParameterControls` (im Indikator-Modal das
