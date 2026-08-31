@@ -909,6 +909,17 @@ export class GeoresourceAddModalComponent implements OnInit {
   }
 
   // Form reset
+  /**
+   * The reset button: empties the wizard *and* returns it to step 1, like the
+   * spatial-unit twin. Kept separate from `resetGeoresourceAddForm()` because
+   * that one also runs during `ngOnInit`, where rewinding the stepper would
+   * undo a step the caller had already selected.
+   */
+  onResetGeoresourceAddForm(): void {
+    this.resetGeoresourceAddForm();
+    this.stepper.reset();
+  }
+
   resetGeoresourceAddForm(): void {
     this.importerErrors.set([]);
 

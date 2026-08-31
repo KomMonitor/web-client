@@ -643,6 +643,22 @@ describe('GeoresourceAddModalComponent', () => {
       expect(style.poiMarkerStyle).toBe('symbol');
     });
 
+    it('returns the wizard to its first step, like the spatial-unit twin', () => {
+      component.stepper.currentStep = 4;
+
+      component.onResetGeoresourceAddForm();
+
+      expect(component.stepper.currentStep).toBe(1);
+    });
+
+    it('leaves the step alone when the form is reset during initialisation', () => {
+      component.stepper.currentStep = 4;
+
+      component.resetGeoresourceAddForm();
+
+      expect(component.stepper.currentStep).toBe(4);
+    });
+
     it('restores the type flags to a POI dataset', () => {
       setType('aoi');
       component.onChangeGeoresourceType();
