@@ -288,6 +288,38 @@ describe('GeoresourceAddModalComponent', () => {
 
   // ---------------------------------------------------------------------------
 
+  /**
+   * The colour fields are `ColorType` enums on the API. `initializeForm()` used
+   * to reset the form *before* loading the option lists, so the style defaults
+   * were patched from still-empty arrays: a freshly opened wizard held null
+   * colours and posted `poiMarkerColor: ""`, which the importer rejects with
+   * `Cannot construct instance of ColorType, problem: Unexpected value ''`.
+   * Creating a georesource then only worked if the user had opened both colour
+   * dropdowns by hand.
+   */
+  describe('style defaults right after initialisation', () => {
+    // The fixture is not rendered, so ngOnInit has to be called by hand.
+    beforeEach(() => {
+      component.ngOnInit();
+    });
+
+    it('carries a marker and a symbol colour without any user input', () => {
+      const style = component.addForm.controls.metadata.controls.style.getRawValue();
+
+      expect(style.poiMarkerColor).toBeTruthy();
+      expect(style.poiSymbolColor).toBeTruthy();
+    });
+
+    it('posts colour names rather than empty strings', () => {
+      const body = component.buildPostBody_georesources();
+
+      expect(body.poiMarkerColor).not.toBe('');
+      expect(body.poiSymbolColor).not.toBe('');
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+
   describe('buildPostBody_georesources — POI/LOI/AOI branch', () => {
     const STYLE_KEYS = [
       'poiSymbolBootstrap3Name',

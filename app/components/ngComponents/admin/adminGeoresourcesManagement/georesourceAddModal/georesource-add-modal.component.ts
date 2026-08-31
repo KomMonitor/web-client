@@ -372,11 +372,15 @@ export class GeoresourceAddModalComponent implements OnInit {
   }
 
   private initializeForm(): void {
-    // Initialize form with default values
-    this.resetGeoresourceAddForm();
-
-    // Load available options
+    // Options first: the reset patches the style defaults (marker colour, symbol
+    // colour, line pattern) *from* these lists. The other way round they were
+    // still empty, so a freshly opened wizard held null colours and posted
+    // `poiMarkerColor: ""` — which the API rejects with a 400, `ColorType`
+    // being an enum. Creating a georesource then only worked if the user had
+    // opened both colour dropdowns by hand.
     this.loadAvailableOptions();
+
+    this.resetGeoresourceAddForm();
   }
 
   private setupEventListeners(): void {
