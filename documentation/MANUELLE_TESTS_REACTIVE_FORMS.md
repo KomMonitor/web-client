@@ -341,31 +341,73 @@ eigener Verdacht — ohne echten Importer-Lauf nicht zu entscheiden, deshalb hie
   `bbox`-Zweig und einmal in der allgemeinen Schleife. Auf `master` passiert exakt dasselbe —
   vorbestehend, kein Migrationsfehler.
 
-## 5. Themen-Kaskade — Verhaltensänderung
+## 5. Themen-Kaskade — Verhaltensänderung ✅ durchgeführt 2026-08-31
 
-- [ ] Georessourcen → Schritt „Themen": Haupt-, Unter- und Unterunterthema wählen, dann das
-      **Hauptthema wechseln** → die tieferen Ebenen leeren sich
-- [ ] Ein Datensatz mit tief gewähltem Thema anlegen und in der Übersicht prüfen, dass die
-      richtige Themenzuordnung ankommt
+- [x] Georessourcen → Schritt „Themen": Haupt-, Unter- und Unterunterthema wählen, dann das
+      **Hauptthema wechseln** → die tieferen Ebenen leeren sich. Geprüft mit
+      „Bevölkerung → Altersstruktur → Basis-Altersklassen"; nach dem Wechsel auf „Klima" sind
+      `subTopic`, `subsubTopic` und `subsubsubTopic` leer und die tieferen Selects gar nicht mehr
+      im DOM. (Die Demo-Instanz hat maximal drei Ebenen, die vierte war nicht auslösbar.)
+- [~] Ein Datensatz mit tief gewähltem Thema anlegen und in der Übersicht prüfen — **nicht
+      ausgeführt**, das schreibt echte Daten. Stattdessen bis zum fertigen Request-Body geprüft:
+      `buildPostBody_georesources().topicReference` trägt bei tiefer Auswahl die Id der
+      **tiefsten** Ebene (`Basis-Altersklassen`) und nach dem Hauptthema-Wechsel die Id des
+      **neuen** Hauptthemas. Die alte Fehlerklasse — eine stehengebliebene tiefere Auswahl gewinnt
+      und postet eine Referenz aus einem fremden Themenast — ist damit ausgeschlossen.
 
-Vorher blieb eine veraltete tiefere Auswahl stehen und gewann die `topicReference` — es wurde
-eine Referenz aus einem fremden Themenast gepostet.
+Die Kaskade selbst steckt in `adminShared/topicHierarchyForm/`; dieselbe Komponente benutzen auch
+das Georessourcen-Metadaten-Modal, der Indikator-Wizard (Schritt 3) und die beiden WMS-Modals.
+Geprüft wurde nur der Georessourcen-Wizard, die Verdrahtung („tiefere Ebenen leeren") liegt aber
+im gemeinsamen `buildTopicHierarchyForm()` und gilt damit für alle fünf.
 
-## 6. Submit-Gate, Stepper und Zurücksetzen
+## 6. Submit-Gate, Stepper und Zurücksetzen ✅ durchgeführt 2026-08-31
 
 Die 11-klauseligen `[disabled]`-Ausdrücke sind je durch ein `addForm.invalid` ersetzt.
 
-- [ ] Je einen vollständigen Datensatz anlegen: **Raumebene** und **Georessource** (End-to-End
-      inkl. Importer-Lauf)
-- [ ] In allen drei `editFeatures`-Modals: der Absenden-Button gibt frei, sobald die Pflichtfelder
-      gefüllt sind
-- [ ] Der „Anlegen"-Button gibt frei, sobald alle Pflichtfelder gefüllt sind — und nicht früher
-- [ ] Schritte mit Pflichtfeldfehlern werden im Stepper rot mit Ausrufezeichen markiert, bleiben
-      aber anklickbar (Navigation wurde bewusst **nicht** gesperrt)
-- [ ] „Zurücksetzen": Linienbreite zurück auf 3, Farben auf `#000000` (Raumebene) bzw. `#bf3d2c`
+- [~] Je einen vollständigen Datensatz anlegen: **Raumebene** und **Georessource** (End-to-End
+      inkl. Importer-Lauf) — **nicht ausgeführt**, das schreibt echte Daten. Beide Wizards wurden
+      aber bis zum freigegebenen Knopf durchgefüllt (inklusive Datei-Auswahl), nur der Klick auf
+      „registrieren" fehlt.
+- [x] In allen drei `editFeatures`-Modals: der Absenden-Button gibt frei, sobald die Pflichtfelder
+      gefüllt sind. Beim Indikator-Modal bleibt danach genau ein Blocker übrig — das leere
+      Zeitreihen-Mapping, so gewollt (Punkt 9).
+- [x] Der „Anlegen"-Button gibt frei, sobald alle Pflichtfelder gefüllt sind — und nicht früher.
+      Feldweise nachgehalten: Raumebene 12 Pflichtfelder, Georessource 13; nach dem vorletzten
+      Feld ist der Knopf noch zu, nach dem letzten offen.
+- [x] Schritte mit Pflichtfeldfehlern werden im Stepper rot mit Ausrufezeichen markiert und
+      bleiben anklickbar. Die Markierung erscheint erst, wenn ein Feld **angefasst** und leer
+      gelassen wurde (`controlInvalidSignal(..., { whenTouched: true })`), und verschwindet wieder,
+      sobald es gefüllt ist — beim ersten Öffnen ist also kein Schritt rot.
+- [x] „Zurücksetzen": Linienbreite zurück auf 3, Farben auf `#000000` (Raumebene) bzw. `#bf3d2c`
       (Georessource), Symbol auf `home`, Markerstil auf `symbol`, beide Keep-Schalter an, SRID
-      4326 — **nicht** leer bzw. null
-- [ ] Fehlermeldungen erscheinen erst, nachdem ein Feld angefasst wurde, und verschwinden wieder
+      4326 — alles gesetzt, nichts leer oder null. Der Anlegen-Knopf ist danach wieder gesperrt.
+- [x] Fehlermeldungen erscheinen erst, nachdem ein Feld angefasst wurde, und verschwinden wieder.
+
+### Was der Durchlauf gefunden hat — behoben 2026-08-31
+
+**Mit einer Datei als Datenquelle konnte kein Datensatz angelegt werden.** Der Importer meldet für
+den Datenquelltyp `FILE` genau einen Parameter, `NAME`, und flaggt ihn als **mandatory**. Kein
+Modal rendert dafür ein Feld — der Wert ist der serverseitige Dateiname und wird beim Upload
+gesetzt (`ResourceImportService.buildDatasourceTypeDefinition()`), nicht vom Benutzer. Das
+gemeinsame `syncDatasourceParameterControls()` baute daraus trotzdem ein `Validators.required`-
+Control. Ergebnis: `addForm.invalid` blieb dauerhaft `true` und der Anlegen-Knopf, der genau
+daran hängt, ging **nie** auf — für den mit Abstand häufigsten Weg, den Datei-Upload. Auf
+`master` prüfte der `ng-disabled`-Ausdruck die Datenquell-Parameter gar nicht erst.
+
+Betroffen waren alle vier Modals mit dem gemeinsamen Helper (beide Add-Wizards, beide räumlichen
+`editFeatures`-Modals); das Indikator-Modal hatte den Sonderfall bereits lokal umgesetzt
+(„FILE data sources render no parameter fields at all"). Die Regel steht jetzt im gemeinsamen
+`syncDatasourceParameterControls()`. Abgesichert durch zwei Tests in
+`importerForm/importer-form.model.spec.ts`.
+
+### Kleine Abweichung — ebenfalls behoben
+
+Der Georessourcen-Wizard blieb nach „Zurücksetzen" auf dem zuletzt geöffneten Schritt stehen,
+während die Raumebene auf Schritt 1 zurückspringt: `resetGeoresourceAddForm()` rief kein
+`stepper.reset()`. Einfach nachrüsten ging nicht — dieselbe Methode läuft auch in `ngOnInit`, wo
+ein Zurückspulen des Steppers eine bereits gewählte Seite überschreibt. Der Knopf ruft jetzt ein
+eigenes `onResetGeoresourceAddForm()`, das beides tut; die Initialisierung nutzt weiter die
+Formular-Variante. Zwei Tests halten die Trennung fest.
 
 ## 7. Betrieb ohne Keycloak
 
