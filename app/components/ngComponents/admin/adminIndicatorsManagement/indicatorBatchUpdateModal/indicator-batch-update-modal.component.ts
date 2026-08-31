@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -101,6 +102,7 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
   private modalService = inject(NgbModal);
+  private cdr = inject(ChangeDetectorRef);
 
   @ViewChild('batchListFileInput') batchListFileInput!: ElementRef<HTMLInputElement>;
   @Input() modalRef?: NgbModalRef;
@@ -166,10 +168,17 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
     return this.form.controls.rows.controls;
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     if (this.rows.length === 0) {
       this.addNewRowToBatchList();
     }
+
+    // The converter and data-source dropdowns read the importer catalogue,
+    // which arrives asynchronously. Without this the OnPush view keeps the
+    // empty lists it first rendered with, and both selects stay at their
+    // placeholder until some unrelated interaction happens to re-render.
+    await this.importerHelper.fetchResourcesFromImporter();
+    this.cdr.markForCheck();
   }
 
   ngOnDestroy(): void {
@@ -281,10 +290,26 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
 
     row.controls.mappingTableName.setValue(file.name);
 
-    // The mapping table only carries the time-series mapping for this row; the
-    // full mapping config is imported through the batch list instead.
+    // `saveMappingObjectToFile()` writes the whole row, and so did the AngularJS
+    // original — so read it back the same way: a file carrying `mappingObj` is
+    // applied in full (converter resolved against the catalogue, data source,
+    // parameters, property mapping, target spatial unit). A bare time-series
+    // list stays supported for hand-written files.
     try {
       const parsed = await readJsonFile(file);
+      const fileRow = parsed as BatchListFileRow;
+      if (fileRow?.mappingObj) {
+        batchListFileRowToRow(row, fileRow, {
+          converters: this.availableConverters(),
+          datasourceTypes: this.availableDatasourceTypes(),
+          spatialUnits: this.spatialUnitStore.availableSpatialUnits ?? [],
+        });
+        // The picked file names the mapping table, not whatever the row was
+        // exported with.
+        row.controls.mappingTableName.setValue(file.name);
+        this.cdr.markForCheck();
+        return;
+      }
       const mapping = (parsed as { timeseriesMappings?: unknown })?.timeseriesMappings ?? parsed;
       if (isValidTimeseriesMappingList(mapping)) {
         row.controls.timeseriesMappings.setValue(mapping as TimeseriesMapping[]);

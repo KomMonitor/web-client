@@ -69,6 +69,8 @@ describe('IndicatorBatchUpdateModalComponent', () => {
     filterConverters: (resourceType: string) => (converter: Converter) => boolean;
     buildPropertyMapping_indicatorResource: jest.Mock;
     buildPutBody_indicators: jest.Mock;
+    /** Awaited in ngOnInit so the dropdowns re-render once the catalogue lands. */
+    fetchResourcesFromImporter: jest.Mock;
   };
 
   /** Fills the single starting row so the run gate opens. */
@@ -101,6 +103,7 @@ describe('IndicatorBatchUpdateModalComponent', () => {
       getAvailableDatasourceTypes: () => [FILE_SOURCE, HTTP_SOURCE],
       filterConverters: (resourceType: string) => (converter: Converter) =>
         !(resourceType === 'indicator' && converter.name.includes('Geokodierung')),
+      fetchResourcesFromImporter: jest.fn().mockResolvedValue(undefined),
       buildPropertyMapping_indicatorResource: jest.fn().mockReturnValue({ mapping: true }),
       buildPutBody_indicators: jest.fn().mockReturnValue({ putBody: true }),
     };
@@ -146,6 +149,62 @@ describe('IndicatorBatchUpdateModalComponent', () => {
     component.ngOnInit();
   });
 
+  /**
+   * `saveMappingObjectToFile()` writes the whole row, and the AngularJS original
+   * read it back the same way. The migrated reader took only
+   * `timeseriesMappings` from the file, so saving and re-reading a row lost the
+   * converter, the data source and every parameter.
+   */
+  it('applies a whole saved row when its mapping table is read back', async () => {
+    const row = component.rows[0];
+    const fileRow = {
+      name: 'ind-1',
+      mappingObj: {
+        converter: {
+          name: 'Tabelle_Zeitreihe_zu_Indikator',
+          mimeType: 'text/csv',
+          parameters: [{ name: 'Trennzeichen', value: ';' }],
+        },
+        dataSource: { type: 'HTTP', parameters: [{ name: 'URL', value: 'https://example.org' }] },
+        propertyMapping: {
+          spatialReferenceKeyProperty: 'gid',
+          timeseriesMappings: [{ indicatorValueProperty: 'wert', timestamp: '2020-01-01' }],
+        },
+      },
+    };
+    const file = new File([JSON.stringify(fileRow)], 'row-mapping.json', {
+      type: 'application/json',
+    });
+
+    await component.onMappingTableSelected({ target: { files: [file] } } as unknown as Event, row);
+
+    expect(row.controls.converter.value?.name).toBe('Tabelle_Zeitreihe_zu_Indikator');
+    // The converter declares CRS too; it simply stays empty.
+    expect(row.controls.converterParameters.getRawValue()).toEqual({ Trennzeichen: ';', CRS: '' });
+    expect(row.controls.datasourceType.value?.type).toBe('HTTP');
+    expect(row.controls.datasourceTypeParameters.getRawValue()).toEqual({
+      URL: 'https://example.org',
+    });
+    expect(row.controls.spatialReferenceKeyProperty.value).toBe('gid');
+    expect(row.controls.timeseriesMappings.value).toEqual([
+      { indicatorValueProperty: 'wert', timestamp: '2020-01-01' },
+    ]);
+    expect(row.controls.mappingTableName.value).toBe('row-mapping.json');
+  });
+
+  it('still accepts a bare time-series list as a mapping table', async () => {
+    const row = component.rows[0];
+    const mappings = [{ indicatorValueProperty: 'wert', timestamp: '2021-01-01' }];
+    const file = new File([JSON.stringify({ timeseriesMappings: mappings })], 'ts.json', {
+      type: 'application/json',
+    });
+
+    await component.onMappingTableSelected({ target: { files: [file] } } as unknown as Event, row);
+
+    expect(row.controls.timeseriesMappings.value).toEqual(mappings);
+    expect(row.controls.converter.value).toBeNull();
+  });
+
   it('starts with exactly one empty row', () => {
     expect(component.rows).toHaveLength(1);
     expect(component.rows[0].controls.indicatorId.value).toBe('');
@@ -155,15 +214,28 @@ describe('IndicatorBatchUpdateModalComponent', () => {
     component.addNewRowToBatchList();
     expect(component.rows).toHaveLength(2);
 
-    component.rows[0].controls.selected.setValue(false);
+    // Rows start unticked, so only what the user ticks is deleted.
+    component.rows[1].controls.selected.setValue(true);
     component.deleteSelectedRowsFromBatchList();
 
     expect(component.rows).toHaveLength(1);
     expect(component.rows[0].controls.selected.value).toBe(false);
   });
 
+  it('leaves untouched rows alone when deleting the selection', () => {
+    component.addNewRowToBatchList();
+
+    component.deleteSelectedRowsFromBatchList();
+
+    expect(component.rows).toHaveLength(2);
+  });
+
   it('reflects and toggles the select-all state', () => {
     component.addNewRowToBatchList();
+    expect(component.allRowsSelected).toBe(false);
+
+    component.onChangeSelectAllRows({ target: { checked: true } } as unknown as Event);
+    expect(component.rows.every((row) => row.controls.selected.value)).toBe(true);
     expect(component.allRowsSelected).toBe(true);
 
     component.onChangeSelectAllRows({ target: { checked: false } } as unknown as Event);

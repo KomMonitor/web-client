@@ -111,7 +111,10 @@ export function converterChoicesValidator(group: AbstractControl): ValidationErr
 export function buildBatchRow(): BatchRowFormGroup {
   return new FormGroup(
     {
-      selected: new FormControl(true, { nonNullable: true }),
+      // Unticked, like the AngularJS `addNewRowToBatchList()`: with every row
+      // pre-selected a single click on "delete selected rows" wiped the whole
+      // list without the user ever having ticked anything.
+      selected: new FormControl(false, { nonNullable: true }),
       indicatorId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
       mappingTableName: new FormControl('', { nonNullable: true }),
       timeseriesMappings: new FormControl<TimeseriesMapping[]>([], {
@@ -149,9 +152,16 @@ export function buildBatchUpdateForm(): BatchUpdateFormGroup {
 /** Rebuilds a row's parameter records after its converter / data-source changed. */
 export function syncBatchRowParameterControls(row: BatchRowFormGroup): void {
   syncParameterControls(row.controls.converterParameters, row.controls.converter.value?.parameters);
+
+  // A FILE data source has no user-facing parameters: the importer declares
+  // `NAME` as mandatory, but that is the uploaded file's server-side name and is
+  // filled by the upload. Rendering it as a column offered the user an internal
+  // field, and the required control kept the row invalid. Mirrors
+  // `syncDatasourceParameterControls()` in the shared importer form.
+  const datasourceType = row.controls.datasourceType.value;
   syncParameterControls(
     row.controls.datasourceTypeParameters,
-    row.controls.datasourceType.value?.parameters
+    datasourceType?.type === 'FILE' ? [] : datasourceType?.parameters
   );
 }
 
@@ -167,10 +177,17 @@ export function visibleConverterParameterNames(form: BatchUpdateFormGroup): stri
   );
 }
 
-/** Same for the data-source parameters (URL, payload, …). */
+/**
+ * Same for the data-source parameters (URL, payload, …). FILE rows contribute
+ * nothing: their only declared parameter is the internal `NAME`, which the
+ * upload fills — see `syncBatchRowParameterControls()`.
+ */
 export function visibleDatasourceParameterNames(form: BatchUpdateFormGroup): string[] {
   return collectParameterNames(
-    form.controls.rows.controls.map((row) => row.controls.datasourceType.value?.parameters)
+    form.controls.rows.controls.map((row) => {
+      const datasourceType = row.controls.datasourceType.value;
+      return datasourceType?.type === 'FILE' ? [] : datasourceType?.parameters;
+    })
   );
 }
 

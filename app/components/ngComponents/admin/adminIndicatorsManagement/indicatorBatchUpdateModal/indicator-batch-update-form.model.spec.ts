@@ -41,7 +41,11 @@ const WFS: Converter = {
   parameters: [{ name: 'NAMESPACE', mandatory: false }],
 };
 
-const FILE_SOURCE: DatasourceType = { type: 'FILE', parameters: [] };
+/** As the importer declares it: `NAME` is the uploaded file's server-side name. */
+const FILE_SOURCE: DatasourceType = {
+  type: 'FILE',
+  parameters: [{ name: 'NAME', mandatory: true }],
+};
 const HTTP_SOURCE: DatasourceType = {
   type: 'HTTP',
   parameters: [{ name: 'URL', mandatory: true }],
@@ -85,8 +89,11 @@ describe('buildBatchRow', () => {
     expect(row.controls.timeseriesMappings.hasError('timeseriesMappingRequired')).toBe(true);
   });
 
-  it('is selected by default, like a freshly added legacy row', () => {
-    expect(buildBatchRow().controls.selected.value).toBe(true);
+  it('is unticked by default, like a freshly added legacy row', () => {
+    // The AngularJS `addNewRowToBatchList()` created the row with
+    // `isSelected = false`. With `true`, one click on "delete selected rows"
+    // wiped the whole list before the user had ticked anything.
+    expect(buildBatchRow().controls.selected.value).toBe(false);
   });
 
   it('becomes valid once every required field is filled', () => {
@@ -164,6 +171,16 @@ describe('parameter columns', () => {
       'CRS',
       'NAMESPACE',
     ]);
+  });
+
+  it('offers no parameter column for a FILE data source', () => {
+    // `NAME` is filled by the upload; as a column it exposed an internal field
+    // and its required control kept the row invalid.
+    const file = buildBatchRow();
+    file.controls.datasourceType.setValue(FILE_SOURCE);
+
+    expect(visibleDatasourceParameterNames(formWith(file))).toEqual([]);
+    expect(Object.keys(file.controls.datasourceTypeParameters.controls)).toEqual([]);
   });
 
   it('does not repeat a parameter two rows share', () => {
