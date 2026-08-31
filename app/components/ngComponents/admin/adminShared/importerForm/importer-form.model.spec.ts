@@ -42,6 +42,12 @@ const OGC_DATASOURCE: DatasourceType = {
   ],
 };
 
+/** As the importer declares it: one mandatory parameter no modal renders. */
+const FILE_DATASOURCE: DatasourceType = {
+  type: 'FILE',
+  parameters: [{ name: 'NAME', mandatory: true }],
+};
+
 describe('importer form model', () => {
   describe('buildImporterForm', () => {
     it('requires the converter, data source and the two property names', () => {
@@ -109,6 +115,31 @@ describe('importer form model', () => {
     it('skips the synthetic bbox parameters', () => {
       const form = buildImporterForm();
 
+      syncDatasourceParameterControls(form, OGC_DATASOURCE);
+
+      expect(Object.keys(form.controls.datasourceTypeParameters.controls)).toEqual(['url']);
+    });
+
+    /**
+     * The importer flags the FILE parameter `NAME` as mandatory, but no modal
+     * renders a field for it — it is the uploaded file's server-side name and
+     * is filled by the upload. A required control for it left the whole wizard
+     * form invalid, so the submit button (bound to `form.invalid`) could never
+     * open for a file upload.
+     */
+    it('builds no control for a FILE data source', () => {
+      const form = buildImporterForm();
+
+      syncDatasourceParameterControls(form, FILE_DATASOURCE);
+
+      expect(Object.keys(form.controls.datasourceTypeParameters.controls)).toEqual([]);
+      expect(form.controls.datasourceTypeParameters.valid).toBe(true);
+    });
+
+    it('drops the FILE leftovers when switching to another data source', () => {
+      const form = buildImporterForm();
+
+      syncDatasourceParameterControls(form, FILE_DATASOURCE);
       syncDatasourceParameterControls(form, OGC_DATASOURCE);
 
       expect(Object.keys(form.controls.datasourceTypeParameters.controls)).toEqual(['url']);

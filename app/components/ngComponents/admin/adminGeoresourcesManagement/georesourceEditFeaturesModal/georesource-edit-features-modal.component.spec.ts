@@ -308,14 +308,19 @@ describe('GeoresourceEditFeaturesModalComponent', () => {
       component.converter = CONVERTER;
     });
 
-    it('emits the declared parameters of a FILE data source', () => {
+    /**
+     * A FILE data source gets no parameter controls at all: the importer's only
+     * declared FILE parameter (`NAME`) is the uploaded file's server-side name,
+     * filled by the upload rather than by the user. A required control for it
+     * used to keep the whole form invalid.
+     */
+    it('builds no parameter controls for a FILE data source', () => {
       component.datasourceType = FILE_DATASOURCE;
-      setDatasourceParameters({ path: '/tmp/x.json' });
 
-      expect(putBody().datasourceTypeDefinition).toEqual({
-        type: 'FILE',
-        parameters: { path: '/tmp/x.json' },
-      });
+      expect(
+        Object.keys(component.importerForm.controls.datasourceTypeParameters.controls)
+      ).toEqual([]);
+      expect(putBody().datasourceTypeDefinition.type).toBe('FILE');
     });
 
     it('sends the reference spatial unit id for a ref bounding box', () => {

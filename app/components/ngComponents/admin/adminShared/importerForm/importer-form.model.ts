@@ -128,9 +128,17 @@ export function syncDatasourceParameterControls(
   form: ImporterFormGroup,
   datasourceType: DatasourceType | null | undefined
 ): void {
+  // A FILE data source renders no parameter fields: its single declared
+  // parameter (`NAME`, flagged mandatory by the importer) is the uploaded
+  // file's server-side name and is filled by the upload, not by the user.
+  // Building a required control for it left the form permanently invalid and
+  // the submit button — bound to `form.invalid` — could never open.
+  const parameters =
+    datasourceType?.type === 'FILE' ? [] : (datasourceType?.parameters ?? undefined);
+
   syncParameterControls(
     form.controls.datasourceTypeParameters,
-    datasourceType?.parameters,
+    parameters,
     SYNTHETIC_DATASOURCE_PARAMETERS
   );
 }
