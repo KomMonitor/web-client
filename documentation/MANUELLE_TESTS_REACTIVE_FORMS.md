@@ -251,28 +251,95 @@ Alles, was echte Daten auf der Demo-Instanz schreibt: Zell-Editierung und Featur
 Raumebenen-Tabelle, die drei kompletten Durchläufe (Datei + Attribut-Mapping + Absenden) und die
 Teil-Aktualisierung. Dafür braucht es eine Testinstanz oder eine ausdrückliche Freigabe.
 
-## 4. Import-Round-Trip
+## 4. Import-Round-Trip ✅ durchgeführt 2026-08-31
 
 Der Pfad, an dem Objekt-Identität in Selects erfahrungsgemäß bricht.
 
 Für **beide** Add-Wizards:
 
-- [ ] Metadaten exportieren → Modal neu öffnen → importieren. Danach müssen korrekt
-      vorausgewählt sein: Aktualisierungszyklus, Linienmuster, Thema, und bei Georessourcen der
-      POI/LOI/AOI-Typ samt Symbol-/Markerfarben
-- [ ] Mapping-Config exportieren → importieren. Danach müssen stimmen: Konverter, Schema,
-      Quellformat, Datenquelltyp, **beide** Parameterblöcke, Begrenzungsrahmen, ID-/NAME-Attribut,
-      die Keep-Schalter und die Attribut-Mappings
+- [x] Metadaten exportieren → Modal neu öffnen → importieren. Korrekt vorausgewählt sind danach:
+      Aktualisierungszyklus (das Select steht auf dem richtigen Eintrag, das Control hält
+      **dieselbe Objektreferenz** wie die Option — die Identität bricht also nicht), Linienmuster,
+      Thema sowie bei Georessourcen der POI/LOI/AOI-Typ samt Marker- und Symbolfarbe und
+      Symbolname. Farb- und Musterwähler zeigen die importierten Werte auch sichtbar an.
+- [x] Mapping-Config exportieren → importieren. Es stimmen: Konverter, Schema, Quellformat,
+      Datenquelltyp, **beide** Parameterblöcke, Begrenzungsrahmen, ID-/NAME-Attribut, beide
+      Keep-Schalter und die Attribut-Mappings. Gegenprobe: die Datei nach dem Import erneut
+      exportiert ist **zeichengleich** mit dem Original.
 
 Und in den beiden räumlichen `editFeatures`-Modals:
 
-- [ ] Mapping-Config importieren. Achtung, die bbox-Auswertung unterscheidet sich hier bewusst
-      von den Add-Wizards: es gibt keinen eigenen `bboxType`-Parameter, der Typ wird aus dem Wert
-      abgeleitet und nur für OGCAPI-Datenquellen angewendet.
+- [x] **Raumebene:** Mapping-Config importieren. Die abweichende bbox-Auswertung greift wie
+      vorgesehen — die Datei enthält keinen `bboxType`-Parameter, der Typ wird aus dem Wert
+      abgeleitet (`"10,20,30,40"` → `literal`) und nur für OGCAPI-Datenquellen angewendet;
+      `bbox`/`bboxType` erscheinen nicht als gewöhnliche Parameterfelder.
+- [x] **Georessource:** war ein Stub und ist am 2026-08-31 nachgezogen worden — siehe Fund unten.
+      Danach geprüft: dieselbe Datei wie oben wird vollständig übernommen (Konverter aus dem
+      Katalog, Schema, Quellformat, Datenquelltyp, beide Parameterblöcke, abgeleiteter
+      Begrenzungsrahmen, ID-/NAME-Attribut, Keep-Schalter, Attribut-Mappings), der eigene
+      Export lässt sich wieder einlesen, und eine vom Raumebenen-Wizard geschriebene Datei
+      ebenfalls.
 
-Hinweis: Eine Metadaten-Datei ohne gesetztes `isPOI`/`isLOI`/`isAOI` landet jetzt auf „Areas of
-Interest" statt in einem Zustand ohne Stil-Felder — die drei Flags sind auf ein einzelnes
-`georesourceType`-Control zusammengefasst.
+- [x] Hinweis bestätigt: Eine Metadaten-Datei ohne gesetztes `isPOI`/`isLOI`/`isAOI` landet auf
+      „Areas of Interest" (Select zeigt „Areas of Interest", der Flächenfarbwähler erscheint).
+
+### Was der Durchlauf gefunden hat
+
+**Der Mapping-Config-Import des Georessourcen-`editFeatures`-Modals ist nie portiert worden.**
+`parseFromMappingConfigFile()` in `georesource-edit-features-modal.component.ts` ist ein
+Zwölfzeiler, der drei Dinge falsch macht:
+
+1. `this.converter = mappingConfig.converter` legt das **rohe JSON-Objekt** aus der Datei ins
+   Control, statt den passenden Konverter im Importer-Katalog zu suchen. Das Select kann den
+   Fremdkörper nicht über Objektidentität finden (zeigt also nichts an), und jeder Zugriff auf
+   `converter.schemas` / `.datasources` / `.parameters[].mandatory` läuft ins Leere.
+2. Es liest `mappingConfig.datasourceType` — diesen Schlüssel gibt es im Dateiformat nicht, er
+   heißt `dataSource`. Der Datenquelltyp bleibt darum leer, und mit ihm Begrenzungsrahmen und
+   Datenquell-Parameter.
+3. `this.attributeMappings_adminView = mappingConfig.propertyMapping` weist das **ganze
+   propertyMapping-Objekt** der Mapping-Liste zu, statt dessen `attributes`-Array. Das Feld ist
+   danach kein Array mehr, sondern trägt die Schlüssel `identifierProperty`, `nameProperty`,
+   `keepAttributes`, `keepMissingOrNullValueAttributes`, `attributes`.
+
+Schema, Quellformat, Konverter-Parameter, ID-/NAME-Attribut und die Keep-Schalter werden gar
+nicht erst angefasst. Im Browser nachgestellt: nach dem Import steht nur der (falsch typisierte)
+Konverter, alles andere ist leer.
+
+Dazu passend schreibt `onExportGeoresourceEditFeaturesMappingConfig()` ein **eigenes Format**
+(`{converter, datasourceType, propertyMapping, idProperty, nameProperty, validityStartDate, …}`),
+während die anderen drei Modals `buildMappingConfigExport()` benutzen. Export und Import dieses
+Modals sind damit weder zu den anderen Modals noch zu `master` kompatibel.
+
+Auf `master` ist die Funktion vollständig vorhanden (Konverter über den Katalog auflösen, Schema
+und Quellformat abgleichen, Datenquelltyp filtern und setzen, Parameter und bbox anwenden).
+
+**Nachgezogen am 2026-08-31**, entlang des Raumebenen-Zwillings: `onMappingConfigFileSelected()`
+liest die Datei über `ResourceImportService.readJsonFile()` + `parseMappingConfig()`,
+`applyMappingConfig()` setzt Konverter/Schema/Quellformat/Datenquelltyp und ruft
+`patchImporterFormFromMappingConfig()`, und ein eigenes `applyBbox()` leitet den bbox-Typ aus dem
+Wert ab (nur für OGCAPI). Der Export schreibt jetzt `buildMappingConfigExport()` — dasselbe Format
+wie die anderen drei Modals und wie `master` — statt seines Eigenformats; die Definitionen baut er
+direkt über den Helper, damit ein Export keine Datei zum Importer hochlädt.
+
+Abgesichert durch acht neue Tests in `georesource-edit-features-modal.component.spec.ts`
+(`describe('applyMappingConfig')`): Katalog-Konverter, beide Parameterblöcke, Attributnamen und
+Keep-Schalter, Attribut-Mappings, literale und Referenz-bbox, unangetasteter bbox bei
+Nicht-OGCAPI-Quellen, Gültigkeitszeitraum.
+
+**Nicht angefasst:** `buildPutBody()` dieses Modals schickt Konverter- und Datenquell-Parameter
+als **Wörterbuch**, während der kanonische `ConverterDefinition`-Typ (und die anderen Modals) ein
+Array `[{name, value}]` verlangt. Die vorhandenen Specs pinnen die Wörterbuch-Form. Das ist ein
+eigener Verdacht — ohne echten Importer-Lauf nicht zu entscheiden, deshalb hier nur notiert.
+
+### Zwei Randbeobachtungen, kein Handlungsbedarf
+
+- Die vier Begrenzungsrahmen-Felder kommen nach dem Import als **Zeichenketten** zurück
+  (`"10"` statt `10`). Beide Formen werden beim Bauen des Parameters zu `"10,20,30,40"`
+  verkettet; der Re-Export ist zeichengleich, das Wire-Format also unverändert.
+- Die exportierte `dataSource.parameters`-Liste enthält `bboxType` **zweimal**: der Importer
+  deklariert `bbox` *und* `bboxType` als Parameter, und der Builder schreibt `bboxType` einmal im
+  `bbox`-Zweig und einmal in der allgemeinen Schleife. Auf `master` passiert exakt dasselbe —
+  vorbestehend, kein Migrationsfehler.
 
 ## 5. Themen-Kaskade — Verhaltensänderung
 
