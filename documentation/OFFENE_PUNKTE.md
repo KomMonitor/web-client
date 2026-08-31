@@ -74,8 +74,8 @@ Behoben durch den geteilten Baustein `adminShared/timeseriesMappingForm/` (`Cont
 stellt die historische Gate-Klausel wieder her. Die vier Broadcast-Kanäle der Vorlage entfallen — inklusive
 Enum-Member `ResetTimeseriesMapping` und des untypisierten `'timeseriesMappingChanged'`.
 
-**Browser-Prüfung nötig** (siehe [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md),
-Punkt 8): ein echter Einzel-Import mit gefülltem Mapping ist automatisiert nicht erreichbar.
+**Browser-Prüfung durchgeführt (2026-08-31):** ein echter Einzel-Import mit gefülltem Mapping ist
+automatisiert nicht erreichbar und wurde manuell abgenommen.
 
 ### A4. MathJax-Formeldarstellung fehlt vollständig (gefunden 2026-08-27)
 
@@ -193,15 +193,16 @@ Objekt-Identitäts-Select weniger). Im Indikator-Wizard sendete der POST-Body f�
 während der PATCH-Body normalisierte — mit `nonNullable`-Controls ist dieser Zustand nicht mehr
 darstellbar, beide Bodies senden jetzt `''`/`false`.
 
-**Manuell zu prüfen:** [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md) —
-Widgets im Browser, Objekt-Identität in Selects und die Datei-Import-Round-Trips sind
-automatisiert nicht erreichbar.
+**Manuell geprüft (2026-08-31):** Widgets im Browser, Objekt-Identität in Selects und die
+Datei-Import-Round-Trips sind automatisiert nicht erreichbar; sie wurden im Browser abgenommen.
+Das Protokoll `MANUELLE_TESTS_REACTIVE_FORMS.md` ist danach gelöscht worden und liegt in git; die
+wenigen offen gebliebenen Stichproben stehen unten unter „Restposten aus dem manuellen Testlauf".
 
 #### Offen
 
 | Block                                                | `ngModel` | Warum offen                                                                                                                                                                                                                                |
 | ---------------------------------------------------- | --------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `indicatorBatchUpdateModal`                          |         0 | **Port durch** — Formular, `BatchUpdateService`, Run, Ergebnis-Modal und Standardwert-Funktion stehen, kein `TODO(batch-update)` mehr. Offen: manuelle Browser-Tests.                                                                      |
+| `indicatorBatchUpdateModal`                          |         0 | **Port durch** — Formular, `BatchUpdateService`, Run, Ergebnis-Modal und Standardwert-Funktion stehen, kein `TODO(batch-update)` mehr. Manuelle Browser-Tests am 2026-08-31 durchgeführt.                                                  |
 | Skript-Wizard: kontrollierte Kind-Inputs (4 Dateien) |        14 | `[ngModel]` + `@Output`-Emit bzw. Filterfelder — der bewusste `@Input`/`@Output`-Schrittvertrag, kein template-getriebenes Formular. Die Selects binden Objekte über `[ngValue]`; ein Umbau auf `[value]` würde die Objektbindung brechen. |
 | Grid-Toggles, Filterfelder, Zeilen-Checkboxen        |       ~62 | bewusst außen vor                                                                                                                                                                                                                          |
 
@@ -270,11 +271,10 @@ Export ist damit weg. Der pinnende BUG-Test ist durch einen echten Round-Trip-Te
 (Import → `buildPostBody_indicators_v3`), dazu ein Test auf die aufgelöste Zeilenform.
 Mitgenommen: `applyMetadataImport()` und `applyEditDataset()` schrieben die beiden
 signalgestützten Listen per `push` in place — sie bauen jetzt lokal und weisen einmal zu.
-**Browser-Prüfung:** [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md),
-Punkt 11.4.
+**Browser-Prüfung:** durchgeführt (2026-08-28, Punkt 11.4 des Testprotokolls).
 
-**Browser-Prüfung nötig:** [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md),
-neuer Punkt 11 (plus die Ergänzungen in Punkt 2).
+**Browser-Prüfung:** die übrigen Nachwirkungen des B1-Abschlusses sind noch nicht abgenommen —
+siehe „Restposten aus dem manuellen Testlauf".
 
 Dazu diese Punkte aus dem bereits umgebauten Teil — der letzte hält die Batch-Update-Entscheidung fest:
 
@@ -562,18 +562,38 @@ Verifiziert gegen den Code am 2026-08-26, Bereinigung am 2026-08-27.
 | [`REACHABILITY_STATE_UNIFICATION.md`](REACHABILITY_STATE_UNIFICATION.md)           | **Aktuell und abgeschlossen.** Die dort selbst notierten Ausklammerungen (Map-Helper + Coverage-Reports, beide >1000 Z.) sind in B2 übernommen.                                                                                                                                                                                                                         |
 | [`STARTUP_IMPROVEMENTS.md`](STARTUP_IMPROVEMENTS.md)                               | **Aktuell**, 12 von 13 Punkten erledigt: Punkt 11 (`__env`-Direktzugriffe) ist mit C3 abgeschlossen, offen ist nur noch Punkt 9 (`console`-Patching) — hier als C2 geführt und zurückgestellt.                                                                                                                                                                          |
 | [`REPORTING_CATEGORICAL_INDICATOR_GAP.md`](REPORTING_CATEGORICAL_INDICATOR_GAP.md) | **Aktuell und offen.** Führt die Reporting-Lücke bei kategorischen Indikatoren eigenständig — der einzige bekannte echte Funktionsfehler. Die dort genannten Zeilennummern sind nicht nachgeprüft worden.                                                                                                                                                               |
-| [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md)             | **Aktuell und offen.** Manuelle Testpfade für den Reactive-Forms-Umbau — genau das, was die automatisierten Tests nicht erreichen (Widgets, Objekt-Identität in Selects, Import-Round-Trips). Nach Risiko sortiert, mit Ankreuzkästchen.                                                                                                                                |
+| `MANUELLE_TESTS_REACTIVE_FORMS.md`                                                 | **Gelöscht (2026-08-31).** Die manuellen Testpfade für den Reactive-Forms-Umbau sind abgearbeitet: Punkte 1–10 durchgeführt, die dabei gefundenen Fehler behoben und mit Tests abgesichert. Was offen blieb, steht unten unter „Restposten aus dem manuellen Testlauf". Das Protokoll selbst liegt in git.                                                              |
 | [`COMPONENT_NESTING_TREE.md`](COMPONENT_NESTING_TREE.md)                           | **Aktuell (2026-08-27).** Die vier geteilten Admin-Bausteine (`app-resource-metadata-form`, `app-role-management-grid`, `app-owner-organization-select`, `app-config-editor-panes`) sind in der Selektor-Tabelle ergänzt, mit einer Notiz, warum sie in den Diagrammen fehlen (sie sitzen in Modals, und Modals sind aus dem Baum ausgenommen). `Stand:`-Datum ergänzt. |
+
+---
+
+## Restposten aus dem manuellen Testlauf (Stand 2026-08-31)
+
+Aus `MANUELLE_TESTS_REACTIVE_FORMS.md` (gelöscht, liegt in git) blieben diese Stichproben offen —
+alle brauchen einen laufenden Backend-Stack und schreiben echte Daten:
+
+- **„Sachdaten bearbeiten" (Punkt 3b):** Zellen bearbeiten bzw. ein einzelnes Feature löschen sowie
+  ein kompletter Durchlauf mit Attribut-Mapping. Beides schreibt sofort auf den Datenbestand und
+  wurde deshalb nicht ausgeführt.
+- **11.1 Georessourcen-Berechtigungen:** Anlegen mit gesetzten Rollen, `permissions` statt
+  `allowedRoles` im Metadaten-Export (Georessource vs. Raumebene/Indikator), PATCH ohne
+  Rollenfeld beim reinen Metadaten-Speichern.
+- **11.2 Indikator-Metadaten-Export:** Referenzen exportieren und wieder importieren, die
+  Referenztabellen müssen danach gefüllt sein.
+- **11.3 OnPush ohne `stateRevision`:** Metadaten-Import muss Formularfelder, Namens-Dubletten-Fehler
+  und das Rollen-Grid ohne Zusatzklick aktualisieren. Bekannte, unveränderte Grenze: ein Häkchen
+  _im_ Grid aktualisiert die Zusammenfassungszeile nicht sofort.
 
 ---
 
 ## Empfohlene Reihenfolge
 
-1. **Manuelle Tests** — [`MANUELLE_TESTS_REACTIVE_FORMS.md`](MANUELLE_TESTS_REACTIVE_FORMS.md)
-   abarbeiten. Elf umgestellte Formulare plus das zurückportierte Batch-Update hängen daran,
-   nichts davon war bisher im Browser. Punkt 10 braucht einen laufenden Importer.
-2. ~~**B1-Restposten**~~ — ✅ erledigt am 2026-08-27 (siehe B1). Die dort behobenen
-   Verhaltensänderungen brauchen noch die Browser-Prüfung aus Punkt 11 der manuellen Tests.
+1. ~~**Manuelle Tests**~~ — ✅ erledigt am 2026-08-31: Punkte 1–10 im Browser durchgeführt (Punkt 10
+   gegen einen laufenden Importer), die gefundenen Fehler behoben und mit Tests abgesichert; das
+   Protokoll `MANUELLE_TESTS_REACTIVE_FORMS.md` ist gelöscht und liegt in git. Es bleiben die
+   **Restposten aus dem manuellen Testlauf** (siehe oben).
+2. ~~**B1-Restposten**~~ — ✅ erledigt am 2026-08-27 (siehe B1). Die Browser-Prüfung der dort
+   behobenen Verhaltensänderungen steht bei den Restposten aus dem manuellen Testlauf.
 3. ~~**A1**~~ — ✅ erledigt am 2026-08-27: beide Features gelöscht (siehe A1). Der zugehörige
    Teil von C3 ist damit weggefallen.
 4. ~~**C2 + C3**~~ — C2 (Logger-Service) ⏸️ zurückgestellt, C3 ✅ erledigt, beides am
