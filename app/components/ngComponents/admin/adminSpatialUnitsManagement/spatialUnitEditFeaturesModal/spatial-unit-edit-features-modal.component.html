@@ -543,6 +543,7 @@
                 <km-date-picker
                   placeholder="YYYY-MM-DD"
                   [formControl]="editForm.controls.periodOfValidity.controls.endDate"
+                  [coerceEmptyToToday]="false"
                   (blur)="onPeriodEndBlur()"
                   [invalid]="periodOfValidityInvalid"
                   [showErrors]="false"

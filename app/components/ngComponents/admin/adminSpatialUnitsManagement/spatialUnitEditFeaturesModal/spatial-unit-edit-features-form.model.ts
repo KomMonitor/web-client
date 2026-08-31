@@ -47,7 +47,9 @@ export function spatialUnitEditFeaturesFormToApi(
   const period = form.controls.periodOfValidity.getRawValue();
   return {
     geoJsonString: '', // will be set by the importer
-    periodOfValidity: { startDate: period.startDate, endDate: period.endDate },
+    // `?? ''` keeps the wire format: clearing the field writes null into the
+    // control (the picker no longer forces today), the body still sends ''.
+    periodOfValidity: { startDate: period.startDate, endDate: period.endDate ?? '' },
     isPartialUpdate: form.controls.isPartialUpdate.value,
   };
 }

@@ -245,8 +245,14 @@ export class KmDatePickerComponent implements OnInit, OnChanges, ControlValueAcc
       }
     }
 
-    // If there is a value, it must be a valid ISO string
-    if (value != null) {
+    // An empty string means "no date", exactly like null: the optional
+    // "valid until" fields hold '' while unset, and treating that as a
+    // malformed date made every open-ended period invalid — which in turn kept
+    // the add wizards' submit button (bound to `form.invalid`) disabled.
+    const isEmpty = value == null || (typeof value === 'string' && value.trim() === '');
+
+    // A value that is actually there must be a valid ISO string
+    if (!isEmpty) {
       if (typeof value !== 'string') {
         return { dateFormat: 'Expected YYYY-MM-DD' };
       }

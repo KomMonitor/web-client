@@ -204,7 +204,9 @@ export function georesourceAddFormToApi(
     metadata: metadataFormToApi(form.controls.general),
     jsonSchema: null,
     datasetName: metadata.datasetName,
-    periodOfValidity: { startDate: period.startDate, endDate: period.endDate },
+    // `?? ''` keeps the wire format: clearing the field writes null into the
+    // control (the picker no longer forces today), the body still sends ''.
+    periodOfValidity: { startDate: period.startDate, endDate: period.endDate ?? '' },
     isAOI: type === 'aoi',
     isLOI: type === 'loi',
     isPOI: type === 'poi',

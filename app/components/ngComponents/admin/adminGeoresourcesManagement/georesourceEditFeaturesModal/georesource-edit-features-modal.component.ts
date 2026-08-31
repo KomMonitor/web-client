@@ -209,7 +209,10 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   // Multiple feature import variables
   get periodOfValidity(): { startDate: string; endDate: string } {
-    return this.editForm.controls.periodOfValidity.getRawValue();
+    const period = this.editForm.controls.periodOfValidity.getRawValue();
+    // Clearing the "valid until" field writes null (the picker no longer forces
+    // today); the PUT body keeps sending '' for an open-ended period.
+    return { startDate: period.startDate, endDate: period.endDate ?? '' };
   }
   set periodOfValidity(value: { startDate: any; endDate: any } | null | undefined) {
     patchPeriodOfValidityForm(this.editForm.controls.periodOfValidity, value);

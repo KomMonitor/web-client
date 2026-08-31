@@ -587,6 +587,7 @@
                 <km-date-picker
                   placeholder="YYYY-MM-DD"
                   formControlName="endDate"
+                  [coerceEmptyToToday]="false"
                   [invalid]="periodOfValidityInvalid"
                   [showErrors]="false"
                 ></km-date-picker>
