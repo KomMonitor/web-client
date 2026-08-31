@@ -112,8 +112,12 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   }
 
   checkAuthentication(): void {
-    this.accessControlService.currentKeycloakLoginRoles = [];
-
+    // Deliberately does NOT clear accessControlService.currentKeycloakLoginRoles.
+    // The AngularJS original reset them here because checkAuthentication() ran
+    // *before* fetchAllMetadata() repopulated them; this component instead runs
+    // on metadata-loading COMPLETE, so the reset would wipe the roles the fetch
+    // has just applied and leave every check*Permission() false for the rest of
+    // the session. The service resets its own state via applyLoginStateFromToken().
     this.authenticated = this.authService.isAuthenticated();
     if (this.authenticated) {
       this.currentKeycloakUser = this.metadataBootstrap.currentKeycloakUser;

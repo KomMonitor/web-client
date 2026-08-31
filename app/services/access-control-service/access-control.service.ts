@@ -70,6 +70,9 @@ export class AccessControlService {
     } else {
       this.currentKeycloakLoginRoles = [];
       this.currentKeycloakLoginGroups = [];
+      // Keep the admin flag in step with the roles it was derived from, so a
+      // later token-less call cannot leave isRealmAdmin stuck on true.
+      this.isRealmAdmin = false;
     }
   }
 
