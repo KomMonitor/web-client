@@ -41,6 +41,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { TranslateService } from '@ngx-translate/core';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { SpatialUnitRefreshRequest } from './spatial-unit-refresh.model';
+import { MODAL_CONFIRM, MODAL_FORM, MODAL_WIDE } from 'util/modal-presets';
 
 @Component({
   selector: 'app-admin-spatial-units-management',
@@ -426,15 +427,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
 
   // Modal event handlers
   onClickAddSpatialUnit(): void {
-    const modalRef = this.modalService.open(SpatialUnitAddModalComponent, {
-      // omit size to avoid Bootstrap max-width caps like modal-lg
-      backdrop: true,
-      keyboard: false,
-      container: 'body',
-      animation: false,
-      modalDialogClass: 'modal-large',
-      windowClass: 'modal-large-window',
-    });
+    const modalRef = this.modalService.open(SpatialUnitAddModalComponent, MODAL_WIDE);
 
     modalRef.componentInstance.refreshRequested.subscribe((request: SpatialUnitRefreshRequest) =>
       this.handleRefreshRequest(request)
@@ -448,14 +441,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
   }
 
   onClickEditMetadata(spatialUnitMetadata: SpatialUnitMetadata): void {
-    const modalRef = this.modalService.open(SpatialUnitEditMetadataModalComponent, {
-      backdrop: true,
-      keyboard: false,
-      container: 'body',
-      animation: false,
-      modalDialogClass: 'modal-medium',
-      windowClass: 'modal-medium',
-    });
+    const modalRef = this.modalService.open(SpatialUnitEditMetadataModalComponent, MODAL_FORM);
 
     modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
     modalRef.componentInstance.refreshRequested.subscribe((request: SpatialUnitRefreshRequest) =>
@@ -470,14 +456,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
   }
 
   onClickEditFeatures(spatialUnitMetadata: SpatialUnitMetadata): void {
-    const modalRef = this.modalService.open(SpatialUnitEditFeaturesModalComponent, {
-      backdrop: true,
-      keyboard: false,
-      container: 'body',
-      animation: false,
-      modalDialogClass: 'modal-medium',
-      windowClass: 'modal-medium',
-    });
+    const modalRef = this.modalService.open(SpatialUnitEditFeaturesModalComponent, MODAL_WIDE);
 
     modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
     modalRef.componentInstance.refreshRequested.subscribe((request: SpatialUnitRefreshRequest) =>
@@ -492,14 +471,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
   }
 
   onClickEditUserRoles(spatialUnitMetadata: SpatialUnitMetadata): void {
-    const modalRef = this.modalService.open(SpatialUnitEditUserRolesModalComponent, {
-      backdrop: true,
-      keyboard: false,
-      container: 'body',
-      animation: false,
-      modalDialogClass: 'modal-medium',
-      windowClass: 'modal-medium',
-    });
+    const modalRef = this.modalService.open(SpatialUnitEditUserRolesModalComponent, MODAL_WIDE);
 
     modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
     modalRef.componentInstance.refreshRequested.subscribe((request: SpatialUnitRefreshRequest) =>
@@ -514,14 +486,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
   }
 
   onClickDeleteSpatialUnits(spatialUnitsMetadata: SpatialUnitMetadata[]): void {
-    const modalRef = this.modalService.open(SpatialUnitDeleteModalComponent, {
-      backdrop: true,
-      keyboard: false,
-      container: 'body',
-      animation: false,
-      modalDialogClass: 'modal-medium',
-      windowClass: 'modal-medium',
-    });
+    const modalRef = this.modalService.open(SpatialUnitDeleteModalComponent, MODAL_CONFIRM);
 
     modalRef.componentInstance.datasetsToDelete = spatialUnitsMetadata;
     modalRef.componentInstance.refreshRequested.subscribe((request: SpatialUnitRefreshRequest) =>

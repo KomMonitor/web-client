@@ -27,6 +27,7 @@ import { IndicatorAddStep4ReferencesComponent } from './steps/indicator-add-step
 import { IndicatorAddStep5ClassificationComponent } from './steps/indicator-add-step5-classification.component';
 import { IndicatorAddStep6ComparisonComponent } from './steps/indicator-add-step6-comparison.component';
 import { IndicatorAddStep7AccessComponent } from './steps/indicator-add-step7-access.component';
+import { MODAL_CONFIRM } from 'util/modal-presets';
 
 @Component({
   selector: 'app-indicator-add-modal',
@@ -87,11 +88,7 @@ export class IndicatorAddModalComponent implements OnInit {
   async addIndicator() {
     this.missingFields = this.state.getV3MissingRequiredFields();
     if (this.missingFields.length > 0) {
-      this.modalService.open(this.missingFieldsModalTpl, {
-        backdrop: true,
-        container: 'body',
-        scrollable: true,
-      });
+      this.modalService.open(this.missingFieldsModalTpl, { ...MODAL_CONFIRM, scrollable: true });
       return;
     }
 

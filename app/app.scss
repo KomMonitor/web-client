@@ -1582,48 +1582,28 @@ th {
   z-index: 1150 !important;
 }
 
-/* Custom width for Spatial Unit Add modal (ng-bootstrap modalDialogClass) */
-@media (min-width: 768px) {
-  .modal-dialog.modal-large {
-    /* Bootstrap 5: use CSS var plus hard width to be robust */
-    --bs-modal-width: 95vw;
-    max-width: 95vw !important;
-    width: 95vw !important;
-  }
+/*
+ * Dialog width tiers — the only place a modal width is defined. Picked through
+ * the presets in app/util/modal-presets.ts, never inline at a call site.
+ *
+ * Setting only --bs-modal-width is deliberate: Bootstrap turns it into a
+ * max-width from 576px up, so small screens keep their full-width dialogs.
+ */
+.modal-dialog.km-modal-confirm {
+  --bs-modal-width: 520px;
 }
 
-/* Fallback for older ng-bootstrap/Bootstrap versions: target modal dialog within windowClass */
-@media (min-width: 768px) {
-  /* High-specificity, robust override */
-  body .modal-holder.modal-large-window .modal-dialog,
-  body .modal-large-window .modal-dialog,
-  body .modal.modal-large-window .modal-dialog {
-    --bs-modal-width: 95vw;
-    max-width: 95vw !important;
-    width: 95vw !important;
-  }
+.modal-dialog.km-modal-form {
+  --bs-modal-width: 800px;
 }
 
-/* Custom width for Spatial Unit Add modal (ng-bootstrap modalDialogClass) */
-@media (min-width: 768px) {
-  .modal-dialog.modal-medium {
-    /* Bootstrap 5: use CSS var plus hard width to be robust */
-    --bs-modal-width: 85vw;
-    max-width: 85vw !important;
-    width: 85vw !important;
-  }
-}
-
-/* Fallback for older ng-bootstrap/Bootstrap versions: target modal dialog within windowClass */
-@media (min-width: 768px) {
-  /* High-specificity, robust override */
-  body .modal-holder.modal-medium-window .modal-dialog,
-  body .modal-medium-window .modal-dialog,
-  body .modal.modal-medium-window .modal-dialog {
-    --bs-modal-width: 85vw;
-    max-width: 85vw !important;
-    width: 85vw !important;
-  }
+.modal-dialog.km-modal-wide {
+  /*
+   * min() caps the dialog on very large screens, where the old 95vw grew to
+   * 3600px+ on 4K, and lets it shrink below 1600px instead of overflowing a
+   * 1366px laptop, which the old fixed px widths did.
+   */
+  --bs-modal-width: min(1600px, 92vw);
 }
 
 select {

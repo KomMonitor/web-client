@@ -29,6 +29,7 @@ import { RoleEditGroupRightsModalComponent } from './roleEditGroupRightsModal/ro
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { NotificationService } from '../../common/notification/notification.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { MODAL_CONFIRM, MODAL_FORM, MODAL_WIDE } from 'util/modal-presets';
 
 interface AccessControlTableEntry extends AccessControlMetadata {
   parentName?: string;
@@ -208,13 +209,7 @@ export class AdminRoleManagementComponent implements OnInit {
   }
 
   openAddModal(): void {
-    const modalRef = this.modalService.open(RoleAddModalComponent, {
-      backdrop: true,
-      keyboard: false,
-      container: 'body',
-      animation: false,
-      windowClass: 'modal-medium-window',
-    });
+    const modalRef = this.modalService.open(RoleAddModalComponent, MODAL_WIDE);
 
     modalRef.result
       .then((reloadData) => reloadData && this.fetchAccessControlData(false))
@@ -224,14 +219,7 @@ export class AdminRoleManagementComponent implements OnInit {
   }
 
   openEditMetadataModal(dataset: AccessControlMetadata): void {
-    const modalRef = this.modalService.open(RoleEditMetadataModalComponent, {
-      backdrop: true,
-      keyboard: false,
-      container: 'body',
-      animation: false,
-      modalDialogClass: 'modal-medium',
-      windowClass: 'modal-medium',
-    });
+    const modalRef = this.modalService.open(RoleEditMetadataModalComponent, MODAL_FORM);
 
     modalRef.componentInstance.currentDataset = JSON.parse(JSON.stringify(dataset));
 
@@ -243,13 +231,7 @@ export class AdminRoleManagementComponent implements OnInit {
   }
 
   openDeleteModal(): void {
-    const modalRef = this.modalService.open(RoleDeleteModalComponent, {
-      backdrop: true,
-      keyboard: false,
-      container: 'body',
-      animation: false,
-      size: 'lg',
-    });
+    const modalRef = this.modalService.open(RoleDeleteModalComponent, MODAL_CONFIRM);
 
     modalRef.componentInstance.datasetsToDelete = this.selectedRows();
 
@@ -261,13 +243,7 @@ export class AdminRoleManagementComponent implements OnInit {
   }
 
   openEditGroupRightsModal(dataset: AccessControlTableEntry) {
-    const modalRef = this.modalService.open(RoleEditGroupRightsModalComponent, {
-      backdrop: true,
-      keyboard: false,
-      container: 'body',
-      animation: false,
-      size: 'xl',
-    });
+    const modalRef = this.modalService.open(RoleEditGroupRightsModalComponent, MODAL_WIDE);
 
     modalRef.componentInstance.currentDataset = JSON.parse(JSON.stringify(dataset));
 

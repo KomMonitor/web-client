@@ -110,10 +110,6 @@
 }
 
 /* Modal styles */
-.modal-xl {
-  max-width: 95%;
-}
-
 .modal-body {
   max-height: 80vh;
   overflow-y: auto;
@@ -270,11 +266,6 @@ input[type='file'] {
   .batch-list-table th,
   .batch-list-table td {
     padding: 4px;
-  }
-
-  .modal-xl {
-    max-width: 100%;
-    margin: 0;
   }
 
   .vertical-align {

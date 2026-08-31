@@ -35,6 +35,7 @@ import { IndicatorBatchUpdateModalComponent } from './indicatorBatchUpdateModal/
 import { IndicatorDeleteModalComponent } from './indicatorDeleteModal/indicator-delete-modal.component';
 import { IndicatorEditFeaturesModalComponent } from './indicatorEditFeaturesModal/indicator-edit-features-modal.component';
 import { IndicatorEditIndicatorSpatialUnitRolesModalComponent } from './indicatorEditIndicatorSpatialUnitRolesModal/indicator-edit-indicator-spatial-unit-roles-modal.component';
+import { MODAL_WIDE } from 'util/modal-presets';
 
 @Component({
   selector: 'app-admin-indicators-management',
@@ -255,14 +256,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   // Modal event handlers
   onClickAddIndicator(): void {
     try {
-      const modalRef = this.modalService.open(IndicatorAddModalComponent, {
-        backdrop: true,
-        keyboard: false,
-        container: 'body',
-        animation: false,
-        modalDialogClass: 'modal-large',
-        windowClass: 'modal-large',
-      });
+      const modalRef = this.modalService.open(IndicatorAddModalComponent, MODAL_WIDE);
 
       const modalComponent = modalRef.componentInstance as IndicatorAddModalComponent;
       modalComponent.refreshRequested.subscribe((request: IndicatorRefreshRequest) =>
@@ -281,14 +275,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     try {
       // Editing reuses the add wizard, pre-filled with the existing indicator's
       // values; on submit it sends a metadata PATCH instead of a POST.
-      const modalRef = this.modalService.open(IndicatorAddModalComponent, {
-        backdrop: true,
-        keyboard: false,
-        container: 'body',
-        animation: false,
-        modalDialogClass: 'modal-large',
-        windowClass: 'modal-large',
-      });
+      const modalRef = this.modalService.open(IndicatorAddModalComponent, MODAL_WIDE);
 
       const modalComponent = modalRef.componentInstance as IndicatorAddModalComponent;
       modalComponent.editIndicatorDataset = indicatorMetadata;
@@ -306,13 +293,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   onClickEditFeatures(indicatorMetadata: any): void {
     try {
-      const modalRef = this.modalService.open(IndicatorEditFeaturesModalComponent, {
-        size: 'lg',
-        backdrop: 'static',
-        keyboard: false,
-        container: 'body',
-        animation: false,
-      });
+      const modalRef = this.modalService.open(IndicatorEditFeaturesModalComponent, MODAL_WIDE);
 
       const modalComponent = modalRef.componentInstance as IndicatorEditFeaturesModalComponent;
       modalComponent.openModal(indicatorMetadata);
@@ -332,13 +313,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     try {
       const modalRef = this.modalService.open(
         IndicatorEditIndicatorSpatialUnitRolesModalComponent,
-        {
-          size: 'xl',
-          backdrop: 'static',
-          keyboard: false,
-          container: 'body',
-          animation: false,
-        }
+        MODAL_WIDE
       );
 
       const modalComponent =
@@ -359,13 +334,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   openDeleteIndicatorModal(indicatorDataset?: any): void {
     // Narrow modal: the selection controls stack vertically; the wide metadata
     // table scrolls horizontally within the full-width accordion.
-    const modalRef = this.modalService.open(IndicatorDeleteModalComponent, {
-      size: 'lg',
-      backdrop: true,
-      keyboard: false,
-      container: 'body',
-      animation: false,
-    });
+    const modalRef = this.modalService.open(IndicatorDeleteModalComponent, MODAL_WIDE);
 
     // Preselect the passed indicator (from a per-row trash button). The modal's
     // ngOnInit resets its form, so we hand the preselection over as an input it
@@ -388,13 +357,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   onClickBatchUpdate(): void {
     try {
-      const modalRef = this.modalService.open(IndicatorBatchUpdateModalComponent, {
-        size: 'lg',
-        backdrop: 'static',
-        keyboard: false,
-        container: 'body',
-        animation: false,
-      });
+      const modalRef = this.modalService.open(IndicatorBatchUpdateModalComponent, MODAL_WIDE);
 
       // Pass the modal reference to the component
       const modalComponent = modalRef.componentInstance as IndicatorBatchUpdateModalComponent;

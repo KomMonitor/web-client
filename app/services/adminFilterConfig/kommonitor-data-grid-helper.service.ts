@@ -6,6 +6,7 @@ import { AdminFilterEditModalComponent } from 'components/ngComponents/admin/adm
 import { TranslateService } from '@ngx-translate/core';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { MODAL_WIDE } from 'util/modal-presets';
 
 @Injectable({
   providedIn: 'root',
@@ -104,8 +105,8 @@ export class KommonitorFilterDataGridHelperService {
 
     editButton.addEventListener('click', () => {
       const modalRef = this.modalService.open(AdminFilterEditModalComponent, {
+        ...MODAL_WIDE,
         windowClass: 'modal-holder',
-        size: 'xl',
         centered: true,
       });
       // Without the index the modal would create a new filter instead of

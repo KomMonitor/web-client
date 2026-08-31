@@ -67,6 +67,7 @@ import {
   batchRowToFileRow,
   keepMissingValuesFromFile,
 } from './indicator-batch-update-file.model';
+import { MODAL_FORM } from 'util/modal-presets';
 
 /**
  * Batch update for indicator time series: one table row per indicator, each with
@@ -479,11 +480,7 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const modalRef = this.modalService.open(BatchUpdateResultModalComponent, {
-      size: 'xl',
-      container: 'body',
-      animation: false,
-    });
+    const modalRef = this.modalService.open(BatchUpdateResultModalComponent, MODAL_FORM);
     const instance = modalRef.componentInstance as BatchUpdateResultModalComponent;
     instance.resourceType = 'indicator';
     instance.results = results;

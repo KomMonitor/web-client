@@ -36,6 +36,7 @@ import { NotificationService } from 'components/ngComponents/common/notification
 import { TranslateModule } from '@ngx-translate/core';
 
 import { TranslateService } from '@ngx-translate/core';
+import { MODAL_FORM, MODAL_WIDE } from 'util/modal-presets';
 @Component({
   selector: 'app-admin-georesources-management',
   templateUrl: './admin-georesources-management.component.html',
@@ -270,13 +271,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
 
   // Modal event handlers
   onClickAddGeoresource(): void {
-    const modalRef = this.modalService.open(GeoresourceAddModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
-      keyboard: false,
-      container: 'body',
-      animation: false,
-    });
+    const modalRef = this.modalService.open(GeoresourceAddModalComponent, MODAL_WIDE);
 
     modalRef.componentInstance.refreshRequested.subscribe((request: GeoresourceRefreshRequest) =>
       this.handleRefreshRequest(request)
@@ -284,13 +279,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
   }
 
   public onClickEditMetadata(georesourceDataset: any): void {
-    const modalRef = this.modalService.open(GeoresourceEditMetadataModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
-      keyboard: false,
-      container: 'body',
-      animation: false,
-    });
+    const modalRef = this.modalService.open(GeoresourceEditMetadataModalComponent, MODAL_FORM);
 
     // Pass the georesource dataset to the modal
     modalRef.componentInstance.currentGeoresourceDataset = georesourceDataset;
@@ -304,13 +293,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
   }
 
   public onClickEditFeatures(georesourceDataset: any): void {
-    const modalRef = this.modalService.open(GeoresourceEditFeaturesModalComponent, {
-      size: 'xl',
-      backdrop: 'static',
-      keyboard: false,
-      container: 'body',
-      animation: false,
-    });
+    const modalRef = this.modalService.open(GeoresourceEditFeaturesModalComponent, MODAL_WIDE);
 
     // Pass the georesource dataset to the modal
     modalRef.componentInstance.currentGeoresourceDataset = georesourceDataset;
@@ -322,13 +305,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
   }
 
   public onClickEditUserRoles(georesourceDataset: any): void {
-    const modalRef = this.modalService.open(GeoresourceEditUserRolesModalComponent, {
-      size: 'xl',
-      backdrop: 'static',
-      keyboard: false,
-      container: 'body',
-      animation: false,
-    });
+    const modalRef = this.modalService.open(GeoresourceEditUserRolesModalComponent, MODAL_WIDE);
     modalRef.componentInstance.currentGeoresourceDataset = georesourceDataset;
     modalRef.componentInstance.refreshRequested.subscribe((request: GeoresourceRefreshRequest) =>
       this.handleRefreshRequest(request)
@@ -338,13 +315,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
   }
 
   public onClickDeleteGeoresource(georesourceDataset: any): void {
-    const modalRef = this.modalService.open(GeoresourceDeleteModalComponent, {
-      size: 'xl',
-      backdrop: 'static',
-      keyboard: false,
-      container: 'body',
-      animation: false,
-    });
+    const modalRef = this.modalService.open(GeoresourceDeleteModalComponent, MODAL_FORM);
 
     // Pass the georesource dataset directly to the modal (the former
     // OnDeleteGeoresources broadcast detour is gone)

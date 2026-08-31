@@ -26,6 +26,7 @@ import { WmsEditUserRolesModalComponent } from './wms-edit-user-roles-modal/wms-
 import { WmsDeleteModalComponent } from './wms-delete-modal/wms-delete-modal.component';
 import { WmsSharedComponentsService } from './wms-admin-tables-shared.service';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { MODAL_CONFIRM, MODAL_FORM, MODAL_WIDE } from 'util/modal-presets';
 
 @Component({
   selector: 'app-wms-admin-table',
@@ -131,14 +132,7 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
     // check whether the requested modal type matches the actual component
     // otherwise both add modals (geores. / indi.) will open, as both tables exist
     if (resourceType == this.resourceType) {
-      const modalRef = this.modalService.open(WmsAddModalComponent, {
-        backdrop: true,
-        keyboard: false,
-        container: 'body',
-        animation: false,
-        modalDialogClass: 'modal-medium',
-        windowClass: 'modal-medium',
-      });
+      const modalRef = this.modalService.open(WmsAddModalComponent, MODAL_FORM);
 
       modalRef.componentInstance.resourceType = resourceType;
 
@@ -155,14 +149,7 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
   }
 
   onClickEditMetadata(wmsMetadata: any): void {
-    const modalRef = this.modalService.open(WmsEditModalComponent, {
-      backdrop: true,
-      keyboard: false,
-      container: 'body',
-      animation: false,
-      modalDialogClass: 'modal-medium',
-      windowClass: 'modal-medium',
-    });
+    const modalRef = this.modalService.open(WmsEditModalComponent, MODAL_FORM);
 
     modalRef.componentInstance.currentGeoresourceDataset = wmsMetadata;
     modalRef.componentInstance.reInit();
@@ -179,14 +166,7 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
   }
 
   onClickEditUserRoles(wmsMetadata: any): void {
-    const modalRef = this.modalService.open(WmsEditUserRolesModalComponent, {
-      backdrop: true,
-      keyboard: false,
-      container: 'body',
-      animation: false,
-      modalDialogClass: 'modal-medium',
-      windowClass: 'modal-medium',
-    });
+    const modalRef = this.modalService.open(WmsEditUserRolesModalComponent, MODAL_WIDE);
 
     modalRef.componentInstance.currentGeoresourceDataset = wmsMetadata;
     modalRef.componentInstance.reInit();
@@ -203,14 +183,7 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
   }
 
   onClickDelete(wmsMetadata: any[]): void {
-    const modalRef = this.modalService.open(WmsDeleteModalComponent, {
-      backdrop: true,
-      keyboard: false,
-      container: 'body',
-      animation: false,
-      modalDialogClass: 'modal-medium',
-      windowClass: 'modal-medium',
-    });
+    const modalRef = this.modalService.open(WmsDeleteModalComponent, MODAL_CONFIRM);
 
     modalRef.componentInstance.datasetToDelete = wmsMetadata;
 

@@ -17,6 +17,7 @@ import { SortByOrderPipe } from '../sortByOrder.pipe';
 import { NotificationService } from '../../../common/notification/notification.service';
 
 import { TranslateService } from '@ngx-translate/core';
+import { MODAL_CONFIRM, MODAL_FORM } from 'util/modal-presets';
 @Injectable({ providedIn: 'root' })
 export class ExpandedService {
   expandedTopics: Set<string> = new Set<string>();
@@ -68,24 +69,12 @@ export class TopicListComponent {
   }
 
   onClickDeleteTopic(topic: Topic) {
-    const modalRef = this.modalService.open(TopicDeleteModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
-      keyboard: false,
-      container: 'body',
-      animation: false,
-    });
+    const modalRef = this.modalService.open(TopicDeleteModalComponent, MODAL_CONFIRM);
     modalRef.componentInstance.currentTopic = topic;
   }
 
   onClickEditTopic(topic: Topic) {
-    const modalRef = this.modalService.open(TopicEditModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
-      keyboard: false,
-      container: 'body',
-      animation: false,
-    });
+    const modalRef = this.modalService.open(TopicEditModalComponent, MODAL_FORM);
     modalRef.componentInstance.topic = topic;
   }
 

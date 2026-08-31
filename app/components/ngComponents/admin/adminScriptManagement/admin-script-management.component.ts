@@ -31,6 +31,7 @@ import { ScriptDeleteModalComponent } from './scriptDeleteModal/script-delete-mo
 
 import { TranslateModule } from '@ngx-translate/core';
 import { TranslateService } from '@ngx-translate/core';
+import { MODAL_CONFIRM, MODAL_WIDE } from 'util/modal-presets';
 @Component({
   selector: 'app-admin-script-management',
   templateUrl: './admin-script-management.component.html',
@@ -244,11 +245,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
 
   public onClickAddScript(): void {
     // if (!this.metadataBootstrap.checkCreatePermission()) return;
-    const modalRef = this.modalService.open(ScriptAddModalComponent, {
-      // modalDialogClass: "modal-medium",
-      size: 'xl',
-      backdrop: 'static',
-    });
+    const modalRef = this.modalService.open(ScriptAddModalComponent, MODAL_WIDE);
     (modalRef.componentInstance as ScriptAddModalComponent).refreshRequested.subscribe(
       (request: ScriptRefreshRequest) => this.handleRefreshRequest(request)
     );
@@ -258,10 +255,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
     const selectedScripts = this.agGrid?.api?.getSelectedRows() || [];
     if (selectedScripts.length === 0) return;
 
-    const modalRef = this.modalService.open(ScriptDeleteModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
-    });
+    const modalRef = this.modalService.open(ScriptDeleteModalComponent, MODAL_CONFIRM);
     const modalComponent = modalRef.componentInstance as ScriptDeleteModalComponent;
     modalComponent.datasetsToDelete = structuredClone(selectedScripts);
     modalComponent.refreshRequested.subscribe((request: ScriptRefreshRequest) =>

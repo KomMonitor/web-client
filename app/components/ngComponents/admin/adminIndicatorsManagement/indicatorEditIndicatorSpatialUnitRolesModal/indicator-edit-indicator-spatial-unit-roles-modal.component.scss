@@ -1,8 +1,4 @@
 /* Modal Styles */
-.modal-xl {
-  max-width: 90%;
-}
-
 .loading-overlay-admin-panel {
   position: absolute;
   top: 0;
@@ -336,10 +332,6 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .modal-xl {
-    max-width: 95%;
-  }
-
   .col-md-3,
   .col-md-6,
   .col-md-9 {

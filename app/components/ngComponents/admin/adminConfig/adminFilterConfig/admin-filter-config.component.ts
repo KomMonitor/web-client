@@ -37,6 +37,7 @@ import { AdminContentViewComponent } from '../../admin-content-view/admin-conten
 import { ConfigEditorDescriptor } from '../configEditor/config-editor.model';
 import { ConfigEditorPanesComponent } from '../configEditor/config-editor-panes.component';
 import { AdminFilterEditModalComponent } from './adminFilterEditModal/admin-filter-edit-modal.component';
+import { MODAL_WIDE } from 'util/modal-presets';
 
 /** JSON indentation the filter config is stored and displayed with. */
 const CONFIG_INDENT = '    ';
@@ -270,8 +271,8 @@ export class AdminFilterConfigComponent implements OnInit {
    */
   onAddFilter() {
     this.modalService.open(AdminFilterEditModalComponent, {
+      ...MODAL_WIDE,
       windowClass: 'modal-holder',
-      size: 'xl',
       centered: true,
     });
   }
