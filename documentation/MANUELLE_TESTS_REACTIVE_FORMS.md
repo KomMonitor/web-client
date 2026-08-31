@@ -197,7 +197,11 @@ gelaufen — alles außer den echten Schreibvorgängen (siehe „Nicht ausgefüh
       und leer lassen → „Features fortführen" bleibt deaktiviert, `canSubmitForm()` ist `false`.
       Nach dem Ausfüllen wird das Parameter-Control gültig; der Knopf bleibt zu Recht gesperrt,
       solange Datei, Id-/Name-Attribut und Zeitraum fehlen.
-- [ ] Kompletter Durchlauf inkl. Teil-Aktualisierung — **nicht ausgeführt**
+- [x] Kompletter Durchlauf inkl. Teil-Aktualisierung — beim ersten Versuch **fehlgeschlagen**
+      (siehe Fund unten); nach dem Umbau echt durchgelaufen: `POST {importer}/upload`, dann
+      `POST {importer}/georesources/update` als Probelauf und echter Lauf, beide 200 mit
+      `importedFeatures: [zz-poi-1, zz-poi-2]`. Der Datensatz trägt danach beide Features mit den
+      neuen Namen, der Teil-Aktualisierungs-Schalter stand dabei auf an.
 
 **Indikator → Sachdaten bearbeiten:**
 
@@ -206,7 +210,8 @@ gelaufen — alles außer den echten Schreibvorgängen (siehe „Nicht ausgefüh
       der Schritt trägt `stepper-step … invalid` samt Ausrufezeichen und bleibt anklickbar. Ein
       gefülltes Feld verliert seine Meldung sofort wieder. (Die Meldung „Bitte mindestens einen
       Zeitschnitt zuordnen." steht unabhängig davon dauerhaft — `showWhen="always"`, so gewollt.)
-- [ ] Kompletter Zeitreihen-Import über Datei — **nicht ausgeführt**
+- [x] Kompletter Zeitreihen-Import über Datei — **am 2026-08-31 echt ausgeführt** gegen einen
+      eigens angelegten Wegwerf-Indikator und eine Wegwerf-Raumebene (siehe Punkt 9).
 
 ### Was der Durchlauf gefunden hat — behoben 2026-08-31
 
@@ -245,11 +250,54 @@ gezwungen. Neu abgesichert durch `customElements/date-picker/km-date-picker.comp
 Randbeobachtung: tippt man Unsinn in „gültig bis", greift weiterhin `coerceInvalidToToday` und es
 steht heute im Feld. Nur ein *geleertes* Feld bleibt leer.
 
+### Zweiter Fund: „Georessource → Sachdaten bearbeiten" schreibt ins Leere
+
+`editGeoresourceFeatures()` schickt den Sachdaten-Update von Hand an die Data-Management-API:
+
+```
+PUT {dataManagement}/georesources/{id}/features   -> 404 Not Found
+```
+
+Diesen Endpunkt gibt es nicht. Der Raumebenen-Zwilling geht denselben Weg wie alle anderen
+Import-Vorgänge — über den **Importer** (`POST {importer}/spatial-units/update`, im Testlauf 200) —
+und der Helper hat mit `updateGeoresource()` längst das Gegenstück
+(`POST {importer}/georesources/update`), das auch der Batch-Update-Service benutzt. Nur dieses
+Modal ruft es nicht auf. Passend dazu lädt es die gewählte Datei gar nicht erst hoch: im
+Netzwerk-Mitschnitt steht kein `upload`, nur der eine fehlschlagende PUT.
+
+Damit war auch der bisher nur notierte Verdacht erklärt, `buildPutBody()` schicke die Konverter-
+und Datenquell-Parameter als **Wörterbuch** statt als Array: die Form fiel nie auf, weil die
+Anfrage nie an einem funktionierenden Endpunkt ankam.
+
+**Behoben am 2026-08-31:** `editGeoresourceFeatures()` baut die drei Definitionen jetzt über
+`ResourceImportService.buildImporterObjects()` (inklusive Datei-Upload) und schickt sie über
+`kommonitorImporterHelperService.updateGeoresource()` — Probelauf zuerst, echter Lauf nur bei
+fehlerfreiem Probelauf, Fehlerliste und Meldungen wie im Raumebenen-Zwilling. `buildPutBody()`
+trägt nur noch das, was `GeoresourcePUTInputType` deklariert (`geoJsonString`, `periodOfValidity`,
+`isPartialUpdate`); die Wörterbuch-Blöcke sind damit weg. Die Specs prüfen jetzt
+`importerObjectsConfig()` statt der handgebauten Blöcke.
+
+### Dritter Fund: das Indikator-Lösch-Modal stürzt beim Öffnen ab
+
+Beim Aufräumen der Testdaten: `gatherAffectedIndicatorReferences()` läuft über
+`referencedIndicators` und greift sofort auf `referencedIndicatorId` zu. Die Daten der
+Demo-Instanz enthalten dort **`null`-Einträge**, also
+`TypeError: Cannot read properties of null (reading 'referencedIndicatorId')` — das Modal wirft
+beim Öffnen und **kein Indikator lässt sich löschen**. `master` hat dieselbe Stelle ohne Schutz,
+das ist also kein Migrationsfehler, sondern vorbestehende Datenempfindlichkeit. Behoben mit einem
+Null-Schutz in beiden Sammelschleifen (Indikator- und Georessourcen-Referenzen), abgesichert durch
+`indicatorDeleteModal/indicator-delete-modal.component.spec.ts`.
+
 ### Nicht ausgeführt
 
-Alles, was echte Daten auf der Demo-Instanz schreibt: Zell-Editierung und Feature-Löschung in der
-Raumebenen-Tabelle, die drei kompletten Durchläufe (Datei + Attribut-Mapping + Absenden) und die
-Teil-Aktualisierung. Dafür braucht es eine Testinstanz oder eine ausdrückliche Freigabe.
+Nichts mehr aus diesem Punkt.
+
+### Testdaten
+
+Für die echten Läufe wurden `ZZ TEST`-Raumebenen- und Georessourcen-Datensätze angelegt und danach
+über die Lösch-Modals wieder entfernt (47/69 wie vorher, keine Reste). Die
+hochgeladenen Dateien bleiben im Dateispeicher des Importers liegen — der Client kennt dort kein
+DELETE.
 
 ## 4. Import-Round-Trip ✅ durchgeführt 2026-08-31
 
@@ -504,7 +552,7 @@ Namen **und gleichem Typ**", die Prüfung vergleicht aber gegen *alle* Georessou
 Typbezug. Auf `master` war es genauso (Text wie Logik) — reine Textungenauigkeit, kein
 Migrationsfehler.
 
-## 9. Zeitreihen-Mapping des Indikator-Imports ✅ durchgeführt 2026-08-31
+## 9. Zeitreihen-Mapping des Indikator-Imports ✅ vollständig durchgeführt 2026-08-31
 
 Bezug: A2 in [`OFFENE_PUNKTE.md`](OFFENE_PUNKTE.md). Die Komponente ersetzt einen jQuery-Datepicker
 und vier Broadcast-Kanäle; der Datei-Round-Trip und das Widget sind automatisiert nicht erreichbar.
@@ -531,10 +579,16 @@ Indikator → „Sachdaten bearbeiten" → Schritt „Räumlicher Datensatz", Ab
       `[coerceEmptyToToday]="false"`) und der Hinzufügen-Knopf schließt wieder
 - [x] Schrittwechsel zur Zeitreihen-Übersicht und zurück: die Tabelle ist noch gefüllt, die halb
       ausgefüllte Eingabezeile ist erwartungsgemäß leer
-- [ ] **Echter Import:** Mapping füllen und „Zeitreihen fortführen" ausführen — **nicht
-      ausgeführt**, das schreibt echte Daten. Offen bleibt damit nur die Prüfung, dass der POST
-      auf `indicators/update` ein gefülltes `propertyMapping.timeseriesMappings` trägt und die
-      Werte danach in der Zeitreihen-Übersicht auftauchen.
+- [x] **Echter Import:** Mapping füllen und „Zeitreihen fortführen" ausführen — **am 2026-08-31
+      echt ausgeführt**. Aufbau: eine Wegwerf-Raumebene mit zwei Flächen (`zz-test-1/2`), ein über
+      den Wizard angelegter Wegwerf-Indikator und eine CSV `gid;wert_2020` mit den Werten 111/222.
+      Ablauf: `POST {importer}/upload`, dann `POST {importer}/indicators/update` als Probelauf und
+      echter Lauf, beide 200 mit `importedFeatures: [zz-test-2, zz-test-1]`. Danach führt der
+      Indikator die Testraumebene unter `applicableSpatialUnits`, und die Zeitreihen-Übersicht
+      zeigt die Spalte `DATE_2020-12-31` mit **111** und **222**. Anders als die beiden räumlichen
+      Modals schließt sich dieses nach dem Lauf **nicht**, sondern zeigt eine Erfolgsmeldung —
+      so vorgesehen, damit weitere Zeitschnitte gleich nachgeschoben werden können.
+      Alle Testdaten sind danach wieder gelöscht (147 Indikatoren, 47 Raumebenen wie vorher).
 
 Kein Fehler gefunden; keine Exception in der Konsole.
 

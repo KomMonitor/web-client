@@ -235,7 +235,48 @@ describe('GeoresourceEditFeaturesModalComponent', () => {
       expect(putBody().isPartialUpdate).toBe(true);
     });
 
-    it('assembles the property mapping', () => {
+    it('carries nothing but what GeoresourcePUTInputType declares', () => {
+      // Converter, data source and property mapping travel as siblings in the
+      // importer envelope now, not folded into this body.
+      expect(Object.keys(putBody()).sort()).toEqual([
+        'geoJsonString',
+        'isPartialUpdate',
+        'periodOfValidity',
+      ]);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+
+  /**
+   * The three importer definitions come from the shared
+   * `ResourceImportService.buildImporterObjects()` now — the modal only hands it
+   * the form state. It used to build them by hand, with the parameters as a
+   * dictionary instead of the `{name, value}` array every other caller sends;
+   * nobody noticed because the request went to a data-management endpoint that
+   * does not exist and answered 404.
+   */
+  describe('importerObjectsConfig', () => {
+    const config = (): any => (component as any).importerObjectsConfig();
+
+    beforeEach(() => {
+      component.converter = CONVERTER;
+      component.datasourceType = FILE_DATASOURCE;
+    });
+
+    it('hands over converter, schema, mime type and the parameter values', () => {
+      setConverterParameters({ CRS: 'EPSG:25832' });
+
+      const c = config();
+      expect(c.converter).toBe(CONVERTER);
+      expect(c.schema).toBe(CONVERTER.schemas[0]);
+      expect(c.mimeType).toBe(CONVERTER.mimeTypes[0]);
+      expect(c.converterParameterValues.CRS).toBe('EPSG:25832');
+    });
+
+    it('hands over the property names, keep flags and attribute mappings', () => {
+      component.georesourceDataSourceIdProperty = 'id';
+      component.georesourceDataSourceNameProperty = 'name';
       component.validityStartDate_perFeature = 'von';
       component.validityEndDate_perFeature = 'bis';
       component.keepAttributes = false;
@@ -244,97 +285,36 @@ describe('GeoresourceEditFeaturesModalComponent', () => {
         { sourceName: 'gen', destinationName: 'name', dataType: ATTRIBUTE_MAPPING_TYPES[0] },
       ];
 
-      expect(putBody().propertyMappingDefinition).toEqual({
-        idProperty: 'id',
-        nameProperty: 'name',
-        validityStartDateProperty: 'von',
-        validityEndDateProperty: 'bis',
-        keepAttributes: false,
-        keepMissingValues: false,
-        attributeMappings: [
-          { sourceName: 'gen', destinationName: 'name', dataType: ATTRIBUTE_MAPPING_TYPES[0] },
-        ],
-      });
-    });
-  });
-
-  // ---------------------------------------------------------------------------
-
-  describe('buildPutBody — converter parameters', () => {
-    beforeEach(() => {
-      component.converter = CONVERTER;
-      component.datasourceType = FILE_DATASOURCE;
+      const c = config();
+      expect(c.idProperty).toBe('id');
+      expect(c.nameProperty).toBe('name');
+      expect(c.validStartDate).toBe('von');
+      expect(c.validEndDate).toBe('bis');
+      expect(c.keepAttributes).toBe(false);
+      expect(c.keepMissingValues).toBe(false);
+      expect(c.attributeMappings).toHaveLength(1);
     });
 
-    it('emits one entry per declared converter parameter', () => {
-      setConverterParameters({ CRS: 'EPSG:25832' });
-
-      expect(putBody().converterDefinition).toEqual({
-        // schema and mimeType ride along because selecting the converter seeds them.
-        name: 'GeoJSON',
-        parameters: {
-          CRS: 'EPSG:25832',
-          comment: '',
-          schema: CONVERTER.schemas[0],
-          mimeType: CONVERTER.mimeTypes[0],
-        },
-      });
-    });
-
-    it('folds schema and mime type into the converter parameters', () => {
-      component.schema = 'default';
-      component.mimeType = 'application/json';
-
-      const parameters = putBody().converterDefinition.parameters;
-      expect(parameters.schema).toBe('default');
-      expect(parameters.mimeType).toBe('application/json');
-    });
-
-    it('omits schema and mime type while they are unset', () => {
-      component.schema = '';
-      component.mimeType = '';
-
-      const parameters = putBody().converterDefinition.parameters;
-
-      expect(Object.keys(parameters)).not.toContain('schema');
-      expect(Object.keys(parameters)).not.toContain('mimeType');
-    });
-  });
-
-  // ---------------------------------------------------------------------------
-
-  describe('buildPutBody — data-source parameters', () => {
-    beforeEach(() => {
-      component.converter = CONVERTER;
-    });
-
-    /**
-     * A FILE data source gets no parameter controls at all: the importer's only
-     * declared FILE parameter (`NAME`) is the uploaded file's server-side name,
-     * filled by the upload rather than by the user. A required control for it
-     * used to keep the whole form invalid.
-     */
     it('builds no parameter controls for a FILE data source', () => {
-      component.datasourceType = FILE_DATASOURCE;
-
+      // `NAME` is the uploaded file's server-side name; a required control for
+      // it used to keep the whole form invalid.
       expect(
         Object.keys(component.importerForm.controls.datasourceTypeParameters.controls)
       ).toEqual([]);
-      expect(putBody().datasourceTypeDefinition.type).toBe('FILE');
+      expect(config().datasourceTypeFormValues).toEqual({});
     });
 
     it('sends the reference spatial unit id for a ref bounding box', () => {
-      // The select used to hold the whole spatial-unit object and the body read
-      // `.spatialUnitId` off it; it holds the id directly now. Same wire format,
-      // one object-identity select less.
       component.datasourceType = OGC_DATASOURCE;
       component.bboxType = 'ref';
       component.bboxRefSpatialUnitId = 'su-42';
 
-      expect(putBody().datasourceTypeDefinition.parameters.spatialUnitId).toBe('su-42');
+      const values = config().datasourceTypeFormValues;
+      expect(values.bboxType).toBe('ref');
+      expect(values.bboxRef).toBe('su-42');
     });
 
-    it('joins the four corners for a literal bounding box', () => {
+    it('hands the four corners over separately for a literal bounding box', () => {
       component.datasourceType = OGC_DATASOURCE;
       component.bboxType = 'literal';
       component.bboxMinX = '1';
@@ -342,18 +322,18 @@ describe('GeoresourceEditFeaturesModalComponent', () => {
       component.bboxMaxX = '3';
       component.bboxMaxY = '4';
 
-      expect(putBody().datasourceTypeDefinition.parameters.bbox).toBe('1,2,3,4');
+      const values = config().datasourceTypeFormValues;
+      expect(values.bbox_minx).toBe('1');
+      expect(values.bbox_maxy).toBe('4');
     });
 
-    it('never emits the synthetic bbox parameters as plain entries', () => {
+    it('never passes the synthetic bbox names as plain parameters', () => {
       component.datasourceType = OGC_DATASOURCE;
       setDatasourceParameters({ url: 'https://example.org' });
 
-      const parameters = putBody().datasourceTypeDefinition.parameters;
-      expect(parameters.url).toBe('https://example.org');
-      expect(parameters.bbox).toBeUndefined();
-      // Used to slip through as an empty string: the filter tested only 'bbox'.
-      expect(parameters.bboxType).toBeUndefined();
+      const values = config().datasourceTypeFormValues;
+      expect(values.url).toBe('https://example.org');
+      expect(values.bbox).toBeUndefined();
     });
   });
 

@@ -55,7 +55,10 @@ import {
   syncConverterParameterControls,
   syncDatasourceParameterControls,
 } from '../../adminShared/importerForm/importer-form.model';
-import type { MappingConfigImport } from 'services/resource-import-service/resource-import.model';
+import type {
+  ImporterObjectsConfig,
+  MappingConfigImport,
+} from 'services/resource-import-service/resource-import.model';
 import { ResourceImportService } from 'services/resource-import-service/resource-import.service';
 import { buildMappingConfigExport } from 'services/adminSpatialUnit/spatial-unit-metadata.util';
 import { patchPeriodOfValidityForm } from '../../adminShared/periodOfValidityForm/period-of-validity-form.model';
@@ -811,93 +814,161 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.resourceImportService.downloadJson(fileName, mappingConfigExport);
   }
 
-  // Main edit method
-  editGeoresourceFeatures(): void {
-    if (!this.currentGeoresourceDataset || !this.converter || !this.datasourceType) {
+  /**
+   * Sends the feature update through the **importer**, like every other import
+   * in this app and like the spatial-unit twin: a dry run first, and only on a
+   * clean dry run the real one. It used to PUT straight at
+   * `{dataManagement}/georesources/{id}/features` — an endpoint that does not
+   * exist (404) — and never uploaded the selected file, so this modal could
+   * never update anything.
+   */
+  async editGeoresourceFeatures(): Promise<void> {
+    const dataset = this.currentGeoresourceDataset;
+    if (!dataset || !this.converter || !this.datasourceType) {
       return;
     }
 
     this.loadingData.set(true);
+    this.importerErrors.set([]);
 
-    // Build the request body
-    const putBody = this.buildPutBody();
+    if (!(await this.buildImporterObjects())) {
+      this.loadingData.set(false);
+      return;
+    }
 
-    this.http
-      .put(
-        `${this.envConfigService.baseUrlToKomMonitorDataAPI}/georesources/${this.currentGeoresourceDataset.georesourceId}/features`,
-        putBody
-      )
-      .subscribe({
-        next: (response: any) => {
-          this.importedFeatures = response.importedFeatures || [];
-          this.cdr.markForCheck();
-          this.refreshRequested.emit({
-            crudType: 'edit',
-            targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
-          });
-          this.loadingData.set(false);
-          const featureCount = this.importedFeatures.length;
-          this.notificationService.showSuccess(
-            featureCount > 0
-              ? this.translate.instant(
-                  'ADMIN_GEORESOURCES.FEATURES_MODAL.MSG.FEATURES_UPDATED_WITH',
-                  { name: this.currentGeoresourceDataset.datasetName, count: featureCount }
-                )
-              : this.translate.instant('ADMIN_GEORESOURCES.FEATURES_MODAL.MSG.FEATURES_UPDATED', {
-                  name: this.currentGeoresourceDataset.datasetName,
-                })
-          );
-          this.activeModal.close({ action: 'updated' });
-        },
-        error: (error: any) => {
-          // Keep the modal open so the per-feature importer error report stays visible.
-          this.importerErrors.set(error.error?.importerErrors || []);
-          this.notificationService.showError(
-            this.translate.instant('ADMIN_GEORESOURCES.FEATURES_MODAL.MSG.CONTINUE_FAILED', {
-              error: getErrorMessage(error),
+    try {
+      const putBody = this.buildPutBody();
+
+      const dryRunResponse = await this.kommonitorImporterHelperService.updateGeoresource(
+        this.converterDefinition,
+        this.datasourceTypeDefinition,
+        this.propertyMappingDefinition,
+        dataset.georesourceId,
+        putBody,
+        true
+      );
+
+      if (this.kommonitorImporterHelperService.importerResponseContainsErrors(dryRunResponse)) {
+        // Dry run reported import errors: keep the modal open and list them.
+        this.importerErrors.set(
+          this.kommonitorImporterHelperService.getErrorsFromImporterResponse(dryRunResponse) || []
+        );
+        this.loadingData.set(false);
+        this.notificationService.showError(
+          this.translate.instant('ADMIN_GEORESOURCES.ADD_MODAL.MSG.CRITICAL_FEATURE_ERRORS')
+        );
+        return;
+      }
+
+      const response = await this.kommonitorImporterHelperService.updateGeoresource(
+        this.converterDefinition,
+        this.datasourceTypeDefinition,
+        this.propertyMappingDefinition,
+        dataset.georesourceId,
+        putBody,
+        false
+      );
+
+      this.importedFeatures =
+        this.kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(response) ||
+        [];
+      this.cdr.markForCheck();
+      this.refreshRequested.emit({ crudType: 'edit', targetGeoresourceId: dataset.georesourceId });
+      this.loadingData.set(false);
+
+      const featureCount = this.importedFeatures.length;
+      this.notificationService.showSuccess(
+        featureCount > 0
+          ? this.translate.instant('ADMIN_GEORESOURCES.FEATURES_MODAL.MSG.FEATURES_UPDATED_WITH', {
+              name: dataset.datasetName,
+              count: featureCount,
             })
-          );
-          this.loadingData.set(false);
-        },
-      });
+          : this.translate.instant('ADMIN_GEORESOURCES.FEATURES_MODAL.MSG.FEATURES_UPDATED', {
+              name: dataset.datasetName,
+            })
+      );
+      this.activeModal.close({ action: 'updated' });
+    } catch (error: any) {
+      // Keep the modal open so the per-feature importer error report stays visible.
+      this.importerErrors.set(error?.error?.importerErrors || []);
+      this.notificationService.showError(
+        this.translate.instant('ADMIN_GEORESOURCES.FEATURES_MODAL.MSG.CONTINUE_FAILED', {
+          error: getErrorMessage(error),
+        })
+      );
+      this.loadingData.set(false);
+    }
   }
 
-  private buildPutBody(): any {
-    const putBody: any = {
-      geoJsonString: '',
-      periodOfValidity: {
-        startDate: this.periodOfValidity.startDate,
-        endDate: this.periodOfValidity.endDate,
-      },
-    };
-
-    // Add converter definition
-    putBody.converterDefinition = {
-      name: this.converter.name,
-      parameters: this.getConverterParameters(),
-    };
-
-    // Add datasource definition
-    putBody.datasourceTypeDefinition = {
-      type: this.datasourceType.type,
-      parameters: this.getDatasourceParameters(),
-    };
-
-    // Add property mapping
-    putBody.propertyMappingDefinition = {
+  /** What the shared import service needs to build the three definitions. */
+  private importerObjectsConfig(): ImporterObjectsConfig {
+    return {
+      converter: this.converter,
+      schema: this.schema,
+      mimeType: this.mimeType,
+      converterParameterValues: this.converterParameterValues,
+      datasourceType: this.datasourceType,
+      datasourceTypeFormValues: this.assembleDatasourceFormValues(),
+      selectedFile: this.dataSourceInput?.nativeElement?.files?.[0] ?? null,
+      fileInputElement: this.dataSourceInput?.nativeElement,
       idProperty: this.georesourceDataSourceIdProperty,
       nameProperty: this.georesourceDataSourceNameProperty,
-      validityStartDateProperty: this.validityStartDate_perFeature,
-      validityEndDateProperty: this.validityEndDate_perFeature,
+      validStartDate: this.validityStartDate_perFeature,
+      validEndDate: this.validityEndDate_perFeature,
       keepAttributes: this.keepAttributes,
       keepMissingValues: this.keepMissingValues,
       attributeMappings: this.attributeMappings_adminView,
     };
+  }
 
-    // Add partial update flag
-    putBody.isPartialUpdate = this.isPartialUpdate;
+  /**
+   * Builds converter, data source and property mapping the way every other
+   * importer modal does — including the file upload for a FILE data source.
+   */
+  private async buildImporterObjects(): Promise<boolean> {
+    try {
+      const definitions = await this.resourceImportService.buildImporterObjects(
+        this.importerObjectsConfig()
+      );
+      this.converterDefinition = definitions.converterDefinition;
+      this.datasourceTypeDefinition = definitions.datasourceTypeDefinition;
+      this.propertyMappingDefinition = definitions.propertyMappingDefinition;
+      return !!(
+        this.converterDefinition &&
+        this.datasourceTypeDefinition &&
+        this.propertyMappingDefinition
+      );
+    } catch (error) {
+      this.importerErrors.set([]);
+      this.notificationService.showError(
+        this.translate.instant('ADMIN_GEORESOURCES.FEATURES_MODAL.MSG.CONTINUE_FAILED', {
+          error: getErrorMessage(error),
+        })
+      );
+      return false;
+    }
+  }
 
-    return putBody;
+  /**
+   * The `georesourcePutBody` of the importer envelope: exactly what
+   * `GeoresourcePUTInputType` declares. The converter, data source and property
+   * mapping travel as siblings next to it — they used to be folded in here as
+   * hand-built blocks whose parameters were a dictionary instead of the
+   * `{name, value}` array every other caller sends.
+   */
+  private buildPutBody(): {
+    geoJsonString: string;
+    periodOfValidity: any;
+    isPartialUpdate: boolean;
+  } {
+    return {
+      geoJsonString: '', // filled in by the importer
+      periodOfValidity: {
+        startDate: this.periodOfValidity.startDate,
+        endDate: this.periodOfValidity.endDate,
+      },
+      isPartialUpdate: this.isPartialUpdate,
+    };
   }
 
   private getConverterParameters(): any {
