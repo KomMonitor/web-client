@@ -110,7 +110,12 @@ export type IndicatorAddFormGroup = FormGroup<{
 
 /** Structural subset of an indicator the uniqueness rule needs. */
 export interface IndicatorNameRef {
-  datasetName: string;
+  /**
+   * The API field is `indicatorName` — the wizard's *control* is called
+   * `datasetName`. Naming this after the control silently disabled the whole
+   * check: every comparison read `undefined` off the store objects.
+   */
+  indicatorName: string;
   indicatorType: string;
 }
 
@@ -131,6 +136,11 @@ export function indicatorNameUniqueValidator(
   existingIndicators: () => readonly IndicatorNameRef[],
   currentDatasetName?: () => string | null
 ): (control: AbstractControl) => ValidationErrors | null {
+  // Same normalisation as the shared `uniqueNameValidator`: a name differing
+  // only in case or in surrounding blanks is a duplicate for the API, and
+  // letting it through only moved the collision to the server.
+  const normalize = (value: string): string => value.trim().toLowerCase();
+
   return (control: AbstractControl): ValidationErrors | null => {
     const name = control.value;
     if (typeof name !== 'string' || name.trim() === '') {
@@ -141,12 +151,17 @@ export function indicatorNameUniqueValidator(
     if (!type) {
       return null;
     }
-    if (currentDatasetName?.() === name) {
+    const candidate = normalize(name);
+    const current = currentDatasetName?.();
+    if (typeof current === 'string' && normalize(current) === candidate) {
       return null;
     }
 
     const taken = (existingIndicators() ?? []).some(
-      (indicator) => indicator?.datasetName === name && indicator?.indicatorType === type
+      (indicator) =>
+        typeof indicator?.indicatorName === 'string' &&
+        normalize(indicator.indicatorName) === candidate &&
+        indicator?.indicatorType === type
     );
     return taken ? { uniqueName: { name } } : null;
   };

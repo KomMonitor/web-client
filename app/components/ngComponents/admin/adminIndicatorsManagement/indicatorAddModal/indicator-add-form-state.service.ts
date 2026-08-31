@@ -92,7 +92,8 @@ export class IndicatorAddFormStateService {
    */
   readonly addForm = buildIndicatorAddForm({
     existingIndicators: () => (this.indicatorStore.availableIndicators ?? []) as any[],
-    currentDatasetName: () => this.editIndicatorDataset?.datasetName ?? null,
+    // The edited dataset is a store object: its name lives in `indicatorName`.
+    currentDatasetName: () => this.editIndicatorDataset?.indicatorName ?? null,
   });
 
   private get basicStep() {
