@@ -113,24 +113,46 @@ generische `syncParameterControls`). Die Aufrufe hängen an den `valueChanges` d
 in den Add-Wizards und dem Raumebenen-Edit-Modal in `ngOnInit`, im Georessourcen-Edit-Modal im
 Konstruktor.
 
-## 2. Farb- und Musterauswahl im reaktiven Formular
+## 2. Farb- und Musterauswahl im reaktiven Formular ✅ durchgeführt 2026-08-31
 
 `km-color-picker` und `km-line-pattern-picker` sind neu `ControlValueAccessor`. Das Muster wird
 über `dashArrayValue` gegen die Optionsliste aufgelöst, weil importierte Werte strukturgleich,
 aber nicht identisch sind.
 
-- [ ] Raumebene → Metadaten → „Als Umriss-Layer markieren" an: Farbe wählen, Popover schließen —
+**Durchgeführt am 2026-08-31** gegen `demo.kommonitor.de.52north.org`, in „Raumebene anlegen",
+„Georessource anlegen" und „Georessource → Metadaten bearbeiten".
+
+- [x] Raumebene → Metadaten → „Als Umriss-Layer markieren" an: Farbe wählen, Popover schließen —
       Wert bleibt stehen
-- [ ] Linienmuster wählen → Auswahl bleibt in der Liste markiert
-- [ ] Linienbreite ändern
-- [ ] Georessourcen: LOI-Farbe, LOI-Muster und AOI-Farbe analog. **Neu (2026-08-27):** die
-      beiden Farbwähler dort hängen jetzt per `[formControl]` am Stil-Formular statt per
-      `[(color)]` an einem Komponenten-Accessor — Auswahl, Zurücksetzen und der Metadaten-Import
-      müssen den Wert im Wähler sichtbar setzen
-- [ ] Georessourcen → Metadaten: Marker-Farbe, Marker-Stil (Symbol/Text) und Symbolfarbe über die
-      drei Bootstrap-Dropdowns wählen. Die Templates lesen den Formularwert jetzt über `@let`;
-      der Text im Button und die abhängigen Blöcke (Symbolname vs. Markertext) müssen sofort
-      umschalten
+- [x] Linienmuster wählen → Auswahl bleibt in der Liste markiert
+- [x] Linienbreite ändern
+- [x] Georessourcen: LOI-Farbe, LOI-Muster und AOI-Farbe analog; die beiden `[formControl]`-Wähler
+      übernehmen Auswahl, Zurücksetzen (`#bf3d2c`, Breite 3, Symbol `home`) und den
+      Metadaten-Import sichtbar. Round-Trip mitgeprüft: Stil setzen → exportieren → zurücksetzen →
+      importieren; Farbknopf und Musterknopf zeigen danach wieder die importierten Werte.
+- [x] Georessourcen → Metadaten: Marker-Farbe, Marker-Stil (Symbol/Text) und Symbolfarbe über die
+      drei Bootstrap-Dropdowns; Knopftext und die abhängigen Blöcke (Symbolname ↔ Markertext,
+      „Farbe des Punktsymbols" ↔ „Textfarbe") schalten sofort um. Ebenfalls geprüft im Modal
+      „Metadaten bearbeiten", das dieselben drei Dropdowns benutzt.
+
+### Was der Durchlauf gefunden hat
+
+**Sämtliche Bootstrap-Dropdowns der Anwendung waren tot.** `angular.json` lud
+`bootstrap/dist/js/bootstrap.min.js` — diese Variante bringt **kein Popper** mit, und Bootstrap 5
+positioniert Dropdowns darüber. Ein Klick auf den Auslöser tat schlicht nichts; über die API
+kommt `TypeError: i.createPopper is not a function`. Betroffen waren die je drei Marker-Dropdowns
+in „Georessource anlegen" und „Georessource → Metadaten bearbeiten", also Markerfarbe, Markerstil
+und Symbolfarbe — sie ließen sich überhaupt nicht öffnen. Tabs sind nicht betroffen, die brauchen
+Popper nicht. `@popperjs/core` steht bereits in `package.json`, wurde aber nie geladen; jetzt lädt
+`angular.json` `bootstrap.bundle.min.js` (Bootstrap + Popper).
+
+Gewacht wird das von `app/app.bootstrap-scripts.spec.ts` — ein Build-Konfigurationsfehler, den
+kein Komponententest sehen kann, weil Jest die globalen Skripte nie lädt.
+
+Randnotiz, nicht behoben: es gibt noch Reste mit dem Bootstrap-4-Attribut `data-toggle=` statt
+`data-bs-toggle=` (u. a. `user-interface.component.html`, `info-modal.component.html`,
+`reporting-overview.component.html`). Die sind unter Bootstrap 5 wirkungslos — betrifft Tooltips,
+Tabs und ein Modal in der Nutzeroberfläche, nicht die Formularwidgets aus diesem Punkt.
 
 Bei Fehlern: `writeValue` in `customElements/color-picker/km-color-picker.component.ts` bzw.
 `customElements/line-pattern-picker/km-line-pattern-picker.component.ts`.
