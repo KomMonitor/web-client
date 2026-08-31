@@ -489,7 +489,7 @@ Namen **und gleichem Typ**", die Prüfung vergleicht aber gegen *alle* Georessou
 Typbezug. Auf `master` war es genauso (Text wie Logik) — reine Textungenauigkeit, kein
 Migrationsfehler.
 
-## 9. Zeitreihen-Mapping des Indikator-Imports — neu portiert
+## 9. Zeitreihen-Mapping des Indikator-Imports ✅ durchgeführt 2026-08-31
 
 Bezug: A2 in [`OFFENE_PUNKTE.md`](OFFENE_PUNKTE.md). Die Komponente ersetzt einen jQuery-Datepicker
 und vier Broadcast-Kanäle; der Datei-Round-Trip und das Widget sind automatisiert nicht erreichbar.
@@ -497,98 +497,133 @@ und vier Broadcast-Kanäle; der Datei-Round-Trip und das Widget sind automatisie
 Indikator → „Sachdaten bearbeiten" → Schritt „Räumlicher Datensatz", Abschnitt
 „Zeitreihen-Mapping":
 
-- [ ] Attributname eingeben, Datum über den Datepicker wählen → „Hinzufügen/Editieren" wird aktiv,
-      der Eintrag erscheint in der Übersichtstabelle
-- [ ] Umschalter „Zeitstempel aus einem Attribut entnehmen" an → das Datumsfeld wird gegen ein
-      Textfeld getauscht, ein vorher gewähltes Datum ist geleert (und umgekehrt)
-- [ ] Denselben Attributnamen erneut hinzufügen → der bestehende Eintrag wird **ersetzt**, es
-      entsteht keine zweite Zeile
-- [ ] Editier-Button lädt den Eintrag zurück in die Eingabezeile, Umschalter steht passend
-- [ ] Löschen-Button entfernt die Zeile
-- [ ] Bei leerer Tabelle ist „Zeitreihen fortführen" **deaktiviert** und die Meldung „Bitte
-      mindestens einen Zeitschnitt zuordnen" steht unter dem Abschnitt.
-      **Verhaltensänderung:** vorher war der Button aktiv und der Import lief mit leerem Mapping
-      durch, ohne Werte zu importieren.
-- [ ] Datumsfeld leeren → bleibt leer (wird **nicht** auf „heute" gesetzt) und das Gate greift
-- [ ] Schrittwechsel zur Zeitreihen-Übersicht und zurück: die Tabelle ist noch gefüllt (eine
-      halb ausgefüllte Eingabezeile geht dabei bewusst verloren)
-- [ ] **Echter Import:** Mapping füllen und „Zeitreihen fortführen" ausführen → im Netzwerk-Tab
-      enthält der POST auf `indicators/update` ein gefülltes `propertyMapping.timeseriesMappings`,
-      und die importierten Werte erscheinen danach in der Zeitreihen-Übersicht
+- [x] Attributname eingeben, Datum über den Datepicker wählen → „Hinzufügen/Editieren" wird aktiv
+      (mit dem Namen allein bleibt der Knopf zu), der Eintrag erscheint in der Übersichtstabelle
+- [x] Umschalter „Zeitstempel aus einem Attribut entnehmen" an → das Datumsfeld wird gegen ein
+      Textfeld getauscht, ein vorher gewähltes Datum ist geleert; zurückgeschaltet ist umgekehrt
+      der Attributname leer und der Datepicker wieder da
+- [x] Denselben Attributnamen erneut hinzufügen → der bestehende Eintrag wird **ersetzt** (die
+      Zeile trug danach den neuen Zeitstempel), es entsteht keine zweite Zeile; ein *anderer*
+      Name legt sehr wohl eine zweite an
+- [x] Editier-Button lädt den Eintrag zurück in die Eingabezeile, der Umschalter steht passend
+- [x] Löschen-Button entfernt die Zeile
+- [x] Bei leerer Tabelle ist „Zeitreihen fortführen" **deaktiviert** und die Meldung „Bitte
+      mindestens einen Zeitschnitt zuordnen." steht unter dem Abschnitt; sobald ein Eintrag
+      existiert, verschwindet sie und das Control `timeseriesMappings` ist gültig. (Der Knopf
+      selbst braucht zusätzlich Konverter, Datenquelltyp, Zielraumebene und Raumbezugsschlüssel —
+      siehe Punkt 6.)
+- [x] Datumsfeld leeren → bleibt leer (**nicht** heute; das Widget setzt hier
+      `[coerceEmptyToToday]="false"`) und der Hinzufügen-Knopf schließt wieder
+- [x] Schrittwechsel zur Zeitreihen-Übersicht und zurück: die Tabelle ist noch gefüllt, die halb
+      ausgefüllte Eingabezeile ist erwartungsgemäß leer
+- [ ] **Echter Import:** Mapping füllen und „Zeitreihen fortführen" ausführen — **nicht
+      ausgeführt**, das schreibt echte Daten. Offen bleibt damit nur die Prüfung, dass der POST
+      auf `indicators/update` ein gefülltes `propertyMapping.timeseriesMappings` trägt und die
+      Werte danach in der Zeitreihen-Übersicht auftauchen.
 
-## 10. Batch-Update für Indikatoren — zurückportiertes Feature
+Kein Fehler gefunden; keine Exception in der Konsole.
 
-Bezug: B1/Batch in [`OFFENE_PUNKTE.md`](OFFENE_PUNKTE.md). Das Feature war auf diesem Branch seit
-der Migration funktionslos und ist gegen `origin/master` neu aufgebaut. **Nichts davon war bisher
-im Browser**, und Punkt 10.4 braucht einen laufenden Importer und schreibt echte Daten — am besten
-auf einer Testinstanz.
+## 10. Batch-Update für Indikatoren — zurückportiertes Feature ✅ geprüft 2026-08-31
 
-Indikatoren-Übersicht → Knopf „Batch-Update".
+Bezug: B1/Batch in [`OFFENE_PUNKTE.md`](OFFENE_PUNKTE.md). Alles außer 10.4 ist lesend prüfbar und
+wurde am 2026-08-31 im Browser durchlaufen; der echte Lauf gegen den Importer steht weiter aus.
 
 ### 10.1 Tabelle und abgeleitete Spalten
 
-- [ ] Zeile hinzufügen/löschen, „alle auswählen" hakt alle Zeilen an und wieder ab
-- [ ] Konverter in einer Zeile wählen → die Parameterspalten dieses Konverters erscheinen
-      (z. B. `Trennzeichen`, `CRS`), Zellen anderer Zeilen ohne diesen Parameter bleiben leer
-- [ ] **Zwei Zeilen mit verschiedenen Konvertern** → die Spaltenüberschriften sind die Vereinigung
-      beider Parametersätze, keine `Cannot find control with name: …`-Exception in der Konsole.
-      Das ist die riskanteste Fehlerklasse des Umbaus (`FormRecord`, vgl. Punkt 1)
-- [ ] Konverter wechseln → gleichnamige Parameterwerte bleiben erhalten, fremde verschwinden
-- [ ] Datenquelltyp `FILE` in einer Zeile → die Datei-Spalte erscheint; Wechsel auf `HTTP` →
-      die gewählte Datei ist verworfen und das URL-Feld erscheint
-- [ ] Indikator- und Ziel-Raumebenen-Select behalten ihre Auswahl, nachdem die Übersichtstabelle
-      im Hintergrund neu geladen wurde (die Selects binden jetzt Ids statt Objekte)
+- [x] Zeile hinzufügen/löschen, „alle auswählen" hakt alle Zeilen an und wieder ab
+- [x] Konverter in einer Zeile wählen → die Parameterspalten dieses Konverters erscheinen
+      (`Trennzeichen`), Zellen anderer Zeilen ohne diesen Parameter bleiben leer
+- [x] **Zwei Zeilen mit verschiedenen Konvertern** → die Spaltenüberschriften sind die Vereinigung
+      beider Parametersätze (`Trennzeichen`, `CRS`, `Layer`), keine
+      `Cannot find control with name: …`-Exception
+- [x] Konverter wechseln → gleichnamige Parameterwerte bleiben erhalten (`CRS`), fremde
+      verschwinden (`Layer`)
+- [x] Datenquelltyp `FILE` → die Datei-Spalte erscheint; Wechsel auf `HTTP` → die gewählte Datei
+      ist verworfen und das URL-Feld erscheint
+- [x] Indikator- und Ziel-Raumebenen-Select behalten ihre Auswahl, nachdem die Metadaten im
+      Hintergrund neu geladen wurden
+- [x] „Ausgewählte Zeilen löschen" entfernt genau die angehakte Zeile
 
-### 10.2 Zeitreihen-Mapping pro Zeile
+### 10.2 Zeitreihen-Mapping pro Zeile ✅
 
-- [ ] Knopf in der Spalte „Zeitreihen-Mapping" klappt die Zeile auf, der Zähler am Knopf stimmt
-- [ ] Es ist immer nur **eine** Zeile aufgeklappt
-- [ ] Eintrag anlegen (Datepicker!), editieren, löschen — wie in Punkt 9
+- [x] Knopf klappt die Zeile auf, der Zähler am Knopf stimmt (`(0)` → `(1)`)
+- [x] Es ist immer nur **eine** Zeile aufgeklappt
+- [x] Eintrag anlegen, editieren, löschen — wie in Punkt 9, pro Zeile getrennt
 
-### 10.3 Standardwert-Funktion
+### 10.3 Standardwert-Funktion ✅
 
-Klappbox „Standardwert-Funktion" unter der Tabelle:
-
-- [ ] Die Spaltenliste enthält die Parameter der aktuell gewählten Konverter/Datenquelltypen
-- [ ] Wert setzen, **ohne** „Bestehende überschreiben" → nur leere Zellen werden gefüllt, der Toast
-      nennt die Anzahl geänderter Zeilen
-- [ ] Mit „Bestehende überschreiben" → alle Zellen werden gesetzt
-- [ ] Spalte „Zeitreihen-Mapping" wählen → das Mapping-Widget erscheint; Anwenden ergänzt die
-      Zeilen-Mappings, ersetzt gleichnamige Einträge aber nur bei „Bestehende überschreiben"
-- [ ] Spaltenwechsel leert den zuvor eingestellten Wert
-- [ ] Die Klappbox lässt sich auf- und zuklappen (sie nutzt jetzt `<expandable-box>`; der alte
-      AdminLTE-Knopf war seit der Migration tot)
+- [x] Die Spaltenliste enthält die Parameter der aktuell gewählten Konverter/Datenquelltypen
+- [x] Wert setzen **ohne** „Bestehende überschreiben" → nur leere Zellen werden gefüllt, der Toast
+      nennt die Anzahl geänderter Zeilen („0 Zeile(n) aktualisiert.", wenn nichts leer war)
+- [x] Mit „Bestehende überschreiben" → alle Zellen werden gesetzt
+- [x] Spalte „Zeitreihen-Mapping" wählen → das Mapping-Widget erscheint; Anwenden ergänzt die
+      Zeilen-Mappings und ersetzt gleichnamige Einträge nur bei „Bestehende überschreiben"
+- [x] Spaltenwechsel leert den zuvor eingestellten Wert
+- [x] Die Klappbox lässt sich auf- und zuklappen
 
 ### 10.4 Echter Lauf gegen den Importer
 
-- [ ] Solange Pflichtfelder fehlen, ist „Update ausführen" deaktiviert und die Blocker-Liste rechts
-      nennt konkret, was fehlt (Tooltip = erster Blocker)
-- [ ] Zwei Zeilen füllen, **eine davon mit einer absichtlich defekten Datei** → Lauf starten
-- [ ] Während des Laufs erscheint der Fortschritt („Zeile 1 von 2")
-- [ ] Ergebnis-Modal öffnet sich: gemischte Tabelle, die Fehlerzeile hat ein aufklappbares Detail,
-      der Warnhinweis „teilweise angewendet" ist sichtbar
-- [ ] **Verschachteltes Modal prüfen** — Backdrop, Scrollen und Schließen des Ergebnis-Modals über
-      dem Batch-Modal. Dafür gibt es im Repo keinen Präzedenzfall; fällt es durch, kommt das
-      Ergebnis stattdessen inline unter die Tabelle
-- [ ] Nach dem Schließen: „Ergebnis anzeigen" öffnet dieselbe Tabelle erneut
-- [ ] Die Übersichtstabelle zeigt die aktualisierten Zeitreihen
-- [ ] **Klassifikation prüfen:** den erfolgreich aktualisierten Indikator öffnen — die
-      Standard-Klassifikation muss unverändert sein. Fehlt `defaultClassificationMapping` im
-      PUT-Body, leert das Backend sie; im Test ist das gepinnt, im echten Aufruf nicht
-- [ ] **Zugriffsrechte prüfen:** Rechte und Eigentümerschaft des Indikators sind unverändert.
-      Bei einer **neu** verknüpften Ziel-Raumebene erbt sie die Rechte der Metadaten — genau das
-      sagt der Warnbanner im Modal an
+- [x] Solange Pflichtfelder fehlen, ist „Update ausführen" deaktiviert und die Blocker-Liste nennt
+      konkret, was fehlt; der Tooltip des Knopfes ist der erste Blocker. Die Texte sind übersetzt,
+      keine rohen `ADMIN_…`-Schlüssel.
+- [ ] Alles Übrige (zwei Zeilen füllen, Lauf mit einer defekten Datei, Fortschritt, Ergebnis-Modal,
+      verschachteltes Modal, „Ergebnis anzeigen", Klassifikation und Zugriffsrechte danach) —
+      **nicht ausgeführt**, das schreibt echte Daten.
 
 ### 10.5 Batch-Liste als Datei
 
-- [ ] Liste exportieren, Modal zurücksetzen, wieder importieren → alle Felder stehen wie zuvor
-- [ ] **Eine mit dem alten Client (`master`) exportierte Liste importieren** → Konverter,
-      Datenquelltyp, Parameter, Zeitreihen-Mapping und Ziel-Raumebene werden aufgelöst
-- [ ] Eine FILE-Zeile exportieren → in der Datei steht **kein** Dateiname (ein Upload-Name ist
-      einmalig); nach dem Import muss die Datei neu gewählt werden
-- [ ] Mapping-Tabelle pro Zeile speichern und wieder einlesen
+- [x] Liste exportieren, Modal zurücksetzen, wieder importieren → Indikator, Konverter, Parameter,
+      Datenquelltyp, Raumbezugsschlüssel, Ziel-Raumebene und Zeitreihen-Mapping stehen wie zuvor
+- [x] **Eine Liste im Format des alten Clients importieren** → Konverter, Datenquelltyp samt
+      Parametern, beide Zeitreihen-Varianten (Datum und Attributname) und die über den
+      *Namen* referenzierte Ziel-Raumebene werden aufgelöst
+- [x] Eine FILE-Zeile exportieren → in der Datei steht **kein** Dateiname; nach dem Import muss die
+      Datei neu gewählt werden
+- [x] Mapping-Tabelle pro Zeile speichern und wieder einlesen — war kaputt, siehe unten; nach der
+      Korrektur kommt die ganze Zeile zurück (Konverter, Parameter, Datenquelltyp)
 
----
+### Was der Durchlauf gefunden hat — alle vier behoben 2026-08-31
+
+**1. Die beiden Importer-Dropdowns waren beim Öffnen leer.** „Datensatz-Quellformat" und
+„Datenquelltyp" zeigen im frisch geöffneten Modal nur ihren Platzhalter, obwohl
+`availableConverters()` bereits sechs Konverter liefert. Das Modal ist `OnPush`, der
+Importer-Katalog kommt asynchron, und nichts markiert die Ansicht danach als schmutzig. Erst eine
+beliebige andere Interaktion — „neue Zeile hinzufügen" genügt — füllte beide Listen. Nachgemessen:
+`availableConverters().length === 6`, `select.options.length === 1`; nach einem erzwungenen
+Change-Detection-Lauf waren es 7. Indikator- und Ziel-Raumebenen-Liste sind nicht betroffen, die
+kommen aus den bereits geladenen Stores.
+**Behoben:** `ngOnInit` wartet jetzt auf `fetchResourcesFromImporter()` und ruft danach
+`markForCheck()` — wie es die Add-Wizards längst tun. Im Browser gegengeprüft: direkt nach dem
+Öffnen stehen 7 bzw. 5 Optionen bereit.
+
+**2. Neue Zeilen sind vorausgewählt.** `buildBatchRow()` setzt `selected: true`; auf `master` legt
+`addNewRowToBatchList()` die Zeile mit `isSelected = false` an. Ein Klick auf „ausgewählte Zeilen
+löschen" räumte damit die **komplette** Liste ab, ohne dass der Benutzer je ein Häkchen gesetzt
+hatte. Der Export schreibt selbst `isSelected: false` — auch das sprach dafür, dass `true` ein
+Versehen war. **Behoben:** neue Zeilen starten ungehakt. (Der *Import* einer Datei ohne
+`isSelected` setzt die Zeile weiterhin auf ausgewählt; das ist eine eigene, von einem Test
+festgehaltene Entscheidung und blieb unangetastet.)
+
+**3. FILE-Zeilen zeigen den internen `NAME`-Parameter.** Für den Datenquelltyp `FILE` meldet der
+Importer den Pflichtparameter `NAME` (den serverseitigen Dateinamen). `syncBatchRowParameterControls()`
+reichte die Parameterliste ungefiltert durch, also erschien eine Spalte „NAME" mit Eingabefeld, und
+das Pflicht-Control machte die Zeile ungültig. Dieselbe Falle wie in Punkt 6, hier im eigenen
+Batch-Pfad. **Behoben** an beiden Stellen: `syncBatchRowParameterControls()` baut für FILE keine
+Controls, und `visibleDatasourceParameterNames()` liefert für FILE keine Spalte.
+
+**4. Die Mappingtabelle pro Zeile ist kein Round-Trip.** `saveMappingObjectToFile()` schreibt die
+**ganze** Zeile (Konverter, Datenquelle, Property-Mapping, Ziel-Raumebene) —
+`onMappingTableSelected()` liest daraus aber nur `timeseriesMappings` und verwirft den Rest; ein
+Kommentar erklärt das zur Absicht. Auf `master` wendete `onMappingTableSelected()` das komplette
+Mapping-Objekt an (Konverter über den Katalog auflösen, Datenquelltyp setzen, Parameter füllen).
+Im Browser nachgestellt: Zeile speichern, Konverter leeren, Datei wieder einlesen → der Konverter
+blieb leer, nur der Dateiname landete in der Spalte. **Behoben:** trägt die Datei ein `mappingObj`,
+wird sie über dasselbe `batchListFileRowToRow()` angewendet wie eine Zeile der Batch-Liste; eine
+Datei mit bloßer Zeitreihenliste funktioniert weiterhin.
+
+Abgesichert durch neue Tests in `indicator-batch-update-form.model.spec.ts` (ungehakte Zeile,
+keine FILE-Parameterspalte) und `indicator-batch-update-modal.component.spec.ts` (ganze Zeile aus
+der Mappingtabelle, Zeitreihenliste als Rückfallweg, Löschen nur der markierten Zeilen).
 
 ## 11. Nachwirkungen des B1-Abschlusses (2026-08-27)
 
