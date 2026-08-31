@@ -157,50 +157,99 @@ Tabs und ein Modal in der Nutzeroberfläche, nicht die Formularwidgets aus diese
 Bei Fehlern: `writeValue` in `customElements/color-picker/km-color-picker.component.ts` bzw.
 `customElements/line-pattern-picker/km-line-pattern-picker.component.ts`.
 
-## 3. Georessourcen-Gültigkeitsdatum — geändertes Widget
+## 3. Georessourcen-Gültigkeitsdatum — geändertes Widget ✅ durchgeführt 2026-08-31
 
 Die Felder „Gültig ab/bis" waren rohe Textfelder und sind jetzt `<km-date-picker>` wie beim
 Raumebenen-Zwilling.
 
-- [ ] Datum über den Picker wählen, Datum manuell eintippen
-- [ ] **Offene Frage:** der Picker hat `coerceEmptyToToday = true` — ein leer angeklicktes und
-      wieder verlassenes Feld füllt sich mit dem heutigen Datum. Bei Raumebenen seit jeher so,
-      bei Georessourcen neu. Wenn unerwünscht: `[coerceEmptyToToday]="false"` — dann aber
-      konsistent an **beiden** Stellen.
-- [ ] Gleiches Start- und Enddatum wird jetzt **abgelehnt** (vorher stillschweigend akzeptiert,
-      weil `startDate === endDate` zwei frische `Date`-Objekte verglich)
+- [x] Datum über den Picker wählen, Datum manuell eintippen
+- [x] **Offene Frage entschieden und umgesetzt:** `coerceEmptyToToday` bleibt für „gültig ab"
+      an (das Feld ist Pflicht, ein leeres Startdatum wird weiterhin auf heute gesetzt) und ist
+      für „gültig bis" jetzt **aus** — siehe Fund unten. Konsistent an allen vier Fundstellen.
+- [x] Gleiches Start- und Enddatum wird abgelehnt (`periodOfValidity`-Fehler, Meldung sichtbar);
+      ein späteres Enddatum räumt den Fehler wieder ab
 
-## 3b. „Sachdaten bearbeiten" — die drei editFeatures-Modals
+## 3b. „Sachdaten bearbeiten" — die drei editFeatures-Modals ✅ teilweise durchgeführt 2026-08-31
 
-Diese drei sind später umgestellt worden als die Add-Wizards und noch gar nicht im Browser
-gelaufen.
+Diese drei sind später umgestellt worden als die Add-Wizards. Am 2026-08-31 erstmals im Browser
+gelaufen — alles außer den echten Schreibvorgängen (siehe „Nicht ausgeführt" unten).
 
 **Raumebene → Sachdaten bearbeiten:**
 
-- [ ] Schritt 1 (Feature-Tabelle): Zellen bearbeiten, Feature löschen — der Schalter „Löschen
-      aktivieren" ist bewusst **kein** Formularfeld geblieben und muss weiter funktionieren
-- [ ] Schritt 2: Gültigkeitsdatum leer anklicken und Feld verlassen → wird mit heute gefüllt;
-      Unsinn eintippen und verlassen → wird ebenfalls auf heute korrigiert.
-      **Diese Korrektur hätte der Umbau still kaputt gemacht** (sie schrieb in einen
-      Wert-Snapshot statt ins Control) — hier genau hinsehen.
-- [ ] Kompletter Durchlauf: Datei wählen, Attribut-Mapping anlegen, absenden
+- [x] Schritt 1: „Zeige alle Raumeinheiten" lädt die Feature-Tabelle (5 Zeilen, Spalten
+      DB-Record-Id … plus die Sachattribute). Der Schalter „Löschen aktivieren" ist weiterhin
+      **kein** Formularfeld und schaltet den Knopf „Lösche alle Raumeinheiten" korrekt frei und
+      wieder zu (der Knopf selbst wurde **nicht** gedrückt — die Aktion ist unwiderruflich).
+- [ ] Zellen bearbeiten, einzelnes Feature löschen — **nicht ausgeführt**, das schreibt sofort auf
+      den Server (`persistSpatialResourceCellEdit`)
+- [x] Schritt 2: „gültig ab" leer anklicken und verlassen → wird mit heute gefüllt; Unsinn
+      eintippen → wird ebenfalls auf heute korrigiert. Die Korrektur schreibt ins Control, nicht in
+      einen Snapshot — genau die Stelle, die der Umbau hätte kaputtmachen können, hält.
+      „gültig bis" bleibt seit dem Fix unten leer, wenn man es leert.
+- [ ] Kompletter Durchlauf: Datei wählen, Attribut-Mapping anlegen, absenden — **nicht ausgeführt**
 
 **Georessource → Sachdaten bearbeiten:**
 
-- [ ] Räumlichen Filter auf „Referenzraumebene" stellen und eine Raumebene wählen. Das Select
-      hält jetzt die **Id** statt des ganzen Datensatz-Objekts — das Wire-Format ist unverändert,
-      aber die Auswahl muss stehen bleiben und beim Absenden ankommen.
-- [ ] **Verhaltensänderung:** Konverter mit Pflichtparameter wählen und das Feld leer lassen →
-      der Absenden-Button bleibt jetzt deaktiviert. Vorher ließ sich absenden und der Importer
-      scheiterte erst serverseitig.
-- [ ] Kompletter Durchlauf inkl. Teil-Aktualisierung („Partial Update")
+- [x] Räumlichen Filter auf „Referenzraumebene" stellen und eine Raumebene wählen: das Select hält
+      die **Id** (`de88e2d8-…`), die Auswahl übersteht einen Schrittwechsel und steht danach
+      weiterhin im Formular
+- [x] **Verhaltensänderung bestätigt:** Konverter mit Pflichtparameter (Shapefile → `CRS`) wählen
+      und leer lassen → „Features fortführen" bleibt deaktiviert, `canSubmitForm()` ist `false`.
+      Nach dem Ausfüllen wird das Parameter-Control gültig; der Knopf bleibt zu Recht gesperrt,
+      solange Datei, Id-/Name-Attribut und Zeitraum fehlen.
+- [ ] Kompletter Durchlauf inkl. Teil-Aktualisierung — **nicht ausgeführt**
 
 **Indikator → Sachdaten bearbeiten:**
 
-- [ ] Erstes Modal mit flächendeckender Fehleranzeige: Pflichtfelder (Konverter, Datenquelltyp,
-      Zielraumebene, Raumbezugsschlüssel) antippen und leer lassen → unter jedem Feld erscheint
-      eine Meldung, der Schritt wird im Stepper rot markiert
-- [ ] Kompletter Zeitreihen-Import über Datei
+- [x] Flächendeckende Fehleranzeige: Konverter, Datenquelltyp, Raumbezugsschlüssel und
+      Zielraumebene antippen und leer lassen → unter jedem Feld „Dieses Feld ist erforderlich.",
+      der Schritt trägt `stepper-step … invalid` samt Ausrufezeichen und bleibt anklickbar. Ein
+      gefülltes Feld verliert seine Meldung sofort wieder. (Die Meldung „Bitte mindestens einen
+      Zeitschnitt zuordnen." steht unabhängig davon dauerhaft — `showWhen="always"`, so gewollt.)
+- [ ] Kompletter Zeitreihen-Import über Datei — **nicht ausgeführt**
+
+### Was der Durchlauf gefunden hat — behoben 2026-08-31
+
+**Ein offener Gültigkeitszeitraum war über die Oberfläche nicht mehr erreichbar** — zwei
+Ursachen, die sich gegenseitig verdeckt haben:
+
+1. `km-date-picker.validate()` behandelt den **leeren String wie ein kaputtes Datum**: `''` ist
+   nicht `null`, fällt also in die Formatprüfung und liefert `{ dateFormat: 'Expected YYYY-MM-DD' }`.
+   Ein leeres „gültig bis" macht damit die Gruppe `periodOfValidity` ungültig. In beiden
+   Add-Wizards hängt der Anlegen-Knopf an `addForm.invalid` — **ohne Enddatum lässt sich weder
+   eine Raumebene noch eine Georessource anlegen.** Im Browser nachgestellt: Startdatum
+   `2020-01-01`, Ende leer → `endDate.errors = { dateFormat }`, Gruppe ungültig; mit Enddatum
+   sofort wieder gültig.
+2. Selbst das Leeren des Feldes hilft nicht: `coerceEmptyToToday` ist am Widget per Default `true`
+   und keine der vier Fundstellen setzt es ab, also steht nach dem Verlassen des Feldes wieder
+   das heutige Datum darin. Das widerspricht dem eigenen Handler des Raumebenen-Modals
+   (`onPeriodEndBlur()` korrigiert bewusst **nur** ein nicht-leeres Enddatum) und dem Unit-Test
+   `leaves an empty end date empty`, der grün bleibt, weil er den Handler direkt aufruft und das
+   Widget dabei nicht im Spiel ist.
+
+Beides widerspricht dem Hilfetext, der unverändert unter dem Feld steht: „Enddatum darf leer sein,
+um anzuzeigen, dass es sich um aktuell gültige Raumeinheiten/Features handelt." Auf `master` war
+das Feld ein einfaches optionales Textfeld.
+
+**Behoben:** `validate()` behandelt den leeren String jetzt wie `null` — die `required`-Prüfung
+darüber deckt den Pflichtfall weiterhin ab — und die vier „gültig bis"-Felder setzen
+`[coerceEmptyToToday]="false"` (`spatialUnitAddModal`, `spatialUnitEditFeaturesModal`,
+`georesourceAddModal`, `georesourceEditFeaturesModal`). Ein geleertes Feld schreibt damit `null`
+ins Control; die drei Stellen, die den Wert unnormalisiert in den Body durchreichen, machen
+daraus mit `?? ''` wieder den bisherigen Leerstring — **das Wire-Format ändert sich nicht**.
+
+Im Browser gegengeprüft: Startdatum gesetzt und Ende leer ergibt in beiden Add-Wizards einen
+gültigen Zeitraum, ein geleertes Enddatum bleibt leer, und das Startdatum wird weiterhin auf heute
+gezwungen. Neu abgesichert durch `customElements/date-picker/km-date-picker.component.spec.ts`.
+
+Randbeobachtung: tippt man Unsinn in „gültig bis", greift weiterhin `coerceInvalidToToday` und es
+steht heute im Feld. Nur ein *geleertes* Feld bleibt leer.
+
+### Nicht ausgeführt
+
+Alles, was echte Daten auf der Demo-Instanz schreibt: Zell-Editierung und Feature-Löschung in der
+Raumebenen-Tabelle, die drei kompletten Durchläufe (Datei + Attribut-Mapping + Absenden) und die
+Teil-Aktualisierung. Dafür braucht es eine Testinstanz oder eine ausdrückliche Freigabe.
 
 ## 4. Import-Round-Trip
 
