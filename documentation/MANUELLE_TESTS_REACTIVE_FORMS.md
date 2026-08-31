@@ -364,10 +364,14 @@ im gemeinsamen `buildTopicHierarchyForm()` und gilt damit für alle fünf.
 
 Die 11-klauseligen `[disabled]`-Ausdrücke sind je durch ein `addForm.invalid` ersetzt.
 
-- [~] Je einen vollständigen Datensatz anlegen: **Raumebene** und **Georessource** (End-to-End
-      inkl. Importer-Lauf) — **nicht ausgeführt**, das schreibt echte Daten. Beide Wizards wurden
-      aber bis zum freigegebenen Knopf durchgefüllt (inklusive Datei-Auswahl), nur der Klick auf
-      „registrieren" fehlt.
+- [x] Je einen vollständigen Datensatz anlegen: **Raumebene** und **Georessource** (End-to-End
+      inkl. Importer-Lauf) — **am 2026-08-31 echt ausgeführt** auf der Demo-Instanz, mit
+      `ZZ TEST`-Namen und ohne Hierarchie-Verknüpfung, danach über die Lösch-Modals der
+      Oberfläche wieder entfernt (Raumebenen 47 → 48 → 47, Georessourcen 69 → 70 → 69, keine
+      `ZZ TEST`-Reste). Der Client schickt dabei je `POST {importer}/upload`, denselben Import-POST
+      mit `dryRun: true` und — nur bei fehlerfreiem Probelauf — mit `dryRun: false`; die Antwort
+      des echten Laufs trug `importedFeatures` und die neue Id. Die hochgeladene Datei bleibt im
+      Dateispeicher des Importers liegen: der Client kennt dort kein DELETE.
 - [x] In allen drei `editFeatures`-Modals: der Absenden-Button gibt frei, sobald die Pflichtfelder
       gefüllt sind. Beim Indikator-Modal bleibt danach genau ein Blocker übrig — das leere
       Zeitreihen-Mapping, so gewollt (Punkt 9).
@@ -384,6 +388,17 @@ Die 11-klauseligen `[disabled]`-Ausdrücke sind je durch ein `addForm.invalid` e
 - [x] Fehlermeldungen erscheinen erst, nachdem ein Feld angefasst wurde, und verschwinden wieder.
 
 ### Was der Durchlauf gefunden hat — behoben 2026-08-31
+
+**Eine Georessource ließ sich überhaupt nicht anlegen.** Der Importer antwortete mit HTTP 400:
+`Cannot construct instance of org.n52.kommonitor.models.ColorType, problem: Unexpected value ''`.
+Im Body standen `poiMarkerColor: ""` und `poiSymbolColor: ""` — die API erwartet dort ein Enum.
+Ursache war die Reihenfolge in `initializeForm()`: `resetGeoresourceAddForm()` lief **vor**
+`loadAvailableOptions()` und holte sich die Stil-Vorgaben (Markerfarbe, Symbolfarbe, Linienmuster)
+aus noch leeren Listen. Ein frisch geöffneter Wizard trug damit `null`-Farben, und der Datensatz
+ließ sich nur anlegen, wenn der Benutzer beide Farb-Dropdowns von Hand geöffnet hatte. Die
+Reihenfolge ist getauscht; im echten Lauf gehen jetzt `poiMarkerColor: "red"` und
+`poiSymbolColor: "white"` raus und der Import läuft durch. Das fiel erst beim **echten** POST auf —
+kein Formular-Zustand und kein Probelauf-freier Test hätte es gezeigt.
 
 **Mit einer Datei als Datenquelle konnte kein Datensatz angelegt werden.** Der Importer meldet für
 den Datenquelltyp `FILE` genau einen Parameter, `NAME`, und flaggt ihn als **mandatory**. Kein
