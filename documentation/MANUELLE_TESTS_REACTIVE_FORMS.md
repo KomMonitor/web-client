@@ -409,20 +409,85 @@ ein Zurückspulen des Steppers eine bereits gewählte Seite überschreibt. Der K
 eigenes `onResetGeoresourceAddForm()`, das beides tut; die Initialisierung nutzt weiter die
 Formular-Variante. Zwei Tests halten die Trennung fest.
 
-## 7. Betrieb ohne Keycloak
+## 7. Betrieb ohne Keycloak ✅ durchgeführt 2026-08-31
 
 Konfiguration mit `enableKeycloakSecurity: false`:
 
-- [ ] Raumebene lässt sich anlegen. Der „Anlegen"-Button war dort bisher **dauerhaft
+- [x] Raumebene lässt sich anlegen. Der „Anlegen"-Button war dort bisher **dauerhaft
       deaktiviert**, weil die Klausel `!ownerOrganization` unbedingt war, obwohl das Feld hinter
-      `@if (enableKeycloakSecurity)` liegt.
-- [ ] Der Security-Schritt fehlt im Stepper
+      `@if (enableKeycloakSecurity)` liegt. Jetzt taucht `security.ownerOrganization` gar nicht
+      erst unter den Pflichtfeldern auf, und der Knopf gibt frei, sobald die verbleibenden elf
+      gefüllt sind. Der POST-Body trägt dann `ownerId: ''`, `isPublic: false` und eine leere
+      `permissions`-Liste — keinen erfundenen Eigentümer.
+- [x] Der Security-Schritt fehlt im Stepper (Raumebene: „Metadaten | Allgemeine Metadaten |
+      Räumlicher Datensatz"), und es wird kein `app-owner-organization-select` gerendert.
 
-## 8. Namens-Eindeutigkeit — Verhaltensänderung
+Mitgeprüft, weil sie dieselbe `when: () => enableKeycloakSecurity`-Konstruktion benutzen:
+**Georessource anlegen** und **WMS anlegen** verlieren Schritt, Wähler und Eigentümer-Pflichtfeld
+ebenso; beim **Indikator-Wizard** sind Schritt und Wähler nachweislich weg, sein Formular liegt
+aber in einem Service mit anderer Struktur — die Pflichtfeld-Seite wurde dort nicht maschinell
+geprüft.
 
-- [ ] Einen bestehenden Datensatznamen in abweichender Groß-/Kleinschreibung oder mit
+**Zur Methode, wichtig für die Bewertung:** geprüft wurde durch Umlegen von
+`window.__env.enableKeycloakSecurity` zur Laufzeit, bei weiterhin angemeldeter Sitzung — genau der
+Wert, den die Client-Config setzen würde. Damit ist das **Verhalten der Oberfläche** belegt. Ein
+echter tokenloser Betrieb ist damit *nicht* geprüft: die Demo-Instanz beantwortet ohne Token jede
+Anfrage mit 401, ein wirklich Keycloak-freier Lauf braucht ein offenes Backend.
+
+Der eigentliche Anlege-Klick ist wie überall nicht ausgeführt worden (schreibt echte Daten);
+geprüft ist der Zustand bis zum freigegebenen Knopf samt fertigem Request-Body.
+
+## 8. Namens-Eindeutigkeit — Verhaltensänderung ✅ durchgeführt 2026-08-31
+
+- [x] Einen bestehenden Datensatznamen in abweichender Groß-/Kleinschreibung oder mit
       führenden/nachgestellten Leerzeichen eingeben → wird jetzt als Dublette abgelehnt.
-      Vorher lief das durch und kollidierte erst serverseitig.
+      Geprüft in **Raumebene anlegen** (gegen 47 vorhandene Namen) und **Georessource anlegen**
+      (gegen 69): identisch, `GROSSGESCHRIEBEN`, `  mit Leerzeichen  ` und beides kombiniert
+      werden alle abgelehnt, mit sichtbarer Meldung unter dem Feld. Ein wirklich neuer Name geht
+      durch, und Leerzeichen **innerhalb** des Namens gelten weiterhin als anderer Name (es wird
+      nur getrimmt, nicht normalisiert).
+
+### Was der Durchlauf gefunden hat
+
+**Im Indikator-Wizard greift die Dublettenprüfung überhaupt nicht** — nicht einmal bei einem
+*exakt* gleichen Namen. `indicatorNameUniqueValidator()` vergleicht
+
+```ts
+existingIndicators().some((indicator) => indicator?.datasetName === name && …)
+```
+
+die Objekte aus dem Indikator-Store tragen ihren Namen aber unter **`indicatorName`**;
+`datasetName` gibt es dort nicht. Der Vergleich ist damit immer `undefined === name`, also immer
+falsch. Im Browser nachgestellt: „A1 - SGB II-Bezug" mit dem passenden Typ `STATUS_ABSOLUTE`
+eingetippt → kein Fehler, Feld gültig.
+
+Auf `master` stand an der Stelle `indicator.indicatorName === $scope.datasetName` — dort
+funktionierte die Prüfung. Beim Umbau wurde auf den Namen des *Formularfelds* umbenannt statt auf
+den des API-Feldes. Die Kollision fällt jetzt erst serverseitig auf, also genau das Verhalten, das
+dieser Punkt für die anderen Ressourcen als behoben verbucht.
+
+Kein Test deckte `indicatorNameUniqueValidator` ab; das Interface `IndicatorNameRef` schrieb
+`datasetName` vor, sodass auch die Typprüfung nichts merkte.
+
+**Behoben am 2026-08-31:** Der Vergleich liest jetzt `indicatorName`, das Interface ebenso, und
+die Prüfung normalisiert wie die anderen Ressourcen (trimmen + Groß-/Kleinschreibung ignorieren) —
+der Indikator war sonst der einzige Ausreißer. Mitgezogen: die Selbstausnahme im
+Bearbeiten-Modus las ebenfalls `editIndicatorDataset?.datasetName` und griff dadurch nie; ohne
+diese zweite Korrektur hätte der Fix jeden bearbeiteten Indikator als Dublette seiner selbst
+markiert.
+
+Im Browser gegengeprüft: „A1 - SGB II-Bezug" mit Typ `STATUS_ABSOLUTE` wird jetzt abgelehnt,
+ebenso die Groß-/Kleinschreibungs- und Leerzeichen-Varianten; derselbe Name unter einem anderen
+Typ und ein neuer Name gehen durch. Im Bearbeiten-Modus behält der Indikator seinen eigenen Namen
+ohne Fehler, ein *anderer* vorhandener Name desselben Typs wird weiterhin abgelehnt. Neu
+abgesichert durch neun Tests in `indicatorAddModal/indicator-add-form.model.spec.ts`.
+
+### Randnotiz
+
+Die Fehlermeldung der Georessource lautet „Es existiert bereits eine Georessource mit gleichem
+Namen **und gleichem Typ**", die Prüfung vergleicht aber gegen *alle* Georessourcen ohne
+Typbezug. Auf `master` war es genauso (Text wie Logik) — reine Textungenauigkeit, kein
+Migrationsfehler.
 
 ## 9. Zeitreihen-Mapping des Indikator-Imports — neu portiert
 
