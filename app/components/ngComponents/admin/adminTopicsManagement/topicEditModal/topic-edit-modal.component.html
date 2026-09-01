@@ -14,96 +14,74 @@
   ></button>
 </div>
 <div class="modal-body">
-  <div>
-    @if (isSubmitting()) {
-      <div class="loading-overlay-admin-panel">
-        <i class="fas fa-spinner fa-spin fa-2x"></i>
-      </div>
-    }
-  </div>
-
-  <p>
-    <b
-      ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
-    >
-  </p>
-
-  <form
-    [formGroup]="topicForm"
-    (ngSubmit)="onSubmit()"
-    class="form-group"
-    style="margin-bottom: 0px"
-  >
-    <h4>{{ 'ADMIN_TOPICS.EDIT_MODAL.FORM_TITLE' | translate }}</h4>
-
-    <div class="row vertical-align">
-      <div class="col-md-5">
-        <label for="topic-name-input"
-          >{{ 'ADMIN_TOPICS.EDIT_MODAL.NAME_LABEL' | translate }}*</label
+  <app-loading-overlay [loading]="isSubmitting()">
+    <!--
+      No body heading here: it repeated the dialog title the header already
+      shows, and the global `h4 { font-size: 16px; font-weight: 400 }` rendered
+      it at exactly the size and weight of the field labels below it.
+    -->
+    <form [formGroup]="topicForm" (ngSubmit)="onSubmit()">
+      <p class="text-center">
+        <b
+          ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
         >
-        <input
-          id="topic-name-input"
-          style="width: 100%"
-          class="form-control"
-          type="text"
-          [placeholder]="'ADMIN_TOPICS.EDIT_MODAL.TITLE_PLACEHOLDER' | translate"
-          formControlName="name"
-          required
-          [attr.aria-invalid]="topicForm.get('name')?.invalid && topicForm.get('name')?.touched"
-          [attr.aria-describedby]="
-            topicForm.get('name')?.invalid && topicForm.get('name')?.touched ? 'name-error' : null
-          "
-        />
-        @if (topicForm.get('name')?.invalid && topicForm.get('name')?.touched) {
-          <div id="name-error" class="help-block with-errors" role="alert">
-            {{ 'ADMIN_TOPICS.EDIT_MODAL.NAME_REQUIRED' | translate }}
+      </p>
+
+      <!--
+        Plain `.row`: with `.vertical-align` the short name column was centred
+        against the five-row textarea, so its label sat some 60px below the
+        description's.
+      -->
+      <div class="row">
+        <div class="col-md-5">
+          <div class="form-group">
+            <label class="form-label" for="topic-name-input"
+              >{{ 'ADMIN_TOPICS.EDIT_MODAL.NAME_LABEL' | translate }}*</label
+            >
+            <input
+              id="topic-name-input"
+              class="form-control"
+              type="text"
+              [placeholder]="'ADMIN_TOPICS.EDIT_MODAL.TITLE_PLACEHOLDER' | translate"
+              formControlName="name"
+              required
+            />
+            <app-form-error [control]="topicForm.controls.name" for="topic-name-input" />
           </div>
-        }
-      </div>
-      <div class="col-md-7">
-        <label for="topic-description-input"
-          >{{ 'ADMIN_TOPICS.EDIT_MODAL.DESCRIPTION_LABEL' | translate }}*</label
-        >
-        <textarea
-          id="topic-description-input"
-          style="width: 100%"
-          rows="5"
-          class="form-control"
-          [placeholder]="'ADMIN_TOPICS.EDIT_MODAL.DESCRIPTION_LABEL' | translate"
-          formControlName="description"
-          required
-          [attr.aria-invalid]="
-            topicForm.get('description')?.invalid && topicForm.get('description')?.touched
-          "
-          [attr.aria-describedby]="
-            topicForm.get('description')?.invalid && topicForm.get('description')?.touched
-              ? 'description-error'
-              : null
-          "
-        ></textarea>
-        @if (topicForm.get('description')?.invalid && topicForm.get('description')?.touched) {
-          <div id="description-error" class="help-block with-errors" role="alert">
-            {{ 'ADMIN_TOPICS.EDIT_MODAL.DESCRIPTION_REQUIRED' | translate }}
+        </div>
+        <div class="col-md-7">
+          <div class="form-group">
+            <label class="form-label" for="topic-description-input"
+              >{{ 'ADMIN_TOPICS.EDIT_MODAL.DESCRIPTION_LABEL' | translate }}*</label
+            >
+            <textarea
+              id="topic-description-input"
+              rows="5"
+              class="form-control"
+              [placeholder]="'ADMIN_TOPICS.EDIT_MODAL.DESCRIPTION_LABEL' | translate"
+              formControlName="description"
+              required
+            ></textarea>
+            <app-form-error
+              [control]="topicForm.controls.description"
+              for="topic-description-input"
+            />
           </div>
-        }
+        </div>
       </div>
-    </div>
-  </form>
+    </form>
+  </app-loading-overlay>
 </div>
 <div class="modal-footer">
-  <button type="button" class="btn btn-outline-secondary" (click)="cancel()">
-    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="cancel()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
   </button>
-  <div style="flex: 1"></div>
   <button
     type="button"
     class="btn btn-success"
     [disabled]="topicForm.invalid || isSubmitting()"
     (click)="onSubmit()"
   >
-    @if (isSubmitting()) {
-      <span class="spinner-border spinner-border-sm mr-1"></span>
-    }
     {{ 'ADMIN_TOPICS.EDIT_MODAL.UPDATE' | translate }}
   </button>
 </div>

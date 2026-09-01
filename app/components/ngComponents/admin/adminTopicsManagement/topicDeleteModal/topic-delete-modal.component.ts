@@ -3,7 +3,6 @@ import {
   Component,
   DestroyRef,
   Input,
-  OnInit,
   inject,
   signal,
 } from '@angular/core';
@@ -11,10 +10,8 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AdminTopicsManagementService } from '../admin-topics-management.service';
 import { Topic } from '../topic.model';
 
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { finalize } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { TranslateModule } from '@ngx-translate/core';
@@ -23,30 +20,24 @@ import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-topic-delete-modal',
   templateUrl: './topic-delete-modal.component.html',
-  styleUrls: ['./topic-delete-modal.component.scss'],
   imports: [LoadingOverlayComponent, TranslateModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TopicDeleteModalComponent implements OnInit {
+export class TopicDeleteModalComponent {
   activeModal = inject(NgbActiveModal);
-  private indicatorValueService = inject(IndicatorValueService);
   private srvc = inject(AdminTopicsManagementService);
-  private sanitizer = inject(DomSanitizer);
   private destroyRef = inject(DestroyRef);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
 
   @Input() currentTopic?: Topic;
-  topicToDeletePrettyPrint: SafeHtml | string = '';
   // Signal: toggled from the delete subscription (OnPush).
   loadingData = signal(false);
 
-  ngOnInit() {
-    if (this.currentTopic) {
-      const html = this.indicatorValueService.syntaxHighlightJSON(this.currentTopic);
-      this.topicToDeletePrettyPrint = this.sanitizer.bypassSecurityTrustHtml(html);
-    }
+  /** Cascade size, spelled out in the summary table. */
+  get subTopicCount(): number {
+    return this.currentTopic?.subTopics?.length ?? 0;
   }
 
   deleteTopic() {

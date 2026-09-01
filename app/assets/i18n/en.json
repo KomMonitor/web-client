@@ -999,17 +999,16 @@
       "MSG": {
         "DELETED": "Topic '{{name}}' was deleted.",
         "DELETE_FAILED": "The topic could not be deleted."
-      }
+      },
+      "SUBTOPICS_HEADER": "Subtopics",
+      "NO_SUBTOPICS": "none"
     },
     "EDIT_MODAL": {
       "TITLE_PREFIX": "Edit metadata of the topic entry",
       "TITLE_SUFFIX": "",
-      "FORM_TITLE": "Topic metadata",
       "NAME_LABEL": "Name of the entry",
       "TITLE_PLACEHOLDER": "Title of the entry",
-      "NAME_REQUIRED": "Name is required",
       "DESCRIPTION_LABEL": "Description of the entry",
-      "DESCRIPTION_REQUIRED": "Description is required",
       "UPDATE": "Update entry",
       "MSG": {
         "UPDATED": "Topic '{{name}}' was updated.",
@@ -1019,7 +1018,9 @@
     "MSG": {
       "SORT_SAVE_FAILED": "The sort order could not be saved.",
       "SORT_MODES_LOAD_FAILED": "The sort modes could not be loaded."
-    }
+    },
+    "SUBTOPIC_COUNT_ONE": "1 direct subtopic",
+    "SUBTOPIC_COUNT_MANY": "{{count}} direct subtopics"
   },
   "ADMIN_SCRIPTS": {
     "ADD": "Add",

@@ -1,8 +1,42 @@
 :host {
-  .row {
-    border-top: double;
+  .add-topic-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+
+    // A 3px double rule in near-black was the heaviest separator in the admin
+    // area and appeared nowhere else. A hairline in the row's own green does the
+    // same job.
+    border-top: 1px solid #c5dfb8;
     background-color: #dff0d8;
     padding: 10px 15px;
     margin: 0;
+
+    .field {
+      // Both fields shrink and grow, the description twice as eagerly, so the
+      // pair fills the row without fixed grid columns.
+      min-width: 0;
+    }
+
+    .field-title {
+      flex: 1 1 0;
+    }
+
+    .field-description {
+      flex: 2 1 0;
+    }
+
+    // Same 38px box as the two `.form-control` fields beside it. It used to be
+    // `btn-sm` (31px, 14px type) next to a 38px/16px input, so button, input and
+    // textarea sat on three different baselines.
+    .btn {
+      flex: 0 0 auto;
+    }
+
+    textarea.form-control {
+      // rows="1" plus the default form-control padding matches the input's
+      // height; still resizable for a long description.
+      resize: vertical;
+    }
   }
 }

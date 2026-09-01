@@ -1,64 +1,63 @@
 <app-admin-content-view
   [title]="'ADMIN_TOPICS.TITLE' | translate"
   [description]="'ADMIN_TOPICS.DESCRIPTION' | translate"
+  [controlsTemplate]="controls"
   [contentTemplate]="content"
 >
 </app-admin-content-view>
+
+<!--
+  View-level switch belongs in the header's controls slot, like the "show only
+  editable" switch of the group management. As the first element of the content
+  it rendered a 16px bold `<b>` label on the grey ground above the boxes,
+  instead of the 12px header scale.
+-->
+<ng-template #controls>
+  <span>{{ 'ADMIN_TOPICS.SHOW_IDS' | translate }}</span>
+  <div>
+    <label class="switch">
+      <input type="checkbox" [(ngModel)]="showTopicIds" />
+      <span class="switchslider round"></span>
+    </label>
+  </div>
+</ng-template>
+
 <ng-template #content>
-  <b>{{ 'ADMIN_TOPICS.SHOW_IDS' | translate }}</b>
-  &nbsp;
-  <label class="switch">
-    <input type="checkbox" [(ngModel)]="showTopicIds" />
-    <span class="switchslider round"></span>
-  </label>
-
-  <br />
-
   <expandable-box [title]="'ADMIN_TOPICS.INDICATOR_HIERARCHY' | translate" [collapsed]="false">
     @if (indicatorOrder(); as indicatorOrder) {
-      <div class="just-padding">
-        <div>
-          <div>{{ 'ADMIN_TOPICS.INDICATOR_SORTING' | translate }}</div>
-          <app-topic-order-selection
-            [orderMode]="indicatorOrder"
-            (selectedOptionChange)="setIndicatorSorting($event)"
-          ></app-topic-order-selection>
-        </div>
-        <app-topic-list
-          [topics]="filteredIndicatorTopics"
-          [showTopicIds]="showTopicIds"
-          [levelLimit]="4"
-          [topicResourceType]="'indicator'"
-          [order]="indicatorOrder"
-        ></app-topic-list>
-        <app-admin-add-topic [topicResourceType]="'indicator'"></app-admin-add-topic>
-      </div>
+      <app-topic-order-selection
+        [orderMode]="indicatorOrder"
+        [label]="'ADMIN_TOPICS.INDICATOR_SORTING' | translate"
+        [topicResourceType]="'indicator'"
+        (selectedOptionChange)="setIndicatorSorting($event)"
+      ></app-topic-order-selection>
+      <app-topic-list
+        [topics]="filteredIndicatorTopics"
+        [showTopicIds]="showTopicIds"
+        [levelLimit]="4"
+        [topicResourceType]="'indicator'"
+        [order]="indicatorOrder"
+      ></app-topic-list>
+      <app-admin-add-topic [topicResourceType]="'indicator'"></app-admin-add-topic>
     }
   </expandable-box>
 
-  <expandable-box
-    [title]="'ADMIN_TOPICS.GEORESOURCE_HIERARCHY' | translate"
-    [collapsed]="false"
-    borderColor="red"
-  >
+  <expandable-box [title]="'ADMIN_TOPICS.GEORESOURCE_HIERARCHY' | translate" [collapsed]="false">
     @if (geoRessourceOrder(); as geoRessourceOrder) {
-      <div class="just-padding">
-        <div>
-          <div>{{ 'ADMIN_TOPICS.GEORESOURCE_SORTING' | translate }}</div>
-          <app-topic-order-selection
-            [orderMode]="geoRessourceOrder"
-            (selectedOptionChange)="setGeoRessourceSorting($event)"
-          ></app-topic-order-selection>
-        </div>
-        <app-topic-list
-          [topics]="filteredGeoRessourceTopics"
-          [showTopicIds]="showTopicIds"
-          [levelLimit]="4"
-          [topicResourceType]="'georesource'"
-          [order]="geoRessourceOrder"
-        ></app-topic-list>
-        <app-admin-add-topic [topicResourceType]="'georesource'"></app-admin-add-topic>
-      </div>
+      <app-topic-order-selection
+        [orderMode]="geoRessourceOrder"
+        [label]="'ADMIN_TOPICS.GEORESOURCE_SORTING' | translate"
+        [topicResourceType]="'georesource'"
+        (selectedOptionChange)="setGeoRessourceSorting($event)"
+      ></app-topic-order-selection>
+      <app-topic-list
+        [topics]="filteredGeoRessourceTopics"
+        [showTopicIds]="showTopicIds"
+        [levelLimit]="4"
+        [topicResourceType]="'georesource'"
+        [order]="geoRessourceOrder"
+      ></app-topic-list>
+      <app-admin-add-topic [topicResourceType]="'georesource'"></app-admin-add-topic>
     }
   </expandable-box>
 

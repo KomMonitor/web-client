@@ -12,12 +12,13 @@ import { take } from 'rxjs/operators';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
 import { TranslateModule } from '@ngx-translate/core';
+import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
 
 @Component({
   selector: 'app-admin-add-topic',
   templateUrl: './add-topic.component.html',
   styleUrls: ['./add-topic.component.scss'],
-  imports: [ReactiveFormsModule, TranslateModule],
+  imports: [ReactiveFormsModule, TranslateModule, FormErrorComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

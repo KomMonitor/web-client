@@ -11,17 +11,48 @@
         (click)="toggleExpand(topic.topicId!)"
         cdkDrag
       >
+        <!--
+          The marker column is always rendered, empty at the deepest level, so
+          the topic names of all four levels line up on one edge.
+        -->
         @if (isExpandable()) {
           <i
             class="fa collapse-marker"
             [class.fa-angle-right]="!isExpanded(topic.topicId!)"
             [class.fa-angle-down]="isExpanded(topic.topicId!)"
           ></i>
+        } @else {
+          <span class="collapse-marker"></span>
         }
-        <div [title]="topic.topicDescription">
+
+        <div class="topic-name" [title]="topic.topicDescription">
           {{ topic.topicName }}
         </div>
-        <div class="btn-group btn-group-sm" style="display: inline-block; margin: 0 5px">
+
+        <!--
+          Says whether the row has children before it is clicked: the marker only
+          means "can be expanded", and an expandable topic without subtopics
+          reveals nothing but the add form.
+        -->
+        @if (subTopicCount(topic); as count) {
+          <div class="topic-meta">
+            {{
+              (count === 1 ? 'ADMIN_TOPICS.SUBTOPIC_COUNT_ONE' : 'ADMIN_TOPICS.SUBTOPIC_COUNT_MANY')
+                | translate: { count: count }
+            }}
+          </div>
+        }
+
+        @if (showTopicIds) {
+          <div class="topic-meta">(ID: {{ topic.topicId }})</div>
+        }
+
+        <!--
+          `margin-left: auto` in the stylesheet, not a spacer element: the button
+          group then sits on one column for every row and every level, instead of
+          floating along with the length of the topic name.
+        -->
+        <div class="btn-group btn-group-sm topic-actions">
           <button
             type="button"
             class="btn btn-warning"
@@ -37,9 +68,6 @@
             <i class="fas fa-trash"></i>
           </button>
         </div>
-        @if (showTopicIds) {
-          <div style="margin: 0 10px">(ID: {{ topic.topicId }})</div>
-        }
       </div>
       <div
         class="list-group collapse"

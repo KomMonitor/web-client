@@ -3926,6 +3926,28 @@ h4 {
   line-height: 1.3;
 }
 
+/*
+ * Field hints and validation messages. `.help-block` is the hint class the
+ * admin forms have always used and `<app-form-error>` renders
+ * `.help-block.with-errors` for every validation message in the app — but the
+ * grey/12px treatment existed only as a copy inside about ten component
+ * stylesheets, so any dialog without its own copy showed both at 16px in the
+ * regular body colour. A required-field message was then indistinguishable
+ * from body text: black, full size, next to an input whose border stayed
+ * neutral grey.
+ *
+ * Defined once here so a message looks the same wherever it appears; the
+ * component copies are now redundant rather than load-bearing.
+ */
+.help-block {
+  color: #737373;
+  font-size: 12px;
+}
+
+.help-block.with-errors {
+  color: #dc3545;
+}
+
 .boxedLegend {
   font:
     12px/14px Arial,

@@ -1,25 +1,33 @@
-<div>
-  <div class="radio">
-    <label>
-      <input
-        type="radio"
-        value="alphabetical"
-        [(ngModel)]="orderMode"
-        (ngModelChange)="setOption($event)"
-      />
+<fieldset>
+  <legend class="form-label">{{ label }}</legend>
+
+  <div class="form-check">
+    <input
+      class="form-check-input"
+      type="radio"
+      [id]="groupName + '-alphabetical'"
+      [name]="groupName"
+      value="alphabetical"
+      [(ngModel)]="orderMode"
+      (ngModelChange)="setOption($event)"
+    />
+    <label class="form-check-label" [for]="groupName + '-alphabetical'">
       {{ 'ADMIN_TOPICS.ORDER.ALPHABETICAL' | translate }}
     </label>
   </div>
 
-  <div class="radio">
-    <label>
-      <input
-        type="radio"
-        value="custom"
-        [(ngModel)]="orderMode"
-        (ngModelChange)="setOption($event)"
-      />
+  <div class="form-check">
+    <input
+      class="form-check-input"
+      type="radio"
+      [id]="groupName + '-custom'"
+      [name]="groupName"
+      value="custom"
+      [(ngModel)]="orderMode"
+      (ngModelChange)="setOption($event)"
+    />
+    <label class="form-check-label" [for]="groupName + '-custom'">
       {{ 'ADMIN_TOPICS.ORDER.CUSTOM' | translate }}
     </label>
   </div>
-</div>
+</fieldset>

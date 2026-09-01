@@ -999,17 +999,16 @@
       "MSG": {
         "DELETED": "Thema '{{name}}' wurde gelöscht.",
         "DELETE_FAILED": "Das Thema konnte nicht gelöscht werden."
-      }
+      },
+      "SUBTOPICS_HEADER": "Unterthemen",
+      "NO_SUBTOPICS": "keine"
     },
     "EDIT_MODAL": {
       "TITLE_PREFIX": "Metadaten des Themeneintrags",
       "TITLE_SUFFIX": "editieren",
-      "FORM_TITLE": "Themen Metadaten",
       "NAME_LABEL": "Name des Eintrags",
       "TITLE_PLACEHOLDER": "Titel des Eintrags",
-      "NAME_REQUIRED": "Name ist erforderlich",
       "DESCRIPTION_LABEL": "Beschreibung des Eintrags",
-      "DESCRIPTION_REQUIRED": "Beschreibung ist erforderlich",
       "UPDATE": "Eintrag aktualisieren",
       "MSG": {
         "UPDATED": "Thema '{{name}}' wurde aktualisiert.",
@@ -1019,7 +1018,9 @@
     "MSG": {
       "SORT_SAVE_FAILED": "Die Sortierung konnte nicht gespeichert werden.",
       "SORT_MODES_LOAD_FAILED": "Die Sortiermodi konnten nicht geladen werden."
-    }
+    },
+    "SUBTOPIC_COUNT_ONE": "1 direktes Unterthema",
+    "SUBTOPIC_COUNT_MANY": "{{count}} direkte Unterthemen"
   },
   "ADMIN_SCRIPTS": {
     "ADD": "Hinzufügen",

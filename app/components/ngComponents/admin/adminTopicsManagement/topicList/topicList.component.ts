@@ -16,7 +16,7 @@ import { AddTopicComponent } from '../add-topic/add-topic.component';
 import { SortByOrderPipe } from '../sortByOrder.pipe';
 import { NotificationService } from '../../../common/notification/notification.service';
 
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MODAL_CONFIRM, MODAL_FORM } from 'util/modal-presets';
 @Injectable({ providedIn: 'root' })
 export class ExpandedService {
@@ -27,7 +27,14 @@ export class ExpandedService {
   selector: 'app-topic-list',
   templateUrl: './topicList.component.html',
   styleUrls: ['./topicList.component.scss'],
-  imports: [AddTopicComponent, SortByOrderPipe, CdkDropList, NgbCollapseModule, CdkDrag],
+  imports: [
+    AddTopicComponent,
+    SortByOrderPipe,
+    CdkDropList,
+    NgbCollapseModule,
+    CdkDrag,
+    TranslateModule,
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -82,8 +89,18 @@ export class TopicListComponent {
     return this.expandedService.expandedTopics.has(topicId);
   }
 
+  /**
+   * Whether the rows of this level can be opened at all. Independent of whether
+   * a given topic already has children: opening a childless topic is how its
+   * first subtopic gets added, so the marker means "can be expanded", and
+   * `subTopicCount` is what tells the user whether anything is in there.
+   */
   isExpandable() {
     return this.level < this.levelLimit;
+  }
+
+  subTopicCount(topic: Topic): number {
+    return topic.subTopics?.length ?? 0;
   }
 
   toggleExpand(topicId: string) {
