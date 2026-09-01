@@ -350,6 +350,7 @@
     "ERROR_MESSAGE": "Fehlermeldung",
     "OVERVIEW": {
       "TITLE": "Verwalten der Indikatoren",
+      "DESCRIPTION": "Registrierung und Pflege der Indikatoren und ihrer Zeitreihen",
       "CREATE_INDICATOR": "Indikator erstellen",
       "CREATE_WMS": "WMS erstellen",
       "METADATA_BOX": "Indikatoren-Metadaten"
@@ -641,7 +642,8 @@
       "ROW_METADATA_MISSING": "Indikator oder Ziel-Raumebene sind nicht mehr vorhanden; die Zeile wurde übersprungen.",
       "RUN_SUMMARY": "{{success}} von {{total}} Datensätzen aktualisiert, {{error}} fehlgeschlagen.",
       "RUN_PROGRESS": "Zeile {{done}} von {{total}}",
-      "DEFAULT_APPLIED": "{{changed}} Zeile(n) aktualisiert."
+      "DEFAULT_APPLIED": "{{changed}} Zeile(n) aktualisiert.",
+      "RUN_BLOCKED": "Der Batch-Update kann noch nicht ausgeführt werden:"
     },
     "DELETE_MODAL": {
       "TITLE": "Indikatoren löschen",

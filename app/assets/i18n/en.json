@@ -350,6 +350,7 @@
     "ERROR_MESSAGE": "Error message",
     "OVERVIEW": {
       "TITLE": "Manage indicators",
+      "DESCRIPTION": "Register and maintain indicators and their time series",
       "CREATE_INDICATOR": "Create indicator",
       "CREATE_WMS": "Create WMS",
       "METADATA_BOX": "Indicator metadata"
@@ -641,7 +642,8 @@
       "ROW_METADATA_MISSING": "Indicator or target spatial unit no longer exists; the row was skipped.",
       "RUN_SUMMARY": "{{success}} of {{total}} datasets updated, {{error}} failed.",
       "RUN_PROGRESS": "Row {{done}} of {{total}}",
-      "DEFAULT_APPLIED": "{{changed}} row(s) updated."
+      "DEFAULT_APPLIED": "{{changed}} row(s) updated.",
+      "RUN_BLOCKED": "The batch update cannot be run yet:"
     },
     "DELETE_MODAL": {
       "TITLE": "Delete indicators",

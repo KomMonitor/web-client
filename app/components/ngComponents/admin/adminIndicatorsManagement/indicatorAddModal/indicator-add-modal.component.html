@@ -15,18 +15,137 @@
 </div>
 
 <div class="modal-body">
-  <div align="center">
-    @if (state.loadingData) {
-      <div class="loading-overlay-admin-panel">
-        <i class="fas fa-spinner fa-spin fa-2x"></i>
-      </div>
-    }
+  @if (state.loadingData) {
+    <div class="loading-overlay-admin-panel">
+      <i class="fas fa-spinner fa-spin fa-2x"></i>
+    </div>
+  }
+
+  <!--
+    All three failure reports used to sit after </div class="modal-footer">,
+    `position: absolute; bottom: 0`, so they rendered below or on top of the
+    dialog's own buttons. They are ordinary alerts at the top of the body now.
+  -->
+  <!-- Success Alert -->
+  @if (state.successMessagePart) {
+    <div id="indicatorAddSuccessAlert" class="alert alert-success alert-dismissible">
+      <button
+        type="button"
+        class="btn-close float-end"
+        [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+        (click)="state.hideSuccessAlert()"
+      ></button>
+      @if (state.editMode) {
+        <h4>
+          <i class="icon fa fa-check"></i
+          >{{ 'ADMIN_INDICATORS.ADD_MODAL.SUCCESS_UPDATED_TITLE' | translate }}
+        </h4>
+        <p>
+          {{
+            'ADMIN_INDICATORS.ADD_MODAL.SUCCESS_UPDATED_TEXT'
+              | translate: { name: state.successMessagePart }
+          }}
+        </p>
+      } @else {
+        <h4>
+          <i class="icon fa fa-check"></i
+          >{{ 'ADMIN_INDICATORS.ADD_MODAL.SUCCESS_CREATED_TITLE' | translate }}
+        </h4>
+        <p>
+          {{
+            'ADMIN_INDICATORS.ADD_MODAL.SUCCESS_CREATED_TEXT'
+              | translate: { name: state.successMessagePart }
+          }}
+        </p>
+      }
+    </div>
+  }
+
+  <!-- Error Alert -->
+  @if (state.errorMessagePart) {
+    <div id="indicatorAddErrorAlert" class="alert alert-danger alert-dismissible">
+      <button
+        type="button"
+        class="btn-close float-end"
+        [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+        (click)="state.hideErrorAlert()"
+      ></button>
+      <h4>
+        <i class="icon fa fa-ban"></i>{{ 'ADMIN_INDICATORS.ADD_MODAL.ERROR_TITLE' | translate }}
+      </h4>
+      {{ 'ADMIN_INDICATORS.ADD_MODAL.ERROR_TEXT' | translate }}
+      <br />
+      <pre style="overflow: auto; max-height: 500px" [innerHTML]="state.errorMessagePart"></pre>
+      <br />
+      <br />
+    </div>
+  }
+
+  <!-- Metadata Import Error Alert -->
+  @if (state.indicatorMetadataImportError) {
+    <div id="indicatorAddMetadataImportErrorAlert" class="alert alert-danger alert-dismissible">
+      <button
+        type="button"
+        class="btn-close float-end"
+        [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+        (click)="state.hideMetadataErrorAlert()"
+      ></button>
+      <h4>
+        <i class="icon fa fa-ban"></i
+        >{{ 'ADMIN_INDICATORS.ADD_MODAL.IMPORT_ERROR_TITLE' | translate }}
+      </h4>
+      {{ 'ADMIN_INDICATORS.ADD_MODAL.IMPORT_ERROR_TEXT' | translate }}
+      <br />
+      <pre>{{ state.indicatorMetadataImportError }}</pre>
+      <br />
+      <br />
+      <p>{{ 'ADMIN_INDICATORS.ADD_MODAL.IMPORT_ERROR_FORMAT_HINT' | translate }}</p>
+      <pre id="indicatorsAddMetadataPre" style="overflow: auto; max-height: 500px">{{
+        state.indicatorMetadataStructure_pretty
+      }}</pre>
+    </div>
+  }
+
+  <!--
+    Metadata import/export as a toolbar above the wizard rather than two more
+    buttons in the footer. It keeps the footer to the same three buttons as
+    every other admin dialog, and puts the pair next to the form it acts on.
+  -->
+  <div class="dialog-toolbar">
+    <button
+      type="button"
+      class="btn btn-outline-secondary btn-sm"
+      (click)="onImportIndicatorAddMetadata()"
+      [title]="'ADMIN_INDICATORS.ADD_MODAL.METADATA_IMPORT_TOOLTIP' | translate"
+    >
+      <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
+        'ADMIN_INDICATORS.ADD_MODAL.METADATA_IMPORT' | translate
+      }}
+    </button>
+    <input
+      hidden
+      type="file"
+      #metadataImportFile
+      (change)="onMetadataFileSelected($event)"
+      id="indicatorMetadataImportFile"
+      accept=".json,"
+    />
+    <button
+      type="button"
+      class="btn btn-outline-secondary btn-sm"
+      (click)="state.onExportIndicatorAddMetadata()"
+      [title]="'ADMIN_INDICATORS.ADD_MODAL.METADATA_EXPORT_TOOLTIP' | translate"
+    >
+      <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
+        'ADMIN_INDICATORS.ADD_MODAL.METADATA_EXPORT' | translate
+      }}
+    </button>
   </div>
 
   <!-- MultiStep Form -->
   <div class="row">
     <div class="col-md-12">
-      <div class="multiStepForm form-group" id="indicatorAddForm" style="margin-bottom: 0px">
+      <div class="form-group" id="indicatorAddForm" style="margin-bottom: 0px">
         <!-- progressbar -->
         <app-stepper
           [steps]="state.stepper.steps"
@@ -73,51 +192,18 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="cancel()">
-    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="cancel()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
   </button>
-  <button
-    type="button"
-    class="btn btn-info pull-left"
-    (click)="onImportIndicatorAddMetadata()"
-    [title]="'ADMIN_INDICATORS.ADD_MODAL.METADATA_IMPORT_TOOLTIP' | translate"
-  >
-    <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
-      'ADMIN_INDICATORS.ADD_MODAL.METADATA_IMPORT' | translate
-    }}
+  <button type="button" class="btn btn-outline-secondary" (click)="state.resetForm()">
+    <i class="fas fa-undo"></i>&nbsp;{{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
-  <input
-    style="display: none"
-    class="pull-left"
-    type="file"
-    #metadataImportFile
-    (change)="onMetadataFileSelected($event)"
-    id="indicatorMetadataImportFile"
-    accept=".json,"
-  />
-  <button
-    type="button"
-    style="margin-left: 6px"
-    class="btn btn-info pull-left"
-    (click)="state.onExportIndicatorAddMetadata()"
-    [title]="'ADMIN_INDICATORS.ADD_MODAL.METADATA_EXPORT_TOOLTIP' | translate"
-  >
-    <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
-      'ADMIN_INDICATORS.ADD_MODAL.METADATA_EXPORT' | translate
-    }}
-  </button>
-
-  <div style="flex: 1"></div>
-
   <button type="button" class="btn btn-success" (click)="addIndicator()">
     @if (state.editMode) {
       {{ 'ADMIN_INDICATORS.ADD_MODAL.SAVE_CHANGES' | translate }}
     } @else {
       {{ 'ADMIN_INDICATORS.ADD_MODAL.REGISTER' | translate }}
     }
-  </button>
-  <button type="button" class="btn btn-danger" (click)="state.resetForm()">
-    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
 </div>
 
@@ -145,91 +231,8 @@
     </ul>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-default" (click)="modal.close()">
+    <button type="button" class="btn btn-primary" (click)="modal.close()">
       {{ 'ADMIN_INDICATORS.ADD_MODAL.MISSING_FIELDS_OK' | translate }}
     </button>
   </div>
 </ng-template>
-
-<!-- Success Alert -->
-@if (state.successMessagePart) {
-  <div
-    id="indicatorAddSuccessAlert"
-    style="position: absolute; bottom: 0px; width: 100%"
-    class="alert alert-success alert-dismissable"
-  >
-    <button type="button" class="close" (click)="state.hideSuccessAlert()" aria-hidden="true">
-      &times;
-    </button>
-    @if (state.editMode) {
-      <h4>
-        <i class="icon fa fa-check"></i
-        >{{ 'ADMIN_INDICATORS.ADD_MODAL.SUCCESS_UPDATED_TITLE' | translate }}
-      </h4>
-      <p>
-        {{
-          'ADMIN_INDICATORS.ADD_MODAL.SUCCESS_UPDATED_TEXT'
-            | translate: { name: state.successMessagePart }
-        }}
-      </p>
-    } @else {
-      <h4>
-        <i class="icon fa fa-check"></i
-        >{{ 'ADMIN_INDICATORS.ADD_MODAL.SUCCESS_CREATED_TITLE' | translate }}
-      </h4>
-      <p>
-        {{
-          'ADMIN_INDICATORS.ADD_MODAL.SUCCESS_CREATED_TEXT'
-            | translate: { name: state.successMessagePart }
-        }}
-      </p>
-    }
-  </div>
-}
-
-<!-- Error Alert -->
-@if (state.errorMessagePart) {
-  <div
-    id="indicatorAddErrorAlert"
-    style="position: absolute; bottom: 0px; width: 100%"
-    class="alert alert-danger alert-dismissable"
-  >
-    <button type="button" class="close" (click)="state.hideErrorAlert()" aria-hidden="true">
-      &times;
-    </button>
-    <h4>
-      <i class="icon fa fa-ban"></i>{{ 'ADMIN_INDICATORS.ADD_MODAL.ERROR_TITLE' | translate }}
-    </h4>
-    {{ 'ADMIN_INDICATORS.ADD_MODAL.ERROR_TEXT' | translate }}
-    <br />
-    <pre style="overflow: auto; max-height: 500px" [innerHTML]="state.errorMessagePart"></pre>
-    <br />
-    <br />
-  </div>
-}
-
-<!-- Metadata Import Error Alert -->
-@if (state.indicatorMetadataImportError) {
-  <div
-    id="indicatorAddMetadataImportErrorAlert"
-    style="position: absolute; bottom: 0px; width: 100%"
-    class="alert alert-danger alert-dismissable"
-  >
-    <button type="button" class="close" (click)="state.hideMetadataErrorAlert()" aria-hidden="true">
-      &times;
-    </button>
-    <h4>
-      <i class="icon fa fa-ban"></i
-      >{{ 'ADMIN_INDICATORS.ADD_MODAL.IMPORT_ERROR_TITLE' | translate }}
-    </h4>
-    {{ 'ADMIN_INDICATORS.ADD_MODAL.IMPORT_ERROR_TEXT' | translate }}
-    <br />
-    <pre>{{ state.indicatorMetadataImportError }}</pre>
-    <br />
-    <br />
-    <p>{{ 'ADMIN_INDICATORS.ADD_MODAL.IMPORT_ERROR_FORMAT_HINT' | translate }}</p>
-    <pre id="indicatorsAddMetadataPre" style="overflow: auto; max-height: 500px">{{
-      state.indicatorMetadataStructure_pretty
-    }}</pre>
-  </div>
-}

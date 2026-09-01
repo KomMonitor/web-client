@@ -23,14 +23,23 @@
   z-index: 10;
 }
 
+/*
+ * The two pinned columns must be exactly as wide as the `left` offsets assume,
+ * or the second one overlaps the first scrolling column: column 1 rendered at
+ * 30px while column 2 was offset by 50px, and column 2 grew to 300px against a
+ * declared 200px, so the "Mappingtabelle" header lost its first letter behind
+ * it. Table cells size to their content unless both bounds are pinned.
+ */
 .batch-list-table-sticky-column-1 {
   left: 0;
-  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
 }
 
 .batch-list-table-sticky-column-2 {
   left: 50px;
-  width: 200px;
+  min-width: 280px;
+  max-width: 280px;
 }
 
 .batch-list-table-sticky-column-header {
@@ -50,16 +59,6 @@
   min-width: 180px;
 }
 
-.indicatorTimeseriesMappingBtn {
-  background-color: #5cb85c !important;
-  border-color: #4cae4c !important;
-}
-
-.indicatorTimeseriesMappingBtn:hover {
-  background-color: #449d44 !important;
-  border-color: #398439 !important;
-}
-
 .loading-overlay-admin-panel {
   position: absolute;
   top: 0;
@@ -73,47 +72,26 @@
   z-index: 1000;
 }
 
-.icon-spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-/* Form control styles */
-.form-control {
+/*
+ * Density for the wide batch table only. These used to be bare `.form-control`
+ * / `.btn` rules, so they also shrank the dialog's own footer buttons to 11px
+ * while every other admin dialog's footer runs at 16px.
+ */
+.batch-list-table .form-control {
   font-size: 11px;
   padding: 4px 8px;
   height: auto;
 }
 
-.form-control:focus {
-  border-color: #80bdff;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-/* Button styles */
-.btn {
+.batch-list-table .btn {
   font-size: 11px;
   padding: 4px 8px;
 }
 
-.btn-sm {
-  font-size: 10px;
-  padding: 3px 6px;
-}
-
-/* Modal styles */
-.modal-body {
-  max-height: 80vh;
-  overflow-y: auto;
-}
+/*
+ * No `.modal-body { max-height: 80vh }` here: the modal presets are
+ * `scrollable: true` and app.scss carries the flex bridge that makes it work.
+ */
 
 /* Table responsive styles */
 .table-responsive {
@@ -126,14 +104,13 @@ input[type='checkbox'] {
   vertical-align: middle;
 }
 
-/* Select styles */
-select.form-control {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 6 7 7 7-7'/%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 16px 12px;
-  padding-right: 2rem;
-}
+/*
+ * No `select.form-control { background-image: <chevron> }` here. It painted
+ * Bootstrap's chevron on top of the select without the `appearance: none` that
+ * suppresses the native one, so every dropdown in this dialog showed two
+ * arrows. The 39 other `.form-control` selects in the admin area carry no such
+ * rule and render the platform arrow alone.
+ */
 
 /* File input styles */
 input[type='file'] {
@@ -149,112 +126,10 @@ input[type='file'] {
   margin-right: 8px;
 }
 
-/* Utility classes */
-.text-end {
-  text-align: right;
-}
-
-.mb-3 {
-  margin-bottom: 1rem;
-}
-
-.mt-3 {
-  margin-top: 1rem;
-}
-
-/* AdminLTE box styles */
-.box {
-  position: relative;
-  border-radius: 3px;
-  background: #ffffff;
-  border-top: 3px solid #d2d6de;
-  margin-bottom: 20px;
-  width: 100%;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-}
-
-.box.box-primary {
-  border-top-color: #3c8dbc;
-}
-
-.box.collapsed-box .box-body,
-.box.collapsed-box .box-footer {
-  display: none;
-}
-
-.box-header {
-  color: #444;
-  display: block;
-  padding: 10px;
-  position: relative;
-}
-
-.box-header.with-border {
-  border-bottom: 1px solid #f4f4f4;
-}
-
-.box-title {
-  font-size: 18px;
-  margin: 0;
-  line-height: 1;
-}
-
-.box-tools {
-  position: absolute;
-  right: 10px;
-  top: 5px;
-}
-
-.btn-box-tool {
-  padding: 5px;
-  font-size: 12px;
-  background: transparent;
-  color: #97a0b3;
-  border: none;
-}
-
-.pull-right {
-  float: right !important;
-}
-
-.pull-left {
-  float: left !important;
-}
-
-.box-body {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 3px;
-  border-bottom-left-radius: 3px;
-  padding: 10px;
-}
-
 /* Vertical align */
 .vertical-align {
   display: flex;
   align-items: flex-start;
-}
-
-/* Help block */
-.help-block {
-  display: block;
-  margin-top: 5px;
-  margin-bottom: 10px;
-  color: #737373;
-}
-
-/* Alert styles */
-.alert {
-  padding: 15px;
-  margin-bottom: 20px;
-  border: 1px solid transparent;
-  border-radius: 4px;
-}
-
-.alert-warning {
-  color: #8a6d3b;
-  background-color: #fcf8e3;
-  border-color: #faebcc;
 }
 
 /* Responsive adjustments */

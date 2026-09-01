@@ -21,11 +21,58 @@
 </div>
 
 <div class="modal-body" [formGroup]="form">
+  <!--
+    Importing, exporting and re-opening the last result are side errands, not
+    dialog-level decisions. In the footer they made six buttons in one row; here
+    the footer keeps the same three buttons every admin dialog has.
+  -->
+  <div class="dialog-toolbar">
+    <button
+      type="button"
+      class="btn btn-outline-secondary btn-sm"
+      (click)="loadIndicatorsBatchList()"
+      [title]="'ADMIN_INDICATORS.BATCH_MODAL.IMPORT_BATCH_LIST_TOOLTIP' | translate"
+    >
+      <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
+        'ADMIN_INDICATORS.BATCH_MODAL.IMPORT_BATCH_LIST' | translate
+      }}
+    </button>
+    <input
+      #batchListFileInput
+      hidden
+      type="file"
+      accept=".json"
+      [attr.aria-label]="'ADMIN_INDICATORS.BATCH_MODAL.IMPORT_BATCH_LIST' | translate"
+      (change)="onBatchListFileSelected($event)"
+    />
+    <button
+      type="button"
+      class="btn btn-outline-secondary btn-sm"
+      (click)="saveBatchListToFile()"
+      [title]="'ADMIN_INDICATORS.BATCH_MODAL.EXPORT_BATCH_LIST_TOOLTIP' | translate"
+    >
+      <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
+        'ADMIN_INDICATORS.BATCH_MODAL.EXPORT_BATCH_LIST' | translate
+      }}
+    </button>
+    <button
+      id="indicator-reopen-results-btn"
+      type="button"
+      class="btn btn-outline-secondary btn-sm"
+      [disabled]="!lastResults()"
+      (click)="openResultModal()"
+    >
+      {{ 'ADMIN_INDICATORS.BATCH_MODAL.SHOW_RESULT' | translate }}
+    </button>
+  </div>
+
   <div class="row">
     <div class="col-12">
       <p>{{ 'ADMIN_INDICATORS.BATCH_MODAL.INTRO' | translate }}</p>
       <p>
-        <b>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</b>
+        <b
+          ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+        >
       </p>
     </div>
   </div>
@@ -33,10 +80,7 @@
   <div class="row">
     <div class="col-12">
       <div class="batch-list-table-wrapper table-responsive">
-        <table
-          class="batch-list-table table table-bordered table-condensed table-striped"
-          style="width: 100%; overflow: auto; font-size: 11px"
-        >
+        <table class="batch-list-table table table-bordered table-condensed table-striped">
           <thead>
             <tr>
               <th
@@ -121,9 +165,16 @@
                 </td>
                 <!-- Timeseries mapping -->
                 <td>
+                  <!--
+                    One colour class, not `btn-success` with `btn-warning`
+                    stacked on top, whose winner depended on their order in the
+                    Bootstrap stylesheet. `form-control` also does not belong on
+                    a button.
+                  -->
                   <button
                     type="button"
-                    class="form-control btn btn-success btn-sm"
+                    class="btn btn-sm w-100"
+                    [class.btn-success]="row.controls.timeseriesMappings.valid"
                     [class.btn-warning]="row.controls.timeseriesMappings.invalid"
                     (click)="toggleTimeseriesMapping(i)"
                   >
@@ -263,13 +314,15 @@
                 <td>
                   <button
                     type="button"
-                    class="btn btn-primary fas fa-save"
+                    class="btn btn-primary btn-sm"
                     [title]="'ADMIN_INDICATORS.BATCH_MODAL.SAVE_MAPPING_TABLE' | translate"
                     [attr.aria-label]="
                       'ADMIN_INDICATORS.BATCH_MODAL.SAVE_MAPPING_TABLE' | translate
                     "
                     (click)="saveMappingObjectToFile(row)"
-                  ></button>
+                  >
+                    <i class="fas fa-save"></i>
+                  </button>
                 </td>
               </tr>
               @if (expandedMappingRow() === i) {
@@ -285,10 +338,14 @@
         </table>
       </div>
 
-      <button type="button" class="btn btn-primary" (click)="addNewRowToBatchList()">
+      <button type="button" class="btn btn-primary btn-sm" (click)="addNewRowToBatchList()">
         {{ 'ADMIN_INDICATORS.BATCH_MODAL.ADD_ROW' | translate }}
       </button>
-      <button type="button" class="btn btn-danger" (click)="deleteSelectedRowsFromBatchList()">
+      <button
+        type="button"
+        class="btn btn-danger btn-sm"
+        (click)="deleteSelectedRowsFromBatchList()"
+      >
         {{ 'ADMIN_INDICATORS.BATCH_MODAL.DELETE_SELECTED_ROWS' | translate }}
       </button>
     </div>
@@ -490,7 +547,13 @@
 
     <div class="col-md-4 col-sm-4 col-12">
       @if (runBlockers().length) {
-        <div class="alert alert-info">
+        <!--
+          These are the reasons the run is blocked, so they carry the same
+          warning colour as the hint beside them; `alert-info` cyan read as
+          neutral information.
+        -->
+        <div class="alert alert-warning">
+          <b>{{ 'ADMIN_INDICATORS.BATCH_MODAL.RUN_BLOCKED' | translate }}</b>
           <ul class="mb-0">
             @for (blocker of runBlockers(); track blocker) {
               <li>{{ blocker | translate }}</li>
@@ -503,51 +566,12 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="closeModal()">
-    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="closeModal()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
   </button>
-  <button
-    type="button"
-    class="btn btn-info pull-left"
-    (click)="loadIndicatorsBatchList()"
-    [title]="'ADMIN_INDICATORS.BATCH_MODAL.IMPORT_BATCH_LIST_TOOLTIP' | translate"
-  >
-    <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
-      'ADMIN_INDICATORS.BATCH_MODAL.IMPORT_BATCH_LIST' | translate
-    }}
+  <button type="button" class="btn btn-outline-secondary" (click)="resetBatchUpdateForm()">
+    <i class="fas fa-undo"></i>&nbsp;{{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
-
-  <input
-    #batchListFileInput
-    style="display: none"
-    type="file"
-    accept=".json"
-    [attr.aria-label]="'ADMIN_INDICATORS.BATCH_MODAL.IMPORT_BATCH_LIST' | translate"
-    (change)="onBatchListFileSelected($event)"
-  />
-
-  <button
-    type="button"
-    style="margin-left: 6px"
-    class="btn btn-info pull-left"
-    (click)="saveBatchListToFile()"
-    [title]="'ADMIN_INDICATORS.BATCH_MODAL.EXPORT_BATCH_LIST_TOOLTIP' | translate"
-  >
-    <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
-      'ADMIN_INDICATORS.BATCH_MODAL.EXPORT_BATCH_LIST' | translate
-    }}
-  </button>
-
-  <button
-    id="indicator-reopen-results-btn"
-    type="button"
-    class="btn btn-info"
-    [disabled]="!lastResults()"
-    (click)="openResultModal()"
-  >
-    {{ 'ADMIN_INDICATORS.BATCH_MODAL.SHOW_RESULT' | translate }}
-  </button>
-
   <button
     id="indicator-batch-update-btn"
     type="button"
@@ -560,9 +584,5 @@
     (click)="startBatchUpdate()"
   >
     {{ 'ADMIN_INDICATORS.BATCH_MODAL.RUN_UPDATE' | translate }}
-  </button>
-
-  <button type="button" class="btn btn-danger" (click)="resetBatchUpdateForm()">
-    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
 </div>

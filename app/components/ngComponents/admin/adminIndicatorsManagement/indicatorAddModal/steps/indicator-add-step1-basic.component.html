@@ -1,7 +1,7 @@
 <div [formGroup]="state.addForm.controls.basic">
-  <h2 class="fs-title">{{ 'ADMIN_INDICATORS.STEP_BASIC.TITLE' | translate }}</h2>
-  <h3 class="fs-subtitle">{{ 'ADMIN_INDICATORS.STEP_BASIC.SUBTITLE' | translate }}</h3>
-  <p>
+  <h2 class="fs-title text-center">{{ 'ADMIN_INDICATORS.STEP_BASIC.TITLE' | translate }}</h2>
+  <h3 class="fs-subtitle text-center">{{ 'ADMIN_INDICATORS.STEP_BASIC.SUBTITLE' | translate }}</h3>
+  <p class="text-center">
     <b
       ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
     >
@@ -262,11 +262,9 @@
       }
     </div>
   </div>
-  <input
-    type="button"
-    name="next"
-    class="next next_addIndicator action-button"
-    [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-    (click)="state.nextStep()"
-  />
+  <div class="stepper-buttons">
+    <button type="button" class="btn btn-primary" (click)="state.nextStep()">
+      {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+    </button>
+  </div>
 </div>

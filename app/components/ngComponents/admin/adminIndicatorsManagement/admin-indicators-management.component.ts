@@ -35,7 +35,7 @@ import { IndicatorBatchUpdateModalComponent } from './indicatorBatchUpdateModal/
 import { IndicatorDeleteModalComponent } from './indicatorDeleteModal/indicator-delete-modal.component';
 import { IndicatorEditFeaturesModalComponent } from './indicatorEditFeaturesModal/indicator-edit-features-modal.component';
 import { IndicatorEditIndicatorSpatialUnitRolesModalComponent } from './indicatorEditIndicatorSpatialUnitRolesModal/indicator-edit-indicator-spatial-unit-roles-modal.component';
-import { MODAL_WIDE } from 'util/modal-presets';
+import { MODAL_CONFIRM, MODAL_WIDE } from 'util/modal-presets';
 
 @Component({
   selector: 'app-admin-indicators-management',
@@ -332,9 +332,10 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   openDeleteIndicatorModal(indicatorDataset?: any): void {
-    // Narrow modal: the selection controls stack vertically; the wide metadata
-    // table scrolls horizontally within the full-width accordion.
-    const modalRef = this.modalService.open(IndicatorDeleteModalComponent, MODAL_WIDE);
+    // A confirmation, like the delete dialogs for spatial units and topics: the
+    // selection controls stack vertically and the metadata summary scrolls
+    // inside its own accordion, so this needs no more than the confirm width.
+    const modalRef = this.modalService.open(IndicatorDeleteModalComponent, MODAL_CONFIRM);
 
     // Preselect the passed indicator (from a per-row trash button). The modal's
     // ngOnInit resets its form, so we hand the preselection over as an input it

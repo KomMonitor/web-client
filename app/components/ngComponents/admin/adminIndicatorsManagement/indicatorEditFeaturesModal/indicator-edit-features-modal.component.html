@@ -24,21 +24,17 @@
   <!-- MultiStep Form -->
   <div class="row">
     <div class="col-md-12">
-      <div
-        class="multiStepForm form-group"
-        id="indicatorEditFeaturesForm"
-        style="margin-bottom: 0px"
-      >
+      <div class="form-group" id="indicatorEditFeaturesForm" style="margin-bottom: 0px">
         <!-- Progress bar -->
         <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
 
         <!-- Step 1: Zeitreihen Übersicht -->
         @if (stepper.isActive('overview')) {
           <fieldset>
-            <h2 class="fs-title">
+            <h2 class="fs-title text-center">
               {{ 'ADMIN_INDICATORS.EDIT_FEATURES.OVERVIEW_TITLE' | translate }}
             </h2>
-            <h3 class="fs-subtitle">
+            <h3 class="fs-subtitle text-center">
               {{ 'ADMIN_INDICATORS.EDIT_FEATURES.OVERVIEW_SUBTITLE' | translate }}
             </h3>
             <div class="row vertical-align">
@@ -71,16 +67,23 @@
               </div>
               <div class="col-md-4 col-sm-4 col-12">
                 <div class="form-group">
-                  <label>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.FETCH_TIMESERIES' | translate }}</label>
-                  <button
-                    class="btn btn-info"
-                    (click)="refreshIndicatorEditFeaturesOverviewTable()"
-                    [disabled]="!overviewTableTargetSpatialUnitMetadata"
-                  >
-                    <i class="fas fa-sync-alt"></i>&nbsp;{{
-                      'ADMIN_INDICATORS.EDIT_FEATURES.SHOW_ALL_TIMESERIES' | translate
-                    }}
-                  </button>
+                  <label class="form-label">{{
+                    'ADMIN_INDICATORS.EDIT_FEATURES.FETCH_TIMESERIES' | translate
+                  }}</label>
+                  <!-- Block wrapper: `.form-label` is inline, so without one the
+                       button sat on the same line as its own label. -->
+                  <div>
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      (click)="refreshIndicatorEditFeaturesOverviewTable()"
+                      [disabled]="!overviewTableTargetSpatialUnitMetadata"
+                    >
+                      <i class="fas fa-sync-alt"></i>&nbsp;{{
+                        'ADMIN_INDICATORS.EDIT_FEATURES.SHOW_ALL_TIMESERIES' | translate
+                      }}
+                    </button>
+                  </div>
                   <div class="help-block">
                     <p>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.LOAD_TIME_HINT' | translate }}</p>
                     <p>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.EDIT_CELLS_HINT' | translate }}</p>
@@ -90,7 +93,9 @@
               </div>
               <div class="col-md-4 col-sm-4 col-12">
                 <div class="form-group">
-                  <label>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.CLEANUP_LABEL' | translate }}</label>
+                  <label class="form-label">{{
+                    'ADMIN_INDICATORS.EDIT_FEATURES.CLEANUP_LABEL' | translate
+                  }}</label>
                   <label class="switch">
                     <input
                       class="elementCheckbox"
@@ -99,10 +104,11 @@
                       [ngModelOptions]="{ standalone: true }"
                       (change)="onChangeEnableDeleteFeatures()"
                     />
-                    <span class="switchslider round text-left" style="line-height: 25px"></span>
+                    <span class="switchslider round"></span>
                   </label>
                   &nbsp;&nbsp;
                   <button
+                    type="button"
                     class="btn btn-danger"
                     (click)="clearAllIndicatorFeatures()"
                     [disabled]="!enableDeleteFeatures"
@@ -144,23 +150,27 @@
               >
               </ag-grid-angular>
             </div>
-            <input
-              type="button"
-              name="next"
-              class="next next_editFeaturesIndicator action-button"
-              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-              (click)="stepper.next()"
-            />
+            <div class="stepper-buttons">
+              <button type="button" class="btn btn-primary" (click)="stepper.next()">
+                {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+              </button>
+            </div>
           </fieldset>
         }
 
         <!-- Step 2: Räumlicher Datensatz -->
         @if (stepper.isActive('data')) {
           <fieldset [formGroup]="editForm">
-            <div style="position: absolute">
+            <!--
+              The mapping import/export pair used to be `position: absolute` in
+              the top-left corner of the step, where it overlapped the stepper.
+              It is the shared right-aligned toolbar now, above the form it acts
+              on. The file input also carried two `class` attributes.
+            -->
+            <div class="dialog-toolbar">
               <button
                 type="button"
-                class="btn btn-info pull-left"
+                class="btn btn-outline-secondary btn-sm"
                 (click)="onImportIndicatorEditFeaturesMappingConfig()"
                 [title]="'ADMIN_INDICATORS.EDIT_FEATURES.MAPPING_IMPORT_TOOLTIP' | translate"
               >
@@ -169,17 +179,14 @@
                 }}
               </button>
               <input
-                style="display: none"
-                class="pull-left"
+                hidden
                 type="file"
-                class="form-control"
                 id="indicatorMappingConfigEditFeaturesImportFile"
                 accept=".json,"
               />
               <button
                 type="button"
-                style="margin-left: 6px"
-                class="btn btn-info pull-left"
+                class="btn btn-outline-secondary btn-sm"
                 (click)="onExportIndicatorEditFeaturesMappingConfig()"
                 [title]="'ADMIN_INDICATORS.EDIT_FEATURES.MAPPING_EXPORT_TOOLTIP' | translate"
               >
@@ -188,13 +195,13 @@
                 }}
               </button>
             </div>
-            <h2 class="fs-title">
+            <h2 class="fs-title text-center">
               {{ 'ADMIN_INDICATORS.EDIT_FEATURES.IMPORT_TITLE' | translate }}
             </h2>
-            <h3 class="fs-subtitle">
+            <h3 class="fs-subtitle text-center">
               {{ 'ADMIN_INDICATORS.EDIT_FEATURES.IMPORT_SUBTITLE' | translate }}
             </h3>
-            <p>
+            <p class="text-center">
               <b
                 ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
               >
@@ -460,13 +467,11 @@
                 </div>
               </div>
             </div>
-            <input
-              type="button"
-              name="previous"
-              class="previous previous_editFeaturesIndicator action-button-previous"
-              [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-              (click)="stepper.previous()"
-            />
+            <div class="stepper-buttons">
+              <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
+                {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+              </button>
+            </div>
           </fieldset>
         }
       </div>
@@ -475,8 +480,15 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="closeModal()">
-    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="closeModal()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
+  </button>
+  <button
+    type="button"
+    class="btn btn-outline-secondary"
+    (click)="resetIndicatorEditFeaturesForm()"
+  >
+    <i class="fas fa-undo"></i>&nbsp;{{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
   <button
     type="button"
@@ -485,8 +497,5 @@
     (click)="editIndicatorFeatures()"
   >
     {{ 'ADMIN_INDICATORS.EDIT_FEATURES.CONTINUE_TIMESERIES' | translate }}
-  </button>
-  <button type="button" class="btn btn-danger" (click)="resetIndicatorEditFeaturesForm()">
-    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
 </div>
