@@ -1540,6 +1540,7 @@
   "ADMIN_SPATIAL_UNITS": {
     "OVERVIEW": {
       "TITLE": "Verwalten der Raumebenen",
+      "DESCRIPTION": "Registrierung und Pflege der Raumebenen, auf denen Indikatoren und Georessourcen geführt werden",
       "BOX_TITLE": "Raumebenen"
     },
     "COMMON": {

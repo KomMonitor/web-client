@@ -41,6 +41,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { TranslateService } from '@ngx-translate/core';
 import { KmDatePickerComponent } from '../../../customElements/date-picker/km-date-picker.component';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import {
   addOrUpdateAttributeMapping,
@@ -97,6 +98,7 @@ import {
   imports: [
     FormsModule,
     ReactiveFormsModule,
+    LoadingOverlayComponent,
     KmColorPickerComponent,
     KmLinePatternPickerComponent,
     KmDatePickerComponent,

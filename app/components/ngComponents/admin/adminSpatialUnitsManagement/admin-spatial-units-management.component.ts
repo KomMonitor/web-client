@@ -238,7 +238,17 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
   // Signal-backed: written from the store subscription and fetch callbacks,
   // which would not trigger a re-render of this OnPush component otherwise.
   public rowData = signal<SpatialUnitMetadata[]>([]);
-  public defaultColDef: ColDef = this.kommonitorDataGridHelperService.buildDefaultColDef();
+  private readonly baseColDef: ColDef = this.kommonitorDataGridHelperService.buildDefaultColDef();
+  public defaultColDef: ColDef = {
+    ...this.baseColDef,
+    cellStyle: {
+      ...(this.baseColDef.cellStyle as Record<string, string>),
+      // Same correction the group overview already applies: the shared style
+      // forces 12px while the alpine theme renders this table's own header at
+      // 13px, so the values sat a pixel below the column they belong to.
+      'font-size': '13px',
+    },
+  };
   public gridOptions: GridOptions = {};
 
   // Pagination properties
@@ -294,7 +304,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
         this.translate.instant('ADMIN_SHARED_UI.GRID.EDIT_METADATA_TITLE') +
         '" ' +
         (data.userPermissions.includes('editor') ? '' : 'disabled') +
-        '><i class="fas fa-pencil-alt"></i></button>';
+        '><i class="fas fa-pencil-alt fa-fw"></i></button>';
 
       // Edit Features Button
       html +=
@@ -304,7 +314,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
         this.translate.instant('ADMIN_SHARED.EDIT_FEATURES') +
         '" ' +
         (data.userPermissions.includes('editor') ? '' : 'disabled') +
-        '><i class="fas fa-draw-polygon"></i></button>';
+        '><i class="fas fa-draw-polygon fa-fw"></i></button>';
 
       // Edit User Roles Button
       html +=
@@ -314,7 +324,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
         this.translate.instant('ADMIN_SHARED_UI.GRID.EDIT_ACCESS_TITLE') +
         '" ' +
         (data.userPermissions.includes('creator') ? '' : 'disabled') +
-        '><i class="fas fa-user-lock"></i></button>';
+        '><i class="fas fa-user-lock fa-fw"></i></button>';
 
       // Delete Button
       html +=
@@ -324,7 +334,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
         this.translate.instant('ADMIN_SPATIAL_UNITS.GRID.DELETE_TITLE') +
         '" ' +
         (data.userPermissions.includes('creator') ? '' : 'disabled') +
-        '><i class="fas fa-trash"></i></button>';
+        '><i class="fas fa-trash fa-fw"></i></button>';
 
       html += '</div>';
     }

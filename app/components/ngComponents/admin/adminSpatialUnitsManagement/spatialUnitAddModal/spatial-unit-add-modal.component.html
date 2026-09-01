@@ -9,35 +9,133 @@
 </div>
 
 <div class="modal-body">
-  <div align="center">
-    @if (loadingData()) {
-      <div class="loading-overlay-admin-panel">
-        <i class="fas fa-spinner fa-spin fa-2x"></i>
+  <!--
+    <app-loading-overlay> instead of the hand-rolled `.loading-overlay-admin-panel`,
+    which greyed out the whole viewport rather than the dialog.
+  -->
+  <app-loading-overlay [loading]="loadingData()">
+    <!--
+      All three failure reports used to sit after </div class="modal-footer">,
+      two of them `position: absolute; bottom: 0`, so they rendered below or on
+      top of the dialog's own buttons. They are ordinary alerts at the top of
+      the body now.
+    -->
+    @if (importerErrors().length > 0) {
+      <div id="spatialUnitAddImporterErrors" class="alert alert-danger" role="alert">
+        <b>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.IMPORT_FAILED' | translate }}</b>
+        <p>
+          {{
+            'ADMIN_SPATIAL_UNITS.ERRORS.IMPORT_FAILED_IDS'
+              | translate: { count: importerErrors().length }
+          }}
+        </p>
+        <ul class="import-error-detail">
+          @for (error of importerErrors(); track error) {
+            <li>{{ error }}</li>
+          }
+        </ul>
+        <p>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.IMPORT_FAILED_HINT' | translate }}</p>
       </div>
     }
-  </div>
 
-  <!-- MultiStep Form -->
-  <div class="multiStepForm form-group" style="margin-bottom: 0px">
-    <!-- progressbar -->
+    @if (spatialUnitMetadataImportError()) {
+      <div id="spatialUnitMetadataImportErrorAlert" class="alert alert-danger" role="alert">
+        <button
+          type="button"
+          class="btn-close float-end"
+          [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+          (click)="hideMetadataErrorAlert()"
+        ></button>
+        <b>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.METADATA_IMPORT_FAILED' | translate }}</b>
+        <p>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.METADATA_IMPORT_FAILED_TEXT' | translate }}</p>
+        <pre class="import-error-detail">{{ spatialUnitMetadataImportError() }}</pre>
+        <p>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.JSON_FORMAT_HINT' | translate }}</p>
+        <pre
+          id="spatialUnitsAddMetadataPre"
+          class="import-error-detail"
+          [innerHTML]="spatialUnitMetadataStructure_pretty"
+        ></pre>
+      </div>
+    }
+
+    @if (spatialUnitMappingConfigImportError()) {
+      <div id="spatialUnitMappingConfigImportErrorAlert" class="alert alert-danger" role="alert">
+        <button
+          type="button"
+          class="btn-close float-end"
+          [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+          (click)="hideMappingConfigErrorAlert()"
+        ></button>
+        <b>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.MAPPING_IMPORT_FAILED' | translate }}</b>
+        <p>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.MAPPING_IMPORT_FAILED_TEXT' | translate }}</p>
+        <pre class="import-error-detail" [innerHTML]="spatialUnitMappingConfigImportError()"></pre>
+        <p>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.JSON_FORMAT_HINT' | translate }}</p>
+        <pre
+          id="spatialUnitsAddMappingConfigPre"
+          class="import-error-detail"
+          [innerHTML]="spatialUnitMappingConfigStructure_pretty"
+        ></pre>
+      </div>
+    }
+
+    <!--
+      Metadata import/export as a toolbar above the wizard rather than two more
+      buttons in the footer. It keeps the footer to the same three buttons as
+      every other admin dialog, and puts the pair next to the form it acts on
+      instead of beside the dialog's confirm/cancel controls.
+    -->
+    <div class="dialog-toolbar">
+      <button
+        type="button"
+        class="btn btn-outline-secondary btn-sm"
+        (click)="onImportSpatialUnitAddMetadata()"
+        [title]="'ADMIN_SPATIAL_UNITS.COMMON.IMPORT_METADATA_TITLE' | translate"
+      >
+        <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
+          'ADMIN_SPATIAL_UNITS.COMMON.METADATA_IMPORT' | translate
+        }}
+      </button>
+      <input
+        hidden
+        type="file"
+        #metadataImportFile
+        (change)="onMetadataFileSelected($event)"
+        accept=".json,"
+      />
+      <button
+        type="button"
+        class="btn btn-outline-secondary btn-sm"
+        (click)="onExportSpatialUnitAddMetadata()"
+        [title]="'ADMIN_SPATIAL_UNITS.COMMON.EXPORT_METADATA_TITLE' | translate"
+      >
+        <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
+          'ADMIN_SPATIAL_UNITS.COMMON.METADATA_EXPORT' | translate
+        }}
+      </button>
+    </div>
+
     <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
 
     <!-- Step 1: Metadaten der Raumebene -->
     @if (stepper.isActive('metadata')) {
       <fieldset [formGroup]="addForm.controls.metadata">
-        <h2 class="fs-title">{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.TITLE' | translate }}</h2>
-        <h3 class="fs-subtitle">
+        <h2 class="fs-title text-center">
+          {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.TITLE' | translate }}
+        </h2>
+        <h3 class="fs-subtitle text-center">
           {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SUBTITLE_ADD' | translate }}
         </h3>
-        <p>
+        <p class="text-center">
           <b
             ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
           >
         </p>
-        <div class="row vertical-align meta-row">
+        <div class="row form-section-row meta-row">
           <div class="col-md-4 col-sm-4 col-4">
             <div class="form-group">
-              <label>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NAME_LABEL' | translate }}*</label>
+              <label class="form-label"
+                >{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NAME_LABEL' | translate }}*</label
+              >
               <input
                 type="text"
                 class="form-control"
@@ -60,11 +158,13 @@
           </div>
           <div class="col-md-4 col-sm-4 col-4">
             <div class="form-group">
-              <label>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_LOWER' | translate }}</label>
+              <label class="form-label">{{
+                'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_LOWER' | translate
+              }}</label>
               <select
                 formControlName="nextLowerHierarchySpatialUnit"
                 [attr.id]="'su-metadata-lower-hierarchy'"
-                class="form-control"
+                class="form-select"
               >
                 <option [ngValue]="null">
                   {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_SPATIAL_UNIT' | translate }}
@@ -81,20 +181,17 @@
               <div class="help-block">
                 <p>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_HINT' | translate }}</p>
               </div>
-              <app-form-error
-                [control]="addForm.controls.metadata"
-                keyOverride="ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_INVALID"
-                showWhen="always"
-              />
             </div>
           </div>
           <div class="col-md-4 col-sm-4 col-4">
             <div class="form-group">
-              <label>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_UPPER' | translate }}</label>
+              <label class="form-label">{{
+                'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_UPPER' | translate
+              }}</label>
               <select
                 formControlName="nextUpperHierarchySpatialUnit"
                 [attr.id]="'su-metadata-upper-hierarchy'"
-                class="form-control"
+                class="form-select"
               >
                 <option [ngValue]="null">
                   {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_SPATIAL_UNIT' | translate }}
@@ -111,25 +208,35 @@
               <div class="help-block">
                 <p>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_HINT' | translate }}</p>
               </div>
-              <app-form-error
-                [control]="addForm.controls.metadata"
-                keyOverride="ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_INVALID"
-                showWhen="always"
-              />
             </div>
           </div>
         </div>
-        <div class="row vertical-align">
+        <!--
+          One message for one rule. The hierarchy validator sits on the metadata
+          group, but its message was rendered under each of the two selects, so a
+          single problem was reported twice side by side.
+        -->
+        <div class="row">
+          <div class="col-12">
+            <app-form-error
+              [control]="addForm.controls.metadata"
+              keyOverride="ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_INVALID"
+              showWhen="always"
+            />
+          </div>
+        </div>
+        <div class="row form-section-row">
           <div class="col-md-3 col-sm-3 col-12">
             <div class="form-group">
-              <label>{{
+              <label class="form-label">{{
                 'ADMIN_SPATIAL_UNITS.METADATA_STEP.MARK_AS_OUTLINE_LAYER' | translate
               }}</label>
-              <br />
-              <label class="switch">
-                <input type="checkbox" formControlName="isOutlineLayer" />
-                <span class="switchslider round"></span>
-              </label>
+              <div>
+                <label class="switch">
+                  <input type="checkbox" formControlName="isOutlineLayer" />
+                  <span class="switchslider round"></span>
+                </label>
+              </div>
               <div class="help-block">
                 <p>
                   {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_LAYER_HINT' | translate }}
@@ -139,8 +246,10 @@
           </div>
           @if (addForm.controls.metadata.controls.isOutlineLayer.value) {
             <div class="col-md-3 col-sm-3 col-12">
-              <div class="form-group outline-color-group" align="center">
-                <label>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_COLOR' | translate }}</label>
+              <div class="form-group">
+                <label class="form-label">{{
+                  'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_COLOR' | translate
+                }}</label>
                 <km-color-picker
                   formControlName="outlineColor"
                   [label]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_OUTLINE_COLOR' | translate"
@@ -150,11 +259,12 @@
           }
           @if (addForm.controls.metadata.controls.isOutlineLayer.value) {
             <div class="col-md-3 col-sm-3 col-12">
-              <div class="form-group" align="center">
-                <label>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_WIDTH' | translate }}</label>
-                <br />
+              <div class="form-group">
+                <label class="form-label">{{
+                  'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_WIDTH' | translate
+                }}</label>
                 <input
-                  style="width: auto"
+                  class="form-control outline-width-input"
                   type="number"
                   formControlName="outlineWidth"
                   min="1"
@@ -166,7 +276,7 @@
           }
           @if (addForm.controls.metadata.controls.isOutlineLayer.value) {
             <div class="col-md-3 col-sm-3 col-12">
-              <div class="form-group" align="center">
+              <div class="form-group">
                 <km-line-pattern-picker
                   formControlName="outlineDashArray"
                   [options]="availableLinePatternOptions"
@@ -174,29 +284,29 @@
                   [placeholder]="
                     'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_OUTLINE_PATTERN' | translate
                   "
-                  [width]="'200px'"
+                  [width]="'100%'"
                 >
                 </km-line-pattern-picker>
               </div>
             </div>
           }
         </div>
-        <input
-          type="button"
-          name="next"
-          class="next next_addSpatialUnit action-button"
-          [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-          (click)="stepper.next()"
-        />
+        <div class="stepper-buttons">
+          <button type="button" class="btn btn-primary" (click)="stepper.next()">
+            {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+          </button>
+        </div>
       </fieldset>
     }
 
     <!-- Step 2: Allgemeine Metadaten -->
     @if (stepper.isActive('general')) {
       <fieldset>
-        <h2 class="fs-title">{{ 'ADMIN_SHARED.GENERAL_METADATA' | translate }}</h2>
-        <h3 class="fs-subtitle">{{ 'ADMIN_SPATIAL_UNITS.GENERAL_STEP.SUBTITLE' | translate }}</h3>
-        <p>
+        <h2 class="fs-title text-center">{{ 'ADMIN_SHARED.GENERAL_METADATA' | translate }}</h2>
+        <h3 class="fs-subtitle text-center">
+          {{ 'ADMIN_SPATIAL_UNITS.GENERAL_STEP.SUBTITLE' | translate }}
+        </h3>
+        <p class="text-center">
           <b
             ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
           >
@@ -205,20 +315,14 @@
           [form]="metadataForm"
           [updateIntervalOptions]="updateIntervalOptions"
         ></app-resource-metadata-form>
-        <input
-          type="button"
-          name="previous"
-          class="previous previous_addSpatialUnit action-button-previous"
-          [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-          (click)="stepper.previous()"
-        />
-        <input
-          type="button"
-          name="next"
-          class="next next_addSpatialUnit action-button"
-          [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-          (click)="stepper.next()"
-        />
+        <div class="stepper-buttons">
+          <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
+            {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+          </button>
+          <button type="button" class="btn btn-primary" (click)="stepper.next()">
+            {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+          </button>
+        </div>
       </fieldset>
     }
 
@@ -230,24 +334,26 @@
         [formGroup]="addForm.controls.security"
         [style.display]="stepper.isActive('security') ? 'block' : 'none'"
       >
-        <h2 class="fs-title">
+        <h2 class="fs-title text-center">
           {{ 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE' | translate }}
         </h2>
-        <h3 class="fs-subtitle">
+        <h3 class="fs-subtitle text-center">
           {{ 'ADMIN_SHARED_UI.SECURITY.ASSIGN_RIGHTS_SUBTITLE' | translate }}
         </h3>
         <app-owner-organization-select
           mode="assign"
           formControlName="ownerOrganization"
         ></app-owner-organization-select>
-        <br />
         <hr />
-        <br />
         <div id="spatialUnitRoleForm" [style.display]="showRoleForm ? 'block' : 'none'">
-          <label>{{ 'ADMIN_SHARED_UI.SECURITY.DATASET_PERMISSIONS' | translate }}</label>
-          <div class="row vertical-align">
+          <label class="form-label">{{
+            'ADMIN_SHARED_UI.SECURITY.DATASET_PERMISSIONS' | translate
+          }}</label>
+          <div class="row form-section-row">
             <div class="col-md-3">
-              <label>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label>
+              <label class="form-label"
+                >{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label
+              >
               <label class="switch">
                 <input type="checkbox" formControlName="isPublic" />
                 <span class="switchslider round"></span>
@@ -266,34 +372,27 @@
               <div class="alert alert-info">
                 {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_RIGHTS_INFO' | translate }}
               </div>
-              <br />
               <div class="alert alert-warning">
                 {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_ROLES_MARKED' | translate }}
               </div>
             </div>
           </div>
         </div>
-        <input
-          type="button"
-          name="previous"
-          class="previous previous_addSpatialUnit action-button-previous"
-          [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-          (click)="stepper.previous()"
-        />
-        <input
-          type="button"
-          name="next"
-          class="next next_addSpatialUnit action-button"
-          [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-          (click)="stepper.next()"
-        />
+        <div class="stepper-buttons">
+          <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
+            {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+          </button>
+          <button type="button" class="btn btn-primary" (click)="stepper.next()">
+            {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+          </button>
+        </div>
       </fieldset>
     }
 
     <!-- Step 3/4: Räumlicher Datensatz -->
-    <!-- Toggled via an inline display, not [hidden]: the legacy jQuery-wizard rule
-         `.multiStepForm fieldset:not(:first-of-type) { display: none }` in app.scss
-         outranks the [hidden] attribute, so this step would stay invisible. -->
+    <!-- Switched via `display` rather than `@if` so the importer form keeps its
+         state, including the attribute mappings added so far, while the user
+         moves back through the earlier steps. -->
     <fieldset [style.display]="stepper.isActive('data') ? 'block' : 'none'">
       <!-- Reads of the importer form used by the conditionals below; the
            component no longer mirrors these controls in plain accessors. -->
@@ -301,10 +400,15 @@
       @let selectedDatasourceType = importerForm.controls.datasourceType.value;
       @let selectedBboxType = importerForm.controls.bboxType.value;
       @let keepAttrs = importerForm.controls.keepAttributes.value;
-      <div style="position: absolute">
+      <!--
+        In the normal flow instead of `position: absolute`, which parked this
+        pair over the stepper in the top-left corner of the dialog — right next
+        to the identical-looking metadata import/export pair in the footer.
+      -->
+      <div class="dialog-toolbar">
         <button
           type="button"
-          class="btn btn-info pull-left"
+          class="btn btn-outline-secondary btn-sm"
           (click)="onImportSpatialUnitAddMappingConfig()"
           [title]="'ADMIN_SPATIAL_UNITS.COMMON.IMPORT_MAPPING_TITLE' | translate"
         >
@@ -313,8 +417,7 @@
           }}
         </button>
         <input
-          style="display: none"
-          class="pull-left"
+          hidden
           type="file"
           #mappingConfigImportFile
           (change)="onMappingConfigFileSelected($event)"
@@ -322,8 +425,7 @@
         />
         <button
           type="button"
-          style="margin-left: 6px"
-          class="btn btn-info pull-left"
+          class="btn btn-outline-secondary btn-sm"
           (click)="onExportSpatialUnitAddMappingConfig()"
           [title]="'ADMIN_SPATIAL_UNITS.COMMON.EXPORT_MAPPING_TITLE' | translate"
         >
@@ -332,20 +434,22 @@
           }}
         </button>
       </div>
-      <h2 class="fs-title">{{ 'ADMIN_SHARED.SPATIAL_DATASET' | translate }}</h2>
-      <h3 class="fs-subtitle">
+      <h2 class="fs-title text-center">{{ 'ADMIN_SHARED.SPATIAL_DATASET' | translate }}</h2>
+      <h3 class="fs-subtitle text-center">
         {{ 'ADMIN_SPATIAL_UNITS.DATA.SUBTITLE' | translate }}
       </h3>
-      <p>
+      <p class="text-center">
         <b
           ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
         >
       </p>
 
-      <div class="row vertical-align" [formGroup]="importerForm">
+      <div class="row form-section-row" [formGroup]="importerForm">
         <div class="col-md-3 col-sm-6 col-12">
           <div class="form-group">
-            <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_FORMAT_GEO' | translate }}*</label>
+            <label class="form-label"
+              >{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_FORMAT_GEO' | translate }}*</label
+            >
             <select formControlName="converter" class="form-control">
               <option [ngValue]="null">
                 {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SOURCE_FORMAT' | translate }}
@@ -364,7 +468,9 @@
           @if (selectedConverter?.schemas; as converterSchemas) {
             <div>
               <div class="form-group">
-                <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SCHEMA' | translate }}*</label>
+                <label class="form-label"
+                  >{{ 'ADMIN_SPATIAL_UNITS.DATA.SCHEMA' | translate }}*</label
+                >
                 <select formControlName="schema" class="form-control">
                   <option [ngValue]="''">
                     {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SCHEMA' | translate }}
@@ -382,7 +488,9 @@
           @if (selectedConverter?.mimeTypes; as converterMimeTypes) {
             <div>
               <div class="form-group">
-                <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_FORMAT' | translate }}*</label>
+                <label class="form-label"
+                  >{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_FORMAT' | translate }}*</label
+                >
                 <select formControlName="mimeType" class="form-control">
                   <option [ngValue]="''">
                     {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_FORMAT' | translate }}
@@ -400,7 +508,7 @@
           @for (parameter of selectedConverter?.parameters; track parameter.name) {
             <div formGroupName="converterParameters">
               <div class="form-group">
-                <label
+                <label class="form-label"
                   >{{ parameter.name }}
                   @if (parameter.mandatory) {
                     <i>*</i>
@@ -417,7 +525,7 @@
                   <p>{{ parameter.description }}</p>
                 </div>
                 @if (parameter.name === 'CRS') {
-                  <div class="help-block with-errors" style="color: red">
+                  <div class="help-block with-errors">
                     <p>
                       {{ 'ADMIN_SPATIAL_UNITS.DATA.CRS_WARNING' | translate }}
                     </p>
@@ -437,7 +545,9 @@
           @if (selectedConverter) {
             <div>
               <div class="form-group">
-                <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.DATASOURCE_TYPE' | translate }}*</label>
+                <label class="form-label"
+                  >{{ 'ADMIN_SPATIAL_UNITS.DATA.DATASOURCE_TYPE' | translate }}*</label
+                >
                 <select formControlName="datasourceType" class="form-control">
                   <option [ngValue]="null">
                     {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SOURCE_TYPE' | translate }}
@@ -452,7 +562,9 @@
               </div>
               @if (selectedDatasourceType?.type === 'FILE') {
                 <div>
-                  <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.FILE' | translate }}*</label>
+                  <label class="form-label"
+                    >{{ 'ADMIN_SPATIAL_UNITS.DATA.FILE' | translate }}*</label
+                  >
                   <input
                     id="spatialUnitDataSourceInput"
                     type="file"
@@ -475,11 +587,13 @@
               }
               @if (selectedDatasourceType?.type === 'OGCAPI_FEATURES') {
                 <div>
-                  <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SPATIAL_FILTER' | translate }}*</label>
+                  <label class="form-label"
+                    >{{ 'ADMIN_SPATIAL_UNITS.DATA.SPATIAL_FILTER' | translate }}*</label
+                  >
                   <select
                     id="datasourceTypeParameter_spatialUnitAdd_bboxType"
                     formControlName="bboxType"
-                    class="form-control"
+                    class="form-select"
                   >
                     <option value="">
                       {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_FILTER' | translate }}
@@ -497,7 +611,7 @@
                       <select
                         id="datasourceTypeParameter_spatialUnitAdd_bboxRef"
                         formControlName="bboxRefSpatialUnitId"
-                        class="form-control"
+                        class="form-select"
                       >
                         <option value="">
                           {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_SPATIAL_UNIT' | translate }}
@@ -515,7 +629,9 @@
                   }
                   @if (selectedBboxType === 'literal') {
                     <div formGroupName="bbox">
-                      <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.BBOX' | translate }}*</label>
+                      <label class="form-label"
+                        >{{ 'ADMIN_SPATIAL_UNITS.DATA.BBOX' | translate }}*</label
+                      >
                       <input
                         id="datasourceTypeParameter_spatialUnitAdd_bbox_minx"
                         class="form-control"
@@ -571,10 +687,10 @@
                       @if (!syntheticDatasourceParameters.includes(parameter.name)) {
                         <div class="form-group">
                           @if (parameter.mandatory) {
-                            <label>{{ parameter.name }}*</label>
+                            <label class="form-label">{{ parameter.name }}*</label>
                           }
                           @if (!parameter.mandatory) {
-                            <label>{{ parameter.name }}</label>
+                            <label class="form-label">{{ parameter.name }}</label>
                           }
                           <textarea
                             rows="1"
@@ -599,7 +715,9 @@
         </div>
         <div class="col-md-3 col-sm-6 col-12">
           <div class="form-group">
-            <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.ID_ATTRIBUTE' | translate }}*</label>
+            <label class="form-label"
+              >{{ 'ADMIN_SPATIAL_UNITS.DATA.ID_ATTRIBUTE' | translate }}*</label
+            >
             <input
               type="text"
               class="form-control"
@@ -614,7 +732,9 @@
             <div class="help-block with-errors"></div>
           </div>
           <div class="form-group">
-            <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.NAME_ATTRIBUTE' | translate }}*</label>
+            <label class="form-label"
+              >{{ 'ADMIN_SPATIAL_UNITS.DATA.NAME_ATTRIBUTE' | translate }}*</label
+            >
             <input
               type="text"
               class="form-control"
@@ -629,12 +749,10 @@
         </div>
         <div class="col-md-3 col-sm-6 col-12">
           <div class="form-group">
-            <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_START' | translate }}</label>
-            <input
-              type="text"
-              formControlName="validStartDateProperty"
-              class="form-control pull-right"
-            />
+            <label class="form-label">{{
+              'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_START' | translate
+            }}</label>
+            <input type="text" formControlName="validStartDateProperty" class="form-control" />
             <div class="help-block">
               <p>
                 {{ 'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_START_HINT' | translate }}
@@ -643,12 +761,10 @@
             <div class="help-block with-errors"></div>
           </div>
           <div class="form-group">
-            <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_END' | translate }}</label>
-            <input
-              type="text"
-              formControlName="validEndDateProperty"
-              class="form-control pull-right"
-            />
+            <label class="form-label">{{
+              'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_END' | translate
+            }}</label>
+            <input type="text" formControlName="validEndDateProperty" class="form-control" />
             <div class="help-block">
               <p>
                 {{ 'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_END_HINT' | translate }}
@@ -659,10 +775,15 @@
         </div>
       </div>
 
-      <div class="row vertical-align" [formGroup]="addForm.controls.data.controls.periodOfValidity">
+      <div
+        class="row form-section-row"
+        [formGroup]="addForm.controls.data.controls.periodOfValidity"
+      >
         <div class="col-md-6 col-sm-6 col-12">
           <div class="form-group">
-            <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.VALID_FROM' | translate }}*</label>
+            <label class="form-label"
+              >{{ 'ADMIN_SPATIAL_UNITS.DATA.VALID_FROM' | translate }}*</label
+            >
             <km-date-picker
               placeholder="YYYY-MM-DD"
               formControlName="startDate"
@@ -683,7 +804,7 @@
         </div>
         <div class="col-md-6 col-sm-6 col-12">
           <div class="form-group">
-            <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.VALID_TO' | translate }}</label>
+            <label class="form-label">{{ 'ADMIN_SPATIAL_UNITS.DATA.VALID_TO' | translate }}</label>
             <km-date-picker
               placeholder="YYYY-MM-DD"
               formControlName="endDate"
@@ -706,17 +827,19 @@
       </div>
 
       <hr />
-      <br />
 
-      <div class="row vertical-align" [formGroup]="importerForm">
+      <div class="row form-section-row" [formGroup]="importerForm">
         <div class="col-md-6 col-sm-6 col-12">
           <div class="form-group">
-            <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.KEEP_ATTRIBUTES' | translate }}*</label>
-            <br />
-            <label class="switch">
-              <input type="checkbox" formControlName="keepAttributes" />
-              <span class="switchslider round"></span>
-            </label>
+            <label class="form-label"
+              >{{ 'ADMIN_SPATIAL_UNITS.DATA.KEEP_ATTRIBUTES' | translate }}*</label
+            >
+            <div>
+              <label class="switch">
+                <input type="checkbox" formControlName="keepAttributes" />
+                <span class="switchslider round"></span>
+              </label>
+            </div>
             <div class="help-block">
               <p>
                 {{ 'ADMIN_SPATIAL_UNITS.DATA.KEEP_ATTRIBUTES_HINT' | translate }}
@@ -727,12 +850,15 @@
         @if (!keepAttrs) {
           <div class="col-md-6 col-sm-6 col-12">
             <div class="form-group">
-              <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.KEEP_MISSING_VALUES' | translate }}*</label>
-              <br />
-              <label class="switch">
-                <input type="checkbox" formControlName="keepMissingValues" />
-                <span class="switchslider round"></span>
-              </label>
+              <label class="form-label"
+                >{{ 'ADMIN_SPATIAL_UNITS.DATA.KEEP_MISSING_VALUES' | translate }}*</label
+              >
+              <div>
+                <label class="switch">
+                  <input type="checkbox" formControlName="keepMissingValues" />
+                  <span class="switchslider round"></span>
+                </label>
+              </div>
               <div class="help-block">
                 <p
                   [innerHTML]="'ADMIN_SPATIAL_UNITS.DATA.KEEP_MISSING_VALUES_HINT' | translate"
@@ -744,30 +870,36 @@
       </div>
 
       @if (!keepAttrs) {
-        <div class="row vertical-align">
+        <div class="row form-section-row">
           <div class="col-md-6 col-sm-6 col-12" [formGroup]="attributeMappingDraft">
             <div class="form-group">
-              <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_ATTRIBUTE' | translate }}*</label>
+              <label class="form-label"
+                >{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_ATTRIBUTE' | translate }}*</label
+              >
               <input
                 type="text"
-                class="form-control input-sm"
+                class="form-control"
                 [placeholder]="'ADMIN_SPATIAL_UNITS.DATA.SOURCE_ATTRIBUTE_PLACEHOLDER' | translate"
                 formControlName="sourceName"
               />
               <div class="help-block with-errors"></div>
             </div>
             <div class="form-group">
-              <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.TARGET_ATTRIBUTE' | translate }}*</label>
+              <label class="form-label"
+                >{{ 'ADMIN_SPATIAL_UNITS.DATA.TARGET_ATTRIBUTE' | translate }}*</label
+              >
               <input
                 type="text"
-                class="form-control input-sm"
+                class="form-control"
                 [placeholder]="'ADMIN_SPATIAL_UNITS.DATA.TARGET_ATTRIBUTE_PLACEHOLDER' | translate"
                 formControlName="destinationName"
               />
               <div class="help-block with-errors"></div>
             </div>
             <div class="form-group">
-              <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.DATA_TYPE' | translate }}*</label>
+              <label class="form-label"
+                >{{ 'ADMIN_SPATIAL_UNITS.DATA.DATA_TYPE' | translate }}*</label
+              >
               <select formControlName="dataType" class="form-control">
                 <option [ngValue]="null">
                   {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_DATA_TYPE' | translate }}
@@ -795,8 +927,10 @@
             </div>
           </div>
           <div class="col-md-6 col-sm-6 col-12">
-            <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.MAPPINGS_OVERVIEW' | translate }}</label>
-            <table class="table table-condensed">
+            <label class="form-label">{{
+              'ADMIN_SPATIAL_UNITS.DATA.MAPPINGS_OVERVIEW' | translate
+            }}</label>
+            <table class="table table-sm">
               <thead>
                 <tr>
                   <th>{{ 'ADMIN_SHARED.EDIT_FUNCTIONS' | translate }}</th>
@@ -842,50 +976,27 @@
         </div>
       }
 
-      <input
-        type="button"
-        name="previous"
-        class="previous previous_addSpatialUnit action-button-previous"
-        [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-        (click)="stepper.previous()"
-      />
+      <div class="stepper-buttons">
+        <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
+          {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+        </button>
+      </div>
     </fieldset>
-  </div>
-  <!-- /.MultiStep Form -->
+  </app-loading-overlay>
 </div>
 
+<!--
+  Footer order shared with the group and topic dialogs: cancel pushed left with
+  me-auto, then reset, then the primary action last. Reset moved in front of the
+  primary and lost btn-danger — it only discards pending input, yet as the
+  rightmost red button it outranked "register" beside it.
+-->
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="cancel()">
-    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="cancel()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
   </button>
-  <button
-    type="button"
-    class="btn btn-info pull-left"
-    (click)="onImportSpatialUnitAddMetadata()"
-    [title]="'ADMIN_SPATIAL_UNITS.COMMON.IMPORT_METADATA_TITLE' | translate"
-  >
-    <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
-      'ADMIN_SPATIAL_UNITS.COMMON.METADATA_IMPORT' | translate
-    }}
-  </button>
-  <input
-    style="display: none"
-    class="pull-left"
-    type="file"
-    #metadataImportFile
-    (change)="onMetadataFileSelected($event)"
-    accept=".json,"
-  />
-  <button
-    type="button"
-    style="margin-left: 6px"
-    class="btn btn-info pull-left"
-    (click)="onExportSpatialUnitAddMetadata()"
-    [title]="'ADMIN_SPATIAL_UNITS.COMMON.EXPORT_METADATA_TITLE' | translate"
-  >
-    <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
-      'ADMIN_SPATIAL_UNITS.COMMON.METADATA_EXPORT' | translate
-    }}
+  <button type="button" class="btn btn-outline-secondary" (click)="resetForm()">
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
   <button
     type="button"
@@ -895,84 +1006,4 @@
   >
     {{ 'ADMIN_SPATIAL_UNITS.ADD_MODAL.SUBMIT' | translate }}
   </button>
-  <button type="button" class="btn btn-danger" (click)="resetForm()">
-    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
-  </button>
 </div>
-
-<!-- Importer errors: affected feature IDs (modal stays open on import failure) -->
-@if (importerErrors().length > 0) {
-  <div id="spatialUnitAddImporterErrors" class="alert alert-danger">
-    <h4>
-      <i class="icon fa fa-ban"></i>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.IMPORT_FAILED' | translate }}
-    </h4>
-    <p>
-      {{
-        'ADMIN_SPATIAL_UNITS.ERRORS.IMPORT_FAILED_IDS'
-          | translate: { count: importerErrors().length }
-      }}
-    </p>
-    <ul style="overflow: auto; max-height: 500px">
-      @for (error of importerErrors(); track error) {
-        <li>{{ error }}</li>
-      }
-    </ul>
-    <p>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.IMPORT_FAILED_HINT' | translate }}</p>
-  </div>
-}
-
-<!-- Metadata Import Error Alert -->
-@if (spatialUnitMetadataImportError()) {
-  <div
-    id="spatialUnitMetadataImportErrorAlert"
-    style="position: absolute; bottom: 0px; width: 100%"
-    class="alert alert-danger alert-dismissable"
-  >
-    <button type="button" class="close" (click)="hideMetadataErrorAlert()" aria-hidden="true">
-      &times;
-    </button>
-    <h4>
-      <i class="icon fa fa-ban"></i
-      >{{ 'ADMIN_SPATIAL_UNITS.ERRORS.METADATA_IMPORT_FAILED' | translate }}
-    </h4>
-    {{ 'ADMIN_SPATIAL_UNITS.ERRORS.METADATA_IMPORT_FAILED_TEXT' | translate }}
-    <br />
-    <pre>{{ spatialUnitMetadataImportError() }}</pre>
-    <br />
-    <br />
-    <p>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.JSON_FORMAT_HINT' | translate }}</p>
-    <pre
-      id="spatialUnitsAddMetadataPre"
-      style="overflow: auto; max-height: 500px"
-      [innerHTML]="spatialUnitMetadataStructure_pretty"
-    ></pre>
-  </div>
-}
-
-<!-- Mapping Config Import Error Alert -->
-@if (spatialUnitMappingConfigImportError()) {
-  <div
-    id="spatialUnitMappingConfigImportErrorAlert"
-    style="position: absolute; bottom: 0px; width: 100%"
-    class="alert alert-danger alert-dismissable"
-  >
-    <button type="button" class="close" (click)="hideMappingConfigErrorAlert()" aria-hidden="true">
-      &times;
-    </button>
-    <h4>
-      <i class="icon fa fa-ban"></i
-      >{{ 'ADMIN_SPATIAL_UNITS.ERRORS.MAPPING_IMPORT_FAILED' | translate }}
-    </h4>
-    {{ 'ADMIN_SPATIAL_UNITS.ERRORS.MAPPING_IMPORT_FAILED_TEXT' | translate }}
-    <br />
-    <pre [innerHTML]="spatialUnitMappingConfigImportError()"></pre>
-    <br />
-    <br />
-    <p>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.JSON_FORMAT_HINT' | translate }}</p>
-    <pre
-      id="spatialUnitsAddMappingConfigPre"
-      style="overflow: auto; max-height: 500px"
-      [innerHTML]="spatialUnitMappingConfigStructure_pretty"
-    ></pre>
-  </div>
-}

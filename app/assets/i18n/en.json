@@ -1540,6 +1540,7 @@
   "ADMIN_SPATIAL_UNITS": {
     "OVERVIEW": {
       "TITLE": "Manage spatial unit levels",
+      "DESCRIPTION": "Register and maintain the spatial unit levels that indicators and georesources are kept on",
       "BOX_TITLE": "Spatial unit levels"
     },
     "COMMON": {

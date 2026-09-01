@@ -2,7 +2,7 @@
   <div class="row vertical-align">
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}*</label>
+        <label class="form-label">{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}*</label>
         <textarea
           rows="3"
           class="form-control"
@@ -16,7 +16,7 @@
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>{{ 'ADMIN_SHARED_UI.FORM.DATABASIS' | translate }}</label>
+        <label class="form-label">{{ 'ADMIN_SHARED_UI.FORM.DATABASIS' | translate }}</label>
         <textarea
           rows="3"
           class="form-control"
@@ -29,7 +29,7 @@
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>{{ 'ADMIN_SHARED.DATASOURCE' | translate }}*</label>
+        <label class="form-label">{{ 'ADMIN_SHARED.DATASOURCE' | translate }}*</label>
         <textarea
           rows="3"
           class="form-control"
@@ -43,7 +43,7 @@
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>{{ 'ADMIN_SHARED.DATA_HOLDER_CONTACT' | translate }}*</label>
+        <label class="form-label">{{ 'ADMIN_SHARED.DATA_HOLDER_CONTACT' | translate }}*</label>
         <textarea
           rows="3"
           class="form-control"
@@ -59,13 +59,11 @@
   <div class="row vertical-align">
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>{{ 'ADMIN_SHARED_UI.FORM.UPDATE_INTERVAL' | translate }}*</label>
-        <select
-          formControlName="updateInterval"
-          name="updateInterval"
-          class="form-control"
-          required
-        >
+        <label class="form-label">{{ 'ADMIN_SHARED_UI.FORM.UPDATE_INTERVAL' | translate }}*</label>
+        <!-- .form-select, not .form-control: it is the Bootstrap 5 class for a
+             <select>, and it puts this control at the same 38px height and caret
+             as the selects in the other steps of the same dialogs. -->
+        <select formControlName="updateInterval" name="updateInterval" class="form-select" required>
           <option [ngValue]="null">
             {{ 'ADMIN_SHARED_UI.FORM.SELECT_UPDATE_INTERVAL' | translate }}
           </option>
@@ -80,7 +78,7 @@
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>{{ 'ADMIN_SHARED_UI.FORM.LAST_UPDATE_DATE' | translate }}*</label>
+        <label class="form-label">{{ 'ADMIN_SHARED_UI.FORM.LAST_UPDATE_DATE' | translate }}*</label>
         <km-date-picker
           name="lastUpdate"
           placeholder="YYYY-MM-DD"
@@ -92,7 +90,7 @@
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>{{ 'ADMIN_SHARED_UI.FORM.LITERATURE' | translate }}</label>
+        <label class="form-label">{{ 'ADMIN_SHARED_UI.FORM.LITERATURE' | translate }}</label>
         <textarea
           rows="3"
           class="form-control"
@@ -105,7 +103,7 @@
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>{{ 'ADMIN_SHARED_UI.FORM.NOTE' | translate }}</label>
+        <label class="form-label">{{ 'ADMIN_SHARED_UI.FORM.NOTE' | translate }}</label>
         <textarea
           rows="3"
           class="form-control"

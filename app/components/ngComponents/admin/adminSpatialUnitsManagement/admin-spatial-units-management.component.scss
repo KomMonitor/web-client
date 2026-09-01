@@ -1,73 +1,23 @@
-/* Admin Spatial Units Management Component Styles */
-
-.loading-overlay-admin-panel {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  background-color: rgb(128, 128, 128);
-  top: 0;
-  left: 0;
-  border-radius: 5px;
-  opacity: 0.8;
-  z-index: 100000;
-}
-
-.loading-overlay-admin-panel .icon-spin {
-  font-size: 25px;
-  width: 25px;
-  height: 25px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin: -12.5px 0 0 -12.5px;
-
-  -webkit-animation: spin 1s infinite linear;
-  -moz-animation: spin 1s infinite linear;
-  -o-animation: spin 1s infinite linear;
-  animation: spin 1s infinite linear;
-  -webkit-transform-origin: 50% 50%;
-  transform-origin: 50% 50%;
-  -ms-transform-origin: 50% 50%; /* IE 9 */
-}
-
-.adminTableButtonWrapper {
-  display: flex;
-  float: right;
-  background: transparent;
-  font-size: 12px;
-  position: absolute;
-  top: 15px;
-  right: 40px;
-}
-
-.verticalAlign {
-  display: table;
-}
-
-.verticalAlign * {
-  display: table-cell;
-  vertical-align: middle;
-  padding-right: 1em;
-}
-
-.verticalAlign div {
-  position: relative;
-  top: 0.2em;
-}
-
-/* Switch styles */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 28px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
+/*
+ * Most of what used to live here was unreachable from this template: the
+ * `.box-*` and `.content-header` rules styled elements that moved into
+ * `<expandable-box>` and `<app-admin-content-view>` and are therefore behind
+ * those components' own encapsulation, `.loading-overlay-admin-panel`,
+ * `.adminTableButtonWrapper`, `.verticalAlign` and `.admin-table-wrapper` had
+ * no markup left at all, and the `.ag-paging-*` block gave this one grid a grey
+ * 12px pagination bar that no other admin overview has.
+ *
+ * The `.btn-success` override went with them. It repainted the toolbar's
+ * "create" button in AdminLTE green (#00a65a) while the identical button in the
+ * group overview stayed Bootstrap green (#198754) — the same control in two
+ * colours one menu entry apart.
+ *
+ * The `.switch` block went too: app.scss already defines the toggle at 55px,
+ * and the local copy only widened this one instance to 60px while its slider
+ * kept the shared geometry.
+ *
+ * What remains is the grid's own geometry.
+ */
 
 /* AG Grid customizations */
 .ag-theme-alpine {
@@ -76,109 +26,4 @@
   --ag-header-background-color: #f4f4f4;
   --ag-header-foreground-color: #333;
   --ag-border-color: #ddd;
-}
-
-.admin-table-wrapper {
-  margin-top: 20px;
-}
-
-/* Box styles */
-.box-primary {
-  border-top-color: #3c8dbc;
-}
-
-.box-header {
-  padding: 15px;
-  border-bottom: 1px solid #f4f4f4;
-}
-
-.box-title {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.box-body {
-  padding: 15px;
-}
-
-/* Button styles */
-.btn-success {
-  background-color: #00a65a;
-  border-color: #008d4c;
-}
-
-.btn-success:hover {
-  background-color: #008d4c;
-  border-color: #006633;
-}
-
-.btn-success:disabled {
-  background-color: #ccc;
-  border-color: #ccc;
-  cursor: not-allowed;
-}
-
-.content-header h1 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 300;
-}
-
-.content-header h1 small {
-  font-size: 14px;
-  color: #777;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .adminTableButtonWrapper {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .verticalAlign {
-    justify-content: center;
-  }
-}
-
-/* AG Grid pagination styles */
-.ag-theme-alpine .ag-paging-panel {
-  background-color: #f8f9fa;
-  border-top: 1px solid #dee2e6;
-  padding: 8px 12px;
-  font-size: 12px;
-}
-
-.ag-theme-alpine .ag-paging-button {
-  background-color: #fff;
-  border: 1px solid #dee2e6;
-  color: #495057;
-  padding: 4px 8px;
-  margin: 0 2px;
-  border-radius: 3px;
-  cursor: pointer;
-}
-
-.ag-theme-alpine .ag-paging-button:hover {
-  background-color: #e9ecef;
-  border-color: #adb5bd;
-}
-
-.ag-theme-alpine .ag-paging-button:disabled {
-  background-color: #f8f9fa;
-  color: #6c757d;
-  cursor: not-allowed;
-}
-
-.ag-theme-alpine .ag-paging-page-summary-panel {
-  color: #6c757d;
-}
-
-.ag-theme-alpine .ag-paging-page-size-select {
-  background-color: #fff;
-  border: 1px solid #dee2e6;
-  border-radius: 3px;
-  padding: 2px 4px;
-  font-size: 12px;
 }

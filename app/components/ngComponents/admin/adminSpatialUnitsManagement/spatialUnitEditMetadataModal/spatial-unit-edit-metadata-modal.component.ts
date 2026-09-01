@@ -49,6 +49,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { TranslateService } from '@ngx-translate/core';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { ResourceMetadataFormComponent } from '../../adminShared/resourceMetadataForm/resource-metadata-form.component';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import {
   ResourceMetadataFormGroup,
   patchMetadataFormFromApi,
@@ -69,6 +70,7 @@ import {
     FormErrorComponent,
     FormControlAriaDirective,
     CommonModule,
+    LoadingOverlayComponent,
     KmColorPickerComponent,
     KmLinePatternPickerComponent,
     StepperComponent,

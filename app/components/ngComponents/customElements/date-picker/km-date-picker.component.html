@@ -1,35 +1,39 @@
 <div class="km-date-picker">
+  <!--
+    Button and input are direct children of .input-group on purpose. They used to
+    sit in a `.input-group-btn` wrapper (a Bootstrap 3 class that no longer
+    exists) and a bare <div>. Bootstrap 5 sizes and joins only the direct
+    children of an input group and lets it wrap, so the two wrappers pushed the
+    input onto a second line below the calendar button and left both with their
+    own rounded corners.
+  -->
   <div class="input-group date-input-group">
-    <div class="input-group-btn">
-      <button
-        class="btn btn-default date-toggle-btn"
-        type="button"
-        [disabled]="disabled"
-        (click)="dp.toggle()"
-        title="Kalender öffnen"
-      >
-        <i class="far fa-calendar-alt"></i>
-      </button>
-    </div>
-    <div>
-      <input
-        [id]="id || null"
-        [attr.name]="name || null"
-        type="text"
-        [attr.placeholder]="placeholder"
-        [attr.aria-label]="ariaLabel"
-        inputmode="numeric"
-        pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
-        [required]="required"
-        [class]="inputClasses"
-        ngbDatepicker
-        #dp="ngbDatepicker"
-        [formControl]="control"
-        (focus)="onFocus()"
-        (blur)="onBlur()"
-        #inputEl
-      />
-    </div>
+    <button
+      class="btn btn-outline-secondary date-toggle-btn"
+      type="button"
+      [disabled]="disabled"
+      (click)="dp.toggle()"
+      title="Kalender öffnen"
+    >
+      <i class="far fa-calendar-alt"></i>
+    </button>
+    <input
+      [id]="id || null"
+      [attr.name]="name || null"
+      type="text"
+      [attr.placeholder]="placeholder"
+      [attr.aria-label]="ariaLabel"
+      inputmode="numeric"
+      pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
+      [required]="required"
+      [class]="inputClasses"
+      ngbDatepicker
+      #dp="ngbDatepicker"
+      [formControl]="control"
+      (focus)="onFocus()"
+      (blur)="onBlur()"
+      #inputEl
+    />
   </div>
 
   @if (showErrors && shouldShowInvalid) {

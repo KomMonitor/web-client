@@ -1695,6 +1695,45 @@ th {
   }
 }
 
+/*
+ * Row holding a wizard's "previous"/"next" step controls at the bottom of the
+ * active step. It replaces the `.multiStepForm .action-button` /
+ * `.action-button-previous` pair from the old jQuery wizard, which rendered
+ * step navigation as 25px-radius pills — blue for "next", salmon for
+ * "previous" — next to a footer full of ordinary Bootstrap buttons, so a single
+ * dialog spoke two button languages and a purely navigational "back" carried a
+ * warning colour.
+ *
+ * The buttons themselves are plain `.btn.btn-outline-secondary` (previous) and
+ * `.btn.btn-primary` (next); only their placement lives here. Centred rather
+ * than right-aligned: the steps they belong to are wide multi-column forms, and
+ * a centre-weighted pair reads as "this step", not as a second footer.
+ */
+.stepper-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+/*
+ * Row of side errands a dialog offers alongside its form — importing or
+ * exporting the metadata or the attribute mapping as JSON. Right-aligned above
+ * the content they act on.
+ *
+ * They used to be crammed into the modal footer next to cancel/reset/submit, or
+ * (for the mapping pair) `position: absolute` in the top-left corner on top of
+ * the stepper. In the footer they made five buttons in an 800px dialog, which
+ * wrapped onto a second row; here the footer keeps the same three buttons every
+ * admin dialog has.
+ */
+.dialog-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
 select {
   overflow: auto;
 }

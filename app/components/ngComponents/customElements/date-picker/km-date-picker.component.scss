@@ -2,6 +2,17 @@
   width: 100%;
 }
 
+/*
+ * The legacy jQuery-wizard rule `.multiStepForm input { margin-bottom: 10px }`
+ * in app.scss still applies wherever this picker sits inside a not-yet-migrated
+ * wizard (the georesource and indicator dialogs). Inside a flex input group that
+ * margin is added to the input's box, so the input measured 34px next to a 44px
+ * calendar button and the two ends of one control did not line up.
+ */
+.km-date-picker .input-group > .form-control {
+  margin-bottom: 0;
+}
+
 .km-date-picker .btn + .btn {
   margin-left: 4px;
 }

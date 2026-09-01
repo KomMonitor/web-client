@@ -38,6 +38,7 @@ import { CommonModule } from '@angular/common';
 import { KmDatePickerComponent } from '../../../customElements/date-picker/km-date-picker.component';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import {
   addOrUpdateAttributeMapping,
@@ -89,6 +90,7 @@ import { TranslateService } from '@ngx-translate/core';
     FormErrorComponent,
     FormControlAriaDirective,
     CommonModule,
+    LoadingOverlayComponent,
     AgGridAngular,
     KmDatePickerComponent,
     StepperComponent,
