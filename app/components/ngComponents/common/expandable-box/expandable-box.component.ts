@@ -3,6 +3,9 @@ import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 
 export type ExpanableBoxBorderColor = 'primary' | 'red' | 'green' | 'cyan';
 
+/** 'nested' subordinates a box that sits inside another box's body. */
+export type ExpandableBoxVariant = 'default' | 'nested';
+
 @Component({
   selector: 'expandable-box',
   templateUrl: './expandable-box.component.html',
@@ -15,6 +18,7 @@ export class ExpandableBoxComponent implements OnInit {
   @Input() collapsed: boolean = true;
   @Input() borderColor: ExpanableBoxBorderColor = 'primary';
   @Input() isCollapsible: boolean = true;
+  @Input() variant: ExpandableBoxVariant = 'default';
 
   ngOnInit() {
     if (this.isCollapsible === false) {
@@ -26,5 +30,14 @@ export class ExpandableBoxComponent implements OnInit {
     if (this.isCollapsible) {
       this.collapsed = !this.collapsed;
     }
+  }
+
+  /** Space activates the header like a button, without scrolling the page. */
+  onSpace(event: Event) {
+    if (!this.isCollapsible) {
+      return;
+    }
+    event.preventDefault();
+    this.onCollapseToggle();
   }
 }
