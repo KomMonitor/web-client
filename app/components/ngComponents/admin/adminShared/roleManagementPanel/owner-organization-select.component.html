@@ -5,17 +5,33 @@
       <div class="alert alert-info">
         {{ 'ADMIN_SHARED_UI.OWNER.SELECT_HINT' | translate }}
       </div>
-      <label for="targetUserRoleSelect">{{ 'ADMIN_SHARED_UI.OWNER.ORG_LABEL' | translate }}*</label>
+      <label class="form-label" for="targetUserRoleSelect"
+        >{{ 'ADMIN_SHARED_UI.OWNER.ORG_LABEL' | translate }}*</label
+      >
     } @else {
-      <label for="targetUserRoleSelect"
+      <label class="form-label" for="targetUserRoleSelect"
         ><b>{{ 'ADMIN_SHARED_UI.OWNER.TRANSFER_TO' | translate }}</b></label
       >
     }
-    <div class="input-group">
-      <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+    <!--
+      `input-group-text` and no `input-sm`: both of the classes this group used to
+      name are Bootstrap 3 and undefined in Bootstrap 5. `input-group-addon` left
+      the funnel a bare 16px glyph with no border, no background and no radius,
+      while Bootstrap's input-group rule still squared off the input's left corner
+      (`0 6px 6px 0`) for the prefix box it expected — so the icon floated beside a
+      field that looked cut open. `input-sm` was meant to shrink the field and did
+      nothing, which is just as well: the filter now matches the select it filters
+      instead of standing 8px shorter than it. Same markup as the keyword filter in
+      the indicator delete dialog.
+
+      `mb-2` because the group and the select used to touch: the filter narrows the
+      options below it, so they read as a pair rather than as one merged control.
+    -->
+    <div class="input-group mb-2">
+      <span class="input-group-text"><i class="fas fa-filter"></i></span>
       <input
         type="text"
-        class="form-control input-sm"
+        class="form-control"
         [placeholder]="'ADMIN_SHARED.KEYWORD_FILTER' | translate"
         [(ngModel)]="ownerOrgFilter"
         name="ownerOrgFilter"
