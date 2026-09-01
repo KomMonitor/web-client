@@ -1,14 +1,19 @@
-label,
-.center {
-  text-align: center;
-  width: 100%;
-  margin-bottom: 5px;
-  font-size: 12px;
-}
+/*
+ * There used to be a bare `label` selector here forcing `text-align: center`
+ * and `font-size: 12px`, so every label sat centred at three quarters the size
+ * of the value it labelled, above a left-aligned input. Labels now carry
+ * Bootstrap's `.form-label` in the template instead — no other admin dialog
+ * styles labels at all, so the plain framework default is the house style.
+ *
+ * The `.center` class that shared the rule was never used in this template.
+ */
 
+/*
+ * Also rendered by <app-form-error>, so validation messages line up with the
+ * field they belong to. Left-aligned, not centred: it sits under a
+ * left-aligned control.
+ */
 .help-block {
-  text-align: center;
-  width: 100%;
   color: #737373;
   font-size: 12px;
 }

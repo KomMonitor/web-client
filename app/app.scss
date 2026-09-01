@@ -1518,16 +1518,22 @@ a.kommonitor-theme:focus {
   /* right: 40px; */
 }
 
+/*
+ * This was two identical blocks in a row, the first fully redundant.
+ *
+ * `font-size` lost its `!important`: it is a reset, not a rule worth defending,
+ * and as `!important` it silently bulldozed every local font-size a template
+ * set on a table — a dialog asking for 11px still rendered at 16px, so the
+ * declaration looked broken rather than overridden.
+ *
+ * `color` keeps its `!important` for now: Bootstrap's
+ * `.table > :not(caption) > * > *` is more specific, so dropping it would
+ * repaint every table in the app, which is outside what this change is fixing.
+ */
 table,
 th,
 td {
-  font-size: 100% !important;
-}
-
-table,
-th,
-td {
-  font-size: 100% !important;
+  font-size: 100%;
   color: #555 !important;
 }
 th,
@@ -1604,6 +1610,89 @@ th {
    * 1366px laptop, which the old fixed px widths did.
    */
   --bs-modal-width: min(1600px, 92vw);
+}
+
+/*
+ * Flex bridge for `scrollable: true` (set for all three presets in
+ * `util/modal-presets.ts`).
+ *
+ * Bootstrap's .modal-dialog-scrollable expects .modal-body to be a flex child
+ * of .modal-content, but ng-bootstrap renders each modal component's own host
+ * element in between:
+ *
+ *   .modal-content > app-role-add-modal > .modal-header/.modal-body/.modal-footer
+ *
+ * That host is not a flex container, so .modal-body could neither shrink nor
+ * scroll and .modal-content's `overflow: hidden` clipped the footer instead.
+ * Making the host a transparent flex column restores the chain. `display:
+ * contents` would be shorter but breaks the eight modal components that carry
+ * :host styles.
+ */
+.modal-dialog-scrollable .modal-content > * {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  /* Without min-height: 0 a flex item refuses to shrink below its content. */
+  min-height: 0;
+  max-height: 100%;
+}
+
+.modal-dialog-scrollable .modal-content > * > .modal-body {
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/*
+ * ag-grid ships --ag-font-family: -apple-system, ... in its alpine theme, which
+ * left every data grid — the dominant element of the admin views — running in a
+ * different typeface from the rest of the app, down to Bootstrap buttons placed
+ * inside a cell. The grids are the only place this variable is read, so the app
+ * font is set once here rather than per view.
+ *
+ * The class is doubled on purpose. angular.json loads this file *before*
+ * ag-theme-alpine.css, so a plain `.ag-theme-alpine` would lose the
+ * same-specificity tie to the vendor rule. Repeating the class outranks it
+ * without reordering the global stylesheets, which would also change how this
+ * file interacts with Leaflet, CodeMirror and FontAwesome.
+ */
+.ag-theme-alpine.ag-theme-alpine {
+  --ag-font-family: var(--custom-font-family);
+}
+
+/*
+ * Centres a column header, opted into per column via `headerClass`. Used by the
+ * permission matrix in the role dialogs, where the cell holds nothing but a
+ * checkbox and a left-aligned label would not sit above it.
+ *
+ * Global on purpose: ag-grid builds its header DOM imperatively, so it carries
+ * no component scoping attribute and a component stylesheet cannot reach it.
+ */
+.ag-theme-alpine .km-header-centered .ag-header-cell-label {
+  justify-content: center;
+}
+
+/*
+ * Wrapper for `<app-stepper>` inside a dialog. Defined once here because it used
+ * to live in two component stylesheets with different content: the add-group
+ * dialog centred it at max-width 600px, the group-rights dialog set only a
+ * bottom margin. Identical markup therefore produced a 600px stepper in one
+ * dialog and a 1438px one in the other, whose two step circles ended up stuck to
+ * the outer edges of the dialog.
+ *
+ * The cap keeps the circles a readable distance apart in the 2-step dialogs that
+ * use this class. The 16 other dialogs embedding `<app-stepper>` carry no
+ * wrapper at all and are deliberately left full-width — unifying those is a
+ * separate decision about every wizard in the admin area.
+ */
+.stepper-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+
+  app-stepper {
+    width: 100%;
+    max-width: 600px;
+  }
 }
 
 select {
@@ -3804,12 +3893,37 @@ select {
   flex-grow: 1;
 }
 
+/*
+ * Legacy sizing for the ~150 <h4> in the tree, kept so existing layouts do not
+ * jump to Bootstrap's 24px default. Two things changed: the family is no longer
+ * hardcoded to Arial (it now inherits the app font from body), and the
+ * `!important` is gone, so a component or a class like .modal-title can
+ * actually override it. The Arial came from the Leaflet legend styles below and
+ * had leaked app-wide; the legend rules set it explicitly themselves.
+ */
 h4 {
   margin: 0 0 5px;
-  font:
-    16px/18px Arial,
-    Helvetica,
-    sans-serif !important;
+  font-size: 16px;
+  line-height: 18px;
+  /*
+   * The old `font:` shorthand reset the weight to normal as a side effect, so
+   * every h4 in the app renders at 400 today. Pinned explicitly to keep those
+   * ~150 headings unchanged — dropping it would hand them Bootstrap's
+   * `h4 { font-weight: 500 }` and make them all slightly bolder.
+   */
+  font-weight: 400;
+}
+
+/*
+ * A dialog title used to be the least prominent text in its own dialog: 16px
+ * regular Arial under an 18px bold uppercase .fs-title body heading. Sizing it
+ * here restores the intended order — 24px view title > 20px dialog title >
+ * 18px section/box heading.
+ */
+.modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 .boxedLegend {

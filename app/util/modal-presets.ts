@@ -25,11 +25,20 @@ import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
  * `MODAL_FORM` and `MODAL_WIDE` are `backdrop: 'static'` with `keyboard: false`
  * on purpose: they can hold unsaved input, so they close only through their own
  * buttons.
+ *
+ * All three are `scrollable: true`. Without it a tall dialog simply grew past
+ * the viewport and its footer went below the fold — on a 1366x768 laptop the
+ * "register group" dialog was 818px tall and its buttons were unreachable
+ * without scrolling the whole modal. `scrollable` caps the dialog at the
+ * viewport height and scrolls the body instead, keeping header and footer put.
+ * It needs the flex bridge in `app.scss` next to the `.km-modal-*` classes to
+ * work through the component host element ng-bootstrap inserts.
  */
 
 const SHARED: NgbModalOptions = {
   container: 'body',
   animation: false,
+  scrollable: true,
 };
 
 export const MODAL_CONFIRM: NgbModalOptions = {

@@ -12,7 +12,13 @@ import { merge } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridOptions, ICellRendererParams, SelectionChangedEvent } from 'ag-grid-community';
+import {
+  ColDef,
+  GridOptions,
+  ICellRendererParams,
+  ITooltipParams,
+  SelectionChangedEvent,
+} from 'ag-grid-community';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
@@ -67,7 +73,23 @@ export class AdminRoleManagementComponent implements OnInit {
   public tableViewSwitcher: boolean = false;
 
   public rowData = signal<AccessControlTableEntry[]>([]);
-  public defaultColDef: ColDef = this.kommonitorDataGridHelperService.buildDefaultColDef();
+  private readonly baseColDef: ColDef = this.kommonitorDataGridHelperService.buildDefaultColDef();
+
+  public defaultColDef: ColDef = {
+    ...this.baseColDef,
+    // The shared defaultColDef has no header wrapping, so the two long
+    // "Hierarchie - …" headers were cut off mid-word. Wrapping adapts to the
+    // label length instead of requiring a width guess per translation.
+    wrapHeaderText: true,
+    autoHeaderHeight: true,
+    cellStyle: {
+      ...(this.baseColDef.cellStyle as Record<string, string>),
+      // The shared style forces 12px while the alpine theme renders the header
+      // of the same table at 13px. Matching the theme removes a one-pixel
+      // difference between a column header and the values under it.
+      'font-size': '13px',
+    },
+  };
   public gridOptions: GridOptions = {
     suppressRowClickSelection: true,
     rowSelection: 'multiple',
@@ -92,6 +114,49 @@ export class AdminRoleManagementComponent implements OnInit {
     this.translationsReady(); // re-run when the language / translations change
     return this.buildColumnDefs();
   });
+
+  /**
+   * How many subgroup names a cell lists before it falls back to a "+n more"
+   * suffix. Without a cap a unit with 12 subgroups stretched its row to 316px
+   * against 77px for a plain one, because the shared defaultColDef renders
+   * cells with `wrapText` + `autoHeight`.
+   */
+  private static readonly CHILD_GROUP_PREVIEW_COUNT = 5;
+
+  /**
+   * Builds the "directly subordinate units" cell: the count, then a preview of
+   * the names. Returns a DOM node rather than an HTML string — the previous
+   * version interpolated the raw array into innerHTML, which both dropped the
+   * spaces after the commas (`a,b,c`) and put unescaped API data into markup.
+   */
+  private renderChildGroupsCell(childGroupNames: string[]): HTMLElement {
+    const wrapper = document.createElement('div');
+
+    const count = document.createElement('div');
+    count.textContent = this.translate.instant('ADMIN_ROLES.GRID.CHILD_GROUPS_COUNT', {
+      count: childGroupNames.length,
+    });
+    wrapper.appendChild(count);
+
+    if (childGroupNames.length > 0) {
+      const preview = childGroupNames.slice(
+        0,
+        AdminRoleManagementComponent.CHILD_GROUP_PREVIEW_COUNT
+      );
+      const hidden = childGroupNames.length - preview.length;
+
+      const names = document.createElement('div');
+      names.textContent =
+        hidden > 0
+          ? `${preview.join(', ')} ${this.translate.instant('ADMIN_ROLES.GRID.CHILD_GROUPS_MORE', {
+              count: hidden,
+            })}`
+          : preview.join(', ');
+      wrapper.appendChild(names);
+    }
+
+    return wrapper;
+  }
 
   private buildColumnDefs(): ColDef<AccessControlTableEntry>[] {
     return [
@@ -118,33 +183,41 @@ export class AdminRoleManagementComponent implements OnInit {
       {
         headerName: this.translate.instant('ADMIN_ROLES.GRID.COL_PARENT'),
         field: 'parentName',
+        // Same floor as the sibling hierarchy column: below ~190px the longest
+        // word of the header ("Organisationseinheit") no longer fits on a line
+        // of its own and gets clipped despite wrapHeaderText.
+        minWidth: 190,
       },
       {
         headerName: this.translate.instant('ADMIN_ROLES.GRID.COL_CHILDREN'),
-        cellRenderer: (param: ICellRendererParams<AccessControlTableEntry>) => {
-          const childGroupNames = param.data?.ownChildGroupNames ?? [];
-          const label = this.translate.instant('ADMIN_ROLES.GRID.CHILD_GROUPS_COUNT', {
-            count: childGroupNames.length,
-          });
-          return `${label}<br/><br/>${childGroupNames}`;
-        },
+        minWidth: 190,
+        cellRenderer: (param: ICellRendererParams<AccessControlTableEntry>) =>
+          this.renderChildGroupsCell(param.data?.ownChildGroupNames ?? []),
+        // The full list stays reachable even though the cell only previews it.
+        tooltipValueGetter: (param: ITooltipParams<AccessControlTableEntry>) =>
+          (param.data?.ownChildGroupNames ?? []).join(', '),
       },
       {
         headerName: this.translate.instant('ADMIN_ROLES.GRID.COL_DESCRIPTION'),
         field: 'description',
-        minWidth: 350,
+        minWidth: 180,
+        // Twice the share of the leftover width: descriptions are the longest
+        // free text in this table, so they get the surplus rather than an equal
+        // seventh of it.
+        flex: 2,
         filter: 'agTextColumnFilter',
       },
       {
         headerName: this.translate.instant('ADMIN_ROLES.GRID.COL_CONTACT'),
         field: 'contact',
-        minWidth: 250,
+        minWidth: 155,
         filter: 'agTextColumnFilter',
       },
       {
         headerName: this.translate.instant('ADMIN_ROLES.GRID.COL_MANDANT'),
         field: 'mandant',
-        minWidth: 120,
+        minWidth: 105,
+        maxWidth: 140,
         cellDataType: 'boolean',
         filter: false,
       },

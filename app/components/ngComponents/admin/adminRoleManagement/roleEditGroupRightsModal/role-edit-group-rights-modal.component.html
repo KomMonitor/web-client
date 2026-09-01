@@ -132,7 +132,10 @@
 
 <div class="modal-footer">
   <button type="button" class="btn btn-outline-secondary me-auto" (click)="close()">
-    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
+  </button>
+  <button type="button" class="btn btn-outline-secondary" (click)="reset()">
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
   <button
     type="button"
@@ -141,8 +144,5 @@
     (click)="updateDelegatedRoles()"
   >
     {{ 'ADMIN_ROLES.EDIT_RIGHTS_MODAL.UPDATE_RIGHTS' | translate }}
-  </button>
-  <button type="button" class="btn btn-danger" (click)="reset()">
-    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
 </div>

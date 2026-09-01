@@ -1,28 +1,21 @@
-label,
-.center {
-  text-align: center;
-  width: 100%;
-  margin-bottom: 5px;
-  font-size: 12px;
-}
+/*
+ * The bare `label` selector that used to live here forced `text-align: center`
+ * and `font-size: 12px` on every label in this dialog. Labels now carry
+ * Bootstrap's `.form-label` in the template instead, matching the rest of the
+ * admin area. The `.center` class that shared the rule was never used.
+ */
 
+/*
+ * Field help and, via <app-form-error>, validation messages. Left-aligned so it
+ * lines up with the control above it; the step subtitle that also uses this
+ * class opts back into centring with `.text-center`.
+ */
 .help-block {
-  text-align: center;
-  width: 100%;
   color: #737373;
   font-size: 12px;
 }
 
-.stepper-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-
-  app-stepper {
-    width: 100%;
-    max-width: 600px;
-  }
-}
+/* .stepper-wrapper now lives in app.scss, shared with the group-rights dialog. */
 
 .form-section-row {
   margin-top: 24px;
@@ -35,41 +28,27 @@ label,
   margin-bottom: 15px;
 }
 
+/* Label and switch on one line, aligned with the column's other content. */
 .toggle-row {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 12px;
   margin: 8px 0 12px;
 }
 
 .toggle-label {
-  display: inline-block;
+  /* Overrides .form-label's block layout so it can sit beside the switch. */
   width: auto;
   margin: 0;
-  font-size: 12px;
-  text-align: left;
 }
 
 .toggle-help-text {
   color: #737373;
   font-size: 12px;
   line-height: 1.5;
-  text-align: center;
 }
 
-.hierarchy-group {
-  text-align: center;
-}
-
-.hierarchy-filter-group {
-  margin: 10px 0 0;
-}
-
-.hierarchy-select {
-  margin-top: 8px;
-}
-
+/* .hierarchy-group / -filter-group / -select were not used by the template. */
 .hierarchy-help-block {
   margin-top: 10px;
 }

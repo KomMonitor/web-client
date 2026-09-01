@@ -233,31 +233,64 @@ export function buildAdvancedRoleRowData(
  * modal: the group titles live in a module-level constant that is evaluated at
  * import time, so they cannot be resolved through DI where they are declared.
  */
+/**
+ * Shared shape of the six permission columns.
+ *
+ * `maxWidth` is what makes the requested `width` stick: the role grids' shared
+ * defaultColDef sets `flex: 1`, which ignores `width` and stretched every
+ * checkbox column to 201px. The checkbox then sat 25px from the left edge of a
+ * column whose remaining ~150px were empty, well away from its own header
+ * label. Capping the width and centring both keeps the matrix scannable.
+ */
+const PERMISSION_COLUMN: ColDef = {
+  filter: false,
+  sortable: false,
+  // flex: 0 is what makes `width` count. The role grids' shared defaultColDef
+  // sets flex: 1, and a flexed column ignores `width` entirely — that is how
+  // these ended up at 201px each. With flex off they hold 150px and the name
+  // column, which does flex, absorbs whatever is left.
+  flex: 0,
+  width: 150,
+  headerClass: 'km-header-centered',
+  cellStyle: {
+    display: 'flex',
+    'align-items': 'center',
+    'justify-content': 'center',
+    // Keeps the row height in line with the text cells next to it, which the
+    // shared defaultColDef pads by 17px.
+    'padding-top': '17px',
+    'padding-bottom': '17px',
+  },
+};
+
 export function buildAdvancedColumnDefs(translate: TranslateService): ColDef[] {
   return [
     {
       headerName: translate.instant('ADMIN_ROLES.GRID.COL_ORG_UNIT'),
       field: 'name',
       minWidth: 220,
-      pinned: 'left',
+      // Takes the width left over by the capped checkbox columns instead of
+      // leaving several hundred pixels of empty grid to their right.
+      flex: 1,
     },
     ...ADVANCED_PERMISSION_GROUPS.map(({ headerNameKey, groupRenderer, subGroupRenderer }) => ({
       headerName: translate.instant(headerNameKey),
+      // Deliberately not centred: ag-grid gives a group header an
+      // `ag-sticky-label` wrapper so the caption stays visible while the group
+      // scrolls, and that wrapper overrides `justify-content`. Left-aligned is
+      // ag-grid's default here, and the leaf headers below carry the alignment
+      // that matters — the one over each checkbox.
       children: [
         {
+          ...PERMISSION_COLUMN,
           headerName: translate.instant('ADMIN_ROLES.GRID.COL_THIS_GROUP'),
           field: groupRenderer,
-          filter: false,
-          sortable: false,
-          width: 120,
           cellRenderer: groupRenderer,
         },
         {
+          ...PERMISSION_COLUMN,
           headerName: translate.instant('ADMIN_ROLES.GRID.COL_SUBGROUPS'),
           field: subGroupRenderer,
-          filter: false,
-          sortable: false,
-          width: 120,
           cellRenderer: subGroupRenderer,
         },
       ],
