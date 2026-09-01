@@ -1,49 +1,88 @@
+<!--
+  Title first, then an empty `btn-close`. The dismiss button used to come *before*
+  the title and carried the Bootstrap 3 `.close` class, which is undefined in
+  Bootstrap 5 — so this dialog's `×` was an unstyled browser button in the top
+  *left* corner, where every other dialog in the admin area has the large thin X
+  on the right.
+-->
 <div class="modal-header">
+  <h4 class="modal-title">{{ 'ADMIN_WMS.DELETE.TITLE' | translate }}</h4>
   <button
     type="button"
-    class="close"
+    class="btn-close"
     [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
     (click)="close()"
-  >
-    <span aria-hidden="true">&times;</span>
-  </button>
-  <h4 class="modal-title">{{ 'ADMIN_WMS.DELETE.TITLE' | translate }}</h4>
+  ></button>
 </div>
 
 <div class="modal-body">
-  <div align="center">
-    @if (loadingData) {
-      <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData">
-        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+  <!--
+    <app-loading-overlay> instead of the hand-rolled `.loading-overlay-admin-panel`
+    that used to sit before the content. That one greyed out the whole viewport
+    rather than the dialog, was toggled with the AngularJS `ng-hide` class, and
+    its glyph was `glyphicon glyphicon-refresh` — Bootstrap 3 icon fonts, which
+    this app does not ship at all, so the spinner rendered as nothing.
+  -->
+  <app-loading-overlay [loading]="loadingData">
+    <!--
+      Both alerts used to sit after the footer as `position: absolute; bottom: 0`,
+      floating over the dialog's own buttons, dismissed by Bootstrap 3 `.close`
+      buttons. They are ordinary alerts at the top of the body now, as in the
+      spatial-unit and georesource delete dialogs.
+    -->
+    @if (showSuccessAlert()) {
+      <div class="alert alert-success" role="alert">
+        <button
+          type="button"
+          class="btn-close float-end"
+          [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+          (click)="hideSuccessAlert()"
+        ></button>
+        <b>{{ 'ADMIN_WMS.DELETE.SUCCESS_TITLE' | translate }}</b>
       </div>
     }
-  </div>
 
-  <!-- MultiStep Form -->
-  <div class="row">
-    <div class="col-md-12">
-      <h4>
-        <b>{{ 'ADMIN_WMS.DELETE.CONFIRM_QUESTION' | translate }}</b>
-      </h4>
+    @if (showErrorAlert()) {
+      <div class="alert alert-danger" role="alert">
+        <button
+          type="button"
+          class="btn-close float-end"
+          [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+          (click)="hideErrorAlert()"
+        ></button>
+        <b>{{ 'ADMIN_WMS.DELETE.ERROR_TITLE' | translate }}</b>
+        <p>{{ 'ADMIN_WMS.DELETE.ERROR_TEXT' | translate }}</p>
+        <pre class="import-error-detail" [innerHTML]="errorMessage()"></pre>
+      </div>
+    }
 
-      @if (!datasetToDelete) {
-        <div>
-          <pre>{{ 'ADMIN_WMS.DELETE.NO_DATASET_MARKED' | translate }}</pre>
-        </div>
-      }
+    <h4>
+      <b>{{ 'ADMIN_WMS.DELETE.CONFIRM_QUESTION' | translate }}</b>
+    </h4>
 
-      @if (datasetToDelete) {
-        <div>
-          <h4>WMS</h4>
-          <span>{{ datasetToDelete.title }}</span>
-        </div>
-      }
-    </div>
-  </div>
+    @if (!datasetToDelete) {
+      <div>
+        <pre>{{ 'ADMIN_WMS.DELETE.NO_DATASET_MARKED' | translate }}</pre>
+      </div>
+    }
+
+    @if (datasetToDelete) {
+      <div>
+        <h4>WMS</h4>
+        <span>{{ datasetToDelete.title }}</span>
+      </div>
+    }
+  </app-loading-overlay>
 </div>
 
+<!--
+  The same footer every admin dialog has: cancel pushed left with `me-auto` (the
+  old `btn-default pull-left` named two classes that do not exist in Bootstrap 5,
+  so it rendered as borderless text and did not float) and the destructive
+  submit on the right.
+-->
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="close()">
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="close()">
     {{ 'ADMIN_SHARED.CLOSE' | translate }}
   </button>
   <button
@@ -54,33 +93,4 @@
   >
     {{ 'ADMIN_WMS.DELETE.SUBMIT' | translate }}
   </button>
-</div>
-
-<!-- Success Alert -->
-<div
-  id="georesourceAddSuccessAlert"
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!showSuccessAlert()"
-  class="alert alert-success alert-dismissable"
->
-  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
-    &times;
-  </button>
-  <h4><i class="icon fa fa-check"></i>{{ 'ADMIN_WMS.DELETE.SUCCESS_TITLE' | translate }}</h4>
-</div>
-
-<!-- Error Alert -->
-<div
-  id="georesourceAddErrorAlert"
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!showErrorAlert()"
-  class="alert alert-danger alert-dismissable"
->
-  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
-  <h4><i class="icon fa fa-ban"></i>{{ 'ADMIN_WMS.DELETE.ERROR_TITLE' | translate }}</h4>
-  {{ 'ADMIN_WMS.DELETE.ERROR_TEXT' | translate }}
-  <br />
-  <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessage()"></pre>
-  <br />
-  <br />
 </div>

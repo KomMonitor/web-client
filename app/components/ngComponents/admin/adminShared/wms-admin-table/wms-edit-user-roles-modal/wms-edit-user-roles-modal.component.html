@@ -1,114 +1,173 @@
+<!--
+  Title first, then an empty `btn-close`. The dismiss button used to come *before*
+  the title and carried the Bootstrap 3 `.close` class, which is undefined in
+  Bootstrap 5 — so this dialog's `×` was an unstyled browser button in the top
+  *left* corner, where every other dialog in the admin area has the large thin X
+  on the right.
+-->
 <div class="modal-header">
+  <h4 class="modal-title">{{ 'ADMIN_WMS.EDIT_ROLES.TITLE' | translate }}</h4>
   <button
     type="button"
-    class="close"
+    class="btn-close"
     [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
     (click)="close()"
-  >
-    <span aria-hidden="true">&times;</span>
-  </button>
-  <h4 class="modal-title">{{ 'ADMIN_WMS.EDIT_ROLES.TITLE' | translate }}</h4>
+  ></button>
 </div>
 
 <div class="modal-body">
-  <div align="center">
-    @if (loadingData) {
-      <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData">
-        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+  <!--
+    <app-loading-overlay> instead of the hand-rolled `.loading-overlay-admin-panel`
+    that used to sit before the form. That one greyed out the whole viewport
+    rather than the dialog, was toggled with the AngularJS `ng-hide` class, and
+    its glyph was `glyphicon glyphicon-refresh` — Bootstrap 3 icon fonts, which
+    this app does not ship at all, so the spinner rendered as nothing.
+  -->
+  <app-loading-overlay [loading]="loadingData">
+    <!--
+      Both alerts used to sit after the footer as `position: absolute; bottom: 0`,
+      floating over the dialog's own buttons, dismissed by Bootstrap 3 `.close`
+      buttons. They are ordinary alerts at the top of the body now, as in the
+      spatial-unit and georesource role dialogs.
+    -->
+    @if (successMessage()) {
+      <div class="alert alert-success" role="alert">
+        <button
+          type="button"
+          class="btn-close float-end"
+          [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+          (click)="hideSuccessAlert()"
+        ></button>
+        <b>{{ 'ADMIN_WMS.ADD.SUCCESS_TITLE' | translate }}</b>
+        <p class="mb-0">
+          {{ 'ADMIN_WMS.EDIT_ROLES.SUCCESS_TEXT' | translate: { name: successMessagePart() } }}
+        </p>
       </div>
     }
-  </div>
 
-  <!-- MultiStep Form -->
-  <div class="row">
-    <div class="col-md-12">
-      <form
-        class="multiStepForm form-group"
-        #georesourceAddForm="ngForm"
-        (ngSubmit)="editData()"
-        style="margin-bottom: 0px"
-      >
-        <!-- progressbar -->
-        <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
+    @if (errorMessage()) {
+      <div class="alert alert-danger" role="alert">
+        <button
+          type="button"
+          class="btn-close float-end"
+          [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+          (click)="hideErrorAlert()"
+        ></button>
+        <b>{{ 'ADMIN_WMS.EDIT.ERROR_TITLE' | translate }}</b>
+        <p>{{ 'ADMIN_WMS.EDIT.ERROR_TEXT' | translate }}</p>
+        <pre class="import-error-detail" [innerHTML]="errorMessagePart()"></pre>
+      </div>
+    }
 
-        <!-- fieldsets: switched via display so the role grid (and its checked
-             state) survives navigating between steps -->
-        @if (envConfigService.enableKeycloakSecurity) {
-          <fieldset [style.display]="stepper.isActive('roles') ? 'block' : 'none'">
-            <h2 class="fs-title">{{ 'ADMIN_SHARED.ACCESS_PROTECTION' | translate }}</h2>
-            <h3 class="fs-subtitle">
-              {{ 'ADMIN_SHARED_UI.SECURITY.ASSIGN_RIGHTS_SUBTITLE' | translate }}
-            </h3>
-            <div id="georesourceRoleForm">
-              <label>{{ 'ADMIN_SHARED_UI.SECURITY.DATASET_PERMISSIONS' | translate }}</label>
-              <div class="row vertical-align">
-                <div class="col-md-3">
-                  <label>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label>
-                  <label class="switch">
-                    <input
-                      type="checkbox"
-                      [(ngModel)]="isPublic"
-                      name="isPublic"
-                      (ngModelChange)="onChangeIsPublic($event)"
-                    />
-                    <span class="switchslider round"></span>
-                  </label>
-                  <div class="help-block">
-                    <p>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ_HINT' | translate }}</p>
+    <!--
+      No `.multiStepForm` wrapper any more. Through app.scss it centred every
+      label at 12px above a left-aligned control and squared off every input at
+      13px, while the same fields in the spatial-unit dialogs are left-aligned at
+      16px in rounded controls. `.fs-title`/`.fs-subtitle` therefore carry an
+      explicit `text-center` now, as they do there.
+
+      Steps stay switched via `display` so the role grid keeps its checked state
+      while the user visits step 2.
+    -->
+    <form class="form-group" #wmsEditUserRolesForm="ngForm" (ngSubmit)="editData()">
+      <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
+
+      @if (envConfigService.enableKeycloakSecurity) {
+        <div [style.display]="stepper.isActive('roles') ? 'block' : 'none'">
+          <h2 class="fs-title text-center">{{ 'ADMIN_SHARED.ACCESS_PROTECTION' | translate }}</h2>
+          <h3 class="fs-subtitle text-center">
+            {{ 'ADMIN_SHARED_UI.SECURITY.ASSIGN_RIGHTS_SUBTITLE' | translate }}
+          </h3>
+          <div id="georesourceRoleForm">
+            <label class="form-label">{{
+              'ADMIN_SHARED_UI.SECURITY.DATASET_PERMISSIONS' | translate
+            }}</label>
+            <div class="row form-section-row">
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="form-label" for="wmsIsPublic"
+                    >{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label
+                  >
+                  <div>
+                    <label class="switch" for="wmsIsPublic">
+                      <input
+                        id="wmsIsPublic"
+                        type="checkbox"
+                        [(ngModel)]="isPublic"
+                        name="isPublic"
+                        (ngModelChange)="onChangeIsPublic($event)"
+                      />
+                      <span class="switchslider round"></span>
+                    </label>
                   </div>
+                  <p class="help-block">
+                    {{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ_HINT' | translate }}
+                  </p>
                 </div>
-                <div class="col-md-6 col-sm-6 col-12">
-                  <app-role-management-grid
-                    gridId="wmsEditRoleManagementTable"
-                    [permissions]="currentGeoresourceDataset.permissions"
-                    [ownerId]="currentGeoresourceDataset.ownerId"
-                  ></app-role-management-grid>
-                </div>
-                <div class="col-md-3">
-                  <div class="alert alert-info">
-                    {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_RIGHTS_INFO' | translate }}
-                  </div>
+              </div>
+              <div class="col-md-6 col-sm-6 col-12">
+                <app-role-management-grid
+                  gridId="wmsEditRoleManagementTable"
+                  [permissions]="currentGeoresourceDataset.permissions"
+                  [ownerId]="currentGeoresourceDataset.ownerId"
+                ></app-role-management-grid>
+              </div>
+              <div class="col-md-3">
+                <div class="alert alert-info">
+                  {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_RIGHTS_INFO' | translate }}
                 </div>
               </div>
             </div>
-            <input
-              type="button"
-              name="previous"
-              class="previous previous_addGeoresource action-button-previous"
-              [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-              (click)="stepper.previous()"
-            />
-            <input
-              type="button"
-              name="next"
-              class="next next_addGeoresource action-button"
-              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-              (click)="stepper.next()"
-            />
-          </fieldset>
+          </div>
+          <!--
+            No "previous" on the first step. It used to render here as a salmon
+            25px pill next to the blue "next" one, offering to navigate back from
+            step 1 of 2.
+          -->
+          <div class="stepper-buttons">
+            <button type="button" class="btn btn-primary" (click)="stepper.next()">
+              {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+            </button>
+          </div>
+        </div>
 
-          <fieldset [style.display]="stepper.isActive('ownership') ? 'block' : 'none'">
-            <h2 class="fs-title">{{ 'ADMIN_SHARED_UI.SECURITY.OWNERSHIP_TITLE' | translate }}</h2>
-            <h3 class="fs-subtitle">
-              {{ 'ADMIN_SHARED_UI.SECURITY.OWNERSHIP_SUBTITLE' | translate }}
-            </h3>
-            <app-owner-organization-select
-              [ownerId]="ownerOrganization"
-              [currentOwnerId]="currentGeoresourceDataset.ownerId"
-              (ownerIdChange)="onChangeOwner($event)"
-            ></app-owner-organization-select>
-          </fieldset>
-        }
-      </form>
-    </div>
-  </div>
+        <div [style.display]="stepper.isActive('ownership') ? 'block' : 'none'">
+          <h2 class="fs-title text-center">
+            {{ 'ADMIN_SHARED_UI.SECURITY.OWNERSHIP_TITLE' | translate }}
+          </h2>
+          <h3 class="fs-subtitle text-center">
+            {{ 'ADMIN_SHARED_UI.SECURITY.OWNERSHIP_SUBTITLE' | translate }}
+          </h3>
+          <app-owner-organization-select
+            [ownerId]="ownerOrganization"
+            [currentOwnerId]="currentGeoresourceDataset.ownerId"
+            (ownerIdChange)="onChangeOwner($event)"
+          ></app-owner-organization-select>
+          <div class="stepper-buttons">
+            <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
+              {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+            </button>
+          </div>
+        </div>
+      }
+    </form>
+  </app-loading-overlay>
 </div>
 
+<!--
+  The same three buttons every admin dialog has: cancel pushed left with
+  `me-auto` (the old `btn-default pull-left` named two classes that do not exist
+  in Bootstrap 5, so it rendered as borderless text and did not float), reset as
+  a neutral outline rather than `btn-danger` — it discards input, it does not
+  delete data — and the submit on the right.
+-->
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="close()">
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="close()">
     {{ 'ADMIN_SHARED.CLOSE' | translate }}
   </button>
-
+  <button type="button" class="btn btn-outline-secondary" (click)="resetWmsEditForm()">
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
+  </button>
   <button
     type="button"
     class="btn btn-success"
@@ -117,37 +176,4 @@
   >
     {{ 'ADMIN_WMS.EDIT.SUBMIT' | translate }}
   </button>
-  <button type="button" class="btn btn-danger" (click)="resetWmsEditForm()">
-    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
-  </button>
-</div>
-
-<!-- Success Alert -->
-<div
-  id="georesourceAddSuccessAlert"
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!successMessage()"
-  class="alert alert-success alert-dismissable"
->
-  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
-    &times;
-  </button>
-  <h4><i class="icon fa fa-check"></i>{{ 'ADMIN_WMS.ADD.SUCCESS_TITLE' | translate }}</h4>
-  <p>{{ 'ADMIN_WMS.EDIT_ROLES.SUCCESS_TEXT' | translate: { name: successMessagePart() } }}</p>
-</div>
-
-<!-- Error Alert -->
-<div
-  id="georesourceAddErrorAlert"
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!errorMessage()"
-  class="alert alert-danger alert-dismissable"
->
-  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
-  <h4><i class="icon fa fa-ban"></i>{{ 'ADMIN_WMS.EDIT.ERROR_TITLE' | translate }}</h4>
-  {{ 'ADMIN_WMS.EDIT.ERROR_TEXT' | translate }}
-  <br />
-  <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessagePart()"></pre>
-  <br />
-  <br />
 </div>

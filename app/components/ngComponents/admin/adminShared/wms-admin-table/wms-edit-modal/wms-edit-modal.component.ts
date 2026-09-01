@@ -16,6 +16,8 @@ import { OgcService } from 'services/ogcServices/ogc.service';
 import { AdminTopicsManagementComponent } from 'components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
 
 import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { TopicHierarchyFormComponent } from '../../topicHierarchyForm/topic-hierarchy-form.component';
@@ -33,6 +35,8 @@ import {
   imports: [
     TranslateModule,
     FormsModule,
+    LoadingOverlayComponent,
+    ExpandableBoxComponent,
     ReactiveFormsModule,
     AdminTopicsManagementComponent,
     TopicHierarchyFormComponent,

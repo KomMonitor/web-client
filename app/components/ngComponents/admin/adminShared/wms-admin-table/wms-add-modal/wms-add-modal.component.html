@@ -1,369 +1,415 @@
+<!--
+  Title first, then an empty `btn-close`. The dismiss button used to come *before*
+  the title and carried the Bootstrap 3 `.close` class, which is undefined in
+  Bootstrap 5 — so this dialog's `×` was an unstyled browser button in the top
+  *left* corner, where every other dialog in the admin area has the large thin X
+  on the right.
+-->
 <div class="modal-header">
+  <h4 class="modal-title">{{ 'ADMIN_WMS.ADD.TITLE' | translate }}</h4>
   <button
     type="button"
-    class="close"
+    class="btn-close"
     [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
     (click)="close()"
-  >
-    <span aria-hidden="true">&times;</span>
-  </button>
-  <h4 class="modal-title">{{ 'ADMIN_WMS.ADD.TITLE' | translate }}</h4>
+  ></button>
 </div>
 
 <div class="modal-body">
-  <div align="center">
-    @if (loadingData) {
-      <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData">
-        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+  <!--
+    <app-loading-overlay> instead of the hand-rolled `.loading-overlay-admin-panel`
+    that used to sit before the form. That one greyed out the whole viewport
+    rather than the dialog, was toggled with the AngularJS `ng-hide` class, and
+    its glyph was `glyphicon glyphicon-refresh` — Bootstrap 3 icon fonts, which
+    this app does not ship at all, so the spinner rendered as nothing.
+  -->
+  <app-loading-overlay [loading]="loadingData">
+    <!--
+      All four alerts used to sit after the footer as
+      `position: absolute; bottom: 0`, stacked on top of each other over the
+      dialog's own buttons — two of them even shared the DOM id
+      `georesourceAddSuccessAlert` and two more `georesourceAddErrorAlert`. They
+      are ordinary alerts at the top of the body now, dismissed by `btn-close`
+      instead of the undefined Bootstrap 3 `.close`.
+    -->
+    @if (successMessage()) {
+      <div class="alert alert-success" role="alert">
+        <button
+          type="button"
+          class="btn-close float-end"
+          [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+          (click)="hideSuccessAlert()"
+        ></button>
+        <b>{{ 'ADMIN_WMS.ADD.SUCCESS_TITLE' | translate }}</b>
+        <p class="mb-0">
+          {{ 'ADMIN_WMS.ADD.SUCCESS_TEXT' | translate: { name: successMessagePart() } }}
+        </p>
       </div>
     }
-  </div>
 
-  <!-- MultiStep Form -->
-  <div class="row">
-    <div class="col-md-12">
-      <form
-        class="multiStepForm form-group"
-        #georesourceAddForm="ngForm"
-        (ngSubmit)="addWms()"
-        style="margin-bottom: 0px"
-      >
-        <!-- progressbar -->
-        <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
+    @if (testSuccessMessage()) {
+      <div class="alert alert-success" role="alert">
+        <button
+          type="button"
+          class="btn-close float-end"
+          [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+          (click)="hideSuccessAlert()"
+        ></button>
+        <b>{{ 'ADMIN_WMS.COMMON.CONNECTION_TEST_TITLE' | translate }}</b>
+        <p class="mb-0">{{ 'ADMIN_WMS.COMMON.CONNECTION_TEST_SUCCESS' | translate }}</p>
+      </div>
+    }
 
-        <!-- fieldsets -->
-        @if (stepper.isActive('metadata')) {
-          <fieldset>
-            <h2 class="fs-title">{{ 'ADMIN_SHARED.GENERAL_METADATA' | translate }}</h2>
-            <h3 class="fs-subtitle">{{ 'ADMIN_WMS.COMMON.METADATA_SUBTITLE' | translate }}</h3>
-            <p>
-              <b
-                ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
-              >
-            </p>
-            <form [formGroup]="metadataForm">
-              <div class="row vertical-align">
-                <div class="col-md-3 col-sm-6 col-12">
-                  <div class="form-group">
-                    <label>{{ 'ADMIN_WMS.COMMON.NAME_LABEL' | translate }}*</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      formControlName="title"
-                      [placeholder]="'ADMIN_WMS.COMMON.NAME_PLACEHOLDER' | translate"
-                      required
-                    />
-                    <app-form-error [control]="metadataForm.controls.title" />
-                  </div>
-                </div>
-                <div class="col-md-3 col-sm-6 col-12">
-                  <div class="form-group">
-                    <label>{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}*</label>
-                    <textarea
-                      rows="3"
-                      class="form-control"
-                      formControlName="description"
-                      name="metadataDescription"
-                      [placeholder]="'ADMIN_SHARED_UI.FORM.DESCRIPTION_PLACEHOLDER' | translate"
-                      required
-                    ></textarea>
-                    <div class="help-block with-errors"></div>
-                  </div>
-                </div>
-                <div class="col-md-3 col-sm-6 col-12">
-                  <div class="form-group">
-                    <label>{{ 'ADMIN_SHARED_UI.FORM.DATABASIS' | translate }}</label>
-                    <textarea
-                      rows="3"
-                      class="form-control"
-                      formControlName="databasis"
-                      name="metadataDatabasis"
-                      [placeholder]="'ADMIN_SHARED_UI.FORM.DATABASIS_PLACEHOLDER' | translate"
-                    ></textarea>
-                    <div class="help-block with-errors"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="row vertical-align">
-                <div class="col-md-3 col-sm-6 col-12">
-                  <div class="form-group">
-                    <label>{{ 'ADMIN_SHARED.DATASOURCE' | translate }}*</label>
-                    <textarea
-                      rows="3"
-                      class="form-control"
-                      formControlName="datasource"
-                      name="metadataDatasource"
-                      [placeholder]="'ADMIN_SHARED_UI.FORM.DATASOURCE_PLACEHOLDER' | translate"
-                      required
-                    ></textarea>
-                    <div class="help-block with-errors"></div>
-                  </div>
-                </div>
-                <div class="col-md-3 col-sm-6 col-12">
-                  <div class="form-group">
-                    <label>{{ 'ADMIN_SHARED.DATA_HOLDER_CONTACT' | translate }}*</label>
-                    <textarea
-                      rows="3"
-                      class="form-control"
-                      formControlName="contact"
-                      name="metadataContact"
-                      [placeholder]="'ADMIN_SHARED_UI.FORM.CONTACT_PLACEHOLDER' | translate"
-                      required
-                    ></textarea>
-                    <div class="help-block with-errors"></div>
-                  </div>
-                </div>
-                <div class="col-md-3 col-sm-6 col-12">
-                  <div class="form-group">
-                    <label>{{ 'ADMIN_SHARED_UI.FORM.NOTE' | translate }}</label>
-                    <textarea
-                      rows="3"
-                      class="form-control"
-                      formControlName="note"
-                      name="metadataNote"
-                      [placeholder]="'ADMIN_SHARED_UI.FORM.NOTE_PLACEHOLDER' | translate"
-                    ></textarea>
-                    <div class="help-block with-errors"></div>
-                  </div>
-                </div>
-              </div>
-              <input
-                type="button"
-                name="previous"
-                class="previous previous_addGeoresource action-button-previous"
-                [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-                (click)="stepper.previous()"
-              />
-              <input
-                type="button"
-                name="next"
-                class="next next_addGeoresource action-button"
-                [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-                (click)="stepper.next()"
-              />
-            </form>
-          </fieldset>
-        }
+    @if (testErrorMessage()) {
+      <div class="alert alert-danger" role="alert">
+        <button
+          type="button"
+          class="btn-close float-end"
+          [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+          (click)="hideErrorAlert()"
+        ></button>
+        <b>{{ 'ADMIN_WMS.COMMON.CONNECTION_FAILED_TITLE' | translate }}</b>
+        <p class="mb-0">{{ 'ADMIN_WMS.COMMON.CONNECTION_FAILED_TEXT' | translate }}</p>
+      </div>
+    }
 
-        @if (stepper.isActive('connection')) {
-          <fieldset>
-            <h2 class="fs-title">{{ 'ADMIN_WMS.COMMON.CONNECTION_TITLE' | translate }}</h2>
-            <h3 class="fs-subtitle">{{ 'ADMIN_WMS.COMMON.CONNECTION_SUBTITLE' | translate }}</h3>
-            <p>
-              <b
-                ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
-              >
-            </p>
-            <form [formGroup]="connectForm">
-              <div class="row vertical-align">
-                <div class="col-md-3 col-sm-6 col-12">
-                  <div class="form-group">
-                    <label>{{ 'ADMIN_WMS.COMMON.URL_LABEL' | translate }}*</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      formControlName="url"
-                      name="datasetURL"
-                      placeholder="http://..."
-                      required
-                    />
-                    <div class="help-block with-errors"></div>
-                  </div>
-                </div>
-                <div class="col-md-3 col-sm-6 col-12">
-                  <div class="form-group">
-                    <label>{{ 'ADMIN_WMS.COMMON.LAYER_LABEL' | translate }}*</label>
-                    <input
-                      class="form-control"
-                      formControlName="layer"
-                      name="datasetLayer"
-                      [placeholder]="'ADMIN_WMS.COMMON.LAYER_LABEL' | translate"
-                      required
-                    />
-                    <div class="help-block with-errors"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="row vertical-align">
-                <button
-                  class="btn btn-primary"
-                  [value]="'ADMIN_WMS.COMMON.TEST_CONNECTION' | translate"
-                  (click)="testConnection()"
-                  [disabled]="connectForm.invalid"
-                >
-                  {{ 'ADMIN_WMS.COMMON.TEST_CONNECTION' | translate }}
-                </button>
-              </div>
-              <div class="row vertical-align">
-                @if (wmsTestStatus === true) {
-                  <div class="wmsTest_success">
-                    {{ 'ADMIN_WMS.COMMON.TEST_SUCCESS' | translate }}
-                  </div>
-                }
-                @if (wmsTestStatus === false) {
-                  <div class="wmsTest_error">
-                    {{ 'ADMIN_WMS.COMMON.TEST_FAILURE' | translate }}
-                  </div>
-                }
-              </div>
-              <input
-                type="button"
-                name="previous"
-                class="previous previous_addGeoresource action-button-previous"
-                [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-                (click)="stepper.previous()"
-              />
-              <input
-                type="button"
-                name="next"
-                class="next next_addGeoresource action-button"
-                [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-                (click)="stepper.next()"
-              />
-            </form>
-          </fieldset>
-        }
+    @if (errorMessage()) {
+      <div class="alert alert-danger" role="alert">
+        <button
+          type="button"
+          class="btn-close float-end"
+          [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+          (click)="hideErrorAlert()"
+        ></button>
+        <b>{{ 'ADMIN_WMS.ADD.ERROR_TITLE' | translate }}</b>
+        <p>{{ 'ADMIN_WMS.ADD.ERROR_TEXT' | translate }}</p>
+        <pre class="import-error-detail" [innerHTML]="errorMessagePart()"></pre>
+      </div>
+    }
 
-        @if (stepper.isActive('topics')) {
-          <fieldset>
-            <h2 class="fs-title">{{ 'ADMIN_SHARED_UI.TOPICS.TITLE' | translate }}</h2>
-            <h3 class="fs-subtitle">{{ 'ADMIN_WMS.COMMON.TOPICS_SUBTITLE' | translate }}</h3>
-            <p>
-              <b
-                ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
-              >
-            </p>
-            <p>{{ 'ADMIN_SHARED_UI.TOPICS.SELECTION_HINT' | translate }}</p>
-            <p>{{ 'ADMIN_SHARED_UI.TOPICS.CATALOG_HINT' | translate }}</p>
-            <app-topic-hierarchy-form
-              [form]="topicsForm"
-              [availableTopics]="availableTopics"
-              idPrefix="wms-add-topics"
-            />
-            <hr />
-            <br />
-            @if (accessControlService.checkAdminPermission()) {
-              <div class="row vertical-align">
-                <div class="col-md-10 col-sm-12 col-12">
-                  <div style="text-align: left">
-                    <div
-                      id="georesourceAddAdmin_topicsManagement"
-                      class="box box-primary collapsed-box"
-                      style="background: #ebf0fd"
-                    >
-                      <div class="box-header">
-                        <h3 class="box-title">
-                          {{ 'ADMIN_SHARED_UI.TOPICS.TOPIC_CATALOG' | translate }}
-                        </h3>
-                        <div class="box-tools pull-right">
-                          <button type="button" class="btn btn-box-tool" data-widget="collapse">
-                            <i class="fa fa-plus"></i>
-                          </button>
-                        </div>
-                      </div>
-                      <div class="box-body">
-                        <style>
-                          #georesourceAddAdmin_topicsManagement #indicatorTopicsManagement {
-                            display: none;
-                          }
-                        </style>
-                        <app-admin-topics-management></app-admin-topics-management>
-                      </div>
-                    </div>
-                  </div>
+    <!--
+      No `.multiStepForm` wrapper any more. Through app.scss it centred every
+      label at 12px above a left-aligned control and squared off every input at
+      13px, while the same fields in the spatial-unit dialogs are left-aligned at
+      16px in rounded controls. `.fs-title`/`.fs-subtitle` therefore carry an
+      explicit `text-center` now, as they do there.
+    -->
+    <form class="form-group" #wmsAddForm="ngForm" (ngSubmit)="addWms()">
+      <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
+      @if (stepper.isActive('metadata')) {
+        <fieldset>
+          <h2 class="fs-title text-center">{{ 'ADMIN_SHARED.GENERAL_METADATA' | translate }}</h2>
+          <h3 class="fs-subtitle text-center">
+            {{ 'ADMIN_WMS.COMMON.METADATA_SUBTITLE' | translate }}
+          </h3>
+          <p class="text-center">
+            <b
+              ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+            >
+          </p>
+          <form [formGroup]="metadataForm">
+            <div class="row form-section-row">
+              <div class="col-md-4 col-sm-6 col-12">
+                <div class="form-group">
+                  <label>{{ 'ADMIN_WMS.COMMON.NAME_LABEL' | translate }}*</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="title"
+                    [placeholder]="'ADMIN_WMS.COMMON.NAME_PLACEHOLDER' | translate"
+                    required
+                  />
+                  <app-form-error [control]="metadataForm.controls.title" />
                 </div>
               </div>
-            }
-            <input
-              type="button"
-              name="previous"
-              class="previous previous_addGeoresource action-button-previous"
-              [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-              (click)="stepper.previous()"
-            />
-            <input
-              type="button"
-              name="next"
-              class="next next_addGeoresource action-button"
-              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-              (click)="stepper.next()"
-            />
-          </fieldset>
-        }
-
-        <!-- Step 4: access protection and ownership.
-             Switched via display (not @if) so the role grid's checked state
-             survives navigating between steps. -->
-        @if (envConfigService.enableKeycloakSecurity) {
-          <fieldset [style.display]="stepper.isActive('security') ? 'block' : 'none'">
-            <h2 class="fs-title">
-              {{ 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE' | translate }}
-            </h2>
-            <h3 class="fs-subtitle">
-              {{ 'ADMIN_SHARED_UI.SECURITY.ASSIGN_RIGHTS_SUBTITLE' | translate }}
-            </h3>
-            <app-owner-organization-select
-              mode="assign"
-              [formControl]="securityForm.controls.ownerOrganization"
-            ></app-owner-organization-select>
-            <br />
-            <hr />
-            <br />
-            <div id="georesourceRoleForm" [style.display]="ownerOrganization ? 'block' : 'none'">
-              <label>{{ 'ADMIN_SHARED_UI.SECURITY.DATASET_PERMISSIONS' | translate }}</label>
-              <div class="row vertical-align">
-                <div class="col-md-3">
-                  <label>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label>
-                  <label class="switch">
-                    <input type="checkbox" [formControl]="securityForm.controls.isPublic" />
-                    <span class="switchslider round"></span>
-                  </label>
-                  <div class="help-block">
-                    <p>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ_HINT' | translate }}</p>
-                  </div>
+              <div class="col-md-4 col-sm-6 col-12">
+                <div class="form-group">
+                  <label>{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}*</label>
+                  <textarea
+                    rows="3"
+                    class="form-control"
+                    formControlName="description"
+                    name="metadataDescription"
+                    [placeholder]="'ADMIN_SHARED_UI.FORM.DESCRIPTION_PLACEHOLDER' | translate"
+                    required
+                  ></textarea>
+                  <div class="help-block with-errors"></div>
                 </div>
-                <div class="col-md-6 col-sm-6 col-12">
-                  <app-role-management-grid
-                    gridId="wmsAddRoleManagementTable"
-                  ></app-role-management-grid>
-                </div>
-                <div class="col-md-3">
-                  <div class="alert alert-info">
-                    {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_RIGHTS_INFO' | translate }}
-                  </div>
-                  <br />
-                  <div class="alert alert-warning">
-                    {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_ROLES_MARKED' | translate }}
-                  </div>
+              </div>
+              <div class="col-md-4 col-sm-6 col-12">
+                <div class="form-group">
+                  <label>{{ 'ADMIN_SHARED_UI.FORM.DATABASIS' | translate }}</label>
+                  <textarea
+                    rows="3"
+                    class="form-control"
+                    formControlName="databasis"
+                    name="metadataDatabasis"
+                    [placeholder]="'ADMIN_SHARED_UI.FORM.DATABASIS_PLACEHOLDER' | translate"
+                  ></textarea>
+                  <div class="help-block with-errors"></div>
                 </div>
               </div>
             </div>
-            <input
-              type="button"
-              name="previous"
-              class="previous previous_addGeoresource action-button-previous"
-              [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-              (click)="stepper.previous()"
-            />
-            <input
-              type="button"
-              name="next"
-              class="next next_addGeoresource action-button"
-              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-              (click)="stepper.next()"
-            />
-          </fieldset>
-        }
-      </form>
-    </div>
-  </div>
+            <div class="row form-section-row">
+              <div class="col-md-4 col-sm-6 col-12">
+                <div class="form-group">
+                  <label>{{ 'ADMIN_SHARED.DATASOURCE' | translate }}*</label>
+                  <textarea
+                    rows="3"
+                    class="form-control"
+                    formControlName="datasource"
+                    name="metadataDatasource"
+                    [placeholder]="'ADMIN_SHARED_UI.FORM.DATASOURCE_PLACEHOLDER' | translate"
+                    required
+                  ></textarea>
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+              <div class="col-md-4 col-sm-6 col-12">
+                <div class="form-group">
+                  <label>{{ 'ADMIN_SHARED.DATA_HOLDER_CONTACT' | translate }}*</label>
+                  <textarea
+                    rows="3"
+                    class="form-control"
+                    formControlName="contact"
+                    name="metadataContact"
+                    [placeholder]="'ADMIN_SHARED_UI.FORM.CONTACT_PLACEHOLDER' | translate"
+                    required
+                  ></textarea>
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+              <div class="col-md-4 col-sm-6 col-12">
+                <div class="form-group">
+                  <label>{{ 'ADMIN_SHARED_UI.FORM.NOTE' | translate }}</label>
+                  <textarea
+                    rows="3"
+                    class="form-control"
+                    formControlName="note"
+                    name="metadataNote"
+                    [placeholder]="'ADMIN_SHARED_UI.FORM.NOTE_PLACEHOLDER' | translate"
+                  ></textarea>
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+            </div>
+            <div class="stepper-buttons">
+              <button type="button" class="btn btn-primary" (click)="stepper.next()">
+                {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+              </button>
+            </div>
+          </form>
+        </fieldset>
+      }
+
+      @if (stepper.isActive('connection')) {
+        <fieldset>
+          <h2 class="fs-title text-center">
+            {{ 'ADMIN_WMS.COMMON.CONNECTION_TITLE' | translate }}
+          </h2>
+          <h3 class="fs-subtitle text-center">
+            {{ 'ADMIN_WMS.COMMON.CONNECTION_SUBTITLE' | translate }}
+          </h3>
+          <p class="text-center">
+            <b
+              ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+            >
+          </p>
+          <form [formGroup]="connectForm">
+            <div class="row form-section-row">
+              <div class="col-md-6 col-sm-6 col-12">
+                <div class="form-group">
+                  <label>{{ 'ADMIN_WMS.COMMON.URL_LABEL' | translate }}*</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="url"
+                    name="datasetURL"
+                    placeholder="http://..."
+                    required
+                  />
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+              <div class="col-md-6 col-sm-6 col-12">
+                <div class="form-group">
+                  <label>{{ 'ADMIN_WMS.COMMON.LAYER_LABEL' | translate }}*</label>
+                  <input
+                    class="form-control"
+                    formControlName="layer"
+                    name="datasetLayer"
+                    [placeholder]="'ADMIN_WMS.COMMON.LAYER_LABEL' | translate"
+                    required
+                  />
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+            </div>
+            <div class="row form-section-row">
+              <button
+                class="btn btn-primary"
+                [value]="'ADMIN_WMS.COMMON.TEST_CONNECTION' | translate"
+                (click)="testConnection()"
+                [disabled]="connectForm.invalid"
+              >
+                {{ 'ADMIN_WMS.COMMON.TEST_CONNECTION' | translate }}
+              </button>
+            </div>
+            <div class="row form-section-row">
+              @if (wmsTestStatus === true) {
+                <div class="wmsTest_success">
+                  {{ 'ADMIN_WMS.COMMON.TEST_SUCCESS' | translate }}
+                </div>
+              }
+              @if (wmsTestStatus === false) {
+                <div class="wmsTest_error">
+                  {{ 'ADMIN_WMS.COMMON.TEST_FAILURE' | translate }}
+                </div>
+              }
+            </div>
+            <div class="stepper-buttons">
+              <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
+                {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+              </button>
+              <button type="button" class="btn btn-primary" (click)="stepper.next()">
+                {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+              </button>
+            </div>
+          </form>
+        </fieldset>
+      }
+
+      @if (stepper.isActive('topics')) {
+        <fieldset>
+          <h2 class="fs-title text-center">{{ 'ADMIN_SHARED_UI.TOPICS.TITLE' | translate }}</h2>
+          <h3 class="fs-subtitle text-center">
+            {{ 'ADMIN_WMS.COMMON.TOPICS_SUBTITLE' | translate }}
+          </h3>
+          <p class="text-center">
+            <b
+              ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+            >
+          </p>
+          <p>{{ 'ADMIN_SHARED_UI.TOPICS.SELECTION_HINT' | translate }}</p>
+          <p>{{ 'ADMIN_SHARED_UI.TOPICS.CATALOG_HINT' | translate }}</p>
+          <app-topic-hierarchy-form
+            [form]="topicsForm"
+            [availableTopics]="availableTopics"
+            idPrefix="wms-add-topics"
+          />
+          <hr />
+          <br />
+          @if (accessControlService.checkAdminPermission()) {
+            <div class="row form-section-row">
+              <div class="col-md-10 col-sm-12 col-12">
+                <!--
+                  <expandable-box> instead of the AdminLTE `box box-primary collapsed-box`
+                  markup this used to be. That box collapsed through `data-widget="collapse"`,
+                  an AdminLTE JS hook that left the tree with the framework, so the `+`
+                  button did nothing and the catalog was permanently open. Its `.box-*`
+                  classes were unstyled here too, so the title rendered at Bootstrap's 28px
+                  <h3> — larger than the 20px dialog title above it.
+                
+                  `variant="nested"` is the shared component's subordinate look (15px/600
+                  title, no shadow): this panel manages the global topic catalog and is not
+                  part of the form around it. It starts collapsed, as `collapsed-box` meant.
+                
+                  The box body also carried an inline <style> hiding
+                  `#indicatorTopicsManagement`. No element in the tree has that id, so it
+                  never hid anything — dropped rather than carried over.
+                -->
+                <expandable-box
+                  [title]="'ADMIN_SHARED_UI.TOPICS.TOPIC_CATALOG' | translate"
+                  variant="nested"
+                >
+                  <app-admin-topics-management></app-admin-topics-management>
+                </expandable-box>
+              </div>
+            </div>
+          }
+          <div class="stepper-buttons">
+            <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
+              {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+            </button>
+            <button type="button" class="btn btn-primary" (click)="stepper.next()">
+              {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+            </button>
+          </div>
+        </fieldset>
+      }
+
+      <!-- Step 4: access protection and ownership.
+             Switched via display (not @if) so the role grid's checked state
+             survives navigating between steps. -->
+      @if (envConfigService.enableKeycloakSecurity) {
+        <fieldset [style.display]="stepper.isActive('security') ? 'block' : 'none'">
+          <h2 class="fs-title text-center">
+            {{ 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE' | translate }}
+          </h2>
+          <h3 class="fs-subtitle text-center">
+            {{ 'ADMIN_SHARED_UI.SECURITY.ASSIGN_RIGHTS_SUBTITLE' | translate }}
+          </h3>
+          <app-owner-organization-select
+            mode="assign"
+            [formControl]="securityForm.controls.ownerOrganization"
+          ></app-owner-organization-select>
+          <br />
+          <hr />
+          <br />
+          <div id="georesourceRoleForm" [style.display]="ownerOrganization ? 'block' : 'none'">
+            <label>{{ 'ADMIN_SHARED_UI.SECURITY.DATASET_PERMISSIONS' | translate }}</label>
+            <div class="row form-section-row">
+              <div class="col-md-3">
+                <label>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label>
+                <label class="switch">
+                  <input type="checkbox" [formControl]="securityForm.controls.isPublic" />
+                  <span class="switchslider round"></span>
+                </label>
+                <div class="help-block">
+                  <p>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ_HINT' | translate }}</p>
+                </div>
+              </div>
+              <div class="col-md-6 col-sm-6 col-12">
+                <app-role-management-grid
+                  gridId="wmsAddRoleManagementTable"
+                ></app-role-management-grid>
+              </div>
+              <div class="col-md-3">
+                <div class="alert alert-info">
+                  {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_RIGHTS_INFO' | translate }}
+                </div>
+                <br />
+                <div class="alert alert-warning">
+                  {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_ROLES_MARKED' | translate }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="stepper-buttons">
+            <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
+              {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+            </button>
+          </div>
+        </fieldset>
+      }
+    </form>
+  </app-loading-overlay>
 </div>
 
+<!--
+  The same three buttons every admin dialog has: cancel pushed left with
+  `me-auto` (the old `btn-default pull-left` named two classes that do not exist
+  in Bootstrap 5, so it rendered as borderless text and did not float), reset as
+  a neutral outline rather than `btn-danger` — it discards input, it does not
+  delete data — and the submit on the right.
+-->
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="close()">
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="close()">
     {{ 'ADMIN_SHARED.CLOSE' | translate }}
   </button>
-
+  <button type="button" class="btn btn-outline-secondary" (click)="resetWmsAddForm()">
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
+  </button>
   <button
     type="button"
     class="btn btn-success"
@@ -374,68 +420,4 @@
   >
     {{ 'ADMIN_WMS.ADD.SUBMIT' | translate }}
   </button>
-  <button type="button" class="btn btn-danger" (click)="resetWmsAddForm()">
-    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
-  </button>
-</div>
-
-<!-- Success Alert -->
-<div
-  id="georesourceAddSuccessAlert"
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!successMessage()"
-  class="alert alert-success alert-dismissable"
->
-  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
-    &times;
-  </button>
-  <h4><i class="icon fa fa-check"></i>{{ 'ADMIN_WMS.ADD.SUCCESS_TITLE' | translate }}</h4>
-  <p>{{ 'ADMIN_WMS.ADD.SUCCESS_TEXT' | translate: { name: successMessagePart() } }}</p>
-</div>
-
-<!-- Test Success Alert -->
-<div
-  id="georesourceAddSuccessAlert"
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!testSuccessMessage()"
-  class="alert alert-success alert-dismissable"
->
-  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
-    &times;
-  </button>
-  <h4>
-    <i class="icon fa fa-check"></i>{{ 'ADMIN_WMS.COMMON.CONNECTION_TEST_TITLE' | translate }}
-  </h4>
-  <p>{{ 'ADMIN_WMS.COMMON.CONNECTION_TEST_SUCCESS' | translate }}</p>
-</div>
-
-<!-- Test Error Alert -->
-<div
-  id="georesourceAddErrorAlert"
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!testErrorMessage()"
-  class="alert alert-danger alert-dismissable"
->
-  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
-  <h4>
-    <i class="icon fa fa-ban"></i>{{ 'ADMIN_WMS.COMMON.CONNECTION_FAILED_TITLE' | translate }}
-  </h4>
-  {{ 'ADMIN_WMS.COMMON.CONNECTION_FAILED_TEXT' | translate }}
-  <br />
-</div>
-
-<!-- Error Alert -->
-<div
-  id="georesourceAddErrorAlert"
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!errorMessage()"
-  class="alert alert-danger alert-dismissable"
->
-  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
-  <h4><i class="icon fa fa-ban"></i>{{ 'ADMIN_WMS.ADD.ERROR_TITLE' | translate }}</h4>
-  {{ 'ADMIN_WMS.ADD.ERROR_TEXT' | translate }}
-  <br />
-  <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessagePart()"></pre>
-  <br />
-  <br />
 </div>

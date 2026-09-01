@@ -29,6 +29,8 @@ import { RoleManagementGridComponent } from 'components/ngComponents/admin/admin
 import { OwnerOrganizationSelectComponent } from 'components/ngComponents/admin/adminShared/roleManagementPanel/owner-organization-select.component';
 
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { TopicHierarchyFormComponent } from '../../topicHierarchyForm/topic-hierarchy-form.component';
@@ -47,6 +49,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   imports: [
     TranslateModule,
     FormsModule,
+    LoadingOverlayComponent,
+    ExpandableBoxComponent,
     ReactiveFormsModule,
     AdminTopicsManagementComponent,
     TopicHierarchyFormComponent,

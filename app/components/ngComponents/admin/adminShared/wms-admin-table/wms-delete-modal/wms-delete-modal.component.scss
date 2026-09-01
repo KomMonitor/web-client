@@ -1,0 +1,15 @@
+/*
+ * The error report's stack trace. Capped so a long message scrolls inside its
+ * alert instead of pushing the confirm buttons out of the dialog, which is what
+ * `style="overflow: auto; max-height: 500px"` on the <pre> used to allow: 500px
+ * of trace plus the alert's own chrome outgrew the dialog it was pinned to the
+ * bottom of.
+ */
+.import-error-detail {
+  max-height: 240px;
+  overflow: auto;
+  margin-bottom: 0;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
