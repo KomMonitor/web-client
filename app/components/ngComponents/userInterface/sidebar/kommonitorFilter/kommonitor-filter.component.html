@@ -23,7 +23,7 @@
           @for (filter of globalFilters; track filter; let i = $index) {
             <tr>
               <td>
-                <label class="checkbox-inline input-sm"
+                <label class="checkbox-inline"
                   ><input
                     type="checkbox"
                     [(ngModel)]="globalFilters[i].checked"
@@ -226,7 +226,7 @@
       <div class="row">
         <div class="col-lg-6">
           <div class="input-group">
-            <span class="input-group-addon">
+            <span class="input-group-text">
               <b>untere Grenze</b>
             </span>
             <input
@@ -236,7 +236,7 @@
               string-to-number
               type="number"
               step="0.01"
-              class="form-control input-sm"
+              class="form-control"
             />
           </div>
           <p></p>
@@ -256,7 +256,7 @@
         </div>
         <div class="col-lg-6">
           <div class="input-group">
-            <span class="input-group-addon">
+            <span class="input-group-text">
               <b>obere Grenze</b>
             </span>
             <input
@@ -266,7 +266,7 @@
               string-to-number
               type="number"
               step="0.01"
-              class="form-control input-sm"
+              class="form-control"
             />
           </div>
 
@@ -348,7 +348,7 @@
                 string-to-number
                 type="number"
                 style="width: 175px"
-                class="form-control input-sm"
+                class="form-control"
                 id="measureOfValueTextInput"
               />
               <!-- <div *ngIf="inputNotValid">
