@@ -34,6 +34,8 @@ import {
   getErrorMessage,
 } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.util';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
@@ -103,6 +105,8 @@ import { TranslateService } from '@ngx-translate/core';
   styleUrls: ['./georesource-add-modal.component.scss'],
   imports: [
     FormsModule,
+    LoadingOverlayComponent,
+    ExpandableBoxComponent,
     AdminTopicsManagementComponent,
     StepperComponent,
     KmColorPickerComponent,

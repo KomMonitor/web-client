@@ -1,152 +1,51 @@
-/* Admin Georesources Management Component Styles */
+/*
+ * Trimmed from 155 lines. What went:
+ *
+ * - `@import 'ag-grid-community/styles/ag-grid.css'` and the alpine theme.
+ *   `angular.json` already loads both as global stylesheets, so the import only
+ *   copied the whole ag-grid stylesheet into this view's lazy chunk — the
+ *   largest one in the admin area. No other admin overview imports them.
+ * - `:host { expandable-box { margin: 15px } }`. `<expandable-box>` brings its
+ *   own `margin-bottom: 1em`, and the 15px left/right inset pushed these boxes
+ *   3px past the Bootstrap gutter that `<app-admin-content-view>` aligns its
+ *   title to, so the boxes sat slightly right of the heading above them.
+ * - `.content-header`, `.box`, `.box-header`, `.box-title`, `.box-body`,
+ *   `.adminTableButtonWrapper`, `.verticalAlign`, `.admin-table-wrapper`,
+ *   `.content.container-fluid`, `.loading-overlay-admin-panel` and the media
+ *   query over them — AdminLTE leftovers. No element in this template carries
+ *   any of those classes: the header moved into
+ *   `<app-admin-content-view>` and the boxes into `<expandable-box>`, both
+ *   behind their own encapsulation. The `.box-title` copy in particular tried
+ *   to set 18px/600 where the shared box renders 18px/500.
+ * - `ag-grid-angular { height: 70vh; width: 100% }` plus a border and radius.
+ *   The height duplicated the inline `style="height: 70vh"` on all three grids,
+ *   and the border drew a second frame inside the box that already has one —
+ *   neither sibling overview does this.
+ *
+ * The grid variables that stay are now the same three-line block the
+ * spatial-unit and indicator overviews use. What this file used to declare
+ * instead left the dominant element of the view in a different grey and a
+ * different rhythm from its neighbours: rows fell back to alpine's 42px against
+ * their 60px, the header was #f8f9fa/#444 against #f4f4f4/#333, and
+ * `--ag-border-color` was left at alpine's #babfc7 against their #ddd. The
+ * `--ag-font-size` and `--ag-font-family` declarations went with them:
+ * 13px is alpine's own default, and app.scss sets the family for every grid in
+ * the app.
+ */
 
-/* AG Grid CSS imports */
-@import 'ag-grid-community/styles/ag-grid.css';
-@import 'ag-grid-community/styles/ag-theme-alpine.css';
-
-:host {
-  expandable-box {
-    margin: 15px;
-  }
-}
-
-/* Loading overlay */
-.loading-overlay-admin-panel {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.8);
-  z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.loading-overlay-admin-panel.ng-hide {
-  display: none !important;
-}
-
-/* Header controls styling */
-.content-header {
-  padding: 15px 15px 0 15px;
-}
-
-.adminTableButtonWrapper {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.verticalAlign {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-right: 20px;
-}
-
-.verticalAlign span {
-  font-weight: 500;
-  color: #333;
-  white-space: nowrap;
-}
-
-/* Content section spacing */
-.content.container-fluid {
-  padding-top: 20px; /* Add top padding to ensure separation */
-}
-
-/* Box styling improvements */
-.box {
-  margin-bottom: 30px;
-  border-radius: 4px;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.12),
-    0 1px 2px rgba(0, 0, 0, 0.24);
-}
-
-.box-header {
-  padding: 15px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.box-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #333;
-  margin: 0;
-}
-
-.box-body {
-  padding: 20px;
-}
-
-/* Table wrapper styling */
-.admin-table-wrapper {
-  width: 100%;
-  min-height: 400px;
-  background: #fff;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .adminTableButtonWrapper {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .verticalAlign {
-    margin-right: 0;
-    margin-bottom: 10px;
-  }
-
-  .content-header {
-    padding: 10px;
-  }
-
-  .box-body {
-    padding: 15px;
-  }
-}
-
-/* AG Grid theme customization */
+/* AG Grid customizations */
 .ag-theme-alpine {
   --ag-header-height: 50px;
-  --ag-header-foreground-color: #444;
-  --ag-header-background-color: #f8f9fa;
-  --ag-row-hover-color: #f5f5f5;
-  --ag-selected-row-background-color: #e3f2fd;
-  --ag-font-size: 13px;
-  --ag-font-family: var(--custom-font-family);
-  font-family: var(--ag-font-family);
+  --ag-row-height: 60px;
+  --ag-header-background-color: #f4f4f4;
+  --ag-header-foreground-color: #333;
+  --ag-border-color: #ddd;
 }
 
-.ag-theme-alpine .ag-header-cell-label {
-  font-weight: 600;
-}
-
-.ag-theme-alpine .ag-row {
-  border-bottom: 1px solid #e9ecef;
-}
-
-.ag-theme-alpine .ag-cell {
-  padding: 8px 12px;
-  line-height: 1.4;
-}
-
-/* Ensure ag-grid containers have proper styling */
-ag-grid-angular {
-  width: 100%;
-  height: 70vh;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
+/*
+ * Create-menu entries. Same block as the indicator overview, which has the
+ * identical dropdown.
+ */
 .addButton_dropdownWrapper {
   .dropdown-item {
     font-weight: bold;

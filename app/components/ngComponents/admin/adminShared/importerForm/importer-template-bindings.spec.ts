@@ -38,6 +38,9 @@ const enclosingGroup = (template: string, index: number): string | undefined => 
   return matches.at(-1)?.[1];
 };
 
+/** Drops HTML comments so prose about a class does not count as using it. */
+const stripComments = (template: string): string => template.replace(/<!--[\s\S]*?-->/g, '');
+
 const indicesOf = (template: string, needle: string): number[] => {
   const indices: number[] = [];
   for (let at = template.indexOf(needle); at !== -1; at = template.indexOf(needle, at + 1)) {
@@ -77,6 +80,12 @@ describe('importer templates bind their runtime-keyed controls inside the right 
      * active — the whole importer step rendered as an empty modal body. An inline
      * display on the fieldset itself is what wins; Jest does not load global
      * styles, so no rendered test can catch this.
+     *
+     * The hazard is confined to templates that still wrap their steps in
+     * `.multiStepForm`: without that ancestor the descendant selector cannot
+     * match and the inline display would be cargo cult. All five templates here
+     * have since dropped the wrapper, so the requirement is gated on it rather
+     * than deleted — a template that reintroduces the wrapper is caught again.
      */
     it('keeps the importer step visible next to a permanently rendered sibling', () => {
       const at = template.indexOf('formControlName="converter"');
@@ -94,9 +103,10 @@ describe('importer templates bind their runtime-keyed controls inside the right 
       const hasPersistentSibling = indicesOf(template, '<fieldset')
         .filter((start) => start !== fieldsetStart)
         .some((start) => tagOf(start).includes('[style.display]'));
+      const insideWizardWrapper = stripComments(template).includes('multiStepForm');
 
       expect(importerTag).not.toContain('[hidden]');
-      if (hasPersistentSibling) {
+      if (hasPersistentSibling && insideWizardWrapper) {
         expect(importerTag).toMatch(/\[style\.display\]|style="display:/);
       }
     });

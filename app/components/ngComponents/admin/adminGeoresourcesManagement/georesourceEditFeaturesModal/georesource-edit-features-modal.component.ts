@@ -42,6 +42,7 @@ import {
   FeatureTableDataGridHelperService,
   FeatureTableEditStatus,
 } from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { TranslateModule } from '@ngx-translate/core';
@@ -81,6 +82,7 @@ import { buildGeoresourceEditFeaturesForm } from './georesource-edit-features-fo
   imports: [
     AgGridAngular,
     FormsModule,
+    LoadingOverlayComponent,
     ReactiveFormsModule,
     FormErrorComponent,
     FormControlAriaDirective,

@@ -15,423 +15,443 @@
 </div>
 
 <div class="modal-body">
-  <div align="center">
-    @if (loadingData()) {
-      <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData()">
-        <i class="fas fa-spinner fa-spin fa-2x"></i>
+  <!--
+    <app-loading-overlay> instead of the hand-rolled `.loading-overlay-admin-panel`
+    that used to sit before the form: that one greyed out the whole viewport
+    rather than the dialog, and it was toggled with the AngularJS `ng-hide` class.
+  -->
+  <app-loading-overlay [loading]="loadingData()">
+    <!--
+      The import failure report used to be `position: absolute; bottom: 0` after
+      the footer, so it floated over the dialog's own buttons instead of
+      appearing in the content, and its dismiss button carried the Bootstrap 3
+      `.close` class, which is undefined in Bootstrap 5. It is an ordinary alert
+      at the top of the body now, as in the spatial-unit metadata dialog.
+    -->
+    @if (importErrorAlertVisible()) {
+      <div id="georesourceEditMetadataImportErrorAlert" class="alert alert-danger" role="alert">
+        <button
+          type="button"
+          class="btn-close float-end"
+          [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+          (click)="hideMetadataErrorAlert()"
+        ></button>
+        <b>{{ 'ADMIN_GEORESOURCES.COMMON.METADATA_IMPORT_FAILED' | translate }}</b>
+        <p>{{ 'ADMIN_GEORESOURCES.COMMON.METADATA_IMPORT_ERROR' | translate }}</p>
+        <pre class="import-error-detail">{{ georesourceMetadataImportError() }}</pre>
+        <p>{{ 'ADMIN_GEORESOURCES.COMMON.JSON_FORMAT_HINT' | translate }}</p>
+        <pre class="import-error-detail" [innerHTML]="georesourceMetadataStructure_pretty"></pre>
       </div>
     }
-  </div>
 
-  <!-- MultiStep Form -->
-  <div class="row">
-    <div class="col-md-12">
-      <form
-        class="multiStepForm form-group"
-        id="georesourceEditMetadataForm"
-        role="form"
-        style="margin-bottom: 0px"
+    <!--
+      Metadata import/export as a toolbar above the form rather than two more
+      buttons in the footer. Five footer buttons did not fit this 800px dialog
+      and wrapped onto a second row, and the pair belongs to the form it acts on,
+      not to the dialog's own confirm/cancel controls.
+    -->
+    <div class="dialog-toolbar">
+      <button
+        type="button"
+        class="btn btn-outline-secondary btn-sm"
+        (click)="onImportGeoresourceEditMetadata()"
+        [title]="'ADMIN_GEORESOURCES.COMMON.IMPORT_METADATA_TITLE' | translate"
       >
-        <!-- progressbar -->
-        <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
+        <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
+          'ADMIN_GEORESOURCES.COMMON.METADATA_IMPORT' | translate
+        }}
+      </button>
+      <input
+        #metadataImportFile
+        hidden
+        type="file"
+        accept=".json"
+        (change)="onMetadataFileSelected($event)"
+      />
+      <button
+        type="button"
+        class="btn btn-outline-secondary btn-sm"
+        (click)="onExportGeoresourceEditMetadata()"
+        [title]="'ADMIN_GEORESOURCES.COMMON.EXPORT_METADATA_TITLE' | translate"
+      >
+        <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
+          'ADMIN_GEORESOURCES.COMMON.METADATA_EXPORT' | translate
+        }}
+      </button>
+    </div>
 
-        <!-- fieldsets -->
+    <!--
+      No `.multiStepForm` wrapper any more. Through app.scss it centred every
+      label at 12px above a left-aligned control and squared off every input at
+      13px, while the same fields in the spatial-unit dialogs are left-aligned at
+      16px in rounded controls. `.fs-title`/`.fs-subtitle` therefore carry an
+      explicit `text-center` now, as they do there.
+    -->
+    <form class="form-group" id="georesourceEditMetadataForm" role="form">
+      <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
 
-        <fieldset
-          [formGroup]="metadataStep"
-          [style.display]="stepper.isActive('metadata') ? 'block' : 'none'"
-        >
-          <h2 class="fs-title">{{ 'ADMIN_GEORESOURCES.COMMON.METADATA_TITLE' | translate }}</h2>
-          <h3 class="fs-subtitle">
-            {{ 'ADMIN_GEORESOURCES.COMMON.METADATA_SUBTITLE' | translate }}
-          </h3>
-          <p>
-            <b
-              ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
-            >
-          </p>
+      <fieldset
+        [formGroup]="metadataStep"
+        [style.display]="stepper.isActive('metadata') ? 'block' : 'none'"
+      >
+        <h2 class="fs-title text-center">
+          {{ 'ADMIN_GEORESOURCES.COMMON.METADATA_TITLE' | translate }}
+        </h2>
+        <h3 class="fs-subtitle text-center">
+          {{ 'ADMIN_GEORESOURCES.COMMON.METADATA_SUBTITLE' | translate }}
+        </h3>
+        <p class="text-center">
+          <b
+            ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+          >
+        </p>
 
-          <div class="row vertical-align">
-            <div class="col-md-6 col-sm-6 col-12">
-              <div class="form-group">
-                <label>{{ 'ADMIN_GEORESOURCES.COMMON.NAME_LABEL' | translate }}*</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  formControlName="datasetName"
-                  appAria="grm-name"
-                  [placeholder]="'ADMIN_GEORESOURCES.COMMON.UNIQUE_NAME_PLACEHOLDER' | translate"
-                />
-                <app-form-error
-                  [control]="metadataStep.controls.datasetName"
-                  for="grm-name"
-                  [keyOverride]="
-                    metadataStep.controls.datasetName.hasError('uniqueName')
-                      ? 'ADMIN_GEORESOURCES.COMMON.NAME_INVALID'
-                      : ''
-                  "
-                />
-              </div>
-            </div>
-            <div class="col-md-6 col-sm-6 col-12">
-              <div class="form-group">
-                <label>{{ 'ADMIN_GEORESOURCES.COMMON.TYPE' | translate }}*</label>
-                <select formControlName="georesourceType" class="form-control">
-                  <option selected value="poi">Points of Interest</option>
-                  <option value="loi">Lines of Interest</option>
-                  <option value="aoi">Areas of Interest</option>
-                </select>
-                <div class="help-block with-errors"></div>
-              </div>
+        <div class="row form-section-row">
+          <div class="col-md-6 col-sm-6 col-12">
+            <div class="form-group">
+              <label>{{ 'ADMIN_GEORESOURCES.COMMON.NAME_LABEL' | translate }}*</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="datasetName"
+                appAria="grm-name"
+                [placeholder]="'ADMIN_GEORESOURCES.COMMON.UNIQUE_NAME_PLACEHOLDER' | translate"
+              />
+              <app-form-error
+                [control]="metadataStep.controls.datasetName"
+                for="grm-name"
+                [keyOverride]="
+                  metadataStep.controls.datasetName.hasError('uniqueName')
+                    ? 'ADMIN_GEORESOURCES.COMMON.NAME_INVALID'
+                    : ''
+                "
+              />
             </div>
           </div>
-
-          @if (georesourceType === 'poi') {
-            <div class="row vertical-align">
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group" align="center">
-                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.MARKER_COLOR' | translate }}*</label>
-                  <div class="dropdown customColorPicker">
-                    <button
-                      type="button"
-                      class="btn btn-info dropdown-toggle"
-                      data-bs-toggle="dropdown"
-                      aria-haspopup="true"
-                      aria-expanded="false"
-                    >
-                      <i [style.background]="selectedPoiMarkerColor?.colorValue"></i>
-                      {{ selectedPoiMarkerColor?.colorName }} <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-center">
-                      @for (markerColor of poiMarkerColors; track markerColor) {
-                        <li (click)="onChangeMarkerColor(markerColor)">
-                          <a style="cursor: pointer"
-                            ><i [style.background]="markerColor.colorValue"></i
-                            >{{ markerColor.colorName }}</a
-                          >
-                        </li>
-                      }
-                    </ul>
-                    <div class="help-block with-errors"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group" align="center">
-                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.MARKER_STYLE' | translate }}*</label>
-                  <div class="dropdown customColorPicker">
-                    <button
-                      type="button"
-                      class="btn btn-info dropdown-toggle"
-                      data-bs-toggle="dropdown"
-                      aria-haspopup="true"
-                      aria-expanded="false"
-                    >
-                      {{
-                        selectedPoiMarkerStyle.charAt(0).toUpperCase() +
-                          selectedPoiMarkerStyle.slice(1)
-                      }}
-                      <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-center">
-                      <li (click)="onChangeMarkerStyle('symbol')">
-                        <a style="cursor: pointer">{{
-                          'ADMIN_GEORESOURCES.COMMON.SYMBOL' | translate
-                        }}</a>
-                      </li>
-                      <li (click)="onChangeMarkerStyle('text')">
-                        <a style="cursor: pointer">{{
-                          'ADMIN_GEORESOURCES.COMMON.TEXT' | translate
-                        }}</a>
-                      </li>
-                    </ul>
-                    <div class="help-block with-errors"></div>
-                  </div>
-                </div>
-              </div>
-              @if (selectedPoiMarkerStyle === 'symbol') {
-                <div class="col-md-3 col-sm-6 col-12">
-                  <div class="form-group" align="center">
-                    <label>{{ 'ADMIN_GEORESOURCES.COMMON.SYMBOL' | translate }}*</label>
-                    <br />
-                    <input
-                      type="text"
-                      class="form-control"
-                      style="width: auto; display: inline-block"
-                      [formControl]="metadataStep.controls.style.controls.poiIconName"
-                      [placeholder]="'ADMIN_GEORESOURCES.COMMON.SYMBOL_PLACEHOLDER' | translate"
-                      [title]="'ADMIN_GEORESOURCES.COMMON.SYMBOL_NAME_TITLE' | translate"
-                    />
-                    <div class="help-block with-errors"></div>
-                  </div>
-                </div>
-              }
-              @if (selectedPoiMarkerStyle === 'text') {
-                <div class="col-md-3 col-sm-6 col-12">
-                  <div class="form-group" align="center">
-                    <label>{{ 'ADMIN_GEORESOURCES.COMMON.TEXT' | translate }}*</label>
-                    <br />
-                    <input
-                      type="text"
-                      class="form-control"
-                      [formControl]="metadataStep.controls.style.controls.poiMarkerText"
-                      placeholder=""
-                    />
-                    <div class="help-block with-errors">
-                      {{ 'ADMIN_GEORESOURCES.METADATA_MODAL.MAX_3_CHARS' | translate }}
-                    </div>
-                  </div>
-                </div>
-              }
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group" align="center">
-                  @if (selectedPoiMarkerStyle === 'symbol') {
-                    <label>{{ 'ADMIN_GEORESOURCES.COMMON.SYMBOL_COLOR' | translate }}*</label>
-                  }
-                  @if (selectedPoiMarkerStyle === 'text') {
-                    <label>{{ 'ADMIN_GEORESOURCES.COMMON.TEXT_COLOR' | translate }}*</label>
-                  }
-                  <div class="dropdown customColorPicker">
-                    <button
-                      type="button"
-                      class="btn btn-info dropdown-toggle"
-                      data-bs-toggle="dropdown"
-                      aria-haspopup="true"
-                      aria-expanded="false"
-                    >
-                      <i [style.background]="selectedPoiSymbolColor?.colorValue"></i>
-                      {{ selectedPoiSymbolColor?.colorName }} <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-center">
-                      @for (symbolColor of poiMarkerColors; track symbolColor) {
-                        <li (click)="onChangeSymbolColor(symbolColor)">
-                          <a style="cursor: pointer"
-                            ><i [style.background]="symbolColor.colorValue"></i>
-                            {{ symbolColor.colorName }}</a
-                          >
-                        </li>
-                      }
-                    </ul>
-                    <div class="help-block with-errors"></div>
-                  </div>
-                </div>
-              </div>
+          <div class="col-md-6 col-sm-6 col-12">
+            <div class="form-group">
+              <label>{{ 'ADMIN_GEORESOURCES.COMMON.TYPE' | translate }}*</label>
+              <select formControlName="georesourceType" class="form-control">
+                <option selected value="poi">Points of Interest</option>
+                <option value="loi">Lines of Interest</option>
+                <option value="aoi">Areas of Interest</option>
+              </select>
+              <div class="help-block with-errors"></div>
             </div>
-          }
+          </div>
+        </div>
 
-          @if (georesourceType === 'loi') {
-            <div class="row vertical-align">
-              <div class="col-md-4 col-sm-4 col-12">
-                <div class="form-group" align="center">
-                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.LINE_COLOR' | translate }}*</label>
-                  <br />
-                  <km-color-picker
-                    [(color)]="loiColor"
-                    [label]="'ADMIN_GEORESOURCES.COMMON.CHOOSE_LINE_COLOR' | translate"
-                  ></km-color-picker>
+        @if (georesourceType === 'poi') {
+          <div class="row form-section-row">
+            <div class="col-md-3 col-sm-6 col-12">
+              <div class="form-group">
+                <label>{{ 'ADMIN_GEORESOURCES.COMMON.MARKER_COLOR' | translate }}*</label>
+                <div class="dropdown customColorPicker">
+                  <button
+                    type="button"
+                    class="btn btn-info dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    <i [style.background]="selectedPoiMarkerColor?.colorValue"></i>
+                    {{ selectedPoiMarkerColor?.colorName }} <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-center">
+                    @for (markerColor of poiMarkerColors; track markerColor) {
+                      <li (click)="onChangeMarkerColor(markerColor)">
+                        <a style="cursor: pointer"
+                          ><i [style.background]="markerColor.colorValue"></i
+                          >{{ markerColor.colorName }}</a
+                        >
+                      </li>
+                    }
+                  </ul>
                   <div class="help-block with-errors"></div>
                 </div>
               </div>
-              <div class="col-md-4 col-sm-4 col-12">
-                <div class="form-group" align="center">
-                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.LINE_WIDTH' | translate }}*</label>
+            </div>
+            <div class="col-md-3 col-sm-6 col-12">
+              <div class="form-group">
+                <label>{{ 'ADMIN_GEORESOURCES.COMMON.MARKER_STYLE' | translate }}*</label>
+                <div class="dropdown customColorPicker">
+                  <button
+                    type="button"
+                    class="btn btn-info dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    {{
+                      selectedPoiMarkerStyle.charAt(0).toUpperCase() +
+                        selectedPoiMarkerStyle.slice(1)
+                    }}
+                    <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-center">
+                    <li (click)="onChangeMarkerStyle('symbol')">
+                      <a style="cursor: pointer">{{
+                        'ADMIN_GEORESOURCES.COMMON.SYMBOL' | translate
+                      }}</a>
+                    </li>
+                    <li (click)="onChangeMarkerStyle('text')">
+                      <a style="cursor: pointer">{{
+                        'ADMIN_GEORESOURCES.COMMON.TEXT' | translate
+                      }}</a>
+                    </li>
+                  </ul>
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+            </div>
+            @if (selectedPoiMarkerStyle === 'symbol') {
+              <div class="col-md-3 col-sm-6 col-12">
+                <div class="form-group">
+                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.SYMBOL' | translate }}*</label>
                   <br />
                   <input
-                    style="width: auto"
-                    type="number"
-                    [formControl]="metadataStep.controls.style.controls.loiWidth"
-                    min="1"
-                    max="5"
-                    step="1"
+                    type="text"
+                    class="form-control"
+                    style="width: auto; display: inline-block"
+                    [formControl]="metadataStep.controls.style.controls.poiIconName"
+                    [placeholder]="'ADMIN_GEORESOURCES.COMMON.SYMBOL_PLACEHOLDER' | translate"
+                    [title]="'ADMIN_GEORESOURCES.COMMON.SYMBOL_NAME_TITLE' | translate"
                   />
                   <div class="help-block with-errors"></div>
                 </div>
               </div>
-              <div class="col-md-4 col-sm-4 col-12">
-                <div class="form-group" align="center">
-                  <km-line-pattern-picker
-                    [selectedPattern]="selectedLoiDashArrayObject"
-                    [options]="availableLinePatternOptions"
-                    [label]="('ADMIN_GEORESOURCES.COMMON.LINE_PATTERN' | translate) + '*'"
-                    [placeholder]="'ADMIN_GEORESOURCES.COMMON.CHOOSE_LINE_PATTERN' | translate"
-                    [width]="'200px'"
-                    (patternChange)="onChangeLoiDashArray($event)"
-                  >
-                  </km-line-pattern-picker>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-            </div>
-          }
-
-          @if (georesourceType === 'aoi') {
-            <div class="row vertical-align">
-              <div class="col-md-12 col-sm-12 col-12">
-                <div class="form-group" align="center">
-                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.AREA_COLOR' | translate }}*</label>
+            }
+            @if (selectedPoiMarkerStyle === 'text') {
+              <div class="col-md-3 col-sm-6 col-12">
+                <div class="form-group">
+                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.TEXT' | translate }}*</label>
                   <br />
-                  <km-color-picker
-                    [(color)]="aoiColor"
-                    [label]="'ADMIN_GEORESOURCES.COMMON.CHOOSE_AREA_COLOR' | translate"
-                  ></km-color-picker>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [formControl]="metadataStep.controls.style.controls.poiMarkerText"
+                    placeholder=""
+                  />
+                  <div class="help-block with-errors">
+                    {{ 'ADMIN_GEORESOURCES.METADATA_MODAL.MAX_3_CHARS' | translate }}
+                  </div>
+                </div>
+              </div>
+            }
+            <div class="col-md-3 col-sm-6 col-12">
+              <div class="form-group">
+                @if (selectedPoiMarkerStyle === 'symbol') {
+                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.SYMBOL_COLOR' | translate }}*</label>
+                }
+                @if (selectedPoiMarkerStyle === 'text') {
+                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.TEXT_COLOR' | translate }}*</label>
+                }
+                <div class="dropdown customColorPicker">
+                  <button
+                    type="button"
+                    class="btn btn-info dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    <i [style.background]="selectedPoiSymbolColor?.colorValue"></i>
+                    {{ selectedPoiSymbolColor?.colorName }} <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-center">
+                    @for (symbolColor of poiMarkerColors; track symbolColor) {
+                      <li (click)="onChangeSymbolColor(symbolColor)">
+                        <a style="cursor: pointer"
+                          ><i [style.background]="symbolColor.colorValue"></i>
+                          {{ symbolColor.colorName }}</a
+                        >
+                      </li>
+                    }
+                  </ul>
                   <div class="help-block with-errors"></div>
                 </div>
               </div>
             </div>
-          }
+          </div>
+        }
 
-          <input
-            type="button"
-            name="next"
-            class="next next_editGeoresourceMetadata action-button"
-            [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-            (click)="stepper.next()"
-          />
-        </fieldset>
-
-        <fieldset [style.display]="stepper.isActive('general') ? 'block' : 'none'">
-          <h2 class="fs-title">{{ 'ADMIN_SHARED.GENERAL_METADATA' | translate }}</h2>
-          <h3 class="fs-subtitle">
-            {{ 'ADMIN_GEORESOURCES.COMMON.GENERAL_METADATA_SUBTITLE' | translate }}
-          </h3>
-          <p>
-            <b
-              ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
-            >
-          </p>
-
-          <app-resource-metadata-form
-            [form]="metadataForm"
-            [updateIntervalOptions]="envConfigService.updateIntervalOptions"
-          ></app-resource-metadata-form>
-
-          <input
-            type="button"
-            name="next"
-            class="next next_editGeoresourceMetadata action-button"
-            [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-            (click)="stepper.next()"
-          />
-
-          <input
-            type="button"
-            name="previous"
-            class="previous previous_editGeoresourceMetadata action-button-previous"
-            [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-            (click)="stepper.previous()"
-          />
-        </fieldset>
-
-        <fieldset [style.display]="stepper.isActive('topics') ? 'block' : 'none'">
-          <h2 class="fs-title">{{ 'ADMIN_SHARED_UI.TOPICS.TITLE' | translate }}</h2>
-          <h3 class="fs-subtitle">{{ 'ADMIN_GEORESOURCES.COMMON.TOPICS_SUBTITLE' | translate }}</h3>
-
-          <p>
-            <b
-              ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
-            >
-          </p>
-          <p>
-            {{ 'ADMIN_SHARED_UI.TOPICS.SELECTION_HINT' | translate }}
-          </p>
-
-          <p>{{ 'ADMIN_SHARED_UI.TOPICS.CATALOG_HINT' | translate }}</p>
-
-          <app-topic-hierarchy-form
-            [form]="topicsForm"
-            [availableTopics]="getMainTopicsForGeoresource()"
-            idPrefix="grm-topics"
-          />
-
-          <hr />
-
-          <br />
-
-          @if (accessControlService.checkAdminPermission()) {
-            <div class="row vertical-align">
-              <div class="col-md-10 col-sm-12 col-12">
-                <div style="text-align: left">
-                  <div
-                    id="georesourceEditAdmin_topicsManagement"
-                    class="box box-primary collapsed-box"
-                    style="background: #ebf0fd"
-                  >
-                    <div class="box-header">
-                      <h3 class="box-title">
-                        {{ 'ADMIN_SHARED_UI.TOPICS.TOPIC_CATALOG' | translate }}
-                      </h3>
-                      <div class="box-tools pull-right">
-                        <button type="button" class="btn btn-box-tool" data-widget="collapse">
-                          <i class="fa fa-plus"></i>
-                        </button>
-                      </div>
-                    </div>
-                    <!-- /.box-header -->
-                    <div class="box-body">
-                      <style>
-                        #georesourceEditAdmin_topicsManagement #indicatorTopicsManagement {
-                          display: none;
-                        }
-                      </style>
-                      <app-admin-topics-management></app-admin-topics-management>
-                    </div>
-                    <!-- /.box-body -->
-                  </div>
-                  <!-- /.box -->
-                </div>
+        @if (georesourceType === 'loi') {
+          <div class="row form-section-row">
+            <div class="col-md-4 col-sm-4 col-12">
+              <div class="form-group">
+                <label>{{ 'ADMIN_GEORESOURCES.COMMON.LINE_COLOR' | translate }}*</label>
+                <br />
+                <km-color-picker
+                  [(color)]="loiColor"
+                  [label]="'ADMIN_GEORESOURCES.COMMON.CHOOSE_LINE_COLOR' | translate"
+                ></km-color-picker>
+                <div class="help-block with-errors"></div>
               </div>
             </div>
-          }
+            <div class="col-md-4 col-sm-4 col-12">
+              <div class="form-group">
+                <label>{{ 'ADMIN_GEORESOURCES.COMMON.LINE_WIDTH' | translate }}*</label>
+                <br />
+                <input
+                  style="width: auto"
+                  type="number"
+                  [formControl]="metadataStep.controls.style.controls.loiWidth"
+                  min="1"
+                  max="5"
+                  step="1"
+                />
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+            <div class="col-md-4 col-sm-4 col-12">
+              <div class="form-group">
+                <km-line-pattern-picker
+                  [selectedPattern]="selectedLoiDashArrayObject"
+                  [options]="availableLinePatternOptions"
+                  [label]="('ADMIN_GEORESOURCES.COMMON.LINE_PATTERN' | translate) + '*'"
+                  [placeholder]="'ADMIN_GEORESOURCES.COMMON.CHOOSE_LINE_PATTERN' | translate"
+                  [width]="'200px'"
+                  (patternChange)="onChangeLoiDashArray($event)"
+                >
+                </km-line-pattern-picker>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+          </div>
+        }
 
-          <input
-            type="button"
-            name="previous"
-            class="previous previous_editGeoresourceMetadata action-button-previous"
-            [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-            (click)="stepper.previous()"
-          />
-        </fieldset>
-      </form>
-    </div>
-  </div>
+        @if (georesourceType === 'aoi') {
+          <div class="row form-section-row">
+            <div class="col-md-12 col-sm-12 col-12">
+              <div class="form-group">
+                <label>{{ 'ADMIN_GEORESOURCES.COMMON.AREA_COLOR' | translate }}*</label>
+                <br />
+                <km-color-picker
+                  [(color)]="aoiColor"
+                  [label]="'ADMIN_GEORESOURCES.COMMON.CHOOSE_AREA_COLOR' | translate"
+                ></km-color-picker>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+          </div>
+        }
+
+        <div class="stepper-buttons">
+          <button type="button" class="btn btn-primary" (click)="stepper.next()">
+            {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+          </button>
+        </div>
+      </fieldset>
+
+      <fieldset [style.display]="stepper.isActive('general') ? 'block' : 'none'">
+        <h2 class="fs-title text-center">{{ 'ADMIN_SHARED.GENERAL_METADATA' | translate }}</h2>
+        <h3 class="fs-subtitle text-center">
+          {{ 'ADMIN_GEORESOURCES.COMMON.GENERAL_METADATA_SUBTITLE' | translate }}
+        </h3>
+        <p class="text-center">
+          <b
+            ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+          >
+        </p>
+
+        <app-resource-metadata-form
+          [form]="metadataForm"
+          [updateIntervalOptions]="envConfigService.updateIntervalOptions"
+        ></app-resource-metadata-form>
+
+        <div class="stepper-buttons">
+          <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
+            {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+          </button>
+          <button type="button" class="btn btn-primary" (click)="stepper.next()">
+            {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+          </button>
+        </div>
+      </fieldset>
+
+      <fieldset [style.display]="stepper.isActive('topics') ? 'block' : 'none'">
+        <h2 class="fs-title text-center">{{ 'ADMIN_SHARED_UI.TOPICS.TITLE' | translate }}</h2>
+        <h3 class="fs-subtitle text-center">
+          {{ 'ADMIN_GEORESOURCES.COMMON.TOPICS_SUBTITLE' | translate }}
+        </h3>
+
+        <p class="text-center">
+          <b
+            ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+          >
+        </p>
+        <p>
+          {{ 'ADMIN_SHARED_UI.TOPICS.SELECTION_HINT' | translate }}
+        </p>
+
+        <p>{{ 'ADMIN_SHARED_UI.TOPICS.CATALOG_HINT' | translate }}</p>
+
+        <app-topic-hierarchy-form
+          [form]="topicsForm"
+          [availableTopics]="getMainTopicsForGeoresource()"
+          idPrefix="grm-topics"
+        />
+
+        <hr />
+
+        <br />
+
+        @if (accessControlService.checkAdminPermission()) {
+          <div class="row form-section-row">
+            <div class="col-md-10 col-sm-12 col-12">
+              <!--
+                <expandable-box> instead of the AdminLTE `box box-primary collapsed-box`
+                markup this used to be. That box collapsed through `data-widget="collapse"`,
+                an AdminLTE JS hook that left the tree with the framework, so the `+`
+                button did nothing and the catalog was permanently open. Its `.box-*`
+                classes were unstyled here too, so the title rendered at Bootstrap's 28px
+                <h3> — larger than the 20px dialog title above it.
+              
+                `variant="nested"` is the shared component's subordinate look (15px/600
+                title, no shadow): this panel manages the global topic catalog and is not
+                part of the form around it. It starts collapsed, as `collapsed-box` meant.
+              
+                The box body also carried an inline <style> hiding
+                `#indicatorTopicsManagement`. No element in the tree has that id, so it
+                never hid anything — dropped rather than carried over.
+              -->
+              <expandable-box
+                [title]="'ADMIN_SHARED_UI.TOPICS.TOPIC_CATALOG' | translate"
+                variant="nested"
+              >
+                <app-admin-topics-management></app-admin-topics-management>
+              </expandable-box>
+            </div>
+          </div>
+        }
+
+        <div class="stepper-buttons">
+          <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
+            {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+          </button>
+        </div>
+      </fieldset>
+    </form>
+  </app-loading-overlay>
 </div>
 
+<!--
+  The same three buttons every admin dialog has: cancel pushed left with
+  `me-auto` (the old `btn-default pull-left` named two classes that do not exist
+  in Bootstrap 5, so it rendered as borderless text and did not float), reset as
+  a neutral outline rather than `btn-danger` — it discards input, it does not
+  delete data — and the submit on the right.
+-->
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="cancel()">
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="cancel()">
     {{ 'ADMIN_SHARED.CLOSE' | translate }}
   </button>
   <button
     type="button"
-    class="btn btn-info pull-left"
-    (click)="onImportGeoresourceEditMetadata()"
-    [title]="'ADMIN_GEORESOURCES.COMMON.IMPORT_METADATA_TITLE' | translate"
+    class="btn btn-outline-secondary"
+    (click)="resetGeoresourceEditMetadataForm()"
   >
-    <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
-      'ADMIN_GEORESOURCES.COMMON.METADATA_IMPORT' | translate
-    }}
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
-  <input
-    style="display: none"
-    class="pull-left"
-    type="file"
-    #metadataImportFile
-    class="form-control"
-    id="georesourceEditMetadataImportFile"
-    accept=".json"
-    (change)="onMetadataFileSelected($event)"
-  />
-  <button
-    type="button"
-    style="margin-left: 6px"
-    class="btn btn-info pull-left"
-    (click)="onExportGeoresourceEditMetadata()"
-    [title]="'ADMIN_GEORESOURCES.COMMON.EXPORT_METADATA_TITLE' | translate"
-  >
-    <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
-      'ADMIN_GEORESOURCES.COMMON.METADATA_EXPORT' | translate
-    }}
-  </button>
-
   <button
     type="button"
     class="btn btn-success"
@@ -440,32 +460,4 @@
   >
     {{ 'ADMIN_GEORESOURCES.METADATA_MODAL.UPDATE_METADATA' | translate }}
   </button>
-  <button type="button" class="btn btn-danger" (click)="resetGeoresourceEditMetadataForm()">
-    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
-  </button>
-</div>
-
-<!-- Update success/error feedback is shown via NotificationService toasts -->
-<div
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!importErrorAlertVisible()"
-  class="alert alert-danger alert-dismissable"
->
-  <button type="button" class="close" (click)="hideMetadataErrorAlert()" aria-hidden="true">
-    &times;
-  </button>
-  <h4>
-    <i class="icon fa fa-ban"></i
-    >{{ 'ADMIN_GEORESOURCES.COMMON.METADATA_IMPORT_FAILED' | translate }}
-  </h4>
-  {{ 'ADMIN_GEORESOURCES.COMMON.METADATA_IMPORT_ERROR' | translate }}
-  <br />
-  <pre>{{ georesourceMetadataImportError() }}</pre>
-  <br />
-  <br />
-  <p>{{ 'ADMIN_GEORESOURCES.COMMON.JSON_FORMAT_HINT' | translate }}</p>
-  <pre
-    style="overflow: auto; max-height: 500px"
-    [innerHTML]="georesourceMetadataStructure_pretty"
-  ></pre>
 </div>

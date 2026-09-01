@@ -15,788 +15,830 @@
 </div>
 
 <div class="modal-body">
-  <div align="center">
-    @if (loadingData()) {
-      <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData()">
-        <i class="fas fa-spinner fa-spin fa-2x"></i>
+  <!--
+    <app-loading-overlay> instead of the hand-rolled `.loading-overlay-admin-panel`
+    that used to sit before the form: that one greyed out the whole viewport
+    rather than the dialog, and it was toggled with the AngularJS `ng-hide` class.
+  -->
+  <app-loading-overlay [loading]="loadingData()">
+    <!--
+      Both failure reports used to sit after the footer, outside the body — the
+      per-feature importer report as a plain alert that grew the dialog past its
+      own buttons, the mapping-import report as `position: absolute; bottom: 0`
+      floating over them, dismissed by a Bootstrap 3 `.close` button that is
+      undefined in Bootstrap 5. They are ordinary alerts at the top of the body
+      now, as in the spatial-unit features dialog.
+    -->
+    @if (importerErrors()?.length > 0) {
+      <div class="alert alert-danger" role="alert">
+        <b>{{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.EDIT_FEATURES_FAILED' | translate }}</b>
+        <p>
+          {{
+            'ADMIN_GEORESOURCES.COMMON.IMPORTER_ERRORS_INTRO'
+              | translate: { count: importerErrors().length }
+          }}
+        </p>
+        <ul class="import-error-detail">
+          @for (error of importerErrors(); track error) {
+            <li>{{ error }}</li>
+          }
+        </ul>
+        <p>{{ 'ADMIN_GEORESOURCES.COMMON.FIX_ERRORS_HINT' | translate }}</p>
       </div>
     }
-  </div>
 
-  <!-- MultiStep Form -->
-  <div class="row">
-    <div class="col-md-12">
+    @if (mappingConfigImportErrorAlertVisible()) {
       <div
-        class="multiStepForm form-group"
-        id="georesourceEditFeaturesForm"
-        style="margin-bottom: 0px"
+        id="georesourceEditFeaturesMappingImportErrorAlert"
+        class="alert alert-danger"
+        role="alert"
       >
-        <!-- progressbar -->
-        <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
+        <button
+          type="button"
+          class="btn-close float-end"
+          [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+          (click)="hideMappingConfigErrorAlert()"
+        ></button>
+        <b>{{ 'ADMIN_GEORESOURCES.COMMON.MAPPING_IMPORT_FAILED' | translate }}</b>
+        <p>{{ 'ADMIN_GEORESOURCES.COMMON.MAPPING_IMPORT_ERROR' | translate }}</p>
+        <pre class="import-error-detail" [innerHTML]="georesourceMappingConfigImportError()"></pre>
+        <p>{{ 'ADMIN_GEORESOURCES.COMMON.JSON_FORMAT_HINT' | translate }}</p>
+        <pre
+          class="import-error-detail"
+          [innerHTML]="georesourceMappingConfigStructure_pretty"
+        ></pre>
+      </div>
+    }
 
-        <!-- fieldsets -->
-        <fieldset [style.display]="stepper.isActive('overview') ? 'block' : 'none'">
-          <h2 class="fs-title">
-            {{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.OVERVIEW_TITLE' | translate }}
-          </h2>
-          <h3 class="fs-subtitle">
-            {{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.OVERVIEW_SUBTITLE' | translate }}
-          </h3>
+    <!--
+      No `.multiStepForm` wrapper any more. Through app.scss it centred every
+      label at 12px above a left-aligned control and squared off every input at
+      13px, while the same fields in the spatial-unit dialogs are left-aligned at
+      16px in rounded controls. `.fs-title`/`.fs-subtitle` therefore carry an
+      explicit `text-center` now, as they do there.
+    -->
+    <div class="form-group" id="georesourceEditFeaturesForm">
+      <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
+      <fieldset [style.display]="stepper.isActive('overview') ? 'block' : 'none'">
+        <h2 class="fs-title text-center">
+          {{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.OVERVIEW_TITLE' | translate }}
+        </h2>
+        <h3 class="fs-subtitle text-center">
+          {{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.OVERVIEW_SUBTITLE' | translate }}
+        </h3>
 
-          <div class="row vertical-align">
-            <div class="col-md-6 col-sm-6 col-12">
-              <div class="form-group">
-                <label>{{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.FETCH_FEATURES' | translate }}</label>
-                <button
-                  class="btn btn-info"
-                  (click)="refreshGeoresourceEditFeaturesOverviewTable()"
-                >
-                  <i class="fas fa-sync-alt"></i>&nbsp;{{
-                    'ADMIN_GEORESOURCES.FEATURES_MODAL.SHOW_ALL_FEATURES' | translate
-                  }}
-                </button>
+        <div class="row form-section-row">
+          <div class="col-md-6 col-sm-6 col-12">
+            <div class="form-group">
+              <label>{{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.FETCH_FEATURES' | translate }}</label>
+              <button class="btn btn-info" (click)="refreshGeoresourceEditFeaturesOverviewTable()">
+                <i class="fas fa-sync-alt"></i>&nbsp;{{
+                  'ADMIN_GEORESOURCES.FEATURES_MODAL.SHOW_ALL_FEATURES' | translate
+                }}
+              </button>
 
-                <div class="help-block">
-                  <p>
-                    {{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.SHOW_FEATURES_HINT' | translate }}
-                  </p>
-                  <p>
-                    {{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.EDIT_CELLS_HINT' | translate }}
-                  </p>
-                </div>
-                <div class="help-block with-errors"></div>
+              <div class="help-block">
+                <p>
+                  {{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.SHOW_FEATURES_HINT' | translate }}
+                </p>
+                <p>
+                  {{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.EDIT_CELLS_HINT' | translate }}
+                </p>
               </div>
-            </div>
-            <div class="col-md-6 col-sm-6 col-12">
-              <div class="form-group">
-                <label>{{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.CLEAR_FEATURES' | translate }}</label>
-                <label class="switch">
-                  <input
-                    class="elementCheckbox"
-                    type="checkbox"
-                    [(ngModel)]="enableDeleteFeatures"
-                    [checked]="enableDeleteFeatures"
-                    (ngModelChange)="onChangeEnableDeleteFeatures()"
-                  />
-                  <span class="switchslider round text-left" style="line-height: 25px"></span>
-                </label>
-
-                &nbsp;&nbsp;
-
-                <button
-                  class="btn btn-danger"
-                  (click)="clearAllGeoresourceFeatures()"
-                  [disabled]="!enableDeleteFeatures"
-                >
-                  <i class="fas fa-trash"></i>&nbsp;{{
-                    'ADMIN_GEORESOURCES.FEATURES_MODAL.DELETE_ALL_FEATURES' | translate
-                  }}
-                </button>
-
-                <div class="help-block">
-                  <p>
-                    {{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.DELETE_FEATURES_HINT' | translate }}
-                  </p>
-                </div>
-                <div class="help-block with-errors"></div>
-              </div>
+              <div class="help-block with-errors"></div>
             </div>
           </div>
+          <div class="col-md-6 col-sm-6 col-12">
+            <div class="form-group">
+              <label>{{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.CLEAR_FEATURES' | translate }}</label>
+              <label class="switch">
+                <input
+                  class="elementCheckbox"
+                  type="checkbox"
+                  [(ngModel)]="enableDeleteFeatures"
+                  [checked]="enableDeleteFeatures"
+                  (ngModelChange)="onChangeEnableDeleteFeatures()"
+                />
+                <span class="switchslider round text-left" style="line-height: 25px"></span>
+              </label>
 
-          <div>
-            @if (featureTableStatus.lastSuccess()) {
-              <div style="background-color: #9dc89f">
-                <b>{{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.LAST_UPDATE_SUCCESS' | translate }}</b>
-                {{ featureTableStatus.lastSuccess() }}
+              &nbsp;&nbsp;
+
+              <button
+                class="btn btn-danger"
+                (click)="clearAllGeoresourceFeatures()"
+                [disabled]="!enableDeleteFeatures"
+              >
+                <i class="fas fa-trash"></i>&nbsp;{{
+                  'ADMIN_GEORESOURCES.FEATURES_MODAL.DELETE_ALL_FEATURES' | translate
+                }}
+              </button>
+
+              <div class="help-block">
+                <p>
+                  {{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.DELETE_FEATURES_HINT' | translate }}
+                </p>
               </div>
-            }
-            @if (featureTableStatus.lastFailure()) {
-              <div style="background-color: #e79595">
-                <b>{{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.LAST_UPDATE_FAILURE' | translate }}</b>
-                {{ featureTableStatus.lastFailure() }}
-              </div>
-            }
+              <div class="help-block with-errors"></div>
+            </div>
           </div>
+        </div>
 
-          <div class="admin-table-wrapper featureTableWrapper">
-            <ag-grid-angular
-              #georesourceFeatureTable
-              id="georesourceFeatureTable"
-              style="height: 50vh; width: 100%"
-              class="ag-theme-alpine"
-              [gridOptions]="featureTableGridOptions"
-              [rowData]="featureTableGridOptions.rowData || []"
-              [columnDefs]="featureTableGridOptions.columnDefs || []"
-              (gridReady)="onGridReady($event)"
-              (firstDataRendered)="onFirstDataRendered($event)"
-              (columnResized)="onColumnResized($event)"
-              (cellValueChanged)="onCellValueChanged($event)"
-            >
-            </ag-grid-angular>
-          </div>
+        <div>
+          @if (featureTableStatus.lastSuccess()) {
+            <div style="background-color: #9dc89f">
+              <b>{{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.LAST_UPDATE_SUCCESS' | translate }}</b>
+              {{ featureTableStatus.lastSuccess() }}
+            </div>
+          }
+          @if (featureTableStatus.lastFailure()) {
+            <div style="background-color: #e79595">
+              <b>{{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.LAST_UPDATE_FAILURE' | translate }}</b>
+              {{ featureTableStatus.lastFailure() }}
+            </div>
+          }
+        </div>
 
-          <input
-            type="button"
-            name="next"
-            class="next next_editFeaturesGeoresource action-button"
-            [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-            (click)="stepper.next()"
-          />
-        </fieldset>
+        <div class="admin-table-wrapper featureTableWrapper">
+          <ag-grid-angular
+            #georesourceFeatureTable
+            id="georesourceFeatureTable"
+            style="height: 50vh; width: 100%"
+            class="ag-theme-alpine"
+            [gridOptions]="featureTableGridOptions"
+            [rowData]="featureTableGridOptions.rowData || []"
+            [columnDefs]="featureTableGridOptions.columnDefs || []"
+            (gridReady)="onGridReady($event)"
+            (firstDataRendered)="onFirstDataRendered($event)"
+            (columnResized)="onColumnResized($event)"
+            (cellValueChanged)="onCellValueChanged($event)"
+          >
+          </ag-grid-angular>
+        </div>
 
-        <fieldset [style.display]="stepper.isActive('single') ? 'block' : 'none'">
-          <h2 class="fs-title">
-            {{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.SINGLE_EDIT_TITLE' | translate }}
-          </h2>
-          <h3 class="fs-subtitle">
-            {{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.SINGLE_EDIT_SUBTITLE' | translate }}
-            <br />
-            {{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.SINGLE_EDIT_REQUIRED_HINT' | translate }}
-          </h3>
+        <div class="stepper-buttons">
+          <button type="button" class="btn btn-primary" (click)="stepper.next()">
+            {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+          </button>
+        </div>
+      </fieldset>
 
-          <app-single-feature-edit></app-single-feature-edit>
-
+      <fieldset [style.display]="stepper.isActive('single') ? 'block' : 'none'">
+        <h2 class="fs-title text-center">
+          {{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.SINGLE_EDIT_TITLE' | translate }}
+        </h2>
+        <h3 class="fs-subtitle text-center">
+          {{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.SINGLE_EDIT_SUBTITLE' | translate }}
           <br />
+          {{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.SINGLE_EDIT_REQUIRED_HINT' | translate }}
+        </h3>
 
-          <input
+        <app-single-feature-edit></app-single-feature-edit>
+
+        <br />
+
+        <div class="stepper-buttons">
+          <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
+            {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+          </button>
+          <button type="button" class="btn btn-primary" (click)="stepper.next()">
+            {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+          </button>
+        </div>
+      </fieldset>
+
+      <fieldset
+        [formGroup]="importerForm"
+        [style.display]="stepper.isActive('batch') ? 'block' : 'none'"
+      >
+        <!--
+            The mapping import/export pair was `position: absolute` in the
+            top-left corner of this step, where it covered the stepper's first
+            label. It is a right-aligned toolbar above the form it acts on now.
+          -->
+        <div class="dialog-toolbar">
+          <button
             type="button"
-            name="previous"
-            class="previous previous_editFeaturesGeoresource action-button-previous"
-            [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-            (click)="stepper.previous()"
-          />
+            class="btn btn-outline-secondary btn-sm"
+            (click)="onImportGeoresourceEditFeaturesMappingConfig()"
+            [title]="'ADMIN_GEORESOURCES.COMMON.IMPORT_MAPPING_TITLE' | translate"
+          >
+            <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
+              'ADMIN_GEORESOURCES.COMMON.MAPPING_IMPORT' | translate
+            }}
+          </button>
           <input
-            type="button"
-            name="next"
-            class="next next_editFeaturesGeoresource action-button"
-            [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-            (click)="stepper.next()"
+            #mappingConfigImportFile
+            hidden
+            type="file"
+            accept=".json"
+            (change)="onMappingConfigFileSelected($event)"
           />
-        </fieldset>
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm"
+            (click)="onExportGeoresourceEditFeaturesMappingConfig()"
+            [title]="'ADMIN_GEORESOURCES.COMMON.EXPORT_MAPPING_TITLE' | translate"
+          >
+            <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
+              'ADMIN_GEORESOURCES.COMMON.MAPPING_EXPORT' | translate
+            }}
+          </button>
+        </div>
 
-        <fieldset
-          [formGroup]="importerForm"
-          [style.display]="stepper.isActive('batch') ? 'block' : 'none'"
-        >
-          <div style="position: absolute">
-            <button
-              type="button"
-              class="btn btn-info pull-left"
-              (click)="onImportGeoresourceEditFeaturesMappingConfig()"
-              [title]="'ADMIN_GEORESOURCES.COMMON.IMPORT_MAPPING_TITLE' | translate"
-            >
-              <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
-                'ADMIN_GEORESOURCES.COMMON.MAPPING_IMPORT' | translate
-              }}
-            </button>
-            <input
-              style="display: none"
-              class="pull-left"
-              type="file"
-              #mappingConfigImportFile
-              class="form-control"
-              id="georesourceMappingConfigEditFeaturesImportFile"
-              accept=".json"
-              (change)="onMappingConfigFileSelected($event)"
-            />
-            <button
-              type="button"
-              style="margin-left: 6px"
-              class="btn btn-info pull-left"
-              (click)="onExportGeoresourceEditFeaturesMappingConfig()"
-              [title]="'ADMIN_GEORESOURCES.COMMON.EXPORT_MAPPING_TITLE' | translate"
-            >
-              <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
-                'ADMIN_GEORESOURCES.COMMON.MAPPING_EXPORT' | translate
-              }}
-            </button>
-          </div>
+        <h2 class="fs-title text-center">{{ 'ADMIN_SHARED.SPATIAL_DATASET' | translate }}</h2>
+        <h3 class="fs-subtitle text-center">
+          {{ 'ADMIN_GEORESOURCES.COMMON.SPATIAL_DATASET_SUBTITLE' | translate }}
+        </h3>
+        <p class="text-center">
+          <b
+            ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+          >
+        </p>
 
-          <h2 class="fs-title">{{ 'ADMIN_SHARED.SPATIAL_DATASET' | translate }}</h2>
-          <h3 class="fs-subtitle">
-            {{ 'ADMIN_GEORESOURCES.COMMON.SPATIAL_DATASET_SUBTITLE' | translate }}
-          </h3>
-          <p>
-            <b
-              ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
-            >
-          </p>
-
-          <div class="row vertical-align">
-            <div class="col-md-3 col-sm-6 col-12">
-              <div class="form-group">
-                <label>{{ 'ADMIN_GEORESOURCES.COMMON.GEODATA_SOURCE_FORMAT' | translate }}*</label>
-                <select formControlName="converter" class="form-control">
-                  <option disabled selected value>
-                    {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SOURCE_FORMAT' | translate }}
-                  </option>
-                  @for (conv of getFilteredConverters(); track conv) {
-                    <option [ngValue]="conv">{{ conv.name }}</option>
-                  }
-                </select>
-                <div class="help-block with-errors"></div>
-              </div>
-
-              @if (converter?.schemas) {
-                <div>
-                  <div class="form-group">
-                    <label>{{ 'ADMIN_GEORESOURCES.COMMON.SCHEMA' | translate }}*</label>
-                    <select formControlName="schema" class="form-control">
-                      <option disabled selected value>
-                        {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SCHEMA' | translate }}
-                      </option>
-                      @for (sch of converter.schemas; track sch) {
-                        <option [value]="sch">{{ sch }}</option>
-                      }
-                    </select>
-                    <div class="help-block with-errors"></div>
-                  </div>
-                </div>
-              }
-
-              @if (converter?.mimeTypes) {
-                <div>
-                  <div class="form-group">
-                    <label>{{ 'ADMIN_GEORESOURCES.COMMON.SOURCE_FORMAT' | translate }}*</label>
-                    <select formControlName="mimeType" class="form-control">
-                      <option disabled selected value>
-                        {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_FORMAT' | translate }}
-                      </option>
-                      @for (mime of converter.mimeTypes; track mime) {
-                        <option [value]="mime">{{ mime }}</option>
-                      }
-                    </select>
-                    <div class="help-block with-errors"></div>
-                  </div>
-                </div>
-              }
-
-              @for (parameter of converter?.parameters; track parameter) {
-                <div formGroupName="converterParameters">
-                  <div class="form-group">
-                    <label
-                      >{{ parameter.name }}
-                      @if (parameter.mandatory) {
-                        <i>*</i>
-                      }
-                    </label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      [formControlName]="parameter.name"
-                      [placeholder]="parameter.name"
-                    />
-                    <div class="help-block">
-                      <p>{{ parameter.description }}</p>
-                    </div>
-                    @if (parameter.name === 'CRS') {
-                      <div class="help-block with-errors" style="color: red">
-                        <p>
-                          {{ 'ADMIN_GEORESOURCES.COMMON.CRS_WARNING' | translate }}
-                        </p>
-                      </div>
-                    }
-                    <div class="help-block with-errors"></div>
-                  </div>
-                </div>
-              }
-            </div>
-
-            <div class="col-md-3 col-sm-6 col-12">
-              <div class="form-group">
-                @if (!converter) {
-                  <div>
-                    <p>{{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SOURCE_FORMAT_FIRST' | translate }}</p>
-                  </div>
+        <div class="row form-section-row">
+          <div class="col-md-3 col-sm-6 col-12">
+            <div class="form-group">
+              <label>{{ 'ADMIN_GEORESOURCES.COMMON.GEODATA_SOURCE_FORMAT' | translate }}*</label>
+              <select formControlName="converter" class="form-control">
+                <option disabled selected value>
+                  {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SOURCE_FORMAT' | translate }}
+                </option>
+                @for (conv of getFilteredConverters(); track conv) {
+                  <option [ngValue]="conv">{{ conv.name }}</option>
                 }
-                @if (converter) {
-                  <div>
-                    <div class="form-group">
-                      <label>{{ 'ADMIN_GEORESOURCES.COMMON.DATASOURCE_TYPE' | translate }}*</label>
-                      <select formControlName="datasourceType" class="form-control">
-                        <option disabled selected value>
-                          {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SOURCE_TYPE' | translate }}
-                        </option>
-                        @for (dsType of availableDatasourceTypes; track dsType) {
-                          <option [ngValue]="dsType">{{ dsType.type }}</option>
-                        }
-                      </select>
-                      <div class="help-block"></div>
-                    </div>
-                    @if (datasourceType?.type === 'FILE') {
-                      <div>
-                        <label>{{ 'ADMIN_GEORESOURCES.COMMON.FILE' | translate }}*</label>
-                        <input
-                          type="file"
-                          class="form-control"
-                          #dataSourceInput
-                          id="georesourceDataSourceInput_editFeatures"
-                          required
-                        />
-                      </div>
-                    }
-                    @if (datasourceType?.type === 'OGCAPI_FEATURES') {
-                      <div>
-                        <label>{{ 'ADMIN_GEORESOURCES.COMMON.SPATIAL_FILTER' | translate }}*</label>
-                        <select
-                          id="datasourceTypeParameter_georesourceEditFeatures_bboxType"
-                          formControlName="bboxType"
-                          class="form-control"
-                        >
-                          <option disabled selected value>
-                            {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_FILTER' | translate }}
-                          </option>
-                          <option value="ref">
-                            {{
-                              'ADMIN_GEORESOURCES.COMMON.FILTER_REFERENCE_SPATIAL_UNIT' | translate
-                            }}
-                          </option>
-                          <option value="literal">
-                            {{ 'ADMIN_GEORESOURCES.COMMON.FILTER_MANUAL_BBOX' | translate }}
-                          </option>
-                        </select>
-                        @if (bboxType === 'ref') {
-                          <div>
-                            <!-- select available spatialUnits -->
-                            <select
-                              id="datasourceTypeParameter_georesourceEditFeatures_bboxRef"
-                              formControlName="bboxRefSpatialUnitId"
-                              class="form-control"
-                            >
-                              <option disabled value="">
-                                {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SPATIAL_UNIT' | translate }}
-                              </option>
-                              @for (
-                                spatialUnit of availableSpatialUnits;
-                                track spatialUnit.spatialUnitId
-                              ) {
-                                <option [value]="spatialUnit.spatialUnitId">
-                                  {{ spatialUnit.spatialUnitLevel }}
-                                </option>
-                              }
-                            </select>
-                            <div class="help-block">
-                              <p>
-                                {{
-                                  'ADMIN_GEORESOURCES.COMMON.BBOX_FROM_SPATIAL_UNIT_HINT'
-                                    | translate
-                                }}
-                              </p>
-                            </div>
-                          </div>
-                        }
-                        @if (bboxType === 'literal') {
-                          <div formGroupName="bbox">
-                            <label>{{ 'ADMIN_GEORESOURCES.COMMON.BBOX' | translate }}*</label>
-                            <input
-                              class="form-control"
-                              type="number"
-                              lang="us"
-                              formControlName="minx"
-                              placeholder="-180"
-                              [required]="bboxType === 'literal'"
-                            />
-                            <div class="help-block">
-                              <p>{{ 'ADMIN_GEORESOURCES.COMMON.MIN_X' | translate }}</p>
-                            </div>
-                            <input
-                              class="form-control"
-                              type="number"
-                              lang="us"
-                              formControlName="miny"
-                              placeholder="-90"
-                              [required]="bboxType === 'literal'"
-                            />
-                            <div class="help-block">
-                              <p>{{ 'ADMIN_GEORESOURCES.COMMON.MIN_Y' | translate }}</p>
-                            </div>
-                            <input
-                              class="form-control"
-                              type="number"
-                              lang="us"
-                              formControlName="maxx"
-                              placeholder="180"
-                              [required]="bboxType === 'literal'"
-                            />
-                            <div class="help-block">
-                              <p>{{ 'ADMIN_GEORESOURCES.COMMON.MAX_X' | translate }}</p>
-                            </div>
-                            <input
-                              class="form-control"
-                              type="number"
-                              lang="us"
-                              formControlName="maxy"
-                              placeholder="90"
-                              [required]="bboxType === 'literal'"
-                            />
-                            <div class="help-block">
-                              <p>{{ 'ADMIN_GEORESOURCES.COMMON.MAX_Y' | translate }}</p>
-                            </div>
-                          </div>
-                        }
-                      </div>
-                    }
-                    @if (datasourceType?.type !== 'FILE') {
-                      <div>
-                        @for (parameter of getFilteredDatasourceParameters(); track parameter) {
-                          <div formGroupName="datasourceTypeParameters">
-                            <div class="form-group">
-                              @if (parameter.mandatory) {
-                                <label>{{ parameter.name }}*</label>
-                              }
-                              @if (!parameter.mandatory) {
-                                <label>{{ parameter.name }}</label>
-                              }
-                              <textarea
-                                rows="1"
-                                class="form-control"
-                                [formControlName]="parameter.name"
-                                [placeholder]="parameter.name"
-                                [required]="parameter.mandatory"
-                              ></textarea>
-                              <div class="help-block">
-                                <p>{{ parameter.description }}</p>
-                              </div>
-                              <div class="help-block with-errors"></div>
-                            </div>
-                          </div>
-                        }
-                      </div>
-                    }
-                  </div>
-                }
-
-                <div class="help-block with-errors"></div>
-                @if (georesourceDataSourceInputInvalid) {
-                  <div style="color: red">
-                    <p>
-                      {{
-                        'ADMIN_GEORESOURCES.COMMON.INPUT_INVALID_REASON'
-                          | translate: { reason: georesourceDataSourceInputInvalidReason }
-                      }}
-                    </p>
-                  </div>
-                }
-              </div>
+              </select>
+              <div class="help-block with-errors"></div>
             </div>
 
-            <div class="col-md-3 col-sm-6 col-12">
-              <div class="form-group">
-                <label>{{ 'ADMIN_GEORESOURCES.COMMON.ID_ATTRIBUTE' | translate }}*</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  formControlName="idProperty"
-                  appAria="gre-data-id-property"
-                />
-                <div class="help-block">
-                  <p>
-                    {{ 'ADMIN_GEORESOURCES.COMMON.ID_ATTRIBUTE_HINT' | translate }}
-                  </p>
-                </div>
-                <div class="help-block with-errors"></div>
-                @if (idPropertyNotFound) {
-                  <div style="color: red">
-                    <p>
-                      {{ 'ADMIN_GEORESOURCES.COMMON.ATTRIBUTE_NOT_FOUND' | translate }}
-                    </p>
-                  </div>
-                }
-              </div>
-              <div class="form-group">
-                <label>{{ 'ADMIN_GEORESOURCES.COMMON.NAME_ATTRIBUTE' | translate }}*</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  formControlName="nameProperty"
-                  appAria="gre-data-name-property"
-                />
-                <div class="help-block">
-                  <p>{{ 'ADMIN_GEORESOURCES.COMMON.NAME_ATTRIBUTE_HINT' | translate }}</p>
-                </div>
-                <div class="help-block with-errors"></div>
-                @if (namePropertyNotFound) {
-                  <div style="color: red">
-                    <p>
-                      {{ 'ADMIN_GEORESOURCES.COMMON.ATTRIBUTE_NOT_FOUND' | translate }}
-                    </p>
-                  </div>
-                }
-              </div>
-            </div>
-
-            <div class="col-md-3 col-sm-6 col-12">
-              <div class="form-group">
-                <label>{{
-                  'ADMIN_GEORESOURCES.COMMON.LIFETIME_START_ATTRIBUTE' | translate
-                }}</label>
-                <input
-                  type="text"
-                  formControlName="validStartDateProperty"
-                  class="form-control pull-right"
-                />
-                <div class="help-block">
-                  <p>
-                    {{ 'ADMIN_GEORESOURCES.COMMON.LIFETIME_START_HINT' | translate }}
-                  </p>
-                </div>
-                <div class="help-block with-errors"></div>
-              </div>
-              <div class="form-group">
-                <label>{{ 'ADMIN_GEORESOURCES.COMMON.LIFETIME_END_ATTRIBUTE' | translate }}</label>
-                <input
-                  type="text"
-                  formControlName="validEndDateProperty"
-                  class="form-control pull-right"
-                />
-                <div class="help-block">
-                  <p>
-                    {{ 'ADMIN_GEORESOURCES.COMMON.LIFETIME_END_HINT' | translate }}
-                  </p>
-                </div>
-                <div class="help-block with-errors"></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="row vertical-align" [formGroup]="editForm.controls.periodOfValidity">
-            <div class="col-md-6 col-sm-6 col-12">
-              <div class="form-group">
-                <label>{{ 'ADMIN_GEORESOURCES.COMMON.VALID_FROM' | translate }}*</label>
-                <km-date-picker
-                  placeholder="YYYY-MM-DD"
-                  formControlName="startDate"
-                  [invalid]="periodOfValidityInvalid"
-                  [showErrors]="false"
-                ></km-date-picker>
-                <div class="help-block">
-                  <p>
-                    {{ 'ADMIN_GEORESOURCES.COMMON.VALID_FROM_HINT' | translate }}
-                  </p>
-                </div>
-                <app-form-error
-                  [control]="editForm.controls.periodOfValidity"
-                  keyOverride="ADMIN_GEORESOURCES.COMMON.PERIOD_INVALID"
-                  showWhen="always"
-                />
-              </div>
-            </div>
-            <div class="col-md-6 col-sm-6 col-12">
-              <div class="form-group">
-                <label>{{ 'ADMIN_GEORESOURCES.COMMON.VALID_TO' | translate }}</label>
-                <km-date-picker
-                  placeholder="YYYY-MM-DD"
-                  formControlName="endDate"
-                  [coerceEmptyToToday]="false"
-                  [invalid]="periodOfValidityInvalid"
-                  [showErrors]="false"
-                ></km-date-picker>
-                <div class="help-block">
-                  <p>
-                    {{ 'ADMIN_GEORESOURCES.COMMON.VALID_TO_HINT' | translate }}
-                  </p>
-                </div>
-                <app-form-error
-                  [control]="editForm.controls.periodOfValidity"
-                  keyOverride="ADMIN_GEORESOURCES.COMMON.PERIOD_INVALID"
-                  showWhen="always"
-                />
-              </div>
-            </div>
-          </div>
-
-          <hr />
-          <br />
-
-          <div class="row vertical-align">
-            <div class="col-md-6 col-sm-6 col-12">
-              <div class="form-group">
-                <label>{{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.PARTIAL_UPDATE' | translate }}*</label>
-
-                <br />
-                <label class="switch">
-                  <input
-                    type="checkbox"
-                    value="isPartialUpdate"
-                    [formControl]="editForm.controls.isPartialUpdate"
-                  />
-                  <span class="switchslider round"></span>
-                </label>
-
-                <div class="help-block">
-                  <p>
-                    {{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.PARTIAL_UPDATE_HINT' | translate }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <hr />
-          <br />
-
-          <div class="row vertical-align">
-            <div class="col-md-6 col-sm-6 col-12">
-              <div class="form-group">
-                <label>{{ 'ADMIN_GEORESOURCES.COMMON.KEEP_ATTRIBUTES' | translate }}*</label>
-
-                <br />
-                <label class="switch">
-                  <input type="checkbox" value="keepAttributes" formControlName="keepAttributes" />
-                  <span class="switchslider round"></span>
-                </label>
-
-                <div class="help-block">
-                  <p>
-                    {{ 'ADMIN_GEORESOURCES.COMMON.KEEP_ATTRIBUTES_HINT' | translate }}
-                  </p>
-                </div>
-              </div>
-            </div>
-            @if (!keepAttributes) {
-              <div class="col-md-6 col-sm-6 col-12">
+            @if (converter?.schemas) {
+              <div>
                 <div class="form-group">
-                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.KEEP_MISSING_VALUES' | translate }}*</label>
-                  <br />
-                  <label class="switch">
-                    <input
-                      type="checkbox"
-                      value="keepMissingValues"
-                      formControlName="keepMissingValues"
-                    />
-                    <span class="switchslider round"></span>
-                  </label>
-                  <div class="help-block">
-                    <p
-                      [innerHTML]="'ADMIN_GEORESOURCES.COMMON.KEEP_MISSING_VALUES_HINT' | translate"
-                    ></p>
-                  </div>
-                </div>
-              </div>
-            }
-          </div>
-
-          @if (!keepAttributes) {
-            <div class="row vertical-align">
-              <div class="col-md-6 col-sm-6 col-12" [formGroup]="attributeMappingDraft">
-                <div class="form-group">
-                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.SOURCE_ATTRIBUTE' | translate }}*</label>
-                  <input
-                    type="text"
-                    class="form-control input-sm"
-                    [placeholder]="
-                      'ADMIN_GEORESOURCES.COMMON.SOURCE_ATTRIBUTE_PLACEHOLDER' | translate
-                    "
-                    formControlName="sourceName"
-                  />
-                  <div class="help-block with-errors"></div>
-                </div>
-                <div class="form-group">
-                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.TARGET_ATTRIBUTE' | translate }}*</label>
-                  <input
-                    type="text"
-                    class="form-control input-sm"
-                    [placeholder]="
-                      'ADMIN_GEORESOURCES.COMMON.TARGET_ATTRIBUTE_PLACEHOLDER' | translate
-                    "
-                    formControlName="destinationName"
-                  />
-                  <div class="help-block with-errors"></div>
-                </div>
-                <div class="form-group">
-                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.DATA_TYPE' | translate }}*</label>
-                  <select formControlName="dataType" class="form-control">
+                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.SCHEMA' | translate }}*</label>
+                  <select formControlName="schema" class="form-control">
                     <option disabled selected value>
-                      {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_DATA_TYPE' | translate }}
+                      {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SCHEMA' | translate }}
                     </option>
-                    @for (
-                      type of kommonitorImporterHelperService.attributeMapping_attributeTypes;
-                      track type
-                    ) {
-                      <option [ngValue]="type">{{ type.displayName }}</option>
+                    @for (sch of converter.schemas; track sch) {
+                      <option [value]="sch">{{ sch }}</option>
                     }
                   </select>
                   <div class="help-block with-errors"></div>
                 </div>
+              </div>
+            }
+
+            @if (converter?.mimeTypes) {
+              <div>
                 <div class="form-group">
-                  <button
-                    class="btn btn-success btn-sm"
-                    [disabled]="
-                      !attributeMapping_sourceAttributeName ||
-                      !attributeMapping_destinationAttributeName ||
-                      !attributeMapping_attributeType
-                    "
-                    (click)="onAddOrUpdateAttributeMapping()"
-                  >
-                    {{ 'ADMIN_GEORESOURCES.COMMON.ADD_OR_EDIT' | translate }}
-                  </button>
+                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.SOURCE_FORMAT' | translate }}*</label>
+                  <select formControlName="mimeType" class="form-control">
+                    <option disabled selected value>
+                      {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_FORMAT' | translate }}
+                    </option>
+                    @for (mime of converter.mimeTypes; track mime) {
+                      <option [value]="mime">{{ mime }}</option>
+                    }
+                  </select>
                   <div class="help-block with-errors"></div>
                 </div>
               </div>
-              <div class="col-md-6 col-sm-6 col-12">
-                <label>{{ 'ADMIN_GEORESOURCES.COMMON.MAPPINGS_OVERVIEW' | translate }}</label>
-                <table class="table table-condensed">
-                  <thead>
-                    <tr>
-                      <th>{{ 'ADMIN_SHARED.EDIT_FUNCTIONS' | translate }}</th>
-                      <th>{{ 'ADMIN_GEORESOURCES.COMMON.SOURCE_ATTRIBUTE_COLUMN' | translate }}</th>
-                      <th>{{ 'ADMIN_GEORESOURCES.COMMON.TARGET_ATTRIBUTE_COLUMN' | translate }}</th>
-                      <th>{{ 'ADMIN_GEORESOURCES.COMMON.DATA_TYPE' | translate }}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (
-                      attributeMappingEntry of attributeMappings_adminView;
-                      track attributeMappingEntry
-                    ) {
-                      <tr>
-                        <td>
-                          <div class="btn-group btn-group-sm">
-                            <button
-                              class="btn btn-warning btn-sm"
-                              type="button"
-                              (click)="onClickEditAttributeMapping(attributeMappingEntry)"
-                              [title]="'ADMIN_GEORESOURCES.COMMON.EDIT_REFERENCE' | translate"
-                            >
-                              <i class="fas fa-pencil-alt"></i>
-                            </button>
-                            <button
-                              class="btn btn-danger btn-sm"
-                              type="button"
-                              (click)="onClickDeleteAttributeMapping(attributeMappingEntry)"
-                              [title]="'ADMIN_GEORESOURCES.COMMON.DELETE_REFERENCE' | translate"
-                            >
-                              <i class="fas fa-trash"></i>
-                            </button>
-                          </div>
-                        </td>
-                        <td>{{ attributeMappingEntry.sourceName }}</td>
-                        <td>{{ attributeMappingEntry.destinationName }}</td>
-                        <td>{{ attributeMappingEntry.dataType.displayName }}</td>
-                      </tr>
+            }
+
+            @for (parameter of converter?.parameters; track parameter) {
+              <div formGroupName="converterParameters">
+                <div class="form-group">
+                  <label
+                    >{{ parameter.name }}
+                    @if (parameter.mandatory) {
+                      <i>*</i>
                     }
-                  </tbody>
-                </table>
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [formControlName]="parameter.name"
+                    [placeholder]="parameter.name"
+                  />
+                  <div class="help-block">
+                    <p>{{ parameter.description }}</p>
+                  </div>
+                  @if (parameter.name === 'CRS') {
+                    <div class="help-block with-errors" style="color: red">
+                      <p>
+                        {{ 'ADMIN_GEORESOURCES.COMMON.CRS_WARNING' | translate }}
+                      </p>
+                    </div>
+                  }
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="col-md-3 col-sm-6 col-12">
+            <div class="form-group">
+              @if (!converter) {
+                <div>
+                  <p>{{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SOURCE_FORMAT_FIRST' | translate }}</p>
+                </div>
+              }
+              @if (converter) {
+                <div>
+                  <div class="form-group">
+                    <label>{{ 'ADMIN_GEORESOURCES.COMMON.DATASOURCE_TYPE' | translate }}*</label>
+                    <select formControlName="datasourceType" class="form-control">
+                      <option disabled selected value>
+                        {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SOURCE_TYPE' | translate }}
+                      </option>
+                      @for (dsType of availableDatasourceTypes; track dsType) {
+                        <option [ngValue]="dsType">{{ dsType.type }}</option>
+                      }
+                    </select>
+                    <div class="help-block"></div>
+                  </div>
+                  @if (datasourceType?.type === 'FILE') {
+                    <div>
+                      <label>{{ 'ADMIN_GEORESOURCES.COMMON.FILE' | translate }}*</label>
+                      <input
+                        type="file"
+                        class="form-control"
+                        #dataSourceInput
+                        id="georesourceDataSourceInput_editFeatures"
+                        required
+                      />
+                    </div>
+                  }
+                  @if (datasourceType?.type === 'OGCAPI_FEATURES') {
+                    <div>
+                      <label>{{ 'ADMIN_GEORESOURCES.COMMON.SPATIAL_FILTER' | translate }}*</label>
+                      <select
+                        id="datasourceTypeParameter_georesourceEditFeatures_bboxType"
+                        formControlName="bboxType"
+                        class="form-control"
+                      >
+                        <option disabled selected value>
+                          {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_FILTER' | translate }}
+                        </option>
+                        <option value="ref">
+                          {{
+                            'ADMIN_GEORESOURCES.COMMON.FILTER_REFERENCE_SPATIAL_UNIT' | translate
+                          }}
+                        </option>
+                        <option value="literal">
+                          {{ 'ADMIN_GEORESOURCES.COMMON.FILTER_MANUAL_BBOX' | translate }}
+                        </option>
+                      </select>
+                      @if (bboxType === 'ref') {
+                        <div>
+                          <!-- select available spatialUnits -->
+                          <select
+                            id="datasourceTypeParameter_georesourceEditFeatures_bboxRef"
+                            formControlName="bboxRefSpatialUnitId"
+                            class="form-control"
+                          >
+                            <option disabled value="">
+                              {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SPATIAL_UNIT' | translate }}
+                            </option>
+                            @for (
+                              spatialUnit of availableSpatialUnits;
+                              track spatialUnit.spatialUnitId
+                            ) {
+                              <option [value]="spatialUnit.spatialUnitId">
+                                {{ spatialUnit.spatialUnitLevel }}
+                              </option>
+                            }
+                          </select>
+                          <div class="help-block">
+                            <p>
+                              {{
+                                'ADMIN_GEORESOURCES.COMMON.BBOX_FROM_SPATIAL_UNIT_HINT' | translate
+                              }}
+                            </p>
+                          </div>
+                        </div>
+                      }
+                      @if (bboxType === 'literal') {
+                        <div formGroupName="bbox">
+                          <label>{{ 'ADMIN_GEORESOURCES.COMMON.BBOX' | translate }}*</label>
+                          <input
+                            class="form-control"
+                            type="number"
+                            lang="us"
+                            formControlName="minx"
+                            placeholder="-180"
+                            [required]="bboxType === 'literal'"
+                          />
+                          <div class="help-block">
+                            <p>{{ 'ADMIN_GEORESOURCES.COMMON.MIN_X' | translate }}</p>
+                          </div>
+                          <input
+                            class="form-control"
+                            type="number"
+                            lang="us"
+                            formControlName="miny"
+                            placeholder="-90"
+                            [required]="bboxType === 'literal'"
+                          />
+                          <div class="help-block">
+                            <p>{{ 'ADMIN_GEORESOURCES.COMMON.MIN_Y' | translate }}</p>
+                          </div>
+                          <input
+                            class="form-control"
+                            type="number"
+                            lang="us"
+                            formControlName="maxx"
+                            placeholder="180"
+                            [required]="bboxType === 'literal'"
+                          />
+                          <div class="help-block">
+                            <p>{{ 'ADMIN_GEORESOURCES.COMMON.MAX_X' | translate }}</p>
+                          </div>
+                          <input
+                            class="form-control"
+                            type="number"
+                            lang="us"
+                            formControlName="maxy"
+                            placeholder="90"
+                            [required]="bboxType === 'literal'"
+                          />
+                          <div class="help-block">
+                            <p>{{ 'ADMIN_GEORESOURCES.COMMON.MAX_Y' | translate }}</p>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  }
+                  @if (datasourceType?.type !== 'FILE') {
+                    <div>
+                      @for (parameter of getFilteredDatasourceParameters(); track parameter) {
+                        <div formGroupName="datasourceTypeParameters">
+                          <div class="form-group">
+                            @if (parameter.mandatory) {
+                              <label>{{ parameter.name }}*</label>
+                            }
+                            @if (!parameter.mandatory) {
+                              <label>{{ parameter.name }}</label>
+                            }
+                            <textarea
+                              rows="1"
+                              class="form-control"
+                              [formControlName]="parameter.name"
+                              [placeholder]="parameter.name"
+                              [required]="parameter.mandatory"
+                            ></textarea>
+                            <div class="help-block">
+                              <p>{{ parameter.description }}</p>
+                            </div>
+                            <div class="help-block with-errors"></div>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+
+              <div class="help-block with-errors"></div>
+              @if (georesourceDataSourceInputInvalid) {
+                <div style="color: red">
+                  <p>
+                    {{
+                      'ADMIN_GEORESOURCES.COMMON.INPUT_INVALID_REASON'
+                        | translate: { reason: georesourceDataSourceInputInvalidReason }
+                    }}
+                  </p>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="col-md-3 col-sm-6 col-12">
+            <div class="form-group">
+              <label>{{ 'ADMIN_GEORESOURCES.COMMON.ID_ATTRIBUTE' | translate }}*</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="idProperty"
+                appAria="gre-data-id-property"
+              />
+              <div class="help-block">
+                <p>
+                  {{ 'ADMIN_GEORESOURCES.COMMON.ID_ATTRIBUTE_HINT' | translate }}
+                </p>
+              </div>
+              <div class="help-block with-errors"></div>
+              @if (idPropertyNotFound) {
+                <div style="color: red">
+                  <p>
+                    {{ 'ADMIN_GEORESOURCES.COMMON.ATTRIBUTE_NOT_FOUND' | translate }}
+                  </p>
+                </div>
+              }
+            </div>
+            <div class="form-group">
+              <label>{{ 'ADMIN_GEORESOURCES.COMMON.NAME_ATTRIBUTE' | translate }}*</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="nameProperty"
+                appAria="gre-data-name-property"
+              />
+              <div class="help-block">
+                <p>{{ 'ADMIN_GEORESOURCES.COMMON.NAME_ATTRIBUTE_HINT' | translate }}</p>
+              </div>
+              <div class="help-block with-errors"></div>
+              @if (namePropertyNotFound) {
+                <div style="color: red">
+                  <p>
+                    {{ 'ADMIN_GEORESOURCES.COMMON.ATTRIBUTE_NOT_FOUND' | translate }}
+                  </p>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="col-md-3 col-sm-6 col-12">
+            <div class="form-group">
+              <label>{{ 'ADMIN_GEORESOURCES.COMMON.LIFETIME_START_ATTRIBUTE' | translate }}</label>
+              <input
+                type="text"
+                formControlName="validStartDateProperty"
+                class="form-control pull-right"
+              />
+              <div class="help-block">
+                <p>
+                  {{ 'ADMIN_GEORESOURCES.COMMON.LIFETIME_START_HINT' | translate }}
+                </p>
+              </div>
+              <div class="help-block with-errors"></div>
+            </div>
+            <div class="form-group">
+              <label>{{ 'ADMIN_GEORESOURCES.COMMON.LIFETIME_END_ATTRIBUTE' | translate }}</label>
+              <input
+                type="text"
+                formControlName="validEndDateProperty"
+                class="form-control pull-right"
+              />
+              <div class="help-block">
+                <p>
+                  {{ 'ADMIN_GEORESOURCES.COMMON.LIFETIME_END_HINT' | translate }}
+                </p>
+              </div>
+              <div class="help-block with-errors"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row form-section-row" [formGroup]="editForm.controls.periodOfValidity">
+          <div class="col-md-6 col-sm-6 col-12">
+            <div class="form-group">
+              <label>{{ 'ADMIN_GEORESOURCES.COMMON.VALID_FROM' | translate }}*</label>
+              <km-date-picker
+                placeholder="YYYY-MM-DD"
+                formControlName="startDate"
+                [invalid]="periodOfValidityInvalid"
+                [showErrors]="false"
+              ></km-date-picker>
+              <div class="help-block">
+                <p>
+                  {{ 'ADMIN_GEORESOURCES.COMMON.VALID_FROM_HINT' | translate }}
+                </p>
+              </div>
+              <app-form-error
+                [control]="editForm.controls.periodOfValidity"
+                keyOverride="ADMIN_GEORESOURCES.COMMON.PERIOD_INVALID"
+                showWhen="always"
+              />
+            </div>
+          </div>
+          <div class="col-md-6 col-sm-6 col-12">
+            <div class="form-group">
+              <label>{{ 'ADMIN_GEORESOURCES.COMMON.VALID_TO' | translate }}</label>
+              <km-date-picker
+                placeholder="YYYY-MM-DD"
+                formControlName="endDate"
+                [coerceEmptyToToday]="false"
+                [invalid]="periodOfValidityInvalid"
+                [showErrors]="false"
+              ></km-date-picker>
+              <div class="help-block">
+                <p>
+                  {{ 'ADMIN_GEORESOURCES.COMMON.VALID_TO_HINT' | translate }}
+                </p>
+              </div>
+              <app-form-error
+                [control]="editForm.controls.periodOfValidity"
+                keyOverride="ADMIN_GEORESOURCES.COMMON.PERIOD_INVALID"
+                showWhen="always"
+              />
+            </div>
+          </div>
+        </div>
+
+        <hr />
+        <br />
+
+        <div class="row form-section-row">
+          <div class="col-md-6 col-sm-6 col-12">
+            <div class="form-group">
+              <label>{{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.PARTIAL_UPDATE' | translate }}*</label>
+
+              <br />
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  value="isPartialUpdate"
+                  [formControl]="editForm.controls.isPartialUpdate"
+                />
+                <span class="switchslider round"></span>
+              </label>
+
+              <div class="help-block">
+                <p>
+                  {{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.PARTIAL_UPDATE_HINT' | translate }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr />
+        <br />
+
+        <div class="row form-section-row">
+          <div class="col-md-6 col-sm-6 col-12">
+            <div class="form-group">
+              <label>{{ 'ADMIN_GEORESOURCES.COMMON.KEEP_ATTRIBUTES' | translate }}*</label>
+
+              <br />
+              <label class="switch">
+                <input type="checkbox" value="keepAttributes" formControlName="keepAttributes" />
+                <span class="switchslider round"></span>
+              </label>
+
+              <div class="help-block">
+                <p>
+                  {{ 'ADMIN_GEORESOURCES.COMMON.KEEP_ATTRIBUTES_HINT' | translate }}
+                </p>
+              </div>
+            </div>
+          </div>
+          @if (!keepAttributes) {
+            <div class="col-md-6 col-sm-6 col-12">
+              <div class="form-group">
+                <label>{{ 'ADMIN_GEORESOURCES.COMMON.KEEP_MISSING_VALUES' | translate }}*</label>
+                <br />
+                <label class="switch">
+                  <input
+                    type="checkbox"
+                    value="keepMissingValues"
+                    formControlName="keepMissingValues"
+                  />
+                  <span class="switchslider round"></span>
+                </label>
+                <div class="help-block">
+                  <p
+                    [innerHTML]="'ADMIN_GEORESOURCES.COMMON.KEEP_MISSING_VALUES_HINT' | translate"
+                  ></p>
+                </div>
               </div>
             </div>
           }
+        </div>
 
-          <input
-            type="button"
-            name="previous"
-            class="previous previous_editFeaturesGeoresource action-button-previous"
-            [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-            (click)="stepper.previous()"
-          />
-        </fieldset>
-      </div>
+        @if (!keepAttributes) {
+          <div class="row form-section-row">
+            <div class="col-md-6 col-sm-6 col-12" [formGroup]="attributeMappingDraft">
+              <div class="form-group">
+                <label>{{ 'ADMIN_GEORESOURCES.COMMON.SOURCE_ATTRIBUTE' | translate }}*</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [placeholder]="
+                    'ADMIN_GEORESOURCES.COMMON.SOURCE_ATTRIBUTE_PLACEHOLDER' | translate
+                  "
+                  formControlName="sourceName"
+                />
+                <div class="help-block with-errors"></div>
+              </div>
+              <div class="form-group">
+                <label>{{ 'ADMIN_GEORESOURCES.COMMON.TARGET_ATTRIBUTE' | translate }}*</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [placeholder]="
+                    'ADMIN_GEORESOURCES.COMMON.TARGET_ATTRIBUTE_PLACEHOLDER' | translate
+                  "
+                  formControlName="destinationName"
+                />
+                <div class="help-block with-errors"></div>
+              </div>
+              <div class="form-group">
+                <label>{{ 'ADMIN_GEORESOURCES.COMMON.DATA_TYPE' | translate }}*</label>
+                <select formControlName="dataType" class="form-control">
+                  <option disabled selected value>
+                    {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_DATA_TYPE' | translate }}
+                  </option>
+                  @for (
+                    type of kommonitorImporterHelperService.attributeMapping_attributeTypes;
+                    track type
+                  ) {
+                    <option [ngValue]="type">{{ type.displayName }}</option>
+                  }
+                </select>
+                <div class="help-block with-errors"></div>
+              </div>
+              <div class="form-group">
+                <button
+                  class="btn btn-success btn-sm"
+                  [disabled]="
+                    !attributeMapping_sourceAttributeName ||
+                    !attributeMapping_destinationAttributeName ||
+                    !attributeMapping_attributeType
+                  "
+                  (click)="onAddOrUpdateAttributeMapping()"
+                >
+                  {{ 'ADMIN_GEORESOURCES.COMMON.ADD_OR_EDIT' | translate }}
+                </button>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-12">
+              <label>{{ 'ADMIN_GEORESOURCES.COMMON.MAPPINGS_OVERVIEW' | translate }}</label>
+              <table class="table table-condensed">
+                <thead>
+                  <tr>
+                    <th>{{ 'ADMIN_SHARED.EDIT_FUNCTIONS' | translate }}</th>
+                    <th>{{ 'ADMIN_GEORESOURCES.COMMON.SOURCE_ATTRIBUTE_COLUMN' | translate }}</th>
+                    <th>{{ 'ADMIN_GEORESOURCES.COMMON.TARGET_ATTRIBUTE_COLUMN' | translate }}</th>
+                    <th>{{ 'ADMIN_GEORESOURCES.COMMON.DATA_TYPE' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (
+                    attributeMappingEntry of attributeMappings_adminView;
+                    track attributeMappingEntry
+                  ) {
+                    <tr>
+                      <td>
+                        <div class="btn-group btn-group-sm">
+                          <button
+                            class="btn btn-warning btn-sm"
+                            type="button"
+                            (click)="onClickEditAttributeMapping(attributeMappingEntry)"
+                            [title]="'ADMIN_GEORESOURCES.COMMON.EDIT_REFERENCE' | translate"
+                          >
+                            <i class="fas fa-pencil-alt"></i>
+                          </button>
+                          <button
+                            class="btn btn-danger btn-sm"
+                            type="button"
+                            (click)="onClickDeleteAttributeMapping(attributeMappingEntry)"
+                            [title]="'ADMIN_GEORESOURCES.COMMON.DELETE_REFERENCE' | translate"
+                          >
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                      <td>{{ attributeMappingEntry.sourceName }}</td>
+                      <td>{{ attributeMappingEntry.destinationName }}</td>
+                      <td>{{ attributeMappingEntry.dataType.displayName }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+
+        <div class="stepper-buttons">
+          <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
+            {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+          </button>
+        </div>
+      </fieldset>
     </div>
-  </div>
+  </app-loading-overlay>
 </div>
 
+<!--
+  The same three buttons every admin dialog has: cancel pushed left with
+  `me-auto` (the old `btn-default pull-left` named two classes that do not exist
+  in Bootstrap 5, so it rendered as borderless text and did not float), reset as
+  a neutral outline rather than `btn-danger` — it discards input, it does not
+  delete data — and the submit on the right.
+-->
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="cancel()">
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="cancel()">
     {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
+  <button
+    type="button"
+    class="btn btn-outline-secondary"
+    (click)="resetGeoresourceEditFeaturesForm()"
+  >
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
   <button
     type="button"
@@ -806,56 +848,4 @@
   >
     {{ 'ADMIN_SHARED.EDIT_FEATURES' | translate }}
   </button>
-  <button type="button" class="btn btn-danger" (click)="resetGeoresourceEditFeaturesForm()">
-    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
-  </button>
-</div>
-
-<!-- Update success/error summaries are toasted via NotificationService; the
-     per-feature importer error report stays inline. -->
-@if (importerErrors()?.length > 0) {
-  <div class="alert alert-danger">
-    <h4>
-      <i class="icon fa fa-ban"></i
-      >{{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.EDIT_FEATURES_FAILED' | translate }}
-    </h4>
-    <p>
-      {{
-        'ADMIN_GEORESOURCES.COMMON.IMPORTER_ERRORS_INTRO'
-          | translate: { count: importerErrors().length }
-      }}
-    </p>
-    <pre style="overflow: auto; max-height: 500px">
-          <ul>
-            @for (error of importerErrors(); track error) {
-              <li>{{error}}</li>
-            }
-          </ul>
-        </pre>
-    <p>{{ 'ADMIN_GEORESOURCES.COMMON.FIX_ERRORS_HINT' | translate }}</p>
-  </div>
-}
-
-<div
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!mappingConfigImportErrorAlertVisible()"
-  class="alert alert-danger alert-dismissable"
->
-  <button type="button" class="close" (click)="hideMappingConfigErrorAlert()" aria-hidden="true">
-    &times;
-  </button>
-  <h4>
-    <i class="icon fa fa-ban"></i
-    >{{ 'ADMIN_GEORESOURCES.COMMON.MAPPING_IMPORT_FAILED' | translate }}
-  </h4>
-  {{ 'ADMIN_GEORESOURCES.COMMON.MAPPING_IMPORT_ERROR' | translate }}
-  <br />
-  <pre [innerHTML]="georesourceMappingConfigImportError()"></pre>
-  <br />
-  <br />
-  <p>{{ 'ADMIN_GEORESOURCES.COMMON.JSON_FORMAT_HINT' | translate }}</p>
-  <pre
-    style="overflow: auto; max-height: 500px"
-    [innerHTML]="georesourceMappingConfigStructure_pretty"
-  ></pre>
 </div>

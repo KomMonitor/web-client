@@ -82,7 +82,6 @@
     "GENERAL_METADATA": "Allgemeine Metadaten",
     "SPATIAL_DATASET": "Räumlicher Datensatz",
     "ACCESS_PROTECTION": "Zugriffsschutz",
-    "INFO": "Info",
     "SUCCESS": "Erfolg!",
     "ERROR": "Fehler!",
     "KEYWORD_FILTER": "Stichwortfilter",
@@ -91,7 +90,13 @@
     "PERIOD_OF_VALIDITY": "Gültigkeitszeitraum"
   },
   "ADMIN_GEORESOURCES": {
-    "TITLE": "Verwalten der Geodaten",
+    "OVERVIEW": {
+      "TITLE": "Verwalten der Geodaten",
+      "DESCRIPTION": "Registrierung und Pflege der Georessourcen und ihrer WMS-Dienste",
+      "POI_BOX": "Points of Interest",
+      "LOI_BOX": "Lines of Interest",
+      "AOI_BOX": "Areas of Interest"
+    },
     "CREATE_POI_LOI_AOI": "POI / LOI / AOI erstellen",
     "CREATE_WMS": "WMS erstellen",
     "COMMON": {

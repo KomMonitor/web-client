@@ -21,6 +21,8 @@ import { IndicatorValueService } from 'services/indicator-value-service/indicato
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
 
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { KmColorPickerComponent } from 'components/ngComponents/customElements/color-picker/km-color-picker.component';
@@ -68,6 +70,8 @@ import { TranslateService } from '@ngx-translate/core';
   imports: [
     FormsModule,
     ReactiveFormsModule,
+    LoadingOverlayComponent,
+    ExpandableBoxComponent,
     TopicHierarchyFormComponent,
     FormErrorComponent,
     FormControlAriaDirective,

@@ -36,7 +36,7 @@ import { NotificationService } from 'components/ngComponents/common/notification
 import { TranslateModule } from '@ngx-translate/core';
 
 import { TranslateService } from '@ngx-translate/core';
-import { MODAL_FORM, MODAL_WIDE } from 'util/modal-presets';
+import { MODAL_CONFIRM, MODAL_FORM, MODAL_WIDE } from 'util/modal-presets';
 @Component({
   selector: 'app-admin-georesources-management',
   templateUrl: './admin-georesources-management.component.html',
@@ -98,6 +98,8 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
     wrapText: true,
     autoHeight: true,
   };
+  /** Same grid pagination as the spatial-unit and indicator overviews. */
+  public paginationPageSize: number = 10;
   public paginationPageSizeSelector: number[] = [10, 25, 50, 100];
 
   private subscriptions: Subscription[] = [];
@@ -315,7 +317,13 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
   }
 
   public onClickDeleteGeoresource(georesourceDataset: any): void {
-    const modalRef = this.modalService.open(GeoresourceDeleteModalComponent, MODAL_FORM);
+    // MODAL_CONFIRM like the spatial-unit and indicator delete dialogs: this is a
+    // question with a summary, it holds no input, so Esc and a backdrop click may
+    // mean "cancel". MODAL_FORM made it 800px *and* `backdrop: 'static'` with
+    // `keyboard: false`, so the one dialog in the admin area with nothing to lose
+    // was the one that refused to close on Esc. The wide impact tables scroll
+    // inside `.admin-table-wrapper`, as they do in the indicator dialog.
+    const modalRef = this.modalService.open(GeoresourceDeleteModalComponent, MODAL_CONFIRM);
 
     // Pass the georesource dataset directly to the modal (the former
     // OnDeleteGeoresources broadcast detour is gone)
