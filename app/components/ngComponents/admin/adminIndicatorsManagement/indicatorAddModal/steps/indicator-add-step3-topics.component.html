@@ -16,42 +16,26 @@
     <br />
     <div class="row vertical-align">
       <div class="col-md-10 col-sm-12 col-12">
-        <div style="text-align: left">
-          <div
-            id="indicatorAddAdmin_topicsManagement"
-            class="box box-primary collapsed-box"
-            style="background: #ebf0fd"
-          >
-            <div class="box-header">
-              <h3 class="box-title">
-                {{ 'ADMIN_SHARED_UI.TOPICS.TOPIC_CATALOG' | translate }}
-              </h3>
-              <div class="box-tools pull-right">
-                <button
-                  type="button"
-                  (click)="indicatorAddTopicsCollapse.toggle()"
-                  class="btn btn-box-tool"
-                  data-widget="collapse"
-                >
-                  <i
-                    class="fa"
-                    [ngClass]="{
-                      'fa-plus': isIndicatorAddTopicsCollapse,
-                      'fa-minus': !isIndicatorAddTopicsCollapse,
-                    }"
-                  ></i>
-                </button>
-              </div>
-            </div>
-            <div
-              class="box-body"
-              #indicatorAddTopicsCollapse="ngbCollapse"
-              [(ngbCollapse)]="isIndicatorAddTopicsCollapse"
-            >
-              <app-admin-topics-management></app-admin-topics-management>
-            </div>
-          </div>
-        </div>
+        <!--
+          <expandable-box> instead of the AdminLTE `box box-primary collapsed-box`
+          markup this used to be. The collapse itself worked here — unlike the four
+          georesource and WMS dialogs, it had been rewired to `ngbCollapse` with a
+          hand-swapped fa-plus/fa-minus icon — but the shared component does the
+          same thing, and its `.box-*` classes were unstyled in this dialog, so the
+          title rendered at Bootstrap's 28px <h3>, larger than the 20px dialog
+          title above it.
+
+          `variant="nested"` is the shared component's subordinate look (15px/600
+          title, no shadow): this panel manages the global topic catalog and is not
+          part of the form around it. It starts collapsed, as `collapsed-box` and
+          `isIndicatorAddTopicsCollapse = true` both meant.
+        -->
+        <expandable-box
+          [title]="'ADMIN_SHARED_UI.TOPICS.TOPIC_CATALOG' | translate"
+          variant="nested"
+        >
+          <app-admin-topics-management></app-admin-topics-management>
+        </expandable-box>
       </div>
     </div>
   }
