@@ -128,7 +128,14 @@ export class OgcDataGridHelperService {
       ? userPermissions.includes('creator')
       : false;
 
+    // `btn-group btn-group-sm` like the indicator and filter-config grids, which
+    // build the same edit-functions cell. This renderer was the only one leaving
+    // the wrapper unclassed, so the three buttons sat as separate rounded pills
+    // with a whitespace gap between them, while the same cell one box up in the
+    // georesource view rendered them flush as one control. The class was already
+    // spelled out in this method's own "No data" branch above.
     const buttonWrapper = document.createElement('div');
+    buttonWrapper.className = 'btn-group btn-group-sm';
 
     buttonWrapper.appendChild(this.buildEditButton(params, hasEditorPermission));
     buttonWrapper.appendChild(this.buildEditUserRolesButton(params, hasCreatorPermission));
