@@ -352,7 +352,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   // Icon picker options
   iconPickerOptions: any = {
     align: 'center',
-    arrowClass: 'btn-default',
+    arrowClass: 'btn-outline-secondary',
     arrowPrevIconClass: 'fas fa-angle-left',
     arrowNextIconClass: 'fas fa-angle-right',
     cols: 10,

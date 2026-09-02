@@ -31,15 +31,13 @@
             formControlName="ownerOrgFilter"
             [placeholder]="'ADMIN_INDICATORS.STEP_ACCESS.FILTER_ORG_PLACEHOLDER' | translate"
           />
-          <span class="input-group-btn">
-            <button
-              class="btn btn-outline-secondary"
-              type="button"
-              (click)="state.clearOwnerFilter()"
-            >
-              <i class="fas fa-times"></i>
-            </button>
-          </span>
+          <button
+            class="btn btn-outline-secondary"
+            type="button"
+            (click)="state.clearOwnerFilter()"
+          >
+            <i class="fas fa-times"></i>
+          </button>
         </div>
         <select formControlName="ownerOrganization" class="form-control" required>
           <option [ngValue]="null" disabled selected>
@@ -167,7 +165,7 @@
             <input
               type="text"
               formControlName="accessStartDate"
-              class="form-control pull-right"
+              class="form-control"
               placeholder="YYYY-MM-DD"
             />
           </div>
@@ -186,7 +184,7 @@
             <input
               type="text"
               formControlName="accessEndDate"
-              class="form-control pull-right"
+              class="form-control"
               placeholder="YYYY-MM-DD"
             />
           </div>

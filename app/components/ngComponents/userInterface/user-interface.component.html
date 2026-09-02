@@ -134,7 +134,7 @@
       ) {
         <div id="filterStatusButtonContainer">
           @if (globalFilterHelperService.globalFilterApplied()) {
-            <div id="filterNoticeButton" class="btn btn-warning btn-xs" title="Filter aktiviert">
+            <div id="filterNoticeButton" class="btn btn-warning btn-sm" title="Filter aktiviert">
               <i class="fas fa-filter"></i>
               <span (click)="openFilterSidebar()" style="margin: 3px"
                 >Räuml. Filter aktiviert
@@ -149,7 +149,7 @@
           @if (chartDisplayState.isMeasureOfValueChecked) {
             <div
               id="filterNoticeButton"
-              class="btn btn-warning btn-xs"
+              class="btn btn-warning btn-sm"
               title="Schwellenwertklassifizierung aktiviert"
             >
               <i class="fas fa-filter"></i>
@@ -166,7 +166,7 @@
           @if (rangeFilterState.rangeFilterIsApplied) {
             <div
               id="filterNoticeButton"
-              class="btn btn-warning btn-xs"
+              class="btn btn-warning btn-sm"
               title="Wertebereichfilter aktiviert"
             >
               <i class="fas fa-filter"></i>
@@ -186,7 +186,7 @@
         @if (chartDisplayState.isBalanceChecked) {
           <span
             id="balanceNoticeButton"
-            class="btn btn-warning btn-xs"
+            class="btn btn-warning btn-sm"
             title="Bilanzierung aktiviert"
           >
             <i class="fas fa-chart-line"></i>

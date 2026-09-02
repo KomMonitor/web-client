@@ -25,7 +25,7 @@
             </div>
           </div>
           <div class="col-sm-2 text-right">
-            <button type="button" class="btn btn-danger btn-xs" (click)="onAbortClicked()">
+            <button type="button" class="btn btn-danger btn-sm" (click)="onAbortClicked()">
               <i class="fa fa-times"></i> Abbrechen
             </button>
           </div>
@@ -35,7 +35,7 @@
           <div style="margin-top: 5px">
             <button
               type="button"
-              class="btn btn-info btn-xs"
+              class="btn btn-info btn-sm"
               (click)="onOpenReportingModalClicked()"
             >
               <i class="fas fa-file-alt"></i> &nbsp; Zum Berichtsmenü
@@ -50,11 +50,11 @@
         <i class="fa fa-check-circle"></i> <b>Erfolg:</b> Die Berichtgenerierung wurde
         abgeschlossen! Der im Hintergrund vorbereitete Bericht kann nun hinzugefügt werden. Kehren
         Sie dazu zum Berichtserstellungsdialog zurück.
-        <span class="pull-right">
+        <span class="float-end">
           @if (!reportingService.reportingModalOpen) {
             <button
               type="button"
-              class="btn btn-success btn-xs"
+              class="btn btn-success btn-sm"
               style="margin-top: -3px; margin-right: 15px"
               (click)="onOpenReportingModalClicked()"
             >

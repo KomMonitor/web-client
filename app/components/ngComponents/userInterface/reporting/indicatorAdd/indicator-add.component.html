@@ -1075,7 +1075,7 @@
 
           @if (!lastPageOfAddedSectionPrepared && pagePreparationSize > 0) {
             <button
-              class="btn btn-danger pull-right"
+              class="btn btn-danger"
               style="margin-right: 15px"
               (click)="onAbortPreparationClicked()"
             >
@@ -1088,7 +1088,7 @@
             !leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate &&
             leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0
           ) {
-            <button [disabled]="true" class="btn btn-info pull-right">
+            <button [disabled]="true" class="btn btn-info">
               <span class="fas fa-arrows-rotate icon-spin"></span>
               <span
                 >Kartenbildaufbereitung:
@@ -1099,7 +1099,7 @@
           }
 
           @if (!lastPageOfAddedSectionPrepared && pagePreparationSize > 0) {
-            <button [disabled]="true" style="margin-right: 15px" class="btn btn-warning pull-right">
+            <button [disabled]="true" style="margin-right: 15px" class="btn btn-warning">
               <span class="fas fa-arrows-rotate icon-spin"></span>
               <span
                 >Reportaufbereitung: {{ pagePreparationIndex + 1 }} von
@@ -1110,7 +1110,7 @@
         </div>
         <div>
           <button
-            class="btn btn-success pull-right"
+            class="btn btn-success"
             (click)="onAddBtnClicked()"
             [disabled]="
               !validateConfiguration() ||

@@ -414,7 +414,7 @@
           !leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate &&
           leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0
         ) {
-          <button [disabled]="true" type="button" class="btn btn-info pull-right">
+          <button [disabled]="true" type="button" class="btn btn-info">
             <span class="fas fa-arrows-rotate icon-spin"></span>
             <span
               >Kartenbildaufbereitung:
@@ -429,7 +429,7 @@
             [disabled]="true"
             style="margin-right: 15px"
             type="button"
-            class="btn btn-warning pull-right"
+            class="btn btn-warning"
           >
             <span class="fas fa-arrows-rotate icon-spin"></span>
             <span
@@ -449,7 +449,7 @@
           "
           style="margin-right: 15px"
           type="button"
-          class="btn btn-success pull-right"
+          class="btn btn-success"
           (click)="generateReport()"
         >
           <i class="fa fa-copy"></i>
