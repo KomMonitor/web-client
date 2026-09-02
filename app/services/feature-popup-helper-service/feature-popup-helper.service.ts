@@ -14,7 +14,7 @@ export class FeaturePopupHelperService {
     let popupContent =
       '<div class="' +
       popupCssClass +
-      ' featurePropertyPopupContent"><table class="table table-condensed">';
+      ' featurePropertyPopupContent"><table class="table table-sm">';
     for (const p in properties) {
       popupContent += '<tr><td>' + p + '</td><td>' + properties[p] + '</td></tr>';
     }

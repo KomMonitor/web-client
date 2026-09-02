@@ -19,7 +19,7 @@ interface SpatialUnitIntegrationSummaryItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (summaryItems() && summaryItems()!.length > 0) {
-      <table class="table table-condensed table-bordered table-striped">
+      <table class="table table-sm table-bordered table-striped">
         <thead>
           <tr>
             <th>Raumebenen-Id</th>

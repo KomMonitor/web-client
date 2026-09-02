@@ -48,13 +48,6 @@
   border-radius: 4px;
 }
 
-/* Attribute mapping table of the batch import step. */
-.table-condensed th,
-.table-condensed td {
-  padding: 5px;
-  border-top: 1px solid #ddd;
-}
-
 /*
  * Import diagnostics. Capped so a long list of failed feature ids scrolls
  * inside its alert instead of pushing the form out of the dialog.

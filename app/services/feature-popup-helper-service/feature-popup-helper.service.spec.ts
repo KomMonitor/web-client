@@ -18,7 +18,7 @@ describe('FeaturePopupHelperService', () => {
     expect(html).toContain('class="poiInfoPopupContent featurePropertyPopupContent"');
     expect(html).toContain('<tr><td>NAME</td><td>Mitte</td></tr>');
     expect(html).toContain('<tr><td>value</td><td>42</td></tr>');
-    expect(html).toContain('<table class="table table-condensed">');
+    expect(html).toContain('<table class="table table-sm">');
   });
 
   it('lazily binds the popup on click', () => {

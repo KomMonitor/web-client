@@ -77,7 +77,7 @@
           @if (showMetadata()) {
             <div class="card-body">
               <div class="admin-table-wrapper">
-                <table class="table table-bordered table-condensed table-striped">
+                <table class="table table-bordered table-sm table-striped">
                   <thead>
                     <tr>
                       <th>{{ 'ADMIN_SHARED.ID' | translate }}</th>
@@ -230,7 +230,7 @@
             }
             @if (affectedGeoresourceReferences.length > 0) {
               <div>
-                <table class="table table-bordered table-condensed">
+                <table class="table table-bordered table-sm">
                   <thead>
                     <tr>
                       <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.REF_GEORESOURCE_ID' | translate }}</th>
@@ -262,7 +262,7 @@
             }
             @if (affectedIndicatorReferences.length > 0) {
               <div>
-                <table class="table table-bordered table-condensed">
+                <table class="table table-bordered table-sm">
                   <thead>
                     <tr>
                       <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.REF_INDICATOR_ID' | translate }}</th>
@@ -290,7 +290,7 @@
             }
             @if (affectedScripts.length > 0) {
               <div>
-                <table class="table table-bordered table-condensed">
+                <table class="table table-bordered table-sm">
                   <thead>
                     <tr>
                       <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.SCRIPT_ID' | translate }}</th>
@@ -341,7 +341,7 @@
             @if (currentApplicableDates.length > 0) {
               <div class="row">
                 <div class="col-md-12">
-                  <table class="table table-bordered table-condensed">
+                  <table class="table table-bordered table-sm">
                     <thead>
                       <tr>
                         <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.SELECT_COLUMN' | translate }}</th>
@@ -394,7 +394,7 @@
             @if (currentApplicableSpatialUnits.length > 0) {
               <div class="row">
                 <div class="col-md-12">
-                  <table class="table table-bordered table-condensed">
+                  <table class="table table-bordered table-sm">
                     <thead>
                       <tr>
                         <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.SELECT_COLUMN' | translate }}</th>
@@ -518,7 +518,7 @@
       <br />
       @if (failedDatasetsAndErrors().length > 0) {
         <div>
-          <table class="table table-bordered table-condensed">
+          <table class="table table-bordered table-sm">
             <thead>
               <tr>
                 <th>{{ 'ADMIN_SHARED.NAME' | translate }}</th>
@@ -538,7 +538,7 @@
       }
       @if (failedTimestampsAndErrors().length > 0) {
         <div>
-          <table class="table table-bordered table-condensed">
+          <table class="table table-bordered table-sm">
             <thead>
               <tr>
                 <th>{{ 'ADMIN_INDICATORS.TIMESTAMP' | translate }}</th>
@@ -558,7 +558,7 @@
       }
       @if (failedSpatialUnitsAndErrors().length > 0) {
         <div>
-          <table class="table table-bordered table-condensed">
+          <table class="table table-bordered table-sm">
             <thead>
               <tr>
                 <th>{{ 'ADMIN_INDICATORS.SPATIAL_UNIT' | translate }}</th>

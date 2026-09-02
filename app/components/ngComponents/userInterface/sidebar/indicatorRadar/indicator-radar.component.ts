@@ -454,7 +454,7 @@ export class IndicatorRadarComponent implements OnInit, AfterViewInit, OnDestroy
                   let htmlString =
                     '<table id="' +
                     dataTableId +
-                    '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+                    '" class="table table-bordered table-sm" style="width:100%;text-align:center;">';
                   htmlString += '<thead>';
                   htmlString += '<tr>';
                   htmlString += "<th style='text-align:center;'>Raumeinheits-Name</th>";
