@@ -739,6 +739,29 @@ describe('GeoresourceAddModalComponent', () => {
    * widgets: picking a converter, data source or spatial filter dispatches a
    * `change` on its `<select>`, filling a field dispatches an `input`.
    */
+  describe('rendered metadata step', () => {
+    it('offers the POI symbol through the icon picker', () => {
+      // The picker replaced a free-text field; this pins that step 1 still
+      // renders it, bound to the control that feeds poiSymbolBootstrap3Name.
+      TestBed.resetTestingModule();
+      const renderedFixture = createFixture({ enableKeycloakSecurity: false });
+      const rendered = renderedFixture.componentInstance;
+
+      // First render runs ngOnInit, which resets the form — patch after it.
+      renderedFixture.detectChanges();
+      rendered.stepper.goTo(1);
+      rendered.addForm.controls.metadata.patchValue({
+        georesourceType: 'poi',
+        style: { poiMarkerStyle: 'symbol', poiIconName: 'tree' },
+      });
+      renderedFixture.detectChanges();
+
+      const pickers = renderedFixture.nativeElement.querySelectorAll('km-icon-picker');
+      expect(pickers).toHaveLength(1);
+      expect(pickers[0].textContent).toContain('tree');
+    });
+  });
+
   describe('rendered data step', () => {
     let rendered: GeoresourceAddModalComponent;
     let renderedFixture: ComponentFixture<GeoresourceAddModalComponent>;

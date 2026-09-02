@@ -26,6 +26,7 @@ import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { KmColorPickerComponent } from 'components/ngComponents/customElements/color-picker/km-color-picker.component';
+import { KmIconPickerComponent } from 'components/ngComponents/customElements/icon-picker/km-icon-picker.component';
 import { TopicHierarchyFormComponent } from '../../adminShared/topicHierarchyForm/topic-hierarchy-form.component';
 import {
   buildTopicHierarchyForm,
@@ -78,6 +79,7 @@ import { TranslateService } from '@ngx-translate/core';
     AdminTopicsManagementComponent,
     StepperComponent,
     KmColorPickerComponent,
+    KmIconPickerComponent,
     KmLinePatternPickerComponent,
     ResourceMetadataFormComponent,
     TranslateModule,

@@ -209,15 +209,15 @@
                 <div class="form-group">
                   <label>{{ 'ADMIN_GEORESOURCES.COMMON.SYMBOL' | translate }}*</label>
                   <br />
-                  <input
-                    type="text"
-                    class="form-control"
-                    style="width: auto; display: inline-block"
+                  <km-icon-picker
                     [formControl]="metadataStep.controls.style.controls.poiIconName"
-                    [placeholder]="'ADMIN_GEORESOURCES.COMMON.SYMBOL_PLACEHOLDER' | translate"
-                    [title]="'ADMIN_GEORESOURCES.COMMON.SYMBOL_NAME_TITLE' | translate"
+                    [buttonTitle]="'ADMIN_GEORESOURCES.COMMON.SYMBOL_NAME_TITLE' | translate"
+                    [searchPlaceholder]="
+                      'ADMIN_GEORESOURCES.COMMON.SYMBOL_SEARCH_PLACEHOLDER' | translate
+                    "
+                    [noResultsText]="'ADMIN_GEORESOURCES.COMMON.SYMBOL_NO_RESULTS' | translate"
+                    [unknownValueHint]="'ADMIN_GEORESOURCES.COMMON.SYMBOL_UNKNOWN_HINT' | translate"
                   />
-                  <div class="help-block with-errors"></div>
                 </div>
               </div>
             }

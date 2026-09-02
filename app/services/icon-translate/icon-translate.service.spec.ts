@@ -266,5 +266,51 @@ describe('IconTranslateService', () => {
 
     const blank = names.filter((n) => !service.translate(n)?.trim());
     expect(blank).toEqual([]);
+
+    // The picker is offered exactly this table, so there is no second list of
+    // names that could drift away from the one `translate()` reads.
+    expect(
+      service
+        .availableIcons()
+        .map((icon) => icon.name)
+        .sort()
+    ).toEqual([...names].sort());
+  });
+
+  describe('availableIcons', () => {
+    it('offers every name once, with a ready-to-use class', () => {
+      const icons = service.availableIcons();
+
+      expect(icons).toHaveLength(206);
+      expect(new Set(icons.map((icon) => icon.name)).size).toBe(icons.length);
+
+      for (const icon of icons) {
+        expect(icon.name).toBeTruthy();
+        expect(icon.faName).toBeTruthy();
+        expect(icon.faClass).toBe(`fas fa-${icon.faName}`);
+      }
+    });
+
+    it('agrees with translate()', () => {
+      for (const icon of service.availableIcons()) {
+        expect(service.translate(icon.name)).toBe(icon.faName);
+      }
+    });
+  });
+
+  describe('findIcon', () => {
+    it('resolves a stored value, prefix and casing included', () => {
+      expect(service.findIcon('map-marker')?.faName).toBe('location-dot');
+      expect(service.findIcon('glyphicon-Map-Marker')?.name).toBe('map-marker');
+    });
+
+    it('returns nothing for a name the table does not know', () => {
+      // Deliberately not the fallback entry: the caller has to be able to tell
+      // an unknown stored value apart from a real one and keep it as it is.
+      expect(service.findIcon('not-a-glyphicon')).toBeUndefined();
+      expect(service.findIcon('')).toBeUndefined();
+      expect(service.findIcon(null)).toBeUndefined();
+      expect(service.findIcon(undefined)).toBeUndefined();
+    });
   });
 });

@@ -15,6 +15,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { KmColorPickerComponent } from 'components/ngComponents/customElements/color-picker/km-color-picker.component';
+import { KmIconPickerComponent } from 'components/ngComponents/customElements/icon-picker/km-icon-picker.component';
 import {
   KmLinePatternPickerComponent,
   LinePatternOption,
@@ -110,6 +111,7 @@ import { TranslateService } from '@ngx-translate/core';
     AdminTopicsManagementComponent,
     StepperComponent,
     KmColorPickerComponent,
+    KmIconPickerComponent,
     KmLinePatternPickerComponent,
     KmDatePickerComponent,
     ResourceMetadataFormComponent,
@@ -348,27 +350,6 @@ export class GeoresourceAddModalComponent implements OnInit {
   datasourceTypeDefinition: any = null;
   propertyMappingDefinition: any = null;
   postBody_georesources: any = null;
-
-  // Icon picker options
-  iconPickerOptions: any = {
-    align: 'center',
-    arrowClass: 'btn-outline-secondary',
-    arrowPrevIconClass: 'fas fa-angle-left',
-    arrowNextIconClass: 'fas fa-angle-right',
-    cols: 10,
-    footer: true,
-    header: true,
-    icon: 'glyphicon-home',
-    iconset: 'glyphicon',
-    labelHeader: '{0} von {1} Seiten',
-    labelFooter: '{0} - {1} von {2} Icons',
-    placement: 'bottom',
-    rows: 6,
-    search: true,
-    searchText: 'Stichwortsuche (Bootstrap Glyphicons)',
-    selectedClass: 'btn-success',
-    unselectedClass: '',
-  };
 
   ngOnInit(): void {
     this.initializeForm();

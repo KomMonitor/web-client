@@ -107,6 +107,17 @@ describe('GeoresourceEditMetadataModalComponent', () => {
       expect(request.request.body.isAOI).toBe(false);
       request.flush({});
     });
+
+    it('keeps a symbol name the client cannot render', () => {
+      // Editing an unrelated field must not rewrite a legacy symbol name.
+      component.selectedPoiIconName = 'not-a-glyphicon';
+
+      component.editGeoresourceMetadata();
+
+      const request = httpMock.expectOne('/api/georesources/geo-1');
+      expect(request.request.body.poiSymbolBootstrap3Name).toBe('not-a-glyphicon');
+      request.flush({});
+    });
   });
 
   // ---------------------------------------------------------------------------

@@ -199,6 +199,18 @@ describe('georesource add form model', () => {
       expect(body.aoiColor).toBeNull();
     });
 
+    it('keeps a symbol name the client cannot render', () => {
+      // The API documents the field as a Bootstrap-3 glyphicon name but does
+      // not enforce it, and the picker writes such a value back untouched.
+      const form = buildForm();
+      form.controls.metadata.patchValue({
+        georesourceType: 'poi',
+        style: { poiIconName: 'not-a-glyphicon' },
+      });
+
+      expect(georesourceAddFormToApi(form).poiSymbolBootstrap3Name).toBe('not-a-glyphicon');
+    });
+
     it('falls back to an empty string for unset POI colours', () => {
       const body = georesourceAddFormToApi(buildForm());
 

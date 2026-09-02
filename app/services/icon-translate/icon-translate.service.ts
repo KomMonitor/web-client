@@ -241,6 +241,36 @@ const GLYPHICON_TO_FONT_AWESOME: Readonly<Record<string, string>> = {
 /** Shown when the API holds a symbol name that is not a glyphicon at all. */
 const FALLBACK = 'circle-question';
 
+/** One entry of the table, in the shape a symbol picker needs. */
+export interface GlyphiconIcon {
+  /** Bootstrap-3 glyphicon name — this is what the API stores. */
+  name: string;
+  /** Font Awesome 6 Free (solid) name. */
+  faName: string;
+  /** Ready-to-use CSS class, `fas fa-<faName>`. */
+  faClass: string;
+}
+
+/**
+ * The table as a list, derived once. Insertion order is kept on purpose: the
+ * table is grouped by the original glyphicon cheat-sheet categories, which
+ * reads better in a picker grid than 206 alphabetised tiles.
+ */
+const GLYPHICON_ICONS: readonly GlyphiconIcon[] = Object.freeze(
+  Object.entries(GLYPHICON_TO_FONT_AWESOME).map(([name, faName]) =>
+    Object.freeze({ name, faName, faClass: `fas fa-${faName}` })
+  )
+);
+
+const ICONS_BY_NAME: ReadonlyMap<string, GlyphiconIcon> = new Map(
+  GLYPHICON_ICONS.map((icon) => [icon.name, icon])
+);
+
+/** Bare glyphicon name from a stored value: lower case, no `glyphicon-` prefix. */
+function normalizeName(glyphicon: string | undefined | null): string | undefined {
+  return glyphicon?.toLowerCase().replace(/^glyphicon-/, '') || undefined;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -253,12 +283,26 @@ export class IconTranslateService {
    * `prefix` separately).
    */
   translate(glyphicon: string | undefined | null): string {
-    const normalized = glyphicon?.toLowerCase().replace(/^glyphicon-/, '');
+    return this.findIcon(glyphicon)?.faName ?? FALLBACK;
+  }
 
-    if (!normalized) {
-      return FALLBACK;
-    }
+  /**
+   * Every glyphicon name the client can render, for pickers that offer them.
+   * The list is the same data `translate()` reads, so the two cannot drift.
+   */
+  availableIcons(): readonly GlyphiconIcon[] {
+    return GLYPHICON_ICONS;
+  }
 
-    return GLYPHICON_TO_FONT_AWESOME[normalized] ?? FALLBACK;
+  /**
+   * Resolves a stored value to its table entry, applying the same
+   * normalisation as `translate()`. Returns `undefined` for an empty value and
+   * for a name the table does not know — callers decide what to show for those
+   * rather than getting a silent fallback entry.
+   */
+  findIcon(glyphicon: string | undefined | null): GlyphiconIcon | undefined {
+    const normalized = normalizeName(glyphicon);
+
+    return normalized ? ICONS_BY_NAME.get(normalized) : undefined;
   }
 }

@@ -10,7 +10,6 @@
 "angular@1.7.8","MIT","https://github.com/angular/angular.js","https://github.com/angular/angular.js/raw/master/LICENSE.md","kommonitor-js-client"
 "bootstrap-datepicker@1.9.0","Apache-2.0","https://github.com/uxsolutions/bootstrap-datepicker","https://github.com/uxsolutions/bootstrap-datepicker/raw/master/LICENSE","kommonitor-js-client"
 "bootstrap-daterangepicker@2.1.30","MIT","https://github.com/dangrossman/bootstrap-daterangepicker","https://github.com/dangrossman/bootstrap-daterangepicker","kommonitor-js-client"
-"bootstrap-iconpicker@1.8.2","MIT*","https://github.com/victor-valencia/bootstrap-iconpicker","https://github.com/victor-valencia/bootstrap-iconpicker/raw/master/LICENSE","kommonitor-js-client"
 "bootstrap-tour@0.12.0","MIT","https://github.com/sorich87/bootstrap-tour","https://opensource.org/licenses/MIT","kommonitor-js-client"
 "bootstrap-validator@0.11.9","MIT","https://github.com/1000hz/bootstrap-validator","http://opensource.org/licenses/MIT","kommonitor-js-client"
 "bootstrap@3.3.6","MIT","https://github.com/twbs/bootstrap","https://github.com/twbs/bootstrap/raw/master/LICENSE","kommonitor-js-client"
