@@ -4058,3 +4058,19 @@ h4 {
   gap: 0.5em;
   align-items: start;
 }
+
+/*
+ * The swatch input that opens an `ngx-color-picker` dialog. Sized down from a
+ * full form control to a colour chip: the value is never read as text (hence
+ * the hidden caret), the background *is* the value.
+ *
+ * Defined once here because three components now share the widget — the WFS
+ * colour in both POI sidebar tables and the file-layer colour in the data
+ * import. The copy that used to sit in kommonitor-data-import's `:host` had
+ * identical declarations, so lifting it out changes nothing there.
+ */
+.colorPickerSelection {
+  width: 30px !important;
+  border: none;
+  caret-color: transparent !important;
+}

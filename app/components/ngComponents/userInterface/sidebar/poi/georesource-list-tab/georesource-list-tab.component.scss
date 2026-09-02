@@ -8,18 +8,6 @@
     grid-template-columns: auto auto;
     padding-top: 1em;
   }
-
-  /*
-   * The WFS colour swatch that opens the ngx-color-picker dialog. Sized down
-   * from a full form control to a colour chip: the value is never read as text
-   * (hence the hidden caret), the background is the value. Same rule as in
-   * kommonitor-data-import, which uses the picker for file layers.
-   */
-  .colorPickerSelection {
-    width: 30px !important;
-    border: none;
-    caret-color: transparent !important;
-  }
 }
 
 .poiColorLegend {
