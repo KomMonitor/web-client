@@ -3990,6 +3990,21 @@ h4 {
   color: #dc3545;
 }
 
+/*
+ * Same story as `.help-block` above: `.form-group` is Bootstrap 3/4 and gone in
+ * Bootstrap 5, which spaces form rows with utilities (`mb-3`) instead. The class
+ * still sits on ~295 admin markup nodes, so it is defined once here rather than
+ * rewritten dialog by dialog.
+ *
+ * 1rem is what Bootstrap 4 used and what five of the six component copies had
+ * independently settled on. Without this rule a dialog that carried no copy of
+ * its own stacked its fields with no gap at all; the copies are now redundant
+ * rather than load-bearing.
+ */
+.form-group {
+  margin-bottom: 1rem;
+}
+
 .boxedLegend {
   font:
     12px/14px Arial,

@@ -12,9 +12,6 @@
  * any other admin dialog. The framework default now applies, as in the role
  * dialogs.
  *
- * Error and hint text is sized by the global `.help-block` rule in app.scss.
+ * Error and hint text is sized by the global `.help-block` rule in app.scss,
+ * row spacing by the global `.form-group` rule next to it.
  */
-
-.form-group {
-  margin-bottom: 1rem;
-}
