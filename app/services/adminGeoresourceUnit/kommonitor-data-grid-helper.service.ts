@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { ColDef } from 'ag-grid-community';
 import { TranslateService } from '@ngx-translate/core';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { IconTranslateService } from 'services/icon-translate/icon-translate.service';
 import { PoiPresentationService } from 'services/poi-presentation-service/poi-presentation.service';
 import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
@@ -21,6 +22,7 @@ export type GeoresourceGridType = 'poi' | 'loi' | 'aoi';
 })
 export class KommonitorGeoresourceDataGridHelperService {
   private accessControlService = inject(AccessControlService);
+  private iconTranslate = inject(IconTranslateService);
   private poiPresentationService = inject(PoiPresentationService);
   private topicHierarchyService = inject(TopicHierarchyService);
   private topicStore = inject(TopicMetadataStoreService);
@@ -65,7 +67,8 @@ export class KommonitorGeoresourceDataGridHelperService {
             maxWidth: 125,
             cellRenderer: (params: any) => {
               const symbolName = params.data.poiSymbolBootstrap3Name || 'home';
-              return `${symbolName}<br/><br/><span class='glyphicon glyphicon-${symbolName}'></span>`;
+              const faName = this.iconTranslate.translate(symbolName);
+              return `${symbolName}<br/><br/><span class='fas fa-${faName}'></span>`;
             },
           },
           this.colorColumn(

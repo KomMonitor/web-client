@@ -19,13 +19,14 @@ import {
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
 import { ReachabilityStateService } from 'services/reachability-state-service/reachability-state.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
+import { IconTranslate } from 'pipes/icon-translate.pipe';
 
 @Component({
   selector: 'app-reachability-poi-in-iso',
   standalone: true,
   templateUrl: './reachability-poi-in-iso.component.html',
   styleUrls: ['./reachability-poi-in-iso.component.scss'],
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, IconTranslate],
 })
 export class ReachabilityPoiInIsoComponent implements OnInit {
   protected reachabilityStateService = inject(ReachabilityStateService);

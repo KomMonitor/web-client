@@ -5,6 +5,7 @@ import 'leaflet-measure';
 import 'leaflet-search';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
+import { IconTranslateService } from 'services/icon-translate/icon-translate.service';
 import { MAP_LAYER_GROUPS } from 'services/map-service/map-context';
 import '../../../customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol';
 
@@ -19,6 +20,7 @@ import '../../../customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.grou
 export class MapControlsService {
   private envConfigService = inject(EnvConfigService);
   private mapErrorNotificationService = inject(MapErrorNotificationService);
+  private iconTranslate = inject(IconTranslateService);
 
   private map: any;
   private layerControl: any;
@@ -335,8 +337,8 @@ export class MapControlsService {
                 emString +=
                   "<span style='margin-left:3px; top:-2px; font-size:0.7em; color:" +
                   val.layer.metadataObject.poiSymbolColor +
-                  ";' align='center' class='glyphicon glyphicon-" +
-                  val.layer.metadataObject.poiSymbolBootstrap3Name +
+                  ";' align='center' class='fas fa-" +
+                  this.iconTranslate.translate(val.layer.metadataObject.poiSymbolBootstrap3Name) +
                   "' aria-hidden='true'></span>";
                 emString += '</i>';
               }

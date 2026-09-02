@@ -555,7 +555,7 @@
                                 font-size: 1.2em;
                               "
                               [ngStyle]="{ color: dataset.poiSymbolColor }"
-                              class="glyphicon glyphicon-{{ dataset.poiSymbolBootstrap3Name }}"
+                              class="{{ dataset.poiSymbolBootstrap3Name | iconTranslate }}"
                               aria-hidden="true"
                             ></span>
                           </div>

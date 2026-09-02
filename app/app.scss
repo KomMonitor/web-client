@@ -710,10 +710,6 @@ pre.CodeMirror-line {
   margin-left: 75px;
 }
 
-.list-group-item .glyphicon {
-  margin-right: 5px;
-}
-
 .favoritesToast {
   padding: 1em;
   cursor: pointer;
@@ -3270,16 +3266,23 @@ input:checked + .switchslider:before {
   display: none;
 }
 
+/*
+ * Font Awesome instead of 'Glyphicons Halflings'. That font is not shipped —
+ * Bootstrap dropped it in 4 — so these arrows never rendered. `font-weight: 900`
+ * selects the solid style, which is the only one carrying these two glyphs in
+ * the free set.
+ */
 .reporting-template-category-heading .accordion-toggle:after {
-  /* symbol for "opening" panels */
-  font-family: 'Glyphicons Halflings'; /* essential for enabling glyphicon */
-  content: '\e114';
+  /* chevron-down: panel is open */
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  content: '\f078';
   float: right;
   color: grey;
 }
 .reporting-template-category-heading .accordion-toggle.collapsed:after {
-  /* symbol for "collapsed" panels */
-  content: '\e080';
+  /* chevron-right: panel is collapsed */
+  content: '\f054';
 }
 
 .reporting-content-wrapper {

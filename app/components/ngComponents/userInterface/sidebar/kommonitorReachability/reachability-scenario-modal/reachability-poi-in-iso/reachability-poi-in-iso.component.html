@@ -126,7 +126,7 @@
                             font-size: 1.2em;
                           "
                           [ngStyle]="{ color: poi.poiSymbolColor }"
-                          class="glyphicon glyphicon-{{ poi.poiSymbolBootstrap3Name }}"
+                          class="{{ poi.poiSymbolBootstrap3Name | iconTranslate }}"
                           aria-hidden="true"
                         ></span>
                       </div>

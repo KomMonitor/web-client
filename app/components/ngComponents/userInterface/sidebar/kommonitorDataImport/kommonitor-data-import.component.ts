@@ -20,6 +20,7 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
+import { IconTranslate } from 'pipes/icon-translate.pipe';
 
 export interface GeoresourcesImportDataset extends GeoresourcesDataset {
   ID_ATTRIBUTE: any;
@@ -51,6 +52,7 @@ export interface CSVImportType {
     NgbDropdownMenu,
     ColorPickerModule,
     FormsModule,
+    IconTranslate,
   ],
 })
 export class KommonitorDataImportComponent implements OnInit {
