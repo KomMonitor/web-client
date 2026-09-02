@@ -9,7 +9,6 @@
     'btn-docked btn-custom-docked': sidebarState.diagramSidebarActive(),
     balanceActive: chartDisplayState.isBalanceChecked,
   }"
-  data-toggle="tooltip"
   title="Analysetools"
 >
   <i class="fas fa-chart-simple"></i>
@@ -44,7 +43,6 @@
           (click)="onSubmenuClick('sidebarBalanceCollapse')"
           class="btn btn-custom btn-circle"
           [ngClass]="{ balanceActive: chartDisplayState.isBalanceChecked }"
-          data-toggle="tooltip"
           title="zeitliche Bilanzierung"
         >
           <i class="fas fa-chart-line"></i>
@@ -70,7 +68,6 @@
           style="display: block; position: relative"
           (click)="onSubmenuClick('sidebarDiagramsCollapse')"
           class="btn btn-custom btn-circle"
-          data-toggle="tooltip"
           title="statistische Diagramme"
         >
           <i class="fas fa-chart-bar"></i>
@@ -92,7 +89,6 @@
           style="display: block; position: relative"
           (click)="onSubmenuClick('sidebarRadarDiagramCollapse')"
           class="btn btn-custom btn-circle"
-          data-toggle="tooltip"
           title="Indikatorenradar"
         >
           <img src="icons/radarMap.svg" alt="" class="stat-img-button" />
@@ -117,7 +113,6 @@
           style="display: block; position: relative"
           (click)="onSubmenuClick('sidebarRegressionDiagramCollapse')"
           class="btn btn-custom btn-circle"
-          data-toggle="tooltip"
           title="Regressionsdiagramm"
         >
           <img src="icons/scatterPlot.svg" alt="" class="stat-img-button" />

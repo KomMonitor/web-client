@@ -79,7 +79,6 @@
         id="recenterMapButton"
         (click)="onRecenterMapButtonClick()"
         class="btn btn-leaflet-custom"
-        data-toggle="tooltip"
         title="Karte zentrieren"
       >
         <i class="fas fa-earth-europe"></i>
@@ -90,7 +89,6 @@
         id="unselectFeaturesButton"
         (click)="onUnselectFeaturesButtonClick()"
         class="btn btn-leaflet-custom"
-        data-toggle="tooltip"
         title="Raumeinheits-Selektion aufheben"
       >
         <i class="fas fa-ban"></i>
@@ -101,7 +99,6 @@
         id="exportMapButton"
         (click)="onExportMapButtonClick()"
         class="btn btn-leaflet-custom"
-        data-toggle="tooltip"
         title="aktuellen Kartenausschnitt exportieren"
       >
         <i class="fas fa-download"></i>
@@ -113,7 +110,6 @@
         data-toggle="button"
         (click)="onExpertButtonClick()"
         class="btn btn-leaflet-custom"
-        data-toggle="tooltip"
         title="Experten-Werkzeuge anzeigen"
       >
         <i class="fa fa-screwdriver-wrench"></i>
@@ -126,7 +122,6 @@
         [ngClass]="{ visible: expertToolbarVisible }"
         (click)="onOpenLayerControlButtonClick()"
         class="btn btn-leaflet-custom expertButton"
-        data-toggle="tooltip"
         title="Layer Control anzeigen"
       >
         <i class="fas fa-layer-group"></i>
