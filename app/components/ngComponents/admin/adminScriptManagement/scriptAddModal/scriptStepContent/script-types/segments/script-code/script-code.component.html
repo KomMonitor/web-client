@@ -33,11 +33,14 @@
 @if (showScriptCodeErrorAlert()) {
   <div
     style="position: absolute; bottom: 0px; width: 100%"
-    class="alert alert-danger alert-dismissable"
+    class="alert alert-danger alert-dismissible"
   >
-    <button type="button" class="close" (click)="hideScriptCodeErrorAlert()" aria-hidden="true">
-      &times;
-    </button>
+    <button
+      type="button"
+      class="btn-close"
+      [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+      (click)="hideScriptCodeErrorAlert()"
+    ></button>
     <h4>
       <i class="icon fa fa-ban"></i> {{ 'ADMIN_SCRIPTS.CODE.IMPORT_FAILED_TITLE' | translate }}
     </h4>

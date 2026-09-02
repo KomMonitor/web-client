@@ -21,11 +21,11 @@
       width: 42vw !important;
     }
 
-    .close {
+    /* Only the placement is ours; size and glyph come from .btn-close. */
+    .btn-close {
       position: absolute;
       right: 0.5em;
       top: 0;
-      font-size: 20px;
       cursor: pointer;
     }
   }

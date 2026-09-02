@@ -160,7 +160,7 @@
                   <ul class="dropdown-menu dropdown-menu-center">
                     @for (markerColor of poiMarkerColors; track markerColor) {
                       <li (click)="onChangeMarkerColor(markerColor)">
-                        <a style="cursor: pointer"
+                        <a class="dropdown-item" style="cursor: pointer"
                           ><i [style.background]="markerColor.colorValue"></i
                           >{{ markerColor.colorName }}</a
                         >
@@ -190,12 +190,12 @@
                   </button>
                   <ul class="dropdown-menu dropdown-menu-center">
                     <li (click)="onChangeMarkerStyle('symbol')">
-                      <a style="cursor: pointer">{{
+                      <a class="dropdown-item" style="cursor: pointer">{{
                         'ADMIN_GEORESOURCES.COMMON.SYMBOL' | translate
                       }}</a>
                     </li>
                     <li (click)="onChangeMarkerStyle('text')">
-                      <a style="cursor: pointer">{{
+                      <a class="dropdown-item" style="cursor: pointer">{{
                         'ADMIN_GEORESOURCES.COMMON.TEXT' | translate
                       }}</a>
                     </li>
@@ -260,7 +260,7 @@
                   <ul class="dropdown-menu dropdown-menu-center">
                     @for (symbolColor of poiMarkerColors; track symbolColor) {
                       <li (click)="onChangeSymbolColor(symbolColor)">
-                        <a style="cursor: pointer"
+                        <a class="dropdown-item" style="cursor: pointer"
                           ><i [style.background]="symbolColor.colorValue"></i>
                           {{ symbolColor.colorName }}</a
                         >

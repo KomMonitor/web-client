@@ -41,10 +41,13 @@
 
   <!-- Success Alert -->
   @if (showSuccessAlert()) {
-    <div class="alert alert-success alert-dismissable">
-      <button type="button" class="btn-close" (click)="hideSuccessAlert()" aria-hidden="true">
-        &times;
-      </button>
+    <div class="alert alert-success alert-dismissible">
+      <button
+        type="button"
+        class="btn-close"
+        [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+        (click)="hideSuccessAlert()"
+      ></button>
       <h4>
         <i class="icon fa fa-check"></i>
         {{ 'ADMIN_SCRIPTS.DELETE_MODAL.DELETE_SUCCESS_TITLE' | translate }}
@@ -61,10 +64,13 @@
 
   <!-- Error Alert -->
   @if (showErrorAlert()) {
-    <div class="alert alert-danger alert-dismissable">
-      <button type="button" class="btn-close" (click)="hideErrorAlert()" aria-hidden="true">
-        &times;
-      </button>
+    <div class="alert alert-danger alert-dismissible">
+      <button
+        type="button"
+        class="btn-close"
+        [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+        (click)="hideErrorAlert()"
+      ></button>
       <h4>
         <i class="icon fa fa-ban"></i>
         {{ 'ADMIN_SCRIPTS.DELETE_MODAL.DELETE_FAILED_TITLE' | translate }}

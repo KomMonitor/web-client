@@ -66,12 +66,10 @@
     <div id="topicsErrorAlert" class="alert alert-danger alert-dismissible">
       <button
         type="button"
-        class="close"
-        aria-hidden="true"
+        class="btn-close"
+        [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
         (click)="errorHandlingService.errorMessagePart = ''"
-      >
-        ×
-      </button>
+      ></button>
       <h4><i class="icon fa fa-ban"></i> {{ 'ADMIN_SHARED.ERROR' | translate }}</h4>
       <div [innerHTML]="errorHandlingService.errorMessagePart"></div>
     </div>

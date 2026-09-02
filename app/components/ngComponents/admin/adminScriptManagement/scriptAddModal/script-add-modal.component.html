@@ -66,13 +66,23 @@
   <!-- ---- SUCCESS / ERROR ALERTS ---- -->
   @if (showSuccessAlert()) {
     <div class="alert alert-success mt-3">
-      <button type="button" class="btn-close" (click)="hideSuccessAlert()">&times;</button>
+      <button
+        type="button"
+        class="btn-close"
+        [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+        (click)="hideSuccessAlert()"
+      ></button>
       <i class="fas fa-check"></i> {{ 'ADMIN_SCRIPTS.ADD_MODAL.REGISTER_SUCCESS' | translate }}
     </div>
   }
   @if (showErrorAlert()) {
     <div class="alert alert-danger mt-3">
-      <button type="button" class="btn-close" (click)="hideErrorAlert()">&times;</button>
+      <button
+        type="button"
+        class="btn-close"
+        [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+        (click)="hideErrorAlert()"
+      ></button>
       <i class="fas fa-ban"></i> {{ 'ADMIN_SCRIPTS.ADD_MODAL.REGISTER_ERROR' | translate }}
       <pre>{{ errorMessagePart() }}</pre>
     </div>
