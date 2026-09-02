@@ -64,7 +64,14 @@
   <!-- Error Alert -->
   @if (errorHandlingService.errorMessagePart) {
     <div id="topicsErrorAlert" class="alert alert-danger alert-dismissible">
-      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+      <button
+        type="button"
+        class="close"
+        aria-hidden="true"
+        (click)="errorHandlingService.errorMessagePart = ''"
+      >
+        ×
+      </button>
       <h4><i class="icon fa fa-ban"></i> {{ 'ADMIN_SHARED.ERROR' | translate }}</h4>
       <div [innerHTML]="errorHandlingService.errorMessagePart"></div>
     </div>

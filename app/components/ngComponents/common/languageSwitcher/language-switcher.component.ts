@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 
@@ -8,14 +8,12 @@ import {
   SupportedLanguageCode,
 } from 'util/i18n.constants';
 
-declare const $: any;
-
 @Component({
   selector: 'app-language-switcher',
   templateUrl: './language-switcher.component.html',
   styleUrls: ['./language-switcher.component.scss'],
 })
-export class LanguageSwitcherComponent implements OnInit, OnDestroy, AfterViewInit {
+export class LanguageSwitcherComponent implements OnInit, OnDestroy {
   currentLanguage: string = DEFAULT_LANGUAGE_CODE;
 
   /**
@@ -46,13 +44,6 @@ export class LanguageSwitcherComponent implements OnInit, OnDestroy, AfterViewIn
     });
   }
 
-  ngAfterViewInit(): void {
-    // Initialize Bootstrap dropdown
-    if (typeof $ !== 'undefined') {
-      $('#languageDropdown').dropdown();
-    }
-  }
-
   ngOnDestroy(): void {
     if (this.languageChangeSubscription) {
       this.languageChangeSubscription.unsubscribe();
@@ -64,11 +55,9 @@ export class LanguageSwitcherComponent implements OnInit, OnDestroy, AfterViewIn
       this.currentLanguage = languageCode;
       this.translateService.use(languageCode);
       localStorage.setItem(LANGUAGE_STORAGE_KEY, languageCode);
-
-      // Close dropdown after selection
-      if (typeof $ !== 'undefined') {
-        $('#languageDropdown').dropdown('hide');
-      }
+      // The dropdown opens and closes through Bootstrap's own data API
+      // (`data-bs-toggle="dropdown"` on the trigger), which also closes the
+      // menu on a click inside it — no explicit hide needed here.
     } catch (error) {
       console.error('Error changing language:', error);
     }
