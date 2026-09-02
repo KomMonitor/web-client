@@ -497,41 +497,16 @@
                 }
                 <td class="text-center">
                   <div>
-                    @if (dataset.geometryType === 'AOI') {
-                      <div>
-                        <div class="input-group colorpicker-component">
-                          <input
-                            type="text"
-                            style="display: none"
-                            class="form-control"
-                            [(ngModel)]="dataset.aoiColor"
-                            (change)="layerService.adjustWfsLayerColor(dataset)"
-                            placeholder="WFS Darstellungsfarbe"
-                            required
-                          />
-                          <span title="Klicken, um die Farbe anzupassen" class="input-group-text"
-                            ><i></i
-                          ></span>
-                        </div>
-                      </div>
-                    }
-                    @if (dataset.geometryType === 'LOI') {
-                      <div>
-                        <div class="input-group colorpicker-component">
-                          <input
-                            type="text"
-                            style="display: none"
-                            class="form-control"
-                            [(ngModel)]="dataset.loiColor"
-                            (change)="layerService.adjustWfsLayerColor(dataset)"
-                            placeholder="WFS Darstellungsfarbe"
-                            required
-                          />
-                          <span title="Klicken, um die Farbe anzupassen" class="input-group-text"
-                            ><i></i
-                          ></span>
-                        </div>
-                      </div>
+                    @if (dataset.geometryType !== 'POI') {
+                      <!-- don´t use 2way binding for [colorPicker] as the change event laggs behind the binding. known problem. use $event as it is -->
+                      <input
+                        class="colorPickerSelection"
+                        title="Klicken, um die Farbe anzupassen"
+                        [colorPicker]="wfsColor(dataset)"
+                        [style.background]="wfsColor(dataset)"
+                        [cpPosition]="'bottom-left'"
+                        (colorPickerChange)="onWfsColorChange($event, dataset)"
+                      />
                     }
                     @if (dataset.geometryType === 'POI') {
                       <div>

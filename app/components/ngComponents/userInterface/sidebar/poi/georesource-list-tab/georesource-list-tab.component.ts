@@ -8,11 +8,16 @@ import { MetadataExportService } from 'services/metadata-export-service/metadata
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { GeoresourceLayerService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-layer.service';
+import {
+  GeoresourceLayerService,
+  getWfsColor,
+  setWfsColor,
+} from 'components/ngComponents/userInterface/sidebar/poi/georesource-layer.service';
 import { GeoresourceFavoritesService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-favorites.service';
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
 import { ExportItemCheckboxComponent } from 'components/ngComponents/userInterface/exporting/export-item-checkbox/export-item-checkbox.component';
 import { GeoresourceExportModeService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-export-mode.service';
+import { ColorPickerModule } from 'ngx-color-picker';
 
 /**
  * The "Alphabetische Listen" tab: per-type expandable boxes (POI/LOI/AOI/WMS/WFS)
@@ -32,6 +37,7 @@ import { GeoresourceExportModeService } from 'components/ngComponents/userInterf
     ExpandableBoxComponent,
     IconTranslate,
     ExportItemCheckboxComponent,
+    ColorPickerModule,
   ],
 })
 export class GeoresourceListTabComponent {
@@ -55,5 +61,16 @@ export class GeoresourceListTabComponent {
 
   isGeoresourceGeoserviceEnabled(id) {
     return this.envConfigService.enabledGeoresourcesGeoservices.indexOf(id) !== -1;
+  }
+
+  /** Colour shown in the WFS row's swatch, with the Leaflet default as fallback. */
+  wfsColor(dataset: any): string {
+    return getWfsColor(dataset);
+  }
+
+  /** Unlike the dataset table, this tab drives the layer service directly. */
+  onWfsColorChange(color: string, dataset: any): void {
+    setWfsColor(dataset, color);
+    this.layerService.adjustWfsLayerColor(dataset);
   }
 }

@@ -14,6 +14,35 @@ import { SelectionStateService } from 'services/selection-state-service/selectio
 import { GeoresourceExportModeService } from './georesource-export-mode.service';
 
 /**
+ * Leaflet's own default path colour. `aoiColor` and `loiColor` are optional keys
+ * of the `window.__env.wfsDatasets` entries (schema: `app/config/env_backup.js`)
+ * and nothing in the client fills them in, so a WFS layer configured without a
+ * colour is already drawn in exactly this colour. Using it as the picker's
+ * fallback means the swatch shows what is on the map instead of a guess.
+ */
+export const WFS_FALLBACK_COLOR = '#3388ff';
+
+/**
+ * Which colour field a WFS dataset uses depends on its geometry type — the same
+ * distinction `getWfsStyle()` makes when it builds the Leaflet style. The colour
+ * picker is only offered for the non-POI geometries (POI datasets are drawn with
+ * a marker icon instead), so LOI vs. "everything else" is exhaustive here.
+ */
+export function getWfsColor(dataset: any): string {
+  const color = dataset.geometryType === 'LOI' ? dataset.loiColor : dataset.aoiColor;
+  return color || WFS_FALLBACK_COLOR;
+}
+
+/** Counterpart of {@link getWfsColor}: writes a picked colour back to the dataset. */
+export function setWfsColor(dataset: any, color: string): void {
+  if (dataset.geometryType === 'LOI') {
+    dataset.loiColor = color;
+  } else {
+    dataset.aoiColor = color;
+  }
+}
+
+/**
  * Encapsulates the side-effecting georesource layer logic that used to live in
  * {@link PoiComponent}: adding/removing POI/LOI/AOI layers, WMS/WFS toggling,
  * export download, the loading-spinner flag, the cluster setting and the date
@@ -245,7 +274,9 @@ export class GeoresourceLayerService {
 
     if (dataset.isSelected) {
       //display on Map
-      const opacity = 1 - dataset.transparency;
+      // `transparency` only exists on imported file layers, never on the WFS
+      // config datasets, so without the fallback the opacity would be NaN.
+      const opacity = 1 - (dataset.transparency ?? 0);
       this.mapService.addWfsLayerToMap(dataset, opacity, this.useCluster);
     } else {
       //remove WMS layer from map
@@ -254,7 +285,8 @@ export class GeoresourceLayerService {
   }
 
   adjustWfsLayerColor(dataset) {
-    const opacity = 1 - dataset.transparency;
+    // see handleWfsOnMap: WFS datasets carry no `transparency`
+    const opacity = 1 - (dataset.transparency ?? 0);
 
     this.mapService.adjustColorForWfsLayer(dataset, opacity);
   }

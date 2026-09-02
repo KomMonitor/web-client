@@ -106,20 +106,6 @@ export class KommonitorDataImportComponent implements OnInit {
     },
   ];
 
-  /*  $('#customFileInputColorDiv').colorpicker();
-
-  // initialize colorpicker after some time
-  // wait to ensure that elements ar available on DOM
-  setTimeout(function () {
-
-    var colorPickerInputs = $('.input-group.colorpicker-component')
-    colorPickerInputs.colorpicker();
-
-    // $('.input-group.colorpicker-component').each(function (index, value){
-    // 	$(this).colorpicker();
-    // });
-  }, 3000); */
-
   // initialize any adminLTE box widgets
   /* $('.box').boxWidget(); */
 
@@ -556,13 +542,6 @@ export class KommonitorDataImportComponent implements OnInit {
 
     this.fileDatasets.push(JSON.parse(JSON.stringify(dataset)));
     this.georesourceStore.displayableGeoresources.push(dataset);
-
-    setTimeout(() => {
-      setTimeout(() => {
-        // initialize colorpicker
-        //$('.input-group.colorpicker-component').colorpicker();
-      }, 350);
-    }, 350);
   }
 
   removeDataLayer(dataset) {
