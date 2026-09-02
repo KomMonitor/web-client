@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { NgbAccordionModule } from '@ng-bootstrap/ng-bootstrap';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 
 @Component({
   selector: 'versionInfo',
   templateUrl: './version-info.component.html',
   styleUrls: ['./version-info.component.scss'],
-  imports: [NgbAccordionModule],
+  imports: [ExpandableBoxComponent],
   standalone: true,
 })
 export class VersionInfoComponent {}

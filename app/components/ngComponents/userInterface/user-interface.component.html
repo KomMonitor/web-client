@@ -52,12 +52,18 @@
           ng-change="$ctrl.kommonitorElementVisibilityHelperServiceInstance.onChangeIsAdvancedMode()" ><span class="switchslider round"></span></label> -->
       </div>
     }
-    <p title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></p>
+    <!--
+      Hidden with the button in the info modal until the guided tour is ported.
+      It had no (click) handler and its glyphicon rendered at zero width, so it
+      was an invisible dead click target in the toolbar.
+
+      <p title="Guided Tour&nbsp;&nbsp;"><span class="fas fa-play"></span></p>
+    -->
     @if (showAdminLogin) {
       <p (click)="openAdminUI()" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></p>
     }
     <p (click)="openInfoModal()" title="Information&nbsp;&nbsp;">
-      <span class="glyphicon glyphicon-info-sign"></span>
+      <span class="fas fa-circle-info"></span>
     </p>
     <app-user-login></app-user-login>
   </div>

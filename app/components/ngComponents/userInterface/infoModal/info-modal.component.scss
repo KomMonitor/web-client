@@ -1,5 +1,68 @@
-::ng-deep .modal-holder .modal-dialog {
-  max-width: 50%;
-  width: 50%;
-  transform: none !important;
+/*
+ * This file used to hold one rule:
+ *
+ *   ::ng-deep .modal-holder .modal-dialog {
+ *     max-width: 50%; width: 50%; transform: none !important;
+ *   }
+ *
+ * Three things were wrong with it. It set a modal width, which
+ * `app/util/modal-presets.ts` reserves for the `.km-modal-*` tiers in
+ * `app.scss` ("Nothing else in the app may set a modal width"). It set that
+ * width in percent, so the dialog changed size whenever a scrollbar appeared —
+ * 800px, then 793px on the next tab. And because `::ng-deep` compiles to a
+ * plain global rule, it was not this dialog's width at all: six other
+ * components ship the same `.modal-holder .modal-dialog` selector, three of
+ * them with `max-width: max-content`, so which width any `modal-holder` dialog
+ * got depended on the order the stylesheets happened to load in.
+ *
+ * The dialog now opens with the MODAL_FORM preset and takes its 800px from
+ * `.km-modal-form`, like the admin dialogs.
+ */
+
+/* Block spacing, in place of the ten `<br />` the template used as spacers. */
+.info-section {
+  margin-top: 1.5rem;
+}
+
+/*
+ * The signature carried `width="35%" height="35%"`. A percentage `height` on an
+ * `<img>` is not a valid attribute value, and the percentage width scaled the
+ * image with the dialog instead of keeping it at a readable size.
+ */
+.signature {
+  display: block;
+  width: 100%;
+  max-width: 260px;
+  height: auto;
+  margin-top: 1.5rem;
+}
+
+/*
+ * The two funding logos had no size at all and rendered at their intrinsic
+ * dimensions — 227x156 and 311x123 — so they sat side by side at different
+ * widths and different heights, centred only by a `text-align: center` on the
+ * wrapper. One row, one height, one gap.
+ */
+.funding-logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1.5rem;
+
+  img {
+    height: 72px;
+    width: auto;
+  }
+}
+
+/* The combined funder strip is one wide image; it keeps the full body width. */
+.funding-logos-wide {
+  margin-top: 1rem;
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
 }
