@@ -29,6 +29,8 @@ import {
 import { NotificationService } from '../../../../common/notification/notification.service';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { FormErrorComponent } from 'components/ngComponents/admin/adminShared/formError/form-error.component';
+import { FormControlAriaDirective } from 'components/ngComponents/admin/adminShared/formError/form-control-aria.directive';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 
 /** JSON indentation the filter config is stored with. */
@@ -86,6 +88,8 @@ interface FilterConfigEntry {
     AgGridAngular,
     StepperComponent,
     LoadingOverlayComponent,
+    FormErrorComponent,
+    FormControlAriaDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -128,14 +132,45 @@ export class AdminFilterEditModalComponent implements OnInit {
   showSelectedIndicatorsTopicsOnly = false;
   showSelectedGeoresourcesTopicsOnly = false;
 
+  // Same "show selected only" narrowing for the two dataset steps, which had
+  // none: in edit mode the indicator step otherwise means paging through 27
+  // pages of five rows to see what the filter holds.
+  showSelectedIndicatorsOnly = false;
+  showSelectedGeoresourcesOnly = false;
+
+  // What the grids actually render. Kept as their own arrays rather than a
+  // getter so ag-grid is handed a new `rowData` identity only when the toggle
+  // or the underlying list really changed.
+  visibleIndicatorData: FilterSelectableItem[] = [];
+  visibleGeoresourceData: FilterSelectableItem[] = [];
+
   /** Column definitions of the two dataset grids (built in ngOnInit, for i18n). */
   indicatorDatasetColumns: ColDef[] = [];
   georesourceDatasetColumns: ColDef[] = [];
 
   filterName!: string | undefined;
 
-  /** Shared grid setup of both dataset steps. */
+  /**
+   * The name the dialog was opened with. The header shows this one, not
+   * `filterName` — that is bound to the input and would let the title rename
+   * itself while the user types.
+   */
+  originalFilterName: string | undefined;
+
+  /**
+   * Shared grid setup of both dataset steps.
+   *
+   * `domLayout: 'autoHeight'` instead of a fixed height on `.dataset-grid`: the
+   * rows are `autoHeight` too, so their height depends on how far the name and
+   * description wrap, and no fixed value fits five of them at every viewport.
+   * The old `height: 45vh` clipped the fifth row and put a scrollbar inside a
+   * grid that is already paginated to five rows — on a 1366x768 laptop the
+   * viewport measured 300px of content in 247px of space, with the modal body
+   * scrolling on top of that. Letting the grid size itself leaves the dialog
+   * body as the only thing that scrolls.
+   */
   readonly datasetGridOptions: GridOptions = {
+    domLayout: 'autoHeight',
     defaultColDef: {
       editable: false,
       cellDataType: false,
@@ -146,6 +181,9 @@ export class AdminFilterEditModalComponent implements OnInit {
       autoHeight: true,
       flex: 1,
       minWidth: 150,
+      // The overview grid on the same page has one; without it a column here
+      // could only be filtered through its header menu.
+      floatingFilter: true,
     },
     enableCellTextSelection: true,
     ensureDomOrder: true,
@@ -251,6 +289,7 @@ export class AdminFilterEditModalComponent implements OnInit {
     if (!storedFilter) return;
 
     this.filterName = storedFilter.name;
+    this.originalFilterName = storedFilter.name;
     this.selectedIndicatorIds = [...(storedFilter.indicators ?? [])];
     this.selectedGeoresourceIds = [...(storedFilter.georesources ?? [])];
     this.selectedIndicatorTopicEditIds = [...(storedFilter.indicatorTopics ?? [])];
@@ -457,6 +496,37 @@ export class AdminFilterEditModalComponent implements OnInit {
         checked: this.selectedGeoresourceIds.includes(element.georesourceId),
       })
     );
+
+    this.refreshVisibleDatasetItems();
+  }
+
+  /**
+   * Applies the two dataset "show selected only" toggles.
+   *
+   * Called when a toggle flips and when the lists are rebuilt, but deliberately
+   * not on every checkbox click: with the toggle on, hiding a row the moment it
+   * is unchecked would take it out from under the cursor and leave no way to
+   * re-check it without flipping the toggle back.
+   */
+  private refreshVisibleDatasetItems(): void {
+    this.visibleIndicatorData = this.showSelectedIndicatorsOnly
+      ? this.preppedIndicatorData.filter((item) => item.checked)
+      : this.preppedIndicatorData;
+
+    this.visibleGeoresourceData = this.showSelectedGeoresourcesOnly
+      ? this.preppedGeoresourceData.filter((item) => item.checked)
+      : this.preppedGeoresourceData;
+  }
+
+  /** Handler of the two dataset toggles. */
+  onShowSelectedDatasetsOnlyChange(kind: FilterResourceKind, showSelectedOnly: boolean): void {
+    if (kind === 'indicator') {
+      this.showSelectedIndicatorsOnly = showSelectedOnly;
+    } else {
+      this.showSelectedGeoresourcesOnly = showSelectedOnly;
+    }
+
+    this.refreshVisibleDatasetItems();
   }
 
   /**
@@ -619,6 +689,8 @@ export class AdminFilterEditModalComponent implements OnInit {
     this.selectedGeoresourceTopicEditIds = [];
     this.showSelectedIndicatorsTopicsOnly = false;
     this.showSelectedGeoresourcesTopicsOnly = false;
+    this.showSelectedIndicatorsOnly = false;
+    this.showSelectedGeoresourcesOnly = false;
 
     this.resetTreeSelection(this.indicatorTopicsEditTree);
     this.resetTreeSelection(this.georesourceTopicsEditTree);

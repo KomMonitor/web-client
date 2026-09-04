@@ -37,7 +37,9 @@ import { AdminContentViewComponent } from '../../admin-content-view/admin-conten
 import { ConfigEditorDescriptor } from '../configEditor/config-editor.model';
 import { ConfigEditorPanesComponent } from '../configEditor/config-editor-panes.component';
 import { AdminFilterEditModalComponent } from './adminFilterEditModal/admin-filter-edit-modal.component';
-import { MODAL_WIDE } from 'util/modal-presets';
+import { AdminFilterDeleteModalComponent } from './adminFilterDeleteModal/admin-filter-delete-modal.component';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { MODAL_CONFIRM, MODAL_WIDE } from 'util/modal-presets';
 
 /** JSON indentation the filter config is stored and displayed with. */
 const CONFIG_INDENT = '    ';
@@ -70,6 +72,9 @@ export class AdminFilterConfigComponent implements OnInit {
   private translate = inject(TranslateService);
   private modalService = inject(NgbModal);
   private notificationService = inject(NotificationService);
+  // Public: the template disables "Erstellen" through it, as in the other
+  // admin overviews.
+  accessControlService = inject(AccessControlService);
 
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
   // Resolves only after the first change detection: the content sits in an
@@ -82,6 +87,11 @@ export class AdminFilterConfigComponent implements OnInit {
   public rowData = signal<any[]>([]);
   public gridOptions: GridOptions = {};
   public selectedRows: any[] = [];
+
+  // Bound from the template because `gridOptions` is assigned too late for
+  // ag-grid to pick these up — see the comment on the <ag-grid-angular> tag.
+  public paginationPageSize = 10;
+  public paginationPageSizeSelector = [10, 25, 50, 100];
 
   loadingData = true;
   origConfig: any = undefined;
@@ -195,42 +205,48 @@ export class AdminFilterConfigComponent implements OnInit {
     }, 200);
   }
 
+  /**
+   * Shared by the `[defaultColDef]` binding and by `gridOptions`, so the column
+   * defaults exist from the first render rather than only after the config
+   * fetch reassigns `gridOptions`.
+   */
+  public readonly defaultColDef: ColDef = {
+    editable: false,
+    cellDataType: false,
+    sortable: true,
+    flex: 1,
+    minWidth: 200,
+    filter: true,
+    floatingFilter: true,
+    resizable: true,
+    wrapText: true,
+    autoHeight: true,
+    // No `cellStyle`: it restated the global `.ag-cell` rule in app.scss
+    // property for property, and its `'font-size': '12px;'` carried a trailing
+    // semicolon inside the value, so the CSSOM dropped that one declaration
+    // anyway. Cell typography lives in app.scss — same reasoning as in
+    // admin-indicators-management.component.ts.
+    headerComponentParams: {
+      template:
+        '<div class="ag-cell-label-container" role="presentation">' +
+        '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+        '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+        '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+        '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+        '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+        '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+        '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+        '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+        '  </div>' +
+        '</div>',
+    },
+  };
+
   private setupGridOptions(globalFilterArray: GlobalFilterEntry[]): void {
     this.gridOptions = {
-      defaultColDef: {
-        editable: false,
-        cellDataType: false,
-        sortable: true,
-        flex: 1,
-        minWidth: 200,
-        filter: true,
-        floatingFilter: true,
-        resizable: true,
-        wrapText: true,
-        autoHeight: true,
-        cellStyle: {
-          'font-size': '12px;',
-          'white-space': 'normal !important',
-          'line-height': '20px !important',
-          'word-break': 'break-word !important',
-          'padding-top': '17px',
-          'padding-bottom': '17px',
-        },
-        headerComponentParams: {
-          template:
-            '<div class="ag-cell-label-container" role="presentation">' +
-            '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
-            '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
-            '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
-            '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
-            '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
-            '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
-            '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
-            '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
-            '  </div>' +
-            '</div>',
-        },
-      },
+      defaultColDef: this.defaultColDef,
+      paginationPageSize: this.paginationPageSize,
+      paginationPageSizeSelector: this.paginationPageSizeSelector,
       components: {
         displayEditButtons_indicators:
           this.kommonitorDataGridHelperService.displayEditButtons_filters,
@@ -238,8 +254,6 @@ export class AdminFilterConfigComponent implements OnInit {
       enableCellTextSelection: true,
       ensureDomOrder: true,
       pagination: true,
-      paginationPageSize: 10,
-      paginationPageSizeSelector: [10, 25, 50, 100],
       suppressColumnVirtualisation: true,
       rowSelection: 'multiple',
       suppressRowClickSelection: true,
@@ -270,11 +284,23 @@ export class AdminFilterConfigComponent implements OnInit {
    * save, which refreshes the grid and the editor below.
    */
   onAddFilter() {
-    this.modalService.open(AdminFilterEditModalComponent, {
-      ...MODAL_WIDE,
-      windowClass: 'modal-holder',
-      centered: true,
-    });
+    this.modalService.open(AdminFilterEditModalComponent, MODAL_WIDE);
+  }
+
+  /**
+   * Asks for confirmation before a filter is dropped from the configuration.
+   * Resolves false when the dialog is dismissed (Esc, backdrop click, cancel),
+   * which `MODAL_CONFIRM` allows.
+   */
+  private async confirmFilterDeletion(item: any): Promise<boolean> {
+    const modalRef = this.modalService.open(AdminFilterDeleteModalComponent, MODAL_CONFIRM);
+    modalRef.componentInstance.filter = item;
+
+    try {
+      return (await modalRef.result) === true;
+    } catch {
+      return false;
+    }
   }
 
   // Grid event handlers
@@ -341,11 +367,7 @@ export class AdminFilterConfigComponent implements OnInit {
     const item = storedConfig[filterIndex];
     if (!item) return;
 
-    if (
-      !confirm(
-        this.translate.instant('ADMIN_CONFIG.FILTER.MSG.DELETE_CONFIRM', { name: item.name })
-      )
-    ) {
+    if (!(await this.confirmFilterDeletion(item))) {
       return;
     }
 

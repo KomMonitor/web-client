@@ -104,11 +104,7 @@ export class KommonitorFilterDataGridHelperService {
     editButton.title = this.translate.instant('ADMIN_CONFIG.FILTER.GRID.EDIT_TITLE');
 
     editButton.addEventListener('click', () => {
-      const modalRef = this.modalService.open(AdminFilterEditModalComponent, {
-        ...MODAL_WIDE,
-        windowClass: 'modal-holder',
-        centered: true,
-      });
+      const modalRef = this.modalService.open(AdminFilterEditModalComponent, MODAL_WIDE);
       // Without the index the modal would create a new filter instead of
       // editing this one.
       modalRef.componentInstance.selectedItem = params.data.filterId;

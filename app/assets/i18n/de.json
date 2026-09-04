@@ -1520,6 +1520,13 @@
         "COL_GEORESOURCE_TOPICS": "Georesource-Themen",
         "EDIT_TITLE": "Filter editieren",
         "DELETE_TITLE": "Filter unwiderruflich entfernen"
+      },
+      "INTRO_PREFIX": "Nehmen Sie Anpassungen an den globalen Inhaltsfiltern des Web-Clients vor und speichern sie diese. Die Editierungen erfolgen direkt im JSON-Format. Dies speichert die Konfiguration im",
+      "DELETE_MODAL": {
+        "TITLE": "Globalen Filter löschen",
+        "CONFIRM_QUESTION": "Soll folgender globaler Filter wirklich gelöscht werden?",
+        "HINT": "Der Filter wird dauerhaft aus der Filter-Konfiguration entfernt. Die darin zusammengefassten Indikatoren, Georessourcen und Themen bleiben unverändert erhalten.",
+        "DELETE_FOREVER": "Filter unwiderruflich löschen"
       }
     },
     "FILTER_EDIT": {
@@ -1544,7 +1551,9 @@
       "SUBMIT_EDIT": "Filter speichern",
       "SHOW_SELECTED_ONLY": "Nur ausgewählte Einträge anzeigen",
       "NO_ENTRIES": "Keine Einträge vorhanden.",
-      "COL_VISIBLE": "sichtbar"
+      "COL_VISIBLE": "Sichtbar",
+      "TITLE_PREFIX": "Globalen Filter",
+      "TITLE_SUFFIX": "editieren"
     }
   },
   "ADMIN_SPATIAL_UNITS": {

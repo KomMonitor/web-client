@@ -1,12 +1,21 @@
+<!--
+  No <b> around the whole title — `.modal-title` already carries its own weight,
+  and the name is set off with the <i><b> pair the topic and group edit dialogs
+  use rather than appended to the heading with a bare space. `originalFilterName`
+  instead of `filterName` so the title does not rename itself while the user
+  edits the field.
+-->
 <div class="modal-header">
   <h4 class="modal-title">
-    <b>
-      @if (isAddMode) {
-        {{ 'ADMIN_CONFIG.FILTER_EDIT.ADD_TITLE' | translate }}
-      } @else {
-        {{ 'ADMIN_CONFIG.FILTER_EDIT.TITLE' | translate }} {{ filterName }}
-      }
-    </b>
+    @if (isAddMode) {
+      {{ 'ADMIN_CONFIG.FILTER_EDIT.ADD_TITLE' | translate }}
+    } @else {
+      {{ 'ADMIN_CONFIG.FILTER_EDIT.TITLE_PREFIX' | translate }}
+      <i
+        ><b>{{ originalFilterName }}</b></i
+      >
+      {{ 'ADMIN_CONFIG.FILTER_EDIT.TITLE_SUFFIX' | translate }}
+    }
   </h4>
   <button
     type="button"
@@ -20,33 +29,58 @@
     [loading]="loadingData()"
     [message]="'ADMIN_SHARED.LOADING_DATA' | translate"
   >
-    <label for="filter-name">{{ 'ADMIN_CONFIG.FILTER_EDIT.NAME_LABEL' | translate }}*</label>
-    <input
-      type="text"
-      name="filter-name"
-      id="filter-name"
-      [(ngModel)]="filterName"
-      class="form-control"
-    />
+    <p class="text-center">
+      <b
+        ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+      >
+    </p>
 
-    <!-- MultiStep Form -->
+    <!--
+      `.form-group` for the gap below the field: the `.multiStepForm` wrapper
+      that used to follow carried `margin-top: 30px`, and without it the stepper
+      sat flush against this input's bottom border.
+
+      `appAria` sets the id and, once the user has touched an invalid field, the
+      `aria-invalid` / `aria-describedby` pair pointing at <app-form-error>.
+      The submit button is disabled while the name is empty, which said nothing
+      about why; this is the same message every other admin field uses.
+    -->
+    <div class="form-group">
+      <label class="form-label" for="filter-name"
+        >{{ 'ADMIN_CONFIG.FILTER_EDIT.NAME_LABEL' | translate }}*</label
+      >
+      <input
+        type="text"
+        name="filter-name"
+        appAria="filter-name"
+        required
+        #filterNameModel="ngModel"
+        [(ngModel)]="filterName"
+        class="form-control"
+      />
+      <app-form-error [control]="filterNameModel.control" for="filter-name" />
+    </div>
+
+    <!--
+      No `.multiStepForm` wrapper any more. Through app.scss it centred the whole
+      wizard at 12px and squared off every input at 13px, so this dialog showed
+      four font sizes (12/13/16/20px) where the other admin wizards show one, and
+      its `input { width: 100% }` stretched the topic-tree and dataset-grid
+      checkboxes across their whole row — which this component's stylesheet then
+      had to undo. `.fs-title`/`.fs-subtitle` carry an explicit `text-center`
+      already, as they do in the other wizards.
+
+      The `<fieldset>` elements stay: only `.multiStepForm fieldset` styled them,
+      and georesourceAddModal keeps its own for the same reason.
+    -->
     <div class="row">
       <div class="col-md-12">
-        <form
-          class="multiStepForm form-group"
-          id="adminFilterEditForm"
-          role="form"
-          style="margin-bottom: 0px"
-        >
-          <!-- progressbar -->
+        <form class="form-group" id="adminFilterEditForm" role="form">
           <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
 
           <!-- fieldsets -->
           @if (stepper.isActive('indicators')) {
             <fieldset>
-              <h2 class="fs-title text-center">
-                {{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATORS_TITLE' | translate }}
-              </h2>
               <h3 class="fs-subtitle text-center">
                 {{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATORS_SUBTITLE' | translate }}
               </h3>
@@ -55,21 +89,16 @@
                 *ngTemplateOutlet="datasetStep; context: { kind: 'indicator' }"
               ></ng-container>
 
-              <input
-                type="button"
-                name="next"
-                class="next next_editAdminFilter action-button"
-                [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-                (click)="stepper.next()"
-              />
+              <div class="stepper-buttons">
+                <button type="button" class="btn btn-primary" (click)="stepper.next()">
+                  {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+                </button>
+              </div>
             </fieldset>
           }
 
           @if (stepper.isActive('indicatorTopics')) {
             <fieldset>
-              <h2 class="fs-title text-center">
-                {{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATOR_TOPICS_TITLE' | translate }}
-              </h2>
               <h3 class="fs-subtitle text-center">
                 {{ 'ADMIN_CONFIG.FILTER_EDIT.INDICATOR_TOPICS_SUBTITLE' | translate }}
               </h3>
@@ -102,28 +131,23 @@
                 ></ng-container>
               </div>
 
-              <input
-                type="button"
-                name="previous"
-                class="previous previous_editAdminFilter action-button-previous"
-                [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-                (click)="stepper.previous()"
-              />
-              <input
-                type="button"
-                name="next"
-                class="next next_editAdminFilter action-button"
-                [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-                (click)="stepper.next()"
-              />
+              <div class="stepper-buttons">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary"
+                  (click)="stepper.previous()"
+                >
+                  {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+                </button>
+                <button type="button" class="btn btn-primary" (click)="stepper.next()">
+                  {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+                </button>
+              </div>
             </fieldset>
           }
 
           @if (stepper.isActive('georesources')) {
             <fieldset>
-              <h2 class="fs-title text-center">
-                {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCES_TITLE' | translate }}
-              </h2>
               <h3 class="fs-subtitle text-center">
                 {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCES_SUBTITLE' | translate }}
               </h3>
@@ -132,28 +156,23 @@
                 *ngTemplateOutlet="datasetStep; context: { kind: 'georesource' }"
               ></ng-container>
 
-              <input
-                type="button"
-                name="previous"
-                class="previous previous_editAdminFilter action-button-previous"
-                [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-                (click)="stepper.previous()"
-              />
-              <input
-                type="button"
-                name="next"
-                class="next next_editAdminFilter action-button"
-                [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-                (click)="stepper.next()"
-              />
+              <div class="stepper-buttons">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary"
+                  (click)="stepper.previous()"
+                >
+                  {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+                </button>
+                <button type="button" class="btn btn-primary" (click)="stepper.next()">
+                  {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+                </button>
+              </div>
             </fieldset>
           }
 
           @if (stepper.isActive('georesourceTopics')) {
             <fieldset>
-              <h2 class="fs-title text-center">
-                {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCE_TOPICS_TITLE' | translate }}
-              </h2>
               <h3 class="fs-subtitle text-center">
                 {{ 'ADMIN_CONFIG.FILTER_EDIT.GEORESOURCE_TOPICS_SUBTITLE' | translate }}
               </h3>
@@ -186,13 +205,15 @@
                 ></ng-container>
               </div>
 
-              <input
-                type="button"
-                name="previous"
-                class="previous previous_editAdminFilter action-button-previous"
-                [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-                (click)="stepper.previous()"
-              />
+              <div class="stepper-buttons">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary"
+                  (click)="stepper.previous()"
+                >
+                  {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+                </button>
+              </div>
             </fieldset>
           }
         </form>
@@ -201,11 +222,21 @@
     <!-- /.MultiStep Form -->
   </app-loading-overlay>
 </div>
+<!--
+  The three buttons every admin dialog ends on, in the same order: cancel pushed
+  left by `me-auto`, then reset, then the submit action rightmost. This footer
+  used to label the left button "Schließen" instead of "Abbrechen", space it out
+  with a `<div style="flex: 1">` instead of `me-auto`, and paint reset
+  `btn-danger` — which put a red button in the rightmost position, where every
+  other dialog has its primary action.
+-->
 <div class="modal-footer">
-  <button type="button" class="btn btn-outline-secondary" (click)="close()">
-    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="close()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
   </button>
-  <div style="flex: 1"></div>
+  <button type="button" class="btn btn-outline-secondary" (click)="resetAdminFilterEditForm()">
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
+  </button>
   <button type="button" class="btn btn-success" [disabled]="!canSubmit" (click)="saveAdminFilter()">
     @if (isAddMode) {
       {{ 'ADMIN_CONFIG.FILTER_EDIT.SUBMIT_ADD' | translate }}
@@ -213,18 +244,33 @@
       {{ 'ADMIN_CONFIG.FILTER_EDIT.SUBMIT_EDIT' | translate }}
     }
   </button>
-  <button type="button" class="btn btn-danger" (click)="resetAdminFilterEditForm()">
-    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
-  </button>
 </div>
 
 <!-- One dataset selection step (indicators / georesources), addressed by `kind`. -->
 <ng-template #datasetStep let-kind="kind">
+  @let isIndicator = kind === 'indicator';
+  @let selectedCount = (isIndicator ? selectedIndicatorIds : selectedGeoresourceIds).length;
+
+  <!-- The same narrowing the two topic steps offer. -->
+  <div class="form-check selection-toggle">
+    <input
+      class="form-check-input"
+      type="checkbox"
+      [id]="'showSelected' + kind + 'Only'"
+      [checked]="isIndicator ? showSelectedIndicatorsOnly : showSelectedGeoresourcesOnly"
+      [disabled]="selectedCount === 0"
+      (change)="onShowSelectedDatasetsOnlyChange(kind, $any($event.target).checked)"
+    />
+    <label class="form-check-label" [for]="'showSelected' + kind + 'Only'">
+      {{ 'ADMIN_CONFIG.FILTER_EDIT.SHOW_SELECTED_ONLY' | translate }}
+    </label>
+  </div>
+
   <ag-grid-angular
     class="dataset-grid ag-theme-alpine"
     [gridOptions]="datasetGridOptions"
-    [columnDefs]="kind === 'indicator' ? indicatorDatasetColumns : georesourceDatasetColumns"
-    [rowData]="kind === 'indicator' ? preppedIndicatorData : preppedGeoresourceData"
+    [columnDefs]="isIndicator ? indicatorDatasetColumns : georesourceDatasetColumns"
+    [rowData]="isIndicator ? visibleIndicatorData : visibleGeoresourceData"
   ></ag-grid-angular>
 </ng-template>
 

@@ -5,6 +5,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { of } from 'rxjs';
 
@@ -21,9 +22,20 @@ describe('AdminFilterConfigComponent', () => {
   let storedConfig: any[];
   let postedConfig: string | undefined;
 
+  // Deletion asks <app-admin-filter-delete-modal> for confirmation, so the
+  // dialog stands in for the former window.confirm(): `confirmResult` is what
+  // its `result` promise settles with — resolve(true) for "delete", reject for
+  // a dismissal (Esc, backdrop, cancel).
+  let confirmResult: Promise<unknown>;
+  let modalStub: { open: jest.Mock };
+
   beforeEach(() => {
     storedConfig = [];
     postedConfig = undefined;
+    confirmResult = Promise.resolve(true);
+    modalStub = {
+      open: jest.fn(() => ({ componentInstance: {} as any, result: confirmResult })),
+    };
 
     TestBed.configureTestingModule({
       imports: [AdminFilterConfigComponent, TranslateModule.forRoot()],
@@ -32,6 +44,7 @@ describe('AdminFilterConfigComponent', () => {
         provideHttpClientTesting(),
         provideRouter([]),
         provideNoopAnimations(),
+        { provide: NgbModal, useValue: modalStub },
         {
           provide: ConfigStorageService,
           useValue: {
@@ -142,22 +155,36 @@ describe('AdminFilterConfigComponent', () => {
       storedConfig = [{ name: 'first' }, { name: 'second' }, { name: 'third' }];
     });
 
-    // jest.spyOn() reuses an already installed spy, so without this the call
-    // history of window.confirm would leak from one test into the next.
     afterEach(() => {
       jest.restoreAllMocks();
     });
 
     it('removes the entry at the given position after confirmation', async () => {
-      jest.spyOn(window, 'confirm').mockReturnValue(true);
-
       await component.onGlobalFilterDelete(1);
 
       expect(JSON.parse(postedConfig!)).toEqual([{ name: 'first' }, { name: 'third' }]);
     });
 
-    it('keeps the configuration when the confirmation is declined', async () => {
-      jest.spyOn(window, 'confirm').mockReturnValue(false);
+    it('hands the entry to the confirmation dialog', async () => {
+      const instance: any = { componentInstance: {}, result: confirmResult };
+      modalStub.open.mockReturnValue(instance);
+
+      await component.onGlobalFilterDelete(1);
+
+      expect(modalStub.open).toHaveBeenCalled();
+      expect(instance.componentInstance.filter).toEqual({ name: 'second' });
+    });
+
+    it('keeps the configuration when the dialog is dismissed', async () => {
+      confirmResult = Promise.reject('cancel');
+
+      await component.onGlobalFilterDelete(1);
+
+      expect(postedConfig).toBeUndefined();
+    });
+
+    it('keeps the configuration when the dialog closes without confirming', async () => {
+      confirmResult = Promise.resolve(false);
 
       await component.onGlobalFilterDelete(1);
 
@@ -165,17 +192,14 @@ describe('AdminFilterConfigComponent', () => {
     });
 
     it('ignores an index that no longer exists', async () => {
-      const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
-
       await component.onGlobalFilterDelete(7);
 
-      expect(confirmSpy).not.toHaveBeenCalled();
+      expect(modalStub.open).not.toHaveBeenCalled();
       expect(postedConfig).toBeUndefined();
     });
 
     it('clears the grid once the last filter is gone', async () => {
       storedConfig = [{ name: 'only one' }];
-      jest.spyOn(window, 'confirm').mockReturnValue(true);
       const notificationService = TestBed.inject(NotificationService);
       jest.spyOn(notificationService, 'showSuccess');
 

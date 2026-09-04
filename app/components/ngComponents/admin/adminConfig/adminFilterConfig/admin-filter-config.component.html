@@ -7,7 +7,12 @@
 </app-admin-content-view>
 
 <ng-template #controls>
-  <button class="btn btn-success btn-sm" type="button" (click)="onAddFilter()">
+  <button
+    [disabled]="!accessControlService.checkCreatePermission()"
+    class="btn btn-success btn-sm"
+    type="button"
+    (click)="onAddFilter()"
+  >
     <i class="fas fa-plus"></i>&nbsp;&nbsp;{{ 'ADMIN_SHARED.CREATE' | translate }}
   </button>
 </ng-template>
@@ -18,6 +23,14 @@
       {{ 'ADMIN_CONFIG.FILTER.INTRO' | translate }}
     </p>
 
+    <!--
+      The paging options have to be bound here, not left to `gridOptions`:
+      `setupGridOptions()` only assigns that object once the config fetch
+      returns, and ag-grid reads `[gridOptions]` a single time when it creates
+      the grid — by then it was still `{}`. `[paginationPageSizeSelector]` used
+      to be the one missing from this list, which left the "Page Size" dropdown
+      blank while every other admin grid showed "10".
+    -->
     <ag-grid-angular
       #agGrid
       style="height: 70vh"
@@ -25,9 +38,10 @@
       [columnDefs]="columnDefs()"
       [rowData]="rowData()"
       [gridOptions]="gridOptions"
-      [defaultColDef]="gridOptions.defaultColDef"
+      [defaultColDef]="defaultColDef"
       [pagination]="true"
-      [paginationPageSize]="10"
+      [paginationPageSize]="paginationPageSize"
+      [paginationPageSizeSelector]="paginationPageSizeSelector"
       [rowSelection]="'multiple'"
       [suppressRowClickSelection]="true"
       [enableCellTextSelection]="true"
@@ -37,9 +51,21 @@
     </ag-grid-angular>
   </expandable-box>
 
-  <expandable-box [title]="'ADMIN_CONFIG.FILTER.CONFIG_BOX_TITLE' | translate" [collapsed]="false">
+  <!--
+    `[isCollapsible]="false"` and the prefix/suffix intro, so this box matches
+    the two sibling configuration pages that hold the same
+    <app-config-editor-panes>: adminAppConfig and adminControlsConfig. It used
+    to be collapsible and to repeat `FILTER.INTRO` from the table box above
+    word for word.
+  -->
+  <expandable-box
+    [title]="'ADMIN_CONFIG.FILTER.CONFIG_BOX_TITLE' | translate"
+    [isCollapsible]="false"
+  >
     <p>
-      {{ 'ADMIN_CONFIG.FILTER.INTRO' | translate }}
+      {{ 'ADMIN_CONFIG.FILTER.INTRO_PREFIX' | translate }}
+      <b>Config Storage Service</b>
+      {{ 'ADMIN_CONFIG.COMMON.INTRO_SUFFIX' | translate }}
     </p>
 
     <hr />

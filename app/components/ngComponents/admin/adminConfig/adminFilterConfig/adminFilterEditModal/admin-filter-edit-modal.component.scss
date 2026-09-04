@@ -1,28 +1,47 @@
-::ng-deep .modal-holder .modal-dialog {
-  max-width: 50%;
-  width: 50%;
-  transform: none !important;
-}
+/*
+ * This file used to open with one rule:
+ *
+ *   ::ng-deep .modal-holder .modal-dialog {
+ *     max-width: 50%; width: 50%; transform: none !important;
+ *   }
+ *
+ * It set a modal width, which `app/util/modal-presets.ts` reserves for the
+ * `.km-modal-*` tiers in `app.scss` ("Nothing else in the app may set a modal
+ * width") — and it won: this wizard opened at 953px on a 1920px viewport while
+ * every other MODAL_WIDE dialog took its 1600px from `.km-modal-wide`.
+ *
+ * A leading `::ng-deep` also compiles to a plain global rule, so the width was
+ * never this dialog's alone: six userInterface components ship the same
+ * `.modal-holder .modal-dialog` selector, three of them with
+ * `max-width: max-content`, so whichever stylesheet loaded last decided.
+ * `infoModal/info-modal.component.scss` dropped its copy for the same reason.
+ *
+ * The dialog now opens with plain MODAL_WIDE and no `windowClass`.
+ */
 
+// No `height`: the grid runs `domLayout: 'autoHeight'` and sizes itself to its
+// five paginated rows. A definite height here would override that again.
 .dataset-grid {
   display: block;
-  height: 45vh;
   margin-bottom: 1rem;
 }
 
-// `.multiStepForm input { width: 100% }` in app.scss applies to every input of
-// the wizard form — the checkboxes of the dataset grid and of the topic trees
-// have to opt out of it, or they stretch across their whole cell/row.
-::ng-deep .dataset-grid .dataset-check,
+// Both checkbox groups sit in a flex row (`.topic-row`, `.selection-toggle`) or
+// in a grid cell, where Bootstrap's `.form-check-input` top margin would push
+// them off the text baseline. Everything else that used to be here — width,
+// height, border-radius, `float: none` — only existed to undo
+// `.multiStepForm input { width: 100% }` and the squared-off borders from
+// app.scss, and went with that wrapper.
+//
+// The grid's checkboxes need `::ng-deep` because a cellRenderer builds them with
+// `document.createElement`, so they never receive this component's content
+// attribute. Prefixed with `:host` so the rule stays scoped to this dialog — as
+// a leading `::ng-deep` it would have leaked `.dataset-grid .dataset-check`
+// app-wide.
+:host ::ng-deep .dataset-grid .dataset-check,
 input[type='checkbox'] {
-  width: 1em;
-  min-width: 1em;
-  height: 1em;
   margin: 0;
   flex-shrink: 0;
-  float: none;
-  vertical-align: middle;
-  border-radius: 0.25em;
 }
 
 .selection-toggle {
