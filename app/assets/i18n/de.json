@@ -1486,16 +1486,16 @@
       }
     },
     "CONTROLS": {
-      "TITLE": "Web Client Steuerungselemente",
-      "DESCRIPTION": "Anpassen der Steuerungselemente (u.a. Buttons, Menüs, Toolbars)",
-      "BOX_TITLE": "Steuerungselemente Konfiguration",
-      "INTRO_PREFIX": "Nehmen Sie Anpassungen an den Steuerungselementen des Web-Clients vor und speichern sie diese. Die Editierungen erfolgen direkt im JavaScript-Format. Dies speichert die Konfiguration im",
-      "EDITOR_LABEL": "Editierfenster der Steuerungselemente-Einstellungen",
-      "SAVE": "Steuerungselemente-Konfiguration speichern",
+      "TITLE": "Widget-Konfiguration",
+      "DESCRIPTION": "Anpassen der Widgets des Web-Clients (u.a. Buttons, Menüs, Toolbars)",
+      "BOX_TITLE": "Widgets - Konfigurationsdatei",
+      "INTRO_PREFIX": "Nehmen Sie Anpassungen an den Widgets des Web-Clients vor und speichern sie diese. Die Editierungen erfolgen direkt im JSON-Format. Dies speichert die Konfiguration im",
+      "EDITOR_LABEL": "Editierfenster der Widget-Konfiguration",
+      "SAVE": "Widget-Konfiguration speichern",
       "MSG": {
-        "LOAD_FAILED": "Laden der Controls-Konfiguration gescheitert: {{error}}",
-        "SAVED": "Controls-Konfiguration gespeichert.",
-        "SAVE_FAILED": "Speichern der Controls-Konfiguration gescheitert: {{error}}"
+        "LOAD_FAILED": "Laden der Widget-Konfiguration gescheitert: {{error}}",
+        "SAVED": "Widget-Konfiguration gespeichert.",
+        "SAVE_FAILED": "Speichern der Widget-Konfiguration gescheitert: {{error}}"
       }
     },
     "FILTER": {

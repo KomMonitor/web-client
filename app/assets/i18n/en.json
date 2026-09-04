@@ -1486,16 +1486,16 @@
       }
     },
     "CONTROLS": {
-      "TITLE": "Web Client Controls",
-      "DESCRIPTION": "Adjust the controls (e.g. buttons, menus, toolbars)",
-      "BOX_TITLE": "Controls configuration",
-      "INTRO_PREFIX": "Make adjustments to the controls of the web client and save them. Edits are made directly in JavaScript format. This stores the configuration in the",
-      "EDITOR_LABEL": "Editor window for the controls settings",
-      "SAVE": "Save controls configuration",
+      "TITLE": "Widget Configuration",
+      "DESCRIPTION": "Adjust the web client widgets (e.g. buttons, menus, toolbars)",
+      "BOX_TITLE": "Widgets - configuration file",
+      "INTRO_PREFIX": "Make adjustments to the widgets of the web client and save them. Edits are made directly in JSON format. This stores the configuration in the",
+      "EDITOR_LABEL": "Editor window for the widget configuration",
+      "SAVE": "Save widget configuration",
       "MSG": {
-        "LOAD_FAILED": "Loading the controls configuration failed: {{error}}",
-        "SAVED": "Controls configuration saved.",
-        "SAVE_FAILED": "Saving the controls configuration failed: {{error}}"
+        "LOAD_FAILED": "Loading the widget configuration failed: {{error}}",
+        "SAVED": "Widget configuration saved.",
+        "SAVE_FAILED": "Saving the widget configuration failed: {{error}}"
       }
     },
     "FILTER": {

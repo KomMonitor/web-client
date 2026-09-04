@@ -461,6 +461,17 @@ pre.CodeMirror-line {
   outline: none;
 }
 
+/*
+ * The read-only config editor panes use the dark panda-syntax theme, but the
+ * browser kept painting their scrollbars in the light default scheme — a pale
+ * grey bar down the right edge of a #292a2b pane. `color-scheme` is the only
+ * thing that switches the scrollbar, and it is set on the theme class so the
+ * light editable pane keeps its light one.
+ */
+.cm-s-panda-syntax {
+  color-scheme: dark;
+}
+
 .CodeMirror {
   // #d2d6de is the border the admin chrome uses everywhere (expandable-box,
   // grids, form controls); a pure black hairline made the four config editors
@@ -2827,15 +2838,14 @@ input[type='range']::-webkit-tooltip {
   display: none;
 }
 
-hr {
-  /* height: 2px;
-    background-color:#ababab;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    width: 100%; */
-
-  margin: 0px 0;
-}
+/*
+ * No `hr { margin: 0 }` here either. Bootstrap's `margin: 1rem 0` is what the
+ * separators are supposed to have; zeroing it meant every template that wanted
+ * a visible break had to write `<hr /><br />`, which spaces the rule 0px above
+ * and ~23px below it. Those `<br>` spacers were removed along with this rule —
+ * if a separator suddenly looks cramped, the fix is a margin utility on the
+ * `<hr>`, not a global override.
+ */
 
 .icon-spin {
   -webkit-animation: spin 1s infinite linear;
@@ -3653,9 +3663,18 @@ input:checked + .switchslider:before {
   bottom: 60vh; /* 50vh from the bottom */
 }
 
-.row {
-  margin-right: 0px;
-}
+/*
+ * No `.row { margin-right: 0 }` here — do not reintroduce it.
+ *
+ * Bootstrap 5 gives `.row` a negative margin on *both* sides
+ * (`calc(-.5 * var(--bs-gutter-x))`, i.e. -12px) so that the 12px padding its
+ * columns carry cancels out and the first and last column line up with the
+ * padded container around them. Zeroing only `margin-right` — a Bootstrap 3 /
+ * AdminLTE habit — left every row in the app 12px short on the right while the
+ * left stayed flush: on the config editor pages the right-hand editor pane and
+ * the save button ended 12px inside the heading, the intro text and the `<hr>`
+ * above them.
+ */
 
 .box.box-simplified {
   border-top: 0;
@@ -4007,6 +4026,10 @@ h4 {
 .help-block {
   color: #737373;
   font-size: 12px;
+  // Same offset Bootstrap gives `.form-text`. Without it two messages stacked
+  // under one field (the config editors show "invalid format" and "missing
+  // parameters" together) touched and read as a single paragraph.
+  margin-top: 0.25rem;
 }
 
 .help-block.with-errors {

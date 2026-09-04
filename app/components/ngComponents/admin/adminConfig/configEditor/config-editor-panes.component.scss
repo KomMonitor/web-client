@@ -71,3 +71,17 @@ textarea {
   width: 100%;
   min-height: 450px;
 }
+
+/*
+ * The page's counterpart to a dialog's `.modal-footer`: same right alignment,
+ * same 0.5rem gap between the buttons and the same hairline above them. Without
+ * it the two buttons sat straight under the editor pane with nothing marking
+ * them off, while both section breaks higher up on the page have an `<hr>`.
+ *
+ * The values are Bootstrap's own modal-footer ones (0.75rem of padding, the
+ * translucent border colour) so a config page and a dialog end the same way.
+ */
+.page-actions {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--bs-border-color-translucent);
+}

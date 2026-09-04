@@ -298,7 +298,6 @@
             idPrefix="wms-add-topics"
           />
           <hr />
-          <br />
           @if (accessControlService.checkAdminPermission()) {
             <div class="row form-section-row">
               <div class="col-md-10 col-sm-12 col-12">
@@ -353,9 +352,7 @@
             mode="assign"
             [formControl]="securityForm.controls.ownerOrganization"
           ></app-owner-organization-select>
-          <br />
           <hr />
-          <br />
           <div id="georesourceRoleForm" [style.display]="ownerOrganization ? 'block' : 'none'">
             <label>{{ 'ADMIN_SHARED_UI.SECURITY.DATASET_PERMISSIONS' | translate }}</label>
             <div class="row form-section-row">

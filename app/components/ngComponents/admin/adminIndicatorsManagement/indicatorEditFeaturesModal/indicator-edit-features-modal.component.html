@@ -398,7 +398,6 @@
             @if (envConfigService.enableKeycloakSecurity) {
               <div>
                 <hr />
-                <br />
                 <h4>
                   {{
                     'ADMIN_INDICATORS.EDIT_FEATURES.ACCESS_RIGHTS_HEADING'
@@ -442,7 +441,6 @@
               </div>
             }
             <hr />
-            <br />
             <h4>{{ 'ADMIN_INDICATORS.TIMESERIES_MAPPING' | translate }}*</h4>
             <app-timeseries-mapping-form formControlName="timeseriesMappings" />
             <app-form-error [control]="editForm.controls.timeseriesMappings" showWhen="always" />
