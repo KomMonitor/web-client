@@ -1057,7 +1057,7 @@
       "FAILED_JOBS": "gescheiterte Jobs",
       "ACTIVE_JOBS": "laufende Jobs",
       "WAITING_JOBS": "wartende Jobs",
-      "DELAYED_JOBS": "wartende Jobs"
+      "DELAYED_JOBS": "zurückgestellte Jobs"
     },
     "ADD_MODAL": {
       "TITLE": "Neues Indikatoren-Berechnungs-Skript registrieren",

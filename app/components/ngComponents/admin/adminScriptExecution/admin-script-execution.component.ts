@@ -75,6 +75,10 @@ export class AdminScriptExecutionComponent implements OnInit {
       {
         headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_TARGET_INDICATOR'),
         pinned: 'left',
+        // Overrides the shared defaultColDef's minWidth of 200: the pinned
+        // block is fixed overhead on every horizontal scroll position, so it
+        // stays as narrow as an indicator name allows.
+        minWidth: 150,
         maxWidth: 250,
         cellRenderer: (params) => {
           if (params.data.jobData && params.data.jobData.targetIndicatorId) {
@@ -113,9 +117,18 @@ export class AdminScriptExecutionComponent implements OnInit {
       {
         headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_JOB_DATA'),
         field: 'jobData',
-        minWidth: 500,
+        // Wide enough that the JSON blob does not wrap into a very tall row
+        // (autoHeight is on), narrow enough that the columns behind it stay
+        // reachable without horizontal scrolling on a normal screen.
+        minWidth: 360,
+        // autoHeight is on, so without a cap the wrapped JSON alone decides how
+        // tall every row is. The blob scrolls inside a fixed-height box instead.
+        // Inline styles, not a class: the string this renderer returns is built
+        // outside the template and so carries no view-encapsulation attribute.
         cellRenderer: (params) =>
-          this.indicatorValueService.syntaxHighlightJSON(params.data.jobData),
+          `<div style="max-height: 150px; overflow: auto">${this.indicatorValueService.syntaxHighlightJSON(
+            params.data.jobData
+          )}</div>`,
         filter: 'agTextColumnFilter',
       },
       {
@@ -127,7 +140,11 @@ export class AdminScriptExecutionComponent implements OnInit {
       },
       {
         headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_JOB_SUMMARY'),
-        minWidth: 1000,
+        // Used to be 1000, which is wider than the grid's whole scrollable
+        // viewport: the column could never be shown in full and pushed the two
+        // columns before it off screen. The summary table inside the cell
+        // scrolls horizontally on its own instead.
+        minWidth: 320,
         cellRenderer: JobSummaryCellRendererComponent,
         filter: 'agTextColumnFilter',
         filterValueGetter: (params) => JSON.stringify(params.data.spatialUnitIntegrationSummary),
@@ -144,7 +161,6 @@ export class AdminScriptExecutionComponent implements OnInit {
     pagination: true,
     paginationPageSize: 10,
     paginationPageSizeSelector: [10, 25, 50, 100],
-    suppressColumnVirtualisation: true,
   };
 
   public paginationPageSize: number = 10;
