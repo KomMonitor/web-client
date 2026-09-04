@@ -18,6 +18,7 @@ import 'codemirror/mode/htmlmixed/htmlmixed.js';
 import 'codemirror/mode/javascript/javascript.js';
 import 'codemirror/mode/xml/xml.js';
 
+import { LoadingOverlayComponent } from '../../../common/loading-overlay/loading-overlay.component';
 import { NotificationService } from '../../../common/notification/notification.service';
 import { CodeMirrorEditor, ConfigEditorDescriptor, LintingIssue } from './config-editor.model';
 
@@ -50,7 +51,7 @@ function asEditorText(value: unknown): string {
   selector: 'app-config-editor-panes',
   templateUrl: './config-editor-panes.component.html',
   styleUrls: ['./config-editor-panes.component.scss'],
-  imports: [TranslateModule],
+  imports: [TranslateModule, LoadingOverlayComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -226,7 +227,10 @@ export class ConfigEditorPanesComponent implements OnInit, AfterViewInit {
       (keyword) => !configString.includes(keyword)
     );
     this.missingRequiredParameters.set(missing);
-    this.missingRequiredParameters_string.set(JSON.stringify(missing));
+    // Joined with a space after each comma, not JSON.stringify: the stringified
+    // array contains no whitespace at all, so the browser treats all 43 keys as
+    // one unbreakable word and the message stretched the page to ~40000px.
+    this.missingRequiredParameters_string.set(missing.join(', '));
 
     if (missing.length > 0) {
       return true;
@@ -240,6 +244,19 @@ export class ConfigEditorPanesComponent implements OnInit, AfterViewInit {
     this.configSettingInvalid.set(this.isConfigSettingInvalid(configString));
     this.configNew = configString;
     this.newCodeMirrorEditor?.setValue(configString);
+  }
+
+  /**
+   * Puts the editable pane back to the configuration currently in effect.
+   *
+   * The counterpart to the `resetForm()` the reworked admin dialogs offer next
+   * to their submit button. The editors hold the only copy of the pending
+   * value, so writing `configCurrent` back into CodeMirror is the whole
+   * operation: its `change` handler then refreshes `configTmp`, the preview
+   * pane and the validation state.
+   */
+  resetConfig(): void {
+    this.codeMirrorEditor?.setValue(this.configCurrent);
   }
 
   async saveConfig(): Promise<void> {

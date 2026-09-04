@@ -462,7 +462,28 @@ pre.CodeMirror-line {
 }
 
 .CodeMirror {
-  border: 1px solid black;
+  // #d2d6de is the border the admin chrome uses everywhere (expandable-box,
+  // grids, form controls); a pure black hairline made the four config editors
+  // the hardest-edged thing on the page.
+  border: 1px solid #d2d6de;
+}
+
+/*
+ * One monospace stack for every editor instance.
+ *
+ * The panda-syntax theme brings its own `font-family` on `.cm-s-panda-syntax`,
+ * so the three read-only panes of the config editors rendered in a different
+ * typeface than the editable pane, which fell back to codemirror.css's bare
+ * `monospace` — the same code side by side in Courier New and DejaVu Sans Mono.
+ *
+ * The class is repeated on purpose. angular.json loads app.scss *before*
+ * codemirror.css and panda-syntax.css, so a plain `.CodeMirror` would lose the
+ * specificity tie against both of them on source order alone. Naming it twice
+ * lifts the rule to (0,2,0) and wins against `.CodeMirror` and against any
+ * `.cm-s-*` theme, whatever the load order, without resorting to `!important`.
+ */
+.CodeMirror.CodeMirror {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
 }
 
 .prettyprint ol.linenums > li {

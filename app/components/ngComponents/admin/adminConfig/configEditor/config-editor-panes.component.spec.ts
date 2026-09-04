@@ -103,7 +103,18 @@ describe('ConfigEditorPanesComponent', () => {
     it('reports the missing keywords', () => {
       expect(component.isConfigSettingInvalid('window.__env only')).toBe(true);
       expect(component.missingRequiredParameters()).toEqual(['window.__env.apiUrl']);
-      expect(component.missingRequiredParameters_string()).toBe('["window.__env.apiUrl"]');
+      expect(component.missingRequiredParameters_string()).toBe('window.__env.apiUrl');
+    });
+
+    // The rendered list has to keep a break opportunity between the keys: as a
+    // JSON.stringify'd array it contained no whitespace, so the browser treated
+    // it as a single unbreakable word and the message stretched the page far
+    // past the viewport.
+    it('separates several missing keywords by a breakable comma', () => {
+      expect(component.isConfigSettingInvalid('nothing useful here')).toBe(true);
+      expect(component.missingRequiredParameters_string()).toBe(
+        'window.__env, window.__env.apiUrl'
+      );
     });
 
     it('is invalid while the linter reports an error, even with all keywords present', () => {

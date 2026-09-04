@@ -1,58 +1,67 @@
-<div class="row vertical-align">
-  <div class="col-md-6 col-sm-6 col-12">
-    <div class="form-group">
-      <label>{{ 'ADMIN_CONFIG.COMMON.TEMPLATE_LABEL' | translate }}</label>
-      <br />
-      <br />
-      <div #templateCodeMirror style="height: 450px"></div>
-    </div>
-  </div>
-  <div class="col-md-6 col-sm-6 col-12">
-    <div class="form-group">
-      <label>{{ 'ADMIN_CONFIG.COMMON.CURRENT_LABEL' | translate }}</label>
-      <br />
-      <br />
-      <div #currentCodeMirror style="height: 450px"></div>
-    </div>
-  </div>
-</div>
-
-<hr />
-<br />
-
-<div class="row vertical-align">
-  <div class="col-md-6 col-sm-6 col-12">
-    <div class="form-group">
-      <label>{{ i18n + '.EDITOR_LABEL' | translate }}</label>
-      <br />
-      <br />
-      <textarea #configEditor></textarea>
-    </div>
-    @if (configSettingInvalid()) {
-      <div class="help-block with-errors">
-        {{ 'ADMIN_CONFIG.COMMON.INVALID_HINT' | translate: { format: descriptor.formatLabel } }}
+<!--
+  The panes carry their own loading overlay rather than leaving it to the three
+  hosting pages: `loadingData` is this component's state (it covers both the
+  initial fetch and a save round-trip), and adminFilterConfig already runs an
+  overlay of its own around the grid above these panes.
+-->
+<app-loading-overlay [loading]="loadingData()">
+  <div class="row vertical-align">
+    <div class="col-12 col-xxl-6">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN_CONFIG.COMMON.TEMPLATE_LABEL' | translate }}</label>
+        <div #templateCodeMirror style="height: 450px"></div>
       </div>
-    }
-    @if (missingRequiredParameters().length > 0) {
-      <div class="help-block with-errors">
-        {{ 'ADMIN_CONFIG.COMMON.MISSING_PARAMETERS' | translate }}
-        {{ missingRequiredParameters_string() }}
+    </div>
+    <div class="col-12 col-xxl-6">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN_CONFIG.COMMON.CURRENT_LABEL' | translate }}</label>
+        <div #currentCodeMirror style="height: 450px"></div>
       </div>
-    }
-  </div>
-  <div class="col-md-6 col-sm-6 col-12">
-    <div class="form-group">
-      <label>{{ 'ADMIN_CONFIG.COMMON.PREVIEW_LABEL' | translate }}</label>
-      <br />
-      <br />
-      <div #newCodeMirror style="height: 450px"></div>
     </div>
   </div>
-</div>
 
-<div class="row vertical-align">
-  <div class="col-md-12 text-center">
-    <div class="form-group">
+  <hr />
+  <br />
+
+  <div class="row vertical-align">
+    <div class="col-12 col-xxl-6">
+      <div class="form-group">
+        <label class="form-label">{{ i18n + '.EDITOR_LABEL' | translate }}</label>
+        <textarea #configEditor></textarea>
+      </div>
+      @if (configSettingInvalid()) {
+        <div class="help-block with-errors">
+          {{ 'ADMIN_CONFIG.COMMON.INVALID_HINT' | translate: { format: descriptor.formatLabel } }}
+        </div>
+      }
+      @if (missingRequiredParameters().length > 0) {
+        <div class="help-block with-errors">
+          {{ 'ADMIN_CONFIG.COMMON.MISSING_PARAMETERS' | translate }}
+          {{ missingRequiredParameters_string() }}
+        </div>
+      }
+    </div>
+    <div class="col-12 col-xxl-6">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN_CONFIG.COMMON.PREVIEW_LABEL' | translate }}</label>
+        <div #newCodeMirror style="height: 450px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!--
+    Right-aligned action row instead of one centred button. Every reworked admin
+    dialog ends in a `.modal-footer` that pushes its actions to the right, with
+    the neutral "reset" as an outline button left of the submit; this page is
+    not a dialog, so the row is spelled out here in the same order and with the
+    same button styles.
+  -->
+  <div class="row">
+    <div class="col-12 d-flex justify-content-end gap-2">
+      <button type="button" class="btn btn-outline-secondary" (click)="resetConfig()">
+        {{ 'ADMIN_SHARED_UI.RESET' | translate }}
+      </button>
+
       <button
         type="button"
         class="btn btn-success"
@@ -63,4 +72,4 @@
       </button>
     </div>
   </div>
-</div>
+</app-loading-overlay>

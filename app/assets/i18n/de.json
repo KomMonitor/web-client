@@ -1466,16 +1466,16 @@
   "ADMIN_CONFIG": {
     "COMMON": {
       "TEMPLATE_LABEL": "Vorlage (Struktur und Standard-Einstellung)",
-      "CURRENT_LABEL": "derzeitige Konfiguration (aktuelle Wertbelegung)",
+      "CURRENT_LABEL": "Derzeitige Konfiguration (aktuelle Wertbelegung)",
       "PREVIEW_LABEL": "Vorschaufenster (neue Wertbelegung)",
       "MISSING_PARAMETERS": "Fehlende Parameter:",
       "INVALID_HINT": "Bitte beachten Sie, dass alle notwendigen Parameter gemäß der obigen Vorlage definiert werden müssen. Beachten Sie daher die vorgegebene {{format}}-Struktur. Der Text wird auf Schlüsselwörter geprüft und es wird sichergestellt, dass valides {{format}} geparsed werden kann.",
       "INTRO_SUFFIX": "von KomMonitor, von dem die Daten beim Start der Anwendung geladen werden. Setzen Sie die Werte daher sorgfältig."
     },
     "APP": {
-      "TITLE": "Web Client Einstellungen",
+      "TITLE": "Allgemeine Einstellungen",
       "DESCRIPTION": "Anpassen der Standard-Einstellungen (u.a. Dienstanbindung, Geodatendienste, Standard-Kartendarstellung)",
-      "BOX_TITLE": "App Konfiguration",
+      "BOX_TITLE": "App-Konfiguration",
       "INTRO_PREFIX": "Nehmen Sie Anpassungen an variablen Parametern des Web-Clients vor und speichern sie diese. Die Editierungen erfolgen direkt im JavaScript-Format. Dies speichert die Konfiguration im",
       "EDITOR_LABEL": "Editierfenster der App-Einstellungen",
       "SAVE": "App-Konfiguration speichern",

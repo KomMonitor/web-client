@@ -1466,14 +1466,14 @@
   "ADMIN_CONFIG": {
     "COMMON": {
       "TEMPLATE_LABEL": "Template (structure and default settings)",
-      "CURRENT_LABEL": "current configuration (current values)",
+      "CURRENT_LABEL": "Current configuration (current values)",
       "PREVIEW_LABEL": "Preview window (new values)",
       "MISSING_PARAMETERS": "Missing parameters:",
       "INVALID_HINT": "Please note that all required parameters must be defined according to the template above. Therefore, adhere to the given {{format}} structure. The text is checked for keywords and it is ensured that valid {{format}} can be parsed.",
       "INTRO_SUFFIX": "of KomMonitor, from which the data is loaded when the application starts. Therefore, set the values carefully."
     },
     "APP": {
-      "TITLE": "Web Client Settings",
+      "TITLE": "General Settings",
       "DESCRIPTION": "Adjust the default settings (e.g. service connections, geodata services, default map display)",
       "BOX_TITLE": "App configuration",
       "INTRO_PREFIX": "Make adjustments to variable parameters of the web client and save them. Edits are made directly in JavaScript format. This stores the configuration in the",
