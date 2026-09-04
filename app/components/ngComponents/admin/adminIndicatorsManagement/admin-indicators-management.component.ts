@@ -177,14 +177,10 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         resizable: true,
         wrapText: true,
         autoHeight: true,
-        cellStyle: {
-          'font-size': '12px;',
-          'white-space': 'normal !important',
-          'line-height': '20px !important',
-          'word-break': 'break-word !important',
-          'padding-top': '17px',
-          'padding-bottom': '17px',
-        },
+        // No `cellStyle`: it restated the global `.ag-cell` rule in app.scss
+        // property for property, and its `'font-size': '12px;'` carried a
+        // trailing semicolon inside the value, so the CSSOM dropped that one
+        // declaration anyway. Cell typography lives in app.scss.
         headerComponentParams: {
           template:
             '<div class="ag-cell-label-container" role="presentation">' +

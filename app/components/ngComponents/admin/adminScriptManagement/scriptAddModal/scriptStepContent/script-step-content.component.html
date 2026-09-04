@@ -1,6 +1,6 @@
-<p class="center" [innerHTML]="'ADMIN_SCRIPTS.CONTENT_STEP.INTRO' | translate"></p>
+<p [innerHTML]="'ADMIN_SCRIPTS.CONTENT_STEP.INTRO' | translate"></p>
 
-<p class="center">
+<p>
   {{ 'ADMIN_SCRIPTS.CONTENT_STEP.TEMPLATE_INTRO' | translate }}
   <a
     href="./kommonitor-script-resources/kommonitor-script-template.js"
@@ -8,7 +8,9 @@
     target="_blank"
     >{{ 'ADMIN_SCRIPTS.SCRIPT_TEMPLATE_LINK' | translate }}</a
   >.
-  <br />
+</p>
+
+<p>
   {{ 'ADMIN_SCRIPTS.CONTENT_STEP.DEV_HINTS' | translate }}
   <a
     href="https://github.com/KomMonitor/processing-engine/tree/master/resources"
@@ -18,14 +20,20 @@
   >
 </p>
 
-<p class="center">
+<p class="text-center">
   <b
     ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
   >
 </p>
 
-<div class="row justify-content-center">
-  <div class="col-md-6">
+<!--
+  Full width, like the filterable selects in the sibling segments: the longest
+  script type label ("Indikatoren - Prozentualer Anteil (Quotient zwischen
+  Basis-Indikatoren und einem Referenzindikator)") did not fit the former
+  centred half-width column and produced a horizontal scrollbar inside the list.
+-->
+<div class="row">
+  <div class="col-12">
     <app-filterable-select
       [label]="'ADMIN_SCRIPTS.CONTENT_STEP.SELECT_SCRIPT_TYPE_LABEL' | translate"
       propertyKey="displayName"

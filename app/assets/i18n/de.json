@@ -1041,7 +1041,8 @@
     "INDICATOR_NAME_PLACEHOLDER": "IndikatorenName",
     "MANAGEMENT": {
       "TITLE": "Skriptverwaltung",
-      "DESCRIPTION": "Steuerung der semi-automatisierten Indikatorenberechnung"
+      "DESCRIPTION": "Steuerung der semi-automatisierten Indikatorenberechnung",
+      "BOX_TITLE": "Indikatoren-Berechnungs-Skripte"
     },
     "EXECUTION": {
       "TITLE": "Indikatoren-Berechnung",
@@ -1196,8 +1197,8 @@
     "GRID": {
       "COL_TARGET_INDICATOR_ID": "Ziel-Indikatoren-Id",
       "COL_TARGET_INDICATOR_NAME": "Ziel-Indikatoren-Name",
-      "COL_REQUIRED_BASE_INDICATORS": "notwendige Basis-Indikatoren",
-      "COL_REQUIRED_BASE_GEORESOURCES": "notwendige Basis-Georessourcen",
+      "COL_REQUIRED_BASE_INDICATORS": "Notwendige Basis-Indikatoren",
+      "COL_REQUIRED_BASE_GEORESOURCES": "Notwendige Basis-Georessourcen",
       "COL_PROCESS_PARAMETERS": "Prozessparameter",
       "COL_JOB_ID": "Job-Id",
       "COL_SCRIPT_ID": "Script-Id",

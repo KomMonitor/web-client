@@ -10,7 +10,6 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-script-parameters',
   templateUrl: './script-parameters.component.html',
-  styleUrls: ['./script-parameters.component.scss'],
   standalone: true,
   imports: [
     TranslateModule,

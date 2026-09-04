@@ -8,114 +8,105 @@
   ></button>
 </div>
 
-<div class="modal-body" style="position: relative">
-  <!-- Loading Overlay -->
-  @if (loadingData()) {
-    <div
-      class="loading-overlay-admin-panel text-center"
-      style="
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 99;
-        background: rgba(255, 255, 255, 0.7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      "
-    >
-      <i class="fas fa-spinner fa-spin fa-3x"></i>
-    </div>
-  }
+<div class="modal-body">
+  <app-loading-overlay [loading]="loadingData()">
+    <!-- Progress Stepper -->
+    <app-stepper
+      [steps]="stepper.steps"
+      [(currentStep)]="stepper.currentStep"
+      [allStepsClickable]="true"
+    ></app-stepper>
 
-  <!-- Progress Stepper -->
-  <app-stepper
-    [steps]="stepper.steps"
-    [(currentStep)]="stepper.currentStep"
-    [allStepsClickable]="true"
-  ></app-stepper>
-
-  <!-- ===================== STEP 1: INTRODUCTION ===================== -->
-  @if (stepper.isActive('intro')) {
-    <div>
-      <div class="intro-heading">{{ stepper.steps[0].label }}</div>
-      <app-script-step-introduction></app-script-step-introduction>
-    </div>
-  }
-
-  <!-- ===================== STEP 2: METADATA ===================== -->
-  @if (stepper.isActive('metadata')) {
-    <div>
-      <div class="intro-heading">{{ stepper.steps[1].label }}</div>
-      <div class="sub-heading">{{ 'ADMIN_SCRIPTS.ADD_MODAL.METADATA_SUBHEADING' | translate }}</div>
-      <app-script-step-metadata [(metadata)]="scriptMetadata"></app-script-step-metadata>
-    </div>
-  }
-
-  <!-- ===================== STEP 3: SCRIPT CONTENT ===================== -->
-  @if (stepper.isActive('script')) {
-    <div>
-      <div class="intro-heading">{{ stepper.steps[2].label }}</div>
-      <div class="sub-heading">{{ 'ADMIN_SCRIPTS.ADD_MODAL.SCRIPT_SUBHEADING' | translate }}</div>
-      <app-script-step-content></app-script-step-content>
-    </div>
-  }
-
-  <!-- ---- SUCCESS / ERROR ALERTS ---- -->
-  @if (showSuccessAlert()) {
-    <div class="alert alert-success mt-3">
-      <button
-        type="button"
-        class="btn-close"
-        [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
-        (click)="hideSuccessAlert()"
-      ></button>
-      <i class="fas fa-check"></i> {{ 'ADMIN_SCRIPTS.ADD_MODAL.REGISTER_SUCCESS' | translate }}
-    </div>
-  }
-  @if (showErrorAlert()) {
-    <div class="alert alert-danger mt-3">
-      <button
-        type="button"
-        class="btn-close"
-        [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
-        (click)="hideErrorAlert()"
-      ></button>
-      <i class="fas fa-ban"></i> {{ 'ADMIN_SCRIPTS.ADD_MODAL.REGISTER_ERROR' | translate }}
-      <pre>{{ errorMessagePart() }}</pre>
-    </div>
-  }
-
-  <div class="stepper-buttons">
-    @if (stepper.currentStep > 1) {
-      <button type="button" class="btn btn-primary" (click)="stepper.previous()">
-        &lt; {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
-      </button>
+    <!-- ===================== STEP 1: INTRODUCTION ===================== -->
+    @if (stepper.isActive('intro')) {
+      <fieldset>
+        <h2 class="fs-title text-center">{{ stepper.steps[0].label | translate }}</h2>
+        <app-script-step-introduction></app-script-step-introduction>
+      </fieldset>
     }
 
-    @if (stepper.currentStep < stepper.totalSteps) {
-      <button type="button" class="btn btn-primary" (click)="stepper.next()">
-        {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }} &gt;
-      </button>
+    <!-- ===================== STEP 2: METADATA ===================== -->
+    @if (stepper.isActive('metadata')) {
+      <fieldset>
+        <h2 class="fs-title text-center">{{ stepper.steps[1].label | translate }}</h2>
+        <h3 class="fs-subtitle text-center">
+          {{ 'ADMIN_SCRIPTS.ADD_MODAL.METADATA_SUBHEADING' | translate }}
+        </h3>
+        <app-script-step-metadata [(metadata)]="scriptMetadata"></app-script-step-metadata>
+      </fieldset>
     }
-  </div>
+
+    <!-- ===================== STEP 3: SCRIPT CONTENT ===================== -->
+    @if (stepper.isActive('script')) {
+      <fieldset>
+        <h2 class="fs-title text-center">{{ stepper.steps[2].label | translate }}</h2>
+        <h3 class="fs-subtitle text-center">
+          {{ 'ADMIN_SCRIPTS.ADD_MODAL.SCRIPT_SUBHEADING' | translate }}
+        </h3>
+        <app-script-step-content></app-script-step-content>
+      </fieldset>
+    }
+
+    <!-- ---- SUCCESS / ERROR ALERTS ---- -->
+    @if (showSuccessAlert()) {
+      <div class="alert alert-success mt-3">
+        <button
+          type="button"
+          class="btn-close"
+          [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+          (click)="hideSuccessAlert()"
+        ></button>
+        <i class="fas fa-check"></i> {{ 'ADMIN_SCRIPTS.ADD_MODAL.REGISTER_SUCCESS' | translate }}
+      </div>
+    }
+    @if (showErrorAlert()) {
+      <div class="alert alert-danger mt-3">
+        <button
+          type="button"
+          class="btn-close"
+          [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+          (click)="hideErrorAlert()"
+        ></button>
+        <i class="fas fa-ban"></i> {{ 'ADMIN_SCRIPTS.ADD_MODAL.REGISTER_ERROR' | translate }}
+        <pre>{{ errorMessagePart() }}</pre>
+      </div>
+    }
+
+    <!--
+      Step navigation: "previous" is outline-secondary and "next" is primary,
+      as in the georesource and spatial-unit wizards. Two primaries side by
+      side gave the step pair no reading order.
+    -->
+    <div class="stepper-buttons">
+      @if (stepper.currentStep > 1) {
+        <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
+          {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+        </button>
+      }
+
+      @if (stepper.currentStep < stepper.totalSteps) {
+        <button type="button" class="btn btn-primary" (click)="stepper.next()">
+          {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+        </button>
+      }
+    </div>
+  </app-loading-overlay>
 </div>
 
-<!-- Footer with nav buttons -->
+<!--
+  Footer order shared with the group, topic and spatial-unit dialogs: cancel
+  pushed left with me-auto, then reset, then the primary action last. Reset is
+  outline-secondary, not btn-danger — it only discards pending input, yet as the
+  rightmost red button it outranked "register" beside it.
+-->
 <div class="modal-footer">
-  <button type="button" class="btn btn-outline-secondary" (click)="close()">
-    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="close()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
   </button>
-
-  <div style="flex: 1"></div>
-
+  <button type="button" class="btn btn-outline-secondary" (click)="resetForm()">
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
+  </button>
   <button type="button" class="btn btn-success" [disabled]="!isFormValid()" (click)="addScript()">
     {{ 'ADMIN_SCRIPTS.ADD_MODAL.REGISTER_SCRIPT' | translate }}
-  </button>
-
-  <button type="button" class="btn btn-danger" (click)="resetForm()">
-    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
 </div>

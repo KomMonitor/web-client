@@ -1,8 +1,39 @@
-<expandable-box [title]="'ADMIN_SCRIPTS.CODE.TITLE' | translate" borderColor="red">
+<expandable-box [title]="'ADMIN_SCRIPTS.CODE.TITLE' | translate">
+  <!--
+    An ordinary alert at the top of the box, above the file input it reports on.
+    It used to sit outside the box with `position: absolute; bottom: 0`, so it
+    rendered on top of the dialog's own footer buttons — the same defect the
+    indicator add modal already corrected.
+  -->
+  @if (showScriptCodeErrorAlert()) {
+    <div class="alert alert-danger alert-dismissible" role="alert">
+      <button
+        type="button"
+        class="btn-close"
+        [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+        (click)="hideScriptCodeErrorAlert()"
+      ></button>
+      <h5>
+        <i class="icon fa fa-ban"></i> {{ 'ADMIN_SCRIPTS.CODE.IMPORT_FAILED_TITLE' | translate }}
+      </h5>
+      <p>{{ 'ADMIN_SCRIPTS.CODE.IMPORT_FAILED_TEXT' | translate }}</p>
+      <pre class="mb-3">{{ indicatorScriptCodeImportError() }}</pre>
+      <p>
+        {{ 'ADMIN_SCRIPTS.CODE.IMPORT_FAILED_HINT_PREFIX' | translate }}
+        <a
+          href="./kommonitor-script-resources/kommonitor-script-template.js"
+          rel="noopener noreferrer"
+          target="_blank"
+          >{{ 'ADMIN_SCRIPTS.SCRIPT_TEMPLATE_LINK' | translate }}</a
+        >
+        {{ 'ADMIN_SCRIPTS.CODE.IMPORT_FAILED_HINT_SUFFIX' | translate }}
+      </p>
+    </div>
+  }
   <div class="row vertical-align">
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>{{ 'ADMIN_SCRIPTS.CODE.IMPORT_LABEL' | translate }}</label>
+        <label class="form-label">{{ 'ADMIN_SCRIPTS.CODE.IMPORT_LABEL' | translate }}</label>
         <input
           class="form-control"
           type="file"
@@ -10,7 +41,6 @@
           accept=".js"
           (change)="onScriptCodeFileChange($event)"
         />
-        <div class="help-block with-errors"></div>
         <div class="help-block">
           {{ 'ADMIN_SCRIPTS.CODE.IMPORT_HELP' | translate }}
         </div>
@@ -21,7 +51,7 @@
   <div class="row vertical-align">
     <div class="col-md-12 col-sm-12 col-12">
       <div class="form-group">
-        <label>{{ 'ADMIN_SCRIPTS.CODE.PREVIEW_LABEL' | translate }}</label>
+        <label class="form-label">{{ 'ADMIN_SCRIPTS.CODE.PREVIEW_LABEL' | translate }}</label>
         @if (rawScriptCode()) {
           <div #scriptCodeMirrorContainer></div>
         }
@@ -29,34 +59,3 @@
     </div>
   </div>
 </expandable-box>
-
-@if (showScriptCodeErrorAlert()) {
-  <div
-    style="position: absolute; bottom: 0px; width: 100%"
-    class="alert alert-danger alert-dismissible"
-  >
-    <button
-      type="button"
-      class="btn-close"
-      [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
-      (click)="hideScriptCodeErrorAlert()"
-    ></button>
-    <h4>
-      <i class="icon fa fa-ban"></i> {{ 'ADMIN_SCRIPTS.CODE.IMPORT_FAILED_TITLE' | translate }}
-    </h4>
-    {{ 'ADMIN_SCRIPTS.CODE.IMPORT_FAILED_TEXT' | translate }}
-    <br />
-    <pre>{{ indicatorScriptCodeImportError() }}</pre>
-    <br /><br />
-    <p>
-      {{ 'ADMIN_SCRIPTS.CODE.IMPORT_FAILED_HINT_PREFIX' | translate }}
-      <a
-        href="./kommonitor-script-resources/kommonitor-script-template.js"
-        rel="noopener noreferrer"
-        target="_blank"
-        >{{ 'ADMIN_SCRIPTS.SCRIPT_TEMPLATE_LINK' | translate }}</a
-      >
-      {{ 'ADMIN_SCRIPTS.CODE.IMPORT_FAILED_HINT_SUFFIX' | translate }}
-    </p>
-  </div>
-}

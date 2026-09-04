@@ -9,3 +9,14 @@
   margin-top: 3px;
   flex-shrink: 0;
 }
+
+/*
+ * Spacing between the two numbered steps and the checklist between them. These
+ * were three bare `<br />` elements sitting as direct children of the `<ol>`,
+ * which is not valid there (an `<ol>` takes `<li>` children only). The `<ol>`
+ * keeps Bootstrap's own 1rem bottom margin, so the third `<br />` before the
+ * closing paragraph was a second gap on top of it and is simply gone.
+ */
+.intro-steps > li + li {
+  margin-top: 1rem;
+}

@@ -4,7 +4,6 @@ import {
   NgZone,
   OnDestroy,
   OnInit,
-  ViewChild,
   inject,
   signal,
 } from '@angular/core';
@@ -12,7 +11,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridOptions } from 'ag-grid-community';
+import { ColDef, GridOptions, SelectionChangedEvent } from 'ag-grid-community';
 import { Subscription, skip } from 'rxjs';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import {
@@ -22,6 +21,8 @@ import {
 import { ProcessScriptMetadataStoreService } from 'services/process-script-metadata-store-service/process-script-metadata-store.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { KommonitorDataGridHelperService } from '../../../../services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import { ExpandableBoxComponent } from '../../common/expandable-box/expandable-box.component';
+import { LoadingOverlayComponent } from '../../common/loading-overlay/loading-overlay.component';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { ScriptIdNameTableCellRendererComponent } from './script-id-name-table-cell-renderer.component';
 import { ScriptProcessParametersCellRendererComponent } from './script-process-parameters-cell-renderer.component';
@@ -35,8 +36,14 @@ import { MODAL_CONFIRM, MODAL_WIDE } from 'util/modal-presets';
 @Component({
   selector: 'app-admin-script-management',
   templateUrl: './admin-script-management.component.html',
-  styleUrls: ['./admin-script-management.component.scss'],
-  imports: [TranslateModule, AgGridAngular, FormsModule, AdminContentViewComponent],
+  imports: [
+    TranslateModule,
+    AgGridAngular,
+    FormsModule,
+    AdminContentViewComponent,
+    ExpandableBoxComponent,
+    LoadingOverlayComponent,
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -50,15 +57,21 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
   private translate = inject(TranslateService);
 
-  @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
-
   // Signal-backed: written from async paths (metadata fetches, store
   // subscription, modal refresh requests) that would not trigger a re-render
   // of this OnPush component otherwise.
   public loadingData = signal(true);
   public initializationCompleted: boolean = false;
 
-  public defaultColDef: ColDef = this.kommonitorDataGridHelperService.buildDefaultColDef();
+  public defaultColDef: ColDef = {
+    ...this.kommonitorDataGridHelperService.buildDefaultColDef(),
+    // Same correction the group overview applies: several headers here are
+    // longer than the column they sit in ("Ziel-Indikatoren-Id" rendered as
+    // "Ziel-Indik…"), and wrapping adapts to the label length instead of
+    // requiring a width guess per translation.
+    wrapHeaderText: true,
+    autoHeaderHeight: true,
+  };
   public columnDefs: ColDef[] = [];
   // Signal-backed: rebuilt after async metadata fetches.
   public rowData = signal<any[]>([]);
@@ -237,10 +250,10 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
       });
   }
 
-  public onSelectionChanged(): void {
-    if (this.agGrid?.api) {
-      this.selectedRows.set(this.agGrid.api.getSelectedRows());
-    }
+  // Reads the selection off the event rather than a view query: the grid
+  // lives in a projected ng-template. Same shape as the group overview.
+  public onSelectionChanged(event: SelectionChangedEvent): void {
+    this.selectedRows.set(event.api.getSelectedRows());
   }
 
   public onClickAddScript(): void {
@@ -252,7 +265,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   }
 
   public onClickDeleteScripts(): void {
-    const selectedScripts = this.agGrid?.api?.getSelectedRows() || [];
+    const selectedScripts = this.selectedRows();
     if (selectedScripts.length === 0) return;
 
     const modalRef = this.modalService.open(ScriptDeleteModalComponent, MODAL_CONFIRM);

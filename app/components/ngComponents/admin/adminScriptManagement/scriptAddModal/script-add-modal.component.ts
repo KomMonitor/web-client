@@ -17,6 +17,7 @@ import {
   ScriptStepMetadataComponent,
 } from './scriptStepMetadata/script-step-metadata.component';
 import { ScriptStepContentComponent } from './scriptStepContent/script-step-content.component';
+import { LoadingOverlayComponent } from '../../../common/loading-overlay/loading-overlay.component';
 import { StepperComponent } from '../../../common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { ScriptRefreshRequest } from '../script-refresh.model';
@@ -29,6 +30,7 @@ import { TranslateModule } from '@ngx-translate/core';
   imports: [
     TranslateModule,
     FormsModule,
+    LoadingOverlayComponent,
     StepperComponent,
     ScriptStepIntroductionComponent,
     ScriptStepMetadataComponent,

@@ -11,7 +11,6 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-script-georesources',
   templateUrl: './script-georesources.component.html',
-  styleUrls: ['./script-georesources.component.scss'],
   standalone: true,
   imports: [TranslateModule, FormsModule, ExpandableBoxComponent, FilterableSelectComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,

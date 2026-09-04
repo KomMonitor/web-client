@@ -1,9 +1,8 @@
 <div class="row">
   <div class="col-md-9">
     <p>{{ 'ADMIN_SCRIPTS.INTRO.OVERVIEW' | translate }}</p>
-    <ol class="list-unstyled">
+    <ol class="list-unstyled intro-steps">
       <li [innerHTML]="'ADMIN_SCRIPTS.INTRO.FIRST_STEP' | translate"></li>
-      <br />
       <li>
         <ul class="list-unstyled">
           <li class="checklist-item">
@@ -24,10 +23,8 @@
           </li>
         </ul>
       </li>
-      <br />
       <li [innerHTML]="'ADMIN_SCRIPTS.INTRO.SECOND_STEP' | translate"></li>
     </ol>
-    <br />
     <p [innerHTML]="'ADMIN_SCRIPTS.INTRO.SCHEDULER_INFO' | translate"></p>
   </div>
   <div class="col-md-3">

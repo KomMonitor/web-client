@@ -11,7 +11,6 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-script-indicators',
   templateUrl: './script-indicators.component.html',
-  styleUrls: ['./script-indicators.component.scss'],
   standalone: true,
   imports: [TranslateModule, FormsModule, ExpandableBoxComponent, FilterableSelectComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1041,7 +1041,8 @@
     "INDICATOR_NAME_PLACEHOLDER": "IndicatorName",
     "MANAGEMENT": {
       "TITLE": "Script Management",
-      "DESCRIPTION": "Control of the semi-automated indicator computation"
+      "DESCRIPTION": "Control of the semi-automated indicator computation",
+      "BOX_TITLE": "Indicator computation scripts"
     },
     "EXECUTION": {
       "TITLE": "Indicator Computation",
@@ -1196,8 +1197,8 @@
     "GRID": {
       "COL_TARGET_INDICATOR_ID": "Target indicator id",
       "COL_TARGET_INDICATOR_NAME": "Target indicator name",
-      "COL_REQUIRED_BASE_INDICATORS": "required base indicators",
-      "COL_REQUIRED_BASE_GEORESOURCES": "required base georesources",
+      "COL_REQUIRED_BASE_INDICATORS": "Required base indicators",
+      "COL_REQUIRED_BASE_GEORESOURCES": "Required base georesources",
       "COL_PROCESS_PARAMETERS": "Process parameters",
       "COL_JOB_ID": "Job id",
       "COL_SCRIPT_ID": "Script id",

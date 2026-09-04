@@ -1,4 +1,4 @@
-<expandable-box [title]="'ADMIN_SCRIPTS.GEORESOURCES.TITLE' | translate" borderColor="red">
+<expandable-box [title]="'ADMIN_SCRIPTS.GEORESOURCES.TITLE' | translate">
   <div class="row vertical-align">
     <div class="col-md-12 col-sm-12 col-12">
       <app-filterable-select
@@ -15,7 +15,9 @@
   <div class="row vertical-align">
     <div class="col-md-6 col-sm-6 col-12">
       <div class="form-group">
-        <label>{{ 'ADMIN_SCRIPTS.GEORESOURCES.SELECTED_ID_LABEL' | translate }}</label>
+        <label class="form-label">{{
+          'ADMIN_SCRIPTS.GEORESOURCES.SELECTED_ID_LABEL' | translate
+        }}</label>
         <input
           type="text"
           class="form-control"
@@ -23,12 +25,13 @@
           [placeholder]="'ADMIN_SCRIPTS.GEORESOURCES.ID_PLACEHOLDER' | translate"
           [value]="selectedGeoresource?.georesourceId || ''"
         />
-        <div class="help-block with-errors"></div>
       </div>
     </div>
     <div class="col-md-6 col-sm-6 col-12">
       <div class="form-group">
-        <label>{{ 'ADMIN_SCRIPTS.GEORESOURCES.SELECTED_NAME_LABEL' | translate }}</label>
+        <label class="form-label">{{
+          'ADMIN_SCRIPTS.GEORESOURCES.SELECTED_NAME_LABEL' | translate
+        }}</label>
         <input
           type="text"
           class="form-control"
@@ -36,7 +39,6 @@
           [placeholder]="'ADMIN_SCRIPTS.INDICATOR_NAME_PLACEHOLDER' | translate"
           [value]="selectedGeoresource?.datasetName || ''"
         />
-        <div class="help-block with-errors"></div>
       </div>
     </div>
   </div>
@@ -51,7 +53,6 @@
         >
           {{ 'ADMIN_SCRIPTS.ADD' | translate }}
         </button>
-        <div class="help-block with-errors"></div>
       </div>
     </div>
   </div>
@@ -59,8 +60,10 @@
   <!-- Tabelle der definierten Georessourcen -->
   <div class="row vertical-align">
     <div class="col-md-12 col-sm-12 col-12">
-      <label>{{ 'ADMIN_SCRIPTS.GEORESOURCES.OVERVIEW_LABEL' | translate }}</label>
-      <table class="table table-sm">
+      <label class="form-label">{{
+        'ADMIN_SCRIPTS.GEORESOURCES.OVERVIEW_LABEL' | translate
+      }}</label>
+      <table class="table table-bordered table-striped table-sm">
         <thead>
           <tr>
             <th>{{ 'ADMIN_SHARED.EDIT_FUNCTIONS' | translate }}</th>

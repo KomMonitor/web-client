@@ -238,17 +238,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
   // Signal-backed: written from the store subscription and fetch callbacks,
   // which would not trigger a re-render of this OnPush component otherwise.
   public rowData = signal<SpatialUnitMetadata[]>([]);
-  private readonly baseColDef: ColDef = this.kommonitorDataGridHelperService.buildDefaultColDef();
-  public defaultColDef: ColDef = {
-    ...this.baseColDef,
-    cellStyle: {
-      ...(this.baseColDef.cellStyle as Record<string, string>),
-      // Same correction the group overview already applies: the shared style
-      // forces 12px while the alpine theme renders this table's own header at
-      // 13px, so the values sat a pixel below the column they belong to.
-      'font-size': '13px',
-    },
-  };
+  public defaultColDef: ColDef = this.kommonitorDataGridHelperService.buildDefaultColDef();
   public gridOptions: GridOptions = {};
 
   // Pagination properties

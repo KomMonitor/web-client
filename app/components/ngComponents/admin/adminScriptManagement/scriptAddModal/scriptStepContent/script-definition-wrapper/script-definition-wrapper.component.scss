@@ -6,17 +6,18 @@
   margin-bottom: 12px;
 }
 
+/*
+ * One step below the dialog's `.fs-title`: this heading names a section *inside*
+ * a wizard step, so it keeps that heading's colour and centring but drops to
+ * 16px and loses the uppercasing. The description below it uses the shared
+ * `.fs-subtitle` unchanged.
+ */
 .wrapper-title {
   text-align: center;
   font-weight: 600;
   font-size: 16px;
+  color: #2c3e50;
   margin-bottom: 4px;
-}
-
-.wrapper-description {
-  text-align: center;
-  font-size: 12px;
-  margin-bottom: 0;
 }
 
 .wrapper-content {

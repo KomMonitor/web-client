@@ -1366,8 +1366,18 @@ a.kommonitor-theme:focus {
   font-weight: bold;
 }
 
+/*
+ * 13px, not 12px: the alpine theme renders every grid's header at 13px
+ * (`--ag-font-size` + 1px), so 12px left the values a pixel below the column
+ * they belong to. The group and spatial-unit overviews each carried a local
+ * `cellStyle` override to correct exactly that, while the georesource, indicator
+ * and script overviews kept the mismatch — the value belongs here, once.
+ *
+ * Grids that deliberately want a denser cell (the feature tables and the role
+ * matrix inside dialogs) set their own `cellStyle`, which wins over this rule.
+ */
 .ag-cell {
-  font-size: 12px;
+  font-size: 13px;
   white-space: normal;
   line-height: 20px !important;
   word-break: break-word !important;

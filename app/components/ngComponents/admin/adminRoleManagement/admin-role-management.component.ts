@@ -82,13 +82,6 @@ export class AdminRoleManagementComponent implements OnInit {
     // label length instead of requiring a width guess per translation.
     wrapHeaderText: true,
     autoHeaderHeight: true,
-    cellStyle: {
-      ...(this.baseColDef.cellStyle as Record<string, string>),
-      // The shared style forces 12px while the alpine theme renders the header
-      // of the same table at 13px. Matching the theme removes a one-pixel
-      // difference between a column header and the values under it.
-      'font-size': '13px',
-    },
   };
   public gridOptions: GridOptions = {
     suppressRowClickSelection: true,
