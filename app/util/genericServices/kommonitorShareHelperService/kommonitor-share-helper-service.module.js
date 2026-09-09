@@ -26,7 +26,8 @@ angular
       this.paramName_symbolStyle = "symbolStyle";
       this.paramName_speechOutput = "speechOutput";
       this.paramName_landmarks = "landmarks";
-      this.paramName_hideIndicator = "hideIndicator";
+      this.paramName_hideIndicator = "hideIndicator";      
+      this.paramName_placeName = "placeName"; // name of simple places // hard coded to Emma the Muh or KIZ Herne
 
       this.initParamsMap = function(){
         // set map content from params
@@ -74,6 +75,10 @@ angular
         }
         if ($routeParams[this.paramName_hideIndicator]){
           __env.hideIndicator = $routeParams[this.paramName_hideIndicator];
+        }
+
+        if ($routeParams[this.paramName_placeName]){
+          __env.placeName = $routeParams[this.paramName_placeName];
         }
 
       };
