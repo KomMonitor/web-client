@@ -2,7 +2,7 @@
   <div style="text-align: center">
     @if (loadingData) {
       <div class="loading-overlay-sidebar-small">
-        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+        <span class="fas fa-arrows-rotate icon-spin"></span>
       </div>
     }
   </div>
@@ -12,7 +12,7 @@
       <span class="icon"><i class="fas fa-filter"></i></span>
       <input
         type="text"
-        class="form-control input-sm"
+        class="form-control"
         placeholder="Stichwortfilter"
         [(ngModel)]="indicatorNameFilter"
         (keyup)="onChangeIndicatorFilter()"
@@ -39,7 +39,7 @@
     <label>Datenkataloge:</label>
 
     <ul class="nav nav-tabs" id="legendTabs" role="tablist">
-      <li class="nav-item active">
+      <li class="nav-item">
         <a
           class="nav-link active"
           id="dataCatalogueTab1"
@@ -103,7 +103,7 @@
         aria-labelledby="dataCatalogueTab1"
       >
         <div class="just-padding">
-          <div id="indicatorHierarchySelection" class="list-group list-group-root well">
+          <div id="indicatorHierarchySelection" class="list-group list-group-root">
             @if (topicHierarchyStore.headlineIndicatorHierarchy.length) {
               <div id="indicator-symbol-explanation">
                 <label>Erläuterungen zur Symbolik</label>
@@ -163,7 +163,7 @@
           aria-labelledby="dataCatalogueTab2"
         >
           <div class="just-padding">
-            <div id="headlineIndicatorHierarchySelection" class="list-group list-group-root well">
+            <div id="headlineIndicatorHierarchySelection" class="list-group list-group-root">
               <label>Erl&auml;uterungen zur Symbolik</label>
               <div class="list-group-item list-group-item-default style-headline-indicator">
                 <p style="cursor: pointer; color: white">

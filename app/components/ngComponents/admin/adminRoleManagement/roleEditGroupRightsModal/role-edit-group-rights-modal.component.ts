@@ -68,17 +68,51 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
     { key: 'foreignRights', label: 'ADMIN_SHARED_UI.STEP_LABELS.RIGHTS_OF_OTHER_GROUPS_SELECTED' },
   ]);
 
+  /*
+   * ag-grid reads `gridOptions` exactly once, when it creates the grid, and
+   * silently drops anything assigned afterwards — cell-renderer registrations
+   * included. Both grids are therefore configured here, before the first
+   * render; the async fetch in ngOnInit only fills in the live `columnDefs` /
+   * `rowData` / `defaultColDef` inputs, which ag-grid does keep watching.
+   *
+   * Step 1's grid used to be created while these were still `{}`, because
+   * buildAuthorityTable() runs in a subscribe callback. Its six permission
+   * columns rendered empty ("Could not find 'checkboxRenderer_UM_group'
+   * component") and its page size fell back to ag-grid's default of 100. Step 2
+   * only worked because its grid is not rendered until the step is opened, by
+   * which time the callback had run.
+   */
+  private readonly gridComponents = createAdvancedRoleComponents();
+
+  private readonly baseGridOptions: GridOptions = {
+    ...this.roleManagementHelper.buildRoleManagementGridOptionsPublic(this.gridComponents),
+    paginationPageSize: 5,
+    paginationPageSizeSelector: [5, 10, 25, 50],
+    // Applies to all three header rows — ag-grid falls back to headerHeight for
+    // the column-group and floating-filter rows, giving 3 x 52px.
+    headerHeight: 52,
+    // No rowHeight here on purpose: the shared defaultColDef sets
+    // `autoHeight: true`, so ag-grid measures each row from its content and
+    // ignores rowHeight entirely. Setting it only suggested a fixed height the
+    // grid never honours.
+  };
+
   // Authority table (step 1, read-only)
   authorityColumnDefs: ColDef[] = [];
   authorityRowData: AdvancedAccessControlRow[] = [];
   authorityDefaultColDef: ColDef = {};
-  authorityGridOptions: GridOptions = {};
+  authorityGridOptions: GridOptions = { ...this.baseGridOptions };
 
   // Delegated table (step 2, editable)
   delegatedColumnDefs: ColDef[] = [];
   delegatedRowData: AdvancedAccessControlRow[] = [];
   delegatedDefaultColDef: ColDef = {};
-  delegatedGridOptions: GridOptions = {};
+  delegatedGridOptions: GridOptions = {
+    ...this.baseGridOptions,
+    onGridReady: (params: GridReadyEvent) => {
+      this.delegatedGridApi = params.api;
+    },
+  };
   private delegatedGridApi: GridApi | null = null;
 
   private allDelegatedRowData: AdvancedAccessControlRow[] = [];
@@ -130,23 +164,14 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
     );
 
     const rowData = buildAdvancedRoleRowData(access, authorityPermissionIds, true);
-    const components = createAdvancedRoleComponents();
 
-    this.authorityColumnDefs = buildAdvancedColumnDefs();
+    this.authorityColumnDefs = buildAdvancedColumnDefs(this.translate);
     this.authorityRowData = rowData;
     this.authorityDefaultColDef = {
       ...this.roleManagementHelper.buildRoleManagementDefaultColDef(),
       filter: true,
       floatingFilter: true,
       minWidth: 110,
-    };
-    const baseOptions = this.roleManagementHelper.buildRoleManagementGridOptionsPublic(components);
-    this.authorityGridOptions = {
-      ...baseOptions,
-      paginationPageSize: 5,
-      paginationPageSizeSelector: [5, 10, 25, 50],
-      headerHeight: 52,
-      rowHeight: 42,
     };
   }
 
@@ -168,24 +193,12 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
     const allAccess = this.accessControlService.accessControl;
     this.allDelegatedRowData = buildAdvancedRoleRowData(allAccess, delegatedPermissionIds, false);
 
-    const components = createAdvancedRoleComponents();
-    this.delegatedColumnDefs = buildAdvancedColumnDefs();
+    this.delegatedColumnDefs = buildAdvancedColumnDefs(this.translate);
     this.delegatedDefaultColDef = {
       ...this.roleManagementHelper.buildRoleManagementDefaultColDef(),
       filter: true,
       floatingFilter: true,
       minWidth: 110,
-    };
-    const baseOptions = this.roleManagementHelper.buildRoleManagementGridOptionsPublic(components);
-    this.delegatedGridOptions = {
-      ...baseOptions,
-      paginationPageSize: 5,
-      paginationPageSizeSelector: [5, 10, 25, 50],
-      headerHeight: 52,
-      rowHeight: 42,
-      onGridReady: (params: GridReadyEvent) => {
-        this.delegatedGridApi = params.api;
-      },
     };
 
     this.applyDelegatedFilter();
@@ -244,6 +257,11 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
   reset(): void {
     this.showErrorAlert = false;
     this.errorMessagePart = undefined;
+    // Back to step 1, matching what the add dialog's reset does. Without this
+    // the button discarded the pending checkbox edits and refetched, but left
+    // the user on step 2 staring at a table that had silently changed under
+    // them.
+    this.stepper.reset();
     this.ngOnInit();
   }
 

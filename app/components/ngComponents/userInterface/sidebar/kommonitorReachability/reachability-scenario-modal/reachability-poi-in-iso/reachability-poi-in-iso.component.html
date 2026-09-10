@@ -46,7 +46,7 @@
             Datum
             <div ng-hide="!(settings.dateSelectionType.selectedDateType === $ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType_valueManual)"
               class="input-group date">
-              <div class="input-group-addon">
+              <div class="input-group-text">
                 <i class="far fa-calendar-alt"></i>
               </div>
               <input type="text"
@@ -68,7 +68,7 @@
           <span class="icon"><i class="fas fa-filter"></i></span>
           <input
             type="text"
-            class="form-control input-sm"
+            class="form-control"
             placeholder="Stichwortfilter"
             (keyup)="onNameFilterChange($event)"
           />
@@ -77,7 +77,7 @@
         <br />
 
         <div id="poiInputForm_reachabilityAnalysis">
-          <table class="table table-condensed" style="margin-bottom: 0px">
+          <table class="table table-sm" style="margin-bottom: 0px">
             <thead>
               <tr>
                 <th>Datensatz</th>
@@ -126,7 +126,7 @@
                             font-size: 1.2em;
                           "
                           [ngStyle]="{ color: poi.poiSymbolColor }"
-                          class="glyphicon glyphicon-{{ poi.poiSymbolBootstrap3Name }}"
+                          class="{{ poi.poiSymbolBootstrap3Name | iconTranslate }}"
                           aria-hidden="true"
                         ></span>
                       </div>

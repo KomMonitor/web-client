@@ -58,8 +58,6 @@ Typisierung prüfen und ggf. löschen statt ins Enum aufnehmen:
 
 ```
 onAddedFeatureToSelection
-reopenBatchUpdateResultModal
-resetTimeseriesMapping
 onOpenAddFilterModal
 CSVFromFileFinished_indicatorRegionalReferenceValues   # file-helper.service; Multi-Line-Sender, kein Empfänger
 ```
@@ -85,7 +83,6 @@ resizeDiagrams                                              # kommonitor-diagram
 switchReportingMode                                        # kommonitor-reachability / reachability-scenario-configuration switch; nur Legacy-$scope.$broadcast in indicator-add, kein Angular-Bus-Sender
 onManageReachabilityScenario                               # reachability-scenario-configuration switch; kein Sender
 onGlobalFilterDelete                                        # admin-filter-config switch; kein Sender
-timeseriesMappingChanged                                   # indicator-edit-features-modal; kein Sender
 onEditIndicatorFeatures                                    # admin-indicators-management; kein Sender
 onEditIndicatorMetadata                                    # indicator-edit-metadata-modal; kein Sender
 onDeleteIndicators                                         # indicator-delete-modal; kein Sender
@@ -284,8 +281,7 @@ values?: any }`). `msg` lässt bewusst beliebige Strings zu, damit die Empfänge
 
 ## Migrationsweg (kein Big-Bang)
 
-Passend zum inkrementellen Vorgehen aus `PROPOSED_CHANGES.md` /
-`PRIO7_GOD_SERVICE_SPLIT.md`:
+Passend zum inkrementellen Vorgehen des God-Service-Splits:
 
 1. `broadcast-message.ts` mit allen gesammelten Namen + Helpern anlegen.
 2. `broadcast()`-Signatur auf `BroadcastMessage | string` setzen (bricht nichts).
@@ -328,7 +324,6 @@ allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed # Multi-Line-
 AppendExportButtonsForTable
 applyNoDataDisplay
 availableRolesUpdate
-batchUpdateCompleted
 CSVFromFileFinished_indicatorRegionalReferenceValues   # Multi-Line-Sender (file-helper), kein Empfänger
 changeBreaks
 changeClassifyMethod
@@ -386,14 +381,12 @@ removeRangeFilter
 removeReachabilityScenarioFromMainMap
 removeWfsLayerFromMap
 removeWmsLayerFromMap
-reopenBatchUpdateResultModal
 replaceIndicatorAsGeoJSON
 replaceReachabilityScenarioOnMainMap
 reportingIsochronesCalculationFinished
 reportingIsochronesCalculationStarted
 reportingPoiLayerSelected
 resetPoisInIsochrone
-resetTimeseriesMapping
 restyleCurrentLayer
 screenshotsForCurrentSpatialUnitUpdate
 selectedIndicatorDateHasChanged

@@ -62,7 +62,8 @@ export class IndicatorRadarComponent implements OnInit, AfterViewInit, OnDestroy
   radarHeight = '60vh';
   radarheight_defaultNum = 60;
 
-  // Local precision-resolving wrappers (formerly the DataExchangeService facade glue, Prio7 B1).
+  // Resolve the indicator precision from the current selection before
+  // delegating to IndicatorValueService.
   private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
     return this.indicatorValueService.getIndicatorValue_asNumber(
       indicatorValue,
@@ -446,20 +447,6 @@ export class IndicatorRadarComponent implements OnInit, AfterViewInit, OnDestroy
                 title: 'Datenansicht',
                 lang: ['Datenansicht - Indikatorenradar', 'schlie&szlig;en', 'refresh'],
                 optionToContent: (opt) => {
-                  // 	<table class="table table-condensed table-hover">
-                  // 	<thead>
-                  // 		<tr>
-                  // 			<th>Indikator-Name</th>
-                  // 			<th>Beschreibung der Verkn&uuml;pfung</th>
-                  // 		</tr>
-                  // 	</thead>
-                  // 	<tbody>
-                  // 		<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
-                  // 			<td>{{indicator.referencedIndicatorName}}</td>
-                  // 			<td>{{indicator.referencedIndicatorDescription}}</td>
-                  // 		</tr>
-                  // 	</tbody>
-                  // </table>
                   const radarSeries = opt.series[0].data;
                   const indicators = opt.radar[0].indicator;
                   const dataTableId = 'radarDataTable';
@@ -467,7 +454,7 @@ export class IndicatorRadarComponent implements OnInit, AfterViewInit, OnDestroy
                   let htmlString =
                     '<table id="' +
                     dataTableId +
-                    '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+                    '" class="table table-bordered table-sm" style="width:100%;text-align:center;">';
                   htmlString += '<thead>';
                   htmlString += '<tr>';
                   htmlString += "<th style='text-align:center;'>Raumeinheits-Name</th>";

@@ -52,7 +52,8 @@ export class KommonitorDiagramsComponent implements OnInit, AfterViewInit, OnDes
     this.showBarChartAverageLine = envConfigService.showBarChartAverageLine;
   }
 
-  // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
+  // Resolve the indicator precision from the current selection before
+  // delegating to IndicatorValueService.
   private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
     return this.indicatorValueService.getIndicatorValue_asNumber(
       indicatorValue,
@@ -135,7 +136,6 @@ export class KommonitorDiagramsComponent implements OnInit, AfterViewInit, OnDes
 
   private INDICATOR_DATE_PREFIX = this.envConfigService.indicatorDatePrefix;
 
-  // $scope.userHoveresOverBarItem = false;
   eventsRegistered = false;
   isTooManyFeatures = false;
   histogramCanBeDisplayed = false;

@@ -25,11 +25,11 @@ import {
   GridOptions,
   GridReadyEvent,
 } from 'ag-grid-community';
-import { Subscription, filter } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { KmDatePickerComponent } from 'components/ngComponents/customElements/date-picker/km-date-picker.component';
 import { SingleFeatureEditComponent } from 'components/ngComponents/common/single-feature-edit/single-feature-edit.component';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
@@ -37,12 +37,44 @@ import { CacheHelperServiceService } from 'services/cache-helper-service/cache-h
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { FeatureTableDataGridHelperService } from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
+import {
+  FeatureTableCallbacks,
+  FeatureTableDataGridHelperService,
+  FeatureTableEditStatus,
+} from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { TranslateService } from '@ngx-translate/core';
+import {
+  BboxType,
+  ImporterFormGroup,
+  SYNTHETIC_DATASOURCE_PARAMETERS,
+  patchImporterFormFromMappingConfig,
+  syncConverterParameterControls,
+  syncDatasourceParameterControls,
+} from '../../adminShared/importerForm/importer-form.model';
+import type {
+  ImporterObjectsConfig,
+  MappingConfigImport,
+} from 'services/resource-import-service/resource-import.model';
+import { ResourceImportService } from 'services/resource-import-service/resource-import.service';
+import { buildMappingConfigExport } from 'services/adminSpatialUnit/spatial-unit-metadata.util';
+import { patchPeriodOfValidityForm } from '../../adminShared/periodOfValidityForm/period-of-validity-form.model';
+import {
+  attributeMappingDraftToRow,
+  buildAttributeMappingDraftForm,
+  patchAttributeMappingDraft,
+  resetAttributeMappingDraft,
+} from '../../adminShared/attributeMappingDraftForm/attribute-mapping-draft-form.model';
+import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
+import { FormControlAriaDirective } from '../../adminShared/formError/form-control-aria.directive';
+import { controlInvalidSignal } from '../../adminShared/forms/control-state';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { buildGeoresourceEditFeaturesForm } from './georesource-edit-features-form.model';
+
 @Component({
   selector: 'app-georesource-edit-features-modal',
   templateUrl: './georesource-edit-features-modal.component.html',
@@ -50,6 +82,10 @@ import { TranslateService } from '@ngx-translate/core';
   imports: [
     AgGridAngular,
     FormsModule,
+    LoadingOverlayComponent,
+    ReactiveFormsModule,
+    FormErrorComponent,
+    FormControlAriaDirective,
     SingleFeatureEditComponent,
     StepperComponent,
     KmDatePickerComponent,
@@ -69,20 +105,58 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   private translate = inject(TranslateService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
+  private resourceImportService = inject(ResourceImportService);
   featureTableHelper = inject(FeatureTableDataGridHelperService);
   private envConfigService = inject(EnvConfigService);
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
 
-  // Model-backed values for the dynamic converter/datasource parameter inputs
-  // (formerly scraped from the DOM by element id)
-  converterParameterValues: Record<string, string> = {};
-  datasourceParameterValues: Record<string, string> = {};
-  bboxMinX = '';
-  bboxMinY = '';
-  bboxMaxX = '';
-  bboxMaxY = '';
+  /**
+   * Typed model of the batch-import step. The overview step is the AG-Grid
+   * feature table and the single-feature step is its own component; neither is
+   * part of this form. The accessors below keep the historic property names
+   * working for the PUT-body builder and the spec.
+   */
+  readonly editForm = buildGeoresourceEditFeaturesForm();
+
+  get importerForm(): ImporterFormGroup {
+    return this.editForm.controls.importer;
+  }
+
+  private readonly batchStepInvalid = controlInvalidSignal(this.editForm, { whenTouched: true });
+
+  // Dynamic converter/datasource parameter inputs, keyed by parameter name.
+  get converterParameterValues(): Record<string, string> {
+    return this.importerForm.controls.converterParameters.getRawValue();
+  }
+  get datasourceParameterValues(): Record<string, string> {
+    return this.importerForm.controls.datasourceTypeParameters.getRawValue();
+  }
+  get bboxMinX(): string {
+    return this.importerForm.controls.bbox.controls.minx.value;
+  }
+  set bboxMinX(value: string) {
+    this.importerForm.controls.bbox.controls.minx.setValue(value ?? '');
+  }
+  get bboxMinY(): string {
+    return this.importerForm.controls.bbox.controls.miny.value;
+  }
+  set bboxMinY(value: string) {
+    this.importerForm.controls.bbox.controls.miny.setValue(value ?? '');
+  }
+  get bboxMaxX(): string {
+    return this.importerForm.controls.bbox.controls.maxx.value;
+  }
+  set bboxMaxX(value: string) {
+    this.importerForm.controls.bbox.controls.maxx.setValue(value ?? '');
+  }
+  get bboxMaxY(): string {
+    return this.importerForm.controls.bbox.controls.maxy.value;
+  }
+  set bboxMaxY(value: string) {
+    this.importerForm.controls.bbox.controls.maxy.setValue(value ?? '');
+  }
 
   // Alert visibility (template binding; formerly toggled via document.getElementById).
   // Update success/error feedback is toasted via NotificationService; only the
@@ -93,6 +167,9 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
   @ViewChild('dataSourceInput', { static: false }) dataSourceInput!: ElementRef;
   @ViewChild('georesourceFeatureTable', { static: true }) georesourceFeatureTable!: AgGridAngular;
+  /** Same element, read as host node: scopes the header measurement to this grid. */
+  @ViewChild('georesourceFeatureTable', { static: true, read: ElementRef })
+  georesourceFeatureTableEl!: ElementRef<HTMLElement>;
 
   // Component state
   // Signal: toggled from subscriptions and grid-helper events (OnPush).
@@ -101,7 +178,11 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   readonly stepper = new WizardStepper([
     { key: 'overview', label: 'ADMIN_SHARED_UI.STEP_LABELS.FEATURE_OVERVIEW' },
     { key: 'single', label: 'ADMIN_SHARED_UI.STEP_LABELS.IMPORT_SINGLE_FEATURES' },
-    { key: 'batch', label: 'ADMIN_SHARED_UI.STEP_LABELS.IMPORT_MULTIPLE_FEATURES' },
+    {
+      key: 'batch',
+      label: 'ADMIN_SHARED_UI.STEP_LABELS.IMPORT_MULTIPLE_FEATURES',
+      invalid: this.batchStepInvalid,
+    },
   ]);
 
   get currentGeoresourceDataset(): any {
@@ -116,6 +197,9 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   enableDeleteFeatures = false;
   georesourceFeaturesGeoJSON: any;
   remainingFeatureHeaders: any[] = [];
+
+  /** Last edit/delete outcome of this modal's feature table (own instance). */
+  readonly featureTableStatus = new FeatureTableEditStatus();
 
   // AG-Grid configuration
   featureTableGridOptions: GridOptions = {};
@@ -134,28 +218,73 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   schemaObject: any;
 
   // Multiple feature import variables
-  periodOfValidity: any = {
-    startDate: '',
-    endDate: '',
-  };
-  periodOfValidityInvalid = false;
+  get periodOfValidity(): { startDate: string; endDate: string } {
+    const period = this.editForm.controls.periodOfValidity.getRawValue();
+    // Clearing the "valid until" field writes null (the picker no longer forces
+    // today); the PUT body keeps sending '' for an open-ended period.
+    return { startDate: period.startDate, endDate: period.endDate ?? '' };
+  }
+  set periodOfValidity(value: { startDate: any; endDate: any } | null | undefined) {
+    patchPeriodOfValidityForm(this.editForm.controls.periodOfValidity, value);
+  }
+  get periodOfValidityInvalid(): boolean {
+    return this.editForm.controls.periodOfValidity.hasError('periodOfValidity');
+  }
 
   // Data source variables
   georesourceDataSourceInputInvalid = false;
   georesourceDataSourceInputInvalidReason: string = '';
-  georesourceDataSourceIdProperty: string = '';
-  georesourceDataSourceNameProperty: string = '';
+  get georesourceDataSourceIdProperty(): string {
+    return this.importerForm.controls.idProperty.value;
+  }
+  set georesourceDataSourceIdProperty(value: string) {
+    this.importerForm.controls.idProperty.setValue(value ?? '');
+  }
+  get georesourceDataSourceNameProperty(): string {
+    return this.importerForm.controls.nameProperty.value;
+  }
+  set georesourceDataSourceNameProperty(value: string) {
+    this.importerForm.controls.nameProperty.setValue(value ?? '');
+  }
   idPropertyNotFound = false;
   namePropertyNotFound = false;
 
   // Import configuration
-  converter: any;
-  schema: string = '';
-  mimeType: string = '';
-  datasourceType: any;
+  get converter(): any {
+    return this.importerForm.controls.converter.value;
+  }
+  set converter(value: any) {
+    this.importerForm.controls.converter.setValue(value ?? null);
+  }
+  get schema(): string {
+    return this.importerForm.controls.schema.value;
+  }
+  set schema(value: string) {
+    this.importerForm.controls.schema.setValue(value ?? '');
+  }
+  get mimeType(): string {
+    return this.importerForm.controls.mimeType.value;
+  }
+  set mimeType(value: string) {
+    this.importerForm.controls.mimeType.setValue(value ?? '');
+  }
+  get datasourceType(): any {
+    return this.importerForm.controls.datasourceType.value;
+  }
+  set datasourceType(value: any) {
+    this.importerForm.controls.datasourceType.setValue(value ?? null);
+  }
 
   // Available options
-  availableDatasourceTypes: any[] = [];
+  /**
+   * Read live from the helper service instead of copying the array once: the
+   * helper *replaces* availableDatasourceTypes when its importer fetch resolves,
+   * so a copy taken during ngOnInit stays empty forever and the data source
+   * select renders no options at all.
+   */
+  get availableDatasourceTypes(): any[] {
+    return this.kommonitorImporterHelperService.availableDatasourceTypes ?? [];
+  }
   availableSpatialUnits: any[] = [];
 
   // Converter parameters
@@ -165,24 +294,82 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   putBody_georesources: any;
 
   // Validity date attributes
-  validityEndDate_perFeature: string = '';
-  validityStartDate_perFeature: string = '';
+  get validityEndDate_perFeature(): string {
+    return this.importerForm.controls.validEndDateProperty.value;
+  }
+  set validityEndDate_perFeature(value: string) {
+    this.importerForm.controls.validEndDateProperty.setValue(value ?? '');
+  }
+  get validityStartDate_perFeature(): string {
+    return this.importerForm.controls.validStartDateProperty.value;
+  }
+  set validityStartDate_perFeature(value: string) {
+    this.importerForm.controls.validStartDateProperty.setValue(value ?? '');
+  }
 
-  // Attribute mapping
-  attributeMapping_sourceAttributeName: string = '';
-  attributeMapping_destinationAttributeName: string = '';
-  attributeMapping_data: any;
-  attributeMapping_attributeType: any;
+  /**
+   * Staging row above the mapping table. Deliberately not part of `editForm`:
+   * it is not submitted, and its required rules must not gate the modal.
+   */
+  readonly attributeMappingDraft = buildAttributeMappingDraftForm();
+  get attributeMapping_sourceAttributeName(): string {
+    return this.attributeMappingDraft.controls.sourceName.value;
+  }
+  set attributeMapping_sourceAttributeName(value: string) {
+    this.attributeMappingDraft.controls.sourceName.setValue(value ?? '');
+  }
+  get attributeMapping_destinationAttributeName(): string {
+    return this.attributeMappingDraft.controls.destinationName.value;
+  }
+  set attributeMapping_destinationAttributeName(value: string) {
+    this.attributeMappingDraft.controls.destinationName.setValue(value ?? '');
+  }
+  get attributeMapping_attributeType(): any {
+    return this.attributeMappingDraft.controls.dataType.value;
+  }
+  set attributeMapping_attributeType(value: any) {
+    this.attributeMappingDraft.controls.dataType.setValue(value ?? null);
+  }
   attributeMappings_adminView: any[] = [];
-  keepAttributes = true;
-  keepMissingValues = true;
+  get keepAttributes(): boolean {
+    return this.importerForm.controls.keepAttributes.value;
+  }
+  set keepAttributes(value: boolean) {
+    this.importerForm.controls.keepAttributes.setValue(!!value);
+  }
+  get keepMissingValues(): boolean {
+    return this.importerForm.controls.keepMissingValues.value;
+  }
+  set keepMissingValues(value: boolean) {
+    this.importerForm.controls.keepMissingValues.setValue(!!value);
+  }
 
   // BBOX configuration
-  bboxType: string = '';
-  bboxRefSpatialUnit: any;
+  get bboxType(): string {
+    return this.importerForm.controls.bboxType.value;
+  }
+  set bboxType(value: string) {
+    this.importerForm.controls.bboxType.setValue((value ?? '') as BboxType);
+  }
+  /**
+   * Id of the reference spatial unit. Historically this held the whole dataset
+   * object and the PUT body read `.spatialUnitId` off it; storing the id keeps
+   * the wire format identical and drops one object-identity `[ngValue]` select.
+   */
+  get bboxRefSpatialUnitId(): string {
+    return this.importerForm.controls.bboxRefSpatialUnitId.value;
+  }
+  set bboxRefSpatialUnitId(value: string) {
+    this.importerForm.controls.bboxRefSpatialUnitId.setValue(value ?? '');
+  }
 
   // Partial update
-  isPartialUpdate = false;
+  get isPartialUpdate(): boolean {
+    return this.editForm.controls.isPartialUpdate.value;
+  }
+  set isPartialUpdate(value: boolean) {
+    this.editForm.controls.isPartialUpdate.setValue(!!value);
+  }
 
   // Per-feature importer error report (shown inline; summaries are toasted)
   // Signal: filled from the PUT error callback (OnPush).
@@ -198,8 +385,22 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   private subscriptions: Subscription[] = [];
 
   constructor() {
-    console.log('GeoresourceEditFeaturesModalComponent constructor initialized');
     this.initializeDefaultValues();
+
+    // The importer selects no longer carry (ngModelChange) handlers; their
+    // dependent fields and parameter controls hang off the form instead.
+    // Wired here rather than in ngOnInit so the controls exist as soon as a
+    // converter or data source is selected, however that happens.
+    this.importerForm.controls.converter.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      syncConverterParameterControls(this.importerForm, this.converter);
+      // Without this call onChangeConverter() was dead code — the template has
+      // no (change) handler — so schema and source format stayed empty and the
+      // stale data source survived a converter switch.
+      this.onChangeConverter();
+    });
+    this.importerForm.controls.datasourceType.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((datasourceType) => this.applyDatasourceTypeChange(datasourceType));
   }
 
   ngOnInit(): void {
@@ -215,7 +416,6 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   private initializeDefaultValues(): void {
     this.attributeMapping_attributeType =
       this.kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
-    this.availableDatasourceTypes = this.kommonitorImporterHelperService.availableDatasourceTypes;
     this.availableSpatialUnits = this.spatialUnitStore.availableSpatialUnits;
   }
 
@@ -235,26 +435,22 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       }
     );
     this.subscriptions.push(broadcastSubscription);
+  }
 
-    // React to feature-table loading/delete events from the shared grid helper.
-    const featureTableSubscription = this.featureTableHelper.featureTableEvents$
-      .pipe(
-        filter((event) => event.resourceType === this.featureTableHelper.resourceType_georesource)
-      )
-      .subscribe((event) => {
-        if (event.type === 'loadingStart') {
-          this.loadingData.set(true);
-        } else if (event.type === 'loadingEnd') {
-          this.loadingData.set(false);
-        } else if (event.type === 'featureDeleted') {
-          this.refreshRequested.emit({
-            crudType: 'edit',
-            targetGeoresourceId: this.currentGeoresourceDataset?.georesourceId,
-          });
-          this.refreshGeoresourceEditFeaturesOverviewTable();
-        }
-      });
-    this.subscriptions.push(featureTableSubscription);
+  /** Callbacks this modal's feature table reports its edits and deletes through. */
+  private featureTableCallbacks(): FeatureTableCallbacks {
+    return {
+      onDeleteStart: () => this.loadingData.set(true),
+      onDeleteSuccess: () => {
+        this.refreshRequested.emit({
+          crudType: 'edit',
+          targetGeoresourceId: this.currentGeoresourceDataset?.georesourceId,
+        });
+        this.refreshGeoresourceEditFeaturesOverviewTable();
+      },
+      onDeleteError: () => this.loadingData.set(false),
+      onCellEditResult: (success) => this.featureTableStatus.record(success),
+    };
   }
 
   onEditGeoresourceFeatures(georesourceDataset: any): void {
@@ -272,16 +468,18 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   // Feature table management
-  private buildFeatureTable(): void {
-    this.featureTableGridOptions =
-      this.featureTableHelper.buildDataGrid_featureTable_spatialResource(
-        'georesourceFeatureTable',
-        [],
-        [],
-        undefined,
-        this.featureTableHelper.resourceType_georesource,
-        this.enableDeleteFeatures
-      );
+  private buildFeatureTable(headers: string[] = [], features: any[] = []): void {
+    this.featureTableGridOptions = this.featureTableHelper.buildSpatialResourceFeatureTable(
+      {
+        headers,
+        features,
+        resourceId: this.currentGeoresourceDataset?.georesourceId,
+        resourceType: 'georesource',
+        enableDelete: this.enableDeleteFeatures,
+        gridRoot: () => this.georesourceFeatureTableEl?.nativeElement,
+      },
+      this.featureTableCallbacks()
+    );
   }
 
   refreshGeoresourceEditFeaturesOverviewTable(): void {
@@ -325,15 +523,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
         console.log('Features count:', this.georesourceFeaturesGeoJSON.features?.length || 0);
 
         // Rebuild the grid options with new data
-        this.featureTableGridOptions =
-          this.featureTableHelper.buildDataGrid_featureTable_spatialResource(
-            'georesourceFeatureTable',
-            tmpRemainingHeaders,
-            this.georesourceFeaturesGeoJSON.features,
-            this.currentGeoresourceDataset.georesourceId,
-            this.featureTableHelper.resourceType_georesource,
-            this.enableDeleteFeatures
-          );
+        this.buildFeatureTable(tmpRemainingHeaders, this.georesourceFeaturesGeoJSON.features);
 
         // If grid API is available, update the data directly
         if (this.gridApi) {
@@ -375,15 +565,10 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       this.remainingFeatureHeaders &&
       this.georesourceFeaturesGeoJSON
     ) {
-      this.featureTableGridOptions =
-        this.featureTableHelper.buildDataGrid_featureTable_spatialResource(
-          'georesourceFeatureTable',
-          this.remainingFeatureHeaders,
-          this.georesourceFeaturesGeoJSON.features || [],
-          this.currentGeoresourceDataset.georesourceId,
-          this.featureTableHelper.resourceType_georesource,
-          this.enableDeleteFeatures
-        );
+      this.buildFeatureTable(
+        this.remainingFeatureHeaders,
+        this.georesourceFeaturesGeoJSON.features || []
+      );
 
       // Update grid if API is available
       if (this.gridApi && this.featureTableGridOptions && this.featureTableGridOptions.columnDefs) {
@@ -426,8 +611,11 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   // Converter and data source methods
   onChangeConverter(): void {
-    this.schema = '';
-    this.mimeType = '';
+    // Seed the dependent fields from the converter, like the spatial-unit twin
+    // and the AngularJS original: schema and source format default to the
+    // converter's first entry, the data source has to be picked again.
+    this.schema = this.converter?.schemas ? this.converter.schemas[0] : '';
+    this.mimeType = this.converter?.mimeTypes ? this.converter.mimeTypes[0] : '';
     this.datasourceType = undefined;
   }
 
@@ -439,59 +627,47 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.datasourceType = datasourceType;
   }
 
+  /**
+   * Rebuilds the data-source parameter controls. Called from the control's
+   * `valueChanges`, so it must not write the control back.
+   */
+  private applyDatasourceTypeChange(datasourceType: any): void {
+    syncDatasourceParameterControls(this.importerForm, datasourceType);
+  }
+
   // Validation methods
+  /** The rule is `periodOfValidityValidator` on the group now. */
   checkPeriodOfValidity(): void {
-    this.periodOfValidityInvalid = false;
-
-    if (this.periodOfValidity.startDate && this.periodOfValidity.endDate) {
-      const startDate = new Date(this.periodOfValidity.startDate);
-      const endDate = new Date(this.periodOfValidity.endDate);
-
-      if (startDate >= endDate) {
-        this.periodOfValidityInvalid = true;
-      }
-    }
+    this.editForm.controls.periodOfValidity.updateValueAndValidity();
   }
 
   // Attribute mapping methods
   onAddOrUpdateAttributeMapping(): void {
-    if (
-      !this.attributeMapping_sourceAttributeName ||
-      !this.attributeMapping_destinationAttributeName ||
-      !this.attributeMapping_attributeType
-    ) {
+    if (this.attributeMappingDraft.invalid) {
       return;
     }
 
+    const newMapping = attributeMappingDraftToRow(this.attributeMappingDraft);
     const existingIndex = this.attributeMappings_adminView.findIndex(
-      (mapping) => mapping.sourceName === this.attributeMapping_sourceAttributeName
+      (mapping) => mapping.sourceName === newMapping.sourceName
     );
 
-    const newMapping = {
-      sourceName: this.attributeMapping_sourceAttributeName,
-      destinationName: this.attributeMapping_destinationAttributeName,
-      dataType: this.attributeMapping_attributeType,
-    };
-
     if (existingIndex >= 0) {
-      // Update existing mapping
       this.attributeMappings_adminView[existingIndex] = newMapping;
     } else {
-      // Add new mapping
       this.attributeMappings_adminView.push(newMapping);
     }
 
-    // Clear form
-    this.attributeMapping_sourceAttributeName = '';
-    this.attributeMapping_destinationAttributeName = '';
-    this.attributeMapping_attributeType =
-      this.kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
+    resetAttributeMappingDraft(this.attributeMappingDraft, this.defaultAttributeMappingType());
   }
 
   onClickEditAttributeMapping(attributeMappingEntry: any): void {
-    this.attributeMapping_sourceAttributeName = attributeMappingEntry.sourceName;
-    this.attributeMapping_destinationAttributeName = attributeMappingEntry.destinationName;
-    this.attributeMapping_attributeType = attributeMappingEntry.dataType;
+    patchAttributeMappingDraft(this.attributeMappingDraft, attributeMappingEntry);
+  }
+
+  /** First attribute-mapping type offered by the importer, if it has loaded. */
+  private defaultAttributeMappingType(): any {
+    return this.kommonitorImporterHelperService?.attributeMapping_attributeTypes?.[0] ?? null;
   }
 
   onClickDeleteAttributeMapping(attributeMappingEntry: any): void {
@@ -507,174 +683,294 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.mappingConfigImportFile.nativeElement.click();
   }
 
-  onMappingConfigFileSelected(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      this.parseMappingConfigFromFile(file);
+  async onMappingConfigFileSelected(event: any): Promise<void> {
+    const file = event?.target?.files?.[0];
+    if (!file) {
+      return;
+    }
+    this.georesourceMappingConfigImportError.set('');
+    try {
+      const json = await this.resourceImportService.readJsonFile(file);
+      this.applyMappingConfig(this.resourceImportService.parseMappingConfig(json));
+    } catch (error) {
+      this.georesourceMappingConfigImportError.set(getErrorMessage(error));
+      this.showMappingConfigImportErrorAlert();
+    }
+    // The import rewrites many ngModel-bound fields after an await — mark the
+    // OnPush view once instead of converting each field to a signal.
+    this.cdr.markForCheck();
+  }
+
+  /** Applies a parsed mapping-config onto this modal's form fields. */
+  private applyMappingConfig(parsed: MappingConfigImport): void {
+    this.converter = parsed.converter;
+    this.schema = parsed.schema;
+    this.mimeType = parsed.mimeType;
+    this.datasourceType = parsed.datasourceType;
+
+    // Covers converter/schema/mime type, both parameter records, the data
+    // source, the property names and the keep flags. The bbox is handled by
+    // this modal's own interpretation right below.
+    patchImporterFormFromMappingConfig(this.importerForm, parsed);
+    this.applyBbox(parsed.dataSourceParameters);
+
+    this.attributeMappings_adminView = parsed.attributeMappings;
+
+    if (parsed.periodOfValidity) {
+      this.periodOfValidity = parsed.periodOfValidity;
+      this.checkPeriodOfValidity();
     }
   }
 
-  private parseMappingConfigFromFile(file: File): void {
-    const fileReader = new FileReader();
+  /**
+   * Edit-features bbox interpretation, mirroring the spatial-unit twin: unlike
+   * the add modal there is no dedicated `bboxType` parameter, so the type is
+   * inferred from the bbox value itself — and only for OGCAPI data sources.
+   */
+  private applyBbox(dsParams: { name: string; value: string }[]): void {
+    if (this.datasourceType?.type !== 'OGCAPI_FEATURES') {
+      return;
+    }
+    const bboxParam = dsParams.find((p) => p.name === 'bbox');
+    if (!bboxParam || typeof bboxParam.value !== 'string') {
+      return;
+    }
+    const parts = bboxParam.value.split(',').map((v) => v.trim());
+    if (parts.length === 4 && parts.every((p) => p !== '')) {
+      this.bboxType = 'literal';
+      this.importerForm.controls.bbox.setValue({
+        minx: parts[0],
+        miny: parts[1],
+        maxx: parts[2],
+        maxy: parts[3],
+      });
+    } else {
+      this.bboxType = 'ref';
+      this.bboxRefSpatialUnitId = bboxParam.value;
+    }
+  }
 
-    fileReader.onload = (event: any) => {
-      try {
-        this.parseFromMappingConfigFile(event);
-      } catch {
-        console.error('Uploaded Mapping Config File cannot be parsed.');
-        this.georesourceMappingConfigImportError.set(
-          'Uploaded Mapping Config File cannot be parsed correctly'
-        );
-        this.showMappingConfigImportErrorAlert();
+  /** Data-source form values for the definition builders: bbox only for OGCAPI. */
+  private assembleDatasourceFormValues(): { [key: string]: string } {
+    const formValues: { [key: string]: string } = { ...this.datasourceParameterValues };
+    if (this.datasourceType?.type === 'OGCAPI_FEATURES' && this.bboxType) {
+      formValues['bboxType'] = this.bboxType;
+      if (this.bboxType === 'ref' && this.bboxRefSpatialUnitId) {
+        formValues['bboxRef'] = this.bboxRefSpatialUnitId;
+      } else if (this.bboxType === 'literal') {
+        formValues['bbox_minx'] = this.bboxMinX;
+        formValues['bbox_miny'] = this.bboxMinY;
+        formValues['bbox_maxx'] = this.bboxMaxX;
+        formValues['bbox_maxy'] = this.bboxMaxY;
       }
-      // The import rewrites several ngModel-bound fields from an async callback —
-      // mark the OnPush view once instead of converting each field to a signal.
-      this.cdr.markForCheck();
-    };
-
-    fileReader.readAsText(file);
+    }
+    return formValues;
   }
 
-  private parseFromMappingConfigFile(event: any): void {
-    const mappingConfig = JSON.parse(event.target.result);
-
-    // Apply mapping configuration
-    if (mappingConfig.converter) {
-      this.converter = mappingConfig.converter;
-    }
-    if (mappingConfig.datasourceType) {
-      this.datasourceType = mappingConfig.datasourceType;
-    }
-    if (mappingConfig.propertyMapping) {
-      this.attributeMappings_adminView = mappingConfig.propertyMapping || [];
-    }
-    // Add more mapping config properties as needed
-  }
-
+  /**
+   * Writes the shared mapping-config format (`converter` / `dataSource` /
+   * `propertyMapping` / `periodOfValidity`) that the other importer modals and
+   * the AngularJS original use, so a file written here can be read back by this
+   * modal's own import and by its siblings. The definitions are built directly
+   * from the helper rather than through `buildImporterObjects()`, which would
+   * upload a selected file as a side effect of an export.
+   */
   onExportGeoresourceEditFeaturesMappingConfig(): void {
-    const mappingConfig = {
-      converter: this.converter,
-      datasourceType: this.datasourceType,
-      propertyMapping: this.attributeMappings_adminView,
-      idProperty: this.georesourceDataSourceIdProperty,
-      nameProperty: this.georesourceDataSourceNameProperty,
-      validityStartDate: this.validityStartDate_perFeature,
-      validityEndDate: this.validityEndDate_perFeature,
-      keepAttributes: this.keepAttributes,
-      keepMissingValues: this.keepMissingValues,
-      isPartialUpdate: this.isPartialUpdate,
-    };
+    const converterDefinition = this.converter
+      ? this.kommonitorImporterHelperService.buildConverterDefinition(
+          this.converter,
+          this.schema,
+          this.mimeType,
+          this.converterParameterValues
+        )
+      : null;
 
-    const mappingJSON = JSON.stringify(mappingConfig, null, 2);
-    let fileName = 'Georessource_Features_Mapping_Export';
+    const datasourceTypeDefinition = this.datasourceType
+      ? this.kommonitorImporterHelperService.buildDatasourceTypeDefinition(
+          this.datasourceType,
+          this.assembleDatasourceFormValues()
+        )
+      : null;
 
-    if (this.currentGeoresourceDataset?.datasetName) {
-      fileName += '-' + this.currentGeoresourceDataset.datasetName;
-    }
+    const propertyMappingDefinition =
+      this.kommonitorImporterHelperService.buildPropertyMapping_spatialResource(
+        this.georesourceDataSourceNameProperty,
+        this.georesourceDataSourceIdProperty,
+        this.validityStartDate_perFeature,
+        this.validityEndDate_perFeature,
+        '',
+        this.keepAttributes,
+        this.keepMissingValues,
+        this.attributeMappings_adminView
+      );
 
-    fileName += '.json';
+    const mappingConfigExport = buildMappingConfigExport(
+      converterDefinition,
+      datasourceTypeDefinition,
+      propertyMappingDefinition,
+      this.periodOfValidity
+    );
 
-    const blob = new Blob([mappingJSON], { type: 'application/json' });
-    const data = URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.download = fileName;
-    a.href = data;
-    a.textContent = 'JSON';
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    a.click();
-
-    a.remove();
+    const name = this.currentGeoresourceDataset?.datasetName;
+    const fileName = `KomMonitor-Import-Mapping-Konfiguration_Export${name ? '-' + name : ''}.json`;
+    this.resourceImportService.downloadJson(fileName, mappingConfigExport);
   }
 
-  // Main edit method
-  editGeoresourceFeatures(): void {
-    if (!this.currentGeoresourceDataset || !this.converter || !this.datasourceType) {
+  /**
+   * Sends the feature update through the **importer**, like every other import
+   * in this app and like the spatial-unit twin: a dry run first, and only on a
+   * clean dry run the real one. It used to PUT straight at
+   * `{dataManagement}/georesources/{id}/features` — an endpoint that does not
+   * exist (404) — and never uploaded the selected file, so this modal could
+   * never update anything.
+   */
+  async editGeoresourceFeatures(): Promise<void> {
+    const dataset = this.currentGeoresourceDataset;
+    if (!dataset || !this.converter || !this.datasourceType) {
       return;
     }
 
     this.loadingData.set(true);
+    this.importerErrors.set([]);
 
-    // Build the request body
-    const putBody = this.buildPutBody();
+    if (!(await this.buildImporterObjects())) {
+      this.loadingData.set(false);
+      return;
+    }
 
-    this.http
-      .put(
-        `${this.envConfigService.baseUrlToKomMonitorDataAPI}/georesources/${this.currentGeoresourceDataset.georesourceId}/features`,
-        putBody
-      )
-      .subscribe({
-        next: (response: any) => {
-          this.importedFeatures = response.importedFeatures || [];
-          this.cdr.markForCheck();
-          this.refreshRequested.emit({
-            crudType: 'edit',
-            targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
-          });
-          this.loadingData.set(false);
-          const featureCount = this.importedFeatures.length;
-          this.notificationService.showSuccess(
-            featureCount > 0
-              ? this.translate.instant(
-                  'ADMIN_GEORESOURCES.FEATURES_MODAL.MSG.FEATURES_UPDATED_WITH',
-                  { name: this.currentGeoresourceDataset.datasetName, count: featureCount }
-                )
-              : this.translate.instant('ADMIN_GEORESOURCES.FEATURES_MODAL.MSG.FEATURES_UPDATED', {
-                  name: this.currentGeoresourceDataset.datasetName,
-                })
-          );
-          this.activeModal.close({ action: 'updated' });
-        },
-        error: (error: any) => {
-          // Keep the modal open so the per-feature importer error report stays visible.
-          this.importerErrors.set(error.error?.importerErrors || []);
-          this.notificationService.showError(
-            this.translate.instant('ADMIN_GEORESOURCES.FEATURES_MODAL.MSG.CONTINUE_FAILED', {
-              error: getErrorMessage(error),
+    try {
+      const putBody = this.buildPutBody();
+
+      const dryRunResponse = await this.kommonitorImporterHelperService.updateGeoresource(
+        this.converterDefinition,
+        this.datasourceTypeDefinition,
+        this.propertyMappingDefinition,
+        dataset.georesourceId,
+        putBody,
+        true
+      );
+
+      if (this.kommonitorImporterHelperService.importerResponseContainsErrors(dryRunResponse)) {
+        // Dry run reported import errors: keep the modal open and list them.
+        this.importerErrors.set(
+          this.kommonitorImporterHelperService.getErrorsFromImporterResponse(dryRunResponse) || []
+        );
+        this.loadingData.set(false);
+        this.notificationService.showError(
+          this.translate.instant('ADMIN_GEORESOURCES.ADD_MODAL.MSG.CRITICAL_FEATURE_ERRORS')
+        );
+        return;
+      }
+
+      const response = await this.kommonitorImporterHelperService.updateGeoresource(
+        this.converterDefinition,
+        this.datasourceTypeDefinition,
+        this.propertyMappingDefinition,
+        dataset.georesourceId,
+        putBody,
+        false
+      );
+
+      this.importedFeatures =
+        this.kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(response) ||
+        [];
+      this.cdr.markForCheck();
+      this.refreshRequested.emit({ crudType: 'edit', targetGeoresourceId: dataset.georesourceId });
+      this.loadingData.set(false);
+
+      const featureCount = this.importedFeatures.length;
+      this.notificationService.showSuccess(
+        featureCount > 0
+          ? this.translate.instant('ADMIN_GEORESOURCES.FEATURES_MODAL.MSG.FEATURES_UPDATED_WITH', {
+              name: dataset.datasetName,
+              count: featureCount,
             })
-          );
-          this.loadingData.set(false);
-        },
-      });
+          : this.translate.instant('ADMIN_GEORESOURCES.FEATURES_MODAL.MSG.FEATURES_UPDATED', {
+              name: dataset.datasetName,
+            })
+      );
+      this.activeModal.close({ action: 'updated' });
+    } catch (error: any) {
+      // Keep the modal open so the per-feature importer error report stays visible.
+      this.importerErrors.set(error?.error?.importerErrors || []);
+      this.notificationService.showError(
+        this.translate.instant('ADMIN_GEORESOURCES.FEATURES_MODAL.MSG.CONTINUE_FAILED', {
+          error: getErrorMessage(error),
+        })
+      );
+      this.loadingData.set(false);
+    }
   }
 
-  private buildPutBody(): any {
-    const putBody: any = {
-      geoJsonString: '',
-      periodOfValidity: {
-        startDate: this.periodOfValidity.startDate,
-        endDate: this.periodOfValidity.endDate,
-      },
-    };
-
-    // Add converter definition
-    putBody.converterDefinition = {
-      name: this.converter.name,
-      parameters: this.getConverterParameters(),
-    };
-
-    // Add datasource definition
-    putBody.datasourceTypeDefinition = {
-      type: this.datasourceType.type,
-      parameters: this.getDatasourceParameters(),
-    };
-
-    // Add property mapping
-    putBody.propertyMappingDefinition = {
+  /** What the shared import service needs to build the three definitions. */
+  private importerObjectsConfig(): ImporterObjectsConfig {
+    return {
+      converter: this.converter,
+      schema: this.schema,
+      mimeType: this.mimeType,
+      converterParameterValues: this.converterParameterValues,
+      datasourceType: this.datasourceType,
+      datasourceTypeFormValues: this.assembleDatasourceFormValues(),
+      selectedFile: this.dataSourceInput?.nativeElement?.files?.[0] ?? null,
+      fileInputElement: this.dataSourceInput?.nativeElement,
       idProperty: this.georesourceDataSourceIdProperty,
       nameProperty: this.georesourceDataSourceNameProperty,
-      validityStartDateProperty: this.validityStartDate_perFeature,
-      validityEndDateProperty: this.validityEndDate_perFeature,
+      validStartDate: this.validityStartDate_perFeature,
+      validEndDate: this.validityEndDate_perFeature,
       keepAttributes: this.keepAttributes,
       keepMissingValues: this.keepMissingValues,
       attributeMappings: this.attributeMappings_adminView,
     };
+  }
 
-    // Add partial update flag
-    putBody.isPartialUpdate = this.isPartialUpdate;
+  /**
+   * Builds converter, data source and property mapping the way every other
+   * importer modal does — including the file upload for a FILE data source.
+   */
+  private async buildImporterObjects(): Promise<boolean> {
+    try {
+      const definitions = await this.resourceImportService.buildImporterObjects(
+        this.importerObjectsConfig()
+      );
+      this.converterDefinition = definitions.converterDefinition;
+      this.datasourceTypeDefinition = definitions.datasourceTypeDefinition;
+      this.propertyMappingDefinition = definitions.propertyMappingDefinition;
+      return !!(
+        this.converterDefinition &&
+        this.datasourceTypeDefinition &&
+        this.propertyMappingDefinition
+      );
+    } catch (error) {
+      this.importerErrors.set([]);
+      this.notificationService.showError(
+        this.translate.instant('ADMIN_GEORESOURCES.FEATURES_MODAL.MSG.CONTINUE_FAILED', {
+          error: getErrorMessage(error),
+        })
+      );
+      return false;
+    }
+  }
 
-    return putBody;
+  /**
+   * The `georesourcePutBody` of the importer envelope: exactly what
+   * `GeoresourcePUTInputType` declares. The converter, data source and property
+   * mapping travel as siblings next to it — they used to be folded in here as
+   * hand-built blocks whose parameters were a dictionary instead of the
+   * `{name, value}` array every other caller sends.
+   */
+  private buildPutBody(): {
+    geoJsonString: string;
+    periodOfValidity: any;
+    isPartialUpdate: boolean;
+  } {
+    return {
+      geoJsonString: '', // filled in by the importer
+      periodOfValidity: {
+        startDate: this.periodOfValidity.startDate,
+        endDate: this.periodOfValidity.endDate,
+      },
+      isPartialUpdate: this.isPartialUpdate,
+    };
   }
 
   private getConverterParameters(): any {
@@ -708,17 +1004,19 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       }
     } else if (this.datasourceType.type === 'OGCAPI_FEATURES') {
       // Handle BBOX parameters
-      if (this.bboxType === 'ref' && this.bboxRefSpatialUnit) {
-        parameters.spatialUnitId = this.bboxRefSpatialUnit.spatialUnitId;
+      if (this.bboxType === 'ref' && this.bboxRefSpatialUnitId) {
+        parameters.spatialUnitId = this.bboxRefSpatialUnitId;
       } else if (this.bboxType === 'literal') {
         parameters.bbox = `${this.bboxMinX},${this.bboxMinY},${this.bboxMaxX},${this.bboxMaxY}`;
       }
     }
 
-    // Add other datasource parameters
+    // Add other datasource parameters. The synthetic bbox entries are already
+    // handled above and have no control in the record — emitting them here
+    // would put an empty `bboxType` into the importer body.
     if (this.datasourceType.parameters) {
       this.datasourceType.parameters.forEach((param: any) => {
-        if (param.name !== 'bbox') {
+        if (!SYNTHETIC_DATASOURCE_PARAMETERS.includes(param.name)) {
           parameters[param.name] = this.datasourceParameterValues[param.name] ?? '';
         }
       });
@@ -734,9 +1032,16 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     );
   }
 
+  /**
+   * The data-source parameters the template renders as plain fields: the
+   * synthetic bbox entries have no control in `datasourceTypeParameters`,
+   * they are rendered by the dedicated bbox block.
+   */
   getFilteredDatasourceParameters(): any[] {
     if (!this.datasourceType?.parameters) return [];
-    return this.datasourceType.parameters.filter((param: any) => param.name !== 'bbox');
+    return this.datasourceType.parameters.filter(
+      (param: any) => !SYNTHETIC_DATASOURCE_PARAMETERS.includes(param.name)
+    );
   }
 
   // Form reset
@@ -758,20 +1063,17 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       startDate: '',
       endDate: '',
     };
-    this.periodOfValidityInvalid = false;
 
     this.isPartialUpdate = false;
     this.keepAttributes = true;
     this.keepMissingValues = true;
 
     this.attributeMappings_adminView = [];
-    this.attributeMapping_sourceAttributeName = '';
-    this.attributeMapping_destinationAttributeName = '';
-    this.attributeMapping_attributeType =
-      this.kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
+    resetAttributeMappingDraft(this.attributeMappingDraft, this.defaultAttributeMappingType());
 
     this.bboxType = '';
-    this.bboxRefSpatialUnit = undefined;
+    this.bboxRefSpatialUnitId = '';
+    this.importerForm.controls.bbox.reset();
 
     this.importerErrors.set(undefined);
     this.importedFeatures = [];
@@ -788,15 +1090,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   // Validation for form submission
   canSubmitForm(): boolean {
-    return (
-      !!this.currentGeoresourceDataset?.datasetName &&
-      !!this.georesourceDataSourceIdProperty &&
-      !!this.georesourceDataSourceNameProperty &&
-      !!this.periodOfValidity.startDate &&
-      !this.periodOfValidityInvalid &&
-      !!this.converter &&
-      !!this.datasourceType
-    );
+    return !!this.currentGeoresourceDataset?.datasetName && this.editForm.valid;
   }
 
   // AG-Grid event handlers

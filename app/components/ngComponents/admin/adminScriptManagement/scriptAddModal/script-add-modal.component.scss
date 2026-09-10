@@ -1,53 +1,12 @@
-.intro-heading {
-  text-align: center;
-  font-size: 18px;
-  text-transform: uppercase;
-  color: #2c3e50;
-  margin-bottom: 10px;
-  letter-spacing: 2px;
-  font-weight: 700;
-}
-
-.sub-heading {
-  text-align: center;
-  font-weight: 400;
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 20px;
-}
-
-.loading-overlay-admin-panel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 99;
-  background: rgba(255, 255, 255, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.card {
-  margin-bottom: 16px;
-}
-
-.badge.bg-info {
-  background-color: #17a2b8;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-}
+/*
+ * Step headings come from the shared `.fs-title` / `.fs-subtitle` in app.scss,
+ * and the step navigation from the shared `.stepper-buttons` there. The local
+ * `.intro-heading` / `.sub-heading` were byte-for-byte copies of the former,
+ * and the local `.stepper-buttons` only widened this one dialog's gap to 16px
+ * and added another 10px of padding on top of the shared 24px margin.
+ */
 
 pre {
   max-height: 300px;
   overflow: auto;
-}
-
-.stepper-buttons {
-  padding-top: 10px;
-  display: flex;
-  gap: 16px;
-  justify-content: center;
 }

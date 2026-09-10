@@ -16,7 +16,9 @@
   --kommonitor-hierarchy-level-2: #d6e4f1;
   --kommonitor-hierarchy-level-3: #eaf1f8;
 
-  --custom-font-family: 'Source Sans Pro', sans-serif;
+  // Self-hosted via @fontsource-variable/source-sans-3 (wired up in angular.json styles).
+  // 'Source Sans 3' / 'Source Sans Pro' cover users who have either installed locally.
+  --custom-font-family: 'Source Sans 3 Variable', 'Source Sans 3', 'Source Sans Pro', sans-serif;
 
   --body_gradient_left: #7200d0;
   --body_gradient_right: #c800c1;
@@ -459,8 +461,40 @@ pre.CodeMirror-line {
   outline: none;
 }
 
+/*
+ * The read-only config editor panes use the dark panda-syntax theme, but the
+ * browser kept painting their scrollbars in the light default scheme — a pale
+ * grey bar down the right edge of a #292a2b pane. `color-scheme` is the only
+ * thing that switches the scrollbar, and it is set on the theme class so the
+ * light editable pane keeps its light one.
+ */
+.cm-s-panda-syntax {
+  color-scheme: dark;
+}
+
 .CodeMirror {
-  border: 1px solid black;
+  // #d2d6de is the border the admin chrome uses everywhere (expandable-box,
+  // grids, form controls); a pure black hairline made the four config editors
+  // the hardest-edged thing on the page.
+  border: 1px solid #d2d6de;
+}
+
+/*
+ * One monospace stack for every editor instance.
+ *
+ * The panda-syntax theme brings its own `font-family` on `.cm-s-panda-syntax`,
+ * so the three read-only panes of the config editors rendered in a different
+ * typeface than the editable pane, which fell back to codemirror.css's bare
+ * `monospace` — the same code side by side in Courier New and DejaVu Sans Mono.
+ *
+ * The class is repeated on purpose. angular.json loads app.scss *before*
+ * codemirror.css and panda-syntax.css, so a plain `.CodeMirror` would lose the
+ * specificity tie against both of them on source order alone. Naming it twice
+ * lifts the rule to (0,2,0) and wins against `.CodeMirror` and against any
+ * `.cm-s-*` theme, whatever the load order, without resorting to `!important`.
+ */
+.CodeMirror.CodeMirror {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
 }
 
 .prettyprint ol.linenums > li {
@@ -708,10 +742,6 @@ pre.CodeMirror-line {
   margin-left: 75px;
 }
 
-.list-group-item .glyphicon {
-  margin-right: 5px;
-}
-
 .favoritesToast {
   padding: 1em;
   cursor: pointer;
@@ -731,20 +761,12 @@ pre.CodeMirror-line {
   background-color: green;
 }
 
-.iconpicker-popover {
-  z-index: 9999999 !important;
-}
-
 .customColorPicker i {
   width: 14px;
   height: 14px;
   max-width: 28px;
   float: left;
   margin-right: 8px;
-}
-
-.colorpicker {
-  z-index: 9999999;
 }
 
 .dropdown-menu {
@@ -1376,8 +1398,18 @@ a.kommonitor-theme:focus {
   font-weight: bold;
 }
 
+/*
+ * 13px, not 12px: the alpine theme renders every grid's header at 13px
+ * (`--ag-font-size` + 1px), so 12px left the values a pixel below the column
+ * they belong to. The group and spatial-unit overviews each carried a local
+ * `cellStyle` override to correct exactly that, while the georesource, indicator
+ * and script overviews kept the mismatch — the value belongs here, once.
+ *
+ * Grids that deliberately want a denser cell (the feature tables and the role
+ * matrix inside dialogs) set their own `cellStyle`, which wins over this rule.
+ */
 .ag-cell {
-  font-size: 12px;
+  font-size: 13px;
   white-space: normal;
   line-height: 20px !important;
   word-break: break-word !important;
@@ -1450,7 +1482,7 @@ a.kommonitor-theme:focus {
   color: var(--kommonitor-primary);
 }
 
-.nav-tabs > li > a {
+.nav-tabs .nav-link {
   color: var(--kommonitor-primary);
 }
 
@@ -1516,16 +1548,22 @@ a.kommonitor-theme:focus {
   /* right: 40px; */
 }
 
+/*
+ * This was two identical blocks in a row, the first fully redundant.
+ *
+ * `font-size` lost its `!important`: it is a reset, not a rule worth defending,
+ * and as `!important` it silently bulldozed every local font-size a template
+ * set on a table — a dialog asking for 11px still rendered at 16px, so the
+ * declaration looked broken rather than overridden.
+ *
+ * `color` keeps its `!important` for now: Bootstrap's
+ * `.table > :not(caption) > * > *` is more specific, so dropping it would
+ * repaint every table in the app, which is outside what this change is fixing.
+ */
 table,
 th,
 td {
-  font-size: 100% !important;
-}
-
-table,
-th,
-td {
-  font-size: 100% !important;
+  font-size: 100%;
   color: #555 !important;
 }
 th,
@@ -1580,54 +1618,150 @@ th {
   z-index: 1150 !important;
 }
 
-@media (min-width: 992px) {
-  .modal-xl {
-    width: 1500px;
+/*
+ * Dialog width tiers — the only place a modal width is defined. Picked through
+ * the presets in app/util/modal-presets.ts, never inline at a call site.
+ *
+ * Setting only --bs-modal-width is deliberate: Bootstrap turns it into a
+ * max-width from 576px up, so small screens keep their full-width dialogs.
+ */
+.modal-dialog.km-modal-confirm {
+  --bs-modal-width: 520px;
+}
+
+.modal-dialog.km-modal-form {
+  --bs-modal-width: 800px;
+}
+
+.modal-dialog.km-modal-wide {
+  /*
+   * min() caps the dialog on very large screens, where the old 95vw grew to
+   * 3600px+ on 4K, and lets it shrink below 1600px instead of overflowing a
+   * 1366px laptop, which the old fixed px widths did.
+   */
+  --bs-modal-width: min(1600px, 92vw);
+}
+
+/*
+ * Flex bridge for `scrollable: true` (set for all three presets in
+ * `util/modal-presets.ts`).
+ *
+ * Bootstrap's .modal-dialog-scrollable expects .modal-body to be a flex child
+ * of .modal-content, but ng-bootstrap renders each modal component's own host
+ * element in between:
+ *
+ *   .modal-content > app-role-add-modal > .modal-header/.modal-body/.modal-footer
+ *
+ * That host is not a flex container, so .modal-body could neither shrink nor
+ * scroll and .modal-content's `overflow: hidden` clipped the footer instead.
+ * Making the host a transparent flex column restores the chain. `display:
+ * contents` would be shorter but breaks the eight modal components that carry
+ * :host styles.
+ */
+.modal-dialog-scrollable .modal-content > * {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  /* Without min-height: 0 a flex item refuses to shrink below its content. */
+  min-height: 0;
+  max-height: 100%;
+}
+
+.modal-dialog-scrollable .modal-content > * > .modal-body {
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/*
+ * ag-grid ships --ag-font-family: -apple-system, ... in its alpine theme, which
+ * left every data grid — the dominant element of the admin views — running in a
+ * different typeface from the rest of the app, down to Bootstrap buttons placed
+ * inside a cell. The grids are the only place this variable is read, so the app
+ * font is set once here rather than per view.
+ *
+ * The class is doubled on purpose. angular.json loads this file *before*
+ * ag-theme-alpine.css, so a plain `.ag-theme-alpine` would lose the
+ * same-specificity tie to the vendor rule. Repeating the class outranks it
+ * without reordering the global stylesheets, which would also change how this
+ * file interacts with Leaflet, CodeMirror and FontAwesome.
+ */
+.ag-theme-alpine.ag-theme-alpine {
+  --ag-font-family: var(--custom-font-family);
+}
+
+/*
+ * Centres a column header, opted into per column via `headerClass`. Used by the
+ * permission matrix in the role dialogs, where the cell holds nothing but a
+ * checkbox and a left-aligned label would not sit above it.
+ *
+ * Global on purpose: ag-grid builds its header DOM imperatively, so it carries
+ * no component scoping attribute and a component stylesheet cannot reach it.
+ */
+.ag-theme-alpine .km-header-centered .ag-header-cell-label {
+  justify-content: center;
+}
+
+/*
+ * Wrapper for `<app-stepper>` inside a dialog. Defined once here because it used
+ * to live in two component stylesheets with different content: the add-group
+ * dialog centred it at max-width 600px, the group-rights dialog set only a
+ * bottom margin. Identical markup therefore produced a 600px stepper in one
+ * dialog and a 1438px one in the other, whose two step circles ended up stuck to
+ * the outer edges of the dialog.
+ *
+ * The cap keeps the circles a readable distance apart in the 2-step dialogs that
+ * use this class. The 16 other dialogs embedding `<app-stepper>` carry no
+ * wrapper at all and are deliberately left full-width — unifying those is a
+ * separate decision about every wizard in the admin area.
+ */
+.stepper-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+
+  app-stepper {
+    width: 100%;
+    max-width: 600px;
   }
 }
 
-/* Custom width for Spatial Unit Add modal (ng-bootstrap modalDialogClass) */
-@media (min-width: 768px) {
-  .modal-dialog.modal-large {
-    /* Bootstrap 5: use CSS var plus hard width to be robust */
-    --bs-modal-width: 95vw;
-    max-width: 95vw !important;
-    width: 95vw !important;
-  }
+/*
+ * Row holding a wizard's "previous"/"next" step controls at the bottom of the
+ * active step. It replaces the `.multiStepForm .action-button` /
+ * `.action-button-previous` pair from the old jQuery wizard, which rendered
+ * step navigation as 25px-radius pills — blue for "next", salmon for
+ * "previous" — next to a footer full of ordinary Bootstrap buttons, so a single
+ * dialog spoke two button languages and a purely navigational "back" carried a
+ * warning colour.
+ *
+ * The buttons themselves are plain `.btn.btn-outline-secondary` (previous) and
+ * `.btn.btn-primary` (next); only their placement lives here. Centred rather
+ * than right-aligned: the steps they belong to are wide multi-column forms, and
+ * a centre-weighted pair reads as "this step", not as a second footer.
+ */
+.stepper-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
 }
 
-/* Fallback for older ng-bootstrap/Bootstrap versions: target modal dialog within windowClass */
-@media (min-width: 768px) {
-  /* High-specificity, robust override */
-  body .modal-holder.modal-large-window .modal-dialog,
-  body .modal-large-window .modal-dialog,
-  body .modal.modal-large-window .modal-dialog {
-    --bs-modal-width: 95vw;
-    max-width: 95vw !important;
-    width: 95vw !important;
-  }
-}
-
-/* Custom width for Spatial Unit Add modal (ng-bootstrap modalDialogClass) */
-@media (min-width: 768px) {
-  .modal-dialog.modal-medium {
-    /* Bootstrap 5: use CSS var plus hard width to be robust */
-    --bs-modal-width: 85vw;
-    max-width: 85vw !important;
-    width: 85vw !important;
-  }
-}
-
-/* Fallback for older ng-bootstrap/Bootstrap versions: target modal dialog within windowClass */
-@media (min-width: 768px) {
-  /* High-specificity, robust override */
-  body .modal-holder.modal-medium-window .modal-dialog,
-  body .modal-medium-window .modal-dialog,
-  body .modal.modal-medium-window .modal-dialog {
-    --bs-modal-width: 85vw;
-    max-width: 85vw !important;
-    width: 85vw !important;
-  }
+/*
+ * Row of side errands a dialog offers alongside its form — importing or
+ * exporting the metadata or the attribute mapping as JSON. Right-aligned above
+ * the content they act on.
+ *
+ * They used to be crammed into the modal footer next to cancel/reset/submit, or
+ * (for the mapping pair) `position: absolute` in the top-left corner on top of
+ * the stepper. In the footer they made five buttons in an 800px dialog, which
+ * wrapped onto a second row; here the footer keeps the same three buttons every
+ * admin dialog has.
+ */
+.dialog-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 select {
@@ -2704,15 +2838,14 @@ input[type='range']::-webkit-tooltip {
   display: none;
 }
 
-hr {
-  /* height: 2px;
-    background-color:#ababab;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    width: 100%; */
-
-  margin: 0px 0;
-}
+/*
+ * No `hr { margin: 0 }` here either. Bootstrap's `margin: 1rem 0` is what the
+ * separators are supposed to have; zeroing it meant every template that wanted
+ * a visible break had to write `<hr /><br />`, which spaces the rule 0px above
+ * and ~23px below it. Those `<br>` spacers were removed along with this rule —
+ * if a separator suddenly looks cramped, the fix is a margin utility on the
+ * `<hr>`, not a global override.
+ */
 
 .icon-spin {
   -webkit-animation: spin 1s infinite linear;
@@ -3166,16 +3299,23 @@ input:checked + .switchslider:before {
   display: none;
 }
 
+/*
+ * Font Awesome instead of 'Glyphicons Halflings'. That font is not shipped —
+ * Bootstrap dropped it in 4 — so these arrows never rendered. `font-weight: 900`
+ * selects the solid style, which is the only one carrying these two glyphs in
+ * the free set.
+ */
 .reporting-template-category-heading .accordion-toggle:after {
-  /* symbol for "opening" panels */
-  font-family: 'Glyphicons Halflings'; /* essential for enabling glyphicon */
-  content: '\e114';
+  /* chevron-down: panel is open */
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  content: '\f078';
   float: right;
   color: grey;
 }
 .reporting-template-category-heading .accordion-toggle.collapsed:after {
-  /* symbol for "collapsed" panels */
-  content: '\e080';
+  /* chevron-right: panel is collapsed */
+  content: '\f054';
 }
 
 .reporting-content-wrapper {
@@ -3523,9 +3663,18 @@ input:checked + .switchslider:before {
   bottom: 60vh; /* 50vh from the bottom */
 }
 
-.row {
-  margin-right: 0px;
-}
+/*
+ * No `.row { margin-right: 0 }` here — do not reintroduce it.
+ *
+ * Bootstrap 5 gives `.row` a negative margin on *both* sides
+ * (`calc(-.5 * var(--bs-gutter-x))`, i.e. -12px) so that the 12px padding its
+ * columns carry cancels out and the first and last column line up with the
+ * padded container around them. Zeroing only `margin-right` — a Bootstrap 3 /
+ * AdminLTE habit — left every row in the app 12px short on the right while the
+ * left stayed flush: on the config editor pages the right-hand editor pane and
+ * the save button ended 12px inside the heading, the intro text and the `<hr>`
+ * above them.
+ */
 
 .box.box-simplified {
   border-top: 0;
@@ -3828,12 +3977,78 @@ select {
   flex-grow: 1;
 }
 
+/*
+ * Legacy sizing for the ~150 <h4> in the tree, kept so existing layouts do not
+ * jump to Bootstrap's 24px default. Two things changed: the family is no longer
+ * hardcoded to Arial (it now inherits the app font from body), and the
+ * `!important` is gone, so a component or a class like .modal-title can
+ * actually override it. The Arial came from the Leaflet legend styles below and
+ * had leaked app-wide; the legend rules set it explicitly themselves.
+ */
 h4 {
   margin: 0 0 5px;
-  font:
-    16px/18px Arial,
-    Helvetica,
-    sans-serif !important;
+  font-size: 16px;
+  line-height: 18px;
+  /*
+   * The old `font:` shorthand reset the weight to normal as a side effect, so
+   * every h4 in the app renders at 400 today. Pinned explicitly to keep those
+   * ~150 headings unchanged — dropping it would hand them Bootstrap's
+   * `h4 { font-weight: 500 }` and make them all slightly bolder.
+   */
+  font-weight: 400;
+}
+
+/*
+ * A dialog title used to be the least prominent text in its own dialog: 16px
+ * regular Arial under an 18px bold uppercase .fs-title body heading. Sizing it
+ * here restores the intended order — 24px view title > 20px dialog title >
+ * 18px section/box heading.
+ */
+.modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/*
+ * Field hints and validation messages. `.help-block` is the hint class the
+ * admin forms have always used and `<app-form-error>` renders
+ * `.help-block.with-errors` for every validation message in the app — but the
+ * grey/12px treatment existed only as a copy inside about ten component
+ * stylesheets, so any dialog without its own copy showed both at 16px in the
+ * regular body colour. A required-field message was then indistinguishable
+ * from body text: black, full size, next to an input whose border stayed
+ * neutral grey.
+ *
+ * Defined once here so a message looks the same wherever it appears; the
+ * component copies are now redundant rather than load-bearing.
+ */
+.help-block {
+  color: #737373;
+  font-size: 12px;
+  // Same offset Bootstrap gives `.form-text`. Without it two messages stacked
+  // under one field (the config editors show "invalid format" and "missing
+  // parameters" together) touched and read as a single paragraph.
+  margin-top: 0.25rem;
+}
+
+.help-block.with-errors {
+  color: #dc3545;
+}
+
+/*
+ * Same story as `.help-block` above: `.form-group` is Bootstrap 3/4 and gone in
+ * Bootstrap 5, which spaces form rows with utilities (`mb-3`) instead. The class
+ * still sits on ~295 admin markup nodes, so it is defined once here rather than
+ * rewritten dialog by dialog.
+ *
+ * 1rem is what Bootstrap 4 used and what five of the six component copies had
+ * independently settled on. Without this rule a dialog that carried no copy of
+ * its own stacked its fields with no gap at all; the copies are now redundant
+ * rather than load-bearing.
+ */
+.form-group {
+  margin-bottom: 1rem;
 }
 
 .boxedLegend {
@@ -3896,4 +4111,20 @@ h4 {
   grid-template-columns: min-content auto auto;
   gap: 0.5em;
   align-items: start;
+}
+
+/*
+ * The swatch input that opens an `ngx-color-picker` dialog. Sized down from a
+ * full form control to a colour chip: the value is never read as text (hence
+ * the hidden caret), the background *is* the value.
+ *
+ * Defined once here because three components now share the widget — the WFS
+ * colour in both POI sidebar tables and the file-layer colour in the data
+ * import. The copy that used to sit in kommonitor-data-import's `:host` had
+ * identical declarations, so lifting it out changes nothing there.
+ */
+.colorPickerSelection {
+  width: 30px !important;
+  border: none;
+  caret-color: transparent !important;
 }

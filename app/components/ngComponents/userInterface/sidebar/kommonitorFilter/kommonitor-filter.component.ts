@@ -52,9 +52,6 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
   spatialLevel;
 
   private INDICATOR_DATE_PREFIX = this.envConfigService.indicatorDatePrefix;
-  /* kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
-  kommonitorMapServiceInstance = kommonitorMapService;
-  kommonitorFilterHelperServiceInstance = kommonitorFilterHelperService; */
   private numberOfDecimals = this.envConfigService.numberOfDecimals;
 
   // initialize any adminLTE box widgets
@@ -154,7 +151,8 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
   inputNotValid = false;
 
-  // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
+  // Resolve the indicator precision from the current selection before
+  // delegating to IndicatorValueService.
   private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
     return this.indicatorValueService.getIndicatorValue_asNumber(
       indicatorValue,

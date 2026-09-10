@@ -5,6 +5,7 @@ import { Topic } from 'components/ngComponents/admin/adminTopicsManagement/topic
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +13,7 @@ import { TopicMetadataStoreService } from 'services/topic-metadata-store-service
 export class OgcDataGridHelperService {
   private topicStore = inject(TopicMetadataStoreService);
   private ogcService = inject(OgcService);
+  private translate = inject(TranslateService);
 
   // Store the data grid options
   private dataGridOptions_wms: GridOptions | null = null;
@@ -126,7 +128,14 @@ export class OgcDataGridHelperService {
       ? userPermissions.includes('creator')
       : false;
 
+    // `btn-group btn-group-sm` like the indicator and filter-config grids, which
+    // build the same edit-functions cell. This renderer was the only one leaving
+    // the wrapper unclassed, so the three buttons sat as separate rounded pills
+    // with a whitespace gap between them, while the same cell one box up in the
+    // georesource view rendered them flush as one control. The class was already
+    // spelled out in this method's own "No data" branch above.
     const buttonWrapper = document.createElement('div');
+    buttonWrapper.className = 'btn-group btn-group-sm';
 
     buttonWrapper.appendChild(this.buildEditButton(params, hasEditorPermission));
     buttonWrapper.appendChild(this.buildEditUserRolesButton(params, hasCreatorPermission));
@@ -227,7 +236,7 @@ export class OgcDataGridHelperService {
   private getWmsColumnDefinitions(): ColDef[] {
     return [
       {
-        headerName: 'Editierfunktionen',
+        headerName: this.translate.instant('ADMIN_SHARED.EDIT_FUNCTIONS'),
         maxWidth: 200,
         minWidth: 180,
         checkboxSelection: false,
@@ -239,19 +248,19 @@ export class OgcDataGridHelperService {
         flex: 1,
       },
       {
-        headerName: 'Id',
+        headerName: this.translate.instant('ADMIN_SHARED.ID'),
         field: 'id',
         maxWidth: 125,
         flex: 1,
       },
       {
-        headerName: 'Name',
+        headerName: this.translate.instant('ADMIN_SHARED.NAME'),
         field: 'title',
         minWidth: 300,
         flex: 1,
       },
       {
-        headerName: 'Legende',
+        headerName: this.translate.instant('ADMIN_WMS.GRID.COL_LEGEND'),
         minWidth: 400,
         filter: false,
         sortable: false,
@@ -261,14 +270,14 @@ export class OgcDataGridHelperService {
         flex: 1,
       },
       {
-        headerName: 'Beschreibung',
+        headerName: this.translate.instant('ADMIN_SHARED.DESCRIPTION'),
         cellRenderer: (params: any) => {
           return params.data.description || '';
         },
         flex: 1,
       },
       {
-        headerName: 'Themenhierarchie',
+        headerName: this.translate.instant('ADMIN_SHARED_UI.TOPICS.TITLE'),
         cellRenderer: this.translateTopicsReferences,
         flex: 1,
       },

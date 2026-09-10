@@ -15,7 +15,9 @@ import { Subscription } from 'rxjs';
 import { NgbDropdownModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from '../../../../services/broadcast-service/broadcast-message';
-import { KommonitorGeoresourceDataExchangeService } from '../../../../services/adminGeoresourceUnit/kommonitor-data-exchange.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { KommonitorGeoresourceDataGridHelperService } from '../../../../services/adminGeoresourceUnit/kommonitor-data-grid-helper.service';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -34,6 +36,7 @@ import { NotificationService } from 'components/ngComponents/common/notification
 import { TranslateModule } from '@ngx-translate/core';
 
 import { TranslateService } from '@ngx-translate/core';
+import { MODAL_CONFIRM, MODAL_FORM, MODAL_WIDE } from 'util/modal-presets';
 @Component({
   selector: 'app-admin-georesources-management',
   templateUrl: './admin-georesources-management.component.html',
@@ -53,7 +56,9 @@ import { TranslateService } from '@ngx-translate/core';
 export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
   private modalService = inject(NgbModal);
   private broadcastService = inject(BroadcastService);
-  kommonitorDataExchangeService = inject(KommonitorGeoresourceDataExchangeService);
+  private accessControlService = inject(AccessControlService);
+  private georesourceStore = inject(GeoresourceMetadataStoreService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
   private cacheHelperService = inject(CacheHelperServiceService);
   private kommonitorDataGridHelperService = inject(KommonitorGeoresourceDataGridHelperService);
   protected wmsSharedComponentsService = inject(WmsSharedComponentsService);
@@ -66,7 +71,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
   // store mutation (full refetch, single add/replace/delete, view switch)
   // re-renders the grids without imperative rebuild calls or timing hacks.
   private visibleGeoresources = computed(() => {
-    const georesources = this.kommonitorDataExchangeService.availableGeoresources;
+    const georesources = this.georesourceStore.availableGeoresources;
     if (!this.tableViewSwitcher()) {
       return georesources;
     }
@@ -78,9 +83,11 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
   loiRowData = computed(() => this.visibleGeoresources().filter((item) => item.isLOI));
   aoiRowData = computed(() => this.visibleGeoresources().filter((item) => item.isAOI));
 
-  poiColumnDefs: ColDef[] = this.buildColumnDefs('poi');
-  loiColumnDefs: ColDef[] = this.buildColumnDefs('loi');
-  aoiColumnDefs: ColDef[] = this.buildColumnDefs('aoi');
+  // Assigned in ngOnInit rather than here: the headers resolve through
+  // translate.instant().
+  poiColumnDefs: ColDef[] = [];
+  loiColumnDefs: ColDef[] = [];
+  aoiColumnDefs: ColDef[] = [];
 
   public defaultColDef: ColDef = {
     editable: false,
@@ -91,6 +98,8 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
     wrapText: true,
     autoHeight: true,
   };
+  /** Same grid pagination as the spatial-unit and indicator overviews. */
+  public paginationPageSize: number = 10;
   public paginationPageSizeSelector: number[] = [10, 25, 50, 100];
 
   private subscriptions: Subscription[] = [];
@@ -100,6 +109,9 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
   resourceType: WmsResourceType = WmsResourceType.GEORESOURCE;
 
   ngOnInit(): void {
+    this.poiColumnDefs = this.buildColumnDefs('poi');
+    this.loiColumnDefs = this.buildColumnDefs('loi');
+    this.aoiColumnDefs = this.buildColumnDefs('aoi');
     // The admin modals report changes via their refreshRequested outputs; this
     // broadcast listener remains only for external senders (wms-admin-table).
     const broadcastSub = this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
@@ -111,9 +123,9 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
 
     // The route-level bootstrap normally provides the metadata; refetch only
     // when the store is still empty (e.g. deep link with a failed bootstrap).
-    if (this.kommonitorDataExchangeService.availableGeoresources.length === 0) {
-      this.kommonitorDataExchangeService
-        .fetchGeoresourcesMetadata(this.kommonitorDataExchangeService.currentKeycloakLoginRoles)
+    if (this.georesourceStore.availableGeoresources.length === 0) {
+      this.metadataBootstrap
+        .fetchGeoresourcesMetadata(this.accessControlService.currentKeycloakLoginRoles)
         .catch(() => {
           this.notificationService.showError(
             this.translate.instant('ADMIN_GEORESOURCES.MSG.LOAD_LIST_FAILED')
@@ -141,7 +153,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
    */
   private buildEditButtonsColumn(): ColDef {
     return {
-      headerName: 'Editierfunktionen',
+      headerName: this.translate.instant('ADMIN_SHARED.EDIT_FUNCTIONS'),
       pinned: 'left',
       maxWidth: 200,
       minWidth: 180,
@@ -167,19 +179,27 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
 
     let html = '<div class="btn-group btn-group-sm">';
     html +=
-      '<button class="btn btn-warning btn-sm georesourceEditMetadataBtn" type="button" title="Metadaten editieren" ' +
+      '<button class="btn btn-warning btn-sm georesourceEditMetadataBtn" type="button" title="' +
+      this.translate.instant('ADMIN_SHARED_UI.GRID.EDIT_METADATA_TITLE') +
+      '" ' +
       (hasEditorPermission ? '' : 'disabled') +
       '><i class="fas fa-pencil-alt"></i></button>';
     html +=
-      '<button class="btn btn-warning btn-sm georesourceEditFeaturesBtn" type="button" title="Features fortführen" ' +
+      '<button class="btn btn-warning btn-sm georesourceEditFeaturesBtn" type="button" title="' +
+      this.translate.instant('ADMIN_SHARED.EDIT_FEATURES') +
+      '" ' +
       (hasEditorPermission ? '' : 'disabled') +
       '><i class="fas fa-draw-polygon"></i></button>';
     html +=
-      '<button class="btn btn-warning btn-sm georesourceEditUserRolesBtn" type="button" title="Zugriffsschutz und Eigentümerschaft editieren" ' +
+      '<button class="btn btn-warning btn-sm georesourceEditUserRolesBtn" type="button" title="' +
+      this.translate.instant('ADMIN_SHARED_UI.GRID.EDIT_ACCESS_TITLE') +
+      '" ' +
       (hasCreatorPermission ? '' : 'disabled') +
       '><i class="fas fa-user-lock"></i></button>';
     html +=
-      '<button class="btn btn-danger btn-sm georesourceDeleteBtn" type="button" title="Georessource entfernen" ' +
+      '<button class="btn btn-danger btn-sm georesourceDeleteBtn" type="button" title="' +
+      this.translate.instant('ADMIN_GEORESOURCES.GRID.DELETE_TITLE') +
+      '" ' +
       (hasCreatorPermission ? '' : 'disabled') +
       '><i class="fas fa-trash"></i></button>';
     html += '</div>';
@@ -211,8 +231,8 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
     // this only has to bring the store up to date.
     if (!crudType || !targetGeoresourceId) {
       // refetch all metadata from georesources to update table
-      this.kommonitorDataExchangeService
-        .fetchGeoresourcesMetadata(this.kommonitorDataExchangeService.currentKeycloakLoginRoles)
+      this.metadataBootstrap
+        .fetchGeoresourcesMetadata(this.accessControlService.currentKeycloakLoginRoles)
         .catch(() => {
           this.notificationService.showError(
             this.translate.instant('ADMIN_GEORESOURCES.MSG.LOAD_LIST_FAILED')
@@ -223,9 +243,9 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
         .fetchSingleGeoresourceMetadata(targetGeoresourceId)
         .then((data) => {
           if (crudType === 'add') {
-            this.kommonitorDataExchangeService.addSingleGeoresourceMetadata(data);
+            this.georesourceStore.addSingleGeoresourceMetadata(data);
           } else {
-            this.kommonitorDataExchangeService.replaceSingleGeoresourceMetadata(data);
+            this.georesourceStore.replaceSingleGeoresourceMetadata(data);
           }
         })
         .catch(() => {
@@ -237,7 +257,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
       // targetGeoresourceId might be array in this case
       const ids = Array.isArray(targetGeoresourceId) ? targetGeoresourceId : [targetGeoresourceId];
       for (const id of ids) {
-        this.kommonitorDataExchangeService.deleteSingleGeoresourceMetadata(id);
+        this.georesourceStore.deleteSingleGeoresourceMetadata(id);
       }
     }
   }
@@ -253,13 +273,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
 
   // Modal event handlers
   onClickAddGeoresource(): void {
-    const modalRef = this.modalService.open(GeoresourceAddModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
-      keyboard: false,
-      container: 'body',
-      animation: false,
-    });
+    const modalRef = this.modalService.open(GeoresourceAddModalComponent, MODAL_WIDE);
 
     modalRef.componentInstance.refreshRequested.subscribe((request: GeoresourceRefreshRequest) =>
       this.handleRefreshRequest(request)
@@ -267,13 +281,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
   }
 
   public onClickEditMetadata(georesourceDataset: any): void {
-    const modalRef = this.modalService.open(GeoresourceEditMetadataModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
-      keyboard: false,
-      container: 'body',
-      animation: false,
-    });
+    const modalRef = this.modalService.open(GeoresourceEditMetadataModalComponent, MODAL_FORM);
 
     // Pass the georesource dataset to the modal
     modalRef.componentInstance.currentGeoresourceDataset = georesourceDataset;
@@ -287,13 +295,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
   }
 
   public onClickEditFeatures(georesourceDataset: any): void {
-    const modalRef = this.modalService.open(GeoresourceEditFeaturesModalComponent, {
-      size: 'xl',
-      backdrop: 'static',
-      keyboard: false,
-      container: 'body',
-      animation: false,
-    });
+    const modalRef = this.modalService.open(GeoresourceEditFeaturesModalComponent, MODAL_WIDE);
 
     // Pass the georesource dataset to the modal
     modalRef.componentInstance.currentGeoresourceDataset = georesourceDataset;
@@ -305,13 +307,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
   }
 
   public onClickEditUserRoles(georesourceDataset: any): void {
-    const modalRef = this.modalService.open(GeoresourceEditUserRolesModalComponent, {
-      size: 'xl',
-      backdrop: 'static',
-      keyboard: false,
-      container: 'body',
-      animation: false,
-    });
+    const modalRef = this.modalService.open(GeoresourceEditUserRolesModalComponent, MODAL_WIDE);
     modalRef.componentInstance.currentGeoresourceDataset = georesourceDataset;
     modalRef.componentInstance.refreshRequested.subscribe((request: GeoresourceRefreshRequest) =>
       this.handleRefreshRequest(request)
@@ -321,13 +317,13 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
   }
 
   public onClickDeleteGeoresource(georesourceDataset: any): void {
-    const modalRef = this.modalService.open(GeoresourceDeleteModalComponent, {
-      size: 'xl',
-      backdrop: 'static',
-      keyboard: false,
-      container: 'body',
-      animation: false,
-    });
+    // MODAL_CONFIRM like the spatial-unit and indicator delete dialogs: this is a
+    // question with a summary, it holds no input, so Esc and a backdrop click may
+    // mean "cancel". MODAL_FORM made it 800px *and* `backdrop: 'static'` with
+    // `keyboard: false`, so the one dialog in the admin area with nothing to lose
+    // was the one that refused to close on Esc. The wide impact tables scroll
+    // inside `.admin-table-wrapper`, as they do in the indicator dialog.
+    const modalRef = this.modalService.open(GeoresourceDeleteModalComponent, MODAL_CONFIRM);
 
     // Pass the georesource dataset directly to the modal (the former
     // OnDeleteGeoresources broadcast detour is gone)
@@ -337,18 +333,5 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
     );
 
     modalRef.result.catch(() => undefined);
-  }
-
-  // Utility methods
-  checkCreatePermission(): boolean {
-    return this.kommonitorDataExchangeService.checkCreatePermission();
-  }
-
-  checkEditorPermission(): boolean {
-    return this.kommonitorDataExchangeService.checkEditorPermission();
-  }
-
-  checkDeletePermission(): boolean {
-    return this.kommonitorDataExchangeService.checkDeletePermission();
   }
 }

@@ -67,7 +67,12 @@
           <b>{{ 'ADMIN_ROLES.CONCEPT_MENU_NAME' | translate }}</b>
           {{ 'ADMIN_ROLES.CONCEPT_HINT_SUFFIX' | translate }}</i
         >
-        <h5>
+        <!--
+          Plain paragraph, not an <h5>: this is one sentence containing a link,
+          not a section heading. As a heading it rendered at 20px/500 and was the
+          second-largest text on the page, above the box title containing it.
+        -->
+        <p>
           {{ 'ADMIN_ROLES.KEYCLOAK_LINK_PREFIX' | translate }}
           <a
             class="kommonitor-theme"
@@ -76,7 +81,7 @@
             rel="noopener noreferrer"
             >{{ 'ADMIN_ROLES.KEYCLOAK_USER_MANAGEMENT' | translate }}</a
           >
-        </h5>
+        </p>
         <p>
           {{ 'ADMIN_ROLES.NEW_USER_HINT' | translate }}
         </p>

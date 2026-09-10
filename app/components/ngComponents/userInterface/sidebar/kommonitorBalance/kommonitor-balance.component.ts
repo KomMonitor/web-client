@@ -34,7 +34,8 @@ export class KommonitorBalanceComponent implements OnInit {
   private diagramHelperService = inject(DiagramHelperServiceService);
   protected envConfigService = inject(EnvConfigService);
 
-  // Local precision-resolving wrappers (formerly the DataExchangeService facade glue, Prio7 B1).
+  // Resolve the indicator precision from the current selection before
+  // delegating to IndicatorValueService.
   private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
     return this.indicatorValueService.getIndicatorValue_asNumber(
       indicatorValue,

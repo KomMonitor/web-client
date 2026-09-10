@@ -70,9 +70,8 @@ export const POI_MARKER_COLORS: PoiMarkerColor[] = [
 /**
  * Holds the presentation state for point-of-interest (POI) and
  * line-of-interest (LOI) markers: the selected marker size, the available
- * marker colors and the LOI dash-pattern SVG lookup. Extracted from
- * DataExchangeService (Prio 7 god-service split, B-Rest cluster "POI"); also
- * the home of the POI/LOI constants other consumers import.
+ * marker colors and the LOI dash-pattern SVG lookup. Extracted in the Prio 7 god-service
+ * split; also the home of the POI/LOI constants other consumers import.
  */
 @Injectable({
   providedIn: 'root',

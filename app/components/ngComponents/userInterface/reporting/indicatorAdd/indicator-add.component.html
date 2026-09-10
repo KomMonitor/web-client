@@ -198,7 +198,7 @@
               "
             >
               <div class="loading-overlay-reporting" [hidden]="!loadingData">
-                <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                <span class="fas fa-arrows-rotate icon-spin"></span>
               </div>
               <p style="margin-top: 10px">
                 <b
@@ -207,10 +207,10 @@
                 >
               </p>
               <div class="input-wrapper">
-                <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+                <span class="icon"><i class="fas fa-filter"></i></span>
                 <input
                   type="text"
-                  class="form-control input-sm"
+                  class="form-control"
                   placeholder="Stichwortfilter"
                   [value]="poiNameFilter"
                   (keyup)="onPOINameFilterChange($event)"
@@ -229,7 +229,7 @@
             </div>
             <div role="tabpanel" id="isochrones" class="tab-pane">
               <div class="loading-overlay-reporting" [hidden]="!loadingData">
-                <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                <span class="fas fa-arrows-rotate icon-spin"></span>
               </div>
               <div id="reporting-isochrones-config">
                 @if (reportingService.clonedTemplate.name.includes('-reachability')) {
@@ -250,7 +250,7 @@
               "
             >
               <div class="loading-overlay-reporting" [hidden]="!loadingData">
-                <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                <span class="fas fa-arrows-rotate icon-spin"></span>
               </div>
 
               <div
@@ -263,10 +263,10 @@
               </div>
 
               <div class="input-wrapper">
-                <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+                <span class="icon"><i class="fas fa-filter"></i></span>
                 <input
                   type="text"
-                  class="form-control input-sm"
+                  class="form-control"
                   placeholder="Stichwortfilter"
                   [value]="indicatorNameFilter"
                   (keyup)="onIndicatorNameFilterChange($event)"
@@ -342,7 +342,7 @@
             </div>
             <div role="tabpanel" class="tab-pane dual-list-select" id="area">
               <div class="loading-overlay-reporting" [hidden]="!loadingData">
-                <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                <span class="fas fa-arrows-rotate icon-spin"></span>
               </div>
               <div id="reporting-spatialUnitChangeWarning" class="alert alert-warning collapse">
                 <span [hidden]="!reportingService.clonedTemplate.name.includes('-timestamp')">
@@ -405,7 +405,7 @@
               id="time"
             >
               <div class="loading-overlay-reporting" [hidden]="!loadingData">
-                <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                <span class="fas fa-arrows-rotate icon-spin"></span>
               </div>
               <div [hidden]="reportingService.clonedTemplate.name.includes('-timeseries')">
                 <app-dual-list-box
@@ -696,7 +696,7 @@
             <div role="tabpanel" class="tab-pane" id="screenshotmanagement">
               @if (loadingData) {
                 <div class="loading-overlay-reporting">
-                  <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                  <span class="fas fa-arrows-rotate icon-spin"></span>
                 </div>
               }
 
@@ -1021,7 +1021,7 @@
                               style="width: 100%; margin-top: 20px; height: 25px"
                             >
                               <div
-                                class="progress-bar progress-bar-striped active"
+                                class="progress-bar progress-bar-striped progress-bar-animated"
                                 role="progressbar"
                                 [ngStyle]="{
                                   width: (pagePreparationIndex / pagePreparationSize) * 100 + '%',
@@ -1075,7 +1075,7 @@
 
           @if (!lastPageOfAddedSectionPrepared && pagePreparationSize > 0) {
             <button
-              class="btn btn-danger pull-right"
+              class="btn btn-danger"
               style="margin-right: 15px"
               (click)="onAbortPreparationClicked()"
             >
@@ -1088,8 +1088,8 @@
             !leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate &&
             leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0
           ) {
-            <button [disabled]="true" class="btn btn-info pull-right">
-              <span class="glyphicon glyphicon-refresh icon-spin"></span>
+            <button [disabled]="true" class="btn btn-info">
+              <span class="fas fa-arrows-rotate icon-spin"></span>
               <span
                 >Kartenbildaufbereitung:
                 {{ leafletScreenshotCacheHelperService.executedScreenshotMapKeys.size }} von
@@ -1099,8 +1099,8 @@
           }
 
           @if (!lastPageOfAddedSectionPrepared && pagePreparationSize > 0) {
-            <button [disabled]="true" style="margin-right: 15px" class="btn btn-warning pull-right">
-              <span class="glyphicon glyphicon-refresh icon-spin"></span>
+            <button [disabled]="true" style="margin-right: 15px" class="btn btn-warning">
+              <span class="fas fa-arrows-rotate icon-spin"></span>
               <span
                 >Reportaufbereitung: {{ pagePreparationIndex + 1 }} von
                 {{ pagePreparationSize }}</span
@@ -1110,7 +1110,7 @@
         </div>
         <div>
           <button
-            class="btn btn-success pull-right"
+            class="btn btn-success"
             (click)="onAddBtnClicked()"
             [disabled]="
               !validateConfiguration() ||

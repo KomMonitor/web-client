@@ -52,17 +52,21 @@
           ng-change="$ctrl.kommonitorElementVisibilityHelperServiceInstance.onChangeIsAdvancedMode()" ><span class="switchslider round"></span></label> -->
       </div>
     }
-    <p title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></p>
+    <!--
+      Hidden with the button in the info modal until the guided tour is ported.
+      It had no (click) handler and its glyphicon rendered at zero width, so it
+      was an invisible dead click target in the toolbar.
+
+      <p title="Guided Tour&nbsp;&nbsp;"><span class="fas fa-play"></span></p>
+    -->
     @if (showAdminLogin) {
       <p (click)="openAdminUI()" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></p>
     }
     <p (click)="openInfoModal()" title="Information&nbsp;&nbsp;">
-      <span class="glyphicon glyphicon-info-sign"></span>
+      <span class="fas fa-circle-info"></span>
     </p>
     <app-user-login></app-user-login>
   </div>
-
-  <!-- <a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a> -->
 </header>
 <div id="userInterface-content">
   <app-sidebar></app-sidebar>
@@ -75,7 +79,6 @@
         id="recenterMapButton"
         (click)="onRecenterMapButtonClick()"
         class="btn btn-leaflet-custom"
-        data-toggle="tooltip"
         title="Karte zentrieren"
       >
         <i class="fas fa-earth-europe"></i>
@@ -86,7 +89,6 @@
         id="unselectFeaturesButton"
         (click)="onUnselectFeaturesButtonClick()"
         class="btn btn-leaflet-custom"
-        data-toggle="tooltip"
         title="Raumeinheits-Selektion aufheben"
       >
         <i class="fas fa-ban"></i>
@@ -97,7 +99,6 @@
         id="exportMapButton"
         (click)="onExportMapButtonClick()"
         class="btn btn-leaflet-custom"
-        data-toggle="tooltip"
         title="aktuellen Kartenausschnitt exportieren"
       >
         <i class="fas fa-download"></i>
@@ -106,10 +107,8 @@
       <button
         type="button"
         id="expertButton"
-        data-toggle="button"
         (click)="onExpertButtonClick()"
         class="btn btn-leaflet-custom"
-        data-toggle="tooltip"
         title="Experten-Werkzeuge anzeigen"
       >
         <i class="fa fa-screwdriver-wrench"></i>
@@ -118,11 +117,9 @@
       <button
         type="button"
         id="openLayerControlButton"
-        data-toggle="button"
         [ngClass]="{ visible: expertToolbarVisible }"
         (click)="onOpenLayerControlButtonClick()"
         class="btn btn-leaflet-custom expertButton"
-        data-toggle="tooltip"
         title="Layer Control anzeigen"
       >
         <i class="fas fa-layer-group"></i>
@@ -137,7 +134,7 @@
       ) {
         <div id="filterStatusButtonContainer">
           @if (globalFilterHelperService.globalFilterApplied()) {
-            <div id="filterNoticeButton" class="btn btn-warning btn-xs" title="Filter aktiviert">
+            <div id="filterNoticeButton" class="btn btn-warning btn-sm" title="Filter aktiviert">
               <i class="fas fa-filter"></i>
               <span (click)="openFilterSidebar()" style="margin: 3px"
                 >Räuml. Filter aktiviert
@@ -152,7 +149,7 @@
           @if (chartDisplayState.isMeasureOfValueChecked) {
             <div
               id="filterNoticeButton"
-              class="btn btn-warning btn-xs"
+              class="btn btn-warning btn-sm"
               title="Schwellenwertklassifizierung aktiviert"
             >
               <i class="fas fa-filter"></i>
@@ -169,7 +166,7 @@
           @if (rangeFilterState.rangeFilterIsApplied) {
             <div
               id="filterNoticeButton"
-              class="btn btn-warning btn-xs"
+              class="btn btn-warning btn-sm"
               title="Wertebereichfilter aktiviert"
             >
               <i class="fas fa-filter"></i>
@@ -189,7 +186,7 @@
         @if (chartDisplayState.isBalanceChecked) {
           <span
             id="balanceNoticeButton"
-            class="btn btn-warning btn-xs"
+            class="btn btn-warning btn-sm"
             title="Bilanzierung aktiviert"
           >
             <i class="fas fa-chart-line"></i>

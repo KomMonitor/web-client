@@ -1,7 +1,10 @@
 import { Injectable, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
 
 import { AuthService } from 'services/auth-service/auth.service';
 import { KeycloakHelperService } from 'services/keycloak-helper-service/keycloak-helper.service';
+import { DEFAULT_LANGUAGE_CODE, resolvePreferredLanguage } from 'util/i18n.constants';
 
 @Injectable({
   providedIn: 'root',
@@ -9,10 +12,12 @@ import { KeycloakHelperService } from 'services/keycloak-helper-service/keycloak
 export class StartupService {
   private authService = inject(AuthService);
   private keycloakHelperService = inject(KeycloakHelperService);
+  private translate = inject(TranslateService);
 
   async initApp(): Promise<void> {
     console.log('start loading required config files');
     await this.loadAllConfigs();
+    await this.loadTranslations();
     await this.authService.initKeycloak();
 
     if (this.authService.isAuthenticated()) {
@@ -22,6 +27,28 @@ export class StartupService {
       this.keycloakHelperService.init().catch((error) => {
         console.error('KeycloakHelperService initialization failed; continuing startup.', error);
       });
+    }
+  }
+
+  /**
+   * Resolve the active language and await its bundle before the app renders.
+   *
+   * This has to happen here rather than in the language switcher: that component
+   * only exists in the user-interface shell, so a direct entry to
+   * /administration would never trigger a load. Code that resolves strings
+   * synchronously via `translate.instant()` — the AG Grid column headers in the
+   * admin area, for one — would then render raw keys.
+   */
+  private async loadTranslations(): Promise<void> {
+    const language = resolvePreferredLanguage();
+    this.translate.setDefaultLang(DEFAULT_LANGUAGE_CODE);
+
+    try {
+      await firstValueFrom(this.translate.use(language));
+    } catch (error) {
+      // Best-effort, like the other config steps: a missing bundle must not
+      // block app start. Strings then fall back to their keys.
+      console.error(`Could not load the "${language}" translation bundle.`, error);
     }
   }
 
@@ -80,6 +107,7 @@ export class StartupService {
   private async loadAppConfigScript(scriptUrl: string): Promise<void> {
     if (await this.appendScript(scriptUrl)) {
       console.log('env.js loaded');
+      await this.fetchAppConfigSource(scriptUrl);
       return;
     }
 
@@ -88,10 +116,34 @@ export class StartupService {
     );
     if (await this.appendScript('./config/env_backup.js')) {
       console.log('env_backup.js loaded');
+      await this.fetchAppConfigSource('./config/env_backup.js');
     } else {
       console.error(
         'Failed to load the local fallback app config (./config/env_backup.js). The app will start without an app config.'
       );
+    }
+  }
+
+  /**
+   * Keep the app config's source text around in `window.__env.appConfig`.
+   *
+   * The config is loaded by executing it as a script (above), which populates
+   * `window.__env` but discards the source. The admin app-config editor edits
+   * exactly that source, so it needs a copy — the deleted AngularJS app.js used
+   * to fetch the same URL a second time for this. The browser serves it from
+   * cache here, since the script tag just requested it.
+   */
+  private async fetchAppConfigSource(url: string): Promise<void> {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Unexpected HTTP status ${response.status}`);
+      }
+      window.__env.appConfig = await response.text();
+    } catch (error) {
+      // Only the admin app-config editor consumes this; the app itself runs off
+      // the values the script already set.
+      console.warn(`Could not read the app config source text from ${url}.`, error);
     }
   }
 

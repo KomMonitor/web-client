@@ -344,6 +344,11 @@ export class EnvConfigService {
     return window.__env.controlsConfig;
   }
 
+  /** The env.js source the app started with; shown in the app-config editor. */
+  get appConfig(): any {
+    return window.__env.appConfig;
+  }
+
   // --- Filters ---
   get filterConfig(): any {
     return window.__env.filterConfig;

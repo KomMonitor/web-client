@@ -1,0 +1,76 @@
+<!--
+  The panes carry their own loading overlay rather than leaving it to the three
+  hosting pages: `loadingData` is this component's state (it covers both the
+  initial fetch and a save round-trip), and adminFilterConfig already runs an
+  overlay of its own around the grid above these panes.
+-->
+<app-loading-overlay [loading]="loadingData()">
+  <div class="row vertical-align">
+    <div class="col-12 col-xxl-6">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN_CONFIG.COMMON.TEMPLATE_LABEL' | translate }}</label>
+        <div #templateCodeMirror style="height: 450px"></div>
+      </div>
+    </div>
+    <div class="col-12 col-xxl-6">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN_CONFIG.COMMON.CURRENT_LABEL' | translate }}</label>
+        <div #currentCodeMirror style="height: 450px"></div>
+      </div>
+    </div>
+  </div>
+
+  <hr />
+
+  <div class="row vertical-align">
+    <div class="col-12 col-xxl-6">
+      <div class="form-group">
+        <label class="form-label">{{ i18n + '.EDITOR_LABEL' | translate }}</label>
+        <textarea #configEditor></textarea>
+      </div>
+      @if (configSettingInvalid()) {
+        <div class="help-block with-errors">
+          {{ 'ADMIN_CONFIG.COMMON.INVALID_HINT' | translate: { format: descriptor.formatLabel } }}
+        </div>
+      }
+      @if (missingRequiredParameters().length > 0) {
+        <div class="help-block with-errors">
+          {{ 'ADMIN_CONFIG.COMMON.MISSING_PARAMETERS' | translate }}
+          {{ missingRequiredParameters_string() }}
+        </div>
+      }
+    </div>
+    <div class="col-12 col-xxl-6">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN_CONFIG.COMMON.PREVIEW_LABEL' | translate }}</label>
+        <div #newCodeMirror style="height: 450px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!--
+    Right-aligned action row instead of one centred button. Every reworked admin
+    dialog ends in a `.modal-footer` that pushes its actions to the right, with
+    the neutral "reset" as an outline button left of the submit; this page is
+    not a dialog, so the row is spelled out here in the same order, with the
+    same button styles and the same hairline above it (see `.page-actions`).
+
+    Deliberately not a `.row`/`.col-12` pair: the buttons need no grid, and a
+    row's negative side margins would have pushed the separator 12px wider than
+    the two `<hr>` elements further up the page.
+  -->
+  <div class="page-actions d-flex justify-content-end gap-2">
+    <button type="button" class="btn btn-outline-secondary" (click)="resetConfig()">
+      {{ 'ADMIN_SHARED_UI.RESET' | translate }}
+    </button>
+
+    <button
+      type="button"
+      class="btn btn-success"
+      [disabled]="configSettingInvalid()"
+      (click)="saveConfig()"
+    >
+      {{ i18n + '.SAVE' | translate }}
+    </button>
+  </div>
+</app-loading-overlay>

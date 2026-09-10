@@ -14,7 +14,7 @@
     </div>
   }
 
-  <div class="list-group list-group-root well" style="text-align: left">
+  <div class="list-group list-group-root" style="text-align: left">
     <ng-template #GeoFavsRecursive let-list="list">
       @for (topic of list | geoFavFilter; track topic) {
         <div>
@@ -100,7 +100,7 @@
               favoritesService.FavTabShowPOIHeader(topic)
             ) {
               <div class="georesource-fav-details-wrapper">
-                <table class="table table-condensed" style="margin-bottom: 0px">
+                <table class="table table-sm" style="margin-bottom: 0px">
                   <thead>
                     <tr>
                       <th>Typ</th>

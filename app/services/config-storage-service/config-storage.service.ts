@@ -103,9 +103,11 @@ export class ConfigStorageService {
     );
   }
 
-  getAppConfig(): Observable<any> {
+  /** The app config is JavaScript (env.js), so it must not be parsed as JSON. */
+  getAppConfig(): Observable<string> {
     return this.httpClient.get(
-      this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig
+      this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig,
+      { responseType: 'text' }
     );
   }
 

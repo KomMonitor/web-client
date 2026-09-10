@@ -1,0 +1,23 @@
+/*
+ * Same row helper the spatial-unit and georesource dialogs use, in place of the
+ * global `.vertical-align` the role row used to carry: that is a flex row with
+ * `justify-content: center` (app.scss), which overrode the Bootstrap grid and
+ * centred the three columns instead of laying them out.
+ */
+.form-section-row {
+  row-gap: 1rem;
+}
+
+/*
+ * The error report's stack trace. Capped so a long message scrolls inside its
+ * alert instead of pushing the form out of the dialog, which is what
+ * `style="overflow: auto; max-height: 500px"` on the <pre> used to allow.
+ */
+.import-error-detail {
+  max-height: 240px;
+  overflow: auto;
+  margin-bottom: 0;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

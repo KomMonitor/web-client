@@ -40,6 +40,23 @@ const PIE_TOOLTIP: TooltipComponentOption = {
 
 const PIE_LABEL = { position: 'inner' as const };
 
+// Hides labels that would collide instead of stacking them on top of each other.
+const PIE_LABEL_LAYOUT = { hideOverlap: true };
+
+const BAR_TOOLTIP: TooltipComponentOption = {
+  trigger: 'item',
+  confine: true,
+  formatter: '{b}: {c}',
+  textStyle: { fontSize: 12 },
+};
+
+/**
+ * How many spatial units the ranked bar chart shows. The tail of the
+ * distribution is a long flat run of ones that carries no information but
+ * would triple the chart's height.
+ */
+const TOP_N_SPATIAL_UNITS = 15;
+
 /** Recursively collects all sub-topics from a topic tree. */
 function collectSubTopics(topics: any[]): any[] {
   return topics.flatMap((topic) =>
@@ -57,25 +74,76 @@ function countBy<T>(items: T[], keyOf: (item: T) => string): Map<string, number>
   return counts;
 }
 
-/** Builds a standard ECharts pie-chart option object. */
+/**
+ * Builds a standard ECharts pie-chart option object.
+ *
+ * Deliberately carries no `title`: chart headings are rendered as real HTML
+ * above the canvas. ECharts centres and then clips its own title, which cut the
+ * heading off at both ends once the column got narrow.
+ */
 function buildPieChartOptions(
-  title: string,
+  seriesName: string,
   data: PieSeriesDataItem[],
   color: string
 ): EChartsOption {
   return {
-    title: { text: title, left: 'center', show: true, top: 15 },
     tooltip: PIE_TOOLTIP,
     series: [
       {
-        name: title,
+        name: seriesName,
         type: 'pie',
-        radius: '90%',
+        // Kept well under the container so the pie does not visually dwarf the
+        // bar charts sitting next to it in the same row.
+        radius: '62%',
         center: ['50%', '50%'],
         data,
         itemStyle: { color, shadowBlur: 20, shadowColor: 'rgba(0, 0, 0, 0.5)' },
         emphasis: PIE_EMPHASIS,
         label: PIE_LABEL,
+        labelLayout: PIE_LABEL_LAYOUT,
+      },
+    ],
+  };
+}
+
+/**
+ * Builds a horizontal bar chart for ranked category counts.
+ *
+ * Used where a pie would be unreadable: with more than a handful of slices the
+ * inner labels overlap into an illegible pile. Expects `data` pre-sorted
+ * descending; the category axis is inverted so the largest bar sits on top.
+ */
+function buildBarChartOptions(
+  seriesName: string,
+  data: PieSeriesDataItem[],
+  color: string
+): EChartsOption {
+  return {
+    tooltip: BAR_TOOLTIP,
+    grid: { left: 4, right: 36, top: 4, bottom: 4, containLabel: true },
+    xAxis: {
+      type: 'value',
+      minInterval: 1,
+      axisLabel: { fontSize: 11 },
+      splitLine: { lineStyle: { color: '#eee' } },
+    },
+    yAxis: {
+      type: 'category',
+      inverse: true,
+      data: data.map((item) => item.name),
+      axisTick: { show: false },
+      // Long spatial-unit names get truncated rather than widening the plot
+      // area away from the bars; the full name stays available in the tooltip.
+      axisLabel: { fontSize: 11, width: 120, overflow: 'truncate' },
+    },
+    series: [
+      {
+        name: seriesName,
+        type: 'bar',
+        data: data.map((item) => item.value),
+        itemStyle: { color },
+        barMaxWidth: 18,
+        label: { show: true, position: 'right', fontSize: 11 },
       },
     ],
   };
@@ -153,7 +221,11 @@ export class AdminDashboardManagementComponent {
       .filter((t: any) => t.indicatorCount > 0)
       .map((t: any) => ({ name: t.topicName, value: t.indicatorCount }));
 
-    return buildPieChartOptions(this.t('ADMIN_DASHBOARD.INDICATORS_PER_TOPIC'), data, '#00a65b');
+    return buildBarChartOptions(
+      this.t('ADMIN_DASHBOARD.INDICATORS_PER_TOPIC'),
+      data.sort((a, b) => b.value - a.value),
+      '#00a65b'
+    );
   });
 
   georesourcesPerTypeChartOptions = computed<EChartsOption>(() => {
@@ -169,7 +241,8 @@ export class AdminDashboardManagementComponent {
     return buildPieChartOptions(this.t('ADMIN_DASHBOARD.GEORESOURCES_PER_TYPE'), data, '#ff851b');
   });
 
-  indicatorsPerSpatialUnitChartOptions = computed<EChartsOption>(() => {
+  /** All spatial units that carry at least one indicator, ranked descending. */
+  private indicatorsPerSpatialUnitData = computed<PieSeriesDataItem[]>(() => {
     const countMap = countBy(
       (this.indicatorStore.availableIndicators ?? []).flatMap(
         (indicator: any) => indicator.applicableSpatialUnits ?? []
@@ -177,19 +250,28 @@ export class AdminDashboardManagementComponent {
       (su: any) => su.spatialUnitName
     );
 
-    const data: PieSeriesDataItem[] = (this.spatialUnitStore.availableSpatialUnits ?? [])
+    return (this.spatialUnitStore.availableSpatialUnits ?? [])
       .filter((su: any) => countMap.has(su.spatialUnitLevel))
       .map((su: any) => ({
         name: su.spatialUnitLevel,
         value: countMap.get(su.spatialUnitLevel)!,
-      }));
-
-    return buildPieChartOptions(
-      this.t('ADMIN_DASHBOARD.INDICATORS_PER_SPATIAL_UNIT'),
-      data,
-      '#337ab7'
-    );
+      }))
+      .sort((a, b) => b.value - a.value);
   });
+
+  /** Drives the "(Top n)" suffix on the heading, so truncation stays visible. */
+  spatialUnitChartTopN = TOP_N_SPATIAL_UNITS;
+  isSpatialUnitChartTruncated = computed(
+    () => this.indicatorsPerSpatialUnitData().length > TOP_N_SPATIAL_UNITS
+  );
+
+  indicatorsPerSpatialUnitChartOptions = computed<EChartsOption>(() =>
+    buildBarChartOptions(
+      this.t('ADMIN_DASHBOARD.INDICATORS_PER_SPATIAL_UNIT'),
+      this.indicatorsPerSpatialUnitData().slice(0, TOP_N_SPATIAL_UNITS),
+      '#337ab7'
+    )
+  );
 
   /** Translate a key while tracking language changes so dependent computeds re-run on switch. */
   private t(key: string): string {

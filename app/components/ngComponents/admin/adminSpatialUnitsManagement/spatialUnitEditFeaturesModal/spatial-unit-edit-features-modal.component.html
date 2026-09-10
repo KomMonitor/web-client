@@ -15,868 +15,837 @@
 </div>
 
 <div class="modal-body">
-  <div align="center">
-    <div class="loading-overlay-admin-panel ng-hide" [class.ng-hide]="!loadingData()">
-      <i class="fas fa-spinner fa-spin fa-2x"></i>
-    </div>
-  </div>
+  <!--
+    <app-loading-overlay> instead of the hand-rolled `.loading-overlay-admin-panel`,
+    which was `position: fixed` and greyed out the whole viewport rather than the
+    dialog.
+  -->
+  <app-loading-overlay [loading]="loadingData()">
+    <!--
+      Both failure reports used to sit after </div class="modal-footer">, one of
+      them `position: absolute; bottom: 0`, so they rendered below or on top of
+      the dialog's own buttons. They are ordinary alerts at the top of the body
+      now.
+    -->
+    @if (importerErrors().length > 0) {
+      <div id="spatialUnitEditFeaturesImporterErrors" class="alert alert-danger" role="alert">
+        <b>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.IMPORT_FAILED' | translate }}</b>
+        <p>
+          {{
+            'ADMIN_SPATIAL_UNITS.ERRORS.IMPORT_FAILED_IDS'
+              | translate: { count: importerErrors().length }
+          }}
+        </p>
+        <ul class="import-error-detail">
+          @for (error of importerErrors(); track error) {
+            <li>{{ error }}</li>
+          }
+        </ul>
+        <p>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.IMPORT_FAILED_HINT' | translate }}</p>
+      </div>
+    }
 
-  <!-- MultiStep Form -->
-  <div class="row">
-    <div class="col-md-12">
-      <form
-        id="spatialUnitEditFeaturesForm"
-        class="multiStepForm form-group"
-        style="margin-bottom: 0px"
+    @if (spatialUnitMappingConfigImportError()) {
+      <div
+        id="spatialUnitEditFeaturesMappingConfigErrorAlert"
+        class="alert alert-danger"
+        role="alert"
       >
-        <!-- progressbar -->
-        <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
+        <button
+          type="button"
+          class="btn-close float-end"
+          [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+          (click)="hideMappingConfigErrorAlert()"
+        ></button>
+        <b>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.MAPPING_ERROR' | translate }}</b>
+        <pre class="import-error-detail" [innerHTML]="spatialUnitMappingConfigImportError()"></pre>
+      </div>
+    }
 
-        <!-- Step 1: Spatial Unit Overview -->
-        @if (stepper.isActive('overview')) {
-          <fieldset>
-            <h2 class="fs-title">
-              {{ 'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.OVERVIEW_TITLE' | translate }}
-            </h2>
-            <h3 class="fs-subtitle">
-              {{ 'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.OVERVIEW_SUBTITLE' | translate }}
-            </h3>
-            <div class="row vertical-align">
-              <div class="col-md-6 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>{{
-                    'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.FETCH_AND_EDIT' | translate
-                  }}</label>
+    <div id="spatialUnitEditFeaturesForm">
+      <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
+
+      <!-- Step 1: Spatial Unit Overview -->
+      @if (stepper.isActive('overview')) {
+        <fieldset>
+          <h2 class="fs-title text-center">
+            {{ 'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.OVERVIEW_TITLE' | translate }}
+          </h2>
+          <h3 class="fs-subtitle text-center">
+            {{ 'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.OVERVIEW_SUBTITLE' | translate }}
+          </h3>
+          <div class="row form-section-row">
+            <div class="col-md-6 col-sm-6 col-12">
+              <div class="form-group">
+                <label class="form-label">{{
+                  'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.FETCH_AND_EDIT' | translate
+                }}</label>
+                <!-- Block wrapper: `.form-label` is inline, so without one the
+                     button sat on the same line as its own label. -->
+                <div>
                   <button
-                    class="btn btn-info"
+                    type="button"
+                    class="btn btn-primary"
                     (click)="refreshSpatialUnitEditFeaturesOverviewTable()"
                   >
                     <i class="fas fa-sync-alt"></i>&nbsp;{{
                       'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.SHOW_ALL' | translate
                     }}
                   </button>
-                  <div class="help-block">
-                    <p>
-                      {{ 'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.SHOW_ALL_HINT_1' | translate }}
-                    </p>
-                    <p>
-                      {{ 'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.SHOW_ALL_HINT_2' | translate }}
-                    </p>
-                  </div>
                 </div>
-              </div>
-              <div class="col-md-6 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>{{
-                    'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.CLEANUP_LABEL' | translate
-                  }}</label>
-                  <div class="toggle-center">
-                    <label class="switch">
-                      <input
-                        class="elementCheckbox"
-                        type="checkbox"
-                        [(ngModel)]="enableDeleteFeatures"
-                        name="enableDeleteFeatures"
-                        (change)="onChangeEnableDeleteFeatures()"
-                        id="enableDeleteFeatures"
-                      />
-                      <span class="switchslider round text-left" style="line-height: 25px"></span>
-                    </label>
-                  </div>
-                  <button
-                    class="btn btn-danger"
-                    (click)="clearAllSpatialUnitFeatures()"
-                    [disabled]="!enableDeleteFeatures"
-                  >
-                    <i class="fas fa-trash"></i>&nbsp;{{
-                      'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.DELETE_ALL' | translate
-                    }}
-                  </button>
-                  <div class="help-block">
-                    <p>
-                      {{ 'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.DELETE_ALL_HINT' | translate }}
-                    </p>
-                  </div>
+                <div class="help-block">
+                  <p>
+                    {{ 'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.SHOW_ALL_HINT_1' | translate }}
+                  </p>
+                  <p>
+                    {{ 'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.SHOW_ALL_HINT_2' | translate }}
+                  </p>
                 </div>
               </div>
             </div>
-            <div>
-              @if (featureTableHelper.featureTable_spatialUnit_lastUpdate_timestamp_success) {
-                <div class="timestamp-success">
-                  <b>{{
-                    'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.LAST_UPDATE_SUCCESS' | translate
-                  }}</b>
-                  {{
-                    featureTableHelper.featureTable_spatialUnit_lastUpdate_timestamp_success
-                      | date: 'medium'
-                  }}
+            <div class="col-md-6 col-sm-6 col-12">
+              <div class="form-group">
+                <label class="form-label">{{
+                  'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.CLEANUP_LABEL' | translate
+                }}</label>
+                <div>
+                  <label class="switch" for="enableDeleteFeatures">
+                    <input
+                      id="enableDeleteFeatures"
+                      type="checkbox"
+                      [(ngModel)]="enableDeleteFeatures"
+                      name="enableDeleteFeatures"
+                      (change)="onChangeEnableDeleteFeatures()"
+                    />
+                    <span class="switchslider round"></span>
+                  </label>
                 </div>
-              }
-              @if (featureTableHelper.featureTable_spatialUnit_lastUpdate_timestamp_failure) {
-                <div class="timestamp-error">
-                  <b>{{
-                    'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.LAST_UPDATE_FAILURE' | translate
-                  }}</b>
-                  {{
-                    featureTableHelper.featureTable_spatialUnit_lastUpdate_timestamp_failure
-                      | date: 'medium'
+                <button
+                  type="button"
+                  class="btn btn-danger"
+                  (click)="clearAllSpatialUnitFeatures()"
+                  [disabled]="!enableDeleteFeatures"
+                >
+                  <i class="fas fa-trash"></i>&nbsp;{{
+                    'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.DELETE_ALL' | translate
                   }}
+                </button>
+                <div class="help-block">
+                  <p>
+                    {{ 'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.DELETE_ALL_HINT' | translate }}
+                  </p>
                 </div>
-              }
+              </div>
             </div>
-            <!-- Feature table -->
-            <div class="admin-table-wrapper featureTableWrapper">
-              <ag-grid-angular
-                #spatialUnitFeatureTable
-                id="spatialUnitFeatureTable"
-                style="height: 60vh; width: 100%"
-                class="ag-theme-alpine"
-                [columnDefs]="columnDefs"
-                [rowData]="rowData"
-                [defaultColDef]="defaultColDef"
-                [gridOptions]="featureTableGridOptions"
-                [pagination]="true"
-                [paginationPageSize]="paginationPageSize"
-                [paginationPageSizeSelector]="paginationPageSizeSelector"
-                [rowSelection]="'multiple'"
-                [suppressRowClickSelection]="true"
-                [enableCellTextSelection]="true"
-                [ensureDomOrder]="true"
-                [suppressColumnVirtualisation]="true"
-                (gridReady)="onGridReady($event)"
-              >
-              </ag-grid-angular>
-            </div>
-            <input
-              type="button"
-              name="next"
-              class="next next_editSpatialUnitFeatures action-button"
-              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-              (click)="stepper.next()"
-            />
-          </fieldset>
-        }
-
-        <!-- Step 2: Spatial Dataset -->
-        <fieldset [hidden]="!stepper.isActive('data')">
-          <div style="position: absolute">
-            <button
-              type="button"
-              class="btn btn-info pull-left"
-              (click)="onImportSpatialUnitEditFeaturesMappingConfig()"
-              [title]="'ADMIN_SPATIAL_UNITS.COMMON.IMPORT_MAPPING_TITLE' | translate"
+          </div>
+          <div>
+            @if (featureTableStatus.lastSuccess()) {
+              <div class="timestamp-success">
+                <b>{{
+                  'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.LAST_UPDATE_SUCCESS' | translate
+                }}</b>
+                {{ featureTableStatus.lastSuccess() | date: 'medium' }}
+              </div>
+            }
+            @if (featureTableStatus.lastFailure()) {
+              <div class="timestamp-error">
+                <b>{{
+                  'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.LAST_UPDATE_FAILURE' | translate
+                }}</b>
+                {{ featureTableStatus.lastFailure() | date: 'medium' }}
+              </div>
+            }
+          </div>
+          <!-- Feature table -->
+          <div class="admin-table-wrapper featureTableWrapper">
+            <ag-grid-angular
+              #spatialUnitFeatureTable
+              id="spatialUnitFeatureTable"
+              style="height: 60vh; width: 100%"
+              class="ag-theme-alpine"
+              [columnDefs]="columnDefs"
+              [rowData]="rowData"
+              [defaultColDef]="defaultColDef"
+              [gridOptions]="featureTableGridOptions"
+              [pagination]="true"
+              [paginationPageSize]="paginationPageSize"
+              [paginationPageSizeSelector]="paginationPageSizeSelector"
+              [rowSelection]="'multiple'"
+              [suppressRowClickSelection]="true"
+              [enableCellTextSelection]="true"
+              [ensureDomOrder]="true"
+              [suppressColumnVirtualisation]="true"
+              (gridReady)="onGridReady($event)"
             >
-              <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
-                'ADMIN_SPATIAL_UNITS.COMMON.MAPPING_IMPORT' | translate
-              }}
-            </button>
-            <input
-              #mappingConfigImportFile
-              style="display: none"
-              class="pull-left"
-              type="file"
-              class="form-control"
-              accept=".json"
-              (change)="onMappingConfigFileSelected($event)"
-            />
-            <button
-              type="button"
-              style="margin-left: 6px"
-              class="btn btn-info pull-left"
-              (click)="onExportSpatialUnitEditFeaturesMappingConfig()"
-              [title]="'ADMIN_SPATIAL_UNITS.COMMON.EXPORT_MAPPING_TITLE' | translate"
-            >
-              <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
-                'ADMIN_SPATIAL_UNITS.COMMON.MAPPING_EXPORT' | translate
-              }}
+            </ag-grid-angular>
+          </div>
+          <div class="stepper-buttons">
+            <button type="button" class="btn btn-primary" (click)="stepper.next()">
+              {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
             </button>
           </div>
+        </fieldset>
+      }
 
-          <h2 class="fs-title">{{ 'ADMIN_SHARED.SPATIAL_DATASET' | translate }}</h2>
-          <h3 class="fs-subtitle">
-            {{ 'ADMIN_SPATIAL_UNITS.DATA.SUBTITLE' | translate }}
-          </h3>
+      <!-- Step 2: Spatial Dataset -->
+      <!-- Switched via `display` rather than `@if` so the importer form keeps
+             its state, including the attribute mappings added so far, while the
+             user looks at the feature table on step 1. -->
+      <fieldset
+        [style.display]="stepper.isActive('data') ? 'block' : 'none'"
+        [formGroup]="importerForm"
+      >
+        <!--
+            In the normal flow instead of `position: absolute`, which parked this
+            pair over the stepper in the top-left corner of the dialog. The file
+            input carried two `class` attributes, the second silently discarding
+            the first.
+          -->
+        <div class="dialog-toolbar">
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm"
+            (click)="onImportSpatialUnitEditFeaturesMappingConfig()"
+            [title]="'ADMIN_SPATIAL_UNITS.COMMON.IMPORT_MAPPING_TITLE' | translate"
+          >
+            <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
+              'ADMIN_SPATIAL_UNITS.COMMON.MAPPING_IMPORT' | translate
+            }}
+          </button>
+          <input
+            #mappingConfigImportFile
+            hidden
+            type="file"
+            accept=".json"
+            (change)="onMappingConfigFileSelected($event)"
+          />
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm"
+            (click)="onExportSpatialUnitEditFeaturesMappingConfig()"
+            [title]="'ADMIN_SPATIAL_UNITS.COMMON.EXPORT_MAPPING_TITLE' | translate"
+          >
+            <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
+              'ADMIN_SPATIAL_UNITS.COMMON.MAPPING_EXPORT' | translate
+            }}
+          </button>
+        </div>
 
-          <p>
-            <b
-              ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
-            >
-          </p>
+        <h2 class="fs-title text-center">{{ 'ADMIN_SHARED.SPATIAL_DATASET' | translate }}</h2>
+        <h3 class="fs-subtitle text-center">
+          {{ 'ADMIN_SPATIAL_UNITS.DATA.SUBTITLE' | translate }}
+        </h3>
 
-          <div class="row vertical-align">
-            <!-- Converter Settings -->
-            <div class="col-md-3 col-sm-6 col-12">
-              <div class="form-group">
-                <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_FORMAT_GEO' | translate }}*</label>
-                <select
-                  class="form-control"
-                  [(ngModel)]="converter"
-                  name="converter"
-                  [compareWith]="compareConverter"
-                  (change)="onChangeConverter()"
-                  required
-                >
-                  <option value="" disabled>
-                    {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SOURCE_FORMAT' | translate }}
+        <p class="text-center">
+          <b
+            ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+          >
+        </p>
+
+        <div class="row form-section-row">
+          <!-- Converter Settings -->
+          <div class="col-md-3 col-sm-6 col-12">
+            <div class="form-group">
+              <label class="form-label"
+                >{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_FORMAT_GEO' | translate }}*</label
+              >
+              <select
+                class="form-select"
+                formControlName="converter"
+                [compareWith]="compareConverter"
+              >
+                <option value="" disabled>
+                  {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SOURCE_FORMAT' | translate }}
+                </option>
+                @for (conv of availableConverters; track conv) {
+                  <option [ngValue]="conv">
+                    {{ conv.name }}
                   </option>
-                  @for (conv of availableConverters; track conv) {
-                    <option [ngValue]="conv">
-                      {{ conv.name }}
+                }
+              </select>
+            </div>
+
+            @if (converter?.schemas) {
+              <div class="form-group">
+                <label class="form-label"
+                  >{{ 'ADMIN_SPATIAL_UNITS.DATA.SCHEMA' | translate }}*</label
+                >
+                <select class="form-select" formControlName="schema">
+                  <option value="" disabled>
+                    {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SCHEMA' | translate }}
+                  </option>
+                  @for (schemaOption of converter.schemas; track schemaOption) {
+                    <option [value]="schemaOption">
+                      {{ schemaOption }}
                     </option>
                   }
                 </select>
               </div>
+            }
 
-              @if (converter?.schemas) {
-                <div class="form-group">
-                  <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SCHEMA' | translate }}*</label>
-                  <select class="form-control" [(ngModel)]="schema" name="schema" required>
-                    <option value="" disabled>
-                      {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SCHEMA' | translate }}
-                    </option>
-                    @for (schemaOption of converter.schemas; track schemaOption) {
-                      <option [value]="schemaOption">
-                        {{ schemaOption }}
-                      </option>
-                    }
-                  </select>
-                </div>
-              }
-
-              @if (converter?.mimeTypes) {
-                <div class="form-group">
-                  <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_FORMAT' | translate }}*</label>
-                  <select
-                    class="form-control"
-                    [(ngModel)]="mimeType"
-                    name="mimeType"
-                    (change)="onChangeMimeType(mimeType)"
-                    required
-                  >
-                    <option value="" disabled>
-                      {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_FORMAT' | translate }}
-                    </option>
-                    @for (mimeTypeOption of converter.mimeTypes; track mimeTypeOption) {
-                      <option [value]="mimeTypeOption">
-                        {{ mimeTypeOption }}
-                      </option>
-                    }
-                  </select>
-                </div>
-              }
-
-              @for (parameter of converter?.parameters; track parameter) {
-                <div class="form-group">
-                  <label
-                    >{{ parameter.name }}
-                    @if (parameter.mandatory) {
-                      <i>*</i>
-                    }
-                  </label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    [id]="'converterParameter_spatialUnitEditFeatures_' + parameter.name"
-                    [placeholder]="parameter.name"
-                    [required]="parameter.mandatory"
-                    [name]="'converterParameter_spatialUnitEditFeatures_' + parameter.name"
-                    [(ngModel)]="converterParameters[parameter.name]"
-                  />
-                  <div class="help-block">
-                    <p>{{ parameter.description }}</p>
-                  </div>
-                  @if (parameter.name === 'CRS') {
-                    <div class="help-block with-errors" style="color: red">
-                      <p>
-                        {{ 'ADMIN_SPATIAL_UNITS.DATA.CRS_WARNING' | translate }}
-                      </p>
-                    </div>
-                  }
-                </div>
-              }
-            </div>
-
-            <!-- Datasource Type -->
-            <div class="col-md-3 col-sm-6 col-12">
-              @if (!converter) {
-                <div class="form-group">
-                  <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.CHOOSE_SOURCE_FORMAT_FIRST' | translate }}</p>
-                </div>
-              }
-
-              @if (converter) {
-                <div>
-                  <div class="form-group">
-                    <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.DATASOURCE_TYPE' | translate }}*</label>
-                    <select
-                      class="form-control"
-                      [(ngModel)]="datasourceType"
-                      name="datasourceType"
-                      [compareWith]="compareDatasourceType"
-                      (change)="onChangeDatasourceType(datasourceType)"
-                      required
-                    >
-                      <option value="" disabled>
-                        {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SOURCE_TYPE' | translate }}
-                      </option>
-                      @for (dsType of availableDatasourceTypes; track dsType) {
-                        <option [ngValue]="dsType">
-                          {{ dsType.type }}
-                        </option>
-                      }
-                    </select>
-                  </div>
-                  @if (datasourceType?.type === 'FILE') {
-                    <div>
-                      <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.FILE' | translate }}*</label>
-                      <input
-                        #spatialUnitDataSourceInput
-                        type="file"
-                        class="form-control"
-                        id="spatialUnitDataSourceInput_editFeatures"
-                        required
-                        (change)="onFileSelected($event)"
-                      />
-                      @if (selectedDataSourceFile) {
-                        <div class="help-block">
-                          <p>
-                            {{
-                              'ADMIN_SPATIAL_UNITS.DATA.SELECTED_FILE'
-                                | translate: { name: selectedDataSourceFile.name }
-                            }}
-                          </p>
-                        </div>
-                      }
-                    </div>
-                  }
-                  @if (datasourceType?.type === 'OGCAPI_FEATURES') {
-                    <div>
-                      <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SPATIAL_FILTER' | translate }}*</label>
-                      <select
-                        class="form-control"
-                        id="datasourceTypeParameter_spatialUnitEditFeatures_bboxType"
-                        [(ngModel)]="bboxType"
-                        name="bboxType"
-                        required
-                      >
-                        <option value="" disabled>
-                          {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_FILTER' | translate }}
-                        </option>
-                        <option value="ref">
-                          {{ 'ADMIN_SPATIAL_UNITS.DATA.REFERENCE_SPATIAL_UNIT' | translate }}
-                        </option>
-                        <option value="literal">
-                          {{ 'ADMIN_SPATIAL_UNITS.DATA.MANUAL_BBOX' | translate }}
-                        </option>
-                      </select>
-                      @if (bboxType === 'ref') {
-                        <div class="form-group">
-                          <select
-                            class="form-control"
-                            id="datasourceTypeParameter_spatialUnitEditFeatures_bboxRef"
-                            [(ngModel)]="bboxRefSpatialUnitLevel"
-                            name="bboxRefSpatialUnit"
-                            required
-                          >
-                            <option value="" disabled>
-                              {{
-                                'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_SPATIAL_UNIT' | translate
-                              }}
-                            </option>
-                            @for (spatialUnit of availableSpatialUnits; track spatialUnit) {
-                              <option [value]="spatialUnit.spatialUnitLevel">
-                                {{ spatialUnit.spatialUnitLevel }}
-                              </option>
-                            }
-                          </select>
-                          <div class="help-block">
-                            <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.BBOX_REF_HINT' | translate }}</p>
-                          </div>
-                        </div>
-                      }
-                      @if (bboxType === 'literal') {
-                        <div>
-                          <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.BBOX' | translate }}*</label>
-                          <input
-                            type="number"
-                            class="form-control"
-                            id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_minx"
-                            placeholder="-180"
-                            required
-                            [(ngModel)]="bbox_minx"
-                            name="bbox_minx"
-                          />
-                          <div class="help-block">
-                            <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.MIN_X' | translate }}</p>
-                          </div>
-                          <input
-                            type="number"
-                            class="form-control"
-                            id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_miny"
-                            placeholder="-90"
-                            required
-                            [(ngModel)]="bbox_miny"
-                            name="bbox_miny"
-                          />
-                          <div class="help-block">
-                            <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.MIN_Y' | translate }}</p>
-                          </div>
-                          <input
-                            type="number"
-                            class="form-control"
-                            id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_maxx"
-                            placeholder="180"
-                            required
-                            [(ngModel)]="bbox_maxx"
-                            name="bbox_maxx"
-                          />
-                          <div class="help-block">
-                            <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.MAX_X' | translate }}</p>
-                          </div>
-                          <input
-                            type="number"
-                            class="form-control"
-                            id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_maxy"
-                            placeholder="90"
-                            required
-                            [(ngModel)]="bbox_maxy"
-                            name="bbox_maxy"
-                          />
-                          <div class="help-block">
-                            <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.MAX_Y' | translate }}</p>
-                          </div>
-                        </div>
-                      }
-                    </div>
-                  }
-                  @if (
-                    datasourceType?.type !== 'FILE' && datasourceType?.type !== 'OGCAPI_FEATURES'
-                  ) {
-                    <div>
-                      @for (parameter of datasourceType?.parameters; track parameter) {
-                        <div class="form-group">
-                          @if (parameter.mandatory) {
-                            <label>{{ parameter.name }}*</label>
-                          }
-                          @if (!parameter.mandatory) {
-                            <label>{{ parameter.name }}</label>
-                          }
-                          <textarea
-                            rows="1"
-                            class="form-control"
-                            [id]="
-                              'datasourceTypeParameter_spatialUnitEditFeatures_' + parameter.name
-                            "
-                            [placeholder]="parameter.name"
-                            [required]="parameter.mandatory"
-                            [name]="
-                              'datasourceTypeParameter_spatialUnitEditFeatures_' + parameter.name
-                            "
-                            [(ngModel)]="datasourceTypeParameters[parameter.name]"
-                          ></textarea>
-                          <div class="help-block">
-                            <p>{{ parameter.description }}</p>
-                          </div>
-                        </div>
-                      }
-                    </div>
-                  }
-                </div>
-              }
-            </div>
-
-            <!-- Property Mapping -->
-            <div class="col-md-3 col-sm-6 col-12">
+            @if (converter?.mimeTypes) {
               <div class="form-group">
-                <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.ID_ATTRIBUTE' | translate }}*</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="spatialUnitDataSourceIdProperty"
-                  name="spatialUnitDataSourceIdProperty"
-                  required
-                />
-                <div class="help-block">
-                  <p>
-                    {{ 'ADMIN_SPATIAL_UNITS.DATA.ID_ATTRIBUTE_HINT' | translate }}
-                  </p>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.NAME_ATTRIBUTE' | translate }}*</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="spatialUnitDataSourceNameProperty"
-                  name="spatialUnitDataSourceNameProperty"
-                  required
-                />
-                <div class="help-block">
-                  <p>
-                    {{ 'ADMIN_SPATIAL_UNITS.DATA.NAME_ATTRIBUTE_HINT' | translate }}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Validity Period -->
-            <div class="col-md-3 col-sm-6 col-12">
-              <div class="form-group">
-                <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_START' | translate }}</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="validityStartDate_perFeature"
-                  name="validityStartDate_perFeature"
-                />
-                <div class="help-block">
-                  <p>
-                    {{ 'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_START_HINT' | translate }}
-                  </p>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_END' | translate }}</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="validityEndDate_perFeature"
-                  name="validityEndDate_perFeature"
-                />
-                <div class="help-block">
-                  <p>
-                    {{ 'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_END_HINT' | translate }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Period of Validity -->
-          <div class="row vertical-align">
-            <div class="col-md-6 col-sm-6 col-12">
-              <div class="form-group">
-                <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.VALID_FROM' | translate }}*</label>
-                <km-date-picker
-                  name="periodOfValidityStartDate"
-                  placeholder="YYYY-MM-DD"
-                  [(ngModel)]="periodOfValidity.startDate"
-                  (ngModelChange)="checkPeriodOfValidity()"
-                  (valueChange)="checkPeriodOfValidity()"
-                  [invalid]="periodOfValidityInvalid"
-                  [required]="true"
-                ></km-date-picker>
-                <div class="help-block">
-                  <p>
-                    {{ 'ADMIN_SPATIAL_UNITS.DATA.VALID_FROM_HINT' | translate }}
-                  </p>
-                </div>
-                <div class="help-block with-errors"></div>
-                @if (periodOfValidityInvalid) {
-                  <div style="color: red">
-                    <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.PERIOD_INVALID' | translate }}</p>
-                  </div>
-                }
-              </div>
-            </div>
-
-            <div class="col-md-6 col-sm-6 col-12">
-              <div class="form-group">
-                <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.VALID_TO' | translate }}</label>
-                <km-date-picker
-                  name="periodOfValidityEndDate"
-                  placeholder="YYYY-MM-DD"
-                  [(ngModel)]="periodOfValidity.endDate"
-                  (ngModelChange)="checkPeriodOfValidity()"
-                  (valueChange)="checkPeriodOfValidity()"
-                  [invalid]="periodOfValidityInvalid"
-                ></km-date-picker>
-                <div class="help-block">
-                  <p>
-                    {{ 'ADMIN_SPATIAL_UNITS.DATA.VALID_TO_HINT' | translate }}
-                  </p>
-                </div>
-                <div class="help-block with-errors"></div>
-                @if (periodOfValidityInvalid) {
-                  <div style="color: red">
-                    <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.PERIOD_INVALID' | translate }}</p>
-                  </div>
-                }
-              </div>
-            </div>
-          </div>
-
-          <hr />
-
-          <!-- Partial Update -->
-          <div class="row vertical-align">
-            <div class="col-md-6 col-sm-6 col-12">
-              <div class="form-group">
-                <label
-                  >{{
-                    'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.PARTIAL_UPDATE' | translate
-                  }}*</label
+                <label class="form-label"
+                  >{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_FORMAT' | translate }}*</label
                 >
-                <br />
-                <div class="toggle-center">
-                  <label class="switch">
-                    <input
-                      type="checkbox"
-                      value="isPartialUpdate"
-                      [(ngModel)]="isPartialUpdate"
-                      name="isPartialUpdate"
-                    />
-                    <span class="switchslider round"></span>
-                  </label>
-                </div>
-                <div class="help-block">
-                  <p>
-                    {{ 'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.PARTIAL_UPDATE_HINT' | translate }}
-                  </p>
-                </div>
+                <select class="form-select" formControlName="mimeType">
+                  <option value="" disabled>
+                    {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_FORMAT' | translate }}
+                  </option>
+                  @for (mimeTypeOption of converter.mimeTypes; track mimeTypeOption) {
+                    <option [value]="mimeTypeOption">
+                      {{ mimeTypeOption }}
+                    </option>
+                  }
+                </select>
               </div>
-            </div>
-          </div>
+            }
 
-          <hr />
-
-          <!-- Keep Attributes -->
-          <div class="row vertical-align">
-            <div class="col-md-6 col-sm-6 col-12">
-              <div class="form-group">
-                <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.KEEP_ATTRIBUTES' | translate }}*</label>
-                <br />
-                <div class="toggle-center">
-                  <label class="switch">
-                    <input
-                      type="checkbox"
-                      value="keepAttributes"
-                      [(ngModel)]="keepAttributes"
-                      name="keepAttributes"
-                    />
-                    <span class="switchslider round"></span>
-                  </label>
-                </div>
+            @for (parameter of converter?.parameters; track parameter) {
+              <div class="form-group" formGroupName="converterParameters">
+                <label class="form-label"
+                  >{{ parameter.name }}
+                  @if (parameter.mandatory) {
+                    <i>*</i>
+                  }
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [id]="'converterParameter_spatialUnitEditFeatures_' + parameter.name"
+                  [placeholder]="parameter.name"
+                  [formControlName]="parameter.name"
+                />
                 <div class="help-block">
-                  <p>
-                    {{ 'ADMIN_SPATIAL_UNITS.DATA.KEEP_ATTRIBUTES_HINT' | translate }}
-                  </p>
+                  <p>{{ parameter.description }}</p>
                 </div>
-              </div>
-            </div>
-
-            @if (!keepAttributes) {
-              <div class="col-md-6 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.KEEP_MISSING_VALUES' | translate }}*</label>
-                  <br />
-                  <label class="switch">
-                    <input
-                      type="checkbox"
-                      value="keepMissingValues"
-                      [(ngModel)]="keepMissingValues"
-                      name="keepMissingValues"
-                    />
-                    <span class="switchslider round"></span>
-                  </label>
-                  <div class="help-block">
-                    <p
-                      [innerHTML]="'ADMIN_SPATIAL_UNITS.DATA.KEEP_MISSING_VALUES_HINT' | translate"
-                    ></p>
+                @if (parameter.name === 'CRS') {
+                  <div class="help-block with-errors">
+                    <p>
+                      {{ 'ADMIN_SPATIAL_UNITS.DATA.CRS_WARNING' | translate }}
+                    </p>
                   </div>
-                </div>
+                }
               </div>
             }
           </div>
 
-          <!-- Attribute Mapping -->
-          @if (!keepAttributes) {
-            <div class="row vertical-align">
-              <div class="col-md-6 col-sm-6 col-12">
+          <!-- Datasource Type -->
+          <div class="col-md-3 col-sm-6 col-12">
+            @if (!converter) {
+              <div class="form-group">
+                <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.CHOOSE_SOURCE_FORMAT_FIRST' | translate }}</p>
+              </div>
+            }
+
+            @if (converter) {
+              <div>
                 <div class="form-group">
-                  <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_ATTRIBUTE' | translate }}*</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    [(ngModel)]="attributeMapping_sourceAttributeName"
-                    [placeholder]="
-                      'ADMIN_SPATIAL_UNITS.DATA.SOURCE_ATTRIBUTE_PLACEHOLDER' | translate
-                    "
-                    name="attributeMapping_sourceAttributeName"
-                  />
-                </div>
-                <div class="form-group">
-                  <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.TARGET_ATTRIBUTE' | translate }}*</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    [(ngModel)]="attributeMapping_destinationAttributeName"
-                    [placeholder]="
-                      'ADMIN_SPATIAL_UNITS.DATA.TARGET_ATTRIBUTE_PLACEHOLDER' | translate
-                    "
-                    name="attributeMapping_destinationAttributeName"
-                  />
-                </div>
-                <div class="form-group">
-                  <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.DATA_TYPE' | translate }}*</label>
+                  <label class="form-label"
+                    >{{ 'ADMIN_SPATIAL_UNITS.DATA.DATASOURCE_TYPE' | translate }}*</label
+                  >
                   <select
-                    class="form-control"
-                    [(ngModel)]="attributeMapping_attributeType"
-                    name="attributeMapping_attributeType"
-                    required
+                    class="form-select"
+                    formControlName="datasourceType"
+                    [compareWith]="compareDatasourceType"
                   >
                     <option value="" disabled>
-                      {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_DATA_TYPE' | translate }}
+                      {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SOURCE_TYPE' | translate }}
                     </option>
-                    @for (
-                      type of kommonitorImporterHelperService.attributeMapping_attributeTypes;
-                      track type
-                    ) {
-                      <option [ngValue]="type">
-                        {{ type.displayName }}
+                    @for (dsType of availableDatasourceTypes; track dsType) {
+                      <option [ngValue]="dsType">
+                        {{ dsType.type }}
                       </option>
                     }
                   </select>
                 </div>
-                <div class="form-group">
-                  <button
-                    class="btn btn-success btn-sm"
-                    [disabled]="
-                      !attributeMapping_sourceAttributeName ||
-                      !attributeMapping_destinationAttributeName ||
-                      !attributeMapping_attributeType
-                    "
-                    (click)="onAddOrUpdateAttributeMapping()"
-                  >
-                    {{ 'ADMIN_SPATIAL_UNITS.DATA.ADD_OR_EDIT' | translate }}
-                  </button>
-                </div>
-              </div>
-              <div class="col-md-6 col-sm-6 col-12">
-                <label>{{ 'ADMIN_SPATIAL_UNITS.DATA.MAPPINGS_OVERVIEW' | translate }}</label>
-                <table class="table table-condensed">
-                  <thead>
-                    <tr>
-                      <th>{{ 'ADMIN_SHARED.EDIT_FUNCTIONS' | translate }}</th>
-                      <th>{{ 'ADMIN_SPATIAL_UNITS.DATA.TABLE_SOURCE_ATTRIBUTE' | translate }}</th>
-                      <th>{{ 'ADMIN_SPATIAL_UNITS.DATA.TABLE_TARGET_ATTRIBUTE' | translate }}</th>
-                      <th>{{ 'ADMIN_SPATIAL_UNITS.DATA.DATA_TYPE' | translate }}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (
-                      attributeMappingEntry of attributeMappings_adminView;
-                      track attributeMappingEntry
-                    ) {
-                      <tr>
-                        <td>
-                          <div class="btn-group btn-group-sm">
-                            <button
-                              class="btn btn-warning btn-sm"
-                              type="button"
-                              (click)="onClickEditAttributeMapping(attributeMappingEntry)"
-                              [title]="'ADMIN_SPATIAL_UNITS.DATA.EDIT_REFERENCE' | translate"
-                            >
-                              <i class="fas fa-pencil-alt"></i>
-                            </button>
-                            <button
-                              class="btn btn-danger btn-sm"
-                              type="button"
-                              (click)="onClickDeleteAttributeMapping(attributeMappingEntry)"
-                              [title]="'ADMIN_SPATIAL_UNITS.DATA.DELETE_REFERENCE' | translate"
-                            >
-                              <i class="fas fa-trash"></i>
-                            </button>
-                          </div>
-                        </td>
-                        <td>{{ attributeMappingEntry.sourceName }}</td>
-                        <td>{{ attributeMappingEntry.destinationName }}</td>
-                        <td>{{ attributeMappingEntry.dataType.displayName }}</td>
-                      </tr>
+                @if (datasourceType?.type === 'FILE') {
+                  <div>
+                    <label class="form-label"
+                      >{{ 'ADMIN_SPATIAL_UNITS.DATA.FILE' | translate }}*</label
+                    >
+                    <input
+                      #spatialUnitDataSourceInput
+                      type="file"
+                      class="form-control"
+                      id="spatialUnitDataSourceInput_editFeatures"
+                      required
+                      (change)="onFileSelected($event)"
+                    />
+                    @if (selectedDataSourceFile) {
+                      <div class="help-block">
+                        <p>
+                          {{
+                            'ADMIN_SPATIAL_UNITS.DATA.SELECTED_FILE'
+                              | translate: { name: selectedDataSourceFile.name }
+                          }}
+                        </p>
+                      </div>
                     }
-                  </tbody>
-                </table>
+                  </div>
+                }
+                @if (datasourceType?.type === 'OGCAPI_FEATURES') {
+                  <div>
+                    <label class="form-label"
+                      >{{ 'ADMIN_SPATIAL_UNITS.DATA.SPATIAL_FILTER' | translate }}*</label
+                    >
+                    <select
+                      class="form-select"
+                      id="datasourceTypeParameter_spatialUnitEditFeatures_bboxType"
+                      formControlName="bboxType"
+                    >
+                      <option value="" disabled>
+                        {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_FILTER' | translate }}
+                      </option>
+                      <option value="ref">
+                        {{ 'ADMIN_SPATIAL_UNITS.DATA.REFERENCE_SPATIAL_UNIT' | translate }}
+                      </option>
+                      <option value="literal">
+                        {{ 'ADMIN_SPATIAL_UNITS.DATA.MANUAL_BBOX' | translate }}
+                      </option>
+                    </select>
+                    @if (bboxType === 'ref') {
+                      <div class="form-group">
+                        <select
+                          class="form-select"
+                          id="datasourceTypeParameter_spatialUnitEditFeatures_bboxRef"
+                          formControlName="bboxRefSpatialUnitId"
+                        >
+                          <option value="" disabled>
+                            {{
+                              'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_SPATIAL_UNIT' | translate
+                            }}
+                          </option>
+                          @for (spatialUnit of availableSpatialUnits; track spatialUnit) {
+                            <option [value]="spatialUnit.spatialUnitLevel">
+                              {{ spatialUnit.spatialUnitLevel }}
+                            </option>
+                          }
+                        </select>
+                        <div class="help-block">
+                          <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.BBOX_REF_HINT' | translate }}</p>
+                        </div>
+                      </div>
+                    }
+                    @if (bboxType === 'literal') {
+                      <div formGroupName="bbox">
+                        <label class="form-label"
+                          >{{ 'ADMIN_SPATIAL_UNITS.DATA.BBOX' | translate }}*</label
+                        >
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_minx"
+                          placeholder="-180"
+                          formControlName="minx"
+                        />
+                        <div class="help-block">
+                          <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.MIN_X' | translate }}</p>
+                        </div>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_miny"
+                          placeholder="-90"
+                          formControlName="miny"
+                        />
+                        <div class="help-block">
+                          <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.MIN_Y' | translate }}</p>
+                        </div>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_maxx"
+                          placeholder="180"
+                          formControlName="maxx"
+                        />
+                        <div class="help-block">
+                          <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.MAX_X' | translate }}</p>
+                        </div>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_maxy"
+                          placeholder="90"
+                          formControlName="maxy"
+                        />
+                        <div class="help-block">
+                          <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.MAX_Y' | translate }}</p>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+                @if (
+                  datasourceType?.type !== 'FILE' && datasourceType?.type !== 'OGCAPI_FEATURES'
+                ) {
+                  <div>
+                    @for (parameter of datasourceType?.parameters; track parameter) {
+                      <div class="form-group" formGroupName="datasourceTypeParameters">
+                        @if (parameter.mandatory) {
+                          <label class="form-label">{{ parameter.name }}*</label>
+                        }
+                        @if (!parameter.mandatory) {
+                          <label class="form-label">{{ parameter.name }}</label>
+                        }
+                        <textarea
+                          rows="1"
+                          class="form-control"
+                          [id]="'datasourceTypeParameter_spatialUnitEditFeatures_' + parameter.name"
+                          [placeholder]="parameter.name"
+                          [formControlName]="parameter.name"
+                        ></textarea>
+                        <div class="help-block">
+                          <p>{{ parameter.description }}</p>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Property Mapping -->
+          <div class="col-md-3 col-sm-6 col-12">
+            <div class="form-group">
+              <label class="form-label"
+                >{{ 'ADMIN_SPATIAL_UNITS.DATA.ID_ATTRIBUTE' | translate }}*</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                formControlName="idProperty"
+                appAria="sue-data-id-property"
+              />
+              <div class="help-block">
+                <p>
+                  {{ 'ADMIN_SPATIAL_UNITS.DATA.ID_ATTRIBUTE_HINT' | translate }}
+                </p>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label"
+                >{{ 'ADMIN_SPATIAL_UNITS.DATA.NAME_ATTRIBUTE' | translate }}*</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                formControlName="nameProperty"
+                appAria="sue-data-name-property"
+              />
+              <div class="help-block">
+                <p>
+                  {{ 'ADMIN_SPATIAL_UNITS.DATA.NAME_ATTRIBUTE_HINT' | translate }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Validity Period -->
+          <div class="col-md-3 col-sm-6 col-12">
+            <div class="form-group">
+              <label class="form-label">{{
+                'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_START' | translate
+              }}</label>
+              <input type="text" class="form-control" formControlName="validStartDateProperty" />
+              <div class="help-block">
+                <p>
+                  {{ 'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_START_HINT' | translate }}
+                </p>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">{{
+                'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_END' | translate
+              }}</label>
+              <input type="text" class="form-control" formControlName="validEndDateProperty" />
+              <div class="help-block">
+                <p>
+                  {{ 'ADMIN_SPATIAL_UNITS.DATA.LIFETIME_END_HINT' | translate }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Period of Validity -->
+        <div class="row form-section-row">
+          <div class="col-md-6 col-sm-6 col-12">
+            <div class="form-group">
+              <label class="form-label"
+                >{{ 'ADMIN_SPATIAL_UNITS.DATA.VALID_FROM' | translate }}*</label
+              >
+              <km-date-picker
+                placeholder="YYYY-MM-DD"
+                [formControl]="editForm.controls.periodOfValidity.controls.startDate"
+                (blur)="onPeriodStartBlur()"
+                [invalid]="periodOfValidityInvalid"
+                [showErrors]="false"
+              ></km-date-picker>
+              <div class="help-block">
+                <p>
+                  {{ 'ADMIN_SPATIAL_UNITS.DATA.VALID_FROM_HINT' | translate }}
+                </p>
+              </div>
+              <app-form-error
+                [control]="editForm.controls.periodOfValidity"
+                keyOverride="ADMIN_SPATIAL_UNITS.DATA.PERIOD_INVALID"
+                showWhen="always"
+              />
+            </div>
+          </div>
+
+          <div class="col-md-6 col-sm-6 col-12">
+            <div class="form-group">
+              <label class="form-label">{{
+                'ADMIN_SPATIAL_UNITS.DATA.VALID_TO' | translate
+              }}</label>
+              <km-date-picker
+                placeholder="YYYY-MM-DD"
+                [formControl]="editForm.controls.periodOfValidity.controls.endDate"
+                [coerceEmptyToToday]="false"
+                (blur)="onPeriodEndBlur()"
+                [invalid]="periodOfValidityInvalid"
+                [showErrors]="false"
+              ></km-date-picker>
+              <div class="help-block">
+                <p>
+                  {{ 'ADMIN_SPATIAL_UNITS.DATA.VALID_TO_HINT' | translate }}
+                </p>
+              </div>
+              <app-form-error
+                [control]="editForm.controls.periodOfValidity"
+                keyOverride="ADMIN_SPATIAL_UNITS.DATA.PERIOD_INVALID"
+                showWhen="always"
+              />
+            </div>
+          </div>
+        </div>
+
+        <hr />
+
+        <!-- Partial Update -->
+        <div class="row form-section-row">
+          <div class="col-md-6 col-sm-6 col-12">
+            <div class="form-group">
+              <label class="form-label"
+                >{{ 'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.PARTIAL_UPDATE' | translate }}*</label
+              >
+              <div>
+                <label class="switch">
+                  <input
+                    type="checkbox"
+                    value="isPartialUpdate"
+                    [formControl]="editForm.controls.isPartialUpdate"
+                  />
+                  <span class="switchslider round"></span>
+                </label>
+              </div>
+              <div class="help-block">
+                <p>
+                  {{ 'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.PARTIAL_UPDATE_HINT' | translate }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr />
+
+        <!-- Keep Attributes -->
+        <div class="row form-section-row">
+          <div class="col-md-6 col-sm-6 col-12">
+            <div class="form-group">
+              <label class="form-label"
+                >{{ 'ADMIN_SPATIAL_UNITS.DATA.KEEP_ATTRIBUTES' | translate }}*</label
+              >
+              <div>
+                <label class="switch">
+                  <input type="checkbox" value="keepAttributes" formControlName="keepAttributes" />
+                  <span class="switchslider round"></span>
+                </label>
+              </div>
+              <div class="help-block">
+                <p>
+                  {{ 'ADMIN_SPATIAL_UNITS.DATA.KEEP_ATTRIBUTES_HINT' | translate }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          @if (!keepAttributes) {
+            <div class="col-md-6 col-sm-6 col-12">
+              <div class="form-group">
+                <label class="form-label"
+                  >{{ 'ADMIN_SPATIAL_UNITS.DATA.KEEP_MISSING_VALUES' | translate }}*</label
+                >
+                <div>
+                  <label class="switch">
+                    <input
+                      type="checkbox"
+                      value="keepMissingValues"
+                      formControlName="keepMissingValues"
+                    />
+                    <span class="switchslider round"></span>
+                  </label>
+                </div>
+                <div class="help-block">
+                  <p
+                    [innerHTML]="'ADMIN_SPATIAL_UNITS.DATA.KEEP_MISSING_VALUES_HINT' | translate"
+                  ></p>
+                </div>
               </div>
             </div>
           }
+        </div>
 
-          <input
-            type="button"
-            name="previous"
-            class="previous previous_editSpatialUnitFeatures action-button-previous"
-            [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-            (click)="stepper.previous()"
-          />
-        </fieldset>
-      </form>
+        <!-- Attribute Mapping -->
+        @if (!keepAttributes) {
+          <div class="row form-section-row">
+            <div class="col-md-6 col-sm-6 col-12" [formGroup]="attributeMappingDraft">
+              <div class="form-group">
+                <label class="form-label"
+                  >{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_ATTRIBUTE' | translate }}*</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="sourceName"
+                  [placeholder]="
+                    'ADMIN_SPATIAL_UNITS.DATA.SOURCE_ATTRIBUTE_PLACEHOLDER' | translate
+                  "
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label"
+                  >{{ 'ADMIN_SPATIAL_UNITS.DATA.TARGET_ATTRIBUTE' | translate }}*</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="destinationName"
+                  [placeholder]="
+                    'ADMIN_SPATIAL_UNITS.DATA.TARGET_ATTRIBUTE_PLACEHOLDER' | translate
+                  "
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label"
+                  >{{ 'ADMIN_SPATIAL_UNITS.DATA.DATA_TYPE' | translate }}*</label
+                >
+                <select class="form-select" formControlName="dataType">
+                  <option value="" disabled>
+                    {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_DATA_TYPE' | translate }}
+                  </option>
+                  @for (
+                    type of kommonitorImporterHelperService.attributeMapping_attributeTypes;
+                    track type
+                  ) {
+                    <option [ngValue]="type">
+                      {{ type.displayName }}
+                    </option>
+                  }
+                </select>
+              </div>
+              <div class="form-group">
+                <button
+                  class="btn btn-success btn-sm"
+                  [disabled]="
+                    !attributeMapping_sourceAttributeName ||
+                    !attributeMapping_destinationAttributeName ||
+                    !attributeMapping_attributeType
+                  "
+                  (click)="onAddOrUpdateAttributeMapping()"
+                >
+                  {{ 'ADMIN_SPATIAL_UNITS.DATA.ADD_OR_EDIT' | translate }}
+                </button>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-12">
+              <label class="form-label">{{
+                'ADMIN_SPATIAL_UNITS.DATA.MAPPINGS_OVERVIEW' | translate
+              }}</label>
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>{{ 'ADMIN_SHARED.EDIT_FUNCTIONS' | translate }}</th>
+                    <th>{{ 'ADMIN_SPATIAL_UNITS.DATA.TABLE_SOURCE_ATTRIBUTE' | translate }}</th>
+                    <th>{{ 'ADMIN_SPATIAL_UNITS.DATA.TABLE_TARGET_ATTRIBUTE' | translate }}</th>
+                    <th>{{ 'ADMIN_SPATIAL_UNITS.DATA.DATA_TYPE' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (
+                    attributeMappingEntry of attributeMappings_adminView;
+                    track attributeMappingEntry
+                  ) {
+                    <tr>
+                      <td>
+                        <div class="btn-group btn-group-sm">
+                          <button
+                            class="btn btn-warning btn-sm"
+                            type="button"
+                            (click)="onClickEditAttributeMapping(attributeMappingEntry)"
+                            [title]="'ADMIN_SPATIAL_UNITS.DATA.EDIT_REFERENCE' | translate"
+                          >
+                            <i class="fas fa-pencil-alt"></i>
+                          </button>
+                          <button
+                            class="btn btn-danger btn-sm"
+                            type="button"
+                            (click)="onClickDeleteAttributeMapping(attributeMappingEntry)"
+                            [title]="'ADMIN_SPATIAL_UNITS.DATA.DELETE_REFERENCE' | translate"
+                          >
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                      <td>{{ attributeMappingEntry.sourceName }}</td>
+                      <td>{{ attributeMappingEntry.destinationName }}</td>
+                      <td>{{ attributeMappingEntry.dataType.displayName }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+
+        <div class="stepper-buttons">
+          <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
+            {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+          </button>
+        </div>
+      </fieldset>
     </div>
-  </div>
+  </app-loading-overlay>
 </div>
 
+<!--
+  Footer order shared with the group and topic dialogs: cancel pushed left with
+  me-auto, then reset, then the primary action last. Reset is an outline button
+  because it only discards pending edits — as btn-danger it sat in the same red
+  as "delete all spatial units" one step up, and to the right of the action it
+  qualifies.
+-->
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="closeModal()">
-    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="closeModal()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
   </button>
-
+  <button type="button" class="btn btn-outline-secondary" (click)="resetForm()">
+    <i class="fas fa-undo"></i>&nbsp;{{ 'ADMIN_SHARED_UI.RESET' | translate }}
+  </button>
   <button
     type="button"
     class="btn btn-success"
-    [disabled]="
-      !currentSpatialUnitDataset?.spatialUnitLevel ||
-      !spatialUnitDataSourceIdProperty ||
-      !spatialUnitDataSourceNameProperty ||
-      !periodOfValidity.startDate ||
-      periodOfValidityInvalid ||
-      !converter ||
-      !datasourceType
-    "
+    [disabled]="!currentSpatialUnitDataset?.spatialUnitLevel || editForm.invalid"
     (click)="editSpatialUnitFeatures()"
   >
     <i class="fas fa-upload"></i>&nbsp;{{
       'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.SUBMIT' | translate
     }}
   </button>
-  <button type="button" class="btn btn-danger" (click)="resetForm()">
-    <i class="fas fa-undo"></i>&nbsp;{{ 'ADMIN_SHARED_UI.RESET' | translate }}
-  </button>
 </div>
-
-<!-- Importer errors: affected feature IDs (modal stays open on import failure) -->
-@if (importerErrors().length > 0) {
-  <div id="spatialUnitEditFeaturesImporterErrors" class="alert alert-danger">
-    <h4>
-      <i class="icon fa fa-ban"></i>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.IMPORT_FAILED' | translate }}
-    </h4>
-    <p>
-      {{
-        'ADMIN_SPATIAL_UNITS.ERRORS.IMPORT_FAILED_IDS'
-          | translate: { count: importerErrors().length }
-      }}
-    </p>
-    <ul style="overflow: auto; max-height: 500px">
-      @for (error of importerErrors(); track error) {
-        <li>{{ error }}</li>
-      }
-    </ul>
-    <p>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.IMPORT_FAILED_HINT' | translate }}</p>
-  </div>
-}
-
-<!-- Mapping Config Import Error Alert -->
-@if (spatialUnitMappingConfigImportError()) {
-  <div
-    id="spatialUnitEditFeaturesMappingConfigErrorAlert"
-    style="position: absolute; bottom: 0px; width: 100%"
-    class="alert alert-danger alert-dismissable"
-  >
-    <button type="button" class="close" (click)="hideMappingConfigErrorAlert()" aria-hidden="true">
-      &times;
-    </button>
-    <h4>
-      <i class="icon fa fa-ban"></i>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.MAPPING_ERROR' | translate }}
-    </h4>
-    <pre [innerHTML]="spatialUnitMappingConfigImportError()"></pre>
-  </div>
-}

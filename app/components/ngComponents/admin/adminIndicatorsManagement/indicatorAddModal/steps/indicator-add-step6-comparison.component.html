@@ -1,7 +1,11 @@
-<div>
-  <h2 class="fs-title">{{ 'ADMIN_INDICATORS.REGIONAL_COMPARISON_VALUES' | translate }}</h2>
-  <h3 class="fs-subtitle">{{ 'ADMIN_INDICATORS.STEP_COMPARISON.SUBTITLE' | translate }}</h3>
-  <p>
+<div [formGroup]="state.addForm.controls.referenceValues">
+  <h2 class="fs-title text-center">
+    {{ 'ADMIN_INDICATORS.REGIONAL_COMPARISON_VALUES' | translate }}
+  </h2>
+  <h3 class="fs-subtitle text-center">
+    {{ 'ADMIN_INDICATORS.STEP_COMPARISON.SUBTITLE' | translate }}
+  </h3>
+  <p class="text-center">
     <b
       ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
     >
@@ -22,12 +26,7 @@
     <div class="col-md-6 col-sm-6 col-12">
       <div class="form-group">
         <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.TYPE_LABEL' | translate }}</label>
-        <select
-          [(ngModel)]="state.comparisonValueType"
-          name="comparisonValueType"
-          (ngModelChange)="state.onComparisonValueTypeChange()"
-          class="form-control"
-        >
+        <select formControlName="comparisonValueType" class="form-control">
           <option [ngValue]="null" selected>
             {{ 'ADMIN_INDICATORS.STEP_COMPARISON.SELECT_TYPE_OPTION' | translate }}
           </option>
@@ -59,8 +58,7 @@
         <input
           type="number"
           class="form-control"
-          [(ngModel)]="state.comparisonValue"
-          name="comparisonValue"
+          formControlName="comparisonValue"
           [placeholder]="'ADMIN_INDICATORS.STEP_COMPARISON.NUMERIC_PLACEHOLDER' | translate"
           step="0.01"
         />
@@ -74,7 +72,7 @@
     <div class="col-md-6 col-sm-6 col-12">
       <div class="form-group">
         <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.REGION' | translate }}</label>
-        <select [(ngModel)]="state.comparisonRegion" name="comparisonRegion" class="form-control">
+        <select formControlName="comparisonRegion" name="comparisonRegion" class="form-control">
           <option [ngValue]="null" selected>
             {{ 'ADMIN_INDICATORS.STEP_COMPARISON.SELECT_REGION_OPTION' | translate }}
           </option>
@@ -101,11 +99,7 @@
     <div class="col-md-6 col-sm-6 col-12">
       <div class="form-group">
         <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.TIMEFRAME' | translate }}</label>
-        <select
-          [(ngModel)]="state.comparisonTimeframe"
-          name="comparisonTimeframe"
-          class="form-control"
-        >
+        <select formControlName="comparisonTimeframe" class="form-control">
           <option [ngValue]="null" selected>
             {{ 'ADMIN_INDICATORS.STEP_COMPARISON.SELECT_TIMEFRAME_OPTION' | translate }}
           </option>
@@ -141,8 +135,7 @@
         <textarea
           rows="3"
           class="form-control"
-          [(ngModel)]="state.comparisonDescription"
-          name="comparisonDescription"
+          formControlName="comparisonDescription"
           [placeholder]="'ADMIN_INDICATORS.STEP_COMPARISON.DESCRIPTION_PLACEHOLDER' | translate"
         ></textarea>
         <div class="help-block">
@@ -155,11 +148,7 @@
     <div class="col-md-6 col-sm-6 col-12">
       <div class="form-group">
         <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.EVAL_DIRECTION' | translate }}</label>
-        <select
-          [(ngModel)]="state.evaluationDirection"
-          name="evaluationDirection"
-          class="form-control"
-        >
+        <select formControlName="evaluationDirection" class="form-control">
           <option [ngValue]="null" selected>
             {{ 'ADMIN_INDICATORS.STEP_COMPARISON.SELECT_EVAL_DIRECTION_OPTION' | translate }}
           </option>
@@ -185,8 +174,7 @@
         <input
           type="number"
           class="form-control"
-          [(ngModel)]="state.toleranceRange"
-          name="toleranceRange"
+          formControlName="toleranceRange"
           [placeholder]="'ADMIN_INDICATORS.STEP_COMPARISON.TOLERANCE_PLACEHOLDER' | translate"
           step="0.1"
           min="0"
@@ -213,11 +201,7 @@
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
         <label>{{ 'ADMIN_INDICATORS.TYPE' | translate }}</label>
-        <select
-          [(ngModel)]="state.additionalComparisonType"
-          name="additionalComparisonType"
-          class="form-control"
-        >
+        <select formControlName="additionalComparisonType" class="form-control">
           <option [ngValue]="null" selected>
             {{ 'ADMIN_INDICATORS.STEP_COMPARISON.SELECT_TYPE_SHORT_OPTION' | translate }}
           </option>
@@ -246,8 +230,7 @@
         <input
           type="number"
           class="form-control"
-          [(ngModel)]="state.additionalComparisonValue"
-          name="additionalComparisonValue"
+          formControlName="additionalComparisonValue"
           [placeholder]="'ADMIN_INDICATORS.STEP_COMPARISON.NUMERIC_PLACEHOLDER' | translate"
           step="0.01"
         />
@@ -259,8 +242,7 @@
         <input
           type="text"
           class="form-control"
-          [(ngModel)]="state.additionalComparisonDescription"
-          name="additionalComparisonDescription"
+          formControlName="additionalComparisonDescription"
           [placeholder]="
             'ADMIN_INDICATORS.STEP_COMPARISON.SHORT_DESCRIPTION_PLACEHOLDER' | translate
           "
@@ -345,11 +327,7 @@
             'ADMIN_INDICATORS.STEP_COMPARISON.ACTIVATE' | translate
           }}</label>
           <label class="switch">
-            <input
-              type="checkbox"
-              [(ngModel)]="state.enableBenchmarking"
-              name="enableBenchmarking"
-            />
+            <input type="checkbox" formControlName="enableBenchmarking" />
             <span class="switchslider round"></span>
           </label>
         </div>
@@ -362,8 +340,7 @@
       <div class="form-group">
         <label>{{ 'ADMIN_INDICATORS.STEP_COMPARISON.VIS_TYPE' | translate }}</label>
         <select
-          [(ngModel)]="state.benchmarkingVisualizationType"
-          name="benchmarkingVisualizationType"
+          formControlName="benchmarkingVisualizationType"
           class="form-control"
           [disabled]="!state.enableBenchmarking"
         >
@@ -398,8 +375,7 @@
               <input
                 type="number"
                 class="form-control"
-                [(ngModel)]="state.greenThreshold"
-                name="greenThreshold"
+                formControlName="greenThreshold"
                 [placeholder]="'ADMIN_INDICATORS.STEP_COMPARISON.THRESHOLD_PLACEHOLDER' | translate"
                 step="0.1"
               />
@@ -409,8 +385,7 @@
               <input
                 type="number"
                 class="form-control"
-                [(ngModel)]="state.yellowThreshold"
-                name="yellowThreshold"
+                formControlName="yellowThreshold"
                 [placeholder]="'ADMIN_INDICATORS.STEP_COMPARISON.THRESHOLD_PLACEHOLDER' | translate"
                 step="0.1"
               />
@@ -420,8 +395,7 @@
               <input
                 type="number"
                 class="form-control"
-                [(ngModel)]="state.redThreshold"
-                name="redThreshold"
+                formControlName="redThreshold"
                 [placeholder]="'ADMIN_INDICATORS.STEP_COMPARISON.THRESHOLD_PLACEHOLDER' | translate"
                 step="0.1"
               />
@@ -468,18 +442,12 @@
       </div>
     </div>
   }
-  <input
-    type="button"
-    name="previous"
-    class="previous previous_addIndicator action-button-previous"
-    [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-    (click)="state.previousStep()"
-  />
-  <input
-    type="button"
-    name="next"
-    class="next next_addIndicator action-button"
-    [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-    (click)="state.nextStep()"
-  />
+  <div class="stepper-buttons">
+    <button type="button" class="btn btn-outline-secondary" (click)="state.previousStep()">
+      {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+    </button>
+    <button type="button" class="btn btn-primary" (click)="state.nextStep()">
+      {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+    </button>
+  </div>
 </div>

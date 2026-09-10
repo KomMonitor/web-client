@@ -2,7 +2,7 @@
   <div style="text-align: center">
     @if (!setupCompleted) {
       <div class="loading-overlay-sidebar ng-hide">
-        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+        <span class="fas fa-arrows-rotate icon-spin"></span>
       </div>
     }
   </div>
@@ -22,7 +22,7 @@
         <p></p>
         <div id="radarInputForm">
           <ul class="nav nav-tabs" id="indicatorRadarTabs" role="tablist">
-            <li class="nav-item active">
+            <li class="nav-item">
               <a
                 class="nav-link active"
                 id="indicatorRadarTab1"
@@ -59,13 +59,13 @@
                   <span class="icon"><i class="fas fa-filter"></i></span>
                   <input
                     type="text"
-                    class="form-control input-sm"
+                    class="form-control"
                     placeholder="Stichwortfilter"
                     (keyup)="filterAvailableIndicators($event)"
                   />
                 </div>
                 <p></p>
-                <table class="table table-condensed" style="margin-bottom: 0px">
+                <table class="table table-sm" style="margin-bottom: 0px">
                   <thead>
                     <th>Indikator</th>
                     <th>Zeitschnitt</th>
@@ -78,7 +78,7 @@
                     ) {
                       <tr>
                         <td>
-                          <label class="checkbox-inline input-sm"
+                          <label class="checkbox-inline"
                             ><input
                               type="checkbox"
                               value="input.indicatorMetadata.indicatorName"
@@ -117,7 +117,7 @@
               aria-labelledby="indicatorRadarTab2"
             >
               <div class="just-padding">
-                <table class="table table-condensed" style="margin-bottom: 0px">
+                <table class="table table-sm" style="margin-bottom: 0px">
                   <thead>
                     <th>Indikator</th>
                     <th>Typ</th>
@@ -127,7 +127,7 @@
                     @for (input of propertiesForCurrentlySelectedIndicator; track input) {
                       <tr>
                         <td>
-                          <label class="checkbox-inline input-sm"
+                          <label class="checkbox-inline"
                             ><input
                               type="checkbox"
                               value="input.indicatorMetadata.indicatorName"
@@ -163,7 +163,7 @@
                     ) {
                       <tr>
                         <td>
-                          <label class="checkbox-inline input-sm"
+                          <label class="checkbox-inline"
                             ><input
                               type="checkbox"
                               value="input.indicatorMetadata.indicatorName"
@@ -204,7 +204,7 @@
               aria-labelledby="indicatorRadarTab3"
             >
               <div class="just-padding">
-                <table class="table table-condensed" style="margin-bottom: 0px">
+                <table class="table table-sm" style="margin-bottom: 0px">
                   <thead>
                     <th>Indikator</th>
                     <th>Typ</th>
@@ -214,7 +214,7 @@
                     @for (input of propertiesForCurrentlySelectedIndicator; track input) {
                       <tr>
                         <td>
-                          <label class="checkbox-inline input-sm"
+                          <label class="checkbox-inline"
                             ><input
                               type="checkbox"
                               value="input.indicatorMetadata.indicatorName"
@@ -250,7 +250,7 @@
                     ) {
                       <tr>
                         <td>
-                          <label class="checkbox-inline input-sm"
+                          <label class="checkbox-inline"
                             ><input
                               type="checkbox"
                               value="input.indicatorMetadata.indicatorName"

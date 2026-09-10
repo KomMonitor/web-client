@@ -10,24 +10,50 @@
 
 <div class="modal-body">
   <app-loading-overlay [loading]="loadingData()">
-    <h4>
+    <h5>
       <b>{{ 'ADMIN_TOPICS.DELETE_MODAL.CONFIRM_QUESTION' | translate }}</b>
-    </h4>
+    </h5>
     <p>{{ 'ADMIN_TOPICS.DELETE_MODAL.CASCADE_HINT' | translate }}</p>
 
-    <pre
-      id="deleteTopicPre"
-      style="overflow: auto; max-height: 500px"
-      [innerHTML]="topicToDeletePrettyPrint"
-    ></pre>
+    <!--
+      A table of the fields that identify the entry, like the delete dialogs of
+      the other admin areas. It replaces a syntax-highlighted JSON dump of the
+      whole topic object, which put internal fields (`displayOrder`,
+      `topicResource`, `topicType`) in front of the user in 14px monospace.
+    -->
+    @if (currentTopic) {
+      <table class="table table-bordered table-sm">
+        <thead>
+          <tr>
+            <th>{{ 'ADMIN_SHARED.NAME' | translate }}</th>
+            <th>{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}</th>
+            <th>{{ 'ADMIN_TOPICS.DELETE_MODAL.SUBTOPICS_HEADER' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <b>{{ currentTopic.topicName }}</b>
+            </td>
+            <td>{{ currentTopic.topicDescription }}</td>
+            <td>
+              @if (subTopicCount) {
+                {{ subTopicCount }}
+              } @else {
+                {{ 'ADMIN_TOPICS.DELETE_MODAL.NO_SUBTOPICS' | translate }}
+              }
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    }
   </app-loading-overlay>
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-outline-secondary" (click)="close()">
-    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="close()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
   </button>
-  <div style="flex: 1"></div>
   <button type="button" class="btn btn-danger" (click)="deleteTopic()" [disabled]="!currentTopic">
     {{ 'ADMIN_TOPICS.DELETE_MODAL.DELETE_FOREVER' | translate }}
   </button>

@@ -1,242 +1,308 @@
 import { Injectable } from '@angular/core';
 
-export interface IconTranslation {
-  glyphicon: string;
-  fontAwesome: string | null;
+/**
+ * Bootstrap-3 glyphicon name → Font Awesome 6 Free (solid) name.
+ *
+ * The Data Management API stores POI symbols as Bootstrap-3 glyphicon names
+ * (`poiSymbolBootstrap3Name`, see the generated contract), and that field is not
+ * the client's to change. This map is the single place where such a name is
+ * turned into something renderable, since *Glyphicons Halflings* is not shipped
+ * any more — Bootstrap dropped it in 4.
+ *
+ * All 206 glyphicon names are mapped. Before, 142 of them resolved to `null`
+ * and fell through to the fallback, so most POI symbols rendered as a question
+ * mark — on the map, in the sidebar lists and in the admin grid alike. Where
+ * Font Awesome has no distinct counterpart the closest available icon is used
+ * on purpose rather than left empty: all five `sound-*` variants share
+ * `volume-high`, the five `floppy-*` variants share `floppy-disk`.
+ *
+ * Names are the Font Awesome 6 canonical ones (`arrows-rotate`, not the v4/v5
+ * aliases `refresh`/`sync`), verified against
+ * `@fortawesome/fontawesome-free/css/all.min.css`.
+ */
+const GLYPHICON_TO_FONT_AWESOME: Readonly<Record<string, string>> = {
+  // Core
+  asterisk: 'asterisk',
+  plus: 'plus',
+  euro: 'euro-sign',
+  minus: 'minus',
+  cloud: 'cloud',
+  envelope: 'envelope',
+  pencil: 'pencil',
+  glass: 'martini-glass',
+  music: 'music',
+  search: 'magnifying-glass',
+  heart: 'heart',
+  star: 'star',
+  user: 'user',
+  film: 'film',
+  'th-large': 'table-cells-large',
+  th: 'table-cells',
+  'th-list': 'list',
+  ok: 'check',
+  remove: 'xmark',
+  'zoom-in': 'magnifying-glass-plus',
+  'zoom-out': 'magnifying-glass-minus',
+  off: 'power-off',
+  signal: 'signal',
+  cog: 'gear',
+  trash: 'trash-can',
+
+  // Navigation
+  home: 'house',
+  file: 'file',
+  time: 'clock',
+  road: 'road',
+  'download-alt': 'download',
+  download: 'download',
+  upload: 'upload',
+  inbox: 'inbox',
+  'play-circle': 'circle-play',
+  repeat: 'rotate-right',
+  refresh: 'arrows-rotate',
+  'list-alt': 'rectangle-list',
+  lock: 'lock',
+  flag: 'flag',
+  headphones: 'headphones',
+  'volume-off': 'volume-xmark',
+  'volume-down': 'volume-low',
+  'volume-up': 'volume-high',
+  qrcode: 'qrcode',
+  barcode: 'barcode',
+  tag: 'tag',
+  tags: 'tags',
+  book: 'book',
+  bookmark: 'bookmark',
+  print: 'print',
+  camera: 'camera',
+  font: 'font',
+  bold: 'bold',
+  italic: 'italic',
+  'text-height': 'text-height',
+  'text-width': 'text-width',
+  'align-left': 'align-left',
+  'align-center': 'align-center',
+  'align-right': 'align-right',
+  'align-justify': 'align-justify',
+  list: 'list',
+  'indent-left': 'outdent',
+  'indent-right': 'indent',
+  'facetime-video': 'video',
+  picture: 'image',
+
+  // Media / status
+  'map-marker': 'location-dot',
+  adjust: 'circle-half-stroke',
+  tint: 'droplet',
+  edit: 'pen-to-square',
+  share: 'share-from-square',
+  check: 'square-check',
+  move: 'arrows-up-down-left-right',
+  'step-backward': 'backward-step',
+  'fast-backward': 'backward-fast',
+  backward: 'backward',
+  play: 'play',
+  pause: 'pause',
+  stop: 'stop',
+  forward: 'forward',
+  'fast-forward': 'forward-fast',
+  'step-forward': 'forward-step',
+  eject: 'eject',
+  'chevron-left': 'chevron-left',
+  'chevron-right': 'chevron-right',
+  'plus-sign': 'circle-plus',
+  'minus-sign': 'circle-minus',
+  'remove-sign': 'circle-xmark',
+  'ok-sign': 'circle-check',
+  'question-sign': 'circle-question',
+  'info-sign': 'circle-info',
+  screenshot: 'crosshairs',
+  'remove-circle': 'circle-xmark',
+  'ok-circle': 'circle-check',
+  'ban-circle': 'ban',
+
+  // Arrows / misc
+  'arrow-left': 'arrow-left',
+  'arrow-right': 'arrow-right',
+  'arrow-up': 'arrow-up',
+  'arrow-down': 'arrow-down',
+  'share-alt': 'share-nodes',
+  'resize-full': 'expand',
+  'resize-small': 'compress',
+  'exclamation-sign': 'circle-exclamation',
+  gift: 'gift',
+  leaf: 'leaf',
+  fire: 'fire',
+  'eye-open': 'eye',
+  'eye-close': 'eye-slash',
+  'warning-sign': 'triangle-exclamation',
+  plane: 'plane-up',
+  calendar: 'calendar',
+  random: 'shuffle',
+  comment: 'comment',
+  magnet: 'magnet',
+  'chevron-up': 'chevron-up',
+  'chevron-down': 'chevron-down',
+  retweet: 'retweet',
+  'shopping-cart': 'cart-shopping',
+  'folder-close': 'folder',
+  'folder-open': 'folder-open',
+  'resize-vertical': 'arrows-up-down',
+  'resize-horizontal': 'arrows-left-right',
+
+  // Extended
+  hdd: 'hard-drive',
+  bullhorn: 'bullhorn',
+  bell: 'bell',
+  certificate: 'certificate',
+  'thumbs-up': 'thumbs-up',
+  'thumbs-down': 'thumbs-down',
+  'hand-right': 'hand-point-right',
+  'hand-left': 'hand-point-left',
+  'hand-up': 'hand-point-up',
+  'hand-down': 'hand-point-down',
+  'circle-arrow-right': 'circle-arrow-right',
+  'circle-arrow-left': 'circle-arrow-left',
+  'circle-arrow-up': 'circle-arrow-up',
+  'circle-arrow-down': 'circle-arrow-down',
+  globe: 'globe',
+  wrench: 'wrench',
+  tasks: 'list-check',
+  filter: 'filter',
+  briefcase: 'briefcase',
+  fullscreen: 'expand',
+  dashboard: 'gauge',
+  paperclip: 'paperclip',
+  'heart-empty': 'heart',
+  link: 'link',
+  phone: 'phone',
+  pushpin: 'thumbtack',
+  usd: 'dollar-sign',
+  gbp: 'sterling-sign',
+  sort: 'sort',
+  'sort-by-alphabet': 'arrow-down-a-z',
+  'sort-by-alphabet-alt': 'arrow-down-z-a',
+  'sort-by-order': 'arrow-down-1-9',
+  'sort-by-order-alt': 'arrow-down-9-1',
+  'sort-by-attributes': 'arrow-down-short-wide',
+  'sort-by-attributes-alt': 'arrow-down-wide-short',
+  unchecked: 'square',
+  expand: 'square-plus',
+  'collapse-down': 'square-minus',
+  'collapse-up': 'square-minus',
+  'log-in': 'right-to-bracket',
+  flash: 'bolt',
+  'log-out': 'right-from-bracket',
+  'new-window': 'arrow-up-right-from-square',
+  record: 'record-vinyl',
+  save: 'floppy-disk',
+  open: 'folder-open',
+  saved: 'floppy-disk',
+  import: 'file-import',
+  export: 'file-export',
+  send: 'paper-plane',
+  'floppy-disk': 'floppy-disk',
+  'floppy-saved': 'floppy-disk',
+  'floppy-remove': 'floppy-disk',
+  'floppy-save': 'floppy-disk',
+  'floppy-open': 'floppy-disk',
+  'credit-card': 'credit-card',
+  transfer: 'right-left',
+  cutlery: 'utensils',
+  header: 'heading',
+  compressed: 'file-zipper',
+  earphone: 'phone',
+  'phone-alt': 'mobile-screen',
+  tower: 'tower-broadcast',
+  stats: 'chart-bar',
+  'sd-video': 'video',
+  'hd-video': 'video',
+  subtitles: 'closed-captioning',
+  'sound-stereo': 'volume-high',
+  'sound-dolby': 'volume-high',
+  'sound-5-1': 'volume-high',
+  'sound-6-1': 'volume-high',
+  'sound-7-1': 'volume-high',
+  'copyright-mark': 'copyright',
+  'registration-mark': 'registered',
+  'cloud-download': 'cloud-arrow-down',
+  'cloud-upload': 'cloud-arrow-up',
+  'tree-conifer': 'tree',
+  'tree-deciduous': 'tree',
+  education: 'graduation-cap',
+  thumbtack: 'thumbtack',
+  blackboard: 'chalkboard',
+  bed: 'bed',
+  tent: 'campground',
+  ice: 'ice-cream',
+  'ice-lolly': 'ice-cream',
+};
+
+/** Shown when the API holds a symbol name that is not a glyphicon at all. */
+const FALLBACK = 'circle-question';
+
+/** One entry of the table, in the shape a symbol picker needs. */
+export interface GlyphiconIcon {
+  /** Bootstrap-3 glyphicon name — this is what the API stores. */
+  name: string;
+  /** Font Awesome 6 Free (solid) name. */
+  faName: string;
+  /** Ready-to-use CSS class, `fas fa-<faName>`. */
+  faClass: string;
+}
+
+/**
+ * The table as a list, derived once. Insertion order is kept on purpose: the
+ * table is grouped by the original glyphicon cheat-sheet categories, which
+ * reads better in a picker grid than 206 alphabetised tiles.
+ */
+const GLYPHICON_ICONS: readonly GlyphiconIcon[] = Object.freeze(
+  Object.entries(GLYPHICON_TO_FONT_AWESOME).map(([name, faName]) =>
+    Object.freeze({ name, faName, faClass: `fas fa-${faName}` })
+  )
+);
+
+const ICONS_BY_NAME: ReadonlyMap<string, GlyphiconIcon> = new Map(
+  GLYPHICON_ICONS.map((icon) => [icon.name, icon])
+);
+
+/** Bare glyphicon name from a stored value: lower case, no `glyphicon-` prefix. */
+function normalizeName(glyphicon: string | undefined | null): string | undefined {
+  return glyphicon?.toLowerCase().replace(/^glyphicon-/, '') || undefined;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class IconTranslateService {
-  private readonly iconMap: IconTranslation[] = [
-    // Core
-    { glyphicon: 'asterisk', fontAwesome: 'asterisk' },
-    { glyphicon: 'plus', fontAwesome: 'plus' },
-    { glyphicon: 'euro', fontAwesome: 'euro-sign' },
-    { glyphicon: 'minus', fontAwesome: 'minus' },
-    { glyphicon: 'cloud', fontAwesome: 'cloud' },
-    { glyphicon: 'envelope', fontAwesome: 'envelope' },
-    { glyphicon: 'pencil', fontAwesome: 'pencil' },
-    { glyphicon: 'glass', fontAwesome: 'martini-glass' },
-    { glyphicon: 'music', fontAwesome: 'music' },
-    { glyphicon: 'search', fontAwesome: 'magnifying-glass' },
-    { glyphicon: 'heart', fontAwesome: 'heart' },
-    { glyphicon: 'star', fontAwesome: 'star' },
-    { glyphicon: 'user', fontAwesome: 'user' },
-    { glyphicon: 'film', fontAwesome: 'film' },
-    { glyphicon: 'th-large', fontAwesome: 'table-cells-large' },
-    { glyphicon: 'th', fontAwesome: 'table-cells' },
-    { glyphicon: 'th-list', fontAwesome: 'list' },
-    { glyphicon: 'ok', fontAwesome: 'check' },
-    { glyphicon: 'remove', fontAwesome: 'xmark' },
-    { glyphicon: 'zoom-in', fontAwesome: 'magnifying-glass-plus' },
-    { glyphicon: 'zoom-out', fontAwesome: 'magnifying-glass-minus' },
-    { glyphicon: 'off', fontAwesome: 'power-ogff' },
-    { glyphicon: 'signal', fontAwesome: 'signal' },
-    { glyphicon: 'cog', fontAwesome: 'gear' },
-    { glyphicon: 'trash', fontAwesome: 'trash-can' },
-
-    // Navigation
-    { glyphicon: 'home', fontAwesome: 'house' },
-    { glyphicon: 'file', fontAwesome: 'file' },
-    { glyphicon: 'time', fontAwesome: 'clock' },
-    { glyphicon: 'road', fontAwesome: 'road' },
-    { glyphicon: 'download-alt', fontAwesome: null },
-    { glyphicon: 'download', fontAwesome: null },
-    { glyphicon: 'upload', fontAwesome: null },
-    { glyphicon: 'inbox', fontAwesome: null },
-    { glyphicon: 'play-circle', fontAwesome: null },
-    { glyphicon: 'repeat', fontAwesome: null },
-    { glyphicon: 'refresh', fontAwesome: null },
-    { glyphicon: 'list-alt', fontAwesome: null },
-    { glyphicon: 'lock', fontAwesome: null },
-    { glyphicon: 'flag', fontAwesome: 'flag' },
-    { glyphicon: 'headphones', fontAwesome: null },
-    { glyphicon: 'volume-off', fontAwesome: null },
-    { glyphicon: 'volume-down', fontAwesome: null },
-    { glyphicon: 'volume-up', fontAwesome: null },
-    { glyphicon: 'qrcode', fontAwesome: null },
-    { glyphicon: 'barcode', fontAwesome: null },
-    { glyphicon: 'tag', fontAwesome: null },
-    { glyphicon: 'tags', fontAwesome: null },
-    { glyphicon: 'book', fontAwesome: 'book' },
-    { glyphicon: 'bookmark', fontAwesome: null },
-    { glyphicon: 'print', fontAwesome: null },
-    { glyphicon: 'camera', fontAwesome: null },
-    { glyphicon: 'font', fontAwesome: null },
-    { glyphicon: 'bold', fontAwesome: null },
-    { glyphicon: 'italic', fontAwesome: null },
-    { glyphicon: 'text-height', fontAwesome: null },
-    { glyphicon: 'text-width', fontAwesome: null },
-    { glyphicon: 'align-left', fontAwesome: null },
-    { glyphicon: 'align-center', fontAwesome: null },
-    { glyphicon: 'align-right', fontAwesome: null },
-    { glyphicon: 'align-justify', fontAwesome: null },
-    { glyphicon: 'list', fontAwesome: null },
-    { glyphicon: 'indent-left', fontAwesome: null },
-    { glyphicon: 'indent-right', fontAwesome: null },
-    { glyphicon: 'facetime-video', fontAwesome: null },
-    { glyphicon: 'picture', fontAwesome: null },
-
-    // Medien / Status
-    { glyphicon: 'map-marker', fontAwesome: 'location-dot' },
-    { glyphicon: 'adjust', fontAwesome: 'circle-half-stroke' },
-    { glyphicon: 'tint', fontAwesome: 'droplet' },
-    { glyphicon: 'edit', fontAwesome: 'pen-to-square' },
-    { glyphicon: 'share', fontAwesome: 'share-from-square' },
-    { glyphicon: 'check', fontAwesome: 'square-checl' },
-    { glyphicon: 'move', fontAwesome: 'arrows-up-down-left-right' },
-    { glyphicon: 'step-backward', fontAwesome: 'backward-step' },
-    { glyphicon: 'fast-backward', fontAwesome: 'forward-step' },
-    { glyphicon: 'backward', fontAwesome: 'backward' },
-    { glyphicon: 'play', fontAwesome: 'play' },
-    { glyphicon: 'pause', fontAwesome: 'pause' },
-    { glyphicon: 'stop', fontAwesome: 'stop' },
-    { glyphicon: 'forward', fontAwesome: 'forward' },
-    { glyphicon: 'fast-forward', fontAwesome: null },
-    { glyphicon: 'step-forward', fontAwesome: null },
-    { glyphicon: 'eject', fontAwesome: null },
-    { glyphicon: 'chevron-left', fontAwesome: null },
-    { glyphicon: 'chevron-right', fontAwesome: null },
-    { glyphicon: 'plus-sign', fontAwesome: 'circle-plus' },
-    { glyphicon: 'minus-sign', fontAwesome: null },
-    { glyphicon: 'remove-sign', fontAwesome: null },
-    { glyphicon: 'ok-sign', fontAwesome: null },
-    { glyphicon: 'question-sign', fontAwesome: null },
-    { glyphicon: 'info-sign', fontAwesome: null },
-    { glyphicon: 'screenshot', fontAwesome: null },
-    { glyphicon: 'remove-circle', fontAwesome: null },
-    { glyphicon: 'ok-circle', fontAwesome: null },
-    { glyphicon: 'ban-circle', fontAwesome: null },
-
-    // Pfeile / Sonstiges
-    { glyphicon: 'arrow-left', fontAwesome: null },
-    { glyphicon: 'arrow-right', fontAwesome: null },
-    { glyphicon: 'arrow-up', fontAwesome: null },
-    { glyphicon: 'arrow-down', fontAwesome: null },
-    { glyphicon: 'share-alt', fontAwesome: null },
-    { glyphicon: 'resize-full', fontAwesome: null },
-    { glyphicon: 'resize-small', fontAwesome: null },
-    { glyphicon: 'exclamation-sign', fontAwesome: null },
-    { glyphicon: 'gift', fontAwesome: null },
-    { glyphicon: 'leaf', fontAwesome: 'leaf' },
-    { glyphicon: 'fire', fontAwesome: null },
-    { glyphicon: 'eye-open', fontAwesome: 'eye' },
-    { glyphicon: 'eye-close', fontAwesome: 'eye-slash' },
-    { glyphicon: 'warning-sign', fontAwesome: 'triangle-exclamation' },
-    { glyphicon: 'plane', fontAwesome: 'plane-up' },
-    { glyphicon: 'calendar', fontAwesome: null },
-    { glyphicon: 'random', fontAwesome: null },
-    { glyphicon: 'comment', fontAwesome: null },
-    { glyphicon: 'magnet', fontAwesome: null },
-    { glyphicon: 'chevron-up', fontAwesome: null },
-    { glyphicon: 'chevron-down', fontAwesome: null },
-    { glyphicon: 'retweet', fontAwesome: null },
-    { glyphicon: 'shopping-cart', fontAwesome: 'cart-shopping' },
-    { glyphicon: 'folder-close', fontAwesome: null },
-    { glyphicon: 'folder-open', fontAwesome: null },
-    { glyphicon: 'resize-vertical', fontAwesome: null },
-    { glyphicon: 'resize-horizontal', fontAwesome: null },
-
-    // Extended
-    { glyphicon: 'hdd', fontAwesome: null },
-    { glyphicon: 'bullhorn', fontAwesome: null },
-    { glyphicon: 'bell', fontAwesome: null },
-    { glyphicon: 'certificate', fontAwesome: null },
-    { glyphicon: 'thumbs-up', fontAwesome: null },
-    { glyphicon: 'thumbs-down', fontAwesome: null },
-    { glyphicon: 'hand-right', fontAwesome: null },
-    { glyphicon: 'hand-left', fontAwesome: null },
-    { glyphicon: 'hand-up', fontAwesome: null },
-    { glyphicon: 'hand-down', fontAwesome: null },
-    { glyphicon: 'circle-arrow-right', fontAwesome: null },
-    { glyphicon: 'circle-arrow-left', fontAwesome: null },
-    { glyphicon: 'circle-arrow-up', fontAwesome: null },
-    { glyphicon: 'circle-arrow-down', fontAwesome: null },
-    { glyphicon: 'globe', fontAwesome: null },
-    { glyphicon: 'wrench', fontAwesome: null },
-    { glyphicon: 'tasks', fontAwesome: null },
-    { glyphicon: 'filter', fontAwesome: null },
-    { glyphicon: 'briefcase', fontAwesome: null },
-    { glyphicon: 'fullscreen', fontAwesome: null },
-    { glyphicon: 'dashboard', fontAwesome: null },
-    { glyphicon: 'paperclip', fontAwesome: null },
-    { glyphicon: 'heart-empty', fontAwesome: 'heart' },
-    { glyphicon: 'link', fontAwesome: null },
-    { glyphicon: 'phone', fontAwesome: null },
-    { glyphicon: 'pushpin', fontAwesome: null },
-    { glyphicon: 'usd', fontAwesome: null },
-    { glyphicon: 'gbp', fontAwesome: null },
-    { glyphicon: 'sort', fontAwesome: null },
-    { glyphicon: 'sort-by-alphabet', fontAwesome: null },
-    { glyphicon: 'sort-by-alphabet-alt', fontAwesome: null },
-    { glyphicon: 'sort-by-order', fontAwesome: null },
-    { glyphicon: 'sort-by-order-alt', fontAwesome: null },
-    { glyphicon: 'sort-by-attributes', fontAwesome: null },
-    { glyphicon: 'sort-by-attributes-alt', fontAwesome: null },
-    { glyphicon: 'unchecked', fontAwesome: null },
-    { glyphicon: 'expand', fontAwesome: null },
-    { glyphicon: 'collapse-down', fontAwesome: null },
-    { glyphicon: 'collapse-up', fontAwesome: null },
-    { glyphicon: 'log-in', fontAwesome: null },
-    { glyphicon: 'flash', fontAwesome: null },
-    { glyphicon: 'log-out', fontAwesome: null },
-    { glyphicon: 'new-window', fontAwesome: null },
-    { glyphicon: 'record', fontAwesome: 'record-vinyl' },
-    { glyphicon: 'save', fontAwesome: null },
-    { glyphicon: 'open', fontAwesome: null },
-    { glyphicon: 'saved', fontAwesome: null },
-    { glyphicon: 'import', fontAwesome: null },
-    { glyphicon: 'export', fontAwesome: null },
-    { glyphicon: 'send', fontAwesome: 'paper-plane' },
-    { glyphicon: 'floppy-disk', fontAwesome: null },
-    { glyphicon: 'floppy-saved', fontAwesome: null },
-    { glyphicon: 'floppy-remove', fontAwesome: null },
-    { glyphicon: 'floppy-save', fontAwesome: null },
-    { glyphicon: 'floppy-open', fontAwesome: null },
-    { glyphicon: 'credit-card', fontAwesome: null },
-    { glyphicon: 'transfer', fontAwesome: null },
-    { glyphicon: 'cutlery', fontAwesome: null },
-    { glyphicon: 'header', fontAwesome: null },
-    { glyphicon: 'compressed', fontAwesome: null },
-    { glyphicon: 'earphone', fontAwesome: null },
-    { glyphicon: 'phone-alt', fontAwesome: null },
-    { glyphicon: 'tower', fontAwesome: null },
-    { glyphicon: 'stats', fontAwesome: null },
-    { glyphicon: 'sd-video', fontAwesome: null },
-    { glyphicon: 'hd-video', fontAwesome: null },
-    { glyphicon: 'subtitles', fontAwesome: null },
-    { glyphicon: 'sound-stereo', fontAwesome: null },
-    { glyphicon: 'sound-dolby', fontAwesome: null },
-    { glyphicon: 'sound-5-1', fontAwesome: null },
-    { glyphicon: 'sound-6-1', fontAwesome: null },
-    { glyphicon: 'sound-7-1', fontAwesome: null },
-    { glyphicon: 'copyright-mark', fontAwesome: null },
-    { glyphicon: 'registration-mark', fontAwesome: null },
-    { glyphicon: 'cloud-download', fontAwesome: null },
-    { glyphicon: 'cloud-upload', fontAwesome: null },
-    { glyphicon: 'tree-conifer', fontAwesome: 'tree' },
-    { glyphicon: 'tree-deciduous', fontAwesome: 'tree' },
-    { glyphicon: 'education', fontAwesome: 'graduation-cap' },
-    { glyphicon: 'thumbtack', fontAwesome: 'thumbtack' },
-    { glyphicon: 'blackboard', fontAwesome: 'chalkboard' },
-    { glyphicon: 'bed', fontAwesome: 'bed' },
-    { glyphicon: 'tent', fontAwesome: 'campground' },
-    { glyphicon: 'ice', fontAwesome: 'ice-cream' },
-    { glyphicon: 'ice-lolly', fontAwesome: 'ice-cream' },
-  ];
-
-  translate(glyphicon: string): string {
-    const normalized = glyphicon?.toLowerCase();
-
-    const match = this.iconMap.find((i) => i.glyphicon === normalized);
-
-    return match?.fontAwesome ?? this.getFallback(glyphicon);
+  /**
+   * Takes a bare glyphicon name (`map-marker`), not the CSS class
+   * (`glyphicon-map-marker`), and returns a bare Font Awesome name
+   * (`location-dot`) — the `fas fa-` prefix is added by the caller, either the
+   * `iconTranslate` pipe or Leaflet's AwesomeMarkers (which takes `icon` and
+   * `prefix` separately).
+   */
+  translate(glyphicon: string | undefined | null): string {
+    return this.findIcon(glyphicon)?.faName ?? FALLBACK;
   }
 
-  private getFallback(glyphicon): string {
-    console.log('missing glyphicon-icon: ' + glyphicon);
-    return 'question-circle';
+  /**
+   * Every glyphicon name the client can render, for pickers that offer them.
+   * The list is the same data `translate()` reads, so the two cannot drift.
+   */
+  availableIcons(): readonly GlyphiconIcon[] {
+    return GLYPHICON_ICONS;
+  }
+
+  /**
+   * Resolves a stored value to its table entry, applying the same
+   * normalisation as `translate()`. Returns `undefined` for an empty value and
+   * for a name the table does not know — callers decide what to show for those
+   * rather than getting a silent fallback entry.
+   */
+  findIcon(glyphicon: string | undefined | null): GlyphiconIcon | undefined {
+    const normalized = normalizeName(glyphicon);
+
+    return normalized ? ICONS_BY_NAME.get(normalized) : undefined;
   }
 }

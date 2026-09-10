@@ -235,7 +235,7 @@
       </div>
       <hr />
       <div style="max-height: 50vh; overflow: auto">
-        <table class="table table-condensed">
+        <table class="table table-sm">
           <thead>
             <tr>
               <th>Szenarioname</th>
@@ -251,19 +251,12 @@
                 <td>
                   <b>{{ reachabilityScenario.scenarioName }}</b>
                   <br />
-                  <!-- <div>
-                      <button class="btn btn-warning btn-sm" title="Editieren" (click)="openReachabilityScenarioModal(reachabilityScenario)" data-toggle="modal" data-target="#modal-manage-reachability-scenario"><i class="fa-solid fa-pen" ></i></button>
-                      <button class="btn btn-danger btn-sm" title="L&ouml;schen" (click)="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.removeReachabilityScenario(reachabilityScenario)"><i class="fa-solid fa-trash-can"></i></button>
-                      <button class="btn btn-info btn-sm" title="Duplizieren" (click)="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.cloneReachabilityScenario(reachabilityScenario)"><i class="fa-solid fa-copy" ></i></button>
-                    </div> -->
                   <div>
                     <i
                       title="Editieren"
                       style="cursor: pointer"
                       class="fa-solid fa-pen"
                       (click)="openReachabilityScenarioModal(reachabilityScenario)"
-                      data-toggle="modal"
-                      data-target="#modal-manage-reachability-scenario"
                     ></i>
                     &nbsp; &nbsp;
                     <i

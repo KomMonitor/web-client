@@ -1,188 +1,47 @@
-/* Loading overlay */
-.loading-overlay-admin-panel {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 9999;
-  color: #007bff;
-  font-size: 2rem;
-}
+/*
+ * This file was a 188-line copy of Bootstrap 3 — `.btn` with two variants,
+ * `.modal-header/-body/-footer/-title`, `.btn-close`, `.table*`, `.alert*`,
+ * `.pull-left`, `pre`, `ul` and `h3, h4`. Because component styles load after
+ * app.scss they won a same-specificity tie against Bootstrap 5, so this dialog
+ * rendered in the previous framework generation: 14px buttons at 4px radius in
+ * #d9534f red, next to a 16px 6px-radius #dc3545 button in the metadata dialog
+ * one row up. The `line-height: 1.42857143` throughout was the giveaway.
+ *
+ * Two of those rules were visible defects rather than mere duplication:
+ *
+ * - `.btn-close { background: none; font-size: 1.5rem }` replaced Bootstrap's
+ *   SVG close icon with the bare `&times;` glyph, so this dialog's `×` was a
+ *   small dark box where every other dialog in the admin area has the large
+ *   thin X.
+ * - `.modal-footer { text-align: right }` fought the flex footer that the
+ *   `me-auto` on the cancel button now relies on.
+ *
+ * `.loading-overlay-admin-panel` / `.icon-spin` / `@keyframes spin` went too:
+ * the template renders its spinner through <app-loading-overlay> and carries
+ * none of those classes.
+ *
+ * Button, table and alert styling all come from Bootstrap now, exactly as in the
+ * delete dialogs of the spatial-unit, topic and group areas. What is left is the
+ * one thing this dialog needs beyond them.
+ */
 
-.icon-spin {
-  animation: spin 1s infinite linear;
-}
+/*
+ * The cascade impact tables are eight and four columns wide, in a 520px confirm
+ * dialog. Same wrapper as the indicator delete dialog: the table scrolls inside
+ * the alert rather than widening the dialog to fit its widest column, and a long
+ * list of affected indicators scrolls instead of pushing the footer out of view.
+ *
+ * The tables used to carry `style="width: 100%; overflow: auto; font-size: 11px"`
+ * instead. `overflow` on a `<table>` does nothing — it needs a block container —
+ * so the columns simply overflowed the dialog, and the 11px undercut the 12px
+ * that app.scss sets for every other small text in the admin area.
+ */
+.admin-table-wrapper {
+  overflow-x: auto;
+  max-height: 400px;
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-/* Modal styling */
-.modal-header {
-  padding: 15px;
-  border-bottom: 1px solid #e5e5e5;
-}
-
-.modal-title {
-  margin: 0;
-  line-height: 1.42857143;
-}
-
-.btn-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-}
-
-.modal-body {
-  position: relative;
-  padding: 15px;
-  max-height: 70vh;
-  overflow-y: auto;
-}
-
-.modal-footer {
-  padding: 15px;
-  text-align: right;
-  border-top: 1px solid #e5e5e5;
-}
-
-/* Alert styling */
-.alert {
-  padding: 15px;
-  margin-bottom: 20px;
-  border: 1px solid transparent;
-  border-radius: 4px;
-}
-
-.alert-success {
-  color: #3c763d;
-  background-color: #dff0d8;
-  border-color: #d6e9c6;
-}
-
-.alert-danger {
-  color: #a94442;
-  background-color: #f2dede;
-  border-color: #ebccd1;
-}
-
-.alert-dismissible .close {
-  position: relative;
-  top: -2px;
-  right: -21px;
-  color: inherit;
-  background: none;
-  border: none;
-  font-size: 1.3rem;
-  cursor: pointer;
-}
-
-/* Table styling */
-.table {
-  width: 100%;
-  max-width: 100%;
-  margin-bottom: 20px;
-}
-
-.table-bordered {
-  border: 1px solid #ddd;
-}
-
-.table-bordered > thead > tr > th,
-.table-bordered > tbody > tr > th,
-.table-bordered > tfoot > tr > th,
-.table-bordered > thead > tr > td,
-.table-bordered > tbody > tr > td,
-.table-bordered > tfoot > tr > td {
-  border: 1px solid #ddd;
-}
-
-.table-condensed > thead > tr > th,
-.table-condensed > tbody > tr > th,
-.table-condensed > tfoot > tr > th,
-.table-condensed > thead > tr > td,
-.table-condensed > tbody > tr > td,
-.table-condensed > tfoot > tr > td {
-  padding: 5px;
-}
-
-/* Button styling */
-.btn {
-  display: inline-block;
-  padding: 6px 12px;
-  margin-bottom: 0;
-  font-size: 14px;
-  font-weight: normal;
-  line-height: 1.42857143;
-  text-align: center;
-  white-space: nowrap;
-  vertical-align: middle;
-  cursor: pointer;
-  border: 1px solid transparent;
-  border-radius: 4px;
-}
-
-.btn-default {
-  color: #333;
-  background-color: #fff;
-  border-color: #ccc;
-}
-
-.btn-danger {
-  color: #fff;
-  background-color: #d9534f;
-  border-color: #d43f3a;
-}
-
-.btn-danger:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-}
-
-.pull-left {
-  float: left;
-}
-
-/* Typography */
-h3,
-h4 {
-  margin-top: 20px;
-  margin-bottom: 10px;
-}
-
-pre {
-  display: block;
-  padding: 9.5px;
-  margin: 0 0 10px;
-  font-size: 13px;
-  line-height: 1.42857143;
-  color: #333;
-  word-break: break-all;
-  word-wrap: break-word;
-  background-color: #f5f5f5;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-ul {
-  margin-top: 0;
-  margin-bottom: 10px;
-}
-
-/* Responsive table */
-@media (max-width: 768px) {
-  .table-responsive {
-    width: 100%;
-    margin-bottom: 15px;
-    overflow-y: hidden;
-    overflow-x: auto;
-    border: 1px solid #ddd;
+  td {
+    max-width: 200px;
+    word-wrap: break-word;
   }
 }

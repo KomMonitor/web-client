@@ -3,495 +3,571 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
+  EventEmitter,
   Input,
   OnDestroy,
   OnInit,
+  Output,
   ViewChild,
+  computed,
   inject,
   signal,
 } from '@angular/core';
-import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
-import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ReactiveFormsModule } from '@angular/forms';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
+import { BatchUpdateService } from 'services/batch-update-service/batch-update.service';
+import {
+  BatchUpdateRowResult,
+  summariseBatchResults,
+} from 'services/batch-update-service/batch-update.model';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import type {
+  Converter,
+  DatasourceType,
+  TimeseriesMapping,
+} from 'services/resource-import-service/resource-import.model';
 import { downloadJson, readJsonFile } from 'util/json-file.util';
-
-interface BatchListItem {
-  isSelected: boolean;
-  name: any;
-  mappingTableName: string;
-  mappingObj: {
-    converter: any;
-    dataSource: any;
-    propertyMapping: {
-      timeseriesMappings: any[];
-      spatialReferenceKeyProperty: string;
-      keepMissingOrNullValueIndicator: boolean;
-    };
-    targetSpatialUnitName: string;
-  };
-  selectedConverter: any;
-  selectedDatasourceType: any;
-  selectedTargetSpatialUnit: any;
-}
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { BatchUpdateResultModalComponent } from '../../adminShared/batchUpdateResultModal/batch-update-result-modal.component';
+import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
+import { TimeseriesMappingFormComponent } from '../../adminShared/timeseriesMappingForm/timeseries-mapping-form.component';
+import { isValidTimeseriesMappingList } from '../../adminShared/timeseriesMappingForm/timeseries-mapping-form.model';
+import {
+  BatchRowFormGroup,
+  BatchUpdateFormGroup,
+  buildBatchRow,
+  buildBatchUpdateForm,
+  collectBatchRunBlockers,
+  hasFileDatasourceRow,
+  syncBatchRowParameterControls,
+  visibleConverterParameterNames,
+  visibleDatasourceParameterNames,
+} from './indicator-batch-update-form.model';
+import {
+  BatchColumnTarget,
+  DefaultValueFormGroup,
+  applyColumnDefault,
+  availableColumnTargets,
+  buildDefaultValueForm,
+  columnTargetLabelKey,
+  columnTargetPlainLabel,
+  formatColumnTarget,
+  parseColumnTarget,
+} from './indicator-batch-update-defaults.model';
+import { prepareBatchRows } from './indicator-batch-update-run.model';
+import type { IndicatorRefreshRequest } from '../indicator-refresh.model';
+import {
+  BatchListFileRow,
+  batchListFileRowToRow,
+  batchRowToFileRow,
+  keepMissingValuesFromFile,
+} from './indicator-batch-update-file.model';
+import { MODAL_FORM } from 'util/modal-presets';
 
 /**
- * WORK IN PROGRESS — deliberately unfinished.
+ * Batch update for indicator time series: one table row per indicator, each with
+ * its own converter, data source and time-series mapping.
  *
- * The indicator batch-update feature is a non-functional scaffold: the form and
- * file import/export work, but there is no real batch-update backend call yet
- * (`startBatchUpdate` is a no-op), the converter/datasource dropdowns have no
- * data source (`getAvailableConverters`/`getAvailableDatasourceTypes` return
- * empty), and several row actions are unimplemented. The methods below are kept
- * as bound stubs so the template renders; each carries a `TODO(batch-update)`
- * marking what still needs to be built. Do not treat a successful click as a
- * completed update.
+ * The run is wired to `BatchUpdateService`: every row is dry-run first and only
+ * committed when the importer reports no errors, and a failing row does not stop
+ * the others — so a batch can end partially applied, which the summary reports.
+ *
+ * The per-row result table and the default-value function that fills one column
+ * across all rows are wired up as well; what the released AngularJS client had
+ * and this one does not is the georesource variant of the same list.
  */
 @Component({
   selector: 'app-indicator-batch-update-modal',
   templateUrl: './indicator-batch-update-modal.component.html',
   styleUrls: ['./indicator-batch-update-modal.component.scss'],
-  imports: [TranslateModule, FormsModule, CommonModule],
+  imports: [
+    TranslateModule,
+    ReactiveFormsModule,
+    FormErrorComponent,
+    TimeseriesMappingFormComponent,
+    ExpandableBoxComponent,
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
-  private broadcastService = inject(BroadcastService);
-  private cdr = inject(ChangeDetectorRef);
   protected indicatorStore = inject(IndicatorMetadataStoreService);
   protected spatialUnitStore = inject(SpatialUnitMetadataStoreService);
+  private importerHelper = inject(KommonitorImporterHelperService);
+  private batchUpdateService = inject(BatchUpdateService);
+  private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
+  private modalService = inject(NgbModal);
+  private cdr = inject(ChangeDetectorRef);
 
-  @ViewChild('batchListFileInput') batchListFileInput!: ElementRef;
+  @ViewChild('batchListFileInput') batchListFileInput!: ElementRef<HTMLInputElement>;
   @Input() modalRef?: NgbModalRef;
+  @Output() refreshRequested = new EventEmitter<IndicatorRefreshRequest>();
 
-  public isFirstStart: boolean = true;
-  public lastUpdateResponseObj: any;
-  public timeseriesMappingReference: any;
-  public selected: any = { value: null };
-  public keepMissingValues: boolean = true;
-  public batchList: BatchListItem[] = [];
-  public allRowsSelected: boolean = false;
-  // Signal: kept for future async batch flows (OnPush).
-  public loadingData = signal(false);
+  readonly form: BatchUpdateFormGroup = buildBatchUpdateForm();
 
-  private subscriptions: Subscription[] = [];
-  private keyDownHandler: (event: KeyboardEvent) => void;
+  /** Staging form of the "fill one column across all rows" panel. */
+  readonly defaultValueForm: DefaultValueFormGroup = buildDefaultValueForm();
 
-  constructor() {
-    this.keyDownHandler = this.handleKeyDown.bind(this);
+  /** Signal: set from awaits and (later) the batch run itself (OnPush). */
+  readonly loadingData = signal(false);
+
+  /** Row index whose time-series mapping panel is expanded, or null. */
+  readonly expandedMappingRow = signal<number | null>(null);
+
+  /** Results of the last run, kept for the result surface. */
+  readonly lastResults = signal<BatchUpdateRowResult[] | null>(null);
+
+  /** Rows already **finished** during a run, as `BatchUpdateService` reports them. */
+  readonly runProgress = signal<{ done: number; total: number } | null>(null);
+
+  /**
+   * What the progress label shows: the row the run is currently working on.
+   *
+   * `runProgress` counts finished rows, so it is 0 while the first row runs —
+   * and the label reads "row {{done}} of {{total}}", which then said "row 0 of
+   * 2". Shifting by one here keeps the service's counter honest and still reads
+   * correctly; it is capped at `total` for the final report, where the run is
+   * over and the overlay disappears anyway.
+   */
+  readonly runProgressLabel = computed(() => {
+    const progress = this.runProgress();
+    if (!progress) {
+      return null;
+    }
+    return { done: Math.min(progress.done + 1, progress.total), total: progress.total };
+  });
+
+  /** Emits on every value/status event of the form, driving the computeds below. */
+  private readonly formEvent = toSignal(this.form.events, { initialValue: null });
+
+  /**
+   * Parameter columns are derived from the selected converters and data-source
+   * types instead of being hard-coded per converter name, which is what the
+   * legacy `checkColumnsToShowSelectedConverter()` /
+   * `checkIfSelectedDatasourceTypeIs*()` scans did — once per header, per footer
+   * and per row on every change-detection pass.
+   */
+  readonly converterParameterColumns = computed(() => {
+    this.formEvent();
+    return visibleConverterParameterNames(this.form);
+  });
+
+  readonly datasourceParameterColumns = computed(() => {
+    this.formEvent();
+    return visibleDatasourceParameterNames(this.form);
+  });
+
+  readonly showFileColumn = computed(() => {
+    this.formEvent();
+    return hasFileDatasourceRow(this.form);
+  });
+
+  /** Columns the default-value panel can fill, derived from the current list. */
+  readonly columnTargets = computed(() => {
+    this.formEvent();
+    return availableColumnTargets(this.form);
+  });
+
+  /** i18n keys of everything that keeps the run button disabled. */
+  readonly runBlockers = computed(() => {
+    this.formEvent();
+    return collectBatchRunBlockers(this.form);
+  });
+
+  private readonly rowSubscriptions = new Map<BatchRowFormGroup, { unsubscribe(): void }[]>();
+
+  get rows(): BatchRowFormGroup[] {
+    return this.form.controls.rows.controls;
   }
 
-  ngOnInit(): void {
-    this.setupEventListeners();
-    this.initialize();
-
-    // Add keyboard event listener for Escape key
-    document.addEventListener('keydown', this.keyDownHandler);
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.forEach((sub) => sub.unsubscribe());
-
-    // Remove keyboard event listener
-    document.removeEventListener('keydown', this.keyDownHandler);
-  }
-
-  private setupEventListeners(): void {
-    // Listen for batch update completion
-    const sub1 = this.broadcastService.currentBroadcastMsg.subscribe((data) => {
-      if (
-        data.msg === BroadcastMessage.BatchUpdateCompleted &&
-        (data as any).resourceType === 'indicator'
-      ) {
-        this.lastUpdateResponseObj = data;
-      } else if (data.msg === BroadcastMessage.RefreshIndicatorOverviewTableCompleted) {
-        this.refreshNameColumn();
-      } else if (data.msg === 'timeseriesMappingChanged') {
-        this.timeseriesMappingReference = (data as any).mapping;
-      }
-      // Bus callbacks mutate template-bound fields on this OnPush view.
-      this.cdr.markForCheck();
-    });
-    this.subscriptions.push(sub1);
-  }
-
-  public openModal(): void {
-    // This method will be called from the parent component
-    this.initialize();
-  }
-
-  private initialize(): void {
-    if (this.isFirstStart) {
+  async ngOnInit(): Promise<void> {
+    if (this.rows.length === 0) {
       this.addNewRowToBatchList();
-      this.isFirstStart = false;
     }
 
-    // Set initial selected value if available
-    if (
-      this.indicatorStore.availableIndicators &&
-      this.indicatorStore.availableIndicators.length > 0
-    ) {
-      this.selected.value = this.indicatorStore.availableIndicators[0];
-    }
-  }
-
-  public addNewRowToBatchList(): void {
-    const newRow: BatchListItem = {
-      isSelected: true,
-      name: null,
-      mappingTableName: '',
-      mappingObj: {
-        converter: {
-          encoding: '',
-          mimeType: '',
-          name: '',
-          parameters: [],
-          schema: '',
-          crs: 'EPSG:4326',
-          separator: ',',
-          schemaNamespace: '',
-          schemaLocation: '',
-        },
-        dataSource: {
-          parameters: [],
-          type: 'FILE',
-          url: '',
-          payload: '',
-        },
-        propertyMapping: {
-          timeseriesMappings: [],
-          spatialReferenceKeyProperty: '',
-          keepMissingOrNullValueIndicator: true,
-        },
-        targetSpatialUnitName: '',
-      },
-      selectedConverter: null,
-      selectedDatasourceType: null,
-      selectedTargetSpatialUnit: null,
-    };
-
-    this.batchList.push(newRow);
-  }
-
-  public deleteSelectedRowsFromBatchList(): void {
-    this.batchList = this.batchList.filter((row) => !row.isSelected);
-  }
-
-  public onChangeSelectAllRows(): void {
-    this.batchList.forEach((row) => {
-      row.isSelected = this.allRowsSelected;
-    });
-  }
-
-  public loadIndicatorsBatchList(): void {
-    if (this.batchListFileInput) {
-      this.batchListFileInput.nativeElement.click();
-    }
-  }
-
-  public onBatchListFileSelected(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    const file = target.files?.[0];
-    if (file) {
-      this.parseBatchListFromFile(file);
-    }
-  }
-
-  private async parseBatchListFromFile(file: File): Promise<void> {
-    try {
-      const newBatchList = await readJsonFile(file);
-      this.processParsedBatchList(newBatchList);
-    } catch (error) {
-      console.error('Error parsing batch list file:', error);
-    }
-    // The import rewrote the template-bound batch list after an await (OnPush).
+    // The converter and data-source dropdowns read the importer catalogue,
+    // which arrives asynchronously. Without this the OnPush view keeps the
+    // empty lists it first rendered with, and both selects stay at their
+    // placeholder until some unrelated interaction happens to re-render.
+    await this.importerHelper.fetchResourcesFromImporter();
     this.cdr.markForCheck();
   }
 
-  private processParsedBatchList(newBatchList: any[]): void {
-    // Remove all existing rows
-    this.batchList.forEach((row) => (row.isSelected = true));
-    this.deleteSelectedRowsFromBatchList();
-
-    // Add new rows from file
-    newBatchList.forEach((item: any) => {
-      this.addNewRowToBatchList();
-      const row = this.batchList[this.batchList.length - 1];
-
-      row.isSelected = item.isSelected;
-
-      // Set indicator by ID
-      const indicatorId = item.name;
-      const indicatorObj = this.indicatorStore.getIndicatorMetadataById(indicatorId);
-      row.name = indicatorObj;
-
-      row.mappingTableName = item.mappingTableName;
-      row.mappingObj = item.mappingObj;
-
-      // Convert parameters to properties
-      if (row.mappingObj.converter) {
-        row.mappingObj.converter = this.converterParametersArrayToProperties(
-          row.mappingObj.converter
-        );
-      }
-      if (row.mappingObj.dataSource) {
-        row.mappingObj.dataSource = this.dataSourceParametersArrayToProperty(
-          row.mappingObj.dataSource
-        );
-      }
-
-      // Set selected objects
-      if (item.mappingObj.converter?.name) {
-        row.selectedConverter = this.getConverterObjectByName(item.mappingObj.converter.name);
-      }
-      if (item.mappingObj.dataSource?.type) {
-        row.selectedDatasourceType = this.getDatasourceTypeObjectByType(
-          item.mappingObj.dataSource.type
-        );
-      }
-      if (item.mappingObj.targetSpatialUnitName) {
-        row.selectedTargetSpatialUnit = this.getSpatialUnitObjectByName(
-          item.mappingObj.targetSpatialUnitName
-        );
-      }
-    });
+  ngOnDestroy(): void {
+    this.rowSubscriptions.forEach((subscriptions) =>
+      subscriptions.forEach((subscription) => subscription.unsubscribe())
+    );
+    this.rowSubscriptions.clear();
   }
 
-  public onMappingTableSelected(_event: Event, _index: number): void {
-    // TODO(batch-update): parse the selected mapping-table file and apply it to
-    // the row at the given index. Not implemented yet.
+  // ---------------------------------------------------------------- table rows
+
+  addNewRowToBatchList(): void {
+    const row = buildBatchRow();
+    this.form.controls.rows.push(row);
+
+    // Both parameter records are rebuilt from the current selection, so the
+    // template only ever renders controls that exist.
+    this.rowSubscriptions.set(row, [
+      row.controls.converter.valueChanges.subscribe(() => this.onConverterChanged(row)),
+      row.controls.datasourceType.valueChanges.subscribe(() => this.onDatasourceTypeChanged(row)),
+    ]);
   }
 
-  public onDataSourceFileSelected(_event: Event, _index: number): void {
-    // TODO(batch-update): parse the selected data-source file and apply it to
-    // the row at the given index. Not implemented yet.
+  deleteSelectedRowsFromBatchList(): void {
+    for (let index = this.rows.length - 1; index >= 0; index -= 1) {
+      if (this.rows[index].controls.selected.value) {
+        this.removeRowAt(index);
+      }
+    }
+    this.expandedMappingRow.set(null);
   }
 
-  public onTimeseriesMappingBtnClicked(_event: any, _index: number): void {
-    // TODO(batch-update): open the timeseries-mapping modal for the given row.
-    // Not implemented yet.
+  private removeRowAt(index: number): void {
+    const row = this.rows[index];
+    this.rowSubscriptions.get(row)?.forEach((subscription) => subscription.unsubscribe());
+    this.rowSubscriptions.delete(row);
+    this.form.controls.rows.removeAt(index);
   }
 
-  public onDefaultTimeseriesMappingBtnClicked(_event: any): void {
-    // TODO(batch-update): open the default timeseries-mapping modal.
-    // Not implemented yet.
+  get allRowsSelected(): boolean {
+    return this.rows.length > 0 && this.rows.every((row) => row.controls.selected.value);
   }
 
-  public saveMappingObjectToFile(event: any, index: number): void {
-    const row = this.batchList[index];
-    const mappingData = {
-      name: row.name?.indicatorId || '',
-      mappingTableName: row.mappingTableName,
-      mappingObj: row.mappingObj,
-      isSelected: row.isSelected,
-    };
+  onChangeSelectAllRows(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.rows.forEach((row) => row.controls.selected.setValue(checked));
+  }
 
+  // ------------------------------------------------------- converter selection
+
+  private onConverterChanged(row: BatchRowFormGroup): void {
+    const converter = row.controls.converter.value;
+    row.controls.mimeType.setValue(
+      converter?.mimeTypes?.length === 1 ? converter.mimeTypes[0] : ''
+    );
+    row.controls.schema.setValue('');
+    row.controls.encoding.setValue('');
+    syncBatchRowParameterControls(row);
+  }
+
+  private onDatasourceTypeChanged(row: BatchRowFormGroup): void {
+    row.controls.selectedFile.setValue(null);
+    syncBatchRowParameterControls(row);
+  }
+
+  /** Converters the importer offers for indicators. */
+  availableConverters(): Converter[] {
+    return this.importerHelper
+      .getAvailableConverters()
+      .filter(this.importerHelper.filterConverters('indicator'));
+  }
+
+  availableDatasourceTypes(): DatasourceType[] {
+    return this.importerHelper.getAvailableDatasourceTypes();
+  }
+
+  /** Whether a row's converter declares the given parameter, i.e. renders a cell. */
+  rowHasConverterParameter(row: BatchRowFormGroup, name: string): boolean {
+    return !!row.controls.converterParameters.controls[name];
+  }
+
+  rowHasDatasourceParameter(row: BatchRowFormGroup, name: string): boolean {
+    return !!row.controls.datasourceTypeParameters.controls[name];
+  }
+
+  isFileDatasource(row: BatchRowFormGroup): boolean {
+    return row.controls.datasourceType.value?.type === 'FILE';
+  }
+
+  // ------------------------------------------------------ time-series mapping
+
+  toggleTimeseriesMapping(index: number): void {
+    this.expandedMappingRow.update((current) => (current === index ? null : index));
+  }
+
+  // ------------------------------------------------------------- file handling
+
+  onDataSourceFileSelected(event: Event, row: BatchRowFormGroup): void {
+    const input = event.target as HTMLInputElement;
+    row.controls.selectedFile.setValue(input.files?.[0] ?? null);
+  }
+
+  async onMappingTableSelected(event: Event, row: BatchRowFormGroup): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    row.controls.mappingTableName.setValue(file.name);
+
+    // `saveMappingObjectToFile()` writes the whole row, and so did the AngularJS
+    // original — so read it back the same way: a file carrying `mappingObj` is
+    // applied in full (converter resolved against the catalogue, data source,
+    // parameters, property mapping, target spatial unit). A bare time-series
+    // list stays supported for hand-written files.
+    try {
+      const parsed = await readJsonFile(file);
+      const fileRow = parsed as BatchListFileRow;
+      if (fileRow?.mappingObj) {
+        batchListFileRowToRow(row, fileRow, {
+          converters: this.availableConverters(),
+          datasourceTypes: this.availableDatasourceTypes(),
+          spatialUnits: this.spatialUnitStore.availableSpatialUnits ?? [],
+        });
+        // The picked file names the mapping table, not whatever the row was
+        // exported with.
+        row.controls.mappingTableName.setValue(file.name);
+        this.cdr.markForCheck();
+        return;
+      }
+      const mapping = (parsed as { timeseriesMappings?: unknown })?.timeseriesMappings ?? parsed;
+      if (isValidTimeseriesMappingList(mapping)) {
+        row.controls.timeseriesMappings.setValue(mapping as TimeseriesMapping[]);
+      }
+    } catch {
+      // Leave the row untouched; the file name still shows what was picked.
+    }
+  }
+
+  saveMappingObjectToFile(row: BatchRowFormGroup): void {
+    const indicatorName = this.indicatorName(row.controls.indicatorId.value) || 'unknown';
     downloadJson(
-      `indicator-mapping-${row.name?.indicatorName || 'unknown'}.json`,
-      JSON.stringify(mappingData, null, 2)
+      `indicator-mapping-${indicatorName}.json`,
+      JSON.stringify(batchRowToFileRow(row, this.spatialUnitStore), null, 2)
     );
   }
 
-  public startBatchUpdate(): void {
-    // TODO(batch-update): call the real batch-update backend for the assembled
-    // batchList and broadcast BatchUpdateCompleted with the actual response.
-    // No-op for now — the update is not implemented, so nothing is persisted.
-    // The previous implementation faked a success result, which was misleading.
+  loadIndicatorsBatchList(): void {
+    this.batchListFileInput?.nativeElement.click();
   }
 
-  public reopenResultModal(): void {
-    if (this.lastUpdateResponseObj) {
-      this.broadcastService.broadcast(
-        BroadcastMessage.ReopenBatchUpdateResultModal,
-        this.lastUpdateResponseObj
-      );
+  async onBatchListFileSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    this.loadingData.set(true);
+    try {
+      const parsed = await readJsonFile(file);
+      this.applyBatchListFile(Array.isArray(parsed) ? (parsed as BatchListFileRow[]) : []);
+    } catch (error) {
+      console.error('Error parsing batch list file:', error);
+    } finally {
+      this.loadingData.set(false);
     }
   }
 
-  private refreshNameColumn(): void {
-    // TODO(batch-update): refresh the indicator name-column dropdowns after the
-    // overview table reloaded. Not implemented yet.
-  }
+  private applyBatchListFile(fileRows: readonly BatchListFileRow[]): void {
+    while (this.rows.length > 0) {
+      this.removeRowAt(this.rows.length - 1);
+    }
 
-  // Helper methods for parameter conversion
-  private converterParametersArrayToProperties(converter: any): any {
-    const properties: any = {};
-    if (converter.parameters) {
-      converter.parameters.forEach((param: any) => {
-        const propertyName = this.getConverterParameterPropertyName(param.name);
-        if (propertyName) {
-          properties[propertyName] = param.value;
-        }
+    // The legacy format stored this per row although the importer takes it once
+    // per run; the first row that carries it wins.
+    const keepMissingValues = keepMissingValuesFromFile(fileRows);
+    if (keepMissingValues !== undefined) {
+      this.form.controls.keepMissingValues.setValue(keepMissingValues);
+    }
+
+    fileRows.forEach((fileRow) => {
+      this.addNewRowToBatchList();
+      batchListFileRowToRow(this.rows[this.rows.length - 1], fileRow, {
+        converters: this.availableConverters(),
+        datasourceTypes: this.availableDatasourceTypes(),
+        spatialUnits: this.spatialUnitStore.availableSpatialUnits ?? [],
       });
+    });
+
+    if (this.rows.length === 0) {
+      this.addNewRowToBatchList();
     }
-    return { ...converter, ...properties };
   }
 
-  private dataSourceParametersArrayToProperty(dataSource: any): any {
-    const properties: any = {};
-    if (dataSource.parameters) {
-      dataSource.parameters.forEach((param: any) => {
-        const propertyName = this.getDataSourceParameterPropertyName(param.name);
-        if (propertyName) {
-          properties[propertyName] = param.value;
-        }
-      });
-    }
-    return { ...dataSource, ...properties };
-  }
-
-  private getConverterParameterPropertyName(paramName: string): string | null {
-    const mapping: { [key: string]: string } = {
-      CRS: 'crs',
-      Hausnummer_Spaltenname: 'hnrColumnName',
-      Strasse_Spaltenname: 'streetColumnName',
-      Adresse_Spaltenname: 'addressColumnName',
-      Strasse_Hausnummer_Spaltenname: 'streetHnrColumnName',
-      X_Koordinatenspalte_Rechtswert: 'xCoordColumnName',
-      Y_Koordinatenspalte_Hochwert: 'yCoordColumnName',
-      Postleitzahl_Spaltenname: 'plzColumnName',
-      Stadt_Spaltenname: 'cityColumnName',
-      NAMESPACE: 'schemaNamespace',
-      SCHEMA_LOCATION: 'schemaLocation',
-      Trennzeichen: 'separator',
-    };
-    return mapping[paramName] || null;
-  }
-
-  private getDataSourceParameterPropertyName(paramName: string): string | null {
-    const mapping: { [key: string]: string } = {
-      NAME: 'name',
-      URL: 'url',
-      payload: 'payload',
-    };
-    return mapping[paramName] || null;
-  }
-
-  private getConverterObjectByName(_name: string): any {
-    // TODO(batch-update): resolve the converter object by name once a typed
-    // converter source is available. Returns null for now, so imported batch
-    // files do not populate selectedConverter.
-    return null;
-  }
-
-  private getDatasourceTypeObjectByType(_type: string): any {
-    // TODO(batch-update): resolve the datasource-type object by type once a
-    // typed source is available. Returns null for now, so imported batch files
-    // do not populate selectedDatasourceType.
-    return null;
-  }
-
-  private getSpatialUnitObjectByName(name: string): any {
-    // Implementation to get spatial unit object by name
-    if (this.spatialUnitStore.availableSpatialUnits) {
-      return this.spatialUnitStore.availableSpatialUnits.find((s) => s.spatialUnitLevel === name);
-    }
-    return null;
-  }
-
-  // Column visibility methods
-  public checkColumnsToShowSelectedConverter(): string[] {
-    const converters = this.batchList
-      .map((row) => row.selectedConverter?.name)
-      .filter((name) => name);
-
-    const columns: string[] = [];
-    if (converters.some((name) => name && name.includes('Tabelle_Zeitreihe_zu_Indikator'))) {
-      columns.push('Tabelle_Zeitreihe_zu_Indikator');
-    }
-    if (converters.some((name) => name && name.includes('WFS_v1'))) {
-      columns.push('WFS_v1');
-    }
-    return columns;
-  }
-
-  public checkIfSelectedDatasourceTypeIsFile(): boolean {
-    return this.batchList.some((row) => row.selectedDatasourceType?.type === 'FILE');
-  }
-
-  public checkIfSelectedDatasourceTypeIsHttp(): boolean {
-    return this.batchList.some((row) => row.selectedDatasourceType?.type === 'HTTP');
-  }
-
-  public checkIfSelectedDatasourceTypeIsInline(): boolean {
-    return this.batchList.some((row) => row.selectedDatasourceType?.type === 'INLINE');
-  }
-
-  public checkIfSelectedConverterIsCsvOnlyIndicator(): boolean {
-    return this.batchList.some((row) => row.selectedConverter?.name?.includes('csv_onlyIndicator'));
-  }
-
-  // Helper methods to get available options
-  public getAvailableConverters(): any[] {
-    // TODO(batch-update): supply the available importer converters. Empty for
-    // now, so the converter dropdowns render no options.
-    return [];
-  }
-
-  public getAvailableDatasourceTypes(): any[] {
-    // TODO(batch-update): supply the available importer datasource types. Empty
-    // for now, so the datasource dropdowns render no options.
-    return [];
-  }
-
-  // Default value function properties
-  public colDefaultFunctionSelectedColumn: string | null = null;
-  public colDefaultFunctionNewValue: any = undefined;
-  public colDefaultFunctionAllRowsChb: boolean = false;
-
-  public onClickSaveColDefaultValue(): void {
-    // TODO(batch-update): apply colDefaultFunctionNewValue to the selected
-    // column across the chosen rows. Not implemented yet.
-  }
-
-  public saveBatchListToFile(): void {
-    const batchData = this.batchList.map((item) => ({
-      name: item.name?.indicatorId || '',
-      mappingTableName: item.mappingTableName,
-      mappingObj: item.mappingObj,
-      isSelected: item.isSelected,
-    }));
-
-    downloadJson('indicator-batch-list.json', JSON.stringify(batchData, null, 2));
-  }
-
-  public checkIfNameAndFilesChosenInEachRow(): boolean {
-    // Check if each row has required fields filled
-    return (
-      this.batchList.length > 0 &&
-      this.batchList.every(
-        (row) =>
-          row.name &&
-          row.selectedConverter &&
-          row.selectedDatasourceType &&
-          row.mappingObj.propertyMapping.spatialReferenceKeyProperty &&
-          row.selectedTargetSpatialUnit
+  saveBatchListToFile(): void {
+    downloadJson(
+      'indicator-batch-list.json',
+      JSON.stringify(
+        this.rows.map((row) => batchRowToFileRow(row, this.spatialUnitStore)),
+        null,
+        2
       )
     );
   }
 
-  public resetBatchUpdateForm(): void {
-    this.batchList = [];
+  // ------------------------------------------------------------------ the run
+
+  /**
+   * Runs the whole list. As in the released client **every** row runs — the row
+   * checkbox drives deletion only, not selection for the run.
+   */
+  async startBatchUpdate(): Promise<void> {
+    if (this.runBlockers().length > 0) {
+      return;
+    }
+
+    const prepared = prepareBatchRows(this.form, {
+      // Looked up per run, not captured in the row: an earlier row of the same
+      // run may already have changed the indicator's metadata.
+      findIndicator: (indicatorId) => this.indicatorStore.getIndicatorMetadataById(indicatorId),
+      findSpatialUnitLevel: (spatialUnitId) =>
+        (this.spatialUnitStore.availableSpatialUnits ?? []).find(
+          (unit: any) => unit.spatialUnitId === spatialUnitId
+        )?.spatialUnitLevel,
+      builders: {
+        buildPropertyMapping: (spatialReferenceKeyProperty, timeseriesMappings, keepMissing) =>
+          this.importerHelper.buildPropertyMapping_indicatorResource(
+            spatialReferenceKeyProperty,
+            timeseriesMappings,
+            keepMissing
+          ),
+        buildPutBody: (scopeProperties) =>
+          this.importerHelper.buildPutBody_indicators(scopeProperties),
+      },
+    });
+
+    this.loadingData.set(true);
+    this.runProgress.set({ done: 0, total: prepared.rows.length });
+
+    try {
+      const results = await this.batchUpdateService.runBatchUpdate('indicator', prepared.rows, {
+        onProgress: (done, total) => this.runProgress.set({ done, total }),
+      });
+
+      this.finishRun([...prepared.failures, ...results]);
+    } finally {
+      this.loadingData.set(false);
+      this.runProgress.set(null);
+    }
+  }
+
+  private finishRun(results: BatchUpdateRowResult[]): void {
+    this.lastResults.set(results);
+
+    const summary = summariseBatchResults(results);
+    const message = this.translate.instant('ADMIN_INDICATORS.BATCH_MODAL.RUN_SUMMARY', summary);
+    if (summary.error > 0) {
+      this.notificationService.showError(message);
+    } else {
+      this.notificationService.showSuccess(message);
+    }
+
+    // A partially applied batch still changed data, so refresh either way.
+    if (summary.success > 0) {
+      this.refreshRequested.emit({ crudType: 'edit' });
+    }
+
+    this.openResultModal();
+  }
+
+  /**
+   * Shows the per-row result table. Opened on top of this modal — nesting an
+   * `NgbModal` inside an `NgbModal` is supported, but has no other precedent in
+   * this repo yet, so it is worth a look in the browser.
+   */
+  openResultModal(): void {
+    const results = this.lastResults();
+    if (!results) {
+      return;
+    }
+
+    const modalRef = this.modalService.open(BatchUpdateResultModalComponent, MODAL_FORM);
+    const instance = modalRef.componentInstance as BatchUpdateResultModalComponent;
+    instance.resourceType = 'indicator';
+    instance.results = results;
+
+    modalRef.result.catch(() => {
+      // Dismissed via backdrop or Escape.
+    });
+  }
+
+  resetBatchUpdateForm(): void {
+    while (this.rows.length > 0) {
+      this.removeRowAt(this.rows.length - 1);
+    }
+    this.form.controls.keepMissingValues.setValue(true);
+    this.expandedMappingRow.set(null);
+    this.lastResults.set(null);
     this.addNewRowToBatchList();
-    this.colDefaultFunctionSelectedColumn = null;
-    this.colDefaultFunctionNewValue = undefined;
-    this.colDefaultFunctionAllRowsChb = false;
   }
 
-  public closeModal(): void {
-    if (this.modalRef) {
-      this.modalRef.close();
+  // ------------------------------------------------------- default-value panel
+
+  /** The parsed target of the panel's column select, or null while unset. */
+  selectedColumnTarget(): BatchColumnTarget | null {
+    return parseColumnTarget(this.defaultValueForm.controls.column.value);
+  }
+
+  columnTargetValue(target: BatchColumnTarget): string {
+    return formatColumnTarget(target);
+  }
+
+  columnTargetLabelKey(target: BatchColumnTarget): string | null {
+    return columnTargetLabelKey(target);
+  }
+
+  columnTargetPlainLabel(target: BatchColumnTarget): string {
+    return columnTargetPlainLabel(target);
+  }
+
+  /** Text targets that are picked from a list rather than typed. */
+  columnTargetOptions(target: BatchColumnTarget | null): string[] {
+    if (target?.kind !== 'text') {
+      return [];
+    }
+    switch (target.control) {
+      case 'mimeType':
+        return unique(this.availableConverters().flatMap((converter) => converter.mimeTypes ?? []));
+      case 'encoding':
+        return unique(this.availableConverters().flatMap((converter) => converter.encodings ?? []));
+      case 'schema':
+        return unique(this.availableConverters().flatMap((converter) => converter.schemas ?? []));
+      default:
+        return [];
     }
   }
 
-  private handleKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
-      this.closeModal();
-    }
+  onChangeDefaultColumn(): void {
+    this.defaultValueForm.patchValue({
+      textValue: '',
+      converterValue: null,
+      datasourceTypeValue: null,
+      timeseriesMappings: [],
+    });
   }
+
+  onClickSaveColDefaultValue(): void {
+    const changed = applyColumnDefault(this.form, this.defaultValueForm);
+
+    this.notificationService.showSuccess(
+      this.translate.instant('ADMIN_INDICATORS.BATCH_MODAL.DEFAULT_APPLIED', { changed })
+    );
+  }
+
+  // ------------------------------------------------------------------ helpers
+
+  indicatorName(indicatorId: string): string {
+    return (
+      this.indicatorStore.availableIndicators?.find(
+        (indicator: any) => indicator.indicatorId === indicatorId
+      )?.indicatorName ?? ''
+    );
+  }
+
+  closeModal(): void {
+    this.modalRef?.close();
+  }
+}
+
+function unique(values: readonly string[]): string[] {
+  return [...new Set(values)];
 }

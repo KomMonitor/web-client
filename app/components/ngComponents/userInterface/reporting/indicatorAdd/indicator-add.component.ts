@@ -232,7 +232,8 @@ export class IndicatorAddComponent implements OnInit {
   abortPreparation = false;
   preparationNeeded = true;
 
-  // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
+  // Resolve the indicator precision from the current selection before
+  // delegating to IndicatorValueService.
   private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
     return this.indicatorValueService.getIndicatorValue_asNumber(
       indicatorValue,
@@ -582,13 +583,6 @@ export class IndicatorAddComponent implements OnInit {
   onBackToOverviewClicked() {
     this.reportingService.changeWorkflowState(this.workflowState.reportingOverview);
   }
-  /* 
-  $scope.filterTimeseriesIndicator = function(indicator) {
-    // must have more than one applicable date
-    return indicator.applicableDates && indicator.applicableDates.length > 1;
-    };
-  
-  */
 
   async onSelectedAreasChanged(newVal) {
     if (typeof this.reportingService.clonedTemplate === 'undefined') return;
@@ -1139,17 +1133,6 @@ export class IndicatorAddComponent implements OnInit {
     url += '/georesources/' + georesource.georesourceId + '/' + year + '/' + month + '/' + day;
 
     return this.httpClient.get(url);
-    // send request
-    /*  return await $http({
-      url: url,
-      method: "GET"
-    }).then(function successCallback(response) {
-        return response.data;
-      }, function errorCallback(error) {
-        $scope.loadingData = false;
-        kommonitorDataExchangeService.displayMapApplicationError(error);
-        console.error(error);
-    }); */
   }
 
   async onSpatialUnitChanged() {
@@ -1416,7 +1399,7 @@ export class IndicatorAddComponent implements OnInit {
 
   updateTimestampsDualList(data, selectedItems) {
     let dualListInput = data.map((el, i) => {
-      return { name: el.properties.NAME, id: i }; // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
+      return { name: el.properties.NAME, id: i }; // we need this as an object for IndicatorValueService.createDualListInputArray
     });
     dualListInput = this.indicatorValueService.createDualListInputArray(
       dualListInput,
@@ -1636,14 +1619,6 @@ export class IndicatorAddComponent implements OnInit {
     this.showResetIsochronesBtn = false;
   }
 
-  /* 
-  $('#reporting-modal').on('show.bs.modal', function (e) {
-    $scope.$broadcast("switchReportingMode", true);
-  })
-  $('#reporting-modal').on('hidden.bs.modal', function (e) {
-    $scope.$broadcast("switchReportingMode", false);
-  }) */
-
   //async
   async onPoiLayerSelected(poiLayer) {
     try {
@@ -1685,7 +1660,7 @@ export class IndicatorAddComponent implements OnInit {
       if (!this.selectedSpatialUnit) {
         this.selectedSpatialUnit = this.spatialUnitStore.availableSpatialUnits[0];
         this.spatialUnitSelect = new FormControl(this.selectedSpatialUnit);
-        await this.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
+        await this.updateAreasInDualList(); // this populates availableFeaturesBySpatialUnit
       }
 
       setTimeout(() => {
@@ -1753,7 +1728,7 @@ export class IndicatorAddComponent implements OnInit {
 
         // select all areas by default
         let areasListInput = allAreas.map((el, i) => {
-          return { name: el.properties.NAME, id: i }; // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
+          return { name: el.properties.NAME, id: i }; // we need this as an object for IndicatorValueService.createDualListInputArray
         });
         areasListInput = this.indicatorValueService.createDualListInputArray(
           areasListInput,
@@ -2145,7 +2120,7 @@ export class IndicatorAddComponent implements OnInit {
         }
 
         let areasListInput = allAreas.map((el, i) => {
-          return { name: el.properties.NAME, id: i }; // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
+          return { name: el.properties.NAME, id: i }; // we need this as an object for IndicatorValueService.createDualListInputArray
         });
         areasListInput = this.indicatorValueService.createDualListInputArray(
           areasListInput,
@@ -2154,7 +2129,7 @@ export class IndicatorAddComponent implements OnInit {
         );
 
         let timestampsListInput = availableTimestamps.map((el, i) => {
-          return { name: el.properties.NAME, id: i }; // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
+          return { name: el.properties.NAME, id: i }; // we need this as an object for IndicatorValueService.createDualListInputArray
         });
         timestampsListInput = this.indicatorValueService.createDualListInputArray(
           timestampsListInput,
@@ -2163,7 +2138,7 @@ export class IndicatorAddComponent implements OnInit {
         );
 
         let timestampsListSelected = mostRecentTimestamp.map((el, i) => {
-          return { name: el.properties.NAME, id: i }; // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
+          return { name: el.properties.NAME, id: i }; // we need this as an object for IndicatorValueService.createDualListInputArray
         });
         timestampsListSelected = this.indicatorValueService.createDualListInputArray(
           timestampsListSelected,
@@ -4368,41 +4343,6 @@ export class IndicatorAddComponent implements OnInit {
     }
     return pageNumber;
   }
-
-  /* 
-  $scope.getSeriesDataForTimestamp = function(geoJsonFeatures, timestamp, seriesData) {
-    // if parameter is present we want to keep it's properties
-    if(seriesData && seriesData.length) {
-      for(let dataEntry of seriesData) {
-        // just replace the value property
-        let feature = geoJsonFeatures.find( feature => {
-          return feature.properties.NAME === dataEntry.name;
-        });
-        dataEntry.value = feature.properties["DATE_" + timestamp]
-        if(typeof(dataEntry.value) == 'number') {
-          dataEntry.value = Math.round( dataEntry.value * 100) / 100;
-        }
-      }
-      return seriesData;
-
-    } else {
-      // seriesData is undefined, meaning we can create a new array
-      let result = [];
-      for(let feature of geoJsonFeatures) {
-        let obj = {};
-        obj.name = feature.properties.NAME;
-        let value = feature.properties["DATE_" + timestamp]
-        if(typeof(value) == 'number') {
-          value = Math.round( value * 100) / 100;
-        }
-        obj.value = value;
-
-        result.push(obj)
-      }
-      return result;
-    }
-  }
-  */
 
   calculateAndSetSeriesDataForTimeseries(features, fromDate, toDate) {
     for (const feature of features) {

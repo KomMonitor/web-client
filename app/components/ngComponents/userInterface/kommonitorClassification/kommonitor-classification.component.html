@@ -76,17 +76,6 @@
                   <div class="line"></div>
                 </div>
               }
-              <!-- measure of Value -->
-              <!--<div class="breakWrapper measureOfValue"
-              style="top: {{getPercentage(kommonitorDataExchangeServiceInstance.measureOfValue)}}%"
-              (mousedown)="onBreakMouseMove($event)">
-              <div class ="break">
-                <input type="number"
-                  [(ngModel)]="kommonitorDataExchangeServiceInstance.measureOfValue">
-                <i class="fa-regular fa-trash-can"></i>
-              </div>
-              <div class="line"></div>
-            </div>-->
               <!-- other breaks -->
               @for (b of classificationState.manualBrew.breaks; track b; let i = $index) {
                 <div

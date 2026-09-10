@@ -1,4 +1,5 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -10,10 +11,20 @@ import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hi
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { downloadJson, readJsonFile } from 'util/json-file.util';
 import {
-  buildResourceMetadataForm,
   patchMetadataFormFromApi,
+  ResourceMetadataFormGroup,
   ResourceMetadataFormValue,
 } from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
+import {
+  patchTopicHierarchyFromChain,
+  topicHierarchyToApi,
+  topicOptionsFor,
+} from '../../adminShared/topicHierarchyForm/topic-hierarchy-form.model';
+import {
+  buildIndicatorAddForm,
+  buildIndicatorReferenceDraftForm,
+} from './indicator-add-form.model';
+import { controlStateSignal } from '../../adminShared/forms/control-state';
 import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
 import { IndicatorClassificationStateService } from './indicator-classification-state.service';
 
@@ -64,17 +75,6 @@ export class IndicatorAddFormStateService {
   ]);
 
   // Form data
-  /**
-   * Bumped whenever an async code path rewrites plain form-state fields in
-   * bulk (metadata file import, owner-organization fetch). The OnPush wizard
-   * shell and step components mirror this via an `effect` + `markForCheck`,
-   * so their templates re-read the plain fields afterwards.
-   */
-  readonly stateRevision = signal(0);
-  private bumpStateRevision(): void {
-    this.stateRevision.update((revision) => revision + 1);
-  }
-
   // Signal-backed behind getter/setter shims: written across await boundaries
   // by the wizard shell while its OnPush template reads them.
   private readonly _loadingData = signal(false);
@@ -85,59 +85,274 @@ export class IndicatorAddFormStateService {
     this._loadingData.set(value);
   }
 
+  /**
+   * Typed model of the wizard, one child group per stepper step. The accessors
+   * below keep the historic property names working for the body builders, the
+   * step templates and the spec.
+   */
+  readonly addForm = buildIndicatorAddForm({
+    existingIndicators: () => (this.indicatorStore.availableIndicators ?? []) as any[],
+    // The edited dataset is a store object: its name lives in `indicatorName`.
+    currentDatasetName: () => this.editIndicatorDataset?.indicatorName ?? null,
+  });
+
+  private get basicStep() {
+    return this.addForm.controls.basic;
+  }
+
+  constructor() {
+    // The name uniqueness rule is scoped per indicator type, so a type change
+    // has to re-run it. The name control revalidates itself on its own change.
+    this.basicStep.controls.indicatorType.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.basicStep.controls.datasetName.updateValueAndValidity());
+
+    // Side effects that used to hang off (ngModelChange) in the step templates.
+    const security = this.addForm.controls.security;
+    security.controls.ownerOrgFilter.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.filterOrganizations());
+    security.controls.ownerOrganization.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.rebuildRoleManagementGrid());
+    this.addForm.controls.referenceValues.controls.comparisonValueType.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.onComparisonValueTypeChange());
+  }
+
   // Basic form data
-  datasetName = '';
-  datasetNameInvalid = false;
-  indicatorAbbreviation = '';
-  indicatorType: any = null;
-  isHeadlineIndicator = false;
-  indicatorUnit = '';
-  enableFreeTextUnit = false;
-  indicatorProcessDescription = '';
-  indicatorTagsString_withCommas = '';
-  indicatorInterpretation = '';
-  indicatorCreationType: any = null;
-  indicatorLowestSpatialUnitMetadataObjectForComputation: any = null;
-  enableLowestSpatialUnitSelect = false;
-  indicatorPrecision: any = null;
-  showCustomCommaValue = false;
+  get datasetName(): string {
+    return this.basicStep.controls.datasetName.value;
+  }
+  set datasetName(value: string) {
+    this.basicStep.controls.datasetName.setValue(value ?? '');
+  }
+  /**
+   * Signal-backed, because step 1 reads it in an `@if`: the uniqueness verdict
+   * also flips from the asynchronous metadata-file import, which writes the
+   * name control without any DOM event to re-render the OnPush view.
+   */
+  private readonly datasetNameNotUnique = controlStateSignal(
+    this.basicStep.controls.datasetName,
+    () => this.basicStep.controls.datasetName.hasError('uniqueName')
+  );
+  get datasetNameInvalid(): boolean {
+    return this.datasetNameNotUnique();
+  }
+  get indicatorAbbreviation(): string {
+    return this.basicStep.controls.indicatorAbbreviation.value;
+  }
+  set indicatorAbbreviation(value: string) {
+    this.basicStep.controls.indicatorAbbreviation.setValue(value ?? '');
+  }
+  /** Signal-backed: step 5 branches on it, and the metadata import sets it. */
+  private readonly indicatorTypeValue = controlStateSignal(
+    this.basicStep.controls.indicatorType,
+    () => this.basicStep.controls.indicatorType.value
+  );
+  get indicatorType(): any {
+    return this.indicatorTypeValue();
+  }
+  set indicatorType(value: any) {
+    this.basicStep.controls.indicatorType.setValue(value ?? null);
+  }
+  get isHeadlineIndicator(): boolean {
+    return this.basicStep.controls.isHeadlineIndicator.value;
+  }
+  set isHeadlineIndicator(value: boolean) {
+    this.basicStep.controls.isHeadlineIndicator.setValue(!!value);
+  }
+  get indicatorUnit(): string {
+    return this.basicStep.controls.indicatorUnit.value;
+  }
+  set indicatorUnit(value: string) {
+    this.basicStep.controls.indicatorUnit.setValue(value ?? '');
+  }
+  get enableFreeTextUnit(): boolean {
+    return this.basicStep.controls.enableFreeTextUnit.value;
+  }
+  set enableFreeTextUnit(value: boolean) {
+    this.basicStep.controls.enableFreeTextUnit.setValue(!!value);
+  }
+  get indicatorProcessDescription(): string {
+    return this.basicStep.controls.indicatorProcessDescription.value;
+  }
+  set indicatorProcessDescription(value: string) {
+    this.basicStep.controls.indicatorProcessDescription.setValue(value ?? '');
+  }
+  get indicatorTagsString_withCommas(): string {
+    return this.basicStep.controls.indicatorTagsString_withCommas.value;
+  }
+  set indicatorTagsString_withCommas(value: string) {
+    this.basicStep.controls.indicatorTagsString_withCommas.setValue(value ?? '');
+  }
+  get indicatorInterpretation(): string {
+    return this.basicStep.controls.indicatorInterpretation.value;
+  }
+  set indicatorInterpretation(value: string) {
+    this.basicStep.controls.indicatorInterpretation.setValue(value ?? '');
+  }
+  get indicatorCreationType(): any {
+    return this.basicStep.controls.indicatorCreationType.value;
+  }
+  set indicatorCreationType(value: any) {
+    this.basicStep.controls.indicatorCreationType.setValue(value ?? null);
+  }
+  get indicatorLowestSpatialUnitMetadataObjectForComputation(): any {
+    return this.basicStep.controls.indicatorLowestSpatialUnitMetadataObjectForComputation.value;
+  }
+  set indicatorLowestSpatialUnitMetadataObjectForComputation(value: any) {
+    this.basicStep.controls.indicatorLowestSpatialUnitMetadataObjectForComputation.setValue(
+      value ?? null
+    );
+  }
+  get enableLowestSpatialUnitSelect(): boolean {
+    return this.basicStep.controls.enableLowestSpatialUnitSelect.value;
+  }
+  set enableLowestSpatialUnitSelect(value: boolean) {
+    this.basicStep.controls.enableLowestSpatialUnitSelect.setValue(!!value);
+  }
+  get indicatorPrecision(): any {
+    return this.basicStep.controls.indicatorPrecision.value;
+  }
+  set indicatorPrecision(value: any) {
+    this.basicStep.controls.indicatorPrecision.setValue(value ?? null);
+  }
+  get showCustomCommaValue(): boolean {
+    return this.basicStep.controls.showCustomCommaValue.value;
+  }
+  set showCustomCommaValue(value: boolean) {
+    this.basicStep.controls.showCustomCommaValue.setValue(!!value);
+  }
+  get indicatorReferenceDateNote(): string {
+    return this.basicStep.controls.indicatorReferenceDateNote.value;
+  }
+  set indicatorReferenceDateNote(value: string) {
+    this.basicStep.controls.indicatorReferenceDateNote.setValue(value ?? '');
+  }
 
   // Metadata
-  metadataForm = buildResourceMetadataForm();
+  /**
+   * The shared "Allgemeine Metadaten" block. Returns the same instance on every
+   * call — never rebuild it here.
+   */
+  get metadataForm(): ResourceMetadataFormGroup {
+    return this.addForm.controls.general;
+  }
   /** Read-only view of the metadata form value for post-/patch-body building. */
   get metadata(): ResourceMetadataFormValue {
     return this.metadataForm.getRawValue();
   }
 
-  // References
-  indicatorReferences_adminView: any[] = [];
-  indicatorReferences_apiRequest: any[] = [];
-  georesourceReferences_adminView: any[] = [];
-  georesourceReferences_apiRequest: any[] = [];
+  // References. The former `*_apiRequest` twins are gone: both the POST body
+  // and the metadata export derive the API shape from the admin view.
+  // Signal-backed shims: step 4 iterates both lists, and the metadata import
+  // rewrites them after an await. Every write below replaces the array instead
+  // of mutating it in place, so the signal actually notifies.
+  private readonly _indicatorReferences_adminView = signal<any[]>([]);
+  get indicatorReferences_adminView(): any[] {
+    return this._indicatorReferences_adminView();
+  }
+  set indicatorReferences_adminView(value: any[]) {
+    this._indicatorReferences_adminView.set(value ?? []);
+  }
+  private readonly _georesourceReferences_adminView = signal<any[]>([]);
+  get georesourceReferences_adminView(): any[] {
+    return this._georesourceReferences_adminView();
+  }
+  set georesourceReferences_adminView(value: any[]) {
+    this._georesourceReferences_adminView.set(value ?? []);
+  }
 
-  // Topic hierarchy
-  indicatorTopic_mainTopic: any = null;
-  indicatorTopic_subTopic: any = null;
-  indicatorTopic_subsubTopic: any = null;
-  indicatorTopic_subsubsubTopic: any = null;
+  // Topic hierarchy. `indicatorTopic_*` (payload side) and `selected*Topic*`
+  // (UI side) used to be two parallel field sets kept in sync by hand; both are
+  // views of the shared four-level cascade now.
+  get indicatorTopic_mainTopic(): any {
+    return this.addForm.controls.topics.controls.mainTopic.value;
+  }
+  set indicatorTopic_mainTopic(value: any) {
+    this.addForm.controls.topics.controls.mainTopic.setValue(value ?? null);
+  }
+  get indicatorTopic_subTopic(): any {
+    return this.addForm.controls.topics.controls.subTopic.value;
+  }
+  set indicatorTopic_subTopic(value: any) {
+    this.addForm.controls.topics.controls.subTopic.setValue(value ?? null);
+  }
+  get indicatorTopic_subsubTopic(): any {
+    return this.addForm.controls.topics.controls.subsubTopic.value;
+  }
+  set indicatorTopic_subsubTopic(value: any) {
+    this.addForm.controls.topics.controls.subsubTopic.setValue(value ?? null);
+  }
+  get indicatorTopic_subsubsubTopic(): any {
+    return this.addForm.controls.topics.controls.subsubsubTopic.value;
+  }
+  set indicatorTopic_subsubsubTopic(value: any) {
+    this.addForm.controls.topics.controls.subsubsubTopic.setValue(value ?? null);
+  }
 
-  // Step 3: Topic Hierarchy
-  selectedTopic: any = null;
-  selectedSubTopic: any = null;
-  selectedSubSubTopic: any = null;
-  selectedSubSubSubTopic: any = null;
-  availableSubTopics: any[] = [];
-  availableSubSubTopics: any[] = [];
-  availableSubSubSubTopics: any[] = [];
+  // Step 3: Topic Hierarchy — the shared four-level cascade.
+  get selectedTopic(): any {
+    return this.addForm.controls.topics.controls.mainTopic.value;
+  }
+  set selectedTopic(value: any) {
+    this.addForm.controls.topics.controls.mainTopic.setValue(value ?? null);
+  }
+  get selectedSubTopic(): any {
+    return this.addForm.controls.topics.controls.subTopic.value;
+  }
+  set selectedSubTopic(value: any) {
+    this.addForm.controls.topics.controls.subTopic.setValue(value ?? null);
+  }
+  get selectedSubSubTopic(): any {
+    return this.addForm.controls.topics.controls.subsubTopic.value;
+  }
+  set selectedSubSubTopic(value: any) {
+    this.addForm.controls.topics.controls.subsubTopic.setValue(value ?? null);
+  }
+  get selectedSubSubSubTopic(): any {
+    return this.addForm.controls.topics.controls.subsubsubTopic.value;
+  }
+  set selectedSubSubSubTopic(value: any) {
+    this.addForm.controls.topics.controls.subsubsubTopic.setValue(value ?? null);
+  }
+  // Option lists per level, derived from the level above.
+  get availableSubTopics(): any[] {
+    return [...topicOptionsFor(this.addForm.controls.topics, 'subTopic', this.availableTopics)];
+  }
+  get availableSubSubTopics(): any[] {
+    return [...topicOptionsFor(this.addForm.controls.topics, 'subsubTopic', this.availableTopics)];
+  }
+  get availableSubSubSubTopics(): any[] {
+    return [
+      ...topicOptionsFor(this.addForm.controls.topics, 'subsubsubTopic', this.availableTopics),
+    ];
+  }
   additionalTopic: any = null;
   additionalSubTopic: any = null;
   additionalSubTopics: any[] = [];
   additionalTopicAssignments: Array<{ topic: any; subTopic: any }> = [];
 
   // Role management
-  ownerOrganization: any = null;
-  ownerOrgFilter = '';
-  isPublic = false;
+  get ownerOrganization(): any {
+    return this.addForm.controls.security.controls.ownerOrganization.value;
+  }
+  set ownerOrganization(value: any) {
+    this.addForm.controls.security.controls.ownerOrganization.setValue(value ?? null);
+  }
+  get ownerOrgFilter(): string {
+    return this.addForm.controls.security.controls.ownerOrgFilter.value;
+  }
+  set ownerOrgFilter(value: string) {
+    this.addForm.controls.security.controls.ownerOrgFilter.setValue(value ?? '');
+  }
+  get isPublic(): boolean {
+    return this.addForm.controls.security.controls.isPublic.value;
+  }
+  set isPublic(value: boolean) {
+    this.addForm.controls.security.controls.isPublic.setValue(!!value);
+  }
 
   // The role grid is the shared <app-role-management-grid> rendered by the step-7
   // access component. Because the step components are created/destroyed while
@@ -145,7 +360,17 @@ export class IndicatorAddFormStateService {
   // it on destroy; the selection is harvested into `storedPermissionIds` so it
   // survives leaving the step. The grid only appears once an owner organization is
   // chosen (`showRoleForm`), mirroring the sibling spatial-unit/georesource add modals.
-  showRoleForm = false;
+  //
+  // Signal-backed shim: step 7 gates two blocks on it and it is flipped by
+  // `rebuildRoleManagementGrid()`, which also runs from the asynchronous
+  // access-control fetch.
+  private readonly _showRoleForm = signal(false);
+  get showRoleForm(): boolean {
+    return this._showRoleForm();
+  }
+  set showRoleForm(value: boolean) {
+    this._showRoleForm.set(!!value);
+  }
   private attachedRoleGrid: RoleManagementGridComponent | null = null;
   private storedPermissionIds: string[] | null = null;
 
@@ -186,26 +411,104 @@ export class IndicatorAddFormStateService {
   availableTopics: any[] = [];
 
   // Step 6: Regional Comparison Values
-  comparisonValueType: string | null = null;
-  comparisonValue: number | null = null;
-  comparisonRegion: string | null = null;
-  comparisonTimeframe: string | null = null;
-  comparisonDescription = '';
-  evaluationDirection: string | null = null;
-  toleranceRange: number | null = null;
+  private get referenceValuesStep() {
+    return this.addForm.controls.referenceValues;
+  }
+  get comparisonValueType(): string | null {
+    return this.referenceValuesStep.controls.comparisonValueType.value;
+  }
+  set comparisonValueType(value: string | null) {
+    this.referenceValuesStep.controls.comparisonValueType.setValue(value ?? null);
+  }
+  get comparisonValue(): number | null {
+    return this.referenceValuesStep.controls.comparisonValue.value;
+  }
+  set comparisonValue(value: number | null) {
+    this.referenceValuesStep.controls.comparisonValue.setValue(value ?? null);
+  }
+  get comparisonRegion(): string | null {
+    return this.referenceValuesStep.controls.comparisonRegion.value;
+  }
+  set comparisonRegion(value: string | null) {
+    this.referenceValuesStep.controls.comparisonRegion.setValue(value ?? null);
+  }
+  get comparisonTimeframe(): string | null {
+    return this.referenceValuesStep.controls.comparisonTimeframe.value;
+  }
+  set comparisonTimeframe(value: string | null) {
+    this.referenceValuesStep.controls.comparisonTimeframe.setValue(value ?? null);
+  }
+  get comparisonDescription(): string {
+    return this.referenceValuesStep.controls.comparisonDescription.value;
+  }
+  set comparisonDescription(value: string) {
+    this.referenceValuesStep.controls.comparisonDescription.setValue(value ?? '');
+  }
+  get evaluationDirection(): string | null {
+    return this.referenceValuesStep.controls.evaluationDirection.value;
+  }
+  set evaluationDirection(value: string | null) {
+    this.referenceValuesStep.controls.evaluationDirection.setValue(value ?? null);
+  }
+  get toleranceRange(): number | null {
+    return this.referenceValuesStep.controls.toleranceRange.value;
+  }
+  set toleranceRange(value: number | null) {
+    this.referenceValuesStep.controls.toleranceRange.setValue(value ?? null);
+  }
 
-  // Additional comparison values
-  additionalComparisonType: string | null = null;
-  additionalComparisonValue: number | null = null;
-  additionalComparisonDescription = '';
+  // Additional comparison values (staging row + the collected list)
+  get additionalComparisonType(): string | null {
+    return this.referenceValuesStep.controls.additionalComparisonType.value;
+  }
+  set additionalComparisonType(value: string | null) {
+    this.referenceValuesStep.controls.additionalComparisonType.setValue(value ?? null);
+  }
+  get additionalComparisonValue(): number | null {
+    return this.referenceValuesStep.controls.additionalComparisonValue.value;
+  }
+  set additionalComparisonValue(value: number | null) {
+    this.referenceValuesStep.controls.additionalComparisonValue.setValue(value ?? null);
+  }
+  get additionalComparisonDescription(): string {
+    return this.referenceValuesStep.controls.additionalComparisonDescription.value;
+  }
+  set additionalComparisonDescription(value: string) {
+    this.referenceValuesStep.controls.additionalComparisonDescription.setValue(value ?? '');
+  }
   additionalComparisonValues: Array<{ type: string; value: number; description: string }> = [];
 
   // Benchmarking configuration
-  enableBenchmarking = false;
-  benchmarkingVisualizationType: string | null = null;
-  greenThreshold: number | null = null;
-  yellowThreshold: number | null = null;
-  redThreshold: number | null = null;
+  get enableBenchmarking(): boolean {
+    return this.referenceValuesStep.controls.enableBenchmarking.value;
+  }
+  set enableBenchmarking(value: boolean) {
+    this.referenceValuesStep.controls.enableBenchmarking.setValue(!!value);
+  }
+  get benchmarkingVisualizationType(): string | null {
+    return this.referenceValuesStep.controls.benchmarkingVisualizationType.value;
+  }
+  set benchmarkingVisualizationType(value: string | null) {
+    this.referenceValuesStep.controls.benchmarkingVisualizationType.setValue(value ?? null);
+  }
+  get greenThreshold(): number | null {
+    return this.referenceValuesStep.controls.greenThreshold.value;
+  }
+  set greenThreshold(value: number | null) {
+    this.referenceValuesStep.controls.greenThreshold.setValue(value ?? null);
+  }
+  get yellowThreshold(): number | null {
+    return this.referenceValuesStep.controls.yellowThreshold.value;
+  }
+  set yellowThreshold(value: number | null) {
+    this.referenceValuesStep.controls.yellowThreshold.setValue(value ?? null);
+  }
+  get redThreshold(): number | null {
+    return this.referenceValuesStep.controls.redThreshold.value;
+  }
+  set redThreshold(value: number | null) {
+    this.referenceValuesStep.controls.redThreshold.setValue(value ?? null);
+  }
 
   // Step 7: Access Control and Ownership
   // Base list of organizations the user may assign as owner (full accessControl
@@ -222,22 +525,82 @@ export class IndicatorAddFormStateService {
     this._filteredOrganizations.set(value);
   }
 
-  // Advanced access control
-  enableTimeRestrictedAccess = false;
-  enableGeographicRestriction = false;
-  accessStartDate = '';
-  accessEndDate = '';
-  allowedRegions: any[] = [];
+  // Advanced access control. Bound in the step-7 template but never part of the
+  // payload — kept so the template keeps working, not because the API reads it.
+  private get securityStep() {
+    return this.addForm.controls.security;
+  }
+  get enableTimeRestrictedAccess(): boolean {
+    return this.securityStep.controls.enableTimeRestrictedAccess.value;
+  }
+  set enableTimeRestrictedAccess(value: boolean) {
+    this.securityStep.controls.enableTimeRestrictedAccess.setValue(!!value);
+  }
+  get enableGeographicRestriction(): boolean {
+    return this.securityStep.controls.enableGeographicRestriction.value;
+  }
+  set enableGeographicRestriction(value: boolean) {
+    this.securityStep.controls.enableGeographicRestriction.setValue(!!value);
+  }
+  get accessStartDate(): string {
+    return this.securityStep.controls.accessStartDate.value;
+  }
+  set accessStartDate(value: string) {
+    this.securityStep.controls.accessStartDate.setValue(value ?? '');
+  }
+  get accessEndDate(): string {
+    return this.securityStep.controls.accessEndDate.value;
+  }
+  set accessEndDate(value: string) {
+    this.securityStep.controls.accessEndDate.setValue(value ?? '');
+  }
+  get allowedRegions(): any[] {
+    return this.securityStep.controls.allowedRegions.value;
+  }
+  set allowedRegions(value: any[]) {
+    this.securityStep.controls.allowedRegions.setValue(value ?? []);
+  }
   availableRegions: any[] = [];
-  enableAccessLogging = false;
+  get enableAccessLogging(): boolean {
+    return this.securityStep.controls.enableAccessLogging.value;
+  }
+  set enableAccessLogging(value: boolean) {
+    this.securityStep.controls.enableAccessLogging.setValue(!!value);
+  }
 
   // Temporary variables for references
   indicatorNameFilter = '';
-  tmpIndicatorReference_selectedIndicatorMetadata: any = null;
-  tmpIndicatorReference_referenceDescription = '';
+  /**
+   * Staging rows of the two reference tables. Deliberately outside `addForm`:
+   * they are not submitted, and their required rules must not gate the wizard.
+   */
+  readonly indicatorReferenceDraft = buildIndicatorReferenceDraftForm();
+  readonly georesourceReferenceDraft = buildIndicatorReferenceDraftForm();
+  get tmpIndicatorReference_selectedIndicatorMetadata(): any {
+    return this.indicatorReferenceDraft.controls.selected.value;
+  }
+  set tmpIndicatorReference_selectedIndicatorMetadata(value: any) {
+    this.indicatorReferenceDraft.controls.selected.setValue(value ?? null);
+  }
+  get tmpIndicatorReference_referenceDescription(): string {
+    return this.indicatorReferenceDraft.controls.referenceDescription.value;
+  }
+  set tmpIndicatorReference_referenceDescription(value: string) {
+    this.indicatorReferenceDraft.controls.referenceDescription.setValue(value ?? '');
+  }
   georesourceNameFilter = '';
-  tmpGeoresourceReference_selectedGeoresourceMetadata: any = null;
-  tmpGeoresourceReference_referenceDescription = '';
+  get tmpGeoresourceReference_selectedGeoresourceMetadata(): any {
+    return this.georesourceReferenceDraft.controls.selected.value;
+  }
+  set tmpGeoresourceReference_selectedGeoresourceMetadata(value: any) {
+    this.georesourceReferenceDraft.controls.selected.setValue(value ?? null);
+  }
+  get tmpGeoresourceReference_referenceDescription(): string {
+    return this.georesourceReferenceDraft.controls.referenceDescription.value;
+  }
+  set tmpGeoresourceReference_referenceDescription(value: string) {
+    this.georesourceReferenceDraft.controls.referenceDescription.setValue(value ?? '');
+  }
 
   // Step 4: Filtered lists for references
   filteredIndicators: any[] = [];
@@ -246,8 +609,6 @@ export class IndicatorAddFormStateService {
   // Post body
   postBody_indicators: any = null;
 
-  // Reference date
-  indicatorReferenceDateNote = '';
   displayOrder = 0;
 
   loadInitialData() {
@@ -310,20 +671,12 @@ export class IndicatorAddFormStateService {
     this.classification.onNumClassesChanged(this.classification.numClassesPerSpatialUnit());
   }
 
+  /**
+   * The rule is `indicatorNameUniqueValidator` on the control now — it reads the
+   * sibling indicator-type control, so a type change has to re-run it too.
+   */
   checkDatasetName() {
-    this.datasetNameInvalid = false;
-
-    if (this.datasetName && this.indicatorType && this.indicatorStore.availableIndicators) {
-      this.indicatorStore.availableIndicators.forEach((indicator: any) => {
-        if (
-          indicator.datasetName === this.datasetName &&
-          indicator.indicatorType === this.indicatorType.apiName
-        ) {
-          this.datasetNameInvalid = true;
-          return;
-        }
-      });
-    }
+    this.addForm.controls.basic.controls.datasetName.updateValueAndValidity();
   }
 
   // Reference management methods
@@ -337,24 +690,17 @@ export class IndicatorAddFormStateService {
         referenceDescription: this.tmpIndicatorReference_referenceDescription,
       };
 
-      let processed = false;
-      for (let index = 0; index < this.indicatorReferences_adminView.length; index++) {
-        const indicatorReference = this.indicatorReferences_adminView[index];
-        if (
-          indicatorReference.indicatorMetadata.indicatorId ===
-          tmpReference.indicatorMetadata.indicatorId
-        ) {
-          // replace object
-          this.indicatorReferences_adminView[index] = tmpReference;
-          processed = true;
-          break;
-        }
+      const existing = this.indicatorReferences_adminView.findIndex(
+        (reference) =>
+          reference.indicatorMetadata.indicatorId === tmpReference.indicatorMetadata.indicatorId
+      );
+      const references = [...this.indicatorReferences_adminView];
+      if (existing === -1) {
+        references.push(tmpReference);
+      } else {
+        references[existing] = tmpReference;
       }
-
-      if (!processed) {
-        // new entry
-        this.indicatorReferences_adminView.push(tmpReference);
-      }
+      this.indicatorReferences_adminView = references;
 
       this.tmpIndicatorReference_selectedIndicatorMetadata = null;
       this.tmpIndicatorReference_referenceDescription = '';
@@ -367,15 +713,14 @@ export class IndicatorAddFormStateService {
   }
 
   onClickDeleteIndicatorReference(indicatorReference: any) {
-    for (let index = 0; index < this.indicatorReferences_adminView.length; index++) {
-      if (
-        this.indicatorReferences_adminView[index].indicatorMetadata.indicatorId ===
-        indicatorReference.indicatorMetadata.indicatorId
-      ) {
-        // remove object
-        this.indicatorReferences_adminView.splice(index, 1);
-        break;
-      }
+    const index = this.indicatorReferences_adminView.findIndex(
+      (reference) =>
+        reference.indicatorMetadata.indicatorId === indicatorReference.indicatorMetadata.indicatorId
+    );
+    if (index !== -1) {
+      const references = [...this.indicatorReferences_adminView];
+      references.splice(index, 1);
+      this.indicatorReferences_adminView = references;
     }
   }
 
@@ -389,24 +734,18 @@ export class IndicatorAddFormStateService {
         referenceDescription: this.tmpGeoresourceReference_referenceDescription,
       };
 
-      let processed = false;
-      for (let index = 0; index < this.georesourceReferences_adminView.length; index++) {
-        const georesourceReference = this.georesourceReferences_adminView[index];
-        if (
-          georesourceReference.georesourceMetadata.georesourceId ===
+      const existing = this.georesourceReferences_adminView.findIndex(
+        (reference) =>
+          reference.georesourceMetadata.georesourceId ===
           tmpReference.georesourceMetadata.georesourceId
-        ) {
-          // replace object
-          this.georesourceReferences_adminView[index] = tmpReference;
-          processed = true;
-          break;
-        }
+      );
+      const references = [...this.georesourceReferences_adminView];
+      if (existing === -1) {
+        references.push(tmpReference);
+      } else {
+        references[existing] = tmpReference;
       }
-
-      if (!processed) {
-        // new entry
-        this.georesourceReferences_adminView.push(tmpReference);
-      }
+      this.georesourceReferences_adminView = references;
 
       this.tmpGeoresourceReference_selectedGeoresourceMetadata = null;
       this.tmpGeoresourceReference_referenceDescription = '';
@@ -420,111 +759,33 @@ export class IndicatorAddFormStateService {
   }
 
   onClickDeleteGeoresourceReference(georesourceReference: any) {
-    for (let index = 0; index < this.georesourceReferences_adminView.length; index++) {
-      if (
-        this.georesourceReferences_adminView[index].georesourceMetadata.georesourceId ===
+    const index = this.georesourceReferences_adminView.findIndex(
+      (reference) =>
+        reference.georesourceMetadata.georesourceId ===
         georesourceReference.georesourceMetadata.georesourceId
-      ) {
-        // remove object
-        this.georesourceReferences_adminView.splice(index, 1);
-        break;
-      }
+    );
+    if (index !== -1) {
+      const references = [...this.georesourceReferences_adminView];
+      references.splice(index, 1);
+      this.georesourceReferences_adminView = references;
     }
-  }
-
-  // Build post body for API request
-  buildPostBody_indicators() {
-    // Convert references to API format
-    this.convertReferencesToApiFormat();
-
-    const postBody: any = {
-      datasetName: this.datasetName,
-      abbreviation: this.indicatorAbbreviation,
-      indicatorType: this.indicatorType?.apiName,
-      isHeadlineIndicator: this.isHeadlineIndicator,
-      unit: this.indicatorUnit,
-      processDescription: this.indicatorProcessDescription,
-      interpretation: this.indicatorInterpretation,
-      creationType: this.indicatorCreationType?.apiName,
-      lowestSpatialUnitForComputation:
-        this.indicatorLowestSpatialUnitMetadataObjectForComputation?.spatialUnitLevel,
-      referenceDateNote: this.indicatorReferenceDateNote,
-      displayOrder: this.displayOrder,
-      metadata: {
-        note: this.metadata.note,
-        literature: this.metadata.literature,
-        updateInterval: this.metadata.updateInterval?.apiName,
-        sridEPSG: this.metadata.sridEPSG,
-        datasource: this.metadata.datasource,
-        contact: this.metadata.contact,
-        lastUpdate: this.metadata.lastUpdate,
-        description: this.metadata.description,
-        databasis: this.metadata.databasis,
-      },
-      allowedRoles: [] as string[],
-      refrencesToOtherIndicators: this.indicatorReferences_apiRequest,
-      refrencesToGeoresources: this.georesourceReferences_apiRequest,
-      defaultClassificationMapping: {
-        colorBrewerSchemeName: this.classification.selectedColorBrewerPaletteEntry()?.paletteName,
-        numClasses: this.classification.numClassesPerSpatialUnit(),
-        classificationMethod: this.classification.classificationMethod(),
-        items: this.classification.spatialUnitClassification().map((classification) => ({
-          spatialUnit: classification.spatialUnitId,
-          breaks: classification.breaks.filter((breakVal) => breakVal !== null),
-        })),
-      },
-    };
-
-    // Add topic reference if selected
-    if (this.indicatorTopic_subsubsubTopic) {
-      postBody.topicReference = this.indicatorTopic_subsubsubTopic.topicId;
-    } else if (this.indicatorTopic_subsubTopic) {
-      postBody.topicReference = this.indicatorTopic_subsubTopic.topicId;
-    } else if (this.indicatorTopic_subTopic) {
-      postBody.topicReference = this.indicatorTopic_subTopic.topicId;
-    } else if (this.indicatorTopic_mainTopic) {
-      postBody.topicReference = this.indicatorTopic_mainTopic.topicId;
-    }
-
-    // Add tags if provided
-    if (this.indicatorTagsString_withCommas) {
-      postBody.tags = this.indicatorTagsString_withCommas
-        .split(',')
-        .map((tag: string) => tag.trim());
-    }
-
-    // Add precision if custom value is enabled
-    if (this.showCustomCommaValue && this.indicatorPrecision !== null) {
-      postBody.precision = this.indicatorPrecision;
-    }
-
-    // Add role permissions
-    postBody.allowedRoles.push(...this.getSelectedRoleIds());
-
-    return postBody;
   }
 
   /**
    * Builds the POST body strictly following the KomMonitor Data Management API v3
-   * schema `IndicatorPOSTInputType` (verified against the OpenAPI docs). Unlike
-   * {@link buildPostBody_indicators} this method:
+   * schema `IndicatorPOSTInputType` (verified against the OpenAPI docs). It
    *  - sends every required field unconditionally (`tags`, `topicReference`,
    *    `characteristicValue`, `ownerId`, `isPublic`, `permissions`),
-   *  - uses the correct field names (`permissions` not `allowedRoles`,
-   *    classification item key `spatialUnitId` not `spatialUnit`),
    *  - uppercases `classificationMethod` to match the API enum,
    *  - emits references in the `{ indicatorId | georesourceId, referenceDescription }`
    *    shape, built directly from the admin-view lists (no shared state).
-   * Kept alongside the legacy builder so both can be compared against the live API.
+   *
+   * A second, pre-v3 builder used to live next to it for comparison; it was
+   * never called and named the permission field `allowedRoles`, so it is gone.
    */
   buildPostBody_indicators_v3() {
     // Resolve the selected topic id from the deepest selected hierarchy level.
-    const topicReference =
-      this.indicatorTopic_subsubsubTopic?.topicId ??
-      this.indicatorTopic_subsubTopic?.topicId ??
-      this.indicatorTopic_subTopic?.topicId ??
-      this.indicatorTopic_mainTopic?.topicId ??
-      '';
+    const topicReference = topicHierarchyToApi(this.addForm.controls.topics);
 
     // Tags: always an array (required field), empty when none entered.
     const tags = this.indicatorTagsString_withCommas
@@ -695,7 +956,6 @@ export class IndicatorAddFormStateService {
 
     // Step 1 — basic metadata
     this.datasetName = dataset.indicatorName ?? '';
-    this.datasetNameInvalid = false;
     this.indicatorAbbreviation = dataset.abbreviation ?? '';
     this.isHeadlineIndicator = dataset.isHeadlineIndicator ?? false;
     this.indicatorUnit = dataset.unit ?? '';
@@ -754,37 +1014,17 @@ export class IndicatorAddFormStateService {
     this.selectedSubTopic = null;
     this.selectedSubSubTopic = null;
     this.selectedSubSubSubTopic = null;
-    this.availableSubTopics = [];
-    this.availableSubSubTopics = [];
-    this.availableSubSubSubTopics = [];
     const topicHierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(
       this.topicStore.availableTopics,
       dataset.topicReference
     );
-    if (topicHierarchy?.[0]) {
-      this.indicatorTopic_mainTopic = topicHierarchy[0];
-      this.selectedTopic = topicHierarchy[0];
-      this.availableSubTopics = topicHierarchy[0].subTopics ?? [];
-    }
-    if (topicHierarchy?.[1]) {
-      this.indicatorTopic_subTopic = topicHierarchy[1];
-      this.selectedSubTopic = topicHierarchy[1];
-      this.availableSubSubTopics = topicHierarchy[1].subTopics ?? [];
-    }
-    if (topicHierarchy?.[2]) {
-      this.indicatorTopic_subsubTopic = topicHierarchy[2];
-      this.selectedSubSubTopic = topicHierarchy[2];
-      this.availableSubSubSubTopics = topicHierarchy[2].subTopics ?? [];
-    }
-    if (topicHierarchy?.[3]) {
-      this.indicatorTopic_subsubsubTopic = topicHierarchy[3];
-      this.selectedSubSubSubTopic = topicHierarchy[3];
-    }
+    patchTopicHierarchyFromChain(this.addForm.controls.topics, topicHierarchy);
 
     // Step 4 — references (stored here as { indicatorMetadata | georesourceMetadata,
     // referenceDescription }, matching what the step-4 component and the body
     // builders expect).
-    this.indicatorReferences_adminView = [];
+    // Both lists are signal-backed, so they are built locally and assigned once.
+    const indicatorReferences: any[] = [];
     (dataset.referencedIndicators ?? [])
       .filter((entry: any) => entry != null)
       .forEach((ref: any) => {
@@ -792,14 +1032,15 @@ export class IndicatorAddFormStateService {
           ref.referencedIndicatorId
         );
         if (indicatorMetadata) {
-          this.indicatorReferences_adminView.push({
+          indicatorReferences.push({
             indicatorMetadata,
             referenceDescription: ref.referencedIndicatorDescription,
           });
         }
       });
+    this.indicatorReferences_adminView = indicatorReferences;
 
-    this.georesourceReferences_adminView = [];
+    const georesourceReferences: any[] = [];
     (dataset.referencedGeoresources ?? [])
       .filter((entry: any) => entry != null)
       .forEach((ref: any) => {
@@ -807,12 +1048,13 @@ export class IndicatorAddFormStateService {
           ref.referencedGeoresourceId
         );
         if (georesourceMetadata) {
-          this.georesourceReferences_adminView.push({
+          georesourceReferences.push({
             georesourceMetadata,
             referenceDescription: ref.referencedGeoresourceDescription,
           });
         }
       });
+    this.georesourceReferences_adminView = georesourceReferences;
 
     // Step 5 — classification mapping (type, palette, breaks, labels, colors, categories)
     this.classification.applyMapping(dataset.defaultClassificationMapping);
@@ -905,9 +1147,6 @@ export class IndicatorAddFormStateService {
       console.error(error);
       console.error('Uploaded Metadata File cannot be parsed.');
       this.indicatorMetadataImportError = 'Uploaded Metadata File cannot be parsed correctly';
-    } finally {
-      // The import rewrote plain fields bound by the wizard steps.
-      this.bumpStateRevision();
     }
   }
 
@@ -960,47 +1199,39 @@ export class IndicatorAddFormStateService {
       this.indicatorTagsString_withCommas = this.metadataImportSettings.tags.join(', ');
     }
 
-    // Parse references
-    if (
-      this.metadataImportSettings.refrencesToOtherIndicators &&
-      this.indicatorStore.availableIndicators
-    ) {
-      this.indicatorReferences_apiRequest = this.metadataImportSettings.refrencesToOtherIndicators;
-      // Populate admin view
-      this.indicatorReferences_adminView = [];
-      this.indicatorReferences_apiRequest.forEach((ref: any) => {
-        const indicator = this.indicatorStore.availableIndicators.find(
-          (ind: any) => ind.indicatorId === ref.indicatorId
-        );
-        if (indicator) {
-          this.indicatorReferences_adminView.push({
-            indicatorId: ref.indicatorId,
+    // Parse references. The file stores them flat ({ indicatorId, referenceDescription }),
+    // while the admin-view rows carry the resolved metadata object — that is the shape
+    // step 4 renders, the edit/delete handlers match on and both body builders read.
+    // Rows holding only the flat id made the following "create" throw a TypeError.
+    // Assigned in one go: the lists are signal-backed, so in-place pushes would not notify.
+    if (this.metadataImportSettings.refrencesToOtherIndicators) {
+      const indicatorReferences: any[] = [];
+      this.metadataImportSettings.refrencesToOtherIndicators.forEach((ref: any) => {
+        const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(ref.indicatorId);
+        if (indicatorMetadata) {
+          indicatorReferences.push({
+            indicatorMetadata,
             referenceDescription: ref.referenceDescription,
-            indicatorName: indicator.indicatorName,
           });
         }
       });
+      this.indicatorReferences_adminView = indicatorReferences;
     }
 
-    if (
-      this.metadataImportSettings.refrencesToGeoresources &&
-      this.georesourceStore.availableGeoresources
-    ) {
-      this.georesourceReferences_apiRequest = this.metadataImportSettings.refrencesToGeoresources;
-      // Populate admin view
-      this.georesourceReferences_adminView = [];
-      this.georesourceReferences_apiRequest.forEach((ref: any) => {
-        const georesource = this.georesourceStore.availableGeoresources.find(
-          (geo: any) => geo.georesourceId === ref.georesourceId
+    if (this.metadataImportSettings.refrencesToGeoresources) {
+      const georesourceReferences: any[] = [];
+      this.metadataImportSettings.refrencesToGeoresources.forEach((ref: any) => {
+        const georesourceMetadata = this.georesourceStore.getGeoresourceMetadataById(
+          ref.georesourceId
         );
-        if (georesource) {
-          this.georesourceReferences_adminView.push({
-            georesourceId: ref.georesourceId,
+        if (georesourceMetadata) {
+          georesourceReferences.push({
+            georesourceMetadata,
             referenceDescription: ref.referenceDescription,
-            georesourceName: georesource.georesourceName,
           });
         }
       });
+      this.georesourceReferences_adminView = georesourceReferences;
     }
 
     // Parse classification mapping (type, palette, breaks, labels, colors, categories)
@@ -1008,9 +1239,9 @@ export class IndicatorAddFormStateService {
       this.classification.applyMapping(this.metadataImportSettings.defaultClassificationMapping);
     }
 
-    // Parse role permissions: pre-check the imported allowedRoles in the role grid.
-    if (this.metadataImportSettings.allowedRoles) {
-      this.storedPermissionIds = [...this.metadataImportSettings.allowedRoles];
+    // Parse role permissions: pre-check the imported permissions in the role grid.
+    if (this.metadataImportSettings.permissions) {
+      this.storedPermissionIds = [...this.metadataImportSettings.permissions];
       this.attachedRoleGrid?.applyPermissions(this.storedPermissionIds);
     }
   }
@@ -1060,16 +1291,28 @@ export class IndicatorAddFormStateService {
       metadataExport.metadata.updateInterval = this.metadata.updateInterval.apiName;
     }
 
-    // Add references
-    metadataExport.refrencesToOtherIndicators = this.indicatorReferences_apiRequest;
-    metadataExport.refrencesToGeoresources = this.georesourceReferences_apiRequest;
+    // Add references, in the flat shape the POST body and the import expect.
+    // These used to be read from `*_apiRequest`, which only a metadata import
+    // ever filled — interactively added references never reached the file.
+    metadataExport.refrencesToOtherIndicators = this.indicatorReferences_adminView.map(
+      (ref: any) => ({
+        indicatorId: ref.indicatorMetadata.indicatorId,
+        referenceDescription: ref.referenceDescription,
+      })
+    );
+    metadataExport.refrencesToGeoresources = this.georesourceReferences_adminView.map(
+      (ref: any) => ({
+        georesourceId: ref.georesourceMetadata.georesourceId,
+        referenceDescription: ref.referenceDescription,
+      })
+    );
 
     // Add classification mapping (same shape as the API payload, incl. extended fields)
     metadataExport.defaultClassificationMapping =
       this.classification.buildDefaultClassificationMapping();
 
     // Add role permissions
-    metadataExport.allowedRoles = this.getSelectedRoleIds();
+    metadataExport.permissions = this.getSelectedRoleIds();
 
     const name = this.datasetName;
     const metadataJSON = JSON.stringify(metadataExport);
@@ -1097,7 +1340,7 @@ export class IndicatorAddFormStateService {
         description: '',
         databasis: '',
       },
-      allowedRoles: [],
+      permissions: [],
       datasetName: '',
       abbreviation: '',
       indicatorType: '',
@@ -1129,7 +1372,6 @@ export class IndicatorAddFormStateService {
   resetForm() {
     this.stepper.reset();
     this.datasetName = '';
-    this.datasetNameInvalid = false;
     this.indicatorAbbreviation = '';
     this.indicatorType =
       this.indicatorTypeOptions && this.indicatorTypeOptions.length > 0
@@ -1159,15 +1401,12 @@ export class IndicatorAddFormStateService {
     // Reset Step 3: Topic Hierarchy
     this.selectedTopic = null;
     this.selectedSubTopic = null;
-    this.availableSubTopics = [];
     this.additionalTopic = null;
     this.additionalSubTopic = null;
     this.additionalSubTopics = [];
     this.additionalTopicAssignments = [];
     this.indicatorReferences_adminView = [];
-    this.indicatorReferences_apiRequest = [];
     this.georesourceReferences_adminView = [];
-    this.georesourceReferences_apiRequest = [];
     this.classification.reset();
     this.ownerOrganization = '';
     this.ownerOrgFilter = '';
@@ -1262,11 +1501,13 @@ export class IndicatorAddFormStateService {
     }
   }
 
+  /**
+   * Selecting an owner reveals the role grid and pre-checks the owner's own
+   * viewer/editor permissions. The rebuild hangs off the control's
+   * `valueChanges` now; this stays as a programmatic entry point.
+   */
   onChangeOwner(ownerOrganization: any) {
     this.ownerOrganization = ownerOrganization;
-    // Selecting an owner reveals the role grid and pre-checks the owner's own
-    // viewer/editor permissions (its row is then locked as dataset owner).
-    this.rebuildRoleManagementGrid();
   }
 
   onChangeIsPublic(isPublic: boolean) {
@@ -1306,6 +1547,7 @@ export class IndicatorAddFormStateService {
   attachRoleGrid(grid: RoleManagementGridComponent) {
     this.attachedRoleGrid = grid;
     this.seedAttachedRoleGrid();
+    this.roleGridRevision.update((revision) => revision + 1);
   }
 
   /**
@@ -1337,7 +1579,11 @@ export class IndicatorAddFormStateService {
     this.showRoleForm = !!ownerId;
     this.storedPermissionIds = null;
     this.seedAttachedRoleGrid();
+    this.roleGridRevision.update((revision) => revision + 1);
   }
+
+  /** Bumped whenever the grid is attached or re-seeded; read by `selectedRoleCount`. */
+  private readonly roleGridRevision = signal(0);
 
   private seedAttachedRoleGrid() {
     if (!this.attachedRoleGrid) {
@@ -1350,71 +1596,35 @@ export class IndicatorAddFormStateService {
     this.attachedRoleGrid.reset();
   }
 
-  // Number of currently checked role permissions in the grid (for the summary line).
+  /**
+   * Number of currently checked role permissions in the grid (summary line in
+   * step 7). Reads `roleGridRevision` so the OnPush step re-renders when the
+   * grid is (re)built from the asynchronous access-control fetch. Ticking a
+   * checkbox inside the grid still does not update the line — the grid emits no
+   * output the step template binds.
+   */
   get selectedRoleCount(): number {
+    this.roleGridRevision();
     return this.getSelectedRoleIds().length;
   }
 
-  // Step 3: Topic Hierarchy Methods
+  // Step 3: Topic Hierarchy Methods.
+  // The shared cascade clears the deeper levels and derives the option lists,
+  // so these are only template hooks now.
   onTopicChange() {
-    if (this.selectedTopic) {
-      // Load sub-topics for the selected topic
-      this.availableSubTopics = this.selectedTopic.subTopics || [];
-      this.selectedSubTopic = null;
-
-      // Update main topic reference
-      this.indicatorTopic_mainTopic = this.selectedTopic;
-      this.indicatorTopic_subTopic = null;
-      this.indicatorTopic_subsubTopic = null;
-      this.indicatorTopic_subsubsubTopic = null;
-    } else {
-      this.availableSubTopics = [];
-      this.availableSubSubTopics = [];
-      this.availableSubSubSubTopics = [];
-      this.selectedSubTopic = null;
-      this.selectedSubSubTopic = null;
-      this.selectedSubSubSubTopic = null;
-    }
+    // handled by the shared topic cascade
   }
 
   onSubTopicChange() {
-    if (this.selectedSubTopic) {
-      // Load sub-topics for the selected topic
-      this.availableSubSubTopics = this.selectedSubTopic.subTopics || [];
-      this.selectedSubSubTopic = null;
-
-      // Update sub topic reference
-      this.indicatorTopic_subTopic = this.selectedSubTopic;
-      this.indicatorTopic_subsubTopic = null;
-      this.indicatorTopic_subsubsubTopic = null;
-    } else {
-      this.availableSubSubTopics = [];
-      this.availableSubSubSubTopics = [];
-      this.selectedSubSubTopic = null;
-      this.selectedSubSubSubTopic = null;
-    }
+    // handled by the shared topic cascade
   }
 
   onSubSubTopicChange() {
-    if (this.selectedSubSubTopic) {
-      // Load sub-topics for the selected topic
-      this.availableSubSubSubTopics = this.selectedSubSubTopic.subTopics || [];
-      this.selectedSubSubSubTopic = null;
-
-      // Update sub topic reference
-      this.indicatorTopic_subsubTopic = this.selectedSubSubTopic;
-      this.indicatorTopic_subsubsubTopic = null;
-    } else {
-      this.availableSubSubSubTopics = [];
-      this.selectedSubSubSubTopic = null;
-    }
+    // handled by the shared topic cascade
   }
 
   onSubSubSubTopicChange() {
-    if (this.selectedSubSubSubTopic) {
-      // Update sub topic reference
-      this.indicatorTopic_subsubsubTopic = this.selectedSubSubSubTopic;
-    }
+    // handled by the shared topic cascade
   }
 
   onAdditionalTopicChange() {
@@ -1488,24 +1698,6 @@ export class IndicatorAddFormStateService {
           georesource.datasetName && georesource.datasetName.toLowerCase().includes(filter)
       );
     }
-  }
-
-  // Convert admin view references to API format
-  private convertReferencesToApiFormat() {
-    // Convert indicator references
-    this.indicatorReferences_apiRequest = this.indicatorReferences_adminView.map((ref) => ({
-      referencedIndicatorName: ref.indicatorMetadata.datasetName,
-      referencedIndicatorId: ref.indicatorMetadata.indicatorId,
-      referencedIndicatorAbbreviation: ref.indicatorMetadata.abbreviation,
-      referencedIndicatorDescription: ref.referenceDescription,
-    }));
-
-    // Convert georesource references
-    this.georesourceReferences_apiRequest = this.georesourceReferences_adminView.map((ref) => ({
-      referencedGeoresourceName: ref.georesourceMetadata.datasetName,
-      referencedGeoresourceId: ref.georesourceMetadata.georesourceId,
-      referencedGeoresourceDescription: ref.referenceDescription,
-    }));
   }
 
   // Step 5 classification methods moved to IndicatorClassificationStateService
@@ -1602,8 +1794,6 @@ export class IndicatorAddFormStateService {
     // edit mode this pre-checks the indicator's existing permissions; in add mode it
     // stays empty until an owner is chosen.
     this.rebuildRoleManagementGrid();
-    // May run from the async access-control fetch (OnPush wizard steps).
-    this.bumpStateRevision();
   }
 
   private buildResourcesCreatorRights(): any[] {

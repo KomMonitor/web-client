@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { IndicatorClassificationStateService } from '../../indicator-classification-state.service';
@@ -19,13 +18,7 @@ import { ClassificationColorPickerComponent } from './classification-color-picke
     './classification-fields.shared.scss',
     './classification-regional-breaks.component.scss',
   ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    TranslateModule,
-    NgbNavModule,
-    ClassificationColorPickerComponent,
-  ],
+  imports: [CommonModule, TranslateModule, NgbNavModule, ClassificationColorPickerComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -23,14 +23,11 @@ export enum MetadataLoadingState {
 }
 
 /**
- * Initial metadata bootstrap orchestration, extracted from DataExchangeService
- * (Prio 7 / B1 — see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ * Initial metadata bootstrap orchestration. Extracted in the Prio 7 god-service split.
  *
  * Owns the app-startup metadata flow: auth/user-profile load, the parallel
  * fetch of topics/spatial-units/georesources/indicators/services into their
- * stores, the hierarchy (re)build and the loading-state signalling. The
- * DataExchangeService facade re-exposes the externally-used members via thin
- * wrappers so its consumers stay unchanged (consumer migration is a later step).
+ * stores, the hierarchy (re)build and the loading-state signalling.
  */
 @Injectable({
   providedIn: 'root',
@@ -193,7 +190,7 @@ export class MetadataBootstrapService {
     );
   }
 
-  async fetchGeoresourcesMetadata(keycloakRolesArray, filter) {
+  async fetchGeoresourcesMetadata(keycloakRolesArray, filter: any = undefined) {
     this.georesourceStore.setGeoresources(
       await this.cacheHelperService.fetchGeoresourceMetadata(keycloakRolesArray, filter)
     );

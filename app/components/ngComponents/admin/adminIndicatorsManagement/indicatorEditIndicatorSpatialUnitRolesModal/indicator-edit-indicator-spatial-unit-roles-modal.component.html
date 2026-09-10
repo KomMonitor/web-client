@@ -27,7 +27,7 @@
   <div class="row">
     <div class="col-md-12">
       <form
-        class="multiStepForm form-group"
+        class="form-group"
         id="indicatorEditIndicatorSpatialUnitRolesForm"
         role="form"
         style="margin-bottom: 0px"
@@ -39,10 +39,10 @@
 
         <!-- Step 1: Zugriffsschutz Indikator-Metadaten -->
         <fieldset [style.display]="stepper.isActive('metadataRoles') ? 'block' : 'none'">
-          <h2 class="fs-title">
+          <h2 class="fs-title text-center">
             {{ 'ADMIN_INDICATORS.EDIT_ROLES.METADATA_ROLES_TITLE' | translate }}
           </h2>
-          <h3 class="fs-subtitle">
+          <h3 class="fs-subtitle text-center">
             {{ 'ADMIN_INDICATORS.EDIT_ROLES.METADATA_ROLES_SUBTITLE' | translate }}
           </h3>
           <p>{{ 'ADMIN_INDICATORS.EDIT_ROLES.EXPLICIT_RIGHTS_NOTE' | translate }}</p>
@@ -79,21 +79,19 @@
               </div>
             </div>
           </div>
-          <input
-            type="button"
-            name="next"
-            class="next next_editIndicatorRoles action-button"
-            [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-            (click)="stepper.next()"
-          />
+          <div class="stepper-buttons">
+            <button type="button" class="btn btn-primary" (click)="stepper.next()">
+              {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+            </button>
+          </div>
         </fieldset>
 
         <!-- Step 2: Zeitreihen-Zugriffsschutz für verknüpfte Raumebenen -->
         <fieldset [style.display]="stepper.isActive('timeseriesRoles') ? 'block' : 'none'">
-          <h2 class="fs-title">
+          <h2 class="fs-title text-center">
             {{ 'ADMIN_INDICATORS.EDIT_ROLES.TIMESERIES_ROLES_TITLE' | translate }}
           </h2>
-          <h3 class="fs-subtitle">
+          <h3 class="fs-subtitle text-center">
             {{ 'ADMIN_INDICATORS.EDIT_ROLES.TIMESERIES_ROLES_SUBTITLE' | translate }}
           </h3>
           <div class="row vertical-align">
@@ -148,26 +146,24 @@
               ></app-role-management-grid>
             </div>
           </div>
-          <input
-            type="button"
-            name="next"
-            class="next next_editIndicatorRoles action-button"
-            [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-            (click)="stepper.next()"
-          />
-          <input
-            type="button"
-            name="previous"
-            class="previous previous_editIndicatorRoles action-button-previous"
-            [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-            (click)="stepper.previous()"
-          />
+          <div class="stepper-buttons">
+            <button type="button" class="btn btn-primary" (click)="stepper.next()">
+              {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+            </button>
+          </div>
+          <div class="stepper-buttons">
+            <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
+              {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+            </button>
+          </div>
         </fieldset>
 
         <!-- Step 3: Eigentümerschaft -->
         <fieldset [style.display]="stepper.isActive('ownership') ? 'block' : 'none'">
-          <h2 class="fs-title">{{ 'ADMIN_SHARED_UI.SECURITY.OWNERSHIP_TITLE' | translate }}</h2>
-          <h3 class="fs-subtitle">
+          <h2 class="fs-title text-center">
+            {{ 'ADMIN_SHARED_UI.SECURITY.OWNERSHIP_TITLE' | translate }}
+          </h2>
+          <h3 class="fs-subtitle text-center">
             {{ 'ADMIN_SHARED_UI.SECURITY.OWNERSHIP_SUBTITLE' | translate }}
           </h3>
           <div class="alert alert-danger">
@@ -180,13 +176,11 @@
             [currentOwnerId]="currentIndicatorDataset?.ownerId"
             (ownerIdChange)="onChangeOwner($event)"
           ></app-owner-organization-select>
-          <input
-            type="button"
-            name="previous"
-            class="previous previous_editIndicatorRoles action-button-previous"
-            [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-            (click)="stepper.previous()"
-          />
+          <div class="stepper-buttons">
+            <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
+              {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+            </button>
+          </div>
         </fieldset>
       </form>
     </div>
@@ -194,17 +188,17 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="closeModal()">
-    {{ 'ADMIN_SHARED.CLOSE' | translate }}
-  </button>
-  <button type="button" class="btn btn-success" (click)="editIndicatorSpatialUnitRoles()">
-    {{ 'ADMIN_SHARED.UPDATE' | translate }}
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="closeModal()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
   </button>
   <button
     type="button"
-    class="btn btn-danger"
+    class="btn btn-outline-secondary"
     (click)="resetIndicatorEditIndicatorSpatialUnitRolesForm()"
   >
-    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
+    <i class="fas fa-undo"></i>&nbsp;{{ 'ADMIN_SHARED_UI.RESET' | translate }}
+  </button>
+  <button type="button" class="btn btn-success" (click)="editIndicatorSpatialUnitRoles()">
+    {{ 'ADMIN_SHARED.UPDATE' | translate }}
   </button>
 </div>

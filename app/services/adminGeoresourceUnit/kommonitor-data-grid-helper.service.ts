@@ -1,6 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { ColDef } from 'ag-grid-community';
-import { KommonitorGeoresourceDataExchangeService } from './kommonitor-data-exchange.service';
+import { TranslateService } from '@ngx-translate/core';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { IconTranslateService } from 'services/icon-translate/icon-translate.service';
+import { PoiPresentationService } from 'services/poi-presentation-service/poi-presentation.service';
+import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 
 export type GeoresourceGridType = 'poi' | 'loi' | 'aoi';
 
@@ -16,7 +21,12 @@ export type GeoresourceGridType = 'poi' | 'loi' | 'aoi';
   providedIn: 'root',
 })
 export class KommonitorGeoresourceDataGridHelperService {
-  private kommonitorDataExchangeService = inject(KommonitorGeoresourceDataExchangeService);
+  private accessControlService = inject(AccessControlService);
+  private iconTranslate = inject(IconTranslateService);
+  private poiPresentationService = inject(PoiPresentationService);
+  private topicHierarchyService = inject(TopicHierarchyService);
+  private topicStore = inject(TopicMetadataStoreService);
+  private translate = inject(TranslateService);
 
   /**
    * Data columns for one grid type: Id/Name, the type-specific styling
@@ -26,8 +36,18 @@ export class KommonitorGeoresourceDataGridHelperService {
    */
   buildGeoresourceColumnDefs(type: GeoresourceGridType): ColDef[] {
     return [
-      { headerName: 'Id', field: 'georesourceId', pinned: 'left', maxWidth: 125 },
-      { headerName: 'Name', field: 'datasetName', pinned: 'left', minWidth: 300 },
+      {
+        headerName: this.translate.instant('ADMIN_SHARED.ID'),
+        field: 'georesourceId',
+        pinned: 'left',
+        maxWidth: 125,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SHARED.NAME'),
+        field: 'datasetName',
+        pinned: 'left',
+        minWidth: 300,
+      },
       ...this.stylingColumns(type),
       ...this.sharedMetadataColumns(),
     ];
@@ -37,36 +57,55 @@ export class KommonitorGeoresourceDataGridHelperService {
     switch (type) {
       case 'poi':
         return [
-          this.colorColumn('Symbolfarbe', 'poiSymbolColor'),
+          this.colorColumn(
+            this.translate.instant('ADMIN_GEORESOURCES.GRID.COL_SYMBOL_COLOR'),
+            'poiSymbolColor'
+          ),
           {
-            headerName: 'Symbolname',
+            headerName: this.translate.instant('ADMIN_GEORESOURCES.GRID.COL_SYMBOL_NAME'),
             field: 'poiSymbolBootstrap3Name',
             maxWidth: 125,
             cellRenderer: (params: any) => {
               const symbolName = params.data.poiSymbolBootstrap3Name || 'home';
-              return `${symbolName}<br/><br/><span class='glyphicon glyphicon-${symbolName}'></span>`;
+              const faName = this.iconTranslate.translate(symbolName);
+              return `${symbolName}<br/><br/><span class='fas fa-${faName}'></span>`;
             },
           },
-          this.colorColumn('Markerfarbe', 'poiMarkerColor'),
+          this.colorColumn(
+            this.translate.instant('ADMIN_GEORESOURCES.GRID.COL_MARKER_COLOR'),
+            'poiMarkerColor'
+          ),
         ];
       case 'loi':
         return [
-          this.colorColumn('Linienfarbe', 'loiColor'),
-          { headerName: 'Linienbreite', field: 'loiWidth', maxWidth: 125 },
+          this.colorColumn(
+            this.translate.instant('ADMIN_GEORESOURCES.GRID.COL_LINE_COLOR'),
+            'loiColor'
+          ),
           {
-            headerName: 'Linienmuster',
+            headerName: this.translate.instant('ADMIN_GEORESOURCES.GRID.COL_LINE_WIDTH'),
+            field: 'loiWidth',
+            maxWidth: 125,
+          },
+          {
+            headerName: this.translate.instant('ADMIN_GEORESOURCES.GRID.COL_LINE_PATTERN'),
             field: 'loiDashArrayString',
             maxWidth: 125,
             filter: false,
             sortable: false,
             cellRenderer: (params: any) =>
-              this.kommonitorDataExchangeService.getLoiDashSvgFromStringValue(
+              this.poiPresentationService.getLoiDashSvgFromStringValue(
                 params.data.loiDashArrayString
               ),
           },
         ];
       case 'aoi':
-        return [this.colorColumn('Polygonfarbe', 'aoiColor')];
+        return [
+          this.colorColumn(
+            this.translate.instant('ADMIN_GEORESOURCES.GRID.COL_POLYGON_COLOR'),
+            'aoiColor'
+          ),
+        ];
     }
   }
 
@@ -87,12 +126,12 @@ export class KommonitorGeoresourceDataGridHelperService {
   private sharedMetadataColumns(): ColDef[] {
     return [
       {
-        headerName: 'Beschreibung',
+        headerName: this.translate.instant('ADMIN_SHARED.DESCRIPTION'),
         minWidth: 400,
         cellRenderer: (params: any) => params.data.metadata?.description || '',
       },
       {
-        headerName: 'Gültigkeitszeitraum',
+        headerName: this.translate.instant('ADMIN_SHARED.PERIOD_OF_VALIDITY'),
         minWidth: 400,
         cellRenderer: (params: any) => {
           let html =
@@ -112,39 +151,39 @@ export class KommonitorGeoresourceDataGridHelperService {
         },
       },
       {
-        headerName: 'Themenhierarchie',
+        headerName: this.translate.instant('ADMIN_SHARED_UI.TOPICS.TITLE'),
         minWidth: 400,
         cellRenderer: (params: any) =>
-          this.kommonitorDataExchangeService.getTopicHierarchyDisplayString(
+          this.topicHierarchyService.getTopicHierarchyDisplayString(
+            this.topicStore.availableTopics,
             params.data.topicReference
           ),
       },
       {
-        headerName: 'Datenquelle',
+        headerName: this.translate.instant('ADMIN_SHARED.DATASOURCE'),
         minWidth: 400,
         cellRenderer: (params: any) => params.data.metadata?.datasource || '',
       },
       {
-        headerName: 'Datenhalter und Kontakt',
+        headerName: this.translate.instant('ADMIN_SHARED.DATA_HOLDER_CONTACT'),
         minWidth: 400,
         cellRenderer: (params: any) => params.data.metadata?.contact || '',
       },
       {
-        headerName: 'Rollen',
+        headerName: this.translate.instant('COMMON.ROLES'),
         minWidth: 400,
         cellRenderer: (params: any) =>
-          this.kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions),
+          this.accessControlService.getAllowedRolesString(params.data.permissions),
       },
       {
-        headerName: 'Öffentlich sichtbar',
+        headerName: this.translate.instant('ADMIN_SHARED.PUBLIC_VISIBLE'),
         minWidth: 400,
         cellRenderer: (params: any) => (params.data.isPublic ? 'ja' : 'nein'),
       },
       {
-        headerName: 'Eigentümer',
+        headerName: this.translate.instant('ADMIN_SHARED.OWNER'),
         minWidth: 400,
-        cellRenderer: (params: any) =>
-          this.kommonitorDataExchangeService.getRoleTitle(params.data.ownerId),
+        cellRenderer: (params: any) => this.accessControlService.getRoleTitle(params.data.ownerId),
       },
     ];
   }

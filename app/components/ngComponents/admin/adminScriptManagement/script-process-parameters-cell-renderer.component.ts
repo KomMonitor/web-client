@@ -18,7 +18,7 @@ interface VariableProcessParameter {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (parameters().length > 0) {
-      <table class="table table-condensed table-bordered table-striped table-sm">
+      <table class="table table-bordered table-striped table-sm">
         <thead>
           <tr>
             <th style="word-break: normal">Name</th>

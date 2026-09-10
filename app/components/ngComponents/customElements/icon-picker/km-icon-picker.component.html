@@ -1,0 +1,56 @@
+<div class="km-icon-picker" #dropdownContainer>
+  <div class="dropdown" [class.show]="isOpen">
+    <button
+      type="button"
+      class="btn km-icon-button"
+      [style.width]="buttonWidth"
+      [disabled]="disabled"
+      [title]="buttonTitle"
+      [attr.aria-haspopup]="true"
+      [attr.aria-expanded]="isOpen"
+      (click)="toggle($event)"
+    >
+      <i class="{{ value | iconTranslate }}" aria-hidden="true"></i>
+      <span class="icon-name">{{ value }}</span>
+      <span class="caret"></span>
+    </button>
+
+    @if (isOpen) {
+      <div class="dropdown-menu km-icon-panel">
+        <div class="icon-search">
+          <input
+            #searchInput
+            type="text"
+            class="form-control form-control-sm"
+            [placeholder]="searchPlaceholder"
+            [value]="searchTerm"
+            (input)="onSearchChange($any($event.target).value)"
+          />
+        </div>
+
+        <div class="icon-grid">
+          @for (icon of filteredIcons; track icon.name) {
+            <button
+              type="button"
+              class="icon-tile"
+              [class.selected]="icon.name === selectedIcon?.name"
+              [title]="icon.name"
+              [attr.aria-pressed]="icon.name === selectedIcon?.name"
+              (click)="selectIcon(icon, $event)"
+            >
+              <i class="{{ icon.faClass }}" aria-hidden="true"></i>
+            </button>
+          }
+        </div>
+
+        @if (filteredIcons.length === 0) {
+          <div class="icon-no-results">{{ noResultsText }}</div>
+        }
+      </div>
+    }
+  </div>
+
+  @if (isUnknownValue) {
+    <div class="icon-unknown-hint">{{ unknownValueHint }}</div>
+  }
+</div>

@@ -14,73 +14,7 @@
     </p>
 
     <hr />
-    <br />
 
-    <div class="row vertical-align">
-      <div class="col-md-6 col-sm-6 col-12">
-        <div class="form-group">
-          <label>{{ 'ADMIN_CONFIG.COMMON.TEMPLATE_LABEL' | translate }}</label>
-          <br />
-          <br />
-          <div #templateCodeMirror id="templateCodeMirror" style="height: 450px"></div>
-        </div>
-      </div>
-      <div class="col-md-6 col-sm-6 col-12">
-        <div class="form-group">
-          <label>{{ 'ADMIN_CONFIG.COMMON.CURRENT_LABEL' | translate }}</label>
-          <br />
-          <br />
-          <div #currentCodeMirror id="currentCodeMirror" style="height: 450px"></div>
-        </div>
-      </div>
-    </div>
-
-    <hr />
-    <br />
-
-    <div class="row vertical-align">
-      <div class="col-md-6 col-sm-6 col-12">
-        <div class="form-group">
-          <label>{{ 'ADMIN_CONFIG.CONTROLS.EDITOR_LABEL' | translate }}</label>
-          <br />
-          <br />
-          <textarea #controlsConfigEditor id="controlsConfigEditor"></textarea>
-        </div>
-        @if (configSettingInvalid()) {
-          <div class="help-block with-errors">
-            {{ 'ADMIN_CONFIG.COMMON.INVALID_HINT' | translate: { format: 'JSON' } }}
-          </div>
-        }
-        @if (missingRequiredParameters().length > 0) {
-          <div class="help-block with-errors">
-            {{ 'ADMIN_CONFIG.COMMON.MISSING_PARAMETERS' | translate }}
-            {{ missingRequiredParameters_string() }}
-          </div>
-        }
-      </div>
-      <div class="col-md-6 col-sm-6 col-12">
-        <div class="form-group">
-          <label>{{ 'ADMIN_CONFIG.COMMON.PREVIEW_LABEL' | translate }}</label>
-          <br />
-          <br />
-          <div #newCodeMirror id="newCodeMirror" style="height: 450px"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="row vertical-align">
-      <div class="col-md-12 text-center">
-        <div class="form-group">
-          <button
-            type="button"
-            class="btn btn-success"
-            [disabled]="configSettingInvalid()"
-            (click)="editControlsConfig()"
-          >
-            {{ 'ADMIN_CONFIG.CONTROLS.SAVE' | translate }}
-          </button>
-        </div>
-      </div>
-    </div>
+    <app-config-editor-panes [descriptor]="descriptor"></app-config-editor-panes>
   </expandable-box>
 </ng-template>

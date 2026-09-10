@@ -15,113 +15,119 @@
 </div>
 
 <div class="modal-body">
-  <div align="center">
-    <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData()">
-      <i class="fas fa-spinner fa-spin fa-2x"></i>
-    </div>
-  </div>
+  <!--
+    <app-loading-overlay> instead of the hand-rolled `.loading-overlay-admin-panel`
+    that used to sit before the form: that one greyed out the whole viewport
+    rather than the dialog, and it was toggled with the AngularJS `ng-hide`
+    class, which only this menu entry still relied on.
+  -->
+  <app-loading-overlay [loading]="loadingData()">
+    <!--
+      No `.multiStepForm` wrapper and no `<fieldset>` any more. That pair came
+      from the jQuery wizard and, through `app.scss`, centred every label at 12px
+      above a left-aligned control and squared off every input at 13px, while the
+      same fields in the spatial-unit dialogs are left-aligned at 16px in rounded
+      controls. Steps are plain `<div>`s switched via `display` so the role grid
+      keeps its checked state while the user visits step 2.
+    -->
+    <form role="form" class="form-group" id="georesourceEditUserRolesForm">
+      <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
 
-  <!-- MultiStep Form -->
-  <div class="row">
-    <div class="col-md-12">
-      <form
-        role="form"
-        class="multiStepForm form-group"
-        id="georesourceEditUserRolesForm"
-        style="margin-bottom: 0px"
-      >
-        <!-- progressbar -->
-        <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
-        <!-- fieldsets: switched via display so the role grid (and its checked
-             state) survives navigating to step 2 -->
-
-        @if (envConfigService.enableKeycloakSecurity) {
-          <fieldset [style.display]="stepper.isActive('roles') ? 'block' : 'none'">
-            <h2 class="fs-title">{{ 'ADMIN_SHARED.ACCESS_PROTECTION' | translate }}</h2>
-            <h3 class="fs-subtitle">
-              {{ 'ADMIN_SHARED_UI.SECURITY.ASSIGN_RIGHTS_SUBTITLE' | translate }}
-            </h3>
-            <p>{{ 'ADMIN_GEORESOURCES.ROLES_MODAL.RIGHTS_EXPLICIT_HINT' | translate }}</p>
-            <div class="row">
-              <div class="col-md-3">
-                <label>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label>
+      @if (envConfigService.enableKeycloakSecurity) {
+        <div [style.display]="stepper.isActive('roles') ? 'block' : 'none'">
+          <h2 class="fs-title text-center">{{ 'ADMIN_SHARED.ACCESS_PROTECTION' | translate }}</h2>
+          <h3 class="fs-subtitle text-center">
+            {{ 'ADMIN_SHARED_UI.SECURITY.ASSIGN_RIGHTS_SUBTITLE' | translate }}
+          </h3>
+          <p class="text-center">
+            {{ 'ADMIN_GEORESOURCES.ROLES_MODAL.RIGHTS_EXPLICIT_HINT' | translate }}
+          </p>
+          <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label class="form-label" for="georesourceIsPublic"
+                  >{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label
+                >
                 @if (currentGeoresourceDataset; as dataset) {
-                  <label class="switch">
-                    <input
-                      type="checkbox"
-                      [(ngModel)]="dataset.isPublic"
-                      name="isPublic"
-                      [ngModelOptions]="{ standalone: true }"
-                    />
-                    <span class="switchslider round"></span>
-                  </label>
+                  <div>
+                    <label class="switch" for="georesourceIsPublic">
+                      <input
+                        id="georesourceIsPublic"
+                        type="checkbox"
+                        [(ngModel)]="dataset.isPublic"
+                        name="isPublic"
+                        [ngModelOptions]="{ standalone: true }"
+                      />
+                      <span class="switchslider round"></span>
+                    </label>
+                  </div>
                 }
-                <div class="help-block">
-                  <p>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ_HINT' | translate }}</p>
-                </div>
-              </div>
-              <div class="col-md-6 col-sm-6 col-12">
-                <app-role-management-grid
-                  gridId="georesourceEditRoleManagementTable"
-                  [permissions]="currentGeoresourceDataset?.permissions"
-                  [ownerId]="currentGeoresourceDataset?.ownerId"
-                  [showActiveRolesOnlyToggle]="true"
-                ></app-role-management-grid>
-              </div>
-              <div class="col-md-3">
-                <div class="alert alert-info">
-                  {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_RIGHTS_INFO' | translate }}
-                </div>
+                <p class="help-block">
+                  {{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ_HINT' | translate }}
+                </p>
               </div>
             </div>
-            <input
-              type="button"
-              name="next"
-              class="next next_editGeoresourceRoles action-button"
-              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-              (click)="stepper.next()"
-            />
-          </fieldset>
-        }
-
-        <fieldset [style.display]="stepper.isActive('ownership') ? 'block' : 'none'">
-          <h2 class="fs-title">
-            {{ 'ADMIN_SHARED_UI.SECURITY.OWNERSHIP_TITLE' | translate }}
-          </h2>
-          <h3 class="fs-subtitle">
-            {{ 'ADMIN_SHARED_UI.SECURITY.OWNERSHIP_SUBTITLE' | translate }}
-          </h3>
-          <div class="alert alert-danger">
-            {{ 'ADMIN_GEORESOURCES.ROLES_MODAL.OWNERSHIP_WARNING_1' | translate }}<br />{{
-              'ADMIN_GEORESOURCES.ROLES_MODAL.OWNERSHIP_WARNING_2' | translate
-            }}
+            <div class="col-md-6 col-sm-6 col-12">
+              <app-role-management-grid
+                gridId="georesourceEditRoleManagementTable"
+                [permissions]="currentGeoresourceDataset?.permissions"
+                [ownerId]="currentGeoresourceDataset?.ownerId"
+                [showActiveRolesOnlyToggle]="true"
+              ></app-role-management-grid>
+            </div>
+            <div class="col-md-3">
+              <div class="alert alert-info">
+                {{ 'ADMIN_SHARED_UI.SECURITY.OWNER_RIGHTS_INFO' | translate }}
+              </div>
+            </div>
           </div>
-          <app-owner-organization-select
-            [ownerId]="ownerOrganization"
-            [currentOwnerId]="currentGeoresourceDataset?.ownerId"
-            (ownerIdChange)="onChangeOwner($event)"
-          ></app-owner-organization-select>
-          <input
-            type="button"
-            name="previous"
-            class="previous previous_editGeoresourceRoles action-button-previous"
-            [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-            (click)="stepper.previous()"
-          />
-        </fieldset>
-      </form>
-    </div>
-  </div>
+          <div class="stepper-buttons">
+            <button type="button" class="btn btn-primary" (click)="stepper.next()">
+              {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+            </button>
+          </div>
+        </div>
+      }
+
+      <div [style.display]="stepper.isActive('ownership') ? 'block' : 'none'">
+        <h2 class="fs-title text-center">
+          {{ 'ADMIN_SHARED_UI.SECURITY.OWNERSHIP_TITLE' | translate }}
+        </h2>
+        <h3 class="fs-subtitle text-center">
+          {{ 'ADMIN_SHARED_UI.SECURITY.OWNERSHIP_SUBTITLE' | translate }}
+        </h3>
+        <div class="alert alert-danger">
+          {{ 'ADMIN_GEORESOURCES.ROLES_MODAL.OWNERSHIP_WARNING_1' | translate }}<br />{{
+            'ADMIN_GEORESOURCES.ROLES_MODAL.OWNERSHIP_WARNING_2' | translate
+          }}
+        </div>
+        <app-owner-organization-select
+          [ownerId]="ownerOrganization"
+          [currentOwnerId]="currentGeoresourceDataset?.ownerId"
+          (ownerIdChange)="onChangeOwner($event)"
+        ></app-owner-organization-select>
+        <div class="stepper-buttons">
+          <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
+            {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </app-loading-overlay>
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="cancel()">
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="cancel()">
     {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
+  <button
+    type="button"
+    class="btn btn-outline-secondary"
+    (click)="resetGeoresourceEditUserRolesForm()"
+  >
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
   <button type="button" class="btn btn-success" (click)="editGeoresourceEditUserRolesForm()">
     {{ 'ADMIN_SHARED.UPDATE' | translate }}
-  </button>
-  <button type="button" class="btn btn-danger" (click)="resetGeoresourceEditUserRolesForm()">
-    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
 </div>

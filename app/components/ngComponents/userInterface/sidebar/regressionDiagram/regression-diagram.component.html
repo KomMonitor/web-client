@@ -2,7 +2,7 @@
   <div style="text-align: center">
     @if (!setupCompleted) {
       <div class="loading-overlay-sidebar ng-hide">
-        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+        <span class="fas fa-arrows-rotate icon-spin"></span>
       </div>
     }
   </div>
@@ -87,10 +87,10 @@
                 <label>X-Achse</label>
 
                 <div class="input-wrapper">
-                  <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+                  <span class="icon"><i class="fas fa-filter"></i></span>
                   <input
                     type="text"
-                    class="form-control input-sm"
+                    class="form-control"
                     placeholder="X-Achse - Stichwortfilter"
                     (keyup)="filterAvailableIndicatorsXAxis($event)"
                   />
@@ -105,7 +105,7 @@
               </select> -->
 
                 <div class="regressionInputForm">
-                  <table class="table table-condensed" style="margin-bottom: 0px">
+                  <table class="table table-sm" style="margin-bottom: 0px">
                     <thead>
                       <th>Indikator</th>
                       <th>Zeitschnitt</th>
@@ -163,10 +163,10 @@
                 <label>Y-Achse</label>
 
                 <div class="input-wrapper">
-                  <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+                  <span class="icon"><i class="fas fa-filter"></i></span>
                   <input
                     type="text"
-                    class="form-control input-sm"
+                    class="form-control"
                     placeholder="Y-Achse - Stichwortfilter"
                     (keyup)="filterAvailableIndicatorsYAxis($event)"
                   />
@@ -181,7 +181,7 @@
             </select> -->
 
                 <div class="regressionInputForm">
-                  <table class="table table-condensed" style="margin-bottom: 0px">
+                  <table class="table table-sm" style="margin-bottom: 0px">
                     <thead>
                       <th>Indikator</th>
                       <th>Zeitschnitt</th>
@@ -252,7 +252,7 @@
                 <p></p>
 
                 <div class="regressionInputForm">
-                  <table class="table table-condensed" style="margin-bottom: 0px">
+                  <table class="table table-sm" style="margin-bottom: 0px">
                     <thead>
                       <th>Indikator</th>
                       <th>Zeitschnitt</th>
@@ -318,7 +318,7 @@
           </select> -->
 
                 <div class="regressionInputForm">
-                  <table class="table table-condensed" style="margin-bottom: 0px">
+                  <table class="table table-sm" style="margin-bottom: 0px">
                     <thead>
                       <th>Indikator</th>
                       <th>Zeitschnitt</th>
@@ -390,7 +390,7 @@
                 <p></p>
 
                 <div class="regressionInputForm">
-                  <table class="table table-condensed" style="margin-bottom: 0px">
+                  <table class="table table-sm" style="margin-bottom: 0px">
                     <thead>
                       <th>Indikator</th>
                       <th>Zeitschnitt</th>
@@ -450,7 +450,7 @@
                 <p></p>
 
                 <div class="regressionInputForm">
-                  <table class="table table-condensed" style="margin-bottom: 0px">
+                  <table class="table table-sm" style="margin-bottom: 0px">
                     <thead>
                       <th>Indikator</th>
                       <th>Zeitschnitt</th>
@@ -518,7 +518,6 @@
           <label class="switch">
             <input
               type="checkbox"
-              value="$ctrl.kommonitorDataExchangeServiceInstance.enableScatterPlotRegression"
               [(ngModel)]="enableScatterPlotRegression"
               (change)="onChangeEnableScatterPlotRegression()"
               checked

@@ -18,10 +18,10 @@
     </div>
   }
 
-  <div class="text-center">
-    <div class="fs-title">{{ 'ADMIN_INDICATORS.DELETE_MODAL.HEADING' | translate }}</div>
-    <div class="fs-subtitle">{{ 'ADMIN_INDICATORS.DELETE_MODAL.SUBTITLE' | translate }}</div>
-  </div>
+  <h2 class="fs-title text-center">{{ 'ADMIN_INDICATORS.DELETE_MODAL.HEADING' | translate }}</h2>
+  <h3 class="fs-subtitle text-center">
+    {{ 'ADMIN_INDICATORS.DELETE_MODAL.SUBTITLE' | translate }}
+  </h3>
 
   <div class="row align-items-center">
     <div class="col-12">
@@ -77,7 +77,7 @@
           @if (showMetadata()) {
             <div class="card-body">
               <div class="admin-table-wrapper">
-                <table class="table table-bordered table-condensed table-striped">
+                <table class="table table-bordered table-sm table-striped">
                   <thead>
                     <tr>
                       <th>{{ 'ADMIN_SHARED.ID' | translate }}</th>
@@ -208,11 +208,20 @@
         @if (selectedIndicatorDataset && indicatorDeleteType.apiName === 'indicatorDataset') {
           <div>
             <h4>{{ 'ADMIN_INDICATORS.DELETE_MODAL.DELETE_DATASET_HEADING' | translate }}</h4>
-            <p style="color: red">
-              {{ 'ADMIN_INDICATORS.DELETE_MODAL.DELETE_DATASET_WARNING' | translate }}
-            </p>
-            <h3>{{ 'ADMIN_INDICATORS.DELETE_MODAL.ATTENTION' | translate }}</h3>
-            <p [innerHTML]="'ADMIN_INDICATORS.DELETE_MODAL.CASCADE_WARNING_HTML' | translate"></p>
+            <!--
+              Both warnings used to be loose text: a `style="color: red"` paragraph
+              and a bare <h3>, which Bootstrap renders at 28px — larger than the
+              dialog's own 20px title. They are one alert now, like the delete
+              dialogs for spatial units and groups.
+            -->
+            <div class="alert alert-danger" role="alert">
+              <b>{{ 'ADMIN_INDICATORS.DELETE_MODAL.ATTENTION' | translate }}</b>
+              <p>{{ 'ADMIN_INDICATORS.DELETE_MODAL.DELETE_DATASET_WARNING' | translate }}</p>
+              <p
+                class="mb-0"
+                [innerHTML]="'ADMIN_INDICATORS.DELETE_MODAL.CASCADE_WARNING_HTML' | translate"
+              ></p>
+            </div>
             <h4>{{ 'ADMIN_INDICATORS.DELETE_MODAL.AFFECTED_GEORESOURCE_REFS' | translate }}</h4>
             @if (affectedGeoresourceReferences.length === 0) {
               <div>
@@ -221,7 +230,7 @@
             }
             @if (affectedGeoresourceReferences.length > 0) {
               <div>
-                <table class="table table-bordered table-condensed">
+                <table class="table table-bordered table-sm">
                   <thead>
                     <tr>
                       <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.REF_GEORESOURCE_ID' | translate }}</th>
@@ -253,7 +262,7 @@
             }
             @if (affectedIndicatorReferences.length > 0) {
               <div>
-                <table class="table table-bordered table-condensed">
+                <table class="table table-bordered table-sm">
                   <thead>
                     <tr>
                       <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.REF_INDICATOR_ID' | translate }}</th>
@@ -281,7 +290,7 @@
             }
             @if (affectedScripts.length > 0) {
               <div>
-                <table class="table table-bordered table-condensed">
+                <table class="table table-bordered table-sm">
                   <thead>
                     <tr>
                       <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.SCRIPT_ID' | translate }}</th>
@@ -332,7 +341,7 @@
             @if (currentApplicableDates.length > 0) {
               <div class="row">
                 <div class="col-md-12">
-                  <table class="table table-bordered table-condensed">
+                  <table class="table table-bordered table-sm">
                     <thead>
                       <tr>
                         <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.SELECT_COLUMN' | translate }}</th>
@@ -385,7 +394,7 @@
             @if (currentApplicableSpatialUnits.length > 0) {
               <div class="row">
                 <div class="col-md-12">
-                  <table class="table table-bordered table-condensed">
+                  <table class="table table-bordered table-sm">
                     <thead>
                       <tr>
                         <th>{{ 'ADMIN_INDICATORS.DELETE_MODAL.SELECT_COLUMN' | translate }}</th>
@@ -509,7 +518,7 @@
       <br />
       @if (failedDatasetsAndErrors().length > 0) {
         <div>
-          <table class="table table-bordered table-condensed">
+          <table class="table table-bordered table-sm">
             <thead>
               <tr>
                 <th>{{ 'ADMIN_SHARED.NAME' | translate }}</th>
@@ -529,7 +538,7 @@
       }
       @if (failedTimestampsAndErrors().length > 0) {
         <div>
-          <table class="table table-bordered table-condensed">
+          <table class="table table-bordered table-sm">
             <thead>
               <tr>
                 <th>{{ 'ADMIN_INDICATORS.TIMESTAMP' | translate }}</th>
@@ -549,7 +558,7 @@
       }
       @if (failedSpatialUnitsAndErrors().length > 0) {
         <div>
-          <table class="table table-bordered table-condensed">
+          <table class="table table-bordered table-sm">
             <thead>
               <tr>
                 <th>{{ 'ADMIN_INDICATORS.SPATIAL_UNIT' | translate }}</th>
@@ -572,7 +581,7 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-secondary" (click)="close()">
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="close()">
     {{ 'ADMIN_SHARED.CANCEL' | translate }}
   </button>
   <button

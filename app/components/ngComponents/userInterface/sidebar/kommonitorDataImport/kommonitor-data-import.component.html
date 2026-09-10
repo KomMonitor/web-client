@@ -239,16 +239,13 @@ OR as third submenu -> Geocoding from CSV/Excel -> make use of importer entries 
               >
                 <i class="fa-solid fa-plus"></i>&nbsp;&nbsp;laden
                 @if (loadingData) {
-                  <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                  <span class="fas fa-arrows-rotate icon-spin"></span>
                 }
               </button>
             </div>
           }
         </div>
-        <br />
         <hr />
-        <br />
-        <br />
       </div>
     }
 
@@ -256,16 +253,16 @@ OR as third submenu -> Geocoding from CSV/Excel -> make use of importer entries 
       <div>
         <h4>Geladene Datenlayer</h4>
         <div class="input-group">
-          <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+          <span class="input-group-text"><i class="fas fa-filter"></i></span>
           <input
             type="text"
-            class="form-control input-sm"
+            class="form-control"
             placeholder="Stichwortfilter"
           /><!-- [(ngModel)]="fileNameFilter" -->
         </div>
         <br />
         <div class="fileInputForm">
-          <table class="table table-condensed" style="margin-bottom: 0px">
+          <table class="table table-sm" style="margin-bottom: 0px">
             <thead>
               <tr>
                 <th>Dateiname</th>
@@ -435,11 +432,10 @@ OR as third submenu -> Geocoding from CSV/Excel -> make use of importer entries 
                                   font-size: 1.2em;
                                 "
                                 [ngStyle]="{ color: dataset.poiSymbolColor }"
-                                class="glyphicon glyphicon-{{ dataset.poiSymbolBootstrap3Name }}"
+                                class="{{ dataset.poiSymbolBootstrap3Name | iconTranslate }}"
                                 aria-hidden="true"
                               ></span>
                             </div>
-                            <br />
                             <hr />
                             Niedrige Genauigkeit
                             <div
@@ -455,7 +451,7 @@ OR as third submenu -> Geocoding from CSV/Excel -> make use of importer entries 
                                   font-size: 1.2em;
                                 "
                                 [ngStyle]="{ color: dataset.poiSymbolColor }"
-                                class="glyphicon glyphicon-{{ dataset.poiSymbolBootstrap3Name }}"
+                                class="{{ dataset.poiSymbolBootstrap3Name | iconTranslate }}"
                                 aria-hidden="true"
                               ></span>
                             </div>

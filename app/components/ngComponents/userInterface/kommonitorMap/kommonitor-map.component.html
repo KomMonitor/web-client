@@ -2,16 +2,17 @@
   <div style="text-align: center">
     @if (loadingData) {
       <div class="loading-overlay">
-        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+        <span class="fas fa-arrows-rotate icon-spin"></span>
       </div>
     }
   </div>
 
   <div style="max-width: 50%; z-index: 1; position: absolute">
-    <p
-      id="indicatorProcessDescription"
-      mathjax-bind="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.processDescription"
-    ></p>
+    <!-- TODO: MathJax rendering of the process description is not ported. master fills this
+         paragraph via its `mathjaxBind` AngularJS directive (app.js) and loads MathJax in
+         index.html; neither exists here, so the node stays empty and pdf-export.service.ts
+         screenshots an empty paragraph for formula indicators. See OFFENE_PUNKTE.md, A4. -->
+    <p id="indicatorProcessDescription"></p>
   </div>
 
   <div

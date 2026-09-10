@@ -16,7 +16,6 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-script-code',
   templateUrl: './script-code.component.html',
-  styleUrls: ['./script-code.component.scss'],
   standalone: true,
   imports: [TranslateModule, ExpandableBoxComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,

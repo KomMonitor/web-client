@@ -10,6 +10,12 @@ export class KommonitorDataGridHelperService {
 
   /**
    * Build default column definition
+   *
+   * Deliberately carries no `cellStyle`: the former one restated the global
+   * `.ag-cell` rule in app.scss property for property (font size, wrapping,
+   * line height, padding) as an inline style, which then outranked it. Two
+   * callers had to spread and re-override it just to correct the font size,
+   * and the copies drifted apart. Cell typography lives in app.scss now.
    */
   buildDefaultColDef(): ColDef {
     return {
@@ -23,14 +29,6 @@ export class KommonitorDataGridHelperService {
       resizable: true,
       wrapText: true,
       autoHeight: true,
-      cellStyle: {
-        'font-size': '12px',
-        'white-space': 'normal !important',
-        'line-height': '20px !important',
-        'word-break': 'break-word !important',
-        'padding-top': '17px',
-        'padding-bottom': '17px',
-      },
     };
   }
 

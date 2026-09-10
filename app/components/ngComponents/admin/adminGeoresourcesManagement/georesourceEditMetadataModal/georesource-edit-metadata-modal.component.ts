@@ -11,7 +11,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { getErrorMessage } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.util';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
@@ -21,9 +21,28 @@ import { IndicatorValueService } from 'services/indicator-value-service/indicato
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
 
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { KmColorPickerComponent } from 'components/ngComponents/customElements/color-picker/km-color-picker.component';
+import { KmIconPickerComponent } from 'components/ngComponents/customElements/icon-picker/km-icon-picker.component';
+import { TopicHierarchyFormComponent } from '../../adminShared/topicHierarchyForm/topic-hierarchy-form.component';
+import {
+  buildTopicHierarchyForm,
+  patchTopicHierarchyFromChain,
+  topicHierarchyToApi,
+} from '../../adminShared/topicHierarchyForm/topic-hierarchy-form.model';
+import {
+  DEFAULT_AOI_COLOR,
+  DEFAULT_LOI_COLOR,
+  DEFAULT_LOI_WIDTH,
+  DEFAULT_POI_ICON_NAME,
+  DEFAULT_POI_MARKER_STYLE,
+  buildGeoresourceMetadataStep,
+} from '../georesourceAddModal/georesource-add-form.model';
+import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
+import { FormControlAriaDirective } from '../../adminShared/formError/form-control-aria.directive';
 import {
   KmLinePatternPickerComponent,
   LinePatternOption,
@@ -51,9 +70,16 @@ import { TranslateService } from '@ngx-translate/core';
   styleUrls: ['./georesource-edit-metadata-modal.component.scss'],
   imports: [
     FormsModule,
+    ReactiveFormsModule,
+    LoadingOverlayComponent,
+    ExpandableBoxComponent,
+    TopicHierarchyFormComponent,
+    FormErrorComponent,
+    FormControlAriaDirective,
     AdminTopicsManagementComponent,
     StepperComponent,
     KmColorPickerComponent,
+    KmIconPickerComponent,
     KmLinePatternPickerComponent,
     ResourceMetadataFormComponent,
     TranslateModule,
@@ -89,10 +115,40 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
   ]);
 
   // Form data
-  datasetName: string = '';
-  datasetNameInvalid = false;
-  poiMarkerText: string = '';
-  poiMarkerTextInvalid = false;
+  /**
+   * Name, type and the nine style fields — the same block as the add wizard's
+   * first step, plus the four-level topic cascade. The accessors below keep the
+   * historic property names working for the patch-body/export builders.
+   */
+  readonly metadataStep = buildGeoresourceMetadataStep({
+    existingDatasetNames: () =>
+      (this.georesourceStore.availableGeoresources ?? []).map((g: any) => g.datasetName),
+    currentDatasetName: () => this.currentGeoresourceDataset?.datasetName ?? null,
+  });
+  readonly topicsForm = buildTopicHierarchyForm({ requireMainTopic: true });
+
+  private get styleGroup() {
+    return this.metadataStep.controls.style;
+  }
+
+  get datasetName(): string {
+    return this.metadataStep.controls.datasetName.value;
+  }
+  set datasetName(value: string) {
+    this.metadataStep.controls.datasetName.setValue(value ?? '');
+  }
+  get datasetNameInvalid(): boolean {
+    return this.metadataStep.controls.datasetName.hasError('uniqueName');
+  }
+  get poiMarkerText(): string {
+    return this.styleGroup.controls.poiMarkerText.value;
+  }
+  set poiMarkerText(value: string) {
+    this.styleGroup.controls.poiMarkerText.setValue(value ?? '');
+  }
+  get poiMarkerTextInvalid(): boolean {
+    return this.styleGroup.controls.poiMarkerText.hasError('maxlength');
+  }
 
   // Metadata
   metadataForm = buildResourceMetadataForm();
@@ -102,37 +158,112 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
   }
 
   // Georesource type
-  georesourceType: string = 'poi';
-  isPOI = true;
-  isLOI = false;
-  isAOI = false;
+  get georesourceType(): string {
+    return this.metadataStep.controls.georesourceType.value;
+  }
+  set georesourceType(value: string) {
+    this.metadataStep.controls.georesourceType.setValue(
+      value === 'loi' || value === 'aoi' ? value : 'poi'
+    );
+  }
+  get isPOI(): boolean {
+    return this.georesourceType === 'poi';
+  }
+  get isLOI(): boolean {
+    return this.georesourceType === 'loi';
+  }
+  get isAOI(): boolean {
+    return this.georesourceType === 'aoi';
+  }
 
   // POI specific
-  selectedPoiMarkerColor: any;
-  selectedPoiSymbolColor: any;
-  selectedPoiMarkerStyle: string = 'symbol';
-  selectedPoiIconName: string = 'home';
+  get selectedPoiMarkerColor(): any {
+    return this.styleGroup.controls.poiMarkerColor.value;
+  }
+  set selectedPoiMarkerColor(value: any) {
+    this.styleGroup.controls.poiMarkerColor.setValue(value ?? null);
+  }
+  get selectedPoiSymbolColor(): any {
+    return this.styleGroup.controls.poiSymbolColor.value;
+  }
+  set selectedPoiSymbolColor(value: any) {
+    this.styleGroup.controls.poiSymbolColor.setValue(value ?? null);
+  }
+  get selectedPoiMarkerStyle(): string {
+    return this.styleGroup.controls.poiMarkerStyle.value;
+  }
+  set selectedPoiMarkerStyle(value: string) {
+    this.styleGroup.controls.poiMarkerStyle.setValue(value || DEFAULT_POI_MARKER_STYLE);
+  }
+  get selectedPoiIconName(): string {
+    return this.styleGroup.controls.poiIconName.value;
+  }
+  set selectedPoiIconName(value: string) {
+    this.styleGroup.controls.poiIconName.setValue(value || DEFAULT_POI_ICON_NAME);
+  }
 
   // LOI specific
-  selectedLoiDashArrayObject: any;
-  loiColor: string = '#bf3d2c';
-  loiWidth: number = 3;
+  get selectedLoiDashArrayObject(): any {
+    return this.styleGroup.controls.loiDashArray.value;
+  }
+  set selectedLoiDashArrayObject(value: any) {
+    this.styleGroup.controls.loiDashArray.setValue(value ?? null);
+  }
+  get loiColor(): string {
+    return this.styleGroup.controls.loiColor.value;
+  }
+  set loiColor(value: string) {
+    this.styleGroup.controls.loiColor.setValue(value || DEFAULT_LOI_COLOR);
+  }
+  get loiWidth(): number {
+    return this.styleGroup.controls.loiWidth.value;
+  }
+  set loiWidth(value: number) {
+    this.styleGroup.controls.loiWidth.setValue(value ?? DEFAULT_LOI_WIDTH);
+  }
 
   // AOI specific
-  aoiColor: string = '#bf3d2c';
+  get aoiColor(): string {
+    return this.styleGroup.controls.aoiColor.value;
+  }
+  set aoiColor(value: string) {
+    this.styleGroup.controls.aoiColor.setValue(value || DEFAULT_AOI_COLOR);
+  }
 
   // Topic hierarchy
-  georesourceTopic_mainTopic: any;
-  georesourceTopic_subTopic: any;
-  georesourceTopic_subsubTopic: any;
-  georesourceTopic_subsubsubTopic: any;
+  get georesourceTopic_mainTopic(): any {
+    return this.topicsForm.controls.mainTopic.value;
+  }
+  set georesourceTopic_mainTopic(value: any) {
+    this.topicsForm.controls.mainTopic.setValue(value ?? null);
+  }
+  get georesourceTopic_subTopic(): any {
+    return this.topicsForm.controls.subTopic.value;
+  }
+  set georesourceTopic_subTopic(value: any) {
+    this.topicsForm.controls.subTopic.setValue(value ?? null);
+  }
+  get georesourceTopic_subsubTopic(): any {
+    return this.topicsForm.controls.subsubTopic.value;
+  }
+  set georesourceTopic_subsubTopic(value: any) {
+    this.topicsForm.controls.subsubTopic.setValue(value ?? null);
+  }
+  get georesourceTopic_subsubsubTopic(): any {
+    return this.topicsForm.controls.subsubsubTopic.value;
+  }
+  set georesourceTopic_subsubsubTopic(value: any) {
+    this.topicsForm.controls.subsubsubTopic.setValue(value ?? null);
+  }
 
-  // Roles pass-through for PATCH/export: metadata editing does not manage
-  // permissions (that is the edit-user-roles modal's job, like in the
-  // spatial-unit area) — the current roles are just echoed back. Sourced from
-  // the dataset on reset and from an imported metadata file. Historically this
-  // went through an invisible role grid that was never rendered.
-  allowedRoles: string[] = [];
+  // Roles pass-through for the metadata export only: metadata editing does not
+  // manage permissions (that is the edit-user-roles modal's job, like in the
+  // spatial-unit area), and GeoresourcePATCHInputType has no permission field —
+  // so these are written to an exported metadata file but never PATCHed.
+  // Sourced from the dataset on reset and from an imported metadata file.
+  // Historically this went through an invisible role grid that was never
+  // rendered.
+  permissions: string[] = [];
 
   // Import/Export
   metadataImportSettings: any;
@@ -187,7 +318,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
         description: 'description about spatial unit dataset',
         databasis: 'text about data basis',
       },
-      allowedRoles: ['roleId'],
+      permissions: ['roleId'],
       datasetName: 'Name of georesource dataset',
       isPOI:
         'boolean parameter for point of interest dataset - only one of isPOI, isLOI, isAOI can be true',
@@ -217,7 +348,6 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
 
     this.stepper.reset();
     this.datasetName = this.currentGeoresourceDataset.datasetName;
-    this.datasetNameInvalid = false;
 
     // Reset metadata from the dataset being edited
     patchMetadataFormFromApi(
@@ -226,12 +356,14 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
       this.envConfigService.updateIntervalOptions
     );
 
-    this.allowedRoles = [...(this.currentGeoresourceDataset.allowedRoles ?? [])];
+    this.permissions = [...(this.currentGeoresourceDataset.permissions ?? [])];
 
     // Set georesource type
-    this.isPOI = this.currentGeoresourceDataset.isPOI;
-    this.isLOI = this.currentGeoresourceDataset.isLOI;
-    this.isAOI = this.currentGeoresourceDataset.isAOI;
+    this.georesourceType = this.currentGeoresourceDataset.isPOI
+      ? 'poi'
+      : this.currentGeoresourceDataset.isLOI
+        ? 'loi'
+        : 'aoi';
 
     if (this.isPOI) {
       this.georesourceType = 'poi';
@@ -269,43 +401,24 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
       this.currentGeoresourceDataset.topicReference
     );
 
-    if (topicHierarchy && topicHierarchy[0]) {
-      this.georesourceTopic_mainTopic = topicHierarchy[0];
-    }
-    if (topicHierarchy && topicHierarchy[1]) {
-      this.georesourceTopic_subTopic = topicHierarchy[1];
-    }
-    if (topicHierarchy && topicHierarchy[2]) {
-      this.georesourceTopic_subsubTopic = topicHierarchy[2];
-    }
-    if (topicHierarchy && topicHierarchy[3]) {
-      this.georesourceTopic_subsubsubTopic = topicHierarchy[3];
-    }
+    patchTopicHierarchyFromChain(this.topicsForm, topicHierarchy);
   }
 
   // Validation methods
+  /** The rule is `uniqueNameValidator` on the control now. */
   checkDatasetName(): void {
-    this.datasetNameInvalid = false;
-    this.georesourceStore.availableGeoresources.forEach((georesource: any) => {
-      if (
-        georesource.datasetName === this.datasetName &&
-        georesource.georesourceId !== this.currentGeoresourceDataset?.georesourceId
-      ) {
-        this.datasetNameInvalid = true;
-        return;
-      }
-    });
+    this.metadataStep.controls.datasetName.updateValueAndValidity();
   }
 
+  /** The rule is `Validators.maxLength(3)` on the control now. */
   checkPoiMarkerText(): void {
-    this.poiMarkerTextInvalid = this.poiMarkerText.length > 3;
+    this.styleGroup.controls.poiMarkerText.updateValueAndValidity();
   }
 
-  // Georesource type change
+  // Georesource type change. isPOI/isLOI/isAOI are derived from the single
+  // georesourceType control now; kept as a template hook.
   onChangeGeoresourceType(): void {
-    this.isPOI = this.georesourceType === 'poi';
-    this.isLOI = this.georesourceType === 'loi';
-    this.isAOI = this.georesourceType === 'aoi';
+    this.georesourceType = this.georesourceType;
   }
 
   // POI methods
@@ -381,12 +494,14 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
 
     this.datasetName = this.metadataImportSettings.datasetName;
 
-    this.allowedRoles = [...(this.metadataImportSettings.allowedRoles ?? [])];
+    this.permissions = [...(this.metadataImportSettings.permissions ?? [])];
 
     // Set georesource specific properties
-    this.isPOI = this.metadataImportSettings.isPOI;
-    this.isLOI = this.metadataImportSettings.isLOI;
-    this.isAOI = this.metadataImportSettings.isAOI;
+    this.georesourceType = this.metadataImportSettings.isPOI
+      ? 'poi'
+      : this.metadataImportSettings.isLOI
+        ? 'loi'
+        : 'aoi';
 
     if (this.metadataImportSettings.isPOI) {
       this.georesourceType = 'poi';
@@ -424,18 +539,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
       this.metadataImportSettings.topicReference
     );
 
-    if (topicHierarchy && topicHierarchy[0]) {
-      this.georesourceTopic_mainTopic = topicHierarchy[0];
-    }
-    if (topicHierarchy && topicHierarchy[1]) {
-      this.georesourceTopic_subTopic = topicHierarchy[1];
-    }
-    if (topicHierarchy && topicHierarchy[2]) {
-      this.georesourceTopic_subsubTopic = topicHierarchy[2];
-    }
-    if (topicHierarchy && topicHierarchy[3]) {
-      this.georesourceTopic_subsubsubTopic = topicHierarchy[3];
-    }
+    patchTopicHierarchyFromChain(this.topicsForm, topicHierarchy);
   }
 
   onExportGeoresourceEditMetadata(): void {
@@ -451,7 +555,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
     metadataExport.metadata.databasis = this.metadata.databasis || '';
     metadataExport.datasetName = this.datasetName || '';
 
-    metadataExport.allowedRoles = [...this.allowedRoles];
+    metadataExport.permissions = [...this.permissions];
 
     if (this.metadata.updateInterval) {
       metadataExport.metadata.updateInterval = this.metadata.updateInterval.apiName;
@@ -489,17 +593,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
     }
 
     // Set topic reference
-    if (this.georesourceTopic_subsubsubTopic) {
-      metadataExport.topicReference = this.georesourceTopic_subsubsubTopic.topicId;
-    } else if (this.georesourceTopic_subsubTopic) {
-      metadataExport.topicReference = this.georesourceTopic_subsubTopic.topicId;
-    } else if (this.georesourceTopic_subTopic) {
-      metadataExport.topicReference = this.georesourceTopic_subTopic.topicId;
-    } else if (this.georesourceTopic_mainTopic) {
-      metadataExport.topicReference = this.georesourceTopic_mainTopic.topicId;
-    } else {
-      metadataExport.topicReference = '';
-    }
+    metadataExport.topicReference = topicHierarchyToApi(this.topicsForm);
 
     const metadataJSON = JSON.stringify(metadataExport);
     let fileName = 'Georessource_Metadaten_Export';
@@ -526,9 +620,10 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
 
   // Main edit method
   editGeoresourceMetadata(): void {
+    // No permission field: GeoresourcePATCHInputType does not declare one and
+    // the AngularJS original never sent one either.
     const patchBody: any = {
       metadata: metadataFormToApi(this.metadataForm),
-      allowedRoles: [...this.allowedRoles],
       datasetName: this.datasetName,
       isAOI: this.isAOI,
       isLOI: this.isLOI,
@@ -563,17 +658,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
     }
 
     // Set topic reference
-    if (this.georesourceTopic_subsubsubTopic) {
-      patchBody.topicReference = this.georesourceTopic_subsubsubTopic.topicId;
-    } else if (this.georesourceTopic_subsubTopic) {
-      patchBody.topicReference = this.georesourceTopic_subsubTopic.topicId;
-    } else if (this.georesourceTopic_subTopic) {
-      patchBody.topicReference = this.georesourceTopic_subTopic.topicId;
-    } else if (this.georesourceTopic_mainTopic) {
-      patchBody.topicReference = this.georesourceTopic_mainTopic.topicId;
-    } else {
-      patchBody.topicReference = '';
-    }
+    patchBody.topicReference = topicHierarchyToApi(this.topicsForm);
 
     this.loadingData.set(true);
 
@@ -630,7 +715,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
 
   // Validation for form submission
   canSubmitForm(): boolean {
-    return !this.datasetNameInvalid && this.metadataForm.valid && !this.poiMarkerTextInvalid;
+    return this.metadataStep.valid && this.metadataForm.valid && this.topicsForm.valid;
   }
 
   // Modal control

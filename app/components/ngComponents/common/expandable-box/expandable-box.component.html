@@ -1,20 +1,28 @@
-<div class="box-wrapper">
+<div class="box-wrapper" [class.nested]="variant === 'nested'">
   <div
     class="box-header"
     [class]="'top-border-' + borderColor"
-    (click)="onCollapseToggle()"
     [class.collapsible]="isCollapsible"
+    (click)="onCollapseToggle()"
+    (keydown.enter)="onCollapseToggle()"
+    (keydown.space)="onSpace($event)"
+    [attr.role]="isCollapsible ? 'button' : null"
+    [attr.tabindex]="isCollapsible ? 0 : null"
+    [attr.aria-expanded]="isCollapsible ? !collapsed : null"
   >
     <div class="box-title">{{ title }}</div>
-    <div class="box-tools">
-      @if (isCollapsible) {
-        <button type="button" class="btn btn-box-tool">
-          <i class="fa" [class.fa-plus]="collapsed" [class.fa-minus]="!collapsed"></i>
-        </button>
-      }
-    </div>
+    @if (isCollapsible) {
+      <!-- Decorative: the whole header is the control, so the marker must not
+           be a second focusable element inside it. -->
+      <span
+        class="box-collapse-marker fa"
+        aria-hidden="true"
+        [class.fa-plus]="collapsed"
+        [class.fa-minus]="!collapsed"
+      ></span>
+    }
   </div>
-  <div class="box-body" #collapse="ngbCollapse" [(ngbCollapse)]="collapsed">
+  <div class="box-body" [(ngbCollapse)]="collapsed">
     <ng-content></ng-content>
   </div>
 </div>

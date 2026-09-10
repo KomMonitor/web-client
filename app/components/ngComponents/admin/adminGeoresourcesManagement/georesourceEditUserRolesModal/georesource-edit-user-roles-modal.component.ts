@@ -19,6 +19,7 @@ import { NotificationService } from 'components/ngComponents/common/notification
 import { getErrorMessage } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatial-unit-import.util';
 import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
 import { FormsModule } from '@angular/forms';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
@@ -32,6 +33,7 @@ import { TranslateService } from '@ngx-translate/core';
   styleUrls: ['./georesource-edit-user-roles-modal.component.scss'],
   imports: [
     FormsModule,
+    LoadingOverlayComponent,
     StepperComponent,
     RoleManagementGridComponent,
     OwnerOrganizationSelectComponent,

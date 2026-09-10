@@ -1,18 +1,18 @@
-<expandable-box [title]="'ADMIN_SCRIPTS.PARAMETERS.TITLE' | translate" borderColor="red">
+<expandable-box [title]="'ADMIN_SCRIPTS.PARAMETERS.TITLE' | translate" [formGroup]="draft">
   <p [innerHTML]="'ADMIN_SCRIPTS.PARAMETERS.INTRO' | translate"></p>
 
   <div class="row vertical-align">
     <div class="col-md-4 col-sm-6 col-12">
       <div class="form-group">
-        <label>{{ 'ADMIN_SCRIPTS.PARAMETERS.NAME_LABEL' | translate }}</label>
+        <label class="form-label">{{ 'ADMIN_SCRIPTS.PARAMETERS.NAME_LABEL' | translate }}</label>
         <input
           type="text"
           class="form-control"
-          [(ngModel)]="parameterName_tmp"
+          formControlName="name"
+          appAria="script-param-name"
           [placeholder]="'ADMIN_SHARED.NAME' | translate"
-          required
         />
-        <div class="help-block with-errors"></div>
+        <app-form-error [control]="draft.controls.name" for="script-param-name" />
         <div class="help-block">
           <p>{{ 'ADMIN_SCRIPTS.PARAMETERS.NAME_HELP' | translate }}</p>
         </div>
@@ -20,18 +20,20 @@
     </div>
     <div class="col-md-8 col-sm-6 col-12">
       <div class="form-group">
-        <label>{{ 'ADMIN_SCRIPTS.PARAMETERS.DESCRIPTION_LABEL' | translate }}</label>
+        <label class="form-label">{{
+          'ADMIN_SCRIPTS.PARAMETERS.DESCRIPTION_LABEL' | translate
+        }}</label>
         <textarea
           rows="3"
           class="form-control"
-          [(ngModel)]="parameterDescription_tmp"
+          formControlName="description"
+          appAria="script-param-description"
           [placeholder]="'ADMIN_SHARED.DESCRIPTION' | translate"
-          required
         ></textarea>
+        <app-form-error [control]="draft.controls.description" for="script-param-description" />
         <div class="help-block">
           <p>{{ 'ADMIN_SCRIPTS.PARAMETERS.DESCRIPTION_HELP' | translate }}</p>
         </div>
-        <div class="help-block with-errors"></div>
       </div>
     </div>
   </div>
@@ -40,12 +42,14 @@
     <!-- Datentyp -->
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>{{ 'ADMIN_SCRIPTS.PARAMETERS.DATA_TYPE_LABEL' | translate }}</label>
+        <label class="form-label">{{
+          'ADMIN_SCRIPTS.PARAMETERS.DATA_TYPE_LABEL' | translate
+        }}</label>
         <select
-          [(ngModel)]="parameterDataType_tmp"
+          formControlName="dataType"
           size="5"
           class="form-control"
-          (ngModelChange)="onChangeParameterDataType()"
+          (change)="onChangeParameterDataType()"
         >
           <option disabled selected [ngValue]="undefined">
             {{ 'ADMIN_SCRIPTS.PARAMETERS.DATA_TYPE_PLACEHOLDER' | translate }}
@@ -56,20 +60,22 @@
             </option>
           }
         </select>
-        <div class="help-block with-errors"></div>
+        <app-form-error [control]="draft.controls.dataType" />
       </div>
     </div>
 
     <!-- Standard-Wert -->
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <label>{{ 'ADMIN_SCRIPTS.PARAMETERS.DEFAULT_VALUE_LABEL' | translate }}</label>
+        <label class="form-label">{{
+          'ADMIN_SCRIPTS.PARAMETERS.DEFAULT_VALUE_LABEL' | translate
+        }}</label>
         @if (parameterDataType_tmp?.apiName === 'string') {
           <div>
             <input
               type="text"
               class="form-control"
-              [(ngModel)]="parameterDefaultValue_tmp"
+              formControlName="defaultValue"
               [placeholder]="'ADMIN_SCRIPTS.PARAMETERS.DEFAULT_STRING_PLACEHOLDER' | translate"
               required
             />
@@ -77,7 +83,7 @@
         }
         @if (parameterDataType_tmp?.apiName === 'boolean') {
           <div>
-            <input type="checkbox" [(ngModel)]="parameterDefaultValue_tmp" required />
+            <input type="checkbox" formControlName="defaultValue" required />
           </div>
         }
         @if (parameterDataType_tmp?.apiName === 'integer') {
@@ -86,7 +92,7 @@
               type="number"
               step="1"
               class="form-control"
-              [(ngModel)]="parameterDefaultValue_tmp"
+              formControlName="defaultValue"
               [placeholder]="'ADMIN_SCRIPTS.PARAMETERS.DEFAULT_INTEGER_PLACEHOLDER' | translate"
               required
             />
@@ -98,7 +104,7 @@
               type="number"
               step="0.000000001"
               class="form-control"
-              [(ngModel)]="parameterDefaultValue_tmp"
+              formControlName="defaultValue"
               [placeholder]="'ADMIN_SCRIPTS.PARAMETERS.DEFAULT_DOUBLE_PLACEHOLDER' | translate"
               required
             />
@@ -107,7 +113,7 @@
             </div>
           </div>
         }
-        <div class="help-block with-errors"></div>
+        <app-form-error [control]="draft.controls.defaultValue" />
         <div class="help-block">
           <p>{{ 'ADMIN_SCRIPTS.PARAMETERS.DEFAULT_VALUE_HELP' | translate }}</p>
         </div>
@@ -118,15 +124,16 @@
     @if (parameterDataType_tmp?.apiName === 'integer') {
       <div class="col-md-3 col-sm-6 col-12">
         <div class="form-group">
-          <label>{{ 'ADMIN_SCRIPTS.PARAMETERS.MIN_VALUE_LABEL' | translate }}</label>
+          <label class="form-label">{{
+            'ADMIN_SCRIPTS.PARAMETERS.MIN_VALUE_LABEL' | translate
+          }}</label>
           <input
             type="number"
             step="1"
             class="form-control"
-            [(ngModel)]="parameterNumericMinValue_tmp"
+            formControlName="numericMinValue"
             [placeholder]="'ADMIN_SCRIPTS.PARAMETERS.INTEGER_MIN_PLACEHOLDER' | translate"
           />
-          <div class="help-block with-errors"></div>
           <div class="help-block">
             <p>{{ 'ADMIN_SCRIPTS.PARAMETERS.MIN_VALUE_HELP' | translate }}</p>
           </div>
@@ -138,15 +145,16 @@
     @if (parameterDataType_tmp?.apiName === 'integer') {
       <div class="col-md-3 col-sm-6 col-12">
         <div class="form-group">
-          <label>{{ 'ADMIN_SCRIPTS.PARAMETERS.MAX_VALUE_LABEL' | translate }}</label>
+          <label class="form-label">{{
+            'ADMIN_SCRIPTS.PARAMETERS.MAX_VALUE_LABEL' | translate
+          }}</label>
           <input
             type="number"
             step="1"
             class="form-control"
-            [(ngModel)]="parameterNumericMaxValue_tmp"
+            formControlName="numericMaxValue"
             [placeholder]="'ADMIN_SCRIPTS.PARAMETERS.INTEGER_MAX_PLACEHOLDER' | translate"
           />
-          <div class="help-block with-errors"></div>
           <div class="help-block">
             <p>{{ 'ADMIN_SCRIPTS.PARAMETERS.MAX_VALUE_HELP' | translate }}</p>
           </div>
@@ -158,15 +166,16 @@
     @if (parameterDataType_tmp?.apiName === 'double') {
       <div class="col-md-3 col-sm-6 col-12">
         <div class="form-group">
-          <label>{{ 'ADMIN_SCRIPTS.PARAMETERS.MIN_VALUE_LABEL' | translate }}</label>
+          <label class="form-label">{{
+            'ADMIN_SCRIPTS.PARAMETERS.MIN_VALUE_LABEL' | translate
+          }}</label>
           <input
             type="number"
             step="0.000000001"
             class="form-control"
-            [(ngModel)]="parameterNumericMinValue_tmp"
+            formControlName="numericMinValue"
             [placeholder]="'ADMIN_SCRIPTS.PARAMETERS.DOUBLE_MIN_PLACEHOLDER' | translate"
           />
-          <div class="help-block with-errors"></div>
           <div class="help-block">
             <p>{{ 'ADMIN_SCRIPTS.PARAMETERS.MIN_VALUE_HELP' | translate }}</p>
           </div>
@@ -178,15 +187,16 @@
     @if (parameterDataType_tmp?.apiName === 'double') {
       <div class="col-md-3 col-sm-6 col-12">
         <div class="form-group">
-          <label>{{ 'ADMIN_SCRIPTS.PARAMETERS.MAX_VALUE_LABEL' | translate }}</label>
+          <label class="form-label">{{
+            'ADMIN_SCRIPTS.PARAMETERS.MAX_VALUE_LABEL' | translate
+          }}</label>
           <input
             type="number"
             step="0.000000001"
             class="form-control"
-            [(ngModel)]="parameterNumericMaxValue_tmp"
+            formControlName="numericMaxValue"
             [placeholder]="'ADMIN_SCRIPTS.PARAMETERS.DOUBLE_MAX_PLACEHOLDER' | translate"
           />
-          <div class="help-block with-errors"></div>
           <div class="help-block">
             <p>{{ 'ADMIN_SCRIPTS.PARAMETERS.MAX_VALUE_HELP' | translate }}</p>
           </div>
@@ -205,18 +215,15 @@
         >
           {{ 'ADMIN_SCRIPTS.ADD' | translate }}
         </button>
-        <div class="help-block with-errors"></div>
       </div>
     </div>
   </div>
 
-  <br /><br />
-
   <!-- Tabelle der definierten Skript-Parameter -->
-  <div class="row vertical-align">
+  <div class="row vertical-align mt-4">
     <div class="col-md-12 col-sm-12 col-12">
-      <label>{{ 'ADMIN_SCRIPTS.PARAMETERS.OVERVIEW_LABEL' | translate }}</label>
-      <table class="table table-condensed">
+      <label class="form-label">{{ 'ADMIN_SCRIPTS.PARAMETERS.OVERVIEW_LABEL' | translate }}</label>
+      <table class="table table-bordered table-striped table-sm">
         <thead>
           <tr>
             <th>{{ 'ADMIN_SHARED.EDIT_FUNCTIONS' | translate }}</th>

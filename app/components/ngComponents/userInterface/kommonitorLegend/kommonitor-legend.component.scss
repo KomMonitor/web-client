@@ -43,18 +43,6 @@
       display: grid;
       grid-template-columns: 1fr auto;
       padding: 10px;
-
-      .close {
-        border: none;
-        background: none;
-        font-size: 25px;
-        font-weight: 400;
-        color: #888;
-      }
-
-      .close:hover {
-        color: #444444;
-      }
     }
 
     .box-body {

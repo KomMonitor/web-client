@@ -20,6 +20,8 @@ import {
 import { AdminTopicsManagementService } from '../admin-topics-management.service';
 import { Topic } from '../topic.model';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
+import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { TranslateService } from '@ngx-translate/core';
@@ -27,7 +29,13 @@ import { TranslateService } from '@ngx-translate/core';
   selector: 'app-topic-edit-modal',
   templateUrl: './topic-edit-modal.component.html',
   styleUrls: ['./topic-edit-modal.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, TranslateModule],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    TranslateModule,
+    LoadingOverlayComponent,
+    FormErrorComponent,
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

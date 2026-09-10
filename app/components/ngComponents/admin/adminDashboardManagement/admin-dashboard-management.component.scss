@@ -2,7 +2,31 @@
   padding-bottom: 20px;
 }
 
+// The global .vertical-align sets align-items: center (app.scss), which pushes a
+// shorter column and its heading down relative to its neighbours. The chart
+// headings have to share a baseline, so this row top-aligns instead. Scoped to
+// the chart row: the tile rows keep the centring, which equalises tile heights.
+.row.vertical-align.charts {
+  align-items: flex-start;
+}
+
+// Section heading above each chart. Sits below the 24px view title, so it is
+// deliberately smaller than it — ECharts' own default title was 18px bold and
+// thus outweighed the heading it sat under.
+.chart-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 8px 0;
+}
+
 .dashboard-chart {
   width: 100%;
-  min-height: 500px;
+  min-height: 460px;
+}
+
+// A three-slice pie needs nowhere near the height the 15-row bar charts do;
+// at the full height it just floated in the middle of its own dead space.
+.dashboard-chart.compact {
+  min-height: 320px;
 }

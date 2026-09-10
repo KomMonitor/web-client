@@ -66,7 +66,8 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
   domId = 'reachabilityScenarioIsochroneStatisticsGeoMap';
   mapParts;
 
-  // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
+  // Resolve the indicator precision from the current selection before
+  // delegating to IndicatorValueService.
   protected getIndicatorValue_asFormattedText(indicatorValue, precision = undefined) {
     return this.indicatorValueService.getIndicatorValue_asFormattedText(
       indicatorValue,

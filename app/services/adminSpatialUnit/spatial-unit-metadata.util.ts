@@ -1,8 +1,6 @@
 /**
- * Pure spatial-unit metadata helpers extracted from the former
- * `adminSpatialUnit` data-exchange god service (step 4 of the
- * admin refactoring — see documentation/ADMIN_REFACTORING_ANALYSIS.md). The
- * facade delegates to these; new code can import them directly.
+ * Pure spatial-unit metadata helpers extracted from the former `adminSpatialUnit`
+ * data-exchange god service, which has since been deleted — import them directly.
  */
 
 /** Convert empty strings/undefined to null for API payloads. */
@@ -69,7 +67,9 @@ export function buildSpatialUnitMetadataExport(
       description: convertEmptyToNull(metadata.description),
       databasis: convertEmptyToNull(metadata.databasis),
     },
-    allowedRoles: ['roleId'],
+    // Placeholder, overwritten with the real role ids by the add modal; the
+    // API and the AngularJS original both call this field `permissions`.
+    permissions: ['roleId'],
     spatialUnitLevel: spatialUnitLevel || null,
     nextLowerHierarchyLevel,
     nextUpperHierarchyLevel,
@@ -93,7 +93,7 @@ export const SPATIAL_UNIT_METADATA_STRUCTURE = {
     description: 'description about spatial unit dataset',
     databasis: 'text about data basis',
   },
-  allowedRoles: ['roleId'],
+  permissions: ['roleId'],
   nextLowerHierarchyLevel: 'Name of lower hierarchy level',
   spatialUnitLevel: 'Name of spatial unit dataset',
   nextUpperHierarchyLevel: 'Name of upper hierarchy level',

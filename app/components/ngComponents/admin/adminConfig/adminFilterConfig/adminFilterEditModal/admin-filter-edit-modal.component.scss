@@ -1,5 +1,181 @@
-::ng-deep .modal-holder .modal-dialog {
-  max-width: 50%;
-  width: 50%;
-  transform: none !important;
+/*
+ * This file used to open with one rule:
+ *
+ *   ::ng-deep .modal-holder .modal-dialog {
+ *     max-width: 50%; width: 50%; transform: none !important;
+ *   }
+ *
+ * It set a modal width, which `app/util/modal-presets.ts` reserves for the
+ * `.km-modal-*` tiers in `app.scss` ("Nothing else in the app may set a modal
+ * width") — and it won: this wizard opened at 953px on a 1920px viewport while
+ * every other MODAL_WIDE dialog took its 1600px from `.km-modal-wide`.
+ *
+ * A leading `::ng-deep` also compiles to a plain global rule, so the width was
+ * never this dialog's alone: six userInterface components ship the same
+ * `.modal-holder .modal-dialog` selector, three of them with
+ * `max-width: max-content`, so whichever stylesheet loaded last decided.
+ * `infoModal/info-modal.component.scss` dropped its copy for the same reason.
+ *
+ * The dialog now opens with plain MODAL_WIDE and no `windowClass`.
+ */
+
+// No `height`: the grid runs `domLayout: 'autoHeight'` and sizes itself to its
+// five paginated rows. A definite height here would override that again.
+.dataset-grid {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+// Both checkbox groups sit in a flex row (`.topic-row`, `.selection-toggle`) or
+// in a grid cell, where Bootstrap's `.form-check-input` top margin would push
+// them off the text baseline. Everything else that used to be here — width,
+// height, border-radius, `float: none` — only existed to undo
+// `.multiStepForm input { width: 100% }` and the squared-off borders from
+// app.scss, and went with that wrapper.
+//
+// The grid's checkboxes need `::ng-deep` because a cellRenderer builds them with
+// `document.createElement`, so they never receive this component's content
+// attribute. Prefixed with `:host` so the rule stays scoped to this dialog — as
+// a leading `::ng-deep` it would have leaked `.dataset-grid .dataset-check`
+// app-wide.
+:host ::ng-deep .dataset-grid .dataset-check,
+input[type='checkbox'] {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.selection-toggle {
+  // Neutralizes Bootstrap's .form-check layout (floated input, left padding)
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-left: 0;
+  margin-bottom: 0.75rem;
+  color: #495057;
+
+  .form-check-label {
+    cursor: pointer;
+    user-select: none;
+  }
+}
+
+.topic-tree {
+  max-height: 45vh;
+  overflow-y: auto;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  background-color: #fff;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.topic-tree-empty {
+  margin: 0;
+  padding: 1rem;
+  text-align: center;
+  color: #6c757d;
+}
+
+.topic-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.35rem;
+  transition: background-color 0.15s ease-in-out;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+
+  // Explicitly checked — this is the level that ends up in the configuration
+  &.is-selected {
+    background-color: var(--kommonitor-hierarchy-level-2);
+
+    .topic-label {
+      font-weight: 600;
+    }
+  }
+
+  // Implied by a selected ancestor: checked, but not changeable on its own
+  &.is-implied {
+    background-color: var(--kommonitor-hierarchy-level-3);
+
+    .topic-label {
+      font-weight: 400;
+      color: #6c757d;
+      cursor: default;
+    }
+
+    .topic-check {
+      cursor: not-allowed;
+    }
+  }
+}
+
+// Indentation with a guide line, one level per nesting step
+.topic-children {
+  margin-left: 1rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid #e3e6ea;
+}
+
+.topic-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 0.25rem;
+  background: none;
+  color: #6c757d;
+  font-size: 0.75rem;
+  transition:
+    color 0.15s ease-in-out,
+    background-color 0.15s ease-in-out;
+
+  i {
+    transition: transform 0.15s ease-in-out;
+  }
+
+  &.is-expanded i {
+    transform: rotate(90deg);
+  }
+
+  &:hover {
+    color: var(--kommonitor-primary);
+    background-color: rgba(0, 0, 0, 0.06);
+  }
+}
+
+.topic-toggle-placeholder {
+  flex: 0 0 1.5rem;
+  width: 1.5rem;
+}
+
+.topic-check {
+  cursor: pointer;
+}
+
+.topic-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+// Number of sub-topics, so a collapsed branch still says how much it hides
+.topic-count {
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background-color: #f0f2f5;
+  color: #6c757d;
+  font-size: 0.7rem;
+  line-height: 1.5;
 }

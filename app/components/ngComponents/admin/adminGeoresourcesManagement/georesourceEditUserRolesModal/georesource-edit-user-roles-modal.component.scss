@@ -1,186 +1,27 @@
-/* Progress bar styling */
-#progressbar {
-  margin-bottom: 30px;
-  overflow: hidden;
-  color: lightgrey;
-  padding-left: 0px;
-  margin-top: 20px;
-}
-
-#progressbar li {
-  list-style-type: none;
-  font-size: 14px;
-  width: 25%;
-  float: left;
-  position: relative;
-  text-align: center;
-  cursor: pointer;
-}
-
-#progressbar li:hover {
-  color: #337ab7;
-}
-
-#progressbar li.active {
-  color: #337ab7;
-}
-
-#progressbar li:before {
-  width: 30px;
-  height: 30px;
-  line-height: 28px;
-  display: block;
-  font-size: 12px;
-  color: #ffffff;
-  background: lightgray;
-  border-radius: 50%;
-  margin: 0 auto 10px auto;
-  content: counter(step);
-  counter-increment: step;
-}
-
-#progressbar li.active:before {
-  background: #337ab7;
-}
-
-/* Form styling */
-.fs-title {
-  font-size: 24px;
-  text-transform: uppercase;
-  color: #2c3e50;
-  margin-bottom: 10px;
-  text-align: center;
-}
-
-.fs-subtitle {
-  font-weight: normal;
-  font-size: 16px;
-  color: #666;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-/* Action buttons */
-.action-button-previous {
-  width: 100px;
-  background: #c5c5f1;
-  font-weight: bold;
-  color: white;
-  border: 0 none;
-  border-radius: 0px;
-  cursor: pointer;
-  padding: 10px 5px;
-  margin: 10px 5px;
-}
-
-.action-button-previous:hover,
-.action-button-previous:focus {
-  box-shadow:
-    0 0 0 2px white,
-    0 0 0 3px #c5c5f1;
-}
-
-/* Loading overlay */
-.loading-overlay-admin-panel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.8);
-  z-index: 1000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.loading-overlay-admin-panel.ng-hide {
-  display: none !important;
-}
-
-.icon-spin {
-  animation: spin 1s infinite linear;
-  font-size: 24px;
-  color: #337ab7;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-/* Vertical alignment helper */
-.vertical-align {
-  display: flex;
-  align-items: center;
-}
-
-.margin-right {
-  margin-right: 10px;
-}
-
-/* Alert customization */
-.alert {
-  margin-bottom: 20px;
-}
-
-.alert-dismissable .close {
-  position: relative;
-  top: -2px;
-  right: -21px;
-  color: inherit;
-}
-
-/* Form group spacing */
-.form-group {
-  margin-bottom: 15px;
-}
-
-/* Input group styling */
-.input-group-addon {
-  background-color: #eee;
-  border: 1px solid #ccc;
-  border-radius: 4px 0 0 4px;
-  padding: 6px 12px;
-  font-size: 14px;
-  line-height: 1.42857143;
-  color: #555;
-  text-align: center;
-  min-width: 40px;
-}
-
-/* Help block styling */
-.help-block {
-  display: block;
-  margin-top: 5px;
-  margin-bottom: 10px;
-  color: #737373;
-  font-size: 13px;
-}
-
-/* Select styling */
-select.form-control {
-  height: auto;
-  min-height: 34px;
-}
-
-/* Modal specific adjustments */
-.modal-header {
-  padding: 15px;
-  border-bottom: 1px solid #e5e5e5;
-}
-
-.modal-footer {
-  padding: 15px;
-  text-align: right;
-  border-top: 1px solid #e5e5e5;
-}
-
-.modal-body {
-  position: relative;
-  padding: 15px;
-}
+/*
+ * Emptied out. This file held 186 lines, none of which the template needs any
+ * more:
+ *
+ * - `#progressbar` for the pre-<app-stepper> wizard markup, and
+ *   `.action-button-previous` for the jQuery wizard that markup belonged to. The
+ *   step navigation is `.btn.btn-primary` / `.btn.btn-outline-secondary` inside
+ *   `.stepper-buttons` now. The local copy painted "voriger Schritt" #c5c5f1 at
+ *   `border-radius: 0` while the same button in the metadata dialog was #616161
+ *   at 5px and in the add dialog a salmon 25px pill — four treatments of one
+ *   control across five dialogs of this menu entry.
+ * - local `.fs-title` (24px) and `.fs-subtitle` (16px) copies. app.scss says
+ *   18px and 13px, so this dialog's step heading was a third larger than the
+ *   identical heading in the metadata dialog next to it.
+ * - `.help-block` (#737373/13px where app.scss says #737373/12px), `.alert`,
+ *   `.form-group`, `.modal-header/-body/-footer` and `select.form-control`
+ *   copies that only restated or contradicted the shared rules. The
+ *   `.modal-footer { text-align: right }` in particular fought the flex footer
+ *   the `me-auto` on "Schließen" now relies on.
+ * - `.loading-overlay-admin-panel` / `.icon-spin` / `@keyframes spin` for a
+ *   spinner the template now gets from <app-loading-overlay>, plus
+ *   `.input-group-addon`, `.alert-dismissable .close`, `.vertical-align` and
+ *   `.margin-right` for markup that no longer exists.
+ *
+ * Everything the dialog renders is Bootstrap 5 plus the shared admin rules, as
+ * in the spatial-unit role dialog.
+ */

@@ -87,14 +87,15 @@
                   [titleText]="defaultIndicatorJobHealth.delayedJobs.toString()"
                   [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.DELAYED_JOBS' | translate"
                   boxColor="#d2d6de"
+                  textColor="#000000"
                   iconClass="fas fa-file-code"
                 ></app-small-box>
               </div>
             </div>
           }
           <ag-grid-angular
-            #spatialUnitOverviewTable
-            id="spatialUnitOverviewTable"
+            #defaultIndicatorJobsTable
+            id="defaultIndicatorJobsTable"
             style="height: 70vh"
             class="ag-theme-alpine"
             [columnDefs]="columnDefs"
@@ -108,7 +109,6 @@
             [suppressRowClickSelection]="true"
             [enableCellTextSelection]="true"
             [ensureDomOrder]="true"
-            [suppressColumnVirtualisation]="true"
           ></ag-grid-angular>
         </div>
       </expandable-box>
@@ -176,14 +176,15 @@
                   [titleText]="customizedIndicatorJobHealth.delayedJobs.toString()"
                   [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.DELAYED_JOBS' | translate"
                   boxColor="#d2d6de"
+                  textColor="#000000"
                   iconClass="fas fa-file-code"
                 ></app-small-box>
               </div>
             </div>
           }
           <ag-grid-angular
-            #spatialUnitOverviewTable
-            id="spatialUnitOverviewTable"
+            #customizedIndicatorJobsTable
+            id="customizedIndicatorJobsTable"
             style="height: 70vh"
             class="ag-theme-alpine"
             [columnDefs]="columnDefs"
@@ -197,7 +198,6 @@
             [suppressRowClickSelection]="true"
             [enableCellTextSelection]="true"
             [ensureDomOrder]="true"
-            [suppressColumnVirtualisation]="true"
           ></ag-grid-angular>
         </div>
       </expandable-box>

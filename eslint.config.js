@@ -12,15 +12,9 @@ const eslintConfigPrettier = require('eslint-config-prettier');
 module.exports = tseslint.config(
   {
     // Nicht zu lintender Code: vendored Libs liegen außerhalb app/ (werden ohnehin
-    // nicht über lintFilePatterns erfasst); hier die zwei bewusst behaltenen
-    // AngularJS-Restfeatures sowie generierte/kompilierte Artefakte ausschließen.
-    ignores: [
-      'dist/**',
-      '**/*.js',
-      '**/*.js.map',
-      'app/components/kommonitorUserInterface/kommonitorControls/feedbackModal/**',
-      'app/components/kommonitorUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/**',
-    ],
+    // nicht über lintFilePatterns erfasst); hier generierte/kompilierte Artefakte
+    // ausschließen.
+    ignores: ['dist/**', '**/*.js', '**/*.js.map'],
   },
   {
     files: ['**/*.ts'],

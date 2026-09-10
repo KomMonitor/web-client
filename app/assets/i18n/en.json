@@ -1,6 +1,8 @@
 {
   "COMMON": {
     "LOGIN": "Login",
+    "USER_LOGIN": "User Login",
+    "LOGIN_INFO_DEFAULT": "Sign in with your account to access protected data.",
     "LOGOUT": "Logout",
     "RELOGIN": "Relogin",
     "USERNAME": "Username",
@@ -55,7 +57,8 @@
     "INDICATORS_PER_SPATIAL_UNIT": "Indicators per Spatial Unit",
     "POINTS_OF_INTEREST": "Points of Interest",
     "LINES_OF_INTEREST": "Lines of Interest",
-    "AREAS_OF_INTEREST": "Areas of Interest"
+    "AREAS_OF_INTEREST": "Areas of Interest",
+    "INDICATORS_PER_SPATIAL_UNIT_TOP": "Indicators per spatial unit (top {{count}})"
   },
   "ADMIN_SHARED": {
     "CANCEL": "Cancel",
@@ -79,14 +82,21 @@
     "GENERAL_METADATA": "General metadata",
     "SPATIAL_DATASET": "Spatial dataset",
     "ACCESS_PROTECTION": "Access protection",
-    "INFO": "Info",
     "SUCCESS": "Success!",
     "ERROR": "Error!",
     "KEYWORD_FILTER": "Keyword filter",
-    "UNKNOWN_ERROR": "Unknown error"
+    "UNKNOWN_ERROR": "Unknown error",
+    "PUBLIC_VISIBLE": "Publicly visible",
+    "PERIOD_OF_VALIDITY": "Period of validity"
   },
   "ADMIN_GEORESOURCES": {
-    "TITLE": "Manage geodata",
+    "OVERVIEW": {
+      "TITLE": "Manage geodata",
+      "DESCRIPTION": "Register and maintain georesources and their WMS services",
+      "POI_BOX": "Points of Interest",
+      "LOI_BOX": "Lines of Interest",
+      "AOI_BOX": "Areas of Interest"
+    },
     "CREATE_POI_LOI_AOI": "Create POI / LOI / AOI",
     "CREATE_WMS": "Create WMS",
     "COMMON": {
@@ -102,8 +112,10 @@
       "TEXT": "Text",
       "SYMBOL_COLOR": "Color of the point symbol",
       "TEXT_COLOR": "Text color",
-      "SYMBOL_PLACEHOLDER": "e.g. home",
       "SYMBOL_NAME_TITLE": "Name of the marker symbol (Bootstrap 3 glyphicon name)",
+      "SYMBOL_SEARCH_PLACEHOLDER": "Search symbol",
+      "SYMBOL_NO_RESULTS": "No symbol found",
+      "SYMBOL_UNKNOWN_HINT": "Unknown symbol name – stored unchanged.",
       "CHOOSE_COLOR": "Choose color",
       "LINE_COLOR": "Line color",
       "CHOOSE_LINE_COLOR": "Choose line color",
@@ -283,6 +295,16 @@
     "MSG": {
       "LOAD_LIST_FAILED": "The georesources could not be loaded.",
       "LOAD_ONE_FAILED": "The georesource could not be loaded."
+    },
+    "GRID": {
+      "COL_SYMBOL_COLOR": "Symbol color",
+      "COL_SYMBOL_NAME": "Symbol name",
+      "COL_MARKER_COLOR": "Marker color",
+      "COL_LINE_COLOR": "Line color",
+      "COL_LINE_WIDTH": "Line width",
+      "COL_LINE_PATTERN": "Line pattern",
+      "COL_POLYGON_COLOR": "Polygon color",
+      "DELETE_TITLE": "Remove georesource"
     }
   },
   "ADMIN_INDICATORS": {
@@ -335,6 +357,7 @@
     "ERROR_MESSAGE": "Error message",
     "OVERVIEW": {
       "TITLE": "Manage indicators",
+      "DESCRIPTION": "Register and maintain indicators and their time series",
       "CREATE_INDICATOR": "Create indicator",
       "CREATE_WMS": "Create WMS",
       "METADATA_BOX": "Indicator metadata"
@@ -593,7 +616,6 @@
       "SAVE_MAPPING_TABLE": "Save mapping table",
       "ADD_EDIT": "Add/Edit",
       "SELECT_DATASET_SOURCE_FORMAT_OPTION": "-- Select dataset source format --",
-      "SELECT_ENCODING_OPTION": "-- Select encoding --",
       "ADD_ROW": "add new row",
       "DELETE_SELECTED_ROWS": "delete selected rows",
       "DEFAULT_VALUE_FUNCTION": "Default value function",
@@ -609,13 +631,26 @@
       "APPLY_DEFAULT_VALUE": "Apply default value",
       "KEEP_MISSING_HINT": "Indicates whether empty attribute values (<code>NULL</code> values) are adopted. These are treated like NoData values. If this option is disabled, an error is thrown in such a case.",
       "ACCESS_RIGHTS_WARNING": "If new spatial units are linked to indicators for the first time by the batch update, the access rights are adopted from the associated metadata",
-      "EDIT_DEFAULT_TIMESERIES_MAPPING": "Edit default time series mapping",
       "IMPORT_BATCH_LIST_TOOLTIP": "Import the batch list from a file",
       "IMPORT_BATCH_LIST": "Import batch list",
       "EXPORT_BATCH_LIST_TOOLTIP": "Export the batch list to a file",
       "EXPORT_BATCH_LIST": "Export batch list",
       "SHOW_RESULT": "Show result",
-      "RUN_UPDATE": "Run update"
+      "RUN_UPDATE": "Run update",
+      "BLOCKER_EMPTY_LIST": "The batch list is empty.",
+      "BLOCKER_NAME": "The Name* column is not set in every row.",
+      "BLOCKER_TIMESERIES_MAPPING": "The time-series mapping* is missing in at least one row.",
+      "BLOCKER_CONVERTER": "Converter details are missing or incomplete in at least one row.",
+      "BLOCKER_DATASOURCE_TYPE": "The Data source type* column is not set in every row.",
+      "BLOCKER_DATASOURCE": "Data source details (file, URL or payload) are missing in at least one row.",
+      "BLOCKER_SPATIAL_REF_KEY": "The ID attribute name of the spatial unit features* is missing in at least one row.",
+      "BLOCKER_TARGET_SPATIAL_UNIT": "The Target spatial unit* column is not set in every row.",
+      "ENCODING_DEFAULT_OPTION": "-- converter default --",
+      "ROW_METADATA_MISSING": "Indicator or target spatial unit no longer exists; the row was skipped.",
+      "RUN_SUMMARY": "{{success}} of {{total}} datasets updated, {{error}} failed.",
+      "RUN_PROGRESS": "Row {{done}} of {{total}}",
+      "DEFAULT_APPLIED": "{{changed}} row(s) updated.",
+      "RUN_BLOCKED": "The batch update cannot be run yet:"
     },
     "DELETE_MODAL": {
       "TITLE": "Delete indicators",
@@ -763,6 +798,24 @@
       "CLASS_BREAKS": "Class breaks",
       "BREAK_N": "Break {{n}}",
       "MANAGE_COMPARISON_VALUES": "Manage comparison values"
+    },
+    "GRID": {
+      "COL_UNIT": "Unit",
+      "COL_METHODOLOGY": "Methodology",
+      "COL_AVAILABLE_SPATIAL_UNITS": "Available spatial units",
+      "COL_AVAILABLE_TIMESTAMPS": "Available time steps",
+      "COL_ABBREVIATION": "Abbreviation",
+      "COL_HEADLINE_INDICATOR": "Headline indicator",
+      "COL_INDICATOR_TYPE": "Indicator type",
+      "COL_CHARACTERISTIC": "Characteristic",
+      "COL_UPDATE_INTERVAL": "Update interval",
+      "COL_TAGS": "Tags/keywords",
+      "COL_DECIMALS": "Decimal places",
+      "COL_DATE": "Date",
+      "COL_REGIONAL_SUM": "regional total",
+      "COL_REGIONAL_AVERAGE": "regional average",
+      "COL_SPATIALLY_UNASSIGNABLE": "spatially unassignable",
+      "DELETE_TITLE": "Remove indicator"
     }
   },
   "ADMIN_ROLES": {
@@ -789,7 +842,6 @@
       "CREATING": "Creating organizational unit...",
       "CREATE_ERROR": "Error while creating the organizational unit:",
       "KEYCLOAK_ROLES_ERROR": "Error while creating the Keycloak roles:",
-      "BASICS_TITLE": "Basic information",
       "BASICS_HELP": "Information about the new organizational unit",
       "NAME_PLACEHOLDER": "e.g. Fachbereich 52",
       "NAME_INVALID": "Invalid input. Another organizational unit with the same name already exists.",
@@ -862,7 +914,7 @@
       },
       "CREATE_TENANT": {
         "TITLE": "How are new tenants created?",
-        "CONTENT": "<i><ol type=\"1\"><li>Log in as a user with KomMonitor super administrator rights (role <code>kommonitor-creator</code>)</li><li>Navigate to the group management menu and click the <code>Create</code> button</li><li>When creating the new group, set the checkmark for the tenant property</li><li>Provide the remaining metadata and create the group.</li><li>So that the new group may manage itself (and, if applicable, subgroups), it must still be given the corresponding rights. To do so, click the <code>Edit group-specific rights</code> button in the overview table of the group management. In the corresponding menu, in step <code>2 - Rights of others</code>, set at least the rights for managing users, resources and topics for <code>this group</code>. <br><br> Setting a <code>Subgroups</code> checkmark causes this group to also co-administer all of its subgroups with respect to users, topics or resources.</li><li>Create the tenant administrator user in Keycloak and assign them to the Keycloak group of the same name.</li></ol></i> <br> From this point on, the new tenant is operational. Tenant administrators have the rights to create further subgroups, users and datasets within a tenant."
+        "CONTENT": "<ol type=\"1\"><li>Log in as a user with KomMonitor super administrator rights (role <code>kommonitor-creator</code>)</li><li>Navigate to the group management menu and click the <code>Create</code> button</li><li>When creating the new group, set the checkmark for the tenant property</li><li>Provide the remaining metadata and create the group.</li><li>So that the new group may manage itself (and, if applicable, subgroups), it must still be given the corresponding rights. To do so, click the <code>Edit group-specific rights</code> button in the overview table of the group management. In the corresponding menu, in step <code>2 - Rights of others</code>, set at least the rights for managing users, resources and topics for <code>this group</code>. <br><br> Setting a <code>Subgroups</code> checkmark causes this group to also co-administer all of its subgroups with respect to users, topics or resources.</li><li>Create the tenant administrator user in Keycloak and assign them to the Keycloak group of the same name.</li></ol> <br> From this point on, the new tenant is operational. Tenant administrators have the rights to create further subgroups, users and datasets within a tenant."
       },
       "SUBGROUPS": {
         "TITLE": "What are subgroups of a tenant?",
@@ -870,7 +922,7 @@
       },
       "CREATE_SUBGROUPS": {
         "TITLE": "How are new subgroups created?",
-        "CONTENT": "<i><ol type=\"1\"><li>Log in as a member user of a parent group with user management rights</li><li>Navigate to the group management menu and click the <code>Create</code> button</li><li>When creating the new subgroup, select the corresponding parent group</li><li>Provide the remaining metadata and create the subgroup.</li><li>optional: In the submenu <code>2 - Rights of others</code>, specify whether already existing other groups should take over administrative tasks for the new subgroup. <br><br> If the parent group may co-manage all of its subgroups, this does not have to be set explicitly again here.</li><li>optional: If the subgroup should also take over selected administrative tasks for itself (and, if applicable, further subgroups), it must still be given the corresponding rights. To do so, click the <code>Edit group-specific rights</code> button in the overview table of the group management. In the corresponding menu, in step <code>2 - Rights of others</code>, set all relevant rights for managing users, resources or topics for <code>this group</code>. <br><br> Setting a <code>Subgroups</code> checkmark causes this group to also co-administer all of its subgroups with respect to users, topics or resources.</li><li>Create or find the corresponding users in Keycloak and assign them to the Keycloak subgroup of the same name.</li></ol></i>"
+        "CONTENT": "<ol type=\"1\"><li>Log in as a member user of a parent group with user management rights</li><li>Navigate to the group management menu and click the <code>Create</code> button</li><li>When creating the new subgroup, select the corresponding parent group</li><li>Provide the remaining metadata and create the subgroup.</li><li>optional: In the submenu <code>2 - Rights of others</code>, specify whether already existing other groups should take over administrative tasks for the new subgroup. <br><br> If the parent group may co-manage all of its subgroups, this does not have to be set explicitly again here.</li><li>optional: If the subgroup should also take over selected administrative tasks for itself (and, if applicable, further subgroups), it must still be given the corresponding rights. To do so, click the <code>Edit group-specific rights</code> button in the overview table of the group management. In the corresponding menu, in step <code>2 - Rights of others</code>, set all relevant rights for managing users, resources or topics for <code>this group</code>. <br><br> Setting a <code>Subgroups</code> checkmark causes this group to also co-administer all of its subgroups with respect to users, topics or resources.</li><li>Create or find the corresponding users in Keycloak and assign them to the Keycloak subgroup of the same name.</li></ol>"
       },
       "OWNERSHIP": {
         "TITLE": "What is the ownership of datasets?",
@@ -878,7 +930,7 @@
       },
       "CHANGE_OWNERSHIP": {
         "TITLE": "Can the ownership be changed?",
-        "CONTENT": "Yes, super administrators with the role <code>kommonitor-creator</code> as well as members of the owner group can transfer the ownership to another existing group. <i><ol type=\"1\"><li>Log in as a member user of the owner group</li><li>Navigate to the resource management (spatial units, indicators or georesources) and click the <code>Edit access protection and ownership</code> button</li><li>In the submenu <code>3 - Ownership</code>, select the new group and irrevocably cede the ownership via the <code>Update</code> button.</li></ol></i>"
+        "CONTENT": "Yes, super administrators with the role <code>kommonitor-creator</code> as well as members of the owner group can transfer the ownership to another existing group. <ol type=\"1\"><li>Log in as a member user of the owner group</li><li>Navigate to the resource management (spatial units, indicators or georesources) and click the <code>Edit access protection and ownership</code> button</li><li>In the submenu <code>3 - Ownership</code>, select the new group and irrevocably cede the ownership via the <code>Update</code> button.</li></ol>"
       },
       "GROUP_SHARING": {
         "TITLE": "How does the group-specific sharing of a dataset work?",
@@ -893,15 +945,15 @@
         "CONTENT": "Special rules apply to the sharing (read, edit) of indicators. In principle, KomMonitor distinguishes for indicators between the <i>sharing of their metadata</i> and the <i>sharing of concrete time series on concrete linked spatial units</i>. For example, it is configurable to publicly share the indicator with respect to its metadata as well as the time series of selected spatial units, while time series of very small-scale spatial units should only be available to the internal administration. <br> <br> Furthermore, in addition to sharing the indicators, a precisely matching sharing of the spatial units must also be set. In the following, some example scenarios are distinguished and illustrated with configuration hints: <br> <br>",
         "SCENARIO_PRIVATE": {
           "TITLE": "Scenario: indicator not public",
-          "CONTENT": "<table class=\"table\"><tr><th>Indicator metadata</th><th>Indicator time series per spatial level</th><th>Spatial unit metadata</th></tr><tr><td>Deactivate the <code>Public read access</code> switch</td><td><i>per spatial unit:</i> <br> explicit sharing with relevant groups (read, write) <i>different configurations per spatial unit are conceivable</i></td><td>Read access to the spatial unit metadata itself must be granted analogously to all relevant groups.</td></tr></table>"
+          "CONTENT": "<table class=\"table\"><thead><tr><th>Indicator metadata</th><th>Indicator time series per spatial level</th><th>Spatial unit metadata</th></tr></thead><tbody><tr><td>Deactivate the <code>Public read access</code> switch</td><td><i>per spatial unit:</i> <br> explicit sharing with relevant groups (read, write) <i>different configurations per spatial unit are conceivable</i></td><td>Read access to the spatial unit metadata itself must be granted analogously to all relevant groups.</td></tr></tbody></table>"
         },
         "SCENARIO_PARTIAL": {
           "TITLE": "Scenario: indicator partially public",
-          "CONTENT": "<table class=\"table\"><tr><th>Indicator metadata</th><th>Indicator time series per spatial level</th><th>Spatial unit metadata</th></tr><tr><td>Activate the <code>Public read access</code> switch</td><td><i>per spatial unit:</i> <br> <li>for all spatial units with public access, activate the <code>Public read access</code> (further explicit sharing with groups only if needed for edit rights)</li> <li>for internal spatial units, deactivate the <code>Public read access</code> – instead, only explicit sharing with relevant groups (read, write)</li> <i>different configurations per spatial unit are conceivable</i></td><td><i>activate <code>public read access</code> for certain spatial unit metadata</i> <i>internal protected read access to other spatial unit metadata must be granted explicitly to all relevant groups analogously.</i></td></tr></table>"
+          "CONTENT": "<table class=\"table\"><thead><tr><th>Indicator metadata</th><th>Indicator time series per spatial level</th><th>Spatial unit metadata</th></tr></thead><tbody><tr><td>Activate the <code>Public read access</code> switch</td><td><i>per spatial unit:</i> <br> <ul><li>for all spatial units with public access, activate the <code>Public read access</code> (further explicit sharing with groups only if needed for edit rights)</li> <li>for internal spatial units, deactivate the <code>Public read access</code> – instead, only explicit sharing with relevant groups (read, write)</li></ul> <i>different configurations per spatial unit are conceivable</i></td><td>Activate <code>public read access</code> for certain spatial unit metadata. <br> Internal protected read access to other spatial unit metadata must be granted explicitly to all relevant groups analogously.</td></tr></tbody></table>"
         },
         "SCENARIO_PUBLIC": {
           "TITLE": "Scenario: indicator completely public",
-          "CONTENT": "<table class=\"table\"><tr><th>Indicator metadata</th><th>Indicator time series per spatial level</th><th>Spatial unit metadata</th></tr><tr><td>Activate the <code>Public read access</code> switch</td><td>for all spatial units, activate the <code>Public read access</code> (further explicit sharing with groups only if needed for edit rights) <i>different configurations per spatial unit are conceivable</i></td><td>activate <code>public read access</code> on the affected spatial unit metadata itself</td></tr></table>"
+          "CONTENT": "<table class=\"table\"><thead><tr><th>Indicator metadata</th><th>Indicator time series per spatial level</th><th>Spatial unit metadata</th></tr></thead><tbody><tr><td>Activate the <code>Public read access</code> switch</td><td>for all spatial units, activate the <code>Public read access</code> (further explicit sharing with groups only if needed for edit rights) <i>different configurations per spatial unit are conceivable</i></td><td>activate <code>public read access</code> on the affected spatial unit metadata itself</td></tr></tbody></table>"
         }
       }
     },
@@ -917,10 +969,17 @@
       "COL_CONTACT": "Contact",
       "COL_MANDANT": "Tenant",
       "CHILD_GROUPS_COUNT": "{{count}} direct subgroup(s)",
+      "CHILD_GROUPS_MORE": "+{{count}} more",
       "COL_READ": "Read",
       "COL_EDIT": "Edit",
       "COL_DELETE": "Delete",
-      "PUBLIC_ACCESS": "Public access"
+      "PUBLIC_ACCESS": "Public access",
+      "COL_THIS_GROUP": "This group",
+      "COL_SUBGROUPS": "Subgroups",
+      "GROUP_MANAGE_USERS": "Managing users",
+      "GROUP_MANAGE_RESOURCES": "Managing resources",
+      "GROUP_MANAGE_TOPICS": "Managing topics",
+      "EDIT_GROUP_RIGHTS_TITLE": "Edit group rights"
     }
   },
   "ADMIN_TOPICS": {
@@ -949,17 +1008,16 @@
       "MSG": {
         "DELETED": "Topic '{{name}}' was deleted.",
         "DELETE_FAILED": "The topic could not be deleted."
-      }
+      },
+      "SUBTOPICS_HEADER": "Subtopics",
+      "NO_SUBTOPICS": "none"
     },
     "EDIT_MODAL": {
       "TITLE_PREFIX": "Edit metadata of the topic entry",
       "TITLE_SUFFIX": "",
-      "FORM_TITLE": "Topic metadata",
       "NAME_LABEL": "Name of the entry",
       "TITLE_PLACEHOLDER": "Title of the entry",
-      "NAME_REQUIRED": "Name is required",
       "DESCRIPTION_LABEL": "Description of the entry",
-      "DESCRIPTION_REQUIRED": "Description is required",
       "UPDATE": "Update entry",
       "MSG": {
         "UPDATED": "Topic '{{name}}' was updated.",
@@ -969,7 +1027,9 @@
     "MSG": {
       "SORT_SAVE_FAILED": "The sort order could not be saved.",
       "SORT_MODES_LOAD_FAILED": "The sort modes could not be loaded."
-    }
+    },
+    "SUBTOPIC_COUNT_ONE": "1 direct subtopic",
+    "SUBTOPIC_COUNT_MANY": "{{count}} direct subtopics"
   },
   "ADMIN_SCRIPTS": {
     "ADD": "Add",
@@ -981,7 +1041,8 @@
     "INDICATOR_NAME_PLACEHOLDER": "IndicatorName",
     "MANAGEMENT": {
       "TITLE": "Script Management",
-      "DESCRIPTION": "Control of the semi-automated indicator computation"
+      "DESCRIPTION": "Control of the semi-automated indicator computation",
+      "BOX_TITLE": "Indicator computation scripts"
     },
     "EXECUTION": {
       "TITLE": "Indicator Computation",
@@ -1132,6 +1193,53 @@
       "DELETE_FAILED_TEXT": "The following datasets could not be deleted.",
       "ERROR_MESSAGE": "Error message",
       "DELETE_PERMANENTLY": "Delete scripts irrevocably"
+    },
+    "GRID": {
+      "COL_TARGET_INDICATOR_ID": "Target indicator id",
+      "COL_TARGET_INDICATOR_NAME": "Target indicator name",
+      "COL_REQUIRED_BASE_INDICATORS": "Required base indicators",
+      "COL_REQUIRED_BASE_GEORESOURCES": "Required base georesources",
+      "COL_PROCESS_PARAMETERS": "Process parameters",
+      "COL_JOB_ID": "Job id",
+      "COL_SCRIPT_ID": "Script id",
+      "COL_TARGET_INDICATOR": "Target indicator",
+      "COL_JOB_STATUS": "Job status",
+      "COL_JOB_PROGRESS": "Job progress",
+      "COL_JOB_DATA": "Job data",
+      "COL_JOB_LOGS": "Job logs",
+      "COL_JOB_SUMMARY": "Job summary"
+    },
+    "DATA_TYPES": {
+      "STRING": "Text (string)",
+      "BOOLEAN": "Boolean",
+      "INTEGER": "Integer",
+      "DOUBLE": "Floating-point number (double)"
+    },
+    "TEMPORAL_UNITS": {
+      "YEARS": "year(s)",
+      "MONTHS": "month(s)",
+      "DAYS": "day(s)"
+    },
+    "SCRIPT_TYPES": {
+      "GENERIC": "Generic definition",
+      "INDICATOR_SUM": "Indicators - sum of all indicators",
+      "INDICATOR_SUBTRACT": "Indicators - subtraction of base indicators from a reference indicator",
+      "INDICATOR_PERCENTAGE": "Indicators - percentage share (quotient of base indicators and a reference indicator)",
+      "INDICATOR_SHARE": "Indicators - share (quotient of base indicators and a reference indicator)",
+      "INDICATOR_DIVISION": "Indicators - division (quotient of two indicators)",
+      "INDICATOR_TREND": "Indicators - trend (via linear regression)",
+      "INDICATOR_CONTINUITY": "Indicators - continuity (via Pearson correlation)",
+      "INDICATOR_CHANGE_ABSOLUTE": "Indicators - absolute change",
+      "INDICATOR_CHANGE_ABSOLUTE_REF_DATE": "Indicators - absolute change against a fixed reference date",
+      "INDICATOR_CHANGE_RELATIVE_REF_DATE": "Indicators - percentage change against a fixed reference date",
+      "INDICATOR_CHANGE_RELATIVE": "Indicators - percentage change",
+      "INDICATOR_PROMILLE": "Indicators - per-mille value (quotient of base indicators and a reference indicator)",
+      "INDICATOR_HEADLINE_INDICATOR": "Headline indicator - chained computation (rank, min-max normalization, aggregation)",
+      "INDICATOR_MULTIPLICATION": "Indicators - product of all indicators",
+      "GEORESOURCE_POINTS_IN_POLYGON": "Georesources - number of points in polygon",
+      "GEORESOURCE_STATISTICS": "Georesources - statistics by feature property (point datasets)",
+      "GEORESOURCE_SUBSET_SHARE": "Georesources - percentage share by feature property (point datasets)",
+      "LINE_SEGMENT_IN_POLYGON": "Georesources - summed line length per polygon"
     }
   },
   "ADMIN_SHELL": {
@@ -1174,7 +1282,8 @@
     "STEP": {
       "PREVIOUS": "Previous step",
       "NEXT": "Next step",
-      "REQUIRED_FIELD_MARKER": "* = required field"
+      "REQUIRED_FIELD_MARKER": "* = required field",
+      "INVALID_HINT": "contains invalid input"
     },
     "OWNER": {
       "SELECT_HINT": "Please first select the organizational unit under which you want to create the dataset",
@@ -1239,6 +1348,67 @@
       "REFERENCES": "References to indicators/georesources",
       "CLASSIFICATION_OPTIONS": "Classification options",
       "REGIONAL_REFERENCE_VALUES": "Regional reference values"
+    },
+    "GRID": {
+      "COL_DB_RECORD_ID": "DB record id",
+      "COL_FEATURE_ID": "Feature id",
+      "COL_VALID_START": "Start of validity",
+      "COL_VALID_END": "End of validity",
+      "EDIT_METADATA_TITLE": "Edit metadata",
+      "EDIT_ACCESS_TITLE": "Edit access protection and ownership",
+      "DELETE_RECORD_TITLE": "Irrevocably remove data object",
+      "CONFIRM_WITH_ENTER": "confirm with Enter"
+    },
+    "VALIDATION": {
+      "REQUIRED": "This field is required.",
+      "MIN_LENGTH": "At least {{requiredLength}} characters required.",
+      "MAX_LENGTH": "At most {{requiredLength}} characters allowed.",
+      "MIN": "The value must be at least {{min}}.",
+      "MAX": "The value must be at most {{max}}.",
+      "PATTERN": "The input does not have the expected format.",
+      "DATE_FORMAT": "Invalid date. Expected format: YYYY-MM-DD.",
+      "MIN_DATE": "The date is before the earliest allowed date ({{value}}).",
+      "MAX_DATE": "The date is after the latest allowed date ({{value}}).",
+      "UNIQUE_NAME": "The name \"{{name}}\" is already taken.",
+      "PERIOD_OF_VALIDITY": "The start date must lie before the end date.",
+      "SPATIAL_UNIT_HIERARCHY": "The upper spatial unit level must be coarser than the lower one.",
+      "BBOX_INCOMPLETE": "Please provide all four bounding box values.",
+      "TOPIC_REQUIRED": "Please select at least a main topic.",
+      "UNKNOWN": "The input is invalid.",
+      "TIMESTAMP_SOURCE_REQUIRED": "Please provide the time stamp — as an attribute name or as a date, depending on the toggle.",
+      "TIMESERIES_MAPPING_REQUIRED": "Please map at least one time slice.",
+      "MIME_TYPE_REQUIRED": "Please choose a source format.",
+      "SCHEMA_REQUIRED": "Please choose a schema.",
+      "FILE_REQUIRED": "Please choose a file."
+    },
+    "TIMESERIES_MAPPING": {
+      "INTRO": "Define the attribute mapping for every time slice to import. Each mapping consists of the attribute holding the indicator values plus either a directly entered time stamp or an attribute containing the time stamp in ISO8601 form.",
+      "VALUE_PROPERTY": "Attribute name of the indicator values",
+      "VALUE_PROPERTY_PLACEHOLDER": "Attribute name for indicator values",
+      "USE_PROPERTY": "Read the time stamp from an attribute",
+      "USE_PROPERTY_HINT": "Whether the time stamp should be read from an attribute",
+      "TIMESTAMP_PROPERTY": "Attribute name of the time stamp",
+      "TIMESTAMP_PROPERTY_PLACEHOLDER": "Attribute name for time stamp",
+      "TIMESTAMP": "Time stamp (entered directly)",
+      "ADD_EDIT": "Add/edit",
+      "OVERVIEW": "Overview of the defined indicator time-series mappings",
+      "EDIT_FUNCTIONS": "Edit functions",
+      "EDIT_ENTRY": "Edit mapping",
+      "DELETE_ENTRY": "Delete mapping",
+      "EMPTY": "No time-series mapping defined yet."
+    },
+    "BATCH_UPDATE": {
+      "ROW_INCOMPLETE": "Row incomplete — converter or data source missing; the row was skipped.",
+      "RESULT_TITLE": "Batch update result",
+      "RESOURCE_INDICATOR": "Indicator",
+      "RESOURCE_GEORESOURCE": "Georesource",
+      "STATUS": "Status",
+      "SUCCESS": "Success",
+      "ERROR": "Error",
+      "SHOW_DETAIL": "Show details",
+      "NO_ROWS": "No rows processed.",
+      "RUN_SUMMARY": "{{success}} of {{total}} datasets updated, {{error}} failed.",
+      "PARTIALLY_APPLIED": "The run was partially applied: successful rows stay saved, there is no rollback. Fix the failed rows and run only those again."
     }
   },
   "ADMIN_WMS": {
@@ -1288,19 +1458,22 @@
     "EDIT_ROLES": {
       "TITLE": "Edit WMS",
       "SUCCESS_TEXT": "Access rights for the dataset named {{name}} have been edited in KomMonitor."
+    },
+    "GRID": {
+      "COL_LEGEND": "Legend"
     }
   },
   "ADMIN_CONFIG": {
     "COMMON": {
       "TEMPLATE_LABEL": "Template (structure and default settings)",
-      "CURRENT_LABEL": "current configuration (current values)",
+      "CURRENT_LABEL": "Current configuration (current values)",
       "PREVIEW_LABEL": "Preview window (new values)",
       "MISSING_PARAMETERS": "Missing parameters:",
       "INVALID_HINT": "Please note that all required parameters must be defined according to the template above. Therefore, adhere to the given {{format}} structure. The text is checked for keywords and it is ensured that valid {{format}} can be parsed.",
       "INTRO_SUFFIX": "of KomMonitor, from which the data is loaded when the application starts. Therefore, set the values carefully."
     },
     "APP": {
-      "TITLE": "Web Client Settings",
+      "TITLE": "General Settings",
       "DESCRIPTION": "Adjust the default settings (e.g. service connections, geodata services, default map display)",
       "BOX_TITLE": "App configuration",
       "INTRO_PREFIX": "Make adjustments to variable parameters of the web client and save them. Edits are made directly in JavaScript format. This stores the configuration in the",
@@ -1313,16 +1486,16 @@
       }
     },
     "CONTROLS": {
-      "TITLE": "Web Client Controls",
-      "DESCRIPTION": "Adjust the controls (e.g. buttons, menus, toolbars)",
-      "BOX_TITLE": "Controls configuration",
-      "INTRO_PREFIX": "Make adjustments to the controls of the web client and save them. Edits are made directly in JavaScript format. This stores the configuration in the",
-      "EDITOR_LABEL": "Editor window for the controls settings",
-      "SAVE": "Save controls configuration",
+      "TITLE": "Widget Configuration",
+      "DESCRIPTION": "Adjust the web client widgets (e.g. buttons, menus, toolbars)",
+      "BOX_TITLE": "Widgets - configuration file",
+      "INTRO_PREFIX": "Make adjustments to the widgets of the web client and save them. Edits are made directly in JSON format. This stores the configuration in the",
+      "EDITOR_LABEL": "Editor window for the widget configuration",
+      "SAVE": "Save widget configuration",
       "MSG": {
-        "LOAD_FAILED": "Loading the controls configuration failed: {{error}}",
-        "SAVED": "Controls configuration saved.",
-        "SAVE_FAILED": "Saving the controls configuration failed: {{error}}"
+        "LOAD_FAILED": "Loading the widget configuration failed: {{error}}",
+        "SAVED": "Widget configuration saved.",
+        "SAVE_FAILED": "Saving the widget configuration failed: {{error}}"
       }
     },
     "FILTER": {
@@ -1334,9 +1507,26 @@
       "EDITOR_LABEL": "Editor window for the filter configuration",
       "SAVE": "Save filter configuration",
       "MSG": {
+        "LOAD_FAILED": "Loading the filter configuration failed: {{error}}",
         "SAVED": "Filter configuration saved.",
         "SAVE_FAILED": "Saving the filter configuration failed: {{error}}",
-        "DELETE_CONFIRM": "Do you really want to permanently delete the filter {{name}}?"
+        "DELETE_CONFIRM": "Do you really want to permanently delete the filter {{name}}?",
+        "DELETED": "Filter {{name}} has been deleted."
+      },
+      "GRID": {
+        "COL_INDICATORS": "Indicators",
+        "COL_INDICATOR_TOPICS": "Indicator topics",
+        "COL_GEORESOURCES": "Georesources",
+        "COL_GEORESOURCE_TOPICS": "Georesource topics",
+        "EDIT_TITLE": "Edit filter",
+        "DELETE_TITLE": "Permanently remove filter"
+      },
+      "INTRO_PREFIX": "Make adjustments to the global content filters of the web client and save them. Edits are made directly in JSON format. This stores the configuration in the",
+      "DELETE_MODAL": {
+        "TITLE": "Delete global filter",
+        "CONFIRM_QUESTION": "Do you really want to delete the following global filter?",
+        "HINT": "The filter is removed from the filter configuration permanently. The indicators, georesources and topics it groups are left untouched.",
+        "DELETE_FOREVER": "Delete filter permanently"
       }
     },
     "FILTER_EDIT": {
@@ -1352,13 +1542,24 @@
       "GEORESOURCE_TOPICS_SUBTITLE": "Selection of the georesource-specific topics",
       "MSG": {
         "SAVED": "Filter saved.",
-        "NO_DATA_CONFIRM": "You have selected neither indicator nor georesource data for later viewing. Continue anyway?"
-      }
+        "NO_DATA_CONFIRM": "You have selected neither indicator nor georesource data for later viewing. Continue anyway?",
+        "CREATED": "Filter {{name}} has been registered.",
+        "DUPLICATE_NAME": "A filter named {{name}} already exists."
+      },
+      "ADD_TITLE": "Create new global filter",
+      "SUBMIT_ADD": "Register filter",
+      "SUBMIT_EDIT": "Save filter",
+      "SHOW_SELECTED_ONLY": "Only show selected entries",
+      "NO_ENTRIES": "No entries available.",
+      "COL_VISIBLE": "Visible",
+      "TITLE_PREFIX": "Edit global filter",
+      "TITLE_SUFFIX": ""
     }
   },
   "ADMIN_SPATIAL_UNITS": {
     "OVERVIEW": {
       "TITLE": "Manage spatial unit levels",
+      "DESCRIPTION": "Register and maintain the spatial unit levels that indicators and georesources are kept on",
       "BOX_TITLE": "Spatial unit levels"
     },
     "COMMON": {
@@ -1396,7 +1597,6 @@
     "GENERAL_STEP": {
       "SUBTITLE": "Information about general metadata in KomMonitor"
     },
-    "SECURITY": {},
     "DATA": {
       "SUBTITLE": "Information about the spatial dataset from which the spatial units are imported",
       "SOURCE_FORMAT_GEO": "Geodata source format",
@@ -1536,6 +1736,14 @@
     },
     "MSG": {
       "LOAD_FAILED": "The spatial units could not be loaded."
+    },
+    "GRID": {
+      "COL_NEXT_LOWER_LEVEL": "Next lower spatial unit level",
+      "COL_NEXT_UPPER_LEVEL": "Next higher spatial unit level",
+      "COL_OUTLINE_LINE_COLOR": "Line color (outline layer)",
+      "COL_OUTLINE_LINE_WIDTH": "Line width (outline layer)",
+      "COL_OUTLINE_LINE_PATTERN": "Line pattern (outline layer)",
+      "DELETE_TITLE": "Remove spatial unit level"
     }
   }
 }

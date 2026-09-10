@@ -1,5 +1,17 @@
 :host {
-  expandable-box {
-    margin: 15px;
+  /*
+   * The `expandable-box { margin: 15px }` that used to be here never took
+   * effect: the element has no `display` of its own, so as an inline box it
+   * dropped the vertical margins, and the horizontal ones did not move its
+   * block-level `.box-wrapper` child. The boxes' actual rhythm comes from
+   * `.box-wrapper { margin-bottom: 1em }`.
+   *
+   * A `.just-padding` wrapper (15px) also used to sit inside each box on top of
+   * the `.box-body`'s own 10px, so every box heading was 15px to the left of
+   * the content it headed. The box body's padding is now the only inset.
+   */
+  app-topic-order-selection {
+    display: block;
+    margin-bottom: 10px;
   }
 }

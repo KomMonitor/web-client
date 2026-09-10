@@ -1,6 +1,8 @@
 {
   "COMMON": {
     "LOGIN": "Login",
+    "USER_LOGIN": "Benutzeranmeldung",
+    "LOGIN_INFO_DEFAULT": "Melden Sie sich mit Ihrem Konto an, um geschützte Daten abzurufen.",
     "LOGOUT": "Logout",
     "RELOGIN": "Relogin",
     "USERNAME": "Nutzername",
@@ -55,7 +57,8 @@
     "INDICATORS_PER_SPATIAL_UNIT": "Indikatoren pro Raumeinheit",
     "POINTS_OF_INTEREST": "Points of Interest",
     "LINES_OF_INTEREST": "Lines of Interest",
-    "AREAS_OF_INTEREST": "Areas of Interest"
+    "AREAS_OF_INTEREST": "Areas of Interest",
+    "INDICATORS_PER_SPATIAL_UNIT_TOP": "Indikatoren pro Raumeinheit (Top {{count}})"
   },
   "ADMIN_SHARED": {
     "CANCEL": "Abbrechen",
@@ -79,14 +82,21 @@
     "GENERAL_METADATA": "Allgemeine Metadaten",
     "SPATIAL_DATASET": "Räumlicher Datensatz",
     "ACCESS_PROTECTION": "Zugriffsschutz",
-    "INFO": "Info",
     "SUCCESS": "Erfolg!",
     "ERROR": "Fehler!",
     "KEYWORD_FILTER": "Stichwortfilter",
-    "UNKNOWN_ERROR": "Unbekannter Fehler"
+    "UNKNOWN_ERROR": "Unbekannter Fehler",
+    "PUBLIC_VISIBLE": "Öffentlich sichtbar",
+    "PERIOD_OF_VALIDITY": "Gültigkeitszeitraum"
   },
   "ADMIN_GEORESOURCES": {
-    "TITLE": "Verwalten der Geodaten",
+    "OVERVIEW": {
+      "TITLE": "Verwalten der Geodaten",
+      "DESCRIPTION": "Registrierung und Pflege der Georessourcen und ihrer WMS-Dienste",
+      "POI_BOX": "Points of Interest",
+      "LOI_BOX": "Lines of Interest",
+      "AOI_BOX": "Areas of Interest"
+    },
     "CREATE_POI_LOI_AOI": "POI / LOI / AOI erstellen",
     "CREATE_WMS": "WMS erstellen",
     "COMMON": {
@@ -102,8 +112,10 @@
       "TEXT": "Text",
       "SYMBOL_COLOR": "Farbe des Punktsymbols",
       "TEXT_COLOR": "Textfarbe",
-      "SYMBOL_PLACEHOLDER": "z.B. home",
       "SYMBOL_NAME_TITLE": "Name des Marker-Symbols (Bootstrap-3-Glyphicon-Name)",
+      "SYMBOL_SEARCH_PLACEHOLDER": "Symbol suchen",
+      "SYMBOL_NO_RESULTS": "Kein Symbol gefunden",
+      "SYMBOL_UNKNOWN_HINT": "Unbekannter Symbolname – wird unverändert gespeichert.",
       "CHOOSE_COLOR": "Farbe wählen",
       "LINE_COLOR": "Linienfarbe",
       "CHOOSE_LINE_COLOR": "Linienfarbe wählen",
@@ -283,6 +295,16 @@
     "MSG": {
       "LOAD_LIST_FAILED": "Die Georessourcen konnten nicht geladen werden.",
       "LOAD_ONE_FAILED": "Die Georessource konnte nicht geladen werden."
+    },
+    "GRID": {
+      "COL_SYMBOL_COLOR": "Symbolfarbe",
+      "COL_SYMBOL_NAME": "Symbolname",
+      "COL_MARKER_COLOR": "Markerfarbe",
+      "COL_LINE_COLOR": "Linienfarbe",
+      "COL_LINE_WIDTH": "Linienbreite",
+      "COL_LINE_PATTERN": "Linienmuster",
+      "COL_POLYGON_COLOR": "Polygonfarbe",
+      "DELETE_TITLE": "Georessource entfernen"
     }
   },
   "ADMIN_INDICATORS": {
@@ -335,6 +357,7 @@
     "ERROR_MESSAGE": "Fehlermeldung",
     "OVERVIEW": {
       "TITLE": "Verwalten der Indikatoren",
+      "DESCRIPTION": "Registrierung und Pflege der Indikatoren und ihrer Zeitreihen",
       "CREATE_INDICATOR": "Indikator erstellen",
       "CREATE_WMS": "WMS erstellen",
       "METADATA_BOX": "Indikatoren-Metadaten"
@@ -593,7 +616,6 @@
       "SAVE_MAPPING_TABLE": "Mappingtabelle speichern",
       "ADD_EDIT": "Hinzufügen/Editieren",
       "SELECT_DATASET_SOURCE_FORMAT_OPTION": "-- Datensatz-Quellformat wählen --",
-      "SELECT_ENCODING_OPTION": "-- Encoding wählen --",
       "ADD_ROW": "neue Zeile hinzufügen",
       "DELETE_SELECTED_ROWS": "ausgewählte Zeilen löschen",
       "DEFAULT_VALUE_FUNCTION": "Standardwert-Funktion",
@@ -609,13 +631,26 @@
       "APPLY_DEFAULT_VALUE": "Standardwert eintragen",
       "KEEP_MISSING_HINT": "Angabe, ob leere Attributwerte (<code>NULL</code>-Werte) übernommen werden. Diese werden wie NoData-Werte behandelt. Bei deaktivierter Option wird bei einem solchen Fall ein Fehler geworfen.",
       "ACCESS_RIGHTS_WARNING": "Falls für Indikatoren durch das Batch Update erstmalig neue Raumeinheiten verknüpft werden, so werden die Zugriffsrechte aus den zugehörigen Metadaten übernommen",
-      "EDIT_DEFAULT_TIMESERIES_MAPPING": "Standard-Zeitreihen-Mapping bearbeiten",
       "IMPORT_BATCH_LIST_TOOLTIP": "Importieren der Batch-Liste aus einer Datei",
       "IMPORT_BATCH_LIST": "Batch-Liste importieren",
       "EXPORT_BATCH_LIST_TOOLTIP": "Exportieren der Batch-Liste in eine Datei",
       "EXPORT_BATCH_LIST": "Batch-Liste exportieren",
       "SHOW_RESULT": "Ergebnis anzeigen",
-      "RUN_UPDATE": "Update ausführen"
+      "RUN_UPDATE": "Update ausführen",
+      "BLOCKER_EMPTY_LIST": "Die Batch-Liste ist leer.",
+      "BLOCKER_NAME": "Die Spalte Name* ist nicht in allen Zeilen gesetzt.",
+      "BLOCKER_TIMESERIES_MAPPING": "Das Zeitreihen-Mapping* fehlt in mindestens einer Zeile.",
+      "BLOCKER_CONVERTER": "Konverter-Angaben fehlen oder sind unvollständig in mindestens einer Zeile.",
+      "BLOCKER_DATASOURCE_TYPE": "Die Spalte Datenquelltyp* ist nicht in allen Zeilen gesetzt.",
+      "BLOCKER_DATASOURCE": "Angaben zur Datenquelle (Datei, URL bzw. Payload) fehlen in mindestens einer Zeile.",
+      "BLOCKER_SPATIAL_REF_KEY": "Der ID-Attributname der Raumebenen-Features* fehlt in mindestens einer Zeile.",
+      "BLOCKER_TARGET_SPATIAL_UNIT": "Die Spalte Ziel-Raumebene* ist nicht in allen Zeilen gesetzt.",
+      "ENCODING_DEFAULT_OPTION": "-- Standard des Konverters --",
+      "ROW_METADATA_MISSING": "Indikator oder Ziel-Raumebene sind nicht mehr vorhanden; die Zeile wurde übersprungen.",
+      "RUN_SUMMARY": "{{success}} von {{total}} Datensätzen aktualisiert, {{error}} fehlgeschlagen.",
+      "RUN_PROGRESS": "Zeile {{done}} von {{total}}",
+      "DEFAULT_APPLIED": "{{changed}} Zeile(n) aktualisiert.",
+      "RUN_BLOCKED": "Der Batch-Update kann noch nicht ausgeführt werden:"
     },
     "DELETE_MODAL": {
       "TITLE": "Indikatoren löschen",
@@ -763,6 +798,24 @@
       "CLASS_BREAKS": "Klassengrenzen",
       "BREAK_N": "Grenze {{n}}",
       "MANAGE_COMPARISON_VALUES": "Vergleichswerte verwalten"
+    },
+    "GRID": {
+      "COL_UNIT": "Einheit",
+      "COL_METHODOLOGY": "Methodik",
+      "COL_AVAILABLE_SPATIAL_UNITS": "Verfügbare Raumebenen",
+      "COL_AVAILABLE_TIMESTAMPS": "Verfügbare Zeitschnitte",
+      "COL_ABBREVIATION": "Kürzel",
+      "COL_HEADLINE_INDICATOR": "Leitindikator",
+      "COL_INDICATOR_TYPE": "Indikator-Typ",
+      "COL_CHARACTERISTIC": "Merkmal",
+      "COL_UPDATE_INTERVAL": "Art der Fortführung",
+      "COL_TAGS": "Tags/Stichworte",
+      "COL_DECIMALS": "Nachkommastellen",
+      "COL_DATE": "Zeitpunkt",
+      "COL_REGIONAL_SUM": "regionale Gesamtsumme",
+      "COL_REGIONAL_AVERAGE": "regionaler Mittelwert",
+      "COL_SPATIALLY_UNASSIGNABLE": "räumlich nicht zuordenbar",
+      "DELETE_TITLE": "Indikator entfernen"
     }
   },
   "ADMIN_ROLES": {
@@ -789,7 +842,6 @@
       "CREATING": "Erstelle Organisationseinheit...",
       "CREATE_ERROR": "Fehler beim Erstellen der Organisationseinheit:",
       "KEYCLOAK_ROLES_ERROR": "Fehler beim Anlegen der Keycloak-Rollen:",
-      "BASICS_TITLE": "Basisinformationen",
       "BASICS_HELP": "Angaben über die neue Organisationseinheit",
       "NAME_PLACEHOLDER": "z.B. Fachbereich 52",
       "NAME_INVALID": "Eingabe ungültig. Es existiert bereits eine andere Organisationseinheit mit gleichem Namen.",
@@ -858,19 +910,19 @@
       "DESCRIPTION": "Übersicht und Bedienhinweise der ab KomMonitor Version 4 eingeführten Zugriffskontrolle",
       "TENANT": {
         "TITLE": "Was ist ein Mandant?",
-        "CONTENT": "KomMonitor erlaubt das Anlegen unterschiedlicher Gruppen, um Verwaltungstrukturen abzubilden und Zugriffsrechte dediziert zu vergeben. <br> Eine KomMonitor Gruppe kann durch den KomMonitor Superadministrator als Mandant gekennzeichnet werden. Wie ein Wurzelknoten in einem Hierarchie-Baum dient dieser Mandant dazu, weitere Untergruppen abzubilden. <br> <br> In einer KomMonitor Instanz können mehrere Mandanten unabhängig voneinander angelegt werden, um jeweils eigene, voneinander getrennte Untergruppenhierarchien, Raumebenen und Datensätze zu verwalten."
+        "CONTENT": "KomMonitor erlaubt das Anlegen unterschiedlicher Gruppen, um Verwaltungsstrukturen abzubilden und Zugriffsrechte dediziert zu vergeben. <br> Eine KomMonitor Gruppe kann durch den KomMonitor Superadministrator als Mandant gekennzeichnet werden. Wie ein Wurzelknoten in einem Hierarchie-Baum dient dieser Mandant dazu, weitere Untergruppen abzubilden. <br> <br> In einer KomMonitor Instanz können mehrere Mandanten unabhängig voneinander angelegt werden, um jeweils eigene, voneinander getrennte Untergruppenhierarchien, Raumebenen und Datensätze zu verwalten."
       },
       "CREATE_TENANT": {
         "TITLE": "Wie werden neue Mandanten angelegt?",
-        "CONTENT": "<i><ol type=\"1\"><li>Einloggen als User mit KomMonitor Superadministrator-Rechten (Rolle <code>kommonitor-creator</code>)</li><li>Zu Menu Gruppenverwaltung navigieren und Schaltfläche <code>Erstellen</code> klicken</li><li>Beim Anlegen der neuen Gruppe den Haken für die Mandanteneigenschaft setzen</li><li>Restliche Metadaten angeben und Gruppe erstellen.</li><li>Damit die neue Gruppe sich selbst (und ggf. Untergruppen) verwalten darf, müssen ihr noch entsprechende Rechte gegeben werden. dazu in der Gruppenverwaltung in der Übersichtstabelle die Schaltfläche <code>Gruppenspezifische Rechte editieren</code> klicken. Im entsprechenden Menü in Schritt <code>2 - Rechte anderer</code> mindestens die Rechte zur Verwaltung von Usern, Ressourcen und Themen für <code>diese Gruppe</code> setzen. <br><br> Das Setzen eines <code>Untergruppen</code> Häkchens erwirkt, dass diese Gruppe auch alle ihre Untergruppen bezüglich Usern, Themen oder Ressourcen mitadministrieren darf.</li><li>Mandantenadministrator-User in Keycloak anlegen und der gleichnamigen Keycloak Gruppe zuweisen.</li></ol></i> <br> Ab diesem Zeitpunkt ist der neue Mandant handlungsfähig. Mandantenadministratoren haben die Rechte, innerhalb eines Mandanten weitere Untergruppen, User und Datensätze zu erzeugen."
+        "CONTENT": "<ol type=\"1\"><li>Einloggen als User mit KomMonitor Superadministrator-Rechten (Rolle <code>kommonitor-creator</code>)</li><li>Zu Menü Gruppenverwaltung navigieren und Schaltfläche <code>Erstellen</code> klicken</li><li>Beim Anlegen der neuen Gruppe den Haken für die Mandanteneigenschaft setzen</li><li>Restliche Metadaten angeben und Gruppe erstellen.</li><li>Damit die neue Gruppe sich selbst (und ggf. Untergruppen) verwalten darf, müssen ihr noch entsprechende Rechte gegeben werden. dazu in der Gruppenverwaltung in der Übersichtstabelle die Schaltfläche <code>Gruppenspezifische Rechte editieren</code> klicken. Im entsprechenden Menü in Schritt <code>2 - Rechte anderer</code> mindestens die Rechte zur Verwaltung von Usern, Ressourcen und Themen für <code>diese Gruppe</code> setzen. <br><br> Das Setzen eines <code>Untergruppen</code> Häkchens erwirkt, dass diese Gruppe auch alle ihre Untergruppen bezüglich Usern, Themen oder Ressourcen mitadministrieren darf.</li><li>Mandantenadministrator-User in Keycloak anlegen und der gleichnamigen Keycloak Gruppe zuweisen.</li></ol> <br> Ab diesem Zeitpunkt ist der neue Mandant handlungsfähig. Mandantenadministratoren haben die Rechte, innerhalb eines Mandanten weitere Untergruppen, User und Datensätze zu erzeugen."
       },
       "SUBGROUPS": {
         "TITLE": "Was sind Untergruppen eines Mandanten?",
-        "CONTENT": "Innerhalb eines Mandanten können optional beliebig viele Untergruppen erzeugt werden, Während eine Mandantengruppe alleine bereits ausreicht, um Datensätze vollumfänglich in KomMonitor zu verwalten, erlaubt das Erstellen weiterer Untergruppen-Hierarchien eine feingranulare Aufteilung von Zuständigkeiten und gezielteren Datensatzfreigaben innerhalb der Verwaltung. <br><br> Eine Untergruppe kann dabei auch von übergeordneten Gruppen hinsichtlich Usern, Ressourcen und Themen mitadministriert werden - je nach gesetzten Rechten."
+        "CONTENT": "Innerhalb eines Mandanten können optional beliebig viele Untergruppen erzeugt werden. Während eine Mandantengruppe alleine bereits ausreicht, um Datensätze vollumfänglich in KomMonitor zu verwalten, erlaubt das Erstellen weiterer Untergruppen-Hierarchien eine feingranulare Aufteilung von Zuständigkeiten und gezielteren Datensatzfreigaben innerhalb der Verwaltung. <br><br> Eine Untergruppe kann dabei auch von übergeordneten Gruppen hinsichtlich Usern, Ressourcen und Themen mitadministriert werden - je nach gesetzten Rechten."
       },
       "CREATE_SUBGROUPS": {
         "TITLE": "Wie werden neue Untergruppen erstellt?",
-        "CONTENT": "<i><ol type=\"1\"><li>Einloggen als Mitglied-User einer Obergruppe mit User-Verwaltungsrechten</li><li>Zu Menu Gruppenverwaltung navigieren und Schaltfläche <code>Erstellen</code> klicken</li><li>Beim Anlegen der neuen Untergruppe die entsprechende Obergruppe (Elterngruppe) selektieren</li><li>Restliche Metadaten angeben und Untergruppe erstellen.</li><li>optional: Im Untermenü <code>2 - Rechte anderer</code> festlegen, ob bereits existierende andere Gruppen administrative Aufgaben für die neue Untergruppe übernehmen sollen. <br><br> Wenn die Obergruppe all ihre Untergruppen mitverwalten darf, muss dies hier nicht noch einmal explizit gesetzt werden.</li><li>optional: Wenn auch die Untergruppe ausgewählte administrative Aufgaben für sich selbst (und ggf. weitere Untergruppen) übernehmen soll, müssen ihr noch entsprechende Rechte gegeben werden. Dazu in der Gruppenverwaltung in der Übersichtstabelle die Schaltfläche <code>Gruppenspezifische Rechte editieren</code> klicken. Im entsprechenden Menü in Schritt <code>2 - Rechte anderer</code> alle relevanten Rechte zur Verwaltung von Usern, Ressourcen oder Themen für <code>diese Gruppe</code> setzen. <br><br> Das Setzen eines <code>Untergruppen</code> Häkchens erwirkt, dass diese Gruppe auch alle ihre Untergruppen bezüglich Usern, Themen oder Ressourcen mitadministrieren darf.</li><li>Entsprechende User in Keycloak anlegen oder finden und der gleichnamigen Keycloak Untergruppe zuweisen.</li></ol></i>"
+        "CONTENT": "<ol type=\"1\"><li>Einloggen als Mitglied-User einer Obergruppe mit User-Verwaltungsrechten</li><li>Zu Menü Gruppenverwaltung navigieren und Schaltfläche <code>Erstellen</code> klicken</li><li>Beim Anlegen der neuen Untergruppe die entsprechende Obergruppe (Elterngruppe) selektieren</li><li>Restliche Metadaten angeben und Untergruppe erstellen.</li><li>optional: Im Untermenü <code>2 - Rechte anderer</code> festlegen, ob bereits existierende andere Gruppen administrative Aufgaben für die neue Untergruppe übernehmen sollen. <br><br> Wenn die Obergruppe all ihre Untergruppen mitverwalten darf, muss dies hier nicht noch einmal explizit gesetzt werden.</li><li>optional: Wenn auch die Untergruppe ausgewählte administrative Aufgaben für sich selbst (und ggf. weitere Untergruppen) übernehmen soll, müssen ihr noch entsprechende Rechte gegeben werden. Dazu in der Gruppenverwaltung in der Übersichtstabelle die Schaltfläche <code>Gruppenspezifische Rechte editieren</code> klicken. Im entsprechenden Menü in Schritt <code>2 - Rechte anderer</code> alle relevanten Rechte zur Verwaltung von Usern, Ressourcen oder Themen für <code>diese Gruppe</code> setzen. <br><br> Das Setzen eines <code>Untergruppen</code> Häkchens erwirkt, dass diese Gruppe auch alle ihre Untergruppen bezüglich Usern, Themen oder Ressourcen mitadministrieren darf.</li><li>Entsprechende User in Keycloak anlegen oder finden und der gleichnamigen Keycloak Untergruppe zuweisen.</li></ol>"
       },
       "OWNERSHIP": {
         "TITLE": "Was ist die Eigentümerschaft an Datensätzen?",
@@ -878,30 +930,30 @@
       },
       "CHANGE_OWNERSHIP": {
         "TITLE": "Kann die Eigentümerschaft verändert werden?",
-        "CONTENT": "Ja, Superadministratoren mit der Rolle <code>kommonitor-creator</code> sowie Mitgliedern der Eigentümer-Gruppe ist es möglich, die Eigentümerstellung an eine andere existierende Gruppe zu übertragen. <i><ol type=\"1\"><li>Einloggen als Mitglied-User der Eigentümer-Gruppe</li><li>Zur Ressourcenverwaltung navigieren (Raumeinheiten, Indikatoren oder Georessourcen) und Schaltfläche <code>Zugriffsschutz und Eigentümerschaft editieren</code> klicken</li><li>Im Untermenü <code>3 - Eigentümerschaft</code> die neue Gruppe selektieren und die Eigentümerschaft via Schaltfläche <code>Aktualisieren</code> unwiederuflich abtreten.</li></ol></i>"
+        "CONTENT": "Ja, Superadministratoren mit der Rolle <code>kommonitor-creator</code> sowie Mitgliedern der Eigentümer-Gruppe ist es möglich, die Eigentümerstellung an eine andere existierende Gruppe zu übertragen. <ol type=\"1\"><li>Einloggen als Mitglied-User der Eigentümer-Gruppe</li><li>Zur Ressourcenverwaltung navigieren (Raumeinheiten, Indikatoren oder Georessourcen) und Schaltfläche <code>Zugriffsschutz und Eigentümerschaft editieren</code> klicken</li><li>Im Untermenü <code>3 - Eigentümerschaft</code> die neue Gruppe selektieren und die Eigentümerschaft via Schaltfläche <code>Aktualisieren</code> unwiderruflich abtreten.</li></ol>"
       },
       "GROUP_SHARING": {
         "TITLE": "Wie erfolgt die gruppenspezifische Freigabe eines Datensatzes?",
-        "CONTENT": "Mitglieder der Eigentümer-Gruppe eines Datensatzes (Raumeinheit, Indikator oder Georessource) haben immer vollen Zugriff auf die Ressource (lesen, editieren, löschen). <br> <br> Schon beim Anlegen einer Ressource legen Mitglieder der Eigentümer-Gruppe in Schritt <code>Zugriffsschutz und Eigentümerschaft</code> fest, welchen anderen Gruppen Lese- und Editierrechte eingeräumt werden. In einer tabbellarischen Form werden dazu entsprechende Häkchen bei den zutreffenden Gruppenzeilen gesetzt. <br> <br> Eine nachträgliche Änderung ist jederzeit im jeweiligen Ressourcenverwaktungsmenü mit der Schaltfläche <code>Zugriffsschutz und Eigentümerschaft</code> und in den dortigen Untermenüs möglich. Anpassungen sind erst gültig, wenn der <code>Aktualisieren</code> Button betätigt wird."
+        "CONTENT": "Mitglieder der Eigentümer-Gruppe eines Datensatzes (Raumeinheit, Indikator oder Georessource) haben immer vollen Zugriff auf die Ressource (lesen, editieren, löschen). <br> <br> Schon beim Anlegen einer Ressource legen Mitglieder der Eigentümer-Gruppe in Schritt <code>Zugriffsschutz und Eigentümerschaft</code> fest, welchen anderen Gruppen Lese- und Editierrechte eingeräumt werden. In einer tabellarischen Form werden dazu entsprechende Häkchen bei den zutreffenden Gruppenzeilen gesetzt. <br> <br> Eine nachträgliche Änderung ist jederzeit im jeweiligen Ressourcenverwaltungsmenü mit der Schaltfläche <code>Zugriffsschutz und Eigentümerschaft</code> und in den dortigen Untermenüs möglich. Anpassungen sind erst gültig, wenn der <code>Aktualisieren</code> Button betätigt wird."
       },
       "PUBLIC_SHARING": {
         "TITLE": "Wie erfolgt die öffentliche Freigabe von Datensätzen?",
-        "CONTENT": "Ähnlich wie bei der gruppenspezifischen Freigabe von Datensätzen ist es nur Mitgliedern der Eigentümer-Gruppe eines Datensatzes (Raumeinheit, Indikator oder Georessource) gestattet, einen öffentlichen Lesezugriff auf die Ressource einzurichten. <br> <br> Schon beim Anlegen einer Ressource legen Mitglieder der Eigentümer-Gruppe in Schritt <code>Zugriffsschutz und Eigentümerschaft</code> durch den Schalter <code>Öffentliche Lesefreigabe</code> explizit fest, ob der Datensatz auch ohne User-Login abgerufen werden darf. <br> <br> Eine nachträgliche Änderung ist jederzeit im jeweiligen Ressourcenverwaktungsmenü mit der Schaltfläche <code>Zugriffsschutz und Eigentümerschaft</code> und in den dortigen Untermenüs möglich. Anpassungen sind erst gültig, wenn der <code>Aktualisieren</code> Button betätigt wird."
+        "CONTENT": "Ähnlich wie bei der gruppenspezifischen Freigabe von Datensätzen ist es nur Mitgliedern der Eigentümer-Gruppe eines Datensatzes (Raumeinheit, Indikator oder Georessource) gestattet, einen öffentlichen Lesezugriff auf die Ressource einzurichten. <br> <br> Schon beim Anlegen einer Ressource legen Mitglieder der Eigentümer-Gruppe in Schritt <code>Zugriffsschutz und Eigentümerschaft</code> durch den Schalter <code>Öffentliche Lesefreigabe</code> explizit fest, ob der Datensatz auch ohne User-Login abgerufen werden darf. <br> <br> Eine nachträgliche Änderung ist jederzeit im jeweiligen Ressourcenverwaltungsmenü mit der Schaltfläche <code>Zugriffsschutz und Eigentümerschaft</code> und in den dortigen Untermenüs möglich. Anpassungen sind erst gültig, wenn der <code>Aktualisieren</code> Button betätigt wird."
       },
       "INDICATOR_SHARING": {
         "TITLE": "Wie funktioniert die Datenfreigabe von Indikatoren für bestimmte Raumeinheiten?",
-        "CONTENT": "Bei der Freigabe (Lesen, Editieren) von Indikatoren gelten besondere Regeln. Grundsätzlich unterscheidet KomMonitor bei Indikatoren zwischen der <i>Freigabe ihrer Metadaten</i> und der <i>Freigabe konkreter Zeitreihen auf konkreten verknüpften Raumeinheiten</i>. So ist es bspw. konfigurierbar, den Indikator bezogen auf dessen Metadaten sowie Zeitreihen ausgewählter Raumeinheiten öffentlich freizugeben, während Zeitreihen sehr kleinräumiger Raumeinheiten nur der internen Verwaltung zur Verfügung stehen sollen. <br> <br> Weiterhin ist neben der Freigabe der Indikatoren auch eine passgenaue Freigabe der Raumeinheiten zu setzen. Im Folgenden werden einige Beispielszenarien unteschieden und durch Einstellhinweise verdeutlicht: <br> <br>",
+        "CONTENT": "Bei der Freigabe (Lesen, Editieren) von Indikatoren gelten besondere Regeln. Grundsätzlich unterscheidet KomMonitor bei Indikatoren zwischen der <i>Freigabe ihrer Metadaten</i> und der <i>Freigabe konkreter Zeitreihen auf konkreten verknüpften Raumeinheiten</i>. So ist es bspw. konfigurierbar, den Indikator bezogen auf dessen Metadaten sowie Zeitreihen ausgewählter Raumeinheiten öffentlich freizugeben, während Zeitreihen sehr kleinräumiger Raumeinheiten nur der internen Verwaltung zur Verfügung stehen sollen. <br> <br> Weiterhin ist neben der Freigabe der Indikatoren auch eine passgenaue Freigabe der Raumeinheiten zu setzen. Im Folgenden werden einige Beispielszenarien unterschieden und durch Einstellhinweise verdeutlicht: <br> <br>",
         "SCENARIO_PRIVATE": {
           "TITLE": "Szenario Indikator nicht öffentlich",
-          "CONTENT": "<table class=\"table\"><tr><th>Indikatoren-Metadaten</th><th>Indikatoren-Zeitreihe pro Raumebene</th><th>Raumeinheiten-Metadaten</th></tr><tr><td>Schalter <code>Öffentliche Lesefreigabe</code> deaktivieren</td><td><i>pro Raumeinheit:</i> <br> explizite Freigabe an relevante Gruppen (Lesen, Schreiben) <i>unterschiedliche Konfigurationen je nach Raumeinheit denkbar</i></td><td>Lesezugriff auf Raumeinheiten-Metadaten selbst muss analog für alle relevanten Gruppen freigegeben werden.</td></tr></table>"
+          "CONTENT": "<table class=\"table\"><thead><tr><th>Indikatoren-Metadaten</th><th>Indikatoren-Zeitreihe pro Raumebene</th><th>Raumeinheiten-Metadaten</th></tr></thead><tbody><tr><td>Schalter <code>Öffentliche Lesefreigabe</code> deaktivieren</td><td><i>pro Raumeinheit:</i> <br> explizite Freigabe an relevante Gruppen (Lesen, Schreiben) <i>unterschiedliche Konfigurationen je nach Raumeinheit denkbar</i></td><td>Lesezugriff auf Raumeinheiten-Metadaten selbst muss analog für alle relevanten Gruppen freigegeben werden.</td></tr></tbody></table>"
         },
         "SCENARIO_PARTIAL": {
           "TITLE": "Szenario Indikator teilweise öffentlich",
-          "CONTENT": "<table class=\"table\"><tr><th>Indikatoren-Metadaten</th><th>Indikatoren-Zeitreihe pro Raumebene</th><th>Raumeinheiten-Metadaten</th></tr><tr><td>Schalter <code>Öffentliche Lesefreigabe</code> aktivieren</td><td><i>pro Raumeinheit:</i> <br> <li>für alle Raumeinheiten mit öffentlichem Zugriff aktivieren der <code>Öffentliche Lesefreigabe</code> (weitere explizite Freigabe an Gruppen nur bei Bedarf zwecks Editierrechten)</li> <li>für interne Raumeinheiten <code>Öffentliche Lesefreigabe</code> deaktivieren – stattdessen nur explizite Freigabe an relevante Gruppen (Lesen, Schreiben)</li> <i>unterschiedliche Konfigurationen je nach Raumeinheit denkbar</i></td><td><i><code>öffentlicher Lesezugriff</code> für bestimmte Raumeinheiten-Metadaten aktivieren</i> <i>interner geschützter Lesezugriff auf sonstige Raumeinheiten-Metadaten muss analog für alle relevanten Gruppen explizit freigegeben werden.</i></td></tr></table>"
+          "CONTENT": "<table class=\"table\"><thead><tr><th>Indikatoren-Metadaten</th><th>Indikatoren-Zeitreihe pro Raumebene</th><th>Raumeinheiten-Metadaten</th></tr></thead><tbody><tr><td>Schalter <code>Öffentliche Lesefreigabe</code> aktivieren</td><td><i>pro Raumeinheit:</i> <br> <ul><li>für alle Raumeinheiten mit öffentlichem Zugriff aktivieren der <code>Öffentliche Lesefreigabe</code> (weitere explizite Freigabe an Gruppen nur bei Bedarf zwecks Editierrechten)</li> <li>für interne Raumeinheiten <code>Öffentliche Lesefreigabe</code> deaktivieren – stattdessen nur explizite Freigabe an relevante Gruppen (Lesen, Schreiben)</li></ul> <i>unterschiedliche Konfigurationen je nach Raumeinheit denkbar</i></td><td><code>öffentlicher Lesezugriff</code> für bestimmte Raumeinheiten-Metadaten aktivieren. <br> Interner geschützter Lesezugriff auf sonstige Raumeinheiten-Metadaten muss analog für alle relevanten Gruppen explizit freigegeben werden.</td></tr></tbody></table>"
         },
         "SCENARIO_PUBLIC": {
           "TITLE": "Szenario Indikator komplett öffentlich",
-          "CONTENT": "<table class=\"table\"><tr><th>Indikatoren-Metadaten</th><th>Indikatoren-Zeitreihe pro Raumebene</th><th>Raumeinheiten-Metadaten</th></tr><tr><td>Schalter <code>Öffentliche Lesefreigabe</code> aktivieren</td><td>für alle Raumeinheiten aktivieren der <code>Öffentliche Lesefreigabe</code> (weitere explizite Freigabe an Gruppen nur bei Bedarf zwecks Editierrechten) <i>unterschiedliche Konfigurationen je nach Raumeinheit denkbar</i></td><td><code>öffentlicher Lesezugriff</code> bei betreffenden Raumeinheiten-Metadaten selbst aktivieren</td></tr></table>"
+          "CONTENT": "<table class=\"table\"><thead><tr><th>Indikatoren-Metadaten</th><th>Indikatoren-Zeitreihe pro Raumebene</th><th>Raumeinheiten-Metadaten</th></tr></thead><tbody><tr><td>Schalter <code>Öffentliche Lesefreigabe</code> aktivieren</td><td>für alle Raumeinheiten aktivieren der <code>Öffentliche Lesefreigabe</code> (weitere explizite Freigabe an Gruppen nur bei Bedarf zwecks Editierrechten) <i>unterschiedliche Konfigurationen je nach Raumeinheit denkbar</i></td><td><code>öffentlicher Lesezugriff</code> bei betreffenden Raumeinheiten-Metadaten selbst aktivieren</td></tr></tbody></table>"
         }
       }
     },
@@ -917,10 +969,17 @@
       "COL_CONTACT": "Kontakt",
       "COL_MANDANT": "Mandant",
       "CHILD_GROUPS_COUNT": "{{count}} direkte Untergruppe(n)",
+      "CHILD_GROUPS_MORE": "+{{count}} weitere",
       "COL_READ": "Lesen",
       "COL_EDIT": "Editieren",
       "COL_DELETE": "Löschen",
-      "PUBLIC_ACCESS": "Öffentlicher Zugriff"
+      "PUBLIC_ACCESS": "Öffentlicher Zugriff",
+      "COL_THIS_GROUP": "Diese Gruppe",
+      "COL_SUBGROUPS": "Untergruppen",
+      "GROUP_MANAGE_USERS": "Verwalten von Nutzern",
+      "GROUP_MANAGE_RESOURCES": "Verwalten von Ressourcen",
+      "GROUP_MANAGE_TOPICS": "Verwalten von Themen",
+      "EDIT_GROUP_RIGHTS_TITLE": "Gruppenrechte bearbeiten"
     }
   },
   "ADMIN_TOPICS": {
@@ -949,17 +1008,16 @@
       "MSG": {
         "DELETED": "Thema '{{name}}' wurde gelöscht.",
         "DELETE_FAILED": "Das Thema konnte nicht gelöscht werden."
-      }
+      },
+      "SUBTOPICS_HEADER": "Unterthemen",
+      "NO_SUBTOPICS": "keine"
     },
     "EDIT_MODAL": {
       "TITLE_PREFIX": "Metadaten des Themeneintrags",
       "TITLE_SUFFIX": "editieren",
-      "FORM_TITLE": "Themen Metadaten",
       "NAME_LABEL": "Name des Eintrags",
       "TITLE_PLACEHOLDER": "Titel des Eintrags",
-      "NAME_REQUIRED": "Name ist erforderlich",
       "DESCRIPTION_LABEL": "Beschreibung des Eintrags",
-      "DESCRIPTION_REQUIRED": "Beschreibung ist erforderlich",
       "UPDATE": "Eintrag aktualisieren",
       "MSG": {
         "UPDATED": "Thema '{{name}}' wurde aktualisiert.",
@@ -969,7 +1027,9 @@
     "MSG": {
       "SORT_SAVE_FAILED": "Die Sortierung konnte nicht gespeichert werden.",
       "SORT_MODES_LOAD_FAILED": "Die Sortiermodi konnten nicht geladen werden."
-    }
+    },
+    "SUBTOPIC_COUNT_ONE": "1 direktes Unterthema",
+    "SUBTOPIC_COUNT_MANY": "{{count}} direkte Unterthemen"
   },
   "ADMIN_SCRIPTS": {
     "ADD": "Hinzufügen",
@@ -981,7 +1041,8 @@
     "INDICATOR_NAME_PLACEHOLDER": "IndikatorenName",
     "MANAGEMENT": {
       "TITLE": "Skriptverwaltung",
-      "DESCRIPTION": "Steuerung der semi-automatisierten Indikatorenberechnung"
+      "DESCRIPTION": "Steuerung der semi-automatisierten Indikatorenberechnung",
+      "BOX_TITLE": "Indikatoren-Berechnungs-Skripte"
     },
     "EXECUTION": {
       "TITLE": "Indikatoren-Berechnung",
@@ -996,7 +1057,7 @@
       "FAILED_JOBS": "gescheiterte Jobs",
       "ACTIVE_JOBS": "laufende Jobs",
       "WAITING_JOBS": "wartende Jobs",
-      "DELAYED_JOBS": "wartende Jobs"
+      "DELAYED_JOBS": "zurückgestellte Jobs"
     },
     "ADD_MODAL": {
       "TITLE": "Neues Indikatoren-Berechnungs-Skript registrieren",
@@ -1132,6 +1193,53 @@
       "DELETE_FAILED_TEXT": "Folgende Datensätze konnten nicht gelöscht werden.",
       "ERROR_MESSAGE": "Fehlermeldung",
       "DELETE_PERMANENTLY": "Skripte unwiderruflich löschen"
+    },
+    "GRID": {
+      "COL_TARGET_INDICATOR_ID": "Ziel-Indikatoren-Id",
+      "COL_TARGET_INDICATOR_NAME": "Ziel-Indikatoren-Name",
+      "COL_REQUIRED_BASE_INDICATORS": "Notwendige Basis-Indikatoren",
+      "COL_REQUIRED_BASE_GEORESOURCES": "Notwendige Basis-Georessourcen",
+      "COL_PROCESS_PARAMETERS": "Prozessparameter",
+      "COL_JOB_ID": "Job-Id",
+      "COL_SCRIPT_ID": "Script-Id",
+      "COL_TARGET_INDICATOR": "Ziel-Indikator",
+      "COL_JOB_STATUS": "Job-Status",
+      "COL_JOB_PROGRESS": "Job-Fortschritt",
+      "COL_JOB_DATA": "Job-Data",
+      "COL_JOB_LOGS": "Job-Logs",
+      "COL_JOB_SUMMARY": "Job-Summary"
+    },
+    "DATA_TYPES": {
+      "STRING": "Textuell (String)",
+      "BOOLEAN": "Wahrheitswert (Boolean)",
+      "INTEGER": "Ganzzahl (Integer)",
+      "DOUBLE": "Gleitkommazahl (Double)"
+    },
+    "TEMPORAL_UNITS": {
+      "YEARS": "Jahr(e)",
+      "MONTHS": "Monat(e)",
+      "DAYS": "Tag(e)"
+    },
+    "SCRIPT_TYPES": {
+      "GENERIC": "Generische Definition",
+      "INDICATOR_SUM": "Indikatoren - Summe aller Indikatoren",
+      "INDICATOR_SUBTRACT": "Indikatoren - Subtraktion von Basis-Indikatoren von einem Referenzindikator",
+      "INDICATOR_PERCENTAGE": "Indikatoren - Prozentualer Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
+      "INDICATOR_SHARE": "Indikatoren - Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
+      "INDICATOR_DIVISION": "Indikatoren - Division (Quotient zweier Indikatoren)",
+      "INDICATOR_TREND": "Indikatoren - Trend (mittels linearer Regression)",
+      "INDICATOR_CONTINUITY": "Indikatoren - Kontinuität (mittels Pearson Korrelation)",
+      "INDICATOR_CHANGE_ABSOLUTE": "Indikatoren - Veränderung absolut",
+      "INDICATOR_CHANGE_ABSOLUTE_REF_DATE": "Indikatoren - Veränderung absolut mit festem Referenz-Zeitpunkt",
+      "INDICATOR_CHANGE_RELATIVE_REF_DATE": "Indikatoren - Veränderung prozentual mit festem Referenz-Zeitpunkt",
+      "INDICATOR_CHANGE_RELATIVE": "Indikatoren - Veränderung prozentual",
+      "INDICATOR_PROMILLE": "Indikatoren - Promille-Wert (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
+      "INDICATOR_HEADLINE_INDICATOR": "Leitindikator - verkettete Berechnung (Rank, Min-Max-Normalisierung, Aggregation)",
+      "INDICATOR_MULTIPLICATION": "Indikatoren - Produkt aller Indikatoren",
+      "GEORESOURCE_POINTS_IN_POLYGON": "Georessourcen - Anzahl Punkte in Polygon",
+      "GEORESOURCE_STATISTICS": "Georessourcen - Statistiken anhand Objekteigenschaft (Punktdatensätze)",
+      "GEORESOURCE_SUBSET_SHARE": "Georessourcen - Prozentualer Anteil anhand Objekteigenschaft (Punktdatensätze)",
+      "LINE_SEGMENT_IN_POLYGON": "Georessourcen - Summierte Linienlänge je Polygon"
     }
   },
   "ADMIN_SHELL": {
@@ -1174,7 +1282,8 @@
     "STEP": {
       "PREVIOUS": "Voriger Schritt",
       "NEXT": "Nächster Schritt",
-      "REQUIRED_FIELD_MARKER": "* = Pflichtfeld"
+      "REQUIRED_FIELD_MARKER": "* = Pflichtfeld",
+      "INVALID_HINT": "enthält ungültige Eingaben"
     },
     "OWNER": {
       "SELECT_HINT": "Bitte wählen Sie zunächst die Organisationseinheit aus, unter welcher Sie den Datensatz anlegen möchten",
@@ -1239,6 +1348,67 @@
       "REFERENCES": "Referenzen zu Indikatoren/Georessourcen",
       "CLASSIFICATION_OPTIONS": "Klassifizierungsoptionen",
       "REGIONAL_REFERENCE_VALUES": "regionale Vergleichswerte"
+    },
+    "GRID": {
+      "COL_DB_RECORD_ID": "DB-Record-Id",
+      "COL_FEATURE_ID": "Feature-Id",
+      "COL_VALID_START": "Lebenszeitbeginn",
+      "COL_VALID_END": "Lebenszeitende",
+      "EDIT_METADATA_TITLE": "Metadaten editieren",
+      "EDIT_ACCESS_TITLE": "Zugriffsschutz und Eigentümerschaft editieren",
+      "DELETE_RECORD_TITLE": "Datenobjekt unwiderruflich entfernen",
+      "CONFIRM_WITH_ENTER": "mit Enter bestätigen"
+    },
+    "VALIDATION": {
+      "REQUIRED": "Dieses Feld ist erforderlich.",
+      "MIN_LENGTH": "Mindestens {{requiredLength}} Zeichen erforderlich.",
+      "MAX_LENGTH": "Höchstens {{requiredLength}} Zeichen erlaubt.",
+      "MIN": "Der Wert muss mindestens {{min}} sein.",
+      "MAX": "Der Wert darf höchstens {{max}} sein.",
+      "PATTERN": "Die Eingabe hat nicht das erwartete Format.",
+      "DATE_FORMAT": "Ungültiges Datum. Erwartetes Format: JJJJ-MM-TT.",
+      "MIN_DATE": "Das Datum liegt vor dem frühestmöglichen Datum ({{value}}).",
+      "MAX_DATE": "Das Datum liegt nach dem spätestmöglichen Datum ({{value}}).",
+      "UNIQUE_NAME": "Der Name „{{name}}“ ist bereits vergeben.",
+      "PERIOD_OF_VALIDITY": "Der Startzeitpunkt muss vor dem Endzeitpunkt liegen.",
+      "SPATIAL_UNIT_HIERARCHY": "Die übergeordnete Raumebene muss gröber sein als die untergeordnete.",
+      "BBOX_INCOMPLETE": "Bitte alle vier Werte des Begrenzungsrahmens angeben.",
+      "TOPIC_REQUIRED": "Bitte mindestens ein Hauptthema wählen.",
+      "UNKNOWN": "Die Eingabe ist ungültig.",
+      "TIMESTAMP_SOURCE_REQUIRED": "Bitte den Zeitstempel angeben — je nach Umschalter als Attributname oder als Datum.",
+      "TIMESERIES_MAPPING_REQUIRED": "Bitte mindestens einen Zeitschnitt zuordnen.",
+      "MIME_TYPE_REQUIRED": "Bitte ein Quellformat wählen.",
+      "SCHEMA_REQUIRED": "Bitte ein Schema wählen.",
+      "FILE_REQUIRED": "Bitte eine Datei wählen."
+    },
+    "TIMESERIES_MAPPING": {
+      "INTRO": "Angabe des Attribut-Mappings für jeden zu importierenden Zeitschnitt. Jedes Mapping umfasst dabei das Attribut, in dem die Indikatorenwerte hinterlegt sind, sowie entweder einen direkt definierten Zeitstempel oder ein Attribut, welches den Zeitstempel gemäß ISO8601 enthält.",
+      "VALUE_PROPERTY": "Attributname der Indikatorenwerte",
+      "VALUE_PROPERTY_PLACEHOLDER": "Attributname für Indikatorenwerte",
+      "USE_PROPERTY": "Zeitstempel aus einem Attribut entnehmen",
+      "USE_PROPERTY_HINT": "Angabe, ob der Zeitstempel aus einem Attribut entnommen werden soll",
+      "TIMESTAMP_PROPERTY": "Attributname des Zeitstempels",
+      "TIMESTAMP_PROPERTY_PLACEHOLDER": "Attributname für Zeitstempel",
+      "TIMESTAMP": "Zeitstempel (direkte Angabe)",
+      "ADD_EDIT": "Hinzufügen/Editieren",
+      "OVERVIEW": "Übersicht der definierten Indikatoren-Zeitreihen-Mappings",
+      "EDIT_FUNCTIONS": "Editierfunktionen",
+      "EDIT_ENTRY": "Mapping editieren",
+      "DELETE_ENTRY": "Mapping löschen",
+      "EMPTY": "Noch kein Zeitreihen-Mapping definiert."
+    },
+    "BATCH_UPDATE": {
+      "ROW_INCOMPLETE": "Zeile unvollständig — Konverter oder Datenquelle fehlen; die Zeile wurde übersprungen.",
+      "RESULT_TITLE": "Ergebnis des Batch-Updates",
+      "RESOURCE_INDICATOR": "Indikator",
+      "RESOURCE_GEORESOURCE": "Georessource",
+      "STATUS": "Status",
+      "SUCCESS": "Erfolg",
+      "ERROR": "Fehler",
+      "SHOW_DETAIL": "Details anzeigen",
+      "NO_ROWS": "Keine Zeilen verarbeitet.",
+      "RUN_SUMMARY": "{{success}} von {{total}} Datensätzen aktualisiert, {{error}} fehlgeschlagen.",
+      "PARTIALLY_APPLIED": "Der Lauf wurde teilweise angewendet: erfolgreiche Zeilen bleiben gespeichert, es gibt kein Zurücksetzen. Korrigieren Sie die fehlgeschlagenen Zeilen und starten Sie nur diese erneut."
     }
   },
   "ADMIN_WMS": {
@@ -1288,21 +1458,24 @@
     "EDIT_ROLES": {
       "TITLE": "WMS bearbeiten",
       "SUCCESS_TEXT": "Zugriffsrechte für den Datensatz mit dem Namen {{name}} wurde in KomMonitor editiert."
+    },
+    "GRID": {
+      "COL_LEGEND": "Legende"
     }
   },
   "ADMIN_CONFIG": {
     "COMMON": {
       "TEMPLATE_LABEL": "Vorlage (Struktur und Standard-Einstellung)",
-      "CURRENT_LABEL": "derzeitige Konfiguration (aktuelle Wertbelegung)",
+      "CURRENT_LABEL": "Derzeitige Konfiguration (aktuelle Wertbelegung)",
       "PREVIEW_LABEL": "Vorschaufenster (neue Wertbelegung)",
       "MISSING_PARAMETERS": "Fehlende Parameter:",
       "INVALID_HINT": "Bitte beachten Sie, dass alle notwendigen Parameter gemäß der obigen Vorlage definiert werden müssen. Beachten Sie daher die vorgegebene {{format}}-Struktur. Der Text wird auf Schlüsselwörter geprüft und es wird sichergestellt, dass valides {{format}} geparsed werden kann.",
       "INTRO_SUFFIX": "von KomMonitor, von dem die Daten beim Start der Anwendung geladen werden. Setzen Sie die Werte daher sorgfältig."
     },
     "APP": {
-      "TITLE": "Web Client Einstellungen",
+      "TITLE": "Allgemeine Einstellungen",
       "DESCRIPTION": "Anpassen der Standard-Einstellungen (u.a. Dienstanbindung, Geodatendienste, Standard-Kartendarstellung)",
-      "BOX_TITLE": "App Konfiguration",
+      "BOX_TITLE": "App-Konfiguration",
       "INTRO_PREFIX": "Nehmen Sie Anpassungen an variablen Parametern des Web-Clients vor und speichern sie diese. Die Editierungen erfolgen direkt im JavaScript-Format. Dies speichert die Konfiguration im",
       "EDITOR_LABEL": "Editierfenster der App-Einstellungen",
       "SAVE": "App-Konfiguration speichern",
@@ -1313,16 +1486,16 @@
       }
     },
     "CONTROLS": {
-      "TITLE": "Web Client Steuerungselemente",
-      "DESCRIPTION": "Anpassen der Steuerungselemente (u.a. Buttons, Menüs, Toolbars)",
-      "BOX_TITLE": "Steuerungselemente Konfiguration",
-      "INTRO_PREFIX": "Nehmen Sie Anpassungen an den Steuerungselementen des Web-Clients vor und speichern sie diese. Die Editierungen erfolgen direkt im JavaScript-Format. Dies speichert die Konfiguration im",
-      "EDITOR_LABEL": "Editierfenster der Steuerungselemente-Einstellungen",
-      "SAVE": "Steuerungselemente-Konfiguration speichern",
+      "TITLE": "Widget-Konfiguration",
+      "DESCRIPTION": "Anpassen der Widgets des Web-Clients (u.a. Buttons, Menüs, Toolbars)",
+      "BOX_TITLE": "Widgets - Konfigurationsdatei",
+      "INTRO_PREFIX": "Nehmen Sie Anpassungen an den Widgets des Web-Clients vor und speichern sie diese. Die Editierungen erfolgen direkt im JSON-Format. Dies speichert die Konfiguration im",
+      "EDITOR_LABEL": "Editierfenster der Widget-Konfiguration",
+      "SAVE": "Widget-Konfiguration speichern",
       "MSG": {
-        "LOAD_FAILED": "Laden der Controls-Konfiguration gescheitert: {{error}}",
-        "SAVED": "Controls-Konfiguration gespeichert.",
-        "SAVE_FAILED": "Speichern der Controls-Konfiguration gescheitert: {{error}}"
+        "LOAD_FAILED": "Laden der Widget-Konfiguration gescheitert: {{error}}",
+        "SAVED": "Widget-Konfiguration gespeichert.",
+        "SAVE_FAILED": "Speichern der Widget-Konfiguration gescheitert: {{error}}"
       }
     },
     "FILTER": {
@@ -1334,9 +1507,26 @@
       "EDITOR_LABEL": "Editierfenster der Filter-Konfiguration",
       "SAVE": "Filter-Konfiguration speichern",
       "MSG": {
+        "LOAD_FAILED": "Laden der Filter-Konfiguration gescheitert: {{error}}",
         "SAVED": "Filter-Konfiguration gespeichert.",
         "SAVE_FAILED": "Speichern der Filter-Konfiguration gescheitert: {{error}}",
-        "DELETE_CONFIRM": "Wollen Sie den Filter {{name}} sicher dauerhaft löschen?"
+        "DELETE_CONFIRM": "Wollen Sie den Filter {{name}} sicher dauerhaft löschen?",
+        "DELETED": "Filter {{name}} wurde gelöscht."
+      },
+      "GRID": {
+        "COL_INDICATORS": "Indikatoren",
+        "COL_INDICATOR_TOPICS": "Indikator-Themen",
+        "COL_GEORESOURCES": "Georesourcen",
+        "COL_GEORESOURCE_TOPICS": "Georesource-Themen",
+        "EDIT_TITLE": "Filter editieren",
+        "DELETE_TITLE": "Filter unwiderruflich entfernen"
+      },
+      "INTRO_PREFIX": "Nehmen Sie Anpassungen an den globalen Inhaltsfiltern des Web-Clients vor und speichern sie diese. Die Editierungen erfolgen direkt im JSON-Format. Dies speichert die Konfiguration im",
+      "DELETE_MODAL": {
+        "TITLE": "Globalen Filter löschen",
+        "CONFIRM_QUESTION": "Soll folgender globaler Filter wirklich gelöscht werden?",
+        "HINT": "Der Filter wird dauerhaft aus der Filter-Konfiguration entfernt. Die darin zusammengefassten Indikatoren, Georessourcen und Themen bleiben unverändert erhalten.",
+        "DELETE_FOREVER": "Filter unwiderruflich löschen"
       }
     },
     "FILTER_EDIT": {
@@ -1352,13 +1542,24 @@
       "GEORESOURCE_TOPICS_SUBTITLE": "Auswahl der Georesource-spezifischen Themen",
       "MSG": {
         "SAVED": "Filter gespeichert.",
-        "NO_DATA_CONFIRM": "Sie haben weder Indikator- noch Georesource Daten zur späteren Ansicht ausgewählt. Trotzdem fortfahren?"
-      }
+        "NO_DATA_CONFIRM": "Sie haben weder Indikator- noch Georesource Daten zur späteren Ansicht ausgewählt. Trotzdem fortfahren?",
+        "CREATED": "Filter {{name}} wurde registriert.",
+        "DUPLICATE_NAME": "Es existiert bereits ein Filter mit dem Namen {{name}}."
+      },
+      "ADD_TITLE": "Neuen globalen Filter erstellen",
+      "SUBMIT_ADD": "Filter registrieren",
+      "SUBMIT_EDIT": "Filter speichern",
+      "SHOW_SELECTED_ONLY": "Nur ausgewählte Einträge anzeigen",
+      "NO_ENTRIES": "Keine Einträge vorhanden.",
+      "COL_VISIBLE": "Sichtbar",
+      "TITLE_PREFIX": "Globalen Filter",
+      "TITLE_SUFFIX": "editieren"
     }
   },
   "ADMIN_SPATIAL_UNITS": {
     "OVERVIEW": {
       "TITLE": "Verwalten der Raumebenen",
+      "DESCRIPTION": "Registrierung und Pflege der Raumebenen, auf denen Indikatoren und Georessourcen geführt werden",
       "BOX_TITLE": "Raumebenen"
     },
     "COMMON": {
@@ -1396,7 +1597,6 @@
     "GENERAL_STEP": {
       "SUBTITLE": "Angaben über allgemeine Metadaten in KomMonitor"
     },
-    "SECURITY": {},
     "DATA": {
       "SUBTITLE": "Angaben über den räumlichen Datensatz, aus dem die Raumeinheiten importiert werden",
       "SOURCE_FORMAT_GEO": "Geodaten-Quellformat",
@@ -1536,6 +1736,14 @@
     },
     "MSG": {
       "LOAD_FAILED": "Die Raumebenen konnten nicht geladen werden."
+    },
+    "GRID": {
+      "COL_NEXT_LOWER_LEVEL": "Nächst niedrigere Raumebene",
+      "COL_NEXT_UPPER_LEVEL": "Nächst höhere Raumebene",
+      "COL_OUTLINE_LINE_COLOR": "Linienfarbe (Umringslayer)",
+      "COL_OUTLINE_LINE_WIDTH": "Linienbreite (Umringslayer)",
+      "COL_OUTLINE_LINE_PATTERN": "Linienmuster (Umringslayer)",
+      "DELETE_TITLE": "Raumebene entfernen"
     }
   }
 }

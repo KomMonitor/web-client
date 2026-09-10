@@ -52,24 +52,26 @@ export interface AttributeMappingType {
   apiName: string;
 }
 
+/** One configurable parameter of a converter or data-source type. */
+export interface ImporterParameter {
+  name: string;
+  mandatory: boolean;
+  /** Optional hint rendered next to the input in the admin modals. */
+  description?: string;
+}
+
 export interface Converter {
   name: string;
   type: string;
   mimeTypes: string[];
   encodings: string[];
   schemas?: string[];
-  parameters?: Array<{
-    name: string;
-    mandatory: boolean;
-  }>;
+  parameters?: ImporterParameter[];
 }
 
 export interface DatasourceType {
   type: string;
-  parameters: Array<{
-    name: string;
-    mandatory: boolean;
-  }>;
+  parameters: ImporterParameter[];
 }
 
 export interface MappingConfigStructure {
@@ -431,10 +433,13 @@ export class KommonitorImporterHelperService {
     selectedConverter: Converter,
     schema: string,
     mimeType: string,
-    formValues: { [key: string]: string }
+    formValues: { [key: string]: string },
+    // Only the batch update offers a per-row encoding choice; the other modals
+    // pass nothing and keep the converter's first encoding.
+    encoding?: string
   ): ConverterDefinition | null {
     const converterDefinition: ConverterDefinition = {
-      encoding: selectedConverter.encodings[0],
+      encoding: encoding || selectedConverter.encodings[0],
       mimeType: selectedConverter.mimeTypes.filter((element) => element === mimeType)[0],
       name: selectedConverter.name,
       parameters: [],

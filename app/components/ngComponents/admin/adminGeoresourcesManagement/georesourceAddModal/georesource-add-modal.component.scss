@@ -1,104 +1,46 @@
-/* Georesource Add Modal Component Styles */
+/*
+ * Trimmed from 354 lines. What went:
+ *
+ * - `.multiStepForm`, `#progressbar` and its `li` rules for the jQuery wizard
+ *   this dialog no longer wraps its steps in. The wrapper alone forced
+ *   `text-align: center` and a 12px base size on the whole form, so every label
+ *   in a five-step registration dialog sat centred at 12px above a left-aligned
+ *   control, while the same fields in the spatial-unit add dialog are
+ *   left-aligned at 16px.
+ * - local `.fs-title` (15px) and `.fs-subtitle` copies. app.scss says 18px, so
+ *   this dialog's step heading was a sixth smaller than the identical heading in
+ *   the spatial-unit add dialog it mirrors.
+ * - a Bootstrap 3 copy of `.btn` (4px radius) with `.btn-success` (#5cb85c),
+ *   `.btn-danger` (#d9534f) and `.btn-info` (#5bc0de). Component styles load
+ *   after app.scss and won the same-specificity tie against Bootstrap 5, so this
+ *   dialog rendered a whole framework generation behind the metadata dialog one
+ *   click away: 4px radius in #5cb85c/#d9534f versus 6px in #198754/#dc3545.
+ * - `input[type='file']`, `input[type='color']`, `select.form-control` and
+ *   `textarea.form-control` copies pinning fields to 34px at 4px radius with a
+ *   #ccc border, against Bootstrap 5's 38px at 6px.
+ * - `.form-control.ng-invalid.ng-touched` / `.ng-valid.ng-touched`, which painted
+ *   validation state #a94442/#3c763d with a glow shadow. No other admin dialog
+ *   colours its fields this way; validation messages come from
+ *   `<app-form-error>`.
+ * - local `.help-block`, `.modal-body`, `.modal-footer` and `.modal-footer .btn`
+ *   copies that only restated or contradicted the shared rules.
+ * - `.loading-overlay-admin-panel` for the spinner the template now gets from
+ *   <app-loading-overlay>, `.vertical-align` where the Bootstrap grid was
+ *   wanted, and `.navigation-buttons`, `.step-content`, `.icon-picker`,
+ *   `.role-management-table`, `.topic-hierarchy`, `.visual-styling`,
+ *   `.period-of-validity`, `.importer-section`, `.checkbox`, `.error-message`
+ *   and `.success-message` — none of which any element in this template carries.
+ *
+ * What stays is this dialog's own furniture: the marker colour picker and the
+ * attribute mapping table.
+ */
 
-/* Loading overlay */
-.loading-overlay-admin-panel {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.8);
-  z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* Same row helper the spatial-unit dialogs use, in place of `.vertical-align`. */
+.form-section-row {
+  row-gap: 1rem;
 }
 
-.loading-overlay-admin-panel.ng-hide {
-  display: none !important;
-}
-
-/* Multi-step form styles */
-.multiStepForm {
-  margin-bottom: 0px;
-}
-
-#progressbar {
-  margin-bottom: 30px;
-  overflow: hidden;
-  color: lightgrey;
-  padding-left: 0;
-}
-
-#progressbar li {
-  list-style-type: none;
-  font-size: 15px;
-  width: 25%;
-  float: left;
-  position: relative;
-  font-weight: 400;
-}
-
-#progressbar li:before {
-  width: 50px;
-  height: 50px;
-  line-height: 45px;
-  display: block;
-  font-size: 20px;
-  color: #ffffff;
-  background: lightgray;
-  border-radius: 50%;
-  margin: 0 auto 10px auto;
-  padding: 2px;
-}
-
-#progressbar li.active:before,
-#progressbar li.active:after {
-  background: #27ae60;
-}
-
-#progressbar li.clickable {
-  cursor: pointer;
-}
-
-/* Form fieldset styles */
-.fs-title {
-  font-size: 15px;
-  text-transform: uppercase;
-  color: #2c3e50;
-  margin-bottom: 10px;
-}
-
-.fs-subtitle {
-  font-weight: normal;
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 20px;
-}
-
-/* Form group spacing */
-.form-group {
-  margin-bottom: 15px;
-}
-
-/* Vertical alignment helper */
-.vertical-align {
-  display: flex;
-  align-items: center;
-}
-
-/* Modal body padding */
-.modal-body {
-  padding: 20px;
-}
-
-/* Modal footer styling */
-.modal-footer {
-  padding: 15px 20px;
-  border-top: 1px solid #e5e5e5;
-}
-
-/* Custom color picker dropdown styles */
+/* Marker colour / marker style dropdowns of the POI branch. */
 .customColorPicker .dropdown-menu {
   min-width: 200px;
 }
@@ -116,244 +58,15 @@
   vertical-align: middle;
 }
 
-/* Table styles for attribute mappings */
-.table-condensed > thead > tr > th,
-.table-condensed > tbody > tr > th,
-.table-condensed > tfoot > tr > th,
-.table-condensed > thead > tr > td,
-.table-condensed > tbody > tr > td,
-.table-condensed > tfoot > tr > td {
-  padding: 5px;
-}
-
-.modal-footer .btn {
-  margin-left: 5px;
-}
-
-/* Form validation styles */
-.help-block {
-  color: #737373;
+/*
+ * Import diagnostics. Capped so a long list of failed feature ids scrolls
+ * inside its alert instead of pushing the form out of the dialog.
+ */
+.import-error-detail {
+  max-height: 240px;
+  overflow: auto;
+  margin-bottom: 0.5rem;
   font-size: 12px;
-  margin-top: 5px;
-}
-
-.help-block.with-errors {
-  color: #a94442;
-}
-
-/* Error message styling */
-.error-message {
-  color: #a94442;
-  background-color: #f2dede;
-  border: 1px solid #ebccd1;
-  border-radius: 4px;
-  padding: 10px;
-  margin-bottom: 15px;
-}
-
-/* Success message styling */
-.success-message {
-  color: #3c763d;
-  background-color: #dff0d8;
-  border: 1px solid #d6e9c6;
-  border-radius: 4px;
-  padding: 10px;
-  margin-bottom: 15px;
-}
-
-/* Checkbox styling */
-.checkbox {
-  margin-top: 10px;
-}
-
-.checkbox label {
-  font-weight: normal;
-  cursor: pointer;
-}
-
-/* File input styling */
-input[type='file'] {
-  padding: 6px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #fff;
-}
-
-/* Color input styling */
-input[type='color'] {
-  width: 100%;
-  height: 34px;
-  padding: 6px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-/* Select styling */
-select.form-control {
-  height: 34px;
-  padding: 6px 12px;
-}
-
-/* Textarea styling */
-textarea.form-control {
-  resize: vertical;
-  min-height: 60px;
-}
-
-/* Button styling */
-.btn {
-  border-radius: 4px;
-  font-weight: 500;
-}
-
-.btn-success {
-  background-color: #5cb85c;
-  border-color: #4cae4c;
-}
-
-.btn-success:hover {
-  background-color: #449d44;
-  border-color: #398439;
-}
-
-.btn-danger {
-  background-color: #d9534f;
-  border-color: #d43f3a;
-}
-
-.btn-danger:hover {
-  background-color: #c9302c;
-  border-color: #ac2925;
-}
-
-.btn-info {
-  background-color: #5bc0de;
-  border-color: #46b8da;
-}
-
-.btn-info:hover {
-  background-color: #31b0d5;
-  border-color: #269abc;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .vertical-align {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .col-12 {
-    margin-bottom: 15px;
-  }
-
-  #progressbar li {
-    font-size: 12px;
-  }
-
-  #progressbar li:before {
-    width: 40px;
-    height: 40px;
-    line-height: 35px;
-    font-size: 16px;
-  }
-}
-
-/* Modal size adjustments */
-.modal-xl {
-  width: 90%;
-  max-width: 1200px;
-}
-
-/* Form validation states */
-.form-control.ng-invalid.ng-touched {
-  border-color: #a94442;
-  box-shadow:
-    inset 0 1px 1px rgba(0, 0, 0, 0.075),
-    0 0 6px #ce8483;
-}
-
-.form-control.ng-valid.ng-touched {
-  border-color: #3c763d;
-  box-shadow:
-    inset 0 1px 1px rgba(0, 0, 0, 0.075),
-    0 0 6px #67b168;
-}
-
-/* Navigation buttons */
-.navigation-buttons {
-  margin-top: 20px;
-  text-align: center;
-}
-
-.navigation-buttons .btn {
-  margin: 0 5px;
-}
-
-/* Step content transitions */
-.step-content {
-  transition: opacity 0.3s ease-in-out;
-}
-
-/* Icon picker styling (if used) */
-.icon-picker {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 10px;
-  background-color: #f9f9f9;
-}
-
-/* Role management table styling */
-.role-management-table {
-  margin-top: 15px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-/* Topic hierarchy styling */
-.topic-hierarchy {
-  background-color: #f5f5f5;
-  padding: 15px;
-  border-radius: 4px;
-  margin-bottom: 15px;
-}
-
-.topic-hierarchy select {
-  margin-bottom: 10px;
-}
-
-/* Visual styling section */
-.visual-styling {
-  background-color: #f9f9f9;
-  padding: 15px;
-  border-radius: 4px;
-  margin-bottom: 15px;
-}
-
-.visual-styling .form-group {
-  margin-bottom: 10px;
-}
-
-/* Period of validity styling */
-.period-of-validity {
-  background-color: #e8f4f8;
-  padding: 15px;
-  border-radius: 4px;
-  margin-bottom: 15px;
-}
-
-.period-of-validity .form-group {
-  margin-bottom: 10px;
-}
-
-/* Importer section styling */
-.importer-section {
-  background-color: #f0f8ff;
-  padding: 15px;
-  border-radius: 4px;
-  margin-bottom: 15px;
-}
-
-.importer-section .form-group {
-  margin-bottom: 10px;
+  white-space: pre-wrap;
+  word-break: break-word;
 }

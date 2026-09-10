@@ -1,39 +1,77 @@
 :host {
+  display: flex;
+  // Lets tiles in the same Bootstrap row share a height once one of them wraps.
+  // Resolves to auto when the surrounding column has no definite height.
+  height: 100%;
+}
+
+.tile {
   position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100px;
+  // Nothing may escape the coloured area — descriptions are single unbreakable
+  // tokens ("Hauptthemen/Unterthemen", "Indikatorenskripte") that used to spill
+  // out onto the page background on narrow viewports.
+  overflow: hidden;
+  // Drives the narrow-tile rules below off the tile's own width rather than the
+  // viewport, so this works in any column layout it gets dropped into.
+  container-type: inline-size;
 
   .inner {
-    padding: 10px;
+    // Right padding reserves the absolutely positioned icon's column so text
+    // can never run underneath it.
+    padding: 10px 70px 10px 10px;
+    min-width: 0;
 
     .title {
-      font-size: 38px;
-      font-weight: bold;
-      margin: 0 0 10px 0;
+      // The metric itself must never be split across lines ("31/23" must not
+      // become "31/2" + "3"), so it stays on one line and shrinks instead.
       white-space: nowrap;
+      // Sized against the tile's own width (cqw), not the viewport: how much room
+      // the metric has depends on the column count and the sidebar, not on how
+      // wide the window is.
+      font-size: clamp(1.35rem, 13cqw, 2.375rem);
+      line-height: 1.2;
+      font-weight: bold;
+      margin: 0 0 6px 0;
       padding: 0;
+    }
+
+    .description {
+      font-size: 15px;
+      line-height: 1.3;
+      // Breaks a long word only when it genuinely does not fit, unlike
+      // `anywhere`, which shredded every label mid-syllable.
+      overflow-wrap: break-word;
     }
   }
 
   .icon {
     font-size: 60px;
+    line-height: 1;
     position: absolute;
     top: 5px;
     right: 10px;
-    -webkit-transition: all 0.3s linear;
-    -o-transition: all 0.3s linear;
-    transition: all 0.3s linear;
     color: rgba(0, 0, 0, 0.15);
+    // Decorative only: never let it widen the tile or catch a pointer.
+    pointer-events: none;
+    max-width: 60px;
+    overflow: hidden;
   }
 
-  &:hover {
-    .icon {
-      font-size: 65px;
+  // On a narrow tile the decorative icon costs more than it conveys: giving its
+  // 70px back to the label is what keeps "Indikatorenskripte" on one line. The
+  // icon carries no information the description does not already state.
+  @container (max-width: 260px) {
+    .inner {
+      padding-right: 10px;
     }
-  }
 
-  .footer {
-    padding: 3px 0;
-    width: 100%;
-    font-size: 15px;
-    background: rgba(0, 0, 0, 0.1);
+    .icon {
+      display: none;
+    }
   }
 }

@@ -36,7 +36,7 @@
 
     @if (datasetsToDelete.length > 0) {
       <div>
-        <table class="table table-bordered table-sm" style="overflow: auto; font-size: 11px">
+        <table class="table table-bordered table-sm" style="overflow: auto">
           <thead>
             <tr>
               <th>{{ 'ADMIN_SHARED.NAME' | translate }}</th>
@@ -60,10 +60,9 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-outline-secondary" (click)="close()">
-    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="close()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
   </button>
-  <div style="flex: 1"></div>
   <button
     type="button"
     class="btn btn-danger"

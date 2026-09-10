@@ -1,0 +1,147 @@
+<p>{{ 'ADMIN_SHARED_UI.TIMESERIES_MAPPING.INTRO' | translate }}</p>
+
+<div [formGroup]="draft">
+  <div class="row vertical-align">
+    <div class="col-md-4 col-sm-6 col-12">
+      <div class="form-group">
+        <label for="timeseries-mapping-value-property">
+          {{ 'ADMIN_SHARED_UI.TIMESERIES_MAPPING.VALUE_PROPERTY' | translate }}*
+        </label>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="indicatorValueProperty"
+          appAria="timeseries-mapping-value-property"
+          [placeholder]="
+            'ADMIN_SHARED_UI.TIMESERIES_MAPPING.VALUE_PROPERTY_PLACEHOLDER' | translate
+          "
+        />
+        <app-form-error
+          [control]="draft.controls.indicatorValueProperty"
+          for="timeseries-mapping-value-property"
+        />
+      </div>
+    </div>
+
+    <div class="col-md-4 col-sm-6 col-12">
+      <label class="switch">
+        <input
+          type="checkbox"
+          formControlName="useTimestampProperty"
+          (change)="onChangeUseTimestampProperty()"
+          [attr.aria-label]="'ADMIN_SHARED_UI.TIMESERIES_MAPPING.USE_PROPERTY' | translate"
+        />
+        <span class="switchslider round"></span>
+      </label>
+      <div class="help-block">
+        <p>{{ 'ADMIN_SHARED_UI.TIMESERIES_MAPPING.USE_PROPERTY_HINT' | translate }}</p>
+      </div>
+    </div>
+
+    @if (draft.controls.useTimestampProperty.value) {
+      <div class="col-md-4 col-sm-6 col-12">
+        <div class="form-group">
+          <label for="timeseries-mapping-timestamp-property">
+            {{ 'ADMIN_SHARED_UI.TIMESERIES_MAPPING.TIMESTAMP_PROPERTY' | translate }}*
+          </label>
+          <input
+            type="text"
+            class="form-control"
+            formControlName="timestampProperty"
+            appAria="timeseries-mapping-timestamp-property"
+            [placeholder]="
+              'ADMIN_SHARED_UI.TIMESERIES_MAPPING.TIMESTAMP_PROPERTY_PLACEHOLDER' | translate
+            "
+          />
+        </div>
+      </div>
+    } @else {
+      <div class="col-md-4 col-sm-6 col-12">
+        <div class="form-group">
+          <label for="timeseries-mapping-timestamp">
+            {{ 'ADMIN_SHARED_UI.TIMESERIES_MAPPING.TIMESTAMP' | translate }}*
+          </label>
+          <km-date-picker
+            id="timeseries-mapping-timestamp"
+            placeholder="YYYY-MM-DD"
+            formControlName="timestamp"
+            [coerceEmptyToToday]="false"
+            [coerceInvalidToToday]="false"
+            [showErrors]="false"
+          ></km-date-picker>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="row vertical-align">
+    <div class="col-md-6 col-sm-6 col-12">
+      <div class="form-group">
+        <button
+          type="button"
+          class="btn btn-success btn-sm"
+          [disabled]="draft.invalid || disabled"
+          (click)="onClickUpdateMapping()"
+        >
+          {{ 'ADMIN_SHARED_UI.TIMESERIES_MAPPING.ADD_EDIT' | translate }}
+        </button>
+        <app-form-error [control]="draft" showWhen="touched" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row vertical-align">
+  <div class="col-12">
+    <p class="mb-1">
+      <strong>{{ 'ADMIN_SHARED_UI.TIMESERIES_MAPPING.OVERVIEW' | translate }}</strong>
+    </p>
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th>{{ 'ADMIN_SHARED_UI.TIMESERIES_MAPPING.EDIT_FUNCTIONS' | translate }}</th>
+          <th>{{ 'ADMIN_SHARED_UI.TIMESERIES_MAPPING.VALUE_PROPERTY' | translate }}</th>
+          <th>{{ 'ADMIN_SHARED_UI.TIMESERIES_MAPPING.TIMESTAMP_PROPERTY' | translate }}</th>
+          <th>{{ 'ADMIN_SHARED_UI.TIMESERIES_MAPPING.TIMESTAMP' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (entry of mapping; track entry.indicatorValueProperty) {
+          <tr>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button
+                  type="button"
+                  class="btn btn-warning btn-sm"
+                  [disabled]="disabled"
+                  [title]="'ADMIN_SHARED_UI.TIMESERIES_MAPPING.EDIT_ENTRY' | translate"
+                  [attr.aria-label]="'ADMIN_SHARED_UI.TIMESERIES_MAPPING.EDIT_ENTRY' | translate"
+                  (click)="onClickEditEntry(entry)"
+                >
+                  <i class="fas fa-pencil-alt"></i>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-danger btn-sm"
+                  [disabled]="disabled"
+                  [title]="'ADMIN_SHARED_UI.TIMESERIES_MAPPING.DELETE_ENTRY' | translate"
+                  [attr.aria-label]="'ADMIN_SHARED_UI.TIMESERIES_MAPPING.DELETE_ENTRY' | translate"
+                  (click)="onClickDeleteEntry(entry)"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+            <td>{{ entry.indicatorValueProperty }}</td>
+            <td>{{ entry.timestampProperty }}</td>
+            <td>{{ entry.timestamp }}</td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="4">{{ 'ADMIN_SHARED_UI.TIMESERIES_MAPPING.EMPTY' | translate }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

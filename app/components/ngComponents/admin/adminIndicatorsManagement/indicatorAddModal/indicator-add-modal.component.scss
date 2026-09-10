@@ -1,12 +1,9 @@
-/* Modal Styles */
-.modal-xl {
-  max-width: 90%;
-}
-
-.modal-body {
-  max-height: 80vh;
-  overflow-y: auto;
-}
+/*
+ * No `.modal-body { max-height: 80vh; overflow-y: auto }` here. All three modal
+ * presets are `scrollable: true`, which caps the dialog at the viewport and
+ * scrolls the body through the flex bridge in app.scss. The local max-height
+ * competed with it and clipped the step's own navigation behind the footer.
+ */
 
 /* Loading Overlay */
 .loading-overlay-admin-panel {

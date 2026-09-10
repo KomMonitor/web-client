@@ -1,0 +1,22 @@
+:host {
+  fieldset {
+    // The "add indicator" wizard stylesheet ships a global
+    // `fieldset { padding-bottom: 20px }`; this group is a two-line control,
+    // not a wizard step.
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  // Bootstrap's <legend> is a full-width 20px heading that floats. Sized back
+  // to the surrounding text and given a slightly heavier weight, so the group
+  // label reads as the label of the two options rather than as a third option.
+  // The bottom margin stays with `.form-label` in the template.
+  legend {
+    float: none;
+    width: auto;
+    font-size: inherit;
+    line-height: inherit;
+    font-weight: 500;
+  }
+}

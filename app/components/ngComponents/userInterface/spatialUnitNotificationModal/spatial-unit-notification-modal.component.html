@@ -1,13 +1,5 @@
 <div class="modal-content">
   <div class="modal-header">
-    <button
-      type="button"
-      class="close"
-      data-dismiss="modal"
-      (click)="activeModal.close('Close click')"
-    >
-      &times;
-    </button>
     <h4 class="modal-title">
       <b
         ><span
@@ -16,6 +8,12 @@
         ></span
       ></b>
     </h4>
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Schließen"
+      (click)="activeModal.close('Close click')"
+    ></button>
   </div>
   <div class="modal-body" style="text-align: justify">
     <span
@@ -37,8 +35,7 @@
       <div class="col-md-2">
         <button
           type="button"
-          class="btn btn-default"
-          data-dismiss="modal"
+          class="btn btn-outline-secondary"
           (click)="activeModal.close('Close click')"
         >
           Schlie&szlig;en

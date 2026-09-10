@@ -1,148 +1,40 @@
 <div>
-  <h2 class="fs-title">{{ 'ADMIN_SHARED_UI.TOPICS.TITLE' | translate }}</h2>
-  <h3 class="fs-subtitle">{{ 'ADMIN_INDICATORS.STEP_TOPICS.SUBTITLE' | translate }}</h3>
-  <p>
+  <h2 class="fs-title text-center">{{ 'ADMIN_SHARED_UI.TOPICS.TITLE' | translate }}</h2>
+  <h3 class="fs-subtitle text-center">{{ 'ADMIN_INDICATORS.STEP_TOPICS.SUBTITLE' | translate }}</h3>
+  <p class="text-center">
     <b
       ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
     >
   </p>
-  <div class="row vertical-align">
-    <div class="col-md-3 col-sm-6 col-12">
-      <div class="form-group">
-        <label>{{ 'ADMIN_SHARED_UI.TOPICS.MAIN_TOPIC' | translate }}*</label>
-        <select
-          [(ngModel)]="state.selectedTopic"
-          name="selectedTopic"
-          (ngModelChange)="state.onTopicChange()"
-          class="form-control"
-          required
-        >
-          <option [ngValue]="null" disabled selected>
-            {{ 'ADMIN_INDICATORS.STEP_TOPICS.SELECT_TOPIC_OPTION' | translate }}
-          </option>
-          @for (topic of state.availableTopics; track topic) {
-            <option [ngValue]="topic">
-              {{ topic.topicName }}
-            </option>
-          }
-        </select>
-        <div class="help-block with-errors"></div>
-      </div>
-    </div>
-    <div class="col-md-3 col-sm-6 col-12">
-      @if (state.availableSubTopics.length > 0) {
-        <div class="form-group">
-          <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_1' | translate }}</label>
-          <select
-            [(ngModel)]="state.selectedSubTopic"
-            name="selectedSubTopic"
-            (ngModelChange)="state.onSubTopicChange()"
-            class="form-control"
-            required
-          >
-            <option [ngValue]="null" disabled selected>
-              {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
-            </option>
-            @for (subTopic of state.availableSubTopics; track subTopic) {
-              <option [ngValue]="subTopic">
-                {{ subTopic.topicName }}
-              </option>
-            }
-          </select>
-          <div class="help-block with-errors"></div>
-        </div>
-      }
-    </div>
-    <div class="col-md-3 col-sm-6 col-12">
-      @if (state.availableSubSubTopics.length > 0) {
-        <div class="form-group">
-          <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_2' | translate }}</label>
-          <select
-            [(ngModel)]="state.selectedSubSubTopic"
-            name="selectedSubSubTopic"
-            (ngModelChange)="state.onSubSubTopicChange()"
-            class="form-control"
-            required
-          >
-            <option [ngValue]="null" disabled selected>
-              {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
-            </option>
-            @for (subsubTopic of state.availableSubSubTopics; track subsubTopic) {
-              <option [ngValue]="subsubTopic">
-                {{ subsubTopic.topicName }}
-              </option>
-            }
-          </select>
-          <div class="help-block with-errors"></div>
-        </div>
-      }
-    </div>
-    <div class="col-md-3 col-sm-6 col-12">
-      @if (state.availableSubSubSubTopics.length > 0) {
-        <div class="form-group">
-          <label>{{ 'ADMIN_SHARED_UI.TOPICS.SUB_TOPIC_LEVEL_3' | translate }}</label>
-          <select
-            [(ngModel)]="state.selectedSubSubSubTopic"
-            name="selectedSubSubSubTopic"
-            (ngModelChange)="state.onSubSubSubTopicChange()"
-            class="form-control"
-            required
-          >
-            <option [ngValue]="null" disabled selected>
-              {{ 'ADMIN_SHARED_UI.TOPICS.SELECT_SUB_TOPIC' | translate }}
-            </option>
-            @for (subsubsubTopic of state.availableSubSubSubTopics; track subsubsubTopic) {
-              <option [ngValue]="subsubsubTopic">
-                {{ subsubsubTopic.topicName }}
-              </option>
-            }
-          </select>
-          <div class="help-block with-errors"></div>
-        </div>
-      }
-    </div>
-  </div>
+  <app-topic-hierarchy-form
+    [form]="state.addForm.controls.topics"
+    [availableTopics]="state.availableTopics"
+    idPrefix="ind-topics"
+  />
   @if (accessControlService.checkAdminPermission()) {
     <hr />
-    <br />
     <div class="row vertical-align">
       <div class="col-md-10 col-sm-12 col-12">
-        <div style="text-align: left">
-          <div
-            id="indicatorAddAdmin_topicsManagement"
-            class="box box-primary collapsed-box"
-            style="background: #ebf0fd"
-          >
-            <div class="box-header">
-              <h3 class="box-title">
-                {{ 'ADMIN_SHARED_UI.TOPICS.TOPIC_CATALOG' | translate }}
-              </h3>
-              <div class="box-tools pull-right">
-                <button
-                  type="button"
-                  (click)="indicatorAddTopicsCollapse.toggle()"
-                  class="btn btn-box-tool"
-                  data-widget="collapse"
-                >
-                  <i
-                    class="fa"
-                    [ngClass]="{
-                      'fa-plus': isIndicatorAddTopicsCollapse,
-                      'fa-minus': !isIndicatorAddTopicsCollapse,
-                    }"
-                  ></i>
-                </button>
-              </div>
-            </div>
-            <div
-              class="box-body"
-              #indicatorAddTopicsCollapse="ngbCollapse"
-              [(ngbCollapse)]="isIndicatorAddTopicsCollapse"
-            >
-              <app-admin-topics-management></app-admin-topics-management>
-            </div>
-          </div>
-        </div>
+        <!--
+          <expandable-box> instead of the AdminLTE `box box-primary collapsed-box`
+          markup this used to be. The collapse itself worked here — unlike the four
+          georesource and WMS dialogs, it had been rewired to `ngbCollapse` with a
+          hand-swapped fa-plus/fa-minus icon — but the shared component does the
+          same thing, and its `.box-*` classes were unstyled in this dialog, so the
+          title rendered at Bootstrap's 28px <h3>, larger than the 20px dialog
+          title above it.
+
+          `variant="nested"` is the shared component's subordinate look (15px/600
+          title, no shadow): this panel manages the global topic catalog and is not
+          part of the form around it. It starts collapsed, as `collapsed-box` and
+          `isIndicatorAddTopicsCollapse = true` both meant.
+        -->
+        <expandable-box
+          [title]="'ADMIN_SHARED_UI.TOPICS.TOPIC_CATALOG' | translate"
+          variant="nested"
+        >
+          <app-admin-topics-management></app-admin-topics-management>
+        </expandable-box>
       </div>
     </div>
   }
@@ -238,18 +130,12 @@
       </div>
     </div>
   </div> -->
-  <input
-    type="button"
-    name="previous"
-    class="previous previous_addIndicator action-button-previous"
-    [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-    (click)="state.previousStep()"
-  />
-  <input
-    type="button"
-    name="next"
-    class="next next_addIndicator action-button"
-    [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-    (click)="state.nextStep()"
-  />
+  <div class="stepper-buttons">
+    <button type="button" class="btn btn-outline-secondary" (click)="state.previousStep()">
+      {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+    </button>
+    <button type="button" class="btn btn-primary" (click)="state.nextStep()">
+      {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+    </button>
+  </div>
 </div>

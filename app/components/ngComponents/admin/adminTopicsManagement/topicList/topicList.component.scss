@@ -8,12 +8,35 @@
       gap: 10px;
       padding: 10px;
 
+      // Fixed width, so the marker forms a column and the topic names of all
+      // four levels start on the same edge — including the deepest level, which
+      // renders an empty marker instead of none.
       .collapse-marker {
+        flex: 0 0 auto;
+        width: 22px;
         padding-left: 10px;
+        text-align: center;
       }
 
-      .btn-group {
-        padding-left: 20px;
+      .topic-name {
+        flex: 0 1 auto;
+        min-width: 0;
+      }
+
+      // Subtopic count and, when switched on, the topic id. Secondary to the
+      // name, and never the reason the action column moves.
+      .topic-meta {
+        flex: 0 1 auto;
+        min-width: 0;
+        font-size: 12px;
+        opacity: 0.85;
+      }
+
+      // Right edge instead of "wherever the name ended": one action column for
+      // every row and every nesting level.
+      .btn-group.topic-actions {
+        flex: 0 0 auto;
+        margin-left: auto;
       }
     }
 
@@ -22,19 +45,26 @@
       color: white;
     }
 
+    /*
+     * Levels 2 to 4 carry dark text on the light half of the blue ramp. Level 2
+     * used to be white on #6baed6 — 2.4:1, well under the 4.5:1 threshold and
+     * markedly harder to read than level 1 (5.1:1). Darkening the background
+     * enough to keep white text would have collapsed it into level 1 and lost
+     * the ramp, so the text flips instead.
+     */
     .list-group-item.level-2 {
       background: #6baed6;
-      color: white;
+      color: #212529;
     }
 
     .list-group-item.level-3 {
       background: #bdd7e7;
-      color: black;
+      color: #212529;
     }
 
     .list-group-item.level-4 {
       background: #eff3ff;
-      color: black;
+      color: #212529;
     }
   }
   .sub-topics {
@@ -50,6 +80,10 @@
   }
 }
 
+/*
+ * The drag preview is reparented to the body, outside this component's view
+ * encapsulation, so it needs its own copy of the row layout and colours.
+ */
 .cdk-drag-preview {
   box-sizing: border-box;
   border-radius: 0px;
@@ -61,6 +95,23 @@
   display: flex;
   gap: 10px;
   padding: 10px;
+
+  .collapse-marker {
+    flex: 0 0 auto;
+    width: 22px;
+    padding-left: 10px;
+    text-align: center;
+  }
+
+  .topic-meta {
+    font-size: 12px;
+    opacity: 0.85;
+  }
+
+  .btn-group.topic-actions {
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
 }
 
 .cdk-drag-preview.list-group-item.level-1 {
@@ -70,17 +121,17 @@
 
 .cdk-drag-preview.list-group-item.level-2 {
   background: #6baed6;
-  color: white;
+  color: #212529;
 }
 
 .cdk-drag-preview.list-group-item.level-3 {
   background: #bdd7e7;
-  color: black;
+  color: #212529;
 }
 
 .cdk-drag-preview.list-group-item.level-4 {
   background: #eff3ff;
-  color: black;
+  color: #212529;
 }
 
 .cdk-drag-animating {

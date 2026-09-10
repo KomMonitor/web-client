@@ -2,37 +2,54 @@
   position: relative;
 }
 
+/*
+ * Bold was the only thing this added over Bootstrap's own `.form-label`, and it
+ * made the picker's caption the single bold label in every form it appears in —
+ * "Linienmuster" stood out next to "Linienfarbe" and "Linienbreite" beside it.
+ */
 .form-label {
   display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
+  /* 0.5rem, not 5px: Bootstrap's own value, so this control's caption sits on
+     the same baseline as the labels of the fields next to it. */
+  margin-bottom: 0.5rem;
 }
 
+/*
+ * Block, not inline-block: the trigger takes its width from the `width` input,
+ * and against a shrink-to-fit parent a `100%` there resolved to the button's own
+ * content width and pushed it out of its column.
+ */
 .dropdown {
   position: relative;
-  display: inline-block;
+  display: block;
 }
 
+/*
+ * Sized and coloured like a Bootstrap 5 `.form-select`, which is what this
+ * control is. It used to paint itself Bootstrap 3 info-cyan (#5bc0de) with
+ * white text, so a form field rendered as a loud call-to-action button between
+ * a colour swatch and a number input.
+ */
 .km-pattern-button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #5bc0de;
-  color: white;
+  padding: 6px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+  background-color: #fff;
+  color: #212529;
   cursor: pointer;
-  transition: background-color 0.2s;
-  min-height: 38px;
+  transition: border-color 0.15s ease-in-out;
+  height: 38px;
 }
 
 .km-pattern-button:hover:not(:disabled) {
-  background-color: #46b8da;
+  border-color: #86b7fe;
 }
 
 .km-pattern-button:disabled {
-  background-color: #6c757d;
+  background-color: #e9ecef;
   cursor: not-allowed;
   opacity: 0.6;
 }

@@ -31,7 +31,6 @@ export class WorkflowSelectComponent {
         console.error('Configuration is no valid JSON.');
       }
       //TODO check if json has correct structure, can be done once config structure is defined
-      //$scope.onWorkflowSelected("existing", config);
     };
     reader.readAsText(file);
   }

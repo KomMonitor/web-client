@@ -63,16 +63,34 @@
       ></app-small-box>
     </div>
   </div>
-  <div class="row vertical-align">
-    <div class="col-md-3 col-sm-6 col-12">
+  <!-- Chart headings are plain HTML, not ECharts `title` options: ECharts centres
+       and clips its own title, which cut the heading off at both ends on narrow
+       columns, and it styles the text outside the app's typography. -->
+  <div class="row vertical-align charts">
+    <div class="col-lg-4 col-md-6 col-12">
+      <h2 class="chart-title">
+        @if (isSpatialUnitChartTruncated()) {
+          {{
+            'ADMIN_DASHBOARD.INDICATORS_PER_SPATIAL_UNIT_TOP'
+              | translate: { count: spatialUnitChartTopN }
+          }}
+        } @else {
+          {{ 'ADMIN_DASHBOARD.INDICATORS_PER_SPATIAL_UNIT' | translate }}
+        }
+      </h2>
       <div echarts [options]="indicatorsPerSpatialUnitChartOptions()" class="dashboard-chart"></div>
     </div>
-    <div class="col-md-3 col-sm-6 col-12">
-      <div echarts [options]="georesourcesPerTypeChartOptions()" class="dashboard-chart"></div>
-    </div>
-    <div class="col-md-3 col-sm-6 col-12">
+    <div class="col-lg-4 col-md-6 col-12">
+      <h2 class="chart-title">{{ 'ADMIN_DASHBOARD.INDICATORS_PER_TOPIC' | translate }}</h2>
       <div echarts [options]="indicatorsPerTopicChartOptions()" class="dashboard-chart"></div>
     </div>
-    <div class="col-md-3 col-sm-6 col-12"></div>
+    <div class="col-lg-4 col-md-6 col-12">
+      <h2 class="chart-title">{{ 'ADMIN_DASHBOARD.GEORESOURCES_PER_TYPE' | translate }}</h2>
+      <div
+        echarts
+        [options]="georesourcesPerTypeChartOptions()"
+        class="dashboard-chart compact"
+      ></div>
+    </div>
   </div>
 </ng-template>

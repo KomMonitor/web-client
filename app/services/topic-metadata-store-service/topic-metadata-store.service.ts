@@ -2,11 +2,9 @@ import { Injectable, signal } from '@angular/core';
 import { TopicOverviewType } from 'models/data-management-api';
 
 /**
- * Topic metadata store extracted from DataExchangeService
- * (Prio 7 / B6c — see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ * Topic metadata store. Extracted in the Prio 7 god-service split.
  *
- * Holds the available topics collection; the DataExchangeService facade re-exposes
- * availableTopics via a getter so its consumers stay unchanged.
+ * Holds the available topics collection.
  */
 @Injectable({
   providedIn: 'root',

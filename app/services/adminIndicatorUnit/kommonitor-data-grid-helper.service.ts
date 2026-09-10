@@ -7,6 +7,7 @@ import { MetadataExportService } from 'services/metadata-export-service/metadata
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { TopicHierarchyService } from '../topic-hierarchy-service/topic-hierarchy.service';
 import { EnvConfigService } from '../env-config-service/env-config.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root',
@@ -17,6 +18,7 @@ export class KommonitorIndicatorDataGridHelperService {
   private topicStore = inject(TopicMetadataStoreService);
   private topicHierarchyService = inject(TopicHierarchyService);
   private envConfigService = inject(EnvConfigService);
+  private translate = inject(TranslateService);
 
   /**
    * Builds data grid for indicators - now returns column definitions and row data for AG Grid Angular
@@ -37,7 +39,7 @@ export class KommonitorIndicatorDataGridHelperService {
   buildDataGridColumnConfig_indicators(_indicatorMetadataArray: IndicatorsDataset[]): any[] {
     const columnDefs = [
       {
-        headerName: 'Editierfunktionen',
+        headerName: this.translate.instant('ADMIN_SHARED.EDIT_FUNCTIONS'),
         pinned: 'left',
         maxWidth: 200,
         checkboxSelection: false,
@@ -45,16 +47,25 @@ export class KommonitorIndicatorDataGridHelperService {
         sortable: false,
         cellRenderer: (params: any) => this.displayEditButtons_indicators(params),
       },
-      { headerName: 'Id', field: 'indicatorId', pinned: 'left', maxWidth: 125 },
       {
-        headerName: 'Name',
+        headerName: this.translate.instant('ADMIN_SHARED.ID'),
+        field: 'indicatorId',
+        pinned: 'left',
+        maxWidth: 125,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SHARED.NAME'),
         field: 'indicatorName',
         pinned: 'left',
         minWidth: 300,
       },
-      { headerName: 'Einheit', field: 'unit', minWidth: 200 },
       {
-        headerName: 'Beschreibung',
+        headerName: this.translate.instant('ADMIN_INDICATORS.GRID.COL_UNIT'),
+        field: 'unit',
+        minWidth: 200,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SHARED.DESCRIPTION'),
         minWidth: 400,
         cellRenderer: (params: any) => {
           return params.data.metadata.description;
@@ -65,7 +76,7 @@ export class KommonitorIndicatorDataGridHelperService {
         },
       },
       {
-        headerName: 'Methodik',
+        headerName: this.translate.instant('ADMIN_INDICATORS.GRID.COL_METHODOLOGY'),
         minWidth: 400,
         cellRenderer: (params: any) => {
           if (params.data.processDescription && params.data.processDescription.includes('$$')) {
@@ -84,7 +95,7 @@ export class KommonitorIndicatorDataGridHelperService {
         },
       },
       {
-        headerName: 'Verfügbare Raumebenen',
+        headerName: this.translate.instant('ADMIN_INDICATORS.GRID.COL_AVAILABLE_SPATIAL_UNITS'),
         field: 'applicableSpatialUnits',
         minWidth: 400,
         cellRenderer: (params: any) => {
@@ -107,7 +118,7 @@ export class KommonitorIndicatorDataGridHelperService {
         },
       },
       {
-        headerName: 'Verfügbare Zeitschnitte',
+        headerName: this.translate.instant('ADMIN_INDICATORS.GRID.COL_AVAILABLE_TIMESTAMPS'),
         field: 'applicableDates',
         minWidth: 400,
         cellRenderer: (params: any) => {
@@ -129,10 +140,16 @@ export class KommonitorIndicatorDataGridHelperService {
           return params.data.applicableDates;
         },
       },
-      { headerName: 'Kürzel', field: 'abbreviation' },
-      { headerName: 'Leitindikator', field: 'isHeadlineIndicator' },
       {
-        headerName: 'Indikator-Typ',
+        headerName: this.translate.instant('ADMIN_INDICATORS.GRID.COL_ABBREVIATION'),
+        field: 'abbreviation',
+      },
+      {
+        headerName: this.translate.instant('ADMIN_INDICATORS.GRID.COL_HEADLINE_INDICATOR'),
+        field: 'isHeadlineIndicator',
+      },
+      {
+        headerName: this.translate.instant('ADMIN_INDICATORS.GRID.COL_INDICATOR_TYPE'),
         minWidth: 200,
         cellRenderer: (params: any) => {
           return this.metadataExportService.getIndicatorStringFromIndicatorType(
@@ -149,15 +166,23 @@ export class KommonitorIndicatorDataGridHelperService {
           );
         },
       },
-      { headerName: 'Merkmal', field: 'characteristicValue', minWidth: 200 },
       {
-        headerName: 'Art der Fortführung',
+        headerName: this.translate.instant('ADMIN_INDICATORS.GRID.COL_CHARACTERISTIC'),
+        field: 'characteristicValue',
+        minWidth: 200,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_INDICATORS.GRID.COL_UPDATE_INTERVAL'),
         field: 'creationType',
         minWidth: 200,
       },
-      { headerName: 'Tags/Stichworte', field: 'tags', minWidth: 250 },
       {
-        headerName: 'Themenhierarchie',
+        headerName: this.translate.instant('ADMIN_INDICATORS.GRID.COL_TAGS'),
+        field: 'tags',
+        minWidth: 250,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SHARED_UI.TOPICS.TITLE'),
         minWidth: 400,
         cellRenderer: (params: any) =>
           this.topicHierarchyService.getTopicHierarchyDisplayString(
@@ -173,7 +198,7 @@ export class KommonitorIndicatorDataGridHelperService {
           ),
       },
       {
-        headerName: 'Datenquelle',
+        headerName: this.translate.instant('ADMIN_SHARED.DATASOURCE'),
         minWidth: 400,
         cellRenderer: (params: any) => {
           return params.data.metadata.datasource;
@@ -184,7 +209,7 @@ export class KommonitorIndicatorDataGridHelperService {
         },
       },
       {
-        headerName: 'Datenhalter und Kontakt',
+        headerName: this.translate.instant('ADMIN_SHARED.DATA_HOLDER_CONTACT'),
         minWidth: 400,
         cellRenderer: (params: any) => {
           return params.data.metadata.contact;
@@ -195,7 +220,7 @@ export class KommonitorIndicatorDataGridHelperService {
         },
       },
       {
-        headerName: 'Rollen',
+        headerName: this.translate.instant('COMMON.ROLES'),
         minWidth: 400,
         cellRenderer: (params: any) => {
           return this.accessControlService.getAllowedRolesString(params.data.permissions);
@@ -206,7 +231,7 @@ export class KommonitorIndicatorDataGridHelperService {
         },
       },
       {
-        headerName: 'Öffentlich sichtbar',
+        headerName: this.translate.instant('ADMIN_SHARED.PUBLIC_VISIBLE'),
         minWidth: 400,
         cellRenderer: (params: any) => {
           return params.data.isPublic ? 'ja' : 'nein';
@@ -217,7 +242,7 @@ export class KommonitorIndicatorDataGridHelperService {
         },
       },
       {
-        headerName: 'Eigentümer',
+        headerName: this.translate.instant('ADMIN_SHARED.OWNER'),
         minWidth: 400,
         cellRenderer: (params: any) => {
           return this.accessControlService.getRoleTitle(params.data.ownerId);
@@ -228,7 +253,7 @@ export class KommonitorIndicatorDataGridHelperService {
         },
       },
       {
-        headerName: 'Nachkommastellen',
+        headerName: this.translate.instant('ADMIN_INDICATORS.GRID.COL_DECIMALS'),
         minWidth: 200,
         cellRenderer: (params: any) => {
           return params.data.precision;
@@ -273,11 +298,15 @@ export class KommonitorIndicatorDataGridHelperService {
     html +=
       '<button id="' +
       editMetadataButtonId +
-      '" class="btn btn-warning btn-sm indicatorEditMetadataBtn disabled" type="button" title="Metadaten editieren" disabled><i class="fas fa-pencil-alt"></i></button>';
+      '" class="btn btn-warning btn-sm indicatorEditMetadataBtn disabled" type="button" title="' +
+      this.translate.instant('ADMIN_SHARED_UI.GRID.EDIT_METADATA_TITLE') +
+      '" disabled><i class="fas fa-pencil-alt"></i></button>';
     html +=
       '<button id="' +
       editFeaturesButtonId +
-      '" class="btn btn-warning btn-sm indicatorEditFeaturesBtn disabled" type="button" title="Features fortf&uuml;hren" disabled><i class="fas fa-draw-polygon"></i></button>';
+      '" class="btn btn-warning btn-sm indicatorEditFeaturesBtn disabled" type="button" title="' +
+      this.translate.instant('ADMIN_SHARED.EDIT_FEATURES') +
+      '" disabled><i class="fas fa-draw-polygon"></i></button>';
 
     if (!disabledEditButtons) {
       html = html.replaceAll('disabled', ''); // enabled
@@ -299,7 +328,9 @@ export class KommonitorIndicatorDataGridHelperService {
       }
 
       html +=
-        ' type="button" title="Zugriffsschutz und Eigentümerschaft editieren"><i class="fas fa-user-lock"></i></button>';
+        ' type="button" title="' +
+        this.translate.instant('ADMIN_SHARED_UI.GRID.EDIT_ACCESS_TITLE') +
+        '"><i class="fas fa-user-lock"></i></button>';
     }
 
     // Delete Button — gated on the global delete permission and, like spatial
@@ -314,7 +345,9 @@ export class KommonitorIndicatorDataGridHelperService {
     html +=
       '<button id="btn_indicator_deleteIndicator_' +
       params.data.indicatorId +
-      '" class="btn btn-danger btn-sm indicatorDeleteBtn" type="button" title="Indikator entfernen" ' +
+      '" class="btn btn-danger btn-sm indicatorDeleteBtn" type="button" title="' +
+      this.translate.instant('ADMIN_INDICATORS.GRID.DELETE_TITLE') +
+      '" ' +
       (disableDelete ? 'disabled' : '') +
       '><i class="fas fa-trash"></i></button>';
 
@@ -480,7 +513,7 @@ export class KommonitorIndicatorDataGridHelperService {
   ) {
     const columnDefs = [
       {
-        headerName: 'Zeitpunkt',
+        headerName: this.translate.instant('ADMIN_INDICATORS.GRID.COL_DATE'),
         field: 'referenceDate',
         pinned: 'left',
         cellDataType: 'text',
@@ -489,7 +522,7 @@ export class KommonitorIndicatorDataGridHelperService {
         maxWidth: 150,
       },
       {
-        headerName: 'regionale Gesamtsumme',
+        headerName: this.translate.instant('ADMIN_INDICATORS.GRID.COL_REGIONAL_SUM'),
         field: 'regionalSum',
         cellDataType: 'number',
         cellEditor: 'agNumberCellEditor',
@@ -498,11 +531,12 @@ export class KommonitorIndicatorDataGridHelperService {
           step: 0.01,
           showStepperButtons: true,
         },
-        tooltipValueGetter: (_p) => 'mit Enter bestätigen',
+        tooltipValueGetter: (_p) =>
+          this.translate.instant('ADMIN_SHARED_UI.GRID.CONFIRM_WITH_ENTER'),
         maxWidth: 175,
       },
       {
-        headerName: 'regionaler Mittelwert',
+        headerName: this.translate.instant('ADMIN_INDICATORS.GRID.COL_REGIONAL_AVERAGE'),
         field: 'regionalAverage',
         cellDataType: 'number',
         cellEditor: 'agNumberCellEditor',
@@ -511,11 +545,12 @@ export class KommonitorIndicatorDataGridHelperService {
           step: 0.01,
           showStepperButtons: true,
         },
-        tooltipValueGetter: (_p) => 'mit Enter bestätigen',
+        tooltipValueGetter: (_p) =>
+          this.translate.instant('ADMIN_SHARED_UI.GRID.CONFIRM_WITH_ENTER'),
         maxWidth: 175,
       },
       {
-        headerName: 'räumlich nicht zuordenbar',
+        headerName: this.translate.instant('ADMIN_INDICATORS.GRID.COL_SPATIALLY_UNASSIGNABLE'),
         field: 'spatiallyUnassignable',
         cellDataType: 'number',
         cellEditor: 'agNumberCellEditor',
@@ -524,7 +559,8 @@ export class KommonitorIndicatorDataGridHelperService {
           step: 0.01,
           showStepperButtons: true,
         },
-        tooltipValueGetter: (_p) => 'mit Enter bestätigen',
+        tooltipValueGetter: (_p) =>
+          this.translate.instant('ADMIN_SHARED_UI.GRID.CONFIRM_WITH_ENTER'),
         maxWidth: 175,
       },
     ];

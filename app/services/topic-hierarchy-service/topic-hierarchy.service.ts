@@ -5,7 +5,7 @@ import { WmsDataset } from 'components/ngComponents/models/services.models';
 /**
  * Pure computation service for building and querying topic hierarchies.
  * All methods are stateless — they receive data as parameters and return results.
- * DataExchangeService uses this service and assigns results back to its own properties.
+ * TopicHierarchyStoreService calls it and keeps the resulting hierarchies.
  */
 @Injectable({
   providedIn: 'root',

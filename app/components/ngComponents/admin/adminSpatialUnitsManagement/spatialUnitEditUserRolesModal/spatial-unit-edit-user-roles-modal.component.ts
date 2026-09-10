@@ -21,6 +21,7 @@ import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-ste
 import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
 import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManagementPanel/owner-organization-select.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 
 import { TranslateService } from '@ngx-translate/core';
 @Component({
@@ -29,6 +30,7 @@ import { TranslateService } from '@ngx-translate/core';
   styleUrls: ['./spatial-unit-edit-user-roles-modal.component.scss'],
   imports: [
     FormsModule,
+    LoadingOverlayComponent,
     StepperComponent,
     RoleManagementGridComponent,
     OwnerOrganizationSelectComponent,

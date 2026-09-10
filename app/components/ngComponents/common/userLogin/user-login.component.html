@@ -5,7 +5,7 @@
   triggers="manual"
   [autoClose]="false"
   [disablePopover]="!enableKeycloakSecurity"
-  popoverTitle="User Login"
+  [popoverTitle]="'COMMON.USER_LOGIN' | translate"
   popoverClass="user-login-popover"
   container="body"
   (mouseenter)="onAnchorEnter()"
@@ -21,13 +21,13 @@
     <div>
       <div>
         <div>
-          <b>Nutzername: </b>
+          <b>{{ 'COMMON.USERNAME' | translate }}: </b>
           <i>{{ currentKeycloakUser.username }}</i>
         </div>
         @if (currentKeycloakUser.firstName && currentKeycloakUser.lastName) {
           <div>
             <span class="word-break-all">
-              <b>Vor- und Nachname: </b>
+              <b>{{ 'COMMON.FIRST_AND_LAST_NAME' | translate }}: </b>
               <i>
                 {{ currentKeycloakUser.firstName }}
                 {{ currentKeycloakUser.lastName }}
@@ -38,27 +38,28 @@
         @if (!currentKeycloakUser.firstName && currentKeycloakUser.lastName) {
           <div>
             <span class="word-break-all"
-              ><b>Nachname: </b><i>{{ currentKeycloakUser.lastName }}</i></span
+              ><b>{{ 'COMMON.LAST_NAME' | translate }}: </b
+              ><i>{{ currentKeycloakUser.lastName }}</i></span
             >
           </div>
         }
         @if (currentKeycloakUser.email) {
           <div>
             <span class="word-break-all"
-              ><b>E-Mail: </b><i>{{ currentKeycloakUser.email }}</i></span
+              ><b>{{ 'COMMON.EMAIL' | translate }}: </b><i>{{ currentKeycloakUser.email }}</i></span
             >
           </div>
         }
       </div>
       <div class="box box-simplified collapsed-box">
         <div class="box-header with-border" (click)="userLoginRolesCollapse.toggle()">
-          <div class="box-title">Rollen</div>
+          <div class="box-title">{{ 'COMMON.ROLES' | translate }}</div>
           <div class="box-tools">
             <i
               class="fa"
               [ngClass]="{
-                'fa-plus': isUserLoginRolesCollapse,
-                'fa-minus': !isUserLoginRolesCollapse,
+                'fa-angle-left': isUserLoginRolesCollapse,
+                'fa-angle-down': !isUserLoginRolesCollapse,
               }"
             ></i>
           </div>
@@ -92,13 +93,13 @@
       </div>
       <div class="box box-simplified collapsed-box">
         <div class="box-header with-border" (click)="userLoginGroupesCollapse.toggle()">
-          <div class="box-title">Gruppen (Hierarchie)</div>
+          <div class="box-title">{{ 'COMMON.GROUPS_HIERARCHY' | translate }}</div>
           <div class="box-tools">
             <i
               class="fa"
               [ngClass]="{
-                'fa-plus': isUserLoginGroupesCollapse,
-                'fa-minus': !isUserLoginGroupesCollapse,
+                'fa-angle-left': isUserLoginGroupesCollapse,
+                'fa-angle-down': !isUserLoginGroupesCollapse,
               }"
             ></i>
           </div>
@@ -125,9 +126,11 @@
       </div>
       <app-session-validity></app-session-validity>
       <div class="d-grid gap-2 controls">
-        <button class="btn btn-danger" (click)="tryLogoutUser()" type="button">Logout</button>
-        <button type="button" class="btn btn-warning" (click)="extendKeycloakSession()">
-          Relogin
+        <button class="btn btn-danger" (click)="tryLogoutUser()" type="button">
+          {{ 'COMMON.LOGOUT' | translate }}
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="extendKeycloakSession()">
+          {{ 'COMMON.RELOGIN' | translate }}
         </button>
       </div>
     </div>
@@ -136,7 +139,9 @@
   @if (!authenticated) {
     <div>
       <div class="d-grid gap-2 controls">
-        <button class="btn btn-success" (click)="tryLoginUser()" type="button">Login</button>
+        <button class="btn btn-primary" (click)="tryLoginUser()" type="button">
+          {{ 'COMMON.LOGIN' | translate }}
+        </button>
         <div>
           @if (envConfigService.loginInfoText) {
             <span>
@@ -144,7 +149,7 @@
             </span>
           }
           @if (!envConfigService.loginInfoText) {
-            <span>Melden Sie sich mit ihrem Konto an, um geschützte Daten abzurufen.</span>
+            <span>{{ 'COMMON.LOGIN_INFO_DEFAULT' | translate }}</span>
           }
         </div>
       </div>

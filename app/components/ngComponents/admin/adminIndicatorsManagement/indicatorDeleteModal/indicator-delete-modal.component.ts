@@ -229,6 +229,9 @@ export class IndicatorDeleteModalComponent implements OnInit {
     const georesourceReferences = this.selectedIndicatorDataset.referencedGeoresources ?? [];
 
     for (const georesourceReference of georesourceReferences) {
+      if (!georesourceReference) {
+        continue;
+      }
       affectedGeoresourceReferences.push({
         georesourceReference: georesourceReference,
       });
@@ -245,6 +248,11 @@ export class IndicatorDeleteModalComponent implements OnInit {
       this.selectedIndicatorDataset.referencedIndicators ?? [];
 
     for (const indicatorReference_selectedIndicator of indicatorReferences_selectedIndicator) {
+      // The demo data contains null entries in `referencedIndicators`; without
+      // this guard the modal throws while opening and cannot delete anything.
+      if (!indicatorReference_selectedIndicator) {
+        continue;
+      }
       affectedIndicatorReferences.push({
         indicatorReference: indicatorReference_selectedIndicator,
       });
@@ -256,7 +264,7 @@ export class IndicatorDeleteModalComponent implements OnInit {
 
       for (const indicatorReference of indicatorReferences) {
         if (
-          indicatorReference.referencedIndicatorId === this.selectedIndicatorDataset.indicatorId
+          indicatorReference?.referencedIndicatorId === this.selectedIndicatorDataset.indicatorId
         ) {
           affectedIndicatorReferences.push({
             indicatorReference: indicatorReference,

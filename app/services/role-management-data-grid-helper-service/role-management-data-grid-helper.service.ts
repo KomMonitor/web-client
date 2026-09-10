@@ -7,8 +7,7 @@ import { GridOptions } from 'ag-grid-community';
  * admin area.
  *
  * Extracted from `KommonitorDataGridHelperService` (adminSpatialUnit) as the
- * first responsibility split of Prio 7 — see
- * `documentation/PRIO7_GOD_SERVICE_SPLIT.md`.
+ * first responsibility split of Prio 7.
  *
  * The resource-permission grids themselves live in the shared
  * `<app-role-management-grid>` component (adminShared/roleManagementPanel),

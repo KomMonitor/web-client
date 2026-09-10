@@ -13,13 +13,14 @@ import { HttpClient } from '@angular/common/http';
 
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
+import { LoadingOverlayComponent } from '../../../common/loading-overlay/loading-overlay.component';
 import { ScriptRefreshRequest } from '../script-refresh.model';
 
 import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-script-delete-modal',
   templateUrl: './script-delete-modal.component.html',
-  imports: [TranslateModule],
+  imports: [TranslateModule, LoadingOverlayComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

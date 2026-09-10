@@ -26,6 +26,13 @@ import {
   validateSpatialUnitMetadata,
 } from 'services/adminSpatialUnit/spatial-unit-metadata.util';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
+import { FormControlAriaDirective } from '../../adminShared/formError/form-control-aria.directive';
+import {
+  EDIT_DEFAULT_OUTLINE_COLOR,
+  EDIT_DEFAULT_OUTLINE_WIDTH,
+  buildSpatialUnitEditMetadataForm,
+} from './spatial-unit-edit-metadata-form.model';
 
 import { KmColorPickerComponent } from '../../../customElements/color-picker/km-color-picker.component';
 import {
@@ -33,7 +40,7 @@ import {
   LinePatternOption,
 } from '../../../customElements/line-pattern-picker/km-line-pattern-picker.component';
 import { DomSanitizer } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { getErrorMessage } from '../spatial-unit-import.util';
@@ -42,8 +49,9 @@ import { TranslateModule } from '@ngx-translate/core';
 import { TranslateService } from '@ngx-translate/core';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { ResourceMetadataFormComponent } from '../../adminShared/resourceMetadataForm/resource-metadata-form.component';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import {
-  buildResourceMetadataForm,
+  ResourceMetadataFormGroup,
   patchMetadataFormFromApi,
   ResourceMetadataFormValue,
 } from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
@@ -58,7 +66,11 @@ import {
   providers: [],
   imports: [
     FormsModule,
+    ReactiveFormsModule,
+    FormErrorComponent,
+    FormControlAriaDirective,
     CommonModule,
+    LoadingOverlayComponent,
     KmColorPickerComponent,
     KmLinePatternPickerComponent,
     StepperComponent,
@@ -97,10 +109,32 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   // Current dataset being edited
   currentSpatialUnitDataset: SpatialUnitMetadata | null = null;
 
+  /**
+   * Typed model of this modal. The accessors below keep the historic property
+   * names working for the patch-body/export builders and the spec.
+   */
+  readonly editForm = buildSpatialUnitEditMetadataForm({
+    existingLevelNames: () =>
+      (this.availableSpatialUnits ?? []).map((unit: any) => unit.spatialUnitLevel),
+    currentLevelName: () => this.currentSpatialUnitDataset?.spatialUnitLevel ?? null,
+    orderedSpatialUnits: () => this.availableSpatialUnits ?? [],
+  });
+
   // Basic form data
-  spatialUnitLevel = '';
-  spatialUnitLevelInvalid = false;
-  metadataForm = buildResourceMetadataForm();
+  get spatialUnitLevel(): string {
+    return this.editForm.controls.spatialUnitLevel.value;
+  }
+  set spatialUnitLevel(value: string) {
+    this.editForm.controls.spatialUnitLevel.setValue(value ?? '');
+  }
+  get spatialUnitLevelInvalid(): boolean {
+    return this.editForm.controls.spatialUnitLevel.hasError('uniqueName');
+  }
+
+  /** The shared "Allgemeine Metadaten" block; same instance on every call. */
+  get metadataForm(): ResourceMetadataFormGroup {
+    return this.editForm.controls.general;
+  }
   /** Read-only view of the metadata form value for patch-body/export building. */
   get metadata(): ResourceMetadataFormValue {
     return this.metadataForm.getRawValue();
@@ -114,16 +148,47 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   // showDatepicker = false;
 
   // Hierarchy
-  nextLowerHierarchySpatialUnit: any = null;
-  nextUpperHierarchySpatialUnit: any = null;
-  hierarchyInvalid = false;
+  get nextLowerHierarchySpatialUnit(): any {
+    return this.editForm.controls.nextLowerHierarchySpatialUnit.value;
+  }
+  set nextLowerHierarchySpatialUnit(value: any) {
+    this.editForm.controls.nextLowerHierarchySpatialUnit.setValue(value ?? null);
+  }
+  get nextUpperHierarchySpatialUnit(): any {
+    return this.editForm.controls.nextUpperHierarchySpatialUnit.value;
+  }
+  set nextUpperHierarchySpatialUnit(value: any) {
+    this.editForm.controls.nextUpperHierarchySpatialUnit.setValue(value ?? null);
+  }
+  get hierarchyInvalid(): boolean {
+    return this.editForm.hasError('spatialUnitHierarchy');
+  }
 
   // Outline layer settings
-  isOutlineLayer = false;
-  outlineColor = '#bf3d2c';
-  outlineWidth = 2;
-  selectedOutlineDashArrayObject: LinePatternOption | null = null;
-  selectedoutlineDashArrayObject: LinePatternOption | null = null; // Keep both for compatibility with original
+  get isOutlineLayer(): boolean {
+    return this.editForm.controls.isOutlineLayer.value;
+  }
+  set isOutlineLayer(value: boolean) {
+    this.editForm.controls.isOutlineLayer.setValue(!!value);
+  }
+  get outlineColor(): string {
+    return this.editForm.controls.outlineColor.value;
+  }
+  set outlineColor(value: string) {
+    this.editForm.controls.outlineColor.setValue(value || EDIT_DEFAULT_OUTLINE_COLOR);
+  }
+  get outlineWidth(): number {
+    return this.editForm.controls.outlineWidth.value;
+  }
+  set outlineWidth(value: number) {
+    this.editForm.controls.outlineWidth.setValue(value ?? EDIT_DEFAULT_OUTLINE_WIDTH);
+  }
+  get selectedOutlineDashArrayObject(): LinePatternOption | null {
+    return this.editForm.controls.outlineDashArray.value;
+  }
+  set selectedOutlineDashArrayObject(value: LinePatternOption | null) {
+    this.editForm.controls.outlineDashArray.setValue(value ?? null);
+  }
 
   // Color picker handled by km-color-picker component
   // Line pattern picker handled by km-line-pattern-picker component
@@ -141,13 +206,16 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   // Add flag to track if SVGs have been injected
   private svgInjected = false;
 
-  get availableLinePatternOptions(): LinePatternOption[] {
-    return (LABELED_LOI_DASH_ARRAY_OBJECTS || []).map((option) => ({
-      label: option.label,
-      dashArrayValue: option.dashArrayValue,
-      svgString: option.svgString,
-    }));
-  }
+  // Built once: a getter would hand out fresh objects on every change-detection
+  // pass, which breaks reference identity with the selected option (and makes
+  // the picker's ngOnChanges fire forever).
+  readonly availableLinePatternOptions: LinePatternOption[] = (
+    LABELED_LOI_DASH_ARRAY_OBJECTS || []
+  ).map((option) => ({
+    label: option.label,
+    dashArrayValue: option.dashArrayValue,
+    svgString: option.svgString,
+  }));
 
   ngOnInit() {
     this.loadInitialData();
@@ -190,7 +258,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     if (!dataset) return;
 
     this.spatialUnitLevel = dataset.spatialUnitLevel;
-    this.spatialUnitLevelInvalid = false;
 
     // Reset metadata from the dataset being edited
     patchMetadataFormFromApi(this.metadataForm, dataset.metadata, this.updateIntervalOptions);
@@ -220,7 +287,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
     // Set dash array
     this.selectedOutlineDashArrayObject = null;
-    this.selectedoutlineDashArrayObject = null;
     if (this.availableLoiDashArrayObjects && this.availableLoiDashArrayObjects.length > 0) {
       this.availableLoiDashArrayObjects.forEach((option) => {
         if (option.dashArrayValue === dataset.outlineDashArrayString) {
@@ -229,7 +295,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
             dashArrayValue: option.dashArrayValue,
             svgString: option.svgString,
           };
-          this.selectedoutlineDashArrayObject = this.selectedOutlineDashArrayObject;
         }
       });
       if (!this.selectedOutlineDashArrayObject) {
@@ -239,7 +304,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
           dashArrayValue: firstOption.dashArrayValue,
           svgString: firstOption.svgString,
         };
-        this.selectedoutlineDashArrayObject = this.selectedOutlineDashArrayObject;
       }
 
       // Line pattern picker will handle the display automatically
@@ -248,54 +312,24 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     // Set date picker value with null check - now using ng-bootstrap
     // The datepicker will automatically display the date from metadata.lastUpdate
 
-    this.hierarchyInvalid = false;
-
     // No role management in this version to match AngularJS
 
     // Reset to first step
     this.stepper.reset();
   }
 
+  /** The rule is `uniqueNameValidator` on the control now. */
   checkSpatialUnitName() {
-    const dataset = this.currentSpatialUnitDataset;
-    this.spatialUnitLevelInvalid = false;
-    this.availableSpatialUnits.forEach((spatialUnit) => {
-      if (
-        spatialUnit.spatialUnitLevel === this.spatialUnitLevel &&
-        spatialUnit.spatialUnitId !== dataset?.spatialUnitId
-      ) {
-        this.spatialUnitLevelInvalid = true;
-        return;
-      }
-    });
+    this.editForm.controls.spatialUnitLevel.updateValueAndValidity();
   }
 
+  /** The rule is `spatialUnitHierarchyValidator` on the group now. */
   checkSpatialUnitHierarchy() {
-    this.hierarchyInvalid = false;
-
-    if (this.nextLowerHierarchySpatialUnit && this.nextUpperHierarchySpatialUnit) {
-      let indexOfLowerHierarchyUnit = -1;
-      let indexOfUpperHierarchyUnit = -1;
-
-      for (let i = 0; i < this.availableSpatialUnits.length; i++) {
-        const spatialUnit = this.availableSpatialUnits[i];
-        if (spatialUnit.spatialUnitLevel === this.nextLowerHierarchySpatialUnit.spatialUnitLevel) {
-          indexOfLowerHierarchyUnit = i;
-        }
-        if (spatialUnit.spatialUnitLevel === this.nextUpperHierarchySpatialUnit.spatialUnitLevel) {
-          indexOfUpperHierarchyUnit = i;
-        }
-      }
-
-      if (indexOfLowerHierarchyUnit <= indexOfUpperHierarchyUnit) {
-        this.hierarchyInvalid = true;
-      }
-    }
+    this.editForm.updateValueAndValidity();
   }
 
   onChangeOutlineDashArray(outlineDashArrayObject: LinePatternOption | null) {
     this.selectedOutlineDashArrayObject = outlineDashArrayObject;
-    this.selectedoutlineDashArrayObject = outlineDashArrayObject; // Keep both for compatibility
 
     // No need to update dropdown display or close dropdown - handled by km-line-pattern-picker
   }
@@ -459,7 +493,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
             dashArrayValue: option.dashArrayValue,
             svgString: option.svgString,
           };
-          this.selectedoutlineDashArrayObject = this.selectedOutlineDashArrayObject;
         }
       });
     }

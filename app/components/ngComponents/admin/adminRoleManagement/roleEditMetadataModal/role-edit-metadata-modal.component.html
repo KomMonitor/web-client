@@ -32,10 +32,13 @@
       </div>
     }
 
+    <!--
+      No .fs-title heading here: it rendered the very same
+      EDIT_METADATA_MODAL.TITLE key that the dialog header above already shows,
+      so the dialog stated its own name twice, the body copy larger than the
+      header.
+    -->
     <form (ngSubmit)="editMetadata()">
-      <h2 class="fs-title text-center">
-        {{ 'ADMIN_ROLES.EDIT_METADATA_MODAL.TITLE' | translate }}
-      </h2>
       <p class="text-center">
         <b
           ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
@@ -45,50 +48,59 @@
       <div class="row">
         <div class="col-md-4">
           <div class="form-group">
-            <label>{{ 'ADMIN_SHARED.NAME' | translate }}*</label>
+            <label class="form-label">{{ 'ADMIN_SHARED.NAME' | translate }}*</label>
             <input
               class="form-control"
               type="text"
               [placeholder]="'ADMIN_ROLES.EDIT_METADATA_MODAL.NAME_PLACEHOLDER' | translate"
-              [(ngModel)]="currentDataset.name"
-              name="name"
-              (ngModelChange)="checkName()"
+              [formControl]="form.controls.name"
               required
             />
             <div class="help-block">
               {{ 'ADMIN_ROLES.EDIT_METADATA_MODAL.NAME_HELP' | translate }}
             </div>
-            @if (nameInvalid) {
-              <div class="text-danger">
-                {{ 'ADMIN_ROLES.EDIT_METADATA_MODAL.NAME_INVALID' | translate }}
-              </div>
-            }
+            <app-form-error
+              [control]="form.controls.name"
+              [keyOverride]="
+                form.controls.name.hasError('uniqueName')
+                  ? 'ADMIN_ROLES.EDIT_METADATA_MODAL.NAME_INVALID'
+                  : ''
+              "
+            />
           </div>
         </div>
         <div class="col-md-4">
           <div class="form-group">
-            <label>{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}*</label>
+            <label class="form-label">{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}*</label>
             <textarea
               class="form-control"
               rows="4"
               [placeholder]="'ADMIN_ROLES.EDIT_METADATA_MODAL.DESCRIPTION_PLACEHOLDER' | translate"
-              [(ngModel)]="currentDataset.description"
+              [formControl]="form.controls.description"
               name="description"
               required
             ></textarea>
+            <app-form-error [control]="form.controls.description" />
           </div>
         </div>
         <div class="col-md-4">
           <div class="form-group">
-            <label>{{ 'ADMIN_ROLES.CONTACT' | translate }}*</label>
-            <textarea
+            <label class="form-label">{{ 'ADMIN_ROLES.CONTACT' | translate }}*</label>
+            <!--
+              Single-line input, not a 4-row textarea: this holds one contact
+              line (the placeholder is an e-mail address). As a textarea it was
+              the same height as the description field and suggested the same
+              kind of content.
+            -->
+            <input
               class="form-control"
-              rows="4"
+              type="text"
               [placeholder]="'ADMIN_ROLES.EDIT_METADATA_MODAL.CONTACT_PLACEHOLDER' | translate"
-              [(ngModel)]="currentDataset.contact"
+              [formControl]="form.controls.contact"
               name="contact"
               required
-            ></textarea>
+            />
+            <app-form-error [control]="form.controls.contact" />
           </div>
         </div>
       </div>
@@ -97,14 +109,13 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-outline-secondary" (click)="close()">
-    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="close()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
   </button>
-  <div style="flex: 1"></div>
   <button
     type="button"
     class="btn btn-success"
-    [disabled]="loadingData() || nameInvalid"
+    [disabled]="loadingData() || form.invalid"
     (click)="editMetadata()"
   >
     {{ 'ADMIN_ROLES.EDIT_METADATA_MODAL.UPDATE_METADATA' | translate }}

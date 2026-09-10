@@ -1,0 +1,53 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ 'ADMIN_CONFIG.FILTER.DELETE_MODAL.TITLE' | translate }}</h4>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="close()"
+  ></button>
+</div>
+
+<div class="modal-body">
+  <h5>
+    <b>{{ 'ADMIN_CONFIG.FILTER.DELETE_MODAL.CONFIRM_QUESTION' | translate }}</b>
+  </h5>
+  <p>{{ 'ADMIN_CONFIG.FILTER.DELETE_MODAL.HINT' | translate }}</p>
+
+  <!--
+    A table of the fields that identify the entry, like the delete dialogs of
+    the other admin areas. The counts say how much the filter groups without
+    listing every name, which for the larger filters would be a wall of text.
+  -->
+  <table class="table table-bordered table-sm">
+    <thead>
+      <tr>
+        <th>{{ 'ADMIN_SHARED.NAME' | translate }}</th>
+        <th>{{ 'ADMIN_CONFIG.FILTER.GRID.COL_INDICATORS' | translate }}</th>
+        <th>{{ 'ADMIN_CONFIG.FILTER.GRID.COL_INDICATOR_TOPICS' | translate }}</th>
+        <th>{{ 'ADMIN_CONFIG.FILTER.GRID.COL_GEORESOURCES' | translate }}</th>
+        <th>{{ 'ADMIN_CONFIG.FILTER.GRID.COL_GEORESOURCE_TOPICS' | translate }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <b>{{ filterName }}</b>
+        </td>
+        <td>{{ indicatorCount }}</td>
+        <td>{{ indicatorTopicCount }}</td>
+        <td>{{ georesourceCount }}</td>
+        <td>{{ georesourceTopicCount }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="close()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
+  </button>
+  <button type="button" class="btn btn-danger" (click)="confirm()">
+    {{ 'ADMIN_CONFIG.FILTER.DELETE_MODAL.DELETE_FOREVER' | translate }}
+  </button>
+</div>

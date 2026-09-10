@@ -12,7 +12,7 @@
           <span class="icon"><i class="fas fa-filter"></i></span>
           <input
             type="text"
-            class="form-control input-sm"
+            class="form-control"
             placeholder="Stichwortfilter"
             (keyup)="onNameFilterChange($event)"
           />
@@ -147,11 +147,10 @@
             </button>
           </div>
         </div>
-        <br />
         <hr />
         <div>
           <div style="max-height: 30vh; overflow: auto">
-            <table class="table table-condensed">
+            <table class="table table-sm">
               <thead>
                 <tr>
                   <th>Indikator</th>
@@ -173,7 +172,7 @@
                         indicatorStatisticsEntry.progress !== 'finished' &&
                         indicatorStatisticsEntry.progress !== 'failed'
                       ) {
-                        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                        <span class="fas fa-arrows-rotate icon-spin"></span>
                       }
                       <br />
                       <!-- <div>
@@ -227,7 +226,7 @@
                           @if (
                             reachabilityCoverageReportsHelperService.reportInProgress_totalCoverage
                           ) {
-                            <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                            <span class="fas fa-arrows-rotate icon-spin"></span>
                           }
                         </button>
                         <span style="font-size: 9px">&nbsp;(~ 2 Sekunden)</span>
@@ -254,7 +253,7 @@
                           @if (
                             reachabilityCoverageReportsHelperService.reportInProgress_poiCoverage
                           ) {
-                            <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                            <span class="fas fa-arrows-rotate icon-spin"></span>
                           }
                         </button>
                         @if (
@@ -262,25 +261,20 @@
                         ) {
                           <span style="font-size: 9px">&nbsp;(~ 1,5 Sekunden pro Punkt)</span>
                         }
-                        <!--
-                              <span style="font-size:9px;" *ngIf="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_poiCoverage"{{$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.progressText_poiCoverage}}>&nbsp;</span> -->
                         @if (
                           reachabilityCoverageReportsHelperService.reportInProgress_poiCoverage
                         ) {
-                          <span style="font-size: 9px">&nbsp;</span>
+                          <span style="font-size: 9px"
+                            >&nbsp;{{
+                              reachabilityCoverageReportsHelperService.progressText_poiCoverage
+                            }}</span
+                          >
                         }
-                        <!-- <button class="btn btn-warning btn-sm" title="PDF-Report - Datentabelle Punkte" (click)="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.generateCoverageDataTableReport_focusPoiCoverage($ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario, indicatorStatisticsEntry)"><i class="fa-solid fa-map-location-dot"></i></button>											 -->
-                        <!-- a spatial unit wise report is more complicated -->
-                        <!-- indtead we might want to offer users a spatial unit wise report of all intersecting POIs and use spatial unit as a filter
-                              -->
-                        <!-- <button class="btn btn-warning" style="margin-top: 5px;" title="PDF-Report - Raumeinheiten mit Karte"
-                              [disabled]="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_spatialUnitCoverage"
-                              (click)="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.generateFeatureCoverageReport_focusSpatialUnitCoverage($ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario, indicatorStatisticsEntry)">
-                              <i class="fa-solid fa-file-pdf"></i>
-                              <i class="fa-solid fa-layer-group"></i>
-                              <span class="glyphicon glyphicon-refresh icon-spin" *ngIf="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_spatialUnitCoverage"></span>
-                            </button>
-                            <span style="font-size:9px;">&nbsp;(~ 1 Sekunde pro Raumeinheit)</span>											 -->
+                        <!-- Not offered yet, as on master: a spatial-unit-wise report is more
+                             complicated. Instead we might want to offer users a spatial-unit-wise
+                             report of all intersecting POIs and use the spatial unit as a filter.
+                             Service side is ready: generateCoverageDataTableReport_focusPoiCoverage()
+                             and generateFeatureCoverageReport_focusSpatialUnitCoverage(). -->
                       </div>
                     </td>
                     <td>
@@ -297,7 +291,7 @@
                         indicatorStatisticsEntry.progress !== 'finished' &&
                         indicatorStatisticsEntry.progress !== 'failed'
                       ) {
-                        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                        <span class="fas fa-arrows-rotate icon-spin"></span>
                       }
                       @if (indicatorStatisticsEntry.progress === 'failed') {
                         <div>Berechnung fehlgeschlagen</div>

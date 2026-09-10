@@ -6,7 +6,12 @@
     expWidth: isExpandedWidth,
   }"
 >
-  <div class="close" (click)="closeSidebar()"><i class="fas fa-xmark"></i></div>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Seitenleiste schließen"
+    (click)="closeSidebar()"
+  ></button>
   <app-kommonitor-data-setup
     [hidden]="element !== 'sidebarIndicatorConfigCollapse'"
   ></app-kommonitor-data-setup>

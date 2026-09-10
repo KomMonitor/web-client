@@ -2,11 +2,9 @@ import { Injectable, signal } from '@angular/core';
 import { ProcessScriptOverviewType } from 'models/data-management-api';
 
 /**
- * Process-script metadata store extracted from DataExchangeService
- * (Prio 7 / B6b — see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ * Process-script metadata store. Extracted in the Prio 7 god-service split.
  *
- * Holds the available process-script collection + id-lookup map; the DataExchangeService
- * facade re-exposes availableProcessScripts via a getter so its consumers stay unchanged.
+ * Holds the available process-script collection + id-lookup map.
  */
 @Injectable({
   providedIn: 'root',

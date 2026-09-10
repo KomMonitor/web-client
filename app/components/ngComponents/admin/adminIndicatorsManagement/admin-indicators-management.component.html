@@ -1,12 +1,12 @@
 <app-admin-content-view
   [title]="'ADMIN_INDICATORS.OVERVIEW.TITLE' | translate"
-  [description]="'ADMIN_SHARED.INFO' | translate"
+  [description]="'ADMIN_INDICATORS.OVERVIEW.DESCRIPTION' | translate"
   [controlsTemplate]="controls"
   [contentTemplate]="content"
 >
 </app-admin-content-view>
 <ng-template #controls>
-  <div>{{ 'ADMIN_SHARED.SHOW_ONLY_EDITABLE' | translate }}</div>
+  <span>{{ 'ADMIN_SHARED.SHOW_ONLY_EDITABLE' | translate }}</span>
   <div>
     <label class="switch">
       <input
@@ -58,7 +58,7 @@
 <ng-template #content>
   <expandable-box
     [title]="'ADMIN_INDICATORS.OVERVIEW.METADATA_BOX' | translate"
-    [collapsed]="false"
+    [isCollapsible]="false"
   >
     <ag-grid-angular
       #agGrid

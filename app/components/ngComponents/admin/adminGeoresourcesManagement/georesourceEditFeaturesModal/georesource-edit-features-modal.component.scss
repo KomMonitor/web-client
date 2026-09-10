@@ -1,127 +1,43 @@
-/* Georesource Edit Features Modal Styles */
+/*
+ * Trimmed from 236 lines. What went:
+ *
+ * - `.multiStepForm`, `.multiStepForm fieldset` and
+ *   `.multiStepForm fieldset:not(:first-of-type)` for the jQuery wizard this
+ *   dialog no longer wraps its steps in, plus `.action-button` /
+ *   `.action-button-previous` and `#progressbar` for that wizard's controls and
+ *   progress markup. The local copies painted "nächster Schritt" #27ae60 and
+ *   "voriger Schritt" #616161 at 5px radius, while the same pair was
+ *   #337ab7/#c5c5f1 in the role dialog and a blue/salmon 25px pill in the add
+ *   dialog. The step controls are `.btn.btn-primary` /
+ *   `.btn.btn-outline-secondary` inside `.stepper-buttons` now.
+ * - `.multiStepForm .fs-title` (15px) and `.multiStepForm .fs-subtitle`. app.scss
+ *   says 18px, so this dialog's step heading was a sixth smaller than the
+ *   identical heading in the spatial-unit dialog it mirrors.
+ * - `.form-control { font-size: 12px }` and `.help-block { font-size: 11px }` —
+ *   the two rules that kept this dialog's fields and hints below the app-wide
+ *   16px/12px even where the wizard wrapper did not reach.
+ * - a `.btn-group-sm > .btn` / `.btn-sm` copy at 12px and 3px radius. Component
+ *   styles load after app.scss and won the same-specificity tie against
+ *   Bootstrap 5, so the small buttons of the mapping table — and now the
+ *   dialog toolbar — sat a framework generation behind the identical controls in
+ *   the spatial-unit dialog.
+ * - `.alert { margin-bottom: 0; border-radius: 0 }` and `.alert pre`, which
+ *   squared off the mapping failure report because it used to be pinned to the
+ *   bottom edge of the dialog; it is an ordinary alert in the body now.
+ * - `.loading-overlay-admin-panel` / `.icon-spin` / `@keyframes spin` for the
+ *   spinner the template now gets from <app-loading-overlay>, and
+ *   `.vertical-align`, which was a flex row where the Bootstrap grid was wanted.
+ *
+ * What stays is this dialog's own furniture: the feature grid wrapper, the
+ * mapping table and the error detail blocks.
+ */
 
-/* Multi-step form styles */
-.multiStepForm {
-  position: relative;
-  margin: 0 auto;
+/* Same row helper the spatial-unit dialogs use, in place of `.vertical-align`. */
+.form-section-row {
+  row-gap: 1rem;
 }
 
-.multiStepForm fieldset {
-  background: white;
-  border: 0 none;
-  border-radius: 0.5rem;
-  box-sizing: border-box;
-  width: 100%;
-  margin: 0;
-  padding-bottom: 20px;
-  position: relative;
-}
-
-.multiStepForm fieldset:not(:first-of-type) {
-  display: none;
-}
-
-.multiStepForm .fs-title {
-  font-size: 15px;
-  text-transform: uppercase;
-  color: #2c3e50;
-  margin-bottom: 10px;
-}
-
-.multiStepForm .fs-subtitle {
-  font-weight: normal;
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 20px;
-}
-
-/* Progress bar */
-#progressbar {
-  margin-bottom: 30px;
-  overflow: hidden;
-  color: lightgrey;
-  padding-left: 0;
-}
-
-#progressbar li {
-  list-style-type: none;
-  font-size: 11px;
-  width: 33.33%;
-  float: left;
-  position: relative;
-  font-weight: 400;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-#progressbar li:hover {
-  color: #27ae60;
-}
-
-#progressbar li:hover:before {
-  background: #27ae60;
-  transform: scale(1.1);
-}
-
-#progressbar li:before {
-  width: 24px;
-  height: 24px;
-  line-height: 20px;
-  display: block;
-  font-size: 10px;
-  color: #ffffff;
-  background: lightgray;
-  border-radius: 50%;
-  margin: 0 auto 3px auto;
-  padding: 2px;
-  transition: all 0.3s ease;
-}
-
-#progressbar li.active:before,
-#progressbar li.active:after {
-  background: #27ae60;
-}
-
-/* Action buttons */
-.action-button {
-  width: 100px;
-  background: #27ae60;
-  font-weight: bold;
-  color: white;
-  border: 0 none;
-  border-radius: 5px;
-  cursor: pointer;
-  padding: 10px 5px;
-  margin: 10px 5px;
-}
-
-.action-button-previous {
-  width: 100px;
-  background: #616161;
-  font-weight: bold;
-  color: white;
-  border: 0 none;
-  border-radius: 5px;
-  cursor: pointer;
-  padding: 10px 5px;
-  margin: 10px 5px;
-}
-
-.action-button:hover,
-.action-button:focus {
-  box-shadow:
-    0 0 0 2px white,
-    0 0 0 3px #27ae60;
-}
-
-.action-button-previous:hover,
-.action-button-previous:focus {
-  box-shadow:
-    0 0 0 2px white,
-    0 0 0 3px #616161;
-}
-
-/* Feature table wrapper */
+/* Grid container of the feature overview step. */
 .featureTableWrapper {
   margin: 20px 0;
 }
@@ -132,105 +48,15 @@
   border-radius: 4px;
 }
 
-/* Loading overlay */
-.loading-overlay-admin-panel {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1000;
-  font-size: 2em;
-  color: #337ab7;
-}
-
-.loading-overlay-admin-panel.ng-hide {
-  display: none;
-}
-
-.icon-spin {
-  animation: spin 2s linear infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-/* Form adjustments */
-.form-control {
+/*
+ * Import diagnostics. Capped so a long list of failed feature ids scrolls
+ * inside its alert instead of pushing the form out of the dialog.
+ */
+.import-error-detail {
+  max-height: 240px;
+  overflow: auto;
+  margin-bottom: 0.5rem;
   font-size: 12px;
-}
-
-.help-block {
-  font-size: 11px;
-  color: #737373;
-}
-
-/* Alert styles */
-.alert {
-  margin-bottom: 0;
-  border-radius: 0;
-}
-
-.alert pre {
-  background-color: #f5f5f5;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  padding: 10px;
-  margin-top: 10px;
-}
-
-/* Table styles */
-.table-condensed {
-  font-size: 12px;
-}
-
-.table-condensed th,
-.table-condensed td {
-  padding: 5px;
-  border-top: 1px solid #ddd;
-}
-
-.btn-group-sm > .btn,
-.btn-sm {
-  padding: 5px 10px;
-  font-size: 12px;
-  line-height: 1.5;
-  border-radius: 3px;
-}
-
-/* Vertical alignment helper */
-.vertical-align {
-  display: flex;
-  align-items: flex-start;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .vertical-align {
-    display: block;
-  }
-
-  .col-md-3,
-  .col-md-6 {
-    margin-bottom: 15px;
-  }
-
-  .switch {
-    width: 50px;
-    height: 28px;
-  }
-
-  .switchslider:before {
-    height: 20px;
-    width: 20px;
-  }
-
-  input:checked + .switchslider:before {
-    transform: translateX(22px);
-  }
+  white-space: pre-wrap;
+  word-break: break-word;
 }

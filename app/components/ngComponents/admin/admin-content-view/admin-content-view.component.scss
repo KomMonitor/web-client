@@ -1,8 +1,14 @@
 :host {
   .view-header {
-    padding: 15px;
+    // Horizontal padding matches the Bootstrap gutter of the .container-fluid
+    // below (--bs-gutter-x * .5 = 12px), so the title lines up with the content
+    // instead of sitting 3px to its right. Vertical spacing stays at 15px.
+    padding: 15px 12px;
     display: flex;
-    align-items: center;
+    // Baseline, not center: with a long title that wraps, centering floats the
+    // description halfway between the title's lines instead of aligning it to
+    // the first one.
+    align-items: baseline;
     gap: 10px;
 
     .title {
@@ -20,6 +26,9 @@
     }
 
     .view-controls {
+      // Controls stay vertically centred against the whole header; only the
+      // two text blocks share a baseline.
+      align-self: center;
       display: flex;
       align-items: center;
       gap: 10px;

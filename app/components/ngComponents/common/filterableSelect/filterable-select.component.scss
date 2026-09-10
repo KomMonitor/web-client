@@ -1,9 +1,9 @@
-label {
-  text-align: center;
-  width: 100%;
-  margin-bottom: 5px;
-  font-size: 12px;
-}
+/*
+ * No `label` rule here: the former one centred the label at 12px, which only
+ * ever affected the script dialog (the group dialog renders its own
+ * `form-label` outside this component). The label is a plain Bootstrap
+ * `.form-label` now, like every other admin form label.
+ */
 
 .placeholder-option {
   color: #999;

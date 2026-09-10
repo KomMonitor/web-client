@@ -15,289 +15,292 @@
 </div>
 
 <div class="modal-body">
-  <div align="center">
-    <div
-      class="loading-overlay-admin-panel"
-      [class.ng-hide]="!loadingData()"
-      [style.display]="loadingData() ? 'block' : 'none'"
-    >
-      <i class="fas fa-spinner fa-spin fa-2x"></i>
-    </div>
-  </div>
+  <app-loading-overlay [loading]="loadingData()">
+    <!--
+      The import failure report used to be `position: absolute; bottom: 0` after
+      the footer, so it floated over the dialog's own buttons instead of
+      appearing in the content. It is an ordinary alert at the top of the body
+      now, like the error alerts in the group dialogs.
+    -->
+    @if (spatialUnitMetadataImportError()) {
+      <div id="spatialUnitEditMetadataImportErrorAlert" class="alert alert-danger" role="alert">
+        <button
+          type="button"
+          class="btn-close float-end"
+          [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+          (click)="hideMetadataErrorAlert()"
+        ></button>
+        <b>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.METADATA_IMPORT_FAILED' | translate }}</b>
+        <p>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.METADATA_IMPORT_FAILED_TEXT' | translate }}</p>
+        <pre class="import-error-detail">{{ spatialUnitMetadataImportError() }}</pre>
+        <p>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.JSON_FORMAT_HINT' | translate }}</p>
+        <pre id="spatialUnitsEditMetadataPre" class="import-error-detail">{{
+          spatialUnitMetadataStructure | json
+        }}</pre>
+      </div>
+    }
 
-  <!-- MultiStep Form -->
-  <div class="row">
-    <div class="col-md-12">
-      <form
-        role="form"
-        class="multiStepForm form-group"
-        id="spatialUnitEditMetadataForm"
-        #spatialUnitEditMetadataForm="ngForm"
-        style="margin-bottom: 0px"
-        (ngSubmit)="onSubmit()"
+    <!--
+      Metadata import/export as a toolbar above the form rather than two more
+      buttons in the footer. Five footer buttons did not fit the 800px form
+      dialog and wrapped onto a second row, and the pair belongs to the form it
+      acts on, not to the dialog's own confirm/cancel controls. The footer now
+      holds the same three buttons as every other admin dialog.
+    -->
+    <div class="dialog-toolbar">
+      <button
+        type="button"
+        class="btn btn-outline-secondary btn-sm"
+        (click)="onImportSpatialUnitEditMetadata()"
+        [title]="'ADMIN_SPATIAL_UNITS.COMMON.IMPORT_METADATA_TITLE' | translate"
       >
-        <!-- progressbar -->
-        <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
+        <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
+          'ADMIN_SPATIAL_UNITS.COMMON.METADATA_IMPORT' | translate
+        }}
+      </button>
+      <input
+        #metadataImportFile
+        hidden
+        type="file"
+        accept=".json"
+        (change)="onMetadataFileSelected($event)"
+      />
+      <button
+        type="button"
+        class="btn btn-outline-secondary btn-sm"
+        (click)="onExportSpatialUnitEditMetadata()"
+        [title]="'ADMIN_SPATIAL_UNITS.COMMON.EXPORT_METADATA_TITLE' | translate"
+      >
+        <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
+          'ADMIN_SPATIAL_UNITS.COMMON.METADATA_EXPORT' | translate
+        }}
+      </button>
+    </div>
 
-        @if (stepper.isActive('metadata')) {
-          <fieldset>
-            <h2 class="fs-title">{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.TITLE' | translate }}</h2>
-            <h3 class="fs-subtitle">
-              {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SUBTITLE_EDIT' | translate }}
-            </h3>
-            <p>
-              <b
-                ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
-              >
-            </p>
-            <div class="row vertical-align">
-              <div class="col-md-4 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NAME_LABEL' | translate }}*</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    [(ngModel)]="spatialUnitLevel"
-                    name="spatialUnitLevel"
-                    (ngModelChange)="checkSpatialUnitName()"
-                    [placeholder]="
-                      'ADMIN_SPATIAL_UNITS.METADATA_STEP.UNIQUE_NAME_PLACEHOLDER' | translate
-                    "
-                    required
-                  />
-                  <div class="help-block with-errors"></div>
-                  @if (spatialUnitLevelInvalid) {
-                    <div style="color: red">
-                      <p>
-                        {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NAME_INVALID' | translate }}
-                      </p>
-                    </div>
-                  }
-                </div>
-              </div>
-              <div class="col-md-4 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>{{
-                    'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_LOWER' | translate
-                  }}</label>
-                  <select
-                    [(ngModel)]="nextLowerHierarchySpatialUnit"
-                    name="nextLowerHierarchy"
-                    (ngModelChange)="checkSpatialUnitHierarchy()"
-                    class="form-control"
-                  >
-                    <option [ngValue]="null" disabled [selected]="!nextLowerHierarchySpatialUnit">
-                      {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_SPATIAL_UNIT' | translate }}
-                    </option>
-                    <option [ngValue]="null">
-                      {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NONE_NEW_LOWEST' | translate }}
-                    </option>
-                    @for (value of availableSpatialUnits; track value) {
-                      <option [ngValue]="value">
-                        {{ value.spatialUnitLevel }}
-                      </option>
-                    }
-                  </select>
-                  <div class="help-block">
-                    <p>
-                      {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_HINT' | translate }}
-                    </p>
-                  </div>
-                  <div class="help-block with-errors"></div>
-                  @if (hierarchyInvalid) {
-                    <div style="color: red">
-                      <p>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_INVALID' | translate }}</p>
-                    </div>
-                  }
-                </div>
-              </div>
-              <div class="col-md-4 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>{{
-                    'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_UPPER' | translate
-                  }}</label>
-                  <select
-                    [(ngModel)]="nextUpperHierarchySpatialUnit"
-                    name="nextUpperHierarchy"
-                    (ngModelChange)="checkSpatialUnitHierarchy()"
-                    class="form-control"
-                  >
-                    <option [ngValue]="null" disabled [selected]="!nextUpperHierarchySpatialUnit">
-                      {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_SPATIAL_UNIT' | translate }}
-                    </option>
-                    <option [ngValue]="null">
-                      {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NONE_NEW_UPPERMOST' | translate }}
-                    </option>
-                    @for (value of availableSpatialUnits; track value) {
-                      <option [ngValue]="value">
-                        {{ value.spatialUnitLevel }}
-                      </option>
-                    }
-                  </select>
-                  <div class="help-block">
-                    <p>
-                      {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_HINT' | translate }}
-                    </p>
-                  </div>
-                  <div class="help-block with-errors"></div>
-                  @if (hierarchyInvalid) {
-                    <div style="color: red">
-                      <p>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_INVALID' | translate }}</p>
-                    </div>
-                  }
-                </div>
+    <form
+      role="form"
+      id="spatialUnitEditMetadataForm"
+      #spatialUnitEditMetadataForm="ngForm"
+      (ngSubmit)="onSubmit()"
+    >
+      <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
+
+      @if (stepper.isActive('metadata')) {
+        <fieldset [formGroup]="editForm">
+          <h2 class="fs-title text-center">
+            {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.TITLE' | translate }}
+          </h2>
+          <h3 class="fs-subtitle text-center">
+            {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SUBTITLE_EDIT' | translate }}
+          </h3>
+          <p class="text-center">
+            <b
+              ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+            >
+          </p>
+          <div class="row">
+            <div class="col-md-4 col-sm-6 col-12">
+              <div class="form-group">
+                <label class="form-label"
+                  >{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NAME_LABEL' | translate }}*</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="spatialUnitLevel"
+                  appAria="sum-name"
+                  [placeholder]="
+                    'ADMIN_SPATIAL_UNITS.METADATA_STEP.UNIQUE_NAME_PLACEHOLDER' | translate
+                  "
+                  required
+                />
+                <app-form-error
+                  [control]="editForm.controls.spatialUnitLevel"
+                  for="sum-name"
+                  [keyOverride]="
+                    editForm.controls.spatialUnitLevel.hasError('uniqueName')
+                      ? 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NAME_INVALID'
+                      : ''
+                  "
+                />
               </div>
             </div>
-            <div class="row vertical-align">
-              <div class="col-md-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <label>{{
-                    'ADMIN_SPATIAL_UNITS.METADATA_STEP.MARK_AS_OUTLINE_LAYER' | translate
-                  }}</label>
-                  <br />
-                  <label class="switch">
-                    <input type="checkbox" [(ngModel)]="isOutlineLayer" name="isOutlineLayer" />
+            <div class="col-md-4 col-sm-6 col-12">
+              <div class="form-group">
+                <label class="form-label">{{
+                  'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_LOWER' | translate
+                }}</label>
+                <select formControlName="nextLowerHierarchySpatialUnit" class="form-select">
+                  <option [ngValue]="null" disabled [selected]="!nextLowerHierarchySpatialUnit">
+                    {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_SPATIAL_UNIT' | translate }}
+                  </option>
+                  <option [ngValue]="null">
+                    {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NONE_NEW_LOWEST' | translate }}
+                  </option>
+                  @for (value of availableSpatialUnits; track value) {
+                    <option [ngValue]="value">
+                      {{ value.spatialUnitLevel }}
+                    </option>
+                  }
+                </select>
+                <p class="help-block">
+                  {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_HINT' | translate }}
+                </p>
+              </div>
+            </div>
+            <div class="col-md-4 col-sm-6 col-12">
+              <div class="form-group">
+                <label class="form-label">{{
+                  'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_UPPER' | translate
+                }}</label>
+                <select formControlName="nextUpperHierarchySpatialUnit" class="form-select">
+                  <option [ngValue]="null" disabled [selected]="!nextUpperHierarchySpatialUnit">
+                    {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_SPATIAL_UNIT' | translate }}
+                  </option>
+                  <option [ngValue]="null">
+                    {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NONE_NEW_UPPERMOST' | translate }}
+                  </option>
+                  @for (value of availableSpatialUnits; track value) {
+                    <option [ngValue]="value">
+                      {{ value.spatialUnitLevel }}
+                    </option>
+                  }
+                </select>
+                <p class="help-block">
+                  {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_HINT' | translate }}
+                </p>
+              </div>
+            </div>
+          </div>
+          <!--
+            One message for one rule. The hierarchy validator sits on the form
+            group, but its message was rendered under each of the two selects,
+            so a single problem was reported twice side by side.
+          -->
+          <div class="row">
+            <div class="col-12">
+              <app-form-error
+                [control]="editForm"
+                keyOverride="ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_INVALID"
+                showWhen="always"
+              />
+            </div>
+          </div>
+
+          <div class="row form-section-row">
+            <div class="col-md-3 col-sm-6 col-12">
+              <div class="form-group">
+                <label class="form-label" for="spatialUnitIsOutlineLayer">{{
+                  'ADMIN_SPATIAL_UNITS.METADATA_STEP.MARK_AS_OUTLINE_LAYER' | translate
+                }}</label>
+                <div>
+                  <label class="switch" for="spatialUnitIsOutlineLayer">
+                    <input
+                      id="spatialUnitIsOutlineLayer"
+                      type="checkbox"
+                      formControlName="isOutlineLayer"
+                    />
                     <span class="switchslider round"></span>
                   </label>
-                  <div class="help-block">
-                    <p>
-                      {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_LAYER_HINT' | translate }}
-                    </p>
+                </div>
+                <p class="help-block">
+                  {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_LAYER_HINT' | translate }}
+                </p>
+              </div>
+            </div>
+            @if (isOutlineLayer) {
+              <div class="col-md-3 col-sm-6 col-12">
+                <div class="form-group">
+                  <label class="form-label">{{
+                    'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_COLOR' | translate
+                  }}</label>
+                  <div>
+                    <km-color-picker
+                      formControlName="outlineColor"
+                      [label]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_OUTLINE_COLOR' | translate"
+                    ></km-color-picker>
                   </div>
                 </div>
               </div>
               <div class="col-md-3 col-sm-6 col-12">
-                @if (isOutlineLayer) {
-                  <div class="form-group" align="center">
-                    <label>{{
-                      'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_COLOR' | translate
-                    }}</label>
-                    <br />
-                    <km-color-picker
-                      [(color)]="outlineColor"
-                      [label]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_OUTLINE_COLOR' | translate"
-                    ></km-color-picker>
-                    <div class="help-block with-errors"></div>
-                  </div>
-                }
+                <div class="form-group">
+                  <label class="form-label">{{
+                    'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_WIDTH' | translate
+                  }}</label>
+                  <input
+                    class="form-control outline-width-input"
+                    type="number"
+                    formControlName="outlineWidth"
+                    min="1"
+                    max="5"
+                    step="1"
+                  />
+                </div>
               </div>
               <div class="col-md-3 col-sm-6 col-12">
-                @if (isOutlineLayer) {
-                  <div class="form-group" align="center">
-                    <label>{{
-                      'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_WIDTH' | translate
-                    }}</label>
-                    <br />
-                    <input
-                      style="width: auto"
-                      type="number"
-                      [(ngModel)]="outlineWidth"
-                      name="outlineWidth"
-                      min="1"
-                      max="5"
-                      step="1"
-                    />
-                    <div class="help-block with-errors"></div>
-                  </div>
-                }
+                <div class="form-group">
+                  <km-line-pattern-picker
+                    formControlName="outlineDashArray"
+                    [options]="availableLinePatternOptions"
+                    [label]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_PATTERN' | translate"
+                    [placeholder]="
+                      'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_OUTLINE_PATTERN' | translate
+                    "
+                    [width]="'100%'"
+                  >
+                  </km-line-pattern-picker>
+                </div>
               </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                @if (isOutlineLayer) {
-                  <div class="form-group" align="center">
-                    <km-line-pattern-picker
-                      [selectedPattern]="selectedOutlineDashArrayObject"
-                      [options]="availableLinePatternOptions"
-                      [label]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_PATTERN' | translate"
-                      [placeholder]="
-                        'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_OUTLINE_PATTERN' | translate
-                      "
-                      [width]="'200px'"
-                      (patternChange)="onChangeOutlineDashArray($event)"
-                    >
-                    </km-line-pattern-picker>
-                  </div>
-                }
-              </div>
-            </div>
-            <div class="button-container">
-              <input
-                type="button"
-                name="next"
-                class="next next_editSpatialUnit action-button"
-                [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-                (click)="stepper.next()"
-              />
-            </div>
-          </fieldset>
-        }
+            }
+          </div>
 
-        @if (stepper.isActive('general')) {
-          <fieldset>
-            <h2 class="fs-title">{{ 'ADMIN_SHARED.GENERAL_METADATA' | translate }}</h2>
-            <h3 class="fs-subtitle">
-              {{ 'ADMIN_SPATIAL_UNITS.GENERAL_STEP.SUBTITLE' | translate }}
-            </h3>
-            <p>
-              <b
-                ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
-              >
-            </p>
-            <app-resource-metadata-form
-              [form]="metadataForm"
-              [updateIntervalOptions]="updateIntervalOptions"
-            ></app-resource-metadata-form>
-            <div class="button-container">
-              <input
-                type="button"
-                name="previous"
-                class="previous previous_editSpatialUnit action-button-previous"
-                [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-                (click)="stepper.previous()"
-              />
-            </div>
-          </fieldset>
-        }
-      </form>
-    </div>
-  </div>
-  <!-- /.MultiStep Form -->
+          <div class="stepper-buttons">
+            <button type="button" class="btn btn-primary" (click)="stepper.next()">
+              {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+            </button>
+          </div>
+        </fieldset>
+      }
+
+      @if (stepper.isActive('general')) {
+        <fieldset>
+          <h2 class="fs-title text-center">{{ 'ADMIN_SHARED.GENERAL_METADATA' | translate }}</h2>
+          <h3 class="fs-subtitle text-center">
+            {{ 'ADMIN_SPATIAL_UNITS.GENERAL_STEP.SUBTITLE' | translate }}
+          </h3>
+          <p class="text-center">
+            <b
+              ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
+            >
+          </p>
+          <app-resource-metadata-form
+            [form]="metadataForm"
+            [updateIntervalOptions]="updateIntervalOptions"
+          ></app-resource-metadata-form>
+          <div class="stepper-buttons">
+            <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
+              {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+            </button>
+          </div>
+        </fieldset>
+      }
+    </form>
+  </app-loading-overlay>
 </div>
 
+<!--
+  Footer order shared with the group and topic dialogs: cancel pushed left with
+  me-auto, then reset, then the primary action last. Reset is an outline button
+  because it only discards pending edits; as btn-danger it sat in the same red
+  as "delete permanently" and to the right of the action it qualifies.
+-->
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="cancel()">
-    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="cancel()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
   </button>
 
-  <button
-    type="button"
-    class="btn btn-info pull-left"
-    (click)="onImportSpatialUnitEditMetadata()"
-    [title]="'ADMIN_SPATIAL_UNITS.COMMON.IMPORT_METADATA_TITLE' | translate"
-  >
-    <i class="fas fa-file-import"></i>&nbsp;&nbsp;{{
-      'ADMIN_SPATIAL_UNITS.COMMON.METADATA_IMPORT' | translate
-    }}
-  </button>
-
-  <input
-    #metadataImportFile
-    style="display: none"
-    type="file"
-    class="form-control"
-    accept=".json"
-    (change)="onMetadataFileSelected($event)"
-  />
-
-  <button
-    type="button"
-    style="margin-left: 6px"
-    class="btn btn-info pull-left"
-    (click)="onExportSpatialUnitEditMetadata()"
-    [title]="'ADMIN_SPATIAL_UNITS.COMMON.EXPORT_METADATA_TITLE' | translate"
-  >
-    <i class="fas fa-file-export"></i>&nbsp;&nbsp;{{
-      'ADMIN_SPATIAL_UNITS.COMMON.METADATA_EXPORT' | translate
-    }}
+  <button type="button" class="btn btn-outline-secondary" (click)="resetForm()">
+    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
 
   <button
@@ -307,7 +310,7 @@
       !spatialUnitLevel ||
       spatialUnitLevelInvalid ||
       metadataForm.invalid ||
-      hierarchyInvalid ||
+      editForm.hasError('spatialUnitHierarchy') ||
       loadingData()
     "
     (click)="onSubmit()"
@@ -319,33 +322,4 @@
       <span>{{ 'ADMIN_SPATIAL_UNITS.EDIT_METADATA_MODAL.UPDATING' | translate }}</span>
     }
   </button>
-
-  <button type="button" class="btn btn-danger" (click)="resetForm()">
-    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
-  </button>
-</div>
-
-<!-- Metadata Import Error Alert - positioned absolutely at bottom like AngularJS version -->
-<div
-  id="spatialUnitEditMetadataImportErrorAlert"
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!spatialUnitMetadataImportError()"
-  class="alert alert-danger alert-dismissable"
->
-  <button type="button" class="close" (click)="hideMetadataErrorAlert()" aria-hidden="true">
-    &times;
-  </button>
-  <h4>
-    <i class="icon fa fa-ban"></i
-    >{{ 'ADMIN_SPATIAL_UNITS.ERRORS.METADATA_IMPORT_FAILED' | translate }}
-  </h4>
-  {{ 'ADMIN_SPATIAL_UNITS.ERRORS.METADATA_IMPORT_FAILED_TEXT' | translate }}
-  <br />
-  <pre>{{ spatialUnitMetadataImportError() }}</pre>
-  <br />
-  <br />
-  <p>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.JSON_FORMAT_HINT' | translate }}</p>
-  <pre id="spatialUnitsEditMetadataPre" style="overflow: auto; max-height: 500px">{{
-    spatialUnitMetadataStructure | json
-  }}</pre>
 </div>

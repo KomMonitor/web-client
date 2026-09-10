@@ -7,15 +7,16 @@
 <ng-template #content>
   <div class="row">
     @for (item of items; track item.title) {
-      <div class="col-md-6">
-        <div class="box-wrapper">
+      <div [class]="item.fullWidth ? 'col-12' : 'col-lg-6'">
+        <div class="faq-item">
           <expandable-box [title]="item.title | translate" [collapsed]="!item.expanded">
             <div class="box-content">
-              <div [innerHTML]="item.content | translate"></div>
+              <div class="box-prose" [innerHTML]="item.content | translate"></div>
               @if (item.nestedItems) {
                 <div class="nested-accordion">
                   @for (nestedItem of item.nestedItems; track nestedItem.title) {
                     <expandable-box
+                      variant="nested"
                       [title]="nestedItem.title | translate"
                       [collapsed]="!nestedItem.expanded"
                     >

@@ -24,22 +24,17 @@
   <!-- MultiStep Form -->
   <div class="row">
     <div class="col-md-12">
-      <form
-        class="multiStepForm form-group"
-        id="indicatorEditFeaturesForm"
-        role="form"
-        style="margin-bottom: 0px"
-      >
+      <div class="form-group" id="indicatorEditFeaturesForm" style="margin-bottom: 0px">
         <!-- Progress bar -->
         <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
 
         <!-- Step 1: Zeitreihen Übersicht -->
         @if (stepper.isActive('overview')) {
           <fieldset>
-            <h2 class="fs-title">
+            <h2 class="fs-title text-center">
               {{ 'ADMIN_INDICATORS.EDIT_FEATURES.OVERVIEW_TITLE' | translate }}
             </h2>
-            <h3 class="fs-subtitle">
+            <h3 class="fs-subtitle text-center">
               {{ 'ADMIN_INDICATORS.EDIT_FEATURES.OVERVIEW_SUBTITLE' | translate }}
             </h3>
             <div class="row vertical-align">
@@ -72,16 +67,23 @@
               </div>
               <div class="col-md-4 col-sm-4 col-12">
                 <div class="form-group">
-                  <label>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.FETCH_TIMESERIES' | translate }}</label>
-                  <button
-                    class="btn btn-info"
-                    (click)="refreshIndicatorEditFeaturesOverviewTable()"
-                    [disabled]="!overviewTableTargetSpatialUnitMetadata"
-                  >
-                    <i class="fas fa-sync-alt"></i>&nbsp;{{
-                      'ADMIN_INDICATORS.EDIT_FEATURES.SHOW_ALL_TIMESERIES' | translate
-                    }}
-                  </button>
+                  <label class="form-label">{{
+                    'ADMIN_INDICATORS.EDIT_FEATURES.FETCH_TIMESERIES' | translate
+                  }}</label>
+                  <!-- Block wrapper: `.form-label` is inline, so without one the
+                       button sat on the same line as its own label. -->
+                  <div>
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      (click)="refreshIndicatorEditFeaturesOverviewTable()"
+                      [disabled]="!overviewTableTargetSpatialUnitMetadata"
+                    >
+                      <i class="fas fa-sync-alt"></i>&nbsp;{{
+                        'ADMIN_INDICATORS.EDIT_FEATURES.SHOW_ALL_TIMESERIES' | translate
+                      }}
+                    </button>
+                  </div>
                   <div class="help-block">
                     <p>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.LOAD_TIME_HINT' | translate }}</p>
                     <p>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.EDIT_CELLS_HINT' | translate }}</p>
@@ -91,7 +93,9 @@
               </div>
               <div class="col-md-4 col-sm-4 col-12">
                 <div class="form-group">
-                  <label>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.CLEANUP_LABEL' | translate }}</label>
+                  <label class="form-label">{{
+                    'ADMIN_INDICATORS.EDIT_FEATURES.CLEANUP_LABEL' | translate
+                  }}</label>
                   <label class="switch">
                     <input
                       class="elementCheckbox"
@@ -100,10 +104,11 @@
                       [ngModelOptions]="{ standalone: true }"
                       (change)="onChangeEnableDeleteFeatures()"
                     />
-                    <span class="switchslider round text-left" style="line-height: 25px"></span>
+                    <span class="switchslider round"></span>
                   </label>
                   &nbsp;&nbsp;
                   <button
+                    type="button"
                     class="btn btn-danger"
                     (click)="clearAllIndicatorFeatures()"
                     [disabled]="!enableDeleteFeatures"
@@ -120,21 +125,22 @@
               </div>
             </div>
             <div>
-              @if (featureTableHelper.featureTable_indicator_lastUpdate_timestamp_success) {
+              @if (featureTableStatus.lastSuccess()) {
                 <div style="background-color: #9dc89f">
                   <b>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.LAST_UPDATE_SUCCESS' | translate }}</b>
-                  {{ featureTableHelper.featureTable_indicator_lastUpdate_timestamp_success }}
+                  {{ featureTableStatus.lastSuccess() }}
                 </div>
               }
-              @if (featureTableHelper.featureTable_indicator_lastUpdate_timestamp_failure) {
+              @if (featureTableStatus.lastFailure()) {
                 <div style="background-color: #e79595">
                   <b>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.LAST_UPDATE_FAILURE' | translate }}</b>
-                  {{ featureTableHelper.featureTable_indicator_lastUpdate_timestamp_failure }}
+                  {{ featureTableStatus.lastFailure() }}
                 </div>
               }
             </div>
             <div class="admin-table-wrapper featureTableWrapper">
               <ag-grid-angular
+                #indicatorFeatureTable
                 id="indicatorFeatureTable"
                 style="height: 50vh; width: 100%"
                 class="ag-theme-alpine"
@@ -144,23 +150,27 @@
               >
               </ag-grid-angular>
             </div>
-            <input
-              type="button"
-              name="next"
-              class="next next_editFeaturesIndicator action-button"
-              [value]="'ADMIN_SHARED_UI.STEP.NEXT' | translate"
-              (click)="stepper.next()"
-            />
+            <div class="stepper-buttons">
+              <button type="button" class="btn btn-primary" (click)="stepper.next()">
+                {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+              </button>
+            </div>
           </fieldset>
         }
 
         <!-- Step 2: Räumlicher Datensatz -->
         @if (stepper.isActive('data')) {
-          <fieldset>
-            <div style="position: absolute">
+          <fieldset [formGroup]="editForm">
+            <!--
+              The mapping import/export pair used to be `position: absolute` in
+              the top-left corner of the step, where it overlapped the stepper.
+              It is the shared right-aligned toolbar now, above the form it acts
+              on. The file input also carried two `class` attributes.
+            -->
+            <div class="dialog-toolbar">
               <button
                 type="button"
-                class="btn btn-info pull-left"
+                class="btn btn-outline-secondary btn-sm"
                 (click)="onImportIndicatorEditFeaturesMappingConfig()"
                 [title]="'ADMIN_INDICATORS.EDIT_FEATURES.MAPPING_IMPORT_TOOLTIP' | translate"
               >
@@ -169,17 +179,14 @@
                 }}
               </button>
               <input
-                style="display: none"
-                class="pull-left"
+                hidden
                 type="file"
-                class="form-control"
                 id="indicatorMappingConfigEditFeaturesImportFile"
                 accept=".json,"
               />
               <button
                 type="button"
-                style="margin-left: 6px"
-                class="btn btn-info pull-left"
+                class="btn btn-outline-secondary btn-sm"
                 (click)="onExportIndicatorEditFeaturesMappingConfig()"
                 [title]="'ADMIN_INDICATORS.EDIT_FEATURES.MAPPING_EXPORT_TOOLTIP' | translate"
               >
@@ -188,13 +195,13 @@
                 }}
               </button>
             </div>
-            <h2 class="fs-title">
+            <h2 class="fs-title text-center">
               {{ 'ADMIN_INDICATORS.EDIT_FEATURES.IMPORT_TITLE' | translate }}
             </h2>
-            <h3 class="fs-subtitle">
+            <h3 class="fs-subtitle text-center">
               {{ 'ADMIN_INDICATORS.EDIT_FEATURES.IMPORT_SUBTITLE' | translate }}
             </h3>
-            <p>
+            <p class="text-center">
               <b
                 ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
               >
@@ -203,13 +210,7 @@
               <div class="col-md-3 col-sm-6 col-12">
                 <div class="form-group">
                   <label>{{ 'ADMIN_INDICATORS.DATASET_SOURCE_FORMAT' | translate }}*</label>
-                  <select
-                    [(ngModel)]="converter"
-                    [ngModelOptions]="{ standalone: true }"
-                    (change)="onChangeConverter()"
-                    class="form-control"
-                    required
-                  >
+                  <select formControlName="converter" class="form-control">
                     <option [ngValue]="null" disabled>
                       {{ 'ADMIN_INDICATORS.SELECT_SOURCE_FORMAT_OPTION' | translate }}
                     </option>
@@ -219,18 +220,13 @@
                       </option>
                     }
                   </select>
-                  <div class="help-block with-errors"></div>
+                  <app-form-error [control]="editForm.controls.converter" />
                 </div>
                 @if (converter?.schemas) {
                   <div>
                     <div class="form-group">
                       <label>Schema*</label>
-                      <select
-                        [(ngModel)]="schema"
-                        [ngModelOptions]="{ standalone: true }"
-                        class="form-control"
-                        required
-                      >
+                      <select formControlName="schema" class="form-control">
                         <option disabled selected value>
                           {{ 'ADMIN_INDICATORS.SELECT_SCHEMA_OPTION' | translate }}
                         </option>
@@ -240,7 +236,7 @@
                           </option>
                         }
                       </select>
-                      <div class="help-block with-errors"></div>
+                      <app-form-error [control]="editForm.controls.schema" />
                     </div>
                   </div>
                 }
@@ -248,13 +244,7 @@
                   <div>
                     <div class="form-group">
                       <label>{{ 'ADMIN_INDICATORS.SOURCE_FORMAT' | translate }}*</label>
-                      <select
-                        [(ngModel)]="mimeType"
-                        [ngModelOptions]="{ standalone: true }"
-                        (change)="onChangeMimeType(mimeType)"
-                        class="form-control"
-                        required
-                      >
+                      <select formControlName="mimeType" class="form-control">
                         <option disabled selected value>
                           {{ 'ADMIN_INDICATORS.EDIT_FEATURES.SELECT_FORMAT_OPTION' | translate }}
                         </option>
@@ -264,13 +254,13 @@
                           </option>
                         }
                       </select>
-                      <div class="help-block with-errors"></div>
+                      <app-form-error [control]="editForm.controls.mimeType" />
                     </div>
                   </div>
                 }
                 @for (parameter of converter?.parameters; track parameter) {
                   @if (!parameter.name.includes('CRS')) {
-                    <div>
+                    <div formGroupName="converterParameters">
                       <div class="form-group">
                         <label
                           >{{ parameter.name }}
@@ -282,15 +272,14 @@
                           type="text"
                           class="form-control"
                           placeholder="{{ parameter.name }}"
-                          [(ngModel)]="converterParameterValues[parameter.name]"
-                          [name]="'converterParameter_' + parameter.name"
-                          [ngModelOptions]="{ standalone: true }"
-                          [required]="parameter.mandatory"
+                          [formControlName]="parameter.name"
                         />
                         <div class="help-block">
                           <p>{{ parameter.description }}</p>
                         </div>
-                        <div class="help-block with-errors"></div>
+                        <app-form-error
+                          [control]="editForm.controls.converterParameters.get(parameter.name)"
+                        />
                       </div>
                     </div>
                   }
@@ -307,12 +296,7 @@
                     <div>
                       <div class="form-group">
                         <label>{{ 'ADMIN_INDICATORS.DATASOURCE_TYPE' | translate }}*</label>
-                        <select
-                          [(ngModel)]="datasourceType"
-                          [ngModelOptions]="{ standalone: true }"
-                          class="form-control"
-                          required
-                        >
+                        <select formControlName="datasourceType" class="form-control">
                           <option [ngValue]="null" disabled>
                             {{ 'ADMIN_INDICATORS.SELECT_DATASOURCE_TYPE_OPTION' | translate }}
                           </option>
@@ -325,7 +309,7 @@
                             </option>
                           }
                         </select>
-                        <div class="help-block with-errors"></div>
+                        <app-form-error [control]="editForm.controls.datasourceType" />
                       </div>
                       @if (datasourceType?.type === 'FILE') {
                         <div>
@@ -342,22 +326,23 @@
                       @if (!(datasourceType?.type === 'FILE')) {
                         <div>
                           @for (parameter of datasourceType?.parameters; track parameter) {
-                            <div>
+                            <div formGroupName="datasourceTypeParameters">
                               <div class="form-group">
                                 <label>{{ parameter.name }}*</label>
                                 <textarea
                                   rows="1"
                                   class="form-control"
                                   placeholder="{{ parameter.name }}"
-                                  [(ngModel)]="datasourceTypeParameterValues[parameter.name]"
-                                  [name]="'datasourceTypeParameter_' + parameter.name"
-                                  [ngModelOptions]="{ standalone: true }"
-                                  required
+                                  [formControlName]="parameter.name"
                                 ></textarea>
                                 <div class="help-block">
                                   <p>{{ parameter.description }}</p>
                                 </div>
-                                <div class="help-block with-errors"></div>
+                                <app-form-error
+                                  [control]="
+                                    editForm.controls.datasourceTypeParameters.get(parameter.name)
+                                  "
+                                />
                               </div>
                             </div>
                           }
@@ -374,25 +359,25 @@
                   <input
                     type="text"
                     class="form-control"
-                    [(ngModel)]="spatialUnitRefKeyProperty"
-                    [ngModelOptions]="{ standalone: true }"
-                    required
+                    formControlName="spatialUnitRefKeyProperty"
+                    appAria="ie-data-ref-key"
                   />
                   <div class="help-block">
                     <p>{{ 'ADMIN_INDICATORS.EDIT_FEATURES.SPATIAL_REF_KEY_HINT' | translate }}</p>
                   </div>
-                  <div class="help-block with-errors"></div>
+                  <app-form-error
+                    [control]="editForm.controls.spatialUnitRefKeyProperty"
+                    for="ie-data-ref-key"
+                  />
                 </div>
               </div>
               <div class="col-md-3 col-sm-6 col-12">
                 <div class="form-group">
                   <label>{{ 'ADMIN_INDICATORS.TARGET_SPATIAL_UNIT' | translate }}*</label>
                   <select
-                    [(ngModel)]="targetSpatialUnitMetadata"
-                    [ngModelOptions]="{ standalone: true }"
+                    formControlName="targetSpatialUnitMetadata"
                     (change)="onChangeSelectedSpatialUnit(targetSpatialUnitMetadata)"
                     class="form-control"
-                    required
                   >
                     <option [ngValue]="null" disabled>
                       {{ 'ADMIN_INDICATORS.SELECT_TARGET_SPATIAL_UNIT_OPTION' | translate }}
@@ -406,14 +391,13 @@
                       </option>
                     }
                   </select>
-                  <div class="help-block with-errors"></div>
+                  <app-form-error [control]="editForm.controls.targetSpatialUnitMetadata" />
                 </div>
               </div>
             </div>
             @if (envConfigService.enableKeycloakSecurity) {
               <div>
                 <hr />
-                <br />
                 <h4>
                   {{
                     'ADMIN_INDICATORS.EDIT_FEATURES.ACCESS_RIGHTS_HEADING'
@@ -429,12 +413,7 @@
                   <div class="col-md-3">
                     <label>{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label>
                     <label class="switch">
-                      <input
-                        type="checkbox"
-                        [(ngModel)]="isPublic"
-                        [ngModelOptions]="{ standalone: true }"
-                        (change)="onChangeIsPublic(isPublic)"
-                      />
+                      <input type="checkbox" formControlName="isPublic" />
                       <span class="switchslider round"></span>
                     </label>
                     <div class="help-block">
@@ -462,10 +441,9 @@
               </div>
             }
             <hr />
-            <br />
-            <h4>{{ 'ADMIN_INDICATORS.TIMESERIES_MAPPING' | translate }}</h4>
-            <!-- todo -->
-            <!-- <indicator-edit-timeseries-mapping></indicator-edit-timeseries-mapping> -->
+            <h4>{{ 'ADMIN_INDICATORS.TIMESERIES_MAPPING' | translate }}*</h4>
+            <app-timeseries-mapping-form formControlName="timeseriesMappings" />
+            <app-form-error [control]="editForm.controls.timeseriesMappings" showWhen="always" />
             <div class="row vertical-align">
               <div class="col-md-6 col-sm-6 col-12">
                 <div class="form-group">
@@ -475,8 +453,7 @@
                     <input
                       type="checkbox"
                       value="keepMissingValues"
-                      [(ngModel)]="keepMissingValues"
-                      [ngModelOptions]="{ standalone: true }"
+                      formControlName="keepMissingValues"
                     />
                     <span class="switchslider round"></span>
                   </label>
@@ -488,35 +465,35 @@
                 </div>
               </div>
             </div>
-            <input
-              type="button"
-              name="previous"
-              class="previous previous_editFeaturesIndicator action-button-previous"
-              [value]="'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate"
-              (click)="stepper.previous()"
-            />
+            <div class="stepper-buttons">
+              <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
+                {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+              </button>
+            </div>
           </fieldset>
         }
-      </form>
+      </div>
     </div>
   </div>
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="closeModal()">
-    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="closeModal()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
+  </button>
+  <button
+    type="button"
+    class="btn btn-outline-secondary"
+    (click)="resetIndicatorEditFeaturesForm()"
+  >
+    <i class="fas fa-undo"></i>&nbsp;{{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
   <button
     type="button"
     class="btn btn-success"
-    [disabled]="
-      !converter || !datasourceType || !targetSpatialUnitMetadata || !spatialUnitRefKeyProperty
-    "
+    [disabled]="editForm.invalid"
     (click)="editIndicatorFeatures()"
   >
     {{ 'ADMIN_INDICATORS.EDIT_FEATURES.CONTINUE_TIMESERIES' | translate }}
-  </button>
-  <button type="button" class="btn btn-danger" (click)="resetIndicatorEditFeaturesForm()">
-    {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
 </div>

@@ -20,7 +20,7 @@ interface IdNameTableParams extends ICellRendererParams {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (rows().length > 0) {
-      <table class="table table-condensed table-bordered table-striped table-sm">
+      <table class="table table-bordered table-striped table-sm">
         <thead>
           <tr>
             <th>Id</th>

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
@@ -11,12 +12,13 @@ export interface RoleActionsCellRendererParams extends ICellRendererParams<Acces
 @Component({
   selector: 'app-role-actions-cell-renderer',
   standalone: true,
+  imports: [TranslateModule],
   template: `
     <div class="btn-group btn-group-sm">
       <button
         class="btn btn-warning btn-sm"
         type="button"
-        title="Metadaten editieren"
+        [title]="'ADMIN_SHARED_UI.GRID.EDIT_METADATA_TITLE' | translate"
         (click)="onEditMetadata()"
       >
         <i class="fas fa-pencil-alt"></i>
@@ -24,7 +26,7 @@ export interface RoleActionsCellRendererParams extends ICellRendererParams<Acces
       <button
         class="btn btn-warning btn-sm"
         type="button"
-        title="Gruppenrechte bearbeiten"
+        [title]="'ADMIN_ROLES.GRID.EDIT_GROUP_RIGHTS_TITLE' | translate"
         (click)="onEditGroupRights()"
       >
         <i class="fas fa-user-lock"></i>

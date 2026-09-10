@@ -27,7 +27,7 @@
                     cursor: pointer;
                   "
                   title="Information zu Raumebenen&nbsp;&nbsp;"
-                  ><span class="glyphicon glyphicon-info-sign"></span
+                  ><span class="fas fa-circle-info"></span
                 ></a>
               }
             </div>
@@ -797,14 +797,13 @@
                     >
                       <div class="box-header with-border">
                         <h3 class="box-title">Klassifikation anpassen</h3>
-                        <div class="box-tools pull-right">
+                        <div class="box-tools">
                           <button
                             type="button"
-                            class="close"
+                            class="btn-close"
+                            aria-label="Klassifikation schließen"
                             (click)="classificationCollapsed = !classificationCollapsed"
-                          >
-                            ×
-                          </button>
+                          ></button>
                         </div>
                       </div>
                       <div class="box-body">
@@ -824,7 +823,7 @@
               <div class="just-padding">
                 <h4>&Uuml;bersicht Metadaten</h4>
                 <div id="indicatorMetadataOverview" text-align="center" align="center" class="">
-                  <table class="table table-condensed">
+                  <table class="table table-sm">
                     <!-- <thead>
                       <tr>
                         <th>Name des Metadatums</th>
@@ -904,7 +903,6 @@
                   </table>
                 </div>
                 <hr />
-                <br />
                 <div>
                   <h4>Verkn&uuml;pfte Indikatoren</h4>
                   @if (
@@ -921,7 +919,7 @@
                         style="text-align: center"
                         class=""
                       >
-                        <table class="table table-condensed">
+                        <table class="table table-sm">
                           <thead>
                             <tr>
                               <th>Name des Indikators</th>
@@ -955,7 +953,6 @@
                   }
                 </div>
                 <hr />
-                <br />
                 <div>
                   <h4>Verkn&uuml;pfte Georessourcen</h4>
                   @if (
@@ -973,7 +970,7 @@
                         class=""
                       >
                         <h4>Verkn&uuml;pfte Georessourcen</h4>
-                        <table class="table table-condensed">
+                        <table class="table table-sm">
                           <thead>
                             <tr>
                               <th>Name der Georessource</th>
@@ -1010,7 +1007,7 @@
                 aria-labelledby="legendTab3"
               >
                 <div class="just-padding">
-                  <table class="table table-condensed" style="margin-bottom: 0px">
+                  <table class="table table-sm" style="margin-bottom: 0px">
                     <thead>
                       <tr>
                         <th>Datensatz</th>

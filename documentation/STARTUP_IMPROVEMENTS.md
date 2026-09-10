@@ -32,8 +32,7 @@ _nachfolgenden_ Configs sind fehlertolerant (`Promise.allSettled`), ausgerechnet
 Bei Fehlern loggt der `StartupService` „Using local backup defaults“, lädt aber tatsächlich nichts
 nach: `env_backup.js` wird zur Laufzeit nie geladen (nur vom Admin-Config-Editor in
 `admin-app-config.component.ts` referenziert). `window.__env` bleibt dann schlicht leer.
-`PROPOSED_CHANGES.md` (Z. 155) dokumentiert das bereits für Filter-/Controls-Config — für `env.js`
-gilt es genauso. Nur `keycloak_backup.json` hat einen echten Fallback (in
+Für Filter-/Controls-Config gilt dasselbe. Nur `keycloak_backup.json` hat einen echten Fallback (in
 `keycloak-helper.service.ts`).
 
 - [x] Entweder den Fallback wirklich implementieren (Backup-Dateien im `catch`/`onerror` nachladen)
@@ -44,7 +43,7 @@ gilt es genauso. Nur `keycloak_backup.json` hat einen echten Fallback (in
 > Config-Server fehl, lädt `loadAppConfigScript()` das lokal ausgelieferte
 > `./config/env_backup.js` nach (Asset in `angular.json`, befüllt `window.__env` vollständig).
 > Für **Keycloak-/Controls-/Filter-Config** existieren keine lokalen Backups (die
-> `*_backup.json`-Dateien wurden laut `PROPOSED_CHANGES.md` gelöscht bzw. gab es nie als
+> `*_backup.json`-Dateien wurden gelöscht bzw. gab es nie als
 > Runtime-Fallback) — dort wurde die irreführende Meldung „Using local backup defaults" durch ein
 > ehrliches `console.warn` ersetzt; `keycloak_backup.json` greift weiterhin separat im
 > `KeycloakHelperService`. Abgedeckt durch einen neuen Test in `startup.service.spec.ts`
@@ -170,10 +169,10 @@ Kommentar-Leichen herum.
 
 ### 11. Direkte `window.__env`-Zugriffe
 
-Bereits in `PROPOSED_CHANGES.md` (Z. 277) erfasst: verbleibende direkte Zugriffe auf
+Verbleibende direkte Zugriffe auf
 `EnvConfigService` umstellen, damit Config-Zugriffe typisiert und testbar sind.
 
-- [ ] Direkte `window.__env`-Reads migrieren (siehe `PROPOSED_CHANGES.md`)
+- [x] Direkte `window.__env`-Reads migrieren — ✅ erledigt (2026-08-27, siehe C3 in `OFFENE_PUNKTE.md`)
 
 ### 13. `MainComponent` / `AppModule` → Standalone-Bootstrap
 

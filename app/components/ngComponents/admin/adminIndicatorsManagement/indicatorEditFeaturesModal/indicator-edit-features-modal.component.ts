@@ -15,8 +15,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { filter } from 'rxjs';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import { GridOptions } from 'ag-grid-community';
@@ -31,7 +30,11 @@ import { IndicatorValueService } from '../../../../../services/indicator-value-s
 import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
-import { FeatureTableDataGridHelperService } from '../../../../../services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
+import {
+  FeatureTableCallbacks,
+  FeatureTableDataGridHelperService,
+  FeatureTableEditStatus,
+} from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
 import { ownerDefaultPermissionIds } from '../../adminShared/roleManagementPanel/role-management-panel.model';
 import { ResourceImportService } from 'services/resource-import-service/resource-import.service';
 import { NotificationService } from '../../../common/notification/notification.service';
@@ -39,6 +42,16 @@ import { StepperComponent } from 'components/ngComponents/common/stepper/stepper
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { IndicatorRefreshRequest } from '../indicator-refresh.model';
 import { downloadJson } from 'util/json-file.util';
+import { syncParameterControls } from '../../adminShared/importerForm/importer-form.model';
+import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
+import { FormControlAriaDirective } from '../../adminShared/formError/form-control-aria.directive';
+import { controlInvalidSignal } from '../../adminShared/forms/control-state';
+import { TimeseriesMappingFormComponent } from '../../adminShared/timeseriesMappingForm/timeseries-mapping-form.component';
+import type {
+  ImporterParameter,
+  TimeseriesMapping,
+} from 'services/resource-import-service/resource-import.model';
+import { buildIndicatorEditFeaturesForm } from './indicator-edit-features-form.model';
 
 declare const $: any;
 
@@ -46,15 +59,25 @@ declare const $: any;
   selector: 'app-indicator-edit-features-modal',
   templateUrl: './indicator-edit-features-modal.component.html',
   styleUrls: ['./indicator-edit-features-modal.component.scss'],
-  imports: [TranslateModule, FormsModule, FilterPipe, AgGridAngular, StepperComponent],
+  imports: [
+    TranslateModule,
+    FormsModule,
+    ReactiveFormsModule,
+    FormErrorComponent,
+    FormControlAriaDirective,
+    FilterPipe,
+    AgGridAngular,
+    StepperComponent,
+    TimeseriesMappingFormComponent,
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IndicatorEditFeaturesModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   private broadcastService = inject(BroadcastService);
-  private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
   private http = inject(HttpClient);
   private cacheHelperService = inject(CacheHelperServiceService);
   private accessControlService = inject(AccessControlService);
@@ -70,7 +93,13 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
 
   featureTableGridOptions: GridOptions = {};
 
+  /** Last edit/delete outcome of this modal's feature table (own instance). */
+  readonly featureTableStatus = new FeatureTableEditStatus();
+
   @ViewChild('modal') modal!: ElementRef;
+  /** Grid host node: scopes the header measurement to this modal's grid. */
+  @ViewChild('indicatorFeatureTable', { read: ElementRef })
+  indicatorFeatureTableEl?: ElementRef<HTMLElement>;
 
   @Output() refreshRequested = new EventEmitter<IndicatorRefreshRequest>();
 
@@ -81,22 +110,63 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   indicatorFeaturesJSON: any;
   remainingFeatureHeaders: any[] = [];
 
-  // Converter settings
-  converter: any;
-  schema: any;
-  mimeType: any;
+  /**
+   * Typed model of the data step. The overview step is the AG-Grid feature
+   * table and stays imperative. The accessors below keep the historic property
+   * names working for the importer-definition builders and the spec.
+   */
+  readonly editForm = buildIndicatorEditFeaturesForm();
 
-  // ngModel-bound converter / data-source parameter values, keyed by parameter
-  // name. Passed to the import service as formValues so the importer helper
-  // never has to scrape the parameter inputs from the DOM.
-  converterParameterValues: { [key: string]: string } = {};
-  datasourceTypeParameterValues: { [key: string]: string } = {};
+  private readonly dataStepInvalid = controlInvalidSignal(this.editForm, { whenTouched: true });
+
+  // Converter settings
+  get converter(): any {
+    return this.editForm.controls.converter.value;
+  }
+  set converter(value: any) {
+    this.editForm.controls.converter.setValue(value ?? null);
+  }
+  get schema(): any {
+    return this.editForm.controls.schema.value;
+  }
+  set schema(value: any) {
+    this.editForm.controls.schema.setValue(value ?? '');
+  }
+  get mimeType(): any {
+    return this.editForm.controls.mimeType.value;
+  }
+  set mimeType(value: any) {
+    this.editForm.controls.mimeType.setValue(value ?? '');
+  }
+
+  // Converter / data-source parameter values, keyed by parameter name.
+  get converterParameterValues(): { [key: string]: string } {
+    return this.editForm.controls.converterParameters.getRawValue();
+  }
+  get datasourceTypeParameterValues(): { [key: string]: string } {
+    return this.editForm.controls.datasourceTypeParameters.getRawValue();
+  }
 
   @ViewChild('indicatorDataSourceInput', { static: false })
   indicatorDataSourceInput?: ElementRef;
-  datasourceType: any;
-  spatialUnitRefKeyProperty: string = '';
-  targetSpatialUnitMetadata: any;
+  get datasourceType(): any {
+    return this.editForm.controls.datasourceType.value;
+  }
+  set datasourceType(value: any) {
+    this.editForm.controls.datasourceType.setValue(value ?? null);
+  }
+  get spatialUnitRefKeyProperty(): string {
+    return this.editForm.controls.spatialUnitRefKeyProperty.value;
+  }
+  set spatialUnitRefKeyProperty(value: string) {
+    this.editForm.controls.spatialUnitRefKeyProperty.setValue(value ?? '');
+  }
+  get targetSpatialUnitMetadata(): any {
+    return this.editForm.controls.targetSpatialUnitMetadata.value;
+  }
+  set targetSpatialUnitMetadata(value: any) {
+    this.editForm.controls.targetSpatialUnitMetadata.setValue(value ?? null);
+  }
 
   // Importer objects
   converterDefinition: any;
@@ -105,12 +175,27 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   putBody_indicators: any;
 
   // Settings
-  keepMissingValues: boolean = true;
-  isPublic: boolean = false;
+  get keepMissingValues(): boolean {
+    return this.editForm.controls.keepMissingValues.value;
+  }
+  set keepMissingValues(value: boolean) {
+    this.editForm.controls.keepMissingValues.setValue(!!value);
+  }
+  get isPublic(): boolean {
+    return this.editForm.controls.isPublic.value;
+  }
+  set isPublic(value: boolean) {
+    this.editForm.controls.isPublic.setValue(!!value);
+  }
   enableDeleteFeatures: boolean = false;
 
-  // Timeseries mapping
-  timeseriesMappingReference: any[] = [];
+  // Timeseries mapping — edited by <app-timeseries-mapping-form> through the form.
+  get timeseriesMappingReference(): TimeseriesMapping[] {
+    return this.editForm.controls.timeseriesMappings.value;
+  }
+  set timeseriesMappingReference(value: TimeseriesMapping[]) {
+    this.editForm.controls.timeseriesMappings.setValue(value ?? []);
+  }
 
   // Messages
   successMessagePart: string = '';
@@ -127,22 +212,32 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   // Multi-step form
   readonly stepper = new WizardStepper([
     { key: 'overview', label: 'ADMIN_SHARED_UI.STEP_LABELS.TIMESERIES_OVERVIEW' },
-    { key: 'data', label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_DATASET' },
+    {
+      key: 'data',
+      label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_DATASET',
+      invalid: this.dataStepInvalid,
+    },
   ]);
 
   ngOnInit(): void {
     this.setupEventListeners();
     this.initializeForm();
+
+    // The importer selects carry no (change) handlers; the runtime-keyed
+    // parameter controls are rebuilt from the form instead. Without this the
+    // template renders `formControlName`s that have no control.
+    this.editForm.controls.converter.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.onChangeConverter());
+    this.editForm.controls.datasourceType.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.onChangeDatasourceType());
   }
 
   private setupEventListeners(): void {
     // Bus listener kept for cross-area indicator triggers.
     this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
-      // NOTE: timeseriesMappingChanged has no sender yet (the timeseries-mapping
-      // modal is not built); the branch is a deliberate WIP hook.
-      if (data.msg === 'timeseriesMappingChanged') {
-        this.timeseriesMappingReference = data.mapping;
-      } else if (data.msg === BroadcastMessage.RefreshIndicatorOverviewTableCompleted) {
+      if (data.msg === BroadcastMessage.RefreshIndicatorOverviewTableCompleted) {
         if (this.currentIndicatorDataset) {
           this.currentIndicatorDataset = this.indicatorStore.getIndicatorMetadataById(
             this.currentIndicatorDataset.indicatorId
@@ -152,26 +247,37 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       // Bus callbacks swap template-bound fields on this OnPush view.
       this.cdr.markForCheck();
     });
+  }
 
-    // React to feature-table loading/delete events from the shared grid helper.
-    this.featureTableHelper.featureTableEvents$
-      .pipe(
-        filter((event) => event.resourceType === this.featureTableHelper.resourceType_indicator),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe((event) => {
-        if (event.type === 'loadingStart') {
-          this.loadingData.set(true);
-        } else if (event.type === 'loadingEnd') {
-          this.loadingData.set(false);
-        } else if (event.type === 'featureDeleted') {
-          this.refreshRequested.emit({
-            crudType: 'edit',
-            targetIndicatorId: this.currentIndicatorDataset.indicatorId,
-          });
-          this.refreshIndicatorEditFeaturesOverviewTable();
-        }
-      });
+  /** Callbacks this modal's feature table reports its edits and deletes through. */
+  private featureTableCallbacks(): FeatureTableCallbacks {
+    return {
+      onDeleteStart: () => this.loadingData.set(true),
+      onDeleteSuccess: () => {
+        this.refreshRequested.emit({
+          crudType: 'edit',
+          targetIndicatorId: this.currentIndicatorDataset.indicatorId,
+        });
+        this.refreshIndicatorEditFeaturesOverviewTable();
+      },
+      onDeleteError: () => this.loadingData.set(false),
+      onCellEditResult: (success) => this.featureTableStatus.record(success),
+    };
+  }
+
+  /** (Re)build this modal's indicator feature table. */
+  private buildFeatureTable(headers: string[] = [], features: any[] = []): void {
+    this.featureTableGridOptions = this.featureTableHelper.buildIndicatorFeatureTable(
+      {
+        headers,
+        features,
+        resourceId: this.currentIndicatorDataset?.indicatorId,
+        spatialUnitId: this.overviewTableTargetSpatialUnitMetadata?.spatialUnitId,
+        enableDelete: this.enableDeleteFeatures,
+        gridRoot: () => this.indicatorFeatureTableEl?.nativeElement,
+      },
+      this.featureTableCallbacks()
+    );
   }
 
   private initializeForm(): void {
@@ -188,12 +294,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
 
     this.currentIndicatorDataset = indicatorDataset;
     this.resetIndicatorEditFeaturesForm();
-    this.featureTableGridOptions =
-      this.featureTableHelper.buildDataGrid_featureTable_indicatorResource(
-        'indicatorFeatureTable',
-        [],
-        []
-      );
+    this.buildFeatureTable();
   }
 
   closeModal(): void {
@@ -205,8 +306,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.enableDeleteFeatures = false;
 
     // Reset edit banners
-    this.featureTableHelper.featureTable_indicator_lastUpdate_timestamp_success = undefined;
-    this.featureTableHelper.featureTable_indicator_lastUpdate_timestamp_failure = undefined;
+    this.featureTableStatus.reset();
 
     this.indicatorFeaturesJSON = undefined;
     this.remainingFeatureHeaders = [];
@@ -234,8 +334,8 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.schema = undefined;
     this.mimeType = undefined;
     this.datasourceType = null;
-    this.converterParameterValues = {};
-    this.datasourceTypeParameterValues = {};
+    syncParameterControls(this.editForm.controls.converterParameters, []);
+    syncParameterControls(this.editForm.controls.datasourceTypeParameters, []);
 
     this.converterDefinition = undefined;
     this.datasourceTypeDefinition = undefined;
@@ -248,7 +348,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.errorMessagePart = '';
     this.importerErrors = [];
 
-    this.broadcastService.broadcast(BroadcastMessage.ResetTimeseriesMapping);
+    this.timeseriesMappingReference = [];
   }
 
   refreshIndicatorEditFeaturesOverviewTable(): void {
@@ -284,16 +384,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
 
         this.remainingFeatureHeaders = tmpRemainingHeaders;
 
-        this.featureTableGridOptions =
-          this.featureTableHelper.buildDataGrid_featureTable_indicatorResource(
-            'indicatorFeatureTable',
-            tmpRemainingHeaders,
-            this.indicatorFeaturesJSON,
-            this.currentIndicatorDataset.indicatorId,
-            this.featureTableHelper.resourceType_indicator,
-            this.enableDeleteFeatures,
-            this.overviewTableTargetSpatialUnitMetadata.spatialUnitId
-          );
+        this.buildFeatureTable(tmpRemainingHeaders, this.indicatorFeaturesJSON);
 
         this.loadingData.set(false);
         // The grid options above were rebuilt in this async callback.
@@ -332,12 +423,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         });
 
         // Force empty feature overview table on successful deletion of entries
-        this.featureTableGridOptions =
-          this.featureTableHelper.buildDataGrid_featureTable_indicatorResource(
-            'indicatorFeatureTable',
-            [],
-            []
-          );
+        this.buildFeatureTable();
 
         this.successMessagePart = this.currentIndicatorDataset.indicatorName;
         this.showSuccessAlert();
@@ -383,12 +469,34 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   }
 
   onChangeConverter(): void {
-    this.schema = this.converter.schemas ? this.converter.schemas[0] : undefined;
-    this.mimeType = this.converter.mimeTypes[0];
-    // Fresh parameter values for the newly selected converter. NOTE: CRS
+    this.schema = this.converter?.schemas ? this.converter.schemas[0] : undefined;
+    this.mimeType = this.converter?.mimeTypes?.[0];
+    // Fresh parameter controls for the newly selected converter. NOTE: CRS
     // parameters are deliberately not seeded — the template hides them, so
-    // they were never sent historically either.
-    this.converterParameterValues = {};
+    // they were never sent historically either. Skipping them here keeps the
+    // record in step with the template and stops a hidden mandatory CRS field
+    // from blocking the submit gate.
+    syncParameterControls(
+      this.editForm.controls.converterParameters,
+      this.visibleConverterParameters()
+    );
+  }
+
+  /** The converter parameters the template actually renders. */
+  private visibleConverterParameters(): ImporterParameter[] {
+    return (this.converter?.parameters ?? []).filter(
+      (parameter: ImporterParameter) => !parameter.name.includes('CRS')
+    );
+  }
+
+  /**
+   * Rebuilds the data-source parameter controls. FILE data sources render no
+   * parameter fields at all, so they get an empty record.
+   */
+  onChangeDatasourceType(): void {
+    const parameters =
+      this.datasourceType?.type === 'FILE' ? [] : (this.datasourceType?.parameters ?? []);
+    syncParameterControls(this.editForm.controls.datasourceTypeParameters, parameters);
   }
 
   onChangeMimeType(mimeType: string): void {
@@ -502,7 +610,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   }
 
   buildPropertyMappingDefinition(): any {
-    const timeseriesMappingForImporter = this.timeseriesMappingReference || [];
+    const timeseriesMappingForImporter = this.timeseriesMappingReference;
     return this.importerHelperService.buildPropertyMapping_indicatorResource(
       this.spatialUnitRefKeyProperty,
       timeseriesMappingForImporter,

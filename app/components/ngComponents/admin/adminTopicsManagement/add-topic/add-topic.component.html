@@ -1,42 +1,36 @@
-<form role="form" class="row" style="margin-bottom: 0px">
-  <div class="col-3">
-    <button
-      type="button"
-      class="btn btn-success btn-sm"
-      (click)="onAddTopic()"
-      [disabled]="!newTopicTitle || !newTopicDescription"
-    >
-      <i class="fas fa-plus"></i> &nbsp; &nbsp;
-      {{ 'ADMIN_TOPICS.ADD.ADD_BUTTON' | translate: { type: (typeLabelKey | translate) } }}
-    </button>
-  </div>
-  <div class="col-4">
+<!--
+  Flex row rather than a col-3/col-4/col-5 grid: the button only needs its own
+  width, and a 3/12 column left a wide gap between it and the first field.
+-->
+<form role="form" class="add-topic-row">
+  <div class="field field-title">
     <input
-      style="width: 100%"
       class="form-control"
       type="text"
       [placeholder]="
         'ADMIN_TOPICS.ADD.TITLE_PLACEHOLDER' | translate: { type: (typeLabelKey | translate) }
       "
-      [(ngModel)]="newTopicTitle"
+      [formControl]="form.controls.title"
       name="newTopicTitle"
       required
     />
-    <div class="help-block with-errors"></div>
+    <app-form-error [control]="form.controls.title" />
   </div>
-  <div class="col-5">
+  <div class="field field-description">
     <textarea
-      style="width: 100%"
       rows="1"
-      class="form-control form-control-sm"
-      type="text"
+      class="form-control"
       [placeholder]="
         'ADMIN_TOPICS.ADD.DESCRIPTION_PLACEHOLDER' | translate: { type: (typeLabelKey | translate) }
       "
-      [(ngModel)]="newTopicDescription"
+      [formControl]="form.controls.description"
       name="newTopicDescription"
       required
     ></textarea>
-    <div class="help-block with-errors"></div>
+    <app-form-error [control]="form.controls.description" />
   </div>
+  <button type="button" class="btn btn-success" (click)="onAddTopic()" [disabled]="form.invalid">
+    <i class="fas fa-plus"></i>
+    {{ 'ADMIN_TOPICS.ADD.ADD_BUTTON' | translate: { type: (typeLabelKey | translate) } }}
+  </button>
 </form>

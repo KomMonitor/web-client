@@ -1,7 +1,7 @@
 <div class="stepper mb-3" #stepperRoot>
   <!-- continuous progress overlay (width controlled by component) -->
   <div class="stepper-progress"></div>
-  @for (step of steps; track step; let i = $index) {
+  @for (step of steps; track step.label; let i = $index) {
     <!-- Step bubble + label -->
     <div
       class="stepper-step"
@@ -9,10 +9,22 @@
       [class.completed]="currentStep > i + 1"
       [class.clickable]="isClickable(i + 1)"
       [class.disabled]="!isClickable(i + 1)"
+      [class.invalid]="step.invalid"
       (click)="onStepClick(i + 1)"
     >
-      <div class="stepper-circle" #circle>{{ i + 1 }}</div>
-      <div class="stepper-label">{{ step.label | translate }}</div>
+      <div class="stepper-circle" #circle [attr.aria-invalid]="step.invalid ? 'true' : null">
+        @if (step.invalid) {
+          <i class="fas fa-exclamation" aria-hidden="true"></i>
+        } @else {
+          {{ i + 1 }}
+        }
+      </div>
+      <div class="stepper-label">
+        {{ step.label | translate }}
+        @if (step.invalid) {
+          <span class="visually-hidden">{{ 'ADMIN_SHARED_UI.STEP.INVALID_HINT' | translate }}</span>
+        }
+      </div>
     </div>
     <!-- Connector line between steps -->
     @if (i < steps.length - 1) {

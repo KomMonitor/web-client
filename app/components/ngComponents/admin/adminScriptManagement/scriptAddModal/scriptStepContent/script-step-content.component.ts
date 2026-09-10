@@ -13,7 +13,6 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-script-step-content',
   templateUrl: './script-step-content.component.html',
-  styleUrls: ['./script-step-content.component.scss'],
   imports: [
     TranslateModule,
     FormsModule,

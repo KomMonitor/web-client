@@ -8,6 +8,11 @@ import { OgcService } from 'services/ogcServices/ogc.service';
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
 import { ExportItemCheckboxComponent } from 'components/ngComponents/userInterface/exporting/export-item-checkbox/export-item-checkbox.component';
 import { GeoresourceExportModeService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-export-mode.service';
+import {
+  getWfsColor,
+  setWfsColor,
+} from 'components/ngComponents/userInterface/sidebar/poi/georesource-layer.service';
+import { ColorPickerModule } from 'ngx-color-picker';
 
 /**
  * The set of dataset arrays held by a single node of the georesource topic
@@ -39,7 +44,13 @@ export interface GeoresourceDatasetGroup {
   templateUrl: './georesource-dataset-table.component.html',
   styleUrls: ['./georesource-dataset-table.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IconTranslate, ExportItemCheckboxComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IconTranslate,
+    ExportItemCheckboxComponent,
+    ColorPickerModule,
+  ],
 })
 export class GeoresourceDatasetTableComponent {
   protected exportButtonVisibility = inject(ExportButtonVisibilityService);
@@ -69,5 +80,20 @@ export class GeoresourceDatasetTableComponent {
 
   isWmsFav(id: string | null | undefined): boolean {
     return !!id && this.wmsFavItems.includes(id);
+  }
+
+  /** Colour shown in the WFS row's swatch, with the Leaflet default as fallback. */
+  wfsColor(dataset: any): string {
+    return getWfsColor(dataset);
+  }
+
+  /**
+   * Mirrors how the other outputs here work: mutate the dataset, then emit it —
+   * the consumer hands the same object to `GeoresourceLayerService`, which reads
+   * the new colour off it.
+   */
+  onWfsColorChange(color: string, dataset: any): void {
+    setWfsColor(dataset, color);
+    this.wfsColorChange.emit(dataset);
   }
 }

@@ -76,7 +76,7 @@ The following non-exclusive list of features presents key features of the **KomM
 - reachability analysis
   - routing
   - distance and time isochrones
-- customizable indicator computation with individually set process parameters (i.e. change relevant radius of reachability indicator and compare result to "default" indicator)
+- ~~customizable indicator computation with individually set process parameters (i.e. change relevant radius of reachability indicator and compare result to "default" indicator)~~ — _currently not part of the application: the AngularJS implementation was disabled ("must be greatly improved") and was removed with the Angular migration on 2026-08-27; a rebuild would go on top of the existing `script-engine/customizableIndicatorComputation` job handling_
 - export data
   - metadata
   - spatial data

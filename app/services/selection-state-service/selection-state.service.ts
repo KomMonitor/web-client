@@ -4,8 +4,7 @@ import { IndicatorValueService } from 'services/indicator-value-service/indicato
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 /**
- * Selection state + derived feature aggregates, extracted from DataExchangeService
- * (Prio 7 / B7 — see documentation/PRIO7_GOD_SERVICE_SPLIT.md). Last Teil-B cut.
+ * Selection state + derived feature aggregates. Extracted in the Prio 7 god-service split.
  *
  * Holds the current selection (indicator / spatial unit / date) and the all-/selected-features
  * aggregates. Depends only on IndicatorValueService (value parsing) and EnvConfigService

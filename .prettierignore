@@ -12,9 +12,5 @@ ThirdParty.json
 package-lock.json
 app/models/data-management-api.generated.ts
 
-# Bewusst behaltene AngularJS-Restfeatures (kein aktiver Code)
-app/components/kommonitorUserInterface/kommonitorControls/feedbackModal/
-app/components/kommonitorUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/
-
 # Laufzeit-Config-Fallbacks (ausgeliefert; Format nicht anfassen)
 app/config/

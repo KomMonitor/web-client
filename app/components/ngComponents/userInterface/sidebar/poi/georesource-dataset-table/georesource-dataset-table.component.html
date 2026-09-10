@@ -1,4 +1,4 @@
-<table class="table table-condensed" style="margin-bottom: 0px">
+<table class="table table-sm" style="margin-bottom: 0px">
   <thead>
     <tr>
       <th>Typ</th>
@@ -384,47 +384,16 @@
         </td>
         <td class="text-center">
           <div>
-            @if (dataset.geometryType === 'AOI') {
-              <div>
-                <div class="input-group colorpicker-component">
-                  <input
-                    type="text"
-                    style="display: none"
-                    class="form-control input-sm"
-                    [(ngModel)]="dataset.aoiColor"
-                    (change)="wfsColorChange.emit(dataset)"
-                    placeholder="WFS Darstellungsfarbe"
-                    required
-                  />
-                  <span
-                    title="Klicken, um die Farbe anzupassen"
-                    style="border: 1px solid #ccc"
-                    class="input-group-addon"
-                    ><i></i
-                  ></span>
-                </div>
-              </div>
-            }
-            @if (dataset.geometryType === 'LOI') {
-              <div>
-                <div class="input-group colorpicker-component">
-                  <input
-                    type="text"
-                    style="display: none"
-                    class="form-control input-sm"
-                    [(ngModel)]="dataset.loiColor"
-                    (change)="wfsColorChange.emit(dataset)"
-                    placeholder="WFS Darstellungsfarbe"
-                    required
-                  />
-                  <span
-                    title="Klicken, um die Farbe anzupassen"
-                    style="border: 1px solid #ccc"
-                    class="input-group-addon"
-                    ><i></i
-                  ></span>
-                </div>
-              </div>
+            @if (dataset.geometryType !== 'POI') {
+              <!-- don´t use 2way binding for [colorPicker] as the change event laggs behind the binding. known problem. use $event as it is -->
+              <input
+                class="colorPickerSelection"
+                title="Klicken, um die Farbe anzupassen"
+                [colorPicker]="wfsColor(dataset)"
+                [style.background]="wfsColor(dataset)"
+                [cpPosition]="'bottom-left'"
+                (colorPickerChange)="onWfsColorChange($event, dataset)"
+              />
             }
             @if (dataset.geometryType === 'POI') {
               <div>
@@ -437,7 +406,7 @@
                     <span
                       style="margin-left: 3px; margin-right: 3px; margin-top: 2px; font-size: 1.2em"
                       [ngStyle]="{ color: dataset.poiSymbolColor }"
-                      class="glyphicon glyphicon-{{ dataset.poiSymbolBootstrap3Name }}"
+                      class="{{ dataset.poiSymbolBootstrap3Name | iconTranslate }}"
                       aria-hidden="true"
                     ></span>
                   </div>

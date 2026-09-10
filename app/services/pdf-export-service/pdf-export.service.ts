@@ -23,7 +23,7 @@ export class PdfExportService {
   private envConfigService = inject(EnvConfigService);
   private topicHierarchyService = inject(TopicHierarchyService);
 
-  // ─── Public date utilities (also delegated to from DataExchangeService) ─────
+  // ─── Public date utilities (shared with the reporting/export helpers) ───────
 
   dateToTS(date: Date | undefined): number | undefined {
     if (date) {

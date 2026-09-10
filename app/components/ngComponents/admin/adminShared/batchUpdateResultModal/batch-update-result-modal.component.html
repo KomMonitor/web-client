@@ -1,0 +1,67 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ 'ADMIN_SHARED_UI.BATCH_UPDATE.RESULT_TITLE' | translate }}</h4>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="activeModal.close()"
+  ></button>
+</div>
+
+<div class="modal-body">
+  <p>{{ 'ADMIN_SHARED_UI.BATCH_UPDATE.RUN_SUMMARY' | translate: summary() }}</p>
+
+  @if (partiallyApplied()) {
+    <div class="alert alert-warning">
+      {{ 'ADMIN_SHARED_UI.BATCH_UPDATE.PARTIALLY_APPLIED' | translate }}
+    </div>
+  }
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-sm">
+      <thead>
+        <tr>
+          <th>{{ resourceLabelKey() | translate }}</th>
+          <th>{{ 'ADMIN_SHARED_UI.BATCH_UPDATE.STATUS' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.resourceId + row.label) {
+          <tr>
+            <td>{{ row.label }}</td>
+            <td>
+              @if (row.status === 'success') {
+                <span class="badge bg-success">
+                  {{ 'ADMIN_SHARED_UI.BATCH_UPDATE.SUCCESS' | translate }}
+                </span>
+              } @else {
+                <span class="badge bg-danger">
+                  {{ 'ADMIN_SHARED_UI.BATCH_UPDATE.ERROR' | translate }}
+                </span>
+                @if (row.messageKey) {
+                  <p class="mb-0">{{ row.messageKey | translate }}</p>
+                }
+                @if (row.message) {
+                  <details>
+                    <summary>{{ 'ADMIN_SHARED_UI.BATCH_UPDATE.SHOW_DETAIL' | translate }}</summary>
+                    <pre class="card card-body mb-0">{{ row.message }}</pre>
+                  </details>
+                }
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="2">{{ 'ADMIN_SHARED_UI.BATCH_UPDATE.NO_ROWS' | translate }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="activeModal.close()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
+</div>

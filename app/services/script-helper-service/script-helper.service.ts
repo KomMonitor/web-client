@@ -2,10 +2,17 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { TranslateService } from '@ngx-translate/core';
 
 export interface ScriptSelectItem {
   displayName: string;
   apiName: string;
+}
+
+/** A selectable option before its display name is translated. */
+interface ScriptSelectOption {
+  apiName: string;
+  nameKey: string;
 }
 @Injectable({
   providedIn: 'root',
@@ -13,126 +20,122 @@ export interface ScriptSelectItem {
 export class ScriptHelperService {
   private httpClient = inject(HttpClient);
   private envConfigService = inject(EnvConfigService);
+  private translate = inject(TranslateService);
 
   private targetUrlToManagementService =
     this.envConfigService.apiUrl + this.envConfigService.basePath + '/';
 
-  availableScriptDataTypes: ScriptSelectItem[] = [
-    {
-      displayName: 'Textuell (String)',
-      apiName: 'string',
-    },
-    {
-      displayName: 'Wahrheitswert (Boolean)',
-      apiName: 'boolean',
-    },
-    {
-      displayName: 'Ganzzahl (Integer)',
-      apiName: 'integer',
-    },
-    {
-      displayName: 'Gleitkommazahl (Double)',
-      apiName: 'double',
-    },
+  /**
+   * Selectable options for the script wizard. `apiName` is the contract with the
+   * backend and never changes; the display name is resolved from `nameKey` on
+   * access, so switching the UI language is reflected without rebuilding the
+   * service.
+   */
+  private static readonly DATA_TYPE_OPTIONS: ScriptSelectOption[] = [
+    { apiName: 'string', nameKey: 'ADMIN_SCRIPTS.DATA_TYPES.STRING' },
+    { apiName: 'boolean', nameKey: 'ADMIN_SCRIPTS.DATA_TYPES.BOOLEAN' },
+    { apiName: 'integer', nameKey: 'ADMIN_SCRIPTS.DATA_TYPES.INTEGER' },
+    { apiName: 'double', nameKey: 'ADMIN_SCRIPTS.DATA_TYPES.DOUBLE' },
   ];
 
-  availableScriptTypeOptions: ScriptSelectItem[] = [
+  private static readonly SCRIPT_TYPE_OPTIONS: ScriptSelectOption[] = [
+    { apiName: 'generic', nameKey: 'ADMIN_SCRIPTS.SCRIPT_TYPES.GENERIC' },
+    { apiName: 'indicator_sum', nameKey: 'ADMIN_SCRIPTS.SCRIPT_TYPES.INDICATOR_SUM' },
+    { apiName: 'indicator_subtract', nameKey: 'ADMIN_SCRIPTS.SCRIPT_TYPES.INDICATOR_SUBTRACT' },
+    { apiName: 'indicator_percentage', nameKey: 'ADMIN_SCRIPTS.SCRIPT_TYPES.INDICATOR_PERCENTAGE' },
+    { apiName: 'indicator_share', nameKey: 'ADMIN_SCRIPTS.SCRIPT_TYPES.INDICATOR_SHARE' },
+    { apiName: 'indicator_division', nameKey: 'ADMIN_SCRIPTS.SCRIPT_TYPES.INDICATOR_DIVISION' },
+    { apiName: 'indicator_trend', nameKey: 'ADMIN_SCRIPTS.SCRIPT_TYPES.INDICATOR_TREND' },
+    { apiName: 'indicator_continuity', nameKey: 'ADMIN_SCRIPTS.SCRIPT_TYPES.INDICATOR_CONTINUITY' },
     {
-      displayName: 'Generische Definition',
-      apiName: 'generic',
-    },
-    {
-      displayName: 'Indikatoren - Summe aller Indikatoren',
-      apiName: 'indicator_sum',
-    },
-    {
-      displayName: 'Indikatoren - Subtraktion von Basis-Indikatoren von einem Referenzindikator',
-      apiName: 'indicator_subtract',
-    },
-    {
-      displayName:
-        'Indikatoren - Prozentualer Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)',
-      apiName: 'indicator_percentage',
-    },
-    {
-      displayName:
-        'Indikatoren - Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)',
-      apiName: 'indicator_share',
-    },
-    {
-      displayName: 'Indikatoren - Division (Quotient zweier Indikatoren)',
-      apiName: 'indicator_division',
-    },
-    {
-      displayName: 'Indikatoren - Trend (mittels linearer Regression)',
-      apiName: 'indicator_trend',
-    },
-    {
-      displayName: 'Indikatoren - Kontinuität (mittels Pearson Korrelation)',
-      apiName: 'indicator_continuity',
-    },
-    {
-      displayName: 'Indikatoren - Veränderung absolut',
       apiName: 'indicator_change_absolute',
+      nameKey: 'ADMIN_SCRIPTS.SCRIPT_TYPES.INDICATOR_CHANGE_ABSOLUTE',
     },
     {
-      displayName: 'Indikatoren - Veränderung absolut mit festem Referenz-Zeitpunkt',
       apiName: 'indicator_change_absolute_refDate',
+      nameKey: 'ADMIN_SCRIPTS.SCRIPT_TYPES.INDICATOR_CHANGE_ABSOLUTE_REF_DATE',
     },
     {
-      displayName: 'Indikatoren - Veränderung prozentual mit festem Referenz-Zeitpunkt',
       apiName: 'indicator_change_relative_refDate',
+      nameKey: 'ADMIN_SCRIPTS.SCRIPT_TYPES.INDICATOR_CHANGE_RELATIVE_REF_DATE',
     },
     {
-      displayName: 'Indikatoren - Veränderung prozentual',
       apiName: 'indicator_change_relative',
+      nameKey: 'ADMIN_SCRIPTS.SCRIPT_TYPES.INDICATOR_CHANGE_RELATIVE',
     },
+    { apiName: 'indicator_promille', nameKey: 'ADMIN_SCRIPTS.SCRIPT_TYPES.INDICATOR_PROMILLE' },
     {
-      displayName:
-        'Indikatoren - Promille-Wert (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)',
-      apiName: 'indicator_promille',
-    },
-    {
-      displayName:
-        'Leitindikator - verkettete Berechnung (Rank, Min-Max-Normalisierung, Aggregation)',
       apiName: 'indicator_headlineIndicator',
+      nameKey: 'ADMIN_SCRIPTS.SCRIPT_TYPES.INDICATOR_HEADLINE_INDICATOR',
     },
     {
-      displayName: 'Indikatoren - Produkt aller Indikatoren',
       apiName: 'indicator_multiplication',
+      nameKey: 'ADMIN_SCRIPTS.SCRIPT_TYPES.INDICATOR_MULTIPLICATION',
     },
     {
-      displayName: 'Georessourcen - Anzahl Punkte in Polygon',
       apiName: 'georesource_pointsInPolygon',
+      nameKey: 'ADMIN_SCRIPTS.SCRIPT_TYPES.GEORESOURCE_POINTS_IN_POLYGON',
     },
     {
-      displayName: 'Georessourcen - Statistiken anhand Objekteigenschaft (Punktdatensätze)',
       apiName: 'georesource_statistics',
+      nameKey: 'ADMIN_SCRIPTS.SCRIPT_TYPES.GEORESOURCE_STATISTICS',
     },
     {
-      displayName: 'Georessourcen - Prozentualer Anteil anhand Objekteigenschaft (Punktdatensätze)',
       apiName: 'georesource_subsetShare',
+      nameKey: 'ADMIN_SCRIPTS.SCRIPT_TYPES.GEORESOURCE_SUBSET_SHARE',
     },
     {
-      displayName: 'Georessourcen - Summierte Linienlänge je Polygon',
       apiName: 'lineSegmentInPolygon',
+      nameKey: 'ADMIN_SCRIPTS.SCRIPT_TYPES.LINE_SEGMENT_IN_POLYGON',
     },
   ];
 
-  temporalOptions: ScriptSelectItem[] = [
-    {
-      apiName: 'YEARS',
-      displayName: 'Jahr(e)',
-    },
-    {
-      apiName: 'MONTHS',
-      displayName: 'Monat(e)',
-    },
-    {
-      apiName: 'DAYS',
-      displayName: 'Tag(e)',
-    },
+  private static readonly TEMPORAL_UNIT_OPTIONS: ScriptSelectOption[] = [
+    { apiName: 'YEARS', nameKey: 'ADMIN_SCRIPTS.TEMPORAL_UNITS.YEARS' },
+    { apiName: 'MONTHS', nameKey: 'ADMIN_SCRIPTS.TEMPORAL_UNITS.MONTHS' },
+    { apiName: 'DAYS', nameKey: 'ADMIN_SCRIPTS.TEMPORAL_UNITS.DAYS' },
   ];
+
+  get availableScriptDataTypes(): ScriptSelectItem[] {
+    return this.toSelectItems(ScriptHelperService.DATA_TYPE_OPTIONS);
+  }
+
+  get availableScriptTypeOptions(): ScriptSelectItem[] {
+    return this.toSelectItems(ScriptHelperService.SCRIPT_TYPE_OPTIONS);
+  }
+
+  get temporalOptions(): ScriptSelectItem[] {
+    return this.toSelectItems(ScriptHelperService.TEMPORAL_UNIT_OPTIONS);
+  }
+
+  /**
+   * Translated options, memoized per option set and language.
+   *
+   * The identity of the returned array and its items has to be stable: the
+   * script-parameters template iterates a getter directly with `track dataType`,
+   * so handing out fresh objects on every change-detection run would rebuild
+   * those DOM nodes each time. Keyed by the active language so a switch still
+   * produces new labels.
+   */
+  private readonly translatedOptions = new WeakMap<
+    ScriptSelectOption[],
+    { lang: string; items: ScriptSelectItem[] }
+  >();
+
+  private toSelectItems(options: ScriptSelectOption[]): ScriptSelectItem[] {
+    const lang = this.translate.currentLang || this.translate.defaultLang || '';
+    const cached = this.translatedOptions.get(options);
+    if (cached && cached.lang === lang) {
+      return cached.items;
+    }
+
+    const items = options.map(({ apiName, nameKey }) => ({
+      apiName,
+      displayName: this.translate.instant(nameKey),
+    }));
+    this.translatedOptions.set(options, { lang, items });
+    return items;
+  }
 
   requiredIndicators_tmp: any[] = [];
   requiredGeoresources_tmp: any[] = [];

@@ -8,6 +8,12 @@ export interface WizardStepDefinition {
   label: string;
   /** The step is part of the wizard only while this returns true (default: always). */
   when?: () => boolean;
+  /**
+   * Marks the step's bubble as invalid. Purely visual — navigation stays free.
+   * Typically `controlInvalidSignal(form.controls.<step>)` so the signal read
+   * re-renders the OnPush host and the stepper along with it.
+   */
+  invalid?: () => boolean;
 }
 
 /**
@@ -55,10 +61,18 @@ export class WizardStepper {
    */
   get steps(): StepperStep[] {
     const visible = this.visibleDefinitions;
-    const signature = visible.map((definition) => definition.key).join('|');
+    // The invalid flags are part of the signature: without them the memoised
+    // array reference would never change and the OnPush <app-stepper> would
+    // never re-render the marking.
+    const signature = visible
+      .map((definition) => `${definition.key}:${definition.invalid?.() ? 1 : 0}`)
+      .join('|');
     if (signature !== this.cachedSignature) {
       this.cachedSignature = signature;
-      this.cachedSteps = visible.map((definition) => ({ label: definition.label }));
+      this.cachedSteps = visible.map((definition) => ({
+        label: definition.label,
+        invalid: definition.invalid?.() ?? false,
+      }));
     }
     return this.cachedSteps;
   }

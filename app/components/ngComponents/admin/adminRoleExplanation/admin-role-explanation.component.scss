@@ -1,9 +1,87 @@
 :host {
-  .box-wrapper {
+  .faq-item {
     margin-bottom: 20px;
+  }
 
-    .box-content {
-      font-size: 14px;
+  // Box bodies run at the inherited 16px here, like every other admin view.
+  // A local 14px used to make this whole menu item one step smaller than
+  // Gruppenverwaltung or Themenverwaltung.
+  // Caps the line length of running text in the full-width item; has no effect
+  // on the two-column items, which are narrower than this anyway. The nested
+  // scenario boxes below are deliberately left uncapped - they hold tables, not
+  // prose, and benefit from the extra width.
+  .box-prose {
+    max-width: 950px;
+  }
+
+  .nested-accordion {
+    margin-top: 1em;
+  }
+
+  // The box bodies are bound with [innerHTML], so Angular attaches no
+  // encapsulation attribute to those elements and only ::ng-deep reaches them.
+  // Everything below is scoped to this component by the surrounding :host.
+  ::ng-deep {
+    // Button, menu and switch names. Bootstrap's default renders these in
+    // magenta at 0.875em, which reads as a link and sits below the body size.
+    code {
+      font-family: var(--bs-font-monospace);
+      font-size: 0.9em;
+      color: #2f4356;
+      background: #eef2f6;
+      border: 1px solid #dde3ea;
+      border-radius: 3px;
+      padding: 0 4px;
+      // Long names such as "Zugriffsschutz und Eigentuemerschaft editieren" wrap
+      // inside a narrow column; without this the border is drawn once around
+      // both fragments and the chip looks torn open.
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+    }
+
+    ol,
+    ul {
+      padding-left: 1.4em;
+      margin-bottom: 0.5em;
+    }
+
+    table.table {
+      // Without a fixed layout the three scenario tables size their columns
+      // from their own content, so identical headers end up at different
+      // widths and the tables no longer line up underneath each other.
+      table-layout: fixed;
+      margin-bottom: 0;
+      // Beats the global `table, th, td { color: #555 !important }` in
+      // app.scss, which otherwise makes table text lighter than the prose
+      // right above it.
+      color: #333 !important;
+
+      th,
+      td {
+        color: inherit !important;
+        vertical-align: top;
+        padding: 6px 8px;
+      }
+
+      thead th {
+        font-weight: 600;
+        border-bottom: 2px solid #d2d6de;
+      }
+
+      th:nth-child(1),
+      td:nth-child(1) {
+        width: 25%;
+      }
+
+      th:nth-child(2),
+      td:nth-child(2) {
+        width: 40%;
+      }
+
+      th:nth-child(3),
+      td:nth-child(3) {
+        width: 35%;
+      }
     }
   }
 }

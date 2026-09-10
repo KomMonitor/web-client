@@ -20,6 +20,7 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
+import { IconTranslate } from 'pipes/icon-translate.pipe';
 
 export interface GeoresourcesImportDataset extends GeoresourcesDataset {
   ID_ATTRIBUTE: any;
@@ -51,6 +52,7 @@ export interface CSVImportType {
     NgbDropdownMenu,
     ColorPickerModule,
     FormsModule,
+    IconTranslate,
   ],
 })
 export class KommonitorDataImportComponent implements OnInit {
@@ -103,20 +105,6 @@ export class KommonitorDataImportComponent implements OnInit {
       apiName: 'address',
     },
   ];
-
-  /*  $('#customFileInputColorDiv').colorpicker();
-
-  // initialize colorpicker after some time
-  // wait to ensure that elements ar available on DOM
-  setTimeout(function () {
-
-    var colorPickerInputs = $('.input-group.colorpicker-component')
-    colorPickerInputs.colorpicker();
-
-    // $('.input-group.colorpicker-component').each(function (index, value){
-    // 	$(this).colorpicker();
-    // });
-  }, 3000); */
 
   // initialize any adminLTE box widgets
   /* $('.box').boxWidget(); */
@@ -554,13 +542,6 @@ export class KommonitorDataImportComponent implements OnInit {
 
     this.fileDatasets.push(JSON.parse(JSON.stringify(dataset)));
     this.georesourceStore.displayableGeoresources.push(dataset);
-
-    setTimeout(() => {
-      setTimeout(() => {
-        // initialize colorpicker
-        //$('.input-group.colorpicker-component').colorpicker();
-      }, 350);
-    }, 350);
   }
 
   removeDataLayer(dataset) {

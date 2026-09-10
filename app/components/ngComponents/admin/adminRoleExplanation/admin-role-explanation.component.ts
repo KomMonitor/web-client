@@ -9,6 +9,8 @@ interface AccordionItem {
   /** Translation key of the HTML content (resolved via the translate pipe, bound with innerHTML). */
   content: string;
   expanded?: boolean;
+  /** Spans both grid columns - for items whose body is far taller than a pair partner. */
+  fullWidth?: boolean;
   nestedItems?: AccordionItem[];
 }
 
@@ -57,6 +59,7 @@ export class AdminRoleExplanationComponent {
     {
       title: 'ADMIN_ROLES.EXPLANATION.INDICATOR_SHARING.TITLE',
       content: 'ADMIN_ROLES.EXPLANATION.INDICATOR_SHARING.CONTENT',
+      fullWidth: true,
       nestedItems: [
         {
           title: 'ADMIN_ROLES.EXPLANATION.INDICATOR_SHARING.SCENARIO_PRIVATE.TITLE',

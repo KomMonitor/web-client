@@ -1,0 +1,87 @@
+/*
+ * Merged from the two former twins' stylesheets (183 + 123 lines). Everything
+ * that styled markup these templates do not contain was dropped: the .box*,
+ * .content*, .alert* and .prettyprint/.linenums blocks (the page uses
+ * expandable-box, NotificationService toasts and no prettyprint), plus the
+ * #controlsConfigEditSuccessAlert / #controlsConfigEditErrorAlert rules whose
+ * elements were removed when the inline alerts became toasts.
+ *
+ * `.vertical-align` was `center` in one twin and `stretch` in the other; now
+ * `stretch`, so the two 450px editor columns share a height.
+ *
+ * The twins' `.btn-success`, `.help-block` and `.with-errors` colours are gone
+ * as well. They carried Bootstrap 3 values (#5cb85c / #00a65a for the button,
+ * #a94442 for the errors) that this view rendered nowhere else in the admin
+ * area: the save button was #27ae60 against Bootstrap's #198754 in every admin
+ * dialog, and the error text #a94442 against the #dc3545 that `.help-block`
+ * and `.help-block.with-errors` already define once in app.scss. Both now come
+ * from those shared definitions — do not re-declare them here.
+ */
+
+/*
+ * The two editor columns share a height only while they actually sit side by
+ * side, so `display: block` is the default and the flex row is opt-in above the
+ * breakpoint. It cannot be the other way round: `col-12` is `flex: 0 0 auto`
+ * with `width: 100%`, so two of them inside a flex row overflow instead of
+ * wrapping.
+ *
+ * The breakpoint is `xxl` (1400px), matching the `col-12 col-xxl-6` columns in
+ * the template, and deliberately far above the `md` (768px) this used to use:
+ * media queries measure the viewport, but the admin content area is 280px
+ * narrower than it because of the fixed sidebar. At a 900px viewport each of
+ * the four editors came out 270px wide and wrapped mid-identifier; from 1400px
+ * the content area is ~1120px, which leaves a pane ~550px.
+ */
+.vertical-align {
+  display: block;
+}
+
+// Stacked, every editor is its own row and needs the gap the flex row provided.
+.form-group {
+  margin-bottom: 20px;
+}
+
+@media (min-width: 1400px) {
+  .vertical-align {
+    display: flex;
+    align-items: stretch;
+  }
+}
+
+/*
+ * Only the wrapping behaviour, no colour or size — those come from the global
+ * `.help-block` rules. The "missing parameters" hint prints a generated list of
+ * config keys, which has no natural break opportunities the moment a single key
+ * is longer than the column, so allow breaking inside a word here.
+ */
+.help-block {
+  overflow-wrap: anywhere;
+}
+
+/*
+ * No .CodeMirror rules here: CodeMirror builds its DOM in JavaScript, so those
+ * elements never get the _ngcontent attribute that emulated encapsulation
+ * scopes styles by — every rule the twins carried for them was dead code. The
+ * editors are styled by the global stylesheets instead: `.CodeMirror` in
+ * app.scss (border and font), codemirror.css and the panda-syntax theme from
+ * angular.json's `styles`, plus the programmatic setSize(null, 450).
+ */
+
+textarea {
+  width: 100%;
+  min-height: 450px;
+}
+
+/*
+ * The page's counterpart to a dialog's `.modal-footer`: same right alignment,
+ * same 0.5rem gap between the buttons and the same hairline above them. Without
+ * it the two buttons sat straight under the editor pane with nothing marking
+ * them off, while both section breaks higher up on the page have an `<hr>`.
+ *
+ * The values are Bootstrap's own modal-footer ones (0.75rem of padding, the
+ * translucent border colour) so a config page and a dialog end the same way.
+ */
+.page-actions {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--bs-border-color-translucent);
+}

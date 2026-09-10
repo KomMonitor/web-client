@@ -16,8 +16,17 @@ import { OgcService } from 'services/ogcServices/ogc.service';
 import { AdminTopicsManagementComponent } from 'components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
 
 import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
+import { TopicHierarchyFormComponent } from '../../topicHierarchyForm/topic-hierarchy-form.component';
+import { FormErrorComponent } from '../../formError/form-error.component';
+import {
+  buildTopicHierarchyForm,
+  patchTopicHierarchyFromChain,
+  topicHierarchyToApi,
+} from '../../topicHierarchyForm/topic-hierarchy-form.model';
 
 @Component({
   selector: 'app-wms-edit-modal',
@@ -26,8 +35,12 @@ import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-ste
   imports: [
     TranslateModule,
     FormsModule,
+    LoadingOverlayComponent,
+    ExpandableBoxComponent,
     ReactiveFormsModule,
     AdminTopicsManagementComponent,
+    TopicHierarchyFormComponent,
+    FormErrorComponent,
     StepperComponent,
   ],
   standalone: true,
@@ -74,13 +87,9 @@ export class WmsEditModalComponent {
     layer: new FormControl<string>('', Validators.required),
   });
 
-  datasetNameInvalid: boolean = false;
-
   // Topic hierarchy
-  georesourceTopic_mainTopic: any = null;
-  georesourceTopic_subTopic: any = null;
-  georesourceTopic_subsubTopic: any = null;
-  georesourceTopic_subsubsubTopic: any = null;
+  // Topic hierarchy — the shared four-level cascade.
+  readonly topicsForm = buildTopicHierarchyForm({ requireMainTopic: true });
 
   availableTopics!: any;
 
@@ -126,18 +135,7 @@ export class WmsEditModalComponent {
       this.currentGeoresourceDataset.topicReference
     );
 
-    if (topicHierarchy && topicHierarchy[0]) {
-      this.georesourceTopic_mainTopic = topicHierarchy[0];
-    }
-    if (topicHierarchy && topicHierarchy[1]) {
-      this.georesourceTopic_subTopic = topicHierarchy[1];
-    }
-    if (topicHierarchy && topicHierarchy[2]) {
-      this.georesourceTopic_subsubTopic = topicHierarchy[2];
-    }
-    if (topicHierarchy && topicHierarchy[3]) {
-      this.georesourceTopic_subsubsubTopic = topicHierarchy[3];
-    }
+    patchTopicHierarchyFromChain(this.topicsForm, topicHierarchy);
   }
 
   close(): void {
@@ -145,14 +143,6 @@ export class WmsEditModalComponent {
   }
 
   editWms() {
-    let topicRef = this.georesourceTopic_mainTopic;
-
-    if (this.georesourceTopic_subTopic) topicRef = this.georesourceTopic_subTopic;
-
-    if (this.georesourceTopic_subsubTopic) topicRef = this.georesourceTopic_subsubTopic;
-
-    if (this.georesourceTopic_subsubsubTopic) topicRef = this.georesourceTopic_subsubsubTopic;
-
     const data = {
       title: this.metadataForm.controls.title.value,
       description: this.metadataForm.controls.description.value,
@@ -166,7 +156,7 @@ export class WmsEditModalComponent {
         layerName: this.connectForm.controls.layer.value,
         serviceType: 'wms',
       },
-      topicReference: topicRef.topicId,
+      topicReference: topicHierarchyToApi(this.topicsForm),
       serviceResource: this.currentGeoresourceDataset.serviceResource,
     };
 
@@ -182,18 +172,11 @@ export class WmsEditModalComponent {
     });
   }
 
-  checkDatasetName() {
-    // no-op: WMS datasets require no name-uniqueness check
-  }
-
   resetWmsAddForm() {
     this.metadataForm.reset();
     this.connectForm.reset();
 
-    this.georesourceTopic_mainTopic = null;
-    this.georesourceTopic_subTopic = null;
-    this.georesourceTopic_subsubTopic = null;
-    this.georesourceTopic_subsubsubTopic = null;
+    this.topicsForm.reset();
 
     this.wmsTestStatus = undefined;
   }

@@ -4,7 +4,6 @@ import {
   NgZone,
   OnDestroy,
   OnInit,
-  ViewChild,
   inject,
   signal,
 } from '@angular/core';
@@ -12,7 +11,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridOptions } from 'ag-grid-community';
+import { ColDef, GridOptions, SelectionChangedEvent } from 'ag-grid-community';
 import { Subscription, skip } from 'rxjs';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import {
@@ -22,6 +21,8 @@ import {
 import { ProcessScriptMetadataStoreService } from 'services/process-script-metadata-store-service/process-script-metadata-store.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { KommonitorDataGridHelperService } from '../../../../services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import { ExpandableBoxComponent } from '../../common/expandable-box/expandable-box.component';
+import { LoadingOverlayComponent } from '../../common/loading-overlay/loading-overlay.component';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { ScriptIdNameTableCellRendererComponent } from './script-id-name-table-cell-renderer.component';
 import { ScriptProcessParametersCellRendererComponent } from './script-process-parameters-cell-renderer.component';
@@ -30,11 +31,19 @@ import { ScriptAddModalComponent } from './scriptAddModal/script-add-modal.compo
 import { ScriptDeleteModalComponent } from './scriptDeleteModal/script-delete-modal.component';
 
 import { TranslateModule } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { MODAL_CONFIRM, MODAL_WIDE } from 'util/modal-presets';
 @Component({
   selector: 'app-admin-script-management',
   templateUrl: './admin-script-management.component.html',
-  styleUrls: ['./admin-script-management.component.scss'],
-  imports: [TranslateModule, AgGridAngular, FormsModule, AdminContentViewComponent],
+  imports: [
+    TranslateModule,
+    AgGridAngular,
+    FormsModule,
+    AdminContentViewComponent,
+    ExpandableBoxComponent,
+    LoadingOverlayComponent,
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -46,8 +55,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
-
-  @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
+  private translate = inject(TranslateService);
 
   // Signal-backed: written from async paths (metadata fetches, store
   // subscription, modal refresh requests) that would not trigger a re-render
@@ -55,7 +63,15 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   public loadingData = signal(true);
   public initializationCompleted: boolean = false;
 
-  public defaultColDef: ColDef = this.kommonitorDataGridHelperService.buildDefaultColDef();
+  public defaultColDef: ColDef = {
+    ...this.kommonitorDataGridHelperService.buildDefaultColDef(),
+    // Same correction the group overview applies: several headers here are
+    // longer than the column they sit in ("Ziel-Indikatoren-Id" rendered as
+    // "Ziel-Indik…"), and wrapping adapts to the label length instead of
+    // requiring a width guess per translation.
+    wrapHeaderText: true,
+    autoHeaderHeight: true,
+  };
   public columnDefs: ColDef[] = [];
   // Signal-backed: rebuilt after async metadata fetches.
   public rowData = signal<any[]>([]);
@@ -106,7 +122,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   private buildColumnDefs(): void {
     this.columnDefs = [
       {
-        headerName: 'Id',
+        headerName: this.translate.instant('ADMIN_SHARED.ID'),
         field: 'scriptId',
         pinned: 'left',
         maxWidth: 125,
@@ -114,23 +130,32 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
         headerCheckboxSelection: true,
         headerCheckboxSelectionFilteredOnly: true,
       },
-      { headerName: 'Name', field: 'name', pinned: 'left', maxWidth: 300 },
       {
-        headerName: 'Ziel-Indikatoren-Id',
+        headerName: this.translate.instant('ADMIN_SHARED.NAME'),
+        field: 'name',
+        pinned: 'left',
+        maxWidth: 300,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_TARGET_INDICATOR_ID'),
         field: 'indicatorId',
         maxWidth: 125,
       },
       {
-        headerName: 'Ziel-Indikatoren-Name',
+        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_TARGET_INDICATOR_NAME'),
         minWidth: 200,
         valueGetter: (params: any) =>
           (this.indicatorStore.getIndicatorMetadataById(params.data?.indicatorId) as any)
             ?.indicatorName ?? '',
         filter: 'agTextColumnFilter',
       },
-      { headerName: 'Beschreibung', field: 'description', minWidth: 300 },
       {
-        headerName: 'notwendige Basis-Indikatoren',
+        headerName: this.translate.instant('ADMIN_SHARED.DESCRIPTION'),
+        field: 'description',
+        minWidth: 300,
+      },
+      {
+        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_REQUIRED_BASE_INDICATORS'),
         minWidth: 300,
         cellRenderer: ScriptIdNameTableCellRendererComponent,
         cellRendererParams: {
@@ -143,7 +168,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
           params.data?.requiredIndicatorIds?.join(', ') ?? 'keine',
       },
       {
-        headerName: 'notwendige Basis-Georessourcen',
+        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_REQUIRED_BASE_GEORESOURCES'),
         minWidth: 300,
         cellRenderer: ScriptIdNameTableCellRendererComponent,
         cellRendererParams: {
@@ -156,7 +181,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
           params.data?.requiredGeoresourceIds?.join(', ') ?? 'keine',
       },
       {
-        headerName: 'Prozessparameter',
+        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_PROCESS_PARAMETERS'),
         minWidth: 600,
         cellRenderer: ScriptProcessParametersCellRendererComponent,
         filter: 'agTextColumnFilter',
@@ -225,32 +250,25 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
       });
   }
 
-  public onSelectionChanged(): void {
-    if (this.agGrid?.api) {
-      this.selectedRows.set(this.agGrid.api.getSelectedRows());
-    }
+  // Reads the selection off the event rather than a view query: the grid
+  // lives in a projected ng-template. Same shape as the group overview.
+  public onSelectionChanged(event: SelectionChangedEvent): void {
+    this.selectedRows.set(event.api.getSelectedRows());
   }
 
   public onClickAddScript(): void {
     // if (!this.metadataBootstrap.checkCreatePermission()) return;
-    const modalRef = this.modalService.open(ScriptAddModalComponent, {
-      // modalDialogClass: "modal-medium",
-      size: 'xl',
-      backdrop: 'static',
-    });
+    const modalRef = this.modalService.open(ScriptAddModalComponent, MODAL_WIDE);
     (modalRef.componentInstance as ScriptAddModalComponent).refreshRequested.subscribe(
       (request: ScriptRefreshRequest) => this.handleRefreshRequest(request)
     );
   }
 
   public onClickDeleteScripts(): void {
-    const selectedScripts = this.agGrid?.api?.getSelectedRows() || [];
+    const selectedScripts = this.selectedRows();
     if (selectedScripts.length === 0) return;
 
-    const modalRef = this.modalService.open(ScriptDeleteModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
-    });
+    const modalRef = this.modalService.open(ScriptDeleteModalComponent, MODAL_CONFIRM);
     const modalComponent = modalRef.componentInstance as ScriptDeleteModalComponent;
     modalComponent.datasetsToDelete = structuredClone(selectedScripts);
     modalComponent.refreshRequested.subscribe((request: ScriptRefreshRequest) =>

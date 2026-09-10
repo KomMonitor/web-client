@@ -1,10 +1,11 @@
-<div [style.background-color]="boxColor" [style.color]="textColor">
+<div class="tile" [style.background-color]="boxColor" [style.color]="textColor">
   <div class="inner">
     <div class="title">{{ titleText }}</div>
-    <div>{{ descriptionText }}</div>
+    <div class="description">{{ descriptionText }}</div>
   </div>
-  <div class="icon">
-    <i class="{{ iconClass }}"></i>
-  </div>
-  <div class="footer"></div>
+  @if (iconClass) {
+    <div class="icon" aria-hidden="true">
+      <i class="{{ iconClass }}"></i>
+    </div>
+  }
 </div>

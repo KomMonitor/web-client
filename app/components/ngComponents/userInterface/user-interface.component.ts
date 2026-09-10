@@ -18,6 +18,7 @@ import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/me
 import { RangeFilterStateService } from 'services/range-filter-state-service/range-filter-state.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { SidebarStateService } from 'services/sidebar-state-service/sidebar-state.service';
+import { MODAL_FORM } from 'util/modal-presets';
 import { EnvConfigService } from '../../../services/env-config-service/env-config.service';
 import { CustomSliderComponent } from '../common/custom-slider/custom-slider.component';
 import { NotificationComponent } from '../common/notification/notification.component';
@@ -27,8 +28,8 @@ import { KommonitorLegendComponent } from './kommonitorLegend/kommonitor-legend.
 import { KommonitorMapComponent } from './kommonitorMap/kommonitor-map.component';
 import { ReportingBackgroundProcessorComponent } from './reporting/reporting-background-processor/reporting-background-processor.component';
 import { ReportingProgressBannerComponent } from './reporting/reporting-progress-banner/reporting-progress-banner.component';
-import { SidebarButtonsComponent } from './sidebarButtons/sidebar-buttons.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
+import { SidebarButtonsComponent } from './sidebarButtons/sidebar-buttons.component';
 
 @Component({
   selector: 'user-interface-new',
@@ -152,34 +153,9 @@ export class UserInterfaceComponent implements OnInit {
   }
 
   openInfoModal() {
-    this.modalService.open(InfoModal, {
-      windowClass: 'modal-holder',
-      centered: true,
-    });
+    this.modalService.open(InfoModal, { ...MODAL_FORM, backdrop: true, keyboard: true });
   }
 
-  /*
-
-		$scope.checkBalanceButtonAndMenueState = function(){
-			// disable if indicator is dynamic or if indicator only contains 1 or less timeseries entries
-			if(this.selectionState.selectedIndicator && (this.selectionState.selectedIndicator.indicatorType.includes("DYNAMIC") || this.selectionState.selectedIndicator.applicableDates.length < 2)){
-				$scope.buttonBalanceClass = "btn btn-custom btn-circle disabled";
-				$scope.sidebarBalanceClass = "disappear";
-			}
-			else{
-				$scope.buttonBalanceClass = "btn btn-custom btn-circle";		
-        if (kommonitorDataExchangeService.isBalanceChecked) {
-					$scope.buttonBalanceClass = "btn btn-custom btn-circle balanceActive";
-				}
-			}
-		};
-
-		$scope.$on("checkBalanceMenueAndButton", function(event){
-			$scope.checkBalanceButtonAndMenueState();
-		});
-
-
- */
   onRecenterMapButtonClick() {
     this.mapService.setMapRecenterState({ recenter: true });
   }

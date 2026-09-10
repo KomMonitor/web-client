@@ -3,13 +3,13 @@ import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hi
 import { IndicatorsTopicsHierarchy } from 'components/ngComponents/models/indicators.models';
 
 /**
- * Holds the built topic/indicator/georesource hierarchies extracted from
- * DataExchangeService (Prio 7 / B5 — see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ * Holds the built topic/indicator/georesource hierarchies. Extracted in the Prio 7
+ * god-service split.
  *
- * Stateless w.r.t. the god-service: the input collections (availableTopics,
+ * Owns no source data: the input collections (availableTopics,
  * displayable*_keywordFiltered, wms/wfs datasets, process scripts) are passed in by
- * the DataExchangeService facade. This store only delegates to TopicHierarchyService
- * and keeps the resulting hierarchy fields, which the facade re-exposes via getters.
+ * the callers — MetadataBootstrapService and MetadataFilterService. This store only
+ * delegates the building to TopicHierarchyService and keeps the resulting fields.
  */
 @Injectable({
   providedIn: 'root',

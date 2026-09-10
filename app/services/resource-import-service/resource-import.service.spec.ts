@@ -67,6 +67,18 @@ describe('ResourceImportService', () => {
     expect(service).toBeTruthy();
   });
 
+  it('forwards an explicit encoding, which only the batch update supplies', async () => {
+    await service.buildImporterObjects(baseConfig({ encoding: 'ISO-8859-1' }));
+
+    expect(importerHelper.buildConverterDefinition).toHaveBeenCalledWith(
+      expect.anything(),
+      's',
+      'application/json',
+      {},
+      'ISO-8859-1'
+    );
+  });
+
   it('builds the three definitions and forwards the form values', async () => {
     const defs = await service.buildImporterObjects(baseConfig());
 
@@ -74,7 +86,8 @@ describe('ResourceImportService', () => {
       expect.anything(),
       's',
       'application/json',
-      {}
+      {},
+      undefined
     );
     expect(importerHelper.buildDatasourceTypeDefinition).toHaveBeenCalledWith(expect.anything(), {
       foo: 'bar',
