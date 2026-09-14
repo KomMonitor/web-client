@@ -142,6 +142,77 @@ angular
         return tmpKommonitorGeoresource;
       }
 
+      this.makeGeoresourceMetadata_fromKobotoolboxDataset = function (datasetName, customColor, customMarkerColor, customIcon, type, geoJSON) {
+        let tmpKommonitorGeoresource = {
+          "allowedRoles": [
+
+          ],
+          "aoiColor": customColor,
+          "availablePeriodsOfValidity": [
+            {
+              "endDate": undefined,
+              "startDate": undefined
+            }
+          ],
+          "datasetName": datasetName,
+          "georesourceId": uuidv4(),
+          "isAOI": false,
+          "isLOI": false,
+          "isPOI": false,
+          "loiColor": customColor,
+          "loiDashArrayString": "10",
+          "loiWidth": 1,
+          "metadata": {
+            "contact": "",
+            "databasis": "",
+            "datasource": "",
+            "description": "",
+            "lastUpdate": "",
+            "literature": "",
+            "note": "",
+            "sridEPSG": 0,
+            "updateInterval": "ARBITRARY"
+          },
+          "poiMarkerColor": customMarkerColor.colorName,
+          "poiSymbolBootstrap3Name": customIcon,
+          "poiSymbolColor": "white",
+          "topicReference": "",
+          "userPermissions": [
+
+          ],
+          "wfsUrl": "",
+          "wmsUrl": ""
+        }
+
+        tmpKommonitorGeoresource.isTmpDataLayer = true;
+        tmpKommonitorGeoresource.isSelected = true;
+        tmpKommonitorGeoresource.displayColor = customColor;
+        tmpKommonitorGeoresource.type = type;
+        tmpKommonitorGeoresource.geoJSON = geoJSON;
+        tmpKommonitorGeoresource.transparency = 0;
+
+        tmpKommonitorGeoresource.featureSchema = this.getFeatureSchema_fromGeoJSON(geoJSON);
+
+        // guess geom type from first dataset
+        if (geoJSON.features) {
+          // featureCollection
+          if (geoJSON.features[0].geometry) {
+            tmpKommonitorGeoresource = this.setGeometryType(tmpKommonitorGeoresource, geoJSON.features[0].geometry);
+
+          }
+        }
+        else if (geoJSON.geometry) {
+          // single object
+          tmpKommonitorGeoresource = this.setGeometryType(tmpKommonitorGeoresource, geoJSON.geometry);
+        }
+        else if (geoJSON.geometries) {
+          // geometryCollection
+          tmpKommonitorGeoresource = this.setGeometryType(tmpKommonitorGeoresource, geoJSON.geometries[0]);
+        }
+
+        return tmpKommonitorGeoresource;
+      }
+
       this.makeGeoresourceMetadata_fromCsvRows = function (file, customColor, customMarkerColor, type, rows) {
         let tmpKommonitorGeoresource = {
           "allowedRoles": [

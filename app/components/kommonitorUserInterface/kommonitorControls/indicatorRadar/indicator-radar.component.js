@@ -455,10 +455,12 @@ angular
 							return;
 						}
 
-						if (!kommonitorFilterHelperService.featureIsCurrentlySelected(featureProperties[__env.FEATURE_ID_PROPERTY_NAME])) {
-							appendSeriesToRadarChart(featureProperties);
+						var legendIndex = $scope.radarOption.legend.data.indexOf(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
+						if (legendIndex === -1) {
+							if (!kommonitorFilterHelperService.featureIsCurrentlySelected(featureProperties[__env.FEATURE_ID_PROPERTY_NAME])) {
+								appendSeriesToRadarChart(featureProperties);
+							}
 						}
-
 						highlightFeatureInRadarChart(featureProperties);
 					});
 
@@ -555,23 +557,35 @@ angular
 
 					var removeSeriesFromRadarChart = function (featureProperties) {
 						// remove feature from legend
-						var legendIndex = $scope.radarOption.legend.data.indexOf(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
-						if (legendIndex > -1) {
-							$scope.radarOption.legend.data.splice(legendIndex, 1);
-						}
+						var targetIndices = [];
 
-						// remove feature data series
-						var dataIndex = getSeriesDataIndexByFeatureName(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
-						if (dataIndex > -1) {
-							$scope.radarOption.series[0].data.splice(dataIndex, 1);
-						}
+						$scope.radarOption.legend.data.forEach((val, i) => {
+							if (val === featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]) {
+								targetIndices.push(i);
+							}
+						});
 
-						// second parameter tells echarts to not merge options with previous data. hence really remove series from graphic
-						$scope.radarChart.setOption($scope.radarOption, true);
-						setTimeout(function () {
-							$scope.radarChart.resize();
-						}, 350);
-						registerEventsIfNecessary();
+						targetIndices.forEach(legendIndex => {
+							if (legendIndex > -1) {
+								$scope.radarOption.legend.data.splice(legendIndex, 1);
+
+								// check resize radar div based on legend entries (for printLayout)
+								// checkResizeRadarChart();
+
+								// remove feature data series
+								var dataIndex = getSeriesDataIndexByFeatureName(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
+								if (dataIndex > -1) {
+									$scope.radarOption.series[0].data.splice(dataIndex, 1);
+								}
+
+								// second parameter tells echarts to not merge options with previous data. hence really remove series from graphic
+								$scope.radarChart.setOption($scope.radarOption, true);
+								setTimeout(function () {
+									$scope.radarChart.resize();
+								}, 350);
+								registerEventsIfNecessary();
+							}
+						});
 					};
 
 					var unhighlightFeatureInRadarChart = function (featureProperties) {

@@ -475,6 +475,9 @@ var urlRequiresKeycloakAuthHeader = function(url){
   if (url.includes("routes")){
     return false;
   }
+  if (url.includes("ogito")){
+    return false;
+  }
 
   // for KomMonitor public requests we do not need any authentication
   if (url.includes("/public/")){
