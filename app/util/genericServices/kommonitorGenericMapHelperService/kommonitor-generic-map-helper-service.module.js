@@ -501,12 +501,15 @@ angular
 
         // DiKomAll special cases
 
-        // DiKomAll loud and quiet places
+        // DiKomAll loud and quiet places and measures
         if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("laut")){
           sym = "icons/noise-loud.png";
         }
         if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("ruhige")){
           sym = "icons/quiet-place.png";
+        }
+        if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("maßnahmen")){
+          sym = "icons/actionitem.png";
         }
 
         // DiKomAll map brewer special cases 
@@ -590,11 +593,14 @@ angular
         markerColor = poiMarkerColor;
 
         // DiKomAll loud and quiet places
-        if(poiFeature.datasetName && poiFeature.datasetName.toLowerCase().includes("laut")){
+        if(metadataObject.datasetName && metadataObject.datasetName.toLowerCase().includes("laut")){
           markerColor = "red"; // default marker color
         }
-        if(poiFeature.datasetName && poiFeature.datasetName.toLowerCase().includes("ruhige")){
+        if(metadataObject.datasetName && metadataObject.datasetName.toLowerCase().includes("ruhige")){
           markerColor = "#3b82f6"; // default marker color
+        }
+        if(metadataObject.datasetName && metadataObject.datasetName.toLowerCase().includes("Maßnahmen")){
+          markerColor = "orange"; // default marker color
         }
 
 

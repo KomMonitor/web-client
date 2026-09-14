@@ -19,6 +19,8 @@ angular
 
         let self = this;
 
+        let filterByLayerName = "laut und leise";
+
         this.targetURLToOgito_WFS = "https://ogito.hs-gesundheit.de/cgi-bin/qgis_mapserv.fcgi?SERVICE=WFS&map=/home/qgis/projects/lap_bo_workshop.qgs";
 
         this.init = function(){
@@ -160,21 +162,26 @@ angular
         // type can be 'quiet' or 'noise' 
         this.filterForSpecificLayer = function(geoJSON, type){
           let filteredFeatures = geoJSON.features.filter(function(feature){
-            let passed = false;
-            // if(feature.properties.layername == "PartWiss"){
-            //   if(type == 'quiet' && quietColorNames.includes(feature.properties.style)){
-            //     passed = true;
-            //   }
-            //   else if(type == 'noise' && noiseColorNames.includes(feature.properties.style)){
-            //     passed = true;
-            //   }
-            // }
-            if(type == 'quiet' && quietColorNames.includes(feature.properties.style)){
+            let passed = false;      
+            // DiKomAll OGITO measures / Maßnahmen
+            if(feature.id.includes("measures") ){
+              passed = true;
+            }      
+            if(feature.properties.layername && (feature.properties.layername == filterByLayerName)){
+
+              if(type == 'quiet' && quietColorNames.includes(feature.properties.style)){
                 passed = true;
               }
               else if(type == 'noise' && noiseColorNames.includes(feature.properties.style)){
                 passed = true;
               }
+            }
+            // if(type == 'quiet' && quietColorNames.includes(feature.properties.style)){
+            //     passed = true;
+            //   }
+            //   else if(type == 'noise' && noiseColorNames.includes(feature.properties.style)){
+            //     passed = true;
+            //   }
             return passed 
           });
 
