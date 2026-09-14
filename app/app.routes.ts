@@ -49,6 +49,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'spatial-unit-hierarchies',
+        loadComponent: () =>
+          import('components/ngComponents/admin/adminSpatialUnitHierarchies/admin-spatial-unit-hierarchies.component').then(
+            (m) => m.AdminSpatialUnitHierarchiesComponent
+          ),
+      },
+      {
         path: 'indicators',
         loadComponent: () =>
           import('components/ngComponents/admin/adminIndicatorsManagement/admin-indicators-management.component').then(

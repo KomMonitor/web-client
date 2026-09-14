@@ -1,0 +1,66 @@
+<app-admin-content-view
+  [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.OVERVIEW.TITLE' | translate"
+  [description]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.OVERVIEW.DESCRIPTION' | translate"
+  [controlsTemplate]="controls"
+  [contentTemplate]="content"
+>
+</app-admin-content-view>
+
+<ng-template #controls>
+  <div class="form-check form-switch">
+    <input
+      class="form-check-input"
+      type="checkbox"
+      id="spatial-unit-hierarchies-show-ids"
+      [checked]="showIds()"
+      (change)="onShowIdsChange($event)"
+    />
+    <label class="form-check-label" for="spatial-unit-hierarchies-show-ids">
+      {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.SHOW_IDS' | translate }}
+    </label>
+  </div>
+</ng-template>
+
+<ng-template #content>
+  <div class="alert alert-info">
+    {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.OVERVIEW.PLACEHOLDER' | translate }}
+  </div>
+
+  @for (hierarchy of hierarchies; track hierarchy.id) {
+    <app-collapsible-section
+      [title]="hierarchy.name"
+      [meta]="
+        'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.LEVEL_COUNT'
+          | translate: { count: hierarchy.levelCount }
+      "
+      [idLabel]="hierarchy.id"
+      [showId]="showIds()"
+      [(open)]="hierarchy.open"
+    >
+      <button
+        header-actions
+        type="button"
+        class="btn btn-sm btn-warning"
+        (click)="onAction('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.EDIT', hierarchy)"
+      >
+        {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.EDIT' | translate }}
+      </button>
+      <button
+        header-actions
+        type="button"
+        class="btn btn-sm btn-danger"
+        (click)="onAction('ADMIN_SHARED.DELETE', hierarchy)"
+      >
+        {{ 'ADMIN_SHARED.DELETE' | translate }}
+      </button>
+
+      <!-- Filler: the real level chain lands here once the backend is wired up. -->
+      <p class="lorem">
+        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
+        invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam
+        et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est
+        Lorem ipsum dolor sit amet.
+      </p>
+    </app-collapsible-section>
+  }
+</ng-template>

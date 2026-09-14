@@ -1251,6 +1251,8 @@
       "TOPICS": "Themenverwaltung",
       "GEODATA_MGMT": "Geodatenverwaltung",
       "SPATIAL_UNITS": "Raumebenen",
+      "SPATIAL_UNIT_METADATA": "Metadaten",
+      "SPATIAL_UNIT_HIERARCHIES": "Raumeinheitshierarchien",
       "INDICATORS": "Indikatoren",
       "GEORESOURCES": "Georessourcen",
       "SCRIPTS": "Skriptverwaltung",
@@ -1554,6 +1556,19 @@
       "COL_VISIBLE": "Sichtbar",
       "TITLE_PREFIX": "Globalen Filter",
       "TITLE_SUFFIX": "editieren"
+    }
+  },
+  "ADMIN_SPATIAL_UNIT_HIERARCHIES": {
+    "OVERVIEW": {
+      "TITLE": "Verwalten der Raumeinheitshierarchien",
+      "DESCRIPTION": "Pflege der Hierarchien, in denen Raumebenen zueinander in Beziehung stehen",
+      "PLACEHOLDER": "Die Hierarchieverwaltung wird derzeit umgesetzt. Die folgenden Hierarchien sind Beispieldaten aus dem Entwurf und noch nicht mit dem Backend verbunden."
+    },
+    "DEMO": {
+      "SHOW_IDS": "IDs anzeigen",
+      "LEVEL_COUNT": "{{count}} Ebenen",
+      "EDIT": "Bearbeiten",
+      "ACTION_CLICKED": "Aktion „{{action}}“ für „{{hierarchy}}“ — Demo ohne Funktion."
     }
   },
   "ADMIN_SPATIAL_UNITS": {

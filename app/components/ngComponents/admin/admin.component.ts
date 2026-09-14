@@ -8,7 +8,7 @@ import { SessionValidityComponent } from '../common/userLogin/session-validity/s
 import { UserLoginComponent } from '../common/userLogin/user-login.component';
 
 // Child route slugs whose parent group should auto-expand on (re)load.
-const GEODATA_ROUTES = ['spatial-units', 'indicators', 'georesources'];
+const GEODATA_ROUTES = ['spatial-units', 'spatial-unit-hierarchies', 'indicators', 'georesources'];
 const SETTINGS_ROUTES = ['settings', 'widgets', 'filters'];
 
 @Component({
