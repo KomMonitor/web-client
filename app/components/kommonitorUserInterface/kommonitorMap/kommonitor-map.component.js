@@ -575,7 +575,7 @@ angular.module('kommonitorMap').component(
             }
           };
 
-          $scope.layerControl = L.control.groupedLayers($scope.baseMaps, $scope.groupedOverlays, {collapsed: false, position: 'topleft', sortableLayers });
+          $scope.layerControl = L.control.groupedLayers($scope.baseMaps, $scope.groupedOverlays, {collapsed: true, position: 'topleft', sortableLayers });
           $scope.map.addControl($scope.layerControl);
 
           // OSM Buildings layer

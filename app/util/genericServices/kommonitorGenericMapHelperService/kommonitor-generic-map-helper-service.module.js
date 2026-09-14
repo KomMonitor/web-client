@@ -498,6 +498,18 @@ angular
 
       this.getPoiSymbol = function(poiMetadataObject){
         let sym = "icons/metacom/apotheke.jpg"; // default symbol
+
+        // DiKomAll special cases
+
+        // DiKomAll loud and quiet places
+        if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("laut")){
+          sym = "icons/noise-loud.png";
+        }
+        if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("ruhige")){
+          sym = "icons/quiet-place.png";
+        }
+
+        // DiKomAll map brewer special cases 
         if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("bäckerei")){
           sym = "icons/metacom/baeckerei.png";
         }
@@ -574,8 +586,16 @@ angular
         const sym = this.getPoiSymbol(metadataObject); 
 
         // #3b82f6 is the default blue color for the marker pin, but it can be customized via the poiMarkerColor parameter. The symbol color can also be customized via the poiSymbolColor parameter. For simplicity, the marker pin color is not changed based on the dataset in this example, but it could be extended to do so if desired.
-        let markerColor = "#3b82f6"; // default marker color
+        let markerColor = "#3b82f6"; // default marker color        
         markerColor = poiMarkerColor;
+
+        // DiKomAll loud and quiet places
+        if(poiFeature.datasetName && poiFeature.datasetName.toLowerCase().includes("laut")){
+          markerColor = "red"; // default marker color
+        }
+        if(poiFeature.datasetName && poiFeature.datasetName.toLowerCase().includes("ruhige")){
+          markerColor = "#3b82f6"; // default marker color
+        }
 
 
         // if (__env.initialSymbolStyle === 'photos' && iconUrl) {

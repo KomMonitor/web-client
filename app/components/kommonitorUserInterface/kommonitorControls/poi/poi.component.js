@@ -180,7 +180,8 @@ angular
 							}
 						}
 					}	
-					else{
+					if(__env.placeName && __env.placeName.toLowerCase().includes("kiz"))
+					{
 						for (const element of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered) {
 						if(element.isPOI && (element.datasetName.toLowerCase().includes("kiz") )){
 								element.isSelected = true;
