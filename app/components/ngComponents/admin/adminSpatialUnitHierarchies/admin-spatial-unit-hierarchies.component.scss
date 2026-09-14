@@ -1,7 +1,90 @@
-:host {
-  .lorem {
+// No `:host` wrapper on the row classes, on purpose: the tree renders the
+// appTreeRow template a second time inside the CDK drag preview, which lives
+// under <body>. A `:host .x` selector would stop matching there, a flat
+// `.x` selector keeps working because the element still carries this
+// component's `_ngcontent` attribute.
+
+.level-rank {
+  flex: none;
+  min-width: 54px;
+  font-size: 12px;
+  line-height: 1.2;
+  color: #8598a5;
+}
+
+.level-name {
+  min-width: 0;
+  font-size: 15.5px;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.level-id {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  line-height: 1.2;
+  color: #7d93a1;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: #eef2f6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.level-spacer {
+  flex: 1 1 auto;
+}
+
+// Step a level one position along the chain. Quiet chrome, like the draft.
+.level-move {
+  flex: none;
+  padding: 4px 9px;
+  border: 1px solid #c3d2dd;
+  border-radius: 3px;
+  background: #ffffff;
+  color: #5b7482;
+  font-size: 12.5px;
+  line-height: 1.2;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: #eef2f6;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+}
+
+// Live JSON inspector under the tree.
+.json-view {
+  margin: 12px 0 0;
+
+  figcaption {
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #8598a5;
+    margin-bottom: 6px;
+  }
+
+  pre {
     margin: 0;
-    max-width: 80ch;
-    color: #555;
+    padding: 10px 12px;
+    max-height: 600px;
+    overflow: auto;
+    background: #eef2f6;
+    border: 1px solid #d7e3ec;
+    border-radius: 3px;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #44606f;
   }
 }

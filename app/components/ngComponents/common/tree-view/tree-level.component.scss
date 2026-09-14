@@ -1,0 +1,203 @@
+// NOTE: no `:host` wrapper anywhere in this file, on purpose. The CDK drag
+// preview is reparented to <body>, so it is no longer a descendant of the host
+// element — `:host .tree-row` would stop matching it. Flat class selectors keep
+// working because the preview is rendered from this component's own template and
+// therefore carries its `_ngcontent` attribute. For the same reason every custom
+// property below repeats a literal fallback: `--km-tree-*` is declared on the
+// `app-tree-view` host and does not inherit down to <body>.
+
+.tree-level {
+  display: flex;
+  flex-direction: column;
+}
+
+.tree-node {
+  display: flex;
+  flex-direction: column;
+}
+
+.tree-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 9px 12px;
+  margin-bottom: 6px;
+  background: var(--km-tree-row-bg, #ffffff);
+  border: 1px solid var(--km-tree-row-border, #d7e3ec);
+  // Depth rail. Transparent by default so `tone-none` and `tone-filled` keep
+  // the same box metrics as `tone-accent` and rows never shift by a tone.
+  border-left: 3px solid transparent;
+  border-radius: 3px;
+  color: var(--km-tree-row-fg, #22404f);
+
+  &.clickable {
+    cursor: pointer;
+  }
+}
+
+.tree-row-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+// Pushes the row content in without narrowing the row itself ('text' indent mode).
+.tree-text-indent {
+  flex: none;
+}
+
+.tree-drag-handle {
+  flex: none;
+  color: var(--km-tree-handle-fg, #a8bcc9);
+  font-size: 13px;
+  letter-spacing: 1px;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.tree-caret {
+  flex: none;
+  width: 16px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--km-tree-caret-fg, #5b7482);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1;
+  text-align: center;
+  cursor: pointer;
+
+  &.placeholder {
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+}
+
+// Depth rails. Two visible steps like the design draft — the root level is
+// lighter than everything below it — but all four are overridable.
+.tree-row.tone-accent-0 {
+  border-left-color: var(--km-tree-level-accent-0, #bfd8e8);
+}
+
+.tree-row.tone-accent-1 {
+  border-left-color: var(--km-tree-level-accent-1, #8fbcd8);
+}
+
+.tree-row.tone-accent-2 {
+  border-left-color: var(--km-tree-level-accent-2, #8fbcd8);
+}
+
+.tree-row.tone-accent-3 {
+  border-left-color: var(--km-tree-level-accent-3, #8fbcd8);
+}
+
+// Filled rows carry the depth tint across the whole box — the look the admin
+// topic tree uses today.
+.tree-row.tone-filled-0 {
+  background: var(--km-tree-level-bg-0, #84afd5);
+  color: var(--km-tree-level-fg-0, #212529);
+}
+
+.tree-row.tone-filled-1 {
+  background: var(--km-tree-level-bg-1, #adcae3);
+  color: var(--km-tree-level-fg-1, #212529);
+}
+
+.tree-row.tone-filled-2 {
+  background: var(--km-tree-level-bg-2, #d6e4f1);
+  color: var(--km-tree-level-fg-2, #212529);
+}
+
+.tree-row.tone-filled-3 {
+  background: var(--km-tree-level-bg-3, #eaf1f8);
+  color: var(--km-tree-level-fg-3, #212529);
+}
+
+// Deliberately no `display` here: this is the element ngbCollapse toggles, and
+// Bootstrap hides it with `.collapse:not(.show) { display: none }`. That rule has
+// the same specificity as a component-scoped `.tree-children`, so any `display`
+// set here would win on source order and the subtree would never collapse.
+.tree-children {
+  // Nested levels are components; without this they would lay out inline.
+  app-tree-level {
+    display: block;
+  }
+}
+
+.tree-node-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+// Slot at an opened gap. Positioning only — the caller's content brings its own
+// box, so the tree stays free of any "insert panel" notion.
+.tree-gap {
+  display: flex;
+  align-items: center;
+  margin: 2px 0 8px;
+}
+
+// Dashed insert affordance: present but quiet until pointed at.
+.tree-insert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--km-tree-insert-fg, #2273a5);
+  font-size: 12px;
+  line-height: 1.2;
+  text-align: left;
+  cursor: pointer;
+  opacity: 0.25;
+
+  &:hover,
+  &:focus-visible {
+    opacity: 1;
+  }
+}
+
+.tree-insert-label {
+  flex: none;
+  white-space: nowrap;
+}
+
+.tree-insert-line {
+  flex: 1 1 auto;
+  height: 1px;
+  border-top: 1px dashed var(--km-tree-insert-line, #9fb8c9);
+}
+
+// Drag feedback. The preview is the one piece that lives outside the component's
+// DOM subtree — see the note at the top of this file.
+.tree-row-preview {
+  box-sizing: border-box;
+  margin-bottom: 0;
+  box-shadow:
+    0 5px 5px -3px rgb(0 0 0 / 0.2),
+    0 8px 10px 1px rgb(0 0 0 / 0.14),
+    0 3px 14px 2px rgb(0 0 0 / 0.12);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.5;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}

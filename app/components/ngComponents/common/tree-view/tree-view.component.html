@@ -1,0 +1,7 @@
+<div class="tree-view" role="tree">
+  <app-tree-level [nodes]="nodes()" [depth]="0" [parent]="null" />
+</div>
+
+<!-- The caller's appTreeRow / appTreeNodeFooter templates live here but render
+     nothing on their own; they are picked up via contentChild. -->
+<ng-content></ng-content>

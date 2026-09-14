@@ -1564,11 +1564,30 @@
       "DESCRIPTION": "Maintenance of the hierarchies that relate spatial unit levels to each other",
       "PLACEHOLDER": "Hierarchy management is currently being implemented. The hierarchies below are example data from the design draft and are not connected to the backend yet."
     },
+    "REGISTER_MODAL": {
+      "TITLE": "Register a new spatial unit level",
+      "NAME_LABEL": "Name of the spatial unit level",
+      "SUBMIT": "Register"
+    },
     "DEMO": {
       "SHOW_IDS": "Show IDs",
       "LEVEL_COUNT": "{{count}} levels",
+      "LEVEL_RANK": "Level {{rank}}",
       "EDIT": "Edit",
-      "ACTION_CLICKED": "Action \"{{action}}\" on \"{{hierarchy}}\" — demo only, nothing happens."
+      "REMOVE": "Remove",
+      "REMOVED": "Level \"{{level}}\" removed from the hierarchy.",
+      "JSON_TITLE": "Hierarchy data structure",
+      "MOVE_UP": "One hierarchy level up",
+      "MOVE_DOWN": "One hierarchy level down",
+      "INSERT_LEVEL": "＋ Insert level here",
+      "INSERT_EXISTING": "Insert an existing spatial unit level",
+      "INSERT_ADD": "Add",
+      "INSERT_OR": "or",
+      "INSERT_REGISTER": "register a new level",
+      "POOL_EMPTY": "No further spatial unit level available —",
+      "TOGGLE_LABEL": "Toggle sub-levels",
+      "ACTION_CLICKED": "Action \"{{action}}\" on \"{{hierarchy}}\" — demo only, nothing happens.",
+      "INSERTED": "Level \"{{level}}\" inserted into the hierarchy."
     }
   },
   "ADMIN_SPATIAL_UNITS": {

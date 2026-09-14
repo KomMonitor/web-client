@@ -1,45 +1,36 @@
-import { ChangeDetectionStrategy, Component, WritableSignal, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { CollapsibleSectionComponent } from '../../common/collapsible-section/collapsible-section.component';
 import { NotificationService } from '../../common/notification/notification.service';
+import { TreeGapDirective, TreeRowDirective } from '../../common/tree-view/tree-row.directive';
+import { TreeViewComponent } from '../../common/tree-view/tree-view.component';
+import { TreeGap } from '../../common/tree-view/tree-view.model';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
-
-interface DemoHierarchy {
-  readonly id: string;
-  readonly name: string;
-  readonly levelCount: number;
-  readonly open: WritableSignal<boolean>;
-}
-
-/** Chains from the design draft. */
-const DEMO_DATA: readonly { id: string; name: string; levelCount: number; open: boolean }[] = [
-  {
-    id: 'a1f5c803-72d9-4b6e-8f14-3ce90ab27d56',
-    name: 'Verwaltungsgliederung',
-    levelCount: 5,
-    open: true,
-  },
-  {
-    id: '6c8be214-90f7-4a35-b1d8-27ea54c3f9b0',
-    name: 'Sozialraum-Gliederung',
-    levelCount: 4,
-    open: false,
-  },
-];
+import { createDemoHierarchies } from './hierarchy-demo.data';
+import { DemoHierarchy, DemoLevel } from './hierarchy-demo.model';
+import { LevelPickerPanelComponent } from './levelPickerPanel/level-picker-panel.component';
 
 /**
  * Management of spatial unit hierarchies — the chains that order spatial unit
  * levels from the coarsest to the finest.
  *
- * The page currently shows two hierarchies of the design draft as static demo
- * data so the layout can be reviewed; nothing here talks to the backend yet.
+ * The page currently shows a hierarchy of the design draft as static demo data
+ * so the layout can be reviewed; nothing here talks to the backend yet.
  */
 @Component({
   selector: 'app-admin-spatial-unit-hierarchies',
   templateUrl: './admin-spatial-unit-hierarchies.component.html',
   styleUrls: ['./admin-spatial-unit-hierarchies.component.scss'],
-  imports: [TranslateModule, AdminContentViewComponent, CollapsibleSectionComponent],
+  imports: [
+    TranslateModule,
+    AdminContentViewComponent,
+    CollapsibleSectionComponent,
+    TreeViewComponent,
+    TreeRowDirective,
+    TreeGapDirective,
+    LevelPickerPanelComponent,
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -49,23 +40,89 @@ export class AdminSpatialUnitHierarchiesComponent {
 
   readonly showIds = signal(false);
 
-  readonly hierarchies: readonly DemoHierarchy[] = DEMO_DATA.map((h) => ({
-    ...h,
-    open: signal(h.open),
-  }));
+  readonly hierarchies: readonly DemoHierarchy[] = createDemoHierarchies();
+
+  // Note on drag & drop: the tree reorders among siblings, and a chain gives every
+  // level exactly one child — so every drop list would hold a single item and a
+  // drag could never change anything. Moving a level is what ▲/▼ do instead. The
+  // tree keeps its drag & drop for branching trees, where siblings exist.
+
+  /**
+   * A hierarchy is a chain, so every level holds exactly one child and only the
+   * gap *before* it names a position of its own: the gap after that child would
+   * address the same slot as the leading gap one level deeper. The deepest level
+   * has no child, so its leading gap is the "append at the end" position.
+   */
+  protected readonly leadingGapOnly = (gap: TreeGap<DemoLevel>): boolean => gap.index === 0;
+
+  /** The chain nests under `children`, not under the tree's `subTopics` default. */
+  protected readonly levelChildren = (level: DemoLevel): readonly DemoLevel[] => level.children;
+  protected readonly levelId = (level: DemoLevel): string => level.id;
 
   protected onShowIdsChange(event: Event): void {
     this.showIds.set((event.target as HTMLInputElement).checked);
   }
 
-  /** Demo feedback: proves the projected header buttons receive their clicks. */
-  protected onAction(action: string, hierarchy: DemoHierarchy): void {
-    this.notificationService.show(
-      this.translateService.instant('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.ACTION_CLICKED', {
-        action: this.translateService.instant(action),
-        hierarchy: hierarchy.name,
-      }),
-      { autohide: true, delay: 3000 }
-    );
+  protected levelIndex(hierarchy: DemoHierarchy, level: DemoLevel): number {
+    return hierarchy.chain().findIndex((entry) => entry.id === level.id);
+  }
+
+  protected canMove(hierarchy: DemoHierarchy, level: DemoLevel, offset: number): boolean {
+    const target = this.levelIndex(hierarchy, level) + offset;
+    return target >= 0 && target < hierarchy.chain().length;
+  }
+
+  /**
+   * Moves a level one step along the chain, i.e. swaps it with the level above
+   * or below it in the hierarchy. The tree re-nests itself from the new order.
+   */
+  protected moveLevel(hierarchy: DemoHierarchy, level: DemoLevel, offset: number): void {
+    const index = this.levelIndex(hierarchy, level);
+    const target = index + offset;
+    if (index < 0 || target < 0 || target >= hierarchy.chain().length) {
+      return;
+    }
+
+    hierarchy.chain.update((entries) => {
+      const next = [...entries];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
+  }
+
+  /**
+   * Takes a level out of the chain. The neighbours close up, so the level below
+   * moves under the one above. The last remaining level cannot be removed — an
+   * empty hierarchy has no meaning.
+   */
+  protected removeLevel(hierarchy: DemoHierarchy, level: DemoLevel): void {
+    if (hierarchy.chain().length <= 1) {
+      return;
+    }
+
+    hierarchy.chain.update((entries) => entries.filter((entry) => entry.id !== level.id));
+    // Drop the expansion entry as well, so a re-added level does not come back open.
+    hierarchy.expandedIds.update((ids) => {
+      const next = new Set(ids);
+      next.delete(level.id);
+      return next;
+    });
+
+    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.REMOVED', { level: level.name });
+  }
+
+  /** Demo feedback: proves the projected header and row buttons receive their clicks. */
+  protected onAction(actionKey: string, subject: string): void {
+    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.ACTION_CLICKED', {
+      action: this.translateService.instant(actionKey),
+      hierarchy: subject,
+    });
+  }
+
+  private notify(key: string, params: Record<string, unknown>): void {
+    this.notificationService.show(this.translateService.instant(key, params), {
+      autohide: true,
+      delay: 3000,
+    });
   }
 }

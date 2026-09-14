@@ -1564,11 +1564,30 @@
       "DESCRIPTION": "Pflege der Hierarchien, in denen Raumebenen zueinander in Beziehung stehen",
       "PLACEHOLDER": "Die Hierarchieverwaltung wird derzeit umgesetzt. Die folgenden Hierarchien sind Beispieldaten aus dem Entwurf und noch nicht mit dem Backend verbunden."
     },
+    "REGISTER_MODAL": {
+      "TITLE": "Neue Raumebene registrieren",
+      "NAME_LABEL": "Name der Raumebene",
+      "SUBMIT": "Registrieren"
+    },
     "DEMO": {
       "SHOW_IDS": "IDs anzeigen",
       "LEVEL_COUNT": "{{count}} Ebenen",
+      "LEVEL_RANK": "Ebene {{rank}}",
       "EDIT": "Bearbeiten",
-      "ACTION_CLICKED": "Aktion „{{action}}“ für „{{hierarchy}}“ — Demo ohne Funktion."
+      "REMOVE": "Entfernen",
+      "REMOVED": "Ebene „{{level}}“ aus der Hierarchie entfernt.",
+      "JSON_TITLE": "Datenstruktur der Hierarchie",
+      "MOVE_UP": "Eine Hierarchie-Ebene nach oben",
+      "MOVE_DOWN": "Eine Hierarchie-Ebene nach unten",
+      "INSERT_LEVEL": "＋ Ebene hier einfügen",
+      "INSERT_EXISTING": "Bestehende Raumebene einfügen",
+      "INSERT_ADD": "Anfügen",
+      "INSERT_OR": "oder",
+      "INSERT_REGISTER": "neue Ebene registrieren",
+      "POOL_EMPTY": "Keine weitere Raumebene verfügbar —",
+      "TOGGLE_LABEL": "Unterebenen ein-/ausklappen",
+      "ACTION_CLICKED": "Aktion „{{action}}“ für „{{hierarchy}}“ — Demo ohne Funktion.",
+      "INSERTED": "Ebene „{{level}}“ in die Hierarchie eingefügt."
     }
   },
   "ADMIN_SPATIAL_UNITS": {
