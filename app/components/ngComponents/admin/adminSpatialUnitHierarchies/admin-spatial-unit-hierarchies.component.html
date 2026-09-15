@@ -67,6 +67,9 @@
           <p class="hierarchy-description">{{ description }}</p>
         }
 
+        <!-- The insert line at the end of the chain appends below the deepest
+             level, so it is drawn one step in like every other one. The default
+             indent cap would flatten that step away from the fifth level on. -->
         <app-tree-view
           [nodes]="hierarchy.levels()"
           [idOf]="levelId"
@@ -74,7 +77,9 @@
           indentMode="row"
           [(expandedIds)]="hierarchy.expandedIds"
           [insertLabel]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.INSERT_LEVEL' | translate"
-          [canInsertAt]="leadingGapOnly"
+          [canInsertAt]="gapFilter(hierarchy)"
+          [trailingGapAsChild]="true"
+          [maxIndent]="200"
           [(openGap)]="hierarchy.openGap"
           [toggleLabel]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.TOGGLE_LABEL' | translate"
         >

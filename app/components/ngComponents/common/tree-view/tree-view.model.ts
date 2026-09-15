@@ -91,6 +91,7 @@ export interface TreeViewHost<T> {
   readonly reorderable: Signal<boolean>;
   readonly insertLabel: Signal<string | undefined>;
   readonly canInsertAt: Signal<(gap: TreeGap<T>) => boolean>;
+  readonly trailingGapAsChild: Signal<boolean>;
   readonly toggleLabel: Signal<string | undefined>;
   readonly toggleOnRowClick: Signal<boolean>;
 

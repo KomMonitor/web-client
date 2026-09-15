@@ -96,6 +96,17 @@ export class TreeViewComponent<T> implements TreeViewHost<T> {
   readonly canInsertAt = input<(gap: TreeGap<T>) => boolean>(() => true);
 
   /**
+   * Draws the gap after the last sibling of a level one step deeper, at the
+   * indent of a child rather than of a sibling. For a chain that is what the
+   * position means: below the deepest level there are no siblings left, so
+   * appending there adds a child to it, and the indent says so.
+   *
+   * Only the trailing gap of a non-empty level is affected — in an empty level
+   * the single gap is the first position, not an append.
+   */
+  readonly trailingGapAsChild = input(false);
+
+  /**
    * Emitted when an insert line is clicked — but only while no `appTreeGap`
    * template is projected. With one, the click opens that slot instead and the
    * caller acts from inside it.

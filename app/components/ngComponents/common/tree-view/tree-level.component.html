@@ -51,9 +51,15 @@
   once after the last one, so it lives in a template rather than twice inline.
 -->
 <ng-template #gapSlot let-index>
+  @let gapIndentation = gapIndent(index);
+
   @if (host.isGapOpen(parentId(), index)) {
-    <div class="tree-gap" [style.margin-left.px]="indent().row">
-      <span class="tree-text-indent" aria-hidden="true" [style.width.px]="indent().text"></span>
+    <div class="tree-gap" [style.margin-left.px]="gapIndentation.row">
+      <span
+        class="tree-text-indent"
+        aria-hidden="true"
+        [style.width.px]="gapIndentation.text"
+      ></span>
       <ng-container
         *ngTemplateOutlet="host.gapTemplate() ?? null; context: gapContext(index)"
       ></ng-container>
@@ -63,10 +69,14 @@
       <button
         type="button"
         class="tree-insert"
-        [style.margin-left.px]="indent().row"
+        [style.margin-left.px]="gapIndentation.row"
         (click)="onInsert(index)"
       >
-        <span class="tree-text-indent" aria-hidden="true" [style.width.px]="indent().text"></span>
+        <span
+          class="tree-text-indent"
+          aria-hidden="true"
+          [style.width.px]="gapIndentation.text"
+        ></span>
         <span class="tree-insert-label">{{ insertLabel }}</span>
         <span class="tree-insert-line" aria-hidden="true"></span>
       </button>

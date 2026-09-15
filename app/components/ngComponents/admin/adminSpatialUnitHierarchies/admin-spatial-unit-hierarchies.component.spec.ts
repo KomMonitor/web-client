@@ -11,7 +11,7 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { NotificationService } from '../../common/notification/notification.service';
 import { AdminSpatialUnitHierarchiesComponent } from './admin-spatial-unit-hierarchies.component';
 import { createDemoHierarchies } from './hierarchy-demo.data';
-import { DemoLevel } from './hierarchy-demo.model';
+import { chainPosition, DemoLevel } from './hierarchy-demo.model';
 
 /** The remove button of the row at `rowIndex`. */
 function removeButton(fixture: ComponentFixture<unknown>, rowIndex: number): HTMLButtonElement {
@@ -315,6 +315,58 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     // Five levels means six positions: above each level, plus one at the end.
     // A trailing gap per nesting level would duplicate all but the outermost.
     expect(fixture.debugElement.queryAll(By.css('.tree-insert')).length).toBe(6);
+  });
+
+  it('offers the last insert line where it can be reached — after the deepest level', () => {
+    fixture.detectChanges();
+
+    const hierarchy = component.hierarchies()[0];
+    const lines = fixture.debugElement.queryAll(By.css('.tree-insert'));
+    const last = lines[lines.length - 1].nativeElement as HTMLElement;
+
+    // Not inside the folded-away children area of the deepest level: that area
+    // has no caret, so a line in there could never be clicked.
+    expect(last.closest('.tree-children:not(.show)')).toBeNull();
+
+    last.click();
+    fixture.detectChanges();
+
+    expect(chainPosition(hierarchy, hierarchy.openGap()!)).toBe(hierarchy.chain().length);
+  });
+
+  it('steps the insert lines in one level at a time, the last one included', () => {
+    fixture.detectChanges();
+
+    const indents = fixture.debugElement
+      .queryAll(By.css('.tree-insert'))
+      .map((line) => (line.nativeElement as HTMLElement).style.marginLeft);
+
+    // One step per level, and the appending line below the deepest level keeps
+    // the rhythm instead of repeating its indent.
+    expect(indents).toEqual(['0px', '20px', '40px', '60px', '80px', '100px']);
+  });
+
+  it('appends a level when the picker is used on the last insert line', () => {
+    fixture.detectChanges();
+
+    const hierarchy = component.hierarchies()[0];
+    const lines = fixture.debugElement.queryAll(By.css('.tree-insert'));
+    (lines[lines.length - 1].nativeElement as HTMLElement).click();
+    fixture.detectChanges();
+
+    const panel = fixture.debugElement.query(By.css('app-level-picker-panel'));
+    panel.componentInstance.addExisting();
+    fixture.detectChanges();
+
+    expect(levelNames(fixture)).toEqual([
+      'Stadt Essen',
+      'Stadtbezirke Essen',
+      'Stadtteile Essen',
+      'Stadtviertel Essen',
+      'Baublöcke Essen',
+      'Sozialräume Essen',
+    ]);
+    expect(hierarchy.openGap()).toBeNull();
   });
 
   it('opens the picker panel in place of the clicked gap', () => {

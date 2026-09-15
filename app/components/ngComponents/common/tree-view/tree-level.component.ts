@@ -169,6 +169,17 @@ export class TreeLevelComponent {
     });
   }
 
+  /**
+   * Indent of the gap at `index`. Normally the level's own — the gap sits among
+   * its rows. The trailing gap of a non-empty level is the exception when the
+   * host asks for it: there it addresses a child of the last row, not another
+   * sibling, and is drawn one step in.
+   */
+  protected gapIndent(index: number): TreeIndent {
+    const isTrailing = index > 0 && index === this.rows().length;
+    return isTrailing && this.host.trailingGapAsChild() ? this.childIndent() : this.indent();
+  }
+
   protected canInsertAt(index: number): boolean {
     return this.host.canInsertAt()({ parent: this.parent(), index });
   }
