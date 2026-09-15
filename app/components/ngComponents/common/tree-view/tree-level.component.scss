@@ -21,8 +21,10 @@
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-  padding: 9px 12px;
-  margin-bottom: 6px;
+  // Slim rows: the row buttons bring their own height, so the vertical padding
+  // only has to keep them off the border.
+  padding: 7px 12px;
+  margin-bottom: 4px;
   background: var(--km-tree-row-bg, #ffffff);
   border: 1px solid var(--km-tree-row-border, #d7e3ec);
   // Depth rail. Transparent by default so `tone-none` and `tone-filled` keep
@@ -34,6 +36,17 @@
   &.clickable {
     cursor: pointer;
   }
+}
+
+// Row buttons are a touch smaller than `btn-sm`, which keeps the row slim — its
+// height is theirs. They come from the caller's row template and therefore carry
+// the caller's encapsulation attribute, which a plain rule here would never
+// match; `::ng-deep` drops it from the part after `.tree-row`, a class only this
+// component renders.
+.tree-row ::ng-deep .btn {
+  padding: 3px 9px;
+  font-size: 12.5px;
+  line-height: 1.35;
 }
 
 .tree-row-content {
