@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MODAL_CONFIRM, MODAL_FORM } from 'util/modal-presets';
+import { MODAL_FORM } from 'util/modal-presets';
 
 import { CollapsibleSectionComponent } from '../../common/collapsible-section/collapsible-section.component';
 import { NotificationService } from '../../common/notification/notification.service';
@@ -9,6 +8,7 @@ import { TreeGapDirective, TreeRowDirective } from '../../common/tree-view/tree-
 import { TreeViewComponent } from '../../common/tree-view/tree-view.component';
 import { TreeGap } from '../../common/tree-view/tree-view.model';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
+import { AdminModalService } from '../adminShared/modal/admin-modal.service';
 import { DemoHierarchy, DemoLevel, RegisteredLevel } from './hierarchy-demo.model';
 import { HierarchyStoreService } from './hierarchy-store.service';
 import { HierarchyDeleteModalComponent } from './hierarchyDeleteModal/hierarchy-delete-modal.component';
@@ -63,7 +63,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminSpatialUnitHierarchiesComponent {
-  private readonly modalService = inject(NgbModal);
+  private readonly modals = inject(AdminModalService);
   private readonly notificationService = inject(NotificationService);
   private readonly translateService = inject(TranslateService);
 
@@ -133,36 +133,46 @@ export class AdminSpatialUnitHierarchiesComponent {
   }
 
   /** Creates a hierarchy from the metadata and the chain the dialog assembled. */
-  protected onCreateHierarchy(): void {
-    const modalRef = this.modalService.open(HierarchyModalComponent, MODAL_FORM);
-    modalRef.componentInstance.mode = 'create';
-    modalRef.componentInstance.existingNames = this.store.hierarchyNames();
-    modalRef.componentInstance.levelUsage = this.store.levelUsage();
-    modalRef.componentInstance.registeredLevels = this.store.registeredLevelNames();
-    // Prefill with the tenant on screen; in the overview the dialog picks its own.
-    modalRef.componentInstance.currentMandant = this.store.selectedMandant();
-    modalRef.componentInstance.knownMandants = this.store.mandantNames();
-
-    modalRef.result.then((result: HierarchyModalResult) => {
-      this.store.addHierarchy(result, result.levels ?? []);
-      this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.CREATED', { hierarchy: result.name });
-    }, this.ignoreDismissal);
+  protected async onCreateHierarchy(): Promise<void> {
+    const result = await this.modals.open<HierarchyModalComponent, HierarchyModalResult>(
+      HierarchyModalComponent,
+      MODAL_FORM,
+      {
+        mode: 'create',
+        existingNames: this.store.hierarchyNames(),
+        levelUsage: this.store.levelUsage(),
+        registeredLevels: this.store.registeredLevelNames(),
+        // Prefill with the tenant on screen; in the overview the dialog picks its own.
+        currentMandant: this.store.selectedMandant(),
+        knownMandants: this.store.mandantNames(),
+      }
+    );
+    if (!result) {
+      return;
+    }
+    this.store.addHierarchy(result, result.levels ?? []);
+    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.CREATED', { hierarchy: result.name });
   }
 
   /** Edits the metadata. The chain and its expansion state stay untouched. */
-  protected onEditHierarchy(hierarchy: DemoHierarchy): void {
-    const modalRef = this.modalService.open(HierarchyModalComponent, MODAL_FORM);
-    modalRef.componentInstance.mode = 'edit';
-    modalRef.componentInstance.existingNames = this.store.hierarchyNames();
-    modalRef.componentInstance.currentName = hierarchy.name();
-    modalRef.componentInstance.currentDescription = hierarchy.description();
-    modalRef.componentInstance.currentMandant = hierarchy.mandant();
-    modalRef.componentInstance.knownMandants = this.store.mandantNames();
-
-    modalRef.result.then((result: HierarchyModalResult) => {
-      this.store.updateHierarchyMetadata(hierarchy, result);
-      this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.UPDATED', { hierarchy: result.name });
-    }, this.ignoreDismissal);
+  protected async onEditHierarchy(hierarchy: DemoHierarchy): Promise<void> {
+    const result = await this.modals.open<HierarchyModalComponent, HierarchyModalResult>(
+      HierarchyModalComponent,
+      MODAL_FORM,
+      {
+        mode: 'edit',
+        existingNames: this.store.hierarchyNames(),
+        currentName: hierarchy.name(),
+        currentDescription: hierarchy.description(),
+        currentMandant: hierarchy.mandant(),
+        knownMandants: this.store.mandantNames(),
+      }
+    );
+    if (!result) {
+      return;
+    }
+    this.store.updateHierarchyMetadata(hierarchy, result);
+    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.UPDATED', { hierarchy: result.name });
   }
 
   /** Makes a so far unassigned level the finest level of a chain. */
@@ -175,29 +185,27 @@ export class AdminSpatialUnitHierarchiesComponent {
   }
 
   /** Registers a level for the tenant on screen, without putting it anywhere. */
-  protected onRegisterLevel(): void {
-    const modalRef = this.modalService.open(LevelRegisterModalComponent, MODAL_FORM);
-    // Against the whole registry: a level name names one level in the instance.
-    modalRef.componentInstance.existingNames = this.store.registeredLevelNames();
-
-    modalRef.result.then((result: LevelRegisterResult) => {
-      this.store.registerLevel(result, this.store.selectedMandant());
-      this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.REGISTERED', { level: result.name });
-    }, this.ignoreDismissal);
+  protected async onRegisterLevel(): Promise<void> {
+    const result = await this.modals.open<LevelRegisterModalComponent, LevelRegisterResult>(
+      LevelRegisterModalComponent,
+      MODAL_FORM,
+      // Against the whole registry: a level name names one level in the instance.
+      { existingNames: this.store.registeredLevelNames() }
+    );
+    if (!result) {
+      return;
+    }
+    this.store.registerLevel(result, this.store.selectedMandant());
+    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.REGISTERED', { level: result.name });
   }
 
   /** Drops a level from the registry once the confirmation dialog agrees. */
-  protected onDeleteLevel(level: RegisteredLevel): void {
-    const modalRef = this.modalService.open(LevelDeleteModalComponent, MODAL_CONFIRM);
-    modalRef.componentInstance.level = level;
-
-    modalRef.result.then((confirmed: boolean) => {
-      if (!confirmed) {
-        return;
-      }
-      this.store.deleteLevel(level);
-      this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.DELETED', { level: level.name });
-    }, this.ignoreDismissal);
+  protected async onDeleteLevel(level: RegisteredLevel): Promise<void> {
+    if (!(await this.modals.confirm(LevelDeleteModalComponent, { level }))) {
+      return;
+    }
+    this.store.deleteLevel(level);
+    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.DELETED', { level: level.name });
   }
 
   /** Takes a level the level picker registered inside a chain into the registry. */
@@ -206,22 +214,14 @@ export class AdminSpatialUnitHierarchiesComponent {
   }
 
   /** Drops a hierarchy once the confirmation dialog agrees. */
-  protected onDeleteHierarchy(hierarchy: DemoHierarchy): void {
-    const modalRef = this.modalService.open(HierarchyDeleteModalComponent, MODAL_CONFIRM);
-    modalRef.componentInstance.hierarchy = hierarchy;
-
-    modalRef.result.then((confirmed: boolean) => {
-      if (!confirmed) {
-        return;
-      }
-      const name = hierarchy.name();
-      this.store.deleteHierarchy(hierarchy);
-      this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.DELETED', { hierarchy: name });
-    }, this.ignoreDismissal);
+  protected async onDeleteHierarchy(hierarchy: DemoHierarchy): Promise<void> {
+    if (!(await this.modals.confirm(HierarchyDeleteModalComponent, { hierarchy }))) {
+      return;
+    }
+    const name = hierarchy.name();
+    this.store.deleteHierarchy(hierarchy);
+    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.DELETED', { hierarchy: name });
   }
-
-  /** Closing a modal with Esc or the backdrop rejects its result; that is not an error. */
-  private readonly ignoreDismissal = (): void => undefined;
 
   /** Demo feedback: proves the projected header and row buttons receive their clicks. */
   protected onAction(actionKey: string, subject: string): void {

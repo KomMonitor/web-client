@@ -19,7 +19,7 @@ import { DemoHierarchy } from '../hierarchy-demo.model';
 export class HierarchyDeleteModalComponent {
   private readonly activeModal = inject(NgbActiveModal);
 
-  /** ng-bootstrap sets this via componentInstance. */
+  /** Set by the opener through `AdminModalService`. */
   @Input() hierarchy?: DemoHierarchy;
 
   confirm(): void {

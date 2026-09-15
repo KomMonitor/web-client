@@ -74,6 +74,13 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     store.selectedMandant.set('Stadt Essen');
   });
 
+  /**
+   * Lets a dialog's result reach the page. The handlers await it through
+   * `AdminModalService`; a macrotask runs that whole promise chain out, where
+   * `whenStable` would depend on how many hops it has.
+   */
+  const settle = (): Promise<void> => new Promise((resolve) => setTimeout(resolve));
+
   /** Stands in for the dialog: it resolves with `result` and records its inputs. */
   function stubModal(result: Promise<unknown>): Record<string, unknown> {
     const componentInstance: Record<string, unknown> = {};
@@ -475,7 +482,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     stubModal(Promise.resolve({ name: 'Wahlkreise Essen', datasource: 'Amt für Statistik' }));
 
     panel().register.emit();
-    await fixture.whenStable();
+    await settle();
     fixture.detectChanges();
 
     expect(store.levelRegistry().at(-1)).toEqual({
@@ -493,7 +500,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     stubModal(Promise.resolve(true));
 
     panel().remove.emit(level);
-    await fixture.whenStable();
+    await settle();
     fixture.detectChanges();
 
     expect(store.levelRegistry()).not.toContain(level);
@@ -505,7 +512,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     stubModal(Promise.resolve(false));
 
     panel().remove.emit(level);
-    await fixture.whenStable();
+    await settle();
     fixture.detectChanges();
 
     expect(store.levelRegistry()).toContain(level);
@@ -535,7 +542,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
       })
     );
     fixture.debugElement.query(By.css('.view-controls .btn-success')).nativeElement.click();
-    await fixture.whenStable();
+    await settle();
     fixture.detectChanges();
 
     expect(inputs['mode']).toBe('create');
@@ -568,7 +575,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
 
     stubModal(Promise.reject('cancel'));
     fixture.debugElement.query(By.css('.view-controls .btn-success')).nativeElement.click();
-    await fixture.whenStable();
+    await settle();
     fixture.detectChanges();
 
     expect(sectionTitles()).toEqual(['Verwaltungsgliederung']);
@@ -600,7 +607,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
       })
     );
     actions[0].nativeElement.click();
-    await fixture.whenStable();
+    await settle();
     fixture.detectChanges();
 
     expect(inputs['mode']).toBe('edit');
@@ -621,7 +628,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     fixture.debugElement
       .queryAll(By.css('.hierarchy-section .section-actions button'))[1]
       .nativeElement.click();
-    await fixture.whenStable();
+    await settle();
     fixture.detectChanges();
 
     expect(sectionTitles()).toEqual([]);
@@ -635,7 +642,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     fixture.debugElement
       .queryAll(By.css('.hierarchy-section .section-actions button'))[1]
       .nativeElement.click();
-    await fixture.whenStable();
+    await settle();
     fixture.detectChanges();
 
     expect(sectionTitles()).toEqual(['Verwaltungsgliederung']);
@@ -821,7 +828,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
 
       const inputs = stubModal(Promise.reject('cancel'));
       fixture.debugElement.query(By.css('.view-controls .btn-success')).nativeElement.click();
-      await fixture.whenStable();
+      await settle();
 
       expect(inputs['knownMandants']).toEqual([
         'Stadt Essen',
@@ -849,7 +856,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
 
       const inputs = stubModal(Promise.reject('cancel'));
       fixture.debugElement.query(By.css('.view-controls .btn-success')).nativeElement.click();
-      await fixture.whenStable();
+      await settle();
 
       expect(inputs['currentMandant']).toBe('Stadt Krefeld');
     });
@@ -867,7 +874,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
         })
       );
       fixture.debugElement.query(By.css('.view-controls .btn-success')).nativeElement.click();
-      await fixture.whenStable();
+      await settle();
       fixture.detectChanges();
 
       expect(store.selectedMandant()).toBe('Stadt Bochum');

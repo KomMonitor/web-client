@@ -7,12 +7,12 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MODAL_FORM } from 'util/modal-presets';
 
 import { NotificationService } from '../../../common/notification/notification.service';
 import { TreeGap } from '../../../common/tree-view/tree-view.model';
+import { AdminModalService } from '../../adminShared/modal/admin-modal.service';
 import { DemoHierarchy, DemoLevel, insertIntoChain } from '../hierarchy-demo.model';
 import {
   LevelRegisterModalComponent,
@@ -33,7 +33,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LevelPickerPanelComponent {
-  private readonly modalService = inject(NgbModal);
+  private readonly modals = inject(AdminModalService);
   private readonly notificationService = inject(NotificationService);
   private readonly translateService = inject(TranslateService);
 
@@ -83,20 +83,20 @@ export class LevelPickerPanelComponent {
     this.insert(name);
   }
 
-  protected registerNew(): void {
-    const modalRef = this.modalService.open(LevelRegisterModalComponent, MODAL_FORM);
-    // Against the whole registry, not just this chain: a level name names one
-    // spatial unit level in the instance, so it cannot be registered twice.
-    modalRef.componentInstance.existingNames = this.registryNames();
-
-    modalRef.result.then(
-      (result: LevelRegisterResult) => {
-        this.registered.emit(result);
-        this.insert(result.name);
-      },
-      // Dismissed — the panel stays open so the user can still pick from the list.
-      () => undefined
+  protected async registerNew(): Promise<void> {
+    const result = await this.modals.open<LevelRegisterModalComponent, LevelRegisterResult>(
+      LevelRegisterModalComponent,
+      MODAL_FORM,
+      // Against the whole registry, not just this chain: a level name names one
+      // spatial unit level in the instance, so it cannot be registered twice.
+      { existingNames: this.registryNames() }
     );
+    // Dismissed — the panel stays open so the user can still pick from the list.
+    if (!result) {
+      return;
+    }
+    this.registered.emit(result);
+    this.insert(result.name);
   }
 
   protected cancel(): void {

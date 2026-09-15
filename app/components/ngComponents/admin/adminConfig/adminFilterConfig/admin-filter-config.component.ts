@@ -15,7 +15,6 @@ import { firstValueFrom, skip } from 'rxjs';
 
 import { HttpClient } from '@angular/common/http';
 import { AgGridAngular } from 'ag-grid-angular';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ColDef, GridOptions, GridReadyEvent, SelectionChangedEvent } from 'ag-grid-community';
 
 import { GlobalFilterEntry } from 'components/ngComponents/models/globalFilters.models';
@@ -34,12 +33,13 @@ import { TopicMetadataStoreService } from '../../../../../services/topic-metadat
 import { ExpandableBoxComponent } from '../../../common/expandable-box/expandable-box.component';
 import { NotificationService } from '../../../common/notification/notification.service';
 import { AdminContentViewComponent } from '../../admin-content-view/admin-content-view.component';
+import { AdminModalService } from '../../adminShared/modal/admin-modal.service';
 import { ConfigEditorDescriptor } from '../configEditor/config-editor.model';
 import { ConfigEditorPanesComponent } from '../configEditor/config-editor-panes.component';
 import { AdminFilterEditModalComponent } from './adminFilterEditModal/admin-filter-edit-modal.component';
 import { AdminFilterDeleteModalComponent } from './adminFilterDeleteModal/admin-filter-delete-modal.component';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
-import { MODAL_CONFIRM, MODAL_WIDE } from 'util/modal-presets';
+import { MODAL_WIDE } from 'util/modal-presets';
 
 /** JSON indentation the filter config is stored and displayed with. */
 const CONFIG_INDENT = '    ';
@@ -70,7 +70,7 @@ export class AdminFilterConfigComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private envConfigService = inject(EnvConfigService);
   private translate = inject(TranslateService);
-  private modalService = inject(NgbModal);
+  private modals = inject(AdminModalService);
   private notificationService = inject(NotificationService);
   // Public: the template disables "Erstellen" through it, as in the other
   // admin overviews.
@@ -284,23 +284,7 @@ export class AdminFilterConfigComponent implements OnInit {
    * save, which refreshes the grid and the editor below.
    */
   onAddFilter() {
-    this.modalService.open(AdminFilterEditModalComponent, MODAL_WIDE);
-  }
-
-  /**
-   * Asks for confirmation before a filter is dropped from the configuration.
-   * Resolves false when the dialog is dismissed (Esc, backdrop click, cancel),
-   * which `MODAL_CONFIRM` allows.
-   */
-  private async confirmFilterDeletion(item: any): Promise<boolean> {
-    const modalRef = this.modalService.open(AdminFilterDeleteModalComponent, MODAL_CONFIRM);
-    modalRef.componentInstance.filter = item;
-
-    try {
-      return (await modalRef.result) === true;
-    } catch {
-      return false;
-    }
+    this.modals.open(AdminFilterEditModalComponent, MODAL_WIDE);
   }
 
   // Grid event handlers
@@ -367,7 +351,8 @@ export class AdminFilterConfigComponent implements OnInit {
     const item = storedConfig[filterIndex];
     if (!item) return;
 
-    if (!(await this.confirmFilterDeletion(item))) {
+    // A dismissal (Esc, backdrop click, cancel) keeps the filter.
+    if (!(await this.modals.confirm(AdminFilterDeleteModalComponent, { filter: item }))) {
       return;
     }
 

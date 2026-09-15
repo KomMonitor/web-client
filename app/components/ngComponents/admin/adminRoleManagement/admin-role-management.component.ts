@@ -10,7 +10,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { merge } from 'rxjs';
 
 import { FormsModule } from '@angular/forms';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import {
   ColDef,
@@ -20,6 +19,7 @@ import {
   SelectionChangedEvent,
 } from 'ag-grid-community';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
+import { AdminModalService } from '../adminShared/modal/admin-modal.service';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
@@ -35,7 +35,7 @@ import { RoleEditGroupRightsModalComponent } from './roleEditGroupRightsModal/ro
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { NotificationService } from '../../common/notification/notification.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MODAL_CONFIRM, MODAL_FORM, MODAL_WIDE } from 'util/modal-presets';
+import { MODAL_FORM, MODAL_WIDE } from 'util/modal-presets';
 
 interface AccessControlTableEntry extends AccessControlMetadata {
   parentName?: string;
@@ -58,7 +58,7 @@ interface AccessControlTableEntry extends AccessControlMetadata {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminRoleManagementComponent implements OnInit {
-  private modalService = inject(NgbModal);
+  private modals = inject(AdminModalService);
   protected accessControlService = inject(AccessControlService);
   protected envConfigService = inject(EnvConfigService);
   private metadataBootstrap = inject(MetadataBootstrapService);
@@ -274,50 +274,37 @@ export class AdminRoleManagementComponent implements OnInit {
     }
   }
 
-  openAddModal(): void {
-    const modalRef = this.modalService.open(RoleAddModalComponent, MODAL_WIDE);
-
-    modalRef.result
-      .then((reloadData) => reloadData && this.fetchAccessControlData(false))
-      .catch(() => {
-        /* modal dismissed */
-      });
+  async openAddModal(): Promise<void> {
+    if (await this.modals.open(RoleAddModalComponent, MODAL_WIDE)) {
+      this.fetchAccessControlData(false);
+    }
   }
 
-  openEditMetadataModal(dataset: AccessControlMetadata): void {
-    const modalRef = this.modalService.open(RoleEditMetadataModalComponent, MODAL_FORM);
-
-    modalRef.componentInstance.currentDataset = JSON.parse(JSON.stringify(dataset));
-
-    modalRef.result
-      .then((reloadData) => reloadData && this.fetchAccessControlData(false))
-      .catch(() => {
-        /* modal dismissed */
-      });
+  async openEditMetadataModal(dataset: AccessControlMetadata): Promise<void> {
+    const saved = await this.modals.open(RoleEditMetadataModalComponent, MODAL_FORM, {
+      currentDataset: JSON.parse(JSON.stringify(dataset)),
+    });
+    if (saved) {
+      this.fetchAccessControlData(false);
+    }
   }
 
-  openDeleteModal(): void {
-    const modalRef = this.modalService.open(RoleDeleteModalComponent, MODAL_CONFIRM);
-
-    modalRef.componentInstance.datasetsToDelete = this.selectedRows();
-
-    modalRef.result
-      .then((reloadData) => reloadData && this.fetchAccessControlData(false))
-      .catch(() => {
-        /* modal dismissed */
-      });
+  async openDeleteModal(): Promise<void> {
+    const deleted = await this.modals.confirm(RoleDeleteModalComponent, {
+      datasetsToDelete: this.selectedRows(),
+    });
+    if (deleted) {
+      this.fetchAccessControlData(false);
+    }
   }
 
-  openEditGroupRightsModal(dataset: AccessControlTableEntry) {
-    const modalRef = this.modalService.open(RoleEditGroupRightsModalComponent, MODAL_WIDE);
-
-    modalRef.componentInstance.currentDataset = JSON.parse(JSON.stringify(dataset));
-
-    modalRef.result
-      .then((reloadData) => reloadData && this.fetchAccessControlData(false))
-      .catch(() => {
-        /* modal dismissed */
-      });
+  async openEditGroupRightsModal(dataset: AccessControlTableEntry): Promise<void> {
+    const saved = await this.modals.open(RoleEditGroupRightsModalComponent, MODAL_WIDE, {
+      currentDataset: JSON.parse(JSON.stringify(dataset)),
+    });
+    if (saved) {
+      this.fetchAccessControlData(false);
+    }
   }
 
   selectionChanged($event: SelectionChangedEvent<AccessControlTableEntry, any>) {

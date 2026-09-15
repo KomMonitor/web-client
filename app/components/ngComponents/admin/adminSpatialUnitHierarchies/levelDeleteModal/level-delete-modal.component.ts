@@ -22,7 +22,7 @@ import { RegisteredLevel } from '../hierarchy-demo.model';
 export class LevelDeleteModalComponent {
   private readonly activeModal = inject(NgbActiveModal);
 
-  /** ng-bootstrap sets this via componentInstance. */
+  /** Set by the opener through `AdminModalService`. */
   @Input() level?: RegisteredLevel;
 
   confirm(): void {

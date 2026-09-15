@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions, SelectionChangedEvent } from 'ag-grid-community';
 import { Subscription, skip } from 'rxjs';
@@ -24,6 +23,7 @@ import { KommonitorDataGridHelperService } from '../../../../services/adminSpati
 import { ExpandableBoxComponent } from '../../common/expandable-box/expandable-box.component';
 import { LoadingOverlayComponent } from '../../common/loading-overlay/loading-overlay.component';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
+import { AdminModalService } from '../adminShared/modal/admin-modal.service';
 import { ScriptIdNameTableCellRendererComponent } from './script-id-name-table-cell-renderer.component';
 import { ScriptProcessParametersCellRendererComponent } from './script-process-parameters-cell-renderer.component';
 import { ScriptRefreshRequest } from './script-refresh.model';
@@ -49,7 +49,7 @@ import { MODAL_CONFIRM, MODAL_WIDE } from 'util/modal-presets';
 })
 export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   private zone = inject(NgZone);
-  private modalService = inject(NgbModal);
+  private modals = inject(AdminModalService);
   metadataBootstrap = inject(MetadataBootstrapService);
   private processScriptStore = inject(ProcessScriptMetadataStoreService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
@@ -258,9 +258,8 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
 
   public onClickAddScript(): void {
     // if (!this.metadataBootstrap.checkCreatePermission()) return;
-    const modalRef = this.modalService.open(ScriptAddModalComponent, MODAL_WIDE);
-    (modalRef.componentInstance as ScriptAddModalComponent).refreshRequested.subscribe(
-      (request: ScriptRefreshRequest) => this.handleRefreshRequest(request)
+    this.modals.open(ScriptAddModalComponent, MODAL_WIDE, (modal) =>
+      modal.refreshRequested.subscribe((request) => this.handleRefreshRequest(request))
     );
   }
 
@@ -268,11 +267,9 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
     const selectedScripts = this.selectedRows();
     if (selectedScripts.length === 0) return;
 
-    const modalRef = this.modalService.open(ScriptDeleteModalComponent, MODAL_CONFIRM);
-    const modalComponent = modalRef.componentInstance as ScriptDeleteModalComponent;
-    modalComponent.datasetsToDelete = structuredClone(selectedScripts);
-    modalComponent.refreshRequested.subscribe((request: ScriptRefreshRequest) =>
-      this.handleRefreshRequest(request)
-    );
+    this.modals.open(ScriptDeleteModalComponent, MODAL_CONFIRM, (modal) => {
+      modal.datasetsToDelete = structuredClone(selectedScripts);
+      modal.refreshRequested.subscribe((request) => this.handleRefreshRequest(request));
+    });
   }
 }

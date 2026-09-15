@@ -107,6 +107,13 @@ describe('LevelPickerPanelComponent', () => {
     expect(done).toBe(1);
   });
 
+  /**
+   * Lets a dialog's result reach the panel. The handlers await it through
+   * `AdminModalService`; a macrotask runs that whole promise chain out, where
+   * `whenStable` would depend on how many hops it has.
+   */
+  const settle = (): Promise<void> => new Promise((resolve) => setTimeout(resolve));
+
   it('inserts the name the register modal resolves with', async () => {
     const componentInstance: Record<string, unknown> = {};
     const open = jest.spyOn(modalService, 'open').mockReturnValue({
@@ -115,7 +122,7 @@ describe('LevelPickerPanelComponent', () => {
     } as never);
 
     fixture.debugElement.query(By.css('.btn-outline-primary')).nativeElement.click();
-    await fixture.whenStable();
+    await settle();
 
     expect(open).toHaveBeenCalledTimes(1);
     // Checked against the whole registry, not only against this one chain.
@@ -134,7 +141,7 @@ describe('LevelPickerPanelComponent', () => {
     const before = demo.chain();
 
     fixture.debugElement.query(By.css('.btn-outline-primary')).nativeElement.click();
-    await fixture.whenStable();
+    await settle();
 
     expect(demo.chain()).toBe(before);
     expect(registered).toEqual([]);

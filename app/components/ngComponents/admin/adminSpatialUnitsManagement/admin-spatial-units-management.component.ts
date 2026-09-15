@@ -4,6 +4,7 @@ import {
   DestroyRef,
   NgZone,
   OnInit,
+  OutputRef,
   ViewChild,
   inject,
   signal,
@@ -15,7 +16,6 @@ import {
 
 import { skip } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SpatialUnitAddModalComponent } from './spatialUnitAddModal/spatial-unit-add-modal.component';
 import { SpatialUnitEditMetadataModalComponent } from './spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.component';
 import { SpatialUnitEditFeaturesModalComponent } from './spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.component';
@@ -37,6 +37,7 @@ import {
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { FormsModule } from '@angular/forms';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
+import { AdminModalService } from '../adminShared/modal/admin-modal.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { TranslateService } from '@ngx-translate/core';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
@@ -59,7 +60,7 @@ import { MODAL_CONFIRM, MODAL_FORM, MODAL_WIDE } from 'util/modal-presets';
 })
 export class AdminSpatialUnitsManagementComponent implements OnInit {
   private zone = inject(NgZone);
-  private modalService = inject(NgbModal);
+  private modals = inject(AdminModalService);
   private metadataBootstrap = inject(MetadataBootstrapService);
   protected accessControlService = inject(AccessControlService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
@@ -425,80 +426,46 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
     this.onClickAddSpatialUnit();
   }
 
-  // Modal event handlers
+  // Modal event handlers. The table refresh is driven by each modal's
+  // refreshRequested output, so none of them needs the close result.
   onClickAddSpatialUnit(): void {
-    const modalRef = this.modalService.open(SpatialUnitAddModalComponent, MODAL_WIDE);
-
-    modalRef.componentInstance.refreshRequested.subscribe((request: SpatialUnitRefreshRequest) =>
-      this.handleRefreshRequest(request)
-    );
-
-    // The table refresh is driven by the modal's refreshRequested output, so
-    // the result promise only needs its rejection swallowed on dismiss.
-    modalRef.result.catch(() => {
-      // Modal dismissed
-    });
+    this.modals.open(SpatialUnitAddModalComponent, MODAL_WIDE, this.forwardRefreshRequests);
   }
 
   onClickEditMetadata(spatialUnitMetadata: SpatialUnitMetadata): void {
-    const modalRef = this.modalService.open(SpatialUnitEditMetadataModalComponent, MODAL_FORM);
-
-    modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
-    modalRef.componentInstance.refreshRequested.subscribe((request: SpatialUnitRefreshRequest) =>
-      this.handleRefreshRequest(request)
-    );
-
-    // The table refresh is driven by the modal's refreshRequested output, so
-    // the result promise only needs its rejection swallowed on dismiss.
-    modalRef.result.catch(() => {
-      // Modal dismissed
+    this.modals.open(SpatialUnitEditMetadataModalComponent, MODAL_FORM, (modal) => {
+      modal.currentSpatialUnitDataset = spatialUnitMetadata;
+      this.forwardRefreshRequests(modal);
     });
   }
 
   onClickEditFeatures(spatialUnitMetadata: SpatialUnitMetadata): void {
-    const modalRef = this.modalService.open(SpatialUnitEditFeaturesModalComponent, MODAL_WIDE);
-
-    modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
-    modalRef.componentInstance.refreshRequested.subscribe((request: SpatialUnitRefreshRequest) =>
-      this.handleRefreshRequest(request)
-    );
-
-    // The table refresh is driven by the modal's refreshRequested output, so
-    // the result promise only needs its rejection swallowed on dismiss.
-    modalRef.result.catch(() => {
-      // Modal dismissed
+    this.modals.open(SpatialUnitEditFeaturesModalComponent, MODAL_WIDE, (modal) => {
+      modal.currentSpatialUnitDataset = spatialUnitMetadata;
+      this.forwardRefreshRequests(modal);
     });
   }
 
   onClickEditUserRoles(spatialUnitMetadata: SpatialUnitMetadata): void {
-    const modalRef = this.modalService.open(SpatialUnitEditUserRolesModalComponent, MODAL_WIDE);
-
-    modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
-    modalRef.componentInstance.refreshRequested.subscribe((request: SpatialUnitRefreshRequest) =>
-      this.handleRefreshRequest(request)
-    );
-
-    // The table refresh is driven by the modal's refreshRequested output, so
-    // the result promise only needs its rejection swallowed on dismiss.
-    modalRef.result.catch(() => {
-      // Modal dismissed
+    this.modals.open(SpatialUnitEditUserRolesModalComponent, MODAL_WIDE, (modal) => {
+      modal.currentSpatialUnitDataset = spatialUnitMetadata;
+      this.forwardRefreshRequests(modal);
     });
   }
 
   onClickDeleteSpatialUnits(spatialUnitsMetadata: SpatialUnitMetadata[]): void {
-    const modalRef = this.modalService.open(SpatialUnitDeleteModalComponent, MODAL_CONFIRM);
-
-    modalRef.componentInstance.datasetsToDelete = spatialUnitsMetadata;
-    modalRef.componentInstance.refreshRequested.subscribe((request: SpatialUnitRefreshRequest) =>
-      this.handleRefreshRequest(request)
-    );
-
-    // The table refresh is driven by the modal's refreshRequested output, so
-    // the result promise only needs its rejection swallowed on dismiss.
-    modalRef.result.catch(() => {
-      // Modal dismissed
+    this.modals.open(SpatialUnitDeleteModalComponent, MODAL_CONFIRM, (modal) => {
+      modal.datasetsToDelete = spatialUnitsMetadata;
+      this.forwardRefreshRequests(modal);
     });
   }
+
+  /** Subscribes the overview table to a CRUD modal's refreshRequested output. */
+  private readonly forwardRefreshRequests = (modal: {
+    refreshRequested: OutputRef<SpatialUnitRefreshRequest>;
+  }): void => {
+    modal.refreshRequested.subscribe((request) => this.handleRefreshRequest(request));
+  };
 
   // Utility methods
   checkCreatePermission(): boolean {

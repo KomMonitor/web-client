@@ -6,13 +6,14 @@ import {
   Component,
   OnDestroy,
   OnInit,
+  OutputRef,
   computed,
   inject,
   signal,
 } from '@angular/core';
 
 import { Subscription } from 'rxjs';
-import { NgbDropdownModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from '../../../../services/broadcast-service/broadcast-message';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
@@ -32,6 +33,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
 import { WmsAdminTableComponent } from '../adminShared/wms-admin-table/wms-admin-table.component';
 import { FormsModule } from '@angular/forms';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
+import { AdminModalService } from '../adminShared/modal/admin-modal.service';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -54,7 +56,7 @@ import { MODAL_CONFIRM, MODAL_FORM, MODAL_WIDE } from 'util/modal-presets';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
-  private modalService = inject(NgbModal);
+  private modals = inject(AdminModalService);
   private broadcastService = inject(BroadcastService);
   private accessControlService = inject(AccessControlService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
@@ -271,49 +273,31 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
     this.refreshGeoresourceOverviewTable(request.crudType, request.targetGeoresourceId as any);
   }
 
-  // Modal event handlers
+  // Modal event handlers. The table refresh is driven by each modal's
+  // refreshRequested output, so none of them needs the close result.
   onClickAddGeoresource(): void {
-    const modalRef = this.modalService.open(GeoresourceAddModalComponent, MODAL_WIDE);
-
-    modalRef.componentInstance.refreshRequested.subscribe((request: GeoresourceRefreshRequest) =>
-      this.handleRefreshRequest(request)
-    );
+    this.modals.open(GeoresourceAddModalComponent, MODAL_WIDE, this.forwardRefreshRequests);
   }
 
   public onClickEditMetadata(georesourceDataset: any): void {
-    const modalRef = this.modalService.open(GeoresourceEditMetadataModalComponent, MODAL_FORM);
-
-    // Pass the georesource dataset to the modal
-    modalRef.componentInstance.currentGeoresourceDataset = georesourceDataset;
-    modalRef.componentInstance.refreshRequested.subscribe((request: GeoresourceRefreshRequest) =>
-      this.handleRefreshRequest(request)
-    );
-
-    // The table refresh is driven by the modal's refreshRequested output, so
-    // the close result only needs to swallow the dismissal rejection.
-    modalRef.result.catch(() => undefined);
+    this.modals.open(GeoresourceEditMetadataModalComponent, MODAL_FORM, (modal) => {
+      modal.currentGeoresourceDataset = georesourceDataset;
+      this.forwardRefreshRequests(modal);
+    });
   }
 
   public onClickEditFeatures(georesourceDataset: any): void {
-    const modalRef = this.modalService.open(GeoresourceEditFeaturesModalComponent, MODAL_WIDE);
-
-    // Pass the georesource dataset to the modal
-    modalRef.componentInstance.currentGeoresourceDataset = georesourceDataset;
-    modalRef.componentInstance.refreshRequested.subscribe((request: GeoresourceRefreshRequest) =>
-      this.handleRefreshRequest(request)
-    );
-
-    modalRef.result.catch(() => undefined);
+    this.modals.open(GeoresourceEditFeaturesModalComponent, MODAL_WIDE, (modal) => {
+      modal.currentGeoresourceDataset = georesourceDataset;
+      this.forwardRefreshRequests(modal);
+    });
   }
 
   public onClickEditUserRoles(georesourceDataset: any): void {
-    const modalRef = this.modalService.open(GeoresourceEditUserRolesModalComponent, MODAL_WIDE);
-    modalRef.componentInstance.currentGeoresourceDataset = georesourceDataset;
-    modalRef.componentInstance.refreshRequested.subscribe((request: GeoresourceRefreshRequest) =>
-      this.handleRefreshRequest(request)
-    );
-
-    modalRef.result.catch(() => undefined);
+    this.modals.open(GeoresourceEditUserRolesModalComponent, MODAL_WIDE, (modal) => {
+      modal.currentGeoresourceDataset = georesourceDataset;
+      this.forwardRefreshRequests(modal);
+    });
   }
 
   public onClickDeleteGeoresource(georesourceDataset: any): void {
@@ -323,15 +307,18 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
     // `keyboard: false`, so the one dialog in the admin area with nothing to lose
     // was the one that refused to close on Esc. The wide impact tables scroll
     // inside `.admin-table-wrapper`, as they do in the indicator dialog.
-    const modalRef = this.modalService.open(GeoresourceDeleteModalComponent, MODAL_CONFIRM);
-
-    // Pass the georesource dataset directly to the modal (the former
-    // OnDeleteGeoresources broadcast detour is gone)
-    modalRef.componentInstance.datasetsToDelete = [georesourceDataset];
-    modalRef.componentInstance.refreshRequested.subscribe((request: GeoresourceRefreshRequest) =>
-      this.handleRefreshRequest(request)
-    );
-
-    modalRef.result.catch(() => undefined);
+    this.modals.open(GeoresourceDeleteModalComponent, MODAL_CONFIRM, (modal) => {
+      // Pass the georesource dataset directly to the modal (the former
+      // OnDeleteGeoresources broadcast detour is gone)
+      modal.datasetsToDelete = [georesourceDataset];
+      this.forwardRefreshRequests(modal);
+    });
   }
+
+  /** Subscribes the overview table to a CRUD modal's refreshRequested output. */
+  private readonly forwardRefreshRequests = (modal: {
+    refreshRequested: OutputRef<GeoresourceRefreshRequest>;
+  }): void => {
+    modal.refreshRequested.subscribe((request) => this.handleRefreshRequest(request));
+  };
 }

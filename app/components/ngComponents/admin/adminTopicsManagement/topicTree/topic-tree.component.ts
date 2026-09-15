@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MODAL_CONFIRM, MODAL_FORM } from 'util/modal-presets';
 
@@ -11,6 +10,7 @@ import {
 } from '../../../common/tree-view/tree-row.directive';
 import { TreeViewComponent } from '../../../common/tree-view/tree-view.component';
 import { TreeGap, TreeReorderEvent } from '../../../common/tree-view/tree-view.model';
+import { AdminModalService } from '../../adminShared/modal/admin-modal.service';
 import { AddTopicComponent } from '../add-topic/add-topic.component';
 import { AdminTopicsManagementService } from '../admin-topics-management.service';
 import { Topic, TopicOrderMode, TopicResourceType } from '../topic.model';
@@ -41,7 +41,7 @@ import { sortTopicTree } from './topic-sort';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TopicTreeComponent {
-  private readonly modalService = inject(NgbModal);
+  private readonly modals = inject(AdminModalService);
   private readonly srvc = inject(AdminTopicsManagementService);
   private readonly notificationService = inject(NotificationService);
   private readonly translate = inject(TranslateService);
@@ -141,12 +141,10 @@ export class TopicTreeComponent {
   }
 
   protected onClickEditTopic(topic: Topic): void {
-    const modalRef = this.modalService.open(TopicEditModalComponent, MODAL_FORM);
-    modalRef.componentInstance.topic = topic;
+    this.modals.open(TopicEditModalComponent, MODAL_FORM, { topic });
   }
 
   protected onClickDeleteTopic(topic: Topic): void {
-    const modalRef = this.modalService.open(TopicDeleteModalComponent, MODAL_CONFIRM);
-    modalRef.componentInstance.currentTopic = topic;
+    this.modals.open(TopicDeleteModalComponent, MODAL_CONFIRM, { currentTopic: topic });
   }
 }

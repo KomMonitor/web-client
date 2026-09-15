@@ -31,7 +31,7 @@ export interface LevelRegisterResult {
 export class LevelRegisterModalComponent {
   readonly activeModal = inject(NgbActiveModal);
 
-  /** Names that are already taken; ng-bootstrap sets this via componentInstance. */
+  /** Names that are already taken; set by the opener through `AdminModalService`. */
   @Input() existingNames: readonly string[] = [];
 
   readonly form = new FormGroup({
