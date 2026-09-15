@@ -111,6 +111,11 @@ export class AdminSpatialUnitHierarchiesComponent {
     this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.REMOVED', { level: level.name });
   }
 
+  /** Demo stand-in for creating a hierarchy; the editor does not exist yet. */
+  protected onCreateHierarchy(): void {
+    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.NEW_HIERARCHY_CLICKED', {});
+  }
+
   /** Demo feedback: proves the projected header and row buttons receive their clicks. */
   protected onAction(actionKey: string, subject: string): void {
     this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.ACTION_CLICKED', {

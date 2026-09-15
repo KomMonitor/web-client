@@ -1567,8 +1567,7 @@
   "ADMIN_SPATIAL_UNIT_HIERARCHIES": {
     "OVERVIEW": {
       "TITLE": "Manage spatial unit hierarchies",
-      "DESCRIPTION": "Maintenance of the hierarchies that relate spatial unit levels to each other",
-      "PLACEHOLDER": "Hierarchy management is currently being implemented. The hierarchies below are example data from the design draft and are not connected to the backend yet."
+      "DESCRIPTION": "Maintenance of the hierarchies that relate spatial unit levels to each other"
     },
     "REGISTER_MODAL": {
       "TITLE": "Register a new spatial unit level",
@@ -1593,7 +1592,9 @@
       "POOL_EMPTY": "No further spatial unit level available —",
       "TOGGLE_LABEL": "Toggle sub-levels",
       "ACTION_CLICKED": "Action \"{{action}}\" on \"{{hierarchy}}\" — demo only, nothing happens.",
-      "INSERTED": "Level \"{{level}}\" inserted into the hierarchy."
+      "INSERTED": "Level \"{{level}}\" inserted into the hierarchy.",
+      "NEW_HIERARCHY": "New hierarchy",
+      "NEW_HIERARCHY_CLICKED": "Creating a new hierarchy — demo only, nothing happens."
     }
   },
   "ADMIN_SPATIAL_UNITS": {

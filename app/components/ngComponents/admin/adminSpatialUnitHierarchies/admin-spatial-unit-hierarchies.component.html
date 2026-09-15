@@ -7,25 +7,21 @@
 </app-admin-content-view>
 
 <ng-template #controls>
-  <div class="form-check form-switch">
-    <input
-      class="form-check-input"
-      type="checkbox"
-      id="spatial-unit-hierarchies-show-ids"
-      [checked]="showIds()"
-      (change)="onShowIdsChange($event)"
-    />
-    <label class="form-check-label" for="spatial-unit-hierarchies-show-ids">
-      {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.SHOW_IDS' | translate }}
+  <span>{{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.SHOW_IDS' | translate }}</span>
+  <div>
+    <label class="switch">
+      <input type="checkbox" [checked]="showIds()" (change)="onShowIdsChange($event)" />
+      <span class="switchslider round"></span>
     </label>
   </div>
+  <button class="btn btn-success btn-sm" type="button" (click)="onCreateHierarchy()">
+    <i class="fas fa-plus"></i>&nbsp;&nbsp;{{
+      'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.NEW_HIERARCHY' | translate
+    }}
+  </button>
 </ng-template>
 
 <ng-template #content>
-  <div class="alert alert-info">
-    {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.OVERVIEW.PLACEHOLDER' | translate }}
-  </div>
-
   @for (hierarchy of hierarchies; track hierarchy.id) {
     <app-collapsible-section
       [title]="hierarchy.name"
