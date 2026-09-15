@@ -23,117 +23,125 @@
 
 <ng-template #content>
   <app-mandant-panel
-    [mandants]="mandants()"
+    [mandants]="mandantOverview()"
     [canSwitch]="canSwitchMandant()"
     [hierarchyCount]="visibleHierarchies().length"
-    [(selected)]="selectedMandant"
+    [selected]="selectedMandant()"
+    (selectedChange)="selectMandant($event)"
   />
 
-  @for (hierarchy of visibleHierarchies(); track hierarchy.id) {
-    <app-collapsible-section
-      [title]="hierarchy.name()"
-      [meta]="
-        ('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.LEVEL_COUNT'
-          | translate: { count: hierarchy.levelCount() }) +
-        (selectedMandant() ? '' : ' · ' + hierarchy.mandant())
-      "
-      [idLabel]="hierarchy.id"
-      [showId]="showIds()"
-      [(open)]="hierarchy.open"
-    >
-      <button
-        header-actions
-        type="button"
-        class="btn btn-sm btn-warning"
-        (click)="onEditHierarchy(hierarchy)"
+  <!-- Across all tenants the page summarizes them instead of listing every
+       hierarchy of every tenant; opening a row switches to that tenant. -->
+  @if (showMandantOverview()) {
+    <app-mandant-overview-table [rows]="mandantOverview()" (openMandant)="selectMandant($event)" />
+  } @else {
+    @for (hierarchy of visibleHierarchies(); track hierarchy.id) {
+      <app-collapsible-section
+        [title]="hierarchy.name()"
+        [meta]="
+          'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.LEVEL_COUNT'
+            | translate: { count: hierarchy.levelCount() }
+        "
+        [idLabel]="hierarchy.id"
+        [showId]="showIds()"
+        [(open)]="hierarchy.open"
       >
-        {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.EDIT' | translate }}
-      </button>
-      <button
-        header-actions
-        type="button"
-        class="btn btn-sm btn-danger"
-        (click)="onDeleteHierarchy(hierarchy)"
-      >
-        {{ 'ADMIN_SHARED.DELETE' | translate }}
-      </button>
+        <button
+          header-actions
+          type="button"
+          class="btn btn-sm btn-warning"
+          (click)="onEditHierarchy(hierarchy)"
+        >
+          {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.EDIT' | translate }}
+        </button>
+        <button
+          header-actions
+          type="button"
+          class="btn btn-sm btn-danger"
+          (click)="onDeleteHierarchy(hierarchy)"
+        >
+          {{ 'ADMIN_SHARED.DELETE' | translate }}
+        </button>
 
-      @if (hierarchy.description(); as description) {
-        <p class="hierarchy-description">{{ description }}</p>
-      }
+        @if (hierarchy.description(); as description) {
+          <p class="hierarchy-description">{{ description }}</p>
+        }
 
-      <app-tree-view
-        [nodes]="hierarchy.levels()"
-        [idOf]="levelId"
-        [childrenOf]="levelChildren"
-        indentMode="row"
-        [(expandedIds)]="hierarchy.expandedIds"
-        [insertLabel]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.INSERT_LEVEL' | translate"
-        [canInsertAt]="leadingGapOnly"
-        [(openGap)]="hierarchy.openGap"
-        [toggleLabel]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.TOGGLE_LABEL' | translate"
-      >
-        <ng-template appTreeRow let-level let-depth="depth">
-          <span class="level-rank">
-            {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.LEVEL_RANK' | translate: { rank: depth + 1 } }}
-          </span>
-          <span class="level-name">{{ level.name }}</span>
-          @if (showIds()) {
-            <span class="level-id">{{ level.id }}</span>
-          }
-          <span class="level-spacer"></span>
-          <button
-            type="button"
-            class="level-move"
-            [disabled]="!canMove(hierarchy, level, -1)"
-            [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.MOVE_UP' | translate"
-            (click)="$event.stopPropagation(); moveLevel(hierarchy, level, -1)"
-          >
-            <span aria-hidden="true">&#9650;</span>
-            <span class="visually-hidden">
-              {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.MOVE_UP' | translate }}
+        <app-tree-view
+          [nodes]="hierarchy.levels()"
+          [idOf]="levelId"
+          [childrenOf]="levelChildren"
+          indentMode="row"
+          [(expandedIds)]="hierarchy.expandedIds"
+          [insertLabel]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.INSERT_LEVEL' | translate"
+          [canInsertAt]="leadingGapOnly"
+          [(openGap)]="hierarchy.openGap"
+          [toggleLabel]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.TOGGLE_LABEL' | translate"
+        >
+          <ng-template appTreeRow let-level let-depth="depth">
+            <span class="level-rank">
+              {{
+                'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.LEVEL_RANK' | translate: { rank: depth + 1 }
+              }}
             </span>
-          </button>
-          <button
-            type="button"
-            class="level-move"
-            [disabled]="!canMove(hierarchy, level, 1)"
-            [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.MOVE_DOWN' | translate"
-            (click)="$event.stopPropagation(); moveLevel(hierarchy, level, 1)"
-          >
-            <span aria-hidden="true">&#9660;</span>
-            <span class="visually-hidden">
-              {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.MOVE_DOWN' | translate }}
-            </span>
-          </button>
-          <button
-            type="button"
-            class="btn btn-sm btn-warning"
-            (click)="$event.stopPropagation(); onAction('ADMIN_SHARED.METADATA', level.name)"
-          >
-            {{ 'ADMIN_SHARED.METADATA' | translate }}
-          </button>
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-danger"
-            [disabled]="hierarchy.levelCount() === 1"
-            (click)="$event.stopPropagation(); removeLevel(hierarchy, level)"
-          >
-            {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.REMOVE' | translate }}
-          </button>
-        </ng-template>
-        <ng-template appTreeGap let-gap let-close="close">
-          <app-level-picker-panel [hierarchy]="hierarchy" [gap]="gap" (done)="close()" />
-        </ng-template>
-      </app-tree-view>
-    </app-collapsible-section>
-  } @empty {
-    <p class="hierarchies-empty">
-      @if (selectedMandant()) {
-        {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_PANEL.EMPTY_MANDANT' | translate }}
-      } @else {
-        {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_PANEL.EMPTY' | translate }}
-      }
-    </p>
+            <span class="level-name">{{ level.name }}</span>
+            @if (showIds()) {
+              <span class="level-id">{{ level.id }}</span>
+            }
+            <span class="level-spacer"></span>
+            <button
+              type="button"
+              class="level-move"
+              [disabled]="!canMove(hierarchy, level, -1)"
+              [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.MOVE_UP' | translate"
+              (click)="$event.stopPropagation(); moveLevel(hierarchy, level, -1)"
+            >
+              <span aria-hidden="true">&#9650;</span>
+              <span class="visually-hidden">
+                {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.MOVE_UP' | translate }}
+              </span>
+            </button>
+            <button
+              type="button"
+              class="level-move"
+              [disabled]="!canMove(hierarchy, level, 1)"
+              [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.MOVE_DOWN' | translate"
+              (click)="$event.stopPropagation(); moveLevel(hierarchy, level, 1)"
+            >
+              <span aria-hidden="true">&#9660;</span>
+              <span class="visually-hidden">
+                {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.MOVE_DOWN' | translate }}
+              </span>
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-warning"
+              (click)="$event.stopPropagation(); onAction('ADMIN_SHARED.METADATA', level.name)"
+            >
+              {{ 'ADMIN_SHARED.METADATA' | translate }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-danger"
+              [disabled]="hierarchy.levelCount() === 1"
+              (click)="$event.stopPropagation(); removeLevel(hierarchy, level)"
+            >
+              {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.REMOVE' | translate }}
+            </button>
+          </ng-template>
+          <ng-template appTreeGap let-gap let-close="close">
+            <app-level-picker-panel [hierarchy]="hierarchy" [gap]="gap" (done)="close()" />
+          </ng-template>
+        </app-tree-view>
+      </app-collapsible-section>
+    } @empty {
+      <p class="hierarchies-empty">
+        @if (selectedMandant()) {
+          {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_PANEL.EMPTY_MANDANT' | translate }}
+        } @else {
+          {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_PANEL.EMPTY' | translate }}
+        }
+      </p>
+    }
   }
 </ng-template>

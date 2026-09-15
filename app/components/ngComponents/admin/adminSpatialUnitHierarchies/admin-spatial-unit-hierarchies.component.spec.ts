@@ -1,4 +1,4 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { DebugElement, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -63,6 +63,9 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     // about a single chain works on the first hierarchy alone. The panel's own
     // tests put the full seed back.
     component.hierarchies.update((entries) => entries.slice(0, 1));
+    // Its tenant, not the overview: across all tenants the page shows the
+    // overview table instead of the hierarchies. The tenant tests select again.
+    component.selectedMandant.set('Stadt Essen');
   });
 
   /** Stands in for the dialog: it resolves with `result` and records its inputs. */
@@ -77,6 +80,18 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     return fixture.debugElement
       .queryAll(By.css('.hierarchy-description'))
       .map((el) => el.nativeElement.textContent.trim());
+  }
+
+  /** The toggle buttons of the rendered hierarchy sections. */
+  function sectionToggles(): HTMLButtonElement[] {
+    return fixture.debugElement
+      .queryAll(By.css('app-collapsible-section .section-toggle'))
+      .map((el) => el.nativeElement);
+  }
+
+  /** `aria-expanded` of every rendered hierarchy section, in order. */
+  function expandedStates(): (string | null)[] {
+    return sectionToggles().map((el) => el.getAttribute('aria-expanded'));
   }
 
   /** The titles of the rendered hierarchy sections. */
@@ -462,27 +477,96 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
         .map((el) => el.nativeElement.textContent.replace(/\s+/g, ' ').trim());
     }
 
+    /** The overview table as text: tenant, hierarchies, levels, shared levels. */
+    function overviewRows(): string[][] {
+      const text = (el: DebugElement) => el.nativeElement.textContent.replace(/\s+/g, ' ').trim();
+      return fixture.debugElement
+        .queryAll(By.css('app-mandant-overview-table tbody tr'))
+        .map((row) => [
+          text(row.query(By.css('.mandant-name'))),
+          ...row.queryAll(By.css('.number-cell')).map(text),
+          text(row.query(By.css('.shared-cell'))),
+        ]);
+    }
+
+    /** The open button of the overview row at `rowIndex`. */
+    function openButton(rowIndex: number): HTMLButtonElement {
+      return fixture.debugElement.queryAll(
+        By.css('app-mandant-overview-table .action-cell button')
+      )[rowIndex].nativeElement;
+    }
+
     function openMenu(): void {
       fixture.debugElement.query(By.css('app-mandant-panel .mandant-field')).nativeElement.click();
       fixture.detectChanges();
     }
 
-    it('lists every tenant of the data with the number of its hierarchies', () => {
+    it('counts the hierarchies, the distinct levels and the shared ones per tenant', () => {
       fixture.detectChanges();
 
-      expect(component.mandants()).toEqual([
-        { name: 'Stadt Essen', hierarchyCount: 2 },
-        { name: 'Stadt Bochum', hierarchyCount: 1 },
-        { name: 'Kreis Recklinghausen', hierarchyCount: 2 },
-        { name: 'Stadt Krefeld', hierarchyCount: 1 },
+      expect(component.mandantOverview()).toEqual([
+        // 'Stadt Essen' and 'Stadtbezirke Essen' are in both Essen hierarchies.
+        { name: 'Stadt Essen', hierarchyCount: 2, levelCount: 7, sharedLevelCount: 2 },
+        { name: 'Stadt Bochum', hierarchyCount: 1, levelCount: 3, sharedLevelCount: 0 },
+        { name: 'Kreis Recklinghausen', hierarchyCount: 2, levelCount: 6, sharedLevelCount: 1 },
+        { name: 'Stadt Krefeld', hierarchyCount: 1, levelCount: 3, sharedLevelCount: 0 },
       ]);
     });
 
-    it('starts in the overview and shows the hierarchies of every tenant', () => {
+    it('starts in the overview, which summarizes the tenants instead of listing hierarchies', () => {
+      component.selectedMandant.set('');
       fixture.detectChanges();
 
-      expect(component.selectedMandant()).toBe('');
-      expect(sectionTitles()).toHaveLength(6);
+      expect(sectionTitles()).toEqual([]);
+      // Translations are not loaded here, so the pipe echoes the key; a tenant
+      // without shared levels shows a dash plus its screen reader wording.
+      const key = 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_OVERVIEW.';
+      expect(overviewRows()).toEqual([
+        ['Stadt Essen', '2', '7', `${key}SHARED`],
+        ['Stadt Bochum', '1', '3', `– ${key}SHARED_NONE`],
+        ['Kreis Recklinghausen', '2', '6', `${key}SHARED_ONE`],
+        ['Stadt Krefeld', '1', '3', `– ${key}SHARED_NONE`],
+      ]);
+    });
+
+    it('opens a tenant from its overview row', () => {
+      component.selectMandant('');
+      fixture.detectChanges();
+
+      openButton(1).click();
+      fixture.detectChanges();
+
+      expect(component.selectedMandant()).toBe('Stadt Bochum');
+      expect(fixture.debugElement.query(By.css('app-mandant-overview-table'))).toBeNull();
+      expect(sectionTitles()).toEqual(['Verwaltungsgliederung Bochum']);
+    });
+
+    it('unfolds every hierarchy of the tenant it switches to', () => {
+      // Only the first hierarchy of the seed starts unfolded.
+      component.selectMandant('');
+      fixture.detectChanges();
+
+      component.selectMandant('Kreis Recklinghausen');
+      fixture.detectChanges();
+
+      expect(expandedStates()).toEqual(['true', 'true']);
+    });
+
+    it('leaves a folded hierarchy folded until the tenant is entered again', () => {
+      component.selectMandant('Kreis Recklinghausen');
+      fixture.detectChanges();
+
+      sectionToggles()[1].click();
+      fixture.detectChanges();
+      expect(expandedStates()).toEqual(['true', 'false']);
+
+      // Leaving for the overview and coming back is entering the view anew.
+      component.selectMandant('');
+      fixture.detectChanges();
+      component.selectMandant('Kreis Recklinghausen');
+      fixture.detectChanges();
+
+      expect(expandedStates()).toEqual(['true', 'true']);
     });
 
     it('offers the overview and one entry per tenant, each with its badge', () => {
@@ -499,6 +583,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     });
 
     it('filters the list down to the tenant picked in the dropdown', () => {
+      component.selectedMandant.set('');
       fixture.detectChanges();
       openMenu();
 
@@ -512,6 +597,21 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
       expect(sectionTitles()).toEqual(['Verwaltungsgliederung Bochum']);
     });
 
+    it('lists the hierarchies again as soon as a tenant is picked', () => {
+      component.selectedMandant.set('');
+      fixture.detectChanges();
+
+      expect(sectionTitles()).toEqual([]);
+
+      component.selectedMandant.set('Kreis Recklinghausen');
+      fixture.detectChanges();
+
+      expect(sectionTitles()).toEqual([
+        'Kreisgliederung Recklinghausen',
+        'Rastergliederung Recklinghausen',
+      ]);
+    });
+
     it('states how many hierarchies the list shows', () => {
       fixture.detectChanges();
 
@@ -521,6 +621,8 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
           .nativeElement.textContent.trim();
 
       // Translations are not loaded here, so the pipe echoes key and params.
+      component.selectedMandant.set('');
+      fixture.detectChanges();
       expect(summary()).toContain('MANDANT_PANEL.COUNT_ALL');
 
       component.selectedMandant.set('Stadt Krefeld');
@@ -529,20 +631,29 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
       expect(summary()).toContain('MANDANT_PANEL.COUNT_ONE');
     });
 
-    it('names the owning tenant in the section meta only while showing all of them', () => {
-      fixture.detectChanges();
-
-      const metaTexts = () =>
-        fixture.debugElement
-          .queryAll(By.css('app-collapsible-section .section-meta'))
-          .map((el) => el.nativeElement.textContent.trim());
-
-      expect(metaTexts()[2]).toContain('Stadt Bochum');
-
+    it("leaves the tenant out of the section meta — the list is one tenant's", () => {
       component.selectedMandant.set('Stadt Bochum');
       fixture.detectChanges();
 
-      expect(metaTexts()[0]).not.toContain('Stadt Bochum');
+      const meta = fixture.debugElement.query(By.css('app-collapsible-section .section-meta'));
+
+      expect(meta.nativeElement.textContent).toContain('LEVEL_COUNT');
+      expect(meta.nativeElement.textContent).not.toContain('Stadt Bochum');
+    });
+
+    it('offers the tenants of the data in the dialog where Keycloak names none', async () => {
+      fixture.detectChanges();
+
+      const inputs = stubModal(Promise.reject('cancel'));
+      fixture.debugElement.query(By.css('.view-controls .btn-success')).nativeElement.click();
+      await fixture.whenStable();
+
+      expect(inputs['knownMandants']).toEqual([
+        'Stadt Essen',
+        'Stadt Bochum',
+        'Kreis Recklinghausen',
+        'Stadt Krefeld',
+      ]);
     });
 
     it('explains an empty list instead of rendering nothing', () => {

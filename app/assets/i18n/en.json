@@ -1584,6 +1584,18 @@
       "EMPTY": "No hierarchy has been created yet.",
       "EMPTY_MANDANT": "No hierarchy has been created for this tenant yet."
     },
+    "MANDANT_OVERVIEW": {
+      "COL_MANDANT": "Tenant",
+      "COL_HIERARCHIES": "Hierarchies",
+      "COL_LEVELS": "Spatial unit levels",
+      "COL_SHARED": "Used more than once",
+      "COL_ACTIONS": "Actions",
+      "SHARED": "{{count}} levels in several hierarchies",
+      "SHARED_ONE": "1 level in several hierarchies",
+      "SHARED_NONE": "No level in several hierarchies",
+      "OPEN": "Open",
+      "HINT": "Spatial unit levels belong to one tenant — a hierarchy cannot contain levels of another tenant."
+    },
     "REGISTER_MODAL": {
       "TITLE": "Register a new spatial unit level",
       "NAME_LABEL": "Name of the spatial unit level",

@@ -18,7 +18,11 @@ import {
   HierarchyModalResult,
 } from './hierarchyModal/hierarchy-modal.component';
 import { LevelPickerPanelComponent } from './levelPickerPanel/level-picker-panel.component';
-import { MandantOption, MandantPanelComponent } from './mandantPanel/mandant-panel.component';
+import {
+  MandantOverviewRow,
+  MandantOverviewTableComponent,
+} from './mandantOverviewTable/mandant-overview-table.component';
+import { MandantPanelComponent } from './mandantPanel/mandant-panel.component';
 
 /**
  * Management of spatial unit hierarchies — the chains that order spatial unit
@@ -41,6 +45,7 @@ import { MandantOption, MandantPanelComponent } from './mandantPanel/mandant-pan
     TreeGapDirective,
     LevelPickerPanelComponent,
     MandantPanelComponent,
+    MandantOverviewTableComponent,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,8 +64,15 @@ export class AdminSpatialUnitHierarchiesComponent {
    * The tenant whose hierarchies are on screen; the empty string is the
    * overview across all of them. Starts at the tenant the user belongs to, so
    * everyone lands in their own data — and without Keycloak in the overview.
+   *
+   * Written through `selectMandant`, which also unfolds what it switches to.
    */
   readonly selectedMandant = signal(this.ownMandant());
+
+  constructor() {
+    // The tenant a user starts in is a view they enter as well.
+    this.expandMandant(this.selectedMandant());
+  }
 
   /** The tenants flagged as such in Keycloak; empty without it. */
   private readonly keycloakMandants: readonly string[] = this.accessControlService.accessControl
@@ -68,20 +80,45 @@ export class AdminSpatialUnitHierarchiesComponent {
     .map((unit) => unit.name);
 
   /**
-   * The tenants of this instance, as the panel lists them. Keycloak names them;
-   * a tenant that only appears in the hierarchies is listed as well, so the
-   * page shows whom its data belongs to even without Keycloak.
+   * The tenants of this instance with what each of them holds — the rows of the
+   * overview table, and at the same time the entries the switcher lists, which
+   * only reads the name and the hierarchy count off them.
+   *
+   * Keycloak names the tenants; one that only appears in the hierarchies is
+   * listed as well, so the page shows whom its data belongs to even without it.
    */
-  readonly mandants = computed<readonly MandantOption[]>(() => {
-    const counts = new Map<string, number>(this.keycloakMandants.map((name) => [name, 0]));
+  readonly mandantOverview = computed<readonly MandantOverviewRow[]>(() => {
+    // Per tenant: how many hierarchies, and how many of them each level sits in.
+    const rows = new Map<string, { hierarchyCount: number; levelUsage: Map<string, number> }>(
+      this.keycloakMandants.map((name) => [name, { hierarchyCount: 0, levelUsage: new Map() }])
+    );
+
     for (const hierarchy of this.hierarchies()) {
       const mandant = hierarchy.mandant();
-      if (mandant) {
-        counts.set(mandant, (counts.get(mandant) ?? 0) + 1);
+      if (!mandant) {
+        continue;
+      }
+      let row = rows.get(mandant);
+      if (!row) {
+        row = { hierarchyCount: 0, levelUsage: new Map<string, number>() };
+        rows.set(mandant, row);
+      }
+      row.hierarchyCount += 1;
+      for (const entry of hierarchy.chain()) {
+        row.levelUsage.set(entry.name, (row.levelUsage.get(entry.name) ?? 0) + 1);
       }
     }
-    return [...counts].map(([name, hierarchyCount]) => ({ name, hierarchyCount }));
+
+    return [...rows].map(([name, { hierarchyCount, levelUsage }]) => ({
+      name,
+      hierarchyCount,
+      levelCount: levelUsage.size,
+      sharedLevelCount: [...levelUsage.values()].filter((count) => count > 1).length,
+    }));
   });
+
+  /** The tenant names, for the dialog to offer where Keycloak names none. */
+  readonly mandantNames = computed(() => this.mandantOverview().map((row) => row.name));
 
   /**
    * Switching tenants is a platform administrator's view. Without Keycloak
@@ -89,7 +126,7 @@ export class AdminSpatialUnitHierarchiesComponent {
    * switcher as well — otherwise the draft could not be tried out at all.
    */
   readonly canSwitchMandant = computed(
-    () => this.accessControlService.isRealmAdmin || this.mandants().length > 1
+    () => this.accessControlService.isRealmAdmin || this.mandantOverview().length > 1
   );
 
   /** What the list renders: one tenant's hierarchies, or all of them. */
@@ -99,6 +136,16 @@ export class AdminSpatialUnitHierarchiesComponent {
       ? this.hierarchies().filter((hierarchy) => hierarchy.mandant() === mandant)
       : this.hierarchies();
   });
+
+  /**
+   * Whether the tenant overview takes the place of the hierarchy list. Across
+   * all tenants the list would mix data of instances that share nothing, so it
+   * gives way to one row per tenant. Where the data knows no tenant at all
+   * there is nothing to summarize and the list stays.
+   */
+  readonly showMandantOverview = computed(
+    () => !this.selectedMandant() && this.mandantOverview().length > 0
+  );
 
   // Note on drag & drop: the tree reorders among siblings, and a chain gives every
   // level exactly one child — so every drop list would hold a single item and a
@@ -180,6 +227,7 @@ export class AdminSpatialUnitHierarchiesComponent {
     modalRef.componentInstance.levelUsage = this.levelUsage();
     // Prefill with the tenant on screen; in the overview the dialog picks its own.
     modalRef.componentInstance.currentMandant = this.selectedMandant();
+    modalRef.componentInstance.knownMandants = this.mandantNames();
 
     modalRef.result.then((result: HierarchyModalResult) => {
       const hierarchy = createHierarchy({
@@ -204,6 +252,7 @@ export class AdminSpatialUnitHierarchiesComponent {
     modalRef.componentInstance.currentName = hierarchy.name();
     modalRef.componentInstance.currentDescription = hierarchy.description();
     modalRef.componentInstance.currentMandant = hierarchy.mandant();
+    modalRef.componentInstance.knownMandants = this.mandantNames();
 
     modalRef.result.then((result: HierarchyModalResult) => {
       hierarchy.name.set(result.name);
@@ -230,12 +279,35 @@ export class AdminSpatialUnitHierarchiesComponent {
   }
 
   /**
-   * Keeps a hierarchy in view after the dialog moved it to another tenant. Only
-   * while a single tenant is selected — the overview shows it either way.
+   * Switches to a tenant, or to the overview across all of them for the empty
+   * string. A tenant's view opens with all of its hierarchies unfolded: it is
+   * the view the work happens in, and a chain that is folded away says nothing.
+   * What the user folds afterwards stays folded until they leave and come back.
+   */
+  selectMandant(mandant: string): void {
+    this.selectedMandant.set(mandant);
+    this.expandMandant(mandant);
+  }
+
+  private expandMandant(mandant: string): void {
+    if (!mandant) {
+      return;
+    }
+    for (const hierarchy of this.hierarchies()) {
+      if (hierarchy.mandant() === mandant) {
+        hierarchy.open.set(true);
+      }
+    }
+  }
+
+  /**
+   * Follows a hierarchy to the tenant the dialog gave it, so it stays in view —
+   * from the overview table as well, which shows tenants rather than the
+   * hierarchy that was just created or edited.
    */
   private followMandant(mandant: string): void {
-    if (mandant && this.selectedMandant()) {
-      this.selectedMandant.set(mandant);
+    if (mandant) {
+      this.selectMandant(mandant);
     }
   }
 

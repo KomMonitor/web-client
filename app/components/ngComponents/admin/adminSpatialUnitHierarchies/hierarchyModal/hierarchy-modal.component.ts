@@ -71,14 +71,22 @@ export class HierarchyModalComponent implements OnInit {
   /** How many hierarchies already use a level, by level name. */
   @Input() levelUsage: Readonly<Record<string, number>> = {};
 
-  /**
-   * The tenants of this instance: the organizational units flagged as such.
-   * Without Keycloak the list is empty, and the field stays a disabled
-   * placeholder instead of a required one nobody can fill.
-   */
-  readonly mandants: readonly string[] = this.accessControlService.accessControl
+  /** Tenants the page found in its data; offered where Keycloak names none. */
+  @Input() knownMandants: readonly string[] = [];
+
+  /** The organizational units Keycloak flags as tenants; empty without it. */
+  private readonly keycloakMandants: readonly string[] = this.accessControlService.accessControl
     .filter((unit) => unit.mandant)
     .map((unit) => unit.name);
+
+  /**
+   * The tenants to choose from. Keycloak is the authority; where it names none,
+   * the ones already in the data keep the field usable, so a hierarchy created
+   * in the draft still ends up with an owner. Empty only where nothing knows a
+   * tenant — then the field stays a disabled placeholder instead of a required
+   * one nobody can fill. Filled in `ngOnInit`, once the input has arrived.
+   */
+  mandants: readonly string[] = [];
 
   /** The chain being assembled, coarsest first. Only used while creating. */
   private readonly chain = signal<readonly string[]>([]);
@@ -110,6 +118,7 @@ export class HierarchyModalComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.mandants = this.keycloakMandants.length ? this.keycloakMandants : this.knownMandants;
     this.form.controls.name.setValue(this.currentName);
     this.form.controls.description.setValue(this.currentDescription);
     this.form.controls.mandant.setValue(this.currentMandant || this.defaultMandant());

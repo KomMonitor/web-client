@@ -1584,6 +1584,18 @@
       "EMPTY": "Es ist noch keine Hierarchie angelegt.",
       "EMPTY_MANDANT": "Für diesen Mandanten ist noch keine Hierarchie angelegt."
     },
+    "MANDANT_OVERVIEW": {
+      "COL_MANDANT": "Mandant",
+      "COL_HIERARCHIES": "Hierarchien",
+      "COL_LEVELS": "Raumebenen",
+      "COL_SHARED": "Mehrfach zugeordnet",
+      "COL_ACTIONS": "Aktionen",
+      "SHARED": "{{count}} Ebenen in mehreren Hierarchien",
+      "SHARED_ONE": "1 Ebene in mehreren Hierarchien",
+      "SHARED_NONE": "Keine Ebene in mehreren Hierarchien",
+      "OPEN": "Öffnen",
+      "HINT": "Raumebenen sind mandantenspezifisch — Hierarchien können keine Ebenen anderer Mandanten enthalten."
+    },
     "REGISTER_MODAL": {
       "TITLE": "Neue Raumebene registrieren",
       "NAME_LABEL": "Name der Raumebene",
