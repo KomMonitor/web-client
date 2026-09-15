@@ -1,5 +1,6 @@
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -38,6 +39,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
   let component: AdminSpatialUnitHierarchiesComponent;
   let fixture: ComponentFixture<AdminSpatialUnitHierarchiesComponent>;
   let notificationService: NotificationService;
+  let modalService: NgbModal;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -53,7 +55,29 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     fixture = TestBed.createComponent(AdminSpatialUnitHierarchiesComponent);
     component = fixture.componentInstance;
     notificationService = TestBed.inject(NotificationService);
+    modalService = TestBed.inject(NgbModal);
   });
+
+  /** Stands in for the dialog: it resolves with `result` and records its inputs. */
+  function stubModal(result: Promise<unknown>): Record<string, unknown> {
+    const componentInstance: Record<string, unknown> = {};
+    jest.spyOn(modalService, 'open').mockReturnValue({ componentInstance, result } as never);
+    return componentInstance;
+  }
+
+  /** The descriptions rendered inside the hierarchy sections. */
+  function descriptions(): string[] {
+    return fixture.debugElement
+      .queryAll(By.css('.hierarchy-description'))
+      .map((el) => el.nativeElement.textContent.trim());
+  }
+
+  /** The titles of the rendered hierarchy sections. */
+  function sectionTitles(): string[] {
+    return fixture.debugElement
+      .queryAll(By.css('app-collapsible-section .section-title'))
+      .map((el) => el.nativeElement.textContent.trim());
+  }
 
   it('should create', () => {
     expect(component).toBeTruthy();
@@ -87,7 +111,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
       .nativeElement.click();
     fixture.detectChanges();
 
-    expect(component.hierarchies[0].open()).toBe(false);
+    expect(component.hierarchies()[0].open()).toBe(false);
   });
 
   it('only shows the id chips once the toggle is on', () => {
@@ -177,13 +201,13 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
   it('keeps a level expanded after it was moved', () => {
     fixture.detectChanges();
 
-    const before = [...component.hierarchies[0].expandedIds()].sort();
+    const before = [...component.hierarchies()[0].expandedIds()].sort();
 
     moveButton(fixture, 1, 'down').click();
     fixture.detectChanges();
 
     // Ids travel with the level, so moving one does not collapse the chain.
-    expect([...component.hierarchies[0].expandedIds()].sort()).toEqual(before);
+    expect([...component.hierarchies()[0].expandedIds()].sort()).toEqual(before);
     expect(fixture.debugElement.queryAll(By.css('.level-name')).length).toBe(5);
   });
 
@@ -239,13 +263,13 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
   it('forgets the expansion entry of a removed level', () => {
     fixture.detectChanges();
 
-    const removedId = component.hierarchies[0].chain()[1].id;
-    expect([...component.hierarchies[0].expandedIds()]).toContain(removedId);
+    const removedId = component.hierarchies()[0].chain()[1].id;
+    expect([...component.hierarchies()[0].expandedIds()]).toContain(removedId);
 
     removeButton(fixture, 1).click();
     fixture.detectChanges();
 
-    expect([...component.hierarchies[0].expandedIds()]).not.toContain(removedId);
+    expect([...component.hierarchies()[0].expandedIds()]).not.toContain(removedId);
   });
 
   it('keeps the last remaining level', () => {
@@ -282,7 +306,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     fixture.debugElement.queryAll(By.css('.tree-insert'))[0].nativeElement.click();
     fixture.detectChanges();
 
-    expect(component.hierarchies[0].openGap()).toEqual({ parent: null, index: 0 });
+    expect(component.hierarchies()[0].openGap()).toEqual({ parent: null, index: 0 });
     expect(fixture.debugElement.query(By.css('app-level-picker-panel'))).not.toBeNull();
     // The clicked line is gone, every other gap is still a line.
     expect(fixture.debugElement.queryAll(By.css('.tree-insert')).length).toBe(gapsBefore - 1);
@@ -296,7 +320,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     fixture.debugElement.query(By.css('app-level-picker-panel')).componentInstance.done.emit();
     fixture.detectChanges();
 
-    expect(component.hierarchies[0].openGap()).toBeNull();
+    expect(component.hierarchies()[0].openGap()).toBeNull();
     expect(fixture.debugElement.query(By.css('app-level-picker-panel'))).toBeNull();
   });
 
@@ -311,18 +335,116 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     expect(show.mock.calls[0][0]).toContain('ACTION_CLICKED');
   });
 
-  it('notifies when a projected header action is clicked', () => {
+  it('appends the hierarchy the create dialog returns', async () => {
+    const show = jest.spyOn(notificationService, 'show');
+    fixture.detectChanges();
+
+    const inputs = stubModal(
+      Promise.resolve({
+        name: 'Schulplanung',
+        description: 'Ebenen der Schulplanung.',
+        mandant: 'Stadt Essen',
+        levels: ['Stadt Essen', 'Schulregionen Essen'],
+      })
+    );
+    fixture.debugElement.query(By.css('.view-controls .btn-success')).nativeElement.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(inputs['mode']).toBe('create');
+    expect(inputs['existingNames']).toEqual(['Verwaltungsgliederung']);
+    // Every level of the seeded hierarchy is in use exactly once.
+    expect(inputs['levelUsage']).toMatchObject({ 'Stadt Essen': 1, 'Baublöcke Essen': 1 });
+    expect(sectionTitles()).toEqual(['Verwaltungsgliederung', 'Schulplanung']);
+    expect(descriptions()).toEqual([
+      'Amtliche Gliederung der Stadt Essen von der Gesamtstadt bis hinunter zum Baublock.',
+      'Ebenen der Schulplanung.',
+    ]);
+    // The new hierarchy carries exactly the chain the dialog assembled.
+    expect(levelNames(fixture)).toEqual([
+      'Stadt Essen',
+      'Stadtbezirke Essen',
+      'Stadtteile Essen',
+      'Stadtviertel Essen',
+      'Baublöcke Essen',
+      'Stadt Essen',
+      'Schulregionen Essen',
+    ]);
+    expect(show).toHaveBeenCalledTimes(1);
+    // No translations are loaded in the test, so the pipe echoes the key back.
+    expect(show.mock.calls[0][0]).toContain('CREATED');
+  });
+
+  it('adds nothing when the create dialog is dismissed', async () => {
+    const show = jest.spyOn(notificationService, 'show');
+    fixture.detectChanges();
+
+    stubModal(Promise.reject('cancel'));
+    fixture.debugElement.query(By.css('.view-controls .btn-success')).nativeElement.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(sectionTitles()).toEqual(['Verwaltungsgliederung']);
+    expect(show).not.toHaveBeenCalled();
+  });
+
+  it('renders the description of a hierarchy above its chain', () => {
+    fixture.detectChanges();
+
+    expect(descriptions()).toEqual([
+      'Amtliche Gliederung der Stadt Essen von der Gesamtstadt bis hinunter zum Baublock.',
+    ]);
+  });
+
+  it('edits name and description without touching the chain', async () => {
     const show = jest.spyOn(notificationService, 'show');
     fixture.detectChanges();
 
     const actions = fixture.debugElement.queryAll(By.css('.section-actions button'));
     expect(actions.length).toBe(2);
-    expect(actions.every((el) => el.nativeElement.disabled)).toBe(false);
 
+    const inputs = stubModal(
+      Promise.resolve({
+        name: 'Verwaltung',
+        description: 'Neue Beschreibung.',
+        mandant: 'Stadt Essen',
+      })
+    );
     actions[0].nativeElement.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
 
-    expect(show).toHaveBeenCalledTimes(1);
-    // No translations are loaded in the test, so the pipe echoes the key back.
-    expect(show.mock.calls[0][0]).toContain('ACTION_CLICKED');
+    expect(inputs['mode']).toBe('edit');
+    expect(inputs['currentName']).toBe('Verwaltungsgliederung');
+    expect(inputs['currentDescription']).toContain('Amtliche Gliederung');
+    expect(inputs['currentMandant']).toBe('Stadt Essen');
+    expect(sectionTitles()).toEqual(['Verwaltung']);
+    expect(descriptions()).toEqual(['Neue Beschreibung.']);
+    expect(levelNames(fixture)).toHaveLength(5);
+    expect(show.mock.calls[0][0]).toContain('UPDATED');
+  });
+
+  it('deletes a hierarchy once the confirmation agrees', async () => {
+    const show = jest.spyOn(notificationService, 'show');
+    fixture.detectChanges();
+
+    stubModal(Promise.resolve(true));
+    fixture.debugElement.queryAll(By.css('.section-actions button'))[1].nativeElement.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(sectionTitles()).toEqual([]);
+    expect(show.mock.calls[0][0]).toContain('DELETED');
+  });
+
+  it('keeps the hierarchy when the confirmation is dismissed', async () => {
+    fixture.detectChanges();
+
+    stubModal(Promise.reject('cancel'));
+    fixture.debugElement.queryAll(By.css('.section-actions button'))[1].nativeElement.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(sectionTitles()).toEqual(['Verwaltungsgliederung']);
   });
 });

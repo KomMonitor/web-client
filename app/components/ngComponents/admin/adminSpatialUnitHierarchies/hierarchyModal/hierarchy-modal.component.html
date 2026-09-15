@@ -1,0 +1,177 @@
+<div class="modal-header">
+  <h4 class="modal-title">
+    @if (mode === 'create') {
+      {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.CREATE_TITLE' | translate }}
+    } @else {
+      {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.EDIT_TITLE' | translate }}
+    }
+  </h4>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="cancel()"
+  ></button>
+</div>
+
+<div class="modal-body">
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="row">
+      <div class="col-md-8">
+        <div class="form-group">
+          <label class="form-label" for="hierarchy-name-input">
+            {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.NAME_LABEL' | translate }}*
+          </label>
+          <input
+            id="hierarchy-name-input"
+            class="form-control"
+            type="text"
+            formControlName="name"
+            [attr.placeholder]="
+              'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.NAME_PLACEHOLDER' | translate
+            "
+          />
+          <app-form-error [control]="form.controls.name" for="hierarchy-name-input" />
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="form-group">
+          <label class="form-label" for="hierarchy-mandant-input">
+            {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.MANDANT_LABEL' | translate }}*
+          </label>
+          <!--
+            One tenant is the normal case, and picking it would be a choice of
+            one — so the field only becomes a select where there is something to
+            choose. Without Keycloak the list is empty and it stays a hint.
+          -->
+          @if (mandants.length > 1) {
+            <select id="hierarchy-mandant-input" class="form-select" formControlName="mandant">
+              @for (mandant of mandants; track mandant) {
+                <option [value]="mandant">{{ mandant }}</option>
+              }
+            </select>
+          } @else {
+            <input
+              id="hierarchy-mandant-input"
+              class="form-control"
+              type="text"
+              disabled
+              [value]="
+                form.controls.mandant.value ||
+                ('ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.MANDANT_NONE' | translate)
+              "
+            />
+          }
+          <app-form-error [control]="form.controls.mandant" for="hierarchy-mandant-input" />
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="hierarchy-description-input">
+        {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.DESCRIPTION_LABEL' | translate }}
+      </label>
+      <textarea
+        id="hierarchy-description-input"
+        class="form-control"
+        rows="3"
+        formControlName="description"
+        [attr.placeholder]="
+          'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.DESCRIPTION_PLACEHOLDER' | translate
+        "
+      ></textarea>
+    </div>
+
+    @if (mode === 'create') {
+      <div class="form-group">
+        <span class="form-label">
+          {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.CHAIN_LABEL' | translate }}*
+          <span class="chain-hint">
+            {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.CHAIN_HINT' | translate }}
+          </span>
+        </span>
+
+        <div class="chain-panel">
+          <div class="chain-list" cdkDropList (cdkDropListDropped)="onDrop($event)">
+            @for (level of levels(); track level; let index = $index) {
+              <div class="chain-row" cdkDrag>
+                <span class="chain-handle" aria-hidden="true" cdkDragHandle>⣿</span>
+                <span class="chain-rank">
+                  {{
+                    'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.LEVEL_RANK'
+                      | translate: { rank: index + 1 }
+                  }}
+                </span>
+                <span class="chain-name">{{ level }}</span>
+                <span class="chain-spacer"></span>
+                @if (usageCount(level); as usage) {
+                  <span class="chain-usage">
+                    @if (usage === 1) {
+                      {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.USED_ONCE' | translate }}
+                    } @else {
+                      {{
+                        'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.USED_MANY'
+                          | translate: { count: usage }
+                      }}
+                    }
+                  </span>
+                }
+                <button type="button" class="chain-remove" (click)="removeLevel(index)">
+                  {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.REMOVE_LEVEL' | translate }}
+                </button>
+              </div>
+            }
+
+            @if (options().length > 0) {
+              <div class="chain-add">
+                <select
+                  class="form-select"
+                  [attr.aria-label]="
+                    'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.CHAIN_LABEL' | translate
+                  "
+                  (change)="onSelect($event)"
+                >
+                  @for (option of options(); track option) {
+                    <!-- `[selected]` per option, not `[value]` on the select: the select's
+                         value property is written before the options exist. -->
+                    <option [value]="option" [selected]="option === selected()">
+                      {{ option
+                      }}{{
+                        usageCount(option)
+                          ? ' ' +
+                            ('ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.USED_ELSEWHERE'
+                              | translate)
+                          : ''
+                      }}
+                    </option>
+                  }
+                </select>
+                <button type="button" class="btn btn-primary" (click)="addLevel()">
+                  {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.ADD_LEVEL' | translate }}
+                </button>
+              </div>
+            } @else {
+              <p class="chain-empty">
+                {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.NO_LEVELS_LEFT' | translate }}
+              </p>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </form>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="cancel()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
+  </button>
+  <button type="button" class="btn btn-success" [disabled]="!canSubmit" (click)="submit()">
+    @if (mode === 'create') {
+      {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.SUBMIT_CREATE' | translate }}
+    } @else {
+      {{ 'ADMIN_SHARED.SAVE' | translate }}
+    }
+  </button>
+</div>

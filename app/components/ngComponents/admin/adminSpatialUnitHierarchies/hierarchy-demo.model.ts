@@ -15,7 +15,12 @@ export interface DemoLevel extends DemoChainEntry {
 
 export interface DemoHierarchy {
   readonly id: string;
-  readonly name: string;
+  /** Writable so renaming keeps the hierarchy object — and its state — in place. */
+  readonly name: WritableSignal<string>;
+  /** Free text under the header; empty when the user left it out. */
+  readonly description: WritableSignal<string>;
+  /** Owning tenant, as chosen in the dialog; empty without Keycloak. */
+  readonly mandant: WritableSignal<string>;
   /** Source of truth: the chain from coarse to fine. Every edit happens here. */
   readonly chain: WritableSignal<readonly DemoChainEntry[]>;
   readonly levels: Signal<readonly DemoLevel[]>;

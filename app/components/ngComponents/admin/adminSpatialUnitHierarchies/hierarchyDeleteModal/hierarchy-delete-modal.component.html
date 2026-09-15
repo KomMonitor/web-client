@@ -1,0 +1,46 @@
+<div class="modal-header">
+  <h4 class="modal-title">
+    {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DELETE_MODAL.TITLE' | translate }}
+  </h4>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="cancel()"
+  ></button>
+</div>
+
+<div class="modal-body">
+  <h5>
+    <b>{{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DELETE_MODAL.CONFIRM_QUESTION' | translate }}</b>
+  </h5>
+  <p>{{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DELETE_MODAL.HINT' | translate }}</p>
+
+  @if (hierarchy; as hierarchy) {
+    <table class="table table-bordered table-sm">
+      <thead>
+        <tr>
+          <th>{{ 'ADMIN_SHARED.NAME' | translate }}</th>
+          <th>{{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DELETE_MODAL.COL_LEVELS' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <b>{{ hierarchy.name() }}</b>
+          </td>
+          <td>{{ hierarchy.levelCount() }}</td>
+        </tr>
+      </tbody>
+    </table>
+  }
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="cancel()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
+  </button>
+  <button type="button" class="btn btn-danger" (click)="confirm()">
+    {{ 'ADMIN_SHARED.DELETE' | translate }}
+  </button>
+</div>

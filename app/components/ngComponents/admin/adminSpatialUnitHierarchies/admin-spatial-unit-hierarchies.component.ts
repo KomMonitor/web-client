@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { MODAL_CONFIRM, MODAL_FORM } from 'util/modal-presets';
 
 import { CollapsibleSectionComponent } from '../../common/collapsible-section/collapsible-section.component';
 import { NotificationService } from '../../common/notification/notification.service';
@@ -7,16 +9,22 @@ import { TreeGapDirective, TreeRowDirective } from '../../common/tree-view/tree-
 import { TreeViewComponent } from '../../common/tree-view/tree-view.component';
 import { TreeGap } from '../../common/tree-view/tree-view.model';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
-import { createDemoHierarchies } from './hierarchy-demo.data';
+import { createDemoHierarchies, createHierarchy, newHierarchyId } from './hierarchy-demo.data';
 import { DemoHierarchy, DemoLevel } from './hierarchy-demo.model';
+import { HierarchyDeleteModalComponent } from './hierarchyDeleteModal/hierarchy-delete-modal.component';
+import {
+  HierarchyModalComponent,
+  HierarchyModalResult,
+} from './hierarchyModal/hierarchy-modal.component';
 import { LevelPickerPanelComponent } from './levelPickerPanel/level-picker-panel.component';
 
 /**
  * Management of spatial unit hierarchies — the chains that order spatial unit
  * levels from the coarsest to the finest.
  *
- * The page currently shows a hierarchy of the design draft as static demo data
- * so the layout can be reviewed; nothing here talks to the backend yet.
+ * The page works on demo data of the design draft: hierarchies can be created,
+ * renamed, deleted and their level chains edited, but nothing is persisted —
+ * the Data Management API has no hierarchy endpoints yet.
  */
 @Component({
   selector: 'app-admin-spatial-unit-hierarchies',
@@ -35,12 +43,13 @@ import { LevelPickerPanelComponent } from './levelPickerPanel/level-picker-panel
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminSpatialUnitHierarchiesComponent {
+  private readonly modalService = inject(NgbModal);
   private readonly notificationService = inject(NotificationService);
   private readonly translateService = inject(TranslateService);
 
   readonly showIds = signal(false);
 
-  readonly hierarchies: readonly DemoHierarchy[] = createDemoHierarchies();
+  readonly hierarchies = signal<readonly DemoHierarchy[]>(createDemoHierarchies());
 
   // Note on drag & drop: the tree reorders among siblings, and a chain gives every
   // level exactly one child — so every drop list would hold a single item and a
@@ -111,10 +120,83 @@ export class AdminSpatialUnitHierarchiesComponent {
     this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.REMOVED', { level: level.name });
   }
 
-  /** Demo stand-in for creating a hierarchy; the editor does not exist yet. */
+  /**
+   * Creates a hierarchy from the metadata and the level chain the dialog
+   * assembled. It is appended to the list, opened and fully expanded.
+   */
   protected onCreateHierarchy(): void {
-    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.NEW_HIERARCHY_CLICKED', {});
+    const modalRef = this.modalService.open(HierarchyModalComponent, MODAL_FORM);
+    modalRef.componentInstance.mode = 'create';
+    modalRef.componentInstance.existingNames = this.hierarchyNames();
+    modalRef.componentInstance.levelUsage = this.levelUsage();
+
+    modalRef.result.then((result: HierarchyModalResult) => {
+      const hierarchy = createHierarchy({
+        id: newHierarchyId(),
+        name: result.name,
+        description: result.description,
+        mandant: result.mandant,
+        levels: result.levels ?? [],
+        open: true,
+      });
+      this.hierarchies.update((entries) => [...entries, hierarchy]);
+      this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.CREATED', { hierarchy: result.name });
+    }, this.ignoreDismissal);
   }
+
+  /** Edits the metadata. The chain and its expansion state stay untouched. */
+  protected onEditHierarchy(hierarchy: DemoHierarchy): void {
+    const modalRef = this.modalService.open(HierarchyModalComponent, MODAL_FORM);
+    modalRef.componentInstance.mode = 'edit';
+    modalRef.componentInstance.existingNames = this.hierarchyNames();
+    modalRef.componentInstance.currentName = hierarchy.name();
+    modalRef.componentInstance.currentDescription = hierarchy.description();
+    modalRef.componentInstance.currentMandant = hierarchy.mandant();
+
+    modalRef.result.then((result: HierarchyModalResult) => {
+      hierarchy.name.set(result.name);
+      hierarchy.description.set(result.description);
+      hierarchy.mandant.set(result.mandant);
+      this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.UPDATED', { hierarchy: result.name });
+    }, this.ignoreDismissal);
+  }
+
+  /** Drops a hierarchy once the confirmation dialog agrees. */
+  protected onDeleteHierarchy(hierarchy: DemoHierarchy): void {
+    const modalRef = this.modalService.open(HierarchyDeleteModalComponent, MODAL_CONFIRM);
+    modalRef.componentInstance.hierarchy = hierarchy;
+
+    modalRef.result.then((confirmed: boolean) => {
+      if (!confirmed) {
+        return;
+      }
+      const name = hierarchy.name();
+      this.hierarchies.update((entries) => entries.filter((entry) => entry !== hierarchy));
+      this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.DELETED', { hierarchy: name });
+    }, this.ignoreDismissal);
+  }
+
+  private hierarchyNames(): string[] {
+    return this.hierarchies().map((entry) => entry.name());
+  }
+
+  /**
+   * How many hierarchies each level is part of. The create dialog marks the
+   * levels that are already in use with it — sharing one is allowed, it just
+   * should not happen unnoticed.
+   */
+  private levelUsage(): Record<string, number> {
+    const usage: Record<string, number> = {};
+    for (const hierarchy of this.hierarchies()) {
+      for (const entry of hierarchy.chain()) {
+        usage[entry.name] = (usage[entry.name] ?? 0) + 1;
+      }
+    }
+    return usage;
+  }
+
+  /** Closing a modal with Esc or the backdrop rejects its result; that is not an error. */
+  private readonly ignoreDismissal = (): void => undefined;
 
   /** Demo feedback: proves the projected header and row buttons receive their clicks. */
   protected onAction(actionKey: string, subject: string): void {

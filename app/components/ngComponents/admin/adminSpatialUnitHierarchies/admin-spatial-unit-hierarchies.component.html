@@ -22,9 +22,9 @@
 </ng-template>
 
 <ng-template #content>
-  @for (hierarchy of hierarchies; track hierarchy.id) {
+  @for (hierarchy of hierarchies(); track hierarchy.id) {
     <app-collapsible-section
-      [title]="hierarchy.name"
+      [title]="hierarchy.name()"
       [meta]="
         'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.LEVEL_COUNT'
           | translate: { count: hierarchy.levelCount() }
@@ -37,7 +37,7 @@
         header-actions
         type="button"
         class="btn btn-sm btn-warning"
-        (click)="onAction('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.EDIT', hierarchy.name)"
+        (click)="onEditHierarchy(hierarchy)"
       >
         {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.EDIT' | translate }}
       </button>
@@ -45,10 +45,14 @@
         header-actions
         type="button"
         class="btn btn-sm btn-danger"
-        (click)="onAction('ADMIN_SHARED.DELETE', hierarchy.name)"
+        (click)="onDeleteHierarchy(hierarchy)"
       >
         {{ 'ADMIN_SHARED.DELETE' | translate }}
       </button>
+
+      @if (hierarchy.description(); as description) {
+        <p class="hierarchy-description">{{ description }}</p>
+      }
 
       <app-tree-view
         [nodes]="hierarchy.levels()"

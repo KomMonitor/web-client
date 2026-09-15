@@ -15,7 +15,9 @@ function hierarchy(names: string[]): DemoHierarchy {
   const levels = computed(() => nest(chain()));
   return {
     id: 'h',
-    name: 'Testhierarchie',
+    name: signal('Testhierarchie'),
+    description: signal(''),
+    mandant: signal(''),
     chain,
     levels,
     levelCount: computed(() => chain().length),

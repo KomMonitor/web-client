@@ -1574,6 +1574,31 @@
       "NAME_LABEL": "Name der Raumebene",
       "SUBMIT": "Registrieren"
     },
+    "HIERARCHY_MODAL": {
+      "CREATE_TITLE": "Neue Raumeinheitshierarchie anlegen",
+      "EDIT_TITLE": "Raumeinheitshierarchie bearbeiten",
+      "NAME_LABEL": "Name der Hierarchie",
+      "NAME_PLACEHOLDER": "z. B. Sozialraum-Gliederung",
+      "MANDANT_LABEL": "Mandant",
+      "MANDANT_NONE": "Kein Mandant verfügbar",
+      "DESCRIPTION_LABEL": "Beschreibung",
+      "DESCRIPTION_PLACEHOLDER": "Wofür wird diese Hierarchie verwendet?",
+      "CHAIN_LABEL": "Ebenenkette",
+      "CHAIN_HINT": "von der größten zur kleinsten Einheit — Verknüpfungen entstehen automatisch",
+      "USED_ONCE": "bereits in 1 Hierarchie",
+      "USED_MANY": "bereits in {{count}} Hierarchien",
+      "USED_ELSEWHERE": "(bereits in anderer Hierarchie)",
+      "REMOVE_LEVEL": "entfernen",
+      "ADD_LEVEL": "Ebene anfügen",
+      "NO_LEVELS_LEFT": "Alle bekannten Raumebenen sind bereits in dieser Kette.",
+      "SUBMIT_CREATE": "Hierarchie anlegen"
+    },
+    "DELETE_MODAL": {
+      "TITLE": "Hierarchie löschen",
+      "CONFIRM_QUESTION": "Soll diese Hierarchie wirklich gelöscht werden?",
+      "HINT": "Die Hierarchie wird mit allen ihren Ebenen entfernt. Die Raumebenen selbst bleiben bestehen.",
+      "COL_LEVELS": "Ebenen"
+    },
     "DEMO": {
       "SHOW_IDS": "Zeige IDs",
       "LEVEL_COUNT": "{{count}} Ebenen",
@@ -1594,7 +1619,9 @@
       "ACTION_CLICKED": "Aktion „{{action}}“ für „{{hierarchy}}“ — Demo ohne Funktion.",
       "INSERTED": "Ebene „{{level}}“ in die Hierarchie eingefügt.",
       "NEW_HIERARCHY": "Neue Hierarchie",
-      "NEW_HIERARCHY_CLICKED": "Anlegen einer neuen Hierarchie — Demo ohne Funktion."
+      "CREATED": "Hierarchie „{{hierarchy}}“ angelegt.",
+      "UPDATED": "Hierarchie „{{hierarchy}}“ aktualisiert.",
+      "DELETED": "Hierarchie „{{hierarchy}}“ gelöscht."
     }
   },
   "ADMIN_SPATIAL_UNITS": {

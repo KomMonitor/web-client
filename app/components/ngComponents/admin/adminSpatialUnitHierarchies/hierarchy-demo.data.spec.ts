@@ -2,6 +2,8 @@ import {
   AVAILABLE_LEVELS,
   DEMO_HIERARCHIES,
   createDemoHierarchies,
+  createHierarchy,
+  newHierarchyId,
   unusedLevels,
 } from './hierarchy-demo.data';
 
@@ -25,7 +27,7 @@ describe('createDemoHierarchies', () => {
     const hierarchies = createDemoHierarchies();
 
     expect(hierarchies).toHaveLength(DEMO_HIERARCHIES.length);
-    expect(hierarchies[0].name).toBe(DEMO_HIERARCHIES[0].name);
+    expect(hierarchies[0].name()).toBe(DEMO_HIERARCHIES[0].name);
     expect(hierarchies[0].chain().map((entry) => entry.name)).toEqual([
       ...DEMO_HIERARCHIES[0].levels,
     ]);
@@ -59,5 +61,49 @@ describe('createDemoHierarchies', () => {
     first.chain.update((entries) => entries.slice(1));
 
     expect(first.chain().length).not.toBe(second.chain().length);
+  });
+});
+
+describe('createHierarchy', () => {
+  it('builds a single hierarchy from a plain source', () => {
+    const hierarchy = createHierarchy({
+      id: 'h-1',
+      name: 'Schulplanung',
+      description: 'Ebenen der Schulentwicklungsplanung.',
+      levels: ['Stadt Essen', 'Schulregionen Essen'],
+      open: true,
+    });
+
+    expect(hierarchy.id).toBe('h-1');
+    expect(hierarchy.name()).toBe('Schulplanung');
+    expect(hierarchy.description()).toBe('Ebenen der Schulentwicklungsplanung.');
+    expect(hierarchy.chain().map((entry) => entry.id)).toEqual(['h-1-0', 'h-1-1']);
+    expect(hierarchy.levels()[0].children[0].name).toBe('Schulregionen Essen');
+    expect(hierarchy.open()).toBe(true);
+    expect(hierarchy.expandedIds().size).toBe(2);
+    expect(hierarchy.openGap()).toBeNull();
+  });
+
+  it('carries a single level without nesting anything under it', () => {
+    const hierarchy = createHierarchy({
+      id: 'h-2',
+      name: 'Neu',
+      levels: ['Quartiere Essen'],
+      open: true,
+    });
+
+    expect(hierarchy.levelCount()).toBe(1);
+    expect(hierarchy.levels()[0].children).toEqual([]);
+    // A source without a description leaves the signal empty, not undefined.
+    expect(hierarchy.description()).toBe('');
+  });
+});
+
+describe('newHierarchyId', () => {
+  it('hands out a fresh uuid every time', () => {
+    const first = newHierarchyId();
+
+    expect(first).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+    expect(newHierarchyId()).not.toBe(first);
   });
 });

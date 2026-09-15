@@ -62,6 +62,14 @@
   }
 }
 
+// Free text of a hierarchy, between its header and the level chain.
+.hierarchy-description {
+  margin: 0 0 12px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: #5b7482;
+}
+
 // Live JSON inspector under the tree.
 .json-view {
   margin: 12px 0 0;
