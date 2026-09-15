@@ -2643,6 +2643,31 @@ fieldset[disabled] .btn-primary.focus {
   filter: brightness(85%);
 }
 
+/*
+ * The outline variant follows the solid `.btn-primary` above onto the brand
+ * tone — Bootstrap ships it in a blue of its own. Its `--bs-btn-*` variables do
+ * the work, so hover, active and disabled keep Bootstrap's own logic and no
+ * colour value is restated here.
+ */
+.btn-outline-primary {
+  --bs-btn-color: var(--kommonitor-primary);
+  --bs-btn-border-color: var(--kommonitor-primary);
+  --bs-btn-hover-bg: var(--kommonitor-primary);
+  --bs-btn-hover-border-color: var(--kommonitor-primary);
+  --bs-btn-active-bg: var(--kommonitor-primary);
+  --bs-btn-active-border-color: var(--kommonitor-primary);
+  --bs-btn-disabled-color: var(--kommonitor-primary);
+}
+
+.btn-outline-primary:active {
+  filter: brightness(85%);
+}
+
+/* Bootstrap builds its focus ring from a raw rgb list; this one is a token. */
+.btn-outline-primary:focus-visible {
+  box-shadow: 0 0 0 0.25rem var(--kommonitor-primary-40);
+}
+
 .btn-custom:hover img {
   filter: invert(0);
 }
