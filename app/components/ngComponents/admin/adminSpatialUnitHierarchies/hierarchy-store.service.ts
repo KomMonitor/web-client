@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { MandantService } from 'services/mandant-service/mandant.service';
 
+import { TreeGap } from '../../common/tree-view/tree-view.model';
 import {
   createDemoHierarchies,
   createHierarchy,
@@ -14,6 +15,7 @@ import {
   RegisteredLevel,
   appendToChain,
   canMoveInChain,
+  insertIntoChain,
   moveInChain,
   removeFromChain,
 } from './hierarchy-demo.model';
@@ -199,6 +201,11 @@ export class HierarchyStoreService {
    */
   removeLevel(hierarchy: DemoHierarchy, level: DemoLevel): boolean {
     return removeFromChain(hierarchy, level);
+  }
+
+  /** Puts a level into the chain at the gap of the tree it was chosen at. */
+  insertLevel(hierarchy: DemoHierarchy, gap: TreeGap<DemoLevel>, name: string): void {
+    insertIntoChain(hierarchy, gap, name);
   }
 
   /**

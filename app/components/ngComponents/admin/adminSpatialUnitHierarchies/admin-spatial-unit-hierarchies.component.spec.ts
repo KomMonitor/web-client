@@ -365,6 +365,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
   });
 
   it('appends a level when the picker is used on the last insert line', () => {
+    const show = jest.spyOn(notificationService, 'show');
     fixture.detectChanges();
 
     const hierarchy = store.hierarchies()[0];
@@ -385,6 +386,33 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
       'Sozialräume Essen',
     ]);
     expect(hierarchy.openGap()).toBeNull();
+    // The page reports the insertion, not the panel.
+    expect(show).toHaveBeenCalledTimes(1);
+    expect(show.mock.calls[0][0]).toContain('INSERTED');
+  });
+
+  it('registers a level the picker registered and inserts it at the gap', () => {
+    fixture.detectChanges();
+
+    const hierarchy = store.hierarchies()[0];
+    fixture.debugElement.queryAll(By.css('.tree-insert'))[0].nativeElement.click();
+    fixture.detectChanges();
+
+    const panel = fixture.debugElement.query(By.css('app-level-picker-panel'));
+    panel.componentInstance.picked.emit({
+      name: 'Wahlkreise Essen',
+      registration: { name: 'Wahlkreise Essen', datasource: 'Amt für Statistik' },
+    });
+    fixture.detectChanges();
+
+    expect(hierarchy.chain()[0].name).toBe('Wahlkreise Essen');
+    // Under the hierarchy's tenant, so the level is on offer wherever it belongs.
+    expect(store.levelRegistry().at(-1)).toEqual({
+      id: expect.any(String),
+      name: 'Wahlkreise Essen',
+      datasource: 'Amt für Statistik',
+      mandant: hierarchy.mandant(),
+    });
   });
 
   it('opens the picker panel in place of the clicked gap', () => {

@@ -16,7 +16,10 @@ import {
   HierarchyModalComponent,
   HierarchyModalResult,
 } from './hierarchyModal/hierarchy-modal.component';
-import { LevelPickerPanelComponent } from './levelPickerPanel/level-picker-panel.component';
+import {
+  LevelPick,
+  LevelPickerPanelComponent,
+} from './levelPickerPanel/level-picker-panel.component';
 import { LevelDeleteModalComponent } from './levelDeleteModal/level-delete-modal.component';
 import {
   LevelRegisterModalComponent,
@@ -208,9 +211,22 @@ export class AdminSpatialUnitHierarchiesComponent {
     this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.DELETED', { level: level.name });
   }
 
-  /** Takes a level the level picker registered inside a chain into the registry. */
-  onLevelRegistered(result: LevelRegisterResult, mandant: string): void {
-    this.store.registerLevel(result, mandant);
+  /**
+   * Puts the level the picker chose into the chain, at the gap the picker was
+   * opened at. One the user registered in the picker goes into the registry
+   * first, under the hierarchy's tenant — in the tenant-less fallback view that
+   * need not be the one on screen.
+   */
+  protected onInsertLevel(
+    hierarchy: DemoHierarchy,
+    gap: TreeGap<DemoLevel>,
+    { name, registration }: LevelPick
+  ): void {
+    if (registration) {
+      this.store.registerLevel(registration, hierarchy.mandant());
+    }
+    this.store.insertLevel(hierarchy, gap, name);
+    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.INSERTED', { level: name });
   }
 
   /** Drops a hierarchy once the confirmation dialog agrees. */

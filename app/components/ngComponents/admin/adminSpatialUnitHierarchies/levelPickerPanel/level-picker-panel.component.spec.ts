@@ -6,7 +6,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { DemoChainEntry, DemoHierarchy, nest } from '../hierarchy-demo.model';
-import { LevelPickerPanelComponent } from './level-picker-panel.component';
+import { LevelPick, LevelPickerPanelComponent } from './level-picker-panel.component';
 
 /**
  * The registry the page hands in. A local fixture: the panel offers what it is
@@ -44,7 +44,7 @@ describe('LevelPickerPanelComponent', () => {
   let modalService: NgbModal;
   let demo: DemoHierarchy;
   let done: number;
-  let registered: unknown[];
+  let picked: LevelPick[];
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -58,12 +58,11 @@ describe('LevelPickerPanelComponent', () => {
 
     demo = hierarchy([LEVELS[0]]);
     done = 0;
-    registered = [];
+    picked = [];
     fixture.componentRef.setInput('hierarchy', demo);
-    fixture.componentRef.setInput('gap', { parent: null, index: 0 });
     fixture.componentRef.setInput('registryNames', LEVELS);
     component.done.subscribe(() => (done += 1));
-    component.registered.subscribe((result) => registered.push(result));
+    component.picked.subscribe((pick) => picked.push(pick));
     fixture.detectChanges();
   });
 
@@ -80,14 +79,18 @@ describe('LevelPickerPanelComponent', () => {
     expect(options).toEqual(LEVELS.slice(1));
   });
 
-  it('adds the preselected level at the gap and closes', () => {
+  it('picks the preselected level and closes', () => {
+    const before = demo.chain();
+
     fixture.debugElement.query(By.css('.btn-primary')).nativeElement.click();
 
-    expect(demo.chain().map((entry) => entry.name)).toEqual([LEVELS[1], LEVELS[0]]);
+    expect(picked).toEqual([{ name: LEVELS[1] }]);
     expect(done).toBe(1);
+    // Inserting is the page's job; the panel leaves the chain alone.
+    expect(demo.chain()).toBe(before);
   });
 
-  it('adds the level the user picked', () => {
+  it('picks the level the user selected', () => {
     const select: HTMLSelectElement = fixture.debugElement.query(By.css('select')).nativeElement;
     select.value = LEVELS[3];
     select.dispatchEvent(new Event('change'));
@@ -95,15 +98,13 @@ describe('LevelPickerPanelComponent', () => {
 
     fixture.debugElement.query(By.css('.btn-primary')).nativeElement.click();
 
-    expect(demo.chain()[0].name).toBe(LEVELS[3]);
+    expect(picked).toEqual([{ name: LEVELS[3] }]);
   });
 
-  it('closes without a change on cancel', () => {
-    const before = demo.chain();
-
+  it('closes without a pick on cancel', () => {
     fixture.debugElement.query(By.css('.picker-cancel')).nativeElement.click();
 
-    expect(demo.chain()).toBe(before);
+    expect(picked).toEqual([]);
     expect(done).toBe(1);
   });
 
@@ -114,7 +115,7 @@ describe('LevelPickerPanelComponent', () => {
    */
   const settle = (): Promise<void> => new Promise((resolve) => setTimeout(resolve));
 
-  it('inserts the name the register modal resolves with', async () => {
+  it('picks the level the register modal resolves with', async () => {
     const componentInstance: Record<string, unknown> = {};
     const open = jest.spyOn(modalService, 'open').mockReturnValue({
       componentInstance,
@@ -127,9 +128,14 @@ describe('LevelPickerPanelComponent', () => {
     expect(open).toHaveBeenCalledTimes(1);
     // Checked against the whole registry, not only against this one chain.
     expect(componentInstance['existingNames']).toEqual(LEVELS);
-    expect(demo.chain()[0].name).toBe('Frei erfundene Ebene');
-    // The page has to learn about it, otherwise the level exists in this chain only.
-    expect(registered).toEqual([{ name: 'Frei erfundene Ebene', datasource: 'Eigene Erhebung' }]);
+    // The registration travels along: the registry has to take the new level in,
+    // otherwise it would exist in this chain only.
+    expect(picked).toEqual([
+      {
+        name: 'Frei erfundene Ebene',
+        registration: { name: 'Frei erfundene Ebene', datasource: 'Eigene Erhebung' },
+      },
+    ]);
     expect(done).toBe(1);
   });
 
@@ -138,13 +144,11 @@ describe('LevelPickerPanelComponent', () => {
       componentInstance: {},
       result: Promise.reject(new Error('cancel')),
     } as never);
-    const before = demo.chain();
 
     fixture.debugElement.query(By.css('.btn-outline-primary')).nativeElement.click();
     await settle();
 
-    expect(demo.chain()).toBe(before);
-    expect(registered).toEqual([]);
+    expect(picked).toEqual([]);
     expect(done).toBe(0);
   });
 

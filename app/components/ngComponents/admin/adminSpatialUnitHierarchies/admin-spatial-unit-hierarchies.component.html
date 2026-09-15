@@ -141,9 +141,8 @@
           <ng-template appTreeGap let-gap let-close="close">
             <app-level-picker-panel
               [hierarchy]="hierarchy"
-              [gap]="gap"
               [registryNames]="store.tenantLevelNames()"
-              (registered)="onLevelRegistered($event, hierarchy.mandant())"
+              (picked)="onInsertLevel(hierarchy, gap, $event)"
               (done)="close()"
             />
           </ng-template>

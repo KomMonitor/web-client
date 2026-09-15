@@ -7,22 +7,34 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { MODAL_FORM } from 'util/modal-presets';
 
-import { NotificationService } from '../../../common/notification/notification.service';
-import { TreeGap } from '../../../common/tree-view/tree-view.model';
 import { AdminModalService } from '../../adminShared/modal/admin-modal.service';
-import { DemoHierarchy, DemoLevel, insertIntoChain } from '../hierarchy-demo.model';
+import { DemoHierarchy } from '../hierarchy-demo.model';
 import {
   LevelRegisterModalComponent,
   LevelRegisterResult,
 } from '../levelRegisterModal/level-register-modal.component';
 
+/** A level the user chose in the picker, for the page to put into the chain. */
+export interface LevelPick {
+  readonly name: string;
+  /**
+   * Set when the user registered the level right here: it is new to the
+   * registry as well, which has to take it in.
+   */
+  readonly registration?: LevelRegisterResult;
+}
+
 /**
  * The panel that opens in place of an insert line: pick one of the spatial unit
  * levels not yet in this chain, or register a new one. Sits in the tree's
  * `appTreeGap` slot — the tree only positions it.
+ *
+ * The panel only chooses. Which gap it sits in, putting the level there and
+ * telling the user is the page's business, the same as for every other change
+ * to a chain.
  */
 @Component({
   selector: 'app-level-picker-panel',
@@ -34,11 +46,8 @@ import {
 })
 export class LevelPickerPanelComponent {
   private readonly modals = inject(AdminModalService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly translateService = inject(TranslateService);
 
   readonly hierarchy = input.required<DemoHierarchy>();
-  readonly gap = input.required<TreeGap<DemoLevel>>();
 
   /**
    * The registered levels of this hierarchy's tenant, as the page's registry
@@ -47,14 +56,11 @@ export class LevelPickerPanelComponent {
    */
   readonly registryNames = input<readonly string[]>([]);
 
-  /** Fired when the panel should close — after inserting, or on cancel. */
-  readonly done = output<void>();
+  /** The level to insert at the gap the panel sits in. */
+  readonly picked = output<LevelPick>();
 
-  /**
-   * A level the user registered here. The panel puts it into the chain itself;
-   * the page owns the registry and takes it in from this.
-   */
-  readonly registered = output<LevelRegisterResult>();
+  /** Fired when the panel should close — after a pick, or on cancel. */
+  readonly done = output<void>();
 
   /** A level sits in one chain at most once; everything else is on offer. */
   protected readonly options = computed(() => {
@@ -67,12 +73,12 @@ export class LevelPickerPanelComponent {
   });
 
   /** Empty until the user picks; the first option is preselected on open. */
-  private readonly picked = signal<string | null>(null);
+  private readonly selection = signal<string | null>(null);
 
-  protected readonly selected = computed(() => this.picked() ?? this.options()[0] ?? '');
+  protected readonly selected = computed(() => this.selection() ?? this.options()[0] ?? '');
 
   protected onSelect(event: Event): void {
-    this.picked.set((event.target as HTMLSelectElement).value);
+    this.selection.set((event.target as HTMLSelectElement).value);
   }
 
   protected addExisting(): void {
@@ -80,11 +86,11 @@ export class LevelPickerPanelComponent {
     if (!name) {
       return;
     }
-    this.insert(name);
+    this.pick({ name });
   }
 
   protected async registerNew(): Promise<void> {
-    const result = await this.modals.open<LevelRegisterModalComponent, LevelRegisterResult>(
+    const registration = await this.modals.open<LevelRegisterModalComponent, LevelRegisterResult>(
       LevelRegisterModalComponent,
       MODAL_FORM,
       // Against the whole registry, not just this chain: a level name names one
@@ -92,25 +98,18 @@ export class LevelPickerPanelComponent {
       { existingNames: this.registryNames() }
     );
     // Dismissed — the panel stays open so the user can still pick from the list.
-    if (!result) {
+    if (!registration) {
       return;
     }
-    this.registered.emit(result);
-    this.insert(result.name);
+    this.pick({ name: registration.name, registration });
   }
 
   protected cancel(): void {
     this.done.emit();
   }
 
-  private insert(name: string): void {
-    insertIntoChain(this.hierarchy(), this.gap(), name);
-    this.notificationService.show(
-      this.translateService.instant('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.INSERTED', {
-        level: name,
-      }),
-      { autohide: true, delay: 3000 }
-    );
+  private pick(choice: LevelPick): void {
+    this.picked.emit(choice);
     this.done.emit();
   }
 }
