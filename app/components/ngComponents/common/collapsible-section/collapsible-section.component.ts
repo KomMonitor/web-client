@@ -8,8 +8,16 @@ import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
  * 'primary' is the solid accent bar used for top level sections; the 'level-*'
  * tones reuse the `--kommonitor-hierarchy-level-*` custom properties from
  * app.scss so nested sections step down in weight without new colour values.
+ * 'muted' is the grey bar for a section that stands beside that structure
+ * rather than inside it.
  */
-export type CollapsibleSectionTone = 'primary' | 'level-0' | 'level-1' | 'level-2' | 'level-3';
+export type CollapsibleSectionTone =
+  | 'primary'
+  | 'muted'
+  | 'level-0'
+  | 'level-1'
+  | 'level-2'
+  | 'level-3';
 
 let nextBodyId = 0;
 

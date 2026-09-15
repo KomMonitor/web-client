@@ -5,9 +5,20 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { AVAILABLE_LEVELS } from '../hierarchy-demo.data';
 import { DemoChainEntry, DemoHierarchy, nest } from '../hierarchy-demo.model';
 import { LevelPickerPanelComponent } from './level-picker-panel.component';
+
+/**
+ * The registry the page hands in. A local fixture: the panel offers what it is
+ * given, which demo levels exist is none of its business.
+ */
+const LEVELS = [
+  'Stadt Essen',
+  'Stadtbezirke Essen',
+  'Stadtteile Essen',
+  'Sozialräume Essen',
+  'Quartiere Essen',
+];
 
 function hierarchy(names: string[]): DemoHierarchy {
   const chain = signal<readonly DemoChainEntry[]>(
@@ -33,6 +44,7 @@ describe('LevelPickerPanelComponent', () => {
   let modalService: NgbModal;
   let demo: DemoHierarchy;
   let done: number;
+  let registered: unknown[];
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -44,11 +56,14 @@ describe('LevelPickerPanelComponent', () => {
     component = fixture.componentInstance;
     modalService = TestBed.inject(NgbModal);
 
-    demo = hierarchy(['Stadt Essen', AVAILABLE_LEVELS[0]]);
+    demo = hierarchy([LEVELS[0]]);
     done = 0;
+    registered = [];
     fixture.componentRef.setInput('hierarchy', demo);
     fixture.componentRef.setInput('gap', { parent: null, index: 0 });
+    fixture.componentRef.setInput('registryNames', LEVELS);
     component.done.subscribe(() => (done += 1));
+    component.registered.subscribe((result) => registered.push(result));
     fixture.detectChanges();
   });
 
@@ -61,30 +76,26 @@ describe('LevelPickerPanelComponent', () => {
       .queryAll(By.css('option'))
       .map((el) => el.nativeElement.value);
 
-    expect(options).not.toContain(AVAILABLE_LEVELS[0]);
-    expect(options).toEqual(AVAILABLE_LEVELS.slice(1));
+    expect(options).not.toContain(LEVELS[0]);
+    expect(options).toEqual(LEVELS.slice(1));
   });
 
   it('adds the preselected level at the gap and closes', () => {
     fixture.debugElement.query(By.css('.btn-primary')).nativeElement.click();
 
-    expect(demo.chain().map((entry) => entry.name)).toEqual([
-      AVAILABLE_LEVELS[1],
-      'Stadt Essen',
-      AVAILABLE_LEVELS[0],
-    ]);
+    expect(demo.chain().map((entry) => entry.name)).toEqual([LEVELS[1], LEVELS[0]]);
     expect(done).toBe(1);
   });
 
   it('adds the level the user picked', () => {
     const select: HTMLSelectElement = fixture.debugElement.query(By.css('select')).nativeElement;
-    select.value = AVAILABLE_LEVELS[3];
+    select.value = LEVELS[3];
     select.dispatchEvent(new Event('change'));
     fixture.detectChanges();
 
     fixture.debugElement.query(By.css('.btn-primary')).nativeElement.click();
 
-    expect(demo.chain()[0].name).toBe(AVAILABLE_LEVELS[3]);
+    expect(demo.chain()[0].name).toBe(LEVELS[3]);
   });
 
   it('closes without a change on cancel', () => {
@@ -97,16 +108,21 @@ describe('LevelPickerPanelComponent', () => {
   });
 
   it('inserts the name the register modal resolves with', async () => {
+    const componentInstance: Record<string, unknown> = {};
     const open = jest.spyOn(modalService, 'open').mockReturnValue({
-      componentInstance: {},
-      result: Promise.resolve('Frei erfundene Ebene'),
+      componentInstance,
+      result: Promise.resolve({ name: 'Frei erfundene Ebene', datasource: 'Eigene Erhebung' }),
     } as never);
 
     fixture.debugElement.query(By.css('.btn-outline-primary')).nativeElement.click();
     await fixture.whenStable();
 
     expect(open).toHaveBeenCalledTimes(1);
+    // Checked against the whole registry, not only against this one chain.
+    expect(componentInstance['existingNames']).toEqual(LEVELS);
     expect(demo.chain()[0].name).toBe('Frei erfundene Ebene');
+    // The page has to learn about it, otherwise the level exists in this chain only.
+    expect(registered).toEqual([{ name: 'Frei erfundene Ebene', datasource: 'Eigene Erhebung' }]);
     expect(done).toBe(1);
   });
 
@@ -121,11 +137,12 @@ describe('LevelPickerPanelComponent', () => {
     await fixture.whenStable();
 
     expect(demo.chain()).toBe(before);
+    expect(registered).toEqual([]);
     expect(done).toBe(0);
   });
 
-  it('falls back to registering when the pool is exhausted', () => {
-    fixture.componentRef.setInput('hierarchy', hierarchy([...AVAILABLE_LEVELS]));
+  it('falls back to registering when the chain holds every registered level', () => {
+    fixture.componentRef.setInput('hierarchy', hierarchy([...LEVELS]));
     fixture.detectChanges();
 
     expect(fixture.debugElement.query(By.css('select'))).toBeNull();

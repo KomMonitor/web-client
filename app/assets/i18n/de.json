@@ -1599,7 +1599,9 @@
     "REGISTER_MODAL": {
       "TITLE": "Neue Raumebene registrieren",
       "NAME_LABEL": "Name der Raumebene",
-      "SUBMIT": "Registrieren"
+      "SUBMIT": "Registrieren",
+      "DATASOURCE_LABEL": "Datenquelle",
+      "DATASOURCE_PLACEHOLDER": "Beschreibung der Datenquelle"
     },
     "HIERARCHY_MODAL": {
       "CREATE_TITLE": "Neue Raumeinheitshierarchie anlegen",
@@ -1625,6 +1627,24 @@
       "CONFIRM_QUESTION": "Soll diese Hierarchie wirklich gelöscht werden?",
       "HINT": "Die Hierarchie wird mit allen ihren Ebenen entfernt. Die Raumebenen selbst bleiben bestehen.",
       "COL_LEVELS": "Ebenen"
+    },
+    "LEVEL_DELETE_MODAL": {
+      "TITLE": "Raumebene löschen",
+      "CONFIRM_QUESTION": "Soll diese Raumebene wirklich gelöscht werden?",
+      "HINT": "Die Raumebene wird aus der Registry entfernt. Hierarchien sind nicht betroffen — gelöscht werden kann nur eine Ebene, die in keiner verwendet wird."
+    },
+    "UNASSIGNED": {
+      "TITLE": "Keiner Hierarchie zugeordnet",
+      "COUNT": "{{count}} Raumebenen",
+      "COUNT_ONE": "1 Raumebene",
+      "HINT": "Diese Raumebenen sind registriert, aber in keiner Hierarchie verknüpft — sie stehen in der Kartenoberfläche nicht zur Auswahl. Zuordnen über die Auswahl rechts oder per Einfügelinie in einer Hierarchie.",
+      "REGISTER": "Neue Raumebene registrieren",
+      "ASSIGN": "Zuordnen",
+      "ASSIGN_LABEL": "Hierarchie, der die Raumebene zugeordnet wird",
+      "NO_HIERARCHY": "Noch keine Hierarchie für diesen Mandanten",
+      "ASSIGNED": "Ebene „{{level}}“ an „{{hierarchy}}“ angehängt.",
+      "REGISTERED": "Raumebene „{{level}}“ registriert.",
+      "DELETED": "Raumebene „{{level}}“ gelöscht."
     },
     "DEMO": {
       "SHOW_IDS": "Zeige IDs",

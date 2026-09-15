@@ -2,7 +2,13 @@ import { computed, signal } from '@angular/core';
 
 import uuidv4 from '../../../../../customizedExternalLibs/uuidv4.js';
 import { TreeGap } from '../../common/tree-view/tree-view.model';
-import { DemoChainEntry, DemoHierarchy, DemoLevel, nest } from './hierarchy-demo.model';
+import {
+  DemoChainEntry,
+  DemoHierarchy,
+  DemoLevel,
+  RegisteredLevel,
+  nest,
+} from './hierarchy-demo.model';
 
 /**
  * Static stand-in for the Data Management API. Everything in this file is
@@ -89,35 +95,86 @@ export const DEMO_HIERARCHIES: readonly HierarchySource[] = [
   },
 ];
 
-/**
- * Further levels of the draft, offered in the picker. A real implementation
- * would list the spatial units registered in the backend here — and only those
- * of the hierarchy's own tenant, which this pool does not distinguish.
- */
-export const AVAILABLE_LEVELS: readonly string[] = [
-  'Sozialräume Essen',
-  'Quartiere Essen',
-  'Raster 500 m',
-  'Raster 100 m',
-  'Schulregionen Essen',
-  'Grundschulbezirke Essen',
-  'Wahlbezirke Essen',
-  'Postleitzahlgebiete Essen',
-];
+// The offices the demo levels come from. Spelled once so a tenant's levels
+// cannot drift apart by a typo.
+const ESSEN_KATASTER = 'Amt für Geoinformation, Vermessung und Kataster';
+const ESSEN_STATISTIK = 'Amt für Statistik, Stadtforschung und Wahlen';
+const BOCHUM_KATASTER = 'Amt für Geoinformation, Liegenschaften und Kataster';
+const KREIS_RE_KATASTER = 'Kataster- und Vermessungsamt Kreis Recklinghausen';
+const KREFELD_KATASTER = 'Fachbereich Vermessungs- und Katasterwesen';
+const ZENSUS = 'Statistische Ämter des Bundes und der Länder';
+
+/** A registry entry before it is given an id. */
+type LevelSource = Omit<RegisteredLevel, 'id'>;
 
 /**
- * Every spatial unit level the demo knows: the ones the seeded hierarchies use
- * plus the pool. This is the registry the create dialog picks from — a level may
- * well sit in several hierarchies, the dialog only says so.
+ * The spatial unit levels this instance has registered — what the real page
+ * would read from the Data Management API. Every level belongs to exactly one
+ * tenant and names where its data comes from; whether it sits in a hierarchy is
+ * not stored here but derived from the chains.
+ *
+ * Most of them are in use by a hierarchy below. The ones that are not are what
+ * the "unassigned" section lists: four in Essen, one in Bochum — and nothing in
+ * Krefeld and Recklinghausen, so the empty case can be seen by switching tenant.
  */
-export const REGISTERED_LEVELS: readonly string[] = [
-  ...new Set([...DEMO_HIERARCHIES.flatMap((source) => source.levels), ...AVAILABLE_LEVELS]),
+const DEMO_LEVELS: readonly LevelSource[] = [
+  // Stadt Essen
+  { name: 'Stadt Essen', mandant: 'Stadt Essen', datasource: ESSEN_KATASTER },
+  { name: 'Stadtbezirke Essen', mandant: 'Stadt Essen', datasource: ESSEN_KATASTER },
+  { name: 'Stadtteile Essen', mandant: 'Stadt Essen', datasource: ESSEN_KATASTER },
+  { name: 'Stadtviertel Essen', mandant: 'Stadt Essen', datasource: ESSEN_KATASTER },
+  { name: 'Baublöcke Essen', mandant: 'Stadt Essen', datasource: ESSEN_KATASTER },
+  { name: 'Sozialräume Essen', mandant: 'Stadt Essen', datasource: ESSEN_STATISTIK },
+  { name: 'Quartiere Essen', mandant: 'Stadt Essen', datasource: ESSEN_STATISTIK },
+  { name: 'Schulregionen Essen', mandant: 'Stadt Essen', datasource: 'Fachbereich Schule' },
+  { name: 'Grundschulbezirke Essen', mandant: 'Stadt Essen', datasource: 'Fachbereich Schule' },
+  { name: 'Wahlbezirke Essen', mandant: 'Stadt Essen', datasource: ESSEN_STATISTIK },
+  {
+    name: 'Postleitzahlgebiete Essen',
+    mandant: 'Stadt Essen',
+    datasource: 'OpenStreetMap / Deutsche Post',
+  },
+
+  // Stadt Bochum
+  { name: 'Stadt Bochum', mandant: 'Stadt Bochum', datasource: BOCHUM_KATASTER },
+  { name: 'Stadtbezirke Bochum', mandant: 'Stadt Bochum', datasource: BOCHUM_KATASTER },
+  { name: 'Stadtteile Bochum', mandant: 'Stadt Bochum', datasource: BOCHUM_KATASTER },
+  {
+    name: 'Wahlbezirke Bochum',
+    mandant: 'Stadt Bochum',
+    datasource: 'Amt für Wahlen und Statistik',
+  },
+
+  // Kreis Recklinghausen
+  { name: 'Kreis Recklinghausen', mandant: 'Kreis Recklinghausen', datasource: KREIS_RE_KATASTER },
+  {
+    name: 'Städte im Kreis Recklinghausen',
+    mandant: 'Kreis Recklinghausen',
+    datasource: KREIS_RE_KATASTER,
+  },
+  {
+    name: 'Stadtteile im Kreis Recklinghausen',
+    mandant: 'Kreis Recklinghausen',
+    datasource: KREIS_RE_KATASTER,
+  },
+  { name: 'Raster 1 km', mandant: 'Kreis Recklinghausen', datasource: ZENSUS },
+  { name: 'Raster 500 m', mandant: 'Kreis Recklinghausen', datasource: ZENSUS },
+  { name: 'Raster 100 m', mandant: 'Kreis Recklinghausen', datasource: ZENSUS },
+
+  // Stadt Krefeld
+  { name: 'Stadt Krefeld', mandant: 'Stadt Krefeld', datasource: KREFELD_KATASTER },
+  { name: 'Stadtbezirke Krefeld', mandant: 'Stadt Krefeld', datasource: KREFELD_KATASTER },
+  { name: 'Stadtteile Krefeld', mandant: 'Stadt Krefeld', datasource: KREFELD_KATASTER },
 ];
 
-/** The pool entries not yet used in this chain. */
-export function unusedLevels(chain: readonly DemoChainEntry[]): string[] {
-  const used = new Set(chain.map((entry) => entry.name));
-  return AVAILABLE_LEVELS.filter((name) => !used.has(name));
+/** Builds the level registry the page starts with; ids like the backend hands out. */
+export function createLevelRegistry(): readonly RegisteredLevel[] {
+  return DEMO_LEVELS.map((level) => ({ id: newLevelId(), ...level }));
+}
+
+/** Id for a level the user registers — a uuid, like `newHierarchyId`. */
+export function newLevelId(): string {
+  return uuidv4();
 }
 
 /**

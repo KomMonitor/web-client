@@ -37,6 +37,7 @@
   } @else {
     @for (hierarchy of visibleHierarchies(); track hierarchy.id) {
       <app-collapsible-section
+        class="hierarchy-section"
         [title]="hierarchy.name()"
         [meta]="
           'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.LEVEL_COUNT'
@@ -135,7 +136,13 @@
             </button>
           </ng-template>
           <ng-template appTreeGap let-gap let-close="close">
-            <app-level-picker-panel [hierarchy]="hierarchy" [gap]="gap" (done)="close()" />
+            <app-level-picker-panel
+              [hierarchy]="hierarchy"
+              [gap]="gap"
+              [registryNames]="tenantLevelNames()"
+              (registered)="onLevelRegistered($event, hierarchy.mandant())"
+              (done)="close()"
+            />
           </ng-template>
         </app-tree-view>
       </app-collapsible-section>
@@ -147,6 +154,20 @@
           {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_PANEL.EMPTY' | translate }}
         }
       </p>
+    }
+
+    <!-- Registered but filed nowhere. Only shown when there is something to
+         show — an empty section would just say that everything is in order. -->
+    @if (unassignedLevels().length > 0) {
+      <app-unassigned-levels-panel
+        [levels]="unassignedLevels()"
+        [hierarchies]="visibleHierarchies()"
+        [showIds]="showIds()"
+        (assign)="onAssignLevel($event)"
+        (register)="onRegisterLevel()"
+        (remove)="onDeleteLevel($event)"
+        (metadata)="onAction('ADMIN_SHARED.METADATA', $event.name)"
+      />
     }
   }
 </ng-template>

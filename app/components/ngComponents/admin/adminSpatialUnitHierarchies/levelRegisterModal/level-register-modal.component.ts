@@ -6,12 +6,20 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
 import { uniqueNameValidator } from '../../adminShared/validators/admin-validators';
 
+/** What the dialog resolves with. */
+export interface LevelRegisterResult {
+  readonly name: string;
+  /** Where the data comes from; empty when the user left it out. */
+  readonly datasource: string;
+}
+
 /**
- * Registers a new spatial unit level by name. The compact counterpart of the
- * design draft's multi-step register dialog — description, outline flag, tenant
- * and the multi-hierarchy assignment are not part of it yet.
+ * Registers a new spatial unit level by name and data source. The compact
+ * counterpart of the design draft's multi-step register dialog — description,
+ * outline flag, tenant and the multi-hierarchy assignment are not part of it
+ * yet; the tenant is the one the page is showing.
  *
- * Resolves with the entered name, or dismisses on cancel.
+ * Resolves with a `LevelRegisterResult`, or dismisses on cancel.
  */
 @Component({
   selector: 'app-level-register-modal',
@@ -31,6 +39,8 @@ export class LevelRegisterModalComponent {
       nonNullable: true,
       validators: [Validators.required, uniqueNameValidator(() => this.existingNames)],
     }),
+    // Optional: a level registered in a hurry should not be blocked on it.
+    datasource: new FormControl('', { nonNullable: true }),
   });
 
   submit(): void {
@@ -38,7 +48,10 @@ export class LevelRegisterModalComponent {
       this.form.controls.name.markAsTouched();
       return;
     }
-    this.activeModal.close(this.form.controls.name.value.trim());
+    this.activeModal.close({
+      name: this.form.controls.name.value.trim(),
+      datasource: this.form.controls.datasource.value.trim(),
+    });
   }
 
   cancel(): void {

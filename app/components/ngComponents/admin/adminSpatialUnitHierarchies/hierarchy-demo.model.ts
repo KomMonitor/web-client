@@ -2,10 +2,35 @@ import { Signal, WritableSignal } from '@angular/core';
 
 import { TreeGap } from '../../common/tree-view/tree-view.model';
 
-/** A spatial unit level as it is stored: a flat chain entry, coarsest first. */
+/**
+ * A spatial unit level as it is stored: a flat chain entry, coarsest first.
+ *
+ * Its `id` identifies the level *within this one chain* — the tree tracks and
+ * expands rows by it. It is not the identity of the spatial unit level itself,
+ * which is what `RegisteredLevel.id` is. The two worlds are joined by the
+ * **name**, the way `levelUsage` and the tenant overview already count.
+ */
 export interface DemoChainEntry {
   readonly id: string;
   readonly name: string;
+}
+
+/**
+ * A spatial unit level as the registry knows it — independent of any hierarchy.
+ * Stands in for a `SpatialUnitOverviewType`: `id` mirrors `spatialUnitId`,
+ * `name` the level name and `datasource` its `metadata.datasource`.
+ *
+ * Whether a level is assigned is never stored, it is derived: a level is
+ * unassigned while no chain of its tenant carries its name. Storing it would
+ * mean the datasource of an assigned level had nowhere to live.
+ */
+export interface RegisteredLevel {
+  readonly id: string;
+  readonly name: string;
+  /** Where the data comes from — free text, shown next to unassigned levels. */
+  readonly datasource: string;
+  /** Owning tenant; empty where Keycloak names none. */
+  readonly mandant: string;
 }
 
 /** The same level as the tree renders it — each one nests the next. */
@@ -68,8 +93,25 @@ export function insertIntoChain(
   gap: TreeGap<DemoLevel>,
   name: string
 ): DemoChainEntry {
+  return insertAt(hierarchy, chainPosition(hierarchy, gap), name);
+}
+
+/**
+ * Appends a level below the deepest one, where it becomes the finest level of
+ * the hierarchy. This is what assigning a so far unassigned level does — the
+ * gaps in the tree address the positions in between.
+ */
+export function appendToChain(hierarchy: DemoHierarchy, name: string): DemoChainEntry {
+  return insertAt(hierarchy, hierarchy.chain().length, name);
+}
+
+/**
+ * The one place that adds to a chain: mints the id the tree tracks the level by,
+ * splices it in and marks it expanded — a level that is not in `expandedIds`
+ * would come up folded and hide everything below it.
+ */
+function insertAt(hierarchy: DemoHierarchy, position: number, name: string): DemoChainEntry {
   const entry: DemoChainEntry = { id: `level-${nextLevelId++}`, name };
-  const position = chainPosition(hierarchy, gap);
 
   hierarchy.chain.update((entries) => {
     const next = [...entries];

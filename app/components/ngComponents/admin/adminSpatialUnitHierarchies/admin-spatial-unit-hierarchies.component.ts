@@ -10,19 +10,34 @@ import { TreeGapDirective, TreeRowDirective } from '../../common/tree-view/tree-
 import { TreeViewComponent } from '../../common/tree-view/tree-view.component';
 import { TreeGap } from '../../common/tree-view/tree-view.model';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
-import { createDemoHierarchies, createHierarchy, newHierarchyId } from './hierarchy-demo.data';
-import { DemoHierarchy, DemoLevel } from './hierarchy-demo.model';
+import {
+  createDemoHierarchies,
+  createHierarchy,
+  createLevelRegistry,
+  newHierarchyId,
+  newLevelId,
+} from './hierarchy-demo.data';
+import { DemoHierarchy, DemoLevel, RegisteredLevel, appendToChain } from './hierarchy-demo.model';
 import { HierarchyDeleteModalComponent } from './hierarchyDeleteModal/hierarchy-delete-modal.component';
 import {
   HierarchyModalComponent,
   HierarchyModalResult,
 } from './hierarchyModal/hierarchy-modal.component';
 import { LevelPickerPanelComponent } from './levelPickerPanel/level-picker-panel.component';
+import { LevelDeleteModalComponent } from './levelDeleteModal/level-delete-modal.component';
+import {
+  LevelRegisterModalComponent,
+  LevelRegisterResult,
+} from './levelRegisterModal/level-register-modal.component';
 import {
   MandantOverviewRow,
   MandantOverviewTableComponent,
 } from './mandantOverviewTable/mandant-overview-table.component';
 import { MandantPanelComponent } from './mandantPanel/mandant-panel.component';
+import {
+  LevelAssignment,
+  UnassignedLevelsPanelComponent,
+} from './unassignedLevelsPanel/unassigned-levels-panel.component';
 
 /**
  * Management of spatial unit hierarchies — the chains that order spatial unit
@@ -46,6 +61,7 @@ import { MandantPanelComponent } from './mandantPanel/mandant-panel.component';
     LevelPickerPanelComponent,
     MandantPanelComponent,
     MandantOverviewTableComponent,
+    UnassignedLevelsPanelComponent,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,6 +75,32 @@ export class AdminSpatialUnitHierarchiesComponent {
   readonly showIds = signal(false);
 
   readonly hierarchies = signal<readonly DemoHierarchy[]>(createDemoHierarchies());
+
+  /**
+   * Every spatial unit level this instance knows, whether or not a hierarchy
+   * uses it. The page owns it because levels are registered and deleted here.
+   */
+  readonly levelRegistry = signal<readonly RegisteredLevel[]>(createLevelRegistry());
+
+  /**
+   * The names of all registered levels, for the create dialog to build a chain
+   * from. Across all tenants on purpose: the dialog lets the user switch the
+   * tenant while it is open, so a list filtered by the tenant on screen would
+   * go stale the moment they do.
+   */
+  readonly registeredLevelNames = computed(() => this.levelRegistry().map((level) => level.name));
+
+  /**
+   * The level names the tenant on screen may build chains from. Where no tenant
+   * is chosen — an instance without Keycloak — the whole registry is on offer,
+   * the same way the list then shows every hierarchy.
+   */
+  readonly tenantLevelNames = computed(() => {
+    const mandant = this.selectedMandant();
+    return this.levelRegistry()
+      .filter((level) => !mandant || level.mandant === mandant)
+      .map((level) => level.name);
+  });
 
   /**
    * The tenant whose hierarchies are on screen; the empty string is the
@@ -128,6 +170,24 @@ export class AdminSpatialUnitHierarchiesComponent {
   readonly canSwitchMandant = computed(
     () => this.accessControlService.isRealmAdmin || this.mandantOverview().length > 1
   );
+
+  /**
+   * The registered levels of the tenant on screen that no hierarchy uses. They
+   * are what the section below the list shows — registered, but nowhere to be
+   * chosen in the map interface, because only a hierarchy puts a level there.
+   *
+   * Derived, never stored: a level becomes assigned by appearing in a chain and
+   * unassigned again by leaving the last one.
+   */
+  readonly unassignedLevels = computed(() => {
+    const mandant = this.selectedMandant();
+    const used = new Set(
+      this.hierarchies().flatMap((hierarchy) => hierarchy.chain().map((entry) => entry.name))
+    );
+    return this.levelRegistry().filter(
+      (level) => (!mandant || level.mandant === mandant) && !used.has(level.name)
+    );
+  });
 
   /** What the list renders: one tenant's hierarchies, or all of them. */
   readonly visibleHierarchies = computed(() => {
@@ -257,6 +317,7 @@ export class AdminSpatialUnitHierarchiesComponent {
     modalRef.componentInstance.mode = 'create';
     modalRef.componentInstance.existingNames = this.hierarchyNames();
     modalRef.componentInstance.levelUsage = this.levelUsage();
+    modalRef.componentInstance.registeredLevels = this.registeredLevelNames();
     // Prefill with the tenant on screen; in the overview the dialog picks its own.
     modalRef.componentInstance.currentMandant = this.selectedMandant();
     modalRef.componentInstance.knownMandants = this.mandantNames();
@@ -293,6 +354,58 @@ export class AdminSpatialUnitHierarchiesComponent {
       this.followMandant(result.mandant);
       this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.UPDATED', { hierarchy: result.name });
     }, this.ignoreDismissal);
+  }
+
+  /**
+   * Assigns a level to a hierarchy: it becomes the finest level of that chain.
+   * The registry does not change — a level is not owned by a hierarchy, it is
+   * only used by one, and it may be used by several.
+   */
+  protected onAssignLevel({ level, hierarchy }: LevelAssignment): void {
+    appendToChain(hierarchy, level.name);
+    hierarchy.open.set(true);
+    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.ASSIGNED', {
+      level: level.name,
+      hierarchy: hierarchy.name(),
+    });
+  }
+
+  /** Registers a level for the tenant on screen, without putting it anywhere. */
+  protected onRegisterLevel(): void {
+    const modalRef = this.modalService.open(LevelRegisterModalComponent, MODAL_FORM);
+    // Against the whole registry: a level name names one level in the instance.
+    modalRef.componentInstance.existingNames = this.registeredLevelNames();
+
+    modalRef.result.then((result: LevelRegisterResult) => {
+      this.onLevelRegistered(result, this.selectedMandant());
+      this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.REGISTERED', { level: result.name });
+    }, this.ignoreDismissal);
+  }
+
+  /** Drops a level from the registry once the confirmation dialog agrees. */
+  protected onDeleteLevel(level: RegisteredLevel): void {
+    const modalRef = this.modalService.open(LevelDeleteModalComponent, MODAL_CONFIRM);
+    modalRef.componentInstance.level = level;
+
+    modalRef.result.then((confirmed: boolean) => {
+      if (!confirmed) {
+        return;
+      }
+      this.levelRegistry.update((levels) => levels.filter((entry) => entry !== level));
+      this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.DELETED', { level: level.name });
+    }, this.ignoreDismissal);
+  }
+
+  /**
+   * Takes a level the user registered into the registry. The tenant comes from
+   * where it was registered — inside a hierarchy that is the hierarchy's own,
+   * which in the tenant-less fallback view need not be the one on screen.
+   */
+  onLevelRegistered(result: LevelRegisterResult, mandant: string): void {
+    this.levelRegistry.update((levels) => [
+      ...levels,
+      { id: newLevelId(), name: result.name, datasource: result.datasource, mandant },
+    ]);
   }
 
   /** Drops a hierarchy once the confirmation dialog agrees. */

@@ -1,0 +1,60 @@
+<app-collapsible-section
+  tone="muted"
+  [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.TITLE' | translate"
+  [meta]="
+    levels().length === 1
+      ? ('ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.COUNT_ONE' | translate)
+      : ('ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.COUNT' | translate: { count: levels().length })
+  "
+>
+  <button header-actions type="button" class="btn btn-sm btn-light" (click)="register.emit()">
+    {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.REGISTER' | translate }}
+  </button>
+
+  <p class="unassigned-hint">
+    {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.HINT' | translate }}
+  </p>
+
+  @for (level of levels(); track level.id) {
+    <div class="unassigned-row">
+      <span class="unassigned-name">{{ level.name }}</span>
+      @if (showIds()) {
+        <span class="unassigned-id">{{ level.id }}</span>
+      }
+      <span class="unassigned-spacer"></span>
+      @if (level.datasource) {
+        <span class="unassigned-source">{{ level.datasource }}</span>
+      }
+
+      @if (canAssign()) {
+        <select
+          #target
+          class="form-select form-select-sm unassigned-select"
+          [attr.aria-label]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.ASSIGN_LABEL' | translate"
+        >
+          @for (hierarchy of hierarchies(); track hierarchy.id) {
+            <option [value]="hierarchy.id">{{ hierarchy.name() }}</option>
+          }
+        </select>
+        <button
+          type="button"
+          class="btn btn-sm btn-primary"
+          (click)="onAssign(level, target.value)"
+        >
+          {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.ASSIGN' | translate }}
+        </button>
+      } @else {
+        <span class="unassigned-no-hierarchy">
+          {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.NO_HIERARCHY' | translate }}
+        </span>
+      }
+
+      <button type="button" class="btn btn-sm btn-warning" (click)="metadata.emit(level)">
+        {{ 'ADMIN_SHARED.METADATA' | translate }}
+      </button>
+      <button type="button" class="btn btn-sm btn-outline-danger" (click)="remove.emit(level)">
+        {{ 'ADMIN_SHARED.DELETE' | translate }}
+      </button>
+    </div>
+  }
+</app-collapsible-section>

@@ -19,6 +19,21 @@
       <input id="level-name-input" class="form-control" type="text" formControlName="name" />
       <app-form-error [control]="form.controls.name" for="level-name-input" />
     </div>
+
+    <div class="form-group">
+      <label class="form-label" for="level-datasource-input">
+        {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.REGISTER_MODAL.DATASOURCE_LABEL' | translate }}
+      </label>
+      <input
+        id="level-datasource-input"
+        class="form-control"
+        type="text"
+        formControlName="datasource"
+        [placeholder]="
+          'ADMIN_SPATIAL_UNIT_HIERARCHIES.REGISTER_MODAL.DATASOURCE_PLACEHOLDER' | translate
+        "
+      />
+    </div>
   </form>
 </div>
 

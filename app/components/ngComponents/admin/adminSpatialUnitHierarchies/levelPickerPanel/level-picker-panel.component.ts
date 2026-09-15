@@ -13,9 +13,11 @@ import { MODAL_FORM } from 'util/modal-presets';
 
 import { NotificationService } from '../../../common/notification/notification.service';
 import { TreeGap } from '../../../common/tree-view/tree-view.model';
-import { unusedLevels } from '../hierarchy-demo.data';
 import { DemoHierarchy, DemoLevel, insertIntoChain } from '../hierarchy-demo.model';
-import { LevelRegisterModalComponent } from '../levelRegisterModal/level-register-modal.component';
+import {
+  LevelRegisterModalComponent,
+  LevelRegisterResult,
+} from '../levelRegisterModal/level-register-modal.component';
 
 /**
  * The panel that opens in place of an insert line: pick one of the spatial unit
@@ -38,10 +40,31 @@ export class LevelPickerPanelComponent {
   readonly hierarchy = input.required<DemoHierarchy>();
   readonly gap = input.required<TreeGap<DemoLevel>>();
 
+  /**
+   * The registered levels of this hierarchy's tenant, as the page's registry
+   * knows them. The panel offers what is not in this chain yet and checks a
+   * newly registered name against all of them.
+   */
+  readonly registryNames = input<readonly string[]>([]);
+
   /** Fired when the panel should close — after inserting, or on cancel. */
   readonly done = output<void>();
 
-  protected readonly options = computed(() => unusedLevels(this.hierarchy().chain()));
+  /**
+   * A level the user registered here. The panel puts it into the chain itself;
+   * the page owns the registry and takes it in from this.
+   */
+  readonly registered = output<LevelRegisterResult>();
+
+  /** A level sits in one chain at most once; everything else is on offer. */
+  protected readonly options = computed(() => {
+    const used = new Set(
+      this.hierarchy()
+        .chain()
+        .map((entry) => entry.name)
+    );
+    return this.registryNames().filter((name) => !used.has(name));
+  });
 
   /** Empty until the user picks; the first option is preselected on open. */
   private readonly picked = signal<string | null>(null);
@@ -62,12 +85,15 @@ export class LevelPickerPanelComponent {
 
   protected registerNew(): void {
     const modalRef = this.modalService.open(LevelRegisterModalComponent, MODAL_FORM);
-    modalRef.componentInstance.existingNames = this.hierarchy()
-      .chain()
-      .map((entry) => entry.name);
+    // Against the whole registry, not just this chain: a level name names one
+    // spatial unit level in the instance, so it cannot be registered twice.
+    modalRef.componentInstance.existingNames = this.registryNames();
 
     modalRef.result.then(
-      (name: string) => this.insert(name),
+      (result: LevelRegisterResult) => {
+        this.registered.emit(result);
+        this.insert(result.name);
+      },
       // Dismissed — the panel stays open so the user can still pick from the list.
       () => undefined
     );

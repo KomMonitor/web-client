@@ -6,8 +6,13 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 
-import { REGISTERED_LEVELS } from '../hierarchy-demo.data';
 import { HierarchyModalComponent } from './hierarchy-modal.component';
+
+/**
+ * The registry the page hands in. A local fixture on purpose: these tests are
+ * about the dialog, not about which levels the demo seed happens to carry.
+ */
+const LEVELS = ['Stadt Essen', 'Stadtbezirke Essen', 'Stadtteile Essen', 'Quartiere Essen'];
 
 /** Two tenants, so the tenant field can be exercised as a select. */
 const MANDANTS = [
@@ -23,7 +28,7 @@ describe('HierarchyModalComponent', () => {
 
   /** Applies the inputs ng-bootstrap would set, then runs the first change detection. */
   function render(inputs: Partial<HierarchyModalComponent> = {}): void {
-    Object.assign(component, inputs);
+    Object.assign(component, { registeredLevels: LEVELS, ...inputs });
     fixture.detectChanges();
   }
 
@@ -97,14 +102,14 @@ describe('HierarchyModalComponent', () => {
       addLevelButton().click();
       fixture.detectChanges();
 
-      expect(chainNames()).toEqual([REGISTERED_LEVELS[0], REGISTERED_LEVELS[1]]);
-      expect(component.levels()).toEqual([REGISTERED_LEVELS[0], REGISTERED_LEVELS[1]]);
+      expect(chainNames()).toEqual([LEVELS[0], LEVELS[1]]);
+      expect(component.levels()).toEqual([LEVELS[0], LEVELS[1]]);
 
       const options = fixture.debugElement
         .queryAll(By.css('.chain-add option'))
         .map((el) => el.nativeElement.value);
-      expect(options).not.toContain(REGISTERED_LEVELS[0]);
-      expect(options).toHaveLength(REGISTERED_LEVELS.length - 2);
+      expect(options).not.toContain(LEVELS[0]);
+      expect(options).toHaveLength(LEVELS.length - 2);
     });
 
     it('removes a level from the chain again', () => {
@@ -115,11 +120,11 @@ describe('HierarchyModalComponent', () => {
       fixture.debugElement.queryAll(By.css('.chain-remove'))[0].nativeElement.click();
       fixture.detectChanges();
 
-      expect(chainNames()).toEqual([REGISTERED_LEVELS[1]]);
+      expect(chainNames()).toEqual([LEVELS[1]]);
     });
 
     it('marks the levels other hierarchies already use', () => {
-      Object.assign(component, { levelUsage: { [REGISTERED_LEVELS[0]]: 2 } });
+      Object.assign(component, { levelUsage: { [LEVELS[0]]: 2 } });
       addLevelButton().click();
       fixture.detectChanges();
 
@@ -142,7 +147,7 @@ describe('HierarchyModalComponent', () => {
         name: 'Sozialraum-Gliederung',
         description: 'Für die Sozialberichterstattung.',
         mandant: 'Kreis Recklinghausen',
-        levels: [REGISTERED_LEVELS[0]],
+        levels: [LEVELS[0]],
       });
     });
 
@@ -172,6 +177,20 @@ describe('HierarchyModalComponent', () => {
       component.cancel();
 
       expect(dismiss).toHaveBeenCalledWith('cancel');
+    });
+  });
+
+  describe('without registered levels', () => {
+    beforeEach(() => {
+      configure(MANDANTS, [MANDANTS[0]]);
+    });
+
+    it('offers no chain at all and keeps the submit disabled', () => {
+      render({ registeredLevels: [] });
+
+      expect(fixture.debugElement.query(By.css('.chain-empty'))).not.toBeNull();
+      expect(fixture.debugElement.query(By.css('.chain-add'))).toBeNull();
+      expect(submitButton().disabled).toBe(true);
     });
   });
 

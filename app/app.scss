@@ -16,6 +16,10 @@
   --kommonitor-hierarchy-level-2: #d6e4f1;
   --kommonitor-hierarchy-level-3: #eaf1f8;
 
+  // Header of a section that is not part of the accented structure — used for
+  // the "unassigned" section, which lists what is registered but nowhere filed.
+  --kommonitor-section-muted: #7b8f9e;
+
   // Self-hosted via @fontsource-variable/source-sans-3 (wired up in angular.json styles).
   // 'Source Sans 3' / 'Source Sans Pro' cover users who have either installed locally.
   --custom-font-family: 'Source Sans 3 Variable', 'Source Sans 3', 'Source Sans Pro', sans-serif;

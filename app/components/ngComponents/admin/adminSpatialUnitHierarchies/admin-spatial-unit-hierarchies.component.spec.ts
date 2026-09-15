@@ -11,7 +11,8 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { NotificationService } from '../../common/notification/notification.service';
 import { AdminSpatialUnitHierarchiesComponent } from './admin-spatial-unit-hierarchies.component';
 import { createDemoHierarchies } from './hierarchy-demo.data';
-import { chainPosition, DemoLevel } from './hierarchy-demo.model';
+import { UnassignedLevelsPanelComponent } from './unassignedLevelsPanel/unassigned-levels-panel.component';
+import { appendToChain, chainPosition, DemoLevel } from './hierarchy-demo.model';
 
 /** The remove button of the row at `rowIndex`. */
 function removeButton(fixture: ComponentFixture<unknown>, rowIndex: number): HTMLButtonElement {
@@ -75,6 +76,11 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     return componentInstance;
   }
 
+  /** The unassigned-levels section; only rendered when there is something in it. */
+  function panel(): UnassignedLevelsPanelComponent {
+    return fixture.debugElement.query(By.css('app-unassigned-levels-panel')).componentInstance;
+  }
+
   /** The descriptions rendered inside the hierarchy sections. */
   function descriptions(): string[] {
     return fixture.debugElement
@@ -85,7 +91,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
   /** The toggle buttons of the rendered hierarchy sections. */
   function sectionToggles(): HTMLButtonElement[] {
     return fixture.debugElement
-      .queryAll(By.css('app-collapsible-section .section-toggle'))
+      .queryAll(By.css('.hierarchy-section .section-toggle'))
       .map((el) => el.nativeElement);
   }
 
@@ -97,7 +103,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
   /** The titles of the rendered hierarchy sections. */
   function sectionTitles(): string[] {
     return fixture.debugElement
-      .queryAll(By.css('app-collapsible-section .section-title'))
+      .queryAll(By.css('.hierarchy-section .section-title'))
       .map((el) => el.nativeElement.textContent.trim());
   }
 
@@ -109,7 +115,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     fixture.detectChanges();
 
     const titles = fixture.debugElement
-      .queryAll(By.css('app-collapsible-section .section-title'))
+      .queryAll(By.css('.hierarchy-section .section-title'))
       .map((el) => el.nativeElement.textContent.trim());
 
     expect(titles).toEqual(['Verwaltungsgliederung']);
@@ -119,7 +125,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     fixture.detectChanges();
 
     const expanded = fixture.debugElement
-      .queryAll(By.css('app-collapsible-section .section-toggle'))
+      .queryAll(By.css('.hierarchy-section .section-toggle'))
       .map((el) => el.nativeElement.getAttribute('aria-expanded'));
 
     expect(expanded).toEqual(['true']);
@@ -129,7 +135,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     fixture.detectChanges();
 
     fixture.debugElement
-      .queryAll(By.css('app-collapsible-section .section-toggle'))[0]
+      .queryAll(By.css('.hierarchy-section .section-toggle'))[0]
       .nativeElement.click();
     fixture.detectChanges();
 
@@ -138,11 +144,11 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
 
   it('only shows the id chips once the toggle is on', () => {
     fixture.detectChanges();
-    expect(fixture.debugElement.queryAll(By.css('.section-id')).length).toBe(0);
+    expect(fixture.debugElement.queryAll(By.css('.hierarchy-section .section-id')).length).toBe(0);
 
     component.showIds.set(true);
     fixture.detectChanges();
-    expect(fixture.debugElement.queryAll(By.css('.section-id')).length).toBe(1);
+    expect(fixture.debugElement.queryAll(By.css('.hierarchy-section .section-id')).length).toBe(1);
   });
 
   it('renders the full level chain of the hierarchy', () => {
@@ -394,6 +400,116 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     expect(fixture.debugElement.query(By.css('app-level-picker-panel'))).toBeNull();
   });
 
+  it('lists the tenant levels that no hierarchy uses', () => {
+    fixture.detectChanges();
+
+    // The spec keeps the Verwaltungsgliederung alone, so the levels of the other
+    // Essen hierarchies count as unassigned here too.
+    expect(component.unassignedLevels().map((level) => level.name)).toEqual([
+      'Sozialräume Essen',
+      'Quartiere Essen',
+      'Schulregionen Essen',
+      'Grundschulbezirke Essen',
+      'Wahlbezirke Essen',
+      'Postleitzahlgebiete Essen',
+    ]);
+  });
+
+  it('counts a level as assigned again as soon as a chain carries it', () => {
+    fixture.detectChanges();
+    const hierarchy = component.hierarchies()[0];
+
+    appendToChain(hierarchy, 'Wahlbezirke Essen');
+    fixture.detectChanges();
+
+    expect(component.unassignedLevels().map((level) => level.name)).not.toContain(
+      'Wahlbezirke Essen'
+    );
+  });
+
+  it('leaves the levels of other tenants out', () => {
+    fixture.detectChanges();
+
+    expect(component.unassignedLevels().every((level) => level.mandant === 'Stadt Essen')).toBe(
+      true
+    );
+  });
+
+  it('shows the unassigned section below the hierarchies, but not in the overview', () => {
+    fixture.detectChanges();
+    expect(fixture.debugElement.query(By.css('app-unassigned-levels-panel'))).not.toBeNull();
+
+    component.selectMandant('');
+    fixture.detectChanges();
+
+    // Across all tenants the page shows the tenant table instead of any list.
+    expect(fixture.debugElement.query(By.css('app-unassigned-levels-panel'))).toBeNull();
+  });
+
+  it('hides the section for a tenant that has nothing unassigned', () => {
+    component.levelRegistry.set([]);
+    fixture.detectChanges();
+
+    expect(fixture.debugElement.query(By.css('app-unassigned-levels-panel'))).toBeNull();
+  });
+
+  it('appends an assigned level to the end of the chosen chain', () => {
+    const show = jest.spyOn(notificationService, 'show');
+    fixture.detectChanges();
+    const hierarchy = component.hierarchies()[0];
+    const level = component.unassignedLevels()[0];
+
+    panel().assign.emit({ level, hierarchy });
+    fixture.detectChanges();
+
+    expect(hierarchy.chain().at(-1)?.name).toBe(level.name);
+    expect(levelNames(fixture).at(-1)).toBe(level.name);
+    // And it is gone from the section, because a chain carries it now.
+    expect(component.unassignedLevels().map((entry) => entry.name)).not.toContain(level.name);
+    expect(show).toHaveBeenCalled();
+  });
+
+  it('takes a registered level into the registry of the tenant on screen', async () => {
+    fixture.detectChanges();
+    stubModal(Promise.resolve({ name: 'Wahlkreise Essen', datasource: 'Amt für Statistik' }));
+
+    panel().register.emit();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(component.levelRegistry().at(-1)).toEqual({
+      id: expect.any(String),
+      name: 'Wahlkreise Essen',
+      datasource: 'Amt für Statistik',
+      mandant: 'Stadt Essen',
+    });
+    expect(component.unassignedLevels().map((entry) => entry.name)).toContain('Wahlkreise Essen');
+  });
+
+  it('deletes a level once the confirmation agrees', async () => {
+    fixture.detectChanges();
+    const level = component.unassignedLevels()[0];
+    stubModal(Promise.resolve(true));
+
+    panel().remove.emit(level);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(component.levelRegistry()).not.toContain(level);
+  });
+
+  it('keeps the level when the confirmation is dismissed', async () => {
+    fixture.detectChanges();
+    const level = component.unassignedLevels()[0];
+    stubModal(Promise.resolve(false));
+
+    panel().remove.emit(level);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(component.levelRegistry()).toContain(level);
+  });
+
   it('notifies when a row action inside the tree is clicked', () => {
     const show = jest.spyOn(notificationService, 'show');
     fixture.detectChanges();
@@ -470,7 +586,9 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     const show = jest.spyOn(notificationService, 'show');
     fixture.detectChanges();
 
-    const actions = fixture.debugElement.queryAll(By.css('.section-actions button'));
+    const actions = fixture.debugElement.queryAll(
+      By.css('.hierarchy-section .section-actions button')
+    );
     expect(actions.length).toBe(2);
 
     const inputs = stubModal(
@@ -499,7 +617,9 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     fixture.detectChanges();
 
     stubModal(Promise.resolve(true));
-    fixture.debugElement.queryAll(By.css('.section-actions button'))[1].nativeElement.click();
+    fixture.debugElement
+      .queryAll(By.css('.hierarchy-section .section-actions button'))[1]
+      .nativeElement.click();
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -511,7 +631,9 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     fixture.detectChanges();
 
     stubModal(Promise.reject('cancel'));
-    fixture.debugElement.queryAll(By.css('.section-actions button'))[1].nativeElement.click();
+    fixture.debugElement
+      .queryAll(By.css('.hierarchy-section .section-actions button'))[1]
+      .nativeElement.click();
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -687,7 +809,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
       component.selectedMandant.set('Stadt Bochum');
       fixture.detectChanges();
 
-      const meta = fixture.debugElement.query(By.css('app-collapsible-section .section-meta'));
+      const meta = fixture.debugElement.query(By.css('.hierarchy-section .section-meta'));
 
       expect(meta.nativeElement.textContent).toContain('LEVEL_COUNT');
       expect(meta.nativeElement.textContent).not.toContain('Stadt Bochum');

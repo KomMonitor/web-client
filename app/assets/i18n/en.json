@@ -1599,7 +1599,9 @@
     "REGISTER_MODAL": {
       "TITLE": "Register a new spatial unit level",
       "NAME_LABEL": "Name of the spatial unit level",
-      "SUBMIT": "Register"
+      "SUBMIT": "Register",
+      "DATASOURCE_LABEL": "Data source",
+      "DATASOURCE_PLACEHOLDER": "Description of the data source"
     },
     "HIERARCHY_MODAL": {
       "CREATE_TITLE": "Create a new spatial unit hierarchy",
@@ -1625,6 +1627,24 @@
       "CONFIRM_QUESTION": "Really delete this hierarchy?",
       "HINT": "The hierarchy is removed with all of its levels. The spatial unit levels themselves remain.",
       "COL_LEVELS": "Levels"
+    },
+    "LEVEL_DELETE_MODAL": {
+      "TITLE": "Delete spatial unit level",
+      "CONFIRM_QUESTION": "Really delete this spatial unit level?",
+      "HINT": "The spatial unit level is removed from the registry. No hierarchy is affected — only a level that no hierarchy uses can be deleted."
+    },
+    "UNASSIGNED": {
+      "TITLE": "Not part of any hierarchy",
+      "COUNT": "{{count}} spatial unit levels",
+      "COUNT_ONE": "1 spatial unit level",
+      "HINT": "These spatial unit levels are registered but linked into no hierarchy — they cannot be chosen in the map interface. Assign them with the select on the right, or through an insert line in a hierarchy.",
+      "REGISTER": "Register a new spatial unit level",
+      "ASSIGN": "Assign",
+      "ASSIGN_LABEL": "Hierarchy the spatial unit level is assigned to",
+      "NO_HIERARCHY": "No hierarchy for this tenant yet",
+      "ASSIGNED": "Level \"{{level}}\" appended to \"{{hierarchy}}\".",
+      "REGISTERED": "Spatial unit level \"{{level}}\" registered.",
+      "DELETED": "Spatial unit level \"{{level}}\" deleted."
     },
     "DEMO": {
       "SHOW_IDS": "Show IDs",

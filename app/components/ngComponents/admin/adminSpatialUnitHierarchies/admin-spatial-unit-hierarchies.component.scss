@@ -70,9 +70,11 @@
   color: #5b7482;
 }
 
-// Shown in place of the list when the chosen tenant owns no hierarchy.
+// Shown in place of the list when the chosen tenant owns no hierarchy. Carries
+// the same bottom margin a section does, so whatever follows — the unassigned
+// levels — keeps its distance here as well.
 .hierarchies-empty {
-  margin: 0;
+  margin: 0 0 1em;
   padding: 14px 12px;
   background: #f7f9fb;
   border: 1px dashed #d7e3ec;

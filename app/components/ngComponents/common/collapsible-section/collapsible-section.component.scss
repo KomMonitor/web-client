@@ -117,6 +117,15 @@
     }
   }
 
+  .tone-muted .section-header {
+    background: var(--kommonitor-section-muted);
+    color: #ffffff;
+
+    .section-id {
+      background: rgb(255 255 255 / 0.18);
+    }
+  }
+
   .tone-level-0 .section-header,
   .tone-level-1 .section-header,
   .tone-level-2 .section-header,

@@ -21,7 +21,6 @@ import { AccessControlService } from 'services/access-control-service/access-con
 
 import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
 import { uniqueNameValidator } from '../../adminShared/validators/admin-validators';
-import { REGISTERED_LEVELS } from '../hierarchy-demo.data';
 
 /** What the dialog resolves with: the metadata, plus the level chain when creating. */
 export interface HierarchyModalResult {
@@ -71,6 +70,12 @@ export class HierarchyModalComponent implements OnInit {
   /** How many hierarchies already use a level, by level name. */
   @Input() levelUsage: Readonly<Record<string, number>> = {};
 
+  /**
+   * The registered spatial unit levels to build the chain from. The page owns
+   * the registry — a level registered in the draft has to show up here too.
+   */
+  @Input() registeredLevels: readonly string[] = [];
+
   /** Tenants the page found in its data; offered where Keycloak names none. */
   @Input() knownMandants: readonly string[] = [];
 
@@ -92,9 +97,13 @@ export class HierarchyModalComponent implements OnInit {
   private readonly chain = signal<readonly string[]>([]);
   readonly levels = this.chain.asReadonly();
 
-  /** Levels not yet in this chain — a level sits in a chain at most once. */
+  /**
+   * Levels not yet in this chain — a level sits in a chain at most once. Reads
+   * the input directly: ng-bootstrap assigns it before the first render and it
+   * never changes while the dialog is open.
+   */
   protected readonly options = computed(() =>
-    REGISTERED_LEVELS.filter((name) => !this.chain().includes(name))
+    this.registeredLevels.filter((name) => !this.chain().includes(name))
   );
 
   /** Empty until the user picks; the first option is preselected on open. */

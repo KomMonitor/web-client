@@ -40,13 +40,23 @@ describe('LevelRegisterModalComponent', () => {
     expect(component.form.controls.name.hasError('uniqueName')).toBe(true);
   });
 
-  it('closes with the trimmed name', () => {
+  it('closes with the trimmed name and data source', () => {
     const close = jest.spyOn(activeModal, 'close');
     component.form.controls.name.setValue('  Neue Ebene  ');
+    component.form.controls.datasource.setValue('  Amt für Statistik  ');
 
     component.submit();
 
-    expect(close).toHaveBeenCalledWith('Neue Ebene');
+    expect(close).toHaveBeenCalledWith({ name: 'Neue Ebene', datasource: 'Amt für Statistik' });
+  });
+
+  it('treats the data source as optional', () => {
+    const close = jest.spyOn(activeModal, 'close');
+    component.form.controls.name.setValue('Neue Ebene');
+
+    component.submit();
+
+    expect(close).toHaveBeenCalledWith({ name: 'Neue Ebene', datasource: '' });
   });
 
   it('does not close while the form is invalid', () => {

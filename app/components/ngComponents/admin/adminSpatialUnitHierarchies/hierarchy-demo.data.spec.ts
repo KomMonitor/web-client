@@ -1,26 +1,11 @@
 import {
-  AVAILABLE_LEVELS,
   DEMO_HIERARCHIES,
   createDemoHierarchies,
   createHierarchy,
+  createLevelRegistry,
   newHierarchyId,
-  unusedLevels,
+  newLevelId,
 } from './hierarchy-demo.data';
-
-describe('unusedLevels', () => {
-  it('drops the names already in the chain', () => {
-    const used = AVAILABLE_LEVELS[0];
-
-    const result = unusedLevels([{ id: 'x', name: used }]);
-
-    expect(result).not.toContain(used);
-    expect(result).toHaveLength(AVAILABLE_LEVELS.length - 1);
-  });
-
-  it('offers the whole pool for an unrelated chain', () => {
-    expect(unusedLevels([{ id: 'x', name: 'Stadt Essen' }])).toEqual([...AVAILABLE_LEVELS]);
-  });
-});
 
 describe('createDemoHierarchies', () => {
   it('builds one hierarchy per source entry, chain intact', () => {
@@ -105,5 +90,71 @@ describe('newHierarchyId', () => {
 
     expect(first).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
     expect(newHierarchyId()).not.toBe(first);
+  });
+});
+
+describe('createLevelRegistry', () => {
+  it('describes every level with a tenant and a data source', () => {
+    for (const level of createLevelRegistry()) {
+      expect(level.name).not.toBe('');
+      expect(level.mandant).not.toBe('');
+      expect(level.datasource).not.toBe('');
+      expect(level.id).toMatch(/^[0-9a-f-]{36}$/);
+    }
+  });
+
+  it('keeps names and ids unique', () => {
+    const registry = createLevelRegistry();
+
+    expect(new Set(registry.map((level) => level.name)).size).toBe(registry.length);
+    expect(new Set(registry.map((level) => level.id)).size).toBe(registry.length);
+  });
+
+  it('holds every level the seeded hierarchies use, under their own tenant', () => {
+    const registry = createLevelRegistry();
+
+    for (const source of DEMO_HIERARCHIES) {
+      for (const name of source.levels) {
+        const level = registry.find((entry) => entry.name === name);
+        expect(level).toBeDefined();
+        expect(level?.mandant).toBe(source.mandant);
+      }
+    }
+  });
+
+  it('covers the levels that sit outside every hierarchy as well', () => {
+    const names = createLevelRegistry().map((level) => level.name);
+
+    expect(names).toEqual(
+      expect.arrayContaining([
+        'Schulregionen Essen',
+        'Grundschulbezirke Essen',
+        'Wahlbezirke Essen',
+        'Postleitzahlgebiete Essen',
+        'Wahlbezirke Bochum',
+      ])
+    );
+  });
+
+  it('leaves some levels in no hierarchy at all, and one tenant with none', () => {
+    const used = new Set(DEMO_HIERARCHIES.flatMap((source) => source.levels));
+    const unassigned = createLevelRegistry().filter((level) => !used.has(level.name));
+
+    // At least two tenants have something unassigned, at least one has nothing —
+    // both branches of the section are reachable by switching tenant.
+    const mandants = new Set(unassigned.map((level) => level.mandant));
+    expect(mandants.size).toBeGreaterThan(1);
+    expect(mandants.size).toBeLessThan(new Set(DEMO_HIERARCHIES.map((s) => s.mandant)).size);
+  });
+
+  it('hands out independent state on every call', () => {
+    expect(createLevelRegistry()[0].id).not.toBe(createLevelRegistry()[0].id);
+  });
+});
+
+describe('newLevelId', () => {
+  it('hands out a fresh uuid every time', () => {
+    expect(newLevelId()).not.toBe(newLevelId());
+    expect(newLevelId()).toMatch(/^[0-9a-f-]{36}$/);
   });
 });

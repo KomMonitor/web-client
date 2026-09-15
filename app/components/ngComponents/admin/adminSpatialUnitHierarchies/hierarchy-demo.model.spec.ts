@@ -3,6 +3,7 @@ import { computed, signal } from '@angular/core';
 import {
   DemoChainEntry,
   DemoHierarchy,
+  appendToChain,
   chainPosition,
   insertIntoChain,
   nest,
@@ -96,5 +97,33 @@ describe('insertIntoChain', () => {
     const second = insertIntoChain(h, { parent: null, index: 0 }, 'Zwei');
 
     expect(first.id).not.toBe(second.id);
+  });
+});
+
+describe('appendToChain', () => {
+  it('adds the level below the deepest one', () => {
+    const h = hierarchy(['A', 'B']);
+
+    appendToChain(h, 'Neu');
+
+    expect(h.chain().map((entry) => entry.name)).toEqual(['A', 'B', 'Neu']);
+  });
+
+  it('expands the appended level and gives it its own id', () => {
+    const h = hierarchy(['A']);
+
+    const first = appendToChain(h, 'Eins');
+    const second = appendToChain(h, 'Zwei');
+
+    expect([...h.expandedIds()]).toContain(second.id);
+    expect(first.id).not.toBe(second.id);
+  });
+
+  it('starts a chain that is still empty', () => {
+    const h = hierarchy([]);
+
+    appendToChain(h, 'Neu');
+
+    expect(h.chain().map((entry) => entry.name)).toEqual(['Neu']);
   });
 });
