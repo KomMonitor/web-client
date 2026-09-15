@@ -17,7 +17,7 @@ import {
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { MandantService } from 'services/mandant-service/mandant.service';
 
 import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
 import { uniqueNameValidator } from '../../adminShared/validators/admin-validators';
@@ -57,7 +57,7 @@ export interface HierarchyModalResult {
 })
 export class HierarchyModalComponent implements OnInit {
   readonly activeModal = inject(NgbActiveModal);
-  private readonly accessControlService = inject(AccessControlService);
+  private readonly mandantService = inject(MandantService);
 
   /** ng-bootstrap sets these via componentInstance, before the first render. */
   @Input() mode: 'create' | 'edit' = 'create';
@@ -79,17 +79,11 @@ export class HierarchyModalComponent implements OnInit {
   /** Tenants the page found in its data; offered where Keycloak names none. */
   @Input() knownMandants: readonly string[] = [];
 
-  /** The organizational units Keycloak flags as tenants; empty without it. */
-  private readonly keycloakMandants: readonly string[] = this.accessControlService.accessControl
-    .filter((unit) => unit.mandant)
-    .map((unit) => unit.name);
-
   /**
-   * The tenants to choose from. Keycloak is the authority; where it names none,
-   * the ones already in the data keep the field usable, so a hierarchy created
-   * in the draft still ends up with an owner. Empty only where nothing knows a
-   * tenant — then the field stays a disabled placeholder instead of a required
-   * one nobody can fill. Filled in `ngOnInit`, once the input has arrived.
+   * The tenants to choose from, as `MandantService` sources them. Empty only
+   * where nothing knows a tenant — then the field stays a disabled placeholder
+   * instead of a required one nobody can fill. Filled in `ngOnInit`, once
+   * `knownMandants` has arrived.
    */
   mandants: readonly string[] = [];
 
@@ -127,7 +121,7 @@ export class HierarchyModalComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.mandants = this.keycloakMandants.length ? this.keycloakMandants : this.knownMandants;
+    this.mandants = this.mandantService.mandantsToOffer(this.knownMandants);
     this.form.controls.name.setValue(this.currentName);
     this.form.controls.description.setValue(this.currentDescription);
     this.form.controls.mandant.setValue(this.currentMandant || this.defaultMandant());
@@ -193,11 +187,8 @@ export class HierarchyModalComponent implements OnInit {
     this.activeModal.dismiss('cancel');
   }
 
-  /** The tenant the user belongs to, falling back to the only/first one. */
+  /** The tenant the user belongs to, falling back to the only/first one offered. */
   private defaultMandant(): string {
-    const own = this.accessControlService.currentKomMonitorLoginOrganizationalUnits.find(
-      (unit) => unit.mandant
-    );
-    return own?.name ?? this.mandants[0] ?? '';
+    return this.mandantService.ownMandant || this.mandants[0] || '';
   }
 }

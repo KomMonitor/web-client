@@ -23,19 +23,22 @@
 
 <ng-template #content>
   <app-mandant-panel
-    [mandants]="mandantOverview()"
-    [canSwitch]="canSwitchMandant()"
-    [hierarchyCount]="visibleHierarchies().length"
-    [selected]="selectedMandant()"
-    (selectedChange)="selectMandant($event)"
+    [mandants]="store.mandantOverview()"
+    [canSwitch]="store.canSwitchMandant()"
+    [hierarchyCount]="store.visibleHierarchies().length"
+    [selected]="store.selectedMandant()"
+    (selectedChange)="store.selectMandant($event)"
   />
 
   <!-- Across all tenants the page summarizes them instead of listing every
        hierarchy of every tenant; opening a row switches to that tenant. -->
-  @if (showMandantOverview()) {
-    <app-mandant-overview-table [rows]="mandantOverview()" (openMandant)="selectMandant($event)" />
+  @if (store.showMandantOverview()) {
+    <app-mandant-overview-table
+      [rows]="store.mandantOverview()"
+      (openMandant)="store.selectMandant($event)"
+    />
   } @else {
-    @for (hierarchy of visibleHierarchies(); track hierarchy.id) {
+    @for (hierarchy of store.visibleHierarchies(); track hierarchy.id) {
       <app-collapsible-section
         class="hierarchy-section"
         [title]="hierarchy.name()"
@@ -98,9 +101,9 @@
             <button
               type="button"
               class="level-move"
-              [disabled]="!canMove(hierarchy, level, -1)"
+              [disabled]="!store.canMove(hierarchy, level, -1)"
               [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.MOVE_UP' | translate"
-              (click)="$event.stopPropagation(); moveLevel(hierarchy, level, -1)"
+              (click)="$event.stopPropagation(); store.moveLevel(hierarchy, level, -1)"
             >
               <span aria-hidden="true">&#9650;</span>
               <span class="visually-hidden">
@@ -110,9 +113,9 @@
             <button
               type="button"
               class="level-move"
-              [disabled]="!canMove(hierarchy, level, 1)"
+              [disabled]="!store.canMove(hierarchy, level, 1)"
               [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.MOVE_DOWN' | translate"
-              (click)="$event.stopPropagation(); moveLevel(hierarchy, level, 1)"
+              (click)="$event.stopPropagation(); store.moveLevel(hierarchy, level, 1)"
             >
               <span aria-hidden="true">&#9660;</span>
               <span class="visually-hidden">
@@ -139,7 +142,7 @@
             <app-level-picker-panel
               [hierarchy]="hierarchy"
               [gap]="gap"
-              [registryNames]="tenantLevelNames()"
+              [registryNames]="store.tenantLevelNames()"
               (registered)="onLevelRegistered($event, hierarchy.mandant())"
               (done)="close()"
             />
@@ -148,7 +151,7 @@
       </app-collapsible-section>
     } @empty {
       <p class="hierarchies-empty">
-        @if (selectedMandant()) {
+        @if (store.selectedMandant()) {
           {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_PANEL.EMPTY_MANDANT' | translate }}
         } @else {
           {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_PANEL.EMPTY' | translate }}
@@ -158,10 +161,10 @@
 
     <!-- Registered but filed nowhere. Only shown when there is something to
          show — an empty section would just say that everything is in order. -->
-    @if (unassignedLevels().length > 0) {
+    @if (store.unassignedLevels().length > 0) {
       <app-unassigned-levels-panel
-        [levels]="unassignedLevels()"
-        [hierarchies]="visibleHierarchies()"
+        [levels]="store.unassignedLevels()"
+        [hierarchies]="store.visibleHierarchies()"
         [showIds]="showIds()"
         (assign)="onAssignLevel($event)"
         (register)="onRegisterLevel()"

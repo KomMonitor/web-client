@@ -122,3 +122,72 @@ function insertAt(hierarchy: DemoHierarchy, position: number, name: string): Dem
 
   return entry;
 }
+
+/** The position of a level in its chain, coarsest first; -1 when it is not in it. */
+export function indexInChain(hierarchy: DemoHierarchy, level: DemoChainEntry): number {
+  return hierarchy.chain().findIndex((entry) => entry.id === level.id);
+}
+
+/** Whether moving the level by that many steps would stay inside the chain. */
+export function canMoveInChain(
+  hierarchy: DemoHierarchy,
+  level: DemoChainEntry,
+  offset: number
+): boolean {
+  const index = indexInChain(hierarchy, level);
+  if (index < 0) {
+    return false;
+  }
+  const target = index + offset;
+  return target >= 0 && target < hierarchy.chain().length;
+}
+
+/**
+ * Moves a level one step along the chain, i.e. swaps it with the level above or
+ * below it. The tree re-nests itself from the new order, and the ids stay with
+ * their levels, so what was expanded stays expanded.
+ *
+ * Returns whether it moved — a step beyond either end of the chain does nothing.
+ */
+export function moveInChain(
+  hierarchy: DemoHierarchy,
+  level: DemoChainEntry,
+  offset: number
+): boolean {
+  if (!canMoveInChain(hierarchy, level, offset)) {
+    return false;
+  }
+
+  const index = indexInChain(hierarchy, level);
+  hierarchy.chain.update((entries) => {
+    const next = [...entries];
+    [next[index], next[index + offset]] = [next[index + offset], next[index]];
+    return next;
+  });
+
+  return true;
+}
+
+/**
+ * Takes a level out of the chain. The neighbours close up, so the level below
+ * moves under the one above. Drops the expansion entry as well — the id is gone
+ * with the level, and a level re-added under that name gets a new one, which
+ * would otherwise come up folded.
+ *
+ * Returns whether it was removed. The last remaining level stays: an empty
+ * hierarchy has no meaning.
+ */
+export function removeFromChain(hierarchy: DemoHierarchy, level: DemoChainEntry): boolean {
+  if (hierarchy.chain().length <= 1 || indexInChain(hierarchy, level) < 0) {
+    return false;
+  }
+
+  hierarchy.chain.update((entries) => entries.filter((entry) => entry.id !== level.id));
+  hierarchy.expandedIds.update((ids) => {
+    const next = new Set(ids);
+    next.delete(level.id);
+    return next;
+  });
+
+  return true;
+}
