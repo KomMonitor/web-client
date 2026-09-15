@@ -1621,7 +1621,6 @@
       "EDIT": "Bearbeiten",
       "REMOVE": "Entfernen",
       "REMOVED": "Ebene „{{level}}“ aus der Hierarchie entfernt.",
-      "JSON_TITLE": "Datenstruktur der Hierarchie",
       "MOVE_UP": "Eine Hierarchie-Ebene nach oben",
       "MOVE_DOWN": "Eine Hierarchie-Ebene nach unten",
       "INSERT_LEVEL": "＋ Ebene hier einfügen",

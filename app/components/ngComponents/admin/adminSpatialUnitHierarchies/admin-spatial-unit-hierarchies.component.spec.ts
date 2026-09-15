@@ -11,6 +11,7 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { NotificationService } from '../../common/notification/notification.service';
 import { AdminSpatialUnitHierarchiesComponent } from './admin-spatial-unit-hierarchies.component';
 import { createDemoHierarchies } from './hierarchy-demo.data';
+import { DemoLevel } from './hierarchy-demo.model';
 
 /** The remove button of the row at `rowIndex`. */
 function removeButton(fixture: ComponentFixture<unknown>, rowIndex: number): HTMLButtonElement {
@@ -217,19 +218,15 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     expect(fixture.debugElement.queryAll(By.css('.level-name')).length).toBe(5);
   });
 
-  it('shows the nested structure as JSON and keeps it in sync with the chain', () => {
+  it('keeps the nested structure in sync with the chain', () => {
     fixture.detectChanges();
 
-    const json = () =>
-      JSON.parse(fixture.debugElement.query(By.css('.json-view pre')).nativeElement.textContent);
+    const levels = () => component.hierarchies()[0].levels();
 
-    const names = (node: { name: string; children: unknown[] }): string[] => [
-      node.name,
-      ...(node.children as { name: string; children: unknown[] }[]).flatMap(names),
-    ];
+    const names = (node: DemoLevel): string[] => [node.name, ...node.children.flatMap(names)];
 
-    expect(json()).toHaveLength(1);
-    expect(names(json()[0])).toEqual([
+    expect(levels()).toHaveLength(1);
+    expect(names(levels()[0])).toEqual([
       'Stadt Essen',
       'Stadtbezirke Essen',
       'Stadtteile Essen',
@@ -240,7 +237,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     moveButton(fixture, 1, 'down').click();
     fixture.detectChanges();
 
-    expect(names(json()[0])).toEqual([
+    expect(names(levels()[0])).toEqual([
       'Stadt Essen',
       'Stadtteile Essen',
       'Stadtbezirke Essen',

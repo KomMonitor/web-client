@@ -126,12 +126,6 @@
           <app-level-picker-panel [hierarchy]="hierarchy" [gap]="gap" (done)="close()" />
         </ng-template>
       </app-tree-view>
-
-      <!-- Live view of what the tree renders: moving a level rewrites it. -->
-      <figure class="json-view">
-        <figcaption>{{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.JSON_TITLE' | translate }}</figcaption>
-        <pre>{{ hierarchy.json() }}</pre>
-      </figure>
     </app-collapsible-section>
   } @empty {
     <p class="hierarchies-empty">

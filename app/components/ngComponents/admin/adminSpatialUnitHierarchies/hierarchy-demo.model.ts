@@ -25,8 +25,6 @@ export interface DemoHierarchy {
   readonly chain: WritableSignal<readonly DemoChainEntry[]>;
   readonly levels: Signal<readonly DemoLevel[]>;
   readonly levelCount: Signal<number>;
-  /** The nested structure as pretty-printed JSON, for the inspector below the tree. */
-  readonly json: Signal<string>;
   readonly open: WritableSignal<boolean>;
   readonly expandedIds: WritableSignal<ReadonlySet<string>>;
   /**

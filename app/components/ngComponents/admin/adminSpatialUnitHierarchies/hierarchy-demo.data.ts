@@ -145,7 +145,6 @@ export function createHierarchy(source: HierarchySource): DemoHierarchy {
     chain,
     levels,
     levelCount: computed(() => chain().length),
-    json: computed(() => JSON.stringify(levels(), null, 2)),
     open: signal(source.open),
     // Start fully expanded so the whole chain is visible.
     expandedIds: signal<ReadonlySet<string>>(new Set(chain().map((entry) => entry.id))),

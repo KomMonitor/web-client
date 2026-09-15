@@ -1621,7 +1621,6 @@
       "EDIT": "Edit",
       "REMOVE": "Remove",
       "REMOVED": "Level \"{{level}}\" removed from the hierarchy.",
-      "JSON_TITLE": "Hierarchy data structure",
       "MOVE_UP": "One hierarchy level up",
       "MOVE_DOWN": "One hierarchy level down",
       "INSERT_LEVEL": "＋ Insert level here",

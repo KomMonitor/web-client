@@ -22,7 +22,6 @@ function hierarchy(names: string[]): DemoHierarchy {
     chain,
     levels,
     levelCount: computed(() => chain().length),
-    json: computed(() => JSON.stringify(levels())),
     open: signal(true),
     expandedIds: signal<ReadonlySet<string>>(new Set(chain().map((entry) => entry.id))),
   };
