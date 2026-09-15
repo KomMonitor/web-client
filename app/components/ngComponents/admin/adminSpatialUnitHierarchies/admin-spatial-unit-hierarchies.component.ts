@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { MODAL_CONFIRM, MODAL_FORM } from 'util/modal-presets';
 
 import { CollapsibleSectionComponent } from '../../common/collapsible-section/collapsible-section.component';
@@ -17,6 +18,7 @@ import {
   HierarchyModalResult,
 } from './hierarchyModal/hierarchy-modal.component';
 import { LevelPickerPanelComponent } from './levelPickerPanel/level-picker-panel.component';
+import { MandantOption, MandantPanelComponent } from './mandantPanel/mandant-panel.component';
 
 /**
  * Management of spatial unit hierarchies — the chains that order spatial unit
@@ -38,6 +40,7 @@ import { LevelPickerPanelComponent } from './levelPickerPanel/level-picker-panel
     TreeRowDirective,
     TreeGapDirective,
     LevelPickerPanelComponent,
+    MandantPanelComponent,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,10 +49,56 @@ export class AdminSpatialUnitHierarchiesComponent {
   private readonly modalService = inject(NgbModal);
   private readonly notificationService = inject(NotificationService);
   private readonly translateService = inject(TranslateService);
+  private readonly accessControlService = inject(AccessControlService);
 
   readonly showIds = signal(false);
 
   readonly hierarchies = signal<readonly DemoHierarchy[]>(createDemoHierarchies());
+
+  /**
+   * The tenant whose hierarchies are on screen; the empty string is the
+   * overview across all of them. Starts at the tenant the user belongs to, so
+   * everyone lands in their own data — and without Keycloak in the overview.
+   */
+  readonly selectedMandant = signal(this.ownMandant());
+
+  /** The tenants flagged as such in Keycloak; empty without it. */
+  private readonly keycloakMandants: readonly string[] = this.accessControlService.accessControl
+    .filter((unit) => unit.mandant)
+    .map((unit) => unit.name);
+
+  /**
+   * The tenants of this instance, as the panel lists them. Keycloak names them;
+   * a tenant that only appears in the hierarchies is listed as well, so the
+   * page shows whom its data belongs to even without Keycloak.
+   */
+  readonly mandants = computed<readonly MandantOption[]>(() => {
+    const counts = new Map<string, number>(this.keycloakMandants.map((name) => [name, 0]));
+    for (const hierarchy of this.hierarchies()) {
+      const mandant = hierarchy.mandant();
+      if (mandant) {
+        counts.set(mandant, (counts.get(mandant) ?? 0) + 1);
+      }
+    }
+    return [...counts].map(([name, hierarchyCount]) => ({ name, hierarchyCount }));
+  });
+
+  /**
+   * Switching tenants is a platform administrator's view. Without Keycloak
+   * nobody holds that role, so more than one tenant in the data opens the
+   * switcher as well — otherwise the draft could not be tried out at all.
+   */
+  readonly canSwitchMandant = computed(
+    () => this.accessControlService.isRealmAdmin || this.mandants().length > 1
+  );
+
+  /** What the list renders: one tenant's hierarchies, or all of them. */
+  readonly visibleHierarchies = computed(() => {
+    const mandant = this.selectedMandant();
+    return mandant
+      ? this.hierarchies().filter((hierarchy) => hierarchy.mandant() === mandant)
+      : this.hierarchies();
+  });
 
   // Note on drag & drop: the tree reorders among siblings, and a chain gives every
   // level exactly one child — so every drop list would hold a single item and a
@@ -129,6 +178,8 @@ export class AdminSpatialUnitHierarchiesComponent {
     modalRef.componentInstance.mode = 'create';
     modalRef.componentInstance.existingNames = this.hierarchyNames();
     modalRef.componentInstance.levelUsage = this.levelUsage();
+    // Prefill with the tenant on screen; in the overview the dialog picks its own.
+    modalRef.componentInstance.currentMandant = this.selectedMandant();
 
     modalRef.result.then((result: HierarchyModalResult) => {
       const hierarchy = createHierarchy({
@@ -140,6 +191,7 @@ export class AdminSpatialUnitHierarchiesComponent {
         open: true,
       });
       this.hierarchies.update((entries) => [...entries, hierarchy]);
+      this.followMandant(result.mandant);
       this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.CREATED', { hierarchy: result.name });
     }, this.ignoreDismissal);
   }
@@ -157,6 +209,7 @@ export class AdminSpatialUnitHierarchiesComponent {
       hierarchy.name.set(result.name);
       hierarchy.description.set(result.description);
       hierarchy.mandant.set(result.mandant);
+      this.followMandant(result.mandant);
       this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.UPDATED', { hierarchy: result.name });
     }, this.ignoreDismissal);
   }
@@ -174,6 +227,24 @@ export class AdminSpatialUnitHierarchiesComponent {
       this.hierarchies.update((entries) => entries.filter((entry) => entry !== hierarchy));
       this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.DELETED', { hierarchy: name });
     }, this.ignoreDismissal);
+  }
+
+  /**
+   * Keeps a hierarchy in view after the dialog moved it to another tenant. Only
+   * while a single tenant is selected — the overview shows it either way.
+   */
+  private followMandant(mandant: string): void {
+    if (mandant && this.selectedMandant()) {
+      this.selectedMandant.set(mandant);
+    }
+  }
+
+  /** The tenant the user belongs to, or '' for the overview across all of them. */
+  private ownMandant(): string {
+    const own = this.accessControlService.currentKomMonitorLoginOrganizationalUnits.find(
+      (unit) => unit.mandant
+    );
+    return own?.name ?? '';
   }
 
   private hierarchyNames(): string[] {

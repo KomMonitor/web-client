@@ -22,12 +22,20 @@
 </ng-template>
 
 <ng-template #content>
-  @for (hierarchy of hierarchies(); track hierarchy.id) {
+  <app-mandant-panel
+    [mandants]="mandants()"
+    [canSwitch]="canSwitchMandant()"
+    [hierarchyCount]="visibleHierarchies().length"
+    [(selected)]="selectedMandant"
+  />
+
+  @for (hierarchy of visibleHierarchies(); track hierarchy.id) {
     <app-collapsible-section
       [title]="hierarchy.name()"
       [meta]="
-        'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.LEVEL_COUNT'
-          | translate: { count: hierarchy.levelCount() }
+        ('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.LEVEL_COUNT'
+          | translate: { count: hierarchy.levelCount() }) +
+        (selectedMandant() ? '' : ' · ' + hierarchy.mandant())
       "
       [idLabel]="hierarchy.id"
       [showId]="showIds()"
@@ -125,5 +133,13 @@
         <pre>{{ hierarchy.json() }}</pre>
       </figure>
     </app-collapsible-section>
+  } @empty {
+    <p class="hierarchies-empty">
+      @if (selectedMandant()) {
+        {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_PANEL.EMPTY_MANDANT' | translate }}
+      } @else {
+        {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_PANEL.EMPTY' | translate }}
+      }
+    </p>
   }
 </ng-template>

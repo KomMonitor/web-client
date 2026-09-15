@@ -1569,6 +1569,21 @@
       "TITLE": "Manage spatial unit hierarchies",
       "DESCRIPTION": "Maintenance of the hierarchies that relate spatial unit levels to each other"
     },
+    "MANDANT_PANEL": {
+      "LABEL": "Tenant",
+      "ADMIN_HINT": "Platform administrators only",
+      "ALL": "All tenants (overview)",
+      "MANDANT_COUNT": "{{count}} tenants",
+      "HIERARCHY_COUNT": "{{count}} hierarchies",
+      "HIERARCHY_COUNT_ONE": "1 hierarchy",
+      "COUNT": "{{count}} hierarchies for this tenant",
+      "COUNT_ONE": "1 hierarchy for this tenant",
+      "COUNT_ALL": "{{count}} hierarchies across {{mandants}} tenants",
+      "COUNT_ALL_ONE": "1 hierarchy across {{mandants}} tenants",
+      "NONE": "No tenant available",
+      "EMPTY": "No hierarchy has been created yet.",
+      "EMPTY_MANDANT": "No hierarchy has been created for this tenant yet."
+    },
     "REGISTER_MODAL": {
       "TITLE": "Register a new spatial unit level",
       "NAME_LABEL": "Name of the spatial unit level",

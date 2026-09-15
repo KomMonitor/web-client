@@ -96,3 +96,15 @@
     color: #44606f;
   }
 }
+
+// Shown in place of the list when the chosen tenant owns no hierarchy.
+.hierarchies-empty {
+  margin: 0;
+  padding: 14px 12px;
+  background: #f7f9fb;
+  border: 1px dashed #d7e3ec;
+  border-radius: 3px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: #5b7482;
+}

@@ -10,6 +10,7 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { NotificationService } from '../../common/notification/notification.service';
 import { AdminSpatialUnitHierarchiesComponent } from './admin-spatial-unit-hierarchies.component';
+import { createDemoHierarchies } from './hierarchy-demo.data';
 
 /** The remove button of the row at `rowIndex`. */
 function removeButton(fixture: ComponentFixture<unknown>, rowIndex: number): HTMLButtonElement {
@@ -56,6 +57,11 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     component = fixture.componentInstance;
     notificationService = TestBed.inject(NotificationService);
     modalService = TestBed.inject(NgbModal);
+
+    // The seed data spans several tenants for the tenant panel; every test
+    // about a single chain works on the first hierarchy alone. The panel's own
+    // tests put the full seed back.
+    component.hierarchies.update((entries) => entries.slice(0, 1));
   });
 
   /** Stands in for the dialog: it resolves with `result` and records its inputs. */
@@ -446,5 +452,143 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     fixture.detectChanges();
 
     expect(sectionTitles()).toEqual(['Verwaltungsgliederung']);
+  });
+  describe('tenant panel', () => {
+    beforeEach(() => {
+      component.hierarchies.set(createDemoHierarchies());
+    });
+
+    /** The tenant entries of the open dropdown menu, label plus count. */
+    function menuEntries(): string[] {
+      return fixture.debugElement
+        .queryAll(By.css('app-mandant-panel .mandant-item'))
+        .map((el) => el.nativeElement.textContent.replace(/\s+/g, ' ').trim());
+    }
+
+    function openMenu(): void {
+      fixture.debugElement.query(By.css('app-mandant-panel .mandant-field')).nativeElement.click();
+      fixture.detectChanges();
+    }
+
+    it('lists every tenant of the data with the number of its hierarchies', () => {
+      fixture.detectChanges();
+
+      expect(component.mandants()).toEqual([
+        { name: 'Stadt Essen', hierarchyCount: 2 },
+        { name: 'Stadt Bochum', hierarchyCount: 1 },
+        { name: 'Kreis Recklinghausen', hierarchyCount: 2 },
+        { name: 'Stadt Krefeld', hierarchyCount: 1 },
+      ]);
+    });
+
+    it('starts in the overview and shows the hierarchies of every tenant', () => {
+      fixture.detectChanges();
+
+      expect(component.selectedMandant()).toBe('');
+      expect(sectionTitles()).toHaveLength(6);
+    });
+
+    it('offers the overview and one entry per tenant, each with its badge', () => {
+      fixture.detectChanges();
+      openMenu();
+
+      expect(menuEntries()[0]).toContain('MANDANT_PANEL.ALL');
+      expect(menuEntries()).toHaveLength(5);
+      expect(
+        fixture.debugElement
+          .queryAll(By.css('app-mandant-panel .mandant-item .mandant-badge'))
+          .map((el) => el.nativeElement.textContent.trim())
+      ).toEqual(['\u2022', 'ES', 'BO', 'RE', 'KR']);
+    });
+
+    it('filters the list down to the tenant picked in the dropdown', () => {
+      fixture.detectChanges();
+      openMenu();
+
+      // Third entry: the overview, then Essen, then Bochum.
+      fixture.debugElement
+        .queryAll(By.css('app-mandant-panel .mandant-item'))[2]
+        .nativeElement.click();
+      fixture.detectChanges();
+
+      expect(component.selectedMandant()).toBe('Stadt Bochum');
+      expect(sectionTitles()).toEqual(['Verwaltungsgliederung Bochum']);
+    });
+
+    it('states how many hierarchies the list shows', () => {
+      fixture.detectChanges();
+
+      const summary = () =>
+        fixture.debugElement
+          .query(By.css('app-mandant-panel .mandant-summary'))
+          .nativeElement.textContent.trim();
+
+      // Translations are not loaded here, so the pipe echoes key and params.
+      expect(summary()).toContain('MANDANT_PANEL.COUNT_ALL');
+
+      component.selectedMandant.set('Stadt Krefeld');
+      fixture.detectChanges();
+
+      expect(summary()).toContain('MANDANT_PANEL.COUNT_ONE');
+    });
+
+    it('names the owning tenant in the section meta only while showing all of them', () => {
+      fixture.detectChanges();
+
+      const metaTexts = () =>
+        fixture.debugElement
+          .queryAll(By.css('app-collapsible-section .section-meta'))
+          .map((el) => el.nativeElement.textContent.trim());
+
+      expect(metaTexts()[2]).toContain('Stadt Bochum');
+
+      component.selectedMandant.set('Stadt Bochum');
+      fixture.detectChanges();
+
+      expect(metaTexts()[0]).not.toContain('Stadt Bochum');
+    });
+
+    it('explains an empty list instead of rendering nothing', () => {
+      // The tenant a user works in can well be one whose hierarchies are all gone.
+      component.hierarchies.update((entries) =>
+        entries.filter((entry) => entry.mandant() !== 'Stadt Bochum')
+      );
+      component.selectedMandant.set('Stadt Bochum');
+      fixture.detectChanges();
+
+      expect(sectionTitles()).toEqual([]);
+      expect(fixture.debugElement.query(By.css('.hierarchies-empty'))).not.toBeNull();
+    });
+
+    it('prefills the create dialog with the tenant on screen', async () => {
+      component.selectedMandant.set('Stadt Krefeld');
+      fixture.detectChanges();
+
+      const inputs = stubModal(Promise.reject('cancel'));
+      fixture.debugElement.query(By.css('.view-controls .btn-success')).nativeElement.click();
+      await fixture.whenStable();
+
+      expect(inputs['currentMandant']).toBe('Stadt Krefeld');
+    });
+
+    it('follows a new hierarchy into the tenant the dialog gave it', async () => {
+      component.selectedMandant.set('Stadt Krefeld');
+      fixture.detectChanges();
+
+      stubModal(
+        Promise.resolve({
+          name: 'Schulplanung Bochum',
+          description: '',
+          mandant: 'Stadt Bochum',
+          levels: ['Stadt Bochum'],
+        })
+      );
+      fixture.debugElement.query(By.css('.view-controls .btn-success')).nativeElement.click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component.selectedMandant()).toBe('Stadt Bochum');
+      expect(sectionTitles()).toEqual(['Verwaltungsgliederung Bochum', 'Schulplanung Bochum']);
+    });
   });
 });

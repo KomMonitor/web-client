@@ -22,7 +22,11 @@ export interface HierarchySource {
   readonly open: boolean;
 }
 
-/** Hierarchies of the draft, each a chain of level names from coarse to fine. */
+/**
+ * Hierarchies of the draft, each a chain of level names from coarse to fine.
+ * They belong to four tenants, so the tenant panel above the list has something
+ * to switch between — in a real instance every tenant brings its own.
+ */
 export const DEMO_HIERARCHIES: readonly HierarchySource[] = [
   {
     id: 'a1f5c803-72d9-4b6e-8f14-3ce90ab27d56',
@@ -39,11 +43,56 @@ export const DEMO_HIERARCHIES: readonly HierarchySource[] = [
     ],
     open: true,
   },
+  {
+    id: '6b2d4e17-0c98-4a53-9f2a-7d1b5c8e4032',
+    name: 'Sozialraum-Gliederung',
+    description: 'Gliederung der Sozialberichterstattung, unterhalb der Stadtbezirke.',
+    mandant: 'Stadt Essen',
+    levels: ['Stadt Essen', 'Stadtbezirke Essen', 'Sozialräume Essen', 'Quartiere Essen'],
+    open: false,
+  },
+  {
+    id: 'd93a7f60-5b21-4c8d-8e77-2af6109b3c45',
+    name: 'Verwaltungsgliederung Bochum',
+    description: 'Amtliche Gliederung der Stadt Bochum.',
+    mandant: 'Stadt Bochum',
+    levels: ['Stadt Bochum', 'Stadtbezirke Bochum', 'Stadtteile Bochum'],
+    open: false,
+  },
+  {
+    id: '2c58e1b4-9d07-4f36-b1a9-83e0d7c46f21',
+    name: 'Kreisgliederung Recklinghausen',
+    description: 'Der Kreis mit seinen kreisangehörigen Städten und deren Stadtteilen.',
+    mandant: 'Kreis Recklinghausen',
+    levels: [
+      'Kreis Recklinghausen',
+      'Städte im Kreis Recklinghausen',
+      'Stadtteile im Kreis Recklinghausen',
+    ],
+    open: false,
+  },
+  {
+    id: '7e41c9d2-3a86-4b05-9c1f-6d208fa5b7e3',
+    name: 'Rastergliederung Recklinghausen',
+    description: 'Verwaltungsunabhängige Rasterebenen für kleinräumige Auswertungen.',
+    mandant: 'Kreis Recklinghausen',
+    levels: ['Kreis Recklinghausen', 'Raster 1 km', 'Raster 500 m', 'Raster 100 m'],
+    open: false,
+  },
+  {
+    id: 'b0f6a35c-8e14-42d7-95b3-1c7e9d04a862',
+    name: 'Verwaltungsgliederung Krefeld',
+    description: 'Amtliche Gliederung der Stadt Krefeld.',
+    mandant: 'Stadt Krefeld',
+    levels: ['Stadt Krefeld', 'Stadtbezirke Krefeld', 'Stadtteile Krefeld'],
+    open: false,
+  },
 ];
 
 /**
  * Further levels of the draft, offered in the picker. A real implementation
- * would list the spatial units registered in the backend here.
+ * would list the spatial units registered in the backend here — and only those
+ * of the hierarchy's own tenant, which this pool does not distinguish.
  */
 export const AVAILABLE_LEVELS: readonly string[] = [
   'Sozialräume Essen',

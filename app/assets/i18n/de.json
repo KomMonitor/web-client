@@ -1569,6 +1569,21 @@
       "TITLE": "Verwalten der Raumeinheitshierarchien",
       "DESCRIPTION": "Pflege der Hierarchien, in denen Raumebenen zueinander in Beziehung stehen"
     },
+    "MANDANT_PANEL": {
+      "LABEL": "Mandant",
+      "ADMIN_HINT": "Nur für Plattform-Administratoren",
+      "ALL": "Alle Mandanten (Übersicht)",
+      "MANDANT_COUNT": "{{count}} Mandanten",
+      "HIERARCHY_COUNT": "{{count}} Hierarchien",
+      "HIERARCHY_COUNT_ONE": "1 Hierarchie",
+      "COUNT": "{{count}} Hierarchien für diesen Mandanten",
+      "COUNT_ONE": "1 Hierarchie für diesen Mandanten",
+      "COUNT_ALL": "{{count}} Hierarchien in {{mandants}} Mandanten",
+      "COUNT_ALL_ONE": "1 Hierarchie in {{mandants}} Mandanten",
+      "NONE": "Kein Mandant verfügbar",
+      "EMPTY": "Es ist noch keine Hierarchie angelegt.",
+      "EMPTY_MANDANT": "Für diesen Mandanten ist noch keine Hierarchie angelegt."
+    },
     "REGISTER_MODAL": {
       "TITLE": "Neue Raumebene registrieren",
       "NAME_LABEL": "Name der Raumebene",
