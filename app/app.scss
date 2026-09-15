@@ -48,8 +48,12 @@ body {
   opacity: 0.8;
 }
 
-.alert {
-  z-index: 99999;
+/*
+ * Opt-in cap for alerts whose body is unbounded at runtime: importer error
+ * lists, per-dataset delete results and <pre> stack traces. Without it those
+ * grow past the modal they sit in. Plain alerts stay unconstrained.
+ */
+.alert-scrollable {
   max-height: 500px;
   overflow: auto;
 }

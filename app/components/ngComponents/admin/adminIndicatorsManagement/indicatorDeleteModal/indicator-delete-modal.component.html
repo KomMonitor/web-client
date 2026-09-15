@@ -428,7 +428,9 @@
 
   <!-- Success Alert -->
   @if (showSuccessAlert()) {
-    <div class="alert alert-success alert-dismissible position-absolute bottom-0 w-100">
+    <div
+      class="alert alert-success alert-dismissible position-absolute bottom-0 w-100 alert-scrollable"
+    >
       <button
         type="button"
         class="btn-close"
@@ -504,7 +506,9 @@
 
   <!-- Error Alert -->
   @if (showErrorAlert()) {
-    <div class="alert alert-danger alert-dismissible position-absolute bottom-0 w-100">
+    <div
+      class="alert alert-danger alert-dismissible position-absolute bottom-0 w-100 alert-scrollable"
+    >
       <button
         type="button"
         class="btn-close"

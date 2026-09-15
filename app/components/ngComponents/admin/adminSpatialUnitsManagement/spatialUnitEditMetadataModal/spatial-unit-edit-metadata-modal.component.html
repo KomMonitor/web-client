@@ -23,7 +23,11 @@
       now, like the error alerts in the group dialogs.
     -->
     @if (spatialUnitMetadataImportError()) {
-      <div id="spatialUnitEditMetadataImportErrorAlert" class="alert alert-danger" role="alert">
+      <div
+        id="spatialUnitEditMetadataImportErrorAlert"
+        class="alert alert-danger alert-scrollable"
+        role="alert"
+      >
         <button
           type="button"
           class="btn-close float-end"

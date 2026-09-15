@@ -17,7 +17,11 @@
       report in the delete-group dialog.
     -->
     @if (failedDatasetsAndErrors().length > 0) {
-      <div id="spatialUnitsDeleteErrorReport" class="alert alert-danger" role="alert">
+      <div
+        id="spatialUnitsDeleteErrorReport"
+        class="alert alert-danger alert-scrollable"
+        role="alert"
+      >
         <b>{{ 'ADMIN_SPATIAL_UNITS.DELETE_MODAL.DELETE_FAILED' | translate }}</b>
         <p>{{ 'ADMIN_SPATIAL_UNITS.DELETE_MODAL.DELETE_FAILED_TEXT' | translate }}</p>
         <table class="table table-bordered table-sm">

@@ -21,7 +21,11 @@
       the body now.
     -->
     @if (importerErrors().length > 0) {
-      <div id="spatialUnitAddImporterErrors" class="alert alert-danger" role="alert">
+      <div
+        id="spatialUnitAddImporterErrors"
+        class="alert alert-danger alert-scrollable"
+        role="alert"
+      >
         <b>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.IMPORT_FAILED' | translate }}</b>
         <p>
           {{
@@ -39,7 +43,11 @@
     }
 
     @if (spatialUnitMetadataImportError()) {
-      <div id="spatialUnitMetadataImportErrorAlert" class="alert alert-danger" role="alert">
+      <div
+        id="spatialUnitMetadataImportErrorAlert"
+        class="alert alert-danger alert-scrollable"
+        role="alert"
+      >
         <button
           type="button"
           class="btn-close float-end"
@@ -59,7 +67,11 @@
     }
 
     @if (spatialUnitMappingConfigImportError()) {
-      <div id="spatialUnitMappingConfigImportErrorAlert" class="alert alert-danger" role="alert">
+      <div
+        id="spatialUnitMappingConfigImportErrorAlert"
+        class="alert alert-danger alert-scrollable"
+        role="alert"
+      >
         <button
           type="button"
           class="btn-close float-end"

@@ -14,7 +14,7 @@
     [message]="'ADMIN_ROLES.DELETE_MODAL.DELETING' | translate"
   >
     @if (failedDatasetsAndErrors().length) {
-      <div class="alert alert-danger" role="alert">
+      <div class="alert alert-danger alert-scrollable" role="alert">
         @for (entry of failedDatasetsAndErrors(); track entry) {
           <div>
             <b>{{ entry[0].name }}</b
