@@ -97,44 +97,40 @@
   }
 }
 
-// Depth rails. Two visible steps like the design draft — the root level is
-// lighter than everything below it — but all four are overridable.
-.tree-row.tone-accent-0 {
-  border-left-color: var(--km-tree-level-accent-0, #bfd8e8);
+// Fallbacks per depth, keyed like TREE_TONE_DEPTHS in tree-view.model.ts — the
+// map keys ARE the depths, so adding one here is all a fifth tint needs. The
+// authoritative values live as `--km-tree-*` on the `app-tree-view` host; these
+// literals only cover the drag preview, see the note at the top of this file.
+// Two visible steps like the design draft: the root level is lighter than
+// everything below it.
+$accent-fallbacks: (
+  0: #bfd8e8,
+  1: #8fbcd8,
+  2: #8fbcd8,
+  3: #8fbcd8,
+);
+$filled-fallbacks: (
+  0: #84afd5,
+  1: #adcae3,
+  2: #d6e4f1,
+  3: #eaf1f8,
+);
+$filled-fg-fallback: #212529;
+
+// Depth rails: a coloured left border, the row itself stays white.
+@each $depth, $color in $accent-fallbacks {
+  .tree-row.tone-accent-#{$depth} {
+    border-left-color: var(--km-tree-level-accent-#{$depth}, #{$color});
+  }
 }
 
-.tree-row.tone-accent-1 {
-  border-left-color: var(--km-tree-level-accent-1, #8fbcd8);
-}
-
-.tree-row.tone-accent-2 {
-  border-left-color: var(--km-tree-level-accent-2, #8fbcd8);
-}
-
-.tree-row.tone-accent-3 {
-  border-left-color: var(--km-tree-level-accent-3, #8fbcd8);
-}
-
-// Filled rows carry the depth tint across the whole box — the look the admin
-// topic tree uses today.
-.tree-row.tone-filled-0 {
-  background: var(--km-tree-level-bg-0, #84afd5);
-  color: var(--km-tree-level-fg-0, #212529);
-}
-
-.tree-row.tone-filled-1 {
-  background: var(--km-tree-level-bg-1, #adcae3);
-  color: var(--km-tree-level-fg-1, #212529);
-}
-
-.tree-row.tone-filled-2 {
-  background: var(--km-tree-level-bg-2, #d6e4f1);
-  color: var(--km-tree-level-fg-2, #212529);
-}
-
-.tree-row.tone-filled-3 {
-  background: var(--km-tree-level-bg-3, #eaf1f8);
-  color: var(--km-tree-level-fg-3, #212529);
+// Filled rows carry the depth tint across the whole box instead. The foreground
+// is one colour for every depth but stays per-depth overridable.
+@each $depth, $color in $filled-fallbacks {
+  .tree-row.tone-filled-#{$depth} {
+    background: var(--km-tree-level-bg-#{$depth}, #{$color});
+    color: var(--km-tree-level-fg-#{$depth}, #{$filled-fg-fallback});
+  }
 }
 
 // Deliberately no `display` here: this is the element ngbCollapse toggles, and

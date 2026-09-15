@@ -1,4 +1,4 @@
-import { NgClass, NgTemplateOutlet } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 import {
   CdkDrag,
   CdkDragDrop,
@@ -22,6 +22,38 @@ import {
 } from './tree-view.model';
 
 /**
+ * Everything one row of this level needs, derived once per change instead of on
+ * every template read. Resolving it in the template meant walking from the node
+ * to its children, depth limit and expanded state a handful of times per row and
+ * change detection cycle — and handing `ngTemplateOutlet` a freshly built context
+ * object every time, which made it rewrite the row context on every cycle.
+ */
+interface TreeRow {
+  readonly node: unknown;
+  readonly id: string;
+  readonly children: readonly unknown[];
+  readonly expandable: boolean;
+  readonly expanded: boolean;
+  /** Target of the caret's `aria-controls`. */
+  readonly childrenId: string;
+  readonly context: TreeRowContext<unknown>;
+  readonly footerContext: TreeNodeFooterContext<unknown>;
+  /** Does nothing unless the row is expandable. */
+  readonly toggle: () => void;
+}
+
+/**
+ * The indent of one row, split over the two places it can be applied. The indent
+ * modes are exclusive, so one of the two is always 0.
+ */
+interface TreeIndent {
+  /** Shifts the whole row box ('row' mode). */
+  readonly row: number;
+  /** Width of the spacer inside the row, which keeps it full width ('text' mode). */
+  readonly text: number;
+}
+
+/**
  * Renders one sibling level of the tree and recurses into the children. Internal
  * to `app-tree-view` — everything except the three values below comes from the
  * root component through `TREE_VIEW_HOST`.
@@ -31,7 +63,6 @@ import {
   templateUrl: './tree-level.component.html',
   styleUrls: ['./tree-level.component.scss'],
   imports: [
-    NgClass,
     NgTemplateOutlet,
     NgbCollapseModule,
     CdkDropList,
@@ -51,112 +82,77 @@ export class TreeLevelComponent {
   /** null at the root level. */
   readonly parent = input<unknown | null>(null);
 
-  protected readonly indent = computed(() =>
-    treeIndent(this.depth(), this.host.indentStep(), this.host.maxIndent())
-  );
-
   protected readonly toneClass = computed(() => {
     const tone = this.host.tone();
     return tone === 'none' ? 'tone-none' : `tone-${tone}-${treeToneDepth(this.depth())}`;
   });
 
-  /** Indent applied to the row box itself — 0 in 'text' mode. */
-  protected readonly rowIndent = computed(() =>
-    this.host.indentMode() === 'row' ? this.indent() : 0
-  );
-
-  /** Indent applied by a spacer inside the row — 0 in 'row' mode. */
-  protected readonly textIndent = computed(() =>
-    this.host.indentMode() === 'text' ? this.indent() : 0
-  );
-
   protected readonly childDepth = computed(() => this.depth() + 1);
+
+  /** Indent of this level's rows. */
+  protected readonly indent = computed(() => this.indentAt(this.depth()));
+
+  /** Indent of the node footer, which sits one level deeper than its node. */
+  protected readonly childIndent = computed(() => this.indentAt(this.childDepth()));
 
   /** Identifies this level's gaps; null at the root. */
   protected readonly parentId = computed(() => {
     const parent = this.parent();
-    return parent === null ? null : this.host.resolveId()(parent);
+    return parent === null ? null : this.host.idOf()(parent);
   });
-
-  private readonly childIndent = computed(() =>
-    treeIndent(this.childDepth(), this.host.indentStep(), this.host.maxIndent())
-  );
-
-  protected readonly footerRowIndent = computed(() =>
-    this.host.indentMode() === 'row' ? this.childIndent() : 0
-  );
-
-  protected readonly footerTextIndent = computed(() =>
-    this.host.indentMode() === 'text' ? this.childIndent() : 0
-  );
-
-  protected trackNode = (_index: number, node: unknown): string => this.host.resolveId()(node);
-
-  protected childrenOf(node: unknown): readonly unknown[] {
-    return this.host.resolveChildren()(node) ?? [];
-  }
-
-  protected hasChildren(node: unknown): boolean {
-    return this.childrenOf(node).length > 0;
-  }
-
-  protected isExpandable(node: unknown): boolean {
-    return isTreeNodeExpandable(
-      this.hasChildren(node),
-      this.host.nodeFooterTemplate() !== undefined,
-      this.depth(),
-      this.host.maxDepth()
-    );
-  }
 
   /** Whether the children of this level's nodes may be rendered at all. */
   protected readonly childrenAllowed = computed(() =>
     isWithinTreeDepth(this.depth(), this.host.maxDepth())
   );
 
-  protected isExpanded(node: unknown): boolean {
-    return this.isExpandable(node) && this.host.isExpanded(node);
-  }
+  protected readonly rows = computed<readonly TreeRow[]>(() => {
+    const idOf = this.host.idOf();
+    const childrenOf = this.host.childrenOf();
+    const depth = this.depth();
+    const childDepth = this.childDepth();
+    const maxDepth = this.host.maxDepth();
+    const hasNodeFooter = this.host.nodeFooterTemplate() !== undefined;
 
-  protected childrenId(node: unknown): string {
-    return `tree-children-${this.host.resolveId()(node)}`;
-  }
+    return this.nodes().map((node) => {
+      const id = idOf(node);
+      const children = childrenOf(node) ?? [];
+      const hasChildren = children.length > 0;
+      const expandable = isTreeNodeExpandable(hasChildren, hasNodeFooter, depth, maxDepth);
+      const expanded = expandable && this.host.isExpanded(node);
+      const toggle = () => {
+        if (expandable) {
+          this.host.toggleNode(node);
+        }
+      };
 
-  protected rowContext(node: unknown): TreeRowContext<unknown> {
-    return {
-      $implicit: node,
-      node,
-      depth: this.depth(),
-      expanded: this.isExpanded(node),
-      hasChildren: this.hasChildren(node),
-      expandable: this.isExpandable(node),
-      toggle: () => this.toggle(node),
-    };
-  }
+      return {
+        node,
+        id,
+        children,
+        expandable,
+        expanded,
+        childrenId: `tree-children-${id}`,
+        context: { $implicit: node, node, depth, expanded, hasChildren, expandable, toggle },
+        footerContext: { $implicit: node, node, depth: childDepth },
+        toggle,
+      };
+    });
+  });
 
-  protected footerContext(node: unknown): TreeNodeFooterContext<unknown> {
-    return { $implicit: node, node, depth: this.childDepth() };
-  }
-
-  protected toggle(node: unknown): void {
-    if (this.isExpandable(node)) {
-      this.host.toggleNode(node);
-    }
-  }
-
-  protected onRowClick(node: unknown): void {
+  protected onRowClick(row: TreeRow): void {
     if (this.host.toggleOnRowClick()) {
-      this.toggle(node);
+      row.toggle();
     }
   }
 
   /** Space activates the row like a button, without scrolling the page. */
-  protected onRowSpace(event: Event, node: unknown): void {
+  protected onRowSpace(event: Event, row: TreeRow): void {
     if (!this.host.toggleOnRowClick()) {
       return;
     }
     event.preventDefault();
-    this.toggle(node);
+    row.toggle();
   }
 
   protected onDrop(event: CdkDragDrop<unknown>): void {
@@ -189,5 +185,10 @@ export class TreeLevelComponent {
       depth: this.depth(),
       close: () => this.host.closeGap(),
     };
+  }
+
+  private indentAt(depth: number): TreeIndent {
+    const indent = treeIndent(depth, this.host.indentStep(), this.host.maxIndent());
+    return this.host.indentMode() === 'row' ? { row: indent, text: 0 } : { row: 0, text: indent };
   }
 }

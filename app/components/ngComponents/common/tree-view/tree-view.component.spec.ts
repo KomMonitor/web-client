@@ -334,6 +334,23 @@ describe('TreeViewComponent', () => {
     fixture.detectChanges();
     expect([...host.expandedIds()]).toEqual(['a']);
   });
+
+  it('keeps the static, tone and state classes on a row side by side', () => {
+    // A row takes its classes from four sources at once: the static attribute,
+    // `[class]` for the tone, `[class.clickable]` for the state, and cdkDrag,
+    // which adds its own imperatively. None of them may drop the others.
+    const row = fixture.debugElement.queryAll(By.css('.tree-row'))[0];
+    expect(row.nativeElement.classList).not.toContain('clickable');
+
+    host.toggleOnRowClick.set(true);
+    fixture.detectChanges();
+
+    const classes = [...row.nativeElement.classList];
+    expect(classes).toContain('tree-row');
+    expect(classes).toContain('tone-accent-0');
+    expect(classes).toContain('clickable');
+    expect(classes).toContain('cdk-drag');
+  });
 });
 
 @Component({

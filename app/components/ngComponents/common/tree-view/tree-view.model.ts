@@ -81,8 +81,8 @@ export interface TreeViewHost<T> {
   readonly rowTemplate: Signal<TemplateRef<TreeRowContext<T>> | undefined>;
   readonly nodeFooterTemplate: Signal<TemplateRef<TreeNodeFooterContext<T>> | undefined>;
   readonly gapTemplate: Signal<TemplateRef<TreeGapContext<T>> | undefined>;
-  readonly resolveChildren: Signal<TreeChildrenFn<T>>;
-  readonly resolveId: Signal<TreeIdFn<T>>;
+  readonly childrenOf: Signal<TreeChildrenFn<T>>;
+  readonly idOf: Signal<TreeIdFn<T>>;
   readonly maxDepth: Signal<number | null>;
   readonly indentStep: Signal<number>;
   readonly maxIndent: Signal<number>;
@@ -128,24 +128,23 @@ export function treeToneDepth(depth: number): number {
   return Math.min(Math.max(depth, 0), TREE_TONE_DEPTHS - 1);
 }
 
-/** Whether a node's children area can be opened at all. */
+/** Whether the children of a node at `depth` may be rendered at all. */
+export function isWithinTreeDepth(depth: number, maxDepth: number | null): boolean {
+  return maxDepth === null || depth < maxDepth;
+}
+
+/**
+ * Whether a node's children area can be opened at all. A childless node is still
+ * expandable when a footer template is projected: opening it is how the first
+ * child gets added.
+ */
 export function isTreeNodeExpandable(
   hasChildren: boolean,
   hasNodeFooter: boolean,
   depth: number,
   maxDepth: number | null
 ): boolean {
-  if (maxDepth !== null && depth >= maxDepth) {
-    return false;
-  }
-  // A childless node is still expandable when a footer template is projected:
-  // opening it is how the first child gets added.
-  return hasChildren || hasNodeFooter;
-}
-
-/** Whether the children of a node at `depth` may be rendered at all. */
-export function isWithinTreeDepth(depth: number, maxDepth: number | null): boolean {
-  return maxDepth === null || depth < maxDepth;
+  return isWithinTreeDepth(depth, maxDepth) && (hasChildren || hasNodeFooter);
 }
 
 /** The siblings in their new order, as a fresh array. */

@@ -122,11 +122,6 @@ export class TreeViewComponent<T> implements TreeViewHost<T> {
   readonly nodeFooterTemplate = computed(() => this.nodeFooterDirective()?.template);
   readonly gapTemplate = computed(() => this.gapDirective()?.template);
 
-  // TreeViewHost reads these under neutral names so the recursive level component
-  // does not depend on the public input names.
-  readonly resolveChildren = computed(() => this.childrenOf());
-  readonly resolveId = computed(() => this.idOf());
-
   isExpanded(node: T): boolean {
     return this.expandedIds().has(this.idOf()(node));
   }
