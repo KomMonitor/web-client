@@ -6,7 +6,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { of } from 'rxjs';
 
 import { AdminTopicsManagementService } from '../admin-topics-management.service';
-import { AdminTopicsManagementErrorHandlingService } from '../admin-topics-management.component';
+import { AdminTopicsManagementErrorHandlingService } from '../admin-topics-management-error-handling.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 
 import { AddTopicComponent } from './add-topic.component';

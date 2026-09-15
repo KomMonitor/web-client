@@ -4,9 +4,10 @@ import {
   Component,
   Input,
   inject,
+  output,
 } from '@angular/core';
 import { AdminTopicsManagementService } from '../admin-topics-management.service';
-import { AdminTopicsManagementErrorHandlingService } from '../admin-topics-management.component';
+import { AdminTopicsManagementErrorHandlingService } from '../admin-topics-management-error-handling.service';
 import { Topic, TopicResourceType } from '../topic.model';
 import { take } from 'rxjs/operators';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -31,6 +32,9 @@ export class AddTopicComponent {
   @Input({ required: true }) topicResourceType!: TopicResourceType;
   @Input() topicType: 'main' | 'sub' = 'main';
   @Input() parentTopic!: Topic;
+
+  /** Fires once the topic exists — lets a host close the panel it opened. */
+  readonly added = output<void>();
 
   /** Both fields are mandatory; the add button gates on `form.invalid`. */
   readonly form = new FormGroup({
@@ -57,6 +61,7 @@ export class AddTopicComponent {
       .subscribe({
         next: () => {
           this.form.reset();
+          this.added.emit();
           // The form is reset from an async callback (OnPush).
           this.cdr.markForCheck();
         },

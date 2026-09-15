@@ -4,12 +4,10 @@
     align-items: flex-start;
     gap: 10px;
 
-    // A 3px double rule in near-black was the heaviest separator in the admin
-    // area and appeared nowhere else. A hairline in the row's own green does the
-    // same job.
-    border-top: 1px solid #c5dfb8;
-    background-color: #dff0d8;
-    padding: 10px 15px;
+    // No box of its own: the form is always placed inside a panel that brings
+    // the frame, the ground and the padding — a green bar inside the blue panel
+    // was two boxes for one control.
+    padding: 0;
     margin: 0;
 
     .field {

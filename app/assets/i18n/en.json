@@ -990,6 +990,12 @@
     "GEORESOURCE_HIERARCHY": "Topic hierarchy - georesources",
     "INDICATOR_SORTING": "Sorting of the indicators:",
     "GEORESOURCE_SORTING": "Sorting of the georesources:",
+    "APPEND_MAIN_TOPIC": "＋ Append main topic",
+    "APPEND_SUB_TOPIC": "＋ Append subtopic",
+    "EDIT_TOPIC": "Edit",
+    "TOGGLE_TOPIC": "Show subtopics",
+    "MAIN_TOPIC_COUNT_ONE": "1 main topic",
+    "MAIN_TOPIC_COUNT_MANY": "{{count}} main topics",
     "ORDER": {
       "ALPHABETICAL": "alphabetical",
       "CUSTOM": "custom"

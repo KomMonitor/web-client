@@ -990,6 +990,12 @@
     "GEORESOURCE_HIERARCHY": "Themenhierarchie - Georessourcen",
     "INDICATOR_SORTING": "Sortierung der Indikatoren:",
     "GEORESOURCE_SORTING": "Sortierung der Georessourcen:",
+    "APPEND_MAIN_TOPIC": "＋ Hauptthema anfügen",
+    "APPEND_SUB_TOPIC": "＋ Unterthema anfügen",
+    "EDIT_TOPIC": "Bearbeiten",
+    "TOGGLE_TOPIC": "Unterthemen anzeigen",
+    "MAIN_TOPIC_COUNT_ONE": "1 Hauptthema",
+    "MAIN_TOPIC_COUNT_MANY": "{{count}} Hauptthemen",
     "ORDER": {
       "ALPHABETICAL": "alphabetisch",
       "CUSTOM": "benutzerdefiniert"
