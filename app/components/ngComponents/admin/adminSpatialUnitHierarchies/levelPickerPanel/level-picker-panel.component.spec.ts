@@ -1,11 +1,12 @@
-import { NO_ERRORS_SCHEMA, computed, signal } from '@angular/core';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { DemoChainEntry, DemoHierarchy, nest } from '../hierarchy-demo.model';
+import { createHierarchy } from '../hierarchy-demo.data';
+import { DemoHierarchy } from '../hierarchy-demo.model';
 import { LevelPick, LevelPickerPanelComponent } from './level-picker-panel.component';
 
 /**
@@ -21,21 +22,7 @@ const LEVELS = [
 ];
 
 function hierarchy(names: string[]): DemoHierarchy {
-  const chain = signal<readonly DemoChainEntry[]>(
-    names.map((name, index) => ({ id: `id-${index}`, name }))
-  );
-  const levels = computed(() => nest(chain()));
-  return {
-    id: 'h',
-    name: signal('Testhierarchie'),
-    description: signal(''),
-    mandant: signal(''),
-    chain,
-    levels,
-    levelCount: computed(() => chain().length),
-    open: signal(true),
-    expandedIds: signal<ReadonlySet<string>>(new Set(chain().map((entry) => entry.id))),
-  };
+  return createHierarchy({ id: 'h', name: 'Testhierarchie', levels: names, open: true });
 }
 
 describe('LevelPickerPanelComponent', () => {

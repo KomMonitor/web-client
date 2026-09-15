@@ -80,46 +80,6 @@ export class AdminSpatialUnitHierarchiesComponent {
   // drag could never change anything. Moving a level is what ▲/▼ do instead. The
   // tree keeps its drag & drop for branching trees, where siblings exist.
 
-  /**
-   * The gap predicate of a hierarchy, built once per hierarchy: the tree reads
-   * it as an input, and a fresh function on every change detection run would
-   * keep writing that input and never settle.
-   */
-  private readonly gapFilters = new WeakMap<DemoHierarchy, (gap: TreeGap<DemoLevel>) => boolean>();
-
-  protected gapFilter(hierarchy: DemoHierarchy): (gap: TreeGap<DemoLevel>) => boolean {
-    let filter = this.gapFilters.get(hierarchy);
-    if (!filter) {
-      filter = (gap) => this.canInsertAtGap(hierarchy, gap);
-      this.gapFilters.set(hierarchy, filter);
-    }
-    return filter;
-  }
-
-  /**
-   * A hierarchy is a chain, so every level holds exactly one child and the gap
-   * *before* a level is the only position it names on its own: the gap after
-   * that child would address the same slot as the leading gap one level deeper.
-   *
-   * The end of the chain is the exception. The deepest level has no child, so
-   * its children area stays folded away — the gap inside it can never be
-   * clicked. The gap *after* the deepest level takes its place, and that is the
-   * "append at the end" position.
-   */
-  private canInsertAtGap(hierarchy: DemoHierarchy, gap: TreeGap<DemoLevel>): boolean {
-    // Inside the folded-away children area of a childless level; the trailing
-    // gap one level up addresses the same position and is reachable.
-    if (gap.parent && gap.parent.children.length === 0) {
-      return false;
-    }
-    if (gap.index === 0) {
-      return true;
-    }
-    // A trailing gap only names a position of its own at the end of the chain.
-    const siblings = gap.parent ? gap.parent.children : hierarchy.levels();
-    return siblings[gap.index - 1]?.children.length === 0;
-  }
-
   /** The chain nests under `children`, not under the tree's `subTopics` default. */
   protected readonly levelChildren = (level: DemoLevel): readonly DemoLevel[] => level.children;
   protected readonly levelId = (level: DemoLevel): string => level.id;

@@ -59,6 +59,13 @@ export interface DemoHierarchy {
    * them at once.
    */
   readonly openGap: WritableSignal<TreeGap<DemoLevel> | null>;
+  /**
+   * Which gaps of the tree offer an insert line — `canInsertAtGap` over this
+   * hierarchy's levels. Built once with the hierarchy: the tree takes it as an
+   * input, and a fresh function on every change detection run would keep
+   * rewriting that input and never settle.
+   */
+  readonly canInsertAt: (gap: TreeGap<DemoLevel>) => boolean;
 }
 
 let nextLevelId = 0;
@@ -81,6 +88,32 @@ export function chainPosition(hierarchy: DemoHierarchy, gap: TreeGap<DemoLevel>)
     ? hierarchy.chain().findIndex((entry) => entry.id === gap.parent!.id)
     : -1;
   return parentIndex + 1 + gap.index;
+}
+
+/**
+ * Whether the tree offers an insert line at this gap of a chain.
+ *
+ * A hierarchy is a chain, so every level holds exactly one child and the gap
+ * *before* a level is the only position it names on its own: the gap after
+ * that child would address the same slot as the leading gap one level deeper.
+ *
+ * The end of the chain is the exception. The deepest level has no child, so
+ * its children area stays folded away — the gap inside it can never be
+ * clicked. The gap *after* the deepest level takes its place, and that is the
+ * "append at the end" position.
+ */
+export function canInsertAtGap(levels: readonly DemoLevel[], gap: TreeGap<DemoLevel>): boolean {
+  // Inside the folded-away children area of a childless level; the trailing
+  // gap one level up addresses the same position and is reachable.
+  if (gap.parent && gap.parent.children.length === 0) {
+    return false;
+  }
+  if (gap.index === 0) {
+    return true;
+  }
+  // A trailing gap only names a position of its own at the end of the chain.
+  const siblings = gap.parent ? gap.parent.children : levels;
+  return siblings[gap.index - 1]?.children.length === 0;
 }
 
 /**

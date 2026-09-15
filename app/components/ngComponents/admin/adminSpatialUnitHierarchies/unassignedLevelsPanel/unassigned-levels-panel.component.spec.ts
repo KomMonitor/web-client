@@ -1,29 +1,18 @@
-import { NO_ERRORS_SCHEMA, computed, signal } from '@angular/core';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { DemoChainEntry, DemoHierarchy, RegisteredLevel, nest } from '../hierarchy-demo.model';
+import { createHierarchy } from '../hierarchy-demo.data';
+import { DemoHierarchy, RegisteredLevel } from '../hierarchy-demo.model';
 import {
   LevelAssignment,
   UnassignedLevelsPanelComponent,
 } from './unassigned-levels-panel.component';
 
 function hierarchy(id: string, name: string): DemoHierarchy {
-  const chain = signal<readonly DemoChainEntry[]>([{ id: `${id}-0`, name: 'Stadt Essen' }]);
-  return {
-    id,
-    name: signal(name),
-    description: signal(''),
-    mandant: signal('Stadt Essen'),
-    chain,
-    levels: computed(() => nest(chain())),
-    levelCount: computed(() => chain().length),
-    open: signal(true),
-    expandedIds: signal<ReadonlySet<string>>(new Set()),
-    openGap: signal(null),
-  };
+  return createHierarchy({ id, name, mandant: 'Stadt Essen', levels: ['Stadt Essen'], open: true });
 }
 
 function level(name: string, datasource = 'Amt für Statistik'): RegisteredLevel {

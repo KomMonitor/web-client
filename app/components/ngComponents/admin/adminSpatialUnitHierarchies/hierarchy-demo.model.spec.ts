@@ -7,6 +7,7 @@ import {
   DemoHierarchy,
   DemoLevel,
   appendToChain,
+  canInsertAtGap,
   canMoveInChain,
   chainPosition,
   indexInChain,
@@ -32,6 +33,7 @@ function hierarchy(names: string[]): DemoHierarchy {
     open: signal(true),
     expandedIds: signal<ReadonlySet<string>>(new Set(chain().map((entry) => entry.id))),
     openGap: signal<TreeGap<DemoLevel> | null>(null),
+    canInsertAt: (gap) => canInsertAtGap(levels(), gap),
   };
 }
 
@@ -75,6 +77,37 @@ describe('chainPosition', () => {
     expect(chainPosition(h, { parent: a, index: 0 })).toBe(1);
     expect(chainPosition(h, { parent: b, index: 0 })).toBe(2);
     expect(chainPosition(h, { parent: b, index: 1 })).toBe(3);
+  });
+});
+
+describe('canInsertAtGap', () => {
+  const h = hierarchy(['A', 'B', 'C']);
+  const a = h.levels()[0];
+  const b = a.children[0];
+  const c = b.children[0];
+
+  it('offers the gap before every level', () => {
+    expect(canInsertAtGap(h.levels(), { parent: null, index: 0 })).toBe(true);
+    expect(canInsertAtGap(h.levels(), { parent: a, index: 0 })).toBe(true);
+    expect(canInsertAtGap(h.levels(), { parent: b, index: 0 })).toBe(true);
+  });
+
+  it('hides the gap after a level that still has a child — it repeats a deeper one', () => {
+    expect(canInsertAtGap(h.levels(), { parent: null, index: 1 })).toBe(false);
+    expect(canInsertAtGap(h.levels(), { parent: a, index: 1 })).toBe(false);
+  });
+
+  it('offers the gap after the deepest level as the end of the chain', () => {
+    expect(canInsertAtGap(h.levels(), { parent: b, index: 1 })).toBe(true);
+  });
+
+  it('hides the gap inside the folded-away children of the deepest level', () => {
+    expect(canInsertAtGap(h.levels(), { parent: c, index: 0 })).toBe(false);
+  });
+
+  it('is what the hierarchy hands the tree', () => {
+    expect(h.canInsertAt({ parent: b, index: 1 })).toBe(true);
+    expect(h.canInsertAt({ parent: a, index: 1 })).toBe(false);
   });
 });
 

@@ -81,7 +81,7 @@
           indentMode="row"
           [(expandedIds)]="hierarchy.expandedIds"
           [insertLabel]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.INSERT_LEVEL' | translate"
-          [canInsertAt]="gapFilter(hierarchy)"
+          [canInsertAt]="hierarchy.canInsertAt"
           [trailingGapAsChild]="true"
           [maxIndent]="200"
           [(openGap)]="hierarchy.openGap"

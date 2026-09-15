@@ -7,6 +7,7 @@ import {
   DemoHierarchy,
   DemoLevel,
   RegisteredLevel,
+  canInsertAtGap,
   nest,
 } from './hierarchy-demo.model';
 
@@ -206,6 +207,7 @@ export function createHierarchy(source: HierarchySource): DemoHierarchy {
     // Start fully expanded so the whole chain is visible.
     expandedIds: signal<ReadonlySet<string>>(new Set(chain().map((entry) => entry.id))),
     openGap: signal<TreeGap<DemoLevel> | null>(null),
+    canInsertAt: (gap) => canInsertAtGap(levels(), gap),
   };
 }
 
