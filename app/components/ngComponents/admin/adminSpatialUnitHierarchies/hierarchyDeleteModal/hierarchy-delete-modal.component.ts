@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, Input, inject } from '@angular/core
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { DemoHierarchy } from '../hierarchy-demo.model';
+import { SpatialUnitHierarchy } from '../hierarchy.model';
 
 /**
  * Confirmation dialog for removing one hierarchy, shaped like the other admin
@@ -20,7 +20,7 @@ export class HierarchyDeleteModalComponent {
   private readonly activeModal = inject(NgbActiveModal);
 
   /** Set by the opener through `AdminModalService`. */
-  @Input() hierarchy?: DemoHierarchy;
+  @Input() hierarchy?: SpatialUnitHierarchy;
 
   confirm(): void {
     this.activeModal.close(true);

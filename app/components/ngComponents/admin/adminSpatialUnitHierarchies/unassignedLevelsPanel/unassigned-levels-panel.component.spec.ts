@@ -5,13 +5,13 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { createHierarchy } from '../hierarchy-demo.data';
-import { DemoHierarchy, RegisteredLevel } from '../hierarchy-demo.model';
+import { RegisteredLevel, SpatialUnitHierarchy } from '../hierarchy.model';
 import {
   LevelAssignment,
   UnassignedLevelsPanelComponent,
 } from './unassigned-levels-panel.component';
 
-function hierarchy(id: string, name: string): DemoHierarchy {
+function hierarchy(id: string, name: string): SpatialUnitHierarchy {
   return createHierarchy({ id, name, mandant: 'Stadt Essen', levels: ['Stadt Essen'], open: true });
 }
 
@@ -31,7 +31,7 @@ describe('UnassignedLevelsPanelComponent', () => {
 
   function render(
     levels: readonly RegisteredLevel[] = LEVELS,
-    hierarchies: readonly DemoHierarchy[] = HIERARCHIES
+    hierarchies: readonly SpatialUnitHierarchy[] = HIERARCHIES
   ): void {
     fixture.componentRef.setInput('levels', levels);
     fixture.componentRef.setInput('hierarchies', hierarchies);

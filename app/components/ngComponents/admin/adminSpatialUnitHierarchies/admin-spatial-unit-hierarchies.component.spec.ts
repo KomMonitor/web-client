@@ -13,7 +13,7 @@ import { AdminSpatialUnitHierarchiesComponent } from './admin-spatial-unit-hiera
 import { createDemoHierarchies } from './hierarchy-demo.data';
 import { HierarchyStoreService } from './hierarchy-store.service';
 import { UnassignedLevelsPanelComponent } from './unassignedLevelsPanel/unassigned-levels-panel.component';
-import { appendToChain, chainPosition, DemoLevel } from './hierarchy-demo.model';
+import { HierarchyLevel, appendToChain, chainPosition } from './hierarchy.model';
 
 /** The remove button of the row at `rowIndex`. */
 function removeButton(fixture: ComponentFixture<unknown>, rowIndex: number): HTMLButtonElement {
@@ -256,7 +256,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
 
     const levels = () => store.hierarchies()[0].levels();
 
-    const names = (node: DemoLevel): string[] => [node.name, ...node.children.flatMap(names)];
+    const names = (node: HierarchyLevel): string[] => [node.name, ...node.children.flatMap(names)];
 
     expect(levels()).toHaveLength(1);
     expect(names(levels()[0])).toEqual([

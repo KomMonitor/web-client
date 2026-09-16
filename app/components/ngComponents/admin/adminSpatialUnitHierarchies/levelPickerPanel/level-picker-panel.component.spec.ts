@@ -6,7 +6,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { createHierarchy } from '../hierarchy-demo.data';
-import { DemoHierarchy } from '../hierarchy-demo.model';
+import { SpatialUnitHierarchy } from '../hierarchy.model';
 import { LevelPick, LevelPickerPanelComponent } from './level-picker-panel.component';
 
 /**
@@ -21,7 +21,7 @@ const LEVELS = [
   'Quartiere Essen',
 ];
 
-function hierarchy(names: string[]): DemoHierarchy {
+function hierarchy(names: string[]): SpatialUnitHierarchy {
   return createHierarchy({ id: 'h', name: 'Testhierarchie', levels: names, open: true });
 }
 
@@ -29,7 +29,7 @@ describe('LevelPickerPanelComponent', () => {
   let fixture: ComponentFixture<LevelPickerPanelComponent>;
   let component: LevelPickerPanelComponent;
   let modalService: NgbModal;
-  let demo: DemoHierarchy;
+  let demo: SpatialUnitHierarchy;
   let done: number;
   let picked: LevelPick[];
 

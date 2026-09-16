@@ -1,5 +1,5 @@
 import { createHierarchy } from './hierarchy-demo.data';
-import { DemoHierarchy, RegisteredLevel } from './hierarchy-demo.model';
+import { RegisteredLevel, SpatialUnitHierarchy } from './hierarchy.model';
 import {
   countLevelUsage,
   hierarchiesOfMandant,
@@ -10,7 +10,7 @@ import {
   unassignedLevels,
 } from './hierarchy-selectors';
 
-function hierarchy(name: string, mandant: string, levels: string[]): DemoHierarchy {
+function hierarchy(name: string, mandant: string, levels: string[]): SpatialUnitHierarchy {
   return createHierarchy({ id: name, name, mandant, levels, open: true });
 }
 

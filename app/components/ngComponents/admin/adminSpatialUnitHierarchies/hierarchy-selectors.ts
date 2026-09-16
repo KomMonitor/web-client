@@ -1,4 +1,4 @@
-import { DemoHierarchy, RegisteredLevel } from './hierarchy-demo.model';
+import { RegisteredLevel, SpatialUnitHierarchy } from './hierarchy.model';
 import { MandantOverviewRow } from './mandantOverviewTable/mandant-overview-table.component';
 
 /**
@@ -15,7 +15,7 @@ import { MandantOverviewRow } from './mandantOverviewTable/mandant-overview-tabl
  * counts: the tenant overview counts per tenant, the create dialog across the
  * whole instance — the same question asked of a different set of hierarchies.
  */
-export function countLevelUsage(hierarchies: readonly DemoHierarchy[]): Map<string, number> {
+export function countLevelUsage(hierarchies: readonly SpatialUnitHierarchy[]): Map<string, number> {
   const usage = new Map<string, number>();
   for (const hierarchy of hierarchies) {
     for (const entry of hierarchy.chain()) {
@@ -30,12 +30,12 @@ export function countLevelUsage(hierarchies: readonly DemoHierarchy[]): Map<stri
  * that are already in use with it — sharing one is allowed, it just should not
  * happen unnoticed.
  */
-export function levelUsage(hierarchies: readonly DemoHierarchy[]): Record<string, number> {
+export function levelUsage(hierarchies: readonly SpatialUnitHierarchy[]): Record<string, number> {
   return Object.fromEntries(countLevelUsage(hierarchies));
 }
 
 /** The hierarchy names, for the dialog to check a new one against. */
-export function hierarchyNames(hierarchies: readonly DemoHierarchy[]): string[] {
+export function hierarchyNames(hierarchies: readonly SpatialUnitHierarchy[]): string[] {
   return hierarchies.map((hierarchy) => hierarchy.name());
 }
 
@@ -45,9 +45,9 @@ export function hierarchyNames(hierarchies: readonly DemoHierarchy[]): string[] 
  * nothing to narrow down to then.
  */
 export function hierarchiesOfMandant(
-  hierarchies: readonly DemoHierarchy[],
+  hierarchies: readonly SpatialUnitHierarchy[],
   mandant: string
-): readonly DemoHierarchy[] {
+): readonly SpatialUnitHierarchy[] {
   return mandant ? hierarchies.filter((hierarchy) => hierarchy.mandant() === mandant) : hierarchies;
 }
 
@@ -70,7 +70,7 @@ export function levelsOfMandant(
  */
 export function unassignedLevels(
   registry: readonly RegisteredLevel[],
-  hierarchies: readonly DemoHierarchy[],
+  hierarchies: readonly SpatialUnitHierarchy[],
   mandant: string
 ): readonly RegisteredLevel[] {
   const used = countLevelUsage(hierarchies);
@@ -87,10 +87,12 @@ export function unassignedLevels(
  * the result is empty and the page falls back to listing the hierarchies.
  */
 function groupByMandant(
-  hierarchies: readonly DemoHierarchy[],
+  hierarchies: readonly SpatialUnitHierarchy[],
   keycloakMandants: readonly string[]
-): Map<string, DemoHierarchy[]> {
-  const groups = new Map<string, DemoHierarchy[]>(keycloakMandants.map((name) => [name, []]));
+): Map<string, SpatialUnitHierarchy[]> {
+  const groups = new Map<string, SpatialUnitHierarchy[]>(
+    keycloakMandants.map((name) => [name, []])
+  );
 
   for (const hierarchy of hierarchies) {
     const mandant = hierarchy.mandant();
@@ -114,7 +116,7 @@ function groupByMandant(
  * only reads the name and the hierarchy count off them.
  */
 export function mandantOverviewRows(
-  hierarchies: readonly DemoHierarchy[],
+  hierarchies: readonly SpatialUnitHierarchy[],
   keycloakMandants: readonly string[]
 ): readonly MandantOverviewRow[] {
   return [...groupByMandant(hierarchies, keycloakMandants)].map(([name, group]) => {

@@ -11,7 +11,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MODAL_FORM } from 'util/modal-presets';
 
 import { AdminModalService } from '../../adminShared/modal/admin-modal.service';
-import { DemoHierarchy } from '../hierarchy-demo.model';
+import { SpatialUnitHierarchy } from '../hierarchy.model';
 import {
   LevelRegisterModalComponent,
   LevelRegisterResult,
@@ -47,7 +47,7 @@ export interface LevelPick {
 export class LevelPickerPanelComponent {
   private readonly modals = inject(AdminModalService);
 
-  readonly hierarchy = input.required<DemoHierarchy>();
+  readonly hierarchy = input.required<SpatialUnitHierarchy>();
 
   /**
    * The registered levels of this hierarchy's tenant, as the page's registry

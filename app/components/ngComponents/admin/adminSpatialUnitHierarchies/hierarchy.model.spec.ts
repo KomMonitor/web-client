@@ -3,9 +3,9 @@ import { computed, signal } from '@angular/core';
 import { TreeGap } from '../../common/tree-view/tree-view.model';
 
 import {
-  DemoChainEntry,
-  DemoHierarchy,
-  DemoLevel,
+  HierarchyChainEntry,
+  HierarchyLevel,
+  SpatialUnitHierarchy,
   appendToChain,
   canInsertAtGap,
   canMoveInChain,
@@ -15,10 +15,10 @@ import {
   moveInChain,
   nest,
   removeFromChain,
-} from './hierarchy-demo.model';
+} from './hierarchy.model';
 
-function hierarchy(names: string[]): DemoHierarchy {
-  const chain = signal<readonly DemoChainEntry[]>(
+function hierarchy(names: string[]): SpatialUnitHierarchy {
+  const chain = signal<readonly HierarchyChainEntry[]>(
     names.map((name, index) => ({ id: `id-${index}`, name }))
   );
   const levels = computed(() => nest(chain()));
@@ -32,13 +32,13 @@ function hierarchy(names: string[]): DemoHierarchy {
     levelCount: computed(() => chain().length),
     open: signal(true),
     expandedIds: signal<ReadonlySet<string>>(new Set(chain().map((entry) => entry.id))),
-    openGap: signal<TreeGap<DemoLevel> | null>(null),
+    openGap: signal<TreeGap<HierarchyLevel> | null>(null),
     canInsertAt: (gap) => canInsertAtGap(levels(), gap),
   };
 }
 
 /** The chain entry at `index`, as the caller of a chain function holds it. */
-function entryAt(h: DemoHierarchy, index: number): DemoChainEntry {
+function entryAt(h: SpatialUnitHierarchy, index: number): HierarchyChainEntry {
   return h.chain()[index];
 }
 

@@ -10,7 +10,7 @@ import { TreeGap } from '../../common/tree-view/tree-view.model';
  * which is what `RegisteredLevel.id` is. The two worlds are joined by the
  * **name**, the way `levelUsage` and the tenant overview already count.
  */
-export interface DemoChainEntry {
+export interface HierarchyChainEntry {
   readonly id: string;
   readonly name: string;
 }
@@ -34,11 +34,11 @@ export interface RegisteredLevel {
 }
 
 /** The same level as the tree renders it — each one nests the next. */
-export interface DemoLevel extends DemoChainEntry {
-  readonly children: DemoLevel[];
+export interface HierarchyLevel extends HierarchyChainEntry {
+  readonly children: HierarchyLevel[];
 }
 
-export interface DemoHierarchy {
+export interface SpatialUnitHierarchy {
   readonly id: string;
   /** Writable so renaming keeps the hierarchy object — and its state — in place. */
   readonly name: WritableSignal<string>;
@@ -47,8 +47,8 @@ export interface DemoHierarchy {
   /** Owning tenant, as chosen in the dialog; empty without Keycloak. */
   readonly mandant: WritableSignal<string>;
   /** Source of truth: the chain from coarse to fine. Every edit happens here. */
-  readonly chain: WritableSignal<readonly DemoChainEntry[]>;
-  readonly levels: Signal<readonly DemoLevel[]>;
+  readonly chain: WritableSignal<readonly HierarchyChainEntry[]>;
+  readonly levels: Signal<readonly HierarchyLevel[]>;
   readonly levelCount: Signal<number>;
   readonly open: WritableSignal<boolean>;
   readonly expandedIds: WritableSignal<ReadonlySet<string>>;
@@ -58,21 +58,21 @@ export interface DemoHierarchy {
    * every hierarchy — one shared signal would open the same root gap in all of
    * them at once.
    */
-  readonly openGap: WritableSignal<TreeGap<DemoLevel> | null>;
+  readonly openGap: WritableSignal<TreeGap<HierarchyLevel> | null>;
   /**
    * Which gaps of the tree offer an insert line — `canInsertAtGap` over this
    * hierarchy's levels. Built once with the hierarchy: the tree takes it as an
    * input, and a fresh function on every change detection run would keep
    * rewriting that input and never settle.
    */
-  readonly canInsertAt: (gap: TreeGap<DemoLevel>) => boolean;
+  readonly canInsertAt: (gap: TreeGap<HierarchyLevel>) => boolean;
 }
 
 let nextLevelId = 0;
 
 /** Nests a coarse-to-fine chain so the tree can render it. */
-export function nest(entries: readonly DemoChainEntry[]): DemoLevel[] {
-  return entries.reduceRight<DemoLevel[]>((children, entry) => [{ ...entry, children }], []);
+export function nest(entries: readonly HierarchyChainEntry[]): HierarchyLevel[] {
+  return entries.reduceRight<HierarchyLevel[]>((children, entry) => [{ ...entry, children }], []);
 }
 
 /**
@@ -83,7 +83,10 @@ export function nest(entries: readonly DemoChainEntry[]): DemoLevel[] {
  *
  * This is the only place that bridges the nested tree and the flat chain.
  */
-export function chainPosition(hierarchy: DemoHierarchy, gap: TreeGap<DemoLevel>): number {
+export function chainPosition(
+  hierarchy: SpatialUnitHierarchy,
+  gap: TreeGap<HierarchyLevel>
+): number {
   const parentIndex = gap.parent
     ? hierarchy.chain().findIndex((entry) => entry.id === gap.parent!.id)
     : -1;
@@ -102,7 +105,10 @@ export function chainPosition(hierarchy: DemoHierarchy, gap: TreeGap<DemoLevel>)
  * clicked. The gap *after* the deepest level takes its place, and that is the
  * "append at the end" position.
  */
-export function canInsertAtGap(levels: readonly DemoLevel[], gap: TreeGap<DemoLevel>): boolean {
+export function canInsertAtGap(
+  levels: readonly HierarchyLevel[],
+  gap: TreeGap<HierarchyLevel>
+): boolean {
   // Inside the folded-away children area of a childless level; the trailing
   // gap one level up addresses the same position and is reachable.
   if (gap.parent && gap.parent.children.length === 0) {
@@ -122,10 +128,10 @@ export function canInsertAtGap(levels: readonly DemoLevel[], gap: TreeGap<DemoLe
  * otherwise disappear.
  */
 export function insertIntoChain(
-  hierarchy: DemoHierarchy,
-  gap: TreeGap<DemoLevel>,
+  hierarchy: SpatialUnitHierarchy,
+  gap: TreeGap<HierarchyLevel>,
   name: string
-): DemoChainEntry {
+): HierarchyChainEntry {
   return insertAt(hierarchy, chainPosition(hierarchy, gap), name);
 }
 
@@ -134,7 +140,7 @@ export function insertIntoChain(
  * the hierarchy. This is what assigning a so far unassigned level does — the
  * gaps in the tree address the positions in between.
  */
-export function appendToChain(hierarchy: DemoHierarchy, name: string): DemoChainEntry {
+export function appendToChain(hierarchy: SpatialUnitHierarchy, name: string): HierarchyChainEntry {
   return insertAt(hierarchy, hierarchy.chain().length, name);
 }
 
@@ -143,8 +149,12 @@ export function appendToChain(hierarchy: DemoHierarchy, name: string): DemoChain
  * splices it in and marks it expanded — a level that is not in `expandedIds`
  * would come up folded and hide everything below it.
  */
-function insertAt(hierarchy: DemoHierarchy, position: number, name: string): DemoChainEntry {
-  const entry: DemoChainEntry = { id: `level-${nextLevelId++}`, name };
+function insertAt(
+  hierarchy: SpatialUnitHierarchy,
+  position: number,
+  name: string
+): HierarchyChainEntry {
+  const entry: HierarchyChainEntry = { id: `level-${nextLevelId++}`, name };
 
   hierarchy.chain.update((entries) => {
     const next = [...entries];
@@ -157,14 +167,14 @@ function insertAt(hierarchy: DemoHierarchy, position: number, name: string): Dem
 }
 
 /** The position of a level in its chain, coarsest first; -1 when it is not in it. */
-export function indexInChain(hierarchy: DemoHierarchy, level: DemoChainEntry): number {
+export function indexInChain(hierarchy: SpatialUnitHierarchy, level: HierarchyChainEntry): number {
   return hierarchy.chain().findIndex((entry) => entry.id === level.id);
 }
 
 /** Whether moving the level by that many steps would stay inside the chain. */
 export function canMoveInChain(
-  hierarchy: DemoHierarchy,
-  level: DemoChainEntry,
+  hierarchy: SpatialUnitHierarchy,
+  level: HierarchyChainEntry,
   offset: number
 ): boolean {
   const index = indexInChain(hierarchy, level);
@@ -183,8 +193,8 @@ export function canMoveInChain(
  * Returns whether it moved — a step beyond either end of the chain does nothing.
  */
 export function moveInChain(
-  hierarchy: DemoHierarchy,
-  level: DemoChainEntry,
+  hierarchy: SpatialUnitHierarchy,
+  level: HierarchyChainEntry,
   offset: number
 ): boolean {
   if (!canMoveInChain(hierarchy, level, offset)) {
@@ -210,7 +220,10 @@ export function moveInChain(
  * Returns whether it was removed. The last remaining level stays: an empty
  * hierarchy has no meaning.
  */
-export function removeFromChain(hierarchy: DemoHierarchy, level: DemoChainEntry): boolean {
+export function removeFromChain(
+  hierarchy: SpatialUnitHierarchy,
+  level: HierarchyChainEntry
+): boolean {
   if (hierarchy.chain().length <= 1 || indexInChain(hierarchy, level) < 0) {
     return false;
   }

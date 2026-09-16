@@ -2,12 +2,12 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 import { TranslateModule } from '@ngx-translate/core';
 
 import { CollapsibleSectionComponent } from '../../../common/collapsible-section/collapsible-section.component';
-import { DemoHierarchy, RegisteredLevel } from '../hierarchy-demo.model';
+import { RegisteredLevel, SpatialUnitHierarchy } from '../hierarchy.model';
 
 /** A level and the hierarchy it should be assigned to. */
 export interface LevelAssignment {
   readonly level: RegisteredLevel;
-  readonly hierarchy: DemoHierarchy;
+  readonly hierarchy: SpatialUnitHierarchy;
 }
 
 /**
@@ -31,7 +31,7 @@ export class UnassignedLevelsPanelComponent {
   readonly levels = input.required<readonly RegisteredLevel[]>();
 
   /** The hierarchies a level can be assigned to — the tenant's own. */
-  readonly hierarchies = input.required<readonly DemoHierarchy[]>();
+  readonly hierarchies = input.required<readonly SpatialUnitHierarchy[]>();
 
   readonly showIds = input(false);
 

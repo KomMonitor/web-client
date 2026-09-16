@@ -3,13 +3,13 @@ import { computed, signal } from '@angular/core';
 import uuidv4 from '../../../../../customizedExternalLibs/uuidv4.js';
 import { TreeGap } from '../../common/tree-view/tree-view.model';
 import {
-  DemoChainEntry,
-  DemoHierarchy,
-  DemoLevel,
+  HierarchyChainEntry,
+  HierarchyLevel,
   RegisteredLevel,
+  SpatialUnitHierarchy,
   canInsertAtGap,
   nest,
-} from './hierarchy-demo.model';
+} from './hierarchy.model';
 
 /**
  * Static stand-in for the Data Management API. Everything in this file is
@@ -187,10 +187,10 @@ export function newHierarchyId(): string {
 }
 
 /** Builds one signal-backed hierarchy the page and the tree work on. */
-export function createHierarchy(source: HierarchySource): DemoHierarchy {
+export function createHierarchy(source: HierarchySource): SpatialUnitHierarchy {
   // Ids are assigned once and stay with the level, so reordering the chain
   // keeps the expanded state and the tree's `track` identities intact.
-  const chain = signal<readonly DemoChainEntry[]>(
+  const chain = signal<readonly HierarchyChainEntry[]>(
     source.levels.map((name, index) => ({ id: `${source.id}-${index}`, name }))
   );
   const levels = computed(() => nest(chain()));
@@ -206,12 +206,12 @@ export function createHierarchy(source: HierarchySource): DemoHierarchy {
     open: signal(source.open),
     // Start fully expanded so the whole chain is visible.
     expandedIds: signal<ReadonlySet<string>>(new Set(chain().map((entry) => entry.id))),
-    openGap: signal<TreeGap<DemoLevel> | null>(null),
+    openGap: signal<TreeGap<HierarchyLevel> | null>(null),
     canInsertAt: (gap) => canInsertAtGap(levels(), gap),
   };
 }
 
 /** Builds the hierarchies the page starts with. */
-export function createDemoHierarchies(): readonly DemoHierarchy[] {
+export function createDemoHierarchies(): readonly SpatialUnitHierarchy[] {
   return DEMO_HIERARCHIES.map(createHierarchy);
 }

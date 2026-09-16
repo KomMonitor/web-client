@@ -10,15 +10,15 @@ import {
   newLevelId,
 } from './hierarchy-demo.data';
 import {
-  DemoHierarchy,
-  DemoLevel,
+  HierarchyLevel,
   RegisteredLevel,
+  SpatialUnitHierarchy,
   appendToChain,
   canMoveInChain,
   insertIntoChain,
   moveInChain,
   removeFromChain,
-} from './hierarchy-demo.model';
+} from './hierarchy.model';
 import * as select from './hierarchy-selectors';
 
 /** The metadata of a hierarchy, as the dialog hands it back. */
@@ -53,7 +53,7 @@ export interface LevelRegistration {
 export class HierarchyStoreService {
   private readonly mandantService = inject(MandantService);
 
-  readonly hierarchies = signal<readonly DemoHierarchy[]>(createDemoHierarchies());
+  readonly hierarchies = signal<readonly SpatialUnitHierarchy[]>(createDemoHierarchies());
 
   /**
    * Every spatial unit level this instance knows, whether or not a hierarchy
@@ -157,7 +157,7 @@ export class HierarchyStoreService {
    * assembled. It is appended to the list, opened and fully expanded, and the
    * page follows it to its tenant so it stays in view.
    */
-  addHierarchy(metadata: HierarchyMetadata, levels: readonly string[]): DemoHierarchy {
+  addHierarchy(metadata: HierarchyMetadata, levels: readonly string[]): SpatialUnitHierarchy {
     const hierarchy = createHierarchy({
       id: newHierarchyId(),
       name: metadata.name,
@@ -172,7 +172,7 @@ export class HierarchyStoreService {
   }
 
   /** Writes the edited metadata. The chain and its expansion state stay untouched. */
-  updateHierarchyMetadata(hierarchy: DemoHierarchy, metadata: HierarchyMetadata): void {
+  updateHierarchyMetadata(hierarchy: SpatialUnitHierarchy, metadata: HierarchyMetadata): void {
     hierarchy.name.set(metadata.name);
     hierarchy.description.set(metadata.description);
     hierarchy.mandant.set(metadata.mandant);
@@ -180,17 +180,17 @@ export class HierarchyStoreService {
   }
 
   /** Drops a hierarchy. The levels it used stay in the registry. */
-  deleteHierarchy(hierarchy: DemoHierarchy): void {
+  deleteHierarchy(hierarchy: SpatialUnitHierarchy): void {
     this.hierarchies.update((entries) => entries.filter((entry) => entry !== hierarchy));
   }
 
   /** Whether the ▲/▼ button of that level is offered. */
-  canMove(hierarchy: DemoHierarchy, level: DemoLevel, offset: number): boolean {
+  canMove(hierarchy: SpatialUnitHierarchy, level: HierarchyLevel, offset: number): boolean {
     return canMoveInChain(hierarchy, level, offset);
   }
 
   /** Moves a level one step along the chain, towards the coarse or the fine end. */
-  moveLevel(hierarchy: DemoHierarchy, level: DemoLevel, offset: number): void {
+  moveLevel(hierarchy: SpatialUnitHierarchy, level: HierarchyLevel, offset: number): void {
     moveInChain(hierarchy, level, offset);
   }
 
@@ -199,12 +199,12 @@ export class HierarchyStoreService {
    * value reports which of the two happened, so the page only announces what
    * actually did.
    */
-  removeLevel(hierarchy: DemoHierarchy, level: DemoLevel): boolean {
+  removeLevel(hierarchy: SpatialUnitHierarchy, level: HierarchyLevel): boolean {
     return removeFromChain(hierarchy, level);
   }
 
   /** Puts a level into the chain at the gap of the tree it was chosen at. */
-  insertLevel(hierarchy: DemoHierarchy, gap: TreeGap<DemoLevel>, name: string): void {
+  insertLevel(hierarchy: SpatialUnitHierarchy, gap: TreeGap<HierarchyLevel>, name: string): void {
     insertIntoChain(hierarchy, gap, name);
   }
 
@@ -213,7 +213,7 @@ export class HierarchyStoreService {
    * The registry does not change — a level is not owned by a hierarchy, it is
    * only used by one, and it may be used by several.
    */
-  assignLevel(level: RegisteredLevel, hierarchy: DemoHierarchy): void {
+  assignLevel(level: RegisteredLevel, hierarchy: SpatialUnitHierarchy): void {
     appendToChain(hierarchy, level.name);
     hierarchy.open.set(true);
   }

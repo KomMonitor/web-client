@@ -9,7 +9,7 @@ import { TreeViewComponent } from '../../common/tree-view/tree-view.component';
 import { TreeGap } from '../../common/tree-view/tree-view.model';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { AdminModalService } from '../adminShared/modal/admin-modal.service';
-import { DemoHierarchy, DemoLevel, RegisteredLevel } from './hierarchy-demo.model';
+import { HierarchyLevel, RegisteredLevel, SpatialUnitHierarchy } from './hierarchy.model';
 import { HierarchyStoreService } from './hierarchy-store.service';
 import { HierarchyDeleteModalComponent } from './hierarchyDeleteModal/hierarchy-delete-modal.component';
 import {
@@ -81,15 +81,16 @@ export class AdminSpatialUnitHierarchiesComponent {
   // tree keeps its drag & drop for branching trees, where siblings exist.
 
   /** The chain nests under `children`, not under the tree's `subTopics` default. */
-  protected readonly levelChildren = (level: DemoLevel): readonly DemoLevel[] => level.children;
-  protected readonly levelId = (level: DemoLevel): string => level.id;
+  protected readonly levelChildren = (level: HierarchyLevel): readonly HierarchyLevel[] =>
+    level.children;
+  protected readonly levelId = (level: HierarchyLevel): string => level.id;
 
   protected onShowIdsChange(event: Event): void {
     this.showIds.set((event.target as HTMLInputElement).checked);
   }
 
   /** Takes a level out of the chain, if it is not the last one left. */
-  protected removeLevel(hierarchy: DemoHierarchy, level: DemoLevel): void {
+  protected removeLevel(hierarchy: SpatialUnitHierarchy, level: HierarchyLevel): void {
     if (this.store.removeLevel(hierarchy, level)) {
       this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.REMOVED', { level: level.name });
     }
@@ -118,7 +119,7 @@ export class AdminSpatialUnitHierarchiesComponent {
   }
 
   /** Edits the metadata. The chain and its expansion state stay untouched. */
-  protected async onEditHierarchy(hierarchy: DemoHierarchy): Promise<void> {
+  protected async onEditHierarchy(hierarchy: SpatialUnitHierarchy): Promise<void> {
     const result = await this.modals.open<HierarchyModalComponent, HierarchyModalResult>(
       HierarchyModalComponent,
       MODAL_FORM,
@@ -178,8 +179,8 @@ export class AdminSpatialUnitHierarchiesComponent {
    * need not be the one on screen.
    */
   protected onInsertLevel(
-    hierarchy: DemoHierarchy,
-    gap: TreeGap<DemoLevel>,
+    hierarchy: SpatialUnitHierarchy,
+    gap: TreeGap<HierarchyLevel>,
     { name, registration }: LevelPick
   ): void {
     if (registration) {
@@ -190,7 +191,7 @@ export class AdminSpatialUnitHierarchiesComponent {
   }
 
   /** Drops a hierarchy once the confirmation dialog agrees. */
-  protected async onDeleteHierarchy(hierarchy: DemoHierarchy): Promise<void> {
+  protected async onDeleteHierarchy(hierarchy: SpatialUnitHierarchy): Promise<void> {
     if (!(await this.modals.confirm(HierarchyDeleteModalComponent, { hierarchy }))) {
       return;
     }

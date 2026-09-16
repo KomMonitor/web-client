@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, Input, inject } from '@angular/core
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { RegisteredLevel } from '../hierarchy-demo.model';
+import { RegisteredLevel } from '../hierarchy.model';
 
 /**
  * Confirmation dialog for deleting one spatial unit level from the registry,
