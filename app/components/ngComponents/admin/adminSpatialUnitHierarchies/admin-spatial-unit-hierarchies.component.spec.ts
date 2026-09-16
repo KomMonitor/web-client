@@ -13,7 +13,17 @@ import { AdminSpatialUnitHierarchiesComponent } from './admin-spatial-unit-hiera
 import { createDemoHierarchies } from './hierarchy-demo.data';
 import { HierarchyStoreService } from './hierarchy-store.service';
 import { UnassignedLevelsPanelComponent } from './unassignedLevelsPanel/unassigned-levels-panel.component';
-import { HierarchyLevel, appendToChain, chainPosition } from './hierarchy.model';
+import { chainPosition } from './hierarchy.model';
+
+/**
+ * What the page itself does: render the tree, drive the dialogs, and say what
+ * happened. A test belongs here when it asserts on the rendered page, on what a
+ * dialog was handed, or on what the user was told.
+ *
+ * The state behind it lives in `HierarchyStoreService` and is tested there,
+ * without a fixture — as are the pure functions under it, in `hierarchy.model`
+ * and `hierarchy-selectors`.
+ */
 
 /** The remove button of the row at `rowIndex`. */
 function removeButton(fixture: ComponentFixture<unknown>, rowIndex: number): HTMLButtonElement {
@@ -126,29 +136,19 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
   it('renders one collapsible section per demo hierarchy', () => {
     fixture.detectChanges();
 
-    const titles = fixture.debugElement
-      .queryAll(By.css('.hierarchy-section .section-title'))
-      .map((el) => el.nativeElement.textContent.trim());
-
-    expect(titles).toEqual(['Verwaltungsgliederung']);
+    expect(sectionTitles()).toEqual(['Verwaltungsgliederung']);
   });
 
   it('starts with the hierarchy expanded', () => {
     fixture.detectChanges();
 
-    const expanded = fixture.debugElement
-      .queryAll(By.css('.hierarchy-section .section-toggle'))
-      .map((el) => el.nativeElement.getAttribute('aria-expanded'));
-
-    expect(expanded).toEqual(['true']);
+    expect(expandedStates()).toEqual(['true']);
   });
 
   it('writes the toggled state back into the hierarchy signal', () => {
     fixture.detectChanges();
 
-    fixture.debugElement
-      .queryAll(By.css('.hierarchy-section .section-toggle'))[0]
-      .nativeElement.click();
+    sectionToggles()[0].click();
     fixture.detectChanges();
 
     expect(store.hierarchies()[0].open()).toBe(false);
@@ -166,11 +166,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
   it('renders the full level chain of the hierarchy', () => {
     fixture.detectChanges();
 
-    const names = fixture.debugElement
-      .queryAll(By.css('.level-name'))
-      .map((el) => el.nativeElement.textContent.trim());
-
-    expect(names).toEqual([
+    expect(levelNames(fixture)).toEqual([
       'Stadt Essen',
       'Stadtbezirke Essen',
       'Stadtteile Essen',
@@ -238,47 +234,6 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     expect(moveButtons[4]).toEqual([false, true]);
   });
 
-  it('keeps a level expanded after it was moved', () => {
-    fixture.detectChanges();
-
-    const before = [...store.hierarchies()[0].expandedIds()].sort();
-
-    moveButton(fixture, 1, 'down').click();
-    fixture.detectChanges();
-
-    // Ids travel with the level, so moving one does not collapse the chain.
-    expect([...store.hierarchies()[0].expandedIds()].sort()).toEqual(before);
-    expect(fixture.debugElement.queryAll(By.css('.level-name')).length).toBe(5);
-  });
-
-  it('keeps the nested structure in sync with the chain', () => {
-    fixture.detectChanges();
-
-    const levels = () => store.hierarchies()[0].levels();
-
-    const names = (node: HierarchyLevel): string[] => [node.name, ...node.children.flatMap(names)];
-
-    expect(levels()).toHaveLength(1);
-    expect(names(levels()[0])).toEqual([
-      'Stadt Essen',
-      'Stadtbezirke Essen',
-      'Stadtteile Essen',
-      'Stadtviertel Essen',
-      'Baublöcke Essen',
-    ]);
-
-    moveButton(fixture, 1, 'down').click();
-    fixture.detectChanges();
-
-    expect(names(levels()[0])).toEqual([
-      'Stadt Essen',
-      'Stadtteile Essen',
-      'Stadtbezirke Essen',
-      'Stadtviertel Essen',
-      'Baublöcke Essen',
-    ]);
-  });
-
   it('removes a level and closes the chain around it', () => {
     const show = jest.spyOn(notificationService, 'show');
     fixture.detectChanges();
@@ -294,18 +249,6 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     ]);
     expect(show).toHaveBeenCalledTimes(1);
     expect(show.mock.calls[0][0]).toContain('REMOVED');
-  });
-
-  it('forgets the expansion entry of a removed level', () => {
-    fixture.detectChanges();
-
-    const removedId = store.hierarchies()[0].chain()[1].id;
-    expect([...store.hierarchies()[0].expandedIds()]).toContain(removedId);
-
-    removeButton(fixture, 1).click();
-    fixture.detectChanges();
-
-    expect([...store.hierarchies()[0].expandedIds()]).not.toContain(removedId);
   });
 
   it('keeps the last remaining level', () => {
@@ -438,37 +381,6 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
 
     expect(store.hierarchies()[0].openGap()).toBeNull();
     expect(fixture.debugElement.query(By.css('app-level-picker-panel'))).toBeNull();
-  });
-
-  it('lists the tenant levels that no hierarchy uses', () => {
-    fixture.detectChanges();
-
-    // The spec keeps the Verwaltungsgliederung alone, so the levels of the other
-    // Essen hierarchies count as unassigned here too.
-    expect(store.unassignedLevels().map((level) => level.name)).toEqual([
-      'Sozialräume Essen',
-      'Quartiere Essen',
-      'Schulregionen Essen',
-      'Grundschulbezirke Essen',
-      'Wahlbezirke Essen',
-      'Postleitzahlgebiete Essen',
-    ]);
-  });
-
-  it('counts a level as assigned again as soon as a chain carries it', () => {
-    fixture.detectChanges();
-    const hierarchy = store.hierarchies()[0];
-
-    appendToChain(hierarchy, 'Wahlbezirke Essen');
-    fixture.detectChanges();
-
-    expect(store.unassignedLevels().map((level) => level.name)).not.toContain('Wahlbezirke Essen');
-  });
-
-  it('leaves the levels of other tenants out', () => {
-    fixture.detectChanges();
-
-    expect(store.unassignedLevels().every((level) => level.mandant === 'Stadt Essen')).toBe(true);
   });
 
   it('shows the unassigned section below the hierarchies, but not in the overview', () => {
@@ -711,18 +623,6 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
       fixture.detectChanges();
     }
 
-    it('counts the hierarchies, the distinct levels and the shared ones per tenant', () => {
-      fixture.detectChanges();
-
-      expect(store.mandantOverview()).toEqual([
-        // 'Stadt Essen' and 'Stadtbezirke Essen' are in both Essen hierarchies.
-        { name: 'Stadt Essen', hierarchyCount: 2, levelCount: 7, sharedLevelCount: 2 },
-        { name: 'Stadt Bochum', hierarchyCount: 1, levelCount: 3, sharedLevelCount: 0 },
-        { name: 'Kreis Recklinghausen', hierarchyCount: 2, levelCount: 6, sharedLevelCount: 1 },
-        { name: 'Stadt Krefeld', hierarchyCount: 1, levelCount: 3, sharedLevelCount: 0 },
-      ]);
-    });
-
     it('starts in the overview, which summarizes the tenants instead of listing hierarchies', () => {
       store.selectedMandant.set('');
       fixture.detectChanges();
@@ -749,34 +649,6 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
       expect(store.selectedMandant()).toBe('Stadt Bochum');
       expect(fixture.debugElement.query(By.css('app-mandant-overview-table'))).toBeNull();
       expect(sectionTitles()).toEqual(['Verwaltungsgliederung Bochum']);
-    });
-
-    it('unfolds every hierarchy of the tenant it switches to', () => {
-      // Only the first hierarchy of the seed starts unfolded.
-      store.selectMandant('');
-      fixture.detectChanges();
-
-      store.selectMandant('Kreis Recklinghausen');
-      fixture.detectChanges();
-
-      expect(expandedStates()).toEqual(['true', 'true']);
-    });
-
-    it('leaves a folded hierarchy folded until the tenant is entered again', () => {
-      store.selectMandant('Kreis Recklinghausen');
-      fixture.detectChanges();
-
-      sectionToggles()[1].click();
-      fixture.detectChanges();
-      expect(expandedStates()).toEqual(['true', 'false']);
-
-      // Leaving for the overview and coming back is entering the view anew.
-      store.selectMandant('');
-      fixture.detectChanges();
-      store.selectMandant('Kreis Recklinghausen');
-      fixture.detectChanges();
-
-      expect(expandedStates()).toEqual(['true', 'true']);
     });
 
     it('offers the overview and one entry per tenant, each with its badge', () => {
