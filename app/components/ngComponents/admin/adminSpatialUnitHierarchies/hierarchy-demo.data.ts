@@ -1,6 +1,5 @@
 import { computed, signal } from '@angular/core';
 
-import uuidv4 from '../../../../../customizedExternalLibs/uuidv4.js';
 import { TreeGap } from '../../common/tree-view/tree-view.model';
 import {
   HierarchyChainEntry,
@@ -9,6 +8,7 @@ import {
   SpatialUnitHierarchy,
   canInsertAtGap,
   nest,
+  newId,
 } from './hierarchy.model';
 
 /**
@@ -170,28 +170,17 @@ const DEMO_LEVELS: readonly LevelSource[] = [
 
 /** Builds the level registry the page starts with; ids like the backend hands out. */
 export function createLevelRegistry(): readonly RegisteredLevel[] {
-  return DEMO_LEVELS.map((level) => ({ id: newLevelId(), ...level }));
-}
-
-/** Id for a level the user registers — a uuid, like `newHierarchyId`. */
-export function newLevelId(): string {
-  return uuidv4();
-}
-
-/**
- * Id for a hierarchy the user creates. A uuid like the seeded one, so the id
- * chip shows what the backend would hand out rather than a counter.
- */
-export function newHierarchyId(): string {
-  return uuidv4();
+  return DEMO_LEVELS.map((level) => ({ id: newId(), ...level }));
 }
 
 /** Builds one signal-backed hierarchy the page and the tree work on. */
 export function createHierarchy(source: HierarchySource): SpatialUnitHierarchy {
-  // Ids are assigned once and stay with the level, so reordering the chain
-  // keeps the expanded state and the tree's `track` identities intact.
+  // Ids are minted once and stay with the level, so reordering the chain keeps
+  // the expanded state and the tree's `track` identities intact. They are not
+  // derived from the position for that reason — and not from the source, so
+  // building the same source twice yields two independent hierarchies.
   const chain = signal<readonly HierarchyChainEntry[]>(
-    source.levels.map((name, index) => ({ id: `${source.id}-${index}`, name }))
+    source.levels.map((name) => ({ id: newId(), name }))
   );
   const levels = computed(() => nest(chain()));
 

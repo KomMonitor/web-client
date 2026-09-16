@@ -3,8 +3,6 @@ import {
   createDemoHierarchies,
   createHierarchy,
   createLevelRegistry,
-  newHierarchyId,
-  newLevelId,
 } from './hierarchy-demo.data';
 
 describe('createDemoHierarchies', () => {
@@ -62,7 +60,9 @@ describe('createHierarchy', () => {
     expect(hierarchy.id).toBe('h-1');
     expect(hierarchy.name()).toBe('Schulplanung');
     expect(hierarchy.description()).toBe('Ebenen der Schulentwicklungsplanung.');
-    expect(hierarchy.chain().map((entry) => entry.id)).toEqual(['h-1-0', 'h-1-1']);
+    for (const entry of hierarchy.chain()) {
+      expect(entry.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+    }
     expect(hierarchy.levels()[0].children[0].name).toBe('Schulregionen Essen');
     expect(hierarchy.open()).toBe(true);
     expect(hierarchy.expandedIds().size).toBe(2);
@@ -84,22 +84,13 @@ describe('createHierarchy', () => {
   });
 });
 
-describe('newHierarchyId', () => {
-  it('hands out a fresh uuid every time', () => {
-    const first = newHierarchyId();
-
-    expect(first).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
-    expect(newHierarchyId()).not.toBe(first);
-  });
-});
-
 describe('createLevelRegistry', () => {
   it('describes every level with a tenant and a data source', () => {
     for (const level of createLevelRegistry()) {
       expect(level.name).not.toBe('');
       expect(level.mandant).not.toBe('');
       expect(level.datasource).not.toBe('');
-      expect(level.id).toMatch(/^[0-9a-f-]{36}$/);
+      expect(level.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
     }
   });
 
@@ -149,12 +140,5 @@ describe('createLevelRegistry', () => {
 
   it('hands out independent state on every call', () => {
     expect(createLevelRegistry()[0].id).not.toBe(createLevelRegistry()[0].id);
-  });
-});
-
-describe('newLevelId', () => {
-  it('hands out a fresh uuid every time', () => {
-    expect(newLevelId()).not.toBe(newLevelId());
-    expect(newLevelId()).toMatch(/^[0-9a-f-]{36}$/);
   });
 });

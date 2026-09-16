@@ -2,13 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { MandantService } from 'services/mandant-service/mandant.service';
 
 import { TreeGap } from '../../common/tree-view/tree-view.model';
-import {
-  createDemoHierarchies,
-  createHierarchy,
-  createLevelRegistry,
-  newHierarchyId,
-  newLevelId,
-} from './hierarchy-demo.data';
+import { createDemoHierarchies, createHierarchy, createLevelRegistry } from './hierarchy-demo.data';
 import {
   HierarchyLevel,
   RegisteredLevel,
@@ -17,6 +11,7 @@ import {
   canMoveInChain,
   insertIntoChain,
   moveInChain,
+  newId,
   removeFromChain,
 } from './hierarchy.model';
 import * as select from './hierarchy-selectors';
@@ -159,7 +154,7 @@ export class HierarchyStoreService {
    */
   addHierarchy(metadata: HierarchyMetadata, levels: readonly string[]): SpatialUnitHierarchy {
     const hierarchy = createHierarchy({
-      id: newHierarchyId(),
+      id: newId(),
       name: metadata.name,
       description: metadata.description,
       mandant: metadata.mandant,
@@ -226,7 +221,7 @@ export class HierarchyStoreService {
   registerLevel(registration: LevelRegistration, mandant: string): void {
     this.levelRegistry.update((levels) => [
       ...levels,
-      { id: newLevelId(), name: registration.name, datasource: registration.datasource, mandant },
+      { id: newId(), name: registration.name, datasource: registration.datasource, mandant },
     ]);
   }
 

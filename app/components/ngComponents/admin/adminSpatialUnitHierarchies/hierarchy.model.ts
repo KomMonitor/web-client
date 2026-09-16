@@ -1,5 +1,6 @@
 import { Signal, WritableSignal } from '@angular/core';
 
+import uuidv4 from '../../../../../customizedExternalLibs/uuidv4.js';
 import { TreeGap } from '../../common/tree-view/tree-view.model';
 
 /**
@@ -68,7 +69,15 @@ export interface SpatialUnitHierarchy {
   readonly canInsertAt: (gap: TreeGap<HierarchyLevel>) => boolean;
 }
 
-let nextLevelId = 0;
+/**
+ * The one source of ids in this page — hierarchies, registry levels and chain
+ * entries alike. A uuid is what the backend hands out, and unlike a module-wide
+ * counter it carries no state that survives from one call, or one test, to the
+ * next.
+ */
+export function newId(): string {
+  return uuidv4();
+}
 
 /** Nests a coarse-to-fine chain so the tree can render it. */
 export function nest(entries: readonly HierarchyChainEntry[]): HierarchyLevel[] {
@@ -154,7 +163,7 @@ function insertAt(
   position: number,
   name: string
 ): HierarchyChainEntry {
-  const entry: HierarchyChainEntry = { id: `level-${nextLevelId++}`, name };
+  const entry: HierarchyChainEntry = { id: newId(), name };
 
   hierarchy.chain.update((entries) => {
     const next = [...entries];

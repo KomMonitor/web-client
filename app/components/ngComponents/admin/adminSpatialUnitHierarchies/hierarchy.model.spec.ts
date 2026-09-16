@@ -14,6 +14,7 @@ import {
   insertIntoChain,
   moveInChain,
   nest,
+  newId,
   removeFromChain,
 } from './hierarchy.model';
 
@@ -265,5 +266,14 @@ describe('removeFromChain', () => {
     expect(removeFromChain(h, { id: 'fremd', name: 'A' })).toBe(false);
 
     expect(h.chain()).toHaveLength(2);
+  });
+});
+
+describe('newId', () => {
+  it('hands out a fresh uuid every time', () => {
+    const first = newId();
+
+    expect(first).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+    expect(newId()).not.toBe(first);
   });
 });
