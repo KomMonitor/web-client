@@ -125,6 +125,7 @@
     "rxjs": "^7.8.1",
     "shpjs": "^6.2.0",
     "sortablejs": "^1.15.3",
+    "uuid": "^14.0.2",
     "zone.js": "~0.15.1"
   },
   "jshintConfig": {

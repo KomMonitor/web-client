@@ -1,6 +1,6 @@
 import { Signal, WritableSignal } from '@angular/core';
 
-import uuidv4 from '../../../../../customizedExternalLibs/uuidv4.js';
+import { v4 as uuidv4 } from 'uuid';
 import { TreeGap } from '../../common/tree-view/tree-view.model';
 
 /**

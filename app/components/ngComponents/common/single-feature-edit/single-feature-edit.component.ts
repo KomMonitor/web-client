@@ -7,7 +7,7 @@ import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { SingleFeatureMapHelperService } from 'services/single-feature-map-helper-service/single-feature-map-helper.service';
-import uuidv4 from '../../../../../customizedExternalLibs/uuidv4.js';
+import { v4 as uuidv4 } from 'uuid';
 import { FormsModule } from '@angular/forms';
 import * as turf from '@turf/turf';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -39,7 +39,9 @@ export class SingleFeatureEditComponent implements OnInit {
   featureInfoText_singleFeatureAddMenu;
 
   // variables for single feature import
-  featureIdValue = 0;
+  // A feature id is either a numeric increment or a uuid, depending on the
+  // schema's id data type — see generateIdProposalFromExistingFeatures().
+  featureIdValue: string | number = 0;
   // record id of kommonitor database
   featureRecordId = undefined;
   featureIdExampleString: any = undefined;
