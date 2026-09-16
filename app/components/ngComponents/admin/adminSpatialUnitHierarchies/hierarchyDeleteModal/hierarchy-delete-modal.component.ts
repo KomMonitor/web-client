@@ -22,11 +22,11 @@ export class HierarchyDeleteModalComponent {
   /** Set by the opener through `AdminModalService`. */
   @Input() hierarchy?: SpatialUnitHierarchy;
 
-  confirm(): void {
+  protected confirm(): void {
     this.activeModal.close(true);
   }
 
-  cancel(): void {
+  protected cancel(): void {
     this.activeModal.dismiss('cancel');
   }
 }

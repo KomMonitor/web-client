@@ -29,12 +29,12 @@ export interface LevelRegisterResult {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LevelRegisterModalComponent {
-  readonly activeModal = inject(NgbActiveModal);
+  private readonly activeModal = inject(NgbActiveModal);
 
   /** Names that are already taken; set by the opener through `AdminModalService`. */
   @Input() existingNames: readonly string[] = [];
 
-  readonly form = new FormGroup({
+  protected readonly form = new FormGroup({
     name: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required, uniqueNameValidator(() => this.existingNames)],
@@ -43,7 +43,7 @@ export class LevelRegisterModalComponent {
     datasource: new FormControl('', { nonNullable: true }),
   });
 
-  submit(): void {
+  protected submit(): void {
     if (this.form.invalid) {
       this.form.controls.name.markAsTouched();
       return;
@@ -54,7 +54,7 @@ export class LevelRegisterModalComponent {
     });
   }
 
-  cancel(): void {
+  protected cancel(): void {
     this.activeModal.dismiss('cancel');
   }
 }

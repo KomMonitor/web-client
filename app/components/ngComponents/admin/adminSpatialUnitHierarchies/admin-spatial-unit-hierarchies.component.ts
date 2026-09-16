@@ -73,7 +73,7 @@ export class AdminSpatialUnitHierarchiesComponent {
   /** The page's state; read straight from the template. */
   protected readonly store = inject(HierarchyStoreService);
 
-  readonly showIds = signal(false);
+  protected readonly showIds = signal(false);
 
   // Note on drag & drop: the tree reorders among siblings, and a chain gives every
   // level exactly one child — so every drop list would hold a single item and a

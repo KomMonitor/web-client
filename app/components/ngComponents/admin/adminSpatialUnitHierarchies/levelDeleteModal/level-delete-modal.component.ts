@@ -25,11 +25,11 @@ export class LevelDeleteModalComponent {
   /** Set by the opener through `AdminModalService`. */
   @Input() level?: RegisteredLevel;
 
-  confirm(): void {
+  protected confirm(): void {
     this.activeModal.close(true);
   }
 
-  cancel(): void {
+  protected cancel(): void {
     this.activeModal.dismiss('cancel');
   }
 }

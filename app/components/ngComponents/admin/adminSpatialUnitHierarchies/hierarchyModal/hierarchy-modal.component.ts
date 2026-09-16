@@ -56,7 +56,7 @@ export interface HierarchyModalResult {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HierarchyModalComponent implements OnInit {
-  readonly activeModal = inject(NgbActiveModal);
+  private readonly activeModal = inject(NgbActiveModal);
   private readonly mandantService = inject(MandantService);
 
   /** ng-bootstrap sets these via componentInstance, before the first render. */
@@ -85,11 +85,11 @@ export class HierarchyModalComponent implements OnInit {
    * instead of a required one nobody can fill. Filled in `ngOnInit`, once
    * `knownMandants` has arrived.
    */
-  mandants: readonly string[] = [];
+  protected mandants: readonly string[] = [];
 
   /** The chain being assembled, coarsest first. Only used while creating. */
   private readonly chain = signal<readonly string[]>([]);
-  readonly levels = this.chain.asReadonly();
+  protected readonly levels = this.chain.asReadonly();
 
   /**
    * Levels not yet in this chain — a level sits in a chain at most once. Reads
@@ -108,7 +108,7 @@ export class HierarchyModalComponent implements OnInit {
     return picked && options.includes(picked) ? picked : (options[0] ?? '');
   });
 
-  readonly form = new FormGroup({
+  protected readonly form = new FormGroup({
     name: new FormControl('', {
       nonNullable: true,
       validators: [
@@ -168,7 +168,7 @@ export class HierarchyModalComponent implements OnInit {
     });
   }
 
-  submit(): void {
+  protected submit(): void {
     if (!this.canSubmit) {
       this.form.controls.name.markAsTouched();
       this.form.controls.mandant.markAsTouched();
@@ -183,7 +183,7 @@ export class HierarchyModalComponent implements OnInit {
     this.activeModal.close(this.mode === 'create' ? { ...result, levels: this.chain() } : result);
   }
 
-  cancel(): void {
+  protected cancel(): void {
     this.activeModal.dismiss('cancel');
   }
 
