@@ -8,7 +8,6 @@ import {
   RegisteredLevel,
   SpatialUnitHierarchy,
   appendToChain,
-  canMoveInChain,
   insertIntoChain,
   moveInChain,
   newId,
@@ -177,11 +176,6 @@ export class HierarchyStoreService {
   /** Drops a hierarchy. The levels it used stay in the registry. */
   deleteHierarchy(hierarchy: SpatialUnitHierarchy): void {
     this.hierarchies.update((entries) => entries.filter((entry) => entry !== hierarchy));
-  }
-
-  /** Whether the ▲/▼ button of that level is offered. */
-  canMove(hierarchy: SpatialUnitHierarchy, level: HierarchyLevel, offset: number): boolean {
-    return canMoveInChain(hierarchy, level, offset);
   }
 
   /** Moves a level one step along the chain, towards the coarse or the fine end. */

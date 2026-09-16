@@ -87,10 +87,10 @@
           [(openGap)]="hierarchy.openGap"
           [toggleLabel]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.TOGGLE_LABEL' | translate"
         >
-          <ng-template appTreeRow let-level let-depth="depth">
+          <ng-template appTreeRow let-level>
             <span class="level-rank">
               {{
-                'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.LEVEL_RANK' | translate: { rank: depth + 1 }
+                'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.LEVEL_RANK' | translate: { rank: level.rank }
               }}
             </span>
             <span class="level-name">{{ level.name }}</span>
@@ -101,7 +101,7 @@
             <button
               type="button"
               class="level-move"
-              [disabled]="!store.canMove(hierarchy, level, -1)"
+              [disabled]="!level.canMoveUp"
               [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.MOVE_UP' | translate"
               (click)="$event.stopPropagation(); store.moveLevel(hierarchy, level, -1)"
             >
@@ -113,7 +113,7 @@
             <button
               type="button"
               class="level-move"
-              [disabled]="!store.canMove(hierarchy, level, 1)"
+              [disabled]="!level.canMoveDown"
               [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.MOVE_DOWN' | translate"
               (click)="$event.stopPropagation(); store.moveLevel(hierarchy, level, 1)"
             >

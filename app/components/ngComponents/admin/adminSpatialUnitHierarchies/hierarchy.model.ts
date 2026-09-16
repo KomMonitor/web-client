@@ -34,9 +34,21 @@ export interface RegisteredLevel {
   readonly mandant: string;
 }
 
-/** The same level as the tree renders it — each one nests the next. */
+/**
+ * The same level as the tree renders it — each one nests the next.
+ *
+ * Rank and move-ability are properties of the row, so they are derived once
+ * with the tree instead of asked per row and change detection cycle. They
+ * follow from the position in the chain, which is exactly what nesting knows.
+ */
 export interface HierarchyLevel extends HierarchyChainEntry {
   readonly children: HierarchyLevel[];
+  /** Position in the chain, 1-based — rank 1 is the coarsest level. */
+  readonly rank: number;
+  /** False for the coarsest level: there is nothing above it to swap with. */
+  readonly canMoveUp: boolean;
+  /** False for the finest level: there is nothing below it to swap with. */
+  readonly canMoveDown: boolean;
 }
 
 export interface SpatialUnitHierarchy {
@@ -81,7 +93,31 @@ export function newId(): string {
 
 /** Nests a coarse-to-fine chain so the tree can render it. */
 export function nest(entries: readonly HierarchyChainEntry[]): HierarchyLevel[] {
-  return entries.reduceRight<HierarchyLevel[]>((children, entry) => [{ ...entry, children }], []);
+  return entries.reduceRight<HierarchyLevel[]>(
+    (children, entry, index) => [
+      {
+        ...entry,
+        children,
+        rank: index + 1,
+        canMoveUp: canMoveAt(index, entries.length, -1),
+        canMoveDown: canMoveAt(index, entries.length, 1),
+      },
+    ],
+    []
+  );
+}
+
+/**
+ * Whether a step of `offset` from this position stays inside a chain of that
+ * length — the one rule behind both `canMoveInChain` and the `canMoveUp` /
+ * `canMoveDown` of a row. A position outside the chain can move nowhere.
+ */
+function canMoveAt(index: number, length: number, offset: number): boolean {
+  if (index < 0) {
+    return false;
+  }
+  const target = index + offset;
+  return target >= 0 && target < length;
 }
 
 /**
@@ -186,12 +222,7 @@ export function canMoveInChain(
   level: HierarchyChainEntry,
   offset: number
 ): boolean {
-  const index = indexInChain(hierarchy, level);
-  if (index < 0) {
-    return false;
-  }
-  const target = index + offset;
-  return target >= 0 && target < hierarchy.chain().length;
+  return canMoveAt(indexInChain(hierarchy, level), hierarchy.chain().length, offset);
 }
 
 /**

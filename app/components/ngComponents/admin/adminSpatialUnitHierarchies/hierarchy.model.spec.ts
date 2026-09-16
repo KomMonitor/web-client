@@ -58,6 +58,37 @@ describe('nest', () => {
     expect(nested[0].children[0].children[0].children).toEqual([]);
   });
 
+  it('ranks the levels from the coarsest one down', () => {
+    const nested = nest([
+      { id: 'a', name: 'A' },
+      { id: 'b', name: 'B' },
+      { id: 'c', name: 'C' },
+    ]);
+
+    expect(nested[0].rank).toBe(1);
+    expect(nested[0].children[0].rank).toBe(2);
+    expect(nested[0].children[0].children[0].rank).toBe(3);
+  });
+
+  it('offers no step beyond either end of the chain', () => {
+    const nested = nest([
+      { id: 'a', name: 'A' },
+      { id: 'b', name: 'B' },
+      { id: 'c', name: 'C' },
+    ]);
+    const middle = nested[0].children[0];
+
+    expect([nested[0].canMoveUp, nested[0].canMoveDown]).toEqual([false, true]);
+    expect([middle.canMoveUp, middle.canMoveDown]).toEqual([true, true]);
+    expect([middle.children[0].canMoveUp, middle.children[0].canMoveDown]).toEqual([true, false]);
+  });
+
+  it('lets a single level move nowhere at all', () => {
+    const [only] = nest([{ id: 'a', name: 'A' }]);
+
+    expect([only.canMoveUp, only.canMoveDown]).toEqual([false, false]);
+  });
+
   it('handles an empty chain', () => {
     expect(nest([])).toEqual([]);
   });
