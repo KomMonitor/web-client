@@ -125,7 +125,7 @@
             <button
               type="button"
               class="btn btn-sm btn-warning"
-              (click)="$event.stopPropagation(); onAction('ADMIN_SHARED.METADATA', level.name)"
+              (click)="$event.stopPropagation(); onShowMetadata(level.name)"
             >
               {{ 'ADMIN_SHARED.METADATA' | translate }}
             </button>
@@ -168,7 +168,7 @@
         (assign)="onAssignLevel($event)"
         (register)="onRegisterLevel()"
         (remove)="onDeleteLevel($event)"
-        (metadata)="onAction('ADMIN_SHARED.METADATA', $event.name)"
+        (metadata)="onShowMetadata($event.name)"
       />
     }
   }

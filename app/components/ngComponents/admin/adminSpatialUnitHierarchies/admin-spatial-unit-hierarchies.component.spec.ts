@@ -458,12 +458,24 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     expect(store.levelRegistry()).toContain(level);
   });
 
-  it('notifies when a row action inside the tree is clicked', () => {
+  // The metadata button is scaffold until the page reads real spatial units; it
+  // reports the click and says as much. Both places that offer it lead here.
+  it('reports the metadata button of a level in the chain', () => {
     const show = jest.spyOn(notificationService, 'show');
     fixture.detectChanges();
 
     const rowButton = fixture.debugElement.query(By.css('.tree-row .btn-warning'));
     rowButton.nativeElement.click();
+
+    expect(show).toHaveBeenCalledTimes(1);
+    expect(show.mock.calls[0][0]).toContain('ACTION_CLICKED');
+  });
+
+  it('reports the metadata button of an unassigned level', () => {
+    const show = jest.spyOn(notificationService, 'show');
+    fixture.detectChanges();
+
+    panel().metadata.emit(store.unassignedLevels()[0]);
 
     expect(show).toHaveBeenCalledTimes(1);
     expect(show.mock.calls[0][0]).toContain('ACTION_CLICKED');

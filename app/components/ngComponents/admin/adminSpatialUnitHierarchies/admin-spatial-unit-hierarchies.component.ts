@@ -200,11 +200,21 @@ export class AdminSpatialUnitHierarchiesComponent {
     this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.DELETED', { hierarchy: name });
   }
 
-  /** Demo feedback: proves the projected header and row buttons receive their clicks. */
-  protected onAction(actionKey: string, subject: string): void {
+  /**
+   * The metadata button of a level, in the chain and in the unassigned section
+   * alike. Demo scaffold: it only reports the click, and says so.
+   *
+   * TODO: open `SpatialUnitEditMetadataModalComponent` with the level's spatial
+   * unit, the way `admin-spatial-units-management.onClickEditMetadata` does.
+   * That dialog edits a real `SpatialUnitOverviewType` and writes it back
+   * through the API, while the registry here holds demo levels whose `id` only
+   * stands in for a `spatialUnitId` — so this waits for the page to read its
+   * levels from the Data Management API.
+   */
+  protected onShowMetadata(name: string): void {
     this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.ACTION_CLICKED', {
-      action: this.translateService.instant(actionKey),
-      hierarchy: subject,
+      action: this.translateService.instant('ADMIN_SHARED.METADATA'),
+      hierarchy: name,
     });
   }
 
