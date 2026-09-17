@@ -29,7 +29,7 @@
         </h5>
         <ul>
           @for (dataset of successfullyDeletedDatasets(); track dataset) {
-            <li>{{ dataset.name }}</li>
+            <li>{{ scheduleLabel(dataset) }}</li>
           }
         </ul>
       </div>
@@ -58,7 +58,7 @@
           <tbody>
             @for (entry of failedDatasetsAndErrors(); track entry) {
               <tr>
-                <td>{{ entry[0].name }}</td>
+                <td>{{ scheduleLabel(entry[0]) }}</td>
                 <td [innerHTML]="entry[1]"></td>
               </tr>
             }
@@ -75,7 +75,7 @@
     @if (datasetsToDelete.length > 0) {
       <ul>
         @for (dataset of datasetsToDelete; track dataset) {
-          <li>{{ dataset.name }}</li>
+          <li>{{ scheduleLabel(dataset) }}</li>
         }
       </ul>
     } @else {

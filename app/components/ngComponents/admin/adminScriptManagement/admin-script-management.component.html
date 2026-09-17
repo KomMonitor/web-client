@@ -28,6 +28,33 @@
       [title]="'ADMIN_SCRIPTS.MANAGEMENT.BOX_TITLE' | translate"
       [isCollapsible]="false"
     >
+      <!-- Both toggles rebuild the column set; they add columns, not filters. -->
+      <div class="d-flex gap-4 mb-3">
+        <div class="form-check form-switch">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="toggleScriptIds"
+            [checked]="showScriptIds()"
+            (change)="onToggleScriptIds()"
+          />
+          <label class="form-check-label" for="toggleScriptIds">
+            {{ 'ADMIN_SCRIPTS.MANAGEMENT.SHOW_IDS' | translate }}
+          </label>
+        </div>
+        <div class="form-check form-switch">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="toggleProcessDescription"
+            [checked]="showProcessDescription()"
+            (change)="onToggleProcessDescription()"
+          />
+          <label class="form-check-label" for="toggleProcessDescription">
+            {{ 'ADMIN_SCRIPTS.MANAGEMENT.SHOW_METHODOLOGY' | translate }}
+          </label>
+        </div>
+      </div>
       <!--
         Selection is configured through `gridOptions` alone (it already carries
         `rowSelection: 'multiple'`). A second `rowSelection` binding on the
@@ -38,7 +65,7 @@
         id="scriptOverviewTable"
         style="height: 70vh"
         class="ag-theme-alpine"
-        [columnDefs]="columnDefs"
+        [columnDefs]="columnDefs()"
         [defaultColDef]="defaultColDef"
         [rowData]="rowData()"
         [gridOptions]="gridOptions"

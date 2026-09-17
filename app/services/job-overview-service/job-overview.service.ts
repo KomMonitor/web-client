@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import {
   JobOverviewRow,
   JobSummaryEntry,
@@ -44,6 +44,14 @@ export class JobOverviewService {
   private summaryCache = new Map<string, JobSummaryEntry[]>();
 
   /**
+   * The rows of the most recent load, so a second consumer — the script
+   * management table needs the latest job per schedule — does not have to
+   * fetch them again.
+   */
+  private _rows = signal<JobOverviewRow[]>([]);
+  readonly rows = this._rows.asReadonly();
+
+  /**
    * Reloads schedules and jobs and joins them into rows.
    *
    * Schedules come first and are written back into the store: a job started
@@ -55,7 +63,26 @@ export class JobOverviewService {
     this.processScriptStore.setProcessScripts(schedules);
 
     const jobs = await this.processesApiService.fetchJobs();
-    return this.buildRows(jobs, schedules);
+    const rows = this.buildRows(jobs, schedules);
+    this._rows.set(rows);
+    return rows;
+  }
+
+  /**
+   * The rows belonging to one schedule, newest first. Used by the script
+   * management table's job overview button.
+   */
+  getRowsForSchedule(schedule: ProcessSchedule): JobOverviewRow[] {
+    const jobIds = new Set(schedule.jobIDs ?? []);
+    return this._rows().filter((row) => jobIds.has(row.job.jobID));
+  }
+
+  /**
+   * The most recent job of one schedule, or undefined if it never ran (or its
+   * jobs are older than the `MAX_JOBS` window).
+   */
+  getLatestRowForSchedule(schedule: ProcessSchedule): JobOverviewRow | undefined {
+    return this.getRowsForSchedule(schedule)[0];
   }
 
   /** Joins jobs against schedules and the process catalogue, newest first. */

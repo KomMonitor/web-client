@@ -31,6 +31,7 @@ export interface ProcessSchedule {
    * are filtered out on fetch.
    */
   jobIDs: string[];
+  /** `READY` once registered; a freshly created schedule starts as `NOT_READY`. */
   status: string;
   /** ISO 8601 with offset, e.g. `2026-05-29T08:43:53.823389+00:00`. */
   scheduleCreated: string;
@@ -62,6 +63,23 @@ export interface ProcessScheduleInputs {
 
 export interface ProcessSchedulesResponse {
   schedules: ProcessSchedule[];
+  links?: unknown[];
+}
+
+/**
+ * Answer to `POST processes/{id}/schedule`. Note the key: the new id comes back
+ * as `scheduling_id`, not `scheduleID` — which is what the same schedule is
+ * called everywhere else.
+ */
+export interface ScheduleCreatedResponse {
+  scheduling_id: string;
+}
+
+/** Answer to `DELETE schedules/{id}`; deletion is reported as a dismissal. */
+export interface ScheduleDismissedResponse {
+  scheduleID: string;
+  status: string;
+  message?: string;
   links?: unknown[];
 }
 

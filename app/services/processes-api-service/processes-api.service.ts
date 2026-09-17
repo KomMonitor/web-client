@@ -109,6 +109,31 @@ export class ProcessesApiService {
     }
   }
 
+  /** A single job, used while watching a manually triggered run. */
+  async fetchJob(jobId: string): Promise<ProcessJob | undefined> {
+    try {
+      return await firstValueFrom(this.http.get<ProcessJob>(this.baseUrl + 'jobs/' + jobId));
+    } catch (error) {
+      console.error('Could not fetch job ' + jobId + ':', error);
+      return undefined;
+    }
+  }
+
+  /**
+   * Starts a schedule's process right away, outside its cron plan.
+   *
+   * Unlike the reads above this one rethrows: a manual trigger is a user
+   * action, and silently doing nothing would be worse than an error message.
+   * The response carries no job id — the new job only shows up in the
+   * schedule's `jobIDs` a moment later, which is what `ScheduleExecutionService`
+   * waits for.
+   */
+  async triggerScheduleExecution(scheduleId: string): Promise<void> {
+    await firstValueFrom(
+      this.http.post(this.baseUrl + 'schedules/' + scheduleId + '/execution', {})
+    );
+  }
+
   /**
    * Per-spatial-unit summary of one job.
    *

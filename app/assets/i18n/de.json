@@ -1048,7 +1048,9 @@
     "MANAGEMENT": {
       "TITLE": "Skriptverwaltung",
       "DESCRIPTION": "Steuerung der semi-automatisierten Indikatorenberechnung",
-      "BOX_TITLE": "Indikatoren-Berechnungs-Skripte"
+      "BOX_TITLE": "Indikatoren-Berechnungs-Skripte",
+      "SHOW_IDS": "Ids anzeigen",
+      "SHOW_METHODOLOGY": "Methodik anzeigen"
     },
     "EXECUTION": {
       "TITLE": "Indikatoren-Berechnung",
@@ -1204,13 +1206,29 @@
     "GRID": {
       "COL_TARGET_INDICATOR_ID": "Ziel-Indikatoren-Id",
       "COL_TARGET_INDICATOR_NAME": "Ziel-Indikatoren-Name",
-      "COL_REQUIRED_BASE_INDICATORS": "Notwendige Basis-Indikatoren",
-      "COL_REQUIRED_BASE_GEORESOURCES": "Notwendige Basis-Georessourcen",
-      "COL_PROCESS_PARAMETERS": "Prozessparameter",
       "COL_JOB_SUMMARY": "Job-Summary",
       "COL_JOB": "Job",
       "COL_EXECUTION": "Ausführung",
-      "UNKNOWN_TARGET_INDICATOR": "Ziel-Indikator unbekannt"
+      "UNKNOWN_TARGET_INDICATOR": "Ziel-Indikator unbekannt",
+      "COL_COMPUTATION_TYPE": "Berechnungsart",
+      "COL_METHODOLOGY": "Methodik",
+      "COL_LAST_JOB": "Letzte Job-Ausführung",
+      "COL_EXECUTION_INTERVAL": "Ausführungsintervall",
+      "COL_TARGET_TIMES": "Zielzeitpunkte",
+      "COL_TARGET_SPATIAL_UNITS": "Ziel-Raumebenen",
+      "START_COMPUTATION": "Berechnung starten",
+      "SHOW_JOBS": "Zur Job-Übersicht",
+      "NO_JOBS": "Keine Jobs vorhanden",
+      "NONE": "keine",
+      "NEXT_EXECUTION": "Nächste geplante Ausführung",
+      "TARGET_INDICATOR_MISSING": "Ziel-Indikator könnte gelöscht worden sein",
+      "METHODOLOGY_UNAVAILABLE": "Keine Methodik-Informationen verfügbar",
+      "TARGET_TIME_ALL": "Alle Zeitpunkte berechnen",
+      "TARGET_TIME_MISSING": "Nur fehlende Zeitpunkte berechnen",
+      "TARGET_TIME_DATES": "Nur ausgewählte Zeitpunkte berechnen",
+      "TARGET_TIME_EXCLUDE": "Nicht berechnen",
+      "TARGET_TIME_INCLUDE": "Berechnen",
+      "TARGET_TIME_INCLUDE_ADDITIONAL": "Zusätzlich berechnen"
     },
     "DATA_TYPES": {
       "STRING": "Textuell (String)",
@@ -1292,6 +1310,14 @@
         "GEORESOURCE": "Georessource"
       },
       "UNKNOWN_DATASET": "unbekannt"
+    },
+    "EXECUTION_TRIGGER": {
+      "STARTED": "Neue Berechnung manuell angestoßen. Auf Job-Abschluss warten.",
+      "FAILED": "Die Berechnung konnte nicht angestoßen werden.",
+      "NO_JOB_APPEARED": "Es ist kein neuer Job erschienen. Bitte die Job-Übersicht prüfen.",
+      "WATCH_FAILED": "Die Berechnung konnte nicht überwacht werden. Bitte die Job-Details prüfen.",
+      "COMPLETED": "Berechnung von „{{indicatorName}}\" abgeschlossen.",
+      "JOB_FAILED": "Die Berechnung von „{{indicatorName}}\" ist fehlgeschlagen."
     }
   },
   "ADMIN_SHELL": {

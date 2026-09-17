@@ -11,6 +11,8 @@ import {
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 
+import { ProcessSchedule } from 'components/ngComponents/models/schedules.models';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 import { LoadingOverlayComponent } from '../../../common/loading-overlay/loading-overlay.component';
@@ -29,8 +31,9 @@ export class ScriptDeleteModalComponent implements OnInit {
   private http = inject(HttpClient);
   private indicatorValueService = inject(IndicatorValueService);
   private envConfigService = inject(EnvConfigService);
+  private indicatorStore = inject(IndicatorMetadataStoreService);
 
-  @Input() datasetsToDelete: any[] = [];
+  @Input() datasetsToDelete: ProcessSchedule[] = [];
 
   // Asks the management component to refresh the overview table; replaces the
   // former RefreshScriptOverviewTable broadcast round-trip.
@@ -40,8 +43,8 @@ export class ScriptDeleteModalComponent implements OnInit {
   // Promise.allSettled continuation, which would not trigger a re-render of
   // this OnPush component otherwise.
   loadingData = signal(false);
-  successfullyDeletedDatasets = signal<any[]>([]);
-  failedDatasetsAndErrors = signal<[any, string][]>([]);
+  successfullyDeletedDatasets = signal<ProcessSchedule[]>([]);
+  failedDatasetsAndErrors = signal<[ProcessSchedule, string][]>([]);
   showSuccessAlert = signal(false);
   showErrorAlert = signal(false);
 
@@ -77,19 +80,21 @@ export class ScriptDeleteModalComponent implements OnInit {
       if (this.successfullyDeletedDatasets().length > 0) {
         this.showSuccessAlert.set(true);
 
-        const deletedIds = this.successfullyDeletedDatasets().map((d) => d.scriptId);
+        const deletedIds = this.successfullyDeletedDatasets().map((d) => d.scheduleID);
         this.refreshRequested.emit({ crudType: 'delete', scriptId: deletedIds });
       }
       this.loadingData.set(false);
     });
   }
 
-  private getDeleteDatasetPromise(dataset: any): Promise<void> {
+  /**
+   * A schedule is deleted through the Processes API, not the Data Management
+   * API: `process-scripts` no longer exists.
+   */
+  private getDeleteDatasetPromise(dataset: ProcessSchedule): Promise<void> {
     return new Promise((resolve) => {
       this.http
-        .delete(
-          this.envConfigService.baseUrlToKomMonitorDataAPI + '/process-scripts/' + dataset.scriptId
-        )
+        .delete(this.envConfigService.targetUrlToProcessesApi + 'schedules/' + dataset.scheduleID)
         .subscribe({
           next: () => {
             this.successfullyDeletedDatasets.update((datasets) => [...datasets, dataset]);
@@ -104,6 +109,18 @@ export class ScriptDeleteModalComponent implements OnInit {
           },
         });
     });
+  }
+
+  /**
+   * A schedule has no name of its own, so it is identified by the indicator it
+   * computes — the same thing the overview table's first column shows.
+   */
+  scheduleLabel(schedule: ProcessSchedule): string {
+    const indicatorId = schedule.inputs?.target_indicator_id as string | undefined;
+    const name = indicatorId
+      ? this.indicatorStore.getIndicatorMetadataById(indicatorId)?.indicatorName
+      : undefined;
+    return name ?? schedule.scheduleID;
   }
 
   hideSuccessAlert(): void {

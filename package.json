@@ -84,6 +84,8 @@
     "bootstrap-validator": "^0.11.9",
     "classybrew": "0.0.3",
     "codemirror": "^5.65.20",
+    "cron-parser": "^5.10.1",
+    "cronstrue": "^3.27.0",
     "crypto-js": "^4.2.0",
     "d3": "^7.9.0",
     "docx": "^7.8.2",

@@ -1048,7 +1048,9 @@
     "MANAGEMENT": {
       "TITLE": "Script Management",
       "DESCRIPTION": "Control of the semi-automated indicator computation",
-      "BOX_TITLE": "Indicator computation scripts"
+      "BOX_TITLE": "Indicator computation scripts",
+      "SHOW_IDS": "Show ids",
+      "SHOW_METHODOLOGY": "Show methodology"
     },
     "EXECUTION": {
       "TITLE": "Indicator Computation",
@@ -1204,13 +1206,29 @@
     "GRID": {
       "COL_TARGET_INDICATOR_ID": "Target indicator id",
       "COL_TARGET_INDICATOR_NAME": "Target indicator name",
-      "COL_REQUIRED_BASE_INDICATORS": "Required base indicators",
-      "COL_REQUIRED_BASE_GEORESOURCES": "Required base georesources",
-      "COL_PROCESS_PARAMETERS": "Process parameters",
       "COL_JOB_SUMMARY": "Job summary",
       "COL_JOB": "Job",
       "COL_EXECUTION": "Execution",
-      "UNKNOWN_TARGET_INDICATOR": "Target indicator unknown"
+      "UNKNOWN_TARGET_INDICATOR": "Target indicator unknown",
+      "COL_COMPUTATION_TYPE": "Computation type",
+      "COL_METHODOLOGY": "Methodology",
+      "COL_LAST_JOB": "Last execution",
+      "COL_EXECUTION_INTERVAL": "Execution interval",
+      "COL_TARGET_TIMES": "Target dates",
+      "COL_TARGET_SPATIAL_UNITS": "Target spatial units",
+      "START_COMPUTATION": "Start computation",
+      "SHOW_JOBS": "Go to job overview",
+      "NO_JOBS": "No jobs yet",
+      "NONE": "none",
+      "NEXT_EXECUTION": "Next planned execution",
+      "TARGET_INDICATOR_MISSING": "Target indicator may have been deleted",
+      "METHODOLOGY_UNAVAILABLE": "No methodology information available",
+      "TARGET_TIME_ALL": "Compute all dates",
+      "TARGET_TIME_MISSING": "Compute missing dates only",
+      "TARGET_TIME_DATES": "Compute selected dates only",
+      "TARGET_TIME_EXCLUDE": "Do not compute",
+      "TARGET_TIME_INCLUDE": "Compute",
+      "TARGET_TIME_INCLUDE_ADDITIONAL": "Additionally compute"
     },
     "DATA_TYPES": {
       "STRING": "Text (string)",
@@ -1292,6 +1310,14 @@
         "GEORESOURCE": "Georesource"
       },
       "UNKNOWN_DATASET": "unknown"
+    },
+    "EXECUTION_TRIGGER": {
+      "STARTED": "Computation triggered manually. Waiting for the job to finish.",
+      "FAILED": "The computation could not be triggered.",
+      "NO_JOB_APPEARED": "No new job appeared. Please check the job overview.",
+      "WATCH_FAILED": "The computation could not be monitored. Please check the job details.",
+      "COMPLETED": "Computation of \"{{indicatorName}}\" completed.",
+      "JOB_FAILED": "Computation of \"{{indicatorName}}\" failed."
     }
   },
   "ADMIN_SHELL": {
