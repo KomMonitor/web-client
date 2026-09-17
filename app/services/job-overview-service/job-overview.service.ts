@@ -34,11 +34,15 @@ export class JobOverviewService {
   /**
    * How many jobs the overview keeps, newest first.
    *
-   * The server ignores `limit`, so the cut has to happen here. 50 matches what
-   * master asked the server for; whether this should be configurable is still
-   * open (`INDIKATORENBERECHNUNG_PROCESSES_API.md`, offene Frage 3).
+   * The server ignores `limit` and always answers with the full list, so the
+   * cut has to happen here. Generous on purpose: master's 50 already hid a
+   * fifth of the demo's jobs, and the cap exists to keep the page from slowing
+   * down as the list grows over the years, not to ration what is shown. The
+   * cost barely follows this number — the table paginates, and summaries are
+   * fetched only for successful jobs and only once the table is opened.
+   * Making it configurable is deliberately postponed.
    */
-  static readonly MAX_JOBS = 50;
+  static readonly MAX_JOBS = 500;
 
   /**
    * Summaries are fetched per job on demand and kept for the session.
