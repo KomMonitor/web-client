@@ -1,0 +1,287 @@
+@if (!draft.selectedProcess()) {
+  <p class="text-muted">{{ 'ADMIN_SCRIPTS.ADD_MODAL.PICK_TYPE_FIRST' | translate }}</p>
+} @else if (draft.inputBoxes().length === 0) {
+  <p class="text-muted">{{ 'ADMIN_SCRIPTS.ADD_MODAL.NO_EXTRA_INPUTS' | translate }}</p>
+} @else {
+  @for (resolved of draft.inputBoxes(); track resolved.box.id) {
+    <fieldset class="mb-4">
+      <legend class="fs-6 fw-bold">{{ resolved.box.title || resolved.box.id }}</legend>
+      @if (resolved.box.description) {
+        <p class="text-muted small">{{ resolved.box.description }}</p>
+      }
+
+      @switch (resolved.box.id) {
+        <!-- one base or reference indicator -->
+        @case ('computation_id') {
+          <ng-container
+            *ngTemplateOutlet="singleIndicator; context: { key: 'computation_id' }"
+          ></ng-container>
+        }
+        @case ('reference_id') {
+          <ng-container
+            *ngTemplateOutlet="singleIndicator; context: { key: 'reference_id' }"
+          ></ng-container>
+        }
+
+        <!-- several base indicators -->
+        @case ('computation_ids') {
+          <app-dual-list-box
+            [data]="multiSelectData('computation_ids')"
+            (selectedItems)="onMultiSelect('computation_ids', $event)"
+          ></app-dual-list-box>
+        }
+
+        <!-- base indicators, each with a polarity -->
+        @case ('computation_ids_with_polarity') {
+          <div class="d-flex gap-2 align-items-end mb-2">
+            <div class="flex-grow-1">
+              <label class="form-label" for="polarityPick">
+                {{ 'ADMIN_SCRIPTS.ADD_MODAL.ADD_BASE_INDICATOR' | translate }}
+              </label>
+              <select class="form-select" id="polarityPick" #polarityPick>
+                <option value="">—</option>
+                @for (indicator of indicators(); track indicator.indicatorId) {
+                  <option [value]="indicator.indicatorId">{{ indicator.indicatorName }}</option>
+                }
+              </select>
+            </div>
+            <button
+              type="button"
+              class="btn btn-outline-primary"
+              (click)="addPolarityRow(polarityPick.value); polarityPick.value = ''"
+            >
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+
+          @if (polarityRows().length > 0) {
+            <table class="table table-sm table-bordered align-middle">
+              <thead>
+                <tr>
+                  <th>{{ 'ADMIN_SHARED.NAME' | translate }}</th>
+                  <th style="width: 14rem">{{ 'ADMIN_SCRIPTS.ADD_MODAL.POLARITY' | translate }}</th>
+                  <th style="width: 3rem"></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of polarityRows(); track $index) {
+                  <tr>
+                    <td>{{ indicatorName(row.indicatorId) }}</td>
+                    <td>
+                      <select
+                        class="form-select form-select-sm"
+                        [ngModel]="row.polarity"
+                        (ngModelChange)="setPolarity($index, $event)"
+                      >
+                        <option value="NORMAL">
+                          {{ 'ADMIN_SCRIPTS.ADD_MODAL.POLARITY_NORMAL' | translate }}
+                        </option>
+                        <option value="INVERT">
+                          {{ 'ADMIN_SCRIPTS.ADD_MODAL.POLARITY_INVERT' | translate }}
+                        </option>
+                      </select>
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="removePolarityRow($index)"
+                      >
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        }
+
+        <!-- a fixed reference date, picked from the dates all inputs share -->
+        @case ('reference_date') {
+          <select
+            class="form-select"
+            [ngModel]="$any(draft.getInput('reference_date')) || ''"
+            (ngModelChange)="setValue('reference_date', $event)"
+          >
+            <option value="">—</option>
+            @for (date of draft.applicableDates(); track date) {
+              <option [value]="date">{{ date }}</option>
+            }
+          </select>
+          @if (draft.applicableDates().length === 0) {
+            <small class="text-muted">
+              {{ 'ADMIN_SCRIPTS.ADD_MODAL.NO_COMMON_DATES' | translate }}
+            </small>
+          }
+        }
+
+        <!-- one georesource; the line variant only narrows the offered list -->
+        @case ('georesource_id') {
+          <ng-container
+            *ngTemplateOutlet="georesourceSelect; context: { list: georesources() }"
+          ></ng-container>
+        }
+        @case ('georesource_id_line') {
+          <ng-container
+            *ngTemplateOutlet="georesourceSelect; context: { list: lineGeoresources() }"
+          ></ng-container>
+        }
+
+        <!-- a numeric property of the chosen georesource -->
+        @case ('compProp') {
+          <select
+            class="form-select"
+            [ngModel]="$any(draft.getInput('compProp')) || ''"
+            (ngModelChange)="setValue('compProp', $event)"
+          >
+            <option value="">—</option>
+            @for (property of numericProperties(); track property) {
+              <option [value]="property">{{ property }}</option>
+            }
+          </select>
+          @if (numericProperties().length === 0) {
+            <small class="text-muted">
+              {{ 'ADMIN_SCRIPTS.ADD_MODAL.PICK_GEORESOURCE_FIRST' | translate }}
+            </small>
+          }
+        }
+
+        <!-- optional filter on a feature property -->
+        @case ('comp_filter') {
+          <div class="row g-2">
+            <div class="col-md-4">
+              <label class="form-label">
+                {{ 'ADMIN_SCRIPTS.ADD_MODAL.FILTER_PROPERTY' | translate }}
+              </label>
+              <select
+                class="form-select"
+                [ngModel]="filterValue('compFilterProp')"
+                (ngModelChange)="setFilterValue('compFilterProp', $event)"
+              >
+                <option value="">—</option>
+                @for (property of filterProperties(); track property) {
+                  <option [value]="property">{{ property }}</option>
+                }
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">
+                {{ 'ADMIN_SCRIPTS.ADD_MODAL.FILTER_OPERATOR' | translate }}
+              </label>
+              <select
+                class="form-select"
+                [ngModel]="filterValue('compFilterOperator')"
+                (ngModelChange)="setFilterValue('compFilterOperator', $event)"
+              >
+                <option value="">—</option>
+                @for (operator of operators; track operator) {
+                  <option [value]="operator">{{ operator }}</option>
+                }
+              </select>
+            </div>
+            <div class="col-md-5">
+              <label class="form-label">
+                {{ 'ADMIN_SCRIPTS.ADD_MODAL.FILTER_VALUE' | translate }}
+              </label>
+              @if (isRangeOperator()) {
+                <div class="d-flex gap-2">
+                  <input
+                    class="form-control"
+                    [ngModel]="filterValue('compFilterPropVal')"
+                    (ngModelChange)="setFilterValue('compFilterPropVal', $event)"
+                  />
+                  <input
+                    class="form-control"
+                    [ngModel]="filterValue('compFilterPropValMax')"
+                    (ngModelChange)="setFilterValue('compFilterPropValMax', $event)"
+                  />
+                </div>
+              } @else {
+                <input
+                  class="form-control"
+                  [ngModel]="filterValue('compFilterPropVal')"
+                  (ngModelChange)="setFilterValue('compFilterPropVal', $event)"
+                />
+              }
+            </div>
+          </div>
+        }
+
+        <!--
+          Everything else is driven by the input's own schema. This branch
+          carries temporal_options (type + count), the three enum methods and
+          num_value.
+        -->
+        @default {
+          @for (entry of resolved.inputs; track entry[0]) {
+            <div class="mb-3">
+              <label class="form-label">{{ entry[1].title || entry[0] }}</label>
+              @switch (inputType(entry[1])) {
+                @case ('enum') {
+                  <select
+                    class="form-select"
+                    [ngModel]="$any(draft.getInput(entry[0])) || ''"
+                    (ngModelChange)="setValue(entry[0], $event)"
+                  >
+                    <option value="">—</option>
+                    @for (option of enumOptions(entry[1]); track option.apiName) {
+                      <option [value]="option.apiName">{{ option.displayName }}</option>
+                    }
+                  </select>
+                }
+                @case ('number') {
+                  <input
+                    type="number"
+                    class="form-control"
+                    [min]="entry[1].schema?.minimum ?? null"
+                    [max]="entry[1].schema?.maximum ?? null"
+                    [ngModel]="$any(draft.getInput(entry[0])) ?? ''"
+                    (ngModelChange)="setNumber(entry[0], $event)"
+                  />
+                }
+                @default {
+                  <input
+                    class="form-control"
+                    [ngModel]="$any(draft.getInput(entry[0])) || ''"
+                    (ngModelChange)="setValue(entry[0], $event)"
+                  />
+                }
+              }
+              @if (entry[1].description) {
+                <small class="text-muted">{{ entry[1].description }}</small>
+              }
+            </div>
+          }
+        }
+      }
+    </fieldset>
+  }
+}
+
+<!-- shared sub-forms -->
+<ng-template #singleIndicator let-key="key">
+  <select
+    class="form-select"
+    [ngModel]="$any(draft.getInput(key)) || ''"
+    (ngModelChange)="setValue(key, $event)"
+  >
+    <option value="">—</option>
+    @for (indicator of indicators(); track indicator.indicatorId) {
+      <option [value]="indicator.indicatorId">{{ indicator.indicatorName }}</option>
+    }
+  </select>
+</ng-template>
+
+<ng-template #georesourceSelect let-list="list">
+  <select
+    class="form-select"
+    [ngModel]="$any(draft.getInput('georesource_id')) || ''"
+    (ngModelChange)="setValue('georesource_id', $event)"
+  >
+    <option value="">—</option>
+    @for (georesource of list; track georesource.georesourceId) {
+      <option [value]="georesource.georesourceId">{{ georesource.datasetName }}</option>
+    }
+  </select>
+</ng-template>

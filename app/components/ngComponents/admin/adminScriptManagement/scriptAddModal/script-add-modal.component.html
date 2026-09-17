@@ -10,14 +10,12 @@
 
 <div class="modal-body">
   <app-loading-overlay [loading]="loadingData()">
-    <!-- Progress Stepper -->
     <app-stepper
       [steps]="stepper.steps"
       [(currentStep)]="stepper.currentStep"
       [allStepsClickable]="true"
     ></app-stepper>
 
-    <!-- ===================== STEP 1: INTRODUCTION ===================== -->
     @if (stepper.isActive('intro')) {
       <fieldset>
         <h2 class="fs-title text-center">{{ stepper.steps[0].label | translate }}</h2>
@@ -25,29 +23,61 @@
       </fieldset>
     }
 
-    <!-- ===================== STEP 2: METADATA ===================== -->
-    @if (stepper.isActive('metadata')) {
+    @if (stepper.isActive('target')) {
       <fieldset>
         <h2 class="fs-title text-center">{{ stepper.steps[1].label | translate }}</h2>
         <h3 class="fs-subtitle text-center">
-          {{ 'ADMIN_SCRIPTS.ADD_MODAL.METADATA_SUBHEADING' | translate }}
+          {{ 'ADMIN_SCRIPTS.ADD_MODAL.STEP_TARGET_SUBHEADING' | translate }}
         </h3>
-        <app-script-step-metadata [(metadata)]="scriptMetadata"></app-script-step-metadata>
+        <app-schedule-target-step></app-schedule-target-step>
       </fieldset>
     }
 
-    <!-- ===================== STEP 3: SCRIPT CONTENT ===================== -->
-    @if (stepper.isActive('script')) {
+    @if (stepper.isActive('inputs')) {
       <fieldset>
         <h2 class="fs-title text-center">{{ stepper.steps[2].label | translate }}</h2>
         <h3 class="fs-subtitle text-center">
-          {{ 'ADMIN_SCRIPTS.ADD_MODAL.SCRIPT_SUBHEADING' | translate }}
+          {{ 'ADMIN_SCRIPTS.ADD_MODAL.STEP_INPUTS_SUBHEADING' | translate }}
         </h3>
-        <app-script-step-content></app-script-step-content>
+        <app-schedule-inputs-step></app-schedule-inputs-step>
+
+        @if (methodology()) {
+          <fieldset class="mt-4">
+            <legend class="fs-6 fw-bold">
+              {{ 'ADMIN_SCRIPTS.ADD_MODAL.METHODOLOGY_PREVIEW' | translate }}
+            </legend>
+            <!--
+              Authored as HTML with LaTeX between $$…$$; the directive renders
+              the markup and typesets the formulas.
+            -->
+            <div class="border rounded p-2" [appMathjax]="methodology()"></div>
+            <div class="form-check mt-2">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="applyMethodology"
+                [checked]="applyMethodology()"
+                (change)="applyMethodology.set($any($event.target).checked)"
+              />
+              <label class="form-check-label" for="applyMethodology">
+                {{ 'ADMIN_SCRIPTS.ADD_MODAL.APPLY_METHODOLOGY' | translate }}
+              </label>
+            </div>
+          </fieldset>
+        }
       </fieldset>
     }
 
-    <!-- ---- SUCCESS / ERROR ALERTS ---- -->
+    @if (stepper.isActive('timing')) {
+      <fieldset>
+        <h2 class="fs-title text-center">{{ stepper.steps[3].label | translate }}</h2>
+        <h3 class="fs-subtitle text-center">
+          {{ 'ADMIN_SCRIPTS.ADD_MODAL.STEP_TIMING_SUBHEADING' | translate }}
+        </h3>
+        <app-schedule-timing-step></app-schedule-timing-step>
+      </fieldset>
+    }
+
     @if (showSuccessAlert()) {
       <div class="alert alert-success mt-3">
         <button
@@ -57,6 +87,12 @@
           (click)="hideSuccessAlert()"
         ></button>
         <i class="fas fa-check"></i> {{ 'ADMIN_SCRIPTS.ADD_MODAL.REGISTER_SUCCESS' | translate }}
+        @if (methodologyFailed()) {
+          <div class="mt-1">
+            <i class="fas fa-triangle-exclamation"></i>
+            {{ 'ADMIN_SCRIPTS.ADD_MODAL.METHODOLOGY_FAILED' | translate }}
+          </div>
+        }
       </div>
     }
     @if (showErrorAlert()) {

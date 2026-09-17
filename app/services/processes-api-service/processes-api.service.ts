@@ -9,9 +9,11 @@ import {
 import {
   KommonitorUiParams,
   ProcessSchedule,
+  ProcessScheduleInputs,
   ProcessSchedulesResponse,
   ProcessSummary,
   ProcessesResponse,
+  ScheduleCreatedResponse,
 } from 'components/ngComponents/models/schedules.models';
 import { firstValueFrom } from 'rxjs';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -117,6 +119,30 @@ export class ProcessesApiService {
       console.error('Could not fetch job ' + jobId + ':', error);
       return undefined;
     }
+  }
+
+  /**
+   * Creates a schedule for a process.
+   *
+   * Addressed by the process' **PascalCase `id`**, not by the `apiName` that
+   * schedules and jobs report afterwards. The answer carries the new id as
+   * `scheduling_id`; a freshly created schedule starts out as `NOT_READY`.
+   *
+   * Rethrows like the other writes: a failed creation has to reach the user.
+   */
+  async createSchedule(processId: string, inputs: ProcessScheduleInputs): Promise<string> {
+    const response = await firstValueFrom(
+      this.http.post<ScheduleCreatedResponse>(
+        this.baseUrl + 'processes/' + processId + '/schedule',
+        { inputs }
+      )
+    );
+    return response.scheduling_id;
+  }
+
+  /** Removes a schedule; the API reports this as a dismissal. */
+  async deleteSchedule(scheduleId: string): Promise<void> {
+    await firstValueFrom(this.http.delete(this.baseUrl + 'schedules/' + scheduleId));
   }
 
   /**

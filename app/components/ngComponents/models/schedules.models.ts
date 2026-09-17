@@ -90,9 +90,12 @@ export interface ScheduleDismissedResponse {
 export interface ProcessSummary {
   id: string;
   title?: string | Record<string, string>;
+  description?: string;
   version?: string;
   jobControlOptions?: string[];
   outputTransmission?: string[];
+  /** Only present on the single-process description, never on the list. */
+  inputs?: Record<string, ProcessInput>;
   additional_parameters?: ProcessAdditionalParameters;
   links?: unknown[];
 }
@@ -113,6 +116,54 @@ export interface ProcessesResponse {
 export interface KommonitorUiParams {
   apiName: string;
   longTitle?: string;
+  /** The legend text, with `${…}` placeholders; see `legend-template.util`. */
   dynamicLegend?: string;
+  /** The LaTeX formula above the legend; carries bare `*_baseIndicators` tokens. */
+  dynamicFormula?: string;
+  /** A fixed LaTeX formula, used by processes whose formula does not vary with the inputs. */
+  formula?: string;
+  /** Drives the generated input form; absent on processes without extra inputs. */
+  inputBoxes?: KommonitorInputBox[];
   [key: string]: unknown;
+}
+
+/**
+ * One fieldset of the generated form.
+ *
+ * `id` picks the widget, `contents` names the inputs that belong in the box.
+ * The two are usually the same but not always: the box `comp_meth` holds the
+ * input `compMeth`, and `georesource_id_line` names a content key that the
+ * process does not declare at all — see `inputKeyForBoxContent`.
+ */
+export interface KommonitorInputBox {
+  id: string;
+  title?: string;
+  description?: string;
+  contents?: string[];
+}
+
+/** One option of an enum-typed input. The `apiName` is what gets submitted. */
+export interface ProcessInputEnumOption {
+  apiName: string;
+  displayName: string;
+}
+
+/** The `schema` of a single entry under a process description's `inputs`. */
+export interface ProcessInputSchema {
+  type?: string;
+  required?: string[];
+  enum?: ProcessInputEnumOption[];
+  default?: unknown;
+  minimum?: number;
+  maximum?: number;
+  minItems?: number;
+  items?: { type?: string };
+  properties?: Record<string, unknown>;
+}
+
+/** One declared input of a process description. */
+export interface ProcessInput {
+  title?: string;
+  description?: string;
+  schema?: ProcessInputSchema;
 }

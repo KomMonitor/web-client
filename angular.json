@@ -19,7 +19,10 @@
             },
             "index": "app/index.html",
             "browser": "app/main.ts",
-            "polyfills": ["zone.js", "@angular/localize/init"],
+            "polyfills": [
+              "zone.js",
+              "@angular/localize/init"
+            ],
             "tsConfig": "tsconfig.app.json",
             "allowedCommonJsDependencies": [
               "@turf/jsts",
@@ -65,11 +68,6 @@
                 "output": "/logos"
               },
               {
-                "glob": "*.js",
-                "input": "app/kommonitor-script-resources",
-                "output": "/kommonitor-script-resources"
-              },
-              {
                 "glob": "config-storage-server.json",
                 "input": "app/config",
                 "output": "/config"
@@ -88,6 +86,11 @@
                 "glob": "*_forAdminViewExplanation.txt",
                 "input": "app/config",
                 "output": "/config"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/mathjax",
+                "output": "/mathjax"
               }
             ],
             "styles": [
@@ -174,7 +177,10 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["app/**/*.ts", "app/**/*.html"],
+            "lintFilePatterns": [
+              "app/**/*.ts",
+              "app/**/*.html"
+            ],
             "eslintConfig": "app/eslint.config.js"
           }
         }
@@ -183,7 +189,9 @@
   },
   "cli": {
     "analytics": false,
-    "schematicCollections": ["@angular-eslint/schematics"]
+    "schematicCollections": [
+      "@angular-eslint/schematics"
+    ]
   },
   "schematics": {
     "@schematics/angular:component": {
