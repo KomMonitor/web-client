@@ -5,7 +5,7 @@
  * are hand-maintained: the Processes API ships no usable OpenAPI document
  * (its advertised `/openapi` and `/conformance` endpoints answer 404). The
  * shapes below were derived from real responses of the demo instance — see
- * `documentation/PROCESSES_API_ETAPPE0_BEFUNDE.md`.
+ * `documentation/PROCESSES_API_BEFUNDE.md`.
  */
 
 /**

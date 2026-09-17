@@ -123,7 +123,13 @@ The client is non-functional without these backends (configured via the runtime 
 - **Data Management API** — main data retrieval/modification.
 - **Client Config Service** — serves app/keycloak/controls/filter config on startup.
 - **Importer** — spatial insert/update for spatial-units, georesources, indicators (admin pages).
-- **Processing Engine** — indicator computation.
+- **OGC Processes API** — process catalogue, schedules and jobs; it replaced the Processing Engine
+  as the client's computation backend. Queried at startup (`ProcessesApiService`,
+  `ProcessCatalogStoreService`); `schedules` and `jobs` require a token, `processes` does not, so
+  reads there resolve empty on error instead of throwing. Writes (creating and deleting a schedule,
+  triggering a run) rethrow instead. What the API actually answers is recorded in
+  `documentation/PROCESSES_API_BEFUNDE.md` — it ships no usable OpenAPI document, so the
+  client's types are hand-maintained against that record.
 - **Open Route Service** — on-the-fly isochrones/routing.
 - **Keycloak** (optional) — role-based access.
 

@@ -4,7 +4,7 @@
  * Hand-maintained like `schedules.models.ts`, and for the same reason: this API
  * ships no usable OpenAPI document. `ProcessJob` was derived from real
  * responses; `JobSummaryEntry` and `JobError` could not be — see the caveat
- * below. Details in `documentation/PROCESSES_API_ETAPPE0_BEFUNDE.md`.
+ * below. Details in `documentation/PROCESSES_API_BEFUNDE.md`.
  */
 
 /**

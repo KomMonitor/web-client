@@ -6,7 +6,7 @@ import { ProcessScheduleInputs } from 'components/ngComponents/models/schedules.
  *
  * Two rules cannot be read off the process description and were derived from
  * the schedules the server actually stores (see
- * `documentation/PROCESSES_API_ETAPPE0_BEFUNDE.md`):
+ * `documentation/PROCESSES_API_BEFUNDE.md`):
  *
  * 1. **Only some inputs are wrapped in `{ value: … }`.** It is not "every
  *    object-typed input": `compMeth` is declared `type: object` yet is stored
