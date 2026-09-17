@@ -1048,18 +1048,19 @@
     },
     "EXECUTION": {
       "TITLE": "Indikatoren-Berechnung",
-      "DESCRIPTION": "Anzeige und Ausführung von Prozessierungsjobs",
       "REFRESH": "Refresh",
       "SUCCEEDED_JOBS": "abgeschlossene Jobs",
       "FAILED_JOBS": "gescheiterte Jobs",
       "ACTIVE_JOBS": "laufende Jobs",
       "WAITING_JOBS": "wartende Jobs",
       "TOTAL_JOBS": "Anzahl Jobs",
-      "TILE_HINT": "Ein Klick auf eine Statuskachel öffnet die zugehörigen Jobs.",
       "LOGIN_REQUIRED": "Für die Anzeige der Prozessierungsjobs ist eine Anmeldung erforderlich.",
       "NO_JOBS": "Keine Jobs vorhanden.",
       "MODAL_TITLE_STATUS": "Jobs - {{status}}",
-      "MODAL_TITLE_SCHEDULE": "Jobs - {{indicatorName}}"
+      "MODAL_TITLE_SCHEDULE": "Jobs - {{indicatorName}}",
+      "TABLE_TITLE": "Jobs ({{count}})",
+      "TABLE_TITLE_FILTERED": "Jobs — {{status}} ({{count}})",
+      "CLEAR_FILTER": "Filter aufheben"
     },
     "ADD_MODAL": {
       "TITLE": "Neues Indikatoren-Berechnungs-Skript registrieren",

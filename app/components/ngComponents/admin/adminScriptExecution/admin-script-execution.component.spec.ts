@@ -4,8 +4,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { By } from '@angular/platform-browser';
 
 import { AdminScriptExecutionComponent } from './admin-script-execution.component';
-import { JobOverviewModalComponent } from './jobOverviewModal/job-overview-modal.component';
-import { AdminModalService } from '../adminShared/modal/admin-modal.service';
 import { AuthService } from 'services/auth-service/auth.service';
 import { JobOverviewService } from 'services/job-overview-service/job-overview.service';
 
@@ -13,7 +11,6 @@ describe('AdminScriptExecutionComponent', () => {
   let fixture: ComponentFixture<AdminScriptExecutionComponent>;
   let loadRows: jest.Mock;
   let clearSummaryCache: jest.Mock;
-  let open: jest.Mock;
   let isAuthenticated: jest.Mock;
 
   const row = (jobID: string, status: string) => ({
@@ -40,7 +37,6 @@ describe('AdminScriptExecutionComponent', () => {
   beforeEach(() => {
     loadRows = jest.fn().mockResolvedValue(ROWS);
     clearSummaryCache = jest.fn();
-    open = jest.fn().mockResolvedValue(undefined);
     isAuthenticated = jest.fn().mockReturnValue(true);
 
     TestBed.configureTestingModule({
@@ -56,7 +52,6 @@ describe('AdminScriptExecutionComponent', () => {
           },
         },
         { provide: AuthService, useValue: { isAuthenticated } },
-        { provide: AdminModalService, useValue: { open } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     });
@@ -73,22 +68,71 @@ describe('AdminScriptExecutionComponent', () => {
     expect(component.countFor('accepted')).toBe(0);
   });
 
-  it('opens the overview with only the jobs of the clicked status', async () => {
+  it('expands the table and filters it to the clicked status', async () => {
     await build();
     const component = fixture.componentInstance as any;
 
-    component.openJobsForStatus({
+    component.showJobsForStatus({
       status: 'successful',
       labelKey: 'ADMIN_SCRIPTS.EXECUTION.SUCCEEDED_JOBS',
       color: '#00a65a',
-      accent: 'green',
+      boxColor: 'green',
     });
 
-    expect(open).toHaveBeenCalledTimes(1);
-    const [component_, , setup] = open.mock.calls[0];
-    expect(component_).toBe(JobOverviewModalComponent);
-    expect(setup.rows.map((r: any) => r.job.jobID)).toEqual(['j1', 'j2']);
-    expect(setup.accent).toBe('green');
+    expect(component.selectedStatus()).toBe('successful');
+    expect(component.tableCollapsed()).toBe(false);
+    expect(component.tableOpened()).toBe(true);
+    expect(component.filteredRows().map((r: any) => r.job.jobID)).toEqual(['j1', 'j2']);
+    expect(component.selectedTile().boxColor).toBe('green');
+  });
+
+  it('shows every job again once the status filter is cleared', async () => {
+    await build();
+    const component = fixture.componentInstance as any;
+
+    component.showJobsForStatus({ status: 'failed', labelKey: '', color: '', boxColor: 'red' });
+    expect(component.filteredRows().length).toBe(1);
+
+    component.clearStatusFilter();
+
+    expect(component.selectedStatus()).toBeNull();
+    expect(component.filteredRows().length).toBe(4);
+    // Clearing the filter must not close the table the user just opened.
+    expect(component.tableCollapsed()).toBe(false);
+  });
+
+  /**
+   * The table is built on first expand, not on page load — the box keeps its
+   * content alive while collapsed, so an unguarded table would fetch the
+   * summaries whether or not anyone looks.
+   */
+  it('does not build the table before it is expanded', async () => {
+    await build();
+    const component = fixture.componentInstance as any;
+
+    expect(component.tableCollapsed()).toBe(true);
+    expect(component.tableOpened()).toBe(false);
+    expect(fixture.debugElement.queryAll(By.css('app-job-overview-table')).length).toBe(0);
+
+    component.onTableCollapsedChange(false);
+
+    expect(component.tableOpened()).toBe(true);
+  });
+
+  /**
+   * The box owns its collapsed state internally, so a tile click could not
+   * reopen a box the user closed unless we track the toggle.
+   */
+  it('reopens the table for a tile click after the user collapsed it', async () => {
+    await build();
+    const component = fixture.componentInstance as any;
+
+    component.onTableCollapsedChange(true);
+    expect(component.tableCollapsed()).toBe(true);
+
+    component.showJobsForStatus({ status: 'failed', labelKey: '', color: '', boxColor: 'red' });
+
+    expect(component.tableCollapsed()).toBe(false);
   });
 
   it('refresh drops cached summaries and reloads', async () => {

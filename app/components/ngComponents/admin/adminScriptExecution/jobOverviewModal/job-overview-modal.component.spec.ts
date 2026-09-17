@@ -1,114 +1,77 @@
-import { Component, EventEmitter, Input, NO_ERRORS_SCHEMA, Output } from '@angular/core';
+import { Component, Input, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { AgGridAngular } from 'ag-grid-angular';
 
 import { JobOverviewModalComponent } from './job-overview-modal.component';
 import { JobOverviewRow } from 'components/ngComponents/models/jobs.models';
-import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
-import { JobOverviewService } from 'services/job-overview-service/job-overview.service';
+import { JobOverviewTableComponent } from '../jobOverviewTable/job-overview-table.component';
 
-@Component({ selector: 'ag-grid-angular', standalone: true, template: '' })
-class AgGridStubComponent {
-  @Input() gridOptions: unknown;
-  @Input() rowData: unknown;
-  @Input() columnDefs: unknown;
-  @Input() defaultColDef: unknown;
-  @Output() gridReady = new EventEmitter<unknown>();
+@Component({ selector: 'app-job-overview-table', standalone: true, template: '' })
+class JobOverviewTableStubComponent {
+  @Input() rows: unknown;
+  @Input() height: unknown;
 }
 
 /**
- * The property under test is what the dialog does *not* do: it never replaces
- * its rows. Summaries arrive after the grid is on screen and the cells pick
- * them up by themselves, because the cache is a signal. Were the rows replaced
- * instead, AG Grid 31 would rebuild every row node and drop the user's filter,
- * sort and column widths (I12).
+ * The dialog is chrome around the shared table, so this covers the chrome:
+ * that the rows reach the table untouched and that the accent matches the
+ * caller. The table's own behaviour is tested with the table.
  */
 describe('JobOverviewModalComponent', () => {
   let fixture: ComponentFixture<JobOverviewModalComponent>;
-  let loadSummaries: jest.Mock;
-  let settleSummaries: (rejected?: boolean) => void;
+  let close: jest.Mock;
 
   const ROWS = [
     { job: { jobID: 'j1', status: 'successful' }, processTitle: 'Summe' },
-    { job: { jobID: 'j2', status: 'failed', message: 'kaputt' }, processTitle: 'Summe' },
   ] as unknown as JobOverviewRow[];
 
-  const grid = () => fixture.debugElement.query(By.directive(AgGridStubComponent));
+  const table = () => fixture.debugElement.query(By.directive(JobOverviewTableStubComponent));
 
-  const build = (rows: JobOverviewRow[] = ROWS) => {
+  const build = () => {
     fixture = TestBed.createComponent(JobOverviewModalComponent);
-    fixture.componentRef.setInput('rows', rows);
+    fixture.componentRef.setInput('rows', ROWS);
     fixture.componentRef.setInput('titleText', 'Jobs - Bevölkerung');
     fixture.componentRef.setInput('accent', 'green');
     fixture.detectChanges();
   };
 
   beforeEach(() => {
-    loadSummaries = jest.fn().mockImplementation(
-      () =>
-        new Promise((resolve, reject) => {
-          settleSummaries = (rejected = false) =>
-            rejected ? reject(new Error('500')) : resolve(new Map());
-        })
-    );
+    close = jest.fn();
 
     TestBed.configureTestingModule({
       imports: [JobOverviewModalComponent, TranslateModule.forRoot()],
-      providers: [
-        { provide: NgbActiveModal, useValue: { close: jest.fn() } },
-        {
-          provide: JobOverviewService,
-          useValue: { loadSummaries, getSummary: () => undefined },
-        },
-        {
-          provide: KommonitorDataGridHelperService,
-          useValue: { buildDefaultColDef: () => ({}), buildGridOptions: () => ({}) },
-        },
-      ],
+      providers: [{ provide: NgbActiveModal, useValue: { close } }],
       schemas: [NO_ERRORS_SCHEMA],
     });
 
     TestBed.overrideComponent(JobOverviewModalComponent, {
-      remove: { imports: [AgGridAngular] },
-      add: { imports: [AgGridStubComponent] },
+      remove: { imports: [JobOverviewTableComponent] },
+      add: { imports: [JobOverviewTableStubComponent] },
     });
   });
 
-  it('keeps the very same row array across the summary load, so the grid is never rebuilt', async () => {
+  it('hands the callers rows to the shared table', () => {
     build();
 
-    const gridBefore = grid().componentInstance;
-    expect(gridBefore.rowData).toBe(ROWS);
-    expect(loadSummaries).toHaveBeenCalledWith(ROWS);
-
-    settleSummaries();
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    // Same grid instance, same array identity: no teardown, no setRowData.
-    expect(grid().componentInstance).toBe(gridBefore);
-    expect(grid().componentInstance.rowData).toBe(ROWS);
-    expect((fixture.componentInstance as any).loadingSummaries()).toBe(false);
+    expect(table().componentInstance.rows).toBe(ROWS);
+    expect(fixture.nativeElement.querySelector('.modal-title').textContent).toContain(
+      'Jobs - Bevölkerung'
+    );
   });
 
-  it('leaves the table standing when the summaries cannot be loaded at all', async () => {
+  it('colours the header after the tile that opened it', () => {
     build();
 
-    settleSummaries(true);
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    expect(grid().componentInstance.rowData).toBe(ROWS);
-    expect((fixture.componentInstance as any).loadingSummaries()).toBe(false);
+    expect(fixture.componentInstance.accentColor).toBe('#00a65a');
   });
 
-  it('shows a hint instead of an empty grid when the caller filtered everything away', () => {
-    build([]);
+  it('closes through the active modal', () => {
+    build();
 
-    expect(grid()).toBeNull();
-    expect(fixture.nativeElement.querySelector('p')).not.toBeNull();
+    fixture.componentInstance.close();
+
+    expect(close).toHaveBeenCalled();
   });
 });

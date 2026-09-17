@@ -1048,18 +1048,19 @@
     },
     "EXECUTION": {
       "TITLE": "Indicator Computation",
-      "DESCRIPTION": "Display and execution of processing jobs",
       "REFRESH": "Refresh",
       "SUCCEEDED_JOBS": "completed jobs",
       "FAILED_JOBS": "failed jobs",
       "ACTIVE_JOBS": "running jobs",
       "WAITING_JOBS": "waiting jobs",
       "TOTAL_JOBS": "Number of jobs",
-      "TILE_HINT": "Click a status tile to open the matching jobs.",
       "LOGIN_REQUIRED": "A login is required to display processing jobs.",
       "NO_JOBS": "No jobs available.",
       "MODAL_TITLE_STATUS": "Jobs - {{status}}",
-      "MODAL_TITLE_SCHEDULE": "Jobs - {{indicatorName}}"
+      "MODAL_TITLE_SCHEDULE": "Jobs - {{indicatorName}}",
+      "TABLE_TITLE": "Jobs ({{count}})",
+      "TABLE_TITLE_FILTERED": "Jobs — {{status}} ({{count}})",
+      "CLEAR_FILTER": "Clear filter"
     },
     "ADD_MODAL": {
       "TITLE": "Register new indicator computation script",

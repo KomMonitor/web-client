@@ -1,6 +1,5 @@
 <app-admin-content-view
   [title]="'ADMIN_SCRIPTS.EXECUTION.TITLE' | translate"
-  [description]="'ADMIN_SCRIPTS.EXECUTION.DESCRIPTION' | translate"
   [controlsTemplate]="controls"
   [contentTemplate]="content"
 >
@@ -46,13 +45,42 @@
               [boxColor]="tile.color"
               iconClass="fas fa-file-code"
               [clickable]="true"
-              (boxClick)="openJobsForStatus(tile)"
+              (boxClick)="showJobsForStatus(tile)"
             ></app-small-box>
           </div>
         }
       </div>
 
-      <p class="text-muted mt-3">{{ 'ADMIN_SCRIPTS.EXECUTION.TILE_HINT' | translate }}</p>
+      <expandable-box
+        class="d-block mt-3"
+        [title]="tableTitle()"
+        [collapsed]="tableCollapsed()"
+        (collapsedChange)="onTableCollapsedChange($event)"
+        [borderColor]="selectedTile()?.boxColor ?? 'primary'"
+      >
+        @if (selectedStatus()) {
+          <div class="mb-2">
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-secondary"
+              (click)="clearStatusFilter()"
+            >
+              <i class="fas fa-xmark"></i>&nbsp;{{
+                'ADMIN_SCRIPTS.EXECUTION.CLEAR_FILTER' | translate
+              }}
+            </button>
+          </div>
+        }
+
+        <!--
+          Built on first expand only: the box keeps its content alive while
+          collapsed, so an unguarded table would fetch the summaries on every
+          page visit.
+        -->
+        @if (tableOpened()) {
+          <app-job-overview-table [rows]="filteredRows()" height="fill" />
+        }
+      </expandable-box>
     </app-loading-overlay>
   }
 </ng-template>
