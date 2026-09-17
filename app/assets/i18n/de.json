@@ -1039,12 +1039,6 @@
   },
   "ADMIN_SCRIPTS": {
     "ADD": "Hinzufügen",
-    "DELETE_ENTRY": "Eintrag löschen",
-    "REQUIRED_INDICATORS": "Notwendige (Basis-)Indikatoren",
-    "SELECT_INDICATOR_PLACEHOLDER": "-- Indikator wählen --",
-    "SCRIPT_TEMPLATE_LINK": "KomMonitor Skript Template",
-    "INDICATOR_ID_PLACEHOLDER": "IndikatorenId",
-    "INDICATOR_NAME_PLACEHOLDER": "IndikatorenName",
     "MANAGEMENT": {
       "TITLE": "Skriptverwaltung",
       "DESCRIPTION": "Steuerung der semi-automatisierten Indikatorenberechnung",
@@ -1056,7 +1050,6 @@
       "TITLE": "Indikatoren-Berechnung",
       "DESCRIPTION": "Anzeige und Ausführung von Prozessierungsjobs",
       "REFRESH": "Refresh",
-      "LOAD_ERROR": "Fehler beim Laden der Job-Daten. Bitte versuche es erneut.",
       "SUCCEEDED_JOBS": "abgeschlossene Jobs",
       "FAILED_JOBS": "gescheiterte Jobs",
       "ACTIVE_JOBS": "laufende Jobs",
@@ -1135,116 +1128,11 @@
       "FIRST_STEP": "<b><u>Erster Schritt:</u></b> Auswahl / Anlegen des zu berechnenden <b><i>Ziel-Indikators</i></b> mittels Indikatoren-Verwaltung. Dabei müssen folgende Punkte berücksichtigt werden:",
       "CHECK_CONTINUATION_TYPE": "Der Fortführungstyp des Ziel-Indikators ist auf <b><i>\"automatische Berechnung durch KomMonitor\"</i></b> eingestellt.",
       "CHECK_UPDATE_INTERVAL": "Der Aktualisierungszyklus des Ziel-Indikators ist <b>nicht</b> auf \"beliebig\" eingestellt.",
-      "CHECK_MISSING_TIMESTAMPS": "Die Skriptberechnung erfolgt nur für fehlende Zeitschnitte. Um eine Neuberechnung anzutriggern, kann über das Indikatoren-Lösch-Menü ein ganzer Zeitschnitt des Ziel-Indikators entfernt werden.",
-      "CHECK_NO_EDITING": "Eine nachträgliche Bearbeitung der Skript-Konfiguration zur Berechnung des Ziel-Indikators ist derzeit nicht möglich. Stattdessen muss ein vorhandenes Skript entfernt und neu angelegt werden.",
+      "CHECK_MISSING_TIMESTAMPS": "Welche Zeitpunkte berechnet werden, legt der letzte Schritt fest: alle, nur die fehlenden oder nur ausgewählte. Einzelne Zeitpunkte lassen sich zusätzlich ein- oder ausschließen.",
+      "CHECK_NO_EDITING": "Eine nachträgliche Bearbeitung der Skript-Konfiguration ist nicht möglich. Legen Sie stattdessen für denselben Ziel-Indikator ein neues Skript an — das vorhandene wird dabei ersetzt.",
       "SECOND_STEP": "<b><u>Zweiter Schritt:</u></b> Anlegen des Berechnungs-Skripts mittels Skriptverwaltung unter Auswahl des zuvor definierten Ziel-Indikators.",
-      "SCHEDULER_INFO": "Das KomMonitor Gesamtsystem umfasst einen sogenannten <b>Processing Scheduler</b>, der anhand der Skript- und Indikatoren-Metadaten automatisch die Berechnung der Ziel-Indikatoren-Zeitschnitte antriggert. Die Berechnung selbst erfolgt über die <b>Processing Engine</b> Komponente.",
+      "SCHEDULER_INFO": "Jedes Skript trägt sein eigenes Ausführungsintervall. Die <b>Processes API</b> führt die Berechnung zum geplanten Zeitpunkt aus; über die Schaltfläche <b>„Berechnung starten\"</b> in der Skriptverwaltung lässt sie sich zusätzlich jederzeit von Hand anstoßen.",
       "ACCESS_RIGHTS_WARNING": "Falls für Indikatoren durch das Berechnungsskript erstmalig neue Raumeinheiten verknüpft werden, so werden die Zugriffsrechte aus den zugehörigen Metadaten übernommen."
-    },
-    "METADATA_STEP": {
-      "NAME_LABEL": "Skriptname*",
-      "NAME_HELP": "Name des anzulegenden Skripts.",
-      "DESCRIPTION_LABEL": "Skript-Beschreibung*",
-      "DESCRIPTION_HELP": "Hinweise über die Berechnung des Ziel-Indikators.",
-      "TARGET_INDICATOR_LABEL": "Ziel-Indikator, der mittels des anzulegenden Skripts berechnet werden soll*",
-      "SELECT_TARGET_INDICATOR_PLACEHOLDER": "-- Ziel-Indikator wählen --",
-      "TARGET_INDICATOR_HELP": "Nur Indikatoren mit Fortführungstyp \"Berechnung durch KomMonitor\".",
-      "SELECTED_ID_LABEL": "ID des selektierten Ziel-Indikators",
-      "SELECTED_NAME_LABEL": "Name des selektierten Ziel-Indikators",
-      "SELECTED_DESCRIPTION_LABEL": "Beschreibung des selektierten Ziel-Indikators",
-      "SELECTED_UNIT_LABEL": "Einheit des selektierten Ziel-Indikators"
-    },
-    "CONTENT_STEP": {
-      "INTRO": "Die Berechnung von Indikatoren erfolgt in KomMonitor mittels eines <b>Skript-basierten Ansatzes</b>, für den Angaben über notwendige <i>(Basis-)Indikatoren</i> und/oder <i>Georessourcen</i> sowie <i>variable Skript-Parameter</i> und den <i>Skript Code</i> selbst erforderlich sind.",
-      "TEMPLATE_INTRO": "Der Skript Code muss dabei einem festgelegten Template folgen. Das Template steht unter folgendem Link bereit:",
-      "DEV_HINTS": "Hinweise zur Skript-Entwicklung befinden sich im github Repository der",
-      "PROCESSING_ENGINE_LINK": "KomMonitor Processing Engine",
-      "SELECT_SCRIPT_TYPE_LABEL": "Auswahl des Skript-Typen*",
-      "SELECT_SCRIPT_TYPE_PLACEHOLDER": "-- Skript-Typ wählen --",
-      "SCRIPT_TYPE_HELP_PREFIX": "Die Option",
-      "GENERIC_DEFINITION": "Generische Definition",
-      "SCRIPT_TYPE_HELP_SUFFIX": "bedarf der manuellen Definition aller Skript-Daten. Die übrigen Auswahloptionen bieten vereinfachte Eingabemasken, die im Hintergrund die notwendigen Skript-Daten sowie den vordefinierten Skript-Code automatisch setzen.",
-      "GENERIC_TITLE": "Generische manuelle Definition aller Skript-Daten",
-      "GENERIC_DESCRIPTION": "Mindestens ein (Basis-)Indikator oder eine Georessource muss angegeben werden, aus dem sich der Ziel-Indikator ableitet. Beliebig viele sind möglich."
-    },
-    "GENERIC": {
-      "PARAMETERS_INFO": "Skript-Parameter sind optional und dienen dazu, variable Berechnungsparameter zu definieren (bspw. Radius eines Einzugsgebiets, Gewichtung). Jeder der definierten Skript-Parameter sollte im Skript-Code auch Verwendung finden.",
-      "CODE_INFO": "Der eigentliche Skript Code kann beliebige Berechnungslogik enthalten. Unter Verwendung der obigen (Basis-)Indikatoren, Georessourcen und Skript-Parameter kann mittels des hinterlegten Skript Codes die Zeitreihe des Ziel-Indikators berechnet werden.",
-      "CODE_HINT_LABEL": "HINWEIS:",
-      "CODE_HINT_TEXT": "Die hier angegebenen Skript-Inhalte werden nicht validiert oder auf Code-Fehler überprüft. Bitte achten Sie selbst sorgfältig darauf, dass der hochzuladende Code gültig ist."
-    },
-    "CODE": {
-      "TITLE": "Skript Code (gemäß Skript Template)",
-      "IMPORT_LABEL": "Einladen des Skript Codes aus einer Datei:",
-      "IMPORT_HELP": "Der Skript Code muss als Klartext Javascript Datei hochgeladen werden",
-      "PREVIEW_LABEL": "Vorschaufenster des Skript-Codes*",
-      "IMPORT_FAILED_TITLE": "Script Code Import gescheitert",
-      "IMPORT_FAILED_TEXT": "Beim Import des Script Codes aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:",
-      "IMPORT_FAILED_HINT_PREFIX": "Bitte stellen Sie sicher, dass das",
-      "IMPORT_FAILED_HINT_SUFFIX": "eingehalten wird und die Datei den Code als einfachen String enthält."
-    },
-    "INDICATORS": {
-      "SELECT_LABEL": "Auswahl der für die Berechnung erforderlichen (Basis-)Indikatoren",
-      "SELECT_PLACEHOLDER": "-- Indikator als Berechnungsgrundlage wählen --",
-      "SELECTED_ID_LABEL": "ID des selektierten Indikators",
-      "SELECTED_NAME_LABEL": "Name des selektierten Indikators",
-      "OVERVIEW_LABEL": "Übersicht der definierten (Basis-)Indikatoren",
-      "INDICATOR_ID": "ID des Indikators",
-      "INDICATOR_NAME": "Name des Indikators",
-      "UNIT": "Einheit"
-    },
-    "GEORESOURCES": {
-      "TITLE": "Notwendige Georessourcen",
-      "SELECT_LABEL": "Auswahl der für die Berechnung erforderlichen Georessourcen",
-      "SELECT_PLACEHOLDER": "-- Georessource als Berechnungsgrundlage wählen --",
-      "SELECTED_ID_LABEL": "ID der selektierten Georessource",
-      "SELECTED_NAME_LABEL": "Name der selektierten Georessource",
-      "ID_PLACEHOLDER": "GeoressourcenId",
-      "OVERVIEW_LABEL": "Übersicht der definierten Georessourcen",
-      "GEOMETRY_TYPE": "Geometrie-Typ",
-      "GEORESOURCE_ID": "ID der Georessource",
-      "GEORESOURCE_NAME": "Name der Georessource"
-    },
-    "PARAMETERS": {
-      "TITLE": "Optionale Skript-Parameter",
-      "INTRO": "Ein Skript-Parameter besteht aus einem <b>Namen</b>, einer <b>Beschreibung</b>, einem festgelegten <b>Datentyp</b>, und einem <b>Standard-Wert</b>. Bei numerischen Parametern kann darüber hinaus der gültige Wertebereich festgelegt werden.",
-      "NAME_LABEL": "Parametername*",
-      "NAME_HELP": "Name des anzulegenden Skript-Parameters.",
-      "DESCRIPTION_LABEL": "Beschreibung*",
-      "DESCRIPTION_HELP": "Hinweise über die Verwendung des Parameters innerhalb des Skripts",
-      "DATA_TYPE_LABEL": "Datentyp des Parameters*",
-      "DATA_TYPE_PLACEHOLDER": "-- Parameter-Datentyp wählen --",
-      "DEFAULT_VALUE_LABEL": "Standard-Wert*",
-      "DEFAULT_STRING_PLACEHOLDER": "textueller Standard-Wert",
-      "DEFAULT_INTEGER_PLACEHOLDER": "Ganzzahl Standard-Wert",
-      "DEFAULT_DOUBLE_PLACEHOLDER": "Gleitkommazahl Standard-Wert",
-      "MAX_DECIMALS_HELP": "Maximal 8 Nachkommastellen.",
-      "DEFAULT_VALUE_HELP": "Standard-Wert des anzulegenden Skript-Parameters, dessen Wert bei automatisierten Indikatoren-Zeitreihen-Fortführung für diesen Parameter gesetzt wird.",
-      "MIN_VALUE_LABEL": "Minimaler Wert (untere Gültigkeitsgrenze)*",
-      "MAX_VALUE_LABEL": "Maximaler Wert (obere Gültigkeitsgrenze)*",
-      "INTEGER_MIN_PLACEHOLDER": "Ganzzahl Min-Wert",
-      "INTEGER_MAX_PLACEHOLDER": "Ganzzahl Max-Wert",
-      "DOUBLE_MIN_PLACEHOLDER": "Gleitkommazahl Min-Wert",
-      "DOUBLE_MAX_PLACEHOLDER": "Gleitkommazahl Max-Wert",
-      "MIN_VALUE_HELP": "Minimaler Wert des anzulegenden numerischen Skript-Parameters im Sinne eines Gültigkeitsbereichs. Maximal 8 Nachkommastellen",
-      "MAX_VALUE_HELP": "Maximaler Wert des anzulegenden numerischen Skript-Parameters im Sinne eines Gültigkeitsbereichs. Maximal 8 Nachkommastellen",
-      "OVERVIEW_LABEL": "Übersicht der definierten Skript-Parameter",
-      "PARAMETER_NAME": "Name des Parameters",
-      "DATA_TYPE": "Datentyp",
-      "DEFAULT_VALUE": "Standard-Wert",
-      "MIN_VALUE": "Min-Wert",
-      "MAX_VALUE": "Max-Wert"
-    },
-    "INDICATOR_LIST": {
-      "EMPTY": "Noch keine Basis-Indikatoren hinzugefügt."
-    },
-    "REF_INDICATOR": {
-      "SELECT_LABEL": "Auswahl des Referenzindikators"
-    },
-    "TEMPORAL_OFFSET": {
-      "TITLE": "Zeitlicher Versatz zum Referenz-Zeitpunkt",
-      "COUNT_LABEL": "Anzahl*",
-      "UNIT_LABEL": "Zeiteinheit*"
     },
     "DELETE_MODAL": {
       "TITLE": "Skripte löschen",
@@ -1283,38 +1171,6 @@
       "TARGET_TIME_EXCLUDE": "Nicht berechnen",
       "TARGET_TIME_INCLUDE": "Berechnen",
       "TARGET_TIME_INCLUDE_ADDITIONAL": "Zusätzlich berechnen"
-    },
-    "DATA_TYPES": {
-      "STRING": "Textuell (String)",
-      "BOOLEAN": "Wahrheitswert (Boolean)",
-      "INTEGER": "Ganzzahl (Integer)",
-      "DOUBLE": "Gleitkommazahl (Double)"
-    },
-    "TEMPORAL_UNITS": {
-      "YEARS": "Jahr(e)",
-      "MONTHS": "Monat(e)",
-      "DAYS": "Tag(e)"
-    },
-    "SCRIPT_TYPES": {
-      "GENERIC": "Generische Definition",
-      "INDICATOR_SUM": "Indikatoren - Summe aller Indikatoren",
-      "INDICATOR_SUBTRACT": "Indikatoren - Subtraktion von Basis-Indikatoren von einem Referenzindikator",
-      "INDICATOR_PERCENTAGE": "Indikatoren - Prozentualer Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
-      "INDICATOR_SHARE": "Indikatoren - Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
-      "INDICATOR_DIVISION": "Indikatoren - Division (Quotient zweier Indikatoren)",
-      "INDICATOR_TREND": "Indikatoren - Trend (mittels linearer Regression)",
-      "INDICATOR_CONTINUITY": "Indikatoren - Kontinuität (mittels Pearson Korrelation)",
-      "INDICATOR_CHANGE_ABSOLUTE": "Indikatoren - Veränderung absolut",
-      "INDICATOR_CHANGE_ABSOLUTE_REF_DATE": "Indikatoren - Veränderung absolut mit festem Referenz-Zeitpunkt",
-      "INDICATOR_CHANGE_RELATIVE_REF_DATE": "Indikatoren - Veränderung prozentual mit festem Referenz-Zeitpunkt",
-      "INDICATOR_CHANGE_RELATIVE": "Indikatoren - Veränderung prozentual",
-      "INDICATOR_PROMILLE": "Indikatoren - Promille-Wert (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
-      "INDICATOR_HEADLINE_INDICATOR": "Leitindikator - verkettete Berechnung (Rank, Min-Max-Normalisierung, Aggregation)",
-      "INDICATOR_MULTIPLICATION": "Indikatoren - Produkt aller Indikatoren",
-      "GEORESOURCE_POINTS_IN_POLYGON": "Georessourcen - Anzahl Punkte in Polygon",
-      "GEORESOURCE_STATISTICS": "Georessourcen - Statistiken anhand Objekteigenschaft (Punktdatensätze)",
-      "GEORESOURCE_SUBSET_SHARE": "Georessourcen - Prozentualer Anteil anhand Objekteigenschaft (Punktdatensätze)",
-      "LINE_SEGMENT_IN_POLYGON": "Georessourcen - Summierte Linienlänge je Polygon"
     },
     "JOB_STATUS": {
       "SUCCESSFUL": "abgeschlossen",

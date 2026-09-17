@@ -46,7 +46,6 @@ export class AdminAppConfigComponent {
     'window.__env.VALID_END_DATE_PROPERTY_NAME',
     'window.__env.indicatorDatePrefix',
     'window.__env.apiUrl',
-    'window.__env.targetUrlToProcessingEngine',
     'window.__env.targetUrlToProcessesApi',
     'window.__env.targetUrlToReachabilityService_ORS',
     'window.__env.targetUrlToImporterService',

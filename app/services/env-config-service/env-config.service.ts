@@ -219,9 +219,6 @@ export class EnvConfigService {
   get basePath(): string {
     return window.__env.basePath;
   }
-  get targetUrlToProcessingEngine(): any {
-    return window.__env.targetUrlToProcessingEngine;
-  }
   get targetUrlToProcessesApi(): string {
     return window.__env.targetUrlToProcessesApi;
   }

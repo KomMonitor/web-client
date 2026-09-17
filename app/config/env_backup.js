@@ -133,9 +133,6 @@ try {
   // Base url for Data Management API
   window.__env.basePath = 'management';
 
-  // Processing Engine URL
-  window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/';
-
   // OGC Processes API URL - trailing slash required, paths are appended directly
   window.__env.targetUrlToProcessesApi = 'http://localhost:8099/';
 
