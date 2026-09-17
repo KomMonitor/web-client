@@ -47,6 +47,7 @@ export class AdminAppConfigComponent {
     'window.__env.indicatorDatePrefix',
     'window.__env.apiUrl',
     'window.__env.targetUrlToProcessingEngine',
+    'window.__env.targetUrlToProcessesApi',
     'window.__env.targetUrlToReachabilityService_ORS',
     'window.__env.targetUrlToImporterService',
     'window.__env.simplifyGeometriesParameterName',

@@ -123,7 +123,10 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
     this.columnDefs = [
       {
         headerName: this.translate.instant('ADMIN_SHARED.ID'),
-        field: 'scriptId',
+        // The remaining columns still address the retired process-script model
+        // and stay empty until package B rebuilds them for schedules; the id is
+        // switched over already so rows stay identifiable and selectable.
+        field: 'scheduleID',
         pinned: 'left',
         maxWidth: 125,
         checkboxSelection: true,

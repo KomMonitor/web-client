@@ -222,6 +222,9 @@ export class EnvConfigService {
   get targetUrlToProcessingEngine(): any {
     return window.__env.targetUrlToProcessingEngine;
   }
+  get targetUrlToProcessesApi(): string {
+    return window.__env.targetUrlToProcessesApi;
+  }
   get targetUrlToReachabilityService_ORS(): any {
     return window.__env.targetUrlToReachabilityService_ORS;
   }

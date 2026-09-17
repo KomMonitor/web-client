@@ -136,6 +136,9 @@ try {
   // Processing Engine URL
   window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/';
 
+  // OGC Processes API URL - trailing slash required, paths are appended directly
+  window.__env.targetUrlToProcessesApi = 'http://localhost:8099/';
+
   // Open Route Service URL
   window.__env.targetUrlToReachabilityService_ORS = 'https://ors5.fbg-hsbo.de';
 

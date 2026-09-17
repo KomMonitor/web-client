@@ -19,7 +19,12 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
+import { ProcessCatalogStoreService } from 'services/process-catalog-store-service/process-catalog-store.service';
 import { ProcessScriptMetadataStoreService } from 'services/process-script-metadata-store-service/process-script-metadata-store.service';
+import {
+  getRequiredGeoresourceIds,
+  getTargetIndicatorId,
+} from 'services/processes-api-service/schedule-inputs.util';
 import { GeoresourceRefreshRequest } from '../georesource-refresh.model';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -61,6 +66,7 @@ export class GeoresourceDeleteModalComponent implements OnInit {
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private processScriptStore = inject(ProcessScriptMetadataStoreService);
+  private processCatalogStore = inject(ProcessCatalogStoreService);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
   private http = inject(HttpClient);
@@ -94,13 +100,14 @@ export class GeoresourceDeleteModalComponent implements OnInit {
     const affectedScripts: AffectedScript[] = [];
 
     this.datasetsToDelete.forEach((dataset) => {
-      this.processScriptStore.availableProcessScripts.forEach((script) => {
-        if (script.requiredGeoresourceIds?.includes(dataset.georesourceId)) {
+      this.processScriptStore.availableProcessScripts.forEach((schedule) => {
+        if (getRequiredGeoresourceIds(schedule).includes(dataset.georesourceId)) {
+          const process = this.processCatalogStore.getProcessByApiName(schedule.processID);
           affectedScripts.push({
-            scriptId: script.scriptId,
-            name: script.name,
-            description: script.description,
-            indicatorId: script.indicatorId,
+            scriptId: schedule.scheduleID,
+            name: process?.title ?? schedule.processID,
+            description: (process?.uiParams?.longTitle as string) ?? '',
+            indicatorId: getTargetIndicatorId(schedule) ?? '',
           });
         }
       });

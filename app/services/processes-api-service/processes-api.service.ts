@@ -1,0 +1,121 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import {
+  KommonitorUiParams,
+  ProcessSchedule,
+  ProcessSchedulesResponse,
+  ProcessSummary,
+  ProcessesResponse,
+} from 'components/ngComponents/models/schedules.models';
+import { firstValueFrom } from 'rxjs';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+
+/**
+ * Access to the OGC Processes API: schedules (what used to be process scripts)
+ * and the process catalogue.
+ *
+ * Deliberately separate from `CacheHelperServiceService`, which owns the Data
+ * Management API and its LocalStorage cache. Schedules change with every job
+ * run, so that cache does not apply here.
+ *
+ * `schedules` requires authentication while KomMonitor itself starts without a
+ * login, so every read resolves with an empty result on error instead of
+ * throwing — a 401 must not take the startup down.
+ */
+@Injectable({
+  providedIn: 'root',
+})
+export class ProcessesApiService {
+  private http = inject(HttpClient);
+  private envConfigService = inject(EnvConfigService);
+
+  /** Job ids shorter than this are short-lived Prefect-internal ids, not UUIDs. */
+  private static readonly MIN_JOB_ID_LENGTH = 34;
+
+  /** Only these process families are offered in the KomMonitor UI. */
+  private static readonly UI_PROCESS_ID_PREFIXES = ['KmIndicator', 'KmGeoresource'];
+
+  private get baseUrl(): string {
+    return this.envConfigService.targetUrlToProcessesApi;
+  }
+
+  async fetchSchedules(): Promise<ProcessSchedule[]> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<ProcessSchedulesResponse>(this.baseUrl + 'schedules')
+      );
+      return (response.schedules ?? []).map((schedule) => this.withoutTemporaryJobIds(schedule));
+    } catch (error) {
+      console.error('Could not fetch process schedules:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Single schedule. The API answers with the same envelope as the list, so the
+   * result is read from `schedules[0]`.
+   */
+  async fetchSingleSchedule(scheduleId: string): Promise<ProcessSchedule | undefined> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<ProcessSchedulesResponse>(this.baseUrl + 'schedules/' + scheduleId)
+      );
+      const schedule = response.schedules?.[0];
+      return schedule ? this.withoutTemporaryJobIds(schedule) : undefined;
+    } catch (error) {
+      console.error('Could not fetch process schedule ' + scheduleId + ':', error);
+      return undefined;
+    }
+  }
+
+  /**
+   * The process catalogue, reduced to the families the UI offers. `processes`
+   * is public, so this one is expected to succeed even without a login.
+   */
+  async fetchProcesses(): Promise<ProcessSummary[]> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<ProcessesResponse>(this.baseUrl + 'processes')
+      );
+      return (response.processes ?? []).filter((process) =>
+        ProcessesApiService.UI_PROCESS_ID_PREFIXES.some((prefix) => process.id?.startsWith(prefix))
+      );
+    } catch (error) {
+      console.error('Could not fetch processes:', error);
+      return [];
+    }
+  }
+
+  /** Full description of a single process, including its inputs and UI params. */
+  async fetchProcessDescription(processId: string): Promise<ProcessSummary | undefined> {
+    try {
+      return await firstValueFrom(
+        this.http.get<ProcessSummary>(this.baseUrl + 'processes/' + processId)
+      );
+    } catch (error) {
+      console.error('Could not fetch process description for ' + processId + ':', error);
+      return undefined;
+    }
+  }
+
+  /**
+   * Reads the KomMonitor UI block out of a process description. It sits in
+   * `additional_parameters` and is only populated on the single-process
+   * response, never on the list.
+   */
+  extractKommonitorUiParams(process: ProcessSummary | undefined): KommonitorUiParams | undefined {
+    const parameter = process?.additional_parameters?.parameters?.find(
+      (entry) => entry.name === 'kommonitorUiParams'
+    );
+    return parameter?.value?.[0] as KommonitorUiParams | undefined;
+  }
+
+  private withoutTemporaryJobIds(schedule: ProcessSchedule): ProcessSchedule {
+    return {
+      ...schedule,
+      jobIDs: (schedule.jobIDs ?? []).filter(
+        (jobId) => jobId.length >= ProcessesApiService.MIN_JOB_ID_LENGTH
+      ),
+    };
+  }
+}
