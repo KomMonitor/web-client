@@ -40,8 +40,16 @@ export class JobOverviewService {
    */
   static readonly MAX_JOBS = 50;
 
-  /** Summaries are fetched per job on demand and kept for the session. */
-  private summaryCache = new Map<string, JobSummaryEntry[]>();
+  /**
+   * Summaries are fetched per job on demand and kept for the session.
+   *
+   * A signal rather than a plain Map: the summary cell renderer reads it via
+   * `getSummary()` from inside a `computed()`, so a cell fills itself once its
+   * summary lands. Without that the dialog would have to re-set `rowData` to
+   * force a redraw — and a rebuilt grid drops the user's filter and sort.
+   * Writes must therefore replace the Map; signal equality is `Object.is`.
+   */
+  private summaryCache = signal(new Map<string, JobSummaryEntry[]>());
 
   /**
    * The rows of the most recent load, so a second consumer — the script
@@ -123,26 +131,28 @@ export class JobOverviewService {
    */
   async loadSummaries(rows: JobOverviewRow[]): Promise<Map<string, JobSummaryEntry[]>> {
     const missing = rows.filter(
-      (row) => row.job.status === 'successful' && !this.summaryCache.has(row.job.jobID)
+      (row) => row.job.status === 'successful' && !this.summaryCache().has(row.job.jobID)
     );
 
     for (const row of missing) {
       const summary = await this.processesApiService.fetchJobSummary(row.job.jobID);
       if (summary) {
-        this.summaryCache.set(row.job.jobID, summary);
+        // Written per job, not once at the end, so cells fill in as the
+        // answers arrive.
+        this.summaryCache.update((cache) => new Map(cache).set(row.job.jobID, summary));
       }
     }
 
-    return this.summaryCache;
+    return this.summaryCache();
   }
 
   getSummary(jobId: string): JobSummaryEntry[] | undefined {
-    return this.summaryCache.get(jobId);
+    return this.summaryCache().get(jobId);
   }
 
   /** Drops cached summaries so a refresh re-reads them. */
   clearSummaryCache(): void {
-    this.summaryCache.clear();
+    this.summaryCache.set(new Map());
   }
 
   private toRow(job: ProcessJob, schedule: ProcessSchedule | undefined): JobOverviewRow {

@@ -1,3 +1,4 @@
+import { computed } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { JobOverviewService } from './job-overview.service';
@@ -182,6 +183,23 @@ describe('JobOverviewService', () => {
       service.clearSummaryCache();
       await service.loadSummaries(rows);
       expect(fetchJobSummary).toHaveBeenCalledTimes(2);
+    });
+
+    // The cache has to be reactive: the summary cells read it from inside a
+    // computed and redraw themselves. Were it a plain Map, the dialog would
+    // have to rebuild the grid instead and lose filter and sort with it.
+    it('notifies a reader when a summary lands and when the cache is dropped', async () => {
+      fetchJobSummary.mockResolvedValue([{ spatialUnitId: 'su' }]);
+      const rows = service.buildRows([job('ok')], []);
+      const summary = computed(() => service.getSummary('ok'));
+
+      expect(summary()).toBeUndefined();
+
+      await service.loadSummaries(rows);
+      expect(summary()).toEqual([{ spatialUnitId: 'su' }]);
+
+      service.clearSummaryCache();
+      expect(summary()).toBeUndefined();
     });
   });
 

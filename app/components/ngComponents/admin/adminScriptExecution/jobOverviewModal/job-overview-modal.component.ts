@@ -57,7 +57,6 @@ export class JobOverviewModalComponent implements OnInit {
 
   // Signal-backed: set from the async summary load (OnPush).
   protected loadingSummaries = signal(true);
-  protected rowData = signal<JobOverviewRow[]>([]);
 
   protected columnDefs: ColDef[] = [];
   protected defaultColDef: ColDef = {
@@ -78,17 +77,22 @@ export class JobOverviewModalComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.columnDefs = this.buildColumnDefs();
-    this.rowData.set(this.rows);
 
     try {
       // Summaries are per job and only exist for successful ones; a failure
       // here must still leave the table visible.
       await this.jobOverviewService.loadSummaries(this.rows);
+    } catch {
+      // The service tolerates a single failed fetch on its own; this covers
+      // the case where the whole load gives up. The rows stay, without their
+      // summaries.
     } finally {
       this.loadingSummaries.set(false);
-      // Re-set so the summary cells re-read the now-filled cache.
-      this.rowData.set([...this.rows]);
     }
+    // The rows are never re-set: the summary cache is a signal, so the cells
+    // redraw themselves when their summary arrives. Replacing `rowData` would
+    // rebuild the grid and throw away the user's filter, sort and column
+    // widths — AG Grid 31 restores none of that by itself.
   }
 
   close(): void {

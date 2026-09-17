@@ -13,14 +13,14 @@
     [loading]="loadingSummaries()"
     [message]="'ADMIN_SHARED.LOADING_DATA' | translate"
   >
-    @if (rowData().length === 0) {
+    @if (rows.length === 0) {
       <p>{{ 'ADMIN_SCRIPTS.EXECUTION.NO_JOBS' | translate }}</p>
     } @else {
       <ag-grid-angular
         style="height: 65vh"
         class="ag-theme-alpine"
         [columnDefs]="columnDefs"
-        [rowData]="rowData()"
+        [rowData]="rows"
         [defaultColDef]="defaultColDef"
         [gridOptions]="gridOptions"
       ></ag-grid-angular>
