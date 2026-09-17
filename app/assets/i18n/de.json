@@ -1055,15 +1055,16 @@
       "DESCRIPTION": "Anzeige und Ausführung von Prozessierungsjobs",
       "REFRESH": "Refresh",
       "LOAD_ERROR": "Fehler beim Laden der Job-Daten. Bitte versuche es erneut.",
-      "DEFAULT_JOBS_TITLE": "Übersicht Berechnungs-Jobs zur Indikatoren-Zeitreihen-fortführung",
-      "CUSTOMIZED_JOBS_TITLE": "Übersicht Berechnungs-Jobs zur individuell-parametrisierten Indikatoren-Berechnung",
-      "QUEUE_STATUS": "Status der Job-Ausführung",
-      "NEWEST_JOB_ID": "neueste Job-Id",
       "SUCCEEDED_JOBS": "abgeschlossene Jobs",
       "FAILED_JOBS": "gescheiterte Jobs",
       "ACTIVE_JOBS": "laufende Jobs",
       "WAITING_JOBS": "wartende Jobs",
-      "DELAYED_JOBS": "zurückgestellte Jobs"
+      "TOTAL_JOBS": "Anzahl Jobs",
+      "TILE_HINT": "Ein Klick auf eine Statuskachel öffnet die zugehörigen Jobs.",
+      "LOGIN_REQUIRED": "Für die Anzeige der Prozessierungsjobs ist eine Anmeldung erforderlich.",
+      "NO_JOBS": "Keine Jobs vorhanden.",
+      "MODAL_TITLE_STATUS": "Jobs - {{status}}",
+      "MODAL_TITLE_SCHEDULE": "Jobs - {{indicatorName}}"
     },
     "ADD_MODAL": {
       "TITLE": "Neues Indikatoren-Berechnungs-Skript registrieren",
@@ -1206,14 +1207,10 @@
       "COL_REQUIRED_BASE_INDICATORS": "Notwendige Basis-Indikatoren",
       "COL_REQUIRED_BASE_GEORESOURCES": "Notwendige Basis-Georessourcen",
       "COL_PROCESS_PARAMETERS": "Prozessparameter",
-      "COL_JOB_ID": "Job-Id",
-      "COL_SCRIPT_ID": "Script-Id",
-      "COL_TARGET_INDICATOR": "Ziel-Indikator",
-      "COL_JOB_STATUS": "Job-Status",
-      "COL_JOB_PROGRESS": "Job-Fortschritt",
-      "COL_JOB_DATA": "Job-Data",
-      "COL_JOB_LOGS": "Job-Logs",
-      "COL_JOB_SUMMARY": "Job-Summary"
+      "COL_JOB_SUMMARY": "Job-Summary",
+      "COL_JOB": "Job",
+      "COL_EXECUTION": "Ausführung",
+      "UNKNOWN_TARGET_INDICATOR": "Ziel-Indikator unbekannt"
     },
     "DATA_TYPES": {
       "STRING": "Textuell (String)",
@@ -1246,6 +1243,55 @@
       "GEORESOURCE_STATISTICS": "Georessourcen - Statistiken anhand Objekteigenschaft (Punktdatensätze)",
       "GEORESOURCE_SUBSET_SHARE": "Georessourcen - Prozentualer Anteil anhand Objekteigenschaft (Punktdatensätze)",
       "LINE_SEGMENT_IN_POLYGON": "Georessourcen - Summierte Linienlänge je Polygon"
+    },
+    "JOB_STATUS": {
+      "SUCCESSFUL": "abgeschlossen",
+      "FAILED": "gescheitert",
+      "RUNNING": "laufend",
+      "ACCEPTED": "wartend",
+      "DISMISSED": "abgebrochen"
+    },
+    "JOB_SUMMARY": {
+      "SPATIAL_UNIT": "Raumeinheit",
+      "INTEGRATED_FEATURES": "Anzahl integrierter Indikator-Features",
+      "INTEGRATED_TARGET_DATES": "Integrierte Zielzeitpunkte",
+      "ERRORS": "Fehler",
+      "NONE": "keine",
+      "EMPTY": "Für diesen Job liegt keine Zusammenfassung vor."
+    },
+    "JOB_ERRORS": {
+      "MISSING_TIMESTAMP": {
+        "SHORT": "Zeitstempel fehlt",
+        "LONG": "Zeitstempel fehlen für {{resourceType}} '{{datasetName}}'."
+      },
+      "MISSING_DATASET": {
+        "SHORT": "Datensatz fehlt",
+        "LONG": "{{resourceType}} '{{datasetName}}' fehlt."
+      },
+      "MISSING_SPATIAL_UNIT": {
+        "SHORT": "Raumeinheit fehlt",
+        "LONG": "Die ausgewählte Raumeinheit fehlt für {{resourceType}} '{{datasetName}}'."
+      },
+      "MISSING_SPATIAL_UNIT_FEATURE": {
+        "SHORT": "Raumeinheitsfeature fehlt",
+        "LONG": "Raumeinheitsfeatures fehlen für {{resourceType}} '{{datasetName}}'."
+      },
+      "DATA_MANAGEMENT_API_ERROR": {
+        "SHORT": "Fehler beim Aufrufen der API",
+        "LONG": "Fehler beim Aufrufen der API für {{resourceType}} '{{datasetName}}'."
+      },
+      "PROCESSING_ERROR": {
+        "SHORT": "Fehler bei der Prozessierung",
+        "LONG": "Fehler beim Prozessieren von {{resourceType}} '{{datasetName}}'."
+      },
+      "UNKNOWN": {
+        "LONG": "Unbekannter Fehlertyp."
+      },
+      "RESOURCE_TYPE": {
+        "INDICATOR": "Indikator",
+        "GEORESOURCE": "Georessource"
+      },
+      "UNKNOWN_DATASET": "unbekannt"
     }
   },
   "ADMIN_SHELL": {

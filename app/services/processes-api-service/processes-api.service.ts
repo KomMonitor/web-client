@@ -1,6 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
+  JobResultsResponse,
+  JobSummaryEntry,
+  ProcessJob,
+  ProcessJobsResponse,
+} from 'components/ngComponents/models/jobs.models';
+import {
   KommonitorUiParams,
   ProcessSchedule,
   ProcessSchedulesResponse,
@@ -83,6 +89,44 @@ export class ProcessesApiService {
     } catch (error) {
       console.error('Could not fetch processes:', error);
       return [];
+    }
+  }
+
+  /**
+   * All jobs. `limit` and `offset` are accepted but ignored by the server — the
+   * response always holds the complete list and carries no `next` link — so
+   * callers that want fewer rows have to cut the list themselves.
+   */
+  async fetchJobs(): Promise<ProcessJob[]> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<ProcessJobsResponse>(this.baseUrl + 'jobs')
+      );
+      return response.jobs ?? [];
+    } catch (error) {
+      console.error('Could not fetch jobs:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Per-spatial-unit summary of one job.
+   *
+   * Only defined for successful jobs: the API answers 400 for a failed one
+   * (`InvalidParameterValue` / "job failed"), whose failure text sits in
+   * `job.message` instead. Callers should therefore ask only for successful
+   * jobs; an unexpected failure still resolves with `undefined` so the table
+   * can be built without the details.
+   */
+  async fetchJobSummary(jobId: string): Promise<JobSummaryEntry[] | undefined> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<JobResultsResponse>(this.baseUrl + 'jobs/' + jobId + '/results')
+      );
+      return response.jobSummary ?? [];
+    } catch (error) {
+      console.error('Could not fetch results for job ' + jobId + ':', error);
+      return undefined;
     }
   }
 

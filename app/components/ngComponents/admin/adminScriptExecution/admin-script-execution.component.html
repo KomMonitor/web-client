@@ -11,196 +11,48 @@
     <i class="fas fa-sync-alt"></i> {{ 'ADMIN_SCRIPTS.EXECUTION.REFRESH' | translate }}
   </button>
 </ng-template>
+
 <ng-template #content>
-  @if (errorOccurred()) {
-    <div class="alert alert-danger" role="alert">
-      <i class="fas fa-exclamation-triangle"></i>
-      {{ 'ADMIN_SCRIPTS.EXECUTION.LOAD_ERROR' | translate }}
+  @if (loginRequired()) {
+    <div class="alert alert-info" role="alert">
+      <i class="fas fa-circle-info"></i>
+      {{ 'ADMIN_SCRIPTS.EXECUTION.LOGIN_REQUIRED' | translate }}
     </div>
-  }
-  @if (!errorOccurred()) {
+  } @else {
     <app-loading-overlay
       [loading]="loadingData()"
       [message]="'ADMIN_SHARED.LOADING_DATA' | translate"
     >
-      <expandable-box
-        [title]="'ADMIN_SCRIPTS.EXECUTION.DEFAULT_JOBS_TITLE' | translate"
-        [collapsed]="false"
-      >
-        <div class="box-content">
-          @if (defaultIndicatorJobHealth(); as defaultIndicatorJobHealth) {
-            <div class="row vertical-align">
-              <div class="col-md-3 col-sm-6 col-12">
-                <app-small-box
-                  [titleText]="defaultIndicatorJobHealth.queueStatus"
-                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.QUEUE_STATUS' | translate"
-                  boxColor="#337ab7"
-                  iconClass="fas fa-file-code"
-                ></app-small-box>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <app-small-box
-                  [titleText]="defaultIndicatorJobHealth.newestJobId.toString()"
-                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.NEWEST_JOB_ID' | translate"
-                  boxColor="#337ab7"
-                  iconClass="fas fa-file-code"
-                ></app-small-box>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <app-small-box
-                  [titleText]="defaultIndicatorJobHealth.succeededJobs.toString()"
-                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.SUCCEEDED_JOBS' | translate"
-                  boxColor="#00a65a"
-                  iconClass="fas fa-file-code"
-                ></app-small-box>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <app-small-box
-                  [titleText]="defaultIndicatorJobHealth.failedJobs.toString()"
-                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.FAILED_JOBS' | translate"
-                  boxColor="#dd4b39"
-                  iconClass="fas fa-file-code"
-                ></app-small-box>
-              </div>
-            </div>
-          }
-          @if (defaultIndicatorJobHealth(); as defaultIndicatorJobHealth) {
-            <div class="row vertical-align">
-              <div class="col-md-3 col-sm-6 col-12">
-                <app-small-box
-                  [titleText]="defaultIndicatorJobHealth.activeJobs.toString()"
-                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.ACTIVE_JOBS' | translate"
-                  boxColor="#00c0ef"
-                  iconClass="fas fa-file-code"
-                ></app-small-box>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <app-small-box
-                  [titleText]="defaultIndicatorJobHealth.waitingJobs.toString()"
-                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.WAITING_JOBS' | translate"
-                  boxColor="#FF851B"
-                  iconClass="fas fa-file-code"
-                ></app-small-box>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <app-small-box
-                  [titleText]="defaultIndicatorJobHealth.delayedJobs.toString()"
-                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.DELAYED_JOBS' | translate"
-                  boxColor="#d2d6de"
-                  textColor="#000000"
-                  iconClass="fas fa-file-code"
-                ></app-small-box>
-              </div>
-            </div>
-          }
-          <ag-grid-angular
-            #defaultIndicatorJobsTable
-            id="defaultIndicatorJobsTable"
-            style="height: 70vh"
-            class="ag-theme-alpine"
-            [columnDefs]="columnDefs"
-            [rowData]="defaultIndicatorJobs()"
-            [defaultColDef]="defaultColDef"
-            [gridOptions]="gridOptions"
-            [pagination]="true"
-            [paginationPageSize]="paginationPageSize"
-            [paginationPageSizeSelector]="paginationPageSizeSelector"
-            [rowSelection]="'multiple'"
-            [suppressRowClickSelection]="true"
-            [enableCellTextSelection]="true"
-            [ensureDomOrder]="true"
-          ></ag-grid-angular>
+      <!--
+        Five tiles, so not the four-column grid the dashboard uses: `col-lg`
+        gives them equal shares of one row from lg up and falls back to two per
+        row below that. `.vertical-align` is deliberately absent — it centres
+        the last flex line, which left the fifth tile floating mid-row.
+      -->
+      <div class="row g-3">
+        <div class="col-12 col-sm-6 col-lg">
+          <app-small-box
+            [titleText]="totalJobs().toString()"
+            [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.TOTAL_JOBS' | translate"
+            boxColor="#337ab7"
+            iconClass="fas fa-file-code"
+          ></app-small-box>
         </div>
-      </expandable-box>
-      <expandable-box
-        [title]="'ADMIN_SCRIPTS.EXECUTION.CUSTOMIZED_JOBS_TITLE' | translate"
-        [collapsed]="false"
-      >
-        <div class="box-content customized-computation-content">
-          @if (customizedIndicatorJobHealth(); as customizedIndicatorJobHealth) {
-            <div class="row vertical-align">
-              <div class="col-md-3 col-sm-6 col-12">
-                <app-small-box
-                  [titleText]="customizedIndicatorJobHealth.queueStatus"
-                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.QUEUE_STATUS' | translate"
-                  boxColor="#337ab7"
-                  iconClass="fas fa-file-code"
-                ></app-small-box>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <app-small-box
-                  [titleText]="customizedIndicatorJobHealth.newestJobId.toString()"
-                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.NEWEST_JOB_ID' | translate"
-                  boxColor="#337ab7"
-                  iconClass="fas fa-file-code"
-                ></app-small-box>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <app-small-box
-                  [titleText]="customizedIndicatorJobHealth.succeededJobs.toString()"
-                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.SUCCEEDED_JOBS' | translate"
-                  boxColor="#00a65a"
-                  iconClass="fas fa-file-code"
-                ></app-small-box>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <app-small-box
-                  [titleText]="customizedIndicatorJobHealth.failedJobs.toString()"
-                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.FAILED_JOBS' | translate"
-                  boxColor="#dd4b39"
-                  iconClass="fas fa-file-code"
-                ></app-small-box>
-              </div>
-            </div>
-          }
-          @if (customizedIndicatorJobHealth(); as customizedIndicatorJobHealth) {
-            <div class="row vertical-align">
-              <div class="col-md-3 col-sm-6 col-12">
-                <app-small-box
-                  [titleText]="customizedIndicatorJobHealth.activeJobs.toString()"
-                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.ACTIVE_JOBS' | translate"
-                  boxColor="#00c0ef"
-                  iconClass="fas fa-file-code"
-                ></app-small-box>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <app-small-box
-                  [titleText]="customizedIndicatorJobHealth.waitingJobs.toString()"
-                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.WAITING_JOBS' | translate"
-                  boxColor="#FF851B"
-                  iconClass="fas fa-file-code"
-                ></app-small-box>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <app-small-box
-                  [titleText]="customizedIndicatorJobHealth.delayedJobs.toString()"
-                  [descriptionText]="'ADMIN_SCRIPTS.EXECUTION.DELAYED_JOBS' | translate"
-                  boxColor="#d2d6de"
-                  textColor="#000000"
-                  iconClass="fas fa-file-code"
-                ></app-small-box>
-              </div>
-            </div>
-          }
-          <ag-grid-angular
-            #customizedIndicatorJobsTable
-            id="customizedIndicatorJobsTable"
-            style="height: 70vh"
-            class="ag-theme-alpine"
-            [columnDefs]="columnDefs"
-            [rowData]="customizedIndicatorJobs()"
-            [defaultColDef]="defaultColDef"
-            [gridOptions]="gridOptions"
-            [pagination]="true"
-            [paginationPageSize]="paginationPageSize"
-            [paginationPageSizeSelector]="paginationPageSizeSelector"
-            [rowSelection]="'multiple'"
-            [suppressRowClickSelection]="true"
-            [enableCellTextSelection]="true"
-            [ensureDomOrder]="true"
-          ></ag-grid-angular>
-        </div>
-      </expandable-box>
+        @for (tile of statusTiles; track tile.status) {
+          <div class="col-12 col-sm-6 col-lg">
+            <app-small-box
+              [titleText]="countFor(tile.status).toString()"
+              [descriptionText]="tile.labelKey | translate"
+              [boxColor]="tile.color"
+              iconClass="fas fa-file-code"
+              [clickable]="true"
+              (boxClick)="openJobsForStatus(tile)"
+            ></app-small-box>
+          </div>
+        }
+      </div>
+
+      <p class="text-muted mt-3">{{ 'ADMIN_SCRIPTS.EXECUTION.TILE_HINT' | translate }}</p>
     </app-loading-overlay>
   }
 </ng-template>

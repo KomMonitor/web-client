@@ -1055,15 +1055,16 @@
       "DESCRIPTION": "Display and execution of processing jobs",
       "REFRESH": "Refresh",
       "LOAD_ERROR": "Error while loading the job data. Please try again.",
-      "DEFAULT_JOBS_TITLE": "Overview of computation jobs for indicator time series continuation",
-      "CUSTOMIZED_JOBS_TITLE": "Overview of computation jobs for individually parameterized indicator computation",
-      "QUEUE_STATUS": "Status of the job execution",
-      "NEWEST_JOB_ID": "newest job id",
       "SUCCEEDED_JOBS": "completed jobs",
       "FAILED_JOBS": "failed jobs",
       "ACTIVE_JOBS": "running jobs",
       "WAITING_JOBS": "waiting jobs",
-      "DELAYED_JOBS": "delayed jobs"
+      "TOTAL_JOBS": "Number of jobs",
+      "TILE_HINT": "Click a status tile to open the matching jobs.",
+      "LOGIN_REQUIRED": "A login is required to display processing jobs.",
+      "NO_JOBS": "No jobs available.",
+      "MODAL_TITLE_STATUS": "Jobs - {{status}}",
+      "MODAL_TITLE_SCHEDULE": "Jobs - {{indicatorName}}"
     },
     "ADD_MODAL": {
       "TITLE": "Register new indicator computation script",
@@ -1206,14 +1207,10 @@
       "COL_REQUIRED_BASE_INDICATORS": "Required base indicators",
       "COL_REQUIRED_BASE_GEORESOURCES": "Required base georesources",
       "COL_PROCESS_PARAMETERS": "Process parameters",
-      "COL_JOB_ID": "Job id",
-      "COL_SCRIPT_ID": "Script id",
-      "COL_TARGET_INDICATOR": "Target indicator",
-      "COL_JOB_STATUS": "Job status",
-      "COL_JOB_PROGRESS": "Job progress",
-      "COL_JOB_DATA": "Job data",
-      "COL_JOB_LOGS": "Job logs",
-      "COL_JOB_SUMMARY": "Job summary"
+      "COL_JOB_SUMMARY": "Job summary",
+      "COL_JOB": "Job",
+      "COL_EXECUTION": "Execution",
+      "UNKNOWN_TARGET_INDICATOR": "Target indicator unknown"
     },
     "DATA_TYPES": {
       "STRING": "Text (string)",
@@ -1246,6 +1243,55 @@
       "GEORESOURCE_STATISTICS": "Georesources - statistics by feature property (point datasets)",
       "GEORESOURCE_SUBSET_SHARE": "Georesources - percentage share by feature property (point datasets)",
       "LINE_SEGMENT_IN_POLYGON": "Georesources - summed line length per polygon"
+    },
+    "JOB_STATUS": {
+      "SUCCESSFUL": "completed",
+      "FAILED": "failed",
+      "RUNNING": "running",
+      "ACCEPTED": "waiting",
+      "DISMISSED": "dismissed"
+    },
+    "JOB_SUMMARY": {
+      "SPATIAL_UNIT": "Spatial unit",
+      "INTEGRATED_FEATURES": "Number of integrated indicator features",
+      "INTEGRATED_TARGET_DATES": "Integrated target dates",
+      "ERRORS": "Errors",
+      "NONE": "none",
+      "EMPTY": "No summary available for this job."
+    },
+    "JOB_ERRORS": {
+      "MISSING_TIMESTAMP": {
+        "SHORT": "Timestamp missing",
+        "LONG": "Timestamps are missing for {{resourceType}} '{{datasetName}}'."
+      },
+      "MISSING_DATASET": {
+        "SHORT": "Dataset missing",
+        "LONG": "{{resourceType}} '{{datasetName}}' is missing."
+      },
+      "MISSING_SPATIAL_UNIT": {
+        "SHORT": "Spatial unit missing",
+        "LONG": "The selected spatial unit is missing for {{resourceType}} '{{datasetName}}'."
+      },
+      "MISSING_SPATIAL_UNIT_FEATURE": {
+        "SHORT": "Spatial unit feature missing",
+        "LONG": "Spatial unit features are missing for {{resourceType}} '{{datasetName}}'."
+      },
+      "DATA_MANAGEMENT_API_ERROR": {
+        "SHORT": "Error calling the API",
+        "LONG": "Error calling the API for {{resourceType}} '{{datasetName}}'."
+      },
+      "PROCESSING_ERROR": {
+        "SHORT": "Processing error",
+        "LONG": "Error while processing {{resourceType}} '{{datasetName}}'."
+      },
+      "UNKNOWN": {
+        "LONG": "Unknown error type."
+      },
+      "RESOURCE_TYPE": {
+        "INDICATOR": "Indicator",
+        "GEORESOURCE": "Georesource"
+      },
+      "UNKNOWN_DATASET": "unknown"
     }
   },
   "ADMIN_SHELL": {

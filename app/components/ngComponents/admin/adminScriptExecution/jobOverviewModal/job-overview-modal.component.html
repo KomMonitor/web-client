@@ -1,0 +1,35 @@
+<div class="modal-header" [style.border-bottom]="'3px solid ' + accentColor">
+  <h4 class="modal-title">{{ titleText }}</h4>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="close()"
+  ></button>
+</div>
+
+<div class="modal-body">
+  <app-loading-overlay
+    [loading]="loadingSummaries()"
+    [message]="'ADMIN_SHARED.LOADING_DATA' | translate"
+  >
+    @if (rowData().length === 0) {
+      <p>{{ 'ADMIN_SCRIPTS.EXECUTION.NO_JOBS' | translate }}</p>
+    } @else {
+      <ag-grid-angular
+        style="height: 65vh"
+        class="ag-theme-alpine"
+        [columnDefs]="columnDefs"
+        [rowData]="rowData()"
+        [defaultColDef]="defaultColDef"
+        [gridOptions]="gridOptions"
+      ></ag-grid-angular>
+    }
+  </app-loading-overlay>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="close()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
+</div>
