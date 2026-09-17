@@ -3,6 +3,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';
 import { JobOverviewRow, JobSummaryEntry } from 'components/ngComponents/models/jobs.models';
+import { downloadJson } from 'util/json-file.util';
 import { JobOverviewService } from 'services/job-overview-service/job-overview.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { JobErrorBoxComponent } from './job-error-box.component';
@@ -56,6 +57,19 @@ interface SummaryRow {
     }
   `,
   template: `
+    @if (canDownload()) {
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary mb-2"
+        [title]="'ADMIN_SCRIPTS.JOB_SUMMARY.DOWNLOAD_ERRORS_TOOLTIP' | translate"
+        (click)="download()"
+      >
+        <i class="fas fa-file-export"></i>&nbsp;{{
+          'ADMIN_SCRIPTS.JOB_SUMMARY.DOWNLOAD_ERRORS' | translate
+        }}
+      </button>
+    }
+
     @if (summaryRows().length > 0) {
       <div class="summary-scroll">
         <table class="table table-sm table-bordered table-striped">
@@ -134,6 +148,43 @@ export class JobSummaryCellRendererComponent implements ICellRendererAngularComp
     const job = this.row()?.job;
     return job?.status === 'failed' ? job.message : null;
   });
+
+  /**
+   * Only offer the download where there is something to hand over. The export
+   * jobs of the demo are successful, carry no summary and no message — their
+   * cell stays as empty as before.
+   */
+  protected canDownload = computed(() => this.summaryRows().length > 0 || !!this.failureMessage());
+
+  /**
+   * The job's error information as a file, replacing the log download that the
+   * Processing Engine offered and the Processes API does not.
+   *
+   * Raw field names, not the translated box texts: the file is meant to be
+   * forwarded to whoever runs the backend. `downloadJson` passes a string
+   * through unchanged, so the indentation survives.
+   */
+  protected download(): void {
+    const row = this.row();
+    if (!row) {
+      return;
+    }
+
+    const payload = {
+      jobID: row.job.jobID,
+      status: row.job.status,
+      processID: row.job.processID,
+      processTitle: row.processTitle,
+      targetIndicatorId: row.targetIndicatorId ?? null,
+      targetIndicatorName: row.targetIndicatorName ?? null,
+      job_start_datetime: row.job.job_start_datetime,
+      job_end_datetime: row.job.job_end_datetime,
+      message: row.job.message,
+      jobSummary: this.jobOverviewService.getSummary(row.job.jobID) ?? [],
+    };
+
+    downloadJson(`Job_Fehler_Export-${row.job.jobID}.json`, JSON.stringify(payload, null, 2));
+  }
 
   agInit(params: ICellRendererParams): void {
     this.setParams(params);

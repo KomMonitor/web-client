@@ -1185,7 +1185,9 @@
       "INTEGRATED_TARGET_DATES": "Integrated target dates",
       "ERRORS": "Errors",
       "NONE": "none",
-      "EMPTY": "No summary available for this job."
+      "EMPTY": "No summary available for this job.",
+      "DOWNLOAD_ERRORS": "Export errors",
+      "DOWNLOAD_ERRORS_TOOLTIP": "Download this job’s error information as a JSON file"
     },
     "JOB_ERRORS": {
       "MISSING_TIMESTAMP": {

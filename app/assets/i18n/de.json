@@ -1185,7 +1185,9 @@
       "INTEGRATED_TARGET_DATES": "Integrierte Zielzeitpunkte",
       "ERRORS": "Fehler",
       "NONE": "keine",
-      "EMPTY": "Für diesen Job liegt keine Zusammenfassung vor."
+      "EMPTY": "Für diesen Job liegt keine Zusammenfassung vor.",
+      "DOWNLOAD_ERRORS": "Fehler-Export",
+      "DOWNLOAD_ERRORS_TOOLTIP": "Fehlerinformationen dieses Jobs als JSON-Datei herunterladen"
     },
     "JOB_ERRORS": {
       "MISSING_TIMESTAMP": {

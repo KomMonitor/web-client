@@ -1,3 +1,7 @@
+// jsdom has no URL.createObjectURL, so the real helper would throw; mocking it
+// is also the only seam for asserting what the button hands over.
+jest.mock('util/json-file.util', () => ({ downloadJson: jest.fn() }));
+
 import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -6,6 +10,7 @@ import { JobSummaryCellRendererComponent } from './job-summary-cell-renderer.com
 import { JobSummaryEntry } from 'components/ngComponents/models/jobs.models';
 import { JobOverviewService } from 'services/job-overview-service/job-overview.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { downloadJson } from 'util/json-file.util';
 
 /**
  * The renderer reads its summary from `JobOverviewService` rather than from the
@@ -27,12 +32,22 @@ describe('JobSummaryCellRendererComponent', () => {
         ERRORS: 'Fehler',
         NONE: 'keine',
         EMPTY: 'Keine Zusammenfassung vorhanden.',
+        DOWNLOAD_ERRORS: 'Fehler-Export',
+        DOWNLOAD_ERRORS_TOOLTIP: 'Fehlerinformationen dieses Jobs als JSON-Datei herunterladen',
       },
     },
   };
 
   const row = (jobID: string, status = 'successful', message: string | null = null) =>
-    ({ job: { jobID, status, message }, processTitle: 'Summe' }) as any;
+    ({
+      job: { jobID, status, message, job_start_datetime: '2026-09-11T10:57:19Z' },
+      processTitle: 'Summe',
+      targetIndicatorId: 'ind-1',
+      targetIndicatorName: 'Bevölkerung',
+    }) as any;
+
+  const exportButton = () => fixture.nativeElement.querySelector('button');
+  const exportedPayload = () => JSON.parse((downloadJson as jest.Mock).mock.calls[0][1]);
 
   const render = (data: unknown) => {
     fixture = TestBed.createComponent(JobSummaryCellRendererComponent);
@@ -126,5 +141,54 @@ describe('JobSummaryCellRendererComponent', () => {
     render(row('j2', 'failed', 'Zielindikator nicht gefunden'));
 
     expect(text()).toContain('Zielindikator nicht gefunden');
+  });
+
+  /**
+   * The export replaces the log download the Processing Engine offered; the
+   * Processes API has no logs, so this file is the only thing a user can hand
+   * on to whoever runs the backend.
+   */
+  describe('error export', () => {
+    beforeEach(() => (downloadJson as jest.Mock).mockClear());
+
+    it('offers no export when there is neither a summary nor a message', () => {
+      render(row('j1'));
+
+      expect(exportButton()).toBeNull();
+    });
+
+    it('exports a failed job with its message and an empty summary', () => {
+      render(row('j2', 'failed', 'Zielindikator nicht gefunden'));
+      exportButton().click();
+
+      expect((downloadJson as jest.Mock).mock.calls[0][0]).toBe('Job_Fehler_Export-j2.json');
+      const payload = exportedPayload();
+      expect(payload.jobID).toBe('j2');
+      expect(payload.message).toBe('Zielindikator nicht gefunden');
+      expect(payload.targetIndicatorName).toBe('Bevölkerung');
+      expect(payload.jobSummary).toEqual([]);
+    });
+
+    it('exports the summary of a successful job, errors included', () => {
+      const entry = {
+        spatialUnitId: 'su-1',
+        numberOfIntegratedIndicatorFeatures: 42,
+        integratedTargetDates: ['2026-01-01'],
+        errorsOccurred: [
+          {
+            type: 'missingTimestamp',
+            affectedDatasetId: 'ind-1',
+            affectedResourceType: 'indicator',
+          },
+        ],
+      } as JobSummaryEntry;
+      summaries.set(new Map([['j1', [entry]]]));
+      render(row('j1'));
+      exportButton().click();
+
+      const payload = exportedPayload();
+      expect(payload.jobSummary).toEqual([entry]);
+      expect(payload.processTitle).toBe('Summe');
+    });
   });
 });
