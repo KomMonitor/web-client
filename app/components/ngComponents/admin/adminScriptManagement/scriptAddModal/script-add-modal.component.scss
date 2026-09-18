@@ -10,3 +10,17 @@ pre {
   max-height: 300px;
   overflow: auto;
 }
+
+/*
+ * The dialog opens at MODAL_WIDE (up to 1600px) because the dual-list-boxes and
+ * the date columns need the room, but the steps themselves are ordinary forms:
+ * every select, radio group and cron field was stretched across the full width
+ * while its centred heading sat above it, so heading and field never shared an
+ * axis. Capping each step at a readable column and centring it keeps the wide
+ * dialog for the widgets that need it and gives the rest a single centre line
+ * with the headings, the stepper and the step navigation.
+ */
+.step-column {
+  max-width: 62rem;
+  margin-inline: auto;
+}

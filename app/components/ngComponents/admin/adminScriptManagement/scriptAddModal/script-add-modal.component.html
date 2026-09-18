@@ -17,14 +17,14 @@
     ></app-stepper>
 
     @if (stepper.isActive('intro')) {
-      <fieldset>
+      <fieldset class="step-column">
         <h2 class="fs-title text-center">{{ stepper.steps[0].label | translate }}</h2>
         <app-script-step-introduction></app-script-step-introduction>
       </fieldset>
     }
 
     @if (stepper.isActive('target')) {
-      <fieldset>
+      <fieldset class="step-column">
         <h2 class="fs-title text-center">{{ stepper.steps[1].label | translate }}</h2>
         <h3 class="fs-subtitle text-center">
           {{ 'ADMIN_SCRIPTS.ADD_MODAL.STEP_TARGET_SUBHEADING' | translate }}
@@ -34,7 +34,7 @@
     }
 
     @if (stepper.isActive('inputs')) {
-      <fieldset>
+      <fieldset class="step-column">
         <h2 class="fs-title text-center">{{ stepper.steps[2].label | translate }}</h2>
         <h3 class="fs-subtitle text-center">
           {{ 'ADMIN_SCRIPTS.ADD_MODAL.STEP_INPUTS_SUBHEADING' | translate }}
@@ -69,7 +69,7 @@
     }
 
     @if (stepper.isActive('timing')) {
-      <fieldset>
+      <fieldset class="step-column">
         <h2 class="fs-title text-center">{{ stepper.steps[3].label | translate }}</h2>
         <h3 class="fs-subtitle text-center">
           {{ 'ADMIN_SCRIPTS.ADD_MODAL.STEP_TIMING_SUBHEADING' | translate }}
@@ -79,7 +79,7 @@
     }
 
     @if (showSuccessAlert()) {
-      <div class="alert alert-success mt-3">
+      <div class="alert alert-success step-column mt-3">
         <button
           type="button"
           class="btn-close"
@@ -96,7 +96,7 @@
       </div>
     }
     @if (showErrorAlert()) {
-      <div class="alert alert-danger mt-3 alert-scrollable">
+      <div class="alert alert-danger step-column mt-3 alert-scrollable">
         <button
           type="button"
           class="btn-close"
