@@ -2,7 +2,11 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { TranslateModule } from '@ngx-translate/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';
-import { JobOverviewRow, JobSummaryEntry } from 'components/ngComponents/models/jobs.models';
+import {
+  JobError,
+  JobOverviewRow,
+  JobSummaryEntry,
+} from 'components/ngComponents/models/jobs.models';
 import { downloadJson } from 'util/json-file.util';
 import { JobOverviewService } from 'services/job-overview-service/job-overview.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
@@ -13,6 +17,8 @@ interface SummaryRow {
   spatialUnitLabel: string;
   numberOfIntegratedIndicatorFeatures: number;
   integratedTargetDates: string[];
+  /** Flattened: the API declares a list of lists, master reads a flat one. */
+  errors: JobError[];
   entry: JobSummaryEntry;
 }
 
@@ -103,8 +109,8 @@ interface SummaryRow {
                   }
                 </td>
                 <td>
-                  @if (row.entry.errorsOccurred?.length) {
-                    @for (error of row.entry.errorsOccurred; track error) {
+                  @if (row.errors.length > 0) {
+                    @for (error of row.errors; track error) {
                       <app-job-error-box [error]="error" />
                     }
                   } @else {
@@ -140,6 +146,9 @@ export class JobSummaryCellRendererComponent implements ICellRendererAngularComp
       spatialUnitLabel: this.spatialUnitLabel(entry.spatialUnitId),
       numberOfIntegratedIndicatorFeatures: entry.numberOfIntegratedIndicatorFeatures,
       integratedTargetDates: [...(entry.integratedTargetDates ?? [])].sort(),
+      // One level of flattening serves both shapes: a declared list of lists
+      // collapses, an already flat list is unchanged.
+      errors: ((entry.errorsOccurred ?? []) as (JobError | JobError[])[]).flat(),
       entry,
     }));
   });

@@ -5,8 +5,25 @@ import { JobError } from 'components/ngComponents/models/jobs.models';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 
-/** Maps an error type onto its i18n key segment. */
+/**
+ * Maps an error type onto its i18n key segment.
+ *
+ * Two spellings map onto each segment, because the API and its own schema
+ * disagree: a real payload sends camelCase (`missingTimestamp`, observed
+ * 2026-09-18), while the process descriptions declare UPPER_SNAKE_CASE — note
+ * `DATAMANAGEMENT_API_ERROR`, one word, unlike the translation key. Accepting
+ * both costs six lines and survives whichever side moves. Getting it wrong
+ * would be invisible rather than loud: an unmapped type quietly renders as
+ * "unknown".
+ */
 const KEY_BY_TYPE: Record<string, string> = {
+  MISSING_TIMESTAMP: 'MISSING_TIMESTAMP',
+  MISSING_DATASET: 'MISSING_DATASET',
+  MISSING_SPATIAL_UNIT: 'MISSING_SPATIAL_UNIT',
+  MISSING_SPATIAL_UNIT_FEATURE: 'MISSING_SPATIAL_UNIT_FEATURE',
+  DATAMANAGEMENT_API_ERROR: 'DATA_MANAGEMENT_API_ERROR',
+  PROCESSING_ERROR: 'PROCESSING_ERROR',
+
   missingTimestamp: 'MISSING_TIMESTAMP',
   missingDataset: 'MISSING_DATASET',
   missingSpatialUnit: 'MISSING_SPATIAL_UNIT',
@@ -34,6 +51,13 @@ const KEY_BY_TYPE: Record<string, string> = {
       margin: 0.5rem 0 0;
       padding-left: 1.25rem;
     }
+
+    .error-message {
+      margin: 0.5rem 0 0;
+      white-space: pre-wrap;
+      font-family: monospace;
+      font-size: 0.85em;
+    }
   `,
   template: `
     <expandable-box
@@ -51,6 +75,9 @@ const KEY_BY_TYPE: Record<string, string> = {
             }
           </ul>
         }
+        @if (errorMessage()) {
+          <p class="error-message">{{ errorMessage() }}</p>
+        }
       </div>
     </expandable-box>
   `,
@@ -67,12 +94,15 @@ export class JobErrorBoxComponent {
     this._error.set(value);
   }
 
+  /** The i18n segment of this error's type, whichever spelling it arrived in. */
+  private typeKey = computed(() => KEY_BY_TYPE[this._error()?.type ?? '']);
+
   protected shortDescription = computed(() => {
     const error = this._error();
     if (!error) {
       return '';
     }
-    const key = KEY_BY_TYPE[error.type];
+    const key = this.typeKey();
     return key ? this.translate.instant('ADMIN_SCRIPTS.JOB_ERRORS.' + key + '.SHORT') : error.type;
   });
 
@@ -81,7 +111,7 @@ export class JobErrorBoxComponent {
     if (!error) {
       return '';
     }
-    const key = KEY_BY_TYPE[error.type];
+    const key = this.typeKey();
     if (!key) {
       return this.translate.instant('ADMIN_SCRIPTS.JOB_ERRORS.UNKNOWN.LONG');
     }
@@ -97,14 +127,20 @@ export class JobErrorBoxComponent {
     if (!error) {
       return [];
     }
-    if (error.type === 'missingTimestamp') {
+    if (this.typeKey() === 'MISSING_TIMESTAMP') {
       return [...(error.affectedTimestamps ?? [])].sort();
     }
-    if (error.type === 'missingSpatialUnitFeature') {
+    if (this.typeKey() === 'MISSING_SPATIAL_UNIT_FEATURE') {
       return [...(error.affectedSpatialUnitFeatures ?? [])].sort();
     }
     return [];
   });
+
+  /**
+   * The server's own text for this error. The schema marks it required, and for
+   * an unmapped type it is the only thing that says what went wrong.
+   */
+  protected errorMessage = computed(() => this._error()?.errorMessage ?? '');
 
   private isGeoresource(error: JobError): boolean {
     return (error.affectedResourceType ?? '').toLowerCase() === 'georesource';

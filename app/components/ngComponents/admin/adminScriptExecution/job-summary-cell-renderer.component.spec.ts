@@ -144,6 +144,50 @@ describe('JobSummaryCellRendererComponent', () => {
   });
 
   /**
+   * The API declares `errorsOccurred` as a list of lists, master reads a flat
+   * one, and no payload has settled it — so both have to render.
+   */
+  describe('errorsOccurred shapes', () => {
+    const errorBoxes = () => fixture.nativeElement.querySelectorAll('app-job-error-box');
+
+    const withErrors = (errorsOccurred: unknown) => {
+      summaries.set(
+        new Map([
+          [
+            'j1',
+            [
+              {
+                spatialUnitId: 'su-1',
+                numberOfIntegratedIndicatorFeatures: 1,
+                errorsOccurred,
+              },
+            ] as unknown as JobSummaryEntry[],
+          ],
+        ])
+      );
+      render(row('j1'));
+    };
+
+    const error = (type: string) => ({
+      type,
+      affectedDatasetId: 'ind-1',
+      affectedResourceType: 'INDICATOR',
+    });
+
+    it('renders a flat list of errors', () => {
+      withErrors([error('PROCESSING_ERROR'), error('MISSING_DATASET')]);
+
+      expect(errorBoxes().length).toBe(2);
+    });
+
+    it('renders the declared list of lists, flattened', () => {
+      withErrors([[error('PROCESSING_ERROR')], [error('MISSING_DATASET')]]);
+
+      expect(errorBoxes().length).toBe(2);
+    });
+  });
+
+  /**
    * The export replaces the log download the Processing Engine offered; the
    * Processes API has no logs, so this file is the only thing a user can hand
    * on to whoever runs the backend.
