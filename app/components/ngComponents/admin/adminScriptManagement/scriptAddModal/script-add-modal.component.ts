@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { firstValueFrom } from 'rxjs';
 
 import { FormsModule } from '@angular/forms';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -25,6 +26,8 @@ import { LoadingOverlayComponent } from '../../../common/loading-overlay/loading
 import { StepperComponent } from '../../../common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { ScriptRefreshRequest } from '../script-refresh.model';
+import { buildIndicatorMethodologyPatchBody } from './indicator-methodology-patch.util';
+import { IndicatorOverviewType } from 'models/data-management-api';
 import { MathjaxDirective } from 'util/directives/mathjax.directive';
 
 import { TranslateModule } from '@ngx-translate/core';
@@ -194,13 +197,17 @@ export class ScriptAddModalComponent implements OnInit {
   /**
    * Writes the methodology onto the indicator.
    *
-   * Only `processDescription` is sent. Master rebuilds a full metadata body and
-   * had to be fixed once because it carried `permissions` along (`b37d60ec`); a
-   * one-field patch cannot reintroduce that class of bug.
+   * The metadata is read back from the server first rather than taken from the
+   * store: this endpoint replaces what it is given, so it has to be given the
+   * state that is actually stored — a store entry loaded minutes ago would
+   * silently undo whatever was edited in the meantime.
    */
   private async patchMethodology(indicatorId: string, processDescription: string): Promise<void> {
     const url = this.envConfigService.baseUrlToKomMonitorDataAPI + '/indicators/' + indicatorId;
-    await this.http.patch(url, { processDescription }).toPromise();
+    const indicator = await firstValueFrom(this.http.get<IndicatorOverviewType>(url));
+    await firstValueFrom(
+      this.http.patch(url, buildIndicatorMethodologyPatchBody(indicator, processDescription))
+    );
   }
 
   private enumLabel(inputKey: string, apiName: string): string {
