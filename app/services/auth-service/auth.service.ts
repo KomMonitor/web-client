@@ -98,7 +98,12 @@ export class AuthService {
    * valid long enough, so this is safe to call before every request.
    */
   public async ensureValidToken(minValidity = 30): Promise<string | undefined> {
-    if (!this.auth) {
+    // No token means there is no session to refresh. KomMonitor runs anonymously
+    // until someone logs in, and `check-sso` leaves the adapter in place but
+    // unauthenticated, so `this.auth` alone is not enough of a check: calling
+    // updateToken() without a refresh token rejects and would bounce an
+    // anonymous visitor to the login screen on the very first request.
+    if (!this.auth?.token) {
       return undefined;
     }
     try {
