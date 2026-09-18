@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import {
   DualListBoxComponent,
   dualListInput,
@@ -21,7 +22,7 @@ import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-
 @Component({
   selector: 'app-schedule-target-step',
   standalone: true,
-  imports: [TranslateModule, FormsModule, DualListBoxComponent],
+  imports: [TranslateModule, FormsModule, DualListBoxComponent, LoadingOverlayComponent],
   templateUrl: './schedule-target-step.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

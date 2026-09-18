@@ -15,16 +15,16 @@
   </div>
 </div>
 
-<div class="mb-3">
-  <label class="form-label" for="processType">
-    {{ 'ADMIN_SCRIPTS.ADD_MODAL.SCRIPT_TYPE' | translate }}
-  </label>
-  @if (draft.loadingProcesses()) {
-    <div class="form-text">
-      <i class="fas fa-spinner fa-spin"></i>
-      {{ 'ADMIN_SHARED.LOADING_DATA' | translate }}
-    </div>
-  } @else {
+<!--
+  The overlay covers label and field together, so the spinner has room to sit
+  next to the select rather than on top of it. No message: the dialog is narrow
+  and the spinner says enough here.
+-->
+<app-loading-overlay [loading]="draft.loadingProcesses()">
+  <div class="mb-3">
+    <label class="form-label" for="processType">
+      {{ 'ADMIN_SCRIPTS.ADD_MODAL.SCRIPT_TYPE' | translate }}
+    </label>
     <select
       class="form-select"
       id="processType"
@@ -39,8 +39,8 @@
     @if (draft.selectedProcess()?.uiParams?.longTitle) {
       <small class="text-muted">{{ draft.selectedProcess()?.uiParams?.longTitle }}</small>
     }
-  }
-</div>
+  </div>
+</app-loading-overlay>
 
 <div class="mb-3">
   <label class="form-label" for="targetIndicator">
