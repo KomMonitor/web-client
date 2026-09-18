@@ -150,62 +150,115 @@
         <!-- optional filter on a feature property -->
         @case ('comp_filter') {
           <div class="row g-2">
-            <div class="col-md-4">
+            <div class="col-md-6">
               <label class="form-label">
                 {{ 'ADMIN_SCRIPTS.ADD_MODAL.FILTER_PROPERTY' | translate }}
               </label>
               <select
                 class="form-select"
-                [ngModel]="filterValue('compFilterProp')"
-                (ngModelChange)="setFilterValue('compFilterProp', $event)"
+                [ngModel]="filterProperty()"
+                (ngModelChange)="setFilterProperty($event)"
               >
                 <option value="">—</option>
                 @for (property of filterProperties(); track property) {
                   <option [value]="property">{{ property }}</option>
                 }
               </select>
+              @if (filterProperties().length === 0) {
+                <small class="text-muted">
+                  {{ 'ADMIN_SCRIPTS.ADD_MODAL.PICK_GEORESOURCE_FIRST' | translate }}
+                </small>
+              }
             </div>
-            <div class="col-md-3">
+            <div class="col-md-6">
               <label class="form-label">
                 {{ 'ADMIN_SCRIPTS.ADD_MODAL.FILTER_OPERATOR' | translate }}
               </label>
               <select
                 class="form-select"
-                [ngModel]="filterValue('compFilterOperator')"
-                (ngModelChange)="setFilterValue('compFilterOperator', $event)"
+                [disabled]="!filterProperty()"
+                [ngModel]="filterOperator()"
+                (ngModelChange)="setFilterOperator($event)"
               >
                 <option value="">—</option>
-                @for (operator of operators; track operator) {
-                  <option [value]="operator">{{ operator }}</option>
+                @for (operator of filterOperators(); track operator.apiName) {
+                  <option [value]="operator.apiName">{{ operator.labelKey | translate }}</option>
                 }
               </select>
             </div>
-            <div class="col-md-5">
+          </div>
+
+          <!--
+            The values are the ones the georesource actually carries, so the
+            overlay covers the whole value area while the feature table is on
+            its way.
+          -->
+          <app-loading-overlay [loading]="draft.loadingFilterValues()">
+            <div class="mt-2">
               <label class="form-label">
                 {{ 'ADMIN_SCRIPTS.ADD_MODAL.FILTER_VALUE' | translate }}
               </label>
-              @if (isRangeOperator()) {
-                <div class="d-flex gap-2">
-                  <input
-                    class="form-control"
-                    [ngModel]="filterValue('compFilterPropVal')"
-                    (ngModelChange)="setFilterValue('compFilterPropVal', $event)"
-                  />
-                  <input
-                    class="form-control"
-                    [ngModel]="filterValue('compFilterPropValMax')"
-                    (ngModelChange)="setFilterValue('compFilterPropValMax', $event)"
-                  />
+
+              @if (!filterOperator()) {
+                <p class="text-muted small mb-0">
+                  {{ 'ADMIN_SCRIPTS.ADD_MODAL.FILTER_PICK_OPERATOR_FIRST' | translate }}
+                </p>
+              } @else if (filterValueOptions().length === 0) {
+                <p class="text-muted small mb-0">
+                  {{ 'ADMIN_SCRIPTS.ADD_MODAL.FILTER_NO_VALUES' | translate }}
+                </p>
+              } @else if (isRangeOperator()) {
+                <div class="row g-2">
+                  <div class="col-6">
+                    <label class="form-label small">
+                      {{ 'ADMIN_SCRIPTS.ADD_MODAL.FILTER_RANGE_FROM' | translate }}
+                    </label>
+                    <select
+                      class="form-select"
+                      [ngModel]="rangeBounds().from"
+                      (ngModelChange)="setRangeBound('from', $event)"
+                    >
+                      <option value="">—</option>
+                      @for (value of filterValueOptions(); track value) {
+                        <option [value]="value">{{ value }}</option>
+                      }
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label small">
+                      {{ 'ADMIN_SCRIPTS.ADD_MODAL.FILTER_RANGE_TO' | translate }}
+                    </label>
+                    <select
+                      class="form-select"
+                      [ngModel]="rangeBounds().to"
+                      (ngModelChange)="setRangeBound('to', $event)"
+                    >
+                      <option value="">—</option>
+                      @for (value of rangeToOptions(); track value) {
+                        <option [value]="value">{{ value }}</option>
+                      }
+                    </select>
+                  </div>
                 </div>
+              } @else if (isContainsOperator()) {
+                <app-dual-list-box
+                  [data]="containsData()"
+                  (selectedItems)="onContainsSelect($event)"
+                ></app-dual-list-box>
               } @else {
-                <input
-                  class="form-control"
-                  [ngModel]="filterValue('compFilterPropVal')"
-                  (ngModelChange)="setFilterValue('compFilterPropVal', $event)"
-                />
+                <select
+                  class="form-select"
+                  [ngModel]="filterPropertyValue()"
+                  (ngModelChange)="setFilterValue($event)"
+                >
+                  <option value="">—</option>
+                  @for (value of filterValueOptions(); track value) {
+                    <option [value]="value">{{ value }}</option>
+                  }
+                </select>
               }
             </div>
-          </div>
+          </app-loading-overlay>
         }
 
         <!--

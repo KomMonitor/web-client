@@ -84,6 +84,21 @@ export class ScheduleDraftService {
   readonly georesourceSchema = signal<Record<string, string>>({});
 
   /**
+   * The feature table of the chosen georesource without its geometries. It is
+   * the only source for the filter's value lists — the schema names the
+   * properties, not the values that occur in them.
+   *
+   * Loaded once per georesource and only when a filter property is actually
+   * picked: the filter is optional and the table can be large.
+   */
+  readonly georesourceFeatures = signal<Record<string, unknown>[]>([]);
+
+  /** Set while that table is on its way. */
+  readonly loadingFilterValues = signal(false);
+
+  private featuresLoadedFor: string | undefined;
+
+  /**
    * The schedule that already computes the chosen target indicator, if any.
    * There is at most one per indicator, and creating a new one replaces it.
    */
@@ -192,6 +207,8 @@ export class ScheduleDraftService {
     // The filter belongs to the georesource it was built for.
     this.processInputs.update((inputs) => ({ ...inputs, comp_filter: undefined }));
     this.georesourceSchema.set({});
+    this.georesourceFeatures.set([]);
+    this.featuresLoadedFor = undefined;
     if (!georesourceId) {
       return;
     }
@@ -200,6 +217,30 @@ export class ScheduleDraftService {
       this.georesourceSchema.set((schema ?? {}) as Record<string, string>);
     } catch (error) {
       console.error('Could not fetch the schema of georesource ' + georesourceId + ':', error);
+    }
+  }
+
+  /**
+   * Fetches the feature table of the chosen georesource unless it is already
+   * in memory. A failure leaves the value lists empty rather than breaking the
+   * step.
+   */
+  async ensureGeoresourceFeaturesLoaded(): Promise<void> {
+    const georesourceId = this.processInputs()['georesource_id'] as string | undefined;
+    if (!georesourceId || this.featuresLoadedFor === georesourceId) {
+      return;
+    }
+    this.loadingFilterValues.set(true);
+    try {
+      const features =
+        await this.cacheHelperService.fetchSingleGeoresourceWithoutGeometry(georesourceId);
+      this.georesourceFeatures.set(toFeatureRows(features));
+      this.featuresLoadedFor = georesourceId;
+    } catch (error) {
+      console.error('Could not fetch the features of georesource ' + georesourceId + ':', error);
+      this.georesourceFeatures.set([]);
+    } finally {
+      this.loadingFilterValues.set(false);
     }
   }
 
@@ -352,4 +393,26 @@ export class ScheduleDraftService {
         return value !== undefined && value !== null && value !== '';
       });
   }
+}
+
+/**
+ * Normalises what `allFeatures/without-geometry` answers into plain rows.
+ *
+ * The OpenAPI spec types the response as `string`, which it is not; master
+ * treated it as a bare array of property objects. A feature collection is
+ * accepted as well, so a server that keeps the GeoJSON envelope still yields
+ * values.
+ */
+function toFeatureRows(response: unknown): Record<string, unknown>[] {
+  if (Array.isArray(response)) {
+    return response as Record<string, unknown>[];
+  }
+  const features = (response as { features?: unknown })?.features;
+  if (Array.isArray(features)) {
+    return features.map(
+      (feature) =>
+        ((feature as { properties?: unknown })?.properties ?? feature) as Record<string, unknown>
+    );
+  }
+  return [];
 }

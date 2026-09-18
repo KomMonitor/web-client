@@ -56,8 +56,26 @@ function baseIndicatorIds(inputs: Record<string, unknown>): string[] {
 
 /** Placeholders that are not plain inputs but derived from a selection. */
 /**
+ * How the operators read in the legend. The legend template itself is German
+ * and comes that way from the server, so these labels are not translated —
+ * their translated twins live under `ADMIN_SCRIPTS.ADD_MODAL.FILTER_OPERATORS`
+ * and belong to the dialog's own select.
+ */
+const OPERATOR_LABELS: Record<string, string> = {
+  Equal: 'gleich (=)',
+  Unequal: 'ungleich (!=)',
+  Greater_than: 'größer als (>)',
+  Greater_than_or_equal: 'größer als oder gleich (>=)',
+  Less_than: 'kleiner als (<)',
+  Less_than_or_equal: 'kleiner als oder gleich (<=)',
+};
+
+/**
  * The filter in words, as the legend sentence "Filterkriterium: …" expects.
  * An unset filter reads as a dash, like on master.
+ *
+ * `Range` and `Contains` both keep their several values in the one field the
+ * process declares — bounds joined by `-`, list members by `,`.
  */
 function describeFilter(filter: unknown): string {
   const value = (filter ?? {}) as Record<string, string>;
@@ -69,12 +87,19 @@ function describeFilter(filter: unknown): string {
     return '-';
   }
   if (operator === 'Range') {
-    return `'${property}' im Wertebereich von '>=${propertyValue} bis <${value['compFilterPropValMax'] ?? ''}'`;
+    const separator = propertyValue.indexOf('-', 1);
+    const from = separator < 0 ? propertyValue : propertyValue.slice(0, separator);
+    const to = separator < 0 ? '' : propertyValue.slice(separator + 1);
+    return `'${property}' im Wertebereich von '>=${from} bis <${to}'`;
   }
   if (operator === 'Contains') {
-    return `'${property}' 'enthält' '${propertyValue}'`;
+    const values = propertyValue
+      .split(',')
+      .map((entry) => entry.trim())
+      .filter((entry) => entry.length > 0);
+    return `'${property}' 'enthält' '${values.join(', ')}'`;
   }
-  return `'${property}' '${operator}' '${propertyValue}'`;
+  return `'${property}' '${OPERATOR_LABELS[operator] ?? operator}' '${propertyValue}'`;
 }
 
 function derived(key: string, context: LegendContext): string | undefined {

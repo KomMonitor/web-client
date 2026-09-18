@@ -69,10 +69,14 @@ describe('legend-template util', () => {
       const rendered = renderLegend(
         'Filter: georesource_filter_legend',
         context({
-          comp_filter: { compFilterProp: 'art', compFilterOperator: '=', compFilterPropVal: 'A' },
+          comp_filter: {
+            compFilterProp: 'art',
+            compFilterOperator: 'Equal',
+            compFilterPropVal: 'A',
+          },
         })
       );
-      expect(rendered).toBe("Filter: 'art' '=' 'A'");
+      expect(rendered).toBe("Filter: 'art' 'gleich (=)' 'A'");
     });
 
     it('spells out a range with both bounds', () => {
@@ -82,8 +86,7 @@ describe('legend-template util', () => {
           comp_filter: {
             compFilterProp: 'flaeche',
             compFilterOperator: 'Range',
-            compFilterPropVal: '10',
-            compFilterPropValMax: '20',
+            compFilterPropVal: '10-20',
           },
         })
       );
@@ -97,11 +100,11 @@ describe('legend-template util', () => {
           comp_filter: {
             compFilterProp: 'name',
             compFilterOperator: 'Contains',
-            compFilterPropVal: 'Schule',
+            compFilterPropVal: 'Schule,Kita',
           },
         })
       );
-      expect(rendered).toBe("'name' 'enthält' 'Schule'");
+      expect(rendered).toBe("'name' 'enthält' 'Schule, Kita'");
     });
   });
 

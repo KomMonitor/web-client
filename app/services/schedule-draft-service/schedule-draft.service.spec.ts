@@ -13,6 +13,7 @@ describe('ScheduleDraftService', () => {
   let createSchedule: jest.Mock;
   let deleteSchedule: jest.Mock;
   let fetchSchedules: jest.Mock;
+  let fetchSingleGeoresourceWithoutGeometry: jest.Mock;
   let calls: string[];
 
   const SUM_PROCESS = {
@@ -64,6 +65,9 @@ describe('ScheduleDraftService', () => {
       calls.push('delete');
     });
     fetchSchedules = jest.fn().mockResolvedValue([]);
+    fetchSingleGeoresourceWithoutGeometry = jest
+      .fn()
+      .mockResolvedValue([{ Stadtteil: 'Nord' }, { Stadtteil: 'Süd' }]);
 
     TestBed.configureTestingModule({
       providers: [
@@ -102,7 +106,10 @@ describe('ScheduleDraftService', () => {
         },
         {
           provide: CacheHelperServiceService,
-          useValue: { fetchSingleGeoresourceSchema: jest.fn().mockResolvedValue({}) },
+          useValue: {
+            fetchSingleGeoresourceSchema: jest.fn().mockResolvedValue({}),
+            fetchSingleGeoresourceWithoutGeometry,
+          },
         },
       ],
     });
@@ -236,6 +243,50 @@ describe('ScheduleDraftService', () => {
     it('refuses to submit without a process', async () => {
       service.selectProcess(undefined);
       await expect(service.submit()).rejects.toThrow('no process selected');
+    });
+  });
+
+  describe('the filter value source', () => {
+    it('fetches the feature table once per georesource', async () => {
+      service.setInput('georesource_id', 'geo-1');
+
+      await service.ensureGeoresourceFeaturesLoaded();
+      await service.ensureGeoresourceFeaturesLoaded();
+
+      expect(fetchSingleGeoresourceWithoutGeometry).toHaveBeenCalledTimes(1);
+      expect(service.georesourceFeatures()).toEqual([{ Stadtteil: 'Nord' }, { Stadtteil: 'Süd' }]);
+    });
+
+    it('drops it when the georesource changes', async () => {
+      service.setInput('georesource_id', 'geo-1');
+      await service.ensureGeoresourceFeaturesLoaded();
+
+      service.setInput('georesource_id', 'geo-2');
+      expect(service.georesourceFeatures()).toEqual([]);
+
+      await service.ensureGeoresourceFeaturesLoaded();
+      expect(fetchSingleGeoresourceWithoutGeometry).toHaveBeenCalledTimes(2);
+    });
+
+    it('unwraps a feature collection, should the server send one', async () => {
+      fetchSingleGeoresourceWithoutGeometry.mockResolvedValue({
+        features: [{ properties: { Stadtteil: 'Nord' } }],
+      });
+      service.setInput('georesource_id', 'geo-1');
+
+      await service.ensureGeoresourceFeaturesLoaded();
+
+      expect(service.georesourceFeatures()).toEqual([{ Stadtteil: 'Nord' }]);
+    });
+
+    it('leaves the value lists empty when the request fails', async () => {
+      fetchSingleGeoresourceWithoutGeometry.mockRejectedValue(new Error('401'));
+      service.setInput('georesource_id', 'geo-1');
+
+      await service.ensureGeoresourceFeaturesLoaded();
+
+      expect(service.georesourceFeatures()).toEqual([]);
+      expect(service.loadingFilterValues()).toBe(false);
     });
   });
 

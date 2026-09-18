@@ -2,6 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import {
   DualListBoxComponent,
   dualListInput,
@@ -21,8 +22,31 @@ interface PolarityRow {
   polarity: string;
 }
 
-/** Comparison operators the filter offers, mirroring master's list. */
-const FILTER_OPERATORS = ['=', '!=', '>', '>=', '<', '<=', 'Range', 'Contains'];
+/**
+ * The comparison operators, by the `apiName` the process stores. Which set
+ * applies depends on the property's type: text is compared for equality or
+ * membership, everything else is also ordered and can span a range. Both lists
+ * are master's.
+ */
+const TEXT_OPERATORS = ['Equal', 'Unequal', 'Contains'];
+const ORDERED_OPERATORS = [
+  'Equal',
+  'Unequal',
+  'Greater_than',
+  'Greater_than_or_equal',
+  'Less_than',
+  'Less_than_or_equal',
+  'Range',
+];
+
+/** Schema type that makes a property text-like for the operator list. */
+const TEXT_SCHEMA_TYPE = 'string';
+
+/** Types whose values sort as text rather than as numbers. */
+const TEXT_SORTED_SCHEMA_TYPES = new Set(['string', 'boolean']);
+
+/** The separator master writes between the two bounds of a `Range`. */
+const RANGE_SEPARATOR = '-';
 
 /** Schema type names that `compProp` accepts. */
 const NUMERIC_SCHEMA_TYPES = new Set([
@@ -48,7 +72,13 @@ const NUMERIC_SCHEMA_TYPES = new Set([
 @Component({
   selector: 'app-schedule-inputs-step',
   standalone: true,
-  imports: [TranslateModule, FormsModule, NgTemplateOutlet, DualListBoxComponent],
+  imports: [
+    TranslateModule,
+    FormsModule,
+    NgTemplateOutlet,
+    DualListBoxComponent,
+    LoadingOverlayComponent,
+  ],
   templateUrl: './schedule-inputs-step.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -57,7 +87,14 @@ export class ScheduleInputsStepComponent {
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
 
-  protected readonly operators = FILTER_OPERATORS;
+  constructor() {
+    // The feature table is fetched when a filter property is picked, but this
+    // step is destroyed whenever the wizard moves on — coming back has to find
+    // the value lists filled again.
+    if (this.filterProperty()) {
+      void this.draft.ensureGeoresourceFeaturesLoaded();
+    }
+  }
 
   protected indicators = computed(() =>
     [...this.indicatorStore.availableIndicators].sort((a, b) =>
@@ -77,12 +114,17 @@ export class ScheduleInputsStepComponent {
   );
 
   /**
-   * All feature properties of the chosen georesource, for the filter.
+   * The feature properties the filter can work on.
    *
    * The schema arrives as `{ propertyName: typeName }` (e.g. `Platzzahl:
-   * "Integer"`), not as a JSON Schema.
+   * "Integer"`), not as a JSON Schema. Date properties are left out, as on
+   * master — none of the operators compares dates.
    */
-  protected filterProperties = computed(() => Object.keys(this.draft.georesourceSchema()));
+  protected filterProperties = computed(() =>
+    Object.entries(this.draft.georesourceSchema())
+      .filter(([, type]) => String(type).toLowerCase() !== 'date')
+      .map(([name]) => name)
+  );
 
   /** The numeric subset, for `compProp`. */
   protected numericProperties = computed(() =>
@@ -149,18 +191,144 @@ export class ScheduleInputsStepComponent {
 
   // --- filter (comp_filter) ---
 
-  protected filterValue(field: string): string {
-    const filter = (this.draft.getInput('comp_filter') as Record<string, string>) ?? {};
-    return filter[field] ?? '';
+  /**
+   * The filter object as stored, holding exactly the three keys the process
+   * declares: `compFilterProp`, `compFilterOperator`, `compFilterPropVal`.
+   * Anything else here would be submitted along with them.
+   */
+  private filter = computed<Record<string, string>>(
+    () => (this.draft.getInput('comp_filter') as Record<string, string>) ?? {}
+  );
+
+  protected filterProperty = computed(() => this.filter()['compFilterProp'] ?? '');
+  protected filterOperator = computed(() => this.filter()['compFilterOperator'] ?? '');
+  protected filterPropertyValue = computed(() => this.filter()['compFilterPropVal'] ?? '');
+
+  protected isRangeOperator = computed(() => this.filterOperator() === 'Range');
+  protected isContainsOperator = computed(() => this.filterOperator() === 'Contains');
+
+  /** The operators the chosen property's type allows. */
+  protected filterOperators = computed(() => {
+    const property = this.filterProperty();
+    if (!property) {
+      return [];
+    }
+    const names = this.isTextProperty(property) ? TEXT_OPERATORS : ORDERED_OPERATORS;
+    return names.map((apiName) => ({
+      apiName,
+      labelKey: 'ADMIN_SCRIPTS.ADD_MODAL.FILTER_OPERATORS.' + apiName.toUpperCase(),
+    }));
+  });
+
+  /**
+   * The values that actually occur in the chosen property, de-duplicated and
+   * sorted. Offering them beats a free-text field: a typo here silently
+   * filters everything away, and the computation runs on an empty set.
+   */
+  protected filterValueOptions = computed<string[]>(() => {
+    const property = this.filterProperty();
+    if (!property) {
+      return [];
+    }
+    const distinct = new Set<string>();
+    for (const row of this.draft.georesourceFeatures()) {
+      const value = row[property];
+      if (value !== undefined && value !== null && value !== '') {
+        distinct.add(String(value));
+      }
+    }
+    const values = Array.from(distinct);
+    return this.sortsAsText(property)
+      ? values.sort((a, b) => a.localeCompare(b))
+      : values.sort((a, b) => Number(a) - Number(b));
+  });
+
+  /**
+   * Both bounds of a `Range` live in the single `compFilterPropVal` the process
+   * declares, joined by `-` — that is master's encoding, and the process reads
+   * it back the same way. Deriving them from there keeps this step stateless,
+   * so stepping away and back loses nothing.
+   *
+   * The search starts at index 1 so a negative lower bound stays intact.
+   */
+  protected rangeBounds = computed(() => {
+    const value = this.filterPropertyValue();
+    const separator = value.indexOf(RANGE_SEPARATOR, 1);
+    return separator < 0
+      ? { from: value, to: '' }
+      : { from: value.slice(0, separator), to: value.slice(separator + 1) };
+  });
+
+  /** A range only makes sense upwards. */
+  protected rangeToOptions = computed(() => {
+    const from = this.rangeBounds().from;
+    if (!from) {
+      return this.filterValueOptions();
+    }
+    return this.filterValueOptions().filter((value) => Number(value) > Number(from));
+  });
+
+  /** `Contains` holds its selection as a comma-separated list in that same field. */
+  protected containsSelection = computed(() =>
+    this.filterPropertyValue()
+      .split(',')
+      .map((value) => value.trim())
+      .filter((value) => value.length > 0)
+  );
+
+  protected containsData(): dualListInput {
+    return {
+      items: this.filterValueOptions().map((value) => ({ id: value, name: value })),
+      selectedItems: this.containsSelection().map((value) => ({ id: value, name: value })),
+    };
   }
 
-  protected setFilterValue(field: string, value: string): void {
-    const filter = (this.draft.getInput('comp_filter') as Record<string, string>) ?? {};
-    this.draft.setInput('comp_filter', { ...filter, [field]: value });
+  protected onContainsSelect(items: { id: string }[]): void {
+    this.writeFilter({ compFilterPropVal: (items ?? []).map((item) => item.id).join(',') });
   }
 
-  /** Range needs a second value, so the filter input splits into two fields. */
-  protected isRangeOperator = computed(() => this.filterValue('compFilterOperator') === 'Range');
+  protected setFilterProperty(property: string): void {
+    // Operator and value were picked for the property being replaced.
+    this.draft.setInput('comp_filter', {
+      compFilterProp: property,
+      compFilterOperator: '',
+      compFilterPropVal: '',
+    });
+    void this.draft.ensureGeoresourceFeaturesLoaded();
+  }
+
+  protected setFilterOperator(operator: string): void {
+    // A single value, a range and a list are not convertible into each other.
+    this.writeFilter({ compFilterOperator: operator, compFilterPropVal: '' });
+  }
+
+  protected setFilterValue(value: string): void {
+    this.writeFilter({ compFilterPropVal: value });
+  }
+
+  protected setRangeBound(bound: 'from' | 'to', value: string): void {
+    const bounds = { ...this.rangeBounds(), [bound]: value };
+    this.writeFilter({
+      compFilterPropVal: bounds.from || bounds.to ? bounds.from + RANGE_SEPARATOR + bounds.to : '',
+    });
+  }
+
+  private writeFilter(changes: Record<string, string>): void {
+    this.draft.setInput('comp_filter', { ...this.filter(), ...changes });
+  }
+
+  /** Master offers `Contains` for text properties only. */
+  private isTextProperty(property: string): boolean {
+    return this.schemaType(property) === TEXT_SCHEMA_TYPE;
+  }
+
+  private sortsAsText(property: string): boolean {
+    return TEXT_SORTED_SCHEMA_TYPES.has(this.schemaType(property));
+  }
+
+  private schemaType(property: string): string {
+    return String(this.draft.georesourceSchema()[property] ?? '').toLowerCase();
+  }
 
   // --- generic branch ---
 
@@ -190,25 +358,5 @@ export class ScheduleInputsStepComponent {
   protected setNumber(inputKey: string, value: string | number): void {
     const parsed = Number(value);
     this.draft.setInput(inputKey, value === '' || Number.isNaN(parsed) ? undefined : parsed);
-  }
-
-  private readNumericProperties(schema: any): string[] {
-    return this.readAllProperties(schema).filter((name) => {
-      const property = schema?.properties?.[name];
-      const type = property?.type ?? property;
-      return (
-        typeof type === 'string' && ['number', 'integer', 'float'].includes(type.toLowerCase())
-      );
-    });
-  }
-
-  private readAllProperties(schema: any): string[] {
-    if (!schema) {
-      return [];
-    }
-    if (Array.isArray(schema.properties)) {
-      return schema.properties.map((p: any) => p.name ?? p).filter(Boolean);
-    }
-    return Object.keys(schema.properties ?? {});
   }
 }
