@@ -77,7 +77,20 @@ Enum-Member `ResetTimeseriesMapping` und des untypisierten `'timeseriesMappingCh
 **Browser-Prüfung durchgeführt (2026-08-31):** ein echter Einzel-Import mit gefülltem Mapping ist
 automatisiert nicht erreichbar und wurde manuell abgenommen.
 
-### A4. MathJax-Formeldarstellung fehlt vollständig (gefunden 2026-08-27)
+### A4. MathJax-Formeldarstellung — ⚠️ teils gelöst (2026-09-17)
+
+> **Die Bibliothek ist zurück.** Mit Paket C (C10) kamen `services/mathjax-service/` und
+> `util/directives/mathjax.directive.ts`: MathJax wird aus `node_modules/mathjax` als Asset
+> ausgeliefert und beim ersten Bedarf nachgeladen, das Startbundle bleibt unberührt. Die
+> Konfiguration setzt `inlineMath` auf `$…$` — ohne das erkennt MathJax die Legenden nicht.
+> Eingehängt ist die Direktive bislang **nur in der Methodik-Vorschau des Skript-Dialogs**.
+>
+> **Offen bleiben die vier Stellen unten**: Kartenansicht, PDF-Report, Indikatorenverwaltung und
+> Legende. Dort muss `[appMathjax]` nur noch gesetzt werden; die Grundsatzentscheidung „soll
+> MathJax zurück" ist mit der Umsetzung beantwortet.
+
+Die ursprüngliche Aufnahme:
+
 
 `master` rendert LaTeX in Indikator-Beschreibungen: `index.html:72,156` konfiguriert MathJax und
 lädt `dependencies/mathjax/tex-chtml.js`, `app.js:218` registriert die Direktive `mathjaxBind`, die
@@ -95,6 +108,8 @@ existiert **weder das Script noch die Direktive** — nur `@types/mathjax` steht
 
 Aufwand klein (Script laden + eine Direktive oder ein `afterRenderEffect`), die Entscheidung ist,
 ob MathJax überhaupt zurück soll — es ist die einzige Stelle, an der der Client Formeln darstellt.
+*(Script und Direktive existieren seit 2026-09-17, s. Kasten oben; `@types/mathjax` hat jetzt auch
+die passende Laufzeit-Bibliothek neben sich.)*
 
 ### A3. Divergenz `master` ↔ `feature/migration-bootstrap`
 
@@ -111,6 +126,39 @@ Zwei bereits belegte Fälle:
   nie erhaltene Weiterentwicklung: die Aggregationen kamen am 2025-09-09 (`b9cd8b5c`, `c3cff91a`), der
   Port des Modals war am 2025-07-18 (`772e1c89`).
 - **Batch-Update** — siehe B1.
+- **Skriptverwaltung und Indikatorenberechnung: Umstellung auf die OGC Processes API**
+  (aufgenommen 2026-09-16). Der mit Abstand größte Posten aus diesem Spalt und kein Nachziehen
+  einzelner Commits, sondern ein Datenmodellwechsel: `master` hat beide Admin-Seiten zwischen
+  Januar und März 2026 von Data-Management-API `process-scripts` + Processing Engine auf
+  `processes` / `schedules` / `jobs` umgestellt. Die Migration steht komplett auf dem Stand davor.
+  Eigene Dokumente:
+
+  | Dokument                                                                           | Inhalt                                          |
+  | ---------------------------------------------------------------------------------- | ------------------------------------------------- |
+  | [`PROCESSES_API_BEFUNDE.md`](PROCESSES_API_BEFUNDE.md)                             | **Referenz** — was die API antwortet, nach Ressource |
+
+  Was gebaut wurde, steht im Code und seinen Kommentaren; als Referenz bleiben die API-Befunde
+  oben. Die Master-Commits der Umstellung liegen im Log von `origin/master` zwischen `3f0b8951`
+  (2026-01-12) und `6d77b6e9` (2026-03-23).
+
+  **Stand 2026-09-17: abgeschlossen.** Alle fünf Etappen sind erledigt — Auth-Verifikation,
+  Paket A (Fundament), Indikatorenberechnung (vormals I1–I14), Paket B (Tabelle),
+  Paket C (Anlage-Dialog) und Paket E (Aufräumen). Die App liest Schedules und Jobs aus der Processes API, legt Schedules
+  an, stößt Berechnungen an und löscht sie wieder; das alte Skriptcode-Modell ist restlos entfernt,
+  ebenso `targetUrlToProcessingEngine`. **Die letzten zwei Einzelheiten sind am 2026-09-18 erledigt**: die Werteliste samt
+  Mehrfachauswahl im Filter des Anlage-Dialogs (dabei fielen falsche Operator-Namen und ein zu viel
+  gesendeter Schlüssel auf) und der Methodik-PATCH, der als Ein-Feld-Body die übrigen Metadaten des
+  Ziel-Indikators gelöscht hätte; er wird jetzt vollständig aufgebaut und ist an einer echten
+  Schreiboperation bestätigt. Von den Entscheidungen, die zur Revision offen standen, sind auf der
+  Job-Seite inzwischen alle getroffen (Fehler-Export statt Log-Download, Tabelle auch auf der
+  Seite, `MAX_JOBS` auf 500 angehoben); in der Skriptverwaltung bleibt der Skripttyp-Titel
+  einsprachig vom Server.
+
+  Zwei Punkte daraus greifen in dieses Dokument:
+  - **C10 (MathJax) ist dasselbe Thema wie A4 oben** — MathJax fehlt im Branch komplett, nicht nur
+    im Skript-Dialog. Gemeinsam lösen.
+  - ~~**Paket E4** baut `targetUrlToProcessingEngine` aus~~ — ✅ erledigt; die Processing Engine ist
+    als Runtime-Abhängigkeit weg, `CLAUDE.md` ist nachgezogen.
 
 Ein systematischer Abgleich ist vor einem Merge nach `develop` ohnehin unumgänglich.
 
@@ -565,6 +613,18 @@ Verifiziert gegen den Code am 2026-08-26, Bereinigung am 2026-08-27.
 | `MANUELLE_TESTS_REACTIVE_FORMS.md`                                                 | **Gelöscht (2026-08-31).** Die manuellen Testpfade für den Reactive-Forms-Umbau sind abgearbeitet: Punkte 1–10 durchgeführt, die dabei gefundenen Fehler behoben und mit Tests abgesichert. Was offen blieb, steht unten unter „Restposten aus dem manuellen Testlauf". Das Protokoll selbst liegt in git.                                                              |
 | [`COMPONENT_NESTING_TREE.md`](COMPONENT_NESTING_TREE.md)                           | **Aktuell (2026-08-27).** Die vier geteilten Admin-Bausteine (`app-resource-metadata-form`, `app-role-management-grid`, `app-owner-organization-select`, `app-config-editor-panes`) sind in der Selektor-Tabelle ergänzt, mit einer Notiz, warum sie in den Diagrammen fehlen (sie sitzen in Modals, und Modals sind aus dem Baum ausgenommen). `Stand:`-Datum ergänzt. |
 
+### Neu und offen (2026-09-16)
+
+| Datei                                                                              | Befund                                                                                                                                                                                         |
+| ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`PROCESSES_API_BEFUNDE.md`](PROCESSES_API_BEFUNDE.md)                             | **Aktuell, dauerhaft.** Referenz der echten API-Antworten, nach Ressource geordnet: Schreibweisen, Feldformen, Auth, Schreiboperationen, unbelegte Stellen. Die API liefert kein Schema (`/openapi` 404), die handgepflegten Typen im Client hängen daran — drei Quelldateien verweisen darauf. |
+
+Verifikationsgrad: `processes`, `schedules`, `jobs` und seit dem 2026-09-18 auch `jobSummary` sind
+gegen die Demo-Instanz belegt (eingeloggt) — A4 und die Job-Typen stehen damit fest. Die Lücke
+schloss ein von
+Hand angestoßener Lauf, der erstmals erfolgreich durchlief; derselbe Schedule war am 1.9.2026 noch
+gescheitert, die 60 Fehlschläge waren also ein Zustand der Instanz, kein Client-Problem.
+
 ---
 
 ## Restposten aus dem manuellen Testlauf (Stand 2026-08-31)
@@ -604,3 +664,7 @@ alle brauchen einen laufenden Backend-Stack und schreiben echte Daten:
    gelöscht (ihre noch gültigen Teile nach B2/B4 gerettet), `commonjs-dependencies.md`
    neu erhoben. `documentation/` ist damit von 13 auf 8 Dateien geschrumpft.
 6. **Laufend:** B2 (große Services) und C4 (i18n UserInterface) im Zuge regulärer Feature-Arbeit.
+7. ~~**A3 / Processes API**~~ (aufgenommen 2026-09-16) — ✅ am 2026-09-17 in fünf Etappen
+   abgeschlossen; was gebaut wurde, steht je Punkt in den drei Dokumenten oben. **A4 (MathJax) ist
+   damit gelöst**, soweit es die Bibliothek betrifft — s. Punkt A4 oben. Der Rest von A3, der
+   systematische `master`-Abgleich außerhalb der Processes API, bleibt offen.

@@ -1,6 +1,6 @@
 # OGC Processes API — was die Instanz tatsächlich antwortet
 
-Stand: 2026-09-17, Branch `feature/migration-bootstrap`.
+Stand: 2026-09-18, Branch `feature/migration-bootstrap`.
 
 **Wozu dieses Dokument:** Die Processes API liefert **kein brauchbares Schema** — `/openapi` und
 `/conformance` sind 404, obwohl das Landing-Dokument sie verlinkt. Die Typen im Client
@@ -12,7 +12,7 @@ oder einen neuen Endpunkt anbindet, findet hier die Belege.
 Requests liefen über den `HttpClient` der laufenden App, das Token hat der reguläre
 `AuthInterceptor` angehängt. Grundgesamtheit: **24 Prozesse, 21 Schedules, 68 Jobs**.
 
-Ein einziger **schreibender** Durchlauf ist dokumentiert (Abschnitt 4); er wurde vollständig
+Zwei **schreibende** Durchläufe sind dokumentiert (Abschnitt 4); beide wurden vollständig
 zurückgenommen.
 
 ---
@@ -98,6 +98,9 @@ export interface ProcessSchedule {
 Auf **allen 21** Schedules war **jedes** dieser Felder gesetzt — keines ist optional. Die Antwort
 kommt in der Hülle `{ schedules: [...] }`, auch beim Einzelabruf (dort mit genau einem Eintrag).
 
+Die Zahlen hier sind ein Stand, kein Vertrag: am 2026-09-18 waren es 22 Schedules, weiterhin alle
+`READY` und `scheduleActive: true`.
+
 ### `jobIDs` enthält Nicht-UUIDs
 
 Von 36 Einträgen über alle Schedules sind 17 UUIDs (36 Zeichen) und **19 kurze Slugs** mit 12–22
@@ -167,33 +170,77 @@ Ein fehlgeschlagener Job antwortet mit **400**:
 `{"code":"InvalidParameterValue","type":"InvalidParameterValue","description":"job failed"}`.
 Details dürfen also nicht blind nachgeladen werden — der Fehlertext steht ohnehin in `job.message`.
 
-### `jobSummary`: **nicht server-verifiziert**
+### `jobSummary`: am echten Payload verifiziert (2026-09-18)
 
-Auf der Demo existiert **kein einziger erfolgreicher Indikator-Job**: von 68 Jobs sind 8 erfolgreich
-(alle `single_export` / `spatial_unit_export`, deren `results` `{file, status, userId}` liefert) und
-60 fehlgeschlagen. Ein `jobSummary` war damit nicht zu beobachten.
+Lange gab es auf der Demo **keinen einzigen erfolgreichen Indikator-Job** — 8 von 68 erfolgreich,
+alle `single_export` / `spatial_unit_export`, deren `results` nur `{file, status, userId}` liefert.
+Am 2026-09-18 wurde der Schedule `86233dc8-…` (`km_indicator_promille`, Ziel „Test Prozess -
+KmIndicatorPromille") von Hand angestoßen; er lief in unter 20 Sekunden **erfolgreich** durch. Damit
+liegt erstmals ein echtes `jobSummary` vor.
 
-Die Feldnamen stammen aus Masters eigenem Processes-API-Code
-(`kommonitor-data-grid-helper-service.module.js:3127-3330`, Kommentar „NEW July 2025") — derselbe
-Client gegen dieselbe API, aber eben Client-Code. **Vor dem ersten echten Einsatz gegenprüfen.**
+Nebenbefund: derselbe Schedule war am 1.9.2026 noch gescheitert, unverändert. Die 60 Fehlschläge
+sind also **kein Client-Problem**, sondern ein Zustand der Instanz, der zwischenzeitlich behoben
+wurde.
 
-`JobSummaryEntry`: `spatialUnitId`, `numberOfIntegratedIndicatorFeatures`, `integratedTargetDates[]`,
-`errorsOccurred[]` (dazu ein auskommentiertes `modifiedResource`). Die beiden Listen sind im Client
-optional typisiert, weil master sie vor dem Zugriff prüft.
+Beobachtete Antwort (`GET jobs/{id}/results`): `{ jobSummary: […], resultData: […] }`, `jobSummary`
+mit einem Eintrag je Raumeinheit:
 
-Die sechs `errorsOccurred`-Typen:
+```json
+{
+  "spatialUnitId": "6c49621f-…",
+  "modifiedResource": "https://…/management/indicators/b1f64ce7-…/6c49621f-…",
+  "numberOfIntegratedIndicatorFeatures": 9,
+  "integratedTargetDates": [],
+  "errorsOccurred": [
+    {
+      "type": "missingTimestamp",
+      "affectedResourceType": "INDICATOR",
+      "affectedDatasetId": "f3a69877-…",
+      "affectedTimestamps": ["2023-12-31", "2024-12-31", "2022-12-31"],
+      "affectedSpatialUnitFeatures": [],
+      "errorMessage": "Timestamps are missing for INDICATOR with ID f3a69877-…."
+    }
+  ]
+}
+```
 
-| `error.type`                | Zusatzfelder                    |
-| --------------------------- | ------------------------------- |
-| `missingTimestamp`          | `affectedTimestamps[]`          |
-| `missingDataset`            | —                               |
-| `missingSpatialUnit`        | —                               |
-| `missingSpatialUnitFeature` | `affectedSpatialUnitFeatures[]` |
-| `dataManagementApiError`    | —                               |
-| `processingError`           | —                               |
+**Der Payload widerspricht dem deklarierten Schema an zwei Stellen** — `GET processes/{id}`
+deklariert unter `outputs.jobSummary`, was der Server liefern will:
 
-Alle sechs tragen zusätzlich `affectedDatasetId` und `affectedResourceType` (`"indicator"` /
-`"georesource"`; master vergleicht case-insensitiv).
+| | Schema sagt | Payload sendet | Client |
+| --- | --- | --- | --- |
+| Fehlertyp | `MISSING_TIMESTAMP` … | **`missingTimestamp`** … | akzeptiert beide |
+| `errorsOccurred` | Array **von** Arrays | **flache Liste** | flacht eine Ebene ab |
+| `errorMessage` | required | vorhanden und gefüllt | wird angezeigt |
+| `affectedResourceType` | `INDICATOR` / `GEORESOURCE` | `INDICATOR` | case-insensitiver Vergleich |
+
+Masters camelCase-Annahme war also richtig und das Schema an dieser Stelle irreführend. Weil beide
+Seiten auseinanderlaufen, bleibt die Toleranz im Client bestehen — sie kostet sechs Zeilen und
+überlebt, welche Seite sich auch bewegt.
+
+`jobSummary` ist ein Array von Objekten mit `spatialUnitId`, `modifiedResource` (URI, vom Client
+ungenutzt), `numberOfIntegratedIndicatorFeatures` (integer), `integratedTargetDates[]` (date) und
+`errorsOccurred`.
+
+Zum Schema selbst: **alle 20** Berechnungsprozesse deklarieren `errorsOccurred` doppelt
+verschachtelt, die vier Export-Prozesse (`ExportTest`, `MultipleExport`, `SingleExport`,
+`SpatialUnitExport`) haben gar kein `jobSummary`. Die Doppelung ist auch kein Generator-Artefakt —
+in derselben Beschreibung sind `resultData.indicatorValues` und dessen `valueMapping` einstufig.
+Sie ist schlicht falsch: der Server sendet flach.
+
+Die sechs Typen und ihre Zusatzfelder:
+
+| `error.type` (Schema)          | Zusatzfelder                    |
+| ------------------------------ | ------------------------------- |
+| `MISSING_TIMESTAMP`            | `affectedTimestamps[]`          |
+| `MISSING_DATASET`              | —                               |
+| `MISSING_SPATIAL_UNIT`         | —                               |
+| `MISSING_SPATIAL_UNIT_FEATURE` | `affectedSpatialUnitFeatures[]` |
+| `DATAMANAGEMENT_API_ERROR`     | —                               |
+| `PROCESSING_ERROR`             | —                               |
+
+Alle sechs tragen zusätzlich `affectedDatasetId` (uuid), `affectedResourceType` (`INDICATOR` /
+`GEORESOURCE`; der Client vergleicht case-insensitiv) und `errorMessage`.
 
 ---
 
@@ -230,9 +277,22 @@ Drei Details, die aus Masters Code nicht hervorgehen, weil er die Antworten verw
 1. **Die neue ID heißt `scheduling_id`** — snake_case, nicht `scheduleID`, wie dieselbe Größe
    überall sonst heißt. Wer die Antwort auf `scheduleID` ausliest, bekommt `undefined`.
 2. **`status` kennt `NOT_READY`.** Auf allen bestehenden Schedules war nur `READY` zu sehen; ein
-   frisch angelegter startet als `NOT_READY`. Ob und wann er wechselt, ist nicht beobachtet — der
-   Schedule wurde sofort gelöscht.
+   frisch angelegter startet als `NOT_READY` und wechselt von allein — s. den zweiten Round-Trip.
 3. **Löschen ist ein Dismiss** mit eigener Antwort, kein leeres 204.
+
+**Zweiter Round-Trip (2026-09-18, auf Freigabe, vollständig zurückgenommen):** derselbe
+Ziel-Indikator, angelegt als `8963e560-…`, nur um den Statuswechsel zu beobachten. `GET
+schedules/{id}` im 15-Sekunden-Takt:
+
+| nach | `status`    | `scheduleActive` | `jobIDs` |
+| ---- | ----------- | ---------------- | -------- |
+| 0 s  | `NOT_READY` | `true`           | 0        |
+| 15 s | `READY`     | `true`           | 0        |
+
+**`NOT_READY` ist also ein Durchgangszustand von Sekunden, kein Zustand, den die UI behandeln
+müsste** — und `scheduleActive` steht von der ersten Antwort an auf `true`. Das Anlegen hat keinen
+Job ausgelöst (`jobIDs` blieb leer), der Cron `0 3 1 1 *` feuerte erwartungsgemäß nicht. Vorher wie
+nachher 22 Schedules.
 
 **Body-Vertrag:** `{ "inputs": { … } }` mit genau den Feldern, die die Prozessbeschreibung unter
 `inputs` deklariert, in der Form aus Abschnitt 2. Die Werte kommen unverändert zurück.
@@ -249,6 +309,13 @@ taucht erst kurz darauf in den `jobIDs` des Schedules auf. `ScheduleExecutionSer
 ### `DELETE schedules/{id}`
 
 S. Round-Trip oben: 200 mit Dismiss-Antwort.
+
+### Ändern lässt sich ein Schedule nicht
+
+`OPTIONS schedules/{id}` meldet `HEAD, GET, OPTIONS, DELETE`; `PATCH` und `PUT` antworten mit **405**
+und derselben `allow`-Liste. Es gibt also keinen Weg, einen bestehenden Schedule zu ändern oder zu
+pausieren — wer einen Cron oder einen Input korrigieren will, löscht und legt neu an, und genau das
+tut `ScheduleDraftService.submit()`.
 
 ---
 
@@ -272,6 +339,19 @@ access-control-allow-origin: *
 
 Sauber abfangbar — und nötig, weil KomMonitor ohne Login startet: lesende Zugriffe in
 `ProcessesApiService` liefern bei Fehlern leere Ergebnisse statt zu werfen, schreibende werfen.
+
+**Ausgeloggter Start verifiziert (2026-09-18).** In einem frischen Browser-Kontext ohne
+Keycloak-Session läuft der Bootstrap durch: Karte, Indikator, Klassifikation und Legende stehen,
+`GET schedules` antwortet mit 401, das bleibt eine Konsolenmeldung
+(`Could not fetch process schedules`) und die Schedule-Liste bleibt leer.
+
+Dabei fiel ein Fehler auf, der den ausgeloggten Betrieb vorher unmöglich machte:
+`AuthService.ensureValidToken()` prüfte nur, ob der Keycloak-Adapter existiert. Nach
+`onLoad: 'check-sso'` existiert er auch ohne Login — nur ohne Token. Der erste Request durch den
+`AuthInterceptor` rief damit `updateToken()` auf einer Sitzung auf, die es nicht gibt; der Reject
+führte in `login()`, und der anonyme Besucher landete auf der Keycloak-Maske statt in der Anwendung.
+Master hatte diesen Fall abgedeckt (`app.js:358`: `if (Auth.keycloak.token && …)`), der Client prüft
+jetzt wieder auf das Token.
 
 **`/openapi` und `/conformance` sind 404**, obwohl das Landing-Dokument sie als `service-desc` bzw.
 `conformance` verlinkt. Daher dieses Dokument.
@@ -301,10 +381,7 @@ Master-Code nicht für bare Münze genommen werden.
 
 ## 7. Was unbelegt bleibt
 
-1. **`jobSummary` und `errorsOccurred`** — die Demo hat keinen erfolgreichen Indikator-Job. An einem
-   echten gegenprüfen, bevor man sich auf die Feldnamen verlässt (Abschnitt 3).
-2. **Der 401-Pfad** ist nur über einen Spec abgedeckt; ein echter ausgeloggter Startup wäre der
-   belastbare Nachweis, dass `schedules` die Anwendung nicht kippt.
-3. **`scheduleActive`** war auf allen 21 Schedules `true` — ob und wann es `false` wird, ist offen.
-4. **Der Übergang `NOT_READY` → `READY`** ist nicht beobachtet, weil der Test-Schedule sofort
-   gelöscht wurde.
+Ein Punkt — und der ist vom Client aus nicht zu belegen: **`scheduleActive`** war auf jedem
+beobachteten Schedule `true`, auch in der ersten Antwort nach dem Anlegen. Auf `false` bringen kann
+ihn der Client nicht, weil es keine ändernde Methode gibt (s. Abschnitt 4). Das Feld setzt allein
+die Serverseite; wer `false` sehen will, muss dort ansetzen.
