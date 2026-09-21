@@ -1608,7 +1608,7 @@
       "USED_ELSEWHERE": "(already in another hierarchy)",
       "REMOVE_LEVEL": "remove",
       "ADD_LEVEL": "Add level",
-      "NO_LEVELS_LEFT": "All known spatial unit levels are already in this chain.",
+      "NO_LEVELS_LEFT": "No further spatial unit level of this tenant available.",
       "SUBMIT_CREATE": "Create hierarchy",
       "PUBLIC_LABEL": "Publicly accessible",
       "PUBLIC_HINT": "A public hierarchy can be read by visitors who are not logged in."

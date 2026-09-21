@@ -11,8 +11,10 @@ import {
   Input,
   OnInit,
   computed,
+  effect,
   inject,
   signal,
+  untracked,
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HierarchyChainEntry, RegisteredLevel } from '../hierarchy.model';
@@ -21,7 +23,9 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MandantService } from 'services/mandant-service/mandant.service';
 
 import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
+import { controlStateSignal } from '../../adminShared/forms/control-state';
 import { uniqueNameValidator } from '../../adminShared/validators/admin-validators';
+import { levelsOfMandant } from '../hierarchy-selectors';
 
 /** What the dialog resolves with: the metadata, plus the level chain when creating. */
 export interface HierarchyModalResult {
@@ -72,7 +76,15 @@ export class HierarchyModalComponent implements OnInit {
   /** How many hierarchies already use a level, by `spatialUnitId`. */
   @Input() levelUsage: Readonly<Record<string, number>> = {};
 
-  /** The spatial unit levels to build the chain from, across all tenants. */
+  /**
+   * The spatial unit levels to build the chain from, across all tenants.
+   *
+   * Deliberately unfiltered: the tenant is chosen in this dialog and may change
+   * while it is open, so a list narrowed by the caller would go stale on the
+   * first switch. The narrowing happens here instead, in `options`, against the
+   * tenant of the form — a hierarchy may only hold levels of its own tenant,
+   * and the API answers 400 for anything else.
+   */
   @Input() registeredLevels: readonly RegisteredLevel[] = [];
 
   /** Tenants the page found in its data; offered where Keycloak names none. */
@@ -91,13 +103,19 @@ export class HierarchyModalComponent implements OnInit {
   protected readonly levels = this.chain.asReadonly();
 
   /**
-   * Levels not yet in this chain — a level sits in a chain at most once. Reads
-   * the input directly: ng-bootstrap assigns it before the first render and it
-   * never changes while the dialog is open.
+   * What the level select offers: the chosen tenant's levels that are not in
+   * this chain yet — a level sits in a chain at most once, and a hierarchy may
+   * only hold levels of its own tenant.
+   *
+   * Reads `registeredLevels` directly: ng-bootstrap assigns it before the first
+   * render and it never changes while the dialog is open. The tenant does
+   * change, which is why it comes through a signal.
    */
   protected readonly options = computed(() => {
     const used = new Set(this.chain().map((entry) => entry.id));
-    return this.registeredLevels.filter((level) => !used.has(level.id));
+    return levelsOfMandant(this.registeredLevels, this.chosenMandant()).filter(
+      (level) => !used.has(level.id)
+    );
   });
 
   /** Empty until the user picks; the first option is preselected on open. */
@@ -118,6 +136,31 @@ export class HierarchyModalComponent implements OnInit {
     }),
     mandant: new FormControl('', { nonNullable: true }),
     isPublic: new FormControl(false, { nonNullable: true }),
+  });
+
+  /**
+   * The tenant the form currently names. A plain `.value` read would not be
+   * reactive, so the level options below would never follow a switch.
+   */
+  private readonly chosenMandant = controlStateSignal(
+    this.form.controls.mandant,
+    () => this.form.controls.mandant.value
+  );
+
+  /**
+   * Drops what no longer fits after a tenant switch. A level belongs to exactly
+   * one tenant, so in practice this empties the chain — which is the point: the
+   * levels picked so far cannot be members of a hierarchy of the new tenant,
+   * and submitting them would only earn a 400.
+   */
+  private readonly chainFollowsMandant = effect(() => {
+    const mandant = this.chosenMandant();
+    untracked(() => {
+      const allowed = new Set(
+        levelsOfMandant(this.registeredLevels, mandant).map((level) => level.id)
+      );
+      this.chain.update((levels) => levels.filter((entry) => allowed.has(entry.id)));
+    });
   });
 
   ngOnInit(): void {

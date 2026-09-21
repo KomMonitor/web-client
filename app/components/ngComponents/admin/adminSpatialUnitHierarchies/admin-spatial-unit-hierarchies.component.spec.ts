@@ -634,6 +634,8 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     it('reports a create that did not go through, and adds nothing', async () => {
       const show = jest.spyOn(notificationService, 'show');
       hierarchyApi.createHierarchy.mockImplementation(() => Promise.reject(new Error('400')));
+      // A failure reloads; the server holds what the page already shows.
+      hierarchyApi.getHierarchies.mockResolvedValue(seedOverviews().slice(0, 1));
       fixture.detectChanges();
 
       stubModal(
@@ -650,6 +652,29 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
 
       expect(sectionTitles()).toEqual(['Verwaltungsgliederung']);
       expect(show.mock.calls[0][0]).toContain('CREATE_FAILED');
+    });
+
+    it('shows what the server created anyway when the create was refused', async () => {
+      // The API creates the hierarchy before it validates its members, so a
+      // refused one can still be there. The reload brings it into view, where
+      // it can be deleted, instead of leaving it behind unseen.
+      hierarchyApi.createHierarchy.mockImplementation(() => Promise.reject(new Error('400')));
+      hierarchyApi.getHierarchies.mockResolvedValue(seedOverviews().slice(0, 2));
+      fixture.detectChanges();
+
+      stubModal(
+        Promise.resolve({
+          name: 'Schulplanung',
+          mandant: 'Stadt Essen',
+          isPublic: false,
+          levels: [{ id: 'id-Stadt Essen', name: 'Stadt Essen' }],
+        })
+      );
+      fixture.debugElement.query(By.css('.view-controls .btn-success')).nativeElement.click();
+      await settle();
+      fixture.detectChanges();
+
+      expect(sectionTitles()).toEqual(['Verwaltungsgliederung', 'Sozialraum-Gliederung']);
     });
 
     it('keeps the hierarchy and reports a delete that did not go through', async () => {

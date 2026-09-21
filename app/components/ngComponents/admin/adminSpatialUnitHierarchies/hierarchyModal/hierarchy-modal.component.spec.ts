@@ -10,11 +10,19 @@ import { levelFixture } from '../hierarchy.fixture';
 import { HierarchyModalComponent } from './hierarchy-modal.component';
 
 /**
- * The levels the page hands in. A local fixture on purpose: these tests are
- * about the dialog, not about which levels the instance happens to carry.
+ * The levels the page hands in — across all tenants, as the dialog gets them.
+ * A local fixture on purpose: these tests are about the dialog, not about which
+ * levels the instance happens to carry.
+ *
+ * Two tenants' worth, because the dialog offers only those of the tenant its
+ * form names. `OWN_*` belongs to the tenant the user is in, which is the one
+ * preselected in create mode.
  */
-const NAMES = ['Stadt Essen', 'Stadtbezirke Essen', 'Stadtteile Essen', 'Quartiere Essen'];
-const LEVELS = NAMES.map((name) => levelFixture(name, 'Stadt Essen'));
+const OWN_NAMES = ['Kreis RE', 'Städte Kreis RE', 'Stadtteile Kreis RE', 'Quartiere Kreis RE'];
+const OTHER_NAMES = ['Stadtbezirke Essen', 'Stadtteile Essen'];
+const OWN_LEVELS = OWN_NAMES.map((name) => levelFixture(name, 'Kreis Recklinghausen'));
+const OTHER_LEVELS = OTHER_NAMES.map((name) => levelFixture(name, 'Stadt Essen'));
+const LEVELS = [...OWN_LEVELS, ...OTHER_LEVELS];
 
 /** Two tenants, so the tenant field can be exercised as a select. */
 const MANDANTS = [
@@ -43,6 +51,13 @@ describe('HierarchyModalComponent', () => {
 
   function addLevelButton(): HTMLButtonElement {
     return fixture.debugElement.query(By.css('.chain-add .btn')).nativeElement;
+  }
+
+  /** The ids the level select offers. */
+  function optionIds(): string[] {
+    return fixture.debugElement
+      .queryAll(By.css('.chain-add option'))
+      .map((el) => el.nativeElement.value);
   }
 
   function configure(accessControl: unknown[], ownUnits: unknown[] = []): void {
@@ -99,22 +114,43 @@ describe('HierarchyModalComponent', () => {
       expect(component.form.controls.mandant.value).toBe('Kreis Recklinghausen');
     });
 
+    it('offers only the levels of the tenant the form names', () => {
+      // A hierarchy may hold levels of its own tenant alone; the API answers
+      // 400 for anything else, so the other tenant's levels are not on offer.
+      expect(optionIds()).toEqual(OWN_LEVELS.map((level) => level.id));
+      expect(optionIds()).not.toContain(OTHER_LEVELS[0].id);
+    });
+
+    it('empties the chain when the tenant changes, and offers the new one instead', () => {
+      addLevelButton().click();
+      fixture.detectChanges();
+      expect(chainNames()).toEqual([OWN_NAMES[0]]);
+
+      component.form.controls.mandant.setValue('Stadt Essen');
+      fixture.detectChanges();
+
+      // The levels picked so far belong to the tenant that was left behind.
+      expect(chainNames()).toEqual([]);
+      expect(optionIds()).toEqual(OTHER_LEVELS.map((level) => level.id));
+      expect(submitButton().disabled).toBe(true);
+    });
+
     it('appends picked levels to the chain and drops them from the options', () => {
       addLevelButton().click();
       addLevelButton().click();
       fixture.detectChanges();
 
-      expect(chainNames()).toEqual([NAMES[0], NAMES[1]]);
+      expect(chainNames()).toEqual([OWN_NAMES[0], OWN_NAMES[1]]);
       expect(component.levels()).toEqual([
-        { id: LEVELS[0].id, name: LEVELS[0].name },
-        { id: LEVELS[1].id, name: LEVELS[1].name },
+        { id: OWN_LEVELS[0].id, name: OWN_LEVELS[0].name },
+        { id: OWN_LEVELS[1].id, name: OWN_LEVELS[1].name },
       ]);
 
       const options = fixture.debugElement
         .queryAll(By.css('.chain-add option'))
         .map((el) => el.nativeElement.value);
-      expect(options).not.toContain(LEVELS[0].id);
-      expect(options).toHaveLength(LEVELS.length - 2);
+      expect(options).not.toContain(OWN_LEVELS[0].id);
+      expect(options).toHaveLength(OWN_LEVELS.length - 2);
     });
 
     it('removes a level from the chain again', () => {
@@ -125,11 +161,11 @@ describe('HierarchyModalComponent', () => {
       fixture.debugElement.queryAll(By.css('.chain-remove'))[0].nativeElement.click();
       fixture.detectChanges();
 
-      expect(chainNames()).toEqual([NAMES[1]]);
+      expect(chainNames()).toEqual([OWN_NAMES[1]]);
     });
 
     it('marks the levels other hierarchies already use', () => {
-      Object.assign(component, { levelUsage: { [LEVELS[0].id]: 2 } });
+      Object.assign(component, { levelUsage: { [OWN_LEVELS[0].id]: 2 } });
       addLevelButton().click();
       fixture.detectChanges();
 
@@ -152,7 +188,7 @@ describe('HierarchyModalComponent', () => {
         name: 'Sozialraum-Gliederung',
         mandant: 'Kreis Recklinghausen',
         isPublic: true,
-        levels: [{ id: LEVELS[0].id, name: LEVELS[0].name }],
+        levels: [{ id: OWN_LEVELS[0].id, name: OWN_LEVELS[0].name }],
       });
     });
 
@@ -203,6 +239,12 @@ describe('HierarchyModalComponent', () => {
     beforeEach(() => {
       configure([]);
       render();
+    });
+
+    it('still offers every level where no tenant narrows the choice', () => {
+      // Without Keycloak the instance knows no tenants, so the tenant of the
+      // form is empty — the filter must not turn that into an empty list.
+      expect(optionIds()).toEqual(LEVELS.map((level) => level.id));
     });
 
     it('does not block the submit on a tenant nobody can pick', () => {

@@ -81,6 +81,17 @@ describe('levelsOfMandant', () => {
   it('offers the whole registry across tenants', () => {
     expect(levelsOfMandant(registry, '')).toHaveLength(2);
   });
+
+  it('keeps a level whose own tenant nobody knows', () => {
+    // `mandantId` is optional in the API schema; an instance that leaves it out
+    // would otherwise offer no level at all. Unknown is not "somebody else's".
+    const withUnknown = [...registry, level('Stadt Herne', '')];
+
+    expect(levelsOfMandant(withUnknown, 'Essen').map((entry) => entry.name)).toEqual([
+      'Stadt Essen',
+      'Stadt Herne',
+    ]);
+  });
 });
 
 describe('unassignedLevels', () => {

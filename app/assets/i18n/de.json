@@ -1608,7 +1608,7 @@
       "USED_ELSEWHERE": "(bereits in anderer Hierarchie)",
       "REMOVE_LEVEL": "entfernen",
       "ADD_LEVEL": "Ebene anfügen",
-      "NO_LEVELS_LEFT": "Alle bekannten Raumebenen sind bereits in dieser Kette.",
+      "NO_LEVELS_LEFT": "Keine weitere Raumebene dieses Mandanten verfügbar.",
       "SUBMIT_CREATE": "Hierarchie anlegen",
       "PUBLIC_LABEL": "Öffentlich zugänglich",
       "PUBLIC_HINT": "Ist die Hierarchie öffentlich, können auch nicht angemeldete Besucher sie lesen."

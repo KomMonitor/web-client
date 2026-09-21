@@ -352,14 +352,15 @@ describe('HierarchyStoreService', () => {
       expect(store.unassignedLevels()).toEqual([]);
     });
 
-    it('offers the tenant its own levels to build chains from', () => {
+    it('narrows the levels to the tenant on screen, but hands the dialog all of them', () => {
       const store = storeWith();
       seed(store, [ESSEN()], [level('Quartiere', 'Stadt Essen'), level('Ruhr', 'Stadt Bochum')]);
 
       store.selectMandant('Stadt Essen');
       expect(store.tenantLevels().map((entry) => entry.name)).toEqual(['Quartiere']);
 
-      // The create dialog builds across tenants: it may switch while it is open.
+      // The create dialog gets all of them: it may switch its tenant while it
+      // is open, and narrows the list itself against the tenant of its form.
       expect(store.registeredLevels().map((entry) => entry.name)).toEqual(['Quartiere', 'Ruhr']);
     });
 
@@ -519,6 +520,22 @@ describe('HierarchyStoreService', () => {
 
       expect(created).toBeNull();
       expect(store.hierarchies()).toHaveLength(1);
+    });
+
+    it('reloads after a failed create, so a half-written one becomes visible', async () => {
+      const store = storeWith();
+      seed(store, [ESSEN()]);
+      hierarchyApi.getHierarchies.mockClear();
+      hierarchyApi.createHierarchy.mockRejectedValue(new Error('400'));
+
+      await store.addHierarchy(
+        { name: 'Schulplanung', mandant: 'Stadt Essen', isPublic: false },
+        []
+      );
+
+      // The API creates the hierarchy before it validates the members, so a
+      // refused one can still exist on the server.
+      expect(hierarchyApi.getHierarchies).toHaveBeenCalled();
     });
 
     it('sends mandantId and isPublic with every metadata write', async () => {

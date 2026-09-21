@@ -246,6 +246,15 @@ export class HierarchyStoreService {
       this.followMandant(metadata.mandant);
       return hierarchy;
     } catch {
+      // A rejected POST does not mean nothing was written: the API creates the
+      // hierarchy first and validates its members afterwards, so a refused
+      // member leaves an empty one behind. Reloading puts it on screen, where
+      // it can be deleted, instead of leaving it there unseen.
+      //
+      // Deliberately not awaited: the caller announces the failure as soon as
+      // this returns, and that message must not wait on a second request that
+      // may be just as slow to fail.
+      void this.reload();
       return null;
     }
   }
