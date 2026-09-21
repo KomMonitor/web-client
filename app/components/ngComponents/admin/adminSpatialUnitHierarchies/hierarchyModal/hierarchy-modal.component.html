@@ -69,18 +69,18 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label" for="hierarchy-description-input">
-        {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.DESCRIPTION_LABEL' | translate }}
+      <label class="form-label" for="hierarchy-public-input">
+        {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.PUBLIC_LABEL' | translate }}
       </label>
-      <textarea
-        id="hierarchy-description-input"
-        class="form-control"
-        rows="3"
-        formControlName="description"
-        [attr.placeholder]="
-          'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.DESCRIPTION_PLACEHOLDER' | translate
-        "
-      ></textarea>
+      <div>
+        <label class="switch" for="hierarchy-public-input">
+          <input id="hierarchy-public-input" type="checkbox" formControlName="isPublic" />
+          <span class="switchslider round"></span>
+        </label>
+      </div>
+      <p class="help-block">
+        {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.PUBLIC_HINT' | translate }}
+      </p>
     </div>
 
     @if (mode === 'create') {
@@ -94,16 +94,13 @@
 
         <div class="chain-panel">
           <div class="chain-list" cdkDropList (cdkDropListDropped)="onDrop($event)">
-            @for (level of levels(); track level; let index = $index) {
+            @for (level of levels(); track level.id; let index = $index) {
               <div class="chain-row" cdkDrag>
                 <span class="chain-handle" aria-hidden="true" cdkDragHandle>⣿</span>
                 <span class="chain-rank">
-                  {{
-                    'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.LEVEL_RANK'
-                      | translate: { rank: index + 1 }
-                  }}
+                  {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.RANK' | translate: { rank: index + 1 } }}
                 </span>
-                <span class="chain-name">{{ level }}</span>
+                <span class="chain-name">{{ level.name }}</span>
                 <span class="chain-spacer"></span>
                 @if (usageCount(level); as usage) {
                   <span class="chain-usage">
@@ -132,11 +129,11 @@
                   "
                   (change)="onSelect($event)"
                 >
-                  @for (option of options(); track option) {
+                  @for (option of options(); track option.id) {
                     <!-- `[selected]` per option, not `[value]` on the select: the select's
                          value property is written before the options exist. -->
-                    <option [value]="option" [selected]="option === selected()">
-                      {{ option
+                    <option [value]="option.id" [selected]="option.id === selectedId()">
+                      {{ option.name
                       }}{{
                         usageCount(option)
                           ? ' ' +

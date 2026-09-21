@@ -9,22 +9,14 @@ import { TreeViewComponent } from '../../common/tree-view/tree-view.component';
 import { TreeGap } from '../../common/tree-view/tree-view.model';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { AdminModalService } from '../adminShared/modal/admin-modal.service';
-import { HierarchyLevel, RegisteredLevel, SpatialUnitHierarchy } from './hierarchy.model';
+import { HierarchyChainEntry, HierarchyLevel, SpatialUnitHierarchy } from './hierarchy.model';
 import { HierarchyStoreService } from './hierarchy-store.service';
 import { HierarchyDeleteModalComponent } from './hierarchyDeleteModal/hierarchy-delete-modal.component';
 import {
   HierarchyModalComponent,
   HierarchyModalResult,
 } from './hierarchyModal/hierarchy-modal.component';
-import {
-  LevelPick,
-  LevelPickerPanelComponent,
-} from './levelPickerPanel/level-picker-panel.component';
-import { LevelDeleteModalComponent } from './levelDeleteModal/level-delete-modal.component';
-import {
-  LevelRegisterModalComponent,
-  LevelRegisterResult,
-} from './levelRegisterModal/level-register-modal.component';
+import { LevelPickerPanelComponent } from './levelPickerPanel/level-picker-panel.component';
 import { MandantOverviewTableComponent } from './mandantOverviewTable/mandant-overview-table.component';
 import { MandantPanelComponent } from './mandantPanel/mandant-panel.component';
 import {
@@ -36,11 +28,10 @@ import {
  * Management of spatial unit hierarchies — the chains that order spatial unit
  * levels from the coarsest to the finest.
  *
- * The page works on demo data of the design draft: hierarchies can be created,
- * renamed, deleted and their level chains edited, but nothing is persisted —
- * the Data Management API has no hierarchy endpoints yet.
+ * The hierarchies are read from the Data Management API; the edits below change
+ * what the page holds and are not written back yet.
  *
- * The hierarchies, the level registry and the tenant on screen live in
+ * The hierarchies, the spatial unit levels and the tenant on screen live in
  * `HierarchyStoreService`, which the page provides for itself. What is left
  * here is the dialogs, what the user is told afterwards, and the wiring of the
  * tree.
@@ -92,7 +83,7 @@ export class AdminSpatialUnitHierarchiesComponent {
   /** Takes a level out of the chain, if it is not the last one left. */
   protected removeLevel(hierarchy: SpatialUnitHierarchy, level: HierarchyLevel): void {
     if (this.store.removeLevel(hierarchy, level)) {
-      this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.REMOVED', { level: level.name });
+      this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.REMOVED', { level: level.name });
     }
   }
 
@@ -105,7 +96,7 @@ export class AdminSpatialUnitHierarchiesComponent {
         mode: 'create',
         existingNames: this.store.hierarchyNames(),
         levelUsage: this.store.levelUsage(),
-        registeredLevels: this.store.registeredLevelNames(),
+        registeredLevels: this.store.registeredLevels(),
         // Prefill with the tenant on screen; in the overview the dialog picks its own.
         currentMandant: this.store.selectedMandant(),
         knownMandants: this.store.mandantNames(),
@@ -115,7 +106,7 @@ export class AdminSpatialUnitHierarchiesComponent {
       return;
     }
     this.store.addHierarchy(result, result.levels ?? []);
-    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.CREATED', { hierarchy: result.name });
+    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.CREATED', { hierarchy: result.name });
   }
 
   /** Edits the metadata. The chain and its expansion state stay untouched. */
@@ -127,8 +118,8 @@ export class AdminSpatialUnitHierarchiesComponent {
         mode: 'edit',
         existingNames: this.store.hierarchyNames(),
         currentName: hierarchy.name(),
-        currentDescription: hierarchy.description(),
         currentMandant: hierarchy.mandant(),
+        currentIsPublic: hierarchy.isPublic(),
         knownMandants: this.store.mandantNames(),
       }
     );
@@ -136,7 +127,7 @@ export class AdminSpatialUnitHierarchiesComponent {
       return;
     }
     this.store.updateHierarchyMetadata(hierarchy, result);
-    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.UPDATED', { hierarchy: result.name });
+    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.UPDATED', { hierarchy: result.name });
   }
 
   /** Makes a so far unassigned level the finest level of a chain. */
@@ -148,46 +139,14 @@ export class AdminSpatialUnitHierarchiesComponent {
     });
   }
 
-  /** Registers a level for the tenant on screen, without putting it anywhere. */
-  protected async onRegisterLevel(): Promise<void> {
-    const result = await this.modals.open<LevelRegisterModalComponent, LevelRegisterResult>(
-      LevelRegisterModalComponent,
-      MODAL_FORM,
-      // Against the whole registry: a level name names one level in the instance.
-      { existingNames: this.store.registeredLevelNames() }
-    );
-    if (!result) {
-      return;
-    }
-    this.store.registerLevel(result, this.store.selectedMandant());
-    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.REGISTERED', { level: result.name });
-  }
-
-  /** Drops a level from the registry once the confirmation dialog agrees. */
-  protected async onDeleteLevel(level: RegisteredLevel): Promise<void> {
-    if (!(await this.modals.confirm(LevelDeleteModalComponent, { level }))) {
-      return;
-    }
-    this.store.deleteLevel(level);
-    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.DELETED', { level: level.name });
-  }
-
-  /**
-   * Puts the level the picker chose into the chain, at the gap the picker was
-   * opened at. One the user registered in the picker goes into the registry
-   * first, under the hierarchy's tenant — in the tenant-less fallback view that
-   * need not be the one on screen.
-   */
+  /** Puts the level the picker chose into the chain, at the gap it was opened at. */
   protected onInsertLevel(
     hierarchy: SpatialUnitHierarchy,
     gap: TreeGap<HierarchyLevel>,
-    { name, registration }: LevelPick
+    level: HierarchyChainEntry
   ): void {
-    if (registration) {
-      this.store.registerLevel(registration, hierarchy.mandant());
-    }
-    this.store.insertLevel(hierarchy, gap, name);
-    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.INSERTED', { level: name });
+    this.store.insertLevel(hierarchy, gap, level);
+    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.INSERTED', { level: level.name });
   }
 
   /** Drops a hierarchy once the confirmation dialog agrees. */
@@ -197,22 +156,21 @@ export class AdminSpatialUnitHierarchiesComponent {
     }
     const name = hierarchy.name();
     this.store.deleteHierarchy(hierarchy);
-    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.DELETED', { hierarchy: name });
+    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.DELETED', { hierarchy: name });
   }
 
   /**
    * The metadata button of a level, in the chain and in the unassigned section
-   * alike. Demo scaffold: it only reports the click, and says so.
+   * alike. Still a scaffold: it only reports the click, and says so.
    *
    * TODO: open `SpatialUnitEditMetadataModalComponent` with the level's spatial
    * unit, the way `admin-spatial-units-management.onClickEditMetadata` does.
-   * That dialog edits a real `SpatialUnitOverviewType` and writes it back
-   * through the API, while the registry here holds demo levels whose `id` only
-   * stands in for a `spatialUnitId` — so this waits for the page to read its
-   * levels from the Data Management API.
+   * The levels now carry their real `spatialUnitId`, so the missing piece is
+   * only the dialog's own plumbing — it wants the whole `SpatialUnitOverviewType`
+   * and a way to report back what it changed.
    */
   protected onShowMetadata(name: string): void {
-    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.ACTION_CLICKED', {
+    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.ACTION_CLICKED', {
       action: this.translateService.instant('ADMIN_SHARED.METADATA'),
       hierarchy: name,
     });

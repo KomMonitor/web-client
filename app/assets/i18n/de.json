@@ -1594,13 +1594,6 @@
       "OPEN": "Öffnen",
       "HINT": "Raumebenen sind mandantenspezifisch — Hierarchien können keine Ebenen anderer Mandanten enthalten."
     },
-    "REGISTER_MODAL": {
-      "TITLE": "Neue Raumebene registrieren",
-      "NAME_LABEL": "Name der Raumebene",
-      "SUBMIT": "Registrieren",
-      "DATASOURCE_LABEL": "Datenquelle",
-      "DATASOURCE_PLACEHOLDER": "Beschreibung der Datenquelle"
-    },
     "HIERARCHY_MODAL": {
       "CREATE_TITLE": "Neue Raumeinheitshierarchie anlegen",
       "EDIT_TITLE": "Raumeinheitshierarchie bearbeiten",
@@ -1608,8 +1601,6 @@
       "NAME_PLACEHOLDER": "z. B. Sozialraum-Gliederung",
       "MANDANT_LABEL": "Mandant",
       "MANDANT_NONE": "Kein Mandant verfügbar",
-      "DESCRIPTION_LABEL": "Beschreibung",
-      "DESCRIPTION_PLACEHOLDER": "Wofür wird diese Hierarchie verwendet?",
       "CHAIN_LABEL": "Ebenenkette",
       "CHAIN_HINT": "von der größten zur kleinsten Einheit — Verknüpfungen entstehen automatisch",
       "USED_ONCE": "bereits in 1 Hierarchie",
@@ -1618,7 +1609,9 @@
       "REMOVE_LEVEL": "entfernen",
       "ADD_LEVEL": "Ebene anfügen",
       "NO_LEVELS_LEFT": "Alle bekannten Raumebenen sind bereits in dieser Kette.",
-      "SUBMIT_CREATE": "Hierarchie anlegen"
+      "SUBMIT_CREATE": "Hierarchie anlegen",
+      "PUBLIC_LABEL": "Öffentlich zugänglich",
+      "PUBLIC_HINT": "Ist die Hierarchie öffentlich, können auch nicht angemeldete Besucher sie lesen."
     },
     "DELETE_MODAL": {
       "TITLE": "Hierarchie löschen",
@@ -1626,46 +1619,43 @@
       "HINT": "Die Hierarchie wird mit allen ihren Ebenen entfernt. Die Raumebenen selbst bleiben bestehen.",
       "COL_LEVELS": "Ebenen"
     },
-    "LEVEL_DELETE_MODAL": {
-      "TITLE": "Raumebene löschen",
-      "CONFIRM_QUESTION": "Soll diese Raumebene wirklich gelöscht werden?",
-      "HINT": "Die Raumebene wird aus der Registry entfernt. Hierarchien sind nicht betroffen — gelöscht werden kann nur eine Ebene, die in keiner verwendet wird."
-    },
     "UNASSIGNED": {
       "TITLE": "Keiner Hierarchie zugeordnet",
       "COUNT": "{{count}} Raumebenen",
       "COUNT_ONE": "1 Raumebene",
-      "HINT": "Diese Raumebenen sind registriert, aber in keiner Hierarchie verknüpft — sie stehen in der Kartenoberfläche nicht zur Auswahl. Zuordnen über die Auswahl rechts oder per Einfügelinie in einer Hierarchie.",
-      "REGISTER": "Neue Raumebene registrieren",
+      "HINT": "Diese Raumebenen sind in keiner Hierarchie verknüpft — sie stehen in der Kartenoberfläche nicht zur Auswahl. Zuordnen über die Auswahl rechts oder per Einfügelinie in einer Hierarchie. Raumebenen selbst werden hier verwaltet:",
       "ASSIGN": "Zuordnen",
       "ASSIGN_LABEL": "Hierarchie, der die Raumebene zugeordnet wird",
       "NO_HIERARCHY": "Noch keine Hierarchie für diesen Mandanten",
       "ASSIGNED": "Ebene „{{level}}“ an „{{hierarchy}}“ angehängt.",
-      "REGISTERED": "Raumebene „{{level}}“ registriert.",
-      "DELETED": "Raumebene „{{level}}“ gelöscht."
+      "MANAGE_LEVELS": "Raumebenen"
     },
-    "DEMO": {
-      "SHOW_IDS": "Zeige IDs",
-      "LEVEL_COUNT": "{{count}} Ebenen",
-      "LEVEL_RANK": "Ebene {{rank}}",
-      "EDIT": "Bearbeiten",
+    "SHOW_IDS": "Zeige IDs",
+    "NEW_HIERARCHY": "Neue Hierarchie",
+    "EDIT": "Bearbeiten",
+    "LOADING": "Hierarchien werden geladen …",
+    "NO_MANDANT_HINT": "Hierarchien gehören einem Mandanten. Ohne aktives Keycloak kennt diese Instanz keinen — Anlegen ist deshalb nicht möglich.",
+    "LEVEL": {
+      "COUNT": "{{count}} Ebenen",
+      "RANK": "Ebene {{rank}}",
       "REMOVE": "Entfernen",
-      "REMOVED": "Ebene „{{level}}“ aus der Hierarchie entfernt.",
       "MOVE_UP": "Eine Hierarchie-Ebene nach oben",
       "MOVE_DOWN": "Eine Hierarchie-Ebene nach unten",
+      "TOGGLE_LABEL": "Unterebenen ein-/ausklappen"
+    },
+    "PICKER": {
       "INSERT_LEVEL": "＋ Ebene hier einfügen",
       "INSERT_EXISTING": "Bestehende Raumebene einfügen",
       "INSERT_ADD": "Anfügen",
-      "INSERT_OR": "oder",
-      "INSERT_REGISTER": "neue Ebene registrieren",
-      "POOL_EMPTY": "Keine weitere Raumebene verfügbar —",
-      "TOGGLE_LABEL": "Unterebenen ein-/ausklappen",
-      "ACTION_CLICKED": "Aktion „{{action}}“ für „{{hierarchy}}“ — Demo ohne Funktion.",
-      "INSERTED": "Ebene „{{level}}“ in die Hierarchie eingefügt.",
-      "NEW_HIERARCHY": "Neue Hierarchie",
+      "POOL_EMPTY": "Keine weitere Raumebene dieses Mandanten verfügbar."
+    },
+    "MSG": {
       "CREATED": "Hierarchie „{{hierarchy}}“ angelegt.",
       "UPDATED": "Hierarchie „{{hierarchy}}“ aktualisiert.",
-      "DELETED": "Hierarchie „{{hierarchy}}“ gelöscht."
+      "DELETED": "Hierarchie „{{hierarchy}}“ gelöscht.",
+      "INSERTED": "Ebene „{{level}}“ in die Hierarchie eingefügt.",
+      "REMOVED": "Ebene „{{level}}“ aus der Hierarchie entfernt.",
+      "ACTION_CLICKED": "Aktion „{{action}}“ für „{{hierarchy}}“ — noch ohne Funktion."
     }
   },
   "ADMIN_SPATIAL_UNITS": {

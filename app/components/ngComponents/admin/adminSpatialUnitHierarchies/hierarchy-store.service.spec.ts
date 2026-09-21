@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { MandantService } from 'services/mandant-service/mandant.service';
+import { SpatialUnitHierarchyApiService } from 'services/spatial-unit-hierarchy-service/spatial-unit-hierarchy-api.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 
-import { createHierarchy } from './hierarchy-demo.data';
+import { hierarchyFixture, hierarchyOverview, levelFixture } from './hierarchy.fixture';
 import { HierarchyStoreService } from './hierarchy-store.service';
 import { RegisteredLevel, SpatialUnitHierarchy } from './hierarchy.model';
 
@@ -15,45 +17,83 @@ import { RegisteredLevel, SpatialUnitHierarchy } from './hierarchy.model';
 /** What the store asks `MandantService`, answered from plain values. */
 interface Mandants {
   keycloakMandants: readonly string[];
+  mandantRefs: readonly { id: string; name: string }[];
   isRealmAdmin: boolean;
   ownMandant: string;
   mandantsToOffer(known: readonly string[]): readonly string[];
+  mandantIdOf(name: string): string;
+  mandantNameOf(id: string): string;
 }
+
+/** The spatial units the level registry is derived from. */
+let spatialUnits: {
+  spatialUnitId: string;
+  spatialUnitLevel: string;
+  mandantId: string;
+  metadata: { datasource: string };
+}[] = [];
 
 /**
  * A store on its own, with the tenants Keycloak would name. The store reads
  * `ownMandant` in its constructor, so the fake is in place before it is built.
+ * The API answers with nothing; the specs seed the hierarchies themselves.
  */
 function storeWith(mandants: Partial<Mandants> = {}): HierarchyStoreService {
   const fake: Mandants = {
     keycloakMandants: [],
+    mandantRefs: [],
     isRealmAdmin: false,
     ownMandant: '',
     mandantsToOffer: (known) => known,
+    // The specs use the tenant name as its id, so a hierarchy keeps grouping
+    // by the same string whichever direction it is read from.
+    mandantIdOf: (name) => name,
+    mandantNameOf: (id) => id,
     ...mandants,
   };
+  spatialUnits = [];
   TestBed.configureTestingModule({
-    providers: [HierarchyStoreService, { provide: MandantService, useValue: fake }],
+    providers: [
+      HierarchyStoreService,
+      { provide: MandantService, useValue: fake },
+      {
+        provide: SpatialUnitHierarchyApiService,
+        useValue: { getHierarchies: () => Promise.resolve([]) },
+      },
+      {
+        provide: SpatialUnitMetadataStoreService,
+        useValue: {
+          get availableSpatialUnits() {
+            return spatialUnits;
+          },
+        },
+      },
+    ],
   });
   return TestBed.inject(HierarchyStoreService);
 }
 
 function hierarchy(name: string, mandant: string, levels: string[]): SpatialUnitHierarchy {
-  return createHierarchy({ id: name, name, mandant, levels, open: false });
+  return hierarchyFixture(name, mandant, levels);
 }
 
 function level(name: string, mandant: string): RegisteredLevel {
-  return { id: `id-${name}`, name, mandant, datasource: 'Katasteramt' };
+  return levelFixture(name, mandant);
 }
 
-/** Puts the store on data of this spec's own, in place of the demo content. */
+/** Puts the store on data of this spec's own. */
 function seed(
   store: HierarchyStoreService,
   hierarchies: SpatialUnitHierarchy[],
   registry: RegisteredLevel[] = []
 ): void {
   store.hierarchies.set(hierarchies);
-  store.levelRegistry.set(registry);
+  spatialUnits = registry.map((entry) => ({
+    spatialUnitId: entry.id,
+    spatialUnitLevel: entry.name,
+    mandantId: entry.mandant,
+    metadata: { datasource: entry.datasource },
+  }));
 }
 
 const ESSEN = () => hierarchy('Verwaltung Essen', 'Stadt Essen', ['Stadt', 'Bezirke']);
@@ -80,6 +120,75 @@ describe('HierarchyStoreService', () => {
       store.selectMandant('Stadt Essen');
 
       expect([own.open(), other.open()]).toEqual([true, false]);
+    });
+  });
+
+  describe('loading from the API', () => {
+    it('builds its hierarchies from what the API answers', async () => {
+      TestBed.configureTestingModule({
+        providers: [
+          HierarchyStoreService,
+          {
+            provide: MandantService,
+            useValue: {
+              keycloakMandants: ['Stadt Essen'],
+              mandantRefs: [{ id: 'm-1', name: 'Stadt Essen' }],
+              isRealmAdmin: false,
+              ownMandant: 'Stadt Essen',
+              mandantsToOffer: (known: readonly string[]) => known,
+              mandantIdOf: () => 'm-1',
+              mandantNameOf: (id: string) => (id === 'm-1' ? 'Stadt Essen' : ''),
+            },
+          },
+          {
+            provide: SpatialUnitHierarchyApiService,
+            useValue: {
+              getHierarchies: () =>
+                Promise.resolve([hierarchyOverview('Verwaltung', 'm-1', ['Stadt', 'Bezirke'])]),
+            },
+          },
+          {
+            provide: SpatialUnitMetadataStoreService,
+            useValue: { availableSpatialUnits: [] },
+          },
+        ],
+      });
+      const store = TestBed.inject(HierarchyStoreService);
+      await store.reload();
+
+      expect(store.hierarchies()).toHaveLength(1);
+      expect(store.hierarchies()[0].mandant()).toBe('Stadt Essen');
+      expect(
+        store
+          .hierarchies()[0]
+          .chain()
+          .map((entry) => entry.name)
+      ).toEqual(['Stadt', 'Bezirke']);
+      // The tenant the user lands in is a view they enter as well.
+      expect(store.hierarchies()[0].open()).toBe(true);
+      expect(store.loading()).toBe(false);
+    });
+
+    it('falls back to the raw id where Keycloak names no tenant for it', async () => {
+      const store = storeWith({ mandantNameOf: () => '' });
+      TestBed.resetTestingModule();
+
+      const built = hierarchyFixture('Verwaltung', 'm-unknown', ['Stadt']);
+
+      expect(store).toBeTruthy();
+      expect(built.mandant()).toBe('m-unknown');
+    });
+  });
+
+  describe('canCreate', () => {
+    it('is false where Keycloak names no tenant — mandantId is required', () => {
+      expect(storeWith().canCreate()).toBe(false);
+    });
+
+    it('is true as soon as one tenant is known', () => {
+      expect(storeWith({ mandantRefs: [{ id: 'm-1', name: 'Stadt Essen' }] }).canCreate()).toBe(
+        true
+      );
     });
   });
 
@@ -214,42 +323,29 @@ describe('HierarchyStoreService', () => {
       expect(store.unassignedLevels()).toEqual([]);
     });
 
-    it('offers the tenant its own level names to build chains from', () => {
+    it('offers the tenant its own levels to build chains from', () => {
       const store = storeWith();
       seed(store, [ESSEN()], [level('Quartiere', 'Stadt Essen'), level('Ruhr', 'Stadt Bochum')]);
 
       store.selectMandant('Stadt Essen');
-      expect(store.tenantLevelNames()).toEqual(['Quartiere']);
+      expect(store.tenantLevels().map((entry) => entry.name)).toEqual(['Quartiere']);
 
       // The create dialog builds across tenants: it may switch while it is open.
-      expect(store.registeredLevelNames()).toEqual(['Quartiere', 'Ruhr']);
+      expect(store.registeredLevels().map((entry) => entry.name)).toEqual(['Quartiere', 'Ruhr']);
     });
 
-    it('registers a level under the tenant it was registered in, not the one on screen', () => {
+    it('reads the registry off the spatial unit store instead of holding one', () => {
       const store = storeWith();
-      seed(store, [ESSEN(), BOCHUM()]);
-      store.selectMandant('Stadt Essen');
-
-      store.registerLevel({ name: 'Ruhrhalbinsel', datasource: 'Katasteramt' }, 'Stadt Bochum');
+      seed(store, [], [level('Quartiere', 'Stadt Essen')]);
 
       expect(store.levelRegistry()).toEqual([
         {
-          id: expect.any(String),
-          name: 'Ruhrhalbinsel',
+          id: 'id-Quartiere',
+          name: 'Quartiere',
           datasource: 'Katasteramt',
-          mandant: 'Stadt Bochum',
+          mandant: 'Stadt Essen',
         },
       ]);
-    });
-
-    it('drops a level from the registry', () => {
-      const store = storeWith();
-      const quartiere = level('Quartiere', 'Stadt Essen');
-      seed(store, [], [quartiere, level('Ruhr', 'Stadt Bochum')]);
-
-      store.deleteLevel(quartiere);
-
-      expect(store.levelRegistry().map((entry) => entry.name)).toEqual(['Ruhr']);
     });
   });
 
@@ -270,7 +366,14 @@ describe('HierarchyStoreService', () => {
       const essen = ESSEN();
       seed(store, [essen]);
 
-      store.insertLevel(essen, { parent: null, index: 0 }, 'Region');
+      store.insertLevel(
+        essen,
+        { parent: null, index: 0 },
+        {
+          id: 'id-Region',
+          name: 'Region',
+        }
+      );
 
       expect(essen.chain().map((entry) => entry.name)).toEqual(['Region', 'Stadt', 'Bezirke']);
     });
@@ -304,8 +407,11 @@ describe('HierarchyStoreService', () => {
       store.selectMandant('Stadt Essen');
 
       const created = store.addHierarchy(
-        { name: 'Schulplanung', description: 'Ebenen der Schulplanung.', mandant: 'Stadt Bochum' },
-        ['Stadt Bochum', 'Schulregionen']
+        { name: 'Schulplanung', mandant: 'Stadt Bochum', isPublic: false },
+        [
+          { id: 'id-Stadt Bochum', name: 'Stadt Bochum' },
+          { id: 'id-Schulregionen', name: 'Schulregionen' },
+        ]
       );
 
       expect(store.hierarchies().at(-1)).toBe(created);
@@ -321,14 +427,15 @@ describe('HierarchyStoreService', () => {
 
       store.updateHierarchyMetadata(essen, {
         name: 'Verwaltung',
-        description: 'Neue Beschreibung.',
         mandant: 'Stadt Bochum',
+        isPublic: true,
       });
 
-      expect([essen.name(), essen.description(), essen.mandant()]).toEqual([
+      expect([essen.name(), essen.mandant(), essen.mandantId(), essen.isPublic()]).toEqual([
         'Verwaltung',
-        'Neue Beschreibung.',
         'Stadt Bochum',
+        'Stadt Bochum',
+        true,
       ]);
       expect(essen.chain()).toHaveLength(2);
       // The edited hierarchy stays in view, in the tenant it now belongs to.

@@ -1,4 +1,4 @@
-import { createHierarchy } from './hierarchy-demo.data';
+import { hierarchyFixture, levelFixture } from './hierarchy.fixture';
 import { RegisteredLevel, SpatialUnitHierarchy } from './hierarchy.model';
 import {
   countLevelUsage,
@@ -11,11 +11,11 @@ import {
 } from './hierarchy-selectors';
 
 function hierarchy(name: string, mandant: string, levels: string[]): SpatialUnitHierarchy {
-  return createHierarchy({ id: name, name, mandant, levels, open: true });
+  return hierarchyFixture(name, mandant, levels);
 }
 
 function level(name: string, mandant: string): RegisteredLevel {
-  return { id: `id-${name}`, name, mandant, datasource: 'Katasteramt' };
+  return levelFixture(name, mandant);
 }
 
 describe('countLevelUsage', () => {
@@ -25,10 +25,10 @@ describe('countLevelUsage', () => {
       hierarchy('Sozialraum', 'Essen', ['Stadt', 'Bezirke', 'Quartiere']),
     ]);
 
-    expect(usage.get('Stadt')).toBe(2);
-    expect(usage.get('Bezirke')).toBe(2);
-    expect(usage.get('Stadtteile')).toBe(1);
-    expect(usage.get('Quartiere')).toBe(1);
+    expect(usage.get('id-Stadt')).toBe(2);
+    expect(usage.get('id-Bezirke')).toBe(2);
+    expect(usage.get('id-Stadtteile')).toBe(1);
+    expect(usage.get('id-Quartiere')).toBe(1);
   });
 
   it('counts nothing without hierarchies', () => {
@@ -43,7 +43,7 @@ describe('levelUsage', () => {
       hierarchy('Raster', 'Essen', ['Stadt', 'Raster 1 km']),
     ]);
 
-    expect(usage).toEqual({ Stadt: 2, Bezirke: 1, 'Raster 1 km': 1 });
+    expect(usage).toEqual({ 'id-Stadt': 2, 'id-Bezirke': 1, 'id-Raster 1 km': 1 });
   });
 });
 

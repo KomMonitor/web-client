@@ -1,27 +1,22 @@
 <div class="picker">
   <span class="picker-label">
-    {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.INSERT_EXISTING' | translate }}
+    {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.PICKER.INSERT_EXISTING' | translate }}
   </span>
 
   @if (options().length) {
     <select class="form-select form-select-sm picker-select" (change)="onSelect($event)">
-      @for (name of options(); track name) {
-        <option [value]="name" [selected]="name === selected()">{{ name }}</option>
+      @for (level of options(); track level.id) {
+        <option [value]="level.id" [selected]="level.id === selectedId()">{{ level.name }}</option>
       }
     </select>
     <button type="button" class="btn btn-sm btn-primary" (click)="addExisting()">
-      {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.INSERT_ADD' | translate }}
+      {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.PICKER.INSERT_ADD' | translate }}
     </button>
-    <span class="picker-or">{{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.INSERT_OR' | translate }}</span>
   } @else {
     <span class="picker-empty">
-      {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.POOL_EMPTY' | translate }}
+      {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.PICKER.POOL_EMPTY' | translate }}
     </span>
   }
-
-  <button type="button" class="btn btn-sm btn-outline-primary" (click)="registerNew()">
-    {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.INSERT_REGISTER' | translate }}
-  </button>
 
   <span class="picker-spacer"></span>
 

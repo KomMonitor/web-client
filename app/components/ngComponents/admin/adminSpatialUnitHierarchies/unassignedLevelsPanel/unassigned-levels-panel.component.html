@@ -7,12 +7,11 @@
       : ('ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.COUNT' | translate: { count: levels().length })
   "
 >
-  <button header-actions type="button" class="btn btn-sm btn-light" (click)="register.emit()">
-    {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.REGISTER' | translate }}
-  </button>
-
   <p class="unassigned-hint">
     {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.HINT' | translate }}
+    <a routerLink="/administration/spatial-units">
+      {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.MANAGE_LEVELS' | translate }}
+    </a>
   </p>
 
   @for (level of levels(); track level.id) {
@@ -51,9 +50,6 @@
 
       <button type="button" class="btn btn-sm btn-warning" (click)="metadata.emit(level)">
         {{ 'ADMIN_SHARED.METADATA' | translate }}
-      </button>
-      <button type="button" class="btn btn-sm btn-outline-danger" (click)="remove.emit(level)">
-        {{ 'ADMIN_SHARED.DELETE' | translate }}
       </button>
     </div>
   }

@@ -1,4 +1,5 @@
-import { Signal, WritableSignal } from '@angular/core';
+import { Signal, WritableSignal, computed, signal } from '@angular/core';
+import { SpatialUnitHierarchyOverviewType } from 'models/data-management-api';
 
 import { v4 as uuidv4 } from 'uuid';
 import { TreeGap } from '../../common/tree-view/tree-view.model';
@@ -6,10 +7,13 @@ import { TreeGap } from '../../common/tree-view/tree-view.model';
 /**
  * A spatial unit level as it is stored: a flat chain entry, coarsest first.
  *
- * Its `id` identifies the level *within this one chain* — the tree tracks and
- * expands rows by it. It is not the identity of the spatial unit level itself,
- * which is what `RegisteredLevel.id` is. The two worlds are joined by the
- * **name**, the way `levelUsage` and the tenant overview already count.
+ * Its `id` is the **`spatialUnitId`** — the identity of the spatial unit level
+ * itself, the same one `RegisteredLevel.id` carries. The tree tracks and
+ * expands rows by it, and the member payload sent to the API is built from it.
+ *
+ * It follows that a level sits in one chain at most once: two entries with the
+ * same id would collide as tree keys and as members. The picker only offers
+ * what is not in the chain yet.
  */
 export interface HierarchyChainEntry {
   readonly id: string;
@@ -18,12 +22,12 @@ export interface HierarchyChainEntry {
 
 /**
  * A spatial unit level as the registry knows it — independent of any hierarchy.
- * Stands in for a `SpatialUnitOverviewType`: `id` mirrors `spatialUnitId`,
- * `name` the level name and `datasource` its `metadata.datasource`.
+ * The flat view of a `SpatialUnitOverviewType`: `id` is its `spatialUnitId`,
+ * `name` its `spatialUnitLevel`, `datasource` its `metadata.datasource` and
+ * `mandant` the resolved name of its `mandantId`.
  *
  * Whether a level is assigned is never stored, it is derived: a level is
- * unassigned while no chain of its tenant carries its name. Storing it would
- * mean the datasource of an assigned level had nowhere to live.
+ * unassigned while no chain carries its id.
  */
 export interface RegisteredLevel {
   readonly id: string;
@@ -55,10 +59,12 @@ export interface SpatialUnitHierarchy {
   readonly id: string;
   /** Writable so renaming keeps the hierarchy object — and its state — in place. */
   readonly name: WritableSignal<string>;
-  /** Free text under the header; empty when the user left it out. */
-  readonly description: WritableSignal<string>;
-  /** Owning tenant, as chosen in the dialog; empty without Keycloak. */
+  /** Owning tenant by name, which is what the page groups and filters by. */
   readonly mandant: WritableSignal<string>;
+  /** The same tenant as the API names it; what every write has to send. */
+  readonly mandantId: WritableSignal<string>;
+  /** Whether the hierarchy is readable without a login. */
+  readonly isPublic: WritableSignal<boolean>;
   /** Source of truth: the chain from coarse to fine. Every edit happens here. */
   readonly chain: WritableSignal<readonly HierarchyChainEntry[]>;
   readonly levels: Signal<readonly HierarchyLevel[]>;
@@ -175,9 +181,9 @@ export function canInsertAtGap(
 export function insertIntoChain(
   hierarchy: SpatialUnitHierarchy,
   gap: TreeGap<HierarchyLevel>,
-  name: string
+  level: HierarchyChainEntry
 ): HierarchyChainEntry {
-  return insertAt(hierarchy, chainPosition(hierarchy, gap), name);
+  return insertAt(hierarchy, chainPosition(hierarchy, gap), level);
 }
 
 /**
@@ -185,21 +191,29 @@ export function insertIntoChain(
  * the hierarchy. This is what assigning a so far unassigned level does — the
  * gaps in the tree address the positions in between.
  */
-export function appendToChain(hierarchy: SpatialUnitHierarchy, name: string): HierarchyChainEntry {
-  return insertAt(hierarchy, hierarchy.chain().length, name);
+export function appendToChain(
+  hierarchy: SpatialUnitHierarchy,
+  level: HierarchyChainEntry
+): HierarchyChainEntry {
+  return insertAt(hierarchy, hierarchy.chain().length, level);
 }
 
 /**
- * The one place that adds to a chain: mints the id the tree tracks the level by,
- * splices it in and marks it expanded — a level that is not in `expandedIds`
- * would come up folded and hide everything below it.
+ * The one place that adds to a chain: splices the level in and marks it
+ * expanded — a level that is not in `expandedIds` would come up folded and
+ * hide everything below it.
+ *
+ * A level already in the chain is not added again; its id is its identity, and
+ * a second entry would collide with the first as a tree key and as a member.
  */
 function insertAt(
   hierarchy: SpatialUnitHierarchy,
   position: number,
-  name: string
+  entry: HierarchyChainEntry
 ): HierarchyChainEntry {
-  const entry: HierarchyChainEntry = { id: newId(), name };
+  if (indexInChain(hierarchy, entry) >= 0) {
+    return entry;
+  }
 
   hierarchy.chain.update((entries) => {
     const next = [...entries];
@@ -276,4 +290,45 @@ export function removeFromChain(
   });
 
   return true;
+}
+
+/**
+ * Builds the signal-backed hierarchy the page and the tree work on, from what
+ * the Data Management API answers.
+ *
+ * The chain is the `members` list ordered by `hierarchyLevel` — the API keeps
+ * that field dense and 0-based, but the order is what matters here, so it is
+ * sorted rather than trusted to arrive sorted.
+ *
+ * `mandant` is the tenant's *name*, which is what the page groups and filters
+ * by; the caller resolves it, and falls back to the id where Keycloak names no
+ * tenant for it, so hierarchies of an unknown tenant still group together
+ * instead of silently merging into the tenant-less bucket.
+ */
+export function createHierarchy(
+  overview: SpatialUnitHierarchyOverviewType,
+  mandantName: string
+): SpatialUnitHierarchy {
+  const chain = signal<readonly HierarchyChainEntry[]>(
+    [...(overview.members ?? [])]
+      .sort((a, b) => a.hierarchyLevel - b.hierarchyLevel)
+      .map((member) => ({ id: member.spatialUnitId, name: member.spatialUnitLevel ?? '' }))
+  );
+  const levels = computed(() => nest(chain()));
+
+  return {
+    id: overview.hierarchyId,
+    name: signal(overview.name),
+    mandant: signal(mandantName),
+    mandantId: signal(overview.mandantId),
+    isPublic: signal(overview.isPublic),
+    chain,
+    levels,
+    levelCount: computed(() => chain().length),
+    open: signal(false),
+    // Start fully expanded so the whole chain is visible once it is opened.
+    expandedIds: signal<ReadonlySet<string>>(new Set(chain().map((entry) => entry.id))),
+    openGap: signal<TreeGap<HierarchyLevel> | null>(null),
+    canInsertAt: (gap) => canInsertAtGap(levels(), gap),
+  };
 }

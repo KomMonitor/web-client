@@ -4,7 +4,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { By } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { createHierarchy } from '../hierarchy-demo.data';
+import { hierarchyFixture } from '../hierarchy.fixture';
 import { HierarchyDeleteModalComponent } from './hierarchy-delete-modal.component';
 
 describe('HierarchyDeleteModalComponent', () => {
@@ -21,12 +21,10 @@ describe('HierarchyDeleteModalComponent', () => {
     fixture = TestBed.createComponent(HierarchyDeleteModalComponent);
     component = fixture.componentInstance;
     activeModal = TestBed.inject(NgbActiveModal);
-    component.hierarchy = createHierarchy({
-      id: 'h-1',
-      name: 'Schulplanung',
-      levels: ['Stadt Essen', 'Schulregionen Essen'],
-      open: true,
-    });
+    component.hierarchy = hierarchyFixture('Schulplanung', 'Stadt Essen', [
+      'Stadt Essen',
+      'Schulregionen Essen',
+    ]);
     fixture.detectChanges();
   });
 

@@ -11,24 +11,28 @@ import { MandantOverviewRow } from './mandantOverviewTable/mandant-overview-tabl
  */
 
 /**
- * How often each level name appears across these chains. The one place that
- * counts: the tenant overview counts per tenant, the create dialog across the
- * whole instance — the same question asked of a different set of hierarchies.
+ * How often each spatial unit level appears across these chains, by
+ * `spatialUnitId`. The one place that counts: the tenant overview counts per
+ * tenant, the create dialog across the whole instance — the same question asked
+ * of a different set of hierarchies.
+ *
+ * Counted by id, not by name: the id is the level's identity, and two tenants
+ * may well name a level the same.
  */
 export function countLevelUsage(hierarchies: readonly SpatialUnitHierarchy[]): Map<string, number> {
   const usage = new Map<string, number>();
   for (const hierarchy of hierarchies) {
     for (const entry of hierarchy.chain()) {
-      usage.set(entry.name, (usage.get(entry.name) ?? 0) + 1);
+      usage.set(entry.id, (usage.get(entry.id) ?? 0) + 1);
     }
   }
   return usage;
 }
 
 /**
- * The same counts as the record the create dialog reads, which marks the levels
- * that are already in use with it — sharing one is allowed, it just should not
- * happen unnoticed.
+ * The same counts as the record the create dialog reads, keyed by
+ * `spatialUnitId`. The dialog marks the levels already in use with it — sharing
+ * one is allowed, it just should not happen unnoticed.
  */
 export function levelUsage(hierarchies: readonly SpatialUnitHierarchy[]): Record<string, number> {
   return Object.fromEntries(countLevelUsage(hierarchies));
@@ -60,13 +64,14 @@ export function levelsOfMandant(
 }
 
 /**
- * The tenant's registered levels that no hierarchy uses — registered, but
+ * The tenant's spatial unit levels that no hierarchy uses — they exist, but are
  * nowhere to be chosen in the map interface, because only a hierarchy puts a
  * level there.
  *
- * Whether a level is used is asked of *all* hierarchies, not just the tenant's:
- * a name names one spatial unit level in the instance, so a level another tenant
- * builds on is in use.
+ * Asked of *all* hierarchies, not just the tenant's, and by id. Derived from
+ * the chains rather than from the `hierarchies` field of the spatial unit on
+ * purpose: the chains are what the page edits, so a level moved in or out shows
+ * up here at once instead of after a reload.
  */
 export function unassignedLevels(
   registry: readonly RegisteredLevel[],
@@ -74,7 +79,7 @@ export function unassignedLevels(
   mandant: string
 ): readonly RegisteredLevel[] {
   const used = countLevelUsage(hierarchies);
-  return levelsOfMandant(registry, mandant).filter((level) => !used.has(level.name));
+  return levelsOfMandant(registry, mandant).filter((level) => !used.has(level.id));
 }
 
 /**

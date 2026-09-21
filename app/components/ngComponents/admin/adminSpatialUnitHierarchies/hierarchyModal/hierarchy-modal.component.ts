@@ -15,6 +15,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { HierarchyChainEntry, RegisteredLevel } from '../hierarchy.model';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { MandantService } from 'services/mandant-service/mandant.service';
@@ -25,9 +26,10 @@ import { uniqueNameValidator } from '../../adminShared/validators/admin-validato
 /** What the dialog resolves with: the metadata, plus the level chain when creating. */
 export interface HierarchyModalResult {
   readonly name: string;
-  readonly description: string;
   readonly mandant: string;
-  readonly levels?: readonly string[];
+  readonly isPublic: boolean;
+  /** The chain, coarsest first, as spatial unit levels. Only when creating. */
+  readonly levels?: readonly HierarchyChainEntry[];
 }
 
 /**
@@ -65,16 +67,13 @@ export class HierarchyModalComponent implements OnInit {
   @Input() existingNames: readonly string[] = [];
   /** Prefills of the edit mode; the name is also the one the uniqueness check ignores. */
   @Input() currentName = '';
-  @Input() currentDescription = '';
   @Input() currentMandant = '';
-  /** How many hierarchies already use a level, by level name. */
+  @Input() currentIsPublic = false;
+  /** How many hierarchies already use a level, by `spatialUnitId`. */
   @Input() levelUsage: Readonly<Record<string, number>> = {};
 
-  /**
-   * The registered spatial unit levels to build the chain from. The page owns
-   * the registry — a level registered in the draft has to show up here too.
-   */
-  @Input() registeredLevels: readonly string[] = [];
+  /** The spatial unit levels to build the chain from, across all tenants. */
+  @Input() registeredLevels: readonly RegisteredLevel[] = [];
 
   /** Tenants the page found in its data; offered where Keycloak names none. */
   @Input() knownMandants: readonly string[] = [];
@@ -88,7 +87,7 @@ export class HierarchyModalComponent implements OnInit {
   protected mandants: readonly string[] = [];
 
   /** The chain being assembled, coarsest first. Only used while creating. */
-  private readonly chain = signal<readonly string[]>([]);
+  private readonly chain = signal<readonly HierarchyChainEntry[]>([]);
   protected readonly levels = this.chain.asReadonly();
 
   /**
@@ -96,16 +95,17 @@ export class HierarchyModalComponent implements OnInit {
    * the input directly: ng-bootstrap assigns it before the first render and it
    * never changes while the dialog is open.
    */
-  protected readonly options = computed(() =>
-    this.registeredLevels.filter((name) => !this.chain().includes(name))
-  );
+  protected readonly options = computed(() => {
+    const used = new Set(this.chain().map((entry) => entry.id));
+    return this.registeredLevels.filter((level) => !used.has(level.id));
+  });
 
   /** Empty until the user picks; the first option is preselected on open. */
   private readonly picked = signal<string | null>(null);
-  protected readonly selected = computed(() => {
+  protected readonly selectedId = computed(() => {
     const options = this.options();
     const picked = this.picked();
-    return picked && options.includes(picked) ? picked : (options[0] ?? '');
+    return picked && options.some((level) => level.id === picked) ? picked : (options[0]?.id ?? '');
   });
 
   protected readonly form = new FormGroup({
@@ -116,15 +116,15 @@ export class HierarchyModalComponent implements OnInit {
         uniqueNameValidator(() => this.existingNames, { ignore: () => this.currentName }),
       ],
     }),
-    description: new FormControl('', { nonNullable: true }),
     mandant: new FormControl('', { nonNullable: true }),
+    isPublic: new FormControl(false, { nonNullable: true }),
   });
 
   ngOnInit(): void {
     this.mandants = this.mandantService.mandantsToOffer(this.knownMandants);
     this.form.controls.name.setValue(this.currentName);
-    this.form.controls.description.setValue(this.currentDescription);
     this.form.controls.mandant.setValue(this.currentMandant || this.defaultMandant());
+    this.form.controls.isPublic.setValue(this.currentIsPublic);
 
     if (this.mandants.length > 0) {
       this.form.controls.mandant.addValidators(Validators.required);
@@ -138,8 +138,8 @@ export class HierarchyModalComponent implements OnInit {
   }
 
   /** How many hierarchies already use this level; 0 means it is still unused. */
-  protected usageCount(level: string): number {
-    return this.levelUsage[level] ?? 0;
+  protected usageCount(level: HierarchyChainEntry): number {
+    return this.levelUsage[level.id] ?? 0;
   }
 
   protected onSelect(event: Event): void {
@@ -147,11 +147,11 @@ export class HierarchyModalComponent implements OnInit {
   }
 
   protected addLevel(): void {
-    const level = this.selected();
+    const level = this.options().find((entry) => entry.id === this.selectedId());
     if (!level) {
       return;
     }
-    this.chain.update((levels) => [...levels, level]);
+    this.chain.update((levels) => [...levels, { id: level.id, name: level.name }]);
     this.picked.set(null);
   }
 
@@ -160,7 +160,7 @@ export class HierarchyModalComponent implements OnInit {
   }
 
   /** Reordering works here, unlike in the page's tree: this chain is a flat list. */
-  protected onDrop(event: CdkDragDrop<readonly string[]>): void {
+  protected onDrop(event: CdkDragDrop<readonly HierarchyChainEntry[]>): void {
     this.chain.update((levels) => {
       const next = [...levels];
       moveItemInArray(next, event.previousIndex, event.currentIndex);
@@ -177,8 +177,8 @@ export class HierarchyModalComponent implements OnInit {
 
     const result: HierarchyModalResult = {
       name: this.form.controls.name.value.trim(),
-      description: this.form.controls.description.value.trim(),
       mandant: this.form.controls.mandant.value,
+      isPublic: this.form.controls.isPublic.value,
     };
     this.activeModal.close(this.mode === 'create' ? { ...result, levels: this.chain() } : result);
   }

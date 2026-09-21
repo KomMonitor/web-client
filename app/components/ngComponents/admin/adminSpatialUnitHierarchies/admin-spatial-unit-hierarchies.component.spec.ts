@@ -8,9 +8,14 @@ import { provideRouter } from '@angular/router';
 import { By } from '@angular/platform-browser';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
+import { MandantService } from 'services/mandant-service/mandant.service';
+import { SpatialUnitHierarchyApiService } from 'services/spatial-unit-hierarchy-service/spatial-unit-hierarchy-api.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+
 import { NotificationService } from '../../common/notification/notification.service';
 import { AdminSpatialUnitHierarchiesComponent } from './admin-spatial-unit-hierarchies.component';
-import { createDemoHierarchies } from './hierarchy-demo.data';
+import { RegisteredLevel } from './hierarchy.model';
+import { SEED_MANDANTS, seedHierarchies, seedLevels, seedOverviews } from './hierarchy.fixture';
 import { HierarchyStoreService } from './hierarchy-store.service';
 import { UnassignedLevelsPanelComponent } from './unassignedLevelsPanel/unassigned-levels-panel.component';
 import { chainPosition } from './hierarchy.model';
@@ -56,7 +61,21 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
   let notificationService: NotificationService;
   let modalService: NgbModal;
 
-  beforeEach(() => {
+  /** The spatial units behind the level registry; the store derives it. */
+  let spatialUnits: unknown[];
+
+  /** Replaces what the registry is derived from. */
+  function setLevels(levels: readonly RegisteredLevel[]): void {
+    spatialUnits = levels.map((level) => ({
+      spatialUnitId: level.id,
+      spatialUnitLevel: level.name,
+      mandantId: level.mandant,
+      metadata: { datasource: level.datasource },
+    }));
+  }
+
+  beforeEach(async () => {
+    setLevels(seedLevels());
     TestBed.configureTestingModule({
       imports: [AdminSpatialUnitHierarchiesComponent, TranslateModule.forRoot()],
       providers: [
@@ -64,6 +83,31 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
         provideHttpClientTesting(),
         provideRouter([]),
         provideNoopAnimations(),
+        {
+          provide: MandantService,
+          useValue: {
+            keycloakMandants: SEED_MANDANTS,
+            mandantRefs: SEED_MANDANTS.map((name) => ({ id: name, name })),
+            isRealmAdmin: true,
+            ownMandant: 'Stadt Essen',
+            mandantsToOffer: () => SEED_MANDANTS,
+            // The seed uses the tenant name as its id.
+            mandantIdOf: (name: string) => name,
+            mandantNameOf: (id: string) => id,
+          },
+        },
+        {
+          provide: SpatialUnitHierarchyApiService,
+          useValue: { getHierarchies: () => Promise.resolve(seedOverviews()) },
+        },
+        {
+          provide: SpatialUnitMetadataStoreService,
+          useValue: {
+            get availableSpatialUnits() {
+              return spatialUnits;
+            },
+          },
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     });
@@ -75,13 +119,17 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     notificationService = TestBed.inject(NotificationService);
     modalService = TestBed.inject(NgbModal);
 
-    // The seed data spans several tenants for the tenant panel; every test
-    // about a single chain works on the first hierarchy alone. The panel's own
-    // tests put the full seed back.
-    store.hierarchies.update((entries) => entries.slice(0, 1));
+    // The store loads in its constructor; wait for that before seeding, or the
+    // load would clobber the seed a microtask later.
+    await store.reload();
+    // The seed spans several tenants for the tenant panel; every test about a
+    // single chain works on the first hierarchy alone. The panel's own tests
+    // put the full seed back.
+    store.hierarchies.set(seedHierarchies().slice(0, 1));
     // Its tenant, not the overview: across all tenants the page shows the
-    // overview table instead of the hierarchies. The tenant tests select again.
-    store.selectedMandant.set('Stadt Essen');
+    // overview table instead of the hierarchies. Through `selectMandant`,
+    // which unfolds what it switches to — a folded section renders no chain.
+    store.selectMandant('Stadt Essen');
   });
 
   /**
@@ -101,13 +149,6 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
   /** The unassigned-levels section; only rendered when there is something in it. */
   function panel(): UnassignedLevelsPanelComponent {
     return fixture.debugElement.query(By.css('app-unassigned-levels-panel')).componentInstance;
-  }
-
-  /** The descriptions rendered inside the hierarchy sections. */
-  function descriptions(): string[] {
-    return fixture.debugElement
-      .queryAll(By.css('.hierarchy-description'))
-      .map((el) => el.nativeElement.textContent.trim());
   }
 
   /** The toggle buttons of the rendered hierarchy sections. */
@@ -317,24 +358,15 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     fixture.detectChanges();
 
     const panel = fixture.debugElement.query(By.css('app-level-picker-panel'));
-    panel.componentInstance.addExisting();
+    panel.componentInstance.picked.emit({ id: 'id-Wahlbezirke Essen', name: 'Wahlbezirke Essen' });
     fixture.detectChanges();
 
-    expect(levelNames(fixture)).toEqual([
-      'Stadt Essen',
-      'Stadtbezirke Essen',
-      'Stadtteile Essen',
-      'Stadtviertel Essen',
-      'Baublöcke Essen',
-      'Sozialräume Essen',
-    ]);
-    expect(hierarchy.openGap()).toBeNull();
-    // The page reports the insertion, not the panel.
-    expect(show).toHaveBeenCalledTimes(1);
-    expect(show.mock.calls[0][0]).toContain('INSERTED');
+    expect(hierarchy.chain().at(-1)?.name).toBe('Wahlbezirke Essen');
+    expect(levelNames(fixture).at(-1)).toBe('Wahlbezirke Essen');
+    expect(show).toHaveBeenCalled();
   });
 
-  it('registers a level the picker registered and inserts it at the gap', () => {
+  it('inserts the level the picker chose at the clicked gap', () => {
     fixture.detectChanges();
 
     const hierarchy = store.hierarchies()[0];
@@ -343,19 +375,14 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
 
     const panel = fixture.debugElement.query(By.css('app-level-picker-panel'));
     panel.componentInstance.picked.emit({
-      name: 'Wahlkreise Essen',
-      registration: { name: 'Wahlkreise Essen', datasource: 'Amt für Statistik' },
+      id: 'id-Wahlbezirke Essen',
+      name: 'Wahlbezirke Essen',
     });
     fixture.detectChanges();
 
-    expect(hierarchy.chain()[0].name).toBe('Wahlkreise Essen');
-    // Under the hierarchy's tenant, so the level is on offer wherever it belongs.
-    expect(store.levelRegistry().at(-1)).toEqual({
-      id: expect.any(String),
-      name: 'Wahlkreise Essen',
-      datasource: 'Amt für Statistik',
-      mandant: hierarchy.mandant(),
-    });
+    expect(hierarchy.chain()[0].name).toBe('Wahlbezirke Essen');
+    // The level keeps its spatial unit id — that is what a member payload needs.
+    expect(hierarchy.chain()[0].id).toBe('id-Wahlbezirke Essen');
   });
 
   it('opens the picker panel in place of the clicked gap', () => {
@@ -395,7 +422,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
   });
 
   it('hides the section for a tenant that has nothing unassigned', () => {
-    store.levelRegistry.set([]);
+    setLevels([]);
     fixture.detectChanges();
 
     expect(fixture.debugElement.query(By.css('app-unassigned-levels-panel'))).toBeNull();
@@ -415,47 +442,6 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     // And it is gone from the section, because a chain carries it now.
     expect(store.unassignedLevels().map((entry) => entry.name)).not.toContain(level.name);
     expect(show).toHaveBeenCalled();
-  });
-
-  it('takes a registered level into the registry of the tenant on screen', async () => {
-    fixture.detectChanges();
-    stubModal(Promise.resolve({ name: 'Wahlkreise Essen', datasource: 'Amt für Statistik' }));
-
-    panel().register.emit();
-    await settle();
-    fixture.detectChanges();
-
-    expect(store.levelRegistry().at(-1)).toEqual({
-      id: expect.any(String),
-      name: 'Wahlkreise Essen',
-      datasource: 'Amt für Statistik',
-      mandant: 'Stadt Essen',
-    });
-    expect(store.unassignedLevels().map((entry) => entry.name)).toContain('Wahlkreise Essen');
-  });
-
-  it('deletes a level once the confirmation agrees', async () => {
-    fixture.detectChanges();
-    const level = store.unassignedLevels()[0];
-    stubModal(Promise.resolve(true));
-
-    panel().remove.emit(level);
-    await settle();
-    fixture.detectChanges();
-
-    expect(store.levelRegistry()).not.toContain(level);
-  });
-
-  it('keeps the level when the confirmation is dismissed', async () => {
-    fixture.detectChanges();
-    const level = store.unassignedLevels()[0];
-    stubModal(Promise.resolve(false));
-
-    panel().remove.emit(level);
-    await settle();
-    fixture.detectChanges();
-
-    expect(store.levelRegistry()).toContain(level);
   });
 
   // The metadata button is scaffold until the page reads real spatial units; it
@@ -488,9 +474,12 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     const inputs = stubModal(
       Promise.resolve({
         name: 'Schulplanung',
-        description: 'Ebenen der Schulplanung.',
         mandant: 'Stadt Essen',
-        levels: ['Stadt Essen', 'Schulregionen Essen'],
+        isPublic: false,
+        levels: [
+          { id: 'id-Stadt Essen', name: 'Stadt Essen' },
+          { id: 'id-Schulregionen Essen', name: 'Schulregionen Essen' },
+        ],
       })
     );
     fixture.debugElement.query(By.css('.view-controls .btn-success')).nativeElement.click();
@@ -500,12 +489,11 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     expect(inputs['mode']).toBe('create');
     expect(inputs['existingNames']).toEqual(['Verwaltungsgliederung']);
     // Every level of the seeded hierarchy is in use exactly once.
-    expect(inputs['levelUsage']).toMatchObject({ 'Stadt Essen': 1, 'Baublöcke Essen': 1 });
+    expect(inputs['levelUsage']).toMatchObject({
+      'id-Stadt Essen': 1,
+      'id-Baublöcke Essen': 1,
+    });
     expect(sectionTitles()).toEqual(['Verwaltungsgliederung', 'Schulplanung']);
-    expect(descriptions()).toEqual([
-      'Amtliche Gliederung der Stadt Essen von der Gesamtstadt bis hinunter zum Baublock.',
-      'Ebenen der Schulplanung.',
-    ]);
     // The new hierarchy carries exactly the chain the dialog assembled.
     expect(levelNames(fixture)).toEqual([
       'Stadt Essen',
@@ -534,15 +522,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     expect(show).not.toHaveBeenCalled();
   });
 
-  it('renders the description of a hierarchy above its chain', () => {
-    fixture.detectChanges();
-
-    expect(descriptions()).toEqual([
-      'Amtliche Gliederung der Stadt Essen von der Gesamtstadt bis hinunter zum Baublock.',
-    ]);
-  });
-
-  it('edits name and description without touching the chain', async () => {
+  it('edits the metadata without touching the chain', async () => {
     const show = jest.spyOn(notificationService, 'show');
     fixture.detectChanges();
 
@@ -552,11 +532,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     expect(actions.length).toBe(2);
 
     const inputs = stubModal(
-      Promise.resolve({
-        name: 'Verwaltung',
-        description: 'Neue Beschreibung.',
-        mandant: 'Stadt Essen',
-      })
+      Promise.resolve({ name: 'Verwaltung', mandant: 'Stadt Essen', isPublic: true })
     );
     actions[0].nativeElement.click();
     await settle();
@@ -564,10 +540,9 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
 
     expect(inputs['mode']).toBe('edit');
     expect(inputs['currentName']).toBe('Verwaltungsgliederung');
-    expect(inputs['currentDescription']).toContain('Amtliche Gliederung');
     expect(inputs['currentMandant']).toBe('Stadt Essen');
     expect(sectionTitles()).toEqual(['Verwaltung']);
-    expect(descriptions()).toEqual(['Neue Beschreibung.']);
+    expect(store.hierarchies()[0].isPublic()).toBe(true);
     expect(levelNames(fixture)).toHaveLength(5);
     expect(show.mock.calls[0][0]).toContain('UPDATED');
   });
@@ -601,7 +576,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
   });
   describe('tenant panel', () => {
     beforeEach(() => {
-      store.hierarchies.set(createDemoHierarchies());
+      store.hierarchies.set(seedHierarchies());
     });
 
     /** The tenant entries of the open dropdown menu, label plus count. */
@@ -731,7 +706,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
 
       const meta = fixture.debugElement.query(By.css('.hierarchy-section .section-meta'));
 
-      expect(meta.nativeElement.textContent).toContain('LEVEL_COUNT');
+      expect(meta.nativeElement.textContent).toContain('LEVEL.COUNT');
       expect(meta.nativeElement.textContent).not.toContain('Stadt Bochum');
     });
 
@@ -780,9 +755,9 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
       stubModal(
         Promise.resolve({
           name: 'Schulplanung Bochum',
-          description: '',
           mandant: 'Stadt Bochum',
-          levels: ['Stadt Bochum'],
+          isPublic: false,
+          levels: [{ id: 'id-Stadt Bochum', name: 'Stadt Bochum' }],
         })
       );
       fixture.debugElement.query(By.css('.view-controls .btn-success')).nativeElement.click();

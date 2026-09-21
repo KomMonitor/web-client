@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { CollapsibleSectionComponent } from '../../../common/collapsible-section/collapsible-section.component';
@@ -11,18 +12,22 @@ export interface LevelAssignment {
 }
 
 /**
- * The section below the hierarchy list: the registered spatial unit levels of
- * the current tenant that no hierarchy uses. They exist in the registry but are
- * not offered in the map interface, because only a hierarchy puts a level there.
+ * The section below the hierarchy list: the spatial unit levels of the current
+ * tenant that no hierarchy uses. They exist, but are not offered in the map
+ * interface, because only a hierarchy puts a level there.
  *
- * Presentational — the page derives the list, owns the registry and carries out
- * what the buttons ask for.
+ * It offers no way to create or delete a level: a spatial unit level exists
+ * only with its geometry, so both belong on the spatial units page, which the
+ * hint links to.
+ *
+ * Presentational — the page derives the list and carries out what the buttons
+ * ask for.
  */
 @Component({
   selector: 'app-unassigned-levels-panel',
   templateUrl: './unassigned-levels-panel.component.html',
   styleUrls: ['./unassigned-levels-panel.component.scss'],
-  imports: [TranslateModule, CollapsibleSectionComponent],
+  imports: [TranslateModule, RouterLink, CollapsibleSectionComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -36,8 +41,6 @@ export class UnassignedLevelsPanelComponent {
   readonly showIds = input(false);
 
   readonly assign = output<LevelAssignment>();
-  readonly register = output<void>();
-  readonly remove = output<RegisteredLevel>();
   readonly metadata = output<RegisteredLevel>();
 
   /** Without a hierarchy there is nothing to assign to, so the button rests. */

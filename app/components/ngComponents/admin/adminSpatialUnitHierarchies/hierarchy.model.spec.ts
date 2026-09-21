@@ -11,6 +11,7 @@ import {
   canMoveInChain,
   chainPosition,
   indexInChain,
+  createHierarchy,
   insertIntoChain,
   moveInChain,
   nest,
@@ -26,8 +27,9 @@ function hierarchy(names: string[]): SpatialUnitHierarchy {
   return {
     id: 'h',
     name: signal('Testhierarchie'),
-    description: signal(''),
     mandant: signal(''),
+    mandantId: signal(''),
+    isPublic: signal(false),
     chain,
     levels,
     levelCount: computed(() => chain().length),
@@ -143,11 +145,16 @@ describe('canInsertAtGap', () => {
   });
 });
 
+/** A level as the picker hands it over: the spatial unit's own id and name. */
+function level(name: string): HierarchyChainEntry {
+  return { id: `su-${name}`, name };
+}
+
 describe('insertIntoChain', () => {
   it('inserts at the head of the chain', () => {
     const h = hierarchy(['A', 'B']);
 
-    insertIntoChain(h, { parent: null, index: 0 }, 'Neu');
+    insertIntoChain(h, { parent: null, index: 0 }, level('Neu'));
 
     expect(h.chain().map((entry) => entry.name)).toEqual(['Neu', 'A', 'B']);
   });
@@ -155,7 +162,7 @@ describe('insertIntoChain', () => {
   it('inserts below the parent', () => {
     const h = hierarchy(['A', 'B']);
 
-    insertIntoChain(h, { parent: h.levels()[0], index: 0 }, 'Neu');
+    insertIntoChain(h, { parent: h.levels()[0], index: 0 }, level('Neu'));
 
     expect(h.chain().map((entry) => entry.name)).toEqual(['A', 'Neu', 'B']);
   });
@@ -163,18 +170,27 @@ describe('insertIntoChain', () => {
   it('expands the new level so the chain below stays visible', () => {
     const h = hierarchy(['A', 'B']);
 
-    const entry = insertIntoChain(h, { parent: null, index: 0 }, 'Neu');
+    const entry = insertIntoChain(h, { parent: null, index: 0 }, level('Neu'));
 
     expect([...h.expandedIds()]).toContain(entry.id);
   });
 
-  it('gives every inserted level its own id', () => {
+  it('keeps the spatial unit id it was handed', () => {
     const h = hierarchy(['A']);
 
-    const first = insertIntoChain(h, { parent: null, index: 0 }, 'Eins');
-    const second = insertIntoChain(h, { parent: null, index: 0 }, 'Zwei');
+    const entry = insertIntoChain(h, { parent: null, index: 0 }, level('Neu'));
 
-    expect(first.id).not.toBe(second.id);
+    expect(entry.id).toBe('su-Neu');
+    expect(h.chain()[0].id).toBe('su-Neu');
+  });
+
+  it('refuses a level the chain already carries', () => {
+    const h = hierarchy(['A']);
+    const existing = entryAt(h, 0);
+
+    insertIntoChain(h, { parent: null, index: 0 }, existing);
+
+    expect(h.chain()).toHaveLength(1);
   });
 });
 
@@ -182,27 +198,33 @@ describe('appendToChain', () => {
   it('adds the level below the deepest one', () => {
     const h = hierarchy(['A', 'B']);
 
-    appendToChain(h, 'Neu');
+    appendToChain(h, level('Neu'));
 
     expect(h.chain().map((entry) => entry.name)).toEqual(['A', 'B', 'Neu']);
   });
 
-  it('expands the appended level and gives it its own id', () => {
+  it('expands the appended level', () => {
     const h = hierarchy(['A']);
 
-    const first = appendToChain(h, 'Eins');
-    const second = appendToChain(h, 'Zwei');
+    const appended = appendToChain(h, level('Neu'));
 
-    expect([...h.expandedIds()]).toContain(second.id);
-    expect(first.id).not.toBe(second.id);
+    expect([...h.expandedIds()]).toContain(appended.id);
   });
 
   it('starts a chain that is still empty', () => {
     const h = hierarchy([]);
 
-    appendToChain(h, 'Neu');
+    appendToChain(h, level('Neu'));
 
     expect(h.chain().map((entry) => entry.name)).toEqual(['Neu']);
+  });
+
+  it('refuses a level the chain already carries', () => {
+    const h = hierarchy(['A']);
+
+    appendToChain(h, entryAt(h, 0));
+
+    expect(h.chain()).toHaveLength(1);
   });
 });
 
@@ -306,5 +328,64 @@ describe('newId', () => {
 
     expect(first).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
     expect(newId()).not.toBe(first);
+  });
+});
+
+describe('createHierarchy', () => {
+  const overview = {
+    hierarchyId: 'h-1',
+    name: 'Verwaltungsgliederung',
+    mandantId: 'm-1',
+    isPublic: true,
+    members: [
+      { spatialUnitId: 'su-b', spatialUnitLevel: 'Bezirke', hierarchyLevel: 1 },
+      { spatialUnitId: 'su-a', spatialUnitLevel: 'Stadt', hierarchyLevel: 0 },
+      { spatialUnitId: 'su-c', spatialUnitLevel: 'Quartiere', hierarchyLevel: 2 },
+    ],
+  };
+
+  it('orders the chain by hierarchyLevel, not by arrival', () => {
+    const built = createHierarchy(overview, 'Stadt Essen');
+
+    expect(built.chain().map((entry) => entry.name)).toEqual(['Stadt', 'Bezirke', 'Quartiere']);
+  });
+
+  it('carries the spatial unit id of every member into the chain', () => {
+    const built = createHierarchy(overview, 'Stadt Essen');
+
+    expect(built.chain().map((entry) => entry.id)).toEqual(['su-a', 'su-b', 'su-c']);
+  });
+
+  it('takes the metadata over, with the tenant name the caller resolved', () => {
+    const built = createHierarchy(overview, 'Stadt Essen');
+
+    expect(built.id).toBe('h-1');
+    expect(built.name()).toBe('Verwaltungsgliederung');
+    expect(built.mandant()).toBe('Stadt Essen');
+    expect(built.mandantId()).toBe('m-1');
+    expect(built.isPublic()).toBe(true);
+  });
+
+  it('starts folded but fully expanded, so opening it shows the whole chain', () => {
+    const built = createHierarchy(overview, 'Stadt Essen');
+
+    expect(built.open()).toBe(false);
+    expect([...built.expandedIds()].sort()).toEqual(['su-a', 'su-b', 'su-c']);
+  });
+
+  it('copes with a hierarchy that has no members yet', () => {
+    const built = createHierarchy({ ...overview, members: undefined }, 'Stadt Essen');
+
+    expect(built.chain()).toEqual([]);
+    expect(built.levelCount()).toBe(0);
+  });
+
+  it('hands out independent state on every call', () => {
+    const first = createHierarchy(overview, 'Stadt Essen');
+    const second = createHierarchy(overview, 'Stadt Essen');
+
+    first.name.set('Geändert');
+
+    expect(second.name()).toBe('Verwaltungsgliederung');
   });
 });

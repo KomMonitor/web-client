@@ -2,9 +2,10 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { createHierarchy } from '../hierarchy-demo.data';
+import { hierarchyFixture } from '../hierarchy.fixture';
 import { RegisteredLevel, SpatialUnitHierarchy } from '../hierarchy.model';
 import {
   LevelAssignment,
@@ -12,7 +13,8 @@ import {
 } from './unassigned-levels-panel.component';
 
 function hierarchy(id: string, name: string): SpatialUnitHierarchy {
-  return createHierarchy({ id, name, mandant: 'Stadt Essen', levels: ['Stadt Essen'], open: true });
+  const built = hierarchyFixture(name, 'Stadt Essen', ['Stadt Essen']);
+  return { ...built, id };
 }
 
 function level(name: string, datasource = 'Amt für Statistik'): RegisteredLevel {
@@ -23,8 +25,6 @@ describe('UnassignedLevelsPanelComponent', () => {
   let fixture: ComponentFixture<UnassignedLevelsPanelComponent>;
   let component: UnassignedLevelsPanelComponent;
   let assigned: LevelAssignment[];
-  let removed: RegisteredLevel[];
-  let registered: number;
 
   const LEVELS = [level('Wahlbezirke Essen'), level('Postleitzahlgebiete Essen', '')];
   const HIERARCHIES = [hierarchy('h-1', 'Verwaltungsgliederung'), hierarchy('h-2', 'Schulbezirke')];
@@ -45,17 +45,13 @@ describe('UnassignedLevelsPanelComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [UnassignedLevelsPanelComponent, TranslateModule.forRoot()],
-      providers: [provideNoopAnimations()],
+      providers: [provideNoopAnimations(), provideRouter([])],
       schemas: [NO_ERRORS_SCHEMA],
     });
     fixture = TestBed.createComponent(UnassignedLevelsPanelComponent);
     component = fixture.componentInstance;
     assigned = [];
-    removed = [];
-    registered = 0;
     component.assign.subscribe((event) => assigned.push(event));
-    component.remove.subscribe((event) => removed.push(event));
-    component.register.subscribe(() => (registered += 1));
   });
 
   it('lists one row per level, with its name and data source', () => {
@@ -120,19 +116,18 @@ describe('UnassignedLevelsPanelComponent', () => {
     expect(fixture.debugElement.queryAll(By.css('.unassigned-no-hierarchy'))).toHaveLength(2);
   });
 
-  it('reports the level to delete', () => {
+  it('offers no way to create or delete a level — that needs a geometry', () => {
     render();
 
-    rows()[1].query(By.css('.btn-outline-danger')).nativeElement.click();
-
-    expect(removed).toEqual([LEVELS[1]]);
+    expect(fixture.debugElement.query(By.css('.btn-outline-danger'))).toBeNull();
+    expect(fixture.debugElement.query(By.css('.section-actions button'))).toBeNull();
   });
 
-  it('reports the request to register a level', () => {
+  it('points at the spatial units page instead', () => {
     render();
 
-    fixture.debugElement.query(By.css('.section-actions button')).nativeElement.click();
+    const link = fixture.debugElement.query(By.css('.unassigned-hint a'));
 
-    expect(registered).toBe(1);
+    expect(link.attributes['routerLink']).toBe('/administration/spatial-units');
   });
 });

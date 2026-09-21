@@ -6,13 +6,15 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 
+import { levelFixture } from '../hierarchy.fixture';
 import { HierarchyModalComponent } from './hierarchy-modal.component';
 
 /**
- * The registry the page hands in. A local fixture on purpose: these tests are
- * about the dialog, not about which levels the demo seed happens to carry.
+ * The levels the page hands in. A local fixture on purpose: these tests are
+ * about the dialog, not about which levels the instance happens to carry.
  */
-const LEVELS = ['Stadt Essen', 'Stadtbezirke Essen', 'Stadtteile Essen', 'Quartiere Essen'];
+const NAMES = ['Stadt Essen', 'Stadtbezirke Essen', 'Stadtteile Essen', 'Quartiere Essen'];
+const LEVELS = NAMES.map((name) => levelFixture(name, 'Stadt Essen'));
 
 /** Two tenants, so the tenant field can be exercised as a select. */
 const MANDANTS = [
@@ -102,13 +104,16 @@ describe('HierarchyModalComponent', () => {
       addLevelButton().click();
       fixture.detectChanges();
 
-      expect(chainNames()).toEqual([LEVELS[0], LEVELS[1]]);
-      expect(component.levels()).toEqual([LEVELS[0], LEVELS[1]]);
+      expect(chainNames()).toEqual([NAMES[0], NAMES[1]]);
+      expect(component.levels()).toEqual([
+        { id: LEVELS[0].id, name: LEVELS[0].name },
+        { id: LEVELS[1].id, name: LEVELS[1].name },
+      ]);
 
       const options = fixture.debugElement
         .queryAll(By.css('.chain-add option'))
         .map((el) => el.nativeElement.value);
-      expect(options).not.toContain(LEVELS[0]);
+      expect(options).not.toContain(LEVELS[0].id);
       expect(options).toHaveLength(LEVELS.length - 2);
     });
 
@@ -120,11 +125,11 @@ describe('HierarchyModalComponent', () => {
       fixture.debugElement.queryAll(By.css('.chain-remove'))[0].nativeElement.click();
       fixture.detectChanges();
 
-      expect(chainNames()).toEqual([LEVELS[1]]);
+      expect(chainNames()).toEqual([NAMES[1]]);
     });
 
     it('marks the levels other hierarchies already use', () => {
-      Object.assign(component, { levelUsage: { [LEVELS[0]]: 2 } });
+      Object.assign(component, { levelUsage: { [LEVELS[0].id]: 2 } });
       addLevelButton().click();
       fixture.detectChanges();
 
@@ -137,7 +142,7 @@ describe('HierarchyModalComponent', () => {
     it('closes with the trimmed metadata and the assembled chain', () => {
       const close = jest.spyOn(activeModal, 'close');
       component.form.controls.name.setValue('  Sozialraum-Gliederung  ');
-      component.form.controls.description.setValue('  Für die Sozialberichterstattung.  ');
+      component.form.controls.isPublic.setValue(true);
       addLevelButton().click();
       fixture.detectChanges();
 
@@ -145,13 +150,13 @@ describe('HierarchyModalComponent', () => {
 
       expect(close).toHaveBeenCalledWith({
         name: 'Sozialraum-Gliederung',
-        description: 'Für die Sozialberichterstattung.',
         mandant: 'Kreis Recklinghausen',
-        levels: [LEVELS[0]],
+        isPublic: true,
+        levels: [{ id: LEVELS[0].id, name: LEVELS[0].name }],
       });
     });
 
-    it('treats the description as optional', () => {
+    it('starts out non-public', () => {
       const close = jest.spyOn(activeModal, 'close');
       component.form.controls.name.setValue('Sozialraum-Gliederung');
       addLevelButton().click();
@@ -159,7 +164,7 @@ describe('HierarchyModalComponent', () => {
 
       component.submit();
 
-      expect(close.mock.calls[0][0]).toMatchObject({ description: '' });
+      expect(close.mock.calls[0][0]).toMatchObject({ isPublic: false });
     });
 
     it('does not close while name or chain are missing', () => {
@@ -218,15 +223,15 @@ describe('HierarchyModalComponent', () => {
         mode: 'edit',
         existingNames: ['Verwaltungsgliederung', 'Schulplanung'],
         currentName: 'Verwaltungsgliederung',
-        currentDescription: 'Amtliche Gliederung.',
         currentMandant: 'Stadt Essen',
+        currentIsPublic: true,
       });
     });
 
     it('prefills the metadata and accepts it unchanged', () => {
       expect(component.form.controls.name.value).toBe('Verwaltungsgliederung');
-      expect(component.form.controls.description.value).toBe('Amtliche Gliederung.');
       expect(component.form.controls.mandant.value).toBe('Stadt Essen');
+      expect(component.form.controls.isPublic.value).toBe(true);
       expect(submitButton().disabled).toBe(false);
     });
 
@@ -243,14 +248,14 @@ describe('HierarchyModalComponent', () => {
     it('closes with the metadata alone', () => {
       const close = jest.spyOn(activeModal, 'close');
       component.form.controls.name.setValue('Verwaltung');
-      component.form.controls.description.setValue('Neue Beschreibung.');
+      component.form.controls.isPublic.setValue(false);
 
       component.submit();
 
       expect(close).toHaveBeenCalledWith({
         name: 'Verwaltung',
-        description: 'Neue Beschreibung.',
         mandant: 'Stadt Essen',
+        isPublic: false,
       });
     });
   });

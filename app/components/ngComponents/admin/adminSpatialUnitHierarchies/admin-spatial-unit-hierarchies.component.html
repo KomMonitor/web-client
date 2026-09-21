@@ -7,16 +7,28 @@
 </app-admin-content-view>
 
 <ng-template #controls>
-  <span>{{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.SHOW_IDS' | translate }}</span>
+  <span>{{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.SHOW_IDS' | translate }}</span>
   <div>
     <label class="switch">
       <input type="checkbox" [checked]="showIds()" (change)="onShowIdsChange($event)" />
       <span class="switchslider round"></span>
     </label>
   </div>
-  <button class="btn btn-success btn-sm" type="button" (click)="onCreateHierarchy()">
+  <!-- The API requires a mandantId, and without Keycloak this instance knows no
+       tenants and cannot obtain one. Reading still works, creating does not. -->
+  @if (!store.canCreate()) {
+    <span class="create-blocked">
+      {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.NO_MANDANT_HINT' | translate }}
+    </span>
+  }
+  <button
+    class="btn btn-success btn-sm"
+    type="button"
+    [disabled]="!store.canCreate()"
+    (click)="onCreateHierarchy()"
+  >
     <i class="fas fa-plus"></i>&nbsp;&nbsp;{{
-      'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.NEW_HIERARCHY' | translate
+      'ADMIN_SPATIAL_UNIT_HIERARCHIES.NEW_HIERARCHY' | translate
     }}
   </button>
 </ng-template>
@@ -30,9 +42,11 @@
     (selectedChange)="store.selectMandant($event)"
   />
 
-  <!-- Across all tenants the page summarizes them instead of listing every
-       hierarchy of every tenant; opening a row switches to that tenant. -->
-  @if (store.showMandantOverview()) {
+  @if (store.loading()) {
+    <p class="hierarchies-empty">
+      {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LOADING' | translate }}
+    </p>
+  } @else if (store.showMandantOverview()) {
     <app-mandant-overview-table
       [rows]="store.mandantOverview()"
       (openMandant)="store.selectMandant($event)"
@@ -43,7 +57,7 @@
         class="hierarchy-section"
         [title]="hierarchy.name()"
         [meta]="
-          'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.LEVEL_COUNT'
+          'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.COUNT'
             | translate: { count: hierarchy.levelCount() }
         "
         [idLabel]="hierarchy.id"
@@ -56,7 +70,7 @@
           class="btn btn-sm btn-warning"
           (click)="onEditHierarchy(hierarchy)"
         >
-          {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.EDIT' | translate }}
+          {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.EDIT' | translate }}
         </button>
         <button
           header-actions
@@ -67,10 +81,6 @@
           {{ 'ADMIN_SHARED.DELETE' | translate }}
         </button>
 
-        @if (hierarchy.description(); as description) {
-          <p class="hierarchy-description">{{ description }}</p>
-        }
-
         <!-- The insert line at the end of the chain appends below the deepest
              level, so it is drawn one step in like every other one. The default
              indent cap would flatten that step away from the fifth level on. -->
@@ -80,18 +90,16 @@
           [childrenOf]="levelChildren"
           indentMode="row"
           [(expandedIds)]="hierarchy.expandedIds"
-          [insertLabel]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.INSERT_LEVEL' | translate"
+          [insertLabel]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.PICKER.INSERT_LEVEL' | translate"
           [canInsertAt]="hierarchy.canInsertAt"
           [trailingGapAsChild]="true"
           [maxIndent]="200"
           [(openGap)]="hierarchy.openGap"
-          [toggleLabel]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.TOGGLE_LABEL' | translate"
+          [toggleLabel]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.TOGGLE_LABEL' | translate"
         >
           <ng-template appTreeRow let-level>
             <span class="level-rank">
-              {{
-                'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.LEVEL_RANK' | translate: { rank: level.rank }
-              }}
+              {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.RANK' | translate: { rank: level.rank } }}
             </span>
             <span class="level-name">{{ level.name }}</span>
             @if (showIds()) {
@@ -102,24 +110,24 @@
               type="button"
               class="level-move"
               [disabled]="!level.canMoveUp"
-              [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.MOVE_UP' | translate"
+              [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.MOVE_UP' | translate"
               (click)="$event.stopPropagation(); store.moveLevel(hierarchy, level, -1)"
             >
               <span aria-hidden="true">&#9650;</span>
               <span class="visually-hidden">
-                {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.MOVE_UP' | translate }}
+                {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.MOVE_UP' | translate }}
               </span>
             </button>
             <button
               type="button"
               class="level-move"
               [disabled]="!level.canMoveDown"
-              [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.MOVE_DOWN' | translate"
+              [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.MOVE_DOWN' | translate"
               (click)="$event.stopPropagation(); store.moveLevel(hierarchy, level, 1)"
             >
               <span aria-hidden="true">&#9660;</span>
               <span class="visually-hidden">
-                {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.MOVE_DOWN' | translate }}
+                {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.MOVE_DOWN' | translate }}
               </span>
             </button>
             <button
@@ -135,13 +143,13 @@
               [disabled]="hierarchy.levelCount() === 1"
               (click)="$event.stopPropagation(); removeLevel(hierarchy, level)"
             >
-              {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.DEMO.REMOVE' | translate }}
+              {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.REMOVE' | translate }}
             </button>
           </ng-template>
           <ng-template appTreeGap let-gap let-close="close">
             <app-level-picker-panel
               [hierarchy]="hierarchy"
-              [registryNames]="store.tenantLevelNames()"
+              [registryLevels]="store.tenantLevels()"
               (picked)="onInsertLevel(hierarchy, gap, $event)"
               (done)="close()"
             />
@@ -166,8 +174,6 @@
         [hierarchies]="store.visibleHierarchies()"
         [showIds]="showIds()"
         (assign)="onAssignLevel($event)"
-        (register)="onRegisterLevel()"
-        (remove)="onDeleteLevel($event)"
         (metadata)="onShowMetadata($event.name)"
       />
     }
