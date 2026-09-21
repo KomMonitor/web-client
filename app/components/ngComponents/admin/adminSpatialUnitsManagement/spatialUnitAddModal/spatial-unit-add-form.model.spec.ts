@@ -28,7 +28,6 @@ const buildForm = (withSecurity = true): SpatialUnitAddFormGroup =>
   buildSpatialUnitAddForm({
     withSecurity,
     existingLevelNames: () => SPATIAL_UNITS.map((unit) => unit.spatialUnitLevel),
-    orderedSpatialUnits: () => SPATIAL_UNITS,
   });
 
 const fillRequired = (form: SpatialUnitAddFormGroup): void => {
@@ -89,7 +88,6 @@ describe('spatial-unit add form model', () => {
       const form = buildSpatialUnitAddForm({
         withSecurity: false,
         existingLevelNames: () => [],
-        orderedSpatialUnits: () => [],
         defaultOutlineDashArray: pattern,
       });
 
@@ -124,22 +122,6 @@ describe('spatial-unit add form model', () => {
       expect(form.controls.metadata.controls.spatialUnitLevel.hasError('uniqueName')).toBe(true);
     });
 
-    it('carries the hierarchy rule on the metadata group', () => {
-      const form = buildForm();
-
-      form.controls.metadata.patchValue({
-        nextLowerHierarchySpatialUnit: SPATIAL_UNITS[0],
-        nextUpperHierarchySpatialUnit: SPATIAL_UNITS[2],
-      });
-      expect(form.controls.metadata.hasError('spatialUnitHierarchy')).toBe(true);
-
-      form.controls.metadata.patchValue({
-        nextLowerHierarchySpatialUnit: SPATIAL_UNITS[2],
-        nextUpperHierarchySpatialUnit: SPATIAL_UNITS[0],
-      });
-      expect(form.controls.metadata.hasError('spatialUnitHierarchy')).toBe(false);
-    });
-
     it('carries the period rule on the data group', () => {
       const form = buildForm();
 
@@ -157,8 +139,6 @@ describe('spatial-unit add form model', () => {
       const form = buildForm();
       fillRequired(form);
       form.controls.metadata.patchValue({
-        nextLowerHierarchySpatialUnit: SPATIAL_UNITS[2],
-        nextUpperHierarchySpatialUnit: SPATIAL_UNITS[0],
         isOutlineLayer: true,
         outlineColor: '#123456',
         outlineWidth: 4,
@@ -184,10 +164,9 @@ describe('spatial-unit add form model', () => {
         },
         jsonSchema: undefined,
         permissions: ['role-1', 'role-2'],
-        nextLowerHierarchyLevel: 'Baublöcke',
+        hierarchies: [],
         spatialUnitLevel: 'Quartiere',
         periodOfValidity: { startDate: '2026-01-01', endDate: '2026-12-31' },
-        nextUpperHierarchyLevel: 'Stadt',
         isOutlineLayer: true,
         outlineColor: '#123456',
         outlineWidth: 4,
@@ -197,14 +176,23 @@ describe('spatial-unit add form model', () => {
       });
     });
 
-    it('sends explicit nulls for unset hierarchy levels', () => {
+    it('carries no neighbour-level fields — v6 replaced them with `hierarchies`', () => {
+      const form = buildForm();
+      fillRequired(form);
+      const body = spatialUnitAddFormToApi(form);
+
+      expect(body).not.toHaveProperty('nextLowerHierarchyLevel');
+      expect(body).not.toHaveProperty('nextUpperHierarchyLevel');
+      expect(body.hierarchies).toEqual([]);
+    });
+
+    it('passes the hierarchy placement through as given', () => {
       const form = buildForm();
       fillRequired(form);
 
-      const body = spatialUnitAddFormToApi(form);
+      const body = spatialUnitAddFormToApi(form, [], [{ hierarchyId: 'h-1', hierarchyLevel: 2 }]);
 
-      expect(body.nextLowerHierarchyLevel).toBeNull();
-      expect(body.nextUpperHierarchyLevel).toBeNull();
+      expect(body.hierarchies).toEqual([{ hierarchyId: 'h-1', hierarchyLevel: 2 }]);
     });
 
     it('leaves outlineDashArrayString undefined without a pattern', () => {

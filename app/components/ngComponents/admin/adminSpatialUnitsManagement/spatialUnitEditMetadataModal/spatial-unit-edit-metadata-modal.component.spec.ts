@@ -13,6 +13,7 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { SpatialUnitHierarchyApiService } from 'services/spatial-unit-hierarchy-service/spatial-unit-hierarchy-api.service';
 
 import { SpatialUnitEditMetadataModalComponent } from './spatial-unit-edit-metadata-modal.component';
 
@@ -29,11 +30,29 @@ const SPATIAL_UNITS = [
   { spatialUnitId: 'su-3', spatialUnitLevel: 'Baublöcke' },
 ];
 
+const HIERARCHIES = [
+  {
+    hierarchyId: 'h-1',
+    name: 'Verwaltung',
+    mandantId: 'm-1',
+    isPublic: false,
+    members: [{ spatialUnitId: 'su-1', hierarchyLevel: 0 }],
+  },
+  { hierarchyId: 'h-2', name: 'Sozialraum', mandantId: 'm-1', isPublic: false, members: [] },
+  { hierarchyId: 'h-x', name: 'Fremd', mandantId: 'm-2', isPublic: false, members: [] },
+];
+
 describe('SpatialUnitEditMetadataModalComponent', () => {
   let component: SpatialUnitEditMetadataModalComponent;
   let fixture: ComponentFixture<SpatialUnitEditMetadataModalComponent>;
+  let hierarchyApi: { getHierarchies: jest.Mock; updateMemberships: jest.Mock };
 
   beforeEach(() => {
+    hierarchyApi = {
+      getHierarchies: jest.fn().mockResolvedValue(HIERARCHIES),
+      updateMemberships: jest.fn().mockResolvedValue({}),
+    };
+
     TestBed.configureTestingModule({
       imports: [SpatialUnitEditMetadataModalComponent, TranslateModule.forRoot()],
       providers: [
@@ -51,6 +70,7 @@ describe('SpatialUnitEditMetadataModalComponent', () => {
           useValue: { availableSpatialUnits: SPATIAL_UNITS },
         },
         { provide: KommonitorDataGridHelperService, useValue: {} },
+        { provide: SpatialUnitHierarchyApiService, useValue: hierarchyApi },
         {
           provide: BroadcastService,
           useValue: { currentBroadcastMsg: new BehaviorSubject<any>({ msg: '' }) },
@@ -68,6 +88,100 @@ describe('SpatialUnitEditMetadataModalComponent', () => {
     component.availableSpatialUnits = SPATIAL_UNITS;
     component.currentSpatialUnitDataset = SPATIAL_UNITS[1] as never;
     component.spatialUnitLevel = 'Stadtteile';
+  });
+
+  // ---------------------------------------------------------------------------
+
+  describe('hierarchy placement', () => {
+    /** Runs ngOnInit and lets the awaited hierarchy fetch settle. */
+    async function initWith(dataset: Record<string, unknown>): Promise<void> {
+      component.currentSpatialUnitDataset = dataset as never;
+      component.ngOnInit();
+      await Promise.resolve();
+      await Promise.resolve();
+    }
+
+    it("offers only the hierarchies of the dataset's own tenant", async () => {
+      await initWith({ spatialUnitId: 'su-1', spatialUnitLevel: 'Stadt', mandantId: 'm-1' });
+
+      expect(component.availableHierarchies.map((entry) => entry.hierarchyId)).toEqual([
+        'h-1',
+        'h-2',
+      ]);
+    });
+
+    it('offers everything it got where the dataset names no tenant', async () => {
+      await initWith({ spatialUnitId: 'su-1', spatialUnitLevel: 'Stadt' });
+
+      expect(component.availableHierarchies).toHaveLength(3);
+    });
+
+    it('shows the hierarchy the dataset already belongs to', async () => {
+      await initWith({
+        spatialUnitId: 'su-1',
+        spatialUnitLevel: 'Stadt',
+        mandantId: 'm-1',
+        hierarchies: [{ hierarchyId: 'h-1', hierarchyLevel: 0 }],
+      });
+
+      expect(component.editForm.controls.hierarchyId.value).toBe('h-1');
+    });
+
+    it('shows no hierarchy for an unassigned dataset', async () => {
+      await initWith({ spatialUnitId: 'su-1', spatialUnitLevel: 'Stadt', mandantId: 'm-1' });
+
+      expect(component.editForm.controls.hierarchyId.value).toBe('');
+    });
+
+    it('writes nothing when the assignment is unchanged', async () => {
+      await initWith({
+        spatialUnitId: 'su-1',
+        spatialUnitLevel: 'Stadt',
+        mandantId: 'm-1',
+        hierarchies: [{ hierarchyId: 'h-1', hierarchyLevel: 0 }],
+      });
+
+      await (
+        component as never as { saveHierarchyPlacement(): Promise<void> }
+      ).saveHierarchyPlacement();
+
+      expect(hierarchyApi.updateMemberships).not.toHaveBeenCalled();
+    });
+
+    it('appends the dataset as the finest level of a newly picked hierarchy', async () => {
+      await initWith({
+        spatialUnitId: 'su-1',
+        spatialUnitLevel: 'Stadt',
+        mandantId: 'm-1',
+        hierarchies: [],
+      });
+      component.editForm.controls.hierarchyId.setValue('h-1');
+
+      await (
+        component as never as { saveHierarchyPlacement(): Promise<void> }
+      ).saveHierarchyPlacement();
+
+      // h-1 already holds one member, so the new one lands at level 1.
+      expect(hierarchyApi.updateMemberships).toHaveBeenCalledWith('su-1', [
+        { hierarchyId: 'h-1', hierarchyLevel: 1 },
+      ]);
+    });
+
+    it('clears the membership when the hierarchy is unset', async () => {
+      await initWith({
+        spatialUnitId: 'su-1',
+        spatialUnitLevel: 'Stadt',
+        mandantId: 'm-1',
+        hierarchies: [{ hierarchyId: 'h-1', hierarchyLevel: 0 }],
+      });
+      component.editForm.controls.hierarchyId.setValue('');
+
+      await (
+        component as never as { saveHierarchyPlacement(): Promise<void> }
+      ).saveHierarchyPlacement();
+
+      expect(hierarchyApi.updateMemberships).toHaveBeenCalledWith('su-1', []);
+    });
   });
 
   it('should create', () => {
@@ -111,57 +225,6 @@ describe('SpatialUnitEditMetadataModalComponent', () => {
   });
 
   // ---------------------------------------------------------------------------
-
-  describe('checkSpatialUnitHierarchy', () => {
-    it('accepts a lower level that is finer than the upper one', () => {
-      component.nextLowerHierarchySpatialUnit = SPATIAL_UNITS[2];
-      component.nextUpperHierarchySpatialUnit = SPATIAL_UNITS[0];
-
-      component.checkSpatialUnitHierarchy();
-
-      expect(component.hierarchyInvalid).toBe(false);
-    });
-
-    it('rejects a lower level that is coarser than the upper one', () => {
-      component.nextLowerHierarchySpatialUnit = SPATIAL_UNITS[0];
-      component.nextUpperHierarchySpatialUnit = SPATIAL_UNITS[2];
-
-      component.checkSpatialUnitHierarchy();
-
-      expect(component.hierarchyInvalid).toBe(true);
-    });
-
-    it('rejects the same level on both ends', () => {
-      component.nextLowerHierarchySpatialUnit = SPATIAL_UNITS[1];
-      component.nextUpperHierarchySpatialUnit = SPATIAL_UNITS[1];
-
-      component.checkSpatialUnitHierarchy();
-
-      expect(component.hierarchyInvalid).toBe(true);
-    });
-
-    it('stays valid while only one end is selected', () => {
-      component.nextLowerHierarchySpatialUnit = SPATIAL_UNITS[0];
-      component.nextUpperHierarchySpatialUnit = null;
-
-      component.checkSpatialUnitHierarchy();
-
-      expect(component.hierarchyInvalid).toBe(false);
-    });
-
-    it('stays valid when a selected level is unknown to the store', () => {
-      // Was rejected here: the index variables start at -1, so two unknown
-      // levels compared as `-1 <= -1`. The add-modal twin treated them as valid
-      // (its variables started `undefined`); the shared validator unifies both
-      // on the add-modal behaviour.
-      component.nextLowerHierarchySpatialUnit = { spatialUnitLevel: 'Fremd' };
-      component.nextUpperHierarchySpatialUnit = { spatialUnitLevel: 'Auch fremd' };
-
-      component.checkSpatialUnitHierarchy();
-
-      expect(component.hierarchyInvalid).toBe(false);
-    });
-  });
 
   // ---------------------------------------------------------------------------
 

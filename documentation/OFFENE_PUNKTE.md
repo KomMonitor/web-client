@@ -181,7 +181,7 @@ Das **geteilte Fundament** unter `adminShared/` — es hat alle weiteren Umbaute
 
 | Baustein                                                               | Inhalt                                                                                                       |
 | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `validators/`                                                          | `uniqueNameValidator`, `periodOfValidityValidator`, `spatialUnitHierarchyValidator`, `bboxCompleteValidator` |
+| `validators/`                                                          | `uniqueNameValidator`, `periodOfValidityValidator`, `bboxCompleteValidator`                                 |
 | `formError/`                                                           | `<app-form-error>` (signalbasiert über `control.events`) + `[appAria]`-Direktive                             |
 | `importerForm/`                                                        | Konverter/Datenquelle inkl. der laufzeit-verschlüsselten Parameter als `FormRecord`                          |
 | `topicHierarchyForm/`                                                  | Modell **und** Komponente; leert tiefere Ebenen beim Wechsel                                                 |
@@ -223,10 +223,10 @@ das übergebene Dataset-Objekt festhalten.
 Zum Abschluss die beiden **`editMetadata`-Modals** (Geo 12→0, Raumebene 8→0) und die
 **Parameter-Entwurfszeile des Skript-Wizards** (12→0). Der Name-/Typ-/Stil-Block der Georessourcen
 ist jetzt als `buildGeoresourceMetadataStep()` mit dem Add-Wizard geteilt; beide `editMetadata`-Modals
-nutzen die geteilte Topic-Komponente und die geteilten Validatoren. Dabei ist eine Divergenz
-zwischen den Raumebenen-Zwillingen verschwunden: das Edit-Modal wertete zwei dem Store unbekannte
-Hierarchie-Ebenen als **ungültig** (`-1 <= -1`), das Add-Modal als gültig (`undefined <= undefined`)
-— beide folgen jetzt der Add-Modal-Semantik.
+nutzen die geteilte Topic-Komponente und die geteilten Validatoren. (Der damals vereinheitlichte
+`spatialUnitHierarchyValidator` ist am 2026-09-21 ersatzlos entfallen: die Data Management API v6
+kennt die Felder „nächst höhere/niedrigere Ebene" am Datensatz nicht mehr — siehe
+`RAUMEINHEITSHIERARCHIEN_UMSETZUNG.md`, Schritt 2.)
 Die **Verhaltensänderungen** dabei, jeweils durch einen umbenannten oder neu benannten Test
 dokumentiert: gleiches Start-/Enddatum wird bei Georessourcen jetzt abgelehnt (`===` verglich zwei frische
 `Date`-Objekte); die Themen-Kaskade leert tiefere Ebenen, statt eine veraltete Referenz aus einem

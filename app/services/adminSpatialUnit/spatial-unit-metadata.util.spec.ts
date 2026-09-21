@@ -86,8 +86,6 @@ describe('buildSpatialUnitMetadataPatchBody', () => {
     const body = buildSpatialUnitMetadataPatchBody(
       '  Stadtteile  ',
       metadata,
-      'Baublöcke',
-      'Stadt',
       true,
       '#123456',
       4,
@@ -105,8 +103,6 @@ describe('buildSpatialUnitMetadataPatchBody', () => {
     const body = buildSpatialUnitMetadataPatchBody(
       'Stadtteile',
       { ...metadata, sridEPSG: 0, updateInterval: null },
-      null,
-      null,
       false,
       '',
       0,

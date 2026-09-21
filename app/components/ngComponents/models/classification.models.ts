@@ -27,18 +27,24 @@ export const CATEGORICAL_OTHER_COLOR = '#c9ced4';
 
 /**
  * Client-side extension of the backend `DefaultClassificationMappingType` with the
- * fields introduced by the step-5 redesign prototype that are not (yet) part of the
- * generated OpenAPI schema: the numeric/categorical type switch, per-class labels,
- * explicit individual colors, and the categorical data.
+ * fields introduced by the step-5 redesign prototype: the numeric/categorical type
+ * switch, per-class labels, explicit individual colors, and the categorical data.
  *
- * These field names are provisional. The forward mapping lives in exactly one place
- * ({@link IndicatorClassificationStateService.buildDefaultClassificationMapping}) and
- * the reverse in `applyMapping`; adjust both plus this type once the backend schema
- * is finalized.
+ * The backend schema has meanwhile caught up: v6 models the same ground as an
+ * `AbstractClassificationMappingType` with a `classificationType` discriminator and
+ * a separate `QualitativeClassificationMappingType`. `classificationType` is
+ * therefore omitted from the base type here and redeclared wide — the generated
+ * type narrows it to `'QUANTITATIVE'` for this branch of the discriminator, while
+ * this one type still covers both cases.
+ *
+ * Replacing this interface with the official schema types is its own piece of work
+ * and touches the forward mapping in exactly one place
+ * ({@link IndicatorClassificationStateService.buildDefaultClassificationMapping})
+ * and the reverse in `applyMapping`.
  */
 export interface ExtendedDefaultClassificationMapping extends Omit<
   DefaultClassificationMappingType,
-  'classificationMethod' | 'items'
+  'classificationMethod' | 'items' | 'classificationType'
 > {
   classificationType: ClassificationType;
   /** Only present for numeric classification. */

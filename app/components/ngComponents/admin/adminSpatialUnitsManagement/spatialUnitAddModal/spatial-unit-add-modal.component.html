@@ -170,71 +170,21 @@
           </div>
           <div class="col-md-4 col-sm-4 col-4">
             <div class="form-group">
-              <label class="form-label">{{
-                'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_LOWER' | translate
+              <label class="form-label" for="su-metadata-hierarchy">{{
+                'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY' | translate
               }}</label>
-              <select
-                formControlName="nextLowerHierarchySpatialUnit"
-                [attr.id]="'su-metadata-lower-hierarchy'"
-                class="form-select"
-              >
-                <option [ngValue]="null">
-                  {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_SPATIAL_UNIT' | translate }}
+              <select formControlName="hierarchyId" id="su-metadata-hierarchy" class="form-select">
+                <option value="">
+                  {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_NONE' | translate }}
                 </option>
-                <option [ngValue]="null">
-                  {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NONE_NEW_LOWEST' | translate }}
-                </option>
-                @for (value of availableSpatialUnits; track value) {
-                  <option [ngValue]="value">
-                    {{ value.spatialUnitLevel }}
-                  </option>
+                @for (hierarchy of availableHierarchies; track hierarchy.hierarchyId) {
+                  <option [value]="hierarchy.hierarchyId">{{ hierarchy.name }}</option>
                 }
               </select>
               <div class="help-block">
-                <p>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_HINT' | translate }}</p>
+                <p>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_ADD_HINT' | translate }}</p>
               </div>
             </div>
-          </div>
-          <div class="col-md-4 col-sm-4 col-4">
-            <div class="form-group">
-              <label class="form-label">{{
-                'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_UPPER' | translate
-              }}</label>
-              <select
-                formControlName="nextUpperHierarchySpatialUnit"
-                [attr.id]="'su-metadata-upper-hierarchy'"
-                class="form-select"
-              >
-                <option [ngValue]="null">
-                  {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_SPATIAL_UNIT' | translate }}
-                </option>
-                <option [ngValue]="null">
-                  {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NONE_NEW_UPPERMOST' | translate }}
-                </option>
-                @for (value of availableSpatialUnits; track value) {
-                  <option [ngValue]="value">
-                    {{ value.spatialUnitLevel }}
-                  </option>
-                }
-              </select>
-              <div class="help-block">
-                <p>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_HINT' | translate }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!--
-          One message for one rule. The hierarchy validator sits on the metadata
-          group, but its message was rendered under each of the two selects, so a
-          single problem was reported twice side by side.
-        -->
-        <div class="row">
-          <div class="col-12">
-            <app-form-error
-              [control]="addForm.controls.metadata"
-              keyOverride="ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_INVALID"
-              showWhen="always"
-            />
           </div>
         </div>
         <div class="row form-section-row">

@@ -1649,14 +1649,10 @@ export class IndicatorAddComponent implements OnInit {
       // get a new template (in case another poi layer was selected previously)
       //this.reportingService.clonedTemplate = this.getCleanTemplate();
 
-      // Indicator might not be selected at this point
-      // We get information about all available spatial units (instead of applicable ones)
-      // Then we select the highest one by default
+      // Indicator might not be selected at this point, so we take all available
+      // spatial units instead of the applicable ones.
       const spatialUnits: any = this.spatialUnitStore.availableSpatialUnits;
       this.allSpatialUnitsForReachability = spatialUnits; // needed for spatial unit selection in 3rd tab
-      const highestSpatialUnit = spatialUnits.filter((unit) => {
-        return unit.nextUpperHierarchyLevel === null;
-      });
       if (!this.selectedSpatialUnit) {
         this.selectedSpatialUnit = this.spatialUnitStore.availableSpatialUnits[0];
         this.spatialUnitSelect = new FormControl(this.selectedSpatialUnit);

@@ -14,18 +14,9 @@ import {
   MetadataLoadingState,
 } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 
-import { skip } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { SpatialUnitAddModalComponent } from './spatialUnitAddModal/spatial-unit-add-modal.component';
-import { SpatialUnitEditMetadataModalComponent } from './spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.component';
-import { SpatialUnitEditFeaturesModalComponent } from './spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.component';
-import { SpatialUnitEditUserRolesModalComponent } from './spatialUnitEditUserRolesModal/spatial-unit-edit-user-roles-modal.component';
-import { SpatialUnitDeleteModalComponent } from './spatialUnitDeleteModal/spatial-unit-delete-modal.component';
-import { SpatialUnitOverviewType as SpatialUnitMetadata } from 'models/data-management-api';
-import { AccessControlService } from 'services/access-control-service/access-control.service';
-import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
-import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
-import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AgGridAngular } from 'ag-grid-angular';
 import {
   CellClickedEvent,
@@ -35,14 +26,32 @@ import {
   ValueGetterParams,
 } from 'ag-grid-community';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
-import { FormsModule } from '@angular/forms';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import { SpatialUnitOverviewType as SpatialUnitMetadata } from 'models/data-management-api';
+import { skip } from 'rxjs';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { MODAL_CONFIRM, MODAL_FORM, MODAL_WIDE } from 'util/modal-presets';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { AdminModalService } from '../adminShared/modal/admin-modal.service';
-import { TranslateModule } from '@ngx-translate/core';
-import { TranslateService } from '@ngx-translate/core';
-import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { SpatialUnitRefreshRequest } from './spatial-unit-refresh.model';
-import { MODAL_CONFIRM, MODAL_FORM, MODAL_WIDE } from 'util/modal-presets';
+import { SpatialUnitAddModalComponent } from './spatialUnitAddModal/spatial-unit-add-modal.component';
+import { SpatialUnitDeleteModalComponent } from './spatialUnitDeleteModal/spatial-unit-delete-modal.component';
+import { SpatialUnitEditFeaturesModalComponent } from './spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.component';
+import { SpatialUnitEditMetadataModalComponent } from './spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.component';
+import { SpatialUnitEditUserRolesModalComponent } from './spatialUnitEditUserRolesModal/spatial-unit-edit-user-roles-modal.component';
+
+/**
+ * The hierarchies a spatial unit belongs to, by name, ordered by its position
+ * in each. Falls back to the id where the API leaves `hierarchyName` null.
+ */
+function hierarchyNamesOf(dataset: SpatialUnitMetadata | undefined): string[] {
+  return [...(dataset?.hierarchies ?? [])]
+    .sort((a, b) => a.hierarchyLevel - b.hierarchyLevel)
+    .map((membership) => membership.hierarchyName || membership.hierarchyId);
+}
 
 @Component({
   selector: 'app-admin-spatial-units-management',
@@ -121,14 +130,11 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
           '' + params.data!.metadata.description,
       },
       {
-        headerName: this.translate.instant('ADMIN_SPATIAL_UNITS.GRID.COL_NEXT_LOWER_LEVEL'),
-        field: 'nextLowerHierarchyLevel',
-        minWidth: 250,
-      },
-      {
-        headerName: this.translate.instant('ADMIN_SPATIAL_UNITS.GRID.COL_NEXT_UPPER_LEVEL'),
-        field: 'nextUpperHierarchyLevel',
-        minWidth: 250,
+        headerName: this.translate.instant('ADMIN_SPATIAL_UNITS.GRID.COL_HIERARCHIES'),
+        minWidth: 300,
+        valueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
+          hierarchyNamesOf(params.data).join(', '),
+        filter: 'agTextColumnFilter',
       },
       {
         headerName: this.translate.instant('ADMIN_SHARED.PERIOD_OF_VALIDITY'),

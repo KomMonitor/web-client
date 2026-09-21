@@ -1378,7 +1378,6 @@
       "MAX_DATE": "The date is after the latest allowed date ({{value}}).",
       "UNIQUE_NAME": "The name \"{{name}}\" is already taken.",
       "PERIOD_OF_VALIDITY": "The start date must lie before the end date.",
-      "SPATIAL_UNIT_HIERARCHY": "The upper spatial unit level must be coarser than the lower one.",
       "BBOX_INCOMPLETE": "Please provide all four bounding box values.",
       "TOPIC_REQUIRED": "Please select at least a main topic.",
       "UNKNOWN": "The input is invalid.",
@@ -1692,20 +1691,18 @@
       "NAME_LABEL": "Name of the spatial unit level",
       "UNIQUE_NAME_PLACEHOLDER": "unique name",
       "NAME_INVALID": "Invalid input. A spatial unit level with the same name already exists.",
-      "HIERARCHY_LOWER": "Hierarchy: next lower level",
-      "HIERARCHY_UPPER": "Hierarchy: next higher level",
       "SELECT_SPATIAL_UNIT": "-- select spatial unit level --",
-      "NONE_NEW_LOWEST": "-- none (new lowest level) --",
-      "NONE_NEW_UPPERMOST": "-- none (new highest level) --",
-      "HIERARCHY_HINT": "The entry can be set later using the metadata editing function",
-      "HIERARCHY_INVALID": "Invalid input. The defined hierarchy is not allowed.",
       "MARK_AS_OUTLINE_LAYER": "mark as outline layer?",
       "OUTLINE_LAYER_HINT": "if checked, a corresponding entry for displaying the spatial unit level outlines is offered in the layer control of the map application",
       "OUTLINE_COLOR": "Line color (outline layer)",
       "SELECT_OUTLINE_COLOR": "Select line color",
       "OUTLINE_WIDTH": "Line width (outline layer)",
       "OUTLINE_PATTERN": "Line pattern (outline layer)",
-      "SELECT_OUTLINE_PATTERN": "Select line pattern"
+      "SELECT_OUTLINE_PATTERN": "Select line pattern",
+      "HIERARCHY": "Hierarchy",
+      "HIERARCHY_NONE": "Do not assign to a hierarchy",
+      "HIERARCHY_ADD_HINT": "Optional. The spatial unit level is appended as the finest level of the chosen hierarchy; the order can be changed afterwards under \"Spatial unit hierarchies\".",
+      "HIERARCHY_EDIT_HINT": "On a change the spatial unit level is appended as the finest level; the order can be changed under \"Spatial unit hierarchies\"."
     },
     "GENERAL_STEP": {
       "SUBTITLE": "Information about general metadata in KomMonitor"
@@ -1807,7 +1804,8 @@
       "UPDATING": "Updating...",
       "MSG": {
         "METADATA_UPDATED": "Metadata for spatial unit \"{{name}}\" successfully updated.",
-        "METADATA_UPDATE_FAILED": "Error updating the metadata: {{error}}"
+        "METADATA_UPDATE_FAILED": "Error updating the metadata: {{error}}",
+        "HIERARCHY_UPDATE_FAILED": "The metadata was saved, the hierarchy assignment was not: {{error}}"
       }
     },
     "EDIT_FEATURES_MODAL": {
@@ -1851,8 +1849,7 @@
       "LOAD_FAILED": "The spatial units could not be loaded."
     },
     "GRID": {
-      "COL_NEXT_LOWER_LEVEL": "Next lower spatial unit level",
-      "COL_NEXT_UPPER_LEVEL": "Next higher spatial unit level",
+      "COL_HIERARCHIES": "Hierarchies",
       "COL_OUTLINE_LINE_COLOR": "Line color (outline layer)",
       "COL_OUTLINE_LINE_WIDTH": "Line width (outline layer)",
       "COL_OUTLINE_LINE_PATTERN": "Line pattern (outline layer)",

@@ -26,6 +26,11 @@ import {
   validateSpatialUnitMetadata,
 } from 'services/adminSpatialUnit/spatial-unit-metadata.util';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import {
+  SpatialUnitHierarchyApiService,
+  placementFor,
+} from 'services/spatial-unit-hierarchy-service/spatial-unit-hierarchy-api.service';
+import { SpatialUnitHierarchyOverviewType } from 'models/data-management-api';
 import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
 import { FormControlAriaDirective } from '../../adminShared/formError/form-control-aria.directive';
 import {
@@ -85,6 +90,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   protected envConfigService = inject(EnvConfigService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
+  private hierarchyApi = inject(SpatialUnitHierarchyApiService);
   private http = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
   private sanitizer = inject(DomSanitizer);
@@ -117,7 +123,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     existingLevelNames: () =>
       (this.availableSpatialUnits ?? []).map((unit: any) => unit.spatialUnitLevel),
     currentLevelName: () => this.currentSpatialUnitDataset?.spatialUnitLevel ?? null,
-    orderedSpatialUnits: () => this.availableSpatialUnits ?? [],
   });
 
   // Basic form data
@@ -146,23 +151,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
   // Date picker visibility control
   // showDatepicker = false;
-
-  // Hierarchy
-  get nextLowerHierarchySpatialUnit(): any {
-    return this.editForm.controls.nextLowerHierarchySpatialUnit.value;
-  }
-  set nextLowerHierarchySpatialUnit(value: any) {
-    this.editForm.controls.nextLowerHierarchySpatialUnit.setValue(value ?? null);
-  }
-  get nextUpperHierarchySpatialUnit(): any {
-    return this.editForm.controls.nextUpperHierarchySpatialUnit.value;
-  }
-  set nextUpperHierarchySpatialUnit(value: any) {
-    this.editForm.controls.nextUpperHierarchySpatialUnit.setValue(value ?? null);
-  }
-  get hierarchyInvalid(): boolean {
-    return this.editForm.hasError('spatialUnitHierarchy');
-  }
 
   // Outline layer settings
   get isOutlineLayer(): boolean {
@@ -195,6 +183,9 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
   // Available options
   availableSpatialUnits: any[] = [];
+
+  /** The hierarchies of this dataset's tenant — the only ones it may join. */
+  availableHierarchies: SpatialUnitHierarchyOverviewType[] = [];
   updateIntervalOptions: any[] = [];
   availableLoiDashArrayObjects: any[] = [];
 
@@ -226,7 +217,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     }
   }
 
-  private loadInitialData() {
+  private async loadInitialData() {
     this.loadingData.set(true);
 
     // Load available spatial units
@@ -244,7 +235,17 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
       this.availableLoiDashArrayObjects = LABELED_LOI_DASH_ARRAY_OBJECTS;
     }
 
+    // Only this dataset's own tenant: the backend rejects a cross-tenant member.
+    const mandantId = this.currentSpatialUnitDataset?.mandantId ?? '';
+    const hierarchies = await this.hierarchyApi.getHierarchies();
+    this.availableHierarchies = mandantId
+      ? hierarchies.filter((entry) => entry.mandantId === mandantId)
+      : hierarchies;
+    this.applyHierarchyFromDataset();
+
     this.loadingData.set(false);
+    // The list arrives after the first render; OnPush needs to be told.
+    this.cdr.markForCheck();
   }
 
   // Date picker change handler - now using ng-bootstrap's built-in functionality
@@ -252,6 +253,17 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   // No need for custom methods since ng-bootstrap handles everything
 
   // Remove custom click outside and escape key handlers since ng-bootstrap handles this
+
+  /**
+   * Shows the hierarchy the dataset currently belongs to. Only the first one is
+   * offered: a spatial unit may be in several, but assembling that is the
+   * hierarchy admin page's job — this modal keeps the common single case
+   * editable and leaves the rest untouched.
+   */
+  private applyHierarchyFromDataset(): void {
+    const memberships = this.currentSpatialUnitDataset?.hierarchies ?? [];
+    this.editForm.controls.hierarchyId.setValue(memberships[0]?.hierarchyId ?? '');
+  }
 
   resetForm() {
     const dataset = this.currentSpatialUnitDataset;
@@ -267,18 +279,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
       this.metadataForm.controls.updateInterval.setValue(this.updateIntervalOptions[0]);
     }
 
-    // Set hierarchy
-    this.nextLowerHierarchySpatialUnit = null;
-    this.nextUpperHierarchySpatialUnit = null;
-
-    this.availableSpatialUnits.forEach((spatialUnit) => {
-      if (spatialUnit.spatialUnitLevel === dataset.nextLowerHierarchyLevel) {
-        this.nextLowerHierarchySpatialUnit = spatialUnit;
-      }
-      if (spatialUnit.spatialUnitLevel === dataset.nextUpperHierarchyLevel) {
-        this.nextUpperHierarchySpatialUnit = spatialUnit;
-      }
-    });
+    this.applyHierarchyFromDataset();
 
     // Set outline layer settings - FIXED: Properly initialize outline layer properties
     this.isOutlineLayer = dataset.isOutlineLayer || false;
@@ -323,11 +324,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     this.editForm.controls.spatialUnitLevel.updateValueAndValidity();
   }
 
-  /** The rule is `spatialUnitHierarchyValidator` on the group now. */
-  checkSpatialUnitHierarchy() {
-    this.editForm.updateValueAndValidity();
-  }
-
   onChangeOutlineDashArray(outlineDashArrayObject: LinePatternOption | null) {
     this.selectedOutlineDashArrayObject = outlineDashArrayObject;
 
@@ -358,12 +354,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     const patchBody = buildSpatialUnitMetadataPatchBody(
       this.spatialUnitLevel,
       this.metadata,
-      this.nextLowerHierarchySpatialUnit
-        ? this.nextLowerHierarchySpatialUnit.spatialUnitLevel
-        : null,
-      this.nextUpperHierarchySpatialUnit
-        ? this.nextUpperHierarchySpatialUnit.spatialUnitLevel
-        : null,
       this.isOutlineLayer,
       this.outlineColor,
       this.outlineWidth,
@@ -383,6 +373,23 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
           patchBody
         )
         .toPromise();
+
+      // The hierarchy placement travels separately: SpatialUnitPATCHInputType
+      // carries no `hierarchies` field, so it is written through the spatial
+      // unit's own memberships endpoint. Order matters — the metadata is
+      // already saved when this runs, which is what the error message says.
+      try {
+        await this.saveHierarchyPlacement();
+      } catch (error: any) {
+        this.loadingData.set(false);
+        this.notificationService.showError(
+          this.translate.instant(
+            'ADMIN_SPATIAL_UNITS.EDIT_METADATA_MODAL.MSG.HIERARCHY_UPDATE_FAILED',
+            { error: getErrorMessage(error) }
+          )
+        );
+        return;
+      }
 
       // Ask the parent to refresh its overview table for this spatial unit.
       this.refreshRequested.emit({
@@ -414,6 +421,27 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
       );
       this.loadingData.set(false);
     }
+  }
+
+  /**
+   * Writes the chosen hierarchy, if it differs from what the dataset already
+   * has. Skipped when nothing changed, so an ordinary metadata edit stays a
+   * single request.
+   */
+  private async saveHierarchyPlacement(): Promise<void> {
+    const dataset = this.currentSpatialUnitDataset;
+    if (!dataset) {
+      return;
+    }
+
+    const memberships = dataset.hierarchies ?? [];
+    const selected = this.editForm.controls.hierarchyId.value;
+    if ((memberships[0]?.hierarchyId ?? '') === selected) {
+      return;
+    }
+
+    const placement = placementFor(selected, memberships, this.availableHierarchies);
+    await this.hierarchyApi.updateMemberships(dataset.spatialUnitId, placement);
   }
 
   // Import/Export functionality
@@ -467,16 +495,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
       this.updateIntervalOptions
     );
 
-    // Set hierarchy
-    this.availableSpatialUnits.forEach((spatialUnit) => {
-      if (spatialUnit.spatialUnitLevel === this.metadataImportSettings.nextLowerHierarchyLevel) {
-        this.nextLowerHierarchySpatialUnit = spatialUnit;
-      }
-      if (spatialUnit.spatialUnitLevel === this.metadataImportSettings.nextUpperHierarchyLevel) {
-        this.nextUpperHierarchySpatialUnit = spatialUnit;
-      }
-    });
-
     this.spatialUnitLevel = this.metadataImportSettings.spatialUnitLevel;
 
     // Set outline layer settings from import
@@ -508,12 +526,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     const metadataExport = buildSpatialUnitMetadataExport(
       this.metadata,
       this.spatialUnitLevel,
-      this.nextLowerHierarchySpatialUnit
-        ? this.nextLowerHierarchySpatialUnit.spatialUnitLevel
-        : null,
-      this.nextUpperHierarchySpatialUnit
-        ? this.nextUpperHierarchySpatialUnit.spatialUnitLevel
-        : null,
       this.isOutlineLayer,
       this.outlineColor,
       this.outlineWidth,

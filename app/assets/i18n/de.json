@@ -1378,7 +1378,6 @@
       "MAX_DATE": "Das Datum liegt nach dem spätestmöglichen Datum ({{value}}).",
       "UNIQUE_NAME": "Der Name „{{name}}“ ist bereits vergeben.",
       "PERIOD_OF_VALIDITY": "Der Startzeitpunkt muss vor dem Endzeitpunkt liegen.",
-      "SPATIAL_UNIT_HIERARCHY": "Die übergeordnete Raumebene muss gröber sein als die untergeordnete.",
       "BBOX_INCOMPLETE": "Bitte alle vier Werte des Begrenzungsrahmens angeben.",
       "TOPIC_REQUIRED": "Bitte mindestens ein Hauptthema wählen.",
       "UNKNOWN": "Die Eingabe ist ungültig.",
@@ -1692,20 +1691,18 @@
       "NAME_LABEL": "Name der Raumebene",
       "UNIQUE_NAME_PLACEHOLDER": "eindeutiger Name",
       "NAME_INVALID": "Eingabe ungültig. Es existiert bereits eine Raumebene mit gleichem Namen.",
-      "HIERARCHY_LOWER": "Hierarchie: nächst niedrigere Ebene",
-      "HIERARCHY_UPPER": "Hierarchie: nächst höhere Ebene",
       "SELECT_SPATIAL_UNIT": "-- Raumebene wählen --",
-      "NONE_NEW_LOWEST": "-- keine (neue unterste Ebene) --",
-      "NONE_NEW_UPPERMOST": "-- keine (neue oberste Ebene) --",
-      "HIERARCHY_HINT": "Eintrag kann im Nachhinein mittels Metadaten-Editier-Funktion gesetzt werden",
-      "HIERARCHY_INVALID": "Eingabe ungültig. Definierte Hierarchie ist nicht erlaubt.",
       "MARK_AS_OUTLINE_LAYER": "als Umringslayer markieren?",
       "OUTLINE_LAYER_HINT": "wenn markiert, dann wird in der Kartenapplikation in der Layersteuerung ein entsprechender Eintrag zur Darstellung der Raumebenenumringe angeboten",
       "OUTLINE_COLOR": "Linienfarbe (Umringslayer)",
       "SELECT_OUTLINE_COLOR": "Linienfarbe wählen",
       "OUTLINE_WIDTH": "Linienbreite (Umringslayer)",
       "OUTLINE_PATTERN": "Linienmuster (Umringslayer)",
-      "SELECT_OUTLINE_PATTERN": "Linienmuster wählen"
+      "SELECT_OUTLINE_PATTERN": "Linienmuster wählen",
+      "HIERARCHY": "Hierarchie",
+      "HIERARCHY_NONE": "Keiner Hierarchie zuordnen",
+      "HIERARCHY_ADD_HINT": "Optional. Die Raumebene wird als feinste Ebene an die gewählte Hierarchie angehängt; die Reihenfolge lässt sich danach unter „Raumeinheitshierarchien\" ändern.",
+      "HIERARCHY_EDIT_HINT": "Die Raumebene wird beim Wechsel als feinste Ebene angehängt; die Reihenfolge lässt sich unter „Raumeinheitshierarchien\" ändern."
     },
     "GENERAL_STEP": {
       "SUBTITLE": "Angaben über allgemeine Metadaten in KomMonitor"
@@ -1807,7 +1804,8 @@
       "UPDATING": "Aktualisiere...",
       "MSG": {
         "METADATA_UPDATED": "Metadaten für Raumebene \"{{name}}\" erfolgreich aktualisiert.",
-        "METADATA_UPDATE_FAILED": "Fehler beim Aktualisieren der Metadaten: {{error}}"
+        "METADATA_UPDATE_FAILED": "Fehler beim Aktualisieren der Metadaten: {{error}}",
+        "HIERARCHY_UPDATE_FAILED": "Die Metadaten wurden gespeichert, die Hierarchie-Zuordnung nicht: {{error}}"
       }
     },
     "EDIT_FEATURES_MODAL": {
@@ -1851,8 +1849,7 @@
       "LOAD_FAILED": "Die Raumebenen konnten nicht geladen werden."
     },
     "GRID": {
-      "COL_NEXT_LOWER_LEVEL": "Nächst niedrigere Raumebene",
-      "COL_NEXT_UPPER_LEVEL": "Nächst höhere Raumebene",
+      "COL_HIERARCHIES": "Hierarchien",
       "COL_OUTLINE_LINE_COLOR": "Linienfarbe (Umringslayer)",
       "COL_OUTLINE_LINE_WIDTH": "Linienbreite (Umringslayer)",
       "COL_OUTLINE_LINE_PATTERN": "Linienmuster (Umringslayer)",

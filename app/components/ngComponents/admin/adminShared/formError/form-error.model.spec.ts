@@ -43,9 +43,6 @@ describe('resolveFormError', () => {
     expect(resolveFormError({ periodOfValidity: true })!.key).toBe(
       `${FORM_ERROR_I18N_PREFIX}PERIOD_OF_VALIDITY`
     );
-    expect(resolveFormError({ spatialUnitHierarchy: true })!.key).toBe(
-      `${FORM_ERROR_I18N_PREFIX}SPATIAL_UNIT_HIERARCHY`
-    );
     expect(resolveFormError({ bboxIncomplete: true })!.key).toBe(
       `${FORM_ERROR_I18N_PREFIX}BBOX_INCOMPLETE`
     );

@@ -20,6 +20,12 @@ import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/me
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { MandantService } from 'services/mandant-service/mandant.service';
+import {
+  SpatialUnitHierarchyApiService,
+  placementFor,
+} from 'services/spatial-unit-hierarchy-service/spatial-unit-hierarchy-api.service';
+import { SpatialUnitHierarchyOverviewType } from 'models/data-management-api';
 import {
   LABELED_LOI_DASH_ARRAY_OBJECTS,
   SPATIAL_UNIT_METADATA_STRUCTURE,
@@ -120,6 +126,8 @@ export class SpatialUnitAddModalComponent implements OnInit {
   private metadataBootstrap = inject(MetadataBootstrapService);
   private indicatorValueService = inject(IndicatorValueService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
+  private hierarchyApi = inject(SpatialUnitHierarchyApiService);
+  private mandantService = inject(MandantService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
@@ -150,7 +158,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     withSecurity: this.envConfigService.enableKeycloakSecurity,
     existingLevelNames: () =>
       (this.availableSpatialUnits ?? []).map((unit: any) => unit.spatialUnitLevel),
-    orderedSpatialUnits: () => this.spatialUnitStore.availableSpatialUnits ?? [],
   });
 
   // Per-step validity for the stepper marking. Reading these signals from the
@@ -213,16 +220,15 @@ export class SpatialUnitAddModalComponent implements OnInit {
     return this.metadataForm.getRawValue();
   }
 
-  get hierarchyInvalid(): boolean {
-    return this.addForm.controls.metadata.hasError('spatialUnitHierarchy');
-  }
-
   get periodOfValidityInvalid(): boolean {
     return this.addForm.controls.data.controls.periodOfValidity.hasError('periodOfValidity');
   }
 
   // Available options
   availableSpatialUnits: any[] = [];
+
+  /** Every hierarchy the user may see; narrowed per owner by `availableHierarchies`. */
+  allHierarchies: SpatialUnitHierarchyOverviewType[] = [];
   updateIntervalOptions: any[] = [];
   availableDatasourceTypes: DatasourceType[] = [];
   availableLoiDashArrayObjects: any[] = [];
@@ -318,6 +324,21 @@ export class SpatialUnitAddModalComponent implements OnInit {
       .subscribe((datasourceType) => this.applyDatasourceTypeChange(datasourceType));
   }
 
+  /**
+   * The hierarchies the new level may join: those of the tenant it will belong
+   * to. That tenant follows from the owning organization picked in the security
+   * step, and before one is picked from the user's own. A cross-tenant choice
+   * would be rejected by the backend, so it is not offered.
+   */
+  get availableHierarchies(): SpatialUnitHierarchyOverviewType[] {
+    const owner = this.addForm.controls.security.controls.ownerOrganization.value;
+    const mandantId =
+      this.mandantService.mandantIdOfOwner(owner) || this.mandantService.ownMandantRef?.id || '';
+    return mandantId
+      ? this.allHierarchies.filter((entry) => entry.mandantId === mandantId)
+      : this.allHierarchies;
+  }
+
   /** Seeds the role grid and reveals the permission block for a chosen owner. */
   private applyOwnerOrganization(ownerOrganization: string): void {
     this.roleGrid?.applyOwner(ownerOrganization);
@@ -332,6 +353,15 @@ export class SpatialUnitAddModalComponent implements OnInit {
     if (this.spatialUnitStore.availableSpatialUnits) {
       this.availableSpatialUnits = this.spatialUnitStore.availableSpatialUnits;
     }
+
+    // Not awaited on purpose: the hierarchy field is optional and sits in the
+    // first step, while the importer resources below gate the data step. Making
+    // the wizard wait for a list it does not need to render would delay it for
+    // nothing.
+    void this.hierarchyApi.getHierarchies().then((hierarchies) => {
+      this.allHierarchies = hierarchies;
+      this.cdr.markForCheck();
+    });
 
     // Load update interval options
     if (this.envConfigService.updateIntervalOptions) {
@@ -409,11 +439,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
    */
   checkSpatialUnitName() {
     this.addForm.controls.metadata.controls.spatialUnitLevel.updateValueAndValidity();
-  }
-
-  /** See `checkSpatialUnitName` — the rule is `spatialUnitHierarchyValidator`. */
-  checkSpatialUnitHierarchy() {
-    this.addForm.controls.metadata.updateValueAndValidity();
   }
 
   /** See `checkSpatialUnitName` — the rule is `periodOfValidityValidator`. */
@@ -534,7 +559,17 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   /** POST body for the importer; the role grid stays imperative. */
   buildPostBody_spatialUnits(): SpatialUnitAddPostBody {
-    return spatialUnitAddFormToApi(this.addForm, this.roleGrid?.getSelectedRoleIds() ?? []);
+    // A new level has no memberships yet, so the placement is always an append.
+    const placement = placementFor(
+      this.addForm.controls.metadata.controls.hierarchyId.value,
+      [],
+      this.allHierarchies
+    );
+    return spatialUnitAddFormToApi(
+      this.addForm,
+      this.roleGrid?.getSelectedRoleIds() ?? [],
+      placement
+    );
   }
 
   async addSpatialUnit() {
@@ -633,7 +668,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   onSubmit() {
-    if (!this.spatialUnitLevelInvalid && !this.hierarchyInvalid) {
+    if (!this.spatialUnitLevelInvalid) {
       this.addSpatialUnit();
     } else {
       this.loadingData.set(false);
@@ -723,16 +758,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     // Parse role management (changed from allowedRoles to permissions)
     this.roleGrid?.applyPermissions(this.metadataImportSettings.permissions || []);
 
-    // Parse hierarchy
-    this.spatialUnitStore.availableSpatialUnits.forEach((spatialUnit: any) => {
-      if (spatialUnit.spatialUnitLevel === this.metadataImportSettings.nextLowerHierarchyLevel) {
-        metadata.controls.nextLowerHierarchySpatialUnit.setValue(spatialUnit);
-      }
-      if (spatialUnit.spatialUnitLevel === this.metadataImportSettings.nextUpperHierarchyLevel) {
-        metadata.controls.nextUpperHierarchySpatialUnit.setValue(spatialUnit);
-      }
-    });
-
     // Parse outline layer settings
     metadata.controls.isOutlineLayer.setValue(!!this.metadataImportSettings.isOutlineLayer);
     this.outlineColor = this.metadataImportSettings.outlineColor || '#000000';
@@ -803,8 +828,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     const metadataExport = buildSpatialUnitMetadataExport(
       this.metadata,
       metadata.spatialUnitLevel,
-      metadata.nextLowerHierarchySpatialUnit?.spatialUnitLevel || null,
-      metadata.nextUpperHierarchySpatialUnit?.spatialUnitLevel || null,
       metadata.isOutlineLayer,
       this.outlineColor,
       metadata.outlineWidth,
