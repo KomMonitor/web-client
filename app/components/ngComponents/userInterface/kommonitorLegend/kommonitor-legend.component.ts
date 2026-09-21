@@ -13,6 +13,7 @@ import {
   CATEGORICAL_OTHER_COLOR,
   ClassificationMapping,
 } from 'components/ngComponents/models/classification.models';
+import { SpatialUnitHierarchyOverviewType } from 'components/ngComponents/models/spatial-units.models';
 import { CategoricalMappingType } from 'models/data-management-api';
 import { ActiveWmsFilter } from 'pipes/active-wms-filter.pipe';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
@@ -30,6 +31,7 @@ import { MetadataExportService } from 'services/metadata-export-service/metadata
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { ShareHelperService } from 'services/share-helper-service/share-helper.service';
+import { SpatialUnitHierarchyService } from 'services/spatial-unit-hierarchy-service/spatial-unit-hierarchy.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { IndicatorExportModalComponent } from '../exporting/indicator-export-modal/indicator-export-modal.component';
 import { KommonitorClassificationComponent } from '../kommonitorClassification/kommonitor-classification.component';
@@ -69,6 +71,7 @@ export class KommonitorLegendComponent implements OnInit {
   private mapService = inject(MapService);
   protected envConfigService = inject(EnvConfigService);
   private dataSetupService = inject(KommonitorDataSetupService);
+  private spatialUnitHierarchyService = inject(SpatialUnitHierarchyService);
 
   elementVisibilityData: any;
   visualStyleData: any;
@@ -102,6 +105,13 @@ export class KommonitorLegendComponent implements OnInit {
 
   isDisabledDate;
   datePickerDate;
+
+  /** hierarchyId of the currently active hierarchy filter, if any. */
+  protected selectedHierarchyId: string | undefined;
+  /** spatialUnitId -> hierarchyLevel of the active hierarchy's members, used to filter/order the Raumebene select. */
+  private activeHierarchyMemberLevels: Map<string, number> | undefined;
+  /** All hierarchies available for the legend's "Hierachie" buttons, fetched once on init. */
+  private hierarchies: SpatialUnitHierarchyOverviewType[] = [];
 
   /** Per-class labels of the current indicator's default classification, index-aligned to the class positions. */
   protected get classificationLabels(): string[] {
@@ -168,6 +178,10 @@ export class KommonitorLegendComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.spatialUnitHierarchyService.fetchAllHierarchies().then((hierarchies) => {
+      this.hierarchies = hierarchies;
+    });
+
     $(document).ready(function () {
       $('.nav li.disabled a').click(function () {
         return false;
@@ -252,8 +266,39 @@ export class KommonitorLegendComponent implements OnInit {
   }
 
   filteredSpatialUnits() {
-    return this.spatialUnitStore.availableSpatialUnits.filter(
+    const allowedForIndicator = this.spatialUnitStore.availableSpatialUnits.filter(
       (e) => this.selectionState.isAllowedSpatialUnitForCurrentIndicator(e) !== false
+    );
+
+    if (!this.activeHierarchyMemberLevels) {
+      return allowedForIndicator;
+    }
+
+    const memberLevels = this.activeHierarchyMemberLevels;
+    return allowedForIndicator
+      .filter((e) => memberLevels.has(e.spatialUnitId))
+      .sort((a, b) => memberLevels.get(a.spatialUnitId)! - memberLevels.get(b.spatialUnitId)!);
+  }
+
+  /** All hierarchies available for the legend's "Hierachie" buttons. */
+  protected availableHierarchies(): SpatialUnitHierarchyOverviewType[] {
+    return this.hierarchies;
+  }
+
+  async onClickHierarchy(hierarchy: SpatialUnitHierarchyOverviewType) {
+    if (this.selectedHierarchyId === hierarchy.hierarchyId) {
+      // clicking the active hierarchy again clears the filter
+      this.selectedHierarchyId = undefined;
+      this.activeHierarchyMemberLevels = undefined;
+      return;
+    }
+
+    const hierarchyMembers = await this.spatialUnitHierarchyService.fetchHierarchyMembers(
+      hierarchy.hierarchyId
+    );
+    this.selectedHierarchyId = hierarchy.hierarchyId;
+    this.activeHierarchyMemberLevels = new Map(
+      hierarchyMembers.members.map((member) => [member.spatialUnitId, member.hierarchyLevel])
     );
   }
 

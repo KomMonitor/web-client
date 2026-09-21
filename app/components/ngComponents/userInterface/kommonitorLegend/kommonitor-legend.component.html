@@ -9,8 +9,31 @@
 </button>
 @if (selectionState.selectedIndicator) {
   <div id="legendWrapper" [hidden]="!legendVisible">
-    <expandable-box [title]="'Raumebene und Export'" [collapsed]="true">
+    <expandable-box [title]="'Raumebene und Export'" [collapsed]="false">
       <div class="boxedLegend">
+        <div class="row" style="margin-right: 0px">
+          <div class="col-sm-12">
+            @if (availableHierarchies().length > 0) {
+              <div class="text-left">
+                <label>Hierachie</label>
+              </div>
+              <div class="btn-group" id="spatialUnitHierarchyButtons">
+                @for (hierarchy of availableHierarchies(); track hierarchy.hierarchyId) {
+                  <button
+                    type="button"
+                    class="btn btn-sm"
+                    [class.btn-primary]="selectedHierarchyId === hierarchy.hierarchyId"
+                    [class.btn-secondary]="selectedHierarchyId !== hierarchy.hierarchyId"
+                    (click)="onClickHierarchy(hierarchy)"
+                  >
+                    {{ hierarchy.name }}
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </div>
+        <br />
         <div class="row" style="margin-right: 0px">
           <div class="col-sm-7">
             <!-- *ngIf="env.enableSpatialUnitNotificationButton" -->
@@ -46,7 +69,7 @@
             <div class="text-left"><label>Datum</label></div>
             <div class="col-12">
               <input
-                class="form-control"
+                class="form-control date-select"
                 placeholder="yyyy-mm-dd"
                 name="dp"
                 [(ngModel)]="datePickerDate"

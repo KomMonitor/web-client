@@ -45,7 +45,7 @@ export class SidebarStateService {
     'sidebarRegressionDiagramCollapse',
   ];
 
-  private readonly _activeElement = signal<ActiveSidebarElement>('');
+  private readonly _activeElement = signal<ActiveSidebarElement>('sidebarIndicatorConfigCollapse');
   /** Id of the currently docked sidebar button, or '' when none is open. */
   readonly activeElement = this._activeElement.asReadonly();
 

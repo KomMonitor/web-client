@@ -20,6 +20,7 @@ import { IndicatorMetadataTooltipComponent } from 'components/ngComponents/custo
 import { WmsTableComponent } from '../wmsTable/wms-table.component';
 import { ExportItemCheckboxComponent } from 'components/ngComponents/userInterface/exporting/export-item-checkbox/export-item-checkbox.component';
 import { Indicator } from 'components/ngComponents/userInterface/exporting/models';
+import { CollapsibleSectionComponent } from 'components/ngComponents/common/collapsible-section/collapsible-section.component';
 
 @Component({
   selector: 'app-topic-tree',
@@ -31,6 +32,7 @@ import { Indicator } from 'components/ngComponents/userInterface/exporting/model
     IndicatorMetadataTooltipComponent,
     WmsTableComponent,
     ExportItemCheckboxComponent,
+    CollapsibleSectionComponent,
   ],
 })
 export class TopicTreeComponent implements OnChanges {
