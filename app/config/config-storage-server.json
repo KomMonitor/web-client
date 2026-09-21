@@ -1,5 +1,5 @@
 {
-  "targetUrlToConfigStorageServer_appConfig" : "https://demo.kommonitor.de.52north.org/client-config/config/client-app-config",
+  "targetUrlToConfigStorageServer_appConfig" : "./assets/env_local.js",
   "targetUrlToConfigStorageServer_keycloakConfig" : "https://demo.kommonitor.de.52north.org/client-config/config/client-keycloak-config",
   "targetUrlToConfigStorageServer_controlsConfig" : "https://demo.kommonitor.de.52north.org/client-config/config/client-controls-config",
   "targetUrlToConfigStorageServer_filterConfig" : "https://demo.kommonitor.de.52north.org/client-config/config/client-filter-config",

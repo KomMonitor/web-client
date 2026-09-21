@@ -66,6 +66,25 @@ When implementing features, work in the `ngComponents` / `services` (TypeScript)
 
 Do not delete these. Other `*_backup*` / `*_old` files are genuine cruft.
 
+### Pointing the client at the v6 backend
+
+The demo's config service answers `apiUrl = …/data-management/`, an older deployment that knows no
+spatial unit hierarchies (`/spatial-unit-hierarchies` → 404) and returns spatial units without
+`mandantId` — while the vendored spec in `api-specs/` is the v6 one, so the generated types describe
+v6 and not that instance. Two things point the client at v6:
+
+- `app/assets/env_local.js` loads the demo's own app config and then sets `apiUrl` to the v6
+  deployment. It fetches rather than copies, so nothing goes stale when the demo's config changes —
+  only that one line is ours. It lives under `app/assets/`, which `angular.json` serves wholesale, so
+  it needs no asset entry of its own.
+- `app/config/config-storage-server.json` points `targetUrlToConfigStorageServer_appConfig` at it.
+  The other four URLs still point at the demo, so Keycloak, controls and filter config come from
+  there as before.
+
+**That second file is a shipped runtime config**: committed as it stands, a deployed build would look
+for the app config in its own assets instead of at its config service. Keep the line pointing at the
+demo in anything that gets released.
+
 ## Architecture
 
 ### Startup & runtime configuration
