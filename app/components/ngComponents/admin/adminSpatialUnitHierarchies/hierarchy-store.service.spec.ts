@@ -612,19 +612,40 @@ describe('HierarchyStoreService', () => {
 
       await store.updateHierarchyMetadata(essen, {
         name: 'Verwaltung',
+        mandant: 'Stadt Essen',
+        isPublic: true,
+      });
+
+      expect([essen.name(), essen.mandant(), essen.isPublic()]).toEqual([
+        'Verwaltung',
+        'Stadt Essen',
+        true,
+      ]);
+      expect(essen.chain()).toHaveLength(2);
+      // The edited hierarchy stays in view, in its tenant.
+      expect(store.selectedMandant()).toBe('Stadt Essen');
+    });
+
+    it('keeps the tenant, whatever the dialog hands back', async () => {
+      const store = storeWith();
+      const essen = ESSEN();
+      seed(store, [essen]);
+
+      // The API refuses to move a hierarchy to another tenant, so the dialog
+      // does not offer the choice — and the write sends the id the hierarchy
+      // already carries rather than one resolved from a name.
+      await store.updateHierarchyMetadata(essen, {
+        name: 'Verwaltung',
         mandant: 'Stadt Bochum',
         isPublic: true,
       });
 
-      expect([essen.name(), essen.mandant(), essen.mandantId(), essen.isPublic()]).toEqual([
-        'Verwaltung',
-        'Stadt Bochum',
-        'Stadt Bochum',
-        true,
-      ]);
-      expect(essen.chain()).toHaveLength(2);
-      // The edited hierarchy stays in view, in the tenant it now belongs to.
-      expect(store.selectedMandant()).toBe('Stadt Bochum');
+      expect(hierarchyApi.updateHierarchy).toHaveBeenCalledWith(essen.id, {
+        name: 'Verwaltung',
+        mandantId: 'Stadt Essen',
+        isPublic: true,
+      });
+      expect(essen.mandant()).toBe('Stadt Essen');
     });
 
     it('drops a hierarchy without touching the registry', async () => {

@@ -44,8 +44,12 @@
             One tenant is the normal case, and picking it would be a choice of
             one — so the field only becomes a select where there is something to
             choose. Without Keycloak the list is empty and it stays a hint.
+
+            Editing never offers a choice: the API refuses to move a hierarchy
+            to another tenant ("The mandant of a spatial unit hierarchy cannot
+            be changed"), so the field shows the tenant and no more.
           -->
-          @if (mandants.length > 1) {
+          @if (mode === 'create' && mandants.length > 1) {
             <select id="hierarchy-mandant-input" class="form-select" formControlName="mandant">
               @for (mandant of mandants; track mandant) {
                 <option [value]="mandant">{{ mandant }}</option>
@@ -62,6 +66,11 @@
                 ('ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.MANDANT_NONE' | translate)
               "
             />
+          }
+          @if (mode === 'edit') {
+            <p class="help-block">
+              {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.MANDANT_FIXED_HINT' | translate }}
+            </p>
           }
           <app-form-error [control]="form.controls.mandant" for="hierarchy-mandant-input" />
         </div>

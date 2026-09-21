@@ -270,6 +270,19 @@ describe('HierarchyModalComponent', () => {
       });
     });
 
+    it('shows the tenant but does not let it be changed', () => {
+      // Two tenants are configured, so create mode would render a select here.
+      // The API refuses to move a hierarchy to another tenant, so editing shows
+      // the name and says why it is fixed.
+      const field = fixture.debugElement.query(By.css('#hierarchy-mandant-input'));
+      expect(field.nativeElement.tagName).toBe('INPUT');
+      expect(field.nativeElement.disabled).toBe(true);
+      expect(field.nativeElement.value).toBe('Stadt Essen');
+      expect(fixture.debugElement.query(By.css('.help-block')).nativeElement.textContent).toContain(
+        'MANDANT_FIXED_HINT'
+      );
+    });
+
     it('prefills the metadata and accepts it unchanged', () => {
       expect(component.form.controls.name.value).toBe('Verwaltungsgliederung');
       expect(component.form.controls.mandant.value).toBe('Stadt Essen');

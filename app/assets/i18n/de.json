@@ -1601,6 +1601,7 @@
       "NAME_PLACEHOLDER": "z. B. Sozialraum-Gliederung",
       "MANDANT_LABEL": "Mandant",
       "MANDANT_NONE": "Kein Mandant verfügbar",
+      "MANDANT_FIXED_HINT": "Der Mandant einer bestehenden Hierarchie kann nicht geändert werden.",
       "CHAIN_LABEL": "Ebenenkette",
       "CHAIN_HINT": "von der größten zur kleinsten Einheit — Verknüpfungen entstehen automatisch",
       "USED_ONCE": "bereits in 1 Hierarchie",

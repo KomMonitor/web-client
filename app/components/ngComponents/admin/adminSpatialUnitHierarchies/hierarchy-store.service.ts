@@ -266,12 +266,18 @@ export class HierarchyStoreService {
    * `mandantId` and `isPublic` always travel with the name: the endpoint is a
    * full replace, and a missing `isPublic` would quietly make the hierarchy
    * private.
+   *
+   * The tenant is taken off the hierarchy, not off `metadata` — the API refuses
+   * to move a hierarchy to another one ("The mandant of a spatial unit
+   * hierarchy cannot be changed"), so the dialog does not offer the choice, and
+   * sending the id the hierarchy already carries also holds where Keycloak
+   * names no tenant for it and its display name is the raw id.
    */
   async updateHierarchyMetadata(
     hierarchy: SpatialUnitHierarchy,
     metadata: HierarchyMetadata
   ): Promise<boolean> {
-    const mandantId = this.mandantService.mandantIdOf(metadata.mandant);
+    const mandantId = hierarchy.mandantId();
     hierarchy.saving.set(true);
     try {
       await this.hierarchyApi.updateHierarchy(hierarchy.id, {
@@ -286,10 +292,8 @@ export class HierarchyStoreService {
     }
 
     hierarchy.name.set(metadata.name);
-    // `mandant` follows the id on its own — it is derived, not stored.
-    hierarchy.mandantId.set(mandantId);
     hierarchy.isPublic.set(metadata.isPublic);
-    this.followMandant(metadata.mandant);
+    this.followMandant(hierarchy.mandant());
     return true;
   }
 
