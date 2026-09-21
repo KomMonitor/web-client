@@ -38,7 +38,7 @@ export class FeaturePopupHelperService {
     unitText: any,
     label?: any
   ): string {
-    let optionalLabel = label ? '<br/>' + label : '';
+    const optionalLabel = label ? '<br/>' + label : '';
     return (
       '<b>' + featureName + '</b><br/>' + indicatorValueText + ' [' + unitText + ']' + optionalLabel
     );
