@@ -11,8 +11,8 @@ import {
 import { FormsModule } from '@angular/forms';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions, SelectionChangedEvent } from 'ag-grid-community';
-import { Subscription, skip } from 'rxjs';
 import { ProcessSchedule } from 'components/ngComponents/models/schedules.models';
+import { Subscription, skip } from 'rxjs';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { JobOverviewService } from 'services/job-overview-service/job-overview.service';
 import {
@@ -27,8 +27,8 @@ import { KommonitorDataGridHelperService } from '../../../../services/adminSpati
 import { ExpandableBoxComponent } from '../../common/expandable-box/expandable-box.component';
 import { LoadingOverlayComponent } from '../../common/loading-overlay/loading-overlay.component';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
-import { AdminModalService } from '../adminShared/modal/admin-modal.service';
 import { JobOverviewModalComponent } from '../adminScriptExecution/jobOverviewModal/job-overview-modal.component';
+import { AdminModalService } from '../adminShared/modal/admin-modal.service';
 import { ScheduleIntervalCellRendererComponent } from './schedule-interval-cell-renderer.component';
 import { ScheduleLastJobCellRendererComponent } from './schedule-last-job-cell-renderer.component';
 import { ScheduleMethodologyCellRendererComponent } from './schedule-methodology-cell-renderer.component';
@@ -39,8 +39,7 @@ import { ScriptRefreshRequest } from './script-refresh.model';
 import { ScriptAddModalComponent } from './scriptAddModal/script-add-modal.component';
 import { ScriptDeleteModalComponent } from './scriptDeleteModal/script-delete-modal.component';
 
-import { TranslateModule } from '@ngx-translate/core';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MODAL_CONFIRM, MODAL_WIDE } from 'util/modal-presets';
 @Component({
   selector: 'app-admin-script-management',

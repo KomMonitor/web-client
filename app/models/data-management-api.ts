@@ -53,6 +53,22 @@ export type SpatialUnitPOSTInputType = ApiSchemas['SpatialUnitPOSTInputType'];
 export type SpatialUnitPUTInputType = ApiSchemas['SpatialUnitPUTInputType'];
 export type SpatialUnitPATCHInputType = ApiSchemas['SpatialUnitPATCHInputType'];
 
+// --- spatial unit hierarchies ---
+// A hierarchy orders spatial unit levels from coarse to fine. The two
+// directions of the same relation have their own types: `Member*` looks at it
+// from the hierarchy ("which spatial units are in me"), `Membership*` from the
+// spatial unit ("which hierarchies am I in").
+export type SpatialUnitHierarchyOverviewType = ApiSchemas['SpatialUnitHierarchyOverviewType'];
+export type SpatialUnitHierarchyPOSTInputType = ApiSchemas['SpatialUnitHierarchyPOSTInputType'];
+export type SpatialUnitHierarchyInputType = ApiSchemas['SpatialUnitHierarchyInputType'];
+export type SpatialUnitHierarchyMemberType = ApiSchemas['SpatialUnitHierarchyMemberType'];
+export type SpatialUnitHierarchyMemberInputType = ApiSchemas['SpatialUnitHierarchyMemberInputType'];
+export type SpatialUnitHierarchyMembershipType = ApiSchemas['SpatialUnitHierarchyMembershipType'];
+export type SpatialUnitHierarchyMembershipInputType =
+  ApiSchemas['SpatialUnitHierarchyMembershipInputType'];
+export type SpatialUnitHierarchyMembershipPOSTInputType =
+  ApiSchemas['SpatialUnitHierarchyMembershipPOSTInputType'];
+
 // --- topics ---
 export type TopicOverviewType = ApiSchemas['TopicOverviewType'];
 export type TopicInputType = ApiSchemas['TopicInputType'];

@@ -1,0 +1,182 @@
+# Platzhalter fuer die Beispiel-Sammlung der Data Management API.
+#
+# kommonitor_dataAccessAPI.yaml referenziert diese Nachbardatei 126-mal
+# (./examples.yaml#/components/examples/...), sie ist im Backend-Repo
+# KomMonitor/data-management aber nicht eingecheckt — auf keinem Branch.
+# Ohne sie bricht `npm run generate:api-types` beim Aufloesen der $refs ab.
+#
+# Die Eintraege sind bewusst leer: `examples` ist rein dokumentarisch und
+# fliesst nicht in die generierten Typen ein (es gibt keinen einzigen
+# $ref aus dieser Datei auf ein Schema). Der Stub haelt damit die
+# Haupt-Spec byte-identisch zur Upstream-Fassung, so dass ein Update
+# weiterhin ein reines Kopieren ist.
+#
+# Sobald das Backend-Repo die echte Datei mitliefert, ersetzt sie diesen
+# Stub ersatzlos.
+
+openapi: 3.0.3
+info:
+  title: KomMonitor Data Access API — examples (placeholder)
+  version: 0.0.1
+paths: {}
+components:
+  examples:
+    GeoresourceOverview:
+      summary: placeholder, see header
+      value: {}
+    GeoresourceOverviewCollection:
+      summary: placeholder, see header
+      value: {}
+    GeoresourcePATCHInput:
+      summary: placeholder, see header
+      value: {}
+    GeoresourcePOSTInput:
+      summary: placeholder, see header
+      value: {}
+    GeoresourcePUTInput:
+      summary: placeholder, see header
+      value: {}
+    GroupAdminRolesPUTInputCollection:
+      summary: placeholder, see header
+      value: {}
+    IndicatorMetadataPATCHInput:
+      summary: placeholder, see header
+      value: {}
+    IndicatorOverview:
+      summary: placeholder, see header
+      value: {}
+    IndicatorOverviewCollection:
+      summary: placeholder, see header
+      value: {}
+    IndicatorPATCHDisplayOrderInputCollection:
+      summary: placeholder, see header
+      value: {}
+    IndicatorPOSTInput:
+      summary: placeholder, see header
+      value: {}
+    IndicatorPropertiesWithoutGeom:
+      summary: placeholder, see header
+      value: {}
+    IndicatorPropertiesWithoutGeomCollection:
+      summary: placeholder, see header
+      value: {}
+    IndicatorPUTInput:
+      summary: placeholder, see header
+      value: {}
+    LastModificationOverview:
+      summary: placeholder, see header
+      value: {}
+    OrganizationalUnitInput:
+      summary: placeholder, see header
+      value: {}
+    OrganizationalUnitOverview:
+      summary: placeholder, see header
+      value: {}
+    OrganizationalUnitOverviewCollection:
+      summary: placeholder, see header
+      value: {}
+    OrganizationalUnitPermissionOverview:
+      summary: placeholder, see header
+      value: {}
+    OrganizationalUnitRoleAuthority:
+      summary: placeholder, see header
+      value: {}
+    OrganizationalUnitRoleDelegate:
+      summary: placeholder, see header
+      value: {}
+    OwnerInput:
+      summary: placeholder, see header
+      value: {}
+    PermissionLevelCollection:
+      summary: placeholder, see header
+      value: {}
+    PermissionLevelInput:
+      summary: placeholder, see header
+      value: {}
+    ProcessScriptOverview:
+      summary: placeholder, see header
+      value: {}
+    ProcessScriptOverviewCollection:
+      summary: placeholder, see header
+      value: {}
+    ProcessScriptPOSTInput:
+      summary: placeholder, see header
+      value: {}
+    ProcessScriptPUTInput:
+      summary: placeholder, see header
+      value: {}
+    ResourceFilter:
+      summary: placeholder, see header
+      value: {}
+    SpatialUnitHierarchyInput:
+      summary: placeholder, see header
+      value: {}
+    SpatialUnitHierarchyMemberInputCollection:
+      summary: placeholder, see header
+      value: {}
+    SpatialUnitHierarchyMembershipInputCollection:
+      summary: placeholder, see header
+      value: {}
+    SpatialUnitHierarchyOverview:
+      summary: placeholder, see header
+      value: {}
+    SpatialUnitHierarchyOverviewCollection:
+      summary: placeholder, see header
+      value: {}
+    SpatialUnitHierarchyPOSTInput:
+      summary: placeholder, see header
+      value: {}
+    SpatialUnitOverview:
+      summary: placeholder, see header
+      value: {}
+    SpatialUnitOverviewCollection:
+      summary: placeholder, see header
+      value: {}
+    SpatialUnitPATCHInput:
+      summary: placeholder, see header
+      value: {}
+    SpatialUnitPOSTInput:
+      summary: placeholder, see header
+      value: {}
+    SpatialUnitPUTInput:
+      summary: placeholder, see header
+      value: {}
+    TopicDisplayOrderInputCollection:
+      summary: placeholder, see header
+      value: {}
+    TopicDisplayOrderModeInput:
+      summary: placeholder, see header
+      value: {}
+    TopicDisplayOrderModeOverviewCollection:
+      summary: placeholder, see header
+      value: {}
+    TopicInput:
+      summary: placeholder, see header
+      value: {}
+    TopicOverview:
+      summary: placeholder, see header
+      value: {}
+    TopicOverviewCollection:
+      summary: placeholder, see header
+      value: {}
+    UserInfoInput:
+      summary: placeholder, see header
+      value: {}
+    UserInfoOverview:
+      summary: placeholder, see header
+      value: {}
+    UserInfoOverviewCollection:
+      summary: placeholder, see header
+      value: {}
+    WebServiceCreation:
+      summary: placeholder, see header
+      value: {}
+    WebServiceInput:
+      summary: placeholder, see header
+      value: {}
+    WebServiceOverview:
+      summary: placeholder, see header
+      value: {}
+    WebServiceOverviewCollection:
+      summary: placeholder, see header
+      value: {}
