@@ -34,6 +34,7 @@ function hierarchy(names: string[]): SpatialUnitHierarchy {
     levels,
     levelCount: computed(() => chain().length),
     open: signal(true),
+    saving: signal(false),
     expandedIds: signal<ReadonlySet<string>>(new Set(chain().map((entry) => entry.id))),
     openGap: signal<TreeGap<HierarchyLevel> | null>(null),
     canInsertAt: (gap) => canInsertAtGap(levels(), gap),

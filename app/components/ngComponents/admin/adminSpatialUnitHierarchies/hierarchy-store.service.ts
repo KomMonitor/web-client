@@ -1,6 +1,9 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { MandantService } from 'services/mandant-service/mandant.service';
-import { SpatialUnitHierarchyApiService } from 'services/spatial-unit-hierarchy-service/spatial-unit-hierarchy-api.service';
+import {
+  SpatialUnitHierarchyApiService,
+  toOrderedMembers,
+} from 'services/spatial-unit-hierarchy-service/spatial-unit-hierarchy-api.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 
 import { TreeGap } from '../../common/tree-view/tree-view.model';
@@ -13,10 +16,19 @@ import {
   createHierarchy,
   insertIntoChain,
   moveInChain,
-  newId,
   removeFromChain,
 } from './hierarchy.model';
 import * as select from './hierarchy-selectors';
+
+/**
+ * How a chain edit ended.
+ *
+ * `rejected` is not a failure: the chain rules turned the edit down before
+ * anything was sent — the last level cannot be removed, a level cannot sit in
+ * one chain twice, and a move past either end goes nowhere. Nothing was
+ * written, so there is nothing to announce either.
+ */
+export type ChainEditResult = 'saved' | 'rejected' | 'failed';
 
 /** The metadata of a hierarchy, as the dialog hands it back. */
 export interface HierarchyMetadata {
@@ -36,10 +48,17 @@ export interface HierarchyMetadata {
  * Holds no UI: what a change is worth telling the user is decided by the page,
  * which owns the dialogs and the notifications.
  *
- * **Reading is wired to the Data Management API; writing is not yet.** The
- * hierarchies are loaded through `SpatialUnitHierarchyApiService` and the level
- * registry is derived from the spatial unit metadata store, but the edits below
- * still only change the loaded state — persisting them is the next step.
+ * **Every change is written straight away.** The two kinds of edit differ in
+ * how they get there, and deliberately so:
+ *
+ * - The **chain** edits — move, insert, remove, assign — are applied first and
+ *   sent afterwards, then rolled back if the API refuses. They come one rapid
+ *   click after another, so waiting for a round trip before the tree moves
+ *   would make the page feel broken.
+ * - The **dialog** actions — create, edit metadata, delete — wait for the API
+ *   and only then change the list. The user is coming out of a modal anyway, so
+ *   a moment's wait costs nothing, and a list that shows a hierarchy which was
+ *   never created is worse than a slow one.
  */
 @Injectable()
 export class HierarchyStoreService {
@@ -48,6 +67,13 @@ export class HierarchyStoreService {
   private readonly spatialUnitStore = inject(SpatialUnitMetadataStoreService);
 
   readonly hierarchies = signal<readonly SpatialUnitHierarchy[]>([]);
+
+  /**
+   * The number of the newest member write per hierarchy. Answers that arrive
+   * after a later edit has started are ignored, so a slow one cannot undo what
+   * came after it.
+   */
+  private readonly chainGeneration = new Map<string, number>();
 
   /** True while the first load is in flight, so the page can say so. */
   readonly loading = signal(true);
@@ -192,61 +218,98 @@ export class HierarchyStoreService {
 
   /**
    * Creates a hierarchy from the metadata and the level chain the dialog
-   * assembled. It is appended to the list, opened and fully expanded, and the
-   * page follows it to its tenant so it stays in view.
+   * assembled, and appends what the API answers with — the response carries
+   * the real `hierarchyId`, so nothing has to be reconciled afterwards.
+   *
+   * The new hierarchy is opened and the page follows it to its tenant, so it
+   * stays in view. Answers null when the API refused; nothing was added then.
    */
-  addHierarchy(
+  async addHierarchy(
     metadata: HierarchyMetadata,
     levels: readonly HierarchyChainEntry[]
-  ): SpatialUnitHierarchy {
+  ): Promise<SpatialUnitHierarchy | null> {
     const mandantId = this.mandantService.mandantIdOf(metadata.mandant);
-    const hierarchy = createHierarchy(
-      {
-        // Local until the create call answers with the real one.
-        hierarchyId: newId(),
+    try {
+      const created = await this.hierarchyApi.createHierarchy({
         name: metadata.name,
         mandantId,
         isPublic: metadata.isPublic,
-        members: levels.map((level, index) => ({
-          spatialUnitId: level.id,
-          spatialUnitLevel: level.name,
-          hierarchyLevel: index,
-        })),
-      },
-      metadata.mandant
-    );
-    hierarchy.open.set(true);
-    this.hierarchies.update((entries) => [...entries, hierarchy]);
-    this.followMandant(metadata.mandant);
-    return hierarchy;
-  }
-
-  /** Writes the edited metadata. The chain and its expansion state stay untouched. */
-  updateHierarchyMetadata(hierarchy: SpatialUnitHierarchy, metadata: HierarchyMetadata): void {
-    hierarchy.name.set(metadata.name);
-    hierarchy.mandant.set(metadata.mandant);
-    hierarchy.mandantId.set(this.mandantService.mandantIdOf(metadata.mandant));
-    hierarchy.isPublic.set(metadata.isPublic);
-    this.followMandant(metadata.mandant);
-  }
-
-  /** Drops a hierarchy. The levels it used stay where they are. */
-  deleteHierarchy(hierarchy: SpatialUnitHierarchy): void {
-    this.hierarchies.update((entries) => entries.filter((entry) => entry !== hierarchy));
-  }
-
-  /** Moves a level one step along the chain, towards the coarse or the fine end. */
-  moveLevel(hierarchy: SpatialUnitHierarchy, level: HierarchyLevel, offset: number): void {
-    moveInChain(hierarchy, level, offset);
+        members: toOrderedMembers(levels.map((level) => level.id)),
+      });
+      const hierarchy = createHierarchy(created, metadata.mandant);
+      hierarchy.open.set(true);
+      this.hierarchies.update((entries) => [...entries, hierarchy]);
+      this.followMandant(metadata.mandant);
+      return hierarchy;
+    } catch {
+      return null;
+    }
   }
 
   /**
-   * Takes a level out of the chain, if it is not the last one left. The return
-   * value reports which of the two happened, so the page only announces what
-   * actually did.
+   * Writes the edited metadata. The chain and its expansion state stay
+   * untouched — the members endpoint is the only thing that moves those.
+   *
+   * `mandantId` and `isPublic` always travel with the name: the endpoint is a
+   * full replace, and a missing `isPublic` would quietly make the hierarchy
+   * private.
    */
-  removeLevel(hierarchy: SpatialUnitHierarchy, level: HierarchyLevel): boolean {
-    return removeFromChain(hierarchy, level);
+  async updateHierarchyMetadata(
+    hierarchy: SpatialUnitHierarchy,
+    metadata: HierarchyMetadata
+  ): Promise<boolean> {
+    const mandantId = this.mandantService.mandantIdOf(metadata.mandant);
+    hierarchy.saving.set(true);
+    try {
+      await this.hierarchyApi.updateHierarchy(hierarchy.id, {
+        name: metadata.name,
+        mandantId,
+        isPublic: metadata.isPublic,
+      });
+    } catch {
+      return false;
+    } finally {
+      hierarchy.saving.set(false);
+    }
+
+    hierarchy.name.set(metadata.name);
+    hierarchy.mandant.set(metadata.mandant);
+    hierarchy.mandantId.set(mandantId);
+    hierarchy.isPublic.set(metadata.isPublic);
+    this.followMandant(metadata.mandant);
+    return true;
+  }
+
+  /** Drops a hierarchy. The levels it used stay where they are. */
+  async deleteHierarchy(hierarchy: SpatialUnitHierarchy): Promise<boolean> {
+    hierarchy.saving.set(true);
+    try {
+      await this.hierarchyApi.deleteHierarchy(hierarchy.id);
+    } catch {
+      return false;
+    } finally {
+      hierarchy.saving.set(false);
+    }
+
+    this.hierarchies.update((entries) => entries.filter((entry) => entry !== hierarchy));
+    return true;
+  }
+
+  /** Moves a level one step along the chain, towards the coarse or the fine end. */
+  moveLevel(
+    hierarchy: SpatialUnitHierarchy,
+    level: HierarchyLevel,
+    offset: number
+  ): Promise<ChainEditResult> {
+    return this.editChain(hierarchy, () => moveInChain(hierarchy, level, offset));
+  }
+
+  /**
+   * Takes a level out of the chain, if it is not the last one left. `rejected`
+   * says it was the last one, so the page announces nothing.
+   */
+  removeLevel(hierarchy: SpatialUnitHierarchy, level: HierarchyLevel): Promise<ChainEditResult> {
+    return this.editChain(hierarchy, () => removeFromChain(hierarchy, level));
   }
 
   /** Puts a level into the chain at the gap of the tree it was chosen at. */
@@ -254,8 +317,12 @@ export class HierarchyStoreService {
     hierarchy: SpatialUnitHierarchy,
     gap: TreeGap<HierarchyLevel>,
     level: HierarchyChainEntry
-  ): void {
-    insertIntoChain(hierarchy, gap, level);
+  ): Promise<ChainEditResult> {
+    return this.editChain(hierarchy, () => {
+      const before = hierarchy.chain().length;
+      insertIntoChain(hierarchy, gap, level);
+      return hierarchy.chain().length > before;
+    });
   }
 
   /**
@@ -263,9 +330,63 @@ export class HierarchyStoreService {
    * The level itself does not change — a level is not owned by a hierarchy, it
    * is only used by one, and it may be used by several.
    */
-  assignLevel(level: RegisteredLevel, hierarchy: SpatialUnitHierarchy): void {
-    appendToChain(hierarchy, { id: level.id, name: level.name });
-    hierarchy.open.set(true);
+  assignLevel(level: RegisteredLevel, hierarchy: SpatialUnitHierarchy): Promise<ChainEditResult> {
+    return this.editChain(hierarchy, () => {
+      const before = hierarchy.chain().length;
+      appendToChain(hierarchy, { id: level.id, name: level.name });
+      if (hierarchy.chain().length === before) {
+        return false;
+      }
+      hierarchy.open.set(true);
+      return true;
+    });
+  }
+
+  /**
+   * The one path every chain edit takes: apply it, send the whole member list,
+   * and put the chain back if the API refuses.
+   *
+   * The snapshot covers the expansion state as well. `insertIntoChain` marks a
+   * new level expanded and `removeFromChain` drops its entry, so restoring only
+   * the chain would leave that set describing an edit that never happened.
+   *
+   * `apply` answers whether it changed anything. A `false` means the chain
+   * rules turned the edit down, and nothing is sent.
+   */
+  private async editChain(
+    hierarchy: SpatialUnitHierarchy,
+    apply: () => boolean
+  ): Promise<ChainEditResult> {
+    const chainBefore = hierarchy.chain();
+    const expandedBefore = hierarchy.expandedIds();
+
+    if (!apply()) {
+      return 'rejected';
+    }
+
+    const generation = (this.chainGeneration.get(hierarchy.id) ?? 0) + 1;
+    this.chainGeneration.set(hierarchy.id, generation);
+    hierarchy.saving.set(true);
+
+    try {
+      await this.hierarchyApi.updateMembers(
+        hierarchy.id,
+        toOrderedMembers(hierarchy.chain().map((entry) => entry.id))
+      );
+      return 'saved';
+    } catch {
+      // Only the newest request may act on its outcome. A slower earlier one
+      // would otherwise roll the chain back past edits made since.
+      if (this.chainGeneration.get(hierarchy.id) === generation) {
+        hierarchy.chain.set(chainBefore);
+        hierarchy.expandedIds.set(expandedBefore);
+      }
+      return 'failed';
+    } finally {
+      if (this.chainGeneration.get(hierarchy.id) === generation) {
+        hierarchy.saving.set(false);
+      }
+    }
   }
 
   /**

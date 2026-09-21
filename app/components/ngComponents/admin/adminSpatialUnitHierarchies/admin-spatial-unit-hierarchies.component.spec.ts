@@ -64,6 +64,15 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
   /** The spatial units behind the level registry; the store derives it. */
   let spatialUnits: unknown[];
 
+  /** Every write the page triggers goes here; all of them succeed by default. */
+  let hierarchyApi: {
+    getHierarchies: jest.Mock;
+    createHierarchy: jest.Mock;
+    updateHierarchy: jest.Mock;
+    deleteHierarchy: jest.Mock;
+    updateMembers: jest.Mock;
+  };
+
   /** Replaces what the registry is derived from. */
   function setLevels(levels: readonly RegisteredLevel[]): void {
     spatialUnits = levels.map((level) => ({
@@ -76,6 +85,25 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
 
   beforeEach(async () => {
     setLevels(seedLevels());
+    hierarchyApi = {
+      getHierarchies: jest.fn().mockResolvedValue(seedOverviews()),
+      // Answers like the server: the created record, member levels resolved.
+      createHierarchy: jest.fn().mockImplementation((body) =>
+        Promise.resolve({
+          ...body,
+          hierarchyId: 'h-created',
+          members: (body.members ?? []).map(
+            (member: { spatialUnitId: string; hierarchyLevel: number }) => ({
+              ...member,
+              spatialUnitLevel: member.spatialUnitId.replace(/^id-/, ''),
+            })
+          ),
+        })
+      ),
+      updateHierarchy: jest.fn().mockResolvedValue({}),
+      deleteHierarchy: jest.fn().mockResolvedValue(undefined),
+      updateMembers: jest.fn().mockResolvedValue({}),
+    };
     TestBed.configureTestingModule({
       imports: [AdminSpatialUnitHierarchiesComponent, TranslateModule.forRoot()],
       providers: [
@@ -98,7 +126,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
         },
         {
           provide: SpatialUnitHierarchyApiService,
-          useValue: { getHierarchies: () => Promise.resolve(seedOverviews()) },
+          useValue: hierarchyApi,
         },
         {
           provide: SpatialUnitMetadataStoreService,
@@ -228,7 +256,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     expect(indents).toEqual(['0px', '20px', '40px', '60px', '80px']);
   });
 
-  it('moves a level one step along the chain', () => {
+  it('moves a level one step along the chain', async () => {
     fixture.detectChanges();
 
     const chainNames = () =>
@@ -237,8 +265,10 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
         .slice(0, 5)
         .map((el) => el.nativeElement.textContent.trim());
 
-    // Second row: push 'Stadtbezirke Essen' down one hierarchy level.
+    // Second row: push 'Stadtbezirke Essen' down one hierarchy level. The write
+    // locks the row's buttons until it comes back, so each click is awaited.
     moveButton(fixture, 1, 'down').click();
+    await settle();
     fixture.detectChanges();
 
     expect(chainNames()).toEqual([
@@ -251,6 +281,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
 
     // And back up again.
     moveButton(fixture, 2, 'up').click();
+    await settle();
     fixture.detectChanges();
 
     expect(chainNames()).toEqual([
@@ -275,11 +306,12 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     expect(moveButtons[4]).toEqual([false, true]);
   });
 
-  it('removes a level and closes the chain around it', () => {
+  it('removes a level and closes the chain around it', async () => {
     const show = jest.spyOn(notificationService, 'show');
     fixture.detectChanges();
 
     removeButton(fixture, 1).click();
+    await settle();
     fixture.detectChanges();
 
     expect(levelNames(fixture)).toEqual([
@@ -292,12 +324,14 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     expect(show.mock.calls[0][0]).toContain('REMOVED');
   });
 
-  it('keeps the last remaining level', () => {
+  it('keeps the last remaining level', async () => {
     fixture.detectChanges();
 
-    // Peel the chain down to a single level.
+    // Peel the chain down to a single level. Each removal is written, and the
+    // row stays locked until that write comes back.
     for (let remaining = 5; remaining > 1; remaining--) {
       removeButton(fixture, 0).click();
+      await settle();
       fixture.detectChanges();
     }
 
@@ -348,7 +382,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     expect(indents).toEqual(['0px', '20px', '40px', '60px', '80px', '100px']);
   });
 
-  it('appends a level when the picker is used on the last insert line', () => {
+  it('appends a level when the picker is used on the last insert line', async () => {
     const show = jest.spyOn(notificationService, 'show');
     fixture.detectChanges();
 
@@ -359,6 +393,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
 
     const panel = fixture.debugElement.query(By.css('app-level-picker-panel'));
     panel.componentInstance.picked.emit({ id: 'id-Wahlbezirke Essen', name: 'Wahlbezirke Essen' });
+    await settle();
     fixture.detectChanges();
 
     expect(hierarchy.chain().at(-1)?.name).toBe('Wahlbezirke Essen');
@@ -366,7 +401,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     expect(show).toHaveBeenCalled();
   });
 
-  it('inserts the level the picker chose at the clicked gap', () => {
+  it('inserts the level the picker chose at the clicked gap', async () => {
     fixture.detectChanges();
 
     const hierarchy = store.hierarchies()[0];
@@ -378,6 +413,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
       id: 'id-Wahlbezirke Essen',
       name: 'Wahlbezirke Essen',
     });
+    await settle();
     fixture.detectChanges();
 
     expect(hierarchy.chain()[0].name).toBe('Wahlbezirke Essen');
@@ -428,13 +464,14 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     expect(fixture.debugElement.query(By.css('app-unassigned-levels-panel'))).toBeNull();
   });
 
-  it('appends an assigned level to the end of the chosen chain', () => {
+  it('appends an assigned level to the end of the chosen chain', async () => {
     const show = jest.spyOn(notificationService, 'show');
     fixture.detectChanges();
     const hierarchy = store.hierarchies()[0];
     const level = store.unassignedLevels()[0];
 
     panel().assign.emit({ level, hierarchy });
+    await settle();
     fixture.detectChanges();
 
     expect(hierarchy.chain().at(-1)?.name).toBe(level.name);
@@ -574,6 +611,103 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
 
     expect(sectionTitles()).toEqual(['Verwaltungsgliederung']);
   });
+  describe('when a write fails', () => {
+    it('puts the chain back and says so', async () => {
+      const show = jest.spyOn(notificationService, 'show');
+      // Rejected a tick later, the way a real HTTP failure arrives. A promise
+      // rejected synchronously inside the click handler trips zone.js's
+      // unhandled-rejection check before the await can attach its handler.
+      hierarchyApi.updateMembers.mockImplementation(
+        () => new Promise((_, reject) => setTimeout(() => reject(new Error('400'))))
+      );
+      fixture.detectChanges();
+      const before = levelNames(fixture);
+
+      removeButton(fixture, 1).click();
+      await settle();
+      fixture.detectChanges();
+
+      expect(levelNames(fixture)).toEqual(before);
+      expect(show.mock.calls[0][0]).toContain('SAVE_FAILED');
+    });
+
+    it('reports a create that did not go through, and adds nothing', async () => {
+      const show = jest.spyOn(notificationService, 'show');
+      hierarchyApi.createHierarchy.mockImplementation(() => Promise.reject(new Error('400')));
+      fixture.detectChanges();
+
+      stubModal(
+        Promise.resolve({
+          name: 'Schulplanung',
+          mandant: 'Stadt Essen',
+          isPublic: false,
+          levels: [{ id: 'id-Stadt Essen', name: 'Stadt Essen' }],
+        })
+      );
+      fixture.debugElement.query(By.css('.view-controls .btn-success')).nativeElement.click();
+      await settle();
+      fixture.detectChanges();
+
+      expect(sectionTitles()).toEqual(['Verwaltungsgliederung']);
+      expect(show.mock.calls[0][0]).toContain('CREATE_FAILED');
+    });
+
+    it('keeps the hierarchy and reports a delete that did not go through', async () => {
+      const show = jest.spyOn(notificationService, 'show');
+      hierarchyApi.deleteHierarchy.mockImplementation(() => Promise.reject(new Error('403')));
+      fixture.detectChanges();
+      stubModal(Promise.resolve(true));
+
+      fixture.debugElement
+        .queryAll(By.css('.hierarchy-section .section-actions button'))[1]
+        .nativeElement.click();
+      await settle();
+      fixture.detectChanges();
+
+      expect(sectionTitles()).toEqual(['Verwaltungsgliederung']);
+      expect(show.mock.calls[0][0]).toContain('DELETE_FAILED');
+    });
+  });
+
+  it('locks the hierarchy while a write is on its way', async () => {
+    let finish!: () => void;
+    hierarchyApi.updateMembers.mockReturnValue(
+      new Promise<void>((resolve) => (finish = () => resolve()))
+    );
+    fixture.detectChanges();
+
+    removeButton(fixture, 1).click();
+    fixture.detectChanges();
+
+    // Nothing else may be started for this hierarchy until the write returns.
+    expect(removeButton(fixture, 0).disabled).toBe(true);
+    expect(moveButton(fixture, 0, 'down').disabled).toBe(true);
+
+    finish();
+    await settle();
+    fixture.detectChanges();
+
+    expect(removeButton(fixture, 0).disabled).toBe(false);
+  });
+
+  it('says nothing when the chain rules turn an edit down', async () => {
+    const show = jest.spyOn(notificationService, 'show');
+    fixture.detectChanges();
+    // Peel down to the last level, which cannot be removed.
+    for (let remaining = 5; remaining > 1; remaining--) {
+      removeButton(fixture, 0).click();
+      await settle();
+      fixture.detectChanges();
+    }
+    show.mockClear();
+    hierarchyApi.updateMembers.mockClear();
+
+    await component['removeLevel'](store.hierarchies()[0], store.hierarchies()[0].levels()[0]);
+
+    expect(show).not.toHaveBeenCalled();
+    expect(hierarchyApi.updateMembers).not.toHaveBeenCalled();
+  });
+
   describe('tenant panel', () => {
     beforeEach(() => {
       store.hierarchies.set(seedHierarchies());

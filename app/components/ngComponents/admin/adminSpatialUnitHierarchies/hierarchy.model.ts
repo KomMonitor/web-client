@@ -70,6 +70,12 @@ export interface SpatialUnitHierarchy {
   readonly levels: Signal<readonly HierarchyLevel[]>;
   readonly levelCount: Signal<number>;
   readonly open: WritableSignal<boolean>;
+  /**
+   * True while a write for this hierarchy is in flight. The page disables its
+   * controls meanwhile, so a chain cannot be edited out from under a request
+   * that is still on its way.
+   */
+  readonly saving: WritableSignal<boolean>;
   readonly expandedIds: WritableSignal<ReadonlySet<string>>;
   /**
    * The gap whose picker panel is open, or null. Per hierarchy on purpose: a gap
@@ -326,6 +332,7 @@ export function createHierarchy(
     levels,
     levelCount: computed(() => chain().length),
     open: signal(false),
+    saving: signal(false),
     // Start fully expanded so the whole chain is visible once it is opened.
     expandedIds: signal<ReadonlySet<string>>(new Set(chain().map((entry) => entry.id))),
     openGap: signal<TreeGap<HierarchyLevel> | null>(null),

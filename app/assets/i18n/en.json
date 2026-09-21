@@ -1655,7 +1655,12 @@
       "DELETED": "Hierarchy \"{{hierarchy}}\" deleted.",
       "INSERTED": "Level \"{{level}}\" inserted into the hierarchy.",
       "REMOVED": "Level \"{{level}}\" removed from the hierarchy.",
-      "ACTION_CLICKED": "Action \"{{action}}\" for \"{{hierarchy}}\" — not wired up yet."
+      "ACTION_CLICKED": "Action \"{{action}}\" for \"{{hierarchy}}\" — not wired up yet.",
+      "MOVED": "Level \"{{level}}\" moved.",
+      "SAVE_FAILED": "The change could not be saved and has been rolled back.",
+      "CREATE_FAILED": "Hierarchy \"{{hierarchy}}\" could not be created.",
+      "UPDATE_FAILED": "Hierarchy \"{{hierarchy}}\" could not be updated.",
+      "DELETE_FAILED": "Hierarchy \"{{hierarchy}}\" could not be deleted."
     }
   },
   "ADMIN_SPATIAL_UNITS": {

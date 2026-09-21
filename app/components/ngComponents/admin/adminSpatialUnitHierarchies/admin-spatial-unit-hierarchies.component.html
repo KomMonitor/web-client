@@ -64,10 +64,13 @@
         [showId]="showIds()"
         [(open)]="hierarchy.open"
       >
+        <!-- Locked while a write for this hierarchy is on its way, so a second
+             edit cannot overtake the first. -->
         <button
           header-actions
           type="button"
           class="btn btn-sm btn-warning"
+          [disabled]="hierarchy.saving()"
           (click)="onEditHierarchy(hierarchy)"
         >
           {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.EDIT' | translate }}
@@ -76,6 +79,7 @@
           header-actions
           type="button"
           class="btn btn-sm btn-danger"
+          [disabled]="hierarchy.saving()"
           (click)="onDeleteHierarchy(hierarchy)"
         >
           {{ 'ADMIN_SHARED.DELETE' | translate }}
@@ -109,9 +113,9 @@
             <button
               type="button"
               class="level-move"
-              [disabled]="!level.canMoveUp"
+              [disabled]="!level.canMoveUp || hierarchy.saving()"
               [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.MOVE_UP' | translate"
-              (click)="$event.stopPropagation(); store.moveLevel(hierarchy, level, -1)"
+              (click)="$event.stopPropagation(); onMoveLevel(hierarchy, level, -1)"
             >
               <span aria-hidden="true">&#9650;</span>
               <span class="visually-hidden">
@@ -121,9 +125,9 @@
             <button
               type="button"
               class="level-move"
-              [disabled]="!level.canMoveDown"
+              [disabled]="!level.canMoveDown || hierarchy.saving()"
               [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.MOVE_DOWN' | translate"
-              (click)="$event.stopPropagation(); store.moveLevel(hierarchy, level, 1)"
+              (click)="$event.stopPropagation(); onMoveLevel(hierarchy, level, 1)"
             >
               <span aria-hidden="true">&#9660;</span>
               <span class="visually-hidden">
@@ -140,7 +144,7 @@
             <button
               type="button"
               class="btn btn-sm btn-outline-danger"
-              [disabled]="hierarchy.levelCount() === 1"
+              [disabled]="hierarchy.levelCount() === 1 || hierarchy.saving()"
               (click)="$event.stopPropagation(); removeLevel(hierarchy, level)"
             >
               {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.REMOVE' | translate }}

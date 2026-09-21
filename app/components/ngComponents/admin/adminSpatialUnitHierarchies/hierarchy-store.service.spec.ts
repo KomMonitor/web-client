@@ -25,6 +25,15 @@ interface Mandants {
   mandantNameOf(id: string): string;
 }
 
+/** The write calls the store makes, recorded and answerable per spec. */
+let hierarchyApi: {
+  getHierarchies: jest.Mock;
+  createHierarchy: jest.Mock;
+  updateHierarchy: jest.Mock;
+  deleteHierarchy: jest.Mock;
+  updateMembers: jest.Mock;
+};
+
 /** The spatial units the level registry is derived from. */
 let spatialUnits: {
   spatialUnitId: string;
@@ -52,14 +61,34 @@ function storeWith(mandants: Partial<Mandants> = {}): HierarchyStoreService {
     ...mandants,
   };
   spatialUnits = [];
+  hierarchyApi = {
+    // Left hanging on purpose: the store loads in its constructor, and a load
+    // that resolves would replace the seed these specs set right afterwards.
+    // The one spec about loading brings its own, resolving fake.
+    getHierarchies: jest.fn().mockReturnValue(new Promise<never[]>(() => undefined)),
+    // Answers like the server: the created record, with the member levels
+    // resolved. The fixture ids are `id-<name>`, so the name reads back off them.
+    createHierarchy: jest.fn().mockImplementation((body) =>
+      Promise.resolve({
+        ...body,
+        hierarchyId: 'h-created',
+        members: (body.members ?? []).map(
+          (member: { spatialUnitId: string; hierarchyLevel: number }) => ({
+            ...member,
+            spatialUnitLevel: member.spatialUnitId.replace(/^id-/, ''),
+          })
+        ),
+      })
+    ),
+    updateHierarchy: jest.fn().mockResolvedValue({}),
+    deleteHierarchy: jest.fn().mockResolvedValue(undefined),
+    updateMembers: jest.fn().mockResolvedValue({}),
+  };
   TestBed.configureTestingModule({
     providers: [
       HierarchyStoreService,
       { provide: MandantService, useValue: fake },
-      {
-        provide: SpatialUnitHierarchyApiService,
-        useValue: { getHierarchies: () => Promise.resolve([]) },
-      },
+      { provide: SpatialUnitHierarchyApiService, useValue: hierarchyApi },
       {
         provide: SpatialUnitMetadataStoreService,
         useValue: {
@@ -312,13 +341,13 @@ describe('HierarchyStoreService', () => {
       expect(store.unassignedLevels().map((entry) => entry.name)).toEqual(['Quartiere']);
     });
 
-    it('counts a level as assigned again as soon as a chain carries it', () => {
+    it('counts a level as assigned again as soon as a chain carries it', async () => {
       const store = storeWith();
       const essen = ESSEN();
       seed(store, [essen], [level('Quartiere', 'Stadt Essen')]);
       store.selectMandant('Stadt Essen');
 
-      store.assignLevel(store.unassignedLevels()[0], essen);
+      await store.assignLevel(store.unassignedLevels()[0], essen);
 
       expect(store.unassignedLevels()).toEqual([]);
     });
@@ -350,23 +379,23 @@ describe('HierarchyStoreService', () => {
   });
 
   describe('changing a chain', () => {
-    it('assigns a level as the finest one of the chain, and unfolds it', () => {
+    it('assigns a level as the finest one of the chain, and unfolds it', async () => {
       const store = storeWith();
       const essen = ESSEN();
       seed(store, [essen]);
 
-      store.assignLevel(level('Quartiere', 'Stadt Essen'), essen);
+      await store.assignLevel(level('Quartiere', 'Stadt Essen'), essen);
 
       expect(essen.chain().map((entry) => entry.name)).toEqual(['Stadt', 'Bezirke', 'Quartiere']);
       expect(essen.open()).toBe(true);
     });
 
-    it('inserts a level at the gap of the tree it was chosen at', () => {
+    it('inserts a level at the gap of the tree it was chosen at', async () => {
       const store = storeWith();
       const essen = ESSEN();
       seed(store, [essen]);
 
-      store.insertLevel(
+      await store.insertLevel(
         essen,
         { parent: null, index: 0 },
         {
@@ -378,35 +407,174 @@ describe('HierarchyStoreService', () => {
       expect(essen.chain().map((entry) => entry.name)).toEqual(['Region', 'Stadt', 'Bezirke']);
     });
 
-    it('moves a level one step along the chain', () => {
+    it('moves a level one step along the chain', async () => {
       const store = storeWith();
       const essen = ESSEN();
       seed(store, [essen]);
 
-      store.moveLevel(essen, essen.levels()[0], 1);
+      await store.moveLevel(essen, essen.levels()[0], 1);
 
       expect(essen.chain().map((entry) => entry.name)).toEqual(['Bezirke', 'Stadt']);
     });
 
-    it('reports whether a level was really removed, so only that is announced', () => {
+    it('reports whether a level was really removed, so only that is announced', async () => {
       const store = storeWith();
       const essen = ESSEN();
       seed(store, [essen]);
 
-      expect(store.removeLevel(essen, essen.levels()[0])).toBe(true);
-      // The last remaining level stays: an empty hierarchy has no meaning.
-      expect(store.removeLevel(essen, essen.levels()[0])).toBe(false);
+      await expect(store.removeLevel(essen, essen.levels()[0])).resolves.toBe('saved');
+      // The last remaining level stays: an empty hierarchy has no meaning, and
+      // nothing is sent for it either.
+      await expect(store.removeLevel(essen, essen.levels()[0])).resolves.toBe('rejected');
       expect(essen.chain()).toHaveLength(1);
+      expect(hierarchyApi.updateMembers).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('writing', () => {
+    it('sends the whole chain, with the index as the level', async () => {
+      const store = storeWith();
+      const essen = ESSEN();
+      seed(store, [essen]);
+
+      await store.moveLevel(essen, essen.levels()[0], 1);
+
+      expect(hierarchyApi.updateMembers).toHaveBeenCalledWith(essen.id, [
+        { spatialUnitId: 'id-Bezirke', hierarchyLevel: 0 },
+        { spatialUnitId: 'id-Stadt', hierarchyLevel: 1 },
+      ]);
+    });
+
+    it('puts the chain back when the API refuses', async () => {
+      const store = storeWith();
+      const essen = ESSEN();
+      seed(store, [essen]);
+      const before = essen.chain();
+      hierarchyApi.updateMembers.mockRejectedValue(new Error('400'));
+
+      await expect(store.moveLevel(essen, essen.levels()[0], 1)).resolves.toBe('failed');
+
+      expect(essen.chain()).toEqual(before);
+      expect(essen.saving()).toBe(false);
+    });
+
+    it('restores the expansion state along with the chain', async () => {
+      const store = storeWith();
+      const essen = ESSEN();
+      seed(store, [essen]);
+      const expandedBefore = essen.expandedIds();
+      hierarchyApi.updateMembers.mockRejectedValue(new Error('400'));
+
+      await store.insertLevel(essen, { parent: null, index: 0 }, { id: 'id-Neu', name: 'Neu' });
+
+      expect(essen.expandedIds()).toEqual(expandedBefore);
+    });
+
+    it('marks the hierarchy as saving while the write is on its way', async () => {
+      const store = storeWith();
+      const essen = ESSEN();
+      seed(store, [essen]);
+      let sawSaving = false;
+      hierarchyApi.updateMembers.mockImplementation(() => {
+        sawSaving = essen.saving();
+        return Promise.resolve({});
+      });
+
+      await store.moveLevel(essen, essen.levels()[0], 1);
+
+      expect(sawSaving).toBe(true);
+      expect(essen.saving()).toBe(false);
+    });
+
+    it('lets a late failure not undo what came after it', async () => {
+      const store = storeWith();
+      const essen = ESSEN();
+      seed(store, [essen]);
+
+      // The first write fails, but only after a second one has already gone out.
+      let failFirst!: (reason: Error) => void;
+      hierarchyApi.updateMembers
+        .mockImplementationOnce(() => new Promise((_, reject) => (failFirst = reject)))
+        .mockResolvedValue({});
+
+      const first = store.moveLevel(essen, essen.levels()[0], 1);
+      const second = store.moveLevel(essen, essen.levels()[0], 1);
+      await second;
+      failFirst(new Error('400'));
+      await expect(first).resolves.toBe('failed');
+
+      // The outcome of the newer write stands.
+      expect(essen.chain().map((entry) => entry.name)).toEqual(['Stadt', 'Bezirke']);
+    });
+
+    it('adds nothing when the create call fails', async () => {
+      const store = storeWith();
+      seed(store, [ESSEN()]);
+      hierarchyApi.createHierarchy.mockRejectedValue(new Error('400'));
+
+      const created = await store.addHierarchy(
+        { name: 'Schulplanung', mandant: 'Stadt Essen', isPublic: false },
+        []
+      );
+
+      expect(created).toBeNull();
+      expect(store.hierarchies()).toHaveLength(1);
+    });
+
+    it('sends mandantId and isPublic with every metadata write', async () => {
+      const store = storeWith();
+      const essen = ESSEN();
+      seed(store, [essen]);
+
+      await store.updateHierarchyMetadata(essen, {
+        name: 'Verwaltung',
+        mandant: 'Stadt Essen',
+        isPublic: true,
+      });
+
+      expect(hierarchyApi.updateHierarchy).toHaveBeenCalledWith(essen.id, {
+        name: 'Verwaltung',
+        mandantId: 'Stadt Essen',
+        isPublic: true,
+      });
+    });
+
+    it('keeps the old metadata when the write fails', async () => {
+      const store = storeWith();
+      const essen = ESSEN();
+      seed(store, [essen]);
+      hierarchyApi.updateHierarchy.mockRejectedValue(new Error('400'));
+
+      const saved = await store.updateHierarchyMetadata(essen, {
+        name: 'Verwaltung',
+        mandant: 'Stadt Bochum',
+        isPublic: true,
+      });
+
+      expect(saved).toBe(false);
+      expect(essen.name()).toBe('Verwaltung Essen');
+      expect(essen.saving()).toBe(false);
+    });
+
+    it('keeps the hierarchy in the list when the delete fails', async () => {
+      const store = storeWith();
+      const essen = ESSEN();
+      seed(store, [essen]);
+      hierarchyApi.deleteHierarchy.mockRejectedValue(new Error('403'));
+
+      await expect(store.deleteHierarchy(essen)).resolves.toBe(false);
+
+      expect(store.hierarchies()).toHaveLength(1);
     });
   });
 
   describe('creating, editing and deleting a hierarchy', () => {
-    it('appends the new hierarchy, unfolded, and follows it to its tenant', () => {
+    it('appends the new hierarchy, unfolded, and follows it to its tenant', async () => {
       const store = storeWith();
       seed(store, [ESSEN()]);
       store.selectMandant('Stadt Essen');
 
-      const created = store.addHierarchy(
+      const created = await store.addHierarchy(
         { name: 'Schulplanung', mandant: 'Stadt Bochum', isPublic: false },
         [
           { id: 'id-Stadt Bochum', name: 'Stadt Bochum' },
@@ -420,12 +588,12 @@ describe('HierarchyStoreService', () => {
       expect(store.selectedMandant()).toBe('Stadt Bochum');
     });
 
-    it('writes the edited metadata and leaves the chain alone', () => {
+    it('writes the edited metadata and leaves the chain alone', async () => {
       const store = storeWith();
       const essen = ESSEN();
       seed(store, [essen]);
 
-      store.updateHierarchyMetadata(essen, {
+      await store.updateHierarchyMetadata(essen, {
         name: 'Verwaltung',
         mandant: 'Stadt Bochum',
         isPublic: true,
@@ -442,12 +610,12 @@ describe('HierarchyStoreService', () => {
       expect(store.selectedMandant()).toBe('Stadt Bochum');
     });
 
-    it('drops a hierarchy without touching the registry', () => {
+    it('drops a hierarchy without touching the registry', async () => {
       const store = storeWith();
       const essen = ESSEN();
       seed(store, [essen, BOCHUM()], [level('Stadt', 'Stadt Essen')]);
 
-      store.deleteHierarchy(essen);
+      await store.deleteHierarchy(essen);
 
       expect(store.hierarchies().map((entry) => entry.name())).toEqual(['Verwaltung Bochum']);
       expect(store.levelRegistry()).toHaveLength(1);

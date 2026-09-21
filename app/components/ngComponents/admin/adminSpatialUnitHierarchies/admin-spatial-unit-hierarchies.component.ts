@@ -10,7 +10,7 @@ import { TreeGap } from '../../common/tree-view/tree-view.model';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { AdminModalService } from '../adminShared/modal/admin-modal.service';
 import { HierarchyChainEntry, HierarchyLevel, SpatialUnitHierarchy } from './hierarchy.model';
-import { HierarchyStoreService } from './hierarchy-store.service';
+import { ChainEditResult, HierarchyStoreService } from './hierarchy-store.service';
 import { HierarchyDeleteModalComponent } from './hierarchyDeleteModal/hierarchy-delete-modal.component';
 import {
   HierarchyModalComponent,
@@ -81,10 +81,26 @@ export class AdminSpatialUnitHierarchiesComponent {
   }
 
   /** Takes a level out of the chain, if it is not the last one left. */
-  protected removeLevel(hierarchy: SpatialUnitHierarchy, level: HierarchyLevel): void {
-    if (this.store.removeLevel(hierarchy, level)) {
-      this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.REMOVED', { level: level.name });
-    }
+  protected async removeLevel(
+    hierarchy: SpatialUnitHierarchy,
+    level: HierarchyLevel
+  ): Promise<void> {
+    this.announceChainEdit(await this.store.removeLevel(hierarchy, level), {
+      key: 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.REMOVED',
+      params: { level: level.name },
+    });
+  }
+
+  /** Moves a level one step towards the coarse or the fine end of its chain. */
+  protected async onMoveLevel(
+    hierarchy: SpatialUnitHierarchy,
+    level: HierarchyLevel,
+    offset: number
+  ): Promise<void> {
+    this.announceChainEdit(await this.store.moveLevel(hierarchy, level, offset), {
+      key: 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.MOVED',
+      params: { level: level.name },
+    });
   }
 
   /** Creates a hierarchy from the metadata and the chain the dialog assembled. */
@@ -105,8 +121,13 @@ export class AdminSpatialUnitHierarchiesComponent {
     if (!result) {
       return;
     }
-    this.store.addHierarchy(result, result.levels ?? []);
-    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.CREATED', { hierarchy: result.name });
+    const created = await this.store.addHierarchy(result, result.levels ?? []);
+    this.notify(
+      created
+        ? 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.CREATED'
+        : 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.CREATE_FAILED',
+      { hierarchy: result.name }
+    );
   }
 
   /** Edits the metadata. The chain and its expansion state stay untouched. */
@@ -126,27 +147,33 @@ export class AdminSpatialUnitHierarchiesComponent {
     if (!result) {
       return;
     }
-    this.store.updateHierarchyMetadata(hierarchy, result);
-    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.UPDATED', { hierarchy: result.name });
+    const saved = await this.store.updateHierarchyMetadata(hierarchy, result);
+    this.notify(
+      saved
+        ? 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.UPDATED'
+        : 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.UPDATE_FAILED',
+      { hierarchy: result.name }
+    );
   }
 
   /** Makes a so far unassigned level the finest level of a chain. */
-  protected onAssignLevel({ level, hierarchy }: LevelAssignment): void {
-    this.store.assignLevel(level, hierarchy);
-    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.ASSIGNED', {
-      level: level.name,
-      hierarchy: hierarchy.name(),
+  protected async onAssignLevel({ level, hierarchy }: LevelAssignment): Promise<void> {
+    this.announceChainEdit(await this.store.assignLevel(level, hierarchy), {
+      key: 'ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.ASSIGNED',
+      params: { level: level.name, hierarchy: hierarchy.name() },
     });
   }
 
   /** Puts the level the picker chose into the chain, at the gap it was opened at. */
-  protected onInsertLevel(
+  protected async onInsertLevel(
     hierarchy: SpatialUnitHierarchy,
     gap: TreeGap<HierarchyLevel>,
     level: HierarchyChainEntry
-  ): void {
-    this.store.insertLevel(hierarchy, gap, level);
-    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.INSERTED', { level: level.name });
+  ): Promise<void> {
+    this.announceChainEdit(await this.store.insertLevel(hierarchy, gap, level), {
+      key: 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.INSERTED',
+      params: { level: level.name },
+    });
   }
 
   /** Drops a hierarchy once the confirmation dialog agrees. */
@@ -155,8 +182,13 @@ export class AdminSpatialUnitHierarchiesComponent {
       return;
     }
     const name = hierarchy.name();
-    this.store.deleteHierarchy(hierarchy);
-    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.DELETED', { hierarchy: name });
+    const deleted = await this.store.deleteHierarchy(hierarchy);
+    this.notify(
+      deleted
+        ? 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.DELETED'
+        : 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.DELETE_FAILED',
+      { hierarchy: name }
+    );
   }
 
   /**
@@ -174,6 +206,24 @@ export class AdminSpatialUnitHierarchiesComponent {
       action: this.translateService.instant('ADMIN_SHARED.METADATA'),
       hierarchy: name,
     });
+  }
+
+  /**
+   * Says what became of a chain edit. A `rejected` one is silent: the chain
+   * rules turned it down before anything was sent, and the disabled button or
+   * the unchanged tree already says so.
+   */
+  private announceChainEdit(
+    result: ChainEditResult,
+    success: { key: string; params: Record<string, unknown> }
+  ): void {
+    if (result === 'rejected') {
+      return;
+    }
+    this.notify(
+      result === 'saved' ? success.key : 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.SAVE_FAILED',
+      success.params
+    );
   }
 
   private notify(key: string, params: Record<string, unknown>): void {
