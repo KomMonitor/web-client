@@ -1,62 +1,66 @@
 [   // COMMENTS NOT ALLOWED IN JSON, BUT USED HERE TO EXPLAIN PROPERTIES
     {
-        "id": "indicatorConfig",
-        "roles": []         // access for everyone
+        "id": "indicatorConfig", // Indikatorenkatalog
+        "groups": []         // access for everyone
     },
     {
-        "id": "poi",
-        "roles": ["keycloakRole1", "keycloakRole2"]  // access only for users with at least one of the Keycloak-roles
+        "id": "poi", // Georessourcen Menu
+        "groups": ["kommonitorGroup1", "kommonitorGroup2"]  // access only for users with at least one of the KomMonitor groups
     },    
     {
-        "id": "filter",
-        "roles": ["fakeAdvancedModeRole"]       // access only if advanced mode is active - should not be combined with Keycloak role names
+        "id": "filter",  // Filter Menu
+        "groups": ["fakeAdvancedModeGroup"]       // access only if advanced mode is active - should not be combined with KomMonitor Group names
     },
     {
-        "id": "dataImport",
-        "roles": []
+        "id": "dataImport", // Datenimport Menu
+        "groups": []
     },
     {
-        "id": "measureOfValueClassification",
-        "roles": []
+        "id": "measureOfValueClassification",  // Schwellwertklassifikation Filter
+        "groups": []
     },
     {
-        "id": "balance",
-        "roles": []
+        "id": "balance",  // Bilanzierung Menu
+        "groups": []
     },
     {
-        "id": "diagrams",
-        "roles": []
+        "id": "diagrams",  // Balken und Zeitreihendiagramm Menu
+        "groups": []
     },
     {
-        "id": "radarDiagram",
-        "roles": []
+        "id": "radarDiagram",  // Radardiagramm Menu
+        "groups": []
     },
     {
-        "id": "regressionDiagram",
-        "roles": []
+        "id": "regressionDiagram",  // Regressionsdiagramm Menu
+        "groups": []
     },
     {
-        "id": "reachability",
-        "roles": []
+        "id": "reachability",  // Erreichbarkeits Menu
+        "groups": []
     },
     {
-        "id": "processing",
-        "roles": []
+        "id": "reportingButton",  // Reporting Button in Kopfleiste
+        "groups": []
     },
     {
-        "id": "reportingButton",
-        "roles": []
+        "id": "indicatorLegendExportButtons",  // Export Buttons in Indikatorenlegende
+        "groups": []
     },
     {
-        "id": "indicatorLegendExportButtons",
-        "roles": []
+        "id": "diagramExportButtons",  // Export Buttons in Diagramm-Toolboxen
+        "groups": []
     },
     {
-        "id": "diagramExportButtons",
-        "roles": []
+        "id": "georesourceExportButtons",  // Export Buttons in Georessourcen Menu
+        "groups": []
     },
     {
-        "id": "georesourceExportButtons",
-        "roles": []
+        "id": "kommonitorIndicatorClassification",  // Anpassung der Klassifikation auf der Kartenoberfläche
+        "groups": []
+    } ,
+    {
+        "id": "kommonitorStatisticalValues",  // Indikatorenstatistik Bereich in Indikatorenlegende
+        "groups": []
     } 
 ]

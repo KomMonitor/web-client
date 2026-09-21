@@ -570,6 +570,7 @@ angular
 							$scope.onChangeShowManualSelection = async function(checked) {
 
 								$scope.showManualSelectionSpatialFilter = checked;
+								kommonitorFilterHelperService.spatialFilterIsActive = checked;
 
 								// return if toggle was deactivated
 								if(!$scope.showManualSelectionSpatialFilter)
@@ -583,6 +584,7 @@ angular
 							$scope.onChangeShowSelectionByFeature = async function(checked) {
 
 								$scope.showSelectionByFeatureSpatialFilter = checked;
+								kommonitorFilterHelperService.spatialFilterIsActive = checked;
 
 								// return if toggle was deactivated
 								if(!$scope.showSelectionByFeatureSpatialFilter)

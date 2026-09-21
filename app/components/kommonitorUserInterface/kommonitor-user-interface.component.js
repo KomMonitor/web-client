@@ -1,13 +1,16 @@
 angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 	templateUrl : "components/kommonitorUserInterface/kommonitor-user-interface.template.html",
 	controller : ['kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', 'kommonitorElementVisibilityHelperService', '$scope', 
-	'$rootScope', '$location', 'Auth', 'ControlsConfigService', '$compile', 'kommonitorShareHelperService', 'kommonitorGlobalFilterHelperService', 'kommonitorFavService', '__env',
+	'$rootScope', '$location', 'Auth', 'ControlsConfigService', '$compile', 'kommonitorShareHelperService', 'kommonitorGlobalFilterHelperService', 'kommonitorFavService', 
+	'__env', 'kommonitorFilterHelperService',
 	function UserInterfaceController(kommonitorDataExchangeService, kommonitorKeycloakHelperService, kommonitorElementVisibilityHelperService, 
-		$scope, $rootScope, $location, Auth, ControlsConfigService, $compile, kommonitorShareHelperService, kommonitorGlobalFilterHelperService, kommonitorFavService, __env) {
+		$scope, $rootScope, $location, Auth, ControlsConfigService, $compile, kommonitorShareHelperService, kommonitorGlobalFilterHelperService, kommonitorFavService, __env,
+		kommonitorFilterHelperService) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;
 		this.kommonitorElementVisibilityHelperServiceInstance = kommonitorElementVisibilityHelperService;
+		this.kommonitorFilterHelperServiceInstance = kommonitorFilterHelperService;
 
 		kommonitorDataExchangeService.anySideBarIsShown = false;
 
@@ -15,6 +18,13 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		kommonitorDataExchangeService.currentKeycloakUser;
 		$scope.password;
 		$scope.showAdminLogin = false;
+
+		$scope.userRoleInformation = {};
+		$scope.userGroupInformation = [];
+
+		$scope.onAbortReportGeneration = function() {
+			$rootScope.$broadcast("abortReportGeneration");
+		};
 
 		$scope.init = async function () {
 			// initialize application
@@ -27,7 +37,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 
 			kommonitorShareHelperService.init();
 			kommonitorGlobalFilterHelperService.init();
-      kommonitorFavService.init();
+      		kommonitorFavService.init();
       
 			if(kommonitorGlobalFilterHelperService.applicationFilter) {
 				kommonitorDataExchangeService.fetchAllMetadata(kommonitorGlobalFilterHelperService.applicationFilter);
@@ -35,8 +45,44 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				kommonitorDataExchangeService.fetchAllMetadata();
 			}
 
-
+			setTimeout(function(){
+				$scope.prepUserInformation();
+			}, 1000);
 		};
+
+		$scope.prepUserInformation = function() {
+
+			if(kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.length>0) {
+			  kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.forEach(roles => {
+
+				const groupEndIndex = roles.lastIndexOf('.');
+				let key = roles.slice(0, groupEndIndex);
+				let role = roles.slice(groupEndIndex + 1);
+
+				if(!$scope.userRoleInformation.hasOwnProperty(key)) {
+				  $scope.userRoleInformation[key] = [];
+				}
+				
+				$scope.userRoleInformation[key].push(role);
+
+			  });
+			}
+
+			if(kommonitorDataExchangeService.currentKeycloakLoginGroups.length>0) {
+			  kommonitorDataExchangeService.currentKeycloakLoginGroups.forEach((group, index) => {
+
+				let parts = group.split('/');
+				$scope.userGroupInformation[index] = [];
+
+				parts.forEach(part => {
+				  if(part.length>0)
+					$scope.userGroupInformation[index].push(part);
+				});
+			  });
+			}
+
+			$rootScope.$digest();
+		  }
 
 		// initialize any adminLTE box widgets
 		$('.box').boxWidget();

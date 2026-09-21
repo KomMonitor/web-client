@@ -12,6 +12,7 @@ angular
       const CacheKey_prefix = __env.localStoragePrefix;
 
       self.cacheMap = new Map();
+      self.pendingPromises = new Map();
 
       // Initialize IndexedDB
       const dbName = 'leafletScreenshotCache';
@@ -28,15 +29,15 @@ angular
       // i.e. "<CacheKey_prefix>__leaflet_screenshot_<spatialUnitID>_<featureID>"
       const CacheKey_leafletScreenshotPrefix = CacheKey_prefix + "_leaflet_screenshot_";
 
-      this.generateUniqueCacheKey = function (mapName, spatialUnitId, featureId, pageOrientation) {
+      this.generateUniqueCacheKey = function (mapName, spatialUnitId, featureId, pageOrientation, templateName) {
 
-        return CacheKey_leafletScreenshotPrefix  + "_" + mapName + "_" + spatialUnitId + "_" + featureId + "_" + pageOrientation
+        return CacheKey_leafletScreenshotPrefix  + "_" + mapName + "_" + spatialUnitId + "_" + featureId + "_" + pageOrientation + "_" + templateName
       };
 
-      this.storeResourceInCache = async function (mapName, spatialUnitId, featureId, pageOrientation, imageDataUrl) {
+      this.storeResourceInCache = async function (mapName, spatialUnitId, featureId, pageOrientation, templateName,imageDataUrl) {
         // let timestampInSeconds = Math.floor(Date.now() / 1000);
 
-        let CacheKey = self.generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation);
+        let CacheKey = self.generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation, templateName);
 
         let item = {
           // "timestamp": timestampInSeconds,
@@ -71,8 +72,8 @@ angular
         }
       }
 
-      this.getResourceFromCache = function (mapName, spatialUnitId, featureId, pageOrientation) {
-        let CacheKey = this.generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation);
+      this.getResourceFromCache = function (mapName, spatialUnitId, featureId, pageOrientation, templateName) {
+        let CacheKey = this.generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation, templateName);
 
         let item = self.cacheMap.get(CacheKey);
 
@@ -82,29 +83,73 @@ angular
         return undefined;
       }
 
-      this.checkForScreenshot = async function (mapName, spatialUnitId, featureId, pageOrientation, domElement) {
+      this.checkForScreenshot = function (mapName, spatialUnitId, featureId, pageOrientation, domElement, templateName) {
 
-        let CacheKey = this.generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation);
+        let CacheKey = this.generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation, templateName);
         if (!self.cacheMap.has(CacheKey)) {
+
+          if (self.pendingPromises.has(CacheKey)) {
+            return self.pendingPromises.get(CacheKey);
+          }
+
           // we now trigger a process that will actually set this item after a timeout. However, for each spatial unit, two requests occur
           // for now we try to only execute one screenshot process for each spatial unit
           // thus we simply set an empty object for the current key to prevent multiple screenshot taking processes for the same item         
-          setTimeout(function () {
-            let leafletMapScreenshot = domtoimage
-              .toJpeg(domElement, { quality: 1 })
-              .then(function (dataUrl) {
-                self.storeResourceInCache(mapName, spatialUnitId, featureId, pageOrientation, dataUrl);
-              })
-              .catch(function (error) {
-                console.error('oops, something went wrong!', error);
-              });
-          }, 150);
+          let promise = new Promise((resolve, reject) => {
+            setTimeout(function () {
+              // verify that there are actually tiles loaded/loading to avoid empty screenshots
+              let tiles = domElement.querySelectorAll('.leaflet-tile');
+              if (tiles.length === 0) {
+                console.warn("No Leaflet tiles found in DOM yet. Screenshot might be empty/black. Retrying once after short delay...");
+                setTimeout(() => capture(), 500);
+              } else {
+                capture();
+              }
+
+              function capture() {
+                domtoimage
+                  .toPng(domElement)
+                  .then(async function (dataUrl) {
+
+                    // Convert blob: to data: to ensure persistence in exports
+                    if (dataUrl.startsWith("blob:")) {
+                      try {
+                        const response = await fetch(dataUrl);
+                        const blob = await response.blob();
+                        dataUrl = await new Promise((resolve, reject) => {
+                          const reader = new FileReader();
+                          reader.onloadend = () => resolve(reader.result);
+                          reader.onerror = reject;
+                          reader.readAsDataURL(blob);
+                        });
+                      } catch (e) {
+                        console.error("Failed to convert blob URL to data URL for page " + pageIdx, e);
+                        // continue with blob URL as fallback for current session, but warn
+                      }
+                    }
+                    
+                    self.storeResourceInCache(mapName, spatialUnitId, featureId, pageOrientation, dataUrl);
+                    self.pendingPromises.delete(CacheKey);
+                    resolve(dataUrl);
+                  })
+                  .catch(function (error) {
+                    console.error('oops, something went wrong!', error);
+                    self.pendingPromises.delete(CacheKey);
+                    reject(error);
+                  });
+              }
+            }, 500); // delay to ensure that the map is properly rendered, especially when many tiles are loaded
+          });
+
+          self.pendingPromises.set(CacheKey, promise);
+          return promise;
         }
         else{
           // only increase executedCacheMap due to log progress
           self.executedScreenshotMapKeys.set(CacheKey, CacheKey);
           // send UI update information
           self.logProgress();     
+          return Promise.resolve(self.cacheMap.get(CacheKey).imageDataUrl);
         }
 
       }

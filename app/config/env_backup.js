@@ -19,6 +19,11 @@ try {
 
   // keycloak super admin role name
   window.__env.keycloakKomMonitorAdminRoleName = "kommonitor-creator";
+  
+  // area-based user role permissions
+  window.__env.keycloakKomMonitorGroupsEditRoleNames = ["client-users-creator", "unit-users-creator"];
+  window.__env.keycloakKomMonitorThemesEditRoleNames = ["client-themes-creator", "unit-themes-creator"];
+  window.__env.keycloakKomMonitorGeodataEditRoleNames = ["client-resources-creator", "unit-resources-creator"];
 
   // enable and show/hide switch to toggle basic and advanced mode
   // this feature can hide certain app elements via ID if in basic mode
@@ -50,6 +55,10 @@ try {
   // show bar chart label and average line
   window.__env.showBarChartLabel = false;
   window.__env.showBarChartAverageLine = true;
+
+  // show filter config section for GeodataEditRoleNames
+  // if false, only users with admin role can see filter config section; if true, users with geodata edit roles can also see filter config section
+  window.__env.showFilterConfigForGeodataEditRoleNames = false; 
   
   // custom report styling
   // value: number
@@ -283,6 +292,8 @@ try {
   window.__env.defaultBorderColor = "black";
   window.__env.defaultColorForFilteredValues = "rgba(255,255,255,0)";
   window.__env.defaultBorderColorForFilteredValues = "black";
+  window.__env.defaultColorForSpatiallyFilteredValues = "rgba(247, 147, 30, 0)";
+  window.__env.defaultBorderColorForSpatiallyFilteredValues = "#F7931E";
   window.__env.defaultFillOpacity = "0.7";
   window.__env.defaultFillOpacityForFilteredFeatures = "0.7";
   window.__env.defaultFillOpacityForZeroFeatures = "0.7";

@@ -129,6 +129,20 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 			$scope.newMainTopicDescription_georesource = undefined;
 		};
 
+		$scope.cleanSubTopics = function(topics) {
+			let subTopics = topics.map(function(topic) {
+				if (topic.subTopics && topic.subTopics.length > 0) {
+					topic.subTopics = $scope.cleanSubTopics(topic.subTopics);
+				}
+				var copy = Object.assign({}, topic);
+				delete copy.displayOrder;
+				delete copy.level;
+				delete copy.selected;
+				return copy;
+			});
+			return subTopics;
+		}
+
 		$scope.onAddSubTopic = function(mainTopic, resourceType){
 
 			$scope.loadingData = true;
@@ -161,12 +175,14 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 				mainTopic.subTopics.push(subTopic);
 			}
 
+			let subTopics = $scope.cleanSubTopics(mainTopic.subTopics);
+
 			var putBody = {
 			  "topicName": mainTopic.topicName,
 			  "topicDescription": mainTopic.topicDescription,
 			  "topicResource": resourceType,
 			  "topicType": mainTopic.topicType,
-			  "subTopics": mainTopic.subTopics
+			  "subTopics": subTopics
 			};
 
 			$http({
@@ -256,12 +272,14 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 				subTopic.subTopics.push(subSubSubTopic);
 			}
 
+			let subTopics = $scope.cleanSubTopics(subTopic.subTopics);
+
 			var putBody = {
 			  "topicName": subTopic.topicName,
 			  "topicDescription": subTopic.topicDescription,
 			  "topicResource": resourceType,
 			  "topicType": subTopic.topicType,
-			  "subTopics": subTopic.subTopics
+			  "subTopics": subTopics
 			};
 
 			$http({
@@ -342,12 +360,14 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 				subTopic.subTopics.push(subSubTopic);
 			}
 
+			let subTopics = $scope.cleanSubTopics(subTopic.subTopics);
+
 			var putBody = {
 			  "topicName": subTopic.topicName,
 			  "topicDescription": subTopic.topicDescription,
 			  "topicResource": resourceType,
 			  "topicType": subTopic.topicType,
-			  "subTopics": subTopic.subTopics
+			  "subTopics": subTopics
 			};
 
 			$http({

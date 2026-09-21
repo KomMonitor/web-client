@@ -1,6 +1,49 @@
 <!-- <div class="container-fluid"> -->
   <p id="fontFamily-reference"></p>
-	<header id="header" class="main-header">
+
+  <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.reportGenerationInProgress" 
+		 style="position: absolute; top: 55px; left: 50%; transform: translateX(-50%); z-index: 10000; width: 60%;"
+		 ng-class="{'alert alert-info': $ctrl.kommonitorDataExchangeServiceInstance.reportStatus === 'preparing', 'alert alert-success': $ctrl.kommonitorDataExchangeServiceInstance.reportStatus === 'finished'}">
+		
+		<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.reportStatus === 'preparing'">
+			<i class="fa fa-info-circle"></i> <b>Hinweis:</b> Im Hintergrund wird ein Bericht vorbereitet. Dies kann die Anwendung verlangsamen.
+			
+			<div class="row vertical-align" style="margin-top: 10px; margin-bottom: 5px; margin-right: 0px;">
+				<div class="col-sm-10">
+					<div class="progress" style="margin-bottom: 0px; height: 20px;">
+						<div class="progress-bar progress-bar-striped active" role="progressbar" 
+								 ng-style="{'width': $ctrl.kommonitorDataExchangeServiceInstance.reportProgress + '%'}"
+								 style="line-height: 20px; font-weight: bold;">
+							{{$ctrl.kommonitorDataExchangeServiceInstance.reportProgress | number:0}}%
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-2 text-right">
+					<button type="button" class="btn btn-danger btn-xs" ng-click="onAbortReportGeneration()">
+						<i class="fa fa-times"></i> Abbrechen
+					</button>
+				</div>
+			</div>
+			
+			<div ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.reportingModalOpen" style="margin-top: 5px;">
+				<button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#reporting-modal">
+					<i class="fas fa-file-alt"></i> &nbsp; Zum Berichtsmenü
+				</button>
+			</div>
+		</div>
+
+		<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.reportStatus === 'finished'">
+			<i class="fa fa-check-circle"></i> <b>Erfolg:</b> Die Berichtgenerierung wurde abgeschlossen! Der im Hintergrund vorbereitete Bericht kann nun hinzugefügt werden. Kehren Sie dazu zum Berichtserstellungsdialog zurück.
+			<span class="pull-right">
+				<button ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.reportingModalOpen" type="button" class="btn btn-success btn-xs" data-toggle="modal" data-target="#reporting-modal" style="margin-top: -3px; margin-right: 15px;">
+					<i class="fas fa-file-alt"></i> &nbsp; Zum Berichtsmenü
+				</button>
+				Banner schließt in {{$ctrl.kommonitorDataExchangeServiceInstance.reportCountdown}}s
+			</span>
+		</div>
+	</div>
+
+  <header id="header" class="main-header">
 
 		<div  style="position:absolute; left:40%;  padding-top: 4px;">
 
@@ -33,9 +76,58 @@
 							<span style="word-break: break-all;"><b>E-Mail:</b><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.email}}</i></span>
 						</div>
 						<br/>
-						<span><b>zugewiesene Rollen:</b></span> <i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKomMonitorLoginRoleNames}}</i>             
-						<br/>
-						<br/>
+						<div class="box box-simplified collapsed-box">
+							<div class="box-header with-border">
+							  <h3 class="box-title">Rollen</h3>
+					  
+							  <div class="box-tools pull-right">
+								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+								</button>
+							  </div>
+							</div>
+							<!-- /.box-header -->
+							<div class="box-body">
+							  <table>
+								<tr ng-repeat="(key, value) in userRoleInformation">
+								  <td>
+									<table>
+									  <tr>
+										<th>{{key}}</th>
+									  </tr>
+									  </tr>
+										<td style="padding-left: 1em;"><p ng-repeat="role in value">{{role}}</p></td>
+									  </tr>
+									</table>
+								  </td>
+								</tr>
+							  </table>
+							</div>
+							<!-- /.box-body -->
+						  </div>
+						  <!-- /.box -->
+			
+						  <div class="box box-simplified collapsed-box">
+							<div class="box-header with-border">
+							  <h3 class="box-title">Gruppen (Hierarchie)</h3>
+					  
+							  <div class="box-tools pull-right">
+								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+								</button>
+							  </div>
+							</div>
+							<!-- /.box-header -->
+							<div class="box-body">
+							  <table>
+								<tr ng-repeat="entry in userGroupInformation">
+								  <td>
+									<p ng-style="{margin: 0,'padding-left': '{{$index + 'em'}}'}" ng-repeat="group in entry track by $index">{{group}}</p>
+								  </td>
+								</tr>
+							  </table>
+							</div>
+							<!-- /.box-body -->
+						  </div>
+						  <!-- /.box --> 
 						<span><b>Session G&uuml;ltigkeit:</b> {{$ctrl.kommonitorDataExchangeServiceInstance.keycloakTokenExpirationInfo}} Minuten</span>
 					</div>
 					<input type="submit" ng-if="!authenticated" value="Login" id='input_submit' ng-click="tryLoginUser()" class='input_field' >
@@ -154,9 +246,10 @@
 
         <kommonitor-map style="height: 100%; width: 100%; position: absolute;"></kommonitor-map>
 		
-		<button type="button" id="sidebarLegendCollapse" ng-click="onSidebarLegendButtonClick()" ng-class="buttonLegendClass" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator" data-toggle="tooltip" title="Legenden- und Informationsfenster">
-			<i style="font-size:2.5vh;" class="fas fa-info"></i>
-		</button>
+		<button type="button" id="sidebarLegendCollapse" ng-click="onSidebarLegendButtonClick()" ng-class="buttonLegendClass"
+			data-toggle="tooltip" title="Legenden- und Informationsfenster" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator">
+		<i style="font-size:2.5vh;" class="fas fa-info"></i>
+	</button>
 
 				<!-- LEFT-HANDED SIDEBAR BUTTONS -->
 
@@ -253,6 +346,8 @@
 									id="filterNoticeButton" class="btn btn-warning btn-xs" title="Filter aktiviert">
 							<i class="fas fa-filter"></i>
 							<span ng-click="openFilterSidebar()" style="margin: 3px;">Räuml. Filter aktiviert </span>
+							<br>
+							<span>ausgeblendete Raumeinheiten: {{$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds_spatialFilter.size}}</span>
 							<i class="fas fa-close" ng-click="onSpatialFilterCloseButtonClick()" title="Filter entfernen"></i>
 						</div>
 						<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked" 
@@ -265,6 +360,8 @@
 									id="filterNoticeButton" class="btn btn-warning btn-xs" title="Wertebereichfilter aktiviert">
 							<i class="fas fa-filter"></i>
 							<span ng-click="openFilterSidebar()" style="margin: 3px;">Wertebereichfilter aktiviert </span>
+							<br>
+							<span>ausgeblendete Raumeinheiten: {{$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size - $ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds_spatialFilter.size}}</span>							
 							<i class="fas fa-close" ng-click="onRangeFilterCloseButtonClick()" title="Filter entfernen"></i>
 						</div>
 					</div>

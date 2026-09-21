@@ -47,6 +47,7 @@ angular.module('kommonitorMap').component(
         var defaultColorForNoDataValues = __env.defaultColorForNoDataValues;
         var defaultFillOpacityForNoDataValues = __env.defaultFillOpacityForNoDataValues;
 
+        var highlightTimeout;
 
         var defaultColorForOutliers_high = __env.defaultColorForOutliers_high;
         var defaultBorderColorForOutliers_high = __env.defaultBorderColorForOutliers_high;
@@ -64,6 +65,8 @@ angular.module('kommonitorMap').component(
         const outlierPropertyValue_high_extreme = "high-extreme";
         const outlierPropertyValue_low_extreme = "low-extreme";
         const outlierPropertyValue_no = "no";
+
+        $scope.addedOutlineLayer = [];
 
         $scope.containsOutliers_high = false;
         $scope.containsOutliers_low = false;
@@ -233,10 +236,12 @@ angular.module('kommonitorMap').component(
         $scope.useTransparencyOnIndicator = __env.useTransparencyOnIndicator;
 
         $scope.filteredStyle = kommonitorVisualStyleHelperService.filteredStyle;
+        $scope.filteredStyle_spatialFilter = kommonitorVisualStyleHelperService.filteredStyle_spatialFilter;
 
         var refreshFilteredStyle = function () {
 
           $scope.filteredStyle = kommonitorVisualStyleHelperService.filteredStyle;
+          $scope.filteredStyle_spatialFilter = kommonitorVisualStyleHelperService.filteredStyle_spatialFilter;
         };
 
         this.kommonitorMapServiceInstance = kommonitorMapService;
@@ -374,39 +379,44 @@ angular.module('kommonitorMap').component(
 
         let initSpatialUnitOutlineLayer = function(){
           for (const spatialUnit of kommonitorDataExchangeService.availableSpatialUnits) {
-            if(spatialUnit.isOutlineLayer){
+
+            if(spatialUnit.isOutlineLayer && !$scope.addedOutlineLayer.includes(spatialUnit.spatialUnitId)){
+
+              // "initSpatialUnitOutlineLayer" is called twice, check for existance of outlineLayer before adding.
+              // placed before http get to cover async response
+              $scope.addedOutlineLayer.push(spatialUnit.spatialUnitId);
 
               let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
 									"/spatial-units/" + spatialUnit.spatialUnitId + "/allFeatures";
 
-								$http({
-									url: url,
-									method: "GET"
-								}).then(function successCallback(response) { //TODO add error callback for the case that the combination of indicator and nextUpperHierarchyLevel doesn't exist
-									let geoJSON = response.data;
+              $http({
+                url: url,
+                method: "GET"
+              }).then(function successCallback(response) { //TODO add error callback for the case that the combination of indicator and nextUpperHierarchyLevel doesn't exist
+                let geoJSON = response.data;
 
-									let layer = L.geoJSON(geoJSON, {
-                    style: function (feature) {
-                      return {
-                        color: spatialUnit.outlineColor,
-                        weight: spatialUnit.outlineWidth,
-                        opacity: 1,
-                        fillOpacity: 0,
-                        fill: false,
-                        dashArray: spatialUnit.outlineDashArrayString
-                      };
-                    },
-                    onEachFeature: onEachFeatureSpatialUnit
-                  });
-        
-                  // layer.StyledLayerControl = {
-                  // 	removable : true,
-                  // 	visible : true
-                  // };
-        
-                  $scope.layerControl.addOverlay(layer, spatialUnit.spatialUnitLevel + "_Umringe", spatialUnitOutlineLayerGroupName);
-                  $scope.updateSearchControl();
-								});
+                let layer = L.geoJSON(geoJSON, {
+                  style: function (feature) {
+                    return {
+                      color: spatialUnit.outlineColor,
+                      weight: spatialUnit.outlineWidth,
+                      opacity: 1,
+                      fillOpacity: 0,
+                      fill: false,
+                      dashArray: spatialUnit.outlineDashArrayString
+                    };
+                  },
+                  onEachFeature: onEachFeatureSpatialUnit
+                });
+      
+                // layer.StyledLayerControl = {
+                // 	removable : true,
+                // 	visible : true
+                // };
+      
+                $scope.layerControl.addOverlay(layer, spatialUnit.spatialUnitLevel + "_Umringe", spatialUnitOutlineLayerGroupName);
+                $scope.updateSearchControl();
+              });
             }
           }
         };
@@ -1437,7 +1447,8 @@ angular.module('kommonitorMap').component(
 
         $scope.$on("updateSpatialFilterIsApplied", function (event) {
           kommonitorDataExchangeService.spatialFilterIsApplied = false;
-          if (kommonitorFilterHelperService.filteredIndicatorFeatureIds.size > 0) {
+          // we must check, if user has actively checked the spatial filter button in addition to having filtered features
+          if (kommonitorFilterHelperService.spatialFilterIsActive && kommonitorFilterHelperService.filteredIndicatorFeatureIds.size > 0) {
             kommonitorDataExchangeService.spatialFilterIsApplied = true;
           }
         })
@@ -2329,7 +2340,10 @@ angular.module('kommonitorMap').component(
 
           // only restyle feature when not in list of clicked features
           if (!kommonitorFilterHelperService.featureIsCurrentlySelected(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
-            if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+            if (kommonitorFilterHelperService.featureIsCurrentlySpatiallyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+              style = $scope.filteredStyle_spatialFilter;
+            }
+            else if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
               style = $scope.filteredStyle;
             }
             else if (!kommonitorDataExchangeService.isMeasureOfValueChecked) {
@@ -2362,7 +2376,10 @@ angular.module('kommonitorMap').component(
         function resetHighlightClickedFeature(layer) {
           var style;
           //$scope.currentIndicatorLayer.resetStyle(layer);
-          if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+          if (kommonitorFilterHelperService.featureIsCurrentlySpatiallyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+              style = $scope.filteredStyle_spatialFilter;
+            }
+          else if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
             layer.setStyle($scope.filteredStyle);
           }
           else if (!kommonitorDataExchangeService.isMeasureOfValueChecked) {
@@ -2828,7 +2845,10 @@ angular.module('kommonitorMap').component(
 
             layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
               style: function (feature) {
-                if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                if (kommonitorFilterHelperService.featureIsCurrentlySpatiallyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                  return $scope.filteredStyle_spatialFilter;
+                }
+                else if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
                   return $scope.filteredStyle;
                 }
                 return kommonitorVisualStyleHelperService.styleMeasureOfValue(feature, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.propertyName, $scope.useTransparencyOnIndicator, true);
@@ -2882,7 +2902,10 @@ angular.module('kommonitorMap').component(
 
               layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
                 style: function (feature) {
-                  if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                  if (kommonitorFilterHelperService.featureIsCurrentlySpatiallyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                    return $scope.filteredStyle_spatialFilter;
+                  }
+                  else if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
                     return $scope.filteredStyle;
                   }
                   return kommonitorVisualStyleHelperService.styleDefault(feature, $scope.defaultBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator, $scope.datasetContainsNegativeValues, true);
@@ -2913,7 +2936,10 @@ angular.module('kommonitorMap').component(
 
               layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
                 style: function(feature){
-                  if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                  if (kommonitorFilterHelperService.featureIsCurrentlySpatiallyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                    return $scope.filteredStyle_spatialFilter;
+                  }
+                  else if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
                     return $scope.filteredStyle;
                   }
                   return kommonitorVisualStyleHelperService.styleDynamicIndicator(feature, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator, true);
@@ -2949,7 +2975,10 @@ angular.module('kommonitorMap').component(
 
             layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
               style: function (feature) {
-                if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                if (kommonitorFilterHelperService.featureIsCurrentlySpatiallyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                  return $scope.filteredStyle_spatialFilter;
+                }
+                else if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
                   return $scope.filteredStyle;
                 }
                 return kommonitorVisualStyleHelperService.styleMeasureOfValue(feature, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.propertyName, $scope.useTransparencyOnIndicator, true);
@@ -3084,7 +3113,10 @@ angular.module('kommonitorMap').component(
               $scope.ltMeasureOfValueBrew = measureOfValueBrewArray[1];
 
               $scope.currentIndicatorLayer.eachLayer(function (layer) {
-                if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                if (kommonitorFilterHelperService.featureIsCurrentlySpatiallyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                  layer.setStyle($scope.filteredStyle_spatialFilter);
+                }
+                else if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
                   layer.setStyle($scope.filteredStyle);
                 }
                 else {
@@ -3118,7 +3150,10 @@ angular.module('kommonitorMap').component(
                 }
                 
                 $scope.currentIndicatorLayer.eachLayer(function (layer) {
-                  if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                  if (kommonitorFilterHelperService.featureIsCurrentlySpatiallyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                    layer.setStyle($scope.filteredStyle_spatialFilter);
+                  }
+                  else if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
                     layer.setStyle($scope.filteredStyle);
                   }
                   else {
@@ -3169,7 +3204,10 @@ angular.module('kommonitorMap').component(
 
                 $scope.currentIndicatorLayer.eachLayer(function (layer) {
                   let style;
-                  if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                  if (kommonitorFilterHelperService.featureIsCurrentlySpatiallyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                    style = $scope.filteredStyle_spatialFilter;
+                  }
+                  else if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
                     style = $scope.filteredStyle;
                   }
                   else {
@@ -3215,7 +3253,10 @@ angular.module('kommonitorMap').component(
               $scope.ltMeasureOfValueBrew = measureOfValueBrewArray[1];
 
               $scope.currentIndicatorLayer.eachLayer(function (layer) {
-                if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                if (kommonitorFilterHelperService.featureIsCurrentlySpatiallyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                    layer.setStyle($scope.filteredStyle_spatialFilter);
+                  }
+                else if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
                   layer.setStyle($scope.filteredStyle);
                 }
                 else {
@@ -3316,6 +3357,7 @@ angular.module('kommonitorMap').component(
 
           kommonitorFilterHelperService.clearSelectedFeatures();
           $rootScope.$broadcast("restyleCurrentLayer", false);
+          $rootScope.$broadcast("updateRadarDiagram", $scope.currentIndicatorMetadataAndGeoJSON, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, $scope.date);
         });
 
         $scope.$on("removeAllDrawnPoints", function (event) {

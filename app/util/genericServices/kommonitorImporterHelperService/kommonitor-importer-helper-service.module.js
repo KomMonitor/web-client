@@ -41,6 +41,33 @@ angular
         },
       ];
 
+      this.aggregationsTypes = [
+        {
+          displayName: "Summe",
+          apiName: "SUM"
+        },
+        {
+          displayName: "Anzahl",
+          apiName: "COUNT"
+        },
+        {
+          displayName: "Mittelwert",
+          apiName: "MEAN"
+        },
+        {
+          displayName: "Median",
+          apiName: "MEDIAN"
+        },
+        {
+          displayName: "Minimum",
+          apiName: "MIN"
+        },
+        {
+          displayName: "Maximum",
+          apiName: "MAX"
+        }
+      ]
+
       this.mappingConfigStructure = {
           "converter": {
             "encoding": "string",
@@ -462,7 +489,9 @@ angular
           "indicatorValues": [],
           "applicableSpatialUnit": scopeProperties.targetSpatialUnitMetadata.spatialUnitLevel,
           "defaultClassificationMapping": scopeProperties.currentIndicatorDataset.defaultClassificationMapping,
-          "allowedRoles": scopeProperties.allowedRoles
+          "permissions": scopeProperties.permissions,
+          "ownerId": scopeProperties.ownerId,
+          "isPublic": scopeProperties.isPublic
           };
 
         return putBody;
@@ -689,7 +718,7 @@ angular
         });        
       };
 
-      this.updateIndicator = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, indicatorId, indicatorPutBody_managementAPI, isDryRun){
+      this.updateIndicator = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, indicatorId, indicatorPutBody_managementAPI, aggregationsDefinition, isDryRun){
         console.log("Trying to POST to importer service to update indicator with id '" + indicatorId + "'.");
 
         var postBody = {
@@ -698,6 +727,7 @@ angular
           "propertyMapping": propertyMappingDefinition,
           "indicatorId": indicatorId,
           "indicatorPutBody": indicatorPutBody_managementAPI,
+          "aggregations": aggregationsDefinition,
           "dryRun": isDryRun
         };        
 

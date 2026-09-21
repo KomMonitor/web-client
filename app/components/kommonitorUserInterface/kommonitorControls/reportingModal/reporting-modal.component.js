@@ -1,7 +1,7 @@
 angular.module('reportingModal').component('reportingModal', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reporting-modal.template.html",
-	controller : ['$scope', '__env', '$timeout', 
-	function ReportingModalController($scope, __env, $timeout) {
+	controller : ['$scope', '__env', '$timeout', 'kommonitorDataExchangeService', '$rootScope', 'kommonitorMapService',
+	function ReportingModalController($scope, __env, $timeout, kommonitorDataExchangeService, $rootScope, kommonitorMapService) {
 
 		$scope.workflowSelected = false;
 		$scope.templateSelected = false;
@@ -94,6 +94,24 @@ angular.module('reportingModal').component('reportingModal', {
 
 		// });
 		
+		// Track state of reporting modal
+		$('#reporting-modal').on('show.bs.modal', function () {
+			kommonitorDataExchangeService.reportingModalOpen = true;
+			$timeout(function(){
+				$rootScope.$digest();
+			});
+		});
+
+		$('#reporting-modal').on('hidden.bs.modal', function () {
+			kommonitorDataExchangeService.reportingModalOpen = false;
+			// after leaving reportinf modal we must make sure that indicator legend show correct numbers of colored features. 
+			// we, hence, call restyle of current map layer to update legend, as this will trigger restyle of all features and, thus, also update the number of colored features in legend
+			// kommonitorMapService.restyleCurrentLayer();
+			$rootScope.$broadcast("restyleCurrentLayer", false);
+			$timeout(function(){
+				$rootScope.$digest();				
+			});
+		});
 
 
 		$scope.makeIndicatorsDraggable = function() {
@@ -109,5 +127,23 @@ angular.module('reportingModal').component('reportingModal', {
 		}
 	}
 ]});
+
+angular.module('reportingModal').controller('ReportingBackgroundController', ['$scope', 'kommonitorDataExchangeService', 
+	function ReportingBackgroundController($scope, kommonitorDataExchangeService) {
+		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+		
+		// helper to determine visibility, similar to components
+		this.checkVisibility = function(pageElement, page) {
+			if (!page || !pageElement) return false;
+			// we can't easily access the component scopes here, so we use a simplified version
+			// or we just trust that the components provide the correct pageElements
+			return true; 
+		};
+
+		this.getPageNumber = function(index) {
+			return (index || 0) + 1;
+		};
+	}
+]);
 
 

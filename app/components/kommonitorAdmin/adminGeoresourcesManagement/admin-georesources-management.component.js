@@ -4,6 +4,9 @@ angular.module('adminGeoresourcesManagement').component('adminGeoresourcesManage
 	function GeoresourcesManagementController(kommonitorDataExchangeService, kommonitorCacheHelperService, kommonitorDataGridHelperService, $scope, $timeout, $rootScope, __env, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+
+        $scope.tableViewSwitcher = false;
+
 		// initialize any adminLTE box widgets
 	  $('.box').boxWidget();
 
@@ -28,16 +31,28 @@ angular.module('adminGeoresourcesManagement').component('adminGeoresourcesManage
 
 		});
 
+        $scope.onTableViewSwitch = function() {
+            $scope.initializeOrRefreshOverviewTable();
+        }
+
 		$scope.initializeOrRefreshOverviewTable = function(){
 			$scope.loadingData = true;
 			
-			kommonitorDataGridHelperService.buildDataGrid_georesources(kommonitorDataExchangeService.availableGeoresources);
+			kommonitorDataGridHelperService.buildDataGrid_georesources($scope.initGeoresources());
 
 			$timeout(function(){
 				
 				$scope.loadingData = false;
 			});	
 		};
+
+        $scope.initGeoresources = function() {
+
+            if($scope.tableViewSwitcher)
+                return kommonitorDataExchangeService.availableGeoresources.filter(e => !(e.userPermissions.length==1 && e.userPermissions.includes('viewer')));
+            else
+                return kommonitorDataExchangeService.availableGeoresources;
+        }
 
 		$scope.$on("refreshGeoresourceOverviewTable", function (event, crudType, targetGeoresourceId) {
 			$scope.loadingData = true;
