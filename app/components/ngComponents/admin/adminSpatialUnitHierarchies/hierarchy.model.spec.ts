@@ -346,19 +346,48 @@ describe('createHierarchy', () => {
   };
 
   it('orders the chain by hierarchyLevel, not by arrival', () => {
-    const built = createHierarchy(overview, 'Stadt Essen');
+    const built = createHierarchy(overview, () => 'Stadt Essen');
 
     expect(built.chain().map((entry) => entry.name)).toEqual(['Stadt', 'Bezirke', 'Quartiere']);
   });
 
   it('carries the spatial unit id of every member into the chain', () => {
-    const built = createHierarchy(overview, 'Stadt Essen');
+    const built = createHierarchy(overview, () => 'Stadt Essen');
 
     expect(built.chain().map((entry) => entry.id)).toEqual(['su-a', 'su-b', 'su-c']);
   });
 
-  it('takes the metadata over, with the tenant name the caller resolved', () => {
-    const built = createHierarchy(overview, 'Stadt Essen');
+  it('falls back to the raw id while the resolver names no tenant', () => {
+    const built = createHierarchy(overview, () => '');
+
+    expect(built.mandant()).toBe('m-1');
+  });
+
+  it('picks the tenant name up once the resolver can answer', () => {
+    // The access control metadata arrives during startup; a page built before
+    // it must not keep the raw id once the real name is available.
+    const names = signal<Record<string, string>>({});
+    const built = createHierarchy(overview, (id) => names()[id] ?? '');
+
+    expect(built.mandant()).toBe('m-1');
+
+    names.set({ 'm-1': 'Stadt Essen' });
+
+    expect(built.mandant()).toBe('Stadt Essen');
+  });
+
+  it('follows its own mandantId when that is rewritten', () => {
+    const built = createHierarchy(overview, (id) =>
+      id === 'm-2' ? 'Stadt Bochum' : 'Stadt Essen'
+    );
+
+    built.mandantId.set('m-2');
+
+    expect(built.mandant()).toBe('Stadt Bochum');
+  });
+
+  it('takes the metadata over, with the tenant name the resolver answers', () => {
+    const built = createHierarchy(overview, () => 'Stadt Essen');
 
     expect(built.id).toBe('h-1');
     expect(built.name()).toBe('Verwaltungsgliederung');
@@ -368,22 +397,22 @@ describe('createHierarchy', () => {
   });
 
   it('starts folded but fully expanded, so opening it shows the whole chain', () => {
-    const built = createHierarchy(overview, 'Stadt Essen');
+    const built = createHierarchy(overview, () => 'Stadt Essen');
 
     expect(built.open()).toBe(false);
     expect([...built.expandedIds()].sort()).toEqual(['su-a', 'su-b', 'su-c']);
   });
 
   it('copes with a hierarchy that has no members yet', () => {
-    const built = createHierarchy({ ...overview, members: undefined }, 'Stadt Essen');
+    const built = createHierarchy({ ...overview, members: undefined }, () => 'Stadt Essen');
 
     expect(built.chain()).toEqual([]);
     expect(built.levelCount()).toBe(0);
   });
 
   it('hands out independent state on every call', () => {
-    const first = createHierarchy(overview, 'Stadt Essen');
-    const second = createHierarchy(overview, 'Stadt Essen');
+    const first = createHierarchy(overview, () => 'Stadt Essen');
+    const second = createHierarchy(overview, () => 'Stadt Essen');
 
     first.name.set('Geändert');
 

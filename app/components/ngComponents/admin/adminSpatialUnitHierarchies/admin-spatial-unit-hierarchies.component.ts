@@ -28,8 +28,9 @@ import {
  * Management of spatial unit hierarchies — the chains that order spatial unit
  * levels from the coarsest to the finest.
  *
- * The hierarchies are read from the Data Management API; the edits below change
- * what the page holds and are not written back yet.
+ * The hierarchies live in the Data Management API, and every edit below is
+ * written there straight away — `HierarchyStoreService` says which of them wait
+ * for the answer and which are rolled back if it never comes.
  *
  * The hierarchies, the spatial unit levels and the tenant on screen live in
  * `HierarchyStoreService`, which the page provides for itself. What is left

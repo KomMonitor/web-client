@@ -59,8 +59,14 @@ export interface SpatialUnitHierarchy {
   readonly id: string;
   /** Writable so renaming keeps the hierarchy object — and its state — in place. */
   readonly name: WritableSignal<string>;
-  /** Owning tenant by name, which is what the page groups and filters by. */
-  readonly mandant: WritableSignal<string>;
+  /**
+   * Owning tenant by name, which is what the page groups and filters by.
+   *
+   * Derived from `mandantId`, never stored: the access control metadata that
+   * names the tenants arrives during startup, and a name resolved once at load
+   * time would keep the raw id for good if the page got there first.
+   */
+  readonly mandant: Signal<string>;
   /** The same tenant as the API names it; what every write has to send. */
   readonly mandantId: WritableSignal<string>;
   /** Whether the hierarchy is readable without a login. */
@@ -307,13 +313,16 @@ export function removeFromChain(
  * sorted rather than trusted to arrive sorted.
  *
  * `mandant` is the tenant's *name*, which is what the page groups and filters
- * by; the caller resolves it, and falls back to the id where Keycloak names no
- * tenant for it, so hierarchies of an unknown tenant still group together
- * instead of silently merging into the tenant-less bucket.
+ * by. It is derived from `mandantId` through `resolveMandantName` on every
+ * read, not resolved once here: the tenants are known only after the access
+ * control metadata has arrived, and a name captured before that would stay the
+ * raw id even once the real one is available. Where the resolver names no
+ * tenant, the id stands in, so hierarchies of an unknown tenant still group
+ * together instead of silently merging into the tenant-less bucket.
  */
 export function createHierarchy(
   overview: SpatialUnitHierarchyOverviewType,
-  mandantName: string
+  resolveMandantName: (mandantId: string) => string
 ): SpatialUnitHierarchy {
   const chain = signal<readonly HierarchyChainEntry[]>(
     [...(overview.members ?? [])]
@@ -321,12 +330,13 @@ export function createHierarchy(
       .map((member) => ({ id: member.spatialUnitId, name: member.spatialUnitLevel ?? '' }))
   );
   const levels = computed(() => nest(chain()));
+  const mandantId = signal(overview.mandantId);
 
   return {
     id: overview.hierarchyId,
     name: signal(overview.name),
-    mandant: signal(mandantName),
-    mandantId: signal(overview.mandantId),
+    mandant: computed(() => resolveMandantName(mandantId()) || mandantId()),
+    mandantId,
     isPublic: signal(overview.isPublic),
     chain,
     levels,

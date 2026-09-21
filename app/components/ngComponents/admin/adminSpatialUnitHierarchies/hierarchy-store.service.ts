@@ -63,6 +63,15 @@ export interface HierarchyMetadata {
 @Injectable()
 export class HierarchyStoreService {
   private readonly mandantService = inject(MandantService);
+
+  /**
+   * Resolves a `mandantId` to the tenant name the page groups by. Handed to
+   * every hierarchy so it can derive its own name on each read: the access
+   * control metadata arrives during startup, and a page built before it would
+   * otherwise keep the raw id long after the real name is available.
+   */
+  private readonly resolveMandantName = (mandantId: string): string =>
+    this.mandantService.mandantNameOf(mandantId);
   private readonly hierarchyApi = inject(SpatialUnitHierarchyApiService);
   private readonly spatialUnitStore = inject(SpatialUnitMetadataStoreService);
 
@@ -117,12 +126,7 @@ export class HierarchyStoreService {
     this.loading.set(true);
     const overviews = await this.hierarchyApi.getHierarchies();
     this.hierarchies.set(
-      overviews.map((overview) =>
-        createHierarchy(
-          overview,
-          this.mandantService.mandantNameOf(overview.mandantId) || overview.mandantId
-        )
-      )
+      overviews.map((overview) => createHierarchy(overview, this.resolveMandantName))
     );
     this.expandMandant(this.selectedMandant());
     this.loading.set(false);
@@ -236,7 +240,7 @@ export class HierarchyStoreService {
         isPublic: metadata.isPublic,
         members: toOrderedMembers(levels.map((level) => level.id)),
       });
-      const hierarchy = createHierarchy(created, metadata.mandant);
+      const hierarchy = createHierarchy(created, this.resolveMandantName);
       hierarchy.open.set(true);
       this.hierarchies.update((entries) => [...entries, hierarchy]);
       this.followMandant(metadata.mandant);
@@ -273,7 +277,7 @@ export class HierarchyStoreService {
     }
 
     hierarchy.name.set(metadata.name);
-    hierarchy.mandant.set(metadata.mandant);
+    // `mandant` follows the id on its own — it is derived, not stored.
     hierarchy.mandantId.set(mandantId);
     hierarchy.isPublic.set(metadata.isPublic);
     this.followMandant(metadata.mandant);

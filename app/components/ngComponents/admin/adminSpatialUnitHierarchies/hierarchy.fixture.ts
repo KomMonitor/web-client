@@ -37,7 +37,7 @@ export function hierarchyFixture(
   levelNames: readonly string[],
   isPublic = false
 ): SpatialUnitHierarchy {
-  return createHierarchy(hierarchyOverview(name, mandant, levelNames, isPublic), mandant);
+  return createHierarchy(hierarchyOverview(name, mandant, levelNames, isPublic), (id) => id);
 }
 
 /** A registry entry whose id matches the chain entry of the same name. */
