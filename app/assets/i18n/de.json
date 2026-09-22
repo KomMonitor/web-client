@@ -1594,14 +1594,12 @@
       "OPEN": "Öffnen",
       "HINT": "Raumebenen sind mandantenspezifisch — Hierarchien können keine Ebenen anderer Mandanten enthalten."
     },
-    "HIERARCHY_MODAL": {
-      "CREATE_TITLE": "Neue Raumeinheitshierarchie anlegen",
-      "EDIT_TITLE": "Raumeinheitshierarchie bearbeiten",
+    "HIERARCHY_CREATE_MODAL": {
+      "TITLE": "Neue Raumeinheitshierarchie anlegen",
       "NAME_LABEL": "Name der Hierarchie",
       "NAME_PLACEHOLDER": "z. B. Sozialraum-Gliederung",
       "MANDANT_LABEL": "Mandant",
       "MANDANT_NONE": "Kein Mandant verfügbar",
-      "MANDANT_FIXED_HINT": "Der Mandant einer bestehenden Hierarchie kann nicht geändert werden.",
       "CHAIN_LABEL": "Ebenenkette",
       "CHAIN_HINT": "von der größten zur kleinsten Einheit — Verknüpfungen entstehen automatisch",
       "USED_ONCE": "bereits in 1 Hierarchie",
@@ -1610,9 +1608,23 @@
       "REMOVE_LEVEL": "entfernen",
       "ADD_LEVEL": "Ebene anfügen",
       "NO_LEVELS_LEFT": "Keine weitere Raumebene dieses Mandanten verfügbar.",
-      "SUBMIT_CREATE": "Hierarchie anlegen",
+      "SUBMIT": "Hierarchie anlegen",
       "PUBLIC_LABEL": "Hierarchie öffentlich schalten",
       "PUBLIC_HINT": "Sichtbar für alle Nutzer ohne Anmeldung — auch die zugeordneten Raumebenen müssen öffentlich sein."
+    },
+    "HIERARCHY_EDIT_MODAL": {
+      "TITLE": "Raumeinheitshierarchie bearbeiten",
+      "NAME_LABEL": "Name der Hierarchie",
+      "PUBLIC_LABEL": "Hierarchie öffentlich sichtbar",
+      "PUBLIC_HINT": "Sichtbar für alle Nutzer ohne Anmeldung — auch die zugeordneten Raumebenen müssen öffentlich sein.",
+      "FIXED_TITLE": "Nicht änderbar",
+      "MANDANT_LABEL": "Mandant",
+      "MANDANT_NONE": "Kein Mandant",
+      "CHAIN_LABEL": "Ebenenkette",
+      "CHAIN_EMPTY": "Noch keine Ebenen zugeordnet",
+      "CHAIN_HINT": "Die Kette wird direkt im Baum über Drag & Drop und die Einfügelinien bearbeitet.",
+      "ID_LABEL": "ID",
+      "SUBMIT": "Änderungen speichern"
     },
     "DELETE_MODAL": {
       "TITLE": "Hierarchie löschen",

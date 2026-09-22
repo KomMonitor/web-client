@@ -30,12 +30,18 @@ import * as select from './hierarchy-selectors';
  */
 export type ChainEditResult = 'saved' | 'rejected' | 'failed';
 
-/** The metadata of a hierarchy, as the dialog hands it back. */
+/** The metadata of a new hierarchy, as the create dialog hands it back. */
 export interface HierarchyMetadata {
   readonly name: string;
   readonly mandant: string;
   readonly isPublic: boolean;
 }
+
+/**
+ * What an edit may change. The tenant is missing on purpose: the API refuses to
+ * move a hierarchy, so the write sends the one the hierarchy already carries.
+ */
+export type HierarchyMetadataEdit = Omit<HierarchyMetadata, 'mandant'>;
 
 /**
  * The state of the hierarchy page: the hierarchies, the spatial unit levels and
@@ -280,7 +286,7 @@ export class HierarchyStoreService {
    */
   async updateHierarchyMetadata(
     hierarchy: SpatialUnitHierarchy,
-    metadata: HierarchyMetadata
+    metadata: HierarchyMetadataEdit
   ): Promise<boolean> {
     const mandantId = hierarchy.mandantId();
     hierarchy.saving.set(true);

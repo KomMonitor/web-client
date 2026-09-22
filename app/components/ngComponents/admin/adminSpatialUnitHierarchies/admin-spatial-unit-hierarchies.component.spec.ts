@@ -523,7 +523,6 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     await settle();
     fixture.detectChanges();
 
-    expect(inputs['mode']).toBe('create');
     expect(inputs['existingNames']).toEqual(['Verwaltungsgliederung']);
     // Every level of the seeded hierarchy is in use exactly once.
     expect(inputs['levelUsage']).toMatchObject({
@@ -568,16 +567,15 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     );
     expect(actions.length).toBe(2);
 
-    const inputs = stubModal(
-      Promise.resolve({ name: 'Verwaltung', mandant: 'Stadt Essen', isPublic: true })
-    );
+    const inputs = stubModal(Promise.resolve({ name: 'Verwaltung', isPublic: true }));
     actions[0].nativeElement.click();
     await settle();
     fixture.detectChanges();
 
-    expect(inputs['mode']).toBe('edit');
     expect(inputs['currentName']).toBe('Verwaltungsgliederung');
-    expect(inputs['currentMandant']).toBe('Stadt Essen');
+    expect(inputs['mandant']).toBe('Stadt Essen');
+    // The chain travels as names only: the dialog shows it, the tree edits it.
+    expect(inputs['chain']).toHaveLength(5);
     expect(sectionTitles()).toEqual(['Verwaltung']);
     expect(store.hierarchies()[0].isPublic()).toBe(true);
     expect(levelNames(fixture)).toHaveLength(5);
@@ -904,7 +902,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
       fixture.debugElement.query(By.css('.view-controls .btn-success')).nativeElement.click();
       await settle();
 
-      expect(inputs['currentMandant']).toBe('Stadt Krefeld');
+      expect(inputs['presetMandant']).toBe('Stadt Krefeld');
     });
 
     it('follows a new hierarchy into the tenant the dialog gave it', async () => {

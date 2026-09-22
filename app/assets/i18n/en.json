@@ -1594,14 +1594,12 @@
       "OPEN": "Open",
       "HINT": "Spatial unit levels belong to one tenant — a hierarchy cannot contain levels of another tenant."
     },
-    "HIERARCHY_MODAL": {
-      "CREATE_TITLE": "Create a new spatial unit hierarchy",
-      "EDIT_TITLE": "Edit spatial unit hierarchy",
+    "HIERARCHY_CREATE_MODAL": {
+      "TITLE": "Create a new spatial unit hierarchy",
       "NAME_LABEL": "Name of the hierarchy",
       "NAME_PLACEHOLDER": "e.g. social space structure",
       "MANDANT_LABEL": "Tenant",
       "MANDANT_NONE": "No tenant available",
-      "MANDANT_FIXED_HINT": "The tenant of an existing hierarchy cannot be changed.",
       "CHAIN_LABEL": "Level chain",
       "CHAIN_HINT": "from the largest to the smallest unit — the links are created automatically",
       "USED_ONCE": "already in 1 hierarchy",
@@ -1610,9 +1608,23 @@
       "REMOVE_LEVEL": "remove",
       "ADD_LEVEL": "Add level",
       "NO_LEVELS_LEFT": "No further spatial unit level of this tenant available.",
-      "SUBMIT_CREATE": "Create hierarchy",
+      "SUBMIT": "Create hierarchy",
       "PUBLIC_LABEL": "Make the hierarchy public",
       "PUBLIC_HINT": "Visible to everyone without logging in — the levels it holds have to be public as well."
+    },
+    "HIERARCHY_EDIT_MODAL": {
+      "TITLE": "Edit spatial unit hierarchy",
+      "NAME_LABEL": "Name of the hierarchy",
+      "PUBLIC_LABEL": "Hierarchy publicly visible",
+      "PUBLIC_HINT": "Visible to everyone without logging in — the levels it holds have to be public as well.",
+      "FIXED_TITLE": "Not editable",
+      "MANDANT_LABEL": "Tenant",
+      "MANDANT_NONE": "No tenant",
+      "CHAIN_LABEL": "Level chain",
+      "CHAIN_EMPTY": "No levels assigned yet",
+      "CHAIN_HINT": "The chain is edited right in the tree, by drag & drop and the insert lines.",
+      "ID_LABEL": "ID",
+      "SUBMIT": "Save changes"
     },
     "DELETE_MODAL": {
       "TITLE": "Delete hierarchy",

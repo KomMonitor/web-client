@@ -7,7 +7,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 
 import { levelFixture } from '../hierarchy.fixture';
-import { HierarchyModalComponent } from './hierarchy-modal.component';
+import { HierarchyCreateModalComponent } from './hierarchy-create-modal.component';
 
 /**
  * The levels the page hands in — across all tenants, as the dialog gets them.
@@ -16,7 +16,7 @@ import { HierarchyModalComponent } from './hierarchy-modal.component';
  *
  * Two tenants' worth, because the dialog offers only those of the tenant its
  * form names. `OWN_*` belongs to the tenant the user is in, which is the one
- * preselected in create mode.
+ * preselected when the caller names none.
  */
 const OWN_NAMES = ['Kreis RE', 'Städte Kreis RE', 'Stadtteile Kreis RE', 'Quartiere Kreis RE'];
 const OTHER_NAMES = ['Stadtbezirke Essen', 'Stadtteile Essen'];
@@ -31,13 +31,13 @@ const MANDANTS = [
   { organizationalUnitId: 'ou-3', name: 'Umweltamt', mandant: false },
 ];
 
-describe('HierarchyModalComponent', () => {
-  let fixture: ComponentFixture<HierarchyModalComponent>;
-  let component: HierarchyModalComponent;
+describe('HierarchyCreateModalComponent', () => {
+  let fixture: ComponentFixture<HierarchyCreateModalComponent>;
+  let component: HierarchyCreateModalComponent;
   let activeModal: NgbActiveModal;
 
   /** Applies the inputs ng-bootstrap would set, then runs the first change detection. */
-  function render(inputs: Partial<HierarchyModalComponent> = {}): void {
+  function render(inputs: Partial<HierarchyCreateModalComponent> = {}): void {
     Object.assign(component, { registeredLevels: LEVELS, ...inputs });
     fixture.detectChanges();
   }
@@ -62,7 +62,7 @@ describe('HierarchyModalComponent', () => {
 
   function configure(accessControl: unknown[], ownUnits: unknown[] = []): void {
     TestBed.configureTestingModule({
-      imports: [HierarchyModalComponent, TranslateModule.forRoot()],
+      imports: [HierarchyCreateModalComponent, TranslateModule.forRoot()],
       providers: [
         provideNoopAnimations(),
         NgbActiveModal,
@@ -76,12 +76,12 @@ describe('HierarchyModalComponent', () => {
       ],
       schemas: [NO_ERRORS_SCHEMA],
     });
-    fixture = TestBed.createComponent(HierarchyModalComponent);
+    fixture = TestBed.createComponent(HierarchyCreateModalComponent);
     component = fixture.componentInstance;
     activeModal = TestBed.inject(NgbActiveModal);
   }
 
-  describe('create mode', () => {
+  describe('with the tenant left to choose', () => {
     beforeEach(() => {
       configure(MANDANTS, [MANDANTS[1]]);
       render({ existingNames: ['Verwaltungsgliederung'] });
@@ -226,12 +226,12 @@ describe('HierarchyModalComponent', () => {
     });
   });
 
-  describe('create mode with a tenant given', () => {
+  describe('with a tenant given', () => {
     beforeEach(() => {
       // The user's own tenant is Kreis Recklinghausen, the caller names another
       // one: the dialog was opened from the view of that other tenant.
       configure(MANDANTS, [MANDANTS[1]]);
-      render({ currentMandant: 'Stadt Essen' });
+      render({ presetMandant: 'Stadt Essen' });
     });
 
     it('shows the given tenant but does not let it be changed', () => {
@@ -286,63 +286,6 @@ describe('HierarchyModalComponent', () => {
 
       expect(component.form.controls.mandant.value).toBe('');
       expect(submitButton().disabled).toBe(false);
-    });
-  });
-
-  describe('edit mode', () => {
-    beforeEach(() => {
-      configure(MANDANTS);
-      render({
-        mode: 'edit',
-        existingNames: ['Verwaltungsgliederung', 'Schulplanung'],
-        currentName: 'Verwaltungsgliederung',
-        currentMandant: 'Stadt Essen',
-        currentIsPublic: true,
-      });
-    });
-
-    it('shows the tenant but does not let it be changed', () => {
-      // Two tenants are configured, so create mode would render a select here.
-      // The API refuses to move a hierarchy to another tenant, so editing shows
-      // the name and says why it is fixed.
-      const field = fixture.debugElement.query(By.css('#hierarchy-mandant-input'));
-      expect(field.nativeElement.tagName).toBe('INPUT');
-      expect(field.nativeElement.disabled).toBe(true);
-      expect(field.nativeElement.value).toBe('Stadt Essen');
-      expect(fixture.debugElement.query(By.css('.help-block')).nativeElement.textContent).toContain(
-        'MANDANT_FIXED_HINT'
-      );
-    });
-
-    it('prefills the metadata and accepts it unchanged', () => {
-      expect(component.form.controls.name.value).toBe('Verwaltungsgliederung');
-      expect(component.form.controls.mandant.value).toBe('Stadt Essen');
-      expect(component.form.controls.isPublic.value).toBe(true);
-      expect(submitButton().disabled).toBe(false);
-    });
-
-    it('leaves the chain out of it entirely', () => {
-      expect(fixture.debugElement.query(By.css('.chain-panel'))).toBeNull();
-    });
-
-    it('still rejects the name of another hierarchy', () => {
-      component.form.controls.name.setValue('Schulplanung');
-
-      expect(component.form.controls.name.hasError('uniqueName')).toBe(true);
-    });
-
-    it('closes with the metadata alone', () => {
-      const close = jest.spyOn(activeModal, 'close');
-      component.form.controls.name.setValue('Verwaltung');
-      component.form.controls.isPublic.setValue(false);
-
-      component.submit();
-
-      expect(close).toHaveBeenCalledWith({
-        name: 'Verwaltung',
-        mandant: 'Stadt Essen',
-        isPublic: false,
-      });
     });
   });
 

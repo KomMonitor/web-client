@@ -13,9 +13,13 @@ import { HierarchyChainEntry, HierarchyLevel, SpatialUnitHierarchy } from './hie
 import { ChainEditResult, HierarchyStoreService } from './hierarchy-store.service';
 import { HierarchyDeleteModalComponent } from './hierarchyDeleteModal/hierarchy-delete-modal.component';
 import {
-  HierarchyModalComponent,
-  HierarchyModalResult,
-} from './hierarchyModal/hierarchy-modal.component';
+  HierarchyCreateModalComponent,
+  HierarchyCreateModalResult,
+} from './hierarchyCreateModal/hierarchy-create-modal.component';
+import {
+  HierarchyEditModalComponent,
+  HierarchyEditModalResult,
+} from './hierarchyEditModal/hierarchy-edit-modal.component';
 import { LevelPickerPanelComponent } from './levelPickerPanel/level-picker-panel.component';
 import { MandantOverviewTableComponent } from './mandantOverviewTable/mandant-overview-table.component';
 import { MandantPanelComponent } from './mandantPanel/mandant-panel.component';
@@ -106,23 +110,22 @@ export class AdminSpatialUnitHierarchiesComponent {
 
   /** Creates a hierarchy from the metadata and the chain the dialog assembled. */
   protected async onCreateHierarchy(): Promise<void> {
-    const result = await this.modals.open<HierarchyModalComponent, HierarchyModalResult>(
-      HierarchyModalComponent,
-      MODAL_FORM,
-      {
-        mode: 'create',
-        existingNames: this.store.hierarchyNames(),
-        levelUsage: this.store.levelUsage(),
-        registeredLevels: this.store.registeredLevels(),
-        // Prefill with the tenant on screen; in the overview the dialog picks its own.
-        currentMandant: this.store.selectedMandant(),
-        knownMandants: this.store.mandantNames(),
-      }
-    );
+    const result = await this.modals.open<
+      HierarchyCreateModalComponent,
+      HierarchyCreateModalResult
+    >(HierarchyCreateModalComponent, MODAL_FORM, {
+      existingNames: this.store.hierarchyNames(),
+      levelUsage: this.store.levelUsage(),
+      registeredLevels: this.store.registeredLevels(),
+      // The tenant on screen is the one it is built for; in the overview the
+      // dialog picks its own and offers the choice.
+      presetMandant: this.store.selectedMandant(),
+      knownMandants: this.store.mandantNames(),
+    });
     if (!result) {
       return;
     }
-    const created = await this.store.addHierarchy(result, result.levels ?? []);
+    const created = await this.store.addHierarchy(result, result.levels);
     this.notify(
       created
         ? 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.CREATED'
@@ -131,18 +134,21 @@ export class AdminSpatialUnitHierarchiesComponent {
     );
   }
 
-  /** Edits the metadata. The chain and its expansion state stay untouched. */
+  /**
+   * Edits the metadata. The chain and its expansion state stay untouched — the
+   * dialog only shows the chain, the tree on the page is where it is edited.
+   */
   protected async onEditHierarchy(hierarchy: SpatialUnitHierarchy): Promise<void> {
-    const result = await this.modals.open<HierarchyModalComponent, HierarchyModalResult>(
-      HierarchyModalComponent,
+    const result = await this.modals.open<HierarchyEditModalComponent, HierarchyEditModalResult>(
+      HierarchyEditModalComponent,
       MODAL_FORM,
       {
-        mode: 'edit',
         existingNames: this.store.hierarchyNames(),
         currentName: hierarchy.name(),
-        currentMandant: hierarchy.mandant(),
         currentIsPublic: hierarchy.isPublic(),
-        knownMandants: this.store.mandantNames(),
+        mandant: hierarchy.mandant(),
+        chain: hierarchy.chain().map((entry) => entry.name),
+        hierarchyId: hierarchy.id,
       }
     );
     if (!result) {

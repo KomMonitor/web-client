@@ -27,29 +27,30 @@ import { controlStateSignal } from '../../adminShared/forms/control-state';
 import { uniqueNameValidator } from '../../adminShared/validators/admin-validators';
 import { levelsOfMandant } from '../hierarchy-selectors';
 
-/** What the dialog resolves with: the metadata, plus the level chain when creating. */
-export interface HierarchyModalResult {
+/** What the dialog resolves with: the metadata and the assembled chain. */
+export interface HierarchyCreateModalResult {
   readonly name: string;
   readonly mandant: string;
   readonly isPublic: boolean;
-  /** The chain, coarsest first, as spatial unit levels. Only when creating. */
-  readonly levels?: readonly HierarchyChainEntry[];
+  /** The chain, coarsest first, as spatial unit levels. May be empty. */
+  readonly levels: readonly HierarchyChainEntry[];
 }
 
 /**
- * Creates a hierarchy or edits the metadata of an existing one.
+ * Creates a hierarchy, chain and all.
  *
- * Creating assembles the whole level chain here, coarsest first: a hierarchy is
- * only meaningful with its chain, and building it in one place keeps the page
- * free of half-finished hierarchies. Editing leaves the chain alone — that one
- * is edited in the tree on the page.
+ * The chain is assembled here, coarsest first, because this is the one moment
+ * where the whole thing is still weightless — nothing is written until the
+ * dialog closes. Editing an existing hierarchy is a different dialog
+ * (`HierarchyEditModalComponent`): there the chain is edited in the tree on the
+ * page, one request per step.
  *
  * Resolves with the entered values, or dismisses on cancel.
  */
 @Component({
-  selector: 'app-hierarchy-modal',
-  templateUrl: './hierarchy-modal.component.html',
-  styleUrls: ['./hierarchy-modal.component.scss'],
+  selector: 'app-hierarchy-create-modal',
+  templateUrl: './hierarchy-create-modal.component.html',
+  styleUrls: ['./hierarchy-create-modal.component.scss'],
   imports: [
     ReactiveFormsModule,
     TranslateModule,
@@ -61,22 +62,17 @@ export interface HierarchyModalResult {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HierarchyModalComponent implements OnInit {
+export class HierarchyCreateModalComponent implements OnInit {
   private readonly activeModal = inject(NgbActiveModal);
   private readonly mandantService = inject(MandantService);
 
   /** ng-bootstrap sets these via componentInstance, before the first render. */
-  @Input() mode: 'create' | 'edit' = 'create';
-  /** Names that are already taken, the edited hierarchy's own name included. */
   @Input() existingNames: readonly string[] = [];
-  /** Prefills of the edit mode; the name is also the one the uniqueness check ignores. */
-  @Input() currentName = '';
   /**
    * The tenant the dialog starts on. Where it is given, it is also fixed — see
    * `mandantIsFixed`. Empty only when the caller leaves the choice open.
    */
-  @Input() currentMandant = '';
-  @Input() currentIsPublic = false;
+  @Input() presetMandant = '';
   /** How many hierarchies already use a level, by `spatialUnitId`. */
   @Input() levelUsage: Readonly<Record<string, number>> = {};
 
@@ -133,10 +129,7 @@ export class HierarchyModalComponent implements OnInit {
   protected readonly form = new FormGroup({
     name: new FormControl('', {
       nonNullable: true,
-      validators: [
-        Validators.required,
-        uniqueNameValidator(() => this.existingNames, { ignore: () => this.currentName }),
-      ],
+      validators: [Validators.required, uniqueNameValidator(() => this.existingNames)],
     }),
     mandant: new FormControl('', { nonNullable: true }),
     isPublic: new FormControl(false, { nonNullable: true }),
@@ -169,9 +162,7 @@ export class HierarchyModalComponent implements OnInit {
 
   ngOnInit(): void {
     this.mandants = this.mandantService.mandantsToOffer(this.knownMandants);
-    this.form.controls.name.setValue(this.currentName);
-    this.form.controls.mandant.setValue(this.currentMandant || this.defaultMandant());
-    this.form.controls.isPublic.setValue(this.currentIsPublic);
+    this.form.controls.mandant.setValue(this.presetMandant || this.defaultMandant());
 
     if (this.mandants.length > 0) {
       this.form.controls.mandant.addValidators(Validators.required);
@@ -180,15 +171,14 @@ export class HierarchyModalComponent implements OnInit {
   }
 
   /**
-   * Whether the tenant is only shown, not chosen. Editing can never move a
-   * hierarchy to another tenant — the API refuses it — and a create opened from
-   * a tenant's view arrives with that tenant given: switching it there would
+   * Whether the tenant is only shown, not chosen. A dialog opened from a
+   * tenant's view arrives with that tenant given, and switching it there would
    * build the hierarchy somewhere the page behind the dialog does not show.
    * The choice stays open only where the caller names no tenant, which is the
    * overview across all of them.
    */
   protected get mandantIsFixed(): boolean {
-    return this.mode === 'edit' || this.currentMandant !== '';
+    return this.presetMandant !== '';
   }
 
   /**
@@ -239,12 +229,13 @@ export class HierarchyModalComponent implements OnInit {
       return;
     }
 
-    const result: HierarchyModalResult = {
+    const result: HierarchyCreateModalResult = {
       name: this.form.controls.name.value.trim(),
       mandant: this.form.controls.mandant.value,
       isPublic: this.form.controls.isPublic.value,
+      levels: this.chain(),
     };
-    this.activeModal.close(this.mode === 'create' ? { ...result, levels: this.chain() } : result);
+    this.activeModal.close(result);
   }
 
   protected cancel(): void {
