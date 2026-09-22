@@ -38,9 +38,23 @@
 }
 
 body {
-  overflow-y: auto !important;
   color: #333;
   font-family: var(--custom-font-family) !important;
+}
+
+/*
+ * Keeps the page scrollable — but not while a dialog is open.
+ *
+ * ng-bootstrap locks the background by setting `overflow: hidden` on the body
+ * inline and compensating the scrollbar's width with `padding-right`, so the
+ * layout stays put. An unconditional `!important` here beats that inline rule:
+ * the scrollbar stays, the compensation padding lands on top of it, and the
+ * whole view shifts a scrollbar's width to the left with a gap on the right
+ * every time a modal opens. Bootstrap 5 itself no longer styles `.modal-open`,
+ * so the class is free to say "a dialog is open" here.
+ */
+body:not(.modal-open) {
+  overflow-y: auto !important;
 }
 
 .kommonitorOrange {
