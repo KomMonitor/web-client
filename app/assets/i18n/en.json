@@ -1656,6 +1656,10 @@
       "MOVE_DOWN": "One hierarchy level down",
       "TOGGLE_LABEL": "Expand/collapse sub-levels"
     },
+    "VISIBILITY": {
+      "PUBLIC": "public",
+      "NOT_PUBLIC": "not public"
+    },
     "PICKER": {
       "INSERT_LEVEL": "＋ Insert level here",
       "INSERT_EXISTING": "Insert an existing spatial unit level",

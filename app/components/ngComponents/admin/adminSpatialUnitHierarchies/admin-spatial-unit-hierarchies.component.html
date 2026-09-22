@@ -53,12 +53,21 @@
     />
   } @else {
     @for (hierarchy of store.visibleHierarchies(); track hierarchy.id) {
+      <!-- Whether the hierarchy is public belongs in the header: it is the one
+           property with an effect outside this page, and checking it should not
+           cost a trip through the edit dialog. -->
+      @let visibility =
+        hierarchy.isPublic()
+          ? 'ADMIN_SPATIAL_UNIT_HIERARCHIES.VISIBILITY.PUBLIC'
+          : 'ADMIN_SPATIAL_UNIT_HIERARCHIES.VISIBILITY.NOT_PUBLIC';
       <app-collapsible-section
         class="hierarchy-section"
         [title]="hierarchy.name()"
         [meta]="
-          'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.COUNT'
-            | translate: { count: hierarchy.levelCount() }
+          ('ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.COUNT'
+            | translate: { count: hierarchy.levelCount() }) +
+          ' · ' +
+          (visibility | translate)
         "
         [idLabel]="hierarchy.id"
         [showId]="showIds()"

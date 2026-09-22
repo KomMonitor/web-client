@@ -1656,6 +1656,10 @@
       "MOVE_DOWN": "Eine Hierarchie-Ebene nach unten",
       "TOGGLE_LABEL": "Unterebenen ein-/ausklappen"
     },
+    "VISIBILITY": {
+      "PUBLIC": "öffentlich",
+      "NOT_PUBLIC": "nicht öffentlich"
+    },
     "PICKER": {
       "INSERT_LEVEL": "＋ Ebene hier einfügen",
       "INSERT_EXISTING": "Bestehende Raumebene einfügen",

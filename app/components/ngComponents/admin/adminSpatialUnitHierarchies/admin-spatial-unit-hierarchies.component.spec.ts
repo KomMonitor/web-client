@@ -857,6 +857,20 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
       expect(summary()).toContain('MANDANT_PANEL.COUNT_ONE');
     });
 
+    it('says in the section meta whether the hierarchy is public', () => {
+      fixture.detectChanges();
+      const meta = (): string =>
+        fixture.debugElement.query(By.css('.hierarchy-section .section-meta')).nativeElement
+          .textContent;
+
+      expect(meta()).toContain('VISIBILITY.NOT_PUBLIC');
+
+      store.hierarchies()[0].isPublic.set(true);
+      fixture.detectChanges();
+
+      expect(meta()).toContain('VISIBILITY.PUBLIC');
+    });
+
     it("leaves the tenant out of the section meta — the list is one tenant's", () => {
       store.selectedMandant.set('Stadt Bochum');
       fixture.detectChanges();
