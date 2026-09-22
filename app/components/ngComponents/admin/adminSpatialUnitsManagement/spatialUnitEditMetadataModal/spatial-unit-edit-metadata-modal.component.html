@@ -129,29 +129,19 @@
                 />
               </div>
             </div>
-            <div class="col-md-4 col-sm-6 col-12">
-              <div class="form-group">
-                <label class="form-label" for="spatialUnitHierarchyId">{{
-                  'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY' | translate
-                }}</label>
-                <select
-                  formControlName="hierarchyId"
-                  id="spatialUnitHierarchyId"
-                  class="form-select"
-                >
-                  <option value="">
-                    {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_NONE' | translate }}
-                  </option>
-                  @for (hierarchy of availableHierarchies; track hierarchy.hierarchyId) {
-                    <option [value]="hierarchy.hierarchyId">{{ hierarchy.name }}</option>
-                  }
-                </select>
-                <p class="help-block">
-                  {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_EDIT_HINT' | translate }}
-                </p>
-              </div>
-            </div>
           </div>
+
+          <!--
+            The tenant is the dataset's own and cannot be changed here, so the
+            panel only names it — there is nothing to pick.
+          -->
+          <app-hierarchy-assignment-panel
+            [rows]="hierarchyRows"
+            [hierarchies]="availableHierarchies"
+            [mandantId]="datasetMandantId"
+            [selfSpatialUnitId]="datasetSpatialUnitId"
+          />
+
           <div class="row form-section-row">
             <div class="col-md-3 col-sm-6 col-12">
               <div class="form-group">

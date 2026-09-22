@@ -6,7 +6,7 @@ import {
   buildSpatialUnitAddForm,
   spatialUnitAddFormToApi,
 } from './spatial-unit-add-form.model';
-import { buildAssignmentRow } from './hierarchy-assignment.model';
+import { buildAssignmentRow } from '../hierarchyAssignment/hierarchy-assignment.model';
 
 /**
  * TestBed-free model spec, following

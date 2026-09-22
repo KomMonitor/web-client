@@ -25,31 +25,9 @@
   max-width: 110px;
 }
 
-// The assignment panel: one setting with consequences outside this dialog, so
-// it stands apart from the plain fields above. Same tones as the hierarchy
-// dialogs, which is where the user sees these chains again.
-.assignment-panel {
-  margin-bottom: 18px;
-  padding: 14px 16px;
-  border: 1px solid #dbe6ee;
-  border-radius: 4px;
-  background: #f4f7fa;
-}
-
-.assignment-head {
-  margin: 0 0 12px;
-}
-
-.assignment-title {
-  margin-right: 8px;
-  font-weight: 600;
-}
-
-.assignment-lead {
-  font-size: 12.5px;
-  color: #8598a5;
-}
-
+// The tenant field, projected into the assignment panel's box. Styled here and
+// not there: projected nodes carry the styles of the template that declares
+// them, not of the component they end up in.
 .assignment-mandant {
   max-width: 420px;
 
@@ -61,82 +39,4 @@
     display: block;
     margin-top: 4px;
   }
-}
-
-// Names the tenant everything below belongs to — a note, not a warning: the
-// backend refuses a hierarchy of another tenant with a 400 nobody should see.
-.assignment-scope {
-  margin: 10px 0 14px;
-  padding: 8px 12px;
-  border: 1px solid #f0d7a4;
-  border-radius: 3px;
-  background: #fdf3dd;
-  color: #7a5d16;
-  font-size: 13px;
-  line-height: 1.45;
-}
-
-.assignment-columns,
-.assignment-fields {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1.2fr) auto;
-  align-items: center;
-  gap: 12px;
-}
-
-.assignment-columns {
-  padding: 0 12px 4px;
-  font-size: 11.5px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #8598a5;
-}
-
-.assignment-row {
-  padding: 10px 12px;
-  margin-bottom: 8px;
-  border: 1px solid #dde7ee;
-  border-radius: 3px;
-  background: #ffffff;
-}
-
-.assignment-muted {
-  font-size: 13px;
-  color: #8598a5;
-}
-
-.assignment-remove {
-  padding: 0;
-  border: 0;
-  background: none;
-  color: #dc3545;
-  font-size: 13px;
-  cursor: pointer;
-
-  &:hover {
-    color: #b02a37;
-    text-decoration: underline;
-  }
-}
-
-.assignment-summary {
-  margin: 8px 0 0;
-  font-size: 12.5px;
-  line-height: 1.4;
-  color: #8598a5;
-}
-
-.assignment-error {
-  margin: 8px 0 0;
-  font-size: 12.5px;
-  line-height: 1.4;
-  color: #dc3545;
-}
-
-.assignment-add {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
 }

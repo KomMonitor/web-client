@@ -1,4 +1,8 @@
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  HierarchyAssignmentRowGroup,
+  buildHierarchyAssignmentArray,
+} from '../hierarchyAssignment/hierarchy-assignment.model';
 import {
   ResourceMetadataFormGroup,
   buildResourceMetadataForm,
@@ -19,8 +23,8 @@ export const EDIT_DEFAULT_OUTLINE_WIDTH = 2;
 
 export type SpatialUnitEditMetadataFormGroup = FormGroup<{
   spatialUnitLevel: FormControl<string>;
-  /** Hierarchy the level belongs to; the empty string means none. */
-  hierarchyId: FormControl<string>;
+  /** The hierarchies the level belongs to, one row each. May be empty. */
+  hierarchyAssignments: FormArray<HierarchyAssignmentRowGroup>;
   isOutlineLayer: FormControl<boolean>;
   outlineColor: FormControl<string>;
   outlineWidth: FormControl<number>;
@@ -46,7 +50,10 @@ export function buildSpatialUnitEditMetadataForm(
         uniqueNameValidator(options.existingLevelNames, { ignore: options.currentLevelName }),
       ],
     }),
-    hierarchyId: new FormControl('', { nonNullable: true }),
+    // Through the builder, not by hand: the "one row per hierarchy" rule lives
+    // on the array, and the membership write replaces the whole list — two rows
+    // for one hierarchy could only contradict each other.
+    hierarchyAssignments: buildHierarchyAssignmentArray(),
     isOutlineLayer: new FormControl(false, { nonNullable: true }),
     outlineColor: new FormControl(EDIT_DEFAULT_OUTLINE_COLOR, { nonNullable: true }),
     outlineWidth: new FormControl(EDIT_DEFAULT_OUTLINE_WIDTH, { nonNullable: true }),

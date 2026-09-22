@@ -148,39 +148,3 @@ export function toOrderedMembers(
     hierarchyLevel: index,
   }));
 }
-
-/**
- * The membership list to send for a spatial unit whose hierarchy was picked in
- * the **edit** modal, where the choice is the hierarchy alone.
- *
- * The add wizard takes another route: it assigns several hierarchies at once
- * and places the new level by its neighbours, which is what the POST expects —
- * see `membershipsForRows` next to that dialog. The two wire shapes are not
- * interchangeable; this one is for `PUT /spatial-units/{id}/hierarchies`.
- *
- * The position follows from the choice, and deliberately so: keeping the
- * hierarchy keeps the level the dataset already has, switching to another one
- * appends it as the finest level there, and picking none clears the list. The
- * client therefore never sends a level that another member already occupies —
- * what the backend does with a collision is not documented, and does not have
- * to be. Reordering within a chain is the hierarchy admin page's job.
- */
-export function placementFor(
-  selectedHierarchyId: string,
-  currentMemberships: readonly { hierarchyId?: string; hierarchyLevel?: number }[],
-  hierarchies: readonly SpatialUnitHierarchyOverviewType[]
-): SpatialUnitHierarchyMembershipInputType[] {
-  if (!selectedHierarchyId) {
-    return [];
-  }
-
-  const existing = currentMemberships.find(
-    (membership) => membership.hierarchyId === selectedHierarchyId
-  );
-  if (existing) {
-    return [{ hierarchyId: selectedHierarchyId, hierarchyLevel: existing.hierarchyLevel ?? 0 }];
-  }
-
-  const target = hierarchies.find((entry) => entry.hierarchyId === selectedHierarchyId);
-  return [{ hierarchyId: selectedHierarchyId, hierarchyLevel: target?.members?.length ?? 0 }];
-}

@@ -5,7 +5,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { SpatialUnitHierarchyOverviewType } from 'models/data-management-api';
 import { MandantService } from 'services/mandant-service/mandant.service';
 
-import { buildAssignmentRow } from '../hierarchy-assignment.model';
+import { HierarchyAssignmentPanelComponent } from '../../hierarchyAssignment/hierarchy-assignment-panel.component';
+import { buildAssignmentRow } from '../../hierarchyAssignment/hierarchy-assignment.model';
 import {
   SpatialUnitMetadataStepGroup,
   buildSpatialUnitAddForm,
@@ -47,7 +48,11 @@ describe('SpatialUnitMetadataStepComponent', () => {
 
   function configure(mandants: typeof MANDANTS, isRealmAdmin = true): void {
     TestBed.configureTestingModule({
-      imports: [SpatialUnitMetadataStepComponent, TranslateModule.forRoot()],
+      imports: [
+        SpatialUnitMetadataStepComponent,
+        HierarchyAssignmentPanelComponent,
+        TranslateModule.forRoot(),
+      ],
       providers: [
         {
           provide: MandantService,
@@ -86,25 +91,6 @@ describe('SpatialUnitMetadataStepComponent', () => {
   describe('with tenants', () => {
     beforeEach(() => configure(MANDANTS));
 
-    it('offers the chosen tenant and the ones no tenant claims', () => {
-      render();
-      component.group.controls.hierarchyAssignments.push(buildAssignmentRow());
-      fixture.detectChanges();
-
-      expect(hierarchyOptions(0)).toEqual(['h-essen', 'h-unknown']);
-    });
-
-    it('follows a tenant switch', () => {
-      render();
-      component.group.controls.hierarchyAssignments.push(buildAssignmentRow());
-      fixture.detectChanges();
-
-      group.controls.mandantId.setValue('m-bochum');
-      fixture.detectChanges();
-
-      expect(hierarchyOptions(0)).toEqual(['h-bochum', 'h-unknown']);
-    });
-
     it('lets an administrator pick the tenant', () => {
       render();
 
@@ -124,66 +110,20 @@ describe('SpatialUnitMetadataStepComponent', () => {
       expect(field.nativeElement.value).toBe('Stadt Essen');
     });
 
-    it('adds and removes rows', () => {
+    // The panel renders the rows and is tested on its own. What belongs here is
+    // that it is bound to this step's array and follows this step's tenant —
+    // everything the extraction could have broken without a compiler error.
+    it('hands its rows and its tenant to the assignment panel', () => {
       render();
-
-      fixture.debugElement.query(By.css('.assignment-add .btn')).nativeElement.click();
-      fixture.detectChanges();
-      expect(fixture.debugElement.queryAll(By.css('.assignment-row'))).toHaveLength(1);
-
-      fixture.debugElement.query(By.css('.assignment-remove')).nativeElement.click();
-      fixture.detectChanges();
-      expect(fixture.debugElement.queryAll(By.css('.assignment-row'))).toHaveLength(0);
-      expect(group.controls.hierarchyAssignments.length).toBe(0);
-    });
-
-    it('asks for a reference level only where the placement needs one', () => {
-      render();
-      const rows = group.controls.hierarchyAssignments;
-      rows.push(buildAssignmentRow({ hierarchyId: 'h-essen' }));
+      component.group.controls.hierarchyAssignments.push(buildAssignmentRow());
       fixture.detectChanges();
 
-      // Appending needs no reference, so the column says so instead of offering
-      // a select nobody has to fill.
-      expect(fixture.debugElement.query(By.css('.assignment-muted'))).not.toBeNull();
+      expect(hierarchyOptions(0)).toEqual(['h-essen', 'h-unknown']);
 
-      rows.at(0).controls.placement.setValue('above');
+      group.controls.mandantId.setValue('m-bochum');
       fixture.detectChanges();
 
-      const selects = fixture.debugElement.queryAll(By.css('.assignment-row select'));
-      expect(selects).toHaveLength(3);
-      expect(
-        selects[2]
-          .queryAll(By.css('option'))
-          .map((option) => option.nativeElement.value)
-          .filter((value: string) => value !== '')
-        // Coarsest first, whatever order the API answered in.
-      ).toEqual(['su-city', 'su-district']);
-    });
-
-    it('starts a row over when its hierarchy changes', () => {
-      render();
-      const rows = group.controls.hierarchyAssignments;
-      rows.push(
-        buildAssignmentRow({
-          hierarchyId: 'h-essen',
-          placement: 'above',
-          referenceSpatialUnitId: 'su-city',
-        })
-      );
-      fixture.detectChanges();
-
-      const select = fixture.debugElement.queryAll(By.css('.assignment-row select'))[0];
-      select.nativeElement.value = 'h-unknown';
-      select.nativeElement.dispatchEvent(new Event('change'));
-      fixture.detectChanges();
-
-      // A reference of the hierarchy left behind would be sent as a neighbour
-      // that is not in the new chain.
-      expect(rows.at(0).getRawValue()).toMatchObject({
-        placement: 'append',
-        referenceSpatialUnitId: '',
-      });
+      expect(hierarchyOptions(0)).toEqual(['h-bochum', 'h-unknown']);
     });
   });
 

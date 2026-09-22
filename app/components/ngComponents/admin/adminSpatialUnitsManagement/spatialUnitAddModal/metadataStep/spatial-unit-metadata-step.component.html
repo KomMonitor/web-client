@@ -97,21 +97,15 @@
   }
 
   <!--
-    Which hierarchies the new level joins. Optional: a level without one is
-    registered all the same, it just does not appear in the map interface until
-    some hierarchy carries it — the hierarchy page lists those under "Keiner
-    Hierarchie zugeordnet".
+    The tenant select rides inside the assignment panel's box, because that is
+    the only thing it decides: which hierarchies the rows below may name.
   -->
-  <div class="assignment-panel">
-    <p class="assignment-head">
-      <span class="assignment-title">{{
-        'ADMIN_SPATIAL_UNITS.METADATA_STEP.ASSIGNMENT_TITLE' | translate
-      }}</span>
-      <span class="assignment-lead">{{
-        'ADMIN_SPATIAL_UNITS.METADATA_STEP.ASSIGNMENT_LEAD' | translate
-      }}</span>
-    </p>
-
+  <app-hierarchy-assignment-panel
+    [rows]="rows"
+    [hierarchies]="allHierarchies()"
+    [mandantId]="chosenMandantId()"
+    [mandantName]="mandantName"
+  >
     <div class="form-group assignment-mandant">
       <label class="form-label" for="su-metadata-mandant">
         {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.MANDANT_LABEL' | translate }}
@@ -143,123 +137,7 @@
         ) | translate
       }}</span>
     </div>
-
-    @if (mandantName) {
-      <p class="assignment-scope">
-        {{
-          'ADMIN_SPATIAL_UNITS.METADATA_STEP.MANDANT_SCOPE_INFO'
-            | translate: { mandant: mandantName }
-        }}
-      </p>
-    }
-
-    <div class="assignment-rows" formArrayName="hierarchyAssignments">
-      @if (rows.length > 0) {
-        <div class="assignment-columns">
-          <span>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.COL_HIERARCHY' | translate }}</span>
-          <span>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.COL_PLACEMENT' | translate }}</span>
-          <span>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.COL_REFERENCE' | translate }}</span>
-          <span></span>
-        </div>
-      }
-
-      @for (row of rows.controls; track $index) {
-        <div class="assignment-row" [formGroupName]="$index">
-          <div class="assignment-fields">
-            <select
-              class="form-select"
-              formControlName="hierarchyId"
-              [attr.aria-label]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.COL_HIERARCHY' | translate"
-              (change)="onHierarchyChange($index)"
-            >
-              <option value="">
-                {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_HIERARCHY' | translate }}
-              </option>
-              @for (hierarchy of hierarchyOptions(); track hierarchy.hierarchyId) {
-                <option [value]="hierarchy.hierarchyId">{{ hierarchy.name }}</option>
-              }
-            </select>
-
-            <select
-              class="form-select"
-              formControlName="placement"
-              [attr.aria-label]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.COL_PLACEMENT' | translate"
-              (change)="onPlacementChange($index)"
-            >
-              <option value="append">
-                {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.PLACEMENT_APPEND' | translate }}
-              </option>
-              <option value="above">
-                {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.PLACEMENT_ABOVE' | translate }}
-              </option>
-              <option value="below">
-                {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.PLACEMENT_BELOW' | translate }}
-              </option>
-            </select>
-
-            @if (row.controls.placement.value === 'append') {
-              <span class="assignment-muted">{{
-                'ADMIN_SPATIAL_UNITS.METADATA_STEP.REFERENCE_NOT_NEEDED' | translate
-              }}</span>
-            } @else {
-              <select
-                class="form-select"
-                formControlName="referenceSpatialUnitId"
-                [attr.aria-label]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.COL_REFERENCE' | translate"
-              >
-                <option value="">
-                  {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_REFERENCE' | translate }}
-                </option>
-                @for (member of referenceOptionsFor($index); track member.spatialUnitId) {
-                  <option [value]="member.spatialUnitId">{{ member.spatialUnitLevel }}</option>
-                }
-              </select>
-            }
-
-            <button type="button" class="assignment-remove" (click)="removeRow($index)">
-              {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.REMOVE_ASSIGNMENT' | translate }}
-            </button>
-          </div>
-
-          <!-- Says what the three selects add up to, so the placement can be
-               read back in words instead of inferred. -->
-          @if (summaryFor($index); as summary) {
-            <p class="assignment-summary">
-              <span aria-hidden="true">↳</span> {{ summary.key | translate: summary.params }}
-            </p>
-          } @else if (row.hasError('referenceRequired')) {
-            <p class="assignment-error">
-              {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.REFERENCE_REQUIRED' | translate }}
-            </p>
-          }
-        </div>
-      }
-
-      @if (rows.hasError('duplicateHierarchy')) {
-        <p class="assignment-error">
-          {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.DUPLICATE_HIERARCHY' | translate }}
-        </p>
-      }
-
-      <div class="assignment-add">
-        <button
-          type="button"
-          class="btn btn-sm btn-outline-primary"
-          [disabled]="hierarchyOptions().length === 0"
-          (click)="addRow()"
-        >
-          {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.ADD_ASSIGNMENT' | translate }}
-        </button>
-        <span class="assignment-hint">
-          @if (hierarchyOptions().length === 0) {
-            {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NO_HIERARCHIES' | translate }}
-          } @else {
-            {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.ADD_ASSIGNMENT_HINT' | translate }}
-          }
-        </span>
-      </div>
-    </div>
-  </div>
+  </app-hierarchy-assignment-panel>
 
   <div class="stepper-buttons">
     <button type="button" class="btn btn-primary" (click)="next.emit()">

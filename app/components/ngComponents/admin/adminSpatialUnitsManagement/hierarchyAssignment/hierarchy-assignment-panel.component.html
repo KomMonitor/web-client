@@ -1,0 +1,141 @@
+<!--
+  Which hierarchies the level joins. Optional: a level without one is registered
+  all the same, it just does not appear in the map interface until some
+  hierarchy carries it — the hierarchy page lists those under "Keiner Hierarchie
+  zugeordnet".
+-->
+<div class="assignment-panel">
+  <p class="assignment-head">
+    <span class="assignment-title">{{
+      'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.ASSIGNMENT_TITLE' | translate
+    }}</span>
+    <span class="assignment-lead">{{
+      'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.ASSIGNMENT_LEAD' | translate
+    }}</span>
+  </p>
+
+  <!-- Whatever the host puts inside the box, such as the wizard's tenant select. -->
+  <ng-content />
+
+  @if (mandantName) {
+    <p class="assignment-scope">
+      {{
+        'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.MANDANT_SCOPE_INFO'
+          | translate: { mandant: mandantName }
+      }}
+    </p>
+  }
+
+  <div class="assignment-rows">
+    @if (rows.length > 0) {
+      <div class="assignment-columns">
+        <span>{{ 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.COL_HIERARCHY' | translate }}</span>
+        <span>{{ 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.COL_PLACEMENT' | translate }}</span>
+        <span>{{ 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.COL_REFERENCE' | translate }}</span>
+        <span></span>
+      </div>
+    }
+
+    <!--
+      Bound by the row itself, not by its index in a named array: the panel is
+      shared, and the name the host gave the array is none of its business.
+    -->
+    @for (row of rows.controls; track $index) {
+      <div class="assignment-row" [formGroup]="row">
+        <div class="assignment-fields">
+          <select
+            class="form-select"
+            formControlName="hierarchyId"
+            [attr.aria-label]="'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.COL_HIERARCHY' | translate"
+            (change)="onHierarchyChange($index)"
+          >
+            <option value="">
+              {{ 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.SELECT_HIERARCHY' | translate }}
+            </option>
+            @for (hierarchy of hierarchyOptions(); track hierarchy.hierarchyId) {
+              <option [value]="hierarchy.hierarchyId">{{ hierarchy.name }}</option>
+            }
+          </select>
+
+          <select
+            class="form-select"
+            formControlName="placement"
+            [attr.aria-label]="'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.COL_PLACEMENT' | translate"
+            (change)="onPlacementChange($index)"
+          >
+            <option value="append">
+              {{ 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.PLACEMENT_APPEND' | translate }}
+            </option>
+            <option value="above">
+              {{ 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.PLACEMENT_ABOVE' | translate }}
+            </option>
+            <option value="below">
+              {{ 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.PLACEMENT_BELOW' | translate }}
+            </option>
+          </select>
+
+          @if (row.controls.placement.value === 'append') {
+            <span class="assignment-muted">{{
+              'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.REFERENCE_NOT_NEEDED' | translate
+            }}</span>
+          } @else {
+            <select
+              class="form-select"
+              formControlName="referenceSpatialUnitId"
+              [attr.aria-label]="
+                'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.COL_REFERENCE' | translate
+              "
+            >
+              <option value="">
+                {{ 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.SELECT_REFERENCE' | translate }}
+              </option>
+              @for (member of referenceOptionsFor($index); track member.spatialUnitId) {
+                <option [value]="member.spatialUnitId">{{ member.spatialUnitLevel }}</option>
+              }
+            </select>
+          }
+
+          <button type="button" class="assignment-remove" (click)="removeRow($index)">
+            {{ 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.REMOVE_ASSIGNMENT' | translate }}
+          </button>
+        </div>
+
+        <!-- Says what the three selects add up to, so the placement can be
+             read back in words instead of inferred. -->
+        @if (summaryFor($index); as summary) {
+          <p class="assignment-summary">
+            <span aria-hidden="true">↳</span> {{ summary.key | translate: summary.params }}
+          </p>
+        } @else if (row.hasError('referenceRequired')) {
+          <p class="assignment-error">
+            {{ 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.REFERENCE_REQUIRED' | translate }}
+          </p>
+        }
+      </div>
+    }
+
+    @if (rows.hasError('duplicateHierarchy')) {
+      <p class="assignment-error">
+        {{ 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.DUPLICATE_HIERARCHY' | translate }}
+      </p>
+    }
+
+    <div class="assignment-add">
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-primary"
+        [disabled]="hierarchyOptions().length === 0"
+        (click)="addRow()"
+      >
+        {{ 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.ADD_ASSIGNMENT' | translate }}
+      </button>
+      <span class="assignment-hint">
+        @if (hierarchyOptions().length === 0) {
+          {{ 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.NO_HIERARCHIES' | translate }}
+        } @else {
+          {{ 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.ADD_ASSIGNMENT_HINT' | translate }}
+        }
+      </span>
+    </div>
+  </div>
+</div>

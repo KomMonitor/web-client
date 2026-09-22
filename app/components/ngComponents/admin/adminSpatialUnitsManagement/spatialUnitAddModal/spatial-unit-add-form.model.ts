@@ -23,7 +23,7 @@ import { toIsoDateString } from '../spatial-unit-import.util';
 import {
   HierarchyAssignmentRowGroup,
   buildHierarchyAssignmentArray,
-} from './hierarchy-assignment.model';
+} from '../hierarchyAssignment/hierarchy-assignment.model';
 
 /**
  * Typed model of the spatial-unit add wizard.

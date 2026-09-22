@@ -26,11 +26,15 @@ import {
   validateSpatialUnitMetadata,
 } from 'services/adminSpatialUnit/spatial-unit-metadata.util';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
-import {
-  SpatialUnitHierarchyApiService,
-  placementFor,
-} from 'services/spatial-unit-hierarchy-service/spatial-unit-hierarchy-api.service';
+import { SpatialUnitHierarchyApiService } from 'services/spatial-unit-hierarchy-service/spatial-unit-hierarchy-api.service';
 import { SpatialUnitHierarchyOverviewType } from 'models/data-management-api';
+import { HierarchyAssignmentPanelComponent } from '../hierarchyAssignment/hierarchy-assignment-panel.component';
+import {
+  buildAssignmentRow,
+  membershipsByLevelForRows,
+  rowForExistingMembership,
+  sameMemberships,
+} from '../hierarchyAssignment/hierarchy-assignment.model';
 import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
 import { FormControlAriaDirective } from '../../adminShared/formError/form-control-aria.directive';
 import {
@@ -80,6 +84,7 @@ import {
     KmLinePatternPickerComponent,
     StepperComponent,
     ResourceMetadataFormComponent,
+    HierarchyAssignmentPanelComponent,
     TranslateModule,
   ],
   standalone: true,
@@ -235,13 +240,12 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
       this.availableLoiDashArrayObjects = LABELED_LOI_DASH_ARRAY_OBJECTS;
     }
 
-    // Only this dataset's own tenant: the backend rejects a cross-tenant member.
-    const mandantId = this.currentSpatialUnitDataset?.mandantId ?? '';
-    const hierarchies = await this.hierarchyApi.getHierarchies();
-    this.availableHierarchies = mandantId
-      ? hierarchies.filter((entry) => entry.mandantId === mandantId)
-      : hierarchies;
-    this.applyHierarchyFromDataset();
+    // Unfiltered: the panel narrows them to this dataset's tenant, and keeps
+    // the ones the dataset is already a member of whatever that filter says —
+    // a row whose hierarchy is missing from the select would take its
+    // membership with it on the next save.
+    this.availableHierarchies = await this.hierarchyApi.getHierarchies();
+    this.seedHierarchyRows();
 
     this.loadingData.set(false);
     // The list arrives after the first render; OnPush needs to be told.
@@ -254,15 +258,39 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
   // Remove custom click outside and escape key handlers since ng-bootstrap handles this
 
+  /** The tenant that decides which hierarchies this dataset may join. */
+  protected get datasetMandantId(): string {
+    return this.currentSpatialUnitDataset?.mandantId ?? '';
+  }
+
+  protected get datasetSpatialUnitId(): string {
+    return this.currentSpatialUnitDataset?.spatialUnitId ?? '';
+  }
+
+  protected get hierarchyRows() {
+    return this.editForm.controls.hierarchyAssignments;
+  }
+
   /**
-   * Shows the hierarchy the dataset currently belongs to. Only the first one is
-   * offered: a spatial unit may be in several, but assembling that is the
-   * hierarchy admin page's job — this modal keeps the common single case
-   * editable and leaves the rest untouched.
+   * One row per hierarchy the dataset belongs to, each describing the place it
+   * already holds — so a dialog nobody touched writes nothing.
+   *
+   * Cleared first, because this runs twice on open: once synchronously from
+   * `resetForm`, off the memberships the dataset carries, and again once the
+   * hierarchy list has arrived and the rows can name their neighbours from the
+   * chains. Sorted by name so the panel does not reshuffle between opens.
    */
-  private applyHierarchyFromDataset(): void {
-    const memberships = this.currentSpatialUnitDataset?.hierarchies ?? [];
-    this.editForm.controls.hierarchyId.setValue(memberships[0]?.hierarchyId ?? '');
+  private seedHierarchyRows(): void {
+    const memberships = [...(this.currentSpatialUnitDataset?.hierarchies ?? [])].sort((a, b) =>
+      (a.hierarchyName ?? '').localeCompare(b.hierarchyName ?? '')
+    );
+    this.hierarchyRows.clear();
+    for (const membership of memberships) {
+      const hierarchy = this.availableHierarchies.find(
+        (entry) => entry.hierarchyId === membership.hierarchyId
+      );
+      this.hierarchyRows.push(buildAssignmentRow(rowForExistingMembership(membership, hierarchy)));
+    }
   }
 
   resetForm() {
@@ -279,7 +307,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
       this.metadataForm.controls.updateInterval.setValue(this.updateIntervalOptions[0]);
     }
 
-    this.applyHierarchyFromDataset();
+    this.seedHierarchyRows();
 
     // Set outline layer settings - FIXED: Properly initialize outline layer properties
     this.isOutlineLayer = dataset.isOutlineLayer || false;
@@ -374,12 +402,12 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
         )
         .toPromise();
 
-      // The hierarchy placement travels separately: SpatialUnitPATCHInputType
-      // carries no `hierarchies` field, so it is written through the spatial
+      // The hierarchy memberships travel separately: SpatialUnitPATCHInputType
+      // carries no `hierarchies` field, so they are written through the spatial
       // unit's own memberships endpoint. Order matters — the metadata is
       // already saved when this runs, which is what the error message says.
       try {
-        await this.saveHierarchyPlacement();
+        await this.saveHierarchyMemberships();
       } catch (error: any) {
         this.loadingData.set(false);
         this.notificationService.showError(
@@ -424,24 +452,29 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   }
 
   /**
-   * Writes the chosen hierarchy, if it differs from what the dataset already
-   * has. Skipped when nothing changed, so an ordinary metadata edit stays a
-   * single request.
+   * Writes the memberships the rows describe, if they differ from the ones the
+   * dataset already has. Skipped when nothing changed, so an ordinary metadata
+   * edit stays a single request.
+   *
+   * The list always goes out whole: the endpoint replaces every membership of
+   * the spatial unit, so a hierarchy no row names is a hierarchy it leaves.
    */
-  private async saveHierarchyPlacement(): Promise<void> {
+  private async saveHierarchyMemberships(): Promise<void> {
     const dataset = this.currentSpatialUnitDataset;
     if (!dataset) {
       return;
     }
 
-    const memberships = dataset.hierarchies ?? [];
-    const selected = this.editForm.controls.hierarchyId.value;
-    if ((memberships[0]?.hierarchyId ?? '') === selected) {
+    const target = membershipsByLevelForRows(
+      this.hierarchyRows.getRawValue(),
+      this.availableHierarchies,
+      dataset.spatialUnitId
+    );
+    if (sameMemberships(target, dataset.hierarchies ?? [])) {
       return;
     }
 
-    const placement = placementFor(selected, memberships, this.availableHierarchies);
-    await this.hierarchyApi.updateMemberships(dataset.spatialUnitId, placement);
+    await this.hierarchyApi.updateMemberships(dataset.spatialUnitId, target);
   }
 
   // Import/Export functionality

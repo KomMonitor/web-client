@@ -92,7 +92,7 @@ import {
   buildSpatialUnitAddForm,
   spatialUnitAddFormToApi,
 } from './spatial-unit-add-form.model';
-import { membershipsForRows } from './hierarchy-assignment.model';
+import { membershipsForRows } from '../hierarchyAssignment/hierarchy-assignment.model';
 import { SpatialUnitMetadataStepComponent } from './metadataStep/spatial-unit-metadata-step.component';
 
 // Removed in favor of standalone km-date-picker component providers

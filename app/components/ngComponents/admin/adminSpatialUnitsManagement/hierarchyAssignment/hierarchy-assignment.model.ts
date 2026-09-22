@@ -8,7 +8,9 @@ import {
 } from '@angular/forms';
 import {
   SpatialUnitHierarchyMemberType,
+  SpatialUnitHierarchyMembershipInputType,
   SpatialUnitHierarchyMembershipPOSTInputType,
+  SpatialUnitHierarchyMembershipType,
   SpatialUnitHierarchyOverviewType,
 } from 'models/data-management-api';
 
@@ -23,8 +25,10 @@ import {
  * level at most, never both, which is also what the panel says.
  *
  * The level-based sibling (`{ hierarchyId, hierarchyLevel }`, built by
- * `placementFor`) belongs to `PUT /spatial-units/{id}/hierarchies`, the path
- * the edit dialog takes. The two wire shapes are not interchangeable.
+ * `membershipsByLevelForRows` below) belongs to
+ * `PUT /spatial-units/{id}/hierarchies`, the path the edit dialog takes. The
+ * two wire shapes are not interchangeable, which is why the same row maps
+ * through two different functions depending on which dialog sends it.
  */
 export type HierarchyPlacementMode = 'append' | 'above' | 'below';
 
@@ -142,13 +146,137 @@ export function membershipsForRows(
     );
 }
 
+/**
+ * The hierarchy's chain, coarsest first, without one spatial unit.
+ *
+ * Everything the edit dialog computes is computed against this rather than
+ * against the raw chain: a level is never its own neighbour, and while it is
+ * being placed it is not in the chain it is being placed into. Passing the
+ * empty string leaves the chain as it is, which is what the add wizard does —
+ * a level that does not exist yet is in no chain to begin with.
+ */
+export function chainWithout(
+  hierarchy: SpatialUnitHierarchyOverviewType | undefined,
+  spatialUnitId: string
+): readonly SpatialUnitHierarchyMemberType[] {
+  const members = orderedMembersOf(hierarchy);
+  return spatialUnitId
+    ? members.filter((member) => member.spatialUnitId !== spatialUnitId)
+    : members;
+}
+
+/**
+ * A membership the dataset already has, as the row that reproduces it.
+ *
+ * Every position can be said in the panel's own words, and exactly: a level at
+ * the bottom of its chain — or alone in it — is where "append" puts it, and any
+ * other level is directly above the one below it. Left untouched, such a row
+ * therefore maps back to the very membership it came from, which is what makes
+ * "the user changed nothing" detectable.
+ *
+ * Read from the membership's own neighbour fields, with the chain as a
+ * fallback: the edit dialog seeds its rows while the hierarchy list is still in
+ * flight, and `nextLowerSpatialUnitId` is optional in the schema.
+ */
+export function rowForExistingMembership(
+  membership: SpatialUnitHierarchyMembershipType,
+  hierarchy?: SpatialUnitHierarchyOverviewType
+): HierarchyAssignmentRow {
+  const below = membership.nextLowerSpatialUnitId ?? lowerNeighbourOf(membership, hierarchy);
+  return below
+    ? { hierarchyId: membership.hierarchyId, placement: 'above', referenceSpatialUnitId: below }
+    : { hierarchyId: membership.hierarchyId, placement: 'append', referenceSpatialUnitId: '' };
+}
+
+/** The member one step finer than this membership, straight from the chain. */
+function lowerNeighbourOf(
+  membership: SpatialUnitHierarchyMembershipType,
+  hierarchy?: SpatialUnitHierarchyOverviewType
+): string {
+  const members = orderedMembersOf(hierarchy);
+  const index = members.findIndex((member) => member.hierarchyLevel === membership.hierarchyLevel);
+  return index >= 0 ? (members[index + 1]?.spatialUnitId ?? '') : '';
+}
+
+/**
+ * One row as `PUT /spatial-units/{id}/hierarchies` expects it, or null where the
+ * row does not describe a place yet — total for the same reason
+ * `membershipForRow` is.
+ *
+ * This endpoint takes the level, not the neighbours, so the position has to be
+ * worked out here. It is an index into the chain the unit is *not* part of, so
+ * it comes out dense, which is what the backend orders and renumbers by.
+ */
+export function membershipLevelForRow(
+  row: HierarchyAssignmentRow,
+  hierarchies: readonly SpatialUnitHierarchyOverviewType[],
+  selfSpatialUnitId = ''
+): SpatialUnitHierarchyMembershipInputType | null {
+  if (!row.hierarchyId) {
+    return null;
+  }
+
+  const chain = chainWithout(
+    hierarchies.find((entry) => entry.hierarchyId === row.hierarchyId),
+    selfSpatialUnitId
+  ).map((member) => member.spatialUnitId);
+
+  if (row.placement === 'append') {
+    return { hierarchyId: row.hierarchyId, hierarchyLevel: chain.length };
+  }
+
+  const reference = chain.indexOf(row.referenceSpatialUnitId);
+  if (reference < 0) {
+    return null;
+  }
+  return {
+    hierarchyId: row.hierarchyId,
+    hierarchyLevel: row.placement === 'above' ? reference : reference + 1,
+  };
+}
+
+/**
+ * The whole panel as the membership list of one spatial unit, in the order of
+ * its rows and without the unfinished ones.
+ *
+ * The list is complete on purpose: the endpoint replaces every membership the
+ * unit has, so a hierarchy missing from it is a hierarchy the unit leaves.
+ */
+export function membershipsByLevelForRows(
+  rows: readonly HierarchyAssignmentRow[],
+  hierarchies: readonly SpatialUnitHierarchyOverviewType[],
+  selfSpatialUnitId = ''
+): SpatialUnitHierarchyMembershipInputType[] {
+  return rows
+    .map((row) => membershipLevelForRow(row, hierarchies, selfSpatialUnitId))
+    .filter((membership): membership is SpatialUnitHierarchyMembershipInputType => !!membership);
+}
+
+/**
+ * Whether two membership lists say the same thing, whatever order they are in.
+ *
+ * What the "nothing changed, write nothing" decision rests on. Compared as a
+ * set rather than position by position, because the rows follow the panel while
+ * the dataset follows the server.
+ */
+export function sameMemberships(
+  a: readonly SpatialUnitHierarchyMembershipInputType[],
+  b: readonly { hierarchyId?: string; hierarchyLevel?: number }[]
+): boolean {
+  const key = (entry: { hierarchyId?: string; hierarchyLevel?: number }): string =>
+    `${entry.hierarchyId ?? ''}:${entry.hierarchyLevel ?? 0}`;
+  const left = a.map(key).sort();
+  const right = b.map(key).sort();
+  return left.length === right.length && left.every((entry, index) => entry === right[index]);
+}
+
 /** What the row's result line says, as a translation key plus its parameters. */
 export interface HierarchyAssignmentSummary {
   readonly key: string;
   readonly params: { hierarchy: string; level?: string };
 }
 
-const SUMMARY_PREFIX = 'ADMIN_SPATIAL_UNITS.METADATA_STEP';
+const SUMMARY_PREFIX = 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT';
 
 /**
  * Spells out where the row puts the new level, so the choice can be read back
@@ -157,13 +285,16 @@ const SUMMARY_PREFIX = 'ADMIN_SPATIAL_UNITS.METADATA_STEP';
  */
 export function assignmentSummary(
   row: HierarchyAssignmentRow,
-  hierarchies: readonly SpatialUnitHierarchyOverviewType[]
+  hierarchies: readonly SpatialUnitHierarchyOverviewType[],
+  selfSpatialUnitId = ''
 ): HierarchyAssignmentSummary | null {
   const hierarchy = hierarchies.find((entry) => entry.hierarchyId === row.hierarchyId);
   if (!hierarchy) {
     return null;
   }
-  const members = orderedMembersOf(hierarchy);
+  // Without the unit itself: a level that is a chain's only member appends into
+  // an empty chain, and it must not read itself as its own neighbour.
+  const members = chainWithout(hierarchy, selfSpatialUnitId);
   const name = hierarchy.name ?? '';
 
   if (row.placement === 'append') {

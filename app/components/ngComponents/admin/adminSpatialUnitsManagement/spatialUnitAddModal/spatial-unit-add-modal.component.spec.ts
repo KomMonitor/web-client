@@ -19,7 +19,7 @@ import { SpatialUnitPOSTInputType } from 'models/data-management-api';
 
 import { patchPeriodOfValidityForm } from '../../adminShared/periodOfValidityForm/period-of-validity-form.model';
 import { SpatialUnitAddModalComponent } from './spatial-unit-add-modal.component';
-import { buildAssignmentRow } from './hierarchy-assignment.model';
+import { buildAssignmentRow } from '../hierarchyAssignment/hierarchy-assignment.model';
 import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
 
 /**
