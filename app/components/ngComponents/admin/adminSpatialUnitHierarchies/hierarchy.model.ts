@@ -42,6 +42,11 @@ export interface RegisteredLevel {
    * flat string, and the view has no use for the rest of the list.
    */
   readonly canDelete: boolean;
+  /**
+   * Whether the user may edit that dataset's metadata — `editor` on the spatial
+   * unit, the same rule the spatial units grid applies to its pencil button.
+   */
+  readonly canEdit: boolean;
 }
 
 /**

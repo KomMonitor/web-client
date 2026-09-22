@@ -1657,7 +1657,9 @@
       "REMOVE": "Entfernen",
       "MOVE_UP": "Eine Hierarchie-Ebene nach oben",
       "MOVE_DOWN": "Eine Hierarchie-Ebene nach unten",
-      "TOGGLE_LABEL": "Unterebenen ein-/ausklappen"
+      "TOGGLE_LABEL": "Unterebenen ein-/ausklappen",
+      "METADATA_TITLE": "Metadaten dieser Raumeinheitsebene bearbeiten",
+      "METADATA_FORBIDDEN": "Nur Bearbeiter dieser Raumeinheitsebene dürfen ihre Metadaten ändern"
     },
     "VISIBILITY": {
       "PUBLIC": "öffentlich",
@@ -1675,7 +1677,6 @@
       "DELETED": "Hierarchie „{{hierarchy}}“ gelöscht.",
       "INSERTED": "Ebene „{{level}}“ in die Hierarchie eingefügt.",
       "REMOVED": "Ebene „{{level}}“ aus der Hierarchie entfernt.",
-      "ACTION_CLICKED": "Aktion „{{action}}“ für „{{hierarchy}}“ — noch ohne Funktion.",
       "MOVED": "Ebene „{{level}}“ verschoben.",
       "SAVE_FAILED": "Die Änderung konnte nicht gespeichert werden und wurde zurückgenommen.",
       "CREATE_FAILED": "Hierarchie „{{hierarchy}}“ konnte nicht angelegt werden.",

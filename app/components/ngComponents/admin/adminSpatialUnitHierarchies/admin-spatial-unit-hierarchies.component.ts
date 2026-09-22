@@ -13,6 +13,7 @@ import { AdminContentViewComponent } from '../admin-content-view/admin-content-v
 import { AdminModalService } from '../adminShared/modal/admin-modal.service';
 import { SpatialUnitAddModalComponent } from '../adminSpatialUnitsManagement/spatialUnitAddModal/spatial-unit-add-modal.component';
 import { SpatialUnitDeleteModalComponent } from '../adminSpatialUnitsManagement/spatialUnitDeleteModal/spatial-unit-delete-modal.component';
+import { SpatialUnitEditMetadataModalComponent } from '../adminSpatialUnitsManagement/spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.component';
 import {
   HierarchyChainEntry,
   HierarchyLevel,
@@ -270,20 +271,45 @@ export class AdminSpatialUnitHierarchiesComponent {
   }
 
   /**
-   * The metadata button of a level, in the chain and in the unassigned section
-   * alike. Still a scaffold: it only reports the click, and says so.
+   * Edits the metadata of a level, in the chain and in the unassigned section
+   * alike — through the spatial units page's own dialog, the same one its grid
+   * opens. A level *is* a spatial unit dataset; a second metadata form here
+   * would be that one again.
    *
-   * TODO: open `SpatialUnitEditMetadataModalComponent` with the level's spatial
-   * unit, the way `admin-spatial-units-management.onClickEditMetadata` does.
-   * The levels now carry their real `spatialUnitId`, so the missing piece is
-   * only the dialog's own plumbing — it wants the whole `SpatialUnitOverviewType`
-   * and a way to report back what it changed.
+   * Nothing is announced afterwards: the dialog reports its own outcome. What
+   * follows is a refetch, because the dialog may rename the level and may move
+   * it into another hierarchy — the first the registry shows, the second only
+   * the chains do, and those come from the hierarchy API. Its `refreshRequested`
+   * output is not subscribed on purpose: it fires right before the dialog closes
+   * with the same information, and this page reads its dialogs by their result.
    */
-  protected onShowMetadata(name: string): void {
-    this.notify('ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.ACTION_CLICKED', {
-      action: this.translateService.instant('ADMIN_SHARED.METADATA'),
-      hierarchy: name,
+  protected async onEditLevelMetadata(level: HierarchyChainEntry): Promise<void> {
+    const dataset = this.store.spatialUnitOf(level.id);
+    if (!dataset) {
+      return;
+    }
+    const result = await this.modals.open<
+      SpatialUnitEditMetadataModalComponent,
+      { action?: string }
+    >(SpatialUnitEditMetadataModalComponent, MODAL_FORM, {
+      currentSpatialUnitDataset: dataset,
     });
+    if (result?.action !== 'updated') {
+      return;
+    }
+    await this.metadataBootstrap.fetchSpatialUnitsMetadata(
+      this.accessControlService.currentKeycloakLoginRoles ?? []
+    );
+    await this.store.reload();
+  }
+
+  /**
+   * Whether the metadata dialog is open to this level. Unknown to the registry
+   * counts as no — the dataset the dialog needs is not there either, and a
+   * resting button says that better than a dead one.
+   */
+  protected canEditLevel(level: HierarchyChainEntry): boolean {
+    return this.store.editableLevelIds().has(level.id);
   }
 
   /**

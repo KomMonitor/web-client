@@ -82,7 +82,10 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
       spatialUnitLevel: level.name,
       mandantId: level.mandant,
       metadata: { datasource: level.datasource },
-      userPermissions: level.canDelete ? ['creator'] : [],
+      userPermissions: [
+        ...(level.canDelete ? ['creator'] : []),
+        ...(level.canEdit ? ['editor'] : []),
+      ],
     }));
   }
 
@@ -550,27 +553,93 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     expect(show).not.toHaveBeenCalled();
   });
 
-  // The metadata button is scaffold until the page reads real spatial units; it
-  // reports the click and says as much. Both places that offer it lead here.
-  it('reports the metadata button of a level in the chain', () => {
+  // A level is a spatial unit dataset, so its metadata is edited in that page's
+  // own dialog. Both places that offer the button lead there.
+  it('hands the metadata dialog the spatial unit behind a level in the chain', async () => {
     const show = jest.spyOn(notificationService, 'show');
     fixture.detectChanges();
+    const level = store.visibleHierarchies()[0].chain()[0];
 
-    const rowButton = fixture.debugElement.query(By.css('.tree-row .btn-warning'));
-    rowButton.nativeElement.click();
+    const inputs = stubModal(Promise.reject('cancel'));
+    fixture.debugElement.query(By.css('.tree-row .btn-warning')).nativeElement.click();
+    await settle();
 
-    expect(show).toHaveBeenCalledTimes(1);
-    expect(show.mock.calls[0][0]).toContain('ACTION_CLICKED');
+    expect(inputs['currentSpatialUnitDataset']).toMatchObject({ spatialUnitId: level.id });
+    // The dialog saves and reports it; a second toast here would repeat it.
+    expect(show).not.toHaveBeenCalled();
   });
 
-  it('reports the metadata button of an unassigned level', () => {
-    const show = jest.spyOn(notificationService, 'show');
+  it('hands the metadata dialog the spatial unit behind an unassigned level', async () => {
+    fixture.detectChanges();
+    const level = store.unassignedLevels()[0];
+
+    const inputs = stubModal(Promise.reject('cancel'));
+    panel().metadata.emit(level);
+    await settle();
+
+    expect(inputs['currentSpatialUnitDataset']).toMatchObject({ spatialUnitId: level.id });
+  });
+
+  it('opens nothing for a level whose spatial unit it does not know', async () => {
+    fixture.detectChanges();
+    stubModal(Promise.reject('cancel'));
+    const open = modalService.open as jest.Mock;
+
+    // Through the panel, not the chain button: that one rests in this case.
+    panel().metadata.emit({ ...store.unassignedLevels()[0], id: 'id-gone' });
+    await settle();
+
+    expect(open).not.toHaveBeenCalled();
+  });
+
+  it('refetches the levels and the chains once the metadata dialog saved', async () => {
+    const bootstrap = TestBed.inject(MetadataBootstrapService);
+    fixture.detectChanges();
+    hierarchyApi.getHierarchies.mockClear();
+
+    stubModal(Promise.resolve({ action: 'updated', spatialUnitId: 'id-Stadt Essen' }));
+    panel().metadata.emit(store.unassignedLevels()[0]);
+    await settle();
+
+    // The dialog may rename the level and may move it into another hierarchy —
+    // the first the registry shows, the second only the reloaded chains do.
+    expect(bootstrap.fetchSpatialUnitsMetadata).toHaveBeenCalled();
+    expect(hierarchyApi.getHierarchies).toHaveBeenCalled();
+  });
+
+  it('refetches nothing when the metadata dialog is dismissed', async () => {
+    const bootstrap = TestBed.inject(MetadataBootstrapService);
+    fixture.detectChanges();
+    hierarchyApi.getHierarchies.mockClear();
+    (bootstrap.fetchSpatialUnitsMetadata as jest.Mock).mockClear();
+
+    stubModal(Promise.reject('cancel'));
+    panel().metadata.emit(store.unassignedLevels()[0]);
+    await settle();
+
+    expect(bootstrap.fetchSpatialUnitsMetadata).not.toHaveBeenCalled();
+    expect(hierarchyApi.getHierarchies).not.toHaveBeenCalled();
+  });
+
+  it('rests the metadata button of a level the user may not edit', () => {
+    // Before the first change detection: the registry is a computed over a stub
+    // that is a plain getter, so it caches on its first read.
+    setLevels(seedLevels().map((level) => ({ ...level, canEdit: false })));
     fixture.detectChanges();
 
-    panel().metadata.emit(store.unassignedLevels()[0]);
+    expect(
+      fixture.debugElement.query(By.css('.tree-row .btn-warning')).nativeElement.disabled
+    ).toBe(true);
+  });
 
-    expect(show).toHaveBeenCalledTimes(1);
-    expect(show.mock.calls[0][0]).toContain('ACTION_CLICKED');
+  it('rests the metadata button while the chain is being written', () => {
+    fixture.detectChanges();
+    store.visibleHierarchies()[0].saving.set(true);
+    fixture.detectChanges();
+
+    expect(
+      fixture.debugElement.query(By.css('.tree-row .btn-warning')).nativeElement.disabled
+    ).toBe(true);
   });
 
   it('appends the hierarchy the create dialog returns', async () => {

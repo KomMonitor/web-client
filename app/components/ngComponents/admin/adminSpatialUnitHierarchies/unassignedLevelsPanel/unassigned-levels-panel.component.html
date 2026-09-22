@@ -57,7 +57,18 @@
         </span>
       }
 
-      <button type="button" class="btn btn-sm btn-warning" (click)="metadata.emit(level)">
+      <button
+        type="button"
+        class="btn btn-sm btn-warning"
+        [disabled]="!level.canEdit"
+        [title]="
+          (level.canEdit
+            ? 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.METADATA_TITLE'
+            : 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.METADATA_FORBIDDEN'
+          ) | translate
+        "
+        (click)="metadata.emit(level)"
+      >
         {{ 'ADMIN_SHARED.METADATA' | translate }}
       </button>
 

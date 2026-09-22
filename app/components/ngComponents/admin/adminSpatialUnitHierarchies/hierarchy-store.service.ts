@@ -112,7 +112,26 @@ export class HierarchyStoreService {
       // but the metadata store defaults it away with `|| []` and older answers
       // leave it out.
       canDelete: (unit.userPermissions ?? []).includes('creator'),
+      canEdit: (unit.userPermissions ?? []).includes('editor'),
     }))
+  );
+
+  /**
+   * The ids of the levels whose metadata the user may edit — what the chain
+   * rows gate their metadata button on.
+   *
+   * A computed over the registry, not a lookup per row: a chain entry carries
+   * no permissions of its own, and `spatialUnitOf` reads a plain `Map` that no
+   * signal watches, so a row asking it would keep a stale disabled state after
+   * a refetch.
+   */
+  readonly editableLevelIds = computed(
+    () =>
+      new Set(
+        this.levelRegistry()
+          .filter((level) => level.canEdit)
+          .map((level) => level.id)
+      )
   );
 
   /** The tenant on screen as the API names it; empty in the overview. */

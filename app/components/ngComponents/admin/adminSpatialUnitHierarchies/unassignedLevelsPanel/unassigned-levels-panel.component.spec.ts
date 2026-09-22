@@ -17,8 +17,20 @@ function hierarchy(id: string, name: string): SpatialUnitHierarchy {
   return { ...built, id };
 }
 
-function level(name: string, datasource = 'Amt für Statistik', canDelete = true): RegisteredLevel {
-  return { id: `id-${name}`, name, datasource, mandant: 'Stadt Essen', canDelete };
+function level(
+  name: string,
+  datasource = 'Amt für Statistik',
+  permissions: Partial<Pick<RegisteredLevel, 'canDelete' | 'canEdit'>> = {}
+): RegisteredLevel {
+  return {
+    id: `id-${name}`,
+    name,
+    datasource,
+    mandant: 'Stadt Essen',
+    canDelete: true,
+    canEdit: true,
+    ...permissions,
+  };
 }
 
 describe('UnassignedLevelsPanelComponent', () => {
@@ -45,6 +57,10 @@ describe('UnassignedLevelsPanelComponent', () => {
   /** The delete button of the row at `rowIndex`. */
   function deleteButton(rowIndex: number): HTMLButtonElement {
     return rows()[rowIndex].query(By.css('.btn-outline-danger')).nativeElement;
+  }
+
+  function metadataButton(rowIndex: number): HTMLButtonElement {
+    return rows()[rowIndex].query(By.css('.btn-warning')).nativeElement;
   }
 
   beforeEach(() => {
@@ -148,7 +164,7 @@ describe('UnassignedLevelsPanelComponent', () => {
   it('rests the delete button on a level the user does not own', () => {
     const deleted: RegisteredLevel[] = [];
     component.deleteLevel.subscribe((level) => deleted.push(level));
-    render([level('Wahlbezirke Essen', 'Amt für Statistik', false)]);
+    render([level('Wahlbezirke Essen', 'Amt für Statistik', { canDelete: false })]);
 
     expect(deleteButton(0).disabled).toBe(true);
     expect(deleteButton(0).title).toContain('DELETE_FORBIDDEN');
@@ -156,5 +172,28 @@ describe('UnassignedLevelsPanelComponent', () => {
     deleteButton(0).click();
 
     expect(deleted).toEqual([]);
+  });
+
+  it('rests the metadata button on a level the user may not edit', () => {
+    const asked: RegisteredLevel[] = [];
+    component.metadata.subscribe((level) => asked.push(level));
+    render([level('Wahlbezirke Essen', 'Amt für Statistik', { canEdit: false })]);
+
+    expect(metadataButton(0).disabled).toBe(true);
+    expect(metadataButton(0).title).toContain('METADATA_FORBIDDEN');
+
+    metadataButton(0).click();
+
+    expect(asked).toEqual([]);
+  });
+
+  it('asks for the metadata of a level the user may edit', () => {
+    const asked: RegisteredLevel[] = [];
+    component.metadata.subscribe((level) => asked.push(level));
+    render();
+
+    metadataButton(0).click();
+
+    expect(asked.map((level) => level.name)).toEqual(['Wahlbezirke Essen']);
   });
 });

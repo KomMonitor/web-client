@@ -124,7 +124,10 @@ function seed(
     spatialUnitLevel: entry.name,
     mandantId: entry.mandant,
     metadata: { datasource: entry.datasource },
-    userPermissions: entry.canDelete ? ['creator'] : [],
+    userPermissions: [
+      ...(entry.canDelete ? ['creator'] : []),
+      ...(entry.canEdit ? ['editor'] : []),
+    ],
   }));
 }
 
@@ -369,7 +372,7 @@ describe('HierarchyStoreService', () => {
 
     it('marks a level the user does not own as undeletable', () => {
       const store = storeWith();
-      seed(store, [], [levelFixture('Quartiere', 'Stadt Essen', false)]);
+      seed(store, [], [levelFixture('Quartiere', 'Stadt Essen', { canDelete: false })]);
 
       expect(store.levelRegistry()[0].canDelete).toBe(false);
     });
@@ -393,8 +396,31 @@ describe('HierarchyStoreService', () => {
           datasource: 'Katasteramt',
           mandant: 'Stadt Essen',
           canDelete: true,
+          canEdit: true,
         },
       ]);
+    });
+
+    it('marks a level the user may not edit as read-only', () => {
+      const store = storeWith();
+      seed(store, [], [levelFixture('Quartiere', 'Stadt Essen', { canEdit: false })]);
+
+      expect(store.levelRegistry()[0].canEdit).toBe(false);
+      expect(store.editableLevelIds().has('id-Quartiere')).toBe(false);
+    });
+
+    it('names the levels whose metadata may be edited', () => {
+      const store = storeWith();
+      seed(
+        store,
+        [],
+        [
+          level('Quartiere', 'Stadt Essen'),
+          levelFixture('Bezirke', 'Stadt Essen', { canEdit: false }),
+        ]
+      );
+
+      expect(store.editableLevelIds()).toEqual(new Set(['id-Quartiere']));
     });
   });
 

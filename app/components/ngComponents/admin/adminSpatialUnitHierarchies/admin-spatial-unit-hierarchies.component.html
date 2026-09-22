@@ -151,10 +151,20 @@
                 {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.MOVE_DOWN' | translate }}
               </span>
             </button>
+            <!-- Resting while a chain write is in flight: the dialog may move the
+                 level into another hierarchy, which writes the same membership
+                 relation from the other end. -->
             <button
               type="button"
               class="btn btn-sm btn-warning"
-              (click)="$event.stopPropagation(); onShowMetadata(level.name)"
+              [disabled]="!canEditLevel(level) || hierarchy.saving()"
+              [title]="
+                (canEditLevel(level)
+                  ? 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.METADATA_TITLE'
+                  : 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.METADATA_FORBIDDEN'
+                ) | translate
+              "
+              (click)="$event.stopPropagation(); onEditLevelMetadata(level)"
             >
               {{ 'ADMIN_SHARED.METADATA' | translate }}
             </button>
@@ -195,7 +205,7 @@
         [hierarchies]="store.visibleHierarchies()"
         [showIds]="showIds()"
         (assign)="onAssignLevel($event)"
-        (metadata)="onShowMetadata($event.name)"
+        (metadata)="onEditLevelMetadata($event)"
         (deleteLevel)="onDeleteLevel($event)"
         (registerLevel)="onRegisterLevel()"
       />
