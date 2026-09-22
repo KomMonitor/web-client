@@ -58,6 +58,24 @@
       <button type="button" class="btn btn-sm btn-warning" (click)="metadata.emit(level)">
         {{ 'ADMIN_SHARED.METADATA' | translate }}
       </button>
+
+      <!-- Deletes the registered dataset, not a chain membership — the title
+           spells out what goes with it. Resting where the dataset is not the
+           user's own, as on the spatial units page. -->
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-danger"
+        [disabled]="!level.canDelete"
+        [title]="
+          (level.canDelete
+            ? 'ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.DELETE_TITLE'
+            : 'ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.DELETE_FORBIDDEN'
+          ) | translate
+        "
+        (click)="deleteLevel.emit(level)"
+      >
+        {{ 'ADMIN_SHARED.DELETE' | translate }}
+      </button>
     </div>
   }
 </app-collapsible-section>

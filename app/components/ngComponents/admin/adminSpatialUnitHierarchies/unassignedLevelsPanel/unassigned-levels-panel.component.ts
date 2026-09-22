@@ -16,9 +16,10 @@ export interface LevelAssignment {
  * tenant that no hierarchy uses. They exist, but are not offered in the map
  * interface, because only a hierarchy puts a level there.
  *
- * It offers no way to create or delete a level: a spatial unit level exists
- * only with its geometry, so both belong on the spatial units page, which the
- * hint links to.
+ * It creates no level: one exists only with its geometry, so that belongs on
+ * the spatial units page, which the header links to. Deleting one is offered
+ * here — an unassigned level is exactly the one nothing else depends on — but
+ * the page carries it out, through the spatial units page's own dialog.
  *
  * Presentational — the page derives the list and carries out what the buttons
  * ask for.
@@ -42,6 +43,8 @@ export class UnassignedLevelsPanelComponent {
 
   readonly assign = output<LevelAssignment>();
   readonly metadata = output<RegisteredLevel>();
+  /** `deleteLevel`, not `delete`: the tree's "remove" takes a level out of a chain. */
+  readonly deleteLevel = output<RegisteredLevel>();
 
   /** Without a hierarchy there is nothing to assign to, so the button rests. */
   protected readonly canAssign = computed(() => this.hierarchies().length > 0);

@@ -1,4 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { SpatialUnitOverviewType } from 'models/data-management-api';
 import { MandantService } from 'services/mandant-service/mandant.service';
 import {
   SpatialUnitHierarchyApiService,
@@ -107,8 +108,22 @@ export class HierarchyStoreService {
       name: unit.spatialUnitLevel,
       datasource: unit.metadata?.datasource ?? '',
       mandant: this.mandantService.mandantNameOf(unit.mandantId ?? '') || (unit.mandantId ?? ''),
+      // Defensively: the generated type declares `userPermissions` required,
+      // but the metadata store defaults it away with `|| []` and older answers
+      // leave it out.
+      canDelete: (unit.userPermissions ?? []).includes('creator'),
     }))
   );
+
+  /**
+   * The spatial unit behind a registry entry — what the delete dialog wants.
+   *
+   * A method, not a computed: the metadata store keeps its id map as a plain
+   * `Map`, so this reads nothing reactive and belongs in a click handler.
+   */
+  spatialUnitOf(levelId: string): SpatialUnitOverviewType | undefined {
+    return this.spatialUnitStore.getSpatialUnitMetadataById(levelId);
+  }
 
   /**
    * The tenant whose hierarchies are on screen; the empty string is the

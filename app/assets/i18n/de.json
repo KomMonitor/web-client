@@ -1641,6 +1641,8 @@
       "ASSIGN_LABEL": "Hierarchie, der die Raumebene zugeordnet wird",
       "NO_HIERARCHY": "Noch keine Hierarchie für diesen Mandanten",
       "ASSIGNED": "Ebene „{{level}}“ an „{{hierarchy}}“ angehängt.",
+      "DELETE_TITLE": "Raumebene mit allen zugehörigen Indikatoren-Datensätzen löschen",
+      "DELETE_FORBIDDEN": "Nur Ersteller dieser Raumebene dürfen sie löschen",
       "REGISTER": "Neue Raumebene registrieren"
     },
     "SHOW_IDS": "Zeige IDs",

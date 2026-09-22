@@ -80,6 +80,7 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
       spatialUnitLevel: level.name,
       mandantId: level.mandant,
       metadata: { datasource: level.datasource },
+      userPermissions: level.canDelete ? ['creator'] : [],
     }));
   }
 
@@ -131,6 +132,8 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
         {
           provide: SpatialUnitMetadataStoreService,
           useValue: {
+            getSpatialUnitMetadataById: (id: string) =>
+              spatialUnits.find((unit) => (unit as { spatialUnitId: string }).spatialUnitId === id),
             get availableSpatialUnits() {
               return spatialUnits;
             },
@@ -479,6 +482,33 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     // And it is gone from the section, because a chain carries it now.
     expect(store.unassignedLevels().map((entry) => entry.name)).not.toContain(level.name);
     expect(show).toHaveBeenCalled();
+  });
+
+  it('hands the delete dialog the spatial unit behind an unassigned level', async () => {
+    const show = jest.spyOn(notificationService, 'show');
+    fixture.detectChanges();
+    const level = store.unassignedLevels()[0];
+
+    const inputs = stubModal(Promise.resolve({ action: 'deleted', deletedDatasets: [] }));
+    panel().deleteLevel.emit(level);
+    await settle();
+
+    expect(inputs['datasetsToDelete']).toEqual([
+      expect.objectContaining({ spatialUnitId: level.id }),
+    ]);
+    // The dialog deletes and reports it; a second toast here would repeat it.
+    expect(show).not.toHaveBeenCalled();
+  });
+
+  it('says nothing when the delete dialog is dismissed', async () => {
+    const show = jest.spyOn(notificationService, 'show');
+    fixture.detectChanges();
+
+    stubModal(Promise.reject('cancel'));
+    panel().deleteLevel.emit(store.unassignedLevels()[0]);
+    await settle();
+
+    expect(show).not.toHaveBeenCalled();
   });
 
   // The metadata button is scaffold until the page reads real spatial units; it

@@ -41,8 +41,8 @@ export function hierarchyFixture(
 }
 
 /** A registry entry whose id matches the chain entry of the same name. */
-export function levelFixture(name: string, mandant: string): RegisteredLevel {
-  return { id: `id-${name}`, name, mandant, datasource: 'Katasteramt' };
+export function levelFixture(name: string, mandant: string, canDelete = true): RegisteredLevel {
+  return { id: `id-${name}`, name, mandant, datasource: 'Katasteramt', canDelete };
 }
 
 /** The tenants of the seed below, in the order Keycloak would name them. */

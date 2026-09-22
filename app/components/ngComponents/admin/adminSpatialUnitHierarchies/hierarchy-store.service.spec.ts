@@ -95,6 +95,8 @@ function storeWith(mandants: Partial<Mandants> = {}): HierarchyStoreService {
           get availableSpatialUnits() {
             return spatialUnits;
           },
+          getSpatialUnitMetadataById: (id: string) =>
+            spatialUnits.find((unit) => (unit as { spatialUnitId: string }).spatialUnitId === id),
         },
       },
     ],
@@ -122,6 +124,7 @@ function seed(
     spatialUnitLevel: entry.name,
     mandantId: entry.mandant,
     metadata: { datasource: entry.datasource },
+    userPermissions: entry.canDelete ? ['creator'] : [],
   }));
 }
 
@@ -364,6 +367,21 @@ describe('HierarchyStoreService', () => {
       expect(store.registeredLevels().map((entry) => entry.name)).toEqual(['Quartiere', 'Ruhr']);
     });
 
+    it('marks a level the user does not own as undeletable', () => {
+      const store = storeWith();
+      seed(store, [], [levelFixture('Quartiere', 'Stadt Essen', false)]);
+
+      expect(store.levelRegistry()[0].canDelete).toBe(false);
+    });
+
+    it('hands out the spatial unit behind a level, for the delete dialog', () => {
+      const store = storeWith();
+      seed(store, [], [level('Quartiere', 'Stadt Essen')]);
+
+      expect(store.spatialUnitOf('id-Quartiere')).toMatchObject({ spatialUnitId: 'id-Quartiere' });
+      expect(store.spatialUnitOf('id-nothing')).toBeUndefined();
+    });
+
     it('reads the registry off the spatial unit store instead of holding one', () => {
       const store = storeWith();
       seed(store, [], [level('Quartiere', 'Stadt Essen')]);
@@ -374,6 +392,7 @@ describe('HierarchyStoreService', () => {
           name: 'Quartiere',
           datasource: 'Katasteramt',
           mandant: 'Stadt Essen',
+          canDelete: true,
         },
       ]);
     });

@@ -1641,6 +1641,8 @@
       "ASSIGN_LABEL": "Hierarchy the spatial unit level is assigned to",
       "NO_HIERARCHY": "No hierarchy for this tenant yet",
       "ASSIGNED": "Level \"{{level}}\" appended to \"{{hierarchy}}\".",
+      "DELETE_TITLE": "Delete the spatial unit level and all its indicator datasets",
+      "DELETE_FORBIDDEN": "Only creators of this spatial unit level may delete it",
       "REGISTER": "Register new spatial unit level"
     },
     "SHOW_IDS": "Show IDs",

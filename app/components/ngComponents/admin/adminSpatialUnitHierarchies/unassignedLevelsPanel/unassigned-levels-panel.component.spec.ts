@@ -17,8 +17,8 @@ function hierarchy(id: string, name: string): SpatialUnitHierarchy {
   return { ...built, id };
 }
 
-function level(name: string, datasource = 'Amt für Statistik'): RegisteredLevel {
-  return { id: `id-${name}`, name, datasource, mandant: 'Stadt Essen' };
+function level(name: string, datasource = 'Amt für Statistik', canDelete = true): RegisteredLevel {
+  return { id: `id-${name}`, name, datasource, mandant: 'Stadt Essen', canDelete };
 }
 
 describe('UnassignedLevelsPanelComponent', () => {
@@ -40,6 +40,11 @@ describe('UnassignedLevelsPanelComponent', () => {
 
   function rows() {
     return fixture.debugElement.queryAll(By.css('.unassigned-row'));
+  }
+
+  /** The delete button of the row at `rowIndex`. */
+  function deleteButton(rowIndex: number): HTMLButtonElement {
+    return rows()[rowIndex].query(By.css('.btn-outline-danger')).nativeElement;
   }
 
   beforeEach(() => {
@@ -116,12 +121,34 @@ describe('UnassignedLevelsPanelComponent', () => {
     expect(fixture.debugElement.queryAll(By.css('.unassigned-no-hierarchy'))).toHaveLength(2);
   });
 
-  it('deletes or creates nothing itself — a level needs a geometry', () => {
+  it('creates nothing itself — a level needs a geometry', () => {
     render();
 
-    expect(fixture.debugElement.query(By.css('.btn-outline-danger'))).toBeNull();
     // The header carries a link out, never a button that writes from here.
     expect(fixture.debugElement.query(By.css('.section-actions button'))).toBeNull();
+  });
+
+  it('reports the level to delete, and deletes nothing itself', () => {
+    const deleted: RegisteredLevel[] = [];
+    component.deleteLevel.subscribe((level) => deleted.push(level));
+    render();
+
+    deleteButton(0).click();
+
+    expect(deleted.map((level) => level.name)).toEqual(['Wahlbezirke Essen']);
+  });
+
+  it('rests the delete button on a level the user does not own', () => {
+    const deleted: RegisteredLevel[] = [];
+    component.deleteLevel.subscribe((level) => deleted.push(level));
+    render([level('Wahlbezirke Essen', 'Amt für Statistik', false)]);
+
+    expect(deleteButton(0).disabled).toBe(true);
+    expect(deleteButton(0).title).toContain('DELETE_FORBIDDEN');
+
+    deleteButton(0).click();
+
+    expect(deleted).toEqual([]);
   });
 
   it('points at the spatial units page instead', () => {

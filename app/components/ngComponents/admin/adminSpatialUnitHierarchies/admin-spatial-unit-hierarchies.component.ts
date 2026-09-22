@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MODAL_FORM } from 'util/modal-presets';
+import { MODAL_CONFIRM, MODAL_FORM } from 'util/modal-presets';
 
 import { CollapsibleSectionComponent } from '../../common/collapsible-section/collapsible-section.component';
 import { NotificationService } from '../../common/notification/notification.service';
@@ -9,7 +9,13 @@ import { TreeViewComponent } from '../../common/tree-view/tree-view.component';
 import { TreeGap } from '../../common/tree-view/tree-view.model';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { AdminModalService } from '../adminShared/modal/admin-modal.service';
-import { HierarchyChainEntry, HierarchyLevel, SpatialUnitHierarchy } from './hierarchy.model';
+import { SpatialUnitDeleteModalComponent } from '../adminSpatialUnitsManagement/spatialUnitDeleteModal/spatial-unit-delete-modal.component';
+import {
+  HierarchyChainEntry,
+  HierarchyLevel,
+  RegisteredLevel,
+  SpatialUnitHierarchy,
+} from './hierarchy.model';
 import { ChainEditResult, HierarchyStoreService } from './hierarchy-store.service';
 import { HierarchyDeleteModalComponent } from './hierarchyDeleteModal/hierarchy-delete-modal.component';
 import {
@@ -172,6 +178,26 @@ export class AdminSpatialUnitHierarchiesComponent {
         : 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.UPDATE_FAILED',
       { hierarchy: result.name }
     );
+  }
+
+  /**
+   * Deletes the spatial unit dataset behind an unassigned level.
+   *
+   * Through the spatial units page's own dialog, deliberately: deleting a level
+   * takes every indicator dataset on it with it, and that dialog is what warns
+   * about the cascade, refetches the indicator metadata afterwards and drops
+   * the level from the metadata store. `levelRegistry` is derived from that
+   * store, so the row disappears on its own — and the dialog reports the
+   * outcome itself, which is why nothing is announced here.
+   */
+  protected async onDeleteLevel(level: RegisteredLevel): Promise<void> {
+    const dataset = this.store.spatialUnitOf(level.id);
+    if (!dataset) {
+      return;
+    }
+    await this.modals.open(SpatialUnitDeleteModalComponent, MODAL_CONFIRM, {
+      datasetsToDelete: [dataset],
+    });
   }
 
   /** Makes a so far unassigned level the finest level of a chain. */

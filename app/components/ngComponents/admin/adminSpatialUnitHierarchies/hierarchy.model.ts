@@ -36,6 +36,12 @@ export interface RegisteredLevel {
   readonly datasource: string;
   /** Owning tenant; empty where Keycloak names none. */
   readonly mandant: string;
+  /**
+   * Whether the user may delete the dataset behind the level — `creator` on the
+   * spatial unit. A flag, not the raw permissions: everything else here is a
+   * flat string, and the view has no use for the rest of the list.
+   */
+  readonly canDelete: boolean;
 }
 
 /**
