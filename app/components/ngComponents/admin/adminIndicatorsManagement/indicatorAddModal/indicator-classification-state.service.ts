@@ -1,9 +1,10 @@
 import { inject, Injectable, signal } from '@angular/core';
 import {
   Classification,
-  ClassificationType,
-  ExtendedDefaultClassificationMapping,
+  ClassificationMapping,
+  QuantitativeClassificationMapping,
 } from 'components/ngComponents/models/classification.models';
+import { ClassificationTypeEnum } from 'models/data-management-api';
 import {
   mergeColorSchemes,
   QUALITATIVE_SCHEMES,
@@ -41,9 +42,11 @@ export interface SpatialUnitClassification {
 
 /**
  * Loose shape of a stored `defaultClassificationMapping` accepted by
- * {@link IndicatorClassificationStateService.applyMapping}. Tolerates both the
- * extended shape and the legacy one (item key `spatialUnit` instead of
- * `spatialUnitId`, no type/label fields), hence the optional/duplicated keys.
+ * {@link IndicatorClassificationStateService.applyMapping}. Deliberately laxer
+ * than `ClassificationMapping`: it also has to swallow legacy JSON from the
+ * metadata import (item key `spatialUnit` instead of `spatialUnitId`, no
+ * type/label fields, the method in any casing), hence the optional/duplicated
+ * keys. Do not replace it with the schema union.
  */
 export interface StoredClassificationMapping {
   classificationType?: string;
@@ -85,7 +88,7 @@ export class IndicatorClassificationStateService {
   availableSpatialUnits: ClassificationSpatialUnit[] = [];
 
   // Numeric (sequential/diverging) vs categorical (qualitative) classification.
-  readonly classificationType = signal<ClassificationType>('QUANTITATIVE');
+  readonly classificationType = signal<ClassificationTypeEnum>('QUANTITATIVE');
 
   // Whether the "Individuell" palette option is active. Only then may the user pick
   // per-class / per-category colors below; otherwise the colors are taken from the
@@ -245,7 +248,7 @@ export class IndicatorClassificationStateService {
    * qualitative default palette (unless one is already selected), switching back
    * to numeric picks a sequential default when a qualitative one was active.
    */
-  setType(type: ClassificationType) {
+  setType(type: ClassificationTypeEnum) {
     if (this.classificationType() === type) {
       return;
     }
@@ -506,13 +509,12 @@ export class IndicatorClassificationStateService {
 
   /**
    * Builds the `defaultClassificationMapping` payload from the current state. This
-   * is the ONLY place that emits the extended, prototype-proposed fields
-   * (`classificationType`, `labels`, `individualColors`, `categoricalData`); the
-   * form-state payload builders and the metadata export all call this. Adjust here
-   * (plus {@link applyMapping} and {@link ExtendedDefaultClassificationMapping})
-   * once the backend schema is finalized.
+   * is the ONLY place that emits it; the form-state payload builders and the
+   * metadata export all call this. Which arm of the discriminator comes back
+   * follows the classification type — see {@link ClassificationMapping}, and
+   * {@link applyMapping} for the way back.
    */
-  buildDefaultClassificationMapping(): ExtendedDefaultClassificationMapping {
+  buildDefaultClassificationMapping(): ClassificationMapping {
     if (this.isCategorical) {
       return {
         classificationType: 'QUALITATIVE',
@@ -528,15 +530,16 @@ export class IndicatorClassificationStateService {
       };
     }
 
-    const mapping: ExtendedDefaultClassificationMapping = {
+    const mapping: QuantitativeClassificationMapping = {
       classificationType: 'QUANTITATIVE',
       colorBrewerSchemeName: this.individualColorMode()
         ? 'INDIVIDUAL'
         : (this.selectedColorBrewerPaletteEntry()?.paletteName ?? ''),
       numClasses: this.numClassesPerSpatialUnit(),
-      classificationMethod: this.classificationMethod()?.toUpperCase() as
-        | ExtendedDefaultClassificationMapping['classificationMethod']
-        | undefined,
+      // Always set: the signal carries a method from the start and `reset()` puts
+      // one back, so there is no state in which this is empty.
+      classificationMethod:
+        this.classificationMethod().toUpperCase() as QuantitativeClassificationMapping['classificationMethod'],
     };
 
     if (this.individualColorMode()) {
@@ -562,9 +565,9 @@ export class IndicatorClassificationStateService {
 
   /**
    * Applies a stored `defaultClassificationMapping` onto the state (the reverse of
-   * {@link buildDefaultClassificationMapping}). Accepts both the extended shape and
-   * the legacy one (item key `spatialUnit` instead of `spatialUnitId`, no type/label
-   * fields); missing type info defaults to numeric.
+   * {@link buildDefaultClassificationMapping}). Accepts both arms of the schema
+   * union and the legacy shape (item key `spatialUnit` instead of `spatialUnitId`,
+   * no type/label fields); missing type info defaults to numeric.
    */
   applyMapping(mapping: StoredClassificationMapping | null | undefined) {
     if (!mapping) {

@@ -32,9 +32,14 @@ export type IndicatorPATCHDisplayOrderInputType = ApiSchemas['IndicatorPATCHDisp
 export type IndicatorPropertiesWithoutGeomType = ApiSchemas['IndicatorPropertiesWithoutGeomType'];
 export type IndicatorReferenceType = ApiSchemas['IndicatorReferenceType'];
 export type GeoresourceReferenceType = ApiSchemas['GeoresourceReferenceType'];
+export type AbstractClassificationMappingType = ApiSchemas['AbstractClassificationMappingType'];
 export type DefaultClassificationMappingType = ApiSchemas['DefaultClassificationMappingType'];
 export type DefaultClassificationMappingItemType =
   ApiSchemas['DefaultClassificationMappingItemType'];
+export type QualitativeClassificationMappingType =
+  ApiSchemas['QualitativeClassificationMappingType'];
+export type CategoricalMappingType = ApiSchemas['CategoricalMappingType'];
+export type ClassificationTypeEnum = ApiSchemas['ClassificationTypeEnum'];
 export type RegionalReferenceValueType = ApiSchemas['RegionalReferenceValueType'];
 export type IndicatorTypeEnum = ApiSchemas['IndicatorTypeEnum'];
 export type CreationTypeEnum = ApiSchemas['CreationTypeEnum'];

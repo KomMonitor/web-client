@@ -11,9 +11,9 @@ import {
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import {
   CATEGORICAL_OTHER_COLOR,
-  CategoricalClassificationItem,
-  ExtendedDefaultClassificationMapping,
+  ClassificationMapping,
 } from 'components/ngComponents/models/classification.models';
+import { CategoricalMappingType } from 'models/data-management-api';
 import { ActiveWmsFilter } from 'pipes/active-wms-filter.pipe';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
@@ -134,20 +134,28 @@ export class KommonitorLegendComponent implements OnInit {
   /** Fill color / legend swatch of the categorical "Sonstige" (unmatched) bucket. */
   protected readonly categoricalOtherColor = CATEGORICAL_OTHER_COLOR;
 
-  /** Whether the current indicator uses a qualitative (categorical) classification. */
+  /**
+   * Whether the current indicator uses a qualitative (categorical) classification.
+   *
+   * Note this is stricter than `isQualitativeMapping()`, which the map and the
+   * reporting pipeline use: it goes by the discriminator alone and does not treat
+   * a mapping that merely carries `categoricalData` as qualitative. Kept that way
+   * on purpose — widening it here would change what the legend renders for such
+   * datasets. The two should be reconciled, but not as a side effect of typing.
+   */
   protected get isQualitativeClassification(): boolean {
     const mapping = this.selectionState.selectedIndicator?.defaultClassificationMapping as
-      | ExtendedDefaultClassificationMapping
+      | ClassificationMapping
       | undefined;
     return mapping?.classificationType === 'QUALITATIVE';
   }
 
   /** Category definitions (value/color/label) of the current qualitative classification. */
-  protected get categoricalClassification(): CategoricalClassificationItem[] {
+  protected get categoricalClassification(): CategoricalMappingType[] {
     const mapping = this.selectionState.selectedIndicator?.defaultClassificationMapping as
-      | ExtendedDefaultClassificationMapping
+      | ClassificationMapping
       | undefined;
-    return mapping?.categoricalData ?? [];
+    return mapping?.classificationType === 'QUALITATIVE' ? mapping.categoricalData : [];
   }
 
   // Resolve the indicator precision from the current selection before

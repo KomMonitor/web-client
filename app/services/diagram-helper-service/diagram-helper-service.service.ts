@@ -1,7 +1,6 @@
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import {
   CATEGORICAL_OTHER_COLOR,
-  CategoricalClassificationItem,
   resolveCategoricalColor,
 } from 'components/ngComponents/models/classification.models';
 import { MapService } from 'services/map-service/map.service';
@@ -21,6 +20,7 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 import * as echarts from 'echarts';
 import * as turf from '@turf/turf';
 import * as ecStat from 'echarts-stat';
+import { CategoricalMappingType } from 'models/data-management-api';
 
 @Injectable({
   providedIn: 'root',
@@ -282,7 +282,7 @@ export class DiagramHelperServiceService {
     isMeasureOfValueChecked,
     measureOfValue,
     isCategorical = false,
-    categoricalData: CategoricalClassificationItem[] = []
+    categoricalData: CategoricalMappingType[] = []
   ) {
     let color;
 
@@ -482,7 +482,7 @@ export class DiagramHelperServiceService {
     measureOfValue,
     filterOutFutureDates,
     isCategorical = false,
-    categoricalData: CategoricalClassificationItem[] = []
+    categoricalData: CategoricalMappingType[] = []
   ) {
     this.prepareAllDiagramResources(
       indicatorMetadataAndGeoJSON,
@@ -518,7 +518,7 @@ export class DiagramHelperServiceService {
     forceUseSubmittedIndicatorForTimeseries,
     fixedPrecision = false,
     isCategorical = false,
-    categoricalData: CategoricalClassificationItem[] = []
+    categoricalData: CategoricalMappingType[] = []
   ) {
     this.indicatorPropertyName = this.INDICATOR_DATE_PREFIX + date;
 
@@ -810,7 +810,7 @@ export class DiagramHelperServiceService {
     isMeasureOfValueChecked,
     measureOfValue,
     isCategorical = false,
-    categoricalData: CategoricalClassificationItem[] = []
+    categoricalData: CategoricalMappingType[] = []
   ) {
     indicatorMetadataAndGeoJSON.geoJSON.features.forEach((feature) => {
       feature.properties.name =
@@ -1033,7 +1033,7 @@ export class DiagramHelperServiceService {
     meanLineValue,
     enableHorizontalMeanLine,
     isCategorical = false,
-    categoricalData: CategoricalClassificationItem[] = []
+    categoricalData: CategoricalMappingType[] = []
   ) {
     // specify chart configuration item and data
     const labelOption_singleBars = {
@@ -1619,7 +1619,7 @@ export class DiagramHelperServiceService {
     isMeasureOfValueChecked,
     _measureOfValue,
     isCategorical = false,
-    categoricalData: CategoricalClassificationItem[] = []
+    categoricalData: CategoricalMappingType[] = []
   ) {
     /*
     pieces: [
@@ -1868,7 +1868,7 @@ export class DiagramHelperServiceService {
   private setupVisualMapForCategoricalIndicator(
     indicatorMetadataAndGeoJSON,
     date,
-    categoricalData: CategoricalClassificationItem[]
+    categoricalData: CategoricalMappingType[]
   ) {
     let propertyName = date;
     if (!propertyName.includes(this.envConfigService.indicatorDatePrefix)) {

@@ -1,4 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { QuantitativeClassificationMapping } from 'components/ngComponents/models/classification.models';
+import { QualitativeClassificationMappingType } from 'models/data-management-api';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { IndicatorClassificationStateService } from './indicator-classification-state.service';
 
@@ -9,6 +11,12 @@ const SPATIAL_UNITS = [
 
 describe('IndicatorClassificationStateService', () => {
   let service: IndicatorClassificationStateService;
+
+  // The builder returns the union; each block knows which arm it exercises.
+  const buildNumeric = () =>
+    service.buildDefaultClassificationMapping() as QuantitativeClassificationMapping;
+  const buildCategorical = () =>
+    service.buildDefaultClassificationMapping() as QualitativeClassificationMappingType;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -31,7 +39,7 @@ describe('IndicatorClassificationStateService', () => {
       service.spatialUnitClassification()[0].breaks = [10, 20, 30, 40];
       service.onBreaksChanged(0);
 
-      const mapping = service.buildDefaultClassificationMapping();
+      const mapping = buildNumeric();
 
       expect(mapping.classificationType).toBe('QUANTITATIVE');
       expect(mapping.colorBrewerSchemeName).toBe('Blues');
@@ -44,7 +52,7 @@ describe('IndicatorClassificationStateService', () => {
       // Setting an override without selecting "Individuell" must not switch to INDIVIDUAL.
       service.setIndividualColor(0, '#123456');
 
-      const mapping = service.buildDefaultClassificationMapping();
+      const mapping = buildNumeric();
 
       expect(mapping.colorBrewerSchemeName).toBe('Blues');
       expect(mapping.individualColors).toBeUndefined();
@@ -55,7 +63,7 @@ describe('IndicatorClassificationStateService', () => {
       expect(service.individualColorMode()).toBe(true);
       service.setIndividualColor(0, '#123456');
 
-      const mapping = service.buildDefaultClassificationMapping();
+      const mapping = buildNumeric();
 
       expect(mapping.colorBrewerSchemeName).toBe('INDIVIDUAL');
       expect(mapping.individualColors?.length).toBe(5);
@@ -67,23 +75,42 @@ describe('IndicatorClassificationStateService', () => {
       service.onColorSchemeSelected('Greens');
 
       expect(service.individualColorMode()).toBe(false);
-      expect(service.buildDefaultClassificationMapping().colorBrewerSchemeName).toBe('Greens');
+      expect(buildNumeric().colorBrewerSchemeName).toBe('Greens');
     });
 
     it('includes labels only when at least one is set', () => {
-      expect(service.buildDefaultClassificationMapping().labels).toBeUndefined();
+      expect(buildNumeric().labels).toBeUndefined();
 
       service.numLabels()[1] = 'Medium';
-      expect(service.buildDefaultClassificationMapping().labels?.[1]).toBe('Medium');
+      expect(buildNumeric().labels?.[1]).toBe('Medium');
     });
 
     it('omits items for computed methods (breaks are derived from data)', () => {
       service.onClassificationMethodSelected({ id: 'jenks' });
 
-      const mapping = service.buildDefaultClassificationMapping();
+      const mapping = buildNumeric();
 
       expect(mapping.classificationMethod).toBe('JENKS');
       expect(mapping.items).toBeUndefined();
+    });
+
+    it('leaves the items key out entirely rather than sending an empty array', () => {
+      // The schema marks `items` required, the client sends it only for the
+      // regional default method. The local type relaxes it for exactly that
+      // reason; emitting `items: []` here would change the payload.
+      service.onClassificationMethodSelected({ id: 'jenks' });
+      expect('items' in buildNumeric()).toBe(false);
+
+      service.onClassificationMethodSelected({ id: 'regional_default' });
+      expect('items' in buildNumeric()).toBe(true);
+    });
+
+    it('always emits a classification method, also right after a reset', () => {
+      expect(buildNumeric().classificationMethod).toBeTruthy();
+
+      service.reset();
+      service.init(SPATIAL_UNITS);
+      expect(buildNumeric().classificationMethod).toBeTruthy();
     });
   });
 
@@ -97,7 +124,7 @@ describe('IndicatorClassificationStateService', () => {
       service.categories()[0].value = 'A';
       service.categories()[0].label = 'Alpha';
 
-      const mapping = service.buildDefaultClassificationMapping();
+      const mapping = buildCategorical();
 
       expect(mapping.classificationType).toBe('QUALITATIVE');
       expect(mapping.numClasses).toBe(3);
@@ -171,6 +198,18 @@ describe('IndicatorClassificationStateService', () => {
 
       expect(service.categoryColor(0).color).toBe('#123456');
       expect(service.categoryColor(1).color).toBe('#abcdef');
+    });
+
+    it('accepts categories without a label (the schema leaves it optional)', () => {
+      service.applyMapping({
+        classificationType: 'QUALITATIVE',
+        colorBrewerSchemeName: 'Set1',
+        numClasses: 1,
+        categoricalData: [{ categoricalValue: 'X', color: '#123456' }],
+      });
+
+      expect(service.categories()[0].value).toBe('X');
+      expect(service.categories()[0].label).toBe('');
     });
 
     it('re-derives colors from the palette once a palette is actively selected', () => {

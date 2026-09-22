@@ -1,8 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import {
-  CategoricalClassificationItem,
-  isQualitativeMapping,
-} from 'components/ngComponents/models/classification.models';
+import { isQualitativeMapping } from 'components/ngComponents/models/classification.models';
 import jStat from 'jstat';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { ClassificationStateService } from 'services/classification-state-service/classification-state.service';
@@ -11,6 +8,7 @@ import { FilterHelperService } from 'services/filter-helper-service/filter-helpe
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
+import { CategoricalMappingType } from 'models/data-management-api';
 
 export type ClassificationMode = 'replace' | 'restyle';
 
@@ -57,7 +55,7 @@ export interface ClassificationResult {
   datasetContainsNegativeValues: boolean;
   facts: IndicatorDataFacts;
   isCategorical: boolean;
-  categoricalData: CategoricalClassificationItem[];
+  categoricalData: CategoricalMappingType[];
   /** Complete Leaflet style for a feature: tempData prep + filtered check + branch style. */
   styleFor(feature: any): any;
 }
@@ -109,7 +107,7 @@ export class IndicatorClassificationService {
     // stale carry-over unless a branch below recomputes it (legacy semantics)
     let datasetContainsNegativeValues = !!input.datasetContainsNegativeValues;
     let styleBranch: StyleBranch = 'default';
-    let categoricalData: CategoricalClassificationItem[] = [];
+    let categoricalData: CategoricalMappingType[] = [];
 
     // Qualitative (categorical) indicators are colored per category, independent of
     // the numeric MOV/dynamic/negative branches. Detect it up front so the numeric
