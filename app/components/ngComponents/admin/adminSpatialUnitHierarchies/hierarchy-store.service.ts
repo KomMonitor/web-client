@@ -238,7 +238,12 @@ export class HierarchyStoreService {
         name: metadata.name,
         mandantId,
         isPublic: metadata.isPublic,
-        members: toOrderedMembers(levels.map((level) => level.id)),
+        // Without levels the field stays out of the body rather than going as
+        // an empty array: `members` is optional on the POST, and a hierarchy
+        // may start empty and be filled on the page afterwards.
+        ...(levels.length > 0
+          ? { members: toOrderedMembers(levels.map((level) => level.id)) }
+          : {}),
       });
       const hierarchy = createHierarchy(created, this.resolveMandantName);
       hierarchy.open.set(true);

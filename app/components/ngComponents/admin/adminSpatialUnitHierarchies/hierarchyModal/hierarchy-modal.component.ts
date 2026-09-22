@@ -71,6 +71,10 @@ export class HierarchyModalComponent implements OnInit {
   @Input() existingNames: readonly string[] = [];
   /** Prefills of the edit mode; the name is also the one the uniqueness check ignores. */
   @Input() currentName = '';
+  /**
+   * The tenant the dialog starts on. Where it is given, it is also fixed — see
+   * `mandantIsFixed`. Empty only when the caller leaves the choice open.
+   */
   @Input() currentMandant = '';
   @Input() currentIsPublic = false;
   /** How many hierarchies already use a level, by `spatialUnitId`. */
@@ -175,9 +179,26 @@ export class HierarchyModalComponent implements OnInit {
     }
   }
 
-  /** A new chain needs at least one level; the metadata form guards the rest. */
+  /**
+   * Whether the tenant is only shown, not chosen. Editing can never move a
+   * hierarchy to another tenant — the API refuses it — and a create opened from
+   * a tenant's view arrives with that tenant given: switching it there would
+   * build the hierarchy somewhere the page behind the dialog does not show.
+   * The choice stays open only where the caller names no tenant, which is the
+   * overview across all of them.
+   */
+  protected get mandantIsFixed(): boolean {
+    return this.mode === 'edit' || this.currentMandant !== '';
+  }
+
+  /**
+   * Only the metadata decides. An empty chain is allowed: the API takes a POST
+   * without members — `members` is optional there — and a hierarchy without
+   * levels is a state it holds and serves anyway. Its levels are then hung in
+   * on the page, the same way an existing chain is extended.
+   */
   protected get canSubmit(): boolean {
-    return this.form.valid && (this.mode === 'edit' || this.chain().length > 0);
+    return this.form.valid;
   }
 
   /** How many hierarchies already use this level; 0 means it is still unused. */

@@ -127,6 +127,12 @@ describe('canInsertAtGap', () => {
     expect(canInsertAtGap(h.levels(), { parent: b, index: 0 })).toBe(true);
   });
 
+  it('offers the root gap of a hierarchy without any level', () => {
+    // A hierarchy may be created empty, and that insert line is how its first
+    // level gets in.
+    expect(canInsertAtGap([], { parent: null, index: 0 })).toBe(true);
+  });
+
   it('hides the gap after a level that still has a child — it repeats a deeper one', () => {
     expect(canInsertAtGap(h.levels(), { parent: null, index: 1 })).toBe(false);
     expect(canInsertAtGap(h.levels(), { parent: a, index: 1 })).toBe(false);

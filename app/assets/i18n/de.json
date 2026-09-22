@@ -1611,8 +1611,8 @@
       "ADD_LEVEL": "Ebene anfügen",
       "NO_LEVELS_LEFT": "Keine weitere Raumebene dieses Mandanten verfügbar.",
       "SUBMIT_CREATE": "Hierarchie anlegen",
-      "PUBLIC_LABEL": "Öffentlich zugänglich",
-      "PUBLIC_HINT": "Ist die Hierarchie öffentlich, können auch nicht angemeldete Besucher sie lesen."
+      "PUBLIC_LABEL": "Hierarchie öffentlich schalten",
+      "PUBLIC_HINT": "Sichtbar für alle Nutzer ohne Anmeldung — auch die zugeordneten Raumebenen müssen öffentlich sein."
     },
     "DELETE_MODAL": {
       "TITLE": "Hierarchie löschen",

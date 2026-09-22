@@ -87,20 +87,25 @@ describe('HierarchyModalComponent', () => {
       render({ existingNames: ['Verwaltungsgliederung'] });
     });
 
-    it('requires a name and a chain', () => {
+    it('requires a name, but no chain', () => {
       expect(component.form.controls.name.invalid).toBe(true);
+      expect(submitButton().disabled).toBe(true);
 
       component.form.controls.name.setValue('Sozialraum-Gliederung');
       fixture.detectChanges();
 
-      // The metadata is complete, but an empty chain still blocks the submit.
-      expect(component.form.valid).toBe(true);
-      expect(submitButton().disabled).toBe(true);
-
-      addLevelButton().click();
-      fixture.detectChanges();
-
+      // The API takes a hierarchy without members, so the metadata is enough —
+      // the levels can be hung in on the page afterwards.
       expect(submitButton().disabled).toBe(false);
+    });
+
+    it('closes with an empty chain where none was assembled', () => {
+      const close = jest.spyOn(activeModal, 'close');
+      component.form.controls.name.setValue('Sozialraum-Gliederung');
+
+      component.submit();
+
+      expect(close.mock.calls[0][0]).toMatchObject({ name: 'Sozialraum-Gliederung', levels: [] });
     });
 
     it('rejects a name that is already taken, ignoring case and padding', () => {
@@ -203,7 +208,7 @@ describe('HierarchyModalComponent', () => {
       expect(close.mock.calls[0][0]).toMatchObject({ isPublic: false });
     });
 
-    it('does not close while name or chain are missing', () => {
+    it('does not close while the name is missing', () => {
       const close = jest.spyOn(activeModal, 'close');
 
       component.submit();
@@ -221,6 +226,27 @@ describe('HierarchyModalComponent', () => {
     });
   });
 
+  describe('create mode with a tenant given', () => {
+    beforeEach(() => {
+      // The user's own tenant is Kreis Recklinghausen, the caller names another
+      // one: the dialog was opened from the view of that other tenant.
+      configure(MANDANTS, [MANDANTS[1]]);
+      render({ currentMandant: 'Stadt Essen' });
+    });
+
+    it('shows the given tenant but does not let it be changed', () => {
+      const field = fixture.debugElement.query(By.css('#hierarchy-mandant-input'));
+      expect(field.nativeElement.tagName).toBe('INPUT');
+      expect(field.nativeElement.disabled).toBe(true);
+      expect(field.nativeElement.value).toBe('Stadt Essen');
+    });
+
+    it("builds the chain from that tenant's levels", () => {
+      expect(component.form.controls.mandant.value).toBe('Stadt Essen');
+      expect(optionIds()).toEqual(OTHER_LEVELS.map((level) => level.id));
+    });
+  });
+
   describe('without registered levels', () => {
     beforeEach(() => {
       configure(MANDANTS, [MANDANTS[0]]);
@@ -231,7 +257,12 @@ describe('HierarchyModalComponent', () => {
 
       expect(fixture.debugElement.query(By.css('.chain-empty'))).not.toBeNull();
       expect(fixture.debugElement.query(By.css('.chain-add'))).toBeNull();
-      expect(submitButton().disabled).toBe(true);
+
+      // Nothing to pick still leaves a hierarchy worth creating: it takes its
+      // levels once they are registered.
+      component.form.controls.name.setValue('Sozialraum-Gliederung');
+      fixture.detectChanges();
+      expect(submitButton().disabled).toBe(false);
     });
   });
 

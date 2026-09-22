@@ -586,6 +586,26 @@ describe('HierarchyStoreService', () => {
   });
 
   describe('creating, editing and deleting a hierarchy', () => {
+    it('creates a hierarchy without levels, leaving members out of the body', async () => {
+      const store = storeWith();
+      seed(store, [ESSEN()]);
+
+      const created = await store.addHierarchy(
+        { name: 'Schulplanung', mandant: 'Stadt Bochum', isPublic: false },
+        []
+      );
+
+      // `members` is optional on the POST, so an empty chain sends no list at
+      // all — the hierarchy is created and takes its levels on the page.
+      expect(hierarchyApi.createHierarchy).toHaveBeenCalledWith({
+        name: 'Schulplanung',
+        mandantId: 'Stadt Bochum',
+        isPublic: false,
+      });
+      expect(created).not.toBeNull();
+      expect(created.chain()).toEqual([]);
+    });
+
     it('appends the new hierarchy, unfolded, and follows it to its tenant', async () => {
       const store = storeWith();
       seed(store, [ESSEN()]);

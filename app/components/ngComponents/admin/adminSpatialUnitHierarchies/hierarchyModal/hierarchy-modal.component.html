@@ -45,11 +45,12 @@
             one — so the field only becomes a select where there is something to
             choose. Without Keycloak the list is empty and it stays a hint.
 
-            Editing never offers a choice: the API refuses to move a hierarchy
-            to another tenant ("The mandant of a spatial unit hierarchy cannot
-            be changed"), so the field shows the tenant and no more.
+            A fixed tenant shows as a disabled field: editing cannot move a
+            hierarchy to another tenant ("The mandant of a spatial unit
+            hierarchy cannot be changed"), and a create started from a tenant's
+            view has its tenant from there.
           -->
-          @if (mode === 'create' && mandants.length > 1) {
+          @if (!mandantIsFixed && mandants.length > 1) {
             <select id="hierarchy-mandant-input" class="form-select" formControlName="mandant">
               @for (mandant of mandants; track mandant) {
                 <option [value]="mandant">{{ mandant }}</option>
@@ -77,17 +78,23 @@
       </div>
     </div>
 
-    <div class="form-group">
-      <label class="form-label" for="hierarchy-public-input">
+    <!--
+      A checkbox, not a switch: the label says what checking it does, so the
+      state needs no second reading. The hint sits under the label because what
+      it warns about — the levels have to be public as well — only matters once
+      the box is on the screen.
+    -->
+    <div class="form-check public-option">
+      <input
+        id="hierarchy-public-input"
+        class="form-check-input"
+        type="checkbox"
+        formControlName="isPublic"
+      />
+      <label class="form-check-label" for="hierarchy-public-input">
         {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.PUBLIC_LABEL' | translate }}
       </label>
-      <div>
-        <label class="switch" for="hierarchy-public-input">
-          <input id="hierarchy-public-input" type="checkbox" formControlName="isPublic" />
-          <span class="switchslider round"></span>
-        </label>
-      </div>
-      <p class="help-block">
+      <p class="public-hint">
         {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.PUBLIC_HINT' | translate }}
       </p>
     </div>
@@ -95,7 +102,7 @@
     @if (mode === 'create') {
       <div class="form-group">
         <span class="form-label">
-          {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.CHAIN_LABEL' | translate }}*
+          {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.CHAIN_LABEL' | translate }}
           <span class="chain-hint">
             {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_MODAL.CHAIN_HINT' | translate }}
           </span>

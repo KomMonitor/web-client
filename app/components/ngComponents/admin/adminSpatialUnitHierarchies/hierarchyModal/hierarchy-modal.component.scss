@@ -2,6 +2,32 @@
 // its clone under <body>, where a `:host .x` selector would stop matching. The
 // clone keeps this component's `_ngcontent` attribute, so flat selectors hold.
 
+// The public option as a panel of its own: it is the one setting in this
+// dialog with a consequence outside it, and the box lifts it out of the row of
+// plain fields above.
+.public-option {
+  margin-bottom: 16px;
+  padding: 10px 12px 10px 34px;
+  border-radius: 4px;
+  background: #f4f7fa;
+
+  .form-check-input {
+    margin-left: -22px;
+  }
+
+  // Carries the weight the plain fields' labels have above it.
+  .form-check-label {
+    font-weight: 500;
+  }
+}
+
+.public-hint {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: #8598a5;
+}
+
 .chain-hint {
   font-weight: 400;
   font-size: 12.5px;
@@ -65,16 +91,18 @@
   white-space: nowrap;
 }
 
+// The app-wide destructive red, as everywhere a click throws something away.
 .chain-remove {
   flex: none;
   padding: 0;
   border: 0;
   background: none;
-  color: var(--kommonitor-primary);
+  color: #dc3545;
   font-size: 13px;
   cursor: pointer;
 
   &:hover {
+    color: #b02a37;
     text-decoration: underline;
   }
 }

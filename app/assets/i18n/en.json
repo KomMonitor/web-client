@@ -1611,8 +1611,8 @@
       "ADD_LEVEL": "Add level",
       "NO_LEVELS_LEFT": "No further spatial unit level of this tenant available.",
       "SUBMIT_CREATE": "Create hierarchy",
-      "PUBLIC_LABEL": "Publicly accessible",
-      "PUBLIC_HINT": "A public hierarchy can be read by visitors who are not logged in."
+      "PUBLIC_LABEL": "Make the hierarchy public",
+      "PUBLIC_HINT": "Visible to everyone without logging in — the levels it holds have to be public as well."
     },
     "DELETE_MODAL": {
       "TITLE": "Delete hierarchy",
