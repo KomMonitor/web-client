@@ -96,7 +96,7 @@ The app is configured at **runtime**, not build time. `StartupService` (`app/ser
 3. Populates the global **`window.__env`** object (typed loosely in `app/globals.d.ts`).
 4. Initializes Keycloak auth via `AuthService` / `KeycloakHelperService`.
 
-**Access config through `EnvConfigService`** (`app/services/env-config-service/env-config.service.ts`), which wraps `window.__env` with typed getters. Direct `window.__env` reads are almost gone from live code — the notable exception is `adminAppConfig/admin-app-config.component.ts`, which edits the config object itself. Always use the service in new code.
+**Access config through `EnvConfigService`** (`app/services/env-config-service/env-config.service.ts`), which wraps `window.__env` with typed getters. Direct `window.__env` reads are gone from live code. The 43 occurrences in `adminAppConfig/admin-app-config.component.ts` look like an exception but are not: they are **string literals** naming the required config keys (`REQUIRED_KEYWORDS`). That editor works on the *source text* of `env.js` — it reads it via `EnvConfigService.appConfig` and posts it back through `ConfigStorageService`; it never touches the config object. Always use the service in new code.
 
 ### Auth
 
