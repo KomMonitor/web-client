@@ -1,0 +1,71 @@
+:host {
+  display: block;
+
+  .topic-element__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.55rem 0.8rem;
+    margin: 3px 0;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 6px;
+    color: #23272b;
+  }
+
+  // The toggle is a real <button>; strip the browser chrome so it reads as a
+  // row rather than a control, and let the title ellipsis kick in when tight.
+  .topic-element__toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1 1 auto;
+    min-width: 0;
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+
+    &:disabled {
+      cursor: default;
+    }
+
+    &:focus-visible {
+      outline: 2px solid currentcolor;
+      outline-offset: 2px;
+    }
+  }
+
+  .topic-element__caret {
+    flex: 0 0 auto;
+    width: 14px;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  .topic-element__title {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  .topic-element__fav {
+    flex: 0 0 auto;
+  }
+
+  // Nested content steps in and is tied back to its parent row with a dashed
+  // guide line colored to match the row it hangs from.
+  .topic-element__children {
+    margin-left: 0.9rem;
+    padding-left: 0.75rem;
+    border-left: 1px dashed;
+  }
+}

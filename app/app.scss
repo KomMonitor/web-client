@@ -15,6 +15,25 @@
   --kommonitor-hierarchy-level-1: #adcae3;
   --kommonitor-hierarchy-level-2: #d6e4f1;
   --kommonitor-hierarchy-level-3: #eaf1f8;
+  --kommonitor-hierarchy-level-4: #f5f9fc;
+
+  // Solid, more saturated variant of each level color, used to fill an entire
+  // topic row when it (or a descendant) contains the currently selected indicator.
+  --kommonitor-hierarchy-level-0-selected: hsl(
+    from var(--kommonitor-hierarchy-level-0) h calc(s + 15) calc(l - 25)
+  );
+  --kommonitor-hierarchy-level-1-selected: hsl(
+    from var(--kommonitor-hierarchy-level-1) h calc(s + 15) calc(l - 25)
+  );
+  --kommonitor-hierarchy-level-2-selected: hsl(
+    from var(--kommonitor-hierarchy-level-2) h calc(s + 15) calc(l - 25)
+  );
+  --kommonitor-hierarchy-level-3-selected: hsl(
+    from var(--kommonitor-hierarchy-level-3) h calc(s + 15) calc(l - 25)
+  );
+  --kommonitor-hierarchy-level-4-selected: hsl(
+    from var(--kommonitor-hierarchy-level-4) h calc(s + 15) calc(l - 25)
+  );
 
   // Self-hosted via @fontsource-variable/source-sans-3 (wired up in angular.json styles).
   // 'Source Sans 3' / 'Source Sans Pro' cover users who have either installed locally.

@@ -19,6 +19,7 @@ import { ExportingStateService } from 'components/ngComponents/userInterface/exp
 import { Indicator } from 'components/ngComponents/userInterface/exporting/models';
 import { IndicatorFavFilter } from 'pipes/indicator-fav-filter.pipe';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
+import { TopicElementComponent } from 'components/ngComponents/common/topic-element/topic-element.component';
 import { ExportModeService } from '../export-mode.service';
 import { KommonitorDataSetupService } from '../kommonitor-data-setup.service';
 import { WmsTableComponent } from '../wmsTable/wms-table.component';
@@ -34,6 +35,7 @@ import { WmsTableComponent } from '../wmsTable/wms-table.component';
     IndicatorMetadataTooltipComponent,
     WmsTableComponent,
     ExportItemCheckboxComponent,
+    TopicElementComponent,
   ],
 })
 export class FavoritesTabComponent implements OnChanges {

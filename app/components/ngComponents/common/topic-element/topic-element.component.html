@@ -1,0 +1,37 @@
+<div class="topic-element" [style.margin-left.rem]="level() * 0.9">
+  <div class="topic-element__row" [id]="topic().topicId" [style.background-color]="levelColorVar()">
+    <button
+      type="button"
+      class="topic-element__toggle"
+      [disabled]="!hasChildren()"
+      [attr.aria-expanded]="!collapsed()"
+      [title]="topic().topicDescription"
+      (click)="toggleCollapse.emit()"
+    >
+      @if (hasChildren()) {
+        <i
+          class="fa topic-element__caret"
+          [class.fa-angle-right]="collapsed()"
+          [class.fa-angle-down]="!collapsed()"
+        ></i>
+      }
+      <span class="topic-element__title">{{ topic().topicName }}</span>
+    </button>
+    @if (showFavSelection()) {
+      <i
+        class="topic-element__fav fav-star fa-star"
+        [class.fa-solid]="isFavorite()"
+        [class.fa-regular]="!isFavorite()"
+        role="button"
+        [attr.aria-pressed]="isFavorite()"
+        (click)="favToggled.emit()"
+      ></i>
+    }
+  </div>
+
+  @if (hasChildren() && !collapsed()) {
+    <div class="topic-element__children" [style.border-color]="levelColorVar()">
+      <ng-content></ng-content>
+    </div>
+  }
+</div>

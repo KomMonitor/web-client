@@ -1,5 +1,3 @@
-<app-collapsible-section [title]="'test'">sdsd</app-collapsible-section>
-
 <ng-template #IndicatorItem let-indicator="indicator">
   <div
     [id]="'indicatorHierarchyElement-' + indicator.indicatorId"
@@ -52,74 +50,38 @@
 
 <ng-template #TopicTree let-topics="topics" let-level="level">
   @for (topic of topics; track topic) {
-    <div>
-      <div
-        class="list-group-item list-group-item-default list-group-item-grid-layout"
-        [ngClass]="
-          'hierarchy-topic-level-' +
-          level +
-          (checkHierarchyIndicatorSelected(topic)
-            ? ' style-hierarchy-selected-indicator-' + level
-            : '')
-        "
-        [id]="topic.topicId"
-      >
-        <i
-          class="fa-solid"
-          (click)="onTopicClick(topic.topicId)"
-          [ngClass]="{
-            'fa-chevron-right': collapsedTopicIds.includes(topic.topicId),
-            'fa-chevron-down': !collapsedTopicIds.includes(topic.topicId),
-          }"
-        ></i>
-        <p
-          [title]="topic.topicDescription"
-          class="collapseTrigger"
-          (click)="onTopicClick(topic.topicId)"
-        >
-          {{ topic.topicName }} ({{ topic.indicatorCount + topic.wmsCount }})
-        </p>
-        @if (showFavSelection) {
-          <i
-            class="fav-star fa-star"
-            [ngClass]="{
-              'fa-solid': indicatorTopicFavItems.includes(topic.topicId),
-              'fa-regular': !indicatorTopicFavItems.includes(topic.topicId),
-            }"
-            (click)="indicatorTopicFavToggled.emit(topic.topicId)"
-          ></i>
+    <app-topic-element
+      [topic]="topic"
+      [level]="level"
+      [collapsed]="collapsedTopicIds.includes(topic.topicId)"
+      [showFavSelection]="showFavSelection"
+      [isFavorite]="indicatorTopicFavItems.includes(topic.topicId)"
+      [containsSelectedIndicator]="checkHierarchyIndicatorSelected(topic)"
+      (toggleCollapse)="onTopicClick(topic.topicId)"
+      (favToggled)="indicatorTopicFavToggled.emit(topic.topicId)"
+    >
+      <ng-container
+        *ngTemplateOutlet="TopicTree; context: { topics: topic.subTopics, level: level + 1 }"
+      ></ng-container>
+      <div class="list-group indicatorInputForm">
+        @for (indicator of topic.indicatorData; track indicator) {
+          <ng-container
+            *ngTemplateOutlet="IndicatorItem; context: { indicator: indicator }"
+          ></ng-container>
+        }
+        @if (topic.wmsData.length) {
+          <div class="list-group-item list-group-item-default">
+            <app-wms-table
+              [wmsDataList]="topic.wmsData"
+              [showFavSelection]="showFavSelection"
+              [wmsFavItems]="wmsFavItems"
+              (wmsToggled)="wmsToggled.emit($event)"
+              (wmsFavToggled)="wmsFavToggled.emit($event)"
+            ></app-wms-table>
+          </div>
         }
       </div>
-      <div
-        class="list-group collapse"
-        [ngClass]="{ in: !collapsedTopicIds.includes(topic.topicId) }"
-      >
-        <ng-container
-          *ngTemplateOutlet="TopicTree; context: { topics: topic.subTopics, level: level + 1 }"
-        ></ng-container>
-        <div
-          class="list-group indicatorInputForm"
-          [ngClass]="{ in: !collapsedTopicIds.includes(topic.topicId) }"
-        >
-          @for (indicator of topic.indicatorData; track indicator) {
-            <ng-container
-              *ngTemplateOutlet="IndicatorItem; context: { indicator: indicator }"
-            ></ng-container>
-          }
-          @if (topic.wmsData.length) {
-            <div class="list-group-item list-group-item-default">
-              <app-wms-table
-                [wmsDataList]="topic.wmsData"
-                [showFavSelection]="showFavSelection"
-                [wmsFavItems]="wmsFavItems"
-                (wmsToggled)="wmsToggled.emit($event)"
-                (wmsFavToggled)="wmsFavToggled.emit($event)"
-              ></app-wms-table>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
+    </app-topic-element>
   }
 </ng-template>
 
