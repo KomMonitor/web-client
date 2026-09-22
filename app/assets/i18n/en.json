@@ -1651,6 +1651,7 @@
     "LEVEL": {
       "COUNT": "{{count}} levels",
       "RANK": "Level {{rank}}",
+      "IN_HIERARCHIES": "in {{count}} hierarchies",
       "REMOVE": "Remove",
       "MOVE_UP": "One hierarchy level up",
       "MOVE_DOWN": "One hierarchy level down",

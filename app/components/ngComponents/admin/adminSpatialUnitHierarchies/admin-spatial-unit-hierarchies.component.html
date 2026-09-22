@@ -115,6 +115,14 @@
               {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.RANK' | translate: { rank: level.rank } }}
             </span>
             <span class="level-name">{{ level.name }}</span>
+            @if (sharedCount(level); as shared) {
+              <span class="level-usage">
+                {{
+                  'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.IN_HIERARCHIES'
+                    | translate: { count: shared }
+                }}
+              </span>
+            }
             @if (showIds()) {
               <span class="level-id">{{ level.id }}</span>
             }

@@ -108,6 +108,17 @@ export class AdminSpatialUnitHierarchiesComponent {
     });
   }
 
+  /**
+   * How many hierarchies hold this level, but only once that is more than one —
+   * 0 means it is this hierarchy's alone and the row says nothing. A level may
+   * sit in several chains, and the badge is what makes that visible before an
+   * edit here surprises someone looking at another hierarchy.
+   */
+  protected sharedCount(level: HierarchyLevel): number {
+    const used = this.store.levelUsage()[level.id] ?? 0;
+    return used > 1 ? used : 0;
+  }
+
   /** Creates a hierarchy from the metadata and the chain the dialog assembled. */
   protected async onCreateHierarchy(): Promise<void> {
     const result = await this.modals.open<

@@ -21,6 +21,21 @@
   white-space: nowrap;
 }
 
+// Says the level is part of other hierarchies as well — a note, not a warning:
+// a level may sit in several chains, and the API allows it. The same pill the
+// create dialog draws next to a level already in use.
+.level-usage {
+  flex: none;
+  padding: 2px 8px;
+  border: 1px solid #f0d7a4;
+  border-radius: 10px;
+  background: #fdf3dd;
+  color: #7a5d16;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
 .level-id {
   flex: 0 1 auto;
   min-width: 0;

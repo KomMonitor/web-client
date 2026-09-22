@@ -871,6 +871,23 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
       expect(meta()).toContain('VISIBILITY.PUBLIC');
     });
 
+    it('badges a level that several hierarchies hold', () => {
+      // The full seed: Essen's two chains share their first two levels.
+      store.hierarchies.set(seedHierarchies());
+      store.selectMandant('Stadt Essen');
+      fixture.detectChanges();
+
+      const badged = fixture.debugElement
+        .queryAll(By.css('.tree-row'))
+        .filter((row) => row.query(By.css('.level-usage')))
+        .map((row) => row.query(By.css('.level-name')).nativeElement.textContent.trim());
+
+      expect(new Set(badged)).toEqual(new Set(['Stadt Essen', 'Stadtbezirke Essen']));
+      expect(
+        fixture.debugElement.query(By.css('.level-usage')).nativeElement.textContent
+      ).toContain('LEVEL.IN_HIERARCHIES');
+    });
+
     it("leaves the tenant out of the section meta — the list is one tenant's", () => {
       store.selectedMandant.set('Stadt Bochum');
       fixture.detectChanges();

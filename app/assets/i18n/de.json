@@ -1651,6 +1651,7 @@
     "LEVEL": {
       "COUNT": "{{count}} Ebenen",
       "RANK": "Ebene {{rank}}",
+      "IN_HIERARCHIES": "in {{count}} Hierarchien",
       "REMOVE": "Entfernen",
       "MOVE_UP": "Eine Hierarchie-Ebene nach oben",
       "MOVE_DOWN": "Eine Hierarchie-Ebene nach unten",

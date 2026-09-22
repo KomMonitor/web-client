@@ -221,10 +221,15 @@ export class HierarchyStoreService {
     return select.hierarchyNames(this.hierarchies());
   }
 
-  /** How many hierarchies each level is part of, by id, for the create dialog. */
-  levelUsage(): Record<string, number> {
-    return select.levelUsage(this.hierarchies());
-  }
+  /**
+   * How many hierarchies each level is part of, by id — the create dialog marks
+   * the levels already in use with it, the page badges them.
+   *
+   * A computed, not a method: every rendered row asks for it, and rebuilding
+   * the map per row and change detection run would count the whole tree over
+   * and over.
+   */
+  readonly levelUsage = computed(() => select.levelUsage(this.hierarchies()));
 
   /**
    * Creates a hierarchy from the metadata and the level chain the dialog
