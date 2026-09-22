@@ -1,5 +1,5 @@
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { SpatialUnitHierarchyMembershipInputType } from 'models/data-management-api';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { SpatialUnitHierarchyMembershipPOSTInputType } from 'models/data-management-api';
 import { LinePatternOption } from '../../../customElements/line-pattern-picker/km-line-pattern-picker.component';
 import {
   ImporterFormGroup,
@@ -20,6 +20,10 @@ import {
 } from '../../adminShared/securityForm/security-form.model';
 import { uniqueNameValidator } from '../../adminShared/validators/admin-validators';
 import { toIsoDateString } from '../spatial-unit-import.util';
+import {
+  HierarchyAssignmentRowGroup,
+  buildHierarchyAssignmentArray,
+} from './hierarchy-assignment.model';
 
 /**
  * Typed model of the spatial-unit add wizard.
@@ -43,8 +47,16 @@ import { toIsoDateString } from '../spatial-unit-import.util';
 
 export type SpatialUnitMetadataStepGroup = FormGroup<{
   spatialUnitLevel: FormControl<string>;
-  /** Hierarchy to place the new level into; the empty string leaves it unassigned. */
-  hierarchyId: FormControl<string>;
+  /**
+   * The tenant the level is created for. Form state only — the POST body has
+   * no `mandantId`, the backend derives it from the owning organization. It
+   * narrows the hierarchies offered below and the owners offered in the
+   * security step, which is why the choice belongs in the first step rather
+   * than being read back out of the third.
+   */
+  mandantId: FormControl<string>;
+  /** The hierarchies the new level joins, each with its place. May be empty. */
+  hierarchyAssignments: FormArray<HierarchyAssignmentRowGroup>;
   isOutlineLayer: FormControl<boolean>;
   outlineColor: FormControl<string>;
   outlineWidth: FormControl<number>;
@@ -83,7 +95,11 @@ export function buildSpatialUnitAddForm(
       nonNullable: true,
       validators: [Validators.required, uniqueNameValidator(options.existingLevelNames)],
     }),
-    hierarchyId: new FormControl('', { nonNullable: true }),
+    // No `required` on the tenant: without Keycloak nothing names one, and a
+    // rule nobody can satisfy would freeze the submit button — the historic bug
+    // the note above this function's type describes.
+    mandantId: new FormControl('', { nonNullable: true }),
+    hierarchyAssignments: buildHierarchyAssignmentArray(),
     isOutlineLayer: new FormControl(false, { nonNullable: true }),
     outlineColor: new FormControl(DEFAULT_OUTLINE_COLOR, { nonNullable: true }),
     outlineWidth: new FormControl(DEFAULT_OUTLINE_WIDTH, { nonNullable: true }),
@@ -119,15 +135,22 @@ export function buildSpatialUnitAddForm(
  *
  * Hierarchy placement rides along as `hierarchies`, the list that replaced the
  * old pair of neighbour-level fields in v6. The caller passes it in rather than
- * the form deriving it, because the target position depends on how many members
- * the chosen hierarchy already has — see `placementFor`.
+ * the form deriving it, because a row that appends names the hierarchy's
+ * current last member, which is not in the form — see `membershipsForRows`.
+ *
+ * Note the type: the POST wants the **neighbour** shape
+ * (`SpatialUnitHierarchyMembershipPOSTInputType`), not the level-based one that
+ * `PUT /spatial-units/{id}/hierarchies` takes.
  */
 export interface SpatialUnitAddPostBody {
   geoJsonString: string;
   metadata: ReturnType<typeof metadataFormToApi>;
   jsonSchema: undefined;
   permissions: string[];
-  hierarchies: SpatialUnitHierarchyMembershipInputType[];
+  // unverified: the wizard posts through the Importer, and whether it forwards
+  // `spatialUnitPostBody.hierarchies` verbatim is not recorded anywhere — see
+  // documentation/OFFENE_PUNKTE.md.
+  hierarchies: SpatialUnitHierarchyMembershipPOSTInputType[];
   spatialUnitLevel: string;
   periodOfValidity: { startDate: string | null; endDate: string | null };
   isOutlineLayer: boolean;
@@ -141,7 +164,7 @@ export interface SpatialUnitAddPostBody {
 export function spatialUnitAddFormToApi(
   form: SpatialUnitAddFormGroup,
   permissions: readonly string[] = [],
-  hierarchies: readonly SpatialUnitHierarchyMembershipInputType[] = []
+  hierarchies: readonly SpatialUnitHierarchyMembershipPOSTInputType[] = []
 ): SpatialUnitAddPostBody {
   const metadata = form.controls.metadata.getRawValue();
   const security = form.controls.security.getRawValue();

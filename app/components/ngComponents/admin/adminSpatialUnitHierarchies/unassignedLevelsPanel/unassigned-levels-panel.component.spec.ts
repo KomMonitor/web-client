@@ -121,11 +121,18 @@ describe('UnassignedLevelsPanelComponent', () => {
     expect(fixture.debugElement.queryAll(By.css('.unassigned-no-hierarchy'))).toHaveLength(2);
   });
 
-  it('creates nothing itself — a level needs a geometry', () => {
+  it('asks for a new level instead of registering one itself', () => {
+    const asked: number[] = [];
+    component.registerLevel.subscribe(() => asked.push(1));
     render();
 
-    // The header carries a link out, never a button that writes from here.
-    expect(fixture.debugElement.query(By.css('.section-actions button'))).toBeNull();
+    const button = fixture.debugElement.query(By.css('.unassigned-register'));
+    expect(button.nativeElement.textContent).toContain('UNASSIGNED.REGISTER');
+
+    button.nativeElement.click();
+
+    // The page owns that wizard: a level exists only with its geometry.
+    expect(asked).toHaveLength(1);
   });
 
   it('reports the level to delete, and deletes nothing itself', () => {
@@ -149,14 +156,5 @@ describe('UnassignedLevelsPanelComponent', () => {
     deleteButton(0).click();
 
     expect(deleted).toEqual([]);
-  });
-
-  it('points at the spatial units page instead', () => {
-    render();
-
-    const link = fixture.debugElement.query(By.css('.unassigned-register'));
-
-    expect(link.nativeElement.textContent).toContain('UNASSIGNED.REGISTER');
-    expect(link.attributes['routerLink']).toBe('/administration/spatial-units');
   });
 });

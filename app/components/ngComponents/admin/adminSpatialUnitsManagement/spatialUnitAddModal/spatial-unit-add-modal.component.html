@@ -130,135 +130,13 @@
 
     <!-- Step 1: Metadaten der Raumebene -->
     @if (stepper.isActive('metadata')) {
-      <fieldset [formGroup]="addForm.controls.metadata">
-        <h2 class="fs-title text-center">
-          {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.TITLE' | translate }}
-        </h2>
-        <h3 class="fs-subtitle text-center">
-          {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SUBTITLE_ADD' | translate }}
-        </h3>
-        <p class="text-center">
-          <b
-            ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
-          >
-        </p>
-        <div class="row form-section-row meta-row">
-          <div class="col-md-4 col-sm-4 col-4">
-            <div class="form-group">
-              <label class="form-label"
-                >{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NAME_LABEL' | translate }}*</label
-              >
-              <input
-                type="text"
-                class="form-control"
-                formControlName="spatialUnitLevel"
-                appAria="su-metadata-name"
-                [placeholder]="
-                  'ADMIN_SPATIAL_UNITS.METADATA_STEP.UNIQUE_NAME_PLACEHOLDER' | translate
-                "
-              />
-              <app-form-error
-                [control]="addForm.controls.metadata.controls.spatialUnitLevel"
-                for="su-metadata-name"
-                [keyOverride]="
-                  addForm.controls.metadata.controls.spatialUnitLevel.hasError('uniqueName')
-                    ? 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NAME_INVALID'
-                    : ''
-                "
-              />
-            </div>
-          </div>
-          <div class="col-md-4 col-sm-4 col-4">
-            <div class="form-group">
-              <label class="form-label" for="su-metadata-hierarchy">{{
-                'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY' | translate
-              }}</label>
-              <select formControlName="hierarchyId" id="su-metadata-hierarchy" class="form-select">
-                <option value="">
-                  {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_NONE' | translate }}
-                </option>
-                @for (hierarchy of availableHierarchies; track hierarchy.hierarchyId) {
-                  <option [value]="hierarchy.hierarchyId">{{ hierarchy.name }}</option>
-                }
-              </select>
-              <div class="help-block">
-                <p>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_ADD_HINT' | translate }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="row form-section-row">
-          <div class="col-md-3 col-sm-3 col-12">
-            <div class="form-group">
-              <label class="form-label">{{
-                'ADMIN_SPATIAL_UNITS.METADATA_STEP.MARK_AS_OUTLINE_LAYER' | translate
-              }}</label>
-              <div>
-                <label class="switch">
-                  <input type="checkbox" formControlName="isOutlineLayer" />
-                  <span class="switchslider round"></span>
-                </label>
-              </div>
-              <div class="help-block">
-                <p>
-                  {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_LAYER_HINT' | translate }}
-                </p>
-              </div>
-            </div>
-          </div>
-          @if (addForm.controls.metadata.controls.isOutlineLayer.value) {
-            <div class="col-md-3 col-sm-3 col-12">
-              <div class="form-group">
-                <label class="form-label">{{
-                  'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_COLOR' | translate
-                }}</label>
-                <km-color-picker
-                  formControlName="outlineColor"
-                  [label]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_OUTLINE_COLOR' | translate"
-                ></km-color-picker>
-              </div>
-            </div>
-          }
-          @if (addForm.controls.metadata.controls.isOutlineLayer.value) {
-            <div class="col-md-3 col-sm-3 col-12">
-              <div class="form-group">
-                <label class="form-label">{{
-                  'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_WIDTH' | translate
-                }}</label>
-                <input
-                  class="form-control outline-width-input"
-                  type="number"
-                  formControlName="outlineWidth"
-                  min="1"
-                  max="5"
-                  step="1"
-                />
-              </div>
-            </div>
-          }
-          @if (addForm.controls.metadata.controls.isOutlineLayer.value) {
-            <div class="col-md-3 col-sm-3 col-12">
-              <div class="form-group">
-                <km-line-pattern-picker
-                  formControlName="outlineDashArray"
-                  [options]="availableLinePatternOptions"
-                  [label]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_PATTERN' | translate"
-                  [placeholder]="
-                    'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_OUTLINE_PATTERN' | translate
-                  "
-                  [width]="'100%'"
-                >
-                </km-line-pattern-picker>
-              </div>
-            </div>
-          }
-        </div>
-        <div class="stepper-buttons">
-          <button type="button" class="btn btn-primary" (click)="stepper.next()">
-            {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
-          </button>
-        </div>
-      </fieldset>
+      <app-spatial-unit-metadata-step
+        [group]="addForm.controls.metadata"
+        [hierarchies]="allHierarchies"
+        [linePatternOptions]="availableLinePatternOptions"
+        [mandantLocked]="!!lockedMandantId"
+        (next)="stepper.next()"
+      />
     }
 
     <!-- Step 2: Allgemeine Metadaten -->
@@ -305,6 +183,7 @@
         <app-owner-organization-select
           mode="assign"
           formControlName="ownerOrganization"
+          [mandantId]="chosenMandantId"
         ></app-owner-organization-select>
         <hr />
         <div id="spatialUnitRoleForm" [style.display]="showRoleForm ? 'block' : 'none'">

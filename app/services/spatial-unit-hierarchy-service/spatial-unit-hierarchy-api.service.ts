@@ -151,7 +151,12 @@ export function toOrderedMembers(
 
 /**
  * The membership list to send for a spatial unit whose hierarchy was picked in
- * one of the spatial unit modals, where the choice is the hierarchy alone.
+ * the **edit** modal, where the choice is the hierarchy alone.
+ *
+ * The add wizard takes another route: it assigns several hierarchies at once
+ * and places the new level by its neighbours, which is what the POST expects —
+ * see `membershipsForRows` next to that dialog. The two wire shapes are not
+ * interchangeable; this one is for `PUT /spatial-units/{id}/hierarchies`.
  *
  * The position follows from the choice, and deliberately so: keeping the
  * hierarchy keeps the level the dataset already has, switching to another one

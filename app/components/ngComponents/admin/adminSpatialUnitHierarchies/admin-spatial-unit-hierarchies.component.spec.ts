@@ -11,6 +11,8 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { MandantService } from 'services/mandant-service/mandant.service';
 import { SpatialUnitHierarchyApiService } from 'services/spatial-unit-hierarchy-service/spatial-unit-hierarchy-api.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 
 import { NotificationService } from '../../common/notification/notification.service';
 import { AdminSpatialUnitHierarchiesComponent } from './admin-spatial-unit-hierarchies.component';
@@ -138,6 +140,16 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
               return spatialUnits;
             },
           },
+        },
+        // Stubbed because the page refetches the spatial units after the add
+        // wizard closed; the real one would go through the cache to the network.
+        {
+          provide: MetadataBootstrapService,
+          useValue: { fetchSpatialUnitsMetadata: jest.fn().mockResolvedValue(undefined) },
+        },
+        {
+          provide: AccessControlService,
+          useValue: { currentKeycloakLoginRoles: [] },
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -482,6 +494,33 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     // And it is gone from the section, because a chain carries it now.
     expect(store.unassignedLevels().map((entry) => entry.name)).not.toContain(level.name);
     expect(show).toHaveBeenCalled();
+  });
+
+  it('opens the spatial units wizard for the tenant on screen', async () => {
+    fixture.detectChanges();
+
+    const inputs = stubModal(Promise.reject('cancel'));
+    panel().registerLevel.emit();
+    await settle();
+
+    // Fixed there: a level created for another tenant would not show up in the
+    // view it was started from.
+    expect(inputs['lockedMandantId']).toBe('Stadt Essen');
+  });
+
+  it('refetches the levels once the wizard registered one', async () => {
+    const bootstrap = TestBed.inject(MetadataBootstrapService);
+    fixture.detectChanges();
+    hierarchyApi.getHierarchies.mockClear();
+
+    stubModal(Promise.resolve({ action: 'added' }));
+    panel().registerLevel.emit();
+    await settle();
+
+    // The registry this page derives from is the spatial unit store, and the
+    // new level may have joined a hierarchy on its way in.
+    expect(bootstrap.fetchSpatialUnitsMetadata).toHaveBeenCalled();
+    expect(hierarchyApi.getHierarchies).toHaveBeenCalled();
   });
 
   it('hands the delete dialog the spatial unit behind an unassigned level', async () => {

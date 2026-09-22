@@ -7,15 +7,17 @@
       : ('ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.COUNT' | translate: { count: levels().length })
   "
 >
-  <!-- A level exists only with its geometry, so registering one happens on the
-       spatial units page. A link, not a button: it leaves this page. -->
-  <a
+  <!-- Opens the spatial units wizard right here: a level exists only with its
+       geometry, and that dialog is what collects it. Staying on this page keeps
+       the tenant of the view, which the wizard then works in. -->
+  <button
     header-actions
+    type="button"
     class="btn btn-sm btn-light unassigned-register"
-    routerLink="/administration/spatial-units"
+    (click)="registerLevel.emit()"
   >
     {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.REGISTER' | translate }}
-  </a>
+  </button>
 
   <p class="unassigned-hint">
     {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.HINT' | translate }}

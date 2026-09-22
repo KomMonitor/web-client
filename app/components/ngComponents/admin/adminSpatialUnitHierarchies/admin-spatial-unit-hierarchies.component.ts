@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MODAL_CONFIRM, MODAL_FORM } from 'util/modal-presets';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { MODAL_CONFIRM, MODAL_FORM, MODAL_WIDE } from 'util/modal-presets';
 
 import { CollapsibleSectionComponent } from '../../common/collapsible-section/collapsible-section.component';
 import { NotificationService } from '../../common/notification/notification.service';
@@ -9,6 +11,7 @@ import { TreeViewComponent } from '../../common/tree-view/tree-view.component';
 import { TreeGap } from '../../common/tree-view/tree-view.model';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { AdminModalService } from '../adminShared/modal/admin-modal.service';
+import { SpatialUnitAddModalComponent } from '../adminSpatialUnitsManagement/spatialUnitAddModal/spatial-unit-add-modal.component';
 import { SpatialUnitDeleteModalComponent } from '../adminSpatialUnitsManagement/spatialUnitDeleteModal/spatial-unit-delete-modal.component';
 import {
   HierarchyChainEntry,
@@ -71,6 +74,8 @@ export class AdminSpatialUnitHierarchiesComponent {
   private readonly modals = inject(AdminModalService);
   private readonly notificationService = inject(NotificationService);
   private readonly translateService = inject(TranslateService);
+  private readonly metadataBootstrap = inject(MetadataBootstrapService);
+  private readonly accessControlService = inject(AccessControlService);
 
   /** The page's state; read straight from the template. */
   protected readonly store = inject(HierarchyStoreService);
@@ -178,6 +183,35 @@ export class AdminSpatialUnitHierarchiesComponent {
         : 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MSG.UPDATE_FAILED',
       { hierarchy: result.name }
     );
+  }
+
+  /**
+   * Registers a new spatial unit level, through the spatial units page's own
+   * wizard: a level exists only with its geometry, and collecting that is what
+   * the wizard is for.
+   *
+   * The tenant travels with it and is fixed there — this page works in one
+   * tenant at a time, and a level created for another one would vanish from
+   * the view it was started in. In the overview across all tenants nothing is
+   * fixed and the wizard asks, as it does on its own page.
+   *
+   * Afterwards the spatial unit metadata is refetched, because the registry
+   * this page derives its levels from is that store, and the hierarchies with
+   * it — the wizard may have put the new level into one of them.
+   */
+  protected async onRegisterLevel(): Promise<void> {
+    const result = await this.modals.open<SpatialUnitAddModalComponent, { action?: string }>(
+      SpatialUnitAddModalComponent,
+      MODAL_WIDE,
+      { lockedMandantId: this.store.selectedMandantId() }
+    );
+    if (result?.action !== 'added') {
+      return;
+    }
+    await this.metadataBootstrap.fetchSpatialUnitsMetadata(
+      this.accessControlService.currentKeycloakLoginRoles ?? []
+    );
+    await this.store.reload();
   }
 
   /**

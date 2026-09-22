@@ -1,0 +1,269 @@
+<fieldset [formGroup]="group">
+  <h2 class="fs-title text-center">
+    {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.TITLE' | translate }}
+  </h2>
+  <h3 class="fs-subtitle text-center">
+    {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SUBTITLE_ADD' | translate }} ·
+    <i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i>
+  </h3>
+
+  <div class="row form-section-row meta-row">
+    <div class="col-md-8 col-sm-8 col-12">
+      <div class="form-group">
+        <label class="form-label" for="su-metadata-name"
+          >{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NAME_LABEL' | translate }}*</label
+        >
+        <input
+          id="su-metadata-name"
+          type="text"
+          class="form-control"
+          formControlName="spatialUnitLevel"
+          appAria="su-metadata-name"
+          [placeholder]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.UNIQUE_NAME_PLACEHOLDER' | translate"
+        />
+        <app-form-error
+          [control]="group.controls.spatialUnitLevel"
+          for="su-metadata-name"
+          [keyOverride]="
+            group.controls.spatialUnitLevel.hasError('uniqueName')
+              ? 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NAME_INVALID'
+              : ''
+          "
+        />
+      </div>
+    </div>
+
+    <div class="col-md-4 col-sm-4 col-12">
+      <div class="form-group">
+        <label class="form-label" for="su-metadata-outline">{{
+          'ADMIN_SPATIAL_UNITS.METADATA_STEP.MARK_AS_OUTLINE_LAYER' | translate
+        }}</label>
+        <div class="outline-switch">
+          <label class="switch" for="su-metadata-outline">
+            <input id="su-metadata-outline" type="checkbox" formControlName="isOutlineLayer" />
+            <span class="switchslider round"></span>
+          </label>
+          <span class="outline-switch-hint">
+            {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_LAYER_HINT_SHORT' | translate }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- The outline styling only exists for an outline layer, so it only shows
+       once the switch above says there is one. -->
+  @if (group.controls.isOutlineLayer.value) {
+    <div class="row form-section-row">
+      <div class="col-md-4 col-sm-4 col-12">
+        <div class="form-group">
+          <label class="form-label">{{
+            'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_COLOR' | translate
+          }}</label>
+          <km-color-picker
+            formControlName="outlineColor"
+            [label]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_OUTLINE_COLOR' | translate"
+          ></km-color-picker>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-4 col-12">
+        <div class="form-group">
+          <label class="form-label">{{
+            'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_WIDTH' | translate
+          }}</label>
+          <input
+            class="form-control outline-width-input"
+            type="number"
+            formControlName="outlineWidth"
+            min="1"
+            max="5"
+            step="1"
+          />
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-4 col-12">
+        <div class="form-group">
+          <km-line-pattern-picker
+            formControlName="outlineDashArray"
+            [options]="linePatternOptions"
+            [label]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_PATTERN' | translate"
+            [placeholder]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_OUTLINE_PATTERN' | translate"
+            [width]="'100%'"
+          >
+          </km-line-pattern-picker>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!--
+    Which hierarchies the new level joins. Optional: a level without one is
+    registered all the same, it just does not appear in the map interface until
+    some hierarchy carries it — the hierarchy page lists those under "Keiner
+    Hierarchie zugeordnet".
+  -->
+  <div class="assignment-panel">
+    <p class="assignment-head">
+      <span class="assignment-title">{{
+        'ADMIN_SPATIAL_UNITS.METADATA_STEP.ASSIGNMENT_TITLE' | translate
+      }}</span>
+      <span class="assignment-lead">{{
+        'ADMIN_SPATIAL_UNITS.METADATA_STEP.ASSIGNMENT_LEAD' | translate
+      }}</span>
+    </p>
+
+    <div class="form-group assignment-mandant">
+      <label class="form-label" for="su-metadata-mandant">
+        {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.MANDANT_LABEL' | translate }}
+      </label>
+      <!--
+        A select only where there is something to choose: one tenant is the
+        normal case, and only a platform administrator works across them.
+        Without Keycloak the list is empty and the field stays a hint.
+      -->
+      @if (mandantIsChoosable) {
+        <select id="su-metadata-mandant" class="form-select" formControlName="mandantId">
+          @for (mandant of mandants; track mandant.id) {
+            <option [value]="mandant.id">{{ mandant.name }}</option>
+          }
+        </select>
+      } @else {
+        <input
+          id="su-metadata-mandant"
+          class="form-control"
+          type="text"
+          disabled
+          [value]="mandantName || ('ADMIN_SPATIAL_UNITS.METADATA_STEP.MANDANT_NONE' | translate)"
+        />
+      }
+      <span class="assignment-hint">{{
+        (mandantLocked
+          ? 'ADMIN_SPATIAL_UNITS.METADATA_STEP.MANDANT_FIXED_HINT'
+          : 'ADMIN_SPATIAL_UNITS.METADATA_STEP.MANDANT_HINT'
+        ) | translate
+      }}</span>
+    </div>
+
+    @if (mandantName) {
+      <p class="assignment-scope">
+        {{
+          'ADMIN_SPATIAL_UNITS.METADATA_STEP.MANDANT_SCOPE_INFO'
+            | translate: { mandant: mandantName }
+        }}
+      </p>
+    }
+
+    <div class="assignment-rows" formArrayName="hierarchyAssignments">
+      @if (rows.length > 0) {
+        <div class="assignment-columns">
+          <span>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.COL_HIERARCHY' | translate }}</span>
+          <span>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.COL_PLACEMENT' | translate }}</span>
+          <span>{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.COL_REFERENCE' | translate }}</span>
+          <span></span>
+        </div>
+      }
+
+      @for (row of rows.controls; track $index) {
+        <div class="assignment-row" [formGroupName]="$index">
+          <div class="assignment-fields">
+            <select
+              class="form-select"
+              formControlName="hierarchyId"
+              [attr.aria-label]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.COL_HIERARCHY' | translate"
+              (change)="onHierarchyChange($index)"
+            >
+              <option value="">
+                {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_HIERARCHY' | translate }}
+              </option>
+              @for (hierarchy of hierarchyOptions(); track hierarchy.hierarchyId) {
+                <option [value]="hierarchy.hierarchyId">{{ hierarchy.name }}</option>
+              }
+            </select>
+
+            <select
+              class="form-select"
+              formControlName="placement"
+              [attr.aria-label]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.COL_PLACEMENT' | translate"
+              (change)="onPlacementChange($index)"
+            >
+              <option value="append">
+                {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.PLACEMENT_APPEND' | translate }}
+              </option>
+              <option value="above">
+                {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.PLACEMENT_ABOVE' | translate }}
+              </option>
+              <option value="below">
+                {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.PLACEMENT_BELOW' | translate }}
+              </option>
+            </select>
+
+            @if (row.controls.placement.value === 'append') {
+              <span class="assignment-muted">{{
+                'ADMIN_SPATIAL_UNITS.METADATA_STEP.REFERENCE_NOT_NEEDED' | translate
+              }}</span>
+            } @else {
+              <select
+                class="form-select"
+                formControlName="referenceSpatialUnitId"
+                [attr.aria-label]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.COL_REFERENCE' | translate"
+              >
+                <option value="">
+                  {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_REFERENCE' | translate }}
+                </option>
+                @for (member of referenceOptionsFor($index); track member.spatialUnitId) {
+                  <option [value]="member.spatialUnitId">{{ member.spatialUnitLevel }}</option>
+                }
+              </select>
+            }
+
+            <button type="button" class="assignment-remove" (click)="removeRow($index)">
+              {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.REMOVE_ASSIGNMENT' | translate }}
+            </button>
+          </div>
+
+          <!-- Says what the three selects add up to, so the placement can be
+               read back in words instead of inferred. -->
+          @if (summaryFor($index); as summary) {
+            <p class="assignment-summary">
+              <span aria-hidden="true">↳</span> {{ summary.key | translate: summary.params }}
+            </p>
+          } @else if (row.hasError('referenceRequired')) {
+            <p class="assignment-error">
+              {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.REFERENCE_REQUIRED' | translate }}
+            </p>
+          }
+        </div>
+      }
+
+      @if (rows.hasError('duplicateHierarchy')) {
+        <p class="assignment-error">
+          {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.DUPLICATE_HIERARCHY' | translate }}
+        </p>
+      }
+
+      <div class="assignment-add">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-primary"
+          [disabled]="hierarchyOptions().length === 0"
+          (click)="addRow()"
+        >
+          {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.ADD_ASSIGNMENT' | translate }}
+        </button>
+        <span class="assignment-hint">
+          @if (hierarchyOptions().length === 0) {
+            {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NO_HIERARCHIES' | translate }}
+          } @else {
+            {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.ADD_ASSIGNMENT_HINT' | translate }}
+          }
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stepper-buttons">
+    <button type="button" class="btn btn-primary" (click)="next.emit()">
+      {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+    </button>
+  </div>
+</fieldset>

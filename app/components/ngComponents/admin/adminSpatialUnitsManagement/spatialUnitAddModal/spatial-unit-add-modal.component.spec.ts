@@ -19,6 +19,7 @@ import { SpatialUnitPOSTInputType } from 'models/data-management-api';
 
 import { patchPeriodOfValidityForm } from '../../adminShared/periodOfValidityForm/period-of-validity-form.model';
 import { SpatialUnitAddModalComponent } from './spatial-unit-add-modal.component';
+import { buildAssignmentRow } from './hierarchy-assignment.model';
 import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
 
 /**
@@ -157,6 +158,12 @@ describe('SpatialUnitAddModalComponent', () => {
           useValue: {
             mandantIdOfOwner: (owner: string) => (owner === 'org-1' ? 'm-1' : ''),
             ownMandantRef: { id: 'm-own', name: 'Eigener Mandant' },
+            mandantRefs: [
+              { id: 'm-1', name: 'Stadt Essen' },
+              { id: 'm-own', name: 'Eigener Mandant' },
+            ],
+            mandantNameOf: (id: string) => (id === 'm-1' ? 'Stadt Essen' : 'Eigener Mandant'),
+            isRealmAdmin: true,
           },
         },
         {
@@ -221,21 +228,45 @@ describe('SpatialUnitAddModalComponent', () => {
   // hierarchy options
   // ---------------------------------------------------------------------------
 
-  describe('availableHierarchies', () => {
+  describe('tenant of the new level', () => {
     beforeEach(async () => {
       component.ngOnInit();
       await Promise.resolve();
       await Promise.resolve();
     });
 
-    it('narrows to the tenant of the chosen owning organization', () => {
-      securityGroup().patchValue({ ownerOrganization: 'org-1' });
-
-      expect(component.availableHierarchies.map((entry) => entry.hierarchyId)).toEqual(['h-1']);
+    it('hands the step every hierarchy — the narrowing happens there', () => {
+      // The tenant is chosen in the step and may change while the dialog is
+      // open, so a list filtered here would go stale on the first switch.
+      expect(component.allHierarchies.map((entry) => entry.hierarchyId)).toEqual(['h-1', 'h-own']);
     });
 
-    it("falls back to the user's own tenant before an owner is chosen", () => {
-      expect(component.availableHierarchies.map((entry) => entry.hierarchyId)).toEqual(['h-own']);
+    it("starts on the user's own tenant, which then narrows the owner select", () => {
+      expect(metadataGroup().controls.mandantId.value).toBe('m-own');
+      expect(component.chosenMandantId).toBe('m-own');
+    });
+
+    it('keeps the tenant a caller fixed instead of seeding the own one', async () => {
+      component.lockedMandantId = 'm-1';
+
+      component.ngOnInit();
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(metadataGroup().controls.mandantId.value).toBe('m-1');
+    });
+
+    it('drops the assignments and the owner when the tenant changes', () => {
+      metadataGroup().controls.hierarchyAssignments.push(
+        buildAssignmentRow({ hierarchyId: 'h-1' })
+      );
+      securityGroup().patchValue({ ownerOrganization: 'org-1' });
+
+      metadataGroup().controls.mandantId.setValue('m-1');
+
+      // Both named things of the old tenant; the backend would refuse either.
+      expect(metadataGroup().controls.hierarchyAssignments.length).toBe(0);
+      expect(securityGroup().controls.ownerOrganization.value).toBe('');
     });
   });
 
@@ -278,15 +309,40 @@ describe('SpatialUnitAddModalComponent', () => {
       expect(component.buildPostBody_spatialUnits().hierarchies).toEqual([]);
     });
 
-    it('appends the new level to the picked hierarchy', async () => {
+    it('appends the new level behind the last member of the picked hierarchy', async () => {
       component.ngOnInit();
       await Promise.resolve();
       await Promise.resolve();
-      metadataGroup().controls.hierarchyId.setValue('h-1');
+      metadataGroup().controls.hierarchyAssignments.push(
+        buildAssignmentRow({ hierarchyId: 'h-1' })
+      );
 
-      // h-1 already holds one member, so the new level lands at 1.
+      // The POST places a new level by its neighbours: h-1 ends with 'su-city',
+      // so the new one goes below it and has no lower neighbour of its own.
       expect(component.buildPostBody_spatialUnits().hierarchies).toEqual([
-        { hierarchyId: 'h-1', hierarchyLevel: 1 },
+        { hierarchyId: 'h-1', nextUpperSpatialUnitId: 'su-city' },
+      ]);
+    });
+
+    it('sends one entry per assignment, in the order of the rows', async () => {
+      component.ngOnInit();
+      await Promise.resolve();
+      await Promise.resolve();
+      metadataGroup().controls.hierarchyAssignments.push(
+        buildAssignmentRow({ hierarchyId: 'h-own' })
+      );
+      metadataGroup().controls.hierarchyAssignments.push(
+        buildAssignmentRow({
+          hierarchyId: 'h-1',
+          placement: 'above',
+          referenceSpatialUnitId: 'su-city',
+        })
+      );
+
+      expect(component.buildPostBody_spatialUnits().hierarchies).toEqual([
+        // 'h-own' is empty, so the level becomes its first one.
+        { hierarchyId: 'h-own' },
+        { hierarchyId: 'h-1', nextLowerSpatialUnitId: 'su-city' },
       ]);
     });
 

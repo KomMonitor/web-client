@@ -6,6 +6,7 @@ import {
   buildSpatialUnitAddForm,
   spatialUnitAddFormToApi,
 } from './spatial-unit-add-form.model';
+import { buildAssignmentRow } from './hierarchy-assignment.model';
 
 /**
  * TestBed-free model spec, following
@@ -176,6 +177,39 @@ describe('spatial-unit add form model', () => {
       });
     });
 
+    it('stays valid without a single hierarchy assignment', () => {
+      const form = buildForm();
+      fillRequired(form);
+
+      // A level may be registered unassigned; it then shows up on the hierarchy
+      // page under "Keiner Hierarchie zugeordnet".
+      expect(form.controls.metadata.controls.hierarchyAssignments.length).toBe(0);
+      expect(form.valid).toBe(true);
+    });
+
+    it('blocks the wizard on a row that names no place yet', () => {
+      const form = buildForm();
+      fillRequired(form);
+      const rows = form.controls.metadata.controls.hierarchyAssignments;
+      rows.push(buildAssignmentRow({ hierarchyId: 'h-1', placement: 'above' }));
+
+      expect(form.invalid).toBe(true);
+
+      rows.at(0).controls.referenceSpatialUnitId.setValue('su-city');
+      expect(form.valid).toBe(true);
+    });
+
+    it('keeps no blank rows behind after a reset', () => {
+      const form = buildForm();
+      form.controls.metadata.controls.hierarchyAssignments.push(buildAssignmentRow());
+
+      form.reset();
+
+      // `reset()` blanks the rows but keeps them — the dialog clears the array
+      // itself, and this pins why.
+      expect(form.controls.metadata.controls.hierarchyAssignments.length).toBe(1);
+    });
+
     it('carries no neighbour-level fields — v6 replaced them with `hierarchies`', () => {
       const form = buildForm();
       fillRequired(form);
@@ -190,9 +224,15 @@ describe('spatial-unit add form model', () => {
       const form = buildForm();
       fillRequired(form);
 
-      const body = spatialUnitAddFormToApi(form, [], [{ hierarchyId: 'h-1', hierarchyLevel: 2 }]);
+      // The POST places a level by its neighbours, not by a level number —
+      // that shape belongs to `PUT /spatial-units/{id}/hierarchies`.
+      const body = spatialUnitAddFormToApi(
+        form,
+        [],
+        [{ hierarchyId: 'h-1', nextUpperSpatialUnitId: 'su-city' }]
+      );
 
-      expect(body.hierarchies).toEqual([{ hierarchyId: 'h-1', hierarchyLevel: 2 }]);
+      expect(body.hierarchies).toEqual([{ hierarchyId: 'h-1', nextUpperSpatialUnitId: 'su-city' }]);
     });
 
     it('leaves outlineDashArrayString undefined without a pattern', () => {

@@ -115,6 +115,11 @@ export class HierarchyStoreService {
     }))
   );
 
+  /** The tenant on screen as the API names it; empty in the overview. */
+  readonly selectedMandantId = computed(() =>
+    this.mandantService.mandantIdOf(this.selectedMandant())
+  );
+
   /**
    * The spatial unit behind a registry entry — what the delete dialog wants.
    *

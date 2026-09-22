@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { CollapsibleSectionComponent } from '../../../common/collapsible-section/collapsible-section.component';
@@ -16,10 +15,9 @@ export interface LevelAssignment {
  * tenant that no hierarchy uses. They exist, but are not offered in the map
  * interface, because only a hierarchy puts a level there.
  *
- * It creates no level: one exists only with its geometry, so that belongs on
- * the spatial units page, which the header links to. Deleting one is offered
- * here — an unassigned level is exactly the one nothing else depends on — but
- * the page carries it out, through the spatial units page's own dialog.
+ * Registering and deleting a level are both offered here and both carried out
+ * by the page, through the spatial units page's own dialogs: a level exists
+ * only with its geometry, and that wizard is what collects it.
  *
  * Presentational — the page derives the list and carries out what the buttons
  * ask for.
@@ -28,7 +26,7 @@ export interface LevelAssignment {
   selector: 'app-unassigned-levels-panel',
   templateUrl: './unassigned-levels-panel.component.html',
   styleUrls: ['./unassigned-levels-panel.component.scss'],
-  imports: [TranslateModule, RouterLink, CollapsibleSectionComponent],
+  imports: [TranslateModule, CollapsibleSectionComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -45,6 +43,8 @@ export class UnassignedLevelsPanelComponent {
   readonly metadata = output<RegisteredLevel>();
   /** `deleteLevel`, not `delete`: the tree's "remove" takes a level out of a chain. */
   readonly deleteLevel = output<RegisteredLevel>();
+  /** Asks for a new level; the page opens the spatial units wizard for it. */
+  readonly registerLevel = output<void>();
 
   /** Without a hierarchy there is nothing to assign to, so the button rests. */
   protected readonly canAssign = computed(() => this.hierarchies().length > 0);
