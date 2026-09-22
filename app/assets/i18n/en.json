@@ -1636,12 +1636,12 @@
       "TITLE": "Not part of any hierarchy",
       "COUNT": "{{count}} spatial unit levels",
       "COUNT_ONE": "1 spatial unit level",
-      "HINT": "These spatial unit levels are in no hierarchy — they are not offered in the map interface. Assign them with the select on the right, or through an insert line in a hierarchy. The levels themselves are managed here:",
+      "HINT": "These spatial unit levels are registered, but part of no hierarchy — they are not offered in the map interface. Assign them with the select on the right, or through an insert line in a hierarchy.",
       "ASSIGN": "Assign",
       "ASSIGN_LABEL": "Hierarchy the spatial unit level is assigned to",
       "NO_HIERARCHY": "No hierarchy for this tenant yet",
       "ASSIGNED": "Level \"{{level}}\" appended to \"{{hierarchy}}\".",
-      "MANAGE_LEVELS": "Spatial units"
+      "REGISTER": "Register new spatial unit level"
     },
     "SHOW_IDS": "Show IDs",
     "NEW_HIERARCHY": "New hierarchy",

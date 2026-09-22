@@ -1636,12 +1636,12 @@
       "TITLE": "Keiner Hierarchie zugeordnet",
       "COUNT": "{{count}} Raumebenen",
       "COUNT_ONE": "1 Raumebene",
-      "HINT": "Diese Raumebenen sind in keiner Hierarchie verknüpft — sie stehen in der Kartenoberfläche nicht zur Auswahl. Zuordnen über die Auswahl rechts oder per Einfügelinie in einer Hierarchie. Raumebenen selbst werden hier verwaltet:",
+      "HINT": "Diese Raumebenen sind registriert, aber in keiner Hierarchie verknüpft — sie stehen in der Kartenoberfläche nicht zur Auswahl. Zuordnen über die Auswahl rechts oder per Einfügelinie in einer Hierarchie.",
       "ASSIGN": "Zuordnen",
       "ASSIGN_LABEL": "Hierarchie, der die Raumebene zugeordnet wird",
       "NO_HIERARCHY": "Noch keine Hierarchie für diesen Mandanten",
       "ASSIGNED": "Ebene „{{level}}“ an „{{hierarchy}}“ angehängt.",
-      "MANAGE_LEVELS": "Raumebenen"
+      "REGISTER": "Neue Raumebene registrieren"
     },
     "SHOW_IDS": "Zeige IDs",
     "NEW_HIERARCHY": "Neue Hierarchie",

@@ -7,11 +7,18 @@
       : ('ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.COUNT' | translate: { count: levels().length })
   "
 >
+  <!-- A level exists only with its geometry, so registering one happens on the
+       spatial units page. A link, not a button: it leaves this page. -->
+  <a
+    header-actions
+    class="btn btn-sm btn-light unassigned-register"
+    routerLink="/administration/spatial-units"
+  >
+    {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.REGISTER' | translate }}
+  </a>
+
   <p class="unassigned-hint">
     {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.HINT' | translate }}
-    <a routerLink="/administration/spatial-units">
-      {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.MANAGE_LEVELS' | translate }}
-    </a>
   </p>
 
   @for (level of levels(); track level.id) {

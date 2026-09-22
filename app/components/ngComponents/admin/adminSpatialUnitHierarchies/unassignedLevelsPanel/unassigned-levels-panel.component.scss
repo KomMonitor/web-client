@@ -2,6 +2,12 @@
   display: block;
 }
 
+// Sits in the muted section header, where a coloured button would shout. Kept
+// from wrapping so it stays one line next to the title.
+.unassigned-register {
+  white-space: nowrap;
+}
+
 // Why these levels are listed apart — quiet, above the rows.
 .unassigned-hint {
   margin: 0 0 10px;

@@ -116,18 +116,20 @@ describe('UnassignedLevelsPanelComponent', () => {
     expect(fixture.debugElement.queryAll(By.css('.unassigned-no-hierarchy'))).toHaveLength(2);
   });
 
-  it('offers no way to create or delete a level — that needs a geometry', () => {
+  it('deletes or creates nothing itself — a level needs a geometry', () => {
     render();
 
     expect(fixture.debugElement.query(By.css('.btn-outline-danger'))).toBeNull();
+    // The header carries a link out, never a button that writes from here.
     expect(fixture.debugElement.query(By.css('.section-actions button'))).toBeNull();
   });
 
   it('points at the spatial units page instead', () => {
     render();
 
-    const link = fixture.debugElement.query(By.css('.unassigned-hint a'));
+    const link = fixture.debugElement.query(By.css('.unassigned-register'));
 
+    expect(link.nativeElement.textContent).toContain('UNASSIGNED.REGISTER');
     expect(link.attributes['routerLink']).toBe('/administration/spatial-units');
   });
 });
