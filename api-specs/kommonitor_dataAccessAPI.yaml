@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: KomMonitor Data Access API
-  description: "Definition einer Datenzugriffs-API, die den Zugriff auf die KomMonitor-Datenhaltungsschicht kapselt."
+  description: 'Definition einer Datenzugriffs-API, die den Zugriff auf die KomMonitor-Datenhaltungsschicht kapselt.'
   contact:
     email: christian.danowski-buhren@hs-bochum.de
   license:
@@ -48,7 +48,7 @@ paths:
         datasets
       operationId: getGeoresources
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -59,16 +59,16 @@ paths:
               examples:
                 georesourceOverviewCollection:
                   $ref: './examples.yaml#/components/examples/GeoresourceOverviewCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -91,7 +91,7 @@ paths:
                 $ref: './examples.yaml#/components/examples/GeoresourcePOSTInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
           content:
             'application/json':
@@ -100,7 +100,7 @@ paths:
               examples:
                 georesourceOverview:
                   $ref: './examples.yaml#/components/examples/GeoresourceOverview'
-        "201":
+        '201':
           description: Created
           content:
             'application/json':
@@ -109,16 +109,16 @@ paths:
               examples:
                 georesourceOverview:
                   $ref: './examples.yaml#/components/examples/GeoresourceOverview'
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -140,7 +140,7 @@ paths:
                 $ref: './examples.yaml#/components/examples/ResourceFilter'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -151,18 +151,18 @@ paths:
               examples:
                 georesourceOverviewCollection:
                   $ref: './examples.yaml#/components/examples/GeoresourceOverviewCollection'
-        "401":
+        '401':
           description: API key is missing or invalid
-          content: { }
-        "403":
+          content: {}
+        '403':
           description: Forbidden
-          content: { }
-        "404":
+          content: {}
+        '404':
           description: Not Found
-          content: { }
-        "405":
+          content: {}
+        '405':
           description: Invalid input
-          content: { }
+          content: {}
       deprecated: false
   /georesources/{georesourceId}:
     get:
@@ -181,7 +181,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -190,16 +190,16 @@ paths:
               examples:
                 georesourceOverview:
                   $ref: './examples.yaml#/components/examples/GeoresourceOverview'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -234,21 +234,21 @@ paths:
                 $ref: './examples.yaml#/components/examples/GeoresourcePUTInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
-        "201":
+        '201':
           description: Created
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -269,15 +269,15 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
       deprecated: false
@@ -308,18 +308,18 @@ paths:
                 $ref: './examples.yaml#/components/examples/GeoresourcePATCHInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -360,23 +360,23 @@ paths:
               - medium
               - strong
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -396,15 +396,15 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
       deprecated: false
@@ -434,7 +434,7 @@ paths:
             enum:
               - gpkg
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/octed-stream:
@@ -443,7 +443,7 @@ paths:
                 format: binary
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
   /georesources/{georesourceId}/allFeatures/without-geometry:
     get:
       tags:
@@ -465,23 +465,23 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -502,7 +502,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -513,16 +513,16 @@ paths:
               examples:
                 permissionLevelCollection:
                   $ref: './examples.yaml#/components/examples/PermissionLevelCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -551,18 +551,18 @@ paths:
               permissionLevelInput:
                 $ref: './examples.yaml#/components/examples/PermissionLevelInput'
       responses:
-        "204":
+        '204':
           description: No Content
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -592,23 +592,23 @@ paths:
               ownerInput:
                 $ref: './examples.yaml#/components/examples/OwnerInput'
       responses:
-        "204":
+        '204':
           description: No Content
-        "400":
+        '400':
           description: Invalid status value
-          content: { }
-        "401":
+          content: {}
+        '401':
           description: API key is missing or invalid
-          content: { }
-        "403":
+          content: {}
+        '403':
           description: Forbidden
-          content: { }
-        "404":
+          content: {}
+        '404':
           description: Not Found
-          content: { }
+          content: {}
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
   /georesources/{georesourceId}/schema:
     get:
       tags:
@@ -625,22 +625,22 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: string
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -686,23 +686,23 @@ paths:
               - medium
               - strong
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -730,14 +730,14 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
       deprecated: false
@@ -789,23 +789,23 @@ paths:
               - medium
               - strong
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -848,21 +848,21 @@ paths:
               type: string
         required: true
       responses:
-        "200":
+        '200':
           description: OK - Updated
-        "201":
+        '201':
           description: Created
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -899,14 +899,14 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
       deprecated: false
@@ -962,23 +962,23 @@ paths:
               - medium
               - strong
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/octed-stream:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -1018,15 +1018,15 @@ paths:
           schema:
             type: number
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
       deprecated: false
@@ -1074,7 +1074,7 @@ paths:
             enum:
               - gpkg
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/octed-stream:
@@ -1083,7 +1083,7 @@ paths:
                 format: binary
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
   /georesources/{georesourceId}/{year}/{month}/{day}/without-geometry:
     get:
       tags:
@@ -1124,23 +1124,23 @@ paths:
             type: number
           example: 0
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/octed-stream:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -1154,7 +1154,7 @@ paths:
       description: retrieve information about available indicators
       operationId: getIndicators
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -1166,16 +1166,16 @@ paths:
                 indicatorOverviewCollection:
                   $ref: './examples.yaml#/components/examples/IndicatorOverviewCollection'
 
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -1199,7 +1199,7 @@ paths:
                 $ref: './examples.yaml#/components/examples/IndicatorPOSTInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
           content:
             'application/json':
@@ -1208,7 +1208,7 @@ paths:
               examples:
                 indicatorOverview:
                   $ref: './examples.yaml#/components/examples/IndicatorOverview'
-        "201":
+        '201':
           description: Created
           content:
             'application/json':
@@ -1217,16 +1217,16 @@ paths:
               examples:
                 indicatorOverview:
                   $ref: './examples.yaml#/components/examples/IndicatorOverview'
-        "401":
+        '401':
           description: Unauthorized
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -1251,7 +1251,7 @@ paths:
                 $ref: './examples.yaml#/components/examples/ResourceFilter'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -1262,18 +1262,18 @@ paths:
               examples:
                 indicatorOverviewCollection:
                   $ref: './examples.yaml#/components/examples/IndicatorOverviewCollection'
-        "401":
+        '401':
           description: API key is missing or invalid
-          content: { }
-        "403":
+          content: {}
+        '403':
           description: Forbidden
-          content: { }
-        "404":
+          content: {}
+        '404':
           description: Not Found
-          content: { }
-        "405":
+          content: {}
+        '405':
           description: Invalid input
-          content: { }
+          content: {}
       deprecated: false
   /indicators/display-order:
     patch:
@@ -1295,23 +1295,23 @@ paths:
                 $ref: './examples.yaml#/components/examples/IndicatorPATCHDisplayOrderInputCollection'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
-        "201":
+        '201':
           description: Created
-        "204":
+        '204':
           description: No Content
           content: {}
-        "401":
+        '401':
           description: Unauthorized
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -1333,7 +1333,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -1342,16 +1342,16 @@ paths:
               examples:
                 indicatorOverview:
                   $ref: './examples.yaml#/components/examples/IndicatorOverview'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -1381,21 +1381,21 @@ paths:
                 $ref: './examples.yaml#/components/examples/IndicatorPUTInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK - Updated
-        "201":
+        '201':
           description: Created
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -1416,15 +1416,15 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
       deprecated: false
@@ -1455,18 +1455,18 @@ paths:
                 $ref: './examples.yaml#/components/examples/IndicatorMetadataPATCHInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -1490,7 +1490,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -1501,16 +1501,16 @@ paths:
               examples:
                 permissionLevelCollection:
                   $ref: './examples.yaml#/components/examples/PermissionLevelCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -1539,16 +1539,16 @@ paths:
                 $ref: './examples.yaml#/components/examples/PermissionLevelInput'
         required: true
       responses:
-        "204":
+        '204':
           description: No Content
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -1579,16 +1579,16 @@ paths:
                 $ref: './examples.yaml#/components/examples/OwnerInput'
         required: true
       responses:
-        "204":
+        '204':
           description: No Content
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -1631,23 +1631,23 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/octed-stream:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -1675,15 +1675,15 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
       deprecated: false
@@ -1719,7 +1719,7 @@ paths:
             enum:
               - gpkg
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/octed-stream:
@@ -1728,7 +1728,7 @@ paths:
                 format: binary
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
   /indicators/{indicatorId}/{spatialUnitId}/permissions:
     get:
       tags:
@@ -1752,7 +1752,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -1763,16 +1763,16 @@ paths:
               examples:
                 permissionLevelCollection:
                   $ref: './examples.yaml#/components/examples/PermissionLevelCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -1807,18 +1807,18 @@ paths:
                 $ref: './examples.yaml#/components/examples/PermissionLevelInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -1855,23 +1855,23 @@ paths:
                 $ref: './examples.yaml#/components/examples/OwnerInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
-          content: { }
-        "401":
+          content: {}
+        '401':
           description: API key is missing or invalid
-          content: { }
-        "403":
+          content: {}
+        '403':
           description: Forbidden
-          content: { }
-        "405":
+          content: {}
+        '405':
           description: Invalid input
-          content: { }
+          content: {}
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
       x-codegen-request-body-name: indicatorData
   /indicators/{indicatorId}/{spatialUnitId}/singleFeature/{featureId}:
     get:
@@ -1919,7 +1919,7 @@ paths:
               - medium
               - strong
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -1930,16 +1930,16 @@ paths:
               examples:
                 indicatorPropertiesWithoutGeomCollection:
                   $ref: './examples.yaml#/components/examples/IndicatorPropertiesWithoutGeomCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -1973,14 +1973,14 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
       deprecated: false
@@ -2038,7 +2038,7 @@ paths:
               - medium
               - strong
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -2049,16 +2049,16 @@ paths:
               examples:
                 indicatorPropertiesWithoutGeomCollection:
                   $ref: './examples.yaml#/components/examples/IndicatorPropertiesWithoutGeomCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -2110,21 +2110,21 @@ paths:
                 $ref: './examples.yaml#/components/examples/IndicatorPropertiesWithoutGeom'
         required: true
       responses:
-        "200":
+        '200':
           description: OK - Updated
-        "201":
+        '201':
           description: Created
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -2167,14 +2167,14 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
       deprecated: false
@@ -2203,7 +2203,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -2214,16 +2214,16 @@ paths:
               examples:
                 indicatorPropertiesWithoutGeomCollection:
                   $ref: './examples.yaml#/components/examples/IndicatorPropertiesWithoutGeomCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -2285,23 +2285,23 @@ paths:
               - medium
               - strong
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/octed-stream:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -2347,15 +2347,15 @@ paths:
           schema:
             type: number
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
       deprecated: false
@@ -2409,7 +2409,7 @@ paths:
             enum:
               - gpkg
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/octed-stream:
@@ -2418,7 +2418,7 @@ paths:
                 format: binary
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
   /indicators/{indicatorId}/{spatialUnitId}/{year}/{month}/{day}/without-geometry:
     get:
       tags:
@@ -2460,7 +2460,7 @@ paths:
           schema:
             type: number
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -2471,16 +2471,16 @@ paths:
               examples:
                 indicatorPropertiesWithoutGeomCollection:
                   $ref: './examples.yaml#/components/examples/IndicatorPropertiesWithoutGeomCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -2494,7 +2494,7 @@ paths:
       description: retrieve information about available organizationalUnits
       operationId: getOrganizationalUnits
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -2505,16 +2505,16 @@ paths:
               examples:
                 organizationalUnitOverviewCollection:
                   $ref: './examples.yaml#/components/examples/OrganizationalUnitOverviewCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -2537,20 +2537,20 @@ paths:
                 $ref: './examples.yaml#/components/examples/OrganizationalUnitInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
-        "201":
+        '201':
           description: Created
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -2572,7 +2572,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -2581,16 +2581,16 @@ paths:
               examples:
                 organizationalUnitOverview:
                   $ref: './examples.yaml#/components/examples/OrganizationalUnitOverview'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -2620,20 +2620,20 @@ paths:
                 $ref: './examples.yaml#/components/examples/OrganizationalUnitInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
-        "201":
+        '201':
           description: Created
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -2654,14 +2654,14 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
       deprecated: false
@@ -2686,9 +2686,9 @@ paths:
           description: resourceType
           required: false
           schema:
-            $ref: "#/components/schemas/ResourceType"
+            $ref: '#/components/schemas/ResourceType'
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -2697,16 +2697,16 @@ paths:
               examples:
                 organizationalUnitPermissionOverview:
                   $ref: './examples.yaml#/components/examples/OrganizationalUnitPermissionOverview'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -2717,7 +2717,8 @@ paths:
       tags:
         - access-control
       summary: Fetch all role authorities for the selected organizationalUnit.
-      description: Fetch all role authorities for the selected organizationalUnit. In particular, these are all roles
+      description:
+        Fetch all role authorities for the selected organizationalUnit. In particular, these are all roles
         that have been assigned to the selected organizational that represent delegated administrative tasks
         for other organizational unit.
       operationId: getOrganizationalUnitRoleAuthorities
@@ -2729,7 +2730,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -2738,27 +2739,28 @@ paths:
               examples:
                 organizationalUnitRoleAuthority:
                   $ref: './examples.yaml#/components/examples/OrganizationalUnitRoleAuthority'
-        "400":
+        '400':
           description: Invalid status value
-          content: { }
-        "401":
+          content: {}
+        '401':
           description: API key is missing or invalid
-          content: { }
-        "403":
+          content: {}
+        '403':
           description: Forbidden
-          content: { }
-        "404":
+          content: {}
+        '404':
           description: Not Found
-          content: { }
+          content: {}
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
   /organizationalUnits/{organizationalUnitId}/role-delegates:
     get:
       tags:
         - access-control
       summary: Fetch all role delegates for the selected organizationalUnit.
-      description: Fetch all role delegates for the selected organizationalUnit. In particular, these are all roles
+      description:
+        Fetch all role delegates for the selected organizationalUnit. In particular, these are all roles
         that represent delegated administrative tasks and have been assigned to other organizational unit.
       operationId: getOrganizationalUnitRoleDelegates
       parameters:
@@ -2769,7 +2771,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -2778,21 +2780,21 @@ paths:
               examples:
                 organizationalUnitRoleDelegate:
                   $ref: './examples.yaml#/components/examples/OrganizationalUnitRoleDelegate'
-        "400":
+        '400':
           description: Invalid status value
-          content: { }
-        "401":
+          content: {}
+        '401':
           description: API key is missing or invalid
-          content: { }
-        "403":
+          content: {}
+        '403':
           description: Forbidden
-          content: { }
-        "404":
+          content: {}
+        '404':
           description: Not Found
-          content: { }
+          content: {}
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
     put:
       tags:
         - access-control
@@ -2819,60 +2821,62 @@ paths:
                 $ref: './examples.yaml#/components/examples/GroupAdminRolesPUTInputCollection'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
-        "201":
+        '201':
           description: Created
-        "401":
+        '401':
           description: API key is missing or invalid
-          content: { }
-        "403":
+          content: {}
+        '403':
           description: Forbidden
-          content: { }
-        "404":
+          content: {}
+        '404':
           description: Not Found
-          content: { }
-        "405":
+          content: {}
+        '405':
           description: Invalid input
-          content: { }
+          content: {}
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
       x-codegen-request-body-name: organizationalUnitData
   /organizationalUnits/sync:
     post:
       tags:
         - access-control
       summary: Synchronize the all OrganizationalUnits and Keycloak entities
-      description: Synchronize the all OrganizationalUnis and Keycloak entities (group, roles and role policies)
+      description:
+        Synchronize the all OrganizationalUnis and Keycloak entities (group, roles and role policies)
         with each other.
       operationId: syncAllOrganizationalUnits
       responses:
-        "200":
+        '200':
           description: OK
-        "201":
+        '201':
           description: Created
-        "401":
+        '401':
           description: API key is missing or invalid
-          content: { }
-        "403":
+          content: {}
+        '403':
           description: Forbidden
-          content: { }
-        "404":
+          content: {}
+        '404':
           description: Not Found
-          content: { }
-        "405":
+          content: {}
+        '405':
           description: Invalid input
-          content: { }
+          content: {}
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
   /organizationalUnits/{organizationalUnitId}/sync:
     post:
       tags:
         - access-control
       summary: Synchronize the specified OrganizationalUnit and Keycloak entities
-      description: Synchronize the specified OrganizationalUnit and Keycloak entities (group, roles and role policies)
+      description:
+        Synchronize the specified OrganizationalUnit and Keycloak entities (group, roles and role policies)
         with each other.
       operationId: syncOrganizationalUnit
       parameters:
@@ -2883,24 +2887,24 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
-          content: { }
-        "400":
+          content: {}
+        '400':
           description: Invalid status value
-          content: { }
-        "401":
+          content: {}
+        '401':
           description: API key is missing or invalid
-          content: { }
-        "403":
+          content: {}
+        '403':
           description: Forbidden
-          content: { }
-        "404":
+          content: {}
+        '404':
           description: Not Found
-          content: { }
+          content: {}
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
   /process-scripts:
     get:
       tags:
@@ -2909,7 +2913,7 @@ paths:
       description: retrieve information about available process scripts
       operationId: getProcessScripts
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -2920,16 +2924,16 @@ paths:
               examples:
                 processScriptOverviewCollection:
                   $ref: './examples.yaml#/components/examples/ProcessScriptOverviewCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -2952,7 +2956,7 @@ paths:
                 $ref: './examples.yaml#/components/examples/ProcessScriptPOSTInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
           content:
             'application/json':
@@ -2961,7 +2965,7 @@ paths:
               examples:
                 processScriptOverview:
                   $ref: './examples.yaml#/components/examples/ProcessScriptOverview'
-        "201":
+        '201':
           description: Created
           content:
             'application/json':
@@ -2970,16 +2974,16 @@ paths:
               examples:
                 processScriptOverview:
                   $ref: './examples.yaml#/components/examples/ProcessScriptOverview'
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -3000,23 +3004,23 @@ paths:
         documentation on how to implement those methods.
       operationId: getProcessScriptTemplate
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/javascript:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -3039,7 +3043,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -3048,16 +3052,16 @@ paths:
               examples:
                 processScriptOverview:
                   $ref: './examples.yaml#/components/examples/ProcessScriptOverview'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -3088,21 +3092,21 @@ paths:
                 $ref: './examples.yaml#/components/examples/ProcessScriptPUTInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
-        "201":
+        '201':
           description: Created
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -3123,15 +3127,15 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
       deprecated: false
@@ -3154,23 +3158,23 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/javascript:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -3193,7 +3197,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -3202,16 +3206,16 @@ paths:
               examples:
                 processScriptOverview:
                   $ref: './examples.yaml#/components/examples/ProcessScriptOverview'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -3242,21 +3246,21 @@ paths:
                 $ref: './examples.yaml#/components/examples/ProcessScriptPUTInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
-        "201":
+        '201':
           description: Created
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -3277,15 +3281,15 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
       deprecated: false
@@ -3308,23 +3312,23 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/javascript:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -3338,7 +3342,7 @@ paths:
       description: Retrieve additional information about registered users such as favourite lists
       operationId: getUserInfos
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -3349,16 +3353,16 @@ paths:
               examples:
                 userInfoOverviewCollection:
                   $ref: './examples.yaml#/components/examples/UserInfoOverviewCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -3381,7 +3385,7 @@ paths:
                 $ref: './examples.yaml#/components/examples/UserInfoInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
           content:
             'application/json':
@@ -3390,7 +3394,7 @@ paths:
               examples:
                 userInfoOverview:
                   $ref: './examples.yaml#/components/examples/UserInfoOverview'
-        "201":
+        '201':
           description: Created
           content:
             'application/json':
@@ -3399,16 +3403,16 @@ paths:
               examples:
                 userInfoOverview:
                   $ref: './examples.yaml#/components/examples/UserInfoOverview'
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -3430,7 +3434,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -3439,16 +3443,16 @@ paths:
               examples:
                 userInfoOverview:
                   $ref: './examples.yaml#/components/examples/UserInfoOverview'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -3478,7 +3482,7 @@ paths:
                 $ref: './examples.yaml#/components/examples/UserInfoInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
           content:
             'application/json':
@@ -3487,7 +3491,7 @@ paths:
               examples:
                 userInfoOverview:
                   $ref: './examples.yaml#/components/examples/UserInfoOverview'
-        "201":
+        '201':
           description: Created
           content:
             'application/json':
@@ -3496,16 +3500,16 @@ paths:
               examples:
                 userInfoOverview:
                   $ref: './examples.yaml#/components/examples/UserInfoOverview'
-        "204":
+        '204':
           description: No Content
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -3536,7 +3540,7 @@ paths:
                 $ref: './examples.yaml#/components/examples/UserInfoInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
           content:
             'application/json':
@@ -3545,7 +3549,7 @@ paths:
               examples:
                 userInfoOverview:
                   $ref: './examples.yaml#/components/examples/UserInfoOverview'
-        "201":
+        '201':
           description: Created
           content:
             'application/json':
@@ -3554,21 +3558,21 @@ paths:
               examples:
                 userInfoOverview:
                   $ref: './examples.yaml#/components/examples/UserInfoOverview'
-        "204":
+        '204':
           description: No Content
-          content: { }
-        "401":
+          content: {}
+        '401':
           description: API key is missing or invalid
-          content: { }
-        "403":
+          content: {}
+        '403':
           description: Forbidden
-          content: { }
-        "405":
+          content: {}
+        '405':
           description: Invalid input
-          content: { }
+          content: {}
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
       x-codegen-request-body-name: userInfoData
     delete:
       tags:
@@ -3584,20 +3588,20 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
-          content: { }
-        "401":
+          content: {}
+        '401':
           description: API key is missing or invalid
-          content: { }
-        "403":
+          content: {}
+        '403':
           description: Forbidden
-          content: { }
+          content: {}
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
   /userInfos/user:
     get:
       tags:
@@ -3606,7 +3610,7 @@ paths:
       description: Retrieve additional information about the current user
       operationId: getUserInfoForUser
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -3615,16 +3619,16 @@ paths:
               examples:
                 userInfoOverview:
                   $ref: './examples.yaml#/components/examples/UserInfoOverview'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -3638,7 +3642,7 @@ paths:
       description: retrieve last modification information for all resources
       operationId: getLastModification
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -3647,16 +3651,16 @@ paths:
               examples:
                 lastModificationOverview:
                   $ref: './examples.yaml#/components/examples/LastModificationOverview'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -3672,7 +3676,7 @@ paths:
         geo-resource datasets
       operationId: getPublicGeoresources
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -3683,16 +3687,16 @@ paths:
               examples:
                 georesourceOverviewCollection:
                   $ref: './examples.yaml#/components/examples/GeoresourceOverviewCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -3716,7 +3720,7 @@ paths:
                 $ref: './examples.yaml#/components/examples/ResourceFilter'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -3727,18 +3731,18 @@ paths:
               examples:
                 georesourceOverviewCollection:
                   $ref: './examples.yaml#/components/examples/GeoresourceOverviewCollection'
-        "401":
+        '401':
           description: API key is missing or invalid
-          content: { }
-        "403":
+          content: {}
+        '403':
           description: Forbidden
-          content: { }
-        "404":
+          content: {}
+        '404':
           description: Not Found
-          content: { }
-        "405":
+          content: {}
+        '405':
           description: Invalid input
-          content: { }
+          content: {}
       deprecated: false
   /public/georesources/{georesourceId}:
     get:
@@ -3757,7 +3761,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -3766,16 +3770,16 @@ paths:
               examples:
                 georesourceOverview:
                   $ref: './examples.yaml#/components/examples/GeoresourceOverview'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -3815,23 +3819,23 @@ paths:
               - medium
               - strong
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -3861,7 +3865,7 @@ paths:
             enum:
               - gpkg
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/octed-stream:
@@ -3870,7 +3874,7 @@ paths:
                 format: binary
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
   /public/georesources/{georesourceId}/allFeatures/without-geometry:
     get:
       tags:
@@ -3892,23 +3896,23 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -3930,22 +3934,22 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: string
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -3991,23 +3995,23 @@ paths:
               - medium
               - strong
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -4059,23 +4063,23 @@ paths:
               - medium
               - strong
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -4131,23 +4135,23 @@ paths:
               - medium
               - strong
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/octed-stream:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -4195,7 +4199,7 @@ paths:
             enum:
               - gpkg
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/octed-stream:
@@ -4204,7 +4208,7 @@ paths:
                 format: binary
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
   /public/georesources/{georesourceId}/{year}/{month}/{day}/without-geometry:
     get:
       tags:
@@ -4242,23 +4246,23 @@ paths:
           schema:
             type: number
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/octed-stream:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -4272,7 +4276,7 @@ paths:
       description: retrieve information about available public indicators
       operationId: getPublicIndicators
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -4283,16 +4287,16 @@ paths:
               examples:
                 indicatorOverviewCollection:
                   $ref: './examples.yaml#/components/examples/IndicatorOverviewCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -4316,7 +4320,7 @@ paths:
                 $ref: './examples.yaml#/components/examples/ResourceFilter'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -4327,18 +4331,18 @@ paths:
               examples:
                 indicatorOverviewCollection:
                   $ref: './examples.yaml#/components/examples/IndicatorOverviewCollection'
-        "401":
+        '401':
           description: API key is missing or invalid
-          content: { }
-        "403":
+          content: {}
+        '403':
           description: Forbidden
-          content: { }
-        "404":
+          content: {}
+        '404':
           description: Not Found
-          content: { }
-        "405":
+          content: {}
+        '405':
           description: Invalid input
-          content: { }
+          content: {}
       deprecated: false
   /public/indicators/{indicatorId}:
     get:
@@ -4355,7 +4359,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -4364,16 +4368,16 @@ paths:
               examples:
                 indicatorOverview:
                   $ref: './examples.yaml#/components/examples/IndicatorOverview'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -4416,23 +4420,23 @@ paths:
               - medium
               - strong
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/octed-stream:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -4468,7 +4472,7 @@ paths:
             enum:
               - gpkg
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/octed-stream:
@@ -4477,7 +4481,7 @@ paths:
                 format: binary
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
   /public/indicators/{indicatorId}/{spatialUnitId}/singleFeature/{featureId}:
     get:
       tags:
@@ -4509,7 +4513,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -4520,16 +4524,16 @@ paths:
               examples:
                 indicatorPropertiesWithoutGeomCollection:
                   $ref: './examples.yaml#/components/examples/IndicatorPropertiesWithoutGeomCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -4572,7 +4576,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -4583,16 +4587,16 @@ paths:
               examples:
                 indicatorPropertiesWithoutGeomCollection:
                   $ref: './examples.yaml#/components/examples/IndicatorPropertiesWithoutGeomCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -4621,7 +4625,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -4632,16 +4636,16 @@ paths:
               examples:
                 indicatorPropertiesWithoutGeomCollection:
                   $ref: './examples.yaml#/components/examples/IndicatorPropertiesWithoutGeomCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -4703,23 +4707,23 @@ paths:
               - medium
               - strong
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/octed-stream:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -4773,7 +4777,7 @@ paths:
             enum:
               - gpkg
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/octed-stream:
@@ -4782,7 +4786,7 @@ paths:
                 format: binary
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
   /public/indicators/{indicatorId}/{spatialUnitId}/{year}/{month}/{day}/without-geometry:
     get:
       tags:
@@ -4826,7 +4830,7 @@ paths:
           schema:
             type: number
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -4837,16 +4841,16 @@ paths:
               examples:
                 indicatorPropertiesWithoutGeomCollection:
                   $ref: './examples.yaml#/components/examples/IndicatorPropertiesWithoutGeomCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -4862,7 +4866,7 @@ paths:
         to public indicators
       operationId: getPublicProcessScripts
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -4873,16 +4877,16 @@ paths:
               examples:
                 processScriptOverviewCollection:
                   $ref: './examples.yaml#/components/examples/ProcessScriptOverviewCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -4905,7 +4909,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -4914,16 +4918,16 @@ paths:
               examples:
                 processScriptOverview:
                   $ref: './examples.yaml#/components/examples/ProcessScriptOverview'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -4946,23 +4950,23 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/javascript:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -4985,7 +4989,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -4994,16 +4998,16 @@ paths:
               examples:
                 processScriptOverview:
                   $ref: './examples.yaml#/components/examples/ProcessScriptOverview'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -5026,23 +5030,23 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/javascript:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -5056,7 +5060,7 @@ paths:
       description: retrieve the publicly accessible spatial unit hierarchies
       operationId: getPublicSpatialUnitHierarchies
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -5067,7 +5071,7 @@ paths:
               examples:
                 spatialUnitHierarchyOverviewCollection:
                   $ref: './examples.yaml#/components/examples/SpatialUnitHierarchyOverviewCollection'
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -5087,7 +5091,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -5096,7 +5100,7 @@ paths:
               examples:
                 spatialUnitHierarchyOverview:
                   $ref: './examples.yaml#/components/examples/SpatialUnitHierarchyOverview'
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -5110,7 +5114,7 @@ paths:
         units/levels
       operationId: getPublicSpatialUnits
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -5121,16 +5125,16 @@ paths:
               examples:
                 spatialUnitOverviewCollection:
                   $ref: './examples.yaml#/components/examples/SpatialUnitOverviewCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -5153,7 +5157,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -5162,16 +5166,16 @@ paths:
               examples:
                 spatialUnitOverview:
                   $ref: './examples.yaml#/components/examples/SpatialUnitOverview'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -5211,23 +5215,23 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -5249,22 +5253,22 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: string
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -5310,23 +5314,23 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -5378,23 +5382,23 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -5450,23 +5454,23 @@ paths:
               - medium
               - strong
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/octed-stream:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -5482,7 +5486,8 @@ paths:
       parameters:
         - name: topicType
           in: query
-          description: Controls whether only topics for indicators or georesources should be returned.
+          description:
+            Controls whether only topics for indicators or georesources should be returned.
             Supported values are ['georesource', 'indicator']
           allowEmptyValue: true
           schema:
@@ -5491,7 +5496,7 @@ paths:
               - indicator
               - georesource
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -5502,16 +5507,16 @@ paths:
               examples:
                 topicOverviewCollection:
                   $ref: './examples.yaml#/components/examples/TopicOverviewCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -5525,7 +5530,7 @@ paths:
       description: the topics display order mode for georesources and indicators
       operationId: getTopicsDisplayOrderMode
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -5536,21 +5541,21 @@ paths:
               examples:
                 topicDisplayOrderModeOverviewCollection:
                   $ref: './examples.yaml#/components/examples/TopicDisplayOrderModeOverviewCollection'
-        "400":
+        '400':
           description: Invalid status value
-          content: { }
-        "401":
+          content: {}
+        '401':
           description: API key is missing or invalid
-          content: { }
-        "403":
+          content: {}
+        '403':
           description: Forbidden
-          content: { }
-        "404":
+          content: {}
+        '404':
           description: Not Found
-          content: { }
+          content: {}
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
   /public/topics/{topicId}:
     get:
       tags:
@@ -5566,7 +5571,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -5575,16 +5580,16 @@ paths:
               examples:
                 topicOverview:
                   $ref: './examples.yaml#/components/examples/TopicOverview'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -5600,7 +5605,8 @@ paths:
       parameters:
         - name: resourceType
           in: query
-          description: Controls whether only web services for indicators or georesources should be returned.
+          description:
+            Controls whether only web services for indicators or georesources should be returned.
             Supported values are ['georesource', 'indicator']
           allowEmptyValue: true
           schema:
@@ -5609,7 +5615,7 @@ paths:
               - indicator
               - georesource
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -5621,7 +5627,7 @@ paths:
                 webServiceOverviewCollection:
                   $ref: './examples.yaml#/components/examples/WebServiceOverviewCollection'
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
   /public/web-services/{webServiceId}:
     get:
       tags:
@@ -5637,7 +5643,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -5647,7 +5653,7 @@ paths:
                 webServiceOverview:
                   $ref: './examples.yaml#/components/examples/WebServiceOverview'
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
   /spatial-unit-hierarchies:
     get:
       tags:
@@ -5657,7 +5663,7 @@ paths:
         current user is allowed to access
       operationId: getSpatialUnitHierarchies
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -5668,13 +5674,13 @@ paths:
               examples:
                 spatialUnitHierarchyOverviewCollection:
                   $ref: './examples.yaml#/components/examples/SpatialUnitHierarchyOverviewCollection'
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -5698,7 +5704,7 @@ paths:
                 $ref: './examples.yaml#/components/examples/SpatialUnitHierarchyPOSTInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -5707,7 +5713,7 @@ paths:
               examples:
                 spatialUnitHierarchyOverview:
                   $ref: './examples.yaml#/components/examples/SpatialUnitHierarchyOverview'
-        "201":
+        '201':
           description: Created
           content:
             application/json:
@@ -5716,13 +5722,13 @@ paths:
               examples:
                 spatialUnitHierarchyOverview:
                   $ref: './examples.yaml#/components/examples/SpatialUnitHierarchyOverview'
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -5744,7 +5750,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -5753,13 +5759,13 @@ paths:
               examples:
                 spatialUnitHierarchyOverview:
                   $ref: './examples.yaml#/components/examples/SpatialUnitHierarchyOverview'
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -5790,7 +5796,7 @@ paths:
                 $ref: './examples.yaml#/components/examples/SpatialUnitHierarchyInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -5799,16 +5805,16 @@ paths:
               examples:
                 spatialUnitHierarchyOverview:
                   $ref: './examples.yaml#/components/examples/SpatialUnitHierarchyOverview'
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -5830,15 +5836,15 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
       deprecated: false
@@ -5873,7 +5879,7 @@ paths:
                 $ref: './examples.yaml#/components/examples/SpatialUnitHierarchyMemberInputCollection'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -5882,16 +5888,16 @@ paths:
               examples:
                 spatialUnitHierarchyOverview:
                   $ref: './examples.yaml#/components/examples/SpatialUnitHierarchyOverview'
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -5908,7 +5914,7 @@ paths:
         units/levels
       operationId: getSpatialUnits
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -5919,16 +5925,16 @@ paths:
               examples:
                 spatialUnitOverviewCollection:
                   $ref: './examples.yaml#/components/examples/SpatialUnitOverviewCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -5951,7 +5957,7 @@ paths:
                 $ref: './examples.yaml#/components/examples/SpatialUnitPOSTInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
           content:
             'application/json':
@@ -5960,7 +5966,7 @@ paths:
               examples:
                 spatialUnitOverview:
                   $ref: './examples.yaml#/components/examples/SpatialUnitOverview'
-        "201":
+        '201':
           description: Created
           content:
             'application/json':
@@ -5969,16 +5975,16 @@ paths:
               examples:
                 spatialUnitOverview:
                   $ref: './examples.yaml#/components/examples/SpatialUnitOverview'
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -6002,7 +6008,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -6011,16 +6017,16 @@ paths:
               examples:
                 spatialUnitOverview:
                   $ref: './examples.yaml#/components/examples/SpatialUnitOverview'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -6054,21 +6060,21 @@ paths:
                 $ref: './examples.yaml#/components/examples/SpatialUnitPUTInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
-        "201":
+        '201':
           description: Created
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -6089,15 +6095,15 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
       deprecated: false
@@ -6128,18 +6134,18 @@ paths:
                 $ref: './examples.yaml#/components/examples/SpatialUnitPATCHInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -6180,23 +6186,23 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -6216,15 +6222,15 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
       deprecated: false
@@ -6247,7 +6253,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -6258,16 +6264,16 @@ paths:
               examples:
                 permissionLevelCollection:
                   $ref: './examples.yaml#/components/examples/PermissionLevelCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -6299,7 +6305,7 @@ paths:
                 $ref: './examples.yaml#/components/examples/PermissionLevelInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -6310,16 +6316,16 @@ paths:
               examples:
                 permissionLevelCollection:
                   $ref: './examples.yaml#/components/examples/PermissionLevelCollection'
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -6352,26 +6358,26 @@ paths:
                 $ref: './examples.yaml#/components/examples/OwnerInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
-          content: { }
-        "400":
+          content: {}
+        '400':
           description: Invalid status value
-          content: { }
-        "401":
+          content: {}
+        '401':
           description: API key is missing or invalid
-          content: { }
-        "403":
+          content: {}
+        '403':
           description: Forbidden
-          content: { }
-        "404":
+          content: {}
+        '404':
           description: Not Found
-          content: { }
+          content: {}
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
   /spatial-units/{spatialUnitId}/hierarchies:
     put:
       tags:
@@ -6402,7 +6408,7 @@ paths:
                 $ref: './examples.yaml#/components/examples/SpatialUnitHierarchyMembershipInputCollection'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -6411,21 +6417,21 @@ paths:
               examples:
                 spatialUnitOverview:
                   $ref: './examples.yaml#/components/examples/SpatialUnitOverview'
-        "401":
+        '401':
           description: API key is missing or invalid
-          content: { }
-        "403":
+          content: {}
+        '403':
           description: Forbidden
-          content: { }
-        "404":
+          content: {}
+        '404':
           description: Not Found
-          content: { }
-        "405":
+          content: {}
+        '405':
           description: Invalid input
-          content: { }
+          content: {}
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
       x-codegen-request-body-name: hierarchies
   /spatial-units/{spatialUnitId}/schema:
     get:
@@ -6443,22 +6449,22 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: string
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -6504,23 +6510,23 @@ paths:
               - medium
               - strong
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -6548,14 +6554,14 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
       deprecated: false
@@ -6607,23 +6613,23 @@ paths:
               - medium
               - strong
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -6666,21 +6672,21 @@ paths:
               type: string
         required: true
       responses:
-        "200":
+        '200':
           description: OK - Updated
-        "201":
+        '201':
           description: Created
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -6717,14 +6723,14 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
       deprecated: false
@@ -6780,23 +6786,23 @@ paths:
               - medium
               - strong
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/octed-stream:
               schema:
                 type: string
                 format: byte
-        "400":
+        '400':
           description: Invalid status value
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
       deprecated: false
@@ -6836,15 +6842,15 @@ paths:
           schema:
             type: number
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
       deprecated: false
@@ -6868,7 +6874,7 @@ paths:
                 $ref: './examples.yaml#/components/examples/TopicInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
           content:
             'application/json':
@@ -6877,7 +6883,7 @@ paths:
               examples:
                 topicOverview:
                   $ref: './examples.yaml#/components/examples/TopicOverview'
-        "201":
+        '201':
           description: Created
           content:
             'application/json':
@@ -6886,16 +6892,16 @@ paths:
               examples:
                 topicOverview:
                   $ref: './examples.yaml#/components/examples/TopicOverview'
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -6922,28 +6928,28 @@ paths:
                 $ref: './examples.yaml#/components/examples/TopicDisplayOrderInputCollection'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
-        "201":
+        '201':
           description: Created
-        "204":
+        '204':
           description: No Content
-          content: { }
-        "401":
+          content: {}
+        '401':
           description: Unauthorized
-          content: { }
-        "403":
+          content: {}
+        '403':
           description: Forbidden
-          content: { }
-        "404":
+          content: {}
+        '404':
           description: Not Found
-          content: { }
-        "405":
+          content: {}
+        '405':
           description: Invalid input
-          content: { }
+          content: {}
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
       x-codegen-request-body-name: indicatorMainTopicOrderArray
   /topics/indicators/display-order/mode:
     post:
@@ -6963,28 +6969,28 @@ paths:
                 $ref: './examples.yaml#/components/examples/TopicDisplayOrderModeInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
-        "201":
+        '201':
           description: Created
-        "204":
+        '204':
           description: No Content
-          content: { }
-        "401":
+          content: {}
+        '401':
           description: Unauthorized
-          content: { }
-        "403":
+          content: {}
+        '403':
           description: Forbidden
-          content: { }
-        "404":
+          content: {}
+        '404':
           description: Not Found
-          content: { }
-        "405":
+          content: {}
+        '405':
           description: Invalid input
-          content: { }
+          content: {}
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
       x-codegen-request-body-name: indicatorTopicOrderMode
   /topics/georesources/display-order:
     post:
@@ -7006,28 +7012,28 @@ paths:
                 $ref: './examples.yaml#/components/examples/TopicDisplayOrderInputCollection'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
-        "201":
+        '201':
           description: Created
-        "204":
+        '204':
           description: No Content
-          content: { }
-        "401":
+          content: {}
+        '401':
           description: Unauthorized
-          content: { }
-        "403":
+          content: {}
+        '403':
           description: Forbidden
-          content: { }
-        "404":
+          content: {}
+        '404':
           description: Not Found
-          content: { }
-        "405":
+          content: {}
+        '405':
           description: Invalid input
-          content: { }
+          content: {}
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
       x-codegen-request-body-name: mainGeoresourceTopicOrderArray
   /topics/georesources/display-order/mode:
     post:
@@ -7047,28 +7053,28 @@ paths:
                 $ref: './examples.yaml#/components/examples/TopicDisplayOrderModeInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
-        "201":
+        '201':
           description: Created
-        "204":
+        '204':
           description: No Content
-          content: { }
-        "401":
+          content: {}
+        '401':
           description: Unauthorized
-          content: { }
-        "403":
+          content: {}
+        '403':
           description: Forbidden
-          content: { }
-        "404":
+          content: {}
+        '404':
           description: Not Found
-          content: { }
-        "405":
+          content: {}
+        '405':
           description: Invalid input
-          content: { }
+          content: {}
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
       x-codegen-request-body-name: georesourceTopicOrderMode
   /topics/{topicId}:
     put:
@@ -7095,21 +7101,21 @@ paths:
                 $ref: './examples.yaml#/components/examples/TopicInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
-        "201":
+        '201':
           description: Created
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
-        "404":
+        '404':
           description: Not Found
           content: {}
-        "405":
+        '405':
           description: Invalid input
           content: {}
       deprecated: false
@@ -7130,15 +7136,15 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
           content: {}
-        "401":
+        '401':
           description: API key is missing or invalid
           content: {}
-        "403":
+        '403':
           description: Forbidden
           content: {}
       deprecated: false
@@ -7171,28 +7177,28 @@ paths:
                 $ref: './examples.yaml#/components/examples/TopicDisplayOrderInputCollection'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
-        "201":
+        '201':
           description: Created
-        "204":
+        '204':
           description: No Content
-          content: { }
-        "401":
+          content: {}
+        '401':
           description: Unauthorized
-          content: { }
-        "403":
+          content: {}
+        '403':
           description: Forbidden
-          content: { }
-        "404":
+          content: {}
+        '404':
           description: Not Found
-          content: { }
-        "405":
+          content: {}
+        '405':
           description: Invalid input
-          content: { }
+          content: {}
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
       x-codegen-request-body-name: subtopicOrderArray
   /web-services:
     get:
@@ -7204,7 +7210,8 @@ paths:
       parameters:
         - name: resourceType
           in: query
-          description: Controls whether only web services for indicators or georesources should be returned.
+          description:
+            Controls whether only web services for indicators or georesources should be returned.
             Supported values are ['georesource', 'indicator']
           allowEmptyValue: true
           schema:
@@ -7213,7 +7220,7 @@ paths:
               - indicator
               - georesource
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -7225,7 +7232,7 @@ paths:
                 webServiceOverviewCollection:
                   $ref: './examples.yaml#/components/examples/WebServiceOverviewCollection'
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
     post:
       tags:
         - web-services
@@ -7243,7 +7250,7 @@ paths:
                 $ref: './examples.yaml#/components/examples/WebServiceCreation'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
           content:
             'application/json':
@@ -7252,7 +7259,7 @@ paths:
               examples:
                 webServiceOverview:
                   $ref: './examples.yaml#/components/examples/WebServiceOverview'
-        "201":
+        '201':
           description: Created
           content:
             'application/json':
@@ -7276,7 +7283,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -7286,7 +7293,7 @@ paths:
                 webServiceOverview:
                   $ref: './examples.yaml#/components/examples/WebServiceOverview'
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
     put:
       tags:
         - web-services
@@ -7311,14 +7318,14 @@ paths:
                 $ref: './examples.yaml#/components/examples/WebServiceInput'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
-        "201":
+        '201':
           description: Created
-          content: { }
+          content: {}
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
       x-codegen-request-body-name: webServiceData
     delete:
       tags:
@@ -7334,14 +7341,14 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
-        "204":
+        '204':
           description: No Content
-          content: { }
+          content: {}
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
   /web-services/{webServiceId}/permissions:
     get:
       tags:
@@ -7357,7 +7364,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -7370,7 +7377,7 @@ paths:
                   $ref: './examples.yaml#/components/examples/PermissionLevelCollection'
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
     put:
       tags:
         - web-services
@@ -7394,11 +7401,11 @@ paths:
               permissionLevelInput:
                 $ref: './examples.yaml#/components/examples/PermissionLevelInput'
       responses:
-        "204":
+        '204':
           description: No Content
       deprecated: false
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
   /web-services/{webServiceId}/ownership:
     put:
       tags:
@@ -7423,10 +7430,10 @@ paths:
               ownerInput:
                 $ref: './examples.yaml#/components/examples/OwnerInput'
       responses:
-        "204":
+        '204':
           description: No Content
       security:
-        - kommonitor-data-access_oauth: [ ]
+        - kommonitor-data-access_oauth: []
 components:
   schemas:
     CommonMetadataType:
@@ -7459,7 +7466,7 @@ components:
           description: a timestamp representing the lastUpdate according to ISO 8601
             (e.g. 2018-01-30)
           format: date
-          example: "2018-01-30"
+          example: '2018-01-30'
         literature:
           type: string
           description: an optional hint to literature about the dataset (e.g. URL
@@ -7969,7 +7976,8 @@ components:
           $ref: '#/components/schemas/CommonMetadataType'
         precision:
           type: integer
-          description: Defines the number of decimal places for indicator values. If null, there is no predefined
+          description:
+            Defines the number of decimal places for indicator values. If null, there is no predefined
             precision for this indicator.
           example: 2
         processDescription:
@@ -8108,7 +8116,8 @@ components:
           example: Number of children under 6 divided by total population.
         precision:
           type: integer
-          description: Defines the number of decimal places for indicator values. If null, there is no predefined
+          description:
+            Defines the number of decimal places for indicator values. If null, there is no predefined
             precision for this indicator.
           example: 2
         referenceDateNote:
@@ -8290,7 +8299,8 @@ components:
           $ref: '#/components/schemas/CommonMetadataType'
         precision:
           type: integer
-          description: Defines the number of decimal places for indicator values. If null, there is no predefined
+          description:
+            Defines the number of decimal places for indicator values. If null, there is no predefined
             precision for this indicator.
           example: 2
         ownerId:
@@ -8373,7 +8383,7 @@ components:
           type: string
           description: timestamp consisting of year, month and day according to ISO 8601 (e.g. 2018-01-30)
           format: date
-          example: "2020-01-01"
+          example: '2020-01-01'
     IndicatorPOSTInputTypeNumericalValueMapping:
       title: IndicatorPOSTInputTypeNumericalValueMapping
       allOf:
@@ -8398,7 +8408,7 @@ components:
             indicatorValue:
               type: string
               description: the text-based categorical value of the indicator for the timestamp
-              example: "high"
+              example: 'high'
     IndicatorPOSTInputTypeRefrencesToGeoresources:
       title: IndicatorPOSTInputTypeRefrencesToGeoresources
       type: object
@@ -8475,11 +8485,11 @@ components:
         validStartDate:
           type: string
           description: the start date from which on the spatial feature is valid
-          example: "2020-01-01"
+          example: '2020-01-01'
         validEndDate:
           type: string
           description: the end date until the spatial feature is valid - or null if not set
-          example: "2020-12-31"
+          example: '2020-12-31'
     IndicatorReferenceType:
       title: IndicatorReferenceType
       required:
@@ -8718,19 +8728,19 @@ components:
             georesources:
               type: array
               items:
-                $ref: "#/components/schemas/OrganizationalUnitPermissionOverviewElementType"
+                $ref: '#/components/schemas/OrganizationalUnitPermissionOverviewElementType'
             spatialunits:
               type: array
               items:
-                $ref: "#/components/schemas/OrganizationalUnitPermissionOverviewElementType"
+                $ref: '#/components/schemas/OrganizationalUnitPermissionOverviewElementType'
             indicators:
               type: array
               items:
-                $ref: "#/components/schemas/OrganizationalUnitPermissionOverviewElementType"
+                $ref: '#/components/schemas/OrganizationalUnitPermissionOverviewElementType'
             indicatorspatialunits:
               type: array
               items:
-                $ref: "#/components/schemas/OrganizationalUnitPermissionOverviewSpatialUnitElementType"
+                $ref: '#/components/schemas/OrganizationalUnitPermissionOverviewSpatialUnitElementType'
     OwnerInputType:
       title: OwnerType
       required:
@@ -8752,13 +8762,13 @@ components:
             to ISO 8601 (e.g. 2018-01-30). The parameter can be omitted, if the
             end date is unknown.
           format: date
-          example: "2018-12-31"
+          example: '2018-12-31'
         startDate:
           type: string
           description: a timestamp representing the starting date according to ISO
             8601 (e.g. 2018-01-30)
           format: date
-          example: "2018-01-01"
+          example: '2018-01-01'
       description: definition of the period of validity of a certain dataset
     ProcessInputType:
       title: ProcessInputType
@@ -8780,7 +8790,7 @@ components:
         defaultValue:
           type: string
           description: the default value of the process parameter
-          example: "5.0"
+          example: '5.0'
         description:
           type: string
           description: a short description of the process input
@@ -9057,7 +9067,7 @@ components:
         outlineColor:
           type: string
           description: outline color for this layer as hex code
-          example: "#333333"
+          example: '#333333'
         outlineWidth:
           type: number
           format: int32
@@ -9118,7 +9128,7 @@ components:
         outlineColor:
           type: string
           description: outline color for this layer as hex code
-          example: "#333333"
+          example: '#333333'
         outlineWidth:
           type: number
           format: int32
@@ -9499,7 +9509,7 @@ components:
     WebServiceCreationType:
       title: WebServiceOverviewType
       allOf:
-        - $ref: "#/components/schemas/WebServiceType"
+        - $ref: '#/components/schemas/WebServiceType'
         - type: object
           required:
             - isPublic
@@ -9524,7 +9534,7 @@ components:
     WebServiceOverviewType:
       title: WebServiceOverviewType
       allOf:
-        - $ref: "#/components/schemas/WebServiceType"
+        - $ref: '#/components/schemas/WebServiceType'
         - type: object
           required:
             - id
@@ -9564,7 +9574,7 @@ components:
     WmsConnectionInfoType:
       title: WmsConnectionInfoType
       allOf:
-        - $ref: "#/components/schemas/ConnectionInfoType"
+        - $ref: '#/components/schemas/ConnectionInfoType'
         - type: object
           required:
             - baseUrl
@@ -9679,7 +9689,8 @@ components:
       properties:
         roleDelegates:
           type: array
-          description: list of admin roles for this organizational units that have been assigned to other organizational
+          description:
+            list of admin roles for this organizational units that have been assigned to other organizational
             units for delegation purpose
           items:
             $ref: '#/components/schemas/GroupAdminRolesType'
@@ -9759,7 +9770,8 @@ components:
         - unit-themes-creator
     IndicatorTypeEnum:
       type: string
-      description: indicates whether the indicator is a status indicator (values represent the extent of the watched
+      description:
+        indicates whether the indicator is a status indicator (values represent the extent of the watched
         phenomenon for a certain point in time) or a dynamic indicator (values represent the change of extent of the
         watched phenomenon within a certain period of time)
       enum:
@@ -9823,4 +9835,4 @@ components:
           authorizationUrl: http://keycloak:8080/realms/kommonitor/protocol/openid-connect/auth
           tokenUrl: http://keycloak:8080/realms/kommonitor/protocol/openid-connect/token
           scopes: {}
-x-original-swagger-version: "2.0"
+x-original-swagger-version: '2.0'

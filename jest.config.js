@@ -17,7 +17,9 @@ module.exports = {
   // 'echarts'` resolves to the UMD main and loads without this.)
   // uuid v14 is ESM-only ("type": "module", no CJS entry in its exports map), so
   // Jest resolves it to dist-node/index.js and must transform it.
-  transformIgnorePatterns: ['node_modules/(?!(?:.*\\.mjs$|leaflet-geosearch|echarts|zrender|uuid))'],
+  transformIgnorePatterns: [
+    'node_modules/(?!(?:.*\\.mjs$|leaflet-geosearch|echarts|zrender|uuid))',
+  ],
   // d3 v7 is ESM-only and pulls in a large ESM family (d3-*, internmap, delaunator …).
   // Map the bare `d3` import to its prebuilt UMD bundle instead of transforming the
   // whole tree — used by reporting-overview / indicator-add (`import * as d3 from 'd3'`).

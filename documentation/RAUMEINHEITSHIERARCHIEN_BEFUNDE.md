@@ -283,22 +283,26 @@ ausrechnen — er tut es, und nach 11.1 richtig.
 **Das ist der wichtigste Befund dieses Abschnitts.** Derselbe Aufruf antwortet je nach Datensatz
 unterschiedlich:
 
-| Raumeinheit                     | `isPublic` | Status                                            |
-| ------------------------------- | ---------- | ------------------------------------------------- |
-| Test Bezirke FID                | true       | 200 mit dem aktualisierten `SpatialUnitOverview`  |
-| Stadtbezirksebene Essen         | true       | 200                                               |
-| Stadtteile Essen, Test Bezirke  | true       | 200                                               |
-| Gemeinden RSK                   | false      | **404** `ResourceNotFoundException`               |
-| Berlin - LOR - Bezirksregionen  | false      | **404**                                           |
-| Berlin - LOR - Planungsräume    | false      | **404**                                           |
-| Stadt Viersen Sozialräume       | false      | **404**                                           |
+| Raumeinheit                    | `isPublic` | Status                                           |
+| ------------------------------ | ---------- | ------------------------------------------------ |
+| Test Bezirke FID               | true       | 200 mit dem aktualisierten `SpatialUnitOverview` |
+| Stadtbezirksebene Essen        | true       | 200                                              |
+| Stadtteile Essen, Test Bezirke | true       | 200                                              |
+| Gemeinden RSK                  | false      | **404** `ResourceNotFoundException`              |
+| Berlin - LOR - Bezirksregionen | false      | **404**                                          |
+| Berlin - LOR - Planungsräume   | false      | **404**                                          |
+| Stadt Viersen Sozialräume      | false      | **404**                                          |
 
 Acht Raumeinheiten, acht Treffer, deterministisch über mehrere Wiederholungen — und unabhängig
 davon, ob der Call etwas ändert, nichts ändert, einfügt, umzieht oder entfernt. Die Fehlerhülle
 nennt die Id der Raumeinheit:
 
 ```json
-{ "label": "…ResourceNotFoundException", "message": "The requested resource '416b573a-…' was not found.", "type": "ResourceNotFoundException" }
+{
+  "label": "…ResourceNotFoundException",
+  "message": "The requested resource '416b573a-…' was not found.",
+  "type": "ResourceNotFoundException"
+}
 ```
 
 **Die Schreiboperation läuft dabei vollständig durch.** Jede der oben beschriebenen Messungen
@@ -329,11 +333,11 @@ Hierarchie-Zuordnungen im `spatialUnitPostBody` — eine in Nachbarn-Form mit
 
 Das Gegenlesen bringt den eigentlichen Befund:
 
-| Abfrage                                      | Ergebnis                                                  |
-| -------------------------------------------- | --------------------------------------------------------- |
-| `GET /spatial-units` auf **v6**              | unverändert 47 Datensätze — der neue ist **nicht** dabei  |
-| `GET /spatial-units/{neueId}` auf **v6**     | 403                                                        |
-| `GET /spatial-units` auf `…/data-management/` | **48** Datensätze, `ZZZ-CLAUDE-A8` ist dabei              |
+| Abfrage                                       | Ergebnis                                                                                                 |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `GET /spatial-units` auf **v6**               | unverändert 47 Datensätze — der neue ist **nicht** dabei                                                 |
+| `GET /spatial-units/{neueId}` auf **v6**      | 403                                                                                                      |
+| `GET /spatial-units` auf `…/data-management/` | **48** Datensätze, `ZZZ-CLAUDE-A8` ist dabei                                                             |
 | `GET /spatial-units/{neueId}` dort            | 200, mit `nextUpperHierarchyLevel` / `nextLowerHierarchyLevel` (beide `null`) und **ohne** `hierarchies` |
 
 **Der Importer der Demo schreibt in die alte Data-Management-Instanz**, nicht in die v6 daneben. Die

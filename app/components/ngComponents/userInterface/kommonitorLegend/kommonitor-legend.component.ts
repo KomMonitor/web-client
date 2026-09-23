@@ -265,12 +265,35 @@ export class KommonitorLegendComponent implements OnInit {
     );
   }
 
-  filteredSpatialUnits() {
-    const allowedForIndicator = this.spatialUnitStore.availableSpatialUnits.filter(
+  /** Spatial units of the store that are available for the currently selected indicator, regardless of hierarchy filter. */
+  private spatialUnitsForCurrentIndicator() {
+    return this.spatialUnitStore.availableSpatialUnits.filter(
       (e) => this.selectionState.isAllowedSpatialUnitForCurrentIndicator(e) !== false
     );
+  }
 
-    if (!this.activeHierarchyMemberLevels) {
+  /** hierarchyIds any spatial unit of the current indicator is a member of. */
+  private applicableHierarchyIds(): Set<string> {
+    const memberHierarchyIds = new Set<string>();
+    for (const unit of this.spatialUnitsForCurrentIndicator()) {
+      for (const membership of unit.hierarchies ?? []) {
+        memberHierarchyIds.add(membership.hierarchyId);
+      }
+    }
+    return memberHierarchyIds;
+  }
+
+  filteredSpatialUnits() {
+    const allowedForIndicator = this.spatialUnitsForCurrentIndicator();
+
+    // Ignore a hierarchy filter left over from a previous indicator selection that doesn't
+    // apply here - e.g. the current indicator's spatial unit isn't part of any hierarchy at
+    // all, in which case it must still show up unfiltered.
+    if (
+      !this.activeHierarchyMemberLevels ||
+      !this.selectedHierarchyId ||
+      !this.applicableHierarchyIds().has(this.selectedHierarchyId)
+    ) {
       return allowedForIndicator;
     }
 
@@ -280,9 +303,14 @@ export class KommonitorLegendComponent implements OnInit {
       .sort((a, b) => memberLevels.get(a.spatialUnitId)! - memberLevels.get(b.spatialUnitId)!);
   }
 
-  /** All hierarchies available for the legend's "Hierachie" buttons. */
+  /**
+   * All hierarchies any spatial unit of the current indicator is a member of, for the
+   * legend's "Hierachie" buttons. A hierarchy is included once even if several of the
+   * indicator's spatial units belong to it.
+   */
   protected availableHierarchies(): SpatialUnitHierarchyOverviewType[] {
-    return this.hierarchies;
+    const memberHierarchyIds = this.applicableHierarchyIds();
+    return this.hierarchies.filter((hierarchy) => memberHierarchyIds.has(hierarchy.hierarchyId));
   }
 
   async onClickHierarchy(hierarchy: SpatialUnitHierarchyOverviewType) {
@@ -290,16 +318,26 @@ export class KommonitorLegendComponent implements OnInit {
       // clicking the active hierarchy again clears the filter
       this.selectedHierarchyId = undefined;
       this.activeHierarchyMemberLevels = undefined;
-      return;
+    } else {
+      const hierarchyMembers = await this.spatialUnitHierarchyService.fetchHierarchyMembers(
+        hierarchy.hierarchyId
+      );
+      if (!hierarchyMembers) {
+        return;
+      }
+      this.selectedHierarchyId = hierarchy.hierarchyId;
+      this.activeHierarchyMemberLevels = new Map(
+        hierarchyMembers.members.map((member) => [member.spatialUnitId, member.hierarchyLevel])
+      );
     }
 
-    const hierarchyMembers = await this.spatialUnitHierarchyService.fetchHierarchyMembers(
-      hierarchy.hierarchyId
-    );
-    this.selectedHierarchyId = hierarchy.hierarchyId;
-    this.activeHierarchyMemberLevels = new Map(
-      hierarchyMembers.members.map((member) => [member.spatialUnitId, member.hierarchyLevel])
-    );
+    // the hierarchy filter just changed the applicable spatial units - always select the
+    // first one and run the usual spatial-unit-change side effects (map update, notifications).
+    const [firstApplicableSpatialUnit] = this.filteredSpatialUnits();
+    if (firstApplicableSpatialUnit) {
+      this.selectionState.selectedSpatialUnit = firstApplicableSpatialUnit;
+      this.onChangeSelectedSpatialUnit();
+    }
   }
 
   onChangeIndicatorDatepickerDate() {

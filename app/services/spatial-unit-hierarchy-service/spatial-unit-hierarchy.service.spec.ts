@@ -1,16 +1,23 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { AuthService } from 'services/auth-service/auth.service';
 
 import { SpatialUnitHierarchyService } from './spatial-unit-hierarchy.service';
 
 describe('SpatialUnitHierarchyService', () => {
   let service: SpatialUnitHierarchyService;
   let httpMock: HttpTestingController;
+  let isAuthenticated: jest.Mock;
 
   beforeEach(() => {
+    isAuthenticated = jest.fn().mockReturnValue(true);
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: AuthService, useValue: { isAuthenticated } },
+      ],
     });
     service = TestBed.inject(SpatialUnitHierarchyService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -37,15 +44,22 @@ describe('SpatialUnitHierarchyService', () => {
     expect(await promise).toEqual(apiHierarchies);
   });
 
-  it('fetchAllHierarchies falls back to the mocked hierarchies when the endpoint fails', async () => {
+  it('fetchAllHierarchies hits the public endpoint when the user is not logged in', async () => {
+    isAuthenticated.mockReturnValue(false);
+
+    const promise = service.fetchAllHierarchies();
+    httpMock.expectOne((req) => req.url.endsWith('/public/spatial-unit-hierarchies')).flush([]);
+
+    expect(await promise).toEqual([]);
+  });
+
+  it('fetchAllHierarchies resolves to an empty list when the endpoint fails', async () => {
     const promise = service.fetchAllHierarchies();
     httpMock
       .expectOne((req) => req.url.endsWith('/spatial-unit-hierarchies'))
       .flush('not found', { status: 404, statusText: 'Not Found' });
 
-    const result = await promise;
-    expect(result.length).toBeGreaterThan(0);
-    expect(result[0].name).toBe('Sozialraum');
+    expect(await promise).toEqual([]);
   });
 
   it('fetchHierarchyMembers resolves the API response when the endpoint is available', async () => {
@@ -65,33 +79,23 @@ describe('SpatialUnitHierarchyService', () => {
     expect(await promise).toEqual(apiMembers);
   });
 
-  it('falls back to the mocked members for a known hierarchyId when the endpoint fails', async () => {
-    const promise = service.fetchHierarchyMembers('f09ae60b-f32a-46b2-a198-501cdab4a3e0');
-    httpMock
-      .expectOne((req) =>
-        req.url.endsWith('/spatial-unit-hierarchies/f09ae60b-f32a-46b2-a198-501cdab4a3e0')
-      )
-      .flush('not found', { status: 404, statusText: 'Not Found' });
+  it('fetchHierarchyMembers hits the public endpoint when the user is not logged in', async () => {
+    isAuthenticated.mockReturnValue(false);
 
-    const result = await promise;
-    expect(result.name).toBe('Sozialraum');
-    expect(result.members).toHaveLength(4);
-    expect(result.members.map((m) => m.spatialUnitLevel)).toEqual([
-      'Test4',
-      'Test3',
-      'Test',
-      'Test2',
-    ]);
+    const promise = service.fetchHierarchyMembers('api-id');
+    httpMock
+      .expectOne((req) => req.url.endsWith('/public/spatial-unit-hierarchies/api-id'))
+      .flush({ hierarchyId: 'api-id', isPublic: true, mandantId: 'm1', name: 'n', members: [] });
+
+    expect((await promise)?.hierarchyId).toBe('api-id');
   });
 
-  it('falls back to an empty member list for an unknown hierarchyId when the endpoint fails', async () => {
+  it('fetchHierarchyMembers resolves to undefined when the endpoint fails', async () => {
     const promise = service.fetchHierarchyMembers('unknown-id');
     httpMock
       .expectOne((req) => req.url.endsWith('/spatial-unit-hierarchies/unknown-id'))
       .flush('not found', { status: 404, statusText: 'Not Found' });
 
-    const result = await promise;
-    expect(result.hierarchyId).toBe('unknown-id');
-    expect(result.members).toEqual([]);
+    expect(await promise).toBeUndefined();
   });
 });

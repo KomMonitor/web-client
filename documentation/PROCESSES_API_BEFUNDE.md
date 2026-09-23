@@ -25,12 +25,12 @@ zurückgenommen.
 
 Das ist der Befund, an dem die meisten Fehler hängen:
 
-| Wo                                             | Schreibweise                              |
-| ---------------------------------------------- | ----------------------------------------- |
-| `GET processes` → `id`                         | `KmIndicatorMultiply` (PascalCase)        |
-| **Angelegt** wird über `processes/{id}/schedule` | `KmIndicatorMultiply` (PascalCase)        |
-| `GET schedules` → `processID`                  | `km_indicator_multiply` (`apiName`)       |
-| `GET jobs` → `processID`                       | `km_indicator_multiply` (`apiName`)       |
+| Wo                                               | Schreibweise                        |
+| ------------------------------------------------ | ----------------------------------- |
+| `GET processes` → `id`                           | `KmIndicatorMultiply` (PascalCase)  |
+| **Angelegt** wird über `processes/{id}/schedule` | `KmIndicatorMultiply` (PascalCase)  |
+| `GET schedules` → `processID`                    | `km_indicator_multiply` (`apiName`) |
+| `GET jobs` → `processID`                         | `km_indicator_multiply` (`apiName`) |
 
 Geschrieben wird also mit PascalCase, gemeldet wird `apiName`. Beides ist serverseitig belegt
 (Abschnitt 4).
@@ -60,16 +60,16 @@ greift die Map nicht, die Job-Tabelle braucht den rohen `processID` als Fallback
 Vollständige Inventarliste über alle 19 UI-Prozesse — Grundlage für die generierte Eingabemaske und
 für jede Abhängigkeitsprüfung:
 
-| Input                                                            | Referenziert      |
-| ----------------------------------------------------------------- | ----------------- |
-| `target_indicator_id`                                             | Ziel-Indikator    |
-| `computation_id`, `computation_id_numerator`, `..._denominator`   | Basis-Indikator   |
-| `computation_ids`, `computation_ids_with_polarity`                | Basis-Indikatoren |
-| `reference_id`                                                    | Referenzindikator |
-| `georesource_id`                                                  | Georessource      |
-| `target_spatial_units`                                            | Raumebenen        |
-| `target_time`, `execution_interval`                               | Steuerung         |
-| `compMeth`, `compProp`, `comp_filter`, `aggregation_method`, `computation_method`, `temporal_type`, `number_of_temporal_items`, `num_value`, `reference_date` | keine Datensätze |
+| Input                                                                                                                                                         | Referenziert      |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| `target_indicator_id`                                                                                                                                         | Ziel-Indikator    |
+| `computation_id`, `computation_id_numerator`, `..._denominator`                                                                                               | Basis-Indikator   |
+| `computation_ids`, `computation_ids_with_polarity`                                                                                                            | Basis-Indikatoren |
+| `reference_id`                                                                                                                                                | Referenzindikator |
+| `georesource_id`                                                                                                                                              | Georessource      |
+| `target_spatial_units`                                                                                                                                        | Raumebenen        |
+| `target_time`, `execution_interval`                                                                                                                           | Steuerung         |
+| `compMeth`, `compProp`, `comp_filter`, `aggregation_method`, `computation_method`, `temporal_type`, `number_of_temporal_items`, `num_value`, `reference_date` | keine Datensätze  |
 
 Die Prozessbeschreibung ist damit die Quelle der Eingabefelder — eine feste Liste im Client wäre
 falsch.
@@ -121,7 +121,7 @@ Auf allen 21 Schedules vorhanden: `target_time`, `execution_interval`, `target_i
 **Zwei Formregeln, die sich aus der Prozessbeschreibung nicht ablesen lassen** und nur aus den
 gespeicherten Schedules hervorgehen — `schedule-input-builder.util.ts` setzt sie um:
 
-1. **Nur manche Inputs stecken in `{ value: … }`.** Die Regel ist *nicht* „Objekt ⇒ eingepackt":
+1. **Nur manche Inputs stecken in `{ value: … }`.** Die Regel ist _nicht_ „Objekt ⇒ eingepackt":
    `compMeth` ist im Schema als `type: object` deklariert und wird trotzdem flach gespeichert.
    Eingepackt sind `target_time`, `execution_interval` und `comp_filter`. Bei
    `computation_ids_with_polarity` trägt nicht die Liste die Hülle, sondern **jeder Eintrag**:
@@ -207,12 +207,12 @@ mit einem Eintrag je Raumeinheit:
 **Der Payload widerspricht dem deklarierten Schema an zwei Stellen** — `GET processes/{id}`
 deklariert unter `outputs.jobSummary`, was der Server liefern will:
 
-| | Schema sagt | Payload sendet | Client |
-| --- | --- | --- | --- |
-| Fehlertyp | `MISSING_TIMESTAMP` … | **`missingTimestamp`** … | akzeptiert beide |
-| `errorsOccurred` | Array **von** Arrays | **flache Liste** | flacht eine Ebene ab |
-| `errorMessage` | required | vorhanden und gefüllt | wird angezeigt |
-| `affectedResourceType` | `INDICATOR` / `GEORESOURCE` | `INDICATOR` | case-insensitiver Vergleich |
+|                        | Schema sagt                 | Payload sendet           | Client                      |
+| ---------------------- | --------------------------- | ------------------------ | --------------------------- |
+| Fehlertyp              | `MISSING_TIMESTAMP` …       | **`missingTimestamp`** … | akzeptiert beide            |
+| `errorsOccurred`       | Array **von** Arrays        | **flache Liste**         | flacht eine Ebene ab        |
+| `errorMessage`         | required                    | vorhanden und gefüllt    | wird angezeigt              |
+| `affectedResourceType` | `INDICATOR` / `GEORESOURCE` | `INDICATOR`              | case-insensitiver Vergleich |
 
 Masters camelCase-Annahme war also richtig und das Schema an dieser Stelle irreführend. Weil beide
 Seiten auseinanderlaufen, bleibt die Toleranz im Client bestehen — sie kostet sechs Zeilen und
@@ -266,10 +266,10 @@ Die Prozessbeschreibung **bewirbt diesen Endpunkt nicht** — verlinkt ist nur
 hätte einen echten Schedule verdrängt (s. unten). Cron `0 3 1 1 *`, damit im Testfenster nichts
 feuert. Vorher 21 Schedules, nachher wieder dieselben 21 mit identischen IDs.
 
-| Aufruf                                                         | Antwort                                                                             |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `POST processes/KmIndicatorSum/schedule` mit `{ "inputs": … }` | **200**, `{"scheduling_id": "0a89c40b-…"}`                                          |
-| `GET schedules`                                                | 22 Einträge, der neue mit `status: "NOT_READY"`                                     |
+| Aufruf                                                         | Antwort                                                                              |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `POST processes/KmIndicatorSum/schedule` mit `{ "inputs": … }` | **200**, `{"scheduling_id": "0a89c40b-…"}`                                           |
+| `GET schedules`                                                | 22 Einträge, der neue mit `status: "NOT_READY"`                                      |
 | `DELETE schedules/{id}`                                        | **200**, `{"scheduleID": …, "status": "DISMISSED", "message": "Schedule dismissed"}` |
 
 Drei Details, die aus Masters Code nicht hervorgehen, weil er die Antworten verwirft:
@@ -321,11 +321,11 @@ tut `ScheduleDraftService.submit()`.
 
 ## 5. Auth und Fehlerformen
 
-| Endpunkt                     | ohne Token |
-| ---------------------------- | ---------- |
+| Endpunkt                      | ohne Token |
+| ----------------------------- | ---------- |
 | `processes`, `processes/{id}` | 200        |
-| `schedules`                  | **401**    |
-| `jobs`                       | **401**    |
+| `schedules`                   | **401**    |
+| `jobs`                        | **401**    |
 
 Die 401-Antwort:
 
