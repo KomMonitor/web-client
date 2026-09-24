@@ -1,0 +1,42 @@
+:host {
+  display: block;
+}
+
+// Keeps the name field and the outline switch on one baseline, as in the rest
+// of the wizard.
+.meta-row label {
+  min-height: 20px;
+}
+
+.outline-switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.outline-switch-hint,
+.assignment-hint {
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: #8598a5;
+}
+
+.outline-width-input {
+  max-width: 110px;
+}
+
+// The tenant field, projected into the assignment panel's box. Styled here and
+// not there: projected nodes carry the styles of the template that declares
+// them, not of the component they end up in.
+.assignment-mandant {
+  max-width: 420px;
+
+  .form-label {
+    margin-bottom: 4px;
+  }
+
+  .assignment-hint {
+    display: block;
+    margin-top: 4px;
+  }
+}

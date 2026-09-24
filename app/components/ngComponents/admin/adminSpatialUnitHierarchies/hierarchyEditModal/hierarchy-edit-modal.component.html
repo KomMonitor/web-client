@@ -1,0 +1,89 @@
+<div class="modal-header">
+  <h4 class="modal-title">
+    {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_EDIT_MODAL.TITLE' | translate }}
+  </h4>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="cancel()"
+  ></button>
+</div>
+
+<div class="modal-body">
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="form-group">
+      <label class="form-label" for="hierarchy-name-input">
+        {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_EDIT_MODAL.NAME_LABEL' | translate }}*
+      </label>
+      <input id="hierarchy-name-input" class="form-control" type="text" formControlName="name" />
+      <app-form-error [control]="form.controls.name" for="hierarchy-name-input" />
+    </div>
+
+    <!-- The same checkbox as in the create dialog, and the same warning: a
+         public hierarchy is only as public as the levels it holds. -->
+    <div class="form-check public-option">
+      <input
+        id="hierarchy-public-input"
+        class="form-check-input"
+        type="checkbox"
+        formControlName="isPublic"
+      />
+      <label class="form-check-label" for="hierarchy-public-input">
+        {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_EDIT_MODAL.PUBLIC_LABEL' | translate }}
+      </label>
+      <p class="public-hint">
+        {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_EDIT_MODAL.PUBLIC_HINT' | translate }}
+      </p>
+    </div>
+
+    <!--
+      Everything this dialog cannot change, in one panel under one heading —
+      the tenant because the API refuses to move a hierarchy, the chain because
+      the tree on the page edits it, and the id because it is what a support
+      question quotes. Listed all the same: they say which hierarchy this is.
+    -->
+    <div class="facts">
+      <p class="facts-title">
+        {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_EDIT_MODAL.FIXED_TITLE' | translate }}
+      </p>
+      <dl class="facts-list">
+        <dt>
+          {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_EDIT_MODAL.MANDANT_LABEL' | translate }}
+        </dt>
+        <dd>
+          {{
+            mandant ||
+              ('ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_EDIT_MODAL.MANDANT_NONE' | translate)
+          }}
+        </dd>
+
+        <dt>{{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_EDIT_MODAL.CHAIN_LABEL' | translate }}</dt>
+        <dd>
+          @if (chain.length > 0) {
+            <span class="facts-chain">{{ chainText }}</span>
+          } @else {
+            <span class="facts-muted">
+              {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_EDIT_MODAL.CHAIN_EMPTY' | translate }}
+            </span>
+          }
+          <span class="facts-hint">
+            {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_EDIT_MODAL.CHAIN_HINT' | translate }}
+          </span>
+        </dd>
+
+        <dt>{{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_EDIT_MODAL.ID_LABEL' | translate }}</dt>
+        <dd class="facts-id">{{ hierarchyId }}</dd>
+      </dl>
+    </div>
+  </form>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="cancel()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
+  </button>
+  <button type="button" class="btn btn-success" [disabled]="form.invalid" (click)="submit()">
+    {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_EDIT_MODAL.SUBMIT' | translate }}
+  </button>
+</div>

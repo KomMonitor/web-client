@@ -11,8 +11,9 @@ import {
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { MandantService } from 'services/mandant-service/mandant.service';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
-import { collectCreatorRightOrganizations } from './role-management-panel.model';
+import { collectCreatorRightOrganizations, ownersOfMandant } from './role-management-panel.model';
 
 /**
  * The "transfer ownership" block of the edit-user-roles modals: keyword
@@ -46,6 +47,7 @@ import { collectCreatorRightOrganizations } from './role-management-panel.model'
 })
 export class OwnerOrganizationSelectComponent implements ControlValueAccessor {
   private accessControlService = inject(AccessControlService);
+  private mandantService = inject(MandantService);
   private cdr = inject(ChangeDetectorRef);
 
   /** 'transfer': optional ownership transfer (edit); 'assign': mandatory owner choice (add). */
@@ -54,6 +56,12 @@ export class OwnerOrganizationSelectComponent implements ControlValueAccessor {
   @Input() currentOwnerId: string | null | undefined = null;
   /** Selected target owner; empty keeps the current owner. Supports two-way binding. */
   @Input() ownerId = '';
+  /**
+   * Narrows the offer to the units of this tenant. Empty offers all of them,
+   * which is what every caller but the spatial unit add wizard wants — there
+   * the tenant is chosen in the first step and the dataset has to end up in it.
+   */
+  @Input() mandantId = '';
   @Output() ownerIdChange = new EventEmitter<string>();
 
   /** Set through `setDisabledState` when used as a form control. */
@@ -106,9 +114,12 @@ export class OwnerOrganizationSelectComponent implements ControlValueAccessor {
   }
 
   getFilteredOrganizations(): AccessControlMetadata[] {
-    const orgs = this.accessControlService.checkAdminPermission()
+    const allowed = this.accessControlService.checkAdminPermission()
       ? (this.accessControlService.accessControl ?? [])
       : this.creatorRightOrganizations();
+    const orgs = ownersOfMandant(allowed, this.mandantId, (id) =>
+      this.mandantService.mandantIdOfOwner(id)
+    );
     if (!this.ownerOrgFilter) {
       return orgs;
     }

@@ -1,0 +1,100 @@
+:host {
+  display: block;
+}
+
+.mandant-overview {
+  margin-bottom: 14px;
+}
+
+.mandant-table {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #e2eaf1;
+  border-radius: 3px;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  th,
+  td {
+    padding: 10px 14px;
+    vertical-align: middle;
+  }
+
+  // Head cells default to centred; every column here reads from the left.
+  th {
+    text-align: left;
+  }
+
+  // Column heads in the same key as the other labels of this page: small,
+  // spaced out, on the panel's light ground.
+  thead th {
+    background: #f7f9fb;
+    border-bottom: 1px solid #e2eaf1;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #8598a5;
+  }
+
+  tbody tr + tr th,
+  tbody tr + tr td {
+    border-top: 1px solid #f0f4f7;
+  }
+
+  tbody tr:hover th,
+  tbody tr:hover td {
+    background: #f9fbfd;
+  }
+}
+
+// Tenant column: the same square initials the switcher uses.
+.mandant-cell {
+  font-weight: 400;
+
+  .mandant-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 25px;
+    height: 25px;
+    margin-right: 10px;
+    border-radius: 3px;
+    background: #dbe7f1;
+    color: #4a6b85;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    vertical-align: middle;
+  }
+
+  .mandant-name {
+    font-size: 15px;
+    vertical-align: middle;
+  }
+}
+
+.number-cell {
+  width: 14%;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.shared-cell {
+  font-size: 13.5px;
+  color: #8598a5;
+}
+
+.action-cell {
+  width: 1%;
+  text-align: right;
+  white-space: nowrap;
+}
+
+// Why the numbers cannot be compared across tenants.
+.mandant-overview-hint {
+  margin: 10px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #8598a5;
+}

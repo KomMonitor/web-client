@@ -23,7 +23,11 @@
       now, like the error alerts in the group dialogs.
     -->
     @if (spatialUnitMetadataImportError()) {
-      <div id="spatialUnitEditMetadataImportErrorAlert" class="alert alert-danger" role="alert">
+      <div
+        id="spatialUnitEditMetadataImportErrorAlert"
+        class="alert alert-danger alert-scrollable"
+        role="alert"
+      >
         <button
           type="button"
           class="btn-close float-end"
@@ -125,67 +129,18 @@
                 />
               </div>
             </div>
-            <div class="col-md-4 col-sm-6 col-12">
-              <div class="form-group">
-                <label class="form-label">{{
-                  'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_LOWER' | translate
-                }}</label>
-                <select formControlName="nextLowerHierarchySpatialUnit" class="form-select">
-                  <option [ngValue]="null" disabled [selected]="!nextLowerHierarchySpatialUnit">
-                    {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_SPATIAL_UNIT' | translate }}
-                  </option>
-                  <option [ngValue]="null">
-                    {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NONE_NEW_LOWEST' | translate }}
-                  </option>
-                  @for (value of availableSpatialUnits; track value) {
-                    <option [ngValue]="value">
-                      {{ value.spatialUnitLevel }}
-                    </option>
-                  }
-                </select>
-                <p class="help-block">
-                  {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_HINT' | translate }}
-                </p>
-              </div>
-            </div>
-            <div class="col-md-4 col-sm-6 col-12">
-              <div class="form-group">
-                <label class="form-label">{{
-                  'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_UPPER' | translate
-                }}</label>
-                <select formControlName="nextUpperHierarchySpatialUnit" class="form-select">
-                  <option [ngValue]="null" disabled [selected]="!nextUpperHierarchySpatialUnit">
-                    {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_SPATIAL_UNIT' | translate }}
-                  </option>
-                  <option [ngValue]="null">
-                    {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NONE_NEW_UPPERMOST' | translate }}
-                  </option>
-                  @for (value of availableSpatialUnits; track value) {
-                    <option [ngValue]="value">
-                      {{ value.spatialUnitLevel }}
-                    </option>
-                  }
-                </select>
-                <p class="help-block">
-                  {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_HINT' | translate }}
-                </p>
-              </div>
-            </div>
           </div>
+
           <!--
-            One message for one rule. The hierarchy validator sits on the form
-            group, but its message was rendered under each of the two selects,
-            so a single problem was reported twice side by side.
+            The tenant is the dataset's own and cannot be changed here, so the
+            panel only names it — there is nothing to pick.
           -->
-          <div class="row">
-            <div class="col-12">
-              <app-form-error
-                [control]="editForm"
-                keyOverride="ADMIN_SPATIAL_UNITS.METADATA_STEP.HIERARCHY_INVALID"
-                showWhen="always"
-              />
-            </div>
-          </div>
+          <app-hierarchy-assignment-panel
+            [rows]="hierarchyRows"
+            [hierarchies]="availableHierarchies"
+            [mandantId]="datasetMandantId"
+            [selfSpatialUnitId]="datasetSpatialUnitId"
+          />
 
           <div class="row form-section-row">
             <div class="col-md-3 col-sm-6 col-12">
@@ -307,11 +262,7 @@
     type="button"
     class="btn btn-success"
     [disabled]="
-      !spatialUnitLevel ||
-      spatialUnitLevelInvalid ||
-      metadataForm.invalid ||
-      editForm.hasError('spatialUnitHierarchy') ||
-      loadingData()
+      !spatialUnitLevel || spatialUnitLevelInvalid || metadataForm.invalid || loadingData()
     "
     (click)="onSubmit()"
   >

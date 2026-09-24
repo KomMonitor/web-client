@@ -6,17 +6,27 @@
     border: 0;
     margin: 0;
     padding: 0;
+
+    // One row in the hierarchy toolbar: label and both options side by side.
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 16px;
   }
 
   // Bootstrap's <legend> is a full-width 20px heading that floats. Sized back
   // to the surrounding text and given a slightly heavier weight, so the group
   // label reads as the label of the two options rather than as a third option.
-  // The bottom margin stays with `.form-label` in the template.
   legend {
     float: none;
     width: auto;
+    margin-bottom: 0;
     font-size: inherit;
     line-height: inherit;
     font-weight: 500;
+  }
+
+  .form-check {
+    margin-bottom: 0;
   }
 }

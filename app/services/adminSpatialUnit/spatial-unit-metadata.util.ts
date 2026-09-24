@@ -12,8 +12,6 @@ export function convertEmptyToNull(value: any): any {
 export function buildSpatialUnitMetadataPatchBody(
   spatialUnitLevel: string,
   metadata: any,
-  nextLowerHierarchyLevel: string | null,
-  nextUpperHierarchyLevel: string | null,
   isOutlineLayer: boolean,
   outlineColor: string,
   outlineWidth: number,
@@ -35,8 +33,6 @@ export function buildSpatialUnitMetadataPatchBody(
       description: convertEmptyToNull(metadata.description),
       databasis: convertEmptyToNull(metadata.databasis),
     },
-    nextLowerHierarchyLevel,
-    nextUpperHierarchyLevel,
     isOutlineLayer,
     outlineColor: outlineColor || '#bf3d2c',
     outlineWidth: outlineWidth || 2,
@@ -48,8 +44,6 @@ export function buildSpatialUnitMetadataPatchBody(
 export function buildSpatialUnitMetadataExport(
   metadata: any,
   spatialUnitLevel: string,
-  nextLowerHierarchyLevel: string | null,
-  nextUpperHierarchyLevel: string | null,
   isOutlineLayer: boolean,
   outlineColor: string,
   outlineWidth: number,
@@ -71,8 +65,6 @@ export function buildSpatialUnitMetadataExport(
     // API and the AngularJS original both call this field `permissions`.
     permissions: ['roleId'],
     spatialUnitLevel: spatialUnitLevel || null,
-    nextLowerHierarchyLevel,
-    nextUpperHierarchyLevel,
     isOutlineLayer,
     outlineColor,
     outlineWidth,
@@ -94,9 +86,7 @@ export const SPATIAL_UNIT_METADATA_STRUCTURE = {
     databasis: 'text about data basis',
   },
   permissions: ['roleId'],
-  nextLowerHierarchyLevel: 'Name of lower hierarchy level',
   spatialUnitLevel: 'Name of spatial unit dataset',
-  nextUpperHierarchyLevel: 'Name of upper hierarchy level',
 };
 
 /** Minimal required-field validation for the spatial-unit metadata form. */

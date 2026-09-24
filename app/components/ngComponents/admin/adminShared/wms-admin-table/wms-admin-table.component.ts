@@ -7,7 +7,6 @@ import {
   ViewChild,
   inject,
 } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import { WmsDataset, WmsResourceType } from 'components/ngComponents/models/services.models';
 import { Subscription, skip } from 'rxjs';
@@ -26,7 +25,8 @@ import { WmsEditUserRolesModalComponent } from './wms-edit-user-roles-modal/wms-
 import { WmsDeleteModalComponent } from './wms-delete-modal/wms-delete-modal.component';
 import { WmsSharedComponentsService } from './wms-admin-tables-shared.service';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
-import { MODAL_CONFIRM, MODAL_FORM, MODAL_WIDE } from 'util/modal-presets';
+import { AdminModalService } from '../modal/admin-modal.service';
+import { MODAL_FORM, MODAL_WIDE } from 'util/modal-presets';
 
 @Component({
   selector: 'app-wms-admin-table',
@@ -42,7 +42,7 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
   private accessControlService = inject(AccessControlService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private broadcastService = inject(BroadcastService);
-  private modalService = inject(NgbModal);
+  private modals = inject(AdminModalService);
   private wmsSharedComponentsService = inject(WmsSharedComponentsService);
 
   @ViewChild('wmsGrid', { static: false }) wmsGrid!: AgGridAngular;
@@ -128,73 +128,40 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
     return this.accessControlService.checkDeletePermission();
   }
 
-  public openAddModal(resourceType: WmsResourceType) {
+  public async openAddModal(resourceType: WmsResourceType): Promise<void> {
     // check whether the requested modal type matches the actual component
     // otherwise both add modals (geores. / indi.) will open, as both tables exist
-    if (resourceType == this.resourceType) {
-      const modalRef = this.modalService.open(WmsAddModalComponent, MODAL_FORM);
-
-      modalRef.componentInstance.resourceType = resourceType;
-
-      modalRef.result
-        .then((result) => {
-          if (result) {
-            this.initializeOrRefreshOverviewTable();
-          }
-        })
-        .catch(() => {
-          // Modal dismissed
-        });
+    if (resourceType != this.resourceType) {
+      return;
+    }
+    if (await this.modals.open(WmsAddModalComponent, MODAL_FORM, { resourceType })) {
+      this.initializeOrRefreshOverviewTable();
     }
   }
 
-  onClickEditMetadata(wmsMetadata: any): void {
-    const modalRef = this.modalService.open(WmsEditModalComponent, MODAL_FORM);
-
-    modalRef.componentInstance.currentGeoresourceDataset = wmsMetadata;
-    modalRef.componentInstance.reInit();
-
-    modalRef.result
-      .then((result) => {
-        if (result) {
-          this.initializeOrRefreshOverviewTable();
-        }
-      })
-      .catch(() => {
-        // Modal dismissed
-      });
+  async onClickEditMetadata(wmsMetadata: WmsDataset): Promise<void> {
+    const saved = await this.modals.open(WmsEditModalComponent, MODAL_FORM, (modal) => {
+      modal.currentGeoresourceDataset = wmsMetadata;
+      modal.reInit();
+    });
+    if (saved) {
+      this.initializeOrRefreshOverviewTable();
+    }
   }
 
-  onClickEditUserRoles(wmsMetadata: any): void {
-    const modalRef = this.modalService.open(WmsEditUserRolesModalComponent, MODAL_WIDE);
-
-    modalRef.componentInstance.currentGeoresourceDataset = wmsMetadata;
-    modalRef.componentInstance.reInit();
-
-    modalRef.result
-      .then((result) => {
-        if (result) {
-          this.initializeOrRefreshOverviewTable();
-        }
-      })
-      .catch(() => {
-        // Modal dismissed
-      });
+  async onClickEditUserRoles(wmsMetadata: WmsDataset): Promise<void> {
+    const saved = await this.modals.open(WmsEditUserRolesModalComponent, MODAL_WIDE, (modal) => {
+      modal.currentGeoresourceDataset = wmsMetadata;
+      modal.reInit();
+    });
+    if (saved) {
+      this.initializeOrRefreshOverviewTable();
+    }
   }
 
-  onClickDelete(wmsMetadata: any[]): void {
-    const modalRef = this.modalService.open(WmsDeleteModalComponent, MODAL_CONFIRM);
-
-    modalRef.componentInstance.datasetToDelete = wmsMetadata;
-
-    modalRef.result
-      .then((result) => {
-        if (result) {
-          this.initializeOrRefreshOverviewTable();
-        }
-      })
-      .catch(() => {
-        // Modal dismissed
-      });
+  async onClickDelete(wmsMetadata: WmsDataset): Promise<void> {
+    if (await this.modals.confirm(WmsDeleteModalComponent, { datasetToDelete: wmsMetadata })) {
+      this.initializeOrRefreshOverviewTable();
+    }
   }
 }

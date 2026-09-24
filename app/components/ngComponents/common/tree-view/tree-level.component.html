@@ -1,0 +1,155 @@
+<ng-template #rowBody let-row let-isPreview="isPreview">
+  <!-- In 'text' indent mode the row keeps full width and the content is pushed in. -->
+  <span class="tree-text-indent" aria-hidden="true" [style.width.px]="indent().text"></span>
+
+  @if (host.reorderable()) {
+    <!--
+      cdkDragHandle only on the live row. In the preview the same markup would
+      construct a second CdkDragHandle that registers itself on the very drag it
+      is previewing, so the glyph there is decorative.
+    -->
+    @if (isPreview) {
+      <span class="tree-drag-handle" aria-hidden="true">⣿</span>
+    } @else {
+      <span class="tree-drag-handle" aria-hidden="true" cdkDragHandle>⣿</span>
+    }
+  }
+
+  @if (row.expandable) {
+    <button
+      type="button"
+      class="tree-caret"
+      [attr.aria-expanded]="row.expanded"
+      [attr.aria-controls]="row.childrenId"
+      (click)="$event.stopPropagation(); row.toggle()"
+    >
+      <span
+        class="fa"
+        aria-hidden="true"
+        [class.fa-angle-down]="row.expanded"
+        [class.fa-angle-right]="!row.expanded"
+      ></span>
+      @if (host.toggleLabel(); as toggleLabel) {
+        <span class="visually-hidden">{{ toggleLabel }}</span>
+      }
+    </button>
+  } @else {
+    <!-- Keeps the marker column reserved so row content stays aligned. -->
+    <span class="tree-caret placeholder" aria-hidden="true"></span>
+  }
+
+  <div class="tree-row-content">
+    @if (host.rowTemplate(); as rowTemplate) {
+      <ng-container *ngTemplateOutlet="rowTemplate; context: row.context"></ng-container>
+    }
+  </div>
+</ng-template>
+
+<!--
+  One gap between two siblings: the caller's slot while it is open at this
+  position, the dashed insert line otherwise. Used both between the siblings and
+  once after the last one, so it lives in a template rather than twice inline.
+-->
+<ng-template #gapSlot let-index>
+  @let gapIndentation = gapIndent(index);
+
+  @if (host.isGapOpen(parentId(), index)) {
+    <div class="tree-gap" [style.margin-left.px]="gapIndentation.row">
+      <span
+        class="tree-text-indent"
+        aria-hidden="true"
+        [style.width.px]="gapIndentation.text"
+      ></span>
+      <ng-container
+        *ngTemplateOutlet="host.gapTemplate() ?? null; context: gapContext(index)"
+      ></ng-container>
+    </div>
+  } @else if (host.insertLabel(); as insertLabel) {
+    @if (canInsertAt(index)) {
+      <button
+        type="button"
+        class="tree-insert"
+        [style.margin-left.px]="gapIndentation.row"
+        (click)="onInsert(index)"
+      >
+        <span
+          class="tree-text-indent"
+          aria-hidden="true"
+          [style.width.px]="gapIndentation.text"
+        ></span>
+        <span class="tree-insert-label">{{ insertLabel }}</span>
+        <span class="tree-insert-line" aria-hidden="true"></span>
+      </button>
+    }
+  }
+</ng-template>
+
+<div
+  class="tree-level"
+  role="group"
+  cdkDropList
+  [cdkDropListDisabled]="!host.reorderable()"
+  (cdkDropListDropped)="onDrop($event)"
+>
+  @for (row of rows(); track row.id; let index = $index) {
+    <ng-container *ngTemplateOutlet="gapSlot; context: { $implicit: index }"></ng-container>
+
+    <div class="tree-node">
+      <div
+        class="tree-row"
+        [class]="toneClass()"
+        [class.clickable]="host.toggleOnRowClick()"
+        role="treeitem"
+        [attr.aria-level]="depth() + 1"
+        [attr.aria-expanded]="row.expandable ? row.expanded : null"
+        aria-selected="false"
+        [attr.tabindex]="host.toggleOnRowClick() ? 0 : null"
+        [style.margin-left.px]="indent().row"
+        cdkDrag
+        [cdkDragData]="row.node"
+        (click)="onRowClick(row)"
+        (keydown.enter)="onRowClick(row)"
+        (keydown.space)="onRowSpace($event, row)"
+      >
+        <ng-container
+          *ngTemplateOutlet="rowBody; context: { $implicit: row, isPreview: false }"
+        ></ng-container>
+
+        <!--
+          The CDK reparents its default preview to <body>, where this component's
+          emulated-encapsulation selectors no longer reach it. Rendering the row
+          from our own template keeps it an embedded view of this component, so
+          the normal row styles still apply and no duplicate CSS is needed.
+        -->
+        <ng-template cdkDragPreview>
+          <div class="tree-row tree-row-preview" [class]="toneClass()">
+            <ng-container
+              *ngTemplateOutlet="rowBody; context: { $implicit: row, isPreview: true }"
+            ></ng-container>
+          </div>
+        </ng-template>
+      </div>
+
+      @if (childrenAllowed()) {
+        <div class="tree-children" [id]="row.childrenId" [ngbCollapse]="!row.expanded">
+          <app-tree-level [nodes]="row.children" [depth]="childDepth()" [parent]="row.node" />
+
+          @if (host.nodeFooterTemplate(); as nodeFooter) {
+            <div class="tree-node-footer" [style.margin-left.px]="childIndent().row">
+              <span
+                class="tree-text-indent"
+                aria-hidden="true"
+                [style.width.px]="childIndent().text"
+              ></span>
+              <ng-container
+                *ngTemplateOutlet="nodeFooter; context: row.footerContext"
+              ></ng-container>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <ng-container *ngTemplateOutlet="gapSlot; context: { $implicit: rows().length }"></ng-container>
+</div>

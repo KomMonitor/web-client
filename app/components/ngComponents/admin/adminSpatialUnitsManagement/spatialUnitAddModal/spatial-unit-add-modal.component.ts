@@ -5,6 +5,7 @@ import {
   DestroyRef,
   ElementRef,
   EventEmitter,
+  Input,
   OnInit,
   Output,
   ViewChild,
@@ -20,6 +21,9 @@ import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/me
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { MandantService } from 'services/mandant-service/mandant.service';
+import { SpatialUnitHierarchyApiService } from 'services/spatial-unit-hierarchy-service/spatial-unit-hierarchy-api.service';
+import { SpatialUnitHierarchyOverviewType } from 'models/data-management-api';
 import {
   LABELED_LOI_DASH_ARRAY_OBJECTS,
   SPATIAL_UNIT_METADATA_STRUCTURE,
@@ -88,6 +92,8 @@ import {
   buildSpatialUnitAddForm,
   spatialUnitAddFormToApi,
 } from './spatial-unit-add-form.model';
+import { membershipsForRows } from '../hierarchyAssignment/hierarchy-assignment.model';
+import { SpatialUnitMetadataStepComponent } from './metadataStep/spatial-unit-metadata-step.component';
 
 // Removed in favor of standalone km-date-picker component providers
 
@@ -103,6 +109,7 @@ import {
     KmLinePatternPickerComponent,
     KmDatePickerComponent,
     StepperComponent,
+    SpatialUnitMetadataStepComponent,
     ResourceMetadataFormComponent,
     FormErrorComponent,
     FormControlAriaDirective,
@@ -120,12 +127,24 @@ export class SpatialUnitAddModalComponent implements OnInit {
   private metadataBootstrap = inject(MetadataBootstrapService);
   private indicatorValueService = inject(IndicatorValueService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
+  private hierarchyApi = inject(SpatialUnitHierarchyApiService);
+  private mandantService = inject(MandantService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
   private resourceImportService = inject(ResourceImportService);
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
+
+  /**
+   * The tenant the new level must belong to, set by a caller that has one on
+   * screen already — the hierarchies page opens this wizard out of a tenant's
+   * view. Empty from the spatial units page, where the tenant is chosen here.
+   *
+   * Given, it is also fixed: the caller's view would no longer show what was
+   * created if the wizard moved it somewhere else.
+   */
+  @Input() lockedMandantId = '';
 
   /** Emitted after a spatial unit was added so the parent refreshes its table. */
   @Output() refreshRequested = new EventEmitter<SpatialUnitRefreshRequest>();
@@ -150,7 +169,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     withSecurity: this.envConfigService.enableKeycloakSecurity,
     existingLevelNames: () =>
       (this.availableSpatialUnits ?? []).map((unit: any) => unit.spatialUnitLevel),
-    orderedSpatialUnits: () => this.spatialUnitStore.availableSpatialUnits ?? [],
   });
 
   // Per-step validity for the stepper marking. Reading these signals from the
@@ -213,16 +231,15 @@ export class SpatialUnitAddModalComponent implements OnInit {
     return this.metadataForm.getRawValue();
   }
 
-  get hierarchyInvalid(): boolean {
-    return this.addForm.controls.metadata.hasError('spatialUnitHierarchy');
-  }
-
   get periodOfValidityInvalid(): boolean {
     return this.addForm.controls.data.controls.periodOfValidity.hasError('periodOfValidity');
   }
 
   // Available options
   availableSpatialUnits: any[] = [];
+
+  /** Every hierarchy the user may see; the metadata step narrows them by tenant. */
+  allHierarchies: SpatialUnitHierarchyOverviewType[] = [];
   updateIntervalOptions: any[] = [];
   availableDatasourceTypes: DatasourceType[] = [];
   availableLoiDashArrayObjects: any[] = [];
@@ -298,6 +315,9 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }));
 
   ngOnInit() {
+    if (this.lockedMandantId) {
+      this.addForm.controls.metadata.controls.mandantId.setValue(this.lockedMandantId);
+    }
     this.loadInitialData();
     this.initializeOutlineLayerSettings();
     this.initializeMetadataStructures();
@@ -308,6 +328,14 @@ export class SpatialUnitAddModalComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((ownerOrganization) => this.applyOwnerOrganization(ownerOrganization));
 
+    // The tenant chosen in the first step decides what the rest may refer to:
+    // hierarchies of another tenant are refused by the backend, and so is an
+    // owner outside it. A switch therefore takes both choices with it rather
+    // than leaving a combination behind that can only fail on submit.
+    this.addForm.controls.metadata.controls.mandantId.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.applyMandantChange());
+
     // The importer selects no longer carry (change) handlers; their dependent
     // fields and parameter controls are rebuilt from the form instead.
     this.importerForm.controls.converter.valueChanges
@@ -316,6 +344,23 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.importerForm.controls.datasourceType.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((datasourceType) => this.applyDatasourceTypeChange(datasourceType));
+  }
+
+  /** The tenant the first step names; the owner select is narrowed to it. */
+  get chosenMandantId(): string {
+    return this.addForm.controls.metadata.controls.mandantId.value;
+  }
+
+  /**
+   * Clears what the previous tenant decided: the hierarchy rows name its
+   * hierarchies, the owner is one of its organizations. Both would be refused
+   * as they stand, and neither can be translated into the new tenant.
+   */
+  private applyMandantChange(): void {
+    this.addForm.controls.metadata.controls.hierarchyAssignments.clear();
+    // Re-enters the subscription above, which clears the role grid with it.
+    this.addForm.controls.security.controls.ownerOrganization.setValue('');
+    this.cdr.markForCheck();
   }
 
   /** Seeds the role grid and reveals the permission block for a chosen owner. */
@@ -332,6 +377,15 @@ export class SpatialUnitAddModalComponent implements OnInit {
     if (this.spatialUnitStore.availableSpatialUnits) {
       this.availableSpatialUnits = this.spatialUnitStore.availableSpatialUnits;
     }
+
+    // Not awaited on purpose: the hierarchy field is optional and sits in the
+    // first step, while the importer resources below gate the data step. Making
+    // the wizard wait for a list it does not need to render would delay it for
+    // nothing.
+    void this.hierarchyApi.getHierarchies().then((hierarchies) => {
+      this.allHierarchies = hierarchies;
+      this.cdr.markForCheck();
+    });
 
     // Load update interval options
     if (this.envConfigService.updateIntervalOptions) {
@@ -375,14 +429,35 @@ export class SpatialUnitAddModalComponent implements OnInit {
       this.accessControlService.accessControl &&
       this.accessControlService.accessControl.length > 0
     ) {
+      this.seedOwnMandant();
       this.loadingData.set(false);
     } else {
       this.metadataBootstrap
         .fetchAccessControlMetadata(this.accessControlService.currentKeycloakLoginRoles)
         .finally(() => {
+          this.seedOwnMandant();
           this.loadingData.set(false);
         });
     }
+  }
+
+  /**
+   * Starts on the user's own tenant, which is the one almost everybody works
+   * in. Only while the field is still empty: the access control metadata may
+   * arrive after the dialog is on screen, and it must not overwrite a choice
+   * made in the meantime. Setting it fires the cascade above, which at this
+   * point has nothing to clear.
+   */
+  private seedOwnMandant(): void {
+    if (this.lockedMandantId) {
+      return;
+    }
+    const own = this.mandantService.ownMandantRef?.id ?? '';
+    const control = this.addForm.controls.metadata.controls.mandantId;
+    if (own && !control.value) {
+      control.setValue(own);
+    }
+    this.cdr.markForCheck();
   }
 
   private loadDatasourceTypes(): void {
@@ -409,11 +484,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
    */
   checkSpatialUnitName() {
     this.addForm.controls.metadata.controls.spatialUnitLevel.updateValueAndValidity();
-  }
-
-  /** See `checkSpatialUnitName` — the rule is `spatialUnitHierarchyValidator`. */
-  checkSpatialUnitHierarchy() {
-    this.addForm.controls.metadata.updateValueAndValidity();
   }
 
   /** See `checkSpatialUnitName` — the rule is `periodOfValidityValidator`. */
@@ -534,7 +604,16 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   /** POST body for the importer; the role grid stays imperative. */
   buildPostBody_spatialUnits(): SpatialUnitAddPostBody {
-    return spatialUnitAddFormToApi(this.addForm, this.roleGrid?.getSelectedRoleIds() ?? []);
+    // A new level has no memberships yet, so the placement is always an append.
+    const hierarchies = membershipsForRows(
+      this.addForm.controls.metadata.controls.hierarchyAssignments.getRawValue(),
+      this.allHierarchies
+    );
+    return spatialUnitAddFormToApi(
+      this.addForm,
+      this.roleGrid?.getSelectedRoleIds() ?? [],
+      hierarchies
+    );
   }
 
   async addSpatialUnit() {
@@ -633,7 +712,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   onSubmit() {
-    if (!this.spatialUnitLevelInvalid && !this.hierarchyInvalid) {
+    if (!this.spatialUnitLevelInvalid) {
       this.addSpatialUnit();
     } else {
       this.loadingData.set(false);
@@ -723,16 +802,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     // Parse role management (changed from allowedRoles to permissions)
     this.roleGrid?.applyPermissions(this.metadataImportSettings.permissions || []);
 
-    // Parse hierarchy
-    this.spatialUnitStore.availableSpatialUnits.forEach((spatialUnit: any) => {
-      if (spatialUnit.spatialUnitLevel === this.metadataImportSettings.nextLowerHierarchyLevel) {
-        metadata.controls.nextLowerHierarchySpatialUnit.setValue(spatialUnit);
-      }
-      if (spatialUnit.spatialUnitLevel === this.metadataImportSettings.nextUpperHierarchyLevel) {
-        metadata.controls.nextUpperHierarchySpatialUnit.setValue(spatialUnit);
-      }
-    });
-
     // Parse outline layer settings
     metadata.controls.isOutlineLayer.setValue(!!this.metadataImportSettings.isOutlineLayer);
     this.outlineColor = this.metadataImportSettings.outlineColor || '#000000';
@@ -803,8 +872,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     const metadataExport = buildSpatialUnitMetadataExport(
       this.metadata,
       metadata.spatialUnitLevel,
-      metadata.nextLowerHierarchySpatialUnit?.spatialUnitLevel || null,
-      metadata.nextUpperHierarchySpatialUnit?.spatialUnitLevel || null,
       metadata.isOutlineLayer,
       this.outlineColor,
       metadata.outlineWidth,
@@ -859,6 +926,9 @@ export class SpatialUnitAddModalComponent implements OnInit {
     // its real default, so this restores '#000000', width 3, the keep flags and
     // SRID 4326 rather than nulling them.
     this.addForm.reset();
+    // `reset()` blanks a FormArray's rows but keeps them; without this the
+    // panel would come back with as many empty rows as it had assignments.
+    this.addForm.controls.metadata.controls.hierarchyAssignments.clear();
     syncConverterParameterControls(this.importerForm, null);
     syncDatasourceParameterControls(this.importerForm, null);
     // Runtime default: the pattern options are not known at construction time.

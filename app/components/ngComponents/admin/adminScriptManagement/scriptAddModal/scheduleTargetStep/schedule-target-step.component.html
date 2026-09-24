@@ -1,0 +1,75 @@
+<div class="mb-3">
+  <label class="form-label">{{ 'ADMIN_SCRIPTS.ADD_MODAL.TYPE_FILTER' | translate }}</label>
+  <div class="btn-group d-block" role="group">
+    @for (family of families; track family) {
+      <button
+        type="button"
+        class="btn btn-sm"
+        [class.btn-primary]="draft.familyFilter() === family"
+        [class.btn-outline-primary]="draft.familyFilter() !== family"
+        (click)="onFamilyChange(family)"
+      >
+        {{ familyLabelKey(family) | translate }}
+      </button>
+    }
+  </div>
+</div>
+
+<!--
+  The overlay covers label and field together, so the spinner has room to sit
+  next to the select rather than on top of it. No message: the dialog is narrow
+  and the spinner says enough here.
+-->
+<app-loading-overlay [loading]="draft.loadingProcesses()">
+  <div class="mb-3">
+    <label class="form-label" for="processType">
+      {{ 'ADMIN_SCRIPTS.ADD_MODAL.SCRIPT_TYPE' | translate }}
+    </label>
+    <select
+      class="form-select"
+      id="processType"
+      [ngModel]="draft.selectedProcess()?.id || ''"
+      (ngModelChange)="onProcessChange($event)"
+    >
+      <option value="">—</option>
+      @for (process of draft.availableProcesses(); track process.id) {
+        <option [value]="process.id">{{ process.title }}</option>
+      }
+    </select>
+    @if (draft.selectedProcess()?.uiParams?.longTitle) {
+      <small class="text-muted">{{ draft.selectedProcess()?.uiParams?.longTitle }}</small>
+    }
+  </div>
+</app-loading-overlay>
+
+<div class="mb-3">
+  <label class="form-label" for="targetIndicator">
+    {{ 'ADMIN_SCRIPTS.ADD_MODAL.TARGET_INDICATOR' | translate }}
+  </label>
+  <select
+    class="form-select"
+    id="targetIndicator"
+    [ngModel]="draft.targetIndicatorId()"
+    (ngModelChange)="onTargetIndicatorChange($event)"
+  >
+    <option value="">—</option>
+    @for (indicator of indicators(); track indicator.indicatorId) {
+      <option [value]="indicator.indicatorId">{{ indicator.indicatorName }}</option>
+    }
+  </select>
+
+  @if (draft.existingSchedule()) {
+    <div class="alert alert-warning mt-2 mb-0" role="alert">
+      <i class="fas fa-triangle-exclamation"></i>
+      {{ 'ADMIN_SCRIPTS.ADD_MODAL.EXISTING_SCHEDULE_HINT' | translate }}
+    </div>
+  }
+</div>
+
+<div class="mb-3">
+  <label class="form-label">{{ 'ADMIN_SCRIPTS.ADD_MODAL.TARGET_SPATIAL_UNITS' | translate }}</label>
+  <app-dual-list-box
+    [data]="spatialUnitData()"
+    (selectedItems)="onSpatialUnitsChange($event)"
+  ></app-dual-list-box>
+</div>

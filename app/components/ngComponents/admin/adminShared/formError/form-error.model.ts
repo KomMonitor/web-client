@@ -25,7 +25,6 @@ export const FORM_ERROR_KEY_MAP: Readonly<Record<string, string>> = {
   // adminShared/validators
   uniqueName: 'UNIQUE_NAME',
   periodOfValidity: 'PERIOD_OF_VALIDITY',
-  spatialUnitHierarchy: 'SPATIAL_UNIT_HIERARCHY',
   bboxIncomplete: 'BBOX_INCOMPLETE',
   topicRequired: 'TOPIC_REQUIRED',
   timestampSourceRequired: 'TIMESTAMP_SOURCE_REQUIRED',

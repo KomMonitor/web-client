@@ -49,6 +49,16 @@
     }
   }
 
+  // Only set when the tile opens something; a plain metric tile stays inert.
+  &.clickable {
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      filter: brightness(1.08);
+    }
+  }
+
   .icon {
     font-size: 60px;
     line-height: 1;

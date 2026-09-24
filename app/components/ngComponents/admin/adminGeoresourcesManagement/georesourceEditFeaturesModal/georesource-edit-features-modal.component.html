@@ -30,7 +30,7 @@
       now, as in the spatial-unit features dialog.
     -->
     @if (importerErrors()?.length > 0) {
-      <div class="alert alert-danger" role="alert">
+      <div class="alert alert-danger alert-scrollable" role="alert">
         <b>{{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.EDIT_FEATURES_FAILED' | translate }}</b>
         <p>
           {{
@@ -50,7 +50,7 @@
     @if (mappingConfigImportErrorAlertVisible()) {
       <div
         id="georesourceEditFeaturesMappingImportErrorAlert"
-        class="alert alert-danger"
+        class="alert alert-danger alert-scrollable"
         role="alert"
       >
         <button

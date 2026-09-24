@@ -1628,6 +1628,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/public/spatial-unit-hierarchies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * retrieve the available public spatial unit hierarchies
+         * @description retrieve the publicly accessible spatial unit hierarchies
+         */
+        get: operations["getPublicSpatialUnitHierarchies"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/public/spatial-unit-hierarchies/{hierarchyId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * retrieve a single public spatial unit hierarchy
+         * @description retrieve a single publicly accessible spatial unit hierarchy including its ordered members
+         */
+        get: operations["getPublicSpatialUnitHierarchyById"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/public/spatial-units": {
         parameters: {
             query?: never;
@@ -1868,6 +1908,78 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/spatial-unit-hierarchies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * retrieve the available spatial unit hierarchies
+         * @description retrieve the available spatial unit hierarchies for the mandants the current user is allowed to access
+         */
+        get: operations["getSpatialUnitHierarchies"];
+        put?: never;
+        /**
+         * Add a new spatial unit hierarchy
+         * @description Create a new hierarchy owned by a mandant. A mandant may own one or more hierarchies.
+         */
+        post: operations["addSpatialUnitHierarchy"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/spatial-unit-hierarchies/{hierarchyId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * retrieve a single spatial unit hierarchy
+         * @description retrieve a single spatial unit hierarchy including its ordered members
+         */
+        get: operations["getSpatialUnitHierarchyById"];
+        /**
+         * Modify/Update a spatial unit hierarchy
+         * @description Modify/Update the metadata (e.g. name) of the selected spatial unit hierarchy
+         */
+        put: operations["updateSpatialUnitHierarchy"];
+        post?: never;
+        /**
+         * Delete a spatial unit hierarchy
+         * @description Delete the selected spatial unit hierarchy. The spatial units that were members of the hierarchy are not deleted.
+         */
+        delete: operations["deleteSpatialUnitHierarchyById"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/spatial-unit-hierarchies/{hierarchyId}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set the ordered members of a spatial unit hierarchy
+         * @description Replace the full ordered list of spatial unit members of the selected hierarchy. This single operation covers reordering, removing and adding members within the hierarchy.
+         */
+        put: operations["updateSpatialUnitHierarchyMembers"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/spatial-units": {
         parameters: {
             query?: never;
@@ -1985,6 +2097,26 @@ export interface paths {
          * @description update information about the ownership for the selected spatial unit dataset
          */
         put: operations["updateSpatialUnitsOwnership"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/spatial-units/{spatialUnitId}/hierarchies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set the hierarchies a spatial unit belongs to
+         * @description Replace the full set of hierarchy memberships for the selected spatial unit. This single operation covers placing the spatial unit into further hierarchies, changing its level within a hierarchy, and removing it from a hierarchy. All referenced hierarchies must belong to the spatial unit's mandant.
+         */
+        put: operations["updateSpatialUnitHierarchyMemberships"];
         post?: never;
         delete?: never;
         options?: never;
@@ -2334,17 +2466,30 @@ export interface components {
     schemas: {
         /** CommonMetadataType */
         CommonMetadataType: {
-            /** @description contact details where additional information can be achieved */
+            /**
+             * @description contact details where additional information can be achieved
+             * @example KomMonitor Team, info@kommonitor.de
+             */
             contact: string;
-            /** @description information about data used as a basis to generate the dataset */
+            /**
+             * @description information about data used as a basis to generate the dataset
+             * @example Open data portal of the municipality
+             */
             databasis?: string;
-            /** @description information about the origin/source of the dataset */
+            /**
+             * @description information about the origin/source of the dataset
+             * @example Municipal education department
+             */
             datasource: string;
-            /** @description description of the dataset */
+            /**
+             * @description description of the dataset
+             * @example Locations of all public schools within the city.
+             */
             description: string;
             /**
              * Format: date
              * @description a timestamp representing the lastUpdate according to ISO 8601 (e.g. 2018-01-30)
+             * @example 2018-01-30
              */
             lastUpdate?: string;
             /** @description an optional hint to literature about the dataset (e.g. URL or book/article name) */
@@ -2353,35 +2498,84 @@ export interface components {
             note?: string;
             /**
              * @description the coordinate reference system of the dataset as EPSG code
-             * @example 0
+             * @example 4326
              */
             sridEPSG?: number;
-            /** @enum {string} */
+            /**
+             * @example YEARLY
+             * @enum {string}
+             */
             updateInterval: "ARBITRARY" | "MONTHLY" | "QUARTERLY" | "HALF_YEARLY" | "YEARLY" | "DAILY" | "WEEKLY";
         };
-        /** DefaultClassificationMappingItemType */
-        DefaultClassificationMappingItemType: {
-            /** @description spatial unit id for manual classification */
-            spatialUnitId: string;
-            /** @description array of numeric break values */
-            breaks: number[];
-        };
-        /** DefaultClassificationMappingType */
-        DefaultClassificationMappingType: {
-            /** @description the name of the colorBrewer color scheme used to define the colors for classification (see project http://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3 for colorSchemes). Set to 'INDIVIDUAL' if colors are set arbitrarily. */
+        AbstractClassificationMappingType: {
+            /** @default QUANTITATIVE */
+            classificationType: components["schemas"]["ClassificationTypeEnum"];
+            /**
+             * @description the name of the colorBrewer color scheme used to define the colors for classification (see project http://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3 for colorSchemes). Set to 'INDIVIDUAL' if colors are set arbitrarily.
+             * @example BuGn
+             */
             colorBrewerSchemeName: string;
             /**
              * Format: int16
              * @description the number of classes
+             * @example 5
              */
             numClasses: number;
+        };
+        DefaultClassificationMappingType: Omit<components["schemas"]["AbstractClassificationMappingType"], "classificationType"> & {
             /**
              * @description the classification method as enumeration
              * @enum {string}
              */
             classificationMethod: "REGIONAL_DEFAULT" | "JENKS" | "EQUAL_INTERVAL" | "QUANTILE";
+            /** @description array of individual colors used for classification as hex color code */
+            individualColors?: string[];
+            /** @description array of labels for each class */
+            labels?: string[];
             /** @description array of classification mapping items. each item holds the break values for a certain spatial unit. not all spatial units of a certain indicator must be set. */
             items: components["schemas"]["DefaultClassificationMappingItemType"][];
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            classificationType: "QUANTITATIVE";
+        };
+        /** DefaultClassificationMappingItemType */
+        DefaultClassificationMappingItemType: {
+            /**
+             * @description spatial unit id for manual classification
+             * @example 5a1b2c3d-0001-4e5f-8a9b-000000000001
+             */
+            spatialUnitId: string;
+            /**
+             * @description array of numeric break values
+             * @example [
+             *       0,
+             *       10,
+             *       20
+             *     ]
+             */
+            breaks: number[];
+        };
+        QualitativeClassificationMappingType: Omit<components["schemas"]["AbstractClassificationMappingType"], "classificationType"> & {
+            /** @description mapping of categorical values, colors and labels */
+            categoricalData: components["schemas"]["CategoricalMappingType"][];
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            classificationType: "QUALITATIVE";
+        };
+        /** DefaultClassificationMappingItemType */
+        CategoricalMappingType: {
+            /** @description the categorical value */
+            categoricalValue: string;
+            /** @description color to use for the current categorical value as hex color code */
+            color: string;
+            /** @description alias label to use for the current categorical value */
+            label?: string;
         };
         /** RegionalReferenceValueType */
         RegionalReferenceValueType: {
@@ -2459,7 +2653,10 @@ export interface components {
         GeoresourcePATCHInputType: {
             /** @description color name or color code (i.e. hex number) for areas of interest */
             aoiColor?: string;
-            /** @description the meaningful name of the dataset */
+            /**
+             * @description the meaningful name of the dataset
+             * @example Public Schools
+             */
             datasetName?: string;
             /** @description boolean value indicating if the dataset contains areas of interest */
             isAOI?: boolean;
@@ -2482,28 +2679,55 @@ export interface components {
             poiMarkerText?: string;
             /** @description If georesource is a POI then custom POI marker color can be set by specifying one of the following color names */
             poiMarkerColor?: components["schemas"]["ColorType"];
-            /** @description If georesource is a POI then custom POI marker symbol can be set by specifying the name of a Bootstrap 3 glyphicon symbol (i.e. "home" for a home symbol or "education" for a students hat symbol) */
+            /**
+             * @description If georesource is a POI then custom POI marker symbol can be set by specifying the name of a Bootstrap 3 glyphicon symbol (i.e. "home" for a home symbol or "education" for a students hat symbol)
+             * @example education
+             */
             poiSymbolBootstrap3Name?: string;
             /** @description If georesource is a POI then custom POI symbol color can be set by specifying one of the following color names */
             poiSymbolColor?: components["schemas"]["ColorType"];
-            /** @description id of the last topic hierarchy entity */
+            /**
+             * @description id of the last topic hierarchy entity
+             * @example education
+             */
             topicReference?: string;
         };
         /** GeoresourcePOSTInputType */
         GeoresourcePOSTInputType: {
-            /** @description list of permissions on this entity */
+            /**
+             * @description list of permissions on this entity
+             * @example [
+             *       "creator",
+             *       "editor"
+             *     ]
+             */
             permissions?: string[];
             /** @description color name or color code (i.e. hex number) for areas of interest */
             aoiColor?: string;
-            /** @description the meaningful name of the dataset */
+            /**
+             * @description the meaningful name of the dataset
+             * @example Schools
+             */
             datasetName: string;
-            /** @description a valid GeoJSON string containing the features consisting of a geometry and properties specific to the dataset */
+            /**
+             * @description a valid GeoJSON string containing the features consisting of a geometry and properties specific to the dataset
+             * @example {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[7.011,51.455]},"properties":{"name":"Primary School Centre"}}]}
+             */
             geoJsonString?: string;
-            /** @description boolean value indicating if the dataset contains areas of interest */
+            /**
+             * @description boolean value indicating if the dataset contains areas of interest
+             * @example false
+             */
             isAOI?: boolean;
-            /** @description boolean value indicating if the dataset contains lines of interest */
+            /**
+             * @description boolean value indicating if the dataset contains lines of interest
+             * @example false
+             */
             isLOI?: boolean;
-            /** @description boolean value indicating if the dataset contains points of interest */
+            /**
+             * @description boolean value indicating if the dataset contains points of interest
+             * @example true
+             */
             isPOI?: boolean;
             /** @description a JSON schema as string that defines the data model for this dataset. It can be used to validate the geoJsonString property. */
             jsonSchema?: string;
@@ -2517,7 +2741,10 @@ export interface components {
              */
             loiWidth?: number;
             metadata: components["schemas"]["CommonMetadataType"];
-            /** @description identifier of the owning group */
+            /**
+             * @description identifier of the owning group
+             * @example 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+             */
             ownerId: string;
             periodOfValidity: components["schemas"]["PeriodOfValidityType"];
             poiMarkerStyle?: components["schemas"]["PoiMarkerStyleEnum"];
@@ -2525,20 +2752,35 @@ export interface components {
             poiMarkerText?: string;
             /** @description If georesource is a POI then custom POI marker color can be set by specifying one of the following color names */
             poiMarkerColor?: components["schemas"]["ColorType"];
-            /** @description If georesource is a POI then custom POI marker symbol can be set by specifying the name of a Bootstrap 3 glyphicon symbol (i.e. "home" for a home symbol or "education" for a students hat symbol) */
+            /**
+             * @description If georesource is a POI then custom POI marker symbol can be set by specifying the name of a Bootstrap 3 glyphicon symbol (i.e. "home" for a home symbol or "education" for a students hat symbol)
+             * @example education
+             */
             poiSymbolBootstrap3Name?: string;
             /** @description If georesource is a POI then custom POI symbol color can be set by specifying one of the following color names */
             poiSymbolColor?: components["schemas"]["ColorType"];
-            /** @description id of the last topic hierarchy entity */
+            /**
+             * @description id of the last topic hierarchy entity
+             * @example education
+             */
             topicReference?: string;
-            /** @description flag whether the resource is publicly accessible */
+            /**
+             * @description flag whether the resource is publicly accessible
+             * @example false
+             */
             isPublic: boolean;
         };
         /** GeoresourcePUTInputType */
         GeoresourcePUTInputType: {
-            /** @description a valid GeoJSON string containing the features consisting of a geometry and properties specific to the dataset */
+            /**
+             * @description a valid GeoJSON string containing the features consisting of a geometry and properties specific to the dataset
+             * @example {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[7.013,51.457]},"properties":{"name":"Primary School Centre"}}]}
+             */
             geoJsonString: string;
-            /** @description if set to TRUE, then a partial upload of geometries is possible. Missing features that are already in the database will then not be deleted */
+            /**
+             * @description if set to TRUE, then a partial upload of geometries is possible. Missing features that are already in the database will then not be deleted
+             * @example false
+             */
             isPartialUpdate?: boolean;
             periodOfValidity: components["schemas"]["PeriodOfValidityType"];
         };
@@ -2556,34 +2798,52 @@ export interface components {
         };
         /** IndicatorMetadataPATCHInputType */
         IndicatorMetadataPATCHInputType: {
-            /** @description abbreviated mark of the indicator */
-            abbreviation: string;
+            /**
+             * @description abbreviated mark of the indicator
+             * @example U6
+             */
+            abbreviation?: string;
             /** @description the distuingishing characteristic value of the indicator */
             characteristicValue?: string;
             /** @description indicates if the data is simply inserted (INSERTION), computed by an automated script (COMPUTATION) or automatically aggregated by a script (AGGREGATION) */
             creationType?: components["schemas"]["CreationTypeEnum"];
-            /** @description the meaningful name of the indicator */
+            /**
+             * @description the meaningful name of the indicator
+             * @example Share of children under 6 years
+             */
             datasetName?: string;
-            defaultClassificationMapping?: components["schemas"]["DefaultClassificationMappingType"];
+            defaultClassificationMapping?: components["schemas"]["AbstractClassificationMappingType"];
             /** @description list of optional regional reference values (i.e. regional sum, average, spatiallyUnassignable) */
             regionalReferenceValues?: components["schemas"]["RegionalReferenceValueType"][];
             /**
              * @description an order number to control display order in clients
-             * @example 0
+             * @example 1
              */
             displayOrder?: number;
             /** @description indicates whether the indicator is a status indicator (values represent the extent of the watched phenomenon for a certain point in time) or a dynamic indicator (values represent the change of extent of the watched phenomenon within a certain period of time) */
             indicatorType?: components["schemas"]["IndicatorTypeEnum"];
-            /** @description interpretation of the indicator values */
+            /**
+             * @description interpretation of the indicator values
+             * @example Higher values indicate a younger population structure.
+             */
             interpretation: string;
-            /** @description boolean value indicating if the indicator is a headline indicator */
+            /**
+             * @description boolean value indicating if the indicator is a headline indicator
+             * @example true
+             */
             isHeadlineIndicator: boolean;
             /** @description identifier/name of the lowest spatial unit for which the indicator can be computed and thus is available (only necessary for computable indicators) */
             lowestSpatialUnitForComputation?: string;
             metadata: components["schemas"]["CommonMetadataType"];
-            /** @description Defines the number of decimal places for indicator values. If null, there is no predefined precision for this indicator. */
+            /**
+             * @description Defines the number of decimal places for indicator values. If null, there is no predefined precision for this indicator.
+             * @example 2
+             */
             precision?: number;
-            /** @description description about how the indicator was computed */
+            /**
+             * @description description about how the indicator was computed
+             * @example Number of children under 6 divided by total population.
+             */
             processDescription: string;
             /** @description an optional note on the reference date of the indicator */
             referenceDateNote?: string;
@@ -2591,11 +2851,23 @@ export interface components {
             refrencesToGeoresources?: components["schemas"]["IndicatorPOSTInputTypeRefrencesToGeoresources"][];
             /** @description array of references to other indicators. E.g., if an indicator is defined by combining four other indicators, then the identifiers of those four indicators can be referenced here */
             refrencesToOtherIndicators?: components["schemas"]["IndicatorPOSTInputTypeRefrencesToOtherIndicators"][];
-            /** @description list of tag labels for the indicator */
+            /**
+             * @description list of tag labels for the indicator
+             * @example [
+             *       "demography",
+             *       "children"
+             *     ]
+             */
             tags: string[];
-            /** @description id of the last topic hierarchy entity */
+            /**
+             * @description id of the last topic hierarchy entity
+             * @example demography
+             */
             topicReference: string;
-            /** @description unit of the indicator values */
+            /**
+             * @description unit of the indicator values
+             * @example percent
+             */
             unit: string;
         };
         /** IndicatorOverviewType */
@@ -2612,7 +2884,7 @@ export interface components {
             characteristicValue?: string;
             /** @description indicates if the data is simply inserted (INSERTION), computed by an automated script (COMPUTATION) or automatically aggregated by a script (AGGREGATION)" */
             creationType: components["schemas"]["CreationTypeEnum"];
-            defaultClassificationMapping?: components["schemas"]["DefaultClassificationMappingType"];
+            defaultClassificationMapping?: components["schemas"]["AbstractClassificationMappingType"];
             /** @description list of optional regional reference values (i.e. regional sum, average, spatiallyUnassignable) */
             regionalReferenceValues: components["schemas"]["RegionalReferenceValueType"][];
             /**
@@ -2626,9 +2898,15 @@ export interface components {
             indicatorName: string;
             /** @description indicates whether the indicator is a status indicator (values represent the extent of the watched phenomenon for a certain point in time) or a dynamic indicator (values represent the change of extent of the watched phenomenon within a certain period of time) */
             indicatorType?: components["schemas"]["IndicatorTypeEnum"];
-            /** @description interpretation of the indicator values */
+            /**
+             * @description interpretation of the indicator values
+             * @example Higher values indicate a younger population structure.
+             */
             interpretation: string;
-            /** @description boolean value indicating if the indicator is a headline indicator */
+            /**
+             * @description boolean value indicating if the indicator is a headline indicator
+             * @example true
+             */
             isHeadlineIndicator: boolean;
             /** @description identifier/name of the lowest spatial unit for which the indicator can be computed and thus is available (only necessary for computable indicators) */
             lowestSpatialUnitForComputation?: string;
@@ -2637,9 +2915,15 @@ export interface components {
             ogcServices?: components["schemas"]["OgcServicesType"][];
             /** @description identifier of the owning group */
             ownerId: string;
-            /** @description description about how the indicator was computed */
+            /**
+             * @description description about how the indicator was computed
+             * @example Number of children under 6 divided by total population.
+             */
             processDescription?: string;
-            /** @description Defines the number of decimal places for indicator values. If null, there is no predefined precision for this indicator. */
+            /**
+             * @description Defines the number of decimal places for indicator values. If null, there is no predefined precision for this indicator.
+             * @example 2
+             */
             precision?: number;
             /** @description an optional note on the reference date of the indicator */
             referenceDateNote?: string;
@@ -2647,7 +2931,13 @@ export interface components {
             referencedGeoresources?: components["schemas"]["GeoresourceReferenceType"][];
             /** @description list of references to other indicators */
             referencedIndicators?: components["schemas"]["IndicatorReferenceType"][];
-            /** @description list of tag labels for the indicator */
+            /**
+             * @description list of tag labels for the indicator
+             * @example [
+             *       "demography",
+             *       "children"
+             *     ]
+             */
             tags: string[];
             /** @description id of the last topic hierarchy entity */
             topicReference: string;
@@ -2662,10 +2952,13 @@ export interface components {
         IndicatorPATCHDisplayOrderInputType: {
             /**
              * @description the new display order value
-             * @example 0
+             * @example 1
              */
             displayOrder: number;
-            /** @description unique ID of the associated indicator */
+            /**
+             * @description unique ID of the associated indicator
+             * @example 1d2e3f40-0001-4a5b-8c9d-000000000001
+             */
             indicatorId: string;
         };
         /** TopicDisplayOrderInputType */
@@ -2692,43 +2985,75 @@ export interface components {
         };
         /** PermissionLevelInputType */
         PermissionLevelInputType: {
-            /** @description list of permissions on this entity */
+            /**
+             * @description list of permissions on this entity
+             * @example [
+             *       "9a8b7c6d-1001-4e2f-8a3b-000000000001",
+             *       "9a8b7c6d-1002-4e2f-8a3b-000000000002"
+             *     ]
+             */
             permissions: string[];
-            /** @description flag whether this resource is publicly viewable */
+            /**
+             * @description flag whether this resource is publicly viewable
+             * @example false
+             */
             isPublic: boolean;
         };
         /** IndicatorPOSTInputType */
         IndicatorPOSTInputType: {
-            /** @description abbreviated mark of the indicator */
+            /**
+             * @description abbreviated mark of the indicator
+             * @example U6
+             */
             abbreviation?: string;
-            /** @description list of permissions on this entity */
+            /**
+             * @description list of permissions on this entity
+             * @example [
+             *       "creator"
+             *     ]
+             */
             permissions: string[];
             /** @description the distuingishing characteristic value of the indicator */
-            characteristicValue: string;
+            characteristicValue?: string;
             /** @description indicates if the data is simply inserted (INSERTION), computed by an automated script (COMPUTATION) or automatically aggregated by a script (AGGREGATION) */
             creationType: components["schemas"]["CreationTypeEnum"];
-            /** @description the meaningful name of the indicator */
+            /**
+             * @description the meaningful name of the indicator
+             * @example Share of children under 6 years
+             */
             datasetName: string;
-            defaultClassificationMapping: components["schemas"]["DefaultClassificationMappingType"];
+            defaultClassificationMapping: components["schemas"]["AbstractClassificationMappingType"];
             /**
              * @description an order number to control display order in clients
-             * @example 0
+             * @example 1
              */
             displayOrder?: number;
             /** @description indicates whether the indicator is a status indicator (values represent the extent of the watched phenomenon for a certain point in time) or a dynamic indicator (values represent the change of extent of the watched phenomenon within a certain period of time) */
             indicatorType?: components["schemas"]["IndicatorTypeEnum"];
-            /** @description interpretation of the indicator values */
+            /**
+             * @description interpretation of the indicator values
+             * @example Higher values indicate a younger population structure.
+             */
             interpretation: string;
-            /** @description boolean value indicating if the indicator is a headline indicator */
+            /**
+             * @description boolean value indicating if the indicator is a headline indicator
+             * @example true
+             */
             isHeadlineIndicator: boolean;
             /** @description identifier/name of the lowest spatial unit for which the indicator can be computed and thus is available (only necessary for computable indicators) */
             lowestSpatialUnitForComputation?: string;
             metadata: components["schemas"]["CommonMetadataType"];
-            /** @description Defines the number of decimal places for indicator values. If null, there is no predefined precision for this indicator. */
+            /**
+             * @description Defines the number of decimal places for indicator values. If null, there is no predefined precision for this indicator.
+             * @example 2
+             */
             precision?: number;
             /** @description identifier of the owning group */
             ownerId: string;
-            /** @description description about how the indicator was computed */
+            /**
+             * @description description about how the indicator was computed
+             * @example Number of children under 6 divided by total population.
+             */
             processDescription: string;
             /** @description an optional note on the reference date of the indicator */
             referenceDateNote?: string;
@@ -2736,21 +3061,70 @@ export interface components {
             refrencesToGeoresources?: components["schemas"]["IndicatorPOSTInputTypeRefrencesToGeoresources"][];
             /** @description array of references to other indicators. E.g., if an indicator is defined by combining four other indicators, then the identifiers of those other indicators can be referenced here */
             refrencesToOtherIndicators?: components["schemas"]["IndicatorPOSTInputTypeRefrencesToOtherIndicators"][];
-            /** @description list of tag labels for the indicator */
+            /**
+             * @description list of tag labels for the indicator
+             * @example [
+             *       "demography",
+             *       "children"
+             *     ]
+             */
             tags: string[];
-            /** @description id of the last topic hierarchy entity */
+            /**
+             * @description id of the last topic hierarchy entity
+             * @example demography
+             */
             topicReference: string;
-            /** @description unit of the indicator values */
+            /**
+             * @description unit of the indicator values
+             * @example percent
+             */
             unit: string;
-            /** @description flag whether the resource is publicly accessible */
+            /**
+             * @description flag whether the resource is publicly accessible
+             * @example false
+             */
             isPublic: boolean;
         };
         /** IndicatorPOSTInputTypeIndicatorValues */
         IndicatorPOSTInputTypeIndicatorValues: {
-            /** @description identifier (uuid) of the spatial feature to which the values shall be applied */
+            /**
+             * @description identifier (uuid) of the spatial feature to which the values shall be applied
+             * @example 8f14e45f-ceea-467d-9a1b-000000000101
+             */
             spatialReferenceKey?: string;
+            /**
+             * @description Informational field indicating the type of mapping values inside this container.
+             * @default NUMERIC
+             */
+            valueType: components["schemas"]["IndicatorValueTypeEnum"];
             /** @description an array of entries mapping an indicator value to a timestamp as mapping key */
-            valueMapping?: components["schemas"]["IndicatorPOSTInputTypeValueMapping"][];
+            valueMapping: components["schemas"]["IndicatorPOSTInputTypeValueMapping"][];
+        };
+        /** IndicatorPOSTInputTypeValueMapping */
+        IndicatorPOSTInputTypeValueMapping: {
+            /**
+             * Format: date
+             * @description timestamp consisting of year, month and day according to ISO 8601 (e.g. 2018-01-30)
+             * @example 2020-01-01
+             */
+            timestamp: string;
+        };
+        /** IndicatorPOSTInputTypeNumericalValueMapping */
+        IndicatorPOSTInputTypeNumericalValueMapping: components["schemas"]["IndicatorPOSTInputTypeValueMapping"] & {
+            /**
+             * Format: float
+             * @description the numeric extent of the indicator for the timestamp
+             * @example 12.4
+             */
+            indicatorValue: number;
+        };
+        /** IndicatorPOSTInputTypeCategoricalValueMapping */
+        IndicatorPOSTInputTypeCategoricalValueMapping: components["schemas"]["IndicatorPOSTInputTypeValueMapping"] & {
+            /**
+             * @description the text-based categorical value of the indicator for the timestamp
+             * @example high
+             */
+            indicatorValue: string;
         };
         /** IndicatorPOSTInputTypeRefrencesToGeoresources */
         IndicatorPOSTInputTypeRefrencesToGeoresources: {
@@ -2766,41 +3140,51 @@ export interface components {
             /** @description short description of how the indicator is referenced to the superior one */
             referenceDescription?: string;
         };
-        /** IndicatorPOSTInputTypeValueMapping */
-        IndicatorPOSTInputTypeValueMapping: {
-            /**
-             * Format: float
-             * @description the numeric extent of the indicator for the timestamp
-             * @example 0
-             */
-            indicatorValue?: number;
-            /**
-             * Format: date
-             * @description timestamp consisting of year, month and day according to ISO 8601 (e.g. 2018-01-30)
-             */
-            timestamp?: string;
-        };
         /** IndicatorPUTInputType */
         IndicatorPUTInputType: {
-            /** @description list of permissions on this entity */
+            /**
+             * @description list of permissions on this entity
+             * @example [
+             *       "creator"
+             *     ]
+             */
             permissions: string[];
+            /** @example 5a1b2c3d-0001-4e5f-8a9b-000000000001 */
             applicableSpatialUnit: string;
             /** @description an array of entries containing indicator values and mapping to spatial features via identifiers */
             indicatorValues: components["schemas"]["IndicatorPOSTInputTypeIndicatorValues"][];
-            /** @description flag whether the resource is publicly accessible */
+            /**
+             * @description flag whether the resource is publicly accessible
+             * @example false
+             */
             isPublic: boolean;
-            /** @description identifier of the owning group */
+            /**
+             * @description identifier of the owning group
+             * @example 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+             */
             ownerId: string;
         };
         /** IndicatorPropertiesWithoutGeomType */
         IndicatorPropertiesWithoutGeomType: {
-            /** @description the id of the spatial feature */
+            /**
+             * @description the id of the spatial feature
+             * @example 8f14e45f-ceea-467d-9a1b-000000000101
+             */
             id: string;
-            /** @description the name of the spatial feature */
+            /**
+             * @description the name of the spatial feature
+             * @example District Centre
+             */
             name: string;
-            /** @description the start date from which on the spatial feature is valid */
+            /**
+             * @description the start date from which on the spatial feature is valid
+             * @example 2020-01-01
+             */
             validStartDate: string;
-            /** @description the end date until the spatial feature is valid - or null if not set */
+            /**
+             * @description the end date until the spatial feature is valid - or null if not set
+             * @example 2020-12-31
+             */
             validEndDate: string;
         };
         /**
@@ -2865,15 +3249,27 @@ export interface components {
         OrganizationalUnitInputType: {
             /** @description unique id of this organizational Unit */
             organizationalUnitId?: string;
-            /** @description name of this organizational Unit */
+            /**
+             * @description name of this organizational Unit
+             * @example District administration
+             */
             name: string;
-            /** @description flag whether this unit is an autonomous mandant */
+            /**
+             * @description flag whether this unit is an autonomous mandant
+             * @example true
+             */
             mandant: boolean;
             /** @description uuid of the corresponding Keycloak group */
             keycloakId?: string;
-            /** @description contact information of the person responsible for this group */
+            /**
+             * @description contact information of the person responsible for this group
+             * @example admin@example.org
+             */
             contact: string;
-            /** @description additional information */
+            /**
+             * @description additional information
+             * @example Administration of the example municipality.
+             */
             description?: string;
             /** @description uuid of the parent group */
             parentId?: string;
@@ -2936,7 +3332,10 @@ export interface components {
         };
         /** OwnerType */
         OwnerInputType: {
-            /** @description ID of the owning group */
+            /**
+             * @description ID of the owning group
+             * @example 3c9f8b12-0002-4a1b-9c33-1a2b3c4d5e02
+             */
             ownerId: string;
         };
         /**
@@ -2947,11 +3346,13 @@ export interface components {
             /**
              * Format: date
              * @description an optional timestamp representing the ending date according to ISO 8601 (e.g. 2018-01-30). The parameter can be omitted, if the end date is unknown.
+             * @example 2018-12-31
              */
             endDate?: string;
             /**
              * Format: date
              * @description a timestamp representing the starting date according to ISO 8601 (e.g. 2018-01-30)
+             * @example 2018-01-01
              */
             startDate: string;
         };
@@ -2962,13 +3363,19 @@ export interface components {
              * @enum {string}
              */
             dataType: "string" | "boolean" | "integer" | "double";
-            /** @description the default value of the process parameter */
+            /**
+             * @description the default value of the process parameter
+             * @example 5.0
+             */
             defaultValue: string;
-            /** @description a short description of the process input */
+            /**
+             * @description a short description of the process input
+             * @example Threshold used during computation.
+             */
             description: string;
             /**
              * @description the maximum value that is allowed for the process parameter
-             * @example 0
+             * @example 100
              */
             maxParameterValueForNumericInputs?: number;
             /**
@@ -2976,7 +3383,10 @@ export interface components {
              * @example 0
              */
             minParameterValueForNumericInputs?: number;
-            /** @description the name of the process input parameter */
+            /**
+             * @description the name of the process input parameter
+             * @example threshold
+             */
             name: string;
         };
         /** ProcessScriptOverviewType */
@@ -3000,36 +3410,79 @@ export interface components {
         };
         /** ProcessScriptPOSTInputType */
         ProcessScriptPOSTInputType: {
-            /** @description unique identifier of the associated indicator (e.g. the indicator that is computed by a script or for which the values shall be aggregated to another spatial unit) */
+            /**
+             * @description unique identifier of the associated indicator (e.g. the indicator that is computed by a script or for which the values shall be aggregated to another spatial unit)
+             * @example 1d2e3f40-0001-4a5b-8c9d-000000000001
+             */
             associatedIndicatorId: string;
-            /** @description short description of the scripts content (what does it do) */
+            /**
+             * @description short description of the scripts content (what does it do)
+             * @example Computes the U6 indicator from population counts.
+             */
             description: string;
-            /** @description name of the process script */
+            /**
+             * @description name of the process script
+             * @example Compute share of children under 6
+             */
             name: string;
-            /** @description identifiers of georesources that are used within the script. */
+            /**
+             * @description identifiers of georesources that are used within the script.
+             * @example []
+             */
             requiredGeoresourceIds: string[];
-            /** @description identifiers of indicators that are used within the script. */
+            /**
+             * @description identifiers of indicators that are used within the script.
+             * @example [
+             *       "1d2e3f40-0002-4a5b-8c9d-000000000002"
+             *     ]
+             */
             requiredIndicatorIds: string[];
-            /** @description the actual script code (JavaScript) as BASE64 encoded string */
+            /**
+             * @description the actual script code (JavaScript) as BASE64 encoded string
+             * @example LyoganMgc2NyaXB0IGNvZGUgaGVyZSAqLw==
+             */
             scriptCodeBase64: string;
-            /** @description a script type reference name used to distuingish process scripts from a client perspective, i.e. setup admin pages due to knowledge about type-specific script parameters and required indicators/georesources */
+            /**
+             * @description a script type reference name used to distuingish process scripts from a client perspective, i.e. setup admin pages due to knowledge about type-specific script parameters and required indicators/georesources
+             * @example kommonitor-standard
+             */
             scriptType?: string;
             /** @description list of process parameters that can be set by an expert user. They are used within the script to parameterize the indicator computation */
             variableProcessParameters: components["schemas"]["ProcessInputType"][];
         };
         /** ProcessScriptPUTInputType */
         ProcessScriptPUTInputType: {
-            /** @description short description of the scripts content (what does it do) */
+            /**
+             * @description short description of the scripts content (what does it do)
+             * @example Computes the U6 indicator from population counts.
+             */
             description: string;
-            /** @description name of the process script */
+            /**
+             * @description name of the process script
+             * @example Compute share of children under 6
+             */
             name: string;
-            /** @description identifiers of georesources that are used within the script. */
+            /**
+             * @description identifiers of georesources that are used within the script.
+             * @example []
+             */
             requiredGeoresourceIds: string[];
-            /** @description identifiers of indicators that are used within the script. */
+            /**
+             * @description identifiers of indicators that are used within the script.
+             * @example [
+             *       "1d2e3f40-0002-4a5b-8c9d-000000000002"
+             *     ]
+             */
             requiredIndicatorIds: string[];
-            /** @description the actual script code (JavaScript) as BASE64 encoded string */
+            /**
+             * @description the actual script code (JavaScript) as BASE64 encoded string
+             * @example LyoganMgc2NyaXB0IGNvZGUgdjIgKi8=
+             */
             scriptCodeBase64: string;
-            /** @description a script type reference name used to distuingish process scripts from a client perspective, i.e. setup admin pages due to knowledge about type-specific script parameters and required indicators/georesources */
+            /**
+             * @description a script type reference name used to distuingish process scripts from a client perspective, i.e. setup admin pages due to knowledge about type-specific script parameters and required indicators/georesources
+             * @example kommonitor-standard
+             */
             scriptType?: string;
             /** @description list of process parameters that can be set by an expert user. They are used within the script to parameterize the indicator computation */
             variableProcessParameters: components["schemas"]["ProcessInputType"][];
@@ -3052,13 +3505,13 @@ export interface components {
             /** @description flag whether the resource is publicly accessible */
             isPublic: boolean;
             metadata: components["schemas"]["CommonMetadataType"];
-            /** @description the identifier/name of the spatial unit level that contains the features of the nearest lower hierarchy level */
-            nextLowerHierarchyLevel?: string;
-            /** @description the identifier/name of the spatial unit level that contains the features of the nearest upper hierarchy level */
-            nextUpperHierarchyLevel?: string;
+            /** @description identifier of the mandant (organizational unit) this spatial unit belongs to. Its name is unique within this mandant. */
+            mandantId?: string;
+            /** @description the hierarchies this spatial unit is a member of, together with its ordered position (level) in each. May be empty if the spatial unit is not part of any hierarchy. */
+            hierarchies?: components["schemas"]["SpatialUnitHierarchyMembershipType"][];
             /** @description the unique identifier of the spatial unit level the features apply to */
             spatialUnitId: string;
-            /** @description the name of the spatial unit level the features apply to */
+            /** @description the name of the spatial unit level the features apply to. The name is unique only within a mandant. */
             spatialUnitLevel: string;
             /** @description list of permissions that are effective on this dataset for the current user */
             userPermissions: components["schemas"]["PermissionLevelType"][];
@@ -3082,23 +3535,26 @@ export interface components {
         };
         /** SpatialUnitPATCHInputType */
         SpatialUnitPATCHInputType: {
-            /** @description the name of the spatial unit - its "spatialUnitLevel" */
+            /**
+             * @description the name of the spatial unit - its "spatialUnitLevel". The name is unique only within a mandant.
+             * @example districts
+             */
             datasetName: string;
             metadata: components["schemas"]["CommonMetadataType"];
-            /** @description the identifier/name of the spatial unit level that contains the features of the nearest lower hierarchy level */
-            nextLowerHierarchyLevel: string;
-            /** @description the identifier/name of the spatial unit level that contains the features of the nearest upper hierarchy level */
-            nextUpperHierarchyLevel: string;
             /**
              * @description if true, then KomMonitor web client map application will offer this spatial unit as outline layer in legend control
              * @default false
              */
             isOutlineLayer: boolean;
-            /** @description outline color for this layer as hex code */
+            /**
+             * @description outline color for this layer as hex code
+             * @example #333333
+             */
             outlineColor?: string;
             /**
              * Format: int32
              * @description outline width as stroke width for outline geometry
+             * @example 2
              */
             outlineWidth?: number;
             /** @description string of line stroke dash array for lines of interest (e.g. 20,20; see https://developer.mozilla.org/de/docs/Web/SVG/Attribute/stroke-dasharray) */
@@ -3106,56 +3562,242 @@ export interface components {
         };
         /** SpatialUnitPOSTInputType */
         SpatialUnitPOSTInputType: {
-            /** @description list of permissions on this entity */
+            /**
+             * @description list of permissions on this entity
+             * @example [
+             *       "creator"
+             *     ]
+             */
             permissions: string[];
-            /** @description a valid GeoJSON string containing the features consisting of a geometry and a unique identifier as property 'uuid' */
+            /**
+             * @description a valid GeoJSON string containing the features consisting of a geometry and a unique identifier as property 'uuid'
+             * @example {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[7.0,51.4],[7.1,51.4],[7.1,51.5],[7.0,51.5],[7.0,51.4]]]},"properties":{"uuid":"8f14e45f-ceea-467d-9a1b-000000000101","name":"District Centre"}}]}
+             */
             geoJsonString: string;
             /** @description a JSON schema as string that defines the data model for this dataset. It can be used to validate the geoJsonString property. */
             jsonSchema?: string;
             metadata: components["schemas"]["CommonMetadataType"];
-            /** @description the identifier/name of the spatial unit level that contains the features of the nearest lower hierarchy level */
-            nextLowerHierarchyLevel?: string;
-            /** @description the identifier/name of the spatial unit level that contains the features of the nearest upper hierarchy level */
-            nextUpperHierarchyLevel?: string;
+            /** @description optional list of hierarchies the new spatial unit shall be placed into. For each hierarchy the next upper and next lower spatial units within that hierarchy are defined. All referenced hierarchies must belong to the same mandant as the spatial unit. */
+            hierarchies?: components["schemas"]["SpatialUnitHierarchyMembershipPOSTInputType"][];
             periodOfValidity: components["schemas"]["PeriodOfValidityType"];
-            /** @description the name and identifier of the spatial unit level the features apply to */
+            /**
+             * @description the name and identifier of the spatial unit level the features apply to. The name is unique only within a mandant.
+             * @example districts
+             */
             spatialUnitLevel: string;
             /**
              * @description if true, then KomMonitor web client map application will offer this spatial unit as outline layer in legend control
              * @default false
              */
             isOutlineLayer: boolean;
-            /** @description outline color for this layer as hex code */
+            /**
+             * @description outline color for this layer as hex code
+             * @example #333333
+             */
             outlineColor?: string;
             /**
              * Format: int32
              * @description outline width as stroke width for outline geometry
+             * @example 2
              */
             outlineWidth?: number;
             /** @description string of line stroke dash array for lines of interest (e.g. 20,20; see https://developer.mozilla.org/de/docs/Web/SVG/Attribute/stroke-dasharray) */
             outlineDashArrayString?: string;
-            /** @description identifier of the owning group */
+            /**
+             * @description identifier of the owning group
+             * @example 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+             */
             ownerId?: string;
-            /** @description flag whether the resource is publicly accessible */
+            /**
+             * @description flag whether the resource is publicly accessible
+             * @example true
+             */
             isPublic: boolean;
         };
         /** SpatialUnitPUTInputType */
         SpatialUnitPUTInputType: {
-            /** @description a valid GeoJSON string containing the features consisting of a geometry and a unique identifier as property 'uuid' */
+            /**
+             * @description a valid GeoJSON string containing the features consisting of a geometry and a unique identifier as property 'uuid'
+             * @example {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[7.0,51.4],[7.1,51.4],[7.1,51.5],[7.0,51.5],[7.0,51.4]]]},"properties":{"uuid":"8f14e45f-ceea-467d-9a1b-000000000101","name":"District Centre"}}]}
+             */
             geoJsonString: string;
-            /** @description if set to TRUE, then a partial upload of geometries is possible. Missing features that are already in the database will then not be deleted */
+            /**
+             * @description if set to TRUE, then a partial upload of geometries is possible. Missing features that are already in the database will then not be deleted
+             * @example false
+             */
             isPartialUpdate?: boolean;
             periodOfValidity: components["schemas"]["PeriodOfValidityType"];
+        };
+        /**
+         * SpatialUnitHierarchyMembershipPOSTInputType
+         * @description places a newly registered spatial unit into a hierarchy by defining its neighbouring spatial units within that hierarchy
+         */
+        SpatialUnitHierarchyMembershipPOSTInputType: {
+            /**
+             * @description the unique identifier of the hierarchy the spatial unit shall be a member of
+             * @example 7b3f9a10-0001-4c2d-8e3f-000000000001
+             */
+            hierarchyId: string;
+            /**
+             * @description the identifier of the next upper spatial unit within this hierarchy. Leave empty if the spatial unit is the top level.
+             * @example 5a1b2c3d-0001-4e5f-8a9b-000000000001
+             */
+            nextUpperSpatialUnitId?: string;
+            /**
+             * @description the identifier of the next lower spatial unit within this hierarchy. Leave empty if the spatial unit is the bottom level.
+             * @example 5a1b2c3d-0002-4e5f-8a9b-000000000002
+             */
+            nextLowerSpatialUnitId?: string;
+        };
+        /**
+         * SpatialUnitHierarchyMembershipInputType
+         * @description places an existing spatial unit into a hierarchy at a given ordered position (level)
+         */
+        SpatialUnitHierarchyMembershipInputType: {
+            /**
+             * @description the unique identifier of the hierarchy the spatial unit shall be a member of
+             * @example 7b3f9a10-0001-4c2d-8e3f-000000000001
+             */
+            hierarchyId: string;
+            /**
+             * Format: int32
+             * @description the ordered position of the spatial unit within the hierarchy. Lower values denote upper levels.
+             * @example 1
+             */
+            hierarchyLevel: number;
+        };
+        /**
+         * SpatialUnitHierarchyMembershipType
+         * @description membership of a spatial unit within a hierarchy. The ordering is kept coherent in both representations - hierarchyLevel is always set and the neighbouring spatial units are derived from it.
+         */
+        SpatialUnitHierarchyMembershipType: {
+            /** @description the unique identifier of the hierarchy */
+            hierarchyId: string;
+            /** @description the name of the hierarchy */
+            hierarchyName?: string;
+            /**
+             * Format: int32
+             * @description the ordered position of the spatial unit within the hierarchy. Lower values denote upper levels. Set when the membership was created by adding an existing spatial unit or reordering.
+             */
+            hierarchyLevel: number;
+            /** @description the identifier of the next upper spatial unit within this hierarchy. Null denotes the top level. */
+            nextUpperSpatialUnitId?: string;
+            /** @description the identifier of the next lower spatial unit within this hierarchy. Null denotes the bottom level. */
+            nextLowerSpatialUnitId?: string;
+        };
+        /**
+         * SpatialUnitHierarchyMemberInputType
+         * @description a spatial unit and its ordered position within a hierarchy
+         */
+        SpatialUnitHierarchyMemberInputType: {
+            /**
+             * @description the unique identifier of the spatial unit
+             * @example 5a1b2c3d-0001-4e5f-8a9b-000000000001
+             */
+            spatialUnitId: string;
+            /**
+             * Format: int32
+             * @description the ordered position of the spatial unit within the hierarchy. Lower values denote upper levels.
+             * @example 1
+             */
+            hierarchyLevel: number;
+        };
+        /**
+         * SpatialUnitHierarchyMemberType
+         * @description a spatial unit member of a hierarchy. The ordering is kept coherent in both representations - hierarchyLevel is always set and the neighbouring spatial units are derived from it.
+         */
+        SpatialUnitHierarchyMemberType: {
+            /** @description the unique identifier of the spatial unit */
+            spatialUnitId: string;
+            /** @description the name of the spatial unit level */
+            spatialUnitLevel?: string;
+            /**
+             * Format: int32
+             * @description the ordered position of the spatial unit within the hierarchy. Lower values denote upper levels. Set when the membership was created by adding an existing spatial unit or reordering.
+             */
+            hierarchyLevel: number;
+            /** @description the identifier of the next upper spatial unit within this hierarchy. Null denotes the top level. */
+            nextUpperSpatialUnitId?: string;
+            /** @description the identifier of the next lower spatial unit within this hierarchy. Null denotes the bottom level. */
+            nextLowerSpatialUnitId?: string;
+        };
+        /**
+         * SpatialUnitHierarchyInputType
+         * @description input for updating a mandant-owned spatial unit hierarchy. The owning mandant is immutable and must match the hierarchy's current mandant.
+         */
+        SpatialUnitHierarchyInputType: {
+            /**
+             * @description the name of the hierarchy. Unique within the owning mandant.
+             * @example Administrative hierarchy
+             */
+            name: string;
+            /**
+             * @description identifier of the mandant (organizational unit) that owns the hierarchy
+             * @example 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+             */
+            mandantId: string;
+            /**
+             * @description flag whether the hierarchy is publicly accessible
+             * @default false
+             * @example true
+             */
+            isPublic: boolean;
+        };
+        /**
+         * SpatialUnitHierarchyPOSTInputType
+         * @description input for creating a mandant-owned spatial unit hierarchy, optionally with its ordered spatial unit members
+         */
+        SpatialUnitHierarchyPOSTInputType: {
+            /**
+             * @description the name of the hierarchy. Unique within the owning mandant.
+             * @example Administrative hierarchy
+             */
+            name: string;
+            /**
+             * @description identifier of the mandant (organizational unit) that owns the hierarchy
+             * @example 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+             */
+            mandantId: string;
+            /**
+             * @description flag whether the hierarchy is publicly accessible
+             * @default false
+             * @example false
+             */
+            isPublic: boolean;
+            /** @description optional ordered list of existing spatial units to place into the new hierarchy. All members must belong to the same mandant as the hierarchy. */
+            members?: components["schemas"]["SpatialUnitHierarchyMemberInputType"][];
+        };
+        /**
+         * SpatialUnitHierarchyOverviewType
+         * @description metadata of a mandant-owned spatial unit hierarchy and its ordered members
+         */
+        SpatialUnitHierarchyOverviewType: {
+            /** @description the unique identifier of the hierarchy */
+            hierarchyId: string;
+            /** @description the name of the hierarchy. Unique within the owning mandant. */
+            name: string;
+            /** @description identifier of the mandant (organizational unit) that owns the hierarchy */
+            mandantId: string;
+            /** @description flag whether the hierarchy is publicly accessible */
+            isPublic: boolean;
+            /** @description the ordered spatial units that are members of this hierarchy */
+            members?: components["schemas"]["SpatialUnitHierarchyMemberType"][];
         };
         /** TopicInputType */
         TopicInputType: {
             /** @description optional list of subTopics */
             subTopics?: components["schemas"]["TopicInputType"][];
-            /** @description short description of the topic */
+            /**
+             * @description short description of the topic
+             * @example Indicators describing the population structure.
+             */
             topicDescription: string;
             /** @description the topic identifier */
             topicId?: string;
-            /** @description the topic name */
+            /**
+             * @description the topic name
+             * @example Demography
+             */
             topicName: string;
             /** @description topic resource indicating if the topic object corresponds to an indicator or to a georesource */
             topicResource?: components["schemas"]["TopicResourceEnum"];
@@ -3184,38 +3826,76 @@ export interface components {
         };
         /** ResourceFilterType */
         ResourceFilterType: {
-            /** @description list of topics for which all resources should be filtered */
+            /**
+             * @description list of topics for which all resources should be filtered
+             * @example [
+             *       "t-demography",
+             *       "t-mobility"
+             *     ]
+             */
             topicIds: string[];
-            /** @description list of resources that should be filtered */
+            /**
+             * @description list of resources that should be filtered
+             * @example [
+             *       "1d2e3f40-0001-4a5b-8c9d-000000000001",
+             *       "1d2e3f40-0002-4a5b-8c9d-000000000002"
+             *     ]
+             */
             ids: string[];
         };
         /** WebServiceType */
         WebServiceType: {
-            /** @description contact details where additional information can be achieved */
+            /**
+             * @description contact details where additional information can be achieved
+             * @example KomMonitor Team, info@kommonitor.de
+             */
             contact: string;
             connectionDetails: components["schemas"]["WmsConnectionInfoType"];
             /** @description information about data used as a basis to generate the web service */
             databasis?: string;
-            /** @description information about the origin/source of the web service */
+            /**
+             * @description information about the origin/source of the web service
+             * @example Municipal education department
+             */
             datasource: string;
-            /** @description description of the web service */
+            /**
+             * @description description of the web service
+             * @example WMS serving the school locations.
+             */
             description: string;
             /** @description an optional note with background information about the web service */
             note?: string;
             /** @description service resource indicating if the topic object corresponds to an indicator or to a georesource */
             serviceResource?: components["schemas"]["ServiceResourceEnum"];
-            /** @description title of the web service */
+            /**
+             * @description title of the web service
+             * @example Schools WMS
+             */
             title: string;
-            /** @description id of the last topic hierarchy entity */
+            /**
+             * @description id of the last topic hierarchy entity
+             * @example education
+             */
             topicReference: string;
         };
         /** WebServiceOverviewType */
         WebServiceCreationType: components["schemas"]["WebServiceType"] & {
-            /** @description flag whether the resource is publicly accessible */
+            /**
+             * @description flag whether the resource is publicly accessible
+             * @example true
+             */
             isPublic: boolean;
-            /** @description identifier of the owning group */
+            /**
+             * @description identifier of the owning group
+             * @example 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+             */
             ownerId: string;
-            /** @description list of permissions on this entity */
+            /**
+             * @description list of permissions on this entity
+             * @example [
+             *       "creator"
+             *     ]
+             */
             permissions: string[];
         };
         /** WebServiceOverviewType */
@@ -3240,9 +3920,15 @@ export interface components {
         };
         /** WmsConnectionInfoType */
         WmsConnectionInfoType: components["schemas"]["ConnectionInfoType"] & {
-            /** @description the base URL of the WMS web service */
+            /**
+             * @description the base URL of the WMS web service
+             * @example https://geoserver.example.org/kommonitor/wms
+             */
             baseUrl: string;
-            /** @description the layer Name of the WMS web service */
+            /**
+             * @description the layer Name of the WMS web service
+             * @example kommonitor:schools
+             */
             layerName: string;
         } & {
             /**
@@ -3270,15 +3956,40 @@ export interface components {
         };
         /** UserInfoInputType */
         UserInfoInputType: {
-            /** @description list of georesource user favourites */
+            /**
+             * @description list of georesource user favourites
+             * @example [
+             *       "0c0d17bb-0001-4a56-9abc-000000000001"
+             *     ]
+             */
             georesourceFavourites?: string[];
-            /** @description list of indicator user favourites */
+            /**
+             * @description list of indicator user favourites
+             * @example [
+             *       "1d2e3f40-0001-4a5b-8c9d-000000000001"
+             *     ]
+             */
             indicatorFavourites?: string[];
-            /** @description list of georesource topic user favourites */
+            /**
+             * @description list of georesource topic user favourites
+             * @example [
+             *       "t-administrative-boundaries"
+             *     ]
+             */
             georesourceTopicFavourites?: string[];
-            /** @description list of indicator topic user favourites */
+            /**
+             * @description list of indicator topic user favourites
+             * @example [
+             *       "t-demography"
+             *     ]
+             */
             indicatorTopicFavourites?: string[];
-            /** @description list of web service user favourites */
+            /**
+             * @description list of web service user favourites
+             * @example [
+             *       "ws-0001-0001-0001"
+             *     ]
+             */
             webServiceFavourites?: string[];
         };
         /** OrganizationalUnitRoleAuthorityType */
@@ -3351,6 +4062,10 @@ export interface components {
         ServiceResourceEnum: "indicator" | "georesource";
         /** @enum {string} */
         ServiceTypeEnum: "wms";
+        /** @enum {string} */
+        ClassificationTypeEnum: "QUANTITATIVE" | "QUALITATIVE";
+        /** @enum {string} */
+        IndicatorValueTypeEnum: "NUMERIC" | "CATEGORICAL";
     };
     responses: never;
     parameters: never;
@@ -8981,6 +9696,63 @@ export interface operations {
             };
         };
     };
+    getPublicSpatialUnitHierarchies: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialUnitHierarchyOverviewType"][];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getPublicSpatialUnitHierarchyById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description the unique identifier of the hierarchy */
+                hierarchyId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialUnitHierarchyOverviewType"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getPublicSpatialUnits: {
         parameters: {
             query?: never;
@@ -9552,6 +10324,300 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["WebServiceOverviewType"];
                 };
+            };
+        };
+    };
+    getSpatialUnitHierarchies: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialUnitHierarchyOverviewType"][];
+                };
+            };
+            /** @description API key is missing or invalid */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    addSpatialUnitHierarchy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description hierarchy definition */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialUnitHierarchyPOSTInputType"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialUnitHierarchyOverviewType"];
+                };
+            };
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialUnitHierarchyOverviewType"];
+                };
+            };
+            /** @description API key is missing or invalid */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            405: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getSpatialUnitHierarchyById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description the unique identifier of the hierarchy */
+                hierarchyId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialUnitHierarchyOverviewType"];
+                };
+            };
+            /** @description API key is missing or invalid */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateSpatialUnitHierarchy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description the unique identifier of the hierarchy */
+                hierarchyId: string;
+            };
+            cookie?: never;
+        };
+        /** @description hierarchy definition */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialUnitHierarchyInputType"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialUnitHierarchyOverviewType"];
+                };
+            };
+            /** @description API key is missing or invalid */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            405: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    deleteSpatialUnitHierarchyById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description the unique identifier of the hierarchy */
+                hierarchyId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description API key is missing or invalid */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateSpatialUnitHierarchyMembers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description the unique identifier of the hierarchy */
+                hierarchyId: string;
+            };
+            cookie?: never;
+        };
+        /** @description the ordered list of spatial unit members */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialUnitHierarchyMemberInputType"][];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialUnitHierarchyOverviewType"];
+                };
+            };
+            /** @description API key is missing or invalid */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            405: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -10130,6 +11196,62 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateSpatialUnitHierarchyMemberships: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description the unique identifier of the spatial unit */
+                spatialUnitId: string;
+            };
+            cookie?: never;
+        };
+        /** @description the full list of hierarchy memberships for the spatial unit */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialUnitHierarchyMembershipInputType"][];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialUnitOverviewType"];
+                };
+            };
+            /** @description API key is missing or invalid */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            405: {
                 headers: {
                     [name: string]: unknown;
                 };

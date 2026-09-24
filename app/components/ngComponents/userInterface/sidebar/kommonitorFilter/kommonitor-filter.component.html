@@ -204,12 +204,12 @@
 
   <!-- DARSTELLUNGSFILTER -->
   <expandable-box [title]="'Wertebereich Filter'" [collapsed]="false">
-    @if (indicatorClassificationType == 'QUALITATIVE') {
+    @if (indicatorClassificationType === 'QUALITATIVE') {
       <div class="alert alert-light py-3 mb-2 text-center" role="alert">
         Nicht verfügbar für Indikatoren mit kategorialer Klassifikation
       </div>
     }
-    @if (indicatorClassificationType == 'QUANTITATIVE') {
+    @if (indicatorClassificationType === 'QUANTITATIVE') {
       <div style="text-align: middle">
         <p>
           Einschr&auml;nken der dargestellten Features anhand des Indikatorenwertebereichs. Bewegen
@@ -289,12 +289,12 @@
   <!-- SCHWELLENWERT FILTER -->
   @if (isFilterModeActive('kommonitorThresholdFilter')) {
     <expandable-box [title]="'Dynamische Schwellenwertklassifizierung'" [collapsed]="false">
-      @if (indicatorClassificationType == 'QUALITATIVE') {
+      @if (indicatorClassificationType === 'QUALITATIVE') {
         <div class="alert alert-light py-3 mb-2 text-center" role="alert">
           Nicht verfügbar für Indikatoren mit kategorialer Klassifikation
         </div>
       }
-      @if (indicatorClassificationType == 'QUANTITATIVE') {
+      @if (indicatorClassificationType === 'QUANTITATIVE') {
         <div style="text-align: justify">
           <p>
             Dieses Tool bietet eine spezielle Form der Klassifizierung der dargestellten

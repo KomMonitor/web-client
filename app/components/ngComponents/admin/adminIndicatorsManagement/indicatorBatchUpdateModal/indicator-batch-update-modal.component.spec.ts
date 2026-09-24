@@ -1,6 +1,6 @@
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { BatchUpdateService } from 'services/batch-update-service/batch-update.service';
@@ -140,6 +140,7 @@ describe('IndicatorBatchUpdateModalComponent', () => {
         { provide: BatchUpdateService, useValue: batchUpdate },
         { provide: NotificationService, useValue: notifications },
         { provide: NgbModal, useValue: modalService },
+        { provide: NgbActiveModal, useValue: { close: jest.fn() } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     });

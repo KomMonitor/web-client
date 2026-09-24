@@ -1,217 +1,194 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { forkJoin } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
+import { JobOverviewRow } from 'components/ngComponents/models/jobs.models';
+import { AuthService } from 'services/auth-service/auth.service';
+import { JobOverviewService } from 'services/job-overview-service/job-overview.service';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
-import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { SmallBoxComponent } from '../adminDashboardManagement/small-box/small-box.component';
 import {
-  AdminScriptExecutionService,
-  IndicatorJob,
-  IndicatorJobHealth,
-} from './admin-script-execution.service';
-import { JobLogsCellRendererComponent } from './job-logs-cell-renderer.component';
-import { JobSummaryCellRendererComponent } from './job-summary-cell-renderer.component';
-import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridOptions } from 'ag-grid-community';
-import { IndicatorValueService } from '../../../../services/indicator-value-service/indicator-value.service';
-import { IndicatorMetadataStoreService } from '../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
-import { KommonitorDataGridHelperService } from '../../../../services/adminSpatialUnit/kommonitor-data-grid-helper.service';
-import { LoadingOverlayComponent } from '../../common/loading-overlay/loading-overlay.component';
+  ExpanableBoxBorderColor,
+  ExpandableBoxComponent,
+} from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { JobOverviewTableComponent } from './jobOverviewTable/job-overview-table.component';
 
-import { TranslateModule } from '@ngx-translate/core';
-import { TranslateService } from '@ngx-translate/core';
+/** One status tile: how it is counted, labelled and coloured. */
+interface StatusTile {
+  status: string;
+  labelKey: string;
+  color: string;
+  /** Border of the table box while this tile's filter is active. */
+  boxColor: ExpanableBoxBorderColor;
+}
+
+const STATUS_TILES: StatusTile[] = [
+  {
+    status: 'successful',
+    labelKey: 'ADMIN_SCRIPTS.EXECUTION.SUCCEEDED_JOBS',
+    color: '#00a65a',
+    boxColor: 'green',
+  },
+  {
+    status: 'failed',
+    labelKey: 'ADMIN_SCRIPTS.EXECUTION.FAILED_JOBS',
+    color: '#dd4b39',
+    boxColor: 'red',
+  },
+  {
+    status: 'running',
+    labelKey: 'ADMIN_SCRIPTS.EXECUTION.ACTIVE_JOBS',
+    color: '#00c0ef',
+    boxColor: 'cyan',
+  },
+  {
+    status: 'accepted',
+    labelKey: 'ADMIN_SCRIPTS.EXECUTION.WAITING_JOBS',
+    color: '#ff851b',
+    boxColor: 'primary',
+  },
+];
+
+/**
+ * The indicator-calculation page: five tiles over the Processes API job list,
+ * and the job table below them.
+ *
+ * Counting happens here over the loaded jobs — the API offers no per-status
+ * endpoint. A click on a tile expands the table and filters it to that status;
+ * the same table in a dialog belongs to the script management, which opens it
+ * per schedule.
+ *
+ * The table is rendered only once it has been expanded, because the box keeps
+ * its content alive while collapsed. Without that guard the per-job summaries
+ * would be fetched on every page visit, whether or not anyone looks.
+ */
 @Component({
   selector: 'app-admin-script-execution',
   templateUrl: './admin-script-execution.component.html',
-  styleUrls: ['./admin-script-execution.component.scss'],
   imports: [
     TranslateModule,
     AdminContentViewComponent,
-    ExpandableBoxComponent,
     SmallBoxComponent,
     LoadingOverlayComponent,
-    AgGridAngular,
+    ExpandableBoxComponent,
+    JobOverviewTableComponent,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminScriptExecutionComponent implements OnInit {
-  private scriptExecutionService = inject(AdminScriptExecutionService);
-  private indicatorValueService = inject(IndicatorValueService);
-  private indicatorStore = inject(IndicatorMetadataStoreService);
-  private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
+  private jobOverviewService = inject(JobOverviewService);
+  private authService = inject(AuthService);
   private translate = inject(TranslateService);
 
-  // Signals: all filled from the forkJoin subscription (OnPush).
-  protected defaultIndicatorJobHealth = signal<IndicatorJobHealth | undefined>(undefined);
-  protected customizedIndicatorJobHealth = signal<IndicatorJobHealth | undefined>(undefined);
-  protected errorOccurred = signal(false);
-  protected defaultIndicatorJobs = signal<IndicatorJob[] | undefined>(undefined);
-  protected customizedIndicatorJobs = signal<IndicatorJob[] | undefined>(undefined);
+  protected readonly statusTiles = STATUS_TILES;
 
+  // Signal-backed: filled from the async job load (OnPush).
+  protected rows = signal<JobOverviewRow[]>([]);
   protected loadingData = signal(true);
 
-  // Assigned in ngOnInit rather than here: the headers resolve through
-  // translate.instant(). Both job grids bind this same array.
-  public columnDefs: ColDef[] = [];
+  /** The status a tile click filtered on, or null for all jobs. */
+  protected selectedStatus = signal<string | null>(null);
+  protected tableCollapsed = signal(true);
+  /** Sticky: the table is built on first expand and then kept. */
+  protected tableOpened = signal(false);
 
-  private buildColumnDefs(): ColDef[] {
-    return [
-      {
-        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_JOB_ID'),
-        field: 'jobId',
-        pinned: 'left',
-        maxWidth: 125,
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        headerCheckboxSelectionFilteredOnly: true,
-      },
-      {
-        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_SCRIPT_ID'),
-        field: 'jobData.scriptId',
-        pinned: 'left',
-        maxWidth: 125,
-      },
-      {
-        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_TARGET_INDICATOR'),
-        pinned: 'left',
-        // Overrides the shared defaultColDef's minWidth of 200: the pinned
-        // block is fixed overhead on every horizontal scroll position, so it
-        // stays as narrow as an indicator name allows.
-        minWidth: 150,
-        maxWidth: 250,
-        cellRenderer: (params) => {
-          if (params.data.jobData && params.data.jobData.targetIndicatorId) {
-            const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(
-              params.data.jobData.targetIndicatorId
-            );
-            if (indicatorMetadata) {
-              return indicatorMetadata.indicatorName;
-            }
-          }
-          return '';
-        },
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params) => {
-          if (params.data.jobData && params.data.jobData.targetIndicatorId) {
-            const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(
-              params.data.jobData.targetIndicatorId
-            );
-            if (indicatorMetadata) {
-              return indicatorMetadata.indicatorName;
-            }
-          }
-          return '';
-        },
-      },
-      {
-        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_JOB_STATUS'),
-        field: 'status',
-        maxWidth: 125,
-      },
-      {
-        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_JOB_PROGRESS'),
-        field: 'progress',
-        maxWidth: 125,
-      },
-      {
-        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_JOB_DATA'),
-        field: 'jobData',
-        // Wide enough that the JSON blob does not wrap into a very tall row
-        // (autoHeight is on), narrow enough that the columns behind it stay
-        // reachable without horizontal scrolling on a normal screen.
-        minWidth: 360,
-        // autoHeight is on, so without a cap the wrapped JSON alone decides how
-        // tall every row is. The blob scrolls inside a fixed-height box instead.
-        // Inline styles, not a class: the string this renderer returns is built
-        // outside the template and so carries no view-encapsulation attribute.
-        cellRenderer: (params) =>
-          `<div style="max-height: 150px; overflow: auto">${this.indicatorValueService.syntaxHighlightJSON(
-            params.data.jobData
-          )}</div>`,
-        filter: 'agTextColumnFilter',
-      },
-      {
-        field: 'logs',
-        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_JOB_LOGS'),
-        maxWidth: 160,
-        cellRenderer: JobLogsCellRendererComponent,
-        filter: 'agTextColumnFilter',
-      },
-      {
-        headerName: this.translate.instant('ADMIN_SCRIPTS.GRID.COL_JOB_SUMMARY'),
-        // Used to be 1000, which is wider than the grid's whole scrollable
-        // viewport: the column could never be shown in full and pushed the two
-        // columns before it off screen. The summary table inside the cell
-        // scrolls horizontally on its own instead.
-        minWidth: 320,
-        cellRenderer: JobSummaryCellRendererComponent,
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params) => JSON.stringify(params.data.spatialUnitIntegrationSummary),
-      },
-    ];
+  /**
+   * `jobs` needs a token while the app may run without a login. The service
+   * swallows the 401 and returns an empty list, so "no jobs" and "not allowed
+   * to see jobs" look the same here — hence the explicit auth check, which
+   * shows a login hint instead of a misleading empty state.
+   */
+  protected loginRequired = computed(() => !this.authService.isAuthenticated());
+
+  protected totalJobs = computed(() => this.rows().length);
+
+  protected counts = computed(() => {
+    const rows = this.rows();
+    return new Map(
+      STATUS_TILES.map((tile) => [
+        tile.status,
+        this.jobOverviewService.countByStatus(rows, tile.status),
+      ])
+    );
+  });
+
+  /** The tile whose filter is active, if any — it colours the table box. */
+  protected selectedTile = computed(() =>
+    STATUS_TILES.find((tile) => tile.status === this.selectedStatus())
+  );
+
+  protected filteredRows = computed(() => {
+    const status = this.selectedStatus();
+    return status ? this.rows().filter((row) => row.job.status === status) : this.rows();
+  });
+
+  protected tableTitle = computed(() => {
+    const count = this.filteredRows().length;
+    const tile = this.selectedTile();
+    return tile
+      ? this.translate.instant('ADMIN_SCRIPTS.EXECUTION.TABLE_TITLE_FILTERED', {
+          status: this.translate.instant(tile.labelKey),
+          count,
+        })
+      : this.translate.instant('ADMIN_SCRIPTS.EXECUTION.TABLE_TITLE', { count });
+  });
+
+  ngOnInit(): void {
+    void this.loadData();
   }
 
-  public defaultColDef: ColDef = this.kommonitorDataGridHelperService.buildDefaultColDef();
-  public gridOptions: GridOptions = {
-    suppressRowClickSelection: true,
-    rowSelection: 'multiple',
-    enableCellTextSelection: true,
-    ensureDomOrder: true,
-    pagination: true,
-    paginationPageSize: 10,
-    paginationPageSizeSelector: [10, 25, 50, 100],
-  };
-
-  public paginationPageSize: number = 10;
-  public paginationPageSizeSelector: number[] = [10, 25, 50, 100];
-
-  ngOnInit() {
-    this.columnDefs = this.buildColumnDefs();
-    this.loadData();
-  }
-
-  loadData() {
+  protected async loadData(): Promise<void> {
     this.loadingData.set(true);
-    this.errorOccurred.set(false);
-
-    const defaultHealth$ = this.scriptExecutionService.getDefaultIndicatorJobHealth();
-    const customizedHealth$ = this.scriptExecutionService.getCustomizedIndicatorJobHealth();
-    const defaultJobs$ = this.scriptExecutionService.getDefaultIndicatorJobs();
-    const customizedJobs$ = this.scriptExecutionService.getCustomizedIndicatorJobs();
-
-    forkJoin({
-      defaultHealth: defaultHealth$,
-      customizedHealth: customizedHealth$,
-      defaultJobs: defaultJobs$,
-      customizedJobs: customizedJobs$,
-    })
-      .pipe(finalize(() => this.loadingData.set(false)))
-      .subscribe({
-        next: (result) => {
-          this.defaultIndicatorJobHealth.set(result.defaultHealth);
-          this.customizedIndicatorJobHealth.set(result.customizedHealth);
-
-          this.defaultIndicatorJobs.set(
-            (result.defaultJobs || []).sort(
-              (a, b) => Number.parseInt(b.jobId) - Number.parseInt(a.jobId)
-            )
-          );
-
-          this.customizedIndicatorJobs.set(
-            (result.customizedJobs || []).sort(
-              (a, b) => Number.parseInt(b.jobId) - Number.parseInt(a.jobId)
-            )
-          );
-        },
-        error: (error) => {
-          console.error('Error fetching job data:', error);
-          this.errorOccurred.set(true);
-        },
-      });
+    try {
+      this.rows.set(await this.jobOverviewService.loadRows());
+    } finally {
+      this.loadingData.set(false);
+    }
   }
 
-  refreshJobOverviewTable() {
-    this.loadData();
+  /**
+   * Refresh reloads schedules as well, not just jobs: a job started moments ago
+   * is only linked to its target indicator through its schedule's `jobIDs`, so
+   * reloading jobs alone shows the wrong indicator or none. Cached summaries go
+   * too, since a re-run job reports new ones.
+   */
+  protected async refreshJobOverviewTable(): Promise<void> {
+    this.jobOverviewService.clearSummaryCache();
+    await this.loadData();
+  }
+
+  protected countFor(status: string): number {
+    return this.counts().get(status) ?? 0;
+  }
+
+  /** Expands the table and filters it to one status. */
+  protected showJobsForStatus(tile: StatusTile): void {
+    this.selectedStatus.set(tile.status);
+    this.tableCollapsed.set(false);
+    this.tableOpened.set(true);
+  }
+
+  /**
+   * Keeps our copy of the collapsed state in step with the box's own header
+   * toggle — without it a tile click could not reopen a box the user closed,
+   * because the bound value would not change — and builds the table when it is
+   * opened from the header rather than from a tile.
+   */
+  protected onTableCollapsedChange(collapsed: boolean): void {
+    this.tableCollapsed.set(collapsed);
+    if (!collapsed) {
+      this.tableOpened.set(true);
+    }
+  }
+
+  protected clearStatusFilter(): void {
+    this.selectedStatus.set(null);
   }
 }

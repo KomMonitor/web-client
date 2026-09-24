@@ -5,6 +5,7 @@ import {
   NgZone,
   OnDestroy,
   OnInit,
+  OutputRef,
   signal,
 } from '@angular/core';
 import { WmsSharedComponentsService } from 'components/ngComponents/admin/adminShared/wms-admin-table/wms-admin-tables-shared.service';
@@ -14,7 +15,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { WmsResourceType } from './../../models/services.models';
 
 import { FormsModule } from '@angular/forms';
-import { NgbDropdownModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import { CellClickedEvent, ColDef, GridOptions } from 'ag-grid-community';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
@@ -29,6 +30,7 @@ import {
 import { AccessControlService } from '../../../../services/access-control-service/access-control.service';
 import { IndicatorMetadataStoreService } from '../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
+import { AdminModalService } from '../adminShared/modal/admin-modal.service';
 import { IndicatorRefreshRequest } from './indicator-refresh.model';
 import { IndicatorAddModalComponent } from './indicatorAddModal/indicator-add-modal.component';
 import { IndicatorBatchUpdateModalComponent } from './indicatorBatchUpdateModal/indicator-batch-update-modal.component';
@@ -55,7 +57,7 @@ import { MODAL_CONFIRM, MODAL_WIDE } from 'util/modal-presets';
 })
 export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   private zone = inject(NgZone);
-  private modalService = inject(NgbModal);
+  private modals = inject(AdminModalService);
   private broadcastService = inject(BroadcastService);
   private cacheHelperService = inject(CacheHelperServiceService);
   private kommonitorDataGridHelperService = inject(KommonitorIndicatorDataGridHelperService);
@@ -251,132 +253,68 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   // Modal event handlers
   onClickAddIndicator(): void {
-    try {
-      const modalRef = this.modalService.open(IndicatorAddModalComponent, MODAL_WIDE);
-
-      const modalComponent = modalRef.componentInstance as IndicatorAddModalComponent;
-      modalComponent.refreshRequested.subscribe((request: IndicatorRefreshRequest) =>
-        this.handleRefreshRequest(request)
-      );
-
-      modalRef.result.catch(() => {
-        // Modal dismissed
-      });
-    } catch (error) {
-      console.error('Error opening modal:', error);
-    }
+    this.modals.open(IndicatorAddModalComponent, MODAL_WIDE, this.forwardRefreshRequests);
   }
 
   onClickEditMetadata(indicatorMetadata: any): void {
-    try {
-      // Editing reuses the add wizard, pre-filled with the existing indicator's
-      // values; on submit it sends a metadata PATCH instead of a POST.
-      const modalRef = this.modalService.open(IndicatorAddModalComponent, MODAL_WIDE);
-
-      const modalComponent = modalRef.componentInstance as IndicatorAddModalComponent;
-      modalComponent.editIndicatorDataset = indicatorMetadata;
-      modalComponent.refreshRequested.subscribe((request: IndicatorRefreshRequest) =>
-        this.handleRefreshRequest(request)
-      );
-
-      modalRef.result.catch(() => {
-        // Modal dismissed
-      });
-    } catch (error) {
-      console.error('Error opening edit metadata modal:', error);
-    }
+    // Editing reuses the add wizard, pre-filled with the existing indicator's
+    // values; on submit it sends a metadata PATCH instead of a POST.
+    this.modals.open(IndicatorAddModalComponent, MODAL_WIDE, (modal) => {
+      modal.editIndicatorDataset = indicatorMetadata;
+      this.forwardRefreshRequests(modal);
+    });
   }
 
   onClickEditFeatures(indicatorMetadata: any): void {
-    try {
-      const modalRef = this.modalService.open(IndicatorEditFeaturesModalComponent, MODAL_WIDE);
-
-      const modalComponent = modalRef.componentInstance as IndicatorEditFeaturesModalComponent;
-      modalComponent.openModal(indicatorMetadata);
-      modalComponent.refreshRequested.subscribe((request: IndicatorRefreshRequest) =>
-        this.handleRefreshRequest(request)
-      );
-
-      modalRef.result.catch(() => {
-        // Modal dismissed
-      });
-    } catch (error) {
-      console.error('Error opening edit features modal:', error);
-    }
+    this.modals.open(IndicatorEditFeaturesModalComponent, MODAL_WIDE, (modal) => {
+      modal.openModal(indicatorMetadata);
+      this.forwardRefreshRequests(modal);
+    });
   }
 
   onClickEditIndicatorSpatialUnitRoles(indicatorMetadata: any): void {
-    try {
-      const modalRef = this.modalService.open(
-        IndicatorEditIndicatorSpatialUnitRolesModalComponent,
-        MODAL_WIDE
-      );
-
-      const modalComponent =
-        modalRef.componentInstance as IndicatorEditIndicatorSpatialUnitRolesModalComponent;
-      modalComponent.openModal(indicatorMetadata);
-      modalComponent.refreshRequested.subscribe((request: IndicatorRefreshRequest) =>
-        this.handleRefreshRequest(request)
-      );
-
-      modalRef.result.catch(() => {
-        // Modal dismissed
-      });
-    } catch (error) {
-      console.error('Error opening edit indicator spatial unit roles modal:', error);
-    }
+    this.modals.open(IndicatorEditIndicatorSpatialUnitRolesModalComponent, MODAL_WIDE, (modal) => {
+      modal.openModal(indicatorMetadata);
+      this.forwardRefreshRequests(modal);
+    });
   }
 
   openDeleteIndicatorModal(indicatorDataset?: any): void {
     // A confirmation, like the delete dialogs for spatial units and topics: the
     // selection controls stack vertically and the metadata summary scrolls
     // inside its own accordion, so this needs no more than the confirm width.
-    const modalRef = this.modalService.open(IndicatorDeleteModalComponent, MODAL_CONFIRM);
-
-    // Preselect the passed indicator (from a per-row trash button). The modal's
-    // ngOnInit resets its form, so we hand the preselection over as an input it
-    // re-applies after that reset instead of assigning it here (which would be
-    // wiped). Set it directly too, to also cover a synchronous ngOnInit.
-    const modalComponent = modalRef.componentInstance as IndicatorDeleteModalComponent;
-    modalComponent.preselectedIndicatorDataset = indicatorDataset ?? null;
-    if (indicatorDataset) {
-      modalComponent.selectedIndicatorDataset = indicatorDataset;
-      modalComponent.onChangeSelectedIndicator();
-    }
-    modalComponent.refreshRequested.subscribe((request: IndicatorRefreshRequest) =>
-      this.handleRefreshRequest(request)
-    );
-
-    modalRef.result.catch(() => {
-      // Delete modal dismissed
+    this.modals.open(IndicatorDeleteModalComponent, MODAL_CONFIRM, (modal) => {
+      // Preselect the passed indicator (from a per-row trash button). The modal's
+      // ngOnInit resets its form, so we hand the preselection over as an input it
+      // re-applies after that reset instead of assigning it here (which would be
+      // wiped). Set it directly too, to also cover a synchronous ngOnInit.
+      modal.preselectedIndicatorDataset = indicatorDataset ?? null;
+      if (indicatorDataset) {
+        modal.selectedIndicatorDataset = indicatorDataset;
+        modal.onChangeSelectedIndicator();
+      }
+      this.forwardRefreshRequests(modal);
     });
   }
 
-  onClickBatchUpdate(): void {
-    try {
-      const modalRef = this.modalService.open(IndicatorBatchUpdateModalComponent, MODAL_WIDE);
-
-      // Pass the modal reference to the component
-      const modalComponent = modalRef.componentInstance as IndicatorBatchUpdateModalComponent;
-      modalComponent.modalRef = modalRef;
-      modalComponent.refreshRequested.subscribe((request: IndicatorRefreshRequest) =>
-        this.handleRefreshRequest(request)
-      );
-
-      modalRef.result
-        .then((result) => {
-          if (result) {
-            // Modal was closed successfully, re-render from the store.
-            this.initializeOrRefreshOverviewTable();
-          }
-        })
-        .catch((_error) => {
-          // Modal dismissed
-        });
-    } catch (error) {
-      console.error('Error opening batch update modal:', error);
+  async onClickBatchUpdate(): Promise<void> {
+    const result = await this.modals.open(
+      IndicatorBatchUpdateModalComponent,
+      MODAL_WIDE,
+      this.forwardRefreshRequests
+    );
+    if (result) {
+      // Modal was closed successfully, re-render from the store.
+      this.initializeOrRefreshOverviewTable();
     }
   }
+
+  /** Subscribes the overview table to a CRUD modal's refreshRequested output. */
+  private readonly forwardRefreshRequests = (modal: {
+    refreshRequested: OutputRef<IndicatorRefreshRequest>;
+  }): void => {
+    modal.refreshRequested.subscribe((request) => this.handleRefreshRequest(request));
+  };
 
   // Handles a modal's refreshRequested output; replaces the former
   // RefreshIndicatorOverviewTable broadcast round-trip.

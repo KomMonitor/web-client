@@ -42,7 +42,8 @@
     .nav-pills {
       flex-direction: column;
 
-      .nav-item.child {
+      .nav-item.child,
+      .nav-item.grandchild {
         background-color: #2c3b41;
         height: 34px;
 
@@ -53,6 +54,20 @@
         &:hover {
           background-color: none;
         }
+      }
+
+      // One indent step deeper than .child (20px → 40px → 60px).
+      .nav-item.grandchild .nav-link {
+        padding-left: 60px;
+      }
+
+      // Pure grouping label: no hover or active affordance, not focusable.
+      .nav-item.child .nav-link.heading {
+        color: #8a939b;
+        cursor: default;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 0.04em;
       }
 
       .nav-link {

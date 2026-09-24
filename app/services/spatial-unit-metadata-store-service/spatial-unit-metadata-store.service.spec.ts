@@ -26,7 +26,7 @@ describe('SpatialUnitMetadataStoreService', () => {
   it('getSpatialUnitMetadataById returns the entry or undefined', () => {
     const unit = { spatialUnitId: 's1', spatialUnitLevel: 'A' };
     service.setSpatialUnits([unit]);
-    expect(service.getSpatialUnitMetadataById('s1')).toEqual(unit);
+    expect(service.getSpatialUnitMetadataById('s1')).toMatchObject(unit);
     expect(service.getSpatialUnitMetadataById('missing')).toBeUndefined();
   });
 });

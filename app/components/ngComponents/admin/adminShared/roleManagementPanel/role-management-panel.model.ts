@@ -103,3 +103,23 @@ export function collectSelectedRoleIds(rows: AccessControlMetadata[]): string[] 
   }
   return Array.from(selectedIds);
 }
+
+/**
+ * The organizational units of one tenant, for a dialog that has already fixed
+ * which tenant it works in.
+ *
+ * The tenant of a unit is resolved by the caller's `mandantIdOfOwner`, because
+ * a unit need not be the tenant itself — it may sit below one. An empty
+ * `mandantId` means "no tenant chosen" and leaves the list untouched, which is
+ * also the case without Keycloak, where nothing names a tenant at all.
+ */
+export function ownersOfMandant(
+  orgs: readonly AccessControlMetadata[],
+  mandantId: string,
+  mandantIdOfOwner: (organizationalUnitId: string) => string
+): AccessControlMetadata[] {
+  if (!mandantId) {
+    return [...(orgs ?? [])];
+  }
+  return (orgs ?? []).filter((org) => mandantIdOfOwner(org.organizationalUnitId) === mandantId);
+}

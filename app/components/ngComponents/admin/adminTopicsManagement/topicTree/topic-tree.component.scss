@@ -1,0 +1,109 @@
+/*
+ * No `:host` wrapper around the row classes: the CDK drag preview is reparented
+ * to <body>, where `:host .topic-name` stops matching and a dragged row would
+ * lose its layout mid-drag.
+ */
+app-tree-view {
+  display: block;
+
+  /* Depth rails of the design draft: the main topic carries the strongest tone. */
+  --km-tree-level-accent-0: #2b7cb0;
+  --km-tree-level-accent-1: #5fa3ca;
+  --km-tree-level-accent-2: #a8ccdf;
+  --km-tree-level-accent-3: #a8ccdf;
+}
+
+.topic-name {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 15.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topic-id {
+  min-width: 0;
+  padding: 2px 6px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: #eef2f6;
+  color: #7d93a1;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 11.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topic-meta {
+  color: #8598a5;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.topic-spacer {
+  flex: 1 1 auto;
+}
+
+/*
+ * The "append subtopic" affordance, styled after the tree's own insert lines:
+ * a faint link with a dashed rule that only comes forward on hover.
+ */
+.topic-append {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  gap: 8px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--kommonitor-primary, #2273a5);
+  font-size: 12px;
+  line-height: 1.2;
+  text-align: left;
+  cursor: pointer;
+  opacity: 0.35;
+
+  &:hover,
+  &:focus-visible {
+    opacity: 1;
+  }
+}
+
+.topic-append-label {
+  flex: none;
+  white-space: nowrap;
+}
+
+.topic-append-line {
+  flex: 1 1 auto;
+  height: 1px;
+  border-top: 1px dashed #9fb8c9;
+}
+
+/* The panel the link opens — same box as the level picker of the hierarchies. */
+.topic-add-panel {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #bfd8e8;
+  border-radius: 3px;
+  background: #eef6fb;
+
+  app-admin-add-topic {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+/* Same quiet link as the cancel of the hierarchies' level picker. */
+.topic-add-cancel {
+  flex: none;
+  color: #8598a5;
+  text-decoration: none;
+}

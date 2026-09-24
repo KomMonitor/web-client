@@ -1,0 +1,112 @@
+/**
+ * Types for the job resources of the OGC Processes API.
+ *
+ * Hand-maintained like `schedules.models.ts`, and for the same reason: this API
+ * ships no usable OpenAPI document. `ProcessJob` was derived from real
+ * responses; `JobSummaryEntry` and `JobError` could not be — see the caveat
+ * below. Details in `documentation/PROCESSES_API_BEFUNDE.md`.
+ */
+
+/**
+ * The statuses OGC defines. Only `successful` and `failed` were observed on the
+ * demo instance, but the others are part of the standard and the UI counts
+ * them, so they are named here.
+ */
+export type ProcessJobStatus = 'accepted' | 'running' | 'successful' | 'failed' | 'dismissed';
+
+export interface ProcessJob {
+  type: 'process';
+  jobID: string;
+  /** The process' `apiName` in snake_case, like `schedule.processID`. */
+  processID: string;
+  status: ProcessJobStatus | string;
+  /** Carries the failure text when `status` is `failed`; the only place it appears. */
+  message: string | null;
+  /** Always null on the observed instance — the API does not track progress. */
+  progress: number | null;
+  parameters?: {
+    negotiated_execution_mode?: string;
+    generated_outputs?: unknown;
+    requested_response_type?: string;
+  };
+  job_start_datetime: string;
+  job_end_datetime: string;
+  links?: Array<{ href: string; rel: string; type: string | null; title?: string }>;
+}
+
+export interface ProcessJobsResponse {
+  jobs: ProcessJob[];
+  links?: unknown[];
+}
+
+/**
+ * One entry of `GET jobs/{id}/results`, per spatial unit.
+ *
+ * Verified against a real payload on 2026-09-18 (`PROCESSES_API_BEFUNDE.md`).
+ * The entry also carries `modifiedResource`, a URI nothing here uses.
+ */
+export interface JobSummaryEntry {
+  spatialUnitId: string;
+  numberOfIntegratedIndicatorFeatures: number;
+  // Optional although both the schema and the observed payload carry them:
+  // an empty computation may well omit what it never filled.
+  integratedTargetDates?: string[];
+  /**
+   * **Flat in practice**, although all 20 computation processes declare a list
+   * of lists. The observed payload sends a flat array, which is also what
+   * master reads — the declaration is the odd one out. Both shapes stay
+   * accepted and are flattened one level where they are rendered, since the
+   * schema may yet be what a later backend delivers.
+   */
+  errorsOccurred?: JobError[] | JobError[][];
+}
+
+/**
+ * **camelCase is what the API sends** (observed 2026-09-18: `missingTimestamp`),
+ * while the process descriptions declare UPPER_SNAKE_CASE — including
+ * `DATAMANAGEMENT_API_ERROR` as one word. Both spellings are resolved at
+ * runtime, see `job-error-box.component.ts`; this union lists both so neither
+ * reads as a typo.
+ */
+export type JobErrorType =
+  | 'missingTimestamp'
+  | 'missingDataset'
+  | 'missingSpatialUnit'
+  | 'missingSpatialUnitFeature'
+  | 'dataManagementApiError'
+  | 'processingError'
+  | 'MISSING_TIMESTAMP'
+  | 'MISSING_DATASET'
+  | 'MISSING_SPATIAL_UNIT'
+  | 'MISSING_SPATIAL_UNIT_FEATURE'
+  | 'DATAMANAGEMENT_API_ERROR'
+  | 'PROCESSING_ERROR';
+
+export interface JobError {
+  type: JobErrorType | string;
+  affectedDatasetId: string;
+  /** `INDICATOR` / `GEORESOURCE` as observed; compared case-insensitively. */
+  affectedResourceType: string;
+  affectedTimestamps?: string[];
+  affectedSpatialUnitFeatures?: string[];
+  /** The server's own error text, e.g. "Timestamps are missing for …". */
+  errorMessage?: string;
+}
+
+/** `results` returns the summary array under this key. */
+export interface JobResultsResponse {
+  jobSummary?: JobSummaryEntry[];
+}
+
+/**
+ * A job as the overview table consumes it: the raw job plus everything that has
+ * to be joined in from elsewhere (the schedule and the process catalogue).
+ */
+export interface JobOverviewRow {
+  job: ProcessJob;
+  /** Resolved through the schedule that owns this job id; may be unknown. */
+  targetIndicatorName: string | undefined;
+  targetIndicatorId: string | undefined;
+  /** Title of the process type, or the raw `processID` when unresolvable. */
+  processTitle: string;
+}

@@ -24,7 +24,7 @@
       now, as in the spatial-unit add dialog.
     -->
     @if (importerErrors().length > 0) {
-      <div class="alert alert-danger" role="alert">
+      <div class="alert alert-danger alert-scrollable" role="alert">
         <b>{{ 'ADMIN_GEORESOURCES.ADD_MODAL.REGISTRATION_FAILED' | translate }}</b>
         <p>
           {{
@@ -42,7 +42,11 @@
     }
 
     @if (georesourceMetadataImportError()) {
-      <div id="georesourceMetadataImportErrorAlert" class="alert alert-danger" role="alert">
+      <div
+        id="georesourceMetadataImportErrorAlert"
+        class="alert alert-danger alert-scrollable"
+        role="alert"
+      >
         <button
           type="button"
           class="btn-close float-end"
@@ -62,7 +66,11 @@
     }
 
     @if (georesourceMappingConfigImportError()) {
-      <div id="georesourceMappingConfigImportErrorAlert" class="alert alert-danger" role="alert">
+      <div
+        id="georesourceMappingConfigImportErrorAlert"
+        class="alert alert-danger alert-scrollable"
+        role="alert"
+      >
         <button
           type="button"
           class="btn-close float-end"

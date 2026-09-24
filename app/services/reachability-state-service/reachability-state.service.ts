@@ -15,7 +15,7 @@ import {
   MetadataLoadingState,
 } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
-import uuidv4 from '../../../customizedExternalLibs/uuidv4.js';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface ReachabilitySettings {
   ranges: number[];

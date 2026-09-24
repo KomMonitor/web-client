@@ -28,7 +28,11 @@
       now.
     -->
     @if (importerErrors().length > 0) {
-      <div id="spatialUnitEditFeaturesImporterErrors" class="alert alert-danger" role="alert">
+      <div
+        id="spatialUnitEditFeaturesImporterErrors"
+        class="alert alert-danger alert-scrollable"
+        role="alert"
+      >
         <b>{{ 'ADMIN_SPATIAL_UNITS.ERRORS.IMPORT_FAILED' | translate }}</b>
         <p>
           {{
@@ -48,7 +52,7 @@
     @if (spatialUnitMappingConfigImportError()) {
       <div
         id="spatialUnitEditFeaturesMappingConfigErrorAlert"
-        class="alert alert-danger"
+        class="alert alert-danger alert-scrollable"
         role="alert"
       >
         <button

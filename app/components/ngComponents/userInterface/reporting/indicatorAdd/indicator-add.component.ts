@@ -1,46 +1,41 @@
-import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
-import {
-  CategoricalClassificationItem,
-  isQualitativeMapping,
-  resolveCategoricalColor,
-} from 'components/ngComponents/models/classification.models';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
-import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
-import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
-import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
-import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
-import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
-import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
-import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
-import { LabelService } from 'services/label-service/label.service';
-import * as echarts from 'echarts';
-import * as turf from '@turf/turf';
-import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
-import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
-import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
-import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import { HttpClient } from '@angular/common/http';
-import * as L from 'leaflet';
-import { ReachabilityStateService } from 'services/reachability-state-service/reachability-state.service';
-import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot-cache-helper-service/leaflet-screenshot-cache-helper.service';
-import * as d3 from 'd3';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import {
-  ConfigData,
-  ReportingService,
-  WorkflowState,
-} from 'services/reporting-service/reporting.service';
-import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { DualListBoxComponent } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import * as turf from '@turf/turf';
 import {
   CustomSliderComponent,
   DisplayType,
   SliderType,
 } from 'components/ngComponents/common/custom-slider/custom-slider.component';
+import { DualListBoxComponent } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
+import {
+  isQualitativeMapping,
+  resolveCategoricalColor,
+} from 'components/ngComponents/models/classification.models';
+import * as d3 from 'd3';
+import * as echarts from 'echarts';
+import * as L from 'leaflet';
+import { CategoricalMappingType } from 'models/data-management-api';
+import { firstValueFrom } from 'rxjs';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
+import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { LabelService } from 'services/label-service/label.service';
+import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot-cache-helper-service/leaflet-screenshot-cache-helper.service';
+import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
+import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
+import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
+import { ReachabilityStateService } from 'services/reachability-state-service/reachability-state.service';
+import { ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 
 @Component({
   selector: 'app-indicator-add',
@@ -1649,14 +1644,10 @@ export class IndicatorAddComponent implements OnInit {
       // get a new template (in case another poi layer was selected previously)
       //this.reportingService.clonedTemplate = this.getCleanTemplate();
 
-      // Indicator might not be selected at this point
-      // We get information about all available spatial units (instead of applicable ones)
-      // Then we select the highest one by default
+      // Indicator might not be selected at this point, so we take all available
+      // spatial units instead of the applicable ones.
       const spatialUnits: any = this.spatialUnitStore.availableSpatialUnits;
       this.allSpatialUnitsForReachability = spatialUnits; // needed for spatial unit selection in 3rd tab
-      const highestSpatialUnit = spatialUnits.filter((unit) => {
-        return unit.nextUpperHierarchyLevel === null;
-      });
       if (!this.selectedSpatialUnit) {
         this.selectedSpatialUnit = this.spatialUnitStore.availableSpatialUnits[0];
         this.spatialUnitSelect = new FormControl(this.selectedSpatialUnit);
@@ -3644,7 +3635,7 @@ export class IndicatorAddComponent implements OnInit {
     const indicator = JSON.parse(JSON.stringify(selectedIndicator));
     const targetTimestamp = timestampName;
     const isCategorical = isQualitativeMapping(indicator.defaultClassificationMapping);
-    const categoricalData: CategoricalClassificationItem[] =
+    const categoricalData: CategoricalMappingType[] =
       indicator.defaultClassificationMapping?.categoricalData ?? [];
 
     // qualitative indicators have no numeric "change over time" concept - the

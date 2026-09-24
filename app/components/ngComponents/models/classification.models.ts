@@ -1,20 +1,15 @@
-import { DefaultClassificationMappingType } from 'models/data-management-api';
+import {
+  CategoricalMappingType,
+  DefaultClassificationMappingItemType,
+  DefaultClassificationMappingType,
+  QualitativeClassificationMappingType,
+} from 'models/data-management-api';
 
 export interface Classification {
   name: string;
   id: string;
   imgPath: string;
   description: string;
-}
-
-/** Numeric (sequential/diverging) vs categorical (qualitative) classification. */
-export type ClassificationType = 'QUANTITATIVE' | 'QUALITATIVE';
-
-/** One category of a qualitative classification: its value, color and label. */
-export interface CategoricalClassificationItem {
-  categoricalValue: string;
-  color: string;
-  label: string;
 }
 
 /**
@@ -26,32 +21,30 @@ export interface CategoricalClassificationItem {
 export const CATEGORICAL_OTHER_COLOR = '#c9ced4';
 
 /**
- * Client-side extension of the backend `DefaultClassificationMappingType` with the
- * fields introduced by the step-5 redesign prototype that are not (yet) part of the
- * generated OpenAPI schema: the numeric/categorical type switch, per-class labels,
- * explicit individual colors, and the categorical data.
+ * What the admin wizard emits for the numeric branch of the discriminator: the
+ * generated schema type, but with `items` optional.
  *
- * These field names are provisional. The forward mapping lives in exactly one place
- * ({@link IndicatorClassificationStateService.buildDefaultClassificationMapping}) and
- * the reverse in `applyMapping`; adjust both plus this type once the backend schema
- * is finalized.
+ * That one divergence is deliberate. The wizard only sends per-spatial-unit
+ * break values for the REGIONAL_DEFAULT method; for the computed methods the
+ * field is left out entirely. Emitting `items: []` instead would satisfy the
+ * schema but change what goes to the API, so the type follows the payload
+ * rather than the other way round. The spec should arguably bind `items` to
+ * `classificationMethod` — that is backend work.
  */
-export interface ExtendedDefaultClassificationMapping extends Omit<
-  DefaultClassificationMappingType,
-  'classificationMethod' | 'items'
-> {
-  classificationType: ClassificationType;
-  /** Only present for numeric classification. */
-  classificationMethod?: DefaultClassificationMappingType['classificationMethod'];
-  /** Per-spatial-unit break values; only present for the regional default method. */
-  items?: DefaultClassificationMappingType['items'];
-  /** Per-class-position labels (numeric classification). */
-  labels?: string[];
-  /** Explicit per-class colors when `colorBrewerSchemeName` is `INDIVIDUAL`. */
-  individualColors?: string[];
-  /** Category definitions for categorical classification. */
-  categoricalData?: CategoricalClassificationItem[];
-}
+export type QuantitativeClassificationMapping = Omit<DefaultClassificationMappingType, 'items'> & {
+  items?: DefaultClassificationMappingItemType[];
+};
+
+/**
+ * Both branches of the backend's `classificationType` discriminator: numeric
+ * classes with breaks, or discrete categories. Use this wherever a stored
+ * `defaultClassificationMapping` is read or written — the generated types put
+ * the *abstract* mapping on `IndicatorOverviewType` and friends, which carries
+ * neither branch's fields.
+ */
+export type ClassificationMapping =
+  | QuantitativeClassificationMapping
+  | QualitativeClassificationMappingType;
 
 /**
  * Whether a stored classification mapping is qualitative (categorical). Defensive:
@@ -60,9 +53,17 @@ export interface ExtendedDefaultClassificationMapping extends Omit<
  * wizard's `applyMapping`).
  */
 export function isQualitativeMapping(
-  mapping: Partial<ExtendedDefaultClassificationMapping> | null | undefined
-): boolean {
-  return mapping?.classificationType === 'QUALITATIVE' || !!mapping?.categoricalData?.length;
+  mapping: ClassificationMapping | null | undefined
+): mapping is QualitativeClassificationMappingType {
+  if (!mapping) {
+    return false;
+  }
+  if (mapping.classificationType === 'QUALITATIVE') {
+    return true;
+  }
+  // Legacy mappings may carry the categories without the discriminator.
+  const categories = (mapping as { categoricalData?: unknown[] }).categoricalData;
+  return !!categories?.length;
 }
 
 /**
@@ -75,7 +76,7 @@ export function isQualitativeMapping(
  */
 export function resolveCategoricalColor(
   value: unknown,
-  categoricalData: CategoricalClassificationItem[] | null | undefined
+  categoricalData: CategoricalMappingType[] | null | undefined
 ): string {
   const normalized = String(value).trim();
   const match = categoricalData?.find(

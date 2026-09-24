@@ -1,0 +1,138 @@
+// No `:host` wrapper on the row classes: while a row is dragged the CDK moves
+// its clone under <body>, where a `:host .x` selector would stop matching. The
+// clone keeps this component's `_ngcontent` attribute, so flat selectors hold.
+
+// The public option as a panel of its own: it is the one setting in this
+// dialog with a consequence outside it, and the box lifts it out of the row of
+// plain fields above.
+.public-option {
+  margin-bottom: 16px;
+  padding: 10px 12px 10px 34px;
+  border-radius: 4px;
+  background: #f4f7fa;
+
+  .form-check-input {
+    margin-left: -22px;
+  }
+
+  // Carries the weight the plain fields' labels have above it.
+  .form-check-label {
+    font-weight: 500;
+  }
+}
+
+.public-hint {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: #8598a5;
+}
+
+.chain-hint {
+  font-weight: 400;
+  font-size: 12.5px;
+  color: #8598a5;
+}
+
+.chain-panel {
+  padding: 10px;
+  border: 1px solid #dbe6ee;
+  border-radius: 4px;
+  background: #f4f7fa;
+}
+
+.chain-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  margin-bottom: 8px;
+  border: 1px solid #dde7ee;
+  border-radius: 3px;
+  background: #ffffff;
+}
+
+.chain-handle {
+  flex: none;
+  color: #b6c6d2;
+  cursor: grab;
+}
+
+.chain-rank {
+  flex: none;
+  min-width: 54px;
+  font-size: 12px;
+  line-height: 1.2;
+  color: #8598a5;
+}
+
+.chain-name {
+  min-width: 0;
+  font-size: 15.5px;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chain-spacer {
+  flex: 1 1 auto;
+}
+
+// Says the level is part of other hierarchies too — a note, not a warning.
+.chain-usage {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #fbeeca;
+  color: #7a5d16;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+// The app-wide destructive red, as everywhere a click throws something away.
+.chain-remove {
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #dc3545;
+  font-size: 13px;
+  cursor: pointer;
+
+  &:hover {
+    color: #b02a37;
+    text-decoration: underline;
+  }
+}
+
+.chain-add {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .form-select {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .btn {
+    flex: none;
+  }
+}
+
+.chain-empty {
+  margin: 0;
+  font-size: 13px;
+  color: #8598a5;
+}
+
+// Drag feedback: the gap left behind and the row travelling with the cursor.
+.cdk-drag-placeholder {
+  opacity: 0.4;
+}
+
+.cdk-drag-preview {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+}

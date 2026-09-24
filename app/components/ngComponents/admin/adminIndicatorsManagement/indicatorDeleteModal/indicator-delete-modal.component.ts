@@ -8,6 +8,12 @@ import { IndicatorValueService } from '../../../../../services/indicator-value-s
 import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { ProcessScriptMetadataStoreService } from '../../../../../services/process-script-metadata-store-service/process-script-metadata-store.service';
+import { ProcessCatalogStoreService } from 'services/process-catalog-store-service/process-catalog-store.service';
+import { ProcessSchedule } from 'components/ngComponents/models/schedules.models';
+import {
+  getRequiredIndicatorIds,
+  getTargetIndicatorId,
+} from 'services/processes-api-service/schedule-inputs.util';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 import { AccessControlService } from '../../../../../services/access-control-service/access-control.service';
 import { MetadataBootstrapService } from '../../../../../services/metadata-bootstrap-service/metadata-bootstrap.service';
@@ -61,6 +67,7 @@ export class IndicatorDeleteModalComponent implements OnInit {
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private processScriptStore = inject(ProcessScriptMetadataStoreService);
+  private processCatalogStore = inject(ProcessCatalogStoreService);
   private envConfigService = inject(EnvConfigService);
   private accessControlService = inject(AccessControlService);
   private metadataBootstrap = inject(MetadataBootstrapService);
@@ -209,18 +216,30 @@ export class IndicatorDeleteModalComponent implements OnInit {
   gatherAffectedScripts(): AffectedScript[] {
     const affectedScripts: AffectedScript[] = [];
 
-    this.processScriptStore.availableProcessScripts.forEach((script) => {
-      const requiredIndicatorIds = script.requiredIndicatorIds;
+    this.processScriptStore.availableProcessScripts.forEach((schedule) => {
+      // A schedule is affected both when it reads the indicator and when it
+      // writes to it, so the target counts as a reference here.
+      const referencedIndicatorIds = [
+        ...getRequiredIndicatorIds(schedule),
+        getTargetIndicatorId(schedule),
+      ];
 
-      for (const indicatorId of requiredIndicatorIds) {
-        if (indicatorId === this.selectedIndicatorDataset.indicatorId) {
-          affectedScripts.push(script);
-          break;
-        }
+      if (referencedIndicatorIds.includes(this.selectedIndicatorDataset.indicatorId)) {
+        affectedScripts.push(this.toAffectedScript(schedule));
       }
     });
 
     return affectedScripts;
+  }
+
+  private toAffectedScript(schedule: ProcessSchedule): AffectedScript {
+    const process = this.processCatalogStore.getProcessByApiName(schedule.processID);
+    return {
+      scriptId: schedule.scheduleID,
+      name: process?.title ?? schedule.processID,
+      description: (process?.uiParams?.longTitle as string) ?? '',
+      requiredIndicatorIds: getRequiredIndicatorIds(schedule),
+    };
   }
 
   gatherAffectedGeoresourceReferences(): AffectedGeoresourceReference[] {

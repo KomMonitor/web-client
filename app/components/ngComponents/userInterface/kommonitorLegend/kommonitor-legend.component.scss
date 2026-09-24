@@ -7,6 +7,10 @@
 
   max-width: 25vw;
 
+  .date-select {
+    line-height: 0 !important;
+  }
+
   #sidebarLegendCollapse {
     position: absolute;
     left: -32px;

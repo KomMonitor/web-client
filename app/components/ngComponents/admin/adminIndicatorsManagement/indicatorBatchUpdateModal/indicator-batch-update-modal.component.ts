@@ -4,7 +4,6 @@ import {
   Component,
   ElementRef,
   EventEmitter,
-  Input,
   OnDestroy,
   OnInit,
   Output,
@@ -15,7 +14,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { BatchUpdateService } from 'services/batch-update-service/batch-update.service';
@@ -35,6 +34,7 @@ import { downloadJson, readJsonFile } from 'util/json-file.util';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { BatchUpdateResultModalComponent } from '../../adminShared/batchUpdateResultModal/batch-update-result-modal.component';
 import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
+import { AdminModalService } from '../../adminShared/modal/admin-modal.service';
 import { TimeseriesMappingFormComponent } from '../../adminShared/timeseriesMappingForm/timeseries-mapping-form.component';
 import { isValidTimeseriesMappingList } from '../../adminShared/timeseriesMappingForm/timeseries-mapping-form.model';
 import {
@@ -102,11 +102,11 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   private batchUpdateService = inject(BatchUpdateService);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
-  private modalService = inject(NgbModal);
+  private activeModal = inject(NgbActiveModal);
+  private modals = inject(AdminModalService);
   private cdr = inject(ChangeDetectorRef);
 
   @ViewChild('batchListFileInput') batchListFileInput!: ElementRef<HTMLInputElement>;
-  @Input() modalRef?: NgbModalRef;
   @Output() refreshRequested = new EventEmitter<IndicatorRefreshRequest>();
 
   readonly form: BatchUpdateFormGroup = buildBatchUpdateForm();
@@ -480,13 +480,9 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const modalRef = this.modalService.open(BatchUpdateResultModalComponent, MODAL_FORM);
-    const instance = modalRef.componentInstance as BatchUpdateResultModalComponent;
-    instance.resourceType = 'indicator';
-    instance.results = results;
-
-    modalRef.result.catch(() => {
-      // Dismissed via backdrop or Escape.
+    this.modals.open(BatchUpdateResultModalComponent, MODAL_FORM, {
+      resourceType: 'indicator',
+      results,
     });
   }
 
@@ -564,7 +560,7 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   }
 
   closeModal(): void {
-    this.modalRef?.close();
+    this.activeModal.close();
   }
 }
 

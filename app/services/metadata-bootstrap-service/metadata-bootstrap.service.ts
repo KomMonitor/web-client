@@ -9,7 +9,9 @@ import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { MetadataFilterService } from 'services/metadata-filter-service/metadata-filter.service';
 import { OptionTitleTooltipService } from 'services/option-title-tooltip-service/option-title-tooltip.service';
+import { ProcessCatalogStoreService } from 'services/process-catalog-store-service/process-catalog-store.service';
 import { ProcessScriptMetadataStoreService } from 'services/process-script-metadata-store-service/process-script-metadata-store.service';
+import { ProcessesApiService } from 'services/processes-api-service/processes-api.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
@@ -40,6 +42,8 @@ export class MetadataBootstrapService {
   private topicHierarchyStore = inject(TopicHierarchyStoreService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private processScriptStore = inject(ProcessScriptMetadataStoreService);
+  private processesApiService = inject(ProcessesApiService);
+  private processCatalogStore = inject(ProcessCatalogStoreService);
   private topicStore = inject(TopicMetadataStoreService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
@@ -147,7 +151,7 @@ export class MetadataBootstrapService {
       // revise metadata fetching for protected endpoints
       const roles = this.accessControlService.currentKeycloakLoginRoles;
       await Promise.all([
-        // this.fetchIndicatorScriptsMetadata(),
+        this.fetchIndicatorScriptsMetadata(),
         this.fetchTopicsMetadata(roles),
         this.fetchSpatialUnitsMetadata(roles),
         this.fetchGeoresourcesMetadata(roles, filter),
@@ -202,12 +206,18 @@ export class MetadataBootstrapService {
     );
   }
 
+  /**
+   * Schedules from the Processes API, plus the process catalogue needed to
+   * resolve their `processID`. Both resolve with an empty result on error, so a
+   * 401 on `schedules` — expected while KomMonitor starts without a login —
+   * does not fail the surrounding `Promise.all`.
+   */
   async fetchIndicatorScriptsMetadata() {
-    this.processScriptStore.setProcessScripts(
-      await this.cacheHelperService.fetchProcessScriptsMetadata(
-        this.accessControlService.currentKeycloakLoginRoles
-      )
-    );
+    const [schedules] = await Promise.all([
+      this.processesApiService.fetchSchedules(),
+      this.processCatalogStore.loadCatalogue(),
+    ]);
+    this.processScriptStore.setProcessScripts(schedules);
   }
 
   async fetchServices(keycloakRolesArray, filter = undefined) {

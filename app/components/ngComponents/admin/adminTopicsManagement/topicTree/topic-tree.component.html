@@ -1,0 +1,94 @@
+<app-tree-view
+  [nodes]="sortedTopics()"
+  [idOf]="topicId"
+  [maxDepth]="maxDepth()"
+  indentMode="row"
+  [(expandedIds)]="expandedIds"
+  [reorderable]="reorderable()"
+  (reorder)="onReorder($event)"
+  [toggleLabel]="'ADMIN_TOPICS.TOGGLE_TOPIC' | translate"
+  [toggleOnRowClick]="true"
+  [insertLabel]="'ADMIN_TOPICS.APPEND_MAIN_TOPIC' | translate"
+  [canInsertAt]="trailingRootGapOnly"
+  [(openGap)]="openGap"
+>
+  <ng-template appTreeRow let-topic>
+    <span class="topic-name" [title]="topic.topicDescription">{{ topic.topicName }}</span>
+    @if (showTopicIds()) {
+      <span class="topic-id">{{ topic.topicId }}</span>
+    }
+    <span class="topic-spacer"></span>
+    @if (subTopicCount(topic); as count) {
+      <span class="topic-meta">
+        {{
+          (count === 1 ? 'ADMIN_TOPICS.SUBTOPIC_COUNT_ONE' : 'ADMIN_TOPICS.SUBTOPIC_COUNT_MANY')
+            | translate: { count: count }
+        }}
+      </span>
+    }
+    <button
+      type="button"
+      class="btn btn-sm btn-warning"
+      (click)="$event.stopPropagation(); onClickEditTopic(topic)"
+    >
+      {{ 'ADMIN_TOPICS.EDIT_TOPIC' | translate }}
+    </button>
+    <button
+      type="button"
+      class="btn btn-sm btn-outline-danger"
+      (click)="$event.stopPropagation(); onClickDeleteTopic(topic)"
+    >
+      {{ 'ADMIN_SHARED.DELETE' | translate }}
+    </button>
+  </ng-template>
+
+  <!--
+    The footer turns a childless topic into an expandable one: opening it is how
+    its first subtopic gets added. The tree only renders it where another level
+    is allowed, so the deepest level shows no link.
+
+    Until it is clicked the affordance is only a dashed line, like the insert
+    lines of the hierarchy page — the form itself would otherwise repeat below
+    every single topic.
+  -->
+  <ng-template appTreeNodeFooter let-topic>
+    @if (isAddPanelOpen(topic)) {
+      <div class="topic-add-panel">
+        <app-admin-add-topic
+          [topicType]="'sub'"
+          [parentTopic]="topic"
+          [topicResourceType]="topicResourceType()"
+          (added)="closeAddPanel()"
+        ></app-admin-add-topic>
+        <button
+          type="button"
+          class="btn btn-link btn-sm topic-add-cancel"
+          (click)="closeAddPanel()"
+        >
+          {{ 'ADMIN_SHARED.CANCEL' | translate }}
+        </button>
+      </div>
+    } @else {
+      <button type="button" class="topic-append" (click)="openAddPanel(topic)">
+        <span class="topic-append-label">
+          {{ 'ADMIN_TOPICS.APPEND_SUB_TOPIC' | translate }}
+        </span>
+        <span class="topic-append-line"></span>
+      </button>
+    }
+  </ng-template>
+
+  <!-- The same panel one level up: a new main topic has no parent topic. -->
+  <ng-template appTreeGap let-close="close">
+    <div class="topic-add-panel">
+      <app-admin-add-topic
+        [topicType]="'main'"
+        [topicResourceType]="topicResourceType()"
+        (added)="close()"
+      ></app-admin-add-topic>
+      <button type="button" class="btn btn-link btn-sm topic-add-cancel" (click)="close()">
+        {{ 'ADMIN_SHARED.CANCEL' | translate }}
+      </button>
+    </div>
+  </ng-template>
+</app-tree-view>

@@ -1,0 +1,147 @@
+<fieldset [formGroup]="group">
+  <h2 class="fs-title text-center">
+    {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.TITLE' | translate }}
+  </h2>
+  <h3 class="fs-subtitle text-center">
+    {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.SUBTITLE_ADD' | translate }} ·
+    <i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i>
+  </h3>
+
+  <div class="row form-section-row meta-row">
+    <div class="col-md-8 col-sm-8 col-12">
+      <div class="form-group">
+        <label class="form-label" for="su-metadata-name"
+          >{{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NAME_LABEL' | translate }}*</label
+        >
+        <input
+          id="su-metadata-name"
+          type="text"
+          class="form-control"
+          formControlName="spatialUnitLevel"
+          appAria="su-metadata-name"
+          [placeholder]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.UNIQUE_NAME_PLACEHOLDER' | translate"
+        />
+        <app-form-error
+          [control]="group.controls.spatialUnitLevel"
+          for="su-metadata-name"
+          [keyOverride]="
+            group.controls.spatialUnitLevel.hasError('uniqueName')
+              ? 'ADMIN_SPATIAL_UNITS.METADATA_STEP.NAME_INVALID'
+              : ''
+          "
+        />
+      </div>
+    </div>
+
+    <div class="col-md-4 col-sm-4 col-12">
+      <div class="form-group">
+        <label class="form-label" for="su-metadata-outline">{{
+          'ADMIN_SPATIAL_UNITS.METADATA_STEP.MARK_AS_OUTLINE_LAYER' | translate
+        }}</label>
+        <div class="outline-switch">
+          <label class="switch" for="su-metadata-outline">
+            <input id="su-metadata-outline" type="checkbox" formControlName="isOutlineLayer" />
+            <span class="switchslider round"></span>
+          </label>
+          <span class="outline-switch-hint">
+            {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_LAYER_HINT_SHORT' | translate }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- The outline styling only exists for an outline layer, so it only shows
+       once the switch above says there is one. -->
+  @if (group.controls.isOutlineLayer.value) {
+    <div class="row form-section-row">
+      <div class="col-md-4 col-sm-4 col-12">
+        <div class="form-group">
+          <label class="form-label">{{
+            'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_COLOR' | translate
+          }}</label>
+          <km-color-picker
+            formControlName="outlineColor"
+            [label]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_OUTLINE_COLOR' | translate"
+          ></km-color-picker>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-4 col-12">
+        <div class="form-group">
+          <label class="form-label">{{
+            'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_WIDTH' | translate
+          }}</label>
+          <input
+            class="form-control outline-width-input"
+            type="number"
+            formControlName="outlineWidth"
+            min="1"
+            max="5"
+            step="1"
+          />
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-4 col-12">
+        <div class="form-group">
+          <km-line-pattern-picker
+            formControlName="outlineDashArray"
+            [options]="linePatternOptions"
+            [label]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.OUTLINE_PATTERN' | translate"
+            [placeholder]="'ADMIN_SPATIAL_UNITS.METADATA_STEP.SELECT_OUTLINE_PATTERN' | translate"
+            [width]="'100%'"
+          >
+          </km-line-pattern-picker>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!--
+    The tenant select rides inside the assignment panel's box, because that is
+    the only thing it decides: which hierarchies the rows below may name.
+  -->
+  <app-hierarchy-assignment-panel
+    [rows]="rows"
+    [hierarchies]="allHierarchies()"
+    [mandantId]="chosenMandantId()"
+    [mandantName]="mandantName"
+  >
+    <div class="form-group assignment-mandant">
+      <label class="form-label" for="su-metadata-mandant">
+        {{ 'ADMIN_SPATIAL_UNITS.METADATA_STEP.MANDANT_LABEL' | translate }}
+      </label>
+      <!--
+        A select only where there is something to choose: one tenant is the
+        normal case, and only a platform administrator works across them.
+        Without Keycloak the list is empty and the field stays a hint.
+      -->
+      @if (mandantIsChoosable) {
+        <select id="su-metadata-mandant" class="form-select" formControlName="mandantId">
+          @for (mandant of mandants; track mandant.id) {
+            <option [value]="mandant.id">{{ mandant.name }}</option>
+          }
+        </select>
+      } @else {
+        <input
+          id="su-metadata-mandant"
+          class="form-control"
+          type="text"
+          disabled
+          [value]="mandantName || ('ADMIN_SPATIAL_UNITS.METADATA_STEP.MANDANT_NONE' | translate)"
+        />
+      }
+      <span class="assignment-hint">{{
+        (mandantLocked
+          ? 'ADMIN_SPATIAL_UNITS.METADATA_STEP.MANDANT_FIXED_HINT'
+          : 'ADMIN_SPATIAL_UNITS.METADATA_STEP.MANDANT_HINT'
+        ) | translate
+      }}</span>
+    </div>
+  </app-hierarchy-assignment-panel>
+
+  <div class="stepper-buttons">
+    <button type="button" class="btn btn-primary" (click)="next.emit()">
+      {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+    </button>
+  </div>
+</fieldset>

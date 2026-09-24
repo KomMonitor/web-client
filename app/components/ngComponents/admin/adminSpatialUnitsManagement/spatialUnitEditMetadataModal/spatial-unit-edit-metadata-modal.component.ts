@@ -26,6 +26,15 @@ import {
   validateSpatialUnitMetadata,
 } from 'services/adminSpatialUnit/spatial-unit-metadata.util';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import { SpatialUnitHierarchyApiService } from 'services/spatial-unit-hierarchy-service/spatial-unit-hierarchy-api.service';
+import { SpatialUnitHierarchyOverviewType } from 'models/data-management-api';
+import { HierarchyAssignmentPanelComponent } from '../hierarchyAssignment/hierarchy-assignment-panel.component';
+import {
+  buildAssignmentRow,
+  membershipsByLevelForRows,
+  rowForExistingMembership,
+  sameMemberships,
+} from '../hierarchyAssignment/hierarchy-assignment.model';
 import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
 import { FormControlAriaDirective } from '../../adminShared/formError/form-control-aria.directive';
 import {
@@ -75,6 +84,7 @@ import {
     KmLinePatternPickerComponent,
     StepperComponent,
     ResourceMetadataFormComponent,
+    HierarchyAssignmentPanelComponent,
     TranslateModule,
   ],
   standalone: true,
@@ -85,6 +95,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   protected envConfigService = inject(EnvConfigService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
+  private hierarchyApi = inject(SpatialUnitHierarchyApiService);
   private http = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
   private sanitizer = inject(DomSanitizer);
@@ -117,7 +128,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     existingLevelNames: () =>
       (this.availableSpatialUnits ?? []).map((unit: any) => unit.spatialUnitLevel),
     currentLevelName: () => this.currentSpatialUnitDataset?.spatialUnitLevel ?? null,
-    orderedSpatialUnits: () => this.availableSpatialUnits ?? [],
   });
 
   // Basic form data
@@ -146,23 +156,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
   // Date picker visibility control
   // showDatepicker = false;
-
-  // Hierarchy
-  get nextLowerHierarchySpatialUnit(): any {
-    return this.editForm.controls.nextLowerHierarchySpatialUnit.value;
-  }
-  set nextLowerHierarchySpatialUnit(value: any) {
-    this.editForm.controls.nextLowerHierarchySpatialUnit.setValue(value ?? null);
-  }
-  get nextUpperHierarchySpatialUnit(): any {
-    return this.editForm.controls.nextUpperHierarchySpatialUnit.value;
-  }
-  set nextUpperHierarchySpatialUnit(value: any) {
-    this.editForm.controls.nextUpperHierarchySpatialUnit.setValue(value ?? null);
-  }
-  get hierarchyInvalid(): boolean {
-    return this.editForm.hasError('spatialUnitHierarchy');
-  }
 
   // Outline layer settings
   get isOutlineLayer(): boolean {
@@ -195,6 +188,9 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
   // Available options
   availableSpatialUnits: any[] = [];
+
+  /** The hierarchies of this dataset's tenant — the only ones it may join. */
+  availableHierarchies: SpatialUnitHierarchyOverviewType[] = [];
   updateIntervalOptions: any[] = [];
   availableLoiDashArrayObjects: any[] = [];
 
@@ -226,7 +222,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     }
   }
 
-  private loadInitialData() {
+  private async loadInitialData() {
     this.loadingData.set(true);
 
     // Load available spatial units
@@ -244,7 +240,16 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
       this.availableLoiDashArrayObjects = LABELED_LOI_DASH_ARRAY_OBJECTS;
     }
 
+    // Unfiltered: the panel narrows them to this dataset's tenant, and keeps
+    // the ones the dataset is already a member of whatever that filter says —
+    // a row whose hierarchy is missing from the select would take its
+    // membership with it on the next save.
+    this.availableHierarchies = await this.hierarchyApi.getHierarchies();
+    this.seedHierarchyRows();
+
     this.loadingData.set(false);
+    // The list arrives after the first render; OnPush needs to be told.
+    this.cdr.markForCheck();
   }
 
   // Date picker change handler - now using ng-bootstrap's built-in functionality
@@ -252,6 +257,41 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   // No need for custom methods since ng-bootstrap handles everything
 
   // Remove custom click outside and escape key handlers since ng-bootstrap handles this
+
+  /** The tenant that decides which hierarchies this dataset may join. */
+  protected get datasetMandantId(): string {
+    return this.currentSpatialUnitDataset?.mandantId ?? '';
+  }
+
+  protected get datasetSpatialUnitId(): string {
+    return this.currentSpatialUnitDataset?.spatialUnitId ?? '';
+  }
+
+  protected get hierarchyRows() {
+    return this.editForm.controls.hierarchyAssignments;
+  }
+
+  /**
+   * One row per hierarchy the dataset belongs to, each describing the place it
+   * already holds — so a dialog nobody touched writes nothing.
+   *
+   * Cleared first, because this runs twice on open: once synchronously from
+   * `resetForm`, off the memberships the dataset carries, and again once the
+   * hierarchy list has arrived and the rows can name their neighbours from the
+   * chains. Sorted by name so the panel does not reshuffle between opens.
+   */
+  private seedHierarchyRows(): void {
+    const memberships = [...(this.currentSpatialUnitDataset?.hierarchies ?? [])].sort((a, b) =>
+      (a.hierarchyName ?? '').localeCompare(b.hierarchyName ?? '')
+    );
+    this.hierarchyRows.clear();
+    for (const membership of memberships) {
+      const hierarchy = this.availableHierarchies.find(
+        (entry) => entry.hierarchyId === membership.hierarchyId
+      );
+      this.hierarchyRows.push(buildAssignmentRow(rowForExistingMembership(membership, hierarchy)));
+    }
+  }
 
   resetForm() {
     const dataset = this.currentSpatialUnitDataset;
@@ -267,18 +307,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
       this.metadataForm.controls.updateInterval.setValue(this.updateIntervalOptions[0]);
     }
 
-    // Set hierarchy
-    this.nextLowerHierarchySpatialUnit = null;
-    this.nextUpperHierarchySpatialUnit = null;
-
-    this.availableSpatialUnits.forEach((spatialUnit) => {
-      if (spatialUnit.spatialUnitLevel === dataset.nextLowerHierarchyLevel) {
-        this.nextLowerHierarchySpatialUnit = spatialUnit;
-      }
-      if (spatialUnit.spatialUnitLevel === dataset.nextUpperHierarchyLevel) {
-        this.nextUpperHierarchySpatialUnit = spatialUnit;
-      }
-    });
+    this.seedHierarchyRows();
 
     // Set outline layer settings - FIXED: Properly initialize outline layer properties
     this.isOutlineLayer = dataset.isOutlineLayer || false;
@@ -323,11 +352,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     this.editForm.controls.spatialUnitLevel.updateValueAndValidity();
   }
 
-  /** The rule is `spatialUnitHierarchyValidator` on the group now. */
-  checkSpatialUnitHierarchy() {
-    this.editForm.updateValueAndValidity();
-  }
-
   onChangeOutlineDashArray(outlineDashArrayObject: LinePatternOption | null) {
     this.selectedOutlineDashArrayObject = outlineDashArrayObject;
 
@@ -358,12 +382,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     const patchBody = buildSpatialUnitMetadataPatchBody(
       this.spatialUnitLevel,
       this.metadata,
-      this.nextLowerHierarchySpatialUnit
-        ? this.nextLowerHierarchySpatialUnit.spatialUnitLevel
-        : null,
-      this.nextUpperHierarchySpatialUnit
-        ? this.nextUpperHierarchySpatialUnit.spatialUnitLevel
-        : null,
       this.isOutlineLayer,
       this.outlineColor,
       this.outlineWidth,
@@ -383,6 +401,23 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
           patchBody
         )
         .toPromise();
+
+      // The hierarchy memberships travel separately: SpatialUnitPATCHInputType
+      // carries no `hierarchies` field, so they are written through the spatial
+      // unit's own memberships endpoint. Order matters — the metadata is
+      // already saved when this runs, which is what the error message says.
+      try {
+        await this.saveHierarchyMemberships();
+      } catch (error: any) {
+        this.loadingData.set(false);
+        this.notificationService.showError(
+          this.translate.instant(
+            'ADMIN_SPATIAL_UNITS.EDIT_METADATA_MODAL.MSG.HIERARCHY_UPDATE_FAILED',
+            { error: getErrorMessage(error) }
+          )
+        );
+        return;
+      }
 
       // Ask the parent to refresh its overview table for this spatial unit.
       this.refreshRequested.emit({
@@ -414,6 +449,32 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
       );
       this.loadingData.set(false);
     }
+  }
+
+  /**
+   * Writes the memberships the rows describe, if they differ from the ones the
+   * dataset already has. Skipped when nothing changed, so an ordinary metadata
+   * edit stays a single request.
+   *
+   * The list always goes out whole: the endpoint replaces every membership of
+   * the spatial unit, so a hierarchy no row names is a hierarchy it leaves.
+   */
+  private async saveHierarchyMemberships(): Promise<void> {
+    const dataset = this.currentSpatialUnitDataset;
+    if (!dataset) {
+      return;
+    }
+
+    const target = membershipsByLevelForRows(
+      this.hierarchyRows.getRawValue(),
+      this.availableHierarchies,
+      dataset.spatialUnitId
+    );
+    if (sameMemberships(target, dataset.hierarchies ?? [])) {
+      return;
+    }
+
+    await this.hierarchyApi.updateMemberships(dataset.spatialUnitId, target);
   }
 
   // Import/Export functionality
@@ -467,16 +528,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
       this.updateIntervalOptions
     );
 
-    // Set hierarchy
-    this.availableSpatialUnits.forEach((spatialUnit) => {
-      if (spatialUnit.spatialUnitLevel === this.metadataImportSettings.nextLowerHierarchyLevel) {
-        this.nextLowerHierarchySpatialUnit = spatialUnit;
-      }
-      if (spatialUnit.spatialUnitLevel === this.metadataImportSettings.nextUpperHierarchyLevel) {
-        this.nextUpperHierarchySpatialUnit = spatialUnit;
-      }
-    });
-
     this.spatialUnitLevel = this.metadataImportSettings.spatialUnitLevel;
 
     // Set outline layer settings from import
@@ -508,12 +559,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     const metadataExport = buildSpatialUnitMetadataExport(
       this.metadata,
       this.spatialUnitLevel,
-      this.nextLowerHierarchySpatialUnit
-        ? this.nextLowerHierarchySpatialUnit.spatialUnitLevel
-        : null,
-      this.nextUpperHierarchySpatialUnit
-        ? this.nextUpperHierarchySpatialUnit.spatialUnitLevel
-        : null,
       this.isOutlineLayer,
       this.outlineColor,
       this.outlineWidth,

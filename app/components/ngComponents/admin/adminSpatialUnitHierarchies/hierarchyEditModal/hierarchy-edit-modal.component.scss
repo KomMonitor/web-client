@@ -1,0 +1,84 @@
+// The public option as a panel of its own, the same one the create dialog
+// draws: it is the one setting here with a consequence outside the dialog.
+.public-option {
+  margin-bottom: 16px;
+  padding: 10px 12px 10px 34px;
+  border-radius: 4px;
+  background: #f4f7fa;
+
+  .form-check-input {
+    margin-left: -22px;
+  }
+
+  // Carries the weight the plain fields' labels have above it.
+  .form-check-label {
+    font-weight: 500;
+  }
+}
+
+.public-hint {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: #8598a5;
+}
+
+// What cannot be changed, set apart from the fields that can: same panel tone,
+// but no inputs in it, so nothing here invites a click.
+.facts {
+  padding: 12px 14px;
+  border-radius: 4px;
+  background: #f4f7fa;
+}
+
+.facts-title {
+  margin: 0 0 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8598a5;
+}
+
+.facts-list {
+  margin: 0;
+
+  dt {
+    font-size: 12.5px;
+    font-weight: 400;
+    color: #8598a5;
+  }
+
+  dd {
+    margin: 0 0 12px;
+    font-size: 14.5px;
+    line-height: 1.45;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Wraps rather than scrolls: a long chain is the normal case, and reading it
+// matters more than keeping it on one line.
+.facts-chain {
+  overflow-wrap: anywhere;
+}
+
+.facts-muted {
+  color: #8598a5;
+}
+
+.facts-hint {
+  display: block;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: #8598a5;
+}
+
+.facts-id {
+  font-size: 13px;
+  color: #8598a5;
+  overflow-wrap: anywhere;
+}

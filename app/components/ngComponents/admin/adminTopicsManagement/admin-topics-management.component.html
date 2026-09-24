@@ -23,43 +23,54 @@
 </ng-template>
 
 <ng-template #content>
-  <expandable-box [title]="'ADMIN_TOPICS.INDICATOR_HIERARCHY' | translate" [collapsed]="false">
-    @if (indicatorOrder(); as indicatorOrder) {
+  @if (indicatorOrder(); as indicatorOrder) {
+    <!-- Sorting mode of the hierarchy; adding topics happens in the tree itself. -->
+    <div class="topic-toolbar">
       <app-topic-order-selection
         [orderMode]="indicatorOrder"
         [label]="'ADMIN_TOPICS.INDICATOR_SORTING' | translate"
         [topicResourceType]="'indicator'"
         (selectedOptionChange)="setIndicatorSorting($event)"
       ></app-topic-order-selection>
-      <app-topic-list
-        [topics]="filteredIndicatorTopics"
-        [showTopicIds]="showTopicIds"
-        [levelLimit]="4"
+    </div>
+
+    <app-collapsible-section
+      [title]="'ADMIN_TOPICS.INDICATOR_HIERARCHY' | translate"
+      [meta]="mainTopicCountLabel(indicatorTopics().length)"
+      [(open)]="indicatorSectionOpen"
+    >
+      <app-topic-tree
+        [topics]="indicatorTopics()"
         [topicResourceType]="'indicator'"
         [order]="indicatorOrder"
-      ></app-topic-list>
-      <app-admin-add-topic [topicResourceType]="'indicator'"></app-admin-add-topic>
-    }
-  </expandable-box>
+        [showTopicIds]="showTopicIds"
+      ></app-topic-tree>
+    </app-collapsible-section>
+  }
 
-  <expandable-box [title]="'ADMIN_TOPICS.GEORESOURCE_HIERARCHY' | translate" [collapsed]="false">
-    @if (geoRessourceOrder(); as geoRessourceOrder) {
+  @if (geoRessourceOrder(); as geoRessourceOrder) {
+    <div class="topic-toolbar">
       <app-topic-order-selection
         [orderMode]="geoRessourceOrder"
         [label]="'ADMIN_TOPICS.GEORESOURCE_SORTING' | translate"
         [topicResourceType]="'georesource'"
         (selectedOptionChange)="setGeoRessourceSorting($event)"
       ></app-topic-order-selection>
-      <app-topic-list
-        [topics]="filteredGeoRessourceTopics"
-        [showTopicIds]="showTopicIds"
-        [levelLimit]="4"
+    </div>
+
+    <app-collapsible-section
+      [title]="'ADMIN_TOPICS.GEORESOURCE_HIERARCHY' | translate"
+      [meta]="mainTopicCountLabel(geoRessourceTopics().length)"
+      [(open)]="geoRessourceSectionOpen"
+    >
+      <app-topic-tree
+        [topics]="geoRessourceTopics()"
         [topicResourceType]="'georesource'"
         [order]="geoRessourceOrder"
-      ></app-topic-list>
-      <app-admin-add-topic [topicResourceType]="'georesource'"></app-admin-add-topic>
-    }
-  </expandable-box>
+        [showTopicIds]="showTopicIds"
+      ></app-topic-tree>
+    </app-collapsible-section>
+  }
 
   <!-- Error Alert -->
   @if (errorHandlingService.errorMessagePart) {

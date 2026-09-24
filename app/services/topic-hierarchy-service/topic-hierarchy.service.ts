@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core';
 import { IndicatorsTopicsHierarchy } from 'components/ngComponents/models/indicators.models';
+import { ProcessSchedule } from 'components/ngComponents/models/schedules.models';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
+import {
+  getRequiredIndicatorIds,
+  getTargetIndicatorId,
+} from 'services/processes-api-service/schedule-inputs.util';
 
 /**
  * Pure computation service for building and querying topic hierarchies.
@@ -361,7 +366,7 @@ export class TopicHierarchyService {
 
   buildHeadlineIndicatorHierarchy(
     displayableIndicators_keywordFiltered: any[],
-    availableProcessScripts: any[]
+    availableProcessScripts: ProcessSchedule[]
   ): any[] {
     const indicatorsMap = new Map<any, any>();
     for (const indicatorMetadata of displayableIndicators_keywordFiltered) {
@@ -375,8 +380,9 @@ export class TopicHierarchyService {
 
     const headlineIndicatorScriptsMap = new Map<any, any>();
     for (const scriptMetadata of availableProcessScripts) {
-      if (headlineIndicatorsIdArray.includes(scriptMetadata.indicatorId)) {
-        headlineIndicatorScriptsMap.set(scriptMetadata.indicatorId, scriptMetadata);
+      const targetIndicatorId = getTargetIndicatorId(scriptMetadata);
+      if (targetIndicatorId && headlineIndicatorsIdArray.includes(targetIndicatorId)) {
+        headlineIndicatorScriptsMap.set(targetIndicatorId, scriptMetadata);
       }
     }
 
@@ -388,7 +394,7 @@ export class TopicHierarchyService {
         const targetScriptMetadata = headlineIndicatorScriptsMap.get(
           headlineIndicatorMetadata.indicatorId
         );
-        for (const requiredIndicatorId of targetScriptMetadata.requiredIndicatorIds) {
+        for (const requiredIndicatorId of getRequiredIndicatorIds(targetScriptMetadata)) {
           if (indicatorsMap.has(requiredIndicatorId)) {
             item.baseIndicators.push(indicatorsMap.get(requiredIndicatorId));
           }
@@ -403,7 +409,7 @@ export class TopicHierarchyService {
 
   buildComputationIndicatorHierarchy(
     displayableIndicators_keywordFiltered: any[],
-    availableProcessScripts: any[]
+    availableProcessScripts: ProcessSchedule[]
   ): any[] {
     const indicatorsMap = new Map<any, any>();
     for (const indicatorMetadata of displayableIndicators_keywordFiltered) {
@@ -417,8 +423,9 @@ export class TopicHierarchyService {
 
     const computationIndicatorScriptsMap = new Map<any, any>();
     for (const scriptMetadata of availableProcessScripts) {
-      if (computationIndicatorsIdArray.includes(scriptMetadata.indicatorId)) {
-        computationIndicatorScriptsMap.set(scriptMetadata.indicatorId, scriptMetadata);
+      const targetIndicatorId = getTargetIndicatorId(scriptMetadata);
+      if (targetIndicatorId && computationIndicatorsIdArray.includes(targetIndicatorId)) {
+        computationIndicatorScriptsMap.set(targetIndicatorId, scriptMetadata);
       }
     }
 
@@ -430,7 +437,7 @@ export class TopicHierarchyService {
         const targetScriptMetadata = computationIndicatorScriptsMap.get(
           computationIndicatorMetadata.indicatorId
         );
-        for (const requiredIndicatorId of targetScriptMetadata.requiredIndicatorIds) {
+        for (const requiredIndicatorId of getRequiredIndicatorIds(targetScriptMetadata)) {
           if (indicatorsMap.has(requiredIndicatorId)) {
             item.baseIndicators.push(indicatorsMap.get(requiredIndicatorId));
           }

@@ -1,0 +1,26 @@
+<div class="picker">
+  <span class="picker-label">
+    {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.PICKER.INSERT_EXISTING' | translate }}
+  </span>
+
+  @if (options().length) {
+    <select class="form-select form-select-sm picker-select" (change)="onSelect($event)">
+      @for (level of options(); track level.id) {
+        <option [value]="level.id" [selected]="level.id === selectedId()">{{ level.name }}</option>
+      }
+    </select>
+    <button type="button" class="btn btn-sm btn-primary" (click)="addExisting()">
+      {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.PICKER.INSERT_ADD' | translate }}
+    </button>
+  } @else {
+    <span class="picker-empty">
+      {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.PICKER.POOL_EMPTY' | translate }}
+    </span>
+  }
+
+  <span class="picker-spacer"></span>
+
+  <button type="button" class="btn btn-link btn-sm picker-cancel" (click)="cancel()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
+  </button>
+</div>

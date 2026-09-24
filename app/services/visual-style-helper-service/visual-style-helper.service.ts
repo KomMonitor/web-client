@@ -1,8 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import {
-  CategoricalClassificationItem,
-  resolveCategoricalColor,
-} from 'components/ngComponents/models/classification.models';
+import { resolveCategoricalColor } from 'components/ngComponents/models/classification.models';
 import { IndicatorsDataset } from 'components/ngComponents/models/indicators.models';
 import L from 'leaflet';
 import 'leaflet.pattern';
@@ -13,6 +10,7 @@ import { IndicatorValueService } from 'services/indicator-value-service/indicato
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import classyBrew from '../../../customizedExternalLibs/classyBrew.js';
 import { colorbrewer } from './../../components/ngComponents/userInterface/kommonitorClassification/colors';
+import { CategoricalMappingType } from 'models/data-management-api';
 
 @Injectable({
   providedIn: 'root',
@@ -827,7 +825,7 @@ export class VisualStyleHelperServiceNew {
    */
   styleCategorical(
     feature,
-    categoricalData: CategoricalClassificationItem[],
+    categoricalData: CategoricalMappingType[],
     propertyName,
     useTransparencyOnIndicator,
     incrementFeatures

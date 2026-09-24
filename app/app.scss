@@ -16,6 +16,10 @@
   --kommonitor-hierarchy-level-2: #d6e4f1;
   --kommonitor-hierarchy-level-3: #eaf1f8;
 
+  // Header of a section that is not part of the accented structure — used for
+  // the "unassigned" section, which lists what is registered but nowhere filed.
+  --kommonitor-section-muted: #7b8f9e;
+
   // Self-hosted via @fontsource-variable/source-sans-3 (wired up in angular.json styles).
   // 'Source Sans 3' / 'Source Sans Pro' cover users who have either installed locally.
   --custom-font-family: 'Source Sans 3 Variable', 'Source Sans 3', 'Source Sans Pro', sans-serif;
@@ -34,9 +38,23 @@
 }
 
 body {
-  overflow-y: auto !important;
   color: #333;
   font-family: var(--custom-font-family) !important;
+}
+
+/*
+ * Keeps the page scrollable — but not while a dialog is open.
+ *
+ * ng-bootstrap locks the background by setting `overflow: hidden` on the body
+ * inline and compensating the scrollbar's width with `padding-right`, so the
+ * layout stays put. An unconditional `!important` here beats that inline rule:
+ * the scrollbar stays, the compensation padding lands on top of it, and the
+ * whole view shifts a scrollbar's width to the left with a gap on the right
+ * every time a modal opens. Bootstrap 5 itself no longer styles `.modal-open`,
+ * so the class is free to say "a dialog is open" here.
+ */
+body:not(.modal-open) {
+  overflow-y: auto !important;
 }
 
 .kommonitorOrange {
@@ -48,8 +66,12 @@ body {
   opacity: 0.8;
 }
 
-.alert {
-  z-index: 99999;
+/*
+ * Opt-in cap for alerts whose body is unbounded at runtime: importer error
+ * lists, per-dataset delete results and <pre> stack traces. Without it those
+ * grow past the modal they sit in. Plain alerts stay unconstrained.
+ */
+.alert-scrollable {
   max-height: 500px;
   overflow: auto;
 }
@@ -2637,6 +2659,31 @@ fieldset[disabled] .btn-primary.focus {
   background-color: var(--kommonitor-light);
   border-color: var(--kommonitor-primary);
   filter: brightness(85%);
+}
+
+/*
+ * The outline variant follows the solid `.btn-primary` above onto the brand
+ * tone — Bootstrap ships it in a blue of its own. Its `--bs-btn-*` variables do
+ * the work, so hover, active and disabled keep Bootstrap's own logic and no
+ * colour value is restated here.
+ */
+.btn-outline-primary {
+  --bs-btn-color: var(--kommonitor-primary);
+  --bs-btn-border-color: var(--kommonitor-primary);
+  --bs-btn-hover-bg: var(--kommonitor-primary);
+  --bs-btn-hover-border-color: var(--kommonitor-primary);
+  --bs-btn-active-bg: var(--kommonitor-primary);
+  --bs-btn-active-border-color: var(--kommonitor-primary);
+  --bs-btn-disabled-color: var(--kommonitor-primary);
+}
+
+.btn-outline-primary:active {
+  filter: brightness(85%);
+}
+
+/* Bootstrap builds its focus ring from a raw rgb list; this one is a token. */
+.btn-outline-primary:focus-visible {
+  box-shadow: 0 0 0 0.25rem var(--kommonitor-primary-40);
 }
 
 .btn-custom:hover img {

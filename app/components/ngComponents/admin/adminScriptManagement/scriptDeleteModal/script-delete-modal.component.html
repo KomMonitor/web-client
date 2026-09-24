@@ -16,7 +16,7 @@
       in the body, below the list of names it refers to.
     -->
     @if (showSuccessAlert()) {
-      <div class="alert alert-success alert-dismissible" role="alert">
+      <div class="alert alert-success alert-dismissible alert-scrollable" role="alert">
         <button
           type="button"
           class="btn-close"
@@ -29,14 +29,14 @@
         </h5>
         <ul>
           @for (dataset of successfullyDeletedDatasets(); track dataset) {
-            <li>{{ dataset.name }}</li>
+            <li>{{ scheduleLabel(dataset) }}</li>
           }
         </ul>
       </div>
     }
 
     @if (showErrorAlert()) {
-      <div class="alert alert-danger alert-dismissible" role="alert">
+      <div class="alert alert-danger alert-dismissible alert-scrollable" role="alert">
         <button
           type="button"
           class="btn-close"
@@ -58,7 +58,7 @@
           <tbody>
             @for (entry of failedDatasetsAndErrors(); track entry) {
               <tr>
-                <td>{{ entry[0].name }}</td>
+                <td>{{ scheduleLabel(entry[0]) }}</td>
                 <td [innerHTML]="entry[1]"></td>
               </tr>
             }
@@ -75,7 +75,7 @@
     @if (datasetsToDelete.length > 0) {
       <ul>
         @for (dataset of datasetsToDelete; track dataset) {
-          <li>{{ dataset.name }}</li>
+          <li>{{ scheduleLabel(dataset) }}</li>
         }
       </ul>
     } @else {

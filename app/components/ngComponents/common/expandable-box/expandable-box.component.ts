@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 
 export type ExpanableBoxBorderColor = 'primary' | 'red' | 'green' | 'cyan';
@@ -20,6 +20,13 @@ export class ExpandableBoxComponent implements OnInit {
   @Input() isCollapsible: boolean = true;
   @Input() variant: ExpandableBoxVariant = 'default';
 
+  /**
+   * Fires on every manual toggle, so a host can react to the box opening —
+   * loading its content only then, for instance. Named to match `collapsed`,
+   * which also makes `[(collapsed)]` work.
+   */
+  @Output() collapsedChange = new EventEmitter<boolean>();
+
   ngOnInit() {
     if (this.isCollapsible === false) {
       this.collapsed = false;
@@ -29,6 +36,7 @@ export class ExpandableBoxComponent implements OnInit {
   onCollapseToggle() {
     if (this.isCollapsible) {
       this.collapsed = !this.collapsed;
+      this.collapsedChange.emit(this.collapsed);
     }
   }
 

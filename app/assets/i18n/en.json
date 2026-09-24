@@ -990,6 +990,12 @@
     "GEORESOURCE_HIERARCHY": "Topic hierarchy - georesources",
     "INDICATOR_SORTING": "Sorting of the indicators:",
     "GEORESOURCE_SORTING": "Sorting of the georesources:",
+    "APPEND_MAIN_TOPIC": "＋ Append main topic",
+    "APPEND_SUB_TOPIC": "＋ Append subtopic",
+    "EDIT_TOPIC": "Edit",
+    "TOGGLE_TOPIC": "Show subtopics",
+    "MAIN_TOPIC_COUNT_ONE": "1 main topic",
+    "MAIN_TOPIC_COUNT_MANY": "{{count}} main topics",
     "ORDER": {
       "ALPHABETICAL": "alphabetical",
       "CUSTOM": "custom"
@@ -1033,155 +1039,115 @@
   },
   "ADMIN_SCRIPTS": {
     "ADD": "Add",
-    "DELETE_ENTRY": "Delete entry",
-    "REQUIRED_INDICATORS": "Required (base) indicators",
-    "SELECT_INDICATOR_PLACEHOLDER": "-- Select indicator --",
-    "SCRIPT_TEMPLATE_LINK": "KomMonitor script template",
-    "INDICATOR_ID_PLACEHOLDER": "IndicatorId",
-    "INDICATOR_NAME_PLACEHOLDER": "IndicatorName",
     "MANAGEMENT": {
       "TITLE": "Script Management",
       "DESCRIPTION": "Control of the semi-automated indicator computation",
-      "BOX_TITLE": "Indicator computation scripts"
+      "BOX_TITLE": "Indicator computation scripts",
+      "SHOW_IDS": "Show ids",
+      "SHOW_METHODOLOGY": "Show methodology"
     },
     "EXECUTION": {
       "TITLE": "Indicator Computation",
-      "DESCRIPTION": "Display and execution of processing jobs",
       "REFRESH": "Refresh",
-      "LOAD_ERROR": "Error while loading the job data. Please try again.",
-      "DEFAULT_JOBS_TITLE": "Overview of computation jobs for indicator time series continuation",
-      "CUSTOMIZED_JOBS_TITLE": "Overview of computation jobs for individually parameterized indicator computation",
-      "QUEUE_STATUS": "Status of the job execution",
-      "NEWEST_JOB_ID": "newest job id",
       "SUCCEEDED_JOBS": "completed jobs",
       "FAILED_JOBS": "failed jobs",
       "ACTIVE_JOBS": "running jobs",
       "WAITING_JOBS": "waiting jobs",
-      "DELAYED_JOBS": "delayed jobs"
+      "TOTAL_JOBS": "Number of jobs",
+      "LOGIN_REQUIRED": "A login is required to display processing jobs.",
+      "NO_JOBS": "No jobs available.",
+      "MODAL_TITLE_STATUS": "Jobs - {{status}}",
+      "MODAL_TITLE_SCHEDULE": "Jobs - {{indicatorName}}",
+      "TABLE_TITLE": "Jobs ({{count}})",
+      "TABLE_TITLE_FILTERED": "Jobs — {{status}} ({{count}})",
+      "CLEAR_FILTER": "Clear filter"
     },
     "ADD_MODAL": {
       "TITLE": "Register new indicator computation script",
-      "METADATA_SUBHEADING": "Information about the metadata of the indicator computation script",
-      "SCRIPT_SUBHEADING": "Information about the script code and required script parameters",
       "REGISTER_SUCCESS": "Script was registered successfully.",
       "REGISTER_ERROR": "Error while registering the script.",
-      "REGISTER_SCRIPT": "Register script"
+      "REGISTER_SCRIPT": "Register script",
+      "STEP_TARGET": "Computation and target",
+      "STEP_INPUTS": "Input data",
+      "STEP_TIMING": "Target dates and execution time",
+      "STEP_TARGET_SUBHEADING": "Choose the computation type, the target indicator and the target spatial units.",
+      "STEP_INPUTS_SUBHEADING": "The input fields follow from the chosen computation type.",
+      "STEP_TIMING_SUBHEADING": "Define which dates are computed and when the computation runs.",
+      "TYPE_FILTER": "Kind of input data",
+      "TYPE_FILTER_ALL": "All",
+      "TYPE_FILTER_INDICATOR": "Indicator",
+      "TYPE_FILTER_GEORESOURCE": "Georesource",
+      "SCRIPT_TYPE": "Computation type",
+      "TARGET_INDICATOR": "Target indicator",
+      "TARGET_SPATIAL_UNITS": "Target spatial units",
+      "EXISTING_SCHEDULE_HINT": "A script already exists for this target indicator. Saving will replace it.",
+      "PICK_TYPE_FIRST": "Please choose a computation type first.",
+      "NO_EXTRA_INPUTS": "This computation type needs no further input data.",
+      "ADD_BASE_INDICATOR": "Add base indicator",
+      "POLARITY": "Polarity",
+      "POLARITY_NORMAL": "normal",
+      "POLARITY_INVERT": "inverse",
+      "NO_COMMON_DATES": "No shared dates available. Please choose the input data first.",
+      "PICK_GEORESOURCE_FIRST": "Please choose a georesource first.",
+      "FILTER_PROPERTY": "Feature property",
+      "FILTER_OPERATOR": "Operator",
+      "FILTER_VALUE": "Value",
+      "FILTER_PICK_OPERATOR_FIRST": "Please choose an operator first.",
+      "FILTER_NO_VALUES": "This feature property carries no values.",
+      "FILTER_RANGE_FROM": "lower bound",
+      "FILTER_RANGE_TO": "upper bound",
+      "FILTER_OPERATORS": {
+        "EQUAL": "equals (=)",
+        "UNEQUAL": "not equal (!=)",
+        "CONTAINS": "contains (multiple selection)",
+        "GREATER_THAN": "greater than (>)",
+        "GREATER_THAN_OR_EQUAL": "greater than or equal (>=)",
+        "LESS_THAN": "less than (<)",
+        "LESS_THAN_OR_EQUAL": "less than or equal (<=)",
+        "RANGE": "value range (>= lower bound & < upper bound)"
+      },
+      "TARGET_TIMES": "Target dates",
+      "EXECUTION_TIME": "Execution time",
+      "MANUAL_CRON": "Enter cron pattern manually",
+      "CRON_MODE_ONCE": "Fixed time",
+      "CRON_MODE_INTERVAL": "Interval",
+      "CRON_MODE_EVERYFIRST": "On the first weekday",
+      "CRON_EVERY": "Every",
+      "CRON_UNIT": "Unit",
+      "CRON_UNIT_MINUTE": "minute(s)",
+      "CRON_UNIT_HOUR": "hour(s)",
+      "CRON_UNIT_DAY": "day(s)",
+      "CRON_UNIT_WEEK": "week",
+      "CRON_UNIT_MONTH": "month",
+      "CRON_UNIT_YEAR": "year",
+      "CRON_EVERY_FIRST_IN": "of the",
+      "CRON_WEEKDAY": "Weekday",
+      "CRON_DAY_OF_MONTH": "Day of month",
+      "CRON_MONTH": "Month",
+      "CRON_HOUR": "Hour",
+      "CRON_MINUTE": "Minute",
+      "CRON_INVALID": "The cron pattern is invalid. Five fields are expected.",
+      "WEEKDAY_0": "Sunday",
+      "WEEKDAY_1": "Monday",
+      "WEEKDAY_2": "Tuesday",
+      "WEEKDAY_3": "Wednesday",
+      "WEEKDAY_4": "Thursday",
+      "WEEKDAY_5": "Friday",
+      "WEEKDAY_6": "Saturday",
+      "METHODOLOGY_PREVIEW": "Methodology (preview)",
+      "APPLY_METHODOLOGY": "Copy the methodology into the target indicator metadata",
+      "METHODOLOGY_FAILED": "The script was created, but the methodology could not be written to the indicator metadata."
     },
     "INTRO": {
       "OVERVIEW": "KomMonitor allows the automated continuation/computation of indicators from georesources or other (sub-)indicators. Two steps are required:",
       "FIRST_STEP": "<b><u>First step:</u></b> Selection / creation of the <b><i>target indicator</i></b> to be computed via the indicator management. The following points must be taken into account:",
       "CHECK_CONTINUATION_TYPE": "The continuation type of the target indicator is set to <b><i>\"automatic computation by KomMonitor\"</i></b>.",
       "CHECK_UPDATE_INTERVAL": "The update interval of the target indicator is <b>not</b> set to \"arbitrary\".",
-      "CHECK_MISSING_TIMESTAMPS": "The script computation is only performed for missing timestamps. To trigger a recomputation, an entire timestamp of the target indicator can be removed via the indicator deletion menu.",
-      "CHECK_NO_EDITING": "Editing the script configuration for computing the target indicator afterwards is currently not possible. Instead, an existing script must be removed and created anew.",
+      "CHECK_MISSING_TIMESTAMPS": "Which dates are computed is decided in the last step: all of them, only the missing ones, or only selected ones. Individual dates can additionally be included or excluded.",
+      "CHECK_NO_EDITING": "A script configuration cannot be edited afterwards. Create a new script for the same target indicator instead — the existing one is replaced in the process.",
       "SECOND_STEP": "<b><u>Second step:</u></b> Creation of the computation script via the script management, selecting the previously defined target indicator.",
-      "SCHEDULER_INFO": "The overall KomMonitor system includes a so-called <b>Processing Scheduler</b>, which automatically triggers the computation of the target indicator timestamps based on the script and indicator metadata. The computation itself is performed by the <b>Processing Engine</b> component.",
+      "SCHEDULER_INFO": "Every script carries its own execution interval. The <b>Processes API</b> runs the computation at the planned time; the <b>\"Start computation\"</b> button in the script management additionally triggers it by hand at any time.",
       "ACCESS_RIGHTS_WARNING": "If new spatial units are linked to indicators for the first time by the computation script, the access rights are taken over from the associated metadata."
-    },
-    "METADATA_STEP": {
-      "NAME_LABEL": "Script name*",
-      "NAME_HELP": "Name of the script to be created.",
-      "DESCRIPTION_LABEL": "Script description*",
-      "DESCRIPTION_HELP": "Notes about the computation of the target indicator.",
-      "TARGET_INDICATOR_LABEL": "Target indicator to be computed by the script to be created*",
-      "SELECT_TARGET_INDICATOR_PLACEHOLDER": "-- Select target indicator --",
-      "TARGET_INDICATOR_HELP": "Only indicators with continuation type \"Computation by KomMonitor\".",
-      "SELECTED_ID_LABEL": "ID of the selected target indicator",
-      "SELECTED_NAME_LABEL": "Name of the selected target indicator",
-      "SELECTED_DESCRIPTION_LABEL": "Description of the selected target indicator",
-      "SELECTED_UNIT_LABEL": "Unit of the selected target indicator"
-    },
-    "CONTENT_STEP": {
-      "INTRO": "In KomMonitor, indicators are computed using a <b>script-based approach</b>, which requires information about required <i>(base) indicators</i> and/or <i>georesources</i> as well as <i>variable script parameters</i> and the <i>script code</i> itself.",
-      "TEMPLATE_INTRO": "The script code must follow a predefined template. The template is available at the following link:",
-      "DEV_HINTS": "Notes on script development can be found in the github repository of the",
-      "PROCESSING_ENGINE_LINK": "KomMonitor Processing Engine",
-      "SELECT_SCRIPT_TYPE_LABEL": "Selection of the script type*",
-      "SELECT_SCRIPT_TYPE_PLACEHOLDER": "-- Select script type --",
-      "SCRIPT_TYPE_HELP_PREFIX": "The option",
-      "GENERIC_DEFINITION": "Generic definition",
-      "SCRIPT_TYPE_HELP_SUFFIX": "requires the manual definition of all script data. The remaining options offer simplified input forms that automatically set the required script data as well as the predefined script code in the background.",
-      "GENERIC_TITLE": "Generic manual definition of all script data",
-      "GENERIC_DESCRIPTION": "At least one (base) indicator or one georesource from which the target indicator is derived must be specified. Any number is possible."
-    },
-    "GENERIC": {
-      "PARAMETERS_INFO": "Script parameters are optional and serve to define variable computation parameters (e.g. radius of a catchment area, weighting). Each of the defined script parameters should also be used in the script code.",
-      "CODE_INFO": "The actual script code may contain arbitrary computation logic. Using the above (base) indicators, georesources and script parameters, the time series of the target indicator can be computed with the stored script code.",
-      "CODE_HINT_LABEL": "NOTE:",
-      "CODE_HINT_TEXT": "The script contents provided here are not validated or checked for code errors. Please take care yourself that the code to be uploaded is valid."
-    },
-    "CODE": {
-      "TITLE": "Script code (according to script template)",
-      "IMPORT_LABEL": "Load the script code from a file:",
-      "IMPORT_HELP": "The script code must be uploaded as a plain text Javascript file",
-      "PREVIEW_LABEL": "Preview of the script code*",
-      "IMPORT_FAILED_TITLE": "Script code import failed",
-      "IMPORT_FAILED_TEXT": "An error occurred while importing the script code from a file. Error message:",
-      "IMPORT_FAILED_HINT_PREFIX": "Please make sure that the",
-      "IMPORT_FAILED_HINT_SUFFIX": "is followed and the file contains the code as a plain string."
-    },
-    "INDICATORS": {
-      "SELECT_LABEL": "Selection of the (base) indicators required for the computation",
-      "SELECT_PLACEHOLDER": "-- Select indicator as computation basis --",
-      "SELECTED_ID_LABEL": "ID of the selected indicator",
-      "SELECTED_NAME_LABEL": "Name of the selected indicator",
-      "OVERVIEW_LABEL": "Overview of the defined (base) indicators",
-      "INDICATOR_ID": "ID of the indicator",
-      "INDICATOR_NAME": "Name of the indicator",
-      "UNIT": "Unit"
-    },
-    "GEORESOURCES": {
-      "TITLE": "Required georesources",
-      "SELECT_LABEL": "Selection of the georesources required for the computation",
-      "SELECT_PLACEHOLDER": "-- Select georesource as computation basis --",
-      "SELECTED_ID_LABEL": "ID of the selected georesource",
-      "SELECTED_NAME_LABEL": "Name of the selected georesource",
-      "ID_PLACEHOLDER": "GeoresourceId",
-      "OVERVIEW_LABEL": "Overview of the defined georesources",
-      "GEOMETRY_TYPE": "Geometry type",
-      "GEORESOURCE_ID": "ID of the georesource",
-      "GEORESOURCE_NAME": "Name of the georesource"
-    },
-    "PARAMETERS": {
-      "TITLE": "Optional script parameters",
-      "INTRO": "A script parameter consists of a <b>name</b>, a <b>description</b>, a fixed <b>data type</b>, and a <b>default value</b>. For numeric parameters, the valid value range can additionally be defined.",
-      "NAME_LABEL": "Parameter name*",
-      "NAME_HELP": "Name of the script parameter to be created.",
-      "DESCRIPTION_LABEL": "Description*",
-      "DESCRIPTION_HELP": "Notes about the usage of the parameter within the script",
-      "DATA_TYPE_LABEL": "Data type of the parameter*",
-      "DATA_TYPE_PLACEHOLDER": "-- Select parameter data type --",
-      "DEFAULT_VALUE_LABEL": "Default value*",
-      "DEFAULT_STRING_PLACEHOLDER": "textual default value",
-      "DEFAULT_INTEGER_PLACEHOLDER": "integer default value",
-      "DEFAULT_DOUBLE_PLACEHOLDER": "floating point default value",
-      "MAX_DECIMALS_HELP": "At most 8 decimal places.",
-      "DEFAULT_VALUE_HELP": "Default value of the script parameter to be created, whose value is set for this parameter during automated indicator time series continuation.",
-      "MIN_VALUE_LABEL": "Minimum value (lower validity limit)*",
-      "MAX_VALUE_LABEL": "Maximum value (upper validity limit)*",
-      "INTEGER_MIN_PLACEHOLDER": "integer min value",
-      "INTEGER_MAX_PLACEHOLDER": "integer max value",
-      "DOUBLE_MIN_PLACEHOLDER": "floating point min value",
-      "DOUBLE_MAX_PLACEHOLDER": "floating point max value",
-      "MIN_VALUE_HELP": "Minimum value of the numeric script parameter to be created in the sense of a validity range. At most 8 decimal places",
-      "MAX_VALUE_HELP": "Maximum value of the numeric script parameter to be created in the sense of a validity range. At most 8 decimal places",
-      "OVERVIEW_LABEL": "Overview of the defined script parameters",
-      "PARAMETER_NAME": "Name of the parameter",
-      "DATA_TYPE": "Data type",
-      "DEFAULT_VALUE": "Default value",
-      "MIN_VALUE": "Min value",
-      "MAX_VALUE": "Max value"
-    },
-    "INDICATOR_LIST": {
-      "EMPTY": "No base indicators added yet."
-    },
-    "REF_INDICATOR": {
-      "SELECT_LABEL": "Selection of the reference indicator"
-    },
-    "TEMPORAL_OFFSET": {
-      "TITLE": "Temporal offset to the reference date",
-      "COUNT_LABEL": "Count*",
-      "UNIT_LABEL": "Time unit*"
     },
     "DELETE_MODAL": {
       "TITLE": "Delete scripts",
@@ -1197,49 +1163,88 @@
     "GRID": {
       "COL_TARGET_INDICATOR_ID": "Target indicator id",
       "COL_TARGET_INDICATOR_NAME": "Target indicator name",
-      "COL_REQUIRED_BASE_INDICATORS": "Required base indicators",
-      "COL_REQUIRED_BASE_GEORESOURCES": "Required base georesources",
-      "COL_PROCESS_PARAMETERS": "Process parameters",
-      "COL_JOB_ID": "Job id",
-      "COL_SCRIPT_ID": "Script id",
-      "COL_TARGET_INDICATOR": "Target indicator",
-      "COL_JOB_STATUS": "Job status",
-      "COL_JOB_PROGRESS": "Job progress",
-      "COL_JOB_DATA": "Job data",
-      "COL_JOB_LOGS": "Job logs",
-      "COL_JOB_SUMMARY": "Job summary"
+      "COL_JOB_SUMMARY": "Job summary",
+      "COL_JOB": "Job",
+      "COL_EXECUTION": "Execution",
+      "UNKNOWN_TARGET_INDICATOR": "Target indicator unknown",
+      "COL_COMPUTATION_TYPE": "Computation type",
+      "COL_METHODOLOGY": "Methodology",
+      "COL_LAST_JOB": "Last execution",
+      "COL_EXECUTION_INTERVAL": "Execution interval",
+      "COL_TARGET_TIMES": "Target dates",
+      "COL_TARGET_SPATIAL_UNITS": "Target spatial units",
+      "START_COMPUTATION": "Start computation",
+      "SHOW_JOBS": "Go to job overview",
+      "NO_JOBS": "No jobs yet",
+      "NONE": "none",
+      "NEXT_EXECUTION": "Next planned execution",
+      "TARGET_INDICATOR_MISSING": "Target indicator may have been deleted",
+      "METHODOLOGY_UNAVAILABLE": "No methodology information available",
+      "TARGET_TIME_ALL": "Compute all dates",
+      "TARGET_TIME_MISSING": "Compute missing dates only",
+      "TARGET_TIME_DATES": "Compute selected dates only",
+      "TARGET_TIME_EXCLUDE": "Do not compute",
+      "TARGET_TIME_INCLUDE": "Compute",
+      "TARGET_TIME_INCLUDE_ADDITIONAL": "Additionally compute"
     },
-    "DATA_TYPES": {
-      "STRING": "Text (string)",
-      "BOOLEAN": "Boolean",
-      "INTEGER": "Integer",
-      "DOUBLE": "Floating-point number (double)"
+    "JOB_STATUS": {
+      "SUCCESSFUL": "completed",
+      "FAILED": "failed",
+      "RUNNING": "running",
+      "ACCEPTED": "waiting",
+      "DISMISSED": "dismissed"
     },
-    "TEMPORAL_UNITS": {
-      "YEARS": "year(s)",
-      "MONTHS": "month(s)",
-      "DAYS": "day(s)"
+    "JOB_SUMMARY": {
+      "SPATIAL_UNIT": "Spatial unit",
+      "INTEGRATED_FEATURES": "Number of integrated indicator features",
+      "INTEGRATED_TARGET_DATES": "Integrated target dates",
+      "ERRORS": "Errors",
+      "NONE": "none",
+      "EMPTY": "No summary available for this job.",
+      "DOWNLOAD_ERRORS": "Export errors",
+      "DOWNLOAD_ERRORS_TOOLTIP": "Download this job’s error information as a JSON file"
     },
-    "SCRIPT_TYPES": {
-      "GENERIC": "Generic definition",
-      "INDICATOR_SUM": "Indicators - sum of all indicators",
-      "INDICATOR_SUBTRACT": "Indicators - subtraction of base indicators from a reference indicator",
-      "INDICATOR_PERCENTAGE": "Indicators - percentage share (quotient of base indicators and a reference indicator)",
-      "INDICATOR_SHARE": "Indicators - share (quotient of base indicators and a reference indicator)",
-      "INDICATOR_DIVISION": "Indicators - division (quotient of two indicators)",
-      "INDICATOR_TREND": "Indicators - trend (via linear regression)",
-      "INDICATOR_CONTINUITY": "Indicators - continuity (via Pearson correlation)",
-      "INDICATOR_CHANGE_ABSOLUTE": "Indicators - absolute change",
-      "INDICATOR_CHANGE_ABSOLUTE_REF_DATE": "Indicators - absolute change against a fixed reference date",
-      "INDICATOR_CHANGE_RELATIVE_REF_DATE": "Indicators - percentage change against a fixed reference date",
-      "INDICATOR_CHANGE_RELATIVE": "Indicators - percentage change",
-      "INDICATOR_PROMILLE": "Indicators - per-mille value (quotient of base indicators and a reference indicator)",
-      "INDICATOR_HEADLINE_INDICATOR": "Headline indicator - chained computation (rank, min-max normalization, aggregation)",
-      "INDICATOR_MULTIPLICATION": "Indicators - product of all indicators",
-      "GEORESOURCE_POINTS_IN_POLYGON": "Georesources - number of points in polygon",
-      "GEORESOURCE_STATISTICS": "Georesources - statistics by feature property (point datasets)",
-      "GEORESOURCE_SUBSET_SHARE": "Georesources - percentage share by feature property (point datasets)",
-      "LINE_SEGMENT_IN_POLYGON": "Georesources - summed line length per polygon"
+    "JOB_ERRORS": {
+      "MISSING_TIMESTAMP": {
+        "SHORT": "Timestamp missing",
+        "LONG": "Timestamps are missing for {{resourceType}} '{{datasetName}}'."
+      },
+      "MISSING_DATASET": {
+        "SHORT": "Dataset missing",
+        "LONG": "{{resourceType}} '{{datasetName}}' is missing."
+      },
+      "MISSING_SPATIAL_UNIT": {
+        "SHORT": "Spatial unit missing",
+        "LONG": "The selected spatial unit is missing for {{resourceType}} '{{datasetName}}'."
+      },
+      "MISSING_SPATIAL_UNIT_FEATURE": {
+        "SHORT": "Spatial unit feature missing",
+        "LONG": "Spatial unit features are missing for {{resourceType}} '{{datasetName}}'."
+      },
+      "DATA_MANAGEMENT_API_ERROR": {
+        "SHORT": "Error calling the API",
+        "LONG": "Error calling the API for {{resourceType}} '{{datasetName}}'."
+      },
+      "PROCESSING_ERROR": {
+        "SHORT": "Processing error",
+        "LONG": "Error while processing {{resourceType}} '{{datasetName}}'."
+      },
+      "UNKNOWN": {
+        "LONG": "Unknown error type."
+      },
+      "RESOURCE_TYPE": {
+        "INDICATOR": "Indicator",
+        "GEORESOURCE": "Georesource"
+      },
+      "UNKNOWN_DATASET": "unknown"
+    },
+    "EXECUTION_TRIGGER": {
+      "STARTED": "Computation triggered manually. Waiting for the job to finish.",
+      "FAILED": "The computation could not be triggered.",
+      "NO_JOB_APPEARED": "No new job appeared. Please check the job overview.",
+      "WATCH_FAILED": "The computation could not be monitored. Please check the job details.",
+      "COMPLETED": "Computation of \"{{indicatorName}}\" completed.",
+      "JOB_FAILED": "Computation of \"{{indicatorName}}\" failed."
     }
   },
   "ADMIN_SHELL": {
@@ -1251,6 +1256,8 @@
       "TOPICS": "Topic Management",
       "GEODATA_MGMT": "Geodata Management",
       "SPATIAL_UNITS": "Spatial Units",
+      "SPATIAL_UNIT_METADATA": "Metadata",
+      "SPATIAL_UNIT_HIERARCHIES": "Spatial Unit Hierarchies",
       "INDICATORS": "Indicators",
       "GEORESOURCES": "Georesources",
       "SCRIPTS": "Script Management",
@@ -1371,7 +1378,6 @@
       "MAX_DATE": "The date is after the latest allowed date ({{value}}).",
       "UNIQUE_NAME": "The name \"{{name}}\" is already taken.",
       "PERIOD_OF_VALIDITY": "The start date must lie before the end date.",
-      "SPATIAL_UNIT_HIERARCHY": "The upper spatial unit level must be coarser than the lower one.",
       "BBOX_INCOMPLETE": "Please provide all four bounding box values.",
       "TOPIC_REQUIRED": "Please select at least a main topic.",
       "UNKNOWN": "The input is invalid.",
@@ -1556,6 +1562,128 @@
       "TITLE_SUFFIX": ""
     }
   },
+  "ADMIN_SPATIAL_UNIT_HIERARCHIES": {
+    "OVERVIEW": {
+      "TITLE": "Manage spatial unit hierarchies",
+      "DESCRIPTION": "Maintenance of the hierarchies that relate spatial unit levels to each other"
+    },
+    "MANDANT_PANEL": {
+      "LABEL": "Tenant",
+      "ADMIN_HINT": "Platform administrators only",
+      "ALL": "All tenants (overview)",
+      "MANDANT_COUNT": "{{count}} tenants",
+      "HIERARCHY_COUNT": "{{count}} hierarchies",
+      "HIERARCHY_COUNT_ONE": "1 hierarchy",
+      "COUNT": "{{count}} hierarchies for this tenant",
+      "COUNT_ONE": "1 hierarchy for this tenant",
+      "COUNT_ALL": "{{count}} hierarchies across {{mandants}} tenants",
+      "COUNT_ALL_ONE": "1 hierarchy across {{mandants}} tenants",
+      "NONE": "No tenant available",
+      "EMPTY": "No hierarchy has been created yet.",
+      "EMPTY_MANDANT": "No hierarchy has been created for this tenant yet."
+    },
+    "MANDANT_OVERVIEW": {
+      "COL_MANDANT": "Tenant",
+      "COL_HIERARCHIES": "Hierarchies",
+      "COL_LEVELS": "Spatial unit levels",
+      "COL_SHARED": "Used more than once",
+      "COL_ACTIONS": "Actions",
+      "SHARED": "{{count}} levels in several hierarchies",
+      "SHARED_ONE": "1 level in several hierarchies",
+      "SHARED_NONE": "No level in several hierarchies",
+      "OPEN": "Open",
+      "HINT": "Spatial unit levels belong to one tenant — a hierarchy cannot contain levels of another tenant."
+    },
+    "HIERARCHY_CREATE_MODAL": {
+      "TITLE": "Create a new spatial unit hierarchy",
+      "NAME_LABEL": "Name of the hierarchy",
+      "NAME_PLACEHOLDER": "e.g. social space structure",
+      "MANDANT_LABEL": "Tenant",
+      "MANDANT_NONE": "No tenant available",
+      "CHAIN_LABEL": "Level chain",
+      "CHAIN_HINT": "from the largest to the smallest unit — the links are created automatically",
+      "USED_ONCE": "already in 1 hierarchy",
+      "USED_MANY": "already in {{count}} hierarchies",
+      "USED_ELSEWHERE": "(already in another hierarchy)",
+      "REMOVE_LEVEL": "remove",
+      "ADD_LEVEL": "Add level",
+      "NO_LEVELS_LEFT": "No further spatial unit level of this tenant available.",
+      "SUBMIT": "Create hierarchy",
+      "PUBLIC_LABEL": "Make the hierarchy public",
+      "PUBLIC_HINT": "Visible to everyone without logging in — the levels it holds have to be public as well."
+    },
+    "HIERARCHY_EDIT_MODAL": {
+      "TITLE": "Edit spatial unit hierarchy",
+      "NAME_LABEL": "Name of the hierarchy",
+      "PUBLIC_LABEL": "Hierarchy publicly visible",
+      "PUBLIC_HINT": "Visible to everyone without logging in — the levels it holds have to be public as well.",
+      "FIXED_TITLE": "Not editable",
+      "MANDANT_LABEL": "Tenant",
+      "MANDANT_NONE": "No tenant",
+      "CHAIN_LABEL": "Level chain",
+      "CHAIN_EMPTY": "No levels assigned yet",
+      "CHAIN_HINT": "The chain is edited right in the tree, by drag & drop and the insert lines.",
+      "ID_LABEL": "ID",
+      "SUBMIT": "Save changes"
+    },
+    "DELETE_MODAL": {
+      "TITLE": "Delete hierarchy",
+      "CONFIRM_QUESTION": "Really delete this hierarchy?",
+      "HINT": "The hierarchy is removed with all of its levels. The spatial unit levels themselves remain.",
+      "COL_LEVELS": "Levels"
+    },
+    "UNASSIGNED": {
+      "TITLE": "Not part of any hierarchy",
+      "COUNT": "{{count}} spatial unit levels",
+      "COUNT_ONE": "1 spatial unit level",
+      "HINT": "These spatial unit levels are registered, but part of no hierarchy — they are not offered in the map interface. Assign them with the select on the right, or through an insert line in a hierarchy.",
+      "ASSIGN": "Assign",
+      "ASSIGN_LABEL": "Hierarchy the spatial unit level is assigned to",
+      "NO_HIERARCHY": "No hierarchy for this tenant yet",
+      "ASSIGNED": "Level \"{{level}}\" appended to \"{{hierarchy}}\".",
+      "DELETE_TITLE": "Delete the spatial unit level and all its indicator datasets",
+      "DELETE_FORBIDDEN": "Only creators of this spatial unit level may delete it",
+      "REGISTER": "Register new spatial unit level"
+    },
+    "SHOW_IDS": "Show IDs",
+    "NEW_HIERARCHY": "New hierarchy",
+    "EDIT": "Edit",
+    "LOADING": "Loading hierarchies …",
+    "NO_MANDANT_HINT": "A hierarchy belongs to a tenant. Without Keycloak this instance knows none, so creating one is unavailable.",
+    "LEVEL": {
+      "COUNT": "{{count}} levels",
+      "RANK": "Level {{rank}}",
+      "IN_HIERARCHIES": "in {{count}} hierarchies",
+      "REMOVE": "Remove",
+      "MOVE_UP": "One hierarchy level up",
+      "MOVE_DOWN": "One hierarchy level down",
+      "TOGGLE_LABEL": "Expand/collapse sub-levels",
+      "METADATA_TITLE": "Edit the metadata of this spatial unit level",
+      "METADATA_FORBIDDEN": "Only editors of this spatial unit level may change its metadata"
+    },
+    "VISIBILITY": {
+      "PUBLIC": "public",
+      "NOT_PUBLIC": "not public"
+    },
+    "PICKER": {
+      "INSERT_LEVEL": "＋ Insert level here",
+      "INSERT_EXISTING": "Insert an existing spatial unit level",
+      "INSERT_ADD": "Add",
+      "POOL_EMPTY": "No further spatial unit level of this tenant available."
+    },
+    "MSG": {
+      "CREATED": "Hierarchy \"{{hierarchy}}\" created.",
+      "UPDATED": "Hierarchy \"{{hierarchy}}\" updated.",
+      "DELETED": "Hierarchy \"{{hierarchy}}\" deleted.",
+      "INSERTED": "Level \"{{level}}\" inserted into the hierarchy.",
+      "REMOVED": "Level \"{{level}}\" removed from the hierarchy.",
+      "MOVED": "Level \"{{level}}\" moved.",
+      "SAVE_FAILED": "The change could not be saved and has been rolled back.",
+      "CREATE_FAILED": "Hierarchy \"{{hierarchy}}\" could not be created.",
+      "UPDATE_FAILED": "Hierarchy \"{{hierarchy}}\" could not be updated.",
+      "DELETE_FAILED": "Hierarchy \"{{hierarchy}}\" could not be deleted."
+    }
+  },
   "ADMIN_SPATIAL_UNITS": {
     "OVERVIEW": {
       "TITLE": "Manage spatial unit levels",
@@ -1572,6 +1700,30 @@
       "IMPORT_MAPPING_TITLE": "Import mapping configurations from a file",
       "EXPORT_MAPPING_TITLE": "Export mapping configurations to a file"
     },
+    "HIERARCHY_ASSIGNMENT": {
+      "ASSIGNMENT_TITLE": "Assignment to hierarchies",
+      "ASSIGNMENT_LEAD": "Optional, several possible. For each hierarchy either a higher or a lower reference level is given — not both.",
+      "MANDANT_SCOPE_INFO": "Spatial unit levels can only be assigned to hierarchies of a single tenant — the hierarchies and reference levels below belong to \"{{mandant}}\".",
+      "COL_HIERARCHY": "Hierarchy",
+      "COL_PLACEMENT": "Placement",
+      "COL_REFERENCE": "Reference level",
+      "SELECT_HIERARCHY": "-- select hierarchy --",
+      "PLACEMENT_APPEND": "append at the end",
+      "PLACEMENT_ABOVE": "above a level",
+      "PLACEMENT_BELOW": "below a level",
+      "REFERENCE_NOT_NEEDED": "no reference level needed",
+      "SELECT_REFERENCE": "-- select reference level --",
+      "RESULT_APPEND": "Sits at the end of \"{{hierarchy}}\" as the finest level.",
+      "RESULT_APPEND_EMPTY": "Sits as the first level in \"{{hierarchy}}\".",
+      "RESULT_ABOVE": "Sits directly above \"{{level}}\" in \"{{hierarchy}}\".",
+      "RESULT_BELOW": "Sits directly below \"{{level}}\" in \"{{hierarchy}}\".",
+      "REMOVE_ASSIGNMENT": "remove",
+      "ADD_ASSIGNMENT": "+ assign another hierarchy",
+      "ADD_ASSIGNMENT_HINT": "Assignments can be changed later via the hierarchy administration.",
+      "NO_HIERARCHIES": "No hierarchy exists for this tenant yet.",
+      "REFERENCE_REQUIRED": "Please choose a reference level.",
+      "DUPLICATE_HIERARCHY": "Each hierarchy can be assigned only once."
+    },
     "METADATA_STEP": {
       "TITLE": "Spatial unit level metadata",
       "SUBTITLE_ADD": "Information about the new spatial unit level",
@@ -1579,20 +1731,19 @@
       "NAME_LABEL": "Name of the spatial unit level",
       "UNIQUE_NAME_PLACEHOLDER": "unique name",
       "NAME_INVALID": "Invalid input. A spatial unit level with the same name already exists.",
-      "HIERARCHY_LOWER": "Hierarchy: next lower level",
-      "HIERARCHY_UPPER": "Hierarchy: next higher level",
       "SELECT_SPATIAL_UNIT": "-- select spatial unit level --",
-      "NONE_NEW_LOWEST": "-- none (new lowest level) --",
-      "NONE_NEW_UPPERMOST": "-- none (new highest level) --",
-      "HIERARCHY_HINT": "The entry can be set later using the metadata editing function",
-      "HIERARCHY_INVALID": "Invalid input. The defined hierarchy is not allowed.",
       "MARK_AS_OUTLINE_LAYER": "mark as outline layer?",
       "OUTLINE_LAYER_HINT": "if checked, a corresponding entry for displaying the spatial unit level outlines is offered in the layer control of the map application",
       "OUTLINE_COLOR": "Line color (outline layer)",
       "SELECT_OUTLINE_COLOR": "Select line color",
       "OUTLINE_WIDTH": "Line width (outline layer)",
       "OUTLINE_PATTERN": "Line pattern (outline layer)",
-      "SELECT_OUTLINE_PATTERN": "Select line pattern"
+      "SELECT_OUTLINE_PATTERN": "Select line pattern",
+      "MANDANT_LABEL": "Tenant",
+      "MANDANT_HINT": "selectable by platform administrators only — switching resets the assignments",
+      "MANDANT_FIXED_HINT": "set by the view this wizard was opened from — not editable here",
+      "MANDANT_NONE": "No tenant available",
+      "OUTLINE_LAYER_HINT_SHORT": "Offer outlines in the layer control"
     },
     "GENERAL_STEP": {
       "SUBTITLE": "Information about general metadata in KomMonitor"
@@ -1694,7 +1845,8 @@
       "UPDATING": "Updating...",
       "MSG": {
         "METADATA_UPDATED": "Metadata for spatial unit \"{{name}}\" successfully updated.",
-        "METADATA_UPDATE_FAILED": "Error updating the metadata: {{error}}"
+        "METADATA_UPDATE_FAILED": "Error updating the metadata: {{error}}",
+        "HIERARCHY_UPDATE_FAILED": "The metadata was saved, the hierarchy assignments were not, or only in part: {{error}}"
       }
     },
     "EDIT_FEATURES_MODAL": {
@@ -1738,8 +1890,7 @@
       "LOAD_FAILED": "The spatial units could not be loaded."
     },
     "GRID": {
-      "COL_NEXT_LOWER_LEVEL": "Next lower spatial unit level",
-      "COL_NEXT_UPPER_LEVEL": "Next higher spatial unit level",
+      "COL_HIERARCHIES": "Hierarchies",
       "COL_OUTLINE_LINE_COLOR": "Line color (outline layer)",
       "COL_OUTLINE_LINE_WIDTH": "Line width (outline layer)",
       "COL_OUTLINE_LINE_PATTERN": "Line pattern (outline layer)",

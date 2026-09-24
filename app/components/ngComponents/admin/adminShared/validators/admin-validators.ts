@@ -8,15 +8,10 @@ import { validatePeriodOfValidity } from 'services/adminSpatialUnit/spatial-unit
  * the error keys map to the `ADMIN_SHARED_UI.VALIDATION.*` i18n namespace
  * rendered by `<app-form-error>`.
  *
- * The name/hierarchy validators take lazy getters rather than plain arrays so a
- * store that is still loading when the form is built is picked up on the next
+ * The name validators take lazy getters rather than plain arrays so a store
+ * that is still loading when the form is built is picked up on the next
  * `updateValueAndValidity()`.
  */
-
-/** Minimal shape the hierarchy validator needs from a spatial-unit dataset. */
-export interface SpatialUnitLevelRef {
-  spatialUnitLevel: string;
-}
 
 export interface UniqueNameValidatorOptions {
   /**
@@ -79,58 +74,6 @@ export function periodOfValidityValidator(
 
     const validation = validatePeriodOfValidity(startIso as any, endIso as any);
     return validation.isValid ? null : { periodOfValidity: true };
-  };
-}
-
-/**
- * Pure core of `spatialUnitHierarchyValidator`, exported for direct testing.
- *
- * Smaller indices represent coarser spatial units, so the "next lower" level
- * must sit *behind* the "next upper" one in the ordered list. Levels the store
- * does not know are treated as valid — this mirrors the historic
- * implementation, which left its index variables `undefined` and relied on
- * `undefined <= undefined` being false. A naive `findIndex` rewrite would turn
- * that into `-1 <= -1` and start rejecting unknown levels.
- */
-export function isSpatialUnitHierarchyValid(
-  orderedSpatialUnits: readonly SpatialUnitLevelRef[],
-  lowerLevel: string | null | undefined,
-  upperLevel: string | null | undefined
-): boolean {
-  if (!lowerLevel || !upperLevel) {
-    return true;
-  }
-
-  const units = orderedSpatialUnits ?? [];
-  const indexOfLower = units.findIndex((unit) => unit?.spatialUnitLevel === lowerLevel);
-  const indexOfUpper = units.findIndex((unit) => unit?.spatialUnitLevel === upperLevel);
-
-  if (indexOfLower === -1 || indexOfUpper === -1) {
-    return true;
-  }
-
-  return indexOfLower > indexOfUpper;
-}
-
-/**
- * Group validator for the two hierarchy selects of the spatial-unit modals.
- * The controls hold the spatial-unit dataset objects (or null).
- */
-export function spatialUnitHierarchyValidator(
-  orderedSpatialUnits: () => readonly SpatialUnitLevelRef[],
-  lowerKey: string = 'nextLowerHierarchySpatialUnit',
-  upperKey: string = 'nextUpperHierarchySpatialUnit'
-): ValidatorFn {
-  return (group: AbstractControl): ValidationErrors | null => {
-    const lower = group.get(lowerKey)?.value as SpatialUnitLevelRef | null;
-    const upper = group.get(upperKey)?.value as SpatialUnitLevelRef | null;
-
-    const valid = isSpatialUnitHierarchyValid(
-      orderedSpatialUnits() ?? [],
-      lower?.spatialUnitLevel,
-      upper?.spatialUnitLevel
-    );
-    return valid ? null : { spatialUnitHierarchy: true };
   };
 }
 

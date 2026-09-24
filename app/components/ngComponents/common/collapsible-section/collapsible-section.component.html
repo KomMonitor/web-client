@@ -1,0 +1,45 @@
+<div class="section" [class]="'tone-' + tone()">
+  <div class="section-header">
+    @if (collapsible()) {
+      <button
+        type="button"
+        class="section-toggle"
+        [attr.aria-expanded]="open()"
+        [attr.aria-controls]="bodyId"
+        (click)="toggle()"
+      >
+        <span
+          class="section-caret fa"
+          aria-hidden="true"
+          [class.fa-angle-down]="open()"
+          [class.fa-angle-right]="!open()"
+        ></span>
+        <ng-container [ngTemplateOutlet]="headerLabel"></ng-container>
+      </button>
+    } @else {
+      <div class="section-toggle static">
+        <ng-container [ngTemplateOutlet]="headerLabel"></ng-container>
+      </div>
+    }
+
+    <!-- Sibling of the toggle, never nested inside it: action buttons must stay
+         separately focusable and must not swallow the toggle's click. -->
+    <div class="section-actions">
+      <ng-content select="[header-actions]"></ng-content>
+    </div>
+  </div>
+
+  <div class="section-body" [id]="bodyId" [ngbCollapse]="collapsed()">
+    <ng-content></ng-content>
+  </div>
+</div>
+
+<ng-template #headerLabel>
+  <span class="section-title">{{ title() }}</span>
+  @if (showId() && idLabel()) {
+    <span class="section-id">{{ idLabel() }}</span>
+  }
+  @if (meta()) {
+    <span class="section-meta">{{ meta() }}</span>
+  }
+</ng-template>

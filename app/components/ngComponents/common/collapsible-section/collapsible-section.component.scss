@@ -1,0 +1,155 @@
+:host {
+  display: block;
+
+  .section {
+    background: #ffffff;
+    border: 1px solid #d2d6de;
+    border-radius: 3px;
+    // Keeps the coloured header from bleeding past the rounded corners.
+    overflow: hidden;
+    margin-bottom: 1em;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+  }
+
+  // The toggle is a real <button>; strip the browser chrome so it reads as a
+  // header row, and let it shrink so the title ellipsis can kick in. Items align
+  // on the baseline, not the centre, so the title, the id chip and the meta text
+  // sit on one line despite their different font sizes.
+  .section-toggle {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex: 1 1 auto;
+    min-width: 0;
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+
+    &.static {
+      cursor: default;
+    }
+
+    &:focus-visible {
+      outline: 2px solid currentcolor;
+      outline-offset: 2px;
+    }
+  }
+
+  // The icon has no meaningful baseline, so keep it centred on the title line.
+  .section-caret {
+    flex: 0 0 auto;
+    align-self: center;
+    width: 12px;
+    font-size: 13px;
+    text-align: center;
+  }
+
+  .section-title {
+    min-width: 0;
+    font-size: 16px;
+    line-height: 1.2;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .section-id {
+    min-width: 0;
+    flex: 0 1 auto;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 11.5px;
+    line-height: 1.2;
+    padding: 2px 7px;
+    border-radius: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .section-meta {
+    flex: 0 0 auto;
+    font-size: 13.5px;
+    line-height: 1.2;
+    opacity: 0.85;
+    white-space: nowrap;
+  }
+
+  .section-actions {
+    flex: 0 0 auto;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    // Spaces the projected action buttons; mark each one with `header-actions`
+    // rather than wrapping them in a single container, or this has no effect.
+    gap: 8px;
+    white-space: nowrap;
+
+    // Collapses the gap when nothing is projected into the slot.
+    &:empty {
+      display: none;
+    }
+  }
+
+  .section-body {
+    padding: 10px 12px;
+  }
+
+  // Tones. 'primary' is the solid accent bar; the level tones reuse the
+  // hierarchy tints from app.scss and keep dark text for contrast.
+  .tone-primary .section-header {
+    background: var(--kommonitor-primary);
+    color: #ffffff;
+
+    .section-id {
+      background: rgb(255 255 255 / 0.18);
+    }
+  }
+
+  .tone-muted .section-header {
+    background: var(--kommonitor-section-muted);
+    color: #ffffff;
+
+    .section-id {
+      background: rgb(255 255 255 / 0.18);
+    }
+  }
+
+  .tone-level-0 .section-header,
+  .tone-level-1 .section-header,
+  .tone-level-2 .section-header,
+  .tone-level-3 .section-header {
+    color: #333333;
+
+    .section-id {
+      background: rgb(255 255 255 / 0.55);
+    }
+  }
+
+  .tone-level-0 .section-header {
+    background: var(--kommonitor-hierarchy-level-0);
+  }
+
+  .tone-level-1 .section-header {
+    background: var(--kommonitor-hierarchy-level-1);
+  }
+
+  .tone-level-2 .section-header {
+    background: var(--kommonitor-hierarchy-level-2);
+  }
+
+  .tone-level-3 .section-header {
+    background: var(--kommonitor-hierarchy-level-3);
+  }
+}

@@ -1,4 +1,14 @@
-<div class="tile" [style.background-color]="boxColor" [style.color]="textColor">
+<div
+  class="tile"
+  [class.clickable]="clickable"
+  [style.background-color]="boxColor"
+  [style.color]="textColor"
+  [attr.role]="clickable ? 'button' : null"
+  [attr.tabindex]="clickable ? 0 : null"
+  (click)="onActivate()"
+  (keydown.enter)="onActivate()"
+  (keydown.space)="onSpace($event)"
+>
   <div class="inner">
     <div class="title">{{ titleText }}</div>
     <div class="description">{{ descriptionText }}</div>

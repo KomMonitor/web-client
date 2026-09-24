@@ -1,0 +1,19 @@
+<div class="modal-header" [style.border-bottom]="'3px solid ' + accentColor">
+  <h4 class="modal-title">{{ titleText }}</h4>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="close()"
+  ></button>
+</div>
+
+<div class="modal-body">
+  <app-job-overview-table [rows]="rows" height="65vh" />
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="close()">
+    {{ 'ADMIN_SHARED.CLOSE' | translate }}
+  </button>
+</div>

@@ -66,6 +66,25 @@ When implementing features, work in the `ngComponents` / `services` (TypeScript)
 
 Do not delete these. Other `*_backup*` / `*_old` files are genuine cruft.
 
+### Pointing the client at the v6 backend
+
+The demo's config service answers `apiUrl = …/data-management/`, an older deployment that knows no
+spatial unit hierarchies (`/spatial-unit-hierarchies` → 404) and returns spatial units without
+`mandantId` — while the vendored spec in `api-specs/` is the v6 one, so the generated types describe
+v6 and not that instance. Two things point the client at v6:
+
+- `app/assets/env_local.js` loads the demo's own app config and then sets `apiUrl` to the v6
+  deployment. It fetches rather than copies, so nothing goes stale when the demo's config changes —
+  only that one line is ours. It lives under `app/assets/`, which `angular.json` serves wholesale, so
+  it needs no asset entry of its own.
+- `app/config/config-storage-server.json` points `targetUrlToConfigStorageServer_appConfig` at it.
+  The other four URLs still point at the demo, so Keycloak, controls and filter config come from
+  there as before.
+
+**That second file is a shipped runtime config**: committed as it stands, a deployed build would look
+for the app config in its own assets instead of at its config service. Keep the line pointing at the
+demo in anything that gets released.
+
 ## Architecture
 
 ### Startup & runtime configuration
@@ -77,7 +96,7 @@ The app is configured at **runtime**, not build time. `StartupService` (`app/ser
 3. Populates the global **`window.__env`** object (typed loosely in `app/globals.d.ts`).
 4. Initializes Keycloak auth via `AuthService` / `KeycloakHelperService`.
 
-**Access config through `EnvConfigService`** (`app/services/env-config-service/env-config.service.ts`), which wraps `window.__env` with typed getters. Direct `window.__env` reads are almost gone from live code — the notable exception is `adminAppConfig/admin-app-config.component.ts`, which edits the config object itself. Always use the service in new code.
+**Access config through `EnvConfigService`** (`app/services/env-config-service/env-config.service.ts`), which wraps `window.__env` with typed getters. Direct `window.__env` reads are gone from live code. The 43 occurrences in `adminAppConfig/admin-app-config.component.ts` look like an exception but are not: they are **string literals** naming the required config keys (`REQUIRED_KEYWORDS`). That editor works on the _source text_ of `env.js` — it reads it via `EnvConfigService.appConfig` and posts it back through `ConfigStorageService`; it never touches the config object. Always use the service in new code.
 
 ### Auth
 
@@ -123,7 +142,13 @@ The client is non-functional without these backends (configured via the runtime 
 - **Data Management API** — main data retrieval/modification.
 - **Client Config Service** — serves app/keycloak/controls/filter config on startup.
 - **Importer** — spatial insert/update for spatial-units, georesources, indicators (admin pages).
-- **Processing Engine** — indicator computation.
+- **OGC Processes API** — process catalogue, schedules and jobs; it replaced the Processing Engine
+  as the client's computation backend. Queried at startup (`ProcessesApiService`,
+  `ProcessCatalogStoreService`); `schedules` and `jobs` require a token, `processes` does not, so
+  reads there resolve empty on error instead of throwing. Writes (creating and deleting a schedule,
+  triggering a run) rethrow instead. What the API actually answers is recorded in
+  `documentation/PROCESSES_API_BEFUNDE.md` — it ships no usable OpenAPI document, so the
+  client's types are hand-maintained against that record.
 - **Open Route Service** — on-the-fly isochrones/routing.
 - **Keycloak** (optional) — role-based access.
 

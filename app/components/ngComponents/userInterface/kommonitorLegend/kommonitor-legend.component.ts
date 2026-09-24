@@ -11,9 +11,10 @@ import {
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import {
   CATEGORICAL_OTHER_COLOR,
-  CategoricalClassificationItem,
-  ExtendedDefaultClassificationMapping,
+  ClassificationMapping,
 } from 'components/ngComponents/models/classification.models';
+import { SpatialUnitHierarchyOverviewType } from 'components/ngComponents/models/spatial-units.models';
+import { CategoricalMappingType } from 'models/data-management-api';
 import { ActiveWmsFilter } from 'pipes/active-wms-filter.pipe';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
@@ -30,6 +31,7 @@ import { MetadataExportService } from 'services/metadata-export-service/metadata
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { ShareHelperService } from 'services/share-helper-service/share-helper.service';
+import { SpatialUnitHierarchyService } from 'services/spatial-unit-hierarchy-service/spatial-unit-hierarchy.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { IndicatorExportModalComponent } from '../exporting/indicator-export-modal/indicator-export-modal.component';
 import { KommonitorClassificationComponent } from '../kommonitorClassification/kommonitor-classification.component';
@@ -69,6 +71,7 @@ export class KommonitorLegendComponent implements OnInit {
   private mapService = inject(MapService);
   protected envConfigService = inject(EnvConfigService);
   private dataSetupService = inject(KommonitorDataSetupService);
+  private spatialUnitHierarchyService = inject(SpatialUnitHierarchyService);
 
   elementVisibilityData: any;
   visualStyleData: any;
@@ -103,6 +106,13 @@ export class KommonitorLegendComponent implements OnInit {
   isDisabledDate;
   datePickerDate;
 
+  /** hierarchyId of the currently active hierarchy filter, if any. */
+  protected selectedHierarchyId: string | undefined;
+  /** spatialUnitId -> hierarchyLevel of the active hierarchy's members, used to filter/order the Raumebene select. */
+  private activeHierarchyMemberLevels: Map<string, number> | undefined;
+  /** All hierarchies available for the legend's "Hierachie" buttons, fetched once on init. */
+  private hierarchies: SpatialUnitHierarchyOverviewType[] = [];
+
   /** Per-class labels of the current indicator's default classification, index-aligned to the class positions. */
   protected get classificationLabels(): string[] {
     return this.selectionState.selectedIndicator?.defaultClassificationMapping?.labels ?? [];
@@ -134,20 +144,28 @@ export class KommonitorLegendComponent implements OnInit {
   /** Fill color / legend swatch of the categorical "Sonstige" (unmatched) bucket. */
   protected readonly categoricalOtherColor = CATEGORICAL_OTHER_COLOR;
 
-  /** Whether the current indicator uses a qualitative (categorical) classification. */
+  /**
+   * Whether the current indicator uses a qualitative (categorical) classification.
+   *
+   * Note this is stricter than `isQualitativeMapping()`, which the map and the
+   * reporting pipeline use: it goes by the discriminator alone and does not treat
+   * a mapping that merely carries `categoricalData` as qualitative. Kept that way
+   * on purpose — widening it here would change what the legend renders for such
+   * datasets. The two should be reconciled, but not as a side effect of typing.
+   */
   protected get isQualitativeClassification(): boolean {
     const mapping = this.selectionState.selectedIndicator?.defaultClassificationMapping as
-      | ExtendedDefaultClassificationMapping
+      | ClassificationMapping
       | undefined;
     return mapping?.classificationType === 'QUALITATIVE';
   }
 
   /** Category definitions (value/color/label) of the current qualitative classification. */
-  protected get categoricalClassification(): CategoricalClassificationItem[] {
+  protected get categoricalClassification(): CategoricalMappingType[] {
     const mapping = this.selectionState.selectedIndicator?.defaultClassificationMapping as
-      | ExtendedDefaultClassificationMapping
+      | ClassificationMapping
       | undefined;
-    return mapping?.categoricalData ?? [];
+    return mapping?.classificationType === 'QUALITATIVE' ? mapping.categoricalData : [];
   }
 
   // Resolve the indicator precision from the current selection before
@@ -160,6 +178,10 @@ export class KommonitorLegendComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.spatialUnitHierarchyService.fetchAllHierarchies().then((hierarchies) => {
+      this.hierarchies = hierarchies;
+    });
+
     $(document).ready(function () {
       $('.nav li.disabled a').click(function () {
         return false;
@@ -243,10 +265,79 @@ export class KommonitorLegendComponent implements OnInit {
     );
   }
 
-  filteredSpatialUnits() {
+  /** Spatial units of the store that are available for the currently selected indicator, regardless of hierarchy filter. */
+  private spatialUnitsForCurrentIndicator() {
     return this.spatialUnitStore.availableSpatialUnits.filter(
       (e) => this.selectionState.isAllowedSpatialUnitForCurrentIndicator(e) !== false
     );
+  }
+
+  /** hierarchyIds any spatial unit of the current indicator is a member of. */
+  private applicableHierarchyIds(): Set<string> {
+    const memberHierarchyIds = new Set<string>();
+    for (const unit of this.spatialUnitsForCurrentIndicator()) {
+      for (const membership of unit.hierarchies ?? []) {
+        memberHierarchyIds.add(membership.hierarchyId);
+      }
+    }
+    return memberHierarchyIds;
+  }
+
+  filteredSpatialUnits() {
+    const allowedForIndicator = this.spatialUnitsForCurrentIndicator();
+
+    // Ignore a hierarchy filter left over from a previous indicator selection that doesn't
+    // apply here - e.g. the current indicator's spatial unit isn't part of any hierarchy at
+    // all, in which case it must still show up unfiltered.
+    if (
+      !this.activeHierarchyMemberLevels ||
+      !this.selectedHierarchyId ||
+      !this.applicableHierarchyIds().has(this.selectedHierarchyId)
+    ) {
+      return allowedForIndicator;
+    }
+
+    const memberLevels = this.activeHierarchyMemberLevels;
+    return allowedForIndicator
+      .filter((e) => memberLevels.has(e.spatialUnitId))
+      .sort((a, b) => memberLevels.get(a.spatialUnitId)! - memberLevels.get(b.spatialUnitId)!);
+  }
+
+  /**
+   * All hierarchies any spatial unit of the current indicator is a member of, for the
+   * legend's "Hierachie" buttons. A hierarchy is included once even if several of the
+   * indicator's spatial units belong to it.
+   */
+  protected availableHierarchies(): SpatialUnitHierarchyOverviewType[] {
+    const memberHierarchyIds = this.applicableHierarchyIds();
+    return this.hierarchies.filter((hierarchy) => memberHierarchyIds.has(hierarchy.hierarchyId));
+  }
+
+  async onClickHierarchy(hierarchy: SpatialUnitHierarchyOverviewType) {
+    if (this.selectedHierarchyId === hierarchy.hierarchyId) {
+      // clicking the active hierarchy again clears the filter
+      this.selectedHierarchyId = undefined;
+      this.activeHierarchyMemberLevels = undefined;
+    } else {
+      const hierarchyMembers = await this.spatialUnitHierarchyService.fetchHierarchyMembers(
+        hierarchy.hierarchyId
+      );
+      if (!hierarchyMembers) {
+        return;
+      }
+      this.selectedHierarchyId = hierarchy.hierarchyId;
+      this.activeHierarchyMemberLevels = new Map(
+        hierarchyMembers.members.map((member) => [member.spatialUnitId, member.hierarchyLevel])
+      );
+    }
+
+    // the hierarchy filter just changed the applicable spatial units - always select the
+    // first one and run the usual spatial-unit-change side effects (map update, notifications).
+    const [firstApplicableSpatialUnit] = this.filteredSpatialUnits();
+    if (firstApplicableSpatialUnit) {
+      this.selectionState.selectedSpatialUnit = firstApplicableSpatialUnit;
+      this.onChangeSelectedSpatialUnit();
+    }
   }
 
   onChangeIndicatorDatepickerDate() {

@@ -1,0 +1,265 @@
+<fieldset class="mb-4">
+  <legend class="fs-6 fw-bold">{{ 'ADMIN_SCRIPTS.ADD_MODAL.TARGET_TIMES' | translate }}</legend>
+
+  <div class="mb-3">
+    @for (mode of targetTimeModes; track mode) {
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="targetTimeMode"
+          [id]="'targetTimeMode_' + mode"
+          [checked]="draft.targetTime().mode === mode"
+          (change)="setTargetTimeMode(mode)"
+        />
+        <label class="form-check-label" [for]="'targetTimeMode_' + mode">
+          {{ 'ADMIN_SCRIPTS.GRID.TARGET_TIME_' + mode | translate }}
+        </label>
+      </div>
+    }
+  </div>
+
+  @if (draft.applicableDates().length > 0) {
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label">
+          @if (draft.targetTime().mode === 'DATES') {
+            {{ 'ADMIN_SCRIPTS.GRID.TARGET_TIME_INCLUDE' | translate }}
+          } @else {
+            {{ 'ADMIN_SCRIPTS.GRID.TARGET_TIME_INCLUDE_ADDITIONAL' | translate }}
+          }
+        </label>
+        <div class="border rounded p-2" style="max-height: 12rem; overflow: auto">
+          @for (date of draft.applicableDates(); track date) {
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                [id]="'include_' + date"
+                [checked]="isSelected('includeDates', date)"
+                (change)="toggleDate('includeDates', date)"
+              />
+              <label class="form-check-label" [for]="'include_' + date">{{ date }}</label>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">
+          {{ 'ADMIN_SCRIPTS.GRID.TARGET_TIME_EXCLUDE' | translate }}
+        </label>
+        <div class="border rounded p-2" style="max-height: 12rem; overflow: auto">
+          @for (date of draft.applicableDates(); track date) {
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                [id]="'exclude_' + date"
+                [checked]="isSelected('excludeDates', date)"
+                (change)="toggleDate('excludeDates', date)"
+              />
+              <label class="form-check-label" [for]="'exclude_' + date">{{ date }}</label>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  } @else {
+    <p class="text-muted small">{{ 'ADMIN_SCRIPTS.ADD_MODAL.NO_COMMON_DATES' | translate }}</p>
+  }
+</fieldset>
+
+<fieldset>
+  <legend class="fs-6 fw-bold">{{ 'ADMIN_SCRIPTS.ADD_MODAL.EXECUTION_TIME' | translate }}</legend>
+
+  <div class="form-check form-switch mb-3">
+    <input
+      class="form-check-input"
+      type="checkbox"
+      id="manualCronSwitch"
+      [checked]="draft.useManualCron()"
+      (change)="onToggleManual($any($event.target).checked)"
+    />
+    <label class="form-check-label" for="manualCronSwitch">
+      {{ 'ADMIN_SCRIPTS.ADD_MODAL.MANUAL_CRON' | translate }}
+    </label>
+  </div>
+
+  @if (draft.useManualCron()) {
+    <input
+      class="form-control"
+      [class.is-invalid]="!cronValid()"
+      [value]="draft.manualCron()"
+      (input)="draft.manualCron.set($any($event.target).value)"
+    />
+  } @else {
+    <div class="mb-3">
+      @for (mode of modes; track mode) {
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="cronMode"
+            [id]="'cronMode_' + mode"
+            [checked]="draft.cronSelection().mode === mode"
+            (change)="setCron('mode', mode)"
+          />
+          <label class="form-check-label" [for]="'cronMode_' + mode">
+            {{ cronModeLabelKey(mode) | translate }}
+          </label>
+        </div>
+      }
+    </div>
+
+    <div class="row g-2 align-items-end">
+      @if (draft.cronSelection().mode === 'interval') {
+        <div class="col-auto">
+          <label class="form-label">{{ 'ADMIN_SCRIPTS.ADD_MODAL.CRON_EVERY' | translate }}</label>
+          <input
+            type="number"
+            min="1"
+            class="form-control"
+            [value]="draft.cronSelection().intervalValue"
+            (input)="setCronNumber('intervalValue', $any($event.target).value)"
+          />
+        </div>
+        <div class="col-auto">
+          <label class="form-label">{{ 'ADMIN_SCRIPTS.ADD_MODAL.CRON_UNIT' | translate }}</label>
+          <select
+            class="form-select"
+            [ngModel]="draft.cronSelection().unit"
+            (ngModelChange)="setCron('unit', $event)"
+          >
+            @for (unit of intervalUnits; track unit) {
+              <option [value]="unit">{{ cronUnitLabelKey(unit) | translate }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      @if (draft.cronSelection().mode === 'once') {
+        <div class="col-auto">
+          <label class="form-label">{{ 'ADMIN_SCRIPTS.ADD_MODAL.CRON_UNIT' | translate }}</label>
+          <select
+            class="form-select"
+            [ngModel]="draft.cronSelection().unit"
+            (ngModelChange)="setCron('unit', $event)"
+          >
+            @for (unit of onceUnits; track unit) {
+              <option [value]="unit">{{ cronUnitLabelKey(unit) | translate }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      @if (draft.cronSelection().mode === 'everyFirst') {
+        <div class="col-auto">
+          <label class="form-label">{{
+            'ADMIN_SCRIPTS.ADD_MODAL.CRON_EVERY_FIRST_IN' | translate
+          }}</label>
+          <select
+            class="form-select"
+            [ngModel]="draft.cronSelection().everyFirstIn"
+            (ngModelChange)="setCron('everyFirstIn', $event)"
+          >
+            <option value="month">
+              {{ 'ADMIN_SCRIPTS.ADD_MODAL.CRON_UNIT_MONTH' | translate }}
+            </option>
+            <option value="year">
+              {{ 'ADMIN_SCRIPTS.ADD_MODAL.CRON_UNIT_YEAR' | translate }}
+            </option>
+          </select>
+        </div>
+      }
+
+      @if (draft.cronSelection().mode === 'everyFirst' || draft.cronSelection().unit === 'week') {
+        <div class="col-auto">
+          <label class="form-label">{{ 'ADMIN_SCRIPTS.ADD_MODAL.CRON_WEEKDAY' | translate }}</label>
+          <select
+            class="form-select"
+            [ngModel]="draft.cronSelection().dayOfWeek"
+            (ngModelChange)="setCron('dayOfWeek', $event)"
+          >
+            @for (day of weekdays; track day) {
+              <option [ngValue]="day">
+                {{ 'ADMIN_SCRIPTS.ADD_MODAL.WEEKDAY_' + day | translate }}
+              </option>
+            }
+          </select>
+        </div>
+      }
+
+      @if (draft.cronSelection().unit === 'month' || draft.cronSelection().unit === 'year') {
+        <div class="col-auto">
+          <label class="form-label">{{
+            'ADMIN_SCRIPTS.ADD_MODAL.CRON_DAY_OF_MONTH' | translate
+          }}</label>
+          <input
+            type="number"
+            min="1"
+            max="31"
+            class="form-control"
+            [value]="draft.cronSelection().dayOfMonth"
+            (input)="setCronNumber('dayOfMonth', $any($event.target).value)"
+          />
+        </div>
+      }
+
+      @if (
+        draft.cronSelection().unit === 'year' ||
+        (draft.cronSelection().mode === 'everyFirst' &&
+          draft.cronSelection().everyFirstIn === 'year')
+      ) {
+        <div class="col-auto">
+          <label class="form-label">{{ 'ADMIN_SCRIPTS.ADD_MODAL.CRON_MONTH' | translate }}</label>
+          <select
+            class="form-select"
+            [ngModel]="draft.cronSelection().month"
+            (ngModelChange)="setCron('month', $event)"
+          >
+            @for (month of months; track month) {
+              <option [ngValue]="month">{{ month }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      <div class="col-auto">
+        <label class="form-label">{{ 'ADMIN_SCRIPTS.ADD_MODAL.CRON_HOUR' | translate }}</label>
+        <input
+          type="number"
+          min="0"
+          max="23"
+          class="form-control"
+          [value]="draft.cronSelection().hour"
+          (input)="setCronNumber('hour', $any($event.target).value)"
+        />
+      </div>
+      <div class="col-auto">
+        <label class="form-label">{{ 'ADMIN_SCRIPTS.ADD_MODAL.CRON_MINUTE' | translate }}</label>
+        <input
+          type="number"
+          min="0"
+          max="59"
+          class="form-control"
+          [value]="draft.cronSelection().minute"
+          (input)="setCronNumber('minute', $any($event.target).value)"
+        />
+      </div>
+    </div>
+  }
+
+  <div class="mt-3">
+    <code>{{ draft.cron() }}</code>
+    @if (cronValid()) {
+      <div>{{ cronText() }}</div>
+      <div class="text-muted">
+        <small>{{ 'ADMIN_SCRIPTS.GRID.NEXT_EXECUTION' | translate }}:</small>
+        <i class="far fa-calendar"></i> {{ nextRun() }}
+      </div>
+    } @else {
+      <div class="text-danger">{{ 'ADMIN_SCRIPTS.ADD_MODAL.CRON_INVALID' | translate }}</div>
+    }
+  </div>
+</fieldset>

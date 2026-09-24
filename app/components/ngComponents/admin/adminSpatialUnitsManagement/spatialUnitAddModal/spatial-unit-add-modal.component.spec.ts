@@ -11,12 +11,15 @@ import { AccessControlService } from 'services/access-control-service/access-con
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { SpatialUnitHierarchyApiService } from 'services/spatial-unit-hierarchy-service/spatial-unit-hierarchy-api.service';
+import { MandantService } from 'services/mandant-service/mandant.service';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { ResourceImportService } from 'services/resource-import-service/resource-import.service';
 import { SpatialUnitPOSTInputType } from 'models/data-management-api';
 
 import { patchPeriodOfValidityForm } from '../../adminShared/periodOfValidityForm/period-of-validity-form.model';
 import { SpatialUnitAddModalComponent } from './spatial-unit-add-modal.component';
+import { buildAssignmentRow } from '../hierarchyAssignment/hierarchy-assignment.model';
 import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
 
 /**
@@ -49,7 +52,17 @@ const POST_REQUIRED_FIELDS: (keyof SpatialUnitPOSTInputType)[] = [
   'isPublic',
 ];
 
-// Ordered coarse -> fine; the hierarchy check compares array indices.
+const HIERARCHIES = [
+  {
+    hierarchyId: 'h-1',
+    name: 'Verwaltung',
+    mandantId: 'm-1',
+    isPublic: false,
+    members: [{ spatialUnitId: 'su-city', hierarchyLevel: 0 }],
+  },
+  { hierarchyId: 'h-own', name: 'Eigene', mandantId: 'm-own', isPublic: false, members: [] },
+];
+
 const SPATIAL_UNITS = [
   { spatialUnitId: 'su-city', spatialUnitLevel: 'Stadt' },
   { spatialUnitId: 'su-district', spatialUnitLevel: 'Stadtteile' },
@@ -136,6 +149,24 @@ describe('SpatialUnitAddModalComponent', () => {
           useValue: { accessControl: [], currentKeycloakLoginRoles: [] },
         },
         {
+          provide: SpatialUnitHierarchyApiService,
+          useValue: { getHierarchies: jest.fn().mockResolvedValue(HIERARCHIES) },
+        },
+        {
+          provide: MandantService,
+          // 'org-1' sits under tenant 'm-1'; the user's own tenant is 'm-own'.
+          useValue: {
+            mandantIdOfOwner: (owner: string) => (owner === 'org-1' ? 'm-1' : ''),
+            ownMandantRef: { id: 'm-own', name: 'Eigener Mandant' },
+            mandantRefs: [
+              { id: 'm-1', name: 'Stadt Essen' },
+              { id: 'm-own', name: 'Eigener Mandant' },
+            ],
+            mandantNameOf: (id: string) => (id === 'm-1' ? 'Stadt Essen' : 'Eigener Mandant'),
+            isRealmAdmin: true,
+          },
+        },
+        {
           provide: MetadataBootstrapService,
           useValue: { fetchAccessControlMetadata: jest.fn().mockResolvedValue(undefined) },
         },
@@ -194,6 +225,52 @@ describe('SpatialUnitAddModalComponent', () => {
   });
 
   // ---------------------------------------------------------------------------
+  // hierarchy options
+  // ---------------------------------------------------------------------------
+
+  describe('tenant of the new level', () => {
+    beforeEach(async () => {
+      component.ngOnInit();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    it('hands the step every hierarchy — the narrowing happens there', () => {
+      // The tenant is chosen in the step and may change while the dialog is
+      // open, so a list filtered here would go stale on the first switch.
+      expect(component.allHierarchies.map((entry) => entry.hierarchyId)).toEqual(['h-1', 'h-own']);
+    });
+
+    it("starts on the user's own tenant, which then narrows the owner select", () => {
+      expect(metadataGroup().controls.mandantId.value).toBe('m-own');
+      expect(component.chosenMandantId).toBe('m-own');
+    });
+
+    it('keeps the tenant a caller fixed instead of seeding the own one', async () => {
+      component.lockedMandantId = 'm-1';
+
+      component.ngOnInit();
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(metadataGroup().controls.mandantId.value).toBe('m-1');
+    });
+
+    it('drops the assignments and the owner when the tenant changes', () => {
+      metadataGroup().controls.hierarchyAssignments.push(
+        buildAssignmentRow({ hierarchyId: 'h-1' })
+      );
+      securityGroup().patchValue({ ownerOrganization: 'org-1' });
+
+      metadataGroup().controls.mandantId.setValue('m-1');
+
+      // Both named things of the old tenant; the backend would refuse either.
+      expect(metadataGroup().controls.hierarchyAssignments.length).toBe(0);
+      expect(securityGroup().controls.ownerOrganization.value).toBe('');
+    });
+  });
+
+  // ---------------------------------------------------------------------------
   // buildPostBody_spatialUnits
   // ---------------------------------------------------------------------------
 
@@ -221,23 +298,52 @@ describe('SpatialUnitAddModalComponent', () => {
       expect(component.buildPostBody_spatialUnits().geoJsonString).toBe('');
     });
 
-    it('reduces the hierarchy selections to their level names', () => {
-      metadataGroup().patchValue({
-        nextLowerHierarchySpatialUnit: SPATIAL_UNITS[2],
-        nextUpperHierarchySpatialUnit: SPATIAL_UNITS[0],
-      });
-
+    it('carries no hierarchy placement — v6 assigns that separately', () => {
       const body = component.buildPostBody_spatialUnits();
 
-      expect(body.nextLowerHierarchyLevel).toBe('Baublöcke');
-      expect(body.nextUpperHierarchyLevel).toBe('Stadt');
+      expect(body).not.toHaveProperty('nextLowerHierarchyLevel');
+      expect(body).not.toHaveProperty('nextUpperHierarchyLevel');
     });
 
-    it('sends null for an unset hierarchy level', () => {
-      const body = component.buildPostBody_spatialUnits();
+    it('carries no hierarchy placement while none is picked', () => {
+      expect(component.buildPostBody_spatialUnits().hierarchies).toEqual([]);
+    });
 
-      expect(body.nextLowerHierarchyLevel).toBeNull();
-      expect(body.nextUpperHierarchyLevel).toBeNull();
+    it('appends the new level behind the last member of the picked hierarchy', async () => {
+      component.ngOnInit();
+      await Promise.resolve();
+      await Promise.resolve();
+      metadataGroup().controls.hierarchyAssignments.push(
+        buildAssignmentRow({ hierarchyId: 'h-1' })
+      );
+
+      // The POST places a new level by its neighbours: h-1 ends with 'su-city',
+      // so the new one goes below it and has no lower neighbour of its own.
+      expect(component.buildPostBody_spatialUnits().hierarchies).toEqual([
+        { hierarchyId: 'h-1', nextUpperSpatialUnitId: 'su-city' },
+      ]);
+    });
+
+    it('sends one entry per assignment, in the order of the rows', async () => {
+      component.ngOnInit();
+      await Promise.resolve();
+      await Promise.resolve();
+      metadataGroup().controls.hierarchyAssignments.push(
+        buildAssignmentRow({ hierarchyId: 'h-own' })
+      );
+      metadataGroup().controls.hierarchyAssignments.push(
+        buildAssignmentRow({
+          hierarchyId: 'h-1',
+          placement: 'above',
+          referenceSpatialUnitId: 'su-city',
+        })
+      );
+
+      expect(component.buildPostBody_spatialUnits().hierarchies).toEqual([
+        // 'h-own' is empty, so the level becomes its first one.
+        { hierarchyId: 'h-own' },
+        { hierarchyId: 'h-1', nextLowerSpatialUnitId: 'su-city' },
+      ]);
     });
 
     it('normalises the period of validity to ISO strings', () => {
@@ -345,63 +451,6 @@ describe('SpatialUnitAddModalComponent', () => {
     });
   });
 
-  describe('checkSpatialUnitHierarchy', () => {
-    it('accepts a lower level that is finer than the upper one', () => {
-      metadataGroup().patchValue({
-        nextLowerHierarchySpatialUnit: SPATIAL_UNITS[2], // Baublöcke (index 2)
-        nextUpperHierarchySpatialUnit: SPATIAL_UNITS[0], // Stadt (index 0)
-      });
-
-      component.checkSpatialUnitHierarchy();
-
-      expect(component.hierarchyInvalid).toBe(false);
-    });
-
-    it('rejects a lower level that is coarser than the upper one', () => {
-      metadataGroup().patchValue({
-        nextLowerHierarchySpatialUnit: SPATIAL_UNITS[0],
-        nextUpperHierarchySpatialUnit: SPATIAL_UNITS[2],
-      });
-
-      component.checkSpatialUnitHierarchy();
-
-      expect(component.hierarchyInvalid).toBe(true);
-    });
-
-    it('rejects the same level on both ends', () => {
-      metadataGroup().patchValue({
-        nextLowerHierarchySpatialUnit: SPATIAL_UNITS[1],
-        nextUpperHierarchySpatialUnit: SPATIAL_UNITS[1],
-      });
-
-      component.checkSpatialUnitHierarchy();
-
-      expect(component.hierarchyInvalid).toBe(true);
-    });
-
-    it('stays valid while only one end is selected', () => {
-      metadataGroup().patchValue({
-        nextLowerHierarchySpatialUnit: SPATIAL_UNITS[0],
-        nextUpperHierarchySpatialUnit: null,
-      });
-
-      component.checkSpatialUnitHierarchy();
-
-      expect(component.hierarchyInvalid).toBe(false);
-    });
-
-    it('stays valid when a selected level is unknown to the store', () => {
-      metadataGroup().patchValue({
-        nextLowerHierarchySpatialUnit: { spatialUnitLevel: 'Fremd' } as any,
-        nextUpperHierarchySpatialUnit: { spatialUnitLevel: 'Auch fremd' } as any,
-      });
-
-      component.checkSpatialUnitHierarchy();
-
-      expect(component.hierarchyInvalid).toBe(false);
-    });
-  });
-
   describe('checkPeriodOfValidity', () => {
     it('accepts a start before the end', () => {
       setPeriod({ startDate: '2026-01-01', endDate: '2026-12-31' });
@@ -458,10 +507,7 @@ describe('SpatialUnitAddModalComponent', () => {
     });
 
     it('clears the entered values and the wizard step', () => {
-      metadataGroup().patchValue({
-        spatialUnitLevel: 'Quartiere',
-        nextLowerHierarchySpatialUnit: SPATIAL_UNITS[2],
-      });
+      metadataGroup().patchValue({ spatialUnitLevel: 'Quartiere' });
       setPeriod({ startDate: '2026-01-01', endDate: '2026-12-31' });
       importerGroup().controls.idProperty.setValue('id');
       securityGroup().controls.ownerOrganization.setValue('org-1');
@@ -470,7 +516,6 @@ describe('SpatialUnitAddModalComponent', () => {
       component.resetForm();
 
       expect(metadataGroup().controls.spatialUnitLevel.value).toBe('');
-      expect(metadataGroup().controls.nextLowerHierarchySpatialUnit.value).toBeNull();
       expect(periodGroup().getRawValue()).toEqual({ startDate: '', endDate: '' });
       expect(importerGroup().controls.idProperty.value).toBe('');
       expect(securityGroup().controls.ownerOrganization.value).toBe('');

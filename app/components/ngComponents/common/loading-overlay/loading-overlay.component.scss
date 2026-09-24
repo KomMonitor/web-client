@@ -9,7 +9,13 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.6);
+  // Blurring the content is what makes the message legible: a veil alone
+  // raises the brightness, but edges and digits keep competing with the
+  // glyphs. Out of focus, nothing does — and the veil can stay thinner for it.
+  // Without `backdrop-filter` the veil alone still applies.
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -19,10 +25,10 @@
 }
 
 .spinner {
-  width: 48px;
-  height: 48px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  border: 4px solid rgba(0, 0, 0, 0.12);
+  border: 3px solid rgba(0, 0, 0, 0.12);
   border-top-color: rgba(0, 123, 255, 0.85);
   animation: spin 1s linear infinite;
   box-sizing: border-box;
@@ -30,10 +36,12 @@
 
 .loading-message {
   margin-top: 8px;
-  color: #333;
-  font-weight: 500;
-  padding: 10px;
-  background-color: white;
+  color: #1f1f1f;
+  font-weight: 600;
+  // No backdrop of its own: the veil above already lightens whatever is
+  // underneath, and an opaque box around the text sat on the content like a
+  // second, unrelated element.
+  text-align: center;
 }
 
 @keyframes spin {

@@ -1,16 +1,16 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { CategoricalClassificationItem } from 'components/ngComponents/models/classification.models';
 import { ClassificationStateService } from 'services/classification-state-service/classification-state.service';
 import { VisualStyleHelperServiceNew } from './visual-style-helper.service';
+import { CategoricalMappingType } from 'models/data-management-api';
 
 describe('VisualStyleHelperServiceNew', () => {
   let service: VisualStyleHelperServiceNew;
   let state: ClassificationStateService;
 
   const PROP = 'DATE_2024-01-01';
-  const CATEGORIES: CategoricalClassificationItem[] = [
+  const CATEGORIES: CategoricalMappingType[] = [
     { categoricalValue: 'A', color: '#ff0000', label: 'Kat A' },
     { categoricalValue: 'B', color: '#00ff00', label: 'Kat B' },
   ];

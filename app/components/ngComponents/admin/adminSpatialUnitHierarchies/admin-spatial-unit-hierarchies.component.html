@@ -1,0 +1,214 @@
+<app-admin-content-view
+  [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.OVERVIEW.TITLE' | translate"
+  [description]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.OVERVIEW.DESCRIPTION' | translate"
+  [controlsTemplate]="controls"
+  [contentTemplate]="content"
+>
+</app-admin-content-view>
+
+<ng-template #controls>
+  <span>{{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.SHOW_IDS' | translate }}</span>
+  <div>
+    <label class="switch">
+      <input type="checkbox" [checked]="showIds()" (change)="onShowIdsChange($event)" />
+      <span class="switchslider round"></span>
+    </label>
+  </div>
+  <!-- The API requires a mandantId, and without Keycloak this instance knows no
+       tenants and cannot obtain one. Reading still works, creating does not. -->
+  @if (!store.canCreate()) {
+    <span class="create-blocked">
+      {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.NO_MANDANT_HINT' | translate }}
+    </span>
+  }
+  <button
+    class="btn btn-success btn-sm"
+    type="button"
+    [disabled]="!store.canCreate()"
+    (click)="onCreateHierarchy()"
+  >
+    <i class="fas fa-plus"></i>&nbsp;&nbsp;{{
+      'ADMIN_SPATIAL_UNIT_HIERARCHIES.NEW_HIERARCHY' | translate
+    }}
+  </button>
+</ng-template>
+
+<ng-template #content>
+  <app-mandant-panel
+    [mandants]="store.mandantOverview()"
+    [canSwitch]="store.canSwitchMandant()"
+    [hierarchyCount]="store.visibleHierarchies().length"
+    [selected]="store.selectedMandant()"
+    (selectedChange)="store.selectMandant($event)"
+  />
+
+  @if (store.loading()) {
+    <p class="hierarchies-empty">
+      {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LOADING' | translate }}
+    </p>
+  } @else if (store.showMandantOverview()) {
+    <app-mandant-overview-table
+      [rows]="store.mandantOverview()"
+      (openMandant)="store.selectMandant($event)"
+    />
+  } @else {
+    @for (hierarchy of store.visibleHierarchies(); track hierarchy.id) {
+      <!-- Whether the hierarchy is public belongs in the header: it is the one
+           property with an effect outside this page, and checking it should not
+           cost a trip through the edit dialog. -->
+      @let visibility =
+        hierarchy.isPublic()
+          ? 'ADMIN_SPATIAL_UNIT_HIERARCHIES.VISIBILITY.PUBLIC'
+          : 'ADMIN_SPATIAL_UNIT_HIERARCHIES.VISIBILITY.NOT_PUBLIC';
+      <app-collapsible-section
+        class="hierarchy-section"
+        [title]="hierarchy.name()"
+        [meta]="
+          ('ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.COUNT'
+            | translate: { count: hierarchy.levelCount() }) +
+          ' · ' +
+          (visibility | translate)
+        "
+        [idLabel]="hierarchy.id"
+        [showId]="showIds()"
+        [(open)]="hierarchy.open"
+      >
+        <!-- Locked while a write for this hierarchy is on its way, so a second
+             edit cannot overtake the first. -->
+        <button
+          header-actions
+          type="button"
+          class="btn btn-sm btn-warning"
+          [disabled]="hierarchy.saving()"
+          (click)="onEditHierarchy(hierarchy)"
+        >
+          {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.EDIT' | translate }}
+        </button>
+        <button
+          header-actions
+          type="button"
+          class="btn btn-sm btn-danger"
+          [disabled]="hierarchy.saving()"
+          (click)="onDeleteHierarchy(hierarchy)"
+        >
+          {{ 'ADMIN_SHARED.DELETE' | translate }}
+        </button>
+
+        <!-- The insert line at the end of the chain appends below the deepest
+             level, so it is drawn one step in like every other one. The default
+             indent cap would flatten that step away from the fifth level on. -->
+        <app-tree-view
+          [nodes]="hierarchy.levels()"
+          [idOf]="levelId"
+          [childrenOf]="levelChildren"
+          indentMode="row"
+          [(expandedIds)]="hierarchy.expandedIds"
+          [insertLabel]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.PICKER.INSERT_LEVEL' | translate"
+          [canInsertAt]="hierarchy.canInsertAt"
+          [trailingGapAsChild]="true"
+          [maxIndent]="200"
+          [(openGap)]="hierarchy.openGap"
+          [toggleLabel]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.TOGGLE_LABEL' | translate"
+        >
+          <ng-template appTreeRow let-level>
+            <span class="level-rank">
+              {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.RANK' | translate: { rank: level.rank } }}
+            </span>
+            <span class="level-name">{{ level.name }}</span>
+            @if (sharedCount(level); as shared) {
+              <span class="level-usage">
+                {{
+                  'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.IN_HIERARCHIES'
+                    | translate: { count: shared }
+                }}
+              </span>
+            }
+            @if (showIds()) {
+              <span class="level-id">{{ level.id }}</span>
+            }
+            <span class="level-spacer"></span>
+            <button
+              type="button"
+              class="level-move"
+              [disabled]="!level.canMoveUp || hierarchy.saving()"
+              [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.MOVE_UP' | translate"
+              (click)="$event.stopPropagation(); onMoveLevel(hierarchy, level, -1)"
+            >
+              <span aria-hidden="true">&#9650;</span>
+              <span class="visually-hidden">
+                {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.MOVE_UP' | translate }}
+              </span>
+            </button>
+            <button
+              type="button"
+              class="level-move"
+              [disabled]="!level.canMoveDown || hierarchy.saving()"
+              [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.MOVE_DOWN' | translate"
+              (click)="$event.stopPropagation(); onMoveLevel(hierarchy, level, 1)"
+            >
+              <span aria-hidden="true">&#9660;</span>
+              <span class="visually-hidden">
+                {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.MOVE_DOWN' | translate }}
+              </span>
+            </button>
+            <!-- Resting while a chain write is in flight: the dialog may move the
+                 level into another hierarchy, which writes the same membership
+                 relation from the other end. -->
+            <button
+              type="button"
+              class="btn btn-sm btn-warning"
+              [disabled]="!canEditLevel(level) || hierarchy.saving()"
+              [title]="
+                (canEditLevel(level)
+                  ? 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.METADATA_TITLE'
+                  : 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.METADATA_FORBIDDEN'
+                ) | translate
+              "
+              (click)="$event.stopPropagation(); onEditLevelMetadata(level)"
+            >
+              {{ 'ADMIN_SHARED.METADATA' | translate }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-danger"
+              [disabled]="hierarchy.levelCount() === 1 || hierarchy.saving()"
+              (click)="$event.stopPropagation(); removeLevel(hierarchy, level)"
+            >
+              {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.REMOVE' | translate }}
+            </button>
+          </ng-template>
+          <ng-template appTreeGap let-gap let-close="close">
+            <app-level-picker-panel
+              [hierarchy]="hierarchy"
+              [registryLevels]="store.tenantLevels()"
+              (picked)="onInsertLevel(hierarchy, gap, $event)"
+              (done)="close()"
+            />
+          </ng-template>
+        </app-tree-view>
+      </app-collapsible-section>
+    } @empty {
+      <p class="hierarchies-empty">
+        @if (store.selectedMandant()) {
+          {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_PANEL.EMPTY_MANDANT' | translate }}
+        } @else {
+          {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_PANEL.EMPTY' | translate }}
+        }
+      </p>
+    }
+
+    <!-- Registered but filed nowhere. Only shown when there is something to
+         show — an empty section would just say that everything is in order. -->
+    @if (store.unassignedLevels().length > 0) {
+      <app-unassigned-levels-panel
+        [levels]="store.unassignedLevels()"
+        [hierarchies]="store.visibleHierarchies()"
+        [showIds]="showIds()"
+        (assign)="onAssignLevel($event)"
+        (metadata)="onEditLevelMetadata($event)"
+        (deleteLevel)="onDeleteLevel($event)"
+        (registerLevel)="onRegisterLevel()"
+      />
+    }
+  }
+</ng-template>

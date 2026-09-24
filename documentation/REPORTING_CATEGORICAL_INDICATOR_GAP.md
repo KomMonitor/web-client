@@ -4,10 +4,11 @@ Stand: 2026-07-30, Branch `feature/migration-bootstrap`. **Analyse — noch nich
 
 ## Context
 
-Mit der qualitativen Klassifikation (`ClassificationType = 'QUALITATIVE'`, siehe
+Mit der qualitativen Klassifikation (`classificationType === 'QUALITATIVE'`, seit dem
+2026-09-22 der Schema-Typ `QualitativeClassificationMappingType`, siehe
 [`classification.models.ts`](../app/components/ngComponents/models/classification.models.ts))
 können Indikatoren jetzt statt numerischer Klassen (Brew/Breaks) diskrete Kategorien
-(`CategoricalClassificationItem[]`) tragen. `isQualitativeMapping(mapping)` erkennt das
+(`CategoricalMappingType[]`) tragen. `isQualitativeMapping(mapping)` erkennt das
 anhand von `classificationType === 'QUALITATIVE'` oder eines befüllten `categoricalData`-Arrays.
 
 Auf der Hauptkarte ist das bereits vollständig verdrahtet:
@@ -58,7 +59,7 @@ durchläuft denselben Code-Pfad.
 - Zeile 3663–3666: liest `indicator.defaultClassificationMapping.numClasses` (Default 5) und
   `.colorBrewerSchemeName` bedingungslos — beide Felder sind bei einer kategorischen Mapping
   typischerweise leer/undefiniert (die eigentlichen Daten stehen in `categoricalData`, siehe
-  [`classification.models.ts:39-53`](../app/components/ngComponents/models/classification.models.ts#L39-L53)).
+  [`classification.models.ts`](../app/components/ngComponents/models/classification.models.ts)).
 - Zeile 3671: `classifyMethod = envConfigService.defaultClassifyMethod` — rein numerisches Konzept
   (Equal Interval/Quantile/Jenks…).
 - Zeile 3674–3694: ruft `visualStyleHelperService.setupDefaultBrew(...)` und

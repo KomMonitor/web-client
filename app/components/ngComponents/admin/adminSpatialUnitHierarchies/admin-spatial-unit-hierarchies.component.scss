@@ -1,0 +1,101 @@
+// No `:host` wrapper on the row classes, on purpose: the tree renders the
+// appTreeRow template a second time inside the CDK drag preview, which lives
+// under <body>. A `:host .x` selector would stop matching there, a flat
+// `.x` selector keeps working because the element still carries this
+// component's `_ngcontent` attribute.
+
+.level-rank {
+  flex: none;
+  min-width: 54px;
+  font-size: 12px;
+  line-height: 1.2;
+  color: #8598a5;
+}
+
+.level-name {
+  min-width: 0;
+  font-size: 15.5px;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Says the level is part of other hierarchies as well — a note, not a warning:
+// a level may sit in several chains, and the API allows it. The same pill the
+// create dialog draws next to a level already in use.
+.level-usage {
+  flex: none;
+  padding: 2px 8px;
+  border: 1px solid #f0d7a4;
+  border-radius: 10px;
+  background: #fdf3dd;
+  color: #7a5d16;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.level-id {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  line-height: 1.2;
+  color: #7d93a1;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: #eef2f6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.level-spacer {
+  flex: 1 1 auto;
+}
+
+// Step a level one position along the chain. Quiet chrome, like the draft.
+.level-move {
+  flex: none;
+  padding: 4px 9px;
+  border: 1px solid #c3d2dd;
+  border-radius: 3px;
+  background: #ffffff;
+  color: #5b7482;
+  font-size: 12.5px;
+  line-height: 1.2;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: #eef2f6;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+}
+
+// Says why "new hierarchy" is unavailable, next to the disabled button.
+.create-blocked {
+  max-width: 34ch;
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: #7a8b96;
+  text-align: right;
+}
+
+// Shown in place of the list when the chosen tenant owns no hierarchy. Carries
+// the same bottom margin a section does, so whatever follows — the unassigned
+// levels — keeps its distance here as well.
+.hierarchies-empty {
+  margin: 0 0 1em;
+  padding: 14px 12px;
+  background: #f7f9fb;
+  border: 1px dashed #d7e3ec;
+  border-radius: 3px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: #5b7482;
+}

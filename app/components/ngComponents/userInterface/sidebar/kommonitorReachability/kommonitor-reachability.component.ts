@@ -23,7 +23,7 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 import { ReachabilityStateService } from 'services/reachability-state-service/reachability-state.service';
 import { MultiSelectSliderComponent } from 'components/ngComponents/common/multi-select-slider/multi-select-slider.component';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
-import uuidv4 from '../../../../../../customizedExternalLibs/uuidv4.js';
+import { v4 as uuidv4 } from 'uuid';
 
 @Component({
   standalone: true,

@@ -6,7 +6,6 @@ import { WmsDataset } from 'components/ngComponents/models/services.models';
 import {
   LastModificationOverviewType,
   OrganizationalUnitOverviewType,
-  ProcessScriptOverviewType,
   SpatialUnitOverviewType,
   TopicOverviewType,
 } from 'models/data-management-api';
@@ -36,8 +35,6 @@ export class CacheHelperServiceService {
     this.envConfigService.localStoragePrefix + '_lastModification_georesources';
   private localStorageKey_indicators =
     this.envConfigService.localStoragePrefix + '_lastModification_indicators';
-  private localStorageKey_processScripts =
-    this.envConfigService.localStoragePrefix + '_lastModification_processScripts';
   private localStorageKey_services =
     this.envConfigService.localStoragePrefix + '_lastModification_services';
 
@@ -47,8 +44,6 @@ export class CacheHelperServiceService {
   spatialUnitsProtectedEndpoint = '/spatial-units';
   indicatorsPublicEndpoint = '/public/indicators';
   indicatorsProtectedEndpoint = '/indicators';
-  scriptsPublicEndpoint = '/public/process-scripts';
-  scriptsProtectedEndpoint = '/process-scripts';
   topicsPublicEndpoint = '/public/topics';
   servicesPublicEndpoint = '/public/web-services';
   servicesProtectedEndpoint = '/web-services';
@@ -58,7 +53,6 @@ export class CacheHelperServiceService {
   georesourcesEndpoint = this.georesourcesProtectedEndpoint;
   spatialUnitsEndpoint = this.spatialUnitsProtectedEndpoint;
   indicatorsEndpoint = this.indicatorsProtectedEndpoint;
-  scriptsEndpoint = this.scriptsProtectedEndpoint;
   servicesEndpoint = this.servicesProtectedEndpoint;
   spatialResourceGETUrlPath_forAuthentication = '/public';
 
@@ -67,14 +61,12 @@ export class CacheHelperServiceService {
       this.georesourcesEndpoint = this.georesourcesProtectedEndpoint;
       this.spatialUnitsEndpoint = this.spatialUnitsProtectedEndpoint;
       this.indicatorsEndpoint = this.indicatorsProtectedEndpoint;
-      this.scriptsEndpoint = this.scriptsProtectedEndpoint;
       this.servicesEndpoint = this.servicesProtectedEndpoint;
       this.spatialResourceGETUrlPath_forAuthentication = '';
     } else {
       this.georesourcesEndpoint = this.georesourcesPublicEndpoint;
       this.spatialUnitsEndpoint = this.spatialUnitsPublicEndpoint;
       this.indicatorsEndpoint = this.indicatorsPublicEndpoint;
-      this.scriptsEndpoint = this.scriptsPublicEndpoint;
       this.servicesEndpoint = this.servicesPublicEndpoint;
       this.spatialResourceGETUrlPath_forAuthentication = '/public';
     }
@@ -308,17 +300,6 @@ export class CacheHelperServiceService {
     }
   }
 
-  async fetchProcessScriptsMetadata(
-    keycloakRolesArray: string[] | undefined
-  ): Promise<ProcessScriptOverviewType[]> {
-    return await this.fetchResource_fromCacheOrServer<ProcessScriptOverviewType[]>(
-      this.localStorageKey_processScripts,
-      this.scriptsEndpoint,
-      'process-scripts',
-      keycloakRolesArray
-    );
-  }
-
   // Single-resource fetchers. These used to return the .subscribe()
   // Subscription instead of the payload, so callers that awaited/then-ed them
   // wrote Subscription objects into their stores; they also kicked off a
@@ -354,12 +335,6 @@ export class CacheHelperServiceService {
       this.http.get<IndicatorsDataset>(
         this.baseUrlToKomMonitorDataAPI + this.indicatorsEndpoint + '/' + targetIndicatorId
       )
-    );
-  }
-
-  fetchSingleIndicatorScriptMetadata(targetScriptId: string): Promise<unknown> {
-    return firstValueFrom(
-      this.http.get(this.baseUrlToKomMonitorDataAPI + this.scriptsEndpoint + '/' + targetScriptId)
     );
   }
 

@@ -1,9 +1,7 @@
 import { FormControl, FormGroup } from '@angular/forms';
 import {
   bboxCompleteValidator,
-  isSpatialUnitHierarchyValid,
   periodOfValidityValidator,
-  spatialUnitHierarchyValidator,
   uniqueNameValidator,
 } from './admin-validators';
 
@@ -15,12 +13,6 @@ import {
  * `spatialUnitAddModal/spatial-unit-add-modal.component.spec.ts` so the
  * behaviour these validators replace stays pinned.
  */
-
-const SPATIAL_UNITS = [
-  { spatialUnitLevel: 'Stadt' }, // index 0 — coarsest
-  { spatialUnitLevel: 'Stadtteile' },
-  { spatialUnitLevel: 'Baublöcke' }, // index 2 — finest
-];
 
 describe('uniqueNameValidator', () => {
   const names = () => ['Stadtteile', 'Baublöcke'];
@@ -132,59 +124,6 @@ describe('periodOfValidityValidator', () => {
 
   it('accepts unparseable input (the date picker guards the format)', () => {
     expect(buildGroup('31.12.2026', 'gestern').valid).toBe(true);
-  });
-});
-
-describe('isSpatialUnitHierarchyValid', () => {
-  it('accepts a lower level that is finer than the upper one', () => {
-    expect(isSpatialUnitHierarchyValid(SPATIAL_UNITS, 'Baublöcke', 'Stadt')).toBe(true);
-  });
-
-  it('rejects a lower level that is coarser than the upper one', () => {
-    expect(isSpatialUnitHierarchyValid(SPATIAL_UNITS, 'Stadt', 'Baublöcke')).toBe(false);
-  });
-
-  it('rejects the same level on both ends', () => {
-    expect(isSpatialUnitHierarchyValid(SPATIAL_UNITS, 'Stadtteile', 'Stadtteile')).toBe(false);
-  });
-
-  it('stays valid while only one end is selected', () => {
-    expect(isSpatialUnitHierarchyValid(SPATIAL_UNITS, 'Stadt', null)).toBe(true);
-  });
-
-  it('stays valid when a selected level is unknown to the store', () => {
-    // Guards the historic `undefined <= undefined` semantics: a findIndex
-    // rewrite without the -1 check would evaluate `-1 <= -1` and reject.
-    expect(isSpatialUnitHierarchyValid(SPATIAL_UNITS, 'Fremd', 'Auch fremd')).toBe(true);
-  });
-
-  it('stays valid when only one selected level is unknown', () => {
-    expect(isSpatialUnitHierarchyValid(SPATIAL_UNITS, 'Fremd', 'Stadt')).toBe(true);
-  });
-});
-
-describe('spatialUnitHierarchyValidator', () => {
-  const buildGroup = (lower: any, upper: any) =>
-    new FormGroup(
-      {
-        nextLowerHierarchySpatialUnit: new FormControl(lower),
-        nextUpperHierarchySpatialUnit: new FormControl(upper),
-      },
-      { validators: spatialUnitHierarchyValidator(() => SPATIAL_UNITS) }
-    );
-
-  it('reads the levels off the selected dataset objects', () => {
-    expect(buildGroup(SPATIAL_UNITS[2], SPATIAL_UNITS[0]).valid).toBe(true);
-  });
-
-  it('reports spatialUnitHierarchy on the group', () => {
-    const group = buildGroup(SPATIAL_UNITS[0], SPATIAL_UNITS[2]);
-
-    expect(group.hasError('spatialUnitHierarchy')).toBe(true);
-  });
-
-  it('stays valid while nothing is selected', () => {
-    expect(buildGroup(null, null).valid).toBe(true);
   });
 });
 

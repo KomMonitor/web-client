@@ -1,0 +1,32 @@
+:host {
+  display: block;
+
+  // Row chrome, overridable from outside.
+  --km-tree-row-bg: #ffffff;
+  --km-tree-row-border: #d7e3ec;
+  --km-tree-row-fg: #22404f;
+  --km-tree-caret-fg: #5b7482;
+  --km-tree-handle-fg: #a8bcc9;
+
+  // Depth rails for tone="accent": two visible steps, root lighter than the rest.
+  --km-tree-level-accent-0: #bfd8e8;
+  --km-tree-level-accent-1: #8fbcd8;
+  --km-tree-level-accent-2: #8fbcd8;
+  --km-tree-level-accent-3: #8fbcd8;
+
+  // Depth tints for tone="filled". Default to the shared tokens in app.scss so a
+  // filled tree looks like the rest of the app without extra setup.
+  --km-tree-level-bg-0: var(--kommonitor-hierarchy-level-0, #84afd5);
+  --km-tree-level-bg-1: var(--kommonitor-hierarchy-level-1, #adcae3);
+  --km-tree-level-bg-2: var(--kommonitor-hierarchy-level-2, #d6e4f1);
+  --km-tree-level-bg-3: var(--kommonitor-hierarchy-level-3, #eaf1f8);
+
+  --km-tree-level-fg-0: #212529;
+  --km-tree-level-fg-1: #212529;
+  --km-tree-level-fg-2: #212529;
+  --km-tree-level-fg-3: #212529;
+
+  // Insert affordance.
+  --km-tree-insert-fg: var(--kommonitor-primary, #2273a5);
+  --km-tree-insert-line: #9fb8c9;
+}

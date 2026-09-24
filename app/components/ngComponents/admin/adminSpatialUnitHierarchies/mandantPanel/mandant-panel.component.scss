@@ -1,0 +1,176 @@
+:host {
+  display: block;
+}
+
+// Toolbar across the whole view, like the control bar of the design draft: the
+// picker at the left, the count of what is on screen right next to it.
+.mandant-panel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  margin-bottom: 14px;
+  background: #f7f9fb;
+  border: 1px solid #e2eaf1;
+  border-radius: 3px;
+}
+
+.mandant-label {
+  flex: none;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8598a5;
+}
+
+.mandant-dropdown {
+  flex: none;
+  min-width: 0;
+}
+
+// The closed control: a select-looking box with the tenant's badge in front.
+.mandant-field {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-width: 280px;
+  padding: 6px 10px;
+  background: #ffffff;
+  border: 1px solid #c3d2dd;
+  border-radius: 3px;
+  color: #333333;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover:not(.static) {
+    border-color: #a8bdcd;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--kommonitor-primary);
+    outline-offset: 1px;
+  }
+
+  &.static {
+    cursor: default;
+    background: #f7f9fb;
+  }
+
+  &.empty .mandant-name {
+    color: #8598a5;
+  }
+
+  // ng-bootstrap's toggle draws its own caret; this panel brings one that sits
+  // at the far right instead of right after the label.
+  &::after {
+    display: none;
+  }
+}
+
+// Square initials of a tenant, the dot for the overview across all of them.
+.mandant-badge {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
+  border-radius: 3px;
+  background: #dbe7f1;
+  color: #4a6b85;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+
+  &.all {
+    font-size: 15px;
+    font-weight: 400;
+  }
+}
+
+.mandant-name {
+  min-width: 0;
+  flex: 1 1 auto;
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+.mandant-caret {
+  flex: none;
+  margin-left: 4px;
+  font-size: 13px;
+  color: #8598a5;
+}
+
+.mandant-menu {
+  min-width: 290px;
+  padding: 0;
+  border: 1px solid #c3d2dd;
+  border-radius: 3px;
+  box-shadow: 0 6px 18px rgb(31 55 71 / 0.16);
+  overflow: hidden;
+}
+
+// Says what the whole switcher is: changing tenants is an elevated view.
+.mandant-menu-header {
+  padding: 8px 12px;
+  background: #f3f6f9;
+  border-bottom: 1px solid #e2eaf1;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8598a5;
+}
+
+.mandant-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 12px;
+  // Long tenant names wrap instead of widening the menu, as in the draft.
+  white-space: normal;
+
+  & + .mandant-item {
+    border-top: 1px solid #f0f4f7;
+  }
+
+  &:hover,
+  &:focus {
+    background: #eef2f6;
+  }
+
+  &.is-selected {
+    background: #eef6fb;
+
+    .mandant-name {
+      font-weight: 600;
+    }
+  }
+}
+
+.mandant-count {
+  flex: none;
+  margin-left: auto;
+  font-size: 12.5px;
+  color: #8598a5;
+}
+
+// Hairline between the picker and its summary, as in the draft's control bar.
+.mandant-divider {
+  flex: none;
+  width: 1px;
+  align-self: stretch;
+  margin: 2px 0;
+  background: #dbe4ec;
+}
+
+// How many hierarchies the list below shows, for this tenant or across all.
+.mandant-summary {
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.3;
+  color: #5b7482;
+}

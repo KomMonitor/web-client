@@ -2,6 +2,7 @@ import {
   collectCreatorRightOrganizations,
   collectSelectedRoleIds,
   ownerDefaultPermissionIds,
+  ownersOfMandant,
 } from './role-management-panel.model';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
 
@@ -96,6 +97,23 @@ describe('role-management-panel.model', () => {
       expect(
         collectSelectedRoleIds([{ organizationalUnitId: '1', name: 'x' } as AccessControlMetadata])
       ).toEqual([]);
+    });
+  });
+
+  describe('ownersOfMandant', () => {
+    const orgs = [unit('1', 'stadt-essen'), unit('2', 'amt-essen'), unit('3', 'stadt-bochum')];
+    // 'stadt-essen' owns 'amt-essen'; the third unit belongs to another tenant.
+    const mandantIdOfOwner = (id: string) => (id === '3' ? 'm-bochum' : 'm-essen');
+
+    it('keeps the units of that tenant and drops the others', () => {
+      expect(
+        ownersOfMandant(orgs, 'm-essen', mandantIdOfOwner).map((org) => org.organizationalUnitId)
+      ).toEqual(['1', '2']);
+    });
+
+    it('leaves the list untouched where no tenant is chosen', () => {
+      // Also the case without Keycloak, where nothing names a tenant at all.
+      expect(ownersOfMandant(orgs, '', mandantIdOfOwner)).toEqual(orgs);
     });
   });
 });

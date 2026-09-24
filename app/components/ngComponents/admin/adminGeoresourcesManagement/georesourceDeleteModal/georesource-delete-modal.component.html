@@ -154,7 +154,7 @@
 
   <!-- Per-dataset failure report; success/error summaries are toasted via NotificationService -->
   @if (failedDatasetsAndErrors().length > 0) {
-    <div class="alert alert-danger" role="alert">
+    <div class="alert alert-danger alert-scrollable" role="alert">
       <h4>
         <i class="icon fa fa-ban"></i
         >{{ 'ADMIN_GEORESOURCES.DELETE_MODAL.DELETE_FAILED' | translate }}

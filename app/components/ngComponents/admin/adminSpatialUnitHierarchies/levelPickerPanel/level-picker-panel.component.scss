@@ -1,0 +1,48 @@
+:host {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+// Box and colours from the design draft's select-add row.
+.picker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  background: #eef6fb;
+  border: 1px solid #bfd8e8;
+  border-radius: 3px;
+}
+
+.picker-label {
+  flex: none;
+  font-size: 13.5px;
+  line-height: 1.3;
+  color: #44606f;
+}
+
+.picker-select {
+  flex: 0 1 auto;
+  min-width: 230px;
+  width: auto;
+}
+
+.picker-or,
+.picker-empty {
+  flex: none;
+  font-size: 13px;
+  line-height: 1.3;
+  color: #8598a5;
+}
+
+.picker-spacer {
+  flex: 1 1 auto;
+}
+
+.picker-cancel {
+  flex: none;
+  color: #8598a5;
+  text-decoration: none;
+}

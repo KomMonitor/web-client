@@ -1,0 +1,67 @@
+<div class="mandant-overview">
+  <table class="mandant-table">
+    <thead>
+      <tr>
+        <th scope="col">
+          {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_OVERVIEW.COL_MANDANT' | translate }}
+        </th>
+        <th scope="col">
+          {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_OVERVIEW.COL_HIERARCHIES' | translate }}
+        </th>
+        <th scope="col">
+          {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_OVERVIEW.COL_LEVELS' | translate }}
+        </th>
+        <th scope="col">
+          {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_OVERVIEW.COL_SHARED' | translate }}
+        </th>
+        <th scope="col">
+          <span class="visually-hidden">
+            {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_OVERVIEW.COL_ACTIONS' | translate }}
+          </span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows(); track row.name) {
+        <tr>
+          <th scope="row" class="mandant-cell">
+            <span class="mandant-badge" aria-hidden="true">{{ initials(row.name) }}</span>
+            <span class="mandant-name">{{ row.name }}</span>
+          </th>
+          <td class="number-cell">{{ row.hierarchyCount }}</td>
+          <td class="number-cell">{{ row.levelCount }}</td>
+          <td class="shared-cell">
+            <!-- A dash reads better than a zero for the tenants without any. -->
+            @if (row.sharedLevelCount === 0) {
+              <span aria-hidden="true">&ndash;</span>
+              <span class="visually-hidden">
+                {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_OVERVIEW.SHARED_NONE' | translate }}
+              </span>
+            } @else if (row.sharedLevelCount === 1) {
+              {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_OVERVIEW.SHARED_ONE' | translate }}
+            } @else {
+              {{
+                'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_OVERVIEW.SHARED'
+                  | translate: { count: row.sharedLevelCount }
+              }}
+            }
+          </td>
+          <td class="action-cell">
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-primary"
+              (click)="openMandant.emit(row.name)"
+            >
+              {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_OVERVIEW.OPEN' | translate }}
+              <span class="visually-hidden">{{ row.name }}</span>
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <p class="mandant-overview-hint">
+    {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_OVERVIEW.HINT' | translate }}
+  </p>
+</div>

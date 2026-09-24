@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/core';
-import { CategoricalClassificationItem } from 'components/ngComponents/models/classification.models';
 import domtoimage from 'dom-to-image-more';
 import { saveAs } from 'file-saver';
 import * as L from 'leaflet';
@@ -37,12 +36,13 @@ import { MapCommand, MapService } from 'services/map-service/map.service';
 import { OgcLayerManagerService } from 'services/ogc-layer-manager-service/ogc-layer-manager.service';
 import { ReachabilityLayerManagerService } from 'services/reachability-layer-manager-service/reachability-layer-manager.service';
 
+import { NgClass } from '@angular/common';
+import { CategoricalMappingType } from 'models/data-management-api';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
 import {
   GeoJSONFeature,
   ReachabilityStateService,
 } from 'services/reachability-state-service/reachability-state.service';
-import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-kommonitor-map',
@@ -156,7 +156,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   // paths so they restyle categorical features by category instead of via the
   // (absent) numeric brews.
   isCategoricalLayer = false;
-  categoricalDataOfCurrentLayer: CategoricalClassificationItem[] = [];
+  categoricalDataOfCurrentLayer: CategoricalMappingType[] = [];
 
   currentIndicatorMetadataAndGeoJSON;
   currentGeoJSONOfCurrentLayer;
