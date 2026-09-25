@@ -319,7 +319,6 @@ Things to mention:
 - how to add new libraries and integrate them to build tools
 - ...
 
-`MAYBE AS SEPARATE DOCUMENTATION TO KEEP THIS README SHORT`
 
 ### Branching
 The `master` branch contains latest stable releases. The `develop` branch is the main development branch that will be merged into the `master` branch from time to time. Any other branch focuses certain bug fixes or feature requests.
