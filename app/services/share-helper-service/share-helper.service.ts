@@ -128,10 +128,10 @@ export class ShareHelperService {
   }
 
   generateFullUrl(): string {
-    const origin = window.location.origin;
-    const path = this.location.path();
+    // prepareExternalUrl prepends the base href, so links keep a deployment subpath.
+    const path = this.location.prepareExternalUrl(this.location.path());
 
-    return `${origin}/${path}`;
+    return `${window.location.origin}${path}`;
   }
 
   setShareLinkParam(paramName, value) {

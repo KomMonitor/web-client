@@ -18,7 +18,7 @@ RUN npm ci --force
 
 # Copy the rest of the source and run the production build
 COPY . .
-RUN npm run build
+RUN npm run build -- --configuration production
 
 # ---- Runtime stage ----
 FROM nginx:stable-alpine

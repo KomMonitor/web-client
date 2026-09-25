@@ -97,8 +97,7 @@ export class ReachabilityCoverageReportsHelperService {
 
   insertLogo(doc: jsPDF): jsPDF {
     const img = new Image();
-    const subPath = location.pathname;
-    img.src = subPath + 'logos/KM_Logo1.png';
+    img.src = new URL('logos/KM_Logo1.png', document.baseURI).href;
     doc.addImage(img, 'PNG', 193, 5, 12, 12);
     return doc;
   }
