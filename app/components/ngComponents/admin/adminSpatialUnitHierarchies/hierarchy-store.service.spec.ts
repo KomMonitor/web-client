@@ -1,5 +1,8 @@
 import { TestBed } from '@angular/core/testing';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { MandantService } from 'services/mandant-service/mandant.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { SpatialUnitHierarchyApiService } from 'services/spatial-unit-hierarchy-service/spatial-unit-hierarchy-api.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 
@@ -41,6 +44,20 @@ let spatialUnits: {
   mandantId: string;
   metadata: { datasource: string };
 }[] = [];
+
+/**
+ * The store refreshes the spatial-unit metadata cache after a write that
+ * changes hierarchy membership. Faked here so specs neither hit the network
+ * nor pull in `MetadataBootstrapService`'s own large dependency graph.
+ */
+const spatialUnitsRefreshProviders = [
+  { provide: CacheHelperServiceService, useValue: { invalidateSpatialUnitsCache: jest.fn() } },
+  {
+    provide: MetadataBootstrapService,
+    useValue: { fetchSpatialUnitsMetadata: jest.fn().mockResolvedValue([]) },
+  },
+  { provide: AccessControlService, useValue: { currentKeycloakLoginRoles: [] } },
+];
 
 /**
  * A store on its own, with the tenants Keycloak would name. The store reads
@@ -99,6 +116,7 @@ function storeWith(mandants: Partial<Mandants> = {}): HierarchyStoreService {
             spatialUnits.find((unit) => (unit as { spatialUnitId: string }).spatialUnitId === id),
         },
       },
+      ...spatialUnitsRefreshProviders,
     ],
   });
   return TestBed.inject(HierarchyStoreService);
@@ -186,6 +204,7 @@ describe('HierarchyStoreService', () => {
             provide: SpatialUnitMetadataStoreService,
             useValue: { availableSpatialUnits: [] },
           },
+          ...spatialUnitsRefreshProviders,
         ],
       });
       const store = TestBed.inject(HierarchyStoreService);

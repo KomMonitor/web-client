@@ -1,6 +1,9 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { SpatialUnitOverviewType } from 'models/data-management-api';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { MandantService } from 'services/mandant-service/mandant.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import {
   SpatialUnitHierarchyApiService,
   toOrderedMembers,
@@ -81,6 +84,9 @@ export class HierarchyStoreService {
     this.mandantService.mandantNameOf(mandantId);
   private readonly hierarchyApi = inject(SpatialUnitHierarchyApiService);
   private readonly spatialUnitStore = inject(SpatialUnitMetadataStoreService);
+  private readonly cacheHelperService = inject(CacheHelperServiceService);
+  private readonly metadataBootstrapService = inject(MetadataBootstrapService);
+  private readonly accessControlService = inject(AccessControlService);
 
   readonly hierarchies = signal<readonly SpatialUnitHierarchy[]>([]);
 
@@ -299,6 +305,9 @@ export class HierarchyStoreService {
       hierarchy.open.set(true);
       this.hierarchies.update((entries) => [...entries, hierarchy]);
       this.followMandant(metadata.mandant);
+      if (levels.length > 0) {
+        this.refreshSpatialUnitsMetadata();
+      }
       return hierarchy;
     } catch {
       // A rejected POST does not mean nothing was written: the API creates the
@@ -364,6 +373,7 @@ export class HierarchyStoreService {
     }
 
     this.hierarchies.update((entries) => entries.filter((entry) => entry !== hierarchy));
+    this.refreshSpatialUnitsMetadata();
     return true;
   }
 
@@ -445,6 +455,7 @@ export class HierarchyStoreService {
         hierarchy.id,
         toOrderedMembers(hierarchy.chain().map((entry) => entry.id))
       );
+      this.refreshSpatialUnitsMetadata();
       return 'saved';
     } catch {
       // Only the newest request may act on its outcome. A slower earlier one
@@ -492,5 +503,23 @@ export class HierarchyStoreService {
     if (mandant) {
       this.selectMandant(mandant);
     }
+  }
+
+  /**
+   * Refetches the spatial-unit metadata after a write that changes which
+   * hierarchies a spatial unit belongs to. Each spatial unit carries its own
+   * `hierarchies` membership list, cached in `SpatialUnitMetadataStoreService`
+   * since app startup and otherwise never revisited — the map's legend reads
+   * it to filter its "Hierachie" buttons, so without this it keeps showing the
+   * pre-edit membership after navigating back from this page.
+   *
+   * Deliberately not awaited: the page's own state already reflects the edit,
+   * and the map only needs the refreshed metadata once the user returns to it.
+   */
+  private refreshSpatialUnitsMetadata(): void {
+    this.cacheHelperService.invalidateSpatialUnitsCache();
+    this.metadataBootstrapService
+      .fetchSpatialUnitsMetadata(this.accessControlService.currentKeycloakLoginRoles)
+      .catch((error) => console.error('Failed to refresh spatial-units metadata:', error));
   }
 }

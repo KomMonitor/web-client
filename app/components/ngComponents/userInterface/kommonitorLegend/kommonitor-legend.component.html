@@ -9,7 +9,7 @@
 </button>
 @if (selectionState.selectedIndicator) {
   <div id="legendWrapper" [hidden]="!legendVisible">
-    <expandable-box [title]="'Raumebene und Export'" [collapsed]="true">
+    <expandable-box [title]="'Raumebene und Export'" [collapsed]="false">
       <div class="boxedLegend">
         <div class="row" style="margin-right: 0px">
           <div class="col-sm-12">
@@ -21,9 +21,8 @@
                 @for (hierarchy of availableHierarchies(); track hierarchy.hierarchyId) {
                   <button
                     type="button"
-                    class="btn btn-sm"
-                    [class.btn-primary]="selectedHierarchyId === hierarchy.hierarchyId"
-                    [class.btn-secondary]="selectedHierarchyId !== hierarchy.hierarchyId"
+                    class="btn btn-sm hierarchy-button"
+                    [class.active]="selectedHierarchyId === hierarchy.hierarchyId"
                     (click)="onClickHierarchy(hierarchy)"
                   >
                     {{ hierarchy.name }}

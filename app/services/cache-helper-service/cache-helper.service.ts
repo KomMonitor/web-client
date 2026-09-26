@@ -248,6 +248,23 @@ export class CacheHelperServiceService {
     );
   }
 
+  /**
+   * Drop the cached spatial-units metadata so the next fetch hits the server. Needed after a
+   * spatial-unit-hierarchy CRUD operation: each spatial unit carries its own hierarchy
+   * memberships (`hierarchies`), and the timestamp-based cache would otherwise keep serving the
+   * pre-mutation list to the map's legend.
+   */
+  invalidateSpatialUnitsCache(): void {
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(this.localStorageKey_spatialUnits)) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach((key) => localStorage.removeItem(key));
+  }
+
   async fetchIndicatorsMetadata(
     keycloakRolesArray: string[] | undefined,
     filter: any = undefined
