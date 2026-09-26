@@ -113,6 +113,13 @@ export class KommonitorLegendComponent implements OnInit {
   /** All hierarchies available for the legend's "Hierachie" buttons, fetched once on init. */
   private hierarchies: SpatialUnitHierarchyOverviewType[] = [];
 
+  /**
+   * Whether the "hierarchy" share-link param has already been applied (or found to be absent).
+   * Guards `tryApplyInitialHierarchy()` against re-running on every indicator change - it must
+   * only apply the shared hierarchy once, right after the initial selection is restored.
+   */
+  private initialHierarchyApplied = false;
+
   /** Per-class labels of the current indicator's default classification, index-aligned to the class positions. */
   protected get classificationLabels(): string[] {
     return this.selectionState.selectedIndicator?.defaultClassificationMapping?.labels ?? [];
@@ -180,6 +187,7 @@ export class KommonitorLegendComponent implements OnInit {
   ngOnInit(): void {
     this.spatialUnitHierarchyService.fetchAllHierarchies().then((hierarchies) => {
       this.hierarchies = hierarchies;
+      this.tryApplyInitialHierarchy();
     });
 
     $(document).ready(function () {
@@ -228,6 +236,14 @@ export class KommonitorLegendComponent implements OnInit {
         case BroadcastMessage.UpdateDatePickerSelectedDate:
           {
             this.onUpdateDatePickerSelectedDate(values);
+          }
+          break;
+        case BroadcastMessage.OnChangeSelectedIndicator:
+          {
+            // fires once the initial indicator/spatial unit selection (from a shared link
+            // or the default startup pick) is in place - the earliest safe point to also
+            // apply a shared link's hierarchy filter.
+            this.tryApplyInitialHierarchy();
           }
           break;
       }
@@ -313,22 +329,28 @@ export class KommonitorLegendComponent implements OnInit {
     return this.hierarchies.filter((hierarchy) => memberHierarchyIds.has(hierarchy.hierarchyId));
   }
 
+  /** Fetches the hierarchy's members and activates it as the current hierarchy filter. */
+  private async activateHierarchy(hierarchy: SpatialUnitHierarchyOverviewType): Promise<boolean> {
+    const hierarchyMembers = await this.spatialUnitHierarchyService.fetchHierarchyMembers(
+      hierarchy.hierarchyId
+    );
+    if (!hierarchyMembers) {
+      return false;
+    }
+    this.selectedHierarchyId = hierarchy.hierarchyId;
+    this.activeHierarchyMemberLevels = new Map(
+      hierarchyMembers.members.map((member) => [member.spatialUnitId, member.hierarchyLevel])
+    );
+    return true;
+  }
+
   async onClickHierarchy(hierarchy: SpatialUnitHierarchyOverviewType) {
     if (this.selectedHierarchyId === hierarchy.hierarchyId) {
       // clicking the active hierarchy again clears the filter
       this.selectedHierarchyId = undefined;
       this.activeHierarchyMemberLevels = undefined;
-    } else {
-      const hierarchyMembers = await this.spatialUnitHierarchyService.fetchHierarchyMembers(
-        hierarchy.hierarchyId
-      );
-      if (!hierarchyMembers) {
-        return;
-      }
-      this.selectedHierarchyId = hierarchy.hierarchyId;
-      this.activeHierarchyMemberLevels = new Map(
-        hierarchyMembers.members.map((member) => [member.spatialUnitId, member.hierarchyLevel])
-      );
+    } else if (!(await this.activateHierarchy(hierarchy))) {
+      return;
     }
 
     // the hierarchy filter just changed the applicable spatial units - always select the
@@ -336,6 +358,43 @@ export class KommonitorLegendComponent implements OnInit {
     const [firstApplicableSpatialUnit] = this.filteredSpatialUnits();
     if (firstApplicableSpatialUnit) {
       this.selectionState.selectedSpatialUnit = firstApplicableSpatialUnit;
+      this.onChangeSelectedSpatialUnit();
+    }
+  }
+
+  /**
+   * Applies the "hierarchy" share-link param (`EnvConfigService.initialHierarchyId`), if any,
+   * once both the hierarchy list and the initial indicator selection are available. Runs at
+   * most once (see `initialHierarchyApplied`); safe to call from either readiness signal.
+   */
+  private async tryApplyInitialHierarchy(): Promise<void> {
+    if (
+      this.initialHierarchyApplied ||
+      this.hierarchies.length === 0 ||
+      !this.selectionState.selectedIndicator
+    ) {
+      return;
+    }
+
+    const hierarchyId = this.envConfigService.initialHierarchyId;
+    this.initialHierarchyApplied = true;
+    if (!hierarchyId) {
+      return;
+    }
+
+    const hierarchy = this.availableHierarchies().find((h) => h.hierarchyId === hierarchyId);
+    if (!hierarchy || !(await this.activateHierarchy(hierarchy))) {
+      return;
+    }
+
+    // keep the spatial unit already restored from the "spu" share-link param if it still fits
+    // this hierarchy; otherwise fall back to the hierarchy's first applicable member.
+    const filtered = this.filteredSpatialUnits();
+    const currentStillValid = filtered.some(
+      (unit) => unit.spatialUnitId === this.selectionState.selectedSpatialUnit?.spatialUnitId
+    );
+    if (!currentStillValid && filtered[0]) {
+      this.selectionState.selectedSpatialUnit = filtered[0];
       this.onChangeSelectedSpatialUnit();
     }
   }
@@ -439,7 +498,7 @@ export class KommonitorLegendComponent implements OnInit {
   }
 
   onClickShareLinkButton() {
-    this.shareHelperService.generateCurrentShareLink();
+    this.shareHelperService.generateCurrentShareLink(this.selectedHierarchyId);
 
     /* Copy to clipboard */
     if (navigator && navigator.clipboard) {
