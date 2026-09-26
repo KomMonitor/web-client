@@ -762,11 +762,19 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     return (
       node.tagName !== 'BUTTON' &&
       node.tagName !== 'A' &&
-      (node.className instanceof SVGAnimatedString || !node.className.includes('leaflet-control'))
+      // Text nodes and some SVG elements carry no plain-string `className` at
+      // all (undefined) or an `SVGAnimatedString` object rather than a string
+      // - only a real string can be checked for the "leaflet-control" class.
+      (typeof node.className !== 'string' || !node.className.includes('leaflet-control'))
     );
   }
 
   exportMap() {
+    // The overlay sits outside #ngMap in the template, so it is never part of
+    // what dom-to-image captures below - showing it here does not leak into
+    // the exported image.
+    this.showLoadingIconOnMap();
+
     const node = document.getElementById('ngMap');
 
     return domtoimage
@@ -784,6 +792,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         console.error(error);
 
         this.mapErrorNotificationService.displayMapApplicationError(error);
+      })
+      .finally(() => {
+        this.hideLoadingIconOnMap();
       });
   }
 
