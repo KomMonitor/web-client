@@ -6,11 +6,12 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
-    padding: 0.55rem 0.8rem;
+    padding: 0.75rem 0.8rem;
     margin: 3px 0;
     border: 1px solid rgba(0, 0, 0, 0.12);
-    border-radius: 6px;
+    border-radius: 3px;
     color: #23272b;
+    background: #fff;
   }
 
   // The toggle is a real <button>; strip the browser chrome so it reads as a
@@ -54,7 +55,6 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     font-size: 0.95rem;
-    font-weight: 700;
   }
 
   .topic-element__fav {
@@ -62,10 +62,8 @@
   }
 
   // Nested content steps in and is tied back to its parent row with a dashed
-  // guide line colored to match the row it hangs from.
   .topic-element__children {
-    margin-left: 0.9rem;
-    padding-left: 0.75rem;
-    border-left: 1px dashed;
+    margin-left: 0.2rem;
+    padding-left: 0.2rem;
   }
 }

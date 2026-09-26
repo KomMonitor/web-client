@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { FavoriteStarComponent } from 'components/ngComponents/common/favorite-star/favorite-star.component';
 import { IndicatorsTopicsHierarchy } from 'components/ngComponents/models/indicators.models';
 
 /** Highest nesting depth that still gets its own hierarchy color; deeper levels reuse it. */
@@ -38,7 +39,7 @@ const MAX_STYLED_LEVEL = 4;
   templateUrl: './topic-element.component.html',
   styleUrls: ['./topic-element.component.scss'],
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FavoriteStarComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TopicElementComponent {
@@ -49,6 +50,8 @@ export class TopicElementComponent {
   readonly isFavorite = input(false);
   /** Whether this topic, or any of its descendants, contains the currently selected indicator. */
   readonly containsSelectedIndicator = input(false);
+  /** Purely visual: renders the selected styling without the row actually being selected. */
+  readonly preview = input(false);
 
   readonly toggleCollapse = output<void>();
   readonly favToggled = output<void>();
@@ -63,9 +66,12 @@ export class TopicElementComponent {
   });
 
   /** CSS var for this row's level color, swapped for the solid "-selected" variant when applicable. */
-  protected readonly levelColorVar = computed(() => {
+  protected readonly levelColorStyling = computed(() => {
     const clampedLevel = Math.min(this.level(), MAX_STYLED_LEVEL);
-    const suffix = this.containsSelectedIndicator() ? '-selected' : '';
-    return `var(--kommonitor-hierarchy-level-${clampedLevel}${suffix})`;
+
+    if (!this.containsSelectedIndicator() && !this.preview())
+      return `border-left: 3px solid var(--kommonitor-hierarchy-level-${clampedLevel})`;
+    else
+      return `border-left: 3px solid var(--kommonitor-primary); background-color: var(--kommonitor-hierarchy-level-${clampedLevel})`;
   });
 }

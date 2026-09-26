@@ -1,50 +1,43 @@
-<ng-template #IndicatorItem let-indicator="indicator">
+<ng-template #IndicatorItem let-indicator="indicator" let-level="level">
   <div
     [id]="'indicatorHierarchyElement-' + indicator.indicatorId"
-    class="list-group-item list-group-item-default"
+    class="item"
     [ngClass]="{
-      'style-headline-indicator': indicator.isHeadlineIndicator,
+      'headline-indicator': indicator.isHeadlineIndicator,
       'style-simple-indicator': !indicator.isHeadlineIndicator,
-      active: selectionState.selectedIndicator.indicatorId == indicator.indicatorId,
     }"
+    [style]="
+      levelColorStyling(
+        level,
+        selectionState.selectedIndicator.indicatorId == indicator.indicatorId
+      )
+    "
   >
-    <div class="list-group-item-entry-grid-layout">
-      <div>
-        <p
-          style="cursor: pointer"
-          [style.color]="indicator.isHeadlineIndicator ? 'white' : null"
-          title="{{ indicator.indicatorName }} [{{ indicator.unit }}]"
-          (click)="indicatorClicked.emit(indicator)"
-        >
-          <i
-            [ngClass]="indicator.isHeadlineIndicator ? 'fas fa-tachometer-alt' : 'fas fa-sitemap'"
-          ></i>
-          &nbsp;&nbsp;<b>{{ indicator.indicatorName }}</b> [{{ indicator.unit }}]
-        </p>
-        <app-indicator-metadata-tooltip
-          [indicatorData]="{ data: indicator }"
-        ></app-indicator-metadata-tooltip>
-      </div>
-      <div>
-        @if (showFavSelection) {
-          <i
-            class="fav-star fa-star"
-            [ngClass]="{
-              'fa-solid': indicatorFavItems.includes(indicator.indicatorId),
-              'fa-regular': !indicatorFavItems.includes(indicator.indicatorId),
-            }"
-            (click)="indicatorFavToggled.emit(indicator.indicatorId)"
-            style="color: black"
-          ></i>
-        }
-      </div>
-    </div>
     @if (exportModeService.exportMode()) {
       <app-export-item-checkbox
         kind="indicator"
         [dataset]="toExportIndicator(indicator)"
       ></app-export-item-checkbox>
     }
+    <div
+      class="content"
+      [style.color]="indicator.isHeadlineIndicator ? 'white' : null"
+      title="{{ indicator.indicatorName }} [{{ indicator.unit }}]"
+      (click)="indicatorClicked.emit(indicator)"
+    >
+      <i [ngClass]="indicator.isHeadlineIndicator ? 'fas fa-tachometer-alt' : 'fas fa-sitemap'"></i>
+      <p>{{ indicator.indicatorName }} [{{ indicator.unit }}]</p>
+    </div>
+    <app-indicator-metadata-tooltip
+      [indicatorData]="{ data: indicator }"
+    ></app-indicator-metadata-tooltip>
+    <div>
+      <app-favorite-star
+        [visible]="showFavSelection"
+        [isFavorite]="indicatorFavItems.includes(indicator.indicatorId)"
+        (toggled)="indicatorFavToggled.emit(indicator.indicatorId)"
+      ></app-favorite-star>
+    </div>
   </div>
 </ng-template>
 
@@ -66,7 +59,7 @@
       <div class="list-group indicatorInputForm">
         @for (indicator of topic.indicatorData; track indicator) {
           <ng-container
-            *ngTemplateOutlet="IndicatorItem; context: { indicator: indicator }"
+            *ngTemplateOutlet="IndicatorItem; context: { indicator: indicator, level: level }"
           ></ng-container>
         }
         @if (topic.wmsData.length) {

@@ -123,19 +123,11 @@
                     [Einheitsbezeichnung]
                   </p>
                 </div>
-                <div
-                  class="list-group-item list-group-item-default list-group-item-grid-layout style-hierarchy-selected-indicator-0"
-                >
-                  <i class="fa-solid fa-chevron-right"></i>
-                  <p style="cursor: pointer">
-                    <b>Thema mit selektiertem Indikator</b>
-                  </p>
-                </div>
+                <app-topic-element [topic]="previewTopic" [preview]="true"></app-topic-element>
               </div>
             }
-
-            <br />
-
+          </div>
+          <div id="indicatorHierarchySelection" class="list-group list-group-root">
             <label>Themenorientierter Datenkatalog</label>
 
             <app-topic-tree
@@ -181,71 +173,82 @@
               <br />
               <label>Leitindikatoren und ihre Basis-Indikatoren</label>
               @for (item of topicHierarchyStore.headlineIndicatorHierarchy; track item) {
-                <div>
-                  <div
-                    class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-0"
-                  >
-                    <i
-                      class="fa-solid"
-                      [ngClass]="{
-                        'fa-chevron-right': headlineTopicsCollapsed.includes(
-                          item.headlineIndicator.indicatorId
-                        ),
-                        'fa-chevron-down': !headlineTopicsCollapsed.includes(
-                          item.headlineIndicator.indicatorId
-                        ),
-                      }"
-                    ></i>
-                    <p
-                      [title]="item.headlineIndicator.metadata.description"
-                      class="collapseTrigger"
-                      (click)="onHeadlineTopicClick(item.headlineIndicator.indicatorId)"
-                    >
-                      {{ item.headlineIndicator.indicatorName }}
-                    </p>
-                    @if (favStateService.showFavSelection) {
-                      <i
-                        class="fav-star fa-star"
-                        [ngClass]="{
-                          'fa-solid': favStateService.isIndicatorFavSelected(
-                            item.headlineIndicator.indicatorId
-                          ),
-                          'fa-regular': !favStateService.isIndicatorFavSelected(
-                            item.headlineIndicator.indicatorId
-                          ),
-                        }"
-                        (click)="
-                          favStateService.onHeadlineIndicatorFavClick(
-                            item.headlineIndicator.indicatorId
-                          )
-                        "
-                      ></i>
-                    }
+                <app-topic-element
+                  [topic]="toHeadlineIndicatorTopic(item)"
+                  [collapsed]="headlineTopicsCollapsed.includes(item.headlineIndicator.indicatorId)"
+                  [showFavSelection]="favStateService.showFavSelection"
+                  [isFavorite]="
+                    favStateService.isIndicatorFavSelected(item.headlineIndicator.indicatorId)
+                  "
+                  (toggleCollapse)="onHeadlineTopicClick(item.headlineIndicator.indicatorId)"
+                  (favToggled)="
+                    favStateService.onHeadlineIndicatorFavClick(item.headlineIndicator.indicatorId)
+                  "
+                >
+                  <div class="list-group-item list-group-item-default style-headline-indicator">
+                    <div class="list-group-item-entry-grid-layout">
+                      <div>
+                        <p
+                          style="cursor: pointer; color: white"
+                          title="{{ item.headlineIndicator.indicatorName }} [{{
+                            item.headlineIndicator.unit
+                          }}]"
+                          (click)="onClickHierarchyIndicator(item.headlineIndicator)"
+                        >
+                          <i class="fas fa-tachometer-alt"></i>&nbsp;&nbsp;
+                          <b>{{ item.headlineIndicator.indicatorName }}</b> [{{
+                            item.headlineIndicator.unit
+                          }}]
+                        </p>
+                        <app-indicator-metadata-tooltip
+                          [indicatorData]="{
+                            data: item.headlineIndicator,
+                            prefix: 'headline',
+                          }"
+                        >
+                        </app-indicator-metadata-tooltip>
+                        @if (exportModeService.exportMode()) {
+                          <app-export-item-checkbox
+                            kind="indicator"
+                            [dataset]="toExportIndicator(item.headlineIndicator)"
+                          ></app-export-item-checkbox>
+                        }
+                      </div>
+                      @if (favStateService.showFavSelection) {
+                        <i
+                          class="fav-star fa-star"
+                          [ngClass]="{
+                            'fa-solid': favStateService.isIndicatorFavSelected(
+                              item.headlineIndicator.indicatorId
+                            ),
+                            'fa-regular': !favStateService.isIndicatorFavSelected(
+                              item.headlineIndicator.indicatorId
+                            ),
+                          }"
+                          (click)="
+                            favStateService.onHeadlineIndicatorFavClick(
+                              item.headlineIndicator.indicatorId
+                            )
+                          "
+                        ></i>
+                      }
+                    </div>
                   </div>
-                  <div
-                    class="list-group collapse"
-                    [ngClass]="{
-                      in: !headlineTopicsCollapsed.includes(item.headlineIndicator.indicatorId),
-                    }"
-                  >
-                    <div class="list-group-item list-group-item-default style-headline-indicator">
+                  @for (baseIndicator of item.baseIndicators; track baseIndicator) {
+                    <div class="list-group-item list-group-item-default style-simple-indicator">
                       <div class="list-group-item-entry-grid-layout">
                         <div>
                           <p
-                            style="cursor: pointer; color: white"
-                            title="{{ item.headlineIndicator.indicatorName }} [{{
-                              item.headlineIndicator.unit
-                            }}]"
-                            (click)="onClickHierarchyIndicator(item.headlineIndicator)"
+                            style="cursor: pointer; color: black"
+                            title="{{ baseIndicator.indicatorName }} [{{ baseIndicator.unit }}]"
+                            (click)="onClickHierarchyIndicator(baseIndicator)"
                           >
-                            <i class="fas fa-tachometer-alt"></i>&nbsp;&nbsp;
-                            <b>{{ item.headlineIndicator.indicatorName }}</b> [{{
-                              item.headlineIndicator.unit
-                            }}]
+                            <i class="fas fa-sitemap"></i>&nbsp;&nbsp;
+                            <b>{{ baseIndicator.indicatorName }}</b> [{{ baseIndicator.unit }}]
                           </p>
                           <app-indicator-metadata-tooltip
                             [indicatorData]="{
-                              data: item.headlineIndicator,
+                              data: baseIndicator,
                               prefix: 'headline',
                             }"
                           >
@@ -253,7 +256,7 @@
                           @if (exportModeService.exportMode()) {
                             <app-export-item-checkbox
                               kind="indicator"
-                              [dataset]="toExportIndicator(item.headlineIndicator)"
+                              [dataset]="toExportIndicator(baseIndicator)"
                             ></app-export-item-checkbox>
                           }
                         </div>
@@ -262,69 +265,22 @@
                             class="fav-star fa-star"
                             [ngClass]="{
                               'fa-solid': favStateService.isIndicatorFavSelected(
-                                item.headlineIndicator.indicatorId
+                                baseIndicator.indicatorId
                               ),
                               'fa-regular': !favStateService.isIndicatorFavSelected(
-                                item.headlineIndicator.indicatorId
+                                baseIndicator.indicatorId
                               ),
                             }"
                             (click)="
-                              favStateService.onHeadlineIndicatorFavClick(
-                                item.headlineIndicator.indicatorId
-                              )
+                              favStateService.onBaseIndicatorFavClick(baseIndicator.indicatorId)
                             "
+                            style="color: black"
                           ></i>
                         }
                       </div>
                     </div>
-                    @for (baseIndicator of item.baseIndicators; track baseIndicator) {
-                      <div class="list-group-item list-group-item-default style-simple-indicator">
-                        <div class="list-group-item-entry-grid-layout">
-                          <div>
-                            <p
-                              style="cursor: pointer; color: black"
-                              title="{{ baseIndicator.indicatorName }} [{{ baseIndicator.unit }}]"
-                              (click)="onClickHierarchyIndicator(baseIndicator)"
-                            >
-                              <i class="fas fa-sitemap"></i>&nbsp;&nbsp;
-                              <b>{{ baseIndicator.indicatorName }}</b> [{{ baseIndicator.unit }}]
-                            </p>
-                            <app-indicator-metadata-tooltip
-                              [indicatorData]="{
-                                data: baseIndicator,
-                                prefix: 'headline',
-                              }"
-                            >
-                            </app-indicator-metadata-tooltip>
-                            @if (exportModeService.exportMode()) {
-                              <app-export-item-checkbox
-                                kind="indicator"
-                                [dataset]="toExportIndicator(baseIndicator)"
-                              ></app-export-item-checkbox>
-                            }
-                          </div>
-                          @if (favStateService.showFavSelection) {
-                            <i
-                              class="fav-star fa-star"
-                              [ngClass]="{
-                                'fa-solid': favStateService.isIndicatorFavSelected(
-                                  baseIndicator.indicatorId
-                                ),
-                                'fa-regular': !favStateService.isIndicatorFavSelected(
-                                  baseIndicator.indicatorId
-                                ),
-                              }"
-                              (click)="
-                                favStateService.onBaseIndicatorFavClick(baseIndicator.indicatorId)
-                              "
-                              style="color: black"
-                            ></i>
-                          }
-                        </div>
-                      </div>
-                    }
-                  </div>
-                </div>
+                  }
+                </app-topic-element>
               }
             </div>
           </div>

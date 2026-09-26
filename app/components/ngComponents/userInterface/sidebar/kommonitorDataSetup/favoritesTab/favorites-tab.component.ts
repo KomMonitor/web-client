@@ -20,9 +20,13 @@ import { Indicator } from 'components/ngComponents/userInterface/exporting/model
 import { IndicatorFavFilter } from 'pipes/indicator-fav-filter.pipe';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { TopicElementComponent } from 'components/ngComponents/common/topic-element/topic-element.component';
+import { FavoriteStarComponent } from 'components/ngComponents/common/favorite-star/favorite-star.component';
 import { ExportModeService } from '../export-mode.service';
 import { KommonitorDataSetupService } from '../kommonitor-data-setup.service';
 import { WmsTableComponent } from '../wmsTable/wms-table.component';
+
+/** Highest nesting depth that still gets its own hierarchy color; deeper levels reuse it. */
+const MAX_STYLED_LEVEL = 4;
 
 @Component({
   selector: 'app-favorites-tab',
@@ -36,6 +40,7 @@ import { WmsTableComponent } from '../wmsTable/wms-table.component';
     WmsTableComponent,
     ExportItemCheckboxComponent,
     TopicElementComponent,
+    FavoriteStarComponent,
   ],
 })
 export class FavoritesTabComponent implements OnChanges {
@@ -125,5 +130,14 @@ export class FavoritesTabComponent implements OnChanges {
         this.initCollapsedState(topic.subTopics);
       }
     });
+  }
+
+  /** CSS var for this row's level color, swapped for the solid "-selected" variant when applicable. */
+  levelColorStyling(level: number, active: boolean) {
+    const clampedLevel = Math.min(level, MAX_STYLED_LEVEL);
+
+    if (active)
+      return `border-left: 3px solid var(--kommonitor-primary); background-color: var(--kommonitor-hierarchy-level-${clampedLevel}) !important`;
+    else return `border-left: 3px solid var(--kommonitor-hierarchy-level-${clampedLevel})`;
   }
 }

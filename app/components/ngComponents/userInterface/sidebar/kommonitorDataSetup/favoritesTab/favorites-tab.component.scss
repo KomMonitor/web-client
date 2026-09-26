@@ -1,4 +1,57 @@
 :host {
+  .style-headline-indicator {
+    background-color: #f7931e !important;
+    color: #fff !important;
+  }
+
+  .item {
+    display: flex;
+    width: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 3px;
+    padding: 0.75rem 0.8rem;
+    margin: 3px 0;
+    align-items: center;
+    font-size: 0.95rem;
+    font-weight: 400 !important;
+
+    &.headline-indicator {
+      background-color: rgb(247, 147, 30) !important;
+      color: #fff !important;
+    }
+
+    &.active {
+      background: var(--kommonitor-primary);
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: min-content auto;
+      align-items: center;
+      gap: 0.5em;
+      cursor: pointer;
+
+      * {
+        margin: 0;
+      }
+    }
+  }
+
+  .item > div {
+    width: min-content;
+    flex: none;
+  }
+
+  .item > div:nth-last-child(3) {
+    flex: 1 1 auto;
+  }
+
+  .list-group-item.active {
+    background-color: var(--kommonitor-primary) !important;
+  }
+}
+
+/* :host {
   .fav-export-bulk-actions {
     display: flex;
     flex-wrap: wrap;
@@ -11,6 +64,11 @@
     display: block;
     padding-right: 1rem !important;
     margin: 0;
+    border-radius: 3px;
+  }
+
+  .indicator-element.list-group-item-grid-layout.favs:not(:first-of-type) {
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
   }
 
   .list-group .list-group-item-grid-layout * {
@@ -75,3 +133,4 @@
   background-color: var(--kommonitor-primary) !important;
   z-index: 10000 !important;
 }
+ */

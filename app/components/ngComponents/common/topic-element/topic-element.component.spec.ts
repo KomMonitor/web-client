@@ -90,11 +90,11 @@ describe('TopicElementComponent', () => {
     component.favToggled.subscribe(() => emitted++);
     fixture.componentRef.setInput('topic', makeTopic());
     fixture.detectChanges();
-    expect(fixture.debugElement.query(By.css('.topic-element__fav'))).toBeNull();
+    expect(fixture.debugElement.query(By.css('.fav-star'))).toBeNull();
 
     fixture.componentRef.setInput('showFavSelection', true);
     fixture.detectChanges();
-    const star = fixture.debugElement.query(By.css('.topic-element__fav'));
+    const star = fixture.debugElement.query(By.css('.fav-star'));
     expect(star.nativeElement.classList).toContain('fa-regular');
 
     star.nativeElement.click();
@@ -102,9 +102,9 @@ describe('TopicElementComponent', () => {
 
     fixture.componentRef.setInput('isFavorite', true);
     fixture.detectChanges();
-    expect(
-      fixture.debugElement.query(By.css('.topic-element__fav')).nativeElement.classList
-    ).toContain('fa-solid');
+    expect(fixture.debugElement.query(By.css('.fav-star')).nativeElement.classList).toContain(
+      'fa-solid'
+    );
   });
 
   it('uses the solid "-selected" level color when it contains the selected indicator', () => {

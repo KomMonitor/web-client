@@ -32,6 +32,7 @@ import { FavoritesStateService } from './favorites-state.service';
 import { FavoritesTabComponent } from './favoritesTab/favorites-tab.component';
 import { KommonitorDataSetupService } from './kommonitor-data-setup.service';
 import { TopicTreeComponent } from './topicTree/topic-tree.component';
+import { TopicElementComponent } from 'components/ngComponents/common/topic-element/topic-element.component';
 
 @Component({
   selector: 'app-kommonitor-data-setup',
@@ -46,6 +47,7 @@ import { TopicTreeComponent } from './topicTree/topic-tree.component';
     FavoritesTabComponent,
     TopicTreeComponent,
     ExportItemCheckboxComponent,
+    TopicElementComponent,
   ],
 })
 export class KommonitorDataSetupComponent implements OnInit {
@@ -80,6 +82,23 @@ export class KommonitorDataSetupComponent implements OnInit {
   preppedIndicatorTopics: IndicatorsTopicsHierarchy[] = [];
   preppedKeywordList: any[] = [];
   topicSorting: TopicOrderMode | undefined;
+
+  /** Stand-in topic for the symbol-explanation preview of a selected topic row. */
+  readonly previewTopic: IndicatorsTopicsHierarchy = {
+    indicatorCount: 0,
+    indicatorData: [],
+    subTopics: [],
+    level: 0,
+    parent: undefined,
+    topicDescription: '',
+    topicId: 'preview-topic',
+    topicName: 'Thema mit selektiertem Indikator',
+    topicResource: '',
+    topicType: '',
+    displayOrder: 0,
+    wmsData: [],
+    wmsCount: 0,
+  };
 
   ngOnInit(): void {
     this.adminTopicsManagementService
@@ -239,6 +258,28 @@ export class KommonitorDataSetupComponent implements OnInit {
     if (this.headlineTopicsCollapsed.includes(topicID))
       this.headlineTopicsCollapsed = this.headlineTopicsCollapsed.filter((e) => e != topicID);
     else this.headlineTopicsCollapsed.push(topicID);
+  }
+
+  /** Adapts a headline/base-indicator hierarchy entry to the app-topic-element row structure. */
+  toHeadlineIndicatorTopic(item: {
+    headlineIndicator: IndicatorsDataset;
+    baseIndicators: IndicatorsDataset[];
+  }): IndicatorsTopicsHierarchy {
+    return {
+      indicatorCount: item.baseIndicators.length + 1,
+      indicatorData: [item.headlineIndicator, ...item.baseIndicators],
+      subTopics: [],
+      level: 0,
+      parent: undefined,
+      topicDescription: item.headlineIndicator.metadata?.description ?? '',
+      topicId: item.headlineIndicator.indicatorId,
+      topicName: item.headlineIndicator.indicatorName,
+      topicResource: '',
+      topicType: '',
+      displayOrder: 0,
+      wmsData: [],
+      wmsCount: 0,
+    };
   }
 
   onClickHierarchyIndicator(indicatorMetadata) {

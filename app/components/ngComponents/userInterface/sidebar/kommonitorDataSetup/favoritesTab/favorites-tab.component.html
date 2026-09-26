@@ -38,31 +38,18 @@
         <!-- Indikatoren -->
         @for (data of topic.indicatorData; track data) {
           <div
-            class="indicator-element list-group-item-grid-layout favs"
+            class="item"
             [ngClass]="{
-              'style-headline-indicator': data.isHeadlineIndicator,
-              selectedIndicator: selectionState.selectedIndicator.indicatorId == data.indicatorId,
+              'headline-indicator': data.isHeadlineIndicator,
+              'style-simple-indicator': !data.isHeadlineIndicator,
             }"
+            [style]="
+              levelColorStyling(
+                topic.level,
+                selectionState.selectedIndicator.indicatorId == data.indicatorId
+              )
+            "
           >
-            <div class="fav-indicator-row">
-              <div (click)="indicatorSelected.emit(data)">
-                <i class="fas fa-sitemap"></i>&nbsp;&nbsp;<b>{{ data.indicatorName }}</b> [{{
-                  data.unit
-                }}]
-              </div>
-              <app-indicator-metadata-tooltip
-                [indicatorData]="{ data: data, prefix: 'fav' }"
-              ></app-indicator-metadata-tooltip>
-              <i
-                [hidden]="!showFavSelection"
-                class="fav-star fa-star"
-                [ngClass]="{
-                  'fa-solid': indicatorFavItems.includes(data.indicatorId),
-                  'fa-regular': !indicatorFavItems.includes(data.indicatorId),
-                }"
-                (click)="indicatorFavToggled.emit(data.indicatorId)"
-              ></i>
-            </div>
             @if (exportModeService.exportMode()) {
               <app-export-item-checkbox
                 class="fav-export-checkbox"
@@ -70,6 +57,20 @@
                 [dataset]="toExportIndicator(data)"
               ></app-export-item-checkbox>
             }
+            <div class="content" (click)="indicatorSelected.emit(data)">
+              <i class="fas fa-sitemap"></i>
+              <p>{{ data.indicatorName }} [{{ data.unit }}]</p>
+            </div>
+            <app-indicator-metadata-tooltip
+              [indicatorData]="{ data: data, prefix: 'fav' }"
+            ></app-indicator-metadata-tooltip>
+            <div>
+              <app-favorite-star
+                [visible]="showFavSelection"
+                [isFavorite]="indicatorFavItems.includes(data.indicatorId)"
+                (toggled)="indicatorFavToggled.emit(data.indicatorId)"
+              ></app-favorite-star>
+            </div>
           </div>
         }
         <!-- WMS -->
