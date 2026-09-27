@@ -464,7 +464,12 @@ export class PdfExportService {
 
   private _buildLinkedItemsString(items: any[], nameKey: string, descKey: string): string {
     if (!items || items.length === 0) return '-';
-    return items.map((item: any) => `${item[nameKey]} - \n   ${item[descKey]}`).join('\n\n');
+    // The demo data contains null entries in `referencedIndicators`/`referencedGeoresources`;
+    // without this guard the PDF export throws while building the metadata document.
+    return items
+      .filter((item: any) => !!item)
+      .map((item: any) => `${item[nameKey]} - \n   ${item[descKey]}`)
+      .join('\n\n');
   }
 
   private _buildSpatialUnitsString(indicator: any, availableSpatialUnits: any[]): string {

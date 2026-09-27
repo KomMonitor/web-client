@@ -473,14 +473,22 @@ export class KommonitorLegendComponent implements OnInit {
   }
 
   async onClickDownloadMetadata() {
-    // create PDF from currently selected/displayed indicator!
-    const indicatorMetadata = this.selectionState.selectedIndicator;
-    const pdfName = indicatorMetadata.indicatorName + '.pdf';
-    const jspdf = await this.metadataExportService.generateIndicatorMetadataPdf(
-      indicatorMetadata,
-      pdfName
-    );
-    jspdf.save();
+    this.mapService.showLoadingIcon();
+    try {
+      // create PDF from currently selected/displayed indicator!
+      const indicatorMetadata = this.selectionState.selectedIndicator;
+      const pdfName = indicatorMetadata.indicatorName + '.pdf';
+      // pass the hierarchy-filtered spatial units so "Raumbezug" matches the currently
+      // active "Raumebene" filter instead of the indicator's full unfiltered spatial-unit list.
+      const jspdf = await this.metadataExportService.generateIndicatorMetadataPdf(
+        indicatorMetadata,
+        pdfName,
+        this.filteredSpatialUnits()
+      );
+      jspdf.save();
+    } finally {
+      this.mapService.hideLoadingIcon();
+    }
   }
 
   openExportModal() {

@@ -79,11 +79,17 @@ export class MetadataExportService {
     );
   }
 
-  async generateIndicatorMetadataPdf(indicatorMetadata, pdfName) {
+  /**
+   * `availableSpatialUnits` defaults to every spatial unit known to the app. Callers that show
+   * a hierarchy-filtered subset (e.g. the legend's "Raumebene" selector) should pass that subset
+   * instead, so the PDF's "Raumbezug" row matches what the user currently sees, not the
+   * indicator's full unfiltered spatial-unit list.
+   */
+  async generateIndicatorMetadataPdf(indicatorMetadata, pdfName, availableSpatialUnits?: any[]) {
     return this.pdfExportService.generateIndicatorMetadataPdf(
       indicatorMetadata,
       pdfName,
-      this.spatialUnitStore.availableSpatialUnits,
+      availableSpatialUnits ?? this.spatialUnitStore.availableSpatialUnits,
       this.topicStore.availableTopics
     );
   }
