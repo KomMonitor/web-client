@@ -268,6 +268,15 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.topicHierarchyStore.topicIndicatorHierarchy,
       this.topicSorting
     );
+    // The "Alphabetische Liste" and "Favoriten" tabs are built from the same keyword-filtered
+    // state above but, unlike preppedIndicatorTopics, were only ever computed once at initial
+    // load - without re-deriving them here, they kept showing the unfiltered catalogue.
+    this.preppedKeywordList = this.dataSetupService.prepareKeywordFilteredList();
+    this.favStateService.indicatorFavTopicsTree = this.dataSetupService.prepTopicsTree(
+      this.topicHierarchyStore.topicIndicatorHierarchy,
+      0,
+      undefined
+    );
   }
 
   setupDatePickerForIndicator() {
