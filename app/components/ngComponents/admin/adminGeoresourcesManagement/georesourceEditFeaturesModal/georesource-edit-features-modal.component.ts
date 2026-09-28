@@ -1,4 +1,3 @@
-import { KmEpsgPickerComponent } from 'components/ngComponents/customElements/epsg-picker/km-epsg-picker.component';
 import { HttpClient } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -32,6 +31,7 @@ import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { KmDatePickerComponent } from 'components/ngComponents/customElements/date-picker/km-date-picker.component';
+import { KmEpsgPickerComponent } from 'components/ngComponents/customElements/epsg-picker/km-epsg-picker.component';
 import { SingleFeatureEditComponent } from 'components/ngComponents/common/single-feature-edit/single-feature-edit.component';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';

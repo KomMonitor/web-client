@@ -1,4 +1,3 @@
-import { KmEpsgPickerComponent } from 'components/ngComponents/customElements/epsg-picker/km-epsg-picker.component';
 import { HttpClient } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -54,6 +53,7 @@ import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-
 import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { KmDatePickerComponent } from '../../../customElements/date-picker/km-date-picker.component';
+import { KmEpsgPickerComponent } from '../../../customElements/epsg-picker/km-epsg-picker.component';
 import { ResourceMetadataFormComponent } from '../../adminShared/resourceMetadataForm/resource-metadata-form.component';
 import { TopicHierarchyFormComponent } from '../../adminShared/topicHierarchyForm/topic-hierarchy-form.component';
 import { FormErrorComponent } from '../../adminShared/formError/form-error.component';

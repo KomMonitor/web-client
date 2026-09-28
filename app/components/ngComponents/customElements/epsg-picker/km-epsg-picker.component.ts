@@ -7,7 +7,14 @@ import {
   SimpleChanges,
   forwardRef,
 } from '@angular/core';
-import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+  ControlValueAccessor,
+  FormsModule,
+  NG_VALIDATORS,
+  NG_VALUE_ACCESSOR,
+  ValidationErrors,
+  Validator,
+} from '@angular/forms';
 
 export interface EpsgOption {
   code: number;
@@ -46,6 +53,10 @@ type FormValue = number | string | null;
  * chosen (e.g. a half-typed custom code) — so `Validators.required` covers "no valid code".
  * With `valueFormat="crs"` the form value is an `'EPSG:<code>'` string instead (`[(code)]` stays
  * numeric).
+ *
+ * As a form control it also reports an invalid custom code as the `epsgCode` validation error,
+ * so the host's `<app-form-error>` shows the message; the picker then only keeps the red border.
+ * Used through `[(code)]` alone, it renders the message itself.
  * A code that is not in `options` opens the free-input field pre-filled with it.
  */
 @Component({
@@ -60,9 +71,10 @@ type FormValue = number | string | null;
       useExisting: forwardRef(() => KmEpsgPickerComponent),
       multi: true,
     },
+    { provide: NG_VALIDATORS, useExisting: forwardRef(() => KmEpsgPickerComponent), multi: true },
   ],
 })
-export class KmEpsgPickerComponent implements OnChanges, ControlValueAccessor {
+export class KmEpsgPickerComponent implements OnChanges, ControlValueAccessor, Validator {
   @Input() code: number | null = null;
   @Input() options: EpsgOption[] = PREDEFINED_EPSG_CODES;
   @Input() label: string = 'Koordinatenreferenzsystem (EPSG)';
@@ -82,6 +94,9 @@ export class KmEpsgPickerComponent implements OnChanges, ControlValueAccessor {
 
   /** Validation state for the free-input field */
   customInputValid: boolean | null = null;
+
+  /** True once a form directive is attached; the host then renders the validation message. */
+  boundToForm = false;
 
   /** Last value we reported; `undefined` until the first emit. */
   private emittedCode: number | null | undefined = undefined;
@@ -129,6 +144,7 @@ export class KmEpsgPickerComponent implements OnChanges, ControlValueAccessor {
   }
 
   registerOnChange(fn: (value: FormValue) => void): void {
+    this.boundToForm = true;
     this.onChange = fn;
   }
 
@@ -138,6 +154,12 @@ export class KmEpsgPickerComponent implements OnChanges, ControlValueAccessor {
 
   setDisabledState(isDisabled: boolean): void {
     this.disabled = isDisabled;
+  }
+
+  // --- Validator ----------------------------------------------------------
+
+  validate(): ValidationErrors | null {
+    return this.isCustomMode && this.customInputValid === false ? { epsgCode: true } : null;
   }
 
   // ----------------------------------------------------------------------

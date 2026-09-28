@@ -67,6 +67,7 @@ describe('KmEpsgPickerComponent', () => {
       expect(picker.isCustomMode).toBe(true);
       expect(picker.customInputRaw).toBe(1.5);
       expect(picker.customInputValid).toBe(false);
+      expect(fixture.nativeElement.querySelector('.invalid-feedback')).not.toBeNull();
     });
 
     it('emits a valid custom code', () => {
@@ -165,6 +166,20 @@ describe('KmEpsgPickerComponent', () => {
       picker.onCustomInputChange();
 
       expect(host.control.value).toBe('');
+    });
+
+    it('reports a mistyped custom code as the epsgCode error', () => {
+      picker.selectedDropdownValue = picker.customSentinel;
+      picker.onDropdownChange();
+      picker.customInputRaw = 123456;
+      picker.onCustomInputChange();
+      fixture.detectChanges();
+
+      expect(host.control.errors).toEqual({ epsgCode: true });
+      // The host renders the message; the picker only keeps the red border.
+      const el: HTMLElement = fixture.nativeElement;
+      expect(el.querySelector('.invalid-feedback')).toBeNull();
+      expect(el.querySelector('input.is-invalid')).not.toBeNull();
     });
 
     it('reads EPSG strings, including the URN form', () => {

@@ -1373,6 +1373,7 @@
       "MAX": "The value must be at most {{max}}.",
       "PATTERN": "The input does not have the expected format.",
       "DATE_FORMAT": "Invalid date. Expected format: YYYY-MM-DD.",
+      "EPSG_CODE": "Please enter a whole number between 1 and 99999.",
       "MIN_DATE": "The date is before the earliest allowed date ({{value}}).",
       "MAX_DATE": "The date is after the latest allowed date ({{value}}).",
       "UNIQUE_NAME": "The name \"{{name}}\" is already taken.",

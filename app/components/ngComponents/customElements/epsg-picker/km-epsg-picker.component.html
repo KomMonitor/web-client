@@ -45,7 +45,7 @@
         @if (customInputValid === true) {
           <div class="valid-feedback">Gültiger EPSG-Code.</div>
         }
-        @if (customInputValid === false) {
+        @if (customInputValid === false && !boundToForm) {
           <div class="invalid-feedback">
             Bitte geben Sie eine ganze Zahl zwischen 1 und 99999 ein.
           </div>

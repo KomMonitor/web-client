@@ -1,7 +1,8 @@
-import { KmEpsgPickerComponent } from 'components/ngComponents/customElements/epsg-picker/km-epsg-picker.component';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { KmEpsgPickerComponent } from 'components/ngComponents/customElements/epsg-picker/km-epsg-picker.component';
+import { FormErrorComponent } from '../../../adminShared/formError/form-error.component';
 import { ResourceMetadataFormComponent } from '../../../adminShared/resourceMetadataForm/resource-metadata-form.component';
 import { IndicatorAddFormStateService } from '../indicator-add-form-state.service';
 
@@ -14,6 +15,7 @@ import { IndicatorAddFormStateService } from '../indicator-add-form-state.servic
     ReactiveFormsModule,
     ResourceMetadataFormComponent,
     KmEpsgPickerComponent,
+    FormErrorComponent,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

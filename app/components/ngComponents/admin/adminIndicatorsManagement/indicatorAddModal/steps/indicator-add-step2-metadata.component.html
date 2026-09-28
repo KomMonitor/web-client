@@ -15,8 +15,9 @@
   <div class="row vertical-align">
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
-        <km-epsg-picker [formControl]="state.metadataForm.controls.sridEPSG" label="SRID EPSG" />
-        <div class="help-block with-errors"></div>
+        <label>SRID EPSG</label>
+        <km-epsg-picker [formControl]="state.metadataForm.controls.sridEPSG" label="" />
+        <app-form-error [control]="state.metadataForm.controls.sridEPSG" />
       </div>
     </div>
   </div>

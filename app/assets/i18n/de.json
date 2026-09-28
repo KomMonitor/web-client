@@ -1373,6 +1373,7 @@
       "MAX": "Der Wert darf höchstens {{max}} sein.",
       "PATTERN": "Die Eingabe hat nicht das erwartete Format.",
       "DATE_FORMAT": "Ungültiges Datum. Erwartetes Format: JJJJ-MM-TT.",
+      "EPSG_CODE": "Bitte geben Sie eine ganze Zahl zwischen 1 und 99999 ein.",
       "MIN_DATE": "Das Datum liegt vor dem frühestmöglichen Datum ({{value}}).",
       "MAX_DATE": "Das Datum liegt nach dem spätestmöglichen Datum ({{value}}).",
       "UNIQUE_NAME": "Der Name „{{name}}“ ist bereits vergeben.",
