@@ -101,6 +101,22 @@ describe('importer form model', () => {
       expect(form.controls.converterParameters.controls['delimiter'].value).toBe(';');
     });
 
+    it('requires schema and mime type only where the converter offers them', () => {
+      const form = buildImporterForm();
+
+      syncConverterParameterControls(form, CONVERTER);
+      expect(form.controls.schema.hasError('required')).toBe(true);
+      expect(form.controls.mimeType.hasError('required')).toBe(true);
+
+      syncConverterParameterControls(form, OTHER_CONVERTER);
+      expect(form.controls.schema.valid).toBe(true);
+      expect(form.controls.mimeType.hasError('required')).toBe(true);
+
+      syncConverterParameterControls(form, null);
+      expect(form.controls.schema.valid).toBe(true);
+      expect(form.controls.mimeType.valid).toBe(true);
+    });
+
     it('clears the record for no converter', () => {
       const form = buildImporterForm();
       syncConverterParameterControls(form, CONVERTER);

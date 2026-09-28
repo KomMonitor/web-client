@@ -184,7 +184,9 @@
           mode="assign"
           formControlName="ownerOrganization"
           [mandantId]="chosenMandantId"
-        ></app-owner-organization-select>
+        >
+          <app-form-error [control]="addForm.controls.security.controls.ownerOrganization" />
+        </app-owner-organization-select>
         <hr />
         <div id="spatialUnitRoleForm" [style.display]="showRoleForm ? 'block' : 'none'">
           <label class="form-label">{{
@@ -291,7 +293,7 @@
             <label class="form-label"
               >{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_FORMAT_GEO' | translate }}*</label
             >
-            <select formControlName="converter" class="form-control">
+            <select formControlName="converter" class="form-control" appAria="su-data-converter">
               <option [ngValue]="null">
                 {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SOURCE_FORMAT' | translate }}
               </option>
@@ -304,7 +306,7 @@
                 </option>
               }
             </select>
-            <div class="help-block with-errors"></div>
+            <app-form-error [control]="importerForm.controls.converter" for="su-data-converter" />
           </div>
           @if (selectedConverter?.schemas; as converterSchemas) {
             <div>
@@ -312,7 +314,7 @@
                 <label class="form-label"
                   >{{ 'ADMIN_SPATIAL_UNITS.DATA.SCHEMA' | translate }}*</label
                 >
-                <select formControlName="schema" class="form-control">
+                <select formControlName="schema" class="form-control" appAria="su-data-schema">
                   <option [ngValue]="''">
                     {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SCHEMA' | translate }}
                   </option>
@@ -322,7 +324,7 @@
                     </option>
                   }
                 </select>
-                <div class="help-block with-errors"></div>
+                <app-form-error [control]="importerForm.controls.schema" for="su-data-schema" />
               </div>
             </div>
           }
@@ -332,7 +334,7 @@
                 <label class="form-label"
                   >{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_FORMAT' | translate }}*</label
                 >
-                <select formControlName="mimeType" class="form-control">
+                <select formControlName="mimeType" class="form-control" appAria="su-data-mime-type">
                   <option [ngValue]="''">
                     {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_FORMAT' | translate }}
                   </option>
@@ -342,7 +344,10 @@
                     </option>
                   }
                 </select>
-                <div class="help-block with-errors"></div>
+                <app-form-error
+                  [control]="importerForm.controls.mimeType"
+                  for="su-data-mime-type"
+                />
               </div>
             </div>
           }
@@ -372,7 +377,9 @@
                     </p>
                   </div>
                 }
-                <div class="help-block with-errors"></div>
+                <app-form-error
+                  [control]="importerForm.controls.converterParameters.controls[parameter.name]"
+                />
               </div>
             </div>
           }
@@ -389,7 +396,11 @@
                 <label class="form-label"
                   >{{ 'ADMIN_SPATIAL_UNITS.DATA.DATASOURCE_TYPE' | translate }}*</label
                 >
-                <select formControlName="datasourceType" class="form-control">
+                <select
+                  formControlName="datasourceType"
+                  class="form-control"
+                  appAria="su-data-datasource-type"
+                >
                   <option [ngValue]="null">
                     {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SOURCE_TYPE' | translate }}
                   </option>
@@ -399,7 +410,10 @@
                     </option>
                   }
                 </select>
-                <div class="help-block"></div>
+                <app-form-error
+                  [control]="importerForm.controls.datasourceType"
+                  for="su-data-datasource-type"
+                />
               </div>
               @if (selectedDatasourceType?.type === 'FILE') {
                 <div>
@@ -414,6 +428,7 @@
                     (change)="onSpatialUnitFileSelected($event)"
                     required
                   />
+                  <app-form-error [control]="addForm.controls.data" />
                   @if (selectedDataSourceFile) {
                     <div class="help-block">
                       <p>
@@ -517,6 +532,7 @@
                       <div class="help-block">
                         <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.MAX_Y' | translate }}</p>
                       </div>
+                      <app-form-error [control]="importerForm.controls.bbox" />
                     </div>
                   }
                 </div>
@@ -543,7 +559,13 @@
                           <div class="help-block">
                             <p>{{ parameter.description }}</p>
                           </div>
-                          <div class="help-block with-errors"></div>
+                          <app-form-error
+                            [control]="
+                              importerForm.controls.datasourceTypeParameters.controls[
+                                parameter.name
+                              ]
+                            "
+                          />
                         </div>
                       }
                     </div>
@@ -552,7 +574,6 @@
               }
             </div>
           }
-          <div class="help-block with-errors"></div>
         </div>
         <div class="col-md-3 col-sm-6 col-12">
           <div class="form-group">
@@ -570,7 +591,10 @@
                 {{ 'ADMIN_SPATIAL_UNITS.DATA.ID_ATTRIBUTE_HINT' | translate }}
               </p>
             </div>
-            <div class="help-block with-errors"></div>
+            <app-form-error
+              [control]="importerForm.controls.idProperty"
+              for="su-data-id-property"
+            />
           </div>
           <div class="form-group">
             <label class="form-label"
@@ -585,7 +609,10 @@
             <div class="help-block">
               <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.NAME_ATTRIBUTE_HINT' | translate }}</p>
             </div>
-            <div class="help-block with-errors"></div>
+            <app-form-error
+              [control]="importerForm.controls.nameProperty"
+              for="su-data-name-property"
+            />
           </div>
         </div>
         <div class="col-md-3 col-sm-6 col-12">
@@ -636,6 +663,9 @@
                 {{ 'ADMIN_SPATIAL_UNITS.DATA.VALID_FROM_HINT' | translate }}
               </p>
             </div>
+            <app-form-error
+              [control]="addForm.controls.data.controls.periodOfValidity.controls.startDate"
+            />
             <app-form-error
               [control]="addForm.controls.data.controls.periodOfValidity"
               keyOverride="ADMIN_SPATIAL_UNITS.DATA.PERIOD_INVALID"
@@ -839,12 +869,7 @@
   <button type="button" class="btn btn-outline-secondary" (click)="resetForm()">
     {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
-  <button
-    type="button"
-    class="btn btn-success"
-    (click)="addSpatialUnit()"
-    [disabled]="addForm.invalid"
-  >
+  <button type="button" class="btn btn-success" (click)="onSubmit()">
     {{ 'ADMIN_SPATIAL_UNITS.ADD_MODAL.SUBMIT' | translate }}
   </button>
 </div>

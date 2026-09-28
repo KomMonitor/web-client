@@ -1,4 +1,11 @@
-import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormArray,
+  FormControl,
+  FormGroup,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { SpatialUnitHierarchyMembershipPOSTInputType } from 'models/data-management-api';
 import { LinePatternOption } from '../../../customElements/line-pattern-picker/km-line-pattern-picker.component';
 import {
@@ -66,6 +73,11 @@ export type SpatialUnitMetadataStepGroup = FormGroup<{
 export type SpatialUnitDataStepGroup = FormGroup<{
   periodOfValidity: PeriodOfValidityFormGroup;
   importer: ImporterFormGroup;
+  /**
+   * The upload for a FILE data source. The file input is no
+   * ControlValueAccessor, so the host writes it from the `(change)` handler.
+   */
+  selectedFile: FormControl<File | null>;
 }>;
 
 export type SpatialUnitAddFormGroup = FormGroup<{
@@ -110,10 +122,14 @@ export function buildSpatialUnitAddForm(
 
   const security = buildSecurityStepForm({ withSecurity: options.withSecurity });
 
-  const data: SpatialUnitDataStepGroup = new FormGroup({
-    periodOfValidity: buildPeriodOfValidityForm({ requireStart: true }),
-    importer: buildImporterForm(),
-  });
+  const data: SpatialUnitDataStepGroup = new FormGroup(
+    {
+      periodOfValidity: buildPeriodOfValidityForm({ requireStart: true }),
+      importer: buildImporterForm(),
+      selectedFile: new FormControl<File | null>(null),
+    },
+    { validators: fileRequiredForFileDatasource }
+  );
 
   return new FormGroup({
     metadata,
@@ -121,6 +137,17 @@ export function buildSpatialUnitAddForm(
     security,
     data,
   });
+}
+
+/**
+ * A file is mandatory exactly for a FILE data source. Sits on the data group,
+ * the nearest scope holding both the data source type and the upload.
+ */
+export function fileRequiredForFileDatasource(group: AbstractControl): ValidationErrors | null {
+  if (group.get('importer.datasourceType')?.value?.type !== 'FILE') {
+    return null;
+  }
+  return group.get('selectedFile')?.value ? null : { fileRequired: true };
 }
 
 /**

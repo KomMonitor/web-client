@@ -59,6 +59,8 @@
         <option [value]="org.organizationalUnitId">{{ org.name }}</option>
       }
     </select>
+    <!-- Slot for the host's validation message, so it lines up under the select. -->
+    <ng-content />
   </div>
   <div class="col-md-3">
     @if (mode === 'transfer') {

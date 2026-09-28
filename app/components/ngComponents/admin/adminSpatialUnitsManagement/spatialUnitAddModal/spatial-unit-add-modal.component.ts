@@ -13,45 +13,35 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 import { NgbActiveModal, NgbDatepicker } from '@ng-bootstrap/ng-bootstrap';
-import { KommonitorImporterHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service';
-import { AccessControlService } from 'services/access-control-service/access-control.service';
-import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
-import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
-import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
-import { MandantService } from 'services/mandant-service/mandant.service';
-import { SpatialUnitHierarchyApiService } from 'services/spatial-unit-hierarchy-service/spatial-unit-hierarchy-api.service';
 import { SpatialUnitHierarchyOverviewType } from 'models/data-management-api';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import {
   LABELED_LOI_DASH_ARRAY_OBJECTS,
   SPATIAL_UNIT_METADATA_STRUCTURE,
   buildMappingConfigExport,
   buildSpatialUnitMetadataExport,
 } from 'services/adminSpatialUnit/spatial-unit-metadata.util';
-import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { MandantService } from 'services/mandant-service/mandant.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { SpatialUnitHierarchyApiService } from 'services/spatial-unit-hierarchy-service/spatial-unit-hierarchy-api.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { KommonitorImporterHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManagementPanel/owner-organization-select.component';
+import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
+import { SpatialUnitRefreshRequest } from '../spatial-unit-refresh.model';
 
-import { KmColorPickerComponent } from '../../../customElements/color-picker/km-color-picker.component';
-import {
-  KmLinePatternPickerComponent,
-  LinePatternOption,
-} from '../../../customElements/line-pattern-picker/km-line-pattern-picker.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { TranslateModule } from '@ngx-translate/core';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import { LinePatternOption } from '../../../customElements/line-pattern-picker/km-line-pattern-picker.component';
 
 import { TranslateService } from '@ngx-translate/core';
-import { KmDatePickerComponent } from '../../../customElements/date-picker/km-date-picker.component';
-import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
-import {
-  addOrUpdateAttributeMapping,
-  getErrorMessage,
-  removeAttributeMapping,
-} from '../spatial-unit-import.util';
 import type {
   AttributeMappingRow,
   DatasourceType,
@@ -59,32 +49,40 @@ import type {
   MappingConfigImport,
 } from 'services/resource-import-service/resource-import.model';
 import { ResourceImportService } from 'services/resource-import-service/resource-import.service';
-import { ResourceMetadataFormComponent } from '../../adminShared/resourceMetadataForm/resource-metadata-form.component';
-import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
-import { FormControlAriaDirective } from '../../adminShared/formError/form-control-aria.directive';
-import {
-  patchMetadataFormFromApi,
-  ResourceMetadataFormGroup,
-  ResourceMetadataFormValue,
-} from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
-import { controlInvalidSignal } from '../../adminShared/forms/control-state';
-import { patchPeriodOfValidityForm } from '../../adminShared/periodOfValidityForm/period-of-validity-form.model';
+import { KmDatePickerComponent } from '../../../customElements/date-picker/km-date-picker.component';
 import {
   attributeMappingDraftToRow,
   buildAttributeMappingDraftForm,
   patchAttributeMappingDraft,
   resetAttributeMappingDraft,
 } from '../../adminShared/attributeMappingDraftForm/attribute-mapping-draft-form.model';
+import { FormControlAriaDirective } from '../../adminShared/formError/form-control-aria.directive';
+import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
+import { controlInvalidSignal } from '../../adminShared/forms/control-state';
 import {
   BboxType,
   ImporterFormGroup,
+  SYNTHETIC_DATASOURCE_PARAMETERS,
   importerFormToConfig,
   patchBboxFromDataSourceParameters,
   patchImporterFormFromMappingConfig,
-  SYNTHETIC_DATASOURCE_PARAMETERS,
   syncConverterParameterControls,
   syncDatasourceParameterControls,
 } from '../../adminShared/importerForm/importer-form.model';
+import { patchPeriodOfValidityForm } from '../../adminShared/periodOfValidityForm/period-of-validity-form.model';
+import { ResourceMetadataFormComponent } from '../../adminShared/resourceMetadataForm/resource-metadata-form.component';
+import {
+  ResourceMetadataFormGroup,
+  ResourceMetadataFormValue,
+  patchMetadataFormFromApi,
+} from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
+import { membershipsForRows } from '../hierarchyAssignment/hierarchy-assignment.model';
+import {
+  addOrUpdateAttributeMapping,
+  getErrorMessage,
+  removeAttributeMapping,
+} from '../spatial-unit-import.util';
+import { SpatialUnitMetadataStepComponent } from './metadataStep/spatial-unit-metadata-step.component';
 import {
   DEFAULT_OUTLINE_COLOR,
   DEFAULT_OUTLINE_WIDTH,
@@ -92,10 +90,11 @@ import {
   buildSpatialUnitAddForm,
   spatialUnitAddFormToApi,
 } from './spatial-unit-add-form.model';
-import { membershipsForRows } from '../hierarchyAssignment/hierarchy-assignment.model';
-import { SpatialUnitMetadataStepComponent } from './metadataStep/spatial-unit-metadata-step.component';
 
 // Removed in favor of standalone km-date-picker component providers
+
+/** Wizard steps in stepper order; each names its child group of `addForm`. */
+const STEP_KEYS = ['metadata', 'general', 'security', 'data'] as const;
 
 @Component({
   selector: 'app-spatial-unit-add-modal',
@@ -105,8 +104,6 @@ import { SpatialUnitMetadataStepComponent } from './metadataStep/spatial-unit-me
     FormsModule,
     ReactiveFormsModule,
     LoadingOverlayComponent,
-    KmColorPickerComponent,
-    KmLinePatternPickerComponent,
     KmDatePickerComponent,
     StepperComponent,
     SpatialUnitMetadataStepComponent,
@@ -194,22 +191,26 @@ export class SpatialUnitAddModalComponent implements OnInit {
       key: 'metadata',
       label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_UNIT_METADATA',
       invalid: this.metadataStepInvalid,
+      onLeave: () => this.addForm.controls.metadata.markAllAsTouched(),
     },
     {
       key: 'general',
       label: 'ADMIN_SHARED_UI.STEP_LABELS.GENERAL_METADATA',
       invalid: this.generalStepInvalid,
+      onLeave: () => this.addForm.controls.general.markAllAsTouched(),
     },
     {
       key: 'security',
       label: 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE',
       when: () => this.envConfigService.enableKeycloakSecurity,
       invalid: this.securityStepInvalid,
+      onLeave: () => this.addForm.controls.security.markAllAsTouched(),
     },
     {
       key: 'data',
       label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_DATASET',
       invalid: this.dataStepInvalid,
+      onLeave: () => this.addForm.controls.data.markAllAsTouched(),
     },
   ]);
 
@@ -255,7 +256,9 @@ export class SpatialUnitAddModalComponent implements OnInit {
    */
   readonly syntheticDatasourceParameters = SYNTHETIC_DATASOURCE_PARAMETERS;
 
-  selectedDataSourceFile: File | null = null;
+  get selectedDataSourceFile(): File | null {
+    return this.addForm.controls.data.controls.selectedFile.value;
+  }
 
   // Attribute mapping
   /**
@@ -532,7 +535,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
    * control's `valueChanges`, so it must not write the control back.
    */
   private applyDatasourceTypeChange(datasourceType: any): void {
-    this.selectedDataSourceFile = null;
+    this.addForm.controls.data.controls.selectedFile.setValue(null);
     this.importerForm.controls.idProperty.setValue('');
     this.importerForm.controls.nameProperty.setValue('');
     this.importerForm.controls.bboxType.setValue('' as BboxType);
@@ -543,7 +546,9 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   onSpatialUnitFileSelected(event: any) {
     const file = event?.target?.files?.[0] as File | undefined;
-    this.selectedDataSourceFile = file ?? null;
+    const control = this.addForm.controls.data.controls.selectedFile;
+    control.setValue(file ?? null);
+    control.markAsTouched();
   }
 
   onChangeOutlineDashArray(outlineDashArrayObject: LinePatternOption | null) {
@@ -711,11 +716,20 @@ export class SpatialUnitAddModalComponent implements OnInit {
     }
   }
 
+  /**
+   * The submit button stays clickable: on an incomplete form it reveals every
+   * step marking and field hint and jumps to the first step that needs input,
+   * instead of sitting disabled without saying why.
+   */
   onSubmit() {
-    if (!this.spatialUnitLevelInvalid) {
+    if (this.addForm.valid) {
       this.addSpatialUnit();
-    } else {
-      this.loadingData.set(false);
+      return;
+    }
+    this.addForm.markAllAsTouched();
+    const firstInvalidStep = STEP_KEYS.find((key) => this.addForm.controls[key].invalid);
+    if (firstInvalidStep) {
+      this.stepper.goToKey(firstInvalidStep);
     }
   }
 
@@ -935,7 +949,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.selectedOutlineDashArrayObject = this.defaultOutlineDashArray();
     resetAttributeMappingDraft(this.attributeMappingDraft, this.defaultAttributeMappingType());
 
-    this.selectedDataSourceFile = null;
     this.attributeMappings_adminView = [];
     this.importerErrors.set([]);
     this.importedFeatures.set([]);

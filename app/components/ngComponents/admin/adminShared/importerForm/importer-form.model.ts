@@ -110,12 +110,24 @@ export function syncParameterControls(
   });
 }
 
-/** Syncs the converter parameter record to the selected converter. */
+/**
+ * Syncs the converter parameter record to the selected converter, and makes
+ * `schema` / `mimeType` required exactly when the converter offers a choice —
+ * mirroring `buildConverterDefinition`, which only fails on a missing schema if
+ * the converter declares schemas.
+ */
 export function syncConverterParameterControls(
   form: ImporterFormGroup,
   converter: Converter | null | undefined
 ): void {
   syncParameterControls(form.controls.converterParameters, converter?.parameters);
+  setRequired(form.controls.schema, !!converter?.schemas?.length);
+  setRequired(form.controls.mimeType, !!converter?.mimeTypes?.length);
+}
+
+function setRequired(control: FormControl<string>, required: boolean): void {
+  control.setValidators(required ? [Validators.required] : []);
+  control.updateValueAndValidity({ emitEvent: false });
 }
 
 /**

@@ -98,4 +98,68 @@ describe('WizardStepper', () => {
 
     expect(marked.steps.some((step) => step.invalid)).toBe(true);
   });
+
+  describe('onLeave', () => {
+    let left: string[];
+    let leaving: WizardStepper;
+
+    beforeEach(() => {
+      left = [];
+      leaving = new WizardStepper([
+        { key: 'metadata', label: 'M', onLeave: () => left.push('metadata') },
+        {
+          key: 'security',
+          label: 'S',
+          when: () => securityEnabled,
+          onLeave: () => left.push('security'),
+        },
+        { key: 'data', label: 'D', onLeave: () => left.push('data') },
+      ]);
+    });
+
+    it('runs for the step being left by next, previous and goTo', () => {
+      leaving.next();
+      leaving.goTo(3);
+      leaving.previous();
+
+      expect(left).toEqual(['metadata', 'security', 'data']);
+    });
+
+    it('runs when the stepper writes currentStep directly (bubble click)', () => {
+      leaving.currentStep = 3;
+
+      expect(left).toEqual(['metadata']);
+    });
+
+    it('does not run when the step does not change or on reset', () => {
+      leaving.goTo(1);
+      leaving.previous();
+      leaving.goTo(3);
+      left = [];
+
+      leaving.reset();
+
+      expect(left).toEqual([]);
+      expect(leaving.currentStep).toBe(1);
+    });
+
+    it('resolves the left step among the visible ones', () => {
+      securityEnabled = false;
+      leaving.goTo(2);
+      leaving.previous();
+
+      expect(left).toEqual(['metadata', 'data']);
+    });
+  });
+
+  it('goToKey jumps to a visible step and ignores hidden or unknown keys', () => {
+    securityEnabled = false;
+    stepper.goToKey('data');
+    expect(stepper.currentStep).toBe(2);
+    expect(stepper.isActive('data')).toBe(true);
+
+    stepper.goToKey('security');
+    stepper.goToKey('nope');
+    expect(stepper.currentStep).toBe(2);
+  });
 });
