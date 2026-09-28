@@ -48,12 +48,15 @@
       <div class="row">
         <div class="col-md-4">
           <div class="form-group">
-            <label class="form-label">{{ 'ADMIN_SHARED.NAME' | translate }}*</label>
+            <label class="form-label" for="role-metadata-name"
+              >{{ 'ADMIN_SHARED.NAME' | translate }}*</label
+            >
             <input
               class="form-control"
               type="text"
               [placeholder]="'ADMIN_ROLES.EDIT_METADATA_MODAL.NAME_PLACEHOLDER' | translate"
               [formControl]="form.controls.name"
+              appAria="role-metadata-name"
               required
             />
             <div class="help-block">
@@ -61,6 +64,7 @@
             </div>
             <app-form-error
               [control]="form.controls.name"
+              for="role-metadata-name"
               [keyOverride]="
                 form.controls.name.hasError('uniqueName')
                   ? 'ADMIN_ROLES.EDIT_METADATA_MODAL.NAME_INVALID'
@@ -71,21 +75,26 @@
         </div>
         <div class="col-md-4">
           <div class="form-group">
-            <label class="form-label">{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}*</label>
+            <label class="form-label" for="role-metadata-description"
+              >{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}*</label
+            >
             <textarea
               class="form-control"
               rows="4"
               [placeholder]="'ADMIN_ROLES.EDIT_METADATA_MODAL.DESCRIPTION_PLACEHOLDER' | translate"
               [formControl]="form.controls.description"
               name="description"
+              appAria="role-metadata-description"
               required
             ></textarea>
-            <app-form-error [control]="form.controls.description" />
+            <app-form-error [control]="form.controls.description" for="role-metadata-description" />
           </div>
         </div>
         <div class="col-md-4">
           <div class="form-group">
-            <label class="form-label">{{ 'ADMIN_ROLES.CONTACT' | translate }}*</label>
+            <label class="form-label" for="role-metadata-contact"
+              >{{ 'ADMIN_ROLES.CONTACT' | translate }}*</label
+            >
             <!--
               Single-line input, not a 4-row textarea: this holds one contact
               line (the placeholder is an e-mail address). As a textarea it was
@@ -98,9 +107,10 @@
               [placeholder]="'ADMIN_ROLES.EDIT_METADATA_MODAL.CONTACT_PLACEHOLDER' | translate"
               [formControl]="form.controls.contact"
               name="contact"
+              appAria="role-metadata-contact"
               required
             />
-            <app-form-error [control]="form.controls.contact" />
+            <app-form-error [control]="form.controls.contact" for="role-metadata-contact" />
           </div>
         </div>
       </div>

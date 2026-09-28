@@ -273,18 +273,6 @@
                 {{ 'ADMIN_WMS.COMMON.TEST_CONNECTION' | translate }}
               </button>
             </div>
-            <div class="row form-section-row">
-              @if (wmsTestStatus === true) {
-                <div class="wmsTest_success">
-                  {{ 'ADMIN_WMS.COMMON.TEST_SUCCESS' | translate }}
-                </div>
-              }
-              @if (wmsTestStatus === false) {
-                <div class="wmsTest_error">
-                  {{ 'ADMIN_WMS.COMMON.TEST_FAILURE' | translate }}
-                </div>
-              }
-            </div>
             <div class="stepper-buttons">
               <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
                 {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}

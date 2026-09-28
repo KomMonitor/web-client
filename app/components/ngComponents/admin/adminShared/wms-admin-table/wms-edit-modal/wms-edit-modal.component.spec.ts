@@ -32,4 +32,14 @@ describe('WmsEditModalComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('clears the connection-test alerts on reset', () => {
+    component.testSuccessMessage.set(true);
+    component.testErrorMessage.set(true);
+
+    component.resetWmsAddForm();
+
+    expect(component.testSuccessMessage()).toBe(false);
+    expect(component.testErrorMessage()).toBe(false);
+  });
 });

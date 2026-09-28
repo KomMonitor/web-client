@@ -106,6 +106,15 @@
           <p class="assignment-summary">
             <span aria-hidden="true">↳</span> {{ summary.key | translate: summary.params }}
           </p>
+        } @else if (
+          row.controls.hierarchyId.invalid &&
+          (row.controls.hierarchyId.touched || row.controls.hierarchyId.dirty)
+        ) {
+          <!-- Shown once the step was left or submitted (markAllAsTouched),
+               so a fresh row does not start out red. -->
+          <p class="assignment-error">
+            {{ 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.HIERARCHY_REQUIRED' | translate }}
+          </p>
         } @else if (row.hasError('referenceRequired')) {
           <p class="assignment-error">
             {{ 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.REFERENCE_REQUIRED' | translate }}

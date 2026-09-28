@@ -1429,8 +1429,6 @@
       "URL_LABEL": "URL of the resource",
       "LAYER_LABEL": "Layer",
       "TEST_CONNECTION": "Test connection",
-      "TEST_SUCCESS": "Test of the WMS connection data successful!",
-      "TEST_FAILURE": "Test of the WMS connection data NOT successful! WMS data incorrect or not usable",
       "TOPICS_SUBTITLE": "Information about the topic hierarchy of the georesource",
       "CONNECTION_TEST_TITLE": "Connection test",
       "CONNECTION_TEST_SUCCESS": "The connection was tested successfully",
@@ -1723,7 +1721,8 @@
       "ADD_ASSIGNMENT_HINT": "Assignments can be changed later via the hierarchy administration.",
       "NO_HIERARCHIES": "No hierarchy exists for this tenant yet.",
       "REFERENCE_REQUIRED": "Please choose a reference level.",
-      "DUPLICATE_HIERARCHY": "Each hierarchy can be assigned only once."
+      "DUPLICATE_HIERARCHY": "Each hierarchy can be assigned only once.",
+      "HIERARCHY_REQUIRED": "Please select a hierarchy."
     },
     "METADATA_STEP": {
       "TITLE": "Spatial unit level metadata",

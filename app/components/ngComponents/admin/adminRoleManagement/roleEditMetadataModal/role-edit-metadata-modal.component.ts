@@ -12,6 +12,7 @@ import {
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { uniqueNameValidator } from '../../adminShared/validators/admin-validators';
 import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
+import { FormControlAriaDirective } from '../../adminShared/formError/form-control-aria.directive';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
@@ -25,7 +26,13 @@ import { TranslateService } from '@ngx-translate/core';
   selector: 'app-role-edit-metadata-modal',
   templateUrl: './role-edit-metadata-modal.component.html',
   styleUrls: ['./role-edit-metadata-modal.component.scss'],
-  imports: [ReactiveFormsModule, FormErrorComponent, LoadingOverlayComponent, TranslateModule],
+  imports: [
+    ReactiveFormsModule,
+    FormErrorComponent,
+    FormControlAriaDirective,
+    LoadingOverlayComponent,
+    TranslateModule,
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

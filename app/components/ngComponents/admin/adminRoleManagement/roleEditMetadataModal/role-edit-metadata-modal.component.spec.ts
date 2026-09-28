@@ -172,6 +172,30 @@ describe('RoleEditMetadataModalComponent', () => {
       );
     });
 
+    it('links each label to its field and each error to the field it describes', () => {
+      for (const id of [
+        'role-metadata-name',
+        'role-metadata-description',
+        'role-metadata-contact',
+      ]) {
+        expect(fixture.nativeElement.querySelector(`label[for="${id}"]`)).not.toBeNull();
+        expect(fixture.nativeElement.querySelector(`#${id}`)).not.toBeNull();
+      }
+
+      component.form.patchValue({ description: '' });
+      submitButton().click();
+      fixture.detectChanges();
+
+      const description: HTMLElement = fixture.nativeElement.querySelector(
+        '#role-metadata-description'
+      );
+      expect(description.getAttribute('aria-invalid')).toBe('true');
+      expect(description.getAttribute('aria-describedby')).toBe('role-metadata-description-error');
+      expect(
+        fixture.nativeElement.querySelector('#role-metadata-description-error')
+      ).not.toBeNull();
+    });
+
     it('saves a complete form', () => {
       submitButton().click();
 

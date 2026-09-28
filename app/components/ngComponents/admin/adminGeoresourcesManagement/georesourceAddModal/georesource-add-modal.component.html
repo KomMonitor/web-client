@@ -282,7 +282,9 @@
               @if (markerStyle === 'text') {
                 <div class="col-md-3 col-sm-6 col-12">
                   <div class="form-group">
-                    <label>{{ 'ADMIN_GEORESOURCES.COMMON.TEXT' | translate }}*</label>
+                    <label for="gr-metadata-marker-text"
+                      >{{ 'ADMIN_GEORESOURCES.COMMON.TEXT' | translate }}*</label
+                    >
                     <br />
                     <input
                       type="text"
@@ -293,9 +295,12 @@
                       appAria="gr-metadata-marker-text"
                       placeholder=""
                     />
-                    <div class="help-block with-errors">
-                      {{ 'ADMIN_GEORESOURCES.ADD_MODAL.TEXT_LENGTH_HINT' | translate }}
-                    </div>
+                    <!-- Plain hint until the length error replaces it: one message at a time. -->
+                    @if (!poiMarkerTextErrorShown) {
+                      <div class="help-block">
+                        {{ 'ADMIN_GEORESOURCES.ADD_MODAL.TEXT_LENGTH_HINT' | translate }}
+                      </div>
+                    }
                     <app-form-error
                       [control]="addForm.controls.metadata.controls.style.controls.poiMarkerText"
                       for="gr-metadata-marker-text"

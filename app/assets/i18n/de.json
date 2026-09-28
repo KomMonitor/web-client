@@ -1429,8 +1429,6 @@
       "URL_LABEL": "URL der Resource",
       "LAYER_LABEL": "Layer",
       "TEST_CONNECTION": "Verbindung testen",
-      "TEST_SUCCESS": "Test der WMS-Verbindungsdaten erfolgreich!",
-      "TEST_FAILURE": "Test der WMS-Verbindungsdaten NICHT erfolgreich! WMS Daten nicht korrekt oder nicht nutzbar",
       "TOPICS_SUBTITLE": "Angaben über die Themenhierarchie der Georessource",
       "CONNECTION_TEST_TITLE": "Verbindungstest",
       "CONNECTION_TEST_SUCCESS": "Die Verbindung wurde erfoglreich getestet",
@@ -1723,7 +1721,8 @@
       "ADD_ASSIGNMENT_HINT": "Zuordnungen sind später über die Hierarchieverwaltung änderbar.",
       "NO_HIERARCHIES": "Für diesen Mandanten existiert noch keine Hierarchie.",
       "REFERENCE_REQUIRED": "Bitte eine Bezugsebene wählen.",
-      "DUPLICATE_HIERARCHY": "Jede Hierarchie kann nur einmal zugeordnet werden."
+      "DUPLICATE_HIERARCHY": "Jede Hierarchie kann nur einmal zugeordnet werden.",
+      "HIERARCHY_REQUIRED": "Bitte eine Hierarchie wählen."
     },
     "METADATA_STEP": {
       "TITLE": "Metadaten der Raumebene",

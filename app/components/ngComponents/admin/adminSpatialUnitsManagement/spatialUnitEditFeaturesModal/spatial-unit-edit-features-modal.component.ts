@@ -178,7 +178,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   }
 
   // Data source input
-  geoJsonString: string = '';
   get selectedDataSourceFile(): File | null {
     return this.editForm.controls.selectedFile.value;
   }
@@ -472,7 +471,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     this.spatialUnitFeaturesGeoJSON = null;
     this.remainingFeatureHeaders = [];
     this.periodOfValidity = { startDate: '', endDate: '' };
-    this.geoJsonString = '';
     this.spatialUnitDataSourceIdProperty = '';
     this.spatialUnitDataSourceNameProperty = '';
     this.converter = null;

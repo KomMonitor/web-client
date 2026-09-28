@@ -626,6 +626,28 @@ describe('GeoresourceAddModalComponent', () => {
     });
   });
 
+  describe('poiMarkerTextErrorShown', () => {
+    it('stays false for an untouched invalid text, so the plain hint shows', () => {
+      styleGroup().controls.poiMarkerText.setValue('ABCD');
+
+      expect(component.poiMarkerTextErrorShown).toBe(false);
+    });
+
+    it('turns true once the invalid text is touched, replacing the hint', () => {
+      styleGroup().controls.poiMarkerText.setValue('ABCD');
+      styleGroup().controls.poiMarkerText.markAsTouched();
+
+      expect(component.poiMarkerTextErrorShown).toBe(true);
+    });
+
+    it('stays false for a touched valid text', () => {
+      styleGroup().controls.poiMarkerText.setValue('AB');
+      styleGroup().controls.poiMarkerText.markAsTouched();
+
+      expect(component.poiMarkerTextErrorShown).toBe(false);
+    });
+  });
+
   // ---------------------------------------------------------------------------
 
   describe('onChangeGeoresourceType', () => {

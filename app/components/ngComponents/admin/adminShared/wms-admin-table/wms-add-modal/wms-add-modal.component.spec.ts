@@ -121,6 +121,31 @@ describe('WmsAddModalComponent', () => {
     expect(component.stepper.steps.some((step) => step.invalid)).toBe(false);
   });
 
+  it('clears a previous connection-test alert on reset, keeping the register result', () => {
+    ogcService.testConnection.mockReturnValueOnce(of({ success: false }));
+    fillRequired();
+    component.testConnection();
+    expect(component.testErrorMessage()).toBe(true);
+    component.securityForm.controls.ownerOrganization.setValue('org-1');
+
+    component.onSubmit();
+
+    expect(component.successMessage()).toBe(true);
+    expect(component.testErrorMessage()).toBe(false);
+    expect(component.testSuccessMessage()).toBe(false);
+  });
+
+  it('clears a successful connection-test alert on reset', () => {
+    fillRequired();
+    component.testConnection();
+    expect(component.testSuccessMessage()).toBe(true);
+
+    component.resetWmsAddForm();
+
+    expect(component.testSuccessMessage()).toBe(false);
+    expect(component.testErrorMessage()).toBe(false);
+  });
+
   describe('with Keycloak disabled', () => {
     let plainFixture: ComponentFixture<WmsAddModalComponent>;
     let plain: WmsAddModalComponent;

@@ -91,8 +91,6 @@ export class WmsAddModalComponent implements OnInit {
   testErrorMessage = signal(false);
   testSuccessMessage = signal(false);
 
-  wmsTestStatus: boolean | undefined = undefined;
-
   metadataForm = new FormGroup({
     title: new FormControl<string>('', Validators.required),
     description: new FormControl<string>('', Validators.required),
@@ -269,7 +267,10 @@ export class WmsAddModalComponent implements OnInit {
     this.topicsForm.reset();
     this.securityForm.reset();
 
-    this.wmsTestStatus = undefined;
+    // A connection test belongs to the form being reset; its alert must not
+    // outlive it (e.g. an old failure shown next to a successful register).
+    this.testSuccessMessage.set(false);
+    this.testErrorMessage.set(false);
 
     this.roleGrid?.reset();
 

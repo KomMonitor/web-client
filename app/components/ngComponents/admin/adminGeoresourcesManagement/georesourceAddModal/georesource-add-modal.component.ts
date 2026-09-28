@@ -275,6 +275,15 @@ export class GeoresourceAddModalComponent implements OnInit {
   get poiMarkerTextInvalid(): boolean {
     return this.styleGroup.controls.poiMarkerText.hasError('maxlength');
   }
+  /**
+   * True while `<app-form-error>` shows the length error (same touched/dirty
+   * rule), so the template hides the plain length hint instead of showing two
+   * messages.
+   */
+  get poiMarkerTextErrorShown(): boolean {
+    const control = this.styleGroup.controls.poiMarkerText;
+    return control.invalid && (control.touched || control.dirty);
+  }
 
   protected get periodOfValidityGroup() {
     return this.addForm.controls.data.controls.periodOfValidity;

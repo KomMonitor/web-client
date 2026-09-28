@@ -89,18 +89,6 @@ export const SPATIAL_UNIT_METADATA_STRUCTURE = {
   spatialUnitLevel: 'Name of spatial unit dataset',
 };
 
-/** Minimal required-field validation for the spatial-unit metadata form. */
-export function validateSpatialUnitMetadata(
-  _metadata: any,
-  spatialUnitLevel: string
-): { isValid: boolean; errors: string[] } {
-  const errors: string[] = [];
-  if (!spatialUnitLevel || spatialUnitLevel.trim() === '') {
-    errors.push('Raumebene Name ist erforderlich.');
-  }
-  return { isValid: errors.length === 0, errors };
-}
-
 /** Both dates are optional; when both parse, start must lie before end. */
 export function validatePeriodOfValidity(
   startDate: string,

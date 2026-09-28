@@ -2,7 +2,6 @@ import {
   buildSpatialUnitMetadataPatchBody,
   convertEmptyToNull,
   validatePeriodOfValidity,
-  validateSpatialUnitMetadata,
 } from './spatial-unit-metadata.util';
 
 /**
@@ -53,19 +52,6 @@ describe('validatePeriodOfValidity', () => {
 
   it('accepts unparseable dates instead of guessing', () => {
     expect(validatePeriodOfValidity('gestern', 'morgen')).toEqual({ isValid: true });
-  });
-});
-
-describe('validateSpatialUnitMetadata', () => {
-  it('requires a spatial unit level', () => {
-    const result = validateSpatialUnitMetadata({}, '   ');
-
-    expect(result.isValid).toBe(false);
-    expect(result.errors).toHaveLength(1);
-  });
-
-  it('accepts a non-empty level', () => {
-    expect(validateSpatialUnitMetadata({}, 'Stadtteile')).toEqual({ isValid: true, errors: [] });
   });
 });
 
