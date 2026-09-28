@@ -98,7 +98,8 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
       {
         headerName: this.translate.instant('ADMIN_SHARED.EDIT_FUNCTIONS'),
         pinned: 'left',
-        maxWidth: 170,
+        maxWidth: 200,
+        minWidth: 180,
         checkboxSelection: false,
         headerCheckboxSelection: false,
         headerCheckboxSelectionFilteredOnly: true,
