@@ -39,6 +39,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:local": "ng serve --configuration local-stack",
     "build": "ng build",
     "serve:dist": "http-server dist/kommonitor-client -p 8000 -P http://localhost:8000?",
     "watch": "ng build --watch --configuration development",
