@@ -173,6 +173,7 @@ describe('IndicatorAddFormStateService', () => {
       datasource: 'Quelle',
       contact: 'Kontakt',
       updateInterval: UPDATE_INTERVAL_OPTIONS[0],
+      lastUpdate: '2026-01-01',
     });
     service.classification.init(SPATIAL_UNITS);
     service.classification.onColorSchemeSelected('Blues');
@@ -417,6 +418,7 @@ describe('IndicatorAddFormStateService', () => {
           'Datenquelle (Schritt 2)',
           'Datenhalter und Kontakt (Schritt 2)',
           'Aktualisierungszyklus (Schritt 2)',
+          'Datum der letzten Aktualisierung (Schritt 2)',
           'Eigentümer-Organisation (Schritt 7)',
         ])
       );

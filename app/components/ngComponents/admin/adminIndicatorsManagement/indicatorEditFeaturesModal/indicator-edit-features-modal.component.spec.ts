@@ -246,12 +246,16 @@ describe('IndicatorEditFeaturesModalComponent', () => {
       ]);
     });
 
-    it('skips the CRS parameters the template hides, so they cannot block the submit gate', () => {
+    it('builds a required CRS control, which the converter definition needs', () => {
+      // Regression: CRS used to be hidden, so the form looked valid while
+      // `buildConverterDefinition` returned null for every GeoJSON import.
       component.converter = { ...CONVERTER, parameters: [{ name: 'CRS', mandatory: true }] };
 
       component.onChangeConverter();
 
-      expect(component.editForm.controls.converterParameters.controls['CRS']).toBeUndefined();
+      const crs = component.editForm.controls.converterParameters.controls['CRS'];
+      expect(crs).toBeDefined();
+      expect(crs.hasError('required')).toBe(true);
     });
   });
 
@@ -652,15 +656,14 @@ describe('IndicatorEditFeaturesModalComponent', () => {
       expect(component.converterParameterValues).toEqual({ delimiter: ';' });
     });
 
-    it('renders no field and builds no control for a hidden CRS parameter', () => {
+    it('renders the EPSG picker instead of a text field for the CRS parameter', () => {
       renderDataStep();
 
       chooseConverter('OGC API - Features');
 
       expect(parameterField('CRS')).toBeNull();
-      expect(component.editForm.controls.converterParameters.controls['CRS']).toBeUndefined();
-      // A hidden mandatory control would keep the form invalid for good.
-      expect(component.editForm.controls.converterParameters.valid).toBe(true);
+      expect(query('km-epsg-picker')).not.toBeNull();
+      expect(component.editForm.controls.converterParameters.controls['CRS']).toBeDefined();
     });
 
     it('renders a field per data source parameter', () => {

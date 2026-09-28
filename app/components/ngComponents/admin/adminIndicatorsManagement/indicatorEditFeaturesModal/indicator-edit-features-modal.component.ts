@@ -47,11 +47,10 @@ import { FormErrorComponent } from '../../adminShared/formError/form-error.compo
 import { FormControlAriaDirective } from '../../adminShared/formError/form-control-aria.directive';
 import { controlInvalidSignal } from '../../adminShared/forms/control-state';
 import { TimeseriesMappingFormComponent } from '../../adminShared/timeseriesMappingForm/timeseries-mapping-form.component';
-import type {
-  ImporterParameter,
-  TimeseriesMapping,
-} from 'services/resource-import-service/resource-import.model';
+import type { TimeseriesMapping } from 'services/resource-import-service/resource-import.model';
 import { buildIndicatorEditFeaturesForm } from './indicator-edit-features-form.model';
+
+import { KmEpsgPickerComponent } from 'components/ngComponents/customElements/epsg-picker/km-epsg-picker.component';
 
 declare const $: any;
 
@@ -69,6 +68,7 @@ declare const $: any;
     AgGridAngular,
     StepperComponent,
     TimeseriesMappingFormComponent,
+    KmEpsgPickerComponent,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -478,22 +478,11 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   onChangeConverter(): void {
     this.schema = this.converter?.schemas ? this.converter.schemas[0] : undefined;
     this.mimeType = this.converter?.mimeTypes?.[0];
-    // Fresh parameter controls for the newly selected converter. NOTE: CRS
-    // parameters are deliberately not seeded — the template hides them, so
-    // they were never sent historically either. Skipping them here keeps the
-    // record in step with the template and stops a hidden mandatory CRS field
-    // from blocking the submit gate.
-    syncParameterControls(
-      this.editForm.controls.converterParameters,
-      this.visibleConverterParameters()
-    );
-  }
-
-  /** The converter parameters the template actually renders. */
-  private visibleConverterParameters(): ImporterParameter[] {
-    return (this.converter?.parameters ?? []).filter(
-      (parameter: ImporterParameter) => !parameter.name.includes('CRS')
-    );
+    // Fresh parameter controls for the newly selected converter, CRS included:
+    // the importer declares it mandatory for the geometry formats, and
+    // `buildConverterDefinition` returns null without it. It used to be hidden
+    // here, which made every GeoJSON import end in "required fields missing".
+    syncParameterControls(this.editForm.controls.converterParameters, this.converter?.parameters);
   }
 
   /**

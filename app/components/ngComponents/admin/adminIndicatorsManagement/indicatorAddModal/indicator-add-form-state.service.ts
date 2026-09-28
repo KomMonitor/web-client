@@ -878,6 +878,8 @@ export class IndicatorAddFormStateService {
     check(isBlank(body.metadata?.datasource), 'Datenquelle (Schritt 2)');
     check(isBlank(body.metadata?.contact), 'Datenhalter und Kontakt (Schritt 2)');
     check(isBlank(body.metadata?.updateInterval), 'Aktualisierungszyklus (Schritt 2)');
+    // The Data Management API rejects an indicator without it (NPE on `LocalDate.getYear()`).
+    check(isBlank(body.metadata?.lastUpdate), 'Datum der letzten Aktualisierung (Schritt 2)');
 
     // Step 3 — topic hierarchy
     check(isBlank(body.topicReference), 'Heuptthema (Schritt 3)');

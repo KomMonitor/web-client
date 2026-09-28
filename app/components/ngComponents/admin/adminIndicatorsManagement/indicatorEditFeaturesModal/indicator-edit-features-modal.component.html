@@ -259,15 +259,21 @@
                   </div>
                 }
                 @for (parameter of converter?.parameters; track parameter) {
-                  @if (!parameter.name.includes('CRS')) {
-                    <div formGroupName="converterParameters">
-                      <div class="form-group">
-                        <label
-                          >{{ parameter.name }}
-                          @if (parameter.mandatory) {
-                            <i>*</i>
-                          }
-                        </label>
+                  <div formGroupName="converterParameters">
+                    <div class="form-group">
+                      <label
+                        >{{ parameter.name }}
+                        @if (parameter.mandatory) {
+                          <i>*</i>
+                        }
+                      </label>
+                      @if (parameter.name === 'CRS') {
+                        <km-epsg-picker
+                          [formControlName]="parameter.name"
+                          valueFormat="crs"
+                          label=""
+                        />
+                      } @else {
                         <input
                           type="text"
                           class="form-control"
@@ -277,12 +283,12 @@
                         <div class="help-block">
                           <p>{{ parameter.description }}</p>
                         </div>
-                        <app-form-error
-                          [control]="editForm.controls.converterParameters.get(parameter.name)"
-                        />
-                      </div>
+                      }
+                      <app-form-error
+                        [control]="editForm.controls.converterParameters.get(parameter.name)"
+                      />
                     </div>
-                  }
+                  </div>
                 }
               </div>
               <div class="col-md-3 col-sm-6 col-12">
