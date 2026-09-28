@@ -854,6 +854,7 @@
       "MANDANT_NO_PARENT": "Mandanten können keine übergeordnete Organisationseinheit haben.",
       "NO_PARENT_OPTION": "keine - neuer Wurzelknoten",
       "HIERARCHY_HELP": "Wird keine übergeordnete Organisationseinheit festgelegt, wird die neue Organisationseinheit auf oberster Ebene der Hierarchie angelegt. Die Hierarchiebeziehung kann nachträglich angepasst werden.",
+      "PARENT_OR_MANDANT_REQUIRED": "Bitte eine übergeordnete Organisationseinheit wählen oder die Einheit als Mandant markieren.",
       "RIGHTS_INTRO": "Sollen bereits existierende Organisationseinheiten/Gruppen administrative Aufgaben für die neu anzulegende Gruppe übernehmen? Administrative Rechte können hier durch entsprechende Häkchen an andere Gruppen übertragen werden.",
       "RIGHTS_AFTER_CREATE_HINT": "Achtung: Die Rechte der neu angelegten Organisationseinheit können erst nach Erzeugung innerhalb des 'Rechte editieren' Menüs gesetzt werden.",
       "SUBMIT": "Gruppe registrieren",
