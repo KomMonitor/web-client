@@ -3,7 +3,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
-import { forkJoin } from 'rxjs';
+import { Observable, concatMap, finalize, of } from 'rxjs';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
 
@@ -44,13 +44,14 @@ export class WmsEditUserRolesModalComponent {
     { key: 'ownership', label: 'ADMIN_SHARED_UI.STEP_LABELS.OWNERSHIP' },
   ]);
 
-  isSubmitting = false;
   // Signals: toggled from async HTTP callbacks and read by the template (OnPush)
   errorMessage = signal(false);
   successMessage = signal(false);
-  loadingData = false;
+  /** True while the save request is in flight; drives the overlay and blocks double submits. */
+  isSubmitting = signal(false);
 
   // Role management (grid handled by <app-role-management-grid>)
+  /** Target owner selected in step 2; empty keeps the current owner (picker runs in 'transfer' mode). */
   ownerOrganization = '';
   isPublic = false;
 
@@ -69,31 +70,48 @@ export class WmsEditUserRolesModalComponent {
   }
 
   editData() {
-    const ownershipData = {
-      ownerId: this.ownerOrganization,
-    };
+    if (this.isSubmitting()) return;
+    const dataset = this.currentGeoresourceDataset;
 
     const permissionData = {
       isPublic: this.isPublic,
       permissions: this.roleGrid?.getSelectedRoleIds() ?? [],
     };
 
-    forkJoin({
-      ownership: this.ogcService.updateOwnership(this.currentGeoresourceDataset.id, ownershipData),
-      permissions: this.ogcService.updatePermissions(
-        this.currentGeoresourceDataset.id,
-        permissionData
-      ),
-    }).subscribe({
-      next: (_response: any) => {
-        this.successMessagePart.set(this.currentGeoresourceDataset.title);
-        this.successMessage.set(true);
-      },
-      error: (error) => {
-        this.errorMessagePart.set(error.message);
-        this.errorMessage.set(true);
-      },
-    });
+    // Mirrors the spatial-unit roles modal: permissions first, and the ownership
+    // is only transferred when it actually changes. An empty selection keeps the
+    // current owner, so `ownerId: ''` is never sent.
+    const ownershipChanging = this.isOwnershipChanging();
+    const ownershipData = { ownerId: this.ownerOrganization || dataset.ownerId };
+
+    this.isSubmitting.set(true);
+    this.ogcService
+      .updatePermissions(dataset.id, permissionData)
+      .pipe(
+        concatMap(
+          (): Observable<unknown> =>
+            ownershipChanging
+              ? this.ogcService.updateOwnership(dataset.id, ownershipData)
+              : of(null)
+        ),
+        finalize(() => this.isSubmitting.set(false))
+      )
+      .subscribe({
+        next: () => {
+          this.successMessagePart.set(dataset.title);
+          this.successMessage.set(true);
+        },
+        error: (error) => {
+          this.errorMessagePart.set(error.message);
+          this.errorMessage.set(true);
+        },
+      });
+  }
+
+  isOwnershipChanging(): boolean {
+    return !!(
+      this.ownerOrganization && this.ownerOrganization !== this.currentGeoresourceDataset?.ownerId
+    );
   }
 
   onChangeOwner(orgUnitId: string): void {
@@ -107,9 +125,9 @@ export class WmsEditUserRolesModalComponent {
   }
 
   resetWmsEditForm() {
-    this.ownerOrganization = '';
-    this.isPublic = false;
-    this.roleGrid?.reset();
+    // Restore the dataset's stored values. Resetting `isPublic` to false used to
+    // silently make a public dataset private on the next submit.
+    this.reInit();
   }
 
   hideSuccessAlert(): void {

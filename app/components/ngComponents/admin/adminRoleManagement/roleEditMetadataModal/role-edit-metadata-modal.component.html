@@ -38,7 +38,7 @@
       so the dialog stated its own name twice, the body copy larger than the
       header.
     -->
-    <form (ngSubmit)="editMetadata()">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <p class="text-center">
         <b
           ><i>{{ 'ADMIN_SHARED_UI.STEP.REQUIRED_FIELD_MARKER' | translate }}</i></b
@@ -112,12 +112,7 @@
   <button type="button" class="btn btn-outline-secondary me-auto" (click)="close()">
     {{ 'ADMIN_SHARED.CANCEL' | translate }}
   </button>
-  <button
-    type="button"
-    class="btn btn-success"
-    [disabled]="loadingData() || form.invalid"
-    (click)="editMetadata()"
-  >
+  <button type="button" class="btn btn-success" [disabled]="loadingData()" (click)="onSubmit()">
     {{ 'ADMIN_ROLES.EDIT_METADATA_MODAL.UPDATE_METADATA' | translate }}
   </button>
 </div>

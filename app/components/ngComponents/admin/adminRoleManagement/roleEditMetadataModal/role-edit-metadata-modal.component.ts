@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, Input, OnInit, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  Input,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
 
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { uniqueNameValidator } from '../../adminShared/validators/admin-validators';
@@ -26,6 +35,8 @@ export class RoleEditMetadataModalComponent implements OnInit {
   private adminRoleManagementService = inject(AdminRoleManagementService);
   private notificationSrvc = inject(NotificationService);
   private translate = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   @Input() currentDataset!: AccessControlMetadata;
 
@@ -33,8 +44,8 @@ export class RoleEditMetadataModalComponent implements OnInit {
   loadingData = signal(false);
 
   /**
-   * The three editable metadata fields. The name must stay unique across the
-   * organizational units, ignoring the unit being edited.
+   * The three editable metadata fields, all required. The name must stay
+   * unique across the organizational units, ignoring the unit being edited.
    */
   readonly form = new FormGroup({
     name: new FormControl('', {
@@ -47,13 +58,10 @@ export class RoleEditMetadataModalComponent implements OnInit {
         ),
       ],
     }),
-    description: new FormControl('', { nonNullable: true }),
-    contact: new FormControl('', { nonNullable: true }),
+    description: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    contact: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
   });
 
-  get nameInvalid(): boolean {
-    return this.form.controls.name.hasError('uniqueName');
-  }
   oldName: string = '';
 
   successMessagePart: string | undefined;
@@ -80,13 +88,26 @@ export class RoleEditMetadataModalComponent implements OnInit {
     this.showKeycloakErrorAlert.set(false);
   }
 
-  /** The rule is `uniqueNameValidator` on the control now. */
-  checkName(): void {
-    this.form.controls.name.updateValueAndValidity();
-  }
-
   close(): void {
     this.activeModal.dismiss('closed');
+  }
+
+  /**
+   * Submit button and form submit: saves a valid form; otherwise reveals every
+   * field's error and moves the focus to the first invalid field.
+   */
+  onSubmit(): void {
+    if (this.form.valid) {
+      this.editMetadata();
+      return;
+    }
+
+    this.form.markAllAsTouched();
+    // OnPush: the touched state alone does not re-render the host's bindings
+    this.cdr.markForCheck();
+    this.host.nativeElement
+      .querySelector<HTMLElement>('input.ng-invalid, textarea.ng-invalid')
+      ?.focus();
   }
 
   editMetadata() {

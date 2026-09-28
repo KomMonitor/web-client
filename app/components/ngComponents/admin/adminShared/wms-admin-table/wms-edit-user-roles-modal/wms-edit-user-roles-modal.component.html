@@ -23,7 +23,7 @@
     its glyph was `glyphicon glyphicon-refresh` — Bootstrap 3 icon fonts, which
     this app does not ship at all, so the spinner rendered as nothing.
   -->
-  <app-loading-overlay [loading]="loadingData">
+  <app-loading-overlay [loading]="isSubmitting()">
     <!--
       Both alerts used to sit after the footer as `position: absolute; bottom: 0`,
       floating over the dialog's own buttons, dismissed by Bootstrap 3 `.close`
@@ -85,9 +85,9 @@
             <div class="row form-section-row">
               <div class="col-md-3">
                 <div class="form-group">
-                  <label class="form-label" for="wmsIsPublic"
-                    >{{ 'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate }}*</label
-                  >
+                  <label class="form-label" for="wmsIsPublic">{{
+                    'ADMIN_SHARED_UI.SECURITY.PUBLIC_READ' | translate
+                  }}</label>
                   <div>
                     <label class="switch" for="wmsIsPublic">
                       <input
@@ -168,12 +168,7 @@
   <button type="button" class="btn btn-outline-secondary" (click)="resetWmsEditForm()">
     {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
-  <button
-    type="button"
-    class="btn btn-success"
-    [disabled]="envConfigService.enableKeycloakSecurity && !ownerOrganization"
-    (click)="editData()"
-  >
+  <button type="button" class="btn btn-success" [disabled]="isSubmitting()" (click)="editData()">
     {{ 'ADMIN_WMS.EDIT.SUBMIT' | translate }}
   </button>
 </div>

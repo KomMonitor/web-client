@@ -7,7 +7,9 @@ import {
 } from '@angular/cdk/drag-drop';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
+  ElementRef,
   Input,
   OnInit,
   computed,
@@ -15,6 +17,7 @@ import {
   inject,
   signal,
   untracked,
+  viewChild,
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HierarchyChainEntry, RegisteredLevel } from '../hierarchy.model';
@@ -65,6 +68,10 @@ export interface HierarchyCreateModalResult {
 export class HierarchyCreateModalComponent implements OnInit {
   private readonly activeModal = inject(NgbActiveModal);
   private readonly mandantService = inject(MandantService);
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  private readonly nameInput = viewChild<ElementRef<HTMLInputElement>>('nameInput');
+  private readonly mandantSelect = viewChild<ElementRef<HTMLSelectElement>>('mandantSelect');
 
   /** ng-bootstrap sets these via componentInstance, before the first render. */
   @Input() existingNames: readonly string[] = [];
@@ -92,9 +99,8 @@ export class HierarchyCreateModalComponent implements OnInit {
 
   /**
    * The tenants to choose from, as `MandantService` sources them. Empty only
-   * where nothing knows a tenant — then the field stays a disabled placeholder
-   * instead of a required one nobody can fill. Filled in `ngOnInit`, once
-   * `knownMandants` has arrived.
+   * where nothing knows a tenant. Filled in `ngOnInit`, once `knownMandants`
+   * has arrived.
    */
   protected mandants: readonly string[] = [];
 
@@ -164,7 +170,10 @@ export class HierarchyCreateModalComponent implements OnInit {
     this.mandants = this.mandantService.mandantsToOffer(this.knownMandants);
     this.form.controls.mandant.setValue(this.presetMandant || this.defaultMandant());
 
-    if (this.mandants.length > 0) {
+    // Required only where the select is on screen. A fixed tenant, a single
+    // one or none at all shows as a disabled field — an error there could not
+    // be fixed, so the tenant must not be able to block the submit.
+    if (this.mandantIsSelectable) {
       this.form.controls.mandant.addValidators(Validators.required);
       this.form.controls.mandant.updateValueAndValidity();
     }
@@ -182,13 +191,12 @@ export class HierarchyCreateModalComponent implements OnInit {
   }
 
   /**
-   * Only the metadata decides. An empty chain is allowed: the API takes a POST
-   * without members — `members` is optional there — and a hierarchy without
-   * levels is a state it holds and serves anyway. Its levels are then hung in
-   * on the page, the same way an existing chain is extended.
+   * Whether the tenant is a real select. One tenant is the normal case, and
+   * picking it would be a choice of one — so only a list of several, with the
+   * choice left open, is offered for picking.
    */
-  protected get canSubmit(): boolean {
-    return this.form.valid;
+  protected get mandantIsSelectable(): boolean {
+    return !this.mandantIsFixed && this.mandants.length > 1;
   }
 
   /** How many hierarchies already use this level; 0 means it is still unused. */
@@ -222,10 +230,21 @@ export class HierarchyCreateModalComponent implements OnInit {
     });
   }
 
+  /**
+   * Only the metadata decides. An empty chain is allowed: the API takes a POST
+   * without members — `members` is optional there — and a hierarchy without
+   * levels is a state it holds and serves anyway. Its levels are then hung in
+   * on the page, the same way an existing chain is extended.
+   *
+   * The button stays active; an incomplete form shows its errors instead and
+   * puts the focus on the first field to fix.
+   */
   protected submit(): void {
-    if (!this.canSubmit) {
-      this.form.controls.name.markAsTouched();
-      this.form.controls.mandant.markAsTouched();
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      // OnPush: the touched state alone does not re-render the view
+      this.cdr.markForCheck();
+      this.focusFirstInvalid();
       return;
     }
 
@@ -240,6 +259,14 @@ export class HierarchyCreateModalComponent implements OnInit {
 
   protected cancel(): void {
     this.activeModal.dismiss('cancel');
+  }
+
+  private focusFirstInvalid(): void {
+    if (this.form.controls.name.invalid) {
+      this.nameInput()?.nativeElement.focus();
+    } else if (this.form.controls.mandant.invalid) {
+      this.mandantSelect()?.nativeElement.focus();
+    }
   }
 
   /** The tenant the user belongs to, falling back to the only/first one offered. */

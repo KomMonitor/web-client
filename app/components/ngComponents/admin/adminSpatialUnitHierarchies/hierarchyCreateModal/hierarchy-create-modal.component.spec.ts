@@ -88,15 +88,17 @@ describe('HierarchyCreateModalComponent', () => {
     });
 
     it('requires a name, but no chain', () => {
+      const close = jest.spyOn(activeModal, 'close');
       expect(component.form.controls.name.invalid).toBe(true);
-      expect(submitButton().disabled).toBe(true);
+      // The button stays active; the missing name shows on the click instead.
+      expect(submitButton().disabled).toBe(false);
 
       component.form.controls.name.setValue('Sozialraum-Gliederung');
-      fixture.detectChanges();
+      clickSubmit();
 
       // The API takes a hierarchy without members, so the metadata is enough —
       // the levels can be hung in on the page afterwards.
-      expect(submitButton().disabled).toBe(false);
+      expect(close).toHaveBeenCalledTimes(1);
     });
 
     it('closes with an empty chain where none was assembled', () => {
@@ -137,7 +139,6 @@ describe('HierarchyCreateModalComponent', () => {
       // The levels picked so far belong to the tenant that was left behind.
       expect(chainNames()).toEqual([]);
       expect(optionIds()).toEqual(OTHER_LEVELS.map((level) => level.id));
-      expect(submitButton().disabled).toBe(true);
     });
 
     it('appends picked levels to the chain and drops them from the options', () => {
@@ -208,13 +209,27 @@ describe('HierarchyCreateModalComponent', () => {
       expect(close.mock.calls[0][0]).toMatchObject({ isPublic: false });
     });
 
-    it('does not close while the name is missing', () => {
+    it('does not close while the name is missing, but shows why', () => {
       const close = jest.spyOn(activeModal, 'close');
+      expect(errorFor('hierarchy-name-input')).toBeNull();
 
-      component.submit();
+      clickSubmit();
 
       expect(close).not.toHaveBeenCalled();
-      expect(component.form.controls.name.touched).toBe(true);
+      expect(errorFor('hierarchy-name-input')).not.toBeNull();
+      expect(document.activeElement?.id).toBe('hierarchy-name-input');
+    });
+
+    it('puts the focus on the tenant select where only the tenant is missing', () => {
+      const close = jest.spyOn(activeModal, 'close');
+      component.form.controls.name.setValue('Sozialraum-Gliederung');
+      component.form.controls.mandant.setValue('');
+
+      clickSubmit();
+
+      expect(close).not.toHaveBeenCalled();
+      expect(errorFor('hierarchy-mandant-input')).not.toBeNull();
+      expect(document.activeElement?.id).toBe('hierarchy-mandant-input');
     });
 
     it('dismisses on cancel', () => {
@@ -241,6 +256,20 @@ describe('HierarchyCreateModalComponent', () => {
       expect(field.nativeElement.value).toBe('Stadt Essen');
     });
 
+    it('never blocks the submit on the tenant, and shows no error for it', () => {
+      const close = jest.spyOn(activeModal, 'close');
+      // Even an empty value cannot be fixed here, so it must not be required.
+      component.form.controls.mandant.setValue('');
+      expect(component.form.controls.mandant.valid).toBe(true);
+
+      clickSubmit();
+      expect(errorFor('hierarchy-mandant-input')).toBeNull();
+
+      component.form.controls.name.setValue('Sozialraum-Gliederung');
+      clickSubmit();
+      expect(close).toHaveBeenCalledTimes(1);
+    });
+
     it("builds the chain from that tenant's levels", () => {
       expect(component.form.controls.mandant.value).toBe('Stadt Essen');
       expect(optionIds()).toEqual(OTHER_LEVELS.map((level) => level.id));
@@ -252,7 +281,8 @@ describe('HierarchyCreateModalComponent', () => {
       configure(MANDANTS, [MANDANTS[0]]);
     });
 
-    it('offers no chain at all and keeps the submit disabled', () => {
+    it('offers no chain at all and still submits', () => {
+      const close = jest.spyOn(activeModal, 'close');
       render({ registeredLevels: [] });
 
       expect(fixture.debugElement.query(By.css('.chain-empty'))).not.toBeNull();
@@ -261,8 +291,8 @@ describe('HierarchyCreateModalComponent', () => {
       // Nothing to pick still leaves a hierarchy worth creating: it takes its
       // levels once they are registered.
       component.form.controls.name.setValue('Sozialraum-Gliederung');
-      fixture.detectChanges();
-      expect(submitButton().disabled).toBe(false);
+      clickSubmit();
+      expect(close.mock.calls[0][0]).toMatchObject({ levels: [] });
     });
   });
 
@@ -279,18 +309,34 @@ describe('HierarchyCreateModalComponent', () => {
     });
 
     it('does not block the submit on a tenant nobody can pick', () => {
+      const close = jest.spyOn(activeModal, 'close');
       component.form.controls.name.setValue('Sozialraum-Gliederung');
       fixture.detectChanges();
       addLevelButton().click();
       fixture.detectChanges();
 
       expect(component.form.controls.mandant.value).toBe('');
-      expect(submitButton().disabled).toBe(false);
+      clickSubmit();
+      expect(close.mock.calls[0][0]).toMatchObject({ mandant: '' });
+      expect(errorFor('hierarchy-mandant-input')).toBeNull();
     });
   });
 
   /** The green confirm button of the footer. */
   function submitButton(): HTMLButtonElement {
     return fixture.debugElement.query(By.css('.modal-footer .btn-success')).nativeElement;
+  }
+
+  function clickSubmit(): void {
+    submitButton().click();
+    fixture.detectChanges();
+  }
+
+  /** The rendered error message under a field, or null while none shows. */
+  function errorFor(fieldId: string): HTMLElement | null {
+    const error = fixture.debugElement.query(
+      By.css(`app-form-error[for="${fieldId}"] .help-block`)
+    );
+    return error?.nativeElement ?? null;
   }
 });
