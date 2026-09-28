@@ -1,12 +1,21 @@
-<div class="epsg-selector">
-  <label class="form-label fw-semibold">Koordinatenreferenzsystem (EPSG)</label>
+<div class="epsg-picker">
+  @if (label) {
+    <label class="form-label fw-semibold" [for]="selectId">{{ label }}</label>
+  }
 
   <select
+    [id]="selectId"
     class="form-select mb-2"
+    [disabled]="disabled"
     [(ngModel)]="selectedDropdownValue"
     (ngModelChange)="onDropdownChange()"
+    (blur)="markTouched()"
+    [attr.aria-label]="label || 'EPSG-Code'"
   >
-    @for (opt of predefinedCodes; track opt) {
+    @if (selectedDropdownValue === null) {
+      <option [ngValue]="null" disabled>Bitte wählen …</option>
+    }
+    @for (opt of options; track opt.code) {
       <option [ngValue]="opt.code">
         {{ opt.label }}
       </option>
@@ -27,8 +36,10 @@
           min="1"
           max="99999"
           step="1"
+          [disabled]="disabled"
           [(ngModel)]="customInputRaw"
           (ngModelChange)="onCustomInputChange()"
+          (blur)="markTouched()"
           aria-label="EPSG-Code"
         />
         @if (customInputValid === true) {
@@ -47,10 +58,10 @@
     </div>
   }
 
-  @if (!isCustomMode && currentCode !== null) {
+  @if (!isCustomMode && code !== null) {
     <div class="current-code mt-1">
       <small class="text-muted"
-        >Gewählter Code: <strong>EPSG:{{ currentCode }}</strong></small
+        >Gewählter Code: <strong>EPSG:{{ code }}</strong></small
       >
     </div>
   }
