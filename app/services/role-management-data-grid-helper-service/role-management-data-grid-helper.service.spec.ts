@@ -67,4 +67,38 @@ describe('RoleManagementDataGridHelperService', () => {
     // reduced mode: no creator ("Löschen") column
     expect(options.columnDefs.some((col: any) => col.field === 'creator')).toBe(false);
   });
+
+  it('builds no empty rows when there are fewer than two organizational units', () => {
+    // A fresh v6 instance has a single mandant and none of the legacy
+    // public/kommonitor units the first two rows used to be reserved for.
+    const accessControl = [
+      {
+        name: '52N Lokal',
+        organizationalUnitId: 'm1',
+        permissions: [{ permissionId: 'c1', permissionLevel: 'creator' }],
+      },
+    ];
+
+    const options = service.buildRoleManagementGrid('grid', null, accessControl, [], false);
+
+    expect(options.rowData).toHaveLength(1);
+    expect(options.rowData.every((row: any) => row !== undefined)).toBe(true);
+  });
+
+  it('keeps the first two units on top and sorts the rest by name', () => {
+    const accessControl = ['public', 'kommonitor', 'Zeta', 'Alpha'].map((name, i) => ({
+      name,
+      organizationalUnitId: String(i),
+      permissions: [],
+    }));
+
+    const options = service.buildRoleManagementGrid('grid', null, accessControl, [], true);
+
+    expect(options.rowData.map((row: any) => row.organizationalUnitId)).toEqual([
+      '0',
+      '1',
+      '3',
+      '2',
+    ]);
+  });
 });

@@ -84,16 +84,31 @@ export class CacheHelperServiceService {
     );
   }
 
-  async fetchLastDatabaseModificationObject(): Promise<void> {
-    try {
-      this.lastDatabaseModificationInfo = await firstValueFrom(
+  private lastModificationRequest: Promise<void> | null = null;
+
+  /**
+   * Refreshes `lastDatabaseModificationInfo`. Concurrent callers share one
+   * request: the metadata bootstrap fetches six resources in parallel, and each
+   * of them revalidates its cache entry through this call.
+   */
+  fetchLastDatabaseModificationObject(): Promise<void> {
+    if (!this.lastModificationRequest) {
+      this.lastModificationRequest = firstValueFrom(
         this.http.get<LastModificationOverviewType>(
           this.baseUrlToKomMonitorDataAPI + '/public/database/last-modification'
         )
-      );
-    } catch {
-      console.error('Unable to load las mod date');
+      )
+        .then((info) => {
+          this.lastDatabaseModificationInfo = info;
+        })
+        .catch(() => {
+          console.error('Unable to load las mod date');
+        })
+        .finally(() => {
+          this.lastModificationRequest = null;
+        });
     }
+    return this.lastModificationRequest;
   }
 
   async fetchResource_fromCacheOrServer<T>(
@@ -108,7 +123,12 @@ export class CacheHelperServiceService {
     // if YES, then try to use data from cache
 
     // else set new last modification date, fetch data from server and set that also within localStorage
-    //await this.fetchLastDatabaseModificationObject();
+
+    // Revalidate on every call, as the AngularJS original did. With the value
+    // from startup only, a reload after an admin change compared against a
+    // stale timestamp and served the old list from localStorage — a newly
+    // registered spatial unit vanished from the overview table again.
+    await this.fetchLastDatabaseModificationObject();
 
     let timestampKey = localStorageKey + '_timestamp';
     let metadataKey = localStorageKey + '_metadata';
