@@ -7,6 +7,7 @@ import {
   OnInit,
   Output,
   ViewChild,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -23,7 +24,6 @@ import {
   SPATIAL_UNIT_METADATA_STRUCTURE,
   buildSpatialUnitMetadataExport,
   buildSpatialUnitMetadataPatchBody,
-  validateSpatialUnitMetadata,
 } from 'services/adminSpatialUnit/spatial-unit-metadata.util';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { SpatialUnitHierarchyApiService } from 'services/spatial-unit-hierarchy-service/spatial-unit-hierarchy-api.service';
@@ -37,6 +37,7 @@ import {
 } from '../hierarchyAssignment/hierarchy-assignment.model';
 import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
 import { FormControlAriaDirective } from '../../adminShared/formError/form-control-aria.directive';
+import { controlInvalidSignal, controlStateSignal } from '../../adminShared/forms/control-state';
 import {
   EDIT_DEFAULT_OUTLINE_COLOR,
   EDIT_DEFAULT_OUTLINE_WIDTH,
@@ -65,8 +66,8 @@ import {
   ResourceMetadataFormValue,
 } from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
 
-// Remove jQuery declaration - no longer needed
-// declare var $: any;
+/** Step order, used to find the first step that still needs input. */
+const STEP_KEYS = ['metadata', 'general'] as const;
 
 @Component({
   selector: 'app-spatial-unit-edit-metadata-modal',
@@ -108,12 +109,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
 
-  // Multi-step form
-  readonly stepper = new WizardStepper([
-    { key: 'metadata', label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_UNIT_METADATA' },
-    { key: 'general', label: 'ADMIN_SHARED_UI.STEP_LABELS.GENERAL_METADATA' },
-  ]);
-
   // Form data — signal: toggled across await boundaries (OnPush).
   loadingData = signal(false);
 
@@ -129,6 +124,60 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
       (this.availableSpatialUnits ?? []).map((unit: any) => unit.spatialUnitLevel),
     currentLevelName: () => this.currentSpatialUnitDataset?.spatialUnitLevel ?? null,
   });
+
+  /**
+   * The controls of the `metadata` step. They sit directly on `editForm` (the
+   * accessors below and the patch-body builders rely on that shape), so the
+   * step has no subgroup of its own to validate or mark.
+   */
+  private metadataStepControls() {
+    const controls = this.editForm.controls;
+    return [
+      controls.spatialUnitLevel,
+      controls.hierarchyAssignments,
+      controls.isOutlineLayer,
+      controls.outlineColor,
+      controls.outlineWidth,
+      controls.outlineDashArray,
+    ];
+  }
+
+  private isStepInvalid(key: (typeof STEP_KEYS)[number]): boolean {
+    return key === 'metadata'
+      ? this.metadataStepControls().some((control) => control.invalid)
+      : this.editForm.controls.general.invalid;
+  }
+
+  // Per-step validity for the stepper marking. Reading these signals from the
+  // template re-renders this OnPush host, which in turn hands <app-stepper> a
+  // new steps array. One signal per metadata control rather than one on
+  // `editForm`: `markAllAsTouched()` marks with `onlySelf`, so leaving the step
+  // would not reach the parent's event stream.
+  private readonly metadataControlInvalid = this.metadataStepControls().map((control) =>
+    controlStateSignal(control, () => control.invalid && control.touched)
+  );
+  private readonly metadataStepInvalid = computed(() =>
+    this.metadataControlInvalid.some((invalid) => invalid())
+  );
+  private readonly generalStepInvalid = controlInvalidSignal(this.editForm.controls.general, {
+    whenTouched: true,
+  });
+
+  // Multi-step form
+  readonly stepper = new WizardStepper([
+    {
+      key: 'metadata',
+      label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_UNIT_METADATA',
+      invalid: this.metadataStepInvalid,
+      onLeave: () => this.metadataStepControls().forEach((control) => control.markAllAsTouched()),
+    },
+    {
+      key: 'general',
+      label: 'ADMIN_SHARED_UI.STEP_LABELS.GENERAL_METADATA',
+      invalid: this.generalStepInvalid,
+      onLeave: () => this.editForm.controls.general.markAllAsTouched(),
+    },
+  ]);
 
   // Basic form data
   get spatialUnitLevel(): string {
@@ -343,6 +392,11 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
     // No role management in this version to match AngularJS
 
+    // A reset discards the pending edits, so the field hints and step markings
+    // of the previous attempt go with them.
+    this.editForm.markAsUntouched();
+    this.editForm.markAsPristine();
+
     // Reset to first step
     this.stepper.reset();
   }
@@ -368,15 +422,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
 
     const spatialUnitName_old = this.currentSpatialUnitDataset.spatialUnitLevel;
     const spatialUnitName_new = this.spatialUnitLevel;
-
-    // Validate using service method
-    const validation = validateSpatialUnitMetadata(this.metadata, this.spatialUnitLevel);
-
-    if (!validation.isValid) {
-      this.notificationService.showError(validation.errors.join('\n'));
-      this.loadingData.set(false);
-      return;
-    }
 
     // Build patch body using service method
     const patchBody = buildSpatialUnitMetadataPatchBody(
@@ -600,15 +645,25 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     this.activeModal.dismiss();
   }
 
-  onSubmit(event?: Event) {
-    // Prevent default form submission behavior
-    if (event) {
-      event.preventDefault();
+  /**
+   * The submit button stays clickable: on an incomplete form it reveals every
+   * step marking and field hint and jumps to the first step that needs input,
+   * instead of sitting disabled without saying why.
+   */
+  onSubmit() {
+    // A save is already running; the button is disabled then, but Enter in a
+    // field still submits the form.
+    if (this.loadingData()) {
+      return;
     }
-
-    // Only proceed if not already loading
-    if (!this.loadingData()) {
+    if (this.editForm.valid) {
       this.editSpatialUnitMetadata();
+      return;
+    }
+    this.editForm.markAllAsTouched();
+    const firstInvalidStep = STEP_KEYS.find((key) => this.isStepInvalid(key));
+    if (firstInvalidStep) {
+      this.stepper.goToKey(firstInvalidStep);
     }
   }
 

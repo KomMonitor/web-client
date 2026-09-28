@@ -1,6 +1,7 @@
 import { FormControl, FormGroup } from '@angular/forms';
 import {
   bboxCompleteValidator,
+  notBlankValidator,
   periodOfValidityValidator,
   uniqueNameValidator,
 } from './admin-validators';
@@ -155,5 +156,23 @@ describe('bboxCompleteValidator', () => {
     const group = buildGroup(1, 2, null, '');
 
     expect(group.hasError('bboxIncomplete')).toBe(true);
+  });
+});
+
+describe('notBlankValidator', () => {
+  const check = (value: unknown) => notBlankValidator(new FormControl(value));
+
+  it('reports a whitespace-only string as required', () => {
+    expect(check('   ')).toEqual({ required: true });
+  });
+
+  it('accepts a string with content', () => {
+    expect(check(' Stadtteile ')).toBeNull();
+  });
+
+  it('leaves empty and non-string values to Validators.required', () => {
+    expect(check('')).toBeNull();
+    expect(check(null)).toBeNull();
+    expect(check(0)).toBeNull();
   });
 });

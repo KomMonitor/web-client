@@ -7,7 +7,10 @@ import {
   ResourceMetadataFormGroup,
   buildResourceMetadataForm,
 } from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
-import { uniqueNameValidator } from '../../adminShared/validators/admin-validators';
+import {
+  notBlankValidator,
+  uniqueNameValidator,
+} from '../../adminShared/validators/admin-validators';
 import { LinePatternOption } from '../../../customElements/line-pattern-picker/km-line-pattern-picker.component';
 
 /**
@@ -47,6 +50,8 @@ export function buildSpatialUnitEditMetadataForm(
       nonNullable: true,
       validators: [
         Validators.required,
+        // A whitespace-only name passes `required`, but the API would store it.
+        notBlankValidator,
         uniqueNameValidator(options.existingLevelNames, { ignore: options.currentLevelName }),
       ],
     }),

@@ -59,6 +59,21 @@ export function uniqueNameValidator(
 }
 
 /**
+ * `Validators.required` lets a whitespace-only string through. This one
+ * reports it with the same `required` key, so `<app-form-error>` shows the
+ * usual "required" message. Non-string and empty values are left to
+ * `Validators.required`, so combine the two.
+ */
+export const notBlankValidator: ValidatorFn = (
+  control: AbstractControl
+): ValidationErrors | null => {
+  const value = control.value;
+  return typeof value === 'string' && value !== '' && value.trim() === ''
+    ? { required: true }
+    : null;
+};
+
+/**
  * Group validator for a `{ startDate, endDate }` pair: both are optional, but
  * when both are set the start must lie strictly before the end. Values are
  * normalised with `toIsoDateString()` first, so `NgbDateStruct` objects coming

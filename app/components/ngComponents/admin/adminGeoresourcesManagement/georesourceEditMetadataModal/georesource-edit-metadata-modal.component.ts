@@ -43,6 +43,7 @@ import {
 } from '../georesourceAddModal/georesource-add-form.model';
 import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
 import { FormControlAriaDirective } from '../../adminShared/formError/form-control-aria.directive';
+import { controlInvalidSignal } from '../../adminShared/forms/control-state';
 import {
   KmLinePatternPickerComponent,
   LinePatternOption,
@@ -64,6 +65,11 @@ import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admi
 import { TranslateModule } from '@ngx-translate/core';
 
 import { TranslateService } from '@ngx-translate/core';
+
+/** Stepper keys in display order; `onSubmit()` jumps to the first invalid one. */
+const STEP_KEYS = ['metadata', 'general', 'topics'] as const;
+type StepKey = (typeof STEP_KEYS)[number];
+
 @Component({
   selector: 'app-georesource-edit-metadata-modal',
   templateUrl: './georesource-edit-metadata-modal.component.html',
@@ -108,11 +114,6 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
   // Component state — signal: toggled from the PATCH subscription (OnPush).
   loadingData = signal(false);
   currentGeoresourceDataset: any;
-  readonly stepper = new WizardStepper([
-    { key: 'metadata', label: 'ADMIN_SHARED_UI.STEP_LABELS.GEORESOURCE_METADATA' },
-    { key: 'general', label: 'ADMIN_SHARED_UI.STEP_LABELS.GENERAL_METADATA' },
-    { key: 'topics', label: 'ADMIN_SHARED_UI.TOPICS.TITLE' },
-  ]);
 
   // Form data
   /**
@@ -126,6 +127,33 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
     currentDatasetName: () => this.currentGeoresourceDataset?.datasetName ?? null,
   });
   readonly topicsForm = buildTopicHierarchyForm({ requireMainTopic: true });
+
+  // Metadata
+  readonly metadataForm = buildResourceMetadataForm();
+
+  /** The form group behind each step, for the stepper marking and the submit jump. */
+  private readonly stepForms = {
+    metadata: this.metadataStep,
+    general: this.metadataForm,
+    topics: this.topicsForm,
+  } satisfies Record<StepKey, unknown>;
+
+  // A step turns red once it was left incomplete (or after a submit attempt),
+  // not already when the dialog opens.
+  readonly stepper = new WizardStepper(
+    (
+      [
+        ['metadata', 'ADMIN_SHARED_UI.STEP_LABELS.GEORESOURCE_METADATA'],
+        ['general', 'ADMIN_SHARED_UI.STEP_LABELS.GENERAL_METADATA'],
+        ['topics', 'ADMIN_SHARED_UI.TOPICS.TITLE'],
+      ] as const
+    ).map(([key, label]) => ({
+      key,
+      label,
+      invalid: controlInvalidSignal(this.stepForms[key], { whenTouched: true }),
+      onLeave: () => this.stepForms[key].markAllAsTouched(),
+    }))
+  );
 
   private get styleGroup() {
     return this.metadataStep.controls.style;
@@ -149,9 +177,16 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
   get poiMarkerTextInvalid(): boolean {
     return this.styleGroup.controls.poiMarkerText.hasError('maxlength');
   }
+  /**
+   * True while `<app-form-error>` shows the length error (same touched/dirty
+   * rule), so the template hides the plain "max. 3 characters" hint instead of
+   * showing two messages.
+   */
+  get poiMarkerTextErrorShown(): boolean {
+    const control = this.styleGroup.controls.poiMarkerText;
+    return control.invalid && (control.touched || control.dirty);
+  }
 
-  // Metadata
-  metadataForm = buildResourceMetadataForm();
   /** Read-only view of the metadata form value for patch-body/export building. */
   get metadata(): ResourceMetadataFormValue {
     return this.metadataForm.getRawValue();
@@ -297,6 +332,10 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
     // component; the former OnEditGeoresourceMetadata broadcast subscription read
     // a non-existent payload field and never fired with data.
     this.initializeMetadataStructure();
+    // The management component sets the dataset before the first change
+    // detection, so it is present here. Without this the form opened empty:
+    // the prefill used to run from the removed broadcast listener.
+    this.resetGeoresourceEditMetadataForm();
   }
 
   private initializeDefaultValues(): void {
@@ -402,6 +441,15 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
     );
 
     patchTopicHierarchyFromChain(this.topicsForm, topicHierarchy);
+
+    // `patchMetadataFormFromApi` already resets the general step; the other two
+    // groups are only patched, so clear their touched/dirty state explicitly —
+    // otherwise the step markings and field errors of a failed submit attempt
+    // would survive the reset.
+    this.metadataStep.markAsUntouched();
+    this.metadataStep.markAsPristine();
+    this.topicsForm.markAsUntouched();
+    this.topicsForm.markAsPristine();
   }
 
   // Validation methods
@@ -618,8 +666,30 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
     a.remove();
   }
 
+  /**
+   * The submit button stays clickable: on an incomplete form it reveals every
+   * step marking and field hint and jumps to the first step that needs input,
+   * instead of sitting disabled without saying why.
+   */
+  onSubmit(): void {
+    const firstInvalidStep = STEP_KEYS.find((key) => this.stepForms[key].invalid);
+    if (!firstInvalidStep) {
+      this.editGeoresourceMetadata();
+      return;
+    }
+    STEP_KEYS.forEach((key) => this.stepForms[key].markAllAsTouched());
+    this.stepper.goToKey(firstInvalidStep);
+  }
+
   // Main edit method
   editGeoresourceMetadata(): void {
+    // The button is disabled in both cases; this guards direct calls and a
+    // double click racing the loading overlay.
+    const georesourceId = this.currentGeoresourceDataset?.georesourceId;
+    if (!georesourceId || this.loadingData()) {
+      return;
+    }
+
     // No permission field: GeoresourcePATCHInputType does not declare one and
     // the AngularJS original never sent one either.
     const patchBody: any = {
@@ -664,16 +734,14 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
 
     this.http
       .patch(
-        this.envConfigService.baseUrlToKomMonitorDataAPI +
-          '/georesources/' +
-          this.currentGeoresourceDataset.georesourceId,
+        this.envConfigService.baseUrlToKomMonitorDataAPI + '/georesources/' + georesourceId,
         patchBody
       )
       .subscribe({
         next: (_response: any) => {
           this.refreshRequested.emit({
             crudType: 'edit',
-            targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
+            targetGeoresourceId: georesourceId,
           });
           this.loadingData.set(false);
           this.notificationService.showSuccess(
@@ -683,7 +751,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
           );
           this.activeModal.close({
             action: 'updated',
-            georesourceId: this.currentGeoresourceDataset.georesourceId,
+            georesourceId,
           });
         },
         error: (error: any) => {
@@ -711,11 +779,6 @@ export class GeoresourceEditMetadataModalComponent implements OnInit {
     return this.topicStore.availableTopics.filter(
       (topic: any) => topic.topicType === 'main' && topic.topicResource === 'georesource'
     );
-  }
-
-  // Validation for form submission
-  canSubmitForm(): boolean {
-    return this.metadataStep.valid && this.metadataForm.valid && this.topicsForm.valid;
   }
 
   // Modal control
