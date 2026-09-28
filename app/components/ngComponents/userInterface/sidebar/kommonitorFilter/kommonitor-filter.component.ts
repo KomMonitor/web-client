@@ -208,13 +208,40 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.slider = document.getElementById('filterRangeSlider');
-    noUiSlider.create(this.slider, this.sliderNormalConfig);
-
-    this.measureSlider = document.getElementById('measureOfValueSlider');
-    noUiSlider.create(this.measureSlider, this.sliderSingleConfig);
+    // Both slider elements only exist in the DOM once an indicator with a
+    // QUANTITATIVE classification is selected (they are behind an @if), so on
+    // initial load - before any indicator is selected - they are not there
+    // yet. ensure*Slider() is called again once they actually appear.
+    this.ensureFilterRangeSlider();
+    this.ensureMeasureOfValueSlider();
 
     if (!this.globalFilters) this.loadGlobalFilters();
+  }
+
+  private ensureFilterRangeSlider(): void {
+    // Re-query if the previously created element was removed from the DOM
+    // (e.g. the indicator classification toggled away from QUANTITATIVE and
+    // back), since the @if then renders a brand new element with the same id.
+    if (this.slider?.noUiSlider && document.body.contains(this.slider)) return;
+
+    const element = document.getElementById('filterRangeSlider');
+    if (!element) return;
+
+    this.slider = element;
+    noUiSlider.create(this.slider, this.sliderNormalConfig);
+  }
+
+  private ensureMeasureOfValueSlider(): void {
+    // Re-query if the previously created element was removed from the DOM
+    // (e.g. the indicator classification toggled away from QUANTITATIVE and
+    // back), since the @if then renders a brand new element with the same id.
+    if (this.measureSlider?.noUiSlider && document.body.contains(this.measureSlider)) return;
+
+    const element = document.getElementById('measureOfValueSlider');
+    if (!element) return;
+
+    this.measureSlider = element;
+    noUiSlider.create(this.measureSlider, this.sliderSingleConfig);
   }
 
   loadGlobalFilters() {
@@ -384,8 +411,18 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
   }
 
   setupRangeSliderForFilter(date, indicatorMetadataAndGeoJSON) {
+    // The value-range slider only enters the DOM for a QUANTITATIVE
+    // indicator (see the @if in the template), so there is nothing to set
+    // up for a QUALITATIVE one.
+    if (this.indicatorClassificationType !== 'QUANTITATIVE') return;
+
     // hier
     date = this.INDICATOR_DATE_PREFIX + date;
+
+    // The slider element only enters the DOM once an indicator with a
+    // QUANTITATIVE classification is selected, so it may not have been
+    // created yet in ngAfterViewInit().
+    this.ensureFilterRangeSlider();
 
     if (this.rangeSliderForFilter) {
       this.rangeFilterState.rangeFilterData = undefined;
@@ -582,6 +619,11 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
   }
 
   onChangeUseMeasureOfValue() {
+    // The slider element only enters the DOM once an indicator with a
+    // QUANTITATIVE classification is selected, so it may not have been
+    // created yet in ngAfterViewInit().
+    this.ensureMeasureOfValueSlider();
+
     const middle =
       this.valueRangeMinValue + (this.valueRangeMaxValue - this.valueRangeMinValue) / 2;
 
@@ -621,6 +663,16 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
   // hier
   updateMeasureOfValueBar([date, indicatorMetadataAndGeoJSON]) {
+    // The measure-of-value slider and its text input only enter the DOM for
+    // a QUANTITATIVE indicator (see the @if in the template), so there is
+    // nothing to update for a QUALITATIVE one.
+    if (this.indicatorClassificationType !== 'QUANTITATIVE') return;
+
+    // The slider element only enters the DOM once an indicator with a
+    // QUANTITATIVE classification is selected, so it may not have been
+    // created yet in ngAfterViewInit().
+    this.ensureMeasureOfValueSlider();
+
     //append date prefix to access correct property!
     date = this.INDICATOR_DATE_PREFIX + date;
     const geoJSON = indicatorMetadataAndGeoJSON.geoJSON;

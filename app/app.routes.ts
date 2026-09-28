@@ -106,5 +106,8 @@ export const routes: Routes = [
       },
     ],
   },
+  // Applies a preconfigured global filter (see admin > filters) by its name,
+  // e.g. /app/klima. Read by GlobalFilterHelperService via the 'filterId' route param.
+  { path: 'app/:filterId', component: UserInterfaceComponent },
   { path: '**', component: UserInterfaceComponent },
 ];

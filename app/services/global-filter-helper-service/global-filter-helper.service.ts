@@ -1,54 +1,67 @@
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { Injectable, inject } from '@angular/core';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+
+/** Route param name for the global-filter route, see app.routes.ts ('app/:filterId'). */
+export const FILTER_ID_ROUTE_PARAM = 'filterId';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GlobalFilterHelperService {
-  private route = inject(ActivatedRoute);
   private router = inject(Router);
   private envConfigService = inject(EnvConfigService);
+  private notificationService = inject(NotificationService);
 
-  queryParamMap = new Map();
-  currentShareLink = '';
-
-  paramName_app = 'application';
   applicationFilterId: any = '';
   applicationFilter: any;
   filterParamSet = false;
   filterApplied: boolean = false;
 
-  applyQueryParams() {
-    // todo, once fully migrated, change to ngRoute with valid url params and adjust code here accordingly
+  /** The filterId route param of the currently matched top-level route, if any (see app.routes.ts: 'app/:filterId'). */
+  private getFilterIdFromRoute(): string | null {
+    return (
+      this.router.routerState.snapshot.root.firstChild?.paramMap.get(FILTER_ID_ROUTE_PARAM) ?? null
+    );
+  }
 
-    if (window.location.href.includes(this.paramName_app)) {
-      const urlParts = window.location.href.split(`${this.paramName_app}=`);
-      this.applicationFilterId = urlParts[1];
+  /** Resolves applicationFilterId/applicationFilter from the route; returns whether a matching filter was found. */
+  applyRouteFilter(): boolean {
+    this.applicationFilterId = this.getFilterIdFromRoute();
 
-      this.envConfigService.filterConfig.some((filterConfig) => {
-        if (filterConfig['name'] === this.applicationFilterId) {
-          this.applicationFilter = filterConfig;
-          return true;
-        }
+    return (this.envConfigService.filterConfig ?? []).some((filterConfig) => {
+      if (filterConfig['name'] === this.applicationFilterId) {
+        this.applicationFilter = filterConfig;
+        return true;
+      }
 
-        return false;
-      });
-    }
+      return false;
+    });
   }
 
   init() {
-    // todo, once fully migrated, change to ngRoute with valid url params and adjust code here accordingly
+    const filterId = this.getFilterIdFromRoute();
 
-    // No need to parse sharing params if sharing is not true
-    if (window.location.href.includes(this.paramName_app)) {
+    // No need to parse the filter route param if sharing is not active
+    if (!filterId) {
+      this.filterParamSet = false;
+      this.filterApplied = false;
+      return;
+    }
+
+    // set config and data options from the route
+    if (this.applyRouteFilter()) {
       this.filterParamSet = true;
       this.filterApplied = true;
-      // set config and data options from params
-      this.applyQueryParams();
     } else {
       this.filterParamSet = false;
       this.filterApplied = false;
+      // Keep this visible until the user dismisses it - an unknown filterId is
+      // easy to miss otherwise, since the default toast auto-hides after 5s.
+      this.notificationService.showError('Räuml. Filter konnte nicht gefunden werden', {
+        autohide: false,
+      });
     }
   }
 
