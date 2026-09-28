@@ -978,7 +978,8 @@
       "GROUP_MANAGE_USERS": "Managing users",
       "GROUP_MANAGE_RESOURCES": "Managing resources",
       "GROUP_MANAGE_TOPICS": "Managing topics",
-      "EDIT_GROUP_RIGHTS_TITLE": "Edit group rights"
+      "EDIT_GROUP_RIGHTS_TITLE": "Edit group rights",
+      "DELETE_TITLE": "Delete organizational unit"
     }
   },
   "ADMIN_TOPICS": {

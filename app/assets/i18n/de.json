@@ -978,7 +978,8 @@
       "GROUP_MANAGE_USERS": "Verwalten von Nutzern",
       "GROUP_MANAGE_RESOURCES": "Verwalten von Ressourcen",
       "GROUP_MANAGE_TOPICS": "Verwalten von Themen",
-      "EDIT_GROUP_RIGHTS_TITLE": "Gruppenrechte bearbeiten"
+      "EDIT_GROUP_RIGHTS_TITLE": "Gruppenrechte bearbeiten",
+      "DELETE_TITLE": "Organisationseinheit löschen"
     }
   },
   "ADMIN_TOPICS": {
