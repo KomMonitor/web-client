@@ -147,8 +147,10 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     return this.editForm.controls.datasourceTypeParameters.getRawValue();
   }
 
-  @ViewChild('indicatorDataSourceInput', { static: false })
-  indicatorDataSourceInput?: ElementRef;
+  /** The FILE upload, kept in the form so its absence is a validation error. */
+  get selectedDataSourceFile(): File | null {
+    return this.editForm.controls.selectedFile.value;
+  }
   get datasourceType(): any {
     return this.editForm.controls.datasourceType.value;
   }
@@ -216,6 +218,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       key: 'data',
       label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_DATASET',
       invalid: this.dataStepInvalid,
+      onLeave: () => this.editForm.markAllAsTouched(),
     },
   ]);
 
@@ -334,6 +337,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.schema = undefined;
     this.mimeType = undefined;
     this.datasourceType = null;
+    this.editForm.controls.selectedFile.setValue(null);
     syncParameterControls(this.editForm.controls.converterParameters, []);
     syncParameterControls(this.editForm.controls.datasourceTypeParameters, []);
 
@@ -349,6 +353,9 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.importerErrors = [];
 
     this.timeseriesMappingReference = [];
+
+    // A reset form must not start out showing errors.
+    this.editForm.markAsUntouched();
   }
 
   refreshIndicatorEditFeaturesOverviewTable(): void {
@@ -494,9 +501,18 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
    * parameter fields at all, so they get an empty record.
    */
   onChangeDatasourceType(): void {
+    // A file picked for a previous FILE selection does not carry over.
+    this.editForm.controls.selectedFile.setValue(null);
     const parameters =
       this.datasourceType?.type === 'FILE' ? [] : (this.datasourceType?.parameters ?? []);
     syncParameterControls(this.editForm.controls.datasourceTypeParameters, parameters);
+  }
+
+  onDataSourceFileSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement | null)?.files?.[0];
+    const control = this.editForm.controls.selectedFile;
+    control.setValue(file ?? null);
+    control.markAsTouched();
   }
 
   onChangeMimeType(mimeType: string): void {
@@ -598,8 +614,9 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       return await this.resourceImportService.buildDatasourceTypeDefinition({
         datasourceType: this.datasourceType,
         datasourceTypeFormValues: this.datasourceTypeParameterValues,
-        selectedFile: null,
-        fileInputElement: this.indicatorDataSourceInput?.nativeElement,
+        selectedFile: this.selectedDataSourceFile,
+        // The file comes from the form control; there is no input element to fall back to.
+        fileInputElement: null,
       });
     } catch (error: any) {
       this.errorMessagePart = this.indicatorValueService.formatError(error);
@@ -616,6 +633,20 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       timeseriesMappingForImporter,
       this.keepMissingValues
     );
+  }
+
+  /**
+   * The submit button stays clickable: on an incomplete form it reveals every
+   * field hint and the step marking and jumps to the data step (the only step
+   * with inputs), instead of sitting disabled without saying why.
+   */
+  onSubmit(): void {
+    if (this.editForm.valid) {
+      void this.editIndicatorFeatures();
+      return;
+    }
+    this.editForm.markAllAsTouched();
+    this.stepper.goToKey('data');
   }
 
   async editIndicatorFeatures(): Promise<void> {

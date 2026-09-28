@@ -105,7 +105,6 @@
                   {{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.EDIT_CELLS_HINT' | translate }}
                 </p>
               </div>
-              <div class="help-block with-errors"></div>
             </div>
           </div>
           <div class="col-md-6 col-sm-6 col-12">
@@ -139,7 +138,6 @@
                   {{ 'ADMIN_GEORESOURCES.FEATURES_MODAL.DELETE_FEATURES_HINT' | translate }}
                 </p>
               </div>
-              <div class="help-block with-errors"></div>
             </div>
           </div>
         </div>
@@ -260,7 +258,7 @@
           <div class="col-md-3 col-sm-6 col-12">
             <div class="form-group">
               <label>{{ 'ADMIN_GEORESOURCES.COMMON.GEODATA_SOURCE_FORMAT' | translate }}*</label>
-              <select formControlName="converter" class="form-control">
+              <select formControlName="converter" class="form-control" appAria="gre-data-converter">
                 <option disabled selected value>
                   {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SOURCE_FORMAT' | translate }}
                 </option>
@@ -268,14 +266,17 @@
                   <option [ngValue]="conv">{{ conv.name }}</option>
                 }
               </select>
-              <div class="help-block with-errors"></div>
+              <app-form-error
+                [control]="importerForm.controls.converter"
+                for="gre-data-converter"
+              />
             </div>
 
             @if (converter?.schemas) {
               <div>
                 <div class="form-group">
                   <label>{{ 'ADMIN_GEORESOURCES.COMMON.SCHEMA' | translate }}*</label>
-                  <select formControlName="schema" class="form-control">
+                  <select formControlName="schema" class="form-control" appAria="gre-data-schema">
                     <option disabled selected value>
                       {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SCHEMA' | translate }}
                     </option>
@@ -283,7 +284,7 @@
                       <option [value]="sch">{{ sch }}</option>
                     }
                   </select>
-                  <div class="help-block with-errors"></div>
+                  <app-form-error [control]="importerForm.controls.schema" for="gre-data-schema" />
                 </div>
               </div>
             }
@@ -292,7 +293,11 @@
               <div>
                 <div class="form-group">
                   <label>{{ 'ADMIN_GEORESOURCES.COMMON.SOURCE_FORMAT' | translate }}*</label>
-                  <select formControlName="mimeType" class="form-control">
+                  <select
+                    formControlName="mimeType"
+                    class="form-control"
+                    appAria="gre-data-mime-type"
+                  >
                     <option disabled selected value>
                       {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_FORMAT' | translate }}
                     </option>
@@ -300,7 +305,10 @@
                       <option [value]="mime">{{ mime }}</option>
                     }
                   </select>
-                  <div class="help-block with-errors"></div>
+                  <app-form-error
+                    [control]="importerForm.controls.mimeType"
+                    for="gre-data-mime-type"
+                  />
                 </div>
               </div>
             }
@@ -327,7 +335,9 @@
                       <p>{{ parameter.description }}</p>
                     </div>
                   }
-                  <div class="help-block with-errors"></div>
+                  <app-form-error
+                    [control]="importerForm.controls.converterParameters.controls[parameter.name]"
+                  />
                 </div>
               </div>
             }
@@ -344,7 +354,11 @@
                 <div>
                   <div class="form-group">
                     <label>{{ 'ADMIN_GEORESOURCES.COMMON.DATASOURCE_TYPE' | translate }}*</label>
-                    <select formControlName="datasourceType" class="form-control">
+                    <select
+                      formControlName="datasourceType"
+                      class="form-control"
+                      appAria="gre-data-datasource-type"
+                    >
                       <option disabled selected value>
                         {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SOURCE_TYPE' | translate }}
                       </option>
@@ -352,7 +366,10 @@
                         <option [ngValue]="dsType">{{ dsType.type }}</option>
                       }
                     </select>
-                    <div class="help-block"></div>
+                    <app-form-error
+                      [control]="importerForm.controls.datasourceType"
+                      for="gre-data-datasource-type"
+                    />
                   </div>
                   @if (datasourceType?.type === 'FILE') {
                     <div>
@@ -362,8 +379,10 @@
                         class="form-control"
                         #dataSourceInput
                         id="georesourceDataSourceInput_editFeatures"
+                        (change)="onDataSourceFileSelected($event)"
                         required
                       />
+                      <app-form-error [control]="editForm" />
                     </div>
                   }
                   @if (datasourceType?.type === 'OGCAPI_FEATURES') {
@@ -462,6 +481,7 @@
                           <div class="help-block">
                             <p>{{ 'ADMIN_GEORESOURCES.COMMON.MAX_Y' | translate }}</p>
                           </div>
+                          <app-form-error [control]="importerForm.controls.bbox" />
                         </div>
                       }
                     </div>
@@ -487,7 +507,13 @@
                             <div class="help-block">
                               <p>{{ parameter.description }}</p>
                             </div>
-                            <div class="help-block with-errors"></div>
+                            <app-form-error
+                              [control]="
+                                importerForm.controls.datasourceTypeParameters.controls[
+                                  parameter.name
+                                ]
+                              "
+                            />
                           </div>
                         </div>
                       }
@@ -496,7 +522,6 @@
                 </div>
               }
 
-              <div class="help-block with-errors"></div>
               @if (georesourceDataSourceInputInvalid) {
                 <div style="color: red">
                   <p>
@@ -524,7 +549,10 @@
                   {{ 'ADMIN_GEORESOURCES.COMMON.ID_ATTRIBUTE_HINT' | translate }}
                 </p>
               </div>
-              <div class="help-block with-errors"></div>
+              <app-form-error
+                [control]="importerForm.controls.idProperty"
+                for="gre-data-id-property"
+              />
               @if (idPropertyNotFound) {
                 <div style="color: red">
                   <p>
@@ -544,7 +572,10 @@
               <div class="help-block">
                 <p>{{ 'ADMIN_GEORESOURCES.COMMON.NAME_ATTRIBUTE_HINT' | translate }}</p>
               </div>
-              <div class="help-block with-errors"></div>
+              <app-form-error
+                [control]="importerForm.controls.nameProperty"
+                for="gre-data-name-property"
+              />
               @if (namePropertyNotFound) {
                 <div style="color: red">
                   <p>
@@ -564,7 +595,6 @@
                   {{ 'ADMIN_GEORESOURCES.COMMON.LIFETIME_START_HINT' | translate }}
                 </p>
               </div>
-              <div class="help-block with-errors"></div>
             </div>
             <div class="form-group">
               <label>{{ 'ADMIN_GEORESOURCES.COMMON.LIFETIME_END_ATTRIBUTE' | translate }}</label>
@@ -574,7 +604,6 @@
                   {{ 'ADMIN_GEORESOURCES.COMMON.LIFETIME_END_HINT' | translate }}
                 </p>
               </div>
-              <div class="help-block with-errors"></div>
             </div>
           </div>
         </div>
@@ -594,6 +623,7 @@
                   {{ 'ADMIN_GEORESOURCES.COMMON.VALID_FROM_HINT' | translate }}
                 </p>
               </div>
+              <app-form-error [control]="editForm.controls.periodOfValidity.controls.startDate" />
               <app-form-error
                 [control]="editForm.controls.periodOfValidity"
                 keyOverride="ADMIN_GEORESOURCES.COMMON.PERIOD_INVALID"
@@ -827,12 +857,7 @@
   >
     {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
-  <button
-    type="button"
-    class="btn btn-success"
-    [disabled]="!canSubmitForm()"
-    (click)="editGeoresourceFeatures()"
-  >
+  <button type="button" class="btn btn-success" [disabled]="!canSubmitForm()" (click)="onSubmit()">
     {{ 'ADMIN_SHARED.EDIT_FEATURES' | translate }}
   </button>
 </div>

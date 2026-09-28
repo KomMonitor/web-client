@@ -1,11 +1,4 @@
-import {
-  AbstractControl,
-  FormArray,
-  FormControl,
-  FormGroup,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { SpatialUnitHierarchyMembershipPOSTInputType } from 'models/data-management-api';
 import { LinePatternOption } from '../../../customElements/line-pattern-picker/km-line-pattern-picker.component';
 import {
@@ -25,7 +18,10 @@ import {
   SecurityStepGroup,
   buildSecurityStepForm,
 } from '../../adminShared/securityForm/security-form.model';
-import { uniqueNameValidator } from '../../adminShared/validators/admin-validators';
+import {
+  fileRequiredForFileDatasource,
+  uniqueNameValidator,
+} from '../../adminShared/validators/admin-validators';
 import { toIsoDateString } from '../spatial-unit-import.util';
 import {
   HierarchyAssignmentRowGroup,
@@ -128,7 +124,7 @@ export function buildSpatialUnitAddForm(
       importer: buildImporterForm(),
       selectedFile: new FormControl<File | null>(null),
     },
-    { validators: fileRequiredForFileDatasource }
+    { validators: fileRequiredForFileDatasource() }
   );
 
   return new FormGroup({
@@ -137,17 +133,6 @@ export function buildSpatialUnitAddForm(
     security,
     data,
   });
-}
-
-/**
- * A file is mandatory exactly for a FILE data source. Sits on the data group,
- * the nearest scope holding both the data source type and the upload.
- */
-export function fileRequiredForFileDatasource(group: AbstractControl): ValidationErrors | null {
-  if (group.get('importer.datasourceType')?.value?.type !== 'FILE') {
-    return null;
-  }
-  return group.get('selectedFile')?.value ? null : { fileRequired: true };
 }
 
 /**

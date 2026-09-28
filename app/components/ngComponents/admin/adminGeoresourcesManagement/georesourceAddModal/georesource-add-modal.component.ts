@@ -101,6 +101,10 @@ import { OwnerOrganizationSelectComponent } from '../../adminShared/roleManageme
 import { TranslateModule } from '@ngx-translate/core';
 
 import { TranslateService } from '@ngx-translate/core';
+
+/** Wizard steps in stepper order; each names its child group of `addForm`. */
+const STEP_KEYS = ['metadata', 'general', 'topics', 'security', 'data'] as const;
+
 @Component({
   selector: 'app-georesource-add-modal',
   templateUrl: './georesource-add-modal.component.html',
@@ -197,23 +201,32 @@ export class GeoresourceAddModalComponent implements OnInit {
       key: 'metadata',
       label: 'ADMIN_SHARED_UI.STEP_LABELS.GEORESOURCE_METADATA',
       invalid: this.metadataStepInvalid,
+      onLeave: () => this.addForm.controls.metadata.markAllAsTouched(),
     },
     {
       key: 'general',
       label: 'ADMIN_SHARED_UI.STEP_LABELS.GENERAL_METADATA',
       invalid: this.generalStepInvalid,
+      onLeave: () => this.addForm.controls.general.markAllAsTouched(),
     },
-    { key: 'topics', label: 'ADMIN_SHARED_UI.TOPICS.TITLE', invalid: this.topicsStepInvalid },
+    {
+      key: 'topics',
+      label: 'ADMIN_SHARED_UI.TOPICS.TITLE',
+      invalid: this.topicsStepInvalid,
+      onLeave: () => this.addForm.controls.topics.markAllAsTouched(),
+    },
     {
       key: 'security',
       label: 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE',
       when: () => this.envConfigService.enableKeycloakSecurity,
       invalid: this.securityStepInvalid,
+      onLeave: () => this.addForm.controls.security.markAllAsTouched(),
     },
     {
       key: 'data',
       label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_DATASET',
       invalid: this.dataStepInvalid,
+      onLeave: () => this.addForm.controls.data.markAllAsTouched(),
     },
   ]);
 
@@ -288,6 +301,18 @@ export class GeoresourceAddModalComponent implements OnInit {
   // Importer functionality — the shared typed sub-form.
   get importerForm(): ImporterFormGroup {
     return this.addForm.controls.data.controls.importer;
+  }
+
+  /** The upload for a FILE data source, held by the data step's form. */
+  get selectedDataSourceFile(): File | null {
+    return this.addForm.controls.data.controls.selectedFile.value;
+  }
+
+  onGeoresourceFileSelected(event: any): void {
+    const file = event?.target?.files?.[0] as File | undefined;
+    const control = this.addForm.controls.data.controls.selectedFile;
+    control.setValue(file ?? null);
+    control.markAsTouched();
   }
 
   /**
@@ -471,6 +496,8 @@ export class GeoresourceAddModalComponent implements OnInit {
    * `valueChanges`, so it must not write the control back.
    */
   private applyDatasourceTypeChange(datasourceType: any): void {
+    // A new data source type re-renders the file input empty; drop the old pick.
+    this.addForm.controls.data.controls.selectedFile.setValue(null);
     syncDatasourceParameterControls(this.importerForm, datasourceType);
   }
 
@@ -954,6 +981,23 @@ export class GeoresourceAddModalComponent implements OnInit {
     return georesourceAddFormToApi(this.addForm, this.roleGrid?.getSelectedRoleIds() ?? []);
   }
 
+  /**
+   * The submit button stays clickable: on an incomplete form it reveals every
+   * step marking and field hint and jumps to the first step that needs input,
+   * instead of sitting disabled without saying why.
+   */
+  onSubmit(): void {
+    if (this.addForm.valid) {
+      this.addGeoresource();
+      return;
+    }
+    this.addForm.markAllAsTouched();
+    const firstInvalidStep = STEP_KEYS.find((key) => this.addForm.controls[key].invalid);
+    if (firstInvalidStep) {
+      this.stepper.goToKey(firstInvalidStep);
+    }
+  }
+
   // Main add method
   async addGeoresource(): Promise<void> {
     this.loadingData.set(true);
@@ -963,7 +1007,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     // (the historical behavior left the user without any feedback).
     const missing = this.resourceImportService.collectMissingImporterFields(
       importerFormToMissingFieldsInput(this.importerForm, {
-        hasFile: !!this.georesourceDataSourceInput?.nativeElement?.files?.[0],
+        hasFile: !!this.selectedDataSourceFile,
         startDate: this.periodOfValidityGroup.getRawValue().startDate,
         periodOfValidityInvalid: this.periodOfValidityInvalid,
       })
@@ -1074,7 +1118,7 @@ export class GeoresourceAddModalComponent implements OnInit {
       const importer = this.importerForm.getRawValue();
       const definitions = await this.resourceImportService.buildImporterObjects({
         ...importerFormToConfig(this.importerForm),
-        selectedFile: null,
+        selectedFile: this.selectedDataSourceFile,
         fileInputElement: this.georesourceDataSourceInput?.nativeElement,
         validStartDate: importer.validStartDateProperty,
         validEndDate: importer.validEndDateProperty,

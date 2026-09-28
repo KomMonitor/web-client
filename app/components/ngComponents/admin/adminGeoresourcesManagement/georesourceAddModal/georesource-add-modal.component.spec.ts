@@ -734,6 +734,115 @@ describe('GeoresourceAddModalComponent', () => {
 
   // ---------------------------------------------------------------------------
 
+  describe('submit gate', () => {
+    /** Fills everything the POST body requires, except the Keycloak owner. */
+    const fillRequired = () => {
+      metadataGroup().controls.datasetName.setValue('Spielplätze neu');
+      component.metadataForm.patchValue({
+        description: 'Beschreibung',
+        datasource: 'Quelle',
+        contact: 'Kontakt',
+        lastUpdate: '2026-01-01',
+        updateInterval: { apiName: 'YEARLY', displayName: 'jährlich' },
+      });
+      topicsGroup().controls.mainTopic.setValue(MAIN);
+      setPeriod({ startDate: '2026-01-01', endDate: '' });
+      importerGroup().patchValue({
+        idProperty: 'id',
+        nameProperty: 'name',
+        converter: { name: 'GeoJSON', mimeTypes: [], encodings: [], type: 'geojson' },
+        datasourceType: { type: 'FILE', parameters: [] },
+      });
+      component.addForm.controls.data.controls.selectedFile.setValue(
+        new File(['{}'], 'spielplaetze.geojson')
+      );
+    };
+
+    it('stays incomplete while required fields are missing', () => {
+      expect(component.addForm.invalid).toBe(true);
+    });
+
+    it('is complete once every required field is filled', () => {
+      fillRequired();
+      securityGroup().controls.ownerOrganization.setValue('org-1');
+
+      expect(component.addForm.valid).toBe(true);
+    });
+
+    it('demands a file for a FILE data source', () => {
+      fillRequired();
+      securityGroup().controls.ownerOrganization.setValue('org-1');
+
+      component.addForm.controls.data.controls.selectedFile.setValue(null);
+
+      expect(component.addForm.controls.data.hasError('fileRequired')).toBe(true);
+    });
+
+    it('takes the picked file from the file input', () => {
+      const file = new File(['{}'], 'spielplaetze.geojson');
+
+      component.onGeoresourceFileSelected({ target: { files: [file] } });
+
+      const control = component.addForm.controls.data.controls.selectedFile;
+      expect(control.value).toBe(file);
+      expect(control.touched).toBe(true);
+    });
+
+    it('jumps to the first incomplete step instead of posting', () => {
+      const post = jest.spyOn(component, 'addGeoresource').mockResolvedValue(undefined);
+      fillRequired();
+      component.metadataForm.controls.contact.setValue('');
+      component.stepper.goToKey('data');
+
+      component.onSubmit();
+
+      expect(post).not.toHaveBeenCalled();
+      expect(component.stepper.isActive('general')).toBe(true);
+      // Every step is revealed, not only the one jumped to.
+      expect(component.addForm.controls.security.touched).toBe(true);
+      expect(component.stepper.steps.map((step) => step.invalid)).toEqual([
+        false,
+        true,
+        false,
+        true,
+        false,
+      ]);
+    });
+
+    it('posts once the form is complete', () => {
+      const post = jest.spyOn(component, 'addGeoresource').mockResolvedValue(undefined);
+      fillRequired();
+      securityGroup().controls.ownerOrganization.setValue('org-1');
+
+      component.onSubmit();
+
+      expect(post).toHaveBeenCalledTimes(1);
+    });
+
+    it('marks a step as soon as it is left incomplete', () => {
+      expect(component.stepper.steps[0].invalid).toBe(false);
+
+      component.stepper.next();
+
+      expect(component.stepper.steps[0].invalid).toBe(true);
+      expect(component.stepper.steps[2].invalid).toBe(false); // not visited yet
+    });
+
+    it('does not demand an owner when Keycloak is disabled', () => {
+      TestBed.resetTestingModule();
+      const noKeycloak = createFixture({ enableKeycloakSecurity: false }).componentInstance;
+      const post = jest.spyOn(noKeycloak, 'addGeoresource').mockResolvedValue(undefined);
+      component = noKeycloak;
+      fillRequired();
+
+      noKeycloak.onSubmit();
+
+      expect(post).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+
   /**
    * The rendered tier — see the file header. Everything goes through the real
    * widgets: picking a converter, data source or spatial filter dispatches a

@@ -162,6 +162,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
       key: 'data',
       label: 'ADMIN_SHARED_UI.STEP_LABELS.SPATIAL_DATASET',
       invalid: this.dataStepInvalid,
+      onLeave: () => this.editForm.markAllAsTouched(),
     },
   ]);
 
@@ -178,8 +179,9 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
 
   // Data source input
   geoJsonString: string = '';
-  fileSelected: boolean = false;
-  selectedDataSourceFile: File | null = null;
+  get selectedDataSourceFile(): File | null {
+    return this.editForm.controls.selectedFile.value;
+  }
   get spatialUnitDataSourceIdProperty(): string {
     return this.importerForm.controls.idProperty.value;
   }
@@ -489,7 +491,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     this.keepMissingValues = true;
     this.isPartialUpdate = false;
     this.enableDeleteFeatures = false;
-    this.fileSelected = false;
+    this.editForm.controls.selectedFile.setValue(null);
     this.importerErrors.set([]);
   }
 
@@ -543,8 +545,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     this.bboxType = '';
     this.bboxRefSpatialUnitLevel = '';
     this.importerForm.controls.bbox.reset();
-    this.selectedDataSourceFile = null;
-    this.fileSelected = false;
+    this.editForm.controls.selectedFile.setValue(null);
   }
 
   refreshSpatialUnitEditFeaturesOverviewTable(): void {
@@ -775,17 +776,23 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     return spatialUnitEditFeaturesFormToApi(this.editForm);
   }
 
-  /**
-   * True when a data-source file is selected: either the change handler set the
-   * flag, or the file input itself carries a file (it survives a form reset that
-   * only clears the flag).
-   */
+  /** True when a data-source file is selected; the form control is the source of truth. */
   private hasSelectedDataSourceFile(): boolean {
-    if (this.fileSelected) {
-      return true;
+    return !!this.selectedDataSourceFile;
+  }
+
+  /**
+   * The submit button stays clickable: on an incomplete form it reveals every
+   * field hint and jumps to the data step (the only step with a form), instead
+   * of sitting disabled without saying why.
+   */
+  onSubmit(): void {
+    if (this.editForm.valid) {
+      this.editSpatialUnitFeatures();
+      return;
     }
-    const inputEl = this.spatialUnitDataSourceInput?.nativeElement as HTMLInputElement | undefined;
-    return !!inputEl?.files?.length;
+    this.editForm.markAllAsTouched();
+    this.stepper.goToKey('data');
   }
 
   async editSpatialUnitFeatures(): Promise<void> {
@@ -881,13 +888,10 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   }
 
   onFileSelected(event: any): void {
-    const input = event?.target as HTMLInputElement;
-    if (input && input.files && input.files.length > 0) {
-      this.selectedDataSourceFile = input.files[0];
-    } else {
-      this.selectedDataSourceFile = null;
-    }
-    this.fileSelected = !!(input && input.files && input.files.length > 0);
+    const file = (event?.target as HTMLInputElement | undefined)?.files?.[0];
+    const control = this.editForm.controls.selectedFile;
+    control.setValue(file ?? null);
+    control.markAsTouched();
   }
 
   // Import/Export functionality

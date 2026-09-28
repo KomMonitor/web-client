@@ -94,3 +94,23 @@ export function bboxCompleteValidator(): ValidatorFn {
     return { bboxIncomplete: true };
   };
 }
+
+/**
+ * A file is mandatory exactly for a FILE data source; every other data source
+ * type carries its input in its own parameters. Sits on the nearest group
+ * holding both the data source type and the upload (the file input is no
+ * ControlValueAccessor, so the host writes the upload control from `(change)`).
+ * Paths are relative to that group; the defaults match `buildImporterForm()`
+ * nested as `importer` next to a `selectedFile` control.
+ */
+export function fileRequiredForFileDatasource(
+  datasourceTypePath = 'importer.datasourceType',
+  filePath = 'selectedFile'
+): ValidatorFn {
+  return (group: AbstractControl): ValidationErrors | null => {
+    if (group.get(datasourceTypePath)?.value?.type !== 'FILE') {
+      return null;
+    }
+    return group.get(filePath)?.value ? null : { fileRequired: true };
+  };
+}

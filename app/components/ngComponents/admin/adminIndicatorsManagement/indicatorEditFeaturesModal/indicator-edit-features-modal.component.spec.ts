@@ -126,6 +126,9 @@ describe('IndicatorEditFeaturesModalComponent', () => {
     filterConverters: () => () => boolean;
     buildPropertyMapping_indicatorResource: jest.Mock;
     buildPutBody_indicators: jest.Mock;
+    updateIndicator: jest.Mock;
+    importerResponseContainsErrors: jest.Mock;
+    getImportedFeaturesFromImporterResponse: jest.Mock;
   };
 
   beforeEach(() => {
@@ -140,6 +143,9 @@ describe('IndicatorEditFeaturesModalComponent', () => {
       filterConverters: () => () => true,
       buildPropertyMapping_indicatorResource: jest.fn().mockReturnValue({ mapping: true }),
       buildPutBody_indicators: jest.fn().mockReturnValue({ putBody: true }),
+      updateIndicator: jest.fn().mockResolvedValue({}),
+      importerResponseContainsErrors: jest.fn().mockReturnValue(false),
+      getImportedFeaturesFromImporterResponse: jest.fn().mockReturnValue([]),
     };
 
     TestBed.configureTestingModule({
@@ -378,6 +384,119 @@ describe('IndicatorEditFeaturesModalComponent', () => {
 
   // ---------------------------------------------------------------------------
 
+  describe('file requirement', () => {
+    const file = new File(['a;b'], 'values.csv', { type: 'text/csv' });
+
+    it('requires a file exactly for a FILE data source', () => {
+      component.datasourceType = HTTP_DATASOURCE;
+      expect(component.editForm.hasError('fileRequired')).toBe(false);
+
+      component.datasourceType = FILE_DATASOURCE;
+      expect(component.editForm.hasError('fileRequired')).toBe(true);
+
+      component.onDataSourceFileSelected({ target: { files: [file] } } as unknown as Event);
+      expect(component.editForm.hasError('fileRequired')).toBe(false);
+      expect(component.editForm.controls.selectedFile.touched).toBe(true);
+    });
+
+    it('drops the picked file when the data source type changes', () => {
+      component.editForm.controls.selectedFile.setValue(file);
+
+      component.onChangeDatasourceType();
+
+      expect(component.selectedDataSourceFile).toBeNull();
+    });
+
+    it('hands the picked file to the import service', async () => {
+      component.datasourceType = FILE_DATASOURCE;
+      component.editForm.controls.selectedFile.setValue(file);
+
+      await component.buildDatasourceTypeDefinition();
+
+      expect(resourceImport.buildDatasourceTypeDefinition).toHaveBeenCalledWith(
+        expect.objectContaining({ selectedFile: file })
+      );
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+
+  describe('active submit button', () => {
+    /** A complete data step: HTTP source with its parameter, key, unit and mapping. */
+    const fillCompleteForm = (): void => {
+      component.currentIndicatorDataset = {
+        indicatorId: 'ind-1',
+        indicatorName: 'Einwohner',
+        ownerId: 'owner-1',
+        applicableSpatialUnits: [],
+      };
+      component.editForm.controls.converter.setValue(CONVERTER as any);
+      component.editForm.controls.converterParameters.controls['delimiter'].setValue(';');
+      component.editForm.controls.datasourceType.setValue(HTTP_DATASOURCE as any);
+      component.editForm.controls.datasourceTypeParameters.controls['url'].setValue(
+        'https://example.org/values.csv'
+      );
+      component.spatialUnitRefKeyProperty = 'ags';
+      component.targetSpatialUnitMetadata = SPATIAL_UNITS[0];
+      component.timeseriesMappingReference = [
+        { indicatorValueProperty: 'DATE_2026', timestamp: '2026-01-01' },
+      ];
+    };
+
+    beforeEach(() => component.ngOnInit());
+
+    it('jumps to the data step instead of posting while the form is incomplete', () => {
+      expect(component.stepper.isActive('overview')).toBe(true);
+
+      component.onSubmit();
+
+      expect(importerHelper.updateIndicator).not.toHaveBeenCalled();
+      expect(component.stepper.isActive('data')).toBe(true);
+      expect(component.editForm.controls.spatialUnitRefKeyProperty.touched).toBe(true);
+      expect(component.stepper.steps.map((step) => step.invalid)).toEqual([false, true]);
+    });
+
+    it('posts once the form is complete', async () => {
+      fillCompleteForm();
+      expect(component.editForm.valid).toBe(true);
+
+      component.onSubmit();
+      await fixture.whenStable();
+
+      // Dry run plus the real run.
+      expect(importerHelper.updateIndicator).toHaveBeenCalledTimes(2);
+    });
+
+    it('does not post a FILE data source without a file', () => {
+      fillCompleteForm();
+      component.editForm.controls.datasourceType.setValue(FILE_DATASOURCE as any);
+
+      component.onSubmit();
+
+      expect(importerHelper.updateIndicator).not.toHaveBeenCalled();
+      expect(component.stepper.isActive('data')).toBe(true);
+    });
+
+    it('marks the data step only once it is left incomplete', () => {
+      component.stepper.goToKey('data');
+      expect(component.stepper.steps[1].invalid).toBe(false);
+
+      component.stepper.previous();
+
+      expect(component.stepper.steps[1].invalid).toBe(true);
+    });
+
+    it('starts unmarked again after a reset', () => {
+      component.onSubmit();
+
+      component.resetIndicatorEditFeaturesForm();
+
+      expect(component.stepper.steps[1].invalid).toBe(false);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+
   describe('resetIndicatorEditFeaturesForm', () => {
     it('restores the non-empty defaults instead of nulling them', () => {
       component.keepMissingValues = false;
@@ -562,6 +681,19 @@ describe('IndicatorEditFeaturesModalComponent', () => {
       expect(parameterField('url')).toBeNull();
       expect(component.editForm.controls.datasourceTypeParameters.controls).toEqual({});
       expect(query('input[type="file"]')).not.toBeNull();
+    });
+
+    it('shows the missing file under the upload', () => {
+      renderDataStep();
+      chooseConverter('CSV');
+      chooseDatasourceType('FILE');
+
+      component.onSubmit();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain(
+        'ADMIN_SHARED_UI.VALIDATION.FILE_REQUIRED'
+      );
     });
   });
 });

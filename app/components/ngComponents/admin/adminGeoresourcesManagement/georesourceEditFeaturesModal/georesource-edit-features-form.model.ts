@@ -1,4 +1,5 @@
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, ValidationErrors } from '@angular/forms';
+import { fileRequiredForFileDatasource } from '../../adminShared/validators/admin-validators';
 import {
   ImporterFormGroup,
   buildImporterForm,
@@ -24,12 +25,21 @@ export type GeoresourceEditFeaturesFormGroup = FormGroup<{
   periodOfValidity: PeriodOfValidityFormGroup;
   importer: ImporterFormGroup;
   isPartialUpdate: FormControl<boolean>;
+  /**
+   * The upload for a FILE data source. The file input is no
+   * ControlValueAccessor, so the host writes it from the `(change)` handler.
+   */
+  selectedFile: FormControl<File | null>;
 }>;
 
 export function buildGeoresourceEditFeaturesForm(): GeoresourceEditFeaturesFormGroup {
-  return new FormGroup({
-    periodOfValidity: buildPeriodOfValidityForm({ requireStart: true }),
-    importer: buildImporterForm(),
-    isPartialUpdate: new FormControl(false, { nonNullable: true }),
-  });
+  return new FormGroup(
+    {
+      periodOfValidity: buildPeriodOfValidityForm({ requireStart: true }),
+      importer: buildImporterForm(),
+      isPartialUpdate: new FormControl(false, { nonNullable: true }),
+      selectedFile: new FormControl<File | null>(null),
+    },
+    { validators: fileRequiredForFileDatasource() }
+  );
 }

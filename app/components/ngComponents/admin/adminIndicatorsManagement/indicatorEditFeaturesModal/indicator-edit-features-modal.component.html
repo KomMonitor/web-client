@@ -317,10 +317,11 @@
                           <input
                             type="file"
                             class="form-control"
-                            #indicatorDataSourceInput
                             id="indicatorDataSourceInput_editFeatures"
+                            (change)="onDataSourceFileSelected($event)"
                             required
                           />
+                          <app-form-error [control]="editForm" />
                         </div>
                       }
                       @if (!(datasourceType?.type === 'FILE')) {
@@ -350,7 +351,6 @@
                       }
                     </div>
                   }
-                  <div class="help-block with-errors"></div>
                 </div>
               </div>
               <div class="col-md-3 col-sm-6 col-12">
@@ -488,12 +488,7 @@
   >
     <i class="fas fa-undo"></i>&nbsp;{{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
-  <button
-    type="button"
-    class="btn btn-success"
-    [disabled]="editForm.invalid"
-    (click)="editIndicatorFeatures()"
-  >
+  <button type="button" class="btn btn-success" [disabled]="loadingData()" (click)="onSubmit()">
     {{ 'ADMIN_INDICATORS.EDIT_FEATURES.CONTINUE_TIMESERIES' | translate }}
   </button>
 </div>
