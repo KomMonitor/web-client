@@ -7,11 +7,10 @@ import {
   EventEmitter,
   OnInit,
   Output,
-  TemplateRef,
   ViewChild,
   inject,
 } from '@angular/core';
-import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
@@ -27,7 +26,6 @@ import { IndicatorAddStep4ReferencesComponent } from './steps/indicator-add-step
 import { IndicatorAddStep5ClassificationComponent } from './steps/indicator-add-step5-classification.component';
 import { IndicatorAddStep6ComparisonComponent } from './steps/indicator-add-step6-comparison.component';
 import { IndicatorAddStep7AccessComponent } from './steps/indicator-add-step7-access.component';
-import { MODAL_CONFIRM } from 'util/modal-presets';
 
 @Component({
   selector: 'app-indicator-add-modal',
@@ -55,21 +53,16 @@ export class IndicatorAddModalComponent implements OnInit {
   private indicatorValueService = inject(IndicatorValueService);
   private http = inject(HttpClient);
   protected envConfigService = inject(EnvConfigService);
-  private modalService = inject(NgbModal);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
 
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
-  @ViewChild('missingFieldsModal', { static: false }) missingFieldsModalTpl!: TemplateRef<unknown>;
 
   @Output() refreshRequested = new EventEmitter<IndicatorRefreshRequest>();
 
   // Set by the caller (before ngOnInit) to open the wizard in edit mode,
   // pre-filled with this existing indicator's metadata. Left null for "add new".
   editIndicatorDataset: any = null;
-
-  // Required fields still missing when the user tried to register (for the dialog).
-  protected missingFields: { label: string }[] = [];
 
   ngOnInit() {
     this.state.loadInitialData();
@@ -82,13 +75,16 @@ export class IndicatorAddModalComponent implements OnInit {
     }
   }
 
-  // Register (add) or save (edit) the indicator. Validates the required fields
-  // first and, if any are still blank, lists them in a modal instead of sending
-  // the request.
-  async addIndicator() {
-    this.missingFields = this.state.getV3MissingRequiredFields();
-    if (this.missingFields.length > 0) {
-      this.modalService.open(this.missingFieldsModalTpl, { ...MODAL_CONFIRM, scrollable: true });
+  /**
+   * Register (add) or save (edit) the indicator. With a step still incomplete
+   * nothing is sent: every field message and stepper marking is revealed and
+   * the wizard jumps to the first incomplete step instead.
+   */
+  async onSubmit() {
+    const firstInvalidStep = this.state.firstInvalidStepKey();
+    if (firstInvalidStep) {
+      this.state.revealAllErrors();
+      this.state.stepper.goToKey(firstInvalidStep);
       return;
     }
 
@@ -152,12 +148,6 @@ export class IndicatorAddModalComponent implements OnInit {
     } catch (error: any) {
       this.state.errorMessagePart = this.indicatorValueService.formatError(error);
       this.state.loadingData = false;
-    }
-  }
-
-  onSubmit() {
-    if (!this.state.datasetNameInvalid && !this.state.classification.classBreaksInvalid()) {
-      this.addIndicator();
     }
   }
 

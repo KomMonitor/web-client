@@ -1,5 +1,6 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AbstractControl, Validators } from '@angular/forms';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -10,11 +11,13 @@ import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-
 import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { downloadJson, readJsonFile } from 'util/json-file.util';
+import { controlInvalidSignal, controlStateSignal } from '../../adminShared/forms/control-state';
 import {
   patchMetadataFormFromApi,
   ResourceMetadataFormGroup,
   ResourceMetadataFormValue,
 } from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
+import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
 import {
   patchTopicHierarchyFromChain,
   topicHierarchyToApi,
@@ -24,9 +27,21 @@ import {
   buildIndicatorAddForm,
   buildIndicatorReferenceDraftForm,
 } from './indicator-add-form.model';
-import { controlStateSignal } from '../../adminShared/forms/control-state';
-import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
 import { IndicatorClassificationStateService } from './indicator-classification-state.service';
+
+/**
+ * Wizard steps that carry required fields, in stepper order — the order the
+ * submit walks to find the first incomplete step. `references` and
+ * `referenceValues` have none.
+ */
+export const REQUIRED_STEP_KEYS = [
+  'metadata',
+  'general',
+  'topics',
+  'classification',
+  'security',
+] as const;
+export type RequiredStepKey = (typeof REQUIRED_STEP_KEYS)[number];
 
 /**
  * Holds the entire form state and state-manipulating logic for the
@@ -58,22 +73,6 @@ export class IndicatorAddFormStateService {
   editIndicatorDataset: any = null;
   editIndicatorId: string | null = null;
 
-  // Multi-step form; the security step is only present when Keycloak is
-  // enabled, mirroring the conditional step component in the template.
-  readonly stepper = new WizardStepper([
-    { key: 'metadata', label: 'ADMIN_SHARED_UI.STEP_LABELS.INDICATOR_METADATA' },
-    { key: 'general', label: 'ADMIN_SHARED_UI.STEP_LABELS.GENERAL_METADATA' },
-    { key: 'topics', label: 'ADMIN_SHARED_UI.TOPICS.TITLE' },
-    { key: 'references', label: 'ADMIN_SHARED_UI.STEP_LABELS.REFERENCES' },
-    { key: 'classification', label: 'ADMIN_SHARED_UI.STEP_LABELS.CLASSIFICATION_OPTIONS' },
-    { key: 'referenceValues', label: 'ADMIN_SHARED_UI.STEP_LABELS.REGIONAL_REFERENCE_VALUES' },
-    {
-      key: 'security',
-      label: 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE',
-      when: () => this.envConfigService.enableKeycloakSecurity,
-    },
-  ]);
-
   // Form data
   // Signal-backed behind getter/setter shims: written across await boundaries
   // by the wizard shell while its OnPush template reads them.
@@ -100,7 +99,75 @@ export class IndicatorAddFormStateService {
     return this.addForm.controls.basic;
   }
 
+  /**
+   * Form group behind each form-backed step. Spelled out because the names do
+   * not match: the `metadata` step is the `basic` group, while the `general`
+   * group is the shared resource-metadata block of step 2.
+   */
+  private readonly stepGroups = {
+    metadata: this.addForm.controls.basic,
+    general: this.addForm.controls.general,
+    topics: this.addForm.controls.topics,
+    security: this.addForm.controls.security,
+  } satisfies Record<Exclude<RequiredStepKey, 'classification'>, AbstractControl>;
+
+  // Per-step marking for the stepper, shown once a step was touched or left.
+  // Reading these signals from the modal template re-renders the OnPush host,
+  // which in turn hands <app-stepper> a new steps array.
+  private readonly metadataStepInvalid = controlInvalidSignal(this.stepGroups.metadata, {
+    whenTouched: true,
+  });
+  private readonly generalStepInvalid = controlInvalidSignal(this.stepGroups.general, {
+    whenTouched: true,
+  });
+  private readonly topicsStepInvalid = controlInvalidSignal(this.stepGroups.topics, {
+    whenTouched: true,
+  });
+  private readonly securityStepInvalid = controlInvalidSignal(this.stepGroups.security, {
+    whenTouched: true,
+  });
+
+  // Multi-step form; the security step is only present when Keycloak is
+  // enabled, mirroring the conditional step component in the template.
+  readonly stepper = new WizardStepper([
+    {
+      key: 'metadata',
+      label: 'ADMIN_SHARED_UI.STEP_LABELS.INDICATOR_METADATA',
+      invalid: this.metadataStepInvalid,
+      onLeave: () => this.stepGroups.metadata.markAllAsTouched(),
+    },
+    {
+      key: 'general',
+      label: 'ADMIN_SHARED_UI.STEP_LABELS.GENERAL_METADATA',
+      invalid: this.generalStepInvalid,
+      onLeave: () => this.stepGroups.general.markAllAsTouched(),
+    },
+    {
+      key: 'topics',
+      label: 'ADMIN_SHARED_UI.TOPICS.TITLE',
+      invalid: this.topicsStepInvalid,
+      onLeave: () => this.stepGroups.topics.markAllAsTouched(),
+    },
+    { key: 'references', label: 'ADMIN_SHARED_UI.STEP_LABELS.REFERENCES' },
+    {
+      key: 'classification',
+      label: 'ADMIN_SHARED_UI.STEP_LABELS.CLASSIFICATION_OPTIONS',
+      invalid: () => this.classification.revealed() && this.classification.invalid(),
+      onLeave: () => this.classification.revealed.set(true),
+    },
+    { key: 'referenceValues', label: 'ADMIN_SHARED_UI.STEP_LABELS.REGIONAL_REFERENCE_VALUES' },
+    {
+      key: 'security',
+      label: 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE',
+      when: () => this.envConfigService.enableKeycloakSecurity,
+      invalid: this.securityStepInvalid,
+      onLeave: () => this.stepGroups.security.markAllAsTouched(),
+    },
+  ]);
+
   constructor() {
+    this.syncOwnerRequirement();
+
     // The name uniqueness rule is scoped per indicator type, so a type change
     // has to re-run it. The name control revalidates itself on its own change.
     this.basicStep.controls.indicatorType.valueChanges
@@ -128,7 +195,7 @@ export class IndicatorAddFormStateService {
     this.basicStep.controls.datasetName.setValue(value ?? '');
   }
   /**
-   * Signal-backed, because step 1 reads it in an `@if`: the uniqueness verdict
+   * Signal-backed, because step 1 picks its name message by it: the uniqueness verdict
    * also flips from the asynchronous metadata-file import, which writes the
    * name control without any DOM event to re-render the OnPush view.
    */
@@ -850,80 +917,40 @@ export class IndicatorAddFormStateService {
     return postBody;
   }
 
+  /** Whether the given step still violates one of its rules (touched or not). */
+  isStepInvalid(key: RequiredStepKey): boolean {
+    return key === 'classification' ? this.classification.invalid() : this.stepGroups[key].invalid;
+  }
+
   /**
-   * Returns the required `IndicatorPOSTInputType` fields that are still blank in
-   * the API-v3 body, as `{ label }` entries for a user-facing validation dialog.
-   * (Booleans, `tags`/`permissions` empty-arrays and `characteristicValue` — which
-   * has no UI field yet — are intentionally not treated as missing.)
+   * First incomplete step in stepper order, or null when the wizard can be
+   * submitted. A hidden step is never reported: without Keycloak the security
+   * step carries no required field.
    */
-  getV3MissingRequiredFields(): { label: string }[] {
-    const body = this.buildPostBody_indicators_v3();
-    const missing: { label: string }[] = [];
-    const isBlank = (value: any) =>
-      value === undefined || value === null || (typeof value === 'string' && value.trim() === '');
-    const check = (blank: boolean, label: string) => {
-      if (blank) missing.push({ label });
-    };
+  firstInvalidStepKey(): RequiredStepKey | null {
+    return REQUIRED_STEP_KEYS.find((key) => this.isStepInvalid(key)) ?? null;
+  }
 
-    // Ordered by wizard step so the resulting list is already sorted by step.
+  /** Shows every field message and stepper marking, as a submit attempt does. */
+  revealAllErrors(): void {
+    Object.values(this.stepGroups).forEach((group) => group.markAllAsTouched());
+    this.classification.revealed.set(true);
+  }
 
-    // Step 1 — basic metadata
-    check(isBlank(body.datasetName), 'Indikatorname (Schritt 1)');
-    check(isBlank(body.unit), 'Einheit (Schritt 1)');
-    check(isBlank(body.interpretation), 'Interpretation (Schritt 1)');
-    check(isBlank(body.creationType), 'Fortführungstyp (Schritt 1)');
-
-    // Step 2 — general metadata
-    check(isBlank(body.metadata?.description), 'Beschreibung (Schritt 2)');
-    check(isBlank(body.metadata?.datasource), 'Datenquelle (Schritt 2)');
-    check(isBlank(body.metadata?.contact), 'Datenhalter und Kontakt (Schritt 2)');
-    check(isBlank(body.metadata?.updateInterval), 'Aktualisierungszyklus (Schritt 2)');
-    // The Data Management API rejects an indicator without it (NPE on `LocalDate.getYear()`).
-    check(isBlank(body.metadata?.lastUpdate), 'Datum der letzten Aktualisierung (Schritt 2)');
-
-    // Step 3 — topic hierarchy
-    check(isBlank(body.topicReference), 'Heuptthema (Schritt 3)');
-
-    // Step 5 — classification mapping. The required fields differ per classification
-    // type: categorical needs at least two fully-defined categories; numeric needs a
-    // method + class count, and the regional method additionally needs complete breaks.
-    const mapping = body.defaultClassificationMapping;
-    check(isBlank(mapping?.colorBrewerSchemeName), 'Klassifizierung: Farbschema (Schritt 5)');
-    if (mapping?.classificationType === 'QUALITATIVE') {
-      const categories: any[] = Array.isArray(mapping?.categoricalData)
-        ? mapping.categoricalData
-        : [];
-      check(categories.length < 2, 'Klassifizierung: mindestens 2 Kategorien (Schritt 5)');
-      check(
-        categories.some(
-          (category) => isBlank(category?.categoricalValue) || isBlank(category?.label)
-        ),
-        'Klassifizierung: Wert und Label für jede Kategorie (Schritt 5)'
-      );
+  /**
+   * The owner organization is required only when creating an indicator with
+   * Keycloak enabled: the metadata PATCH used in edit mode does not carry
+   * ownership (it is managed through separate endpoints), and without Keycloak
+   * the security step is hidden, so the field cannot be filled in.
+   */
+  private syncOwnerRequirement(): void {
+    const owner = this.addForm.controls.security.controls.ownerOrganization;
+    if (!this.editMode && this.envConfigService.enableKeycloakSecurity) {
+      owner.setValidators(Validators.required);
     } else {
-      check(isBlank(mapping?.classificationMethod), 'Klassifizierung: Methode (Schritt 5)');
-      check(
-        mapping?.numClasses === undefined || mapping?.numClasses === null,
-        'Klassifizierung: Klassenanzahl (Schritt 5)'
-      );
-      // Break values only exist for the regional default method (computed methods
-      // derive them from the data), so only require them there.
-      if (mapping?.classificationMethod === 'REGIONAL_DEFAULT') {
-        check(
-          !Array.isArray(mapping?.items) || mapping.items.length === 0,
-          'Klassifizierung: vollständige Klassengrenzen für mind. eine Raumeinheit (Schritt 5)'
-        );
-      }
+      owner.clearValidators();
     }
-
-    // Step 7 — ownership. Only required when creating a new indicator; the
-    // metadata PATCH used in edit mode does not carry ownership (that is managed
-    // through separate ownership/permission endpoints).
-    if (!this.editMode) {
-      check(isBlank(body.ownerId), 'Eigentümer-Organisation (Schritt 7)');
-    }
-
-    return missing;
+    owner.updateValueAndValidity();
   }
 
   /**
@@ -937,6 +964,7 @@ export class IndicatorAddFormStateService {
     this.editMode = true;
     this.editIndicatorDataset = dataset;
     this.editIndicatorId = dataset?.indicatorId ?? null;
+    this.syncOwnerRequirement();
     this.populateFromExistingIndicator(dataset);
     // Rebuild the role grid now that editMode/dataset are set: when the access-control
     // data was already cached, prepareOwnerOrganizationList ran before this and built
@@ -1467,6 +1495,18 @@ export class IndicatorAddFormStateService {
     this.allowedRegions = [];
     this.enableAccessLogging = false;
     this.loadOwnerOrganizations();
+
+    // Drop the field messages and stepper markings of the previous attempt
+    // (`general` is covered by metadataForm.reset() above, the classification
+    // by classification.reset()).
+    for (const group of [
+      this.stepGroups.metadata,
+      this.stepGroups.topics,
+      this.stepGroups.security,
+    ]) {
+      group.markAsUntouched();
+      group.markAsPristine();
+    }
   }
 
   hideSuccessAlert() {

@@ -145,6 +145,18 @@
   </div>
 </div>
 
+@if (state.showsError(errors.REGIONAL_BREAKS_MISSING)) {
+  <div class="row vertical-align">
+    <div class="col-md-12">
+      <div class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-triangle"></i>
+        <strong>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.ERROR_LABEL' | translate }}</strong>
+        {{ errors.REGIONAL_BREAKS_MISSING | translate }}
+      </div>
+    </div>
+  </div>
+}
+
 @if (state.classBreaksInvalid()) {
   <div class="row vertical-align">
     <div class="col-md-12">

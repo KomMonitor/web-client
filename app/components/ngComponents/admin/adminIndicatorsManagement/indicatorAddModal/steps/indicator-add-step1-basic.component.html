@@ -1,4 +1,4 @@
-<div [formGroup]="state.addForm.controls.basic">
+<div [formGroup]="basic">
   <h2 class="fs-title text-center">{{ 'ADMIN_INDICATORS.STEP_BASIC.TITLE' | translate }}</h2>
   <h3 class="fs-subtitle text-center">{{ 'ADMIN_INDICATORS.STEP_BASIC.SUBTITLE' | translate }}</h3>
   <p class="text-center">
@@ -14,18 +14,17 @@
           type="text"
           class="form-control"
           formControlName="datasetName"
+          appAria="indicator-add-name"
           [placeholder]="'ADMIN_SHARED.NAME' | translate"
-          required
         />
-        <div class="help-block with-errors"></div>
+        <app-form-error
+          [control]="basic.controls.datasetName"
+          for="indicator-add-name"
+          [keyOverride]="state.datasetNameInvalid ? 'ADMIN_INDICATORS.STEP_BASIC.NAME_INVALID' : ''"
+        />
         <div class="help-block">
           <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.NAME_UNIQUE_HINT' | translate }}</p>
         </div>
-        @if (state.datasetNameInvalid) {
-          <div style="color: red">
-            <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.NAME_INVALID' | translate }}</p>
-          </div>
-        }
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
@@ -37,7 +36,6 @@
           formControlName="indicatorAbbreviation"
           [placeholder]="'ADMIN_INDICATORS.STEP_BASIC.ABBREVIATION_PLACEHOLDER' | translate"
         />
-        <div class="help-block with-errors"></div>
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
@@ -53,7 +51,6 @@
             </option>
           }
         </select>
-        <div class="help-block with-errors"></div>
         <div class="help-block">
           <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.TYPE_HINT_STATUS' | translate }}</p>
           <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.TYPE_HINT_DYNAMIC' | translate }}</p>
@@ -104,9 +101,9 @@
         <label>{{ 'ADMIN_INDICATORS.UNIT' | translate }}*</label>
         <select
           formControlName="indicatorUnit"
+          appAria="indicator-add-unit"
           (change)="state.onChangeIndicatorUnit()"
           class="form-control"
-          required
         >
           <option [ngValue]="null" disabled selected>
             {{ 'ADMIN_INDICATORS.STEP_BASIC.SELECT_UNIT_OPTION' | translate }}
@@ -126,14 +123,13 @@
               class="form-control"
               formControlName="indicatorUnit"
               [placeholder]="'ADMIN_INDICATORS.UNIT' | translate"
-              required
             />
           </div>
         }
+        <app-form-error [control]="basic.controls.indicatorUnit" for="indicator-add-unit" />
         <div class="help-block">
           <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.UNIT_HINT' | translate }}</p>
         </div>
-        <div class="help-block with-errors"></div>
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
@@ -148,7 +144,6 @@
         <div class="help-block">
           <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.METHOD_HINT' | translate }}</p>
         </div>
-        <div class="help-block with-errors"></div>
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
@@ -158,13 +153,16 @@
           rows="3"
           class="form-control"
           formControlName="indicatorInterpretation"
+          appAria="indicator-add-interpretation"
           [placeholder]="'ADMIN_INDICATORS.STEP_BASIC.INTERPRETATION_PLACEHOLDER' | translate"
-          required
         ></textarea>
+        <app-form-error
+          [control]="basic.controls.indicatorInterpretation"
+          for="indicator-add-interpretation"
+        />
         <div class="help-block">
           <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.INTERPRETATION_HINT' | translate }}</p>
         </div>
-        <div class="help-block with-errors"></div>
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
@@ -179,7 +177,6 @@
         <div class="help-block">
           <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.TAGS_HINT' | translate }}</p>
         </div>
-        <div class="help-block with-errors"></div>
       </div>
     </div>
   </div>
@@ -194,7 +191,6 @@
         <div class="help-block">
           <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.HEADLINE_HINT' | translate }}</p>
         </div>
-        <div class="help-block with-errors"></div>
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
@@ -209,7 +205,6 @@
         <div class="help-block">
           <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.REFERENCE_DATE_NOTE_HINT' | translate }}</p>
         </div>
-        <div class="help-block with-errors"></div>
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
@@ -217,9 +212,9 @@
         <label>{{ 'ADMIN_INDICATORS.STEP_BASIC.CREATION_TYPE' | translate }}*</label>
         <select
           formControlName="indicatorCreationType"
+          appAria="indicator-add-creation-type"
           (change)="state.onChangeCreationType()"
           class="form-control"
-          required
         >
           <option [ngValue]="null" disabled selected>
             {{ 'ADMIN_INDICATORS.STEP_BASIC.SELECT_CREATION_TYPE_OPTION' | translate }}
@@ -234,7 +229,10 @@
           <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.CREATION_TYPE_HINT_MANUAL' | translate }}</p>
           <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.CREATION_TYPE_HINT_AUTO' | translate }}</p>
         </div>
-        <div class="help-block with-errors"></div>
+        <app-form-error
+          [control]="basic.controls.indicatorCreationType"
+          for="indicator-add-creation-type"
+        />
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
@@ -257,7 +255,6 @@
           <div class="help-block">
             <p>{{ 'ADMIN_INDICATORS.STEP_BASIC.LOWEST_SPATIAL_UNIT_HINT' | translate }}</p>
           </div>
-          <div class="help-block with-errors"></div>
         </div>
       }
     </div>

@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import {
   Classification,
   ClassificationMapping,
@@ -58,6 +58,25 @@ export interface StoredClassificationMapping {
   items?: { spatialUnitId?: string; spatialUnit?: string; breaks: (number | null)[] }[];
   categoricalData?: { categoricalValue?: string; color?: string; label?: string }[];
 }
+
+/**
+ * i18n keys of the rules that keep the classification step from being submitted.
+ * {@link IndicatorClassificationStateService.stepErrors} reports them; the editor
+ * sub-components show each one next to the part of the UI it is about.
+ */
+export const CLASSIFICATION_STEP_ERRORS = {
+  /** No colorbrewer palette selected (and not in the individual-colors mode). */
+  PALETTE_REQUIRED: 'ADMIN_INDICATORS.STEP_CLASSIFICATION.PALETTE_REQUIRED',
+  /** A category is missing its value or its label. */
+  CATEGORIES_INCOMPLETE: 'ADMIN_INDICATORS.STEP_CLASSIFICATION.CATEGORIES_INCOMPLETE',
+  /** Regional default method without a single spatial unit whose breaks are all filled. */
+  REGIONAL_BREAKS_MISSING: 'ADMIN_INDICATORS.STEP_CLASSIFICATION.REGIONAL_BREAKS_MISSING',
+  /** Breaks of a spatial unit are not strictly ascending. */
+  INVALID_BREAKS: 'ADMIN_INDICATORS.STEP_CLASSIFICATION.INVALID_BREAKS',
+} as const;
+
+export type ClassificationStepError =
+  (typeof CLASSIFICATION_STEP_ERRORS)[keyof typeof CLASSIFICATION_STEP_ERRORS];
 
 /** Default qualitative palette used when switching to categorical classification. */
 const DEFAULT_QUALITATIVE_SCHEME = 'Accent';
@@ -127,6 +146,55 @@ export class IndicatorClassificationStateService {
 
   // Currently active per-spatial-unit tab
   readonly currentClassificationTab = signal(0);
+
+  /**
+   * Rules the current classification violates, as i18n keys (see
+   * {@link CLASSIFICATION_STEP_ERRORS}). Rules the UI already prevents — fewer
+   * than two categories, an empty method or class count — are not checked.
+   */
+  readonly stepErrors = computed<ClassificationStepError[]>(() => {
+    const errors: ClassificationStepError[] = [];
+    if (!this.individualColorMode() && !this.selectedColorBrewerPaletteEntry()?.paletteName) {
+      errors.push(CLASSIFICATION_STEP_ERRORS.PALETTE_REQUIRED);
+    }
+    if (this.isCategorical) {
+      const isBlank = (value: string | null | undefined) => !value || value.trim() === '';
+      if (
+        this.categories().some((category) => isBlank(category.value) || isBlank(category.label))
+      ) {
+        errors.push(CLASSIFICATION_STEP_ERRORS.CATEGORIES_INCOMPLETE);
+      }
+    } else if (this.isRegional) {
+      // Same filter as buildDefaultClassificationMapping: only fully filled
+      // spatial units end up in the payload's `items`.
+      const complete = this.spatialUnitClassification().some(
+        (classification) =>
+          classification.breaks.length > 0 && !classification.breaks.includes(null)
+      );
+      if (!complete) {
+        errors.push(CLASSIFICATION_STEP_ERRORS.REGIONAL_BREAKS_MISSING);
+      }
+      if (this.classBreaksInvalid()) {
+        errors.push(CLASSIFICATION_STEP_ERRORS.INVALID_BREAKS);
+      }
+    }
+    return errors;
+  });
+
+  /** True while {@link stepErrors} reports anything. */
+  readonly invalid = computed(() => this.stepErrors().length > 0);
+
+  /**
+   * Whether the step's messages and stepper marking are shown. Set once the user
+   * leaves the step or tries to submit — the classification is not a FormGroup,
+   * so this stands in for its `touched` state.
+   */
+  readonly revealed = signal(false);
+
+  /** True when the given rule is violated and the step's errors are revealed. */
+  showsError(error: ClassificationStepError): boolean {
+    return this.revealed() && this.stepErrors().includes(error);
+  }
 
   /**
    * Loads the colorbrewer schemes/palettes and initializes the per-spatial-unit
@@ -766,6 +834,7 @@ export class IndicatorClassificationStateService {
     // Reset categorical state to four blank categories and the default overflow color.
     this.categories.set(this.createEmptyCategories(4));
     this.defaultColor.set('#c9ced4');
+    this.revealed.set(false);
     this.onNumClassesChanged(this.numClassesPerSpatialUnit());
   }
 }

@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { IndicatorClassificationStateService } from '../../indicator-classification-state.service';
+import {
+  CLASSIFICATION_STEP_ERRORS,
+  IndicatorClassificationStateService,
+} from '../../indicator-classification-state.service';
 import { ClassificationColorPickerComponent } from './classification-color-picker.component';
 
 /**
@@ -20,4 +23,10 @@ import { ClassificationColorPickerComponent } from './classification-color-picke
 })
 export class ClassificationCategoricalComponent {
   protected state = inject(IndicatorClassificationStateService);
+  protected readonly errors = CLASSIFICATION_STEP_ERRORS;
+
+  /** Marks a blank value/label input once the step's errors are revealed. */
+  protected missing(value: string | null | undefined): boolean {
+    return this.state.showsError(this.errors.CATEGORIES_INCOMPLETE) && !value?.trim();
+  }
 }
