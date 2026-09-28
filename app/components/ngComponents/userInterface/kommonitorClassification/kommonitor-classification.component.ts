@@ -8,6 +8,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { ClassificationStateService } from 'services/classification-state-service/classification-state.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { LegendDisplayUpdate, MapService } from 'services/map-service/map.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { mergeColorSchemes } from './colors';
@@ -32,6 +33,7 @@ export class KommonitorClassificationComponent implements OnInit {
   private broadcastService = inject(BroadcastService);
   private mapService = inject(MapService);
   protected envConfigService = inject(EnvConfigService);
+  private indicatorValueService = inject(IndicatorValueService);
 
   methodName = 'Klassifizierungsmethode auswählen';
   showMethodSelection = false;
@@ -135,6 +137,19 @@ export class KommonitorClassificationComponent implements OnInit {
     this.mapService.changeColorScheme(schemeName);
   }
 
+  /**
+   * Rounds a break value derived from a pixel offset to the indicator's display precision.
+   * Used to be `Math.floor`-ed to a whole number, which made dragging/adding a break only
+   * ever land on full digits - indicators with a fractional precision could never place a
+   * break anywhere in between.
+   */
+  private roundBreakValue(rawValue: number): number {
+    return this.indicatorValueService.getIndicatorValue_asNumber(
+      rawValue,
+      this.selectionState.resolveSelectedPrecision()
+    );
+  }
+
   toggleAddBtn(e, site) {
     if (!this.showAddBtn[site] && e.buttons === 0) {
       this.showAddBtn = [false, false];
@@ -169,7 +184,7 @@ export class KommonitorClassificationComponent implements OnInit {
     if (this.classificationState.manualBrew.breaks.length < 10) {
       if (this.addBtnHeight[0] >= 0 && this.addBtnHeight[0] < histogram.offsetHeight) {
         const breaks = this.classificationState.manualBrew.breaks;
-        const newBreak = Math.floor(
+        const newBreak = this.roundBreakValue(
           (this.addBtnHeight[0] / histogram.offsetHeight) *
             (breaks[breaks.length - 1] - breaks[0]) +
             breaks[0]
@@ -203,7 +218,7 @@ export class KommonitorClassificationComponent implements OnInit {
     if (this.classificationState.dynamicBrew[site].breaks.length < 5) {
       if (this.addBtnHeight[site] >= 0 && this.addBtnHeight[site] < histogram.offsetHeight) {
         const breaks = this.classificationState.dynamicBrew[site].breaks;
-        const newBreak = Math.floor(
+        const newBreak = this.roundBreakValue(
           (this.addBtnHeight[site] / histogram.offsetHeight) *
             (breaks[breaks.length - 1] - breaks[0]) +
             breaks[0]
@@ -577,7 +592,7 @@ export class KommonitorClassificationComponent implements OnInit {
 
         (async () => {
           const breaks = this.classificationState.manualBrew.breaks;
-          const newBreak = Math.floor(
+          const newBreak = this.roundBreakValue(
             (this.addBtnHeight[0] / histogram.offsetHeight) *
               (breaks[breaks.length - 1] - breaks[0]) +
               breaks[0]
@@ -623,7 +638,7 @@ export class KommonitorClassificationComponent implements OnInit {
 
         (async () => {
           const breaks = this.classificationState.dynamicBrew[this.dynamicDraggingSite].breaks;
-          const newBreak = Math.floor(
+          const newBreak = this.roundBreakValue(
             (this.addBtnHeight[site] / histogram.offsetHeight) *
               (breaks[breaks.length - 1] - breaks[0]) +
               breaks[0]
