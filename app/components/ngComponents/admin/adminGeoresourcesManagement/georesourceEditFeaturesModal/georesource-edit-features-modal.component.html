@@ -405,6 +405,7 @@
                           {{ 'ADMIN_GEORESOURCES.COMMON.FILTER_MANUAL_BBOX' | translate }}
                         </option>
                       </select>
+                      <app-form-error [control]="importerForm.controls.bboxType" />
                       @if (bboxType === 'ref') {
                         <div>
                           <!-- select available spatialUnits -->
@@ -425,6 +426,7 @@
                               </option>
                             }
                           </select>
+                          <app-form-error [control]="importerForm.controls.bboxRefSpatialUnitId" />
                           <div class="help-block">
                             <p>
                               {{
@@ -443,7 +445,6 @@
                             lang="us"
                             formControlName="minx"
                             placeholder="-180"
-                            [required]="bboxType === 'literal'"
                           />
                           <div class="help-block">
                             <p>{{ 'ADMIN_GEORESOURCES.COMMON.MIN_X' | translate }}</p>
@@ -454,7 +455,6 @@
                             lang="us"
                             formControlName="miny"
                             placeholder="-90"
-                            [required]="bboxType === 'literal'"
                           />
                           <div class="help-block">
                             <p>{{ 'ADMIN_GEORESOURCES.COMMON.MIN_Y' | translate }}</p>
@@ -465,7 +465,6 @@
                             lang="us"
                             formControlName="maxx"
                             placeholder="180"
-                            [required]="bboxType === 'literal'"
                           />
                           <div class="help-block">
                             <p>{{ 'ADMIN_GEORESOURCES.COMMON.MAX_X' | translate }}</p>
@@ -476,7 +475,6 @@
                             lang="us"
                             formControlName="maxy"
                             placeholder="90"
-                            [required]="bboxType === 'literal'"
                           />
                           <div class="help-block">
                             <p>{{ 'ADMIN_GEORESOURCES.COMMON.MAX_Y' | translate }}</p>

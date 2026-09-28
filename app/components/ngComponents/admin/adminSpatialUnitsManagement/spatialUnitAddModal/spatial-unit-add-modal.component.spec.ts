@@ -597,6 +597,33 @@ describe('SpatialUnitAddModalComponent', () => {
       ]);
     });
 
+    it('demands a spatial filter for an OGC API data source', () => {
+      const post = jest.spyOn(component, 'addSpatialUnit').mockResolvedValue(undefined);
+      fillRequired();
+      securityGroup().controls.ownerOrganization.setValue('org-1');
+      // Wires the data source switch, which rebuilds the parameter controls and
+      // clears the property names — so those are set after it.
+      component.ngOnInit();
+      importerGroup().controls.datasourceType.setValue(OGC_DATASOURCE as any);
+      importerGroup().patchValue({ idProperty: 'id', nameProperty: 'name' });
+      importerGroup().controls.datasourceTypeParameters.controls['url'].setValue('https://ogc');
+      component.stepper.goToKey('general');
+
+      component.onSubmit();
+
+      expect(post).not.toHaveBeenCalled();
+      expect(component.stepper.isActive('data')).toBe(true);
+      expect(importerGroup().controls.bboxType.hasError('required')).toBe(true);
+
+      importerGroup().controls.bboxType.setValue('ref');
+      expect(importerGroup().controls.bboxRefSpatialUnitId.hasError('required')).toBe(true);
+
+      importerGroup().controls.bboxRefSpatialUnitId.setValue('su-42');
+      component.onSubmit();
+
+      expect(post).toHaveBeenCalledTimes(1);
+    });
+
     it('posts once the form is complete', () => {
       const post = jest.spyOn(component, 'addSpatialUnit').mockResolvedValue(undefined);
       fillRequired();

@@ -753,12 +753,7 @@
                     @if (selectedDatasourceType?.type === 'OGCAPI_FEATURES') {
                       <div>
                         <label>{{ 'ADMIN_GEORESOURCES.COMMON.SPATIAL_FILTER' | translate }}*</label>
-                        <select
-                          formControlName="bboxType"
-                          name="bboxType"
-                          class="form-control"
-                          required
-                        >
+                        <select formControlName="bboxType" name="bboxType" class="form-control">
                           <option disabled selected value>
                             {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_FILTER' | translate }}
                           </option>
@@ -771,13 +766,13 @@
                             {{ 'ADMIN_GEORESOURCES.COMMON.FILTER_MANUAL_BBOX' | translate }}
                           </option>
                         </select>
+                        <app-form-error [control]="importerForm.controls.bboxType" />
                         @if (selectedBboxType === 'ref') {
                           <div>
                             <select
                               formControlName="bboxRefSpatialUnitId"
                               name="bboxRefSpatialUnit"
                               class="form-control"
-                              [required]="selectedBboxType === 'ref'"
                             >
                               <option disabled selected value>
                                 {{ 'ADMIN_GEORESOURCES.COMMON.CHOOSE_SPATIAL_UNIT' | translate }}
@@ -791,6 +786,9 @@
                                 </option>
                               }
                             </select>
+                            <app-form-error
+                              [control]="importerForm.controls.bboxRefSpatialUnitId"
+                            />
                             <div class="help-block">
                               <p>
                                 {{
@@ -811,7 +809,6 @@
                               placeholder="-180"
                               formControlName="minx"
                               name="bbox_minx"
-                              [required]="selectedBboxType === 'literal'"
                             />
                             <div class="help-block">
                               <p>{{ 'ADMIN_GEORESOURCES.COMMON.MIN_X' | translate }} (Longitude)</p>
@@ -823,7 +820,6 @@
                               placeholder="-90"
                               formControlName="miny"
                               name="bbox_miny"
-                              [required]="selectedBboxType === 'literal'"
                             />
                             <div class="help-block">
                               <p>{{ 'ADMIN_GEORESOURCES.COMMON.MIN_Y' | translate }} (Latitude)</p>
@@ -835,7 +831,6 @@
                               placeholder="180"
                               formControlName="maxx"
                               name="bbox_maxx"
-                              [required]="selectedBboxType === 'literal'"
                             />
                             <div class="help-block">
                               <p>{{ 'ADMIN_GEORESOURCES.COMMON.MAX_X' | translate }} (Longitude)</p>
@@ -847,7 +842,6 @@
                               placeholder="90"
                               formControlName="maxy"
                               name="bbox_maxy"
-                              [required]="selectedBboxType === 'literal'"
                             />
                             <div class="help-block">
                               <p>{{ 'ADMIN_GEORESOURCES.COMMON.MAX_Y' | translate }} (Latitude)</p>

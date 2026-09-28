@@ -202,7 +202,6 @@
       "REGISTER": "Georessource registrieren",
       "REGISTRATION_FAILED": "Registrierung gescheitert",
       "MSG": {
-        "REQUIRED_FIELDS_MISSING": "Bitte füllen Sie alle Pflichtfelder im Schritt \"Räumlicher Datensatz\" aus. Fehlend: {{missing}}.",
         "REQUIRED_FIELDS": "Bitte füllen Sie alle Pflichtfelder im Schritt \"Räumlicher Datensatz\" aus.",
         "REGISTERED_WITH_FEATURES": "Eine neue Georessource mit Namen \"{{name}}\" wurde registriert ({{count}} Features importiert).",
         "REGISTERED": "Eine neue Georessource mit Namen \"{{name}}\" wurde registriert.",
@@ -1866,7 +1865,6 @@
       "SUBMIT": "Raumeinheiten fortführen",
       "MSG": {
         "ALL_FEATURES_DELETED": "Alle Features der Raumebene \"{{name}}\" wurden gelöscht.",
-        "REQUIRED_FIELDS_MISSING": "Bitte füllen Sie alle Pflichtfelder in Schritt 2 aus. Fehlend: {{missing}}.",
         "REQUIRED_FIELDS": "Bitte füllen Sie alle Pflichtfelder in Schritt 2 aus.",
         "FEATURES_UPDATED": "Die Features der Raumebene \"{{name}}\" wurden aktualisiert.",
         "CRITICAL_FEATURE_ERRORS": "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.",

@@ -458,6 +458,7 @@
                       {{ 'ADMIN_SPATIAL_UNITS.DATA.MANUAL_BBOX' | translate }}
                     </option>
                   </select>
+                  <app-form-error [control]="importerForm.controls.bboxType" />
                   @if (selectedBboxType === 'ref') {
                     <div>
                       <!-- select available spatialUnits -->
@@ -475,6 +476,7 @@
                           </option>
                         }
                       </select>
+                      <app-form-error [control]="importerForm.controls.bboxRefSpatialUnitId" />
                       <div class="help-block">
                         <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.BBOX_REF_HINT' | translate }}</p>
                       </div>

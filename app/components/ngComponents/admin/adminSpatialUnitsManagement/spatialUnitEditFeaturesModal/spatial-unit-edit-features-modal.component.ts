@@ -58,7 +58,6 @@ import { ResourceImportService } from 'services/resource-import-service/resource
 import {
   BboxType,
   ImporterFormGroup,
-  importerFormToMissingFieldsInput,
   patchImporterFormFromMappingConfig,
   syncConverterParameterControls,
   syncDatasourceParameterControls,
@@ -774,11 +773,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     return spatialUnitEditFeaturesFormToApi(this.editForm);
   }
 
-  /** True when a data-source file is selected; the form control is the source of truth. */
-  private hasSelectedDataSourceFile(): boolean {
-    return !!this.selectedDataSourceFile;
-  }
-
   /**
    * The submit button stays clickable: on an incomplete form it reveals every
    * field hint and jumps to the data step (the only step with a form), instead
@@ -799,25 +793,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
 
     this.loadingData.set(true);
     this.importerErrors.set([]);
-
-    const missing = this.resourceImportService.collectMissingImporterFields(
-      importerFormToMissingFieldsInput(this.importerForm, {
-        hasFile: this.hasSelectedDataSourceFile(),
-        startDate: this.periodOfValidity.startDate,
-        periodOfValidityInvalid: this.periodOfValidityInvalid,
-      })
-    );
-
-    if (missing.length > 0) {
-      this.loadingData.set(false);
-      this.notificationService.showError(
-        this.translate.instant(
-          'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.MSG.REQUIRED_FIELDS_MISSING',
-          { missing: missing.join(', ') }
-        )
-      );
-      return;
-    }
 
     const allDataSpecified = await this.buildImporterObjects();
     if (!allDataSpecified) {

@@ -1,13 +1,12 @@
-import { FormControl, FormGroup, FormRecord, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, FormRecord, Validators } from '@angular/forms';
 import type {
   Converter,
   DatasourceType,
   ImporterObjectsConfig,
   ImporterParameter,
   MappingConfigImport,
-  MissingImporterFieldsInput,
 } from 'services/resource-import-service/resource-import.model';
-import { bboxCompleteValidator } from '../validators/admin-validators';
+import { bboxCompleteValidator, requiredWhen } from '../validators/admin-validators';
 
 /**
  * Shared typed model for the importer step of the resource add/edit modals
@@ -52,15 +51,23 @@ export type ImporterFormGroup = FormGroup<{
 }>;
 
 export function buildImporterForm(): ImporterFormGroup {
-  return new FormGroup({
+  const form: ImporterFormGroup = new FormGroup({
     converter: new FormControl<Converter | null>(null, Validators.required),
     schema: new FormControl('', { nonNullable: true }),
     mimeType: new FormControl('', { nonNullable: true }),
     converterParameters: new FormRecord<FormControl<string>>({}),
     datasourceType: new FormControl<DatasourceType | null>(null, Validators.required),
     datasourceTypeParameters: new FormRecord<FormControl<string>>({}),
-    bboxType: new FormControl<BboxType>('', { nonNullable: true }),
-    bboxRefSpatialUnitId: new FormControl('', { nonNullable: true }),
+    bboxType: new FormControl<BboxType>('', {
+      nonNullable: true,
+      validators: requiredWhen(isOgcApiSource),
+    }),
+    bboxRefSpatialUnitId: new FormControl('', {
+      nonNullable: true,
+      validators: requiredWhen(
+        (control) => isOgcApiSource(control) && bboxTypeOf(control) === 'ref'
+      ),
+    }),
     bbox: new FormGroup(
       {
         minx: new FormControl('', { nonNullable: true }),
@@ -68,7 +75,11 @@ export function buildImporterForm(): ImporterFormGroup {
         maxx: new FormControl('', { nonNullable: true }),
         maxy: new FormControl('', { nonNullable: true }),
       },
-      { validators: bboxCompleteValidator() }
+      {
+        validators: bboxCompleteValidator(
+          (group) => isOgcApiSource(group) && bboxTypeOf(group) === 'literal'
+        ),
+      }
     ),
     idProperty: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     nameProperty: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -77,6 +88,34 @@ export function buildImporterForm(): ImporterFormGroup {
     keepAttributes: new FormControl(true, { nonNullable: true }),
     keepMissingValues: new FormControl(true, { nonNullable: true }),
   });
+
+  // The spatial filter validators read their siblings, so re-run them when
+  // those change. Both ends belong to the form, so nothing needs unsubscribing.
+  const { datasourceType, bboxType, bboxRefSpatialUnitId, bbox } = form.controls;
+  const revalidateFilterDetails = (): void => {
+    bboxRefSpatialUnitId.updateValueAndValidity();
+    bbox.updateValueAndValidity();
+  };
+  datasourceType.valueChanges.subscribe(() => {
+    bboxType.updateValueAndValidity();
+    revalidateFilterDetails();
+  });
+  bboxType.valueChanges.subscribe(revalidateFilterDetails);
+
+  return form;
+}
+
+/**
+ * The spatial filter (`bboxType` plus either a reference spatial unit or a
+ * literal box) is mandatory for an OGC API Features source only. These read
+ * the sibling controls of the control being validated.
+ */
+function isOgcApiSource(control: AbstractControl): boolean {
+  return control.parent?.get('datasourceType')?.value?.type === 'OGCAPI_FEATURES';
+}
+
+function bboxTypeOf(control: AbstractControl): BboxType {
+  return control.parent?.get('bboxType')?.value ?? '';
 }
 
 /**
@@ -133,8 +172,7 @@ function setRequired(control: FormControl<string>, required: boolean): void {
 /**
  * Syncs the data-source parameter record to the selected type, leaving out the
  * synthetic `bbox`/`bboxType` entries — those are rendered by the dedicated
- * bbox block, exactly as `parseMappingConfig` and `collectMissingImporterFields`
- * already treat them.
+ * bbox block, exactly as `parseMappingConfig` already treats them.
  */
 export function syncDatasourceParameterControls(
   form: ImporterFormGroup,
@@ -257,41 +295,4 @@ export function importerFormToConfig(
     keepAttributes: value.keepAttributes,
     keepMissingValues: value.keepMissingValues,
   };
-}
-
-/**
- * Bridge to `ResourceImportService.collectMissingImporterFields()`, which stays
- * as the summary-toast layer. Feeding it from the form keeps the per-field
- * validators and the summary from drifting apart.
- */
-export function importerFormToMissingFieldsInput(
-  form: ImporterFormGroup,
-  extras: Pick<MissingImporterFieldsInput, 'hasFile' | 'startDate' | 'periodOfValidityInvalid'>
-): MissingImporterFieldsInput {
-  const value = form.getRawValue();
-  return {
-    converter: value.converter,
-    schema: value.schema,
-    mimeType: value.mimeType,
-    converterParameters: value.converterParameters,
-    datasourceType: value.datasourceType,
-    datasourceTypeParameters: value.datasourceTypeParameters,
-    hasFile: extras.hasFile,
-    bboxType: value.bboxType,
-    bboxRefSpatialUnitLevel: value.bboxRefSpatialUnitId,
-    bboxLiteral: {
-      minx: emptyToNull(value.bbox.minx),
-      miny: emptyToNull(value.bbox.miny),
-      maxx: emptyToNull(value.bbox.maxx),
-      maxy: emptyToNull(value.bbox.maxy),
-    },
-    idProperty: value.idProperty,
-    nameProperty: value.nameProperty,
-    startDate: extras.startDate,
-    periodOfValidityInvalid: extras.periodOfValidityInvalid,
-  };
-}
-
-function emptyToNull(value: string): string | null {
-  return value === '' ? null : value;
 }

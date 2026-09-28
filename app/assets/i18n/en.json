@@ -202,7 +202,6 @@
       "REGISTER": "Register georesource",
       "REGISTRATION_FAILED": "Registration failed",
       "MSG": {
-        "REQUIRED_FIELDS_MISSING": "Please fill in all required fields in the \"Spatial dataset\" step. Missing: {{missing}}.",
         "REQUIRED_FIELDS": "Please fill in all required fields in the \"Spatial dataset\" step.",
         "REGISTERED_WITH_FEATURES": "A new georesource named \"{{name}}\" was registered ({{count}} features imported).",
         "REGISTERED": "A new georesource named \"{{name}}\" was registered.",
@@ -1866,7 +1865,6 @@
       "SUBMIT": "Update spatial units",
       "MSG": {
         "ALL_FEATURES_DELETED": "All features of the spatial unit \"{{name}}\" were deleted.",
-        "REQUIRED_FIELDS_MISSING": "Please fill in all required fields in step 2. Missing: {{missing}}.",
         "REQUIRED_FIELDS": "Please fill in all required fields in step 2.",
         "FEATURES_UPDATED": "The features of the spatial unit \"{{name}}\" were updated.",
         "CRITICAL_FEATURE_ERRORS": "Some of the features to be imported for the dataset have critical errors.",

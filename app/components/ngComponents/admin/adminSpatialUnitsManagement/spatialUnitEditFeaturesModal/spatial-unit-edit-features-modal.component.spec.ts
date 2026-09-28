@@ -142,7 +142,6 @@ describe('SpatialUnitEditFeaturesModalComponent', () => {
             buildImporterObjects: jest.fn(),
             readJsonFile: jest.fn(),
             parseMappingConfig: jest.fn(),
-            collectMissingImporterFields: jest.fn().mockReturnValue([]),
             downloadJson: jest.fn(),
           },
         },

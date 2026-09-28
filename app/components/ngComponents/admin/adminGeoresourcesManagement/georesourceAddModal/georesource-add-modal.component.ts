@@ -77,7 +77,6 @@ import {
 import {
   ImporterFormGroup,
   importerFormToConfig,
-  importerFormToMissingFieldsInput,
   patchBboxFromDataSourceParameters,
   SYNTHETIC_DATASOURCE_PARAMETERS,
   syncConverterParameterControls,
@@ -1011,26 +1010,6 @@ export class GeoresourceAddModalComponent implements OnInit {
   async addGeoresource(): Promise<void> {
     this.loadingData.set(true);
     this.importerErrors.set([]);
-
-    // Name the missing required importer fields instead of aborting silently
-    // (the historical behavior left the user without any feedback).
-    const missing = this.resourceImportService.collectMissingImporterFields(
-      importerFormToMissingFieldsInput(this.importerForm, {
-        hasFile: !!this.selectedDataSourceFile,
-        startDate: this.periodOfValidityGroup.getRawValue().startDate,
-        periodOfValidityInvalid: this.periodOfValidityInvalid,
-      })
-    );
-
-    if (missing.length > 0) {
-      this.loadingData.set(false);
-      this.notificationService.showError(
-        this.translate.instant('ADMIN_GEORESOURCES.ADD_MODAL.MSG.REQUIRED_FIELDS_MISSING', {
-          missing: missing.join(', '),
-        })
-      );
-      return;
-    }
 
     try {
       // Build importer objects
