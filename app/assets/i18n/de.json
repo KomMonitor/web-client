@@ -137,7 +137,6 @@
       "CHOOSE_SCHEMA": "-- Schema wählen --",
       "SOURCE_FORMAT": "Quellformat",
       "CHOOSE_FORMAT": "-- Format wählen --",
-      "CRS_WARNING": "CRS aufmerksam setzen. Falsche Angaben führen zur fehlerhaften Koordinaten der Features",
       "CHOOSE_SOURCE_FORMAT_FIRST": "bitte zuerst das Quellformat wählen",
       "DATASOURCE_TYPE": "Datenquelltyp",
       "CHOOSE_SOURCE_TYPE": "-- Quelltyp wählen --",
@@ -425,8 +424,7 @@
       "LOWEST_SPATIAL_UNIT_HINT": "Angabe der niedrigsten Raumebene, für die der automatisiert berechenbare Indikator berechnet werden kann. Indikatorenwerte für höhere Raumebenen werden dabei automatisch aus den niedrigeren Ebenen aggregiert berechnet."
     },
     "STEP_GENERAL": {
-      "SUBTITLE": "Angaben über allgemeine Metadaten in KomMonitor",
-      "SRID_HINT": "Koordinatensystem für die räumlichen Daten (Standard: 4326 für WGS84)"
+      "SUBTITLE": "Angaben über allgemeine Metadaten in KomMonitor"
     },
     "STEP_TOPICS": {
       "SUBTITLE": "Angaben über die Themenhierarchie in KomMonitor",
@@ -1757,7 +1755,6 @@
       "SELECT_SCHEMA": "-- Schema wählen --",
       "SOURCE_FORMAT": "Quellformat",
       "SELECT_FORMAT": "-- Format wählen --",
-      "CRS_WARNING": "CRS aufmerksam setzen. Falsche Angaben führen zur fehlerhaften Koordinaten der Raumeinheiten",
       "CHOOSE_SOURCE_FORMAT_FIRST": "bitte zuerst das Quellformat wählen",
       "DATASOURCE_TYPE": "Datenquelltyp",
       "SELECT_SOURCE_TYPE": "-- Quelltyp wählen --",

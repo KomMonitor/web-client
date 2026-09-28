@@ -1,3 +1,4 @@
+import { KmEpsgPickerComponent } from 'components/ngComponents/customElements/epsg-picker/km-epsg-picker.component';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -93,6 +94,7 @@ import { TranslateService } from '@ngx-translate/core';
     LoadingOverlayComponent,
     AgGridAngular,
     KmDatePickerComponent,
+    KmEpsgPickerComponent,
     StepperComponent,
     TranslateModule,
   ],

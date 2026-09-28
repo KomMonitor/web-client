@@ -137,7 +137,6 @@
       "CHOOSE_SCHEMA": "-- Choose schema --",
       "SOURCE_FORMAT": "Source format",
       "CHOOSE_FORMAT": "-- Choose format --",
-      "CRS_WARNING": "Set the CRS carefully. Incorrect values lead to faulty feature coordinates",
       "CHOOSE_SOURCE_FORMAT_FIRST": "please choose the source format first",
       "DATASOURCE_TYPE": "Data source type",
       "CHOOSE_SOURCE_TYPE": "-- Choose source type --",
@@ -425,8 +424,7 @@
       "LOWEST_SPATIAL_UNIT_HINT": "Specification of the lowest spatial unit for which the automatically computable indicator can be calculated. Indicator values for higher spatial units are automatically aggregated from the lower levels."
     },
     "STEP_GENERAL": {
-      "SUBTITLE": "Information about general metadata in KomMonitor",
-      "SRID_HINT": "Coordinate reference system for the spatial data (default: 4326 for WGS84)"
+      "SUBTITLE": "Information about general metadata in KomMonitor"
     },
     "STEP_TOPICS": {
       "SUBTITLE": "Information about the topic hierarchy in KomMonitor",
@@ -1757,7 +1755,6 @@
       "SELECT_SCHEMA": "-- select schema --",
       "SOURCE_FORMAT": "Source format",
       "SELECT_FORMAT": "-- select format --",
-      "CRS_WARNING": "Set the CRS carefully. Incorrect values lead to erroneous coordinates of the spatial units",
       "CHOOSE_SOURCE_FORMAT_FIRST": "please select the source format first",
       "DATASOURCE_TYPE": "Data source type",
       "SELECT_SOURCE_TYPE": "-- select source type --",

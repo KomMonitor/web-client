@@ -313,21 +313,18 @@
                     <i>*</i>
                   }
                 </label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [id]="'converterParameter_spatialUnitEditFeatures_' + parameter.name"
-                  [placeholder]="parameter.name"
-                  [formControlName]="parameter.name"
-                />
-                <div class="help-block">
-                  <p>{{ parameter.description }}</p>
-                </div>
                 @if (parameter.name === 'CRS') {
-                  <div class="help-block with-errors">
-                    <p>
-                      {{ 'ADMIN_SPATIAL_UNITS.DATA.CRS_WARNING' | translate }}
-                    </p>
+                  <km-epsg-picker [formControlName]="parameter.name" valueFormat="crs" label="" />
+                } @else {
+                  <input
+                    type="text"
+                    class="form-control"
+                    [id]="'converterParameter_spatialUnitEditFeatures_' + parameter.name"
+                    [placeholder]="parameter.name"
+                    [formControlName]="parameter.name"
+                  />
+                  <div class="help-block">
+                    <p>{{ parameter.description }}</p>
                   </div>
                 }
               </div>

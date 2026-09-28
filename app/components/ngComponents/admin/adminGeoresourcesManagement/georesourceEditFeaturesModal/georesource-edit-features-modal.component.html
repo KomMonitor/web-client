@@ -314,20 +314,17 @@
                       <i>*</i>
                     }
                   </label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    [formControlName]="parameter.name"
-                    [placeholder]="parameter.name"
-                  />
-                  <div class="help-block">
-                    <p>{{ parameter.description }}</p>
-                  </div>
                   @if (parameter.name === 'CRS') {
-                    <div class="help-block with-errors" style="color: red">
-                      <p>
-                        {{ 'ADMIN_GEORESOURCES.COMMON.CRS_WARNING' | translate }}
-                      </p>
+                    <km-epsg-picker [formControlName]="parameter.name" valueFormat="crs" label="" />
+                  } @else {
+                    <input
+                      type="text"
+                      class="form-control"
+                      [formControlName]="parameter.name"
+                      [placeholder]="parameter.name"
+                    />
+                    <div class="help-block">
+                      <p>{{ parameter.description }}</p>
                     </div>
                   }
                   <div class="help-block with-errors"></div>

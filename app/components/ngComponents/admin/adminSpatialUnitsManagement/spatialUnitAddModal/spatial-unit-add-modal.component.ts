@@ -50,6 +50,7 @@ import type {
 } from 'services/resource-import-service/resource-import.model';
 import { ResourceImportService } from 'services/resource-import-service/resource-import.service';
 import { KmDatePickerComponent } from '../../../customElements/date-picker/km-date-picker.component';
+import { KmEpsgPickerComponent } from '../../../customElements/epsg-picker/km-epsg-picker.component';
 import {
   attributeMappingDraftToRow,
   buildAttributeMappingDraftForm,
@@ -105,6 +106,7 @@ const STEP_KEYS = ['metadata', 'general', 'security', 'data'] as const;
     ReactiveFormsModule,
     LoadingOverlayComponent,
     KmDatePickerComponent,
+    KmEpsgPickerComponent,
     StepperComponent,
     SpatialUnitMetadataStepComponent,
     ResourceMetadataFormComponent,

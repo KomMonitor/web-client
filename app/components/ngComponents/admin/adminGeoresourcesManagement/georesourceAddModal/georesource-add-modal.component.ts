@@ -1,3 +1,4 @@
+import { KmEpsgPickerComponent } from 'components/ngComponents/customElements/epsg-picker/km-epsg-picker.component';
 import { HttpClient } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -114,6 +115,7 @@ import { TranslateService } from '@ngx-translate/core';
     KmIconPickerComponent,
     KmLinePatternPickerComponent,
     KmDatePickerComponent,
+    KmEpsgPickerComponent,
     ResourceMetadataFormComponent,
     TopicHierarchyFormComponent,
     FormErrorComponent,

@@ -1,3 +1,4 @@
+import { KmEpsgPickerComponent } from 'components/ngComponents/customElements/epsg-picker/km-epsg-picker.component';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -8,7 +9,12 @@ import { IndicatorAddFormStateService } from '../indicator-add-form-state.servic
   selector: 'app-indicator-add-step2-metadata',
   templateUrl: './indicator-add-step2-metadata.component.html',
   styleUrls: ['../indicator-add-form.shared.scss'],
-  imports: [TranslateModule, ReactiveFormsModule, ResourceMetadataFormComponent],
+  imports: [
+    TranslateModule,
+    ReactiveFormsModule,
+    ResourceMetadataFormComponent,
+    KmEpsgPickerComponent,
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

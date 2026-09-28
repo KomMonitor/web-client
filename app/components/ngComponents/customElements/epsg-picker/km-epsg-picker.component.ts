@@ -30,11 +30,22 @@ const CUSTOM_VALUE = -1;
 let nextId = 0;
 
 /**
+ * How the picker talks to a form control: `'code'` uses the bare number (`25832`, `null` when
+ * unset), `'crs'` uses the CRS string the importer's `CRS` parameter expects (`'EPSG:25832'`,
+ * `''` when unset).
+ */
+export type EpsgValueFormat = 'code' | 'crs';
+
+type FormValue = number | string | null;
+
+/**
  * Picks an EPSG code from a list of common codes, or lets the user type any other one.
  *
  * Works both as a plain `[(code)]` widget and as a form control (`formControlName`,
  * `[formControl]`, `ngModel`). The value is the numeric code, or `null` while nothing valid is
  * chosen (e.g. a half-typed custom code) — so `Validators.required` covers "no valid code".
+ * With `valueFormat="crs"` the form value is an `'EPSG:<code>'` string instead (`[(code)]` stays
+ * numeric).
  * A code that is not in `options` opens the free-input field pre-filled with it.
  */
 @Component({
@@ -56,6 +67,7 @@ export class KmEpsgPickerComponent implements OnChanges, ControlValueAccessor {
   @Input() options: EpsgOption[] = PREDEFINED_EPSG_CODES;
   @Input() label: string = 'Koordinatenreferenzsystem (EPSG)';
   @Input() disabled: boolean = false;
+  @Input() valueFormat: EpsgValueFormat = 'code';
 
   @Output() codeChange = new EventEmitter<number | null>();
 
@@ -74,7 +86,7 @@ export class KmEpsgPickerComponent implements OnChanges, ControlValueAccessor {
   /** Last value we reported; `undefined` until the first emit. */
   private emittedCode: number | null | undefined = undefined;
 
-  private onChange: (value: number | null) => void = () => undefined;
+  private onChange: (value: FormValue) => void = () => undefined;
   private onTouched: () => void = () => undefined;
 
   get isCustomMode(): boolean {
@@ -111,12 +123,12 @@ export class KmEpsgPickerComponent implements OnChanges, ControlValueAccessor {
 
   // --- ControlValueAccessor ---------------------------------------------
 
-  writeValue(value: number | null | undefined): void {
-    this.code = value ?? null;
+  writeValue(value: FormValue | undefined): void {
+    this.code = parseEpsgCode(value);
     this.applyCode(this.code);
   }
 
-  registerOnChange(fn: (value: number | null) => void): void {
+  registerOnChange(fn: (value: FormValue) => void): void {
     this.onChange = fn;
   }
 
@@ -134,7 +146,14 @@ export class KmEpsgPickerComponent implements OnChanges, ControlValueAccessor {
     this.code = value;
     this.emittedCode = value;
     this.codeChange.emit(value);
-    this.onChange(value);
+    this.onChange(this.toFormValue(value));
+  }
+
+  private toFormValue(code: number | null): FormValue {
+    if (this.valueFormat === 'crs') {
+      return code === null ? '' : `EPSG:${code}`;
+    }
+    return code;
   }
 
   /** Mirrors a code set from outside into the dropdown / free-input state. */
@@ -153,6 +172,18 @@ export class KmEpsgPickerComponent implements OnChanges, ControlValueAccessor {
       this.customInputValid = isValidEpsgCode(code);
     }
   }
+}
+
+/**
+ * Reads a code from a number, a bare digit string or a CRS string (`'EPSG:25832'`, also the
+ * `'urn:ogc:def:crs:EPSG::25832'` form). Anything else counts as unset.
+ */
+function parseEpsgCode(value: FormValue | undefined): number | null {
+  if (typeof value === 'number') {
+    return value;
+  }
+  const match = typeof value === 'string' ? /^(?:.*EPSG:+)?(\d+)$/i.exec(value.trim()) : null;
+  return match ? Number(match[1]) : null;
 }
 
 function isValidEpsgCode(value: number): boolean {

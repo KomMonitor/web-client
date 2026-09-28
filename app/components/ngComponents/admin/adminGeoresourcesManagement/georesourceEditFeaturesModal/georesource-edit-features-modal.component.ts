@@ -1,3 +1,4 @@
+import { KmEpsgPickerComponent } from 'components/ngComponents/customElements/epsg-picker/km-epsg-picker.component';
 import { HttpClient } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -89,6 +90,7 @@ import { buildGeoresourceEditFeaturesForm } from './georesource-edit-features-fo
     SingleFeatureEditComponent,
     StepperComponent,
     KmDatePickerComponent,
+    KmEpsgPickerComponent,
     TranslateModule,
   ],
   standalone: true,

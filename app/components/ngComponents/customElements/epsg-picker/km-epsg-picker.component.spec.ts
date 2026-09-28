@@ -21,6 +21,15 @@ class ReactiveHostComponent {
   control = new FormControl<number | null>(4326);
 }
 
+@Component({
+  standalone: true,
+  imports: [KmEpsgPickerComponent, ReactiveFormsModule],
+  template: `<km-epsg-picker [formControl]="control" valueFormat="crs" />`,
+})
+class CrsHostComponent {
+  control = new FormControl('', { nonNullable: true });
+}
+
 describe('KmEpsgPickerComponent', () => {
   describe('as a [(code)] widget', () => {
     let fixture: ComponentFixture<TwoWayHostComponent>;
@@ -122,6 +131,52 @@ describe('KmEpsgPickerComponent', () => {
       host.control.disable();
 
       expect(picker.disabled).toBe(true);
+    });
+  });
+
+  describe('with valueFormat="crs"', () => {
+    let fixture: ComponentFixture<CrsHostComponent>;
+    let host: CrsHostComponent;
+    let picker: KmEpsgPickerComponent;
+
+    beforeEach(async () => {
+      await TestBed.configureTestingModule({ imports: [CrsHostComponent] }).compileComponents();
+      fixture = TestBed.createComponent(CrsHostComponent);
+      host = fixture.componentInstance;
+      fixture.detectChanges();
+      picker = fixture.debugElement.children[0].componentInstance;
+    });
+
+    it('starts unset for an empty string', () => {
+      expect(picker.selectedDropdownValue).toBeNull();
+    });
+
+    it('writes the selection as an EPSG string', () => {
+      picker.selectedDropdownValue = 25832;
+      picker.onDropdownChange();
+
+      expect(host.control.value).toBe('EPSG:25832');
+    });
+
+    it('writes an empty string while the custom code is invalid', () => {
+      picker.selectedDropdownValue = picker.customSentinel;
+      picker.onDropdownChange();
+      picker.customInputRaw = 0;
+      picker.onCustomInputChange();
+
+      expect(host.control.value).toBe('');
+    });
+
+    it('reads EPSG strings, including the URN form', () => {
+      host.control.setValue('EPSG:31467');
+      expect(picker.selectedDropdownValue).toBe(31467);
+
+      host.control.setValue('urn:ogc:def:crs:EPSG::2056');
+      expect(picker.isCustomMode).toBe(true);
+      expect(picker.customInputRaw).toBe(2056);
+
+      host.control.setValue('25833');
+      expect(picker.selectedDropdownValue).toBe(25833);
     });
   });
 });
