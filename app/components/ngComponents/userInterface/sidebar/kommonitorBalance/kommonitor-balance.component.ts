@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import * as echarts from 'echarts';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
@@ -23,7 +23,7 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
   standalone: true,
   imports: [FormsModule, ExpandableBoxComponent],
 })
-export class KommonitorBalanceComponent implements OnInit {
+export class KommonitorBalanceComponent implements OnInit, OnDestroy {
   protected rangeFilterState = inject(RangeFilterStateService);
   protected chartDisplayState = inject(ChartDisplayStateService);
   private indicatorValueService = inject(IndicatorValueService);
@@ -106,20 +106,7 @@ export class KommonitorBalanceComponent implements OnInit {
     },
   };
 
-  months = [
-    'Januar',
-    'Fabruar',
-    'März',
-    'April',
-    'Mai',
-    'Juni',
-    'Juli',
-    'August',
-    'September',
-    'Oktober',
-    'November',
-    'Dezember',
-  ];
+  private trendChartResizeObserver?: ResizeObserver;
 
   /*  {
     behaviour: 'drag',
@@ -139,11 +126,25 @@ export class KommonitorBalanceComponent implements OnInit {
   setupSlider() {
     this.balanceSlider = document.getElementById('rangeSlider');
     noUiSlider.create(this.balanceSlider, this.config);
+
+    // Registered once here: updateOptions() keeps listeners, so registering on
+    // every indicator change would recompute the balance once per past change.
+    // Event type "end" because "set" fires constantly while the slider is re-initialised.
+    this.balanceSlider.noUiSlider.on('end', () => {
+      this.onChangeBalanceRange(this.getFormatedSliderReturn());
+    });
   }
 
+  ngOnDestroy(): void {
+    this.trendChartResizeObserver?.disconnect();
+    this.trendChart_allFeatures?.dispose();
+  }
+
+  // Panel state only; the app config merely decides whether the trend line starts switched on.
   trendConfig_allFeatures = {
     showMinMax: true,
     showCompleteTimeseries: true,
+    showTrend: this.envConfigService.enableBilanceTrend,
     trendComputationType: 'linear',
   };
 
@@ -279,42 +280,42 @@ export class KommonitorBalanceComponent implements OnInit {
     const toDateString = this.getToDate_asDateString(datePeriodSliderData);
     const toDate_date = new Date(toDateString);
 
-    // based on prepared DOM, initialize echarts instance
-    if (!this.trendChart_allFeatures)
-      this.trendChart_allFeatures = echarts.init(
-        document.getElementById('trendDiagram_allFeatures')
+    const chartContainer = document.getElementById('trendDiagram_allFeatures');
+
+    // explicitly kill and reinstantiate line diagram to avoid zombie states on spatial unit change
+    this.trendChart_allFeatures?.dispose();
+    this.trendChart_allFeatures = echarts.init(chartContainer);
+
+    if (!this.trendChartResizeObserver && chartContainer) {
+      this.trendChartResizeObserver = new ResizeObserver(() =>
+        this.trendChart_allFeatures?.resize()
       );
-    else {
-      // explicitly kill and reinstantiate line diagram to avoid zombie states on spatial unit change
-      this.trendChart_allFeatures.dispose();
-      this.trendChart_allFeatures = echarts.init(
-        document.getElementById('trendDiagram_allFeatures')
-      );
+      this.trendChartResizeObserver.observe(chartContainer);
     }
 
     // use configuration item and data specified to show chart
     this.trendOption = this.diagramHelperService.makeTrendChartOptions_forAllFeatures(
       indicatorMetadata,
+      this.selectionState.selectedSpatialUnit?.spatialUnitLevel,
       fromDateAsPropertyString,
       toDateAsPropertyString,
       this.trendConfig_allFeatures.showMinMax,
       this.trendConfig_allFeatures.showCompleteTimeseries,
       this.trendConfig_allFeatures.trendComputationType,
-      this.envConfigService.enableBilanceTrend,
+      this.trendConfig_allFeatures.showTrend,
       true
     );
     this.trendChart_allFeatures.setOption(this.trendOption);
 
     this.trendChart_allFeatures.hideLoading();
-    setTimeout(() => {
-      this.trendChart_allFeatures.resize();
-    }, 350);
 
     let trendData: any[] = [];
     let timeseriesData;
     timeseriesData = this.trendOption.series[0].data;
 
-    if (!this.trendConfig_allFeatures.showCompleteTimeseries) {
+    // The statistics always describe the selected period. Only the complete
+    // series still needs cutting; otherwise the chart data already is that period.
+    if (this.trendConfig_allFeatures.showCompleteTimeseries) {
       for (let index = 0; index < timeseriesData.length; index++) {
         const dateCandidate = new Date(indicatorMetadata.applicableDates[index]);
         if (dateCandidate >= fromDate_date && dateCandidate <= toDate_date) {
@@ -351,15 +352,6 @@ export class KommonitorBalanceComponent implements OnInit {
       trend: trendValue,
     };
   }
-  /*
-						$(window).on('resize', function () {
-	
-							if (this.trendChart_allFeatures != null && this.trendChart_allFeatures != undefined) {
-								this.trendChart_allFeatures.resize();
-							}
-						});
-
- */
   dateToTS(date) {
     return date.valueOf();
   }
@@ -413,64 +405,38 @@ export class KommonitorBalanceComponent implements OnInit {
     };
   }
 
-  dateStringToMs(dateStr) {
-    const parts = dateStr.split(' ');
-    // get timezoneOffset w/o daylight saving time by referencing a specific date
-    const offset = new Date('November 1, 2000 00:00:00').getTimezoneOffset() * 60 * 1000;
-
-    const year = parts[2];
-    let month: any = this.months.indexOf(parts[1]) + 1;
-    let day: any = parts[0].replace('.', '');
-
-    if (month < 10) month = '0' + month;
-
-    if (day < 10) day = '0' + day;
-
-    const tms = new Date(`${year}-${month}-${day}T00:00:00Z`).getTime();
-    return tms + offset;
-  }
-
   createNewBalanceInstance() {
     this.datesAsMs = this.createDatesFromIndicatorDates(
       this.selectionState.selectedIndicator.applicableDates
     );
+    const dateLabels = this.datesAsMs.map((dateAsMs) => this.tsToDateString(dateAsMs));
+    // Slider values are date indices. Formatted labels map back via their
+    // position; raw numbers (e.g. the start values) pass through as indices.
+    const labelToIndex = (value) => {
+      const index = dateLabels.indexOf(String(value));
+      return index >= 0 ? index : Number(value);
+    };
 
     this.balanceSlider.noUiSlider.updateOptions({
       range: {
         min: 0, // index from
         max: this.datesAsMs.length - 1, // index to
       },
-      start: [
-        this.tsToDateString(this.datesAsMs[1]),
-        this.tsToDateString(this.datesAsMs[this.datesAsMs.length - 2]),
-      ],
+      start: [0, this.datesAsMs.length - 1],
       step: 1,
       tooltips: true,
       format: {
-        to: (value) => {
-          return this.tsToDateString(this.datesAsMs[Math.round(value)]);
-        },
-        from: (value) => {
-          return this.datesAsMs.indexOf(this.dateStringToMs(value));
-        },
+        to: (value) => dateLabels[Math.round(value)],
+        from: labelToIndex,
       },
       pips: {
         mode: 'range',
         density: 25,
         format: {
-          to: (value) => {
-            return this.tsToDateString(this.datesAsMs[Math.round(value)]);
-          },
-          from: (value) => {
-            return this.datesAsMs.indexOf(this.dateStringToMs(value));
-          },
+          to: (value) => dateLabels[Math.round(value)],
+          from: labelToIndex,
         },
       },
-    });
-
-    // event type set to "end" because of constant calls of type "set" when slider is re-initiated by changing indicators
-    this.balanceSlider.noUiSlider.on('end', () => {
-      this.onChangeBalanceRange(this.getFormatedSliderReturn());
     });
 
     if (!this.chartDisplayState.isBalanceChecked) {
@@ -678,14 +644,6 @@ export class KommonitorBalanceComponent implements OnInit {
   }
 
   onChangeTrendConfig() {
-    console.log(this.trendConfig_allFeatures.trendComputationType);
-    const data = this.getFormatedSliderReturn();
-    setTimeout(() => {
-      this.updateTrendChart(this.selectionState.selectedIndicator, data);
-    });
-  }
-
-  onChangeEnableBilanceTrend() {
     const data = this.getFormatedSliderReturn();
     setTimeout(() => {
       this.updateTrendChart(this.selectionState.selectedIndicator, data);

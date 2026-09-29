@@ -1,13 +1,13 @@
 <div id="kommonitorBalance">
   <expandable-box [title]="'Bilanzierung'" [collapsed]="false">
     <div style="text-align: center">
-      @if (envConfigService.enableBilanceTrend) {
+      @if (trendConfig_allFeatures.showTrend) {
         <p>
           Zeitliche Trendbetrachtung der Indikatorenentwicklung &uuml;ber eine definierbare
           Zeitperiode.
         </p>
       }
-      @if (!envConfigService.enableBilanceTrend) {
+      @if (!trendConfig_allFeatures.showTrend) {
         <p>
           Zeitliche Bilanzierung der Indikatorenentwicklung &uuml;ber eine definierbare Zeitperiode.
         </p>
@@ -47,7 +47,7 @@
     [hidden]="!chartDisplayState.isBalanceChecked"
     [collapsed]="false"
     [title]="
-      envConfigService.enableBilanceTrend
+      trendConfig_allFeatures.showTrend
         ? 'Trenddarstellung &uuml;ber alle Raumeinheiten'
         : 'Zeitreihendarstellung &uuml;ber alle Raumeinheiten'
     "
@@ -67,7 +67,7 @@
           <th>
             <b>Zeige Trendlinie</b>
           </th>
-          @if (envConfigService.enableBilanceTrend) {
+          @if (trendConfig_allFeatures.showTrend) {
             <th class="text-center">
               <b>Art der Trendberechnung</b>
             </th>
@@ -100,14 +100,13 @@
             <label class="switch">
               <input
                 type="checkbox"
-                [ngModel]="envConfigService.enableBilanceTrend"
-                (change)="onChangeEnableBilanceTrend()"
-                checked
+                [(ngModel)]="trendConfig_allFeatures.showTrend"
+                (change)="onChangeTrendConfig()"
               />
               <span class="switchslider round"></span>
             </label>
           </td>
-          @if (envConfigService.enableBilanceTrend) {
+          @if (trendConfig_allFeatures.showTrend) {
             <td>
               <select
                 style="font-size: 12px"
@@ -132,35 +131,37 @@
       <div id="trendDiagram_allFeatures" style="width: 100%; min-height: 30vh"></div>
     </div>
 
-    <h4>Statistische Merkmale der Durchschnittslinie</h4>
-    <div>
-      <div class="row">
-        <div class="col-md-2">
-          <label>Min: </label> <i>{{ trendAnalysis_allFeatures?.min }}</i>
-          <br />
-          <label>Max: </label> <i>{{ trendAnalysis_allFeatures?.max }}</i>
-        </div>
-        <div class="col-md-3">
-          <label>Durchschnitt: </label> <i>{{ trendAnalysis_allFeatures?.mean }}</i>
-          <br />
-          <label>Median: </label> <i>{{ trendAnalysis_allFeatures?.median }}</i>
-        </div>
-        <div class="col-md-4">
-          <label>Standardabweichung: </label> <i>{{ trendAnalysis_allFeatures?.deviation }}</i>
-          <br />
-          <label>Varianz: </label> <i>{{ trendAnalysis_allFeatures?.variance }}</i>
-        </div>
-        <div class="col-md-3">
-          <label>Bilanz: </label> <i>{{ trendAnalysis_allFeatures?.balance }}</i>
+    @if (trendAnalysis_allFeatures) {
+      <h4>Statistische Merkmale der Durchschnittslinie</h4>
+      <div>
+        <div class="row">
+          <div class="col-md-2">
+            <label>Min: </label> <i>{{ trendAnalysis_allFeatures?.min }}</i>
+            <br />
+            <label>Max: </label> <i>{{ trendAnalysis_allFeatures?.max }}</i>
+          </div>
+          <div class="col-md-3">
+            <label>Durchschnitt: </label> <i>{{ trendAnalysis_allFeatures?.mean }}</i>
+            <br />
+            <label>Median: </label> <i>{{ trendAnalysis_allFeatures?.median }}</i>
+          </div>
+          <div class="col-md-4">
+            <label>Standardabweichung: </label> <i>{{ trendAnalysis_allFeatures?.deviation }}</i>
+            <br />
+            <label>Varianz: </label> <i>{{ trendAnalysis_allFeatures?.variance }}</i>
+          </div>
+          <div class="col-md-3">
+            <label>Bilanz: </label> <i>{{ trendAnalysis_allFeatures?.balance }}</i>
 
-          @if (envConfigService.enableBilanceTrend) {
-            <span>
-              <br />
-              <label>Trend: </label> <i>{{ trendAnalysis_allFeatures?.trend }}</i>
-            </span>
-          }
+            @if (trendConfig_allFeatures.showTrend) {
+              <span>
+                <br />
+                <label>Trend: </label> <i>{{ trendAnalysis_allFeatures?.trend }}</i>
+              </span>
+            }
+          </div>
         </div>
       </div>
-    </div>
+    }
   </expandable-box>
 </div>
