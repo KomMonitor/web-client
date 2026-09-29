@@ -22,11 +22,17 @@ import { StepperComponent } from 'components/ngComponents/common/stepper/stepper
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { TopicHierarchyFormComponent } from '../../topicHierarchyForm/topic-hierarchy-form.component';
 import { FormErrorComponent } from '../../formError/form-error.component';
+import { FormControlAriaDirective } from '../../formError/form-control-aria.directive';
+import { controlInvalidSignal } from '../../forms/control-state';
 import {
   buildTopicHierarchyForm,
   patchTopicHierarchyFromChain,
   topicHierarchyToApi,
 } from '../../topicHierarchyForm/topic-hierarchy-form.model';
+
+// Step keys in stepper order; onSubmit() jumps to the first invalid one.
+const STEP_KEYS = ['metadata', 'connection', 'topics'] as const;
+type StepKey = (typeof STEP_KEYS)[number];
 
 @Component({
   selector: 'app-wms-edit-modal',
@@ -41,6 +47,7 @@ import {
     AdminTopicsManagementComponent,
     TopicHierarchyFormComponent,
     FormErrorComponent,
+    FormControlAriaDirective,
     StepperComponent,
   ],
   standalone: true,
@@ -56,12 +63,6 @@ export class WmsEditModalComponent {
 
   currentGeoresourceDataset!: WmsDataset;
 
-  readonly stepper = new WizardStepper([
-    { key: 'metadata', label: 'ADMIN_SHARED_UI.STEP_LABELS.WMS_METADATA' },
-    { key: 'connection', label: 'ADMIN_SHARED_UI.STEP_LABELS.WMS_REQUEST_PARAMETERS' },
-    { key: 'topics', label: 'ADMIN_SHARED_UI.TOPICS.TITLE' },
-  ]);
-
   isSubmitting = false;
   // Signals: toggled from async HTTP callbacks and read by the template (OnPush)
   errorMessage = signal(false);
@@ -71,7 +72,9 @@ export class WmsEditModalComponent {
   testErrorMessage = signal(false);
   testSuccessMessage = signal(false);
 
-  metadataForm = new FormGroup({
+  // Built once and refilled by reInit(): the step markings below observe these
+  // exact instances, so replacing them would leave the stepper watching stale forms.
+  readonly metadataForm = new FormGroup({
     title: new FormControl<string>('', Validators.required),
     description: new FormControl<string>('', Validators.required),
     databasis: new FormControl<string>(''),
@@ -80,7 +83,7 @@ export class WmsEditModalComponent {
     note: new FormControl<string>(''),
   });
 
-  connectForm = new FormGroup({
+  readonly connectForm = new FormGroup({
     url: new FormControl<string>('', Validators.required),
     layer: new FormControl<string>('', Validators.required),
   });
@@ -88,6 +91,38 @@ export class WmsEditModalComponent {
   // Topic hierarchy
   // Topic hierarchy — the shared four-level cascade.
   readonly topicsForm = buildTopicHierarchyForm({ requireMainTopic: true });
+
+  // Per-step invalid markings; shown only once a step has been touched/left.
+  private readonly metadataStepInvalid = controlInvalidSignal(this.metadataForm, {
+    whenTouched: true,
+  });
+  private readonly connectionStepInvalid = controlInvalidSignal(this.connectForm, {
+    whenTouched: true,
+  });
+  private readonly topicsStepInvalid = controlInvalidSignal(this.topicsForm, {
+    whenTouched: true,
+  });
+
+  readonly stepper = new WizardStepper([
+    {
+      key: 'metadata',
+      label: 'ADMIN_SHARED_UI.STEP_LABELS.WMS_METADATA',
+      invalid: this.metadataStepInvalid,
+      onLeave: () => this.metadataForm.markAllAsTouched(),
+    },
+    {
+      key: 'connection',
+      label: 'ADMIN_SHARED_UI.STEP_LABELS.WMS_REQUEST_PARAMETERS',
+      invalid: this.connectionStepInvalid,
+      onLeave: () => this.connectForm.markAllAsTouched(),
+    },
+    {
+      key: 'topics',
+      label: 'ADMIN_SHARED_UI.TOPICS.TITLE',
+      invalid: this.topicsStepInvalid,
+      onLeave: () => this.topicsForm.markAllAsTouched(),
+    },
+  ]);
 
   availableTopics!: any;
 
@@ -101,30 +136,21 @@ export class WmsEditModalComponent {
   }
 
   reInit() {
-    this.metadataForm = new FormGroup({
-      title: new FormControl<string>(this.currentGeoresourceDataset.title, Validators.required),
-      description: new FormControl<string>(
-        this.currentGeoresourceDataset.description,
-        Validators.required
-      ),
-      databasis: new FormControl<string>(this.currentGeoresourceDataset.databasis),
-      datasource: new FormControl<string>(
-        this.currentGeoresourceDataset.datasource,
-        Validators.required
-      ),
-      contact: new FormControl<string>(this.currentGeoresourceDataset.contact, Validators.required),
-      note: new FormControl<string>(this.currentGeoresourceDataset.note),
+    const dataset = this.currentGeoresourceDataset;
+    if (!dataset) {
+      return;
+    }
+    this.metadataForm.reset({
+      title: dataset.title,
+      description: dataset.description,
+      databasis: dataset.databasis,
+      datasource: dataset.datasource,
+      contact: dataset.contact,
+      note: dataset.note,
     });
-
-    this.connectForm = new FormGroup({
-      url: new FormControl<string>(
-        this.currentGeoresourceDataset.connectionDetails.baseUrl,
-        Validators.required
-      ),
-      layer: new FormControl<string>(
-        this.currentGeoresourceDataset.connectionDetails.layerName,
-        Validators.required
-      ),
+    this.connectForm.reset({
+      url: dataset.connectionDetails.baseUrl,
+      layer: dataset.connectionDetails.layerName,
     });
 
     // Set topic hierarchy
@@ -138,6 +164,36 @@ export class WmsEditModalComponent {
 
   close(): void {
     this.activeModal.close(true);
+  }
+
+  /** The form group behind each wizard step. */
+  private stepForm(key: StepKey) {
+    switch (key) {
+      case 'metadata':
+        return this.metadataForm;
+      case 'connection':
+        return this.connectForm;
+      case 'topics':
+        return this.topicsForm;
+    }
+  }
+
+  /**
+   * Submit handler of the always-active button: saves when every step is
+   * valid, otherwise reveals all field errors and jumps to the first
+   * incomplete step.
+   */
+  onSubmit(): void {
+    const forms = STEP_KEYS.map((key) => this.stepForm(key));
+    if (forms.every((form) => form.valid)) {
+      this.editWms();
+      return;
+    }
+    forms.forEach((form) => form.markAllAsTouched());
+    const firstInvalidStep = STEP_KEYS.find((key) => this.stepForm(key).invalid);
+    if (firstInvalidStep) {
+      this.stepper.goToKey(firstInvalidStep);
+    }
   }
 
   editWms() {
@@ -171,10 +227,11 @@ export class WmsEditModalComponent {
   }
 
   resetWmsAddForm() {
-    this.metadataForm.reset();
-    this.connectForm.reset();
-
+    // Restore the stored values. Clearing the fields, as the add dialog does,
+    // left an edit that could only be saved after retyping every one of them.
     this.topicsForm.reset();
+    this.reInit();
+    this.stepper.reset();
 
     // A connection test belongs to the form being reset; its alert must not
     // outlive it (e.g. an old failure shown next to a successful register).
