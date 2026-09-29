@@ -1126,6 +1126,7 @@
       "CRON_HOUR": "Hour",
       "CRON_MINUTE": "Minute",
       "CRON_INVALID": "The cron pattern is invalid. Five fields are expected.",
+      "SPATIAL_UNITS_REQUIRED": "Select at least one spatial unit.",
       "WEEKDAY_0": "Sunday",
       "WEEKDAY_1": "Monday",
       "WEEKDAY_2": "Tuesday",

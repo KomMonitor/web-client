@@ -206,6 +206,67 @@ describe('ScheduleDraftService', () => {
     });
   });
 
+  describe('step errors', () => {
+    it('names everything the target step is missing', () => {
+      expect(service.stepErrors().target).toEqual([
+        'PROCESS_REQUIRED',
+        'TARGET_INDICATOR_REQUIRED',
+        'SPATIAL_UNITS_REQUIRED',
+      ]);
+    });
+
+    it('lists the required process inputs that are still empty', () => {
+      service.selectProcess(SUM_PROCESS);
+      expect(service.missingInputKeys()).toEqual(['computation_ids']);
+      expect(service.stepErrors().inputs).toEqual(['INPUTS_MISSING']);
+
+      service.setInput('computation_ids', ['a']);
+      expect(service.missingInputKeys()).toEqual([]);
+      expect(service.stepErrors().inputs).toEqual([]);
+    });
+
+    it('reports an invalid manual cron pattern in the timing step', () => {
+      expect(service.stepErrors().timing).toEqual([]);
+      service.useManualCron.set(true);
+      service.manualCron.set('nonsense');
+      expect(service.stepErrors().timing).toEqual(['CRON_INVALID']);
+    });
+  });
+
+  describe('revealing', () => {
+    it('shows nothing before a step is revealed', () => {
+      expect(service.stepInvalid('target')).toBe(false);
+      expect(service.showsError('target', 'PROCESS_REQUIRED')).toBe(false);
+    });
+
+    it("shows a revealed step's errors, and only that step's", () => {
+      service.selectProcess(SUM_PROCESS);
+      service.reveal('target');
+
+      expect(service.stepInvalid('target')).toBe(true);
+      expect(service.showsError('target', 'TARGET_INDICATOR_REQUIRED')).toBe(true);
+      expect(service.stepInvalid('inputs')).toBe(false);
+      expect(service.showsMissingInput('computation_ids')).toBe(false);
+    });
+
+    it('reveals every step at once for a submit attempt', () => {
+      service.selectProcess(SUM_PROCESS);
+      service.revealAll();
+
+      expect(service.stepInvalid('inputs')).toBe(true);
+      expect(service.showsMissingInput('computation_ids')).toBe(true);
+      expect(service.stepInvalid('timing')).toBe(false);
+    });
+
+    it('hides everything again on reset', () => {
+      service.revealAll();
+      service.reset();
+
+      expect(service.revealedSteps().size).toBe(0);
+      expect(service.stepInvalid('target')).toBe(false);
+    });
+  });
+
   describe('submitting', () => {
     beforeEach(() => {
       service.selectProcess(SUM_PROCESS);

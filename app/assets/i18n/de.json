@@ -1126,6 +1126,7 @@
       "CRON_HOUR": "Stunde",
       "CRON_MINUTE": "Minute",
       "CRON_INVALID": "Das Cron-Pattern ist ungültig. Erwartet werden fünf Felder.",
+      "SPATIAL_UNITS_REQUIRED": "Bitte mindestens eine Raumebene wählen.",
       "WEEKDAY_0": "Sonntag",
       "WEEKDAY_1": "Montag",
       "WEEKDAY_2": "Dienstag",

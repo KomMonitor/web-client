@@ -39,6 +39,11 @@
     @if (draft.selectedProcess()?.uiParams?.longTitle) {
       <small class="text-muted">{{ draft.selectedProcess()?.uiParams?.longTitle }}</small>
     }
+    @if (draft.showsError('target', 'PROCESS_REQUIRED')) {
+      <div class="help-block with-errors" id="processType-error" role="alert">
+        {{ errors.PROCESS_REQUIRED | translate }}
+      </div>
+    }
   </div>
 </app-loading-overlay>
 
@@ -57,6 +62,11 @@
       <option [value]="indicator.indicatorId">{{ indicator.indicatorName }}</option>
     }
   </select>
+  @if (draft.showsError('target', 'TARGET_INDICATOR_REQUIRED')) {
+    <div class="help-block with-errors" id="targetIndicator-error" role="alert">
+      {{ errors.TARGET_INDICATOR_REQUIRED | translate }}
+    </div>
+  }
 
   @if (draft.existingSchedule()) {
     <div class="alert alert-warning mt-2 mb-0" role="alert">
@@ -68,6 +78,15 @@
 
 <div class="mb-3">
   <label class="form-label">{{ 'ADMIN_SCRIPTS.ADD_MODAL.TARGET_SPATIAL_UNITS' | translate }}</label>
+  <!--
+    Above the list on purpose: the list box's host is a fixed 400px high and its
+    footer overflows it, so a message below would sit under the footer.
+  -->
+  @if (draft.showsError('target', 'SPATIAL_UNITS_REQUIRED')) {
+    <div class="help-block with-errors" role="alert">
+      {{ errors.SPATIAL_UNITS_REQUIRED | translate }}
+    </div>
+  }
   <app-dual-list-box
     [data]="spatialUnitData()"
     (selectedItems)="onSpatialUnitsChange($event)"
