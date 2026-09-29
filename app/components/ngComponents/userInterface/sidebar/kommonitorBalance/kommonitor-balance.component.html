@@ -24,7 +24,7 @@
 
     <!-- Always in the DOM: the noUiSlider instance is created on it once. -->
     <div id="rangeSliderForBalanceWrapper">
-      <div id="rangeSlider"></div>
+      <div id="rangeSlider" #rangeSlider></div>
     </div>
 
     <!-- [hidden], not @if: the chart instance and its ResizeObserver hold on to this container. -->
@@ -81,7 +81,7 @@
         }
       </div>
 
-      <div id="trendDiagram_allFeatures" class="trend-chart"></div>
+      <div id="trendDiagram_allFeatures" #trendChart class="trend-chart"></div>
 
       @if (trendAnalysis_allFeatures; as stats) {
         <h4 class="balance-section-title">

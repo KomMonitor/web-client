@@ -1,8 +1,16 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  DestroyRef,
+  ElementRef,
+  OnDestroy,
+  inject,
+  viewChild,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import * as echarts from 'echarts';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { RangeFilterStateService } from 'services/range-filter-state-service/range-filter-state.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
@@ -25,8 +33,7 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
   standalone: true,
   imports: [FormsModule, ExpandableBoxComponent],
 })
-export class KommonitorBalanceComponent implements OnInit, OnDestroy {
-  protected rangeFilterState = inject(RangeFilterStateService);
+export class KommonitorBalanceComponent implements AfterViewInit, OnDestroy {
   protected chartDisplayState = inject(ChartDisplayStateService);
   private selectionState = inject(SelectionStateService);
   private broadcastService = inject(BroadcastService);
@@ -34,32 +41,30 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
   private mapService = inject(MapService);
   private balanceService = inject(BalanceService);
   protected envConfigService = inject(EnvConfigService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  ngOnInit(): void {
+  private readonly sliderElement = viewChild.required<ElementRef<HTMLElement>>('rangeSlider');
+  private readonly trendChartElement = viewChild.required<ElementRef<HTMLElement>>('trendChart');
+
+  // After view init: the slider needs its element, and both broadcasts drive the slider.
+  ngAfterViewInit(): void {
     this.setupSlider();
 
-    this.broadcastService.currentBroadcastMsg.subscribe((res) => {
-      const msg = res.msg;
-      const values: any = res.values;
-
-      switch (msg) {
-        case BroadcastMessage.UpdateBalanceSlider:
-          {
-            // hier war mal ein 1000 timeout
-            this.setupRangeSliderForBalance(values);
-          }
-          break;
-        case BroadcastMessage.DisableBalance:
-          {
+    this.broadcastService.currentBroadcastMsg
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ msg, values }) => {
+        switch (msg) {
+          case BroadcastMessage.UpdateBalanceSlider:
+            this.setupRangeSliderForBalance(values as any);
+            break;
+          case BroadcastMessage.DisableBalance:
             this.disableBalance();
-          }
-          break;
-      }
-    });
+            break;
+        }
+      });
   }
 
   targetDate;
-  rangeSliderForBalance;
   // The applicable dates the slider was built for; its values are indices into this.
   sliderDates: string[] = [];
 
@@ -70,8 +75,6 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
   trendOption;
   // Shown above the slider and kept current while a handle is dragged.
   periodLabel?: { from: string; to: string };
-
-  someRange;
 
   balanceSlider;
   config: any = {
@@ -93,23 +96,8 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
 
   private trendChartResizeObserver?: ResizeObserver;
 
-  /*  {
-    behaviour: 'drag',
-    connect: true,
-    start: [0,5],
-    keyboard: true,  // same as [keyboard]="true"
-    step: 0.1,
-    pageSteps: 10,  // number of page steps, defaults to 10
-    pips: {
-      mode: 'count',
-      density: 2,
-      values: 6,
-      stepped: true
-    }
-  } */
-
   setupSlider() {
-    this.balanceSlider = document.getElementById('rangeSlider');
+    this.balanceSlider = this.sliderElement().nativeElement;
     noUiSlider.create(this.balanceSlider, this.config);
 
     // Registered once here: updateOptions() keeps listeners, so registering on
@@ -158,8 +146,6 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
       this.chartDisplayState.isMeasureOfValueChecked = false;
     }
 
-    let indicatorMetadataAndGeoJSON;
-
     if (this.chartDisplayState.isBalanceChecked) {
       this.chartDisplayState.isMeasureOfValueChecked = false;
       this.envConfigService.classifyUsingWholeTimeseries = false;
@@ -174,35 +160,24 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
       setTimeout(() => {
         this.updateTrendChart(this.selectionState.selectedIndicator, period);
       });
-      indicatorMetadataAndGeoJSON = this.chartDisplayState.indicatorAndMetadataAsBalance;
-      // kommonitorMapService.replaceIndicatorGeoJSON(this.exchangeData.indicatorAndMetadataAsBalance, this.selectionState.selectedSpatialUnit.spatialUnitLevel, this.targetDate, true);
     } else {
       this.balanceSlider.noUiSlider.disable();
 
-      // reanebalbe DateSlider on map
+      // re-enable DateSlider on map
       this.mapService.setDateSliderValues({ disabled: false });
-      indicatorMetadataAndGeoJSON = this.selectionState.selectedIndicator;
-      // kommonitorMapService.replaceIndicatorGeoJSON(this.selectionState.selectedIndicator, this.selectionState.selectedSpatialUnit.spatialUnitLevel, this.targetDate, true);
     }
-    // $rootScope.$broadcast("updateIndicatorValueRangeFilter", this.targetDate, indicatorMetadataAndGeoJSON);
     // do not replace dataset directly, but check if any filter can be applied when changing balance mode for the current dataset
     this.filterHelperService.filterAndReplaceDataset();
   }
 
-  // hier onChangeUseBalance (1) -> filterAndReplaceDataset (2 new) -> replaceIndicatorGeoJSON -> replaceIndicatorAsGeoJSON (replaceIndi...)
-  // --> da wird dynamicBrew auf undefined gesetzt, und scheinbar nicht neu definiert
-  // --> auskommentiert, bringt nix, ist scheinbar auch vorher nicht gesetzt, to check, wo und WANN wird das definiert?!
-
-  // setupDynamicIndicatorBrew
-
   updateTrendChart(indicatorMetadata, period: BalancePeriod) {
-    const chartContainer = document.getElementById('trendDiagram_allFeatures');
+    const chartContainer = this.trendChartElement().nativeElement;
 
     // explicitly kill and reinstantiate line diagram to avoid zombie states on spatial unit change
     this.trendChart_allFeatures?.dispose();
     this.trendChart_allFeatures = echarts.init(chartContainer);
 
-    if (!this.trendChartResizeObserver && chartContainer) {
+    if (!this.trendChartResizeObserver) {
       this.trendChartResizeObserver = new ResizeObserver(() =>
         this.trendChart_allFeatures?.resize()
       );
@@ -291,41 +266,16 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
     }
   }
 
-  removeOldInstance() {
-    this.rangeFilterState.rangeFilterData = undefined;
-    this.rangeSliderForBalance.destroy();
-    this.chartDisplayState.indicatorAndMetadataAsBalance = undefined;
-
-    const domNode = document.getElementById('rangeSliderForBalance');
-
-    if (domNode) {
-      while (domNode.hasChildNodes()) {
-        domNode.removeChild(domNode.lastChild!);
-      }
-    }
-  }
-
   setupRangeSliderForBalance([date]) {
     this.targetDate = date;
 
-    if (!this.balanceSlider) {
-      // create new instance
+    // Rebuild the slider unless a balance of this very indicator is already set up.
+    const balanceIndicator = this.chartDisplayState.indicatorAndMetadataAsBalance;
+    if (
+      !balanceIndicator ||
+      balanceIndicator.indicatorName !== this.selectionState.selectedIndicator.indicatorName
+    ) {
       this.createNewBalanceInstance();
-    } else {
-      if (this.chartDisplayState.indicatorAndMetadataAsBalance) {
-        if (
-          this.selectionState.selectedIndicator.indicatorName !=
-          this.chartDisplayState.indicatorAndMetadataAsBalance.indicatorName
-        ) {
-          //this.removeOldInstance();
-
-          // create new instance
-          this.createNewBalanceInstance();
-        }
-      } else {
-        //this.removeOldInstance();
-        this.createNewBalanceInstance();
-      }
     }
   }
 
@@ -338,7 +288,7 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.updateTrendChart(this.selectionState.selectedIndicator, period);
     });
-    // hier we must call replaceIndicatorGeoJSON because the feature vaues have changed. calling restyle will not work as it only restyles the old numbers
+    // replaceIndicatorGeoJSON, not restyle: the feature values themselves have changed
     this.mapService.replaceIndicatorGeoJSON(
       this.chartDisplayState.indicatorAndMetadataAsBalance,
       this.selectionState.selectedSpatialUnit.spatialUnitLevel,
