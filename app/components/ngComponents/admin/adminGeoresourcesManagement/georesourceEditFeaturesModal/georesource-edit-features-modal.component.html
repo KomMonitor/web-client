@@ -382,7 +382,10 @@
                         (change)="onDataSourceFileSelected($event)"
                         required
                       />
-                      <app-form-error [control]="editForm" />
+                      <app-form-error
+                        [control]="editForm"
+                        [revealWith]="editForm.controls.selectedFile"
+                      />
                     </div>
                   }
                   @if (datasourceType?.type === 'OGCAPI_FEATURES') {

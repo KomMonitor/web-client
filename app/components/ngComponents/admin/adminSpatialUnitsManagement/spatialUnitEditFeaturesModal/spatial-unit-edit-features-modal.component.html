@@ -391,7 +391,10 @@
                       required
                       (change)="onFileSelected($event)"
                     />
-                    <app-form-error [control]="editForm" />
+                    <app-form-error
+                      [control]="editForm"
+                      [revealWith]="editForm.controls.selectedFile"
+                    />
                     @if (selectedDataSourceFile) {
                       <div class="help-block">
                         <p>

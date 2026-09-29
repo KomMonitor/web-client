@@ -747,7 +747,10 @@
                           (change)="onGeoresourceFileSelected($event)"
                           required
                         />
-                        <app-form-error [control]="addForm.controls.data" />
+                        <app-form-error
+                          [control]="addForm.controls.data"
+                          [revealWith]="addForm.controls.data.controls.selectedFile"
+                        />
                       </div>
                     }
                     @if (selectedDatasourceType?.type === 'OGCAPI_FEATURES') {

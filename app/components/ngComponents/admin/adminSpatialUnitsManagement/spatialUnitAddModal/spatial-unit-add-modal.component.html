@@ -425,7 +425,10 @@
                     (change)="onSpatialUnitFileSelected($event)"
                     required
                   />
-                  <app-form-error [control]="addForm.controls.data" />
+                  <app-form-error
+                    [control]="addForm.controls.data"
+                    [revealWith]="addForm.controls.data.controls.selectedFile"
+                  />
                   @if (selectedDataSourceFile) {
                     <div class="help-block">
                       <p>
