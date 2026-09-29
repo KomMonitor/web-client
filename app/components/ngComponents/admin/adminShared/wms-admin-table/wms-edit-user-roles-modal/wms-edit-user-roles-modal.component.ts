@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, ViewChild, inject, signal } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { Observable, concatMap, finalize, of } from 'rxjs';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
@@ -34,6 +35,8 @@ export class WmsEditUserRolesModalComponent {
   protected accessControlService = inject(AccessControlService);
   private ogcService = inject(OgcService);
   protected envConfigService = inject(EnvConfigService);
+  private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   currentGeoresourceDataset!: WmsDataset;
 
@@ -46,7 +49,6 @@ export class WmsEditUserRolesModalComponent {
 
   // Signals: toggled from async HTTP callbacks and read by the template (OnPush)
   errorMessage = signal(false);
-  successMessage = signal(false);
   /** True while the save request is in flight; drives the overlay and blocks double submits. */
   isSubmitting = signal(false);
 
@@ -55,7 +57,6 @@ export class WmsEditUserRolesModalComponent {
   ownerOrganization = '';
   isPublic = false;
 
-  successMessagePart = signal('');
   errorMessagePart = signal('');
 
   close(): void {
@@ -83,6 +84,12 @@ export class WmsEditUserRolesModalComponent {
     // current owner, so `ownerId: ''` is never sent.
     const ownershipChanging = this.isOwnershipChanging();
     const ownershipData = { ownerId: this.ownerOrganization || dataset.ownerId };
+    if (
+      ownershipChanging &&
+      !window.confirm(this.translate.instant('ADMIN_WMS.EDIT_ROLES.OWNERSHIP_TRANSFER_CONFIRM'))
+    ) {
+      return;
+    }
 
     this.isSubmitting.set(true);
     this.ogcService
@@ -97,9 +104,13 @@ export class WmsEditUserRolesModalComponent {
         finalize(() => this.isSubmitting.set(false))
       )
       .subscribe({
+        // As in the other rights dialogs: toast and close. Staying open kept
+        // the old owner in the dataset, so a second click transferred again.
         next: () => {
-          this.successMessagePart.set(dataset.title);
-          this.successMessage.set(true);
+          this.notificationService.showSuccess(
+            this.translate.instant('ADMIN_WMS.EDIT_ROLES.SUCCESS_TEXT', { name: dataset.title })
+          );
+          this.activeModal.close(true);
         },
         error: (error) => {
           this.errorMessagePart.set(error.message);
@@ -128,10 +139,6 @@ export class WmsEditUserRolesModalComponent {
     // Restore the dataset's stored values. Resetting `isPublic` to false used to
     // silently make a public dataset private on the next submit.
     this.reInit();
-  }
-
-  hideSuccessAlert(): void {
-    this.successMessage.set(false);
   }
 
   hideErrorAlert(): void {

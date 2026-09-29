@@ -1461,7 +1461,8 @@
     },
     "EDIT_ROLES": {
       "TITLE": "Edit WMS",
-      "SUCCESS_TEXT": "Access rights for the dataset named {{name}} have been edited in KomMonitor."
+      "SUCCESS_TEXT": "Access rights for the dataset named {{name}} have been edited in KomMonitor.",
+      "OWNERSHIP_TRANSFER_CONFIRM": "Are you sure you want to transfer and thereby permanently and irrevocably relinquish ownership of this WMS?"
     },
     "GRID": {
       "COL_LEGEND": "Legend"

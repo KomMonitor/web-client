@@ -7,10 +7,11 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Subject, of } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 
 import { WmsEditUserRolesModalComponent } from './wms-edit-user-roles-modal.component';
 
@@ -18,6 +19,9 @@ describe('WmsEditUserRolesModalComponent', () => {
   let component: WmsEditUserRolesModalComponent;
   let fixture: ComponentFixture<WmsEditUserRolesModalComponent>;
   let ogcService: { updatePermissions: jest.Mock; updateOwnership: jest.Mock };
+  let notificationService: { showSuccess: jest.Mock };
+  let activeModal: NgbActiveModal;
+  let confirmSpy: jest.SpyInstance;
 
   const dataset = {
     id: 'wms-1',
@@ -35,6 +39,8 @@ describe('WmsEditUserRolesModalComponent', () => {
       updatePermissions: jest.fn(() => of({})),
       updateOwnership: jest.fn(() => of({})),
     };
+    notificationService = { showSuccess: jest.fn() };
+    confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
     TestBed.configureTestingModule({
       imports: [WmsEditUserRolesModalComponent, TranslateModule.forRoot()],
       providers: [
@@ -44,6 +50,7 @@ describe('WmsEditUserRolesModalComponent', () => {
         provideNoopAnimations(),
         NgbActiveModal,
         { provide: OgcService, useValue: ogcService },
+        { provide: NotificationService, useValue: notificationService },
         { provide: EnvConfigService, useValue: { enableKeycloakSecurity: true } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -55,6 +62,8 @@ describe('WmsEditUserRolesModalComponent', () => {
     });
     fixture = TestBed.createComponent(WmsEditUserRolesModalComponent);
     component = fixture.componentInstance;
+    activeModal = TestBed.inject(NgbActiveModal);
+    jest.spyOn(activeModal, 'close');
     component.currentGeoresourceDataset = { ...dataset };
     component.reInit();
   });
@@ -77,7 +86,14 @@ describe('WmsEditUserRolesModalComponent', () => {
       permissions: [],
     });
     expect(ogcService.updateOwnership).not.toHaveBeenCalled();
-    expect(component.successMessage()).toBe(true);
+    expect(confirmSpy).not.toHaveBeenCalled();
+  });
+
+  it('shows a toast and closes after saving', () => {
+    component.editData();
+
+    expect(notificationService.showSuccess).toHaveBeenCalledTimes(1);
+    expect(activeModal.close).toHaveBeenCalledWith(true);
   });
 
   it('does not transfer ownership when the owner is unchanged', () => {
@@ -85,10 +101,31 @@ describe('WmsEditUserRolesModalComponent', () => {
     expect(ogcService.updateOwnership).not.toHaveBeenCalled();
   });
 
-  it('sends a changed owner', () => {
+  it('asks before transferring a changed owner, then sends it', () => {
     component.onChangeOwner('org-new');
     component.editData();
+    expect(confirmSpy).toHaveBeenCalledTimes(1);
     expect(ogcService.updateOwnership).toHaveBeenCalledWith('wms-1', { ownerId: 'org-new' });
+  });
+
+  it('saves nothing when the transfer is not confirmed', () => {
+    confirmSpy.mockReturnValue(false);
+    component.onChangeOwner('org-new');
+
+    component.editData();
+
+    expect(ogcService.updatePermissions).not.toHaveBeenCalled();
+    expect(ogcService.updateOwnership).not.toHaveBeenCalled();
+    expect(activeModal.close).not.toHaveBeenCalled();
+  });
+
+  it('stays open and shows the error when saving fails', () => {
+    ogcService.updatePermissions.mockReturnValue(throwError(() => new Error('boom')));
+
+    component.editData();
+
+    expect(component.errorMessage()).toBe(true);
+    expect(activeModal.close).not.toHaveBeenCalled();
   });
 
   it('sends no second request while saving and disables the button', () => {
@@ -116,5 +153,9 @@ describe('WmsEditUserRolesModalComponent', () => {
     component.resetWmsEditForm();
     expect(component.isPublic).toBe(true);
     expect(component.ownerOrganization).toBe('org-current');
+  });
+
+  afterEach(() => {
+    confirmSpy.mockRestore();
   });
 });

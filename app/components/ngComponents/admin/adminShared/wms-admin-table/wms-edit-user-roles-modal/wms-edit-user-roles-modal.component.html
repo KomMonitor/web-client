@@ -25,26 +25,11 @@
   -->
   <app-loading-overlay [loading]="isSubmitting()">
     <!--
-      Both alerts used to sit after the footer as `position: absolute; bottom: 0`,
-      floating over the dialog's own buttons, dismissed by Bootstrap 3 `.close`
-      buttons. They are ordinary alerts at the top of the body now, as in the
+      The error alert used to sit after the footer as `position: absolute; bottom: 0`,
+      floating over the dialog's own buttons. It is an ordinary alert at the top of
+      the body now. Success is a toast and closes the dialog, as in the
       spatial-unit and georesource role dialogs.
     -->
-    @if (successMessage()) {
-      <div class="alert alert-success" role="alert">
-        <button
-          type="button"
-          class="btn-close float-end"
-          [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
-          (click)="hideSuccessAlert()"
-        ></button>
-        <b>{{ 'ADMIN_WMS.ADD.SUCCESS_TITLE' | translate }}</b>
-        <p class="mb-0">
-          {{ 'ADMIN_WMS.EDIT_ROLES.SUCCESS_TEXT' | translate: { name: successMessagePart() } }}
-        </p>
-      </div>
-    }
-
     @if (errorMessage()) {
       <div class="alert alert-danger alert-scrollable" role="alert">
         <button

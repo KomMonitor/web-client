@@ -284,7 +284,7 @@
       "OWNERSHIP_WARNING_1": "Bitte beachten Sie, dass Sie beim Übertragen einer Eigentümerschaft einer Resource unter Umständen jegliche Rechte eben dieser verlieren.",
       "OWNERSHIP_WARNING_2": "Die Rechte werden unwiderruflich und sofort an den neuen Eigentümer übertragen.",
       "MSG": {
-        "OWNERSHIP_TRANSFER_CONFIRM": "Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?",
+        "OWNERSHIP_TRANSFER_CONFIRM": "Sind Sie sicher, dass Sie die Eigentümerschaft an dieser Ressource endgültig und unwiderruflich übertragen und damit abgeben wollen?",
         "RIGHTS_UPDATED": "Zugriffsrechte für Georessource \"{{name}}\" wurden aktualisiert.",
         "RIGHTS_UPDATE_FAILED": "Fehler beim Aktualisieren der Zugriffsrechte: {{error}}",
         "OWNERSHIP_UPDATE_FAILED": "Fehler beim Aktualisieren der Eigentümerschaft: {{error}}"
@@ -754,7 +754,7 @@
         "TIMESERIES_RIGHTS_FAILED": "Fehler beim Aktualisieren der Zugriffsrechte auf Zeitreihe der Raumeinheit {{name}}.",
         "METADATA_OWNERSHIP_FAILED": "Fehler beim Aktualisieren der Metadaten-Eigentümerschaft.",
         "TIMESERIES_OWNERSHIP_FAILED": "Fehler beim Aktualisieren der Zeitreihen-Eigentümerschaft der Raumeinheit {{name}}.",
-        "OWNERSHIP_TRANSFER_CONFIRM": "Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?"
+        "OWNERSHIP_TRANSFER_CONFIRM": "Sind Sie sicher, dass Sie die Eigentümerschaft an dieser Ressource endgültig und unwiderruflich übertragen und damit abgeben wollen?"
       }
     },
     "EDIT_METADATA": {
@@ -1461,7 +1461,8 @@
     },
     "EDIT_ROLES": {
       "TITLE": "WMS bearbeiten",
-      "SUCCESS_TEXT": "Zugriffsrechte für den Datensatz mit dem Namen {{name}} wurde in KomMonitor editiert."
+      "SUCCESS_TEXT": "Zugriffsrechte für den Datensatz mit dem Namen {{name}} wurde in KomMonitor editiert.",
+      "OWNERSHIP_TRANSFER_CONFIRM": "Sind Sie sicher, dass Sie die Eigentümerschaft an diesem WMS endgültig und unwiderruflich übertragen und damit abgeben wollen?"
     },
     "GRID": {
       "COL_LEGEND": "Legende"
@@ -1877,7 +1878,7 @@
       "OWNERSHIP_WARNING_1": "Bitte beachten Sie, dass Sie beim Übertragen einer Eigentümerschaft einer Resource unter Umständen jegliche Rechte eben dieser verlieren.",
       "OWNERSHIP_WARNING_2": "Die Rechte werden unwiderruflich und sofort an den neuen Eigentümer übertragen.",
       "MSG": {
-        "OWNERSHIP_TRANSFER_CONFIRM": "Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?",
+        "OWNERSHIP_TRANSFER_CONFIRM": "Sind Sie sicher, dass Sie die Eigentümerschaft an dieser Ressource endgültig und unwiderruflich übertragen und damit abgeben wollen?",
         "RIGHTS_UPDATED": "Zugriffsrechte für Raumebene \"{{name}}\" wurden aktualisiert.",
         "RIGHTS_UPDATE_FAILED": "Fehler beim Aktualisieren der Zugriffsrechte: {{error}}",
         "OWNERSHIP_UPDATE_FAILED": "Fehler beim Aktualisieren der Eigentümerschaft: {{error}}"
