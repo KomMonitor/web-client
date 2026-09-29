@@ -1,4 +1,19 @@
 :host {
+  // No height or overflow of its own: the sidebar already scrolls, and a
+  // second scroll container inside it showed two scrollbars.
+  #kommonitorBalance {
+    margin-left: 1%;
+    margin-right: 1%;
+    font-size: 12px;
+  }
+
+  // The handle tooltips and the end labels are centred on the slider ends;
+  // the side inset keeps them inside the panel instead of overflowing it, the
+  // top inset keeps the tooltips clear of the switch row above.
+  #rangeSliderForBalanceWrapper {
+    padding: 1.5em 3em 0;
+  }
+
   h4 {
     font-size: 18px !important;
   }

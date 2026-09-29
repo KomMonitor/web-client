@@ -356,14 +356,13 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
     return date.valueOf();
   }
 
+  // Numeric on purpose: the slider tooltips sit centred on the handles and a
+  // spelled-out month made them stick out of the panel at both ends.
   tsToDateString(dateAsMs) {
-    const date = new Date(dateAsMs);
-    // return date.getFullYear();
-
-    return date.toLocaleDateString('de-DE', {
+    return new Date(dateAsMs).toLocaleDateString('de-DE', {
       year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
     });
   }
 
@@ -406,10 +405,13 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
   }
 
   createNewBalanceInstance() {
-    this.datesAsMs = this.createDatesFromIndicatorDates(
-      this.selectionState.selectedIndicator.applicableDates
-    );
+    const applicableDates: string[] = this.selectionState.selectedIndicator.applicableDates;
+    this.datesAsMs = this.createDatesFromIndicatorDates(applicableDates);
     const dateLabels = this.datesAsMs.map((dateAsMs) => this.tsToDateString(dateAsMs));
+    // With one date per year (all on the same day), the year alone is the
+    // meaningful scale label; the tooltips still show the full date.
+    const isYearly = new Set(applicableDates.map((date) => date.slice(5))).size === 1;
+    const pipLabels = isYearly ? applicableDates.map((date) => date.slice(0, 4)) : dateLabels;
     // Slider values are date indices. Formatted labels map back via their
     // position; raw numbers (e.g. the start values) pass through as indices.
     const labelToIndex = (value) => {
@@ -433,7 +435,7 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
         mode: 'range',
         density: 25,
         format: {
-          to: (value) => dateLabels[Math.round(value)],
+          to: (value) => pipLabels[Math.round(value)],
           from: labelToIndex,
         },
       },
