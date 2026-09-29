@@ -16,7 +16,7 @@ import { TopicMetadataStoreService } from 'services/topic-metadata-store-service
 import { WmsAddModalComponent } from './wms-add-modal.component';
 
 /**
- * Covers the active-submit-button flow (documentation/AKTIVER_SUBMIT_BUTTON.md).
+ * Covers the active-submit-button flow (an incomplete form jumps to its first incomplete step).
  * Most tests drive the component without rendering; the rendered test runs
  * with Keycloak off so the security fieldset (and its AG Grid) is dropped.
  */

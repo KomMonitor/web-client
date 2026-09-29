@@ -81,7 +81,7 @@ export class WmsAddModalComponent implements OnInit {
   @ViewChild(RoleManagementGridComponent) roleGrid?: RoleManagementGridComponent;
 
   // True while the registration request is in flight; the only reason the
-  // submit button is disabled (see documentation/AKTIVER_SUBMIT_BUTTON.md).
+  // submit button is disabled (an incomplete form jumps to its first gap instead).
   readonly isSubmitting = signal(false);
   // Signals: toggled from async HTTP callbacks and read by the template (OnPush)
   errorMessage = signal(false);

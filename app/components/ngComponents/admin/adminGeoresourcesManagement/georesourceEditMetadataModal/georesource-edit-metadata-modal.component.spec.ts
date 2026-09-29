@@ -23,7 +23,7 @@ import { GeoresourceEditMetadataModalComponent } from './georesource-edit-metada
  * names that field `permissions`. The fixture is rendered only for the footer
  * button checks; everything else works on the component instance.
  *
- * Also covers the active submit button (documentation/AKTIVER_SUBMIT_BUTTON.md):
+ * Also covers the active submit button:
  * an incomplete form jumps to its first incomplete step instead of patching.
  */
 
