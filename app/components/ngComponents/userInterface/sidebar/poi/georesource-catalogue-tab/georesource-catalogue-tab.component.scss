@@ -1,20 +1,5 @@
 :host {
-  .list-group-item div:first-child p,
-  .georesources-grid-item.list-group-item p {
-    margin: 0.5em 0 !important;
+  app-topic-element [topicElementRowExtra] {
+    flex: 0 0 auto;
   }
-
-  .hierarchy-topic-level-0 {
-    background-color: var(--kommonitor-hierarchy-level-0);
-    color: #000 !important;
-  }
-}
-
-/* Collapse animation */
-.collapse {
-  transition: height 0.35s ease;
-}
-
-.collapse.in {
-  display: block;
 }
