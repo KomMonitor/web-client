@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TopicElementComponent } from 'components/ngComponents/common/topic-element/topic-element.component';
 import {
   GeoresourcesDataset,
   GeoresourcesTopicsHierarchy,
@@ -22,7 +23,7 @@ import { GeoresourceDatasetTableComponent } from '../georesource-dataset-table/g
   templateUrl: './georesource-topic-tree.component.html',
   styleUrls: ['./georesource-topic-tree.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, GeoresourceDatasetTableComponent],
+  imports: [CommonModule, FormsModule, GeoresourceDatasetTableComponent, TopicElementComponent],
 })
 export class GeoresourceTopicTreeComponent implements OnChanges {
   @Input() topics: GeoresourcesTopicsHierarchy[] = [];
@@ -63,11 +64,6 @@ export class GeoresourceTopicTreeComponent implements OnChanges {
 
   isTopicFav(topicId: string): boolean {
     return this.topicFavItems.includes(topicId);
-  }
-
-  /** The styled hierarchy levels only go up to 3; deeper nodes reuse level 3. */
-  styleLevel(level: number): number {
-    return Math.min(level, 3);
   }
 
   /** True if the topic or any of its descendants has a selected dataset. */

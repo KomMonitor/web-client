@@ -1,10 +1,27 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { FavoriteStarComponent } from 'components/ngComponents/common/favorite-star/favorite-star.component';
-import { IndicatorsTopicsHierarchy } from 'components/ngComponents/models/indicators.models';
 
 /** Highest nesting depth that still gets its own hierarchy color; deeper levels reuse it. */
 const MAX_STYLED_LEVEL = 4;
+
+/**
+ * Structural shape this component needs from a topic node. Both
+ * `IndicatorsTopicsHierarchy` and `GeoresourcesTopicsHierarchy` satisfy it as-is,
+ * so either hierarchy can be rendered through the same row/level styling without
+ * this component depending on either model directly.
+ */
+export interface TopicElementTopic {
+  topicId: string;
+  topicName: string;
+  topicDescription: string;
+  subTopics?: unknown[];
+  indicatorData?: unknown[];
+  wmsData?: unknown[];
+  poiData?: unknown[];
+  loiData?: unknown[];
+  aoiData?: unknown[];
+}
 
 /**
  * One row of a topic hierarchy: the topic title, an optional favourite-star
@@ -43,7 +60,7 @@ const MAX_STYLED_LEVEL = 4;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TopicElementComponent {
-  readonly topic = input.required<IndicatorsTopicsHierarchy>();
+  readonly topic = input.required<TopicElementTopic>();
   readonly level = input(0);
   readonly collapsed = input(true);
   readonly showFavSelection = input(false);
@@ -52,6 +69,8 @@ export class TopicElementComponent {
   readonly containsSelectedIndicator = input(false);
   /** Purely visual: renders the selected styling without the row actually being selected. */
   readonly preview = input(false);
+  /** Optional count/suffix rendered after the title, e.g. a georesource topic's dataset count. */
+  readonly titleSuffix = input<string | number | null>(null);
 
   readonly toggleCollapse = output<void>();
   readonly favToggled = output<void>();
@@ -61,7 +80,10 @@ export class TopicElementComponent {
     return (
       (topic.subTopics?.length ?? 0) > 0 ||
       (topic.indicatorData?.length ?? 0) > 0 ||
-      (topic.wmsData?.length ?? 0) > 0
+      (topic.wmsData?.length ?? 0) > 0 ||
+      (topic.poiData?.length ?? 0) > 0 ||
+      (topic.loiData?.length ?? 0) > 0 ||
+      (topic.aoiData?.length ?? 0) > 0
     );
   });
 

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TopicElementComponent } from 'components/ngComponents/common/topic-element/topic-element.component';
 import {
   GeoresourcesDataset,
   GeoresourcesTopicsHierarchy,
@@ -36,6 +37,7 @@ import { OgcService } from 'services/ogcServices/ogc.service';
     GeoFavItemFilter,
     IconTranslate,
     ExportItemCheckboxComponent,
+    TopicElementComponent,
   ],
 })
 export class GeoresourceFavTabComponent {

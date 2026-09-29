@@ -107,17 +107,17 @@ describe('TopicElementComponent', () => {
     );
   });
 
-  it('uses the solid "-selected" level color when it contains the selected indicator', () => {
+  it('fills the row with the level color only once it contains the selected indicator', () => {
     fixture.componentRef.setInput('topic', makeTopic());
     fixture.componentRef.setInput('level', 1);
     fixture.detectChanges();
     let row = fixture.debugElement.query(By.css('.topic-element__row'))
       .nativeElement as HTMLElement;
-    expect(row.style.backgroundColor).toBe('var(--kommonitor-hierarchy-level-1)');
+    expect(row.style.backgroundColor).toBe('');
 
     fixture.componentRef.setInput('containsSelectedIndicator', true);
     fixture.detectChanges();
     row = fixture.debugElement.query(By.css('.topic-element__row')).nativeElement as HTMLElement;
-    expect(row.style.backgroundColor).toBe('var(--kommonitor-hierarchy-level-1-selected)');
+    expect(row.style.backgroundColor).toBe('var(--kommonitor-hierarchy-level-1)');
   });
 });

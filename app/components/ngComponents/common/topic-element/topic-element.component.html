@@ -15,8 +15,14 @@
           [class.fa-angle-down]="!collapsed()"
         ></i>
       }
-      <span class="topic-element__title">{{ topic().topicName }}</span>
+      <span class="topic-element__title"
+        >{{ topic().topicName }}
+        @if (titleSuffix() !== null) {
+          ({{ titleSuffix() }})
+        }
+      </span>
     </button>
+    <ng-content select="[topicElementRowExtra]"></ng-content>
     <app-favorite-star
       class="topic-element__fav"
       [visible]="showFavSelection()"
