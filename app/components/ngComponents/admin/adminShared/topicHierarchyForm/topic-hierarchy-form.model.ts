@@ -119,3 +119,17 @@ export function topicOptionsFor(
   }
   return form.controls[TOPIC_LEVEL_KEYS[index - 1]].value?.subTopics ?? [];
 }
+
+/**
+ * The main topics a resource of the given type can be filed under — the store
+ * holds the indicator and georesource trees side by side. Mirrors the legacy
+ * `filter:{topicType:'main'} | filter:{topicResource:…}` of the add modals.
+ */
+export function mainTopicsFor(
+  topics: readonly TopicNode[] | null | undefined,
+  resource: 'indicator' | 'georesource'
+): TopicNode[] {
+  return (topics ?? []).filter(
+    (topic) => topic['topicType'] === 'main' && topic['topicResource'] === resource
+  );
+}

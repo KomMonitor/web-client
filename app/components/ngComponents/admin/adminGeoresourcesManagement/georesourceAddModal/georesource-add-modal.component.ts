@@ -90,6 +90,7 @@ import {
 } from '../../adminShared/attributeMappingDraftForm/attribute-mapping-draft-form.model';
 import { patchPeriodOfValidityForm } from '../../adminShared/periodOfValidityForm/period-of-validity-form.model';
 import {
+  mainTopicsFor,
   patchTopicHierarchyFromChain,
   topicHierarchyToApi,
 } from '../../adminShared/topicHierarchyForm/topic-hierarchy-form.model';
@@ -447,7 +448,7 @@ export class GeoresourceAddModalComponent implements OnInit {
       dashArrayValue: option.dashArrayValue,
       svgString: option.svgString,
     }));
-    this.availableTopics = this.topicStore.availableTopics || [];
+    this.availableTopics = mainTopicsFor(this.topicStore.availableTopics, 'georesource');
 
     // Initialize metadata structure pretty print
     this.georesourceMetadataStructure_pretty = this.indicatorValueService.syntaxHighlightJSON(

@@ -19,6 +19,7 @@ import {
 } from '../../adminShared/resourceMetadataForm/resource-metadata-form.model';
 import { RoleManagementGridComponent } from '../../adminShared/roleManagementPanel/role-management-grid.component';
 import {
+  mainTopicsFor,
   patchTopicHierarchyFromChain,
   topicHierarchyToApi,
   topicOptionsFor,
@@ -710,10 +711,8 @@ export class IndicatorAddFormStateService {
       this.availableGeoresources = this.georesourceStore.availableGeoresources;
     }
 
-    // Load available topics
-    if (this.topicStore.availableTopics) {
-      this.availableTopics = this.topicStore.availableTopics;
-    }
+    // Load the main topics of the indicator tree
+    this.availableTopics = mainTopicsFor(this.topicStore.availableTopics, 'indicator');
 
     // Load color brewer schemes and initialize the per-spatial-unit classification tabs.
     this.classification.init(this.availableSpatialUnits);

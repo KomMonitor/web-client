@@ -915,4 +915,19 @@ describe('IndicatorAddFormStateService', () => {
       });
     });
   });
+
+  describe('topic step', () => {
+    it('offers only the main topics of the indicator tree', () => {
+      const indicatorMain = { topicType: 'main', topicResource: 'indicator', topicId: 't-1' };
+      const georesourceMain = { topicType: 'main', topicResource: 'georesource', topicId: 't-2' };
+      TestBed.inject(TopicMetadataStoreService).availableTopics = [
+        indicatorMain,
+        georesourceMain,
+      ] as any;
+
+      service.loadInitialData();
+
+      expect(service.availableTopics).toEqual([indicatorMain]);
+    });
+  });
 });

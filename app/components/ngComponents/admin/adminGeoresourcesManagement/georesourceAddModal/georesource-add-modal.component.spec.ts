@@ -48,7 +48,20 @@ const GEORESOURCES = [{ datasetName: 'Spielplätze' }, { datasetName: 'Schulen' 
 const SUB_SUB_SUB = { topicId: 't-1-1-1-1', topicName: 'Ebene 4' };
 const SUB_SUB = { topicId: 't-1-1-1', topicName: 'Ebene 3', subTopics: [SUB_SUB_SUB] };
 const SUB = { topicId: 't-1-1', topicName: 'Ebene 2', subTopics: [SUB_SUB] };
-const MAIN = { topicId: 't-1', topicName: 'Umwelt', subTopics: [SUB] };
+const MAIN = {
+  topicId: 't-1',
+  topicName: 'Umwelt',
+  topicType: 'main',
+  topicResource: 'georesource',
+  subTopics: [SUB],
+};
+/** An indicator main topic, which the georesource topic step must not offer. */
+const INDICATOR_MAIN = {
+  topicId: 't-9',
+  topicName: 'Bevölkerung',
+  topicType: 'main',
+  topicResource: 'indicator',
+};
 
 const ATTRIBUTE_MAPPING_TYPES = [{ displayName: 'Text', apiName: 'string' }];
 
@@ -136,7 +149,10 @@ describe('GeoresourceAddModalComponent', () => {
           provide: SpatialUnitMetadataStoreService,
           useValue: { availableSpatialUnits: SPATIAL_UNITS },
         },
-        { provide: TopicMetadataStoreService, useValue: { availableTopics: [MAIN] } },
+        {
+          provide: TopicMetadataStoreService,
+          useValue: { availableTopics: [MAIN, INDICATOR_MAIN] },
+        },
         { provide: TopicHierarchyService, useValue: { getTopicHierarchyForTopicId: () => [] } },
         {
           provide: AccessControlService,
@@ -440,6 +456,14 @@ describe('GeoresourceAddModalComponent', () => {
   });
 
   // ---------------------------------------------------------------------------
+
+  describe('topic step', () => {
+    it('offers only the main topics of the georesource tree', () => {
+      component.ngOnInit();
+
+      expect(component.availableTopics).toEqual([MAIN]);
+    });
+  });
 
   describe('buildPostBody_georesources — topic reference', () => {
     it('uses the main topic when only that is selected', () => {
