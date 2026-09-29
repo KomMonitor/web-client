@@ -7,7 +7,11 @@ import { ChartDisplayStateService } from 'services/chart-display-state-service/c
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { MapService } from 'services/map-service/map.service';
-import { BalancePeriod, BalanceService } from 'services/balance-service/balance.service';
+import {
+  BalancePeriod,
+  BalanceService,
+  BalanceStatistics,
+} from 'services/balance-service/balance.service';
 import * as noUiSlider from 'nouislider';
 
 import { FormsModule } from '@angular/forms';
@@ -60,8 +64,12 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
   sliderDates: string[] = [];
 
   trendChart_allFeatures;
-  trendAnalysis_allFeatures;
+  trendAnalysis_allFeatures?: BalanceStatistics;
+  balanceColor = '';
+  unit = '';
   trendOption;
+  // Shown above the slider and kept current while a handle is dragged.
+  periodLabel?: { from: string; to: string };
 
   someRange;
 
@@ -110,6 +118,19 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
     this.balanceSlider.noUiSlider.on('end', () => {
       this.onChangeBalanceRange(this.getSelectedPeriod());
     });
+    // Cheap enough for every move; "end" above does the actual recomputation.
+    this.balanceSlider.noUiSlider.on('update', () => this.updatePeriodLabel());
+  }
+
+  private updatePeriodLabel() {
+    if (!this.sliderDates.length || !this.selectionState.selectedIndicator) {
+      return;
+    }
+    const period = this.getSelectedPeriod();
+    this.periodLabel = {
+      from: this.balanceService.formatShortDate(period.from),
+      to: this.balanceService.formatShortDate(period.to),
+    };
   }
 
   ngOnDestroy(): void {
@@ -208,6 +229,10 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
       meanValues,
       indicatorMetadata
     );
+    this.balanceColor = this.balanceService.directionColor(
+      this.trendAnalysis_allFeatures.direction
+    );
+    this.unit = indicatorMetadata.unit ?? '';
   }
 
   // The period the slider handles select, snapped onto the selected indicator's dates.

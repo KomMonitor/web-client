@@ -5,6 +5,7 @@ import { DiagramHelperServiceService } from 'services/diagram-helper-service/dia
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { LabelService } from 'services/label-service/label.service';
+import { mergeColorSchemes } from 'components/ngComponents/userInterface/kommonitorClassification/colors';
 
 /** The period a balance covers, as applicable dates (`YYYY-MM-DD`). */
 export interface BalancePeriod {
@@ -22,6 +23,7 @@ export interface BalanceStatistics {
   median: string;
   deviation: string;
   variance: string;
+  /** Signed, e.g. "+2,49". */
   balance: string;
   /** Last minus first value of the period, rounded like the indicator. */
   balanceValue: number;
@@ -43,6 +45,9 @@ const TREND_LABELS: Record<BalanceDirection, string> = {
   falling: 'sinkend',
   constant: 'gleichbleibend',
 };
+
+const NEUTRAL_COLOR = '#6c757d';
+const FALLBACK_PRIMARY_COLOR = '#337ab7';
 
 /**
  * Computations behind the balance panel (Bilanzierung): the period the slider
@@ -161,7 +166,7 @@ export class BalanceService {
       median: format(jStat.median(values)),
       deviation: format(jStat.stdev(values)),
       variance: format(jStat.variance(values)),
-      balance: format(change),
+      balance: (balanceValue > 0 ? '+' : '') + format(change),
       balanceValue,
       direction,
       trend: TREND_LABELS[direction],
@@ -241,6 +246,29 @@ export class BalanceService {
     return options;
   }
 
+  /**
+   * Colour for a balance direction, from the palettes the map colours
+   * increasing and decreasing balances with, so panel and map agree.
+   */
+  directionColor(direction: BalanceDirection): string {
+    if (direction === 'constant') {
+      return NEUTRAL_COLOR;
+    }
+    const paletteName =
+      direction === 'rising'
+        ? this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues
+        : this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues;
+    const palette = mergeColorSchemes(this.envConfigService.customColorSchemes)[paletteName];
+    if (!palette) {
+      return NEUTRAL_COLOR;
+    }
+    // Second-strongest class of the five-class variant: readable as text on
+    // white without being the darkest shade.
+    const classCounts = Object.keys(palette).map(Number);
+    const classes = palette[5] ?? palette[Math.max(...classCounts)];
+    return classes[classes.length - 2] ?? NEUTRAL_COLOR;
+  }
+
   /** `YYYY-MM-DD` as e.g. "31. Dezember 2024", read as a local date. */
   formatLongDate(date: string): string {
     return this.toLocalDate(date).toLocaleDateString('de-DE', {
@@ -288,6 +316,9 @@ export class BalanceService {
     );
     const data = meanValues.map((_value, index) => trendLineValues.get(index) ?? NaN);
 
+    // The app's primary colour sets the trend line off from the grey mean
+    // line and band without the former signal red.
+    const color = this.primaryColor();
     return {
       name: 'Trendlinie',
       type: 'line',
@@ -295,15 +326,15 @@ export class BalanceService {
       data,
       lineStyle: {
         normal: {
-          color: 'red',
-          width: 4,
+          color,
+          width: 3,
           type: 'dashed',
         },
       },
       itemStyle: {
         normal: {
           borderWidth: 3,
-          color: 'red',
+          color,
           opacity: 0,
         },
       },
@@ -320,6 +351,13 @@ export class BalanceService {
         ],
       },
     };
+  }
+
+  private primaryColor(): string {
+    const primary = getComputedStyle(document.documentElement)
+      .getPropertyValue('--kommonitor-primary')
+      .trim();
+    return primary || FALLBACK_PRIMARY_COLOR;
   }
 
   private isInPeriod(date: string, period: BalancePeriod): boolean {

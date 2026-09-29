@@ -113,7 +113,7 @@ describe('BalanceService', () => {
       min: '3',
       max: '5',
       mean: '4',
-      balance: '2',
+      balance: '+2',
       balanceValue: 2,
       direction: 'rising',
       trend: 'steigend',
@@ -128,6 +128,15 @@ describe('BalanceService', () => {
       direction,
       trend,
     });
+  });
+
+  it('colours a direction like the map colours balances', () => {
+    (window as any).__env.defaultColorBrewerPaletteForBalanceIncreasingValues = 'Purples';
+    (window as any).__env.defaultColorBrewerPaletteForBalanceDecreasingValues = 'YlOrBr';
+
+    expect(service.directionColor('rising')).toBe('#756bb1');
+    expect(service.directionColor('falling')).toBe('#d95f0e');
+    expect(service.directionColor('constant')).toBe('#6c757d');
   });
 
   // The balance panel used to clone the line chart the diagrams panel had
