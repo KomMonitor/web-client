@@ -17,24 +17,22 @@ import {
 /**
  * Typed model of the indicator add wizard.
  *
- * One child group per stepper step, with the group names matching the step keys
- * (`metadata` | `general` | `topics` | `referenceValues` | `security`). Two
- * steps stay outside this form:
+ * One child group per form-backed stepper step. The group names do *not* all
+ * match the step keys: step 1 (`metadata`) is the `basic` group, step 2
+ * (`general`) the shared resource-metadata group; `topics`, `referenceValues`
+ * and `security` match. `IndicatorAddFormStateService.stepGroups` holds the
+ * mapping. Two steps stay outside this form:
  *
  * - step 4 (references) keeps its two draft rows in
  *   `buildIndicatorReferenceDraftForm()` groups — they are staging areas for the
  *   reference tables, not part of the payload, and their required rules must
  *   not gate the wizard;
  * - step 5 (classification) is owned by `IndicatorClassificationStateService`,
- *   which is already signal-based and models a per-spatial-unit break matrix
- *   that wants a `FormArray` of its own.
+ *   which is already signal-based and reports its own rules via `stepErrors`.
  *
- * The required controls mirror the step-1 and step-3 entries of
- * `getV3MissingRequiredFields()`. Ownership (step 7) deliberately carries *no*
- * validator: it is required only when creating, not when editing, and `editMode`
- * flips at runtime — that check stays in `getV3MissingRequiredFields()`, which
- * also drives the "missing fields" dialog the wizard shows instead of disabling
- * its submit button.
+ * Ownership (step 7) is built *without* a validator: it is required only when
+ * creating with Keycloak enabled, and `editMode` flips at runtime, so the state
+ * service sets `Validators.required` on it (`syncOwnerRequirement()`).
  */
 
 export type IndicatorBasicStepGroup = FormGroup<{

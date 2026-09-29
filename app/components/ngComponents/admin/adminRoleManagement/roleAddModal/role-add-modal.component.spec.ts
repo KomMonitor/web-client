@@ -31,7 +31,7 @@ describe('RoleAddModalComponent', () => {
   let fixture: ComponentFixture<RoleAddModalComponent>;
 
   const fillRequired = () =>
-    component.form.setValue({
+    component.form.patchValue({
       name: 'Tiefbauamt',
       description: 'Beschreibung',
       contact: 'Kontakt',
@@ -90,6 +90,15 @@ describe('RoleAddModalComponent', () => {
     fillRequired();
 
     expect(component.canSubmit).toBe(false);
+    expect(component.form.controls.parentId.hasError('parentOrMandant')).toBe(true);
+  });
+
+  it('drops the parent error once the unit becomes its own tenant', () => {
+    fillRequired();
+
+    component.form.controls.mandant.setValue(true);
+
+    expect(component.form.controls.parentId.hasError('parentOrMandant')).toBe(false);
   });
 
   it('opens for a tenant unit', () => {
@@ -152,6 +161,44 @@ describe('RoleAddModalComponent', () => {
       contact: 'Kontakt',
       mandant: false,
       parentId: 'ou-1',
+    });
+  });
+
+  describe('submit', () => {
+    // The stepper is protected; the tests drive it like the template does.
+    const stepper = () => (component as any).stepper;
+
+    it('jumps to the basics step instead of posting while fields are missing', () => {
+      const post = jest.spyOn(component, 'addOrganizationalUnit');
+      stepper().goToKey('rights');
+
+      component.onSubmit();
+
+      expect(post).not.toHaveBeenCalled();
+      expect(stepper().isActive('basics')).toBe(true);
+      expect(component.form.controls.parentId.touched).toBe(true);
+      expect(stepper().steps.map((step: { invalid: boolean }) => step.invalid)).toEqual([
+        true,
+        false,
+      ]);
+    });
+
+    it('posts once the form is complete', () => {
+      const post = jest.spyOn(component, 'addOrganizationalUnit').mockReturnValue(undefined);
+      fillRequired();
+      component.form.controls.mandant.setValue(true);
+
+      component.onSubmit();
+
+      expect(post).toHaveBeenCalledTimes(1);
+    });
+
+    it('marks the basics step as soon as it is left incomplete', () => {
+      expect(stepper().steps[0].invalid).toBe(false);
+
+      stepper().next();
+
+      expect(stepper().steps[0].invalid).toBe(true);
     });
   });
 });

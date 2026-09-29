@@ -11,7 +11,7 @@
           [placeholder]="'ADMIN_SHARED_UI.FORM.DESCRIPTION_PLACEHOLDER' | translate"
           required
         ></textarea>
-        <div class="help-block with-errors"></div>
+        <app-form-error [control]="form.controls.description" />
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
@@ -38,7 +38,7 @@
           [placeholder]="'ADMIN_SHARED_UI.FORM.DATASOURCE_PLACEHOLDER' | translate"
           required
         ></textarea>
-        <div class="help-block with-errors"></div>
+        <app-form-error [control]="form.controls.datasource" />
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
@@ -52,7 +52,7 @@
           [placeholder]="'ADMIN_SHARED_UI.FORM.CONTACT_PLACEHOLDER' | translate"
           required
         ></textarea>
-        <div class="help-block with-errors"></div>
+        <app-form-error [control]="form.controls.contact" />
       </div>
     </div>
   </div>
@@ -73,7 +73,7 @@
             </option>
           }
         </select>
-        <div class="help-block with-errors"></div>
+        <app-form-error [control]="form.controls.updateInterval" />
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
@@ -84,8 +84,9 @@
           placeholder="YYYY-MM-DD"
           formControlName="lastUpdate"
           [required]="true"
+          [showErrors]="false"
         ></km-date-picker>
-        <div class="help-block with-errors"></div>
+        <app-form-error [control]="form.controls.lastUpdate" />
       </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">

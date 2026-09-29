@@ -259,15 +259,21 @@
                   </div>
                 }
                 @for (parameter of converter?.parameters; track parameter) {
-                  @if (!parameter.name.includes('CRS')) {
-                    <div formGroupName="converterParameters">
-                      <div class="form-group">
-                        <label
-                          >{{ parameter.name }}
-                          @if (parameter.mandatory) {
-                            <i>*</i>
-                          }
-                        </label>
+                  <div formGroupName="converterParameters">
+                    <div class="form-group">
+                      <label
+                        >{{ parameter.name }}
+                        @if (parameter.mandatory) {
+                          <i>*</i>
+                        }
+                      </label>
+                      @if (parameter.name === 'CRS') {
+                        <km-epsg-picker
+                          [formControlName]="parameter.name"
+                          valueFormat="crs"
+                          label=""
+                        />
+                      } @else {
                         <input
                           type="text"
                           class="form-control"
@@ -277,12 +283,12 @@
                         <div class="help-block">
                           <p>{{ parameter.description }}</p>
                         </div>
-                        <app-form-error
-                          [control]="editForm.controls.converterParameters.get(parameter.name)"
-                        />
-                      </div>
+                      }
+                      <app-form-error
+                        [control]="editForm.controls.converterParameters.get(parameter.name)"
+                      />
                     </div>
-                  }
+                  </div>
                 }
               </div>
               <div class="col-md-3 col-sm-6 col-12">
@@ -317,9 +323,13 @@
                           <input
                             type="file"
                             class="form-control"
-                            #indicatorDataSourceInput
                             id="indicatorDataSourceInput_editFeatures"
+                            (change)="onDataSourceFileSelected($event)"
                             required
+                          />
+                          <app-form-error
+                            [control]="editForm"
+                            [revealWith]="editForm.controls.selectedFile"
                           />
                         </div>
                       }
@@ -350,7 +360,6 @@
                       }
                     </div>
                   }
-                  <div class="help-block with-errors"></div>
                 </div>
               </div>
               <div class="col-md-3 col-sm-6 col-12">
@@ -488,12 +497,7 @@
   >
     <i class="fas fa-undo"></i>&nbsp;{{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
-  <button
-    type="button"
-    class="btn btn-success"
-    [disabled]="editForm.invalid"
-    (click)="editIndicatorFeatures()"
-  >
+  <button type="button" class="btn btn-success" [disabled]="loadingData()" (click)="onSubmit()">
     {{ 'ADMIN_INDICATORS.EDIT_FEATURES.CONTINUE_TIMESERIES' | translate }}
   </button>
 </div>

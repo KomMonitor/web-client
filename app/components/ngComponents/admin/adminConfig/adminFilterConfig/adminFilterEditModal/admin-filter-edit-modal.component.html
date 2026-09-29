@@ -2,7 +2,7 @@
   No <b> around the whole title — `.modal-title` already carries its own weight,
   and the name is set off with the <i><b> pair the topic and group edit dialogs
   use rather than appended to the heading with a bare space. `originalFilterName`
-  instead of `filterName` so the title does not rename itself while the user
+  instead of `nameControl` so the title does not rename itself while the user
   edits the field.
 -->
 <div class="modal-header">
@@ -42,8 +42,8 @@
 
       `appAria` sets the id and, once the user has touched an invalid field, the
       `aria-invalid` / `aria-describedby` pair pointing at <app-form-error>.
-      The submit button is disabled while the name is empty, which said nothing
-      about why; this is the same message every other admin field uses.
+      The submit button stays enabled; submitting without a name marks this field
+      touched and focuses it, so the error shows up where it has to be fixed.
     -->
     <div class="form-group">
       <label class="form-label" for="filter-name"
@@ -54,11 +54,11 @@
         name="filter-name"
         appAria="filter-name"
         required
-        #filterNameModel="ngModel"
-        [(ngModel)]="filterName"
+        #nameInput
+        [formControl]="nameControl"
         class="form-control"
       />
-      <app-form-error [control]="filterNameModel.control" for="filter-name" />
+      <app-form-error [control]="nameControl" for="filter-name" />
     </div>
 
     <!--
@@ -237,7 +237,7 @@
   <button type="button" class="btn btn-outline-secondary" (click)="resetAdminFilterEditForm()">
     {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
-  <button type="button" class="btn btn-success" [disabled]="!canSubmit" (click)="saveAdminFilter()">
+  <button type="button" class="btn btn-success" [disabled]="loadingData()" (click)="onSubmit()">
     @if (isAddMode) {
       {{ 'ADMIN_CONFIG.FILTER_EDIT.SUBMIT_ADD' | translate }}
     } @else {

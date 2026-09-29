@@ -28,6 +28,22 @@ import {
 /** Which process families the type picker offers. */
 export type ProcessFamilyFilter = 'all' | 'indicator' | 'georesource';
 
+/** The dialog steps that carry required input; the intro step has none. */
+export type ScheduleStepKey = 'target' | 'inputs' | 'timing';
+
+/** Steps in dialog order; the submit jumps to the first one with errors. */
+export const SCHEDULE_STEP_KEYS: readonly ScheduleStepKey[] = ['target', 'inputs', 'timing'];
+
+/** What a step can be missing. The values double as i18n keys. */
+export const SCHEDULE_STEP_ERRORS = {
+  PROCESS_REQUIRED: 'ADMIN_SHARED_UI.VALIDATION.REQUIRED',
+  TARGET_INDICATOR_REQUIRED: 'ADMIN_SHARED_UI.VALIDATION.REQUIRED',
+  SPATIAL_UNITS_REQUIRED: 'ADMIN_SCRIPTS.ADD_MODAL.SPATIAL_UNITS_REQUIRED',
+  INPUTS_MISSING: 'ADMIN_SHARED_UI.VALIDATION.REQUIRED',
+  CRON_INVALID: 'ADMIN_SCRIPTS.ADD_MODAL.CRON_INVALID',
+} as const;
+export type ScheduleStepError = keyof typeof SCHEDULE_STEP_ERRORS;
+
 /** One box of the generated form, with its inputs already resolved. */
 export interface ResolvedInputBox {
   box: KommonitorInputBox;
@@ -163,14 +179,89 @@ export class ScheduleDraftService {
     return [];
   });
 
-  readonly isComplete = computed(
-    () =>
-      !!this.selectedProcess() &&
-      !!this.targetIndicatorId() &&
-      this.targetSpatialUnitIds().length > 0 &&
-      this.requiredInputsFilled() &&
-      isValidCronPattern(this.cron())
+  /**
+   * Required inputs the process declares but the user has not filled. The
+   * four target inputs are left out: steps 2 and 4 supply them.
+   */
+  readonly missingInputKeys = computed<string[]>(() => {
+    const declarations = this.selectedProcess()?.description.inputs ?? {};
+    const inputs = this.processInputs();
+
+    return Object.entries(declarations)
+      .filter(
+        ([key]) =>
+          ![
+            'target_indicator_id',
+            'target_spatial_units',
+            'target_time',
+            'execution_interval',
+          ].includes(key)
+      )
+      .filter(([, declaration]) => (declaration.schema?.required ?? []).length > 0)
+      .filter(([key]) => {
+        const value = inputs[key];
+        if (Array.isArray(value)) {
+          return value.length === 0;
+        }
+        return value === undefined || value === null || value === '';
+      })
+      .map(([key]) => key);
+  });
+
+  /**
+   * What each step is still missing. Signal-based rather than form validators,
+   * because the draft is signals — the same shape as the indicator wizard's
+   * `IndicatorClassificationStateService.stepErrors`.
+   */
+  readonly stepErrors = computed<Record<ScheduleStepKey, ScheduleStepError[]>>(() => {
+    const target: ScheduleStepError[] = [];
+    if (!this.selectedProcess()) {
+      target.push('PROCESS_REQUIRED');
+    }
+    if (!this.targetIndicatorId()) {
+      target.push('TARGET_INDICATOR_REQUIRED');
+    }
+    if (this.targetSpatialUnitIds().length === 0) {
+      target.push('SPATIAL_UNITS_REQUIRED');
+    }
+    return {
+      target,
+      inputs: this.missingInputKeys().length > 0 ? ['INPUTS_MISSING'] : [],
+      timing: isValidCronPattern(this.cron()) ? [] : ['CRON_INVALID'],
+    };
+  });
+
+  readonly isComplete = computed(() =>
+    SCHEDULE_STEP_KEYS.every((step) => this.stepErrors()[step].length === 0)
   );
+
+  /**
+   * Steps whose errors are shown: a step is revealed when it is left, and all
+   * of them by a submit attempt. Opening a step never reveals it.
+   */
+  readonly revealedSteps = signal<ReadonlySet<ScheduleStepKey>>(new Set());
+
+  reveal(step: ScheduleStepKey): void {
+    this.revealedSteps.update((steps) => new Set([...steps, step]));
+  }
+
+  revealAll(): void {
+    this.revealedSteps.set(new Set(SCHEDULE_STEP_KEYS));
+  }
+
+  /** The step's marking in the stepper: revealed and still incomplete. */
+  stepInvalid(step: ScheduleStepKey): boolean {
+    return this.revealedSteps().has(step) && this.stepErrors()[step].length > 0;
+  }
+
+  showsError(step: ScheduleStepKey, error: ScheduleStepError): boolean {
+    return this.revealedSteps().has(step) && this.stepErrors()[step].includes(error);
+  }
+
+  /** Whether the message under a required process input is shown. */
+  showsMissingInput(inputKey: string): boolean {
+    return this.revealedSteps().has('inputs') && this.missingInputKeys().includes(inputKey);
+  }
 
   /** Loads the catalogue if it is not in memory yet. */
   async ensureProcessesLoaded(): Promise<void> {
@@ -303,6 +394,7 @@ export class ScheduleDraftService {
     this.useManualCron.set(false);
     this.manualCron.set('0 0 1 * *');
     this.existingSchedule.set(undefined);
+    this.revealedSteps.set(new Set());
   }
 
   /** Every declared input that carries a default starts out with it. */
@@ -367,31 +459,6 @@ export class ScheduleDraftService {
       .reduce((common, list) => common.filter((date) => list.includes(date)))
       .slice()
       .sort();
-  }
-
-  /** Every input the process marks required has to carry a value. */
-  private requiredInputsFilled(): boolean {
-    const declarations = this.selectedProcess()?.description.inputs ?? {};
-    const inputs = this.processInputs();
-
-    return Object.entries(declarations)
-      .filter(
-        ([key]) =>
-          ![
-            'target_indicator_id',
-            'target_spatial_units',
-            'target_time',
-            'execution_interval',
-          ].includes(key)
-      )
-      .filter(([, declaration]) => (declaration.schema?.required ?? []).length > 0)
-      .every(([key]) => {
-        const value = inputs[key];
-        if (Array.isArray(value)) {
-          return value.length > 0;
-        }
-        return value !== undefined && value !== null && value !== '';
-      });
   }
 }
 

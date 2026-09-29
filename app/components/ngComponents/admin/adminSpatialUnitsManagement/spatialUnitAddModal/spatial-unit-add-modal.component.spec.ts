@@ -552,6 +552,7 @@ describe('SpatialUnitAddModalComponent', () => {
         converter: { name: 'GeoJSON', mimeTypes: [], encodings: [], type: 'geojson' },
         datasourceType: { type: 'FILE', parameters: [] },
       });
+      on.addForm.controls.data.controls.selectedFile.setValue(new File(['{}'], 'units.geojson'));
     };
 
     it('stays closed while required fields are missing', () => {
@@ -565,6 +566,81 @@ describe('SpatialUnitAddModalComponent', () => {
       securityGroup().controls.ownerOrganization.setValue('org-1');
 
       expect(component.addForm.valid).toBe(true);
+    });
+
+    it('demands a file for a FILE data source', () => {
+      fillRequired();
+      securityGroup().controls.ownerOrganization.setValue('org-1');
+
+      component.addForm.controls.data.controls.selectedFile.setValue(null);
+
+      expect(component.addForm.controls.data.hasError('fileRequired')).toBe(true);
+    });
+
+    it('jumps to the first incomplete step instead of posting', () => {
+      const post = jest.spyOn(component, 'addSpatialUnit').mockResolvedValue(undefined);
+      fillRequired();
+      component.metadataForm.controls.contact.setValue('');
+      component.stepper.goToKey('data');
+
+      component.onSubmit();
+
+      expect(post).not.toHaveBeenCalled();
+      expect(component.stepper.isActive('general')).toBe(true);
+      // Every step is revealed, not only the one jumped to.
+      expect(component.addForm.controls.security.touched).toBe(true);
+      expect(component.stepper.steps.map((step) => step.invalid)).toEqual([
+        false,
+        true,
+        true,
+        false,
+      ]);
+    });
+
+    it('demands a spatial filter for an OGC API data source', () => {
+      const post = jest.spyOn(component, 'addSpatialUnit').mockResolvedValue(undefined);
+      fillRequired();
+      securityGroup().controls.ownerOrganization.setValue('org-1');
+      // Wires the data source switch, which rebuilds the parameter controls and
+      // clears the property names — so those are set after it.
+      component.ngOnInit();
+      importerGroup().controls.datasourceType.setValue(OGC_DATASOURCE as any);
+      importerGroup().patchValue({ idProperty: 'id', nameProperty: 'name' });
+      importerGroup().controls.datasourceTypeParameters.controls['url'].setValue('https://ogc');
+      component.stepper.goToKey('general');
+
+      component.onSubmit();
+
+      expect(post).not.toHaveBeenCalled();
+      expect(component.stepper.isActive('data')).toBe(true);
+      expect(importerGroup().controls.bboxType.hasError('required')).toBe(true);
+
+      importerGroup().controls.bboxType.setValue('ref');
+      expect(importerGroup().controls.bboxRefSpatialUnitId.hasError('required')).toBe(true);
+
+      importerGroup().controls.bboxRefSpatialUnitId.setValue('su-42');
+      component.onSubmit();
+
+      expect(post).toHaveBeenCalledTimes(1);
+    });
+
+    it('posts once the form is complete', () => {
+      const post = jest.spyOn(component, 'addSpatialUnit').mockResolvedValue(undefined);
+      fillRequired();
+      securityGroup().controls.ownerOrganization.setValue('org-1');
+
+      component.onSubmit();
+
+      expect(post).toHaveBeenCalledTimes(1);
+    });
+
+    it('marks a step as soon as it is left incomplete', () => {
+      expect(component.stepper.steps[0].invalid).toBe(false);
+
+      component.stepper.next();
+
+      expect(component.stepper.steps[0].invalid).toBe(true);
+      expect(component.stepper.steps[2].invalid).toBe(false); // not visited yet
     });
 
     it('does not demand an owner when Keycloak is disabled', () => {

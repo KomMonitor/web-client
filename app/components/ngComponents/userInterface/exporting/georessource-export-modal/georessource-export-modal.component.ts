@@ -16,7 +16,7 @@ import {
   SingleExportParams,
 } from 'services/exporting/exporting.service';
 import { NotificationService } from '../../../common/notification/notification.service';
-import { EpsgSelectorComponent } from '../epsg-selector/epsg-selector.component';
+import { KmEpsgPickerComponent } from '../../../customElements/epsg-picker/km-epsg-picker.component';
 import { ExportGeoressourceCardComponent } from '../export-georessource-card/export-georessource-card.component';
 import { buildTargetTime, mapFormats } from '../export-mapping';
 import { ExportFormat, Georessource, GeoressourceExportItem } from '../models';
@@ -31,7 +31,7 @@ import { ExportFormat, Georessource, GeoressourceExportItem } from '../models';
   templateUrl: './georessource-export-modal.component.html',
   styleUrls: ['./georessource-export-modal.component.scss'],
   standalone: true,
-  imports: [ExportGeoressourceCardComponent, EpsgSelectorComponent],
+  imports: [ExportGeoressourceCardComponent, KmEpsgPickerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeoressourceExportModalComponent implements OnInit {
@@ -48,7 +48,7 @@ export class GeoressourceExportModalComponent implements OnInit {
     selectedFormats: [],
   });
 
-  private selectedEpsgCode = signal<number | null>(4326);
+  protected selectedEpsgCode = signal<number | null>(4326);
 
   isLoading = signal(false);
 
@@ -59,10 +59,6 @@ export class GeoressourceExportModalComponent implements OnInit {
       dataset: this.georessource,
       selectedFormats: [],
     });
-  }
-
-  onEpsgCodeChange(code: number | null): void {
-    this.selectedEpsgCode.set(code);
   }
 
   toggleFormat(format: ExportFormat): void {

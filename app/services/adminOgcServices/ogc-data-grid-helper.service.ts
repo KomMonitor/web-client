@@ -146,7 +146,8 @@ export class OgcDataGridHelperService {
 
   buildEditButton(params: any, hasEditorPermission: boolean) {
     const button = document.createElement('button');
-    button.title = 'Zugriffsschutz und Eigentümerschaft editieren';
+    // The two titles used to be swapped: this button opens the metadata dialog.
+    button.title = 'Metadaten editieren';
     button.className = 'btn btn-warning btn-sm';
 
     if (!hasEditorPermission) {
@@ -175,7 +176,7 @@ export class OgcDataGridHelperService {
 
   buildEditUserRolesButton(params: any, hasCreatorPermission: boolean) {
     const button = document.createElement('button');
-    button.title = 'Metadaten editieren';
+    button.title = 'Zugriffsschutz und Eigentümerschaft editieren';
     button.className = 'btn btn-warning btn-sm';
 
     if (!hasCreatorPermission) {

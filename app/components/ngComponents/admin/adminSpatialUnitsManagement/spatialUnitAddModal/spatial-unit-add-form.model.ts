@@ -18,7 +18,10 @@ import {
   SecurityStepGroup,
   buildSecurityStepForm,
 } from '../../adminShared/securityForm/security-form.model';
-import { uniqueNameValidator } from '../../adminShared/validators/admin-validators';
+import {
+  fileRequiredForFileDatasource,
+  uniqueNameValidator,
+} from '../../adminShared/validators/admin-validators';
 import { toIsoDateString } from '../spatial-unit-import.util';
 import {
   HierarchyAssignmentRowGroup,
@@ -66,6 +69,11 @@ export type SpatialUnitMetadataStepGroup = FormGroup<{
 export type SpatialUnitDataStepGroup = FormGroup<{
   periodOfValidity: PeriodOfValidityFormGroup;
   importer: ImporterFormGroup;
+  /**
+   * The upload for a FILE data source. The file input is no
+   * ControlValueAccessor, so the host writes it from the `(change)` handler.
+   */
+  selectedFile: FormControl<File | null>;
 }>;
 
 export type SpatialUnitAddFormGroup = FormGroup<{
@@ -110,10 +118,14 @@ export function buildSpatialUnitAddForm(
 
   const security = buildSecurityStepForm({ withSecurity: options.withSecurity });
 
-  const data: SpatialUnitDataStepGroup = new FormGroup({
-    periodOfValidity: buildPeriodOfValidityForm({ requireStart: true }),
-    importer: buildImporterForm(),
-  });
+  const data: SpatialUnitDataStepGroup = new FormGroup(
+    {
+      periodOfValidity: buildPeriodOfValidityForm({ requireStart: true }),
+      importer: buildImporterForm(),
+      selectedFile: new FormControl<File | null>(null),
+    },
+    { validators: fileRequiredForFileDatasource() }
+  );
 
   return new FormGroup({
     metadata,

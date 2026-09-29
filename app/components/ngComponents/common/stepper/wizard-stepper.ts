@@ -14,6 +14,13 @@ export interface WizardStepDefinition {
    * re-renders the OnPush host and the stepper along with it.
    */
   invalid?: () => boolean;
+  /**
+   * Runs when the user moves away from this step — by next/previous/goTo or a
+   * click on another bubble. Typically `() => form.controls.<step>.markAllAsTouched()`,
+   * so a step left incomplete gets its invalid marking and field hints even
+   * though none of its fields was ever focused. Not called by `reset()`.
+   */
+  onLeave?: () => void;
 }
 
 /**
@@ -42,6 +49,10 @@ export class WizardStepper {
     return this._currentStep();
   }
   set currentStep(value: number) {
+    const previous = this._currentStep();
+    if (value !== previous) {
+      this.visibleDefinitions[previous - 1]?.onLeave?.();
+    }
     this._currentStep.set(value);
   }
 
@@ -104,7 +115,16 @@ export class WizardStepper {
     }
   }
 
+  /** Jumps to the visible step with the given key; a hidden or unknown key is ignored. */
+  goToKey(key: string): void {
+    const index = this.visibleDefinitions.findIndex((definition) => definition.key === key);
+    if (index >= 0) {
+      this.currentStep = index + 1;
+    }
+  }
+
   reset(): void {
-    this.currentStep = 1;
+    // Bypasses the setter: a reset is not the user leaving the step.
+    this._currentStep.set(1);
   }
 }

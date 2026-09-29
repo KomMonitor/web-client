@@ -2,7 +2,10 @@ import { TestBed } from '@angular/core/testing';
 import { QuantitativeClassificationMapping } from 'components/ngComponents/models/classification.models';
 import { QualitativeClassificationMappingType } from 'models/data-management-api';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { IndicatorClassificationStateService } from './indicator-classification-state.service';
+import {
+  CLASSIFICATION_STEP_ERRORS,
+  IndicatorClassificationStateService,
+} from './indicator-classification-state.service';
 
 const SPATIAL_UNITS = [
   { spatialUnitId: 'su1', spatialUnitLevel: 'Level 1' },
@@ -228,6 +231,95 @@ describe('IndicatorClassificationStateService', () => {
       // Stored overrides are dropped; colors now come from the palette position.
       expect(service.categoryColor(0).color).not.toBe('#123456');
       expect(service.categoryColor(0).color).toBe(service.categoricalPaletteColors()[0]);
+    });
+  });
+
+  describe('stepErrors', () => {
+    beforeEach(() => {
+      service.onColorSchemeSelected('Blues');
+    });
+
+    it('is empty for a computed numeric method with a palette', () => {
+      service.onClassificationMethodSelected('equal_interval');
+
+      expect(service.stepErrors()).toEqual([]);
+      expect(service.invalid()).toBe(false);
+    });
+
+    it('requires a palette outside the individual-colors mode', () => {
+      service.selectedColorBrewerPaletteEntry.set(null);
+
+      expect(service.stepErrors()).toEqual([CLASSIFICATION_STEP_ERRORS.PALETTE_REQUIRED]);
+
+      service.onColorSchemeSelected('INDIVIDUAL');
+
+      expect(service.stepErrors()).toEqual([]);
+    });
+
+    it('requires one fully filled spatial unit for the regional method', () => {
+      service.onClassificationMethodSelected('regional_default');
+
+      expect(service.stepErrors()).toEqual([CLASSIFICATION_STEP_ERRORS.REGIONAL_BREAKS_MISSING]);
+
+      [10, 20, 30].forEach((value, index) => service.setBreak(0, index, value));
+
+      expect(service.stepErrors()).toEqual([CLASSIFICATION_STEP_ERRORS.REGIONAL_BREAKS_MISSING]);
+
+      service.setBreak(0, 3, 40);
+
+      expect(service.stepErrors()).toEqual([]);
+    });
+
+    it('reports breaks that are not ascending', () => {
+      service.onClassificationMethodSelected('regional_default');
+      [10, 20, 30, 40].forEach((value, index) => service.setBreak(0, index, value));
+      service.setBreak(1, 0, 5);
+      service.setBreak(1, 1, 3);
+
+      expect(service.stepErrors()).toEqual([CLASSIFICATION_STEP_ERRORS.INVALID_BREAKS]);
+    });
+
+    it('ignores break problems outside the regional method', () => {
+      service.onClassificationMethodSelected('regional_default');
+      service.setBreak(0, 0, 5);
+      service.setBreak(0, 1, 3);
+      service.setType('QUALITATIVE');
+      service.categories().forEach((_, index) => {
+        service.setCategoryValue(index, `v${index}`);
+        service.setCategoryLabel(index, `l${index}`);
+      });
+
+      expect(service.stepErrors()).toEqual([]);
+    });
+
+    it('requires a value and a label for every category', () => {
+      service.setType('QUALITATIVE');
+      service.onCatNumClassesChanged(2);
+      service.setCategoryValue(0, 'A');
+      service.setCategoryLabel(0, 'Alpha');
+      service.setCategoryValue(1, 'B');
+      service.setCategoryLabel(1, '   ');
+
+      expect(service.stepErrors()).toEqual([CLASSIFICATION_STEP_ERRORS.CATEGORIES_INCOMPLETE]);
+
+      service.setCategoryLabel(1, 'Beta');
+
+      expect(service.stepErrors()).toEqual([]);
+    });
+
+    it('shows an error only once revealed, and reset() hides it again', () => {
+      service.onClassificationMethodSelected('regional_default');
+
+      expect(service.showsError(CLASSIFICATION_STEP_ERRORS.REGIONAL_BREAKS_MISSING)).toBe(false);
+
+      service.revealed.set(true);
+
+      expect(service.showsError(CLASSIFICATION_STEP_ERRORS.REGIONAL_BREAKS_MISSING)).toBe(true);
+      expect(service.showsError(CLASSIFICATION_STEP_ERRORS.PALETTE_REQUIRED)).toBe(false);
+
+      service.reset();
+
+      expect(service.revealed()).toBe(false);
     });
   });
 });

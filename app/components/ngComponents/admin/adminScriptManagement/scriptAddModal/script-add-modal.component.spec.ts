@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { signal } from '@angular/core';
+import { WritableSignal, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -16,6 +16,7 @@ describe('ScriptAddModalComponent (methodology patch, C9)', () => {
   let get: jest.Mock;
   let patch: jest.Mock;
   let submit: jest.Mock;
+  let stepErrors: WritableSignal<Record<string, string[]>>;
 
   const STORED_INDICATOR = {
     indicatorId: 'ind-1',
@@ -39,6 +40,7 @@ describe('ScriptAddModalComponent (methodology patch, C9)', () => {
   };
 
   beforeEach(() => {
+    stepErrors = signal<Record<string, string[]>>({ target: [], inputs: [], timing: [] });
     get = jest.fn().mockReturnValue(of(STORED_INDICATOR));
     patch = jest.fn().mockReturnValue(of({}));
     submit = jest.fn().mockResolvedValue(undefined);
@@ -58,7 +60,12 @@ describe('ScriptAddModalComponent (methodology patch, C9)', () => {
             submit,
             reset: jest.fn(),
             ensureProcessesLoaded: jest.fn().mockResolvedValue(undefined),
-            isComplete: () => true,
+            isComplete: () =>
+              Object.values(stepErrors()).every((errors: string[]) => errors.length === 0),
+            stepErrors,
+            revealAll: jest.fn(),
+            reveal: jest.fn(),
+            stepInvalid: jest.fn(() => false),
             targetIndicatorId: signal('ind-1'),
             selectedProcess: signal({
               id: 'KmIndicatorSum',
@@ -150,5 +157,37 @@ describe('ScriptAddModalComponent (methodology patch, C9)', () => {
     expect(patch).not.toHaveBeenCalled();
     expect(component.showErrorAlert()).toBe(true);
     expect(component.showSuccessAlert()).toBe(false);
+  });
+
+  describe('submit gate', () => {
+    it('jumps to the first incomplete step instead of registering', () => {
+      stepErrors.set({ target: [], inputs: ['INPUTS_MISSING'], timing: ['CRON_INVALID'] });
+      build();
+      const draft = TestBed.inject(ScheduleDraftService) as unknown as { revealAll: jest.Mock };
+
+      component.onSubmit();
+
+      expect(submit).not.toHaveBeenCalled();
+      expect(draft.revealAll).toHaveBeenCalled();
+      expect(component.stepper.isActive('inputs')).toBe(true);
+    });
+
+    it('registers once every step is complete', () => {
+      build();
+
+      component.onSubmit();
+
+      expect(submit).toHaveBeenCalledTimes(1);
+    });
+
+    it('reveals a step when it is left', () => {
+      build();
+      const draft = TestBed.inject(ScheduleDraftService) as unknown as { reveal: jest.Mock };
+      component.stepper.goToKey('target');
+
+      component.stepper.next();
+
+      expect(draft.reveal).toHaveBeenCalledWith('target');
+    });
   });
 });

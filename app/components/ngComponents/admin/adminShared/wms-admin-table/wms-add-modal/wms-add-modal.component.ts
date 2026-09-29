@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
 import {
   ChangeDetectionStrategy,
@@ -19,7 +18,6 @@ import {
   Validators,
 } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { WmsDataset, WmsResourceType } from 'components/ngComponents/models/services.models';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
@@ -34,12 +32,19 @@ import { StepperComponent } from 'components/ngComponents/common/stepper/stepper
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { TopicHierarchyFormComponent } from '../../topicHierarchyForm/topic-hierarchy-form.component';
 import { FormErrorComponent } from '../../formError/form-error.component';
+import { FormControlAriaDirective } from '../../formError/form-control-aria.directive';
+import { controlInvalidSignal } from '../../forms/control-state';
 import {
   buildTopicHierarchyForm,
   topicHierarchyToApi,
 } from '../../topicHierarchyForm/topic-hierarchy-form.model';
 import { buildSecurityStepForm } from '../../securityForm/security-form.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
+
+// Step keys in stepper order; onSubmit() jumps to the first invalid one.
+const STEP_KEYS = ['metadata', 'connection', 'topics', 'security'] as const;
+type StepKey = (typeof STEP_KEYS)[number];
 
 @Component({
   selector: 'app-wms-add-modal',
@@ -54,6 +59,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     AdminTopicsManagementComponent,
     TopicHierarchyFormComponent,
     FormErrorComponent,
+    FormControlAriaDirective,
     StepperComponent,
     RoleManagementGridComponent,
     OwnerOrganizationSelectComponent,
@@ -74,21 +80,9 @@ export class WmsAddModalComponent implements OnInit {
 
   @ViewChild(RoleManagementGridComponent) roleGrid?: RoleManagementGridComponent;
 
-  // Multi-step form; the security step is only present when Keycloak is
-  // enabled (fixes navigating onto a blank fourth step without Keycloak —
-  // totalSteps was hard-coded to 4 before).
-  readonly stepper = new WizardStepper([
-    { key: 'metadata', label: 'ADMIN_SHARED_UI.STEP_LABELS.WMS_METADATA' },
-    { key: 'connection', label: 'ADMIN_SHARED_UI.STEP_LABELS.WMS_REQUEST_PARAMETERS' },
-    { key: 'topics', label: 'ADMIN_SHARED_UI.TOPICS.TITLE' },
-    {
-      key: 'security',
-      label: 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE',
-      when: () => this.envConfigService.enableKeycloakSecurity,
-    },
-  ]);
-
-  isSubmitting = false;
+  // True while the registration request is in flight; the only reason the
+  // submit button is disabled (an incomplete form jumps to its first gap instead).
+  readonly isSubmitting = signal(false);
   // Signals: toggled from async HTTP callbacks and read by the template (OnPush)
   errorMessage = signal(false);
   successMessage = signal(false);
@@ -96,8 +90,6 @@ export class WmsAddModalComponent implements OnInit {
 
   testErrorMessage = signal(false);
   testSuccessMessage = signal(false);
-
-  wmsTestStatus: boolean | undefined = undefined;
 
   metadataForm = new FormGroup({
     title: new FormControl<string>('', Validators.required),
@@ -122,6 +114,65 @@ export class WmsAddModalComponent implements OnInit {
   readonly securityForm = buildSecurityStepForm({
     withSecurity: this.envConfigService.enableKeycloakSecurity,
   });
+  // Per-step invalid markings; shown only once a step has been touched/left.
+  private readonly metadataStepInvalid = controlInvalidSignal(this.metadataForm, {
+    whenTouched: true,
+  });
+  private readonly connectionStepInvalid = controlInvalidSignal(this.connectForm, {
+    whenTouched: true,
+  });
+  private readonly topicsStepInvalid = controlInvalidSignal(this.topicsForm, {
+    whenTouched: true,
+  });
+  private readonly securityStepInvalid = controlInvalidSignal(this.securityForm, {
+    whenTouched: true,
+  });
+
+  // Multi-step form; the security step is only present when Keycloak is
+  // enabled (fixes navigating onto a blank fourth step without Keycloak —
+  // totalSteps was hard-coded to 4 before).
+  readonly stepper = new WizardStepper([
+    {
+      key: 'metadata',
+      label: 'ADMIN_SHARED_UI.STEP_LABELS.WMS_METADATA',
+      invalid: this.metadataStepInvalid,
+      onLeave: () => this.metadataForm.markAllAsTouched(),
+    },
+    {
+      key: 'connection',
+      label: 'ADMIN_SHARED_UI.STEP_LABELS.WMS_REQUEST_PARAMETERS',
+      invalid: this.connectionStepInvalid,
+      onLeave: () => this.connectForm.markAllAsTouched(),
+    },
+    {
+      key: 'topics',
+      label: 'ADMIN_SHARED_UI.TOPICS.TITLE',
+      invalid: this.topicsStepInvalid,
+      onLeave: () => this.topicsForm.markAllAsTouched(),
+    },
+    {
+      key: 'security',
+      label: 'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE',
+      when: () => this.envConfigService.enableKeycloakSecurity,
+      invalid: this.securityStepInvalid,
+      onLeave: () => this.securityForm.markAllAsTouched(),
+    },
+  ]);
+
+  /** The form group behind each wizard step. */
+  private stepForm(key: StepKey) {
+    switch (key) {
+      case 'metadata':
+        return this.metadataForm;
+      case 'connection':
+        return this.connectForm;
+      case 'topics':
+        return this.topicsForm;
+      case 'security':
+        return this.securityForm;
+    }
+  }
+
   get ownerOrganization(): string {
     return this.securityForm.controls.ownerOrganization.value;
   }
@@ -147,6 +198,28 @@ export class WmsAddModalComponent implements OnInit {
     this.activeModal.close(true);
   }
 
+  /**
+   * Submit handler of the always-active button: registers when every step is
+   * valid, otherwise reveals all field errors and jumps to the first
+   * incomplete step. The security form is valid by construction with Keycloak
+   * off (no owner validator), so its hidden step is never a jump target.
+   */
+  onSubmit(): void {
+    if (this.isSubmitting()) {
+      return;
+    }
+    const forms = STEP_KEYS.map((key) => this.stepForm(key));
+    if (forms.every((form) => form.valid)) {
+      this.addWms();
+      return;
+    }
+    forms.forEach((form) => form.markAllAsTouched());
+    const firstInvalidStep = STEP_KEYS.find((key) => this.stepForm(key).invalid);
+    if (firstInvalidStep) {
+      this.stepper.goToKey(firstInvalidStep);
+    }
+  }
+
   addWms() {
     const data = {
       title: this.metadataForm.controls.title.value,
@@ -168,20 +241,24 @@ export class WmsAddModalComponent implements OnInit {
       permissions: this.roleGrid?.getSelectedRoleIds() ?? [],
     };
 
-    this.ogcService.registerWms(data).subscribe({
-      next: (response) => {
-        this.successMessagePart.set(response.title);
-        this.successMessage.set(true);
-        this.resetWmsAddForm();
-        // resetWmsAddForm rewrites several plain template-bound fields
-        // (topic selections, owner, isPublic) from this async callback.
-        this.cdr.markForCheck();
-      },
-      error: (error) => {
-        this.errorMessagePart.set(error.message);
-        this.errorMessage.set(true);
-      },
-    });
+    this.isSubmitting.set(true);
+    this.ogcService
+      .registerWms(data)
+      .pipe(finalize(() => this.isSubmitting.set(false)))
+      .subscribe({
+        next: (response) => {
+          this.successMessagePart.set(response.title);
+          this.successMessage.set(true);
+          this.resetWmsAddForm();
+          // resetWmsAddForm rewrites several plain template-bound fields
+          // (topic selections, owner, isPublic) from this async callback.
+          this.cdr.markForCheck();
+        },
+        error: (error) => {
+          this.errorMessagePart.set(error.message);
+          this.errorMessage.set(true);
+        },
+      });
   }
 
   resetWmsAddForm() {
@@ -190,7 +267,10 @@ export class WmsAddModalComponent implements OnInit {
     this.topicsForm.reset();
     this.securityForm.reset();
 
-    this.wmsTestStatus = undefined;
+    // A connection test belongs to the form being reset; its alert must not
+    // outlive it (e.g. an old failure shown next to a successful register).
+    this.testSuccessMessage.set(false);
+    this.testErrorMessage.set(false);
 
     this.roleGrid?.reset();
 

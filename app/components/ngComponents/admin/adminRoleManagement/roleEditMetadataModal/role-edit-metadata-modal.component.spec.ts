@@ -15,9 +15,9 @@ import { NotificationService } from 'components/ngComponents/common/notification
 import { RoleEditMetadataModalComponent } from './role-edit-metadata-modal.component';
 
 /**
- * Covers the name-uniqueness rule and the write-back onto `currentDataset`,
- * which the service consumes. The fixture is not rendered, following the other
- * modal specs in this repo.
+ * Covers the name-uniqueness rule, the write-back onto `currentDataset`, which
+ * the service consumes, and the always-active submit button. Only the submit
+ * tests render the fixture; they need the DOM for the error messages and focus.
  */
 
 const ACCESS_CONTROL = [
@@ -75,20 +75,20 @@ describe('RoleEditMetadataModalComponent', () => {
   });
 
   it('accepts the unit keeping its own name', () => {
-    expect(component.nameInvalid).toBe(false);
+    expect(component.form.controls.name.hasError('uniqueName')).toBe(false);
     expect(component.form.valid).toBe(true);
   });
 
   it('rejects the name of another organizational unit', () => {
     component.form.controls.name.setValue('Umweltamt');
 
-    expect(component.nameInvalid).toBe(true);
+    expect(component.form.controls.name.hasError('uniqueName')).toBe(true);
   });
 
   it('accepts a name nobody else uses', () => {
     component.form.controls.name.setValue('Tiefbauamt');
 
-    expect(component.nameInvalid).toBe(false);
+    expect(component.form.controls.name.hasError('uniqueName')).toBe(false);
   });
 
   it('requires a name', () => {
@@ -118,5 +118,88 @@ describe('RoleEditMetadataModalComponent', () => {
     component.editMetadata();
 
     expect(editOrganizationalUnit).not.toHaveBeenCalled();
+  });
+
+  it('requires a description and a contact', () => {
+    component.form.patchValue({ description: '', contact: '' });
+
+    expect(component.form.controls.description.hasError('required')).toBe(true);
+    expect(component.form.controls.contact.hasError('required')).toBe(true);
+  });
+
+  describe('submit button', () => {
+    const submitButton = (): HTMLButtonElement =>
+      fixture.nativeElement.querySelector('.modal-footer .btn-success');
+    const errorMessages = (): HTMLElement[] =>
+      Array.from(fixture.nativeElement.querySelectorAll('app-form-error .with-errors'));
+
+    beforeEach(() => {
+      // Attached to the document so that focus() actually moves the focus.
+      document.body.appendChild(fixture.nativeElement);
+      // First render; it runs ngOnInit again, so edit the form only afterwards.
+      fixture.detectChanges();
+    });
+
+    afterEach(() => {
+      fixture.nativeElement.remove();
+    });
+
+    it('stays enabled and does not save an incomplete form', () => {
+      component.form.patchValue({ description: '', contact: '' });
+      fixture.detectChanges();
+
+      expect(submitButton().disabled).toBe(false);
+      submitButton().click();
+      fixture.detectChanges();
+
+      expect(editOrganizationalUnit).not.toHaveBeenCalled();
+      expect(errorMessages()).toHaveLength(2);
+      expect(document.activeElement).toBe(
+        fixture.nativeElement.querySelector('textarea[name="description"]')
+      );
+    });
+
+    it('focuses the name when it is taken by another unit', () => {
+      component.form.controls.name.setValue('Umweltamt');
+      fixture.detectChanges();
+
+      submitButton().click();
+      fixture.detectChanges();
+
+      expect(editOrganizationalUnit).not.toHaveBeenCalled();
+      expect(document.activeElement).toBe(
+        fixture.nativeElement.querySelector('input[type="text"]')
+      );
+    });
+
+    it('links each label to its field and each error to the field it describes', () => {
+      for (const id of [
+        'role-metadata-name',
+        'role-metadata-description',
+        'role-metadata-contact',
+      ]) {
+        expect(fixture.nativeElement.querySelector(`label[for="${id}"]`)).not.toBeNull();
+        expect(fixture.nativeElement.querySelector(`#${id}`)).not.toBeNull();
+      }
+
+      component.form.patchValue({ description: '' });
+      submitButton().click();
+      fixture.detectChanges();
+
+      const description: HTMLElement = fixture.nativeElement.querySelector(
+        '#role-metadata-description'
+      );
+      expect(description.getAttribute('aria-invalid')).toBe('true');
+      expect(description.getAttribute('aria-describedby')).toBe('role-metadata-description-error');
+      expect(
+        fixture.nativeElement.querySelector('#role-metadata-description-error')
+      ).not.toBeNull();
+    });
+
+    it('saves a complete form', () => {
+      submitButton().click();
+
+      expect(editOrganizationalUnit).toHaveBeenCalledWith(component.currentDataset, 'Stadtplanung');
+    });
   });
 });

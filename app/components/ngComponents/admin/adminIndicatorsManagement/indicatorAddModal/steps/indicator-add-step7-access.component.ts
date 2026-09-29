@@ -11,6 +11,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IndicatorAddFormStateService } from '../indicator-add-form-state.service';
 import { RoleManagementGridComponent } from '../../../adminShared/roleManagementPanel/role-management-grid.component';
+import { FormErrorComponent } from '../../../adminShared/formError/form-error.component';
+import { FormControlAriaDirective } from '../../../adminShared/formError/form-control-aria.directive';
 
 @Component({
   selector: 'app-indicator-add-step7-access',
@@ -22,6 +24,8 @@ import { RoleManagementGridComponent } from '../../../adminShared/roleManagement
     FormsModule,
     ReactiveFormsModule,
     RoleManagementGridComponent,
+    FormErrorComponent,
+    FormControlAriaDirective,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

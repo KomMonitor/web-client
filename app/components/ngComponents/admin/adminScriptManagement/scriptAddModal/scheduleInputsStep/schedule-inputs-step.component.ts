@@ -13,7 +13,11 @@ import {
 } from 'components/ngComponents/models/schedules.models';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
-import { ScheduleDraftService } from 'services/schedule-draft-service/schedule-draft.service';
+import {
+  ResolvedInputBox,
+  SCHEDULE_STEP_ERRORS,
+  ScheduleDraftService,
+} from 'services/schedule-draft-service/schedule-draft.service';
 import { buildPolarityEntry } from 'services/processes-api-service/schedule-input-builder.util';
 
 /** One base indicator plus the polarity it enters the normalisation with. */
@@ -69,6 +73,19 @@ const NUMERIC_SCHEMA_TYPES = new Set([
  * own `schema` — that is what covers `computation_method`,
  * `aggregation_method`, `comp_meth` and `num_value`.
  */
+/** Boxes with a dedicated picker in the template; every other box is generic. */
+const DEDICATED_BOX_IDS: readonly string[] = [
+  'computation_id',
+  'reference_id',
+  'computation_ids',
+  'computation_ids_with_polarity',
+  'reference_date',
+  'georesource_id',
+  'georesource_id_line',
+  'compProp',
+  'comp_filter',
+];
+
 @Component({
   selector: 'app-schedule-inputs-step',
   standalone: true,
@@ -84,8 +101,20 @@ const NUMERIC_SCHEMA_TYPES = new Set([
 })
 export class ScheduleInputsStepComponent {
   protected draft = inject(ScheduleDraftService);
+  protected readonly requiredMessage = SCHEDULE_STEP_ERRORS.INPUTS_MISSING;
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
+
+  /**
+   * Whether a box rendered by one of the dedicated pickers is missing a
+   * required input. The generic branch shows its message per field instead.
+   */
+  protected showsMissingInBox(resolved: ResolvedInputBox): boolean {
+    return (
+      DEDICATED_BOX_IDS.includes(resolved.box.id) &&
+      resolved.inputs.some(([inputKey]) => this.draft.showsMissingInput(inputKey))
+    );
+  }
 
   constructor() {
     // The feature table is fetched when a filter property is picked, but this

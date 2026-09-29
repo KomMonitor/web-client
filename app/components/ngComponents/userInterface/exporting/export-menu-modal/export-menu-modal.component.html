@@ -18,7 +18,7 @@
         </expandable-box>
 
         <expandable-box title="Export starten" [collapsed]="false" [isCollapsible]="false">
-          <app-epsg-selector (epsgCodeChange)="onEpsgCodeChange($event)" class="mb-3 d-block" />
+          <km-epsg-picker [(code)]="stateSrvc.selectedEpsgCode" class="mb-3 d-block" />
           @if (isLoading()) {
             <div class="alert alert-info py-2 mb-2" role="status">
               <i class="fas fa-spinner fa-spin me-1"></i>

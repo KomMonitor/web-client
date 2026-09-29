@@ -35,6 +35,12 @@ describe('resolveFormError', () => {
     expect(resolved!.key).toBe(`${FORM_ERROR_I18N_PREFIX}REQUIRED`);
   });
 
+  it('prefers the EPSG picker message over required for a mistyped code', () => {
+    const resolved = resolveFormError({ required: true, epsgCode: true });
+
+    expect(resolved!.key).toBe(`${FORM_ERROR_I18N_PREFIX}EPSG_CODE`);
+  });
+
   it('maps the shared admin validators', () => {
     expect(resolveFormError({ uniqueName: { name: 'Stadtteile' } })).toEqual({
       key: `${FORM_ERROR_I18N_PREFIX}UNIQUE_NAME`,

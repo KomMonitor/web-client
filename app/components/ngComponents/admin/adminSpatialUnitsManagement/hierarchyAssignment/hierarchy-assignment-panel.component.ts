@@ -63,11 +63,17 @@ export class HierarchyAssignmentPanelComponent {
    * the edit dialog refills it from the dataset — and neither replaces the
    * array, so this view never sees a changed input and would keep rendering
    * the rows it last drew.
+   *
+   * `events` rather than `valueChanges`: it also carries the touched change of
+   * a host-side `markAllAsTouched` (leaving the step, submitting), which is
+   * what reveals the "no hierarchy chosen" message of an unfinished row. The
+   * `ng-touched` class binding of `formControlName` happens to track that
+   * state as a signal too, but the message should not hinge on it.
    */
   @Input({ required: true }) set rows(value: FormArray<HierarchyAssignmentRowGroup>) {
     this.rowArray = value;
     this.rowChanges?.unsubscribe();
-    this.rowChanges = value?.valueChanges
+    this.rowChanges = value?.events
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.cdr.markForCheck());
   }

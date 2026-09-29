@@ -18,7 +18,7 @@ import { RoleManagementGridComponent } from '../../adminShared/roleManagementPan
  * Safety net for the wizard's request-body builders, ahead of the planned typing /
  * Reactive-Forms rework of this service.
  *
- * Scope on purpose: the builders, the submit gate and the edit-mode seeding — the
+ * Scope on purpose: the builders, the per-step submit gate and the edit-mode seeding — the
  * pure logic. Deliberately NOT re-tested here because they have their own specs:
  * the classification mapping (`indicator-classification-state.service.spec.ts`),
  * the metadata form model (`resource-metadata-form.model.spec.ts`), the role/owner
@@ -173,6 +173,7 @@ describe('IndicatorAddFormStateService', () => {
       datasource: 'Quelle',
       contact: 'Kontakt',
       updateInterval: UPDATE_INTERVAL_OPTIONS[0],
+      lastUpdate: '2026-01-01',
     });
     service.classification.init(SPATIAL_UNITS);
     service.classification.onColorSchemeSelected('Blues');
@@ -400,93 +401,156 @@ describe('IndicatorAddFormStateService', () => {
   });
 
   // ---------------------------------------------------------------------------
-  // getV3MissingRequiredFields — the submit gate
+  // Per-step validity — the submit gate
   // ---------------------------------------------------------------------------
 
-  describe('getV3MissingRequiredFields', () => {
-    it('reports one entry per blank required field on an empty form', () => {
-      const labels = service.getV3MissingRequiredFields().map((entry) => entry.label);
+  describe('step validity', () => {
+    it('reports every step with required fields on an empty form', () => {
+      service.classification.init(SPATIAL_UNITS);
+      service.classification.onClassificationMethodSelected('regional_default');
 
-      expect(labels).toEqual(
-        expect.arrayContaining([
-          'Indikatorname (Schritt 1)',
-          'Einheit (Schritt 1)',
-          'Interpretation (Schritt 1)',
-          'Fortführungstyp (Schritt 1)',
-          'Beschreibung (Schritt 2)',
-          'Datenquelle (Schritt 2)',
-          'Datenhalter und Kontakt (Schritt 2)',
-          'Aktualisierungszyklus (Schritt 2)',
-          'Eigentümer-Organisation (Schritt 7)',
-        ])
-      );
+      expect(service.isStepInvalid('metadata')).toBe(true);
+      expect(service.isStepInvalid('general')).toBe(true);
+      expect(service.isStepInvalid('topics')).toBe(true);
+      expect(service.isStepInvalid('classification')).toBe(true);
+      expect(service.isStepInvalid('security')).toBe(true);
+      expect(service.firstInvalidStepKey()).toBe('metadata');
     });
 
     it('reports nothing once every required field is filled', () => {
       fillRequiredFields();
 
-      expect(service.getV3MissingRequiredFields()).toEqual([]);
+      expect(service.firstInvalidStepKey()).toBeNull();
+      expect(service.addForm.valid).toBe(true);
     });
 
-    it('does not flag booleans, empty tags/permissions or characteristicValue', () => {
+    it('does not require booleans, tags, abbreviation or the process description', () => {
       fillRequiredFields();
       service.indicatorTagsString_withCommas = '';
+      service.indicatorAbbreviation = '';
+      service.indicatorProcessDescription = '';
       service.isHeadlineIndicator = false;
       service.isPublic = false;
 
-      const labels = service.getV3MissingRequiredFields().map((entry) => entry.label);
-
-      expect(labels).toEqual([]);
+      expect(service.firstInvalidStepKey()).toBeNull();
     });
 
-    it('drops the ownership requirement in edit mode', () => {
+    it.each([
+      ['datasetName', 'metadata'],
+      ['indicatorUnit', 'metadata'],
+      ['indicatorInterpretation', 'metadata'],
+      ['indicatorCreationType', 'metadata'],
+    ] as const)('flags the %s control of the %s step when blank', (field, step) => {
+      fillRequiredFields();
+      service.addForm.controls.basic.controls[field].setValue(
+        field === 'indicatorCreationType' ? null : ''
+      );
+
+      expect(service.firstInvalidStepKey()).toBe(step);
+    });
+
+    it('flags a name already taken by an indicator of the same type', () => {
+      fillRequiredFields();
+      service.indicatorType = INDICATOR_TYPE_OPTIONS[0];
+      const store = TestBed.inject(IndicatorMetadataStoreService) as any;
+      store.availableIndicators = [{ indicatorName: 'Neuer Indikator', indicatorType: 'VALUE' }];
+      service.checkDatasetName();
+
+      expect(service.addForm.controls.basic.controls.datasetName.hasError('uniqueName')).toBe(true);
+      expect(service.firstInvalidStepKey()).toBe('metadata');
+    });
+
+    it.each(['description', 'datasource', 'contact', 'updateInterval', 'lastUpdate'] as const)(
+      'flags the general step when %s is blank',
+      (field) => {
+        fillRequiredFields();
+        service.metadataForm.controls[field].setValue(null as any);
+
+        expect(service.firstInvalidStepKey()).toBe('general');
+      }
+    );
+
+    it('flags the topics step without a main topic', () => {
+      fillRequiredFields();
+      service.indicatorTopic_mainTopic = null;
+
+      expect(service.firstInvalidStepKey()).toBe('topics');
+    });
+
+    it('flags the classification step from the classification rules', () => {
+      fillRequiredFields();
+      service.classification.onClassificationMethodSelected('regional_default');
+
+      expect(service.firstInvalidStepKey()).toBe('classification');
+    });
+
+    it('requires the owner when creating with Keycloak enabled', () => {
       fillRequiredFields();
       service.ownerOrganization = null;
-      expect(service.getV3MissingRequiredFields().map((e) => e.label)).toContain(
-        'Eigentümer-Organisation (Schritt 7)'
-      );
 
-      service.editMode = true;
-
-      expect(service.getV3MissingRequiredFields()).toEqual([]);
+      expect(service.firstInvalidStepKey()).toBe('security');
     });
 
-    it('requires at least two complete categories for a categorical classification', () => {
+    it('drops the owner requirement in edit mode', () => {
       fillRequiredFields();
-      jest.spyOn(service.classification, 'buildDefaultClassificationMapping').mockReturnValue({
-        classificationType: 'QUALITATIVE',
-        colorBrewerSchemeName: 'Blues',
-        categoricalData: [{ categoricalValue: 'A', label: '' }],
-      } as any);
+      service.enterEditMode({ indicatorId: 'ind-9', indicatorName: 'Alt' });
+      fillRequiredFields();
+      service.ownerOrganization = null;
 
-      const labels = service.getV3MissingRequiredFields().map((entry) => entry.label);
-
-      expect(labels).toContain('Klassifizierung: mindestens 2 Kategorien (Schritt 5)');
-      expect(labels).toContain('Klassifizierung: Wert und Label für jede Kategorie (Schritt 5)');
+      expect(service.addForm.controls.security.controls.ownerOrganization.valid).toBe(true);
+      expect(service.firstInvalidStepKey()).toBeNull();
     });
 
-    it('requires complete breaks only for the regional-default method', () => {
-      fillRequiredFields();
-      const mapping: any = {
-        classificationType: 'QUANTITATIVE',
-        colorBrewerSchemeName: 'Blues',
-        classificationMethod: 'EQUAL_INTERVAL',
-        numClasses: 5,
-        items: [],
-      };
-      const build = jest
-        .spyOn(service.classification, 'buildDefaultClassificationMapping')
-        .mockReturnValue(mapping);
-
-      // computed method: breaks are derived from the data, so empty items are fine
-      expect(service.getV3MissingRequiredFields()).toEqual([]);
-
-      mapping.classificationMethod = 'REGIONAL_DEFAULT';
-      build.mockReturnValue(mapping);
-
-      expect(service.getV3MissingRequiredFields().map((e) => e.label)).toContain(
-        'Klassifizierung: vollständige Klassengrenzen für mind. eine Raumeinheit (Schritt 5)'
+    it('drops the owner requirement without Keycloak', () => {
+      (TestBed.inject(EnvConfigService) as any).enableKeycloakSecurity = false;
+      const withoutKeycloak = TestBed.runInInjectionContext(
+        () => new IndicatorAddFormStateService()
       );
+
+      withoutKeycloak.ownerOrganization = null;
+
+      expect(withoutKeycloak.addForm.controls.security.controls.ownerOrganization.valid).toBe(true);
+      expect(withoutKeycloak.stepper.steps.map((step) => step.label)).not.toContain(
+        'ADMIN_SHARED_UI.SECURITY.ACCESS_OWNERSHIP_TITLE'
+      );
+    });
+
+    it('revealAllErrors touches every step group and reveals the classification', () => {
+      service.revealAllErrors();
+
+      expect(service.addForm.controls.basic.touched).toBe(true);
+      expect(service.addForm.controls.general.touched).toBe(true);
+      expect(service.addForm.controls.topics.touched).toBe(true);
+      expect(service.addForm.controls.security.touched).toBe(true);
+      expect(service.classification.revealed()).toBe(true);
+    });
+
+    it('marks a step in the stepper only once it was left', () => {
+      service.classification.init(SPATIAL_UNITS);
+      const invalidFlags = () => service.stepper.steps.map((step) => step.invalid);
+
+      expect(invalidFlags().every((flag) => !flag)).toBe(true);
+
+      service.stepper.next(); // leaves step 1 (metadata)
+
+      expect(invalidFlags()[0]).toBe(true);
+      expect(invalidFlags()[1]).toBe(false);
+    });
+
+    it('resetForm clears the markings of a previous submit attempt', () => {
+      fillRequiredFields();
+      service.revealAllErrors();
+      service.addForm.controls.basic.controls.datasetName.markAsDirty();
+
+      service.resetForm();
+
+      expect(service.addForm.controls.basic.touched).toBe(false);
+      expect(service.addForm.controls.basic.dirty).toBe(false);
+      expect(service.addForm.controls.general.touched).toBe(false);
+      expect(service.addForm.controls.topics.touched).toBe(false);
+      expect(service.addForm.controls.security.touched).toBe(false);
+      expect(service.classification.revealed()).toBe(false);
+      expect(service.stepper.steps.every((step) => !step.invalid)).toBe(true);
     });
   });
 
@@ -849,6 +913,21 @@ describe('IndicatorAddFormStateService', () => {
         month: 8,
         day: 17,
       });
+    });
+  });
+
+  describe('topic step', () => {
+    it('offers only the main topics of the indicator tree', () => {
+      const indicatorMain = { topicType: 'main', topicResource: 'indicator', topicId: 't-1' };
+      const georesourceMain = { topicType: 'main', topicResource: 'georesource', topicId: 't-2' };
+      TestBed.inject(TopicMetadataStoreService).availableTopics = [
+        indicatorMain,
+        georesourceMain,
+      ] as any;
+
+      service.loadInitialData();
+
+      expect(service.availableTopics).toEqual([indicatorMain]);
     });
   });
 });

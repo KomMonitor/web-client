@@ -142,7 +142,8 @@
   <button type="button" class="btn btn-outline-secondary" (click)="resetForm()">
     {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
-  <button type="button" class="btn btn-success" [disabled]="!isFormValid()" (click)="addScript()">
+  <!-- Stays active (active submit button pattern): onSubmit() jumps to the first incomplete step. -->
+  <button type="button" class="btn btn-success" [disabled]="loadingData()" (click)="onSubmit()">
     {{ 'ADMIN_SCRIPTS.ADD_MODAL.REGISTER_SCRIPT' | translate }}
   </button>
 </div>

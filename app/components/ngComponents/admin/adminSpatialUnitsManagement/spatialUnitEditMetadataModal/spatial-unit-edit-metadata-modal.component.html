@@ -261,9 +261,7 @@
   <button
     type="button"
     class="btn btn-success"
-    [disabled]="
-      !spatialUnitLevel || spatialUnitLevelInvalid || metadataForm.invalid || loadingData()
-    "
+    [disabled]="loadingData() || !currentSpatialUnitDataset"
     (click)="onSubmit()"
   >
     @if (!loadingData()) {

@@ -7,6 +7,11 @@
       [allowIndividual]="true"
       (colorSchemeSelected)="state.onColorSchemeSelected($event)"
     ></app-color-palette-select>
+    @if (state.showsError(errors.PALETTE_REQUIRED)) {
+      <div class="help-block with-errors" role="alert">
+        {{ errors.PALETTE_REQUIRED | translate }}
+      </div>
+    }
   </div>
 
   <div class="palette-picker-col">

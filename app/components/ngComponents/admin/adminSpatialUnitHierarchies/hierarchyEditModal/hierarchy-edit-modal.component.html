@@ -16,7 +16,13 @@
       <label class="form-label" for="hierarchy-name-input">
         {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_EDIT_MODAL.NAME_LABEL' | translate }}*
       </label>
-      <input id="hierarchy-name-input" class="form-control" type="text" formControlName="name" />
+      <input
+        #nameInput
+        id="hierarchy-name-input"
+        class="form-control"
+        type="text"
+        formControlName="name"
+      />
       <app-form-error [control]="form.controls.name" for="hierarchy-name-input" />
     </div>
 
@@ -83,7 +89,7 @@
   <button type="button" class="btn btn-outline-secondary me-auto" (click)="cancel()">
     {{ 'ADMIN_SHARED.CANCEL' | translate }}
   </button>
-  <button type="button" class="btn btn-success" [disabled]="form.invalid" (click)="submit()">
+  <button type="button" class="btn btn-success" (click)="submit()">
     {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_EDIT_MODAL.SUBMIT' | translate }}
   </button>
 </div>

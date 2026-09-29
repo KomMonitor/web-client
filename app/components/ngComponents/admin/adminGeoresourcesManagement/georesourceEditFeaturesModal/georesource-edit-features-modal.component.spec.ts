@@ -339,7 +339,7 @@ describe('GeoresourceEditFeaturesModalComponent', () => {
 
   // ---------------------------------------------------------------------------
 
-  describe('canSubmitForm', () => {
+  describe('submit', () => {
     const fillRequired = () => {
       component.currentGeoresourceDataset = { datasetName: 'Spielplätze' };
       component.georesourceDataSourceIdProperty = 'id';
@@ -347,50 +347,132 @@ describe('GeoresourceEditFeaturesModalComponent', () => {
       component.periodOfValidity = { startDate: '2026-01-01', endDate: '' };
       component.converter = CONVERTER;
       component.datasourceType = FILE_DATASOURCE;
-      // CRS is a mandatory converter parameter; see the stricter-gate test below.
+      component.editForm.controls.selectedFile.setValue(new File(['{}'], 'features.csv'));
+      // CRS is a mandatory converter parameter; see the stricter test below.
       setConverterParameters({ CRS: 'EPSG:25832' });
     };
 
-    it('stays closed while nothing is filled', () => {
-      expect(component.canSubmitForm()).toBe(false);
+    it('is invalid while nothing is filled', () => {
+      expect(component.editForm.valid).toBe(false);
     });
 
-    it('opens once every required field is filled', () => {
+    it('is valid once every required field is filled', () => {
       fillRequired();
 
-      expect(component.canSubmitForm()).toBe(true);
+      expect(component.editForm.valid).toBe(true);
     });
 
     it.each([
-      ['dataset', () => (component.currentGeoresourceDataset = null)],
       ['id property', () => (component.georesourceDataSourceIdProperty = '')],
       ['name property', () => (component.georesourceDataSourceNameProperty = '')],
       ['start date', () => (component.periodOfValidity = { startDate: '', endDate: '' })],
       ['converter', () => (component.converter = undefined)],
       ['data source', () => (component.datasourceType = undefined)],
-    ])('stays closed without the %s', (_label, clear) => {
+    ])('is invalid without the %s', (_label, clear) => {
       fillRequired();
       clear();
 
-      expect(component.canSubmitForm()).toBe(false);
+      expect(component.editForm.valid).toBe(false);
     });
 
-    it('stays closed while the validity period is invalid', () => {
+    it('is invalid while the validity period is invalid', () => {
       fillRequired();
       component.periodOfValidity = { startDate: '2026-12-31', endDate: '2026-01-01' };
       component.checkPeriodOfValidity();
 
-      expect(component.canSubmitForm()).toBe(false);
+      expect(component.editForm.valid).toBe(false);
     });
 
-    it('stays closed while a mandatory converter parameter is empty', () => {
-      // Stricter than before: the gate used to check only converter presence,
-      // so a submit with an empty mandatory parameter reached the importer and
-      // failed there. The parameter controls carry `required` now.
+    it('is invalid while a mandatory converter parameter is empty', () => {
+      // The parameter controls carry `required`, so an empty mandatory
+      // parameter no longer reaches the importer and fails there.
       fillRequired();
       setConverterParameters({ CRS: '' });
 
+      expect(component.editForm.valid).toBe(false);
+    });
+
+    it('demands a file for a FILE data source', () => {
+      fillRequired();
+      component.editForm.controls.selectedFile.setValue(null);
+
+      expect(component.editForm.hasError('fileRequired')).toBe(true);
+    });
+
+    it('does not demand a file for another data source', () => {
+      fillRequired();
+      component.datasourceType = HTTP_DATASOURCE;
+      setDatasourceParameters(
+        Object.fromEntries(
+          (HTTP_DATASOURCE.parameters ?? []).map((p: any) => [p.name, 'https://example.org'])
+        )
+      );
+
+      expect(component.editForm.hasError('fileRequired')).toBe(false);
+    });
+
+    it('drops the file when the data source type changes', () => {
+      fillRequired();
+      component.datasourceType = HTTP_DATASOURCE;
+
+      expect(component.editForm.controls.selectedFile.value).toBeNull();
+    });
+
+    it('writes the chosen file into the form', () => {
+      const file = new File(['{}'], 'features.csv');
+
+      component.onDataSourceFileSelected({ target: { files: [file] } });
+
+      expect(component.editForm.controls.selectedFile.value).toBe(file);
+      expect(component.editForm.controls.selectedFile.touched).toBe(true);
+    });
+
+    it('keeps the button enabled for an incomplete form', () => {
+      component.currentGeoresourceDataset = { datasetName: 'Spielplätze' };
+
+      expect(component.canSubmitForm()).toBe(true);
+    });
+
+    it('disables the button without a dataset or while loading', () => {
       expect(component.canSubmitForm()).toBe(false);
+
+      component.currentGeoresourceDataset = { datasetName: 'Spielplätze' };
+      component.loadingData.set(true);
+
+      expect(component.canSubmitForm()).toBe(false);
+    });
+
+    it('jumps to the batch step instead of posting while incomplete', () => {
+      const post = jest.spyOn(component, 'editGeoresourceFeatures').mockResolvedValue(undefined);
+      fillRequired();
+      component.georesourceDataSourceIdProperty = '';
+      component.stepper.goToKey('overview');
+
+      component.onSubmit();
+
+      expect(post).not.toHaveBeenCalled();
+      expect(component.stepper.isActive('batch')).toBe(true);
+      expect(component.importerForm.controls.idProperty.touched).toBe(true);
+      expect(component.stepper.steps[2].invalid).toBe(true); // batch
+    });
+
+    it('posts once the form is complete', () => {
+      const post = jest.spyOn(component, 'editGeoresourceFeatures').mockResolvedValue(undefined);
+      fillRequired();
+
+      component.onSubmit();
+
+      expect(post).toHaveBeenCalledTimes(1);
+    });
+
+    it('marks the batch step only once it is left incomplete', () => {
+      const batch = () => component.stepper.steps[2];
+      component.stepper.goToKey('batch');
+      expect(batch()?.invalid).toBe(false);
+
+      component.stepper.previous();
+
+      expect(batch()?.invalid).toBe(true);
     });
   });
 

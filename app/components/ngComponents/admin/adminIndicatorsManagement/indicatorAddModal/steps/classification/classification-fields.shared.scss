@@ -95,3 +95,9 @@
     border-color: #2f6db3;
   }
 }
+
+/* Blank required input, marked once the step's errors are revealed. */
+.label-input.input-missing,
+.value-input.input-missing {
+  border-color: #dc3545;
+}

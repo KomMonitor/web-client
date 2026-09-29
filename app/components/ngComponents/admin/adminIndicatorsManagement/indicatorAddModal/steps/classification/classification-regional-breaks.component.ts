@@ -2,7 +2,10 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { IndicatorClassificationStateService } from '../../indicator-classification-state.service';
+import {
+  CLASSIFICATION_STEP_ERRORS,
+  IndicatorClassificationStateService,
+} from '../../indicator-classification-state.service';
 import { ClassificationColorPickerComponent } from './classification-color-picker.component';
 
 /**
@@ -24,4 +27,5 @@ import { ClassificationColorPickerComponent } from './classification-color-picke
 })
 export class ClassificationRegionalBreaksComponent {
   protected state = inject(IndicatorClassificationStateService);
+  protected readonly errors = CLASSIFICATION_STEP_ERRORS;
 }

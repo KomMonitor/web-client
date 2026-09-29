@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { EMPTY, switchMap } from 'rxjs';
+import { EMPTY, combineLatest, merge, switchMap } from 'rxjs';
 import { ResolvedFormError, resolveFormError } from './form-error.model';
 
 /**
@@ -47,6 +47,15 @@ export class FormErrorComponent {
   readonly showWhen = input<'touched' | 'always'>('touched');
 
   /**
+   * Control whose `touched` state decides when the message appears, in place
+   * of `control`'s own `touched`/`dirty`. For a group error that belongs to
+   * one field: the importer's `fileRequired` sits on the group, which turns
+   * dirty the moment FILE is picked, while the file control itself is only
+   * touched by a file choice or by `markAllAsTouched()` on leave or submit.
+   */
+  readonly revealWith = input<AbstractControl | null>(null);
+
+  /**
    * Full i18n key that overrides the validator-derived one, so the existing
    * resource-specific messages (e.g. `ADMIN_SPATIAL_UNITS.METADATA_STEP.NAME_INVALID`)
    * can be kept where they read better than the generic wording.
@@ -55,9 +64,13 @@ export class FormErrorComponent {
 
   readonly errorId = computed(() => (this.for() ? `${this.for()}-error` : null));
 
-  /** Emits on every status/touched/value event of the current control. */
+  /** Emits on every status/touched/value event of the current control(s). */
   private readonly controlEvent = toSignal(
-    toObservable(this.control).pipe(switchMap((control) => control?.events ?? EMPTY)),
+    combineLatest([toObservable(this.control), toObservable(this.revealWith)]).pipe(
+      switchMap(([control, revealWith]) =>
+        merge(control?.events ?? EMPTY, revealWith?.events ?? EMPTY)
+      )
+    ),
     { initialValue: null }
   );
 
@@ -69,7 +82,9 @@ export class FormErrorComponent {
     if (!control || !control.invalid) {
       return null;
     }
-    if (this.showWhen() === 'touched' && !control.touched && !control.dirty) {
+    const revealWith = this.revealWith();
+    const revealed = revealWith ? revealWith.touched : control.touched || control.dirty;
+    if (this.showWhen() === 'touched' && !revealed) {
       return null;
     }
 

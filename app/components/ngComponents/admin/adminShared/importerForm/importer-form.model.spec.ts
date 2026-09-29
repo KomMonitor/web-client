@@ -6,7 +6,6 @@ import type {
 import {
   buildImporterForm,
   importerFormToConfig,
-  importerFormToMissingFieldsInput,
   patchBboxFromDataSourceParameters,
   patchImporterFormFromMappingConfig,
   syncConverterParameterControls,
@@ -77,6 +76,59 @@ describe('importer form model', () => {
     });
   });
 
+  describe('spatial filter', () => {
+    const ogcForm = () => {
+      const form = buildImporterForm();
+      form.controls.datasourceType.setValue(OGC_DATASOURCE);
+      return form;
+    };
+
+    it('is not required for a non-OGC data source', () => {
+      const form = buildImporterForm();
+      form.controls.datasourceType.setValue(FILE_DATASOURCE);
+
+      expect(form.controls.bboxType.valid).toBe(true);
+      expect(form.controls.bboxRefSpatialUnitId.valid).toBe(true);
+      expect(form.controls.bbox.valid).toBe(true);
+    });
+
+    it('requires a filter type for an OGC API source', () => {
+      expect(ogcForm().controls.bboxType.hasError('required')).toBe(true);
+    });
+
+    it('requires the reference spatial unit only for a reference filter', () => {
+      const form = ogcForm();
+      expect(form.controls.bboxRefSpatialUnitId.valid).toBe(true);
+
+      form.controls.bboxType.setValue('ref');
+      expect(form.controls.bboxRefSpatialUnitId.hasError('required')).toBe(true);
+
+      form.controls.bboxRefSpatialUnitId.setValue('su-42');
+      expect(form.controls.bboxRefSpatialUnitId.valid).toBe(true);
+    });
+
+    it('requires all four corners only for a literal filter', () => {
+      const form = ogcForm();
+      expect(form.controls.bbox.valid).toBe(true);
+
+      form.controls.bboxType.setValue('literal');
+      expect(form.controls.bbox.hasError('bboxIncomplete')).toBe(true);
+
+      form.controls.bbox.setValue({ minx: '-180', miny: '-90', maxx: '180', maxy: '90' });
+      expect(form.controls.bbox.valid).toBe(true);
+    });
+
+    it('drops the requirement when switching away from the OGC API source', () => {
+      const form = ogcForm();
+      form.controls.bboxType.setValue('ref');
+
+      form.controls.datasourceType.setValue(FILE_DATASOURCE);
+
+      expect(form.controls.bboxType.valid).toBe(true);
+      expect(form.controls.bboxRefSpatialUnitId.valid).toBe(true);
+    });
+  });
+
   describe('syncConverterParameterControls', () => {
     it('creates one control per parameter, required where mandatory', () => {
       const form = buildImporterForm();
@@ -99,6 +151,22 @@ describe('importer form model', () => {
 
       expect(Object.keys(form.controls.converterParameters.controls)).toEqual(['delimiter']);
       expect(form.controls.converterParameters.controls['delimiter'].value).toBe(';');
+    });
+
+    it('requires schema and mime type only where the converter offers them', () => {
+      const form = buildImporterForm();
+
+      syncConverterParameterControls(form, CONVERTER);
+      expect(form.controls.schema.hasError('required')).toBe(true);
+      expect(form.controls.mimeType.hasError('required')).toBe(true);
+
+      syncConverterParameterControls(form, OTHER_CONVERTER);
+      expect(form.controls.schema.valid).toBe(true);
+      expect(form.controls.mimeType.hasError('required')).toBe(true);
+
+      syncConverterParameterControls(form, null);
+      expect(form.controls.schema.valid).toBe(true);
+      expect(form.controls.mimeType.valid).toBe(true);
     });
 
     it('clears the record for no converter', () => {
@@ -263,27 +331,6 @@ describe('importer form model', () => {
         bbox_maxx: '3',
         bbox_maxy: '4',
       });
-    });
-  });
-
-  describe('importerFormToMissingFieldsInput', () => {
-    it('maps the form onto the summary-check input, nulling empty bbox corners', () => {
-      const form = buildImporterForm();
-      syncConverterParameterControls(form, CONVERTER);
-      form.patchValue({ idProperty: 'id', nameProperty: 'name', bboxType: 'ref' });
-      form.controls.bboxRefSpatialUnitId.setValue('su-42');
-
-      const input = importerFormToMissingFieldsInput(form, {
-        hasFile: true,
-        startDate: '2026-01-01',
-        periodOfValidityInvalid: false,
-      });
-
-      expect(input.bboxType).toBe('ref');
-      expect(input.bboxRefSpatialUnitLevel).toBe('su-42');
-      expect(input.bboxLiteral).toEqual({ minx: null, miny: null, maxx: null, maxy: null });
-      expect(input.converterParameters).toEqual({ delimiter: '', comment: '' });
-      expect(input.hasFile).toBe(true);
     });
   });
 });

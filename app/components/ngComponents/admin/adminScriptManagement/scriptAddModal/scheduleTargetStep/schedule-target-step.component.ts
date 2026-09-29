@@ -9,6 +9,7 @@ import {
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import {
   ProcessFamilyFilter,
+  SCHEDULE_STEP_ERRORS,
   ScheduleDraftService,
 } from 'services/schedule-draft-service/schedule-draft.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
@@ -32,6 +33,7 @@ export class ScheduleTargetStepComponent {
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
 
   protected readonly families: ProcessFamilyFilter[] = ['all', 'indicator', 'georesource'];
+  protected readonly errors = SCHEDULE_STEP_ERRORS;
 
   protected indicators = computed(() =>
     [...this.indicatorStore.availableIndicators].sort((a, b) =>

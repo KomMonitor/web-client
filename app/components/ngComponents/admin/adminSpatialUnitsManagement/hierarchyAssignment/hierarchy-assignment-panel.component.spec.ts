@@ -1,6 +1,6 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormArray } from '@angular/forms';
+import { FormArray, FormGroup } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
 import { SpatialUnitHierarchyOverviewType } from 'models/data-management-api';
@@ -40,6 +40,20 @@ const HIERARCHIES: SpatialUnitHierarchyOverviewType[] = [
   // not the same as "belongs to someone else".
   { hierarchyId: 'h-unknown', name: 'Ohne Mandant', isPublic: false, members: [] },
 ];
+
+/** A dialog stand-in that owns the form, the way both real hosts do. */
+@Component({
+  template: `<app-hierarchy-assignment-panel
+    [rows]="form.controls.hierarchyAssignments"
+    [hierarchies]="hierarchies"
+    mandantId="m-essen"
+  />`,
+  imports: [HierarchyAssignmentPanelComponent],
+})
+class PanelHostComponent {
+  readonly hierarchies = HIERARCHIES;
+  readonly form = new FormGroup({ hierarchyAssignments: buildHierarchyAssignmentArray() });
+}
 
 describe('HierarchyAssignmentPanelComponent', () => {
   let fixture: ComponentFixture<HierarchyAssignmentPanelComponent>;
@@ -189,6 +203,35 @@ describe('HierarchyAssignmentPanelComponent', () => {
     expect(
       fixture.debugElement.query(By.css('.assignment-scope')).nativeElement.textContent.trim()
     ).toBe('ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.MANDANT_SCOPE_INFO');
+  });
+
+  it('names a row without a hierarchy once the host marks the form touched', () => {
+    // Rendered inside a host, as in the dialogs: the host re-rendering does not
+    // refresh the OnPush panel, so only the panel's own listening shows this.
+    const hostFixture = TestBed.createComponent(PanelHostComponent);
+    const host = hostFixture.componentInstance;
+    host.form.controls.hierarchyAssignments.push(buildAssignmentRow());
+    hostFixture.detectChanges();
+
+    const rowError = () =>
+      hostFixture.debugElement.query(By.css('.assignment-row .assignment-error'));
+
+    // A fresh row does not start out red.
+    expect(rowError()).toBeNull();
+
+    // Leaving the step or submitting: nothing about the value changes, only
+    // the touched state.
+    host.form.markAllAsTouched();
+    hostFixture.detectChanges();
+
+    expect(rowError().nativeElement.textContent.trim()).toBe(
+      'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.HIERARCHY_REQUIRED'
+    );
+
+    host.form.controls.hierarchyAssignments.at(0).controls.hierarchyId.setValue('h-essen');
+    hostFixture.detectChanges();
+
+    expect(rowError()).toBeNull();
   });
 
   it('says when a hierarchy was assigned twice', () => {

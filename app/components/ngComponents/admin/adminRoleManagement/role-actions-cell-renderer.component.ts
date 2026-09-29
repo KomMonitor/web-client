@@ -7,6 +7,8 @@ import { AccessControlMetadata } from 'components/ngComponents/models/permission
 export interface RoleActionsCellRendererParams extends ICellRendererParams<AccessControlMetadata> {
   onEditMetadata: (dataset: AccessControlMetadata) => void;
   onEditGroupRights: (dataset: AccessControlMetadata) => void;
+  onDelete: (dataset: AccessControlMetadata) => void;
+  canDelete: () => boolean;
 }
 
 @Component({
@@ -31,21 +33,35 @@ export interface RoleActionsCellRendererParams extends ICellRendererParams<Acces
       >
         <i class="fas fa-user-lock"></i>
       </button>
+      <button
+        class="btn btn-danger btn-sm"
+        type="button"
+        [title]="'ADMIN_ROLES.GRID.DELETE_TITLE' | translate"
+        [disabled]="!deleteAllowed"
+        (click)="onDelete()"
+      >
+        <i class="fas fa-trash"></i>
+      </button>
     </div>
   `,
-  // The template is static (no bindings to `dataset`), so the fields updated by
-  // AG Grid's agInit()/refresh() callbacks need no signal conversion.
+  // The template only binds `deleteAllowed`, which is set in agInit() before
+  // the first render; the fields updated by refresh() are not bound, so they
+  // need no signal conversion.
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoleActionsCellRendererComponent implements ICellRendererAngularComp {
   private dataset!: AccessControlMetadata;
   private editMetadataCallback!: (dataset: AccessControlMetadata) => void;
   private editGroupRightsCallback!: (dataset: AccessControlMetadata) => void;
+  private deleteCallback!: (dataset: AccessControlMetadata) => void;
+  protected deleteAllowed = false;
 
   agInit(params: RoleActionsCellRendererParams): void {
     this.dataset = params.data!;
     this.editMetadataCallback = params.onEditMetadata;
     this.editGroupRightsCallback = params.onEditGroupRights;
+    this.deleteCallback = params.onDelete;
+    this.deleteAllowed = params.canDelete();
   }
 
   refresh(params: RoleActionsCellRendererParams): boolean {
@@ -59,5 +75,9 @@ export class RoleActionsCellRendererComponent implements ICellRendererAngularCom
 
   onEditGroupRights(): void {
     this.editGroupRightsCallback(this.dataset);
+  }
+
+  onDelete(): void {
+    this.deleteCallback(this.dataset);
   }
 }

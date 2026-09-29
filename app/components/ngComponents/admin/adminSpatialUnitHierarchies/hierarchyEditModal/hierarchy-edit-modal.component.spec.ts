@@ -31,6 +31,14 @@ describe('HierarchyEditModalComponent', () => {
     return fixture.debugElement.query(By.css('.modal-footer .btn-success')).nativeElement;
   }
 
+  /** The rendered error message under the name, or null while none shows. */
+  function nameError(): HTMLElement | null {
+    return (
+      fixture.debugElement.query(By.css('app-form-error[for="hierarchy-name-input"] .help-block'))
+        ?.nativeElement ?? null
+    );
+  }
+
   /** The text of the read-only panel, whitespace squashed. */
   function factsText(): string {
     return fixture.debugElement
@@ -83,7 +91,9 @@ describe('HierarchyEditModalComponent', () => {
 
     component.form.controls.name.setValue('');
     fixture.detectChanges();
-    expect(submitButton().disabled).toBe(true);
+    // The button stays active; the error shows on the click instead.
+    expect(submitButton().disabled).toBe(false);
+    expect(component.form.controls.name.hasError('required')).toBe(true);
 
     component.form.controls.name.setValue('Schulplanung');
     expect(component.form.controls.name.hasError('uniqueName')).toBe(true);
@@ -104,15 +114,28 @@ describe('HierarchyEditModalComponent', () => {
     expect(close).toHaveBeenCalledWith({ name: 'Verwaltung', isPublic: false });
   });
 
-  it('does not close while the name is missing', () => {
+  it('does not close while the name is missing, but shows why', () => {
     const close = jest.spyOn(activeModal, 'close');
     render();
     component.form.controls.name.setValue('');
+    fixture.detectChanges();
+    expect(nameError()).toBeNull();
 
-    component.submit();
+    submitButton().click();
+    fixture.detectChanges();
 
     expect(close).not.toHaveBeenCalled();
-    expect(component.form.controls.name.touched).toBe(true);
+    expect(nameError()).not.toBeNull();
+    expect(document.activeElement?.id).toBe('hierarchy-name-input');
+  });
+
+  it('submits on the click once the name is valid', () => {
+    const close = jest.spyOn(activeModal, 'close');
+    render();
+
+    submitButton().click();
+
+    expect(close).toHaveBeenCalledWith({ name: 'Verwaltungsgliederung', isPublic: true });
   });
 
   it('dismisses on cancel', () => {

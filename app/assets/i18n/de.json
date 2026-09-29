@@ -137,7 +137,6 @@
       "CHOOSE_SCHEMA": "-- Schema wählen --",
       "SOURCE_FORMAT": "Quellformat",
       "CHOOSE_FORMAT": "-- Format wählen --",
-      "CRS_WARNING": "CRS aufmerksam setzen. Falsche Angaben führen zur fehlerhaften Koordinaten der Features",
       "CHOOSE_SOURCE_FORMAT_FIRST": "bitte zuerst das Quellformat wählen",
       "DATASOURCE_TYPE": "Datenquelltyp",
       "CHOOSE_SOURCE_TYPE": "-- Quelltyp wählen --",
@@ -203,7 +202,6 @@
       "REGISTER": "Georessource registrieren",
       "REGISTRATION_FAILED": "Registrierung gescheitert",
       "MSG": {
-        "REQUIRED_FIELDS_MISSING": "Bitte füllen Sie alle Pflichtfelder im Schritt \"Räumlicher Datensatz\" aus. Fehlend: {{missing}}.",
         "REQUIRED_FIELDS": "Bitte füllen Sie alle Pflichtfelder im Schritt \"Räumlicher Datensatz\" aus.",
         "REGISTERED_WITH_FEATURES": "Eine neue Georessource mit Namen \"{{name}}\" wurde registriert ({{count}} Features importiert).",
         "REGISTERED": "Eine neue Georessource mit Namen \"{{name}}\" wurde registriert.",
@@ -286,7 +284,7 @@
       "OWNERSHIP_WARNING_1": "Bitte beachten Sie, dass Sie beim Übertragen einer Eigentümerschaft einer Resource unter Umständen jegliche Rechte eben dieser verlieren.",
       "OWNERSHIP_WARNING_2": "Die Rechte werden unwiderruflich und sofort an den neuen Eigentümer übertragen.",
       "MSG": {
-        "OWNERSHIP_TRANSFER_CONFIRM": "Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?",
+        "OWNERSHIP_TRANSFER_CONFIRM": "Sind Sie sicher, dass Sie die Eigentümerschaft an dieser Ressource endgültig und unwiderruflich übertragen und damit abgeben wollen?",
         "RIGHTS_UPDATED": "Zugriffsrechte für Georessource \"{{name}}\" wurden aktualisiert.",
         "RIGHTS_UPDATE_FAILED": "Fehler beim Aktualisieren der Zugriffsrechte: {{error}}",
         "OWNERSHIP_UPDATE_FAILED": "Fehler beim Aktualisieren der Eigentümerschaft: {{error}}"
@@ -371,9 +369,6 @@
       "METADATA_EXPORT": "Metadaten-Export",
       "SAVE_CHANGES": "Änderungen speichern",
       "REGISTER": "Indikator-Metadaten registrieren",
-      "MISSING_FIELDS_TITLE": "Pflichtfelder unvollständig",
-      "MISSING_FIELDS_INTRO": "Bitte füllen Sie die folgenden Pflichtfelder aus, bevor der Indikator registriert wird:",
-      "MISSING_FIELDS_OK": "Verstanden",
       "SUCCESS_UPDATED_TITLE": "Indikator-Metadaten aktualisiert",
       "SUCCESS_UPDATED_TEXT": "Die Metadaten des Indikators {{name}} wurden in KomMonitor aktualisiert.",
       "SUCCESS_CREATED_TITLE": "Indikator-Metadaten registriert",
@@ -425,8 +420,7 @@
       "LOWEST_SPATIAL_UNIT_HINT": "Angabe der niedrigsten Raumebene, für die der automatisiert berechenbare Indikator berechnet werden kann. Indikatorenwerte für höhere Raumebenen werden dabei automatisch aus den niedrigeren Ebenen aggregiert berechnet."
     },
     "STEP_GENERAL": {
-      "SUBTITLE": "Angaben über allgemeine Metadaten in KomMonitor",
-      "SRID_HINT": "Koordinatensystem für die räumlichen Daten (Standard: 4326 für WGS84)"
+      "SUBTITLE": "Angaben über allgemeine Metadaten in KomMonitor"
     },
     "STEP_TOPICS": {
       "SUBTITLE": "Angaben über die Themenhierarchie in KomMonitor",
@@ -468,6 +462,9 @@
       "TABS_ERROR_HINT": "Fehlerhaft ausgefüllte Tabs werden rot hervorgehoben. Die Klassengrenzen müssen von niedrig nach hoch sortiert sein.",
       "ERROR_LABEL": "Fehler:",
       "INVALID_BREAKS": "Es gibt ungültige Klassifizierungskonfigurationen. Bitte überprüfen Sie die rot markierten Tabs.",
+      "PALETTE_REQUIRED": "Bitte wählen Sie ein Farbschema aus.",
+      "CATEGORIES_INCOMPLETE": "Jede Kategorie braucht einen Wert und ein Label. Bitte ergänzen Sie die rot markierten Felder.",
+      "REGIONAL_BREAKS_MISSING": "Für die Methode „Regionaler Standard“ müssen die Klassengrenzen mindestens einer Raumebene vollständig ausgefüllt sein.",
       "TYPE_LABEL": "Art der Klassifizierung",
       "TYPE_NUMERIC": "Numerische Werte",
       "TYPE_NUMERIC_HINT": "sequentiell / divergierend",
@@ -757,7 +754,7 @@
         "TIMESERIES_RIGHTS_FAILED": "Fehler beim Aktualisieren der Zugriffsrechte auf Zeitreihe der Raumeinheit {{name}}.",
         "METADATA_OWNERSHIP_FAILED": "Fehler beim Aktualisieren der Metadaten-Eigentümerschaft.",
         "TIMESERIES_OWNERSHIP_FAILED": "Fehler beim Aktualisieren der Zeitreihen-Eigentümerschaft der Raumeinheit {{name}}.",
-        "OWNERSHIP_TRANSFER_CONFIRM": "Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?"
+        "OWNERSHIP_TRANSFER_CONFIRM": "Sind Sie sicher, dass Sie die Eigentümerschaft an dieser Ressource endgültig und unwiderruflich übertragen und damit abgeben wollen?"
       }
     },
     "EDIT_METADATA": {
@@ -852,8 +849,9 @@
       "MANDANT_HELP": "Als Mandant markierte Organisationseinheiten können eigene Untergruppenhierarchien, Themenbäume, Raumeinheiten und User vollständig isoliert von weiteren Mandanten derselben KomMonitor-Instanz verwalten.",
       "HIERARCHY_LABEL": "Hierarchische Einordnung - Angabe der übergeordneten Organisationseinheit",
       "MANDANT_NO_PARENT": "Mandanten können keine übergeordnete Organisationseinheit haben.",
-      "NO_PARENT_OPTION": "keine - neuer Wurzelknoten",
-      "HIERARCHY_HELP": "Wird keine übergeordnete Organisationseinheit festgelegt, wird die neue Organisationseinheit auf oberster Ebene der Hierarchie angelegt. Die Hierarchiebeziehung kann nachträglich angepasst werden.",
+      "NO_PARENT_OPTION": "-- übergeordnete Organisationseinheit wählen --",
+      "HIERARCHY_HELP": "Eine Organisationseinheit, die kein Mandant ist, wird unterhalb einer übergeordneten Organisationseinheit angelegt. Auf oberster Ebene der Hierarchie stehen nur Mandanten.",
+      "PARENT_OR_MANDANT_REQUIRED": "Bitte eine übergeordnete Organisationseinheit wählen oder die Einheit als Mandant markieren.",
       "RIGHTS_INTRO": "Sollen bereits existierende Organisationseinheiten/Gruppen administrative Aufgaben für die neu anzulegende Gruppe übernehmen? Administrative Rechte können hier durch entsprechende Häkchen an andere Gruppen übertragen werden.",
       "RIGHTS_AFTER_CREATE_HINT": "Achtung: Die Rechte der neu angelegten Organisationseinheit können erst nach Erzeugung innerhalb des 'Rechte editieren' Menüs gesetzt werden.",
       "SUBMIT": "Gruppe registrieren",
@@ -979,7 +977,8 @@
       "GROUP_MANAGE_USERS": "Verwalten von Nutzern",
       "GROUP_MANAGE_RESOURCES": "Verwalten von Ressourcen",
       "GROUP_MANAGE_TOPICS": "Verwalten von Themen",
-      "EDIT_GROUP_RIGHTS_TITLE": "Gruppenrechte bearbeiten"
+      "EDIT_GROUP_RIGHTS_TITLE": "Gruppenrechte bearbeiten",
+      "DELETE_TITLE": "Organisationseinheit löschen"
     }
   },
   "ADMIN_TOPICS": {
@@ -1127,6 +1126,7 @@
       "CRON_HOUR": "Stunde",
       "CRON_MINUTE": "Minute",
       "CRON_INVALID": "Das Cron-Pattern ist ungültig. Erwartet werden fünf Felder.",
+      "SPATIAL_UNITS_REQUIRED": "Bitte mindestens eine Raumebene wählen.",
       "WEEKDAY_0": "Sonntag",
       "WEEKDAY_1": "Montag",
       "WEEKDAY_2": "Dienstag",
@@ -1374,6 +1374,7 @@
       "MAX": "Der Wert darf höchstens {{max}} sein.",
       "PATTERN": "Die Eingabe hat nicht das erwartete Format.",
       "DATE_FORMAT": "Ungültiges Datum. Erwartetes Format: JJJJ-MM-TT.",
+      "EPSG_CODE": "Bitte geben Sie eine ganze Zahl zwischen 1 und 99999 ein.",
       "MIN_DATE": "Das Datum liegt vor dem frühestmöglichen Datum ({{value}}).",
       "MAX_DATE": "Das Datum liegt nach dem spätestmöglichen Datum ({{value}}).",
       "UNIQUE_NAME": "Der Name „{{name}}“ ist bereits vergeben.",
@@ -1428,8 +1429,6 @@
       "URL_LABEL": "URL der Resource",
       "LAYER_LABEL": "Layer",
       "TEST_CONNECTION": "Verbindung testen",
-      "TEST_SUCCESS": "Test der WMS-Verbindungsdaten erfolgreich!",
-      "TEST_FAILURE": "Test der WMS-Verbindungsdaten NICHT erfolgreich! WMS Daten nicht korrekt oder nicht nutzbar",
       "TOPICS_SUBTITLE": "Angaben über die Themenhierarchie der Georessource",
       "CONNECTION_TEST_TITLE": "Verbindungstest",
       "CONNECTION_TEST_SUCCESS": "Die Verbindung wurde erfoglreich getestet",
@@ -1463,7 +1462,8 @@
     },
     "EDIT_ROLES": {
       "TITLE": "WMS bearbeiten",
-      "SUCCESS_TEXT": "Zugriffsrechte für den Datensatz mit dem Namen {{name}} wurde in KomMonitor editiert."
+      "SUCCESS_TEXT": "Zugriffsrechte für den Datensatz mit dem Namen {{name}} wurde in KomMonitor editiert.",
+      "OWNERSHIP_TRANSFER_CONFIRM": "Sind Sie sicher, dass Sie die Eigentümerschaft an diesem WMS endgültig und unwiderruflich übertragen und damit abgeben wollen?"
     },
     "GRID": {
       "COL_LEGEND": "Legende"
@@ -1722,7 +1722,8 @@
       "ADD_ASSIGNMENT_HINT": "Zuordnungen sind später über die Hierarchieverwaltung änderbar.",
       "NO_HIERARCHIES": "Für diesen Mandanten existiert noch keine Hierarchie.",
       "REFERENCE_REQUIRED": "Bitte eine Bezugsebene wählen.",
-      "DUPLICATE_HIERARCHY": "Jede Hierarchie kann nur einmal zugeordnet werden."
+      "DUPLICATE_HIERARCHY": "Jede Hierarchie kann nur einmal zugeordnet werden.",
+      "HIERARCHY_REQUIRED": "Bitte eine Hierarchie wählen."
     },
     "METADATA_STEP": {
       "TITLE": "Metadaten der Raumebene",
@@ -1756,7 +1757,6 @@
       "SELECT_SCHEMA": "-- Schema wählen --",
       "SOURCE_FORMAT": "Quellformat",
       "SELECT_FORMAT": "-- Format wählen --",
-      "CRS_WARNING": "CRS aufmerksam setzen. Falsche Angaben führen zur fehlerhaften Koordinaten der Raumeinheiten",
       "CHOOSE_SOURCE_FORMAT_FIRST": "bitte zuerst das Quellformat wählen",
       "DATASOURCE_TYPE": "Datenquelltyp",
       "SELECT_SOURCE_TYPE": "-- Quelltyp wählen --",
@@ -1867,7 +1867,6 @@
       "SUBMIT": "Raumeinheiten fortführen",
       "MSG": {
         "ALL_FEATURES_DELETED": "Alle Features der Raumebene \"{{name}}\" wurden gelöscht.",
-        "REQUIRED_FIELDS_MISSING": "Bitte füllen Sie alle Pflichtfelder in Schritt 2 aus. Fehlend: {{missing}}.",
         "REQUIRED_FIELDS": "Bitte füllen Sie alle Pflichtfelder in Schritt 2 aus.",
         "FEATURES_UPDATED": "Die Features der Raumebene \"{{name}}\" wurden aktualisiert.",
         "CRITICAL_FEATURE_ERRORS": "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.",
@@ -1880,7 +1879,7 @@
       "OWNERSHIP_WARNING_1": "Bitte beachten Sie, dass Sie beim Übertragen einer Eigentümerschaft einer Resource unter Umständen jegliche Rechte eben dieser verlieren.",
       "OWNERSHIP_WARNING_2": "Die Rechte werden unwiderruflich und sofort an den neuen Eigentümer übertragen.",
       "MSG": {
-        "OWNERSHIP_TRANSFER_CONFIRM": "Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?",
+        "OWNERSHIP_TRANSFER_CONFIRM": "Sind Sie sicher, dass Sie die Eigentümerschaft an dieser Ressource endgültig und unwiderruflich übertragen und damit abgeben wollen?",
         "RIGHTS_UPDATED": "Zugriffsrechte für Raumebene \"{{name}}\" wurden aktualisiert.",
         "RIGHTS_UPDATE_FAILED": "Fehler beim Aktualisieren der Zugriffsrechte: {{error}}",
         "OWNERSHIP_UPDATE_FAILED": "Fehler beim Aktualisieren der Eigentümerschaft: {{error}}"

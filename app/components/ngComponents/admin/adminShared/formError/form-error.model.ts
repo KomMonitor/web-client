@@ -22,6 +22,8 @@ export const FORM_ERROR_KEY_MAP: Readonly<Record<string, string>> = {
   dateFormat: 'DATE_FORMAT',
   minDate: 'MIN_DATE',
   maxDate: 'MAX_DATE',
+  // KmEpsgPickerComponent (NG_VALIDATORS)
+  epsgCode: 'EPSG_CODE',
   // adminShared/validators
   uniqueName: 'UNIQUE_NAME',
   periodOfValidity: 'PERIOD_OF_VALIDITY',
@@ -40,6 +42,9 @@ export const FORM_ERROR_KEY_MAP: Readonly<Record<string, string>> = {
  * collides with an existing one".
  */
 export const FORM_ERROR_PRIORITY: readonly string[] = [
+  // The EPSG picker reports a mistyped custom code as an empty value, so `required` fires too;
+  // the user did type something, so saying what is wrong with it is the actionable message.
+  'epsgCode',
   'required',
   'requiredTrue',
   'topicRequired',

@@ -95,7 +95,7 @@
       16px in rounded controls. `.fs-title`/`.fs-subtitle` therefore carry an
       explicit `text-center` now, as they do there.
     -->
-    <form class="form-group" #wmsEditForm="ngForm" (ngSubmit)="editWms()">
+    <form class="form-group" #wmsEditForm="ngForm" (ngSubmit)="onSubmit()">
       <app-stepper [steps]="stepper.steps" [(currentStep)]="stepper.currentStep"></app-stepper>
       @if (stepper.isActive('metadata')) {
         <fieldset>
@@ -112,28 +112,37 @@
             <div class="row form-section-row">
               <div class="col-md-4 col-sm-6 col-12">
                 <div class="form-group">
-                  <label>{{ 'ADMIN_WMS.COMMON.NAME_LABEL' | translate }}*</label>
+                  <label for="wms-edit-title"
+                    >{{ 'ADMIN_WMS.COMMON.NAME_LABEL' | translate }}*</label
+                  >
                   <input
                     type="text"
                     class="form-control"
                     formControlName="title"
+                    appAria="wms-edit-title"
                     [placeholder]="'ADMIN_WMS.COMMON.NAME_PLACEHOLDER' | translate"
                   />
-                  <app-form-error [control]="metadataForm.controls.title" />
+                  <app-form-error [control]="metadataForm.controls.title" for="wms-edit-title" />
                 </div>
               </div>
               <div class="col-md-4 col-sm-6 col-12">
                 <div class="form-group">
-                  <label>{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}*</label>
+                  <label for="wms-edit-description"
+                    >{{ 'ADMIN_SHARED.DESCRIPTION' | translate }}*</label
+                  >
                   <textarea
                     rows="3"
                     class="form-control"
                     formControlName="description"
+                    appAria="wms-edit-description"
                     name="metadataDescription"
                     [placeholder]="'ADMIN_SHARED_UI.FORM.DESCRIPTION_PLACEHOLDER' | translate"
                     required
                   ></textarea>
-                  <div class="help-block with-errors"></div>
+                  <app-form-error
+                    [control]="metadataForm.controls.description"
+                    for="wms-edit-description"
+                  />
                 </div>
               </div>
               <div class="col-md-4 col-sm-6 col-12">
@@ -153,30 +162,42 @@
             <div class="row form-section-row">
               <div class="col-md-4 col-sm-6 col-12">
                 <div class="form-group">
-                  <label>{{ 'ADMIN_SHARED.DATASOURCE' | translate }}*</label>
+                  <label for="wms-edit-datasource"
+                    >{{ 'ADMIN_SHARED.DATASOURCE' | translate }}*</label
+                  >
                   <textarea
                     rows="3"
                     class="form-control"
                     formControlName="datasource"
+                    appAria="wms-edit-datasource"
                     name="metadataDatasource"
                     [placeholder]="'ADMIN_SHARED_UI.FORM.DATASOURCE_PLACEHOLDER' | translate"
                     required
                   ></textarea>
-                  <div class="help-block with-errors"></div>
+                  <app-form-error
+                    [control]="metadataForm.controls.datasource"
+                    for="wms-edit-datasource"
+                  />
                 </div>
               </div>
               <div class="col-md-4 col-sm-6 col-12">
                 <div class="form-group">
-                  <label>{{ 'ADMIN_SHARED.DATA_HOLDER_CONTACT' | translate }}*</label>
+                  <label for="wms-edit-contact"
+                    >{{ 'ADMIN_SHARED.DATA_HOLDER_CONTACT' | translate }}*</label
+                  >
                   <textarea
                     rows="3"
                     class="form-control"
                     formControlName="contact"
+                    appAria="wms-edit-contact"
                     name="metadataContact"
                     [placeholder]="'ADMIN_SHARED_UI.FORM.CONTACT_PLACEHOLDER' | translate"
                     required
                   ></textarea>
-                  <div class="help-block with-errors"></div>
+                  <app-form-error
+                    [control]="metadataForm.controls.contact"
+                    for="wms-edit-contact"
+                  />
                 </div>
               </div>
               <div class="col-md-4 col-sm-6 col-12">
@@ -219,34 +240,40 @@
             <div class="row form-section-row">
               <div class="col-md-6 col-sm-6 col-12">
                 <div class="form-group">
-                  <label>{{ 'ADMIN_WMS.COMMON.URL_LABEL' | translate }}*</label>
+                  <label for="wms-edit-url">{{ 'ADMIN_WMS.COMMON.URL_LABEL' | translate }}*</label>
                   <input
                     type="text"
                     class="form-control"
                     formControlName="url"
+                    appAria="wms-edit-url"
                     name="datasetURL"
                     placeholder="http://..."
                     required
                   />
-                  <div class="help-block with-errors"></div>
+                  <app-form-error [control]="connectForm.controls.url" for="wms-edit-url" />
                 </div>
               </div>
               <div class="col-md-6 col-sm-6 col-12">
                 <div class="form-group">
-                  <label>{{ 'ADMIN_WMS.COMMON.LAYER_LABEL' | translate }}*</label>
+                  <label for="wms-edit-layer"
+                    >{{ 'ADMIN_WMS.COMMON.LAYER_LABEL' | translate }}*</label
+                  >
                   <input
                     class="form-control"
                     formControlName="layer"
+                    appAria="wms-edit-layer"
                     name="datasetLayer"
                     [placeholder]="'ADMIN_WMS.COMMON.LAYER_LABEL' | translate"
                     required
                   />
-                  <div class="help-block with-errors"></div>
+                  <app-form-error [control]="connectForm.controls.layer" for="wms-edit-layer" />
                 </div>
               </div>
             </div>
             <div class="row form-section-row">
+              <!-- type="button": a default submit button here would submit the outer form. -->
               <button
+                type="button"
                 class="btn btn-primary"
                 [value]="'ADMIN_WMS.COMMON.TEST_CONNECTION' | translate"
                 (click)="testConnection()"
@@ -339,7 +366,8 @@
   <button type="button" class="btn btn-outline-secondary" (click)="resetWmsAddForm()">
     {{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
-  <button type="button" class="btn btn-success" (click)="editWms()">
+  <!-- Stays active (active submit button pattern): onSubmit() jumps to the first incomplete step. -->
+  <button type="button" class="btn btn-success" (click)="onSubmit()">
     {{ 'ADMIN_WMS.EDIT.SUBMIT' | translate }}
   </button>
 </div>

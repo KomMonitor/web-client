@@ -14,7 +14,7 @@ import {
 } from '../../../../../services/exporting/exporting.service';
 import { ExpandableBoxComponent } from '../../../common/expandable-box/expandable-box.component';
 import { NotificationService } from '../../../common/notification/notification.service';
-import { EpsgSelectorComponent } from '../epsg-selector/epsg-selector.component';
+import { KmEpsgPickerComponent } from '../../../customElements/epsg-picker/km-epsg-picker.component';
 import { ExportDatasetListComponent } from '../export-dataset-list/export-dataset-list.component';
 import { buildTargetTime, mapFormats } from '../export-mapping';
 import { ExportTypSelectionComponent } from '../export-typ-selection/export-typ-selection.component';
@@ -29,7 +29,7 @@ import { ExportingStateService } from '../exporting-state.service';
     ExportTypSelectionComponent,
     ExportDatasetListComponent,
     ExpandableBoxComponent,
-    EpsgSelectorComponent,
+    KmEpsgPickerComponent,
   ],
 })
 export class ExportMenuModalComponent {
@@ -43,10 +43,6 @@ export class ExportMenuModalComponent {
 
   downloadFile(url: string): Observable<Blob> {
     return this.http.get(url, { responseType: 'blob' });
-  }
-
-  onEpsgCodeChange(code: number | null): void {
-    this.stateSrvc.selectedEpsgCode.set(code);
   }
 
   startDownload(): void {

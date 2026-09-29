@@ -54,6 +54,7 @@ const fillRequired = (form: GeoresourceAddFormGroup): void => {
     type: 'FILE',
     parameters: [],
   });
+  form.controls.data.controls.selectedFile.setValue(new File(['{}'], 'spielplaetze.geojson'));
 };
 
 describe('georesource add form model', () => {
@@ -114,6 +115,21 @@ describe('georesource add form model', () => {
       fillRequired(form);
 
       expect(form.valid).toBe(true);
+    });
+
+    it('requires a file only for a FILE data source', () => {
+      const form = buildForm();
+      fillRequired(form);
+      const data = form.controls.data;
+
+      data.controls.selectedFile.setValue(null);
+      expect(data.hasError('fileRequired')).toBe(true);
+
+      data.controls.importer.controls.datasourceType.setValue({
+        type: 'OGCAPI_FEATURES',
+        parameters: [],
+      });
+      expect(data.hasError('fileRequired')).toBe(false);
     });
 
     it('requires an owning organization only with Keycloak enabled', () => {

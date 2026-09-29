@@ -23,7 +23,9 @@
   <div class="row vertical-align">
     <div class="col-md-6 col-sm-6 col-12">
       <div class="form-group">
-        <label>{{ 'ADMIN_INDICATORS.STEP_ACCESS.OWNER_ORG' | translate }}*</label>
+        <label>{{
+          ('ADMIN_INDICATORS.STEP_ACCESS.OWNER_ORG' | translate) + (state.editMode ? '' : '*')
+        }}</label>
         <div class="input-group">
           <input
             type="text"
@@ -39,7 +41,11 @@
             <i class="fas fa-times"></i>
           </button>
         </div>
-        <select formControlName="ownerOrganization" class="form-control" required>
+        <select
+          formControlName="ownerOrganization"
+          appAria="indicator-add-owner"
+          class="form-control"
+        >
           <option [ngValue]="null" disabled selected>
             {{ 'ADMIN_INDICATORS.STEP_ACCESS.SELECT_OWNER_ORG_OPTION' | translate }}
           </option>
@@ -52,7 +58,10 @@
         <div class="help-block">
           <p>{{ 'ADMIN_INDICATORS.STEP_ACCESS.OWNER_ORG_HINT' | translate }}</p>
         </div>
-        <div class="help-block with-errors"></div>
+        <app-form-error
+          [control]="state.addForm.controls.security.controls.ownerOrganization"
+          for="indicator-add-owner"
+        />
       </div>
     </div>
     <div class="col-md-6 col-sm-6 col-12">

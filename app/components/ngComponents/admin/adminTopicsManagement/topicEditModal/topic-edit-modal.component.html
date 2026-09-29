@@ -76,12 +76,7 @@
   <button type="button" class="btn btn-outline-secondary me-auto" (click)="cancel()">
     {{ 'ADMIN_SHARED.CANCEL' | translate }}
   </button>
-  <button
-    type="button"
-    class="btn btn-success"
-    [disabled]="topicForm.invalid || isSubmitting()"
-    (click)="onSubmit()"
-  >
+  <button type="button" class="btn btn-success" [disabled]="isSubmitting()" (click)="onSubmit()">
     {{ 'ADMIN_TOPICS.EDIT_MODAL.UPDATE' | translate }}
   </button>
 </div>

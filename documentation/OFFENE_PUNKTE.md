@@ -311,6 +311,30 @@ während der Aufruf in Zeile 961 dort korrekt das Mapping-**Objekt** übergibt. 
 zurück. Bei der Konsolidierung der Klassifikations-Typen gefunden und bewusst nicht mitgefixt:
 eigener Fehler, eigener Test.
 
+### B8. Aktiver Submit-Button in den Admin-Modals — ✅ erledigt (2026-09-29)
+
+Kein Admin-Dialog mit Pflichtfeldern sperrt seinen Absende-Button mehr, ohne zu sagen, was fehlt.
+Die Arbeitsliste dazu ist abgearbeitet und gelöscht; was sie im Einzelnen umgebaut hat, steht in
+den Commits vom 2026-09-28/29. Das Muster für neue Dialoge:
+
+- **Button bleibt aktiv.** Gesperrt nur aus Gründen, die keine Eingabe sind (Speichern läuft,
+  fehlendes Recht, kein Datensatz gewählt).
+- **`onSubmit()`**: gültig → absenden; sonst `markAllAsTouched()` und
+  `stepper.goToKey(<erster ungültiger Schritt>)`. Ohne Stepper: das erste ungültige Feld fokussieren.
+- **Stepper-Markierung:** `invalid: controlInvalidSignal(<form>, { whenTouched: true })`
+  (`adminShared/forms/control-state.ts`) und `onLeave: () => <form>.markAllAsTouched()`. Ein
+  Schritt wird rot, sobald man ihn unvollständig verlässt, nicht schon beim Öffnen.
+- **Meldung an jedem Pflichtfeld** über `<app-form-error>`. Regeln, die nur im Gate standen,
+  werden Validatoren (`adminShared/validators/admin-validators.ts`, z. B. `requiredWhen`,
+  `fileRequiredForFileDatasource`). Gruppenfehler, die zu einem Feld gehören, zeigt
+  `[revealWith]` erst, wenn dieses Feld berührt ist.
+- **Zustand in Signals statt Forms** (Indikator-Klassifizierung, Skript-Wizard): `stepErrors` als
+  `computed`, dazu ein `revealed`-Zustand und `showsError()`, siehe
+  `IndicatorClassificationStateService` und `ScheduleDraftService`.
+
+Bewusst gesperrt bleiben die Lösch-Modals (nichts ausgewählt), das Batch-Update (`runBlockers()`)
+und der Config-Editor (`configSettingInvalid()`): Ihre Sperrgründe sind keine Formularfelder.
+
 ---
 
 ## C. Hygiene & Tooling

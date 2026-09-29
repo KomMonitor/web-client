@@ -16,17 +16,8 @@
     <div class="col-md-3 col-sm-6 col-12">
       <div class="form-group">
         <label>SRID EPSG</label>
-        <input
-          type="number"
-          class="form-control"
-          [formControl]="state.metadataForm.controls.sridEPSG"
-          name="metadata.sridEPSG"
-          placeholder="4326"
-        />
-        <div class="help-block">
-          <p>{{ 'ADMIN_INDICATORS.STEP_GENERAL.SRID_HINT' | translate }}</p>
-        </div>
-        <div class="help-block with-errors"></div>
+        <km-epsg-picker [formControl]="state.metadataForm.controls.sridEPSG" label="" />
+        <app-form-error [control]="state.metadataForm.controls.sridEPSG" />
       </div>
     </div>
   </div>
