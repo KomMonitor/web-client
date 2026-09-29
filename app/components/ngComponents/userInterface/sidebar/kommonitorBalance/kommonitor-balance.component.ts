@@ -4,12 +4,10 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { RangeFilterStateService } from 'services/range-filter-state-service/range-filter-state.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
-import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
-import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { MapService } from 'services/map-service/map.service';
-import * as jStat from 'jstat';
+import { BalancePeriod, BalanceService } from 'services/balance-service/balance.service';
 import * as noUiSlider from 'nouislider';
 
 import { FormsModule } from '@angular/forms';
@@ -26,29 +24,12 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 export class KommonitorBalanceComponent implements OnInit, OnDestroy {
   protected rangeFilterState = inject(RangeFilterStateService);
   protected chartDisplayState = inject(ChartDisplayStateService);
-  private indicatorValueService = inject(IndicatorValueService);
   private selectionState = inject(SelectionStateService);
   private broadcastService = inject(BroadcastService);
   private filterHelperService = inject(FilterHelperService);
   private mapService = inject(MapService);
-  private diagramHelperService = inject(DiagramHelperServiceService);
+  private balanceService = inject(BalanceService);
   protected envConfigService = inject(EnvConfigService);
-
-  // Resolve the indicator precision from the current selection before
-  // delegating to IndicatorValueService.
-  private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
-    return this.indicatorValueService.getIndicatorValue_asNumber(
-      indicatorValue,
-      this.selectionState.resolveSelectedPrecision(precision)
-    );
-  }
-
-  private getIndicatorValue_asFormattedText(indicatorValue, precision = undefined) {
-    return this.indicatorValueService.getIndicatorValue_asFormattedText(
-      indicatorValue,
-      this.selectionState.resolveSelectedPrecision(precision)
-    );
-  }
 
   ngOnInit(): void {
     this.setupSlider();
@@ -73,14 +54,10 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
     });
   }
 
-  INDICATOR_DATE_PREFIX = this.envConfigService.indicatorDatePrefix;
-
-  numberOfDecimals = this.envConfigService.numberOfDecimals;
-
   targetDate;
-  targetIndicatorProperty;
   rangeSliderForBalance;
-  datesAsMs;
+  // The applicable dates the slider was built for; its values are indices into this.
+  sliderDates: string[] = [];
 
   trendChart_allFeatures;
   trendAnalysis_allFeatures;
@@ -131,7 +108,7 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
     // every indicator change would recompute the balance once per past change.
     // Event type "end" because "set" fires constantly while the slider is re-initialised.
     this.balanceSlider.noUiSlider.on('end', () => {
-      this.onChangeBalanceRange(this.getFormatedSliderReturn());
+      this.onChangeBalanceRange(this.getSelectedPeriod());
     });
   }
 
@@ -171,27 +148,10 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
       this.mapService.setDateSliderValues({ disabled: true });
       this.selectionState.disableIndicatorDatePicker = true;
 
-      if (!this.chartDisplayState.indicatorAndMetadataAsBalance) {
-        this.chartDisplayState.indicatorAndMetadataAsBalance = jQuery.extend(
-          true,
-          {},
-          this.selectionState.selectedIndicator
-        );
-
-        const indicatorType = this.selectionState.selectedIndicator.indicatorType;
-        if (indicatorType.includes('ABSOLUTE')) {
-          this.chartDisplayState.indicatorAndMetadataAsBalance.indicatorType = 'DYNAMIC_ABSOLUTE';
-        } else if (indicatorType.includes('RELATIVE')) {
-          this.chartDisplayState.indicatorAndMetadataAsBalance.indicatorType = 'DYNAMIC_RELATIVE';
-        } else if (indicatorType.includes('STANDARDIZED')) {
-          this.chartDisplayState.indicatorAndMetadataAsBalance.indicatorType =
-            'DYNAMIC_STANDARDIZED';
-        }
-      }
-      const data = this.getFormatedSliderReturn();
-      this.computeAndSetBalance(data);
+      const period = this.getSelectedPeriod();
+      this.computeAndSetBalance(period);
       setTimeout(() => {
-        this.updateTrendChart(this.selectionState.selectedIndicator, data);
+        this.updateTrendChart(this.selectionState.selectedIndicator, period);
       });
       indicatorMetadataAndGeoJSON = this.chartDisplayState.indicatorAndMetadataAsBalance;
       // kommonitorMapService.replaceIndicatorGeoJSON(this.exchangeData.indicatorAndMetadataAsBalance, this.selectionState.selectedSpatialUnit.spatialUnitLevel, this.targetDate, true);
@@ -214,72 +174,7 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
 
   // setupDynamicIndicatorBrew
 
-  getFromDate_asPropertyString(datePeriodSliderData) {
-    // data.from and data.to are index values, not the actual dates! (because we use "values" for rangeSlider)
-    const fromDate = new Date(this.datesAsMs[datePeriodSliderData.from]);
-
-    let fromDateAsPropertyString = this.makePropertyString(fromDate);
-    const fromDateAsString = this.makeDateString(fromDate);
-    if (
-      this.chartDisplayState.indicatorAndMetadataAsBalance &&
-      !this.chartDisplayState.indicatorAndMetadataAsBalance.applicableDates.includes(
-        fromDateAsString
-      )
-    ) {
-      fromDateAsPropertyString = this.snapToNearestUpperDate(
-        fromDate,
-        this.chartDisplayState.indicatorAndMetadataAsBalance.applicableDates
-      );
-    }
-
-    return fromDateAsPropertyString;
-  }
-
-  getFromDate_asDateString(datePeriodSliderData) {
-    // data.from and data.to are index values, not the actual dates! (because we use "values" for rangeSlider)
-    const fromDate = new Date(this.datesAsMs[datePeriodSliderData.from]);
-
-    const fromDateAsString = this.makeDateString(fromDate);
-
-    return fromDateAsString;
-  }
-
-  getToDate_asPropertyString(datePeriodSliderData) {
-    // data.from and data.to are index values, not the actual dates! (because we use "values" for rangeSlider)
-    const toDate = new Date(this.datesAsMs[datePeriodSliderData.to]);
-
-    let toDateAsPropertyString = this.makePropertyString(toDate);
-    const toDateAsString = this.makeDateString(toDate);
-    if (
-      this.chartDisplayState.indicatorAndMetadataAsBalance &&
-      !this.chartDisplayState.indicatorAndMetadataAsBalance.applicableDates.includes(toDateAsString)
-    ) {
-      toDateAsPropertyString = this.snapToNearestLowerDate(
-        toDate,
-        this.chartDisplayState.indicatorAndMetadataAsBalance.applicableDates
-      );
-    }
-
-    return toDateAsPropertyString;
-  }
-
-  getToDate_asDateString(datePeriodSliderData) {
-    // data.from and data.to are index values, not the actual dates! (because we use "values" for rangeSlider)
-    const toDate = new Date(this.datesAsMs[datePeriodSliderData.to]);
-
-    const toDateAsString = this.makeDateString(toDate);
-
-    return toDateAsString;
-  }
-
-  updateTrendChart(indicatorMetadata, datePeriodSliderData) {
-    const fromDateAsPropertyString = this.getFromDate_asPropertyString(datePeriodSliderData);
-    const toDateAsPropertyString = this.getToDate_asPropertyString(datePeriodSliderData);
-    const fromDateString = this.getFromDate_asDateString(datePeriodSliderData);
-    const fromDate_date = new Date(fromDateString);
-    const toDateString = this.getToDate_asDateString(datePeriodSliderData);
-    const toDate_date = new Date(toDateString);
-
+  updateTrendChart(indicatorMetadata, period: BalancePeriod) {
     const chartContainer = document.getElementById('trendDiagram_allFeatures');
 
     // explicitly kill and reinstantiate line diagram to avoid zombie states on spatial unit change
@@ -293,121 +188,45 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
       this.trendChartResizeObserver.observe(chartContainer);
     }
 
-    // use configuration item and data specified to show chart
-    this.trendOption = this.diagramHelperService.makeTrendChartOptions_forAllFeatures(
+    this.trendOption = this.balanceService.makeTrendChartOptions(
       indicatorMetadata,
       this.selectionState.selectedSpatialUnit?.spatialUnitLevel,
-      fromDateAsPropertyString,
-      toDateAsPropertyString,
-      this.trendConfig_allFeatures.showMinMax,
-      this.trendConfig_allFeatures.showCompleteTimeseries,
-      this.trendConfig_allFeatures.trendComputationType,
-      this.trendConfig_allFeatures.showTrend,
+      period,
+      this.trendConfig_allFeatures,
       true
     );
     this.trendChart_allFeatures.setOption(this.trendOption);
-
     this.trendChart_allFeatures.hideLoading();
 
-    let trendData: any[] = [];
-    let timeseriesData;
-    timeseriesData = this.trendOption.series[0].data;
-
-    // The statistics always describe the selected period. Only the complete
-    // series still needs cutting; otherwise the chart data already is that period.
-    if (this.trendConfig_allFeatures.showCompleteTimeseries) {
-      for (let index = 0; index < timeseriesData.length; index++) {
-        const dateCandidate = new Date(indicatorMetadata.applicableDates[index]);
-        if (dateCandidate >= fromDate_date && dateCandidate <= toDate_date) {
-          trendData.push(timeseriesData[index]);
-        }
-      }
-    } else {
-      trendData = timeseriesData;
-    }
-
-    const balanceValue = this.getIndicatorValue_asFormattedText(
-      trendData[trendData.length - 1] - trendData[0]
+    // The chart may show the complete series; the statistics describe the period.
+    const meanValues = this.balanceService.valuesInPeriod(
+      this.trendOption.series[0].data,
+      this.trendOption.xAxis.data,
+      period
     );
-    const balanceValue_numeric = this.getIndicatorValue_asNumber(
-      trendData[trendData.length - 1] - trendData[0]
+    this.trendAnalysis_allFeatures = this.balanceService.computeStatistics(
+      meanValues,
+      indicatorMetadata
     );
-    let trendValue = '';
-    if (Number(balanceValue_numeric) == 0) {
-      trendValue = 'gleichbleibend';
-    } else if (Number(balanceValue_numeric) > 0) {
-      trendValue = 'steigend';
-    } else {
-      trendValue = 'sinkend';
-    }
-
-    this.trendAnalysis_allFeatures = {
-      min: this.getIndicatorValue_asFormattedText(jStat.min(trendData)),
-      max: this.getIndicatorValue_asFormattedText(jStat.max(trendData)),
-      deviation: this.getIndicatorValue_asFormattedText(jStat.stdev(trendData)),
-      variance: this.getIndicatorValue_asFormattedText(jStat.variance(trendData)),
-      mean: this.getIndicatorValue_asFormattedText(jStat.mean(trendData)),
-      median: this.getIndicatorValue_asFormattedText(jStat.median(trendData)),
-      balance: balanceValue,
-      trend: trendValue,
-    };
-  }
-  dateToTS(date) {
-    return date.valueOf();
   }
 
-  // Numeric on purpose: the slider tooltips sit centred on the handles and a
-  // spelled-out month made them stick out of the panel at both ends.
-  tsToDateString(dateAsMs) {
-    return new Date(dateAsMs).toLocaleDateString('de-DE', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
-  }
-
-  dateToDateString(date) {
-    // return date.getFullYear();
-
-    return date.toLocaleDateString('de-DE', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  }
-
-  createDatesFromIndicatorDates(indicatorDates) {
-    this.datesAsMs = [];
-
-    for (const indicatorDate of indicatorDates) {
-      // year-month-day
-      const dateComponents = indicatorDate.split('-');
-      this.datesAsMs.push(
-        this.dateToTS(
-          new Date(
-            Number(dateComponents[0]),
-            Number(dateComponents[1]) - 1,
-            Number(dateComponents[2])
-          )
-        )
-      );
-    }
-    return this.datesAsMs;
-  }
-
-  getFormatedSliderReturn() {
-    const data = this.balanceSlider.noUiSlider.get(true);
-
-    return {
-      from: Math.round(data[0]),
-      to: Math.round(data[1]),
-    };
+  // The period the slider handles select, snapped onto the selected indicator's dates.
+  getSelectedPeriod(): BalancePeriod {
+    const [fromIndex, toIndex] = this.balanceSlider.noUiSlider.get(true);
+    return this.balanceService.resolvePeriod(
+      this.sliderDates,
+      Math.round(fromIndex),
+      Math.round(toIndex),
+      this.selectionState.selectedIndicator.applicableDates
+    );
   }
 
   createNewBalanceInstance() {
     const applicableDates: string[] = this.selectionState.selectedIndicator.applicableDates;
-    this.datesAsMs = this.createDatesFromIndicatorDates(applicableDates);
-    const dateLabels = this.datesAsMs.map((dateAsMs) => this.tsToDateString(dateAsMs));
+    this.sliderDates = [...applicableDates];
+    // Numeric on purpose: the slider tooltips sit centred on the handles and a
+    // spelled-out month made them stick out of the panel at both ends.
+    const dateLabels = applicableDates.map((date) => this.balanceService.formatShortDate(date));
     // With one date per year (all on the same day), the year alone is the
     // meaningful scale label; the tooltips still show the full date.
     const isYearly = new Set(applicableDates.map((date) => date.slice(5))).size === 1;
@@ -422,9 +241,9 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
     this.balanceSlider.noUiSlider.updateOptions({
       range: {
         min: 0, // index from
-        max: this.datesAsMs.length - 1, // index to
+        max: applicableDates.length - 1, // index to
       },
-      start: [0, this.datesAsMs.length - 1],
+      start: [0, applicableDates.length - 1],
       step: 1,
       tooltips: true,
       format: {
@@ -463,7 +282,6 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
 
   setupRangeSliderForBalance([date]) {
     this.targetDate = date;
-    this.targetIndicatorProperty = this.INDICATOR_DATE_PREFIX + date;
 
     if (!this.balanceSlider) {
       // create new instance
@@ -486,14 +304,14 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
     }
   }
 
-  onChangeBalanceRange(data) {
+  onChangeBalanceRange(period: BalancePeriod) {
     // create balance GeoJSON and broadcast "replaceIndicatorAsGeoJSON"
     // Called every time handle position is changed
 
-    this.computeAndSetBalance(data);
+    this.computeAndSetBalance(period);
 
     setTimeout(() => {
-      this.updateTrendChart(this.selectionState.selectedIndicator, data);
+      this.updateTrendChart(this.selectionState.selectedIndicator, period);
     });
     // hier we must call replaceIndicatorGeoJSON because the feature vaues have changed. calling restyle will not work as it only restyles the old numbers
     this.mapService.replaceIndicatorGeoJSON(
@@ -504,151 +322,18 @@ export class KommonitorBalanceComponent implements OnInit, OnDestroy {
     );
   }
 
-  computeAndSetBalance(data) {
-    const fromDateAsPropertyString = this.getFromDate_asPropertyString(data);
-    const fromDateAsDateString = this.getFromDate_asDateString(data);
-    const toDateAsPropertyString = this.getToDate_asPropertyString(data);
-    const toDateAsDateString = this.getToDate_asDateString(data);
-
-    // make another copy of selectedIndicator to ensure that feature order matches each other
-    this.chartDisplayState.indicatorAndMetadataAsBalance = jQuery.extend(
-      true,
-      {},
-      this.selectionState.selectedIndicator
+  computeAndSetBalance(period: BalancePeriod) {
+    this.chartDisplayState.indicatorAndMetadataAsBalance = this.balanceService.makeBalanceIndicator(
+      this.selectionState.selectedIndicator,
+      period,
+      this.targetDate
     );
-    // bis hier passt, wo aber replaceIndocatorASGeojson etc... wie in demo?
-    const indicatorType = this.selectionState.selectedIndicator.indicatorType;
-    if (indicatorType.includes('ABSOLUTE')) {
-      this.chartDisplayState.indicatorAndMetadataAsBalance.indicatorType = 'DYNAMIC_ABSOLUTE';
-    } else if (indicatorType.includes('RELATIVE')) {
-      this.chartDisplayState.indicatorAndMetadataAsBalance.indicatorType = 'DYNAMIC_RELATIVE';
-    } else if (indicatorType.includes('STANDARDIZED')) {
-      this.chartDisplayState.indicatorAndMetadataAsBalance.indicatorType = 'DYNAMIC_STANDARDIZED';
-    }
-
-    // set value of selected target property with the computed balance between toDate - FromDate
-    for (
-      let index = 0;
-      index < this.selectionState.selectedIndicator.geoJSON.features.length;
-      index++
-    ) {
-      const toDateValue = this.getIndicatorValue_asNumber(
-        this.selectionState.selectedIndicator.geoJSON.features[index].properties[
-          toDateAsPropertyString
-        ]
-      );
-      const fromDateValue = this.getIndicatorValue_asNumber(
-        this.selectionState.selectedIndicator.geoJSON.features[index].properties[
-          fromDateAsPropertyString
-        ]
-      );
-
-      this.chartDisplayState.indicatorAndMetadataAsBalance.geoJSON.features[index].properties[
-        this.targetIndicatorProperty
-      ] = this.getIndicatorValue_asNumber(toDateValue - fromDateValue);
-    }
-    this.chartDisplayState.indicatorAndMetadataAsBalance['fromDate'] = this.dateToDateString(
-      new Date(fromDateAsDateString)
-    );
-    this.chartDisplayState.indicatorAndMetadataAsBalance['toDate'] = this.dateToDateString(
-      new Date(toDateAsDateString)
-    );
-  }
-
-  snapToNearestLowerDate(toDate, applicableDates) {
-    const earliestDateStringComponents = applicableDates[0].split('-');
-
-    const earliestDate = new Date(
-      Number(earliestDateStringComponents[0]),
-      Number(earliestDateStringComponents[1]) - 1,
-      Number(earliestDateStringComponents[2])
-    );
-    const dateCandidate = toDate;
-
-    // we need to find the next lower applicableDate
-    // decrement day by one and check, otherwise decrement month and/or year
-    dateCandidate.setDate(dateCandidate.getDate() - 1);
-
-    let targetDatePropertyString;
-
-    while (dateCandidate > earliestDate) {
-      const dateCandidateString = this.makeDateString(dateCandidate);
-      if (applicableDates.includes(dateCandidateString)) {
-        targetDatePropertyString = this.makePropertyString(dateCandidate);
-        break;
-      }
-      //decrement by one day
-      dateCandidate.setDate(dateCandidate.getDate() - 1);
-    }
-
-    if (!targetDatePropertyString) targetDatePropertyString = this.makePropertyString(earliestDate);
-
-    return targetDatePropertyString;
-  }
-
-  snapToNearestUpperDate(fromDate, applicableDates) {
-    const lastDateStringComponents = applicableDates[applicableDates.length - 1].split('-');
-
-    const latestDate = new Date(
-      Number(lastDateStringComponents[0]),
-      Number(lastDateStringComponents[1]) - 1,
-      Number(lastDateStringComponents[2])
-    );
-    const dateCandidate = fromDate;
-
-    // we need to find the next upper applicableDate
-    // increment day by one and check, otherwise increment month and/or year
-    dateCandidate.setDate(dateCandidate.getDate() + 1);
-
-    let targetDatePropertyString;
-
-    while (dateCandidate < latestDate) {
-      const dateCandidateString = this.makeDateString(dateCandidate);
-      if (applicableDates.includes(dateCandidateString)) {
-        targetDatePropertyString = this.makePropertyString(dateCandidate);
-        break;
-      }
-      //increment by one day
-      dateCandidate.setDate(dateCandidate.getDate() + 1);
-    }
-
-    if (!targetDatePropertyString) targetDatePropertyString = this.makePropertyString(latestDate);
-
-    return targetDatePropertyString;
-  }
-
-  makeDateString(date) {
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1; // because month is from 0-11
-    const day = date.getDate();
-
-    // e.g. 2018-01-01
-    let propertyString = year + '-';
-
-    if (month < 10) {
-      propertyString += '0' + month + '-';
-    } else {
-      propertyString += month + '-';
-    }
-
-    if (day < 10) {
-      propertyString += '0' + day;
-    } else {
-      propertyString += day;
-    }
-
-    return propertyString;
-  }
-
-  makePropertyString(date) {
-    const dateString = this.makeDateString(date);
-    return this.INDICATOR_DATE_PREFIX + dateString;
   }
 
   onChangeTrendConfig() {
-    const data = this.getFormatedSliderReturn();
+    const period = this.getSelectedPeriod();
     setTimeout(() => {
-      this.updateTrendChart(this.selectionState.selectedIndicator, data);
+      this.updateTrendChart(this.selectionState.selectedIndicator, period);
     });
   }
 }

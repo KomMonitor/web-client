@@ -129,7 +129,7 @@ Key central services (high fan-in; change carefully):
 - **`config-storage-service` / `env-config-service`** — config plumbing.
 - **`keycloak-helper-service` / `auth-service`** — auth.
 
-Note: the admin data services in `app/services/adminSpatialUnit/` and `app/services/adminGeoresourceUnit/` were also oversized and have been split down — both `kommonitor-data-exchange.service.ts` god services are gone, and the grid helpers are now stateless ColDef builders. The largest remaining admin service is `adminSpatialUnit/kommonitor-importer-helper.service.ts` (~960 lines). The biggest services overall are `reporting-service` (~3400) and `diagram-helper-service` (~2750) — both still unsplit. Keep peeling off responsibilities when you touch these rather than doing a big-bang rewrite.
+Note: the admin data services in `app/services/adminSpatialUnit/` and `app/services/adminGeoresourceUnit/` were also oversized and have been split down — both `kommonitor-data-exchange.service.ts` god services are gone, and the grid helpers are now stateless ColDef builders. The largest remaining admin service is `adminSpatialUnit/kommonitor-importer-helper.service.ts` (~960 lines). The biggest services overall are `reporting-service` (~3400) and `diagram-helper-service` (~2370) — both still unsplit. Keep peeling off responsibilities when you touch these rather than doing a big-bang rewrite.
 
 ### Vendored libraries
 

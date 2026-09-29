@@ -50,46 +50,4 @@ describe('DiagramHelperServiceService', () => {
     expect(timeseries.min).toEqual([1, 2, 3]);
     expect(timeseries.max).toEqual([3, 4, 7]);
   });
-
-  // The balance panel used to clone the line chart the diagrams panel had
-  // prepared, and crashed when that panel had never been opened.
-  it('builds the balance trend chart without a prepared line chart', () => {
-    const options = service.makeTrendChartOptions_forAllFeatures(
-      indicator,
-      'Stadtteile',
-      'DATE_2020-12-31',
-      'DATE_2022-12-31',
-      true,
-      true,
-      'linear',
-      true
-    );
-
-    expect(options.series.map((series) => series.name)).toEqual([
-      'rechnerisches arithmetisches Mittel',
-      'Min',
-      'Max',
-      'MinStack',
-      'MaxStack',
-      'Trendlinie',
-    ]);
-    expect(options.series[0].data).toEqual([2, 3, 5]);
-  });
-
-  it('leaves out the min/max band and trend line when switched off', () => {
-    const options = service.makeTrendChartOptions_forAllFeatures(
-      indicator,
-      'Stadtteile',
-      'DATE_2020-12-31',
-      'DATE_2022-12-31',
-      false,
-      true,
-      'linear',
-      false
-    );
-
-    expect(options.series.map((series) => series.name)).toEqual([
-      'rechnerisches arithmetisches Mittel',
-    ]);
-  });
 });
