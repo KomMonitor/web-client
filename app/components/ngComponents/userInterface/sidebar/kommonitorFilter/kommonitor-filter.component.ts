@@ -305,42 +305,30 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
       }
     );
 
-    this.higherSpatialUnits = JSON.parse(
-      JSON.stringify(this.spatialUnitStore.availableSpatialUnits)
-    );
+    const allSpatialUnits = JSON.parse(JSON.stringify(this.spatialUnitStore.availableSpatialUnits));
 
-    // only show those spatial units that are actually visible according to keycloak role
-    // and associated to the current indicator as well
-    for (let index = 0; index < this.higherSpatialUnits.length; index++) {
-      const spatialUnitMetadata = this.higherSpatialUnits[index];
+    this.higherSpatialUnits = [];
 
-      // remove if it is not applicable for current indicator OR
-      // remove if it is the currently displayed spatial unit to show only hierarchically higher spatial units
-      if (
-        this.considerAllowedSpatialUnitsOfCurrentIndicator &&
-        !allowedSpatialUnitIds.includes(spatialUnitMetadata.spatialUnitId)
-      ) {
-        // only remove the current element
-        // which represents a spatial unit that is
-        // not supported by the current indicator
-        this.higherSpatialUnits.splice(index, 1);
+    // we query through a hierarchically sorted array of ALL spatial units and
+    // only keep those that are actually visible according to keycloak role
+    // and associated to the current indicator, stopping once we reach the
+    // currently displayed spatial unit (excluding hierarchically lower ones)
+    for (const spatialUnitMetadata of allSpatialUnits) {
+      if (spatialUnitName == spatialUnitMetadata.spatialUnitLevel) {
+        break;
       }
 
-      // since we query through a hierarchically sorted array of ALL spatial units
-      // we have to stop when we identify the currently displayed spatial unit
-      // in that case we have to remove that from the list of upper
-      if (spatialUnitName == spatialUnitMetadata.spatialUnitLevel) {
-        // remove current all all remaining elements from array
-        // (which are lower hierarchy spatial units)
-        this.higherSpatialUnits.splice(index);
-        break;
+      if (
+        !this.considerAllowedSpatialUnitsOfCurrentIndicator ||
+        allowedSpatialUnitIds.includes(spatialUnitMetadata.spatialUnitId)
+      ) {
+        this.higherSpatialUnits.push(spatialUnitMetadata);
       }
     }
 
-    // this.higherSpatialUnits.splice(targetIndex);
     this.selectedSpatialUnitForFilter = this.higherSpatialUnits[this.higherSpatialUnits.length - 1];
 
-    if (this.higherSpatialUnits.lenght)
+    if (this.higherSpatialUnits.length)
       this.spatialLevel = new FormControl(this.selectedSpatialUnitForFilter!.spatialUnitId);
 
     this.loadingData = false;
@@ -1011,6 +999,11 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
       this.manualSelectionSpatialFilterDuallistOptions.items.filter(
         (item: any) => !this.filterHelperService.featureIsCurrentlySelected(item.id)
       );
+
+    // dual-list-box only re-syncs its internal state from `data` when its
+    // `reload` input changes, since `data` itself is mutated in place above
+    // rather than reassigned - so toggle it to make the map selection show up.
+    this.reloadManualList = !this.reloadManualList;
   }
 
   removeRangeFilter() {

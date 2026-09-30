@@ -1381,6 +1381,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       justRestyling,
     });
 
+    //ensure that highlighted (map-clicked/selected) features remain highlighted
+    //on the newly created layer, matching restyleCurrentLayer's behavior
+    this.preserveHighlightedFeatures();
+
     this.map.invalidateSize(true);
     this.hideLoadingIconOnMap();
   }
