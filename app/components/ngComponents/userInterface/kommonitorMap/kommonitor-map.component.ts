@@ -987,10 +987,23 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       mouseover: (l) => this.highlightFeature(l),
       mouseout: (l) => this.resetHighlight(l),
       click: (l) => this.switchHighlightFeature(l),
+      // while picking a single point for reachability analysis, hovering the map
+      // must not also reveal the indicator area's label tooltip
+      tooltipopen: () => {
+        if (this.reachabilityStateService.manualMapSelectionMode) {
+          layer.closeTooltip();
+        }
+      },
     });
   }
 
   switchHighlightFeature(layer) {
+    // while picking a single point for reachability analysis, clicks on the map
+    // must not also toggle indicator area selection
+    if (this.reachabilityStateService.manualMapSelectionMode) {
+      return;
+    }
+
     // add or remove feature within a list of "clicked features"
     // those shall be treated specially, i.e. keep being highlighted
     if (
@@ -1010,6 +1023,12 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   }
 
   highlightFeature(e) {
+    // while picking a single point for reachability analysis, hovering the map
+    // must not also highlight indicator areas
+    if (this.reachabilityStateService.manualMapSelectionMode) {
+      return;
+    }
+
     const layer = e.target;
     this.visualStyleHelperService.setOpacity(layer.options.fillOpacity);
 
