@@ -252,9 +252,8 @@ angular
 
         let layerControl, map, geosearchControl, backgroundLayer, drawControlObject, screenshoter;
 
-        // backgroundLayer
-        // backgroundLayer = this.generateBackgroundMap_osmGrayscale();
-        backgroundLayer = this.generateBackgroundMap_cartoDbPositron();
+        // Use OSM base map layer for now, since CartoDB Positron requires an API key and is not free anymore
+        backgroundLayer = this.generateBackgroundMap_osmGrayscale();
 
         map = L.map(domId, {
           center: [__env.initialLatitude, __env.initialLongitude],
