@@ -38,7 +38,7 @@
         names the step; the help text below says what it is for. Step 2 keeps its
         heading because its text differs from its step label.
       -->
-      <form (ngSubmit)="addOrganizationalUnit()">
+      <form (ngSubmit)="onSubmit()">
         <!-- text-center: this is the step's subtitle, not help text for a field. -->
         <p class="help-block text-center">{{ 'ADMIN_ROLES.ADD_MODAL.BASICS_HELP' | translate }}</p>
         <p class="text-center">
@@ -149,7 +149,16 @@
                 {{ 'ADMIN_ROLES.ADD_MODAL.HIERARCHY_HELP' | translate }}
               </p>
             }
+            <app-form-error
+              [control]="form.controls.parentId"
+              keyOverride="ADMIN_ROLES.ADD_MODAL.PARENT_OR_MANDANT_REQUIRED"
+            />
           </div>
+        </div>
+        <div class="stepper-buttons">
+          <button type="button" class="btn btn-primary" (click)="stepper.next()">
+            {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+          </button>
         </div>
       </form>
     }
@@ -186,6 +195,11 @@
           [defaultColDef]="roleDelegatesDefaultColDef"
         ></ag-grid-angular>
       </div>
+      <div class="stepper-buttons">
+        <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
+          {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+        </button>
+      </div>
     }
   </app-loading-overlay>
 </div>
@@ -207,8 +221,8 @@
   <button
     type="button"
     class="btn btn-success"
-    [disabled]="!canSubmit"
-    (click)="addOrganizationalUnit()"
+    [disabled]="processCreation() || !isRealmAdmin"
+    (click)="onSubmit()"
   >
     {{ 'ADMIN_ROLES.ADD_MODAL.SUBMIT' | translate }}
   </button>

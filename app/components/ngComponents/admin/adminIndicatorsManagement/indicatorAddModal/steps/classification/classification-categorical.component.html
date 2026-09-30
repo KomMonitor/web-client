@@ -68,6 +68,7 @@
           <input
             type="text"
             class="value-input"
+            [class.input-missing]="missing(category.value)"
             [value]="category.value"
             (input)="state.setCategoryValue(i, $any($event.target).value)"
             [placeholder]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.VALUE_PLACEHOLDER' | translate"
@@ -78,6 +79,7 @@
             <input
               type="text"
               class="label-input"
+              [class.input-missing]="missing(category.label)"
               [value]="category.label"
               (input)="state.setCategoryLabel(i, $any($event.target).value)"
               [placeholder]="'ADMIN_INDICATORS.STEP_CLASSIFICATION.LABEL_PLACEHOLDER' | translate"
@@ -108,6 +110,14 @@
       </div>
     }
   </div>
+
+  @if (state.showsError(errors.CATEGORIES_INCOMPLETE)) {
+    <div class="alert alert-danger" role="alert">
+      <i class="fas fa-exclamation-triangle"></i>
+      <strong>{{ 'ADMIN_INDICATORS.STEP_CLASSIFICATION.ERROR_LABEL' | translate }}</strong>
+      {{ errors.CATEGORIES_INCOMPLETE | translate }}
+    </div>
+  }
 
   <div class="cat-footer">
     @if (!state.individualColorMode()) {

@@ -18,4 +18,19 @@ describe('ShareHelperService', () => {
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
+
+  describe('setShareLinkParam_currentHierarchyId', () => {
+    it('adds the hierarchy param when a hierarchy id is given', () => {
+      service.setShareLinkParam_currentHierarchyId('some-hierarchy-id');
+
+      expect(service.queryParamMap.get(service.paramName_hierarchyId)).toBe('some-hierarchy-id');
+    });
+
+    it('removes a previously set hierarchy param when no hierarchy is selected', () => {
+      service.setShareLinkParam_currentHierarchyId('some-hierarchy-id');
+      service.setShareLinkParam_currentHierarchyId(undefined);
+
+      expect(service.queryParamMap.has(service.paramName_hierarchyId)).toBe(false);
+    });
+  });
 });

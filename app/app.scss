@@ -15,6 +15,25 @@
   --kommonitor-hierarchy-level-1: #adcae3;
   --kommonitor-hierarchy-level-2: #d6e4f1;
   --kommonitor-hierarchy-level-3: #eaf1f8;
+  --kommonitor-hierarchy-level-4: #f5f9fc;
+
+  // Solid, more saturated variant of each level color, used to fill an entire
+  // topic row when it (or a descendant) contains the currently selected indicator.
+  --kommonitor-hierarchy-level-0-selected: hsl(
+    from var(--kommonitor-hierarchy-level-0) h calc(s + 15) calc(l - 25)
+  );
+  --kommonitor-hierarchy-level-1-selected: hsl(
+    from var(--kommonitor-hierarchy-level-1) h calc(s + 15) calc(l - 25)
+  );
+  --kommonitor-hierarchy-level-2-selected: hsl(
+    from var(--kommonitor-hierarchy-level-2) h calc(s + 15) calc(l - 25)
+  );
+  --kommonitor-hierarchy-level-3-selected: hsl(
+    from var(--kommonitor-hierarchy-level-3) h calc(s + 15) calc(l - 25)
+  );
+  --kommonitor-hierarchy-level-4-selected: hsl(
+    from var(--kommonitor-hierarchy-level-4) h calc(s + 15) calc(l - 25)
+  );
 
   // Header of a section that is not part of the accented structure — used for
   // the "unassigned" section, which lists what is registered but nowhere filed.
@@ -528,7 +547,7 @@ pre.CodeMirror-line {
 }
 
 .list-group.list-group-root {
-  padding: 0;
+  padding-bottom: 1.5em;
   overflow: hidden;
   border: unset;
   background-color: unset;
@@ -538,10 +557,13 @@ pre.CodeMirror-line {
   margin-bottom: 0;
 }
 
-.list-group.list-group-root .list-group-item {
-  border-radius: 0;
-  border-width: 1px 0 0 0;
+.list-group.list-group-root .list-group-item:not(.active) {
+  border: 0;
   color: #333;
+}
+
+.list-group.list-group-root .list-group-item:not(:first-of-type) {
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 .list-group.list-group-root .list-group-item p {
@@ -573,6 +595,12 @@ pre.CodeMirror-line {
   display: grid;
   grid-template-columns: min-content min-content;
   white-space: nowrap;
+}
+
+.list-group .list-group-item-entry-grid-layout .fav-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .list-group .list-group-item-grid-layout.selectedIndicator {
@@ -722,6 +750,7 @@ pre.CodeMirror-line {
 .list-group-item.active:hover {
   background-color: var(--kommonitor-primary);
   border-color: var(--kommonitor-primary);
+  border-radius: 3px;
 }
 
 .list-group.list-group-root > div > div > div > .list-group-item {
@@ -1556,13 +1585,6 @@ a.kommonitor-theme:focus {
   /* right: 40px; */
 }
 
-#rangeSliderForBalanceWrapper {
-  margin-right: 10px;
-  margin-left: auto;
-  left: 10px;
-  /* right: 40px; */
-}
-
 #rangeSliderForFilteringWrapper {
   margin-right: 10px;
   margin-left: auto;
@@ -2031,7 +2053,7 @@ select {
 .indicatorInputForm {
   padding: 5px;
   max-width: 100%;
-  max-height: 400px;
+  /* max-height: 400px; */
   /* border: 2px solid gray;
 	border-radius: 8px; */
   overflow: auto;
@@ -2387,17 +2409,6 @@ aside {
   margin-right: 1%;
   font-size: 12px;
   /* margin-top: 1%x; */
-  z-index: 1000;
-  height: 99%;
-  max-height: 99%;
-  overflow: auto;
-}
-
-#kommonitorBalance {
-  margin-left: 1%;
-  margin-right: 1%;
-  font-size: 12px;
-  /* margin-top: 1%; */
   z-index: 1000;
   height: 99%;
   max-height: 99%;
@@ -3588,6 +3599,7 @@ input:checked + .switchslider:before {
 .style-headline-indicator {
   background-color: rgb(247, 147, 30) !important;
   color: #fff !important;
+  border-radius: 3px;
 }
 
 .style-computation-indicator {

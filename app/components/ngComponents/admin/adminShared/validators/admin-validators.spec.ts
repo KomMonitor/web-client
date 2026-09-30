@@ -1,7 +1,9 @@
 import { FormControl, FormGroup } from '@angular/forms';
 import {
   bboxCompleteValidator,
+  notBlankValidator,
   periodOfValidityValidator,
+  requiredWhen,
   uniqueNameValidator,
 } from './admin-validators';
 
@@ -155,5 +157,79 @@ describe('bboxCompleteValidator', () => {
     const group = buildGroup(1, 2, null, '');
 
     expect(group.hasError('bboxIncomplete')).toBe(true);
+  });
+
+  describe('when required', () => {
+    const buildRequiredGroup = (minx: any, miny: any, maxx: any, maxy: any) =>
+      new FormGroup(
+        {
+          minx: new FormControl(minx),
+          miny: new FormControl(miny),
+          maxx: new FormControl(maxx),
+          maxy: new FormControl(maxy),
+        },
+        { validators: bboxCompleteValidator(() => true) }
+      );
+
+    it('rejects an entirely empty bounding box', () => {
+      expect(buildRequiredGroup(null, '', null, '').hasError('bboxIncomplete')).toBe(true);
+    });
+
+    it('accepts all four corners', () => {
+      expect(buildRequiredGroup(0, 0, 0, 0).valid).toBe(true);
+    });
+  });
+});
+
+describe('requiredWhen', () => {
+  it('reports an empty value as required while the condition holds', () => {
+    expect(
+      new FormControl(
+        '',
+        requiredWhen(() => true)
+      ).errors
+    ).toEqual({ required: true });
+    expect(
+      new FormControl(
+        null,
+        requiredWhen(() => true)
+      ).errors
+    ).toEqual({ required: true });
+  });
+
+  it('accepts a set value while the condition holds', () => {
+    expect(
+      new FormControl(
+        'ref',
+        requiredWhen(() => true)
+      ).valid
+    ).toBe(true);
+  });
+
+  it('accepts an empty value while the condition does not hold', () => {
+    expect(
+      new FormControl(
+        '',
+        requiredWhen(() => false)
+      ).valid
+    ).toBe(true);
+  });
+});
+
+describe('notBlankValidator', () => {
+  const check = (value: unknown) => notBlankValidator(new FormControl(value));
+
+  it('reports a whitespace-only string as required', () => {
+    expect(check('   ')).toEqual({ required: true });
+  });
+
+  it('accepts a string with content', () => {
+    expect(check(' Stadtteile ')).toBeNull();
+  });
+
+  it('leaves empty and non-string values to Validators.required', () => {
+    expect(check('')).toBeNull();
+    expect(check(null)).toBeNull();
+    expect(check(0)).toBeNull();
   });
 });

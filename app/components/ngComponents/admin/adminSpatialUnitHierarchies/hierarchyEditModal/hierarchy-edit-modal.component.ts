@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, Input, OnInit, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  Input,
+  OnInit,
+  inject,
+  viewChild,
+} from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -38,6 +47,9 @@ export interface HierarchyEditModalResult {
 })
 export class HierarchyEditModalComponent implements OnInit {
   private readonly activeModal = inject(NgbActiveModal);
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  private readonly nameInput = viewChild<ElementRef<HTMLInputElement>>('nameInput');
 
   /** ng-bootstrap sets these via componentInstance, before the first render. */
   @Input() existingNames: readonly string[] = [];
@@ -72,9 +84,16 @@ export class HierarchyEditModalComponent implements OnInit {
     return this.chain.join(' → ');
   }
 
+  /**
+   * The button stays active; an incomplete form shows its errors instead and
+   * puts the focus on the name, the only field that can be invalid.
+   */
   protected submit(): void {
     if (this.form.invalid) {
-      this.form.controls.name.markAsTouched();
+      this.form.markAllAsTouched();
+      // OnPush: the touched state alone does not re-render the view
+      this.cdr.markForCheck();
+      this.nameInput()?.nativeElement.focus();
       return;
     }
 

@@ -9,6 +9,16 @@
       @if (resolved.box.description) {
         <p class="text-muted small">{{ resolved.box.description }}</p>
       }
+      <!--
+        Box-level message for the dedicated pickers, above them: several are
+        list boxes whose footer overflows their fixed height and would cover a
+        message placed below.
+      -->
+      @if (showsMissingInBox(resolved)) {
+        <div class="help-block with-errors" role="alert">
+          {{ requiredMessage | translate }}
+        </div>
+      }
 
       @switch (resolved.box.id) {
         <!-- one base or reference indicator -->
@@ -303,6 +313,11 @@
               }
               @if (entry[1].description) {
                 <small class="text-muted">{{ entry[1].description }}</small>
+              }
+              @if (draft.showsMissingInput(entry[0])) {
+                <div class="help-block with-errors" role="alert">
+                  {{ requiredMessage | translate }}
+                </div>
               }
             </div>
           }

@@ -16,7 +16,7 @@ import {
   SingleExportParams,
 } from 'services/exporting/exporting.service';
 import { NotificationService } from '../../../common/notification/notification.service';
-import { EpsgSelectorComponent } from '../epsg-selector/epsg-selector.component';
+import { KmEpsgPickerComponent } from '../../../customElements/epsg-picker/km-epsg-picker.component';
 import { ExportIndicatorCardComponent } from '../export-indicator-card/export-indicator-card.component';
 import { buildTargetTime, mapFormats } from '../export-mapping';
 import { ExportFormat, Indicator, IndicatorExportItem } from '../models';
@@ -31,7 +31,7 @@ import { ExportFormat, Indicator, IndicatorExportItem } from '../models';
   templateUrl: './indicator-export-modal.component.html',
   styleUrls: ['./indicator-export-modal.component.scss'],
   standalone: true,
-  imports: [ExportIndicatorCardComponent, EpsgSelectorComponent],
+  imports: [ExportIndicatorCardComponent, KmEpsgPickerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IndicatorExportModalComponent implements OnInit {
@@ -52,7 +52,7 @@ export class IndicatorExportModalComponent implements OnInit {
     selectedSpatialUnitIds: [],
   });
 
-  private selectedEpsgCode = signal<number | null>(4326);
+  protected selectedEpsgCode = signal<number | null>(4326);
 
   isLoading = signal(false);
 
@@ -74,10 +74,6 @@ export class IndicatorExportModalComponent implements OnInit {
       selectedFormats: [],
       selectedSpatialUnitIds: preselected,
     });
-  }
-
-  onEpsgCodeChange(code: number | null): void {
-    this.selectedEpsgCode.set(code);
   }
 
   toggleSpatialUnit(spatialUnitId: string): void {

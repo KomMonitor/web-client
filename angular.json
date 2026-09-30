@@ -138,6 +138,55 @@
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
+            },
+            "local-stack": {
+              "assets": [
+                {
+                  "glob": "favicon.ico",
+                  "input": "app",
+                  "output": "/"
+                },
+                {
+                  "glob": "**/*",
+                  "input": "app/assets",
+                  "output": "/assets"
+                },
+                {
+                  "glob": "**/*",
+                  "input": "app/icons",
+                  "output": "/icons"
+                },
+                {
+                  "glob": "**/*",
+                  "input": "app/logos",
+                  "output": "/logos"
+                },
+                {
+                  "glob": "config-storage-server.json",
+                  "input": "app/config/local-stack",
+                  "output": "/config"
+                },
+                {
+                  "glob": "keycloak_backup.json",
+                  "input": "app/config",
+                  "output": "/config"
+                },
+                {
+                  "glob": "env_backup.js",
+                  "input": "app/config",
+                  "output": "/config"
+                },
+                {
+                  "glob": "*_forAdminViewExplanation.txt",
+                  "input": "app/config",
+                  "output": "/config"
+                },
+                {
+                  "glob": "**/*",
+                  "input": "node_modules/mathjax",
+                  "output": "/mathjax"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -154,6 +203,9 @@
             },
             "development": {
               "buildTarget": "kommonitor-client:build:development"
+            },
+            "local-stack": {
+              "buildTarget": "kommonitor-client:build:development,local-stack"
             }
           },
           "defaultConfiguration": "development"

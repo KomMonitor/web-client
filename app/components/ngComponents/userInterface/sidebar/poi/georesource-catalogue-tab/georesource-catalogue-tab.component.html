@@ -144,36 +144,20 @@
     </app-georesource-topic-tree>
 
     @if (topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0) {
-      <div
-        class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-0"
+      <app-topic-element
+        [topic]="noTopicElement()"
+        [titleSuffix]="topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries.totalCount"
+        [collapsed]="isCollapsed_noTopic"
+        (toggleCollapse)="toggleNoTopicHierarchy()"
       >
-        <i
-          class="fa-solid"
-          [ngClass]="{
-            'fa-chevron-right': isCollapsed_noTopic,
-            'fa-chevron-down': !isCollapsed_noTopic,
-          }"
-        ></i>
-        <p
-          id="noHierarchyGeoresourceDatasets"
-          title="Georessourcen-Daten ohne Themenbezug"
-          class="collapseTrigger"
-          (click)="toggleNoTopicHierarchy()"
-        >
-          ohne Themenbezug ({{
-            topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries.totalCount
-          }})
-        </p>
-        <input type="checkbox" value="showAllForTopic_null" [(ngModel)]="showAllForTopic_null" />
-      </div>
-    }
+        <input
+          topicElementRowExtra
+          type="checkbox"
+          title="Alle Datensätze ohne Themenbezug anzeigen"
+          [(ngModel)]="showAllForTopic_null"
+          (change)="onToggleShowAllForNoTopic(showAllForTopic_null)"
+        />
 
-    <div
-      class="list-group collapse"
-      [ngClass]="{ in: !isCollapsed_noTopic }"
-      uib-collapse="isCollapsed_noTopic"
-    >
-      @if (topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0) {
         <div class="georesourceInputForm">
           <app-georesource-dataset-table
             [datasets]="topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries"
@@ -193,7 +177,7 @@
           >
           </app-georesource-dataset-table>
         </div>
-      }
-    </div>
+      </app-topic-element>
+    }
   </div>
 </div>

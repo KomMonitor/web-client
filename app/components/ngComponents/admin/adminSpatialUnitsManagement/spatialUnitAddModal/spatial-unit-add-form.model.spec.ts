@@ -57,6 +57,7 @@ const fillRequired = (form: SpatialUnitAddFormGroup): void => {
     type: 'FILE',
     parameters: [],
   });
+  form.controls.data.controls.selectedFile.setValue(new File(['{}'], 'units.geojson'));
 };
 
 describe('spatial-unit add form model', () => {
@@ -121,6 +122,21 @@ describe('spatial-unit add form model', () => {
       form.controls.metadata.controls.spatialUnitLevel.setValue('Stadtteile');
 
       expect(form.controls.metadata.controls.spatialUnitLevel.hasError('uniqueName')).toBe(true);
+    });
+
+    it('requires a file only for a FILE data source', () => {
+      const form = buildForm();
+      fillRequired(form);
+      const data = form.controls.data;
+
+      data.controls.selectedFile.setValue(null);
+      expect(data.hasError('fileRequired')).toBe(true);
+
+      data.controls.importer.controls.datasourceType.setValue({
+        type: 'OGCAPI_FEATURES',
+        parameters: [],
+      });
+      expect(data.hasError('fileRequired')).toBe(false);
     });
 
     it('carries the period rule on the data group', () => {

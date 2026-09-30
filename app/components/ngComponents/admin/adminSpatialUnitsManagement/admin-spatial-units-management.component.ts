@@ -98,7 +98,8 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
       {
         headerName: this.translate.instant('ADMIN_SHARED.EDIT_FUNCTIONS'),
         pinned: 'left',
-        maxWidth: 170,
+        maxWidth: 200,
+        minWidth: 180,
         checkboxSelection: false,
         headerCheckboxSelection: false,
         headerCheckboxSelectionFilteredOnly: true,
@@ -265,11 +266,14 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
     this.spatialUnitStore.availableSpatialUnits$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((spatialUnits) => {
+        // An empty list is applied too: deleting the last spatial unit must
+        // clear the table. Only the loading flag waits for actual data, the
+        // fallback timeout below covers an instance without any.
         if (spatialUnits && spatialUnits.length > 0) {
           this.loadingData = false;
-          this.allSpatialUnits = spatialUnits;
-          this.applyTableViewFilter();
         }
+        this.allSpatialUnits = spatialUnits ?? [];
+        this.applyTableViewFilter();
       });
   }
 

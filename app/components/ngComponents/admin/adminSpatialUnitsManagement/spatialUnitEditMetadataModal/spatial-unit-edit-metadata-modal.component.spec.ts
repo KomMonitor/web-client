@@ -19,10 +19,9 @@ import { buildAssignmentRow } from '../hierarchyAssignment/hierarchy-assignment.
 import { SpatialUnitEditMetadataModalComponent } from './spatial-unit-edit-metadata-modal.component';
 
 /**
- * Safety net for the two hand-written validation flags and the outline
- * defaults, ahead of the typing / Reactive-Forms rework. This modal had no
- * spec at all. The fixture is deliberately never rendered, following the other
- * modal specs in this repo.
+ * Covers the name check, the hierarchy memberships, the submit gate and the
+ * outline defaults. The fixture is deliberately never rendered, following the
+ * other modal specs in this repo.
  */
 
 const SPATIAL_UNITS = [
@@ -317,6 +316,116 @@ describe('SpatialUnitEditMetadataModalComponent', () => {
         'HIERARCHY_UPDATE_FAILED'
       );
       expect(closed).not.toHaveBeenCalled();
+    });
+  });
+
+  /**
+   * The submit button stays active: an incomplete form is revealed and the
+   * first step that needs input is opened, instead of a disabled button.
+   */
+  describe('submit gate', () => {
+    let save: jest.SpyInstance;
+
+    /** Opens the modal on DATASET_IN_TWO and fills the required general metadata. */
+    async function initComplete(): Promise<void> {
+      component.currentSpatialUnitDataset = DATASET_IN_TWO as never;
+      component.ngOnInit();
+      await Promise.resolve();
+      await Promise.resolve();
+      component.metadataForm.patchValue({
+        description: 'Beschreibung',
+        datasource: 'Amt',
+        contact: 'wer@example.org',
+        lastUpdate: '2026-01-01',
+        updateInterval: { apiName: 'YEARLY', displayName: 'jährlich' } as never,
+      });
+    }
+
+    beforeEach(() => {
+      save = jest.spyOn(component, 'editSpatialUnitMetadata').mockResolvedValue(undefined);
+    });
+
+    it('saves once the form is complete', async () => {
+      await initComplete();
+
+      component.onSubmit();
+
+      expect(save).toHaveBeenCalledTimes(1);
+    });
+
+    it('blocks a whitespace-only name and marks the metadata step', async () => {
+      await initComplete();
+      component.stepper.goToKey('general');
+      component.spatialUnitLevel = '   ';
+
+      component.onSubmit();
+
+      expect(save).not.toHaveBeenCalled();
+      expect(component.editForm.controls.spatialUnitLevel.hasError('required')).toBe(true);
+      expect(component.stepper.isActive('metadata')).toBe(true);
+      expect(component.stepper.steps.map((step) => step.invalid)).toEqual([true, false]);
+    });
+
+    it('jumps to the first incomplete step instead of saving', async () => {
+      await initComplete();
+      component.metadataForm.controls.contact.setValue('');
+
+      component.onSubmit();
+
+      expect(save).not.toHaveBeenCalled();
+      expect(component.stepper.isActive('general')).toBe(true);
+      expect(component.stepper.steps.map((step) => step.invalid)).toEqual([false, true]);
+    });
+
+    it('prefers the metadata step when both are incomplete', async () => {
+      await initComplete();
+      component.metadataForm.controls.contact.setValue('');
+      component.spatialUnitLevel = '';
+      component.stepper.goToKey('general');
+
+      component.onSubmit();
+
+      expect(component.stepper.isActive('metadata')).toBe(true);
+      // Every step is revealed, not only the one jumped to.
+      expect(component.stepper.steps.map((step) => step.invalid)).toEqual([true, true]);
+    });
+
+    it('blocks saving an invalid hierarchy row', async () => {
+      await initComplete();
+      component.editForm.controls.hierarchyAssignments.push(
+        buildAssignmentRow({ hierarchyId: '', placement: 'append', referenceSpatialUnitId: '' })
+      );
+      component.stepper.goToKey('general');
+
+      component.onSubmit();
+
+      expect(save).not.toHaveBeenCalled();
+      expect(component.stepper.isActive('metadata')).toBe(true);
+      expect(component.stepper.steps[0].invalid).toBe(true);
+    });
+
+    it('marks a step only after it was left incomplete', async () => {
+      await initComplete();
+      component.metadataForm.controls.contact.setValue('');
+      component.spatialUnitLevel = '';
+
+      expect(component.stepper.steps.map((step) => step.invalid)).toEqual([false, false]);
+
+      component.stepper.next();
+
+      expect(component.stepper.steps.map((step) => step.invalid)).toEqual([true, false]);
+    });
+
+    it('clears the markings on reset', async () => {
+      await initComplete();
+      component.spatialUnitLevel = '';
+      component.onSubmit();
+      expect(component.stepper.steps[0].invalid).toBe(true);
+
+      component.resetForm();
+
+      expect(component.editForm.touched).toBe(false);
+      expect(component.stepper.steps.map((step) => step.invalid)).toEqual([false, false]);
     });
   });
 

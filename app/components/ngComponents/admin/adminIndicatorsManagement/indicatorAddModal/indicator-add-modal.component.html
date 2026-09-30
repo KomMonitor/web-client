@@ -201,7 +201,7 @@
   <button type="button" class="btn btn-outline-secondary" (click)="state.resetForm()">
     <i class="fas fa-undo"></i>&nbsp;{{ 'ADMIN_SHARED_UI.RESET' | translate }}
   </button>
-  <button type="button" class="btn btn-success" (click)="addIndicator()">
+  <button type="button" class="btn btn-success" (click)="onSubmit()">
     @if (state.editMode) {
       {{ 'ADMIN_INDICATORS.ADD_MODAL.SAVE_CHANGES' | translate }}
     } @else {
@@ -209,33 +209,3 @@
     }
   </button>
 </div>
-
-<!-- Missing required fields dialog (shown before sending when validation fails) -->
-<ng-template #missingFieldsModal let-modal>
-  <div class="modal-header">
-    <h4 class="modal-title">
-      <i class="fa fa-exclamation-triangle"></i>&nbsp;{{
-        'ADMIN_INDICATORS.ADD_MODAL.MISSING_FIELDS_TITLE' | translate
-      }}
-    </h4>
-    <button
-      type="button"
-      class="btn-close"
-      [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
-      (click)="modal.dismiss()"
-    ></button>
-  </div>
-  <div class="modal-body">
-    <p>{{ 'ADMIN_INDICATORS.ADD_MODAL.MISSING_FIELDS_INTRO' | translate }}</p>
-    <ul>
-      @for (field of missingFields; track field.label) {
-        <li>{{ field.label }}</li>
-      }
-    </ul>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-primary" (click)="modal.close()">
-      {{ 'ADMIN_INDICATORS.ADD_MODAL.MISSING_FIELDS_OK' | translate }}
-    </button>
-  </div>
-</ng-template>

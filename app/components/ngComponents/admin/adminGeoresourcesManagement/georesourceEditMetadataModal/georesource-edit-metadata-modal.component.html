@@ -113,7 +113,9 @@
         <div class="row form-section-row">
           <div class="col-md-6 col-sm-6 col-12">
             <div class="form-group">
-              <label>{{ 'ADMIN_GEORESOURCES.COMMON.NAME_LABEL' | translate }}*</label>
+              <label for="grm-name"
+                >{{ 'ADMIN_GEORESOURCES.COMMON.NAME_LABEL' | translate }}*</label
+              >
               <input
                 type="text"
                 class="form-control"
@@ -140,7 +142,6 @@
                 <option value="loi">Lines of Interest</option>
                 <option value="aoi">Areas of Interest</option>
               </select>
-              <div class="help-block with-errors"></div>
             </div>
           </div>
         </div>
@@ -171,7 +172,6 @@
                       </li>
                     }
                   </ul>
-                  <div class="help-block with-errors"></div>
                 </div>
               </div>
             </div>
@@ -204,7 +204,6 @@
                       }}</a>
                     </li>
                   </ul>
-                  <div class="help-block with-errors"></div>
                 </div>
               </div>
             </div>
@@ -228,17 +227,27 @@
             @if (selectedPoiMarkerStyle === 'text') {
               <div class="col-md-3 col-sm-6 col-12">
                 <div class="form-group">
-                  <label>{{ 'ADMIN_GEORESOURCES.COMMON.TEXT' | translate }}*</label>
+                  <label for="grm-marker-text"
+                    >{{ 'ADMIN_GEORESOURCES.COMMON.TEXT' | translate }}*</label
+                  >
                   <br />
                   <input
                     type="text"
                     class="form-control"
                     [formControl]="metadataStep.controls.style.controls.poiMarkerText"
+                    appAria="grm-marker-text"
                     placeholder=""
                   />
-                  <div class="help-block with-errors">
-                    {{ 'ADMIN_GEORESOURCES.METADATA_MODAL.MAX_3_CHARS' | translate }}
-                  </div>
+                  <!-- Plain hint until the length error replaces it: one message at a time. -->
+                  @if (!poiMarkerTextErrorShown) {
+                    <div class="help-block">
+                      {{ 'ADMIN_GEORESOURCES.METADATA_MODAL.MAX_3_CHARS' | translate }}
+                    </div>
+                  }
+                  <app-form-error
+                    [control]="metadataStep.controls.style.controls.poiMarkerText"
+                    for="grm-marker-text"
+                  />
                 </div>
               </div>
             }
@@ -271,7 +280,6 @@
                       </li>
                     }
                   </ul>
-                  <div class="help-block with-errors"></div>
                 </div>
               </div>
             </div>
@@ -288,7 +296,6 @@
                   [(color)]="loiColor"
                   [label]="'ADMIN_GEORESOURCES.COMMON.CHOOSE_LINE_COLOR' | translate"
                 ></km-color-picker>
-                <div class="help-block with-errors"></div>
               </div>
             </div>
             <div class="col-md-4 col-sm-4 col-12">
@@ -303,7 +310,6 @@
                   max="5"
                   step="1"
                 />
-                <div class="help-block with-errors"></div>
               </div>
             </div>
             <div class="col-md-4 col-sm-4 col-12">
@@ -317,7 +323,6 @@
                   (patternChange)="onChangeLoiDashArray($event)"
                 >
                 </km-line-pattern-picker>
-                <div class="help-block with-errors"></div>
               </div>
             </div>
           </div>
@@ -333,7 +338,6 @@
                   [(color)]="aoiColor"
                   [label]="'ADMIN_GEORESOURCES.COMMON.CHOOSE_AREA_COLOR' | translate"
                 ></km-color-picker>
-                <div class="help-block with-errors"></div>
               </div>
             </div>
           </div>
@@ -459,8 +463,8 @@
   <button
     type="button"
     class="btn btn-success"
-    [disabled]="!canSubmitForm()"
-    (click)="editGeoresourceMetadata()"
+    [disabled]="loadingData() || !currentGeoresourceDataset"
+    (click)="onSubmit()"
   >
     {{ 'ADMIN_GEORESOURCES.METADATA_MODAL.UPDATE_METADATA' | translate }}
   </button>

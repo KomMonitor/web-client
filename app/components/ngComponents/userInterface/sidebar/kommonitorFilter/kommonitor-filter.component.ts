@@ -208,13 +208,40 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.slider = document.getElementById('filterRangeSlider');
-    noUiSlider.create(this.slider, this.sliderNormalConfig);
-
-    this.measureSlider = document.getElementById('measureOfValueSlider');
-    noUiSlider.create(this.measureSlider, this.sliderSingleConfig);
+    // Both slider elements only exist in the DOM once an indicator with a
+    // QUANTITATIVE classification is selected (they are behind an @if), so on
+    // initial load - before any indicator is selected - they are not there
+    // yet. ensure*Slider() is called again once they actually appear.
+    this.ensureFilterRangeSlider();
+    this.ensureMeasureOfValueSlider();
 
     if (!this.globalFilters) this.loadGlobalFilters();
+  }
+
+  private ensureFilterRangeSlider(): void {
+    // Re-query if the previously created element was removed from the DOM
+    // (e.g. the indicator classification toggled away from QUANTITATIVE and
+    // back), since the @if then renders a brand new element with the same id.
+    if (this.slider?.noUiSlider && document.body.contains(this.slider)) return;
+
+    const element = document.getElementById('filterRangeSlider');
+    if (!element) return;
+
+    this.slider = element;
+    noUiSlider.create(this.slider, this.sliderNormalConfig);
+  }
+
+  private ensureMeasureOfValueSlider(): void {
+    // Re-query if the previously created element was removed from the DOM
+    // (e.g. the indicator classification toggled away from QUANTITATIVE and
+    // back), since the @if then renders a brand new element with the same id.
+    if (this.measureSlider?.noUiSlider && document.body.contains(this.measureSlider)) return;
+
+    const element = document.getElementById('measureOfValueSlider');
+    if (!element) return;
+
+    this.measureSlider = element;
+    noUiSlider.create(this.measureSlider, this.sliderSingleConfig);
   }
 
   loadGlobalFilters() {
@@ -278,42 +305,30 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
       }
     );
 
-    this.higherSpatialUnits = JSON.parse(
-      JSON.stringify(this.spatialUnitStore.availableSpatialUnits)
-    );
+    const allSpatialUnits = JSON.parse(JSON.stringify(this.spatialUnitStore.availableSpatialUnits));
 
-    // only show those spatial units that are actually visible according to keycloak role
-    // and associated to the current indicator as well
-    for (let index = 0; index < this.higherSpatialUnits.length; index++) {
-      const spatialUnitMetadata = this.higherSpatialUnits[index];
+    this.higherSpatialUnits = [];
 
-      // remove if it is not applicable for current indicator OR
-      // remove if it is the currently displayed spatial unit to show only hierarchically higher spatial units
-      if (
-        this.considerAllowedSpatialUnitsOfCurrentIndicator &&
-        !allowedSpatialUnitIds.includes(spatialUnitMetadata.spatialUnitId)
-      ) {
-        // only remove the current element
-        // which represents a spatial unit that is
-        // not supported by the current indicator
-        this.higherSpatialUnits.splice(index, 1);
+    // we query through a hierarchically sorted array of ALL spatial units and
+    // only keep those that are actually visible according to keycloak role
+    // and associated to the current indicator, stopping once we reach the
+    // currently displayed spatial unit (excluding hierarchically lower ones)
+    for (const spatialUnitMetadata of allSpatialUnits) {
+      if (spatialUnitName == spatialUnitMetadata.spatialUnitLevel) {
+        break;
       }
 
-      // since we query through a hierarchically sorted array of ALL spatial units
-      // we have to stop when we identify the currently displayed spatial unit
-      // in that case we have to remove that from the list of upper
-      if (spatialUnitName == spatialUnitMetadata.spatialUnitLevel) {
-        // remove current all all remaining elements from array
-        // (which are lower hierarchy spatial units)
-        this.higherSpatialUnits.splice(index);
-        break;
+      if (
+        !this.considerAllowedSpatialUnitsOfCurrentIndicator ||
+        allowedSpatialUnitIds.includes(spatialUnitMetadata.spatialUnitId)
+      ) {
+        this.higherSpatialUnits.push(spatialUnitMetadata);
       }
     }
 
-    // this.higherSpatialUnits.splice(targetIndex);
     this.selectedSpatialUnitForFilter = this.higherSpatialUnits[this.higherSpatialUnits.length - 1];
 
-    if (this.higherSpatialUnits.lenght)
+    if (this.higherSpatialUnits.length)
       this.spatialLevel = new FormControl(this.selectedSpatialUnitForFilter!.spatialUnitId);
 
     this.loadingData = false;
@@ -384,8 +399,18 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
   }
 
   setupRangeSliderForFilter(date, indicatorMetadataAndGeoJSON) {
+    // The value-range slider only enters the DOM for a QUANTITATIVE
+    // indicator (see the @if in the template), so there is nothing to set
+    // up for a QUALITATIVE one.
+    if (this.indicatorClassificationType !== 'QUANTITATIVE') return;
+
     // hier
     date = this.INDICATOR_DATE_PREFIX + date;
+
+    // The slider element only enters the DOM once an indicator with a
+    // QUANTITATIVE classification is selected, so it may not have been
+    // created yet in ngAfterViewInit().
+    this.ensureFilterRangeSlider();
 
     if (this.rangeSliderForFilter) {
       this.rangeFilterState.rangeFilterData = undefined;
@@ -582,6 +607,11 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
   }
 
   onChangeUseMeasureOfValue() {
+    // The slider element only enters the DOM once an indicator with a
+    // QUANTITATIVE classification is selected, so it may not have been
+    // created yet in ngAfterViewInit().
+    this.ensureMeasureOfValueSlider();
+
     const middle =
       this.valueRangeMinValue + (this.valueRangeMaxValue - this.valueRangeMinValue) / 2;
 
@@ -621,6 +651,16 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
   // hier
   updateMeasureOfValueBar([date, indicatorMetadataAndGeoJSON]) {
+    // The measure-of-value slider and its text input only enter the DOM for
+    // a QUANTITATIVE indicator (see the @if in the template), so there is
+    // nothing to update for a QUALITATIVE one.
+    if (this.indicatorClassificationType !== 'QUANTITATIVE') return;
+
+    // The slider element only enters the DOM once an indicator with a
+    // QUANTITATIVE classification is selected, so it may not have been
+    // created yet in ngAfterViewInit().
+    this.ensureMeasureOfValueSlider();
+
     //append date prefix to access correct property!
     date = this.INDICATOR_DATE_PREFIX + date;
     const geoJSON = indicatorMetadataAndGeoJSON.geoJSON;
@@ -959,6 +999,11 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
       this.manualSelectionSpatialFilterDuallistOptions.items.filter(
         (item: any) => !this.filterHelperService.featureIsCurrentlySelected(item.id)
       );
+
+    // dual-list-box only re-syncs its internal state from `data` when its
+    // `reload` input changes, since `data` itself is mutated in place above
+    // rather than reassigned - so toggle it to make the map selection show up.
+    this.reloadManualList = !this.reloadManualList;
   }
 
   removeRangeFilter() {

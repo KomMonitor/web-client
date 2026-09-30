@@ -33,6 +33,19 @@
     max-height: 80vh;
     overflow-y: auto;
     min-width: 25vw;
+
+    .hierarchy-button {
+      background-color: #fff;
+      border: 1px solid var(--kommonitor-primary);
+      border-radius: 4px;
+      color: var(--kommonitor-primary);
+      margin-right: 0.5em;
+
+      &.active {
+        background-color: var(--kommonitor-primary);
+        color: #fff;
+      }
+    }
   }
 
   .boxedLegend {

@@ -6,10 +6,19 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { uniqueNameValidator } from '../../adminShared/validators/admin-validators';
 import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
+import { controlInvalidSignal } from '../../adminShared/forms/control-state';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { OrganizationalUnitInputType } from 'models/data-management-api';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -38,6 +47,19 @@ import { RoleDelegatePutEntry } from '../admin-role-management.service';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { TranslateService } from '@ngx-translate/core';
+
+/**
+ * A unit is either its own tenant or hangs below a parent. Sits on the
+ * `parentId` control rather than the group, so the message shows under the
+ * parent picker and only once that control is touched.
+ */
+export function parentOrMandantValidator(control: AbstractControl): ValidationErrors | null {
+  if (control.value || control.parent?.get('mandant')?.value === true) {
+    return null;
+  }
+  return { parentOrMandant: true };
+}
+
 @Component({
   selector: 'app-role-add-modal',
   templateUrl: './role-add-modal.component.html',
@@ -87,9 +109,9 @@ export class RoleAddModalComponent implements OnInit {
   showKeycloakErrorAlert = signal(false);
 
   /**
-   * The four editable fields. `parentId` is not an input — it is set from the
-   * parent-organization picker — so it stays a plain field and is merged into
-   * `newOrganizationalUnit` for the payload.
+   * The editable fields. `parentId` has no input of its own — it is written
+   * from the parent-organization picker — but lives in the form so the
+   * tenant-or-parent rule is a validator like the others.
    */
   readonly form = new FormGroup({
     name: new FormControl('', {
@@ -105,9 +127,8 @@ export class RoleAddModalComponent implements OnInit {
     description: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     contact: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     mandant: new FormControl(false, { nonNullable: true }),
+    parentId: new FormControl<string | null>(null, { validators: parentOrMandantValidator }),
   });
-
-  parentId?: string;
 
   get nameInvalid(): boolean {
     return this.form.controls.name.hasError('uniqueName');
@@ -127,17 +148,33 @@ export class RoleAddModalComponent implements OnInit {
       description: value.description,
       contact: value.contact,
       mandant: value.mandant,
-      parentId: this.parentId,
+      parentId: value.parentId ?? undefined,
     };
   }
 
+  // Reading this signal through `stepper.steps` re-renders the OnPush host,
+  // which hands <app-stepper> a new steps array.
+  private readonly basicsStepInvalid = controlInvalidSignal(this.form, { whenTouched: true });
+
   protected readonly stepper = new WizardStepper([
-    { key: 'basics', label: 'ADMIN_SHARED_UI.STEP_LABELS.BASIC_INFO' },
+    {
+      key: 'basics',
+      label: 'ADMIN_SHARED_UI.STEP_LABELS.BASIC_INFO',
+      invalid: this.basicsStepInvalid,
+      onLeave: () => this.form.markAllAsTouched(),
+    },
     { key: 'rights', label: 'ADMIN_SHARED_UI.STEP_LABELS.RIGHTS_OF_OTHER_GROUPS_NEW' },
   ]);
   protected accessControlOptions = [...this.accessControlService.accessControl].sort(
     (left, right) => left.name.localeCompare(right.name, 'de')
   );
+
+  constructor() {
+    // The parent rule reads the tenant flag, so it must re-run when that flips.
+    this.form.controls.mandant.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.form.controls.parentId.updateValueAndValidity());
+  }
 
   ngOnInit(): void {
     this.reset();
@@ -157,20 +194,15 @@ export class RoleAddModalComponent implements OnInit {
   }
 
   get parentSelected(): boolean {
-    return !!this.parentId;
+    return !!this.form.controls.parentId.value;
   }
 
   get canSubmit(): boolean {
-    if (this.processCreation() || this.form.invalid || !this.isRealmAdmin) {
-      return false;
-    }
-    // A unit is either its own tenant or hangs below a parent.
-    return this.form.controls.mandant.value === true || this.parentId !== undefined;
+    return !this.processCreation() && this.isRealmAdmin && this.form.valid;
   }
 
   reset(): void {
     this.form.reset();
-    this.parentId = undefined;
     this.errorMessagePart.set(undefined);
     this.keycloakErrorMessagePart.set(undefined);
     this.showErrorAlert.set(false);
@@ -193,24 +225,27 @@ export class RoleAddModalComponent implements OnInit {
 
   onMandantChange(): void {
     if (this.form.controls.mandant.value) {
-      this.parentId = undefined;
+      this.form.controls.parentId.setValue(null);
     }
   }
 
   onParentOrganizationalUnitChange(parent: AccessControlMetadata): void {
-    this.parentId = parent.organizationalUnitId || undefined;
+    const parentId = this.form.controls.parentId;
+    parentId.setValue(parent.organizationalUnitId || null);
+    parentId.markAsTouched();
 
-    if (this.parentId) {
+    if (parentId.value) {
       this.form.controls.mandant.setValue(false);
     }
   }
 
   getParentOrganizationalUnit(): AccessControlMetadata | null {
-    if (!this.parentId) {
+    const parentId = this.form.controls.parentId.value;
+    if (!parentId) {
       return null;
     }
 
-    return this.accessControlService.getAccessControlById(this.parentId) || null;
+    return this.accessControlService.getAccessControlById(parentId) || null;
   }
 
   onRoleDelegatesGridReady(params: GridReadyEvent): void {
@@ -262,6 +297,20 @@ export class RoleAddModalComponent implements OnInit {
       selectedPermissionIds,
       (id) => this.accessControlService.getAccessControlById(id) ?? undefined
     );
+  }
+
+  /**
+   * The submit button stays clickable: on an incomplete form it reveals the
+   * step marking and field hints and jumps to the basics step, instead of
+   * sitting disabled without saying why.
+   */
+  onSubmit(): void {
+    if (this.form.valid) {
+      this.addOrganizationalUnit();
+      return;
+    }
+    this.form.markAllAsTouched();
+    this.stepper.goToKey('basics');
   }
 
   addOrganizationalUnit(): void {

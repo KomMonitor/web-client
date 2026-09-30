@@ -142,7 +142,6 @@ describe('SpatialUnitEditFeaturesModalComponent', () => {
             buildImporterObjects: jest.fn(),
             readJsonFile: jest.fn(),
             parseMappingConfig: jest.fn(),
-            collectMissingImporterFields: jest.fn().mockReturnValue([]),
             downloadJson: jest.fn(),
           },
         },
@@ -392,6 +391,86 @@ describe('SpatialUnitEditFeaturesModalComponent', () => {
       expect(component.datasourceType).toBeNull();
       expect(component.validityStartDate_perFeature).toBe('');
       expect(component.attributeMappings_adminView).toEqual([]);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+
+  describe('active submit button', () => {
+    const fillRequired = (): void => {
+      component.periodOfValidity = { startDate: '2026-01-01', endDate: '' };
+      component.importerForm.patchValue({
+        idProperty: 'id',
+        nameProperty: 'name',
+        converter: CONVERTER_SHARING_A_PARAMETER as never,
+        datasourceType: FILE_DATASOURCE as never,
+      });
+      component.editForm.controls.selectedFile.setValue(new File(['{}'], 'units.geojson'));
+    };
+
+    it('is valid once every required field is filled', () => {
+      fillRequired();
+
+      expect(component.editForm.valid).toBe(true);
+    });
+
+    it('demands a file for a FILE data source', () => {
+      fillRequired();
+
+      component.editForm.controls.selectedFile.setValue(null);
+
+      expect(component.editForm.hasError('fileRequired')).toBe(true);
+    });
+
+    it('does not demand a file for any other data source', () => {
+      fillRequired();
+      component.editForm.controls.selectedFile.setValue(null);
+
+      component.importerForm.controls.datasourceType.setValue(HTTP_DATASOURCE as never);
+
+      expect(component.editForm.hasError('fileRequired')).toBe(false);
+    });
+
+    it('writes the chosen file into the form and marks it touched', () => {
+      const file = new File(['{}'], 'units.geojson');
+
+      component.onFileSelected({ target: { files: [file] } });
+
+      expect(component.editForm.controls.selectedFile.value).toBe(file);
+      expect(component.editForm.controls.selectedFile.touched).toBe(true);
+      expect(component.selectedDataSourceFile).toBe(file);
+    });
+
+    it('jumps to the data step instead of posting while incomplete', () => {
+      const post = jest.spyOn(component, 'editSpatialUnitFeatures').mockResolvedValue(undefined);
+      fillRequired();
+      component.editForm.controls.selectedFile.setValue(null);
+      component.stepper.goToKey('overview');
+
+      component.onSubmit();
+
+      expect(post).not.toHaveBeenCalled();
+      expect(component.stepper.isActive('data')).toBe(true);
+      expect(component.editForm.touched).toBe(true);
+      expect(component.stepper.steps[1].invalid).toBe(true);
+    });
+
+    it('posts once the form is complete', () => {
+      const post = jest.spyOn(component, 'editSpatialUnitFeatures').mockResolvedValue(undefined);
+      fillRequired();
+
+      component.onSubmit();
+
+      expect(post).toHaveBeenCalledTimes(1);
+    });
+
+    it('marks the data step as soon as it is left incomplete', () => {
+      component.stepper.goToKey('data');
+      expect(component.stepper.steps[1].invalid).toBe(false);
+
+      component.stepper.previous();
+
+      expect(component.stepper.steps[1].invalid).toBe(true);
     });
   });
 

@@ -258,7 +258,8 @@ OR as third submenu -> Geocoding from CSV/Excel -> make use of importer entries 
             type="text"
             class="form-control"
             placeholder="Stichwortfilter"
-          /><!-- [(ngModel)]="fileNameFilter" -->
+            [(ngModel)]="fileNameFilter"
+          />
         </div>
         <br />
         <div class="fileInputForm">
@@ -272,8 +273,7 @@ OR as third submenu -> Geocoding from CSV/Excel -> make use of importer entries 
               </tr>
             </thead>
             <tbody>
-              <!-- | filter:fileNameFilter | orderBy:"datasetName" -->
-              @for (dataset of fileDatasets; track dataset) {
+              @for (dataset of filteredFileDatasets; track dataset) {
                 <tr>
                   <td>
                     <label class="checkbox-inline"
@@ -327,7 +327,7 @@ OR as third submenu -> Geocoding from CSV/Excel -> make use of importer entries 
                       <select
                         style="font-size: 11px; width: 135px; padding: 0px"
                         [(ngModel)]="dataset.ID_ATTRIBUTE"
-                        (change)="onChangeIdProperty(dataset)"
+                        (change)="onIdAttributeChangedInTable(dataset)"
                         class="form-control"
                         required
                       >
@@ -342,7 +342,7 @@ OR as third submenu -> Geocoding from CSV/Excel -> make use of importer entries 
                       <select
                         style="font-size: 11px; width: 135px; padding: 0px"
                         [(ngModel)]="dataset.NAME_ATTRIBUTE"
-                        (change)="onChangeNameProperty(dataset)"
+                        (change)="onNameAttributeChangedInTable(dataset)"
                         class="form-control"
                         required
                       >

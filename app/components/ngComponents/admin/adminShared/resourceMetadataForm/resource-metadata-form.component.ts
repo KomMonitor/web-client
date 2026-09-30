@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { KmDatePickerComponent } from '../../../customElements/date-picker/km-date-picker.component';
+import { FormErrorComponent } from '../formError/form-error.component';
 import { ResourceMetadataFormGroup, UpdateIntervalOption } from './resource-metadata-form.model';
 
 /**
@@ -13,7 +14,7 @@ import { ResourceMetadataFormGroup, UpdateIntervalOption } from './resource-meta
 @Component({
   selector: 'app-resource-metadata-form',
   standalone: true,
-  imports: [TranslateModule, ReactiveFormsModule, KmDatePickerComponent],
+  imports: [TranslateModule, ReactiveFormsModule, KmDatePickerComponent, FormErrorComponent],
   templateUrl: './resource-metadata-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

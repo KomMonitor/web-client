@@ -3,7 +3,9 @@ import {
   ChangeDetectorRef,
   Component,
   DestroyRef,
+  ElementRef,
   OnInit,
+  ViewChild,
   inject,
   signal,
 } from '@angular/core';
@@ -11,7 +13,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { TranslateService } from '@ngx-translate/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions } from 'ag-grid-community';
@@ -32,6 +34,7 @@ import { StepperComponent } from 'components/ngComponents/common/stepper/stepper
 import { FormErrorComponent } from 'components/ngComponents/admin/adminShared/formError/form-error.component';
 import { FormControlAriaDirective } from 'components/ngComponents/admin/adminShared/formError/form-control-aria.directive';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
+import { notBlankValidator } from '../../../adminShared/validators/admin-validators';
 
 /** JSON indentation the filter config is stored with. */
 const CONFIG_INDENT = '    ';
@@ -84,6 +87,7 @@ interface FilterConfigEntry {
   imports: [
     TranslateModule,
     FormsModule,
+    ReactiveFormsModule,
     NgTemplateOutlet,
     AgGridAngular,
     StepperComponent,
@@ -148,11 +152,20 @@ export class AdminFilterEditModalComponent implements OnInit {
   indicatorDatasetColumns: ColDef[] = [];
   georesourceDatasetColumns: ColDef[] = [];
 
-  filterName!: string | undefined;
+  /**
+   * The filter name — the wizard's only required input. It sits above the
+   * stepper, in none of its steps, so an invalid name never marks a step.
+   */
+  readonly nameControl = new FormControl('', {
+    nonNullable: true,
+    validators: [Validators.required, notBlankValidator],
+  });
+
+  @ViewChild('nameInput') private nameInput?: ElementRef<HTMLInputElement>;
 
   /**
    * The name the dialog was opened with. The header shows this one, not
-   * `filterName` — that is bound to the input and would let the title rename
+   * `nameControl` — that is bound to the input and would let the title rename
    * itself while the user types.
    */
   originalFilterName: string | undefined;
@@ -236,9 +249,21 @@ export class AdminFilterEditModalComponent implements OnInit {
     );
   }
 
-  /** Whether the wizard can be submitted — a name is the only hard requirement. */
-  get canSubmit(): boolean {
-    return !this.loadingData() && !!this.filterName && this.filterName.trim().length > 0;
+  /**
+   * Handler of the always-enabled submit button: saves when the name is valid,
+   * otherwise reveals the name's error and moves the focus there. No stepper
+   * jump — the name is not part of any step.
+   */
+  onSubmit(): void {
+    if (this.nameControl.valid) {
+      void this.saveAdminFilter();
+      return;
+    }
+
+    this.nameControl.markAsTouched();
+    // OnPush: the touched state alone does not re-render <app-form-error>
+    this.cdr.markForCheck();
+    this.nameInput?.nativeElement.focus();
   }
 
   /**
@@ -288,7 +313,7 @@ export class AdminFilterEditModalComponent implements OnInit {
     const storedFilter = filterConfig[this.selectedItem!];
     if (!storedFilter) return;
 
-    this.filterName = storedFilter.name;
+    this.nameControl.setValue(storedFilter.name);
     this.originalFilterName = storedFilter.name;
     this.selectedIndicatorIds = [...(storedFilter.indicators ?? [])];
     this.selectedGeoresourceIds = [...(storedFilter.georesources ?? [])];
@@ -608,8 +633,8 @@ export class AdminFilterEditModalComponent implements OnInit {
    * new entry in add mode, replacing the edited entry otherwise.
    */
   async saveAdminFilter(): Promise<void> {
-    const name = this.filterName?.trim();
-    if (!name) return;
+    // Only reached through onSubmit(), which has already rejected a blank name
+    const name = this.nameControl.value.trim();
 
     let filterConfig: FilterConfigEntry[];
     try {
@@ -682,7 +707,8 @@ export class AdminFilterEditModalComponent implements OnInit {
 
   /** Drops every change made in the wizard and starts over from the stored state. */
   resetAdminFilterEditForm(): void {
-    this.filterName = undefined;
+    // reset() also clears touched/dirty, so the error does not linger
+    this.nameControl.reset();
     this.selectedIndicatorIds = [];
     this.selectedGeoresourceIds = [];
     this.selectedIndicatorTopicEditIds = [];

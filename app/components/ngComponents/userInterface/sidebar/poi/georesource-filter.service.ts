@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { GeoresourceFavoritesService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-favorites.service';
 
 /**
  * Holds the shared georesource catalogue filter state (keyword + per-type
@@ -15,6 +16,7 @@ export class GeoresourceFilterService {
   private readonly topicHierarchyStore = inject(TopicHierarchyStoreService);
   private readonly georesourceStore = inject(GeoresourceMetadataStoreService);
   private readonly envConfigService = inject(EnvConfigService);
+  private readonly favoritesService = inject(GeoresourceFavoritesService);
 
   enabledGeoresourcesInfrastructure = this.envConfigService.enabledGeoresourcesInfrastructure;
   enabledGeoresourcesGeoservices = this.envConfigService.enabledGeoresourcesGeoservices;
@@ -56,6 +58,9 @@ export class GeoresourceFilterService {
 
     setTimeout(() => {
       this.refreshPreppedHierarchy();
+      // The favourites tab tree was otherwise only ever built once (on initial load /
+      // global filter reload) and kept showing the unfiltered catalogue while typing here.
+      this.favoritesService.buildFavTopicsTree();
     }, 250);
   }
 

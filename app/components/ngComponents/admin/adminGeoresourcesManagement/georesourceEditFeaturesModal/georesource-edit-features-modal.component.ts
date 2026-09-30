@@ -31,6 +31,7 @@ import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { KmDatePickerComponent } from 'components/ngComponents/customElements/date-picker/km-date-picker.component';
+import { KmEpsgPickerComponent } from 'components/ngComponents/customElements/epsg-picker/km-epsg-picker.component';
 import { SingleFeatureEditComponent } from 'components/ngComponents/common/single-feature-edit/single-feature-edit.component';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
@@ -89,6 +90,7 @@ import { buildGeoresourceEditFeaturesForm } from './georesource-edit-features-fo
     SingleFeatureEditComponent,
     StepperComponent,
     KmDatePickerComponent,
+    KmEpsgPickerComponent,
     TranslateModule,
   ],
   standalone: true,
@@ -182,6 +184,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       key: 'batch',
       label: 'ADMIN_SHARED_UI.STEP_LABELS.IMPORT_MULTIPLE_FEATURES',
       invalid: this.batchStepInvalid,
+      onLeave: () => this.editForm.markAllAsTouched(),
     },
   ]);
 
@@ -632,7 +635,20 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
    * `valueChanges`, so it must not write the control back.
    */
   private applyDatasourceTypeChange(datasourceType: any): void {
+    // A new data source type discards the upload; the file input is rebuilt too.
+    this.editForm.controls.selectedFile.setValue(null);
     syncDatasourceParameterControls(this.importerForm, datasourceType);
+  }
+
+  get selectedDataSourceFile(): File | null {
+    return this.editForm.controls.selectedFile.value;
+  }
+
+  onDataSourceFileSelected(event: any): void {
+    const file = event?.target?.files?.[0] as File | undefined;
+    const control = this.editForm.controls.selectedFile;
+    control.setValue(file ?? null);
+    control.markAsTouched();
   }
 
   // Validation methods
@@ -825,8 +841,11 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
    * never update anything.
    */
   async editGeoresourceFeatures(): Promise<void> {
+    // Converter, data source and file are validators on `editForm` and are
+    // checked by `onSubmit()`; only the dataset is no input and stays a guard
+    // (the submit button is disabled without it).
     const dataset = this.currentGeoresourceDataset;
-    if (!dataset || !this.converter || !this.datasourceType) {
+    if (!dataset) {
       return;
     }
 
@@ -911,7 +930,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       converterParameterValues: this.converterParameterValues,
       datasourceType: this.datasourceType,
       datasourceTypeFormValues: this.assembleDatasourceFormValues(),
-      selectedFile: this.dataSourceInput?.nativeElement?.files?.[0] ?? null,
+      selectedFile: this.selectedDataSourceFile,
       fileInputElement: this.dataSourceInput?.nativeElement,
       idProperty: this.georesourceDataSourceIdProperty,
       nameProperty: this.georesourceDataSourceNameProperty,
@@ -1075,8 +1094,12 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.bboxRefSpatialUnitId = '';
     this.importerForm.controls.bbox.reset();
 
+    this.editForm.controls.selectedFile.setValue(null);
+
     this.importerErrors.set(undefined);
     this.importedFeatures = [];
+    // Hide the field hints again until the batch step is left or submitted.
+    this.editForm.markAsUntouched();
   }
 
   // Alert methods (template-bound flags)
@@ -1088,9 +1111,27 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.mappingConfigImportErrorAlertVisible.set(false);
   }
 
-  // Validation for form submission
+  /**
+   * Blocks the submit button only for reasons that are no input: no dataset
+   * chosen, or an import is running. Input problems are reported by
+   * `onSubmit()` instead of a silently disabled button.
+   */
   canSubmitForm(): boolean {
-    return !!this.currentGeoresourceDataset?.datasetName && this.editForm.valid;
+    return !!this.currentGeoresourceDataset?.datasetName && !this.loadingData();
+  }
+
+  /**
+   * The footer submit belongs to the batch step (the single-feature step has
+   * its own buttons). On an incomplete form it reveals every field hint and
+   * jumps to the batch step instead of sitting disabled without saying why.
+   */
+  onSubmit(): void {
+    if (this.editForm.valid) {
+      this.editGeoresourceFeatures();
+      return;
+    }
+    this.editForm.markAllAsTouched();
+    this.stepper.goToKey('batch');
   }
 
   // AG-Grid event handlers

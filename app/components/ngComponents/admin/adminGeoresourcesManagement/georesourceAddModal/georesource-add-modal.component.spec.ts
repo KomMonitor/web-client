@@ -48,7 +48,20 @@ const GEORESOURCES = [{ datasetName: 'Spielplätze' }, { datasetName: 'Schulen' 
 const SUB_SUB_SUB = { topicId: 't-1-1-1-1', topicName: 'Ebene 4' };
 const SUB_SUB = { topicId: 't-1-1-1', topicName: 'Ebene 3', subTopics: [SUB_SUB_SUB] };
 const SUB = { topicId: 't-1-1', topicName: 'Ebene 2', subTopics: [SUB_SUB] };
-const MAIN = { topicId: 't-1', topicName: 'Umwelt', subTopics: [SUB] };
+const MAIN = {
+  topicId: 't-1',
+  topicName: 'Umwelt',
+  topicType: 'main',
+  topicResource: 'georesource',
+  subTopics: [SUB],
+};
+/** An indicator main topic, which the georesource topic step must not offer. */
+const INDICATOR_MAIN = {
+  topicId: 't-9',
+  topicName: 'Bevölkerung',
+  topicType: 'main',
+  topicResource: 'indicator',
+};
 
 const ATTRIBUTE_MAPPING_TYPES = [{ displayName: 'Text', apiName: 'string' }];
 
@@ -136,7 +149,10 @@ describe('GeoresourceAddModalComponent', () => {
           provide: SpatialUnitMetadataStoreService,
           useValue: { availableSpatialUnits: SPATIAL_UNITS },
         },
-        { provide: TopicMetadataStoreService, useValue: { availableTopics: [MAIN] } },
+        {
+          provide: TopicMetadataStoreService,
+          useValue: { availableTopics: [MAIN, INDICATOR_MAIN] },
+        },
         { provide: TopicHierarchyService, useValue: { getTopicHierarchyForTopicId: () => [] } },
         {
           provide: AccessControlService,
@@ -177,7 +193,6 @@ describe('GeoresourceAddModalComponent', () => {
             buildImporterObjects: jest.fn(),
             readJsonFile: jest.fn(),
             parseMappingConfig: jest.fn(),
-            collectMissingImporterFields: jest.fn().mockReturnValue([]),
             downloadJson: jest.fn(),
           },
         },
@@ -442,6 +457,14 @@ describe('GeoresourceAddModalComponent', () => {
 
   // ---------------------------------------------------------------------------
 
+  describe('topic step', () => {
+    it('offers only the main topics of the georesource tree', () => {
+      component.ngOnInit();
+
+      expect(component.availableTopics).toEqual([MAIN]);
+    });
+  });
+
   describe('buildPostBody_georesources — topic reference', () => {
     it('uses the main topic when only that is selected', () => {
       topicsGroup().controls.mainTopic.setValue(MAIN);
@@ -626,6 +649,28 @@ describe('GeoresourceAddModalComponent', () => {
     });
   });
 
+  describe('poiMarkerTextErrorShown', () => {
+    it('stays false for an untouched invalid text, so the plain hint shows', () => {
+      styleGroup().controls.poiMarkerText.setValue('ABCD');
+
+      expect(component.poiMarkerTextErrorShown).toBe(false);
+    });
+
+    it('turns true once the invalid text is touched, replacing the hint', () => {
+      styleGroup().controls.poiMarkerText.setValue('ABCD');
+      styleGroup().controls.poiMarkerText.markAsTouched();
+
+      expect(component.poiMarkerTextErrorShown).toBe(true);
+    });
+
+    it('stays false for a touched valid text', () => {
+      styleGroup().controls.poiMarkerText.setValue('AB');
+      styleGroup().controls.poiMarkerText.markAsTouched();
+
+      expect(component.poiMarkerTextErrorShown).toBe(false);
+    });
+  });
+
   // ---------------------------------------------------------------------------
 
   describe('onChangeGeoresourceType', () => {
@@ -729,6 +774,115 @@ describe('GeoresourceAddModalComponent', () => {
       expect(periodGroup().getRawValue()).toEqual({ startDate: '', endDate: '' });
       expect(importerGroup().controls.idProperty.value).toBe('');
       expect(component.attributeMappings_adminView).toEqual([]);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+
+  describe('submit gate', () => {
+    /** Fills everything the POST body requires, except the Keycloak owner. */
+    const fillRequired = () => {
+      metadataGroup().controls.datasetName.setValue('Spielplätze neu');
+      component.metadataForm.patchValue({
+        description: 'Beschreibung',
+        datasource: 'Quelle',
+        contact: 'Kontakt',
+        lastUpdate: '2026-01-01',
+        updateInterval: { apiName: 'YEARLY', displayName: 'jährlich' },
+      });
+      topicsGroup().controls.mainTopic.setValue(MAIN);
+      setPeriod({ startDate: '2026-01-01', endDate: '' });
+      importerGroup().patchValue({
+        idProperty: 'id',
+        nameProperty: 'name',
+        converter: { name: 'GeoJSON', mimeTypes: [], encodings: [], type: 'geojson' },
+        datasourceType: { type: 'FILE', parameters: [] },
+      });
+      component.addForm.controls.data.controls.selectedFile.setValue(
+        new File(['{}'], 'spielplaetze.geojson')
+      );
+    };
+
+    it('stays incomplete while required fields are missing', () => {
+      expect(component.addForm.invalid).toBe(true);
+    });
+
+    it('is complete once every required field is filled', () => {
+      fillRequired();
+      securityGroup().controls.ownerOrganization.setValue('org-1');
+
+      expect(component.addForm.valid).toBe(true);
+    });
+
+    it('demands a file for a FILE data source', () => {
+      fillRequired();
+      securityGroup().controls.ownerOrganization.setValue('org-1');
+
+      component.addForm.controls.data.controls.selectedFile.setValue(null);
+
+      expect(component.addForm.controls.data.hasError('fileRequired')).toBe(true);
+    });
+
+    it('takes the picked file from the file input', () => {
+      const file = new File(['{}'], 'spielplaetze.geojson');
+
+      component.onGeoresourceFileSelected({ target: { files: [file] } });
+
+      const control = component.addForm.controls.data.controls.selectedFile;
+      expect(control.value).toBe(file);
+      expect(control.touched).toBe(true);
+    });
+
+    it('jumps to the first incomplete step instead of posting', () => {
+      const post = jest.spyOn(component, 'addGeoresource').mockResolvedValue(undefined);
+      fillRequired();
+      component.metadataForm.controls.contact.setValue('');
+      component.stepper.goToKey('data');
+
+      component.onSubmit();
+
+      expect(post).not.toHaveBeenCalled();
+      expect(component.stepper.isActive('general')).toBe(true);
+      // Every step is revealed, not only the one jumped to.
+      expect(component.addForm.controls.security.touched).toBe(true);
+      expect(component.stepper.steps.map((step) => step.invalid)).toEqual([
+        false,
+        true,
+        false,
+        true,
+        false,
+      ]);
+    });
+
+    it('posts once the form is complete', () => {
+      const post = jest.spyOn(component, 'addGeoresource').mockResolvedValue(undefined);
+      fillRequired();
+      securityGroup().controls.ownerOrganization.setValue('org-1');
+
+      component.onSubmit();
+
+      expect(post).toHaveBeenCalledTimes(1);
+    });
+
+    it('marks a step as soon as it is left incomplete', () => {
+      expect(component.stepper.steps[0].invalid).toBe(false);
+
+      component.stepper.next();
+
+      expect(component.stepper.steps[0].invalid).toBe(true);
+      expect(component.stepper.steps[2].invalid).toBe(false); // not visited yet
+    });
+
+    it('does not demand an owner when Keycloak is disabled', () => {
+      TestBed.resetTestingModule();
+      const noKeycloak = createFixture({ enableKeycloakSecurity: false }).componentInstance;
+      const post = jest.spyOn(noKeycloak, 'addGeoresource').mockResolvedValue(undefined);
+      component = noKeycloak;
+      fillRequired();
+
+      noKeycloak.onSubmit();
+
+      expect(post).toHaveBeenCalledTimes(1);
     });
   });
 

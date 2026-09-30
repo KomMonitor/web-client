@@ -19,6 +19,7 @@
             {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_CREATE_MODAL.NAME_LABEL' | translate }}*
           </label>
           <input
+            #nameInput
             id="hierarchy-name-input"
             class="form-control"
             type="text"
@@ -44,12 +45,19 @@
             A given tenant shows as a disabled field: a dialog opened from a
             tenant's view builds the hierarchy there, and nowhere else.
           -->
-          @if (!mandantIsFixed && mandants.length > 1) {
-            <select id="hierarchy-mandant-input" class="form-select" formControlName="mandant">
+          @if (mandantIsSelectable) {
+            <select
+              #mandantSelect
+              id="hierarchy-mandant-input"
+              class="form-select"
+              formControlName="mandant"
+            >
               @for (mandant of mandants; track mandant) {
                 <option [value]="mandant">{{ mandant }}</option>
               }
             </select>
+            <!-- Only under the select: the disabled field below has nothing to fix. -->
+            <app-form-error [control]="form.controls.mandant" for="hierarchy-mandant-input" />
           } @else {
             <input
               id="hierarchy-mandant-input"
@@ -62,7 +70,6 @@
               "
             />
           }
-          <app-form-error [control]="form.controls.mandant" for="hierarchy-mandant-input" />
         </div>
       </div>
     </div>
@@ -173,7 +180,7 @@
   <button type="button" class="btn btn-outline-secondary me-auto" (click)="cancel()">
     {{ 'ADMIN_SHARED.CANCEL' | translate }}
   </button>
-  <button type="button" class="btn btn-success" [disabled]="!canSubmit" (click)="submit()">
+  <button type="button" class="btn btn-success" (click)="submit()">
     {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_CREATE_MODAL.SUBMIT' | translate }}
   </button>
 </div>

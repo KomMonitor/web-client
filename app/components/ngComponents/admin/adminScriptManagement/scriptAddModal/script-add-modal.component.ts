@@ -16,7 +16,10 @@ import { FormsModule } from '@angular/forms';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
-import { ScheduleDraftService } from 'services/schedule-draft-service/schedule-draft.service';
+import {
+  SCHEDULE_STEP_KEYS,
+  ScheduleDraftService,
+} from 'services/schedule-draft-service/schedule-draft.service';
 import { renderFormula, renderLegend } from 'services/schedule-draft-service/legend-template.util';
 import { ScriptStepIntroductionComponent } from './scriptStepIntroduction/script-step-introduction.component';
 import { ScheduleInputsStepComponent } from './scheduleInputsStep/schedule-inputs-step.component';
@@ -70,11 +73,28 @@ export class ScriptAddModalComponent implements OnInit {
   // former RefreshScriptOverviewTable broadcast round-trip.
   @Output() refreshRequested = new EventEmitter<ScriptRefreshRequest>();
 
+  // A step is marked once it is left incomplete; the draft holds which steps
+  // are revealed, so the step components can show their field messages too.
   readonly stepper = new WizardStepper([
     { key: 'intro', label: 'ADMIN_SHARED_UI.STEP_LABELS.INTRO_NOTES' },
-    { key: 'target', label: 'ADMIN_SCRIPTS.ADD_MODAL.STEP_TARGET' },
-    { key: 'inputs', label: 'ADMIN_SCRIPTS.ADD_MODAL.STEP_INPUTS' },
-    { key: 'timing', label: 'ADMIN_SCRIPTS.ADD_MODAL.STEP_TIMING' },
+    {
+      key: 'target',
+      label: 'ADMIN_SCRIPTS.ADD_MODAL.STEP_TARGET',
+      invalid: () => this.draft.stepInvalid('target'),
+      onLeave: () => this.draft.reveal('target'),
+    },
+    {
+      key: 'inputs',
+      label: 'ADMIN_SCRIPTS.ADD_MODAL.STEP_INPUTS',
+      invalid: () => this.draft.stepInvalid('inputs'),
+      onLeave: () => this.draft.reveal('inputs'),
+    },
+    {
+      key: 'timing',
+      label: 'ADMIN_SCRIPTS.ADD_MODAL.STEP_TIMING',
+      invalid: () => this.draft.stepInvalid('timing'),
+      onLeave: () => this.draft.reveal('timing'),
+    },
   ]);
 
   // Signal-backed: written after the awaited POST, which would not trigger a
@@ -183,8 +203,22 @@ export class ScriptAddModalComponent implements OnInit {
     this.showErrorAlert.set(false);
   }
 
-  isFormValid(): boolean {
-    return this.draft.isComplete();
+  /**
+   * Submit handler of the always-active button: registers when every step is
+   * complete, otherwise reveals all messages and jumps to the first
+   * incomplete step.
+   */
+  onSubmit(): void {
+    if (this.draft.isComplete()) {
+      void this.addScript();
+      return;
+    }
+    this.draft.revealAll();
+    const errors = this.draft.stepErrors();
+    const firstInvalidStep = SCHEDULE_STEP_KEYS.find((step) => errors[step].length > 0);
+    if (firstInvalidStep) {
+      this.stepper.goToKey(firstInvalidStep);
+    }
   }
 
   private resetFormKeepingSuccess(): void {

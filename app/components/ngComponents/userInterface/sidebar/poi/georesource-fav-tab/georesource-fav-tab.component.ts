@@ -2,6 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
+  TopicElementComponent,
+  TopicElementTopic,
+} from 'components/ngComponents/common/topic-element/topic-element.component';
+import {
   GeoresourcesDataset,
   GeoresourcesTopicsHierarchy,
 } from 'components/ngComponents/models/georesources.models';
@@ -16,6 +20,7 @@ import { IconTranslate } from 'pipes/icon-translate.pipe';
 import { ExportButtonVisibilityService } from 'services/export-button-visibility-service/export-button-visibility.service';
 import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
+import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
 
 /**
  * The "Favoriten" tab: a recursive view of the favourite topics/datasets with
@@ -36,6 +41,7 @@ import { OgcService } from 'services/ogcServices/ogc.service';
     GeoFavItemFilter,
     IconTranslate,
     ExportItemCheckboxComponent,
+    TopicElementComponent,
   ],
 })
 export class GeoresourceFavTabComponent {
@@ -46,12 +52,15 @@ export class GeoresourceFavTabComponent {
   protected ogcService = inject(OgcService);
   protected exportMode = inject(GeoresourceExportModeService);
   private exportState = inject(ExportingStateService);
+  private topicHierarchyStore = inject(TopicHierarchyStoreService);
 
   @Input() showFavSelection = false;
 
   @Output() toggleGeoresourceOnMap = new EventEmitter<GeoresourcesDataset>();
   @Output() showAllOnTopic = new EventEmitter<GeoresourcesTopicsHierarchy>();
   @Output() zoomToLayer = new EventEmitter<GeoresourcesDataset>();
+
+  showAllForTopic_null = false;
 
   private expandedFavTopics = new Set<string>();
 
@@ -99,6 +108,15 @@ export class GeoresourceFavTabComponent {
       }
     };
     walk(this.favoritesService.georesourceFavTopicsTree);
+
+    const noTopic = this.noTopicElement();
+    const noTopicItems = [...noTopic.poiData, ...noTopic.aoiData, ...noTopic.loiData];
+    for (const item of noTopicItems) {
+      if (this.favoritesService.FavTabShowPoi(noTopic, item.georesourceId)) {
+        result.push(item);
+      }
+    }
+
     return result;
   }
 
@@ -113,5 +131,50 @@ export class GeoresourceFavTabComponent {
       return true;
     }
     return topic.subTopics.some((sub) => this.checkHierarchyPoiSelected(sub));
+  }
+
+  /**
+   * The "ohne Themenbezug" bucket has no backing topic (just dataset counts), so
+   * this wraps it as a minimal topic-like object to render through `app-topic-element`,
+   * mirroring `GeoresourceCatalogueTabComponent.noTopicElement()`.
+   */
+  noTopicElement(): TopicElementTopic & GeoresourcesTopicsHierarchy {
+    return {
+      topicId: 'no-topic',
+      topicName: 'ohne Themenbezug',
+      topicDescription: 'Georessourcen-Daten ohne Themenbezug',
+      subTopics: [],
+      ...this.topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries,
+    };
+  }
+
+  /** Whether any dataset without a topic reference is currently favourited. */
+  showNoTopicFavs(): boolean {
+    return this.favoritesService.FavTabShowPOIHeader(this.noTopicElement());
+  }
+
+  /**
+   * Toggles every dataset listed under "ohne Themenbezug" on/off the map. Unlike
+   * the real topics (toggled via `showAllOnTopic` → `PoiComponent.handleShowAllOnTopic`,
+   * which resolves membership through the topic hierarchy), these datasets aren't
+   * tracked in any hierarchy, so they're toggled and dispatched directly here.
+   */
+  onToggleShowAllForNoTopic(selected: boolean): void {
+    const entries = this.topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries;
+
+    const geoDatasets = [...entries.poiData, ...entries.loiData, ...entries.aoiData];
+    const relevantGeoDatasets = selected ? geoDatasets : geoDatasets.filter((d) => d.isSelected);
+    for (const dataset of relevantGeoDatasets) {
+      dataset.isSelected = selected;
+      this.toggleGeoresourceOnMap.emit(dataset);
+    }
+
+    const relevantWmsDatasets = selected
+      ? entries.wmsData
+      : entries.wmsData.filter((d) => d.isSelected);
+    for (const dataset of relevantWmsDatasets) {
+      dataset.isSelected = selected;
+      this.layerService.handleWmsOnMap(dataset);
+    }
   }
 }

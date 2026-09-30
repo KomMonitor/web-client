@@ -17,6 +17,7 @@ import { MapService } from 'services/map-service/map.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { RangeFilterStateService } from 'services/range-filter-state-service/range-filter-state.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
+import { ShareHelperService } from 'services/share-helper-service/share-helper.service';
 import { SidebarStateService } from 'services/sidebar-state-service/sidebar-state.service';
 import { MODAL_FORM } from 'util/modal-presets';
 import { EnvConfigService } from '../../../services/env-config-service/env-config.service';
@@ -62,6 +63,7 @@ export class UserInterfaceComponent implements OnInit {
   private authService = inject(AuthService);
   private favService = inject(FavService);
   protected globalFilterHelperService = inject(GlobalFilterHelperService);
+  private shareHelperService = inject(ShareHelperService);
   private router = inject(Router);
   protected envConfigService = inject(EnvConfigService);
   private mapService = inject(MapService);
@@ -101,6 +103,7 @@ export class UserInterfaceComponent implements OnInit {
       });
 
     this.globalFilterHelperService.init();
+    this.shareHelperService.init();
 
     if (this.authService.isAuthenticated()) {
       this.favService.init();

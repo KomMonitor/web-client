@@ -77,6 +77,19 @@ export class KommonitorDataImportComponent implements OnInit {
 
   fileDatasets: GeoresourcesImportDataset[] = [];
 
+  fileNameFilter = '';
+
+  get filteredFileDatasets(): GeoresourcesImportDataset[] {
+    const filter = this.fileNameFilter?.trim().toLowerCase();
+    if (!filter) {
+      return this.fileDatasets;
+    }
+
+    return this.fileDatasets.filter((dataset) =>
+      dataset.datasetName?.toLowerCase().includes(filter)
+    );
+  }
+
   constructor() {
     this.filteredPoiMarkerColors = this.poiPresentationService.availablePoiMarkerColors.filter(
       (e) => e.colorName != 'white'
@@ -571,8 +584,6 @@ export class KommonitorDataImportComponent implements OnInit {
       feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] =
         '' + feature.properties[dataset.NAME_ATTRIBUTE];
     }
-
-    // this.refreshDataLayer(dataset);
   }
 
   onChangeIdProperty(dataset) {
@@ -581,8 +592,19 @@ export class KommonitorDataImportComponent implements OnInit {
       feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME] =
         '' + feature.properties[dataset.ID_ATTRIBUTE];
     }
+  }
 
-    // this.refreshDataLayer(dataset);
+  // called from the "Geladene Datenlayer" table, where the dataset is already on the map -
+  // onChangeNameProperty()/onChangeIdProperty() alone only update the dataset object, not the
+  // rendered layer, so the map layer must be rebuilt to reflect the new attribute in tooltips/popups
+  onNameAttributeChangedInTable(dataset) {
+    this.onChangeNameProperty(dataset);
+    this.refreshDataLayer(dataset);
+  }
+
+  onIdAttributeChangedInTable(dataset) {
+    this.onChangeIdProperty(dataset);
+    this.refreshDataLayer(dataset);
   }
 
   downloadDataLayer(dataset) {

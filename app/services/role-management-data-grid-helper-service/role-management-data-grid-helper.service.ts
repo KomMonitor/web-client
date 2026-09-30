@@ -135,11 +135,11 @@ export class RoleManagementDataGridHelperService {
         }
       }
     }
-    // Keep the original sorting logic
-    const array: any[] = [];
-    array.push(data[0]);
-    array.push(data[1]);
-    data.splice(0, 2);
+    // Keep the original sorting logic: the first two entries stay on top, the
+    // rest is sorted by name. `splice` only returns entries that exist — with a
+    // single organizational unit (a fresh v6 instance) indexing `data[1]` added
+    // an `undefined` row, on which the creator checkbox renderer threw.
+    const array: any[] = data.splice(0, 2);
     data.sort((a, b) => {
       if (a.name < b.name) {
         return -1;

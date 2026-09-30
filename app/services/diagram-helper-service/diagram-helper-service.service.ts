@@ -19,8 +19,17 @@ import { FilterHelperService } from 'services/filter-helper-service/filter-helpe
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import * as echarts from 'echarts';
 import * as turf from '@turf/turf';
-import * as ecStat from 'echarts-stat';
 import { CategoricalMappingType } from 'models/data-management-api';
+
+/** Per-date aggregate of an indicator over all its features. */
+export interface IndicatorTimeseries {
+  dates: string[];
+  average: any[];
+  min: any[];
+  max: any[];
+  regionalMean: (number | null)[];
+  regionalSpatiallyUnassignable: (number | null)[];
+}
 
 @Injectable({
   providedIn: 'root',
@@ -503,6 +512,122 @@ export class DiagramHelperServiceService {
     );
   }
 
+  /**
+   * Aggregates an indicator over all its features per date: mean, min, max
+   * and the regional reference values. Stateless, so a caller can draw a time
+   * series without the diagrams panel having prepared its charts first.
+   */
+  computeTimeseries(
+    indicatorMetadataForTimeseries,
+    indicatorTimeSeriesDatesArray: string[] = indicatorMetadataForTimeseries.applicableDates
+  ): IndicatorTimeseries {
+    const indicatorTimeSeriesAverageArray = new Array(indicatorTimeSeriesDatesArray.length);
+    const indicatorTimeSeriesMaxArray = new Array(indicatorTimeSeriesDatesArray.length);
+    const indicatorTimeSeriesMinArray = new Array(indicatorTimeSeriesDatesArray.length);
+    const indicatorTimeSeriesCountArray = new Array(indicatorTimeSeriesDatesArray.length);
+
+    const indicatorTimeSeriesRegionalMeanArray = new Array(indicatorTimeSeriesDatesArray.length);
+    const indicatorTimeSeriesRegionalSpatiallyUnassignableArray = new Array(
+      indicatorTimeSeriesDatesArray.length
+    );
+    const regionalReferencesMap = new Map();
+
+    if (indicatorMetadataForTimeseries.regionalReferenceValues) {
+      for (const entry of indicatorMetadataForTimeseries.regionalReferenceValues) {
+        regionalReferencesMap.set(entry.referenceDate, entry);
+      }
+    }
+
+    // initialize timeSeries arrays
+    for (let i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
+      indicatorTimeSeriesAverageArray[i] = 0;
+      indicatorTimeSeriesCountArray[i] = 0;
+    }
+
+    for (const indicatorFeature of indicatorMetadataForTimeseries.geoJSON.features) {
+      // continue timeSeries arrays by adding and counting all time series values
+      for (let i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
+        const datePropertyName = this.INDICATOR_DATE_PREFIX + indicatorTimeSeriesDatesArray[i];
+        if (
+          !this.indicatorValueService.indicatorValueIsNoData(
+            indicatorFeature.properties[datePropertyName]
+          )
+        ) {
+          // indicatorTimeSeriesAverageArray[i] += selectedFeature.properties[datePropertyName];
+          indicatorTimeSeriesAverageArray[i] += indicatorFeature.properties[datePropertyName];
+          indicatorTimeSeriesCountArray[i]++;
+
+          // min stack
+          if (
+            indicatorTimeSeriesMinArray[i] === undefined ||
+            indicatorTimeSeriesMinArray[i] === null
+          ) {
+            indicatorTimeSeriesMinArray[i] = indicatorFeature.properties[datePropertyName];
+          } else {
+            if (indicatorFeature.properties[datePropertyName] < indicatorTimeSeriesMinArray[i]) {
+              indicatorTimeSeriesMinArray[i] = indicatorFeature.properties[datePropertyName];
+            }
+          }
+
+          // max stack
+          if (
+            indicatorTimeSeriesMaxArray[i] === undefined ||
+            indicatorTimeSeriesMaxArray[i] === null
+          ) {
+            indicatorTimeSeriesMaxArray[i] = indicatorFeature.properties[datePropertyName];
+          } else {
+            if (indicatorFeature.properties[datePropertyName] > indicatorTimeSeriesMaxArray[i]) {
+              indicatorTimeSeriesMaxArray[i] = indicatorFeature.properties[datePropertyName];
+            }
+          }
+
+          // regional reference values
+          // als map auslagern und dann hier prüfen, ob ein element in der map drin ist.
+          // falls nicht, dann null setzen,
+          if (regionalReferencesMap.has(indicatorTimeSeriesDatesArray[i])) {
+            const regionalAverage = regionalReferencesMap.get(
+              indicatorTimeSeriesDatesArray[i]
+            ).regionalAverage;
+            if (regionalAverage && typeof regionalAverage == 'number') {
+              indicatorTimeSeriesRegionalMeanArray[i] = regionalAverage;
+            } else {
+              indicatorTimeSeriesRegionalMeanArray[i] = null;
+            }
+
+            const regionalSpatiallyUnassignable = regionalReferencesMap.get(
+              indicatorTimeSeriesDatesArray[i]
+            ).spatiallyUnassignable;
+            if (regionalSpatiallyUnassignable && typeof regionalSpatiallyUnassignable == 'number') {
+              indicatorTimeSeriesRegionalSpatiallyUnassignableArray[i] =
+                regionalSpatiallyUnassignable;
+            } else {
+              indicatorTimeSeriesRegionalSpatiallyUnassignableArray[i] = null;
+            }
+          } else {
+            indicatorTimeSeriesRegionalMeanArray[i] = null;
+            indicatorTimeSeriesRegionalSpatiallyUnassignableArray[i] = null;
+          }
+        }
+      }
+    }
+
+    // finish timeSeries arrays by computing averages of all time series values
+    for (let i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
+      indicatorTimeSeriesAverageArray[i] = this.getIndicatorValue_asNumber(
+        indicatorTimeSeriesAverageArray[i] / indicatorTimeSeriesCountArray[i]
+      );
+    }
+
+    return {
+      dates: indicatorTimeSeriesDatesArray,
+      average: indicatorTimeSeriesAverageArray,
+      min: indicatorTimeSeriesMinArray,
+      max: indicatorTimeSeriesMaxArray,
+      regionalMean: indicatorTimeSeriesRegionalMeanArray,
+      regionalSpatiallyUnassignable: indicatorTimeSeriesRegionalSpatiallyUnassignableArray,
+    };
+  }
+
   prepareAllDiagramResources(
     indicatorMetadataAndGeoJSON,
     spatialUnitName,
@@ -609,28 +734,6 @@ export class DiagramHelperServiceService {
         }
       });
     }
-    const indicatorTimeSeriesAverageArray = new Array(indicatorTimeSeriesDatesArray.length);
-    const indicatorTimeSeriesMaxArray = new Array(indicatorTimeSeriesDatesArray.length);
-    const indicatorTimeSeriesMinArray = new Array(indicatorTimeSeriesDatesArray.length);
-    const indicatorTimeSeriesCountArray = new Array(indicatorTimeSeriesDatesArray.length);
-
-    const indicatorTimeSeriesRegionalMeanArray = new Array(indicatorTimeSeriesDatesArray.length);
-    const indicatorTimeSeriesRegionalSpatiallyUnassignableArray = new Array(
-      indicatorTimeSeriesDatesArray.length
-    );
-    const regionalReferencesMap = new Map();
-
-    if (indicatorMetadataAndGeoJSON.regionalReferenceValues) {
-      for (const entry of indicatorMetadataAndGeoJSON.regionalReferenceValues) {
-        regionalReferencesMap.set(entry.referenceDate, entry);
-      }
-    }
-
-    // initialize timeSeries arrays
-    for (let i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
-      indicatorTimeSeriesAverageArray[i] = 0;
-      indicatorTimeSeriesCountArray[i] = 0;
-    }
 
     let indicatorMetadataForTimeseries = indicatorMetadataAndGeoJSON;
 
@@ -639,79 +742,11 @@ export class DiagramHelperServiceService {
     }
     // we must use the original selectedIndicator in case balance mode is active
     // otherwise balance timestamp will have balance values
-    for (const indicatorFeature of indicatorMetadataForTimeseries.geoJSON.features) {
-      // continue timeSeries arrays by adding and counting all time series values
-      for (let i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
-        const datePropertyName = this.INDICATOR_DATE_PREFIX + indicatorTimeSeriesDatesArray[i];
-        if (
-          !this.indicatorValueService.indicatorValueIsNoData(
-            indicatorFeature.properties[datePropertyName]
-          )
-        ) {
-          // indicatorTimeSeriesAverageArray[i] += selectedFeature.properties[datePropertyName];
-          indicatorTimeSeriesAverageArray[i] += indicatorFeature.properties[datePropertyName];
-          indicatorTimeSeriesCountArray[i]++;
-
-          // min stack
-          if (
-            indicatorTimeSeriesMinArray[i] === undefined ||
-            indicatorTimeSeriesMinArray[i] === null
-          ) {
-            indicatorTimeSeriesMinArray[i] = indicatorFeature.properties[datePropertyName];
-          } else {
-            if (indicatorFeature.properties[datePropertyName] < indicatorTimeSeriesMinArray[i]) {
-              indicatorTimeSeriesMinArray[i] = indicatorFeature.properties[datePropertyName];
-            }
-          }
-
-          // max stack
-          if (
-            indicatorTimeSeriesMaxArray[i] === undefined ||
-            indicatorTimeSeriesMaxArray[i] === null
-          ) {
-            indicatorTimeSeriesMaxArray[i] = indicatorFeature.properties[datePropertyName];
-          } else {
-            if (indicatorFeature.properties[datePropertyName] > indicatorTimeSeriesMaxArray[i]) {
-              indicatorTimeSeriesMaxArray[i] = indicatorFeature.properties[datePropertyName];
-            }
-          }
-
-          // regional reference values
-          // als map auslagern und dann hier prüfen, ob ein element in der map drin ist.
-          // falls nicht, dann null setzen,
-          if (regionalReferencesMap.has(indicatorTimeSeriesDatesArray[i])) {
-            const regionalAverage = regionalReferencesMap.get(
-              indicatorTimeSeriesDatesArray[i]
-            ).regionalAverage;
-            if (regionalAverage && typeof regionalAverage == 'number') {
-              indicatorTimeSeriesRegionalMeanArray[i] = regionalAverage;
-            } else {
-              indicatorTimeSeriesRegionalMeanArray[i] = null;
-            }
-
-            const regionalSpatiallyUnassignable = regionalReferencesMap.get(
-              indicatorTimeSeriesDatesArray[i]
-            ).spatiallyUnassignable;
-            if (regionalSpatiallyUnassignable && typeof regionalSpatiallyUnassignable == 'number') {
-              indicatorTimeSeriesRegionalSpatiallyUnassignableArray[i] =
-                regionalSpatiallyUnassignable;
-            } else {
-              indicatorTimeSeriesRegionalSpatiallyUnassignableArray[i] = null;
-            }
-          } else {
-            indicatorTimeSeriesRegionalMeanArray[i] = null;
-            indicatorTimeSeriesRegionalSpatiallyUnassignableArray[i] = null;
-          }
-        }
-      }
-    }
-
-    // finish timeSeries arrays by computing averages of all time series values
-    for (let i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
-      indicatorTimeSeriesAverageArray[i] = this.getIndicatorValue_asNumber(
-        indicatorTimeSeriesAverageArray[i] / indicatorTimeSeriesCountArray[i]
-      );
-    }
+    const timeseries = this.computeTimeseries(
+      indicatorMetadataForTimeseries,
+      indicatorTimeSeriesDatesArray
+    );
+    const indicatorTimeSeriesAverageArray = timeseries.average;
 
     let meanLineLabel = 'rechnerischer Durchschnitt';
     const arithmMeanValueIndex = indicatorTimeSeriesDatesArray.indexOf(date);
@@ -746,16 +781,10 @@ export class DiagramHelperServiceService {
     }
 
     // setHistogramChartOptions(indicatorMetadataAndGeoJSON, indicatorValueArray, spatialUnitName, date);
-    this.setLineChartOptions(
+    this.lineChartOptions = this.makeLineChartOptions(
       indicatorMetadataAndGeoJSON,
-      indicatorTimeSeriesDatesArray,
-      indicatorTimeSeriesAverageArray,
-      indicatorTimeSeriesMaxArray,
-      indicatorTimeSeriesMinArray,
-      indicatorTimeSeriesRegionalMeanArray,
-      indicatorTimeSeriesRegionalSpatiallyUnassignableArray,
-      spatialUnitName,
-      date
+      timeseries,
+      spatialUnitName
     );
 
     this.setBarChartOptions(
@@ -1249,17 +1278,23 @@ export class DiagramHelperServiceService {
     this.barChartOptions = barOption;
   }
 
-  setLineChartOptions(
+  /**
+   * Builds the time series chart options from aggregated series data. Returns
+   * a fresh object and touches no service state.
+   */
+  makeLineChartOptions(
     indicatorMetadataAndGeoJSON,
-    indicatorTimeSeriesDatesArray,
-    indicatorTimeSeriesAverageArray,
-    indicatorTimeSeriesMaxArray,
-    indicatorTimeSeriesMinArray,
-    indicatorTimeSeriesRegionalMeanArray,
-    indicatorTimeSeriesRegionalSpatiallyUnassignableArray,
-    spatialUnitName,
-    _date
+    timeseries: IndicatorTimeseries,
+    spatialUnitName
   ) {
+    const {
+      dates: indicatorTimeSeriesDatesArray,
+      average: indicatorTimeSeriesAverageArray,
+      min: indicatorTimeSeriesMinArray,
+      max: indicatorTimeSeriesMaxArray,
+      regionalMean: indicatorTimeSeriesRegionalMeanArray,
+      regionalSpatiallyUnassignable: indicatorTimeSeriesRegionalSpatiallyUnassignableArray,
+    } = timeseries;
     const lineOption: any = {
       // grid get rid of whitespace around chart
       grid: {
@@ -1409,26 +1444,7 @@ export class DiagramHelperServiceService {
       series: [],
     };
 
-    const meanLine = {
-      name: this.labelService.rankingChartAverageLabel,
-      type: 'line',
-      data: indicatorTimeSeriesAverageArray,
-      symbolSize: 6,
-      symbol: 'emptyCircle',
-      lineStyle: {
-        normal: {
-          color: 'gray',
-          width: 2,
-          type: 'dashed',
-        },
-      },
-      itemStyle: {
-        normal: {
-          borderWidth: 3,
-          color: 'gray',
-        },
-      },
-    };
+    const meanLine = this.makeTimeseriesMeanSeries(indicatorTimeSeriesAverageArray);
 
     const regionalMeanLine = {
       name: this.labelService.rankingChartRegionalReferenceValueLabel,
@@ -1469,8 +1485,73 @@ export class DiagramHelperServiceService {
       lineOption.legend.data.push(this.labelService.rankingChartAverageLabel);
     }
 
-    // SETTING FOR MIN AND MAX STACK
+    lineOption.series.push(
+      ...this.makeTimeseriesMinMaxSeries(indicatorTimeSeriesMinArray, indicatorTimeSeriesMaxArray)
+    );
 
+    // spatially unassignable
+    const regionalSpatiallyUnassignableLine = {
+      name: 'räumlich nicht zuordenbare',
+      type: 'line',
+      symbol: 'diamond',
+      symbolSize: 10,
+      data: indicatorTimeSeriesRegionalSpatiallyUnassignableArray,
+      lineStyle: {
+        normal: {
+          color: 'gray',
+          width: 2,
+          type: 'dashed',
+        },
+      },
+      itemStyle: {
+        normal: {
+          borderWidth: 3,
+          color: 'gray',
+        },
+      },
+    };
+    // only add regional spatially unassignable line if it contains at least one meaningful entry
+    if (indicatorTimeSeriesRegionalSpatiallyUnassignableArray.some((el) => el !== null)) {
+      lineOption.series.push(regionalSpatiallyUnassignableLine);
+      lineOption.legend.data.push('räumlich nicht zuordenbare');
+    }
+
+    return lineOption;
+  }
+
+  /** Mean line of a time series chart (grey, dashed). */
+  makeTimeseriesMeanSeries(indicatorTimeSeriesAverageArray: any[]) {
+    return {
+      name: this.labelService.rankingChartAverageLabel,
+      type: 'line',
+      data: indicatorTimeSeriesAverageArray,
+      symbolSize: 6,
+      symbol: 'emptyCircle',
+      lineStyle: {
+        normal: {
+          color: 'gray',
+          width: 2,
+          type: 'dashed',
+        },
+      },
+      itemStyle: {
+        normal: {
+          borderWidth: 3,
+          color: 'gray',
+        },
+      },
+    };
+  }
+
+  /**
+   * Min/max band of a time series chart, in this order: Min, Max, MinStack,
+   * MaxStack. The two stacks draw the grey band; the plain lines only feed
+   * the tooltip.
+   */
+  makeTimeseriesMinMaxSeries(
+    indicatorTimeSeriesMinArray: any[],
+    indicatorTimeSeriesMaxArray: any[]
+  ) {
     // default for min value of 0
     const minStack: any = {
       name: 'MinStack',
@@ -1554,41 +1635,7 @@ export class DiagramHelperServiceService {
       }
       maxStack.data = indicatorTimeSeriesMaxArray_copy;
     }
-
-    lineOption.series.push(minLine);
-    lineOption.series.push(maxLine);
-    lineOption.series.push(minStack);
-    lineOption.series.push(maxStack);
-
-    // spatially unassignable
-    const regionalSpatiallyUnassignableLine = {
-      name: 'räumlich nicht zuordenbare',
-      type: 'line',
-      symbol: 'diamond',
-      symbolSize: 10,
-      data: indicatorTimeSeriesRegionalSpatiallyUnassignableArray,
-      lineStyle: {
-        normal: {
-          color: 'gray',
-          width: 2,
-          type: 'dashed',
-        },
-      },
-      itemStyle: {
-        normal: {
-          borderWidth: 3,
-          color: 'gray',
-        },
-      },
-    };
-    // only add regional spatially unassignable line if it contains at least one meaningful entry
-    if (indicatorTimeSeriesRegionalSpatiallyUnassignableArray.some((el) => el !== null)) {
-      lineOption.series.push(regionalSpatiallyUnassignableLine);
-      lineOption.legend.data.push('räumlich nicht zuordenbare');
-    }
-
-    // use configuration item and data specified to show chart
-    this.lineChartOptions = lineOption;
+    return [minLine, maxLine, minStack, maxStack];
   }
 
   compareFeaturesByIndicatorValue(featureA, featureB) {
@@ -2133,195 +2180,6 @@ export class DiagramHelperServiceService {
     }
 
     return eChartOptions;
-  }
-
-  makeTrendChartOptions_forAllFeatures(
-    indicatorMetadataAndGeoJSON,
-    fromDateAsPropertyString,
-    toDateAsPropertyString,
-    showMinMax,
-    showCompleteTimeseries,
-    computationType,
-    trendEnabled,
-    customFontFamilyEnabled = false
-  ) {
-    // we may base on the the precomputed timeseries lineOptions and modify that from a cloned instance
-
-    const timeseriesOptions = jQuery.extend(
-      true,
-      {},
-      this.getLineChartOptions(customFontFamilyEnabled)
-    );
-
-    // remove any additional lines for concrete features
-    timeseriesOptions.series.length = 5;
-
-    // add markedAreas for periods out of scope
-
-    const fromDateString = fromDateAsPropertyString.split(
-      this.envConfigService.indicatorDatePrefix
-    )[1];
-    const fromDate_date = new Date(fromDateString);
-    const toDateString = toDateAsPropertyString.split(this.envConfigService.indicatorDatePrefix)[1];
-    const toDate_date = new Date(toDateString);
-
-    if (showCompleteTimeseries) {
-      timeseriesOptions.series[0].markArea = {
-        silent: true,
-        itemStyle: {
-          color: '#b50b0b',
-          opacity: 0.3,
-        },
-        data: [
-          [
-            {
-              xAxis: indicatorMetadataAndGeoJSON.applicableDates[0],
-            },
-            {
-              xAxis: fromDateString,
-            },
-          ],
-          [
-            {
-              xAxis: toDateString,
-            },
-            {
-              xAxis:
-                indicatorMetadataAndGeoJSON.applicableDates[
-                  indicatorMetadataAndGeoJSON.applicableDates.length - 1
-                ],
-            },
-          ],
-        ],
-      };
-    }
-
-    // hide data points
-    timeseriesOptions.series[0].itemStyle = { opacity: 0, width: 3, type: 'solid' };
-
-    const trendData: any = [];
-
-    let timeseriesData = timeseriesOptions.series[0].data;
-    const minSeriesData = timeseriesOptions.series[1].data;
-    const maxSeriesData = timeseriesOptions.series[2].data;
-
-    if (!showCompleteTimeseries) {
-      const xData: any = [];
-      const timeData: any = [];
-      const minData: any = [];
-      const maxData: any = [];
-      for (let index = 0; index < timeseriesData.length; index++) {
-        const date_candidate = new Date(indicatorMetadataAndGeoJSON.applicableDates[index]);
-        if (date_candidate >= fromDate_date && date_candidate <= toDate_date) {
-          const value = timeseriesData[index];
-          // const date = indicatorMetadataAndGeoJSON.applicableDates[index];
-
-          timeData.push(value);
-          xData.push(indicatorMetadataAndGeoJSON.applicableDates[index]);
-          minData.push(minSeriesData[index]);
-          maxData.push(maxSeriesData[index]);
-        }
-      }
-
-      timeseriesOptions.series[0].data = timeData;
-      timeseriesOptions.series[1].data = minData;
-      timeseriesOptions.series[2].data = maxData;
-
-      timeseriesOptions.xAxis.data = xData;
-    }
-
-    // update value if it has changed
-    timeseriesData = timeseriesOptions.series[0].data;
-    const xAxisData = timeseriesOptions.xAxis.data;
-    for (let index = 0; index < timeseriesData.length; index++) {
-      const dateCandidate = new Date(xAxisData[index]);
-      if (dateCandidate >= fromDate_date && dateCandidate <= toDate_date) {
-        const value = timeseriesData[index];
-        // const date = indicatorMetadataAndGeoJSON.applicableDates[index];
-
-        trendData.push([index, value]);
-      }
-    }
-
-    // add regression line according to option
-    if (trendEnabled) {
-      let trendLine;
-      if (computationType.includes('linear')) {
-        trendLine = ecStat.regression('linear', trendData, 0);
-      } else if (computationType.includes('exponential')) {
-        trendLine = ecStat.regression('exponential', trendData, 0);
-      } else if (computationType.includes('polynomial_3')) {
-        trendLine = ecStat.regression('polynomial', trendData, 3);
-      } else {
-        trendLine = ecStat.regression('linear', trendData, 0);
-      }
-
-      timeseriesOptions.legend.data.push('Trendlinie');
-
-      // make array of numeric values for series
-      const trendLineNumbers: any = [];
-      const trendLinePointsMap: any = new Map();
-      for (const trendLineItem of trendLine.points) {
-        trendLinePointsMap.set(trendLineItem[0], trendLineItem[1]);
-      }
-      for (let index = 0; index < timeseriesData.length; index++) {
-        if (trendLinePointsMap.has(index)) {
-          trendLineNumbers.push(trendLinePointsMap.get(index));
-        } else {
-          trendLineNumbers.push(NaN);
-        }
-      }
-
-      timeseriesOptions.series.push({
-        name: 'Trendlinie',
-        type: 'line',
-        showSymbol: false,
-        data: trendLineNumbers,
-        lineStyle: {
-          normal: {
-            color: 'red',
-            width: 4,
-            type: 'dashed',
-          },
-        },
-        itemStyle: {
-          normal: {
-            borderWidth: 3,
-            color: 'red',
-            opacity: 0,
-          },
-        },
-        markPoint: {
-          itemStyle: {
-            normal: {
-              color: 'transparent',
-            },
-          },
-          // label: {
-          //     normal: {
-          //         show: true,
-          //         position: 'left',
-          //         formatter: trendLine.expression,
-          //         textStyle: {
-          //             color: '#333',
-          //             fontSize: 14
-          //         }
-          //     }
-          // },
-          data: [
-            {
-              coord: trendLine.points[trendLine.points.length - 1],
-            },
-          ],
-        },
-      });
-    }
-
-    if (!showMinMax) {
-      timeseriesOptions.series.splice(1, 4);
-    }
-
-    return timeseriesOptions;
   }
 
   // Returns an image.

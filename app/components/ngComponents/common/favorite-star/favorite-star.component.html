@@ -1,0 +1,10 @@
+@if (visible()) {
+  <i
+    class="fav-star fa-star"
+    [class.fa-solid]="isFavorite()"
+    [class.fa-regular]="!isFavorite()"
+    role="button"
+    [attr.aria-pressed]="isFavorite()"
+    (click)="toggled.emit()"
+  ></i>
+}

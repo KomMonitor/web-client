@@ -6,6 +6,8 @@ import { provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { KommonitorBalanceComponent } from './kommonitor-balance.component';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 
 describe('KommonitorBalanceComponent', () => {
   let component: KommonitorBalanceComponent;
@@ -28,5 +30,26 @@ describe('KommonitorBalanceComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('builds its slider on the element from its own template', () => {
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('#rangeSlider').noUiSlider).toBeDefined();
+  });
+
+  it('stops listening to broadcasts once destroyed', () => {
+    fixture.detectChanges();
+    const broadcastService = TestBed.inject(BroadcastService);
+    const disableBalance = jest
+      .spyOn(component, 'disableBalance')
+      .mockImplementation(() => undefined);
+
+    broadcastService.broadcast(BroadcastMessage.DisableBalance);
+    expect(disableBalance).toHaveBeenCalledTimes(1);
+
+    fixture.destroy();
+    broadcastService.broadcast(BroadcastMessage.DisableBalance);
+    expect(disableBalance).toHaveBeenCalledTimes(1);
   });
 });

@@ -340,6 +340,13 @@ export class EnvConfigService {
     window.__env.initialSpatialUnitName = value;
   }
 
+  get initialHierarchyId(): any {
+    return window.__env.initialHierarchyId;
+  }
+  set initialHierarchyId(value: any) {
+    window.__env.initialHierarchyId = value;
+  }
+
   get controlsConfig(): any {
     return window.__env.controlsConfig;
   }

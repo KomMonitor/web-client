@@ -84,7 +84,7 @@ describe('AdminFilterEditModalComponent', () => {
           georesources: [],
         },
       ];
-      component.filterName = 'new filter';
+      component.nameControl.setValue('new filter');
       component.selectedIndicatorIds = ['indicator-1'];
       component.selectedGeoresourceTopicEditIds = ['topic-1'];
 
@@ -121,7 +121,7 @@ describe('AdminFilterEditModalComponent', () => {
         },
       ];
       component.selectedItem = 1;
-      component.filterName = 'renamed';
+      component.nameControl.setValue('renamed');
       component.selectedIndicatorIds = ['indicator-1'];
 
       await component.saveAdminFilter();
@@ -150,7 +150,7 @@ describe('AdminFilterEditModalComponent', () => {
       ];
       const notificationService = TestBed.inject(NotificationService);
       const showError = jest.spyOn(notificationService, 'showError');
-      component.filterName = 'taken';
+      component.nameControl.setValue('taken');
       component.selectedIndicatorIds = ['indicator-1'];
 
       await component.saveAdminFilter();
@@ -170,7 +170,7 @@ describe('AdminFilterEditModalComponent', () => {
         },
       ];
       component.selectedItem = 0;
-      component.filterName = 'taken';
+      component.nameControl.setValue('taken');
       component.selectedIndicatorIds = ['indicator-1'];
 
       await component.saveAdminFilter();
@@ -178,25 +178,92 @@ describe('AdminFilterEditModalComponent', () => {
       expect(postedConfig).toBeDefined();
     });
 
-    it('does nothing without a name', async () => {
-      component.filterName = '   ';
-
-      await component.saveAdminFilter();
-
-      expect(postedConfig).toBeUndefined();
-    });
-
     it('reports a failed save and stops the loading state', async () => {
       configStorageStub.postFilterConfig = () => throwError(() => new Error('boom'));
       const notificationService = TestBed.inject(NotificationService);
       const showError = jest.spyOn(notificationService, 'showError');
-      component.filterName = 'new filter';
+      component.nameControl.setValue('new filter');
       component.selectedIndicatorIds = ['indicator-1'];
 
       await component.saveAdminFilter();
 
       expect(showError).toHaveBeenCalled();
       expect(component.loadingData()).toBe(false);
+    });
+  });
+
+  describe('onSubmit', () => {
+    it.each([[''], ['   ']])('does not save with the name %p', (name) => {
+      const save = jest.spyOn(component, 'saveAdminFilter');
+      component.nameControl.setValue(name);
+
+      component.onSubmit();
+
+      expect(save).not.toHaveBeenCalled();
+      expect(component.nameControl.touched).toBe(true);
+      expect(component.nameControl.hasError('required')).toBe(true);
+    });
+
+    it('shows the name error and focuses the name input instead of saving', () => {
+      fixture.detectChanges();
+      const input: HTMLInputElement = fixture.nativeElement.querySelector('#filter-name');
+
+      component.onSubmit();
+      fixture.detectChanges();
+
+      expect(postedConfig).toBeUndefined();
+      expect(document.activeElement).toBe(input);
+      expect(input.getAttribute('aria-invalid')).toBe('true');
+    });
+
+    it('saves with a valid name', () => {
+      const save = jest.spyOn(component, 'saveAdminFilter').mockResolvedValue();
+      component.nameControl.setValue('new filter');
+
+      component.onSubmit();
+
+      expect(save).toHaveBeenCalled();
+    });
+
+    it('keeps the submit button enabled without a name', () => {
+      fixture.detectChanges();
+      const submit: HTMLButtonElement = fixture.nativeElement.querySelector(
+        '.modal-footer .btn-success'
+      );
+
+      expect(submit.disabled).toBe(false);
+    });
+  });
+
+  it('seeds the name control from the stored filter in edit mode', async () => {
+    storedConfig = [
+      {
+        name: 'stored',
+        indicatorTopics: [],
+        indicators: [],
+        georesourceTopics: [],
+        georesources: [],
+      },
+    ];
+    component.selectedItem = 0;
+
+    component.ngOnInit();
+    // Let the async config load settle
+    await new Promise((resolve) => setTimeout(resolve));
+
+    expect(component.nameControl.value).toBe('stored');
+    expect(component.originalFilterName).toBe('stored');
+  });
+
+  describe('resetAdminFilterEditForm', () => {
+    it('clears the name and its touched state', () => {
+      component.nameControl.setValue('x');
+      component.nameControl.markAsTouched();
+
+      component.resetAdminFilterEditForm();
+
+      expect(component.nameControl.value).toBe('');
+      expect(component.nameControl.touched).toBe(false);
     });
   });
 

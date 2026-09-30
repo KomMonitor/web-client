@@ -59,6 +59,21 @@ export function uniqueNameValidator(
 }
 
 /**
+ * `Validators.required` lets a whitespace-only string through. This one
+ * reports it with the same `required` key, so `<app-form-error>` shows the
+ * usual "required" message. Non-string and empty values are left to
+ * `Validators.required`, so combine the two.
+ */
+export const notBlankValidator: ValidatorFn = (
+  control: AbstractControl
+): ValidationErrors | null => {
+  const value = control.value;
+  return typeof value === 'string' && value !== '' && value.trim() === ''
+    ? { required: true }
+    : null;
+};
+
+/**
  * Group validator for a `{ startDate, endDate }` pair: both are optional, but
  * when both are set the start must lie strictly before the end. Values are
  * normalised with `toIsoDateString()` first, so `NgbDateStruct` objects coming
@@ -78,19 +93,57 @@ export function periodOfValidityValidator(
 }
 
 /**
- * Group validator for a literal bounding box: either all four corners are set
- * or none of them. Mirrors the bbox branch of
- * `ResourceImportService.collectMissingImporterFields()`.
+ * `Validators.required`, but only while `condition(control)` holds — for
+ * fields whose obligation depends on a sibling (read it via `control.parent`).
+ * The sibling does not re-run this validator on its own; whoever builds the
+ * form has to call `updateValueAndValidity()` when the sibling changes.
  */
-export function bboxCompleteValidator(): ValidatorFn {
+export function requiredWhen(condition: (control: AbstractControl) => boolean): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!condition(control)) {
+      return null;
+    }
+    const value = control.value;
+    return value === null || value === undefined || value === '' ? { required: true } : null;
+  };
+}
+
+/**
+ * Group validator for a literal bounding box: either all four corners are set
+ * or none of them. While `required(group)` holds, "none" is rejected as well —
+ * the importer form uses that for an OGC API source filtered by a literal box.
+ */
+export function bboxCompleteValidator(
+  required: (group: AbstractControl) => boolean = () => false
+): ValidatorFn {
   return (group: AbstractControl): ValidationErrors | null => {
     const corners = ['minx', 'miny', 'maxx', 'maxy'].map((key) => group.get(key)?.value);
     const isSet = (value: any): boolean => value !== null && value !== undefined && value !== '';
 
     const setCount = corners.filter(isSet).length;
-    if (setCount === 0 || setCount === corners.length) {
+    if (setCount === corners.length || (setCount === 0 && !required(group))) {
       return null;
     }
     return { bboxIncomplete: true };
+  };
+}
+
+/**
+ * A file is mandatory exactly for a FILE data source; every other data source
+ * type carries its input in its own parameters. Sits on the nearest group
+ * holding both the data source type and the upload (the file input is no
+ * ControlValueAccessor, so the host writes the upload control from `(change)`).
+ * Paths are relative to that group; the defaults match `buildImporterForm()`
+ * nested as `importer` next to a `selectedFile` control.
+ */
+export function fileRequiredForFileDatasource(
+  datasourceTypePath = 'importer.datasourceType',
+  filePath = 'selectedFile'
+): ValidatorFn {
+  return (group: AbstractControl): ValidationErrors | null => {
+    if (group.get(datasourceTypePath)?.value?.type !== 'FILE') {
+      return null;
+    }
+    return group.get(filePath)?.value ? null : { fileRequired: true };
   };
 }

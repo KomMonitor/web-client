@@ -137,7 +137,6 @@
       "CHOOSE_SCHEMA": "-- Choose schema --",
       "SOURCE_FORMAT": "Source format",
       "CHOOSE_FORMAT": "-- Choose format --",
-      "CRS_WARNING": "Set the CRS carefully. Incorrect values lead to faulty feature coordinates",
       "CHOOSE_SOURCE_FORMAT_FIRST": "please choose the source format first",
       "DATASOURCE_TYPE": "Data source type",
       "CHOOSE_SOURCE_TYPE": "-- Choose source type --",
@@ -203,7 +202,6 @@
       "REGISTER": "Register georesource",
       "REGISTRATION_FAILED": "Registration failed",
       "MSG": {
-        "REQUIRED_FIELDS_MISSING": "Please fill in all required fields in the \"Spatial dataset\" step. Missing: {{missing}}.",
         "REQUIRED_FIELDS": "Please fill in all required fields in the \"Spatial dataset\" step.",
         "REGISTERED_WITH_FEATURES": "A new georesource named \"{{name}}\" was registered ({{count}} features imported).",
         "REGISTERED": "A new georesource named \"{{name}}\" was registered.",
@@ -371,9 +369,6 @@
       "METADATA_EXPORT": "Metadata export",
       "SAVE_CHANGES": "Save changes",
       "REGISTER": "Register indicator metadata",
-      "MISSING_FIELDS_TITLE": "Required fields incomplete",
-      "MISSING_FIELDS_INTRO": "Please fill in the following required fields before the indicator is registered:",
-      "MISSING_FIELDS_OK": "Understood",
       "SUCCESS_UPDATED_TITLE": "Indicator metadata updated",
       "SUCCESS_UPDATED_TEXT": "The metadata of the indicator {{name}} has been updated in KomMonitor.",
       "SUCCESS_CREATED_TITLE": "Indicator metadata registered",
@@ -425,8 +420,7 @@
       "LOWEST_SPATIAL_UNIT_HINT": "Specification of the lowest spatial unit for which the automatically computable indicator can be calculated. Indicator values for higher spatial units are automatically aggregated from the lower levels."
     },
     "STEP_GENERAL": {
-      "SUBTITLE": "Information about general metadata in KomMonitor",
-      "SRID_HINT": "Coordinate reference system for the spatial data (default: 4326 for WGS84)"
+      "SUBTITLE": "Information about general metadata in KomMonitor"
     },
     "STEP_TOPICS": {
       "SUBTITLE": "Information about the topic hierarchy in KomMonitor",
@@ -468,6 +462,9 @@
       "TABS_ERROR_HINT": "Incorrectly completed tabs are highlighted in red. The class breaks must be sorted from low to high.",
       "ERROR_LABEL": "Error:",
       "INVALID_BREAKS": "There are invalid classification configurations. Please check the tabs marked in red.",
+      "PALETTE_REQUIRED": "Please select a color scheme.",
+      "CATEGORIES_INCOMPLETE": "Every category needs a value and a label. Please complete the fields marked in red.",
+      "REGIONAL_BREAKS_MISSING": "The “regional default” method needs the class breaks of at least one spatial level to be filled in completely.",
       "TYPE_LABEL": "Type of classification",
       "TYPE_NUMERIC": "Numeric values",
       "TYPE_NUMERIC_HINT": "sequential / diverging",
@@ -852,8 +849,9 @@
       "MANDANT_HELP": "Organizational units marked as tenants can manage their own subgroup hierarchies, topic trees, spatial units and users completely isolated from other tenants of the same KomMonitor instance.",
       "HIERARCHY_LABEL": "Hierarchical classification - specification of the parent organizational unit",
       "MANDANT_NO_PARENT": "Tenants cannot have a parent organizational unit.",
-      "NO_PARENT_OPTION": "none - new root node",
-      "HIERARCHY_HELP": "If no parent organizational unit is specified, the new organizational unit is created at the top level of the hierarchy. The hierarchy relationship can be adjusted later.",
+      "NO_PARENT_OPTION": "-- select the parent organizational unit --",
+      "HIERARCHY_HELP": "An organizational unit that is not a tenant is created below a parent organizational unit. Only tenants sit at the top level of the hierarchy.",
+      "PARENT_OR_MANDANT_REQUIRED": "Select a parent organizational unit or mark the unit as a tenant.",
       "RIGHTS_INTRO": "Should already existing organizational units/groups take over administrative tasks for the group to be created? Administrative rights can be transferred to other groups here by setting the corresponding checkmarks.",
       "RIGHTS_AFTER_CREATE_HINT": "Attention: The rights of the newly created organizational unit can only be set after creation within the 'Edit rights' menu.",
       "SUBMIT": "Register group",
@@ -979,7 +977,8 @@
       "GROUP_MANAGE_USERS": "Managing users",
       "GROUP_MANAGE_RESOURCES": "Managing resources",
       "GROUP_MANAGE_TOPICS": "Managing topics",
-      "EDIT_GROUP_RIGHTS_TITLE": "Edit group rights"
+      "EDIT_GROUP_RIGHTS_TITLE": "Edit group rights",
+      "DELETE_TITLE": "Delete organizational unit"
     }
   },
   "ADMIN_TOPICS": {
@@ -1127,6 +1126,7 @@
       "CRON_HOUR": "Hour",
       "CRON_MINUTE": "Minute",
       "CRON_INVALID": "The cron pattern is invalid. Five fields are expected.",
+      "SPATIAL_UNITS_REQUIRED": "Select at least one spatial unit.",
       "WEEKDAY_0": "Sunday",
       "WEEKDAY_1": "Monday",
       "WEEKDAY_2": "Tuesday",
@@ -1374,6 +1374,7 @@
       "MAX": "The value must be at most {{max}}.",
       "PATTERN": "The input does not have the expected format.",
       "DATE_FORMAT": "Invalid date. Expected format: YYYY-MM-DD.",
+      "EPSG_CODE": "Please enter a whole number between 1 and 99999.",
       "MIN_DATE": "The date is before the earliest allowed date ({{value}}).",
       "MAX_DATE": "The date is after the latest allowed date ({{value}}).",
       "UNIQUE_NAME": "The name \"{{name}}\" is already taken.",
@@ -1428,8 +1429,6 @@
       "URL_LABEL": "URL of the resource",
       "LAYER_LABEL": "Layer",
       "TEST_CONNECTION": "Test connection",
-      "TEST_SUCCESS": "Test of the WMS connection data successful!",
-      "TEST_FAILURE": "Test of the WMS connection data NOT successful! WMS data incorrect or not usable",
       "TOPICS_SUBTITLE": "Information about the topic hierarchy of the georesource",
       "CONNECTION_TEST_TITLE": "Connection test",
       "CONNECTION_TEST_SUCCESS": "The connection was tested successfully",
@@ -1463,7 +1462,8 @@
     },
     "EDIT_ROLES": {
       "TITLE": "Edit WMS",
-      "SUCCESS_TEXT": "Access rights for the dataset named {{name}} have been edited in KomMonitor."
+      "SUCCESS_TEXT": "Access rights for the dataset named {{name}} have been edited in KomMonitor.",
+      "OWNERSHIP_TRANSFER_CONFIRM": "Are you sure you want to transfer and thereby permanently and irrevocably relinquish ownership of this WMS?"
     },
     "GRID": {
       "COL_LEGEND": "Legend"
@@ -1722,7 +1722,8 @@
       "ADD_ASSIGNMENT_HINT": "Assignments can be changed later via the hierarchy administration.",
       "NO_HIERARCHIES": "No hierarchy exists for this tenant yet.",
       "REFERENCE_REQUIRED": "Please choose a reference level.",
-      "DUPLICATE_HIERARCHY": "Each hierarchy can be assigned only once."
+      "DUPLICATE_HIERARCHY": "Each hierarchy can be assigned only once.",
+      "HIERARCHY_REQUIRED": "Please select a hierarchy."
     },
     "METADATA_STEP": {
       "TITLE": "Spatial unit level metadata",
@@ -1756,7 +1757,6 @@
       "SELECT_SCHEMA": "-- select schema --",
       "SOURCE_FORMAT": "Source format",
       "SELECT_FORMAT": "-- select format --",
-      "CRS_WARNING": "Set the CRS carefully. Incorrect values lead to erroneous coordinates of the spatial units",
       "CHOOSE_SOURCE_FORMAT_FIRST": "please select the source format first",
       "DATASOURCE_TYPE": "Data source type",
       "SELECT_SOURCE_TYPE": "-- select source type --",
@@ -1867,7 +1867,6 @@
       "SUBMIT": "Update spatial units",
       "MSG": {
         "ALL_FEATURES_DELETED": "All features of the spatial unit \"{{name}}\" were deleted.",
-        "REQUIRED_FIELDS_MISSING": "Please fill in all required fields in step 2. Missing: {{missing}}.",
         "REQUIRED_FIELDS": "Please fill in all required fields in step 2.",
         "FEATURES_UPDATED": "The features of the spatial unit \"{{name}}\" were updated.",
         "CRITICAL_FEATURE_ERRORS": "Some of the features to be imported for the dataset have critical errors.",

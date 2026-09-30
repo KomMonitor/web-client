@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormControl, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { fileRequiredForFileDatasource } from '../validators/admin-validators';
 import { FormErrorComponent } from './form-error.component';
 
 /**
@@ -19,14 +20,16 @@ import { FormErrorComponent } from './form-error.component';
       [for]="fieldId"
       [showWhen]="showWhen"
       [keyOverride]="keyOverride"
+      [revealWith]="revealWith"
     />
   `,
 })
 class HostComponent {
-  control: FormControl | null = new FormControl('', Validators.required);
+  control: AbstractControl | null = new FormControl('', Validators.required);
   fieldId = 'su-metadata-name';
   showWhen: 'touched' | 'always' = 'touched';
   keyOverride = '';
+  revealWith: AbstractControl | null = null;
 }
 
 describe('FormErrorComponent', () => {
@@ -115,5 +118,43 @@ describe('FormErrorComponent', () => {
     fixture.detectChanges();
 
     expect(messageEl()).not.toBeNull();
+  });
+
+  describe('with revealWith', () => {
+    let group: FormGroup<{
+      datasourceType: FormControl<{ type: string } | null>;
+      selectedFile: FormControl<File | null>;
+    }>;
+
+    beforeEach(() => {
+      group = new FormGroup(
+        {
+          datasourceType: new FormControl<{ type: string } | null>(null),
+          selectedFile: new FormControl<File | null>(null),
+        },
+        { validators: fileRequiredForFileDatasource('datasourceType') }
+      );
+      host.control = group;
+      host.revealWith = group.controls.selectedFile;
+      fixture.detectChanges();
+    });
+
+    it('stays hidden while only the host group is dirty and touched', () => {
+      group.controls.datasourceType.setValue({ type: 'FILE' });
+      group.controls.datasourceType.markAsDirty();
+      group.controls.datasourceType.markAsTouched();
+      fixture.detectChanges();
+
+      expect(group.hasError('fileRequired')).toBe(true);
+      expect(messageEl()).toBeNull();
+    });
+
+    it('appears once the whole form is marked as touched', () => {
+      group.controls.datasourceType.setValue({ type: 'FILE' });
+      group.markAllAsTouched();
+      fixture.detectChanges();
+
+      expect(messageEl()!.textContent!.trim()).toBe('ADMIN_SHARED_UI.VALIDATION.FILE_REQUIRED');
+    });
   });
 });

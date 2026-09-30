@@ -156,7 +156,7 @@ export class AdminRoleManagementComponent implements OnInit {
       {
         headerName: this.translate.instant('ADMIN_ROLES.GRID.COL_ACTIONS'),
         pinned: 'left',
-        maxWidth: 150,
+        maxWidth: 190,
         checkboxSelection: true,
         filter: false,
         sortable: false,
@@ -165,6 +165,8 @@ export class AdminRoleManagementComponent implements OnInit {
           onEditMetadata: (dataset: AccessControlTableEntry) => this.openEditMetadataModal(dataset),
           onEditGroupRights: (dataset: AccessControlTableEntry) =>
             this.openEditGroupRightsModal(dataset),
+          onDelete: (dataset: AccessControlTableEntry) => this.openDeleteModal([dataset]),
+          canDelete: () => this.accessControlService.checkCreatePermission(),
         },
       },
       {
@@ -289,9 +291,10 @@ export class AdminRoleManagementComponent implements OnInit {
     }
   }
 
-  async openDeleteModal(): Promise<void> {
+  /** Without arguments, deletes the rows selected via checkbox. */
+  async openDeleteModal(datasets: AccessControlTableEntry[] = this.selectedRows()): Promise<void> {
     const deleted = await this.modals.confirm(RoleDeleteModalComponent, {
-      datasetsToDelete: this.selectedRows(),
+      datasetsToDelete: datasets,
     });
     if (deleted) {
       this.fetchAccessControlData(false);

@@ -154,9 +154,13 @@ export class MetadataBootstrapService {
         this.fetchIndicatorScriptsMetadata(),
         this.fetchTopicsMetadata(roles),
         this.fetchSpatialUnitsMetadata(roles),
-        this.fetchGeoresourcesMetadata(roles, filter),
+        // fetchServices must resolve first: setGeoresources() derives the WMS-filtered
+        // alphabetical-list data from availableWmsDatasets, which setServices() populates.
+        // Racing them independently meant that whichever settled first won, so on an
+        // unlucky ordering the georesource metadata snapshot would bake in an empty WMS
+        // list that never got rebuilt once the services fetch caught up.
+        this.fetchServices(roles, filter).then(() => this.fetchGeoresourcesMetadata(roles, filter)),
         this.fetchIndicatorsMetadata(roles, filter),
-        this.fetchServices(roles, filter),
       ]);
 
       this.modifyIndicatorApplicableSpatialUnitsForLoginRoles();

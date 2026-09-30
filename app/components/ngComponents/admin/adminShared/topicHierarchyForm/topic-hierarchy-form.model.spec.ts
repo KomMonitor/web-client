@@ -1,6 +1,7 @@
 import {
   TopicNode,
   buildTopicHierarchyForm,
+  mainTopicsFor,
   patchTopicHierarchyFromChain,
   topicHierarchyToApi,
   topicOptionsFor,
@@ -130,6 +131,41 @@ describe('topic-hierarchy form model', () => {
 
       form.controls.mainTopic.setValue(OTHER_MAIN);
       expect(topicOptionsFor(form, 'subTopic', ROOTS)).toEqual([]);
+    });
+  });
+
+  describe('mainTopicsFor', () => {
+    const INDICATOR_MAIN: TopicNode = {
+      topicId: 'i-1',
+      topicName: 'Bevölkerung',
+      topicType: 'main',
+      topicResource: 'indicator',
+    };
+    const GEORESOURCE_MAIN: TopicNode = {
+      topicId: 'g-1',
+      topicName: 'Infrastruktur',
+      topicType: 'main',
+      topicResource: 'georesource',
+    };
+    const INDICATOR_SUB: TopicNode = {
+      topicId: 'i-1-1',
+      topicName: 'Alter',
+      topicType: 'sub',
+      topicResource: 'indicator',
+    };
+    const TOPICS = [INDICATOR_MAIN, GEORESOURCE_MAIN, INDICATOR_SUB];
+
+    it('keeps only the main topics of the requested resource tree', () => {
+      expect(mainTopicsFor(TOPICS, 'indicator')).toEqual([INDICATOR_MAIN]);
+      expect(mainTopicsFor(TOPICS, 'georesource')).toEqual([GEORESOURCE_MAIN]);
+    });
+
+    it('keeps the store objects, so a patched selection still matches its option', () => {
+      expect(mainTopicsFor(TOPICS, 'indicator')[0]).toBe(INDICATOR_MAIN);
+    });
+
+    it('tolerates a store that has not loaded yet', () => {
+      expect(mainTopicsFor(undefined, 'indicator')).toEqual([]);
     });
   });
 });

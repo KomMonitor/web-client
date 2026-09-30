@@ -39,7 +39,18 @@ export class AccessControlService {
   accessControl_map = new Map<string, AccessControlMetadata>();
   allowedAccessControl: AccessControlMetadata[] = [];
 
-  currentKeycloakLoginRoles: string[] = [];
+  // Signal-backed like `accessControl`: the roles arrive asynchronously during
+  // the metadata bootstrap, after the first render. OnPush templates that call
+  // `check…Permission()` register this signal as a dependency and re-render —
+  // otherwise e.g. the admin "Erstellen" buttons stayed disabled whenever no
+  // other event happened to re-render the page (an empty backend, say).
+  private _currentKeycloakLoginRoles = signal<string[]>([]);
+  get currentKeycloakLoginRoles(): string[] {
+    return this._currentKeycloakLoginRoles();
+  }
+  set currentKeycloakLoginRoles(value: string[]) {
+    this._currentKeycloakLoginRoles.set(value);
+  }
   currentKomMonitorLoginRoleNames: string[] = [];
   currentKeycloakLoginGroups: string[] = [];
   currentKomMonitorLoginOrganizationalUnits: AccessControlMetadata[] = [];

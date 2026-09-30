@@ -63,7 +63,7 @@
           !chartDisplayState.isMeasureOfValueChecked &&
           !chartDisplayState.isBalanceChecked
         ) {
-          <div class="histogramTabWrapper editableHistogram" (mouseover)="toggleAddBtn($event, 0)">
+          <div class="histogramTabWrapper editableHistogram" (mousemove)="toggleAddBtn($event, 0)">
             <div class="breaksArea" (mousemove)="onBreaksMouseMove($event, 0)">
               <!-- add btn -->
               @if (showAddBtn[0]) {

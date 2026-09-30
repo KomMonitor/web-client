@@ -20,7 +20,7 @@
       (formatToggle)="toggleFormat($event)"
     />
 
-    <app-epsg-selector (epsgCodeChange)="onEpsgCodeChange($event)" class="mb-3 d-block" />
+    <km-epsg-picker [(code)]="selectedEpsgCode" class="mb-3 d-block" />
 
     @if (isLoading()) {
       <div class="alert alert-info py-2 mb-2" role="status">

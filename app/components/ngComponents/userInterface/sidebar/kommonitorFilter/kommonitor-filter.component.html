@@ -194,8 +194,14 @@
             </div>
             <br />
             <br />
-            <!-- <button class="btn btn-primary" ng-disabled="$ctrl.kommonitorFilterHelperServiceInstance.selectedIndicatorFeatureIds.size == 0" (click)="onManualSelectionBySelectedMapFeaturesBtnPressed()">{{$ctrl.kommonitorFilterHelperServiceInstance.selectedIndicatorFeatureIds.size}} aktuell gew&auml;hlte Kartenobjekte filtern</button>
-                    -->
+            <button
+              class="btn btn-primary"
+              [disabled]="filterHelperService.selectedIndicatorFeatureIds.size == 0"
+              (click)="onManualSelectionBySelectedMapFeaturesBtnPressed()"
+            >
+              {{ filterHelperService.selectedIndicatorFeatureIds.size }} aktuell gew&auml;hlte
+              Kartenobjekte filtern
+            </button>
           </div>
         }
       </div>

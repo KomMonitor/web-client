@@ -257,6 +257,7 @@
                 class="form-select"
                 formControlName="converter"
                 [compareWith]="compareConverter"
+                appAria="sue-data-converter"
               >
                 <option value="" disabled>
                   {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SOURCE_FORMAT' | translate }}
@@ -267,6 +268,10 @@
                   </option>
                 }
               </select>
+              <app-form-error
+                [control]="importerForm.controls.converter"
+                for="sue-data-converter"
+              />
             </div>
 
             @if (converter?.schemas) {
@@ -274,7 +279,7 @@
                 <label class="form-label"
                   >{{ 'ADMIN_SPATIAL_UNITS.DATA.SCHEMA' | translate }}*</label
                 >
-                <select class="form-select" formControlName="schema">
+                <select class="form-select" formControlName="schema" appAria="sue-data-schema">
                   <option value="" disabled>
                     {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SCHEMA' | translate }}
                   </option>
@@ -284,6 +289,7 @@
                     </option>
                   }
                 </select>
+                <app-form-error [control]="importerForm.controls.schema" for="sue-data-schema" />
               </div>
             }
 
@@ -292,7 +298,7 @@
                 <label class="form-label"
                   >{{ 'ADMIN_SPATIAL_UNITS.DATA.SOURCE_FORMAT' | translate }}*</label
                 >
-                <select class="form-select" formControlName="mimeType">
+                <select class="form-select" formControlName="mimeType" appAria="sue-data-mime-type">
                   <option value="" disabled>
                     {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_FORMAT' | translate }}
                   </option>
@@ -302,6 +308,10 @@
                     </option>
                   }
                 </select>
+                <app-form-error
+                  [control]="importerForm.controls.mimeType"
+                  for="sue-data-mime-type"
+                />
               </div>
             }
 
@@ -313,23 +323,23 @@
                     <i>*</i>
                   }
                 </label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [id]="'converterParameter_spatialUnitEditFeatures_' + parameter.name"
-                  [placeholder]="parameter.name"
-                  [formControlName]="parameter.name"
-                />
-                <div class="help-block">
-                  <p>{{ parameter.description }}</p>
-                </div>
                 @if (parameter.name === 'CRS') {
-                  <div class="help-block with-errors">
-                    <p>
-                      {{ 'ADMIN_SPATIAL_UNITS.DATA.CRS_WARNING' | translate }}
-                    </p>
+                  <km-epsg-picker [formControlName]="parameter.name" valueFormat="crs" label="" />
+                } @else {
+                  <input
+                    type="text"
+                    class="form-control"
+                    [id]="'converterParameter_spatialUnitEditFeatures_' + parameter.name"
+                    [placeholder]="parameter.name"
+                    [formControlName]="parameter.name"
+                  />
+                  <div class="help-block">
+                    <p>{{ parameter.description }}</p>
                   </div>
                 }
+                <app-form-error
+                  [control]="importerForm.controls.converterParameters.controls[parameter.name]"
+                />
               </div>
             }
           </div>
@@ -352,6 +362,7 @@
                     class="form-select"
                     formControlName="datasourceType"
                     [compareWith]="compareDatasourceType"
+                    appAria="sue-data-datasource-type"
                   >
                     <option value="" disabled>
                       {{ 'ADMIN_SPATIAL_UNITS.DATA.SELECT_SOURCE_TYPE' | translate }}
@@ -362,6 +373,10 @@
                       </option>
                     }
                   </select>
+                  <app-form-error
+                    [control]="importerForm.controls.datasourceType"
+                    for="sue-data-datasource-type"
+                  />
                 </div>
                 @if (datasourceType?.type === 'FILE') {
                   <div>
@@ -375,6 +390,10 @@
                       id="spatialUnitDataSourceInput_editFeatures"
                       required
                       (change)="onFileSelected($event)"
+                    />
+                    <app-form-error
+                      [control]="editForm"
+                      [revealWith]="editForm.controls.selectedFile"
                     />
                     @if (selectedDataSourceFile) {
                       <div class="help-block">
@@ -408,6 +427,7 @@
                         {{ 'ADMIN_SPATIAL_UNITS.DATA.MANUAL_BBOX' | translate }}
                       </option>
                     </select>
+                    <app-form-error [control]="importerForm.controls.bboxType" />
                     @if (bboxType === 'ref') {
                       <div class="form-group">
                         <select
@@ -426,6 +446,7 @@
                             </option>
                           }
                         </select>
+                        <app-form-error [control]="importerForm.controls.bboxRefSpatialUnitId" />
                         <div class="help-block">
                           <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.BBOX_REF_HINT' | translate }}</p>
                         </div>
@@ -476,6 +497,7 @@
                         <div class="help-block">
                           <p>{{ 'ADMIN_SPATIAL_UNITS.DATA.MAX_Y' | translate }}</p>
                         </div>
+                        <app-form-error [control]="importerForm.controls.bbox" />
                       </div>
                     }
                   </div>
@@ -502,6 +524,11 @@
                         <div class="help-block">
                           <p>{{ parameter.description }}</p>
                         </div>
+                        <app-form-error
+                          [control]="
+                            importerForm.controls.datasourceTypeParameters.controls[parameter.name]
+                          "
+                        />
                       </div>
                     }
                   </div>
@@ -527,6 +554,10 @@
                   {{ 'ADMIN_SPATIAL_UNITS.DATA.ID_ATTRIBUTE_HINT' | translate }}
                 </p>
               </div>
+              <app-form-error
+                [control]="importerForm.controls.idProperty"
+                for="sue-data-id-property"
+              />
             </div>
 
             <div class="form-group">
@@ -544,6 +575,10 @@
                   {{ 'ADMIN_SPATIAL_UNITS.DATA.NAME_ATTRIBUTE_HINT' | translate }}
                 </p>
               </div>
+              <app-form-error
+                [control]="importerForm.controls.nameProperty"
+                for="sue-data-name-property"
+              />
             </div>
           </div>
 
@@ -594,6 +629,7 @@
                   {{ 'ADMIN_SPATIAL_UNITS.DATA.VALID_FROM_HINT' | translate }}
                 </p>
               </div>
+              <app-form-error [control]="editForm.controls.periodOfValidity.controls.startDate" />
               <app-form-error
                 [control]="editForm.controls.periodOfValidity"
                 keyOverride="ADMIN_SPATIAL_UNITS.DATA.PERIOD_INVALID"
@@ -845,8 +881,8 @@
   <button
     type="button"
     class="btn btn-success"
-    [disabled]="!currentSpatialUnitDataset?.spatialUnitLevel || editForm.invalid"
-    (click)="editSpatialUnitFeatures()"
+    [disabled]="!currentSpatialUnitDataset?.spatialUnitLevel || loadingData()"
+    (click)="onSubmit()"
   >
     <i class="fas fa-upload"></i>&nbsp;{{
       'ADMIN_SPATIAL_UNITS.EDIT_FEATURES_MODAL.SUBMIT' | translate

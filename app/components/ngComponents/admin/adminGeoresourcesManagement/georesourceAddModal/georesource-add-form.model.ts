@@ -21,7 +21,10 @@ import {
   buildTopicHierarchyForm,
   topicHierarchyToApi,
 } from '../../adminShared/topicHierarchyForm/topic-hierarchy-form.model';
-import { uniqueNameValidator } from '../../adminShared/validators/admin-validators';
+import {
+  fileRequiredForFileDatasource,
+  uniqueNameValidator,
+} from '../../adminShared/validators/admin-validators';
 import { LinePatternOption } from '../../../customElements/line-pattern-picker/km-line-pattern-picker.component';
 
 /**
@@ -69,6 +72,11 @@ export type GeoresourceMetadataStepGroup = FormGroup<{
 export type GeoresourceDataStepGroup = FormGroup<{
   periodOfValidity: PeriodOfValidityFormGroup;
   importer: ImporterFormGroup;
+  /**
+   * The upload for a FILE data source. The file input is no
+   * ControlValueAccessor, so the host writes it from the `(change)` handler.
+   */
+  selectedFile: FormControl<File | null>;
 }>;
 
 export type GeoresourceAddFormGroup = FormGroup<{
@@ -138,10 +146,14 @@ export function buildGeoresourceAddForm(
     existingDatasetNames: options.existingDatasetNames,
   });
 
-  const data: GeoresourceDataStepGroup = new FormGroup({
-    periodOfValidity: buildPeriodOfValidityForm({ requireStart: true }),
-    importer: buildImporterForm(),
-  });
+  const data: GeoresourceDataStepGroup = new FormGroup(
+    {
+      periodOfValidity: buildPeriodOfValidityForm({ requireStart: true }),
+      importer: buildImporterForm(),
+      selectedFile: new FormControl<File | null>(null),
+    },
+    { validators: fileRequiredForFileDatasource() }
+  );
 
   return new FormGroup({
     metadata,

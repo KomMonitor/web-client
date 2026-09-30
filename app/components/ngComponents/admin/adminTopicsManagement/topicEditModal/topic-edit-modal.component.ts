@@ -1,7 +1,9 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   DestroyRef,
+  ElementRef,
   Input,
   OnInit,
   inject,
@@ -22,6 +24,7 @@ import { Topic } from '../topic.model';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
+import { notBlankValidator } from '../../adminShared/validators/admin-validators';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { TranslateService } from '@ngx-translate/core';
@@ -46,6 +49,8 @@ export class TopicEditModalComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   @Input({ required: true }) topic!: Topic;
 
@@ -58,8 +63,9 @@ export class TopicEditModalComponent implements OnInit {
 
   constructor() {
     this.topicForm = this.fb.group({
-      name: ['', Validators.required],
-      description: ['', Validators.required],
+      // notBlankValidator: a whitespace-only value counts as missing, too
+      name: ['', [Validators.required, notBlankValidator]],
+      description: ['', [Validators.required, notBlankValidator]],
     });
   }
 
@@ -75,32 +81,36 @@ export class TopicEditModalComponent implements OnInit {
     });
   }
 
+  /**
+   * Saves a valid form; otherwise reveals every field's error and moves the
+   * focus to the first invalid field.
+   */
   onSubmit() {
-    if (!this.topicForm.valid) {
-      console.warn('Form is invalid:', this.topicForm.errors);
-      Object.keys(this.topicForm.controls).forEach((key) => {
-        this.topicForm.get(key)?.markAsTouched();
-      });
+    if (this.topicForm.invalid) {
+      this.topicForm.markAllAsTouched();
+      // OnPush: the touched state alone does not re-render the host's bindings
+      this.cdr.markForCheck();
+      this.host.nativeElement
+        .querySelector<HTMLElement>('input.ng-invalid, textarea.ng-invalid')
+        ?.focus();
       return;
     }
 
-    const name = this.topicForm.value.name;
-    const description = this.topicForm.value.description;
-
-    if (!name || !description) {
-      return;
-    }
+    const { name, description } = this.topicForm.getRawValue();
+    // Both are set: the required validators passed.
+    const topicName = name ?? '';
+    const topicDescription = description ?? '';
 
     this.isSubmitting.set(true);
 
     this.srvc
-      .editTopic(this.topic, name, description)
+      .editTopic(this.topic, topicName, topicDescription)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.isSubmitting.set(false);
           this.notificationService.showSuccess(
-            this.translate.instant('ADMIN_TOPICS.EDIT_MODAL.MSG.UPDATED', { name })
+            this.translate.instant('ADMIN_TOPICS.EDIT_MODAL.MSG.UPDATED', { name: topicName })
           );
           this.activeModal.close(true);
         },

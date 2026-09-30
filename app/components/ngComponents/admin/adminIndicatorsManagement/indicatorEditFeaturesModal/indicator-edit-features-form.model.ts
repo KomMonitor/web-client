@@ -1,4 +1,5 @@
 import { FormControl, FormGroup, FormRecord, Validators } from '@angular/forms';
+import { fileRequiredForFileDatasource } from '../../adminShared/validators/admin-validators';
 import type {
   Converter,
   DatasourceType,
@@ -24,6 +25,10 @@ import { timeseriesMappingsRequiredValidator } from '../../adminShared/timeserie
  * mapping. The mapping clause was missing between the AngularJS port and the
  * reactive-forms conversion, because the time-series editor it depends on had
  * not been ported — the importer silently received `timeseriesMappings: []`.
+ *
+ * The FILE upload is part of the form as well (`selectedFile`), so a missing
+ * file shows up as a field error and a step marking instead of only failing in
+ * `buildImporterObjects` at submit time.
  */
 
 export type IndicatorEditFeaturesFormGroup = FormGroup<{
@@ -33,6 +38,11 @@ export type IndicatorEditFeaturesFormGroup = FormGroup<{
   converterParameters: ImporterParameterRecord;
   datasourceType: FormControl<DatasourceType | null>;
   datasourceTypeParameters: ImporterParameterRecord;
+  /**
+   * The upload for a FILE data source. The file input is no
+   * ControlValueAccessor, so the host writes it from the `(change)` handler.
+   */
+  selectedFile: FormControl<File | null>;
   targetSpatialUnitMetadata: FormControl<any | null>;
   spatialUnitRefKeyProperty: FormControl<string>;
   timeseriesMappings: FormControl<TimeseriesMapping[]>;
@@ -41,23 +51,27 @@ export type IndicatorEditFeaturesFormGroup = FormGroup<{
 }>;
 
 export function buildIndicatorEditFeaturesForm(): IndicatorEditFeaturesFormGroup {
-  return new FormGroup({
-    converter: new FormControl<Converter | null>(null, Validators.required),
-    schema: new FormControl('', { nonNullable: true }),
-    mimeType: new FormControl('', { nonNullable: true }),
-    converterParameters: new FormRecord<FormControl<string>>({}),
-    datasourceType: new FormControl<DatasourceType | null>(null, Validators.required),
-    datasourceTypeParameters: new FormRecord<FormControl<string>>({}),
-    targetSpatialUnitMetadata: new FormControl<any | null>(null, Validators.required),
-    spatialUnitRefKeyProperty: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-    timeseriesMappings: new FormControl<TimeseriesMapping[]>([], {
-      nonNullable: true,
-      validators: [timeseriesMappingsRequiredValidator],
-    }),
-    keepMissingValues: new FormControl(true, { nonNullable: true }),
-    isPublic: new FormControl(false, { nonNullable: true }),
-  });
+  return new FormGroup(
+    {
+      converter: new FormControl<Converter | null>(null, Validators.required),
+      schema: new FormControl('', { nonNullable: true }),
+      mimeType: new FormControl('', { nonNullable: true }),
+      converterParameters: new FormRecord<FormControl<string>>({}),
+      datasourceType: new FormControl<DatasourceType | null>(null, Validators.required),
+      datasourceTypeParameters: new FormRecord<FormControl<string>>({}),
+      selectedFile: new FormControl<File | null>(null),
+      targetSpatialUnitMetadata: new FormControl<any | null>(null, Validators.required),
+      spatialUnitRefKeyProperty: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+      timeseriesMappings: new FormControl<TimeseriesMapping[]>([], {
+        nonNullable: true,
+        validators: [timeseriesMappingsRequiredValidator],
+      }),
+      keepMissingValues: new FormControl(true, { nonNullable: true }),
+      isPublic: new FormControl(false, { nonNullable: true }),
+    },
+    { validators: fileRequiredForFileDatasource('datasourceType') }
+  );
 }
