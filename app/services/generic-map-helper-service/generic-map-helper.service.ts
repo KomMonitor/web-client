@@ -280,7 +280,7 @@ export class GenericMapHelperService {
 
     // backgroundLayer
     // backgroundLayer = this.generateBackgroundMap_osmGrayscale();
-    const backgroundLayer = this.generateBackgroundMap_cartoDbPositron();
+    const backgroundLayer = this.generateBackgroundMap_osmGrayscale();
 
     const map = L.map(domId, {
       center: [this.envConfigService.initialLatitude, this.envConfigService.initialLongitude],
@@ -324,11 +324,12 @@ export class GenericMapHelperService {
     };
   }
 
-  generateBackgroundMap_cartoDbPositron() {
-    return new L.TileLayer('https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+  // Use OSM base map layer for now, since CartoDB Positron requires an API key and is not free anymore
+  generateBackgroundMap_osmGrayscale() {
+    return createGrayscaleTileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       minZoom: this.envConfigService.minZoomLevel,
       maxZoom: this.envConfigService.maxZoomLevel,
-      attribution: 'Map data \u00a9 CartoDB Positron',
+      attribution: 'Map data \u00a9 OpenStreetMap contributors',
     });
   }
 
