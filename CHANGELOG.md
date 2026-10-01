@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.1.6]
+>  1 Oct 2026
+
+### Changed
+
+- Change CartoDB to OSM base map layer for georesource POI editing ([8478b62](https://github.com/KomMonitor/web-client/commit/8478b6263c476ebb53a60305d183b74d52eb3e56))
+- Update version info ([20b17b9](https://github.com/KomMonitor/web-client/commit/20b17b9a2aab990801aa903225f11e1f18a2843f))
+- Restructure version info box ([ae41364](https://github.com/KomMonitor/web-client/commit/ae413649dab0bc543554fa45f6998d5b43de1fcf))
 
 ## [5.1.5]
 > 10 Aug 2026
@@ -19,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Enhance boxplot and timeseries overview charts within timeseries reports ([f785c13](https://github.com/KomMonitor/web-client/commit/f785c13f4e29437af56d6497cf769b1a189b8681))
 - Set maxAreasPerOverviewChart to 5 as default for reporting timeseries and boxplot diagams ([4e934a2](https://github.com/KomMonitor/web-client/commit/4e934a26b07442c1ef904519d8cbf3fec97dd13c))
+- Release 5.1.5 ([d259b15](https://github.com/KomMonitor/web-client/commit/d259b1558f99c4a99da0148ca713f2df7026e071))
 
 ### Fixed
 
@@ -26,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix an unlimited choropleth legend entry if no negative values are present ([7c40dc9](https://github.com/KomMonitor/web-client/commit/7c40dc906e2d5817d5525d8d0adad8b86e6d62be))
 - Fix inconsistent timeseries reporting charts (might happened if dates were integrated unsorted) ([8fd8a49](https://github.com/KomMonitor/web-client/commit/8fd8a49f7baa60e3f2c8019c50eb9ee25ad8941d))
 - Fix root cause of reporting unsorted timeseries problems (false values for false dates) ([4c45f63](https://github.com/KomMonitor/web-client/commit/4c45f639e0c6c17aad450d96048642e9e4cd56ca))
+- Fix changelog ([e1a0af9](https://github.com/KomMonitor/web-client/commit/e1a0af90ccf87a867862746979354869f19dd80a))
 
 ## [5.1.4]
 > 17 Jul 2026
@@ -80,12 +90,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a placeholder as user feedback making clear how much background pages are generated and their generation progress ([15c21ef](https://github.com/KomMonitor/web-client/commit/15c21efe1c301d0f7e680b1f5ba15dbd964c6fc6))
 - Add permanent report generation banner across whole application and also add an abort report generation button ([a364d75](https://github.com/KomMonitor/web-client/commit/a364d757936144bd05ac95a651f34eef81766f39))
 - Add progress and abort functions to permanent report banner and also show report generation status ([4ca2ac5](https://github.com/KomMonitor/web-client/commit/4ca2ac52a1db59fa4bf454f93ed84d2e4e89c11f))
 - Add new reachability workflow to overcome starneg leaflet screenshot issue with active isochrones. now first generate poi dataset für spatial unit (including screenshot process without errors) and then let users optionally add isochrones or indicator labels ([0b4e37d](https://github.com/KomMonitor/web-client/commit/0b4e37d7644829976fa95ba5138c3459e25f9a48))
 
 ### Changed
 
+- Improve reporting perfmroance by only showing some spatial unit features in preview and generate the rest in the background ([0438e74](https://github.com/KomMonitor/web-client/commit/0438e7450c23d4784706601e06b0e88334c63754))
+- Takeover generated pages from reportingIndicatorAdd menu to reportingOverview menu, improving performance, user only has to wait once for the pages to generate ([a0aaf62](https://github.com/KomMonitor/web-client/commit/a0aaf628679250ea4bde3f2f5cb7bfe9d6550b49))
+- Boost preview dataTable reporting page generation to allow full reporting overview and afterwards generate alle other singleFeature pages asynchronously ([fbc31ca](https://github.com/KomMonitor/web-client/commit/fbc31ca0a04b91ec18ba1473a7f4cccc0485c45d))
+- Reporting: new user workflow: configure first then activate report generation to make sure User has full control over generated content ([ea0069d](https://github.com/KomMonitor/web-client/commit/ea0069dd4b7e56acfd704785fc7d40a2949a881b))
+- Only show preview area in reporting if report is actually generated to let users focus on configuration in the beginning ([81db915](https://github.com/KomMonitor/web-client/commit/81db915de10deb5ef38b8578d10c93ed63052f2e))
+- Give leafllet more time prior to generating basemap screenshots to improve image quality and placement ([13d374b](https://github.com/KomMonitor/web-client/commit/13d374b6bac11a6f394379a5c666f6c3cf59720d))
+- Adjust selection of spatial units in reporting ([f7320e0](https://github.com/KomMonitor/web-client/commit/f7320e0353705d504c33cab6adebf3769c5af95a))
+- Ensure that on import of report configuration file, each page is fully checked for map screenshots etc. ([792da0a](https://github.com/KomMonitor/web-client/commit/792da0abbeca31896e8e665dbeb5a26eec5f158c))
+- More robust echarts map exports in reporting ([ef7c73f](https://github.com/KomMonitor/web-client/commit/ef7c73fa2d537191e2dfc68544d39a446034efdf))
+- Enforce only single oriented pages due to new workflow and preview mechanics in reporting ([d37d33a](https://github.com/KomMonitor/web-client/commit/d37d33aa05d589b4d140ff90086691ba360075e0))
+- Adjust background page generation comment ([5be1276](https://github.com/KomMonitor/web-client/commit/5be12765a88e20d20122f74b0efb9ff807bc3182))
 - Filter out scripts for unaccessible spatial units ([6d77b6e](https://github.com/KomMonitor/web-client/commit/6d77b6e93c370a57e215bcece29b15b7484313f0))
 - Merge branch 'fix/538' into develop ([c116833](https://github.com/KomMonitor/web-client/commit/c116833cfd20d5756ad843a15cfb0e85e86aa152))
 - Merge branch 'develop' into feature/reporting-workflow ([c094939](https://github.com/KomMonitor/web-client/commit/c0949392ce3a4fe9763f37a032f48482b9785f0b))
@@ -108,70 +130,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fix spatial filter by hierarchy ([c4c553e](https://github.com/KomMonitor/web-client/commit/c4c553e30daeaf21b9ab719378a80fd1744efcc4))
-- Fix indicator legend count per colour display after fiddling around in reporting ([e7207f7](https://github.com/KomMonitor/web-client/commit/e7207f71bf02fbcbdf3a18455e8d41d99fc70d82))
-- Fix logo in reports ([bb1c3fa](https://github.com/KomMonitor/web-client/commit/bb1c3fa475faf0dccbd9fd396dcc68ceca2f0b47))
-- Fix broken tab order for indicator based reports ensuring all three report categories have their proper tab order now ([6826466](https://github.com/KomMonitor/web-client/commit/6826466f0e405e0159dfbe6b68fe23219f50cecc))
-- Fix timeseries display in indicator timeseries reports ([7a28dd5](https://github.com/KomMonitor/web-client/commit/7a28dd587abc3845991c31734f4488d67c6bf9ed))
-- Fix: reporting, inital selection of spatial unit ([d4d018f](https://github.com/KomMonitor/web-client/commit/d4d018f7bf52573a3bd8df7d1f51fda4ff84fafe))
-- Fix: typo on previous fix ([e85f386](https://github.com/KomMonitor/web-client/commit/e85f3868635603137c529ea0efa09a6334f32763))
-
-### Removed
-
-- Remove percentagte symbol in reporting loading bars ([f773ed1](https://github.com/KomMonitor/web-client/commit/f773ed15cd891d3aae96f9d1e4de9f3ad2625912))
-- Remove unnecessary invalidate size call ([521c867](https://github.com/KomMonitor/web-client/commit/521c8671e76e476a5051da01334833fe84709dd8))
-
-## [5.0.0]
-> 23 Mar 2026
-
-### Added
-
-- Added hint when schedule exists for selected target indicator ([635d745](https://github.com/KomMonitor/web-client/commit/635d7457b83a80bcb5dfbe7e6e5558e609aa75e6))
-- Add info for version 5 ([12c59b7](https://github.com/KomMonitor/web-client/commit/12c59b712605d23ab6d8a13758ed8fc81a8877ec))
-- Add a placeholder as user feedback making clear how much background pages are generated and their generation progress ([15c21ef](https://github.com/KomMonitor/web-client/commit/15c21efe1c301d0f7e680b1f5ba15dbd964c6fc6))
-
-### Changed
-
-- Merge branch 'develop' into version/processes-api ([3f83f33](https://github.com/KomMonitor/web-client/commit/3f83f33b299546fdc81da6f33d463a81b27ffb1c))
-- Merge branch 'develop' into merge ([2ecc0cd](https://github.com/KomMonitor/web-client/commit/2ecc0cd3224ec29bd8396bd65c21b12ee81acb56))
-- Merge branch 'master' into develop ([529749a](https://github.com/KomMonitor/web-client/commit/529749acfc7a392d0c838ac283b449e6534352ad))
-- Refine legend information for spatial filtered and non-spatial filtered spatial units ([8ca336c](https://github.com/KomMonitor/web-client/commit/8ca336c5d8d933504cc0c0692439e8e8eb880ff9))
-- Merge branch 'fix/spatial-filter-on-no-data-bug' into develop ([1b3eba6](https://github.com/KomMonitor/web-client/commit/1b3eba6ef1cb2212ee4153ab9e9b8cdccf15ca72))
-- Delete old script + renaming ([e3d2080](https://github.com/KomMonitor/web-client/commit/e3d2080d01ccb96edda28ca8c5c61f6c19784ca3))
-- Merge branch 'fix/524' into develop ([27722c1](https://github.com/KomMonitor/web-client/commit/27722c1d46d51f8f38779be4c6c26ec37888350a))
-- Ensure indicator method (if rendered via MathJax) is loaded correctly in indicator metadata pdf export ([f574750](https://github.com/KomMonitor/web-client/commit/f574750f841e3661cb802b42de8cefa6aaf9b285))
-- Reset formula and legend after changing script type ([d4f42c0](https://github.com/KomMonitor/web-client/commit/d4f42c033c6b8e5629c21c248787dc42c6f23638))
-- After adding script, reset inputs and jump to first step ([3f64f37](https://github.com/KomMonitor/web-client/commit/3f64f37655584f1699497be1a0ab399342acb511))
-- Merge branch 'fix/520' into develop ([b72a080](https://github.com/KomMonitor/web-client/commit/b72a08070e64de2ba4dc4ec98678e40da45c6750))
-- Filter out scripts with inaccessible target indicators ([6e4fc40](https://github.com/KomMonitor/web-client/commit/6e4fc409c727d6e8d137a6feddc0207c4ae7a6d1))
-- Merge branch 'fix/538' into develop ([5168bc8](https://github.com/KomMonitor/web-client/commit/5168bc8f603472ce3f897f81cbfd74fba27245b6))
-- Prevent double insert of hovered features into radar diagram ([483a314](https://github.com/KomMonitor/web-client/commit/483a314a4a5669ae28c6ff25822b977b8f6c8702))
-- Refine feature highlighting in radar diagram ([3fc530e](https://github.com/KomMonitor/web-client/commit/3fc530eed9d93f93b8ba6af50ef7caf477bb3c42))
-- Improve reporting perfmroance by only showing some spatial unit features in preview and generate the rest in the background ([0438e74](https://github.com/KomMonitor/web-client/commit/0438e7450c23d4784706601e06b0e88334c63754))
-- Takeover generated pages from reportingIndicatorAdd menu to reportingOverview menu, improving performance, user only has to wait once for the pages to generate ([a0aaf62](https://github.com/KomMonitor/web-client/commit/a0aaf628679250ea4bde3f2f5cb7bfe9d6550b49))
-- Boost preview dataTable reporting page generation to allow full reporting overview and afterwards generate alle other singleFeature pages asynchronously ([fbc31ca](https://github.com/KomMonitor/web-client/commit/fbc31ca0a04b91ec18ba1473a7f4cccc0485c45d))
-- Reporting: new user workflow: configure first then activate report generation to make sure User has full control over generated content ([ea0069d](https://github.com/KomMonitor/web-client/commit/ea0069dd4b7e56acfd704785fc7d40a2949a881b))
-- Only show preview area in reporting if report is actually generated to let users focus on configuration in the beginning ([81db915](https://github.com/KomMonitor/web-client/commit/81db915de10deb5ef38b8578d10c93ed63052f2e))
-- Give leafllet more time prior to generating basemap screenshots to improve image quality and placement ([13d374b](https://github.com/KomMonitor/web-client/commit/13d374b6bac11a6f394379a5c666f6c3cf59720d))
-- Adjust selection of spatial units in reporting ([f7320e0](https://github.com/KomMonitor/web-client/commit/f7320e0353705d504c33cab6adebf3769c5af95a))
-- Ensure that on import of report configuration file, each page is fully checked for map screenshots etc. ([792da0a](https://github.com/KomMonitor/web-client/commit/792da0abbeca31896e8e665dbeb5a26eec5f158c))
-- More robust echarts map exports in reporting ([ef7c73f](https://github.com/KomMonitor/web-client/commit/ef7c73fa2d537191e2dfc68544d39a446034efdf))
-- Enforce only single oriented pages due to new workflow and preview mechanics in reporting ([d37d33a](https://github.com/KomMonitor/web-client/commit/d37d33aa05d589b4d140ff90086691ba360075e0))
-- Adjust background page generation comment ([5be1276](https://github.com/KomMonitor/web-client/commit/5be12765a88e20d20122f74b0efb9ff807bc3182))
-- Deleted year unit for cron interval input ([a12deed](https://github.com/KomMonitor/web-client/commit/a12deed826a0ca74a97475ae9f6ba28808b310da))
-- Delete error block for cron pattern ([5273d78](https://github.com/KomMonitor/web-client/commit/5273d784107bc0913b7d2dcec7810ec9aa2b5427))
-- Update launch config ([6be4768](https://github.com/KomMonitor/web-client/commit/6be4768a4204864e2ade05db95a31443ebe76a0e))
-- Update deps ([5d94b0b](https://github.com/KomMonitor/web-client/commit/5d94b0b8eb8bef34d025f0228f06df8723a3c552))
-- Release 5.0.0 ([22dd9ae](https://github.com/KomMonitor/web-client/commit/22dd9aed6f7825c06ec1cd8f405d35ede4acf751))
-
-### Fixed
-
-- Fix bug, that triggered spatial filter banner falsely - actually it was a problem with value range filter; a non-sufficient if clause also triggered spatial filter banner ([6e3419a](https://github.com/KomMonitor/web-client/commit/6e3419ae9cf6c2d3eebb2f6a784fb9cd72dfd424))
-- Fix displa of indicator scripts in case the target indicator of a script was deleted, but the script remains (this broke script table generation) ([ee656c1](https://github.com/KomMonitor/web-client/commit/ee656c1f0b4026aea50368441b6a6a7be295b9c9))
-- Fix collapse behaviour for job error boxes in job execution table ([bb17d29](https://github.com/KomMonitor/web-client/commit/bb17d29fc898175e001b1e8a534b0a9cd9ffb534))
-- Fix double mouse over map feature event handling in radar chart ([1a6fdb4](https://github.com/KomMonitor/web-client/commit/1a6fdb4f83f13d961151cfa06c4184d34c2f719c))
-- Fix role preperation issue for user information display ([929b291](https://github.com/KomMonitor/web-client/commit/929b291ee5b70825c09eacd814639cd7e716d01e))
-- Fix role preperation issue for owner selection ([18027f2](https://github.com/KomMonitor/web-client/commit/18027f236dc0b627de9b0e20de0ecaf1eccc55ad))
 - Fix missing leaflet screenshots in exported reports ([ce568e2](https://github.com/KomMonitor/web-client/commit/ce568e2623fc3f0cdb8e57ca9d52b9dbed46897e))
 - Fix missing bars in bar chart reporting pages ([b1bd183](https://github.com/KomMonitor/web-client/commit/b1bd1835205029776cee260ff6e514bccc7a750a))
 - Fix loadingData spinner flickering during page generation ([75dffe0](https://github.com/KomMonitor/web-client/commit/75dffe0554057aaa0256194646b8e4da89f05c20))
@@ -186,15 +144,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix point series data display and report generation of map markers in reachability reports (required to disable echarts animation - and wait s short time) ([53d791c](https://github.com/KomMonitor/web-client/commit/53d791c8602c5e2f2956794ea38d452142f09423))
 - Fix display of applicable indicagtors for current selected spatial unit in reachability report ([067ba61](https://github.com/KomMonitor/web-client/commit/067ba6158caa1eb824716b923162c1a00d303879))
 - Fix leaflet screenshots for single spatila unit festure pages in reachability reports (as echarts map gets filtered from all features to the target feature, the screenshot was made too early) ([717f638](https://github.com/KomMonitor/web-client/commit/717f6381b119680cced481a3b7f9bbe54b712a8f))
-- Fix mouse over bug ([7550671](https://github.com/KomMonitor/web-client/commit/7550671da7b9797df72dfad62d58c27027d74e04))
+- Fix spatial filter by hierarchy ([c4c553e](https://github.com/KomMonitor/web-client/commit/c4c553e30daeaf21b9ab719378a80fd1744efcc4))
+- Fix indicator legend count per colour display after fiddling around in reporting ([e7207f7](https://github.com/KomMonitor/web-client/commit/e7207f71bf02fbcbdf3a18455e8d41d99fc70d82))
+- Fix logo in reports ([bb1c3fa](https://github.com/KomMonitor/web-client/commit/bb1c3fa475faf0dccbd9fd396dcc68ceca2f0b47))
+- Fix broken tab order for indicator based reports ensuring all three report categories have their proper tab order now ([6826466](https://github.com/KomMonitor/web-client/commit/6826466f0e405e0159dfbe6b68fe23219f50cecc))
+- Fix timeseries display in indicator timeseries reports ([7a28dd5](https://github.com/KomMonitor/web-client/commit/7a28dd587abc3845991c31734f4488d67c6bf9ed))
+- Fix: reporting, inital selection of spatial unit ([d4d018f](https://github.com/KomMonitor/web-client/commit/d4d018f7bf52573a3bd8df7d1f51fda4ff84fafe))
+- Fix: typo on previous fix ([e85f386](https://github.com/KomMonitor/web-client/commit/e85f3868635603137c529ea0efa09a6334f32763))
 
 ### Removed
 
-- Remove hard coded URL ([5e63e2a](https://github.com/KomMonitor/web-client/commit/5e63e2a4ff0be06946690ee7439c447e50b1296d))
 - Remove redundant call for leaflet screenshot generation ([5b58ff8](https://github.com/KomMonitor/web-client/commit/5b58ff8cf7f1d188046c0427b4b39088c2362c93))
+- Remove percentagte symbol in reporting loading bars ([f773ed1](https://github.com/KomMonitor/web-client/commit/f773ed15cd891d3aae96f9d1e4de9f3ad2625912))
+- Remove unnecessary invalidate size call ([521c867](https://github.com/KomMonitor/web-client/commit/521c8671e76e476a5051da01334833fe84709dd8))
 
-## [4.3.3]
-> 30 Jan 2026
+## [5.0.0]
+> 23 Mar 2026
 
 ### Added
 
@@ -232,8 +197,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add tooltip to show schedule related job table button ([f969871](https://github.com/KomMonitor/web-client/commit/f9698718358f8676d136baa99d46328f5d538c58))
 - Add configurable processDescription to process scripts overview table and adjust column order and sizing ([0fc10bc](https://github.com/KomMonitor/web-client/commit/0fc10bc58e9cc1d0ff884a2c27c707a5f6bf6e8d))
 - Add loading spinner when selecting script type (for feedback while waiting for script type inputs) ([62ca7dc](https://github.com/KomMonitor/web-client/commit/62ca7dc3d34c3384ff734cd23bc7fc9b742c421d))
-- BarChart: added selected date in x-axis legend. radarChart: print layout options and dynamic styles added ([40a4398](https://github.com/KomMonitor/web-client/commit/40a43985efbbbc0a5ee8070cd6a3f2e264170e14))
-- Add version info ([89d4b2f](https://github.com/KomMonitor/web-client/commit/89d4b2f4c44dbed0fd580bfda285818a63cb4e68))
+- Added hint when schedule exists for selected target indicator ([635d745](https://github.com/KomMonitor/web-client/commit/635d7457b83a80bcb5dfbe7e6e5558e609aa75e6))
+- Add info for version 5 ([12c59b7](https://github.com/KomMonitor/web-client/commit/12c59b712605d23ab6d8a13758ed8fc81a8877ec))
 
 ### Changed
 
@@ -313,7 +278,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Merge remote-tracking branch 'origin/feature/ap-4-anbindung-web-interface' into version/processes-api ([16b4254](https://github.com/KomMonitor/web-client/commit/16b4254ae9f9247d0f6ad4df777d8350b941c3c3))
 - Adjuts version info ([12207da](https://github.com/KomMonitor/web-client/commit/12207dacc6df092c80bff34c217496e6361b327b))
 - Reload target indicator metadata on successful onDemand process job ([acc9694](https://github.com/KomMonitor/web-client/commit/acc969409da8b8533cc151ccf6c9d54194d1e023))
-- Release 4.3.3 ([f3038d9](https://github.com/KomMonitor/web-client/commit/f3038d9279f995bad3314804ae944e6e378e1ab4))
+- Merge branch 'develop' into version/processes-api ([3f83f33](https://github.com/KomMonitor/web-client/commit/3f83f33b299546fdc81da6f33d463a81b27ffb1c))
+- Merge branch 'develop' into merge ([2ecc0cd](https://github.com/KomMonitor/web-client/commit/2ecc0cd3224ec29bd8396bd65c21b12ee81acb56))
+- Merge branch 'master' into develop ([529749a](https://github.com/KomMonitor/web-client/commit/529749acfc7a392d0c838ac283b449e6534352ad))
+- Refine legend information for spatial filtered and non-spatial filtered spatial units ([8ca336c](https://github.com/KomMonitor/web-client/commit/8ca336c5d8d933504cc0c0692439e8e8eb880ff9))
+- Merge branch 'fix/spatial-filter-on-no-data-bug' into develop ([1b3eba6](https://github.com/KomMonitor/web-client/commit/1b3eba6ef1cb2212ee4153ab9e9b8cdccf15ca72))
+- Delete old script + renaming ([e3d2080](https://github.com/KomMonitor/web-client/commit/e3d2080d01ccb96edda28ca8c5c61f6c19784ca3))
+- Merge branch 'fix/524' into develop ([27722c1](https://github.com/KomMonitor/web-client/commit/27722c1d46d51f8f38779be4c6c26ec37888350a))
+- Ensure indicator method (if rendered via MathJax) is loaded correctly in indicator metadata pdf export ([f574750](https://github.com/KomMonitor/web-client/commit/f574750f841e3661cb802b42de8cefa6aaf9b285))
+- Reset formula and legend after changing script type ([d4f42c0](https://github.com/KomMonitor/web-client/commit/d4f42c033c6b8e5629c21c248787dc42c6f23638))
+- After adding script, reset inputs and jump to first step ([3f64f37](https://github.com/KomMonitor/web-client/commit/3f64f37655584f1699497be1a0ab399342acb511))
+- Merge branch 'fix/520' into develop ([b72a080](https://github.com/KomMonitor/web-client/commit/b72a08070e64de2ba4dc4ec98678e40da45c6750))
+- Filter out scripts with inaccessible target indicators ([6e4fc40](https://github.com/KomMonitor/web-client/commit/6e4fc409c727d6e8d137a6feddc0207c4ae7a6d1))
+- Merge branch 'fix/538' into develop ([5168bc8](https://github.com/KomMonitor/web-client/commit/5168bc8f603472ce3f897f81cbfd74fba27245b6))
+- Prevent double insert of hovered features into radar diagram ([483a314](https://github.com/KomMonitor/web-client/commit/483a314a4a5669ae28c6ff25822b977b8f6c8702))
+- Refine feature highlighting in radar diagram ([3fc530e](https://github.com/KomMonitor/web-client/commit/3fc530eed9d93f93b8ba6af50ef7caf477bb3c42))
+- Deleted year unit for cron interval input ([a12deed](https://github.com/KomMonitor/web-client/commit/a12deed826a0ca74a97475ae9f6ba28808b310da))
+- Delete error block for cron pattern ([5273d78](https://github.com/KomMonitor/web-client/commit/5273d784107bc0913b7d2dcec7810ec9aa2b5427))
+- Update launch config ([6be4768](https://github.com/KomMonitor/web-client/commit/6be4768a4204864e2ade05db95a31443ebe76a0e))
+- Update deps ([5d94b0b](https://github.com/KomMonitor/web-client/commit/5d94b0b8eb8bef34d025f0228f06df8723a3c552))
+- Release 5.0.0 ([22dd9ae](https://github.com/KomMonitor/web-client/commit/22dd9aed6f7825c06ec1cd8f405d35ede4acf751))
 
 ### Fixed
 
@@ -328,8 +312,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix buggy PATCH request by removing permissions property from patch body when modifying the indicator method when adding a new script ([b37d60e](https://github.com/KomMonitor/web-client/commit/b37d60eced4c2aa59b26059ec3b1a02cd2aa1ce4))
 - Fix loading spinner on job table ([80a9d61](https://github.com/KomMonitor/web-client/commit/80a9d6189e3f40d35d3246629c8d08f9cc1b046d))
 - Fix rendering for Matjax formulas in script table ([1396431](https://github.com/KomMonitor/web-client/commit/139643132996086b34b5f5768e1787682bc856fc))
-- Fix on radarDiagram, full name if no abbreviation exists ([9fce788](https://github.com/KomMonitor/web-client/commit/9fce7889c659b9201a196d3a575fe4b40c8864c9))
-- Fix creation of sub topics ([2a1f10b](https://github.com/KomMonitor/web-client/commit/2a1f10b19742645f4a26c451d28292d66446f111))
+- Fix bug, that triggered spatial filter banner falsely - actually it was a problem with value range filter; a non-sufficient if clause also triggered spatial filter banner ([6e3419a](https://github.com/KomMonitor/web-client/commit/6e3419ae9cf6c2d3eebb2f6a784fb9cd72dfd424))
+- Fix displa of indicator scripts in case the target indicator of a script was deleted, but the script remains (this broke script table generation) ([ee656c1](https://github.com/KomMonitor/web-client/commit/ee656c1f0b4026aea50368441b6a6a7be295b9c9))
+- Fix collapse behaviour for job error boxes in job execution table ([bb17d29](https://github.com/KomMonitor/web-client/commit/bb17d29fc898175e001b1e8a534b0a9cd9ffb534))
+- Fix double mouse over map feature event handling in radar chart ([1a6fdb4](https://github.com/KomMonitor/web-client/commit/1a6fdb4f83f13d961151cfa06c4184d34c2f719c))
+- Fix role preperation issue for user information display ([929b291](https://github.com/KomMonitor/web-client/commit/929b291ee5b70825c09eacd814639cd7e716d01e))
+- Fix role preperation issue for owner selection ([18027f2](https://github.com/KomMonitor/web-client/commit/18027f236dc0b627de9b0e20de0ecaf1eccc55ad))
+- Fix mouse over bug ([7550671](https://github.com/KomMonitor/web-client/commit/7550671da7b9797df72dfad62d58c27027d74e04))
 
 ### Removed
 
@@ -338,6 +327,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove getToken method ([f7d41c7](https://github.com/KomMonitor/web-client/commit/f7d41c70eaff6cf8921fca5210ca8a1fb4dc479b))
 - Remove old JS script resources ([c13ba44](https://github.com/KomMonitor/web-client/commit/c13ba44a3fac2f0de76b4aaa5cd683c25bcc0044))
 - Remove text related to processing scheduler and engine ([fb1bf7d](https://github.com/KomMonitor/web-client/commit/fb1bf7d312961b632a7aa4b85462839f24fdde20))
+- Remove hard coded URL ([5e63e2a](https://github.com/KomMonitor/web-client/commit/5e63e2a4ff0be06946690ee7439c447e50b1296d))
+
+## [4.3.3]
+> 30 Jan 2026
+
+### Added
+
+- BarChart: added selected date in x-axis legend. radarChart: print layout options and dynamic styles added ([40a4398](https://github.com/KomMonitor/web-client/commit/40a43985efbbbc0a5ee8070cd6a3f2e264170e14))
+- Add version info ([89d4b2f](https://github.com/KomMonitor/web-client/commit/89d4b2f4c44dbed0fd580bfda285818a63cb4e68))
+
+### Changed
+
+- Release 4.3.3 ([f3038d9](https://github.com/KomMonitor/web-client/commit/f3038d9279f995bad3314804ae944e6e378e1ab4))
+
+### Fixed
+
+- Fix on radarDiagram, full name if no abbreviation exists ([9fce788](https://github.com/KomMonitor/web-client/commit/9fce7889c659b9201a196d3a575fe4b40c8864c9))
+- Fix creation of sub topics ([2a1f10b](https://github.com/KomMonitor/web-client/commit/2a1f10b19742645f4a26c451d28292d66446f111))
 
 ## [4.3.2]
 > 12 Jan 2026
@@ -4382,6 +4389,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Raise some dependency version by using npm audit fix ([3b55651](https://github.com/KomMonitor/web-client/commit/3b55651bed28779b895f508f22a742ea2af60b01))
 - Raise some dependency versions by using npm audit fix ([ca220e8](https://github.com/KomMonitor/web-client/commit/ca220e88a9ba951eb4edbfca487d1e0ca192c394))
 
+[5.1.6]: https://github.com/KomMonitor/web-client/compare/5.1.5..5.1.6
 [5.1.5]: https://github.com/KomMonitor/web-client/compare/5.1.4..5.1.5
 [5.1.4]: https://github.com/KomMonitor/web-client/compare/5.1.3..5.1.4
 [5.1.3]: https://github.com/KomMonitor/web-client/compare/5.1.2..5.1.3
