@@ -258,7 +258,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.mapService.mapRecenter$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
       if (value.resize) this.resizeMapOnly();
 
-      if (value.recenter) this.recenterMapOnly();
+      if (value.recenter) {
+        if (value.fitToDataExtent) this.recenterMapOnly();
+        else this.restoreViewportOnly();
+      }
     });
 
     this.reachabilityStateService.reachabilityMapSubject$
@@ -1286,6 +1289,24 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   // dedicated functions
   resizeMapOnly() {
     setTimeout(() => this.map.invalidateSize(true)); // mini timeout to cover css transition effects
+  }
+
+  // restores the viewport (center + zoom) that was visible before the container
+  // was resized, instead of recentering/fitting to the current data layer
+  restoreViewportOnly() {
+    setTimeout(() => {
+      if (!this.map) return;
+
+      const { currentLatitude, currentLongitude, currentZoomLevel } = this.mapViewportState;
+
+      this.map.invalidateSize(false);
+
+      if (currentLatitude != null && currentLongitude != null && currentZoomLevel != null) {
+        this.map.setView([currentLatitude, currentLongitude], currentZoomLevel, {
+          animate: false,
+        });
+      }
+    }); // mini timeout to cover css transition effects
   }
 
   fitBounds() {

@@ -45,7 +45,7 @@ export class SidebarStateService {
     'sidebarRegressionDiagramCollapse',
   ];
 
-  private readonly _activeElement = signal<ActiveSidebarElement>('sidebarReachabilityCollapse');
+  private readonly _activeElement = signal<ActiveSidebarElement>('');
   /** Id of the currently docked sidebar button, or '' when none is open. */
   readonly activeElement = this._activeElement.asReadonly();
 
@@ -63,7 +63,7 @@ export class SidebarStateService {
   /** Undock any open sidebar. Recenters/resizes the map (available width changes). */
   clearActive() {
     this._activeElement.set('');
-    this.mapService.setMapRecenterState({ recenter: true, resize: true });
+    this.mapService.setMapRecenterState({ recenter: true, resize: true, fitToDataExtent: false });
   }
 
   /**
@@ -73,6 +73,6 @@ export class SidebarStateService {
    */
   toggleActive(id: SidebarElement) {
     this._activeElement.update((current) => (current === id ? '' : id));
-    this.mapService.setMapRecenterState({ recenter: true, resize: true });
+    this.mapService.setMapRecenterState({ recenter: true, resize: true, fitToDataExtent: false });
   }
 }

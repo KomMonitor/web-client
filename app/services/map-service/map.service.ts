@@ -131,6 +131,12 @@ export type MapEvent =
 export interface MapRecenterObject {
   resize: boolean;
   recenter: boolean;
+  /**
+   * true: fit the view to the current indicator layer's extent (the explicit
+   * "recenter map" button). false/undefined: restore the viewport (center +
+   * zoom) that was visible before, e.g. after a sidebar-triggered resize.
+   */
+  fitToDataExtent?: boolean;
 }
 
 export interface DateSliderObject {
