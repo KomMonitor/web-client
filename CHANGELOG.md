@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.4.7]
+>  1 Oct 2026
+
+### Changed
+
+- Change CartoDB to OSM base map layer for georesource POI editing ([b77caa6](https://github.com/KomMonitor/web-client/commit/b77caa61e215569942ed4a53d3da8305b9c5e1d9))
+- Update version info ([6871065](https://github.com/KomMonitor/web-client/commit/687106555c395828a0a2a21dce1d854e7e1c5ce3))
+- Restructure version info box ([76eb029](https://github.com/KomMonitor/web-client/commit/76eb0299cc0896b0ecd2c1a8648be0a331f13e1b))
+
 ## [4.4.6]
 > 10 Sep 2026
 
@@ -23,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Overthink handling of special display modes like balance, measureOfValue, dynamicindicator, indicatorWithNegativeValues -> must allow classification method select, but limit/restrict number of classes since KomMonitor uses special display for special cases ([1366e6e](https://github.com/KomMonitor/web-client/commit/1366e6ea45e3a296bc3e8aee3cd56fd9c551cd7a))
 - Classification: display fixed text inputs instead of number and method select if classification cannot be done normally ([956b381](https://github.com/KomMonitor/web-client/commit/956b381f2e286bea5337d00b97c4e17d1ba1a5df))
 - Merge remote-tracking branch 'origin/fix/jenks' into version/4 ([1a4f2a3](https://github.com/KomMonitor/web-client/commit/1a4f2a3cb55b06ff4ebb24dabae9794acb3cb0c4))
+- Release 4.4.6 ([d740c99](https://github.com/KomMonitor/web-client/commit/d740c99e95651ac439ee4451a03ba20ae5889e42))
 
 ### Fixed
 
@@ -100,30 +110,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add info for next minor version ([59aecdb](https://github.com/KomMonitor/web-client/commit/59aecdb186289207542df00460df72240ad238b5))
-
-### Changed
-
-- Merge branch 'version/4' of https://github.com/KomMonitor/web-client into version/4 ([557452b](https://github.com/KomMonitor/web-client/commit/557452bff2bbc6953fb13110c530652206780179))
-- Release 4.4.0 ([efd07c1](https://github.com/KomMonitor/web-client/commit/efd07c140ccfa48741797460f512e42761a39fa2))
-
-### Fixed
-
-- Fix: reporting, inital selection of spatial unit ([dfe21e8](https://github.com/KomMonitor/web-client/commit/dfe21e8ce9ae07caef4973438843e979b7590a42))
-
-## [4.3.6]
-> 20 Apr 2026
-
-### Added
-
 - Add a placeholder as user feedback making clear how much background pages are generated and their generation progress ([dddc8ba](https://github.com/KomMonitor/web-client/commit/dddc8bad650936d263d3cb0bdde255964fead7da))
 - Add permanent report generation banner across whole application and also add an abort report generation button ([22144e8](https://github.com/KomMonitor/web-client/commit/22144e871aa98532f003cc26582b3ffc4cb9e023))
 - Add progress and abort functions to permanent report banner and also show report generation status ([795511b](https://github.com/KomMonitor/web-client/commit/795511bcc8fdfee650d41089f6454e53672083ea))
 - Add new reachability workflow to overcome starneg leaflet screenshot issue with active isochrones. now first generate poi dataset für spatial unit (including screenshot process without errors) and then let users optionally add isochrones or indicator labels ([d85af2e](https://github.com/KomMonitor/web-client/commit/d85af2ecb9584b5404dd39d21405f436dc34df61))
+- Add info for next minor version ([59aecdb](https://github.com/KomMonitor/web-client/commit/59aecdb186289207542df00460df72240ad238b5))
 
 ### Changed
 
-- Cherry pick spatial filter related commits into version/4 branch (display improvements and bugfixes) ([7212dde](https://github.com/KomMonitor/web-client/commit/7212ddebc66aba72c5713e1e8dbb2678e8403cde))
 - Improve reporting perfmroance by only showing some spatial unit features in preview and generate the rest in the background ([ab8f1ad](https://github.com/KomMonitor/web-client/commit/ab8f1add7ee5e5d2091a7ae19d16983185f6eb63))
 - Takeover generated pages from reportingIndicatorAdd menu to reportingOverview menu, improving performance, user only has to wait once for the pages to generate ([0837acc](https://github.com/KomMonitor/web-client/commit/0837acc625a95f801a16d2cdbae26cd04493ee97))
 - Boost preview dataTable reporting page generation to allow full reporting overview and afterwards generate alle other singleFeature pages asynchronously ([765f12e](https://github.com/KomMonitor/web-client/commit/765f12ecb6852ebe66b307537922b5bcce8e2883))
@@ -142,8 +136,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Move background reporting processor section into index.html to ensure leaflet screenshots are taken correctly from remaining background pages on closed reporting modal ([24c0a03](https://github.com/KomMonitor/web-client/commit/24c0a034e82bed4b304e54d6e1eee6a0aedfd749))
 - Global Background Rendering: Both ReportingIndicatorAdd and ReportingOverview now route all map and chart rendering through a global off-screen background container (reporting-background-page). ([20040cd](https://github.com/KomMonitor/web-client/commit/20040cde01a3373d44c6d1c22ddd3c74623ee764))
 - Store leaflet screenshots in indexedDB including template name, as map containers may have different sizes in different templates ([7f5a619](https://github.com/KomMonitor/web-client/commit/7f5a6194da68145a3635245cae9666d394db4890))
-- Update version info ([c550e51](https://github.com/KomMonitor/web-client/commit/c550e510c1505765de9d5eef7f4e3c98580ce007))
-- Release 4.3.6 ([6bc2603](https://github.com/KomMonitor/web-client/commit/6bc26032f3857b6bcac60d9ea7b790419db5e13d))
+- Merge branch 'version/4' of https://github.com/KomMonitor/web-client into version/4 ([557452b](https://github.com/KomMonitor/web-client/commit/557452bff2bbc6953fb13110c530652206780179))
+- Release 4.4.0 ([efd07c1](https://github.com/KomMonitor/web-client/commit/efd07c140ccfa48741797460f512e42761a39fa2))
 
 ### Fixed
 
@@ -165,12 +159,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix logo in reports ([394d015](https://github.com/KomMonitor/web-client/commit/394d0159701b87fddabae6688d5402b7d2f037d0))
 - Fix broken tab order for indicator based reports ensuring all three report categories have their proper tab order now ([f65164c](https://github.com/KomMonitor/web-client/commit/f65164cceb29516c2e8db127141bea439a04fd85))
 - Fix timeseries display in indicator timeseries reports ([7628c3d](https://github.com/KomMonitor/web-client/commit/7628c3dff19e35813aa64e8fc592bf2cb7079106))
+- Fix: reporting, inital selection of spatial unit ([dfe21e8](https://github.com/KomMonitor/web-client/commit/dfe21e8ce9ae07caef4973438843e979b7590a42))
 
 ### Removed
 
 - Remove redundant call for leaflet screenshot generation ([b47555d](https://github.com/KomMonitor/web-client/commit/b47555de8b23ff289de9a3d19f91a38c953efe52))
 - Remove percentagte symbol in reporting loading bars ([919f07f](https://github.com/KomMonitor/web-client/commit/919f07fb23b3553576cce6566f27c91b64d35395))
 - Remove unnecessary invalidate size call ([858dd1b](https://github.com/KomMonitor/web-client/commit/858dd1b3e94d00a1f4b5a0f4636a25f96fe0c5e3))
+
+## [4.3.6]
+> 20 Apr 2026
+
+### Changed
+
+- Cherry pick spatial filter related commits into version/4 branch (display improvements and bugfixes) ([7212dde](https://github.com/KomMonitor/web-client/commit/7212ddebc66aba72c5713e1e8dbb2678e8403cde))
+- Update version info ([c550e51](https://github.com/KomMonitor/web-client/commit/c550e510c1505765de9d5eef7f4e3c98580ce007))
+- Release 4.3.6 ([6bc2603](https://github.com/KomMonitor/web-client/commit/6bc26032f3857b6bcac60d9ea7b790419db5e13d))
 
 ## [4.3.5]
 > 23 Mar 2026
@@ -246,10 +250,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add option to select different spatial unit aggregations ([d1cd70c](https://github.com/KomMonitor/web-client/commit/d1cd70c84be20e93f018ec07d35cafea2db32699))
+- Add aggregations to request body ([b9cd8b5](https://github.com/KomMonitor/web-client/commit/b9cd8b5c475a801f0c2798b887a024d4bd156e1e))
 - Add version info ([0c488de](https://github.com/KomMonitor/web-client/commit/0c488dedf6f3780efd5e19f556233e1d5e158454))
 
 ### Changed
 
+- Integrate spatial unit aggregations in import/export ([c3cff91](https://github.com/KomMonitor/web-client/commit/c3cff91aa424c8551d76753d7d477d6a7bc19ed6))
+- Some layout adjustments ([08fa3e7](https://github.com/KomMonitor/web-client/commit/08fa3e7d955c12bad9bea3494ae1d8f6674eff8f))
 - Merge branch 'develop' into feature/spatial-unit-aggregation ([05daef5](https://github.com/KomMonitor/web-client/commit/05daef542a11f72954c2c91d09fc10bd67627c49))
 - Handle response and show added aggregations ([04aedd8](https://github.com/KomMonitor/web-client/commit/04aedd81b4a1198335ba7c9bafdda3c8d853ac19))
 - Merge branch 'feature/spatial-unit-aggregation' of https://github.com/KomMonitor/web-client into feature/spatial-unit-aggregation ([ad656d2](https://github.com/KomMonitor/web-client/commit/ad656d249e29e60ccc8c5bed49698e2eceb9e307))
@@ -275,32 +283,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Adjust height for reachability section in reporting ([57d22b8](https://github.com/KomMonitor/web-client/commit/57d22b80fa7bfe11b2c8e4d2fea1722fd568b943))
 - Merge branch 'master' into develop ([89dea6e](https://github.com/KomMonitor/web-client/commit/89dea6e315c22ff47136f74aabcdd9f1dcf74a67))
 - Release 4.2.1 ([b7daff7](https://github.com/KomMonitor/web-client/commit/b7daff725110ca75e1fc7cbee8732412dc54a479))
-
-## [3.4.1]
->  9 Sep 2025
-
-### Added
-
-- Add option to select different spatial unit aggregations ([d1cd70c](https://github.com/KomMonitor/web-client/commit/d1cd70c84be20e93f018ec07d35cafea2db32699))
-- Add aggregations to request body ([b9cd8b5](https://github.com/KomMonitor/web-client/commit/b9cd8b5c475a801f0c2798b887a024d4bd156e1e))
-- Add fixed uuid  version in customizedLibs ant hus remove loading from unpkg ([f2bf5cb](https://github.com/KomMonitor/web-client/commit/f2bf5cb19b57232cae2b7856180e9438f35d0aac))
-- Add version info for version 3.4.1 ([e511047](https://github.com/KomMonitor/web-client/commit/e511047456dc52db89b9fa0349d837ae2f3852d1))
-
-### Changed
-
-- Adjust height for reachability section in reporting ([57d22b8](https://github.com/KomMonitor/web-client/commit/57d22b80fa7bfe11b2c8e4d2fea1722fd568b943))
-- Integrate spatial unit aggregations in import/export ([c3cff91](https://github.com/KomMonitor/web-client/commit/c3cff91aa424c8551d76753d7d477d6a7bc19ed6))
-- Some layout adjustments ([08fa3e7](https://github.com/KomMonitor/web-client/commit/08fa3e7d955c12bad9bea3494ae1d8f6674eff8f))
-- Create dockerhub-snapshot-processes-api.yml ([970525d](https://github.com/KomMonitor/web-client/commit/970525d3572baf8e85acf8f0024bae28638c36ba))
-- Update dockerhub-snapshot-processes-api.yml ([36b12fe](https://github.com/KomMonitor/web-client/commit/36b12fe68fe02cedf84cdbf82bae53ae2f7def38))
-- Update dockerhub-snapshot-processes-api.yml ([e2209dc](https://github.com/KomMonitor/web-client/commit/e2209dccdbf67d04f5794322dc2dcb27a55b2a55))
-- Release 3.4.1 ([62657ed](https://github.com/KomMonitor/web-client/commit/62657ed87b17a2db647e29fcf43ab946cb0b36b0))
-
-### Fixed
-
-- Fixed a bug where in balance mode spatial units disappeared if only incresing or decreasing values were present - reason was false instantation of color brewer object ([50cc9a6](https://github.com/KomMonitor/web-client/commit/50cc9a6b13f4f70ab4e8c99803631336968c9c70))
 
 ## [4.2.0]
 >  8 Jul 2025
@@ -309,116 +294,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Merge branch 'master' into develop ([528f9f3](https://github.com/KomMonitor/web-client/commit/528f9f3e5dac2564bf6a5225467412a2c386be3a))
 - Release 4.2.0 ([0a3ee18](https://github.com/KomMonitor/web-client/commit/0a3ee182c978511d4c9095bd1c5b56ffc9af886b))
-
-## [3.4.0]
->  8 Jul 2025
-
-### Added
-
-- Add d3 for echarts map projection to mercator and fix geo overlay between echarts and leaflet extents ([07bd3d7](https://github.com/KomMonitor/web-client/commit/07bd3d7542a22df4846b8ac90fb61df7f65b48e8))
-- Add more hideable page elements in reporting ([dd8ec63](https://github.com/KomMonitor/web-client/commit/dd8ec63168017135d3afc5390c9d5c87dc791dae))
-- Added spatialFilterIsApplied property ([7c33208](https://github.com/KomMonitor/web-client/commit/7c33208391933d86ec46254f72bb237b999a27c7))
-- Added notice to georessource selection when it is filtered on the map ([e8a8b01](https://github.com/KomMonitor/web-client/commit/e8a8b01aaaf6957c536c3c3758ec4a1db1c1b44d))
-- Added filter status button ([e08dfd6](https://github.com/KomMonitor/web-client/commit/e08dfd677a86e5fcb9b9ac92770d84fcf517c916))
-- Added balance status button ([5ceeafe](https://github.com/KomMonitor/web-client/commit/5ceeafe857012356816a4089e5fd345dc8533b02))
-- Added balance status button ([768de0e](https://github.com/KomMonitor/web-client/commit/768de0efca328f0bb73058b034c15a9dbb54f8cf))
-- Added icons to filter/balance status buttons ([86a6783](https://github.com/KomMonitor/web-client/commit/86a678371495da21c70d15d2951a0c1b1faefcef))
-- Added status buttons for range filter and MOV ([85a3343](https://github.com/KomMonitor/web-client/commit/85a3343a2338e0a94665fdce1f937cadebe6d2d4))
-- Add explanation for cache-based leaflet screenshots within reporting ([f65ada0](https://github.com/KomMonitor/web-client/commit/f65ada0870a51ea07edd14a408445db5d1c91a13))
-- Add version info for version 3.4.0-beta.1 ([4cb1f7f](https://github.com/KomMonitor/web-client/commit/4cb1f7f16c462ad7ab7b72aac275c1efd8edc814))
-- Add small disclaimer that in reporting PPTX format the first page decides the layout of the whole document ([e608975](https://github.com/KomMonitor/web-client/commit/e608975261299c466437c3f5bfd9bf8f01b4013a))
-- Add version info for version 3.4.0 ([fb2eb52](https://github.com/KomMonitor/web-client/commit/fb2eb523faa2d51279a75101fe65a5621564cfce))
-
-### Changed
-
-- Small algorithmic improvements within reporting ([64262eb](https://github.com/KomMonitor/web-client/commit/64262ebd71ccd0118a2928ebbf50d698cec61468))
-- Basic js-to-pptx lib working example ([2134c8d](https://github.com/KomMonitor/web-client/commit/2134c8db45407ba2a462f5c4daab1dcf1b20f1b3))
-- Master template tests ([4bf6fab](https://github.com/KomMonitor/web-client/commit/4bf6fabc1bb2bdbf7a9f078c6acb71b04b1b6c84))
-- Basic template added ([f0a0096](https://github.com/KomMonitor/web-client/commit/f0a00968152d4097a4459156409f47a65280af23))
-- Working pages, dimensions, first elements ([fad81b8](https://github.com/KomMonitor/web-client/commit/fad81b8c91a06ccefeb170420ab780bbdabff3ef))
-- Pptx for a4 landscape basics done ([0da06da](https://github.com/KomMonitor/web-client/commit/0da06dad4d7abe65c9844bac63a20b8354f237cf))
-- Loading screen adjustments, filename, landscape and portrait modes enabled ([8055472](https://github.com/KomMonitor/web-client/commit/80554729ec7078beaddc849f506e1a57c4c7b6d2))
-- Merge branch 'master' into feature/pptx-reporting ([407bed8](https://github.com/KomMonitor/web-client/commit/407bed8faac3df2ca6e40f1b30adf56f4157ba7c))
-- Merge branch 'feature/pptx-reporting' into feature/reporting-configurations ([5a6692c](https://github.com/KomMonitor/web-client/commit/5a6692ced698011b2d2b07581b67950bbb7b573a))
-- Apply perfomance boost when using canvas2D as recommended by chrome and https://stackoverflow.com/questions/74101155/chrome-warning-willreadfrequently-attribute-set-to-true ([f2eeb89](https://github.com/KomMonitor/web-client/commit/f2eeb897401870da6d7a86a7e559e2595d340987))
-- Implement a prototypical performance boost for display and export of reachability reports with screenshots of leaflet background map (screenshots are taken async. in the background - not optimized yet) ([789662c](https://github.com/KomMonitor/web-client/commit/789662c23e1d4a7b296db8329951f0c4ba3e56a0))
-- Implement a little progress indicator for generated background map screenshots to be transparent to user ([888134a](https://github.com/KomMonitor/web-client/commit/888134a6a5347d1662b157e5a65a3849d737e926))
-- Consider landscape/portrait in leaflet screenshot cache and remove synthetical "waiting time" between display and screenshot generation ([b664934](https://github.com/KomMonitor/web-client/commit/b664934b40caa9f8246e1de561d7ff1728c8e55b))
-- Properly consider page orientation (landscape or portrait) when taking screenshots for reporting ([62c5465](https://github.com/KomMonitor/web-client/commit/62c5465149622d8b1250d3a36add46233a371ce3))
-- Limit reporting select boxes to size 10 ([c5714db](https://github.com/KomMonitor/web-client/commit/c5714db80e7005d73409991aa72677bbb3198fc5))
-- Implement a baseMapSwitcher in reachability reporting ([14993e3](https://github.com/KomMonitor/web-client/commit/14993e340e01901e353181ba9cd21a09fb00f31c))
-- Enable leaflet based base map also for indicator based reports ([db9025b](https://github.com/KomMonitor/web-client/commit/db9025b9e2fca4b3698947448faf2914b60f06ac))
-- Proper treatment of leaflet baseMaps when importing a reporting config ([4dfb40d](https://github.com/KomMonitor/web-client/commit/4dfb40d3ba913caeb2ccddad78e5f78c2887aa3c))
-- Try fixing orientation page turn wrt leaflet map updates. currently leaflet map is only correct, if page is switched two times more... ([a7df792](https://github.com/KomMonitor/web-client/commit/a7df792ab7fe8a5be94d0574d4071de4fa13cc34))
-- Merge branch 'master' into feature/reporting-configurations ([6ada023](https://github.com/KomMonitor/web-client/commit/6ada023c29df69dd5785661c2ce42698f697998f))
-- Implement config switches to remove header and footer infos for reporting ([f2f8eb7](https://github.com/KomMonitor/web-client/commit/f2f8eb70b2ee18ca2d97c68d60ea66339226bb3d))
-- Implement removal of whole reporting sections for display and report generation ([dd25cae](https://github.com/KomMonitor/web-client/commit/dd25caee2121462d6bfced230e5503e561214588))
-- Hide WMS legend and headline indicator explanation if no corresponding dataset is available/active ; and fix toggling of  chevron symbol in georesources topic hierarchy ([35d9809](https://github.com/KomMonitor/web-client/commit/35d98090624b64dc214ee7689b22b3729d55cbce))
-- Wording adjustments and map legend background color for reporting ([21a7182](https://github.com/KomMonitor/web-client/commit/21a71823ec503f381c2f441db530cc46494bab85))
-- Spatial filters can be applied to georessources ([438b54f](https://github.com/KomMonitor/web-client/commit/438b54ff7c422a420111f0c5d529d69222ff107f))
-- Disable useSpatialFilterForGeoressources when no filter is selected ([c1263f9](https://github.com/KomMonitor/web-client/commit/c1263f927c0624be22c3b66e208f763d9b8b55a2))
-- Visual improvements for the filter status ([97e64f1](https://github.com/KomMonitor/web-client/commit/97e64f1aeafd6cd810c9617d67b9f8117bd3c556))
-- SpatialFilterIsApplied gets updated at the right time ([44428d7](https://github.com/KomMonitor/web-client/commit/44428d74bcfbac8b24384868acd890e4218a660b))
-- Disable filter select button when no options are selected ([b50752b](https://github.com/KomMonitor/web-client/commit/b50752b7653b35645f19542d9f61c0fefbabac0b))
-- Merge remote-tracking branch 'origin/master' into feature/filter ([7b9580f](https://github.com/KomMonitor/web-client/commit/7b9580fc53a2013a4165e2c8eeb38167c5c96dd1))
-- Spatial filters can be applied to lois and aois ([75de6ec](https://github.com/KomMonitor/web-client/commit/75de6eca997d92a20d3919a5a1b698757784af8d))
-- Deactivate range filter when use of balance is changed ([56b5acd](https://github.com/KomMonitor/web-client/commit/56b5acd8b6ae93be394acfde6eaac4ed3f04536e))
-- Merge branch 'feature/filter' of https://github.com/KomMonitor/web-client into feature/filter ([bcbfe6a](https://github.com/KomMonitor/web-client/commit/bcbfe6a7bd8b1d8ecfee24ba67a8b638b3f14b59))
-- Merge branch 'feature/filter' of github.com:KomMonitor/web-client into feature/filter ([c6fc095](https://github.com/KomMonitor/web-client/commit/c6fc095275038f3ba11333e0d9e561a5d99d6782))
-- Merge branch 'feature/filter' into reporting-and-filter-updates ([6c4a4b5](https://github.com/KomMonitor/web-client/commit/6c4a4b56aeaddd70bc70d682ef8d0e6471c04dbb))
-- Simplified manual dynamic classification ([c0a7a41](https://github.com/KomMonitor/web-client/commit/c0a7a41406d6197811ad4404ab381f6d4f0cf512))
-- Simplified manual mov classification ([fafd3b7](https://github.com/KomMonitor/web-client/commit/fafd3b76b9b2fca71eaa553c2e06e5bf266ab09b))
-- Simplified manual dynamic classification (2) ([b16811b](https://github.com/KomMonitor/web-client/commit/b16811bd66381a888e8e510d2c34a9b71a4387b1))
-- Simplified manual dynamic classification (3) ([6aa30bb](https://github.com/KomMonitor/web-client/commit/6aa30bb652e3abe4e40c91578f14c68210b106a4))
-- Update min and max breaks on wholeTimeseriesClassification changed ([661b260](https://github.com/KomMonitor/web-client/commit/661b26033eef9032d11b7ce0736bb940a868125e))
-- Merge branch 'feature/classification' into reporting-and-filter-updates ([d1b5ab6](https://github.com/KomMonitor/web-client/commit/d1b5ab67c01b9010a43b1efe324dd8cff6bb4f66))
-- Implement download button for filtered georesources ([bbd57c4](https://github.com/KomMonitor/web-client/commit/bbd57c4d3efb304c44c7ffd13d2050872d8b3d42))
-- Merge branch 'master' into feature/reporting-configurations ([bcbe705](https://github.com/KomMonitor/web-client/commit/bcbe7050770618f27fb048a7dbbe0c6df94a316d))
-- Merge branch 'master' into feature/reporting-configurations ([b75bb75](https://github.com/KomMonitor/web-client/commit/b75bb753f67a687050c4b2d36ac11a7059927656))
-- Only show filtered data download button for selected georesources, since we identify filtered features client-side ([621b5cc](https://github.com/KomMonitor/web-client/commit/621b5cc699e8857c2bddbd17f769e1c142cd79bf))
-- Draft a function to persist leafletScreenshots for reporting within browser indexedDB to enable screenshot reloading across several sessions ([9fa571d](https://github.com/KomMonitor/web-client/commit/9fa571d92c12f3fa95367cce05bae4df1373b103))
-- Hide overallChange/selectionChange and overallAverage/selectionAverage textfields in reporting overview pages ([efaa390](https://github.com/KomMonitor/web-client/commit/efaa39020d90c9adf248e69162a0a3469e6075d2))
-- Also remove reporting pages when template sections are removed ([7d2a3be](https://github.com/KomMonitor/web-client/commit/7d2a3be0fff3129af72a05bb29d8ed0ebeff359d))
-- In reporting fix removal of templateSection specific pages from report once a templateSection is removed ([9220bb9](https://github.com/KomMonitor/web-client/commit/9220bb981154c3b3ca4736370fd6a633cfad8126))
-- In reporting maintain consistency of current pageConfig when adding another indicator / poi dataset ([7d7487a](https://github.com/KomMonitor/web-client/commit/7d7487ac494f28ff8cda69abfbf3246ca4a35ee9))
-- In reporting overview show an information to the user that reporting pages are being prepared. user must wait for it, but can browse through the pages ([0ad0581](https://github.com/KomMonitor/web-client/commit/0ad0581e71242274e08e6eedf34325a8e5aed362))
-- Also add progress indicator for report page setup in indicatorAdd menu ([2bc6333](https://github.com/KomMonitor/web-client/commit/2bc63331d84aba9f0a10154f45445496d50f20ec))
-- Boost performance in reporting page preparation and progress indicator ([2492db4](https://github.com/KomMonitor/web-client/commit/2492db430d9452446d98824f6bc68ae5f6c6a18d))
-- Hide headlineIndicator explasnation, if no headlineINdicator is present ([e19d420](https://github.com/KomMonitor/web-client/commit/e19d420d718203033404e58065818a7eba3ab024))
-- Workaround for leaflet-measure BUG since leaflet 1.8.0 ([d5b1655](https://github.com/KomMonitor/web-client/commit/d5b165541c5805b2c1fbd2c76a33ef2df15c255c))
-- Release 3.4.0-beta.1 ([244e262](https://github.com/KomMonitor/web-client/commit/244e262edc2785a73e470b28cbff4b9df8d03de0))
-- Release 3.4.0-beta.2 ([082bd34](https://github.com/KomMonitor/web-client/commit/082bd34c2d433f5738dc6e0f493ca465d98fb2fa))
-- Format numbers in filter component (rangeFilter and measureOfValue) ([8d12d6f](https://github.com/KomMonitor/web-client/commit/8d12d6fe972c03b76a2e9835b1d4298b7769f81b))
-- Release 3.4.0 ([85b1d2a](https://github.com/KomMonitor/web-client/commit/85b1d2ae332d529a3f4d7ce2e443948327c6db6d))
-
-### Fixed
-
-- Fix reporting progress tracker for leaflet screenshots when switching spatial units and updating single areas in duallist ([2312430](https://github.com/KomMonitor/web-client/commit/23124302d579e8f46004cdaea677e3e9e3d6d90d))
-- Fix page orientation change and retaking of screenshot on page  orientation change and on baseMap change ([9f9faee](https://github.com/KomMonitor/web-client/commit/9f9faeeb929f1e7d481573d6ebe503cb2572bc0d))
-- Fix word export and report overview bugs due to introduced d3 projection library ([07a8226](https://github.com/KomMonitor/web-client/commit/07a8226bcb37ad85ed0b75468271ccd0c430bd53))
-- Fix avg columns in reporting bar charts ([ee71d2a](https://github.com/KomMonitor/web-client/commit/ee71d2a2ef8bffaf003f3937a5309eab43b148ee))
-- Fixed closing of spatial filter selection when other one is opened ([a2e407e](https://github.com/KomMonitor/web-client/commit/a2e407e7cdeca674f42b8d01642d2e7d17573cdf))
-- Fixed spatial unit change when filter is applied ([06c2fa0](https://github.com/KomMonitor/web-client/commit/06c2fa0011e0a3689bad20aa9f0f8b712ec4cc40))
-- Fixed $rootScope:inprog error ([88d8fcd](https://github.com/KomMonitor/web-client/commit/88d8fcdc8084e870ec3a5b8e95ebcf13c0a70f98))
-- Fix wrong encoding of german umlauts ([e4d77b1](https://github.com/KomMonitor/web-client/commit/e4d77b1707c49fe756966fd055471e4b129d46d6))
-- Fixed filter button circle ([b1e75c6](https://github.com/KomMonitor/web-client/commit/b1e75c60d5d70ccf7842517689400115d17b4078))
-- Fix filter and balance error message on startup ([0b5c925](https://github.com/KomMonitor/web-client/commit/0b5c9254d669ba0ad97a3fe819a5999ece28cade))
-- Fix reporting pageTurn leafletMap setup (i.e. switching single pages from portrait to landscape and vice versa) ([c740ec6](https://github.com/KomMonitor/web-client/commit/c740ec607e2056f2f86f1a617a81a80475de03ff))
-- Fix reporting bug that, if multiple timestamp were selected, only one page orientation was inserted for area-specific pageSections ([328be4b](https://github.com/KomMonitor/web-client/commit/328be4bdd67b366d73b89c48fee83767ba3ab99b))
-- Fix reporting preparation progress display for indicator timestamp and timeseries - reachability must be fixed ([09e47a7](https://github.com/KomMonitor/web-client/commit/09e47a74b9de78935e8f73586b6ed36a784dd42d))
-- Fix first display of progress indicators for page preparation in reporting ([e432bd1](https://github.com/KomMonitor/web-client/commit/e432bd12f445a8ff2ba32cdcef90c22944cb4c85))
-- Fix export and import of reporting config according to new pageConfig settings ([d82e1b3](https://github.com/KomMonitor/web-client/commit/d82e1b35176474e2f47cfcc1c8c0d7e301a3fcd8))
-- Fix add indicator and add POI buttons in reporting ([d36907c](https://github.com/KomMonitor/web-client/commit/d36907cf8585f659579e84ff1243b35b2c64e563))
-- Fix spatial filter when there is no higherSpatial unit available ([3be7096](https://github.com/KomMonitor/web-client/commit/3be70967e88ae79c29642c78660ffbc934c8ebb2))
-- Fix missing HTML content in Gruntfile, which broke production builds ([9f783ca](https://github.com/KomMonitor/web-client/commit/9f783ca52e1eebc430eb868d67b39083759b6b14))
-- Fix georesource batch update; parameter isPartialUpdate was null; so make sure it is false for batch update ([ae42d8b](https://github.com/KomMonitor/web-client/commit/ae42d8b71031c4b37087712c363a0ca688dae775))
-
-### Removed
-
-- Remove unneeded code section ([0107f1d](https://github.com/KomMonitor/web-client/commit/0107f1dfe777de3ada7825f5632990920ae05580))
-- Remove cyclic references caused by leafletMap on export / deep copying reporting pages ([86c5a57](https://github.com/KomMonitor/web-client/commit/86c5a5774dda58b08158933ce45d87e82771ee02))
-- Remove some log statements ([0d6dfb8](https://github.com/KomMonitor/web-client/commit/0d6dfb86abe4038e768a76268252d30aced3f119))
-- Remove curser:pointer from reporting overview list of templateSections - only let remove button be clickable (because edit is not imlpemented) ([90c74b0](https://github.com/KomMonitor/web-client/commit/90c74b0ba1b3f2deecdaa78245d5ee1e1a49a11f))
 
 ## [4.1.1]
 > 27 May 2025
@@ -437,272 +312,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.1.0]
 > 23 May 2025
 
-### Changed
-
-- Merge branch 'master' into merge/v3_v4 ([a3bd532](https://github.com/KomMonitor/web-client/commit/a3bd5324f364a6c559b44708b1c7a83aaffb4bec))
-- Release 4.1.0-beta.1 ([0323948](https://github.com/KomMonitor/web-client/commit/03239483315257418deb559d287cbe530cd872bf))
-- Prepare version 4.1.0 ([6706e2b](https://github.com/KomMonitor/web-client/commit/6706e2bb4f07dafc067a119aedb5425ce90210c3))
-- Release 4.1.0 ([b214e0d](https://github.com/KomMonitor/web-client/commit/b214e0dd73892c05b901ff30790a995c1b3c5983))
-
-## [3.3.0]
->  5 May 2025
-
 ### Added
 
-- Add custom CSS style file ([eb1b8e9](https://github.com/KomMonitor/web-client/commit/eb1b8e9f63abcaaf6117e46088446a818e545613))
-- Add fixes and rename feature labels ([ad48dca](https://github.com/KomMonitor/web-client/commit/ad48dcae5cd28826e313da54af05fa47bf13c8f1))
-- Add color theming to all components ([7250c9b](https://github.com/KomMonitor/web-client/commit/7250c9b585bf255835d06548e91571e7e664c497))
-- Add font family ([c6c6af5](https://github.com/KomMonitor/web-client/commit/c6c6af524c3987e1103209ab769f1b3b9fcf4a94))
-- Add handling of custom color scheme property ([2fd9e7d](https://github.com/KomMonitor/web-client/commit/2fd9e7d885065919c7c9f85afe5e543bbd90708e))
-- Add shades for primar color ([1aec3a9](https://github.com/KomMonitor/web-client/commit/1aec3a983c868d3caa3648462b692163cfe07c05))
-- Add support for indicator specific precision for radar diagram ([07d36a5](https://github.com/KomMonitor/web-client/commit/07d36a57441dc9e6dfecb94fc19302dd806a4618))
-- Add support for indicator specific decimal places for regression diagram ([236f861](https://github.com/KomMonitor/web-client/commit/236f861689ef72c8cd14802911ff24e7c90d76a1))
-- Add formatter to tooltips and refine undefined check for precision parameter ([643b388](https://github.com/KomMonitor/web-client/commit/643b38844552ec2404cbf3cc79de4c16adba7c65))
-- Add number formatting to several diagrams ([2f67c3a](https://github.com/KomMonitor/web-client/commit/2f67c3a6074c496cb32e4cc40e08944891020c17))
-- Add formatting to report map legend ([7c0f6be](https://github.com/KomMonitor/web-client/commit/7c0f6be3702c2be93e69c9e4515db7b6f1e4280a))
-- Add description for using font file for user interface fon family ([a498e02](https://github.com/KomMonitor/web-client/commit/a498e02451c131a59861aee811fe9fb1130dbdd8))
-- Add shades to topic trees ([33d134b](https://github.com/KomMonitor/web-client/commit/33d134b73b1e5991b4aa35f20cd2e390a13b6eb5))
-- Add shades to favorite topice tree ([2c82284](https://github.com/KomMonitor/web-client/commit/2c82284831ba49fb5de75b740a118faabd1077ff))
-- Add shade calculation for lighter and darker theme ([9968d89](https://github.com/KomMonitor/web-client/commit/9968d89085dbc0d4e40e5bf707bce3cbe40e6028))
-- Add version info ([daa4c60](https://github.com/KomMonitor/web-client/commit/daa4c608276233a35809ef7d5714d3dbe53d492b))
-- Add missing undefined check ([00ddcf2](https://github.com/KomMonitor/web-client/commit/00ddcf2dd18224876f5e038d927fc414d24166fa))
-
-### Changed
-
-- Config file edit ([a6b62af](https://github.com/KomMonitor/web-client/commit/a6b62af4c378308faa4b57869e200f8224ba1b57))
-- Config file adjust ([9449c48](https://github.com/KomMonitor/web-client/commit/9449c4850a6660d97309771753116eb00df9c144))
-- Config and info text added ([9422536](https://github.com/KomMonitor/web-client/commit/9422536f98763ad8243617cfc37c7b8eaa45adff))
-- Keyword removed from config to have it as an optional value ([f10eb90](https://github.com/KomMonitor/web-client/commit/f10eb90a33730053a6686c5034dcc5720fb8d4ae))
-- Merge branch 'master' into feature/corporate-design ([ee6c282](https://github.com/KomMonitor/web-client/commit/ee6c2828e1c1694f7f1d921771633cc4946836d7))
-- Basic font-styling added ([a0b30dc](https://github.com/KomMonitor/web-client/commit/a0b30dc9cd40450308fa01f0117aa3d2cef43948))
-- Custom font added to echarts ([3a0971f](https://github.com/KomMonitor/web-client/commit/3a0971f7cc0c8ecc0a2db8489909ff4b5ff63d7f))
-- Make custom styling configurable for chart usage ([71f9e2d](https://github.com/KomMonitor/web-client/commit/71f9e2dde1bd648348074af5b206a503dacd97c0))
-- Custom font family enabled ([94bf29d](https://github.com/KomMonitor/web-client/commit/94bf29d1b88e62ecb56dd091b332605e62ce7908))
-- Merge remote-tracking branch 'origin/feature/298' into feature/corporate-design ([a46b8e1](https://github.com/KomMonitor/web-client/commit/a46b8e11fe2da9413d9baa408a6c615289f27c82))
-- Custom font size for reports enabled ([23479fb](https://github.com/KomMonitor/web-client/commit/23479fb50cb474746ba3766f164ec63cc7363a0c))
-- Merge remote-tracking branch 'origin/feature/299' into feature/corporate-design ([6fd3a4b](https://github.com/KomMonitor/web-client/commit/6fd3a4bae0c1d4d093ba031511d725911b517384))
-- All wordings for 'raumeinheit' replaced by 'raumebene' ([846b4d6](https://github.com/KomMonitor/web-client/commit/846b4d66b1720eb5e950832d506b5262576379a6))
-- Merge remote-tracking branch 'origin/feature/293' into feature/corporate-design ([567ba66](https://github.com/KomMonitor/web-client/commit/567ba661c06274139af86a73f2e80e43f071bd40))
-- All wordings for 'feature' replaced by 'raumeinheit' ([5b1e43f](https://github.com/KomMonitor/web-client/commit/5b1e43f3664dd0d3092b9834c8961a2a381e3cae))
-- Merge remote-tracking branch 'origin/feature/294' into feature/corporate-design ([4ac4317](https://github.com/KomMonitor/web-client/commit/4ac4317796e8e166fd611d3339b316339ab78370))
-- Bugfix for pdf and word report font-family ([6689c71](https://github.com/KomMonitor/web-client/commit/6689c7143adcb0714e8f140c48ba085c7573259b))
-- Custom font adjustments ([3358f23](https://github.com/KomMonitor/web-client/commit/3358f23acda436202d5210727e1979c015cad579))
-- Internal ttf aupport added for pdf reports ([966df32](https://github.com/KomMonitor/web-client/commit/966df32d6210a779e7c5a1f944d8a07d0df02e3a))
-- Merge remote-tracking branch 'origin/feature/298' into feature/corporate-design ([6d43aca](https://github.com/KomMonitor/web-client/commit/6d43acaf37391d32d65b8498af54cbc544a4d159))
-- Revert and adjust feature text naming ([ad58fa5](https://github.com/KomMonitor/web-client/commit/ad58fa5f5aa1a88610cdbb9d4dc24682567ebff4))
-- Change feature naming text ([4d40999](https://github.com/KomMonitor/web-client/commit/4d40999746fe1d252689f94c734147288d637860))
-- Adapt custom css template ([12f038f](https://github.com/KomMonitor/web-client/commit/12f038f05136114f2a3e8a74a88129c95bbdafa7))
-- Editable dezimal value prepared for indicator add/edit ([4e0f1f9](https://github.com/KomMonitor/web-client/commit/4e0f1f971dacc7189e8330060183c5d35f552852))
-- Custom comma values finalized in edit modal ([1739ba3](https://github.com/KomMonitor/web-client/commit/1739ba323dc7e97e75874ba6ed4dedd52823d5ac))
-- Display of decimals adjusted in grid-view ([393ea2c](https://github.com/KomMonitor/web-client/commit/393ea2c42fbe875f2593516723b68120aab1451b))
-- Precision added to global indicator object ([d071fa7](https://github.com/KomMonitor/web-client/commit/d071fa70eb7ba710ac18c0c789f0a064537684f2))
-- Decimal value logic added to add modal, data-exchange-service ([7207768](https://github.com/KomMonitor/web-client/commit/7207768efd6c6e71a166e985c012ed147a1b722f))
-- Formatting adjustment ([ee25ce4](https://github.com/KomMonitor/web-client/commit/ee25ce4c33677894b9b6aa282caad4e4fc7fd957))
-- Adjustable dezimal value added to card legend for indicators ([e4e8e6c](https://github.com/KomMonitor/web-client/commit/e4e8e6c88a25ef16b3eae96c9c907d929802c8d4))
-- Adjustable dezimal value added to data-export for diagrams ([0a01ad3](https://github.com/KomMonitor/web-client/commit/0a01ad364d93015c9aeed77d46e7afa00480f92a))
-- Comma/dezimal bug deleted on regression chart ([2eb45ad](https://github.com/KomMonitor/web-client/commit/2eb45adf9fb7f8159ffe5c777b0dfda64d9b8bb3))
-- Dezimal/comma bug on regression chart axisPointer fixed ([035daad](https://github.com/KomMonitor/web-client/commit/035daad38501cb9e60e696722f50c3bbe37ae60e))
-- Dezimal/comma bug on data-view fixed ([1c283c2](https://github.com/KomMonitor/web-client/commit/1c283c25cdc5a0dcfacfa47e3cf1f4609ed86121))
-- Merge branch 'feature/296' into feature/297 ([912e1ad](https://github.com/KomMonitor/web-client/commit/912e1ad49f8db3f8f6f61684cb0638b8165de200))
-- Decimal values on fixed data-exports ([9f6e137](https://github.com/KomMonitor/web-client/commit/9f6e137fd36013d8165dca63068517c64411d6e5))
-- Number field added to indicator decimal value, on add and edit modal ([1f2dfce](https://github.com/KomMonitor/web-client/commit/1f2dfce23de47de23597ec9f692471da88a62f44))
-- Merge branch 'feature/297' into feature/corporate-design ([3c786a0](https://github.com/KomMonitor/web-client/commit/3c786a041e36b06b9c28c020b1511e316b990396))
-- Take into account precision for legends in reports ([12f9992](https://github.com/KomMonitor/web-client/commit/12f999270d80f202b15388d697749fe22cd18678))
-- Try to fix reporting-echarts issue ([63c2f28](https://github.com/KomMonitor/web-client/commit/63c2f28a1f086dc365609786e3fca63c50f8b383))
-- Introduce new variables fpr ranking chart average/regional reference values and thus fix reporting timeseries bug ([817b45c](https://github.com/KomMonitor/web-client/commit/817b45c3c449a1ce60b5b07476a6b1a684378b7d))
-- Merge branch 'master' into feature/corporate-design ([f2f3a69](https://github.com/KomMonitor/web-client/commit/f2f3a69dfe4a4843a19e94c70ff49a82a0c05b80))
-- Bugfix on custom primary-color for global-filter topic selection ([f588036](https://github.com/KomMonitor/web-client/commit/f58803683f3b6a5d5328456d90e0b320216afacb))
-- Merge branch 'feature/corporate-design' of https://github.com/KomMonitor/web-client into feature/corporate-design ([f58f3c6](https://github.com/KomMonitor/web-client/commit/f58f3c68061a4c4b01af5854d51042270c8e5df1))
-- Merge branch 'feature/corporate-design' ([8b1993b](https://github.com/KomMonitor/web-client/commit/8b1993bd9e142119e7bc8e4ed40dffc4cab03843))
-- Release 3.3.0-beta.1 ([e61baa5](https://github.com/KomMonitor/web-client/commit/e61baa5a96d3bd5297ce7d07872de134a45f4029))
-- Release 3.3.0-beta.2 ([c660191](https://github.com/KomMonitor/web-client/commit/c66019145bbeac8b6c94c517b1e042edb3c2f825))
-- Release 3.3.0-beta.3 ([fa46d55](https://github.com/KomMonitor/web-client/commit/fa46d55c00b0e8490c40563e0fd4fae6ec266c1a))
-- Release 3.3.0-beta.4 ([ed97d8d](https://github.com/KomMonitor/web-client/commit/ed97d8de20beb39f33409bfbb66df46772681673))
-- Release 3.3.0-beta.5 ([af54cd5](https://github.com/KomMonitor/web-client/commit/af54cd56b0b001ddb020652ac6935f0b121e392a))
-- Update cache action ([e88c4b9](https://github.com/KomMonitor/web-client/commit/e88c4b9b5792b6c95971a86bb90d77dd6e301669))
-- Release 3.3.0-beta.6 ([f6d2770](https://github.com/KomMonitor/web-client/commit/f6d2770e24e35b5b5462ec3548a2372241318630))
-- Release 3.3.0 ([21f718b](https://github.com/KomMonitor/web-client/commit/21f718bf4a4d7feb36a631028e45ba3aebc15258))
-
-### Fixed
-
-- Fix spatial unit naming ([a82ec15](https://github.com/KomMonitor/web-client/commit/a82ec1535bb62bfa10d1e20b4bb940426e54fa1d))
-- Fix font for PDF header ([e2381dc](https://github.com/KomMonitor/web-client/commit/e2381dc9176fe30c69045bee9af696dfc16ffdc5))
-- Fix number of decimal places in radar diagram ([2d49ee8](https://github.com/KomMonitor/web-client/commit/2d49ee85ca2ceb35fe30ed41844c6b5ffcbb0d10))
-- Fix naming convention for spatial units ([27ce6f7](https://github.com/KomMonitor/web-client/commit/27ce6f70cc3a04f5e18d7a5c5e940ffeacfa8d96))
-- Fix function declaration ([b085042](https://github.com/KomMonitor/web-client/commit/b08504291ebbccbaca5ff8a2f77c51b4d63def1e))
-- Fix first spatial unit change issue ([716cfb7](https://github.com/KomMonitor/web-client/commit/716cfb7eaa7e6e0721d3f0035a4b562e2793eb39))
-- Fix undefined check ([167210a](https://github.com/KomMonitor/web-client/commit/167210acc7a3c93d528ae9d08dc2a4c60a80f21b))
-- Fix color of indicator items for lowest subtopic in topic tree ([61487fb](https://github.com/KomMonitor/web-client/commit/61487fb055a3ad2dcf3553c2024bca93b0c0fe92))
-- Fix adding custom color scheme to default color palette ([54ee0fe](https://github.com/KomMonitor/web-client/commit/54ee0fea051729cb910533dd23680c6656892033))
-
-## [3.2.1]
-> 12 Feb 2025
-
-### Added
-
-- Add disclaimer for batch update and script management ([f568514](https://github.com/KomMonitor/web-client/commit/f56851461ab21b159db6360ba427cc07b554fca6))
-- Add version info for version 3.2.1 ([1e288e3](https://github.com/KomMonitor/web-client/commit/1e288e39043f254dd6876d5b33a78a17913f3368))
-
-### Changed
-
-- Release 3.2.1 ([9837283](https://github.com/KomMonitor/web-client/commit/983728370263535eb3b049c04fa6205e5ff1f5d5))
-
-## [3.2.0]
-> 15 Jan 2025
-
-### Added
-
-- Add version info for version 4.0.0.-beta.2 ([f4c09cf](https://github.com/KomMonitor/web-client/commit/f4c09cfe01d8d2c205891fb2882ed24fd850ad16))
-- Add discalimer in batch update and script management to indicate that new spatial units will inherit the permissions access setting from metadata object ([68c2404](https://github.com/KomMonitor/web-client/commit/68c24045151d44722f62802fe7fdb339584dbe49))
-- Add undefined params check and finx syntax ([9184b10](https://github.com/KomMonitor/web-client/commit/9184b10c695b4f9c906f052fff12963ef64b98b8))
-- Add version info for version 4.0.0-beta.3 ([1ba8246](https://github.com/KomMonitor/web-client/commit/1ba82468bb67978d6aaa9a196a675d0a3f00831c))
-- Add global filter configuration section ([926b306](https://github.com/KomMonitor/web-client/commit/926b3068621fe0a1113bb4297dd14cfe196cede8))
-- Added filtering for wms/wfs topics in global filters ([9bf8131](https://github.com/KomMonitor/web-client/commit/9bf813162e4bff06d4300d1d5a41605f139773a1))
-- Add version info for next beta version ([458c0f0](https://github.com/KomMonitor/web-client/commit/458c0f03c73f471c976b3330400a51c8a48879ba))
-- Add failing request handling ([e852851](https://github.com/KomMonitor/web-client/commit/e852851a3bd4d14b48a1f909ba38aecfd3d2ae86))
-
-### Changed
-
-- Merge branch 'fix/release-3.1.8' into develop ([0ca8f81](https://github.com/KomMonitor/web-client/commit/0ca8f810be6bc183297c23b29e376f846029d0eb))
-- Release 4.0.0-beta.2 ([45beb87](https://github.com/KomMonitor/web-client/commit/45beb874a621b6497c9ed3a79ec6791e262341f7))
-- Hide info button when no indicator present ([70725fc](https://github.com/KomMonitor/web-client/commit/70725fcdbe03509260967fa0d0e0e1d24c66a81c))
-- Merge branch 'develop' of https://github.com/KomMonitor/web-client into develop ([1b5b5e8](https://github.com/KomMonitor/web-client/commit/1b5b5e8ef492605cb676ff233755a0f7754210be))
-- Release 4.0.0-beta.3 ([c3dbc78](https://github.com/KomMonitor/web-client/commit/c3dbc7811d06ff8d79721fc867505c725a6a37a5))
-- Revert version due to rerelease ([31e4e64](https://github.com/KomMonitor/web-client/commit/31e4e6483960c2cc522542b42afb59d7a40bab7a))
-- Release 4.0.0-beta.3 ([2c482e8](https://github.com/KomMonitor/web-client/commit/2c482e8ac52089b46352918333ec286c48174ca1))
-- Merge branch 'master' into feature/global-filter ([7159164](https://github.com/KomMonitor/web-client/commit/715916466816f4f7eac51f8d2bca3f9053a8a000))
-- Init support for global content filter ([ce4066c](https://github.com/KomMonitor/web-client/commit/ce4066c076a559275fe41d7df3bbf2d1bbadbb2a))
-- Implement cache storage handling for global filters ([bfca326](https://github.com/KomMonitor/web-client/commit/bfca32670cc763ff748f7d00ec43ac0dd164ee06))
-- Global filter selection added to data-setup ([0494272](https://github.com/KomMonitor/web-client/commit/049427239b97f6b0b09a96a7f59fe1429e01cfc3))
-- Styling for global filter selection adjusted ([482ee3e](https://github.com/KomMonitor/web-client/commit/482ee3e761613f210f08d5a669fe3928d1b90f44))
-- Basic globalFilter overview table added ([8f091c7](https://github.com/KomMonitor/web-client/commit/8f091c76ee4bcfa429036da0d3d605a5edf6a126))
-- Data-merge for filter-table ([7e12d89](https://github.com/KomMonitor/web-client/commit/7e12d89d738c1e5ce60f82e81060c63ba7c5f5b3))
-- Basic add filter modal added ([7b59156](https://github.com/KomMonitor/web-client/commit/7b591561f841ba33cef133a9568827b20f835521))
-- Single check table added to filter add modal ([e2680e1](https://github.com/KomMonitor/web-client/commit/e2680e1693aa4b6a49a9d13a14f0932ca2c043cf))
-- Indicator and georesource selection added to admin-filter add modal ([f822a99](https://github.com/KomMonitor/web-client/commit/f822a99d043fb856f1dac82c5462f87a93dfc05b))
-- Simplified table refresh on admin-filter overview table ([ba69bbd](https://github.com/KomMonitor/web-client/commit/ba69bbdcce9685b05944516a41bd40320d5b2622))
-- Basic tables and trees added to admin-filter add modal ([875df81](https://github.com/KomMonitor/web-client/commit/875df810e0b318b5507aa081b85c488f60979e00))
-- Admin filter add post call implemented ([4129beb](https://github.com/KomMonitor/web-client/commit/4129beb3903a93f64f05a70ab1d27ac34d83375d))
-- Filter delete functionality added, bugfixes, id to name merging on overview table for topics ([1406c6e](https://github.com/KomMonitor/web-client/commit/1406c6ee109eac92509bfdbb98cd75b35b38ce86))
-- Admin filter edit modal added ([ecdc0b0](https://github.com/KomMonitor/web-client/commit/ecdc0b0e35b63125b62a5b8acc1ceb089d743d79))
-- Data load for edit modal ([24a63b8](https://github.com/KomMonitor/web-client/commit/24a63b8576f5591e5f9d873f8f3ca4f98666d51e))
-- Bugfixing and additional style adjustments ([c1a0f9f](https://github.com/KomMonitor/web-client/commit/c1a0f9fc8c50b6617fa862bc5acc37a3468f663e))
-- Merge remote-tracking branch 'origin/feature/304' into feature/global-filter ([fbbc392](https://github.com/KomMonitor/web-client/commit/fbbc392b9c5f866c21dac3e776ad8c0985732b90))
-- Merge branch 'master' into feature/global-filter ([270240a](https://github.com/KomMonitor/web-client/commit/270240a0a53558f8e4fb51b9375f92fc5e2de0ea))
-- Global filter selection moved from indicators to filter selection area in UI ([1332055](https://github.com/KomMonitor/web-client/commit/13320551918127ef082430cabc8e881027208648))
-- Bugfix on spatial unit selection for global filter ([afc1b82](https://github.com/KomMonitor/web-client/commit/afc1b82c1e221ecaa3f5c027a403d3749cd4d866))
-- Bugfix on selected global fitlers ([f3f2fcc](https://github.com/KomMonitor/web-client/commit/f3f2fcc19f75d96bc72c6d2a1ce854d3a9a7dc56))
-- Loading indicator added to global filter selection, bugfix open/close global-filter box ([d75ba3d](https://github.com/KomMonitor/web-client/commit/d75ba3d1df479a6e4e183d30a1136014708148fc))
-- Logic added to hide global filter ico url filter active ([1d1c1f2](https://github.com/KomMonitor/web-client/commit/1d1c1f286076b29f1d588651274eba99b1ea1ef5))
-- Global filter table-editor sync fix, hide/show logic, styling adjustments ([f9a74f2](https://github.com/KomMonitor/web-client/commit/f9a74f24ff1edc5ae2a7176c6e2a35be9588a9a2))
-- Merge branch 'feature/global-filter' ([f0fba5b](https://github.com/KomMonitor/web-client/commit/f0fba5b53974492539634f2296ecb820d742b5b6))
-- Release 3.2.0-beta.1 ([a2dc0f1](https://github.com/KomMonitor/web-client/commit/a2dc0f144bee89b79446d50ccd4caca72ed245b1))
-- Bugfix on singleSelectGrid checked attribute ([f5d9e3b](https://github.com/KomMonitor/web-client/commit/f5d9e3b530a0890e41aae5edf0a7185cdae27cba))
-- Merge branch 'feature/global-filter' of https://github.com/KomMonitor/web-client into feature/global-filter ([1eafbf0](https://github.com/KomMonitor/web-client/commit/1eafbf073ede1dd81dda28edac9dfe903c67cc33))
-- Merge branch 'feature/global-filter' ([16d8a68](https://github.com/KomMonitor/web-client/commit/16d8a683ce9c8f3d5cd8c1ec2acabf96c37e57cd))
-- Release 3.2.0-beta.2 ([d4fbeab](https://github.com/KomMonitor/web-client/commit/d4fbeab8c3b3953258426c76ca7dc84091a1d1e5))
-- Bugfix on singleSelectGrid checked attribute - again ([11c6a5c](https://github.com/KomMonitor/web-client/commit/11c6a5c52a0453f3bfa6929d86c7c26a8916a5c9))
-- Merge branch 'feature/global-filter' of https://github.com/KomMonitor/web-client into feature/global-filter ([341fe51](https://github.com/KomMonitor/web-client/commit/341fe510b3e120e916100c5d0fa20bb2c74e106f))
-- Release 3.2.0-beta.3 ([8899691](https://github.com/KomMonitor/web-client/commit/88996916218791db539240dc0a6f797a638ab0b6))
-- Bugfix for singleSelectGrid, getSelectedIds on add/edit modal ([1d299f0](https://github.com/KomMonitor/web-client/commit/1d299f047976e08f7c31e4648a32eccda1378d23))
-- Merge branch 'feature/global-filter' of https://github.com/KomMonitor/web-client into feature/global-filter ([568e085](https://github.com/KomMonitor/web-client/commit/568e085c82055f7064bad56824e3796211b30e7a))
-- Merge branch 'feature/global-filter' ([f2e5ff4](https://github.com/KomMonitor/web-client/commit/f2e5ff44dbb063bf24704a1c53590fca91441931))
-- Release 3.2.0-beta.4 ([0f6ba26](https://github.com/KomMonitor/web-client/commit/0f6ba26c595f61f22f6d7d62d5ae94300f6b7d23))
-- Bugix on map layer list after global filter change ([9e077ba](https://github.com/KomMonitor/web-client/commit/9e077ba5cca6ef2ab353311e6a9567b98e0c5a31))
-- Merge remote-tracking branch 'origin/feature/global-filter' ([9ac4f50](https://github.com/KomMonitor/web-client/commit/9ac4f508ae005d01588082b3156aef367235999c))
-- Release 3.2.0-beta.5 ([916d68f](https://github.com/KomMonitor/web-client/commit/916d68f5396cd62b890fc5a3e5eabe77d3a85051))
-- Option added to show only selected indicators/georesources on filter edit modal ([817c739](https://github.com/KomMonitor/web-client/commit/817c7390f2947a30d4b901c3c71313d7c01239ed))
-- 'show only selected items' slider added to filter edit modal ([6e09ad5](https://github.com/KomMonitor/web-client/commit/6e09ad5e2ef98971589e1eafd257b7d7acaeaab0))
-- Merge branch 'feature/global-filter' of https://github.com/KomMonitor/web-client into feature/global-filter ([13beace](https://github.com/KomMonitor/web-client/commit/13beacee722fe938a94eedeef60ed56eedea4092))
-- Merge branch 'feature/global-filter' of https://github.com/KomMonitor/web-client into feature/global-filter ([058c1fd](https://github.com/KomMonitor/web-client/commit/058c1fd0bca18e6f695ccf3ada301ed1af135988))
-- Merge branch 'feature/global-filter' ([52d12d3](https://github.com/KomMonitor/web-client/commit/52d12d3c2d03a05f6350b580a768c48301af0064))
-- Favorites includes in topics and indicators ([59fd7b3](https://github.com/KomMonitor/web-client/commit/59fd7b35e6d1b0dd7dca4a9aaa3727b3411712c8))
-- Favorites added for headline and base indicators ([396a877](https://github.com/KomMonitor/web-client/commit/396a8775cd24d6d92fa75deea682f1db0334ef65))
-- Fav selection added to georesources ([7a031eb](https://github.com/KomMonitor/web-client/commit/7a031ebc821c36acbe3b9d2102d77022646e8e1f))
-- Fav service and indicator-transfer added, bugfixing ([588a6de](https://github.com/KomMonitor/web-client/commit/588a6de8968ddcc3e5b45bb462c5b4363b0dddf6))
-- Basic recursive topic/data tree added to indicator favs ([d9dc803](https://github.com/KomMonitor/web-client/commit/d9dc80395d31f0373d7e8d4494c3dad266970a9a))
-- Indicator fav logic of select/deselect added, styling adjustments ([ae17c4e](https://github.com/KomMonitor/web-client/commit/ae17c4efaebc30cad9845a502088d256ab8e95e4))
-- Georesources topics and data fav tab function added, bugfixes ([1a44673](https://github.com/KomMonitor/web-client/commit/1a44673717b39f9c9c05e7e4f3239b9655f22433))
-- Fav sync with backend added for 'normal' indicators ([44e5794](https://github.com/KomMonitor/web-client/commit/44e5794460c2759ef819267829a291ebb57faeb0))
-- Internal handling of base/headline-indicators changed to cope for backend model ([dffa189](https://github.com/KomMonitor/web-client/commit/dffa189d8f233c103ecbd4fdbc4ae1b3cde66bcc))
-- Toast for favorite selection added ([c8573af](https://github.com/KomMonitor/web-client/commit/c8573af360c1bca83593b2a8d7f2a82f7f4a0446))
-- Fav storage added to georesources, poi/aoi/loi changed to internal model ([72353e9](https://github.com/KomMonitor/web-client/commit/72353e964ec1d2ad9487baf04ca45b03a332f181))
-- Final adjustments and bugfixes ([e08c11e](https://github.com/KomMonitor/web-client/commit/e08c11e091b9e27ac3138f2a7f5f7345c1d395bd))
-- Indicator fav, on-click added, headline styling added ([4785f54](https://github.com/KomMonitor/web-client/commit/4785f54814c2a0943cedb3ed5d4fafc698b01ddb))
-- Bugfixes and styling adjustments for indocators ([93345a8](https://github.com/KomMonitor/web-client/commit/93345a80cd94de7ca4c3f48e30d9b3247aaf7aa0))
-- Bugfix on indicator/georesource select, styling adjustments to align with non-fav view ([92ecd20](https://github.com/KomMonitor/web-client/commit/92ecd20a11ff659cac2b9016637bab385a50d300))
-- Bugfix on empty fav arrays ([359481c](https://github.com/KomMonitor/web-client/commit/359481c40b78532b077a22293068b010cb67070c))
-- Recursive selection of fav items removed ([97cc661](https://github.com/KomMonitor/web-client/commit/97cc66110331545f8e67da59e577b38c87366d98))
-- Bugfix on visible non-fav items in poi fav overview ([db9fcdc](https://github.com/KomMonitor/web-client/commit/db9fcdceae262d72f45907aece4c90c3a9977d08))
-- Temporary fav-list implemented to keep items visible in fav list bevore saving ([09dc1cd](https://github.com/KomMonitor/web-client/commit/09dc1cd83c8cee82e496e5aa72d86f8ea1db6e2a))
-- Config item added to enable/disable favorite selection in the UI ([7d2fa2b](https://github.com/KomMonitor/web-client/commit/7d2fa2b7f9551fdbcaa689e5524a6a9703e2a079))
-- Adjustment on initial post call ([0f3cd0a](https://github.com/KomMonitor/web-client/commit/0f3cd0a89ca3f3c35697b8f925f10e4dec53fd38))
-- Merge branch 'feature/328' ([18f7b0e](https://github.com/KomMonitor/web-client/commit/18f7b0e56de95cc76870684fa5da87d69e86015a))
-- New display logic for fav tab items ([92af2fb](https://github.com/KomMonitor/web-client/commit/92af2fbd02f2d0e561e4e24977663c675d71da81))
-- Bugfix on parentTopic in fav items ([280b9c0](https://github.com/KomMonitor/web-client/commit/280b9c0ee7fe204c053d6d3d5a00419ab68e457c))
-- Merge branch 'feature/328' ([7a7075f](https://github.com/KomMonitor/web-client/commit/7a7075f3aad75864543e5f6182fba2f7d9e5b448))
-- Show single indicator/georesource adjustment, styling bug ([878d0d6](https://github.com/KomMonitor/web-client/commit/878d0d636f63dd2421c275d75cdacacd189e193e))
-- Merge branch 'feature/328' ([4e990f5](https://github.com/KomMonitor/web-client/commit/4e990f5035984c840225dce60469f235000e6ada))
-- Release 3.2.0-beta.6 ([7656830](https://github.com/KomMonitor/web-client/commit/7656830fc4200ba72c9af9210aa41d731bfda3dd))
-- Bugfix on topic edit ([e808893](https://github.com/KomMonitor/web-client/commit/e808893b56dfe46de1064bf6c0d3c9afd09d0b30))
-- Merge branch 'feature/global-filter' ([87cf206](https://github.com/KomMonitor/web-client/commit/87cf2060a5b09d55f54fd5b878a5e92f2f16e7f8))
-- Release 3.2.0-beta.7 ([263d3e3](https://github.com/KomMonitor/web-client/commit/263d3e39c5d48ea5837f969a5d1c618a7cca3930))
-- Merge branch 'fix/release-3.1.8' ([3693ab9](https://github.com/KomMonitor/web-client/commit/3693ab919ee386d5608c35fed522375f11b8468c))
-- Complete versioninfo for 3.2.0 release ([b76e88d](https://github.com/KomMonitor/web-client/commit/b76e88dbe7afa5c567a703c44c297f1c8bcd5f3a))
-- Release 3.2.0 ([89aa3b3](https://github.com/KomMonitor/web-client/commit/89aa3b3ef0d307734603063609075fef87db0789))
-
-### Fixed
-
-- Fix bug in indicator batch update ($scope not defined) ([f60cfa3](https://github.com/KomMonitor/web-client/commit/f60cfa3450754a01ae2dbe9981ff8dbdf9207d0e))
-- Fix batch update error caused by missing variable declaration ([cdb8535](https://github.com/KomMonitor/web-client/commit/cdb85353ee7b45efb61d8d79c8cceab22dbeb525))
-
-## [3.1.8]
-> 10 Jan 2025
-
-### Added
-
-- Add version 3.1.8 infos ([5cc3074](https://github.com/KomMonitor/web-client/commit/5cc3074059d2a7d9d6f6ad0d0f7dd0da1dfdcd1b))
-
-### Changed
-
-- Finally fix sum and share scripts regarding NULL value handling ([ecf790e](https://github.com/KomMonitor/web-client/commit/ecf790e65110370559a4c30df7ef381d2aafed5b))
-- Release 3.1.8 ([58e8729](https://github.com/KomMonitor/web-client/commit/58e8729d4f49aa7e390308c7c458749388091c9c))
-
-### Fixed
-
-- Fix leaflet bugs (multiple tooltips when dragging and features accessibility bounds display on click) ([c2e2469](https://github.com/KomMonitor/web-client/commit/c2e2469bc37cab036bfd00ed7302f160936d1643))
-
-## [3.1.7]
-> 17 Nov 2024
-
-### Added
-
-- Add trailing slash to Keycloak URL ([536cb28](https://github.com/KomMonitor/web-client/commit/536cb280750a2be5b9a3bb234f64ac5906dc2988))
-- Add version info v 3.1.7 ([04bd3bc](https://github.com/KomMonitor/web-client/commit/04bd3bc1eadf28fe58bf3aeb496d5a62dd4e94a5))
-
-### Changed
-
-- Merge branch 'master' into develop ([18959da](https://github.com/KomMonitor/web-client/commit/18959daf9d507c5087d101aecf1062c74ace2d46))
-- Set beta version number ([25426d4](https://github.com/KomMonitor/web-client/commit/25426d4235799978dc11f18eed6d99d6b1e6b842))
-- Release 4.0.0-beta.1 ([85da870](https://github.com/KomMonitor/web-client/commit/85da8701a0cf05980d5fadbca3a6f5b4108f98ca))
-- Merge branch 'develop' of https://github.com/KomMonitor/web-client into develop ([b5843b3](https://github.com/KomMonitor/web-client/commit/b5843b37dc1ace0f4515e474d62325b593d0b94a))
-- Reset checkout action version ([2e7fada](https://github.com/KomMonitor/web-client/commit/2e7fadadb7bfba8efd78ad1f701c6c60899d0715))
-- Release 3.1.7 ([acab905](https://github.com/KomMonitor/web-client/commit/acab905b34d3310891b0e4d09de53cc981352ea0))
-
-### Fixed
-
-- Fix sum script ([3668669](https://github.com/KomMonitor/web-client/commit/3668669d1e953468d1bbfd41095d486daf1df0b8))
-
-### Updated
-
-- Raise cache actions version ([ca1baf1](https://github.com/KomMonitor/web-client/commit/ca1baf126d7a283f341f83168eee3506414d7c6a))
-
-## [3.1.6]
-> 14 Nov 2024
-
-### Added
-
-- Add version info for version 3.1.6 ([42472f3](https://github.com/KomMonitor/web-client/commit/42472f38c03c90ed94d75d28731171984f572a41))
 - Added filter to select list of task 216 ([7242964](https://github.com/KomMonitor/web-client/commit/7242964cb43c3622fadbd8117d5bbd2a3bc3b35c))
 - Add current users keycloak login groups and display them on user info popup ([0f744de](https://github.com/KomMonitor/web-client/commit/0f744ded0a5e04c5f596780fe8ee781e6cbe20a0))
 - Add kommonitor organizational unit id to keycloak group and it's roles as attribute ([5caf041](https://github.com/KomMonitor/web-client/commit/5caf041821fde35c53589a1cd86425070042d28b))
@@ -719,15 +330,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add textual hints to new group rights control ([a4c3198](https://github.com/KomMonitor/web-client/commit/a4c31989e5634dbc2c7c47feaf8498caee8584e2))
 - Add owner checks in resource add menus and disable register button if required owner is not set ([53dbfe3](https://github.com/KomMonitor/web-client/commit/53dbfe36c15c911595c03d5c3c73ae2ebe3815cd))
 - Add version info for version 4.0.0 ([b611ace](https://github.com/KomMonitor/web-client/commit/b611ace62b02f767bdbc7dac0dd42982ff0fbc10))
-- Add version info hint for disabling manual classification to rerelease v 3.1.6 ([a9d2d72](https://github.com/KomMonitor/web-client/commit/a9d2d72b052837ed18699cd8e3800527556bf04e))
+- Add trailing slash to Keycloak URL ([536cb28](https://github.com/KomMonitor/web-client/commit/536cb280750a2be5b9a3bb234f64ac5906dc2988))
+- Add version info for version 4.0.0.-beta.2 ([f4c09cf](https://github.com/KomMonitor/web-client/commit/f4c09cfe01d8d2c205891fb2882ed24fd850ad16))
+- Add discalimer in batch update and script management to indicate that new spatial units will inherit the permissions access setting from metadata object ([68c2404](https://github.com/KomMonitor/web-client/commit/68c24045151d44722f62802fe7fdb339584dbe49))
+- Add undefined params check and finx syntax ([9184b10](https://github.com/KomMonitor/web-client/commit/9184b10c695b4f9c906f052fff12963ef64b98b8))
+- Add version info for version 4.0.0-beta.3 ([1ba8246](https://github.com/KomMonitor/web-client/commit/1ba82468bb67978d6aaa9a196a675d0a3f00831c))
 
 ### Changed
 
-- Bump some dependency versions ([e2f41cf](https://github.com/KomMonitor/web-client/commit/e2f41cf95044150bcfdbe9905557d708f2893f97))
-- Adjust name of background layer in rechabilityanalysis ([9da64fd](https://github.com/KomMonitor/web-client/commit/9da64fd915f552b58ca2df5fb5514233f1f33b8e))
-- Introduce new variables fpr ranking chart average/regional reference values and thus fix reporting timeseries bug ([6d0d0bd](https://github.com/KomMonitor/web-client/commit/6d0d0bd1d7f44dfe88d05bd5c1beb73b1c1bf3d6))
-- Prevent angularJS digest in progress error ([19ded4b](https://github.com/KomMonitor/web-client/commit/19ded4b903eb19d95f95dec9116d62c98cb6b03f))
-- Release 3.1.6 ([857c108](https://github.com/KomMonitor/web-client/commit/857c1080922289ad543f829e640709bd45d3d1db))
 - Reduced role model introduced and adjusted in UI ([1323c21](https://github.com/KomMonitor/web-client/commit/1323c21b5fb6a0e9b4b7ac23ea22823d1c9c9e3b))
 - Server-json modify ([e4280fd](https://github.com/KomMonitor/web-client/commit/e4280fd58e7b9e757e4a12f319ada3012f11abce))
 - Public orga unit re-styled ([c9d06ee](https://github.com/KomMonitor/web-client/commit/c9d06eee0db00aa11b8170c867b9257b7f0b0dcb))
@@ -841,15 +451,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Set explanatory hints for setting group rights into collapsible boxes ([59dd046](https://github.com/KomMonitor/web-client/commit/59dd0466ec930200d061b4043fa1838ba54d5d48))
 - Minor textual adjustments and fixes of typos ([8e8d781](https://github.com/KomMonitor/web-client/commit/8e8d781bb027e8e21991d23da7acf8decd13cff6))
 - Merge branch 'project/kme-va-2023-merge-v3' into develop ([0c84fe9](https://github.com/KomMonitor/web-client/commit/0c84fe9b344588227d22a528bad4432d6d6f2de4))
-- Use __env.disableManualClassification instead of __env.hideManualClassification ([f087c66](https://github.com/KomMonitor/web-client/commit/f087c66fb80ee35d8a91f35ac2bc1c9b4a07bf4e))
-- HideManualClassification is called correctly ([57d8fd1](https://github.com/KomMonitor/web-client/commit/57d8fd1012a419cfe21f3bd00f258fcb16af07a4))
-- Merge branch 'fix/disable-manual-classification' ([58488bd](https://github.com/KomMonitor/web-client/commit/58488bd82d9cc7c8e44b96b8ce3fa92b3e9ec8da))
-- Revert release 3.1.6 ([bb05962](https://github.com/KomMonitor/web-client/commit/bb059620c5d9946e4d1c32f0e58a0cb1a54a02bb))
-- Release 3.1.6 ([38da941](https://github.com/KomMonitor/web-client/commit/38da941c4e6a2de2dfd0284f3924342e3819ba0e))
+- Merge branch 'master' into develop ([18959da](https://github.com/KomMonitor/web-client/commit/18959daf9d507c5087d101aecf1062c74ace2d46))
+- Set beta version number ([25426d4](https://github.com/KomMonitor/web-client/commit/25426d4235799978dc11f18eed6d99d6b1e6b842))
+- Release 4.0.0-beta.1 ([85da870](https://github.com/KomMonitor/web-client/commit/85da8701a0cf05980d5fadbca3a6f5b4108f98ca))
+- Merge branch 'develop' of https://github.com/KomMonitor/web-client into develop ([b5843b3](https://github.com/KomMonitor/web-client/commit/b5843b37dc1ace0f4515e474d62325b593d0b94a))
+- Reset checkout action version ([2e7fada](https://github.com/KomMonitor/web-client/commit/2e7fadadb7bfba8efd78ad1f701c6c60899d0715))
+- Merge branch 'fix/release-3.1.8' into develop ([0ca8f81](https://github.com/KomMonitor/web-client/commit/0ca8f810be6bc183297c23b29e376f846029d0eb))
+- Release 4.0.0-beta.2 ([45beb87](https://github.com/KomMonitor/web-client/commit/45beb874a621b6497c9ed3a79ec6791e262341f7))
+- Hide info button when no indicator present ([70725fc](https://github.com/KomMonitor/web-client/commit/70725fcdbe03509260967fa0d0e0e1d24c66a81c))
+- Merge branch 'develop' of https://github.com/KomMonitor/web-client into develop ([1b5b5e8](https://github.com/KomMonitor/web-client/commit/1b5b5e8ef492605cb676ff233755a0f7754210be))
+- Release 4.0.0-beta.3 ([c3dbc78](https://github.com/KomMonitor/web-client/commit/c3dbc7811d06ff8d79721fc867505c725a6a37a5))
+- Revert version due to rerelease ([31e4e64](https://github.com/KomMonitor/web-client/commit/31e4e6483960c2cc522542b42afb59d7a40bab7a))
+- Release 4.0.0-beta.3 ([2c482e8](https://github.com/KomMonitor/web-client/commit/2c482e8ac52089b46352918333ec286c48174ca1))
+- Merge branch 'master' into merge/v3_v4 ([a3bd532](https://github.com/KomMonitor/web-client/commit/a3bd5324f364a6c559b44708b1c7a83aaffb4bec))
+- Release 4.1.0-beta.1 ([0323948](https://github.com/KomMonitor/web-client/commit/03239483315257418deb559d287cbe530cd872bf))
+- Prepare version 4.1.0 ([6706e2b](https://github.com/KomMonitor/web-client/commit/6706e2bb4f07dafc067a119aedb5425ce90210c3))
+- Release 4.1.0 ([b214e0d](https://github.com/KomMonitor/web-client/commit/b214e0dd73892c05b901ff30790a995c1b3c5983))
 
 ### Fixed
 
-- Fix poi popup generation in reachability scenarios if a point does not have a pruneIsochroneResult ([11d31e5](https://github.com/KomMonitor/web-client/commit/11d31e555dfb83259cd5f39e726eda269bd83f22))
 - Test - api endpoint added in georesources ([91389a1](https://github.com/KomMonitor/web-client/commit/91389a15c908bb522b1a2129b925dc6dd3446167))
 - Fix spatial unit and indicator permission update ([dc8d2e1](https://github.com/KomMonitor/web-client/commit/dc8d2e1fadacb27eb54f9e18c683f38bedd4ea68))
 - Fix keycloak group update for top tier groups ([4e27f81](https://github.com/KomMonitor/web-client/commit/4e27f81cf0e12ac19601041fd8b3a2af33e96266))
@@ -874,10 +494,397 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix listing of potential dataset owners ([44b0ebb](https://github.com/KomMonitor/web-client/commit/44b0ebb9a87f37060a0b7ae7138ec3641e416692))
 - Fix 2 ghost entries in authority rights table and update authority rights table after update of delegate rights  table ([60f601b](https://github.com/KomMonitor/web-client/commit/60f601b6272442bcf421ab20f4af80498d1b61e5))
 - Fix progress bar ([31bd357](https://github.com/KomMonitor/web-client/commit/31bd35744944e6267664b8b08035ff42bf462582))
+- Fix bug in indicator batch update ($scope not defined) ([f60cfa3](https://github.com/KomMonitor/web-client/commit/f60cfa3450754a01ae2dbe9981ff8dbdf9207d0e))
+- Fix batch update error caused by missing variable declaration ([cdb8535](https://github.com/KomMonitor/web-client/commit/cdb85353ee7b45efb61d8d79c8cceab22dbeb525))
 
 ### Removed
 
 - Remove Keycloak group and role creation in favor of Data Management API handling of Keycloak stuff ([651a8c8](https://github.com/KomMonitor/web-client/commit/651a8c8c9287dbf9270f6c44f94b49a70bbecf59))
+
+### Updated
+
+- Raise cache actions version ([ca1baf1](https://github.com/KomMonitor/web-client/commit/ca1baf126d7a283f341f83168eee3506414d7c6a))
+
+## [3.4.1]
+>  9 Sep 2025
+
+### Added
+
+- Add fixed uuid  version in customizedLibs ant hus remove loading from unpkg ([f2bf5cb](https://github.com/KomMonitor/web-client/commit/f2bf5cb19b57232cae2b7856180e9438f35d0aac))
+- Add version info for version 3.4.1 ([e511047](https://github.com/KomMonitor/web-client/commit/e511047456dc52db89b9fa0349d837ae2f3852d1))
+
+### Changed
+
+- Create dockerhub-snapshot-processes-api.yml ([970525d](https://github.com/KomMonitor/web-client/commit/970525d3572baf8e85acf8f0024bae28638c36ba))
+- Update dockerhub-snapshot-processes-api.yml ([36b12fe](https://github.com/KomMonitor/web-client/commit/36b12fe68fe02cedf84cdbf82bae53ae2f7def38))
+- Update dockerhub-snapshot-processes-api.yml ([e2209dc](https://github.com/KomMonitor/web-client/commit/e2209dccdbf67d04f5794322dc2dcb27a55b2a55))
+- Release 3.4.1 ([62657ed](https://github.com/KomMonitor/web-client/commit/62657ed87b17a2db647e29fcf43ab946cb0b36b0))
+
+### Fixed
+
+- Fixed a bug where in balance mode spatial units disappeared if only incresing or decreasing values were present - reason was false instantation of color brewer object ([50cc9a6](https://github.com/KomMonitor/web-client/commit/50cc9a6b13f4f70ab4e8c99803631336968c9c70))
+
+## [3.4.0]
+>  8 Jul 2025
+
+### Added
+
+- Add d3 for echarts map projection to mercator and fix geo overlay between echarts and leaflet extents ([07bd3d7](https://github.com/KomMonitor/web-client/commit/07bd3d7542a22df4846b8ac90fb61df7f65b48e8))
+- Add more hideable page elements in reporting ([dd8ec63](https://github.com/KomMonitor/web-client/commit/dd8ec63168017135d3afc5390c9d5c87dc791dae))
+- Added spatialFilterIsApplied property ([7c33208](https://github.com/KomMonitor/web-client/commit/7c33208391933d86ec46254f72bb237b999a27c7))
+- Added notice to georessource selection when it is filtered on the map ([e8a8b01](https://github.com/KomMonitor/web-client/commit/e8a8b01aaaf6957c536c3c3758ec4a1db1c1b44d))
+- Added filter status button ([e08dfd6](https://github.com/KomMonitor/web-client/commit/e08dfd677a86e5fcb9b9ac92770d84fcf517c916))
+- Added balance status button ([5ceeafe](https://github.com/KomMonitor/web-client/commit/5ceeafe857012356816a4089e5fd345dc8533b02))
+- Added balance status button ([768de0e](https://github.com/KomMonitor/web-client/commit/768de0efca328f0bb73058b034c15a9dbb54f8cf))
+- Added icons to filter/balance status buttons ([86a6783](https://github.com/KomMonitor/web-client/commit/86a678371495da21c70d15d2951a0c1b1faefcef))
+- Added status buttons for range filter and MOV ([85a3343](https://github.com/KomMonitor/web-client/commit/85a3343a2338e0a94665fdce1f937cadebe6d2d4))
+- Add explanation for cache-based leaflet screenshots within reporting ([f65ada0](https://github.com/KomMonitor/web-client/commit/f65ada0870a51ea07edd14a408445db5d1c91a13))
+- Add version info for version 3.4.0-beta.1 ([4cb1f7f](https://github.com/KomMonitor/web-client/commit/4cb1f7f16c462ad7ab7b72aac275c1efd8edc814))
+- Add small disclaimer that in reporting PPTX format the first page decides the layout of the whole document ([e608975](https://github.com/KomMonitor/web-client/commit/e608975261299c466437c3f5bfd9bf8f01b4013a))
+- Add version info for version 3.4.0 ([fb2eb52](https://github.com/KomMonitor/web-client/commit/fb2eb523faa2d51279a75101fe65a5621564cfce))
+
+### Changed
+
+- Small algorithmic improvements within reporting ([64262eb](https://github.com/KomMonitor/web-client/commit/64262ebd71ccd0118a2928ebbf50d698cec61468))
+- Basic js-to-pptx lib working example ([2134c8d](https://github.com/KomMonitor/web-client/commit/2134c8db45407ba2a462f5c4daab1dcf1b20f1b3))
+- Master template tests ([4bf6fab](https://github.com/KomMonitor/web-client/commit/4bf6fabc1bb2bdbf7a9f078c6acb71b04b1b6c84))
+- Basic template added ([f0a0096](https://github.com/KomMonitor/web-client/commit/f0a00968152d4097a4459156409f47a65280af23))
+- Working pages, dimensions, first elements ([fad81b8](https://github.com/KomMonitor/web-client/commit/fad81b8c91a06ccefeb170420ab780bbdabff3ef))
+- Pptx for a4 landscape basics done ([0da06da](https://github.com/KomMonitor/web-client/commit/0da06dad4d7abe65c9844bac63a20b8354f237cf))
+- Loading screen adjustments, filename, landscape and portrait modes enabled ([8055472](https://github.com/KomMonitor/web-client/commit/80554729ec7078beaddc849f506e1a57c4c7b6d2))
+- Merge branch 'master' into feature/pptx-reporting ([407bed8](https://github.com/KomMonitor/web-client/commit/407bed8faac3df2ca6e40f1b30adf56f4157ba7c))
+- Merge branch 'feature/pptx-reporting' into feature/reporting-configurations ([5a6692c](https://github.com/KomMonitor/web-client/commit/5a6692ced698011b2d2b07581b67950bbb7b573a))
+- Apply perfomance boost when using canvas2D as recommended by chrome and https://stackoverflow.com/questions/74101155/chrome-warning-willreadfrequently-attribute-set-to-true ([f2eeb89](https://github.com/KomMonitor/web-client/commit/f2eeb897401870da6d7a86a7e559e2595d340987))
+- Implement a prototypical performance boost for display and export of reachability reports with screenshots of leaflet background map (screenshots are taken async. in the background - not optimized yet) ([789662c](https://github.com/KomMonitor/web-client/commit/789662c23e1d4a7b296db8329951f0c4ba3e56a0))
+- Implement a little progress indicator for generated background map screenshots to be transparent to user ([888134a](https://github.com/KomMonitor/web-client/commit/888134a6a5347d1662b157e5a65a3849d737e926))
+- Consider landscape/portrait in leaflet screenshot cache and remove synthetical "waiting time" between display and screenshot generation ([b664934](https://github.com/KomMonitor/web-client/commit/b664934b40caa9f8246e1de561d7ff1728c8e55b))
+- Properly consider page orientation (landscape or portrait) when taking screenshots for reporting ([62c5465](https://github.com/KomMonitor/web-client/commit/62c5465149622d8b1250d3a36add46233a371ce3))
+- Limit reporting select boxes to size 10 ([c5714db](https://github.com/KomMonitor/web-client/commit/c5714db80e7005d73409991aa72677bbb3198fc5))
+- Implement a baseMapSwitcher in reachability reporting ([14993e3](https://github.com/KomMonitor/web-client/commit/14993e340e01901e353181ba9cd21a09fb00f31c))
+- Enable leaflet based base map also for indicator based reports ([db9025b](https://github.com/KomMonitor/web-client/commit/db9025b9e2fca4b3698947448faf2914b60f06ac))
+- Proper treatment of leaflet baseMaps when importing a reporting config ([4dfb40d](https://github.com/KomMonitor/web-client/commit/4dfb40d3ba913caeb2ccddad78e5f78c2887aa3c))
+- Try fixing orientation page turn wrt leaflet map updates. currently leaflet map is only correct, if page is switched two times more... ([a7df792](https://github.com/KomMonitor/web-client/commit/a7df792ab7fe8a5be94d0574d4071de4fa13cc34))
+- Merge branch 'master' into feature/reporting-configurations ([6ada023](https://github.com/KomMonitor/web-client/commit/6ada023c29df69dd5785661c2ce42698f697998f))
+- Implement config switches to remove header and footer infos for reporting ([f2f8eb7](https://github.com/KomMonitor/web-client/commit/f2f8eb70b2ee18ca2d97c68d60ea66339226bb3d))
+- Implement removal of whole reporting sections for display and report generation ([dd25cae](https://github.com/KomMonitor/web-client/commit/dd25caee2121462d6bfced230e5503e561214588))
+- Hide WMS legend and headline indicator explanation if no corresponding dataset is available/active ; and fix toggling of  chevron symbol in georesources topic hierarchy ([35d9809](https://github.com/KomMonitor/web-client/commit/35d98090624b64dc214ee7689b22b3729d55cbce))
+- Wording adjustments and map legend background color for reporting ([21a7182](https://github.com/KomMonitor/web-client/commit/21a71823ec503f381c2f441db530cc46494bab85))
+- Spatial filters can be applied to georessources ([438b54f](https://github.com/KomMonitor/web-client/commit/438b54ff7c422a420111f0c5d529d69222ff107f))
+- Disable useSpatialFilterForGeoressources when no filter is selected ([c1263f9](https://github.com/KomMonitor/web-client/commit/c1263f927c0624be22c3b66e208f763d9b8b55a2))
+- Visual improvements for the filter status ([97e64f1](https://github.com/KomMonitor/web-client/commit/97e64f1aeafd6cd810c9617d67b9f8117bd3c556))
+- SpatialFilterIsApplied gets updated at the right time ([44428d7](https://github.com/KomMonitor/web-client/commit/44428d74bcfbac8b24384868acd890e4218a660b))
+- Disable filter select button when no options are selected ([b50752b](https://github.com/KomMonitor/web-client/commit/b50752b7653b35645f19542d9f61c0fefbabac0b))
+- Merge remote-tracking branch 'origin/master' into feature/filter ([7b9580f](https://github.com/KomMonitor/web-client/commit/7b9580fc53a2013a4165e2c8eeb38167c5c96dd1))
+- Spatial filters can be applied to lois and aois ([75de6ec](https://github.com/KomMonitor/web-client/commit/75de6eca997d92a20d3919a5a1b698757784af8d))
+- Deactivate range filter when use of balance is changed ([56b5acd](https://github.com/KomMonitor/web-client/commit/56b5acd8b6ae93be394acfde6eaac4ed3f04536e))
+- Merge branch 'feature/filter' of https://github.com/KomMonitor/web-client into feature/filter ([bcbfe6a](https://github.com/KomMonitor/web-client/commit/bcbfe6a7bd8b1d8ecfee24ba67a8b638b3f14b59))
+- Merge branch 'feature/filter' of github.com:KomMonitor/web-client into feature/filter ([c6fc095](https://github.com/KomMonitor/web-client/commit/c6fc095275038f3ba11333e0d9e561a5d99d6782))
+- Merge branch 'feature/filter' into reporting-and-filter-updates ([6c4a4b5](https://github.com/KomMonitor/web-client/commit/6c4a4b56aeaddd70bc70d682ef8d0e6471c04dbb))
+- Simplified manual dynamic classification ([c0a7a41](https://github.com/KomMonitor/web-client/commit/c0a7a41406d6197811ad4404ab381f6d4f0cf512))
+- Simplified manual mov classification ([fafd3b7](https://github.com/KomMonitor/web-client/commit/fafd3b76b9b2fca71eaa553c2e06e5bf266ab09b))
+- Simplified manual dynamic classification (2) ([b16811b](https://github.com/KomMonitor/web-client/commit/b16811bd66381a888e8e510d2c34a9b71a4387b1))
+- Simplified manual dynamic classification (3) ([6aa30bb](https://github.com/KomMonitor/web-client/commit/6aa30bb652e3abe4e40c91578f14c68210b106a4))
+- Update min and max breaks on wholeTimeseriesClassification changed ([661b260](https://github.com/KomMonitor/web-client/commit/661b26033eef9032d11b7ce0736bb940a868125e))
+- Merge branch 'feature/classification' into reporting-and-filter-updates ([d1b5ab6](https://github.com/KomMonitor/web-client/commit/d1b5ab67c01b9010a43b1efe324dd8cff6bb4f66))
+- Implement download button for filtered georesources ([bbd57c4](https://github.com/KomMonitor/web-client/commit/bbd57c4d3efb304c44c7ffd13d2050872d8b3d42))
+- Merge branch 'master' into feature/reporting-configurations ([bcbe705](https://github.com/KomMonitor/web-client/commit/bcbe7050770618f27fb048a7dbbe0c6df94a316d))
+- Merge branch 'master' into feature/reporting-configurations ([b75bb75](https://github.com/KomMonitor/web-client/commit/b75bb753f67a687050c4b2d36ac11a7059927656))
+- Only show filtered data download button for selected georesources, since we identify filtered features client-side ([621b5cc](https://github.com/KomMonitor/web-client/commit/621b5cc699e8857c2bddbd17f769e1c142cd79bf))
+- Draft a function to persist leafletScreenshots for reporting within browser indexedDB to enable screenshot reloading across several sessions ([9fa571d](https://github.com/KomMonitor/web-client/commit/9fa571d92c12f3fa95367cce05bae4df1373b103))
+- Hide overallChange/selectionChange and overallAverage/selectionAverage textfields in reporting overview pages ([efaa390](https://github.com/KomMonitor/web-client/commit/efaa39020d90c9adf248e69162a0a3469e6075d2))
+- Also remove reporting pages when template sections are removed ([7d2a3be](https://github.com/KomMonitor/web-client/commit/7d2a3be0fff3129af72a05bb29d8ed0ebeff359d))
+- In reporting fix removal of templateSection specific pages from report once a templateSection is removed ([9220bb9](https://github.com/KomMonitor/web-client/commit/9220bb981154c3b3ca4736370fd6a633cfad8126))
+- In reporting maintain consistency of current pageConfig when adding another indicator / poi dataset ([7d7487a](https://github.com/KomMonitor/web-client/commit/7d7487ac494f28ff8cda69abfbf3246ca4a35ee9))
+- In reporting overview show an information to the user that reporting pages are being prepared. user must wait for it, but can browse through the pages ([0ad0581](https://github.com/KomMonitor/web-client/commit/0ad0581e71242274e08e6eedf34325a8e5aed362))
+- Also add progress indicator for report page setup in indicatorAdd menu ([2bc6333](https://github.com/KomMonitor/web-client/commit/2bc63331d84aba9f0a10154f45445496d50f20ec))
+- Boost performance in reporting page preparation and progress indicator ([2492db4](https://github.com/KomMonitor/web-client/commit/2492db430d9452446d98824f6bc68ae5f6c6a18d))
+- Hide headlineIndicator explasnation, if no headlineINdicator is present ([e19d420](https://github.com/KomMonitor/web-client/commit/e19d420d718203033404e58065818a7eba3ab024))
+- Workaround for leaflet-measure BUG since leaflet 1.8.0 ([d5b1655](https://github.com/KomMonitor/web-client/commit/d5b165541c5805b2c1fbd2c76a33ef2df15c255c))
+- Release 3.4.0-beta.1 ([244e262](https://github.com/KomMonitor/web-client/commit/244e262edc2785a73e470b28cbff4b9df8d03de0))
+- Release 3.4.0-beta.2 ([082bd34](https://github.com/KomMonitor/web-client/commit/082bd34c2d433f5738dc6e0f493ca465d98fb2fa))
+- Format numbers in filter component (rangeFilter and measureOfValue) ([8d12d6f](https://github.com/KomMonitor/web-client/commit/8d12d6fe972c03b76a2e9835b1d4298b7769f81b))
+- Release 3.4.0 ([85b1d2a](https://github.com/KomMonitor/web-client/commit/85b1d2ae332d529a3f4d7ce2e443948327c6db6d))
+
+### Fixed
+
+- Fix reporting progress tracker for leaflet screenshots when switching spatial units and updating single areas in duallist ([2312430](https://github.com/KomMonitor/web-client/commit/23124302d579e8f46004cdaea677e3e9e3d6d90d))
+- Fix page orientation change and retaking of screenshot on page  orientation change and on baseMap change ([9f9faee](https://github.com/KomMonitor/web-client/commit/9f9faeeb929f1e7d481573d6ebe503cb2572bc0d))
+- Fix word export and report overview bugs due to introduced d3 projection library ([07a8226](https://github.com/KomMonitor/web-client/commit/07a8226bcb37ad85ed0b75468271ccd0c430bd53))
+- Fix avg columns in reporting bar charts ([ee71d2a](https://github.com/KomMonitor/web-client/commit/ee71d2a2ef8bffaf003f3937a5309eab43b148ee))
+- Fixed closing of spatial filter selection when other one is opened ([a2e407e](https://github.com/KomMonitor/web-client/commit/a2e407e7cdeca674f42b8d01642d2e7d17573cdf))
+- Fixed spatial unit change when filter is applied ([06c2fa0](https://github.com/KomMonitor/web-client/commit/06c2fa0011e0a3689bad20aa9f0f8b712ec4cc40))
+- Fixed $rootScope:inprog error ([88d8fcd](https://github.com/KomMonitor/web-client/commit/88d8fcdc8084e870ec3a5b8e95ebcf13c0a70f98))
+- Fix wrong encoding of german umlauts ([e4d77b1](https://github.com/KomMonitor/web-client/commit/e4d77b1707c49fe756966fd055471e4b129d46d6))
+- Fixed filter button circle ([b1e75c6](https://github.com/KomMonitor/web-client/commit/b1e75c60d5d70ccf7842517689400115d17b4078))
+- Fix filter and balance error message on startup ([0b5c925](https://github.com/KomMonitor/web-client/commit/0b5c9254d669ba0ad97a3fe819a5999ece28cade))
+- Fix reporting pageTurn leafletMap setup (i.e. switching single pages from portrait to landscape and vice versa) ([c740ec6](https://github.com/KomMonitor/web-client/commit/c740ec607e2056f2f86f1a617a81a80475de03ff))
+- Fix reporting bug that, if multiple timestamp were selected, only one page orientation was inserted for area-specific pageSections ([328be4b](https://github.com/KomMonitor/web-client/commit/328be4bdd67b366d73b89c48fee83767ba3ab99b))
+- Fix reporting preparation progress display for indicator timestamp and timeseries - reachability must be fixed ([09e47a7](https://github.com/KomMonitor/web-client/commit/09e47a74b9de78935e8f73586b6ed36a784dd42d))
+- Fix first display of progress indicators for page preparation in reporting ([e432bd1](https://github.com/KomMonitor/web-client/commit/e432bd12f445a8ff2ba32cdcef90c22944cb4c85))
+- Fix export and import of reporting config according to new pageConfig settings ([d82e1b3](https://github.com/KomMonitor/web-client/commit/d82e1b35176474e2f47cfcc1c8c0d7e301a3fcd8))
+- Fix add indicator and add POI buttons in reporting ([d36907c](https://github.com/KomMonitor/web-client/commit/d36907cf8585f659579e84ff1243b35b2c64e563))
+- Fix spatial filter when there is no higherSpatial unit available ([3be7096](https://github.com/KomMonitor/web-client/commit/3be70967e88ae79c29642c78660ffbc934c8ebb2))
+- Fix missing HTML content in Gruntfile, which broke production builds ([9f783ca](https://github.com/KomMonitor/web-client/commit/9f783ca52e1eebc430eb868d67b39083759b6b14))
+- Fix georesource batch update; parameter isPartialUpdate was null; so make sure it is false for batch update ([ae42d8b](https://github.com/KomMonitor/web-client/commit/ae42d8b71031c4b37087712c363a0ca688dae775))
+
+### Removed
+
+- Remove unneeded code section ([0107f1d](https://github.com/KomMonitor/web-client/commit/0107f1dfe777de3ada7825f5632990920ae05580))
+- Remove cyclic references caused by leafletMap on export / deep copying reporting pages ([86c5a57](https://github.com/KomMonitor/web-client/commit/86c5a5774dda58b08158933ce45d87e82771ee02))
+- Remove some log statements ([0d6dfb8](https://github.com/KomMonitor/web-client/commit/0d6dfb86abe4038e768a76268252d30aced3f119))
+- Remove curser:pointer from reporting overview list of templateSections - only let remove button be clickable (because edit is not imlpemented) ([90c74b0](https://github.com/KomMonitor/web-client/commit/90c74b0ba1b3f2deecdaa78245d5ee1e1a49a11f))
+
+## [3.3.0]
+>  5 May 2025
+
+### Added
+
+- Add custom CSS style file ([eb1b8e9](https://github.com/KomMonitor/web-client/commit/eb1b8e9f63abcaaf6117e46088446a818e545613))
+- Add fixes and rename feature labels ([ad48dca](https://github.com/KomMonitor/web-client/commit/ad48dcae5cd28826e313da54af05fa47bf13c8f1))
+- Add color theming to all components ([7250c9b](https://github.com/KomMonitor/web-client/commit/7250c9b585bf255835d06548e91571e7e664c497))
+- Add font family ([c6c6af5](https://github.com/KomMonitor/web-client/commit/c6c6af524c3987e1103209ab769f1b3b9fcf4a94))
+- Add handling of custom color scheme property ([2fd9e7d](https://github.com/KomMonitor/web-client/commit/2fd9e7d885065919c7c9f85afe5e543bbd90708e))
+- Add shades for primar color ([1aec3a9](https://github.com/KomMonitor/web-client/commit/1aec3a983c868d3caa3648462b692163cfe07c05))
+- Add support for indicator specific precision for radar diagram ([07d36a5](https://github.com/KomMonitor/web-client/commit/07d36a57441dc9e6dfecb94fc19302dd806a4618))
+- Add support for indicator specific decimal places for regression diagram ([236f861](https://github.com/KomMonitor/web-client/commit/236f861689ef72c8cd14802911ff24e7c90d76a1))
+- Add formatter to tooltips and refine undefined check for precision parameter ([643b388](https://github.com/KomMonitor/web-client/commit/643b38844552ec2404cbf3cc79de4c16adba7c65))
+- Add number formatting to several diagrams ([2f67c3a](https://github.com/KomMonitor/web-client/commit/2f67c3a6074c496cb32e4cc40e08944891020c17))
+- Add formatting to report map legend ([7c0f6be](https://github.com/KomMonitor/web-client/commit/7c0f6be3702c2be93e69c9e4515db7b6f1e4280a))
+- Add description for using font file for user interface fon family ([a498e02](https://github.com/KomMonitor/web-client/commit/a498e02451c131a59861aee811fe9fb1130dbdd8))
+- Add shades to topic trees ([33d134b](https://github.com/KomMonitor/web-client/commit/33d134b73b1e5991b4aa35f20cd2e390a13b6eb5))
+- Add shades to favorite topice tree ([2c82284](https://github.com/KomMonitor/web-client/commit/2c82284831ba49fb5de75b740a118faabd1077ff))
+- Add shade calculation for lighter and darker theme ([9968d89](https://github.com/KomMonitor/web-client/commit/9968d89085dbc0d4e40e5bf707bce3cbe40e6028))
+- Add version info ([daa4c60](https://github.com/KomMonitor/web-client/commit/daa4c608276233a35809ef7d5714d3dbe53d492b))
+- Add missing undefined check ([00ddcf2](https://github.com/KomMonitor/web-client/commit/00ddcf2dd18224876f5e038d927fc414d24166fa))
+
+### Changed
+
+- Config file edit ([a6b62af](https://github.com/KomMonitor/web-client/commit/a6b62af4c378308faa4b57869e200f8224ba1b57))
+- Config file adjust ([9449c48](https://github.com/KomMonitor/web-client/commit/9449c4850a6660d97309771753116eb00df9c144))
+- Config and info text added ([9422536](https://github.com/KomMonitor/web-client/commit/9422536f98763ad8243617cfc37c7b8eaa45adff))
+- Keyword removed from config to have it as an optional value ([f10eb90](https://github.com/KomMonitor/web-client/commit/f10eb90a33730053a6686c5034dcc5720fb8d4ae))
+- Merge branch 'master' into feature/corporate-design ([ee6c282](https://github.com/KomMonitor/web-client/commit/ee6c2828e1c1694f7f1d921771633cc4946836d7))
+- Basic font-styling added ([a0b30dc](https://github.com/KomMonitor/web-client/commit/a0b30dc9cd40450308fa01f0117aa3d2cef43948))
+- Custom font added to echarts ([3a0971f](https://github.com/KomMonitor/web-client/commit/3a0971f7cc0c8ecc0a2db8489909ff4b5ff63d7f))
+- Make custom styling configurable for chart usage ([71f9e2d](https://github.com/KomMonitor/web-client/commit/71f9e2dde1bd648348074af5b206a503dacd97c0))
+- Custom font family enabled ([94bf29d](https://github.com/KomMonitor/web-client/commit/94bf29d1b88e62ecb56dd091b332605e62ce7908))
+- Merge remote-tracking branch 'origin/feature/298' into feature/corporate-design ([a46b8e1](https://github.com/KomMonitor/web-client/commit/a46b8e11fe2da9413d9baa408a6c615289f27c82))
+- Custom font size for reports enabled ([23479fb](https://github.com/KomMonitor/web-client/commit/23479fb50cb474746ba3766f164ec63cc7363a0c))
+- Merge remote-tracking branch 'origin/feature/299' into feature/corporate-design ([6fd3a4b](https://github.com/KomMonitor/web-client/commit/6fd3a4bae0c1d4d093ba031511d725911b517384))
+- All wordings for 'raumeinheit' replaced by 'raumebene' ([846b4d6](https://github.com/KomMonitor/web-client/commit/846b4d66b1720eb5e950832d506b5262576379a6))
+- Merge remote-tracking branch 'origin/feature/293' into feature/corporate-design ([567ba66](https://github.com/KomMonitor/web-client/commit/567ba661c06274139af86a73f2e80e43f071bd40))
+- All wordings for 'feature' replaced by 'raumeinheit' ([5b1e43f](https://github.com/KomMonitor/web-client/commit/5b1e43f3664dd0d3092b9834c8961a2a381e3cae))
+- Merge remote-tracking branch 'origin/feature/294' into feature/corporate-design ([4ac4317](https://github.com/KomMonitor/web-client/commit/4ac4317796e8e166fd611d3339b316339ab78370))
+- Bugfix for pdf and word report font-family ([6689c71](https://github.com/KomMonitor/web-client/commit/6689c7143adcb0714e8f140c48ba085c7573259b))
+- Custom font adjustments ([3358f23](https://github.com/KomMonitor/web-client/commit/3358f23acda436202d5210727e1979c015cad579))
+- Internal ttf aupport added for pdf reports ([966df32](https://github.com/KomMonitor/web-client/commit/966df32d6210a779e7c5a1f944d8a07d0df02e3a))
+- Merge remote-tracking branch 'origin/feature/298' into feature/corporate-design ([6d43aca](https://github.com/KomMonitor/web-client/commit/6d43acaf37391d32d65b8498af54cbc544a4d159))
+- Revert and adjust feature text naming ([ad58fa5](https://github.com/KomMonitor/web-client/commit/ad58fa5f5aa1a88610cdbb9d4dc24682567ebff4))
+- Change feature naming text ([4d40999](https://github.com/KomMonitor/web-client/commit/4d40999746fe1d252689f94c734147288d637860))
+- Adapt custom css template ([12f038f](https://github.com/KomMonitor/web-client/commit/12f038f05136114f2a3e8a74a88129c95bbdafa7))
+- Editable dezimal value prepared for indicator add/edit ([4e0f1f9](https://github.com/KomMonitor/web-client/commit/4e0f1f971dacc7189e8330060183c5d35f552852))
+- Custom comma values finalized in edit modal ([1739ba3](https://github.com/KomMonitor/web-client/commit/1739ba323dc7e97e75874ba6ed4dedd52823d5ac))
+- Display of decimals adjusted in grid-view ([393ea2c](https://github.com/KomMonitor/web-client/commit/393ea2c42fbe875f2593516723b68120aab1451b))
+- Precision added to global indicator object ([d071fa7](https://github.com/KomMonitor/web-client/commit/d071fa70eb7ba710ac18c0c789f0a064537684f2))
+- Decimal value logic added to add modal, data-exchange-service ([7207768](https://github.com/KomMonitor/web-client/commit/7207768efd6c6e71a166e985c012ed147a1b722f))
+- Formatting adjustment ([ee25ce4](https://github.com/KomMonitor/web-client/commit/ee25ce4c33677894b9b6aa282caad4e4fc7fd957))
+- Adjustable dezimal value added to card legend for indicators ([e4e8e6c](https://github.com/KomMonitor/web-client/commit/e4e8e6c88a25ef16b3eae96c9c907d929802c8d4))
+- Adjustable dezimal value added to data-export for diagrams ([0a01ad3](https://github.com/KomMonitor/web-client/commit/0a01ad364d93015c9aeed77d46e7afa00480f92a))
+- Comma/dezimal bug deleted on regression chart ([2eb45ad](https://github.com/KomMonitor/web-client/commit/2eb45adf9fb7f8159ffe5c777b0dfda64d9b8bb3))
+- Dezimal/comma bug on regression chart axisPointer fixed ([035daad](https://github.com/KomMonitor/web-client/commit/035daad38501cb9e60e696722f50c3bbe37ae60e))
+- Dezimal/comma bug on data-view fixed ([1c283c2](https://github.com/KomMonitor/web-client/commit/1c283c25cdc5a0dcfacfa47e3cf1f4609ed86121))
+- Merge branch 'feature/296' into feature/297 ([912e1ad](https://github.com/KomMonitor/web-client/commit/912e1ad49f8db3f8f6f61684cb0638b8165de200))
+- Decimal values on fixed data-exports ([9f6e137](https://github.com/KomMonitor/web-client/commit/9f6e137fd36013d8165dca63068517c64411d6e5))
+- Number field added to indicator decimal value, on add and edit modal ([1f2dfce](https://github.com/KomMonitor/web-client/commit/1f2dfce23de47de23597ec9f692471da88a62f44))
+- Merge branch 'feature/297' into feature/corporate-design ([3c786a0](https://github.com/KomMonitor/web-client/commit/3c786a041e36b06b9c28c020b1511e316b990396))
+- Take into account precision for legends in reports ([12f9992](https://github.com/KomMonitor/web-client/commit/12f999270d80f202b15388d697749fe22cd18678))
+- Try to fix reporting-echarts issue ([63c2f28](https://github.com/KomMonitor/web-client/commit/63c2f28a1f086dc365609786e3fca63c50f8b383))
+- Introduce new variables fpr ranking chart average/regional reference values and thus fix reporting timeseries bug ([817b45c](https://github.com/KomMonitor/web-client/commit/817b45c3c449a1ce60b5b07476a6b1a684378b7d))
+- Merge branch 'master' into feature/corporate-design ([f2f3a69](https://github.com/KomMonitor/web-client/commit/f2f3a69dfe4a4843a19e94c70ff49a82a0c05b80))
+- Bugfix on custom primary-color for global-filter topic selection ([f588036](https://github.com/KomMonitor/web-client/commit/f58803683f3b6a5d5328456d90e0b320216afacb))
+- Merge branch 'feature/corporate-design' of https://github.com/KomMonitor/web-client into feature/corporate-design ([f58f3c6](https://github.com/KomMonitor/web-client/commit/f58f3c68061a4c4b01af5854d51042270c8e5df1))
+- Merge branch 'feature/corporate-design' ([8b1993b](https://github.com/KomMonitor/web-client/commit/8b1993bd9e142119e7bc8e4ed40dffc4cab03843))
+- Release 3.3.0-beta.1 ([e61baa5](https://github.com/KomMonitor/web-client/commit/e61baa5a96d3bd5297ce7d07872de134a45f4029))
+- Release 3.3.0-beta.2 ([c660191](https://github.com/KomMonitor/web-client/commit/c66019145bbeac8b6c94c517b1e042edb3c2f825))
+- Release 3.3.0-beta.3 ([fa46d55](https://github.com/KomMonitor/web-client/commit/fa46d55c00b0e8490c40563e0fd4fae6ec266c1a))
+- Release 3.3.0-beta.4 ([ed97d8d](https://github.com/KomMonitor/web-client/commit/ed97d8de20beb39f33409bfbb66df46772681673))
+- Release 3.3.0-beta.5 ([af54cd5](https://github.com/KomMonitor/web-client/commit/af54cd56b0b001ddb020652ac6935f0b121e392a))
+- Update cache action ([e88c4b9](https://github.com/KomMonitor/web-client/commit/e88c4b9b5792b6c95971a86bb90d77dd6e301669))
+- Release 3.3.0-beta.6 ([f6d2770](https://github.com/KomMonitor/web-client/commit/f6d2770e24e35b5b5462ec3548a2372241318630))
+- Release 3.3.0 ([21f718b](https://github.com/KomMonitor/web-client/commit/21f718bf4a4d7feb36a631028e45ba3aebc15258))
+
+### Fixed
+
+- Fix spatial unit naming ([a82ec15](https://github.com/KomMonitor/web-client/commit/a82ec1535bb62bfa10d1e20b4bb940426e54fa1d))
+- Fix font for PDF header ([e2381dc](https://github.com/KomMonitor/web-client/commit/e2381dc9176fe30c69045bee9af696dfc16ffdc5))
+- Fix number of decimal places in radar diagram ([2d49ee8](https://github.com/KomMonitor/web-client/commit/2d49ee85ca2ceb35fe30ed41844c6b5ffcbb0d10))
+- Fix naming convention for spatial units ([27ce6f7](https://github.com/KomMonitor/web-client/commit/27ce6f70cc3a04f5e18d7a5c5e940ffeacfa8d96))
+- Fix function declaration ([b085042](https://github.com/KomMonitor/web-client/commit/b08504291ebbccbaca5ff8a2f77c51b4d63def1e))
+- Fix first spatial unit change issue ([716cfb7](https://github.com/KomMonitor/web-client/commit/716cfb7eaa7e6e0721d3f0035a4b562e2793eb39))
+- Fix undefined check ([167210a](https://github.com/KomMonitor/web-client/commit/167210acc7a3c93d528ae9d08dc2a4c60a80f21b))
+- Fix color of indicator items for lowest subtopic in topic tree ([61487fb](https://github.com/KomMonitor/web-client/commit/61487fb055a3ad2dcf3553c2024bca93b0c0fe92))
+- Fix adding custom color scheme to default color palette ([54ee0fe](https://github.com/KomMonitor/web-client/commit/54ee0fea051729cb910533dd23680c6656892033))
+
+## [3.2.1]
+> 12 Feb 2025
+
+### Added
+
+- Add disclaimer for batch update and script management ([f568514](https://github.com/KomMonitor/web-client/commit/f56851461ab21b159db6360ba427cc07b554fca6))
+- Add version info for version 3.2.1 ([1e288e3](https://github.com/KomMonitor/web-client/commit/1e288e39043f254dd6876d5b33a78a17913f3368))
+
+### Changed
+
+- Release 3.2.1 ([9837283](https://github.com/KomMonitor/web-client/commit/983728370263535eb3b049c04fa6205e5ff1f5d5))
+
+## [3.2.0]
+> 15 Jan 2025
+
+### Added
+
+- Add global filter configuration section ([926b306](https://github.com/KomMonitor/web-client/commit/926b3068621fe0a1113bb4297dd14cfe196cede8))
+- Added filtering for wms/wfs topics in global filters ([9bf8131](https://github.com/KomMonitor/web-client/commit/9bf813162e4bff06d4300d1d5a41605f139773a1))
+- Add version info for next beta version ([458c0f0](https://github.com/KomMonitor/web-client/commit/458c0f03c73f471c976b3330400a51c8a48879ba))
+- Add failing request handling ([e852851](https://github.com/KomMonitor/web-client/commit/e852851a3bd4d14b48a1f909ba38aecfd3d2ae86))
+
+### Changed
+
+- Merge branch 'master' into feature/global-filter ([7159164](https://github.com/KomMonitor/web-client/commit/715916466816f4f7eac51f8d2bca3f9053a8a000))
+- Init support for global content filter ([ce4066c](https://github.com/KomMonitor/web-client/commit/ce4066c076a559275fe41d7df3bbf2d1bbadbb2a))
+- Implement cache storage handling for global filters ([bfca326](https://github.com/KomMonitor/web-client/commit/bfca32670cc763ff748f7d00ec43ac0dd164ee06))
+- Global filter selection added to data-setup ([0494272](https://github.com/KomMonitor/web-client/commit/049427239b97f6b0b09a96a7f59fe1429e01cfc3))
+- Styling for global filter selection adjusted ([482ee3e](https://github.com/KomMonitor/web-client/commit/482ee3e761613f210f08d5a669fe3928d1b90f44))
+- Basic globalFilter overview table added ([8f091c7](https://github.com/KomMonitor/web-client/commit/8f091c76ee4bcfa429036da0d3d605a5edf6a126))
+- Data-merge for filter-table ([7e12d89](https://github.com/KomMonitor/web-client/commit/7e12d89d738c1e5ce60f82e81060c63ba7c5f5b3))
+- Basic add filter modal added ([7b59156](https://github.com/KomMonitor/web-client/commit/7b591561f841ba33cef133a9568827b20f835521))
+- Single check table added to filter add modal ([e2680e1](https://github.com/KomMonitor/web-client/commit/e2680e1693aa4b6a49a9d13a14f0932ca2c043cf))
+- Indicator and georesource selection added to admin-filter add modal ([f822a99](https://github.com/KomMonitor/web-client/commit/f822a99d043fb856f1dac82c5462f87a93dfc05b))
+- Simplified table refresh on admin-filter overview table ([ba69bbd](https://github.com/KomMonitor/web-client/commit/ba69bbdcce9685b05944516a41bd40320d5b2622))
+- Basic tables and trees added to admin-filter add modal ([875df81](https://github.com/KomMonitor/web-client/commit/875df810e0b318b5507aa081b85c488f60979e00))
+- Admin filter add post call implemented ([4129beb](https://github.com/KomMonitor/web-client/commit/4129beb3903a93f64f05a70ab1d27ac34d83375d))
+- Filter delete functionality added, bugfixes, id to name merging on overview table for topics ([1406c6e](https://github.com/KomMonitor/web-client/commit/1406c6ee109eac92509bfdbb98cd75b35b38ce86))
+- Admin filter edit modal added ([ecdc0b0](https://github.com/KomMonitor/web-client/commit/ecdc0b0e35b63125b62a5b8acc1ceb089d743d79))
+- Data load for edit modal ([24a63b8](https://github.com/KomMonitor/web-client/commit/24a63b8576f5591e5f9d873f8f3ca4f98666d51e))
+- Bugfixing and additional style adjustments ([c1a0f9f](https://github.com/KomMonitor/web-client/commit/c1a0f9fc8c50b6617fa862bc5acc37a3468f663e))
+- Merge remote-tracking branch 'origin/feature/304' into feature/global-filter ([fbbc392](https://github.com/KomMonitor/web-client/commit/fbbc392b9c5f866c21dac3e776ad8c0985732b90))
+- Merge branch 'master' into feature/global-filter ([270240a](https://github.com/KomMonitor/web-client/commit/270240a0a53558f8e4fb51b9375f92fc5e2de0ea))
+- Global filter selection moved from indicators to filter selection area in UI ([1332055](https://github.com/KomMonitor/web-client/commit/13320551918127ef082430cabc8e881027208648))
+- Bugfix on spatial unit selection for global filter ([afc1b82](https://github.com/KomMonitor/web-client/commit/afc1b82c1e221ecaa3f5c027a403d3749cd4d866))
+- Bugfix on selected global fitlers ([f3f2fcc](https://github.com/KomMonitor/web-client/commit/f3f2fcc19f75d96bc72c6d2a1ce854d3a9a7dc56))
+- Loading indicator added to global filter selection, bugfix open/close global-filter box ([d75ba3d](https://github.com/KomMonitor/web-client/commit/d75ba3d1df479a6e4e183d30a1136014708148fc))
+- Logic added to hide global filter ico url filter active ([1d1c1f2](https://github.com/KomMonitor/web-client/commit/1d1c1f286076b29f1d588651274eba99b1ea1ef5))
+- Global filter table-editor sync fix, hide/show logic, styling adjustments ([f9a74f2](https://github.com/KomMonitor/web-client/commit/f9a74f24ff1edc5ae2a7176c6e2a35be9588a9a2))
+- Merge branch 'feature/global-filter' ([f0fba5b](https://github.com/KomMonitor/web-client/commit/f0fba5b53974492539634f2296ecb820d742b5b6))
+- Release 3.2.0-beta.1 ([a2dc0f1](https://github.com/KomMonitor/web-client/commit/a2dc0f144bee89b79446d50ccd4caca72ed245b1))
+- Bugfix on singleSelectGrid checked attribute ([f5d9e3b](https://github.com/KomMonitor/web-client/commit/f5d9e3b530a0890e41aae5edf0a7185cdae27cba))
+- Merge branch 'feature/global-filter' of https://github.com/KomMonitor/web-client into feature/global-filter ([1eafbf0](https://github.com/KomMonitor/web-client/commit/1eafbf073ede1dd81dda28edac9dfe903c67cc33))
+- Merge branch 'feature/global-filter' ([16d8a68](https://github.com/KomMonitor/web-client/commit/16d8a683ce9c8f3d5cd8c1ec2acabf96c37e57cd))
+- Release 3.2.0-beta.2 ([d4fbeab](https://github.com/KomMonitor/web-client/commit/d4fbeab8c3b3953258426c76ca7dc84091a1d1e5))
+- Bugfix on singleSelectGrid checked attribute - again ([11c6a5c](https://github.com/KomMonitor/web-client/commit/11c6a5c52a0453f3bfa6929d86c7c26a8916a5c9))
+- Merge branch 'feature/global-filter' of https://github.com/KomMonitor/web-client into feature/global-filter ([341fe51](https://github.com/KomMonitor/web-client/commit/341fe510b3e120e916100c5d0fa20bb2c74e106f))
+- Release 3.2.0-beta.3 ([8899691](https://github.com/KomMonitor/web-client/commit/88996916218791db539240dc0a6f797a638ab0b6))
+- Bugfix for singleSelectGrid, getSelectedIds on add/edit modal ([1d299f0](https://github.com/KomMonitor/web-client/commit/1d299f047976e08f7c31e4648a32eccda1378d23))
+- Merge branch 'feature/global-filter' of https://github.com/KomMonitor/web-client into feature/global-filter ([568e085](https://github.com/KomMonitor/web-client/commit/568e085c82055f7064bad56824e3796211b30e7a))
+- Merge branch 'feature/global-filter' ([f2e5ff4](https://github.com/KomMonitor/web-client/commit/f2e5ff44dbb063bf24704a1c53590fca91441931))
+- Release 3.2.0-beta.4 ([0f6ba26](https://github.com/KomMonitor/web-client/commit/0f6ba26c595f61f22f6d7d62d5ae94300f6b7d23))
+- Bugix on map layer list after global filter change ([9e077ba](https://github.com/KomMonitor/web-client/commit/9e077ba5cca6ef2ab353311e6a9567b98e0c5a31))
+- Merge remote-tracking branch 'origin/feature/global-filter' ([9ac4f50](https://github.com/KomMonitor/web-client/commit/9ac4f508ae005d01588082b3156aef367235999c))
+- Release 3.2.0-beta.5 ([916d68f](https://github.com/KomMonitor/web-client/commit/916d68f5396cd62b890fc5a3e5eabe77d3a85051))
+- Option added to show only selected indicators/georesources on filter edit modal ([817c739](https://github.com/KomMonitor/web-client/commit/817c7390f2947a30d4b901c3c71313d7c01239ed))
+- 'show only selected items' slider added to filter edit modal ([6e09ad5](https://github.com/KomMonitor/web-client/commit/6e09ad5e2ef98971589e1eafd257b7d7acaeaab0))
+- Merge branch 'feature/global-filter' of https://github.com/KomMonitor/web-client into feature/global-filter ([13beace](https://github.com/KomMonitor/web-client/commit/13beacee722fe938a94eedeef60ed56eedea4092))
+- Merge branch 'feature/global-filter' of https://github.com/KomMonitor/web-client into feature/global-filter ([058c1fd](https://github.com/KomMonitor/web-client/commit/058c1fd0bca18e6f695ccf3ada301ed1af135988))
+- Merge branch 'feature/global-filter' ([52d12d3](https://github.com/KomMonitor/web-client/commit/52d12d3c2d03a05f6350b580a768c48301af0064))
+- Favorites includes in topics and indicators ([59fd7b3](https://github.com/KomMonitor/web-client/commit/59fd7b35e6d1b0dd7dca4a9aaa3727b3411712c8))
+- Favorites added for headline and base indicators ([396a877](https://github.com/KomMonitor/web-client/commit/396a8775cd24d6d92fa75deea682f1db0334ef65))
+- Fav selection added to georesources ([7a031eb](https://github.com/KomMonitor/web-client/commit/7a031ebc821c36acbe3b9d2102d77022646e8e1f))
+- Fav service and indicator-transfer added, bugfixing ([588a6de](https://github.com/KomMonitor/web-client/commit/588a6de8968ddcc3e5b45bb462c5b4363b0dddf6))
+- Basic recursive topic/data tree added to indicator favs ([d9dc803](https://github.com/KomMonitor/web-client/commit/d9dc80395d31f0373d7e8d4494c3dad266970a9a))
+- Indicator fav logic of select/deselect added, styling adjustments ([ae17c4e](https://github.com/KomMonitor/web-client/commit/ae17c4efaebc30cad9845a502088d256ab8e95e4))
+- Georesources topics and data fav tab function added, bugfixes ([1a44673](https://github.com/KomMonitor/web-client/commit/1a44673717b39f9c9c05e7e4f3239b9655f22433))
+- Fav sync with backend added for 'normal' indicators ([44e5794](https://github.com/KomMonitor/web-client/commit/44e5794460c2759ef819267829a291ebb57faeb0))
+- Internal handling of base/headline-indicators changed to cope for backend model ([dffa189](https://github.com/KomMonitor/web-client/commit/dffa189d8f233c103ecbd4fdbc4ae1b3cde66bcc))
+- Toast for favorite selection added ([c8573af](https://github.com/KomMonitor/web-client/commit/c8573af360c1bca83593b2a8d7f2a82f7f4a0446))
+- Fav storage added to georesources, poi/aoi/loi changed to internal model ([72353e9](https://github.com/KomMonitor/web-client/commit/72353e964ec1d2ad9487baf04ca45b03a332f181))
+- Final adjustments and bugfixes ([e08c11e](https://github.com/KomMonitor/web-client/commit/e08c11e091b9e27ac3138f2a7f5f7345c1d395bd))
+- Indicator fav, on-click added, headline styling added ([4785f54](https://github.com/KomMonitor/web-client/commit/4785f54814c2a0943cedb3ed5d4fafc698b01ddb))
+- Bugfixes and styling adjustments for indocators ([93345a8](https://github.com/KomMonitor/web-client/commit/93345a80cd94de7ca4c3f48e30d9b3247aaf7aa0))
+- Bugfix on indicator/georesource select, styling adjustments to align with non-fav view ([92ecd20](https://github.com/KomMonitor/web-client/commit/92ecd20a11ff659cac2b9016637bab385a50d300))
+- Bugfix on empty fav arrays ([359481c](https://github.com/KomMonitor/web-client/commit/359481c40b78532b077a22293068b010cb67070c))
+- Recursive selection of fav items removed ([97cc661](https://github.com/KomMonitor/web-client/commit/97cc66110331545f8e67da59e577b38c87366d98))
+- Bugfix on visible non-fav items in poi fav overview ([db9fcdc](https://github.com/KomMonitor/web-client/commit/db9fcdceae262d72f45907aece4c90c3a9977d08))
+- Temporary fav-list implemented to keep items visible in fav list bevore saving ([09dc1cd](https://github.com/KomMonitor/web-client/commit/09dc1cd83c8cee82e496e5aa72d86f8ea1db6e2a))
+- Config item added to enable/disable favorite selection in the UI ([7d2fa2b](https://github.com/KomMonitor/web-client/commit/7d2fa2b7f9551fdbcaa689e5524a6a9703e2a079))
+- Adjustment on initial post call ([0f3cd0a](https://github.com/KomMonitor/web-client/commit/0f3cd0a89ca3f3c35697b8f925f10e4dec53fd38))
+- Merge branch 'feature/328' ([18f7b0e](https://github.com/KomMonitor/web-client/commit/18f7b0e56de95cc76870684fa5da87d69e86015a))
+- New display logic for fav tab items ([92af2fb](https://github.com/KomMonitor/web-client/commit/92af2fbd02f2d0e561e4e24977663c675d71da81))
+- Bugfix on parentTopic in fav items ([280b9c0](https://github.com/KomMonitor/web-client/commit/280b9c0ee7fe204c053d6d3d5a00419ab68e457c))
+- Merge branch 'feature/328' ([7a7075f](https://github.com/KomMonitor/web-client/commit/7a7075f3aad75864543e5f6182fba2f7d9e5b448))
+- Show single indicator/georesource adjustment, styling bug ([878d0d6](https://github.com/KomMonitor/web-client/commit/878d0d636f63dd2421c275d75cdacacd189e193e))
+- Merge branch 'feature/328' ([4e990f5](https://github.com/KomMonitor/web-client/commit/4e990f5035984c840225dce60469f235000e6ada))
+- Release 3.2.0-beta.6 ([7656830](https://github.com/KomMonitor/web-client/commit/7656830fc4200ba72c9af9210aa41d731bfda3dd))
+- Bugfix on topic edit ([e808893](https://github.com/KomMonitor/web-client/commit/e808893b56dfe46de1064bf6c0d3c9afd09d0b30))
+- Merge branch 'feature/global-filter' ([87cf206](https://github.com/KomMonitor/web-client/commit/87cf2060a5b09d55f54fd5b878a5e92f2f16e7f8))
+- Release 3.2.0-beta.7 ([263d3e3](https://github.com/KomMonitor/web-client/commit/263d3e39c5d48ea5837f969a5d1c618a7cca3930))
+- Merge branch 'fix/release-3.1.8' ([3693ab9](https://github.com/KomMonitor/web-client/commit/3693ab919ee386d5608c35fed522375f11b8468c))
+- Complete versioninfo for 3.2.0 release ([b76e88d](https://github.com/KomMonitor/web-client/commit/b76e88dbe7afa5c567a703c44c297f1c8bcd5f3a))
+- Release 3.2.0 ([89aa3b3](https://github.com/KomMonitor/web-client/commit/89aa3b3ef0d307734603063609075fef87db0789))
+
+## [3.1.8]
+> 10 Jan 2025
+
+### Added
+
+- Add version 3.1.8 infos ([5cc3074](https://github.com/KomMonitor/web-client/commit/5cc3074059d2a7d9d6f6ad0d0f7dd0da1dfdcd1b))
+
+### Changed
+
+- Finally fix sum and share scripts regarding NULL value handling ([ecf790e](https://github.com/KomMonitor/web-client/commit/ecf790e65110370559a4c30df7ef381d2aafed5b))
+- Release 3.1.8 ([58e8729](https://github.com/KomMonitor/web-client/commit/58e8729d4f49aa7e390308c7c458749388091c9c))
+
+### Fixed
+
+- Fix leaflet bugs (multiple tooltips when dragging and features accessibility bounds display on click) ([c2e2469](https://github.com/KomMonitor/web-client/commit/c2e2469bc37cab036bfd00ed7302f160936d1643))
+
+## [3.1.7]
+> 17 Nov 2024
+
+### Added
+
+- Add version info v 3.1.7 ([04bd3bc](https://github.com/KomMonitor/web-client/commit/04bd3bc1eadf28fe58bf3aeb496d5a62dd4e94a5))
+
+### Changed
+
+- Release 3.1.7 ([acab905](https://github.com/KomMonitor/web-client/commit/acab905b34d3310891b0e4d09de53cc981352ea0))
+
+### Fixed
+
+- Fix sum script ([3668669](https://github.com/KomMonitor/web-client/commit/3668669d1e953468d1bbfd41095d486daf1df0b8))
+
+## [3.1.6]
+> 14 Nov 2024
+
+### Added
+
+- Add version info for version 3.1.6 ([42472f3](https://github.com/KomMonitor/web-client/commit/42472f38c03c90ed94d75d28731171984f572a41))
+- Add version info hint for disabling manual classification to rerelease v 3.1.6 ([a9d2d72](https://github.com/KomMonitor/web-client/commit/a9d2d72b052837ed18699cd8e3800527556bf04e))
+
+### Changed
+
+- Bump some dependency versions ([e2f41cf](https://github.com/KomMonitor/web-client/commit/e2f41cf95044150bcfdbe9905557d708f2893f97))
+- Adjust name of background layer in rechabilityanalysis ([9da64fd](https://github.com/KomMonitor/web-client/commit/9da64fd915f552b58ca2df5fb5514233f1f33b8e))
+- Introduce new variables fpr ranking chart average/regional reference values and thus fix reporting timeseries bug ([6d0d0bd](https://github.com/KomMonitor/web-client/commit/6d0d0bd1d7f44dfe88d05bd5c1beb73b1c1bf3d6))
+- Prevent angularJS digest in progress error ([19ded4b](https://github.com/KomMonitor/web-client/commit/19ded4b903eb19d95f95dec9116d62c98cb6b03f))
+- Release 3.1.6 ([857c108](https://github.com/KomMonitor/web-client/commit/857c1080922289ad543f829e640709bd45d3d1db))
+- Use __env.disableManualClassification instead of __env.hideManualClassification ([f087c66](https://github.com/KomMonitor/web-client/commit/f087c66fb80ee35d8a91f35ac2bc1c9b4a07bf4e))
+- HideManualClassification is called correctly ([57d8fd1](https://github.com/KomMonitor/web-client/commit/57d8fd1012a419cfe21f3bd00f258fcb16af07a4))
+- Merge branch 'fix/disable-manual-classification' ([58488bd](https://github.com/KomMonitor/web-client/commit/58488bd82d9cc7c8e44b96b8ce3fa92b3e9ec8da))
+- Revert release 3.1.6 ([bb05962](https://github.com/KomMonitor/web-client/commit/bb059620c5d9946e4d1c32f0e58a0cb1a54a02bb))
+- Release 3.1.6 ([38da941](https://github.com/KomMonitor/web-client/commit/38da941c4e6a2de2dfd0284f3924342e3819ba0e))
+
+### Fixed
+
+- Fix poi popup generation in reachability scenarios if a point does not have a pruneIsochroneResult ([11d31e5](https://github.com/KomMonitor/web-client/commit/11d31e555dfb83259cd5f39e726eda269bd83f22))
 
 ## [3.1.5]
 > 31 Oct 2024
@@ -4263,6 +4270,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Raise some dependency version by using npm audit fix ([3b55651](https://github.com/KomMonitor/web-client/commit/3b55651bed28779b895f508f22a742ea2af60b01))
 - Raise some dependency versions by using npm audit fix ([ca220e8](https://github.com/KomMonitor/web-client/commit/ca220e88a9ba951eb4edbfca487d1e0ca192c394))
 
+[4.4.7]: https://github.com/KomMonitor/web-client/compare/4.4.6..4.4.7
 [4.4.6]: https://github.com/KomMonitor/web-client/compare/4.4.5..4.4.6
 [4.4.5]: https://github.com/KomMonitor/web-client/compare/4.4.4..4.4.5
 [4.4.4]: https://github.com/KomMonitor/web-client/compare/4.4.3..4.4.4
@@ -4277,12 +4285,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [4.3.2]: https://github.com/KomMonitor/web-client/compare/4.3.1..4.3.2
 [4.3.1]: https://github.com/KomMonitor/web-client/compare/4.3.0..4.3.1
 [4.3.0]: https://github.com/KomMonitor/web-client/compare/4.2.1..4.3.0
-[4.2.1]: https://github.com/KomMonitor/web-client/compare/3.4.1..4.2.1
-[3.4.1]: https://github.com/KomMonitor/web-client/compare/4.2.0..3.4.1
-[4.2.0]: https://github.com/KomMonitor/web-client/compare/3.4.0..4.2.0
-[3.4.0]: https://github.com/KomMonitor/web-client/compare/4.1.1..3.4.0
+[4.2.1]: https://github.com/KomMonitor/web-client/compare/4.2.0..4.2.1
+[4.2.0]: https://github.com/KomMonitor/web-client/compare/4.1.1..4.2.0
 [4.1.1]: https://github.com/KomMonitor/web-client/compare/4.1.0..4.1.1
-[4.1.0]: https://github.com/KomMonitor/web-client/compare/3.3.0..4.1.0
+[4.1.0]: https://github.com/KomMonitor/web-client/compare/3.4.1..4.1.0
+[3.4.1]: https://github.com/KomMonitor/web-client/compare/3.4.0..3.4.1
+[3.4.0]: https://github.com/KomMonitor/web-client/compare/3.3.0..3.4.0
 [3.3.0]: https://github.com/KomMonitor/web-client/compare/3.2.1..3.3.0
 [3.2.1]: https://github.com/KomMonitor/web-client/compare/3.2.0..3.2.1
 [3.2.0]: https://github.com/KomMonitor/web-client/compare/3.1.8..3.2.0
@@ -4330,6 +4338,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.4.0]: https://github.com/KomMonitor/web-client/compare/v1.2.0..v1.4.0
 [1.2.0]: https://github.com/KomMonitor/web-client/compare/v1.0.1..v1.2.0
 [1.0.1]: https://github.com/KomMonitor/web-client/compare/v1.0.0..v1.0.1
-[1.0.0]: https://github.com/KomMonitor/web-client/compare/5.1.4..v1.0.0
+[1.0.0]: https://github.com/KomMonitor/web-client/compare/5.1.6..v1.0.0
 
 <!-- generated by git-cliff -->
