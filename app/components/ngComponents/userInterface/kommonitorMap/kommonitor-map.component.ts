@@ -953,6 +953,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     if (
       this.selectionState.selectedIndicator.defaultClassificationMapping.classificationType ==
         'QUANTITATIVE' &&
+      this.selectionState.selectedIndicator.defaultClassificationMapping.labels &&
       !this.chartDisplayState.isMeasureOfValueChecked &&
       !this.chartDisplayState.isBalanceChecked &&
       this.selectionState.selectedIndicator.defaultClassificationMapping.classificationMethod ==
