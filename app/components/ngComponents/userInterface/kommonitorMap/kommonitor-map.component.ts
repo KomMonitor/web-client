@@ -578,9 +578,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
       // track to enable deletion
       this.singleMarkers.push(newMarker);
-
-      this.map.setView([location.geometry.coordinates[1], location.geometry.coordinates[0]], 12);
     });
+
+    if (this.singleMarkers.length > 0) {
+      const bounds = L.latLngBounds(this.singleMarkers.map((m) => m.getLatLng()));
+      // only zoom out to fit all features, never zoom in beyond the current level
+      const targetZoom = Math.min(this.map.getZoom(), this.map.getBoundsZoom(bounds));
+      this.map.setView(bounds.getCenter(), targetZoom);
+    }
   }
 
   removeIsochrones() {
