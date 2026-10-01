@@ -1,0 +1,27 @@
+<div class="georesource-element" [style]="levelColorStyling()">
+  <ng-content select="[georesourceElementBeforeToggle]"></ng-content>
+  <button type="button" class="georesource-element__toggle" (click)="rowClick.emit()">
+    <ng-content select="[georesourceElementLeading]"></ng-content>
+    <span class="georesource-element__title">{{ title() }}</span>
+    @if (description()) {
+      <i
+        class="fas fa-info-circle georesource-element__info"
+        (mouseover)="onInfoMouseover()"
+        (mouseout)="onInfoMouseout()"
+        (click)="$event.stopPropagation()"
+      ></i>
+    }
+    <ng-content select="[georesourceElementAfterTitle]"></ng-content>
+  </button>
+  <ng-content></ng-content>
+</div>
+
+@if (description()) {
+  <div
+    class="georesource-element__info-tooltip"
+    [id]="tooltipId"
+    [ngStyle]="{ left: mousePosX, top: mousePosY }"
+  >
+    <p>{{ description() }}</p>
+  </div>
+}

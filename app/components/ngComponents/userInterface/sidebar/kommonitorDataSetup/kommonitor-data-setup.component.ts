@@ -530,7 +530,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.loadingData = false;
 
       if (recenterMap) {
-        this.mapService.setMapRecenterState({ recenter: true });
+        this.mapService.setMapRecenterState({ recenter: true, fitToDataExtent: false });
       }
 
       this.changeIndicatorWasClicked = false;

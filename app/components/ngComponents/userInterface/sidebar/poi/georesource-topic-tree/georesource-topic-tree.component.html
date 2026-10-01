@@ -25,23 +25,69 @@
       ></ng-container>
       @if (topic.ownCount > 0) {
         <div class="georesourceInputForm">
-          <app-georesource-dataset-table
-            [datasets]="topic"
-            [showFavSelection]="showFavSelection"
-            [showPerDatasetDateColumn]="showPerDatasetDateColumn"
-            [poiFavItems]="poiFavItems"
-            [wmsFavItems]="wmsFavItems"
-            (toggleGeoresourceOnMap)="toggleGeoresourceOnMap.emit($event)"
-            (toggleWmsOnMap)="toggleWmsOnMap.emit($event)"
-            (toggleWfsOnMap)="toggleWfsOnMap.emit($event)"
-            (selectedDateChange)="selectedDateChange.emit($event)"
-            (zoomToLayer)="zoomToLayer.emit($event)"
-            (exportGeoresource)="exportGeoresource.emit($event)"
-            (poiFavClick)="poiFavToggled.emit($event)"
-            (wmsFavClick)="wmsFavToggled.emit($event)"
-            (wfsColorChange)="wfsColorChange.emit($event)"
-          >
-          </app-georesource-dataset-table>
+          @for (poi of topic.poiData; track poi) {
+            <app-georesource-vector-element
+              kind="poi"
+              [dataset]="poi"
+              [level]="level + 1"
+              [showFavSelection]="showFavSelection"
+              [showPerDatasetDateColumn]="showPerDatasetDateColumn"
+              [isFavorite]="poiFavItems.includes(poi.georesourceId ?? '')"
+              (toggleGeoresourceOnMap)="toggleGeoresourceOnMap.emit($event)"
+              (selectedDateChange)="selectedDateChange.emit($event)"
+              (zoomToLayer)="zoomToLayer.emit($event)"
+              (exportGeoresource)="exportGeoresource.emit($event)"
+              (favToggled)="poiFavToggled.emit($event)"
+            ></app-georesource-vector-element>
+          }
+          @for (loi of topic.loiData; track loi) {
+            <app-georesource-vector-element
+              kind="loi"
+              [dataset]="loi"
+              [level]="level + 1"
+              [showFavSelection]="showFavSelection"
+              [showPerDatasetDateColumn]="showPerDatasetDateColumn"
+              [isFavorite]="poiFavItems.includes(loi.georesourceId ?? '')"
+              (toggleGeoresourceOnMap)="toggleGeoresourceOnMap.emit($event)"
+              (selectedDateChange)="selectedDateChange.emit($event)"
+              (zoomToLayer)="zoomToLayer.emit($event)"
+              (exportGeoresource)="exportGeoresource.emit($event)"
+              (favToggled)="poiFavToggled.emit($event)"
+            ></app-georesource-vector-element>
+          }
+          @for (aoi of topic.aoiData; track aoi) {
+            <app-georesource-vector-element
+              kind="aoi"
+              [dataset]="aoi"
+              [level]="level + 1"
+              [showFavSelection]="showFavSelection"
+              [showPerDatasetDateColumn]="showPerDatasetDateColumn"
+              [isFavorite]="poiFavItems.includes(aoi.georesourceId ?? '')"
+              (toggleGeoresourceOnMap)="toggleGeoresourceOnMap.emit($event)"
+              (selectedDateChange)="selectedDateChange.emit($event)"
+              (zoomToLayer)="zoomToLayer.emit($event)"
+              (exportGeoresource)="exportGeoresource.emit($event)"
+              (favToggled)="poiFavToggled.emit($event)"
+            ></app-georesource-vector-element>
+          }
+          @for (dataset of topic.wmsData; track dataset) {
+            <app-georesource-wms-element
+              [dataset]="dataset"
+              [level]="level + 1"
+              [showFavSelection]="showFavSelection"
+              [isFavorite]="wmsFavItems.includes(dataset.id ?? '')"
+              (toggleWmsOnMap)="toggleWmsOnMap.emit($event)"
+              (favToggled)="wmsFavToggled.emit($event)"
+            ></app-georesource-wms-element>
+          }
+          @for (dataset of topic.wfsData; track dataset) {
+            <app-georesource-wfs-element
+              [dataset]="dataset"
+              [level]="level + 1"
+              (toggleWfsOnMap)="toggleWfsOnMap.emit($event)"
+              (wfsColorChange)="wfsColorChange.emit($event)"
+            ></app-georesource-wfs-element>
+          }
         </div>
       }
     </app-topic-element>

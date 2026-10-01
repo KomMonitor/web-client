@@ -441,6 +441,10 @@ export class ReachabilityStateService {
   }
 
   async addLocation(location: GeoJSONFeature, manualSel: boolean = false) {
+    // a location can be added (e.g. via address search) before any tab-switch handler
+    // has ever set this flag, so ensure it here too, or the marker never renders
+    this.showOnMainMap = true;
+
     location.properties = {
       [this.envConfigService.FEATURE_ID_PROPERTY_NAME]: uuidv4(),
       [this.envConfigService.FEATURE_NAME_PROPERTY_NAME]: location.label,

@@ -1,0 +1,47 @@
+<app-georesource-element
+  [title]="dataset.title"
+  [description]="dataset.description"
+  [selected]="dataset.isSelected ?? false"
+  [level]="level"
+  (rowClick)="onToggle()"
+>
+  <ng-container georesourceElementLeading>
+    <b class="wfs-element__symbol"><i>WFS</i></b>
+  </ng-container>
+
+  <span class="wfs-element__legend">
+    @if (dataset.geometryType !== 'POI') {
+      <!-- don´t use 2way binding for [colorPicker] as the change event laggs behind the binding. known problem. use $event as it is -->
+      <input
+        class="colorPickerSelection"
+        title="Klicken, um die Farbe anzupassen"
+        [colorPicker]="wfsColor()"
+        [style.background]="wfsColor()"
+        [cpPosition]="'bottom-left'"
+        (colorPickerChange)="onWfsColorChange($event)"
+      />
+    } @else {
+      <div class="awesome-marker-legend awesome-marker-legend-icon-{{ dataset.poiMarkerColor }}">
+        <span
+          class="wfs-element__legend-icon {{ dataset.poiSymbolBootstrap3Name | iconTranslate }}"
+          [ngStyle]="{ color: dataset.poiSymbolColor }"
+          aria-hidden="true"
+        ></span>
+      </div>
+    }
+  </span>
+
+  <span class="wfs-element__actions">
+    @if (exportButtonVisibility.showGeoresourceExportButtons) {
+      <a
+        [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
+        class="wfs-element__action"
+        title="WFS GetCapabilities URL"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        <i class="fas fa-cloud-download-alt"></i>
+      </a>
+    }
+  </span>
+</app-georesource-element>

@@ -1,0 +1,44 @@
+<app-georesource-element
+  [title]="dataset.title"
+  [description]="dataset.description"
+  [selected]="dataset.isSelected ?? false"
+  [level]="level"
+  (rowClick)="onToggle()"
+>
+  <ng-container georesourceElementLeading>
+    <b class="wms-element__symbol"><i>WMS</i></b>
+  </ng-container>
+
+  <span class="wms-element__legend">
+    @if (!dataset.showLegend) {
+      <button
+        type="button"
+        class="btn btn-sm btn-primary wms-element__load-legend"
+        (click)="onLoadLegend()"
+      >
+        laden
+      </button>
+    } @else {
+      <img [src]="ogcService.buildLegendUrl(dataset.url, dataset.layerName)" />
+    }
+  </span>
+
+  <span class="wms-element__actions">
+    @if (exportButtonVisibility.showGeoresourceExportButtons && dataset.url) {
+      <a
+        [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
+        class="wms-element__action"
+        title="WMS GetCapabilities URL"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        <i class="fas fa-cloud-download-alt"></i>
+      </a>
+    }
+    <app-favorite-star
+      [visible]="showFavSelection"
+      [isFavorite]="isFavorite"
+      (toggled)="favToggled.emit(dataset.id)"
+    ></app-favorite-star>
+  </span>
+</app-georesource-element>

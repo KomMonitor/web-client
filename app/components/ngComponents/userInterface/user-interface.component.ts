@@ -160,7 +160,7 @@ export class UserInterfaceComponent implements OnInit {
   }
 
   onRecenterMapButtonClick() {
-    this.mapService.setMapRecenterState({ recenter: true });
+    this.mapService.setMapRecenterState({ recenter: true, fitToDataExtent: true });
   }
 
   onExportMapButtonClick() {

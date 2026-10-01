@@ -16,8 +16,6 @@ export class ExportItemCheckboxComponent {
 
   @Input({ required: true }) kind!: ExportItemKind;
   @Input({ required: true }) dataset!: Indicator | Georessource;
-  /** Shows the "in/aus Export übernehmen/entfernen" text label next to the checkbox — only used within the POI topic trees, where the checkbox otherwise stands alone. */
-  @Input() showLabel = false;
 
   isInExport(): boolean {
     if (this.kind === 'indicator') {

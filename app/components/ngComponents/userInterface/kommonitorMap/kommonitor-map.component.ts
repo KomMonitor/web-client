@@ -258,7 +258,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.mapService.mapRecenter$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
       if (value.resize) this.resizeMapOnly();
 
-      if (value.recenter) this.recenterMapOnly();
+      if (value.recenter) {
+        if (value.fitToDataExtent) this.recenterMapOnly();
+        else this.restoreViewportOnly();
+      }
     });
 
     this.reachabilityStateService.reachabilityMapSubject$
@@ -575,9 +578,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
       // track to enable deletion
       this.singleMarkers.push(newMarker);
-
-      this.map.setView([location.geometry.coordinates[1], location.geometry.coordinates[0]], 12);
     });
+
+    if (this.singleMarkers.length > 0) {
+      const bounds = L.latLngBounds(this.singleMarkers.map((m) => m.getLatLng()));
+      // only zoom out to fit all features, never zoom in beyond the current level
+      const targetZoom = Math.min(this.map.getZoom(), this.map.getBoundsZoom(bounds));
+      this.map.setView(bounds.getCenter(), targetZoom);
+    }
   }
 
   removeIsochrones() {
@@ -945,6 +953,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     if (
       this.selectionState.selectedIndicator.defaultClassificationMapping.classificationType ==
         'QUANTITATIVE' &&
+      this.selectionState.selectedIndicator.defaultClassificationMapping.labels &&
       !this.chartDisplayState.isMeasureOfValueChecked &&
       !this.chartDisplayState.isBalanceChecked &&
       this.selectionState.selectedIndicator.defaultClassificationMapping.classificationMethod ==
@@ -1286,6 +1295,24 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   // dedicated functions
   resizeMapOnly() {
     setTimeout(() => this.map.invalidateSize(true)); // mini timeout to cover css transition effects
+  }
+
+  // restores the viewport (center + zoom) that was visible before the container
+  // was resized, instead of recentering/fitting to the current data layer
+  restoreViewportOnly() {
+    setTimeout(() => {
+      if (!this.map) return;
+
+      const { currentLatitude, currentLongitude, currentZoomLevel } = this.mapViewportState;
+
+      this.map.invalidateSize(false);
+
+      if (currentLatitude != null && currentLongitude != null && currentZoomLevel != null) {
+        this.map.setView([currentLatitude, currentLongitude], currentZoomLevel, {
+          animate: false,
+        });
+      }
+    }); // mini timeout to cover css transition effects
   }
 
   fitBounds() {

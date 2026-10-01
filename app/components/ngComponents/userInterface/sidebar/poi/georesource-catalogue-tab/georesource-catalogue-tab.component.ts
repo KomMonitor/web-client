@@ -14,7 +14,9 @@ import {
   GeoresourcesTopicsHierarchy,
 } from 'components/ngComponents/models/georesources.models';
 import { GeoresourceTopicTreeComponent } from '../georesource-topic-tree/georesource-topic-tree.component';
-import { GeoresourceDatasetTableComponent } from '../georesource-dataset-table/georesource-dataset-table.component';
+import { GeoresourceVectorElementComponent } from '../georesource-vector-element/georesource-vector-element.component';
+import { GeoresourceWmsElementComponent } from '../georesource-wms-element/georesource-wms-element.component';
+import { GeoresourceWfsElementComponent } from '../georesource-wfs-element/georesource-wfs-element.component';
 
 /**
  * The "Datenkatalog" tab: the per-type filter toggles, the recursive topic tree
@@ -32,7 +34,9 @@ import { GeoresourceDatasetTableComponent } from '../georesource-dataset-table/g
     CommonModule,
     FormsModule,
     GeoresourceTopicTreeComponent,
-    GeoresourceDatasetTableComponent,
+    GeoresourceVectorElementComponent,
+    GeoresourceWmsElementComponent,
+    GeoresourceWfsElementComponent,
     TopicElementComponent,
   ],
 })
