@@ -886,6 +886,11 @@ pre.CodeMirror-line {
 	border-top-color: var(--kommonitor-primary);
 }
 
+/* minor and patch release info boxes nested in major release boxes */
+#versionInfo .box.box-primary .box.box-primary {
+	border-top-color: var(--kommonitor-primary-60);
+}
+
 a.kommonitor-theme {
 	color: var(--kommonitor-primary);
 }
