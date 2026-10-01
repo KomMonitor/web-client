@@ -32,7 +32,12 @@ export class AuthService {
         .then((authenticated) => {
           console.log(authenticated ? 'User is authenticated!' : 'User is not authenticated!');
           this.auth = keycloakAdapter;
-          this.startCheckSessionExpiration();
+          // an anonymous visitor has no refresh token, so the interval would
+          // immediately read an expired session and show a bogus "please log
+          // in again" warning
+          if (authenticated) {
+            this.startCheckSessionExpiration();
+          }
         })
         .catch(() => {
           console.log(
