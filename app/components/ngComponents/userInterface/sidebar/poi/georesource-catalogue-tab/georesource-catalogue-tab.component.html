@@ -159,23 +159,84 @@
         />
 
         <div class="georesourceInputForm">
-          <app-georesource-dataset-table
-            [datasets]="topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries"
-            [showFavSelection]="showFavSelection"
-            [showPerDatasetDateColumn]="layerService.isPerDatasetDate"
-            [poiFavItems]="favoritesService.poiFavItems"
-            [wmsFavItems]="favoritesService.wmsFavItems"
-            (toggleGeoresourceOnMap)="toggleGeoresourceOnMap.emit($event)"
-            (toggleWmsOnMap)="layerService.handleWmsOnMap($event)"
-            (toggleWfsOnMap)="layerService.handleWfsOnMap($event)"
-            (selectedDateChange)="layerService.onChangeSelectedDate($event)"
-            (zoomToLayer)="zoomToLayer.emit($event)"
-            (exportGeoresource)="layerService.openGeoresourceExportModal($event)"
-            (poiFavClick)="favoritesService.onPoiFavClick($event)"
-            (wmsFavClick)="favoritesService.onWmsFavClick($event)"
-            (wfsColorChange)="layerService.adjustWfsLayerColor($event)"
-          >
-          </app-georesource-dataset-table>
+          @for (
+            poi of topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries.poiData;
+            track poi
+          ) {
+            <app-georesource-vector-element
+              kind="poi"
+              [dataset]="poi"
+              [level]="1"
+              [showFavSelection]="showFavSelection"
+              [showPerDatasetDateColumn]="layerService.isPerDatasetDate"
+              [isFavorite]="favoritesService.poiFavItems.includes(poi.georesourceId ?? '')"
+              (toggleGeoresourceOnMap)="toggleGeoresourceOnMap.emit($event)"
+              (selectedDateChange)="layerService.onChangeSelectedDate($event)"
+              (zoomToLayer)="zoomToLayer.emit($event)"
+              (exportGeoresource)="layerService.openGeoresourceExportModal($event)"
+              (favToggled)="favoritesService.onPoiFavClick($event)"
+            ></app-georesource-vector-element>
+          }
+          @for (
+            loi of topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries.loiData;
+            track loi
+          ) {
+            <app-georesource-vector-element
+              kind="loi"
+              [dataset]="loi"
+              [level]="1"
+              [showFavSelection]="showFavSelection"
+              [showPerDatasetDateColumn]="layerService.isPerDatasetDate"
+              [isFavorite]="favoritesService.poiFavItems.includes(loi.georesourceId ?? '')"
+              (toggleGeoresourceOnMap)="toggleGeoresourceOnMap.emit($event)"
+              (selectedDateChange)="layerService.onChangeSelectedDate($event)"
+              (zoomToLayer)="zoomToLayer.emit($event)"
+              (exportGeoresource)="layerService.openGeoresourceExportModal($event)"
+              (favToggled)="favoritesService.onPoiFavClick($event)"
+            ></app-georesource-vector-element>
+          }
+          @for (
+            aoi of topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries.aoiData;
+            track aoi
+          ) {
+            <app-georesource-vector-element
+              kind="aoi"
+              [dataset]="aoi"
+              [level]="1"
+              [showFavSelection]="showFavSelection"
+              [showPerDatasetDateColumn]="layerService.isPerDatasetDate"
+              [isFavorite]="favoritesService.poiFavItems.includes(aoi.georesourceId ?? '')"
+              (toggleGeoresourceOnMap)="toggleGeoresourceOnMap.emit($event)"
+              (selectedDateChange)="layerService.onChangeSelectedDate($event)"
+              (zoomToLayer)="zoomToLayer.emit($event)"
+              (exportGeoresource)="layerService.openGeoresourceExportModal($event)"
+              (favToggled)="favoritesService.onPoiFavClick($event)"
+            ></app-georesource-vector-element>
+          }
+          @for (
+            dataset of topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries.wmsData;
+            track dataset
+          ) {
+            <app-georesource-wms-element
+              [dataset]="dataset"
+              [level]="1"
+              [showFavSelection]="showFavSelection"
+              [isFavorite]="favoritesService.wmsFavItems.includes(dataset.id ?? '')"
+              (toggleWmsOnMap)="layerService.handleWmsOnMap($event)"
+              (favToggled)="favoritesService.onWmsFavClick($event)"
+            ></app-georesource-wms-element>
+          }
+          @for (
+            dataset of topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries.wfsData;
+            track dataset
+          ) {
+            <app-georesource-wfs-element
+              [dataset]="dataset"
+              [level]="1"
+              (toggleWfsOnMap)="layerService.handleWfsOnMap($event)"
+              (wfsColorChange)="layerService.adjustWfsLayerColor($event)"
+            ></app-georesource-wfs-element>
+          }
         </div>
       </app-topic-element>
     }

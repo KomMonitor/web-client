@@ -10,6 +10,7 @@ import { GeoresourceLayerService } from 'components/ngComponents/userInterface/s
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
+import { GeoresourceLayerManagerService } from 'services/georesource-layer-manager-service/georesource-layer-manager.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import {
   MetadataBootstrapService,
@@ -50,6 +51,7 @@ export class PoiComponent implements OnInit {
   private topicHierarchyStore = inject(TopicHierarchyStoreService);
   protected georesourceStore = inject(GeoresourceMetadataStoreService);
   protected layerService = inject(GeoresourceLayerService);
+  private georesourceLayerManagerService = inject(GeoresourceLayerManagerService);
   protected favoritesService = inject(GeoresourceFavoritesService);
   protected filterService = inject(GeoresourceFilterService);
   protected exportMode = inject(GeoresourceExportModeService);
@@ -221,7 +223,7 @@ export class PoiComponent implements OnInit {
     return match;
   }
 
-  zoomToLayer(_georesourceMetadata: GeoresourcesDataset) {
-    // todo $rootScope.$broadcast("zoomToGeoresourceLayer", georesourceMetadata);
+  zoomToLayer(georesourceMetadata: GeoresourcesDataset) {
+    this.georesourceLayerManagerService.zoomToLayer(georesourceMetadata);
   }
 }

@@ -1,0 +1,48 @@
+:host {
+  display: contents;
+
+  .vector-element__symbol {
+    flex: 0 0 auto;
+    color: #6c757d;
+  }
+
+  .vector-element__legend {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .vector-element__legend-icon {
+    font-size: 1.2em;
+  }
+
+  .vector-element__legend-text {
+    font-size: 0.9em;
+  }
+
+  .vector-element__zoom {
+    flex: 0 0 auto;
+    font-size: 1.2em;
+    cursor: pointer;
+  }
+
+  .vector-element__date {
+    flex: 0 0 auto;
+    width: 135px;
+    font-size: 11px;
+    padding: 0;
+  }
+
+  .vector-element__actions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .vector-element__action {
+    color: var(--kommonitor-primary);
+    cursor: pointer;
+  }
+}

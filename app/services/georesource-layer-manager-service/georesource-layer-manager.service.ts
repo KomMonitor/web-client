@@ -59,6 +59,14 @@ export class GeoresourceLayerManagerService {
     this.removeLayersByDatasetName(georesourceMetadataAndGeoJSON.datasetName);
   }
 
+  /** Fits the map to the bounds of the dataset's currently displayed layer, if any. */
+  zoomToLayer(georesourceMetadataAndGeoJSON) {
+    const layer = this.getLayersByDatasetName(georesourceMetadataAndGeoJSON.datasetName)[0];
+    if (layer) {
+      this.genericMapHelperService.zoomToLayer(this.context.map, layer);
+    }
+  }
+
   addAoiGeoresource(georesourceMetadataAndGeoJSON, date) {
     const color = georesourceMetadataAndGeoJSON.aoiColor;
 
@@ -147,17 +155,25 @@ export class GeoresourceLayerManagerService {
     );
   }
 
-  // matches by layer name only (not by group), mirroring the legacy behavior
   private removeLayersByDatasetName(datasetName: string) {
-    this.context.layerControl._layers.forEach((layer) => {
-      if (layer.name.includes(datasetName + '_')) {
-        this.context.layerControl.removeLayer(layer.layer);
-        this.context.map.removeLayer(layer.layer);
-        this.context.updateSearchControl();
-      }
+    this.getLayersByDatasetName(datasetName).forEach((layer) => {
+      this.context.layerControl.removeLayer(layer);
+      this.context.map.removeLayer(layer);
+      this.context.updateSearchControl();
     });
 
     this.context.hideLoadingIcon();
+  }
+
+  // matches by layer name only (not by group), mirroring the legacy behavior
+  private getLayersByDatasetName(datasetName: string): any[] {
+    const matches: any[] = [];
+    this.context.layerControl._layers.forEach((layer) => {
+      if (layer.name.includes(datasetName + '_')) {
+        matches.push(layer.layer);
+      }
+    });
+    return matches;
   }
 
   private onEachFeatureGeoresource = (feature, layer) => {

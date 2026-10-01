@@ -1,0 +1,64 @@
+:host {
+  display: block;
+
+  .georesource-element {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.65rem;
+    margin: 3px 0;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 3px;
+    color: #23272b;
+    background: #fff;
+  }
+
+  .georesource-element__toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1 1 auto;
+    min-width: 0;
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid currentcolor;
+      outline-offset: 2px;
+    }
+  }
+
+  .georesource-element__title {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.95rem;
+    padding: 5px 0;
+  }
+
+  .georesource-element__info {
+    flex: 0 0 auto;
+    color: #6c757d;
+    cursor: help;
+  }
+
+  .georesource-element__info-tooltip {
+    display: none;
+    position: fixed;
+    background-color: #fff;
+    z-index: 10002;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    padding: 0.5em;
+    width: 400px;
+    color: black;
+    white-space: break-spaces;
+  }
+}

@@ -1,0 +1,30 @@
+:host {
+  display: contents;
+
+  .wms-element__symbol {
+    flex: 0 0 auto;
+    color: #6c757d;
+  }
+
+  .wms-element__legend {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+
+    img {
+      max-height: 40px;
+    }
+  }
+
+  .wms-element__actions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .wms-element__action {
+    color: var(--kommonitor-primary);
+    cursor: pointer;
+  }
+}

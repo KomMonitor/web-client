@@ -1,0 +1,87 @@
+<app-georesource-element
+  [title]="dataset.datasetName ?? ''"
+  [description]="dataset.metadata?.description"
+  [selected]="dataset.isSelected ?? false"
+  [level]="level"
+  (rowClick)="onToggle()"
+>
+  @if (exportMode.exportMode()) {
+    <app-export-item-checkbox
+      georesourceElementBeforeToggle
+      kind="georessource"
+      [dataset]="exportMode.toExportGeoresource(dataset)"
+    ></app-export-item-checkbox>
+  }
+
+  <ng-container georesourceElementLeading>
+    <i class="{{ symbolIconClass[kind] }} vector-element__symbol" aria-hidden="true"></i>
+    @if (kind === 'poi') {
+      <div
+        class="vector-element__legend awesome-marker-legend awesome-marker-legend-icon-{{
+          dataset.poiMarkerColor
+        }}"
+      >
+        @if (!dataset.poiMarkerStyle || dataset.poiMarkerStyle === 'symbol') {
+          <span
+            class="vector-element__legend-icon {{
+              dataset.poiSymbolBootstrap3Name | iconTranslate
+            }}"
+            [ngStyle]="{ color: dataset.poiSymbolColor }"
+            aria-hidden="true"
+          ></span>
+        } @else {
+          <span class="vector-element__legend-text" [ngStyle]="{ color: dataset.poiSymbolColor }">{{
+            dataset.poiMarkerText
+          }}</span>
+        }
+      </div>
+    } @else {
+      <i
+        class="poiColorLegend vector-element__legend"
+        [ngStyle]="{ background: legendColor, display: 'inherit' }"
+      ></i>
+    }
+  </ng-container>
+
+  @if (dataset.isSelected) {
+    <i
+      georesourceElementAfterTitle
+      class="fas fa-search-location vector-element__zoom"
+      title="Auf Layer zoomen"
+      (click)="onZoom($event)"
+    ></i>
+  }
+
+  @if (showPerDatasetDateColumn) {
+    <select
+      class="vector-element__date form-control"
+      [(ngModel)]="dataset.selectedDate"
+      (change)="selectedDateChange.emit(dataset)"
+      required
+    >
+      @for (date of dataset.availablePeriodsOfValidity; track date) {
+        <option [ngValue]="date">{{ date.startDate }}</option>
+      }
+    </select>
+  }
+
+  <span class="vector-element__actions">
+    @if (exportButtonVisibility.showGeoresourceExportButtons) {
+      <i
+        class="fas fa-file-download vector-element__action"
+        (click)="exportGeoresource.emit(dataset)"
+        title="Download Features as GeoJSON"
+      ></i>
+      <i
+        class="fas fa-file-export vector-element__action"
+        (click)="metadataExportService.downloadMetadataPDF_georesource(dataset)"
+        title="Download Metadata PDF"
+      ></i>
+    }
+    <app-favorite-star
+      [visible]="showFavSelection"
+      [isFavorite]="isFavorite"
+      (toggled)="favToggled.emit(dataset.georesourceId)"
+    ></app-favorite-star>
+  </span>
+</app-georesource-element>

@@ -6,13 +6,16 @@ import {
   GeoresourcesDataset,
   GeoresourcesTopicsHierarchy,
 } from 'components/ngComponents/models/georesources.models';
-import { GeoresourceDatasetTableComponent } from '../georesource-dataset-table/georesource-dataset-table.component';
+import { GeoresourceVectorElementComponent } from '../georesource-vector-element/georesource-vector-element.component';
+import { GeoresourceWmsElementComponent } from '../georesource-wms-element/georesource-wms-element.component';
+import { GeoresourceWfsElementComponent } from '../georesource-wfs-element/georesource-wfs-element.component';
 
 /**
  * Renders the georesource topic hierarchy recursively (arbitrary depth) instead
  * of the previously hand-unrolled four levels. Each node shows a collapsible
- * header and, when it carries own datasets, the shared
- * {@link GeoresourceDatasetTableComponent}.
+ * header and, when it carries own datasets, a card-style row per dataset
+ * (`app-georesource-vector-element` for POI/LOI/AOI, plus the WMS/WFS
+ * counterparts).
  *
  * Collapse state is owned by this component (mirroring the indicators
  * `app-topic-tree`); topic/dataset side effects are delegated to the parent via
@@ -23,7 +26,14 @@ import { GeoresourceDatasetTableComponent } from '../georesource-dataset-table/g
   templateUrl: './georesource-topic-tree.component.html',
   styleUrls: ['./georesource-topic-tree.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, GeoresourceDatasetTableComponent, TopicElementComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    GeoresourceVectorElementComponent,
+    GeoresourceWmsElementComponent,
+    GeoresourceWfsElementComponent,
+    TopicElementComponent,
+  ],
 })
 export class GeoresourceTopicTreeComponent implements OnChanges {
   @Input() topics: GeoresourcesTopicsHierarchy[] = [];
