@@ -19,14 +19,23 @@
         laden
       </button>
     } @else {
-      <img [src]="ogcService.buildLegendUrl(dataset.url, dataset.layerName)" />
+      <img
+        [src]="
+          ogcService.buildLegendUrl(
+            dataset.connectionDetails?.baseUrl,
+            dataset.connectionDetails?.layerName
+          )
+        "
+      />
     }
   </span>
 
   <span class="wms-element__actions">
-    @if (exportButtonVisibility.showGeoresourceExportButtons && dataset.url) {
+    @if (
+      exportButtonVisibility.showGeoresourceExportButtons && dataset.connectionDetails?.baseUrl
+    ) {
       <a
-        [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
+        [href]="ogcService.buildGetCapabilitiesUrl(dataset.connectionDetails?.baseUrl)"
         class="wms-element__action"
         title="WMS GetCapabilities URL"
         rel="noopener noreferrer"

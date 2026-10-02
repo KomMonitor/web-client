@@ -9,17 +9,15 @@ import {
   GeoresourcesDataset,
   GeoresourcesTopicsHierarchy,
 } from 'components/ngComponents/models/georesources.models';
-import { ExportItemCheckboxComponent } from 'components/ngComponents/userInterface/exporting/export-item-checkbox/export-item-checkbox.component';
 import { ExportingStateService } from 'components/ngComponents/userInterface/exporting/exporting-state.service';
 import { GeoresourceExportModeService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-export-mode.service';
 import { GeoresourceFavoritesService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-favorites.service';
 import { GeoresourceLayerService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-layer.service';
+import { GeoresourceVectorElementComponent } from 'components/ngComponents/userInterface/sidebar/poi/georesource-vector-element/georesource-vector-element.component';
+import { GeoresourceWmsElementComponent } from 'components/ngComponents/userInterface/sidebar/poi/georesource-wms-element/georesource-wms-element.component';
+import { GeoresourceWfsElementComponent } from 'components/ngComponents/userInterface/sidebar/poi/georesource-wfs-element/georesource-wfs-element.component';
 import { GeoFavFilter } from 'pipes/georesources-fav-filter.pipe';
 import { GeoFavItemFilter } from 'pipes/georesources-fav-item-filter.pipe';
-import { IconTranslate } from 'pipes/icon-translate.pipe';
-import { ExportButtonVisibilityService } from 'services/export-button-visibility-service/export-button-visibility.service';
-import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
-import { OgcService } from 'services/ogcServices/ogc.service';
 import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
 
 /**
@@ -39,17 +37,15 @@ import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-servi
     FormsModule,
     GeoFavFilter,
     GeoFavItemFilter,
-    IconTranslate,
-    ExportItemCheckboxComponent,
+    GeoresourceVectorElementComponent,
+    GeoresourceWmsElementComponent,
+    GeoresourceWfsElementComponent,
     TopicElementComponent,
   ],
 })
 export class GeoresourceFavTabComponent {
   protected favoritesService = inject(GeoresourceFavoritesService);
   protected layerService = inject(GeoresourceLayerService);
-  protected exportButtonVisibility = inject(ExportButtonVisibilityService);
-  protected metadataExportService = inject(MetadataExportService);
-  protected ogcService = inject(OgcService);
   protected exportMode = inject(GeoresourceExportModeService);
   private exportState = inject(ExportingStateService);
   private topicHierarchyStore = inject(TopicHierarchyStoreService);
@@ -175,6 +171,14 @@ export class GeoresourceFavTabComponent {
     for (const dataset of relevantWmsDatasets) {
       dataset.isSelected = selected;
       this.layerService.handleWmsOnMap(dataset);
+    }
+
+    const relevantWfsDatasets = selected
+      ? entries.wfsData
+      : entries.wfsData.filter((d) => d.isSelected);
+    for (const dataset of relevantWfsDatasets) {
+      dataset.isSelected = selected;
+      this.layerService.handleWfsOnMap(dataset);
     }
   }
 }

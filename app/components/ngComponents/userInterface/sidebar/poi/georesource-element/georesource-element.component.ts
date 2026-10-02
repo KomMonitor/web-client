@@ -64,7 +64,7 @@ export class GeoresourceElementComponent {
   protected mousePosX = '0px';
   protected mousePosY = '0px';
   private readonly tooltipOffsetX = 20;
-  private readonly tooltipOffsetY = -100;
+  private readonly tooltipOffsetY = -50;
 
   @HostListener('mousemove', ['$event']) onMouseMove(event: MouseEvent): void {
     this.mousePosX = `${event.clientX + this.tooltipOffsetX}px`;
