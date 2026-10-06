@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ApplicationRef, Component, OnInit, inject } from '@angular/core';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import * as echarts from 'echarts';
 import * as docx from 'docx';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
@@ -25,7 +26,7 @@ import {
   standalone: true,
   templateUrl: './reporting-overview.component.html',
   styleUrls: ['./reporting-overview.component.scss'],
-  imports: [CommonModule, SafeHtmlPipe],
+  imports: [CommonModule, SafeHtmlPipe, DragDropModule],
 })
 export class ReportingOverviewComponent implements OnInit {
   private mapErrorNotificationService = inject(MapErrorNotificationService);
@@ -54,20 +55,10 @@ export class ReportingOverviewComponent implements OnInit {
 
   mercatorProjection_d3: any = d3.geoMercator();
 
-  templateBlank: any;
-
   loadingData = false;
   loadingReport = false;
   echartsImgPixelRatio = 2;
   pxPerMilli;
-
-  sections = []; // one section per page for now, since this is an easy way to create page breaks
-
-  sortableConfig = {
-    onEnd: function (e) {
-      // nothing for now, config elements get reordered automatically
-    },
-  };
 
   workflowState = WorkflowState;
 
@@ -256,86 +247,6 @@ export class ReportingOverviewComponent implements OnInit {
     this.reportingService.changeWorkflowState(this.workflowState.templateSelect);
   }
 
-  reportingIndicatorConfigurationCompleted([indicator, template, templateBlank]) {
-    /* 	this.loadingData = true;
-      this.reportingService.workingTemplate = template;
-      this.templateBlank = templateBlank;
-			
-			let templateSection = {
-				indicatorName: indicator ? indicator.indicatorName : "",
-				indicatorId: indicator ? indicator.indicatorId : "",
-				poiLayerName: "",
-				spatialUnitName: template.spatialUnitName,
-				absoluteLabelPositions: template.absoluteLabelPositions,
-				echartsRegisteredMapNames: template.echartsRegisteredMapNames,
-				echartsMaps: [],
-				pageConfig: jQuery.extend(true, {}, template.pageConfig) // deep copy to preserve section specific settings
-			}
-			for(let page of template.pages) {
-				page.templateSection = templateSection;
-			}
-			// remove the placeholder template if this is the first section that gets added)
-			this.reportingService.workingTemplate.pages =  this.reportingService.workingTemplate.pages.filter( page => {
-				if(page.hasOwnProperty("templateSection")) {
-					return page.templateSection.hasOwnProperty("indicatorName");
-				} else {
-					return false;
-				}
-			});
-			// append to array
-			//this.reportingService.workingTemplate.pages.push(...template.pages);
-
-      let exists = this.reportingService.config.templateSections.filter(e => e.indicatorId==indicator.indicatorId);
-      if(exists.length==0)
-			  this.reportingService.config.templateSections.push(templateSection);
-				
-			// setup pages after dom exists
-			// at this point we still have all the echarts maps registered
-			this.setupNewPages(this.reportingService.config.templateSections.at(-1)); */
-  }
-
-  reportingPoiLayerConfigurationCompleted([poiLayer, indicator, template, templateBlank]) {
-    this.loadingData = true;
-    //this.reportingService.workingTemplate = template;
-    this.templateBlank = templateBlank;
-
-    // add indicator to 'added indicators'
-    const templateSection = {
-      indicatorName: indicator ? indicator.indicatorName : '',
-      indicatorId: indicator ? indicator.indicatorId : '',
-      poiLayerName: poiLayer.datasetName,
-      spatialUnitName: template.spatialUnitName,
-      absoluteLabelPositions: template.absoluteLabelPositions,
-      echartsRegisteredMapNames: template.echartsRegisteredMapNames,
-      echartsMaps: [],
-      isochronesRangeType: template.isochronesRangeType,
-      isochronesRangeUnits: template.isochronesRangeUnits,
-      pageConfig: jQuery.extend(true, {}, template.pageConfig), // deep copy to preserve section specific settings
-    };
-    for (const page of template.pages) {
-      page.templateSection = templateSection;
-    }
-    // remove all pages without property poiLayerName (clean template)
-    this.reportingService.workingTemplate.pages =
-      this.reportingService.workingTemplate.pages.filter((page) => {
-        if (Object.prototype.hasOwnProperty.call(page, 'templateSection')) {
-          return Object.prototype.hasOwnProperty.call(page.templateSection, 'poiLayerName');
-        } else {
-          return false;
-        }
-      });
-    // append to array
-    //this.reportingService.workingTemplate.pages.push(...template.pages);
-
-    /* let exists = this.reportingService.config.templateSections.filter(e => e.poiLayerName==poiLayer.datasetName);
-      if(exists.length==0)
-        this.reportingService.config.templateSections.push(templateSection);
-        
-      // setup pages after dom exists
-      // at this point we still have all the echarts maps registered
-      this.setupNewPages(this.reportingService.config.templateSections.at(-1)); */
-  }
-
   reorderTemplateSections(newVal, oldVal) {
     if (newVal.length < oldVal.length) {
       // removed
@@ -376,6 +287,27 @@ export class ReportingOverviewComponent implements OnInit {
     }
   }
 
+  // only one of indicators/georesources is ever populated for a given template (see
+  // onAddBtnClicked in indicator-add.component.ts), but concatenating both keeps this correct
+  // either way and matches the order the two @for blocks render in the sidebar list
+  onSectionListDropped(event: CdkDragDrop<any[]>) {
+    const indicators = this.reportingService.templateSections.indicators;
+    const georesources = this.reportingService.templateSections.georesources;
+    const oldOrder = [...indicators, ...georesources];
+    const newOrder = [...oldOrder];
+    moveItemInArray(newOrder, event.previousIndex, event.currentIndex);
+
+    this.reorderTemplateSections(newOrder, oldOrder);
+
+    this.reportingService.setValue({
+      ...this.reportingService.currentValue,
+      sections: {
+        indicators: newOrder.filter((section) => indicators.includes(section)),
+        georesources: newOrder.filter((section) => georesources.includes(section)),
+      },
+    });
+  }
+
   getNumberOfMapElements(config) {
     const firstSection = config.templateSections[0];
 
@@ -392,7 +324,7 @@ export class ReportingOverviewComponent implements OnInit {
     }
   }
 
-  importConfig() {
+  async importConfig() {
     try {
       const config = this.reportingService.importConfig;
 
@@ -462,9 +394,8 @@ export class ReportingOverviewComponent implements OnInit {
           }
         }
 
-        for (const section of this.reportingService.getSectionsAsArray()) {
-          this.setupPages();
-        }
+        // setupPages() already iterates every indicator/georesource section itself
+        await this.setupPages();
       }
     } catch (error: any) {
       console.error(error);
@@ -476,13 +407,13 @@ export class ReportingOverviewComponent implements OnInit {
   async setupPages() {
     this.loadingData = true;
 
-    this.reportingService.templateSections.indicators.forEach(async (indicator) => {
+    for (const indicator of this.reportingService.templateSections.indicators) {
       await this.setupIndicatorPages(indicator);
-    });
+    }
 
-    this.reportingService.templateSections.georesources.forEach(async (georesource) => {
+    for (const georesource of this.reportingService.templateSections.georesources) {
       await this.setupPagesForReachability(georesource);
-    });
+    }
 
     this.loadingData = false;
   }
@@ -736,6 +667,9 @@ export class ReportingOverviewComponent implements OnInit {
         page.generatedData.tableData = pageElement.tableData;
       }
     }
+
+    page.generatedData.isComplete = true;
+    this.reportingService.reportingBackgroundState.pageToProcess_overview = undefined;
   }
 
   filterMapByArea(echartsInstance, echartsInstanceOptions, areaName, allFeatures) {
@@ -809,6 +743,7 @@ export class ReportingOverviewComponent implements OnInit {
       spatialUnit = await this.getSpatialUnitByName(templateSection.spatialUnitName);
       featureCollection = await this.queryFeatures(undefined, spatialUnit);
     }
+    this.currentSpatialUnit = spatialUnit;
 
     features = this.createLowerCaseNameProperty(featureCollection.features);
     geoJSON = { features: features };
@@ -1168,6 +1103,7 @@ export class ReportingOverviewComponent implements OnInit {
     const table = document.createElement('table');
     table.classList.add('table-striped');
     table.classList.add('table-bordered');
+    table.classList.add('table-position');
 
     const thead = document.createElement('thead');
     const tbody = document.createElement('tbody');
@@ -1220,9 +1156,9 @@ export class ReportingOverviewComponent implements OnInit {
   }
 
   showThisPage(page) {
-    /* if(page.hidden){
-				return false;
-			} */
+    if (page.hidden) {
+      return false;
+    }
 
     let pageWillBeShown = false;
     for (const visiblePage of this.filterPagesToShow()) {
@@ -1379,21 +1315,6 @@ export class ReportingOverviewComponent implements OnInit {
     const seconds: any = date.getSeconds();
     const now = ''.concat(year, '-', month, '-', day, '_', time, '-', minutes, '-', seconds);
     return now;
-  }
-
-  getIndicatorByName(indicatorName) {
-    let result;
-    for (const indicator of this.indicatorStore.availableIndicators) {
-      if (indicator.indicatorName === indicatorName) {
-        result = indicator;
-        break;
-      }
-    }
-    if (result) {
-      return result;
-    } else {
-      throw new Error('No indicator could be found for name: ' + indicatorName);
-    }
   }
 
   // async

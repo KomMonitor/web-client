@@ -25,7 +25,6 @@ export class LeafletScreenshotCacheHelperService {
   indexedDB!: IDBDatabase;
   indexedDbCount;
 
-  argetNumberOfSpatialUnitFeatures = 0;
   screenshotsForCurrentSpatialUnitUpdate = true;
   executedScreenshotMapKeys = new Map();
   logProgressIndexSeparator;
@@ -42,7 +41,6 @@ export class LeafletScreenshotCacheHelperService {
     request.onupgradeneeded = (event: any) => this.recreateStoreOnUpgrade(event);
     request.onsuccess = (event: any) => {
       this.indexedDB = event.target.result;
-      console.log('Database initialized successfully');
     };
     request.onerror = (event: any) => {
       console.error('Error initializing database:', event.target.error);
@@ -317,15 +315,18 @@ export class LeafletScreenshotCacheHelperService {
     const store = tx.objectStore(this.storeName);
     const clearRequest = store.clear();
 
-    clearRequest.onsuccess = (_event) => {
-      this.resetCounter_keepingCurrentTargetFeatures(true);
-      this.indexedDbCount = 0;
-    };
+    await new Promise<void>((resolve, reject) => {
+      clearRequest.onsuccess = () => {
+        this.resetCounter_keepingCurrentTargetFeatures(true);
+        this.indexedDbCount = 0;
+        resolve();
+      };
 
-    clearRequest.onerror = (event: any) => {
-      console.error('Error clearing store:', event.target.errorCode);
-      throw new Error('Error clearing store');
-    };
+      clearRequest.onerror = (event: any) => {
+        console.error('Error clearing store:', event.target.errorCode);
+        reject(new Error('Error clearing store'));
+      };
+    });
   }
 
   async getScreenshotCountFromIndexedDB() {
@@ -347,23 +348,14 @@ export class LeafletScreenshotCacheHelperService {
   async saveScreenshotInIndexedDB(key, data) {
     const tx = this.indexedDB.transaction([this.storeName], 'readwrite');
     const store = tx.objectStore(this.storeName);
-    await store.put(data, key);
+    const putRequest = store.put(data, key);
+
+    await new Promise<void>((resolve, reject) => {
+      putRequest.onsuccess = () => resolve();
+      putRequest.onerror = (event: any) => reject(event.target.error);
+    });
+
     this.getScreenshotCountFromIndexedDB();
-  }
-
-  async loadScreenshotFromIndexedDB(cacheKey) {
-    const tx = this.indexedDB.transaction([this.storeName], 'readonly');
-    const store = tx.objectStore(this.storeName);
-    const req = store.get(cacheKey);
-
-    req.onsuccess = () => {
-      const compressed = req.result;
-      const decompressed = pako.inflate(compressed);
-      const blob = new Blob([decompressed], { type: 'image/png' });
-
-      const url = URL.createObjectURL(blob);
-      return url;
-    };
   }
 
   async loadScreenshotsFromIndexedDB() {

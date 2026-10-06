@@ -173,15 +173,6 @@ export class GenerateReportComponent implements OnInit {
       ],
     });
 
-    // 2. Add a Slide to the presentation
-    const slide = doc.addSlide({ masterName: 'TEMPLATE_SLIDE' });
-    // 3. Add 1+ objects (Tables, Shapes, etc.) to the Slide
-    slide.addText('Einwohner [Anzahl]', { placeholder: 'slide_title' });
-    slide.addText('2022-12-31', { placeholder: 'slide_subtitle' });
-    slide.addText('Erstellt am 2022-12-31 von M.Mustermann, Testkommune', {
-      placeholder: 'slide_footer',
-    });
-
     // Pages
 
     for (const [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
@@ -1024,12 +1015,24 @@ export class GenerateReportComponent implements OnInit {
         continue;
       }
 
+      const pageConfig: ConfigData = page.templateSection.pageConfig;
+
       for (const pageElement of page.pageElements) {
         if (
           pageElement.type === 'map' ||
           pageElement.type === 'barchart' ||
           pageElement.type === 'linechart'
         ) {
+          if (
+            page.type == 'area_specific' &&
+            ((pageElement.type === 'barchart' &&
+              !pageConfig.sectionContentControl.showRankingChartPerArea) ||
+              (pageElement.type === 'linechart' &&
+                !pageConfig.sectionContentControl.showLineChartPerArea))
+          ) {
+            continue;
+          }
+
           const key =
             pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '');
           let imageDataUrl =
@@ -1061,19 +1064,15 @@ export class GenerateReportComponent implements OnInit {
           if (pageElement.type === 'linechart' && pageElement.showPercentageChangeToPrevTimestamp) {
             filename = filename.replace('.png', '-proz.Veraenderung.png');
           }
-          zip.file(filename, this.dataURItoBlob2(imageDataUrl));
+          zip.file(filename, this.dataURItoBlob(imageDataUrl));
         }
       }
     }
 
     const zipFileName = this.getCurrentDateAndTime() + '_Kommonitor-Report-Grafiken';
-    zip.generateAsync({ type: 'blob' }).then((content) => {
-      saveAs(content, zipFileName + '.zip');
-      this.loadingData = false;
-      /* setTimeout(function(){
-        this.$digest();
-      }); */
-    });
+    const content = await zip.generateAsync({ type: 'blob' });
+    saveAs(content, zipFileName + '.zip');
+    this.loadingData = false;
   }
 
   async generateWordReport() {
@@ -1387,154 +1386,6 @@ export class GenerateReportComponent implements OnInit {
             paragraphs.push(paragraph);
             break;
           }
-
-          //June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
-
-          // case "overallAverage":
-          // case "selectionAverage": {
-          // 	let paragraph = new docx.Paragraph({
-          // 		children: [
-          // 			new docx.TextRun({
-          // 				text: "Durchschnitt",
-          // 				font: font,
-          // 				size: 28  // 14pt
-          // 			}),
-          // 			new docx.TextRun({
-          // 				text: pageElement.type === "overallAverage" ? "Gesamtstadt" : "Selektion",
-          // 				size: 28,
-          // 				font: font,
-          // 				break: 1,  // 14pt
-          // 			}),
-          // 			new docx.TextRun({
-          // 				text: pageElement.text.toString(),
-          // 				size: 28,
-          // 				font: font,
-          // 				break: 1  // 14pt
-          // 			})
-          // 		],
-          // 		frame: {
-          // 			position: {
-          // 				x: pageElementDimensionsTwip.left,
-          // 				y: pageElementDimensionsTwip.top,
-          // 			},
-          // 			width: pageElementDimensionsTwip.width,
-          // 			height: pageElementDimensionsTwip.height,
-          // 			anchor: {
-          // 				horizontal: docx.FrameAnchorType.MARGIN,
-          // 				vertical: docx.FrameAnchorType.MARGIN,
-          // 			},
-          // 			alignment: {
-          // 				x: docx.HorizontalPositionAlign.LEFT,
-          // 				y: docx.VerticalPositionAlign.TOP,
-          // 			}
-          // 		},
-          // 		border: {
-          // 			top: {
-          // 				color: "#949494", // gray
-          // 				space: 1,
-          // 				style: docx.BorderStyle.SINGLE,
-          // 				size: 6
-          // 			},
-          // 			right: {
-          // 				color: "#949494",
-          // 				space: 1,
-          // 				style: docx.BorderStyle.SINGLE,
-          // 				size: 6
-          // 			},
-          // 			bottom: {
-          // 				color: "#949494",
-          // 				space: 1,
-          // 				style: docx.BorderStyle.SINGLE,
-          // 				size: 6
-          // 			},
-          // 			left: {
-          // 				color: "#949494",
-          // 				space: 1,
-          // 				style: docx.BorderStyle.SINGLE,
-          // 				size: 6
-          // 			},
-          // 		}
-          // 	});
-
-          // 	paragraphs.push(paragraph);
-          // 	break;
-          // }
-          // case "overallChange":
-          // case "selectionChange": {
-          // 	let paragraph = new docx.Paragraph({
-          // 		children: [
-          // 			new docx.TextRun({
-          // 				text: "Durchschnittliche",
-          // 				font: font,
-          // 				size: 28  // 14pt
-          // 			}),
-          // 			new docx.TextRun({
-          // 				text: "Veränderung",
-          // 				font: font,
-          // 				break: 1,
-          // 				size: 28  // 14pt
-          // 			}),
-          // 			new docx.TextRun({
-          // 				text: pageElement.type === "overallChange" ? "Gesamtstadt" : "Selektion",
-          // 				break: 1,
-          // 				font: font,
-          // 				size: 28  // 14pt
-          // 			}),
-          // 			new docx.TextRun({
-          // 				text: pageElement.text.toString(),
-          // 				break: 1,
-          // 				font: font,
-          // 				size: 28  // 14pt
-
-          // 			})
-          // 		],
-          // 		frame: {
-          // 			position: {
-          // 				x: pageElementDimensionsTwip.left,
-          // 				y: pageElementDimensionsTwip.top,
-          // 			},
-          // 			width: pageElementDimensionsTwip.width,
-          // 			height: pageElementDimensionsTwip.height,
-          // 			anchor: {
-          // 				horizontal: docx.FrameAnchorType.MARGIN,
-          // 				vertical: docx.FrameAnchorType.MARGIN,
-          // 			},
-          // 			alignment: {
-          // 				x: docx.HorizontalPositionAlign.LEFT,
-          // 				y: docx.VerticalPositionAlign.TOP,
-          // 			}
-          // 		},
-          // 		border: {
-          // 			top: {
-          // 				color: "#949494", // gray
-          // 				space: 1,
-          // 				style: docx.BorderStyle.SINGLE,
-          // 				size: 6
-          // 			},
-          // 			right: {
-          // 				color: "#949494",
-          // 				space: 1,
-          // 				style: docx.BorderStyle.SINGLE,
-          // 				size: 6
-          // 			},
-          // 			bottom: {
-          // 				color: "#949494",
-          // 				space: 1,
-          // 				style: docx.BorderStyle.SINGLE,
-          // 				size: 6
-          // 			},
-          // 			left: {
-          // 				color: "#949494",
-          // 				space: 1,
-          // 				style: docx.BorderStyle.SINGLE,
-          // 				size: 6
-          // 			},
-          // 		}
-          // 	});
-
-          // 	paragraphs.push(paragraph);
-          // 	break;
-          // }
           case 'textInput': {
             if (!pageConfig.sectionContentControl.showFreeText) {
               // skip
@@ -1573,8 +1424,6 @@ export class GenerateReportComponent implements OnInit {
             const tableDom: any = document.querySelector(
               '#reporting-overview-page-' + idx + '-' + pageElement.type + ' table'
             );
-            const headerFieldsDom = tableDom.querySelectorAll('thead th');
-            const tableRowsDom = tableDom.querySelectorAll('tbody tr');
 
             // table to create
             const table: any = {
@@ -1588,11 +1437,9 @@ export class GenerateReportComponent implements OnInit {
             };
             const headerFields: any = [];
             const headerFieldNames: any = [];
-            for (const fieldDom of headerFieldsDom) {
-              const widthInTwip = this.pxToTwip(fieldDom.offsetWidth);
-              const fieldContent = fieldDom.innerText;
-              headerFieldNames.push(fieldContent);
-              const field: any = new docx.TableCell({
+
+            const makeHeaderCell = (fieldContent: string, widthInTwip: number) =>
+              new docx.TableCell({
                 width: {
                   size: widthInTwip,
                   type: docx.WidthType.DXA,
@@ -1611,45 +1458,82 @@ export class GenerateReportComponent implements OnInit {
                   }),
                 ],
               });
-              headerFields.push(field);
-              table.columnWidths.push(widthInTwip);
-            }
 
-            const headerRow = new docx.TableRow({
-              children: headerFields,
-            });
-
-            table.rows.push(headerRow);
-
-            for (const rowDom of tableRowsDom) {
-              // excluding header
-              const fieldsDom = rowDom.querySelectorAll('td');
-              const fields: any = [];
-              for (const [idx, fieldDom] of fieldsDom.entries()) {
-                const fieldContent = fieldDom.innerText;
-                const paragraph = new docx.Paragraph({
-                  text: fieldContent,
-                  alignment:
-                    headerFieldNames[idx] === 'Wert'
-                      ? docx.AlignmentType.RIGHT
-                      : headerFieldNames[idx] === 'Zeitpunkt'
-                        ? docx.AlignmentType.CENTER
-                        : docx.AlignmentType.LEFT, // "Bereich"
-                });
-                const field = new docx.TableCell({
-                  width: {
-                    size: table.columnWidths[idx],
-                    type: docx.WidthType.DXA,
-                  },
-                  verticalAlign: docx.VerticalAlign.CENTER,
-                  children: [paragraph],
-                });
-                fields.push(field);
-              }
-              const row = new docx.TableRow({
-                children: fields,
+            const makeDataCell = (fieldContent: string, widthInTwip: number, headerName: string) =>
+              new docx.TableCell({
+                width: {
+                  size: widthInTwip,
+                  type: docx.WidthType.DXA,
+                },
+                verticalAlign: docx.VerticalAlign.CENTER,
+                children: [
+                  new docx.Paragraph({
+                    text: fieldContent,
+                    alignment:
+                      headerName === 'Wert'
+                        ? docx.AlignmentType.RIGHT
+                        : headerName === 'Zeitpunkt'
+                          ? docx.AlignmentType.CENTER
+                          : docx.AlignmentType.LEFT, // "Bereich"
+                  }),
+                ],
               });
-              table.rows.push(row);
+
+            if (tableDom) {
+              const headerFieldsDom = tableDom.querySelectorAll('thead th');
+              const tableRowsDom = tableDom.querySelectorAll('tbody tr');
+
+              for (const fieldDom of headerFieldsDom) {
+                const widthInTwip = this.pxToTwip(fieldDom.offsetWidth);
+                const fieldContent = fieldDom.innerText;
+                headerFieldNames.push(fieldContent);
+                headerFields.push(makeHeaderCell(fieldContent, widthInTwip));
+                table.columnWidths.push(widthInTwip);
+              }
+              table.rows.push(new docx.TableRow({ children: headerFields }));
+
+              for (const rowDom of tableRowsDom) {
+                // excluding header
+                const fieldsDom = rowDom.querySelectorAll('td');
+                const fields: any = [];
+                for (const [cellIdx, fieldDom] of fieldsDom.entries()) {
+                  fields.push(
+                    makeDataCell(
+                      fieldDom.innerText,
+                      table.columnWidths[cellIdx],
+                      headerFieldNames[cellIdx]
+                    )
+                  );
+                }
+                table.rows.push(new docx.TableRow({ children: fields }));
+              }
+            } else {
+              // page beyond the live preview DOM (MAX_PREVIEW_DATATABLE_PAGES) -- fall back to the
+              // captured data like PDF/PPTX already do, with evenly distributed column widths
+              // since there's no rendered DOM to measure
+              const tableData = page.generatedData?.tableData || pageElement.tableData || [];
+              const columnNames = pageElement.columnNames || [];
+              const evenWidthInTwip = columnNames.length
+                ? Math.floor(pageElementDimensionsTwip.width / columnNames.length)
+                : 0;
+
+              for (const colName of columnNames) {
+                headerFieldNames.push(colName);
+                headerFields.push(makeHeaderCell(colName, evenWidthInTwip));
+                table.columnWidths.push(evenWidthInTwip);
+              }
+              table.rows.push(new docx.TableRow({ children: headerFields }));
+
+              for (const row of tableData) {
+                const fields: any = row.map((cell, cellIdx) =>
+                  makeDataCell(
+                    cell != null ? cell.toString() : '',
+                    table.columnWidths[cellIdx],
+                    headerFieldNames[cellIdx]
+                  )
+                );
+                table.rows.push(new docx.TableRow({ children: fields }));
+              }
             }
 
             paragraphs.push(new docx.Table(table)); // technically this is not a paragraph, but we only add it as a child of section below
@@ -1691,13 +1575,9 @@ export class GenerateReportComponent implements OnInit {
 
     const filename = this.getCurrentDateAndTime() + '_KomMonitor-Report';
     // Used to export the file into a .docx file
-    docx.Packer.toBlob(doc).then((blob) => {
-      saveAs(blob, filename + '.docx');
-      this.loadingData = false;
-      /*  setTimeout(function(){
-        this.$digest();
-      }); */
-    });
+    const blob = await docx.Packer.toBlob(doc);
+    saveAs(blob, filename + '.docx');
+    this.loadingData = false;
   }
 
   dataURItoBlob(dataURI) {
@@ -1722,19 +1602,6 @@ export class GenerateReportComponent implements OnInit {
     // write the ArrayBuffer to a blob, and you're done
     //var blob = new Blob([ab], {type: mimeString});
     return ia;
-  }
-
-  dataURItoBlob2(dataURI) {
-    const byteString = atob(dataURI.split(',')[1]);
-    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
-    }
-
-    return new Blob([ab], { type: mimeString });
   }
 
   pxToTwip(px) {

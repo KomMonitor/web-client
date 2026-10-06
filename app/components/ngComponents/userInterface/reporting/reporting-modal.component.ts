@@ -38,10 +38,6 @@ export class ReportingModalComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.reportingService.reportingModalOpen = true;
-
-    this.reportingService.reportingData$.subscribe((val) => {
-      console.log('Wert geändert:', val);
-    });
   }
 
   ngOnDestroy() {

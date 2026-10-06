@@ -18,11 +18,11 @@
               id="reporting-configureIndicatorBtn"
               class="btn btn-success"
               (click)="onConfigureNewIndicatorClicked()"
-              (disabled)="
-                (loadingData ||
-                  (!lastPageOfAddedSectionPrepared && pagePreparationSize > 0) ||
-                  (!leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate &&
-                    leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0))
+              [disabled]="
+                loadingData ||
+                (!lastPageOfAddedSectionPrepared && pagePreparationSize > 0) ||
+                (!leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate &&
+                  leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0)
               "
             >
               <i class="fa fa-plus"></i>
@@ -34,11 +34,11 @@
               id="reporting-configurePoiLayerrBtn"
               class="btn btn-success"
               (click)="onConfigureNewPoiLayerClicked()"
-              (disabled)="
-                (loadingData ||
-                  (!lastPageOfAddedSectionPrepared && pagePreparationSize > 0) ||
-                  (!leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate &&
-                    leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0))
+              [disabled]="
+                loadingData ||
+                (!lastPageOfAddedSectionPrepared && pagePreparationSize > 0) ||
+                (!leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate &&
+                  leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0)
               "
             >
               <i class="fa fa-plus"></i>
@@ -52,13 +52,13 @@
             Hinzugefügte POI-Layer
           </h3>
           <p>Die Reihenfolge kann über Drag-and-Drop verändert werden.</p>
-          <div class="list-group" ng-sortable="sortableConfig">
+          <div class="list-group" cdkDropList (cdkDropListDropped)="onSectionListDropped($event)">
             @for (
               section of reportingService.templateSections.indicators;
               track section;
               let i = $index
             ) {
-              <div>
+              <div cdkDrag>
                 <hr class="reporting-hr-divider" />
                 <div class="row row-no-gutters reporting-added-templateSections-row">
                   <div class="col-sm-11">
@@ -78,7 +78,7 @@
               track section;
               let i = $index
             ) {
-              <div>
+              <div cdkDrag>
                 <hr class="reporting-hr-divider" />
                 <div class="row row-no-gutters reporting-added-templateSections-row">
                   <div class="col-sm-11">
@@ -172,7 +172,6 @@
                           <!-- do different things depending on type once the placeholder is replaced (pageElement.isPlaceholder == false) -->
                           <span
                             [hidden]="
-                              !reportingService.config.headerFooterControl.showPageNumber ||
                               !(
                                 pageElement.type.includes('pageNumber-') &&
                                 pageElement.isPlaceholder == false
@@ -184,7 +183,6 @@
                           </span>
                           <span
                             [hidden]="
-                              !reportingService.config.headerFooterControl.showFooterCreationInfo ||
                               !(
                                 pageElement.type.includes('footerCreationInfo-') &&
                                 pageElement.isPlaceholder == false
@@ -196,7 +194,6 @@
                           </span>
                           <span
                             [hidden]="
-                              !reportingService.config.sectionContentControl.showFreeText ||
                               !(
                                 pageElement.type === 'textInput' &&
                                 pageElement.isPlaceholder == false
@@ -208,7 +205,6 @@
                           </span>
                           <img
                             [hidden]="
-                              !reportingService.config.headerFooterControl.showLogo ||
                               !(
                                 pageElement.type.includes('communeLogo-') &&
                                 pageElement.isPlaceholder == false
@@ -218,7 +214,6 @@
                           />
                           <span
                             [hidden]="
-                              !reportingService.config.headerFooterControl.showTitle ||
                               !(
                                 pageElement.type.includes('indicatorTitle-') &&
                                 pageElement.isPlaceholder == false
@@ -230,7 +225,6 @@
                           </span>
                           <span
                             [hidden]="
-                              !reportingService.config.headerFooterControl.showSubtitle ||
                               !(
                                 pageElement.type.includes('dataTimestamp-') &&
                                 pageElement.isPlaceholder == false
@@ -242,7 +236,6 @@
                           </span>
                           <span
                             [hidden]="
-                              !reportingService.config.headerFooterControl.showSubtitle ||
                               !(
                                 pageElement.type.includes('dataTimeseries-') &&
                                 pageElement.isPlaceholder == false
@@ -254,7 +247,6 @@
                           </span>
                           <span
                             [hidden]="
-                              !reportingService.config.headerFooterControl.showSubtitle ||
                               !(
                                 pageElement.type.includes('reachability-subtitle-') &&
                                 pageElement.isPlaceholder == false
@@ -264,39 +256,6 @@
                           >
                             {{ pageElement.text }}
                           </span>
-                          <!--
-                          /*
-                          June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
-                          */
-                          -->
-                          <!-- <span [hidden]="!(pageElement.type == 'overallAverage' && pageElement.isPlaceholder == false)"
-                          [style]="pageElement.css ? pageElement.css : ''">
-                          <span style="display: block; text-align:left">
-                            Durchschnitt Gesamtstadt:<br />
-                            {{pageElement.text}}
-                          </span>
-                        </span>
-                        <span [hidden]="!(pageElement.type == 'selectionAverage' && pageElement.isPlaceholder == false)"
-                          [style]="pageElement.css ? pageElement.css : ''">
-                          <span style="display: block; text-align:left">
-                            Durchschnitt Selektion:<br />
-                            {{pageElement.text}}
-                          </span>
-                        </span>
-                        <span [hidden]="!(pageElement.type == 'overallChange' && pageElement.isPlaceholder == false)"
-                          [style]="pageElement.css ? pageElement.css : ''">
-                          <span style="display: block; text-align:left">
-                            Durchschnittliche Veränderung Gesamtstadt:<br />
-                            {{pageElement.text}}
-                          </span>
-                        </span>
-                        <span [hidden]="!(pageElement.type == 'selectionChange' && pageElement.isPlaceholder == false)"
-                          [style]="pageElement.css ? pageElement.css : ''">
-                          <span style="display: block; text-align:left">
-                            Durchschnittliche Veränderung Selektion:<br />
-                            {{pageElement.text}}
-                          </span>
-                        </span> -->
                         </div>
                       }
                     </div>
