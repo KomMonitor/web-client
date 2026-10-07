@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { ApplicationRef, Component, OnInit, inject } from '@angular/core';
+import { ApplicationRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import * as echarts from 'echarts';
 import * as docx from 'docx';
@@ -15,11 +16,20 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { GenerateReportComponent } from '../generate-report/generate-report.component';
 import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import {
   ImportData,
   ReportingService,
   WorkflowState,
 } from 'services/reporting-service/reporting.service';
+import {
+  checkVisibility,
+  countBackgroundPages,
+  createDatatableSkeleton,
+  isLastPreviewPage,
+  isPageInPreview,
+} from 'components/ngComponents/userInterface/reporting/report-preview.utils';
 
 @Component({
   selector: 'app-reporting-overview',
@@ -39,6 +49,8 @@ export class ReportingOverviewComponent implements OnInit {
   protected reportingService = inject(ReportingService);
   private envConfigService = inject(EnvConfigService);
   private appRef = inject(ApplicationRef);
+  private broadcastService = inject(BroadcastService);
+  private destroyRef = inject(DestroyRef);
 
   lastPageOfAddedSectionPrepared = false;
   deviceScreenDpi;
@@ -66,8 +78,29 @@ export class ReportingOverviewComponent implements OnInit {
     this.deviceScreenDpi = this.calculateScreenDpi();
     this.pxPerMilli = this.deviceScreenDpi / 25.4; // /2.54 --> cm, /10 --> mm
 
+    this.broadcastService.currentBroadcastMsg
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((broadcastMsg) => {
+        if (broadcastMsg.msg === BroadcastMessage.AbortReportGeneration) {
+          this.onAbortPreparationClicked();
+        }
+      });
+
     if (!this.reportingService.configImportExists()) this.setupPages();
     else this.importConfig();
+  }
+
+  getPagePreparationPercent(): number {
+    if (!this.pagePreparationSize) return 0;
+    return Math.min(100, Math.max(0, (this.pagePreparationIndex / this.pagePreparationSize) * 100));
+  }
+
+  onAbortPreparationClicked() {
+    this.reportingService.abortPreparation = true;
+    this.reportingService.reportGenerationInProgress = false;
+    this.pagePreparationIndex = 0;
+    this.pagePreparationSize = 0;
+    this.leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate = true;
   }
 
   showReportLoading() {
@@ -87,82 +120,7 @@ export class ReportingOverviewComponent implements OnInit {
   }
 
   checkVisibility(pageElement, page) {
-    if (!page || !page.templateSection || !page.templateSection.pageConfig) {
-      return true;
-    }
-
-    switch (pageElement.type) {
-      case 'indicatorTitle-landscape':
-      case 'indicatorTitle-portrait': {
-        return page.templateSection.pageConfig.headerFooterControl.showTitle;
-      }
-
-      case 'communeLogo-landscape':
-      case 'communeLogo-portrait': {
-        return page.templateSection.pageConfig.headerFooterControl.showLogo;
-      }
-      case 'dataTimestamp-landscape':
-      case 'dataTimestamp-portrait': {
-        return page.templateSection.pageConfig.headerFooterControl.showSubtitle;
-      }
-      case 'dataTimeseries-landscape':
-      case 'dataTimeseries-portrait': {
-        return page.templateSection.pageConfig.headerFooterControl.showSubtitle;
-      }
-      case 'reachability-subtitle-landscape':
-      case 'reachability-subtitle-portrait': {
-        return page.templateSection.pageConfig.headerFooterControl.showSubtitle;
-      }
-      case 'footerHorizontalSpacer-landscape':
-      case 'footerHorizontalSpacer-portrait': {
-        return page.templateSection.pageConfig.headerFooterControl.showFooterCreationInfo;
-      }
-      case 'footerCreationInfo-landscape':
-      case 'footerCreationInfo-portrait': {
-        return page.templateSection.pageConfig.headerFooterControl.showFooterCreationInfo;
-      }
-      case 'pageNumber-landscape':
-      case 'pageNumber-portrait': {
-        return page.templateSection.pageConfig.headerFooterControl.showPageNumber;
-      }
-      // template-specific elements
-      case 'map': {
-        return true;
-      }
-      // case "mapLegend" can be ignored since it is included in the map if needed
-      /*
-        June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
-        */
-      // case "overallAverage":
-      // case "selectionAverage": {
-      // 	return true;
-      // }
-      // case "overallChange":
-      // case "selectionChange": {
-      // 	return true;
-      // }
-      case 'barchart': {
-        if (page.type == 'area_specific') {
-          return page.templateSection.pageConfig.sectionContentControl.showRankingChartPerArea;
-        }
-        return true;
-      }
-      case 'linechart': {
-        if (page.type == 'area_specific') {
-          return page.templateSection.pageConfig.sectionContentControl.showLineChartPerArea;
-        }
-        return true;
-      }
-      case 'textInput': {
-        return page.templateSection.pageConfig.sectionContentControl.showFreeText;
-      }
-      case 'datatable': {
-        return page.templateSection.pageConfig.sectionControl.showDatatable;
-      }
-      default: {
-        return true;
-      }
-    }
+    return checkVisibility(pageElement, page, page?.templateSection?.pageConfig);
   }
 
   removeCircularReferences(pages) {
@@ -406,16 +364,38 @@ export class ReportingOverviewComponent implements OnInit {
   // new to cover added sections
   async setupPages() {
     this.loadingData = true;
+    this.reportingService.abortPreparation = false;
+    this.reportingService.reportGenerationInProgress = true;
+    this.reportingService.reportStatus = 'preparing';
+    this.reportingService.reportProgress = 0;
 
     for (const indicator of this.reportingService.templateSections.indicators) {
+      if (this.reportingService.abortPreparation) break;
       await this.setupIndicatorPages(indicator);
     }
 
     for (const georesource of this.reportingService.templateSections.georesources) {
+      if (this.reportingService.abortPreparation) break;
       await this.setupPagesForReachability(georesource);
     }
 
     this.loadingData = false;
+
+    if (this.reportingService.abortPreparation) {
+      this.reportingService.reportGenerationInProgress = false;
+      return;
+    }
+
+    this.reportingService.reportStatus = 'finished';
+    this.reportingService.reportProgress = 100;
+    this.reportingService.reportCountdown = 5;
+    const countdownInterval = setInterval(() => {
+      this.reportingService.reportCountdown--;
+      if (this.reportingService.reportCountdown <= 0) {
+        clearInterval(countdownInterval);
+        this.reportingService.reportGenerationInProgress = false;
+      }
+    }, 1000);
   }
 
   getFeatureLookupKey(templateSection) {
@@ -424,58 +404,32 @@ export class ReportingOverviewComponent implements OnInit {
       : templateSection.poiLayerName + '_' + templateSection.spatialUnitName;
   }
 
-  isPageInPreview(page, index) {
-    if (page.type !== 'area_specific' && page.type !== 'datatable') {
-      return true;
-    }
-    if (page.type === 'area_specific') {
-      const areaSpecificPages = this.reportingService.workingTemplate.pages.filter(
-        (p: any) => p.type === 'area_specific'
-      );
-      const areaIdx = areaSpecificPages.indexOf(page);
-      return areaIdx < this.MAX_PREVIEW_AREA_SPECIFIC_PAGES;
-    }
-    if (page.type === 'datatable') {
-      const datatablePages = this.reportingService.workingTemplate.pages.filter(
-        (p: any) => p.type === 'datatable'
-      );
-      const datatableIdx = datatablePages.indexOf(page);
-      return datatableIdx < this.MAX_PREVIEW_DATATABLE_PAGES;
-    }
-    return true;
+  isPageInPreview(page, _index?: number) {
+    return isPageInPreview(
+      this.reportingService.workingTemplate.pages,
+      page,
+      this.MAX_PREVIEW_AREA_SPECIFIC_PAGES,
+      this.MAX_PREVIEW_DATATABLE_PAGES
+    );
   }
 
   isLastPreviewPage(page: any): boolean {
-    if (page.type === 'area_specific') {
-      const areaPages = this.reportingService.workingTemplate.pages.filter(
-        (p: any) => p.type === 'area_specific'
-      );
-      return areaPages.indexOf(page) === this.MAX_PREVIEW_AREA_SPECIFIC_PAGES - 1;
-    }
-    if (page.type === 'datatable') {
-      const dtPages = this.reportingService.workingTemplate.pages.filter(
-        (p: any) => p.type === 'datatable'
-      );
-      return dtPages.indexOf(page) === this.MAX_PREVIEW_DATATABLE_PAGES - 1;
-    }
-    return false;
+    return isLastPreviewPage(
+      this.reportingService.workingTemplate.pages,
+      page,
+      this.MAX_PREVIEW_AREA_SPECIFIC_PAGES,
+      this.MAX_PREVIEW_DATATABLE_PAGES
+    );
   }
 
   countBackgroundPages(page: any): number {
     if (!this.reportingService.workingTemplate || !page) return 0;
-    if (page.type === 'area_specific') {
-      const areaPages = this.reportingService.workingTemplate.pages.filter(
-        (p: any) => p.type === 'area_specific'
-      );
-      return Math.max(0, areaPages.length - this.MAX_PREVIEW_AREA_SPECIFIC_PAGES);
-    }
-    if (page.type === 'datatable') {
-      const dtPages = this.reportingService.workingTemplate.pages.filter(
-        (p: any) => p.type === 'datatable'
-      );
-      return Math.max(0, dtPages.length - this.MAX_PREVIEW_DATATABLE_PAGES);
-    }
-    return 0;
+    return countBackgroundPages(
+      this.reportingService.workingTemplate.pages,
+      page,
+      this.MAX_PREVIEW_AREA_SPECIFIC_PAGES,
+      this.MAX_PREVIEW_DATATABLE_PAGES
+    );
   }
 
   async preparePage(idx, page, indicatorId, poiLayerName, spatialUnit, geoJSON) {
@@ -703,11 +657,13 @@ export class ReportingOverviewComponent implements OnInit {
     this.pagePreparationIndex = 0;
     this.pagePreparationSize = this.reportingService.workingTemplate.pages.length;
 
-    const logProgressIndexSeparator = Math.round((this.pagePreparationSize / 100) * 10);
-
     await new Promise((resolve) => setTimeout(resolve, 150));
 
+    let totalPreparedCount = 0;
     for (const [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
+      if (this.reportingService.abortPreparation) {
+        return;
+      }
       if (page.templateSection.indicatorId !== indicatorId) {
         continue;
       }
@@ -719,7 +675,11 @@ export class ReportingOverviewComponent implements OnInit {
 
       await this.preparePage(idx, page, indicatorId, undefined, spatialUnit, geoJSON);
 
-      this.pagePreparationIndex = idx;
+      totalPreparedCount++;
+      this.pagePreparationIndex = totalPreparedCount;
+      this.reportingService.reportProgress = Math.round(
+        (totalPreparedCount / this.pagePreparationSize) * 100
+      );
     }
 
     this.lastPageOfAddedSectionPrepared = true;
@@ -763,7 +723,11 @@ export class ReportingOverviewComponent implements OnInit {
 
     await new Promise((resolve) => setTimeout(resolve, 150));
 
+    let totalPreparedCount = 0;
     for (const [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
+      if (this.reportingService.abortPreparation) {
+        return;
+      }
       if (page.templateSection.poiLayerName !== poiLayerName) {
         continue;
       }
@@ -775,7 +739,11 @@ export class ReportingOverviewComponent implements OnInit {
 
       await this.preparePage(idx, page, undefined, poiLayerName, spatialUnit, geoJSON);
 
-      this.pagePreparationIndex = idx;
+      totalPreparedCount++;
+      this.pagePreparationIndex = totalPreparedCount;
+      this.reportingService.reportProgress = Math.round(
+        (totalPreparedCount / this.pagePreparationSize) * 100
+      );
     }
 
     this.lastPageOfAddedSectionPrepared = true;
@@ -1099,38 +1067,12 @@ export class ReportingOverviewComponent implements OnInit {
     });
   }
 
-  createDatatableSkeleton(colNamesArr) {
-    const table = document.createElement('table');
-    table.classList.add('table-striped');
-    table.classList.add('table-bordered');
-    table.classList.add('table-position');
-
-    const thead = document.createElement('thead');
-    const tbody = document.createElement('tbody');
-    table.appendChild(thead);
-    table.appendChild(tbody);
-
-    const headerRow = document.createElement('tr');
-
-    for (const colName of colNamesArr) {
-      const col = document.createElement('th');
-      col.classList.add('text-center');
-      col.innerText = colName;
-      headerRow.appendChild(col);
-    }
-
-    headerRow.style.height = '25px';
-    thead.appendChild(headerRow);
-
-    return table;
-  }
-
   createDatatablePage(pElementDom, pageElement) {
     pElementDom.innerHTML = '';
     pElementDom.style.border = 'none'; // hide dotted border from outer dom element
     pElementDom.style.justifyContent = 'flex-start'; // align table at top instead of center
     // add data
-    const table = this.createDatatableSkeleton(pageElement.columnNames);
+    const table = createDatatableSkeleton(pageElement.columnNames);
     const tbody: any = table.querySelector('tbody');
     // tabledata is a nested array with one sub-array per row
     for (const row of pageElement.tableData) {
@@ -1156,58 +1098,22 @@ export class ReportingOverviewComponent implements OnInit {
   }
 
   showThisPage(page) {
-    if (page.hidden) {
-      return false;
-    }
-
-    let pageWillBeShown = false;
-    for (const visiblePage of this.filterPagesToShow()) {
-      if (visiblePage == page) {
-        pageWillBeShown = true;
-      }
-    }
-    return pageWillBeShown;
+    return this.reportingService.showThisPage(page, this.reportingService.workingTemplate.pages);
   }
 
   getPageNumber(index) {
-    let pageNumber = 1;
-    for (let i = 0; i < index; i++) {
-      if (this.showThisPage(this.reportingService.workingTemplate.pages[i])) {
-        pageNumber++;
-      }
-    }
-    return pageNumber;
+    return this.reportingService.getPageNumber(index, this.reportingService.workingTemplate.pages);
   }
 
   filterPagesToShow() {
-    const pagesToShow: any[] = [];
-    let skipNextPage = false;
-    for (let i = 0; i < this.reportingService.workingTemplate.pages.length; i++) {
-      const page = this.reportingService.workingTemplate.pages[i];
-      if (this.pageContainsDatatable(i)) {
-        pagesToShow.push(page);
-        skipNextPage = false;
-      } else {
-        if (skipNextPage == false) {
-          pagesToShow.push(page);
-          skipNextPage = true;
-        } else {
-          skipNextPage = false;
-        }
-      }
-    }
-    return pagesToShow;
+    return this.reportingService.filterPagesToShow(this.reportingService.workingTemplate.pages);
   }
 
   pageContainsDatatable(pageID) {
-    const page = this.reportingService.workingTemplate.pages[pageID];
-    let pageContainsDatatable = false;
-    for (const pageElement of page.pageElements) {
-      if (pageElement.type == 'datatable') {
-        pageContainsDatatable = true;
-      }
-    }
-    return pageContainsDatatable;
+    return this.reportingService.pageContainsDatatable(
+      pageID,
+      this.reportingService.workingTemplate.pages
+    );
   }
 
   exportConfig() {

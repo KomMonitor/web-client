@@ -3098,32 +3098,40 @@ export class ReportingService {
     return page;
   }
 
-  getPageNumber(index) {
+  // `pages` defaults to the working template's pages, but callers operating on a different
+  // pages array (e.g. indicator-add's clonedTemplate.pages) can pass their own.
+  getPageNumber(index, pages = this.selectedTemplate.pages) {
     let pageNumber = 1;
     for (let i = 0; i < index; i++) {
-      if (this.showThisPage(this.selectedTemplate.pages[i])) {
+      if (this.showThisPage(pages[i], pages)) {
         pageNumber++;
       }
     }
     return pageNumber;
   }
 
-  showThisPage(page) {
+  showThisPage(page, pages = this.selectedTemplate.pages) {
+    if (page.hidden) {
+      return false;
+    }
+
     let pageWillBeShown = false;
-    for (const visiblePage of this.filterPagesToShow()) {
-      if (visiblePage == page) {
+    for (const visiblePage of this.filterPagesToShow(pages)) {
+      // compare by id, not reference: `pages` elements can get spliced out/in (e.g. datatable
+      // continuation pages), which would silently break a reference-equality check
+      if (visiblePage.id == page.id) {
         pageWillBeShown = true;
       }
     }
     return pageWillBeShown;
   }
 
-  filterPagesToShow() {
+  filterPagesToShow(pages = this.selectedTemplate.pages) {
     const pagesToShow: any[] = [];
     let skipNextPage = false;
-    for (let i = 0; i < this.selectedTemplate.pages.length; i++) {
-      const page = this.selectedTemplate.pages[i];
-      if (this.pageContainsDatatable(i)) {
+    for (let i = 0; i < pages.length; i++) {
+      const page = pages[i];
+      if (this.pageContainsDatatable(i, pages)) {
         pagesToShow.push(page);
         skipNextPage = false;
       } else {
@@ -3138,8 +3146,8 @@ export class ReportingService {
     return pagesToShow;
   }
 
-  pageContainsDatatable(pageID) {
-    const page = this.selectedTemplate.pages[pageID];
+  pageContainsDatatable(pageID, pages = this.selectedTemplate.pages) {
+    const page = pages[pageID];
     let pageContainsDatatable = false;
     for (const pageElement of page.pageElements) {
       if (pageElement.type == 'datatable') {

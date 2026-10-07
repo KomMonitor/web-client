@@ -34,6 +34,13 @@ import { MapOverlayStateService } from 'services/map-overlay-state-service/map-o
 import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
 import { ReachabilityStateService } from 'services/reachability-state-service/reachability-state.service';
 import { ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
+import {
+  checkVisibility,
+  countBackgroundPages,
+  createDatatableSkeleton,
+  isLastPreviewPage,
+  isPageInPreview,
+} from 'components/ngComponents/userInterface/reporting/report-preview.utils';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
@@ -380,67 +387,7 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   checkVisibility(pageElement, page) {
-    switch (pageElement.type) {
-      case 'indicatorTitle-landscape':
-      case 'indicatorTitle-portrait': {
-        return this.pageConfig.headerFooterControl.showTitle;
-      }
-
-      case 'communeLogo-landscape':
-      case 'communeLogo-portrait': {
-        return this.pageConfig.headerFooterControl.showLogo;
-      }
-      case 'dataTimestamp-landscape':
-      case 'dataTimestamp-portrait': {
-        return this.pageConfig.headerFooterControl.showSubtitle;
-      }
-      case 'dataTimeseries-landscape':
-      case 'dataTimeseries-portrait': {
-        return this.pageConfig.headerFooterControl.showSubtitle;
-      }
-      case 'reachability-subtitle-landscape':
-      case 'reachability-subtitle-portrait': {
-        return this.pageConfig.headerFooterControl.showSubtitle;
-      }
-      case 'footerHorizontalSpacer-landscape':
-      case 'footerHorizontalSpacer-portrait': {
-        return this.pageConfig.headerFooterControl.showFooterCreationInfo;
-      }
-      case 'footerCreationInfo-landscape':
-      case 'footerCreationInfo-portrait': {
-        return this.pageConfig.headerFooterControl.showFooterCreationInfo;
-      }
-      case 'pageNumber-landscape':
-      case 'pageNumber-portrait': {
-        return this.pageConfig.headerFooterControl.showPageNumber;
-      }
-      // template-specific elements
-      case 'map': {
-        return true;
-      }
-      // case "mapLegend" can be ignored since it is included in the map if needed
-      case 'barchart': {
-        if (page.type == 'area_specific') {
-          return this.pageConfig.sectionContentControl.showRankingChartPerArea;
-        }
-        return true;
-      }
-      case 'linechart': {
-        if (page.type == 'area_specific') {
-          return this.pageConfig.sectionContentControl.showLineChartPerArea;
-        }
-        return true;
-      }
-      case 'textInput': {
-        return this.pageConfig.sectionContentControl.showFreeText;
-      }
-      case 'datatable': {
-        return this.pageConfig.sectionControl.showDatatable;
-      }
-      default: {
-        return true;
-      }
-    }
+    return checkVisibility(pageElement, page, this.pageConfig);
   }
 
   onChangePageConfig() {
@@ -3359,7 +3306,7 @@ export class IndicatorAddComponent implements OnInit {
     wrapper.style.border = 'none'; // hide dotted border from outer dom element
     wrapper.style.justifyContent = 'flex-start'; // align table at top instead of center
 
-    const table = this.createDatatableSkeleton(columnNames);
+    const table = createDatatableSkeleton(columnNames);
     wrapper.appendChild(table);
     const tbody = table.querySelector('tbody')!;
 
@@ -3717,54 +3664,32 @@ export class IndicatorAddComponent implements OnInit {
     return geoMapOptions;
   }
 
-  isPageInPreview(page: any, index: number): boolean {
-    if (page.type !== 'area_specific' && page.type !== 'datatable') return true;
-    if (page.type === 'area_specific') {
-      const areaPages = this.reportingService.clonedTemplate.pages.filter(
-        (p: any) => p.type === 'area_specific'
-      );
-      return areaPages.indexOf(page) < this.MAX_PREVIEW_AREA_SPECIFIC_PAGES;
-    }
-    if (page.type === 'datatable') {
-      const dtPages = this.reportingService.clonedTemplate.pages.filter(
-        (p: any) => p.type === 'datatable'
-      );
-      return dtPages.indexOf(page) < this.MAX_PREVIEW_DATATABLE_PAGES;
-    }
-    return true;
+  isPageInPreview(page: any, _index?: number): boolean {
+    return isPageInPreview(
+      this.reportingService.clonedTemplate.pages,
+      page,
+      this.MAX_PREVIEW_AREA_SPECIFIC_PAGES,
+      this.MAX_PREVIEW_DATATABLE_PAGES
+    );
   }
 
   isLastPreviewPage(page: any): boolean {
-    if (page.type === 'area_specific') {
-      const areaPages = this.reportingService.clonedTemplate.pages.filter(
-        (p: any) => p.type === 'area_specific'
-      );
-      return areaPages.indexOf(page) === this.MAX_PREVIEW_AREA_SPECIFIC_PAGES - 1;
-    }
-    if (page.type === 'datatable') {
-      const dtPages = this.reportingService.clonedTemplate.pages.filter(
-        (p: any) => p.type === 'datatable'
-      );
-      return dtPages.indexOf(page) === this.MAX_PREVIEW_DATATABLE_PAGES - 1;
-    }
-    return false;
+    return isLastPreviewPage(
+      this.reportingService.clonedTemplate.pages,
+      page,
+      this.MAX_PREVIEW_AREA_SPECIFIC_PAGES,
+      this.MAX_PREVIEW_DATATABLE_PAGES
+    );
   }
 
   countBackgroundPages(page: any): number {
     if (!this.reportingService.clonedTemplate || !page) return 0;
-    if (page.type === 'area_specific') {
-      const areaPages = this.reportingService.clonedTemplate.pages.filter(
-        (p: any) => p.type === 'area_specific'
-      );
-      return Math.max(0, areaPages.length - this.MAX_PREVIEW_AREA_SPECIFIC_PAGES);
-    }
-    if (page.type === 'datatable') {
-      const dtPages = this.reportingService.clonedTemplate.pages.filter(
-        (p: any) => p.type === 'datatable'
-      );
-      return Math.max(0, dtPages.length - this.MAX_PREVIEW_DATATABLE_PAGES);
-    }
-    return 0;
+    return countBackgroundPages(
+      this.reportingService.clonedTemplate.pages,
+      page,
+      this.MAX_PREVIEW_AREA_SPECIFIC_PAGES,
+      this.MAX_PREVIEW_DATATABLE_PAGES
+    );
   }
 
   getPagePreparationPercent(): number {
@@ -4175,58 +4100,22 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   showThisPage(page) {
-    if (page.hidden) {
-      return false;
-    }
-
-    let pageWillBeShown = false;
-    for (const visiblePage of this.filterPagesToShow()) {
-      if (visiblePage.id == page.id) {
-        pageWillBeShown = true;
-      }
-    }
-    return pageWillBeShown;
+    return this.reportingService.showThisPage(page, this.reportingService.clonedTemplate.pages);
   }
 
   filterPagesToShow() {
-    const pagesToShow: any[] = [];
-    let skipNextPage = false;
-    for (let i = 0; i < this.reportingService.clonedTemplate.pages.length; i++) {
-      const page = this.reportingService.clonedTemplate.pages[i];
-      if (this.pageContainsDatatable(i)) {
-        pagesToShow.push(page);
-        skipNextPage = false;
-      } else {
-        if (skipNextPage == false) {
-          pagesToShow.push(page);
-          skipNextPage = true;
-        } else {
-          skipNextPage = false;
-        }
-      }
-    }
-    return pagesToShow;
+    return this.reportingService.filterPagesToShow(this.reportingService.clonedTemplate.pages);
   }
 
   pageContainsDatatable(pageID) {
-    const page = this.reportingService.clonedTemplate.pages[pageID];
-    let pageContainsDatatable = false;
-    for (const pageElement of page.pageElements) {
-      if (pageElement.type == 'datatable') {
-        pageContainsDatatable = true;
-      }
-    }
-    return pageContainsDatatable;
+    return this.reportingService.pageContainsDatatable(
+      pageID,
+      this.reportingService.clonedTemplate.pages
+    );
   }
 
   getPageNumber(index) {
-    let pageNumber = 1;
-    for (let i = 0; i < index; i++) {
-      if (this.showThisPage(this.reportingService.clonedTemplate.pages[i])) {
-        pageNumber++;
-      }
-    }
-    return pageNumber;
+    return this.reportingService.getPageNumber(index, this.reportingService.clonedTemplate.pages);
   }
 
   calculateAndSetSeriesDataForTimeseries(features, fromDate, toDate) {
@@ -4271,32 +4160,6 @@ export class IndicatorAddComponent implements OnInit {
       }
     }
     return features;
-  }
-
-  createDatatableSkeleton(colNamesArr) {
-    const table = document.createElement('table');
-    table.classList.add('table-striped');
-    table.classList.add('table-bordered');
-    table.classList.add('table-position');
-
-    const thead = document.createElement('thead');
-    const tbody = document.createElement('tbody');
-    table.appendChild(thead);
-    table.appendChild(tbody);
-
-    const headerRow = document.createElement('tr');
-
-    for (const colName of colNamesArr) {
-      const col = document.createElement('th');
-      col.classList.add('text-center');
-      col.innerText = colName;
-      headerRow.appendChild(col);
-    }
-
-    headerRow.style.height = '25px';
-    thead.appendChild(headerRow);
-
-    return table;
   }
 
   createDatesFromIndicatorDates(indicatorDates) {
