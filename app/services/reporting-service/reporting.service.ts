@@ -100,6 +100,12 @@ export class ReportingService {
   reportProgress = 0;
   reportCountdown = 0;
   reportingModalOpen = false;
+  // lives here rather than on the generating component: that component (indicator-add /
+  // reporting-overview) can be destroyed and recreated while its preparation loop keeps
+  // running in the background (closing/reopening the reporting modal), so an abort request
+  // from a freshly-created component instance or the global banner needs a flag the
+  // still-running loop actually reads, independent of which component instance is live.
+  abortPreparation = false;
 
   default: ReportingData = {
     workflowState: WorkflowState.workflowSelect,

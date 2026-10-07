@@ -210,7 +210,6 @@ export class IndicatorAddComponent implements OnInit {
 
   readonly MAX_PREVIEW_AREA_SPECIFIC_PAGES = 3;
   readonly MAX_PREVIEW_DATATABLE_PAGES = 3;
-  abortPreparation = false;
   preparationNeeded = true;
 
   // Resolve the indicator precision from the current selection before
@@ -3768,9 +3767,14 @@ export class IndicatorAddComponent implements OnInit {
     return 0;
   }
 
+  getPagePreparationPercent(): number {
+    if (!this.pagePreparationSize) return 0;
+    return Math.min(100, Math.max(0, (this.pagePreparationIndex / this.pagePreparationSize) * 100));
+  }
+
   async onTriggerPreparationClicked() {
     this.loadingData = true;
-    this.abortPreparation = false;
+    this.reportingService.abortPreparation = false;
     this.preparationNeeded = false;
     this.reportingService.reportGenerationInProgress = true;
     this.reportingService.reportStatus = 'preparing';
@@ -3788,9 +3792,16 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   onAbortPreparationClicked() {
-    this.abortPreparation = true;
+    this.reportingService.abortPreparation = true;
     this.preparationNeeded = true;
     this.reportingService.reportGenerationInProgress = false;
+
+    // these two footer indicators aren't gated by preparationNeeded, so they'd otherwise
+    // keep showing the stale "X von Y" from whichever page the loop was on when it noticed
+    // the abort flag and returned
+    this.pagePreparationIndex = 0;
+    this.pagePreparationSize = 0;
+    this.leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate = true;
   }
 
   // async
@@ -3826,7 +3837,7 @@ export class IndicatorAddComponent implements OnInit {
     }
 
     this.lastPageOfAddedSectionPrepared = false;
-    this.abortPreparation = false;
+    this.reportingService.abortPreparation = false;
     this.pagePreparationIndex = 0;
     this.pagePreparationSize = this.reportingService.clonedTemplate.pages.length;
     let logProgressIndexSeparator = Math.round((this.pagePreparationSize / 100) * 10);
@@ -3842,7 +3853,7 @@ export class IndicatorAddComponent implements OnInit {
     let totalPreparedCount = 0;
 
     for (let i = 0; i < this.reportingService.clonedTemplate.pages.length; i++) {
-      if (this.abortPreparation) {
+      if (this.reportingService.abortPreparation) {
         this.reportingService.reportGenerationInProgress = false;
         return;
       }
@@ -3856,7 +3867,7 @@ export class IndicatorAddComponent implements OnInit {
         await this.preparePageForIndicatorAdd(i, page);
         processedPageIds.add(page.id);
         totalPreparedCount++;
-        this.pagePreparationIndex = i;
+        this.pagePreparationIndex = totalPreparedCount;
         this.reportingService.reportProgress = Math.round(
           (totalPreparedCount / this.pagePreparationSize) * 100
         );
@@ -3865,7 +3876,7 @@ export class IndicatorAddComponent implements OnInit {
 
     // Phase 2: Process remaining background pages
     for (let i = 0; i < this.reportingService.clonedTemplate.pages.length; i++) {
-      if (this.abortPreparation) {
+      if (this.reportingService.abortPreparation) {
         this.reportingService.reportGenerationInProgress = false;
         return;
       }
@@ -3886,7 +3897,7 @@ export class IndicatorAddComponent implements OnInit {
         await this.preparePageForIndicatorAdd(i, page);
         processedPageIds.add(page.id);
         totalPreparedCount++;
-        this.pagePreparationIndex = i;
+        this.pagePreparationIndex = totalPreparedCount;
         this.reportingService.reportProgress = Math.round(
           (totalPreparedCount / this.pagePreparationSize) * 100
         );

@@ -1023,11 +1023,11 @@
                               <div
                                 class="progress-bar progress-bar-striped progress-bar-animated"
                                 role="progressbar"
-                                [ngStyle]="{
-                                  width: (pagePreparationIndex / pagePreparationSize) * 100 + '%',
-                                }"
+                                [style.width.%]="getPagePreparationPercent()"
                                 style="line-height: 25px; font-size: 1.2em; font-weight: bold"
-                              ></div>
+                              >
+                                {{ getPagePreparationPercent() | number: '1.0-0' }}%
+                              </div>
                             </div>
                           </div>
                         }
@@ -1085,6 +1085,7 @@
           }
 
           @if (
+            !preparationNeeded &&
             !leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate &&
             leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0
           ) {
@@ -1102,8 +1103,7 @@
             <button [disabled]="true" style="margin-right: 15px" class="btn btn-warning">
               <span class="fas fa-arrows-rotate icon-spin"></span>
               <span
-                >Reportaufbereitung: {{ pagePreparationIndex + 1 }} von
-                {{ pagePreparationSize }}</span
+                >Reportaufbereitung: {{ pagePreparationIndex }} von {{ pagePreparationSize }}</span
               >
             </button>
           }

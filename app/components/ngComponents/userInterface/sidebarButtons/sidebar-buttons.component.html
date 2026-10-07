@@ -80,7 +80,7 @@
     </button>
   }
 
-  @if (visibilityHelperService.elementVisibility.reportingButton) {
+  @if (visibilityHelperService.elementVisibility.reportingButton && authService.isAuthenticated()) {
     <button
       type="button"
       style="display: block; position: relative; margin-top: 5px"
