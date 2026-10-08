@@ -3249,6 +3249,19 @@ export class ReportingService {
     return this.tempTemplate;
   }
 
+  // Assigns unique ids to pages spliced into clonedTemplate.pages while a section is being
+  // configured (continuation pages etc.) - only needs to be unique within that one workflow,
+  // which is why it resets to 1 per indicator-add.component.ts's reset().
+  private templatePageIdCounter = 1;
+
+  nextTemplatePageId(): number {
+    return this.templatePageIdCounter++;
+  }
+
+  resetTemplatePageIdCounter(): void {
+    this.templatePageIdCounter = 1;
+  }
+
   get templateSections(): SectionData {
     return this._reportingData$.value.sections;
   }

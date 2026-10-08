@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -16,7 +16,6 @@ import {
 } from 'components/ngComponents/models/classification.models';
 import * as d3 from 'd3';
 import * as echarts from 'echarts';
-import * as L from 'leaflet';
 import { CategoricalMappingType } from 'models/data-management-api';
 import { firstValueFrom } from 'rxjs';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
@@ -33,14 +32,18 @@ import { MapErrorNotificationService } from 'services/map-error-notification-ser
 import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
 import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
 import { ReachabilityStateService } from 'services/reachability-state-service/reachability-state.service';
+import { ReportPagePreparationService } from 'services/report-page-preparation-service/report-page-preparation.service';
 import { ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
 import {
+  calculateAvg,
+  calculateSeriesDataForTimeseries,
   checkVisibility,
   countBackgroundPages,
-  createDatatableSkeleton,
+  createLowerCaseNameProperty,
   isLastPreviewPage,
   isPageInPreview,
 } from 'components/ngComponents/userInterface/reporting/report-preview.utils';
+import { ReportGenerationContext } from 'components/ngComponents/userInterface/reporting/report-generation-context.model';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
@@ -79,6 +82,7 @@ export class IndicatorAddComponent implements OnInit {
   private fb = inject(FormBuilder);
   private envConfigService = inject(EnvConfigService);
   private destroyRef = inject(DestroyRef);
+  private reportPagePreparationService = inject(ReportPagePreparationService);
 
   sliderDisplaMode = DisplayType;
   sliderType = SliderType;
@@ -189,21 +193,17 @@ export class IndicatorAddComponent implements OnInit {
   showResetIsochronesBtn = false;
 
   isochronesTypeOfMovementMapping = {
-    'foot-walking': 'Fußgänger',
+    'foot-walking': 'FuÃŸgÃ¤nger',
     'driving-car': 'Auto',
     'cycling-regular': 'Fahrrad',
     wheelchair: 'Barrierefrei',
     buffer: 'Puffer',
   };
 
-  reportingReachabilityMapAttribution;
   geoJsonForReachability_byFeatureName;
   geoJsonForSelectedIndicator_byFeatureName;
 
   mercatorProjection_d3: any = d3.geoMercator();
-
-  // used to track template pages instead of using $$hashkey
-  templatePageIdCounter = 1;
 
   timeseriesAdjustedOnSpatialUnitChange;
 
@@ -288,7 +288,7 @@ export class IndicatorAddComponent implements OnInit {
 
     // give each page a unique id to track it by in ng-repeat
     for (const page of this.reportingService.clonedTemplate.pages) {
-      page.id = this.templatePageIdCounter++;
+      page.id = this.reportingService.nextTemplatePageId();
     }
 
     if (this.reportingService.clonedTemplate.name.includes('timestamp'))
@@ -546,14 +546,14 @@ export class IndicatorAddComponent implements OnInit {
         this.indexOfFirstAreaSpecificPage
       );
       landscapePageToInsert.area = area.name;
-      landscapePageToInsert.id = this.templatePageIdCounter++;
+      landscapePageToInsert.id = this.reportingService.nextTemplatePageId();
       pagesToInsertPerTimestamp.push(landscapePageToInsert);
 
       const portraitPageToInsert: any = this.reportingService.getAreaSpecificPageClone(
         this.indexOfFirstAreaSpecificPage + 1
       );
       portraitPageToInsert.area = area.name;
-      portraitPageToInsert.id = this.templatePageIdCounter++;
+      portraitPageToInsert.id = this.reportingService.nextTemplatePageId();
       pagesToInsertPerTimestamp.push(portraitPageToInsert);
     }
 
@@ -613,14 +613,15 @@ export class IndicatorAddComponent implements OnInit {
         const numberOfPagesToReplace = pagesForTimestamp.length;
         // insert area-specific pages
         pagesToInsertPerTimestamp = JSON.parse(JSON.stringify(pagesToInsertPerTimestamp));
-        for (const page of pagesToInsertPerTimestamp) page.id = this.templatePageIdCounter++;
+        for (const page of pagesToInsertPerTimestamp)
+          page.id = this.reportingService.nextTemplatePageId();
         pagesForTimestamp.splice(
           this.indexOfFirstAreaSpecificPage,
           0,
           ...pagesToInsertPerTimestamp
         );
         // assign new ids
-        for (const page of pagesForTimestamp) page.id = this.templatePageIdCounter++;
+        for (const page of pagesForTimestamp) page.id = this.reportingService.nextTemplatePageId();
         // then replace the whole timstamp-section with the new pages
         this.reportingService.clonedTemplate.pages.splice(
           idx,
@@ -630,7 +631,8 @@ export class IndicatorAddComponent implements OnInit {
       }
     } else {
       pagesToInsertPerTimestamp = JSON.parse(JSON.stringify(pagesToInsertPerTimestamp));
-      for (const page of pagesToInsertPerTimestamp) page.id = this.templatePageIdCounter++;
+      for (const page of pagesToInsertPerTimestamp)
+        page.id = this.reportingService.nextTemplatePageId();
       // no timestamp selected, which makes inserting easier
       this.reportingService.clonedTemplate.pages.splice(
         this.indexOfFirstAreaSpecificPage,
@@ -647,14 +649,14 @@ export class IndicatorAddComponent implements OnInit {
         this.indexOfFirstAreaSpecificPage
       );
       landscapePageToInsert.area = area.name;
-      landscapePageToInsert.id = this.templatePageIdCounter++;
+      landscapePageToInsert.id = this.reportingService.nextTemplatePageId();
       pagesToInsert.push(landscapePageToInsert);
 
       const portraitPageToInsert: any = this.reportingService.getAreaSpecificPageClone(
         this.indexOfFirstAreaSpecificPage + 1
       );
       portraitPageToInsert.area = area.name;
-      portraitPageToInsert.id = this.templatePageIdCounter++;
+      portraitPageToInsert.id = this.reportingService.nextTemplatePageId();
       pagesToInsert.push(portraitPageToInsert);
     }
 
@@ -693,7 +695,7 @@ export class IndicatorAddComponent implements OnInit {
 
     // insert area-specific pages
     pagesToInsert = JSON.parse(JSON.stringify(pagesToInsert));
-    for (const page of pagesToInsert) page.id = this.templatePageIdCounter++;
+    for (const page of pagesToInsert) page.id = this.reportingService.nextTemplatePageId();
     this.reportingService.clonedTemplate.pages.splice(
       this.indexOfFirstAreaSpecificPage,
       0,
@@ -710,14 +712,14 @@ export class IndicatorAddComponent implements OnInit {
         this.indexOfFirstAreaSpecificPage
       );
       landscapePageToInsert.area = area.name;
-      landscapePageToInsert.id = this.templatePageIdCounter++;
+      landscapePageToInsert.id = this.reportingService.nextTemplatePageId();
       pagesToInsert.push(landscapePageToInsert);
 
       const portraitPageToInsert: any = this.reportingService.getAreaSpecificPageClone(
         this.indexOfFirstAreaSpecificPage + 1
       );
       portraitPageToInsert.area = area.name;
-      portraitPageToInsert.id = this.templatePageIdCounter++;
+      portraitPageToInsert.id = this.reportingService.nextTemplatePageId();
       pagesToInsert.push(portraitPageToInsert);
     }
 
@@ -735,7 +737,7 @@ export class IndicatorAddComponent implements OnInit {
         const titleEl = pageToInsert.pageElements.find((el) => {
           return el.type.includes('indicatorTitle-');
         });
-        titleEl.text = 'Entfernungen für ' + this.selectedPoiLayer.datasetName;
+        titleEl.text = 'Entfernungen fÃ¼r ' + this.selectedPoiLayer.datasetName;
         if (pageToInsert.area) {
           titleEl.text += ', ' + pageToInsert.area;
         }
@@ -757,7 +759,7 @@ export class IndicatorAddComponent implements OnInit {
       //pagesToInsert = JSON.parse(JSON.stringify(pagesToInsert));
       const numberOfPagesToReplace = this.reportingService.clonedTemplate.pages.length - 2; // basically everything until the end of the template (-2 because we start at second page)
       // insert area-specific pages
-      for (const page of pagesToInsert) page.id = this.templatePageIdCounter++;
+      for (const page of pagesToInsert) page.id = this.reportingService.nextTemplatePageId();
 
       this.reportingService.clonedTemplate.pages.splice(
         this.indexOfFirstAreaSpecificPage,
@@ -803,7 +805,7 @@ export class IndicatorAddComponent implements OnInit {
           // setup pages to insert first
           const pagesToInsert = this.reportingService.getTemplatePagesForReinsert();
           for (const page of pagesToInsert) {
-            page.id = this.templatePageIdCounter++;
+            page.id = this.reportingService.nextTemplatePageId();
           }
           // insert additional page for each selected area, replace the placeholder page
           const areaSpecificPages: any[] = [];
@@ -814,7 +816,7 @@ export class IndicatorAddComponent implements OnInit {
               this.indexOfFirstAreaSpecificPage
             );
             page.area = tempArea.name;
-            page.id = this.templatePageIdCounter++;
+            page.id = this.reportingService.nextTemplatePageId();
             areaSpecificPages.push(page);
 
             // repeat for the same area page with other orientation
@@ -822,7 +824,7 @@ export class IndicatorAddComponent implements OnInit {
               this.indexOfFirstAreaSpecificPage + 1
             );
             page_otherOrientation.area = area.name;
-            page_otherOrientation.id = this.templatePageIdCounter++;
+            page_otherOrientation.id = this.reportingService.nextTemplatePageId();
             areaSpecificPages.push(page_otherOrientation);
           }
 
@@ -976,7 +978,7 @@ export class IndicatorAddComponent implements OnInit {
       label: 'Zeitpunkte',
       boxItemsHeight: 'md',
       items: [],
-      button: { leftText: 'Alle auswählen', rightText: 'Alle entfernen' },
+      button: { leftText: 'Alle auswÃ¤hlen', rightText: 'Alle entfernen' },
       selectedItems: [],
     };
 
@@ -984,7 +986,7 @@ export class IndicatorAddComponent implements OnInit {
       label: 'Raumebenen',
       boxItemsHeight: 'md',
       items: [],
-      button: { leftText: 'Alle auswählen', rightText: 'Alle entfernen' },
+      button: { leftText: 'Alle auswÃ¤hlen', rightText: 'Alle entfernen' },
       selectedItems: [],
     };
   }
@@ -1128,11 +1130,11 @@ export class IndicatorAddComponent implements OnInit {
         } else {
           features = this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitLevel];
         }
-        features = this.createLowerCaseNameProperty(features);
+        features = createLowerCaseNameProperty(features);
         this.geoJsonForReachability = { features: features };
       } else {
         features = this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitName];
-        features = this.createLowerCaseNameProperty(features);
+        features = createLowerCaseNameProperty(features);
         const geoJSON = { features: features };
         this.selectedIndicator.geoJSON = geoJSON;
       }
@@ -1557,7 +1559,7 @@ export class IndicatorAddComponent implements OnInit {
         for (const page of this.reportingService.clonedTemplate.pages) {
           for (const el of page.pageElements) {
             if (el.type.includes('indicatorTitle-')) {
-              el.text = 'Entfernungen für ' + this.selectedPoiLayer.datasetName;
+              el.text = 'Entfernungen fÃ¼r ' + this.selectedPoiLayer.datasetName;
               el.isPlaceholder = false;
               // no area-specific pages in template since diagrams are not prepared yet
               // and area/timestamp/timeseries changes are done after that
@@ -1580,7 +1582,7 @@ export class IndicatorAddComponent implements OnInit {
         } else {
           features = this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitLevel];
         }
-        features = this.createLowerCaseNameProperty(features);
+        features = createLowerCaseNameProperty(features);
         // we might have no indicator so we store the geometries directly on the scope
         this.geoJsonForReachability = {
           features: features,
@@ -1773,7 +1775,7 @@ export class IndicatorAddComponent implements OnInit {
     this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitName] =
       featureCollection.features;
     this.selectedIndicator.geoJSON = featureCollection;
-    this.selectedIndicator.geoJSON.features = this.createLowerCaseNameProperty(
+    this.selectedIndicator.geoJSON.features = createLowerCaseNameProperty(
       this.selectedIndicator.geoJSON.features
     );
     if (
@@ -1859,7 +1861,7 @@ export class IndicatorAddComponent implements OnInit {
       this.reportingService.resetTemplateClone();
       this.setAreaSpecificPagesVisibility();
       for (const page of this.reportingService.clonedTemplate.pages) {
-        page.id = this.templatePageIdCounter++;
+        page.id = this.reportingService.nextTemplatePageId();
       }
       this.reportingService.clonedTemplate.pageConfig = this.pageConfig;
 
@@ -1941,7 +1943,7 @@ export class IndicatorAddComponent implements OnInit {
         // get all features of largest spatial unit
         let features =
           this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitName];
-        features = this.createLowerCaseNameProperty(features);
+        features = createLowerCaseNameProperty(features);
         const geoJson = {
           features: features,
         };
@@ -2078,7 +2080,7 @@ export class IndicatorAddComponent implements OnInit {
       line: {},
     };
     this.loadingData = false;
-    this.templatePageIdCounter = 1;
+    this.reportingService.resetTemplatePageIdCounter();
     this.echartsRegisteredMapNames = [];
 
     for (let i = 2; i < 7; i++) {
@@ -2110,7 +2112,7 @@ export class IndicatorAddComponent implements OnInit {
 
     // echarts configs / table data were already captured onto each page/pageElement by
     // preparePageForIndicatorAdd during generation (page.generatedData, pageElement.echartsOptions,
-    // pageElement.tableData) — most pages are never rendered into the visible preview DOM (only the
+    // pageElement.tableData) â€” most pages are never rendered into the visible preview DOM (only the
     // first few area-specific/datatable pages are), so it can't be re-scraped from the DOM here.
     for (const page of this.reportingService.clonedTemplate.pages) {
       page.templateSection = templateSection;
@@ -2128,15 +2130,6 @@ export class IndicatorAddComponent implements OnInit {
     else this.reportingService.addPoiSection(templateSection);
 
     this.reportingService.changeWorkflowState(this.workflowState.reportingOverview);
-  }
-
-  async getReportingRechabilityMapAttribution() {
-    if (!this.reportingReachabilityMapAttribution) {
-      this.reportingReachabilityMapAttribution =
-        await this.diagramHelperService.createReportingReachabilityMapAttribution();
-    }
-
-    return this.reportingReachabilityMapAttribution;
   }
 
   enableTab(tab: Element | null) {
@@ -2213,7 +2206,7 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   // async
-  async createMapForReachability(wrapper, page, pageElement) {
+  async createMapForReachability(wrapper, page, pageElement, context: ReportGenerationContext) {
     let options = JSON.parse(JSON.stringify(this.reachabilityTemplateGeoMapOptions));
     // add indictor data if it is available
     if (this.selectedIndicator) {
@@ -2331,251 +2324,10 @@ export class IndicatorAddComponent implements OnInit {
     return map;
   }
 
-  async initLeafletMapBeneathEchartsMap(
-    page,
-    pageElement,
-    elementIdx: number,
-    map,
-    isPreview?: boolean
-  ): Promise<string | undefined> {
-    const id = 'reporting-addIndicator-background-leaflet-map-container-' + elementIdx;
-    const pageIdx: any = this.reportingService.clonedTemplate.pages.indexOf(page);
-
-    // For preview pages use the visible page DOM so Leaflet can load tiles reliably.
-    // For background-only pages use the off-screen background processor.
-    const pageDomId = isPreview
-      ? 'reporting-addIndicator-page-' + pageIdx
-      : 'reporting-addIndicator-background-page';
-    // pageElementDom is always in the background processor — attribution/legend appended here
-    // get moved to previewEl together with the ECharts canvas by preparePageForIndicatorAdd
-    const pageElementDomId = 'reporting-addIndicator-background-page-map-' + elementIdx;
-
-    let pageDom: any = document.getElementById(pageDomId);
-    let pageElementDom: any = document.getElementById(pageElementDomId);
-
-    if (!pageDom) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      pageDom = document.getElementById(pageDomId);
-      pageElementDom = document.getElementById(pageElementDomId);
-    }
-
-    if (!pageDom) {
-      console.error('Could not find background DOM for leaflet map init: ' + pageDomId);
-      return undefined;
-    }
-
-    const oldMapNode: any = document.getElementById(id);
-    if (oldMapNode) oldMapNode.remove();
-
-    const div: any = document.createElement('div');
-    div.id = id;
-    div.style.position = 'absolute';
-    div.style.left = pageElement.dimensions.left;
-    div.style.top = pageElement.dimensions.top;
-    div.style.width = pageElement.dimensions.width;
-    div.style.height = pageElement.dimensions.height;
-    div.style.zIndex = 10;
-    div.style.backgroundColor = 'white';
-    pageDom.appendChild(div);
-    const echartsOptions = map.getOption();
-
-    const leafletMap = L.map(div.id, {
-      zoomControl: false,
-      dragging: false,
-      doubleClickZoom: false,
-      boxZoom: false,
-      trackResize: false,
-      attributionControl: false,
-      // prevents leaflet form snapping to closest pre-defined zoom level.
-      // In other words, it allows us to set exact map extend by a (echarts) bounding box
-      zoomSnap: 0,
-      // disable any fade and zoom animation in order to get screenshots directly after layer event load was called
-      fadeAnimation: false,
-      zoomAnimation: false,
-    });
-    // Leaflet caches the container size at construction time; force it to re-measure
-    // now (after our explicit width/height are applied) so fitBounds() below computes
-    // against the real size instead of a stale/zero one — otherwise only the fraction
-    // of the container Leaflet thinks is visible gets tiles (classic top-left-only bug).
-    leafletMap.invalidateSize(false);
-    // manually create a field for attribution so we can control the z-index.
-    const prevAttributionDiv = pageDom.querySelector('.map-attribution');
-    if (prevAttributionDiv) prevAttributionDiv.remove();
-    const attrDiv: any = document.createElement('div');
-    attrDiv.classList.add('map-attribution');
-    attrDiv.style.position = 'absolute';
-    attrDiv.style.bottom = 0;
-    attrDiv.style.left = 0;
-    attrDiv.style.zIndex = 800;
-    const attrImg = await this.getReportingRechabilityMapAttribution();
-    attrDiv.appendChild(attrImg);
-    pageElementDom.appendChild(attrDiv);
-
-    if (this.reportingService.clonedTemplate.name.includes('reachability')) {
-      // also create the reachability specific legend manually
-      const prevLegendDiv = pageDom.querySelector('.map-legend');
-      if (prevLegendDiv) prevLegendDiv.remove();
-      const legendDiv: any = document.createElement('div');
-      legendDiv.classList.add('map-legend');
-      legendDiv.style.position = 'absolute';
-      legendDiv.style.bottom = 0;
-      legendDiv.style.right = 0;
-      legendDiv.style.zIndex = 800;
-      const legendImg = await this.diagramHelperService.createReportingReachabilityMapLegend(
-        echartsOptions,
-        this.selectedSpatialUnit,
-        this.isochronesRangeType,
-        this.isochronesRangeUnits
-      );
-      legendDiv.appendChild(legendImg);
-      pageElementDom.appendChild(legendDiv);
-    }
-
-    // echarts uses [lon, lat], leaflet uses [lat, lon]
-    let boundingCoords = echartsOptions.series[0].boundingCoords;
-    const westLon = boundingCoords[0][0];
-    const southLat = boundingCoords[1][1];
-    const eastLon = boundingCoords[1][0];
-    const northLat = boundingCoords[0][1];
-
-    if (page.area && page.area.length) {
-      const feature = this.geoJsonForReachability_byFeatureName.get(page.area);
-      page.spatialUnitFeatureId =
-        feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME];
-    }
-
-    leafletMap.fitBounds([
-      [southLat, westLon],
-      [northLat, eastLon],
-    ]);
-    const bounds = leafletMap.getBounds();
-
-    /*
-      as we might have landscape and portrait versions of the same content
-      leaflet fitBounds() will not work properly, if the leaflet map is actually not included in the DOM currently
-
-      --> hence we make a workaround. if the leaflet coords of northeast and southwest are exactly the same
-      then we just ignore it and instead reuse the original echarts coordinates --> they are proper at the beginning of the function
-
-      */
-
-    if (bounds.getWest() == bounds.getEast() && bounds.getNorth() == bounds.getSouth()) {
-      // this is only the case, if leaflet.fitBounds() results in a single coordinate (due to map HTML element not within DOM)
-      // hence, simply use current echarts extent
-    } else {
-      // normal case, leaflet has properly rendered and zoomed to the given extent
-      // thus we use the leaflet coords in order to adjust the echarts extent for proper overlay
-      boundingCoords = [
-        [bounds.getWest(), bounds.getNorth()],
-        [bounds.getEast(), bounds.getSouth()],
-      ];
-    }
-
-    for (const series of echartsOptions.series) {
-      series.left = 0;
-      series.top = 0;
-      series.right = 0;
-      series.bottom = 0;
-      series.boundingCoords = boundingCoords;
-      series.projection = {
-        project: (point) => this.mercatorProjection_d3(point),
-        unproject: (point) => this.mercatorProjection_d3.invert(point),
-      };
-    }
-
-    echartsOptions.geo[0].top = 0;
-    echartsOptions.geo[0].left = 0;
-    echartsOptions.geo[0].right = 0;
-    echartsOptions.geo[0].bottom = 0;
-    echartsOptions.geo[0].projection = {
-      project: (point) => this.mercatorProjection_d3(point),
-      unproject: (point) => this.mercatorProjection_d3.invert(point),
-    };
-    echartsOptions.geo[0].boundingCoords = boundingCoords;
-
-    // due to strange leaflet screenshot issues with multiple echarts series, only pass the first series during screenshot
-    // and restore all series after the screenshot is taken
-    const firstSeries_array = [echartsOptions.series[0]];
-    const allSeries_array = echartsOptions.series;
-
-    echartsOptions.series = firstSeries_array;
-    map.setOption(echartsOptions, {
-      notMerge: false,
-    });
-
-    let leafletLayer: any;
-    if (this.selectedBaseMap.layerConfig.layerType === 'TILE_LAYER_GRAYSCALE') {
-      leafletLayer = new L.tileLayer(this.selectedBaseMap.layerConfig.url);
-    } else if (this.selectedBaseMap.layerConfig.layerType === 'TILE_LAYER') {
-      leafletLayer = new L.tileLayer(this.selectedBaseMap.layerConfig.url);
-    } else if (this.selectedBaseMap.layerConfig.layerType === 'WMS') {
-      leafletLayer = new L.tileLayer.wms(this.selectedBaseMap.layerConfig.url, {
-        layers: this.selectedBaseMap.layerConfig.layerName_WMS,
-        format: 'image/jpeg',
-      });
-    }
-
-    const domNode = leafletMap['_container'];
-
-    pageElement.selectedBaseMap = this.selectedBaseMap;
-    pageElement.leafletMap = leafletMap;
-    pageElement.leafletBbox = bounds;
-    pageElement.echartsOptions = echartsOptions;
-
-    const screenshotPromise = new Promise<string | undefined>((resolve) => {
-      const timeoutHandle = setTimeout(() => {
-        console.warn(
-          'Leaflet tile load timed out for page ' + pageIdx + ', proceeding without screenshot'
-        );
-        resolve(undefined);
-      }, 15000);
-      leafletLayer.on('load', async () => {
-        clearTimeout(timeoutHandle);
-        if (page.orientation === this.reportingService.clonedTemplate.orientation) {
-          await new Promise((r) => setTimeout(r, 500));
-          const dataUrl = await this.leafletScreenshotCacheHelperService.checkForScreenshot(
-            this.selectedBaseMap.layerConfig.name,
-            this.selectedSpatialUnit.spatialUnitId,
-            page.spatialUnitFeatureId,
-            page.orientation,
-            domNode,
-            this.reportingService.clonedTemplate.name
-          );
-          resolve(dataUrl);
-        } else {
-          resolve(undefined);
-        }
-      });
-    });
-
-    // give the browser a beat to settle layout before Leaflet measures the container;
-    // only then add the tile layer, so its tile grid is computed against the real size
-    await new Promise<void>((resolve) => {
-      setTimeout(() => {
-        leafletMap.invalidateSize(false);
-        resolve();
-      }, 100);
-    });
-    leafletLayer.addTo(leafletMap);
-
-    const dataUrl = await screenshotPromise;
-
-    if (!isPreview) {
-      leafletMap.remove();
-      div.remove();
-    }
-
-    // restore all series now that screenshot is done
-    echartsOptions.series = allSeries_array;
-    map.setOption(echartsOptions, { notMerge: false });
-
-    return dataUrl;
-  }
-
   // async
-  async createPageElement_Map(wrapper, page, pageElement) {
+  async createPageElement_Map(wrapper, page, pageElement, context: ReportGenerationContext) {
     if (this.reportingService.clonedTemplate.name.includes('reachability')) {
-      const map = await this.createMapForReachability(wrapper, page, pageElement);
+      const map = await this.createMapForReachability(wrapper, page, pageElement, context);
       return map;
     }
 
@@ -2665,7 +2417,7 @@ export class IndicatorAddComponent implements OnInit {
     if (pageElement.isTimeseries) {
       const includeInBetweenDates = true;
       const timeseries = this.getFormattedDateSliderValues(includeInBetweenDates);
-      series.data = this.calculateSeriesDataForTimeseries(
+      series.data = calculateSeriesDataForTimeseries(
         this.selectedIndicator.geoJSON.features,
         timeseries
       );
@@ -2870,7 +2622,7 @@ export class IndicatorAddComponent implements OnInit {
     return options;
   }
 
-  createPageElement_BarChartDiagram(wrapper, page) {
+  createPageElement_BarChartDiagram(wrapper, page, context: ReportGenerationContext) {
     // get timestamp from pageElement, not from dom because dom might not be up to date yet
     // barcharts are only used in timestamp templates so we don't have to check for timeseries for now
     const dateElement = page.pageElements.find((el) => {
@@ -2933,7 +2685,12 @@ export class IndicatorAddComponent implements OnInit {
     // add average bars - skipped for categorical indicators, which have no meaningful average
     if (!this.selectedIndicatorIsCategorical) {
       // add data element for the overall average
-      const overallAvgValue = this.calculateAvg(this.selectedIndicator, timestamp, false);
+      const overallAvgValue = calculateAvg(
+        this.selectedIndicator,
+        timestamp,
+        false,
+        this.selectedAreas
+      );
       const overallAvgElementName =
         page.area && page.area.length
           ? 'Durchschnitt\nder\nRaumeinheit'
@@ -2957,7 +2714,12 @@ export class IndicatorAddComponent implements OnInit {
 
       // same for selection average
       // add more data elements for the overall and selection average
-      const selectionAvgValue = this.calculateAvg(this.selectedIndicator, timestamp, true);
+      const selectionAvgValue = calculateAvg(
+        this.selectedIndicator,
+        timestamp,
+        true,
+        this.selectedAreas
+      );
       const selectionAvgElementName =
         page.area && page.area.length
           ? 'Durchschnitt\nder\nSelektion'
@@ -2988,7 +2750,7 @@ export class IndicatorAddComponent implements OnInit {
     return barChart;
   }
 
-  createPageElement_TimelineDiagram(wrapper, page, pageElement) {
+  createPageElement_TimelineDiagram(wrapper, page, pageElement, context: ReportGenerationContext) {
     // no need to get a timestamp here
 
     const lineChart = echarts.init(wrapper);
@@ -3095,7 +2857,7 @@ export class IndicatorAddComponent implements OnInit {
         series.data = this.transformSeriesDataToPercentageChange(series.data);
       }
       options.xAxis.data.shift();
-      options.title.text = 'Veränderung zum Vorjahr';
+      options.title.text = 'VerÃ¤nderung zum Vorjahr';
     }
 
     if (pageElement.showBoxplots) {
@@ -3160,187 +2922,6 @@ export class IndicatorAddComponent implements OnInit {
     return lineChart;
   }
 
-  createPageElement_Datatable(wrapper, page) {
-    // table looks different depending on template type
-    // for single timestamps it is added at the end of each timestamp-section, so each area is inserted once
-    // for timeseries it is added once at the end of the template and contains an extra column for timestamps.
-    // Each area is inserted for multiple timestamps.
-
-    // our wrapper is 440px high.
-    // 440 - 25 (header) = 415
-    // we set each row to be 25px high, so we can fit 415 / 25 --> 16 rows on one page.
-    const wrapperHeight = parseInt(wrapper.style.height, 10);
-    const maxRows = Math.floor((wrapperHeight - 25) / 25);
-    const rowsData: any[] = [];
-    let timestamp = undefined;
-    let timeseries: any = undefined;
-
-    if (this.reportingService.clonedTemplate.name.includes('timestamp')) {
-      // get the timestamp from pageElement, not from dom because dom might not be up to date yet
-      const dateElement = page.pageElements.find((el) => {
-        return el.type.includes('dataTimestamp-');
-      });
-      timestamp = dateElement.text;
-    }
-
-    if (this.reportingService.clonedTemplate.name.includes('timeseries')) {
-      const inBetweenValues = true;
-      timeseries = this.getFormattedDateSliderValues(inBetweenValues);
-    }
-
-    // see how many pages need to be added. Rows are added later
-    for (const feature of this.selectedIndicator.geoJSON.features) {
-      // don't add row if feature not selected
-      let isSelected = false;
-      for (const tEarea of this.selectedAreas) {
-        const area: any = tEarea;
-
-        if (area.name === feature.properties.NAME) {
-          isSelected = true;
-        }
-      }
-      if (!isSelected) continue;
-
-      if (this.reportingService.clonedTemplate.name.includes('timestamp')) {
-        // get the timestamp from pageElement, not from dom because dom might not be up to date yet
-        const dateElement = page.pageElements.find((el) => {
-          return el.type.includes('dataTimestamp-');
-        });
-        const timestamp = dateElement.text;
-        // prepare data to insert later
-        let value = feature.properties['DATE_' + timestamp];
-        if (typeof value == 'number') value = Math.round(value * 100) / 100;
-
-        rowsData.push({
-          name: feature.properties.NAME,
-          value: value,
-        });
-      }
-
-      if (this.reportingService.clonedTemplate.name.includes('timeseries')) {
-        for (const timestamp of timeseries.dates) {
-          let value = feature.properties['DATE_' + timestamp];
-          if (typeof value == 'number') value = Math.round(value * 100) / 100;
-          rowsData.push({
-            name: feature.properties.NAME,
-            timestamp: timestamp,
-            value: value,
-          });
-        }
-      }
-    }
-
-    // sort by area name
-    rowsData.sort((a, b) => a.name.localeCompare(b.name));
-
-    // append average as last row if needed - categorical values have no meaningful average
-    if (
-      this.reportingService.clonedTemplate.name.includes('timestamp') &&
-      !this.selectedIndicatorIsCategorical
-    ) {
-      rowsData.push({
-        name: 'Durchschnitt Selektion',
-        value: this.calculateAvg(this.selectedIndicator, timestamp, true),
-      });
-      rowsData.push({
-        name: 'Durchschnitt Gesamtstadt',
-        value: this.calculateAvg(this.selectedIndicator, timestamp, false),
-      });
-    }
-
-    const columnNames = this.reportingService.clonedTemplate.name.includes('timeseries')
-      ? ['Bereich', 'Zeitpunkt', 'Wert']
-      : ['Bereich', 'Wert'];
-
-    // rowsData is identical on every call (it's always recomputed from the full
-    // selection); which slice of it belongs on THIS page is its position among all
-    // 'datatable' pages currently in the template -- preparePageForIndicatorAdd's
-    // 'datatable' case already removed any stale continuation pages before calling us,
-    // so on first entry for a given indicator there's exactly one (this one)
-    const datatablePageIndices = this.reportingService.clonedTemplate.pages
-      .map((p: any, i: number) =>
-        p.pageElements.some((el: any) => el.type === 'datatable') ? i : -1
-      )
-      .filter((i: number) => i !== -1);
-    const pageIndex = this.reportingService.clonedTemplate.pages.indexOf(page);
-    const pageOffset = datatablePageIndices.indexOf(pageIndex);
-
-    // if more rows remain than fit here and no continuation page exists yet, insert exactly
-    // one -- the outer preparation loop re-checks pages.length every iteration, so it will
-    // reach this new page next and call back into this method for its own slice
-    const isLastDatatablePage = pageOffset === datatablePageIndices.length - 1;
-    if (isLastDatatablePage && rowsData.length > (pageOffset + 1) * maxRows) {
-      const newPage = this.reportingService.getDatatablePageClone();
-      newPage.id = this.templatePageIdCounter++;
-
-      for (const pageElement of newPage.pageElements) {
-        if (pageElement.type.includes('indicatorTitle-')) {
-          pageElement.text =
-            this.selectedIndicator.indicatorName + ' [' + this.selectedIndicator.unit + ']';
-          pageElement.isPlaceholder = false;
-        }
-
-        if (pageElement.type.includes('dataTimestamp-')) {
-          pageElement.text = timestamp;
-          pageElement.isPlaceholder = false;
-        }
-
-        // exists only on timeseries template (instead of dataTimestamp-landscape), so we don't need another if...else here
-        if (pageElement.type.includes('dataTimeseries-')) {
-          pageElement.text = timeseries.from + ' - ' + timeseries.to;
-          pageElement.isPlaceholder = false;
-        }
-
-        if (pageElement.type === 'datatable') {
-          pageElement.isPlaceholder = false;
-        }
-      }
-
-      this.reportingService.clonedTemplate.pages.splice(pageIndex + 1, 0, newPage);
-    }
-
-    // build this page's table directly into the element we were given -- no DOM lookup/
-    // polling needed, `wrapper` already is the right node (see preparePageForIndicatorAdd's
-    // 'datatable' case, which also scrapes the result straight back out synchronously)
-    wrapper.innerHTML = '';
-    wrapper.style.border = 'none'; // hide dotted border from outer dom element
-    wrapper.style.justifyContent = 'flex-start'; // align table at top instead of center
-
-    const table = createDatatableSkeleton(columnNames);
-    wrapper.appendChild(table);
-    const tbody = table.querySelector('tbody')!;
-
-    const pageElement = page.pageElements.find((el) => el.type === 'datatable');
-    pageElement.isPlaceholder = false;
-
-    const rowsForThisPage = rowsData.slice(pageOffset * maxRows, (pageOffset + 1) * maxRows);
-    for (const rowData of rowsForThisPage) {
-      const row = document.createElement('tr');
-      row.style.height = '25px';
-
-      for (const colName of columnNames) {
-        const td = document.createElement('td');
-        if (colName === 'Bereich') {
-          td.innerText = rowData.name;
-          td.classList.add('text-left');
-        }
-
-        if (colName === 'Zeitpunkt') {
-          td.innerText = rowData.timestamp;
-        }
-
-        if (colName === 'Wert') {
-          td.innerText = rowData.value;
-          td.classList.add('text-right');
-        }
-
-        row.appendChild(td);
-      }
-
-      tbody.appendChild(row);
-    }
-  }
-
   filterMapByAreaName(echartsInstance, areaName, targetFeature) {
     const options = echartsInstance.getOption();
     const mapName = options.series[0].map;
@@ -3365,67 +2946,6 @@ export class IndicatorAddComponent implements OnInit {
     echartsInstance.setOption(options, {
       replaceMerge: ['series'],
     });
-  }
-
-  calculateAvg(indicator, timestamp, calcForSelection) {
-    // categorical values have no numeric average - callers must not display this as a value
-    if (isQualitativeMapping(indicator?.defaultClassificationMapping)) {
-      return null;
-    }
-
-    // calculate avg from geoJSON property, which should be the currently selected spatial unit
-    let features = indicator.geoJSON.features;
-    if (calcForSelection) {
-      features = features.filter((el) => {
-        return this.selectedAreas.map((area: any) => area.name).includes(el.properties.NAME);
-      });
-    }
-
-    const data = features.map((feature) => {
-      return feature.properties['DATE_' + timestamp];
-    });
-
-    let noDataCounter = 0;
-    let sum = 0;
-    for (const value of data) {
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-      } else {
-        noDataCounter++;
-      }
-    }
-
-    let avg = sum / (data.length - noDataCounter);
-    avg = Math.round(avg * 100) / 100; // 2 decimal places
-    return avg;
-  }
-
-  calculateChange(indicator, timeseries, calcForSelection) {
-    // categorical values have no numeric "change over time" - callers must not display this as a value
-    if (isQualitativeMapping(indicator?.defaultClassificationMapping)) {
-      return null;
-    }
-
-    let data = this.calculateSeriesDataForTimeseries(indicator.geoJSON.features, timeseries);
-    if (calcForSelection) {
-      data = data.filter((el) => {
-        return this.selectedAreas.map((area: any) => area.name).includes(el.name);
-      });
-    }
-    data = data.map((obj) => obj.value);
-    let noDataCounter = 0;
-    let sum = 0;
-    for (const value of data) {
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-      } else {
-        noDataCounter++;
-      }
-    }
-
-    let avgChange = sum / (data.length - noDataCounter);
-    avgChange = Math.round(avgChange * 100) / 100; // 2 decimal places
-    return avgChange;
   }
 
   async clearScreenshotCache() {
@@ -3856,7 +3376,37 @@ export class IndicatorAddComponent implements OnInit {
     });
   }
 
+  // Builds the per-page generation context. Not consumed by the generation methods yet - see
+  // report-generation-context.model.ts for why this is introduced ahead of actually using it.
+  buildGenerationContext(): ReportGenerationContext {
+    return {
+      pages: this.reportingService.clonedTemplate.pages,
+      mercatorProjection_d3: this.mercatorProjection_d3,
+      selectedIndicator: this.selectedIndicator,
+      selectedAreas: this.selectedAreas,
+      selectedSpatialUnit: this.selectedSpatialUnit,
+      selectedPoiLayer: this.selectedPoiLayer,
+      selectedBaseMap: this.selectedBaseMap,
+      pageConfig: this.pageConfig,
+      echartsOptions: this.echartsOptions,
+      geoJsonForReachability: this.geoJsonForReachability,
+      isochrones: this.isochrones,
+      isochronesSeriesData: this.isochronesSeriesData,
+      isochronesRangeType: this.isochronesRangeType,
+      isochronesRangeUnits: this.isochronesRangeUnits,
+      reachabilityTemplateGeoMapOptions: this.reachabilityTemplateGeoMapOptions,
+      selectedIndicatorIsCategorical: this.selectedIndicatorIsCategorical,
+      availableFeaturesBySpatialUnit: this.availableFeaturesBySpatialUnit,
+      geoJsonForSelectedIndicator_byFeatureName: this.geoJsonForSelectedIndicator_byFeatureName,
+      geoJsonForReachability_byFeatureName: this.geoJsonForReachability_byFeatureName,
+      echartsRegisteredMapNames: this.echartsRegisteredMapNames,
+      absoluteLabelPositions: this.absoluteLabelPositions,
+      draggingLabelForFeature: this.draggingLabelForFeature,
+    };
+  }
+
   async preparePageForIndicatorAdd(idx: number, page: any) {
+    const context = this.buildGenerationContext();
     const isPreview = this.isPageInPreview(page, idx);
     page.indexInConfigPages = idx;
 
@@ -3871,7 +3421,7 @@ export class IndicatorAddComponent implements OnInit {
 
     // Route all rendering through the off-screen background processor for stable captures.
     // We build the child elements directly in the DOM instead of relying on appRef.tick()
-    // to flush Angular's *ngFor — tick() swallows view errors silently and may skip views.
+    // to flush Angular's *ngFor â€” tick() swallows view errors silently and may skip views.
     this.reportingService.reportingBackgroundState.pageToProcess_add = page;
 
     const pageDom = document.getElementById('reporting-addIndicator-background-page');
@@ -3916,7 +3466,7 @@ export class IndicatorAddComponent implements OnInit {
 
       switch (pageElement.type) {
         case 'map': {
-          const map = await this.createPageElement_Map(pElementDom, page, pageElement);
+          const map = await this.createPageElement_Map(pElementDom, page, pageElement, context);
 
           if (page.area && page.area.length) {
             if (this.selectedIndicator) {
@@ -3935,17 +3485,19 @@ export class IndicatorAddComponent implements OnInit {
             await new Promise((resolve) => setTimeout(resolve, 250));
           }
 
-          page.generatedData.mapImage = await this.initLeafletMapBeneathEchartsMap(
-            page,
-            pageElement,
-            elementIdx,
-            map,
-            isPreview
-          );
+          page.generatedData.mapImage =
+            await this.reportPagePreparationService.prepareLeafletMapForIndicatorAdd(
+              page,
+              pageElement,
+              elementIdx,
+              map,
+              isPreview,
+              context
+            );
           pageElement.isPlaceholder = false;
           page.generatedData.echarts[pageElement.type] = map.getDataURL({ pixelRatio: 2 });
           // pageElement.echartsOptions (incl. the custom projection functions) is already
-          // set by initLeafletMapBeneathEchartsMap above — do not overwrite it with a
+          // set by prepareLeafletMapForIndicatorAdd above - do not overwrite it with a
           // JSON-cloned copy, which would silently drop those functions
 
           if (isPreview) {
@@ -3983,7 +3535,7 @@ export class IndicatorAddComponent implements OnInit {
           break;
         }
         case 'barchart': {
-          this.createPageElement_BarChartDiagram(pElementDom, page);
+          this.createPageElement_BarChartDiagram(pElementDom, page, context);
           pageElement.isPlaceholder = false;
           const barChartInstance = echarts.getInstanceByDom(pElementDom) as any;
           page.generatedData.echarts[pageElement.type] = barChartInstance?.getDataURL({
@@ -4006,7 +3558,7 @@ export class IndicatorAddComponent implements OnInit {
           break;
         }
         case 'linechart': {
-          this.createPageElement_TimelineDiagram(pElementDom, page, pageElement);
+          this.createPageElement_TimelineDiagram(pElementDom, page, pageElement, context);
           pageElement.isPlaceholder = false;
           const chartKey = pageElement.showPercentageChangeToPrevTimestamp
             ? 'linechart_perc'
@@ -4053,7 +3605,15 @@ export class IndicatorAddComponent implements OnInit {
                 : false;
             }
           }
-          this.createPageElement_Datatable(pElementDom, page);
+          const timeseries = this.reportingService.clonedTemplate.name.includes('timeseries')
+            ? this.getFormattedDateSliderValues(true)
+            : undefined;
+          this.reportPagePreparationService.createDatatablePageForIndicatorAdd(
+            pElementDom,
+            page,
+            timeseries,
+            context
+          );
 
           // capture the rendered table now; background pages never reach the visible
           // preview DOM, so this can't be scraped later when the section is added
@@ -4127,38 +3687,6 @@ export class IndicatorAddComponent implements OnInit {
       feature.properties['DATE_' + toDate] = value;
     }
 
-    return features;
-  }
-
-  calculateSeriesDataForTimeseries(features, timeseries) {
-    const result: any[] = [];
-    const mostRecentDate = timeseries.to;
-    const oldestDate = timeseries.from;
-
-    for (const feature of features) {
-      const obj: any = {};
-      obj.name = feature.properties.name;
-      let value =
-        feature.properties['DATE_' + mostRecentDate] - feature.properties['DATE_' + oldestDate];
-      if (typeof value == 'number') {
-        value = Math.round(value * 100) / 100;
-      }
-      obj.value = value;
-
-      result.push(obj);
-    }
-    return result;
-  }
-
-  createLowerCaseNameProperty(features) {
-    for (const feature of features) {
-      if (Object.prototype.hasOwnProperty.call(feature, 'properties')) {
-        if (!Object.prototype.hasOwnProperty.call(feature.properties, 'name')) {
-          const featureName = feature.properties.NAME;
-          feature.properties.name = featureName;
-        }
-      }
-    }
     return features;
   }
 

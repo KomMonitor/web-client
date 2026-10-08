@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { ApplicationRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -10,12 +10,10 @@ import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store
 import * as d3 from 'd3';
 import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot-cache-helper-service/leaflet-screenshot-cache-helper.service';
 import { HttpClient } from '@angular/common/http';
-import * as L from 'leaflet';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { GenerateReportComponent } from '../generate-report/generate-report.component';
 import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
-import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import {
@@ -23,13 +21,16 @@ import {
   ReportingService,
   WorkflowState,
 } from 'services/reporting-service/reporting.service';
+import { ReportPagePreparationService } from 'services/report-page-preparation-service/report-page-preparation.service';
 import {
   checkVisibility,
   countBackgroundPages,
-  createDatatableSkeleton,
+  createDatatablePage,
+  createLowerCaseNameProperty,
   isLastPreviewPage,
   isPageInPreview,
 } from 'components/ngComponents/userInterface/reporting/report-preview.utils';
+import { ReportGenerationContext } from 'components/ngComponents/userInterface/reporting/report-generation-context.model';
 
 @Component({
   selector: 'app-reporting-overview',
@@ -47,10 +48,10 @@ export class ReportingOverviewComponent implements OnInit {
   protected diagramHelperService = inject(DiagramHelperServiceService);
   private modalService = inject(NgbModal);
   protected reportingService = inject(ReportingService);
-  private envConfigService = inject(EnvConfigService);
   private appRef = inject(ApplicationRef);
   private broadcastService = inject(BroadcastService);
   private destroyRef = inject(DestroyRef);
+  private reportPagePreparationService = inject(ReportPagePreparationService);
 
   lastPageOfAddedSectionPrepared = false;
   deviceScreenDpi;
@@ -178,7 +179,7 @@ export class ReportingOverviewComponent implements OnInit {
             '#reporting-overview-page-' + index + '-map-' + elementIdx
           );
           const instance = echarts.getInstanceByDom(pElementDom);
-          await this.initializeLeafletMap(
+          await this.reportPagePreparationService.prepareLeafletMapForOverview(
             new_page,
             mapElement,
             elementIdx,
@@ -186,7 +187,8 @@ export class ReportingOverviewComponent implements OnInit {
             this.currentSpatialUnit,
             true,
             true,
-            true
+            true,
+            this.buildGenerationContext()
           );
         }
       }
@@ -432,7 +434,25 @@ export class ReportingOverviewComponent implements OnInit {
     );
   }
 
+  // Builds the per-page generation context. Not consumed by the generation methods yet - see
+  // report-generation-context.model.ts for why this is introduced ahead of actually using it.
+  buildGenerationContext(): ReportGenerationContext {
+    return {
+      pages: this.reportingService.workingTemplate.pages,
+      mercatorProjection_d3: this.mercatorProjection_d3,
+      currentSpatialUnit: this.currentSpatialUnit,
+      geoJsonForReachability_byFeatureName: this.geoJsonForReachability_byFeatureName,
+      featureLookupCache: this.featureLookupCache,
+      lastPageOfAddedSectionPrepared: this.lastPageOfAddedSectionPrepared,
+      pagePreparationIndex: this.pagePreparationIndex,
+      pagePreparationSize: this.pagePreparationSize,
+      loadingData: this.loadingData,
+      echartsImgPixelRatio: this.echartsImgPixelRatio,
+    };
+  }
+
   async preparePage(idx, page, indicatorId, poiLayerName, spatialUnit, geoJSON) {
+    const context = this.buildGenerationContext();
     const isPreview = this.isPageInPreview(page, idx);
     page.indexInConfigPages = idx;
 
@@ -535,16 +555,18 @@ export class ReportingOverviewComponent implements OnInit {
         instance.setOption(pageElement.echartsOptions);
 
         if (pageElement.type === 'map') {
-          page.generatedData.mapImage = await this.initializeLeafletMap(
-            page,
-            pageElement,
-            elementIdx,
-            instance,
-            spatialUnit,
-            false,
-            false,
-            isPreview
-          );
+          page.generatedData.mapImage =
+            await this.reportPagePreparationService.prepareLeafletMapForOverview(
+              page,
+              pageElement,
+              elementIdx,
+              instance,
+              spatialUnit,
+              false,
+              false,
+              isPreview,
+              context
+            );
 
           if (isPreview) {
             const previewPElementDom: any = document.querySelector(
@@ -552,7 +574,7 @@ export class ReportingOverviewComponent implements OnInit {
             );
             if (previewPElementDom) {
               // move the rendered echarts canvas (the indicator choropleth) into the visible
-              // preview element — it only exists in the off-screen background container
+              // preview element â€” it only exists in the off-screen background container
               // otherwise, so without this the indicator data never shows up in the overview
               previewPElementDom.innerHTML = '';
               while (pElementDom.firstChild) {
@@ -617,7 +639,7 @@ export class ReportingOverviewComponent implements OnInit {
             '#reporting-overview-page-' + idx + '-' + pageElement.type + '-' + elementIdx
           );
         }
-        this.createDatatablePage(targetDom, pageElement);
+        createDatatablePage(targetDom, pageElement);
         page.generatedData.tableData = pageElement.tableData;
       }
     }
@@ -641,7 +663,7 @@ export class ReportingOverviewComponent implements OnInit {
     this.currentSpatialUnit = spatialUnit;
 
     featureCollection = await this.queryFeatures(indicatorId, spatialUnit);
-    features = this.createLowerCaseNameProperty(featureCollection.features);
+    features = createLowerCaseNameProperty(featureCollection.features);
     this.geoJsonForReachability_byFeatureName = new Map();
 
     for (const feature of features) {
@@ -705,7 +727,7 @@ export class ReportingOverviewComponent implements OnInit {
     }
     this.currentSpatialUnit = spatialUnit;
 
-    features = this.createLowerCaseNameProperty(featureCollection.features);
+    features = createLowerCaseNameProperty(featureCollection.features);
     geoJSON = { features: features };
 
     this.geoJsonForReachability_byFeatureName = new Map();
@@ -759,260 +781,6 @@ export class ReportingOverviewComponent implements OnInit {
 
  */
 
-  async initializeLeafletMap(
-    page,
-    pageElement,
-    elementIdx: number,
-    echartsMap,
-    spatialUnit,
-    forceScreenshot,
-    isVisible,
-    isPreview?: boolean
-  ) {
-    // declared outside the try block so the finally clause can always clean them up —
-    // for preview pages this map is built directly inside the visible page DOM, so leaving
-    // it behind on an early return/exception would show a stuck, partially-loaded live map
-    let leafletMap: any;
-    let div: any;
-    try {
-      const pageIdx = this.reportingService.workingTemplate.pages.indexOf(page);
-
-      // store spatial unit and feature id before cache check
-      page.spatialUnitId = spatialUnit.spatialUnitId;
-      if (page.area) {
-        const cacheKey = this.getFeatureLookupKey(page.templateSection);
-        let featureMap = this.featureLookupCache.get(cacheKey);
-        if (!featureMap) featureMap = this.geoJsonForReachability_byFeatureName;
-        const feature = featureMap.get(page.area);
-        if (feature) {
-          page.spatialUnitFeatureId =
-            feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME];
-        }
-      }
-
-      // check cache before creating leaflet map
-      const cachedScreenshot = this.leafletScreenshotCacheHelperService.getResourceFromCache(
-        pageElement.selectedBaseMap.layerConfig.name,
-        page.spatialUnitId,
-        page.spatialUnitFeatureId,
-        page.orientation,
-        this.reportingService.workingTemplate.name
-      );
-      if (cachedScreenshot) {
-        return await this.leafletScreenshotCacheHelperService.checkForScreenshot(
-          pageElement.selectedBaseMap.layerConfig.name,
-          spatialUnit.spatialUnitId,
-          page.spatialUnitFeatureId,
-          page.orientation,
-          null,
-          this.reportingService.workingTemplate.name
-        );
-      }
-
-      const id = 'reporting-background-leaflet-map-container-' + elementIdx;
-      // Leaflet does not reliably load tiles while off-screen (opacity: 0 / far off-canvas
-      // position) — for preview pages, build the map inside the visible page DOM instead,
-      // same workaround already used by indicator-add.component.ts's equivalent function.
-      const pageDomId = isPreview
-        ? 'reporting-overview-page-' + pageIdx
-        : 'reporting-background-page';
-      let pageDom: any = document.getElementById(pageDomId);
-      const pageElementDomId = 'reporting-background-page-map-' + elementIdx;
-      let pageElementDom: any = document.getElementById(pageElementDomId);
-
-      if (!pageDom) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        pageDom = document.getElementById(pageDomId);
-        pageElementDom = document.getElementById(pageElementDomId);
-      }
-
-      if (!pageDom) {
-        console.error('Could not find DOM for leaflet map init: ' + pageDomId);
-        return undefined;
-      }
-
-      const oldMapNode = document.getElementById(id);
-      if (oldMapNode) {
-        oldMapNode.remove();
-      }
-      div = document.createElement('div');
-      div.id = id;
-      div.style.position = 'absolute';
-      div.style.left = pageElement.dimensions.left;
-      div.style.top = pageElement.dimensions.top;
-      div.style.width = pageElement.dimensions.width;
-      div.style.height = pageElement.dimensions.height;
-      div.style.zIndex = 10;
-      pageDom.appendChild(div);
-      const echartsOptions = echartsMap.getOption();
-
-      leafletMap = L.map(div.id, {
-        zoomControl: false,
-        dragging: false,
-        doubleClickZoom: false,
-        boxZoom: false,
-        trackResize: false,
-        attributionControl: false,
-        zoomSnap: 0,
-        fadeAnimation: false,
-        zoomAnimation: false,
-      });
-      // Leaflet caches the container size at construction time; force it to re-measure
-      // now (after our explicit width/height are applied) so fitBounds() below computes
-      // against the real size instead of a stale/zero one — otherwise only the fraction
-      // of the container Leaflet thinks is visible gets tiles (classic top-left-only bug).
-      leafletMap.invalidateSize(false);
-
-      // manually create attribution overlay with controlled z-index
-      const prevAttributionDiv = pageDom.querySelector('.map-attribution');
-      if (prevAttributionDiv) prevAttributionDiv.remove();
-      const attrDiv: any = document.createElement('div');
-      attrDiv.classList.add('map-attribution');
-      attrDiv.style.position = 'absolute';
-      attrDiv.style.bottom = 0;
-      attrDiv.style.left = 0;
-      attrDiv.style.zIndex = 800;
-      const attrImg = await this.diagramHelperService.createReportingReachabilityMapAttribution();
-      attrDiv.appendChild(attrImg);
-      if (pageElementDom) pageElementDom.appendChild(attrDiv);
-
-      if (this.reportingService.workingTemplate.name.includes('reachability')) {
-        const prevLegendDiv = pageDom.querySelector('.map-legend');
-        if (prevLegendDiv) prevLegendDiv.remove();
-        const legendDiv: any = document.createElement('div');
-        legendDiv.classList.add('map-legend');
-        legendDiv.style.position = 'absolute';
-        legendDiv.style.bottom = 0;
-        legendDiv.style.right = 0;
-        legendDiv.style.zIndex = 800;
-        const isochronesRangeType = page.templateSection.isochronesRangeType;
-        const isochronesRangeUnits = page.templateSection.isochronesRangeUnits;
-        const legendImg = await this.diagramHelperService.createReportingReachabilityMapLegend(
-          echartsOptions,
-          spatialUnit,
-          isochronesRangeType,
-          isochronesRangeUnits
-        );
-        page.templateSection.legendImg = legendImg;
-        legendDiv.appendChild(legendImg);
-        if (pageElementDom) pageElementDom.appendChild(legendDiv);
-
-        if (!page.spatialUnitFeatureId) {
-          page.spatialUnitFeatureId = 'reachability-page-' + pageIdx;
-        }
-      }
-
-      let boundingCoords = echartsOptions.series[0].boundingCoords;
-      const westLon = boundingCoords[0][0];
-      const southLat = boundingCoords[1][1];
-      const eastLon = boundingCoords[1][0];
-      const northLat = boundingCoords[0][1];
-
-      leafletMap.fitBounds([
-        [southLat, westLon],
-        [northLat, eastLon],
-      ]);
-      const bounds = leafletMap.getBounds();
-
-      if (!(bounds.getWest() == bounds.getEast() && bounds.getNorth() == bounds.getSouth())) {
-        boundingCoords = [
-          [bounds.getWest(), bounds.getNorth()],
-          [bounds.getEast(), bounds.getSouth()],
-        ];
-      }
-
-      for (const series of echartsOptions.series) {
-        series.left = 0;
-        series.top = 0;
-        series.right = 0;
-        series.bottom = 0;
-        series.boundingCoords = boundingCoords;
-        series.projection = {
-          project: (point) => this.mercatorProjection_d3(point),
-          unproject: (point) => this.mercatorProjection_d3.invert(point),
-        };
-      }
-
-      echartsOptions.geo[0].top = 0;
-      echartsOptions.geo[0].left = 0;
-      echartsOptions.geo[0].right = 0;
-      echartsOptions.geo[0].bottom = 0;
-      echartsOptions.geo[0].projection = {
-        project: (point) => this.mercatorProjection_d3(point),
-        unproject: (point) => this.mercatorProjection_d3.invert(point),
-      };
-      echartsOptions.geo[0].boundingCoords = boundingCoords;
-
-      echartsMap.setOption(echartsOptions, { notMerge: false });
-
-      let leafletLayer: any;
-      if (pageElement.selectedBaseMap.layerConfig.layerType === 'TILE_LAYER_GRAYSCALE') {
-        leafletLayer = new L.tileLayer(pageElement.selectedBaseMap.layerConfig.url);
-      } else if (pageElement.selectedBaseMap.layerConfig.layerType === 'TILE_LAYER') {
-        leafletLayer = new L.tileLayer(pageElement.selectedBaseMap.layerConfig.url);
-      } else if (pageElement.selectedBaseMap.layerConfig.layerType === 'WMS') {
-        leafletLayer = new L.tileLayer.wms(pageElement.selectedBaseMap.layerConfig.url, {
-          layers: pageElement.selectedBaseMap.layerConfig.layerName_WMS,
-          format: 'image/jpeg',
-        });
-      } else {
-        leafletLayer = new L.tileLayer('');
-      }
-
-      const screenshotPromise = new Promise<string>((resolve) => {
-        leafletLayer.on('load', async () => {
-          await new Promise((r) => setTimeout(r, 500));
-          const dataUrl = await this.leafletScreenshotCacheHelperService.checkForScreenshot(
-            pageElement.selectedBaseMap.layerConfig.name,
-            spatialUnit.spatialUnitId,
-            page.spatialUnitFeatureId,
-            page.orientation,
-            leafletMap['_container'],
-            this.reportingService.workingTemplate.name
-          );
-          resolve(dataUrl);
-        });
-      });
-
-      // give the browser a beat to settle layout before Leaflet measures the container;
-      // only then add the tile layer, so its tile grid is computed against the real size
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          leafletMap.invalidateSize(false);
-          resolve();
-        }, 100);
-      });
-      leafletLayer.addTo(leafletMap);
-
-      pageElement.leafletMap = leafletMap;
-      pageElement.leafletBbox = bounds;
-      pageElement.echartsOptions = echartsOptions;
-
-      const dataUrl = await screenshotPromise;
-
-      if (
-        !dataUrl ||
-        (!dataUrl.startsWith('data:image') && !dataUrl.startsWith('blob:')) ||
-        dataUrl.length < 10
-      ) {
-        console.warn('Invalid leaflet map screenshot generated for page ' + pageIdx);
-        return undefined;
-      }
-
-      return dataUrl;
-    } catch (error) {
-      console.error(error);
-      return undefined;
-    } finally {
-      // guaranteed cleanup: for preview pages this map/div lives in the visible page DOM,
-      // so any early return or exception above must not leave a stuck partial map behind
-      if (!isVisible) {
-        if (leafletMap) leafletMap.remove();
-        if (div) div.remove();
-      }
-    }
-  }
-
   //async
   getSpatialUnitByName(spatialUnitName): Promise<any> {
     let url;
@@ -1065,36 +833,6 @@ export class ReportingOverviewComponent implements OnInit {
         },
       });
     });
-  }
-
-  createDatatablePage(pElementDom, pageElement) {
-    pElementDom.innerHTML = '';
-    pElementDom.style.border = 'none'; // hide dotted border from outer dom element
-    pElementDom.style.justifyContent = 'flex-start'; // align table at top instead of center
-    // add data
-    const table = createDatatableSkeleton(pageElement.columnNames);
-    const tbody: any = table.querySelector('tbody');
-    // tabledata is a nested array with one sub-array per row
-    for (const row of pageElement.tableData) {
-      const tr = document.createElement('tr');
-      tr.style.height = '25px';
-      for (let i = 0; i < row.length; i++) {
-        const td = document.createElement('td');
-        td.innerText = row[i];
-        // get corresponding column name for styling
-        const colName = pageElement.columnNames[i];
-        if (colName === 'Bereich') {
-          td.classList.add('text-left');
-        }
-        if (colName === 'Wert') {
-          td.classList.add('text-right');
-        }
-
-        tr.appendChild(td);
-      }
-      tbody.appendChild(tr);
-    }
-    pElementDom.appendChild(table);
   }
 
   showThisPage(page) {
@@ -1270,18 +1008,6 @@ export class ReportingOverviewComponent implements OnInit {
         },
       });
     });
-  }
-
-  createLowerCaseNameProperty(features) {
-    for (const feature of features) {
-      if (Object.prototype.hasOwnProperty.call(feature, 'properties')) {
-        if (!Object.prototype.hasOwnProperty.call(feature.properties, 'name')) {
-          const featureName = feature.properties.NAME;
-          feature.properties.name = featureName;
-        }
-      }
-    }
-    return features;
   }
 
   /* 		$on("reportingGenerateReport", function(event, format) {
