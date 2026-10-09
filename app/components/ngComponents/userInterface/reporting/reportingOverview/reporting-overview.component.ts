@@ -95,8 +95,16 @@ export class ReportingOverviewComponent implements OnInit {
         }
       });
 
-    if (!this.reportingService.configImportExists()) this.setupPages();
-    else this.importConfig();
+    // Deferred to a macrotask: this component is often created synchronously inside another
+    // component's click handler (e.g. indicator-add's "add" button swapping the workflow state
+    // back to reportingOverview), i.e. mid change-detection pass. Setting the shared progress
+    // flags right here would make the globally-mounted ReportingProgressBannerComponent's already-
+    // checked binding go stale within the same cycle, tripping NG0100. Starting on the next
+    // macrotask lets the current cycle (including its dev-mode verification pass) finish first.
+    setTimeout(() => {
+      if (!this.reportingService.configImportExists()) this.setupPages();
+      else this.importConfig();
+    });
   }
 
   getPagePreparationPercent(): number {
