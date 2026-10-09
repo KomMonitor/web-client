@@ -54,8 +54,8 @@ export class ReportPagePreparationService {
     isPreview: boolean | undefined,
     context: ReportGenerationContext
   ): Promise<string | undefined> {
-    const id = indicatorAddBackgroundLeafletContainerId(elementIdx);
     const pageIdx: any = context.pages.indexOf(page);
+    const id = indicatorAddBackgroundLeafletContainerId(pageIdx, elementIdx);
 
     // For preview pages use the visible page DOM so Leaflet can load tiles reliably.
     // For background-only pages use the off-screen background processor.
@@ -347,7 +347,7 @@ export class ReportPagePreparationService {
         );
       }
 
-      const id = reportingOverviewBackgroundLeafletContainerId(elementIdx);
+      const id = reportingOverviewBackgroundLeafletContainerId(pageIdx, elementIdx);
       // Leaflet does not reliably load tiles while off-screen (opacity: 0 / far off-canvas
       // position) - for preview pages, build the map inside the visible page DOM instead,
       // same workaround already used by indicator-add.component.ts's equivalent function.

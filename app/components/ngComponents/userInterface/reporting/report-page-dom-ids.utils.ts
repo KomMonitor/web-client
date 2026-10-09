@@ -28,8 +28,15 @@ export function indicatorAddBackgroundPageElementId(type: string, elementIdx: nu
   return indicatorAddBackgroundPageId() + '-' + type + '-' + elementIdx;
 }
 
-export function indicatorAddBackgroundLeafletContainerId(elementIdx: number): string {
-  return 'reporting-addIndicator-background-leaflet-map-container-' + elementIdx;
+// Keyed by pageIdx too, not just elementIdx: multiple pages commonly share the same elementIdx
+// (map is usually each page's first/only element of that type) - without pageIdx, generating
+// page N+1 would look up and remove page N's still-visible live Leaflet map (same id, global
+// document.getElementById lookup), making it vanish from the preview a moment after it rendered.
+export function indicatorAddBackgroundLeafletContainerId(
+  pageIdx: number,
+  elementIdx: number
+): string {
+  return 'reporting-addIndicator-background-leaflet-map-container-' + pageIdx + '-' + elementIdx;
 }
 
 // reporting-overview.component.ts family. NOTE: its background ids use a genuinely different
@@ -60,6 +67,10 @@ export function reportingOverviewBackgroundPageElementId(type: string, elementId
   return reportingOverviewBackgroundPageId() + '-' + type + '-' + elementIdx;
 }
 
-export function reportingOverviewBackgroundLeafletContainerId(elementIdx: number): string {
-  return 'reporting-background-leaflet-map-container-' + elementIdx;
+// Keyed by pageIdx too - see indicatorAddBackgroundLeafletContainerId's comment, same reasoning.
+export function reportingOverviewBackgroundLeafletContainerId(
+  pageIdx: number,
+  elementIdx: number
+): string {
+  return 'reporting-background-leaflet-map-container-' + pageIdx + '-' + elementIdx;
 }
