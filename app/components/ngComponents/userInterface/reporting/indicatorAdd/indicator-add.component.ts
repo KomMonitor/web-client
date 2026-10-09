@@ -3555,9 +3555,11 @@ export class IndicatorAddComponent implements OnInit {
             pageElement.echartsOptions = barChartInstance.getOption();
           }
           if (isPreview) {
-            const previewEl = document.querySelector(
-              '#' + indicatorAddPreviewPageElementId(idx, pageElement.type)
-            );
+            const previewEl =
+              document.querySelector(
+                '#' + indicatorAddPreviewPageElementId(idx, pageElement.type, elementIdx)
+              ) ||
+              document.querySelector('#' + indicatorAddPreviewPageElementId(idx, pageElement.type));
             if (previewEl) {
               previewEl.innerHTML = '';
               while (pElementDom.firstChild) previewEl.appendChild(pElementDom.firstChild);
