@@ -205,6 +205,12 @@ export class CustomSliderComponent implements AfterViewInit, OnChanges {
   }
 
   getSliderValues() {
+    // the noUiSlider widget is created in ngAfterViewInit and can be queried by a parent's
+    // template expression (e.g. validateConfiguration()) before that's run, or while the
+    // slider is being destroyed/recreated - callers already handle a falsy return gracefully
+    if (!this.sliderInstance?.noUiSlider) {
+      return undefined;
+    }
     const values = this.sliderInstance.noUiSlider.get();
     return Array.isArray(values) ? values : [values];
   }
