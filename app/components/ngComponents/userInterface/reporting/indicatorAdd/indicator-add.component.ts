@@ -1065,14 +1065,15 @@ export class IndicatorAddComponent implements OnInit {
         // Similar procedure as with timestamps
         const oldTimeseries = this.getFormattedDateSliderValues(true);
 
+        // no slider state yet (e.g. first-ever selection for this workflow) - nothing to filter against
         const dateSliderDate = this.getFormatedSliderReturn();
-        const from = new Date(dateSliderDate.from);
-        const to = new Date(dateSliderDate.to);
-        const filteredTimeseries = validTimestamps.filter((el) => {
-          const date = new Date(el);
-          date.setHours(0); // remove time-offset...TODO is there a better way?
-          return from <= date && date <= to;
-        });
+        const filteredTimeseries = dateSliderDate
+          ? validTimestamps.filter((el) => {
+              const date = new Date(el);
+              date.setHours(0); // remove time-offset...TODO is there a better way?
+              return new Date(dateSliderDate.from) <= date && date <= new Date(dateSliderDate.to);
+            })
+          : [];
 
         const isEqualTimeseries =
           oldTimeseries.dates.length == filteredTimeseries.length &&
@@ -3736,6 +3737,13 @@ export class IndicatorAddComponent implements OnInit {
       };
     }
 
+    // datesAsMs is only populated once initializeDateRangeSlider() has run at least once for
+    // the current workflow (e.g. on first-ever spatial unit selection it hasn't yet) - without
+    // it there's no date range to fall back to.
+    if (!this.datesAsMs) {
+      return undefined;
+    }
+
     return {
       from: this.datesAsMs[0],
       to: this.datesAsMs[this.datesAsMs.length - 1],
@@ -3815,6 +3823,11 @@ export class IndicatorAddComponent implements OnInit {
 
     /* if(!this.dateSlider)
 				throw new Error("Tried to get dateslider values but dateslider was not defined."); */
+
+    // no slider state yet (e.g. first-ever selection for this workflow) - nothing to report
+    if (!dateSliderDate) {
+      return { from: undefined, to: undefined, dates: [] };
+    }
 
     let from: any = new Date(dateSliderDate.from);
     let to: any = new Date(dateSliderDate.to);
