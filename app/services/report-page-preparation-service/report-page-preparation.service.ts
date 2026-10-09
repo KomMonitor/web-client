@@ -327,6 +327,13 @@ export class ReportPagePreparationService {
             feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME];
         }
       }
+      // "overview" (no-area) pages have no feature to key off - without a fallback here every
+      // such page across the whole report shares one screenshot cache key/pending-promise slot
+      // (same base map + spatial unit + undefined featureId), so the second one to request a
+      // screenshot gets the first one's in-flight promise instead of capturing its own map.
+      if (!page.spatialUnitFeatureId) {
+        page.spatialUnitFeatureId = 'overview-page-' + pageIdx;
+      }
 
       // check cache before creating leaflet map
       const cachedScreenshot = this.leafletScreenshotCacheHelperService.getResourceFromCache(
@@ -434,10 +441,6 @@ export class ReportPagePreparationService {
         page.templateSection.legendImg = legendImg;
         legendDiv.appendChild(legendImg);
         if (pageElementDom) pageElementDom.appendChild(legendDiv);
-
-        if (!page.spatialUnitFeatureId) {
-          page.spatialUnitFeatureId = 'reachability-page-' + pageIdx;
-        }
       }
 
       let boundingCoords = echartsOptions.series[0].boundingCoords;
