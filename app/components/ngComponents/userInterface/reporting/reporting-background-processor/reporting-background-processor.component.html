@@ -17,13 +17,15 @@ Placed outside the modal so pages render correctly even when the modal is closed
     id="reporting-addIndicator-background-page"
     [class]="
       'reporting-page reporting-page-' +
-      (reportingService.reportingBackgroundState.pageToProcess_add?.orientation || '') +
+      (reportGenerationProgressService.reportingBackgroundState.pageToProcess_add?.orientation ||
+        '') +
       ' reporting-custom-css'
     "
   >
-    @if (reportingService.reportingBackgroundState.pageToProcess_add) {
+    @if (reportGenerationProgressService.reportingBackgroundState.pageToProcess_add) {
       @for (
-        pageElement of reportingService.reportingBackgroundState.pageToProcess_add.pageElements;
+        pageElement of reportGenerationProgressService.reportingBackgroundState.pageToProcess_add
+          .pageElements;
         track pageElement;
         let i = $index
       ) {
@@ -53,14 +55,15 @@ Placed outside the modal so pages render correctly even when the modal is closed
     id="reporting-background-page"
     [class]="
       'reporting-page reporting-page-' +
-      (reportingService.reportingBackgroundState.pageToProcess_overview?.orientation || '') +
+      (reportGenerationProgressService.reportingBackgroundState.pageToProcess_overview
+        ?.orientation || '') +
       ' reporting-custom-css'
     "
   >
-    @if (reportingService.reportingBackgroundState.pageToProcess_overview) {
+    @if (reportGenerationProgressService.reportingBackgroundState.pageToProcess_overview) {
       @for (
-        pageElement of reportingService.reportingBackgroundState.pageToProcess_overview
-          .pageElements;
+        pageElement of reportGenerationProgressService.reportingBackgroundState
+          .pageToProcess_overview.pageElements;
         track pageElement;
         let i = $index
       ) {

@@ -22,6 +22,7 @@ import {
   WorkflowState,
 } from 'services/reporting-service/reporting.service';
 import { ReportPagePreparationService } from 'services/report-page-preparation-service/report-page-preparation.service';
+import { ReportGenerationProgressService } from 'services/report-generation-progress-service/report-generation-progress.service';
 import {
   checkVisibility,
   countBackgroundPages,
@@ -54,6 +55,7 @@ export class ReportingOverviewComponent implements OnInit {
   protected diagramHelperService = inject(DiagramHelperServiceService);
   private modalService = inject(NgbModal);
   protected reportingService = inject(ReportingService);
+  protected reportGenerationProgressService = inject(ReportGenerationProgressService);
   private appRef = inject(ApplicationRef);
   private broadcastService = inject(BroadcastService);
   private destroyRef = inject(DestroyRef);
@@ -103,8 +105,8 @@ export class ReportingOverviewComponent implements OnInit {
   }
 
   onAbortPreparationClicked() {
-    this.reportingService.abortPreparation = true;
-    this.reportingService.reportGenerationInProgress = false;
+    this.reportGenerationProgressService.abortPreparation = true;
+    this.reportGenerationProgressService.reportGenerationInProgress = false;
     this.pagePreparationIndex = 0;
     this.pagePreparationSize = 0;
     this.leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate = true;
@@ -372,36 +374,36 @@ export class ReportingOverviewComponent implements OnInit {
   // new to cover added sections
   async setupPages() {
     this.loadingData = true;
-    this.reportingService.abortPreparation = false;
-    this.reportingService.reportGenerationInProgress = true;
-    this.reportingService.reportStatus = 'preparing';
-    this.reportingService.reportProgress = 0;
+    this.reportGenerationProgressService.abortPreparation = false;
+    this.reportGenerationProgressService.reportGenerationInProgress = true;
+    this.reportGenerationProgressService.reportStatus = 'preparing';
+    this.reportGenerationProgressService.reportProgress = 0;
 
     for (const indicator of this.reportingService.templateSections.indicators) {
-      if (this.reportingService.abortPreparation) break;
+      if (this.reportGenerationProgressService.abortPreparation) break;
       await this.setupIndicatorPages(indicator);
     }
 
     for (const georesource of this.reportingService.templateSections.georesources) {
-      if (this.reportingService.abortPreparation) break;
+      if (this.reportGenerationProgressService.abortPreparation) break;
       await this.setupPagesForReachability(georesource);
     }
 
     this.loadingData = false;
 
-    if (this.reportingService.abortPreparation) {
-      this.reportingService.reportGenerationInProgress = false;
+    if (this.reportGenerationProgressService.abortPreparation) {
+      this.reportGenerationProgressService.reportGenerationInProgress = false;
       return;
     }
 
-    this.reportingService.reportStatus = 'finished';
-    this.reportingService.reportProgress = 100;
-    this.reportingService.reportCountdown = 5;
+    this.reportGenerationProgressService.reportStatus = 'finished';
+    this.reportGenerationProgressService.reportProgress = 100;
+    this.reportGenerationProgressService.reportCountdown = 5;
     const countdownInterval = setInterval(() => {
-      this.reportingService.reportCountdown--;
-      if (this.reportingService.reportCountdown <= 0) {
+      this.reportGenerationProgressService.reportCountdown--;
+      if (this.reportGenerationProgressService.reportCountdown <= 0) {
         clearInterval(countdownInterval);
-        this.reportingService.reportGenerationInProgress = false;
+        this.reportGenerationProgressService.reportGenerationInProgress = false;
       }
     }, 1000);
   }
@@ -472,7 +474,7 @@ export class ReportingOverviewComponent implements OnInit {
     }
 
     // route through background processor for stable map capture
-    this.reportingService.reportingBackgroundState.pageToProcess_overview = page;
+    this.reportGenerationProgressService.reportingBackgroundState.pageToProcess_overview = page;
     this.appRef.tick(); // synchronously run CD so the background page elements are in the DOM
 
     const pageDom = document.getElementById(reportingOverviewBackgroundPageId());
@@ -651,7 +653,8 @@ export class ReportingOverviewComponent implements OnInit {
     }
 
     page.generatedData.isComplete = true;
-    this.reportingService.reportingBackgroundState.pageToProcess_overview = undefined;
+    this.reportGenerationProgressService.reportingBackgroundState.pageToProcess_overview =
+      undefined;
   }
 
   filterMapByArea(echartsInstance, echartsInstanceOptions, areaName, allFeatures) {
@@ -689,7 +692,7 @@ export class ReportingOverviewComponent implements OnInit {
 
     let totalPreparedCount = 0;
     for (const [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
-      if (this.reportingService.abortPreparation) {
+      if (this.reportGenerationProgressService.abortPreparation) {
         return;
       }
       if (page.templateSection.indicatorId !== indicatorId) {
@@ -705,7 +708,7 @@ export class ReportingOverviewComponent implements OnInit {
 
       totalPreparedCount++;
       this.pagePreparationIndex = totalPreparedCount;
-      this.reportingService.reportProgress = Math.round(
+      this.reportGenerationProgressService.reportProgress = Math.round(
         (totalPreparedCount / this.pagePreparationSize) * 100
       );
     }
@@ -753,7 +756,7 @@ export class ReportingOverviewComponent implements OnInit {
 
     let totalPreparedCount = 0;
     for (const [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
-      if (this.reportingService.abortPreparation) {
+      if (this.reportGenerationProgressService.abortPreparation) {
         return;
       }
       if (page.templateSection.poiLayerName !== poiLayerName) {
@@ -769,7 +772,7 @@ export class ReportingOverviewComponent implements OnInit {
 
       totalPreparedCount++;
       this.pagePreparationIndex = totalPreparedCount;
-      this.reportingService.reportProgress = Math.round(
+      this.reportGenerationProgressService.reportProgress = Math.round(
         (totalPreparedCount / this.pagePreparationSize) * 100
       );
     }

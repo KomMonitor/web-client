@@ -32,6 +32,7 @@ import { MapErrorNotificationService } from 'services/map-error-notification-ser
 import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
 import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
 import { ReachabilityStateService } from 'services/reachability-state-service/reachability-state.service';
+import { ReportGenerationProgressService } from 'services/report-generation-progress-service/report-generation-progress.service';
 import { ReportPagePreparationService } from 'services/report-page-preparation-service/report-page-preparation.service';
 import { ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
 import {
@@ -85,6 +86,7 @@ export class IndicatorAddComponent implements OnInit {
   private reachabilityStateService = inject(ReachabilityStateService);
   protected leafletScreenshotCacheHelperService = inject(LeafletScreenshotCacheHelperService);
   protected reportingService = inject(ReportingService);
+  protected reportGenerationProgressService = inject(ReportGenerationProgressService);
   private fb = inject(FormBuilder);
   private envConfigService = inject(EnvConfigService);
   private destroyRef = inject(DestroyRef);
@@ -3238,27 +3240,27 @@ export class IndicatorAddComponent implements OnInit {
 
   async onTriggerPreparationClicked() {
     this.loadingData = true;
-    this.reportingService.abortPreparation = false;
+    this.reportGenerationProgressService.abortPreparation = false;
     this.preparationNeeded = false;
-    this.reportingService.reportGenerationInProgress = true;
-    this.reportingService.reportStatus = 'preparing';
-    this.reportingService.reportProgress = 0;
+    this.reportGenerationProgressService.reportGenerationInProgress = true;
+    this.reportGenerationProgressService.reportStatus = 'preparing';
+    this.reportGenerationProgressService.reportProgress = 0;
     try {
       await this.initializeAllDiagrams();
     } catch (error) {
       console.error('Report preparation failed:', error);
       this.mapErrorNotificationService.displayMapApplicationError(error);
       this.preparationNeeded = true;
-      this.reportingService.reportGenerationInProgress = false;
+      this.reportGenerationProgressService.reportGenerationInProgress = false;
     } finally {
       this.loadingData = false;
     }
   }
 
   onAbortPreparationClicked() {
-    this.reportingService.abortPreparation = true;
+    this.reportGenerationProgressService.abortPreparation = true;
     this.preparationNeeded = true;
-    this.reportingService.reportGenerationInProgress = false;
+    this.reportGenerationProgressService.reportGenerationInProgress = false;
 
     // these two footer indicators aren't gated by preparationNeeded, so they'd otherwise
     // keep showing the stale "X von Y" from whichever page the loop was on when it noticed
@@ -3301,7 +3303,7 @@ export class IndicatorAddComponent implements OnInit {
     }
 
     this.lastPageOfAddedSectionPrepared = false;
-    this.reportingService.abortPreparation = false;
+    this.reportGenerationProgressService.abortPreparation = false;
     this.pagePreparationIndex = 0;
     this.pagePreparationSize = this.reportingService.clonedTemplate.pages.length;
     let logProgressIndexSeparator = Math.round((this.pagePreparationSize / 100) * 10);
@@ -3317,12 +3319,12 @@ export class IndicatorAddComponent implements OnInit {
     let totalPreparedCount = 0;
 
     for (let i = 0; i < this.reportingService.clonedTemplate.pages.length; i++) {
-      if (this.reportingService.abortPreparation) {
-        this.reportingService.reportGenerationInProgress = false;
+      if (this.reportGenerationProgressService.abortPreparation) {
+        this.reportGenerationProgressService.reportGenerationInProgress = false;
         return;
       }
       if (!this.reportingService.clonedTemplate) {
-        this.reportingService.reportGenerationInProgress = false;
+        this.reportGenerationProgressService.reportGenerationInProgress = false;
         return;
       }
 
@@ -3332,7 +3334,7 @@ export class IndicatorAddComponent implements OnInit {
         processedPageIds.add(page.id);
         totalPreparedCount++;
         this.pagePreparationIndex = totalPreparedCount;
-        this.reportingService.reportProgress = Math.round(
+        this.reportGenerationProgressService.reportProgress = Math.round(
           (totalPreparedCount / this.pagePreparationSize) * 100
         );
       }
@@ -3340,19 +3342,19 @@ export class IndicatorAddComponent implements OnInit {
 
     // Phase 2: Process remaining background pages
     for (let i = 0; i < this.reportingService.clonedTemplate.pages.length; i++) {
-      if (this.reportingService.abortPreparation) {
-        this.reportingService.reportGenerationInProgress = false;
+      if (this.reportGenerationProgressService.abortPreparation) {
+        this.reportGenerationProgressService.reportGenerationInProgress = false;
         return;
       }
       if (!this.reportingService.clonedTemplate) {
-        this.reportingService.reportGenerationInProgress = false;
+        this.reportGenerationProgressService.reportGenerationInProgress = false;
         return;
       }
       if (
         !this.selectedIndicator &&
         !this.reportingService.clonedTemplate.name.includes('reachability')
       ) {
-        this.reportingService.reportGenerationInProgress = false;
+        this.reportGenerationProgressService.reportGenerationInProgress = false;
         return;
       }
 
@@ -3362,7 +3364,7 @@ export class IndicatorAddComponent implements OnInit {
         processedPageIds.add(page.id);
         totalPreparedCount++;
         this.pagePreparationIndex = totalPreparedCount;
-        this.reportingService.reportProgress = Math.round(
+        this.reportGenerationProgressService.reportProgress = Math.round(
           (totalPreparedCount / this.pagePreparationSize) * 100
         );
       }
@@ -3370,14 +3372,14 @@ export class IndicatorAddComponent implements OnInit {
 
     this.lastPageOfAddedSectionPrepared = true;
     this.pagePreparationIndex = this.pagePreparationSize;
-    this.reportingService.reportStatus = 'finished';
-    this.reportingService.reportProgress = 100;
-    this.reportingService.reportCountdown = 5;
+    this.reportGenerationProgressService.reportStatus = 'finished';
+    this.reportGenerationProgressService.reportProgress = 100;
+    this.reportGenerationProgressService.reportCountdown = 5;
     const countdownInterval = setInterval(() => {
-      this.reportingService.reportCountdown--;
-      if (this.reportingService.reportCountdown <= 0) {
+      this.reportGenerationProgressService.reportCountdown--;
+      if (this.reportGenerationProgressService.reportCountdown <= 0) {
         clearInterval(countdownInterval);
-        this.reportingService.reportGenerationInProgress = false;
+        this.reportGenerationProgressService.reportGenerationInProgress = false;
       }
     }, 1000);
 
@@ -3441,7 +3443,7 @@ export class IndicatorAddComponent implements OnInit {
     // Route all rendering through the off-screen background processor for stable captures.
     // We build the child elements directly in the DOM instead of relying on appRef.tick()
     // to flush Angular's *ngFor â€” tick() swallows view errors silently and may skip views.
-    this.reportingService.reportingBackgroundState.pageToProcess_add = page;
+    this.reportGenerationProgressService.reportingBackgroundState.pageToProcess_add = page;
 
     const pageDom = document.getElementById(indicatorAddBackgroundPageId());
     if (!pageDom) {
@@ -3673,7 +3675,7 @@ export class IndicatorAddComponent implements OnInit {
     }
 
     page.generatedData.isComplete = true;
-    this.reportingService.reportingBackgroundState.pageToProcess_add = undefined;
+    this.reportGenerationProgressService.reportingBackgroundState.pageToProcess_add = undefined;
   }
 
   showThisPage(page) {
