@@ -9,6 +9,16 @@ import {
   calculateAvg,
   createDatatableSkeleton,
 } from 'components/ngComponents/userInterface/reporting/report-preview.utils';
+import {
+  indicatorAddBackgroundLeafletContainerId,
+  indicatorAddBackgroundPageElementId,
+  indicatorAddBackgroundPageId,
+  indicatorAddPreviewPageId,
+  reportingOverviewBackgroundLeafletContainerId,
+  reportingOverviewBackgroundPageElementId,
+  reportingOverviewBackgroundPageId,
+  reportingOverviewPreviewPageId,
+} from 'components/ngComponents/userInterface/reporting/report-page-dom-ids.utils';
 
 // Phase C3 (slice 1) of the reporting-preview dedup: relocates indicator-add's report-page
 // preparation methods here one at a time, rewired to read from ReportGenerationContext instead
@@ -44,17 +54,17 @@ export class ReportPagePreparationService {
     isPreview: boolean | undefined,
     context: ReportGenerationContext
   ): Promise<string | undefined> {
-    const id = 'reporting-addIndicator-background-leaflet-map-container-' + elementIdx;
+    const id = indicatorAddBackgroundLeafletContainerId(elementIdx);
     const pageIdx: any = context.pages.indexOf(page);
 
     // For preview pages use the visible page DOM so Leaflet can load tiles reliably.
     // For background-only pages use the off-screen background processor.
     const pageDomId = isPreview
-      ? 'reporting-addIndicator-page-' + pageIdx
-      : 'reporting-addIndicator-background-page';
+      ? indicatorAddPreviewPageId(pageIdx)
+      : indicatorAddBackgroundPageId();
     // pageElementDom is always in the background processor - attribution/legend appended here
     // get moved to previewEl together with the ECharts canvas by preparePageForIndicatorAdd
-    const pageElementDomId = 'reporting-addIndicator-background-page-map-' + elementIdx;
+    const pageElementDomId = indicatorAddBackgroundPageElementId('map', elementIdx);
 
     let pageDom: any = document.getElementById(pageDomId);
     let pageElementDom: any = document.getElementById(pageElementDomId);
@@ -337,15 +347,15 @@ export class ReportPagePreparationService {
         );
       }
 
-      const id = 'reporting-background-leaflet-map-container-' + elementIdx;
+      const id = reportingOverviewBackgroundLeafletContainerId(elementIdx);
       // Leaflet does not reliably load tiles while off-screen (opacity: 0 / far off-canvas
       // position) - for preview pages, build the map inside the visible page DOM instead,
       // same workaround already used by indicator-add.component.ts's equivalent function.
       const pageDomId = isPreview
-        ? 'reporting-overview-page-' + pageIdx
-        : 'reporting-background-page';
+        ? reportingOverviewPreviewPageId(pageIdx)
+        : reportingOverviewBackgroundPageId();
       let pageDom: any = document.getElementById(pageDomId);
-      const pageElementDomId = 'reporting-background-page-map-' + elementIdx;
+      const pageElementDomId = reportingOverviewBackgroundPageElementId('map', elementIdx);
       let pageElementDom: any = document.getElementById(pageElementDomId);
 
       if (!pageDom) {

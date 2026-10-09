@@ -31,6 +31,12 @@ import {
   isPageInPreview,
 } from 'components/ngComponents/userInterface/reporting/report-preview.utils';
 import { ReportGenerationContext } from 'components/ngComponents/userInterface/reporting/report-generation-context.model';
+import {
+  reportingOverviewBackgroundPageElementId,
+  reportingOverviewBackgroundPageId,
+  reportingOverviewPreviewPageElementId,
+  reportingOverviewPreviewPageId,
+} from 'components/ngComponents/userInterface/reporting/report-page-dom-ids.utils';
 
 @Component({
   selector: 'app-reporting-overview',
@@ -174,9 +180,9 @@ export class ReportingOverviewComponent implements OnInit {
       for (const [elementIdx, mapElement] of new_page.pageElements.entries()) {
         if (mapElement.type !== 'map') continue;
         if (mapElement && mapElement.leafletMap) {
-          const pageDom: any = document.querySelector('#reporting-overview-page-' + index);
+          const pageDom: any = document.querySelector('#' + reportingOverviewPreviewPageId(index));
           const pElementDom = pageDom.querySelector(
-            '#reporting-overview-page-' + index + '-map-' + elementIdx
+            '#' + reportingOverviewPreviewPageElementId(index, 'map', elementIdx)
           );
           const instance = echarts.getInstanceByDom(pElementDom);
           await this.reportPagePreparationService.prepareLeafletMapForOverview(
@@ -469,7 +475,7 @@ export class ReportingOverviewComponent implements OnInit {
     this.reportingService.reportingBackgroundState.pageToProcess_overview = page;
     this.appRef.tick(); // synchronously run CD so the background page elements are in the DOM
 
-    const pageDom = document.getElementById('reporting-background-page');
+    const pageDom = document.getElementById(reportingOverviewBackgroundPageId());
     if (!pageDom) {
       console.error('Could not find background DOM for page ' + idx);
       return;
@@ -477,7 +483,7 @@ export class ReportingOverviewComponent implements OnInit {
 
     for (const [elementIdx, pageElement] of page.pageElements.entries()) {
       const pElementDom: any = pageDom.querySelector(
-        '#reporting-background-page-' + pageElement.type + '-' + elementIdx
+        '#' + reportingOverviewBackgroundPageElementId(pageElement.type, elementIdx)
       );
 
       if (!pElementDom) {
@@ -570,7 +576,7 @@ export class ReportingOverviewComponent implements OnInit {
 
           if (isPreview) {
             const previewPElementDom: any = document.querySelector(
-              '#reporting-overview-page-' + idx + '-' + pageElement.type + '-' + elementIdx
+              '#' + reportingOverviewPreviewPageElementId(idx, pageElement.type, elementIdx)
             );
             if (previewPElementDom) {
               // move the rendered echarts canvas (the indicator choropleth) into the visible
@@ -605,7 +611,7 @@ export class ReportingOverviewComponent implements OnInit {
 
           if (isPreview) {
             const previewPElementDom: any = document.querySelector(
-              '#reporting-overview-page-' + idx + '-' + pageElement.type + '-' + elementIdx
+              '#' + reportingOverviewPreviewPageElementId(idx, pageElement.type, elementIdx)
             );
             if (previewPElementDom) {
               previewPElementDom.innerHTML = '';
@@ -624,7 +630,7 @@ export class ReportingOverviewComponent implements OnInit {
       if (pageElement.type === 'mapLegend') {
         pageElement.isPlaceholder = false;
         if (isPreview) {
-          const previewPageDom = document.getElementById('reporting-overview-page-' + idx);
+          const previewPageDom = document.getElementById(reportingOverviewPreviewPageId(idx));
           if (previewPageDom) {
             const legendNode: any = previewPageDom.querySelector('.type-mapLegend');
             if (legendNode) legendNode.style.display = 'none';
@@ -636,7 +642,7 @@ export class ReportingOverviewComponent implements OnInit {
         let targetDom = pElementDom;
         if (isPreview) {
           targetDom = document.querySelector(
-            '#reporting-overview-page-' + idx + '-' + pageElement.type + '-' + elementIdx
+            '#' + reportingOverviewPreviewPageElementId(idx, pageElement.type, elementIdx)
           );
         }
         createDatatablePage(targetDom, pageElement);

@@ -43,6 +43,12 @@ import {
   isLastPreviewPage,
   isPageInPreview,
 } from 'components/ngComponents/userInterface/reporting/report-preview.utils';
+import {
+  indicatorAddBackgroundPageElementId,
+  indicatorAddBackgroundPageId,
+  indicatorAddPreviewPageElementId,
+  indicatorAddPreviewPageId,
+} from 'components/ngComponents/userInterface/reporting/report-page-dom-ids.utils';
 import { ReportGenerationContext } from 'components/ngComponents/userInterface/reporting/report-generation-context.model';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
@@ -420,7 +426,7 @@ export class IndicatorAddComponent implements OnInit {
       }
 
       // also update live instance if in preview DOM
-      const mapDom: any = document.querySelector('#reporting-addIndicator-page-' + i + '-map');
+      const mapDom: any = document.querySelector('#' + indicatorAddPreviewPageElementId(i, 'map'));
       if (mapDom) {
         const instance: any = echarts.getInstanceByDom(mapDom);
         if (instance) instance.setOption(options, { replaceMerge: ['series'] });
@@ -458,7 +464,7 @@ export class IndicatorAddComponent implements OnInit {
 
       // also update live instance if in preview DOM
       const barChartDom: any = document.querySelector(
-        '#reporting-addIndicator-page-' + i + '-barchart'
+        '#' + indicatorAddPreviewPageElementId(i, 'barchart')
       );
       if (barChartDom) {
         const instance: any = echarts.getInstanceByDom(barChartDom);
@@ -1718,7 +1724,9 @@ export class IndicatorAddComponent implements OnInit {
       const page = this.reportingService.clonedTemplate.pages[i];
       for (const pageElement of page.pageElements) {
         if (pageElement.type === 'map') {
-          const domNode: any = document.querySelector('#reporting-addIndicator-page-' + i + '-map');
+          const domNode: any = document.querySelector(
+            '#' + indicatorAddPreviewPageElementId(i, 'map')
+          );
           if (domNode) {
             const map: any = echarts.getInstanceByDom(domNode);
             if (map) {
@@ -1792,7 +1800,9 @@ export class IndicatorAddComponent implements OnInit {
       const page = this.reportingService.clonedTemplate.pages[i];
       for (const pageElement of page.pageElements) {
         if (pageElement.type === 'map') {
-          const domNode: any = document.querySelector('#reporting-addIndicator-page-' + i + '-map');
+          const domNode: any = document.querySelector(
+            '#' + indicatorAddPreviewPageElementId(i, 'map')
+          );
           if (domNode) {
             const map: any = echarts.getInstanceByDom(domNode);
             if (map) {
@@ -2608,7 +2618,7 @@ export class IndicatorAddComponent implements OnInit {
               for (const pageElement of page.pageElements) {
                 if (pageElement.type === 'map' && !page.area) {
                   const domNode: any = document.getElementById(
-                    'reporting-addIndicator-page-' + idx + '-map'
+                    indicatorAddPreviewPageElementId(idx, 'map')
                   );
                   const map: any = echarts.getInstanceByDom(domNode);
                   map.setOption(map.getOption()); // this calls the labelLayout function defined above
@@ -3424,7 +3434,7 @@ export class IndicatorAddComponent implements OnInit {
     // to flush Angular's *ngFor â€” tick() swallows view errors silently and may skip views.
     this.reportingService.reportingBackgroundState.pageToProcess_add = page;
 
-    const pageDom = document.getElementById('reporting-addIndicator-background-page');
+    const pageDom = document.getElementById(indicatorAddBackgroundPageId());
     if (!pageDom) {
       console.error('Could not find background DOM for page ' + idx);
       return;
@@ -3434,7 +3444,7 @@ export class IndicatorAddComponent implements OnInit {
     pageDom.innerHTML = '';
     for (const [i, pe] of page.pageElements.entries()) {
       const div = document.createElement('div');
-      div.id = 'reporting-addIndicator-background-page-' + pe.type + '-' + i;
+      div.id = indicatorAddBackgroundPageElementId(pe.type, i);
       div.className = 'type-' + pe.type;
       const dims = pe.dimensions;
       const border = pe.type.includes('footerHorizontalSpacer-')
@@ -3460,7 +3470,7 @@ export class IndicatorAddComponent implements OnInit {
 
     for (const [elementIdx, pageElement] of page.pageElements.entries()) {
       const pElementDom = document.getElementById(
-        'reporting-addIndicator-background-page-' + pageElement.type + '-' + elementIdx
+        indicatorAddBackgroundPageElementId(pageElement.type, elementIdx)
       ) as HTMLElement;
       if (!pElementDom) continue;
 
@@ -3503,11 +3513,9 @@ export class IndicatorAddComponent implements OnInit {
           if (isPreview) {
             const previewEl =
               document.querySelector(
-                '#reporting-addIndicator-page-' + idx + '-' + pageElement.type + '-' + elementIdx
+                '#' + indicatorAddPreviewPageElementId(idx, pageElement.type, elementIdx)
               ) ||
-              document.querySelector(
-                '#reporting-addIndicator-page-' + idx + '-' + pageElement.type
-              );
+              document.querySelector('#' + indicatorAddPreviewPageElementId(idx, pageElement.type));
             if (previewEl) {
               previewEl.innerHTML = '';
               while (pElementDom.firstChild) previewEl.appendChild(pElementDom.firstChild);
@@ -3526,7 +3534,7 @@ export class IndicatorAddComponent implements OnInit {
         case 'mapLegend': {
           pageElement.isPlaceholder = false;
           if (isPreview) {
-            const previewPageDom = document.getElementById('reporting-addIndicator-page-' + idx);
+            const previewPageDom = document.getElementById(indicatorAddPreviewPageId(idx));
             const legendDom = previewPageDom?.querySelector(
               '.type-mapLegend'
             ) as HTMLElement | null;
@@ -3548,7 +3556,7 @@ export class IndicatorAddComponent implements OnInit {
           }
           if (isPreview) {
             const previewEl = document.querySelector(
-              '#reporting-addIndicator-page-' + idx + '-' + pageElement.type
+              '#' + indicatorAddPreviewPageElementId(idx, pageElement.type)
             );
             if (previewEl) {
               previewEl.innerHTML = '';
@@ -3572,7 +3580,7 @@ export class IndicatorAddComponent implements OnInit {
           }
           if (isPreview) {
             const allLinechartEls = document.querySelectorAll(
-              '#reporting-addIndicator-page-' + idx + ' .type-linechart'
+              '#' + indicatorAddPreviewPageId(idx) + ' .type-linechart'
             );
             const targetEl = pageElement.showPercentageChangeToPrevTimestamp
               ? allLinechartEls[1]
@@ -3640,11 +3648,9 @@ export class IndicatorAddComponent implements OnInit {
           if (isPreview) {
             const previewEl =
               document.querySelector(
-                '#reporting-addIndicator-page-' + idx + '-' + pageElement.type + '-' + elementIdx
+                '#' + indicatorAddPreviewPageElementId(idx, pageElement.type, elementIdx)
               ) ||
-              document.querySelector(
-                '#reporting-addIndicator-page-' + idx + '-' + pageElement.type
-              );
+              document.querySelector('#' + indicatorAddPreviewPageElementId(idx, pageElement.type));
             if (previewEl) {
               previewEl.innerHTML = '';
               while (pElementDom.firstChild) previewEl.appendChild(pElementDom.firstChild);
