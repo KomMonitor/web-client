@@ -1089,9 +1089,17 @@ export class IndicatorAddComponent implements OnInit {
             validTimestamps.includes(oldTimeseries.from) &&
             validTimestamps.includes(oldTimeseries.to)
           ) {
-            //this.dateSlider = this.initializeDateRangeSlider( validTimestamps, filteredTimeseries[0], filteredTimeseries.at(-1));
+            this.dateSlider = this.initializeDateRangeSlider(
+              validTimestamps,
+              filteredTimeseries[0],
+              filteredTimeseries.at(-1)
+            );
           } else {
-            //this.dateSlider = this.initializeDateRangeSlider( validTimestamps );
+            this.dateSlider = this.initializeDateRangeSlider(
+              validTimestamps,
+              filteredTimeseries[0],
+              filteredTimeseries.at(-1)
+            );
             this.timeseriesAdjustedOnSpatialUnitChange = true; // show additional text in warning alert
           }
         } else {
