@@ -240,6 +240,15 @@ export class IndicatorAddComponent implements OnInit {
     // originally called by "reportingConfigureNewIndicatorShown" when +Indicator clicked
     this.initialize();
 
+    // If this component is torn down (e.g. the user navigates back to reportingOverview)
+    // while our own background page preparation is still running, that loop must not keep
+    // running to completion afterwards and flip the shared success banner to "finished" for
+    // a screen the user has already left. Aborting here makes its next loop-iteration check
+    // break out early instead.
+    this.destroyRef.onDestroy(() => {
+      this.reportGenerationProgressService.abortPreparation = true;
+    });
+
     //this.baseMapSelect = new FormControl(this.mapOverlayState.baseLayerDefinitionsArray[0]);
 
     this.broadcastService.currentBroadcastMsg
@@ -2085,6 +2094,17 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   reset() {
+    // a "finished" success banner from a previous indicator's/section's preparation (ours or
+    // reportingOverview's) must not bleed into a freshly (re-)opened add-indicator workflow,
+    // where nothing has been prepared yet for the new selection. An actively running
+    // 'preparing' state is left alone since it's still legitimately in progress.
+    if (this.reportGenerationProgressService.reportStatus === 'finished') {
+      this.reportGenerationProgressService.reportGenerationInProgress = false;
+      this.reportGenerationProgressService.reportStatus = 'preparing';
+      this.reportGenerationProgressService.reportProgress = 0;
+      this.reportGenerationProgressService.reportCountdown = 0;
+    }
+
     this.pagePreparationIndex = 0;
     this.pagePreparationSize = 0;
     this.indicatorNameFilter = '';

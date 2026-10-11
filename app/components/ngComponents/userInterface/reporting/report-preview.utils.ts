@@ -6,6 +6,26 @@
 
 import { isQualitativeMapping } from 'components/ngComponents/models/classification.models';
 
+// When `pages` holds multiple sections concatenated (reporting-overview.component.ts's
+// workingTemplate.pages holds every added indicator/POI-layer section back to back), the
+// preview/background split below must only count a page's own section's area_specific/datatable
+// pages - otherwise the "first N" preview slots always go to whichever section happens to come
+// first in the global array, so having 2+ sections (or reordering them) hands the live preview to
+// the wrong section's pages while the section that "loses" the slots has all its pages collapse
+// into a single generic background placeholder.
+// indicator-add.component.ts's clonedTemplate.pages holds only one section at a time and has no
+// templateSection attached yet during preparation (it's attached once the section is added), so
+// it falls through to the full `pages` array unchanged there - same behavior as before.
+function pagesInSameSection(pages: any[], page: any): any[] {
+  if (!page.templateSection) return pages;
+  return pages.filter((p: any) => {
+    if (!p.templateSection) return false;
+    return page.templateSection.indicatorId
+      ? p.templateSection.indicatorId === page.templateSection.indicatorId
+      : p.templateSection.georesourceId === page.templateSection.georesourceId;
+  });
+}
+
 export function isPageInPreview(
   pages: any[],
   page: any,
@@ -13,12 +33,13 @@ export function isPageInPreview(
   maxPreviewDatatablePages: number
 ): boolean {
   if (page.type !== 'area_specific' && page.type !== 'datatable') return true;
+  const sectionPages = pagesInSameSection(pages, page);
   if (page.type === 'area_specific') {
-    const areaPages = pages.filter((p: any) => p.type === 'area_specific');
+    const areaPages = sectionPages.filter((p: any) => p.type === 'area_specific');
     return areaPages.indexOf(page) < maxPreviewAreaSpecificPages;
   }
   if (page.type === 'datatable') {
-    const dtPages = pages.filter((p: any) => p.type === 'datatable');
+    const dtPages = sectionPages.filter((p: any) => p.type === 'datatable');
     return dtPages.indexOf(page) < maxPreviewDatatablePages;
   }
   return true;
@@ -30,12 +51,13 @@ export function isLastPreviewPage(
   maxPreviewAreaSpecificPages: number,
   maxPreviewDatatablePages: number
 ): boolean {
+  const sectionPages = pagesInSameSection(pages, page);
   if (page.type === 'area_specific') {
-    const areaPages = pages.filter((p: any) => p.type === 'area_specific');
+    const areaPages = sectionPages.filter((p: any) => p.type === 'area_specific');
     return areaPages.indexOf(page) === maxPreviewAreaSpecificPages - 1;
   }
   if (page.type === 'datatable') {
-    const dtPages = pages.filter((p: any) => p.type === 'datatable');
+    const dtPages = sectionPages.filter((p: any) => p.type === 'datatable');
     return dtPages.indexOf(page) === maxPreviewDatatablePages - 1;
   }
   return false;
@@ -48,12 +70,13 @@ export function countBackgroundPages(
   maxPreviewDatatablePages: number
 ): number {
   if (!pages || !page) return 0;
+  const sectionPages = pagesInSameSection(pages, page);
   if (page.type === 'area_specific') {
-    const areaPages = pages.filter((p: any) => p.type === 'area_specific');
+    const areaPages = sectionPages.filter((p: any) => p.type === 'area_specific');
     return Math.max(0, areaPages.length - maxPreviewAreaSpecificPages);
   }
   if (page.type === 'datatable') {
-    const dtPages = pages.filter((p: any) => p.type === 'datatable');
+    const dtPages = sectionPages.filter((p: any) => p.type === 'datatable');
     return Math.max(0, dtPages.length - maxPreviewDatatablePages);
   }
   return 0;

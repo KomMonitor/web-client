@@ -105,6 +105,15 @@ export class ReportingOverviewComponent implements OnInit {
       if (!this.reportingService.configImportExists()) this.setupPages();
       else this.importConfig();
     });
+
+    // setupPages() re-walks every section and can still be running when the user navigates
+    // away (e.g. back into indicator-add to configure another section) before it completes.
+    // Without this, that orphaned loop keeps going in the background and eventually flips the
+    // shared success banner to "finished" for a screen the user has already left. Aborting here
+    // makes its next loop-iteration check break out early instead.
+    this.destroyRef.onDestroy(() => {
+      this.reportGenerationProgressService.abortPreparation = true;
+    });
   }
 
   getPagePreparationPercent(): number {
@@ -223,6 +232,18 @@ export class ReportingOverviewComponent implements OnInit {
     this.reportingService.changeWorkflowState(this.workflowState.templateSelect);
   }
 
+  // A section is uniquely identified by indicatorId (indicator sections) or georesourceId
+  // (POI/georesource sections) - the same scheme removeIndicatorSection/removeGeoresourcesSection
+  // use. templateSection never actually carries a `spatialUnitId` field (it's `spatialUnitName`),
+  // so comparing it here used to compare `undefined === undefined` - always true, and vacuous -
+  // which broke disambiguation between two sections that happen to share an indicatorId/
+  // georesourceId (e.g. the same indicator added twice for two different spatial units).
+  private belongsToSection(page: any, section: any): boolean {
+    return section.indicatorId
+      ? page.templateSection.indicatorId === section.indicatorId
+      : page.templateSection.georesourceId === section.georesourceId;
+  }
+
   reorderTemplateSections(newVal, oldVal) {
     if (newVal.length < oldVal.length) {
       // removed
@@ -237,11 +258,7 @@ export class ReportingOverviewComponent implements OnInit {
         this.reportingService.workingTemplate.pages.filter((page) => {
           if (!Object.prototype.hasOwnProperty.call(page, 'templateSection')) return true; // for placeholder
 
-          return (
-            page.templateSection.indicatorId !== removedSection.indicatorId ||
-            page.templateSection.spatialUnitId !== removedSection.spatialUnitId ||
-            page.templateSection.poiLayerName !== removedSection.poiLayerName
-          );
+          return !this.belongsToSection(page, removedSection);
         });
     }
     if (newVal.length === oldVal.length) {
@@ -250,11 +267,7 @@ export class ReportingOverviewComponent implements OnInit {
       const sorted: any = [];
       for (const section of newVal) {
         for (const page of this.reportingService.workingTemplate.pages) {
-          if (
-            page.templateSection.indicatorId === section.indicatorId &&
-            page.templateSection.spatialUnitId === section.spatialUnitId &&
-            page.templateSection.poiLayerName === section.poiLayerName
-          ) {
+          if (this.belongsToSection(page, section)) {
             sorted.push(page);
           }
         }
@@ -381,6 +394,16 @@ export class ReportingOverviewComponent implements OnInit {
 
   // new to cover added sections
   async setupPages() {
+    // A brand-new report (or one with nothing left to prepare) has no sections to loop over,
+    // so the loops below would complete instantly and announce "generation finished" without
+    // anything actually having been prepared. Skip the whole progress/banner flow in that case.
+    if (
+      this.reportingService.templateSections.indicators.length === 0 &&
+      this.reportingService.templateSections.georesources.length === 0
+    ) {
+      return;
+    }
+
     this.loadingData = true;
     this.reportGenerationProgressService.abortPreparation = false;
     this.reportGenerationProgressService.reportGenerationInProgress = true;
