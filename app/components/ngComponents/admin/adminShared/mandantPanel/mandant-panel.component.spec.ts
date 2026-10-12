@@ -9,8 +9,8 @@ describe('MandantPanelComponent', () => {
   let component: MandantPanelComponent;
 
   const mandants = [
-    { name: 'Stadt Essen', hierarchyCount: 4 },
-    { name: 'Kreis Recklinghausen', hierarchyCount: 1 },
+    { name: 'Stadt Essen', count: 4 },
+    { name: 'Kreis Recklinghausen', count: 1 },
   ];
 
   beforeEach(() => {
@@ -21,7 +21,8 @@ describe('MandantPanelComponent', () => {
     component = fixture.componentInstance;
     fixture.componentRef.setInput('mandants', mandants);
     fixture.componentRef.setInput('canSwitch', true);
-    fixture.componentRef.setInput('hierarchyCount', 5);
+    fixture.componentRef.setInput('noun', 'HIERARCHY');
+    fixture.componentRef.setInput('count', 5);
   });
 
   /** The summary next to the picker, whitespace collapsed. */
@@ -63,21 +64,32 @@ describe('MandantPanelComponent', () => {
   it('counts the hierarchies of the chosen tenant, the overview across all', () => {
     fixture.detectChanges();
     // No tenant chosen: the summary spans every tenant the panel lists.
-    expect(summary()).toContain('MANDANT_PANEL.COUNT_ALL');
+    expect(summary()).toContain('MANDANT_PANEL.HIERARCHY.COUNT_ALL');
 
     fixture.componentRef.setInput('selected', 'Stadt Essen');
     fixture.detectChanges();
 
-    expect(summary()).toContain('MANDANT_PANEL.COUNT');
+    expect(summary()).toContain('MANDANT_PANEL.HIERARCHY.COUNT');
     expect(summary()).not.toContain('COUNT_ALL');
   });
 
   it('puts a single hierarchy in the singular', () => {
     fixture.componentRef.setInput('selected', 'Stadt Essen');
-    fixture.componentRef.setInput('hierarchyCount', 1);
+    fixture.componentRef.setInput('count', 1);
     fixture.detectChanges();
 
-    expect(summary()).toContain('MANDANT_PANEL.COUNT_ONE');
+    expect(summary()).toContain('MANDANT_PANEL.HIERARCHY.COUNT_ONE');
+  });
+
+  it('words the counts after what the page lists', () => {
+    fixture.componentRef.setInput('noun', 'SPATIAL_UNIT');
+    fixture.detectChanges();
+    expect(summary()).toContain('MANDANT_PANEL.SPATIAL_UNIT.COUNT_ALL');
+
+    fixture.debugElement.query(By.css('.mandant-field')).nativeElement.click();
+    fixture.detectChanges();
+    expect(items()[1]).toContain('MANDANT_PANEL.SPATIAL_UNIT.ITEM_COUNT');
+    expect(items()[2]).toContain('MANDANT_PANEL.SPATIAL_UNIT.ITEM_COUNT_ONE');
   });
 
   it('shows the chosen tenant with its badge', () => {
@@ -96,8 +108,8 @@ describe('MandantPanelComponent', () => {
 
     expect(items()[0]).toContain('MANDANT_PANEL.MANDANT_COUNT');
     expect(items()[1]).toContain('Stadt Essen');
-    expect(items()[1]).toContain('MANDANT_PANEL.HIERARCHY_COUNT');
-    expect(items()[2]).toContain('MANDANT_PANEL.HIERARCHY_COUNT_ONE');
+    expect(items()[1]).toContain('MANDANT_PANEL.HIERARCHY.ITEM_COUNT');
+    expect(items()[2]).toContain('MANDANT_PANEL.HIERARCHY.ITEM_COUNT_ONE');
   });
 
   it('writes the clicked tenant into the bound signal', () => {

@@ -87,7 +87,30 @@
     "KEYWORD_FILTER": "Keyword filter",
     "UNKNOWN_ERROR": "Unknown error",
     "PUBLIC_VISIBLE": "Publicly visible",
-    "PERIOD_OF_VALIDITY": "Period of validity"
+    "PERIOD_OF_VALIDITY": "Period of validity",
+    "MANDANT_PANEL": {
+      "LABEL": "Tenant",
+      "ADMIN_HINT": "Platform administrators only",
+      "ALL": "All tenants (overview)",
+      "MANDANT_COUNT": "{{count}} tenants",
+      "NONE": "No tenant available",
+      "HIERARCHY": {
+        "ITEM_COUNT": "{{count}} hierarchies",
+        "ITEM_COUNT_ONE": "1 hierarchy",
+        "COUNT": "{{count}} hierarchies for this tenant",
+        "COUNT_ONE": "1 hierarchy for this tenant",
+        "COUNT_ALL": "{{count}} hierarchies across {{mandants}} tenants",
+        "COUNT_ALL_ONE": "1 hierarchy across {{mandants}} tenants"
+      },
+      "SPATIAL_UNIT": {
+        "ITEM_COUNT": "{{count}} spatial units",
+        "ITEM_COUNT_ONE": "1 spatial unit",
+        "COUNT": "{{count}} spatial units for this tenant",
+        "COUNT_ONE": "1 spatial unit for this tenant",
+        "COUNT_ALL": "{{count}} spatial units across {{mandants}} tenants",
+        "COUNT_ALL_ONE": "1 spatial unit across {{mandants}} tenants"
+      }
+    }
   },
   "ADMIN_GEORESOURCES": {
     "OVERVIEW": {
@@ -1568,17 +1591,6 @@
       "DESCRIPTION": "Maintenance of the hierarchies that relate spatial unit levels to each other"
     },
     "MANDANT_PANEL": {
-      "LABEL": "Tenant",
-      "ADMIN_HINT": "Platform administrators only",
-      "ALL": "All tenants (overview)",
-      "MANDANT_COUNT": "{{count}} tenants",
-      "HIERARCHY_COUNT": "{{count}} hierarchies",
-      "HIERARCHY_COUNT_ONE": "1 hierarchy",
-      "COUNT": "{{count}} hierarchies for this tenant",
-      "COUNT_ONE": "1 hierarchy for this tenant",
-      "COUNT_ALL": "{{count}} hierarchies across {{mandants}} tenants",
-      "COUNT_ALL_ONE": "1 hierarchy across {{mandants}} tenants",
-      "NONE": "No tenant available",
       "EMPTY": "No hierarchy has been created yet.",
       "EMPTY_MANDANT": "No hierarchy has been created for this tenant yet."
     },

@@ -987,12 +987,12 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
       // Translations are not loaded here, so the pipe echoes key and params.
       store.selectedMandant.set('');
       fixture.detectChanges();
-      expect(summary()).toContain('MANDANT_PANEL.COUNT_ALL');
+      expect(summary()).toContain('MANDANT_PANEL.HIERARCHY.COUNT_ALL');
 
       store.selectedMandant.set('Stadt Krefeld');
       fixture.detectChanges();
 
-      expect(summary()).toContain('MANDANT_PANEL.COUNT_ONE');
+      expect(summary()).toContain('MANDANT_PANEL.HIERARCHY.COUNT_ONE');
     });
 
     it('says in the section meta whether the hierarchy is public', () => {

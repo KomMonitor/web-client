@@ -1,6 +1,6 @@
 <div class="mandant-panel">
   <span class="mandant-label" id="mandant-panel-label">
-    {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_PANEL.LABEL' | translate }}
+    {{ 'ADMIN_SHARED.MANDANT_PANEL.LABEL' | translate }}
   </span>
 
   @if (onlyOption(); as only) {
@@ -19,7 +19,7 @@
           } @else {
             <span class="mandant-badge all" aria-hidden="true">&bull;</span>
             <span class="mandant-name">
-              {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_PANEL.ALL' | translate }}
+              {{ 'ADMIN_SHARED.MANDANT_PANEL.ALL' | translate }}
             </span>
           }
           <span class="mandant-caret fa fa-angle-down" aria-hidden="true"></span>
@@ -27,7 +27,7 @@
 
         <div ngbDropdownMenu class="mandant-menu" [attr.aria-labelledby]="'mandant-panel-label'">
           <div class="mandant-menu-header">
-            {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_PANEL.ADMIN_HINT' | translate }}
+            {{ 'ADMIN_SHARED.MANDANT_PANEL.ADMIN_HINT' | translate }}
           </div>
 
           <button
@@ -39,12 +39,11 @@
           >
             <span class="mandant-badge all" aria-hidden="true">&bull;</span>
             <span class="mandant-name">
-              {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_PANEL.ALL' | translate }}
+              {{ 'ADMIN_SHARED.MANDANT_PANEL.ALL' | translate }}
             </span>
             <span class="mandant-count">
               {{
-                'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_PANEL.MANDANT_COUNT'
-                  | translate: { count: mandants().length }
+                'ADMIN_SHARED.MANDANT_PANEL.MANDANT_COUNT' | translate: { count: mandants().length }
               }}
             </span>
           </button>
@@ -60,16 +59,7 @@
               <span class="mandant-badge" aria-hidden="true">{{ initials(mandant.name) }}</span>
               <span class="mandant-name">{{ mandant.name }}</span>
               <span class="mandant-count">
-                @if (mandant.hierarchyCount === 1) {
-                  {{
-                    'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_PANEL.HIERARCHY_COUNT_ONE' | translate
-                  }}
-                } @else {
-                  {{
-                    'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_PANEL.HIERARCHY_COUNT'
-                      | translate: { count: mandant.hierarchyCount }
-                  }}
-                }
+                {{ itemCountKey(mandant) | translate: { count: mandant.count } }}
               </span>
             </button>
           }
@@ -85,7 +75,7 @@
   } @else {
     <div class="mandant-field static empty">
       <span class="mandant-name">
-        {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.MANDANT_PANEL.NONE' | translate }}
+        {{ 'ADMIN_SHARED.MANDANT_PANEL.NONE' | translate }}
       </span>
     </div>
   }

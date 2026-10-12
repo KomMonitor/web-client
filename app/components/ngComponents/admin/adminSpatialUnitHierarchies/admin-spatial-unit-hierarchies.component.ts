@@ -32,7 +32,7 @@ import {
 } from './hierarchyEditModal/hierarchy-edit-modal.component';
 import { LevelPickerPanelComponent } from './levelPickerPanel/level-picker-panel.component';
 import { MandantOverviewTableComponent } from './mandantOverviewTable/mandant-overview-table.component';
-import { MandantPanelComponent } from './mandantPanel/mandant-panel.component';
+import { MandantPanelComponent } from '../adminShared/mandantPanel/mandant-panel.component';
 import {
   LevelAssignment,
   UnassignedLevelsPanelComponent,

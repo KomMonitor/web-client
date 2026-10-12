@@ -11,6 +11,7 @@ import {
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 
 import { TreeGap } from '../../common/tree-view/tree-view.model';
+import { MandantOption } from '../adminShared/mandantPanel/mandant-panel.component';
 import {
   HierarchyChainEntry,
   HierarchyLevel,
@@ -201,13 +202,18 @@ export class HierarchyStoreService {
 
   /**
    * The tenants of this instance with what each of them holds — the rows of the
-   * overview table, and at the same time the entries the switcher lists.
+   * overview table, and through `mandantOptions` the entries the switcher lists.
    *
    * Keycloak names the tenants; one that only appears in the hierarchies is
    * listed as well, so the page shows whom its data belongs to even without it.
    */
   readonly mandantOverview = computed(() =>
     select.mandantOverviewRows(this.hierarchies(), this.mandantService.keycloakMandants)
+  );
+
+  /** The overview rows as the switcher lists them: the name and the hierarchy count. */
+  readonly mandantOptions = computed<MandantOption[]>(() =>
+    this.mandantOverview().map((row) => ({ name: row.name, count: row.hierarchyCount }))
   );
 
   /** The tenant names, for the dialog to offer where Keycloak names none. */

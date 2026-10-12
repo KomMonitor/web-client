@@ -87,7 +87,30 @@
     "KEYWORD_FILTER": "Stichwortfilter",
     "UNKNOWN_ERROR": "Unbekannter Fehler",
     "PUBLIC_VISIBLE": "Öffentlich sichtbar",
-    "PERIOD_OF_VALIDITY": "Gültigkeitszeitraum"
+    "PERIOD_OF_VALIDITY": "Gültigkeitszeitraum",
+    "MANDANT_PANEL": {
+      "LABEL": "Mandant",
+      "ADMIN_HINT": "Nur für Plattform-Administratoren",
+      "ALL": "Alle Mandanten (Übersicht)",
+      "MANDANT_COUNT": "{{count}} Mandanten",
+      "NONE": "Kein Mandant verfügbar",
+      "HIERARCHY": {
+        "ITEM_COUNT": "{{count}} Hierarchien",
+        "ITEM_COUNT_ONE": "1 Hierarchie",
+        "COUNT": "{{count}} Hierarchien für diesen Mandanten",
+        "COUNT_ONE": "1 Hierarchie für diesen Mandanten",
+        "COUNT_ALL": "{{count}} Hierarchien in {{mandants}} Mandanten",
+        "COUNT_ALL_ONE": "1 Hierarchie in {{mandants}} Mandanten"
+      },
+      "SPATIAL_UNIT": {
+        "ITEM_COUNT": "{{count}} Raumebenen",
+        "ITEM_COUNT_ONE": "1 Raumebene",
+        "COUNT": "{{count}} Raumebenen für diesen Mandanten",
+        "COUNT_ONE": "1 Raumebene für diesen Mandanten",
+        "COUNT_ALL": "{{count}} Raumebenen in {{mandants}} Mandanten",
+        "COUNT_ALL_ONE": "1 Raumebene in {{mandants}} Mandanten"
+      }
+    }
   },
   "ADMIN_GEORESOURCES": {
     "OVERVIEW": {
@@ -1568,17 +1591,6 @@
       "DESCRIPTION": "Pflege der Hierarchien, in denen Raumebenen zueinander in Beziehung stehen"
     },
     "MANDANT_PANEL": {
-      "LABEL": "Mandant",
-      "ADMIN_HINT": "Nur für Plattform-Administratoren",
-      "ALL": "Alle Mandanten (Übersicht)",
-      "MANDANT_COUNT": "{{count}} Mandanten",
-      "HIERARCHY_COUNT": "{{count}} Hierarchien",
-      "HIERARCHY_COUNT_ONE": "1 Hierarchie",
-      "COUNT": "{{count}} Hierarchien für diesen Mandanten",
-      "COUNT_ONE": "1 Hierarchie für diesen Mandanten",
-      "COUNT_ALL": "{{count}} Hierarchien in {{mandants}} Mandanten",
-      "COUNT_ALL_ONE": "1 Hierarchie in {{mandants}} Mandanten",
-      "NONE": "Kein Mandant verfügbar",
       "EMPTY": "Es ist noch keine Hierarchie angelegt.",
       "EMPTY_MANDANT": "Für diesen Mandanten ist noch keine Hierarchie angelegt."
     },
