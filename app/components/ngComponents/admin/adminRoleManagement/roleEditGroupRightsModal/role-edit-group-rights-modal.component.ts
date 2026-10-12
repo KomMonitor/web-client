@@ -9,18 +9,19 @@ import {
 
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridApi, GridOptions, GridReadyEvent } from 'ag-grid-community';
-import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
-import { AccessControlService } from 'services/access-control-service/access-control.service';
-import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
-import { AdminRoleManagementService, RoleDelegatePutEntry } from '../admin-role-management.service';
-import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
-import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
+import { ColDef, GridOptions } from 'ag-grid-community';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
-import { NotificationService } from '../../../common/notification/notification.service';
+import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
+import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
+import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
 import { forkJoin } from 'rxjs';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
+import { NotificationService } from '../../../common/notification/notification.service';
+import { AdminRoleManagementService, RoleDelegatePutEntry } from '../admin-role-management.service';
 import {
   AdvancedAccessControlRow,
   buildAdvancedColumnDefs,
@@ -28,8 +29,8 @@ import {
   buildRoleDelegatesPutBody,
   collectSelectedPermissionIds,
   createAdvancedRoleComponents,
+  hasAnyAdvancedPermissionChecked,
 } from '../advanced-role-permissions';
-import { TranslateModule } from '@ngx-translate/core';
 
 import { TranslateService } from '@ngx-translate/core';
 @Component({
@@ -61,7 +62,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
   loadingData: boolean = false;
   showErrorAlert: boolean = false;
   errorMessagePart: string | undefined;
-  activeDelegatedRolesOnly: boolean = true;
+  activeDelegatedRolesOnly: boolean = false;
 
   protected readonly stepper = new WizardStepper([
     { key: 'ownRights', label: 'ADMIN_SHARED_UI.STEP_LABELS.OWN_RIGHTS_OTHER_GROUPS' },
@@ -107,16 +108,10 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
   delegatedColumnDefs: ColDef[] = [];
   delegatedRowData: AdvancedAccessControlRow[] = [];
   delegatedDefaultColDef: ColDef = {};
-  delegatedGridOptions: GridOptions = {
-    ...this.baseGridOptions,
-    onGridReady: (params: GridReadyEvent) => {
-      this.delegatedGridApi = params.api;
-    },
-  };
-  private delegatedGridApi: GridApi | null = null;
+  delegatedGridOptions: GridOptions = { ...this.baseGridOptions };
 
   private allDelegatedRowData: AdvancedAccessControlRow[] = [];
-  private delegatedRoleIds: string[] = [];
+  protected delegatedRoleIds: string[] = [];
 
   ngOnInit(): void {
     this.loadingData = true;
@@ -186,9 +181,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
       r.adminRoles.map((role) => `${r.organizationalUnitId}-${role}`)
     );
 
-    if (this.delegatedRoleIds.length === 0) {
-      this.activeDelegatedRolesOnly = false;
-    }
+    this.activeDelegatedRolesOnly = this.delegatedRoleIds.length > 0;
 
     const allAccess = this.accessControlService.accessControl;
     this.allDelegatedRowData = buildAdvancedRoleRowData(allAccess, delegatedPermissionIds, false);
@@ -209,20 +202,16 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
   }
 
   private applyDelegatedFilter(): void {
-    if (this.delegatedRoleIds.length > 0 && this.activeDelegatedRolesOnly) {
-      this.delegatedRowData = this.allDelegatedRowData.filter((row) =>
-        this.delegatedRoleIds.includes(row.organizationalUnitId)
-      );
-    } else {
-      this.delegatedRowData = [...this.allDelegatedRowData];
-    }
+    this.delegatedRowData = this.activeDelegatedRolesOnly
+      ? this.allDelegatedRowData.filter(hasAnyAdvancedPermissionChecked)
+      : [...this.allDelegatedRowData];
   }
 
   private buildPutBody(): RoleDelegatePutEntry[] {
-    const selectedPermissionIds = collectSelectedPermissionIds(
-      this.delegatedGridApi,
-      this.delegatedRowData
-    );
+    // Read from all rows, not the grid: the PUT replaces the whole delegate
+    // list, so it must not depend on which rows the switch currently shows or
+    // on whether step 2's grid exists at all.
+    const selectedPermissionIds = collectSelectedPermissionIds(null, this.allDelegatedRowData);
     return buildRoleDelegatesPutBody(
       selectedPermissionIds,
       (id) => this.accessControlService.getAccessControlById(id) ?? undefined
