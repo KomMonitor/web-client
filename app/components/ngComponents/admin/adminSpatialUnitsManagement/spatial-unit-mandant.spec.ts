@@ -1,4 +1,5 @@
 import {
+  MandantLookup,
   mandantOfSpatialUnit,
   spatialUnitMandantOptions,
   spatialUnitsOfMandant,
@@ -6,24 +7,38 @@ import {
 
 /** Keycloak's tenants of these specs, by id. */
 const names: Record<string, string> = { 'm-essen': 'Stadt Essen', 'm-bochum': 'Stadt Bochum' };
-const nameOf = (mandantId: string): string => names[mandantId] ?? '';
 
-function unit(id: string, mandantId?: string): { id: string; mandantId?: string } {
-  return { id, mandantId };
+/**
+ * The organizational units the owners resolve through: each tenant owns
+ * itself, and the Essen planning office sits below its tenant.
+ */
+const tenantOfOwner: Record<string, string> = {
+  'm-essen': 'm-essen',
+  'ou-essen-planning': 'm-essen',
+  'm-bochum': 'm-bochum',
+};
+
+const mandants: MandantLookup = {
+  mandantIdOfOwner: (ownerId) => tenantOfOwner[ownerId ?? ''] ?? '',
+  mandantNameOf: (mandantId) => names[mandantId] ?? '',
+};
+
+function unit(id: string, ownerId?: string): { id: string; ownerId?: string } {
+  return { id, ownerId };
 }
 
 describe('mandantOfSpatialUnit', () => {
-  it('names the tenant Keycloak knows', () => {
-    expect(mandantOfSpatialUnit(unit('a', 'm-essen'), nameOf)).toBe('Stadt Essen');
+  it('names the tenant that owns the unit', () => {
+    expect(mandantOfSpatialUnit(unit('a', 'm-essen'), mandants)).toBe('Stadt Essen');
   });
 
-  it('falls back to the id of a tenant Keycloak does not know', () => {
-    expect(mandantOfSpatialUnit(unit('a', 'm-unknown'), nameOf)).toBe('m-unknown');
+  it('finds the tenant above an owner that is not a tenant itself', () => {
+    expect(mandantOfSpatialUnit(unit('a', 'ou-essen-planning'), mandants)).toBe('Stadt Essen');
   });
 
-  it('is empty for a unit without a tenant', () => {
-    expect(mandantOfSpatialUnit(unit('a'), nameOf)).toBe('');
-    expect(mandantOfSpatialUnit(unit('a', ''), nameOf)).toBe('');
+  it('is empty for an unknown owner and for a unit without one', () => {
+    expect(mandantOfSpatialUnit(unit('a', 'ou-unknown'), mandants)).toBe('');
+    expect(mandantOfSpatialUnit(unit('a'), mandants)).toBe('');
   });
 });
 
@@ -32,7 +47,7 @@ describe('spatialUnitMandantOptions', () => {
     const options = spatialUnitMandantOptions(
       [unit('a', 'm-bochum'), unit('b', 'm-bochum')],
       ['Stadt Essen', 'Stadt Bochum'],
-      nameOf
+      mandants
     );
 
     expect(options).toEqual([
@@ -41,39 +56,48 @@ describe('spatialUnitMandantOptions', () => {
     ]);
   });
 
-  it('appends tenants that only the data names', () => {
+  it('counts a unit towards the tenant above its owner', () => {
     const options = spatialUnitMandantOptions(
-      [unit('a', 'm-unknown'), unit('b', 'm-essen')],
+      [unit('a', 'ou-essen-planning'), unit('b', 'm-essen')],
       ['Stadt Essen'],
-      nameOf
+      mandants
     );
 
-    expect(options).toEqual([
-      { name: 'Stadt Essen', count: 1 },
-      { name: 'm-unknown', count: 1 },
-    ]);
+    expect(options).toEqual([{ name: 'Stadt Essen', count: 2 }]);
   });
 
-  it('counts units without a tenant towards none', () => {
-    expect(spatialUnitMandantOptions([unit('a'), unit('b', '')], [], nameOf)).toEqual([]);
+  it('counts units without a resolvable owner towards none', () => {
+    expect(spatialUnitMandantOptions([unit('a'), unit('b', 'ou-unknown')], [], mandants)).toEqual(
+      []
+    );
   });
 });
 
 describe('spatialUnitsOfMandant', () => {
-  const units = [unit('a', 'm-essen'), unit('b', 'm-bochum'), unit('c'), unit('d', 'm-essen')];
+  const units = [
+    unit('a', 'm-essen'),
+    unit('b', 'm-bochum'),
+    unit('c'),
+    unit('d', 'ou-essen-planning'),
+  ];
 
-  it('keeps the units of the chosen tenant', () => {
-    expect(spatialUnitsOfMandant(units, 'Stadt Essen', nameOf).map((u) => u.id)).toEqual([
+  it('keeps the units of the chosen tenant, those owned below it included', () => {
+    expect(spatialUnitsOfMandant(units, 'Stadt Essen', mandants).map((u) => u.id)).toEqual([
       'a',
       'd',
     ]);
   });
 
   it('leaves units without a tenant out of every tenant', () => {
-    expect(spatialUnitsOfMandant(units, 'Stadt Bochum', nameOf).map((u) => u.id)).toEqual(['b']);
+    expect(spatialUnitsOfMandant(units, 'Stadt Bochum', mandants).map((u) => u.id)).toEqual(['b']);
   });
 
   it('shows everything in the overview, units without a tenant included', () => {
-    expect(spatialUnitsOfMandant(units, '', nameOf).map((u) => u.id)).toEqual(['a', 'b', 'c', 'd']);
+    expect(spatialUnitsOfMandant(units, '', mandants).map((u) => u.id)).toEqual([
+      'a',
+      'b',
+      'c',
+      'd',
+    ]);
   });
 });

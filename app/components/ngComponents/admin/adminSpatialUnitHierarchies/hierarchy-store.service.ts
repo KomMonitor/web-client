@@ -12,6 +12,7 @@ import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-
 
 import { TreeGap } from '../../common/tree-view/tree-view.model';
 import { MandantOption } from '../adminShared/mandantPanel/mandant-panel.component';
+import { mandantOfSpatialUnit } from '../adminSpatialUnitsManagement/spatial-unit-mandant';
 import {
   HierarchyChainEntry,
   HierarchyLevel,
@@ -108,13 +109,17 @@ export class HierarchyStoreService {
    * Derived, not held: spatial unit levels are created and deleted on the
    * spatial units page, and a second copy here would go stale the moment they
    * are.
+   *
+   * A level's tenant comes from its owner, as on the spatial units page — not
+   * from its `mandantId`, which the hierarchy API checks a chain against.
+   * Where the two disagree, a level may be offered that the API then refuses.
    */
   readonly levelRegistry = computed<readonly RegisteredLevel[]>(() =>
     this.spatialUnitStore.availableSpatialUnits.map((unit) => ({
       id: unit.spatialUnitId,
       name: unit.spatialUnitLevel,
       datasource: unit.metadata?.datasource ?? '',
-      mandant: this.mandantService.mandantNameOf(unit.mandantId ?? '') || (unit.mandantId ?? ''),
+      mandant: mandantOfSpatialUnit(unit, this.mandantService),
       // Defensively: the generated type declares `userPermissions` required,
       // but the metadata store defaults it away with `|| []` and older answers
       // leave it out.

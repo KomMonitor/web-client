@@ -80,7 +80,8 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     spatialUnits = levels.map((level) => ({
       spatialUnitId: level.id,
       spatialUnitLevel: level.name,
-      mandantId: level.mandant,
+      // The registry derives a level's tenant from its owner.
+      ownerId: level.mandant,
       metadata: { datasource: level.datasource },
       userPermissions: [
         ...(level.canDelete ? ['creator'] : []),
@@ -128,6 +129,8 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
             // The seed uses the tenant name as its id.
             mandantIdOf: (name: string) => name,
             mandantNameOf: (id: string) => id,
+            // Every owner is a tenant itself here.
+            mandantIdOfOwner: (ownerId: string | undefined) => ownerId ?? '',
           },
         },
         {

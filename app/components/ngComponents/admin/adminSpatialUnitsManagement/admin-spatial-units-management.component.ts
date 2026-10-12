@@ -39,11 +39,7 @@ import { MODAL_CONFIRM, MODAL_FORM, MODAL_WIDE } from 'util/modal-presets';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { MandantPanelComponent } from '../adminShared/mandantPanel/mandant-panel.component';
 import { AdminModalService } from '../adminShared/modal/admin-modal.service';
-import {
-  MandantNameOf,
-  spatialUnitMandantOptions,
-  spatialUnitsOfMandant,
-} from './spatial-unit-mandant';
+import { spatialUnitMandantOptions, spatialUnitsOfMandant } from './spatial-unit-mandant';
 import { SpatialUnitRefreshRequest } from './spatial-unit-refresh.model';
 import { SpatialUnitAddModalComponent } from './spatialUnitAddModal/spatial-unit-add-modal.component';
 import { SpatialUnitDeleteModalComponent } from './spatialUnitDeleteModal/spatial-unit-delete-modal.component';
@@ -100,9 +96,6 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
   // tenant switcher and the "show only editable datasets" switch.
   private readonly allSpatialUnits = signal<SpatialUnitMetadata[]>([]);
 
-  private readonly mandantNameOf: MandantNameOf = (mandantId) =>
-    this.mandantService.mandantNameOf(mandantId);
-
   /**
    * The tenant whose spatial units are on screen, by name; the empty string is
    * the overview across all of them. Starts at the user's own tenant and is
@@ -115,7 +108,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
     spatialUnitMandantOptions(
       this.allSpatialUnits(),
       this.mandantService.keycloakMandants,
-      this.mandantNameOf
+      this.mandantService
     )
   );
 
@@ -284,14 +277,15 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
 
   /**
    * What the grid shows: the spatial units of the tenant on screen, narrowed to
-   * the editable ones while that switch is on. Spatial units without a tenant
-   * appear only in the overview across all tenants.
+   * the editable ones while that switch is on. The tenant is derived from the
+   * owner (see `spatial-unit-mandant.ts`); spatial units whose owner leads to
+   * none appear only in the overview across all tenants.
    */
   public readonly rowData = computed(() => {
     const ofMandant = spatialUnitsOfMandant(
       this.allSpatialUnits(),
       this.selectedMandant(),
-      this.mandantNameOf
+      this.mandantService
     );
     return this.tableViewSwitcher()
       ? ofMandant.filter((su) => su.userPermissions?.includes('editor'))

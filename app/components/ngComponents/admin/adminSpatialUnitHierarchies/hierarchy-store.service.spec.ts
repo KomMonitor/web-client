@@ -26,6 +26,7 @@ interface Mandants {
   mandantsToOffer(known: readonly string[]): readonly string[];
   mandantIdOf(name: string): string;
   mandantNameOf(id: string): string;
+  mandantIdOfOwner(ownerId: string | null | undefined): string;
 }
 
 /** The write calls the store makes, recorded and answerable per spec. */
@@ -41,8 +42,10 @@ let hierarchyApi: {
 let spatialUnits: {
   spatialUnitId: string;
   spatialUnitLevel: string;
-  mandantId: string;
+  ownerId?: string;
+  mandantId?: string;
   metadata: { datasource: string };
+  userPermissions?: string[];
 }[] = [];
 
 /**
@@ -75,6 +78,8 @@ function storeWith(mandants: Partial<Mandants> = {}): HierarchyStoreService {
     // by the same string whichever direction it is read from.
     mandantIdOf: (name) => name,
     mandantNameOf: (id) => id,
+    // Every owner is a tenant itself here, so a level's owner is its tenant.
+    mandantIdOfOwner: (ownerId) => ownerId ?? '',
     ...mandants,
   };
   spatialUnits = [];
@@ -140,7 +145,8 @@ function seed(
   spatialUnits = registry.map((entry) => ({
     spatialUnitId: entry.id,
     spatialUnitLevel: entry.name,
-    mandantId: entry.mandant,
+    // The registry derives a level's tenant from its owner.
+    ownerId: entry.mandant,
     metadata: { datasource: entry.datasource },
     userPermissions: [
       ...(entry.canDelete ? ['creator'] : []),
@@ -418,6 +424,34 @@ describe('HierarchyStoreService', () => {
           canEdit: true,
         },
       ]);
+    });
+
+    it("derives a level's tenant from its owner, not from its mandantId", () => {
+      const store = storeWith({
+        mandantIdOfOwner: (ownerId) => (ownerId === 'ou-essen-planning' ? 'Stadt Essen' : ''),
+      });
+      spatialUnits = [
+        {
+          spatialUnitId: 'id-Quartiere',
+          spatialUnitLevel: 'Quartiere',
+          ownerId: 'ou-essen-planning',
+          mandantId: 'Stadt Bochum',
+          metadata: { datasource: '' },
+        },
+      ];
+
+      expect(store.levelRegistry()[0].mandant).toBe('Stadt Essen');
+    });
+
+    it('offers a level whose owner leads to no tenant to every tenant', () => {
+      const store = storeWith();
+      seed(store, [ESSEN()], [level('Quartiere', '')]);
+
+      store.selectMandant('Stadt Essen');
+      expect(store.tenantLevels().map((entry) => entry.name)).toEqual(['Quartiere']);
+
+      store.selectMandant('Stadt Bochum');
+      expect(store.tenantLevels().map((entry) => entry.name)).toEqual(['Quartiere']);
     });
 
     it('marks a level the user may not edit as read-only', () => {
