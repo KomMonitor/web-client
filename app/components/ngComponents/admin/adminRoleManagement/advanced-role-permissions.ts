@@ -1,7 +1,7 @@
+import { TranslateService } from '@ngx-translate/core';
 import { ColDef, GridApi } from 'ag-grid-community';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
 import { RoleDelegatePutEntry } from './admin-role-management.service';
-import { TranslateService } from '@ngx-translate/core';
 
 /**
  * Shared building blocks for the "advanced" role-delegation grid used by both
@@ -98,6 +98,14 @@ export function isPermissionChecked(
   permissionLevel: string
 ): boolean {
   return !!getPermission(row, permissionLevel)?.isChecked;
+}
+
+/** Whether any of the six advanced permission levels is checked on this row. */
+export function hasAnyAdvancedPermissionChecked(row: AdvancedAccessControlRow): boolean {
+  return ADVANCED_PERMISSION_GROUPS.some(
+    ({ groupLevel, subGroupLevel }) =>
+      isPermissionChecked(row, groupLevel) || isPermissionChecked(row, subGroupLevel)
+  );
 }
 
 /**

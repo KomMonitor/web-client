@@ -6,6 +6,7 @@ import {
   OnInit,
   OutputRef,
   ViewChild,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -32,10 +33,13 @@ import { skip } from 'rxjs';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
+import { MandantService } from 'services/mandant-service/mandant.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { MODAL_CONFIRM, MODAL_FORM, MODAL_WIDE } from 'util/modal-presets';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
+import { MandantPanelComponent } from '../adminShared/mandantPanel/mandant-panel.component';
 import { AdminModalService } from '../adminShared/modal/admin-modal.service';
+import { spatialUnitMandantOptions, spatialUnitsOfMandant } from './spatial-unit-mandant';
 import { SpatialUnitRefreshRequest } from './spatial-unit-refresh.model';
 import { SpatialUnitAddModalComponent } from './spatialUnitAddModal/spatial-unit-add-modal.component';
 import { SpatialUnitDeleteModalComponent } from './spatialUnitDeleteModal/spatial-unit-delete-modal.component';
@@ -62,6 +66,7 @@ function hierarchyNamesOf(dataset: SpatialUnitMetadata | undefined): string[] {
     AgGridAngular,
     FormsModule,
     AdminContentViewComponent,
+    MandantPanelComponent,
     TranslateModule,
   ],
   standalone: true,
@@ -78,16 +83,43 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
   private destroyRef = inject(DestroyRef);
+  private mandantService = inject(MandantService);
 
   @ViewChild('spatialUnitOverviewTable', { static: true })
   spatialUnitOverviewTable!: AgGridAngular;
 
   public loadingData: boolean = true;
-  public tableViewSwitcher: boolean = false;
+  /** The "show only editable datasets" switch. */
+  public tableViewSwitcher = signal(false);
 
-  // Full, unfiltered metadata list; `rowData` is derived from it via the
-  // "show only editable datasets" table-view filter.
-  private allSpatialUnits: SpatialUnitMetadata[] = [];
+  // Full, unfiltered metadata list; `rowData` is derived from it through the
+  // tenant switcher and the "show only editable datasets" switch.
+  private readonly allSpatialUnits = signal<SpatialUnitMetadata[]>([]);
+
+  /**
+   * The tenant whose spatial units are on screen, by name; the empty string is
+   * the overview across all of them. Starts at the user's own tenant and is
+   * this page's alone — the hierarchy page keeps a selection of its own.
+   */
+  protected readonly selectedMandant = signal(this.mandantService.ownMandant);
+
+  /** The tenants the switcher lists, each with its number of spatial units. */
+  protected readonly mandantOptions = computed(() =>
+    spatialUnitMandantOptions(
+      this.allSpatialUnits(),
+      this.mandantService.keycloakMandants,
+      this.mandantService
+    )
+  );
+
+  /**
+   * Switching tenants is a platform administrator's view. Without Keycloak
+   * nobody holds that role, so more than one tenant in the data opens the
+   * switcher as well — the same rule as on the hierarchy page.
+   */
+  protected readonly canSwitchMandant = computed(
+    () => this.mandantService.isRealmAdmin || this.mandantOptions().length > 1
+  );
 
   // AG Grid properties. Built in ngOnInit rather than as a field initializer:
   // the headers are resolved through translate.instant().
@@ -243,9 +275,22 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
     ];
   }
 
-  // Signal-backed: written from the store subscription and fetch callbacks,
-  // which would not trigger a re-render of this OnPush component otherwise.
-  public rowData = signal<SpatialUnitMetadata[]>([]);
+  /**
+   * What the grid shows: the spatial units of the tenant on screen, narrowed to
+   * the editable ones while that switch is on. The tenant is derived from the
+   * owner (see `spatial-unit-mandant.ts`); spatial units whose owner leads to
+   * none appear only in the overview across all tenants.
+   */
+  public readonly rowData = computed(() => {
+    const ofMandant = spatialUnitsOfMandant(
+      this.allSpatialUnits(),
+      this.selectedMandant(),
+      this.mandantService
+    );
+    return this.tableViewSwitcher()
+      ? ofMandant.filter((su) => su.userPermissions?.includes('editor'))
+      : ofMandant;
+  });
   public defaultColDef: ColDef = this.kommonitorDataGridHelperService.buildDefaultColDef();
   public gridOptions: GridOptions = {};
 
@@ -272,8 +317,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
         if (spatialUnits && spatialUnits.length > 0) {
           this.loadingData = false;
         }
-        this.allSpatialUnits = spatialUnits ?? [];
-        this.applyTableViewFilter();
+        this.allSpatialUnits.set(spatialUnits ?? []);
       });
   }
 
@@ -417,20 +461,6 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
     this.fetchSpatialUnitsData();
   }
 
-  // Table view switcher: toggles between all datasets and only those the
-  // current user may edit.
-  onTableViewSwitch(): void {
-    this.applyTableViewFilter();
-  }
-
-  private applyTableViewFilter(): void {
-    this.rowData.set(
-      this.tableViewSwitcher
-        ? this.allSpatialUnits.filter((su) => su.userPermissions?.includes('editor'))
-        : this.allSpatialUnits
-    );
-  }
-
   // Alias for the add spatial unit modal (matching HTML template)
   openAddSpatialUnitModal(): void {
     this.onClickAddSpatialUnit();
@@ -438,8 +468,18 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
 
   // Modal event handlers. The table refresh is driven by each modal's
   // refreshRequested output, so none of them needs the close result.
+
+  /**
+   * The tenant on screen is the one the new spatial unit is created for, and
+   * the wizard keeps it fixed — one created for another tenant would vanish
+   * from the table it was started in. In the overview nothing is fixed and the
+   * wizard asks, as it does from the hierarchy page.
+   */
   onClickAddSpatialUnit(): void {
-    this.modals.open(SpatialUnitAddModalComponent, MODAL_WIDE, this.forwardRefreshRequests);
+    this.modals.open(SpatialUnitAddModalComponent, MODAL_WIDE, (modal) => {
+      modal.lockedMandantId = this.mandantService.mandantIdOf(this.selectedMandant());
+      this.forwardRefreshRequests(modal);
+    });
   }
 
   onClickEditMetadata(spatialUnitMetadata: SpatialUnitMetadata): void {

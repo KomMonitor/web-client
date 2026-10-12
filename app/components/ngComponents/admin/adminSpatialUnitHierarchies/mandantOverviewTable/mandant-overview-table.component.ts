@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { mandantInitials } from '../mandantPanel/mandant-panel.component';
+import { mandantInitials } from '../../adminShared/mandantPanel/mandant-panel.component';
 
 /** One tenant as the overview lists it: what it owns, in numbers. */
 export interface MandantOverviewRow {

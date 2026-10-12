@@ -58,11 +58,11 @@ export function hierarchiesOfMandant(
 /**
  * The registered levels a tenant may use; the whole registry without one.
  *
- * A level whose own tenant is unknown counts as usable. `mandantId` is optional
- * in the API schema, and an instance that does not fill it would otherwise
- * offer nothing at all — an empty tenant says nobody knows where the level
- * belongs, which is not the same as knowing it belongs to somebody else. A
- * level of a *known* other tenant stays out; that one the API refuses anyway.
+ * A level whose own tenant is unknown counts as usable. That tenant is derived
+ * from the owner, which is optional in the API schema and resolves only with a
+ * login, and a page would otherwise offer nothing at all — an empty tenant says
+ * nobody knows where the level belongs, which is not the same as knowing it
+ * belongs to somebody else. A level of a *known* other tenant stays out.
  */
 export function levelsOfMandant(
   registry: readonly RegisteredLevel[],

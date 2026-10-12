@@ -35,9 +35,10 @@
 
 <ng-template #content>
   <app-mandant-panel
-    [mandants]="store.mandantOverview()"
+    noun="HIERARCHY"
+    [mandants]="store.mandantOptions()"
     [canSwitch]="store.canSwitchMandant()"
-    [hierarchyCount]="store.visibleHierarchies().length"
+    [count]="store.visibleHierarchies().length"
     [selected]="store.selectedMandant()"
     (selectedChange)="store.selectMandant($event)"
   />

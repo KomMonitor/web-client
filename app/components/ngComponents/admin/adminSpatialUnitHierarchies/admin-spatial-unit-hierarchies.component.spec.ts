@@ -80,7 +80,8 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     spatialUnits = levels.map((level) => ({
       spatialUnitId: level.id,
       spatialUnitLevel: level.name,
-      mandantId: level.mandant,
+      // The registry derives a level's tenant from its owner.
+      ownerId: level.mandant,
       metadata: { datasource: level.datasource },
       userPermissions: [
         ...(level.canDelete ? ['creator'] : []),
@@ -128,6 +129,8 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
             // The seed uses the tenant name as its id.
             mandantIdOf: (name: string) => name,
             mandantNameOf: (id: string) => id,
+            // Every owner is a tenant itself here.
+            mandantIdOfOwner: (ownerId: string | undefined) => ownerId ?? '',
           },
         },
         {
@@ -987,12 +990,12 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
       // Translations are not loaded here, so the pipe echoes key and params.
       store.selectedMandant.set('');
       fixture.detectChanges();
-      expect(summary()).toContain('MANDANT_PANEL.COUNT_ALL');
+      expect(summary()).toContain('MANDANT_PANEL.HIERARCHY.COUNT_ALL');
 
       store.selectedMandant.set('Stadt Krefeld');
       fixture.detectChanges();
 
-      expect(summary()).toContain('MANDANT_PANEL.COUNT_ONE');
+      expect(summary()).toContain('MANDANT_PANEL.HIERARCHY.COUNT_ONE');
     });
 
     it('says in the section meta whether the hierarchy is public', () => {

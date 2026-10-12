@@ -11,6 +11,8 @@ import {
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 
 import { TreeGap } from '../../common/tree-view/tree-view.model';
+import { MandantOption } from '../adminShared/mandantPanel/mandant-panel.component';
+import { mandantOfSpatialUnit } from '../adminSpatialUnitsManagement/spatial-unit-mandant';
 import {
   HierarchyChainEntry,
   HierarchyLevel,
@@ -107,13 +109,17 @@ export class HierarchyStoreService {
    * Derived, not held: spatial unit levels are created and deleted on the
    * spatial units page, and a second copy here would go stale the moment they
    * are.
+   *
+   * A level's tenant comes from its owner, as on the spatial units page — not
+   * from its `mandantId`, which the hierarchy API checks a chain against.
+   * Where the two disagree, a level may be offered that the API then refuses.
    */
   readonly levelRegistry = computed<readonly RegisteredLevel[]>(() =>
     this.spatialUnitStore.availableSpatialUnits.map((unit) => ({
       id: unit.spatialUnitId,
       name: unit.spatialUnitLevel,
       datasource: unit.metadata?.datasource ?? '',
-      mandant: this.mandantService.mandantNameOf(unit.mandantId ?? '') || (unit.mandantId ?? ''),
+      mandant: mandantOfSpatialUnit(unit, this.mandantService),
       // Defensively: the generated type declares `userPermissions` required,
       // but the metadata store defaults it away with `|| []` and older answers
       // leave it out.
@@ -201,13 +207,18 @@ export class HierarchyStoreService {
 
   /**
    * The tenants of this instance with what each of them holds — the rows of the
-   * overview table, and at the same time the entries the switcher lists.
+   * overview table, and through `mandantOptions` the entries the switcher lists.
    *
    * Keycloak names the tenants; one that only appears in the hierarchies is
    * listed as well, so the page shows whom its data belongs to even without it.
    */
   readonly mandantOverview = computed(() =>
     select.mandantOverviewRows(this.hierarchies(), this.mandantService.keycloakMandants)
+  );
+
+  /** The overview rows as the switcher lists them: the name and the hierarchy count. */
+  readonly mandantOptions = computed<MandantOption[]>(() =>
+    this.mandantOverview().map((row) => ({ name: row.name, count: row.hierarchyCount }))
   );
 
   /** The tenant names, for the dialog to offer where Keycloak names none. */

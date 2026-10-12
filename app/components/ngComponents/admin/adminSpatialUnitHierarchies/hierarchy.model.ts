@@ -24,7 +24,7 @@ export interface HierarchyChainEntry {
  * A spatial unit level as the registry knows it — independent of any hierarchy.
  * The flat view of a `SpatialUnitOverviewType`: `id` is its `spatialUnitId`,
  * `name` its `spatialUnitLevel`, `datasource` its `metadata.datasource` and
- * `mandant` the resolved name of its `mandantId`.
+ * `mandant` the name of the tenant its owner belongs to.
  *
  * Whether a level is assigned is never stored, it is derived: a level is
  * unassigned while no chain carries its id.
@@ -34,7 +34,7 @@ export interface RegisteredLevel {
   readonly name: string;
   /** Where the data comes from — free text, shown next to unassigned levels. */
   readonly datasource: string;
-  /** Owning tenant; empty where Keycloak names none. */
+  /** Owning tenant, derived from the owner; empty where that leads to none. */
   readonly mandant: string;
   /**
    * Whether the user may delete the dataset behind the level — `creator` on the

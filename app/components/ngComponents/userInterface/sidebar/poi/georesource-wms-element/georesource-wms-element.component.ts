@@ -14,8 +14,8 @@ import { GeoresourceElementComponent } from 'components/ngComponents/userInterfa
  * lazily-loaded GetLegendGraphic image instead of a marker/colour preview.
  *
  * `dataset` is typed loosely (`any`), matching the rest of the WMS handling
- * in this area: the runtime objects carry `url`/`layerName` that are not part
- * of the declared `WmsDataset` model.
+ * in this area; at runtime it is a `WmsDataset`, whose URL/layer name live
+ * under `connectionDetails.baseUrl`/`connectionDetails.layerName`.
  */
 @Component({
   selector: 'app-georesource-wms-element',

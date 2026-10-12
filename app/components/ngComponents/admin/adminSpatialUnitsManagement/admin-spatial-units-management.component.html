@@ -11,8 +11,8 @@
     <label class="switch">
       <input
         type="checkbox"
-        [(ngModel)]="tableViewSwitcher"
-        (ngModelChange)="onTableViewSwitch()"
+        [ngModel]="tableViewSwitcher()"
+        (ngModelChange)="tableViewSwitcher.set($event)"
       />
       <span class="switchslider round"></span>
     </label>
@@ -28,6 +28,14 @@
 </ng-template>
 
 <ng-template #content>
+  <app-mandant-panel
+    noun="SPATIAL_UNIT"
+    [mandants]="mandantOptions()"
+    [canSwitch]="canSwitchMandant()"
+    [count]="rowData().length"
+    [(selected)]="selectedMandant"
+  />
+
   <expandable-box
     [title]="'ADMIN_SPATIAL_UNITS.OVERVIEW.BOX_TITLE' | translate"
     [isCollapsible]="false"

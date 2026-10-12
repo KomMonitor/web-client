@@ -96,7 +96,7 @@ describe('GeoresourceElementComponent', () => {
     const tooltip = fixture.debugElement.query(By.css('.georesource-element__info-tooltip'))
       .nativeElement as HTMLElement;
     expect(tooltip.style.left).toBe('120px');
-    expect(tooltip.style.top).toBe('100px');
+    expect(tooltip.style.top).toBe('150px');
   });
 
   it('does not toggle the row when the info icon itself is clicked', () => {

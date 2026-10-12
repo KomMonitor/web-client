@@ -15,8 +15,10 @@ function makeWms(overrides: Record<string, unknown> = {}): any {
     description: 'Aktuelle Luftbilder',
     isSelected: false,
     showLegend: false,
-    url: 'https://example.org/wms',
-    layerName: 'luftbilder',
+    connectionDetails: {
+      baseUrl: 'https://example.org/wms',
+      layerName: 'luftbilder',
+    },
     ...overrides,
   };
 }
@@ -81,5 +83,15 @@ describe('GeoresourceWmsElementComponent', () => {
 
     expect(dataset.showLegend).toBe(true);
     expect(toggleEmitted).toBe(0);
+  });
+
+  it('builds the legend image URL from connectionDetails', () => {
+    const dataset = makeWms({ showLegend: true });
+    component.dataset = dataset;
+    fixture.detectChanges();
+
+    const src = fixture.debugElement.query(By.css('.wms-element__legend img')).nativeElement.src;
+    expect(src).toContain('https://example.org/wms');
+    expect(src).toContain('LAYER=luftbilder');
   });
 });
