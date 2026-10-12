@@ -1,6 +1,6 @@
 <app-georesource-element
-  [title]="dataset.datasetName ?? ''"
-  [description]="dataset.metadata?.description"
+  [title]="dataset.datasetName"
+  [description]="dataset.metadata.description"
   [selected]="dataset.isSelected ?? false"
   [level]="level"
   (rowClick)="onToggle()"
