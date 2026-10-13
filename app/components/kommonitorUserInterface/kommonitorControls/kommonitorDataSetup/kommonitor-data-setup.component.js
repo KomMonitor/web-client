@@ -530,9 +530,12 @@ angular
 									}
 
 									var availableDates = kommonitorDataExchangeService.selectedIndicator.applicableDates;
-									$scope.date = availableDates[availableDates.length - 1];
-									$scope.selectedDate = availableDates[availableDates.length - 1];
-									kommonitorDataExchangeService.selectedDate = availableDates[availableDates.length - 1];
+									var previouslySelectedDate = kommonitorDataExchangeService.selectedDate;
+									var dateIndex = availableDates.includes(previouslySelectedDate) ? availableDates.indexOf(previouslySelectedDate) : availableDates.length - 1;
+
+									$scope.date = availableDates[dateIndex];
+									$scope.selectedDate = availableDates[dateIndex];
+									kommonitorDataExchangeService.selectedDate = availableDates[dateIndex];
 
 									$scope.datesAsMs = createDatesFromIndicatorDates(kommonitorDataExchangeService.selectedIndicator.applicableDates);
 
@@ -542,16 +545,16 @@ angular
 											type: "single",
 											grid: true,
 											values: $scope.datesAsMs,
-											from: $scope.datesAsMs.length -1, // index, not the date
+											from: dateIndex, // index, not the date
 											force_edges: true,
 											prettify: prettifyDateSliderLabels,
 											onChange: $scope.onChangeDateSliderItem
 									});
 
 									$scope.dateSlider = $("#dateSlider").data("ionRangeSlider");
-									// make sure that the handle is properly set to max value
+									// make sure that the handle is properly set to the selected date's index
 									$scope.dateSlider.update({
-											from: $scope.datesAsMs.length -1 // index, not the date
+											from: dateIndex // index, not the date
 									});
 								};
 
@@ -569,12 +572,15 @@ angular
 									}
 
 									var availableDates = kommonitorDataExchangeService.selectedIndicator.applicableDates;
-									$scope.date = availableDates[availableDates.length - 1];
-									$scope.selectedDate = availableDates[availableDates.length - 1];
-									kommonitorDataExchangeService.selectedDate = availableDates[availableDates.length - 1];
+									var previouslySelectedDate = kommonitorDataExchangeService.selectedDate;
+									var dateToSelect = availableDates.includes(previouslySelectedDate) ? previouslySelectedDate : availableDates[availableDates.length - 1];
 
-									$scope.datePicker = $('#indicatorDatePicker').datepicker(kommonitorDataExchangeService.getLimitedDatePickerOptions(availableDates));																		
-									
+									$scope.date = dateToSelect;
+									$scope.selectedDate = dateToSelect;
+									kommonitorDataExchangeService.selectedDate = dateToSelect;
+
+									$scope.datePicker = $('#indicatorDatePicker').datepicker(kommonitorDataExchangeService.getLimitedDatePickerOptions(availableDates));
+
 								};
 
 
