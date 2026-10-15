@@ -130,16 +130,24 @@
     }
 
     <div class="assignment-add">
+      @let lockedHint =
+        locked
+          ? ('ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.LOCKED_HINT'
+            | translate: { mandant: mandantName })
+          : '';
       <button
         type="button"
         class="btn btn-sm btn-outline-primary"
-        [disabled]="hierarchyOptions().length === 0"
+        [disabled]="locked || hierarchyOptions().length === 0"
+        [attr.title]="lockedHint || null"
         (click)="addRow()"
       >
         {{ 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.ADD_ASSIGNMENT' | translate }}
       </button>
       <span class="assignment-hint">
-        @if (hierarchyOptions().length === 0) {
+        @if (locked) {
+          {{ lockedHint }}
+        } @else if (hierarchyOptions().length === 0) {
           {{ 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.NO_HIERARCHIES' | translate }}
         } @else {
           {{ 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.ADD_ASSIGNMENT_HINT' | translate }}

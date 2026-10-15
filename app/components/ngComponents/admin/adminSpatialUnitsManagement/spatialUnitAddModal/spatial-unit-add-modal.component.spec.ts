@@ -146,7 +146,11 @@ describe('SpatialUnitAddModalComponent', () => {
         },
         {
           provide: AccessControlService,
-          useValue: { accessControl: [], currentKeycloakLoginRoles: [] },
+          useValue: {
+            accessControl: [],
+            currentKeycloakLoginRoles: [],
+            canManageHierarchiesOf: () => true,
+          },
         },
         {
           provide: SpatialUnitHierarchyApiService,

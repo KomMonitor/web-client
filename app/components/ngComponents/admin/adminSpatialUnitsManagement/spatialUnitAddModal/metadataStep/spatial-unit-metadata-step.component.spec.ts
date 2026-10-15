@@ -1,8 +1,9 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
 import { SpatialUnitHierarchyOverviewType } from 'models/data-management-api';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { MandantService } from 'services/mandant-service/mandant.service';
 
 import { HierarchyAssignmentPanelComponent } from '../../hierarchyAssignment/hierarchy-assignment-panel.component';
@@ -46,6 +47,10 @@ describe('SpatialUnitMetadataStepComponent', () => {
   let component: SpatialUnitMetadataStepComponent;
   let group: SpatialUnitMetadataStepGroup;
 
+  /** The tenants whose hierarchies the user may only read; none by default. */
+  const readOnlyMandants = signal<readonly string[]>([]);
+  beforeEach(() => readOnlyMandants.set([]));
+
   function configure(mandants: typeof MANDANTS, isRealmAdmin = true): void {
     TestBed.configureTestingModule({
       imports: [
@@ -54,6 +59,12 @@ describe('SpatialUnitMetadataStepComponent', () => {
         TranslateModule.forRoot(),
       ],
       providers: [
+        {
+          provide: AccessControlService,
+          useValue: {
+            canManageHierarchiesOf: (mandant: string) => !readOnlyMandants().includes(mandant),
+          },
+        },
         {
           provide: MandantService,
           useValue: {
@@ -139,6 +150,49 @@ describe('SpatialUnitMetadataStepComponent', () => {
       expect(field.nativeElement.tagName).toBe('INPUT');
       expect(field.nativeElement.disabled).toBe(true);
       expect(hierarchyOptions(0)).toEqual(['h-essen', 'h-bochum', 'h-unknown']);
+    });
+  });
+
+  describe('hierarchy rights', () => {
+    function panel(): HierarchyAssignmentPanelComponent {
+      return fixture.debugElement.query(By.directive(HierarchyAssignmentPanelComponent))
+        .componentInstance;
+    }
+
+    it('locks the assignment for a tenant the user may not change', () => {
+      readOnlyMandants.set(['Stadt Essen']);
+      configure(MANDANTS, false);
+      render('m-essen');
+
+      expect(panel().locked).toBe(true);
+      expect(panel().mandantName).toBe('Stadt Essen');
+    });
+
+    it('leaves it open for a tenant the user may change', () => {
+      configure(MANDANTS, false);
+      render('m-essen');
+
+      expect(panel().locked).toBe(false);
+    });
+
+    it('follows a switch of the tenant', () => {
+      readOnlyMandants.set(['Stadt Bochum']);
+      configure(MANDANTS);
+      render('m-essen');
+      expect(panel().locked).toBe(false);
+
+      group.controls.mandantId.setValue('m-bochum');
+      fixture.detectChanges();
+
+      expect(panel().locked).toBe(true);
+    });
+
+    it('locks nothing where no tenant is known', () => {
+      readOnlyMandants.set(['Stadt Essen', 'Stadt Bochum']);
+      configure([]);
+      render('');
+
+      expect(panel().locked).toBe(false);
     });
   });
 });

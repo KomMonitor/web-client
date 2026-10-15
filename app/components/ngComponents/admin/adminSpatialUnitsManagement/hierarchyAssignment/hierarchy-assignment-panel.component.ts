@@ -103,6 +103,14 @@ export class HierarchyAssignmentPanelComponent {
   @Input() mandantName = '';
 
   /**
+   * The user may not change the hierarchies of this tenant: assigning needs
+   * `<tenant>.client-resources-creator` (`AccessControlService.canManageHierarchiesOf`).
+   * No row can be added then, and the hint below says why. The add wizard has
+   * no rows at that point — they only come from the add button.
+   */
+  @Input() locked = false;
+
+  /**
    * The unit these rows belong to, where it already exists — the edit dialog.
    * It is left out of the chains the rows are read against: a level is neither
    * its own reference nor its own neighbour when it appends. Empty in the add

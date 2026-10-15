@@ -245,4 +245,34 @@ describe('HierarchyAssignmentPanelComponent', () => {
       fixture.debugElement.query(By.css('.assignment-rows > .assignment-error'))
     ).not.toBeNull();
   });
+
+  describe('locked, for a user who may not change the hierarchies', () => {
+    function addButton(): HTMLButtonElement {
+      return fixture.debugElement.query(By.css('.assignment-add .btn')).nativeElement;
+    }
+
+    function hint(): string {
+      return fixture.debugElement.query(By.css('.assignment-add .assignment-hint')).nativeElement
+        .textContent;
+    }
+
+    it('rests the add button and says why', () => {
+      fixture.componentRef.setInput('locked', true);
+      fixture.componentRef.setInput('mandantName', 'Stadt Essen');
+      render();
+
+      expect(addButton().disabled).toBe(true);
+      expect(addButton().title).toContain('LOCKED_HINT');
+      expect(hint()).toContain('LOCKED_HINT');
+      expect(hint()).not.toContain('ADD_ASSIGNMENT_HINT');
+    });
+
+    it('is not locked by default', () => {
+      render();
+
+      expect(addButton().disabled).toBe(false);
+      expect(addButton().hasAttribute('title')).toBe(false);
+      expect(hint()).toContain('ADD_ASSIGNMENT_HINT');
+    });
+  });
 });
