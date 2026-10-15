@@ -1,12 +1,36 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import {
   AccessControlMetadata,
   AvailableRole,
 } from 'components/ngComponents/models/permissions.models';
 import { KeycloakTokenParsed } from 'keycloak-js';
+import { AdminRoleType } from 'models/data-management-api';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+
+/**
+ * The administrative roles the Data Management API evaluates. A Keycloak realm
+ * role carrying one is named `<organizational unit name>.<role>`.
+ */
+const ADMIN_ROLE_TYPES: readonly string[] = [
+  'client-users-creator',
+  'unit-users-creator',
+  'client-resources-creator',
+  'unit-resources-creator',
+  'client-themes-creator',
+  'unit-themes-creator',
+] satisfies readonly AdminRoleType[];
+
+/** An administrative role of the login, split into its group and the role itself. */
+interface LoginAdminRole {
+  readonly group: string;
+  readonly role: AdminRoleType;
+}
+
+function isAdminRoleType(role: string): role is AdminRoleType {
+  return ADMIN_ROLE_TYPES.includes(role);
+}
 
 /**
  * Permissions / roles / access-control state and logic. Extracted in the Prio 7 god-service split.
@@ -54,6 +78,34 @@ export class AccessControlService {
   currentKomMonitorLoginRoleNames: string[] = [];
   currentKeycloakLoginGroups: string[] = [];
   currentKomMonitorLoginOrganizationalUnits: AccessControlMetadata[] = [];
+
+  /**
+   * The organizational units by id and by name. Derived from the signal rather
+   * than read from `accessControl_map`, so they stay right however
+   * `accessControl` is set, and callers re-derive when it changes. Names are
+   * unique; the backend's table enforces it.
+   */
+  private readonly unitsById = computed(
+    () => new Map(this._accessControl().map((unit) => [unit.organizationalUnitId, unit]))
+  );
+  private readonly unitsByName = computed(
+    () => new Map(this._accessControl().map((unit) => [unit.name, unit]))
+  );
+
+  /**
+   * The administrative roles of the login. Split at the last dot: group names
+   * may contain dots, the roles never do. Everything else the token carries
+   * (`offline_access`, the admin role, …) is dropped.
+   */
+  private readonly loginAdminRoles = computed<LoginAdminRole[]>(() =>
+    this._currentKeycloakLoginRoles().flatMap((roleName) => {
+      const separator = roleName.lastIndexOf('.');
+      const role = roleName.slice(separator + 1);
+      return separator > 0 && isAdminRoleType(role)
+        ? [{ group: roleName.slice(0, separator), role }]
+        : [];
+    })
+  );
 
   availableRoles: AvailableRole[] = [];
 
@@ -315,5 +367,92 @@ export class AccessControlService {
     });
 
     return ret;
+  }
+
+  /*
+   * The checks below mirror the Data Management API's own rules
+   * (GroupBasedAuthInfoProvider), group by group — unlike the suffix checks
+   * above, which only ask whether the user holds a role of that kind anywhere.
+   * The admin area binds its buttons to them, so a user learns that an action
+   * is not theirs before the backend answers it with a 403.
+   */
+
+  /**
+   * Whether the user may create, edit, delete and rearrange the spatial unit
+   * hierarchies of a tenant. Mirrors `checkMandantOperationPermissions`: only
+   * `<tenant>.client-resources-creator` on the tenant group itself counts. The
+   * same role on a subgroup does not, nor does `unit-resources-creator` on the
+   * tenant.
+   */
+  canManageHierarchiesOf(mandantName: string): boolean {
+    if (this.checkAdminPermission()) {
+      return true;
+    }
+    const mandant = this.unitsByName().get(mandantName);
+    if (!mandant?.mandant) {
+      return false;
+    }
+    return this.loginAdminRoles().some(
+      ({ group, role }) => role === 'client-resources-creator' && group === mandant.name
+    );
+  }
+
+  /**
+   * Whether the user may edit an organizational unit, delegate its rights or
+   * delete it. Mirrors `checkOrganizationalUnitPermissions`:
+   * `unit-users-creator` on the unit itself, or `client-users-creator` on the
+   * unit or one of its ancestors.
+   */
+  canManageOrganization(organizationalUnitId: string): boolean {
+    if (this.checkAdminPermission()) {
+      return true;
+    }
+    const unit = this.unitsById().get(organizationalUnitId);
+    if (!unit) {
+      return false;
+    }
+    const lineage = this.lineageNames(unit);
+    return this.loginAdminRoles().some(
+      ({ group, role }) =>
+        (role === 'unit-users-creator' && group === unit.name) ||
+        (role === 'client-users-creator' && lineage.includes(group))
+    );
+  }
+
+  /**
+   * Whether the user may create a subgroup below `parentId` — or, for `null`, a
+   * group without a parent, which is how a new tenant starts. Mirrors
+   * `checkOrganizationalUnitCreationPermissions`: `client-users-creator` on the
+   * parent or one of its ancestors; groups without a parent are the platform
+   * administrator's alone.
+   */
+  canCreateSubgroupUnder(parentId: string | null): boolean {
+    if (this.checkAdminPermission()) {
+      return true;
+    }
+    const parent = parentId ? this.unitsById().get(parentId) : undefined;
+    if (!parent) {
+      return false;
+    }
+    const lineage = this.lineageNames(parent);
+    return this.loginAdminRoles().some(
+      ({ group, role }) => role === 'client-users-creator' && lineage.includes(group)
+    );
+  }
+
+  /**
+   * The names of a unit and all of its ancestors, nearest first. A cyclic
+   * parent chain ends at the first unit seen twice instead of looping forever.
+   */
+  private lineageNames(unit: AccessControlMetadata): string[] {
+    const names: string[] = [];
+    const visited = new Set<string>();
+    let current: AccessControlMetadata | undefined = unit;
+    while (current && !visited.has(current.organizationalUnitId)) {
+      visited.add(current.organizationalUnitId);
+      names.push(current.name);
+      current = current.parentId ? this.unitsById().get(current.parentId) : undefined;
+    }
+    return names;
   }
 }
