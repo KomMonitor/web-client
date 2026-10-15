@@ -1066,6 +1066,7 @@
   "ADMIN_SCRIPTS": {
     "ADD": "Add",
     "MANAGEMENT": {
+      "NO_PERMISSION_HINT": "Seeing and managing schedules requires a unit- or client-resources-creator role.",
       "TITLE": "Script Management",
       "DESCRIPTION": "Control of the semi-automated indicator computation",
       "BOX_TITLE": "Indicator computation scripts",
@@ -1081,6 +1082,7 @@
       "WAITING_JOBS": "waiting jobs",
       "TOTAL_JOBS": "Number of jobs",
       "LOGIN_REQUIRED": "A login is required to display processing jobs.",
+      "ROLE_REQUIRED": "Seeing calculation jobs requires a unit- or client-resources-creator role.",
       "NO_JOBS": "No jobs available.",
       "MODAL_TITLE_STATUS": "Jobs - {{status}}",
       "MODAL_TITLE_SCHEDULE": "Jobs - {{indicatorName}}",

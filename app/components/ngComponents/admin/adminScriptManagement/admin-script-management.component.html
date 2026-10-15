@@ -6,16 +6,25 @@
 ></app-admin-content-view>
 
 <ng-template #controls>
-  <!-- TODO: gate this button on AccessControlService.checkCreatePermission() -->
-  <button class="btn btn-success btn-sm" type="button" (click)="onClickAddScript()">
+  <!-- Also why the list stays empty: without the role the API refuses reading it. -->
+  @if (!canManageSchedules()) {
+    <span class="create-blocked">
+      {{ 'ADMIN_SCRIPTS.MANAGEMENT.NO_PERMISSION_HINT' | translate }}
+    </span>
+  }
+  <button
+    class="btn btn-success btn-sm"
+    type="button"
+    [disabled]="!canManageSchedules()"
+    (click)="onClickAddScript()"
+  >
     <i class="fas fa-plus"></i> {{ 'ADMIN_SHARED.CREATE' | translate }}
   </button>
 
-  <!-- TODO: additionally gate this button on AccessControlService.checkDeletePermission() -->
   <button
     class="btn btn-danger btn-sm"
     type="button"
-    [disabled]="selectedRows().length === 0"
+    [disabled]="!canManageSchedules() || selectedRows().length === 0"
     (click)="onClickDeleteScripts()"
   >
     <i class="fas fa-trash"></i> {{ 'ADMIN_SHARED.DELETE' | translate }}

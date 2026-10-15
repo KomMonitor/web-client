@@ -1066,6 +1066,7 @@
   "ADMIN_SCRIPTS": {
     "ADD": "Hinzufügen",
     "MANAGEMENT": {
+      "NO_PERMISSION_HINT": "Schedules sehen und verwalten erfordert eine Rolle unit- oder client-resources-creator.",
       "TITLE": "Skriptverwaltung",
       "DESCRIPTION": "Steuerung der semi-automatisierten Indikatorenberechnung",
       "BOX_TITLE": "Indikatoren-Berechnungs-Skripte",
@@ -1081,6 +1082,7 @@
       "WAITING_JOBS": "wartende Jobs",
       "TOTAL_JOBS": "Anzahl Jobs",
       "LOGIN_REQUIRED": "Für die Anzeige der Prozessierungsjobs ist eine Anmeldung erforderlich.",
+      "ROLE_REQUIRED": "Berechnungsjobs sehen erfordert eine Rolle unit- oder client-resources-creator.",
       "NO_JOBS": "Keine Jobs vorhanden.",
       "MODAL_TITLE_STATUS": "Jobs - {{status}}",
       "MODAL_TITLE_SCHEDULE": "Jobs - {{indicatorName}}",

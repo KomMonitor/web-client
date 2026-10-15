@@ -1,9 +1,10 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { By } from '@angular/platform-browser';
 
 import { AdminScriptExecutionComponent } from './admin-script-execution.component';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { AuthService } from 'services/auth-service/auth.service';
 import { JobOverviewService } from 'services/job-overview-service/job-overview.service';
 
@@ -12,6 +13,9 @@ describe('AdminScriptExecutionComponent', () => {
   let loadRows: jest.Mock;
   let clearSummaryCache: jest.Mock;
   let isAuthenticated: jest.Mock;
+
+  /** Whether the user holds a role the Processes API admits; yes by default. */
+  const hasResourceRole = signal(true);
 
   const row = (jobID: string, status: string) => ({
     job: { jobID, status },
@@ -38,6 +42,7 @@ describe('AdminScriptExecutionComponent', () => {
     loadRows = jest.fn().mockResolvedValue(ROWS);
     clearSummaryCache = jest.fn();
     isAuthenticated = jest.fn().mockReturnValue(true);
+    hasResourceRole.set(true);
 
     TestBed.configureTestingModule({
       imports: [AdminScriptExecutionComponent, TranslateModule.forRoot()],
@@ -52,6 +57,10 @@ describe('AdminScriptExecutionComponent', () => {
           },
         },
         { provide: AuthService, useValue: { isAuthenticated } },
+        {
+          provide: AccessControlService,
+          useValue: { checkResourcesEditPermission: () => hasResourceRole() },
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     });
@@ -152,6 +161,30 @@ describe('AdminScriptExecutionComponent', () => {
     expect((fixture.componentInstance as any).loginRequired()).toBe(true);
     // No tiles are rendered — an empty count would read as "no jobs exist".
     expect(fixture.debugElement.queryAll(By.css('app-small-box')).length).toBe(0);
+  });
+
+  it('says which role is missing when logged in without one, instead of empty tiles', async () => {
+    hasResourceRole.set(false);
+    await build();
+
+    const component = fixture.componentInstance as any;
+    expect(component.loginRequired()).toBe(false);
+    expect(component.roleRequired()).toBe(true);
+    expect(fixture.nativeElement.querySelector('.alert-info').textContent).toContain(
+      'ROLE_REQUIRED'
+    );
+    expect(fixture.debugElement.queryAll(By.css('app-small-box')).length).toBe(0);
+  });
+
+  it('asks for the login first, not for a role, when unauthenticated', async () => {
+    isAuthenticated.mockReturnValue(false);
+    hasResourceRole.set(false);
+    await build();
+
+    expect((fixture.componentInstance as any).roleRequired()).toBe(false);
+    expect(fixture.nativeElement.querySelector('.alert-info').textContent).toContain(
+      'LOGIN_REQUIRED'
+    );
   });
 
   it('renders five tiles once jobs are loaded', async () => {
