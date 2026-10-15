@@ -9,6 +9,7 @@ jest.mock('codemirror', () => {
     getValue: jest.fn(() => ''),
     setValue: jest.fn(),
     setSize: jest.fn(),
+    setOption: jest.fn(),
     on: jest.fn(),
   });
   const codeMirror: any = jest.fn(() => makeEditor());
@@ -244,6 +245,55 @@ describe('ConfigEditorPanesComponent', () => {
 
       const editable = (CodeMirror as any).fromTextArea.mock.results[0].value;
       expect(editable.setValue).toHaveBeenCalledWith('[{ "name": "early" }]');
+    });
+  });
+
+  describe('read only', () => {
+    /** Renders, lets the editors be built, and renders their state. */
+    async function settle(): Promise<void> {
+      fixture.detectChanges();
+      await (component as any).dataReady;
+      await Promise.resolve();
+      fixture.detectChanges();
+    }
+
+    function actionButtons(): HTMLButtonElement[] {
+      return Array.from(fixture.nativeElement.querySelectorAll('.page-actions button'));
+    }
+
+    it('opens the editable pane read-only and rests reset and save, saying why', async () => {
+      fixture.componentRef.setInput('readOnly', true);
+      await settle();
+
+      expect((CodeMirror as any).fromTextArea.mock.calls[0][1].readOnly).toBe(true);
+      expect(actionButtons()).toHaveLength(2);
+      for (const button of actionButtons()) {
+        expect(button.disabled).toBe(true);
+        expect(button.title).toBe('ADMIN_CONFIG.COMMON.READ_ONLY_HINT');
+      }
+      expect(fixture.nativeElement.querySelector('.config-locked').textContent).toContain(
+        'READ_ONLY_HINT'
+      );
+    });
+
+    it('follows a change on an editor that already exists — the roles may come late', async () => {
+      await settle();
+      const editable = (CodeMirror as any).fromTextArea.mock.results[0].value;
+
+      fixture.componentRef.setInput('readOnly', true);
+      expect(editable.setOption).toHaveBeenLastCalledWith('readOnly', true);
+
+      fixture.componentRef.setInput('readOnly', false);
+      expect(editable.setOption).toHaveBeenLastCalledWith('readOnly', false);
+    });
+
+    it('is not read-only by default', async () => {
+      await settle();
+
+      expect((CodeMirror as any).fromTextArea.mock.calls[0][1].readOnly).toBe(false);
+      expect(actionButtons().every((button) => !button.hasAttribute('title'))).toBe(true);
+      expect(actionButtons()[0].disabled).toBe(false);
+      expect(fixture.nativeElement.querySelector('.config-locked')).toBeNull();
     });
   });
 });

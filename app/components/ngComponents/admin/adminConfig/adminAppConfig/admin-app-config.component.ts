@@ -1,10 +1,11 @@
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 
 import CodeMirror from 'codemirror';
 
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { AdminContentViewComponent } from '../../admin-content-view/admin-content-view.component';
@@ -33,6 +34,13 @@ export class AdminAppConfigComponent {
   private http = inject(HttpClient);
   private configStorageService = inject(ConfigStorageService);
   private envConfigService = inject(EnvConfigService);
+  private accessControlService = inject(AccessControlService);
+
+  /**
+   * Whether the user may save this configuration. The config storage service
+   * takes it from the platform administrator only; everyone else may read it.
+   */
+  protected readonly canSave = computed(() => this.accessControlService.checkAdminPermission());
 
   /** Keys env.js has to define; checked verbatim against the editor content. */
   private static readonly REQUIRED_KEYWORDS = [

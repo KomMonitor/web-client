@@ -1501,6 +1501,7 @@
       "TEMPLATE_LABEL": "Vorlage (Struktur und Standard-Einstellung)",
       "CURRENT_LABEL": "Derzeitige Konfiguration (aktuelle Wertbelegung)",
       "PREVIEW_LABEL": "Vorschaufenster (neue Wertbelegung)",
+      "READ_ONLY_HINT": "Nur Lesezugriff: Speichern darf nur, wer die Rolle kommonitor-creator hat.",
       "MISSING_PARAMETERS": "Fehlende Parameter:",
       "INVALID_HINT": "Bitte beachten Sie, dass alle notwendigen Parameter gemäß der obigen Vorlage definiert werden müssen. Beachten Sie daher die vorgegebene {{format}}-Struktur. Der Text wird auf Schlüsselwörter geprüft und es wird sichergestellt, dass valides {{format}} geparsed werden kann.",
       "INTRO_SUFFIX": "von KomMonitor, von dem die Daten beim Start der Anwendung geladen werden. Setzen Sie die Werte daher sorgfältig."

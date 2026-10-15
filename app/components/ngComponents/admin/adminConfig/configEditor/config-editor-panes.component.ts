@@ -61,6 +61,23 @@ export class ConfigEditorPanesComponent implements OnInit, AfterViewInit {
 
   @Input({ required: true }) descriptor!: ConfigEditorDescriptor;
 
+  /**
+   * Whether the configuration may only be read: the editable pane takes no
+   * input, and reset and save rest. Set by the app and controls config pages —
+   * the config storage service takes those only from the platform
+   * administrator. The filter config leaves it off; resource roles may save it.
+   *
+   * A setter, because the roles may arrive after the editor exists: a page
+   * opened straight by its URL renders before the metadata bootstrap has
+   * applied them.
+   */
+  @Input() set readOnly(value: boolean) {
+    this.locked.set(value);
+    this.codeMirrorEditor?.setOption('readOnly', value);
+  }
+
+  protected readonly locked = signal(false);
+
   // Hosts are resolved in ngAfterViewInit, never with { static: true }: the
   // embedding pages render this component inside an <ng-template> that
   // admin-content-view pulls through an outlet, so the view exists only after
@@ -159,6 +176,7 @@ export class ConfigEditorPanesComponent implements OnInit, AfterViewInit {
     const mode = this.descriptor.mode;
 
     this.codeMirrorEditor = CodeMirror.fromTextArea(this.configEditor.nativeElement, {
+      readOnly: this.locked(),
       lineNumbers: true,
       autoRefresh: true,
       mode,

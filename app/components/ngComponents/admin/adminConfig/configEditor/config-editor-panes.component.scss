@@ -85,3 +85,14 @@ textarea {
   padding-top: 0.75rem;
   border-top: 1px solid var(--bs-border-color-translucent);
 }
+
+// Says why reset and save rest, left of them — the hint pattern of the other
+// admin pages.
+.config-locked {
+  align-self: center;
+  max-width: 40ch;
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: #7a8b96;
+  text-align: right;
+}

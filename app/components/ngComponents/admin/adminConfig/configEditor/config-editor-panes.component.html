@@ -60,14 +60,25 @@
     the two `<hr>` elements further up the page.
   -->
   <div class="page-actions d-flex justify-content-end gap-2">
-    <button type="button" class="btn btn-outline-secondary" (click)="resetConfig()">
+    @let lockedHint = locked() ? ('ADMIN_CONFIG.COMMON.READ_ONLY_HINT' | translate) : null;
+    @if (lockedHint) {
+      <span class="config-locked">{{ lockedHint }}</span>
+    }
+    <button
+      type="button"
+      class="btn btn-outline-secondary"
+      [disabled]="locked()"
+      [attr.title]="lockedHint"
+      (click)="resetConfig()"
+    >
       {{ 'ADMIN_SHARED_UI.RESET' | translate }}
     </button>
 
     <button
       type="button"
       class="btn btn-success"
-      [disabled]="configSettingInvalid()"
+      [disabled]="locked() || configSettingInvalid()"
+      [attr.title]="lockedHint"
       (click)="saveConfig()"
     >
       {{ i18n + '.SAVE' | translate }}
