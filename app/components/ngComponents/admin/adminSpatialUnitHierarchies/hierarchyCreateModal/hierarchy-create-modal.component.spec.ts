@@ -351,4 +351,31 @@ describe('HierarchyCreateModalComponent', () => {
     );
     return error?.nativeElement ?? null;
   }
+
+  describe('with the tenants narrowed to those the user may change', () => {
+    beforeEach(() => {
+      configure(MANDANTS, [MANDANTS[1]]);
+    });
+
+    it('offers only the allowed tenants, skipping an own one that is not', () => {
+      render({ allowedMandants: ['Stadt Essen'] });
+
+      expect(component.mandants).toEqual(['Stadt Essen']);
+      expect(component.form.controls.mandant.value).toBe('Stadt Essen');
+      expect(optionIds()).toEqual(OTHER_LEVELS.map((level) => level.id));
+    });
+
+    it('still preselects the own tenant where it is allowed', () => {
+      render({ allowedMandants: ['Stadt Essen', 'Kreis Recklinghausen'] });
+
+      expect(component.form.controls.mandant.value).toBe('Kreis Recklinghausen');
+    });
+
+    it('offers nothing where nothing is allowed', () => {
+      render({ allowedMandants: [] });
+
+      expect(component.mandants).toEqual([]);
+      expect(component.form.controls.mandant.value).toBe('');
+    });
+  });
 });

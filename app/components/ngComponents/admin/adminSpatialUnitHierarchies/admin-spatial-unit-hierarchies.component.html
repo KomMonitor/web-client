@@ -14,12 +14,19 @@
       <span class="switchslider round"></span>
     </label>
   </div>
-  <!-- The API requires a mandantId, and without Keycloak this instance knows no
-       tenants and cannot obtain one. Reading still works, creating does not. -->
-  @if (!store.canCreate()) {
-    <span class="create-blocked">
-      {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.NO_MANDANT_HINT' | translate }}
-    </span>
+  <!-- Reading still works either way; `createBlocked` says why creating does
+       not: no tenant known without Keycloak, or no tenant the user may change. -->
+  @switch (store.createBlocked()) {
+    @case ('no-mandant') {
+      <span class="create-blocked">
+        {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.NO_MANDANT_HINT' | translate }}
+      </span>
+    }
+    @case ('forbidden') {
+      <span class="create-blocked">
+        {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.NO_PERMISSION_HINT' | translate }}
+      </span>
+    }
   }
   <button
     class="btn btn-success btn-sm"
@@ -43,6 +50,17 @@
     (selectedChange)="store.selectMandant($event)"
   />
 
+  <!-- Said once for the whole tenant; the resting buttons below carry the same
+       reason as their title. -->
+  @if (store.selectedMandantReadOnly()) {
+    <p class="hierarchies-read-only">
+      {{
+        'ADMIN_SPATIAL_UNIT_HIERARCHIES.READ_ONLY_HINT'
+          | translate: { mandant: store.selectedMandant() }
+      }}
+    </p>
+  }
+
   @if (store.loading()) {
     <p class="hierarchies-empty">
       {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LOADING' | translate }}
@@ -61,6 +79,14 @@
         hierarchy.isPublic()
           ? 'ADMIN_SPATIAL_UNIT_HIERARCHIES.VISIBILITY.PUBLIC'
           : 'ADMIN_SPATIAL_UNIT_HIERARCHIES.VISIBILITY.NOT_PUBLIC';
+      <!-- Every write below needs the same right on the hierarchy's tenant;
+           without it the buttons rest and their title says why. -->
+      @let locked = !store.canManage(hierarchy);
+      @let lockedTitle =
+        locked
+          ? ('ADMIN_SPATIAL_UNIT_HIERARCHIES.FORBIDDEN_TITLE'
+            | translate: { mandant: hierarchy.mandant() })
+          : '';
       <app-collapsible-section
         class="hierarchy-section"
         [title]="hierarchy.name()"
@@ -80,7 +106,8 @@
           header-actions
           type="button"
           class="btn btn-sm btn-warning"
-          [disabled]="hierarchy.saving()"
+          [disabled]="locked || hierarchy.saving()"
+          [attr.title]="lockedTitle || null"
           (click)="onEditHierarchy(hierarchy)"
         >
           {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.EDIT' | translate }}
@@ -89,7 +116,8 @@
           header-actions
           type="button"
           class="btn btn-sm btn-danger"
-          [disabled]="hierarchy.saving()"
+          [disabled]="locked || hierarchy.saving()"
+          [attr.title]="lockedTitle || null"
           (click)="onDeleteHierarchy(hierarchy)"
         >
           {{ 'ADMIN_SHARED.DELETE' | translate }}
@@ -108,7 +136,7 @@
           indentMode="row"
           [(expandedIds)]="hierarchy.expandedIds"
           [insertLabel]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.PICKER.INSERT_LEVEL' | translate"
-          [canInsertAt]="hierarchy.canInsertAt"
+          [canInsertAt]="locked ? noInsert : hierarchy.canInsertAt"
           [trailingGapAsChild]="true"
           [maxIndent]="200"
           [(openGap)]="hierarchy.openGap"
@@ -134,8 +162,8 @@
             <button
               type="button"
               class="level-move"
-              [disabled]="!level.canMoveUp || hierarchy.saving()"
-              [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.MOVE_UP' | translate"
+              [disabled]="locked || !level.canMoveUp || hierarchy.saving()"
+              [title]="lockedTitle || ('ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.MOVE_UP' | translate)"
               (click)="$event.stopPropagation(); onMoveLevel(hierarchy, level, -1)"
             >
               <span aria-hidden="true">&#9650;</span>
@@ -146,8 +174,10 @@
             <button
               type="button"
               class="level-move"
-              [disabled]="!level.canMoveDown || hierarchy.saving()"
-              [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.MOVE_DOWN' | translate"
+              [disabled]="locked || !level.canMoveDown || hierarchy.saving()"
+              [title]="
+                lockedTitle || ('ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.MOVE_DOWN' | translate)
+              "
               (click)="$event.stopPropagation(); onMoveLevel(hierarchy, level, 1)"
             >
               <span aria-hidden="true">&#9660;</span>
@@ -175,7 +205,8 @@
             <button
               type="button"
               class="btn btn-sm btn-outline-danger"
-              [disabled]="hierarchy.levelCount() === 1 || hierarchy.saving()"
+              [disabled]="locked || hierarchy.levelCount() === 1 || hierarchy.saving()"
+              [attr.title]="lockedTitle || null"
               (click)="$event.stopPropagation(); removeLevel(hierarchy, level)"
             >
               {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.LEVEL.REMOVE' | translate }}
@@ -206,7 +237,9 @@
     @if (store.unassignedLevels().length > 0) {
       <app-unassigned-levels-panel
         [levels]="store.unassignedLevels()"
-        [hierarchies]="store.visibleHierarchies()"
+        [hierarchies]="store.manageableHierarchies()"
+        [assignLocked]="store.assignLocked()"
+        [canRegister]="canRegisterLevel()"
         [showIds]="showIds()"
         (assign)="onAssignLevel($event)"
         (metadata)="onEditLevelMetadata($event)"

@@ -14,6 +14,12 @@
     header-actions
     type="button"
     class="btn btn-sm btn-light unassigned-register"
+    [disabled]="!canRegister()"
+    [attr.title]="
+      canRegister()
+        ? null
+        : ('ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.REGISTER_FORBIDDEN' | translate)
+    "
     (click)="registerLevel.emit()"
   >
     {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.REGISTER' | translate }}
@@ -48,6 +54,15 @@
           type="button"
           class="btn btn-sm btn-primary"
           (click)="onAssign(level, target.value)"
+        >
+          {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.ASSIGN' | translate }}
+        </button>
+      } @else if (assignLocked()) {
+        <button
+          type="button"
+          class="btn btn-sm btn-primary unassigned-assign-locked"
+          disabled
+          [title]="'ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.ASSIGN_FORBIDDEN' | translate"
         >
           {{ 'ADMIN_SPATIAL_UNIT_HIERARCHIES.UNASSIGNED.ASSIGN' | translate }}
         </button>

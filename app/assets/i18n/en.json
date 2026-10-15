@@ -1657,13 +1657,18 @@
       "ASSIGNED": "Level \"{{level}}\" appended to \"{{hierarchy}}\".",
       "DELETE_TITLE": "Delete the spatial unit level and all its indicator datasets",
       "DELETE_FORBIDDEN": "Only creators of this spatial unit level may delete it",
-      "REGISTER": "Register new spatial unit level"
+      "REGISTER": "Register new spatial unit level",
+      "ASSIGN_FORBIDDEN": "Assigning requires the role client-resources-creator on this tenant",
+      "REGISTER_FORBIDDEN": "Registering spatial unit levels requires a unit- or client-resources-creator role"
     },
     "SHOW_IDS": "Show IDs",
     "NEW_HIERARCHY": "New hierarchy",
     "EDIT": "Edit",
     "LOADING": "Loading hierarchies …",
     "NO_MANDANT_HINT": "A hierarchy belongs to a tenant. Without Keycloak this instance knows none, so creating one is unavailable.",
+    "NO_PERMISSION_HINT": "Creating hierarchies requires the role <tenant>.client-resources-creator for a tenant.",
+    "READ_ONLY_HINT": "Read-only: changing the hierarchies of {{mandant}} requires the role {{mandant}}.client-resources-creator.",
+    "FORBIDDEN_TITLE": "Requires the role {{mandant}}.client-resources-creator",
     "LEVEL": {
       "COUNT": "{{count}} levels",
       "RANK": "Level {{rank}}",

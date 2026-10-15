@@ -196,4 +196,34 @@ describe('UnassignedLevelsPanelComponent', () => {
 
     expect(asked.map((level) => level.name)).toEqual(['Wahlbezirke Essen']);
   });
+
+  describe('for a user who may not change the hierarchies', () => {
+    it('rests the assign button and says why, instead of claiming there is no hierarchy', () => {
+      fixture.componentRef.setInput('assignLocked', true);
+      render(LEVELS, []);
+
+      const button = rows()[0].query(By.css('.unassigned-assign-locked')).nativeElement;
+      expect(button.disabled).toBe(true);
+      expect(button.title).toContain('ASSIGN_FORBIDDEN');
+      expect(rows()[0].query(By.css('.unassigned-select'))).toBeNull();
+      expect(rows()[0].query(By.css('.unassigned-no-hierarchy'))).toBeNull();
+    });
+
+    it('rests "register" without a role to create resources', () => {
+      fixture.componentRef.setInput('canRegister', false);
+      render();
+
+      const register = fixture.debugElement.query(By.css('.unassigned-register')).nativeElement;
+      expect(register.disabled).toBe(true);
+      expect(register.title).toContain('REGISTER_FORBIDDEN');
+    });
+
+    it('leaves "register" open by default', () => {
+      render();
+
+      const register = fixture.debugElement.query(By.css('.unassigned-register')).nativeElement;
+      expect(register.disabled).toBe(false);
+      expect(register.hasAttribute('title')).toBe(false);
+    });
+  });
 });

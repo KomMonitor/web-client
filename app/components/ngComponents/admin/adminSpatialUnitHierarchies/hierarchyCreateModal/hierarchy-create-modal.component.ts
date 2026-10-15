@@ -99,9 +99,16 @@ export class HierarchyCreateModalComponent implements OnInit {
   @Input() knownMandants: readonly string[] = [];
 
   /**
-   * The tenants to choose from, as `MandantService` sources them. Empty only
-   * where nothing knows a tenant. Filled in `ngOnInit`, once `knownMandants`
-   * has arrived.
+   * The tenants the user may create hierarchies for. `null` leaves the offer
+   * as `MandantService` sources it; a list narrows it, so the dialog cannot
+   * build a hierarchy the API would refuse with a 403.
+   */
+  @Input() allowedMandants: readonly string[] | null = null;
+
+  /**
+   * The tenants to choose from, as `MandantService` sources them and narrowed
+   * to `allowedMandants`. Empty only where nothing knows a tenant. Filled in
+   * `ngOnInit`, once the inputs have arrived.
    */
   protected mandants: readonly string[] = [];
 
@@ -169,7 +176,9 @@ export class HierarchyCreateModalComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.mandants = this.mandantService.mandantsToOffer(this.knownMandants);
+    const offered = this.mandantService.mandantsToOffer(this.knownMandants);
+    const allowed = this.allowedMandants;
+    this.mandants = allowed ? offered.filter((mandant) => allowed.includes(mandant)) : offered;
     this.form.controls.mandant.setValue(this.presetMandant || this.defaultMandant());
 
     // Required only where the select is on screen. A fixed tenant, a single
@@ -272,8 +281,13 @@ export class HierarchyCreateModalComponent implements OnInit {
     }
   }
 
-  /** The tenant the user belongs to, falling back to the only/first one offered. */
+  /**
+   * The tenant the user belongs to, falling back to the only/first one offered.
+   * Their own tenant is skipped where `allowedMandants` leaves it out.
+   */
   private defaultMandant(): string {
-    return this.mandantService.ownMandant || this.mandants[0] || '';
+    const own = this.mandantService.ownMandant;
+    const ownAllowed = this.allowedMandants === null || this.mandants.includes(own);
+    return (ownAllowed ? own : '') || this.mandants[0] || '';
   }
 }

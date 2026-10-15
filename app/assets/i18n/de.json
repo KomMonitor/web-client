@@ -1657,13 +1657,18 @@
       "ASSIGNED": "Ebene „{{level}}“ an „{{hierarchy}}“ angehängt.",
       "DELETE_TITLE": "Raumebene mit allen zugehörigen Indikatoren-Datensätzen löschen",
       "DELETE_FORBIDDEN": "Nur Ersteller dieser Raumebene dürfen sie löschen",
-      "REGISTER": "Neue Raumebene registrieren"
+      "REGISTER": "Neue Raumebene registrieren",
+      "ASSIGN_FORBIDDEN": "Zuordnen erfordert die Rolle client-resources-creator auf diesem Mandanten",
+      "REGISTER_FORBIDDEN": "Neue Raumebenen registrieren erfordert eine Rolle unit- oder client-resources-creator"
     },
     "SHOW_IDS": "Zeige IDs",
     "NEW_HIERARCHY": "Neue Hierarchie",
     "EDIT": "Bearbeiten",
     "LOADING": "Hierarchien werden geladen …",
     "NO_MANDANT_HINT": "Hierarchien gehören einem Mandanten. Ohne aktives Keycloak kennt diese Instanz keinen — Anlegen ist deshalb nicht möglich.",
+    "NO_PERMISSION_HINT": "Hierarchien anlegen darf nur, wer für einen Mandanten die Rolle <Mandant>.client-resources-creator hat.",
+    "READ_ONLY_HINT": "Nur Lesezugriff: Die Hierarchien von {{mandant}} darf nur ändern, wer die Rolle {{mandant}}.client-resources-creator hat.",
+    "FORBIDDEN_TITLE": "Erfordert die Rolle {{mandant}}.client-resources-creator",
     "LEVEL": {
       "COUNT": "{{count}} Ebenen",
       "RANK": "Ebene {{rank}}",

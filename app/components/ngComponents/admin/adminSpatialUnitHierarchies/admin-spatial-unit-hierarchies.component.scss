@@ -109,3 +109,16 @@
   line-height: 1.45;
   color: #5b7482;
 }
+
+// Says once, above the list, that the tenant on screen can only be read. A
+// notice rather than an error: nothing went wrong, the role is just missing.
+.hierarchies-read-only {
+  margin: 0 0 1em;
+  padding: 10px 12px;
+  background: #fdf8ec;
+  border: 1px solid #f0e2b6;
+  border-radius: 3px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: #6b5a2a;
+}
