@@ -1610,6 +1610,7 @@
       "TITLE": "Create a new spatial unit hierarchy",
       "NAME_LABEL": "Name of the hierarchy",
       "NAME_PLACEHOLDER": "e.g. social space structure",
+      "DESCRIPTION_PLACEHOLDER": "e.g. what the structure is meant for and who maintains it",
       "MANDANT_LABEL": "Tenant",
       "MANDANT_NONE": "No tenant available",
       "CHAIN_LABEL": "Level chain",
@@ -1627,6 +1628,7 @@
     "HIERARCHY_EDIT_MODAL": {
       "TITLE": "Edit spatial unit hierarchy",
       "NAME_LABEL": "Name of the hierarchy",
+      "DESCRIPTION_PLACEHOLDER": "e.g. what the structure is meant for and who maintains it",
       "PUBLIC_LABEL": "Hierarchy publicly visible",
       "PUBLIC_HINT": "Visible to everyone without logging in — the levels it holds have to be public as well.",
       "FIXED_TITLE": "Not editable",

@@ -184,6 +184,7 @@ describe('HierarchyCreateModalComponent', () => {
     it('closes with the trimmed metadata and the assembled chain', () => {
       const close = jest.spyOn(activeModal, 'close');
       component.form.controls.name.setValue('  Sozialraum-Gliederung  ');
+      component.form.controls.description.setValue('  Für die Sozialberichterstattung  ');
       component.form.controls.isPublic.setValue(true);
       addLevelButton().click();
       fixture.detectChanges();
@@ -192,10 +193,21 @@ describe('HierarchyCreateModalComponent', () => {
 
       expect(close).toHaveBeenCalledWith({
         name: 'Sozialraum-Gliederung',
+        description: 'Für die Sozialberichterstattung',
         mandant: 'Kreis Recklinghausen',
         isPublic: true,
         levels: [{ id: OWN_LEVELS[0].id, name: OWN_LEVELS[0].name }],
       });
+    });
+
+    it('does not require a description, and closes with an empty one', () => {
+      const close = jest.spyOn(activeModal, 'close');
+      component.form.controls.name.setValue('Sozialraum-Gliederung');
+
+      component.submit();
+
+      expect(component.form.controls.description.valid).toBe(true);
+      expect(close.mock.calls[0][0]).toMatchObject({ description: '' });
     });
 
     it('starts out non-public', () => {

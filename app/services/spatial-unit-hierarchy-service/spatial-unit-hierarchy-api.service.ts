@@ -76,8 +76,10 @@ export class SpatialUnitHierarchyApiService {
 
   /**
    * Replaces the metadata of a hierarchy. This is a **full** replace: leaving
-   * `isPublic` out of the body sets it to `false` rather than keeping it, so
-   * callers always send `name`, `mandantId` and `isPublic` together.
+   * `isPublic` out of the body sets it to `false` rather than keeping it, and
+   * leaving `description` out deletes it. Callers always send `name`,
+   * `mandantId` and `isPublic` together, and the description whenever there is
+   * one to keep.
    */
   async updateHierarchy(
     hierarchyId: string,

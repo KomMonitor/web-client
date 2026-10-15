@@ -74,6 +74,22 @@
       </div>
     </div>
 
+    <div class="form-group">
+      <label class="form-label" for="hierarchy-description-input">
+        {{ 'ADMIN_SHARED.DESCRIPTION' | translate }}
+      </label>
+      <textarea
+        id="hierarchy-description-input"
+        class="form-control"
+        rows="3"
+        formControlName="description"
+        [attr.placeholder]="
+          'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_CREATE_MODAL.DESCRIPTION_PLACEHOLDER'
+            | translate
+        "
+      ></textarea>
+    </div>
+
     <!--
       A checkbox, not a switch: the label says what checking it does, so the
       state needs no second reading. The hint sits under the label because what

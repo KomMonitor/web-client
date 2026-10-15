@@ -26,6 +26,22 @@
       <app-form-error [control]="form.controls.name" for="hierarchy-name-input" />
     </div>
 
+    <!-- No asterisk: the description is optional, and clearing it deletes it. -->
+    <div class="form-group">
+      <label class="form-label" for="hierarchy-description-input">
+        {{ 'ADMIN_SHARED.DESCRIPTION' | translate }}
+      </label>
+      <textarea
+        id="hierarchy-description-input"
+        class="form-control"
+        rows="3"
+        formControlName="description"
+        [attr.placeholder]="
+          'ADMIN_SPATIAL_UNIT_HIERARCHIES.HIERARCHY_EDIT_MODAL.DESCRIPTION_PLACEHOLDER' | translate
+        "
+      ></textarea>
+    </div>
+
     <!-- The same checkbox as in the create dialog, and the same warning: a
          public hierarchy is only as public as the levels it holds. -->
     <div class="form-check public-option">

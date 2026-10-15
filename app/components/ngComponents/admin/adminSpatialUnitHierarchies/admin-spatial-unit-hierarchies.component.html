@@ -94,6 +94,9 @@
         >
           {{ 'ADMIN_SHARED.DELETE' | translate }}
         </button>
+        @if (hierarchy.description()) {
+          <p class="hierarchy-description">{{ hierarchy.description() }}</p>
+        }
 
         <!-- The insert line at the end of the chain appends below the deepest
              level, so it is drawn one step in like every other one. The default

@@ -77,6 +77,16 @@
   }
 }
 
+// The hierarchy's description above its chain. `pre-line` keeps the line breaks
+// typed into the dialog's textarea and still wraps long lines.
+.hierarchy-description {
+  margin: 0 0 10px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: #5b7482;
+  white-space: pre-line;
+}
+
 // Says why "new hierarchy" is unavailable, next to the disabled button.
 .create-blocked {
   max-width: 34ch;

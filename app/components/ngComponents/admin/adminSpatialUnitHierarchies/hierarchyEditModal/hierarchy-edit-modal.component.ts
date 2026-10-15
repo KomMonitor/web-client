@@ -15,15 +15,16 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
 import { uniqueNameValidator } from '../../adminShared/validators/admin-validators';
 
-/** What the dialog resolves with — the two things it may change. */
+/** What the dialog resolves with — the three things it may change. */
 export interface HierarchyEditModalResult {
   readonly name: string;
+  readonly description: string;
   readonly isPublic: boolean;
 }
 
 /**
- * Edits the metadata of an existing hierarchy: its name and whether it is
- * public. Nothing else about a hierarchy can be edited here —
+ * Edits the metadata of an existing hierarchy: its name, its description and
+ * whether it is public. Nothing else about a hierarchy can be edited here —
  *
  * - the **tenant** is immutable, the API refuses to move a hierarchy ("The
  *   mandant of a spatial unit hierarchy cannot be changed"),
@@ -55,6 +56,8 @@ export class HierarchyEditModalComponent implements OnInit {
   @Input() existingNames: readonly string[] = [];
   /** The name to edit; also the one the uniqueness check ignores. */
   @Input() currentName = '';
+  /** Empty where the hierarchy has none. */
+  @Input() currentDescription = '';
   @Input() currentIsPublic = false;
   /** Shown as a fact: the tenant this hierarchy belongs to, by name. */
   @Input() mandant = '';
@@ -71,11 +74,14 @@ export class HierarchyEditModalComponent implements OnInit {
         uniqueNameValidator(() => this.existingNames, { ignore: () => this.currentName }),
       ],
     }),
+    // Optional, as on the API: a hierarchy is fully defined without one.
+    description: new FormControl('', { nonNullable: true }),
     isPublic: new FormControl(false, { nonNullable: true }),
   });
 
   ngOnInit(): void {
     this.form.controls.name.setValue(this.currentName);
+    this.form.controls.description.setValue(this.currentDescription);
     this.form.controls.isPublic.setValue(this.currentIsPublic);
   }
 
@@ -99,6 +105,7 @@ export class HierarchyEditModalComponent implements OnInit {
 
     const result: HierarchyEditModalResult = {
       name: this.form.controls.name.value.trim(),
+      description: this.form.controls.description.value.trim(),
       isPublic: this.form.controls.isPublic.value,
     };
     this.activeModal.close(result);

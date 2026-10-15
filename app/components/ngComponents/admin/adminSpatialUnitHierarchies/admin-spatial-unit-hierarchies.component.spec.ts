@@ -212,6 +212,15 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     return sectionToggles().map((el) => el.getAttribute('aria-expanded'));
   }
 
+  /** The description paragraph of the first hierarchy section, or null while none shows. */
+  function descriptionText(): string | null {
+    return (
+      fixture.debugElement
+        .query(By.css('.hierarchy-section .hierarchy-description'))
+        ?.nativeElement.textContent.trim() ?? null
+    );
+  }
+
   /** The titles of the rendered hierarchy sections. */
   function sectionTitles(): string[] {
     return fixture.debugElement
@@ -708,19 +717,35 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
     );
     expect(actions.length).toBe(2);
 
-    const inputs = stubModal(Promise.resolve({ name: 'Verwaltung', isPublic: true }));
+    const inputs = stubModal(
+      Promise.resolve({ name: 'Verwaltung', description: 'Amtliche Gliederung', isPublic: true })
+    );
     actions[0].nativeElement.click();
     await settle();
     fixture.detectChanges();
 
     expect(inputs['currentName']).toBe('Verwaltungsgliederung');
+    // The seeded hierarchy has none, and the dialog gets the empty string for it.
+    expect(inputs['currentDescription']).toBe('');
     expect(inputs['mandant']).toBe('Stadt Essen');
     // The chain travels as names only: the dialog shows it, the tree edits it.
     expect(inputs['chain']).toHaveLength(5);
     expect(sectionTitles()).toEqual(['Verwaltung']);
     expect(store.hierarchies()[0].isPublic()).toBe(true);
+    expect(descriptionText()).toBe('Amtliche Gliederung');
     expect(levelNames(fixture)).toHaveLength(5);
     expect(show.mock.calls[0][0]).toContain('UPDATED');
+  });
+
+  it('shows the description above the chain, and nothing where there is none', () => {
+    fixture.detectChanges();
+
+    expect(descriptionText()).toBeNull();
+
+    store.hierarchies()[0].description.set('Amtliche Gliederung');
+    fixture.detectChanges();
+
+    expect(descriptionText()).toBe('Amtliche Gliederung');
   });
 
   it('deletes a hierarchy once the confirmation agrees', async () => {

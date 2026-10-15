@@ -17,6 +17,7 @@ describe('HierarchyEditModalComponent', () => {
     Object.assign(component, {
       existingNames: ['Verwaltungsgliederung', 'Schulplanung'],
       currentName: 'Verwaltungsgliederung',
+      currentDescription: 'Amtliche Gliederung der Stadt',
       currentIsPublic: true,
       mandant: 'Stadt Essen',
       chain: CHAIN,
@@ -61,6 +62,7 @@ describe('HierarchyEditModalComponent', () => {
     render();
 
     expect(component.form.controls.name.value).toBe('Verwaltungsgliederung');
+    expect(component.form.controls.description.value).toBe('Amtliche Gliederung der Stadt');
     expect(component.form.controls.isPublic.value).toBe(true);
     expect(submitButton().disabled).toBe(false);
   });
@@ -70,8 +72,9 @@ describe('HierarchyEditModalComponent', () => {
 
     expect(factsText()).toContain('Stadt Essen → Stadtbezirke Essen → Stadtteile Essen');
     expect(factsText()).toContain('a1f5c803-72d9-4b6e-8f14-3ce90ab27d56');
-    // The whole dialog carries two inputs: the name and the public checkbox.
-    expect(fixture.debugElement.queryAll(By.css('input'))).toHaveLength(2);
+    // The whole dialog carries three fields: the name, the description and the
+    // public checkbox.
+    expect(fixture.debugElement.queryAll(By.css('input, textarea'))).toHaveLength(3);
   });
 
   it('says so where a hierarchy has no levels yet', () => {
@@ -103,15 +106,38 @@ describe('HierarchyEditModalComponent', () => {
     expect(component.form.controls.name.valid).toBe(true);
   });
 
-  it('closes with the trimmed name and the public flag', () => {
+  it('closes with the trimmed name and description and the public flag', () => {
     const close = jest.spyOn(activeModal, 'close');
     render();
     component.form.controls.name.setValue('  Verwaltung  ');
+    component.form.controls.description.setValue('  Gliederung nach Satzung  ');
     component.form.controls.isPublic.setValue(false);
 
     component.submit();
 
-    expect(close).toHaveBeenCalledWith({ name: 'Verwaltung', isPublic: false });
+    expect(close).toHaveBeenCalledWith({
+      name: 'Verwaltung',
+      description: 'Gliederung nach Satzung',
+      isPublic: false,
+    });
+  });
+
+  it('closes with an empty description where the field was cleared', () => {
+    const close = jest.spyOn(activeModal, 'close');
+    render();
+    // Whitespace alone counts as cleared: the store then leaves the field out
+    // of the write, which deletes the description.
+    component.form.controls.description.setValue('   ');
+
+    component.submit();
+
+    expect(close.mock.calls[0][0]).toMatchObject({ description: '' });
+  });
+
+  it('starts with an empty description where the hierarchy has none', () => {
+    render({ currentDescription: '' });
+
+    expect(component.form.controls.description.value).toBe('');
   });
 
   it('does not close while the name is missing, but shows why', () => {
@@ -135,7 +161,11 @@ describe('HierarchyEditModalComponent', () => {
 
     submitButton().click();
 
-    expect(close).toHaveBeenCalledWith({ name: 'Verwaltungsgliederung', isPublic: true });
+    expect(close).toHaveBeenCalledWith({
+      name: 'Verwaltungsgliederung',
+      description: 'Amtliche Gliederung der Stadt',
+      isPublic: true,
+    });
   });
 
   it('dismisses on cancel', () => {
