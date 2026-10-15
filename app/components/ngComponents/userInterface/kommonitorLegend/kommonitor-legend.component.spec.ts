@@ -3,7 +3,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
+import { By } from '@angular/platform-browser';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import $ from 'jquery';
 
 import { KommonitorLegendComponent } from './kommonitor-legend.component';
 
@@ -28,6 +30,36 @@ describe('KommonitorLegendComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('rendered', () => {
+    // ngOnInit reaches for the global jQuery that angular.json loads in the app.
+    beforeEach(() => ((globalThis as { $?: unknown }).$ = $));
+    afterEach(() => delete (globalThis as { $?: unknown }).$);
+
+    it('puts an info icon on the hierarchy buttons that have a description, and only there', () => {
+      // Just enough of an indicator for the legend's template to render.
+      component['selectionState'].selectedIndicator = {
+        indicatorName: 'Einwohner',
+        indicatorType: 'STATUS_ABSOLUTE',
+        unit: 'Anzahl',
+        interpretation: '',
+        metadata: { description: '', updateInterval: 'YEARLY' },
+      };
+      component['georesourceStore'].wmsDatasets = [];
+      jest.spyOn(component as never, 'availableHierarchies').mockReturnValue([
+        { hierarchyId: 'h-1', name: 'Verwaltungsgliederung', description: 'Amtliche Gliederung' },
+        { hierarchyId: 'h-2', name: 'Rastergliederung', description: null },
+      ] as never);
+
+      fixture.detectChanges();
+
+      const buttons = fixture.debugElement.queryAll(By.css('.hierarchy-button'));
+      expect(buttons).toHaveLength(2);
+      const tooltips = buttons.map((button) => button.query(By.css('app-info-tooltip')));
+      expect(tooltips[0]?.componentInstance.text()).toBe('Amtliche Gliederung');
+      expect(tooltips[1]).toBeNull();
+    });
   });
 
   /**

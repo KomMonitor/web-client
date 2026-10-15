@@ -25,7 +25,10 @@
                     [class.active]="selectedHierarchyId === hierarchy.hierarchyId"
                     (click)="onClickHierarchy(hierarchy)"
                   >
-                    {{ hierarchy.name }}
+                    <span>{{ hierarchy.name }}</span>
+                    @if (hierarchy.description) {
+                      <app-info-tooltip [text]="hierarchy.description" placement="bottom" />
+                    }
                   </button>
                 }
               </div>

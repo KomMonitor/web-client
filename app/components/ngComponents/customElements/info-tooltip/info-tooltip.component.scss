@@ -1,0 +1,30 @@
+// `float` and `margin-right` are reset because the global `.boxedLegend i`
+// floats every icon in the legend to the left, which tore this one away from
+// the text it belongs to. `inline` rather than Font Awesome's `inline-block`:
+// a line may break before an inline block even without a space, so a long
+// word would leave the icon alone on the next line.
+.info-tooltip-icon {
+  display: inline;
+  float: none;
+  margin: 0 0 0 0.35em;
+}
+
+// The panel of the indicator and georesource tooltips. The resets undo what a
+// surrounding button would hand down; `pre-line` keeps the line breaks of a
+// description typed into a textarea. It never takes the pointer, so it can
+// neither swallow the hover nor a click meant for what lies beneath.
+.info-tooltip-panel {
+  position: fixed;
+  z-index: 10002;
+  display: block;
+  width: max-content;
+  max-width: 400px;
+  padding: 0.5em;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background-color: #fff;
+  color: black;
+  font-weight: normal;
+  text-align: left;
+  white-space: pre-line;
+  pointer-events: none;
+}

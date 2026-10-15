@@ -1,0 +1,19 @@
+<i
+  class="fas fa-circle-info info-tooltip-icon"
+  aria-hidden="true"
+  (mouseenter)="show($event)"
+  (mousemove)="follow($event)"
+  (mouseleave)="hide()"
+  (click)="$event.stopPropagation()"
+></i>
+<!-- A span, not a div: the component sits inside buttons. The text goes in
+     through textContent so template whitespace cannot reach `pre-line`. -->
+@if (visible()) {
+  <span
+    #panel
+    class="info-tooltip-panel"
+    [style.left.px]="position().left"
+    [style.top.px]="position().top"
+    [textContent]="text()"
+  ></span>
+}

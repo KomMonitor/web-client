@@ -9,6 +9,7 @@ import {
   NgbModal,
 } from '@ng-bootstrap/ng-bootstrap';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { InfoTooltipComponent } from 'components/ngComponents/customElements/info-tooltip/info-tooltip.component';
 import {
   CATEGORICAL_OTHER_COLOR,
   ClassificationMapping,
@@ -51,6 +52,7 @@ import { SpatialUnitNotificationModalComponent } from '../spatialUnitNotificatio
     ActiveWmsFilter,
     KommonitorClassificationComponent,
     ExpandableBoxComponent,
+    InfoTooltipComponent,
   ],
 })
 export class KommonitorLegendComponent implements OnInit {
