@@ -92,9 +92,8 @@ describe('AccessControlService', () => {
   });
 
   describe('per-group checks mirroring the backend', () => {
-    // Tenant 52N with the subgroup "editor" and its subgroup "team" — the
-    // setting of the 52n-editor user in documentation/ADMIN_ROLLEN_BEFUNDE.md —
-    // plus a second tenant whose name contains a dot.
+    // Tenant 52N with the subgroup "editor" and its subgroup "team", plus a
+    // second tenant whose name contains a dot.
     const units: AccessControlMetadata[] = [
       { organizationalUnitId: 'm', name: '52N', mandant: true, permissions: [] },
       { organizationalUnitId: 'e', name: 'editor', parentId: 'm', mandant: false, permissions: [] },

@@ -48,9 +48,6 @@ export class AccessControlService {
   isRealmAdmin: boolean = false;
   currentKeycloakLoginGroupNames: string[] = [];
 
-  availablePermissions: any[] = [];
-  availableUsers: any[] = [];
-
   // Signal-backed so reactive consumers (computed/templates) re-derive on change,
   // while existing imperative reads/assignments keep working via the getter/setter shim.
   private _accessControl = signal<AccessControlMetadata[]>([]);
@@ -61,7 +58,6 @@ export class AccessControlService {
     this._accessControl.set(value);
   }
   accessControl_map = new Map<string, AccessControlMetadata>();
-  allowedAccessControl: AccessControlMetadata[] = [];
 
   // Signal-backed like `accessControl`: the roles arrive asynchronously during
   // the metadata bootstrap, after the first render. OnPush templates that call
@@ -215,49 +211,6 @@ export class AccessControlService {
     this.accessControl_map = new Map(input.map((e) => [e.organizationalUnitId, e]));
     this.accessControl = Array.from(this.accessControl_map.values());
     this.updateAvailableRoles();
-    this.allowedAccessControl = this.filterAllowedAccessControl(this.accessControl);
-  }
-
-  private filterAllowedAccessControl(acArray: AccessControlMetadata[]): AccessControlMetadata[] {
-    if (this.checkAdminPermission()) {
-      return acArray;
-    }
-
-    const clientUserRoles = this.filterClientUserAdminRoles();
-    const filtered: AccessControlMetadata[] = [];
-    const existingOrgaIds: string[] = [];
-
-    acArray.forEach((currentOrga) => {
-      let orga: AccessControlMetadata | undefined = currentOrga;
-      while (orga) {
-        const orgaCandidate = orga;
-        clientUserRoles.forEach((role) => {
-          const roleNameParts = role.split('.');
-          const orgaName = roleNameParts[roleNameParts.length - 2];
-
-          if (
-            orgaName === orgaCandidate.name &&
-            !existingOrgaIds.includes(currentOrga.organizationalUnitId)
-          ) {
-            filtered.push(currentOrga);
-            existingOrgaIds.push(currentOrga.organizationalUnitId);
-          }
-        });
-        orga = orga.parentId ? this.accessControl_map.get(orga.parentId) : undefined;
-      }
-    });
-    return filtered;
-  }
-
-  filterClientUserAdminRoles() {
-    return this.currentKeycloakLoginRoles.filter((role) => {
-      const roleNameParts = role.split('.');
-      const permissionLevel = roleNameParts[roleNameParts.length - 1];
-      if (permissionLevel === 'client-users-creator') {
-        return true;
-      }
-      return false;
-    });
   }
 
   checkAdminPermission() {
@@ -328,19 +281,6 @@ export class AccessControlService {
     return this.currentKeycloakLoginRoles.map(
       (role) => role.split('.')[role.split('.').length - 1]
     );
-  }
-
-  checkGroupsEditPermission() {
-    if (this.checkAdminPermission()) return true;
-
-    const splitRoles = this.getRoleTitles();
-    let ret = false;
-
-    this.envConfigService.keycloakKomMonitorGroupsEditRoleNames.forEach((targetRole) => {
-      if (splitRoles.includes(targetRole)) ret = true;
-    });
-
-    return ret;
   }
 
   checkThemesEditPermission() {
