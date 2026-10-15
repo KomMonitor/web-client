@@ -841,6 +841,7 @@
   "ADMIN_ROLES": {
     "TITLE": "Tenant and Group Management",
     "KEYCLOAK_USER_MANAGEMENT": "User management via Keycloak",
+    "NO_PERMISSION_HINT": "Creating and managing groups requires a unit- or client-users-creator role.",
     "ACCESS_CONTROL_BOX_TITLE": "Access control",
     "KEYCLOAK_INTRO_PREFIX": "KomMonitor uses the open source software",
     "KEYCLOAK_INTRO_SUFFIX": "for user and permission management.",
@@ -1001,6 +1002,7 @@
       "GROUP_MANAGE_RESOURCES": "Managing resources",
       "GROUP_MANAGE_TOPICS": "Managing topics",
       "EDIT_GROUP_RIGHTS_TITLE": "Edit group rights",
+      "FORBIDDEN_TITLE": "Requires the role {{group}}.unit-users-creator, or client-users-creator on a parent group",
       "DELETE_TITLE": "Delete organizational unit"
     }
   },

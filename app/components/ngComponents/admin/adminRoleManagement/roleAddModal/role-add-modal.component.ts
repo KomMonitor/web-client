@@ -165,9 +165,14 @@ export class RoleAddModalComponent implements OnInit {
     },
     { key: 'rights', label: 'ADMIN_SHARED_UI.STEP_LABELS.RIGHTS_OF_OTHER_GROUPS_NEW' },
   ]);
-  protected accessControlOptions = [...this.accessControlService.accessControl].sort(
-    (left, right) => left.name.localeCompare(right.name, 'de')
-  );
+  /**
+   * The groups a new one may hang below: those the user may create a subgroup
+   * under (`client-users-creator` on the group or one above it). For the
+   * platform administrator that is every group.
+   */
+  protected accessControlOptions = this.accessControlService.accessControl
+    .filter((unit) => this.accessControlService.canCreateSubgroupUnder(unit.organizationalUnitId))
+    .sort((left, right) => left.name.localeCompare(right.name, 'de'));
 
   constructor() {
     // The parent rule reads the tenant flag, so it must re-run when that flips.
@@ -197,8 +202,23 @@ export class RoleAddModalComponent implements OnInit {
     return !!this.form.controls.parentId.value;
   }
 
+  /**
+   * Whether the user may create a group at all. The submit button used to
+   * require the platform administrator; the API also lets
+   * `client-users-creator` create below their group, and only a group without
+   * a parent — a new tenant — is the administrator's alone.
+   */
+  get mayCreate(): boolean {
+    return this.isRealmAdmin || this.accessControlOptions.length > 0;
+  }
+
   get canSubmit(): boolean {
-    return !this.processCreation() && this.isRealmAdmin && this.form.valid;
+    return (
+      !this.processCreation() &&
+      (this.isRealmAdmin ||
+        this.accessControlService.canCreateSubgroupUnder(this.form.controls.parentId.value)) &&
+      this.form.valid
+    );
   }
 
   reset(): void {

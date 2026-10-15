@@ -221,7 +221,7 @@
   <button
     type="button"
     class="btn btn-success"
-    [disabled]="processCreation() || !isRealmAdmin"
+    [disabled]="processCreation() || !mayCreate"
     (click)="onSubmit()"
   >
     {{ 'ADMIN_ROLES.ADD_MODAL.SUBMIT' | translate }}

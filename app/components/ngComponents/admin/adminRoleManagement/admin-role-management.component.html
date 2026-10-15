@@ -19,8 +19,15 @@
         <span class="switchslider round"></span>
       </label>
     </div>
+    <!-- Managing groups takes a users role, not the resource roles these
+         buttons used to ask for. -->
+    @if (groupsReadOnly()) {
+      <span class="create-blocked">
+        {{ 'ADMIN_ROLES.NO_PERMISSION_HINT' | translate }}
+      </span>
+    }
     <button
-      [disabled]="!accessControlService.checkCreatePermission()"
+      [disabled]="!canCreateAnyGroup()"
       class="btn btn-success btn-sm"
       type="button"
       (click)="openAddModal()"
@@ -28,7 +35,7 @@
       <i class="fas fa-plus"></i> {{ 'ADMIN_SHARED.CREATE' | translate }}
     </button>
     <button
-      [disabled]="!accessControlService.checkCreatePermission() || selectedRows().length === 0"
+      [disabled]="selectedRows().length === 0"
       class="btn btn-danger btn-sm"
       type="button"
       (click)="openDeleteModal()"

@@ -30,6 +30,15 @@ describe('RoleAddModalComponent', () => {
   let component: RoleAddModalComponent;
   let fixture: ComponentFixture<RoleAddModalComponent>;
 
+  /**
+   * Who the user is: the platform administrator by default, which may create
+   * anywhere. The specs about other users switch it off and name the groups
+   * they may create below, then build a fresh dialog — the parent options are
+   * read once, when it is constructed.
+   */
+  let isAdmin: boolean;
+  let creatableUnder: string[];
+
   const fillRequired = () =>
     component.form.patchValue({
       name: 'Tiefbauamt',
@@ -39,6 +48,8 @@ describe('RoleAddModalComponent', () => {
     });
 
   beforeEach(() => {
+    isAdmin = true;
+    creatableUnder = [];
     TestBed.configureTestingModule({
       imports: [RoleAddModalComponent, TranslateModule.forRoot()],
       providers: [
@@ -52,7 +63,9 @@ describe('RoleAddModalComponent', () => {
           useValue: {
             accessControl: ACCESS_CONTROL,
             currentKeycloakLoginRoles: [],
-            checkAdminPermission: () => true,
+            checkAdminPermission: () => isAdmin,
+            canCreateSubgroupUnder: (parentId: string | null) =>
+              isAdmin || (!!parentId && creatableUnder.includes(parentId)),
             getAccessControlById: (id: string) =>
               ACCESS_CONTROL.find((ou) => ou.organizationalUnitId === id) ?? null,
           },
@@ -199,6 +212,57 @@ describe('RoleAddModalComponent', () => {
       stepper().next();
 
       expect(stepper().steps[0].invalid).toBe(true);
+    });
+  });
+
+  describe('for a user who is not the platform administrator', () => {
+    function rebuild(): void {
+      fixture = TestBed.createComponent(RoleAddModalComponent);
+      component = fixture.componentInstance;
+    }
+
+    describe('with client-users-creator on one group', () => {
+      beforeEach(() => {
+        isAdmin = false;
+        creatableUnder = ['ou-2'];
+        rebuild();
+      });
+
+      it('offers only that group as the parent', () => {
+        const options = (component as never as { accessControlOptions: { name: string }[] })
+          .accessControlOptions;
+        expect(options.map((option) => option.name)).toEqual(['Umweltamt']);
+        expect(component.mayCreate).toBe(true);
+      });
+
+      it('may submit a unit below that group', () => {
+        fillRequired();
+        component.onParentOrganizationalUnitChange(ACCESS_CONTROL[1] as never);
+
+        expect(component.canSubmit).toBe(true);
+      });
+
+      it('may not submit a unit below another group', () => {
+        fillRequired();
+        component.onParentOrganizationalUnitChange(ACCESS_CONTROL[0] as never);
+
+        expect(component.canSubmit).toBe(false);
+      });
+
+      it("may not submit a unit without a parent — a tenant is the administrator's", () => {
+        fillRequired();
+        component.form.controls.mandant.setValue(true);
+
+        expect(component.canSubmit).toBe(false);
+      });
+    });
+
+    it('may create nothing without client-users-creator anywhere', () => {
+      isAdmin = false;
+      creatableUnder = [];
+      rebuild();
+
+      expect(component.mayCreate).toBe(false);
     });
   });
 });

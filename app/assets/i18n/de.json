@@ -841,6 +841,7 @@
   "ADMIN_ROLES": {
     "TITLE": "Mandanten- und Gruppenverwaltung",
     "KEYCLOAK_USER_MANAGEMENT": "Userverwaltung via Keycloak",
+    "NO_PERMISSION_HINT": "Gruppen anlegen und verwalten erfordert eine Rolle unit- oder client-users-creator.",
     "ACCESS_CONTROL_BOX_TITLE": "Zugriffskontrolle",
     "KEYCLOAK_INTRO_PREFIX": "KomMonitor nutzt die Open Source Software",
     "KEYCLOAK_INTRO_SUFFIX": "zum Nutzer- und Rechtenmanagement.",
@@ -1001,6 +1002,7 @@
       "GROUP_MANAGE_RESOURCES": "Verwalten von Ressourcen",
       "GROUP_MANAGE_TOPICS": "Verwalten von Themen",
       "EDIT_GROUP_RIGHTS_TITLE": "Gruppenrechte bearbeiten",
+      "FORBIDDEN_TITLE": "Erfordert die Rolle {{group}}.unit-users-creator oder client-users-creator auf einer übergeordneten Gruppe",
       "DELETE_TITLE": "Organisationseinheit löschen"
     }
   },
