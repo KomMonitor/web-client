@@ -105,10 +105,22 @@ export class HierarchyAssignmentPanelComponent {
   /**
    * The user may not change the hierarchies of this tenant: assigning needs
    * `<tenant>.client-resources-creator` (`AccessControlService.canManageHierarchiesOf`).
-   * No row can be added then, and the hint below says why. The add wizard has
-   * no rows at that point — they only come from the add button.
+   * No row can be added then, the rows there are — the edit dialog's existing
+   * memberships — read as sentences without anything to pick or remove, and
+   * the hint below says why. The form itself is left as the host built it.
    */
   @Input() locked = false;
+
+  /**
+   * Why nothing can be changed, worded for the dialog: the add wizard registers
+   * the level without a hierarchy, the edit dialog keeps what is there. Told
+   * apart by `selfSpatialUnitId`, which only the edit dialog sets.
+   */
+  protected get lockedHintKey(): string {
+    return this.selfId()
+      ? 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.LOCKED_HINT_EDIT'
+      : 'ADMIN_SPATIAL_UNITS.HIERARCHY_ASSIGNMENT.LOCKED_HINT';
+  }
 
   /**
    * The unit these rows belong to, where it already exists — the edit dialog.

@@ -1,4 +1,4 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideHttpClient } from '@angular/common/http';
@@ -14,6 +14,8 @@ import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommo
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { SpatialUnitHierarchyApiService } from 'services/spatial-unit-hierarchy-service/spatial-unit-hierarchy-api.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { MandantService } from 'services/mandant-service/mandant.service';
 
 import { buildAssignmentRow } from '../hierarchyAssignment/hierarchy-assignment.model';
 import { SpatialUnitEditMetadataModalComponent } from './spatial-unit-edit-metadata-modal.component';
@@ -76,7 +78,17 @@ describe('SpatialUnitEditMetadataModalComponent', () => {
   let fixture: ComponentFixture<SpatialUnitEditMetadataModalComponent>;
   let hierarchyApi: { getHierarchies: jest.Mock; updateMemberships: jest.Mock };
 
+  /**
+   * The tenants whose hierarchies the user may only read; none by default, so
+   * the specs about the memberships themselves need not care. A tenant the
+   * user does not know resolves to no name and counts as one they may not
+   * change, as with the real check.
+   */
+  const readOnlyMandants = signal<readonly string[]>([]);
+  const MANDANT_NAMES: Record<string, string> = { 'm-1': 'Stadt Essen', 'm-2': 'Stadt Bochum' };
+
   beforeEach(() => {
+    readOnlyMandants.set([]);
     hierarchyApi = {
       getHierarchies: jest.fn().mockResolvedValue(HIERARCHIES),
       updateMemberships: jest.fn().mockResolvedValue({}),
@@ -100,6 +112,17 @@ describe('SpatialUnitEditMetadataModalComponent', () => {
         },
         { provide: KommonitorDataGridHelperService, useValue: {} },
         { provide: SpatialUnitHierarchyApiService, useValue: hierarchyApi },
+        {
+          provide: AccessControlService,
+          useValue: {
+            canManageHierarchiesOf: (mandant: string) =>
+              !!mandant && !readOnlyMandants().includes(mandant),
+          },
+        },
+        {
+          provide: MandantService,
+          useValue: { mandantNameOf: (id: string) => MANDANT_NAMES[id] ?? '' },
+        },
         {
           provide: BroadcastService,
           useValue: { currentBroadcastMsg: new BehaviorSubject<any>({ msg: '' }) },
@@ -239,6 +262,53 @@ describe('SpatialUnitEditMetadataModalComponent', () => {
       await save();
 
       expect(hierarchyApi.updateMemberships).toHaveBeenCalledWith('su-2', []);
+    });
+
+    describe('rights on the hierarchies of the tenant', () => {
+      function panelState(): { locked: boolean; mandantName: string } {
+        const view = component as never as {
+          hierarchiesLocked: boolean;
+          datasetMandantName: string;
+        };
+        return { locked: view.hierarchiesLocked, mandantName: view.datasetMandantName };
+      }
+
+      it('leaves the memberships open for a tenant the user may change', async () => {
+        await initWith(DATASET_IN_TWO);
+
+        expect(panelState()).toEqual({ locked: false, mandantName: 'Stadt Essen' });
+      });
+
+      it('locks them for a tenant the user may only read', async () => {
+        readOnlyMandants.set(['Stadt Essen']);
+        await initWith(DATASET_IN_TWO);
+
+        expect(panelState()).toEqual({ locked: true, mandantName: 'Stadt Essen' });
+      });
+
+      it('writes nothing while locked, not even once the rows were emptied', async () => {
+        readOnlyMandants.set(['Stadt Essen']);
+        await initWith(DATASET_IN_TWO);
+        rows().clear();
+
+        await save();
+
+        // The API would take the empty list and drop the dataset out of
+        // hierarchies the user may not change.
+        expect(hierarchyApi.updateMemberships).not.toHaveBeenCalled();
+      });
+
+      it('locks a tenant the user does not know', async () => {
+        await initWith({ ...DATASET_IN_TWO, mandantId: 'm-elsewhere' });
+
+        expect(panelState().locked).toBe(true);
+      });
+
+      it('locks nothing for a dataset without a tenant', async () => {
+        await initWith({ ...DATASET_IN_TWO, mandantId: undefined });
+
+        expect(panelState().locked).toBe(false);
+      });
     });
   });
 

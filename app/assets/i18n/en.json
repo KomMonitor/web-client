@@ -1741,6 +1741,7 @@
       "ADD_ASSIGNMENT_HINT": "Assignments can be changed later via the hierarchy administration.",
       "NO_HIERARCHIES": "No hierarchy exists for this tenant yet.",
       "LOCKED_HINT": "Assigning hierarchies of {{mandant}} requires the role {{mandant}}.client-resources-creator. The level is registered without one.",
+      "LOCKED_HINT_EDIT": "Changing assignments to hierarchies of {{mandant}} requires the role {{mandant}}.client-resources-creator.",
       "REFERENCE_REQUIRED": "Please choose a reference level.",
       "DUPLICATE_HIERARCHY": "Each hierarchy can be assigned only once.",
       "HIERARCHY_REQUIRED": "Please select a hierarchy."

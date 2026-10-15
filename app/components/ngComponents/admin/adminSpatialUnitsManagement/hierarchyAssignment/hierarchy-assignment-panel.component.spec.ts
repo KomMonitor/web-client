@@ -275,4 +275,35 @@ describe('HierarchyAssignmentPanelComponent', () => {
       expect(hint()).toContain('ADD_ASSIGNMENT_HINT');
     });
   });
+
+  describe('locked, with existing memberships', () => {
+    beforeEach(() => {
+      rows.push(buildAssignmentRow({ hierarchyId: 'h-essen', placement: 'append' }));
+      fixture.componentRef.setInput('locked', true);
+      fixture.componentRef.setInput('mandantName', 'Stadt Essen');
+      fixture.componentRef.setInput('selfSpatialUnitId', 'su-new');
+      render();
+    });
+
+    it('reads each row as its sentence, with nothing to pick or remove', () => {
+      const row = fixture.debugElement.query(By.css('.assignment-row-locked'));
+
+      expect(row.nativeElement.textContent).toContain('RESULT_APPEND');
+      expect(fixture.debugElement.queryAll(By.css('.assignment-row select'))).toHaveLength(0);
+      expect(fixture.debugElement.query(By.css('.assignment-remove'))).toBeNull();
+      expect(fixture.debugElement.query(By.css('.assignment-columns'))).toBeNull();
+    });
+
+    it('leaves the rows as the host built them', () => {
+      expect(rows.length).toBe(1);
+      expect(rows.enabled).toBe(true);
+    });
+
+    it('words the hint for the edit dialog', () => {
+      const hint = fixture.debugElement.query(By.css('.assignment-add .assignment-hint'))
+        .nativeElement.textContent;
+
+      expect(hint).toContain('LOCKED_HINT_EDIT');
+    });
+  });
 });
