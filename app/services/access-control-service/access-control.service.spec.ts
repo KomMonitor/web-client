@@ -60,4 +60,33 @@ describe('AccessControlService', () => {
     expect(service.availableRoles.length).toBe(1);
     expect(service.availableRoles[0].roleName).toBe('Org-viewer');
   });
+
+  it('lists the configured admin role among the KomMonitor login roles', () => {
+    const previousEnv = (window as any).__env;
+    (window as any).__env = {
+      ...previousEnv,
+      keycloakKomMonitorAdminRoleName: 'realm-admin',
+      keycloakKomMonitorGroupsEditRoleNames: ['client-users-creator'],
+      keycloakKomMonitorThemesEditRoleNames: [],
+      keycloakKomMonitorGeodataEditRoleNames: ['unit-resources-creator'],
+    };
+    try {
+      service.accessControl = [{ organizationalUnitId: 'o1', name: 'Org One' }];
+      service.currentKeycloakLoginRoles = [
+        'realm-admin',
+        'kommonitor-creator',
+        'Org One.unit-resources-creator',
+        'offline_access',
+      ];
+
+      service.setCurrentKomMonitorLoginRoleNames();
+
+      expect(service.currentKomMonitorLoginRoleNames).toEqual([
+        'realm-admin',
+        'Org One.unit-resources-creator',
+      ]);
+    } finally {
+      (window as any).__env = previousEnv;
+    }
+  });
 });

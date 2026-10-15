@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DisplayType } from 'components/ngComponents/common/custom-slider/custom-slider.component';
-import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { AuthService } from 'services/auth-service/auth.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
@@ -56,7 +55,6 @@ export class UserInterfaceComponent implements OnInit {
   protected chartDisplayState = inject(ChartDisplayStateService);
   private metadataBootstrap = inject(MetadataBootstrapService);
   private selectionState = inject(SelectionStateService);
-  private accessControlService = inject(AccessControlService);
   private modalService = inject(NgbModal);
   private broadcastService = inject(BroadcastService);
   protected visibilityHelperService = inject(ElementVisibilityHelperService);
@@ -70,9 +68,6 @@ export class UserInterfaceComponent implements OnInit {
   protected sidebarState = inject(SidebarStateService);
 
   private readonly destroyRef = inject(DestroyRef);
-
-  userRoleInformation = {};
-  userGroupInformation: any[] = [];
 
   sliderDisplayMode = DisplayType;
 
@@ -112,43 +107,16 @@ export class UserInterfaceComponent implements OnInit {
 
     // Skips the refetch when the metadata is already loaded in the requested
     // filter state (e.g. when returning from /administration without an active
-    // global filter). The user information is derived once the roles are
-    // loaded (replaces the former fixed 1s timeout).
-    this.metadataBootstrap
-      .ensureMetadataLoaded(this.globalFilterHelperService.applicationFilter || undefined)
-      .then(() => this.prepUserInformation());
+    // global filter).
+    this.metadataBootstrap.ensureMetadataLoaded(
+      this.globalFilterHelperService.applicationFilter || undefined
+    );
 
     this.showAdminLogin = this.authService.hasAdminRights();
   }
 
   onDateSliderChange(data: any) {
     this.mapService.setDateSliderValues({ selected: data[0] });
-  }
-
-  prepUserInformation() {
-    if (this.accessControlService.currentKomMonitorLoginRoleNames.length > 0) {
-      this.accessControlService.currentKomMonitorLoginRoleNames.forEach((roles) => {
-        const key = roles.split('.')[0];
-        const role = roles.split('.')[1];
-
-        if (!Object.prototype.hasOwnProperty.call(this.userRoleInformation, key)) {
-          this.userRoleInformation[key] = [];
-        }
-
-        this.userRoleInformation[key].push(role);
-      });
-    }
-
-    if (this.accessControlService.currentKeycloakLoginGroups.length > 0) {
-      this.accessControlService.currentKeycloakLoginGroups.forEach((group, index) => {
-        const parts = group.split('/');
-        this.userGroupInformation[index] = [];
-
-        parts.forEach((part) => {
-          if (part.length > 0) this.userGroupInformation[index].push(part);
-        });
-      });
-    }
   }
 
   openAdminUI() {
