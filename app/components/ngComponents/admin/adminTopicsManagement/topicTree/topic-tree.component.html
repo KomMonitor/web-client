@@ -26,9 +26,12 @@
         }}
       </span>
     }
+    @let forbiddenTitle = editable() ? null : ('ADMIN_TOPICS.FORBIDDEN_TITLE' | translate);
     <button
       type="button"
       class="btn btn-sm btn-warning"
+      [disabled]="!editable()"
+      [attr.title]="forbiddenTitle"
       (click)="$event.stopPropagation(); onClickEditTopic(topic)"
     >
       {{ 'ADMIN_TOPICS.EDIT_TOPIC' | translate }}
@@ -36,6 +39,8 @@
     <button
       type="button"
       class="btn btn-sm btn-outline-danger"
+      [disabled]="!editable()"
+      [attr.title]="forbiddenTitle"
       (click)="$event.stopPropagation(); onClickDeleteTopic(topic)"
     >
       {{ 'ADMIN_SHARED.DELETE' | translate }}
@@ -52,29 +57,32 @@
     every single topic.
   -->
   <ng-template appTreeNodeFooter let-topic>
-    @if (isAddPanelOpen(topic)) {
-      <div class="topic-add-panel">
-        <app-admin-add-topic
-          [topicType]="'sub'"
-          [parentTopic]="topic"
-          [topicResourceType]="topicResourceType()"
-          (added)="closeAddPanel()"
-        ></app-admin-add-topic>
-        <button
-          type="button"
-          class="btn btn-link btn-sm topic-add-cancel"
-          (click)="closeAddPanel()"
-        >
-          {{ 'ADMIN_SHARED.CANCEL' | translate }}
+    <!-- Read only, there is no subtopic to add, so the footer stays empty. -->
+    @if (editable()) {
+      @if (isAddPanelOpen(topic)) {
+        <div class="topic-add-panel">
+          <app-admin-add-topic
+            [topicType]="'sub'"
+            [parentTopic]="topic"
+            [topicResourceType]="topicResourceType()"
+            (added)="closeAddPanel()"
+          ></app-admin-add-topic>
+          <button
+            type="button"
+            class="btn btn-link btn-sm topic-add-cancel"
+            (click)="closeAddPanel()"
+          >
+            {{ 'ADMIN_SHARED.CANCEL' | translate }}
+          </button>
+        </div>
+      } @else {
+        <button type="button" class="topic-append" (click)="openAddPanel(topic)">
+          <span class="topic-append-label">
+            {{ 'ADMIN_TOPICS.APPEND_SUB_TOPIC' | translate }}
+          </span>
+          <span class="topic-append-line"></span>
         </button>
-      </div>
-    } @else {
-      <button type="button" class="topic-append" (click)="openAddPanel(topic)">
-        <span class="topic-append-label">
-          {{ 'ADMIN_TOPICS.APPEND_SUB_TOPIC' | translate }}
-        </span>
-        <span class="topic-append-line"></span>
-      </button>
+      }
     }
   </ng-template>
 

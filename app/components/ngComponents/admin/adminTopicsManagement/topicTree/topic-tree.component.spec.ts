@@ -280,4 +280,46 @@ describe('TopicTreeComponent', () => {
     expect(caret(1)).toBeNull();
     expect(fixture.debugElement.queryAll(By.css('.topic-append')).length).toBe(2);
   });
+
+  describe('for a user without a themes role', () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput('editable', false);
+      fixture.detectChanges();
+    });
+
+    it('rests edit and delete on every topic, and says why', () => {
+      const buttons = fixture.debugElement
+        .queryAll(By.css('.tree-row .btn'))
+        .map((el) => el.nativeElement as HTMLButtonElement);
+
+      // Edit and delete per row, three rows.
+      expect(buttons).toHaveLength(6);
+      for (const button of buttons) {
+        expect(button.disabled).toBe(true);
+        expect(button.title).toBe('ADMIN_TOPICS.FORBIDDEN_TITLE');
+      }
+    });
+
+    it('offers no drag handles, even in the custom order mode', () => {
+      expect(fixture.debugElement.queryAll(By.css('.tree-drag-handle'))).toHaveLength(0);
+    });
+
+    it('offers no line to add a main topic, and no link to add a subtopic', () => {
+      expect(fixture.debugElement.queryAll(By.css('.tree-insert'))).toHaveLength(0);
+      expect(fixture.debugElement.queryAll(By.css('.topic-append'))).toHaveLength(0);
+    });
+
+    it('still renders the whole hierarchy', () => {
+      expect(texts(fixture, '.topic-name')).toEqual(['Bevoelkerung', 'Zuzug', 'Bildung']);
+    });
+  });
+
+  it('leaves edit and delete open by default, without a title', () => {
+    fixture.detectChanges();
+
+    const buttons = fixture.debugElement
+      .queryAll(By.css('.tree-row .btn'))
+      .map((el) => el.nativeElement as HTMLButtonElement);
+    expect(buttons.every((button) => !button.disabled && !button.hasAttribute('title'))).toBe(true);
+  });
 });

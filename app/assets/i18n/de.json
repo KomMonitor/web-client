@@ -1015,6 +1015,8 @@
     "INDICATOR_SORTING": "Sortierung der Indikatoren:",
     "GEORESOURCE_SORTING": "Sortierung der Georessourcen:",
     "APPEND_MAIN_TOPIC": "＋ Hauptthema anfügen",
+    "READ_ONLY_HINT": "Themen anlegen, ändern und sortieren erfordert eine Rolle unit- oder client-themes-creator.",
+    "FORBIDDEN_TITLE": "Erfordert eine Rolle unit- oder client-themes-creator",
     "APPEND_SUB_TOPIC": "＋ Unterthema anfügen",
     "EDIT_TOPIC": "Bearbeiten",
     "TOGGLE_TOPIC": "Unterthemen anzeigen",

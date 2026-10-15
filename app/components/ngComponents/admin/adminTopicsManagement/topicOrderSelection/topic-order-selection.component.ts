@@ -29,6 +29,12 @@ export class TopicOrderSelectionComponent {
    */
   @Input({ required: true }) topicResourceType!: TopicResourceType;
 
+  /**
+   * Whether the mode may not be changed — it is written to the API, which asks
+   * for a themes role. Disables the fieldset, and with it both radios.
+   */
+  @Input() disabled = false;
+
   @Output() selectedOptionChange = new EventEmitter<TopicOrderMode>();
 
   get groupName(): string {

@@ -13,6 +13,9 @@
   instead of the 12px header scale.
 -->
 <ng-template #controls>
+  @if (!canEditTopics()) {
+    <span class="create-blocked">{{ 'ADMIN_TOPICS.READ_ONLY_HINT' | translate }}</span>
+  }
   <span>{{ 'ADMIN_TOPICS.SHOW_IDS' | translate }}</span>
   <div>
     <label class="switch">
@@ -30,6 +33,7 @@
         [orderMode]="indicatorOrder"
         [label]="'ADMIN_TOPICS.INDICATOR_SORTING' | translate"
         [topicResourceType]="'indicator'"
+        [disabled]="!canEditTopics()"
         (selectedOptionChange)="setIndicatorSorting($event)"
       ></app-topic-order-selection>
     </div>
@@ -44,6 +48,7 @@
         [topicResourceType]="'indicator'"
         [order]="indicatorOrder"
         [showTopicIds]="showTopicIds"
+        [editable]="canEditTopics()"
       ></app-topic-tree>
     </app-collapsible-section>
   }
@@ -54,6 +59,7 @@
         [orderMode]="geoRessourceOrder"
         [label]="'ADMIN_TOPICS.GEORESOURCE_SORTING' | translate"
         [topicResourceType]="'georesource'"
+        [disabled]="!canEditTopics()"
         (selectedOptionChange)="setGeoRessourceSorting($event)"
       ></app-topic-order-selection>
     </div>
@@ -68,6 +74,7 @@
         [topicResourceType]="'georesource'"
         [order]="geoRessourceOrder"
         [showTopicIds]="showTopicIds"
+        [editable]="canEditTopics()"
       ></app-topic-tree>
     </app-collapsible-section>
   }
