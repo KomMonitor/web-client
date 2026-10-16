@@ -15,6 +15,9 @@
 
     <hr />
 
-    <app-config-editor-panes [descriptor]="descriptor"></app-config-editor-panes>
+    <app-config-editor-panes
+      [descriptor]="descriptor"
+      [readOnly]="!canSave()"
+    ></app-config-editor-panes>
   </expandable-box>
 </ng-template>

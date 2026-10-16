@@ -34,8 +34,18 @@ export class UnassignedLevelsPanelComponent {
   /** The levels to list, already filtered to the tenant on screen. */
   readonly levels = input.required<readonly RegisteredLevel[]>();
 
-  /** The hierarchies a level can be assigned to — the tenant's own. */
+  /** The hierarchies a level can be assigned to — those of the tenant the user may change. */
   readonly hierarchies = input.required<readonly SpatialUnitHierarchy[]>();
+
+  /**
+   * Whether the tenant has hierarchies, but none the user may change. The
+   * assign button then rests and says why, instead of claiming there is no
+   * hierarchy at all.
+   */
+  readonly assignLocked = input(false);
+
+  /** Whether the user may register a new level — it creates a spatial unit dataset. */
+  readonly canRegister = input(true);
 
   readonly showIds = input(false);
 

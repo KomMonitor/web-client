@@ -6,6 +6,7 @@ import { IconTranslateService } from 'services/icon-translate/icon-translate.ser
 import { PoiPresentationService } from 'services/poi-presentation-service/poi-presentation.service';
 import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
+import { colorSwatchCell, textListCell, topicHierarchyCell } from 'util/grid-cell.util';
 
 export type GeoresourceGridType = 'poi' | 'loi' | 'aoi';
 
@@ -67,8 +68,18 @@ export class KommonitorGeoresourceDataGridHelperService {
             maxWidth: 125,
             cellRenderer: (params: any) => {
               const symbolName = params.data.poiSymbolBootstrap3Name || 'home';
-              const faName = this.iconTranslate.translate(symbolName);
-              return `${symbolName}<br/><br/><span class='fas fa-${faName}'></span>`;
+              // The icon class comes from the icon table, the stored name only
+              // ever reaches the cell as text.
+              const icon = document.createElement('span');
+              icon.className = `fas fa-${this.iconTranslate.translate(symbolName)}`;
+              const wrapper = document.createElement('div');
+              wrapper.append(
+                symbolName,
+                document.createElement('br'),
+                document.createElement('br'),
+                icon
+              );
+              return wrapper;
             },
           },
           this.colorColumn(
@@ -116,74 +127,70 @@ export class KommonitorGeoresourceDataGridHelperService {
       maxWidth: 125,
       filter: false,
       sortable: false,
-      cellRenderer: (params: any) => {
-        const color = params.data[field] || '#000000';
-        return `<div>${color}</div><br/><div style='width: 20px; height: 20px; background-color: ${color};'></div>`;
-      },
+      cellRenderer: (params: any) => colorSwatchCell(params.data[field] || '#000000'),
     };
   }
 
+  /**
+   * Free-text columns go through `valueGetter`, never a function
+   * `cellRenderer` returning a string: AG Grid assigns such a string to
+   * innerHTML unsanitized (see `util/grid-cell.util.ts`).
+   */
   private sharedMetadataColumns(): ColDef[] {
     return [
       {
         headerName: this.translate.instant('ADMIN_SHARED.DESCRIPTION'),
         minWidth: 400,
-        cellRenderer: (params: any) => params.data.metadata?.description || '',
+        valueGetter: (params: any) => params.data.metadata?.description || '',
       },
       {
         headerName: this.translate.instant('ADMIN_SHARED.PERIOD_OF_VALIDITY'),
         minWidth: 400,
-        cellRenderer: (params: any) => {
-          let html =
-            '<ul style="columns: 5; -webkit-columns: 5; -moz-columns: 5; word-break: break-word !important;">';
-          for (const periodOfValidity of params.data.availablePeriodsOfValidity || []) {
-            html += '<li style="margin-right: 15px;">';
-            if (periodOfValidity.endDate) {
-              html +=
-                '<p>' + periodOfValidity.startDate + ' &dash; ' + periodOfValidity.endDate + '</p>';
-            } else {
-              html += '<p>' + periodOfValidity.startDate + ' &dash; heute</p>';
-            }
-            html += '</li>';
-          }
-          html += '</ul>';
-          return html;
-        },
+        cellRenderer: (params: any) =>
+          textListCell(
+            (params.data.availablePeriodsOfValidity || []).map(
+              (period: any) => `${period.startDate} – ${period.endDate || 'heute'}`
+            ),
+            5,
+            true
+          ),
       },
       {
         headerName: this.translate.instant('ADMIN_SHARED_UI.TOPICS.TITLE'),
         minWidth: 400,
         cellRenderer: (params: any) =>
-          this.topicHierarchyService.getTopicHierarchyDisplayString(
-            this.topicStore.availableTopics,
-            params.data.topicReference
+          topicHierarchyCell(
+            this.topicHierarchyService.getTopicHierarchyNames(
+              this.topicStore.availableTopics,
+              params.data.topicReference
+            )
           ),
       },
       {
         headerName: this.translate.instant('ADMIN_SHARED.DATASOURCE'),
         minWidth: 400,
-        cellRenderer: (params: any) => params.data.metadata?.datasource || '',
+        valueGetter: (params: any) => params.data.metadata?.datasource || '',
       },
       {
         headerName: this.translate.instant('ADMIN_SHARED.DATA_HOLDER_CONTACT'),
         minWidth: 400,
-        cellRenderer: (params: any) => params.data.metadata?.contact || '',
+        valueGetter: (params: any) => params.data.metadata?.contact || '',
       },
       {
         headerName: this.translate.instant('COMMON.ROLES'),
         minWidth: 400,
-        cellRenderer: (params: any) =>
+        valueGetter: (params: any) =>
           this.accessControlService.getAllowedRolesString(params.data.permissions),
       },
       {
         headerName: this.translate.instant('ADMIN_SHARED.PUBLIC_VISIBLE'),
         minWidth: 400,
-        cellRenderer: (params: any) => (params.data.isPublic ? 'ja' : 'nein'),
+        valueGetter: (params: any) => (params.data.isPublic ? 'ja' : 'nein'),
       },
       {
         headerName: this.translate.instant('ADMIN_SHARED.OWNER'),
         minWidth: 400,
-        cellRenderer: (params: any) => this.accessControlService.getRoleTitle(params.data.ownerId),
+        valueGetter: (params: any) => this.accessControlService.getRoleTitle(params.data.ownerId),
       },
     ];
   }

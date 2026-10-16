@@ -27,6 +27,8 @@ import {
 } from 'services/adminSpatialUnit/spatial-unit-metadata.util';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { SpatialUnitHierarchyApiService } from 'services/spatial-unit-hierarchy-service/spatial-unit-hierarchy-api.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { MandantService } from 'services/mandant-service/mandant.service';
 import { SpatialUnitHierarchyOverviewType } from 'models/data-management-api';
 import { HierarchyAssignmentPanelComponent } from '../hierarchyAssignment/hierarchy-assignment-panel.component';
 import {
@@ -97,6 +99,8 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
   private hierarchyApi = inject(SpatialUnitHierarchyApiService);
+  private accessControlService = inject(AccessControlService);
+  private mandantService = inject(MandantService);
   private http = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
   private sanitizer = inject(DomSanitizer);
@@ -312,6 +316,26 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     return this.currentSpatialUnitDataset?.mandantId ?? '';
   }
 
+  protected get datasetMandantName(): string {
+    return this.mandantService.mandantNameOf(this.datasetMandantId);
+  }
+
+  /**
+   * Whether the user may only read the hierarchy memberships. Changing them
+   * needs `<tenant>.client-resources-creator` on the dataset's tenant, the one
+   * the API checks the memberships against; without it every change but
+   * "remove all" ends in a 403, and that one would take the dataset out of
+   * hierarchies the user may not change. A tenant the user does not know counts
+   * as one they may not change. Without a `mandantId` at all — older data —
+   * nothing is locked, as before.
+   */
+  protected get hierarchiesLocked(): boolean {
+    return (
+      !!this.datasetMandantId &&
+      !this.accessControlService.canManageHierarchiesOf(this.datasetMandantName)
+    );
+  }
+
   protected get datasetSpatialUnitId(): string {
     return this.currentSpatialUnitDataset?.spatialUnitId ?? '';
   }
@@ -506,7 +530,9 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
    */
   private async saveHierarchyMemberships(): Promise<void> {
     const dataset = this.currentSpatialUnitDataset;
-    if (!dataset) {
+    // Locked, the panel offers no change; this keeps it that way whatever
+    // reached the rows, so not even an empty list goes out.
+    if (!dataset || this.hierarchiesLocked) {
       return;
     }
 

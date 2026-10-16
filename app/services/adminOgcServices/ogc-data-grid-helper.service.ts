@@ -265,21 +265,28 @@ export class OgcDataGridHelperService {
         minWidth: 400,
         filter: false,
         sortable: false,
+        // Built as an element: the URL comes from the stored base URL and layer
+        // name, and interpolated into an HTML string a quote in either would
+        // break out of the attribute (AG Grid assigns renderer strings to
+        // innerHTML unsanitized).
         cellRenderer: (params: any) => {
-          return `<img src="${this.ogcService.buildLegendUrl(params.data.connectionDetails.baseUrl, params.data.connectionDetails.layerName)}">`;
+          const legend = document.createElement('img');
+          legend.src = this.ogcService.buildLegendUrl(
+            params.data.connectionDetails.baseUrl,
+            params.data.connectionDetails.layerName
+          );
+          return legend;
         },
         flex: 1,
       },
       {
         headerName: this.translate.instant('ADMIN_SHARED.DESCRIPTION'),
-        cellRenderer: (params: any) => {
-          return params.data.description || '';
-        },
+        valueGetter: (params: any) => params.data.description || '',
         flex: 1,
       },
       {
         headerName: this.translate.instant('ADMIN_SHARED_UI.TOPICS.TITLE'),
-        cellRenderer: this.translateTopicsReferences,
+        valueGetter: this.translateTopicsReferences,
         flex: 1,
       },
     ];
@@ -287,7 +294,7 @@ export class OgcDataGridHelperService {
 
   private translateTopicsReferences = (params: any) => {
     if (!params.data || !params.data.topicReference) {
-      return '<div class="btn-group btn-group-sm">No data</div>';
+      return 'No data';
     }
 
     const topic: Topic | undefined = this.topicStore.availableTopics.find(

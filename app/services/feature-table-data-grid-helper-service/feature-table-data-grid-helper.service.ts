@@ -220,18 +220,35 @@ export class FeatureTableDataGridHelperService {
   }
 
   /**
-   * Renders the per-record delete button. The row data carries the ids, so the
-   * button needs no encoded element id — the click is dispatched by CSS class
-   * through this column's `onCellClicked`.
+   * Renders the record-id cell, preceded by the per-record delete button when
+   * deleting is enabled. The row data carries the ids, so the button needs no
+   * encoded element id — the click is dispatched by CSS class through this
+   * column's `onCellClicked`.
+   *
+   * Built as an element: the id comes from uploaded data, and AG Grid assigns
+   * a string returned here to innerHTML unsanitized.
    */
-  private renderDeleteButton(recordLabel: string): string {
-    const title = this.translate.instant('ADMIN_SHARED_UI.GRID.DELETE_RECORD_TITLE');
-    return (
-      `<button class="btn btn-danger btn-sm ${DELETE_BUTTON_CLASS}" type="button" ` +
-      `title="${title}">` +
-      `<i class="fas fa-trash"></i></button>` +
-      recordLabel
-    );
+  private renderRecordCell(
+    recordLabel: string,
+    enableDelete: boolean,
+    separator: 'lineBreak' | 'space'
+  ): HTMLElement {
+    const cell = document.createElement('span');
+    if (enableDelete) {
+      const icon = document.createElement('i');
+      icon.className = 'fas fa-trash';
+      const button = document.createElement('button');
+      button.className = `btn btn-danger btn-sm ${DELETE_BUTTON_CLASS}`;
+      button.type = 'button';
+      button.title = this.translate.instant('ADMIN_SHARED_UI.GRID.DELETE_RECORD_TITLE');
+      button.appendChild(icon);
+      cell.append(
+        button,
+        separator === 'lineBreak' ? document.createElement('br') : '\u00a0\u00a0'
+      );
+    }
+    cell.append(recordLabel);
+    return cell;
   }
 
   /**
@@ -288,11 +305,12 @@ export class FeatureTableDataGridHelperService {
         editable: false,
         maxWidth: 125,
         cellClass: 'grid-non-editable',
-        cellRenderer: (params: any) => {
-          const recordLabel = params.data.kommonitorRecordId || params.data.id || '';
-          if (!enableDelete) return recordLabel;
-          return this.renderDeleteButton('<br/>' + recordLabel);
-        },
+        cellRenderer: (params: any) =>
+          this.renderRecordCell(
+            String(params.data.kommonitorRecordId || params.data.id || ''),
+            enableDelete,
+            'lineBreak'
+          ),
         onCellClicked: this.onDeleteButtonClicked((event) =>
           this.deleteSpatialResourceFeature(event.data, config, callbacks)
         ),
@@ -447,11 +465,8 @@ export class FeatureTableDataGridHelperService {
         editable: false,
         cellClass: 'grid-non-editable',
         maxWidth: 125,
-        cellRenderer: (params: any) => {
-          const recordLabel = params.data.fid ?? '';
-          if (!enableDelete) return recordLabel;
-          return this.renderDeleteButton('&nbsp;&nbsp;' + recordLabel);
-        },
+        cellRenderer: (params: any) =>
+          this.renderRecordCell(String(params.data.fid ?? ''), enableDelete, 'space'),
         onCellClicked: this.onDeleteButtonClicked((event) =>
           this.deleteIndicatorFeature(event.data, config, callbacks)
         ),

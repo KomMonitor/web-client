@@ -3,6 +3,7 @@ export interface CodeMirrorEditor {
   getValue(): string;
   setValue(value: string): void;
   setSize(width: number | null, height: number): void;
+  setOption(option: string, value: unknown): void;
   on(event: string, callback: (cm: any) => void): void;
 }
 

@@ -16,6 +16,7 @@ import { Topic, TopicOrderMode, TopicResourceType } from './topic.model';
 import { TopicTreeComponent } from './topicTree/topic-tree.component';
 import { TopicOrderSelectionComponent } from './topicOrderSelection/topic-order-selection.component';
 import { NotificationService } from '../../common/notification/notification.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { TranslateService } from '@ngx-translate/core';
@@ -44,6 +45,16 @@ export class AdminTopicsManagementComponent implements OnInit {
   private topicStore = inject(TopicMetadataStoreService);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
+  private accessControlService = inject(AccessControlService);
+
+  /**
+   * Whether the user may create, edit, delete and sort topics. The API asks for
+   * any `*-themes-creator` role, whatever group it is on — the same rule as
+   * `checkThemesEditPermission`. Without it the page only shows the topics.
+   */
+  protected readonly canEditTopics = computed(() =>
+    this.accessControlService.checkThemesEditPermission()
+  );
 
   showTopicIds = false;
   loadingData = false;

@@ -1,4 +1,4 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
@@ -6,6 +6,7 @@ import { BehaviorSubject } from 'rxjs';
 import { AdminScriptManagementComponent } from './admin-script-management.component';
 import { JobOverviewModalComponent } from '../adminScriptExecution/jobOverviewModal/job-overview-modal.component';
 import { AdminModalService } from '../adminShared/modal/admin-modal.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { JobOverviewService } from 'services/job-overview-service/job-overview.service';
@@ -22,6 +23,9 @@ describe('AdminScriptManagementComponent', () => {
   let open: jest.Mock;
   let getRowsForSchedule: jest.Mock;
   let triggerExecution: jest.Mock;
+
+  /** Whether the user holds a role the Processes API admits; yes by default. */
+  const hasResourceRole = signal(true);
 
   const schedule = (scheduleID: string, targetIndicatorId: string, spatialUnits: string[]) => ({
     scheduleID,
@@ -51,6 +55,7 @@ describe('AdminScriptManagementComponent', () => {
     open = jest.fn().mockResolvedValue(undefined);
     getRowsForSchedule = jest.fn().mockReturnValue([{ job: { jobID: 'j1' } }]);
     triggerExecution = jest.fn().mockResolvedValue(undefined);
+    hasResourceRole.set(true);
 
     TestBed.configureTestingModule({
       imports: [AdminScriptManagementComponent, TranslateModule.forRoot()],
@@ -108,6 +113,10 @@ describe('AdminScriptManagementComponent', () => {
           useValue: { buildDefaultColDef: () => ({}), buildGridOptions: () => ({}) },
         },
         { provide: AdminModalService, useValue: { open } },
+        {
+          provide: AccessControlService,
+          useValue: { checkResourcesEditPermission: () => hasResourceRole() },
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     });
@@ -179,6 +188,29 @@ describe('AdminScriptManagementComponent', () => {
       await build();
 
       await expect(component.onClickExecuteSchedule(VISIBLE)).resolves.toBeUndefined();
+    });
+  });
+
+  describe('rights', () => {
+    function createButton(): HTMLButtonElement {
+      return fixture.nativeElement.querySelector('.btn-success');
+    }
+
+    it('rests "create" without a role the Processes API admits, and says why', async () => {
+      hasResourceRole.set(false);
+      await build();
+
+      expect(createButton().disabled).toBe(true);
+      expect(fixture.nativeElement.querySelector('.create-blocked').textContent).toContain(
+        'NO_PERMISSION_HINT'
+      );
+    });
+
+    it('offers "create" with such a role, without a hint', async () => {
+      await build();
+
+      expect(createButton().disabled).toBe(false);
+      expect(fixture.nativeElement.querySelector('.create-blocked')).toBeNull();
     });
   });
 });

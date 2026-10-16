@@ -239,16 +239,58 @@ export class HierarchyStoreService {
   readonly mandantNames = computed(() => this.mandantOverview().map((row) => row.name));
 
   /**
-   * Whether a hierarchy can be created at all. The API requires a `mandantId`,
-   * and without Keycloak this instance knows no tenants and cannot obtain one —
-   * `/organizationalUnits` needs a token itself. The page then shows the
-   * hierarchies it can read and says why creating is unavailable.
-   *
-   * Deliberately *not* modelled on the spatial unit add modal, which hides its
-   * owner field and submits anyway: `ownerId` is optional there, `mandantId` is
-   * required here, so an enabled button would only ever produce a 400.
+   * The tenants whose hierarchies the user may create and change. The API
+   * allows that only to `<tenant>.client-resources-creator` and the platform
+   * administrator (`AccessControlService.canManageHierarchiesOf`); everyone else
+   * reads them only.
    */
-  readonly canCreate = computed(() => this.mandantService.mandantRefs.length > 0);
+  readonly manageableMandants = computed(() =>
+    this.mandantService.mandantRefs
+      .map((mandant) => mandant.name)
+      .filter((mandant) => this.accessControlService.canManageHierarchiesOf(mandant))
+  );
+
+  /**
+   * Whether the user may change this hierarchy — its metadata, its chain, or
+   * whether it exists at all. Every write the page offers for it goes through
+   * the same check in the API, so this one answer gates all of its buttons.
+   */
+  canManage(hierarchy: SpatialUnitHierarchy): boolean {
+    return this.accessControlService.canManageHierarchiesOf(hierarchy.mandant());
+  }
+
+  /**
+   * Why no hierarchy can be created, if none can.
+   *
+   * - `no-mandant`: the API requires a `mandantId`, and without Keycloak this
+   *   instance knows no tenants and cannot obtain one — `/organizationalUnits`
+   *   needs a token itself. Deliberately *not* modelled on the spatial unit add
+   *   modal, which hides its owner field and submits anyway: `ownerId` is
+   *   optional there, `mandantId` is required here, so an enabled button would
+   *   only ever produce a 400.
+   * - `forbidden`: there are tenants, but the user may change the hierarchies
+   *   of none of them, and the API would answer 403.
+   *
+   * Either way the page still shows the hierarchies it can read.
+   */
+  readonly createBlocked = computed<'no-mandant' | 'forbidden' | null>(() => {
+    if (this.mandantService.mandantRefs.length === 0) {
+      return 'no-mandant';
+    }
+    return this.manageableMandants().length === 0 ? 'forbidden' : null;
+  });
+
+  readonly canCreate = computed(() => this.createBlocked() === null);
+
+  /**
+   * Whether the tenant on screen is one whose hierarchies the user may only
+   * read — the page then says so once, above them, rather than leaving every
+   * resting button to explain itself.
+   */
+  readonly selectedMandantReadOnly = computed(() => {
+    const mandant = this.selectedMandant();
+    return !!mandant && !this.accessControlService.canManageHierarchiesOf(mandant);
+  });
 
   /**
    * Switching tenants is a platform administrator's view. Without Keycloak
@@ -274,6 +316,20 @@ export class HierarchyStoreService {
   /** What the list renders: one tenant's hierarchies, or all of them. */
   readonly visibleHierarchies = computed(() =>
     select.hierarchiesOfMandant(this.hierarchies(), this.selectedMandant())
+  );
+
+  /** The visible hierarchies the user may change — the ones a level can be assigned to. */
+  readonly manageableHierarchies = computed(() =>
+    this.visibleHierarchies().filter((hierarchy) => this.canManage(hierarchy))
+  );
+
+  /**
+   * Whether there are hierarchies to assign a level to, but none the user may
+   * change. Distinct from there being none at all, which the unassigned
+   * section words differently.
+   */
+  readonly assignLocked = computed(
+    () => this.visibleHierarchies().length > 0 && this.manageableHierarchies().length === 0
   );
 
   /**

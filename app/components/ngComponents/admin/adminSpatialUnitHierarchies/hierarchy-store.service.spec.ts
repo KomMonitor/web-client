@@ -49,6 +49,16 @@ let spatialUnits: {
 }[] = [];
 
 /**
+ * Which tenants' hierarchies the user may change. Everything by default, so the
+ * specs about the page's mechanics need not care; the ones about the rights set
+ * it before they build their store — the store's computeds read it only once.
+ */
+let manageable: (mandant: string) => boolean;
+beforeEach(() => {
+  manageable = () => true;
+});
+
+/**
  * The store refreshes the spatial-unit metadata cache after a write that
  * changes hierarchy membership. Faked here so specs neither hit the network
  * nor pull in `MetadataBootstrapService`'s own large dependency graph.
@@ -59,7 +69,13 @@ const spatialUnitsRefreshProviders = [
     provide: MetadataBootstrapService,
     useValue: { fetchSpatialUnitsMetadata: jest.fn().mockResolvedValue([]) },
   },
-  { provide: AccessControlService, useValue: { currentKeycloakLoginRoles: [] } },
+  {
+    provide: AccessControlService,
+    useValue: {
+      currentKeycloakLoginRoles: [],
+      canManageHierarchiesOf: (mandant: string) => manageable(mandant),
+    },
+  },
 ];
 
 /**
@@ -249,6 +265,71 @@ describe('HierarchyStoreService', () => {
       expect(storeWith({ mandantRefs: [{ id: 'm-1', name: 'Stadt Essen' }] }).canCreate()).toBe(
         true
       );
+    });
+
+    it('is false, as forbidden, where the user may change no tenant', () => {
+      manageable = () => false;
+      const store = storeWith({ mandantRefs: [{ id: 'm-1', name: 'Stadt Essen' }] });
+      expect(store.canCreate()).toBe(false);
+      expect(store.createBlocked()).toBe('forbidden');
+    });
+
+    it('says no-mandant before forbidden', () => {
+      manageable = () => false;
+      expect(storeWith().createBlocked()).toBe('no-mandant');
+    });
+  });
+
+  describe('rights on the hierarchies of a tenant', () => {
+    const refs = [
+      { id: 'Stadt Essen', name: 'Stadt Essen' },
+      { id: 'Stadt Bochum', name: 'Stadt Bochum' },
+    ];
+
+    beforeEach(() => {
+      manageable = (mandant) => mandant === 'Stadt Essen';
+    });
+
+    it('lists the tenants the user may change', () => {
+      expect(storeWith({ mandantRefs: refs }).manageableMandants()).toEqual(['Stadt Essen']);
+    });
+
+    it('answers per hierarchy by its tenant', () => {
+      const store = storeWith({ mandantRefs: refs });
+      expect(store.canManage(ESSEN())).toBe(true);
+      expect(store.canManage(BOCHUM())).toBe(false);
+    });
+
+    it('offers only the hierarchies the user may change for an assignment', () => {
+      const store = storeWith({ mandantRefs: refs });
+      seed(store, [ESSEN(), BOCHUM()]);
+      expect(store.manageableHierarchies().map((entry) => entry.name())).toEqual([
+        'Verwaltung Essen',
+      ]);
+      expect(store.assignLocked()).toBe(false);
+    });
+
+    it('locks the assignment where hierarchies exist but none may be changed', () => {
+      const store = storeWith({ mandantRefs: refs });
+      seed(store, [BOCHUM()]);
+      expect(store.assignLocked()).toBe(true);
+    });
+
+    it('does not lock the assignment where there is no hierarchy at all', () => {
+      const store = storeWith({ mandantRefs: refs });
+      seed(store, []);
+      expect(store.assignLocked()).toBe(false);
+    });
+
+    it('marks a tenant on screen the user may only read', () => {
+      const store = storeWith({ mandantRefs: refs });
+      store.selectMandant('Stadt Bochum');
+      expect(store.selectedMandantReadOnly()).toBe(true);
+      store.selectMandant('Stadt Essen');
+      expect(store.selectedMandantReadOnly()).toBe(false);
+      // The overview across all tenants changes nothing, so it is not read-only.
+      store.selectMandant('');
+      expect(store.selectedMandantReadOnly()).toBe(false);
     });
   });
 

@@ -841,6 +841,7 @@
   "ADMIN_ROLES": {
     "TITLE": "Tenant and Group Management",
     "KEYCLOAK_USER_MANAGEMENT": "User management via Keycloak",
+    "NO_PERMISSION_HINT": "Creating and managing groups requires a unit- or client-users-creator role.",
     "ACCESS_CONTROL_BOX_TITLE": "Access control",
     "KEYCLOAK_INTRO_PREFIX": "KomMonitor uses the open source software",
     "KEYCLOAK_INTRO_SUFFIX": "for user and permission management.",
@@ -1001,6 +1002,7 @@
       "GROUP_MANAGE_RESOURCES": "Managing resources",
       "GROUP_MANAGE_TOPICS": "Managing topics",
       "EDIT_GROUP_RIGHTS_TITLE": "Edit group rights",
+      "FORBIDDEN_TITLE": "Requires the role {{group}}.unit-users-creator, or client-users-creator on a parent group",
       "DELETE_TITLE": "Delete organizational unit"
     }
   },
@@ -1013,6 +1015,8 @@
     "INDICATOR_SORTING": "Sorting of the indicators:",
     "GEORESOURCE_SORTING": "Sorting of the georesources:",
     "APPEND_MAIN_TOPIC": "＋ Append main topic",
+    "READ_ONLY_HINT": "Creating, changing and sorting topics requires a unit- or client-themes-creator role.",
+    "FORBIDDEN_TITLE": "Requires a unit- or client-themes-creator role",
     "APPEND_SUB_TOPIC": "＋ Append subtopic",
     "EDIT_TOPIC": "Edit",
     "TOGGLE_TOPIC": "Show subtopics",
@@ -1062,6 +1066,7 @@
   "ADMIN_SCRIPTS": {
     "ADD": "Add",
     "MANAGEMENT": {
+      "NO_PERMISSION_HINT": "Seeing and managing schedules requires a unit- or client-resources-creator role.",
       "TITLE": "Script Management",
       "DESCRIPTION": "Control of the semi-automated indicator computation",
       "BOX_TITLE": "Indicator computation scripts",
@@ -1077,6 +1082,7 @@
       "WAITING_JOBS": "waiting jobs",
       "TOTAL_JOBS": "Number of jobs",
       "LOGIN_REQUIRED": "A login is required to display processing jobs.",
+      "ROLE_REQUIRED": "Seeing calculation jobs requires a unit- or client-resources-creator role.",
       "NO_JOBS": "No jobs available.",
       "MODAL_TITLE_STATUS": "Jobs - {{status}}",
       "MODAL_TITLE_SCHEDULE": "Jobs - {{indicatorName}}",
@@ -1497,6 +1503,7 @@
       "TEMPLATE_LABEL": "Template (structure and default settings)",
       "CURRENT_LABEL": "Current configuration (current values)",
       "PREVIEW_LABEL": "Preview window (new values)",
+      "READ_ONLY_HINT": "Read-only: saving requires the role kommonitor-creator.",
       "MISSING_PARAMETERS": "Missing parameters:",
       "INVALID_HINT": "Please note that all required parameters must be defined according to the template above. Therefore, adhere to the given {{format}} structure. The text is checked for keywords and it is ensured that valid {{format}} can be parsed.",
       "INTRO_SUFFIX": "of KomMonitor, from which the data is loaded when the application starts. Therefore, set the values carefully."
@@ -1657,13 +1664,18 @@
       "ASSIGNED": "Level \"{{level}}\" appended to \"{{hierarchy}}\".",
       "DELETE_TITLE": "Delete the spatial unit level and all its indicator datasets",
       "DELETE_FORBIDDEN": "Only creators of this spatial unit level may delete it",
-      "REGISTER": "Register new spatial unit level"
+      "REGISTER": "Register new spatial unit level",
+      "ASSIGN_FORBIDDEN": "Assigning requires the role client-resources-creator on this tenant",
+      "REGISTER_FORBIDDEN": "Registering spatial unit levels requires a unit- or client-resources-creator role"
     },
     "SHOW_IDS": "Show IDs",
     "NEW_HIERARCHY": "New hierarchy",
     "EDIT": "Edit",
     "LOADING": "Loading hierarchies …",
     "NO_MANDANT_HINT": "A hierarchy belongs to a tenant. Without Keycloak this instance knows none, so creating one is unavailable.",
+    "NO_PERMISSION_HINT": "Creating hierarchies requires the role <tenant>.client-resources-creator for a tenant.",
+    "READ_ONLY_HINT": "Read-only: changing the hierarchies of {{mandant}} requires the role {{mandant}}.client-resources-creator.",
+    "FORBIDDEN_TITLE": "Requires the role {{mandant}}.client-resources-creator",
     "LEVEL": {
       "COUNT": "{{count}} levels",
       "RANK": "Level {{rank}}",
@@ -1735,6 +1747,8 @@
       "ADD_ASSIGNMENT": "+ assign another hierarchy",
       "ADD_ASSIGNMENT_HINT": "Assignments can be changed later via the hierarchy administration.",
       "NO_HIERARCHIES": "No hierarchy exists for this tenant yet.",
+      "LOCKED_HINT": "Assigning hierarchies of {{mandant}} requires the role {{mandant}}.client-resources-creator. The level is registered without one.",
+      "LOCKED_HINT_EDIT": "Changing assignments to hierarchies of {{mandant}} requires the role {{mandant}}.client-resources-creator.",
       "REFERENCE_REQUIRED": "Please choose a reference level.",
       "DUPLICATE_HIERARCHY": "Each hierarchy can be assigned only once.",
       "HIERARCHY_REQUIRED": "Please select a hierarchy."

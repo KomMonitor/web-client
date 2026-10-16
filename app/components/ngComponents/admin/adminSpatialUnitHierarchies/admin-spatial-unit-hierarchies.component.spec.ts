@@ -1,4 +1,4 @@
-import { DebugElement, NO_ERRORS_SCHEMA } from '@angular/core';
+import { DebugElement, NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -66,6 +66,14 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
   /** The spatial units behind the level registry; the store derives it. */
   let spatialUnits: unknown[];
 
+  /**
+   * The tenants whose hierarchies the user may only read, and whether they may
+   * register a level. Signals, so a spec can change them after the page is
+   * built and the store's computeds follow. By default the user may do it all.
+   */
+  const readOnlyMandants = signal<readonly string[]>([]);
+  const mayCreateResources = signal(true);
+
   /** Every write the page triggers goes here; all of them succeed by default. */
   let hierarchyApi: {
     getHierarchies: jest.Mock;
@@ -111,6 +119,8 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
       deleteHierarchy: jest.fn().mockResolvedValue(undefined),
       updateMembers: jest.fn().mockResolvedValue({}),
     };
+    readOnlyMandants.set([]);
+    mayCreateResources.set(true);
     TestBed.configureTestingModule({
       imports: [AdminSpatialUnitHierarchiesComponent, TranslateModule.forRoot()],
       providers: [
@@ -155,7 +165,11 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
         },
         {
           provide: AccessControlService,
-          useValue: { currentKeycloakLoginRoles: [] },
+          useValue: {
+            currentKeycloakLoginRoles: [],
+            canManageHierarchiesOf: (mandant: string) => !readOnlyMandants().includes(mandant),
+            checkCreatePermission: () => mayCreateResources(),
+          },
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -1120,6 +1134,104 @@ describe('AdminSpatialUnitHierarchiesComponent', () => {
 
       expect(store.selectedMandant()).toBe('Stadt Bochum');
       expect(sectionTitles()).toEqual(['Verwaltungsgliederung Bochum', 'Schulplanung Bochum']);
+    });
+  });
+
+  describe('for a user who may only read', () => {
+    /** The edit and delete buttons in the header of the first hierarchy. */
+    function headerButtons(): HTMLButtonElement[] {
+      return fixture.debugElement
+        .queryAll(By.css('.hierarchy-section [header-actions]'))
+        .map((el) => el.nativeElement);
+    }
+
+    beforeEach(() => {
+      readOnlyMandants.set(['Stadt Essen']);
+    });
+
+    it('says once that the tenant on screen can only be read', () => {
+      fixture.detectChanges();
+
+      const hint = fixture.debugElement.query(By.css('.hierarchies-read-only'));
+      expect(hint.nativeElement.textContent).toContain('READ_ONLY_HINT');
+    });
+
+    it('rests edit and delete, and says why', () => {
+      fixture.detectChanges();
+
+      const buttons = headerButtons();
+      expect(buttons).toHaveLength(2);
+      for (const button of buttons) {
+        expect(button.disabled).toBe(true);
+        expect(button.title).toContain('FORBIDDEN_TITLE');
+      }
+    });
+
+    it('rests every chain edit and offers no insert line', () => {
+      fixture.detectChanges();
+
+      expect(moveButton(fixture, 1, 'up').disabled).toBe(true);
+      expect(moveButton(fixture, 0, 'down').disabled).toBe(true);
+      expect(moveButton(fixture, 0, 'down').title).toContain('FORBIDDEN_TITLE');
+      expect(removeButton(fixture, 0).disabled).toBe(true);
+      expect(fixture.debugElement.queryAll(By.css('.tree-insert'))).toHaveLength(0);
+    });
+
+    it('leaves the metadata of a level to the rights on the level', () => {
+      fixture.detectChanges();
+
+      // Not a hierarchy write: the spatial units page's own dialog opens.
+      const metadata = fixture.debugElement.query(By.css('.tree-row .btn-warning'));
+      expect(metadata.nativeElement.title).not.toContain('FORBIDDEN_TITLE');
+    });
+
+    it('keeps everything open on a tenant the user may change', () => {
+      readOnlyMandants.set(['Stadt Bochum']);
+      fixture.detectChanges();
+
+      expect(fixture.debugElement.query(By.css('.hierarchies-read-only'))).toBeNull();
+      expect(headerButtons().every((button) => !button.disabled)).toBe(true);
+      expect(fixture.debugElement.queryAll(By.css('.tree-insert')).length).toBeGreaterThan(0);
+    });
+
+    it('creates only for the tenants the user may change, without presetting this one', async () => {
+      fixture.detectChanges();
+
+      const inputs = stubModal(Promise.reject('cancel'));
+      fixture.debugElement.query(By.css('.view-controls .btn-success')).nativeElement.click();
+      await settle();
+
+      expect(inputs['allowedMandants']).toEqual([
+        'Stadt Bochum',
+        'Kreis Recklinghausen',
+        'Stadt Krefeld',
+      ]);
+      expect(inputs['presetMandant']).toBe('');
+    });
+
+    it('rests "new hierarchy" where no tenant may be changed, and says why', () => {
+      readOnlyMandants.set(SEED_MANDANTS);
+      fixture.detectChanges();
+
+      const create = fixture.debugElement.query(By.css('.view-controls .btn-success'));
+      expect(create.nativeElement.disabled).toBe(true);
+      const hint = fixture.debugElement.query(By.css('.create-blocked'));
+      expect(hint.nativeElement.textContent).toContain('NO_PERMISSION_HINT');
+    });
+
+    it('hands the unassigned section no hierarchy to assign to, and locks it', () => {
+      // The seed leaves several levels of Stadt Essen unassigned.
+      fixture.detectChanges();
+
+      expect(panel().hierarchies()).toEqual([]);
+      expect(panel().assignLocked()).toBe(true);
+    });
+
+    it('rests "register level" without a role to create resources', () => {
+      mayCreateResources.set(false);
+      fixture.detectChanges();
+
+      expect(panel().canRegister()).toBe(false);
     });
   });
 });

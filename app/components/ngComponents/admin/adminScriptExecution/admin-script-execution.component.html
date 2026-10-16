@@ -17,6 +17,11 @@
       <i class="fas fa-circle-info"></i>
       {{ 'ADMIN_SCRIPTS.EXECUTION.LOGIN_REQUIRED' | translate }}
     </div>
+  } @else if (roleRequired()) {
+    <div class="alert alert-info" role="alert">
+      <i class="fas fa-circle-info"></i>
+      {{ 'ADMIN_SCRIPTS.EXECUTION.ROLE_REQUIRED' | translate }}
+    </div>
   } @else {
     <app-loading-overlay
       [loading]="loadingData()"

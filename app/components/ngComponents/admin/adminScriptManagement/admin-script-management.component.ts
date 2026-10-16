@@ -4,6 +4,7 @@ import {
   NgZone,
   OnDestroy,
   OnInit,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -13,6 +14,7 @@ import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions, SelectionChangedEvent } from 'ag-grid-community';
 import { ProcessSchedule } from 'components/ngComponents/models/schedules.models';
 import { Subscription, skip } from 'rxjs';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { JobOverviewService } from 'services/job-overview-service/job-overview.service';
 import {
@@ -52,12 +54,35 @@ import { MODAL_CONFIRM, MODAL_WIDE } from 'util/modal-presets';
     ExpandableBoxComponent,
     LoadingOverlayComponent,
   ],
+  // The one rule of this page; it has no stylesheet of its own otherwise.
+  styles: [
+    `
+      .create-blocked {
+        max-width: 34ch;
+        font-size: 12.5px;
+        line-height: 1.35;
+        color: #7a8b96;
+        text-align: right;
+      }
+    `,
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   private zone = inject(NgZone);
   private modals = inject(AdminModalService);
+  private accessControlService = inject(AccessControlService);
+
+  /**
+   * Whether the user may see and manage schedules. They live in the OGC
+   * Processes API, which admits a realm role ending in one of its
+   * `ALLOWED_ROLES` — in the KomMonitor deployments the administrator and both
+   * resource roles. Without one even the list stays empty, as reading fails too.
+   */
+  protected readonly canManageSchedules = computed(() =>
+    this.accessControlService.checkResourcesEditPermission()
+  );
   metadataBootstrap = inject(MetadataBootstrapService);
   private processScriptStore = inject(ProcessScriptMetadataStoreService);
   private processCatalogStore = inject(ProcessCatalogStoreService);
@@ -390,7 +415,6 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   }
 
   public onClickAddScript(): void {
-    // if (!this.metadataBootstrap.checkCreatePermission()) return;
     this.modals.open(ScriptAddModalComponent, MODAL_WIDE, (modal) =>
       modal.refreshRequested.subscribe((request) => this.handleRefreshRequest(request))
     );

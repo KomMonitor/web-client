@@ -16,3 +16,13 @@
     background: #fff;
   }
 }
+
+// Says why nothing on the page can be changed, next to the header switch — as
+// on the hierarchy and group pages.
+.create-blocked {
+  max-width: 34ch;
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: #7a8b96;
+  text-align: right;
+}

@@ -6,6 +6,7 @@ import {
   Input,
   OnInit,
   Output,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -13,6 +14,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { SpatialUnitHierarchyOverviewType } from 'models/data-management-api';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { MandantService } from 'services/mandant-service/mandant.service';
 
 import { KmColorPickerComponent } from '../../../../customElements/color-picker/km-color-picker.component';
@@ -59,6 +61,7 @@ import { SpatialUnitMetadataStepGroup } from '../spatial-unit-add-form.model';
 })
 export class SpatialUnitMetadataStepComponent implements OnInit {
   private readonly mandantService = inject(MandantService);
+  private readonly accessControlService = inject(AccessControlService);
   private readonly destroyRef = inject(DestroyRef);
 
   /** The wizard's `metadata` child group; the host builds and owns it. */
@@ -109,6 +112,21 @@ export class SpatialUnitMetadataStepComponent implements OnInit {
    * value on its own. Fed in `ngOnInit`, once the group has arrived.
    */
   protected readonly chosenMandantId = signal('');
+
+  /**
+   * Whether the user may not assign the new level to the hierarchies of the
+   * chosen tenant. The API would let the registration through regardless, but
+   * the placement could not be changed afterwards — that takes
+   * `<tenant>.client-resources-creator`, as on the hierarchy page. So the
+   * rule is applied here already, and the level is registered without one.
+   *
+   * A tenant without a name — none known without Keycloak — locks nothing,
+   * as before.
+   */
+  protected readonly hierarchiesLocked = computed(() => {
+    const mandantName = this.mandantService.mandantNameOf(this.chosenMandantId());
+    return !!mandantName && !this.accessControlService.canManageHierarchiesOf(mandantName);
+  });
 
   ngOnInit(): void {
     const control = this.group.controls.mandantId;

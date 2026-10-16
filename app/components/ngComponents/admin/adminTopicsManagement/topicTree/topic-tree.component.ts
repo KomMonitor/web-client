@@ -55,6 +55,13 @@ export class TopicTreeComponent {
   /** Number of topic levels the hierarchy may have, the deepest one included. */
   readonly levelLimit = input(4);
 
+  /**
+   * Whether the user may change the topics. Without it the tree only shows
+   * them: edit and delete rest, nothing can be dragged, and neither a main
+   * topic nor a subtopic can be added.
+   */
+  readonly editable = input(true);
+
   protected readonly expandedIds = signal<ReadonlySet<string>>(new Set<string>());
 
   /**
@@ -71,7 +78,7 @@ export class TopicTreeComponent {
    * a line; the subtopics have their own link in the footer of their parent.
    */
   protected readonly trailingRootGapOnly = (gap: TreeGap<Topic>): boolean =>
-    gap.parent === null && gap.index === this.sortedTopics().length;
+    this.editable() && gap.parent === null && gap.index === this.sortedTopics().length;
 
   /**
    * Bumped after a reorder. The new order is written as `displayOrder` onto the
@@ -88,7 +95,7 @@ export class TopicTreeComponent {
   /** `maxDepth` is the deepest 0-based depth that may still be opened. */
   protected readonly maxDepth = computed(() => this.levelLimit() - 1);
 
-  protected readonly reorderable = computed(() => this.order() === 'custom');
+  protected readonly reorderable = computed(() => this.order() === 'custom' && this.editable());
 
   protected readonly topicId = (topic: Topic): string => topic.topicId ?? '';
 

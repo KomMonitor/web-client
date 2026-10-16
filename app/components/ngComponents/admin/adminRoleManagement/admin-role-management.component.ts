@@ -83,9 +83,43 @@ export class AdminRoleManagementComponent implements OnInit {
     wrapHeaderText: true,
     autoHeaderHeight: true,
   };
+  /**
+   * Whether the user may create a group anywhere: the platform administrator,
+   * or `client-users-creator` on some group or one above it — the API's rule
+   * for a subgroup (`AccessControlService.canCreateSubgroupUnder`). A group
+   * without a parent is the administrator's alone.
+   */
+  protected readonly canCreateAnyGroup = computed(
+    () =>
+      this.accessControlService.checkAdminPermission() ||
+      this.accessControlService.accessControl.some((unit) =>
+        this.accessControlService.canCreateSubgroupUnder(unit.organizationalUnitId)
+      )
+  );
+
+  /**
+   * Whether the user may neither create a group nor manage any listed one —
+   * the page then says once why every button rests.
+   */
+  protected readonly groupsReadOnly = computed(
+    () =>
+      !this.canCreateAnyGroup() &&
+      !this.accessControlService.accessControl.some((unit) =>
+        this.canManage(unit.organizationalUnitId)
+      )
+  );
+
+  /** Edit, delegate rights, delete — one rule in the API for all three. */
+  private canManage(organizationalUnitId: string): boolean {
+    return this.accessControlService.canManageOrganization(organizationalUnitId);
+  }
+
   public gridOptions: GridOptions = {
     suppressRowClickSelection: true,
     rowSelection: 'multiple',
+    // Only what the user may delete can be selected, so the bulk delete above
+    // never carries a group the API would refuse.
+    isRowSelectable: (node) => !!node.data && this.canManage(node.data.organizationalUnitId),
     enableCellTextSelection: true,
     ensureDomOrder: true,
     suppressColumnVirtualisation: true,
@@ -166,7 +200,8 @@ export class AdminRoleManagementComponent implements OnInit {
           onEditGroupRights: (dataset: AccessControlTableEntry) =>
             this.openEditGroupRightsModal(dataset),
           onDelete: (dataset: AccessControlTableEntry) => this.openDeleteModal([dataset]),
-          canDelete: () => this.accessControlService.checkCreatePermission(),
+          canManage: (dataset: AccessControlTableEntry) =>
+            this.canManage(dataset.organizationalUnitId),
         },
       },
       {
@@ -268,9 +303,16 @@ export class AdminRoleManagementComponent implements OnInit {
     this.applyTableFilter();
   }
 
+  /**
+   * "Show only editable" keeps the groups the user may manage. It used to filter
+   * on `datasetOwner`, which nothing sets for a group, and so always emptied the
+   * table.
+   */
   private applyTableFilter(): void {
     if (this.tableViewSwitcher) {
-      this.rowData.set(this.allAccessControl.filter((entry) => entry.datasetOwner === true));
+      this.rowData.set(
+        this.allAccessControl.filter((entry) => this.canManage(entry.organizationalUnitId))
+      );
     } else {
       this.rowData.set([...this.allAccessControl]);
     }

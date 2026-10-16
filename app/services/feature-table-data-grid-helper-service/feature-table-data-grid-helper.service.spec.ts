@@ -9,6 +9,7 @@ import {
   FeatureTableEditStatus,
 } from './feature-table-data-grid-helper.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { HOSTILE_PAYLOAD, expectNoMarkupInjection } from 'testing/ag-grid-cell.testing';
 
 /** Minimal EnvConfigService stub with the property names the grid columns use. */
 const envConfigStub = {
@@ -166,11 +167,30 @@ describe('FeatureTableDataGridHelperService', () => {
       });
 
       const params = { data: { kommonitorRecordId: 'record-3' } };
-      expect(withDelete.columnDefs[0].cellRenderer(params)).toContain(
-        'featureTableDeleteRecordBtn'
-      );
-      expect(withoutDelete.columnDefs[0].cellRenderer(params)).toBe('record-3');
+      const withButton: HTMLElement = withDelete.columnDefs[0].cellRenderer(params);
+      expect(withButton.querySelector('button.featureTableDeleteRecordBtn')).not.toBeNull();
+      expect(withButton.textContent).toBe('record-3');
+      const plain: HTMLElement = withoutDelete.columnDefs[0].cellRenderer(params);
+      expect(plain.querySelector('button')).toBeNull();
+      expect(plain.textContent).toBe('record-3');
     });
+
+    it.each([true, false])(
+      'renders a record id from uploaded data as text (delete enabled: %s)',
+      (enableDelete) => {
+        const options: any = service.buildSpatialResourceFeatureTable({
+          headers: [],
+          features: [],
+          resourceType: 'georesource',
+          enableDelete,
+        });
+
+        const [cell] = expectNoMarkupInjection([options.columnDefs[0]], {
+          kommonitorRecordId: HOSTILE_PAYLOAD,
+        });
+        expect(cell.textContent).toBe(HOSTILE_PAYLOAD);
+      }
+    );
 
     it('ignores clicks that did not hit the delete button', () => {
       const options: any = service.buildSpatialResourceFeatureTable(
@@ -221,6 +241,23 @@ describe('FeatureTableDataGridHelperService', () => {
   });
 
   describe('buildIndicatorFeatureTable', () => {
+    it.each([true, false])(
+      'renders a feature id from uploaded data as text (delete enabled: %s)',
+      (enableDelete) => {
+        const options: any = service.buildIndicatorFeatureTable({
+          headers: [],
+          features: [],
+          enableDelete,
+        });
+        const fidColumn = options.columnDefs.find((col: any) => col.field === 'fid');
+
+        const [cell] = expectNoMarkupInjection([fidColumn], { fid: HOSTILE_PAYLOAD });
+        expect(cell.textContent).toBe(
+          '\u00a0\u00a0'.repeat(enableDelete ? 1 : 0) + HOSTILE_PAYLOAD
+        );
+      }
+    );
+
     it('marks the identifying and validity columns read-only and the value columns editable', () => {
       const options: any = service.buildIndicatorFeatureTable({
         headers: ['DATE_2020-01-01'],

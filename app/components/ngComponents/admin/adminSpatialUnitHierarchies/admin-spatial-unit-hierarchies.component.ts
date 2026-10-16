@@ -93,6 +93,18 @@ export class AdminSpatialUnitHierarchiesComponent {
     level.children;
   protected readonly levelId = (level: HierarchyLevel): string => level.id;
 
+  /** Offers no insert line anywhere — for the chains of a hierarchy the user may only read. */
+  protected readonly noInsert = (): boolean => false;
+
+  /**
+   * Whether the user may register a new spatial unit level. Registering creates
+   * a spatial unit dataset, which takes the same role as on the spatial units
+   * page; it does not touch any hierarchy.
+   */
+  protected canRegisterLevel(): boolean {
+    return this.accessControlService.checkCreatePermission();
+  }
+
   protected onShowIdsChange(event: Event): void {
     this.showIds.set((event.target as HTMLInputElement).checked);
   }
@@ -133,6 +145,8 @@ export class AdminSpatialUnitHierarchiesComponent {
 
   /** Creates a hierarchy from the metadata and the chain the dialog assembled. */
   protected async onCreateHierarchy(): Promise<void> {
+    const manageable = this.store.manageableMandants();
+    const selected = this.store.selectedMandant();
     const result = await this.modals.open<
       HierarchyCreateModalComponent,
       HierarchyCreateModalResult
@@ -141,9 +155,12 @@ export class AdminSpatialUnitHierarchiesComponent {
       levelUsage: this.store.levelUsage(),
       registeredLevels: this.store.registeredLevels(),
       // The tenant on screen is the one it is built for; in the overview the
-      // dialog picks its own and offers the choice.
-      presetMandant: this.store.selectedMandant(),
+      // dialog picks its own and offers the choice. So does it where the user
+      // may only read the tenant on screen — it then offers the ones they may
+      // change.
+      presetMandant: manageable.includes(selected) ? selected : '',
       knownMandants: this.store.mandantNames(),
+      allowedMandants: manageable,
     });
     if (!result) {
       return;

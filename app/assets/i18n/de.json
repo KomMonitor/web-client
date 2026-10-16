@@ -841,6 +841,7 @@
   "ADMIN_ROLES": {
     "TITLE": "Mandanten- und Gruppenverwaltung",
     "KEYCLOAK_USER_MANAGEMENT": "Userverwaltung via Keycloak",
+    "NO_PERMISSION_HINT": "Gruppen anlegen und verwalten erfordert eine Rolle unit- oder client-users-creator.",
     "ACCESS_CONTROL_BOX_TITLE": "Zugriffskontrolle",
     "KEYCLOAK_INTRO_PREFIX": "KomMonitor nutzt die Open Source Software",
     "KEYCLOAK_INTRO_SUFFIX": "zum Nutzer- und Rechtenmanagement.",
@@ -1001,6 +1002,7 @@
       "GROUP_MANAGE_RESOURCES": "Verwalten von Ressourcen",
       "GROUP_MANAGE_TOPICS": "Verwalten von Themen",
       "EDIT_GROUP_RIGHTS_TITLE": "Gruppenrechte bearbeiten",
+      "FORBIDDEN_TITLE": "Erfordert die Rolle {{group}}.unit-users-creator oder client-users-creator auf einer übergeordneten Gruppe",
       "DELETE_TITLE": "Organisationseinheit löschen"
     }
   },
@@ -1013,6 +1015,8 @@
     "INDICATOR_SORTING": "Sortierung der Indikatoren:",
     "GEORESOURCE_SORTING": "Sortierung der Georessourcen:",
     "APPEND_MAIN_TOPIC": "＋ Hauptthema anfügen",
+    "READ_ONLY_HINT": "Themen anlegen, ändern und sortieren erfordert eine Rolle unit- oder client-themes-creator.",
+    "FORBIDDEN_TITLE": "Erfordert eine Rolle unit- oder client-themes-creator",
     "APPEND_SUB_TOPIC": "＋ Unterthema anfügen",
     "EDIT_TOPIC": "Bearbeiten",
     "TOGGLE_TOPIC": "Unterthemen anzeigen",
@@ -1062,6 +1066,7 @@
   "ADMIN_SCRIPTS": {
     "ADD": "Hinzufügen",
     "MANAGEMENT": {
+      "NO_PERMISSION_HINT": "Schedules sehen und verwalten erfordert eine Rolle unit- oder client-resources-creator.",
       "TITLE": "Skriptverwaltung",
       "DESCRIPTION": "Steuerung der semi-automatisierten Indikatorenberechnung",
       "BOX_TITLE": "Indikatoren-Berechnungs-Skripte",
@@ -1077,6 +1082,7 @@
       "WAITING_JOBS": "wartende Jobs",
       "TOTAL_JOBS": "Anzahl Jobs",
       "LOGIN_REQUIRED": "Für die Anzeige der Prozessierungsjobs ist eine Anmeldung erforderlich.",
+      "ROLE_REQUIRED": "Berechnungsjobs sehen erfordert eine Rolle unit- oder client-resources-creator.",
       "NO_JOBS": "Keine Jobs vorhanden.",
       "MODAL_TITLE_STATUS": "Jobs - {{status}}",
       "MODAL_TITLE_SCHEDULE": "Jobs - {{indicatorName}}",
@@ -1497,6 +1503,7 @@
       "TEMPLATE_LABEL": "Vorlage (Struktur und Standard-Einstellung)",
       "CURRENT_LABEL": "Derzeitige Konfiguration (aktuelle Wertbelegung)",
       "PREVIEW_LABEL": "Vorschaufenster (neue Wertbelegung)",
+      "READ_ONLY_HINT": "Nur Lesezugriff: Speichern darf nur, wer die Rolle kommonitor-creator hat.",
       "MISSING_PARAMETERS": "Fehlende Parameter:",
       "INVALID_HINT": "Bitte beachten Sie, dass alle notwendigen Parameter gemäß der obigen Vorlage definiert werden müssen. Beachten Sie daher die vorgegebene {{format}}-Struktur. Der Text wird auf Schlüsselwörter geprüft und es wird sichergestellt, dass valides {{format}} geparsed werden kann.",
       "INTRO_SUFFIX": "von KomMonitor, von dem die Daten beim Start der Anwendung geladen werden. Setzen Sie die Werte daher sorgfältig."
@@ -1657,13 +1664,18 @@
       "ASSIGNED": "Ebene „{{level}}“ an „{{hierarchy}}“ angehängt.",
       "DELETE_TITLE": "Raumebene mit allen zugehörigen Indikatoren-Datensätzen löschen",
       "DELETE_FORBIDDEN": "Nur Ersteller dieser Raumebene dürfen sie löschen",
-      "REGISTER": "Neue Raumebene registrieren"
+      "REGISTER": "Neue Raumebene registrieren",
+      "ASSIGN_FORBIDDEN": "Zuordnen erfordert die Rolle client-resources-creator auf diesem Mandanten",
+      "REGISTER_FORBIDDEN": "Neue Raumebenen registrieren erfordert eine Rolle unit- oder client-resources-creator"
     },
     "SHOW_IDS": "Zeige IDs",
     "NEW_HIERARCHY": "Neue Hierarchie",
     "EDIT": "Bearbeiten",
     "LOADING": "Hierarchien werden geladen …",
     "NO_MANDANT_HINT": "Hierarchien gehören einem Mandanten. Ohne aktives Keycloak kennt diese Instanz keinen — Anlegen ist deshalb nicht möglich.",
+    "NO_PERMISSION_HINT": "Hierarchien anlegen darf nur, wer für einen Mandanten die Rolle <Mandant>.client-resources-creator hat.",
+    "READ_ONLY_HINT": "Nur Lesezugriff: Die Hierarchien von {{mandant}} darf nur ändern, wer die Rolle {{mandant}}.client-resources-creator hat.",
+    "FORBIDDEN_TITLE": "Erfordert die Rolle {{mandant}}.client-resources-creator",
     "LEVEL": {
       "COUNT": "{{count}} Ebenen",
       "RANK": "Ebene {{rank}}",
@@ -1735,6 +1747,8 @@
       "ADD_ASSIGNMENT": "+ weitere Hierarchie zuordnen",
       "ADD_ASSIGNMENT_HINT": "Zuordnungen sind später über die Hierarchieverwaltung änderbar.",
       "NO_HIERARCHIES": "Für diesen Mandanten existiert noch keine Hierarchie.",
+      "LOCKED_HINT": "Hierarchien von {{mandant}} zuordnen erfordert die Rolle {{mandant}}.client-resources-creator. Die Raumebene wird ohne Zuordnung registriert.",
+      "LOCKED_HINT_EDIT": "Zuordnungen zu Hierarchien von {{mandant}} ändern erfordert die Rolle {{mandant}}.client-resources-creator.",
       "REFERENCE_REQUIRED": "Bitte eine Bezugsebene wählen.",
       "DUPLICATE_HIERARCHY": "Jede Hierarchie kann nur einmal zugeordnet werden.",
       "HIERARCHY_REQUIRED": "Bitte eine Hierarchie wählen."

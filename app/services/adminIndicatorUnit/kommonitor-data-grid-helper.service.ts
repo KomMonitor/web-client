@@ -8,6 +8,8 @@ import { TopicMetadataStoreService } from 'services/topic-metadata-store-service
 import { TopicHierarchyService } from '../topic-hierarchy-service/topic-hierarchy.service';
 import { EnvConfigService } from '../env-config-service/env-config.service';
 import { TranslateService } from '@ngx-translate/core';
+import { HtmlCellRendererComponent } from 'components/ngComponents/admin/adminShared/htmlCellRenderer/html-cell-renderer.component';
+import { textListCell, topicHierarchyCell } from 'util/grid-cell.util';
 
 @Injectable({
   providedIn: 'root',
@@ -64,51 +66,32 @@ export class KommonitorIndicatorDataGridHelperService {
         field: 'unit',
         minWidth: 200,
       },
+      // Free-text columns go through `valueGetter`, never a function
+      // `cellRenderer` returning a string: AG Grid assigns such a string to
+      // innerHTML unsanitized (see `util/grid-cell.util.ts`).
       {
         headerName: this.translate.instant('ADMIN_SHARED.DESCRIPTION'),
         minWidth: 400,
-        cellRenderer: (params: any) => {
-          return params.data.metadata.description;
-        },
+        valueGetter: (params: any) => params.data.metadata.description,
         filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => {
-          return '' + params.data.metadata.description;
-        },
       },
       {
         headerName: this.translate.instant('ADMIN_INDICATORS.GRID.COL_METHODOLOGY'),
         minWidth: 400,
-        cellRenderer: (params: any) => {
-          if (params.data.processDescription && params.data.processDescription.includes('$$')) {
-            const splitArray = params.data.processDescription.split('$$');
-            for (let index = 0; index < splitArray.length; index++) {
-              if (index % 2 == 0) {
-                params.data.processDescription += '<br/>';
-              }
-            }
-          }
-          return params.data.processDescription;
-        },
+        // Authored as HTML, so it is rendered through a sanitized binding.
+        valueGetter: (params: any) => params.data.processDescription,
+        cellRenderer: HtmlCellRendererComponent,
         filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => {
-          return '' + params.data.processDescription;
-        },
       },
       {
         headerName: this.translate.instant('ADMIN_INDICATORS.GRID.COL_AVAILABLE_SPATIAL_UNITS'),
         field: 'applicableSpatialUnits',
         minWidth: 400,
-        cellRenderer: (params: any) => {
-          let html =
-            '<ul style="columns: 2; -webkit-columns: 2; -moz-columns: 2; word-break: break-word !important;">';
-          for (const applicableSpatialUnit of params.data.applicableSpatialUnits) {
-            html += '<li style="margin-right: 15px;">';
-            html += applicableSpatialUnit.spatialUnitName;
-            html += '</li>';
-          }
-          html += '</ul>';
-          return html;
-        },
+        cellRenderer: (params: any) =>
+          textListCell(
+            (params.data.applicableSpatialUnits ?? []).map((unit: any) => unit.spatialUnitName),
+            2
+          ),
         filter: 'agTextColumnFilter',
         filterValueGetter: (params: any) => {
           if (params.data.applicableSpatialUnits && params.data.applicableSpatialUnits.length > 1) {
@@ -121,17 +104,7 @@ export class KommonitorIndicatorDataGridHelperService {
         headerName: this.translate.instant('ADMIN_INDICATORS.GRID.COL_AVAILABLE_TIMESTAMPS'),
         field: 'applicableDates',
         minWidth: 400,
-        cellRenderer: (params: any) => {
-          let html =
-            '<ul style="columns: 5; -webkit-columns: 5; -moz-columns: 5; word-break: break-word !important;">';
-          for (const timestamp of params.data.applicableDates) {
-            html += '<li style="margin-right: 15px;">';
-            html += timestamp;
-            html += '</li>';
-          }
-          html += '</ul>';
-          return html;
-        },
+        cellRenderer: (params: any) => textListCell(params.data.applicableDates, 5),
         filter: 'agTextColumnFilter',
         filterValueGetter: (params: any) => {
           if (params.data.applicableDates && params.data.applicableDates.length > 1) {
@@ -151,20 +124,9 @@ export class KommonitorIndicatorDataGridHelperService {
       {
         headerName: this.translate.instant('ADMIN_INDICATORS.GRID.COL_INDICATOR_TYPE'),
         minWidth: 200,
-        cellRenderer: (params: any) => {
-          return this.metadataExportService.getIndicatorStringFromIndicatorType(
-            params.data.indicatorType
-          );
-        },
+        valueGetter: (params: any) =>
+          this.metadataExportService.getIndicatorStringFromIndicatorType(params.data.indicatorType),
         filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => {
-          return (
-            '' +
-            this.metadataExportService.getIndicatorStringFromIndicatorType(
-              params.data.indicatorType
-            )
-          );
-        },
       },
       {
         headerName: this.translate.instant('ADMIN_INDICATORS.GRID.COL_CHARACTERISTIC'),
@@ -184,88 +146,57 @@ export class KommonitorIndicatorDataGridHelperService {
       {
         headerName: this.translate.instant('ADMIN_SHARED_UI.TOPICS.TITLE'),
         minWidth: 400,
-        cellRenderer: (params: any) =>
-          this.topicHierarchyService.getTopicHierarchyDisplayString(
-            this.topicStore.availableTopics,
-            params.data.topicReference
-          ),
+        cellRenderer: (params: any) => topicHierarchyCell(this.topicNames(params.data)),
         filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) =>
-          '' +
-          this.topicHierarchyService.getTopicHierarchyDisplayString(
-            this.topicStore.availableTopics,
-            params.data.topicReference
-          ),
+        filterValueGetter: (params: any) => this.topicNames(params.data).join(' '),
       },
       {
         headerName: this.translate.instant('ADMIN_SHARED.DATASOURCE'),
         minWidth: 400,
-        cellRenderer: (params: any) => {
-          return params.data.metadata.datasource;
-        },
+        valueGetter: (params: any) => params.data.metadata.datasource,
         filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => {
-          return '' + params.data.metadata.datasource;
-        },
       },
       {
         headerName: this.translate.instant('ADMIN_SHARED.DATA_HOLDER_CONTACT'),
         minWidth: 400,
-        cellRenderer: (params: any) => {
-          return params.data.metadata.contact;
-        },
+        valueGetter: (params: any) => params.data.metadata.contact,
         filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => {
-          return '' + params.data.metadata.contact;
-        },
       },
       {
         headerName: this.translate.instant('COMMON.ROLES'),
         minWidth: 400,
-        cellRenderer: (params: any) => {
-          return this.accessControlService.getAllowedRolesString(params.data.permissions);
-        },
+        valueGetter: (params: any) =>
+          this.accessControlService.getAllowedRolesString(params.data.permissions),
         filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => {
-          return '' + this.accessControlService.getAllowedRolesString(params.data.permissions);
-        },
       },
       {
         headerName: this.translate.instant('ADMIN_SHARED.PUBLIC_VISIBLE'),
         minWidth: 400,
-        cellRenderer: (params: any) => {
-          return params.data.isPublic ? 'ja' : 'nein';
-        },
+        valueGetter: (params: any) => (params.data.isPublic ? 'ja' : 'nein'),
         filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => {
-          return '' + (params.data.isPublic ? 'ja' : 'nein');
-        },
       },
       {
         headerName: this.translate.instant('ADMIN_SHARED.OWNER'),
         minWidth: 400,
-        cellRenderer: (params: any) => {
-          return this.accessControlService.getRoleTitle(params.data.ownerId);
-        },
+        valueGetter: (params: any) => this.accessControlService.getRoleTitle(params.data.ownerId),
         filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => {
-          return '' + this.accessControlService.getRoleTitle(params.data.ownerId);
-        },
       },
       {
         headerName: this.translate.instant('ADMIN_INDICATORS.GRID.COL_DECIMALS'),
         minWidth: 200,
-        cellRenderer: (params: any) => {
-          return params.data.precision;
-        },
+        valueGetter: (params: any) => params.data.precision,
         filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => {
-          return '' + params.data.precision;
-        },
       },
     ];
 
     return columnDefs;
+  }
+
+  private topicNames(indicator: IndicatorsDataset): string[] {
+    return this.topicHierarchyService.getTopicHierarchyNames(
+      this.topicStore.availableTopics,
+      indicator.topicReference
+    );
   }
 
   /**

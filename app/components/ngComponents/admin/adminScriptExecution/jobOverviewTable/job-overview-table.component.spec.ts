@@ -8,6 +8,7 @@ import { JobOverviewTableComponent } from './job-overview-table.component';
 import { JobOverviewRow } from 'components/ngComponents/models/jobs.models';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { JobOverviewService } from 'services/job-overview-service/job-overview.service';
+import { HOSTILE_PAYLOAD, expectNoMarkupInjection } from 'testing/ag-grid-cell.testing';
 
 @Component({ selector: 'ag-grid-angular', standalone: true, template: '' })
 class AgGridStubComponent {
@@ -119,5 +120,25 @@ describe('JobOverviewTableComponent', () => {
 
     expect(grid()).toBeNull();
     expect(fixture.nativeElement.querySelector('p')).not.toBeNull();
+  });
+
+  it('renders indicator name, process title and job fields as text', () => {
+    const hostileRow = {
+      job: { jobID: HOSTILE_PAYLOAD, status: HOSTILE_PAYLOAD },
+      targetIndicatorName: HOSTILE_PAYLOAD,
+      processTitle: HOSTILE_PAYLOAD,
+    };
+    build([hostileRow as unknown as JobOverviewRow]);
+
+    const [jobCell, executionCell] = expectNoMarkupInjection(
+      grid().componentInstance.columnDefs,
+      hostileRow
+    );
+
+    expect(jobCell.querySelector('strong')!.textContent).toBe(HOSTILE_PAYLOAD);
+    expect(jobCell.textContent).toBe(HOSTILE_PAYLOAD.repeat(3));
+    // Unknown status: the fallback icon, the raw status as label.
+    expect(executionCell.querySelector('i')!.className).toBe('fas fa-circle-question');
+    expect(executionCell.lastElementChild!.textContent).toBe(` ${HOSTILE_PAYLOAD}`);
   });
 });

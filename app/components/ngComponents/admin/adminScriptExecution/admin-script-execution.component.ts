@@ -9,6 +9,7 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { JobOverviewRow } from 'components/ngComponents/models/jobs.models';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { AuthService } from 'services/auth-service/auth.service';
 import { JobOverviewService } from 'services/job-overview-service/job-overview.service';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
@@ -85,6 +86,7 @@ const STATUS_TILES: StatusTile[] = [
 export class AdminScriptExecutionComponent implements OnInit {
   private jobOverviewService = inject(JobOverviewService);
   private authService = inject(AuthService);
+  private accessControlService = inject(AccessControlService);
   private translate = inject(TranslateService);
 
   protected readonly statusTiles = STATUS_TILES;
@@ -106,6 +108,16 @@ export class AdminScriptExecutionComponent implements OnInit {
    * shows a login hint instead of a misleading empty state.
    */
   protected loginRequired = computed(() => !this.authService.isAuthenticated());
+
+  /**
+   * The same trap one step further: logged in, but without a role the
+   * Processes API admits — its `ALLOWED_ROLES`, in the KomMonitor deployments
+   * the administrator and both resource roles. The jobs come back empty then
+   * as well.
+   */
+  protected roleRequired = computed(
+    () => !this.loginRequired() && !this.accessControlService.checkResourcesEditPermission()
+  );
 
   protected totalJobs = computed(() => this.rows().length);
 

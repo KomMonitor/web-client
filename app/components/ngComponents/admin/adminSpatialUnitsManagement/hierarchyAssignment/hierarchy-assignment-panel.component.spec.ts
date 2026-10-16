@@ -245,4 +245,65 @@ describe('HierarchyAssignmentPanelComponent', () => {
       fixture.debugElement.query(By.css('.assignment-rows > .assignment-error'))
     ).not.toBeNull();
   });
+
+  describe('locked, for a user who may not change the hierarchies', () => {
+    function addButton(): HTMLButtonElement {
+      return fixture.debugElement.query(By.css('.assignment-add .btn')).nativeElement;
+    }
+
+    function hint(): string {
+      return fixture.debugElement.query(By.css('.assignment-add .assignment-hint')).nativeElement
+        .textContent;
+    }
+
+    it('rests the add button and says why', () => {
+      fixture.componentRef.setInput('locked', true);
+      fixture.componentRef.setInput('mandantName', 'Stadt Essen');
+      render();
+
+      expect(addButton().disabled).toBe(true);
+      expect(addButton().title).toContain('LOCKED_HINT');
+      expect(hint()).toContain('LOCKED_HINT');
+      expect(hint()).not.toContain('ADD_ASSIGNMENT_HINT');
+    });
+
+    it('is not locked by default', () => {
+      render();
+
+      expect(addButton().disabled).toBe(false);
+      expect(addButton().hasAttribute('title')).toBe(false);
+      expect(hint()).toContain('ADD_ASSIGNMENT_HINT');
+    });
+  });
+
+  describe('locked, with existing memberships', () => {
+    beforeEach(() => {
+      rows.push(buildAssignmentRow({ hierarchyId: 'h-essen', placement: 'append' }));
+      fixture.componentRef.setInput('locked', true);
+      fixture.componentRef.setInput('mandantName', 'Stadt Essen');
+      fixture.componentRef.setInput('selfSpatialUnitId', 'su-new');
+      render();
+    });
+
+    it('reads each row as its sentence, with nothing to pick or remove', () => {
+      const row = fixture.debugElement.query(By.css('.assignment-row-locked'));
+
+      expect(row.nativeElement.textContent).toContain('RESULT_APPEND');
+      expect(fixture.debugElement.queryAll(By.css('.assignment-row select'))).toHaveLength(0);
+      expect(fixture.debugElement.query(By.css('.assignment-remove'))).toBeNull();
+      expect(fixture.debugElement.query(By.css('.assignment-columns'))).toBeNull();
+    });
+
+    it('leaves the rows as the host built them', () => {
+      expect(rows.length).toBe(1);
+      expect(rows.enabled).toBe(true);
+    });
+
+    it('words the hint for the edit dialog', () => {
+      const hint = fixture.debugElement.query(By.css('.assignment-add .assignment-hint'))
+        .nativeElement.textContent;
+
+      expect(hint).toContain('LOCKED_HINT_EDIT');
+    });
+  });
 });
