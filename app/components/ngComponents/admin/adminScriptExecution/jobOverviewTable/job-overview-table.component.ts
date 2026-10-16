@@ -17,6 +17,7 @@ import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-
 import { JobOverviewRow } from 'components/ngComponents/models/jobs.models';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { JobOverviewService } from 'services/job-overview-service/job-overview.service';
+import { textElement } from 'util/grid-cell.util';
 import { JobSummaryCellRendererComponent } from '../job-summary-cell-renderer.component';
 
 /** Never shrink below this, however little room is left. */
@@ -179,14 +180,22 @@ export class JobOverviewTableComponent implements OnChanges {
         pinned: 'left',
         minWidth: 240,
         maxWidth: 320,
+        // Both cells are built as elements: indicator name, process title and
+        // job fields are API data, and AG Grid assigns a renderer's string to
+        // innerHTML unsanitized.
         cellRenderer: (params) => {
           const row = params.data as JobOverviewRow;
           const indicatorName =
             row.targetIndicatorName ??
             this.translate.instant('ADMIN_SCRIPTS.GRID.UNKNOWN_TARGET_INDICATOR');
-          return `<div><strong>${indicatorName}</strong></div>
-<div>${row.processTitle}</div>
-<div><small class="text-muted">${row.job.jobID}</small></div>`;
+          const name = document.createElement('div');
+          name.appendChild(textElement('strong', indicatorName));
+          const jobId = document.createElement('div');
+          jobId.appendChild(textElement('small', row.job.jobID, 'text-muted'));
+
+          const cell = document.createElement('div');
+          cell.append(name, textElement('div', row.processTitle), jobId);
+          return cell;
         },
         filter: 'agTextColumnFilter',
         filterValueGetter: (params) => {
@@ -203,9 +212,12 @@ export class JobOverviewTableComponent implements OnChanges {
         cellRenderer: (params) => {
           const job = (params.data as JobOverviewRow).job;
           const icon = STATUS_ICONS[job.status] ?? 'fas fa-circle-question';
-          const statusLabel = this.statusLabel(job.status);
-          return `<div>${this.formatDateTime(job.job_end_datetime)}</div>
-<div><i class="${icon}"></i> ${statusLabel}</div>`;
+          const status = document.createElement('div');
+          status.append(textElement('i', null, icon), ' ', this.statusLabel(job.status));
+
+          const cell = document.createElement('div');
+          cell.append(textElement('div', this.formatDateTime(job.job_end_datetime)), status);
+          return cell;
         },
         filter: 'agTextColumnFilter',
         filterValueGetter: (params) => this.statusLabel((params.data as JobOverviewRow).job.status),

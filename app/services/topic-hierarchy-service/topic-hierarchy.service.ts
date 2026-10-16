@@ -558,6 +558,18 @@ export class TopicHierarchyService {
     return this.topicHierarchyContainsIndicator(availableTopics, topic, wfsMetadata);
   }
 
+  /** The topic names from the main topic down to the referenced one. */
+  getTopicHierarchyNames(availableTopics: any[], topicReferenceId: any): string[] {
+    return this.getTopicHierarchyForTopicId(availableTopics, topicReferenceId).map(
+      (topic) => topic.topicName
+    );
+  }
+
+  /**
+   * The topic path as an HTML string, unescaped. Only for `[innerHTML]`
+   * bindings, which Angular sanitizes — never for an AG Grid renderer (use
+   * `getTopicHierarchyNames` with `topicHierarchyCell` there).
+   */
   getTopicHierarchyDisplayString(availableTopics: any[], topicReferenceId: any): string {
     const topicHierarchyArray = this.getTopicHierarchyForTopicId(availableTopics, topicReferenceId);
 

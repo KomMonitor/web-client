@@ -19,13 +19,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AgGridAngular } from 'ag-grid-angular';
-import {
-  CellClickedEvent,
-  ColDef,
-  GridOptions,
-  ICellRendererParams,
-  ValueGetterParams,
-} from 'ag-grid-community';
+import { CellClickedEvent, ColDef, GridOptions, ICellRendererParams } from 'ag-grid-community';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { SpatialUnitOverviewType as SpatialUnitMetadata } from 'models/data-management-api';
@@ -40,22 +34,13 @@ import { AdminContentViewComponent } from '../admin-content-view/admin-content-v
 import { MandantPanelComponent } from '../adminShared/mandantPanel/mandant-panel.component';
 import { AdminModalService } from '../adminShared/modal/admin-modal.service';
 import { spatialUnitMandantOptions, spatialUnitsOfMandant } from './spatial-unit-mandant';
+import { buildSpatialUnitDataColumns } from './spatial-unit-grid-columns';
 import { SpatialUnitRefreshRequest } from './spatial-unit-refresh.model';
 import { SpatialUnitAddModalComponent } from './spatialUnitAddModal/spatial-unit-add-modal.component';
 import { SpatialUnitDeleteModalComponent } from './spatialUnitDeleteModal/spatial-unit-delete-modal.component';
 import { SpatialUnitEditFeaturesModalComponent } from './spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.component';
 import { SpatialUnitEditMetadataModalComponent } from './spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.component';
 import { SpatialUnitEditUserRolesModalComponent } from './spatialUnitEditUserRolesModal/spatial-unit-edit-user-roles-modal.component';
-
-/**
- * The hierarchies a spatial unit belongs to, by name, ordered by its position
- * in each. Falls back to the id where the API leaves `hierarchyName` null.
- */
-function hierarchyNamesOf(dataset: SpatialUnitMetadata | undefined): string[] {
-  return [...(dataset?.hierarchies ?? [])]
-    .sort((a, b) => a.hierarchyLevel - b.hierarchyLevel)
-    .map((membership) => membership.hierarchyName || membership.hierarchyId);
-}
 
 @Component({
   selector: 'app-admin-spatial-units-management',
@@ -142,136 +127,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit {
         onCellClicked: (event: CellClickedEvent<SpatialUnitMetadata>) =>
           this.onEditButtonsCellClicked(event),
       },
-      {
-        headerName: this.translate.instant('ADMIN_SHARED.ID'),
-        field: 'spatialUnitId',
-        pinned: 'left',
-        maxWidth: 125,
-      },
-      {
-        headerName: this.translate.instant('ADMIN_SHARED.NAME'),
-        field: 'spatialUnitLevel',
-        pinned: 'left',
-        minWidth: 300,
-      },
-      {
-        headerName: this.translate.instant('ADMIN_SHARED.DESCRIPTION'),
-        minWidth: 400,
-        cellRenderer: (params: ICellRendererParams) => params.data.metadata.description,
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-          '' + params.data!.metadata.description,
-      },
-      {
-        headerName: this.translate.instant('ADMIN_SPATIAL_UNITS.GRID.COL_HIERARCHIES'),
-        minWidth: 300,
-        valueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-          hierarchyNamesOf(params.data).join(', '),
-        filter: 'agTextColumnFilter',
-      },
-      {
-        headerName: this.translate.instant('ADMIN_SHARED.PERIOD_OF_VALIDITY'),
-        minWidth: 400,
-        cellRenderer: (params: ICellRendererParams) => {
-          let html =
-            '<ul style="columns: 5; -webkit-columns: 5; -moz-columns: 5; word-break: break-word !important;">';
-          for (const periodOfValidity of params.data.availablePeriodsOfValidity) {
-            html += '<li style="margin-right: 15px;">';
-            if (periodOfValidity.endDate) {
-              html +=
-                '<p>' +
-                periodOfValidity.startDate +
-                ' &ndash; ' +
-                periodOfValidity.endDate +
-                '</p>';
-            } else {
-              html += '<p>' + periodOfValidity.startDate + ' &ndash; heute</p>';
-            }
-            html += '</li>';
-          }
-          html += '</ul>';
-          return html;
-        },
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) => {
-          if (
-            params.data!.availablePeriodsOfValidity &&
-            params.data!.availablePeriodsOfValidity.length > 1
-          ) {
-            return '' + JSON.stringify(params.data!.availablePeriodsOfValidity);
-          }
-          return params.data!.availablePeriodsOfValidity;
-        },
-      },
-      {
-        headerName: this.translate.instant('ADMIN_SHARED.DATASOURCE'),
-        minWidth: 400,
-        cellRenderer: (params: ICellRendererParams) => params.data.metadata.datasource,
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-          '' + params.data!.metadata.datasource,
-      },
-      {
-        headerName: this.translate.instant('ADMIN_SHARED.DATA_HOLDER_CONTACT'),
-        minWidth: 400,
-        cellRenderer: (params: ICellRendererParams) => params.data.metadata.contact,
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-          '' + params.data!.metadata.contact,
-      },
-      {
-        headerName: this.translate.instant('COMMON.ROLES'),
-        minWidth: 400,
-        cellRenderer: (params: ICellRendererParams) =>
-          this.accessControlService.getAllowedRolesString(params.data.permissions),
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-          '' + this.accessControlService.getAllowedRolesString(params.data!.permissions),
-      },
-      {
-        headerName: this.translate.instant('ADMIN_SHARED.PUBLIC_VISIBLE'),
-        minWidth: 400,
-        cellRenderer: (params: ICellRendererParams) => (params.data.isPublic ? 'ja' : 'nein'),
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-          '' + (params.data!.isPublic ? 'ja' : 'nein'),
-      },
-      {
-        headerName: this.translate.instant('ADMIN_SHARED.OWNER'),
-        minWidth: 400,
-        cellRenderer: (params: ICellRendererParams) =>
-          this.accessControlService.getRoleTitle(params.data.ownerId),
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-          '' + this.accessControlService.getRoleTitle(params.data!.ownerId ?? ''),
-      },
-      {
-        headerName: this.translate.instant('ADMIN_SPATIAL_UNITS.GRID.COL_OUTLINE_LINE_COLOR'),
-        minWidth: 200,
-        cellRenderer: (params: ICellRendererParams<SpatialUnitMetadata>) =>
-          params.data!.outlineColor || '-',
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-          '' + (params.data!.outlineColor || '-'),
-      },
-      {
-        headerName: this.translate.instant('ADMIN_SPATIAL_UNITS.GRID.COL_OUTLINE_LINE_WIDTH'),
-        minWidth: 200,
-        cellRenderer: (params: ICellRendererParams<SpatialUnitMetadata>) =>
-          params.data!.outlineWidth || '-',
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-          '' + (params.data!.outlineWidth || '-'),
-      },
-      {
-        headerName: this.translate.instant('ADMIN_SPATIAL_UNITS.GRID.COL_OUTLINE_LINE_PATTERN'),
-        minWidth: 200,
-        cellRenderer: (params: ICellRendererParams<SpatialUnitMetadata>) =>
-          params.data!.outlineDashArrayString || '-',
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: ValueGetterParams<SpatialUnitMetadata>) =>
-          '' + (params.data!.outlineDashArrayString || '-'),
-      },
+      ...buildSpatialUnitDataColumns(this.translate, this.accessControlService),
     ];
   }
 
