@@ -377,6 +377,19 @@ export class ReportingService {
             }
           });
         }
+
+        // `selectedTemplate` is a structuredClone taken when the template was selected, so it
+        // doesn't share references with `availableTemplates` above - update it too, otherwise
+        // the already-open template preview keeps showing the placeholder until the user
+        // re-selects a template (which re-clones from availableTemplates).
+        if (this.selectedTemplate) {
+          this.iteratePageElements(this.selectedTemplate, function (page, pageElement) {
+            if (pageElement.type.includes('communeLogo-')) {
+              pageElement.isPlaceholder = false;
+              pageElement.src = content;
+            }
+          });
+        }
       }
     };
     reader.readAsDataURL(file);

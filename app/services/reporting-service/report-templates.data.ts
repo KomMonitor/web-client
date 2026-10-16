@@ -2798,6 +2798,19 @@ export const availableTemplates: TemplateData[] = [
   },
 ];
 
+// `showThisPage` (reporting.service.ts) tells a page's landscape/portrait counterpart apart
+// by comparing `.id`, not object reference, since pages can get spliced in/out elsewhere. These
+// static pages ship with no `id` at all, so that comparison degenerated to `undefined ==
+// undefined` - always true - and templateSelect's preview showed every orientation variant at
+// once instead of hiding the alternate one. Assign a stable id, unique per page within its
+// template, so the comparison works before any indicator has been added (the point where these
+// static pages get replaced by indicator-add's own id-bearing clones, see addIndicatorSection).
+for (const template of availableTemplates) {
+  template.pages.forEach((page, index) => {
+    page.id = `${template.id}-${index}`;
+  });
+}
+
 export function getDefaultReportingTemplatePageElement(type): any {
   const result = reportingDefaultTemplatePageElements.filter((el) => {
     return el.type === type;
