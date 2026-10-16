@@ -607,6 +607,14 @@ export class ReportingOverviewComponent implements OnInit {
               context
             );
 
+          // capture the echarts choropleth canvas itself (not just the leaflet tile
+          // screenshot) - background pages (beyond the preview limit) are never rendered
+          // into the live preview DOM, so generate-report.component.ts's live-instance
+          // fallback can't find them at export time and the map ends up completely blank.
+          page.generatedData.echarts[pageElement.type] = instance.getDataURL({
+            pixelRatio: this.echartsImgPixelRatio,
+          });
+
           if (isPreview) {
             const previewPElementDom: any = document.querySelector(
               '#' + reportingOverviewPreviewPageElementId(idx, pageElement.type, elementIdx)
@@ -717,7 +725,12 @@ export class ReportingOverviewComponent implements OnInit {
 
     this.lastPageOfAddedSectionPrepared = false;
     this.pagePreparationIndex = 0;
-    this.pagePreparationSize = this.reportingService.workingTemplate.pages.length;
+    // `workingTemplate.pages` holds a landscape+portrait pair for most page types, but only one
+    // of each pair is ever shown (see `showThisPage`) - counting the raw array length roughly
+    // doubles the "total" relative to the page count the finished report will actually have.
+    this.pagePreparationSize = this.reportingService.workingTemplate.pages.filter(
+      (p) => p.templateSection.indicatorId === indicatorId && this.showThisPage(p)
+    ).length;
 
     await new Promise((resolve) => setTimeout(resolve, 150));
 
@@ -737,14 +750,19 @@ export class ReportingOverviewComponent implements OnInit {
 
       await this.preparePage(idx, page, indicatorId, undefined, spatialUnit, geoJSON);
 
-      totalPreparedCount++;
-      this.pagePreparationIndex = totalPreparedCount;
-      this.reportGenerationProgressService.reportProgress = Math.round(
-        (totalPreparedCount / this.pagePreparationSize) * 100
-      );
+      // Still prepare the hidden orientation twin above (so toggling it later is instant), but
+      // only count visible pages towards the progress shown to the user.
+      if (this.showThisPage(page)) {
+        totalPreparedCount++;
+        this.pagePreparationIndex = totalPreparedCount;
+        this.reportGenerationProgressService.reportProgress = Math.round(
+          (totalPreparedCount / this.pagePreparationSize) * 100
+        );
+      }
     }
 
     this.lastPageOfAddedSectionPrepared = true;
+    this.pagePreparationIndex = this.pagePreparationSize;
     this.loadingData = false;
   }
 
@@ -781,7 +799,10 @@ export class ReportingOverviewComponent implements OnInit {
 
     this.lastPageOfAddedSectionPrepared = false;
     this.pagePreparationIndex = 0;
-    this.pagePreparationSize = this.reportingService.workingTemplate.pages.length;
+    // see setupIndicatorPages for why this counts visible pages only, not the raw array length
+    this.pagePreparationSize = this.reportingService.workingTemplate.pages.filter(
+      (p) => p.templateSection.poiLayerName === poiLayerName && this.showThisPage(p)
+    ).length;
 
     await new Promise((resolve) => setTimeout(resolve, 150));
 
@@ -801,14 +822,17 @@ export class ReportingOverviewComponent implements OnInit {
 
       await this.preparePage(idx, page, undefined, poiLayerName, spatialUnit, geoJSON);
 
-      totalPreparedCount++;
-      this.pagePreparationIndex = totalPreparedCount;
-      this.reportGenerationProgressService.reportProgress = Math.round(
-        (totalPreparedCount / this.pagePreparationSize) * 100
-      );
+      if (this.showThisPage(page)) {
+        totalPreparedCount++;
+        this.pagePreparationIndex = totalPreparedCount;
+        this.reportGenerationProgressService.reportProgress = Math.round(
+          (totalPreparedCount / this.pagePreparationSize) * 100
+        );
+      }
     }
 
     this.lastPageOfAddedSectionPrepared = true;
+    this.pagePreparationIndex = this.pagePreparationSize;
     this.loadingData = false;
   }
 

@@ -568,7 +568,9 @@ export class VisualStyleHelperServiceNew {
     colorCodeForNegativeValues,
     classifyMethod,
     numClasses,
-    breaks
+    breaks,
+    forceProvidedIndicator = false,
+    indicator: IndicatorsDataset | false = false
   ) {
     /*
     * Idea: Analyse the complete geoJSON property array for each feature and make conclusion about how to build the legend
@@ -589,7 +591,7 @@ export class VisualStyleHelperServiceNew {
     this.negativeValues = [];
 
     if (this.envConfigService.classifyUsingWholeTimeseries) {
-      this.setupDynamicBrewValues_wholeTimeseries(geoJSON);
+      this.setupDynamicBrewValues_wholeTimeseries(geoJSON, forceProvidedIndicator, indicator);
     } else {
       this.setupDynamicBrewValues_singleTimestamp(geoJSON, propertyName);
     }
@@ -631,8 +633,14 @@ export class VisualStyleHelperServiceNew {
     return this.classificationState.dynamicBrew;
   }
 
-  setupDynamicBrewValues_wholeTimeseries(geoJSON) {
-    const indicatorTimeSeriesDatesArray = this.selectionState.selectedIndicator.applicableDates;
+  setupDynamicBrewValues_wholeTimeseries(
+    geoJSON,
+    forceProvidedIndicator = false,
+    indicator: IndicatorsDataset | false = false
+  ) {
+    const indicatorTimeSeriesDatesArray = forceProvidedIndicator
+      ? (indicator as IndicatorsDataset).applicableDates
+      : this.selectionState.selectedIndicator.applicableDates;
 
     for (const date of indicatorTimeSeriesDatesArray) {
       const propertyName = this.envConfigService.indicatorDatePrefix + date;

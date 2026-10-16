@@ -517,10 +517,14 @@ export class IndicatorAddComponent implements OnInit {
     // to make things easier we remove all area-specific pages and recreate them using newVal
     // this approach is not optimized for performance and might have to change in the future
 
-    // remove all area-specific pages hier
+    // Remove only the previously-inserted per-area clones (a real, non-empty `.area`), not the
+    // static template's own area_specific placeholder (`area: ''`). That placeholder is the
+    // report's "all selected areas" summary page (its map/charts fall back to covering every
+    // selected area whenever `page.area` is falsy - see e.g. createPageElement_TimelineDiagram's
+    // `showAreas` branch) and must survive every area-selection change, not just the first one.
     this.reportingService.clonedTemplate.pages = this.reportingService.clonedTemplate.pages.filter(
       (page) => {
-        return !Object.prototype.hasOwnProperty.call(page, 'area');
+        return !(Object.prototype.hasOwnProperty.call(page, 'area') && page.area);
       }
     );
     let numberOfTargetSpatialUnitFeatures = 0;
@@ -1196,7 +1200,7 @@ export class IndicatorAddComponent implements OnInit {
               values.to,
               classifyUsingWholeTimeseries,
               isTimeseries,
-              undefined,
+              values.from,
               undefined
             );
           } else {
@@ -1945,7 +1949,9 @@ export class IndicatorAddComponent implements OnInit {
           return el.properties.NAME === mostRecentTimestampName;
         });
         if (this.reportingService.clonedTemplate.name.includes('timeseries')) {
-          this.initializeDateRangeSlider(timestampsForSelectedSpatialUnit, 0, 1);
+          // a freshly selected indicator has no prior range to preserve - default to the full
+          // available timeseries, same as initializeDateRangeSlider's fallback
+          this.initializeDateRangeSlider(timestampsForSelectedSpatialUnit);
         }
         // update information in preview
         for (const page of this.reportingService.clonedTemplate.pages) {
@@ -2053,21 +2059,19 @@ export class IndicatorAddComponent implements OnInit {
           'id'
         );
 
-        this.selectedAreas = areasListInput;
         this.selectedTimestamps = timestampsListSelected;
 
-        if (this.reportingService.clonedTemplate.name.includes('timestamp'))
-          this.updateAreasForTimestampTemplates(areasListInput);
-        if (this.reportingService.clonedTemplate.name.includes('timeseries'))
-          this.updateAreasForTimeseriesTemplates(areasListInput);
-        if (this.reportingService.clonedTemplate.name.includes('reachability'))
-          this.updateAreasForReachabilityTemplates(areasListInput);
-
-        if (this.selectedAreas.length > 0)
-          this.leafletScreenshotCacheHelperService.resetCounter(
-            this.selectedAreas.length + 1,
-            false
-          );
+        // Also sets this.selectedAreas and, crucially, removes any stale area-having pages
+        // (including the static template's own area_specific placeholder, which carries
+        // `area: ''`) before inserting fresh per-area clones. Calling
+        // updateAreasForXTemplates() directly here used to skip that removal - on this
+        // very first "select all areas" pass the placeholder was never cleared out, so it
+        // lingered as an extra page after all the real per-area pages: `page.area` being
+        // falsy made it fall back to the "no area selected" branches everywhere (unfiltered
+        // map, generic title, every area's line in the charts) instead of being a real
+        // per-area page. Any later manual area-selection change already went through
+        // onSelectedAreasChanged and self-healed by removing it.
+        await this.onSelectedAreasChanged(areasListInput);
 
         // mark that preparation is required; actual page/diagram generation only
         // starts once the user clicks "Vorschau & Report-Seiten generieren"
@@ -3083,7 +3087,9 @@ export class IndicatorAddComponent implements OnInit {
         colorCodeNegativeValues,
         classifyMethod,
         numClasses,
-        ''
+        '',
+        true,
+        selectedIndicator
       );
       dynamicIncreaseBrew = dynamicBrewsArray[0];
       dynamicDecreaseBrew = dynamicBrewsArray[1];
@@ -3103,7 +3109,8 @@ export class IndicatorAddComponent implements OnInit {
       0,
       true,
       isCategorical,
-      categoricalData
+      categoricalData,
+      fromDate
     );
     // at this point the echarts instance has one map registered (geoMapChart).
     // that is the "default" map, which can be used to create individual maps for indicator + date + spatialUnit (+ area) combinations later
@@ -3325,7 +3332,12 @@ export class IndicatorAddComponent implements OnInit {
     this.lastPageOfAddedSectionPrepared = false;
     this.reportGenerationProgressService.abortPreparation = false;
     this.pagePreparationIndex = 0;
-    this.pagePreparationSize = this.reportingService.clonedTemplate.pages.length;
+    // `clonedTemplate.pages` holds a landscape+portrait pair for most page types, but only one
+    // of each pair is ever shown (see `showThisPage`) - counting the raw array length roughly
+    // doubles the "total" relative to the page count the finished report will actually have.
+    this.pagePreparationSize = this.reportingService.clonedTemplate.pages.filter((p) =>
+      this.showThisPage(p)
+    ).length;
     let logProgressIndexSeparator = Math.round((this.pagePreparationSize / 100) * 10);
     if (logProgressIndexSeparator < 1) logProgressIndexSeparator = 1;
 
@@ -3352,11 +3364,15 @@ export class IndicatorAddComponent implements OnInit {
       if (this.isPageInPreview(page, i)) {
         await this.preparePageForIndicatorAdd(i, page);
         processedPageIds.add(page.id);
-        totalPreparedCount++;
-        this.pagePreparationIndex = totalPreparedCount;
-        this.reportGenerationProgressService.reportProgress = Math.round(
-          (totalPreparedCount / this.pagePreparationSize) * 100
-        );
+        // Still prepare the hidden orientation twin above (so toggling it later is instant), but
+        // only count visible pages towards the progress shown to the user.
+        if (this.showThisPage(page)) {
+          totalPreparedCount++;
+          this.pagePreparationIndex = totalPreparedCount;
+          this.reportGenerationProgressService.reportProgress = Math.round(
+            (totalPreparedCount / this.pagePreparationSize) * 100
+          );
+        }
       }
     }
 
@@ -3382,11 +3398,13 @@ export class IndicatorAddComponent implements OnInit {
       if (!processedPageIds.has(page.id)) {
         await this.preparePageForIndicatorAdd(i, page);
         processedPageIds.add(page.id);
-        totalPreparedCount++;
-        this.pagePreparationIndex = totalPreparedCount;
-        this.reportGenerationProgressService.reportProgress = Math.round(
-          (totalPreparedCount / this.pagePreparationSize) * 100
-        );
+        if (this.showThisPage(page)) {
+          totalPreparedCount++;
+          this.pagePreparationIndex = totalPreparedCount;
+          this.reportGenerationProgressService.reportProgress = Math.round(
+            (totalPreparedCount / this.pagePreparationSize) * 100
+          );
+        }
       }
     }
 
@@ -3825,7 +3843,7 @@ export class IndicatorAddComponent implements OnInit {
       values.to,
       classifyUsingWholeTimeseries,
       isTimeseries,
-      undefined,
+      values.from,
       undefined
     );
 
@@ -3899,11 +3917,19 @@ export class IndicatorAddComponent implements OnInit {
     return result;
   }
 
-  initializeDateRangeSlider(availableDates, min, max) {
+  // `min`/`max` (date-name strings from `availableDates`, e.g. the previously selected range
+  // preserved across a spatial unit change) restore a prior selection instead of resetting the
+  // slider to the full available range - mirrors the AngularJS original's
+  // `dateSlider.update({ from: minIdx, to: maxIdx })`, which this migrated version used to drop
+  // entirely, silently resetting any selected date range back to the full timeseries.
+  initializeDateRangeSlider(availableDates, min?, max?) {
     this.datesAsMs = this.createDatesFromIndicatorDates(availableDates);
 
     this.sliderValues = this.createDateArray(availableDates);
-    this.sliderPositions = [this.sliderValues[0], this.sliderValues[this.sliderValues.length - 1]];
+    const minDate = typeof min !== 'undefined' ? new Date(min) : this.sliderValues[0];
+    const maxDate =
+      typeof max !== 'undefined' ? new Date(max) : this.sliderValues[this.sliderValues.length - 1];
+    this.sliderPositions = [minDate, maxDate];
   }
 
   createDateArray(dates: number[]): Date[] {
