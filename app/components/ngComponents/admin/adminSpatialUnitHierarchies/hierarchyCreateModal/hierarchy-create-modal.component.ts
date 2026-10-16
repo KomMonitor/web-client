@@ -20,10 +20,10 @@ import {
   viewChild,
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { HierarchyChainEntry, RegisteredLevel } from '../hierarchy.model';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { MandantService } from 'services/mandant-service/mandant.service';
+import { HierarchyChainEntry, RegisteredLevel } from '../hierarchy.model';
 
 import { FormErrorComponent } from '../../adminShared/formError/form-error.component';
 import { controlStateSignal } from '../../adminShared/forms/control-state';
@@ -33,6 +33,7 @@ import { levelsOfMandant } from '../hierarchy-selectors';
 /** What the dialog resolves with: the metadata and the assembled chain. */
 export interface HierarchyCreateModalResult {
   readonly name: string;
+  readonly description: string;
   readonly mandant: string;
   readonly isPublic: boolean;
   /** The chain, coarsest first, as spatial unit levels. May be empty. */
@@ -137,6 +138,7 @@ export class HierarchyCreateModalComponent implements OnInit {
       nonNullable: true,
       validators: [Validators.required, uniqueNameValidator(() => this.existingNames)],
     }),
+    description: new FormControl('', { nonNullable: true }),
     mandant: new FormControl('', { nonNullable: true }),
     isPublic: new FormControl(false, { nonNullable: true }),
   });
@@ -250,6 +252,7 @@ export class HierarchyCreateModalComponent implements OnInit {
 
     const result: HierarchyCreateModalResult = {
       name: this.form.controls.name.value.trim(),
+      description: this.form.controls.description.value.trim(),
       mandant: this.form.controls.mandant.value,
       isPublic: this.form.controls.isPublic.value,
       levels: this.chain(),

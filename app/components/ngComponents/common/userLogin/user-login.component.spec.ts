@@ -14,23 +14,33 @@ import {
 import { UserLoginComponent } from './user-login.component';
 
 /**
- * Guards the login-state handoff between the metadata bootstrap and this
- * component. checkAuthentication() used to reset
- * accessControlService.currentKeycloakLoginRoles, which was correct in the
- * AngularJS original (it ran *before* the metadata fetch repopulated them) but
- * is not here: this component reacts to metadata loading COMPLETE, so the reset
- * wiped the roles the fetch had just applied and left every check*Permission()
- * false — the whole admin area went read-only for a realm admin.
+ * Guards the login-state handoff between Keycloak, the metadata bootstrap and
+ * this component:
+ * - The login state comes from AuthService, not from the metadata load, so the
+ *   popover is right while the metadata loads, and when the component is
+ *   created after the load has finished (map application -> /administration
+ *   does not refetch, so no further COMPLETE arrives).
+ * - The completion handler used to reset
+ *   accessControlService.currentKeycloakLoginRoles, which was correct in the
+ *   AngularJS original (it ran *before* the metadata fetch repopulated them)
+ *   but is not here: it wiped the roles the fetch had just applied and left
+ *   every check*Permission() false — the whole admin area went read-only for a
+ *   realm admin.
  * The template is replaced, following the other component specs.
  */
 
 const ADMIN_ROLE = 'kommonitor-creator';
 
 describe('UserLoginComponent', () => {
-  let component: UserLoginComponent;
-  let fixture: ComponentFixture<UserLoginComponent>;
   let accessControlService: AccessControlService;
   let metadataLoading$: BehaviorSubject<MetadataLoadingState>;
+
+  const createComponent = (): UserLoginComponent => {
+    const fixture: ComponentFixture<UserLoginComponent> =
+      TestBed.createComponent(UserLoginComponent);
+    fixture.detectChanges();
+    return fixture.componentInstance;
+  };
 
   beforeEach(async () => {
     metadataLoading$ = new BehaviorSubject<MetadataLoadingState>(MetadataLoadingState.INPROGRESS);
@@ -39,12 +49,18 @@ describe('UserLoginComponent', () => {
       imports: [UserLoginComponent],
       providers: [
         provideRouter([]),
-        { provide: AuthService, useValue: { isAuthenticated: () => true } },
+        {
+          provide: AuthService,
+          useValue: {
+            isAuthenticated: () => true,
+            getTokenParsed: () => ({ preferred_username: 'someone', email: 'token@example.org' }),
+          },
+        },
         {
           provide: MetadataBootstrapService,
           useValue: {
             metadataLoading$: metadataLoading$.asObservable(),
-            currentKeycloakUser: { email: 'someone@example.org' },
+            currentKeycloakUser: { username: 'someone', email: 'someone@example.org' },
           },
         },
         {
@@ -58,12 +74,10 @@ describe('UserLoginComponent', () => {
       .compileComponents();
 
     accessControlService = TestBed.inject(AccessControlService);
-    fixture = TestBed.createComponent(UserLoginComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('keeps the login roles the metadata fetch applied', () => {
+    createComponent();
     accessControlService.currentKeycloakLoginRoles = [ADMIN_ROLE, 'offline_access'];
 
     metadataLoading$.next(MetadataLoadingState.COMPLETE);
@@ -72,11 +86,51 @@ describe('UserLoginComponent', () => {
     expect(accessControlService.checkCreatePermission()).toBe(true);
   });
 
-  it('picks up the authentication state on metadata completion', () => {
-    metadataLoading$.next(MetadataLoadingState.COMPLETE);
+  it('shows the user from the token while the metadata is still loading', () => {
+    const component = createComponent();
 
     expect(component.authenticated).toBe(true);
-    expect(component.currentKeycloakUser).toEqual({ email: 'someone@example.org' });
+    expect(component.currentKeycloakUser).toEqual(
+      expect.objectContaining({ username: 'someone', email: 'token@example.org' })
+    );
+  });
+
+  it('replaces the token user with the loaded profile on metadata completion', () => {
+    const component = createComponent();
+
+    metadataLoading$.next(MetadataLoadingState.COMPLETE);
+
+    expect(component.currentKeycloakUser).toEqual({
+      username: 'someone',
+      email: 'someone@example.org',
+    });
+  });
+
+  it('applies profile and roles when created after the metadata load completed', () => {
+    accessControlService.currentKomMonitorLoginRoleNames = ['org-a.unit-resources-creator'];
+    metadataLoading$.next(MetadataLoadingState.COMPLETE);
+
+    const component = createComponent();
+
+    expect(component.authenticated).toBe(true);
+    expect(component.currentKeycloakUser.email).toBe('someone@example.org');
+    expect(component.userRoleInformation).toEqual({ 'org-a': ['unit-resources-creator'] });
+  });
+
+  it('splits organization roles at the last dot and lists the admin role on its own', () => {
+    accessControlService.currentKomMonitorLoginRoleNames = [
+      ADMIN_ROLE,
+      'Amt 61.2.unit-resources-creator',
+      'Amt 61.2.client-users-creator',
+    ];
+    const component = createComponent();
+
+    metadataLoading$.next(MetadataLoadingState.COMPLETE);
+
+    expect(component.userRoleInformation).toEqual({
+      [ADMIN_ROLE]: [],
+      'Amt 61.2': ['unit-resources-creator', 'client-users-creator'],
+    });
   });
 });
 

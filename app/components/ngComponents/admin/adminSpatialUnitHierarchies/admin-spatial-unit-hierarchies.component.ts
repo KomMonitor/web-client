@@ -168,6 +168,7 @@ export class AdminSpatialUnitHierarchiesComponent {
       {
         existingNames: this.store.hierarchyNames(),
         currentName: hierarchy.name(),
+        currentDescription: hierarchy.description(),
         currentIsPublic: hierarchy.isPublic(),
         mandant: hierarchy.mandant(),
         chain: hierarchy.chain().map((entry) => entry.name),

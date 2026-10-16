@@ -18,7 +18,7 @@ import { AccessControlService } from 'services/access-control-service/access-con
 import { NgbCollapseModule, NgbPopover, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { SessionValidityComponent } from './session-validity/session-validity.component';
 import { BehaviorSubject, Subject, combineLatest, of, timer } from 'rxjs';
-import { distinctUntilChanged, map, skip, switchMap, takeUntil } from 'rxjs/operators';
+import { distinctUntilChanged, filter, map, switchMap, takeUntil } from 'rxjs/operators';
 import { EnvConfigService } from '../../../../services/env-config-service/env-config.service';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -63,7 +63,6 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   private popoverEnterUnlisten?: () => void;
   private popoverLeaveUnlisten?: () => void;
 
-  authenticated = false;
   currentKeycloakUser: KeycloakUser = {};
   userRoleInformation: UserRoleInformation = {};
   userGroupInformation: string[][] = [];
@@ -84,17 +83,33 @@ export class UserLoginComponent implements OnInit, OnDestroy {
     return this.envConfigService.enableKeycloakSecurity;
   }
 
+  // Read live from AuthService: Keycloak is initialised by the app initializer
+  // before anything renders, so the login state is known from the start. It
+  // used to be cached in a field that was only set on metadata-loading
+  // COMPLETE, which showed the logged-out popover while the metadata loaded,
+  // and for good when this component was created after the load had finished.
+  get authenticated(): boolean {
+    return this.authService.isAuthenticated();
+  }
+
   ngOnInit(): void {
-    // React to metadata loading completion. skip(1) drops the BehaviorSubject's
-    // replayed current value so this keeps the original one-shot semantics of
-    // the former broadcast event.
+    // The token carries the basic profile, so the user is shown right away;
+    // the profile loaded by the metadata fetch replaces it once available.
+    this.currentKeycloakUser = this.userFromToken();
+
+    // React to every COMPLETE, including the replayed current one: switching
+    // from the map application to /administration does not refetch the
+    // metadata, so the replayed value is the only COMPLETE this component ever
+    // sees. A later reload (e.g. a re-applied filter) just refreshes the
+    // profile and roles.
     this.metadataBootstrap.metadataLoading$
-      .pipe(skip(1), takeUntil(this.destroy$))
-      .subscribe((state) => {
-        if (state === MetadataLoadingState.COMPLETE) {
-          this.checkAuthentication();
-          this.prepUserInformation();
-        }
+      .pipe(
+        filter((state) => state === MetadataLoadingState.COMPLETE),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        this.applyLoadedUserProfile();
+        this.prepUserInformation();
       });
 
     combineLatest([this.isOverAnchor$, this.isOverPopover$])
@@ -118,32 +133,48 @@ export class UserLoginComponent implements OnInit, OnDestroy {
     this.popoverLeaveUnlisten?.();
   }
 
-  checkAuthentication(): void {
+  applyLoadedUserProfile(): void {
     // Deliberately does NOT clear accessControlService.currentKeycloakLoginRoles.
-    // The AngularJS original reset them here because checkAuthentication() ran
-    // *before* fetchAllMetadata() repopulated them; this component instead runs
-    // on metadata-loading COMPLETE, so the reset would wipe the roles the fetch
-    // has just applied and leave every check*Permission() false for the rest of
-    // the session. The service resets its own state via applyLoginStateFromToken().
-    this.authenticated = this.authService.isAuthenticated();
-    if (this.authenticated) {
+    // The AngularJS original reset them in its checkAuthentication() because that
+    // ran *before* fetchAllMetadata() repopulated them; this component instead
+    // runs on metadata-loading COMPLETE, so the reset would wipe the roles the
+    // fetch has just applied and leave every check*Permission() false for the
+    // rest of the session. The service resets its own state via
+    // applyLoginStateFromToken().
+    // The profile stays unset when loading it failed; keep the token's then.
+    if (this.authenticated && this.metadataBootstrap.currentKeycloakUser) {
       this.currentKeycloakUser = this.metadataBootstrap.currentKeycloakUser;
     }
+  }
+
+  private userFromToken(): KeycloakUser {
+    const token = this.authService.getTokenParsed();
+    return {
+      username: token?.['preferred_username'],
+      firstName: token?.['given_name'],
+      lastName: token?.['family_name'],
+      email: token?.['email'],
+    };
   }
 
   prepUserInformation(): void {
     this.userRoleInformation = {};
     this.userGroupInformation = [];
     if (this.accessControlService.currentKomMonitorLoginRoleNames?.length > 0) {
-      this.accessControlService.currentKomMonitorLoginRoleNames.forEach((roles: string) => {
-        const key = roles.split('.')[0];
-        const role = roles.split('.')[1];
+      this.accessControlService.currentKomMonitorLoginRoleNames.forEach((roleName: string) => {
+        // Organization roles read "<organization>.<permission>". Split at the
+        // last dot: organization names may contain dots, permissions never do.
+        // The global admin role has no organization and is listed on its own.
+        const separator = roleName.lastIndexOf('.');
+        const key = separator === -1 ? roleName : roleName.slice(0, separator);
 
         if (!Object.prototype.hasOwnProperty.call(this.userRoleInformation, key)) {
           this.userRoleInformation[key] = [];
         }
 
-        this.userRoleInformation[key].push(role);
+        if (separator !== -1) {
+          this.userRoleInformation[key].push(roleName.slice(separator + 1));
+        }
       });
     }
 

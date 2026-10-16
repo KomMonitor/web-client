@@ -402,6 +402,27 @@ describe('createHierarchy', () => {
     expect(built.isPublic()).toBe(true);
   });
 
+  it('takes the description over', () => {
+    const built = createHierarchy(
+      { ...overview, description: 'Amtliche Gliederung' },
+      () => 'Stadt Essen'
+    );
+
+    expect(built.description()).toBe('Amtliche Gliederung');
+  });
+
+  it('holds a missing description as the empty string, whether null or left out', () => {
+    // The API answers `null` where the generated type only knows `undefined`.
+    const fromNull = createHierarchy(
+      { ...overview, description: null as unknown as string },
+      () => 'Stadt Essen'
+    );
+    const fromMissing = createHierarchy(overview, () => 'Stadt Essen');
+
+    expect(fromNull.description()).toBe('');
+    expect(fromMissing.description()).toBe('');
+  });
+
   it('starts folded but fully expanded, so opening it shows the whole chain', () => {
     const built = createHierarchy(overview, () => 'Stadt Essen');
 

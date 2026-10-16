@@ -14,6 +14,7 @@ export interface SpatialUnitHierarchyMembersType {
   mandantId: string;
   members: SpatialUnitHierarchyMemberType[];
   name: string;
+  description?: string | null;
 }
 
 /** One entry of GET .../spatial-unit-hierarchies (the list of all available hierarchies, without members). */

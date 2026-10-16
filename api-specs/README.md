@@ -5,7 +5,8 @@ source for generated TypeScript types.
 
 - `kommonitor_dataAccessAPI.yaml` — KomMonitor **Data Management API**. Source:
   <https://github.com/KomMonitor/data-management> (`src/main/resources/specs/data-management/kommonitor_dataAccessAPI.yaml`),
-  branch **`feature/spatial-unit-multi-hierarchies`**, fetched 2026-09-21. Copied verbatim.
+  branch **`feature/v6`**, fetched 2026-10-15. Same content as upstream; only the YAML quoting and
+  spacing differ.
 - `examples.yaml` — **placeholder, not from upstream.** The spec above references this neighbouring
   file 126 times (`./examples.yaml#/components/examples/...`), but it is not checked in anywhere in
   the backend repo, so `generate:api-types` cannot resolve the `$ref`s. The stub supplies the 53
@@ -17,10 +18,11 @@ source for generated TypeScript types.
 
 `master` of the backend repo is what this file used to hold, and it is **behind the deployed
 demo instance**. The chain is `master` → `develop` (adds the qualitative/categorical classification
-model) → `feature/spatial-unit-multi-hierarchies` (adds the spatial unit hierarchy endpoints).
-The demo instance at `demo.kommonitor.de.52north.org/data-management-v6` serves the last of these,
-which is why the vendored copy follows that branch. Move it back to `master` or `develop` once the
-hierarchy work is merged there.
+model) → `feature/spatial-unit-multi-hierarchies` (adds the spatial unit hierarchy endpoints) →
+`feature/v6` (adds the hierarchy `description`, commit `d476a3f7`). The demo instance at
+`demo.kommonitor.de.52north.org/data-management-v6` serves the last of these, which is why the
+vendored copy follows that branch. Move it back to `master` or `develop` once the v6 work is merged
+there.
 
 The deployed instance also serves a springdoc-generated spec at `/v3/api-docs`. It is **not** the
 right source here: it inlines the named enum schemas (`IndicatorTypeEnum`, `CreationTypeEnum`, …)

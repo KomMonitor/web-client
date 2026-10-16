@@ -658,16 +658,19 @@ describe('HierarchyStoreService', () => {
       const store = storeWith();
       const essen = ESSEN();
       seed(store, [essen]);
+      essen.description.set('Amtliche Gliederung');
       hierarchyApi.updateHierarchy.mockRejectedValue(new Error('400'));
 
       const saved = await store.updateHierarchyMetadata(essen, {
         name: 'Verwaltung',
+        description: 'Neu',
         mandant: 'Stadt Bochum',
         isPublic: true,
       });
 
       expect(saved).toBe(false);
       expect(essen.name()).toBe('Verwaltung Essen');
+      expect(essen.description()).toBe('Amtliche Gliederung');
       expect(essen.saving()).toBe(false);
     });
 
@@ -702,6 +705,42 @@ describe('HierarchyStoreService', () => {
       });
       expect(created).not.toBeNull();
       expect(created.chain()).toEqual([]);
+    });
+
+    it('sends the description with the create call and keeps what comes back', async () => {
+      const store = storeWith();
+      seed(store, [ESSEN()]);
+
+      const created = await store.addHierarchy(
+        {
+          name: 'Schulplanung',
+          description: 'Gliederung für die Schulentwicklungsplanung',
+          mandant: 'Stadt Bochum',
+          isPublic: false,
+        },
+        []
+      );
+
+      expect(hierarchyApi.createHierarchy).toHaveBeenCalledWith({
+        name: 'Schulplanung',
+        description: 'Gliederung für die Schulentwicklungsplanung',
+        mandantId: 'Stadt Bochum',
+        isPublic: false,
+      });
+      expect(created.description()).toBe('Gliederung für die Schulentwicklungsplanung');
+    });
+
+    it('leaves an empty description out of the create body', async () => {
+      const store = storeWith();
+      seed(store, [ESSEN()]);
+
+      await store.addHierarchy(
+        { name: 'Schulplanung', description: '', mandant: 'Stadt Bochum', isPublic: false },
+        []
+      );
+
+      // Left out, the backend stores `null` — what "none" is everywhere else.
+      expect(hierarchyApi.createHierarchy.mock.calls[0][0]).not.toHaveProperty('description');
     });
 
     it('appends the new hierarchy, unfolded, and follows it to its tenant', async () => {
@@ -742,6 +781,45 @@ describe('HierarchyStoreService', () => {
       expect(essen.chain()).toHaveLength(2);
       // The edited hierarchy stays in view, in its tenant.
       expect(store.selectedMandant()).toBe('Stadt Essen');
+    });
+
+    it('sends the description with the metadata write and takes it over', async () => {
+      const store = storeWith();
+      const essen = ESSEN();
+      seed(store, [essen]);
+
+      await store.updateHierarchyMetadata(essen, {
+        name: 'Verwaltung',
+        description: 'Amtliche Gliederung',
+        mandant: 'Stadt Essen',
+        isPublic: true,
+      });
+
+      expect(hierarchyApi.updateHierarchy).toHaveBeenCalledWith(essen.id, {
+        name: 'Verwaltung',
+        description: 'Amtliche Gliederung',
+        mandantId: 'Stadt Essen',
+        isPublic: true,
+      });
+      expect(essen.description()).toBe('Amtliche Gliederung');
+    });
+
+    it('clears the description by leaving it out of the full replace', async () => {
+      const store = storeWith();
+      const essen = ESSEN();
+      seed(store, [essen]);
+      essen.description.set('Amtliche Gliederung');
+
+      await store.updateHierarchyMetadata(essen, {
+        name: 'Verwaltung Essen',
+        description: '',
+        mandant: 'Stadt Essen',
+        isPublic: false,
+      });
+
+      // The PUT drops a description its body does not carry.
+      expect(hierarchyApi.updateHierarchy.mock.calls[0][1]).not.toHaveProperty('description');
+      expect(essen.description()).toBe('');
     });
 
     it('keeps the tenant, whatever the dialog hands back', async () => {

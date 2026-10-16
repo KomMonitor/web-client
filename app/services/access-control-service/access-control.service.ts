@@ -148,7 +148,7 @@ export class AccessControlService {
     const roleSuffixes = this.envConfigService.keycloakKomMonitorGroupsEditRoleNames
       .concat(this.envConfigService.keycloakKomMonitorThemesEditRoleNames)
       .concat(this.envConfigService.keycloakKomMonitorGeodataEditRoleNames);
-    const possibleRoles = ['kommonitor-creator'];
+    const possibleRoles = [this.envConfigService.keycloakKomMonitorAdminRoleName];
     this.accessControl.forEach((organizationalUnit) => {
       for (const roleSuffix of roleSuffixes) {
         possibleRoles.push(organizationalUnit.name + '.' + roleSuffix);

@@ -3732,6 +3732,11 @@ export interface components {
              */
             name: string;
             /**
+             * @description free text info to provide a comprehensive description for the hierarchy
+             * @example This hierarchy contains spatial units that represent administrative boundaries
+             */
+            description?: string;
+            /**
              * @description identifier of the mandant (organizational unit) that owns the hierarchy
              * @example 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
              */
@@ -3753,6 +3758,11 @@ export interface components {
              * @example Administrative hierarchy
              */
             name: string;
+            /**
+             * @description free text info to provide a comprehensive description for the hierarchy
+             * @example This hierarchy contains spatial units that represent administrative boundaries
+             */
+            description?: string;
             /**
              * @description identifier of the mandant (organizational unit) that owns the hierarchy
              * @example 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
@@ -3776,6 +3786,8 @@ export interface components {
             hierarchyId: string;
             /** @description the name of the hierarchy. Unique within the owning mandant. */
             name: string;
+            /** @description free text info to provide a comprehensive description for the hierarchy */
+            description?: string;
             /** @description identifier of the mandant (organizational unit) that owns the hierarchy */
             mandantId: string;
             /** @description flag whether the hierarchy is publicly accessible */

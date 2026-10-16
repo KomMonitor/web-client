@@ -2,7 +2,7 @@
 
 Stand: 2026-09-18, Branch `feature/migration-bootstrap`. Nachträge vom 2026-09-21 (Abschnitt 9)
 und vom 2026-09-22 (Abschnitte 11–12: der Mitgliedschafts-Endpunkt der Raumeinheiten und der
-Importer).
+Importer). Nachtrag vom 2026-10-15 (Abschnitt 13: die Beschreibung einer Hierarchie).
 
 **Wozu dieses Dokument:** Die Spec der Data Management API v6 beschreibt die Hierarchie-Endpunkte
 nur grob und an einer Stelle nachweislich falsch — **alle** Fehler-Responses (401/403/404/405) sind
@@ -361,3 +361,38 @@ Indikatoren, Batch-Update).
 Das ist keine Eigenheit der Hierarchien, sondern die zweite Hälfte von A7: die `apiUrl` ist
 umgebogen, der Importer nicht — und der Importer kennt seine Zielinstanz aus seiner eigenen
 Konfiguration, die der Client nicht setzen kann.
+
+## 13. `description` — die Beschreibung einer Hierarchie (2026-10-15)
+
+Neu im Backend-Branch `feature/v6`, Commit `d476a3f7` („Add description parameter to spatial unit
+hierarchies", 2026-10-13). Die vendorte Spec folgt seitdem diesem Branch (`api-specs/README.md`).
+
+- **Wo:** in `SpatialUnitHierarchyPOSTInputType`, `SpatialUnitHierarchyInputType` (PUT) und
+  `SpatialUnitHierarchyOverviewType`. **Nicht** in `SpatialUnitHierarchyMembershipType` — die
+  `hierarchies` an einer Raumeinheit tragen weiter nur `hierarchyName`.
+- **Optional:** Spalte `description TEXT`, `NULL` erlaubt, keine Längengrenze, keine Eindeutigkeit.
+  Ohne Beschreibung antwortet die Instanz mit `"description": null` (Demo, öffentlicher Endpunkt).
+- **Der PUT löscht, was fehlt.** `SpatialUnitHierarchyManager.updateHierarchy` setzt
+  `entity.setDescription(input.getDescription())` ohne Prüfung auf `null`. Ein Metadaten-Update
+  ohne `description` entfernt also eine vorhandene Beschreibung — dieselbe Falle wie bei `isPublic`
+  (Abschnitt 6).
+
+**Gemessen am 2026-10-15** gegen die Demo-v6, über die Dialoge der Seite (Testhierarchie
+`ZZZ-CLAUDE-DESC-TEST` im Mandanten `52N`, am Ende wieder gelöscht; danach wieder 4 Hierarchien):
+
+| Schritt                                | gesendet                           | `description` in der Antwort        |
+| -------------------------------------- | ---------------------------------- | ----------------------------------- |
+| POST                                   | `"Testbeschreibung\nzweite Zeile"` | unverändert, Zeilenumbruch erhalten |
+| PUT mit neuem Text                     | `"Geänderte Beschreibung"`         | `"Geänderte Beschreibung"`          |
+| PUT **ohne** das Feld (Dialog geleert) | —                                  | **`null`**                          |
+
+> **Konsequenz für den Client:** `HierarchyStoreService` schickt die Beschreibung bei jedem PUT mit,
+> sobald sie nicht leer ist. Ein geleertes Feld bleibt bewusst draußen — das löscht die
+> Beschreibung, und genau das ist gemeint. Leer heißt beim POST ebenfalls „weglassen", damit in der
+> Datenbank `null` steht und nicht ein leerer String.
+
+**Lokaler Stack:** Die Spalte ist nicht als eigener Changeset dazugekommen, sondern in den
+bestehenden `kommonitor-6.0.0-1` (das `createTable`) eingefügt worden. Eine Datenbank, auf der dieser
+Changeset schon gelaufen ist, bekommt die Spalte nicht, und Liquibase dürfte beim Start eine
+geänderte Prüfsumme melden. Der lokale Stack (Image vom 2026-09-23) braucht für diesen Test also ein
+neues Image **und** eine frisch aufgesetzte Datenbank.

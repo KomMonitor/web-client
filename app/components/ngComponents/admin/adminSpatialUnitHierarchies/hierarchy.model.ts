@@ -70,6 +70,8 @@ export interface SpatialUnitHierarchy {
   readonly id: string;
   /** Writable so renaming keeps the hierarchy object — and its state — in place. */
   readonly name: WritableSignal<string>;
+  /** Free text on what the hierarchy is for; empty where none was given. */
+  readonly description: WritableSignal<string>;
   /**
    * Owning tenant by name, which is what the page groups and filters by.
    *
@@ -330,6 +332,10 @@ export function removeFromChain(
  * raw id even once the real one is available. Where the resolver names no
  * tenant, the id stands in, so hierarchies of an unknown tenant still group
  * together instead of silently merging into the tenant-less bucket.
+ *
+ * A hierarchy without a description comes back as `null` — the generated type
+ * says `string | undefined`, the API knows better — and is held as the empty
+ * string, so the page and the dialogs have one "none" to test for.
  */
 export function createHierarchy(
   overview: SpatialUnitHierarchyOverviewType,
@@ -346,6 +352,7 @@ export function createHierarchy(
   return {
     id: overview.hierarchyId,
     name: signal(overview.name),
+    description: signal(overview.description ?? ''),
     mandant: computed(() => resolveMandantName(mandantId()) || mandantId()),
     mandantId,
     isPublic: signal(overview.isPublic),

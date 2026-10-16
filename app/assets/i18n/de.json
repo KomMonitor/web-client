@@ -1610,6 +1610,7 @@
       "TITLE": "Neue Raumeinheitshierarchie anlegen",
       "NAME_LABEL": "Name der Hierarchie",
       "NAME_PLACEHOLDER": "z. B. Sozialraum-Gliederung",
+      "DESCRIPTION_PLACEHOLDER": "z. B. wofür die Gliederung gedacht ist und wer sie pflegt",
       "MANDANT_LABEL": "Mandant",
       "MANDANT_NONE": "Kein Mandant verfügbar",
       "CHAIN_LABEL": "Ebenenkette",
@@ -1627,6 +1628,7 @@
     "HIERARCHY_EDIT_MODAL": {
       "TITLE": "Raumeinheitshierarchie bearbeiten",
       "NAME_LABEL": "Name der Hierarchie",
+      "DESCRIPTION_PLACEHOLDER": "z. B. wofür die Gliederung gedacht ist und wer sie pflegt",
       "PUBLIC_LABEL": "Hierarchie öffentlich sichtbar",
       "PUBLIC_HINT": "Sichtbar für alle Nutzer ohne Anmeldung — auch die zugeordneten Raumebenen müssen öffentlich sein.",
       "FIXED_TITLE": "Nicht änderbar",

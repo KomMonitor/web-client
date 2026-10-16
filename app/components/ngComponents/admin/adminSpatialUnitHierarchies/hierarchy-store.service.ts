@@ -13,6 +13,7 @@ import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-
 import { TreeGap } from '../../common/tree-view/tree-view.model';
 import { MandantOption } from '../adminShared/mandantPanel/mandant-panel.component';
 import { mandantOfSpatialUnit } from '../adminSpatialUnitsManagement/spatial-unit-mandant';
+import * as select from './hierarchy-selectors';
 import {
   HierarchyChainEntry,
   HierarchyLevel,
@@ -24,7 +25,6 @@ import {
   moveInChain,
   removeFromChain,
 } from './hierarchy.model';
-import * as select from './hierarchy-selectors';
 
 /**
  * How a chain edit ended.
@@ -39,8 +39,22 @@ export type ChainEditResult = 'saved' | 'rejected' | 'failed';
 /** The metadata of a new hierarchy, as the create dialog hands it back. */
 export interface HierarchyMetadata {
   readonly name: string;
+  readonly description: string;
   readonly mandant: string;
   readonly isPublic: boolean;
+}
+
+/**
+ * The `description` part of a write body. An empty description stays out of
+ * the body: the backend stores what is missing as `null`, which is what "none"
+ * is everywhere else — an empty string sent along would be kept as one.
+ *
+ * On the PUT, leaving it out is therefore not "unchanged" but "cleared": the
+ * endpoint is a full replace and drops a description the body does not carry.
+ * That is exactly what an emptied field asks for.
+ */
+function descriptionField(description: string): { description?: string } {
+  return description ? { description } : {};
 }
 
 /**
@@ -303,6 +317,7 @@ export class HierarchyStoreService {
     try {
       const created = await this.hierarchyApi.createHierarchy({
         name: metadata.name,
+        ...descriptionField(metadata.description),
         mandantId,
         isPublic: metadata.isPublic,
         // Without levels the field stays out of the body rather than going as
@@ -338,9 +353,10 @@ export class HierarchyStoreService {
    * Writes the edited metadata. The chain and its expansion state stay
    * untouched — the members endpoint is the only thing that moves those.
    *
-   * `mandantId` and `isPublic` always travel with the name: the endpoint is a
-   * full replace, and a missing `isPublic` would quietly make the hierarchy
-   * private.
+   * `mandantId` and `isPublic` always travel with the name, the description
+   * whenever there is one: the endpoint is a full replace, and a missing
+   * `isPublic` would quietly make the hierarchy private, a missing description
+   * deletes it — see `descriptionField`.
    *
    * The tenant is taken off the hierarchy, not off `metadata` — the API refuses
    * to move a hierarchy to another one ("The mandant of a spatial unit
@@ -357,6 +373,7 @@ export class HierarchyStoreService {
     try {
       await this.hierarchyApi.updateHierarchy(hierarchy.id, {
         name: metadata.name,
+        ...descriptionField(metadata.description),
         mandantId,
         isPublic: metadata.isPublic,
       });
@@ -367,6 +384,7 @@ export class HierarchyStoreService {
     }
 
     hierarchy.name.set(metadata.name);
+    hierarchy.description.set(metadata.description);
     hierarchy.isPublic.set(metadata.isPublic);
     this.followMandant(hierarchy.mandant());
     return true;
