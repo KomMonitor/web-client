@@ -412,7 +412,8 @@
       <div>
         <button
           [disabled]="
-            reportingService.templateSections.indicators.length == 0 ||
+            (reportingService.templateSections.indicators.length == 0 &&
+              reportingService.templateSections.georesources.length == 0) ||
             loadingData ||
             !lastPageOfAddedSectionPrepared ||
             !leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate

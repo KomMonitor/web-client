@@ -26,17 +26,42 @@ function pagesInSameSection(pages: any[], page: any): any[] {
   });
 }
 
+// `pages` holds a landscape+portrait pair for every area_specific page (one real page, two DOM
+// entries - see showThisPage), but datatable pages are never paired this way. Counting/indexing
+// raw `area_specific` entries therefore roughly doubles both the preview-window size and the
+// "how many more pages" count relative to what the finished report actually shows. Resolving a
+// (possibly hidden) page to its shown pair counterpart, and counting/indexing only shown pages,
+// keeps both numbers in terms of real pages instead of raw DOM entries.
+//
+// `shownPageIds` is a precomputed set of the ids reportingService.filterPagesToShow() would
+// return - NOT a `showThisPage(page)` callback. filterPagesToShow() rebuilds its result by
+// scanning every page from scratch each call, so calling it (or showThisPage(), which calls it
+// once per invocation) inside the `.filter()`/`.find()` below - once per area page, for every
+// page rendered - made the whole preview loop O(n^3) for n pages and could hang the tab once a
+// reachability section's "select all areas by default" produced enough of them. Computing the
+// set once per caller invocation keeps membership checks O(1).
+function resolveShownCounterpart(typeGroupPages: any[], page: any, shownPageIds: Set<any>): any {
+  if (shownPageIds.has(page.id)) return page;
+  return (
+    typeGroupPages.find((p: any) => p !== page && p.area === page.area && shownPageIds.has(p.id)) ??
+    page
+  );
+}
+
 export function isPageInPreview(
   pages: any[],
   page: any,
   maxPreviewAreaSpecificPages: number,
-  maxPreviewDatatablePages: number
+  maxPreviewDatatablePages: number,
+  shownPageIds: Set<any>
 ): boolean {
   if (page.type !== 'area_specific' && page.type !== 'datatable') return true;
   const sectionPages = pagesInSameSection(pages, page);
   if (page.type === 'area_specific') {
     const areaPages = sectionPages.filter((p: any) => p.type === 'area_specific');
-    return areaPages.indexOf(page) < maxPreviewAreaSpecificPages;
+    const realAreaPages = areaPages.filter((p: any) => shownPageIds.has(p.id));
+    const representative = resolveShownCounterpart(areaPages, page, shownPageIds);
+    return realAreaPages.indexOf(representative) < maxPreviewAreaSpecificPages;
   }
   if (page.type === 'datatable') {
     const dtPages = sectionPages.filter((p: any) => p.type === 'datatable');
@@ -49,12 +74,15 @@ export function isLastPreviewPage(
   pages: any[],
   page: any,
   maxPreviewAreaSpecificPages: number,
-  maxPreviewDatatablePages: number
+  maxPreviewDatatablePages: number,
+  shownPageIds: Set<any>
 ): boolean {
   const sectionPages = pagesInSameSection(pages, page);
   if (page.type === 'area_specific') {
     const areaPages = sectionPages.filter((p: any) => p.type === 'area_specific');
-    return areaPages.indexOf(page) === maxPreviewAreaSpecificPages - 1;
+    const realAreaPages = areaPages.filter((p: any) => shownPageIds.has(p.id));
+    const representative = resolveShownCounterpart(areaPages, page, shownPageIds);
+    return realAreaPages.indexOf(representative) === maxPreviewAreaSpecificPages - 1;
   }
   if (page.type === 'datatable') {
     const dtPages = sectionPages.filter((p: any) => p.type === 'datatable');
@@ -67,13 +95,15 @@ export function countBackgroundPages(
   pages: any[],
   page: any,
   maxPreviewAreaSpecificPages: number,
-  maxPreviewDatatablePages: number
+  maxPreviewDatatablePages: number,
+  shownPageIds: Set<any>
 ): number {
   if (!pages || !page) return 0;
   const sectionPages = pagesInSameSection(pages, page);
   if (page.type === 'area_specific') {
     const areaPages = sectionPages.filter((p: any) => p.type === 'area_specific');
-    return Math.max(0, areaPages.length - maxPreviewAreaSpecificPages);
+    const realAreaPages = areaPages.filter((p: any) => shownPageIds.has(p.id));
+    return Math.max(0, realAreaPages.length - maxPreviewAreaSpecificPages);
   }
   if (page.type === 'datatable') {
     const dtPages = sectionPages.filter((p: any) => p.type === 'datatable');

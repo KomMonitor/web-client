@@ -445,12 +445,20 @@ export class ReportingOverviewComponent implements OnInit {
       : templateSection.poiLayerName + '_' + templateSection.spatialUnitName;
   }
 
+  // Precomputed once per call (not a showThisPage(page) callback evaluated per candidate page -
+  // see report-preview.utils.ts) so isPageInPreview()/isLastPreviewPage()/countBackgroundPages()
+  // stay O(n) instead of O(n^2) each, which made the @for loop rendering all pages O(n^3) overall.
+  private shownPageIds(): Set<any> {
+    return new Set(this.filterPagesToShow().map((p: any) => p.id));
+  }
+
   isPageInPreview(page, _index?: number) {
     return isPageInPreview(
       this.reportingService.workingTemplate.pages,
       page,
       this.MAX_PREVIEW_AREA_SPECIFIC_PAGES,
-      this.MAX_PREVIEW_DATATABLE_PAGES
+      this.MAX_PREVIEW_DATATABLE_PAGES,
+      this.shownPageIds()
     );
   }
 
@@ -459,7 +467,8 @@ export class ReportingOverviewComponent implements OnInit {
       this.reportingService.workingTemplate.pages,
       page,
       this.MAX_PREVIEW_AREA_SPECIFIC_PAGES,
-      this.MAX_PREVIEW_DATATABLE_PAGES
+      this.MAX_PREVIEW_DATATABLE_PAGES,
+      this.shownPageIds()
     );
   }
 
@@ -469,7 +478,8 @@ export class ReportingOverviewComponent implements OnInit {
       this.reportingService.workingTemplate.pages,
       page,
       this.MAX_PREVIEW_AREA_SPECIFIC_PAGES,
-      this.MAX_PREVIEW_DATATABLE_PAGES
+      this.MAX_PREVIEW_DATATABLE_PAGES,
+      this.shownPageIds()
     );
   }
 

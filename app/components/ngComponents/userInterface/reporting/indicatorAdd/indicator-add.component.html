@@ -234,10 +234,18 @@
               <div id="reporting-isochrones-config">
                 @if (reportingService.clonedTemplate.name.includes('-reachability')) {
                   <div>
-                    <!-- <app-reachability-scenario-configuration></app-reachability-scenario-configuration> -->
+                    <app-reachability-isochrone-config></app-reachability-isochrone-config>
                   </div>
                 }
-                <!-- <button type="button" class="btn btn-danger" style="margin-left: 1%; margin-top: 10px;" ng-click="resetIsochrones()" [hidden]="!(showResetIsochronesBtn">Isochronen entfernen</button>                                -->
+                <button
+                  type="button"
+                  class="btn btn-danger"
+                  style="margin-left: 1%; margin-top: 10px"
+                  [hidden]="!showResetIsochronesBtn"
+                  (click)="resetIsochrones()"
+                >
+                  Isochronen entfernen
+                </button>
               </div>
             </div>
             <div
@@ -623,7 +631,12 @@
                             <option disabled selected value>
                               -- Hintergrundkarte w&auml;hlen --
                             </option>
-                            <!-- <option *ngFor="let baseMap of mapOverlayState.baseLayerDefinitionsArray | baseMapFilter" [ngValue]="baseMap">{{baseMap.layerConfig.name}}</option> -->
+                            @for (
+                              baseMap of mapOverlayState.baseLayerDefinitionsArray | baseMapFilter;
+                              track baseMap
+                            ) {
+                              <option [ngValue]="baseMap">{{ baseMap.layerConfig.name }}</option>
+                            }
                           </select>
                         </div>
 

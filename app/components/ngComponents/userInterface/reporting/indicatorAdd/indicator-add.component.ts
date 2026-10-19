@@ -14,9 +14,11 @@ import {
   isQualitativeMapping,
   resolveCategoricalColor,
 } from 'components/ngComponents/models/classification.models';
+import { ReachabilityIsochroneConfigComponent } from 'components/ngComponents/userInterface/reporting/indicatorAdd/reachability-isochrone-config/reachability-isochrone-config.component';
 import * as d3 from 'd3';
 import * as echarts from 'echarts';
 import { CategoricalMappingType } from 'models/data-management-api';
+import { BaseMapFilter } from 'pipes/baseMap-filter.pipe';
 import { firstValueFrom } from 'rxjs';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
@@ -66,6 +68,8 @@ import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-servic
     ReactiveFormsModule,
     DualListBoxComponent,
     CustomSliderComponent,
+    BaseMapFilter,
+    ReachabilityIsochroneConfigComponent,
   ],
 })
 export class IndicatorAddComponent implements OnInit {
@@ -293,7 +297,11 @@ export class IndicatorAddComponent implements OnInit {
   initialize() {
     // this is re-invoked (via the broadcastService subscription below) on an already-mounted
     // instance whenever the user starts adding another indicator/POI layer without the component
-    // being torn down first, so clear out the previous run's selection state before rebuilding it
+    // being torn down first, so clear out the previous run's selection state before rebuilding it.
+    // A preparation loop for the PREVIOUS indicator/POI layer may still be running in the
+    // background at that point (it holds no reference of its own to "its" template) - abort it
+    // before resetTemplateClone() swaps out clonedTemplate from under it.
+    this.abortOngoingPreparation();
     this.reset();
 
     this.loadingData = true;
@@ -418,35 +426,18 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   onChangeShowMapLabels() {
-    this.pageConfig.sectionContentControl.showMapLabels =
-      this.configForm.controls.sectionContentControl.controls.showMapLabels.value;
-
-    for (let i = 0; i < this.reportingService.clonedTemplate.pages.length; i++) {
-      const page = this.reportingService.clonedTemplate.pages[i];
-      const pageElement = page.pageElements.find((el: any) => el.type === 'map');
-      if (!pageElement || !pageElement.echartsOptions) continue;
-
-      const options = pageElement.echartsOptions;
-      options.series[0].label.show = this.pageConfig.sectionContentControl.showMapLabels;
-      if (options.series[0].select) {
-        options.series[0].select.label.show = this.pageConfig.sectionContentControl.showMapLabels;
-      }
-      for (const item of options.series[0].data) {
-        if (typeof item.label === 'undefined') item.label = {};
-        item.label.show = this.pageConfig.sectionContentControl.showMapLabels;
-      }
-
-      // also update live instance if in preview DOM
-      const mapDom: any = document.querySelector('#' + indicatorAddPreviewPageElementId(i, 'map'));
-      if (mapDom) {
-        const instance: any = echarts.getInstanceByDom(mapDom);
-        if (instance) instance.setOption(options, { replaceMerge: ['series'] });
-      }
-    }
+    // the prepared map pages were rendered off-screen and then only their canvas
+    // content (not the echarts container carrying the instance) was moved into the
+    // preview DOM, so there is no reachable live instance to patch here - re-generation
+    // is the only reliable way to apply this setting, same as onChangeSelectedBaseMap()
+    this.pageConfig = this.configForm.getRawValue();
+    this.reportingService.clonedTemplate.pageConfig = this.pageConfig;
+    this.preparationNeeded = true;
   }
 
   async onChangeSelectedBaseMap() {
     // reinitiate page building from the scratch as easiest solution
+    this.abortOngoingPreparation();
     this.loadingData = true;
     this.preparationNeeded = true;
 
@@ -509,6 +500,7 @@ export class IndicatorAddComponent implements OnInit {
 
   async onSelectedAreasChanged(newVal) {
     if (typeof this.reportingService.clonedTemplate === 'undefined') return;
+    this.abortOngoingPreparation();
     this.loadingData = true;
     this.preparationNeeded = true;
 
@@ -796,6 +788,7 @@ export class IndicatorAddComponent implements OnInit {
     const mappedOldVal = oldVal.map((e) => e.name);
 
     if (typeof this.reportingService.clonedTemplate === 'undefined') return;
+    this.abortOngoingPreparation();
     this.loadingData = true;
     this.preparationNeeded = true;
 
@@ -1029,6 +1022,7 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   async onSpatialUnitChanged() {
+    this.abortOngoingPreparation();
     this.selectedSpatialUnit = this.spatialUnitSelect.value;
     this.loadingData = true;
     this.preparationNeeded = true;
@@ -1473,6 +1467,16 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   async reportingIsochronesCalculationFinished([isochrones]) {
+    // startIsochroneCalculation() broadcasts an empty FeatureCollection (never undefined) when
+    // the calculation failed entirely (e.g. every start point was unroutable) - its own error
+    // handling already surfaced the failure, so just clear the loading state and bail out
+    // rather than crashing further down on data that was never computed.
+    if (!isochrones?.features?.length) {
+      this.loadingData = false;
+      return;
+    }
+
+    this.abortOngoingPreparation();
     this.isochrones = isochrones;
 
     // this.typeOfMovement = this.isochrones.metadata.query.profile;
@@ -1515,6 +1519,7 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   async resetIsochrones() {
+    this.abortOngoingPreparation();
     this.isochrones = undefined;
     this.typeOfMovement = undefined;
     this.isochronesRangeType = undefined;
@@ -1530,6 +1535,7 @@ export class IndicatorAddComponent implements OnInit {
   //async
   async onPoiLayerSelected(poiLayer) {
     try {
+      this.abortOngoingPreparation();
       this.preparationNeeded = true;
       this.absoluteLabelPositions = [];
       this.diagramsPrepared = false;
@@ -1541,6 +1547,10 @@ export class IndicatorAddComponent implements OnInit {
         .subscribe({
           next: (response) => {
             this.selectedPoiLayer!.geoJSON = response;
+            // reachability config requires this new property - assigned here (not right after
+            // the http call is fired) since the response, not the pre-fetch layer object, is
+            // what's actually needed for isochrone calculation
+            this.selectedPoiLayer!.geoJSON_reachability = response;
           },
           error: (error) => {
             this.loadingData = false;
@@ -1549,12 +1559,12 @@ export class IndicatorAddComponent implements OnInit {
           },
         });
 
-      // reachability config requires this new property
-      this.selectedPoiLayer.geoJSON_reachability = this.selectedPoiLayer.geoJSON;
-
-      this.broadcastService.broadcast(BroadcastMessage.ReportingPoiLayerSelected, [
-        this.selectedPoiLayer,
-      ]);
+      // the Erreichbarkeit tab's isochrone calculation (reachability-isochrone-config.component.ts)
+      // reads the start points straight from this shared service state - same object reference as
+      // selectedPoiLayer, so the geoJSON_reachability assigned above (once the request resolves)
+      // is visible here too.
+      this.reachabilityStateService.settings.selectedStartPointLayer = this.selectedPoiLayer;
+      this.reachabilityStateService.settings.startPointsSource = 'fromLayer';
 
       // get a new template (in case another poi layer was selected previously)
       // Indicator might not be selected at this point, so we take all available
@@ -1733,6 +1743,7 @@ export class IndicatorAddComponent implements OnInit {
       return;
     }
 
+    this.abortOngoingPreparation();
     this.selectedIndicator = undefined;
     // since we don't have an indicator selected anymore we reset the spatial unit
     this.selectedSpatialUnit = this.allSpatialUnitsForReachability.filter((spatialUnit) => {
@@ -1869,6 +1880,7 @@ export class IndicatorAddComponent implements OnInit {
     const indicator = this.indicatorSelect.value;
 
     try {
+      this.abortOngoingPreparation();
       this.loadingData = true;
       if (this.reportingService.clonedTemplate.name.includes('reachability')) {
         await this.handleIndicatorSelectForReachability(indicator);
@@ -2494,7 +2506,7 @@ export class IndicatorAddComponent implements OnInit {
         if (areaNames.includes(el.name)) {
           // show selected areas (don't classify color by value)
           el.label.formatter = '{b}\n{c}';
-          el.label.show = true;
+          el.label.show = this.pageConfig.sectionContentControl.showMapLabels;
           el.label.textShadowColor = '#ffffff';
           el.label.textShadowBlur = 2;
           el.itemStyle.areaColor = 'rgb(255, 153, 51, 0.6)';
@@ -2543,7 +2555,7 @@ export class IndicatorAddComponent implements OnInit {
               }
             }
           }
-          el.label.show = true;
+          el.label.show = this.pageConfig.sectionContentControl.showMapLabels;
           el.itemStyle.color = color;
           el.itemStyle.areaColor = color;
           el.itemStyle.opacity = opacity;
@@ -3212,7 +3224,7 @@ export class IndicatorAddComponent implements OnInit {
             color: 'rgb(255, 255, 255, 0)',
           },
           label: {
-            show: true,
+            show: this.pageConfig.sectionContentControl.showMapLabels,
             backgroundColor: 'white',
             padding: [1, 2, 1, 2], // [top, right, bottom, left]
           },
@@ -3232,12 +3244,20 @@ export class IndicatorAddComponent implements OnInit {
     return geoMapOptions;
   }
 
+  // Precomputed once per call (not a showThisPage(page) callback evaluated per candidate page -
+  // see report-preview.utils.ts) so isPageInPreview()/isLastPreviewPage()/countBackgroundPages()
+  // stay O(n) instead of O(n^2) each, which made the @for loop rendering all pages O(n^3) overall.
+  private shownPageIds(): Set<any> {
+    return new Set(this.filterPagesToShow().map((p: any) => p.id));
+  }
+
   isPageInPreview(page: any, _index?: number): boolean {
     return isPageInPreview(
       this.reportingService.clonedTemplate.pages,
       page,
       this.MAX_PREVIEW_AREA_SPECIFIC_PAGES,
-      this.MAX_PREVIEW_DATATABLE_PAGES
+      this.MAX_PREVIEW_DATATABLE_PAGES,
+      this.shownPageIds()
     );
   }
 
@@ -3246,7 +3266,8 @@ export class IndicatorAddComponent implements OnInit {
       this.reportingService.clonedTemplate.pages,
       page,
       this.MAX_PREVIEW_AREA_SPECIFIC_PAGES,
-      this.MAX_PREVIEW_DATATABLE_PAGES
+      this.MAX_PREVIEW_DATATABLE_PAGES,
+      this.shownPageIds()
     );
   }
 
@@ -3256,7 +3277,8 @@ export class IndicatorAddComponent implements OnInit {
       this.reportingService.clonedTemplate.pages,
       page,
       this.MAX_PREVIEW_AREA_SPECIFIC_PAGES,
-      this.MAX_PREVIEW_DATATABLE_PAGES
+      this.MAX_PREVIEW_DATATABLE_PAGES,
+      this.shownPageIds()
     );
   }
 
@@ -3281,6 +3303,17 @@ export class IndicatorAddComponent implements OnInit {
       this.reportGenerationProgressService.reportGenerationInProgress = false;
     } finally {
       this.loadingData = false;
+    }
+  }
+
+  // A selection change (indicator, POI layer, spatial unit, areas, timestamps, ...) makes
+  // whatever initializeAllDiagrams() loop is currently running stale: it keeps iterating
+  // this.reportingService.clonedTemplate.pages/indicator state that no longer matches the new
+  // selection (and onIndicatorSelected() even swaps clonedTemplate out from under it via
+  // resetTemplateClone()). Abort it immediately so it stops before touching the next page.
+  private abortOngoingPreparation(): void {
+    if (this.pagePreparationSize > 0 && !this.lastPageOfAddedSectionPrepared) {
+      this.onAbortPreparationClicked();
     }
   }
 
@@ -3817,6 +3850,7 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   onChangeDateSliderInterval() {
+    this.abortOngoingPreparation();
     this.preparationNeeded = true;
     this.loadingData = true;
     // needed to tell angular something has changed

@@ -1,0 +1,225 @@
+.rangeslide {
+  text-align: center;
+  position: relative;
+  outline: 0;
+}
+.noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.animated {
+  -webkit-transition: all 0.5s ease-in-out;
+  -moz-transition: all 0.5s ease-in-out;
+  -o-transition: all 0.5s ease-in-out;
+  transition: all 0.5s ease-in-out;
+}
+.rangeslide .slider {
+  -webkit-appearance: none;
+  width: 100%;
+  margin: 0;
+  position: relative;
+  z-index: 5;
+  background: 0 0;
+}
+.rangeslide .slider .thumb {
+  box-shadow:
+    1px 1px 1px #000,
+    0 0 1px #0d0d0d;
+  background: #fff;
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -14px;
+  border: 1px solid #000;
+  border-radius: 3px;
+  position: absolute;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+.rangeslide .slider .track {
+  width: 100%;
+  cursor: pointer;
+  animate: 0.2s;
+  box-shadow:
+    1px 1px 1px #000,
+    0 0 1px #0d0d0d;
+  background: #3071a9;
+  border-radius: 1.3px;
+  border: 0.2px solid #010101;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+.rangeslide .slider .track:focus {
+  background: #4d96d6;
+}
+.rangeslide .slider .track-progress {
+  pointer-events: none;
+  background: #34b500;
+  border-radius: 1.3px;
+  border: 1px solid #010101;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  float: left;
+  display: inline;
+  position: relative;
+}
+.rangeslide .slider .track-progress.anim {
+  -webkit-transition:
+    width 0.5s ease-in-out,
+    left 0.5s ease-in-out;
+  -moz-transition:
+    width 0.5s ease-in-out,
+    left 0.5s ease-in-out;
+  -o-transition:
+    width 0.5s ease-in-out,
+    left 0.5s ease-in-out;
+  transition:
+    width 0.5s ease-in-out,
+    left 0.5s ease-in-out;
+}
+.rangeslide .track-marker {
+  box-shadow:
+    1px 1px 1px #000,
+    0 0 1px #0d0d0d;
+  background: #3071a9;
+  border: 0.2px solid #010101;
+  border-radius: 50%;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  display: inline-block;
+  position: absolute;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+.rangeslide .track-marker.completed {
+  background: #34b500;
+}
+.rangeslide .track-marker.selected {
+  transform: scale(2);
+}
+.rangeslide .track-marker:hover {
+  background: #fff;
+}
+.rangeslide .track-marker.tooltip .content {
+  opacity: 0;
+  pointer-events: none;
+  width: auto;
+  height: auto;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  color: #5a5a5a;
+  padding: 5px;
+  font-size: 12px;
+  transition-delay: 0s;
+  transition: opacity 0.1s linear;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translate(-50%, -150%);
+  -moz-transform: translate(-50%, -150%);
+  -ms-transform: translate(-50%, -150%);
+  transform: translate(-50%, -150%);
+  box-sizing: border-box;
+}
+.rangeslide .track-marker.tooltip .content {
+  transition-delay: 0s;
+  transition: opacity 0.1s linear;
+}
+.rangeslide .track-marker.tooltip:hover .content {
+  opacity: 1;
+  transition-delay: 0.5s;
+}
+.rangeslide .labels-container {
+  text-align: center;
+  font-size: 14px;
+  min-height: 14px;
+  position: relative;
+  margin: 5px 0;
+  color: #000;
+}
+.rangeslide .labels-container .tick-label {
+  display: inline-block;
+  text-align: center;
+  position: absolute;
+}
+.rangeslide .labels-container .tick-label.selected span {
+  padding: 2px;
+  border: 1px solid #999;
+}
+.rangeslide .labels-container .tick-label span {
+  display: inline-block;
+}
+.rangeslide .labels-container .tick-label:hover {
+  font-weight: 700;
+  cursor: pointer;
+}
+.rangeslide .labels-container .tick-label .tick {
+  border-left: 1px solid #000;
+  width: 1px;
+  margin: 0 auto 0 auto;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+.rangeslide .value-indicator {
+  position: absolute;
+  line-height: initial;
+  opacity: 1;
+  transition: opacity 0.25s;
+  z-index: 10;
+  font-size: 13px;
+  color: #a7a7a7;
+  pointer-events: none;
+}
+.rangeslide .value-indicator.above,
+.rangeslide .value-indicator.below {
+  background-color: #3071a9;
+  color: #fff;
+}
+.rangeslide .value-indicator.above {
+  margin-top: 8px;
+}
+.rangeslide .value-indicator.below {
+  margin-top: 8px;
+}
+.rangeslide .value-indicator.above::after {
+  position: static;
+  border-top: 8px solid #3071a9;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  content: '';
+  margin-right: auto;
+  margin-left: auto;
+  display: block;
+  width: 0;
+  margin-bottom: -8px;
+}
+.rangeslide .value-indicator.below::before {
+  position: static;
+  border-bottom: 8px solid #3071a9;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  content: '';
+  margin-right: auto;
+  margin-left: auto;
+  display: block;
+  width: 0;
+  margin-top: -8px;
+}
+.rangeslide .side-label {
+  position: absolute;
+  top: 0;
+}
+.rangeslide .side-label.clickable {
+  cursor: pointer;
+}
+.rangeslide .value-indicator.valid {
+  color: #3071a9;
+}

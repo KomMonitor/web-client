@@ -1,0 +1,28 @@
+!(function (e) {
+  'object' == typeof exports && 'object' == typeof module
+    ? e(require('../../lib/codemirror'), require('./runmode'))
+    : 'function' == typeof define && define.amd
+      ? define(['../../lib/codemirror', './runmode'], e)
+      : e(CodeMirror);
+})(function (e) {
+  'use strict';
+  var o = /^(p|li|div|h\\d|pre|blockquote|td)$/;
+  function t(e, r) {
+    if (3 == e.nodeType) return r.push(e.nodeValue);
+    for (var n = e.firstChild; n; n = n.nextSibling) (t(n, r), o.test(e.nodeType) && r.push('\n'));
+  }
+  e.colorize = function (o, r) {
+    o || (o = document.body.getElementsByTagName('pre'));
+    for (var n = 0; n < o.length; ++n) {
+      var i = o[n],
+        d = i.getAttribute('data-lang') || r;
+      if (d) {
+        var u = [];
+        (t(i, u),
+          (i.textContent = ''),
+          e.runMode(u.join(''), d, i),
+          (i.className += ' cm-s-default'));
+      }
+    }
+  };
+});
