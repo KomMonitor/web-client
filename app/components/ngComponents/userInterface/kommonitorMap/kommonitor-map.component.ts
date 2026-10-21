@@ -1511,7 +1511,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
             label = this.getLabelForFeature(
               layer.feature,
               this.envConfigService.indicatorDatePrefix + this.selectionState.selectedDate,
-              this.selectionState.selectedIndicator.defaultClassificationMapping.classificationType,
+              this.selectionState.selectedIndicator.defaultClassificationMapping,
               this.classificationState.defaultBrew
             );
           }
