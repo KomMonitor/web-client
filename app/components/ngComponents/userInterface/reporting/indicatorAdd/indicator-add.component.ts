@@ -750,7 +750,7 @@ export class IndicatorAddComponent implements OnInit {
         const titleEl = pageToInsert.pageElements.find((el) => {
           return el.type.includes('indicatorTitle-');
         });
-        titleEl.text = 'Entfernungen fÃ¼r ' + this.selectedPoiLayer.datasetName;
+        titleEl.text = 'Entfernungen für ' + this.selectedPoiLayer.datasetName;
         if (pageToInsert.area) {
           titleEl.text += ', ' + pageToInsert.area;
         }
@@ -1122,25 +1122,6 @@ export class IndicatorAddComponent implements OnInit {
         }
       }
 
-      // prepare arrays for updateDualList
-      validTimestamps = validTimestamps.map((el) => {
-        return {
-          properties: {
-            NAME: el,
-          },
-        };
-      });
-      const timestampsToSelect = this.selectedTimestamps.map((el) => {
-        return {
-          properties: {
-            NAME: el.name,
-          },
-        };
-      });
-
-      //this.updateDualList(this.dualListTimestampsOptions, validTimestamps, timestampsToSelect);
-
-      this.selectedTimestamps = timestampsToSelect;
       // fire $watch('selectedAreas') function manually to remove pages
       this.selectedAreas = [];
       await this.onSelectedAreasChanged(this.selectedAreas);
@@ -1513,6 +1494,14 @@ export class IndicatorAddComponent implements OnInit {
 
     this.showResetIsochronesBtn = true;
 
+    // The preview area is hidden via [hidden]="preparationNeeded" until onTriggerPreparationClicked
+    // runs, so if isochrones get calculated before the user ever clicked "trigger preparation" once,
+    // preparationNeeded is still true here - initializeAllDiagrams() would then build every map
+    // inside a display:none container, which leaves Leaflet unable to measure it (fitBounds
+    // collapses to a single point, only the top-left tile gets requested) and that broken
+    // screenshot gets cached and reused later in reportingOverview/export. Unhide the preview
+    // first, same as onTriggerPreparationClicked does, so Leaflet measures the real size.
+    this.preparationNeeded = false;
     // TODO performance could be improved if we just iterate pages and update echarts
     await this.initializeAllDiagrams();
     this.loadingData = false;
@@ -1527,6 +1516,8 @@ export class IndicatorAddComponent implements OnInit {
     this.isochronesSeriesData = undefined;
     // TODO performance could be improved if we just iterate pages and update echarts
     if (this.diagramsPrepared) {
+      // see reportingIsochronesCalculationFinished - must be visible before building maps
+      this.preparationNeeded = false;
       await this.initializeAllDiagrams();
     }
     this.showResetIsochronesBtn = false;
@@ -1588,6 +1579,13 @@ export class IndicatorAddComponent implements OnInit {
             return spatialUnit.spatialUnitId === this.selectedSpatialUnit.spatialUnitId;
           })[0].metadata.lastUpdate;
         }
+        // Some spatial units carry no metadata.lastUpdate at all. Falling through to
+        // undefined here ends up as the literal value `undefined` on the reachability
+        // subtitle's pageElement.text (not the string "undefined" - that only happens
+        // where it's string-concatenated, e.g. the isochrones-label suffix below), which
+        // crashes jsPDF's doc.text() with "Invalid arguments passed to jsPDF.text" at
+        // report-generation time instead of just rendering a blank subtitle.
+        mostRecentTimestampName = mostRecentTimestampName ?? '';
         this.selectedTimestamps = [
           {
             category: mostRecentTimestampName,
@@ -1599,7 +1597,7 @@ export class IndicatorAddComponent implements OnInit {
         for (const page of this.reportingService.clonedTemplate.pages) {
           for (const el of page.pageElements) {
             if (el.type.includes('indicatorTitle-')) {
-              el.text = 'Entfernungen fÃ¼r ' + this.selectedPoiLayer.datasetName;
+              el.text = 'Entfernungen für ' + this.selectedPoiLayer.datasetName;
               el.isPlaceholder = false;
               // no area-specific pages in template since diagrams are not prepared yet
               // and area/timestamp/timeseries changes are done after that

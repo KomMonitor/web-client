@@ -1201,7 +1201,9 @@ export class ReachabilityStateService {
           const message =
             error?.error?.error?.message || error?.message || 'Unbekannter Fehler bei der Anfrage';
           console.error(
-            `Isochrone request failed for ${body.locations.length} location(s) x ${body.range.length} range(s) (profile=${this.settings.transitMode}, range_type=${body.range_type}): ${message}`
+            `Isochrone request failed for ${body.locations.length} location(s) x ${body.range.length} range(s) (profile=${this.settings.transitMode}, range_type=${body.range_type}): ${message}`,
+            'locations=',
+            body.locations
           );
           reject(new Error(message));
         },

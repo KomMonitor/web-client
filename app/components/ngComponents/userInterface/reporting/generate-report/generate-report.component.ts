@@ -608,6 +608,31 @@ export class GenerateReportComponent implements OnInit {
           pageElement.dimensions.width && this.pxToMilli(pageElement.dimensions.width);
         pageElementDimensions.height =
           pageElement.dimensions.height && this.pxToMilli(pageElement.dimensions.height);
+        for (const key of ['top', 'bottom', 'left', 'right', 'width', 'height']) {
+          if (pageElement.dimensions[key] !== undefined && isNaN(pageElementDimensions[key])) {
+            console.warn(
+              `Report page ${idx} (area="${page.area ?? ''}") element '${pageElement.type}' had an invalid '${key}' dimension, defaulting to 0:`,
+              pageElement.dimensions[key]
+            );
+            pageElementDimensions[key] = 0;
+          }
+        }
+
+        // Page/element state is assembled by a long, timing-sensitive chain in
+        // indicator-add.component.ts (area/timestamp/indicator selection all mutate
+        // pageElement.text independently). A gap there (e.g. a missing backend
+        // timestamp - see the 2026-10-20 fix) leaves pageElement.text as a literal
+        // `undefined`, which jsPDF's own doc.text() rejects with a generic "Invalid
+        // arguments passed to jsPDF.text" that doesn't say which page/element caused
+        // it. Normalize defensively here and log the offender instead of aborting the
+        // whole report generation over one bad subtitle/label.
+        if ('text' in pageElement && typeof pageElement.text !== 'string') {
+          console.warn(
+            `Report page ${idx} (area="${page.area ?? ''}") element '${pageElement.type}' had a non-string text value, replacing with an empty string:`,
+            pageElement.text
+          );
+          pageElement.text = pageElement.text == null ? '' : String(pageElement.text);
+        }
         // TODO some cases could be merged, but it's better to do that later when stuff works
         switch (pageElement.type) {
           case 'indicatorTitle-landscape':

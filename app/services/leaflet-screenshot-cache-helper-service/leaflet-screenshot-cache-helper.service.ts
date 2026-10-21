@@ -21,7 +21,10 @@ export class LeafletScreenshotCacheHelperService {
   // Bump this whenever the capture output changes incompatibly (e.g. the Firefox
   // SVG-rasterization fix in captureNodeAsPngDataUrl): the upgrade handler wipes the
   // store, so corrupt screenshots from older app versions are never served from cache.
-  dbVersion = 4;
+  // v5: reachability preview pages could be built while the indicator-add preview area
+  // was still display:none, collapsing Leaflet's fitBounds and capturing only the
+  // top-left tile - purge any such broken screenshots cached before that was fixed.
+  dbVersion = 5;
   indexedDB!: IDBDatabase;
   indexedDbCount;
 
@@ -180,6 +183,17 @@ export class LeafletScreenshotCacheHelperService {
           return;
         }
         const el: HTMLElement = domElement;
+
+        // A zero-size container (e.g. still inside a display:none ancestor) collapses
+        // Leaflet's fitBounds() to a single point, so it only ever requests the top-left
+        // tile - capturing and caching that would permanently poison this cache key for
+        // every later consumer (reportingOverview, PDF export) that trusts the cache.
+        if (el.offsetWidth === 0 || el.offsetHeight === 0) {
+          console.warn('Skipping leaflet screenshot capture for zero-size element:', CacheKey);
+          this.pendingPromises.delete(CacheKey);
+          resolve('');
+          return;
+        }
 
         const capture = () => {
           this.captureNodeAsPngDataUrl(el)
