@@ -29,6 +29,26 @@ export class ReachabilityIsochroneConfigComponent {
   ranges: number[] = [...this.reachabilityStateService.defaults.distanceRanges];
   sliderRange: number[] = [1, this.reachabilityStateService.defaults.distanceMax];
 
+  constructor() {
+    // Unlike the sidebar's scenario wizard (kommonitor-reachability.component.ts), which always
+    // seeds `settings.transitMode`/`.focus`/`.isochroneInput` from `quickCalcSettings` before
+    // opening, nothing here ever initializes `settings` (it starts as `{}`). If the user's first
+    // interaction in this tab is dragging the range slider rather than clicking a vehicle/focus
+    // icon, recalculate() fires with `settings.transitMode` still undefined, so
+    // fetchIsochrones() builds a request URL ending in "/v2/isochrones/undefined" - ORS has no
+    // such route, and the resulting 404 on the preflight looks like a CORS failure in devtools.
+    const settings = this.reachabilityStateService.settings;
+    if (!settings.transitMode) {
+      settings.transitMode = this.reachabilityStateService.quickCalcSettings.transitMode;
+    }
+    if (!settings.focus) {
+      settings.focus = this.reachabilityStateService.quickCalcSettings.focus;
+    }
+    if (!settings.isochroneInput) {
+      settings.isochroneInput = this.ranges.join(',');
+    }
+  }
+
   changeType(mode: ReachabilityTransitModeTypes) {
     this.reachabilityStateService.settings.transitMode = mode;
     this.recalculate();

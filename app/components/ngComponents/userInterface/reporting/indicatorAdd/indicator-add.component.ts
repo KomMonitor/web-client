@@ -1144,6 +1144,25 @@ export class IndicatorAddComponent implements OnInit {
         this.selectedIndicator.geoJSON = geoJSON;
       }
 
+      // select all areas of the new spatial unit by default - same "select all" convention
+      // used on initial indicator/POI-layer selection (see updateAreasDualList(allAreas,
+      // allAreas) further below/in onPoiLayerSelected). Without this, the dual-list and the
+      // report end up with zero areas selected after every Raumebene change, because the
+      // onSelectedAreasChanged([]) call above only clears the previous selection.
+      this.updateAreasDualList(features, features);
+      // onSelectedAreasChanged()/updateAreasForTimestampTemplates() etc. expect the
+      // {category, name, id} dual-list shape (area.name), not raw GeoJSON features
+      // (feature.properties.NAME) - same conversion used elsewhere (e.g. onPoiLayerSelected).
+      let areasListInput = features.map((el, i) => {
+        return { name: el.properties.NAME, id: i };
+      });
+      areasListInput = this.indicatorValueService.createDualListInputArray(
+        areasListInput,
+        'name',
+        'id'
+      );
+      await this.onSelectedAreasChanged(areasListInput);
+
       // no need to check if diagrams are prepared here since we have to prepare them again anyway
       setTimeout(async () => {
         // prepare diagrams for all selected timestamps with all features
@@ -1457,54 +1476,66 @@ export class IndicatorAddComponent implements OnInit {
       return;
     }
 
-    this.abortOngoingPreparation();
-    this.isochrones = isochrones;
+    // Everything below - not just initializeAllDiagrams() - must not leave loadingData stuck
+    // true forever: convertIsochronesToSeriesData() below explicitly throws when it can't
+    // determine ranges from the isochrones data, and that used to happen outside any try/catch,
+    // skipping the `finally` that resets loadingData and leaving the loading overlay stuck even
+    // though the isochrone fetch itself succeeded.
+    try {
+      this.abortOngoingPreparation();
+      this.isochrones = isochrones;
 
-    // this.typeOfMovement = this.isochrones.metadata.query.profile;
-    this.typeOfMovement = this.reachabilityStateService.settings.transitMode;
+      // this.typeOfMovement = this.isochrones.metadata.query.profile;
+      this.typeOfMovement = this.reachabilityStateService.settings.transitMode;
 
-    if (this.typeOfMovement === 'buffer') {
-      this.isochronesRangeType = 'distance';
-      this.isochronesRangeUnits = 'm';
-    } else {
-      // this.isochronesRangeType = this.isochrones.metadata.query.range_type;
-      // this.isochronesRangeUnits = this.isochrones.metadata.query.units;
-      this.isochronesRangeType = this.reachabilityStateService.settings.focus;
-      this.isochronesRangeUnits = this.isochronesRangeType == 'distance' ? 'm' : 's';
-    }
-
-    // for type buffer the bbox field doesn't exist, so we have to create it.
-    this.addIsochronesBboxProperties();
-    if (!this.isochrones.centerLocations) this.addIsochronesCenterLocationProperty();
-
-    // Add a new property that is used as a unique id and can be used by echarts
-    // For buffer there is no group_index, so we use the ID
-    if (this.typeOfMovement === 'buffer') {
-      for (const feature of this.isochrones.features) {
-        feature.properties.echartsId = feature.properties.ID + '-' + feature.properties.value;
+      if (this.typeOfMovement === 'buffer') {
+        this.isochronesRangeType = 'distance';
+        this.isochronesRangeUnits = 'm';
+      } else {
+        // this.isochronesRangeType = this.isochrones.metadata.query.range_type;
+        // this.isochronesRangeUnits = this.isochrones.metadata.query.units;
+        this.isochronesRangeType = this.reachabilityStateService.settings.focus;
+        this.isochronesRangeUnits = this.isochronesRangeType == 'distance' ? 'm' : 's';
       }
-    } else {
-      for (const feature of this.isochrones.features) {
-        feature.properties.echartsId =
-          feature.properties.group_index + '-' + feature.properties.value;
+
+      // for type buffer the bbox field doesn't exist, so we have to create it.
+      this.addIsochronesBboxProperties();
+      if (!this.isochrones.centerLocations) this.addIsochronesCenterLocationProperty();
+
+      // Add a new property that is used as a unique id and can be used by echarts
+      // For buffer there is no group_index, so we use the ID
+      if (this.typeOfMovement === 'buffer') {
+        for (const feature of this.isochrones.features) {
+          feature.properties.echartsId = feature.properties.ID + '-' + feature.properties.value;
+        }
+      } else {
+        for (const feature of this.isochrones.features) {
+          feature.properties.echartsId =
+            feature.properties.group_index + '-' + feature.properties.value;
+        }
       }
+
+      this.isochronesSeriesData = this.convertIsochronesToSeriesData(this.isochrones);
+
+      this.showResetIsochronesBtn = true;
+
+      // The preview area is hidden via [hidden]="preparationNeeded" until onTriggerPreparationClicked
+      // runs, so if isochrones get calculated before the user ever clicked "trigger preparation" once,
+      // preparationNeeded is still true here - initializeAllDiagrams() would then build every map
+      // inside a display:none container, which leaves Leaflet unable to measure it (fitBounds
+      // collapses to a single point, only the top-left tile gets requested) and that broken
+      // screenshot gets cached and reused later in reportingOverview/export. Unhide the preview
+      // first, same as onTriggerPreparationClicked does, so Leaflet measures the real size.
+      this.preparationNeeded = false;
+      // TODO performance could be improved if we just iterate pages and update echarts
+      await this.initializeAllDiagrams();
+    } catch (error) {
+      console.error('Diagram update after isochrone calculation failed:', error);
+      this.mapErrorNotificationService.displayMapApplicationError(error);
+      this.preparationNeeded = true;
+    } finally {
+      this.loadingData = false;
     }
-
-    this.isochronesSeriesData = this.convertIsochronesToSeriesData(this.isochrones);
-
-    this.showResetIsochronesBtn = true;
-
-    // The preview area is hidden via [hidden]="preparationNeeded" until onTriggerPreparationClicked
-    // runs, so if isochrones get calculated before the user ever clicked "trigger preparation" once,
-    // preparationNeeded is still true here - initializeAllDiagrams() would then build every map
-    // inside a display:none container, which leaves Leaflet unable to measure it (fitBounds
-    // collapses to a single point, only the top-left tile gets requested) and that broken
-    // screenshot gets cached and reused later in reportingOverview/export. Unhide the preview
-    // first, same as onTriggerPreparationClicked does, so Leaflet measures the real size.
-    this.preparationNeeded = false;
-    // TODO performance could be improved if we just iterate pages and update echarts
-    await this.initializeAllDiagrams();
-    this.loadingData = false;
   }
 
   async resetIsochrones() {
@@ -1516,9 +1547,18 @@ export class IndicatorAddComponent implements OnInit {
     this.isochronesSeriesData = undefined;
     // TODO performance could be improved if we just iterate pages and update echarts
     if (this.diagramsPrepared) {
-      // see reportingIsochronesCalculationFinished - must be visible before building maps
+      // see reportingIsochronesCalculationFinished - must be visible before building maps, and
+      // must not leave loadingData stuck true forever if preparation throws
       this.preparationNeeded = false;
-      await this.initializeAllDiagrams();
+      try {
+        await this.initializeAllDiagrams();
+      } catch (error) {
+        console.error('Diagram update after isochrone reset failed:', error);
+        this.mapErrorNotificationService.displayMapApplicationError(error);
+        this.preparationNeeded = true;
+      } finally {
+        this.loadingData = false;
+      }
     }
     this.showResetIsochronesBtn = false;
   }
@@ -3342,22 +3382,37 @@ export class IndicatorAddComponent implements OnInit {
     }
 
     // prepare O(1) access to geoJSON features used within each page
-    if (this.selectedIndicator) {
-      this.geoJsonForSelectedIndicator_byFeatureName = new Map();
-      for (const feature of this.selectedIndicator.geoJSON.features) {
-        if (!feature.properties.bbox) feature.properties.bbox = turf.bbox(feature);
-
-        this.geoJsonForSelectedIndicator_byFeatureName.set(feature.properties.NAME, feature);
-      }
-      this.geoJsonForReachability_byFeatureName = this.geoJsonForSelectedIndicator_byFeatureName;
-    } else {
+    // Reachability templates always resolve page.area via the POI/reachability dataset - an
+    // optionally-added indicator is only an overlay and must never replace that lookup map. The
+    // previous version aliased geoJsonForReachability_byFeatureName to the indicator's own
+    // feature map as soon as selectedIndicator was set, so any reachability area whose name
+    // wasn't also a feature of that indicator (different spatial unit/feature set) made
+    // filterMapByAreaName() dereference an undefined feature and throw - uncaught here, which
+    // aborted this whole preparation loop after the first (non-area) page, leaving every area
+    // page after it never populated.
+    if (this.geoJsonForReachability) {
       this.geoJsonForReachability_byFeatureName = new Map();
-
       for (const feature of this.geoJsonForReachability.features) {
         if (!feature.properties.bbox) feature.properties.bbox = turf.bbox(feature);
         this.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature);
       }
-      this.geoJsonForSelectedIndicator_byFeatureName = this.geoJsonForReachability_byFeatureName;
+
+      if (this.selectedIndicator) {
+        this.geoJsonForSelectedIndicator_byFeatureName = new Map();
+        for (const feature of this.selectedIndicator.geoJSON.features) {
+          if (!feature.properties.bbox) feature.properties.bbox = turf.bbox(feature);
+          this.geoJsonForSelectedIndicator_byFeatureName.set(feature.properties.NAME, feature);
+        }
+      } else {
+        this.geoJsonForSelectedIndicator_byFeatureName = this.geoJsonForReachability_byFeatureName;
+      }
+    } else if (this.selectedIndicator) {
+      this.geoJsonForSelectedIndicator_byFeatureName = new Map();
+      for (const feature of this.selectedIndicator.geoJSON.features) {
+        if (!feature.properties.bbox) feature.properties.bbox = turf.bbox(feature);
+        this.geoJsonForSelectedIndicator_byFeatureName.set(feature.properties.NAME, feature);
+      }
+      this.geoJsonForReachability_byFeatureName = this.geoJsonForSelectedIndicator_byFeatureName;
     }
 
     this.lastPageOfAddedSectionPrepared = false;

@@ -247,18 +247,28 @@ export class ReportPagePreparationService {
       }, 15000);
       leafletLayer.on('load', async () => {
         clearTimeout(timeoutHandle);
-        if (page.orientation === this.reportingService.clonedTemplate.orientation) {
-          await new Promise((r) => setTimeout(r, 500));
-          const dataUrl = await this.leafletScreenshotCacheHelperService.checkForScreenshot(
-            context.selectedBaseMap.layerConfig.name,
-            context.selectedSpatialUnit.spatialUnitId,
-            page.spatialUnitFeatureId,
-            page.orientation,
-            domNode,
-            this.reportingService.clonedTemplate.name
-          );
-          resolve(dataUrl);
-        } else {
+        try {
+          if (page.orientation === this.reportingService.clonedTemplate.orientation) {
+            await new Promise((r) => setTimeout(r, 500));
+            const dataUrl = await this.leafletScreenshotCacheHelperService.checkForScreenshot(
+              context.selectedBaseMap.layerConfig.name,
+              context.selectedSpatialUnit.spatialUnitId,
+              page.spatialUnitFeatureId,
+              page.orientation,
+              domNode,
+              this.reportingService.clonedTemplate.name
+            );
+            resolve(dataUrl);
+          } else {
+            resolve(undefined);
+          }
+        } catch (error) {
+          // The timeout fallback above was already cleared, so any error here (e.g. a tainted-
+          // canvas/CORS failure while capturing real map tiles) must still resolve the promise -
+          // otherwise nothing ever does, and the whole page-preparation loop hangs forever with
+          // no error surfaced anywhere (an event listener callback's rejection isn't observable
+          // by the Promise executor above it).
+          console.error('Leaflet screenshot capture failed for page ' + pageIdx + ':', error);
           resolve(undefined);
         }
       });
@@ -501,17 +511,34 @@ export class ReportPagePreparationService {
       }
 
       const screenshotPromise = new Promise<string>((resolve) => {
-        leafletLayer.on('load', async () => {
-          await new Promise((r) => setTimeout(r, 500));
-          const dataUrl = await this.leafletScreenshotCacheHelperService.checkForScreenshot(
-            pageElement.selectedBaseMap.layerConfig.name,
-            spatialUnit.spatialUnitId,
-            page.spatialUnitFeatureId,
-            page.orientation,
-            leafletMap['_container'],
-            this.reportingService.workingTemplate.name
+        // an event listener callback's rejection isn't observable by this executor or by the
+        // outer try/catch below - without both a timeout fallback and a try/catch here, any
+        // failure while capturing (e.g. a tainted-canvas/CORS error) leaves this promise (and
+        // the whole page-preparation loop awaiting it) hanging forever with no error surfaced -
+        // same issue as prepareLeafletMapForIndicatorAdd's equivalent, fixed the same way.
+        const timeoutHandle = setTimeout(() => {
+          console.warn(
+            'Leaflet tile load timed out for page ' + pageIdx + ', proceeding without screenshot'
           );
-          resolve(dataUrl);
+          resolve('');
+        }, 15000);
+        leafletLayer.on('load', async () => {
+          clearTimeout(timeoutHandle);
+          try {
+            await new Promise((r) => setTimeout(r, 500));
+            const dataUrl = await this.leafletScreenshotCacheHelperService.checkForScreenshot(
+              pageElement.selectedBaseMap.layerConfig.name,
+              spatialUnit.spatialUnitId,
+              page.spatialUnitFeatureId,
+              page.orientation,
+              leafletMap['_container'],
+              this.reportingService.workingTemplate.name
+            );
+            resolve(dataUrl);
+          } catch (error) {
+            console.error('Leaflet screenshot capture failed for page ' + pageIdx + ':', error);
+            resolve('');
+          }
         });
       });
 
