@@ -1,75 +1,76 @@
 <!-- Global off-screen background processors for report generation.
-Placed outside the modal so pages render correctly even when the modal is closed. -->
+Placed outside the modal so pages render correctly even when the modal is closed.
 
-<div
-  id="reporting-addIndicator-background-processor"
-  style="
-    position: absolute;
-    left: -10000px;
-    top: -10000px;
-    opacity: 0;
-    width: 1000px;
-    height: 1000px;
-  "
->
-  <!-- id must always be present in the DOM so document.getElementById() can find it -->
+Hidden via a fixed, 1x1 `overflow: hidden` clipping wrapper rather than `opacity: 0` /
+far off-canvas positioning: Leaflet does not reliably load tiles inside a container that is
+invisible (opacity: 0) or placed far outside the document bounds, which left every page
+processed through here (i.e. every non-preview page) without its base-map tile background.
+Clipping at (0,0) keeps the inner container "on-canvas" and fully opaque from the browser's
+perspective, so tile loading behaves the same as it does for visible preview pages, while
+still rendering nothing visible to the user. -->
+
+<div style="position: fixed; top: 0; left: 0; width: 1px; height: 1px; overflow: hidden">
   <div
-    id="reporting-addIndicator-background-page"
-    [class]="
-      'reporting-page reporting-page-' +
-      (reportingService.reportingBackgroundState.pageToProcess_add?.orientation || '') +
-      ' reporting-custom-css'
-    "
+    id="reporting-addIndicator-background-processor"
+    style="position: absolute; top: 0; left: 0; width: 1000px; height: 1000px"
   >
-    @if (reportingService.reportingBackgroundState.pageToProcess_add) {
-      @for (
-        pageElement of reportingService.reportingBackgroundState.pageToProcess_add.pageElements;
-        track pageElement;
-        let i = $index
-      ) {
-        <div
-          [class]="'type-' + pageElement.type"
-          [id]="'reporting-addIndicator-background-page-' + pageElement.type + '-' + i"
-          [style]="getElementStyle(pageElement)"
-        ></div>
+    <!-- id must always be present in the DOM so document.getElementById() can find it -->
+    <div
+      id="reporting-addIndicator-background-page"
+      [class]="
+        'reporting-page reporting-page-' +
+        (reportGenerationProgressService.reportingBackgroundState.pageToProcess_add?.orientation ||
+          '') +
+        ' reporting-custom-css'
+      "
+    >
+      @if (reportGenerationProgressService.reportingBackgroundState.pageToProcess_add) {
+        @for (
+          pageElement of reportGenerationProgressService.reportingBackgroundState.pageToProcess_add
+            .pageElements;
+          track pageElement;
+          let i = $index
+        ) {
+          <div
+            [class]="'type-' + pageElement.type"
+            [id]="'reporting-addIndicator-background-page-' + pageElement.type + '-' + i"
+            [style]="getElementStyle(pageElement)"
+          ></div>
+        }
       }
-    }
+    </div>
   </div>
 </div>
 
-<div
-  id="reporting-overview-background-processor"
-  style="
-    position: absolute;
-    left: -10000px;
-    top: -10000px;
-    opacity: 0;
-    width: 1000px;
-    height: 1000px;
-  "
->
-  <!-- id must always be present in the DOM so document.getElementById() can find it -->
+<div style="position: fixed; top: 0; left: 0; width: 1px; height: 1px; overflow: hidden">
   <div
-    id="reporting-background-page"
-    [class]="
-      'reporting-page reporting-page-' +
-      (reportingService.reportingBackgroundState.pageToProcess_overview?.orientation || '') +
-      ' reporting-custom-css'
-    "
+    id="reporting-overview-background-processor"
+    style="position: absolute; top: 0; left: 0; width: 1000px; height: 1000px"
   >
-    @if (reportingService.reportingBackgroundState.pageToProcess_overview) {
-      @for (
-        pageElement of reportingService.reportingBackgroundState.pageToProcess_overview
-          .pageElements;
-        track pageElement;
-        let i = $index
-      ) {
-        <div
-          [class]="'type-' + pageElement.type"
-          [id]="'reporting-background-page-' + pageElement.type + '-' + i"
-          [style]="getElementStyle(pageElement)"
-        ></div>
+    <!-- id must always be present in the DOM so document.getElementById() can find it -->
+    <div
+      id="reporting-background-page"
+      [class]="
+        'reporting-page reporting-page-' +
+        (reportGenerationProgressService.reportingBackgroundState.pageToProcess_overview
+          ?.orientation || '') +
+        ' reporting-custom-css'
+      "
+    >
+      @if (reportGenerationProgressService.reportingBackgroundState.pageToProcess_overview) {
+        @for (
+          pageElement of reportGenerationProgressService.reportingBackgroundState
+            .pageToProcess_overview.pageElements;
+          track pageElement;
+          let i = $index
+        ) {
+          <div
+            [class]="'type-' + pageElement.type"
+            [id]="'reporting-background-page-' + pageElement.type + '-' + i"
+            [style]="getElementStyle(pageElement)"
+          ></div>
+        }
       }
-    }
+    </div>
   </div>
 </div>

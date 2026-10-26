@@ -1,0 +1,8 @@
+export let sawReadOnlySpans = !1,
+  sawCollapsedSpans = !1;
+export function seeReadOnlySpans() {
+  sawReadOnlySpans = !0;
+}
+export function seeCollapsedSpans() {
+  sawCollapsedSpans = !0;
+}

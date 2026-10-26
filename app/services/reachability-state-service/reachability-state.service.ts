@@ -1,6 +1,6 @@
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { DestroyRef, Injectable, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
@@ -121,6 +121,9 @@ export class ReachabilityStateService {
   settings: any = {};
 
   currentIsochronesGeoJSON: any = undefined;
+  // ids (FEATURE_ID_PROPERTY_NAME values) of starting points createIsochrones() could not
+  // compute an isochrone for - reset at the start of every calculation
+  skippedLocationIds: any[] = [];
   original_nonDissolved_isochrones: any = undefined;
 
   // working data for the scenario wizard's indicator-statistics step, and the POI
@@ -128,7 +131,7 @@ export class ReachabilityStateService {
   indicatorStatistics: any[] = [];
   poiDataset: PoiDataset = { poiId: '', poiName: '', poiDate: '' };
 
-  error = undefined;
+  error: any = undefined;
 
   private reachabilityMapSubject = new BehaviorSubject<ReachabilityModel>({
     features: [],
@@ -813,10 +816,27 @@ export class ReachabilityStateService {
 
     let resultIsochrones;
 
-    if (this.settings.transitMode === 'buffer') {
-      resultIsochrones = this.createBuffers();
-    } else {
-      resultIsochrones = await this.createIsochrones();
+    try {
+      if (this.settings.transitMode === 'buffer') {
+        resultIsochrones = this.createBuffers();
+      } else {
+        resultIsochrones = await this.createIsochrones();
+      }
+    } catch (e) {
+      const message = (e as Error)?.message || 'Erreichbarkeitsberechnung fehlgeschlagen.';
+      console.error(message);
+      this.error = message;
+      this.settings.loadingData = false;
+      this.mapErrorNotificationService.displayMapApplicationError(e);
+
+      if (isUsedInReporting) {
+        // keep the broadcast contract (a FeatureCollection, never undefined) so
+        // reportingIsochronesCalculationFinished() can clear its own loading state safely
+        this.broadcastService.broadcast(BroadcastMessage.ReportingIsochronesCalculationFinished, [
+          { type: 'FeatureCollection', features: [] },
+        ]);
+      }
+      return;
     }
 
     if (isUsedInReporting) {
@@ -983,12 +1003,24 @@ export class ReachabilityStateService {
 
   async createIsochrones() {
     let resultIsochrones;
+    this.skippedLocationIds = [];
 
     console.log(
       'Calculating isochrones for ' + this.settings.locationsArray.length + ' start points.'
     );
 
-    const maxLocationsForORSRequest = 150;
+    // ORS effectively limits locations x ranges per request, not just locations. A flat
+    // location-count cap was fine for the sidebar's usual single manually-placed point, but a
+    // reporting POI layer (dozens to hundreds of points) combined with several ranges at once
+    // (reachability-isochrone-config.component.ts always offers a handful) can exceed the
+    // server's limit well before hitting the location cap alone, so the per-request location
+    // budget is divided by the range count.
+    const maxCombinationsPerRequest = 150;
+    const rangeCount = Math.max(1, this.settings.rangeArray.length);
+    const maxLocationsForORSRequest = Math.max(
+      1,
+      Math.floor(maxCombinationsPerRequest / rangeCount)
+    );
 
     let featureIndex = 0;
     // log progress for each 10% of features
@@ -996,8 +1028,10 @@ export class ReachabilityStateService {
 
     let countFeatures = 0;
     let tempStartPointsArray: any[] = [];
+    let tempStartPointsIdArray: any[] = [];
     for (let pointIndex = 0; pointIndex < this.settings.locationsArray.length; pointIndex++) {
       tempStartPointsArray.push(this.settings.locationsArray[pointIndex]);
+      tempStartPointsIdArray.push(this.settings.locationsArrayIdArray[pointIndex]);
       countFeatures++;
 
       // if maxNumber of locations is reached or the last starting point is reached
@@ -1005,20 +1039,22 @@ export class ReachabilityStateService {
         countFeatures === maxLocationsForORSRequest ||
         pointIndex === this.settings.locationsArray.length - 1
       ) {
-        // make request, collect results
+        // make request, collect results (resilient to individual unroutable points - see
+        // resolveIsochronesForLocations)
+        const tempIsochrones = await this.resolveIsochronesForLocations(
+          tempStartPointsArray,
+          tempStartPointsIdArray
+        );
 
-        // responses will be GeoJSON FeatureCollections
-        let tempIsochrones: any;
-        await this.fetchIsochrones(tempStartPointsArray).then((value) => {
-          tempIsochrones = value;
-        });
-
-        if (!resultIsochrones) {
-          resultIsochrones = tempIsochrones;
-        } else {
-          // apend results of tempIsochrones to resultIsochrones
-          resultIsochrones.features = resultIsochrones.features.concat(tempIsochrones.features);
+        if (tempIsochrones) {
+          if (!resultIsochrones) {
+            resultIsochrones = tempIsochrones;
+          } else {
+            // apend results of tempIsochrones to resultIsochrones
+            resultIsochrones.features = resultIsochrones.features.concat(tempIsochrones.features);
+          }
         }
+
         // increment featureIndex
         featureIndex++;
         if (featureIndex % logProgressIndexSeparator === 0) {
@@ -1033,12 +1069,34 @@ export class ReachabilityStateService {
 
         // reset temp vars
         tempStartPointsArray = [];
+        tempStartPointsIdArray = [];
         countFeatures = 0;
       } // end if
     } // end for
 
+    if (!resultIsochrones) {
+      throw new Error(
+        'ORS konnte für keinen der ' +
+          this.settings.locationsArray.length +
+          ' Startpunkte ein Einzugsgebiet berechnen.'
+      );
+    }
+
+    if (this.skippedLocationIds.length > 0) {
+      this.error =
+        this.skippedLocationIds.length +
+        ' von ' +
+        this.settings.locationsArray.length +
+        ' Startpunkten konnten nicht berechnet werden (ORS meldet sie als nicht erreichbar).';
+      console.warn(this.error);
+    }
+
+    // IDs are attached per (sub-)batch in resolveIsochronesForLocations, using each batch's own
+    // locationIds slice and ORS's own group_index - not a global position-based pass like
+    // attachPoiFeatureIDsToIsochrones() (used by createBuffers()), which assumes every batch
+    // returns a complete, regularly-ordered grid of features and would silently misattribute
+    // IDs once a batch is skipped or split.
     this.original_nonDissolved_isochrones = resultIsochrones;
-    this.original_nonDissolved_isochrones = this.attachPoiFeatureIDsToIsochrones();
 
     if (this.settings.dissolveIsochrones) {
       try {
@@ -1053,6 +1111,65 @@ export class ReachabilityStateService {
     }
 
     return resultIsochrones;
+  }
+
+  // Resilient wrapper around fetchIsochrones(): a single unroutable point makes ORS fail the
+  // *entire* request (observed as a 500 "Unable to build an isochrone map." even for a batch
+  // as small as 30 locations x 5 ranges), not just that point. On failure, split the batch in
+  // half and retry each half to isolate which point(s) are actually the problem, down to
+  // single points, which are then skipped (recorded in skippedLocationIds) rather than failing
+  // the whole calculation. Runs sequentially (not Promise.all) so a bad batch can't fan out
+  // into a burst of concurrent requests against the ORS server.
+  private async resolveIsochronesForLocations(
+    locations: number[][],
+    locationIds: any[]
+  ): Promise<any | undefined> {
+    if (locations.length === 0) return undefined;
+
+    try {
+      const response: any = await this.fetchIsochrones(locations);
+      this.attachIdsToIsochroneBatch(response, locationIds);
+      return response;
+    } catch (e) {
+      if (locations.length === 1) {
+        console.warn(
+          `Skipping starting point '${locationIds[0]}': ORS could not compute an isochrone for it (${(e as Error)?.message ?? e}).`
+        );
+        this.skippedLocationIds.push(locationIds[0]);
+        return undefined;
+      }
+
+      const mid = Math.ceil(locations.length / 2);
+      console.warn(
+        `Isochrone batch of ${locations.length} failed - splitting into ${mid} + ${locations.length - mid} and retrying.`
+      );
+      const first = await this.resolveIsochronesForLocations(
+        locations.slice(0, mid),
+        locationIds.slice(0, mid)
+      );
+      const second = await this.resolveIsochronesForLocations(
+        locations.slice(mid),
+        locationIds.slice(mid)
+      );
+
+      if (!first) return second;
+      if (!second) return first;
+
+      first.features = first.features.concat(second.features);
+      return first;
+    }
+  }
+
+  // Attaches the POI feature ID to each isochrone feature of a single (sub-)batch, using ORS's
+  // own `group_index` (the feature's position within THIS request's `locations` array) against
+  // that same batch's own locationIds slice - unlike attachPoiFeatureIDsToIsochrones() (used by
+  // createBuffers(), which never batches/skips), this works correctly regardless of how a batch
+  // was split or whether earlier/later batches were skipped.
+  private attachIdsToIsochroneBatch(isochroneBatch: any, batchLocationIds: any[]) {
+    for (const feature of isochroneBatch.features) {
+      const locationId = batchLocationIds[feature.properties.group_index];
+      feature.properties.ID = locationId + '_' + feature.properties.value;
+    }
   }
 
   fetchIsochrones(tempStartPointsArray) {
@@ -1078,12 +1195,17 @@ export class ReachabilityStateService {
         next: (response) => {
           resolve(response);
         },
-        error: (error) => {
-          console.error(error.data.error.message);
-          this.error = error.data.error.message;
-          this.settings.loadingData = false;
-          this.mapErrorNotificationService.displayMapApplicationError(error);
-          reject();
+        error: (error: HttpErrorResponse) => {
+          // Angular's HttpClient reports the response body at `error.error`, not `error.data`
+          // (that was the shape of the AngularJS $http error callback this was migrated from)
+          const message =
+            error?.error?.error?.message || error?.message || 'Unbekannter Fehler bei der Anfrage';
+          console.error(
+            `Isochrone request failed for ${body.locations.length} location(s) x ${body.range.length} range(s) (profile=${this.settings.transitMode}, range_type=${body.range_type}): ${message}`,
+            'locations=',
+            body.locations
+          );
+          reject(new Error(message));
         },
       });
     });

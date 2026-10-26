@@ -1,0 +1,11 @@
+/*!========================================================================
+ * Bootstrap: iconset-typicon-2.0.6.js by @recktoner
+ * https://victor-valencia.github.com/bootstrap-iconpicker
+ *
+ * Iconset: Typicons 2.0.6
+ * https://github.com/stephenhutchings/typicons.font
+ * ========================================================================
+ * Copyright 2013-2017 Victor Valencia Rico.
+ * Licensed under MIT license.
+ * https://github.com/victor-valencia/bootstrap-iconpicker/blob/master/LICENSE
+ * ======================================================================== */

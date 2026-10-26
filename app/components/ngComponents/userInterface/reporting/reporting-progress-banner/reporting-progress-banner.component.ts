@@ -3,7 +3,7 @@ import { Component, inject } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { ReportingService } from 'services/reporting-service/reporting.service';
+import { ReportGenerationProgressService } from 'services/report-generation-progress-service/report-generation-progress.service';
 import { ReportingModalComponent } from '../reporting-modal.component';
 
 @Component({
@@ -14,7 +14,7 @@ import { ReportingModalComponent } from '../reporting-modal.component';
   styleUrls: ['./reporting-progress-banner.component.scss'],
 })
 export class ReportingProgressBannerComponent {
-  protected reportingService = inject(ReportingService);
+  protected reportGenerationProgressService = inject(ReportGenerationProgressService);
   private broadcastService = inject(BroadcastService);
   private modalService = inject(NgbModal);
 

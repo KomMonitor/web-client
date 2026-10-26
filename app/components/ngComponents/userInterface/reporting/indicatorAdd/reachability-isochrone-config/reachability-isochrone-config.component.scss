@@ -1,0 +1,45 @@
+:host {
+  .hint {
+    color: gray;
+    font-style: italic;
+  }
+
+  .modeWrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1em;
+    margin-bottom: 2em;
+  }
+
+  .focusWrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1em;
+    margin-bottom: 2em;
+  }
+
+  .modeWrapper,
+  .focusWrapper {
+    .modeItem {
+      border: 1px solid lightgray;
+      border-radius: 0.5em;
+      display: grid;
+      text-align: center;
+      justify-content: middle;
+      padding: 1.5em;
+      cursor: pointer;
+      color: gray;
+
+      i {
+        font-size: 22px;
+        margin-bottom: 0.2em;
+      }
+
+      &.active {
+        background: var(--kommonitor-hierarchy-level-2);
+        border: 1px solid var(--kommonitor-primary);
+        color: var(--kommonitor-primary);
+      }
+    }
+  }
+}

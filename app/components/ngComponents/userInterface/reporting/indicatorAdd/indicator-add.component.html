@@ -234,10 +234,18 @@
               <div id="reporting-isochrones-config">
                 @if (reportingService.clonedTemplate.name.includes('-reachability')) {
                   <div>
-                    <!-- <app-reachability-scenario-configuration></app-reachability-scenario-configuration> -->
+                    <app-reachability-isochrone-config></app-reachability-isochrone-config>
                   </div>
                 }
-                <!-- <button type="button" class="btn btn-danger" style="margin-left: 1%; margin-top: 10px;" ng-click="resetIsochrones()" [hidden]="!(showResetIsochronesBtn">Isochronen entfernen</button>                                -->
+                <button
+                  type="button"
+                  class="btn btn-danger"
+                  style="margin-left: 1%; margin-top: 10px"
+                  [hidden]="!showResetIsochronesBtn"
+                  (click)="resetIsochrones()"
+                >
+                  Isochronen entfernen
+                </button>
               </div>
             </div>
             <div
@@ -623,7 +631,12 @@
                             <option disabled selected value>
                               -- Hintergrundkarte w&auml;hlen --
                             </option>
-                            <!-- <option *ngFor="let baseMap of mapOverlayState.baseLayerDefinitionsArray | baseMapFilter" [ngValue]="baseMap">{{baseMap.layerConfig.name}}</option> -->
+                            @for (
+                              baseMap of mapOverlayState.baseLayerDefinitionsArray | baseMapFilter;
+                              track baseMap
+                            ) {
+                              <option [ngValue]="baseMap">{{ baseMap.layerConfig.name }}</option>
+                            }
                           </select>
                         </div>
 
@@ -1023,11 +1036,11 @@
                               <div
                                 class="progress-bar progress-bar-striped progress-bar-animated"
                                 role="progressbar"
-                                [ngStyle]="{
-                                  width: (pagePreparationIndex / pagePreparationSize) * 100 + '%',
-                                }"
+                                [style.width.%]="getPagePreparationPercent()"
                                 style="line-height: 25px; font-size: 1.2em; font-weight: bold"
-                              ></div>
+                              >
+                                {{ getPagePreparationPercent() | number: '1.0-0' }}%
+                              </div>
                             </div>
                           </div>
                         }
@@ -1085,6 +1098,7 @@
           }
 
           @if (
+            !preparationNeeded &&
             !leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate &&
             leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0
           ) {
@@ -1102,8 +1116,7 @@
             <button [disabled]="true" style="margin-right: 15px" class="btn btn-warning">
               <span class="fas fa-arrows-rotate icon-spin"></span>
               <span
-                >Reportaufbereitung: {{ pagePreparationIndex + 1 }} von
-                {{ pagePreparationSize }}</span
+                >Reportaufbereitung: {{ pagePreparationIndex }} von {{ pagePreparationSize }}</span
               >
             </button>
           }

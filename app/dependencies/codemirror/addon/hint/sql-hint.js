@@ -1,0 +1,200 @@
+!(function (t) {
+  'object' == typeof exports && 'object' == typeof module
+    ? t(require('../../lib/codemirror'), require('../../mode/sql/sql'))
+    : 'function' == typeof define && define.amd
+      ? define(['../../lib/codemirror', '../../mode/sql/sql'], t)
+      : t(CodeMirror);
+})(function (t) {
+  'use strict';
+  var e,
+    r,
+    n,
+    o,
+    i = ';',
+    s = 'AS',
+    a = t.Pos,
+    u = t.cmpPos;
+  function f(t) {
+    return '[object Array]' == Object.prototype.toString.call(t);
+  }
+  function l(e, r) {
+    return e.getModeAt(e.getCursor()).config[r] || t.resolveMode('text/x-sql')[r];
+  }
+  function c(t) {
+    return 'string' == typeof t ? t : t.text;
+  }
+  function p(t, e) {
+    return (f(e) && (e = { columns: e }), e.text || (e.text = t), e);
+  }
+  function g(t) {
+    return e[t.toUpperCase()];
+  }
+  function d(t) {
+    var e = {};
+    for (var r in t) t.hasOwnProperty(r) && (e[r] = t[r]);
+    return e;
+  }
+  function h(t, e) {
+    var r = t.length,
+      n = c(e).substr(0, r);
+    return t.toUpperCase() === n.toUpperCase();
+  }
+  function v(t, e, r, n) {
+    if (f(r)) for (var o = 0; o < r.length; o++) h(e, r[o]) && t.push(n(r[o]));
+    else
+      for (var i in r)
+        if (r.hasOwnProperty(i)) {
+          var s = r[i];
+          h(
+            e,
+            (s =
+              s && !0 !== s
+                ? s.displayText
+                  ? { text: s.text, displayText: s.displayText }
+                  : s.text
+                : i)
+          ) && t.push(n(s));
+        }
+  }
+  function x(t) {
+    '.' == t.charAt(0) && (t = t.substr(1));
+    for (var e = t.split(o + o), r = 0; r < e.length; r++)
+      e[r] = e[r].replace(new RegExp(o, 'g'), '');
+    return e.join(o);
+  }
+  function m(t) {
+    for (var e = c(t).split('.'), r = 0; r < e.length; r++)
+      e[r] = o + e[r].replace(new RegExp(o, 'g'), o + o) + o;
+    var n = e.join('.');
+    return 'string' == typeof t ? n : (((t = d(t)).text = n), t);
+  }
+  function y(t, e) {
+    for (var r = t.split(/\s+/), n = 0; n < r.length; n++) r[n] && e(r[n].replace(/[`,;]/g, ''));
+  }
+  function b(t, e) {
+    for (
+      var r = e.doc,
+        n = r.getValue(),
+        o = t.toUpperCase(),
+        f = '',
+        l = '',
+        c = [],
+        p = { start: a(0, 0), end: a(e.lastLine(), e.getLineHandle(e.lastLine()).length) },
+        d = n.indexOf(i);
+      -1 != d;
+    )
+      (c.push(r.posFromIndex(d)), (d = n.indexOf(i, d + 1)));
+    (c.unshift(a(0, 0)), c.push(a(e.lastLine(), e.getLineHandle(e.lastLine()).text.length)));
+    for (var h = null, v = e.getCursor(), x = 0; x < c.length; x++) {
+      if ((null == h || u(v, h) > 0) && u(v, c[x]) <= 0) {
+        p = { start: h, end: c[x] };
+        break;
+      }
+      h = c[x];
+    }
+    if (p.start) {
+      var m = r.getRange(p.start, p.end, !1);
+      for (
+        x = 0;
+        x < m.length &&
+        (y(m[x], function (t) {
+          var e = t.toUpperCase();
+          (e === o && g(f) && (l = f), e !== s && (f = t));
+        }),
+        !l);
+        x++
+      );
+    }
+    return l;
+  }
+  t.registerHelper('hint', 'sql', function (t, i) {
+    e = (function (t) {
+      var e = {};
+      if (f(t))
+        for (var r = t.length - 1; r >= 0; r--) {
+          var n = t[r];
+          e[c(n).toUpperCase()] = p(c(n), n);
+        }
+      else if (t) for (var o in t) e[o.toUpperCase()] = p(o, t[o]);
+      return e;
+    })(i && i.tables);
+    var s = i && i.defaultTable,
+      u = i && i.disableKeywords;
+    ((r = s && g(s)),
+      (n = (function (t) {
+        return l(t, 'keywords') || [];
+      })(t)),
+      (o = (function (t) {
+        return l(t, 'identifierQuote') || '`';
+      })(t)),
+      s && !r && (r = b(s, t)),
+      (r = r || []).columns && (r = r.columns));
+    var h,
+      y,
+      C,
+      A = t.getCursor(),
+      j = [],
+      w = t.getTokenAt(A);
+    if (
+      (w.end > A.ch && ((w.end = A.ch), (w.string = w.string.slice(0, A.ch - w.start))),
+      w.string.match(/^[.`"'\w@][\w$#]*$/g)
+        ? ((C = w.string), (h = w.start), (y = w.end))
+        : ((h = y = A.ch), (C = '')),
+      '.' == C.charAt(0) || C.charAt(0) == o)
+    )
+      h = (function (t, n, i, s) {
+        for (var u = !1, f = [], l = n.start, c = !0; c; )
+          ((c = '.' == n.string.charAt(0)),
+            (u = u || n.string.charAt(0) == o),
+            (l = n.start),
+            f.unshift(x(n.string)),
+            '.' == (n = s.getTokenAt(a(t.line, n.start))).string &&
+              ((c = !0), (n = s.getTokenAt(a(t.line, n.start)))));
+        var p = f.join('.');
+        (v(i, p, e, function (t) {
+          return u ? m(t) : t;
+        }),
+          v(i, p, r, function (t) {
+            return u ? m(t) : t;
+          }),
+          (p = f.pop()));
+        var h = f.join('.'),
+          y = !1,
+          C = h;
+        if (!g(h)) {
+          var A = h;
+          (h = b(h, s)) !== A && (y = !0);
+        }
+        var j = g(h);
+        return (
+          j && j.columns && (j = j.columns),
+          j &&
+            v(i, p, j, function (t) {
+              var e = h;
+              return (
+                1 == y && (e = C),
+                'string' == typeof t ? (t = e + '.' + t) : ((t = d(t)).text = e + '.' + t.text),
+                u ? m(t) : t
+              );
+            }),
+          l
+        );
+      })(A, w, j, t);
+    else {
+      var q = function (t, e) {
+        return ('object' == typeof t ? (t.className = e) : (t = { text: t, className: e }), t);
+      };
+      (v(j, C, r, function (t) {
+        return q(t, 'CodeMirror-hint-table CodeMirror-hint-default-table');
+      }),
+        v(j, C, e, function (t) {
+          return q(t, 'CodeMirror-hint-table');
+        }),
+        u ||
+          v(j, C, n, function (t) {
+            return q(t.toUpperCase(), 'CodeMirror-hint-keyword');
+          }));
+    }
+    return { list: j, from: a(A.line, h), to: a(A.line, y) };
+  });
+});

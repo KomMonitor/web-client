@@ -1,0 +1,26 @@
+!(function (e, r, i) {
+  'object' == typeof exports
+    ? (module.exports = exports = r(require('./core'), require('./cipher-core')))
+    : 'function' == typeof define && define.amd
+      ? define(['./core', './cipher-core'], r)
+      : r(e.CryptoJS);
+})(this, function (e) {
+  return (
+    (e.pad.ZeroPadding = {
+      pad: function (e, r) {
+        var i = 4 * r;
+        (e.clamp(), (e.sigBytes += i - (e.sigBytes % i || i)));
+      },
+      unpad: function (e) {
+        var r = e.words,
+          i = e.sigBytes - 1;
+        for (i = e.sigBytes - 1; i >= 0; i--)
+          if ((r[i >>> 2] >>> (24 - (i % 4) * 8)) & 255) {
+            e.sigBytes = i + 1;
+            break;
+          }
+      },
+    }),
+    e.pad.ZeroPadding
+  );
+});

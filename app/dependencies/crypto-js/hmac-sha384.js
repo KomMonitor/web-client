@@ -1,0 +1,16 @@
+!(function (e, r, o) {
+  'object' == typeof exports
+    ? (module.exports = exports =
+        r(
+          require('./core'),
+          require('./x64-core'),
+          require('./sha512'),
+          require('./sha384'),
+          require('./hmac')
+        ))
+    : 'function' == typeof define && define.amd
+      ? define(['./core', './x64-core', './sha512', './sha384', './hmac'], r)
+      : r(e.CryptoJS);
+})(this, function (e) {
+  return e.HmacSHA384;
+});

@@ -205,7 +205,20 @@ export class CustomSliderComponent implements AfterViewInit, OnChanges {
   }
 
   getSliderValues() {
-    const values = this.sliderInstance.noUiSlider.get();
+    // the noUiSlider widget is created in ngAfterViewInit and can be queried by a parent's
+    // template expression (e.g. validateConfiguration()) before that's run, or while the
+    // slider is being destroyed/recreated - callers already handle a falsy return gracefully
+    //
+    // `noUiSlider.create()` returns the API object itself (not the target DOM element) - see
+    // the `initialize(target, options): API` signature in nouislider's type definitions. Every
+    // other call site in this class (`.set()`, `.on()`, `.disable()`, `.enable()`) already calls
+    // straight into `this.sliderInstance` for that reason; this one used to go through a
+    // nonexistent `.noUiSlider` property, so `getSliderValues()` always returned `undefined` and
+    // every caller (e.g. the reporting date-range slider) silently fell back to its default range.
+    if (!this.sliderInstance) {
+      return undefined;
+    }
+    const values = this.sliderInstance.get();
     return Array.isArray(values) ? values : [values];
   }
 

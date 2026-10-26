@@ -1,5 +1,7 @@
-import { CommonModule } from '@angular/common';
-import { ApplicationRef, Component, OnInit, inject } from '@angular/core';
+﻿import { CommonModule } from '@angular/common';
+import { ApplicationRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import * as echarts from 'echarts';
 import * as docx from 'docx';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
@@ -8,24 +10,41 @@ import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store
 import * as d3 from 'd3';
 import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot-cache-helper-service/leaflet-screenshot-cache-helper.service';
 import { HttpClient } from '@angular/common/http';
-import * as L from 'leaflet';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { GenerateReportComponent } from '../generate-report/generate-report.component';
 import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
-import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import {
   ImportData,
   ReportingService,
   WorkflowState,
 } from 'services/reporting-service/reporting.service';
+import { ReportPagePreparationService } from 'services/report-page-preparation-service/report-page-preparation.service';
+import { ReportGenerationProgressService } from 'services/report-generation-progress-service/report-generation-progress.service';
+import {
+  checkVisibility,
+  countBackgroundPages,
+  createDatatablePage,
+  createLowerCaseNameProperty,
+  isLastPreviewPage,
+  isPageInPreview,
+} from 'components/ngComponents/userInterface/reporting/report-preview.utils';
+import { ReportGenerationContext } from 'components/ngComponents/userInterface/reporting/report-generation-context.model';
+import {
+  reportingOverviewBackgroundPageElementId,
+  reportingOverviewBackgroundPageId,
+  reportingOverviewPreviewPageElementId,
+  reportingOverviewPreviewPageId,
+} from 'components/ngComponents/userInterface/reporting/report-page-dom-ids.utils';
 
 @Component({
   selector: 'app-reporting-overview',
   standalone: true,
   templateUrl: './reporting-overview.component.html',
   styleUrls: ['./reporting-overview.component.scss'],
-  imports: [CommonModule, SafeHtmlPipe],
+  imports: [CommonModule, SafeHtmlPipe, DragDropModule],
 })
 export class ReportingOverviewComponent implements OnInit {
   private mapErrorNotificationService = inject(MapErrorNotificationService);
@@ -36,8 +55,11 @@ export class ReportingOverviewComponent implements OnInit {
   protected diagramHelperService = inject(DiagramHelperServiceService);
   private modalService = inject(NgbModal);
   protected reportingService = inject(ReportingService);
-  private envConfigService = inject(EnvConfigService);
+  protected reportGenerationProgressService = inject(ReportGenerationProgressService);
   private appRef = inject(ApplicationRef);
+  private broadcastService = inject(BroadcastService);
+  private destroyRef = inject(DestroyRef);
+  private reportPagePreparationService = inject(ReportPagePreparationService);
 
   lastPageOfAddedSectionPrepared = false;
   deviceScreenDpi;
@@ -54,20 +76,10 @@ export class ReportingOverviewComponent implements OnInit {
 
   mercatorProjection_d3: any = d3.geoMercator();
 
-  templateBlank: any;
-
   loadingData = false;
   loadingReport = false;
   echartsImgPixelRatio = 2;
   pxPerMilli;
-
-  sections = []; // one section per page for now, since this is an easy way to create page breaks
-
-  sortableConfig = {
-    onEnd: function (e) {
-      // nothing for now, config elements get reordered automatically
-    },
-  };
 
   workflowState = WorkflowState;
 
@@ -75,8 +87,46 @@ export class ReportingOverviewComponent implements OnInit {
     this.deviceScreenDpi = this.calculateScreenDpi();
     this.pxPerMilli = this.deviceScreenDpi / 25.4; // /2.54 --> cm, /10 --> mm
 
-    if (!this.reportingService.configImportExists()) this.setupPages();
-    else this.importConfig();
+    this.broadcastService.currentBroadcastMsg
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((broadcastMsg) => {
+        if (broadcastMsg.msg === BroadcastMessage.AbortReportGeneration) {
+          this.onAbortPreparationClicked();
+        }
+      });
+
+    // Deferred to a macrotask: this component is often created synchronously inside another
+    // component's click handler (e.g. indicator-add's "add" button swapping the workflow state
+    // back to reportingOverview), i.e. mid change-detection pass. Setting the shared progress
+    // flags right here would make the globally-mounted ReportingProgressBannerComponent's already-
+    // checked binding go stale within the same cycle, tripping NG0100. Starting on the next
+    // macrotask lets the current cycle (including its dev-mode verification pass) finish first.
+    setTimeout(() => {
+      if (!this.reportingService.configImportExists()) this.setupPages();
+      else this.importConfig();
+    });
+
+    // setupPages() re-walks every section and can still be running when the user navigates
+    // away (e.g. back into indicator-add to configure another section) before it completes.
+    // Without this, that orphaned loop keeps going in the background and eventually flips the
+    // shared success banner to "finished" for a screen the user has already left. Aborting here
+    // makes its next loop-iteration check break out early instead.
+    this.destroyRef.onDestroy(() => {
+      this.reportGenerationProgressService.abortPreparation = true;
+    });
+  }
+
+  getPagePreparationPercent(): number {
+    if (!this.pagePreparationSize) return 0;
+    return Math.min(100, Math.max(0, (this.pagePreparationIndex / this.pagePreparationSize) * 100));
+  }
+
+  onAbortPreparationClicked() {
+    this.reportGenerationProgressService.abortPreparation = true;
+    this.reportGenerationProgressService.reportGenerationInProgress = false;
+    this.pagePreparationIndex = 0;
+    this.pagePreparationSize = 0;
+    this.leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate = true;
   }
 
   showReportLoading() {
@@ -96,82 +146,7 @@ export class ReportingOverviewComponent implements OnInit {
   }
 
   checkVisibility(pageElement, page) {
-    if (!page || !page.templateSection || !page.templateSection.pageConfig) {
-      return true;
-    }
-
-    switch (pageElement.type) {
-      case 'indicatorTitle-landscape':
-      case 'indicatorTitle-portrait': {
-        return page.templateSection.pageConfig.headerFooterControl.showTitle;
-      }
-
-      case 'communeLogo-landscape':
-      case 'communeLogo-portrait': {
-        return page.templateSection.pageConfig.headerFooterControl.showLogo;
-      }
-      case 'dataTimestamp-landscape':
-      case 'dataTimestamp-portrait': {
-        return page.templateSection.pageConfig.headerFooterControl.showSubtitle;
-      }
-      case 'dataTimeseries-landscape':
-      case 'dataTimeseries-portrait': {
-        return page.templateSection.pageConfig.headerFooterControl.showSubtitle;
-      }
-      case 'reachability-subtitle-landscape':
-      case 'reachability-subtitle-portrait': {
-        return page.templateSection.pageConfig.headerFooterControl.showSubtitle;
-      }
-      case 'footerHorizontalSpacer-landscape':
-      case 'footerHorizontalSpacer-portrait': {
-        return page.templateSection.pageConfig.headerFooterControl.showFooterCreationInfo;
-      }
-      case 'footerCreationInfo-landscape':
-      case 'footerCreationInfo-portrait': {
-        return page.templateSection.pageConfig.headerFooterControl.showFooterCreationInfo;
-      }
-      case 'pageNumber-landscape':
-      case 'pageNumber-portrait': {
-        return page.templateSection.pageConfig.headerFooterControl.showPageNumber;
-      }
-      // template-specific elements
-      case 'map': {
-        return true;
-      }
-      // case "mapLegend" can be ignored since it is included in the map if needed
-      /*
-        June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
-        */
-      // case "overallAverage":
-      // case "selectionAverage": {
-      // 	return true;
-      // }
-      // case "overallChange":
-      // case "selectionChange": {
-      // 	return true;
-      // }
-      case 'barchart': {
-        if (page.type == 'area_specific') {
-          return page.templateSection.pageConfig.sectionContentControl.showRankingChartPerArea;
-        }
-        return true;
-      }
-      case 'linechart': {
-        if (page.type == 'area_specific') {
-          return page.templateSection.pageConfig.sectionContentControl.showLineChartPerArea;
-        }
-        return true;
-      }
-      case 'textInput': {
-        return page.templateSection.pageConfig.sectionContentControl.showFreeText;
-      }
-      case 'datatable': {
-        return page.templateSection.pageConfig.sectionControl.showDatatable;
-      }
-      default: {
-        return true;
-      }
-    }
+    return checkVisibility(pageElement, page, page?.templateSection?.pageConfig);
   }
 
   removeCircularReferences(pages) {
@@ -224,12 +199,12 @@ export class ReportingOverviewComponent implements OnInit {
       for (const [elementIdx, mapElement] of new_page.pageElements.entries()) {
         if (mapElement.type !== 'map') continue;
         if (mapElement && mapElement.leafletMap) {
-          const pageDom: any = document.querySelector('#reporting-overview-page-' + index);
+          const pageDom: any = document.querySelector('#' + reportingOverviewPreviewPageId(index));
           const pElementDom = pageDom.querySelector(
-            '#reporting-overview-page-' + index + '-map-' + elementIdx
+            '#' + reportingOverviewPreviewPageElementId(index, 'map', elementIdx)
           );
           const instance = echarts.getInstanceByDom(pElementDom);
-          await this.initializeLeafletMap(
+          await this.reportPagePreparationService.prepareLeafletMapForOverview(
             new_page,
             mapElement,
             elementIdx,
@@ -237,7 +212,8 @@ export class ReportingOverviewComponent implements OnInit {
             this.currentSpatialUnit,
             true,
             true,
-            true
+            true,
+            this.buildGenerationContext()
           );
         }
       }
@@ -256,84 +232,16 @@ export class ReportingOverviewComponent implements OnInit {
     this.reportingService.changeWorkflowState(this.workflowState.templateSelect);
   }
 
-  reportingIndicatorConfigurationCompleted([indicator, template, templateBlank]) {
-    /* 	this.loadingData = true;
-      this.reportingService.workingTemplate = template;
-      this.templateBlank = templateBlank;
-			
-			let templateSection = {
-				indicatorName: indicator ? indicator.indicatorName : "",
-				indicatorId: indicator ? indicator.indicatorId : "",
-				poiLayerName: "",
-				spatialUnitName: template.spatialUnitName,
-				absoluteLabelPositions: template.absoluteLabelPositions,
-				echartsRegisteredMapNames: template.echartsRegisteredMapNames,
-				echartsMaps: [],
-				pageConfig: jQuery.extend(true, {}, template.pageConfig) // deep copy to preserve section specific settings
-			}
-			for(let page of template.pages) {
-				page.templateSection = templateSection;
-			}
-			// remove the placeholder template if this is the first section that gets added)
-			this.reportingService.workingTemplate.pages =  this.reportingService.workingTemplate.pages.filter( page => {
-				if(page.hasOwnProperty("templateSection")) {
-					return page.templateSection.hasOwnProperty("indicatorName");
-				} else {
-					return false;
-				}
-			});
-			// append to array
-			//this.reportingService.workingTemplate.pages.push(...template.pages);
-
-      let exists = this.reportingService.config.templateSections.filter(e => e.indicatorId==indicator.indicatorId);
-      if(exists.length==0)
-			  this.reportingService.config.templateSections.push(templateSection);
-				
-			// setup pages after dom exists
-			// at this point we still have all the echarts maps registered
-			this.setupNewPages(this.reportingService.config.templateSections.at(-1)); */
-  }
-
-  reportingPoiLayerConfigurationCompleted([poiLayer, indicator, template, templateBlank]) {
-    this.loadingData = true;
-    //this.reportingService.workingTemplate = template;
-    this.templateBlank = templateBlank;
-
-    // add indicator to 'added indicators'
-    const templateSection = {
-      indicatorName: indicator ? indicator.indicatorName : '',
-      indicatorId: indicator ? indicator.indicatorId : '',
-      poiLayerName: poiLayer.datasetName,
-      spatialUnitName: template.spatialUnitName,
-      absoluteLabelPositions: template.absoluteLabelPositions,
-      echartsRegisteredMapNames: template.echartsRegisteredMapNames,
-      echartsMaps: [],
-      isochronesRangeType: template.isochronesRangeType,
-      isochronesRangeUnits: template.isochronesRangeUnits,
-      pageConfig: jQuery.extend(true, {}, template.pageConfig), // deep copy to preserve section specific settings
-    };
-    for (const page of template.pages) {
-      page.templateSection = templateSection;
-    }
-    // remove all pages without property poiLayerName (clean template)
-    this.reportingService.workingTemplate.pages =
-      this.reportingService.workingTemplate.pages.filter((page) => {
-        if (Object.prototype.hasOwnProperty.call(page, 'templateSection')) {
-          return Object.prototype.hasOwnProperty.call(page.templateSection, 'poiLayerName');
-        } else {
-          return false;
-        }
-      });
-    // append to array
-    //this.reportingService.workingTemplate.pages.push(...template.pages);
-
-    /* let exists = this.reportingService.config.templateSections.filter(e => e.poiLayerName==poiLayer.datasetName);
-      if(exists.length==0)
-        this.reportingService.config.templateSections.push(templateSection);
-        
-      // setup pages after dom exists
-      // at this point we still have all the echarts maps registered
-      this.setupNewPages(this.reportingService.config.templateSections.at(-1)); */
+  // A section is uniquely identified by indicatorId (indicator sections) or georesourceId
+  // (POI/georesource sections) - the same scheme removeIndicatorSection/removeGeoresourcesSection
+  // use. templateSection never actually carries a `spatialUnitId` field (it's `spatialUnitName`),
+  // so comparing it here used to compare `undefined === undefined` - always true, and vacuous -
+  // which broke disambiguation between two sections that happen to share an indicatorId/
+  // georesourceId (e.g. the same indicator added twice for two different spatial units).
+  private belongsToSection(page: any, section: any): boolean {
+    return section.indicatorId
+      ? page.templateSection.indicatorId === section.indicatorId
+      : page.templateSection.georesourceId === section.georesourceId;
   }
 
   reorderTemplateSections(newVal, oldVal) {
@@ -350,11 +258,7 @@ export class ReportingOverviewComponent implements OnInit {
         this.reportingService.workingTemplate.pages.filter((page) => {
           if (!Object.prototype.hasOwnProperty.call(page, 'templateSection')) return true; // for placeholder
 
-          return (
-            page.templateSection.indicatorId !== removedSection.indicatorId ||
-            page.templateSection.spatialUnitId !== removedSection.spatialUnitId ||
-            page.templateSection.poiLayerName !== removedSection.poiLayerName
-          );
+          return !this.belongsToSection(page, removedSection);
         });
     }
     if (newVal.length === oldVal.length) {
@@ -363,17 +267,34 @@ export class ReportingOverviewComponent implements OnInit {
       const sorted: any = [];
       for (const section of newVal) {
         for (const page of this.reportingService.workingTemplate.pages) {
-          if (
-            page.templateSection.indicatorId === section.indicatorId &&
-            page.templateSection.spatialUnitId === section.spatialUnitId &&
-            page.templateSection.poiLayerName === section.poiLayerName
-          ) {
+          if (this.belongsToSection(page, section)) {
             sorted.push(page);
           }
         }
       }
       this.reportingService.workingTemplate.pages = sorted;
     }
+  }
+
+  // only one of indicators/georesources is ever populated for a given template (see
+  // onAddBtnClicked in indicator-add.component.ts), but concatenating both keeps this correct
+  // either way and matches the order the two @for blocks render in the sidebar list
+  onSectionListDropped(event: CdkDragDrop<any[]>) {
+    const indicators = this.reportingService.templateSections.indicators;
+    const georesources = this.reportingService.templateSections.georesources;
+    const oldOrder = [...indicators, ...georesources];
+    const newOrder = [...oldOrder];
+    moveItemInArray(newOrder, event.previousIndex, event.currentIndex);
+
+    this.reorderTemplateSections(newOrder, oldOrder);
+
+    this.reportingService.setValue({
+      ...this.reportingService.currentValue,
+      sections: {
+        indicators: newOrder.filter((section) => indicators.includes(section)),
+        georesources: newOrder.filter((section) => georesources.includes(section)),
+      },
+    });
   }
 
   getNumberOfMapElements(config) {
@@ -392,7 +313,7 @@ export class ReportingOverviewComponent implements OnInit {
     }
   }
 
-  importConfig() {
+  async importConfig() {
     try {
       const config = this.reportingService.importConfig;
 
@@ -462,9 +383,8 @@ export class ReportingOverviewComponent implements OnInit {
           }
         }
 
-        for (const section of this.reportingService.getSectionsAsArray()) {
-          this.setupPages();
-        }
+        // setupPages() already iterates every indicator/georesource section itself
+        await this.setupPages();
       }
     } catch (error: any) {
       console.error(error);
@@ -474,17 +394,49 @@ export class ReportingOverviewComponent implements OnInit {
 
   // new to cover added sections
   async setupPages() {
+    // A brand-new report (or one with nothing left to prepare) has no sections to loop over,
+    // so the loops below would complete instantly and announce "generation finished" without
+    // anything actually having been prepared. Skip the whole progress/banner flow in that case.
+    if (
+      this.reportingService.templateSections.indicators.length === 0 &&
+      this.reportingService.templateSections.georesources.length === 0
+    ) {
+      return;
+    }
+
     this.loadingData = true;
+    this.reportGenerationProgressService.abortPreparation = false;
+    this.reportGenerationProgressService.reportGenerationInProgress = true;
+    this.reportGenerationProgressService.reportStatus = 'preparing';
+    this.reportGenerationProgressService.reportProgress = 0;
 
-    this.reportingService.templateSections.indicators.forEach(async (indicator) => {
+    for (const indicator of this.reportingService.templateSections.indicators) {
+      if (this.reportGenerationProgressService.abortPreparation) break;
       await this.setupIndicatorPages(indicator);
-    });
+    }
 
-    this.reportingService.templateSections.georesources.forEach(async (georesource) => {
+    for (const georesource of this.reportingService.templateSections.georesources) {
+      if (this.reportGenerationProgressService.abortPreparation) break;
       await this.setupPagesForReachability(georesource);
-    });
+    }
 
     this.loadingData = false;
+
+    if (this.reportGenerationProgressService.abortPreparation) {
+      this.reportGenerationProgressService.reportGenerationInProgress = false;
+      return;
+    }
+
+    this.reportGenerationProgressService.reportStatus = 'finished';
+    this.reportGenerationProgressService.reportProgress = 100;
+    this.reportGenerationProgressService.reportCountdown = 5;
+    const countdownInterval = setInterval(() => {
+      this.reportGenerationProgressService.reportCountdown--;
+      if (this.reportGenerationProgressService.reportCountdown <= 0) {
+        clearInterval(countdownInterval);
+        this.reportGenerationProgressService.reportGenerationInProgress = false;
+      }
+    }, 1000);
   }
 
   getFeatureLookupKey(templateSection) {
@@ -493,61 +445,63 @@ export class ReportingOverviewComponent implements OnInit {
       : templateSection.poiLayerName + '_' + templateSection.spatialUnitName;
   }
 
-  isPageInPreview(page, index) {
-    if (page.type !== 'area_specific' && page.type !== 'datatable') {
-      return true;
-    }
-    if (page.type === 'area_specific') {
-      const areaSpecificPages = this.reportingService.workingTemplate.pages.filter(
-        (p: any) => p.type === 'area_specific'
-      );
-      const areaIdx = areaSpecificPages.indexOf(page);
-      return areaIdx < this.MAX_PREVIEW_AREA_SPECIFIC_PAGES;
-    }
-    if (page.type === 'datatable') {
-      const datatablePages = this.reportingService.workingTemplate.pages.filter(
-        (p: any) => p.type === 'datatable'
-      );
-      const datatableIdx = datatablePages.indexOf(page);
-      return datatableIdx < this.MAX_PREVIEW_DATATABLE_PAGES;
-    }
-    return true;
+  // Precomputed once per call (not a showThisPage(page) callback evaluated per candidate page -
+  // see report-preview.utils.ts) so isPageInPreview()/isLastPreviewPage()/countBackgroundPages()
+  // stay O(n) instead of O(n^2) each, which made the @for loop rendering all pages O(n^3) overall.
+  private shownPageIds(): Set<any> {
+    return new Set(this.filterPagesToShow().map((p: any) => p.id));
+  }
+
+  isPageInPreview(page, _index?: number) {
+    return isPageInPreview(
+      this.reportingService.workingTemplate.pages,
+      page,
+      this.MAX_PREVIEW_AREA_SPECIFIC_PAGES,
+      this.MAX_PREVIEW_DATATABLE_PAGES,
+      this.shownPageIds()
+    );
   }
 
   isLastPreviewPage(page: any): boolean {
-    if (page.type === 'area_specific') {
-      const areaPages = this.reportingService.workingTemplate.pages.filter(
-        (p: any) => p.type === 'area_specific'
-      );
-      return areaPages.indexOf(page) === this.MAX_PREVIEW_AREA_SPECIFIC_PAGES - 1;
-    }
-    if (page.type === 'datatable') {
-      const dtPages = this.reportingService.workingTemplate.pages.filter(
-        (p: any) => p.type === 'datatable'
-      );
-      return dtPages.indexOf(page) === this.MAX_PREVIEW_DATATABLE_PAGES - 1;
-    }
-    return false;
+    return isLastPreviewPage(
+      this.reportingService.workingTemplate.pages,
+      page,
+      this.MAX_PREVIEW_AREA_SPECIFIC_PAGES,
+      this.MAX_PREVIEW_DATATABLE_PAGES,
+      this.shownPageIds()
+    );
   }
 
   countBackgroundPages(page: any): number {
     if (!this.reportingService.workingTemplate || !page) return 0;
-    if (page.type === 'area_specific') {
-      const areaPages = this.reportingService.workingTemplate.pages.filter(
-        (p: any) => p.type === 'area_specific'
-      );
-      return Math.max(0, areaPages.length - this.MAX_PREVIEW_AREA_SPECIFIC_PAGES);
-    }
-    if (page.type === 'datatable') {
-      const dtPages = this.reportingService.workingTemplate.pages.filter(
-        (p: any) => p.type === 'datatable'
-      );
-      return Math.max(0, dtPages.length - this.MAX_PREVIEW_DATATABLE_PAGES);
-    }
-    return 0;
+    return countBackgroundPages(
+      this.reportingService.workingTemplate.pages,
+      page,
+      this.MAX_PREVIEW_AREA_SPECIFIC_PAGES,
+      this.MAX_PREVIEW_DATATABLE_PAGES,
+      this.shownPageIds()
+    );
+  }
+
+  // Builds the per-page generation context. Not consumed by the generation methods yet - see
+  // report-generation-context.model.ts for why this is introduced ahead of actually using it.
+  buildGenerationContext(): ReportGenerationContext {
+    return {
+      pages: this.reportingService.workingTemplate.pages,
+      mercatorProjection_d3: this.mercatorProjection_d3,
+      currentSpatialUnit: this.currentSpatialUnit,
+      geoJsonForReachability_byFeatureName: this.geoJsonForReachability_byFeatureName,
+      featureLookupCache: this.featureLookupCache,
+      lastPageOfAddedSectionPrepared: this.lastPageOfAddedSectionPrepared,
+      pagePreparationIndex: this.pagePreparationIndex,
+      pagePreparationSize: this.pagePreparationSize,
+      loadingData: this.loadingData,
+      echartsImgPixelRatio: this.echartsImgPixelRatio,
+    };
   }
 
   async preparePage(idx, page, indicatorId, poiLayerName, spatialUnit, geoJSON) {
+    const context = this.buildGenerationContext();
     const isPreview = this.isPageInPreview(page, idx);
     page.indexInConfigPages = idx;
 
@@ -561,10 +515,10 @@ export class ReportingOverviewComponent implements OnInit {
     }
 
     // route through background processor for stable map capture
-    this.reportingService.reportingBackgroundState.pageToProcess_overview = page;
+    this.reportGenerationProgressService.reportingBackgroundState.pageToProcess_overview = page;
     this.appRef.tick(); // synchronously run CD so the background page elements are in the DOM
 
-    const pageDom = document.getElementById('reporting-background-page');
+    const pageDom = document.getElementById(reportingOverviewBackgroundPageId());
     if (!pageDom) {
       console.error('Could not find background DOM for page ' + idx);
       return;
@@ -572,7 +526,7 @@ export class ReportingOverviewComponent implements OnInit {
 
     for (const [elementIdx, pageElement] of page.pageElements.entries()) {
       const pElementDom: any = pageDom.querySelector(
-        '#reporting-background-page-' + pageElement.type + '-' + elementIdx
+        '#' + reportingOverviewBackgroundPageElementId(pageElement.type, elementIdx)
       );
 
       if (!pElementDom) {
@@ -650,24 +604,34 @@ export class ReportingOverviewComponent implements OnInit {
         instance.setOption(pageElement.echartsOptions);
 
         if (pageElement.type === 'map') {
-          page.generatedData.mapImage = await this.initializeLeafletMap(
-            page,
-            pageElement,
-            elementIdx,
-            instance,
-            spatialUnit,
-            false,
-            false,
-            isPreview
-          );
+          page.generatedData.mapImage =
+            await this.reportPagePreparationService.prepareLeafletMapForOverview(
+              page,
+              pageElement,
+              elementIdx,
+              instance,
+              spatialUnit,
+              false,
+              false,
+              isPreview,
+              context
+            );
+
+          // capture the echarts choropleth canvas itself (not just the leaflet tile
+          // screenshot) - background pages (beyond the preview limit) are never rendered
+          // into the live preview DOM, so generate-report.component.ts's live-instance
+          // fallback can't find them at export time and the map ends up completely blank.
+          page.generatedData.echarts[pageElement.type] = instance.getDataURL({
+            pixelRatio: this.echartsImgPixelRatio,
+          });
 
           if (isPreview) {
             const previewPElementDom: any = document.querySelector(
-              '#reporting-overview-page-' + idx + '-' + pageElement.type + '-' + elementIdx
+              '#' + reportingOverviewPreviewPageElementId(idx, pageElement.type, elementIdx)
             );
             if (previewPElementDom) {
               // move the rendered echarts canvas (the indicator choropleth) into the visible
-              // preview element — it only exists in the off-screen background container
+              // preview element â€” it only exists in the off-screen background container
               // otherwise, so without this the indicator data never shows up in the overview
               previewPElementDom.innerHTML = '';
               while (pElementDom.firstChild) {
@@ -698,7 +662,7 @@ export class ReportingOverviewComponent implements OnInit {
 
           if (isPreview) {
             const previewPElementDom: any = document.querySelector(
-              '#reporting-overview-page-' + idx + '-' + pageElement.type + '-' + elementIdx
+              '#' + reportingOverviewPreviewPageElementId(idx, pageElement.type, elementIdx)
             );
             if (previewPElementDom) {
               previewPElementDom.innerHTML = '';
@@ -717,7 +681,7 @@ export class ReportingOverviewComponent implements OnInit {
       if (pageElement.type === 'mapLegend') {
         pageElement.isPlaceholder = false;
         if (isPreview) {
-          const previewPageDom = document.getElementById('reporting-overview-page-' + idx);
+          const previewPageDom = document.getElementById(reportingOverviewPreviewPageId(idx));
           if (previewPageDom) {
             const legendNode: any = previewPageDom.querySelector('.type-mapLegend');
             if (legendNode) legendNode.style.display = 'none';
@@ -729,13 +693,17 @@ export class ReportingOverviewComponent implements OnInit {
         let targetDom = pElementDom;
         if (isPreview) {
           targetDom = document.querySelector(
-            '#reporting-overview-page-' + idx + '-' + pageElement.type + '-' + elementIdx
+            '#' + reportingOverviewPreviewPageElementId(idx, pageElement.type, elementIdx)
           );
         }
-        this.createDatatablePage(targetDom, pageElement);
+        createDatatablePage(targetDom, pageElement);
         page.generatedData.tableData = pageElement.tableData;
       }
     }
+
+    page.generatedData.isComplete = true;
+    this.reportGenerationProgressService.reportingBackgroundState.pageToProcess_overview =
+      undefined;
   }
 
   filterMapByArea(echartsInstance, echartsInstanceOptions, areaName, allFeatures) {
@@ -753,7 +721,7 @@ export class ReportingOverviewComponent implements OnInit {
     this.currentSpatialUnit = spatialUnit;
 
     featureCollection = await this.queryFeatures(indicatorId, spatialUnit);
-    features = this.createLowerCaseNameProperty(featureCollection.features);
+    features = createLowerCaseNameProperty(featureCollection.features);
     this.geoJsonForReachability_byFeatureName = new Map();
 
     for (const feature of features) {
@@ -767,13 +735,20 @@ export class ReportingOverviewComponent implements OnInit {
 
     this.lastPageOfAddedSectionPrepared = false;
     this.pagePreparationIndex = 0;
-    this.pagePreparationSize = this.reportingService.workingTemplate.pages.length;
-
-    const logProgressIndexSeparator = Math.round((this.pagePreparationSize / 100) * 10);
+    // `workingTemplate.pages` holds a landscape+portrait pair for most page types, but only one
+    // of each pair is ever shown (see `showThisPage`) - counting the raw array length roughly
+    // doubles the "total" relative to the page count the finished report will actually have.
+    this.pagePreparationSize = this.reportingService.workingTemplate.pages.filter(
+      (p) => p.templateSection.indicatorId === indicatorId && this.showThisPage(p)
+    ).length;
 
     await new Promise((resolve) => setTimeout(resolve, 150));
 
+    let totalPreparedCount = 0;
     for (const [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
+      if (this.reportGenerationProgressService.abortPreparation) {
+        return;
+      }
       if (page.templateSection.indicatorId !== indicatorId) {
         continue;
       }
@@ -785,10 +760,19 @@ export class ReportingOverviewComponent implements OnInit {
 
       await this.preparePage(idx, page, indicatorId, undefined, spatialUnit, geoJSON);
 
-      this.pagePreparationIndex = idx;
+      // Still prepare the hidden orientation twin above (so toggling it later is instant), but
+      // only count visible pages towards the progress shown to the user.
+      if (this.showThisPage(page)) {
+        totalPreparedCount++;
+        this.pagePreparationIndex = totalPreparedCount;
+        this.reportGenerationProgressService.reportProgress = Math.round(
+          (totalPreparedCount / this.pagePreparationSize) * 100
+        );
+      }
     }
 
     this.lastPageOfAddedSectionPrepared = true;
+    this.pagePreparationIndex = this.pagePreparationSize;
     this.loadingData = false;
   }
 
@@ -809,8 +793,9 @@ export class ReportingOverviewComponent implements OnInit {
       spatialUnit = await this.getSpatialUnitByName(templateSection.spatialUnitName);
       featureCollection = await this.queryFeatures(undefined, spatialUnit);
     }
+    this.currentSpatialUnit = spatialUnit;
 
-    features = this.createLowerCaseNameProperty(featureCollection.features);
+    features = createLowerCaseNameProperty(featureCollection.features);
     geoJSON = { features: features };
 
     this.geoJsonForReachability_byFeatureName = new Map();
@@ -824,11 +809,18 @@ export class ReportingOverviewComponent implements OnInit {
 
     this.lastPageOfAddedSectionPrepared = false;
     this.pagePreparationIndex = 0;
-    this.pagePreparationSize = this.reportingService.workingTemplate.pages.length;
+    // see setupIndicatorPages for why this counts visible pages only, not the raw array length
+    this.pagePreparationSize = this.reportingService.workingTemplate.pages.filter(
+      (p) => p.templateSection.poiLayerName === poiLayerName && this.showThisPage(p)
+    ).length;
 
     await new Promise((resolve) => setTimeout(resolve, 150));
 
+    let totalPreparedCount = 0;
     for (const [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
+      if (this.reportGenerationProgressService.abortPreparation) {
+        return;
+      }
       if (page.templateSection.poiLayerName !== poiLayerName) {
         continue;
       }
@@ -840,10 +832,17 @@ export class ReportingOverviewComponent implements OnInit {
 
       await this.preparePage(idx, page, undefined, poiLayerName, spatialUnit, geoJSON);
 
-      this.pagePreparationIndex = idx;
+      if (this.showThisPage(page)) {
+        totalPreparedCount++;
+        this.pagePreparationIndex = totalPreparedCount;
+        this.reportGenerationProgressService.reportProgress = Math.round(
+          (totalPreparedCount / this.pagePreparationSize) * 100
+        );
+      }
     }
 
     this.lastPageOfAddedSectionPrepared = true;
+    this.pagePreparationIndex = this.pagePreparationSize;
     this.loadingData = false;
   }
 
@@ -855,260 +854,6 @@ export class ReportingOverviewComponent implements OnInit {
 		});
 
  */
-
-  async initializeLeafletMap(
-    page,
-    pageElement,
-    elementIdx: number,
-    echartsMap,
-    spatialUnit,
-    forceScreenshot,
-    isVisible,
-    isPreview?: boolean
-  ) {
-    // declared outside the try block so the finally clause can always clean them up —
-    // for preview pages this map is built directly inside the visible page DOM, so leaving
-    // it behind on an early return/exception would show a stuck, partially-loaded live map
-    let leafletMap: any;
-    let div: any;
-    try {
-      const pageIdx = this.reportingService.workingTemplate.pages.indexOf(page);
-
-      // store spatial unit and feature id before cache check
-      page.spatialUnitId = spatialUnit.spatialUnitId;
-      if (page.area) {
-        const cacheKey = this.getFeatureLookupKey(page.templateSection);
-        let featureMap = this.featureLookupCache.get(cacheKey);
-        if (!featureMap) featureMap = this.geoJsonForReachability_byFeatureName;
-        const feature = featureMap.get(page.area);
-        if (feature) {
-          page.spatialUnitFeatureId =
-            feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME];
-        }
-      }
-
-      // check cache before creating leaflet map
-      const cachedScreenshot = this.leafletScreenshotCacheHelperService.getResourceFromCache(
-        pageElement.selectedBaseMap.layerConfig.name,
-        page.spatialUnitId,
-        page.spatialUnitFeatureId,
-        page.orientation,
-        this.reportingService.workingTemplate.name
-      );
-      if (cachedScreenshot) {
-        return await this.leafletScreenshotCacheHelperService.checkForScreenshot(
-          pageElement.selectedBaseMap.layerConfig.name,
-          spatialUnit.spatialUnitId,
-          page.spatialUnitFeatureId,
-          page.orientation,
-          null,
-          this.reportingService.workingTemplate.name
-        );
-      }
-
-      const id = 'reporting-background-leaflet-map-container-' + elementIdx;
-      // Leaflet does not reliably load tiles while off-screen (opacity: 0 / far off-canvas
-      // position) — for preview pages, build the map inside the visible page DOM instead,
-      // same workaround already used by indicator-add.component.ts's equivalent function.
-      const pageDomId = isPreview
-        ? 'reporting-overview-page-' + pageIdx
-        : 'reporting-background-page';
-      let pageDom: any = document.getElementById(pageDomId);
-      const pageElementDomId = 'reporting-background-page-map-' + elementIdx;
-      let pageElementDom: any = document.getElementById(pageElementDomId);
-
-      if (!pageDom) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        pageDom = document.getElementById(pageDomId);
-        pageElementDom = document.getElementById(pageElementDomId);
-      }
-
-      if (!pageDom) {
-        console.error('Could not find DOM for leaflet map init: ' + pageDomId);
-        return undefined;
-      }
-
-      const oldMapNode = document.getElementById(id);
-      if (oldMapNode) {
-        oldMapNode.remove();
-      }
-      div = document.createElement('div');
-      div.id = id;
-      div.style.position = 'absolute';
-      div.style.left = pageElement.dimensions.left;
-      div.style.top = pageElement.dimensions.top;
-      div.style.width = pageElement.dimensions.width;
-      div.style.height = pageElement.dimensions.height;
-      div.style.zIndex = 10;
-      pageDom.appendChild(div);
-      const echartsOptions = echartsMap.getOption();
-
-      leafletMap = L.map(div.id, {
-        zoomControl: false,
-        dragging: false,
-        doubleClickZoom: false,
-        boxZoom: false,
-        trackResize: false,
-        attributionControl: false,
-        zoomSnap: 0,
-        fadeAnimation: false,
-        zoomAnimation: false,
-      });
-      // Leaflet caches the container size at construction time; force it to re-measure
-      // now (after our explicit width/height are applied) so fitBounds() below computes
-      // against the real size instead of a stale/zero one — otherwise only the fraction
-      // of the container Leaflet thinks is visible gets tiles (classic top-left-only bug).
-      leafletMap.invalidateSize(false);
-
-      // manually create attribution overlay with controlled z-index
-      const prevAttributionDiv = pageDom.querySelector('.map-attribution');
-      if (prevAttributionDiv) prevAttributionDiv.remove();
-      const attrDiv: any = document.createElement('div');
-      attrDiv.classList.add('map-attribution');
-      attrDiv.style.position = 'absolute';
-      attrDiv.style.bottom = 0;
-      attrDiv.style.left = 0;
-      attrDiv.style.zIndex = 800;
-      const attrImg = await this.diagramHelperService.createReportingReachabilityMapAttribution();
-      attrDiv.appendChild(attrImg);
-      if (pageElementDom) pageElementDom.appendChild(attrDiv);
-
-      if (this.reportingService.workingTemplate.name.includes('reachability')) {
-        const prevLegendDiv = pageDom.querySelector('.map-legend');
-        if (prevLegendDiv) prevLegendDiv.remove();
-        const legendDiv: any = document.createElement('div');
-        legendDiv.classList.add('map-legend');
-        legendDiv.style.position = 'absolute';
-        legendDiv.style.bottom = 0;
-        legendDiv.style.right = 0;
-        legendDiv.style.zIndex = 800;
-        const isochronesRangeType = page.templateSection.isochronesRangeType;
-        const isochronesRangeUnits = page.templateSection.isochronesRangeUnits;
-        const legendImg = await this.diagramHelperService.createReportingReachabilityMapLegend(
-          echartsOptions,
-          spatialUnit,
-          isochronesRangeType,
-          isochronesRangeUnits
-        );
-        page.templateSection.legendImg = legendImg;
-        legendDiv.appendChild(legendImg);
-        if (pageElementDom) pageElementDom.appendChild(legendDiv);
-
-        if (!page.spatialUnitFeatureId) {
-          page.spatialUnitFeatureId = 'reachability-page-' + pageIdx;
-        }
-      }
-
-      let boundingCoords = echartsOptions.series[0].boundingCoords;
-      const westLon = boundingCoords[0][0];
-      const southLat = boundingCoords[1][1];
-      const eastLon = boundingCoords[1][0];
-      const northLat = boundingCoords[0][1];
-
-      leafletMap.fitBounds([
-        [southLat, westLon],
-        [northLat, eastLon],
-      ]);
-      const bounds = leafletMap.getBounds();
-
-      if (!(bounds.getWest() == bounds.getEast() && bounds.getNorth() == bounds.getSouth())) {
-        boundingCoords = [
-          [bounds.getWest(), bounds.getNorth()],
-          [bounds.getEast(), bounds.getSouth()],
-        ];
-      }
-
-      for (const series of echartsOptions.series) {
-        series.left = 0;
-        series.top = 0;
-        series.right = 0;
-        series.bottom = 0;
-        series.boundingCoords = boundingCoords;
-        series.projection = {
-          project: (point) => this.mercatorProjection_d3(point),
-          unproject: (point) => this.mercatorProjection_d3.invert(point),
-        };
-      }
-
-      echartsOptions.geo[0].top = 0;
-      echartsOptions.geo[0].left = 0;
-      echartsOptions.geo[0].right = 0;
-      echartsOptions.geo[0].bottom = 0;
-      echartsOptions.geo[0].projection = {
-        project: (point) => this.mercatorProjection_d3(point),
-        unproject: (point) => this.mercatorProjection_d3.invert(point),
-      };
-      echartsOptions.geo[0].boundingCoords = boundingCoords;
-
-      echartsMap.setOption(echartsOptions, { notMerge: false });
-
-      let leafletLayer: any;
-      if (pageElement.selectedBaseMap.layerConfig.layerType === 'TILE_LAYER_GRAYSCALE') {
-        leafletLayer = new L.tileLayer(pageElement.selectedBaseMap.layerConfig.url);
-      } else if (pageElement.selectedBaseMap.layerConfig.layerType === 'TILE_LAYER') {
-        leafletLayer = new L.tileLayer(pageElement.selectedBaseMap.layerConfig.url);
-      } else if (pageElement.selectedBaseMap.layerConfig.layerType === 'WMS') {
-        leafletLayer = new L.tileLayer.wms(pageElement.selectedBaseMap.layerConfig.url, {
-          layers: pageElement.selectedBaseMap.layerConfig.layerName_WMS,
-          format: 'image/jpeg',
-        });
-      } else {
-        leafletLayer = new L.tileLayer('');
-      }
-
-      const screenshotPromise = new Promise<string>((resolve) => {
-        leafletLayer.on('load', async () => {
-          await new Promise((r) => setTimeout(r, 500));
-          const dataUrl = await this.leafletScreenshotCacheHelperService.checkForScreenshot(
-            pageElement.selectedBaseMap.layerConfig.name,
-            spatialUnit.spatialUnitId,
-            page.spatialUnitFeatureId,
-            page.orientation,
-            leafletMap['_container'],
-            this.reportingService.workingTemplate.name
-          );
-          resolve(dataUrl);
-        });
-      });
-
-      // give the browser a beat to settle layout before Leaflet measures the container;
-      // only then add the tile layer, so its tile grid is computed against the real size
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          leafletMap.invalidateSize(false);
-          resolve();
-        }, 100);
-      });
-      leafletLayer.addTo(leafletMap);
-
-      pageElement.leafletMap = leafletMap;
-      pageElement.leafletBbox = bounds;
-      pageElement.echartsOptions = echartsOptions;
-
-      const dataUrl = await screenshotPromise;
-
-      if (
-        !dataUrl ||
-        (!dataUrl.startsWith('data:image') && !dataUrl.startsWith('blob:')) ||
-        dataUrl.length < 10
-      ) {
-        console.warn('Invalid leaflet map screenshot generated for page ' + pageIdx);
-        return undefined;
-      }
-
-      return dataUrl;
-    } catch (error) {
-      console.error(error);
-      return undefined;
-    } finally {
-      // guaranteed cleanup: for preview pages this map/div lives in the visible page DOM,
-      // so any early return or exception above must not leave a stuck partial map behind
-      if (!isVisible) {
-        if (leafletMap) leafletMap.remove();
-        if (div) div.remove();
-      }
-    }
-  }
 
   //async
   getSpatialUnitByName(spatialUnitName): Promise<any> {
@@ -1164,114 +909,23 @@ export class ReportingOverviewComponent implements OnInit {
     });
   }
 
-  createDatatableSkeleton(colNamesArr) {
-    const table = document.createElement('table');
-    table.classList.add('table-striped');
-    table.classList.add('table-bordered');
-
-    const thead = document.createElement('thead');
-    const tbody = document.createElement('tbody');
-    table.appendChild(thead);
-    table.appendChild(tbody);
-
-    const headerRow = document.createElement('tr');
-
-    for (const colName of colNamesArr) {
-      const col = document.createElement('th');
-      col.classList.add('text-center');
-      col.innerText = colName;
-      headerRow.appendChild(col);
-    }
-
-    headerRow.style.height = '25px';
-    thead.appendChild(headerRow);
-
-    return table;
-  }
-
-  createDatatablePage(pElementDom, pageElement) {
-    pElementDom.innerHTML = '';
-    pElementDom.style.border = 'none'; // hide dotted border from outer dom element
-    pElementDom.style.justifyContent = 'flex-start'; // align table at top instead of center
-    // add data
-    const table = this.createDatatableSkeleton(pageElement.columnNames);
-    const tbody: any = table.querySelector('tbody');
-    // tabledata is a nested array with one sub-array per row
-    for (const row of pageElement.tableData) {
-      const tr = document.createElement('tr');
-      tr.style.height = '25px';
-      for (let i = 0; i < row.length; i++) {
-        const td = document.createElement('td');
-        td.innerText = row[i];
-        // get corresponding column name for styling
-        const colName = pageElement.columnNames[i];
-        if (colName === 'Bereich') {
-          td.classList.add('text-left');
-        }
-        if (colName === 'Wert') {
-          td.classList.add('text-right');
-        }
-
-        tr.appendChild(td);
-      }
-      tbody.appendChild(tr);
-    }
-    pElementDom.appendChild(table);
-  }
-
   showThisPage(page) {
-    /* if(page.hidden){
-				return false;
-			} */
-
-    let pageWillBeShown = false;
-    for (const visiblePage of this.filterPagesToShow()) {
-      if (visiblePage == page) {
-        pageWillBeShown = true;
-      }
-    }
-    return pageWillBeShown;
+    return this.reportingService.showThisPage(page, this.reportingService.workingTemplate.pages);
   }
 
   getPageNumber(index) {
-    let pageNumber = 1;
-    for (let i = 0; i < index; i++) {
-      if (this.showThisPage(this.reportingService.workingTemplate.pages[i])) {
-        pageNumber++;
-      }
-    }
-    return pageNumber;
+    return this.reportingService.getPageNumber(index, this.reportingService.workingTemplate.pages);
   }
 
   filterPagesToShow() {
-    const pagesToShow: any[] = [];
-    let skipNextPage = false;
-    for (let i = 0; i < this.reportingService.workingTemplate.pages.length; i++) {
-      const page = this.reportingService.workingTemplate.pages[i];
-      if (this.pageContainsDatatable(i)) {
-        pagesToShow.push(page);
-        skipNextPage = false;
-      } else {
-        if (skipNextPage == false) {
-          pagesToShow.push(page);
-          skipNextPage = true;
-        } else {
-          skipNextPage = false;
-        }
-      }
-    }
-    return pagesToShow;
+    return this.reportingService.filterPagesToShow(this.reportingService.workingTemplate.pages);
   }
 
   pageContainsDatatable(pageID) {
-    const page = this.reportingService.workingTemplate.pages[pageID];
-    let pageContainsDatatable = false;
-    for (const pageElement of page.pageElements) {
-      if (pageElement.type == 'datatable') {
-        pageContainsDatatable = true;
-      }
-    }
-    return pageContainsDatatable;
+    return this.reportingService.pageContainsDatatable(
+      pageID,
+      this.reportingService.workingTemplate.pages
+    );
   }
 
   exportConfig() {
@@ -1381,21 +1035,6 @@ export class ReportingOverviewComponent implements OnInit {
     return now;
   }
 
-  getIndicatorByName(indicatorName) {
-    let result;
-    for (const indicator of this.indicatorStore.availableIndicators) {
-      if (indicator.indicatorName === indicatorName) {
-        result = indicator;
-        break;
-      }
-    }
-    if (result) {
-      return result;
-    } else {
-      throw new Error('No indicator could be found for name: ' + indicatorName);
-    }
-  }
-
   // async
   queryFeatures(indicatorId, spatialUnit): Promise<any> {
     // build request
@@ -1443,18 +1082,6 @@ export class ReportingOverviewComponent implements OnInit {
         },
       });
     });
-  }
-
-  createLowerCaseNameProperty(features) {
-    for (const feature of features) {
-      if (Object.prototype.hasOwnProperty.call(feature, 'properties')) {
-        if (!Object.prototype.hasOwnProperty.call(feature.properties, 'name')) {
-          const featureName = feature.properties.NAME;
-          feature.properties.name = featureName;
-        }
-      }
-    }
-    return features;
   }
 
   /* 		$on("reportingGenerateReport", function(event, format) {

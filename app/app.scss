@@ -3288,7 +3288,7 @@ input:checked + .switchslider:before {
   flex-wrap: wrap;
 }
 
-.reporting-page div {
+.reporting-page div:not(.progress):not(.progress-bar) {
   display: flex;
   align-content: center;
   justify-content: center;
