@@ -423,7 +423,7 @@
                 ></app-dual-list-box>
               </div>
               <div [hidden]="!reportingService.clonedTemplate.name.includes('-timeseries')">
-                @if (sliderValues) {
+                @if (sliderValues && sliderValues.length > 1) {
                   <div id="reporting-dateSliderWrapper">
                     <custom-slider
                       [data]="sliderValues"
@@ -432,6 +432,10 @@
                       [displayMode]="sliderDisplaMode.DATE"
                       (valueChange)="onChangeDateSliderInterval()"
                     ></custom-slider>
+                  </div>
+                } @else {
+                  <div class="alert alert-warning">
+                    Auswahl nicht möglich. Nicht mehr als ein Zeitpunkt vorhanden
                   </div>
                 }
               </div>

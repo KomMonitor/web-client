@@ -202,7 +202,7 @@
     </div>
 
     <div id="dateSliderWrapper">
-      @if (sliderData) {
+      @if (sliderData && sliderData.length > 1) {
         <custom-slider
           [data]="sliderData"
           [markerPositions]="markerPosition"
