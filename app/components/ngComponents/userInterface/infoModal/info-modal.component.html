@@ -199,13 +199,12 @@
   >
     Schlie&szlig;en
   </button>
-  <!--
-    Hidden until the guided tour is ported: `bootstrap-tour` plus
-    `startGuidedTour` / `goToGuidedTourStep` live on `origin/master` only, so
-    this button had no handler and did nothing.
-
-    <button type="button" id="callStartGuidedTourButton" class="btn btn-primary">
-      Guided Tour&nbsp;&nbsp;<span class="fas fa-play"></span>
-    </button>
-  -->
+  <button
+    type="button"
+    id="callStartGuidedTourButton"
+    class="btn btn-primary"
+    (click)="guidedTourService.start(); activeModal.close('Start guided tour')"
+  >
+    Guided Tour&nbsp;&nbsp;<span class="fas fa-play"></span>
+  </button>
 </div>

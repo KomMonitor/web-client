@@ -83,6 +83,7 @@
   @if (visibilityHelperService.elementVisibility.reportingButton && authService.isAuthenticated()) {
     <button
       type="button"
+      id="sidebarReportingButton"
       style="display: block; position: relative; margin-top: 5px"
       (click)="openReportingModal()"
       class="btn btn-custom btn-circle"

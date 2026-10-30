@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, effect, inject, OnInit, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   NgbCollapseModule,
@@ -24,6 +24,7 @@ import { ClassificationStateService } from 'services/classification-state-servic
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { GuidedTourService } from 'services/guided-tour-service/guided-tour.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { LabelService } from 'services/label-service/label.service';
@@ -74,6 +75,7 @@ export class KommonitorLegendComponent implements OnInit {
   protected envConfigService = inject(EnvConfigService);
   private dataSetupService = inject(KommonitorDataSetupService);
   private spatialUnitHierarchyService = inject(SpatialUnitHierarchyService);
+  private guidedTourService = inject(GuidedTourService);
 
   elementVisibilityData: any;
   visualStyleData: any;
@@ -89,11 +91,30 @@ export class KommonitorLegendComponent implements OnInit {
 
   legendVisible = true;
 
-  isExportCollapsed = true;
+  // Defaults mirror the expandable-box's previous static [collapsed] values.
+  isExportCollapsed = false;
   isLegendCollapsed = false;
   isStatisticCollapsed = true;
 
   classificationCollapsed = true;
+
+  /**
+   * Force-opens the legend panel and the sub-box a guided tour step points at, so the
+   * highlighted element is actually visible. Mirrors the old AngularJS tour's jQuery
+   * `.click()` coordination, but reacting to GuidedTourService's shared signal instead.
+   */
+  private readonly applyGuidedTourStep = effect(() => {
+    const stepId = this.guidedTourService.activeStepId();
+    if (stepId === null || !stepId.startsWith('legend-')) {
+      return;
+    }
+    untracked(() => {
+      this.legendVisible = true;
+      if (stepId === 'legend-export') this.isExportCollapsed = false;
+      if (stepId === 'legend-symbology') this.isLegendCollapsed = false;
+      if (stepId === 'legend-classification') this.classificationCollapsed = false;
+    });
+  });
   globalFilterActivated = false;
   actualSelectedSpatialUnitId = undefined;
 

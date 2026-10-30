@@ -20,6 +20,60 @@
     "ADVANCED_VIEW": "Erweiterte Ansicht",
     "SHOW_HIDE_UI_ELEMENTS": "Ein- / Ausblenden von UI Elementen"
   },
+  "GUIDED_TOUR_STEPS": {
+    "NEXT_BUTTON": "Weiter »",
+    "PREVIOUS_BUTTON": "« Zurück",
+    "DONE_BUTTON": "Fertig",
+    "CLOSE_LABEL": "Tour schließen",
+    "WELCOME": {
+      "TITLE": "Willkommen bei der Guided Tour von KomMonitor",
+      "CONTENT_HTML": "Diese Tour erklärt die wichtigsten Funktionen der Weboberfläche. Mit <b>Weiter</b> und <b>Zurück</b> navigieren Sie durch die Schritte, über das <b>×</b> oben rechts verlassen Sie die Tour jederzeit."
+    },
+    "HEADER": {
+      "TITLE": "Kopfzeile",
+      "CONTENT_HTML": "Hier finden Sie das Logo und den Titel der Anwendung sowie Buttons für die <b>Administrationsoberfläche</b>, das <b>Informationsfenster</b> und die <b>Anmeldung</b>."
+    },
+    "MAP": {
+      "TITLE": "Kartenfenster",
+      "CONTENT_HTML": "Die Karte zeigt die ausgewählte Raumeinheit und den aktuellen Indikator. Sie können <b>zoomen</b> und die Karte <b>verschieben</b>; beim Überfahren einer Raumeinheit mit der Maus werden Name, Wert und Einheit angezeigt."
+    },
+    "SIDEBAR": {
+      "TITLE": "Seitenleiste",
+      "CONTENT_HTML": "Über diese Buttons öffnen Sie weitere Werkzeuge in der Seitenleiste, z. B. die <b>Indikatorenauswahl</b>, <b>Infrastrukturdaten (POIs)</b> und den <b>Darstellungsfilter</b>."
+    },
+    "MAP_TOOLBAR": {
+      "TITLE": "Werkzeugleiste der Karte",
+      "CONTENT_HTML": "Hier finden Sie Werkzeuge für die Karte: <b>Karte zentrieren</b>, <b>Selektion aufheben</b> sowie den aktuellen Kartenausschnitt als <b>Bild exportieren</b> (Screenshot). Über die Experten-Werkzeuge blenden Sie zusätzlich die <b>Adress-/Objektsuche</b> und die <b>Streckenmessung</b> ein."
+    },
+    "LEGEND_TOGGLE": {
+      "TITLE": "Indikatorenlegende öffnen",
+      "CONTENT_HTML": "Über diesen Button blenden Sie die Legende ein und aus. Sie enthält Optionen zum Wechseln der Raumeinheit, zum Datenexport sowie die Kartenlegende und Klassifikation."
+    },
+    "LEGEND_EXPORT": {
+      "TITLE": "Raumebene und Export",
+      "CONTENT_HTML": "Hier wechseln Sie die angezeigte <b>Raumebene</b> und den <b>Zeitpunkt</b>. Außerdem können Sie die Daten als <b>GeoJSON, GeoPackage, Excel oder CSV</b> exportieren oder ein <b>Metadatenblatt</b> als PDF herunterladen."
+    },
+    "LEGEND_SYMBOLOGY": {
+      "TITLE": "Kartenlegende",
+      "CONTENT_HTML": "Dieser Bereich zeigt <b>Name</b>, <b>Beschreibung</b> und <b>Einheit</b> des Indikators sowie die <b>Farblegende</b> mit den Werteklassen und der jeweiligen Anzahl an Raumeinheiten."
+    },
+    "LEGEND_CLASSIFICATION": {
+      "TITLE": "Klassifikation anpassen",
+      "CONTENT_HTML": "Über das Zahnrad-Symbol passen Sie die <b>Farbpalette</b> und die <b>Klassifizierungsmethode</b> an (z. B. Jenks, gleiches Intervall, Quantile oder manuell über ein editierbares Histogramm)."
+    },
+    "EXPORT_BUTTON": {
+      "TITLE": "Datenexport",
+      "CONTENT_HTML": "Über diesen Button öffnen Sie den Export-Dialog für die angezeigten Daten."
+    },
+    "REPORTING_ENTRY": {
+      "TITLE": "Reporting-Tool",
+      "CONTENT_HTML": "Mit diesem Button erstellen Sie automatisiert Berichte auf Basis konfigurierbarer Vorlagen."
+    },
+    "END": {
+      "TITLE": "Tour beendet",
+      "CONTENT_HTML": "Das war's! Sie können diese Tour jederzeit erneut über das <i class='fas fa-play'></i>-Symbol in der Kopfzeile starten."
+    }
+  },
   "SIDEBAR": {
     "INDICATOR_SELECTION": "Indikatorenauswahl",
     "INFRASTRUCTURE_DATA": "Infrastrukturdaten",

@@ -109,7 +109,8 @@
               "node_modules/leaflet.awesome-markers/dist/leaflet.awesome-markers.css",
               "node_modules/codemirror/lib/codemirror.css",
               "node_modules/codemirror/theme/panda-syntax.css",
-              "node_modules/leaflet-draw/dist/leaflet.draw.css"
+              "node_modules/leaflet-draw/dist/leaflet.draw.css",
+              "node_modules/driver.js/dist/driver.css"
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",

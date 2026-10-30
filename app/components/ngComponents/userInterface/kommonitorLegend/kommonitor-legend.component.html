@@ -9,7 +9,11 @@
 </button>
 @if (selectionState.selectedIndicator) {
   <div id="legendWrapper" [hidden]="!legendVisible">
-    <expandable-box [title]="'Raumebene und Export'" [collapsed]="false">
+    <expandable-box
+      id="legendExportBox"
+      [title]="'Raumebene und Export'"
+      [(collapsed)]="isExportCollapsed"
+    >
       <div class="boxedLegend">
         <div class="row" style="margin-right: 0px">
           <div class="col-sm-12">
@@ -115,7 +119,11 @@
       </div>
     </expandable-box>
     @if (selectionState.selectedIndicator) {
-      <expandable-box [title]="'Legenden'" [collapsed]="false">
+      <expandable-box
+        id="legendSymbologyBox"
+        [title]="'Legenden'"
+        [(collapsed)]="isLegendCollapsed"
+      >
         <div class="boxedLegend">
           <ul class="nav nav-tabs" id="legendTabs" role="tablist">
             <li class="nav-item">
@@ -1070,7 +1078,7 @@
         </div>
       </expandable-box>
     }
-    <expandable-box [title]="'Indikatoren-Statistik'" [collapsed]="true">
+    <expandable-box [title]="'Indikatoren-Statistik'" [(collapsed)]="isStatisticCollapsed">
       <em
         >Referenzzeitpunkt
         {{

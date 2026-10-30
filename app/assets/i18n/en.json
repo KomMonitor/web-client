@@ -20,6 +20,60 @@
     "ADVANCED_VIEW": "Advanced View",
     "SHOW_HIDE_UI_ELEMENTS": "Show / Hide UI Elements"
   },
+  "GUIDED_TOUR_STEPS": {
+    "NEXT_BUTTON": "Next »",
+    "PREVIOUS_BUTTON": "« Previous",
+    "DONE_BUTTON": "Done",
+    "CLOSE_LABEL": "Close tour",
+    "WELCOME": {
+      "TITLE": "Welcome to the KomMonitor Guided Tour",
+      "CONTENT_HTML": "This tour explains the main functions of the web interface. Use <b>Next</b> and <b>Previous</b> to move through the steps, or the <b>×</b> in the top right to leave the tour at any time."
+    },
+    "HEADER": {
+      "TITLE": "Header bar",
+      "CONTENT_HTML": "Here you find the logo and the application title, plus buttons for the <b>administration interface</b>, the <b>info window</b> and <b>login</b>."
+    },
+    "MAP": {
+      "TITLE": "Map window",
+      "CONTENT_HTML": "The map shows the selected spatial unit and the current indicator. You can <b>zoom</b> and <b>pan</b> the map; hovering over a spatial unit shows its name, value and unit."
+    },
+    "SIDEBAR": {
+      "TITLE": "Sidebar",
+      "CONTENT_HTML": "These buttons open further tools in the sidebar, e.g. the <b>indicator selection</b>, <b>infrastructure data (POIs)</b> and the <b>display filter</b>."
+    },
+    "MAP_TOOLBAR": {
+      "TITLE": "Map toolbar",
+      "CONTENT_HTML": "Here you find tools for the map: <b>center the map</b>, <b>clear the selection</b>, and export the current map view as an <b>image</b> (screenshot). The expert tools also reveal <b>address/feature search</b> and <b>distance measurement</b>."
+    },
+    "LEGEND_TOGGLE": {
+      "TITLE": "Open the indicator legend",
+      "CONTENT_HTML": "This button shows and hides the legend. It contains options for switching the spatial unit, exporting data, and the map legend and classification."
+    },
+    "LEGEND_EXPORT": {
+      "TITLE": "Spatial unit and export",
+      "CONTENT_HTML": "Here you switch the displayed <b>spatial unit</b> and <b>date</b>. You can also export the data as <b>GeoJSON, GeoPackage, Excel or CSV</b>, or download a <b>metadata sheet</b> as PDF."
+    },
+    "LEGEND_SYMBOLOGY": {
+      "TITLE": "Map legend",
+      "CONTENT_HTML": "This area shows the indicator's <b>name</b>, <b>description</b> and <b>unit</b> as well as the <b>color legend</b> with its value classes and the number of spatial units per class."
+    },
+    "LEGEND_CLASSIFICATION": {
+      "TITLE": "Adjust classification",
+      "CONTENT_HTML": "The gear icon lets you adjust the <b>color palette</b> and <b>classification method</b> (e.g. Jenks, equal interval, quantile, or manually via an editable histogram)."
+    },
+    "EXPORT_BUTTON": {
+      "TITLE": "Data export",
+      "CONTENT_HTML": "This button opens the export dialog for the currently displayed data."
+    },
+    "REPORTING_ENTRY": {
+      "TITLE": "Reporting tool",
+      "CONTENT_HTML": "This button creates automated reports based on configurable templates."
+    },
+    "END": {
+      "TITLE": "Tour finished",
+      "CONTENT_HTML": "That's it! You can restart this tour at any time via the <i class='fas fa-play'></i> icon in the header."
+    }
+  },
   "SIDEBAR": {
     "INDICATOR_SELECTION": "Indicator Selection",
     "INFRASTRUCTURE_DATA": "Infrastructure Data",
