@@ -122,6 +122,12 @@ export class ReportingService {
   // nach außen NUR Observable
   reportingData$: Observable<ReportingData> = this._reportingData$.asObservable();
 
+  // Workflow state the user was in when the reporting modal was last closed mid-setup (any
+  // state beyond workflowSelect). Reopening the modal always lands on workflowSelect again -
+  // this is what lets workflow-select offer "continue previous setup" instead of silently
+  // resuming it, while the actual setup data (sections, selectedTemplate, ...) stays untouched.
+  private _pausedWorkflowState: WorkflowState | null = null;
+
   constructor() {
     this.config = {
       sectionContentControl: {
@@ -401,6 +407,27 @@ export class ReportingService {
 
   changeWorkflowState(state: WorkflowState) {
     this.setValue({ ...this._reportingData$.value, workflowState: state });
+  }
+
+  get hasPausedSetup(): boolean {
+    return this._pausedWorkflowState !== null;
+  }
+
+  // Called when the reporting modal is (re)opened without an active background generation:
+  // remembers where the user was (if anywhere beyond workflowSelect) and resets to
+  // workflowSelect so the modal always opens there.
+  pauseCurrentSetupAndGoToWorkflowSelect() {
+    if (this.currentWorkflowState !== WorkflowState.workflowSelect) {
+      this._pausedWorkflowState = this.currentWorkflowState;
+    }
+    this.changeWorkflowState(WorkflowState.workflowSelect);
+  }
+
+  resumePausedSetup() {
+    if (this._pausedWorkflowState !== null) {
+      this.changeWorkflowState(this._pausedWorkflowState);
+      this._pausedWorkflowState = null;
+    }
   }
 
   changeSelectedTemplate(templateId: number) {

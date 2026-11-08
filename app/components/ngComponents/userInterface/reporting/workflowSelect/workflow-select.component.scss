@@ -5,4 +5,12 @@
     gap: 2em;
     text-align: center;
   }
+
+  .resume-setup-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1em;
+    margin-bottom: 1.5em;
+  }
 }

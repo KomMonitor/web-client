@@ -175,6 +175,38 @@ export class KommonitorLegendComponent implements OnInit {
   protected readonly categoricalOtherColor = CATEGORICAL_OTHER_COLOR;
 
   /**
+   * Striped legend swatch for the "untere Ausreißer" (low outlier) row, mirroring the
+   * diagonal `L.StripePattern` (rotate(45)) the map uses for the same features via
+   * `VisualStyleHelperServiceNew.outlierFillPattern_low`. Built with a CSS gradient here
+   * instead of an SVG pattern since the legend only needs a static swatch, not a Leaflet fill.
+   */
+  protected get outlierLowSwatchStyle() {
+    return this.stripedSwatchStyle(
+      this.envConfigService.defaultColorForOutliers_low,
+      this.envConfigService.defaultBorderColorForOutliers_low,
+      45
+    );
+  }
+
+  /** Same as {@link outlierLowSwatchStyle}, for "obere Ausreißer" (high outliers), rotate(-45) to mirror `outlierFillPattern_high`. */
+  protected get outlierHighSwatchStyle() {
+    return this.stripedSwatchStyle(
+      this.envConfigService.defaultColorForOutliers_high,
+      this.envConfigService.defaultBorderColorForOutliers_high,
+      -45
+    );
+  }
+
+  private stripedSwatchStyle(color: string, borderColor: string, angleDeg: number) {
+    return {
+      'background-image': `repeating-linear-gradient(${angleDeg}deg, ${color} 0, ${color} 2px, transparent 2px, transparent 6px)`,
+      'background-color': 'transparent',
+      border: '2px solid ' + borderColor,
+      opacity: this.classificationState.currentIndicatorOpacity,
+    };
+  }
+
+  /**
    * Whether the current indicator uses a qualitative (categorical) classification.
    *
    * Note this is stricter than `isQualitativeMapping()`, which the map and the
