@@ -5,106 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-#### [3.4.3](https://github.com/KomMonitor/web-client/compare/5.0.0-SNAPSHOT...3.4.3)
+## [4.4.8]
+> 23 Oct 2026
 
-- Fix mouse over event bug in rada diagram [`ed2e4c0`](https://github.com/KomMonitor/web-client/commit/ed2e4c01bf4706434d421c0c1d2b0e5a90586ce6)
-- Update version info [`56afd90`](https://github.com/KomMonitor/web-client/commit/56afd9028d1731e552ff86f00a5793c119991572)
+### Changed
 
-#### [5.0.0-SNAPSHOT](https://github.com/KomMonitor/web-client/compare/4.3.5...5.0.0-SNAPSHOT)
+- Update nginx base image ([0cb26e7](https://github.com/KomMonitor/web-client/commit/0cb26e71b5911b6a1d8f93a9ce99bec02f0d35ba))
+- Update version info ([0d58ac0](https://github.com/KomMonitor/web-client/commit/0d58ac045329a83fa3389d84be4d879ae9fc2802))
 
-> 17 March 2026
+### Fixed
 
-- connect to  /schedule endpoint and /jobs endpoint for running processes-api instance; also adjust script management overview table and POST new script to /schedule [`37b6e2a`](https://github.com/KomMonitor/web-client/commit/37b6e2a1da788719238e1a2dc40278a00cc2c46f)
-- remove old JS script resources [`c13ba44`](https://github.com/KomMonitor/web-client/commit/c13ba44a3fac2f0de76b4aaa5cd683c25bcc0044)
-- added dynamic script prototype to script type selection [`1681e8e`](https://github.com/KomMonitor/web-client/commit/1681e8ec05b8adc94fdabf2ca4a7406f43358c6f)
+- Fix 689: selectedDate is kept while changing indicators, with fallback to actual behaviour ([a9a17d1](https://github.com/KomMonitor/web-client/commit/a9a17d1b938377d22f2346a784e54fbebec47fe3))
 
-#### [4.3.5](https://github.com/KomMonitor/web-client/compare/4.3.4...4.3.5)
+## [4.4.7]
+>  1 Oct 2026
 
-> 12 March 2026
+### Changed
 
-- Fix role preperation issue for owner selection [`482c8f8`](https://github.com/KomMonitor/web-client/commit/482c8f8ef2bd1757d6339ee934739c683ebcfdbc)
-- Fix role preperation issue for user information display [`23445d6`](https://github.com/KomMonitor/web-client/commit/23445d6238dc50b44c391823d7a91d7120b2f3c8)
+- Change CartoDB to OSM base map layer for georesource POI editing ([b77caa6](https://github.com/KomMonitor/web-client/commit/b77caa61e215569942ed4a53d3da8305b9c5e1d9))
+- Update version info ([6871065](https://github.com/KomMonitor/web-client/commit/687106555c395828a0a2a21dce1d854e7e1c5ce3))
+- Restructure version info box ([76eb029](https://github.com/KomMonitor/web-client/commit/76eb0299cc0896b0ecd2c1a8648be0a331f13e1b))
+- Release 4.4.7 ([40a1251](https://github.com/KomMonitor/web-client/commit/40a1251d05552fa9db079b01f84e0e95d756dc9a))
 
-#### [4.3.4](https://github.com/KomMonitor/web-client/compare/4.3.3...4.3.4)
-
-> 3 March 2026
-
-- Fix double mouse over map feature event handling in radar chart [`da51b67`](https://github.com/KomMonitor/web-client/commit/da51b679fa5ec37b1a10e589afb654b9d2fd3e91)
-- refine legend information for spatial filtered and non-spatial filtered spatial units [`8ca336c`](https://github.com/KomMonitor/web-client/commit/8ca336c5d8d933504cc0c0692439e8e8eb880ff9)
-- Release 4.3.4 [`d79d95e`](https://github.com/KomMonitor/web-client/commit/d79d95e630959648891c60a95a247d22fb396809)
-
-#### [4.3.3](https://github.com/KomMonitor/web-client/compare/4.3.3-processesapi-1-SNAPSHOT...4.3.3)
-
-> 30 January 2026
-
-#### [4.3.3-processesapi-1-SNAPSHOT](https://github.com/KomMonitor/web-client/compare/4.3.3-SNAPSHOT...4.3.3-processesapi-1-SNAPSHOT)
-
-> 30 January 2026
-
-- connect to  /schedule endpoint and /jobs endpoint for running processes-api instance; also adjust script management overview table and POST new script to /schedule [`37b6e2a`](https://github.com/KomMonitor/web-client/commit/37b6e2a1da788719238e1a2dc40278a00cc2c46f)
-- remove old JS script resources [`c13ba44`](https://github.com/KomMonitor/web-client/commit/c13ba44a3fac2f0de76b4aaa5cd683c25bcc0044)
-- added dynamic script prototype to script type selection [`1681e8e`](https://github.com/KomMonitor/web-client/commit/1681e8ec05b8adc94fdabf2ca4a7406f43358c6f)
-
-#### [4.3.3-SNAPSHOT](https://github.com/KomMonitor/web-client/compare/4.3.2...4.3.3-SNAPSHOT)
-
-> 28 January 2026
-
-- barChart: added selected date in x-axis legend. radarChart: print layout options and dynamic styles added [`40a4398`](https://github.com/KomMonitor/web-client/commit/40a43985efbbbc0a5ee8070cd6a3f2e264170e14)
-- Fix creation of sub topics [`2a1f10b`](https://github.com/KomMonitor/web-client/commit/2a1f10b19742645f4a26c451d28292d66446f111)
-- fix on radarDiagram, full name if no abbreviation exists [`9fce788`](https://github.com/KomMonitor/web-client/commit/9fce7889c659b9201a196d3a575fe4b40c8864c9)
-
-#### [4.3.2](https://github.com/KomMonitor/web-client/compare/4.3.2-processesapi-2-SNAPSHOT...4.3.2)
-
-> 12 January 2026
-
-#### [4.3.2-processesapi-2-SNAPSHOT](https://github.com/KomMonitor/web-client/compare/4.3.2-processesapi-1-SNAPSHOT...4.3.2-processesapi-2-SNAPSHOT)
-
-> 27 January 2026
-
-- reload target indicator metadata on successful onDemand process job [`acc9694`](https://github.com/KomMonitor/web-client/commit/acc969409da8b8533cc151ccf6c9d54194d1e023)
-
-#### [4.3.2-processesapi-1-SNAPSHOT](https://github.com/KomMonitor/web-client/compare/4.3.2-processesapi-1...4.3.2-processesapi-1-SNAPSHOT)
-
-> 21 January 2026
-
-#### [4.3.2-processesapi-1](https://github.com/KomMonitor/web-client/compare/4.3.1...4.3.2-processesapi-1)
-
-> 23 January 2026
-
-- connect to  /schedule endpoint and /jobs endpoint for running processes-api instance; also adjust script management overview table and POST new script to /schedule [`37b6e2a`](https://github.com/KomMonitor/web-client/commit/37b6e2a1da788719238e1a2dc40278a00cc2c46f)
-- remove old JS script resources [`c13ba44`](https://github.com/KomMonitor/web-client/commit/c13ba44a3fac2f0de76b4aaa5cd683c25bcc0044)
-- added dynamic script prototype to script type selection [`1681e8e`](https://github.com/KomMonitor/web-client/commit/1681e8ec05b8adc94fdabf2ca4a7406f43358c6f)
-
-#### [4.3.1](https://github.com/KomMonitor/web-client/compare/4.3.0...4.3.1)
-
-> 11 December 2025
-
-- 508 - fix on list of outlineLayers of grouped layer control [`56acefe`](https://github.com/KomMonitor/web-client/commit/56acefef0f45644e84a5bad8540831efdef1ba59)
-- Add version info [`f61dd8b`](https://github.com/KomMonitor/web-client/commit/f61dd8b3c6006be761a033ea3268f2842df4899e)
-- Release 4.3.1 [`6f94ae4`](https://github.com/KomMonitor/web-client/commit/6f94ae4ec4639354b2c2f10f08590af98ce8e95c)
-
-#### [4.3.0](https://github.com/KomMonitor/web-client/compare/4.3.0-beta.1...4.3.0)
-
-> 6 November 2025
-
-- Release 4.3.0 [`a422f12`](https://github.com/KomMonitor/web-client/commit/a422f1205716f33a9534204e1fc9ee6354248ca6)
-- Set stable version [`428e425`](https://github.com/KomMonitor/web-client/commit/428e425027e23ce2d4d34dcfd30c61d7ea6b841e)
-
-#### [4.3.0-beta.1](https://github.com/KomMonitor/web-client/compare/4.2.1...4.3.0-beta.1)
-
-> 15 September 2025
-
-- add option to select different spatial unit aggregations [`d1cd70c`](https://github.com/KomMonitor/web-client/commit/d1cd70c84be20e93f018ec07d35cafea2db32699)
-- integrate spatial unit aggregations in import/export [`c3cff91`](https://github.com/KomMonitor/web-client/commit/c3cff91aa424c8551d76753d7d477d6a7bc19ed6)
-- Add version info [`0c488de`](https://github.com/KomMonitor/web-client/commit/0c488dedf6f3780efd5e19f556233e1d5e158454)
-
-#### [4.2.1](https://github.com/KomMonitor/web-client/compare/4.2.0...4.2.1)
-
-> 9 September 2025
-
-- Create dockerhub-snapshot-processes-api.yml [`970525d`](https://github.com/KomMonitor/web-client/commit/970525d3572baf8e85acf8f0024bae28638c36ba)
-- add version info for version 3.4.1 [`e511047`](https://github.com/KomMonitor/web-client/commit/e511047456dc52db89b9fa0349d837ae2f3852d1)
-- Release 3.4.1 [`62657ed`](https://github.com/KomMonitor/web-client/commit/62657ed87b17a2db647e29fcf43ab946cb0b36b0)
 ## [4.4.6]
 > 10 Sep 2026
 
@@ -123,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Overthink handling of special display modes like balance, measureOfValue, dynamicindicator, indicatorWithNegativeValues -> must allow classification method select, but limit/restrict number of classes since KomMonitor uses special display for special cases ([1366e6e](https://github.com/KomMonitor/web-client/commit/1366e6ea45e3a296bc3e8aee3cd56fd9c551cd7a))
 - Classification: display fixed text inputs instead of number and method select if classification cannot be done normally ([956b381](https://github.com/KomMonitor/web-client/commit/956b381f2e286bea5337d00b97c4e17d1ba1a5df))
 - Merge remote-tracking branch 'origin/fix/jenks' into version/4 ([1a4f2a3](https://github.com/KomMonitor/web-client/commit/1a4f2a3cb55b06ff4ebb24dabae9794acb3cb0c4))
+- Release 4.4.6 ([d740c99](https://github.com/KomMonitor/web-client/commit/d740c99e95651ac439ee4451a03ba20ae5889e42))
 
 ### Fixed
 
@@ -4381,6 +4304,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Raise some dependency version by using npm audit fix ([3b55651](https://github.com/KomMonitor/web-client/commit/3b55651bed28779b895f508f22a742ea2af60b01))
 - Raise some dependency versions by using npm audit fix ([ca220e8](https://github.com/KomMonitor/web-client/commit/ca220e88a9ba951eb4edbfca487d1e0ca192c394))
 
+[4.4.8]: https://github.com/KomMonitor/web-client/compare/4.4.7..4.4.8
+[4.4.7]: https://github.com/KomMonitor/web-client/compare/4.4.6..4.4.7
 [4.4.6]: https://github.com/KomMonitor/web-client/compare/4.4.5..4.4.6
 [4.4.5]: https://github.com/KomMonitor/web-client/compare/4.4.4..4.4.5
 [4.4.4]: https://github.com/KomMonitor/web-client/compare/4.4.3..4.4.4
@@ -4448,6 +4373,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.4.0]: https://github.com/KomMonitor/web-client/compare/v1.2.0..v1.4.0
 [1.2.0]: https://github.com/KomMonitor/web-client/compare/v1.0.1..v1.2.0
 [1.0.1]: https://github.com/KomMonitor/web-client/compare/v1.0.0..v1.0.1
-[1.0.0]: https://github.com/KomMonitor/web-client/compare/5.1.4..v1.0.0
+[1.0.0]: https://github.com/KomMonitor/web-client/compare/5.1.6..v1.0.0
 
 <!-- generated by git-cliff -->
