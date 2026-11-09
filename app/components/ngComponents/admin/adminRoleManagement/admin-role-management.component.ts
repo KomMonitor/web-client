@@ -32,6 +32,7 @@ import { RoleDeleteModalComponent } from './roleDeleteModal/role-delete-modal.co
 import { RoleEditMetadataModalComponent } from './roleEditMetadataModal/role-edit-metadata-modal.component';
 import { RoleActionsCellRendererComponent } from './role-actions-cell-renderer.component';
 import { RoleEditGroupRightsModalComponent } from './roleEditGroupRightsModal/role-edit-group-rights-modal.component';
+import { DatasetPermissionsWizardComponent } from './datasetPermissionsWizard/dataset-permissions-wizard.component';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { NotificationService } from '../../common/notification/notification.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -112,6 +113,16 @@ export class AdminRoleManagementComponent implements OnInit {
   /** Edit, delegate rights, delete — one rule in the API for all three. */
   private canManage(organizationalUnitId: string): boolean {
     return this.accessControlService.canManageOrganization(organizationalUnitId);
+  }
+
+  /**
+   * Whether the user may transfer rights on the datasets the unit owns. The
+   * batch endpoint behind it is for global admins only, so is this — the one
+   * place to widen once the endpoint admits group admins as well, which is why
+   * it already takes the owner.
+   */
+  private canEditDatasetPermissions(_ownerId: string): boolean {
+    return this.accessControlService.checkAdminPermission();
   }
 
   public gridOptions: GridOptions = {
@@ -200,8 +211,12 @@ export class AdminRoleManagementComponent implements OnInit {
           onEditGroupRights: (dataset: AccessControlTableEntry) =>
             this.openEditGroupRightsModal(dataset),
           onDelete: (dataset: AccessControlTableEntry) => this.openDeleteModal([dataset]),
+          onEditDatasetPermissions: (dataset: AccessControlTableEntry) =>
+            this.openDatasetPermissionsWizard(dataset),
           canManage: (dataset: AccessControlTableEntry) =>
             this.canManage(dataset.organizationalUnitId),
+          canEditDatasetPermissions: (dataset: AccessControlTableEntry) =>
+            this.canEditDatasetPermissions(dataset.organizationalUnitId),
         },
       },
       {
@@ -350,6 +365,16 @@ export class AdminRoleManagementComponent implements OnInit {
     if (saved) {
       this.fetchAccessControlData(false);
     }
+  }
+
+  /**
+   * The table shows no dataset rights, so nothing needs reloading afterwards;
+   * the wizard reloads the datasets itself.
+   */
+  async openDatasetPermissionsWizard(dataset: AccessControlTableEntry): Promise<void> {
+    await this.modals.open(DatasetPermissionsWizardComponent, MODAL_WIDE, {
+      ownerId: dataset.organizationalUnitId,
+    });
   }
 
   selectionChanged($event: SelectionChangedEvent<AccessControlTableEntry, any>) {

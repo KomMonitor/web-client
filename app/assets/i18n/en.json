@@ -1060,6 +1060,15 @@
       "DELETE_TITLE": "Delete organizational unit"
     }
   },
+  "ADMIN_DATASET_PERMISSIONS": {
+    "BUTTON_TITLE": "Dataset permissions",
+    "TITLE": "Transfer rights on the datasets of organizational unit {{owner}}",
+    "STEPS": {
+      "DATASETS": "Select datasets",
+      "RIGHTS": "Set rights",
+      "REVIEW": "Review & transfer"
+    }
+  },
   "ADMIN_TOPICS": {
     "TITLE": "Topic Management",
     "DESCRIPTION": "Management of the topic hierarchies for indicators and georesources",

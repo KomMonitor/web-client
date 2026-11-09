@@ -1060,6 +1060,15 @@
       "DELETE_TITLE": "Organisationseinheit löschen"
     }
   },
+  "ADMIN_DATASET_PERMISSIONS": {
+    "BUTTON_TITLE": "Rechtevergabe Datensätze",
+    "TITLE": "Rechte auf Datensätze der Organisationseinheit {{owner}} übertragen",
+    "STEPS": {
+      "DATASETS": "Datensätze wählen",
+      "RIGHTS": "Rechte festlegen",
+      "REVIEW": "Prüfen & übertragen"
+    }
+  },
   "ADMIN_TOPICS": {
     "TITLE": "Themenverwaltung",
     "DESCRIPTION": "Management der Themenhierarchien für Indikatoren und Georessourcen",

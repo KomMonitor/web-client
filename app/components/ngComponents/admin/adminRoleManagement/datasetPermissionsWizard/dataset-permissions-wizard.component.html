@@ -1,0 +1,50 @@
+<div class="modal-header">
+  <h4 class="modal-title">
+    {{ 'ADMIN_DATASET_PERMISSIONS.TITLE' | translate: { owner: ownerName() } }}
+  </h4>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="cancel()"
+  ></button>
+</div>
+
+<div class="modal-body">
+  <app-stepper
+    [steps]="stepper.steps"
+    [(currentStep)]="stepper.currentStep"
+    [allStepsClickable]="true"
+  ></app-stepper>
+
+  <!-- Switched via display, not @if, so a step keeps its view state while another is shown. -->
+  <section [style.display]="stepper.isActive('datasets') ? 'block' : 'none'">
+    <h2 class="fs-title text-center">
+      {{ 'ADMIN_DATASET_PERMISSIONS.STEPS.DATASETS' | translate }}
+    </h2>
+  </section>
+
+  <section [style.display]="stepper.isActive('rights') ? 'block' : 'none'">
+    <h2 class="fs-title text-center">{{ 'ADMIN_DATASET_PERMISSIONS.STEPS.RIGHTS' | translate }}</h2>
+  </section>
+
+  <section [style.display]="stepper.isActive('review') ? 'block' : 'none'">
+    <h2 class="fs-title text-center">{{ 'ADMIN_DATASET_PERMISSIONS.STEPS.REVIEW' | translate }}</h2>
+  </section>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="cancel()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
+  </button>
+  @if (stepper.currentStep > 1) {
+    <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
+      {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+    </button>
+  }
+  @if (stepper.currentStep < stepper.totalSteps) {
+    <button type="button" class="btn btn-primary" (click)="stepper.next()">
+      {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+    </button>
+  }
+</div>
