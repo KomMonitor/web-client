@@ -75,5 +75,10 @@ export class AdminRoleExplanationComponent {
         },
       ],
     },
+    {
+      title: 'ADMIN_ROLES.EXPLANATION.DATASET_PERMISSIONS.TITLE',
+      content: 'ADMIN_ROLES.EXPLANATION.DATASET_PERMISSIONS.CONTENT',
+      fullWidth: true,
+    },
   ];
 }
