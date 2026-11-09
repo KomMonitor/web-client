@@ -1137,6 +1137,15 @@
       "GAINS_MANY": "erhält {{level}} an {{count}} Datensätzen",
       "LOSES_ONE": "verliert {{level}} an 1 Datensatz",
       "LOSES_MANY": "verliert {{level}} an {{count}} Datensätzen"
+    },
+    "TRANSFER": "Rechte übertragen",
+    "SAVE_FAILED": "Die Rechte konnten nicht übertragen werden: {{message}}",
+    "DONE": {
+      "TITLE_ONE": "Rechte auf 1 Datensatz übertragen",
+      "TITLE_MANY": "Rechte auf {{count}} Datensätze übertragen",
+      "TEXT": "Die Rechte sind jetzt an den einzelnen Datensätzen gespeichert und können dort unter Geodatenverwaltung weiter angepasst werden.",
+      "STALE": "Die Datensätze konnten danach nicht neu geladen werden, die angezeigten Rechte sind daher veraltet. Laden Sie die Seite neu, bevor Sie weitere Rechte übertragen.",
+      "RESTART": "Weitere Übertragung"
     }
   },
   "ADMIN_TOPICS": {

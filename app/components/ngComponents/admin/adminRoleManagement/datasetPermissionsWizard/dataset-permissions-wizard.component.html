@@ -6,45 +6,101 @@
     type="button"
     class="btn-close"
     [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    [disabled]="state.saving()"
     (click)="cancel()"
   ></button>
 </div>
 
 <div class="modal-body">
-  <app-stepper
-    [steps]="stepper.steps"
-    [(currentStep)]="stepper.currentStep"
-    [allStepsClickable]="true"
-  ></app-stepper>
+  <!-- Hidden rather than removed after a transfer, so the steps keep their view state. -->
+  <div class="wizard-steps" [hidden]="!!done()">
+    <app-stepper
+      [steps]="stepper.steps"
+      [(currentStep)]="stepper.currentStep"
+      [allStepsClickable]="true"
+    ></app-stepper>
 
-  <app-loading-overlay [loading]="loading()">
-    <!-- Switched via display, not @if, so a step keeps its view state while another is shown. -->
-    <section [style.display]="stepper.isActive('datasets') ? 'block' : 'none'">
-      <app-dataset-selection-step [ownerName]="ownerName()"></app-dataset-selection-step>
-    </section>
+    <app-loading-overlay [loading]="loading() || state.saving()">
+      <!-- Switched via display, not @if, so a step keeps its view state while another is shown. -->
+      <section [style.display]="stepper.isActive('datasets') ? 'block' : 'none'">
+        <app-dataset-selection-step [ownerName]="ownerName()"></app-dataset-selection-step>
+      </section>
 
-    <section [style.display]="stepper.isActive('rights') ? 'block' : 'none'">
-      <app-rights-step [ownerName]="ownerName()"></app-rights-step>
-    </section>
+      <section [style.display]="stepper.isActive('rights') ? 'block' : 'none'">
+        <app-rights-step [ownerName]="ownerName()"></app-rights-step>
+      </section>
 
-    <section [style.display]="stepper.isActive('review') ? 'block' : 'none'">
-      <app-review-step [ownerName]="ownerName()"></app-review-step>
-    </section>
-  </app-loading-overlay>
+      <section [style.display]="stepper.isActive('review') ? 'block' : 'none'">
+        <app-review-step [ownerName]="ownerName()"></app-review-step>
+      </section>
+    </app-loading-overlay>
+  </div>
+
+  @if (done(); as result) {
+    <div class="transfer-done text-center py-4">
+      <i class="fas fa-circle-check fa-3x text-success mb-3" aria-hidden="true"></i>
+      <h5 class="done-title">
+        {{
+          (result.datasetCount === 1
+            ? 'ADMIN_DATASET_PERMISSIONS.DONE.TITLE_ONE'
+            : 'ADMIN_DATASET_PERMISSIONS.DONE.TITLE_MANY'
+          ) | translate: { count: result.datasetCount }
+        }}
+      </h5>
+      <p class="done-text">{{ 'ADMIN_DATASET_PERMISSIONS.DONE.TEXT' | translate }}</p>
+      @if (result.reloaded) {
+        <button type="button" class="btn btn-outline-secondary restart" (click)="restart()">
+          {{ 'ADMIN_DATASET_PERMISSIONS.DONE.RESTART' | translate }}
+        </button>
+      } @else {
+        <!-- A further run on outdated current rights could undo what was just stored. -->
+        <div class="alert alert-warning done-stale text-start" role="alert">
+          {{ 'ADMIN_DATASET_PERMISSIONS.DONE.STALE' | translate }}
+        </div>
+      }
+    </div>
+  }
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-outline-secondary me-auto" (click)="cancel()">
-    {{ 'ADMIN_SHARED.CANCEL' | translate }}
+  <button
+    type="button"
+    class="btn btn-outline-secondary me-auto"
+    [disabled]="state.saving()"
+    (click)="cancel()"
+  >
+    {{ (done() ? 'ADMIN_SHARED.CLOSE' : 'ADMIN_SHARED.CANCEL') | translate }}
   </button>
-  @if (stepper.currentStep > 1) {
-    <button type="button" class="btn btn-outline-secondary" (click)="stepper.previous()">
-      {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
-    </button>
-  }
-  @if (stepper.currentStep < stepper.totalSteps) {
-    <button type="button" class="btn btn-primary" (click)="stepper.next()">
-      {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
-    </button>
+  @if (!done()) {
+    @if (stepper.currentStep > 1) {
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        [disabled]="state.saving()"
+        (click)="stepper.previous()"
+      >
+        {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+      </button>
+    }
+    @if (stepper.currentStep < stepper.totalSteps) {
+      <button
+        type="button"
+        class="btn btn-primary"
+        [disabled]="state.saving()"
+        (click)="stepper.next()"
+      >
+        {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+      </button>
+    } @else if (state.hasChanges()) {
+      <button
+        type="button"
+        class="btn btn-success transfer"
+        [disabled]="state.saving()"
+        (click)="transfer()"
+      >
+        <i class="fas fa-share-from-square" aria-hidden="true"></i>
+        {{ 'ADMIN_DATASET_PERMISSIONS.TRANSFER' | translate }}
+      </button>
+    }
   }
 </div>

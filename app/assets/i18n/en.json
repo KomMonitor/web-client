@@ -1137,6 +1137,15 @@
       "GAINS_MANY": "gains {{level}} on {{count}} datasets",
       "LOSES_ONE": "loses {{level}} on 1 dataset",
       "LOSES_MANY": "loses {{level}} on {{count}} datasets"
+    },
+    "TRANSFER": "Transfer rights",
+    "SAVE_FAILED": "The rights could not be transferred: {{message}}",
+    "DONE": {
+      "TITLE_ONE": "Rights transferred to 1 dataset",
+      "TITLE_MANY": "Rights transferred to {{count}} datasets",
+      "TEXT": "The rights are now stored on the individual datasets and can be adjusted further there under geodata management.",
+      "STALE": "The datasets could not be reloaded afterwards, so the rights shown are outdated. Reload the page before transferring further rights.",
+      "RESTART": "Further transfer"
     }
   },
   "ADMIN_TOPICS": {
