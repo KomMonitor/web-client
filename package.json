@@ -34,7 +34,7 @@
     "prettier": "^3.8.4",
     "release-it": "^15.10.1",
     "typescript": "~5.9.3",
-    "typescript-eslint": "8.16.0"
+    "typescript-eslint": "^8.72.1"
   },
   "scripts": {
     "ng": "ng",

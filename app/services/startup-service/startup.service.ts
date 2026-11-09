@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { AuthService } from 'services/auth-service/auth.service';
 import { KeycloakHelperService } from 'services/keycloak-helper-service/keycloak-helper.service';
 import { DEFAULT_LANGUAGE_CODE, resolvePreferredLanguage } from 'util/i18n.constants';
@@ -11,6 +12,7 @@ import { DEFAULT_LANGUAGE_CODE, resolvePreferredLanguage } from 'util/i18n.const
 })
 export class StartupService {
   private authService = inject(AuthService);
+  private accessControlService = inject(AccessControlService);
   private keycloakHelperService = inject(KeycloakHelperService);
   private translate = inject(TranslateService);
 
@@ -21,6 +23,14 @@ export class StartupService {
     await this.authService.initKeycloak();
 
     if (this.authService.isAuthenticated()) {
+      // The login's roles are in the token from here on, so apply them before
+      // anything renders. The metadata bootstrap applies them as well, but
+      // only after it has loaded the user profile — a page that was faster
+      // checked its rights against no roles at all. On direct entry to
+      // /administration/groups, with the groups served from the cache, every
+      // row action stayed disabled, because the grid's cells never re-check.
+      this.accessControlService.applyLoginStateFromToken(this.authService.getTokenParsed());
+
       // Intentionally non-blocking: role loading must not hold up app start.
       // Handle the rejection here so init()'s throw does not surface as an
       // unhandled promise rejection.
