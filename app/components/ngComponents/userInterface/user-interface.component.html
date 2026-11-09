@@ -204,6 +204,7 @@
           [markerPositions]="markerPosition"
           [displayMode]="sliderDisplayMode.YEAR"
           [disabled]="sliderDisabled"
+          [clickToSetValue]="true"
           (valueChange)="onDateSliderChange($event)"
         ></custom-slider>
       }

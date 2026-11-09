@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  HostBinding,
   Input,
   OnInit,
   ViewChild,
@@ -38,6 +39,12 @@ export class CustomSliderComponent implements AfterViewInit, OnChanges {
   @Input() markerPositions: any[] = [0];
   @Input() disabled: boolean = false;
   @Input() displayMode: DisplayType = DisplayType.NORMAL;
+  /** Lets clicking anywhere on the rail jump the handle there, not just dragging it (map date slider only - see custom-slider.component.scss). */
+  @Input() clickToSetValue: boolean = false;
+
+  @HostBinding('class.click-to-set-value') get clickToSetValueClass() {
+    return this.clickToSetValue;
+  }
 
   @Output() valueChange = new EventEmitter<number | number[]>();
 
@@ -82,7 +89,7 @@ export class CustomSliderComponent implements AfterViewInit, OnChanges {
     const pips = this.data.map((_, index) => index);
 
     this.sliderInstance = noUiSlider.create(this.sliderContainer.nativeElement, {
-      behaviour: 'drag',
+      behaviour: this.clickToSetValue ? 'tap-drag' : 'drag',
       range: {
         min: 0,
         max: this.data.length - 1,

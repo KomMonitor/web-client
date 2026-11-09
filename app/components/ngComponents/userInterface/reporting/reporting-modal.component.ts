@@ -40,6 +40,13 @@ export class ReportingModalComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.reportGenerationProgressService.reportingModalOpen = true;
+
+    // While a report is actively being prepared/generated in the background, reopening the
+    // modal (e.g. via the progress banner) must jump straight back into that view. Otherwise
+    // the modal always opens at workflow select, offering to resume whatever setup was left.
+    if (!this.reportGenerationProgressService.reportGenerationInProgress) {
+      this.reportingService.pauseCurrentSetupAndGoToWorkflowSelect();
+    }
   }
 
   ngOnDestroy() {

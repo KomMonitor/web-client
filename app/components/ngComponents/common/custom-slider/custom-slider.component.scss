@@ -12,3 +12,18 @@
     right: -10px !important;
   }
 }
+
+// only sliders with clickToSetValue (behaviour: 'tap-drag', e.g. the map date slider) let a
+// click on the rail jump the handle - show a pointer cursor there to signal that; other
+// sliders (e.g. the reporting date-range slider) keep the default drag-only cursor.
+:host(.click-to-set-value) {
+  ::ng-deep {
+    .noUi-target:not([disabled]) {
+      cursor: pointer;
+    }
+
+    .noUi-handle {
+      cursor: ew-resize;
+    }
+  }
+}

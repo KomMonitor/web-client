@@ -295,7 +295,7 @@
                 @if (containsOutliers_low && envConfigService.useOutlierDetectionOnIndicator) {
                   <div>
                     <div class="row" style="margin-right: 0px">
-                      <div class="col-md-3"><i ng-bind-html="svgString_outlierLow"></i></div>
+                      <div class="col-md-3"><i [ngStyle]="outlierLowSwatchStyle"></i></div>
                       <div [class]="showLabelsColumn ? 'col-md-3' : 'col-md-6'">
                         untere Ausrei&szlig;er {{ makeOutliersLowLegendString(outliers_low) }}
                       </div>
@@ -310,7 +310,7 @@
                 @if (containsOutliers_high && envConfigService.useOutlierDetectionOnIndicator) {
                   <div>
                     <div class="row" style="margin-right: 0px">
-                      <div class="col-md-3"><i ng-bind-html="svgString_outlierHigh"></i></div>
+                      <div class="col-md-3"><i [ngStyle]="outlierHighSwatchStyle"></i></div>
                       <div [class]="showLabelsColumn ? 'col-md-3' : 'col-md-6'">
                         obere Ausrei&szlig;er {{ makeOutliersHighLegendString(outliers_high) }}
                       </div>
