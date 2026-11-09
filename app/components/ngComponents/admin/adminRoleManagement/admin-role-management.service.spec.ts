@@ -2,13 +2,13 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
+import { OrganizationalUnitPermissionInputType } from 'models/data-management-api';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { KeycloakHelperService } from 'services/keycloak-helper-service/keycloak-helper.service';
 
 import { AdminRoleManagementService } from './admin-role-management.service';
-import { OrganizationalUnitPermissionPatch } from './datasetPermissionsWizard/dataset-permissions.model';
 
 /** Covers the batch permission update; the other calls predate this spec. */
 describe('AdminRoleManagementService', () => {
@@ -16,7 +16,7 @@ describe('AdminRoleManagementService', () => {
   let service: AdminRoleManagementService;
   let httpMock: HttpTestingController;
 
-  const body: OrganizationalUnitPermissionPatch[] = [
+  const body: OrganizationalUnitPermissionInputType[] = [
     {
       organizationalUnitId: 'a',
       permissions: {

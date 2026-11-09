@@ -1,6 +1,7 @@
 import {
   IndicatorOverviewType,
   IndicatorSpatialUnitJoinItem,
+  OrganizationalUnitPermissionInputType,
   SpatialUnitOverviewType,
 } from 'models/data-management-api';
 import {
@@ -60,11 +61,7 @@ export interface GroupPermissionIds {
 }
 
 /** The four lists of the PATCH body, named as the endpoint names them. */
-export type PermissionSection =
-  | 'georesources'
-  | 'spatialunits'
-  | 'indicators'
-  | 'indicatorspatialunits';
+export type PermissionSection = keyof OrganizationalUnitPermissionInputType['permissions'];
 
 export type SlotTarget =
   | { section: 'georesources' | 'spatialunits' | 'indicators'; id: string }
@@ -130,29 +127,6 @@ export interface SummaryLine {
   count: number;
   /** The level's action is `custom`, i.e. it comes from per-dataset edits. */
   custom: boolean;
-}
-
-// The request body of PATCH /organizationalUnits/permissions, mirroring the
-// backend's OrganizationalUnitPermissionInputType. Defined here until the
-// endpoint is part of the vendored API spec; replace with the generated types
-// then.
-export interface PermissionPatchElement {
-  id: string;
-  permissions: string[];
-}
-
-export interface PermissionPatchSpatialUnitElement extends PermissionPatchElement {
-  spatialUnitId: string;
-}
-
-export interface OrganizationalUnitPermissionPatch {
-  organizationalUnitId: string;
-  permissions: {
-    georesources?: PermissionPatchElement[];
-    spatialunits?: PermissionPatchElement[];
-    indicators?: PermissionPatchElement[];
-    indicatorspatialunits?: PermissionPatchSpatialUnitElement[];
-  };
 }
 
 /** The store data `datasetsOfOwner` reads, narrowed to the fields it needs. */
@@ -644,14 +618,14 @@ export function buildPermissionsPatch(
   groups: readonly GroupPermissionIds[],
   datasets: readonly PermissionDataset[],
   decisions: Decisions
-): OrganizationalUnitPermissionPatch[] {
-  const patch: OrganizationalUnitPermissionPatch[] = [];
+): OrganizationalUnitPermissionInputType[] {
+  const patch: OrganizationalUnitPermissionInputType[] = [];
   for (const group of groups) {
     const decision = decisions[group.organizationalUnitId];
     if (!decision) {
       continue;
     }
-    const sections: OrganizationalUnitPermissionPatch['permissions'] = {};
+    const sections: OrganizationalUnitPermissionInputType['permissions'] = {};
     for (const dataset of datasets) {
       const changedLevels = new Set<RightLevel>();
       const targets: Rights[] = [];
@@ -709,7 +683,7 @@ function wantedIds(
 }
 
 function addElement(
-  sections: OrganizationalUnitPermissionPatch['permissions'],
+  sections: OrganizationalUnitPermissionInputType['permissions'],
   target: SlotTarget,
   permissions: string[]
 ): void {
