@@ -14,6 +14,7 @@ import {
 
 import { DatasetPermissionsWizardStateService } from './dataset-permissions-wizard-state.service';
 import { DatasetSelectionStepComponent } from './steps/dataset-selection-step.component';
+import { ReviewStepComponent } from './steps/review-step.component';
 import { RightsStepComponent } from './steps/rights-step.component';
 
 /**
@@ -37,6 +38,7 @@ import { RightsStepComponent } from './steps/rights-step.component';
     LoadingOverlayComponent,
     DatasetSelectionStepComponent,
     RightsStepComponent,
+    ReviewStepComponent,
   ],
   providers: [DatasetPermissionsWizardStateService],
   standalone: true,

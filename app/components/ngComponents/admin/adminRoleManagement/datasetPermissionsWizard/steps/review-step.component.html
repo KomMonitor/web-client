@@ -1,0 +1,56 @@
+<div class="alert alert-info review-notice" role="note">
+  <i class="fas fa-circle-info" aria-hidden="true"></i>
+  <!-- The owner's name is interpolated as text, never as HTML: it is API data. -->
+  <span>{{ 'ADMIN_DATASET_PERMISSIONS.REVIEW.NOTICE' | translate: { owner: ownerName() } }}</span>
+</div>
+
+@let lines = state.summary();
+<div class="card review-summary">
+  <div class="card-header">
+    <span class="summary-title">{{
+      'ADMIN_DATASET_PERMISSIONS.REVIEW.SUMMARY_TITLE' | translate
+    }}</span>
+    @if (lines.length > 0) {
+      @let count = state.changedCount();
+      <span class="summary-count">{{
+        (count === 1
+          ? 'ADMIN_DATASET_PERMISSIONS.REVIEW.AFFECTS_ONE'
+          : 'ADMIN_DATASET_PERMISSIONS.REVIEW.AFFECTS_MANY'
+        ) | translate: { count }
+      }}</span>
+    }
+  </div>
+
+  @if (lines.length === 0) {
+    <p class="card-body summary-empty">
+      {{ 'ADMIN_DATASET_PERMISSIONS.REVIEW.EMPTY' | translate }}
+    </p>
+  } @else {
+    <ul class="list-unstyled card-body summary-lines">
+      @for (line of lines; track line.organizationalUnitId + line.level + line.change) {
+        <li class="summary-line" [attr.data-change]="line.change">
+          <i
+            class="fas"
+            [class.fa-plus]="line.change === 'add'"
+            [class.text-success]="line.change === 'add'"
+            [class.fa-minus]="line.change === 'remove'"
+            [class.text-danger]="line.change === 'remove'"
+            aria-hidden="true"
+          ></i>
+          <span
+            ><b>{{ line.groupName }}</b>
+            {{
+              lineKey(line)
+                | translate: { level: levelLabels[line.level] | translate, count: line.count }
+            }}</span
+          >
+          @if (line.custom) {
+            <span class="badge custom-badge">{{
+              'ADMIN_DATASET_PERMISSIONS.RIGHTS.ACTIONS.CUSTOM' | translate
+            }}</span>
+          }
+        </li>
+      }
+    </ul>
+  }
+</div>

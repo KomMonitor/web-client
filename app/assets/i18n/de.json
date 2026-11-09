@@ -1122,6 +1122,21 @@
       "DEVIATIONS_MANY": "{{count}} Abweichungen vom Ist-Zustand",
       "RESET": "Auf Ist-Zustand zurücksetzen",
       "APPLY": "Übernehmen"
+    },
+    "REVIEW": {
+      "NOTICE": "Die Änderungen werden einmalig auf die gewählten Datensätze geschrieben. Für Datensätze, die {{owner}} künftig anlegt, gelten sie nicht.",
+      "SUMMARY_TITLE": "Zusammenfassung",
+      "AFFECTS_ONE": "betrifft 1 Datensatz",
+      "AFFECTS_MANY": "betrifft {{count}} Datensätze",
+      "EMPTY": "Keine Änderungen festgelegt. Gehen Sie zurück zu Schritt 2.",
+      "LEVELS": {
+        "VIEWER": "Leserechte",
+        "EDITOR": "Editierrechte"
+      },
+      "GAINS_ONE": "erhält {{level}} an 1 Datensatz",
+      "GAINS_MANY": "erhält {{level}} an {{count}} Datensätzen",
+      "LOSES_ONE": "verliert {{level}} an 1 Datensatz",
+      "LOSES_MANY": "verliert {{level}} an {{count}} Datensätzen"
     }
   },
   "ADMIN_TOPICS": {

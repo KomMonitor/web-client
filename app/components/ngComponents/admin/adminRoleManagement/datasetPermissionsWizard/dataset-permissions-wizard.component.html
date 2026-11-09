@@ -28,9 +28,7 @@
     </section>
 
     <section [style.display]="stepper.isActive('review') ? 'block' : 'none'">
-      <h2 class="fs-title text-center">
-        {{ 'ADMIN_DATASET_PERMISSIONS.STEPS.REVIEW' | translate }}
-      </h2>
+      <app-review-step [ownerName]="ownerName()"></app-review-step>
     </section>
   </app-loading-overlay>
 </div>
