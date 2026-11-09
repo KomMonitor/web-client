@@ -1082,6 +1082,27 @@
       "SPATIAL_UNITS_ONE": "1 Raumebene",
       "SPATIAL_UNITS_MANY": "{{count}} Raumebenen",
       "EMPTY": "{{owner}} besitzt keine Datensätze."
+    },
+    "LEVELS": {
+      "VIEWER": "Leserechte",
+      "EDITOR": "Editierrechte"
+    },
+    "RIGHTS": {
+      "INTRO_ONE": "Legen Sie pro Gruppe fest, was mit den Rechten an dem gewählten Datensatz passiert.",
+      "INTRO_MANY": "Legen Sie pro Gruppe fest, was mit den Rechten an den {{count}} gewählten Datensätzen passiert.",
+      "GROUP": "Organisationseinheit",
+      "ACTIONS": {
+        "KEEP": "unverändert",
+        "GRANT": "erteilen",
+        "REVOKE": "entziehen",
+        "CUSTOM": "individuell"
+      },
+      "SELECT_LABEL": "{{level}} für {{group}}",
+      "COVERAGE": "{{count}}/{{total}}",
+      "COVERAGE_CHANGE": "{{before}} → {{after}}",
+      "LEGEND": "Die Zahl zeigt, an wie vielen der gewählten Datensätze die Gruppe das Recht aktuell hat. Der Pfeil zeigt die Zahl nach der Übertragung.",
+      "NO_GROUPS": "Im Mandanten von {{owner}} gibt es keine weiteren Organisationseinheiten, an die Rechte vergeben werden können.",
+      "NO_DATASETS": "Keine Datensätze gewählt. Wählen Sie in Schritt 1 die Datensätze aus, auf die Rechte übertragen werden sollen."
     }
   },
   "ADMIN_TOPICS": {

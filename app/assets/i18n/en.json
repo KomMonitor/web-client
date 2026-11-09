@@ -1082,6 +1082,27 @@
       "SPATIAL_UNITS_ONE": "1 spatial unit",
       "SPATIAL_UNITS_MANY": "{{count}} spatial units",
       "EMPTY": "{{owner}} owns no datasets."
+    },
+    "LEVELS": {
+      "VIEWER": "Read rights",
+      "EDITOR": "Edit rights"
+    },
+    "RIGHTS": {
+      "INTRO_ONE": "Decide per group what happens to its rights on the selected dataset.",
+      "INTRO_MANY": "Decide per group what happens to its rights on the {{count}} selected datasets.",
+      "GROUP": "Organizational unit",
+      "ACTIONS": {
+        "KEEP": "unchanged",
+        "GRANT": "grant",
+        "REVOKE": "revoke",
+        "CUSTOM": "individual"
+      },
+      "SELECT_LABEL": "{{level}} for {{group}}",
+      "COVERAGE": "{{count}}/{{total}}",
+      "COVERAGE_CHANGE": "{{before}} → {{after}}",
+      "LEGEND": "The number shows on how many of the selected datasets the group currently has the right. The arrow shows the number after the transfer.",
+      "NO_GROUPS": "The tenant of {{owner}} has no other organizational units that rights could be granted to.",
+      "NO_DATASETS": "No datasets selected. Select the datasets to transfer rights to in step 1."
     }
   },
   "ADMIN_TOPICS": {

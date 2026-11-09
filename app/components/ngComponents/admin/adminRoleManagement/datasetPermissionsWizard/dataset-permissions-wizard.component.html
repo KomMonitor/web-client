@@ -24,9 +24,7 @@
     </section>
 
     <section [style.display]="stepper.isActive('rights') ? 'block' : 'none'">
-      <h2 class="fs-title text-center">
-        {{ 'ADMIN_DATASET_PERMISSIONS.STEPS.RIGHTS' | translate }}
-      </h2>
+      <app-rights-step [ownerName]="ownerName()"></app-rights-step>
     </section>
 
     <section [style.display]="stepper.isActive('review') ? 'block' : 'none'">

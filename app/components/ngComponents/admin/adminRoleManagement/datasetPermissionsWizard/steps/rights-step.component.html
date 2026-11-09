@@ -1,0 +1,76 @@
+@if (state.groups().length === 0) {
+  <p class="rights-empty">
+    {{ 'ADMIN_DATASET_PERMISSIONS.RIGHTS.NO_GROUPS' | translate: { owner: ownerName() } }}
+  </p>
+} @else if (state.selectionCount().selected === 0) {
+  <p class="rights-empty">
+    {{ 'ADMIN_DATASET_PERMISSIONS.RIGHTS.NO_DATASETS' | translate }}
+  </p>
+} @else {
+  @let selected = state.selectionCount().selected;
+  <p class="rights-intro">
+    {{
+      (selected === 1
+        ? 'ADMIN_DATASET_PERMISSIONS.RIGHTS.INTRO_ONE'
+        : 'ADMIN_DATASET_PERMISSIONS.RIGHTS.INTRO_MANY'
+      ) | translate: { count: selected }
+    }}
+  </p>
+
+  <table class="table table-sm table-striped align-middle rights-table">
+    <thead>
+      <tr>
+        <th scope="col">{{ 'ADMIN_DATASET_PERMISSIONS.RIGHTS.GROUP' | translate }}</th>
+        @for (level of levels; track level) {
+          <th scope="col" class="text-center">{{ levelLabels[level] | translate }}</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (group of state.groups(); track group.organizationalUnitId) {
+        <tr [attr.data-group]="group.organizationalUnitId">
+          <!-- Names are interpolated as text, never as HTML: they are API data. -->
+          <th scope="row" class="group-name">{{ group.name }}</th>
+          @for (level of levels; track level) {
+            @let action = actionOf(group.organizationalUnitId, level);
+            @let coverage = state.coverageOf(group.organizationalUnitId, level);
+            <td [attr.data-level]="level">
+              <div class="rights-cell">
+                <!-- The options are static, so [value] always finds its option. -->
+                <select
+                  class="form-select form-select-sm action-select"
+                  [class]="'action-' + action"
+                  [value]="action"
+                  [attr.aria-label]="
+                    'ADMIN_DATASET_PERMISSIONS.RIGHTS.SELECT_LABEL'
+                      | translate: { level: levelLabels[level] | translate, group: group.name }
+                  "
+                  (change)="onActionChange(group.organizationalUnitId, level, $event)"
+                >
+                  <option value="keep">{{ actionLabels.keep | translate }}</option>
+                  <option value="grant">{{ actionLabels.grant | translate }}</option>
+                  <option value="revoke">{{ actionLabels.revoke | translate }}</option>
+                  <!-- Only the per-dataset dialog leads here, so it is never offered. -->
+                  <option value="custom" disabled [hidden]="action !== 'custom'">
+                    {{ actionLabels.custom | translate }}
+                  </option>
+                </select>
+                @if (coverage) {
+                  <span class="coverage" [class.coverage-changed]="coverage.changed">{{
+                    coverage.changed
+                      ? ('ADMIN_DATASET_PERMISSIONS.RIGHTS.COVERAGE_CHANGE'
+                        | translate: { before: coverage.before, after: coverage.after })
+                      : ('ADMIN_DATASET_PERMISSIONS.RIGHTS.COVERAGE'
+                        | translate: { count: coverage.before, total: coverage.total })
+                  }}</span>
+                }
+              </div>
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <p class="rights-legend">{{ 'ADMIN_DATASET_PERMISSIONS.RIGHTS.LEGEND' | translate }}</p>
+}

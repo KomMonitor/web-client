@@ -1,0 +1,53 @@
+// Orange as in the mockup: a pending change, neither good nor bad.
+$coverage-changed-color: #c26a00;
+
+.rights-table {
+  margin-bottom: 0.5rem;
+
+  th[scope='col']:first-child {
+    width: 40%;
+  }
+}
+
+.group-name {
+  font-weight: normal;
+}
+
+.rights-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.action-select {
+  width: 9rem;
+  flex: none;
+}
+
+// The dropdown's color tells the action at a glance; `keep` stays the plain select.
+@each $action, $variant in (grant: success, revoke: danger, custom: warning) {
+  .action-#{$action} {
+    border-color: var(--bs-#{$variant}-border-subtle);
+    background-color: var(--bs-#{$variant}-bg-subtle);
+    color: var(--bs-#{$variant}-text-emphasis);
+  }
+}
+
+.coverage {
+  width: 4.5rem;
+  flex: none;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--bs-secondary-color);
+}
+
+.coverage-changed {
+  font-weight: 600;
+  color: $coverage-changed-color;
+}
+
+.rights-legend {
+  font-size: 0.85rem;
+  color: var(--bs-secondary-color);
+}

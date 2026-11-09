@@ -14,6 +14,7 @@ import {
 
 import { DatasetPermissionsWizardStateService } from './dataset-permissions-wizard-state.service';
 import { DatasetSelectionStepComponent } from './steps/dataset-selection-step.component';
+import { RightsStepComponent } from './steps/rights-step.component';
 
 /**
  * The dataset-permissions wizard: an admin grants or revokes read and edit
@@ -35,6 +36,7 @@ import { DatasetSelectionStepComponent } from './steps/dataset-selection-step.co
     StepperComponent,
     LoadingOverlayComponent,
     DatasetSelectionStepComponent,
+    RightsStepComponent,
   ],
   providers: [DatasetPermissionsWizardStateService],
   standalone: true,
