@@ -15,6 +15,7 @@
         : 'ADMIN_DATASET_PERMISSIONS.RIGHTS.INTRO_MANY'
       ) | translate: { count: selected }
     }}
+    {{ 'ADMIN_DATASET_PERMISSIONS.RIGHTS.OPEN_HINT' | translate }}
   </p>
 
   <table class="table table-sm table-striped align-middle rights-table">
@@ -30,7 +31,17 @@
       @for (group of state.groups(); track group.organizationalUnitId) {
         <tr [attr.data-group]="group.organizationalUnitId">
           <!-- Names are interpolated as text, never as HTML: they are API data. -->
-          <th scope="row" class="group-name">{{ group.name }}</th>
+          <th scope="row" class="group-name">
+            <button
+              type="button"
+              class="btn btn-link group-link"
+              [title]="'ADMIN_DATASET_PERMISSIONS.RIGHTS.OPEN_GROUP' | translate"
+              (click)="openGroup(group)"
+            >
+              <span>{{ group.name }}</span>
+              <i class="fas fa-table-list" aria-hidden="true"></i>
+            </button>
+          </th>
           @for (level of levels; track level) {
             @let action = actionOf(group.organizationalUnitId, level);
             @let coverage = state.coverageOf(group.organizationalUnitId, level);

@@ -1,0 +1,120 @@
+@use 'wizard';
+
+// Cell tints go through Bootstrap's `--bs-table-bg-type` (an inset shadow, the
+// same as `table-striped`): app.scss forces every `th` to a white background
+// with !important, so `background-color` would not show on header cells.
+
+.dialog-intro,
+.dialog-legend {
+  font-size: 0.9rem;
+  color: var(--bs-secondary-color);
+}
+
+.matrix {
+  margin-bottom: 0.5rem;
+
+  // The modal body scrolls (`scrollable`), so the head stays in view.
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    --bs-table-bg-type: var(--bs-tertiary-bg);
+  }
+
+  th {
+    font-weight: normal;
+  }
+
+  thead th,
+  .kind-row th {
+    font-weight: 600;
+  }
+}
+
+.level-col {
+  width: 8rem;
+  text-align: center;
+}
+
+.kind-row > * {
+  --bs-table-bg-type: var(--bs-tertiary-bg);
+}
+
+.hint-row td {
+  padding-left: 2.5rem;
+  font-size: 0.85rem;
+  --bs-table-bg-type: var(--bs-info-bg-subtle);
+}
+
+// Indented past the caret of the row above.
+.dataset-row th {
+  padding-left: 2rem;
+}
+
+.dataset-row .dataset-name {
+  padding-left: 1.5rem;
+}
+
+.slot-row th {
+  padding-left: 5rem;
+  font-size: 0.9rem;
+
+  .fa-layer-group {
+    margin-right: 0.35rem;
+    color: var(--bs-secondary-color);
+  }
+}
+
+.row-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0;
+  color: inherit;
+  font-weight: inherit;
+  text-decoration: none;
+  text-align: left;
+}
+
+.caret {
+  width: 1rem;
+  font-size: 0.75rem;
+}
+
+.row-meta {
+  font-size: 0.85rem;
+  font-weight: normal;
+  color: var(--bs-secondary-color);
+}
+
+.matrix-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+
+  .form-check-input {
+    margin: 0;
+    float: none;
+  }
+}
+
+// Reserves its place when hidden, so the checkboxes stay aligned.
+.deviation-dot {
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background-color: wizard.$change-color;
+  visibility: hidden;
+  vertical-align: middle;
+
+  &.visible {
+    visibility: visible;
+  }
+}
+
+.deviation-count {
+  font-size: 0.9rem;
+  color: wizard.$change-color;
+}

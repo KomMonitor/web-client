@@ -503,6 +503,54 @@ function draftValue(group: GroupPermissionIds, s: PermissionSlot, draft: RightsD
   return draft[s.key] ?? currentRights(group, s.permissions);
 }
 
+/** The current rights as a draft — what "reset to current" in the per-dataset dialog restores. */
+export function currentDraft(
+  group: GroupPermissionIds,
+  slots: readonly PermissionSlot[]
+): RightsDraft {
+  return initialDraft(group, slots, undefined);
+}
+
+/**
+ * Sets one level on all given slots, coupled like a single checkbox: edit on
+ * sets read, read off clears edit. Slots not given stay as they are.
+ */
+export function setDraftLevel(
+  group: GroupPermissionIds,
+  slots: readonly PermissionSlot[],
+  draft: RightsDraft,
+  level: RightLevel,
+  value: boolean
+): RightsDraft {
+  const next: Record<string, Rights> = { ...draft };
+  for (const s of slots) {
+    next[s.key] = coupleRights(draftValue(group, s, draft), level, value);
+  }
+  return next;
+}
+
+/** State of a collective checkbox over the given slots in the draft. */
+export function draftState(
+  group: GroupPermissionIds,
+  slots: readonly PermissionSlot[],
+  draft: RightsDraft,
+  level: RightLevel
+): TriState {
+  return triState(slots.filter((s) => draftValue(group, s, draft)[level]).length, slots.length);
+}
+
+/** Whether the draft differs from the current rights on any of the given slots at this level. */
+export function draftDeviates(
+  group: GroupPermissionIds,
+  slots: readonly PermissionSlot[],
+  draft: RightsDraft,
+  level: RightLevel
+): boolean {
+  return slots.some(
+    (s) => draftValue(group, s, draft)[level] !== currentRights(group, s.permissions)[level]
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Result
 // ---------------------------------------------------------------------------

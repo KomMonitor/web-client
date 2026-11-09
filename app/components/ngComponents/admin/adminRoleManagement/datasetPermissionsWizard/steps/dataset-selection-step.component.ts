@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angu
 import { TranslateModule } from '@ngx-translate/core';
 
 import { DatasetPermissionsWizardStateService } from '../dataset-permissions-wizard-state.service';
+import { KIND_LABELS } from '../dataset-permissions.labels';
 import {
   DATASET_KINDS,
   DatasetKind,
@@ -10,12 +11,6 @@ import {
   timeseriesCount,
 } from '../dataset-permissions.model';
 import { TriStateCheckboxDirective } from '../tri-state-checkbox.directive';
-
-const KIND_LABELS: Record<DatasetKind, string> = {
-  indicator: 'ADMIN_DATASET_PERMISSIONS.SELECTION.KINDS.INDICATOR',
-  georesource: 'ADMIN_DATASET_PERMISSIONS.SELECTION.KINDS.GEORESOURCE',
-  spatialUnit: 'ADMIN_DATASET_PERMISSIONS.SELECTION.KINDS.SPATIAL_UNIT',
-};
 
 /**
  * Step 1 of the wizard: which of the owner's datasets the rights are

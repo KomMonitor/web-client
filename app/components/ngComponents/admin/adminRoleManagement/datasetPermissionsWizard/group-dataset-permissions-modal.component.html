@@ -1,0 +1,189 @@
+<div class="modal-header">
+  <!-- The group's name is interpolated as text, never as HTML: it is API data. -->
+  <h4 class="modal-title">
+    {{ 'ADMIN_DATASET_PERMISSIONS.GROUP_DIALOG.TITLE' | translate: { group: group.name } }}
+  </h4>
+  <button
+    type="button"
+    class="btn-close"
+    [attr.aria-label]="'ADMIN_SHARED.CLOSE' | translate"
+    (click)="cancel()"
+  ></button>
+</div>
+
+<div class="modal-body">
+  <p class="dialog-intro">
+    {{
+      (datasets.length === 1
+        ? 'ADMIN_DATASET_PERMISSIONS.GROUP_DIALOG.INTRO_ONE'
+        : 'ADMIN_DATASET_PERMISSIONS.GROUP_DIALOG.INTRO_MANY'
+      ) | translate: { count: datasets.length }
+    }}
+    <span class="deviation-dot visible" aria-hidden="true"></span>
+    {{ 'ADMIN_DATASET_PERMISSIONS.GROUP_DIALOG.MARK_HINT' | translate }}
+  </p>
+
+  <table class="table table-sm align-middle matrix">
+    <thead>
+      <tr>
+        <th scope="col">{{ 'ADMIN_DATASET_PERMISSIONS.GROUP_DIALOG.DATASET' | translate }}</th>
+        @for (level of levels; track level) {
+          <th scope="col" class="level-col">{{ levelLabels[level] | translate }}</th>
+        }
+      </tr>
+    </thead>
+
+    @for (kindGroup of kindGroups; track kindGroup.kind) {
+      @let kind = kindGroup.kind;
+      @let kindLabel = kindGroup.label | translate;
+      <tbody [attr.data-kind]="kind">
+        <tr class="kind-row">
+          <th scope="rowgroup">
+            <button
+              type="button"
+              class="btn btn-link row-toggle"
+              [attr.aria-expanded]="isKindExpanded(kind)"
+              (click)="toggleKind(kind)"
+            >
+              <i
+                class="fas caret"
+                [class.fa-chevron-down]="isKindExpanded(kind)"
+                [class.fa-chevron-right]="!isKindExpanded(kind)"
+                aria-hidden="true"
+              ></i>
+              <span>{{ kindLabel }}</span>
+              <span class="row-meta">{{ kindGroup.datasets.length }}</span>
+            </button>
+          </th>
+          @for (level of levels; track level) {
+            <td>
+              <ng-container
+                [ngTemplateOutlet]="cell"
+                [ngTemplateOutletContext]="{ slots: kindGroup.slots, level, name: kindLabel }"
+              ></ng-container>
+            </td>
+          }
+        </tr>
+
+        @if (kind === 'indicator') {
+          <tr class="hint-row">
+            <td colspan="3">
+              <i class="fas fa-layer-group" aria-hidden="true"></i>
+              {{ 'ADMIN_DATASET_PERMISSIONS.GROUP_DIALOG.INDICATOR_HINT' | translate }}
+            </td>
+          </tr>
+        }
+
+        @if (isKindExpanded(kind)) {
+          @for (dataset of kindGroup.datasets; track datasetKey(dataset)) {
+            @let count = timeseriesCount(dataset);
+            <tr class="dataset-row" [attr.data-dataset]="datasetKey(dataset)">
+              <th scope="row">
+                @if (count > 0) {
+                  <button
+                    type="button"
+                    class="btn btn-link row-toggle"
+                    [attr.aria-expanded]="isDatasetExpanded(dataset)"
+                    (click)="toggleDataset(dataset)"
+                  >
+                    <i
+                      class="fas caret"
+                      [class.fa-chevron-down]="isDatasetExpanded(dataset)"
+                      [class.fa-chevron-right]="!isDatasetExpanded(dataset)"
+                      aria-hidden="true"
+                    ></i>
+                    <span>{{ dataset.name }}</span>
+                    <span class="row-meta">{{
+                      (count === 1
+                        ? 'ADMIN_DATASET_PERMISSIONS.SELECTION.SPATIAL_UNITS_ONE'
+                        : 'ADMIN_DATASET_PERMISSIONS.SELECTION.SPATIAL_UNITS_MANY'
+                      ) | translate: { count }
+                    }}</span>
+                  </button>
+                } @else {
+                  <span class="dataset-name">{{ dataset.name }}</span>
+                }
+              </th>
+              @for (level of levels; track level) {
+                <td>
+                  <ng-container
+                    [ngTemplateOutlet]="cell"
+                    [ngTemplateOutletContext]="{ slots: dataset.slots, level, name: dataset.name }"
+                  ></ng-container>
+                </td>
+              }
+            </tr>
+
+            @if (count > 0 && isDatasetExpanded(dataset)) {
+              @for (slot of dataset.slots; track slot.key) {
+                <tr class="slot-row" [attr.data-slot]="slot.key">
+                  <th scope="row">
+                    <i class="fas fa-layer-group" aria-hidden="true"></i>
+                    {{ slot.label }}
+                  </th>
+                  @for (level of levels; track level) {
+                    <td>
+                      <ng-container
+                        [ngTemplateOutlet]="cell"
+                        [ngTemplateOutletContext]="{
+                          slots: [slot],
+                          level,
+                          name: dataset.name + ' – ' + slot.label,
+                        }"
+                      ></ng-container>
+                    </td>
+                  }
+                </tr>
+              }
+            }
+          }
+        }
+      </tbody>
+    }
+  </table>
+
+  <p class="dialog-legend">{{ 'ADMIN_DATASET_PERMISSIONS.GROUP_DIALOG.LEGEND' | translate }}</p>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-secondary me-auto" (click)="cancel()">
+    {{ 'ADMIN_SHARED.CANCEL' | translate }}
+  </button>
+  @if (deviations() > 0) {
+    <span class="deviation-count">{{
+      (deviations() === 1
+        ? 'ADMIN_DATASET_PERMISSIONS.GROUP_DIALOG.DEVIATIONS_ONE'
+        : 'ADMIN_DATASET_PERMISSIONS.GROUP_DIALOG.DEVIATIONS_MANY'
+      ) | translate: { count: deviations() }
+    }}</span>
+  }
+  <button type="button" class="btn btn-outline-secondary reset" (click)="reset()">
+    {{ 'ADMIN_DATASET_PERMISSIONS.GROUP_DIALOG.RESET' | translate }}
+  </button>
+  <button type="button" class="btn btn-primary apply" (click)="apply()">
+    {{ 'ADMIN_DATASET_PERMISSIONS.GROUP_DIALOG.APPLY' | translate }}
+  </button>
+</div>
+
+<!-- One checkbox for many slots: set where all are set, partly where some are. -->
+<ng-template #cell let-slots="slots" let-level="level" let-name="name">
+  <div class="matrix-cell">
+    <input
+      type="checkbox"
+      class="form-check-input"
+      [appTriState]="stateOf(slots, level)"
+      [attr.aria-label]="
+        'ADMIN_DATASET_PERMISSIONS.GROUP_DIALOG.TOGGLE_LABEL'
+          | translate: { level: levelLabels[level] | translate, name }
+      "
+      (change)="toggle(slots, level)"
+    />
+    <span class="deviation-dot" [class.visible]="deviates(slots, level)">
+      @if (deviates(slots, level)) {
+        <span class="visually-hidden">{{
+          'ADMIN_DATASET_PERMISSIONS.GROUP_DIALOG.CHANGED' | translate
+        }}</span>
+      }
+    </span>
+  </div>
+</ng-template>

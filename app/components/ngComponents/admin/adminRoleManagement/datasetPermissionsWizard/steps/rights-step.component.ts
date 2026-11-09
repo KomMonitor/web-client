@@ -1,11 +1,20 @@
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { AdminModalService } from 'components/ngComponents/admin/adminShared/modal/admin-modal.service';
+import { MODAL_FORM } from 'util/modal-presets';
 
 import {
   DatasetPermissionsWizardStateService,
   SelectableAction,
 } from '../dataset-permissions-wizard-state.service';
-import { RIGHT_LEVELS, RightAction, RightLevel } from '../dataset-permissions.model';
+import {
+  GroupPermissionIds,
+  RIGHT_LEVELS,
+  RightAction,
+  RightLevel,
+  RightsDraft,
+} from '../dataset-permissions.model';
+import { GroupDatasetPermissionsModalComponent } from '../group-dataset-permissions-modal.component';
 
 const LEVEL_LABELS: Record<RightLevel, string> = {
   viewer: 'ADMIN_DATASET_PERMISSIONS.LEVELS.VIEWER',
@@ -25,7 +34,8 @@ const ACTION_LABELS: Record<RightAction, string> = {
  * the group has the right now, and after the transfer once that differs.
  *
  * The decisions and the coupling of the two rights live in the wizard's state;
- * this step only shows them.
+ * this step only shows them. A group's name opens its rights per dataset,
+ * whose result comes back here as the dropdown values.
  */
 @Component({
   selector: 'app-rights-step',
@@ -37,6 +47,7 @@ const ACTION_LABELS: Record<RightAction, string> = {
 })
 export class RightsStepComponent {
   protected readonly state = inject(DatasetPermissionsWizardStateService);
+  private readonly modals = inject(AdminModalService);
 
   /** Shown when the tenant has no other groups; the state knows the owner only by id. */
   readonly ownerName = input('');
@@ -52,5 +63,22 @@ export class RightsStepComponent {
   protected onActionChange(groupId: string, level: RightLevel, event: Event): void {
     const action = (event.target as HTMLSelectElement).value as SelectableAction;
     this.state.setAction(groupId, level, action);
+  }
+
+  /** Opens the per-dataset rights of the group; a cancelled dialog changes nothing. */
+  protected async openGroup(group: GroupPermissionIds): Promise<void> {
+    const id = group.organizationalUnitId;
+    const draft = await this.modals.open<GroupDatasetPermissionsModalComponent, RightsDraft>(
+      GroupDatasetPermissionsModalComponent,
+      MODAL_FORM,
+      {
+        group,
+        datasets: this.state.selectedDatasets(),
+        initialDraft: this.state.draftFor(id),
+      }
+    );
+    if (draft) {
+      this.state.applyDraft(id, draft);
+    }
   }
 }

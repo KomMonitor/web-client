@@ -12,11 +12,15 @@ import {
   coupleAction,
   coupleRights,
   coverage,
+  currentDraft,
   currentRights,
   datasetKey,
   datasetsOfOwner,
+  draftDeviates,
+  draftState,
   initialDraft,
   resourcePermissionIds,
+  setDraftLevel,
   summarize,
   targetRights,
   timeseriesCount,
@@ -351,6 +355,52 @@ describe('dataset-permissions.model', () => {
         'georesources:g2': { viewer: true, editor: true },
       };
       expect(countDeviations(a, slots, draft)).toBe(3);
+    });
+
+    it('resets to the current rights, reading an editor id as read access', () => {
+      const [g3] = datasets({ georesources: [georesourceSource('g3', OWNER, ['a-editor'])] });
+      expect(currentDraft(a, [...g3.slots, ...slots])).toEqual({
+        'georesources:g3': { viewer: true, editor: true },
+        'georesources:g1': { viewer: true, editor: false },
+        'georesources:g2': { viewer: false, editor: false },
+      });
+    });
+
+    it('sets a level on the given slots only, coupled like a single checkbox', () => {
+      const [g1, g2] = slots;
+      const edit = setDraftLevel(a, [g2], {}, 'editor', true);
+      expect(edit).toEqual({ 'georesources:g2': { viewer: true, editor: true } });
+
+      // A slot missing from the draft starts from its current rights.
+      const noRead = setDraftLevel(a, [g1, g2], edit, 'viewer', false);
+      expect(noRead).toEqual({
+        'georesources:g1': { viewer: false, editor: false },
+        'georesources:g2': { viewer: false, editor: false },
+      });
+    });
+
+    it('tells the state of a collective checkbox over the draft', () => {
+      const draft = currentDraft(a, slots);
+      expect(draftState(a, slots, draft, 'viewer')).toBe('some');
+      expect(draftState(a, slots, draft, 'editor')).toBe('none');
+      expect(draftState(a, slots, setDraftLevel(a, slots, draft, 'editor', true), 'viewer')).toBe(
+        'all'
+      );
+    });
+
+    it('marks a level that differs from the current rights on any slot', () => {
+      const [g1, g2] = slots;
+      const draft = setDraftLevel(a, [g2], currentDraft(a, slots), 'viewer', true);
+      expect(draftDeviates(a, slots, draft, 'viewer')).toBe(true);
+      expect(draftDeviates(a, [g1], draft, 'viewer')).toBe(false);
+      expect(draftDeviates(a, slots, draft, 'editor')).toBe(false);
+
+      // An editor id alone already is read access, so read and edit there is no deviation.
+      const [onlyEditor] = datasets({
+        georesources: [georesourceSource('g3', OWNER, ['a-editor'])],
+      });
+      const same = { 'georesources:g3': { viewer: true, editor: true } };
+      expect(draftDeviates(a, onlyEditor.slots, same, 'viewer')).toBe(false);
     });
   });
 

@@ -1,5 +1,4 @@
-// Orange as in the mockup: a pending change, neither good nor bad.
-$coverage-changed-color: #c26a00;
+@use '../wizard';
 
 .rights-table {
   margin-bottom: 0.5rem;
@@ -11,6 +10,18 @@ $coverage-changed-color: #c26a00;
 
 .group-name {
   font-weight: normal;
+}
+
+.group-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0;
+  text-align: left;
+
+  .fa-table-list {
+    font-size: 0.8rem;
+  }
 }
 
 .rights-cell {
@@ -44,7 +55,7 @@ $coverage-changed-color: #c26a00;
 
 .coverage-changed {
   font-weight: 600;
-  color: $coverage-changed-color;
+  color: wizard.$change-color;
 }
 
 .rights-legend {

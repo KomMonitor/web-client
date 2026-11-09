@@ -1102,7 +1102,26 @@
       "COVERAGE_CHANGE": "{{before}} → {{after}}",
       "LEGEND": "The number shows on how many of the selected datasets the group currently has the right. The arrow shows the number after the transfer.",
       "NO_GROUPS": "The tenant of {{owner}} has no other organizational units that rights could be granted to.",
-      "NO_DATASETS": "No datasets selected. Select the datasets to transfer rights to in step 1."
+      "NO_DATASETS": "No datasets selected. Select the datasets to transfer rights to in step 1.",
+      "OPEN_HINT": "Click an organizational unit to see its rights per dataset and adjust them one by one.",
+      "OPEN_GROUP": "Show rights per dataset"
+    },
+    "GROUP_DIALOG": {
+      "TITLE": "Rights of organizational unit {{group}} per dataset",
+      "INTRO_ONE": "Current rights on the dataset selected in step 1.",
+      "INTRO_MANY": "Current rights on the {{count}} datasets selected in step 1.",
+      "MARK_HINT": "marks changed values. “Apply” shows the choice in the dropdown as “individual”.",
+      "DATASET": "Dataset",
+      "VIEWER": "Read",
+      "EDITOR": "Edit",
+      "INDICATOR_HINT": "Applies to all spatial units. Click an indicator to set rights per spatial unit.",
+      "TOGGLE_LABEL": "{{level}}: {{name}}",
+      "CHANGED": "changed",
+      "LEGEND": "Edit rights include read rights.",
+      "DEVIATIONS_ONE": "1 deviation from the current state",
+      "DEVIATIONS_MANY": "{{count}} deviations from the current state",
+      "RESET": "Reset to current state",
+      "APPLY": "Apply"
     }
   },
   "ADMIN_TOPICS": {

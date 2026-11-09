@@ -1102,7 +1102,26 @@
       "COVERAGE_CHANGE": "{{before}} → {{after}}",
       "LEGEND": "Die Zahl zeigt, an wie vielen der gewählten Datensätze die Gruppe das Recht aktuell hat. Der Pfeil zeigt die Zahl nach der Übertragung.",
       "NO_GROUPS": "Im Mandanten von {{owner}} gibt es keine weiteren Organisationseinheiten, an die Rechte vergeben werden können.",
-      "NO_DATASETS": "Keine Datensätze gewählt. Wählen Sie in Schritt 1 die Datensätze aus, auf die Rechte übertragen werden sollen."
+      "NO_DATASETS": "Keine Datensätze gewählt. Wählen Sie in Schritt 1 die Datensätze aus, auf die Rechte übertragen werden sollen.",
+      "OPEN_HINT": "Klicken Sie auf eine Organisationseinheit, um ihre Rechte pro Datensatz zu sehen und einzeln anzupassen.",
+      "OPEN_GROUP": "Rechte pro Datensatz anzeigen"
+    },
+    "GROUP_DIALOG": {
+      "TITLE": "Rechte der Organisationseinheit {{group}} pro Datensatz",
+      "INTRO_ONE": "Aktuelle Rechte an dem in Schritt 1 gewählten Datensatz.",
+      "INTRO_MANY": "Aktuelle Rechte an den {{count}} in Schritt 1 gewählten Datensätzen.",
+      "MARK_HINT": "markiert geänderte Werte. Mit „Übernehmen“ wird die Auswahl im Dropdown als „individuell“ angezeigt.",
+      "DATASET": "Datensatz",
+      "VIEWER": "Lesen",
+      "EDITOR": "Editieren",
+      "INDICATOR_HINT": "Gilt für alle Raumebenen. Klicken Sie auf einen Indikator, um Rechte je Raumebene festzulegen.",
+      "TOGGLE_LABEL": "{{level}}: {{name}}",
+      "CHANGED": "geändert",
+      "LEGEND": "Editierrechte schließen Leserechte ein.",
+      "DEVIATIONS_ONE": "1 Abweichung vom Ist-Zustand",
+      "DEVIATIONS_MANY": "{{count}} Abweichungen vom Ist-Zustand",
+      "RESET": "Auf Ist-Zustand zurücksetzen",
+      "APPLY": "Übernehmen"
     }
   },
   "ADMIN_TOPICS": {

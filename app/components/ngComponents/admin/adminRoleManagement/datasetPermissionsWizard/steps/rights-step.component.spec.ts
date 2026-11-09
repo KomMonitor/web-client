@@ -1,8 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { AdminModalService } from 'components/ngComponents/admin/adminShared/modal/admin-modal.service';
+import { MODAL_FORM } from 'util/modal-presets';
 
 import { DatasetPermissionsWizardStateService } from '../dataset-permissions-wizard-state.service';
-import { OwnerDatasetSources } from '../dataset-permissions.model';
+import { OwnerDatasetSources, RightsDraft } from '../dataset-permissions.model';
 import {
   georesourceSource,
   indicatorSource,
@@ -13,6 +15,7 @@ import {
   WizardStateTestBed,
   wizardStateTestBed,
 } from '../dataset-permissions-wizard-state.testing';
+import { GroupDatasetPermissionsModalComponent } from '../group-dataset-permissions-modal.component';
 import { RightsStepComponent } from './rights-step.component';
 
 /** Step 2 on the real wizard state, with the stores faked. */
@@ -34,15 +37,21 @@ describe('RightsStepComponent', () => {
   let fixture: ComponentFixture<RightsStepComponent>;
   let state: DatasetPermissionsWizardStateService;
   let testBed: WizardStateTestBed;
+  let modals: { open: jest.Mock };
 
   function setUp(
     sources: Partial<OwnerDatasetSources> = DATASETS,
     tenantOf: Record<string, string> = TENANT_OF
   ): void {
     testBed = wizardStateTestBed(sources, tenantOf);
+    modals = { open: jest.fn() };
     TestBed.configureTestingModule({
       imports: [RightsStepComponent, TranslateModule.forRoot()],
-      providers: [DatasetPermissionsWizardStateService, ...testBed.providers],
+      providers: [
+        DatasetPermissionsWizardStateService,
+        ...testBed.providers,
+        { provide: AdminModalService, useValue: modals },
+      ],
     });
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('spec', {
@@ -51,6 +60,7 @@ describe('RightsStepComponent', () => {
         RIGHTS: {
           INTRO_ONE: 'Ein Datensatz.',
           INTRO_MANY: '{{count}} Datensätze.',
+          OPEN_HINT: 'Name anklicken.',
           SELECT_LABEL: '{{level}} für {{group}}',
           COVERAGE: '{{count}}/{{total}}',
           COVERAGE_CHANGE: '{{before}} → {{after}}',
@@ -110,7 +120,7 @@ describe('RightsStepComponent', () => {
 
   it('starts unchanged, with the current coverage of the selected datasets', () => {
     setUp();
-    expect(text(host().querySelector('.rights-intro'))).toBe('3 Datensätze.');
+    expect(text(host().querySelector('.rights-intro'))).toBe('3 Datensätze. Name anklicken.');
     expect(values('a')).toEqual(['keep', 'keep']);
     expect(select('a', 'viewer').classList).toContain('action-keep');
     expect(select('a', 'viewer').getAttribute('aria-label')).toBe('Lesen für a');
@@ -143,7 +153,7 @@ describe('RightsStepComponent', () => {
     setUp();
     state.setSelected('spatialUnit:su1', false);
     fixture.detectChanges();
-    expect(text(host().querySelector('.rights-intro'))).toBe('2 Datensätze.');
+    expect(text(host().querySelector('.rights-intro'))).toBe('2 Datensätze. Name anklicken.');
     expect(coverages('a')).toEqual(['2/2', '0/2']);
 
     choose('a', 'viewer', 'grant');
@@ -168,6 +178,52 @@ describe('RightsStepComponent', () => {
     expect(customOption('editor').disabled).toBe(true);
     expect(customOption('viewer').hidden).toBe(true);
     expect(coverages('a')).toEqual(['2/3', '0 → 1']);
+  });
+
+  describe('per-dataset dialog', () => {
+    const openButton = (groupId: string) =>
+      host().querySelector(`tr[data-group="${groupId}"] .group-link`) as HTMLButtonElement;
+
+    /** Clicks a group's name and waits for the dialog's result to be taken over. */
+    async function openAndClose(groupId: string, result: RightsDraft | undefined): Promise<void> {
+      modals.open.mockResolvedValue(result);
+      openButton(groupId).click();
+      await modals.open.mock.results.at(-1)!.value;
+      fixture.detectChanges();
+    }
+
+    it("opens with the group, the selected datasets and the group's current draft", async () => {
+      setUp();
+      state.setSelected('spatialUnit:su1', false);
+      choose('a', 'viewer', 'grant');
+      await openAndClose('a', undefined);
+
+      expect(modals.open).toHaveBeenCalledWith(GroupDatasetPermissionsModalComponent, MODAL_FORM, {
+        group: state.groups()[0],
+        datasets: state.selectedDatasets(),
+        initialDraft: state.draftFor('a'),
+      });
+      expect(state.selectedDatasets().map((d) => d.id)).toEqual(['i1', 'g1']);
+      expect(state.draftFor('a')['georesources:g1']).toEqual({ viewer: true, editor: false });
+    });
+
+    it('takes over an uneven result as "custom"', async () => {
+      setUp();
+      const draft = { ...state.draftFor('a'), 'georesources:g1': { viewer: true, editor: true } };
+      await openAndClose('a', draft);
+
+      expect(values('a')).toEqual(['keep', 'custom']);
+      expect(text(coverage('a', 'editor'))).toBe('0 → 1');
+    });
+
+    it('changes nothing when the dialog is cancelled', async () => {
+      setUp();
+      choose('b', 'editor', 'grant');
+      await openAndClose('b', undefined);
+
+      expect(values('b')).toEqual(['grant', 'grant']);
+      expect(state.decisions()['b']).toEqual({ viewer: 'grant', editor: 'grant' });
+    });
   });
 
   it('says so when the tenant has no other group', () => {
