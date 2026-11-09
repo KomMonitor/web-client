@@ -1,42 +1,39 @@
-import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { MetadataLoadingState } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 
 import { DatasetPermissionsWizardComponent } from './dataset-permissions-wizard.component';
 import { DatasetPermissionsWizardStateService } from './dataset-permissions-wizard-state.service';
+import { georesourceSource } from './dataset-permissions.fixture';
+import { WizardStateTestBed, wizardStateTestBed } from './dataset-permissions-wizard-state.testing';
 
 /**
- * The dialog frame only: title, stepper and footer. The state behind it is a
- * fake here; it is tested in `dataset-permissions-wizard-state.service.spec`.
+ * The dialog frame: title, stepper, footer and the loading overlay. It runs on
+ * the real state with the stores faked; what the steps show is tested in
+ * their own specs.
  */
 describe('DatasetPermissionsWizardComponent', () => {
   let fixture: ComponentFixture<DatasetPermissionsWizardComponent>;
-  let state: { ownerId: ReturnType<typeof signal<string | null>>; start: jest.Mock };
+  let testBed: WizardStateTestBed;
   let activeModal: { dismiss: jest.Mock };
 
   beforeEach(() => {
-    const ownerId = signal<string | null>(null);
-    state = { ownerId, start: jest.fn((id: string) => ownerId.set(id)) };
+    testBed = wizardStateTestBed(
+      { georesources: [georesourceSource('g1', 'ou-1', [])] },
+      { 'ou-1': 'm', 'ou-2': 'm' }
+    );
+    testBed.accessControl.update((units) =>
+      units.map((unit) =>
+        unit.organizationalUnitId === 'ou-1' ? { ...unit, name: 'Umweltamt' } : unit
+      )
+    );
     activeModal = { dismiss: jest.fn() };
 
     TestBed.configureTestingModule({
       imports: [DatasetPermissionsWizardComponent, TranslateModule.forRoot()],
-      providers: [
-        { provide: NgbActiveModal, useValue: activeModal },
-        {
-          provide: AccessControlService,
-          useValue: {
-            getAccessControlById: (id: string) =>
-              id === 'ou-1' ? { organizationalUnitId: 'ou-1', name: 'Umweltamt' } : null,
-          },
-        },
-      ],
-    });
-    TestBed.overrideComponent(DatasetPermissionsWizardComponent, {
-      set: { providers: [{ provide: DatasetPermissionsWizardStateService, useValue: state }] },
+      providers: [{ provide: NgbActiveModal, useValue: activeModal }, ...testBed.providers],
     });
 
     const translate = TestBed.inject(TranslateService);
@@ -62,7 +59,7 @@ describe('DatasetPermissionsWizardComponent', () => {
 
   function visibleSections(): number[] {
     return fixture.debugElement
-      .queryAll(By.css('.modal-body > section'))
+      .queryAll(By.css('.modal-body section'))
       .map((el, index) => ((el.nativeElement as HTMLElement).style.display === 'none' ? -1 : index))
       .filter((index) => index >= 0);
   }
@@ -75,7 +72,10 @@ describe('DatasetPermissionsWizardComponent', () => {
   }
 
   it('starts the run for the owner it was opened with and names it in the title', () => {
-    expect(state.start).toHaveBeenCalledWith('ou-1');
+    const state = fixture.debugElement.injector.get(DatasetPermissionsWizardStateService);
+    expect(state.ownerId()).toBe('ou-1');
+    expect(state.selectionCount()).toEqual({ selected: 1, total: 1 });
+
     const title = fixture.debugElement.query(By.css('.modal-title')).nativeElement as HTMLElement;
     expect(title.textContent!.trim()).toBe('Rechte von Umweltamt');
   });
@@ -108,6 +108,19 @@ describe('DatasetPermissionsWizardComponent', () => {
     fixture.detectChanges();
 
     expect(visibleSections()).toEqual([2]);
+  });
+
+  it('covers the steps while the metadata is still loading', () => {
+    const overlay = () => fixture.debugElement.query(By.css('app-loading-overlay .overlay'));
+    expect(overlay()).toBeNull();
+
+    testBed.metadataLoading.next(MetadataLoadingState.INPROGRESS);
+    fixture.detectChanges();
+    expect(overlay()).not.toBeNull();
+
+    testBed.metadataLoading.next(MetadataLoadingState.COMPLETE);
+    fixture.detectChanges();
+    expect(overlay()).toBeNull();
   });
 
   it('dismisses on cancel and on the close button', () => {

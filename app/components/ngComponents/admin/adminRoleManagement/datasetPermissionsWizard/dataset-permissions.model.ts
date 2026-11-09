@@ -314,6 +314,11 @@ function makeSlot(
   };
 }
 
+/** Number of timeseries (spatial units) of an indicator; zero for every other dataset. */
+export function timeseriesCount(dataset: PermissionDataset): number {
+  return dataset.indicatorPermissions ? dataset.slots.length : 0;
+}
+
 /** Stable key of a dataset, unique across the three kinds; used for the selection. */
 export function datasetKey(dataset: Pick<PermissionDataset, 'kind' | 'id'>): string {
   return `${dataset.kind}:${dataset.id}`;

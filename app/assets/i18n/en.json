@@ -1067,6 +1067,21 @@
       "DATASETS": "Select datasets",
       "RIGHTS": "Set rights",
       "REVIEW": "Review & transfer"
+    },
+    "SELECTION": {
+      "INTRO": "Select the existing datasets of {{owner}} that the rights are transferred to.",
+      "COUNT": "Selected: {{selected}} of {{total}}.",
+      "KIND_COUNT": "{{selected}}/{{total}} selected",
+      "KINDS": {
+        "INDICATOR": "Indicators",
+        "GEORESOURCE": "Georesources",
+        "SPATIAL_UNIT": "Spatial units"
+      },
+      "SELECT_KIND": "Select all {{kind}}",
+      "INDICATOR_HINT": "Rights changes on indicators apply to all spatial units the indicator is available on by default. Step 2 lets you set rights per spatial unit (click an organizational unit).",
+      "SPATIAL_UNITS_ONE": "1 spatial unit",
+      "SPATIAL_UNITS_MANY": "{{count}} spatial units",
+      "EMPTY": "{{owner}} owns no datasets."
     }
   },
   "ADMIN_TOPICS": {

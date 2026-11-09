@@ -1,11 +1,19 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { map } from 'rxjs';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { StepperComponent } from 'components/ngComponents/common/stepper/stepper.component';
 import { WizardStepper } from 'components/ngComponents/common/stepper/wizard-stepper';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
+import {
+  MetadataBootstrapService,
+  MetadataLoadingState,
+} from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 
 import { DatasetPermissionsWizardStateService } from './dataset-permissions-wizard-state.service';
+import { DatasetSelectionStepComponent } from './steps/dataset-selection-step.component';
 
 /**
  * The dataset-permissions wizard: an admin grants or revokes read and edit
@@ -22,7 +30,12 @@ import { DatasetPermissionsWizardStateService } from './dataset-permissions-wiza
 @Component({
   selector: 'app-dataset-permissions-wizard',
   templateUrl: './dataset-permissions-wizard.component.html',
-  imports: [TranslateModule, StepperComponent],
+  imports: [
+    TranslateModule,
+    StepperComponent,
+    LoadingOverlayComponent,
+    DatasetSelectionStepComponent,
+  ],
   providers: [DatasetPermissionsWizardStateService],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,6 +53,17 @@ export class DatasetPermissionsWizardComponent implements OnInit {
     { key: 'rights', label: 'ADMIN_DATASET_PERMISSIONS.STEPS.RIGHTS' },
     { key: 'review', label: 'ADMIN_DATASET_PERMISSIONS.STEPS.REVIEW' },
   ]);
+
+  /**
+   * The admin area loads the metadata on entry, and the wizard may open before
+   * that is done. The datasets then fill in by themselves once it is.
+   */
+  protected readonly loading = toSignal(
+    inject(MetadataBootstrapService).metadataLoading$.pipe(
+      map((state) => state === MetadataLoadingState.INPROGRESS)
+    ),
+    { initialValue: false }
+  );
 
   protected readonly ownerName = computed(() => {
     const ownerId = this.state.ownerId();

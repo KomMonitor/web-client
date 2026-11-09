@@ -1067,6 +1067,21 @@
       "DATASETS": "Datensätze wählen",
       "RIGHTS": "Rechte festlegen",
       "REVIEW": "Prüfen & übertragen"
+    },
+    "SELECTION": {
+      "INTRO": "Wählen Sie die bestehenden Datensätze von {{owner}}, auf die Rechte übertragen werden sollen.",
+      "COUNT": "Ausgewählt: {{selected}} von {{total}}.",
+      "KIND_COUNT": "{{selected}}/{{total}} ausgewählt",
+      "KINDS": {
+        "INDICATOR": "Indikatoren",
+        "GEORESOURCE": "Georessourcen",
+        "SPATIAL_UNIT": "Raumebenen"
+      },
+      "SELECT_KIND": "Alle {{kind}} auswählen",
+      "INDICATOR_HINT": "Rechteänderungen an Indikatoren gelten standardmäßig für alle Raumebenen, auf denen der Indikator vorliegt. In Schritt 2 lassen sich Rechte je Raumebene festlegen (Organisationseinheit anklicken).",
+      "SPATIAL_UNITS_ONE": "1 Raumebene",
+      "SPATIAL_UNITS_MANY": "{{count}} Raumebenen",
+      "EMPTY": "{{owner}} besitzt keine Datensätze."
     }
   },
   "ADMIN_TOPICS": {

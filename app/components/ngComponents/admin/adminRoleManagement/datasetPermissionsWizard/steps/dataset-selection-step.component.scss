@@ -1,0 +1,63 @@
+.kind-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  .form-check-input {
+    margin: 0;
+    flex: none;
+  }
+}
+
+.kind-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0;
+  color: inherit;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.kind-caret {
+  width: 1rem;
+  font-size: 0.8rem;
+}
+
+.kind-count {
+  font-size: 0.85rem;
+  font-weight: normal;
+  color: var(--bs-secondary-color);
+}
+
+// Indented to line up with the group name, past the checkbox and the caret.
+.kind-hint {
+  margin: 0.5rem 0 0 3.25rem;
+  font-size: 0.85rem;
+  color: var(--bs-secondary-color);
+}
+
+.dataset-list {
+  list-style: none;
+  margin: 0.5rem 0 0 3.25rem;
+  padding: 0;
+}
+
+.dataset-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.25rem 0;
+
+  .form-check-input {
+    margin: 0;
+    float: none;
+  }
+}
+
+.dataset-meta {
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: var(--bs-secondary-color);
+}

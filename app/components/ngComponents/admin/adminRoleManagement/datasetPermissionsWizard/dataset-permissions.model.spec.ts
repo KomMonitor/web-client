@@ -19,6 +19,7 @@ import {
   resourcePermissionIds,
   summarize,
   targetRights,
+  timeseriesCount,
   triState,
 } from './dataset-permissions.model';
 import {
@@ -406,6 +407,19 @@ describe('dataset-permissions.model', () => {
         'a:viewer:remove',
         'a:editor:remove',
       ]);
+    });
+  });
+
+  describe('timeseriesCount', () => {
+    it('counts the timeseries of an indicator and nothing for the other kinds', () => {
+      const [withSeries, withoutSeries, georesource] = datasets({
+        indicators: [
+          indicatorSource('a', OWNER, [], { s1: [], s2: [] }),
+          indicatorSource('b', OWNER, []),
+        ],
+        georesources: [georesourceSource('g', OWNER, [])],
+      });
+      expect([withSeries, withoutSeries, georesource].map(timeseriesCount)).toEqual([2, 0, 0]);
     });
   });
 

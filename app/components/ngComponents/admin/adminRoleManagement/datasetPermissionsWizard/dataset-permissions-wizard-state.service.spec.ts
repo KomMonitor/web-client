@@ -1,24 +1,17 @@
-import { WritableSignal, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Subject, of, throwError } from 'rxjs';
-import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
-import { AccessControlService } from 'services/access-control-service/access-control.service';
-import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
-import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
-import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
-import { MandantService } from 'services/mandant-service/mandant.service';
-import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
-import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { Subject, throwError } from 'rxjs';
 
-import { AdminRoleManagementService } from '../admin-role-management.service';
 import { DatasetPermissionsWizardStateService } from './dataset-permissions-wizard-state.service';
-import { OwnerDatasetSources } from './dataset-permissions.model';
 import {
   georesourceSource,
   indicatorSource,
-  orgUnit,
   spatialUnitSource,
 } from './dataset-permissions.fixture';
+import {
+  TEST_ROLES as ROLES,
+  WizardStateTestBed,
+  wizardStateTestBed,
+} from './dataset-permissions-wizard-state.testing';
 
 /**
  * The wizard's state on its own: the rules underneath are tested in
@@ -27,96 +20,34 @@ import {
  */
 
 const OWNER = 'owner';
-const ROLES = ['kommonitor-creator'];
 
 /** Tenant of each unit: `x` belongs to another tenant and is never offered. */
 const TENANT_OF: Record<string, string> = { owner: 'm', a: 'm', b: 'm', x: 'n' };
 
-let accessControl: WritableSignal<AccessControlMetadata[]>;
-let indicators: WritableSignal<OwnerDatasetSources['indicators'][number][]>;
-let georesources: WritableSignal<OwnerDatasetSources['georesources'][number][]>;
-let spatialUnits: WritableSignal<OwnerDatasetSources['spatialUnits'][number][]>;
-
-let adminRoleManagement: { patchDatasetPermissions: jest.Mock };
-let bootstrap: {
-  fetchIndicatorsMetadata: jest.Mock;
-  fetchGeoresourcesMetadata: jest.Mock;
-  fetchSpatialUnitsMetadata: jest.Mock;
-};
-let cacheHelper: {
-  invalidateIndicatorsCache: jest.Mock;
-  invalidateGeoresourcesCache: jest.Mock;
-  invalidateSpatialUnitsCache: jest.Mock;
-};
+let georesources: WizardStateTestBed['georesources'];
+let adminRoleManagement: WizardStateTestBed['adminRoleManagement'];
+let bootstrap: WizardStateTestBed['bootstrap'];
+let cacheHelper: WizardStateTestBed['cacheHelper'];
 
 let state: DatasetPermissionsWizardStateService;
 
 beforeEach(() => {
-  accessControl = signal(['owner', 'a', 'b', 'x'].map((id) => orgUnit(id)));
-  indicators = signal([indicatorSource('i', OWNER, [], { s1: [], s2: ['a-viewer'] })]);
-  georesources = signal([
-    georesourceSource('g1', OWNER, []),
-    georesourceSource('g2', OWNER, ['a-viewer']),
-    georesourceSource('foreign', 'x', []),
-  ]);
-  spatialUnits = signal([spatialUnitSource('s1', OWNER, [])]);
-
-  adminRoleManagement = { patchDatasetPermissions: jest.fn(() => of(undefined)) };
-  bootstrap = {
-    fetchIndicatorsMetadata: jest.fn().mockResolvedValue(undefined),
-    fetchGeoresourcesMetadata: jest.fn().mockResolvedValue(undefined),
-    fetchSpatialUnitsMetadata: jest.fn().mockResolvedValue(undefined),
-  };
-  cacheHelper = {
-    invalidateIndicatorsCache: jest.fn(),
-    invalidateGeoresourcesCache: jest.fn(),
-    invalidateSpatialUnitsCache: jest.fn(),
-  };
+  const testBed = wizardStateTestBed(
+    {
+      indicators: [indicatorSource('i', OWNER, [], { s1: [], s2: ['a-viewer'] })],
+      georesources: [
+        georesourceSource('g1', OWNER, []),
+        georesourceSource('g2', OWNER, ['a-viewer']),
+        georesourceSource('foreign', 'x', []),
+      ],
+      spatialUnits: [spatialUnitSource('s1', OWNER, [])],
+    },
+    TENANT_OF
+  );
+  ({ georesources, adminRoleManagement, bootstrap, cacheHelper } = testBed);
 
   TestBed.configureTestingModule({
-    providers: [
-      DatasetPermissionsWizardStateService,
-      {
-        provide: AccessControlService,
-        useValue: {
-          get accessControl() {
-            return accessControl();
-          },
-          currentKeycloakLoginRoles: ROLES,
-        },
-      },
-      {
-        provide: MandantService,
-        useValue: { mandantIdOfOwner: (id: string) => TENANT_OF[id] ?? '' },
-      },
-      {
-        provide: IndicatorMetadataStoreService,
-        useValue: {
-          get availableIndicators() {
-            return indicators();
-          },
-        },
-      },
-      {
-        provide: GeoresourceMetadataStoreService,
-        useValue: {
-          get availableGeoresources() {
-            return georesources();
-          },
-        },
-      },
-      {
-        provide: SpatialUnitMetadataStoreService,
-        useValue: {
-          get availableSpatialUnits() {
-            return spatialUnits();
-          },
-        },
-      },
-      { provide: AdminRoleManagementService, useValue: adminRoleManagement },
-      { provide: MetadataBootstrapService, useValue: bootstrap },
-      { provide: CacheHelperServiceService, useValue: cacheHelper },
-    ],
+    providers: [DatasetPermissionsWizardStateService, ...testBed.providers],
   });
   state = TestBed.inject(DatasetPermissionsWizardStateService);
   state.start(OWNER);
