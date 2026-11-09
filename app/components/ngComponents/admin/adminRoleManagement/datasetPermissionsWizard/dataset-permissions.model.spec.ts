@@ -7,11 +7,13 @@ import {
   actionsFromDraft,
   buildPermissionsPatch,
   candidateGroups,
+  changedDatasetCount,
   countDeviations,
   coupleAction,
   coupleRights,
   coverage,
   currentRights,
+  datasetKey,
   datasetsOfOwner,
   initialDraft,
   resourcePermissionIds,
@@ -404,6 +406,43 @@ describe('dataset-permissions.model', () => {
         'a:viewer:remove',
         'a:editor:remove',
       ]);
+    });
+  });
+
+  describe('datasetKey', () => {
+    it('keeps datasets of different kinds with the same id apart', () => {
+      const [indicator, georesource] = datasets({
+        indicators: [indicatorSource('x', OWNER, [])],
+        georesources: [georesourceSource('x', OWNER, [])],
+      });
+      expect(datasetKey(indicator)).toBe('indicator:x');
+      expect(datasetKey(georesource)).toBe('georesource:x');
+    });
+  });
+
+  describe('changedDatasetCount', () => {
+    it('counts an indicator once however many groups and timeseries change', () => {
+      const selected = datasets({
+        indicators: [indicatorSource('i', OWNER, [], { s1: [], s2: [] })],
+        georesources: [georesourceSource('g', OWNER, ['a-viewer', 'b-viewer'])],
+      });
+      expect(changedDatasetCount([a, b], selected, { a: grantViewer, b: grantViewer })).toBe(1);
+    });
+
+    it('ignores groups without a decision and decisions that change nothing', () => {
+      const selected = datasets({ georesources: [georesourceSource('g', OWNER, ['a-viewer'])] });
+      expect(changedDatasetCount([a, b], selected, { a: grantViewer })).toBe(0);
+      expect(changedDatasetCount([a], selected, {})).toBe(0);
+    });
+
+    it('counts a dataset that one group gains and another loses once', () => {
+      const selected = datasets({
+        georesources: [
+          georesourceSource('g1', OWNER, ['b-viewer']),
+          georesourceSource('g2', OWNER, ['b-viewer']),
+        ],
+      });
+      expect(changedDatasetCount([a, b], selected, { a: grantViewer, b: revokeViewer })).toBe(2);
     });
   });
 

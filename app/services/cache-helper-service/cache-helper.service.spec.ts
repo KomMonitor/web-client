@@ -81,4 +81,20 @@ describe('CacheHelperServiceService', () => {
       'Testquartiere',
     ]);
   });
+
+  it('invalidates one resource cache at a time, with all its role variants', () => {
+    const keys = [
+      'spec_lastModification_indicators_timestamp_kommonitor-creator',
+      'spec_lastModification_indicators_metadata_public',
+      'spec_lastModification_georesources_metadata_kommonitor-creator',
+      'spec_lastModification_topics_metadata_public',
+    ];
+    keys.forEach((key) => localStorage.setItem(key, '"x"'));
+
+    service.invalidateIndicatorsCache();
+    expect(keys.filter((key) => localStorage.getItem(key) !== null)).toEqual([keys[2], keys[3]]);
+
+    service.invalidateGeoresourcesCache();
+    expect(keys.filter((key) => localStorage.getItem(key) !== null)).toEqual([keys[3]]);
+  });
 });

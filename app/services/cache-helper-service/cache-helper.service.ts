@@ -247,14 +247,7 @@ export class CacheHelperServiceService {
    * and would keep serving the pre-mutation list.
    */
   invalidateTopicsCache(): void {
-    const keysToRemove: string[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith(this.localStorageKey_topics)) {
-        keysToRemove.push(key);
-      }
-    }
-    keysToRemove.forEach((key) => localStorage.removeItem(key));
+    this.invalidateCache(this.localStorageKey_topics);
   }
 
   async fetchSpatialUnitsMetadata(
@@ -275,10 +268,28 @@ export class CacheHelperServiceService {
    * pre-mutation list to the map's legend.
    */
   invalidateSpatialUnitsCache(): void {
+    this.invalidateCache(this.localStorageKey_spatialUnits);
+  }
+
+  /**
+   * Drop the cached indicator and georesource metadata. Needed after the batch permission
+   * update (`PATCH /organizationalUnits/permissions`): it changes the datasets' `permissions`
+   * but bumps only the access-control timestamp, so the cache would keep serving the old lists.
+   */
+  invalidateIndicatorsCache(): void {
+    this.invalidateCache(this.localStorageKey_indicators);
+  }
+
+  invalidateGeoresourcesCache(): void {
+    this.invalidateCache(this.localStorageKey_georesources);
+  }
+
+  /** Removes every cached entry (timestamp and metadata, for all role variants) under the key. */
+  private invalidateCache(localStorageKey: string): void {
     const keysToRemove: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && key.startsWith(this.localStorageKey_spatialUnits)) {
+      if (key && key.startsWith(localStorageKey)) {
         keysToRemove.push(key);
       }
     }

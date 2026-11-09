@@ -314,6 +314,11 @@ function makeSlot(
   };
 }
 
+/** Stable key of a dataset, unique across the three kinds; used for the selection. */
+export function datasetKey(dataset: Pick<PermissionDataset, 'kind' | 'id'>): string {
+  return `${dataset.kind}:${dataset.id}`;
+}
+
 export function slotKey(target: SlotTarget): string {
   return target.section === 'indicatorspatialunits'
     ? `${target.section}:${target.id}:${target.spatialUnitId}`
@@ -543,6 +548,31 @@ export function summarize(
     }
   }
   return lines;
+}
+
+/**
+ * On how many datasets any right of any group changes — the review step's
+ * "affects n datasets". A dataset counts once however many groups, levels and
+ * slots change on it; the indicator itself never changes on its own, so its
+ * timeseries decide.
+ */
+export function changedDatasetCount(
+  groups: readonly GroupPermissionIds[],
+  datasets: readonly PermissionDataset[],
+  decisions: Decisions
+): number {
+  const deciding = groups.filter((g) => decisions[g.organizationalUnitId]);
+  return datasets.filter((dataset) =>
+    deciding.some((group) =>
+      dataset.slots.some(
+        (s) =>
+          !sameRights(
+            currentRights(group, s.permissions),
+            targetRights(group, s, decisions[group.organizationalUnitId])
+          )
+      )
+    )
+  ).length;
 }
 
 /**

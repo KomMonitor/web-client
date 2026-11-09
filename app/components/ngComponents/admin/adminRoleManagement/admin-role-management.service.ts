@@ -6,6 +6,7 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { OrganizationalUnitInputType } from 'models/data-management-api';
 import { KeycloakHelperService } from 'services/keycloak-helper-service/keycloak-helper.service';
+import { OrganizationalUnitPermissionPatch } from 'components/ngComponents/admin/adminRoleManagement/datasetPermissionsWizard/dataset-permissions.model';
 import { Observable, of, from, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
@@ -174,5 +175,19 @@ export class AdminRoleManagementService {
           return of({ success: false, errorMessagePart: msg });
         })
       );
+  }
+
+  /**
+   * Replaces the dataset permissions of several organizational units in one
+   * request (global admins only). Per listed (unit, dataset) the unit's ids
+   * there are replaced, everything else stays; the backend applies the whole
+   * body in one transaction, so it either all lands or nothing does.
+   *
+   * Errors are passed on: the caller decides what to tell the user.
+   */
+  patchDatasetPermissions(body: OrganizationalUnitPermissionPatch[]): Observable<void> {
+    return this.http
+      .patch(`${this.baseUrl}/organizationalUnits/permissions`, body)
+      .pipe(map(() => undefined));
   }
 }
