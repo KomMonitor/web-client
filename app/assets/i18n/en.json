@@ -1085,7 +1085,8 @@
       "INDICATOR_HINT": "Changes to the rights on indicators apply to all spatial units the indicator is available for by default. In step 2, read rights can be set per spatial unit (click the organizational unit); edit rights always apply to the whole indicator.",
       "SPATIAL_UNITS_ONE": "1 spatial unit",
       "SPATIAL_UNITS_MANY": "{{count}} spatial units",
-      "EMPTY": "{{owner}} owns no datasets."
+      "EMPTY": "{{owner}} owns no datasets.",
+      "UNAVAILABLE": "The datasets could not be loaded."
     },
     "LEVELS": {
       "VIEWER": "Read rights",
@@ -1106,6 +1107,7 @@
       "COVERAGE_CHANGE": "{{before}} → {{after}}",
       "LEGEND": "The number shows on how many of the selected datasets the group currently has the right. The arrow shows the number after the transfer.",
       "NO_GROUPS": "The tenant of {{owner}} has no other organizational units that rights could be granted to.",
+      "LEFT_OUT": "Not listed because they lack a read or edit permission for datasets: {{names}}.",
       "NO_TENANT": "The tenant of {{owner}} cannot be determined. So that no rights go to organizational units of other tenants, the wizard offers none.",
       "NO_DATASETS": "No datasets selected. Select the datasets to transfer rights to in step 1.",
       "OPEN_HINT": "Click an organizational unit to see its rights per dataset and adjust them one by one.",
@@ -1156,6 +1158,9 @@
     "LOAD_FAILED": "The current rights could not be loaded, so the rights shown may be outdated. Nothing is transferred until loading succeeds.",
     "CHANGED": "The rights have been changed elsewhere in the meantime, so nothing was transferred. The summary now shows what would be written on the current state. Please check it and transfer again.",
     "RELOAD": "Reload",
+    "DISCARD": "Discard",
+    "KEEP_EDITING": "Keep editing",
+    "CANCEL_QUESTION": "The rights you set will be lost. Close anyway?",
     "DONE": {
       "TITLE_ONE": "Rights transferred to 1 dataset",
       "TITLE_MANY": "Rights transferred to {{count}} datasets",

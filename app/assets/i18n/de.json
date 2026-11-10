@@ -1085,7 +1085,8 @@
       "INDICATOR_HINT": "Rechteänderungen an Indikatoren gelten standardmäßig für alle Raumebenen, auf denen der Indikator vorliegt. In Schritt 2 lassen sich Leserechte je Raumebene festlegen (Organisationseinheit anklicken); Editierrechte gelten immer für den ganzen Indikator.",
       "SPATIAL_UNITS_ONE": "1 Raumebene",
       "SPATIAL_UNITS_MANY": "{{count}} Raumebenen",
-      "EMPTY": "{{owner}} besitzt keine Datensätze."
+      "EMPTY": "{{owner}} besitzt keine Datensätze.",
+      "UNAVAILABLE": "Die Datensätze konnten nicht geladen werden."
     },
     "LEVELS": {
       "VIEWER": "Leserechte",
@@ -1106,6 +1107,7 @@
       "COVERAGE_CHANGE": "{{before}} → {{after}}",
       "LEGEND": "Die Zahl zeigt, an wie vielen der gewählten Datensätze die Gruppe das Recht aktuell hat. Der Pfeil zeigt die Zahl nach der Übertragung.",
       "NO_GROUPS": "Im Mandanten von {{owner}} gibt es keine weiteren Organisationseinheiten, an die Rechte vergeben werden können.",
+      "LEFT_OUT": "Nicht aufgeführt, weil ihnen ein Lese- oder Editierrecht für Datensätze fehlt: {{names}}.",
       "NO_TENANT": "Der Mandant von {{owner}} lässt sich nicht ermitteln. Damit keine Rechte an Organisationseinheiten anderer Mandanten gehen, bietet der Assistent keine an.",
       "NO_DATASETS": "Keine Datensätze gewählt. Wählen Sie in Schritt 1 die Datensätze aus, auf die Rechte übertragen werden sollen.",
       "OPEN_HINT": "Klicken Sie auf eine Organisationseinheit, um ihre Rechte pro Datensatz zu sehen und einzeln anzupassen.",
@@ -1156,6 +1158,9 @@
     "LOAD_FAILED": "Der aktuelle Stand der Rechte konnte nicht geladen werden, die angezeigten Rechte sind womöglich veraltet. Übertragen wird erst, wenn das Laden gelingt.",
     "CHANGED": "Die Rechte wurden inzwischen an anderer Stelle geändert, es wurde nichts übertragen. Die Zusammenfassung zeigt jetzt, was auf dem aktuellen Stand geschrieben würde. Bitte prüfen Sie sie und übertragen Sie erneut.",
     "RELOAD": "Erneut laden",
+    "DISCARD": "Verwerfen",
+    "KEEP_EDITING": "Weiter bearbeiten",
+    "CANCEL_QUESTION": "Die festgelegten Rechte gehen verloren. Trotzdem schließen?",
     "DONE": {
       "TITLE_ONE": "Rechte auf 1 Datensatz übertragen",
       "TITLE_MANY": "Rechte auf {{count}} Datensätze übertragen",

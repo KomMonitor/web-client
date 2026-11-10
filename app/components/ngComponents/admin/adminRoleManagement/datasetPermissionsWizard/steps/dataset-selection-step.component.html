@@ -1,4 +1,9 @@
-@if (state.datasets().length === 0) {
+<!-- After a failed load the wizard says so itself; "no datasets" would be wrong then. -->
+@if (state.datasets().length === 0 && state.loadFailed()) {
+  <p class="selection-unavailable">
+    {{ 'ADMIN_DATASET_PERMISSIONS.SELECTION.UNAVAILABLE' | translate }}
+  </p>
+} @else if (state.datasets().length === 0) {
   <p class="selection-empty">
     {{ 'ADMIN_DATASET_PERMISSIONS.SELECTION.EMPTY' | translate: { owner: ownerName() } }}
   </p>

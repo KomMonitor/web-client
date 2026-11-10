@@ -55,10 +55,15 @@
 
 .coverage-changed {
   font-weight: 600;
-  color: wizard.$change-color;
+  color: wizard.$change-text-color;
 }
 
 .rights-legend {
+  font-size: 0.85rem;
+  color: var(--bs-secondary-color);
+}
+
+.rights-left-out {
   font-size: 0.85rem;
   color: var(--bs-secondary-color);
 }

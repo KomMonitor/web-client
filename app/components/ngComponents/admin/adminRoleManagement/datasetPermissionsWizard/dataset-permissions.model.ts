@@ -217,14 +217,40 @@ export function candidateGroups(
   ownerId: string,
   mandantIdOf: (organizationalUnitId: string) => string
 ): GroupPermissionIds[] {
+  return resourcePermissionIds(tenantUnits(accessControl, ownerId, mandantIdOf)).sort(byName);
+}
+
+/**
+ * The names of the tenant's units that `candidateGroups` leaves out because
+ * they lack a resource viewer or editor permission — so step 2 can say why
+ * they are missing. Sorted.
+ */
+export function groupsWithoutResourcePermissions(
+  accessControl: readonly AccessControlMetadata[],
+  ownerId: string,
+  mandantIdOf: (organizationalUnitId: string) => string
+): string[] {
+  const units = tenantUnits(accessControl, ownerId, mandantIdOf);
+  const resolved = new Set(resourcePermissionIds(units).map((g) => g.organizationalUnitId));
+  return units
+    .filter((unit) => !resolved.has(unit.organizationalUnitId))
+    .map((unit) => unit.name)
+    .sort((a, b) => a.localeCompare(b));
+}
+
+/** The units of the owner's tenant without the owner; none for an unknown tenant. */
+function tenantUnits(
+  accessControl: readonly AccessControlMetadata[],
+  ownerId: string,
+  mandantIdOf: (organizationalUnitId: string) => string
+): AccessControlMetadata[] {
   const mandantId = mandantIdOf(ownerId);
   if (!mandantId) {
     return [];
   }
-  const units = ownersOfMandant(accessControl, mandantId, mandantIdOf).filter(
+  return ownersOfMandant(accessControl, mandantId, mandantIdOf).filter(
     (unit) => unit.organizationalUnitId !== ownerId
   );
-  return resourcePermissionIds(units).sort(byName);
 }
 
 /**

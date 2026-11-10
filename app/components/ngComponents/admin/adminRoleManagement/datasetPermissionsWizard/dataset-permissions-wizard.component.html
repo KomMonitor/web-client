@@ -56,9 +56,9 @@
   </div>
 
   @if (done(); as result) {
-    <div class="transfer-done text-center py-4">
+    <div class="transfer-done text-center py-4" role="status">
       <i class="fas fa-circle-check fa-3x text-success mb-3" aria-hidden="true"></i>
-      <h5 class="done-title">
+      <h5 class="done-title" tabindex="-1" #doneTitle>
         {{
           (result.datasetCount === 1
             ? 'ADMIN_DATASET_PERMISSIONS.DONE.TITLE_ONE'
@@ -90,44 +90,57 @@
 </div>
 
 <div class="modal-footer">
-  <button
-    type="button"
-    class="btn btn-outline-secondary me-auto"
-    [disabled]="state.saving()"
-    (click)="cancel()"
-  >
-    {{ (done() ? 'ADMIN_SHARED.CLOSE' : 'ADMIN_SHARED.CANCEL') | translate }}
-  </button>
-  @if (!done()) {
-    @if (stepper.currentStep > 1) {
-      <button
-        type="button"
-        class="btn btn-outline-secondary"
-        [disabled]="state.saving()"
-        (click)="stepper.previous()"
-      >
-        {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
-      </button>
-    }
-    @if (stepper.currentStep < stepper.totalSteps) {
-      <button
-        type="button"
-        class="btn btn-primary"
-        [disabled]="state.saving()"
-        (click)="stepper.next()"
-      >
-        {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
-      </button>
-    } @else if (state.hasChanges()) {
-      <button
-        type="button"
-        class="btn btn-success transfer"
-        [disabled]="state.saving()"
-        (click)="transfer()"
-      >
-        <i class="fas fa-share-from-square" aria-hidden="true"></i>
-        {{ 'ADMIN_DATASET_PERMISSIONS.TRANSFER' | translate }}
-      </button>
+  @if (confirmingCancel()) {
+    <!-- Asked in place rather than in a second dialog stacked on this one. -->
+    <span class="cancel-question me-auto" role="alert">{{
+      'ADMIN_DATASET_PERMISSIONS.CANCEL_QUESTION' | translate
+    }}</span>
+    <button type="button" class="btn btn-outline-secondary keep-editing" (click)="keepEditing()">
+      {{ 'ADMIN_DATASET_PERMISSIONS.KEEP_EDITING' | translate }}
+    </button>
+    <button type="button" class="btn btn-danger discard" (click)="cancel()">
+      {{ 'ADMIN_DATASET_PERMISSIONS.DISCARD' | translate }}
+    </button>
+  } @else {
+    <button
+      type="button"
+      class="btn btn-outline-secondary me-auto"
+      [disabled]="state.saving()"
+      (click)="cancel()"
+    >
+      {{ (done() ? 'ADMIN_SHARED.CLOSE' : 'ADMIN_SHARED.CANCEL') | translate }}
+    </button>
+    @if (!done()) {
+      @if (stepper.currentStep > 1) {
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          [disabled]="state.saving()"
+          (click)="stepper.previous()"
+        >
+          {{ 'ADMIN_SHARED_UI.STEP.PREVIOUS' | translate }}
+        </button>
+      }
+      @if (stepper.currentStep < stepper.totalSteps) {
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="state.saving()"
+          (click)="stepper.next()"
+        >
+          {{ 'ADMIN_SHARED_UI.STEP.NEXT' | translate }}
+        </button>
+      } @else if (state.hasChanges()) {
+        <button
+          type="button"
+          class="btn btn-success transfer"
+          [disabled]="state.saving()"
+          (click)="transfer()"
+        >
+          <i class="fas fa-share-from-square" aria-hidden="true"></i>
+          {{ 'ADMIN_DATASET_PERMISSIONS.TRANSFER' | translate }}
+        </button>
+      }
     }
   }
 </div>

@@ -28,6 +28,7 @@ import {
   coverage,
   datasetKey,
   datasetsOfOwner,
+  groupsWithoutResourcePermissions,
   initialDraft,
   publicReadLossCount,
   samePatch,
@@ -124,6 +125,19 @@ export class DatasetPermissionsWizardStateService {
   readonly tenantUnknown = computed(() => {
     const ownerId = this._ownerId();
     return !!ownerId && !this.mandantService.mandantIdOfOwner(ownerId);
+  });
+
+  /** Units of the tenant left out of `groups`: they lack a resource viewer or editor permission. */
+  readonly groupsLeftOut = computed<string[]>(() => {
+    const ownerId = this._ownerId();
+    if (!ownerId) {
+      return [];
+    }
+    return groupsWithoutResourcePermissions(
+      this.accessControlService.accessControl,
+      ownerId,
+      (id) => this.mandantService.mandantIdOfOwner(id)
+    );
   });
 
   private readonly groupsById = computed(

@@ -67,6 +67,7 @@ describe('RightsStepComponent', () => {
           COVERAGE_CHANGE: '{{before}} → {{after}}',
           NO_GROUPS: '{{owner}} steht allein.',
           NO_TENANT: 'Mandant von {{owner}} unbekannt.',
+          LEFT_OUT: 'Fehlt: {{names}}.',
           NO_DATASETS: 'Nichts gewählt.',
         },
       },
@@ -271,5 +272,21 @@ describe('RightsStepComponent', () => {
     fixture.detectChanges();
     expect(text(host().querySelector('.rights-empty'))).toBe('Nichts gewählt.');
     expect(host().querySelector('table')).toBeNull();
+  });
+
+  it('names the units of the tenant left out for lacking a read or edit permission', () => {
+    setUp();
+    expect(host().querySelector('.rights-left-out')).toBeNull();
+
+    testBed.accessControl.update((units) =>
+      units.map((unit) =>
+        unit.organizationalUnitId === 'b'
+          ? { ...unit, permissions: unit.permissions.filter((p) => p.permissionLevel !== 'editor') }
+          : unit
+      )
+    );
+    fixture.detectChanges();
+    expect(rowIds()).toEqual(['a']);
+    expect(text(host().querySelector('.rights-left-out'))).toBe('Fehlt: b.');
   });
 });

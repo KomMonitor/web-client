@@ -190,6 +190,43 @@ describe('DatasetPermissionsWizardComponent', () => {
     expect(activeModal.dismiss).toHaveBeenCalledTimes(2);
   });
 
+  describe('with decisions that would be lost', () => {
+    const closeButton = () =>
+      fixture.debugElement.query(By.css('.btn-close')).nativeElement as HTMLElement;
+    const question = () => fixture.debugElement.query(By.css('.modal-footer .cancel-question'));
+
+    beforeEach(() => {
+      fixture.debugElement.injector
+        .get(DatasetPermissionsWizardStateService)
+        .setAction('ou-2', 'viewer', 'grant');
+      fixture.detectChanges();
+    });
+
+    it('asks before cancel discards them, and keeps editing on request', () => {
+      clickFooter('ADMIN_SHARED.CANCEL');
+      expect(activeModal.dismiss).not.toHaveBeenCalled();
+      expect(question()).not.toBeNull();
+      expect(footerLabels()).toEqual([
+        'ADMIN_DATASET_PERMISSIONS.KEEP_EDITING',
+        'ADMIN_DATASET_PERMISSIONS.DISCARD',
+      ]);
+
+      clickFooter('ADMIN_DATASET_PERMISSIONS.KEEP_EDITING');
+      expect(question()).toBeNull();
+      expect(footerLabels()).toContain('ADMIN_SHARED.CANCEL');
+      expect(activeModal.dismiss).not.toHaveBeenCalled();
+    });
+
+    it('closes once the question is answered with discard', () => {
+      closeButton().click();
+      fixture.detectChanges();
+      expect(question()).not.toBeNull();
+
+      clickFooter('ADMIN_DATASET_PERMISSIONS.DISCARD');
+      expect(activeModal.dismiss).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('transfer', () => {
     const TRANSFER = 'ADMIN_DATASET_PERMISSIONS.TRANSFER';
     const state = () => fixture.debugElement.injector.get(DatasetPermissionsWizardStateService);
@@ -249,6 +286,9 @@ describe('DatasetPermissionsWizardComponent', () => {
       expect(query('.wizard-steps')!.hidden).toBe(true);
       expect(footerLabels()).toEqual(['ADMIN_SHARED.CLOSE']);
       expect(query('.transfer-done .restart')).toBeDefined();
+      // Announced, and the focus moves there as the transfer button is gone.
+      expect(query('.transfer-done')!.getAttribute('role')).toBe('status');
+      expect(document.activeElement).toBe(query('.transfer-done .done-title'));
 
       clickFooter('ADMIN_SHARED.CLOSE');
       expect(activeModal.dismiss).toHaveBeenCalled();

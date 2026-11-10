@@ -8,7 +8,10 @@ import {
   indicatorSource,
   spatialUnitSource,
 } from '../dataset-permissions.fixture';
-import { wizardStateTestBed } from '../dataset-permissions-wizard-state.testing';
+import {
+  WizardStateTestBed,
+  wizardStateTestBed,
+} from '../dataset-permissions-wizard-state.testing';
 import { DatasetSelectionStepComponent } from './dataset-selection-step.component';
 
 /** Step 1 on the real wizard state, with the stores faked. */
@@ -28,8 +31,11 @@ describe('DatasetSelectionStepComponent', () => {
   let fixture: ComponentFixture<DatasetSelectionStepComponent>;
   let state: DatasetPermissionsWizardStateService;
 
+  let testBed: WizardStateTestBed;
+  const testBedBootstrap = () => testBed.bootstrap;
+
   function setUp(sources: Partial<OwnerDatasetSources>): void {
-    const testBed = wizardStateTestBed(sources, TENANT_OF);
+    testBed = wizardStateTestBed(sources, TENANT_OF);
     TestBed.configureTestingModule({
       imports: [DatasetSelectionStepComponent, TranslateModule.forRoot()],
       providers: [DatasetPermissionsWizardStateService, ...testBed.providers],
@@ -160,5 +166,14 @@ describe('DatasetSelectionStepComponent', () => {
     const badge = (row: HTMLElement) => row.querySelector('.public-badge')?.textContent!.trim();
     expect(rows('indicator').map(badge)).toEqual(['teils öffentlich', 'öffentlich']);
     expect(rows('georesource').map(badge)).toEqual([undefined]);
+  });
+
+  it('does not claim the owner has no datasets when loading them failed', async () => {
+    setUp({});
+    testBedBootstrap().reloadDatasetMetadata.mockRejectedValueOnce(new Error('offline'));
+    await state.reload();
+    fixture.detectChanges();
+    expect(host().querySelector('.selection-empty')).toBeNull();
+    expect(host().querySelector('.selection-unavailable')).not.toBeNull();
   });
 });

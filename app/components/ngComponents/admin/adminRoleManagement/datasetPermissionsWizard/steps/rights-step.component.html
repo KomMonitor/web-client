@@ -89,3 +89,11 @@
 
   <p class="rights-legend">{{ 'ADMIN_DATASET_PERMISSIONS.RIGHTS.LEGEND' | translate }}</p>
 }
+
+<!-- Names come from the API and are interpolated as text, never as HTML. -->
+@let leftOut = state.groupsLeftOut();
+@if (!state.tenantUnknown() && leftOut.length > 0) {
+  <p class="rights-left-out">
+    {{ 'ADMIN_DATASET_PERMISSIONS.RIGHTS.LEFT_OUT' | translate: { names: leftOut.join(', ') } }}
+  </p>
+}

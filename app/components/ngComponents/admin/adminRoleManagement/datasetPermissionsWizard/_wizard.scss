@@ -1,7 +1,10 @@
 // Shared by the dataset-permissions wizard's components.
 
-// Orange as in the mockup: a pending change, neither good nor bad.
+// Orange as in the mockup: a pending change, neither good nor bad. For marks
+// (3:1 suffices for graphics); text uses the darker shade, which reaches WCAG
+// AA's 4.5:1 on white (5.3:1) and on striped rows #f2f2f2 (4.75:1).
 $change-color: #c26a00;
+$change-text-color: #a35800;
 
 // Marks a dataset anyone may read: information, not a warning.
 @mixin public-badge {

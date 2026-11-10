@@ -1,10 +1,14 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
+  Injector,
   OnInit,
+  afterNextRender,
   computed,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -66,6 +70,7 @@ export class DatasetPermissionsWizardComponent implements OnInit {
   private readonly accessControlService = inject(AccessControlService);
   private readonly notificationService = inject(NotificationService);
   private readonly translate = inject(TranslateService);
+  private readonly injector = inject(Injector);
   protected readonly state = inject(DatasetPermissionsWizardStateService);
 
   /** The organizational unit whose datasets are worked on; set by the opener. */
@@ -96,6 +101,11 @@ export class DatasetPermissionsWizardComponent implements OnInit {
   /** Set when a transfer was held back because the stored rights had changed meanwhile. */
   protected readonly changedMeanwhile = signal(false);
 
+  /** Set while the footer asks whether to discard the decisions. */
+  protected readonly confirmingCancel = signal(false);
+
+  private readonly doneTitle = viewChild<ElementRef<HTMLElement>>('doneTitle');
+
   protected readonly ownerName = computed(() => {
     const ownerId = this.state.ownerId();
     return ownerId ? (this.accessControlService.getAccessControlById(ownerId)?.name ?? '') : '';
@@ -113,8 +123,22 @@ export class DatasetPermissionsWizardComponent implements OnInit {
     }
   }
 
+  /**
+   * Closes the dialog — after asking, while decisions would be lost: Esc and a
+   * click beside the dialog are off for that reason, so ✕ and "cancel" should
+   * not drop them silently either.
+   */
   cancel(): void {
+    if (!this.done() && this.state.hasChanges() && !this.confirmingCancel()) {
+      this.confirmingCancel.set(true);
+      return;
+    }
     this.activeModal.dismiss();
+  }
+
+  /** "Keep editing" in the footer's question. */
+  keepEditing(): void {
+    this.confirmingCancel.set(false);
   }
 
   /**
@@ -138,6 +162,8 @@ export class DatasetPermissionsWizardComponent implements OnInit {
       );
     } else if (result.status === 'saved') {
       this.done.set({ datasetCount: result.datasetCount, reloaded: result.reloaded });
+      // The transfer button is gone with the steps; without this the focus falls to the page.
+      afterNextRender(() => this.doneTitle()?.nativeElement.focus(), { injector: this.injector });
     }
   }
 

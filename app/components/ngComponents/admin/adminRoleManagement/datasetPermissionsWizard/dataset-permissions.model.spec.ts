@@ -18,6 +18,7 @@ import {
   datasetTargets,
   datasetsOfOwner,
   draftDeviates,
+  groupsWithoutResourcePermissions,
   draftState,
   initialDraft,
   levelSlots,
@@ -126,6 +127,23 @@ describe('dataset-permissions.model', () => {
 
     it('includes the tenant unit itself for an owner below it', () => {
       expect(names('b')).toEqual(['Alpha', 'Gamma', 'Mandant']);
+    });
+
+    it('names the units of the tenant it leaves out for lacking viewer or editor ids', () => {
+      const withoutEditor = {
+        ...orgUnit('d', { name: 'Delta', parentId: 'm' }),
+        permissions: orgUnit('d').permissions.filter((p) => p.permissionLevel !== 'editor'),
+      };
+      const units = [...accessControl, withoutEditor];
+      const of = (id: string) => ({ ...mandantOf, d: 'm' })[id] ?? '';
+      expect(candidateGroups(units, 'm', of).map((g) => g.name)).toEqual([
+        'Alpha',
+        'Beta',
+        'Gamma',
+      ]);
+      expect(groupsWithoutResourcePermissions(units, 'm', of)).toEqual(['Delta']);
+      expect(groupsWithoutResourcePermissions(units, 'x', of)).toEqual([]);
+      expect(groupsWithoutResourcePermissions(units, 'm', () => '')).toEqual([]);
     });
 
     it('offers no unit when the owner has no tenant, rather than every unit of the instance', () => {
