@@ -13,10 +13,13 @@
 .matrix {
   margin-bottom: 0.5rem;
 
-  // The modal body scrolls (`scrollable`), so the head stays in view.
+  // The modal body scrolls (`scrollable`), so the head stays in view. Sticky
+  // positions inside the scroll container's padding, so `top: 0` would leave
+  // the body's top padding as a gap where scrolled rows show above the head:
+  // pull it up by that padding to stick at the very edge.
   thead th {
     position: sticky;
-    top: 0;
+    top: calc(-1 * var(--bs-modal-padding));
     z-index: 1;
     --bs-table-bg-type: var(--bs-tertiary-bg);
   }
