@@ -95,6 +95,13 @@ export type OrganizationalUnitOverviewType = ApiSchemas['OrganizationalUnitOverv
 export type OrganizationalUnitInputType = ApiSchemas['OrganizationalUnitInputType'];
 export type OrganizationalUnitPermissionOverviewType =
   ApiSchemas['OrganizationalUnitPermissionOverviewType'];
+/** One element of the body of `PATCH /organizationalUnits/permissions`. */
+export type OrganizationalUnitPermissionInputType =
+  ApiSchemas['OrganizationalUnitPermissionInputType'];
+export type OrganizationalUnitPermissionInputElementType =
+  ApiSchemas['OrganizationalUnitPermissionInputElementType'];
+export type OrganizationalUnitPermissionInputSpatialUnitElementType =
+  ApiSchemas['OrganizationalUnitPermissionInputSpatialUnitElementType'];
 export type OrganizationalUnitRoleAuthorityType = ApiSchemas['OrganizationalUnitRoleAuthorityType'];
 export type OrganizationalUnitRoleDelegateType = ApiSchemas['OrganizationalUnitRoleDelegateType'];
 export type GroupAdminRolesType = ApiSchemas['GroupAdminRolesType'];

@@ -1,0 +1,61 @@
+<div>
+  <b>Verkehrsmittel</b>
+  <div class="modeWrapper">
+    <div
+      class="modeItem"
+      [ngClass]="{ active: reachabilityStateService.settings.transitMode === 'foot-walking' }"
+      (click)="changeType('foot-walking')"
+    >
+      <i class="fa-solid fa-person-walking"></i>
+      Fussg&auml;nger
+    </div>
+    <div
+      class="modeItem"
+      [ngClass]="{ active: reachabilityStateService.settings.transitMode === 'cycling-regular' }"
+      (click)="changeType('cycling-regular')"
+    >
+      <i class="fa-solid fa-bicycle"></i>
+      Fahrrad
+    </div>
+    <div
+      class="modeItem"
+      [ngClass]="{ active: reachabilityStateService.settings.transitMode === 'driving-car' }"
+      (click)="changeType('driving-car')"
+    >
+      <i class="fa-solid fa-car-side"></i>
+      PKW
+    </div>
+  </div>
+
+  <b>Basis der Erreichbarkeit</b>
+  <div class="focusWrapper">
+    <div
+      class="modeItem"
+      [ngClass]="{ active: reachabilityStateService.settings.focus === 'time' }"
+      (click)="changeFocus('time')"
+    >
+      <i class="fa-solid fa-stopwatch"></i>
+      Zeit (Min)
+    </div>
+    <div
+      class="modeItem"
+      [ngClass]="{ active: reachabilityStateService.settings.focus === 'distance' }"
+      (click)="changeFocus('distance')"
+    >
+      <i class="fa-solid fa-ruler-horizontal"></i>
+      Distanz (m)
+    </div>
+  </div>
+
+  <b>Mehrfach-Reichweiten</b>
+  <multi-select-slider
+    [range]="sliderRange"
+    [selectedValues]="ranges"
+    [unit]="reachabilityStateService.settings.focus === 'time' ? 'min' : 'm'"
+    (changer)="onRangesChanged($event)"
+  ></multi-select-slider>
+
+  @if (!reachabilityStateService.settings.selectedStartPointLayer?.geoJSON_reachability) {
+    <p class="hint">Bitte zun&auml;chst im Tab "POIs" einen Punktdatensatz ausw&auml;hlen.</p>
+  }
+</div>

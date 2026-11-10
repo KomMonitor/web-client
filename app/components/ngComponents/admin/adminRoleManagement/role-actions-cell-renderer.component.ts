@@ -8,11 +8,18 @@ export interface RoleActionsCellRendererParams extends ICellRendererParams<Acces
   onEditMetadata: (dataset: AccessControlMetadata) => void;
   onEditGroupRights: (dataset: AccessControlMetadata) => void;
   onDelete: (dataset: AccessControlMetadata) => void;
+  onEditDatasetPermissions: (dataset: AccessControlMetadata) => void;
   /**
    * Whether the user may manage this group. Editing it, delegating its rights
    * and deleting it are one rule in the API, so one answer gates all three.
    */
   canManage: (dataset: AccessControlMetadata) => boolean;
+  /**
+   * Whether the user may transfer rights on this group's datasets. A separate
+   * rule from `canManage`, and the button is left out rather than disabled
+   * where it is false: only global admins are meant to see it at all.
+   */
+  canEditDatasetPermissions: (dataset: AccessControlMetadata) => boolean;
 }
 
 @Component({
@@ -43,6 +50,16 @@ export interface RoleActionsCellRendererParams extends ICellRendererParams<Acces
       >
         <i class="fas fa-user-lock"></i>
       </button>
+      @if (datasetPermissionsAllowed()) {
+        <button
+          class="btn btn-warning btn-sm"
+          type="button"
+          [title]="'ADMIN_DATASET_PERMISSIONS.BUTTON_TITLE' | translate"
+          (click)="onEditDatasetPermissions()"
+        >
+          <i class="fas fa-database"></i>
+        </button>
+      }
       <button
         class="btn btn-danger btn-sm"
         type="button"
@@ -63,13 +80,16 @@ export class RoleActionsCellRendererComponent implements ICellRendererAngularCom
   private editMetadataCallback!: (dataset: AccessControlMetadata) => void;
   private editGroupRightsCallback!: (dataset: AccessControlMetadata) => void;
   private deleteCallback!: (dataset: AccessControlMetadata) => void;
+  private editDatasetPermissionsCallback!: (dataset: AccessControlMetadata) => void;
   protected readonly manageAllowed = signal(false);
+  protected readonly datasetPermissionsAllowed = signal(false);
   protected readonly groupName = signal('');
 
   agInit(params: RoleActionsCellRendererParams): void {
     this.editMetadataCallback = params.onEditMetadata;
     this.editGroupRightsCallback = params.onEditGroupRights;
     this.deleteCallback = params.onDelete;
+    this.editDatasetPermissionsCallback = params.onEditDatasetPermissions;
     this.apply(params);
   }
 
@@ -90,9 +110,16 @@ export class RoleActionsCellRendererComponent implements ICellRendererAngularCom
     this.deleteCallback(this.dataset);
   }
 
+  onEditDatasetPermissions(): void {
+    this.editDatasetPermissionsCallback(this.dataset);
+  }
+
   private apply(params: RoleActionsCellRendererParams): void {
     this.dataset = params.data!;
     this.groupName.set(this.dataset?.name ?? '');
     this.manageAllowed.set(!!this.dataset && params.canManage(this.dataset));
+    this.datasetPermissionsAllowed.set(
+      !!this.dataset && params.canEditDatasetPermissions(this.dataset)
+    );
   }
 }

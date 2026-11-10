@@ -18,6 +18,7 @@ import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
 import { VersionInfoComponent } from 'components/ngComponents/userInterface/versionInfo/version-info.component';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { GuidedTourService } from 'services/guided-tour-service/guided-tour.service';
 
 @Component({
   selector: 'ngbd-modal-content',
@@ -29,6 +30,7 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 export class InfoModal implements OnInit {
   private configStorageService = inject(ConfigStorageService);
   private envConfigService = inject(EnvConfigService);
+  protected guidedTourService = inject(GuidedTourService);
 
   activeModal = inject(NgbActiveModal);
 

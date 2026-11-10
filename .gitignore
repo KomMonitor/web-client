@@ -5,6 +5,8 @@ logs/*
 !.gitkeep
 node_modules/
 bower_components/
+# Leftover output of the removed webpack/grunt pipeline; nothing in the app references it.
+/app/dependencies/
 tmp
 .DS_Store
 .idea

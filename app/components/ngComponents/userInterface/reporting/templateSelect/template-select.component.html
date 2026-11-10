@@ -37,8 +37,11 @@
                         ) {
                           <li
                             class="reporting-selectable-template"
-                            [ngClass]="{ 'template-selected': template.id == 0 }"
-                            (click)="onTemplateElementClicked($event, template.id)"
+                            [ngClass]="{
+                              'template-selected':
+                                template.id == reportingService.currentValue.selectedTemplateId,
+                            }"
+                            (click)="onTemplateElementClicked(template.id)"
                           >
                             {{ template.displayName }}
                           </li>

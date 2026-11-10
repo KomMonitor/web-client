@@ -377,7 +377,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   tryUpdateMeasureOfValueBarForIndicator() {
     this.dataSetupService.fetchIndicatorGeoJson(this.date).subscribe({
       next: (response: any) => {
-        this.selectionState.selectedIndicator.geoJSON = response;
+        this.mergeFetchedIndicatorGeoJson(response);
         this.broadcastService.broadcast(BroadcastMessage.UpdateMeasureOfValueBar, [
           this.date,
           this.selectionState.selectedIndicator,
@@ -393,6 +393,42 @@ export class KommonitorDataSetupComponent implements OnInit {
         this.mapService.hideLoadingIcon();
       },
     });
+  }
+
+  /**
+   * Merges a freshly fetched single-date GeoJSON into the already-rendered
+   * `selectedIndicator.geoJSON` feature-by-feature instead of replacing the whole
+   * object. The map's current Leaflet layer keeps direct references to the existing
+   * feature objects (`layer.feature`) across date changes (see
+   * `KommonitorMapComponent.restyleCurrentLayer`), which re-derives per-feature state
+   * such as the outlier marker from them on every date change. Replacing
+   * `selectedIndicator.geoJSON` wholesale here swaps in brand-new feature objects that
+   * the already-rendered layer never sees, so later restyles would keep recomputing
+   * outliers onto those orphaned objects while the rendered features silently freeze
+   * at whatever outlier state they had the very first time - the outlier striping
+   * then never updates again, no matter how often the date changes.
+   */
+  private mergeFetchedIndicatorGeoJson(response: any): void {
+    const indicator = this.selectionState.selectedIndicator;
+    const existingFeatures = indicator.geoJSON?.features;
+
+    if (!existingFeatures?.length) {
+      // nothing rendered yet to preserve identity with - safe to adopt as-is
+      indicator.geoJSON = response;
+      return;
+    }
+
+    const idProperty = this.envConfigService.FEATURE_ID_PROPERTY_NAME;
+    const existingFeatureById = new Map<any, any>(
+      existingFeatures.map((feature: any) => [feature.properties[idProperty], feature])
+    );
+
+    for (const fetchedFeature of response.features ?? []) {
+      const existingFeature = existingFeatureById.get(fetchedFeature.properties[idProperty]);
+      if (existingFeature) {
+        Object.assign(existingFeature.properties, fetchedFeature.properties);
+      }
+    }
   }
 
   changeIndicatorDate() {

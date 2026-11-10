@@ -36,28 +36,7 @@ export class TemplateSelectComponent implements OnInit {
     this.reportingService.generalSettings.creationDate = `${this.datePickerDate.year}-${this.datePickerDate.month}-${this.datePickerDate.day}`;
   }
 
-  /**
-   * filters templates to only show the ones matching the given category.
-   * @param {*} categoryId
-   * @returns
-   */
-  templateFilter(categoryId) {
-    return function (value) {
-      return categoryId === value.categoryId;
-    };
-  }
-
-  onTemplateElementClicked($event, templateId) {
-    const el = $event.target;
-    el.style.backgroundColor = '#0078D7';
-    el.style.color = 'white';
-    document.querySelectorAll('.reporting-selectable-template').forEach((element: any) => {
-      if (el !== element) {
-        element.style.backgroundColor = 'white';
-        element.style.color = 'black';
-      }
-    });
-
+  onTemplateElementClicked(templateId) {
     this.reportingService.changeSelectedTemplate(templateId);
   }
 

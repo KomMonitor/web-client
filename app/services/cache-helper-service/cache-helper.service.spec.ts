@@ -81,4 +81,46 @@ describe('CacheHelperServiceService', () => {
       'Testquartiere',
     ]);
   });
+
+  it('refetches after a failed list request instead of serving the old list as current', async () => {
+    const roles = ['kommonitor-creator'];
+    jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    const initial = service.fetchSpatialUnitsMetadata(roles);
+    http.expectOne(LAST_MOD_URL).flush({ 'spatial-units': 't1' });
+    await flushMicrotasks();
+    http.expectOne(SPATIAL_UNITS_URL).flush([{ spatialUnitLevel: 'Alt' }]);
+    await initial;
+
+    // The list changed (t2), but fetching it fails.
+    const failed = service.fetchSpatialUnitsMetadata(roles);
+    http.expectOne(LAST_MOD_URL).flush({ 'spatial-units': 't2' });
+    await flushMicrotasks();
+    http.expectOne(SPATIAL_UNITS_URL).flush(null, { status: 503, statusText: 'Unavailable' });
+    await expect(failed).rejects.toBeTruthy();
+
+    // Still t2: the cache must not pair it with the old list.
+    const retried = service.fetchSpatialUnitsMetadata(roles);
+    http.expectOne(LAST_MOD_URL).flush({ 'spatial-units': 't2' });
+    await flushMicrotasks();
+    http.expectOne(SPATIAL_UNITS_URL).flush([{ spatialUnitLevel: 'Neu' }]);
+    expect((await retried).map((unit) => unit.spatialUnitLevel)).toEqual(['Neu']);
+    jest.restoreAllMocks();
+  });
+
+  it('invalidates one resource cache at a time, with all its role variants', () => {
+    const keys = [
+      'spec_lastModification_spatialUnits_timestamp_kommonitor-creator',
+      'spec_lastModification_spatialUnits_metadata_public',
+      'spec_lastModification_topics_metadata_kommonitor-creator',
+      'spec_lastModification_indicators_metadata_public',
+    ];
+    keys.forEach((key) => localStorage.setItem(key, '"x"'));
+
+    service.invalidateSpatialUnitsCache();
+    expect(keys.filter((key) => localStorage.getItem(key) !== null)).toEqual([keys[2], keys[3]]);
+
+    service.invalidateTopicsCache();
+    expect(keys.filter((key) => localStorage.getItem(key) !== null)).toEqual([keys[3]]);
+  });
 });

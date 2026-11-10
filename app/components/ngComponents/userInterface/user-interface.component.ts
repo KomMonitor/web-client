@@ -12,6 +12,7 @@ import { ChartDisplayStateService } from 'services/chart-display-state-service/c
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 import { FavService } from 'services/fav-service/fav.service';
 import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
+import { GuidedTourService } from 'services/guided-tour-service/guided-tour.service';
 import { MapService } from 'services/map-service/map.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { RangeFilterStateService } from 'services/range-filter-state-service/range-filter-state.service';
@@ -66,6 +67,7 @@ export class UserInterfaceComponent implements OnInit {
   protected envConfigService = inject(EnvConfigService);
   private mapService = inject(MapService);
   protected sidebarState = inject(SidebarStateService);
+  protected guidedTourService = inject(GuidedTourService);
 
   private readonly destroyRef = inject(DestroyRef);
 

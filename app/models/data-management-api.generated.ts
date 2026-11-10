@@ -728,6 +728,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/organizationalUnits/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Set dataset permissions for a batch of organizationalUnits
+         * @description Partially updates the dataset permissions of the submitted organizationalUnits. Only the listed datasets of the listed resource types are updated for each organizationalUnit; all other permissions stay untouched.
+         */
+        patch: operations["updateOrganizationalUnitPermissions"];
+        trace?: never;
+    };
     "/organizationalUnits/{organizationalUnitId}/permissions": {
         parameters: {
             query?: never;
@@ -3302,13 +3322,17 @@ export interface components {
             children: string[];
         };
         /** @enum {string} */
-        ResourceType: "georesources" | "spatialunits," | "indicators" | "indicatorspatialunits";
+        ResourceType: "georesources" | "spatialunits" | "indicators" | "indicatorspatialunits";
         OrganizationalUnitPermissionOverviewElementType: {
             /** Format: uuid */
             id: string;
-            permissionLevel: string;
+            name: string;
+            permissions: components["schemas"]["OrganizationalUnitPermissionDetailType"][];
+        };
+        OrganizationalUnitPermissionDetailType: {
             /** Format: uuid */
-            roleId: string;
+            permissionId: string;
+            permissionLevel: string;
         };
         OrganizationalUnitPermissionOverviewSpatialUnitElementType: components["schemas"]["OrganizationalUnitPermissionOverviewElementType"] & {
             /** Format: uuid */
@@ -3328,6 +3352,35 @@ export interface components {
                 spatialunits?: components["schemas"]["OrganizationalUnitPermissionOverviewElementType"][];
                 indicators?: components["schemas"]["OrganizationalUnitPermissionOverviewElementType"][];
                 indicatorspatialunits?: components["schemas"]["OrganizationalUnitPermissionOverviewSpatialUnitElementType"][];
+            };
+        };
+        OrganizationalUnitPermissionInputElementType: {
+            /**
+             * Format: uuid
+             * @description id of the dataset the permissions apply to
+             */
+            id: string;
+            /** @description ids of the permissions the dataset should have for the organizational unit */
+            permissions: string[];
+        };
+        OrganizationalUnitPermissionInputSpatialUnitElementType: components["schemas"]["OrganizationalUnitPermissionInputElementType"] & {
+            /**
+             * Format: uuid
+             * @description business id of the spatial unit the indicator is joined with
+             */
+            spatialUnitId: string;
+        };
+        OrganizationalUnitPermissionInputType: {
+            /**
+             * Format: uuid
+             * @description id of the organizational unit whose permissions are updated
+             */
+            organizationalUnitId: string;
+            permissions: {
+                georesources?: components["schemas"]["OrganizationalUnitPermissionInputElementType"][];
+                spatialunits?: components["schemas"]["OrganizationalUnitPermissionInputElementType"][];
+                indicators?: components["schemas"]["OrganizationalUnitPermissionInputElementType"][];
+                indicatorspatialunits?: components["schemas"]["OrganizationalUnitPermissionInputSpatialUnitElementType"][];
             };
         };
         /** OwnerType */
@@ -6987,11 +7040,64 @@ export interface operations {
             };
         };
     };
+    updateOrganizationalUnitPermissions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description data */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrganizationalUnitPermissionInputType"][];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationalUnitPermissionOverviewType"][];
+                };
+            };
+            /** @description API key is missing or invalid */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            405: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getOrganizationalUnitPermissions: {
         parameters: {
             query?: {
                 /** @description resourceType */
-                resourceType?: components["schemas"]["ResourceType"];
+                resourceType?: "georesources" | "spatialunits" | "indicators" | "indicatorspatialunits";
             };
             header?: never;
             path: {

@@ -105,15 +105,37 @@ export class MetadataBootstrapService {
 
   fetchAllMetadata(filter = undefined): Promise<void> {
     this.lastRequestedFilter = filter;
-    const run = () => this.runFetchAllMetadata(filter);
+    return this.enqueue(() => this.runFetchAllMetadata(filter));
+  }
+
+  /**
+   * Reloads the indicators, georesources and spatial units — the lists that
+   * carry dataset permissions — and rebuilds what the app derives from them,
+   * as a full load would. The dataset-permissions wizard uses it to work on
+   * the stored rights rather than on those of the first load.
+   *
+   * Queued behind any running load, like `fetchAllMetadata`, and with the
+   * filter of the last requested load. The stores are written only once all
+   * three lists have arrived, so a failure leaves all of them as they were;
+   * the returned promise then rejects. The loading state is left alone: the
+   * pages keep showing their data while this runs.
+   */
+  reloadDatasetMetadata(): Promise<void> {
+    return this.enqueue(() => this.runReloadDatasetMetadata());
+  }
+
+  /** Runs `run` after the load in flight, if any, and makes it the one in flight. */
+  private enqueue(run: () => Promise<void>): Promise<void> {
     const next = this.inFlight ? this.inFlight.then(run, run) : run();
     this.inFlight = next;
-    next.finally(() => {
-      // Only clear when no newer load has been chained on top of this one.
+    // Only clear when no newer load has been chained on top of this one.
+    const clear = () => {
       if (this.inFlight === next) {
         this.inFlight = null;
       }
-    });
+    };
+    // Handles the rejection on this side branch; the caller still gets it through `next`.
+    next.then(clear, clear);
     return next;
   }
 
@@ -163,16 +185,7 @@ export class MetadataBootstrapService {
         this.fetchIndicatorsMetadata(roles, filter),
       ]);
 
-      this.modifyIndicatorApplicableSpatialUnitsForLoginRoles();
-
-      this.buildHeadlineIndicatorHierarchy();
-      this.buildTopicIndicatorHierarchy();
-      this.topicIndicatorHierarchy_forOrderView = JSON.parse(
-        JSON.stringify(this.topicHierarchyStore.topicIndicatorHierarchy)
-      );
-      this.buildComputationIndicatorHierarchy();
-
-      this.buildTopicGeoresourceHierarchy(filter);
+      this.rebuildDerivedMetadata(filter);
 
       console.log('Metadata fetched. Call initialize event.');
 
@@ -184,6 +197,34 @@ export class MetadataBootstrapService {
         'Beim Laden der erforderlichen Anwendungsdaten ist ein Fehler aufgetreten. Bitte wenden Sie sich an Ihren Administrator.'
       );
     }
+  }
+
+  private async runReloadDatasetMetadata(): Promise<void> {
+    const filter = this.lastRequestedFilter;
+    const roles = this.accessControlService.currentKeycloakLoginRoles;
+    const [spatialUnits, georesources, indicators] = await Promise.all([
+      this.cacheHelperService.fetchSpatialUnitsMetadata(roles),
+      this.cacheHelperService.fetchGeoresourceMetadata(roles, filter),
+      this.cacheHelperService.fetchIndicatorsMetadata(roles, filter),
+    ]);
+    this.spatialUnitStore.setSpatialUnits(spatialUnits);
+    this.georesourceStore.setGeoresources(georesources);
+    this.indicatorStore.setIndicators(indicators);
+    this.rebuildDerivedMetadata(filter);
+  }
+
+  /** What a load derives from the fetched lists: the timeseries filter and the hierarchies. */
+  private rebuildDerivedMetadata(filter: any = undefined): void {
+    this.modifyIndicatorApplicableSpatialUnitsForLoginRoles();
+
+    this.buildHeadlineIndicatorHierarchy();
+    this.buildTopicIndicatorHierarchy();
+    this.topicIndicatorHierarchy_forOrderView = JSON.parse(
+      JSON.stringify(this.topicHierarchyStore.topicIndicatorHierarchy)
+    );
+    this.buildComputationIndicatorHierarchy();
+
+    this.buildTopicGeoresourceHierarchy(filter);
   }
 
   async fetchTopicsMetadata(keycloakRolesArray) {

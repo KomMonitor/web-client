@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { WorkflowSelectComponent } from './workflowSelect/workflow-select.component';
 import { TemplateSelectComponent } from './templateSelect/template-select.component';
 import { ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
+import { ReportGenerationProgressService } from 'services/report-generation-progress-service/report-generation-progress.service';
 import { ReportingOverviewComponent } from './reportingOverview/reporting-overview.component';
 import { IndicatorAddComponent } from './indicatorAdd/indicator-add.component';
 
@@ -31,21 +32,25 @@ export interface reportingData {
 })
 export class ReportingModalComponent implements OnInit, OnDestroy {
   protected reportingService = inject(ReportingService);
+  protected reportGenerationProgressService = inject(ReportGenerationProgressService);
 
   activeModal = inject(NgbActiveModal);
 
   workflowState = WorkflowState;
 
   ngOnInit() {
-    this.reportingService.reportingModalOpen = true;
+    this.reportGenerationProgressService.reportingModalOpen = true;
 
-    this.reportingService.reportingData$.subscribe((val) => {
-      console.log('Wert geändert:', val);
-    });
+    // While a report is actively being prepared/generated in the background, reopening the
+    // modal (e.g. via the progress banner) must jump straight back into that view. Otherwise
+    // the modal always opens at workflow select, offering to resume whatever setup was left.
+    if (!this.reportGenerationProgressService.reportGenerationInProgress) {
+      this.reportingService.pauseCurrentSetupAndGoToWorkflowSelect();
+    }
   }
 
   ngOnDestroy() {
-    this.reportingService.reportingModalOpen = false;
+    this.reportGenerationProgressService.reportingModalOpen = false;
   }
 
   isWorkflowState(state: WorkflowState | WorkflowState[]) {

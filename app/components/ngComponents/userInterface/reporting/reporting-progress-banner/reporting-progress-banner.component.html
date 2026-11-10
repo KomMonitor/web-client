@@ -1,12 +1,12 @@
-@if (reportingService.reportGenerationInProgress) {
+@if (reportGenerationProgressService.reportGenerationInProgress) {
   <div
     class="reporting-progress-banner alert"
     [ngClass]="{
-      'alert-info': reportingService.reportStatus === 'preparing',
-      'alert-success': reportingService.reportStatus === 'finished',
+      'alert-info': reportGenerationProgressService.reportStatus === 'preparing',
+      'alert-success': reportGenerationProgressService.reportStatus === 'finished',
     }"
   >
-    @if (reportingService.reportStatus === 'preparing') {
+    @if (reportGenerationProgressService.reportStatus === 'preparing') {
       <div>
         <i class="fa fa-info-circle"></i> <b>Hinweis:</b> Im Hintergrund wird ein Bericht
         vorbereitet. Dies kann die Anwendung verlangsamen.
@@ -17,10 +17,10 @@
               <div
                 class="progress-bar progress-bar-striped progress-bar-animated"
                 role="progressbar"
-                [ngStyle]="{ width: reportingService.reportProgress + '%' }"
+                [ngStyle]="{ width: reportGenerationProgressService.reportProgress + '%' }"
                 style="line-height: 20px; font-weight: bold"
               >
-                {{ reportingService.reportProgress | number: '1.0-0' }}%
+                {{ reportGenerationProgressService.reportProgress | number: '1.0-0' }}%
               </div>
             </div>
           </div>
@@ -31,7 +31,7 @@
           </div>
         </div>
 
-        @if (!reportingService.reportingModalOpen) {
+        @if (!reportGenerationProgressService.reportingModalOpen) {
           <div style="margin-top: 5px">
             <button
               type="button"
@@ -45,13 +45,13 @@
       </div>
     }
 
-    @if (reportingService.reportStatus === 'finished') {
+    @if (reportGenerationProgressService.reportStatus === 'finished') {
       <div>
         <i class="fa fa-check-circle"></i> <b>Erfolg:</b> Die Berichtgenerierung wurde
         abgeschlossen! Der im Hintergrund vorbereitete Bericht kann nun hinzugefügt werden. Kehren
         Sie dazu zum Berichtserstellungsdialog zurück.
         <span class="float-end">
-          @if (!reportingService.reportingModalOpen) {
+          @if (!reportGenerationProgressService.reportingModalOpen) {
             <button
               type="button"
               class="btn btn-success btn-sm"
@@ -61,7 +61,7 @@
               <i class="fas fa-file-alt"></i> &nbsp; Zum Berichtsmenü
             </button>
           }
-          Banner schließt in {{ reportingService.reportCountdown }}s
+          Banner schließt in {{ reportGenerationProgressService.reportCountdown }}s
         </span>
       </div>
     }

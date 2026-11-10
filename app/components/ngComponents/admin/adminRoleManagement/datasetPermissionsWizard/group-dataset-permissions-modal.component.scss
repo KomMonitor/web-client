@@ -1,0 +1,151 @@
+@use 'wizard';
+
+// Cell tints go through Bootstrap's `--bs-table-bg-type` (an inset shadow, the
+// same as `table-striped`): app.scss forces every `th` to a white background
+// with !important, so `background-color` would not show on header cells.
+
+.dialog-intro,
+.dialog-legend {
+  font-size: 0.9rem;
+  color: var(--bs-secondary-color);
+}
+
+.matrix {
+  margin-bottom: 0.5rem;
+
+  // The modal body scrolls (`scrollable`), so the head stays in view. Sticky
+  // positions inside the scroll container's padding, so `top: 0` would leave
+  // the body's top padding as a gap where scrolled rows show above the head:
+  // pull it up by that padding to stick at the very edge.
+  thead th {
+    position: sticky;
+    top: calc(-1 * var(--bs-modal-padding));
+    z-index: 1;
+    --bs-table-bg-type: var(--bs-tertiary-bg);
+  }
+
+  th {
+    font-weight: normal;
+  }
+
+  thead th,
+  .kind-row th {
+    font-weight: 600;
+  }
+}
+
+.level-col {
+  width: 8rem;
+  text-align: center;
+}
+
+.kind-row > * {
+  --bs-table-bg-type: var(--bs-tertiary-bg);
+}
+
+.hint-row td {
+  padding-left: 2.5rem;
+  font-size: 0.85rem;
+  --bs-table-bg-type: var(--bs-info-bg-subtle);
+}
+
+// Indented past the caret of the row above.
+.dataset-row th {
+  padding-left: 2rem;
+}
+
+.dataset-row .dataset-name {
+  display: block;
+  padding-left: 1.5rem;
+}
+
+.slot-row th {
+  padding-left: 5rem;
+  font-size: 0.9rem;
+
+  .fa-layer-group {
+    margin-right: 0.35rem;
+    color: var(--bs-secondary-color);
+  }
+}
+
+.row-toggle {
+  display: inline-flex;
+  // Baseline, not center: the caret stays on the first line of a wrapped name.
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0;
+  color: inherit;
+  font-weight: inherit;
+  text-decoration: none;
+  text-align: left;
+}
+
+.caret {
+  width: 1rem;
+  font-size: 0.75rem;
+}
+
+.row-meta {
+  font-size: 0.85rem;
+  font-weight: normal;
+  color: var(--bs-secondary-color);
+}
+
+// Name, badge and count flow as text; badge and count never break inside.
+.row-label {
+  app-public-badge,
+  .row-meta {
+    margin-left: 0.4rem;
+    white-space: nowrap;
+  }
+}
+
+.slot-row app-public-badge {
+  margin-left: 0.4rem;
+  white-space: nowrap;
+}
+
+// Edit on a timeseries row: set for the whole indicator in the row above.
+.whole-indicator {
+  color: var(--bs-secondary-color);
+}
+
+// As wide as a checkbox (Bootstrap's `.form-check-input` is 1em square).
+.whole-indicator-mark {
+  display: inline-block;
+  width: 1em;
+  text-align: center;
+}
+
+.matrix-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+
+  .form-check-input {
+    margin: 0;
+    float: none;
+  }
+}
+
+// Reserves its place when hidden, so the checkboxes stay aligned.
+.deviation-dot {
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background-color: wizard.$change-color;
+  visibility: hidden;
+  vertical-align: middle;
+
+  &.visible {
+    visibility: visible;
+  }
+}
+
+.deviation-count {
+  font-size: 0.9rem;
+  color: wizard.$change-text-color;
+}

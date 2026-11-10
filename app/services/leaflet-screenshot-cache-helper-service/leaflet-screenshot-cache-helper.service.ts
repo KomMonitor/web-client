@@ -21,11 +21,13 @@ export class LeafletScreenshotCacheHelperService {
   // Bump this whenever the capture output changes incompatibly (e.g. the Firefox
   // SVG-rasterization fix in captureNodeAsPngDataUrl): the upgrade handler wipes the
   // store, so corrupt screenshots from older app versions are never served from cache.
-  dbVersion = 4;
+  // v5: reachability preview pages could be built while the indicator-add preview area
+  // was still display:none, collapsing Leaflet's fitBounds and capturing only the
+  // top-left tile - purge any such broken screenshots cached before that was fixed.
+  dbVersion = 5;
   indexedDB!: IDBDatabase;
   indexedDbCount;
 
-  argetNumberOfSpatialUnitFeatures = 0;
   screenshotsForCurrentSpatialUnitUpdate = true;
   executedScreenshotMapKeys = new Map();
   logProgressIndexSeparator;
@@ -42,7 +44,6 @@ export class LeafletScreenshotCacheHelperService {
     request.onupgradeneeded = (event: any) => this.recreateStoreOnUpgrade(event);
     request.onsuccess = (event: any) => {
       this.indexedDB = event.target.result;
-      console.log('Database initialized successfully');
     };
     request.onerror = (event: any) => {
       console.error('Error initializing database:', event.target.error);
@@ -183,6 +184,17 @@ export class LeafletScreenshotCacheHelperService {
         }
         const el: HTMLElement = domElement;
 
+        // A zero-size container (e.g. still inside a display:none ancestor) collapses
+        // Leaflet's fitBounds() to a single point, so it only ever requests the top-left
+        // tile - capturing and caching that would permanently poison this cache key for
+        // every later consumer (reportingOverview, PDF export) that trusts the cache.
+        if (el.offsetWidth === 0 || el.offsetHeight === 0) {
+          console.warn('Skipping leaflet screenshot capture for zero-size element:', CacheKey);
+          this.pendingPromises.delete(CacheKey);
+          resolve('');
+          return;
+        }
+
         const capture = () => {
           this.captureNodeAsPngDataUrl(el)
             .then(async (dataUrl: string) => {
@@ -317,15 +329,18 @@ export class LeafletScreenshotCacheHelperService {
     const store = tx.objectStore(this.storeName);
     const clearRequest = store.clear();
 
-    clearRequest.onsuccess = (_event) => {
-      this.resetCounter_keepingCurrentTargetFeatures(true);
-      this.indexedDbCount = 0;
-    };
+    await new Promise<void>((resolve, reject) => {
+      clearRequest.onsuccess = () => {
+        this.resetCounter_keepingCurrentTargetFeatures(true);
+        this.indexedDbCount = 0;
+        resolve();
+      };
 
-    clearRequest.onerror = (event: any) => {
-      console.error('Error clearing store:', event.target.errorCode);
-      throw new Error('Error clearing store');
-    };
+      clearRequest.onerror = (event: any) => {
+        console.error('Error clearing store:', event.target.errorCode);
+        reject(new Error('Error clearing store'));
+      };
+    });
   }
 
   async getScreenshotCountFromIndexedDB() {
@@ -347,23 +362,14 @@ export class LeafletScreenshotCacheHelperService {
   async saveScreenshotInIndexedDB(key, data) {
     const tx = this.indexedDB.transaction([this.storeName], 'readwrite');
     const store = tx.objectStore(this.storeName);
-    await store.put(data, key);
+    const putRequest = store.put(data, key);
+
+    await new Promise<void>((resolve, reject) => {
+      putRequest.onsuccess = () => resolve();
+      putRequest.onerror = (event: any) => reject(event.target.error);
+    });
+
     this.getScreenshotCountFromIndexedDB();
-  }
-
-  async loadScreenshotFromIndexedDB(cacheKey) {
-    const tx = this.indexedDB.transaction([this.storeName], 'readonly');
-    const store = tx.objectStore(this.storeName);
-    const req = store.get(cacheKey);
-
-    req.onsuccess = () => {
-      const compressed = req.result;
-      const decompressed = pako.inflate(compressed);
-      const blob = new Blob([decompressed], { type: 'image/png' });
-
-      const url = URL.createObjectURL(blob);
-      return url;
-    };
   }
 
   async loadScreenshotsFromIndexedDB() {

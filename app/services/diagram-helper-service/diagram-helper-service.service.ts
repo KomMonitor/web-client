@@ -491,7 +491,8 @@ export class DiagramHelperServiceService {
     measureOfValue,
     filterOutFutureDates,
     isCategorical = false,
-    categoricalData: CategoricalMappingType[] = []
+    categoricalData: CategoricalMappingType[] = [],
+    fromDate?: string
   ) {
     this.prepareAllDiagramResources(
       indicatorMetadataAndGeoJSON,
@@ -508,7 +509,8 @@ export class DiagramHelperServiceService {
       true,
       true,
       isCategorical,
-      categoricalData
+      categoricalData,
+      fromDate
     );
   }
 
@@ -643,7 +645,8 @@ export class DiagramHelperServiceService {
     forceUseSubmittedIndicatorForTimeseries,
     fixedPrecision = false,
     isCategorical = false,
-    categoricalData: CategoricalMappingType[] = []
+    categoricalData: CategoricalMappingType[] = [],
+    fromDate?: string
   ) {
     this.indicatorPropertyName = this.INDICATOR_DATE_PREFIX + date;
 
@@ -733,6 +736,14 @@ export class DiagramHelperServiceService {
           return false;
         }
       });
+    }
+
+    if (fromDate) {
+      // remove all timestamps that are older than the reporting date-slider's selected "from" date
+      const fromDateInDateFormat = Date.parse(fromDate);
+      indicatorTimeSeriesDatesArray = indicatorTimeSeriesDatesArray.filter(
+        (t) => Date.parse(t) >= fromDateInDateFormat
+      );
     }
 
     let indicatorMetadataForTimeseries = indicatorMetadataAndGeoJSON;

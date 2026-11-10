@@ -1,4 +1,21 @@
 <div class="container-fluid">
+  @if (reportingService.hasPausedSetup) {
+    <div class="row row-no-gutters">
+      <div class="col-sm-12">
+        <div class="alert alert-info resume-setup-info" role="alert">
+          <span>Es liegt ein begonnenes Report-Setup vor.</span>
+          <button
+            type="button"
+            id="reporting-continueSetupBtn"
+            class="btn btn-sm btn-outline-primary"
+            (click)="reportingService.resumePausedSetup()"
+          >
+            Setup fortsetzen
+          </button>
+        </div>
+      </div>
+    </div>
+  }
   <div class="row row-no-gutters">
     <div class="col-sm-12 text-center">
       <!-- <h2 class="fs-title"></h2> -->

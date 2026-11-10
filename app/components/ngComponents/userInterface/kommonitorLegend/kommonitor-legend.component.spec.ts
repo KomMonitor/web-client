@@ -7,6 +7,7 @@ import { By } from '@angular/platform-browser';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import $ from 'jquery';
 
+import { GuidedTourService } from 'services/guided-tour-service/guided-tour.service';
 import { KommonitorLegendComponent } from './kommonitor-legend.component';
 
 describe('KommonitorLegendComponent', () => {
@@ -21,6 +22,9 @@ describe('KommonitorLegendComponent', () => {
         provideHttpClientTesting(),
         provideRouter([]),
         provideNoopAnimations(),
+        // Avoids pulling in the real TranslateService/TranslateStore, which this
+        // spec doesn't set up TranslateModule for.
+        { provide: GuidedTourService, useValue: { activeStepId: () => null } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     });

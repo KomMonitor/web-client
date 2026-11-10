@@ -9,6 +9,7 @@ import { SidebarStateService } from 'services/sidebar-state-service/sidebar-stat
 import { DiagramMenuButtonComponent } from '../diagramMenuButton/diagram-menu-button.component';
 import { ExportMenuButtonComponent } from '../exporting/export-menu-button/export-menu-button.component';
 import { ReportingModalComponent } from '../reporting/reporting-modal.component';
+import { AuthService } from 'services/auth-service/auth.service';
 
 /**
  * The left sidebar-button column: one toggle button per dockable sidebar panel,
@@ -30,6 +31,7 @@ export class SidebarButtonsComponent {
   private readonly chartDisplayState = inject(ChartDisplayStateService);
   private readonly rangeFilterState = inject(RangeFilterStateService);
   private readonly modalService = inject(NgbModal);
+  protected readonly authService = inject(AuthService);
 
   /** True while any display filter (global/measure-of-value/range) is active. */
   filterModusActive(): boolean {

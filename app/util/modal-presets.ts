@@ -1,7 +1,7 @@
 import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
 /**
- * The three dialog sizes this application uses.
+ * The five dialog sizes this application uses.
  *
  * Every `modalService.open` call picks one of these instead of spelling out
  * `size` / `modalDialogClass` / `windowClass` itself. Before this existed, four
@@ -18,15 +18,20 @@ import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
  * - `MODAL_CONFIRM` — a question with a short summary. Dismissible: Esc and a
  *   backdrop click both mean "cancel".
  * - `MODAL_FORM` — a form or a richer summary, no data grid.
- * - `MODAL_WIDE` — anything holding an ag-grid, a role matrix or a multi-step
- *   wizard. Note that the role dialogs qualify through the shared
+ * - `MODAL_XLARGE` — a multi-step wizard without a data grid, e.g. the
+ *   dataset-permissions wizard.
+ * - `MODAL_LARGE` — a wide form opened on top of such a wizard, e.g. its
+ *   per-dataset rights matrix; always narrower than `MODAL_XLARGE`, so the
+ *   wizard still shows beside it.
+ * - `MODAL_WIDE` — anything holding an ag-grid or a role matrix, multi-step
+ *   wizards that do included. Note that the role dialogs qualify through the shared
  *   `app-role-management-grid` child, not through their own template.
  *
- * `MODAL_FORM` and `MODAL_WIDE` are `backdrop: 'static'` with `keyboard: false`
+ * All but `MODAL_CONFIRM` are `backdrop: 'static'` with `keyboard: false`
  * on purpose: they can hold unsaved input, so they close only through their own
  * buttons.
  *
- * All three are `scrollable: true`. Without it a tall dialog simply grew past
+ * All of them are `scrollable: true`. Without it a tall dialog simply grew past
  * the viewport and its footer went below the fold — on a 1366x768 laptop the
  * "register group" dialog was 818px tall and its buttons were unreachable
  * without scrolling the whole modal. `scrollable` caps the dialog at the
@@ -49,6 +54,20 @@ export const MODAL_CONFIRM: NgbModalOptions = {
 export const MODAL_FORM: NgbModalOptions = {
   ...SHARED,
   modalDialogClass: 'km-modal-form',
+  backdrop: 'static',
+  keyboard: false,
+};
+
+export const MODAL_LARGE: NgbModalOptions = {
+  ...SHARED,
+  modalDialogClass: 'km-modal-large',
+  backdrop: 'static',
+  keyboard: false,
+};
+
+export const MODAL_XLARGE: NgbModalOptions = {
+  ...SHARED,
+  modalDialogClass: 'km-modal-xlarge',
   backdrop: 'static',
   keyboard: false,
 };

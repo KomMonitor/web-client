@@ -3,6 +3,11 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { AuthService } from 'services/auth-service/auth.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { KeycloakHelperService } from 'services/keycloak-helper-service/keycloak-helper.service';
+
 import { StartupService } from './startup.service';
 import { LANGUAGE_STORAGE_KEY } from 'util/i18n.constants';
 
@@ -127,5 +132,63 @@ describe('StartupService', () => {
 
       await expect(loadTranslations()).resolves.toBeUndefined();
     });
+  });
+});
+
+// Regression: the login's roles used to be applied only by the metadata
+// bootstrap, after it had loaded the user profile. On direct entry to
+// /administration/groups the groups came from the cache first, so every row
+// action was rendered disabled and the grid never re-checked.
+describe('StartupService login state', () => {
+  const ADMIN_ROLE = 'kommonitor-creator';
+  let authenticated: boolean;
+  let keycloakHelper: { init: jest.Mock };
+
+  function setUp(): { service: StartupService; accessControl: AccessControlService } {
+    keycloakHelper = { init: jest.fn(() => new Promise<void>(() => undefined)) };
+    TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot()],
+      providers: [
+        {
+          provide: AuthService,
+          useValue: {
+            initKeycloak: jest.fn().mockResolvedValue(undefined),
+            isAuthenticated: () => authenticated,
+            getTokenParsed: () => ({ realm_access: { roles: [ADMIN_ROLE, 'offline_access'] } }),
+          },
+        },
+        { provide: KeycloakHelperService, useValue: keycloakHelper },
+        { provide: EnvConfigService, useValue: { keycloakKomMonitorAdminRoleName: ADMIN_ROLE } },
+      ],
+    });
+    const service = TestBed.inject(StartupService);
+    // Configs and translations are covered above; here they only need to pass.
+    jest.spyOn(service as any, 'loadAllConfigs').mockResolvedValue(undefined);
+    jest.spyOn(service as any, 'loadTranslations').mockResolvedValue(undefined);
+    return { service, accessControl: TestBed.inject(AccessControlService) };
+  }
+
+  it('knows the roles once the app initializer is done, without waiting for role loading', async () => {
+    authenticated = true;
+    const { service, accessControl } = setUp();
+
+    await service.initApp();
+
+    // KeycloakHelperService.init() never settles here: the roles must not depend on it.
+    expect(keycloakHelper.init).toHaveBeenCalled();
+    expect(accessControl.currentKeycloakLoginRoles).toEqual([ADMIN_ROLE, 'offline_access']);
+    expect(accessControl.checkAdminPermission()).toBe(true);
+    expect(accessControl.isRealmAdmin).toBe(true);
+  });
+
+  it('leaves the login state empty for an anonymous visitor', async () => {
+    authenticated = false;
+    const { service, accessControl } = setUp();
+
+    await service.initApp();
+
+    expect(accessControl.currentKeycloakLoginRoles).toEqual([]);
+    expect(accessControl.checkAdminPermission()).toBe(false);
+    expect(keycloakHelper.init).not.toHaveBeenCalled();
   });
 });

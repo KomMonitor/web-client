@@ -1,1 +1,7 @@
 npm run format:check
+
+# Lint only the staged .ts/.html files under app/, with the same config as `npm run lint`.
+# Fails on errors only (the CI gate tolerates warnings); --quiet keeps the existing warning
+# backlog out of the output. Note: ESLint reads the working-tree version of each file.
+git diff --cached --name-only --diff-filter=ACMR -z -- 'app/*.ts' 'app/*.html' |
+  xargs -0 -r eslint --quiet --no-warn-ignored -c eslint.config.js
