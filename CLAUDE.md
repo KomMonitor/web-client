@@ -41,7 +41,7 @@ Tests **are runnable now**. The `test` target uses **Jest** via `@angular-builde
 
 **ESLint and Prettier are set up** (flat config). ESLint uses `eslint.config.js` (root) / `app/eslint.config.js` with `angular-eslint`; Prettier uses `.prettierrc.json` + `.prettierignore`. Use `npm run lint` / `npm run format`.
 
-**CI:** `.github/workflows/ci.yml` (job `quality-gate`) runs `npm run format:check` → `npm run lint` → `npm test` → `npm run build` on every pull request and on pushes to `master`/`develop`/`feature/migration-bootstrap` (Node 24 via `.nvmrc`, `npm ci --force`). Keep all four green — lint tolerates warnings but **0 errors**; the format backlog is cleared, so Prettier is enforced. Locally, a husky `pre-commit` hook (`.husky/pre-commit`, installed via the `prepare` script) runs the same `format:check` plus ESLint on the staged `app/` `.ts`/`.html` files only (errors only, same config as `npm run lint`) — a cheaper stand-in for the full lint step; tests and build run only in CI. The other workflows under `.github/workflows/` only build/push the Docker image.
+**CI:** `.github/workflows/ci.yml` (job `quality-gate`) runs `npm run format:check` → `npm run lint` → `npm test` → `npm run build` on every pull request and on pushes to `master`/`develop`/`feature/migration-bootstrap`/`develop-v6` (Node 24 via `.nvmrc`, `npm ci --force`). Keep all four green — lint tolerates warnings but **0 errors**; the format backlog is cleared, so Prettier is enforced. Locally, a husky `pre-commit` hook (`.husky/pre-commit`, installed via the `prepare` script) runs the same `format:check` plus ESLint on the staged `app/` `.ts`/`.html` files only (errors only, same config as `npm run lint`) — a cheaper stand-in for the full lint step; tests and build run only in CI. The other workflows under `.github/workflows/` only build/push the Docker image.
 
 ## Migration status — read this before editing
 
@@ -163,4 +163,4 @@ The client is non-functional without these backends (configured via the runtime 
 
 ## Branching
 
-`master` = stable releases. `develop` = main integration branch. Feature/fix work happens on dedicated branches (current work is on `feature/migration-bootstrap`).
+`master` = stable releases. `develop` = main integration branch. Feature/fix work happens on dedicated branches. `develop-v6` (branched off `feature/migration-bootstrap` on 2026-11-10) is the integration branch for the upcoming v6 work — branch feature work off it and merge it back there.
