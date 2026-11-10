@@ -21,7 +21,7 @@ COPY . .
 RUN npm run build
 
 # ---- Runtime stage ----
-FROM nginx:stable-alpine
+FROM nginx:1.31.8-alpine3.24
 
 COPY --from=build /kommonitor-webclient/nginx.conf /etc/nginx/nginx.conf
 
