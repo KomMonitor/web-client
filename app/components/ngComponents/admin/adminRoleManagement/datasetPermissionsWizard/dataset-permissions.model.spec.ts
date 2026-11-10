@@ -15,15 +15,16 @@ import {
   currentDraft,
   currentRights,
   datasetKey,
+  datasetTargets,
   datasetsOfOwner,
   draftDeviates,
   draftState,
   initialDraft,
+  levelSlots,
   resourcePermissionIds,
   samePatch,
   setDraftLevel,
   summarize,
-  targetRights,
   timeseriesCount,
   triState,
 } from './dataset-permissions.model';
@@ -151,9 +152,13 @@ describe('dataset-permissions.model', () => {
       ]);
     });
 
-    it('gives an indicator one slot per timeseries and keeps the indicator ids apart', () => {
+    it('gives an indicator one slot per timeseries and one for the indicator itself', () => {
       const indicator = all[1];
-      expect(indicator.indicatorPermissions).toEqual(['a-viewer']);
+      expect(indicator.indicatorSlot).toEqual({
+        key: 'indicators:i2',
+        target: { section: 'indicators', id: 'i2' },
+        permissions: ['a-viewer'],
+      });
       expect(indicator.slots).toEqual([
         {
           key: 'indicatorspatialunits:i2:s1',
@@ -172,7 +177,7 @@ describe('dataset-permissions.model', () => {
 
     it('gives an indicator without timeseries a single slot on the indicator itself', () => {
       const indicator = all[0];
-      expect(indicator.indicatorPermissions).toBeUndefined();
+      expect(indicator.indicatorSlot).toBeUndefined();
       expect(indicator.slots).toEqual([
         {
           key: 'indicators:i1',
@@ -280,36 +285,114 @@ describe('dataset-permissions.model', () => {
     });
   });
 
-  describe('targetRights', () => {
-    const [slot] = datasets({ georesources: [georesourceSource('g', OWNER, ['a-viewer'])] })[0]
-      .slots;
+  describe('datasetTargets', () => {
+    const [georesource] = datasets({ georesources: [georesourceSource('g', OWNER, ['a-viewer'])] });
+    const targetOf = (decision?: GroupDecision) =>
+      datasetTargets(a, georesource, decision).get('georesources:g');
 
     it('resolves keep, grant and revoke', () => {
-      expect(targetRights(a, slot)).toEqual({ viewer: true, editor: false });
-      expect(targetRights(a, slot, { viewer: 'keep', editor: 'grant' })).toEqual({
-        viewer: true,
-        editor: true,
-      });
-      expect(targetRights(a, slot, revokeViewer)).toEqual({ viewer: false, editor: false });
+      expect(targetOf()).toEqual({ viewer: true, editor: false });
+      expect(targetOf({ viewer: 'keep', editor: 'grant' })).toEqual({ viewer: true, editor: true });
+      expect(targetOf(revokeViewer)).toEqual({ viewer: false, editor: false });
     });
 
     it('reads custom levels from the draft and falls back to the current rights', () => {
       const custom: GroupDecision = {
         viewer: 'custom',
         editor: 'custom',
-        custom: { [slot.key]: { viewer: false, editor: false } },
+        custom: { 'georesources:g': { viewer: false, editor: false } },
       };
-      expect(targetRights(a, slot, custom)).toEqual({ viewer: false, editor: false });
-      expect(targetRights(a, slot, { ...custom, custom: {} })).toEqual({
-        viewer: true,
-        editor: false,
-      });
+      expect(targetOf(custom)).toEqual({ viewer: false, editor: false });
+      expect(targetOf({ ...custom, custom: {} })).toEqual({ viewer: true, editor: false });
     });
 
     it('never ends with edit but without read', () => {
-      expect(targetRights(a, slot, { viewer: 'revoke', editor: 'grant' })).toEqual({
+      expect(targetOf({ viewer: 'revoke', editor: 'grant' })).toEqual({
         viewer: true,
         editor: true,
+      });
+    });
+
+    describe('indicator with timeseries', () => {
+      /** Target rights as `indicator | s1 | s2`, each `-`, `r` (read) or `e` (edit). */
+      function targets(
+        indicatorIds: string[],
+        timeseries: Record<string, string[]>,
+        decision?: GroupDecision
+      ): string {
+        const [indicator] = datasets({
+          indicators: [indicatorSource('i', OWNER, indicatorIds, timeseries)],
+        });
+        const result = datasetTargets(a, indicator, decision);
+        return ['indicators:i', ...indicator.slots.map((s) => s.key)]
+          .map((key) => result.get(key)!)
+          .map((r) => (r.editor ? 'e' : r.viewer ? 'r' : '-'))
+          .join(' | ');
+      }
+
+      it('changes nothing under keep, however uneven the current rights are', () => {
+        expect(targets(['a-editor'], { s1: ['a-viewer'], s2: [] })).toBe('e | r | -');
+        expect(targets([], { s1: ['a-editor'], s2: [] })).toBe('- | e | -');
+      });
+
+      it('grants edit on the indicator and every timeseries, with read', () => {
+        expect(
+          targets([], { s1: [], s2: ['a-viewer'] }, { viewer: 'grant', editor: 'grant' })
+        ).toBe('e | e | e');
+      });
+
+      it('revokes read and edit everywhere, the indicator itself included', () => {
+        // P2 of the review: the indicator held read and edit, the timeseries only read.
+        expect(targets(['a-viewer', 'a-editor'], { s1: ['a-viewer'] }, revokeViewer)).toBe('- | -');
+        // P3: only the indicator itself was readable.
+        expect(targets(['a-viewer'], { s1: [] }, revokeViewer)).toBe('- | -');
+      });
+
+      it('grants read on the indicator itself even where the timeseries had it already', () => {
+        // P1 of the review.
+        expect(targets([], { s1: ['a-viewer'] }, grantViewer)).toBe('r | r');
+      });
+
+      it('takes away edit only on the indicator when edit alone is revoked', () => {
+        expect(
+          targets(['a-editor'], { s1: ['a-editor'] }, { viewer: 'keep', editor: 'revoke' })
+        ).toBe('r | r');
+      });
+
+      it('lets the indicator itself follow custom read only where read changes', () => {
+        const readOnly = (s1: boolean, s2: boolean): GroupDecision => ({
+          viewer: 'custom',
+          editor: 'keep',
+          custom: {
+            'indicatorspatialunits:i:s1': { viewer: s1, editor: false },
+            'indicatorspatialunits:i:s2': { viewer: s2, editor: false },
+          },
+        });
+        expect(targets([], { s1: [], s2: [] }, readOnly(true, false))).toBe('r | r | -');
+        expect(targets(['a-viewer'], { s1: ['a-viewer'], s2: [] }, readOnly(false, false))).toBe(
+          '- | - | -'
+        );
+        // Nothing changes on the timeseries: the indicator keeps what it has.
+        expect(targets(['a-viewer'], { s1: [], s2: [] }, readOnly(false, false))).toBe('r | - | -');
+      });
+
+      it('makes every timeseries readable where custom edit is newly given, not where it stays', () => {
+        const edit = (value: boolean): GroupDecision => ({
+          viewer: 'keep',
+          editor: 'custom',
+          custom: { 'indicators:i': { viewer: value, editor: value } },
+        });
+        expect(targets([], { s1: [], s2: [] }, edit(true))).toBe('e | e | e');
+        expect(targets(['a-editor'], { s1: ['a-viewer'], s2: [] }, edit(true))).toBe('e | r | -');
+      });
+
+      it('drops edit on a timeseries whose read is taken away', () => {
+        const noReadOnS1: GroupDecision = {
+          viewer: 'custom',
+          editor: 'keep',
+          custom: { 'indicatorspatialunits:i:s1': { viewer: false, editor: false } },
+        };
+        expect(targets([], { s1: ['a-editor'], s2: ['a-viewer'] }, noReadOnS1)).toBe('r | - | r');
       });
     });
   });
@@ -332,6 +415,24 @@ describe('dataset-permissions.model', () => {
         total: 2,
         changed: true,
       });
+    });
+
+    it('counts an indicator as readable only on itself and every timeseries, editable on itself', () => {
+      const selected = datasets({
+        indicators: [
+          indicatorSource('i1', OWNER, [], { s1: ['a-viewer'] }),
+          indicatorSource('i2', OWNER, ['a-editor'], { s1: ['a-viewer'], s2: [] }),
+          indicatorSource('i3', OWNER, ['a-viewer'], { s1: ['a-viewer'] }),
+        ],
+      });
+      // P1 of the review: i1 only reads its timeseries, so it does not count as readable.
+      expect(coverage(a, selected, undefined, 'viewer')).toMatchObject({ before: 1, after: 1 });
+      expect(coverage(a, selected, grantViewer, 'viewer')).toMatchObject({
+        before: 1,
+        after: 3,
+        changed: true,
+      });
+      expect(coverage(a, selected, undefined, 'editor')).toMatchObject({ before: 1, after: 1 });
     });
 
     it('reports a change even when the count stays the same', () => {
@@ -377,14 +478,16 @@ describe('dataset-permissions.model', () => {
     const slots = selected.flatMap((d) => d.slots);
 
     it('opens with the current target rights of each slot', () => {
-      expect(initialDraft(a, slots, grantViewer)).toEqual({
+      expect(initialDraft(a, selected, grantViewer)).toEqual({
         'georesources:g1': { viewer: true, editor: false },
         'georesources:g2': { viewer: true, editor: false },
       });
     });
 
     it('turns a draft equal to the current rights into keep', () => {
-      expect(actionsFromDraft(a, slots, initialDraft(a, slots, undefined))).toEqual(KEEP_DECISION);
+      expect(actionsFromDraft(a, selected, initialDraft(a, selected, undefined))).toEqual(
+        KEEP_DECISION
+      );
     });
 
     it('turns a uniform draft into grant or revoke, without a custom draft', () => {
@@ -392,14 +495,17 @@ describe('dataset-permissions.model', () => {
         'georesources:g1': { viewer: true, editor: true },
         'georesources:g2': { viewer: true, editor: true },
       };
-      expect(actionsFromDraft(a, slots, allOn)).toEqual({ viewer: 'grant', editor: 'grant' });
+      expect(actionsFromDraft(a, selected, allOn)).toEqual({ viewer: 'grant', editor: 'grant' });
       const allOff = {
         'georesources:g1': { viewer: false, editor: false },
         'georesources:g2': { viewer: false, editor: false },
       };
       // Edit was off everywhere already, but revoking read revokes edit, too:
       // that way the decision also withdraws edit on datasets selected later.
-      expect(actionsFromDraft(a, slots, allOff)).toEqual({ viewer: 'revoke', editor: 'revoke' });
+      expect(actionsFromDraft(a, selected, allOff)).toEqual({
+        viewer: 'revoke',
+        editor: 'revoke',
+      });
     });
 
     it('turns a mixed draft into custom and keeps the draft', () => {
@@ -407,24 +513,24 @@ describe('dataset-permissions.model', () => {
         'georesources:g1': { viewer: false, editor: false },
         'georesources:g2': { viewer: true, editor: false },
       };
-      expect(actionsFromDraft(a, slots, mixed)).toEqual({
+      expect(actionsFromDraft(a, selected, mixed)).toEqual({
         viewer: 'custom',
         editor: 'keep',
         custom: mixed,
       });
     });
 
-    it('counts the (slot, level) pairs that differ from the current rights', () => {
+    it('counts the checkboxes that differ from the current rights', () => {
       const draft = {
         'georesources:g1': { viewer: true, editor: true },
         'georesources:g2': { viewer: true, editor: true },
       };
-      expect(countDeviations(a, slots, draft)).toBe(3);
+      expect(countDeviations(a, selected, draft)).toBe(3);
     });
 
     it('resets to the current rights, reading an editor id as read access', () => {
       const [g3] = datasets({ georesources: [georesourceSource('g3', OWNER, ['a-editor'])] });
-      expect(currentDraft(a, [...g3.slots, ...slots])).toEqual({
+      expect(currentDraft(a, [g3, ...selected])).toEqual({
         'georesources:g3': { viewer: true, editor: true },
         'georesources:g1': { viewer: true, editor: false },
         'georesources:g2': { viewer: false, editor: false },
@@ -433,11 +539,11 @@ describe('dataset-permissions.model', () => {
 
     it('sets a level on the given slots only, coupled like a single checkbox', () => {
       const [g1, g2] = slots;
-      const edit = setDraftLevel(a, [g2], {}, 'editor', true);
+      const edit = setDraftLevel(a, selected, [g2], {}, 'editor', true);
       expect(edit).toEqual({ 'georesources:g2': { viewer: true, editor: true } });
 
       // A slot missing from the draft starts from its current rights.
-      const noRead = setDraftLevel(a, [g1, g2], edit, 'viewer', false);
+      const noRead = setDraftLevel(a, selected, [g1, g2], edit, 'viewer', false);
       expect(noRead).toEqual({
         'georesources:g1': { viewer: false, editor: false },
         'georesources:g2': { viewer: false, editor: false },
@@ -445,17 +551,17 @@ describe('dataset-permissions.model', () => {
     });
 
     it('tells the state of a collective checkbox over the draft', () => {
-      const draft = currentDraft(a, slots);
+      const draft = currentDraft(a, selected);
       expect(draftState(a, slots, draft, 'viewer')).toBe('some');
       expect(draftState(a, slots, draft, 'editor')).toBe('none');
-      expect(draftState(a, slots, setDraftLevel(a, slots, draft, 'editor', true), 'viewer')).toBe(
-        'all'
-      );
+      expect(
+        draftState(a, slots, setDraftLevel(a, selected, slots, draft, 'editor', true), 'viewer')
+      ).toBe('all');
     });
 
     it('marks a level that differs from the current rights on any slot', () => {
       const [g1, g2] = slots;
-      const draft = setDraftLevel(a, [g2], currentDraft(a, slots), 'viewer', true);
+      const draft = setDraftLevel(a, selected, [g2], currentDraft(a, selected), 'viewer', true);
       expect(draftDeviates(a, slots, draft, 'viewer')).toBe(true);
       expect(draftDeviates(a, [g1], draft, 'viewer')).toBe(false);
       expect(draftDeviates(a, slots, draft, 'editor')).toBe(false);
@@ -466,6 +572,46 @@ describe('dataset-permissions.model', () => {
       });
       const same = { 'georesources:g3': { viewer: true, editor: true } };
       expect(draftDeviates(a, onlyEditor.slots, same, 'viewer')).toBe(false);
+    });
+
+    describe('on an indicator with timeseries', () => {
+      const [indicator] = datasets({
+        indicators: [indicatorSource('i', OWNER, [], { s1: ['a-viewer'], s2: [] })],
+      });
+      const [s1, s2] = indicator.slots;
+      const self = indicator.indicatorSlot!;
+
+      it('offers read per timeseries and edit on the indicator itself', () => {
+        expect(levelSlots(indicator, 'viewer')).toEqual([s1, s2]);
+        expect(levelSlots(indicator, 'editor')).toEqual([self]);
+      });
+
+      it('makes every timeseries readable along with edit on the indicator', () => {
+        const draft = setDraftLevel(a, [indicator], [self], {}, 'editor', true);
+        expect(draftState(a, [s1, s2], draft, 'viewer')).toBe('all');
+        expect(draftState(a, [self], draft, 'editor')).toBe('all');
+        expect(countDeviations(a, [indicator], draft)).toBe(2);
+      });
+
+      it('takes edit on the indicator away along with read on one timeseries', () => {
+        const edit = setDraftLevel(a, [indicator], [self], {}, 'editor', true);
+        const noRead = setDraftLevel(a, [indicator], [s2], edit, 'viewer', false);
+        expect(draftState(a, [self], noRead, 'editor')).toBe('none');
+        expect(draftState(a, [s1], noRead, 'viewer')).toBe('all');
+      });
+
+      it('turns the checkboxes into dropdown values', () => {
+        const edit = setDraftLevel(a, [indicator], [self], {}, 'editor', true);
+        expect(actionsFromDraft(a, [indicator], edit)).toEqual({
+          viewer: 'grant',
+          editor: 'grant',
+        });
+        const readS2 = setDraftLevel(a, [indicator], [s2], {}, 'viewer', true);
+        expect(actionsFromDraft(a, [indicator], readS2)).toEqual({
+          viewer: 'grant',
+          editor: 'keep',
+        });
+      });
     });
   });
 
@@ -546,6 +692,27 @@ describe('dataset-permissions.model', () => {
       });
       expect(datasetKey(indicator)).toBe('indicator:x');
       expect(datasetKey(georesource)).toBe('georesource:x');
+    });
+  });
+
+  describe('the cases of the review (appendix A) in summary and count', () => {
+    const indicator = (ids: string[], s1: string[]) =>
+      datasets({ indicators: [indicatorSource('i', OWNER, ids, { s1 })] });
+    const lines = (selected: PermissionDataset[], decision: GroupDecision) =>
+      summarize([a], selected, { a: decision }).map((l) => `${l.level}:${l.change}:${l.count}`);
+
+    it('P2: reports read and edit lost, as the indicator loses both', () => {
+      const selected = indicator(['a-viewer', 'a-editor'], ['a-viewer']);
+      expect(lines(selected, revokeViewer)).toEqual(['viewer:remove:1', 'editor:remove:1']);
+      expect(changedDatasetCount([a], selected, { a: revokeViewer })).toBe(1);
+    });
+
+    it('P3: reports read lost although no timeseries had it', () => {
+      expect(lines(indicator(['a-viewer'], []), revokeViewer)).toEqual(['viewer:remove:1']);
+    });
+
+    it('P1: reports read gained on the indicator itself', () => {
+      expect(lines(indicator([], ['a-viewer']), grantViewer)).toEqual(['viewer:add:1']);
     });
   });
 
@@ -690,20 +857,47 @@ describe('dataset-permissions.model', () => {
         });
       });
 
-      it('derives only the levels that change on a timeseries', () => {
-        // The indicator grants edit, its timeseries only read. Withdrawing read on
-        // the timeseries changes no edit right there, so the indicator keeps edit
-        // — and with it read — and is not listed.
+      it('revokes read and edit on the indicator itself, too (P2 of the review)', () => {
+        // Before: the timeseries lost read, the indicator kept read and edit.
         expect(patchFor(['a-viewer', 'a-editor'], { s1: ['a-viewer'] }, revokeViewer)).toEqual({
+          indicators: [{ id: 'i', permissions: [] }],
           indicatorspatialunits: [{ id: 'i', spatialUnitId: 's1', permissions: [] }],
         });
       });
 
-      it('does not touch the indicator when no timeseries changes', () => {
-        const selected = datasets({
-          indicators: [indicatorSource('i', OWNER, [], { s1: ['a-viewer'] })],
+      it('revokes read that only the indicator itself has (P3 of the review)', () => {
+        expect(patchFor(['a-viewer'], { s1: [] }, revokeViewer)).toEqual({
+          indicators: [{ id: 'i', permissions: [] }],
         });
-        expect(buildPermissionsPatch([a], selected, { a: grantViewer })).toEqual([]);
+      });
+
+      it('grants read on the indicator itself where the timeseries had it already (P1)', () => {
+        expect(patchFor([], { s1: ['a-viewer'] }, grantViewer)).toEqual({
+          indicators: [{ id: 'i', permissions: ['a-viewer'] }],
+        });
+      });
+
+      it('grants edit on the indicator and on every timeseries', () => {
+        expect(
+          patchFor(
+            ['a-creator'],
+            { s1: [], s2: ['a-viewer'] },
+            { viewer: 'grant', editor: 'grant' }
+          )
+        ).toEqual({
+          indicators: [{ id: 'i', permissions: ['a-creator', 'a-viewer', 'a-editor'] }],
+          indicatorspatialunits: [
+            { id: 'i', spatialUnitId: 's1', permissions: ['a-viewer', 'a-editor'] },
+            { id: 'i', spatialUnitId: 's2', permissions: ['a-viewer', 'a-editor'] },
+          ],
+        });
+      });
+
+      it('sends nothing for uneven current rights under keep', () => {
+        const selected = datasets({
+          indicators: [indicatorSource('i', OWNER, ['a-editor'], { s1: [], s2: ['a-editor'] })],
+        });
+        expect(buildPermissionsPatch([a], selected, { a: KEEP_DECISION })).toEqual([]);
       });
     });
   });

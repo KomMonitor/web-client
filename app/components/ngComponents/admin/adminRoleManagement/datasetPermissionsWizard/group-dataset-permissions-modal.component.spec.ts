@@ -29,7 +29,6 @@ const DATASETS: PermissionDataset[] = datasetsOfOwner(
     georesources: [georesourceSource('g1', OWNER, [], 'Schulen')],
   })
 );
-const SLOTS = DATASETS.flatMap((dataset) => dataset.slots);
 
 describe('GroupDatasetPermissionsModalComponent', () => {
   let fixture: ComponentFixture<GroupDatasetPermissionsModalComponent>;
@@ -61,7 +60,7 @@ describe('GroupDatasetPermissionsModalComponent', () => {
     Object.assign(fixture.componentInstance, {
       group: a,
       datasets: DATASETS,
-      initialDraft: initialDraft(a, SLOTS, decision),
+      initialDraft: initialDraft(a, DATASETS, decision),
     });
     fixture.detectChanges();
   }
@@ -113,8 +112,8 @@ describe('GroupDatasetPermissionsModalComponent', () => {
 
     expect(states(kindRow('indicator'))).toEqual(['all', 'all']);
     expect(dots(kindRow('indicator'))).toEqual([true, true]);
-    // s1: edit; s2: read and edit; i0 had both already.
-    expect(text(deviationCount())).toBe('3 Abweichungen');
+    // i1: edit on the indicator and, along with it, read on s2; i0 had both already.
+    expect(text(deviationCount())).toBe('2 Abweichungen');
 
     click(boxes(kindRow('indicator'))[1]);
     expect(states(kindRow('indicator'))).toEqual(['all', 'none']);
@@ -133,11 +132,34 @@ describe('GroupDatasetPermissionsModalComponent', () => {
     expect(text(s2.querySelector('th'))).toBe('level s2');
     expect(boxes(s2)[0].getAttribute('aria-label')).toBe('Lesen: Arbeitslose – level s2');
 
+    // Edit holds for the whole indicator: a spatial unit row offers read only.
+    expect(boxes(s2)).toHaveLength(1);
+    expect(s2.querySelector('.whole-indicator')).not.toBeNull();
+
     click(boxes(s2)[0]);
-    expect(states(s2)).toEqual(['all', 'none']);
+    expect(states(s2)).toEqual(['all']);
+    // The edit column only holds the placeholder, which never lights up.
     expect(dots(s2)).toEqual([true, false]);
     expect(states(row('[data-dataset="indicator:i1"]'))).toEqual(['all', 'none']);
     expect(text(deviationCount())).toBe('1 Abweichung');
+  });
+
+  it('edits an indicator as a whole, with read on every spatial unit', () => {
+    setUp();
+    click(kindRow('indicator').querySelector('.row-toggle')!);
+    const indicator = row('[data-dataset="indicator:i1"]');
+    click(indicator.querySelector('.row-toggle')!);
+    const s1 = row('[data-slot="indicatorspatialunits:i1:s1"]');
+    const s2 = row('[data-slot="indicatorspatialunits:i1:s2"]');
+
+    click(boxes(indicator)[1]);
+    expect(states(indicator)).toEqual(['all', 'all']);
+    expect([states(s1), states(s2)]).toEqual([['all'], ['all']]);
+
+    // Read off on one spatial unit takes edit on the indicator away.
+    click(boxes(s1)[0]);
+    expect(states(indicator)).toEqual(['some', 'none']);
+    expect(states(s2)).toEqual(['all']);
   });
 
   it('opens with the decision of the group table and resets to the current rights', () => {
@@ -151,6 +173,7 @@ describe('GroupDatasetPermissionsModalComponent', () => {
 
     click(host().querySelector('.modal-footer .apply')!);
     expect(lastDraft()).toEqual({
+      'indicators:i1': { viewer: false, editor: false },
       'indicatorspatialunits:i1:s1': { viewer: true, editor: false },
       'indicatorspatialunits:i1:s2': { viewer: false, editor: false },
       'indicators:i0': { viewer: true, editor: true },

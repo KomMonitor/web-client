@@ -87,6 +87,18 @@
   color: var(--bs-secondary-color);
 }
 
+// Edit on a timeseries row: set for the whole indicator in the row above.
+.whole-indicator {
+  color: var(--bs-secondary-color);
+}
+
+// As wide as a checkbox (Bootstrap's `.form-check-input` is 1em square).
+.whole-indicator-mark {
+  display: inline-block;
+  width: 1em;
+  text-align: center;
+}
+
 .matrix-cell {
   display: flex;
   align-items: center;

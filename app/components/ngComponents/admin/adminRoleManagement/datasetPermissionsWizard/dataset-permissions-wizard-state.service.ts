@@ -159,9 +159,6 @@ export class DatasetPermissionsWizardStateService {
     return this.datasets().filter((dataset) => !deselected.has(datasetKey(dataset)));
   });
 
-  /** The slots of the selected datasets — what the per-dataset dialog edits. */
-  readonly selectedSlots = computed(() => this.selectedDatasets().flatMap((d) => d.slots));
-
   readonly selectionCount = computed(() => ({
     selected: this.selectedDatasets().length,
     total: this.datasets().length,
@@ -277,7 +274,7 @@ export class DatasetPermissionsWizardStateService {
   /** The values the per-dataset dialog of a group opens with. */
   draftFor(groupId: string): RightsDraft {
     const group = this.groupsById().get(groupId);
-    return group ? initialDraft(group, this.selectedSlots(), this._decisions()[groupId]) : {};
+    return group ? initialDraft(group, this.selectedDatasets(), this._decisions()[groupId]) : {};
   }
 
   /** Takes over what the per-dataset dialog hands back, turned into the dropdown values. */
@@ -286,7 +283,7 @@ export class DatasetPermissionsWizardStateService {
     if (!group) {
       return;
     }
-    const decision = actionsFromDraft(group, this.selectedSlots(), draft);
+    const decision = actionsFromDraft(group, this.selectedDatasets(), draft);
     this._decisions.update((decisions) => ({ ...decisions, [groupId]: decision }));
   }
 

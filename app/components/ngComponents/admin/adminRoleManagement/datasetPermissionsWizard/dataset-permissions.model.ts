@@ -20,9 +20,16 @@ import { ownersOfMandant } from 'components/ngComponents/admin/adminShared/roleM
  * Vocabulary:
  * - A **group** is an organizational unit that receives rights.
  * - A **slot** is one thing permissions are stored on: a georesource, a spatial
- *   unit, one timeseries of an indicator (indicator × spatial unit), or — for
- *   an indicator without any timeseries — the indicator itself.
+ *   unit, an indicator itself, or one timeseries of an indicator
+ *   (indicator × spatial unit).
  * - A **dataset** is what the user selects; it carries one or more slots.
+ *
+ * Indicators with timeseries follow what the backend enforces: reading the
+ * indicator itself decides whether it is listed at all, reading a timeseries
+ * whether its values can be fetched, and editing the indicator itself allows
+ * writing its metadata and the values of every timeseries. So read access is
+ * set per timeseries, and edit access only for the whole indicator — on the
+ * indicator and all its timeseries, where edit only allows deleting them.
  *
  * Nothing in here touches Angular, HTTP or the stores.
  */
@@ -81,14 +88,14 @@ export interface PermissionDataset {
   kind: DatasetKind;
   id: string;
   name: string;
-  /** Never empty. */
+  /** Never empty. For an indicator with timeseries, the timeseries. */
   slots: readonly PermissionSlot[];
   /**
-   * Current permission ids on the indicator itself — set only for an indicator
-   * with timeseries, whose slots are the timeseries. Its rights are derived
-   * from them (see `buildPermissionsPatch`).
+   * The indicator itself — set only for an indicator with timeseries, next to
+   * them in `slots`. It carries the edit right of the whole indicator; its
+   * read right follows the timeseries (see `datasetTargets`).
    */
-  indicatorPermissions?: readonly string[];
+  indicatorSlot?: PermissionSlot;
 }
 
 export interface GroupDecision {
@@ -272,7 +279,7 @@ function indicatorDataset(indicator: OwnerDatasetSources['indicators'][number]):
     kind: 'indicator',
     id,
     name: indicator.indicatorName,
-    indicatorPermissions: [...(indicator.permissions ?? [])],
+    indicatorSlot: makeSlot({ section: 'indicators', id }, indicator.permissions),
     slots: units.map((unit) =>
       makeSlot(
         { section: 'indicatorspatialunits', id, spatialUnitId: unit.spatialUnitId },
@@ -298,7 +305,26 @@ function makeSlot(
 
 /** Number of timeseries (spatial units) of an indicator; zero for every other dataset. */
 export function timeseriesCount(dataset: PermissionDataset): number {
-  return dataset.indicatorPermissions ? dataset.slots.length : 0;
+  return dataset.indicatorSlot ? dataset.slots.length : 0;
+}
+
+/** Every slot of the dataset that permissions are written to, the indicator itself first. */
+export function allSlots(dataset: PermissionDataset): readonly PermissionSlot[] {
+  return dataset.indicatorSlot ? [dataset.indicatorSlot, ...dataset.slots] : dataset.slots;
+}
+
+/**
+ * The slots on which the user sets a level — the checkboxes of the
+ * per-dataset dialog: read per timeseries, edit on the indicator itself.
+ */
+export function levelSlots(
+  dataset: PermissionDataset,
+  level: RightLevel
+): readonly PermissionSlot[] {
+  if (!dataset.indicatorSlot) {
+    return dataset.slots;
+  }
+  return level === 'editor' ? [dataset.indicatorSlot] : dataset.slots;
 }
 
 /** Stable key of a dataset, unique across the three kinds; used for the selection. */
@@ -384,27 +410,115 @@ export function coupleRights(rights: Rights, level: RightLevel, value: boolean):
   return next;
 }
 
-/** The rights a group ends up with on a slot when the decision is applied. */
-export function targetRights(
+/**
+ * The rights a group ends up with on every slot of the dataset when the
+ * decision is applied, keyed by slot key. Everything shown and sent derives
+ * from this, so display and PATCH cannot drift apart.
+ *
+ * An indicator with timeseries:
+ * - Edit is one value for the whole indicator: the decision, or under
+ *   `custom` the dialog's value on the indicator itself.
+ * - Read is per timeseries. Where edit is newly given — or granted
+ *   explicitly — every timeseries becomes readable, too: writing values one
+ *   cannot read makes no sense.
+ * - Edit on a timeseries follows the indicator once edit is decided for it.
+ *   Otherwise it stays, except where read is taken away.
+ * - The indicator itself is readable when read is granted, not when it is
+ *   revoked; else as soon as any timeseries is readable, if read changes on
+ *   any of them, and as it is when not. Edit implies it.
+ */
+export function datasetTargets(
   group: GroupPermissionIds,
-  slot: PermissionSlot,
+  dataset: PermissionDataset,
   decision: GroupDecision = KEEP_DECISION
-): Rights {
-  const current = currentRights(group, slot.permissions);
-  const resolve = (level: RightLevel): boolean => {
-    switch (decision[level]) {
-      case 'grant':
-        return true;
-      case 'revoke':
-        return false;
-      case 'custom':
-        return decision.custom?.[slot.key]?.[level] ?? current[level];
-      default:
-        return current[level];
-    }
-  };
-  const editor = resolve('editor');
-  return { viewer: editor || resolve('viewer'), editor };
+): ReadonlyMap<string, Rights> {
+  const indicator = dataset.indicatorSlot;
+  if (!indicator) {
+    return new Map(
+      dataset.slots.map((s) => {
+        const current = currentRights(group, s.permissions);
+        const custom = decision.custom?.[s.key];
+        const editor = resolveAction(decision.editor, current.editor, custom?.editor);
+        return [
+          s.key,
+          {
+            viewer: editor || resolveAction(decision.viewer, current.viewer, custom?.viewer),
+            editor,
+          },
+        ];
+      })
+    );
+  }
+  const currentIndicator = currentRights(group, indicator.permissions);
+  const edit = resolveAction(
+    decision.editor,
+    currentIndicator.editor,
+    decision.custom?.[indicator.key]?.editor
+  );
+  const editDecided =
+    decision.editor === 'grant' || decision.editor === 'revoke' || edit !== currentIndicator.editor;
+  const targets = new Map<string, Rights>();
+  let readChanged = false;
+  let anyRead = false;
+  for (const s of dataset.slots) {
+    const current = currentRights(group, s.permissions);
+    const read =
+      (editDecided && edit) ||
+      resolveAction(decision.viewer, current.viewer, decision.custom?.[s.key]?.viewer);
+    const editor = editDecided ? edit : current.editor && read;
+    targets.set(s.key, { viewer: read || editor, editor });
+    readChanged ||= read !== current.viewer;
+    anyRead ||= read;
+  }
+  let indicatorRead: boolean;
+  if (decision.viewer === 'grant') {
+    indicatorRead = true;
+  } else if (decision.viewer === 'revoke') {
+    indicatorRead = false;
+  } else {
+    indicatorRead = readChanged ? anyRead : currentIndicator.viewer;
+  }
+  targets.set(indicator.key, { viewer: edit || indicatorRead, editor: edit });
+  return targets;
+}
+
+function resolveAction(
+  action: RightAction,
+  current: boolean,
+  custom: boolean | undefined
+): boolean {
+  switch (action) {
+    case 'grant':
+      return true;
+    case 'revoke':
+      return false;
+    case 'custom':
+      return custom ?? current;
+    default:
+      return current;
+  }
+}
+
+function currentTargets(
+  group: GroupPermissionIds,
+  dataset: PermissionDataset
+): ReadonlyMap<string, Rights> {
+  return new Map(allSlots(dataset).map((s) => [s.key, currentRights(group, s.permissions)]));
+}
+
+/**
+ * Whether the group has the level on the dataset: on every slot, but for an
+ * indicator with timeseries edit only on the indicator itself — the only edit
+ * that the backend checks for writing.
+ */
+function hasLevel(
+  dataset: PermissionDataset,
+  rights: ReadonlyMap<string, Rights>,
+  level: RightLevel
+): boolean {
+  const slots =
+    level === 'editor' && dataset.indicatorSlot ? [dataset.indicatorSlot] : allSlots(dataset);
+  return slots.every((s) => rights.get(s.key)![level]);
 }
 
 function sameRights(a: Rights, b: Rights): boolean {
@@ -417,7 +531,8 @@ function sameRights(a: Rights, b: Rights): boolean {
 
 /**
  * How many selected datasets the group has a right on, now and after the
- * decision. A dataset counts only when every one of its slots has the right.
+ * decision (see `hasLevel`): an indicator counts as readable only when it is
+ * readable itself and on every timeseries.
  */
 export function coverage(
   group: GroupPermissionIds,
@@ -429,17 +544,13 @@ export function coverage(
   let after = 0;
   let changed = false;
   for (const dataset of datasets) {
-    const current = dataset.slots.map((s) => currentRights(group, s.permissions)[level]);
-    const target = dataset.slots.map((s) => targetRights(group, s, decision)[level]);
-    if (current.every(Boolean)) {
-      before++;
-    }
-    if (target.every(Boolean)) {
-      after++;
-    }
-    if (current.some((value, index) => value !== target[index])) {
-      changed = true;
-    }
+    const current = currentTargets(group, dataset);
+    const target = datasetTargets(group, dataset, decision);
+    before += hasLevel(dataset, current, level) ? 1 : 0;
+    after += hasLevel(dataset, target, level) ? 1 : 0;
+    changed ||= allSlots(dataset).some(
+      (s) => current.get(s.key)![level] !== target.get(s.key)![level]
+    );
   }
   return { before, after, total: datasets.length, changed };
 }
@@ -455,16 +566,27 @@ export function triState(count: number, total: number): TriState {
 /** The values the per-dataset dialog of one group opens with: the current target rights. */
 export function initialDraft(
   group: GroupPermissionIds,
-  slots: readonly PermissionSlot[],
+  datasets: readonly PermissionDataset[],
   decision: GroupDecision | undefined
 ): RightsDraft {
-  return Object.fromEntries(slots.map((s) => [s.key, targetRights(group, s, decision)]));
+  return Object.fromEntries(
+    datasets.flatMap((dataset) => [...datasetTargets(group, dataset, decision)])
+  );
+}
+
+/** The dialog's checkboxes of one level over the datasets (see `levelSlots`). */
+function levelCells(
+  datasets: readonly PermissionDataset[],
+  level: RightLevel
+): readonly PermissionSlot[] {
+  return datasets.flatMap((dataset) => levelSlots(dataset, level));
 }
 
 /**
  * The decision the per-dataset dialog hands back to the group table, per
- * level: nothing differs from now → keep; set everywhere → grant; cleared
- * everywhere → revoke; anything else → custom, which then reads the draft.
+ * level over the dialog's checkboxes: nothing differs from now → keep; set
+ * everywhere → grant; cleared everywhere → revoke; anything else → custom,
+ * which then reads the draft.
  *
  * Then coupled like the dropdowns: read cleared everywhere also revokes edit,
  * even where edit was off already and would come out as keep. For the slots
@@ -473,12 +595,13 @@ export function initialDraft(
  */
 export function actionsFromDraft(
   group: GroupPermissionIds,
-  slots: readonly PermissionSlot[],
+  datasets: readonly PermissionDataset[],
   draft: RightsDraft
 ): GroupDecision {
   const actionFor = (level: RightLevel): RightAction => {
-    const values = slots.map((s) => draftValue(group, s, draft)[level]);
-    if (slots.every((s, i) => values[i] === currentRights(group, s.permissions)[level])) {
+    const cells = levelCells(datasets, level);
+    const values = cells.map((s) => draftValue(group, s, draft)[level]);
+    if (cells.every((s, i) => values[i] === currentRights(group, s.permissions)[level])) {
       return 'keep';
     }
     if (values.every(Boolean)) {
@@ -495,18 +618,16 @@ export function actionsFromDraft(
     : { viewer, editor };
 }
 
-/** Number of (slot, level) pairs in the draft that differ from the current rights. */
+/** Number of checkboxes in the draft that differ from the current rights. */
 export function countDeviations(
   group: GroupPermissionIds,
-  slots: readonly PermissionSlot[],
+  datasets: readonly PermissionDataset[],
   draft: RightsDraft
 ): number {
   let deviations = 0;
-  for (const s of slots) {
-    const current = currentRights(group, s.permissions);
-    const value = draftValue(group, s, draft);
-    for (const level of RIGHT_LEVELS) {
-      if (value[level] !== current[level]) {
+  for (const level of RIGHT_LEVELS) {
+    for (const s of levelCells(datasets, level)) {
+      if (draftValue(group, s, draft)[level] !== currentRights(group, s.permissions)[level]) {
         deviations++;
       }
     }
@@ -521,25 +642,54 @@ function draftValue(group: GroupPermissionIds, s: PermissionSlot, draft: RightsD
 /** The current rights as a draft — what "reset to current" in the per-dataset dialog restores. */
 export function currentDraft(
   group: GroupPermissionIds,
-  slots: readonly PermissionSlot[]
+  datasets: readonly PermissionDataset[]
 ): RightsDraft {
-  return initialDraft(group, slots, undefined);
+  return initialDraft(group, datasets, undefined);
 }
 
 /**
- * Sets one level on all given slots, coupled like a single checkbox: edit on
- * sets read, read off clears edit. Slots not given stay as they are.
+ * Sets one level on the given checkboxes (see `levelSlots`), coupled so that
+ * edit includes read: edit on sets read, read off clears edit. On an
+ * indicator with timeseries the two sit on different slots — edit on the
+ * indicator sets read on all its timeseries, read off on a timeseries clears
+ * edit on the indicator. Slots not given stay as they are.
  */
 export function setDraftLevel(
   group: GroupPermissionIds,
+  datasets: readonly PermissionDataset[],
   slots: readonly PermissionSlot[],
   draft: RightsDraft,
   level: RightLevel,
   value: boolean
 ): RightsDraft {
+  const timeseriesOf = new Map<string, readonly PermissionSlot[]>();
+  const indicatorOf = new Map<string, PermissionSlot>();
+  for (const dataset of datasets) {
+    if (dataset.indicatorSlot) {
+      timeseriesOf.set(dataset.indicatorSlot.key, dataset.slots);
+      dataset.slots.forEach((s) => indicatorOf.set(s.key, dataset.indicatorSlot!));
+    }
+  }
   const next: Record<string, Rights> = { ...draft };
+  const set = (s: PermissionSlot, changed: Partial<Rights>) => {
+    next[s.key] = { ...draftValue(group, s, next), ...changed };
+  };
   for (const s of slots) {
-    next[s.key] = coupleRights(draftValue(group, s, draft), level, value);
+    const timeseries = timeseriesOf.get(s.key);
+    const indicator = indicatorOf.get(s.key);
+    if (timeseries) {
+      set(s, { editor: value });
+      if (value) {
+        timeseries.forEach((t) => set(t, { viewer: true }));
+      }
+    } else if (indicator) {
+      set(s, { viewer: value });
+      if (!value) {
+        set(indicator, { editor: false });
+      }
+    } else {
+      next[s.key] = coupleRights(draftValue(group, s, next), level, value);
+    }
   }
   return next;
 }
@@ -586,20 +736,22 @@ export function summarize(
     if (!decision) {
       continue;
     }
+    const changes = datasets.map((dataset) => ({
+      dataset,
+      current: currentTargets(group, dataset),
+      target: datasetTargets(group, dataset, decision),
+    }));
     for (const level of RIGHT_LEVELS) {
       let added = 0;
       let removed = 0;
-      for (const dataset of datasets) {
-        let gains = false;
-        let loses = false;
-        for (const s of dataset.slots) {
-          const current = currentRights(group, s.permissions)[level];
-          const target = targetRights(group, s, decision)[level];
-          gains ||= target && !current;
-          loses ||= !target && current;
-        }
-        added += gains ? 1 : 0;
-        removed += loses ? 1 : 0;
+      for (const { dataset, current, target } of changes) {
+        const slots = allSlots(dataset);
+        added += slots.some((s) => target.get(s.key)![level] && !current.get(s.key)![level])
+          ? 1
+          : 0;
+        removed += slots.some((s) => !target.get(s.key)![level] && current.get(s.key)![level])
+          ? 1
+          : 0;
       }
       const base = {
         organizationalUnitId: group.organizationalUnitId,
@@ -621,8 +773,7 @@ export function summarize(
 /**
  * On how many datasets any right of any group changes — the review step's
  * "affects n datasets". A dataset counts once however many groups, levels and
- * slots change on it; the indicator itself never changes on its own, so its
- * timeseries decide.
+ * slots change on it.
  */
 export function changedDatasetCount(
   groups: readonly GroupPermissionIds[],
@@ -631,29 +782,29 @@ export function changedDatasetCount(
 ): number {
   const deciding = groups.filter((g) => decisions[g.organizationalUnitId]);
   return datasets.filter((dataset) =>
-    deciding.some((group) =>
-      dataset.slots.some(
-        (s) =>
-          !sameRights(
-            currentRights(group, s.permissions),
-            targetRights(group, s, decisions[group.organizationalUnitId])
-          )
-      )
+    deciding.some(
+      (group) => changedSlots(group, dataset, decisions[group.organizationalUnitId]).length > 0
     )
   ).length;
 }
 
+/** The slots of the dataset whose rights change, with their target rights. */
+function changedSlots(
+  group: GroupPermissionIds,
+  dataset: PermissionDataset,
+  decision: GroupDecision
+): { slot: PermissionSlot; target: Rights }[] {
+  const target = datasetTargets(group, dataset, decision);
+  return allSlots(dataset)
+    .filter((s) => !sameRights(currentRights(group, s.permissions), target.get(s.key)!))
+    .map((s) => ({ slot: s, target: target.get(s.key)! }));
+}
+
 /**
- * The PATCH body. Only slots whose rights change are listed. Each lists the
- * group's complete wanted ids there: the group's other ids on the slot
- * (creator and the like) plus the target viewer/editor ids.
- *
- * The indicator itself is derived from its timeseries, per level and only
- * for a level that changes on at least one of them: it then has the right if
- * any timeseries has it afterwards. A level no timeseries changes keeps the
- * indicator's current value, so withdrawing read access on a timeseries never
- * withdraws edit access on the indicator as a side effect. The indicator is
- * listed only if its derived rights differ from its current ones.
+ * The PATCH body. Only slots whose rights change are listed (see
+ * `datasetTargets`). Each lists the group's complete wanted ids there: the
+ * group's other ids on the slot (creator and the like) plus the target
+ * viewer/editor ids.
  */
 export function buildPermissionsPatch(
   groups: readonly GroupPermissionIds[],
@@ -668,33 +819,8 @@ export function buildPermissionsPatch(
     }
     const sections: OrganizationalUnitPermissionInputType['permissions'] = {};
     for (const dataset of datasets) {
-      const changedLevels = new Set<RightLevel>();
-      const targets: Rights[] = [];
-      for (const s of dataset.slots) {
-        const current = currentRights(group, s.permissions);
-        const target = targetRights(group, s, decision);
-        targets.push(target);
-        if (sameRights(current, target)) {
-          continue;
-        }
-        RIGHT_LEVELS.filter((level) => current[level] !== target[level]).forEach((level) =>
-          changedLevels.add(level)
-        );
-        addElement(sections, s.target, wantedIds(group, s.permissions, target));
-      }
-      if (dataset.indicatorPermissions && changedLevels.size > 0) {
-        const current = currentRights(group, dataset.indicatorPermissions);
-        const derive = (level: RightLevel): boolean =>
-          changedLevels.has(level) ? targets.some((t) => t[level]) : current[level];
-        const editor = derive('editor');
-        const derived: Rights = { viewer: editor || derive('viewer'), editor };
-        if (!sameRights(current, derived)) {
-          addElement(
-            sections,
-            { section: 'indicators', id: dataset.id },
-            wantedIds(group, dataset.indicatorPermissions, derived)
-          );
-        }
+      for (const { slot, target } of changedSlots(group, dataset, decision)) {
+        addElement(sections, slot.target, wantedIds(group, slot.permissions, target));
       }
     }
     if (Object.keys(sections).length > 0) {

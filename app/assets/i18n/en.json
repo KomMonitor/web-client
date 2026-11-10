@@ -1034,7 +1034,7 @@
       },
       "DATASET_PERMISSIONS": {
         "TITLE": "How can rights on many datasets be granted at once?",
-        "CONTENT": "Global administrators can grant read and edit rights on the datasets of an organizational unit to several other groups, or revoke them, in a single pass. To do so, use the <code>Dataset permissions</code> button in the row of the owner group in <code>Group Management</code>. The wizard guides you through three steps:<ol><li><code>Select datasets</code>: the indicators, georesources and spatial units of the owner group; all of them are selected at first.</li><li><code>Set rights</code>: for every group of the tenant, choose an action for read and for edit rights: <code>unchanged</code>, <code>grant</code> or <code>revoke</code>. Clicking a group shows its rights per dataset, and for indicators per spatial unit. If datasets are treated differently there, the choice shows as <code>individual</code>.</li><li><code>Review &amp; transfer</code>: a summary shows which group gains or loses rights on how many datasets. Nothing is stored before <code>Transfer rights</code>.</li></ol>The rules: edit rights include read rights. On the indicator itself, a right applies as soon as at least one of its spatial units has it. The rights are written once to the selected datasets and do not apply to datasets the owner group creates later. Ownership, public visibility and the rights of the owner group itself stay unchanged. <br> <br> Afterwards, the rights can be adjusted further on each dataset under <code>Access protection and ownership</code>, as usual."
+        "CONTENT": "Global administrators can grant read and edit rights on the datasets of an organizational unit to several other groups, or revoke them, in a single pass. To do so, use the <code>Dataset permissions</code> button in the row of the owner group in <code>Group Management</code>. The wizard guides you through three steps:<ol><li><code>Select datasets</code>: the indicators, georesources and spatial units of the owner group; all of them are selected at first.</li><li><code>Set rights</code>: for every group of the tenant, choose an action for read and for edit rights: <code>unchanged</code>, <code>grant</code> or <code>revoke</code>. Clicking a group shows its rights per dataset, and for indicators per spatial unit. If datasets are treated differently there, the choice shows as <code>individual</code>.</li><li><code>Review &amp; transfer</code>: a summary shows which group gains or loses rights on how many datasets. Nothing is stored before <code>Transfer rights</code>.</li></ol>The rules: edit rights include read rights. On indicators, read rights can be granted per spatial unit; a group sees the indicator itself as soon as it may read one of its spatial units. Edit rights, however, always apply to the whole indicator, as they allow editing its metadata and the values of all spatial units. The rights are written once to the selected datasets and do not apply to datasets the owner group creates later. Ownership, public visibility and the rights of the owner group itself stay unchanged. <br> <br> Afterwards, the rights can be adjusted further on each dataset under <code>Access protection and ownership</code>, as usual."
       }
     },
     "MSG": {
@@ -1082,7 +1082,7 @@
         "SPATIAL_UNIT": "Spatial units"
       },
       "SELECT_KIND": "Select all {{kind}}",
-      "INDICATOR_HINT": "Rights changes on indicators apply to all spatial units the indicator is available on by default. Step 2 lets you set rights per spatial unit (click an organizational unit).",
+      "INDICATOR_HINT": "Changes to the rights on indicators apply to all spatial units the indicator is available for by default. In step 2, read rights can be set per spatial unit (click the organizational unit); edit rights always apply to the whole indicator.",
       "SPATIAL_UNITS_ONE": "1 spatial unit",
       "SPATIAL_UNITS_MANY": "{{count}} spatial units",
       "EMPTY": "{{owner}} owns no datasets."
@@ -1119,10 +1119,11 @@
       "DATASET": "Dataset",
       "VIEWER": "Read",
       "EDITOR": "Edit",
-      "INDICATOR_HINT": "Applies to all spatial units. Click an indicator to set rights per spatial unit.",
+      "INDICATOR_HINT": "Read applies to all spatial units, edit to the whole indicator. Click an indicator to set read rights per spatial unit.",
       "TOGGLE_LABEL": "{{level}}: {{name}}",
       "CHANGED": "changed",
-      "LEGEND": "Edit rights include read rights.",
+      "LEGEND": "Edit rights include read rights. On indicators, edit rights apply to the whole indicator: they allow editing its metadata and the values of all spatial units.",
+      "EDIT_WHOLE_INDICATOR": "Edit rights apply to the whole indicator",
       "DEVIATIONS_ONE": "1 deviation from the current state",
       "DEVIATIONS_MANY": "{{count}} deviations from the current state",
       "RESET": "Reset to current state",

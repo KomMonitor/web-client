@@ -24,11 +24,12 @@ const OWNER = 'owner';
 const TENANT_OF = { owner: 'm', a: 'm', b: 'm', other: 'x' };
 
 /**
- * Group a reads i1 (one timeseries by its editor id, which implies reading)
- * and g1, and edits only half of i1. Group b edits g1. Nobody has su1.
+ * Group a reads i1 — the indicator itself and both timeseries, one by its
+ * editor id, which implies reading — and g1, but edits neither. Group b edits
+ * g1. Nobody has su1.
  */
 const DATASETS: Partial<OwnerDatasetSources> = {
-  indicators: [indicatorSource('i1', OWNER, [], { s1: ['a-editor'], s2: ['a-viewer'] })],
+  indicators: [indicatorSource('i1', OWNER, ['a-viewer'], { s1: ['a-editor'], s2: ['a-viewer'] })],
   georesources: [georesourceSource('g1', OWNER, ['a-viewer', 'b-editor'])],
   spatialUnits: [spatialUnitSource('su1', OWNER, [])],
 };
@@ -139,6 +140,18 @@ describe('RightsStepComponent', () => {
     expect(coverages('a')).toEqual(['2 → 3', '0 → 3']);
     expect(coverage('a', 'editor').classList).toContain('coverage-changed');
     expect(values('b')).toEqual(['keep', 'keep']);
+  });
+
+  it('counts an indicator whose timeseries alone are readable as not readable', () => {
+    setUp({
+      ...DATASETS,
+      indicators: [indicatorSource('i1', OWNER, [], { s1: ['a-viewer'], s2: ['a-viewer'] })],
+    });
+    expect(coverages('a')).toEqual(['1/3', '0/3']);
+
+    // Granting read reaches the indicator itself, which the group lacked.
+    choose('a', 'viewer', 'grant');
+    expect(coverages('a')).toEqual(['1 → 3', '0/3']);
   });
 
   it('revokes edit along with read', () => {

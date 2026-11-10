@@ -26,6 +26,7 @@ import {
   datasetKey,
   draftDeviates,
   draftState,
+  levelSlots,
   setDraftLevel,
   timeseriesCount,
 } from './dataset-permissions.model';
@@ -40,14 +41,16 @@ interface KindGroup {
   kind: DatasetKind;
   label: string;
   datasets: readonly PermissionDataset[];
-  slots: readonly PermissionSlot[];
+  /** The checkboxes of all its datasets, per level. */
+  cells: Record<RightLevel, readonly PermissionSlot[]>;
 }
 
 /**
  * The per-dataset rights of one group, opened from the group table of the
  * dataset-permissions wizard: read and edit per dataset, and for an indicator
- * per spatial unit. Starts from what the group table currently decides and
- * marks every value that differs from the current rights.
+ * read per spatial unit — edit there holds for the whole indicator, as the
+ * backend checks it on the indicator itself. Starts from what the group table
+ * currently decides and marks every value that differs from the current rights.
  *
  * Closes with the edited draft on "apply" — the wizard turns it into the
  * dropdown values — and is dismissed otherwise. It works on what the opener
@@ -78,26 +81,31 @@ export class GroupDatasetPermissionsModalComponent implements OnInit {
   protected readonly levelLabels = LEVEL_LABELS;
   protected readonly datasetKey = datasetKey;
   protected readonly timeseriesCount = timeseriesCount;
+  protected readonly levelSlots = levelSlots;
 
   /** Only kinds with datasets; computed once, the inputs do not change. */
   protected kindGroups: KindGroup[] = [];
-  private slots: readonly PermissionSlot[] = [];
 
   protected readonly draft = signal<RightsDraft>({});
   private readonly expandedKinds = signal<ReadonlySet<DatasetKind>>(new Set());
   private readonly expandedDatasets = signal<ReadonlySet<string>>(new Set());
 
-  /** Number of (slot, level) pairs that differ from the current rights. */
+  /** Number of checkboxes that differ from the current rights. */
   protected readonly deviations = computed(() =>
-    countDeviations(this.group, this.slots, this.draft())
+    countDeviations(this.group, this.datasets, this.draft())
   );
 
   ngOnInit(): void {
     this.kindGroups = DATASET_KINDS.map((kind) => {
       const datasets = this.datasets.filter((dataset) => dataset.kind === kind);
-      return { kind, label: KIND_LABELS[kind], datasets, slots: datasets.flatMap((d) => d.slots) };
+      const cellsOf = (level: RightLevel) => datasets.flatMap((d) => levelSlots(d, level));
+      return {
+        kind,
+        label: KIND_LABELS[kind],
+        datasets,
+        cells: { viewer: cellsOf('viewer'), editor: cellsOf('editor') },
+      };
     }).filter((group) => group.datasets.length > 0);
-    this.slots = this.datasets.flatMap((dataset) => dataset.slots);
     this.draft.set(this.initialDraft);
   }
 
@@ -112,7 +120,9 @@ export class GroupDatasetPermissionsModalComponent implements OnInit {
   /** Partly or not set → set on all; set on all → clear on all. */
   protected toggle(slots: readonly PermissionSlot[], level: RightLevel): void {
     const value = this.stateOf(slots, level) !== 'all';
-    this.draft.update((draft) => setDraftLevel(this.group, slots, draft, level, value));
+    this.draft.update((draft) =>
+      setDraftLevel(this.group, this.datasets, slots, draft, level, value)
+    );
   }
 
   protected isKindExpanded(kind: DatasetKind): boolean {
@@ -133,7 +143,7 @@ export class GroupDatasetPermissionsModalComponent implements OnInit {
 
   /** Back to the current rights — not to what the dialog opened with. */
   reset(): void {
-    this.draft.set(currentDraft(this.group, this.slots));
+    this.draft.set(currentDraft(this.group, this.datasets));
   }
 
   apply(): void {

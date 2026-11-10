@@ -158,7 +158,8 @@ describe('DatasetPermissionsWizardStateService', () => {
     it('opens the per-dataset dialog with the current target rights', () => {
       state.setAction('b', 'viewer', 'grant');
       const draft = state.draftFor('b');
-      expect(Object.keys(draft)).toHaveLength(5);
+      // Five slots plus the indicator itself.
+      expect(Object.keys(draft)).toHaveLength(6);
       expect(Object.values(draft).every((r) => r.viewer && !r.editor)).toBe(true);
     });
 
