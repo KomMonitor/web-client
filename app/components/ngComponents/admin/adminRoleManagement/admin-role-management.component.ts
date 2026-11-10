@@ -36,7 +36,7 @@ import { DatasetPermissionsWizardComponent } from './datasetPermissionsWizard/da
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { NotificationService } from '../../common/notification/notification.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MODAL_FORM, MODAL_WIDE } from 'util/modal-presets';
+import { MODAL_FORM, MODAL_WIDE, MODAL_XLARGE } from 'util/modal-presets';
 
 interface AccessControlTableEntry extends AccessControlMetadata {
   parentName?: string;
@@ -372,7 +372,7 @@ export class AdminRoleManagementComponent implements OnInit {
    * the wizard reloads the datasets itself.
    */
   async openDatasetPermissionsWizard(dataset: AccessControlTableEntry): Promise<void> {
-    await this.modals.open(DatasetPermissionsWizardComponent, MODAL_WIDE, {
+    await this.modals.open(DatasetPermissionsWizardComponent, MODAL_XLARGE, {
       ownerId: dataset.organizationalUnitId,
     });
   }

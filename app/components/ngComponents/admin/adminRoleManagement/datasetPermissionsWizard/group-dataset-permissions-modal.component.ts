@@ -58,7 +58,7 @@ interface KindGroup {
  * dropdown values — and is dismissed otherwise. It works on what the opener
  * hands in and knows nothing of the wizard's state.
  *
- * Opened with `MODAL_FORM` above the wizard, so Esc and a click beside it do
+ * Opened with `MODAL_LARGE` above the wizard, so Esc and a click beside it do
  * not close it.
  */
 @Component({

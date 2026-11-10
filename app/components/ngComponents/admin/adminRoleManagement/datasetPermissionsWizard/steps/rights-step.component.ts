@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { AdminModalService } from 'components/ngComponents/admin/adminShared/modal/admin-modal.service';
-import { MODAL_FORM } from 'util/modal-presets';
+import { MODAL_LARGE } from 'util/modal-presets';
 
 import {
   DatasetPermissionsWizardStateService,
@@ -70,7 +70,7 @@ export class RightsStepComponent {
     const id = group.organizationalUnitId;
     const draft = await this.modals.open<GroupDatasetPermissionsModalComponent, RightsDraft>(
       GroupDatasetPermissionsModalComponent,
-      MODAL_FORM,
+      MODAL_LARGE,
       {
         group,
         datasets: this.state.selectedDatasets(),

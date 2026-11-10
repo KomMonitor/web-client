@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AdminModalService } from 'components/ngComponents/admin/adminShared/modal/admin-modal.service';
-import { MODAL_FORM } from 'util/modal-presets';
+import { MODAL_LARGE } from 'util/modal-presets';
 
 import { DatasetPermissionsWizardStateService } from '../dataset-permissions-wizard-state.service';
 import { OwnerDatasetSources, RightsDraft } from '../dataset-permissions.model';
@@ -213,7 +213,7 @@ describe('RightsStepComponent', () => {
       choose('a', 'viewer', 'grant');
       await openAndClose('a', undefined);
 
-      expect(modals.open).toHaveBeenCalledWith(GroupDatasetPermissionsModalComponent, MODAL_FORM, {
+      expect(modals.open).toHaveBeenCalledWith(GroupDatasetPermissionsModalComponent, MODAL_LARGE, {
         group: state.groups()[0],
         datasets: state.selectedDatasets(),
         initialDraft: state.draftFor('a'),

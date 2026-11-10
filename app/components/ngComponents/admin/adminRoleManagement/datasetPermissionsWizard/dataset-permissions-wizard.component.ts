@@ -46,7 +46,7 @@ interface TransferDone {
  * provided here so every opening starts fresh; this component frames it and
  * tells the user how a save ended.
  *
- * Opened with `MODAL_WIDE`, so Esc and a click beside the dialog do not close
+ * Opened with `MODAL_XLARGE`, so Esc and a click beside the dialog do not close
  * it: it holds input that is not saved yet.
  */
 @Component({
