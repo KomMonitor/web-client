@@ -207,6 +207,84 @@ describe('MetadataBootstrapService', () => {
     await p2;
   });
 
+  describe('reloadDatasetMetadata', () => {
+    const stores = () => ({
+      spatialUnits: TestBed.inject(SpatialUnitMetadataStoreService) as unknown as {
+        setSpatialUnits: jest.Mock;
+      },
+      georesources: TestBed.inject(GeoresourceMetadataStoreService) as unknown as {
+        setGeoresources: jest.Mock;
+      },
+      indicators: TestBed.inject(IndicatorMetadataStoreService) as unknown as {
+        setIndicators: jest.Mock;
+        modifyIndicatorApplicableSpatialUnitsForLoginRoles: jest.Mock;
+      },
+      hierarchies: TestBed.inject(TopicHierarchyStoreService) as unknown as {
+        buildTopicIndicatorHierarchy: jest.Mock;
+        buildTopicGeoresourceHierarchy: jest.Mock;
+      },
+    });
+
+    it('reloads the three dataset lists and rebuilds what derives from them', async () => {
+      cacheHelper.fetchSpatialUnitsMetadata.mockResolvedValueOnce(['su']);
+      cacheHelper.fetchGeoresourceMetadata.mockResolvedValueOnce(['geo']);
+      cacheHelper.fetchIndicatorsMetadata.mockResolvedValueOnce(['ind']);
+      const states: MetadataLoadingState[] = [];
+      service.metadataLoading$.subscribe((s) => states.push(s));
+
+      await service.reloadDatasetMetadata();
+
+      const { spatialUnits, georesources, indicators, hierarchies } = stores();
+      expect(spatialUnits.setSpatialUnits).toHaveBeenCalledWith(['su']);
+      expect(georesources.setGeoresources).toHaveBeenCalledWith(['geo']);
+      expect(indicators.setIndicators).toHaveBeenCalledWith(['ind']);
+      expect(indicators.modifyIndicatorApplicableSpatialUnitsForLoginRoles).toHaveBeenCalled();
+      expect(hierarchies.buildTopicIndicatorHierarchy).toHaveBeenCalled();
+      expect(hierarchies.buildTopicGeoresourceHierarchy).toHaveBeenCalled();
+      expect(cacheHelper.fetchTopicsMetadata).not.toHaveBeenCalled();
+      // The pages keep showing their data: no loading state is signalled.
+      expect(states).toEqual([MetadataLoadingState.NONE]);
+    });
+
+    it('writes no store and rejects when one of the lists fails', async () => {
+      cacheHelper.fetchGeoresourceMetadata.mockRejectedValueOnce(new Error('offline'));
+
+      await expect(service.reloadDatasetMetadata()).rejects.toThrow('offline');
+
+      const { spatialUnits, georesources, indicators } = stores();
+      expect(spatialUnits.setSpatialUnits).not.toHaveBeenCalled();
+      expect(georesources.setGeoresources).not.toHaveBeenCalled();
+      expect(indicators.setIndicators).not.toHaveBeenCalled();
+    });
+
+    it('waits for a running load and uses its filter', async () => {
+      const gate = deferred();
+      cacheHelper.fetchTopicsMetadata.mockReturnValueOnce(gate.promise);
+      const filter = { indicators: ['i1'] } as any;
+
+      const load = service.fetchAllMetadata(filter);
+      const reload = service.reloadDatasetMetadata();
+      await new Promise((r) => setTimeout(r, 0));
+      expect(cacheHelper.fetchIndicatorsMetadata).toHaveBeenCalledTimes(1);
+
+      gate.resolve(undefined);
+      await Promise.all([load, reload]);
+      expect(cacheHelper.fetchIndicatorsMetadata).toHaveBeenCalledTimes(2);
+      expect(cacheHelper.fetchIndicatorsMetadata).toHaveBeenLastCalledWith([], filter);
+    });
+
+    it('lets a load queued behind a failed reload run', async () => {
+      cacheHelper.fetchSpatialUnitsMetadata.mockRejectedValueOnce(new Error('offline'));
+
+      const reload = service.reloadDatasetMetadata();
+      const load = service.fetchAllMetadata();
+
+      await expect(reload).rejects.toThrow('offline');
+      await load;
+      expect(service.metadataLoadingState).toBe(MetadataLoadingState.COMPLETE);
+    });
+  });
+
   describe('ensureMetadataLoaded', () => {
     it('skips the fetch when a load with the same filter already completed', async () => {
       await service.fetchAllMetadata();

@@ -1661,6 +1661,19 @@ th {
   --bs-modal-width: 800px;
 }
 
+/*
+ * Between form and wide, for a wizard without a data grid and a dialog opened
+ * on top of it. Large stays narrower than x-large on any screen (86vw against
+ * 92vw), so the dialog below still shows at both sides.
+ */
+.modal-dialog.km-modal-large {
+  --bs-modal-width: min(1140px, 86vw);
+}
+
+.modal-dialog.km-modal-xlarge {
+  --bs-modal-width: min(1280px, 92vw);
+}
+
 .modal-dialog.km-modal-wide {
   /*
    * min() caps the dialog on very large screens, where the old 95vw grew to
@@ -1671,7 +1684,7 @@ th {
 }
 
 /*
- * Flex bridge for `scrollable: true` (set for all three presets in
+ * Flex bridge for `scrollable: true` (set for all presets in
  * `util/modal-presets.ts`).
  *
  * Bootstrap's .modal-dialog-scrollable expects .modal-body to be a flex child

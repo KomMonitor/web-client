@@ -2667,6 +2667,49 @@ paths:
       deprecated: false
       security:
         - kommonitor-data-access_oauth: []
+  /organizationalUnits/permissions:
+    patch:
+      tags:
+        - access-control
+      summary: Set dataset permissions for a batch of organizationalUnits
+      description:
+        Partially updates the dataset permissions of the submitted organizationalUnits. Only the
+        listed datasets of the listed resource types are updated for each organizationalUnit; all other
+        permissions stay untouched.
+      operationId: updateOrganizationalUnitPermissions
+      requestBody:
+        description: data
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrganizationalUnitPermissionInputType'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrganizationalUnitPermissionOverviewType'
+        '401':
+          description: API key is missing or invalid
+          content: {}
+        '403':
+          description: Forbidden
+          content: {}
+        '404':
+          description: Not Found
+          content: {}
+        '405':
+          description: Invalid input
+          content: {}
+      deprecated: false
+      security:
+        - kommonitor-data-access_oauth: []
   /organizationalUnits/{organizationalUnitId}/permissions:
     get:
       tags:
@@ -2686,7 +2729,12 @@ paths:
           description: resourceType
           required: false
           schema:
-            $ref: '#/components/schemas/ResourceType'
+            type: string
+            enum:
+              - georesources
+              - spatialunits
+              - indicators
+              - indicatorspatialunits
       responses:
         '200':
           description: OK
@@ -8674,24 +8722,36 @@ components:
       type: string
       enum:
         - georesources
-        - spatialunits,
+        - spatialunits
         - indicators
         - indicatorspatialunits
     OrganizationalUnitPermissionOverviewElementType:
       type: object
       required:
         - id
-        - permissionLevel
-        - roleId
+        - name
+        - permissions
       properties:
         id:
           type: string
           format: uuid
-        permissionLevel:
+        name:
           type: string
-        roleId:
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationalUnitPermissionDetailType'
+    OrganizationalUnitPermissionDetailType:
+      type: object
+      required:
+        - permissionId
+        - permissionLevel
+      properties:
+        permissionId:
           type: string
           format: uuid
+        permissionLevel:
+          type: string
     OrganizationalUnitPermissionOverviewSpatialUnitElementType:
       allOf:
         - $ref: '#/components/schemas/OrganizationalUnitPermissionOverviewElementType'
@@ -8741,6 +8801,62 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/OrganizationalUnitPermissionOverviewSpatialUnitElementType'
+    OrganizationalUnitPermissionInputElementType:
+      type: object
+      required:
+        - id
+        - permissions
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: id of the dataset the permissions apply to
+        permissions:
+          type: array
+          description: ids of the permissions the dataset should have for the organizational unit
+          items:
+            type: string
+            format: uuid
+    OrganizationalUnitPermissionInputSpatialUnitElementType:
+      allOf:
+        - $ref: '#/components/schemas/OrganizationalUnitPermissionInputElementType'
+        - type: object
+          required:
+            - spatialUnitId
+          properties:
+            spatialUnitId:
+              type: string
+              format: uuid
+              description: business id of the spatial unit the indicator is joined with
+    OrganizationalUnitPermissionInputType:
+      type: object
+      required:
+        - organizationalUnitId
+        - permissions
+      properties:
+        organizationalUnitId:
+          type: string
+          format: uuid
+          description: id of the organizational unit whose permissions are updated
+        permissions:
+          type: object
+          properties:
+            georesources:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrganizationalUnitPermissionInputElementType'
+            spatialunits:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrganizationalUnitPermissionInputElementType'
+            indicators:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrganizationalUnitPermissionInputElementType'
+            indicatorspatialunits:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrganizationalUnitPermissionInputSpatialUnitElementType'
     OwnerInputType:
       title: OwnerType
       required:

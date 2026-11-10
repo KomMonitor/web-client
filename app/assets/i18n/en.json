@@ -1031,6 +1031,10 @@
           "TITLE": "Scenario: indicator completely public",
           "CONTENT": "<table class=\"table\"><thead><tr><th>Indicator metadata</th><th>Indicator time series per spatial level</th><th>Spatial unit metadata</th></tr></thead><tbody><tr><td>Activate the <code>Public read access</code> switch</td><td>for all spatial units, activate the <code>Public read access</code> (further explicit sharing with groups only if needed for edit rights) <i>different configurations per spatial unit are conceivable</i></td><td>activate <code>public read access</code> on the affected spatial unit metadata itself</td></tr></tbody></table>"
         }
+      },
+      "DATASET_PERMISSIONS": {
+        "TITLE": "How can rights on many datasets be granted at once?",
+        "CONTENT": "Global administrators can grant read and edit rights on the datasets of an organizational unit to several other groups, or revoke them, in a single pass. To do so, use the <code>Dataset permissions</code> button in the row of the owner group in <code>Group Management</code>. The wizard guides you through three steps:<ol><li><code>Select datasets</code>: the indicators, georesources and spatial units of the owner group; all of them are selected at first.</li><li><code>Set rights</code>: for every group of the tenant, choose an action for read and for edit rights: <code>unchanged</code>, <code>grant</code> or <code>revoke</code>. Clicking a group shows its rights per dataset, and for indicators per spatial unit. If datasets are treated differently there, the choice shows as <code>individual</code>.</li><li><code>Review &amp; transfer</code>: a summary shows which group gains or loses rights on how many datasets. Nothing is stored before <code>Transfer rights</code>.</li></ol>The rules: edit rights include read rights. On indicators, read rights can be granted per spatial unit; a group sees the indicator itself as soon as it may read one of its spatial units. Edit rights, however, always apply to the whole indicator, as they allow editing its metadata and the values of all spatial units. An indicator includes all its spatial units here, also those of another owner; the wizard marks them. The rights are written once to the selected datasets and do not apply to datasets the owner group creates later. Ownership, public visibility and the rights of the owner group itself stay unchanged. <br> <br> Afterwards, the rights can be adjusted further on each dataset under <code>Access protection and ownership</code>, as usual."
       }
     },
     "MSG": {
@@ -1058,6 +1062,127 @@
       "EDIT_GROUP_RIGHTS_TITLE": "Edit group rights",
       "FORBIDDEN_TITLE": "Requires the role {{group}}.unit-users-creator, or client-users-creator on a parent group",
       "DELETE_TITLE": "Delete organizational unit"
+    }
+  },
+  "ADMIN_DATASET_PERMISSIONS": {
+    "BUTTON_TITLE": "Dataset permissions",
+    "TITLE": "Transfer rights on the datasets of organizational unit {{owner}}",
+    "STEPS": {
+      "DATASETS": "Select datasets",
+      "RIGHTS": "Set rights",
+      "REVIEW": "Review & transfer"
+    },
+    "SELECTION": {
+      "INTRO": "Select the existing datasets of {{owner}} that the rights are transferred to.",
+      "COUNT": "Selected: {{selected}} of {{total}}.",
+      "KIND_COUNT": "{{selected}}/{{total}} selected",
+      "KINDS": {
+        "INDICATOR": "Indicators",
+        "GEORESOURCE": "Georesources",
+        "SPATIAL_UNIT": "Spatial units"
+      },
+      "SELECT_KIND": "Select all {{kind}}",
+      "INDICATOR_HINT": "Changes to the rights on indicators apply to all spatial units the indicator is available for by default. In step 2, read rights can be set per spatial unit (click the organizational unit); edit rights always apply to the whole indicator.",
+      "SPATIAL_UNITS_ONE": "1 spatial unit",
+      "SPATIAL_UNITS_MANY": "{{count}} spatial units",
+      "EMPTY": "{{owner}} owns no datasets.",
+      "UNAVAILABLE": "The datasets could not be loaded."
+    },
+    "LEVELS": {
+      "VIEWER": "Read rights",
+      "EDITOR": "Edit rights"
+    },
+    "RIGHTS": {
+      "INTRO_ONE": "Decide per group what happens to its rights on the selected dataset.",
+      "INTRO_MANY": "Decide per group what happens to its rights on the {{count}} selected datasets.",
+      "GROUP": "Organizational unit",
+      "ACTIONS": {
+        "KEEP": "unchanged",
+        "GRANT": "grant",
+        "REVOKE": "revoke",
+        "CUSTOM": "individual"
+      },
+      "SELECT_LABEL": "{{level}} for {{group}}",
+      "COVERAGE": "{{count}}/{{total}}",
+      "COVERAGE_CHANGE": "{{before}} → {{after}}",
+      "LEGEND": "The number shows on how many of the selected datasets the group currently has the right. The arrow shows the number after the transfer.",
+      "NO_GROUPS": "The tenant of {{owner}} has no other organizational units that rights could be granted to.",
+      "LEFT_OUT": "Not listed because they lack a read or edit permission for datasets: {{names}}.",
+      "NO_TENANT": "The tenant of {{owner}} cannot be determined. So that no rights go to organizational units of other tenants, the wizard offers none.",
+      "NO_DATASETS": "No datasets selected. Select the datasets to transfer rights to in step 1.",
+      "OPEN_HINT": "Click an organizational unit to see its rights per dataset and adjust them one by one.",
+      "ADDED_SINCE_DIALOG": "Since rights were set in the per-dataset dialog, datasets the dialog did not show have been added in step 1. Please check the marked organizational units: clicking the name shows the rights per dataset, and \"Apply\" confirms them for the current selection.",
+      "ADDED_ONE": "1 dataset was added only afterwards. For it: read rights {{viewer}}, edit rights {{editor}}.",
+      "ADDED_MANY": "{{count}} datasets were added only afterwards. For them: read rights {{viewer}}, edit rights {{editor}}.",
+      "ADDED_EFFECT": {
+        "GRANT": "granted",
+        "REVOKE": "revoked",
+        "KEEP": "unchanged"
+      },
+      "OPEN_GROUP": "Show rights per dataset"
+    },
+    "GROUP_DIALOG": {
+      "TITLE": "Rights of organizational unit {{group}} per dataset",
+      "INTRO_ONE": "Current rights on the dataset selected in step 1.",
+      "INTRO_MANY": "Current rights on the {{count}} datasets selected in step 1.",
+      "MARK_HINT": "marks changed values. “Apply” shows the choice in the dropdown as “individual”.",
+      "DATASET": "Dataset",
+      "VIEWER": "Read",
+      "EDITOR": "Edit",
+      "INDICATOR_HINT": "Read applies to all spatial units, edit to the whole indicator. Click an indicator to set read rights per spatial unit.",
+      "TOGGLE_LABEL": "{{level}}: {{name}}",
+      "CHANGED": "changed",
+      "LEGEND": "Edit rights include read rights. On indicators, edit rights apply to the whole indicator: they allow editing its metadata and the values of all spatial units.",
+      "EDIT_WHOLE_INDICATOR": "Edit rights apply to the whole indicator",
+      "DEVIATIONS_ONE": "1 deviation from the current state",
+      "DEVIATIONS_MANY": "{{count}} deviations from the current state",
+      "RESET": "Reset to current state",
+      "APPLY": "Apply"
+    },
+    "FOREIGN_OWNER": {
+      "SLOT": "Owner: {{owner}}",
+      "DATASET": "spatial units of other owners",
+      "TITLE": "This spatial unit of the indicator belongs to another organizational unit. The wizard changes its rights all the same, as it selects indicators by the indicator's owner."
+    },
+    "PUBLIC": {
+      "ALL": "public",
+      "SOME": "partly public",
+      "TITLE": "Anyone may read this. Read rights of groups have no effect here, and the wizard does not change that."
+    },
+    "REVIEW": {
+      "NOTICE": "The changes are written once to the selected datasets. They do not apply to datasets that {{owner}} creates in the future.",
+      "PUBLIC_LOSS_ONE": "1 dataset on which read rights are revoked is wholly or partly public: anyone can still read it there. Whether a dataset is public can only be changed on the dataset itself.",
+      "PUBLIC_LOSS_MANY": "{{count}} datasets on which read rights are revoked are wholly or partly public: anyone can still read them there. Whether a dataset is public can only be changed on the dataset itself.",
+      "ADDED_SINCE_DIALOG_ONE": "For 1 organizational unit, datasets the per-dataset dialog did not show have been added since its rights were set there. Step 2 shows what applies to them.",
+      "ADDED_SINCE_DIALOG_MANY": "For {{count}} organizational units, datasets the per-dataset dialog did not show have been added since their rights were set there. Step 2 shows what applies to them.",
+      "TO_RIGHTS": "Go to step 2",
+      "SUMMARY_TITLE": "Summary",
+      "AFFECTS_ONE": "affects 1 dataset",
+      "AFFECTS_MANY": "affects {{count}} datasets",
+      "EMPTY": "No changes set. Go back to step 2.",
+      "LEVELS": {
+        "VIEWER": "read rights",
+        "EDITOR": "edit rights"
+      },
+      "GAINS_ONE": "gains {{level}} on 1 dataset",
+      "GAINS_MANY": "gains {{level}} on {{count}} datasets",
+      "LOSES_ONE": "loses {{level}} on 1 dataset",
+      "LOSES_MANY": "loses {{level}} on {{count}} datasets"
+    },
+    "TRANSFER": "Transfer rights",
+    "SAVE_FAILED": "The rights could not be transferred: {{message}}",
+    "LOAD_FAILED": "The current rights could not be loaded, so the rights shown may be outdated. Nothing is transferred until loading succeeds.",
+    "CHANGED": "The rights have been changed elsewhere in the meantime, so nothing was transferred. The summary now shows what would be written on the current state. Please check it and transfer again.",
+    "RELOAD": "Reload",
+    "DISCARD": "Discard",
+    "KEEP_EDITING": "Keep editing",
+    "CANCEL_QUESTION": "The rights you set will be lost. Close anyway?",
+    "DONE": {
+      "TITLE_ONE": "Rights transferred to 1 dataset",
+      "TITLE_MANY": "Rights transferred to {{count}} datasets",
+      "TEXT": "The rights are now stored on the individual datasets and can be adjusted further there under geodata management.",
+      "STALE": "The datasets could not be reloaded afterwards, so the rights shown are outdated. Reload them before transferring further rights.",
+      "RESTART": "Further transfer"
     }
   },
   "ADMIN_TOPICS": {

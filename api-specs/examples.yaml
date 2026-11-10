@@ -1,182 +1,1010 @@
-# Platzhalter fuer die Beispiel-Sammlung der Data Management API.
-#
-# kommonitor_dataAccessAPI.yaml referenziert diese Nachbardatei 126-mal
-# (./examples.yaml#/components/examples/...), sie ist im Backend-Repo
-# KomMonitor/data-management aber nicht eingecheckt — auf keinem Branch.
-# Ohne sie bricht `npm run generate:api-types` beim Aufloesen der $refs ab.
-#
-# Die Eintraege sind bewusst leer: `examples` ist rein dokumentarisch und
-# fliesst nicht in die generierten Typen ein (es gibt keinen einzigen
-# $ref aus dieser Datei auf ein Schema). Der Stub haelt damit die
-# Haupt-Spec byte-identisch zur Upstream-Fassung, so dass ein Update
-# weiterhin ein reines Kopieren ist.
-#
-# Sobald das Backend-Repo die echte Datei mitliefert, ersetzt sie diesen
-# Stub ersatzlos.
-
-openapi: 3.0.3
-info:
-  title: KomMonitor Data Access API — examples (placeholder)
-  version: 0.0.1
-paths: {}
 components:
   examples:
-    GeoresourceOverview:
-      summary: placeholder, see header
-      value: {}
-    GeoresourceOverviewCollection:
-      summary: placeholder, see header
-      value: {}
-    GeoresourcePATCHInput:
-      summary: placeholder, see header
-      value: {}
+    # ---------------------------------------------------------------------------
+    # Georesources
+    # ---------------------------------------------------------------------------
+
     GeoresourcePOSTInput:
-      summary: placeholder, see header
-      value: {}
+      summary: Register a new georesource
+      description: Registers a point-of-interest georesource with metadata, an
+        initial period of validity and a GeoJSON payload.
+      value:
+        datasetName: Schools
+        isPublic: false
+        ownerId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+        isAOI: false
+        isLOI: false
+        isPOI: true
+        poiMarkerStyle: symbol
+        poiMarkerColor: blue
+        poiSymbolBootstrap3Name: education
+        poiSymbolColor: white
+        topicReference: education
+        permissions:
+          - creator
+          - editor
+        periodOfValidity:
+          startDate: '2018-01-01'
+        metadata:
+          contact: KomMonitor Team, info@kommonitor.de
+          datasource: Municipal education department
+          description: Locations of all public schools within the city.
+          databasis: Open data portal of the municipality
+          updateInterval: YEARLY
+          lastUpdate: '2018-01-30'
+          sridEPSG: 4326
+        geoJsonString: >-
+          {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[7.011,51.455]},"properties":{"name":"Primary School Centre"}}]}
+
     GeoresourcePUTInput:
-      summary: placeholder, see header
-      value: {}
-    GroupAdminRolesPUTInputCollection:
-      summary: placeholder, see header
-      value: {}
-    IndicatorMetadataPATCHInput:
-      summary: placeholder, see header
-      value: {}
-    IndicatorOverview:
-      summary: placeholder, see header
-      value: {}
-    IndicatorOverviewCollection:
-      summary: placeholder, see header
-      value: {}
-    IndicatorPATCHDisplayOrderInputCollection:
-      summary: placeholder, see header
-      value: {}
+      summary: Replace georesource features
+      description: Uploads a full set of features for a new period of validity.
+      value:
+        periodOfValidity:
+          startDate: '2019-01-01'
+          endDate: '2019-12-31'
+        isPartialUpdate: false
+        geoJsonString: >-
+          {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[7.013,51.457]},"properties":{"name":"Primary School Centre"}}]}
+
+    GeoresourcePATCHInput:
+      summary: Update georesource metadata
+      description: Updates the descriptive metadata and display styling of a
+        georesource without touching its features.
+      value:
+        datasetName: Public Schools
+        isPOI: true
+        poiMarkerStyle: symbol
+        poiMarkerColor: blue
+        poiSymbolBootstrap3Name: education
+        poiSymbolColor: white
+        topicReference: education
+        metadata:
+          contact: KomMonitor Team, info@kommonitor.de
+          datasource: Municipal education department
+          description: Updated locations of all public schools within the city.
+          updateInterval: YEARLY
+          lastUpdate: '2020-03-15'
+          sridEPSG: 4326
+
+    GeoresourceOverview:
+      summary: Single georesource
+      description: Metadata overview of a single registered georesource dataset.
+      value:
+        georesourceId: 0c0d17bb-0001-4a56-9abc-000000000001
+        datasetName: Public Schools
+        isPublic: false
+        ownerId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+        topicReference: education
+        isAOI: false
+        isLOI: false
+        isPOI: true
+        poiMarkerStyle: symbol
+        poiMarkerColor: blue
+        poiSymbolBootstrap3Name: education
+        poiSymbolColor: white
+        availablePeriodsOfValidity:
+          - startDate: '2018-01-01'
+            endDate: '2018-12-31'
+          - startDate: '2019-01-01'
+        permissions:
+          - creator
+        userPermissions:
+          - creator
+        metadata:
+          contact: KomMonitor Team, info@kommonitor.de
+          datasource: Municipal education department
+          description: Locations of all public schools within the city.
+          updateInterval: YEARLY
+          lastUpdate: '2019-01-30'
+          sridEPSG: 4326
+        wmsUrl: https://geoserver.example.org/kommonitor/schools/wms
+        wfsUrl: https://geoserver.example.org/kommonitor/schools/wfs
+
+    GeoresourceOverviewCollection:
+      summary: List of georesources
+      description: Collection of georesource metadata overviews.
+      value:
+        - georesourceId: 0c0d17bb-0001-4a56-9abc-000000000001
+          datasetName: Public Schools
+          isPublic: false
+          ownerId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+          topicReference: education
+          isAOI: false
+          isLOI: false
+          isPOI: true
+          availablePeriodsOfValidity:
+            - startDate: '2019-01-01'
+          metadata:
+            contact: KomMonitor Team, info@kommonitor.de
+            datasource: Municipal education department
+            description: Locations of all public schools within the city.
+            updateInterval: YEARLY
+            sridEPSG: 4326
+        - georesourceId: 0c0d17bb-0002-4a56-9abc-000000000002
+          datasetName: City Districts
+          isPublic: true
+          ownerId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+          topicReference: administrative-boundaries
+          isAOI: true
+          isLOI: false
+          isPOI: false
+          aoiColor: '#1f78b4'
+          availablePeriodsOfValidity:
+            - startDate: '2018-01-01'
+          metadata:
+            contact: KomMonitor Team, info@kommonitor.de
+            datasource: Surveying office
+            description: Administrative city district boundaries.
+            updateInterval: ARBITRARY
+            sridEPSG: 4326
+
+    # ---------------------------------------------------------------------------
+    # Indicators
+    # ---------------------------------------------------------------------------
+
     IndicatorPOSTInput:
-      summary: placeholder, see header
-      value: {}
-    IndicatorPropertiesWithoutGeom:
-      summary: placeholder, see header
-      value: {}
-    IndicatorPropertiesWithoutGeomCollection:
-      summary: placeholder, see header
-      value: {}
+      summary: Register a new indicator
+      description: Registers the metadata definition of a status indicator,
+        including its default classification mapping.
+      value:
+        datasetName: Share of children under 6 years
+        abbreviation: U6
+        creationType: INSERTION
+        indicatorType: STATUS_RELATIVE
+        unit: percent
+        isHeadlineIndicator: true
+        isPublic: false
+        ownerId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+        topicReference: demography
+        interpretation: Higher values indicate a younger population structure.
+        processDescription: Number of children under 6 divided by total population.
+        precision: 2
+        displayOrder: 1
+        tags:
+          - demography
+          - children
+        permissions:
+          - creator
+        metadata:
+          contact: KomMonitor Team, info@kommonitor.de
+          datasource: Municipal statistics office
+          description: Share of the population that is younger than six years.
+          updateInterval: YEARLY
+          lastUpdate: '2020-01-30'
+          sridEPSG: 4326
+        defaultClassificationMapping:
+          classificationType: QUANTITATIVE
+          colorBrewerSchemeName: BuGn
+          numClasses: 5
+          classificationMethod: JENKS
+          items:
+            - spatialUnitId: 5a1b2c3d-0001-4e5f-8a9b-000000000001
+              breaks:
+                - 0.0
+                - 4.5
+                - 8.0
+                - 12.5
+                - 18.0
+                - 25.0
+
     IndicatorPUTInput:
-      summary: placeholder, see header
-      value: {}
-    LastModificationOverview:
-      summary: placeholder, see header
-      value: {}
-    OrganizationalUnitInput:
-      summary: placeholder, see header
-      value: {}
-    OrganizationalUnitOverview:
-      summary: placeholder, see header
-      value: {}
-    OrganizationalUnitOverviewCollection:
-      summary: placeholder, see header
-      value: {}
-    OrganizationalUnitPermissionOverview:
-      summary: placeholder, see header
-      value: {}
-    OrganizationalUnitRoleAuthority:
-      summary: placeholder, see header
-      value: {}
-    OrganizationalUnitRoleDelegate:
-      summary: placeholder, see header
-      value: {}
-    OwnerInput:
-      summary: placeholder, see header
-      value: {}
-    PermissionLevelCollection:
-      summary: placeholder, see header
-      value: {}
-    PermissionLevelInput:
-      summary: placeholder, see header
-      value: {}
-    ProcessScriptOverview:
-      summary: placeholder, see header
-      value: {}
-    ProcessScriptOverviewCollection:
-      summary: placeholder, see header
-      value: {}
-    ProcessScriptPOSTInput:
-      summary: placeholder, see header
-      value: {}
-    ProcessScriptPUTInput:
-      summary: placeholder, see header
-      value: {}
-    ResourceFilter:
-      summary: placeholder, see header
-      value: {}
-    SpatialUnitHierarchyInput:
-      summary: placeholder, see header
-      value: {}
-    SpatialUnitHierarchyMemberInputCollection:
-      summary: placeholder, see header
-      value: {}
-    SpatialUnitHierarchyMembershipInputCollection:
-      summary: placeholder, see header
-      value: {}
-    SpatialUnitHierarchyOverview:
-      summary: placeholder, see header
-      value: {}
-    SpatialUnitHierarchyOverviewCollection:
-      summary: placeholder, see header
-      value: {}
-    SpatialUnitHierarchyPOSTInput:
-      summary: placeholder, see header
-      value: {}
-    SpatialUnitOverview:
-      summary: placeholder, see header
-      value: {}
-    SpatialUnitOverviewCollection:
-      summary: placeholder, see header
-      value: {}
-    SpatialUnitPATCHInput:
-      summary: placeholder, see header
-      value: {}
+      summary: Insert indicator values
+      description: Inserts numeric indicator values for a spatial unit, mapping
+        each feature to a timestamped value.
+      value:
+        applicableSpatialUnit: 5a1b2c3d-0001-4e5f-8a9b-000000000001
+        isPublic: false
+        ownerId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+        permissions:
+          - creator
+        indicatorValues:
+          - spatialReferenceKey: 8f14e45f-ceea-467d-9a1b-000000000101
+            valueType: NUMERIC
+            valueMapping:
+              - timestamp: '2020-01-01'
+                indicatorValue: 12.4
+              - timestamp: '2021-01-01'
+                indicatorValue: 11.9
+          - spatialReferenceKey: 8f14e45f-ceea-467d-9a1b-000000000102
+            valueType: NUMERIC
+            valueMapping:
+              - timestamp: '2020-01-01'
+                indicatorValue: 9.7
+
+    IndicatorMetadataPATCHInput:
+      summary: Update indicator metadata
+      description: Updates the descriptive metadata and classification of an
+        existing indicator.
+      value:
+        datasetName: Share of children under 6 years
+        abbreviation: U6
+        creationType: INSERTION
+        indicatorType: STATUS_RELATIVE
+        unit: percent
+        isHeadlineIndicator: true
+        topicReference: demography
+        interpretation: Higher values indicate a younger population structure.
+        processDescription: Number of children under 6 divided by total population.
+        precision: 2
+        displayOrder: 1
+        tags:
+          - demography
+          - children
+        metadata:
+          contact: KomMonitor Team, info@kommonitor.de
+          datasource: Municipal statistics office
+          description: Share of the population that is younger than six years.
+          updateInterval: YEARLY
+          lastUpdate: '2022-01-30'
+          sridEPSG: 4326
+        defaultClassificationMapping:
+          classificationType: QUANTITATIVE
+          colorBrewerSchemeName: BuGn
+          numClasses: 5
+          classificationMethod: EQUAL_INTERVAL
+          items:
+            - spatialUnitId: 5a1b2c3d-0001-4e5f-8a9b-000000000001
+              breaks:
+                - 0.0
+                - 5.0
+                - 10.0
+                - 15.0
+                - 20.0
+                - 25.0
+
+    IndicatorPATCHDisplayOrderInputCollection:
+      summary: Update indicator display order
+      description: Assigns new display-order values to a set of indicators.
+      value:
+        - indicatorId: 1d2e3f40-0001-4a5b-8c9d-000000000001
+          displayOrder: 1
+        - indicatorId: 1d2e3f40-0002-4a5b-8c9d-000000000002
+          displayOrder: 2
+
+    IndicatorOverview:
+      summary: Single indicator
+      description: Metadata overview of a single indicator including applicable
+        spatial units and dates.
+      value:
+        indicatorId: 1d2e3f40-0001-4a5b-8c9d-000000000001
+        indicatorName: Share of children under 6 years
+        abbreviation: U6
+        creationType: INSERTION
+        indicatorType: STATUS_RELATIVE
+        unit: percent
+        isHeadlineIndicator: true
+        isPublic: false
+        ownerId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+        topicReference: demography
+        interpretation: Higher values indicate a younger population structure.
+        processDescription: Number of children under 6 divided by total population.
+        precision: 2
+        displayOrder: 1
+        tags:
+          - demography
+          - children
+        applicableDates:
+          - '2020-01-01'
+          - '2021-01-01'
+        applicableSpatialUnits:
+          - spatialUnitId: 5a1b2c3d-0001-4e5f-8a9b-000000000001
+            spatialUnitName: districts
+        regionalReferenceValues:
+          - referenceDate: '2020-01-01'
+            regionalAverage: 11.2
+            regionalSum: 45230.0
+        permissions:
+          - creator
+        userPermissions:
+          - creator
+        metadata:
+          contact: KomMonitor Team, info@kommonitor.de
+          datasource: Municipal statistics office
+          description: Share of the population that is younger than six years.
+          updateInterval: YEARLY
+          lastUpdate: '2021-01-30'
+          sridEPSG: 4326
+
+    IndicatorOverviewCollection:
+      summary: List of indicators
+      description: Collection of indicator metadata overviews.
+      value:
+        - indicatorId: 1d2e3f40-0001-4a5b-8c9d-000000000001
+          indicatorName: Share of children under 6 years
+          creationType: INSERTION
+          unit: percent
+          isHeadlineIndicator: true
+          isPublic: false
+          ownerId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+          topicReference: demography
+          interpretation: Higher values indicate a younger population structure.
+          tags:
+            - demography
+          applicableDates:
+            - '2021-01-01'
+          applicableSpatialUnits:
+            - spatialUnitId: 5a1b2c3d-0001-4e5f-8a9b-000000000001
+              spatialUnitName: districts
+          regionalReferenceValues:
+            - referenceDate: '2021-01-01'
+              regionalAverage: 11.0
+          metadata:
+            contact: KomMonitor Team, info@kommonitor.de
+            datasource: Municipal statistics office
+            description: Share of the population that is younger than six years.
+            updateInterval: YEARLY
+            sridEPSG: 4326
+
+    IndicatorPropertiesWithoutGeom:
+      summary: Single indicator feature (without geometry)
+      description: Properties of a single indicator feature without its geometry.
+      value:
+        id: 8f14e45f-ceea-467d-9a1b-000000000101
+        name: District Centre
+        validStartDate: '2020-01-01'
+        validEndDate: '2020-12-31'
+
+    IndicatorPropertiesWithoutGeomCollection:
+      summary: Indicator features (without geometry)
+      description: Collection of indicator feature properties without geometries.
+      value:
+        - id: 8f14e45f-ceea-467d-9a1b-000000000101
+          name: District Centre
+          validStartDate: '2020-01-01'
+          validEndDate: '2020-12-31'
+        - id: 8f14e45f-ceea-467d-9a1b-000000000102
+          name: District North
+          validStartDate: '2020-01-01'
+          validEndDate: '2020-12-31'
+
+    # ---------------------------------------------------------------------------
+    # Spatial units
+    # ---------------------------------------------------------------------------
+
     SpatialUnitPOSTInput:
-      summary: placeholder, see header
-      value: {}
+      summary: Register a new spatial unit
+      description: Registers a new spatial unit level with its GeoJSON features and
+        optionally places it into hierarchies.
+      value:
+        spatialUnitLevel: districts
+        isPublic: true
+        ownerId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+        permissions:
+          - creator
+        isOutlineLayer: false
+        outlineColor: '#333333'
+        outlineWidth: 2
+        periodOfValidity:
+          startDate: '2018-01-01'
+        metadata:
+          contact: KomMonitor Team, info@kommonitor.de
+          datasource: Surveying office
+          description: Administrative districts of the city.
+          updateInterval: ARBITRARY
+          lastUpdate: '2018-01-30'
+          sridEPSG: 4326
+        hierarchies:
+          - hierarchyId: 7b3f9a10-0001-4c2d-8e3f-000000000001
+            nextUpperSpatialUnitId: 5a1b2c3d-0000-4e5f-8a9b-000000000000
+        geoJsonString: >-
+          {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[7.0,51.4],[7.1,51.4],[7.1,51.5],[7.0,51.5],[7.0,51.4]]]},"properties":{"uuid":"8f14e45f-ceea-467d-9a1b-000000000101","name":"District Centre"}}]}
+
     SpatialUnitPUTInput:
-      summary: placeholder, see header
-      value: {}
-    TopicDisplayOrderInputCollection:
-      summary: placeholder, see header
-      value: {}
-    TopicDisplayOrderModeInput:
-      summary: placeholder, see header
-      value: {}
-    TopicDisplayOrderModeOverviewCollection:
-      summary: placeholder, see header
-      value: {}
+      summary: Replace spatial unit features
+      description: Uploads a full set of spatial unit features for a new period of
+        validity.
+      value:
+        periodOfValidity:
+          startDate: '2019-01-01'
+        isPartialUpdate: false
+        geoJsonString: >-
+          {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[7.0,51.4],[7.1,51.4],[7.1,51.5],[7.0,51.5],[7.0,51.4]]]},"properties":{"uuid":"8f14e45f-ceea-467d-9a1b-000000000101","name":"District Centre"}}]}
+
+    SpatialUnitPATCHInput:
+      summary: Update spatial unit metadata
+      description: Updates the metadata and styling of a spatial unit level.
+      value:
+        datasetName: districts
+        isOutlineLayer: true
+        outlineColor: '#333333'
+        outlineWidth: 2
+        metadata:
+          contact: KomMonitor Team, info@kommonitor.de
+          datasource: Surveying office
+          description: Administrative districts of the city.
+          updateInterval: ARBITRARY
+          lastUpdate: '2020-01-30'
+          sridEPSG: 4326
+
+    SpatialUnitOverview:
+      summary: Single spatial unit
+      description: Metadata overview of a single spatial unit level, including its
+        hierarchy memberships.
+      value:
+        spatialUnitId: 5a1b2c3d-0001-4e5f-8a9b-000000000001
+        spatialUnitLevel: districts
+        isPublic: true
+        ownerId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+        mandantId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+        permissions:
+          - creator
+        userPermissions:
+          - creator
+        availablePeriodsOfValidity:
+          - startDate: '2018-01-01'
+        hierarchies:
+          - hierarchyId: 7b3f9a10-0001-4c2d-8e3f-000000000001
+            hierarchyName: Administrative hierarchy
+            hierarchyLevel: 1
+            nextUpperSpatialUnitId: 5a1b2c3d-0000-4e5f-8a9b-000000000000
+            nextLowerSpatialUnitId: 5a1b2c3d-0002-4e5f-8a9b-000000000002
+        isOutlineLayer: true
+        outlineColor: '#333333'
+        outlineWidth: 2
+        metadata:
+          contact: KomMonitor Team, info@kommonitor.de
+          datasource: Surveying office
+          description: Administrative districts of the city.
+          updateInterval: ARBITRARY
+          lastUpdate: '2019-01-30'
+          sridEPSG: 4326
+
+    SpatialUnitOverviewCollection:
+      summary: List of spatial units
+      description: Collection of spatial unit metadata overviews.
+      value:
+        - spatialUnitId: 5a1b2c3d-0001-4e5f-8a9b-000000000001
+          spatialUnitLevel: districts
+          isPublic: true
+          permissions:
+            - creator
+          userPermissions:
+            - creator
+          metadata:
+            contact: KomMonitor Team, info@kommonitor.de
+            datasource: Surveying office
+            description: Administrative districts of the city.
+            updateInterval: ARBITRARY
+            sridEPSG: 4326
+        - spatialUnitId: 5a1b2c3d-0002-4e5f-8a9b-000000000002
+          spatialUnitLevel: blocks
+          isPublic: true
+          permissions:
+            - viewer
+          userPermissions:
+            - viewer
+          metadata:
+            contact: KomMonitor Team, info@kommonitor.de
+            datasource: Surveying office
+            description: Statistical blocks of the city.
+            updateInterval: ARBITRARY
+            sridEPSG: 4326
+
+    # ---------------------------------------------------------------------------
+    # Spatial unit hierarchies
+    # ---------------------------------------------------------------------------
+
+    SpatialUnitHierarchyPOSTInput:
+      summary: Create a spatial unit hierarchy
+      description: Creates a mandant-owned hierarchy, optionally with an ordered
+        list of existing spatial unit members.
+      value:
+        name: Administrative hierarchy
+        mandantId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+        isPublic: false
+        members:
+          - spatialUnitId: 5a1b2c3d-0001-4e5f-8a9b-000000000001
+            hierarchyLevel: 1
+          - spatialUnitId: 5a1b2c3d-0002-4e5f-8a9b-000000000002
+            hierarchyLevel: 2
+
+    SpatialUnitHierarchyInput:
+      summary: Update a spatial unit hierarchy
+      description: Updates the name and visibility of an existing hierarchy.
+      value:
+        name: Administrative hierarchy
+        mandantId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+        isPublic: true
+
+    SpatialUnitHierarchyMemberInputCollection:
+      summary: Set hierarchy members
+      description: Replaces the ordered list of spatial units that make up a
+        hierarchy.
+      value:
+        - spatialUnitId: 5a1b2c3d-0001-4e5f-8a9b-000000000001
+          hierarchyLevel: 1
+        - spatialUnitId: 5a1b2c3d-0002-4e5f-8a9b-000000000002
+          hierarchyLevel: 2
+
+    SpatialUnitHierarchyMembershipInputCollection:
+      summary: Set hierarchy memberships of a spatial unit
+      description: Places a spatial unit into one or more hierarchies at given
+        ordered positions.
+      value:
+        - hierarchyId: 7b3f9a10-0001-4c2d-8e3f-000000000001
+          hierarchyLevel: 1
+        - hierarchyId: 7b3f9a10-0002-4c2d-8e3f-000000000002
+          hierarchyLevel: 3
+
+    SpatialUnitHierarchyOverview:
+      summary: Single spatial unit hierarchy
+      description: Metadata overview of a hierarchy together with its ordered
+        members.
+      value:
+        hierarchyId: 7b3f9a10-0001-4c2d-8e3f-000000000001
+        name: Administrative hierarchy
+        mandantId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+        isPublic: false
+        members:
+          - spatialUnitId: 5a1b2c3d-0001-4e5f-8a9b-000000000001
+            spatialUnitLevel: districts
+            hierarchyLevel: 1
+            nextLowerSpatialUnitId: 5a1b2c3d-0002-4e5f-8a9b-000000000002
+          - spatialUnitId: 5a1b2c3d-0002-4e5f-8a9b-000000000002
+            spatialUnitLevel: blocks
+            hierarchyLevel: 2
+            nextUpperSpatialUnitId: 5a1b2c3d-0001-4e5f-8a9b-000000000001
+
+    SpatialUnitHierarchyOverviewCollection:
+      summary: List of spatial unit hierarchies
+      description: Collection of hierarchy metadata overviews.
+      value:
+        - hierarchyId: 7b3f9a10-0001-4c2d-8e3f-000000000001
+          name: Administrative hierarchy
+          description: This hierarchy contains spatial units that represent administrative boundaries
+          mandantId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+          isPublic: false
+          members:
+            - spatialUnitId: 5a1b2c3d-0001-4e5f-8a9b-000000000001
+              spatialUnitLevel: districts
+              hierarchyLevel: 1
+        - hierarchyId: 7b3f9a10-0002-4c2d-8e3f-000000000002
+          name: Statistical hierarchy
+          mandantId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+          isPublic: true
+          members: []
+
+    # ---------------------------------------------------------------------------
+    # Topics
+    # ---------------------------------------------------------------------------
+
     TopicInput:
-      summary: placeholder, see header
-      value: {}
+      summary: Create a topic
+      description: Creates a main topic with a nested sub-topic.
+      value:
+        topicName: Demography
+        topicDescription: Indicators describing the population structure.
+        topicType: main
+        topicResource: indicator
+        subTopics:
+          - topicName: Age structure
+            topicDescription: Indicators describing the age distribution.
+            topicType: sub
+            topicResource: indicator
+
     TopicOverview:
-      summary: placeholder, see header
-      value: {}
+      summary: Single topic
+      description: Metadata overview of a topic and its sub-topics.
+      value:
+        topicId: t-demography
+        topicName: Demography
+        topicDescription: Indicators describing the population structure.
+        topicType: main
+        topicResource: indicator
+        displayOrder: 1
+        subTopics:
+          - topicId: t-age-structure
+            topicName: Age structure
+            topicDescription: Indicators describing the age distribution.
+            topicType: sub
+            topicResource: indicator
+            displayOrder: 1
+
     TopicOverviewCollection:
-      summary: placeholder, see header
-      value: {}
-    UserInfoInput:
-      summary: placeholder, see header
-      value: {}
-    UserInfoOverview:
-      summary: placeholder, see header
-      value: {}
-    UserInfoOverviewCollection:
-      summary: placeholder, see header
-      value: {}
+      summary: List of topics
+      description: Collection of topic metadata overviews.
+      value:
+        - topicId: t-demography
+          topicName: Demography
+          topicDescription: Indicators describing the population structure.
+          topicType: main
+          topicResource: indicator
+          displayOrder: 1
+        - topicId: t-mobility
+          topicName: Mobility
+          topicDescription: Indicators describing transport and mobility.
+          topicType: main
+          topicResource: indicator
+          displayOrder: 2
+
+    TopicDisplayOrderInputCollection:
+      summary: Update topic display order
+      description: Assigns new display-order values to a set of topics.
+      value:
+        - topicId: t-demography
+          displayOrder: 1
+        - topicId: t-mobility
+          displayOrder: 2
+
+    TopicDisplayOrderModeInput:
+      summary: Set topic order mode
+      description: Sets the ordering mode used to sort topics in clients.
+      value:
+        orderMode: custom
+
+    TopicDisplayOrderModeOverviewCollection:
+      summary: Topic order modes
+      description: Collection of topic order-mode settings per topic resource.
+      value:
+        - topicResource: indicator
+          orderMode: custom
+        - topicResource: georesource
+          orderMode: alphabetical
+
+    # ---------------------------------------------------------------------------
+    # Process scripts
+    # ---------------------------------------------------------------------------
+
+    ProcessScriptPOSTInput:
+      summary: Register a process script
+      description: Registers a JavaScript process script (BASE64-encoded) for an
+        indicator, with its required resources and parameters.
+      value:
+        name: Compute share of children under 6
+        description: Computes the U6 indicator from population counts.
+        associatedIndicatorId: 1d2e3f40-0001-4a5b-8c9d-000000000001
+        scriptType: kommonitor-standard
+        requiredGeoresourceIds: []
+        requiredIndicatorIds:
+          - 1d2e3f40-0002-4a5b-8c9d-000000000002
+        scriptCodeBase64: LyoganMgc2NyaXB0IGNvZGUgaGVyZSAqLw==
+        variableProcessParameters:
+          - name: threshold
+            dataType: double
+            defaultValue: '5.0'
+            description: Threshold used during computation.
+            minParameterValueForNumericInputs: 0.0
+            maxParameterValueForNumericInputs: 100.0
+
+    ProcessScriptPUTInput:
+      summary: Update a process script
+      description: Replaces the definition and code of an existing process script.
+      value:
+        name: Compute share of children under 6
+        description: Computes the U6 indicator from population counts.
+        scriptType: kommonitor-standard
+        requiredGeoresourceIds: []
+        requiredIndicatorIds:
+          - 1d2e3f40-0002-4a5b-8c9d-000000000002
+        scriptCodeBase64: LyoganMgc2NyaXB0IGNvZGUgdjIgKi8=
+        variableProcessParameters:
+          - name: threshold
+            dataType: double
+            defaultValue: '6.0'
+            description: Threshold used during computation.
+            minParameterValueForNumericInputs: 0.0
+            maxParameterValueForNumericInputs: 100.0
+
+    ProcessScriptOverview:
+      summary: Single process script
+      description: Metadata overview of a single process script.
+      value:
+        scriptId: ps-0001-0001-0001
+        name: Compute share of children under 6
+        description: Computes the U6 indicator from population counts.
+        indicatorId: 1d2e3f40-0001-4a5b-8c9d-000000000001
+        scriptType: kommonitor-standard
+        requiredGeoresourceIds: []
+        requiredIndicatorIds:
+          - 1d2e3f40-0002-4a5b-8c9d-000000000002
+        variableProcessParameters:
+          - name: threshold
+            dataType: double
+            defaultValue: '5.0'
+            description: Threshold used during computation.
+            minParameterValueForNumericInputs: 0.0
+            maxParameterValueForNumericInputs: 100.0
+
+    ProcessScriptOverviewCollection:
+      summary: List of process scripts
+      description: Collection of process script metadata overviews.
+      value:
+        - scriptId: ps-0001-0001-0001
+          name: Compute share of children under 6
+          description: Computes the U6 indicator from population counts.
+          indicatorId: 1d2e3f40-0001-4a5b-8c9d-000000000001
+          requiredGeoresourceIds: []
+          requiredIndicatorIds:
+            - 1d2e3f40-0002-4a5b-8c9d-000000000002
+          variableProcessParameters: []
+
+    # ---------------------------------------------------------------------------
+    # Organizational units / roles
+    # ---------------------------------------------------------------------------
+
+    OrganizationalUnitInput:
+      summary: Create an organizational unit
+      description: Creates an organizational unit (Keycloak group).
+      value:
+        name: District administration
+        mandant: true
+        contact: admin@example.org
+        description: Administration of the example municipality.
+
+    OrganizationalUnitOverview:
+      summary: Single organizational unit
+      description: Metadata overview of a single organizational unit.
+      value:
+        organizationalUnitId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+        name: District administration
+        mandant: true
+        keycloakId: 9a8b7c6d-0001-4e2f-8a3b-000000000001
+        contact: admin@example.org
+        description: Administration of the example municipality.
+        parentId: 3c9f8b12-0000-4a1b-9c33-1a2b3c4d5e00
+        mandantId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+        permissions: []
+        userAdminRoles:
+          - client-resources-creator
+        children:
+          - 3c9f8b12-0002-4a1b-9c33-1a2b3c4d5e02
+
+    OrganizationalUnitOverviewCollection:
+      summary: List of organizational units
+      description: Collection of organizational unit metadata overviews.
+      value:
+        - organizationalUnitId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+          name: District administration
+          mandant: true
+          keycloakId: 9a8b7c6d-0001-4e2f-8a3b-000000000001
+          contact: admin@example.org
+          parentId: 3c9f8b12-0000-4a1b-9c33-1a2b3c4d5e00
+          permissions: []
+          userAdminRoles:
+            - client-resources-creator
+          children: []
+
+    OrganizationalUnitPermissionOverview:
+      summary: Organizational unit permissions
+      description: Overview of the permissions that an organizational unit holds on
+        the different resource types.
+      value:
+        organizationalUnitId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+        name: District administration
+        contact: admin@example.org
+        description: Administration of the example municipality.
+        permissions:
+          georesources:
+            - id: 0c0d17bb-0001-4a56-9abc-000000000001
+              permissionLevel: creator
+              roleId: 9a8b7c6d-1001-4e2f-8a3b-000000000001
+          spatialunits:
+            - id: 5a1b2c3d-0001-4e5f-8a9b-000000000001
+              permissionLevel: editor
+              roleId: 9a8b7c6d-1002-4e2f-8a3b-000000000002
+          indicators:
+            - id: 1d2e3f40-0001-4a5b-8c9d-000000000001
+              permissionLevel: viewer
+              roleId: 9a8b7c6d-1003-4e2f-8a3b-000000000003
+          indicatorspatialunits:
+            - id: 1d2e3f40-0001-4a5b-8c9d-000000000001
+              spatialUnitId: 5a1b2c3d-0001-4e5f-8a9b-000000000001
+              permissionLevel: viewer
+              roleId: 9a8b7c6d-1004-4e2f-8a3b-000000000004
+
+    OrganizationalUnitRoleAuthority:
+      summary: Organizational unit role authorities
+      description: Admin roles that have been assigned to an organizational unit.
+      value:
+        authorityRoles:
+          - organizationalUnitId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+            adminRoles:
+              - client-resources-creator
+              - client-themes-creator
+
+    OrganizationalUnitRoleDelegate:
+      summary: Organizational unit role delegates
+      description: Admin roles of an organizational unit that were delegated to other
+        organizational units.
+      value:
+        roleDelegates:
+          - organizationalUnitId: 3c9f8b12-0002-4a1b-9c33-1a2b3c4d5e02
+            adminRoles:
+              - unit-resources-creator
+
+    GroupAdminRolesPUTInputCollection:
+      summary: Assign group admin roles
+      description: Assigns admin roles to organizational units.
+      value:
+        - organizationalUnitId: 3c9f8b12-0002-4a1b-9c33-1a2b3c4d5e02
+          organizationalUnitName: Statistics department
+          keycloakId: 9a8b7c6d-0002-4e2f-8a3b-000000000002
+          adminRoles:
+            - unit-resources-creator
+            - unit-themes-creator
+
+    # ---------------------------------------------------------------------------
+    # Permissions / ownership
+    # ---------------------------------------------------------------------------
+
+    PermissionLevelInput:
+      summary: Update permissions
+      description: Sets the permission roles and public visibility of a resource.
+      value:
+        isPublic: false
+        permissions:
+          - 9a8b7c6d-1001-4e2f-8a3b-000000000001
+          - 9a8b7c6d-1002-4e2f-8a3b-000000000002
+
+    PermissionLevelCollection:
+      summary: Effective permission levels
+      description: List of permission levels effective for a resource.
+      value:
+        - creator
+        - editor
+
+    OwnerInput:
+      summary: Update ownership
+      description: Transfers ownership of a resource to another organizational unit.
+      value:
+        ownerId: 3c9f8b12-0002-4a1b-9c33-1a2b3c4d5e02
+
+    # ---------------------------------------------------------------------------
+    # Resource filter
+    # ---------------------------------------------------------------------------
+
+    ResourceFilter:
+      summary: Filter resources
+      description: Restricts a resource listing to the given topics and resource ids.
+      value:
+        topicIds:
+          - t-demography
+          - t-mobility
+        ids:
+          - 1d2e3f40-0001-4a5b-8c9d-000000000001
+          - 1d2e3f40-0002-4a5b-8c9d-000000000002
+
+    # ---------------------------------------------------------------------------
+    # Web services
+    # ---------------------------------------------------------------------------
+
     WebServiceCreation:
-      summary: placeholder, see header
-      value: {}
+      summary: Create a web service
+      description: Registers a WMS web service entry.
+      value:
+        title: Schools WMS
+        description: WMS serving the school locations.
+        contact: KomMonitor Team, info@kommonitor.de
+        datasource: Municipal education department
+        topicReference: education
+        serviceResource: georesource
+        isPublic: true
+        ownerId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+        permissions:
+          - creator
+        connectionDetails:
+          serviceType: wms
+          baseUrl: https://geoserver.example.org/kommonitor/wms
+          layerName: kommonitor:schools
+
     WebServiceInput:
-      summary: placeholder, see header
-      value: {}
+      summary: Update a web service
+      description: Updates the metadata and connection details of a web service.
+      value:
+        title: Schools WMS
+        description: WMS serving the school locations.
+        contact: KomMonitor Team, info@kommonitor.de
+        datasource: Municipal education department
+        topicReference: education
+        serviceResource: georesource
+        connectionDetails:
+          serviceType: wms
+          baseUrl: https://geoserver.example.org/kommonitor/wms
+          layerName: kommonitor:schools
+
     WebServiceOverview:
-      summary: placeholder, see header
-      value: {}
+      summary: Single web service
+      description: Metadata overview of a single web service.
+      value:
+        id: ws-0001-0001-0001
+        title: Schools WMS
+        description: WMS serving the school locations.
+        contact: KomMonitor Team, info@kommonitor.de
+        datasource: Municipal education department
+        topicReference: education
+        serviceResource: georesource
+        isPublic: true
+        ownerId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+        permissions:
+          - creator
+        userPermissions:
+          - creator
+        connectionDetails:
+          serviceType: wms
+          baseUrl: https://geoserver.example.org/kommonitor/wms
+          layerName: kommonitor:schools
+
     WebServiceOverviewCollection:
-      summary: placeholder, see header
-      value: {}
+      summary: List of web services
+      description: Collection of web service metadata overviews.
+      value:
+        - id: ws-0001-0001-0001
+          title: Schools WMS
+          description: WMS serving the school locations.
+          contact: KomMonitor Team, info@kommonitor.de
+          datasource: Municipal education department
+          topicReference: education
+          serviceResource: georesource
+          isPublic: true
+          ownerId: 3c9f8b12-0001-4a1b-9c33-1a2b3c4d5e01
+          connectionDetails:
+            serviceType: wms
+            baseUrl: https://geoserver.example.org/kommonitor/wms
+            layerName: kommonitor:schools
+
+    # ---------------------------------------------------------------------------
+    # User infos
+    # ---------------------------------------------------------------------------
+
+    UserInfoInput:
+      summary: Update user favourites
+      description: Updates the favourites of the current user.
+      value:
+        georesourceFavourites:
+          - 0c0d17bb-0001-4a56-9abc-000000000001
+        indicatorFavourites:
+          - 1d2e3f40-0001-4a5b-8c9d-000000000001
+        georesourceTopicFavourites:
+          - t-administrative-boundaries
+        indicatorTopicFavourites:
+          - t-demography
+        webServiceFavourites:
+          - ws-0001-0001-0001
+
+    UserInfoOverview:
+      summary: Single user info
+      description: Favourites overview of a single user.
+      value:
+        userInfoId: ui-0001-0001-0001
+        keycloakId: 9a8b7c6d-2001-4e2f-8a3b-000000000001
+        georesourceFavourites:
+          - 0c0d17bb-0001-4a56-9abc-000000000001
+        indicatorFavourites:
+          - 1d2e3f40-0001-4a5b-8c9d-000000000001
+        georesourceTopicFavourites:
+          - t-administrative-boundaries
+        indicatorTopicFavourites:
+          - t-demography
+        webServiceFavourites:
+          - ws-0001-0001-0001
+
+    UserInfoOverviewCollection:
+      summary: List of user infos
+      description: Collection of user favourites overviews.
+      value:
+        - userInfoId: ui-0001-0001-0001
+          keycloakId: 9a8b7c6d-2001-4e2f-8a3b-000000000001
+          georesourceFavourites: []
+          indicatorFavourites:
+            - 1d2e3f40-0001-4a5b-8c9d-000000000001
+          georesourceTopicFavourites: []
+          indicatorTopicFavourites:
+            - t-demography
+          webServiceFavourites: []
+
+    # ---------------------------------------------------------------------------
+    # Misc
+    # ---------------------------------------------------------------------------
+
+    LastModificationOverview:
+      summary: Last modification timestamps
+      description: Timestamps of the last modification per resource type.
+      value:
+        access-control: '2024-05-01T12:30:00Z'
+        georesources: '2024-05-02T08:15:00Z'
+        indicators: '2024-05-03T09:45:00Z'
+        process-scripts: '2024-04-28T14:00:00Z'
+        spatial-units: '2024-05-01T07:20:00Z'
+        topics: '2024-04-30T16:10:00Z'
+        web-services: '2024-05-02T11:05:00Z'

@@ -1,0 +1,98 @@
+<!-- After a failed load the wizard says so itself; "no datasets" would be wrong then. -->
+@if (state.datasets().length === 0 && state.loadFailed()) {
+  <p class="selection-unavailable">
+    {{ 'ADMIN_DATASET_PERMISSIONS.SELECTION.UNAVAILABLE' | translate }}
+  </p>
+} @else if (state.datasets().length === 0) {
+  <p class="selection-empty">
+    {{ 'ADMIN_DATASET_PERMISSIONS.SELECTION.EMPTY' | translate: { owner: ownerName() } }}
+  </p>
+} @else {
+  <!-- The owner's name is interpolated as text, never as HTML: it is API data. -->
+  <p class="selection-intro">
+    {{ 'ADMIN_DATASET_PERMISSIONS.SELECTION.INTRO' | translate: { owner: ownerName() } }}
+    <b>{{
+      'ADMIN_DATASET_PERMISSIONS.SELECTION.COUNT'
+        | translate
+          : { selected: state.selectionCount().selected, total: state.selectionCount().total }
+    }}</b>
+  </p>
+
+  <div class="list-group">
+    @for (kind of kinds; track kind) {
+      @let datasets = state.datasetsByKind()[kind];
+      @let label = kindLabels[kind] | translate;
+      <div class="list-group-item kind-group" [attr.data-kind]="kind">
+        <div class="kind-header">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            [appTriState]="state.selectionState(kind)"
+            [disabled]="datasets.length === 0"
+            [attr.aria-label]="
+              'ADMIN_DATASET_PERMISSIONS.SELECTION.SELECT_KIND' | translate: { kind: label }
+            "
+            (change)="toggleKind(kind)"
+          />
+          <button
+            type="button"
+            class="btn btn-link kind-toggle"
+            [attr.aria-expanded]="isExpanded(kind)"
+            [disabled]="datasets.length === 0"
+            (click)="toggleExpanded(kind)"
+          >
+            <i
+              class="fas kind-caret"
+              [class.fa-chevron-down]="isExpanded(kind)"
+              [class.fa-chevron-right]="!isExpanded(kind)"
+              aria-hidden="true"
+            ></i>
+            <span class="kind-label">{{ label }}</span>
+            <span class="kind-count">{{
+              'ADMIN_DATASET_PERMISSIONS.SELECTION.KIND_COUNT'
+                | translate: { selected: selectedCount(kind), total: datasets.length }
+            }}</span>
+          </button>
+        </div>
+
+        @if (kind === 'indicator' && datasets.length > 0) {
+          <p class="kind-hint">
+            <i class="fas fa-layer-group" aria-hidden="true"></i>
+            {{ 'ADMIN_DATASET_PERMISSIONS.SELECTION.INDICATOR_HINT' | translate }}
+          </p>
+        }
+
+        @if (isExpanded(kind)) {
+          <ul class="dataset-list">
+            @for (dataset of datasets; track datasetKey(dataset)) {
+              <li>
+                <label class="form-check dataset-row">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    [checked]="state.isSelected(datasetKey(dataset))"
+                    (change)="toggleDataset(dataset)"
+                  />
+                  <span class="form-check-label">{{ dataset.name }}</span>
+                  <app-public-badge [state]="publicState(dataset)"></app-public-badge>
+                  @if (hasForeignTimeseries(dataset)) {
+                    <app-foreign-owner-badge mode="dataset"></app-foreign-owner-badge>
+                  }
+                  @if (kind === 'indicator') {
+                    @let count = timeseriesCount(dataset);
+                    <span class="dataset-meta">{{
+                      (count === 1
+                        ? 'ADMIN_DATASET_PERMISSIONS.SELECTION.SPATIAL_UNITS_ONE'
+                        : 'ADMIN_DATASET_PERMISSIONS.SELECTION.SPATIAL_UNITS_MANY'
+                      ) | translate: { count }
+                    }}</span>
+                  }
+                </label>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    }
+  </div>
+}

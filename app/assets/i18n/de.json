@@ -1031,6 +1031,10 @@
           "TITLE": "Szenario Indikator komplett öffentlich",
           "CONTENT": "<table class=\"table\"><thead><tr><th>Indikatoren-Metadaten</th><th>Indikatoren-Zeitreihe pro Raumebene</th><th>Raumeinheiten-Metadaten</th></tr></thead><tbody><tr><td>Schalter <code>Öffentliche Lesefreigabe</code> aktivieren</td><td>für alle Raumeinheiten aktivieren der <code>Öffentliche Lesefreigabe</code> (weitere explizite Freigabe an Gruppen nur bei Bedarf zwecks Editierrechten) <i>unterschiedliche Konfigurationen je nach Raumeinheit denkbar</i></td><td><code>öffentlicher Lesezugriff</code> bei betreffenden Raumeinheiten-Metadaten selbst aktivieren</td></tr></tbody></table>"
         }
+      },
+      "DATASET_PERMISSIONS": {
+        "TITLE": "Wie lassen sich Rechte an vielen Datensätzen auf einmal vergeben?",
+        "CONTENT": "Globale Administratoren können Lese- und Editierrechte an den Datensätzen einer Organisationseinheit in einem Durchgang an mehrere andere Gruppen vergeben oder ihnen entziehen. Dazu dient in der <code>Gruppenverwaltung</code> die Schaltfläche <code>Rechtevergabe Datensätze</code> in der Zeile der Eigentümer-Gruppe. Der Assistent führt in drei Schritten durch die Vergabe:<ol><li><code>Datensätze wählen</code>: Indikatoren, Georessourcen und Raumebenen der Eigentümer-Gruppe; anfangs sind alle ausgewählt.</li><li><code>Rechte festlegen</code>: Für jede Gruppe des Mandanten wird für Lese- und für Editierrechte je eine Aktion gewählt: <code>unverändert</code>, <code>erteilen</code> oder <code>entziehen</code>. Ein Klick auf eine Gruppe zeigt ihre Rechte pro Datensatz, bei Indikatoren auch je Raumebene. Werden dort Datensätze unterschiedlich behandelt, erscheint die Auswahl als <code>individuell</code>.</li><li><code>Prüfen &amp; übertragen</code>: Eine Zusammenfassung zeigt, welche Gruppe an wie vielen Datensätzen Rechte erhält oder verliert. Gespeichert wird erst mit <code>Rechte übertragen</code>.</li></ol>Dabei gilt: Editierrechte schließen Leserechte ein. An Indikatoren lassen sich Leserechte je Raumebene vergeben; den Indikator selbst sieht eine Gruppe, sobald sie eine seiner Raumebenen lesen darf. Editierrechte gelten dagegen immer für den ganzen Indikator, denn sie erlauben, seine Metadaten und die Werte aller Raumebenen zu bearbeiten. Zu einem Indikator gehören dabei alle seine Raumebenen, auch solche mit anderem Eigentümer; der Assistent markiert sie. Die Rechte werden einmalig an die gewählten Datensätze geschrieben und gelten nicht für Datensätze, die die Eigentümer-Gruppe später anlegt. Eigentümerschaft, öffentliche Sichtbarkeit und die Rechte der Eigentümer-Gruppe selbst bleiben unverändert. <br> <br> Danach lassen sich die Rechte wie gewohnt am einzelnen Datensatz unter <code>Zugriffsschutz und Eigentümerschaft</code> weiter anpassen."
       }
     },
     "MSG": {
@@ -1058,6 +1062,127 @@
       "EDIT_GROUP_RIGHTS_TITLE": "Gruppenrechte bearbeiten",
       "FORBIDDEN_TITLE": "Erfordert die Rolle {{group}}.unit-users-creator oder client-users-creator auf einer übergeordneten Gruppe",
       "DELETE_TITLE": "Organisationseinheit löschen"
+    }
+  },
+  "ADMIN_DATASET_PERMISSIONS": {
+    "BUTTON_TITLE": "Rechtevergabe Datensätze",
+    "TITLE": "Rechte auf Datensätze der Organisationseinheit {{owner}} übertragen",
+    "STEPS": {
+      "DATASETS": "Datensätze wählen",
+      "RIGHTS": "Rechte festlegen",
+      "REVIEW": "Prüfen & übertragen"
+    },
+    "SELECTION": {
+      "INTRO": "Wählen Sie die bestehenden Datensätze von {{owner}}, auf die Rechte übertragen werden sollen.",
+      "COUNT": "Ausgewählt: {{selected}} von {{total}}.",
+      "KIND_COUNT": "{{selected}}/{{total}} ausgewählt",
+      "KINDS": {
+        "INDICATOR": "Indikatoren",
+        "GEORESOURCE": "Georessourcen",
+        "SPATIAL_UNIT": "Raumebenen"
+      },
+      "SELECT_KIND": "Alle {{kind}} auswählen",
+      "INDICATOR_HINT": "Rechteänderungen an Indikatoren gelten standardmäßig für alle Raumebenen, auf denen der Indikator vorliegt. In Schritt 2 lassen sich Leserechte je Raumebene festlegen (Organisationseinheit anklicken); Editierrechte gelten immer für den ganzen Indikator.",
+      "SPATIAL_UNITS_ONE": "1 Raumebene",
+      "SPATIAL_UNITS_MANY": "{{count}} Raumebenen",
+      "EMPTY": "{{owner}} besitzt keine Datensätze.",
+      "UNAVAILABLE": "Die Datensätze konnten nicht geladen werden."
+    },
+    "LEVELS": {
+      "VIEWER": "Leserechte",
+      "EDITOR": "Editierrechte"
+    },
+    "RIGHTS": {
+      "INTRO_ONE": "Legen Sie pro Gruppe fest, was mit den Rechten an dem gewählten Datensatz passiert.",
+      "INTRO_MANY": "Legen Sie pro Gruppe fest, was mit den Rechten an den {{count}} gewählten Datensätzen passiert.",
+      "GROUP": "Organisationseinheit",
+      "ACTIONS": {
+        "KEEP": "unverändert",
+        "GRANT": "erteilen",
+        "REVOKE": "entziehen",
+        "CUSTOM": "individuell"
+      },
+      "SELECT_LABEL": "{{level}} für {{group}}",
+      "COVERAGE": "{{count}}/{{total}}",
+      "COVERAGE_CHANGE": "{{before}} → {{after}}",
+      "LEGEND": "Die Zahl zeigt, an wie vielen der gewählten Datensätze die Gruppe das Recht aktuell hat. Der Pfeil zeigt die Zahl nach der Übertragung.",
+      "NO_GROUPS": "Im Mandanten von {{owner}} gibt es keine weiteren Organisationseinheiten, an die Rechte vergeben werden können.",
+      "LEFT_OUT": "Nicht aufgeführt, weil ihnen ein Lese- oder Editierrecht für Datensätze fehlt: {{names}}.",
+      "NO_TENANT": "Der Mandant von {{owner}} lässt sich nicht ermitteln. Damit keine Rechte an Organisationseinheiten anderer Mandanten gehen, bietet der Assistent keine an.",
+      "NO_DATASETS": "Keine Datensätze gewählt. Wählen Sie in Schritt 1 die Datensätze aus, auf die Rechte übertragen werden sollen.",
+      "OPEN_HINT": "Klicken Sie auf eine Organisationseinheit, um ihre Rechte pro Datensatz zu sehen und einzeln anzupassen.",
+      "ADDED_SINCE_DIALOG": "Seit Rechte im Detaildialog festgelegt wurden, sind in Schritt 1 Datensätze hinzugekommen, die der Dialog nicht gezeigt hat. Bitte prüfen Sie die markierten Organisationseinheiten: Ein Klick auf den Namen zeigt die Rechte pro Datensatz, „Übernehmen“ bestätigt sie für die aktuelle Auswahl.",
+      "ADDED_ONE": "1 Datensatz ist erst danach hinzugekommen. Dafür gilt: Leserechte {{viewer}}, Editierrechte {{editor}}.",
+      "ADDED_MANY": "{{count}} Datensätze sind erst danach hinzugekommen. Dafür gilt: Leserechte {{viewer}}, Editierrechte {{editor}}.",
+      "ADDED_EFFECT": {
+        "GRANT": "erteilt",
+        "REVOKE": "entzogen",
+        "KEEP": "unverändert"
+      },
+      "OPEN_GROUP": "Rechte pro Datensatz anzeigen"
+    },
+    "GROUP_DIALOG": {
+      "TITLE": "Rechte der Organisationseinheit {{group}} pro Datensatz",
+      "INTRO_ONE": "Aktuelle Rechte an dem in Schritt 1 gewählten Datensatz.",
+      "INTRO_MANY": "Aktuelle Rechte an den {{count}} in Schritt 1 gewählten Datensätzen.",
+      "MARK_HINT": "markiert geänderte Werte. Mit „Übernehmen“ wird die Auswahl im Dropdown als „individuell“ angezeigt.",
+      "DATASET": "Datensatz",
+      "VIEWER": "Lesen",
+      "EDITOR": "Editieren",
+      "INDICATOR_HINT": "Lesen gilt für alle Raumebenen, Editieren für den ganzen Indikator. Klicken Sie auf einen Indikator, um Leserechte je Raumebene festzulegen.",
+      "TOGGLE_LABEL": "{{level}}: {{name}}",
+      "CHANGED": "geändert",
+      "LEGEND": "Editierrechte schließen Leserechte ein. An Indikatoren gelten Editierrechte für den ganzen Indikator: Sie erlauben, seine Metadaten und die Werte aller Raumebenen zu bearbeiten.",
+      "EDIT_WHOLE_INDICATOR": "Editierrechte gelten für den ganzen Indikator",
+      "DEVIATIONS_ONE": "1 Abweichung vom Ist-Zustand",
+      "DEVIATIONS_MANY": "{{count}} Abweichungen vom Ist-Zustand",
+      "RESET": "Auf Ist-Zustand zurücksetzen",
+      "APPLY": "Übernehmen"
+    },
+    "FOREIGN_OWNER": {
+      "SLOT": "Eigentümer: {{owner}}",
+      "DATASET": "Raumebenen anderer Eigentümer",
+      "TITLE": "Diese Raumebene des Indikators gehört einer anderen Organisationseinheit. Der Assistent ändert ihre Rechte trotzdem mit, denn er wählt Indikatoren nach dem Eigentümer des Indikators."
+    },
+    "PUBLIC": {
+      "ALL": "öffentlich",
+      "SOME": "teilweise öffentlich",
+      "TITLE": "Jeder darf das lesen. Leserechte von Gruppen wirken hier nicht, und der Assistent ändert das nicht."
+    },
+    "REVIEW": {
+      "NOTICE": "Die Änderungen werden einmalig auf die gewählten Datensätze geschrieben. Für Datensätze, die {{owner}} künftig anlegt, gelten sie nicht.",
+      "PUBLIC_LOSS_ONE": "1 Datensatz, an dem Leserechte entzogen werden, ist ganz oder teilweise öffentlich: Dort kann ihn weiterhin jeder lesen. Ob ein Datensatz öffentlich ist, lässt sich nur am Datensatz selbst ändern.",
+      "PUBLIC_LOSS_MANY": "{{count}} Datensätze, an denen Leserechte entzogen werden, sind ganz oder teilweise öffentlich: Dort kann sie weiterhin jeder lesen. Ob ein Datensatz öffentlich ist, lässt sich nur am Datensatz selbst ändern.",
+      "ADDED_SINCE_DIALOG_ONE": "Bei 1 Organisationseinheit sind seit der Festlegung im Detaildialog Datensätze hinzugekommen, die der Dialog nicht gezeigt hat. Was für diese gilt, zeigt Schritt 2.",
+      "ADDED_SINCE_DIALOG_MANY": "Bei {{count}} Organisationseinheiten sind seit der Festlegung im Detaildialog Datensätze hinzugekommen, die der Dialog nicht gezeigt hat. Was für diese gilt, zeigt Schritt 2.",
+      "TO_RIGHTS": "Zu Schritt 2",
+      "SUMMARY_TITLE": "Zusammenfassung",
+      "AFFECTS_ONE": "betrifft 1 Datensatz",
+      "AFFECTS_MANY": "betrifft {{count}} Datensätze",
+      "EMPTY": "Keine Änderungen festgelegt. Gehen Sie zurück zu Schritt 2.",
+      "LEVELS": {
+        "VIEWER": "Leserechte",
+        "EDITOR": "Editierrechte"
+      },
+      "GAINS_ONE": "erhält {{level}} an 1 Datensatz",
+      "GAINS_MANY": "erhält {{level}} an {{count}} Datensätzen",
+      "LOSES_ONE": "verliert {{level}} an 1 Datensatz",
+      "LOSES_MANY": "verliert {{level}} an {{count}} Datensätzen"
+    },
+    "TRANSFER": "Rechte übertragen",
+    "SAVE_FAILED": "Die Rechte konnten nicht übertragen werden: {{message}}",
+    "LOAD_FAILED": "Der aktuelle Stand der Rechte konnte nicht geladen werden, die angezeigten Rechte sind womöglich veraltet. Übertragen wird erst, wenn das Laden gelingt.",
+    "CHANGED": "Die Rechte wurden inzwischen an anderer Stelle geändert, es wurde nichts übertragen. Die Zusammenfassung zeigt jetzt, was auf dem aktuellen Stand geschrieben würde. Bitte prüfen Sie sie und übertragen Sie erneut.",
+    "RELOAD": "Erneut laden",
+    "DISCARD": "Verwerfen",
+    "KEEP_EDITING": "Weiter bearbeiten",
+    "CANCEL_QUESTION": "Die festgelegten Rechte gehen verloren. Trotzdem schließen?",
+    "DONE": {
+      "TITLE_ONE": "Rechte auf 1 Datensatz übertragen",
+      "TITLE_MANY": "Rechte auf {{count}} Datensätze übertragen",
+      "TEXT": "Die Rechte sind jetzt an den einzelnen Datensätzen gespeichert und können dort unter Geodatenverwaltung weiter angepasst werden.",
+      "STALE": "Die Datensätze konnten danach nicht neu geladen werden, die angezeigten Rechte sind daher veraltet. Laden Sie sie erneut, bevor Sie weitere Rechte übertragen.",
+      "RESTART": "Weitere Übertragung"
     }
   },
   "ADMIN_TOPICS": {
