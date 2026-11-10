@@ -52,6 +52,7 @@
 }
 
 .dataset-row .dataset-name {
+  display: block;
   padding-left: 1.5rem;
 }
 
@@ -67,7 +68,8 @@
 
 .row-toggle {
   display: inline-flex;
-  align-items: center;
+  // Baseline, not center: the caret stays on the first line of a wrapped name.
+  align-items: baseline;
   gap: 0.5rem;
   padding: 0;
   color: inherit;
@@ -85,6 +87,20 @@
   font-size: 0.85rem;
   font-weight: normal;
   color: var(--bs-secondary-color);
+}
+
+// Name, badge and count flow as text; badge and count never break inside.
+.row-label {
+  app-public-badge,
+  .row-meta {
+    margin-left: 0.4rem;
+    white-space: nowrap;
+  }
+}
+
+.slot-row app-public-badge {
+  margin-left: 0.4rem;
+  white-space: nowrap;
 }
 
 // Edit on a timeseries row: set for the whole indicator in the row above.

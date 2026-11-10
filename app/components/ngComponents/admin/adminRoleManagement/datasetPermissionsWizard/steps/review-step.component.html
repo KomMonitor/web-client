@@ -4,6 +4,19 @@
   <span>{{ 'ADMIN_DATASET_PERMISSIONS.REVIEW.NOTICE' | translate: { owner: ownerName() } }}</span>
 </div>
 
+@let publicLosses = state.publicReadLosses();
+@if (publicLosses > 0) {
+  <div class="alert alert-warning public-loss-notice" role="note">
+    <i class="fas fa-globe" aria-hidden="true"></i>
+    <span>{{
+      (publicLosses === 1
+        ? 'ADMIN_DATASET_PERMISSIONS.REVIEW.PUBLIC_LOSS_ONE'
+        : 'ADMIN_DATASET_PERMISSIONS.REVIEW.PUBLIC_LOSS_MANY'
+      ) | translate: { count: publicLosses }
+    }}</span>
+  </div>
+}
+
 @let lines = state.summary();
 <div class="card review-summary">
   <div class="card-header">

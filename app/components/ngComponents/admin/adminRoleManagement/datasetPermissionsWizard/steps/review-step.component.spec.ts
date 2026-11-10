@@ -20,7 +20,8 @@ const TENANT_OF = { owner: 'm', a: 'm', b: 'm' };
 const DATASETS: Partial<OwnerDatasetSources> = {
   indicators: [indicatorSource('i1', OWNER, [], { s1: [], s2: [] })],
   georesources: [georesourceSource('g1', OWNER, ['b-editor'])],
-  spatialUnits: [spatialUnitSource('su1', OWNER, ['b-viewer'])],
+  // Public: anyone may read it, whatever b's rights say.
+  spatialUnits: [{ ...spatialUnitSource('su1', OWNER, ['b-viewer']), isPublic: true }],
 };
 
 describe('ReviewStepComponent', () => {
@@ -48,6 +49,8 @@ describe('ReviewStepComponent', () => {
           GAINS_MANY: 'erhält {{level}} an {{count}} Datensätzen',
           LOSES_ONE: 'verliert {{level}} an 1 Datensatz',
           LOSES_MANY: 'verliert {{level}} an {{count}} Datensätzen',
+          PUBLIC_LOSS_ONE: '1 Datensatz bleibt öffentlich.',
+          PUBLIC_LOSS_MANY: '{{count}} Datensätze bleiben öffentlich.',
         },
       },
     });
@@ -143,5 +146,16 @@ describe('ReviewStepComponent', () => {
     state.setKindSelected('spatialUnit', false);
     update();
     expect(text(host().querySelector('.summary-empty'))).toBe('Keine Änderungen.');
+  });
+
+  it('warns where read is revoked on a dataset anyone may read anyway', () => {
+    const notice = () => text(host().querySelector('.public-loss-notice'));
+    state.setAction('a', 'viewer', 'grant');
+    update();
+    expect(notice()).toBeNull();
+
+    state.setAction('b', 'viewer', 'revoke');
+    update();
+    expect(notice()).toBe('1 Datensatz bleibt öffentlich.');
   });
 });

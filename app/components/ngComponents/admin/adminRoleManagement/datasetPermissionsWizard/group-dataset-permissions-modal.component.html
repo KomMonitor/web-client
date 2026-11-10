@@ -96,16 +96,23 @@
                       [class.fa-chevron-right]="!isDatasetExpanded(dataset)"
                       aria-hidden="true"
                     ></i>
-                    <span>{{ dataset.name }}</span>
-                    <span class="row-meta">{{
-                      (count === 1
-                        ? 'ADMIN_DATASET_PERMISSIONS.SELECTION.SPATIAL_UNITS_ONE'
-                        : 'ADMIN_DATASET_PERMISSIONS.SELECTION.SPATIAL_UNITS_MANY'
-                      ) | translate: { count }
-                    }}</span>
+                    <!-- One flow of text: a long name wraps, badge and count follow it. -->
+                    <span class="row-label">
+                      <span class="row-name">{{ dataset.name }}</span>
+                      <app-public-badge [state]="publicState(dataset)"></app-public-badge>
+                      <span class="row-meta">{{
+                        (count === 1
+                          ? 'ADMIN_DATASET_PERMISSIONS.SELECTION.SPATIAL_UNITS_ONE'
+                          : 'ADMIN_DATASET_PERMISSIONS.SELECTION.SPATIAL_UNITS_MANY'
+                        ) | translate: { count }
+                      }}</span>
+                    </span>
                   </button>
                 } @else {
-                  <span class="dataset-name">{{ dataset.name }}</span>
+                  <span class="row-label dataset-name">
+                    <span class="row-name">{{ dataset.name }}</span>
+                    <app-public-badge [state]="publicState(dataset)"></app-public-badge>
+                  </span>
                 }
               </th>
               @for (level of levels; track level) {
@@ -128,6 +135,7 @@
                   <th scope="row">
                     <i class="fas fa-layer-group" aria-hidden="true"></i>
                     {{ slot.label }}
+                    <app-public-badge [state]="slot.isPublic ? 'all' : 'none'"></app-public-badge>
                   </th>
                   <td>
                     <ng-container

@@ -45,6 +45,7 @@ describe('DatasetSelectionStepComponent', () => {
           SPATIAL_UNITS_MANY: '{{count}} Ebenen',
           EMPTY: '{{owner}} hat nichts.',
         },
+        PUBLIC: { ALL: 'öffentlich', SOME: 'teils öffentlich' },
       },
     });
     translate.use('spec');
@@ -138,5 +139,26 @@ describe('DatasetSelectionStepComponent', () => {
       'Umweltamt hat nichts.'
     );
     expect(host().querySelector('.list-group')).toBeNull();
+  });
+
+  it('marks public and partly public datasets', () => {
+    const [i1, i2] = DATASETS.indicators!;
+    setUp({
+      ...DATASETS,
+      indicators: [
+        { ...i1, isPublic: true },
+        {
+          ...i2,
+          isPublic: true,
+          applicableSpatialUnits: i2.applicableSpatialUnits.map((u) => ({ ...u, isPublic: true })),
+        },
+      ],
+    });
+    click(group('indicator').querySelector('.kind-toggle')!);
+    click(group('georesource').querySelector('.kind-toggle')!);
+
+    const badge = (row: HTMLElement) => row.querySelector('.public-badge')?.textContent!.trim();
+    expect(rows('indicator').map(badge)).toEqual(['teils öffentlich', 'öffentlich']);
+    expect(rows('georesource').map(badge)).toEqual([undefined]);
   });
 });

@@ -21,6 +21,8 @@ import {
   draftState,
   initialDraft,
   levelSlots,
+  publicReadLossCount,
+  publicState,
   resourcePermissionIds,
   samePatch,
   setDraftLevel,
@@ -963,6 +965,63 @@ describe('dataset-permissions.model', () => {
         ])
       ).toBe(false);
       expect(samePatch(patch, [patch[0], { ...patch[1], organizationalUnitId: 'c' }])).toBe(false);
+    });
+  });
+
+  describe('public datasets', () => {
+    const publicIndicator = {
+      ...indicatorSource('i', OWNER, [], { s1: ['a-viewer'], s2: ['a-viewer'] }),
+      isPublic: true,
+    };
+    const partly = {
+      ...publicIndicator,
+      applicableSpatialUnits: publicIndicator.applicableSpatialUnits.map((u, index) => ({
+        ...u,
+        isPublic: index === 0,
+      })),
+    };
+    const fully = {
+      ...publicIndicator,
+      applicableSpatialUnits: publicIndicator.applicableSpatialUnits.map((u) => ({
+        ...u,
+        isPublic: true,
+      })),
+    };
+
+    it('flags public slots only', () => {
+      const [indicator, georesource] = datasets({
+        indicators: [partly],
+        georesources: [{ ...georesourceSource('g', OWNER, []), isPublic: false }],
+      });
+      expect(indicator.indicatorSlot!.isPublic).toBe(true);
+      expect(indicator.slots.map((s) => s.isPublic)).toEqual([true, undefined]);
+      expect(georesource.slots[0].isPublic).toBeUndefined();
+    });
+
+    it('tells whether the indicator itself and all, some or none of its timeseries are public', () => {
+      const [all, some, none] = datasets({
+        indicators: [
+          { ...fully, indicatorId: 'a', indicatorName: 'a' },
+          { ...partly, indicatorId: 'b', indicatorName: 'b' },
+          indicatorSource('c', OWNER, [], { s1: [] }),
+        ],
+      });
+      expect([all, some, none].map(publicState)).toEqual(['all', 'some', 'none']);
+    });
+
+    it('counts the datasets where read is revoked on a public slot', () => {
+      const selected = datasets({
+        indicators: [partly],
+        georesources: [
+          { ...georesourceSource('g1', OWNER, ['a-viewer']), isPublic: true },
+          georesourceSource('g2', OWNER, ['a-viewer']),
+          { ...georesourceSource('g3', OWNER, []), isPublic: true },
+        ],
+      });
+      // The indicator (public itself and on s1), g1; g2 is not public, g3 had no read.
+      expect(publicReadLossCount([a], selected, { a: revokeViewer })).toBe(2);
+      expect(publicReadLossCount([a], selected, { a: grantViewer })).toBe(0);
+      expect(publicReadLossCount([a], selected, {})).toBe(0);
     });
   });
 });

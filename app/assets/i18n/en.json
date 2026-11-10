@@ -1129,8 +1129,15 @@
       "RESET": "Reset to current state",
       "APPLY": "Apply"
     },
+    "PUBLIC": {
+      "ALL": "public",
+      "SOME": "partly public",
+      "TITLE": "Anyone may read this. Read rights of groups have no effect here, and the wizard does not change that."
+    },
     "REVIEW": {
       "NOTICE": "The changes are written once to the selected datasets. They do not apply to datasets that {{owner}} creates in the future.",
+      "PUBLIC_LOSS_ONE": "1 dataset on which read rights are revoked is wholly or partly public: anyone can still read it there. Whether a dataset is public can only be changed on the dataset itself.",
+      "PUBLIC_LOSS_MANY": "{{count}} datasets on which read rights are revoked are wholly or partly public: anyone can still read them there. Whether a dataset is public can only be changed on the dataset itself.",
       "SUMMARY_TITLE": "Summary",
       "AFFECTS_ONE": "affects 1 dataset",
       "AFFECTS_MANY": "affects {{count}} datasets",

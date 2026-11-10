@@ -82,6 +82,11 @@ export interface PermissionSlot {
   label?: string;
   /** Current permission ids on this slot, of all groups. */
   permissions: readonly string[];
+  /**
+   * Set when anyone may read the slot (`isPublic`). Read rights of groups do
+   * not matter there then, and the wizard cannot change it.
+   */
+  isPublic?: true;
 }
 
 export interface PermissionDataset {
@@ -141,20 +146,23 @@ export interface OwnerDatasetSources {
   indicators: readonly (Pick<
     IndicatorOverviewType,
     'indicatorId' | 'indicatorName' | 'ownerId' | 'permissions'
-  > & {
-    applicableSpatialUnits: readonly Pick<
-      IndicatorSpatialUnitJoinItem,
-      'spatialUnitId' | 'spatialUnitName' | 'permissions'
-    >[];
-  })[];
-  georesources: readonly Pick<
+  > &
+    Partial<Pick<IndicatorOverviewType, 'isPublic'>> & {
+      applicableSpatialUnits: readonly Pick<
+        IndicatorSpatialUnitJoinItem,
+        'spatialUnitId' | 'spatialUnitName' | 'permissions' | 'isPublic'
+      >[];
+    })[];
+  georesources: readonly (Pick<
     GeoresourcesDataset,
     'georesourceId' | 'datasetName' | 'ownerId' | 'permissions'
-  >[];
-  spatialUnits: readonly Pick<
+  > &
+    Partial<Pick<GeoresourcesDataset, 'isPublic'>>)[];
+  spatialUnits: readonly (Pick<
     SpatialUnitOverviewType,
     'spatialUnitId' | 'spatialUnitLevel' | 'ownerId' | 'permissions'
-  >[];
+  > &
+    Partial<Pick<SpatialUnitOverviewType, 'isPublic'>>)[];
 }
 
 // ---------------------------------------------------------------------------
@@ -240,7 +248,9 @@ export function datasetsOfOwner(
         slots: [
           makeSlot(
             { section: 'georesources', id: georesource.georesourceId },
-            georesource.permissions
+            georesource.permissions,
+            undefined,
+            georesource.isPublic
           ),
         ],
       })
@@ -255,7 +265,9 @@ export function datasetsOfOwner(
         slots: [
           makeSlot(
             { section: 'spatialunits', id: spatialUnit.spatialUnitId },
-            spatialUnit.permissions
+            spatialUnit.permissions,
+            undefined,
+            spatialUnit.isPublic
           ),
         ],
       })
@@ -272,19 +284,32 @@ function indicatorDataset(indicator: OwnerDatasetSources['indicators'][number]):
       kind: 'indicator',
       id,
       name: indicator.indicatorName,
-      slots: [makeSlot({ section: 'indicators', id }, indicator.permissions)],
+      slots: [
+        makeSlot(
+          { section: 'indicators', id },
+          indicator.permissions,
+          undefined,
+          indicator.isPublic
+        ),
+      ],
     };
   }
   return {
     kind: 'indicator',
     id,
     name: indicator.indicatorName,
-    indicatorSlot: makeSlot({ section: 'indicators', id }, indicator.permissions),
+    indicatorSlot: makeSlot(
+      { section: 'indicators', id },
+      indicator.permissions,
+      undefined,
+      indicator.isPublic
+    ),
     slots: units.map((unit) =>
       makeSlot(
         { section: 'indicatorspatialunits', id, spatialUnitId: unit.spatialUnitId },
         unit.permissions,
-        unit.spatialUnitName
+        unit.spatialUnitName,
+        unit.isPublic
       )
     ),
   };
@@ -293,14 +318,25 @@ function indicatorDataset(indicator: OwnerDatasetSources['indicators'][number]):
 function makeSlot(
   target: SlotTarget,
   permissions: readonly string[] | null | undefined,
-  label?: string
+  label?: string,
+  isPublic?: boolean | null
 ): PermissionSlot {
   return {
     key: slotKey(target),
     target,
     ...(label === undefined ? {} : { label }),
     permissions: [...(permissions ?? [])],
+    ...(isPublic ? { isPublic: true as const } : {}),
   };
+}
+
+/**
+ * How much of the dataset anyone may read anyway: all, some or none of its
+ * slots — for an indicator, the indicator itself and its timeseries.
+ */
+export function publicState(dataset: PermissionDataset): TriState {
+  const slots = allSlots(dataset);
+  return triState(slots.filter((s) => s.isPublic).length, slots.length);
 }
 
 /** Number of timeseries (spatial units) of an indicator; zero for every other dataset. */
@@ -784,6 +820,26 @@ export function changedDatasetCount(
   return datasets.filter((dataset) =>
     deciding.some(
       (group) => changedSlots(group, dataset, decisions[group.organizationalUnitId]).length > 0
+    )
+  ).length;
+}
+
+/**
+ * On how many datasets a group loses read access to a public slot — where the
+ * loss has no effect, as anyone may read the slot anyway.
+ */
+export function publicReadLossCount(
+  groups: readonly GroupPermissionIds[],
+  datasets: readonly PermissionDataset[],
+  decisions: Decisions
+): number {
+  const deciding = groups.filter((g) => decisions[g.organizationalUnitId]);
+  return datasets.filter((dataset) =>
+    deciding.some((group) =>
+      changedSlots(group, dataset, decisions[group.organizationalUnitId]).some(
+        ({ slot, target }) =>
+          slot.isPublic && !target.viewer && currentRights(group, slot.permissions).viewer
+      )
     )
   ).length;
 }

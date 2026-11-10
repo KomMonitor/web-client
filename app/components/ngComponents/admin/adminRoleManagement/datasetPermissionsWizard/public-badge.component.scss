@@ -1,0 +1,5 @@
+@use 'wizard';
+
+.public-badge {
+  @include wizard.public-badge;
+}

@@ -1129,8 +1129,15 @@
       "RESET": "Auf Ist-Zustand zurücksetzen",
       "APPLY": "Übernehmen"
     },
+    "PUBLIC": {
+      "ALL": "öffentlich",
+      "SOME": "teilweise öffentlich",
+      "TITLE": "Jeder darf das lesen. Leserechte von Gruppen wirken hier nicht, und der Assistent ändert das nicht."
+    },
     "REVIEW": {
       "NOTICE": "Die Änderungen werden einmalig auf die gewählten Datensätze geschrieben. Für Datensätze, die {{owner}} künftig anlegt, gelten sie nicht.",
+      "PUBLIC_LOSS_ONE": "1 Datensatz, an dem Leserechte entzogen werden, ist ganz oder teilweise öffentlich: Dort kann ihn weiterhin jeder lesen. Ob ein Datensatz öffentlich ist, lässt sich nur am Datensatz selbst ändern.",
+      "PUBLIC_LOSS_MANY": "{{count}} Datensätze, an denen Leserechte entzogen werden, sind ganz oder teilweise öffentlich: Dort kann sie weiterhin jeder lesen. Ob ein Datensatz öffentlich ist, lässt sich nur am Datensatz selbst ändern.",
       "SUMMARY_TITLE": "Zusammenfassung",
       "AFFECTS_ONE": "betrifft 1 Datensatz",
       "AFFECTS_MANY": "betrifft {{count}} Datensätze",

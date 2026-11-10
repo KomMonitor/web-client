@@ -27,9 +27,11 @@ import {
   draftDeviates,
   draftState,
   levelSlots,
+  publicState,
   setDraftLevel,
   timeseriesCount,
 } from './dataset-permissions.model';
+import { PublicBadgeComponent } from './public-badge.component';
 import { TriStateCheckboxDirective } from './tri-state-checkbox.directive';
 
 const LEVEL_LABELS: Record<RightLevel, string> = {
@@ -63,7 +65,7 @@ interface KindGroup {
   selector: 'app-group-dataset-permissions-modal',
   templateUrl: './group-dataset-permissions-modal.component.html',
   styleUrls: ['./group-dataset-permissions-modal.component.scss'],
-  imports: [TranslateModule, NgTemplateOutlet, TriStateCheckboxDirective],
+  imports: [TranslateModule, NgTemplateOutlet, TriStateCheckboxDirective, PublicBadgeComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -82,6 +84,7 @@ export class GroupDatasetPermissionsModalComponent implements OnInit {
   protected readonly datasetKey = datasetKey;
   protected readonly timeseriesCount = timeseriesCount;
   protected readonly levelSlots = levelSlots;
+  protected readonly publicState = publicState;
 
   /** Only kinds with datasets; computed once, the inputs do not change. */
   protected kindGroups: KindGroup[] = [];

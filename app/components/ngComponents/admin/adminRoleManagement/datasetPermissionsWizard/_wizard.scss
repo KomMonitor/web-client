@@ -2,3 +2,11 @@
 
 // Orange as in the mockup: a pending change, neither good nor bad.
 $change-color: #c26a00;
+
+// Marks a dataset anyone may read: information, not a warning.
+@mixin public-badge {
+  font-weight: normal;
+  border: 1px solid var(--bs-info-border-subtle);
+  background-color: var(--bs-info-bg-subtle);
+  color: var(--bs-info-text-emphasis);
+}

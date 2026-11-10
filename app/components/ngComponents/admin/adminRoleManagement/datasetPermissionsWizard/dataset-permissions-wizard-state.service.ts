@@ -29,6 +29,7 @@ import {
   datasetKey,
   datasetsOfOwner,
   initialDraft,
+  publicReadLossCount,
   samePatch,
   summarize,
   triState,
@@ -193,6 +194,11 @@ export class DatasetPermissionsWizardStateService {
   );
 
   readonly hasChanges = computed(() => this.patch().length > 0);
+
+  /** On how many selected datasets read access is taken away where anyone may read anyway. */
+  readonly publicReadLosses = computed(() =>
+    publicReadLossCount(this.groups(), this.selectedDatasets(), this._decisions())
+  );
 
   /**
    * Starts a run for the owner: everything selected, nothing decided, and the

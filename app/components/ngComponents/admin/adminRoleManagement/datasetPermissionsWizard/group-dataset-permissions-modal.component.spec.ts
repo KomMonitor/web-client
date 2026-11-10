@@ -17,7 +17,7 @@ const a = group('a');
 
 /**
  * Group a reads timeseries s1 of i1, edits i0 (an indicator without
- * timeseries, so read access as well), and has nothing on g1.
+ * timeseries, so read access as well), and has nothing on g1, which is public.
  */
 const DATASETS: PermissionDataset[] = datasetsOfOwner(
   OWNER,
@@ -26,7 +26,7 @@ const DATASETS: PermissionDataset[] = datasetsOfOwner(
       indicatorSource('i1', OWNER, [], { s1: ['a-viewer'], s2: [] }, 'Arbeitslose'),
       indicatorSource('i0', OWNER, ['a-editor'], {}, 'Bevölkerung'),
     ],
-    georesources: [georesourceSource('g1', OWNER, [], 'Schulen')],
+    georesources: [{ ...georesourceSource('g1', OWNER, [], 'Schulen'), isPublic: true }],
   })
 );
 
@@ -44,6 +44,7 @@ describe('GroupDatasetPermissionsModalComponent', () => {
     translate.setTranslation('spec', {
       ADMIN_DATASET_PERMISSIONS: {
         SELECTION: { SPATIAL_UNITS_MANY: '{{count}} Ebenen' },
+        PUBLIC: { ALL: 'öffentlich', SOME: 'teils öffentlich' },
         GROUP_DIALOG: {
           TITLE: 'Rechte von {{group}}',
           VIEWER: 'Lesen',
@@ -123,7 +124,7 @@ describe('GroupDatasetPermissionsModalComponent', () => {
     setUp();
     click(kindRow('indicator').querySelector('.row-toggle')!);
     const indicator = row('[data-dataset="indicator:i1"]');
-    expect(text(indicator.querySelector('.row-toggle span'))).toBe('Arbeitslose');
+    expect(text(indicator.querySelector('.row-toggle .row-name'))).toBe('Arbeitslose');
     expect(text(indicator.querySelector('.row-meta'))).toBe('2 Ebenen');
     expect(row('[data-dataset="indicator:i0"]').querySelector('.row-toggle')).toBeNull();
 
@@ -197,5 +198,15 @@ describe('GroupDatasetPermissionsModalComponent', () => {
     click(host().querySelector('.btn-close')!);
     expect(activeModal.dismiss).toHaveBeenCalledTimes(2);
     expect(activeModal.close).not.toHaveBeenCalled();
+  });
+
+  it('marks a public dataset', () => {
+    setUp();
+    click(kindRow('georesource').querySelector('.row-toggle')!);
+    click(kindRow('indicator').querySelector('.row-toggle')!);
+    const badge = (selector: string) =>
+      row(selector).querySelector('.public-badge')?.textContent!.trim();
+    expect(badge('[data-dataset="georesource:g1"]')).toBe('öffentlich');
+    expect(badge('[data-dataset="indicator:i1"]')).toBeUndefined();
   });
 });
