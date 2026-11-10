@@ -87,6 +87,13 @@ export interface PermissionSlot {
    * not matter there then, and the wizard cannot change it.
    */
   isPublic?: true;
+  /**
+   * Owner of an indicator timeseries when it differs from the indicator's
+   * owner, e.g. after an ownership transfer that stopped halfway. Shown only:
+   * the wizard selects by the indicator's owner and changes the timeseries all
+   * the same.
+   */
+  foreignOwnerId?: string;
 }
 
 export interface PermissionDataset {
@@ -150,7 +157,7 @@ export interface OwnerDatasetSources {
     Partial<Pick<IndicatorOverviewType, 'isPublic'>> & {
       applicableSpatialUnits: readonly Pick<
         IndicatorSpatialUnitJoinItem,
-        'spatialUnitId' | 'spatialUnitName' | 'permissions' | 'isPublic'
+        'spatialUnitId' | 'spatialUnitName' | 'permissions' | 'isPublic' | 'ownerId'
       >[];
     })[];
   georesources: readonly (Pick<
@@ -330,14 +337,18 @@ function indicatorDataset(indicator: OwnerDatasetSources['indicators'][number]):
       undefined,
       indicator.isPublic
     ),
-    slots: units.map((unit) =>
-      makeSlot(
+    slots: units.map((unit) => {
+      const slot = makeSlot(
         { section: 'indicatorspatialunits', id, spatialUnitId: unit.spatialUnitId },
         unit.permissions,
         unit.spatialUnitName,
         unit.isPublic
-      )
-    ),
+      );
+      // A timeseries without an owner of its own belongs to the indicator's.
+      return unit.ownerId && unit.ownerId !== indicator.ownerId
+        ? { ...slot, foreignOwnerId: unit.ownerId }
+        : slot;
+    }),
   };
 }
 
@@ -363,6 +374,11 @@ function makeSlot(
 export function publicState(dataset: PermissionDataset): TriState {
   const slots = allSlots(dataset);
   return triState(slots.filter((s) => s.isPublic).length, slots.length);
+}
+
+/** Whether an indicator has a timeseries of another owner (see `PermissionSlot.foreignOwnerId`). */
+export function hasForeignTimeseries(dataset: PermissionDataset): boolean {
+  return dataset.slots.some((s) => s.foreignOwnerId);
 }
 
 /** Number of timeseries (spatial units) of an indicator; zero for every other dataset. */

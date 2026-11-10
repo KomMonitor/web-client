@@ -26,11 +26,13 @@ import {
   datasetKey,
   draftDeviates,
   draftState,
+  hasForeignTimeseries,
   levelSlots,
   publicState,
   setDraftLevel,
   timeseriesCount,
 } from './dataset-permissions.model';
+import { ForeignOwnerBadgeComponent } from './foreign-owner-badge.component';
 import { PublicBadgeComponent } from './public-badge.component';
 import { TriStateCheckboxDirective } from './tri-state-checkbox.directive';
 
@@ -65,7 +67,13 @@ interface KindGroup {
   selector: 'app-group-dataset-permissions-modal',
   templateUrl: './group-dataset-permissions-modal.component.html',
   styleUrls: ['./group-dataset-permissions-modal.component.scss'],
-  imports: [TranslateModule, NgTemplateOutlet, TriStateCheckboxDirective, PublicBadgeComponent],
+  imports: [
+    TranslateModule,
+    NgTemplateOutlet,
+    TriStateCheckboxDirective,
+    PublicBadgeComponent,
+    ForeignOwnerBadgeComponent,
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -78,6 +86,8 @@ export class GroupDatasetPermissionsModalComponent implements OnInit {
   datasets: readonly PermissionDataset[] = [];
   /** The rights the dialog opens with: the current ones with the group table's decision applied. */
   initialDraft: RightsDraft = {};
+  /** Name of an organizational unit, for timeseries of another owner; the id if unknown. */
+  ownerNameOf: (id: string) => string = (id) => id;
 
   protected readonly levels = RIGHT_LEVELS;
   protected readonly levelLabels = LEVEL_LABELS;
@@ -85,6 +95,7 @@ export class GroupDatasetPermissionsModalComponent implements OnInit {
   protected readonly timeseriesCount = timeseriesCount;
   protected readonly levelSlots = levelSlots;
   protected readonly publicState = publicState;
+  protected readonly hasForeignTimeseries = hasForeignTimeseries;
 
   /** Only kinds with datasets; computed once, the inputs do not change. */
   protected kindGroups: KindGroup[] = [];

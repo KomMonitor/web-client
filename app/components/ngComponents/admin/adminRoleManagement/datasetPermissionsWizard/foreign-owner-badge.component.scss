@@ -1,0 +1,5 @@
+@use 'wizard';
+
+.foreign-owner-badge {
+  @include wizard.foreign-owner-badge;
+}

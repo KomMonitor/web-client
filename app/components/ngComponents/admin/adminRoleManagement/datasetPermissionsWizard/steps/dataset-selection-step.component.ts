@@ -8,9 +8,11 @@ import {
   DatasetKind,
   PermissionDataset,
   datasetKey,
+  hasForeignTimeseries,
   publicState,
   timeseriesCount,
 } from '../dataset-permissions.model';
+import { ForeignOwnerBadgeComponent } from '../foreign-owner-badge.component';
 import { PublicBadgeComponent } from '../public-badge.component';
 import { TriStateCheckboxDirective } from '../tri-state-checkbox.directive';
 
@@ -26,7 +28,12 @@ import { TriStateCheckboxDirective } from '../tri-state-checkbox.directive';
   selector: 'app-dataset-selection-step',
   templateUrl: './dataset-selection-step.component.html',
   styleUrls: ['./dataset-selection-step.component.scss'],
-  imports: [TranslateModule, TriStateCheckboxDirective, PublicBadgeComponent],
+  imports: [
+    TranslateModule,
+    TriStateCheckboxDirective,
+    PublicBadgeComponent,
+    ForeignOwnerBadgeComponent,
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -41,6 +48,7 @@ export class DatasetSelectionStepComponent {
   protected readonly datasetKey = datasetKey;
   protected readonly timeseriesCount = timeseriesCount;
   protected readonly publicState = publicState;
+  protected readonly hasForeignTimeseries = hasForeignTimeseries;
 
   private readonly expanded = signal<ReadonlySet<DatasetKind>>(new Set());
 

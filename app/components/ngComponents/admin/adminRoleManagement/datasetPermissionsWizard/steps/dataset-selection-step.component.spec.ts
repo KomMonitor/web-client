@@ -52,6 +52,7 @@ describe('DatasetSelectionStepComponent', () => {
           EMPTY: '{{owner}} hat nichts.',
         },
         PUBLIC: { ALL: 'öffentlich', SOME: 'teils öffentlich' },
+        FOREIGN_OWNER: { DATASET: 'fremde Ebenen' },
       },
     });
     translate.use('spec');
@@ -166,6 +167,20 @@ describe('DatasetSelectionStepComponent', () => {
     const badge = (row: HTMLElement) => row.querySelector('.public-badge')?.textContent!.trim();
     expect(rows('indicator').map(badge)).toEqual(['teils öffentlich', 'öffentlich']);
     expect(rows('georesource').map(badge)).toEqual([undefined]);
+  });
+
+  it('marks an indicator with a timeseries of another owner', () => {
+    setUp({
+      indicators: [
+        indicatorSource('i1', OWNER, [], { s1: [], s2: [] }, 'Arbeitslose', { s2: 'other' }),
+        indicatorSource('i2', OWNER, [], { s1: [] }, 'Bevölkerung', { s1: OWNER }),
+      ],
+    });
+    click(group('indicator').querySelector('.kind-toggle')!);
+
+    const badge = (row: HTMLElement) =>
+      row.querySelector('.foreign-owner-badge')?.textContent!.trim();
+    expect(rows('indicator').map(badge)).toEqual(['fremde Ebenen', undefined]);
   });
 
   it('does not claim the owner has no datasets when loading them failed', async () => {

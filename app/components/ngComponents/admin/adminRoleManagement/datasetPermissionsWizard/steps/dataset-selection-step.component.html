@@ -75,6 +75,9 @@
                   />
                   <span class="form-check-label">{{ dataset.name }}</span>
                   <app-public-badge [state]="publicState(dataset)"></app-public-badge>
+                  @if (hasForeignTimeseries(dataset)) {
+                    <app-foreign-owner-badge mode="dataset"></app-foreign-owner-badge>
+                  }
                   @if (kind === 'indicator') {
                     @let count = timeseriesCount(dataset);
                     <span class="dataset-meta">{{

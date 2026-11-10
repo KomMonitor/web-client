@@ -109,9 +109,10 @@ export class DatasetPermissionsWizardStateService {
    * Per offered group, how many selected datasets its per-dataset dialog did
    * not show. On those, each level acts as its dropdown says: `grant` and
    * `revoke` reach them, `keep` and `custom` leave them as they are — the
-   * dialog's per-slot values cannot cover what it never showed.
+   * dialog's per-slot values cannot cover what it never showed. Lists only
+   * groups with at least one such dataset.
    */
-  readonly addedSinceDialog = computed<Readonly<Record<string, number>>>(() => {
+  readonly addedSinceDialog = computed<Readonly<Partial<Record<string, number>>>>(() => {
     const selected = this.selectedDatasets().map(datasetKey);
     const offered = this.groupsById();
     const counts: Record<string, number> = {};
@@ -320,6 +321,11 @@ export class DatasetPermissionsWizardStateService {
 
   coverageOf(groupId: string, level: RightLevel): Coverage | undefined {
     return this.coverages().get(groupId)?.[level];
+  }
+
+  /** Name of an organizational unit, e.g. the owner of a timeseries; the id if it is unknown. */
+  unitName(id: string): string {
+    return this.accessControlService.getAccessControlById(id)?.name ?? id;
   }
 
   /** The values the per-dataset dialog of a group opens with. */

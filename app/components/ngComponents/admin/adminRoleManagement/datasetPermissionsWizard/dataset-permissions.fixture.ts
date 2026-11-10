@@ -45,13 +45,17 @@ type IndicatorSource = OwnerDatasetSources['indicators'][number];
 type GeoresourceSource = OwnerDatasetSources['georesources'][number];
 type SpatialUnitSource = OwnerDatasetSources['spatialUnits'][number];
 
-/** An indicator; `timeseries` maps spatial unit ids to the permission ids of that timeseries. */
+/**
+ * An indicator; `timeseries` maps spatial unit ids to the permission ids of
+ * that timeseries, `timeseriesOwners` spatial unit ids to an owner of their own.
+ */
 export function indicatorSource(
   id: string,
   ownerId: string,
   permissions: string[],
   timeseries: Record<string, string[]> = {},
-  name = id
+  name = id,
+  timeseriesOwners: Record<string, string> = {}
 ): IndicatorSource {
   return {
     indicatorId: id,
@@ -62,6 +66,7 @@ export function indicatorSource(
       spatialUnitId,
       spatialUnitName: `level ${spatialUnitId}`,
       permissions: ids,
+      ...(spatialUnitId in timeseriesOwners ? { ownerId: timeseriesOwners[spatialUnitId] } : {}),
     })),
   };
 }

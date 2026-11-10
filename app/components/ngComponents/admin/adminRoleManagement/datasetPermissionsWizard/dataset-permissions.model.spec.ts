@@ -20,6 +20,7 @@ import {
   draftDeviates,
   groupsWithoutResourcePermissions,
   draftState,
+  hasForeignTimeseries,
   initialDraft,
   levelSlots,
   publicReadLossCount,
@@ -1040,6 +1041,58 @@ describe('dataset-permissions.model', () => {
       expect(publicReadLossCount([a], selected, { a: revokeViewer })).toBe(2);
       expect(publicReadLossCount([a], selected, { a: grantViewer })).toBe(0);
       expect(publicReadLossCount([a], selected, {})).toBe(0);
+    });
+  });
+
+  describe('timeseries of another owner', () => {
+    const timeseries = { s1: [], s2: [], s3: [] };
+    // s1 has no owner of its own, s2 the indicator's, s3 another one.
+    const owners = { s1: '', s2: OWNER, s3: 'other' };
+
+    it('flags a timeseries only when it names an owner other than the indicator one', () => {
+      const [indicator] = datasets({
+        indicators: [indicatorSource('i', OWNER, [], timeseries, 'i', owners)],
+      });
+      expect(indicator.slots.map((s) => s.foreignOwnerId)).toEqual([undefined, undefined, 'other']);
+      expect(indicator.indicatorSlot!.foreignOwnerId).toBeUndefined();
+      expect(hasForeignTimeseries(indicator)).toBe(true);
+    });
+
+    it('finds none on an indicator whose timeseries all belong to its owner', () => {
+      const [withOwners, plain, georesource] = datasets({
+        indicators: [
+          indicatorSource('a', OWNER, [], { s1: [] }, 'a', { s1: OWNER }),
+          indicatorSource('b', OWNER, [], { s1: [] }),
+        ],
+        georesources: [georesourceSource('g', OWNER, [])],
+      });
+      expect([withOwners, plain, georesource].map(hasForeignTimeseries)).toEqual([
+        false,
+        false,
+        false,
+      ]);
+    });
+
+    it('selects by the indicator owner and changes such timeseries all the same', () => {
+      const [foreign] = datasets({
+        indicators: [indicatorSource('i', OWNER, [], timeseries, 'i', owners)],
+      });
+      const [plain] = datasets({ indicators: [indicatorSource('i', OWNER, [], timeseries)] });
+      const patch = buildPermissionsPatch([a], [foreign], { a: grantViewer });
+      expect(patch).toEqual(buildPermissionsPatch([a], [plain], { a: grantViewer }));
+      expect(patch[0].permissions.indicatorspatialunits).toContainEqual({
+        id: 'i',
+        spatialUnitId: 's3',
+        permissions: ['a-viewer'],
+      });
+    });
+
+    it('leaves out timeseries of the owner on an indicator of another owner', () => {
+      expect(
+        datasets({
+          indicators: [indicatorSource('i', 'other', [], timeseries, 'i', { s1: OWNER })],
+        })
+      ).toEqual([]);
     });
   });
 });

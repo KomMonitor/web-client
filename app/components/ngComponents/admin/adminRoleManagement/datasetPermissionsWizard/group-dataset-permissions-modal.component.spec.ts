@@ -34,7 +34,7 @@ describe('GroupDatasetPermissionsModalComponent', () => {
   let fixture: ComponentFixture<GroupDatasetPermissionsModalComponent>;
   let activeModal: { close: jest.Mock; dismiss: jest.Mock };
 
-  function setUp(decision?: GroupDecision): void {
+  function setUp(decision?: GroupDecision, datasets = DATASETS): void {
     activeModal = { close: jest.fn(), dismiss: jest.fn() };
     TestBed.configureTestingModule({
       imports: [GroupDatasetPermissionsModalComponent, TranslateModule.forRoot()],
@@ -45,6 +45,7 @@ describe('GroupDatasetPermissionsModalComponent', () => {
       ADMIN_DATASET_PERMISSIONS: {
         SELECTION: { SPATIAL_UNITS_MANY: '{{count}} Ebenen' },
         PUBLIC: { ALL: 'öffentlich', SOME: 'teils öffentlich' },
+        FOREIGN_OWNER: { SLOT: 'Eigentümer: {{owner}}', DATASET: 'fremde Ebenen' },
         GROUP_DIALOG: {
           TITLE: 'Rechte von {{group}}',
           VIEWER: 'Lesen',
@@ -60,8 +61,9 @@ describe('GroupDatasetPermissionsModalComponent', () => {
     fixture = TestBed.createComponent(GroupDatasetPermissionsModalComponent);
     Object.assign(fixture.componentInstance, {
       group: a,
-      datasets: DATASETS,
-      initialDraft: initialDraft(a, DATASETS, decision),
+      datasets,
+      initialDraft: initialDraft(a, datasets, decision),
+      ownerNameOf: (id: string) => (id === 'other' ? 'Kataster' : id),
     });
     fixture.detectChanges();
   }
@@ -208,5 +210,34 @@ describe('GroupDatasetPermissionsModalComponent', () => {
       row(selector).querySelector('.public-badge')?.textContent!.trim();
     expect(badge('[data-dataset="georesource:g1"]')).toBe('öffentlich');
     expect(badge('[data-dataset="indicator:i1"]')).toBeUndefined();
+  });
+
+  it('marks a timeseries of another owner with its name, and its indicator', () => {
+    setUp(
+      undefined,
+      datasetsOfOwner(
+        OWNER,
+        sources({
+          indicators: [
+            indicatorSource('i1', OWNER, [], { s1: [], s2: [] }, 'Arbeitslose', { s2: 'other' }),
+          ],
+        })
+      )
+    );
+    click(kindRow('indicator').querySelector('.row-toggle')!);
+    const indicator = row('[data-dataset="indicator:i1"]');
+    expect(text(indicator.querySelector('.foreign-owner-badge'))).toBe('fremde Ebenen');
+    click(indicator.querySelector('.row-toggle')!);
+    const badge = (slot: string) =>
+      row(`[data-slot="indicatorspatialunits:i1:${slot}"]`).querySelector('.foreign-owner-badge');
+    expect(text(badge('s2'))).toBe('Eigentümer: Kataster');
+    expect(badge('s1')).toBeNull();
+  });
+
+  it('marks no timeseries when all belong to the indicator owner', () => {
+    setUp();
+    click(kindRow('indicator').querySelector('.row-toggle')!);
+    click(row('[data-dataset="indicator:i1"]').querySelector('.row-toggle')!);
+    expect(host().querySelector('.foreign-owner-badge')).toBeNull();
   });
 });

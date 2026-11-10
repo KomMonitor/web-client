@@ -79,6 +79,14 @@ describe('DatasetPermissionsWizardStateService', () => {
     expect(state.groups()).toEqual([]);
   });
 
+  it('names an organizational unit, or falls back to its id', () => {
+    accessControl.update((units) =>
+      units.map((u) => (u.organizationalUnitId === 'b' ? { ...u, name: 'Kataster' } : u))
+    );
+    expect(state.unitName('b')).toBe('Kataster');
+    expect(state.unitName('unknown')).toBe('unknown');
+  });
+
   it('keeps both dropdowns consistent when a coupled level is set back', () => {
     state.setAction('a', 'editor', 'grant');
     state.setAction('a', 'viewer', 'keep');

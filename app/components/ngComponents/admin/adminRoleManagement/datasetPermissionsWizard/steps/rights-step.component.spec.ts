@@ -220,7 +220,12 @@ describe('RightsStepComponent', () => {
         group: state.groups()[0],
         datasets: state.selectedDatasets(),
         initialDraft: state.draftFor('a'),
+        ownerNameOf: expect.any(Function),
       });
+      const { ownerNameOf } = modals.open.mock.calls[0][2] as {
+        ownerNameOf: (id: string) => string;
+      };
+      expect(ownerNameOf('b')).toBe(state.unitName('b'));
       expect(state.selectedDatasets().map((d) => d.id)).toEqual(['i1', 'g1']);
       expect(state.draftFor('a')['georesources:g1']).toEqual({ viewer: true, editor: false });
     });

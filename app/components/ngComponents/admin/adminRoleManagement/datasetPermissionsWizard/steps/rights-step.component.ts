@@ -90,6 +90,7 @@ export class RightsStepComponent {
         group,
         datasets: this.state.selectedDatasets(),
         initialDraft: this.state.draftFor(id),
+        ownerNameOf: (unitId: string) => this.state.unitName(unitId),
       }
     );
     if (draft) {
