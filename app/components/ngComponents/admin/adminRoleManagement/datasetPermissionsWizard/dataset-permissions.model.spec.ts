@@ -125,8 +125,9 @@ describe('dataset-permissions.model', () => {
       expect(names('b')).toEqual(['Alpha', 'Gamma', 'Mandant']);
     });
 
-    it('offers all units except the owner when the owner has no tenant', () => {
-      expect(candidateGroups(accessControl, 'm', () => '')).toHaveLength(5);
+    it('offers no unit when the owner has no tenant, rather than every unit of the instance', () => {
+      expect(candidateGroups(accessControl, 'm', () => '')).toEqual([]);
+      expect(candidateGroups(accessControl, 'unknown', mandantIdOf)).toEqual([]);
     });
   });
 
@@ -206,6 +207,67 @@ describe('dataset-permissions.model', () => {
       expect(coupleAction(KEEP_DECISION, 'editor', 'revoke')).toEqual({
         viewer: 'keep',
         editor: 'revoke',
+      });
+    });
+
+    describe('releasing one side of a coupled pair', () => {
+      const grantBoth: GroupDecision = { viewer: 'grant', editor: 'grant' };
+      const revokeBoth: GroupDecision = { viewer: 'revoke', editor: 'revoke' };
+
+      it('sets edit back to keep when read leaves grant', () => {
+        expect(coupleAction(grantBoth, 'viewer', 'keep')).toEqual(KEEP_DECISION);
+        expect(coupleAction(grantBoth, 'viewer', 'revoke')).toEqual(revokeBoth);
+      });
+
+      it('sets read back to keep when edit leaves revoke', () => {
+        expect(coupleAction(revokeBoth, 'editor', 'keep')).toEqual(KEEP_DECISION);
+        expect(coupleAction(revokeBoth, 'editor', 'grant')).toEqual(grantBoth);
+      });
+
+      it('leaves the other side alone when it was not coupled', () => {
+        expect(coupleAction(grantViewer, 'viewer', 'keep')).toEqual(KEEP_DECISION);
+        expect(coupleAction({ viewer: 'grant', editor: 'revoke' }, 'editor', 'keep')).toEqual(
+          grantViewer
+        );
+        expect(coupleAction(grantBoth, 'editor', 'keep')).toEqual(grantViewer);
+        expect(coupleAction(revokeBoth, 'viewer', 'keep')).toEqual({
+          viewer: 'keep',
+          editor: 'revoke',
+        });
+      });
+
+      it('never leaves a dropdown showing an action the other one overrides', () => {
+        const actions = ['keep', 'grant', 'revoke'] as const;
+        for (const viewer of actions) {
+          for (const editor of actions) {
+            for (const level of ['viewer', 'editor'] as const) {
+              for (const action of actions) {
+                const next = coupleAction(
+                  coupleAction(coupleAction(KEEP_DECISION, 'viewer', viewer), 'editor', editor),
+                  level,
+                  action
+                );
+                expect(next[level]).toBe(action);
+                if (next.editor === 'grant') expect(next.viewer).toBe('grant');
+                if (next.viewer === 'revoke') expect(next.editor).toBe('revoke');
+              }
+            }
+          }
+        }
+      });
+
+      it('drops the per-slot values once no level is custom', () => {
+        const custom: GroupDecision = {
+          viewer: 'custom',
+          editor: 'keep',
+          custom: { 'georesources:g1': { viewer: true, editor: false } },
+        };
+        expect(coupleAction(custom, 'viewer', 'grant')).toEqual(grantViewer);
+        expect(coupleAction(custom, 'editor', 'revoke')).toEqual({
+          viewer: 'custom',
+          editor: 'revoke',
+          custom: custom.custom,
+        });
       });
     });
 
@@ -335,7 +397,9 @@ describe('dataset-permissions.model', () => {
         'georesources:g1': { viewer: false, editor: false },
         'georesources:g2': { viewer: false, editor: false },
       };
-      expect(actionsFromDraft(a, slots, allOff)).toEqual({ viewer: 'revoke', editor: 'keep' });
+      // Edit was off everywhere already, but revoking read revokes edit, too:
+      // that way the decision also withdraws edit on datasets selected later.
+      expect(actionsFromDraft(a, slots, allOff)).toEqual({ viewer: 'revoke', editor: 'revoke' });
     });
 
     it('turns a mixed draft into custom and keeps the draft', () => {

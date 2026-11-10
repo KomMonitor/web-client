@@ -69,6 +69,24 @@ describe('DatasetPermissionsWizardStateService', () => {
 
   it("offers the groups of the owner's tenant, without the owner", () => {
     expect(state.groups().map((g) => g.organizationalUnitId)).toEqual(['a', 'b']);
+    expect(state.tenantUnknown()).toBe(false);
+  });
+
+  it('offers no group when the tenant of the owner is unknown', () => {
+    void state.start('x-unknown');
+    expect(state.tenantUnknown()).toBe(true);
+    expect(state.groups()).toEqual([]);
+  });
+
+  it('keeps both dropdowns consistent when a coupled level is set back', () => {
+    state.setAction('a', 'editor', 'grant');
+    state.setAction('a', 'viewer', 'keep');
+    expect(state.decisions()['a']).toEqual({ viewer: 'keep', editor: 'keep' });
+
+    state.setAction('a', 'viewer', 'revoke');
+    state.setAction('a', 'editor', 'keep');
+    expect(state.decisions()['a']).toEqual({ viewer: 'keep', editor: 'keep' });
+    expect(state.hasChanges()).toBe(false);
   });
 
   describe('selection', () => {

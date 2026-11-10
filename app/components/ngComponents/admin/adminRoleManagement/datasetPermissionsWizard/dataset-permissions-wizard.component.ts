@@ -129,10 +129,12 @@ export class DatasetPermissionsWizardComponent implements OnInit {
     if (result.status === 'changed') {
       this.changedMeanwhile.set(true);
     } else if (result.status === 'failed') {
+      // Stays until closed: it carries the backend's reason why nothing was stored.
       this.notificationService.showError(
         this.translate.instant('ADMIN_DATASET_PERMISSIONS.SAVE_FAILED', {
           message: result.message,
-        })
+        }),
+        { autohide: false }
       );
     } else if (result.status === 'saved') {
       this.done.set({ datasetCount: result.datasetCount, reloaded: result.reloaded });

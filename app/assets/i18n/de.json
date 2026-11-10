@@ -1106,6 +1106,7 @@
       "COVERAGE_CHANGE": "{{before}} → {{after}}",
       "LEGEND": "Die Zahl zeigt, an wie vielen der gewählten Datensätze die Gruppe das Recht aktuell hat. Der Pfeil zeigt die Zahl nach der Übertragung.",
       "NO_GROUPS": "Im Mandanten von {{owner}} gibt es keine weiteren Organisationseinheiten, an die Rechte vergeben werden können.",
+      "NO_TENANT": "Der Mandant von {{owner}} lässt sich nicht ermitteln. Damit keine Rechte an Organisationseinheiten anderer Mandanten gehen, bietet der Assistent keine an.",
       "NO_DATASETS": "Keine Datensätze gewählt. Wählen Sie in Schritt 1 die Datensätze aus, auf die Rechte übertragen werden sollen.",
       "OPEN_HINT": "Klicken Sie auf eine Organisationseinheit, um ihre Rechte pro Datensatz zu sehen und einzeln anzupassen.",
       "OPEN_GROUP": "Rechte pro Datensatz anzeigen"

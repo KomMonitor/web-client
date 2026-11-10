@@ -1106,6 +1106,7 @@
       "COVERAGE_CHANGE": "{{before}} → {{after}}",
       "LEGEND": "The number shows on how many of the selected datasets the group currently has the right. The arrow shows the number after the transfer.",
       "NO_GROUPS": "The tenant of {{owner}} has no other organizational units that rights could be granted to.",
+      "NO_TENANT": "The tenant of {{owner}} cannot be determined. So that no rights go to organizational units of other tenants, the wizard offers none.",
       "NO_DATASETS": "No datasets selected. Select the datasets to transfer rights to in step 1.",
       "OPEN_HINT": "Click an organizational unit to see its rights per dataset and adjust them one by one.",
       "OPEN_GROUP": "Show rights per dataset"

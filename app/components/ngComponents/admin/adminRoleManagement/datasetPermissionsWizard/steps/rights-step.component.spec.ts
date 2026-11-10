@@ -65,6 +65,7 @@ describe('RightsStepComponent', () => {
           COVERAGE: '{{count}}/{{total}}',
           COVERAGE_CHANGE: '{{before}} → {{after}}',
           NO_GROUPS: '{{owner}} steht allein.',
+          NO_TENANT: 'Mandant von {{owner}} unbekannt.',
           NO_DATASETS: 'Nichts gewählt.',
         },
       },
@@ -230,6 +231,23 @@ describe('RightsStepComponent', () => {
     setUp(DATASETS, { owner: 'm', other: 'x' });
     expect(text(host().querySelector('.rights-empty'))).toBe('Umweltamt steht allein.');
     expect(host().querySelector('table')).toBeNull();
+  });
+
+  it('offers no group and says why when the tenant of the owner is unknown', () => {
+    setUp(DATASETS, { a: 'm', b: 'm' });
+    expect(text(host().querySelector('.rights-no-tenant'))).toBe(
+      'Mandant von Umweltamt unbekannt.'
+    );
+    expect(host().querySelector('table')).toBeNull();
+  });
+
+  it('sets the edit dropdown back to unchanged when read leaves grant', () => {
+    setUp();
+    choose('b', 'editor', 'grant');
+    expect(values('b')).toEqual(['grant', 'grant']);
+
+    choose('b', 'viewer', 'keep');
+    expect(values('b')).toEqual(['keep', 'keep']);
   });
 
   it('says so when no dataset is selected', () => {

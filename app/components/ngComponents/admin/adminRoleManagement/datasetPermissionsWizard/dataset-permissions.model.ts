@@ -192,13 +192,21 @@ export function resourcePermissionIds(
  * The groups the wizard offers for an owner: every unit of the owner's tenant,
  * on all levels, except the owner itself — so for an owner below the tenant,
  * the tenant unit is among them. Sorted by name.
+ *
+ * None when the owner's tenant cannot be determined. `ownersOfMandant` would
+ * then return every unit of the instance, and the endpoint does not check
+ * tenant boundaries, so rights could go to groups of other tenants unnoticed.
  */
 export function candidateGroups(
   accessControl: readonly AccessControlMetadata[],
   ownerId: string,
   mandantIdOf: (organizationalUnitId: string) => string
 ): GroupPermissionIds[] {
-  const units = ownersOfMandant(accessControl, mandantIdOf(ownerId), mandantIdOf).filter(
+  const mandantId = mandantIdOf(ownerId);
+  if (!mandantId) {
+    return [];
+  }
+  const units = ownersOfMandant(accessControl, mandantId, mandantIdOf).filter(
     (unit) => unit.organizationalUnitId !== ownerId
   );
   return resourcePermissionIds(units).sort(byName);
@@ -322,20 +330,46 @@ export function currentRights(group: GroupPermissionIds, ids: readonly string[])
   return { viewer: editor || ids.includes(group.viewerId), editor };
 }
 
-/** Granting edit grants read; revoking read revokes edit. */
+/**
+ * Sets one level's dropdown and keeps both in line with "editing includes
+ * reading": granting edit grants read, revoking read revokes edit. Moving one
+ * side of such a pair away releases the other side to keep — read set back
+ * from grant while edit is granted, or edit set back from revoke while read
+ * is revoked — so no dropdown shows an action the other one overrides.
+ */
 export function coupleAction(
   decision: GroupDecision,
   level: RightLevel,
   action: RightAction
 ): GroupDecision {
   const next: GroupDecision = { ...decision, [level]: action };
-  if (level === 'editor' && action === 'grant') {
-    next.viewer = 'grant';
+  if (level === 'viewer' && decision.editor === 'grant' && action !== 'grant') {
+    next.editor = 'keep';
   }
-  if (level === 'viewer' && action === 'revoke') {
-    next.editor = 'revoke';
+  if (level === 'editor' && decision.viewer === 'revoke' && action !== 'revoke') {
+    next.viewer = 'keep';
+  }
+  return withCustomOnlyIfUsed(coupleDecision(next));
+}
+
+/** Edit granted ⇒ read granted; read revoked ⇒ edit revoked. */
+function coupleDecision(decision: GroupDecision): GroupDecision {
+  let next = decision;
+  if (next.editor === 'grant' && next.viewer !== 'grant') {
+    next = { ...next, viewer: 'grant' };
+  }
+  if (next.viewer === 'revoke' && next.editor !== 'revoke') {
+    next = { ...next, editor: 'revoke' };
   }
   return next;
+}
+
+/** Drops the per-slot values once no level reads them any more. */
+function withCustomOnlyIfUsed(decision: GroupDecision): GroupDecision {
+  if (decision.viewer === 'custom' || decision.editor === 'custom' || !decision.custom) {
+    return decision;
+  }
+  return { viewer: decision.viewer, editor: decision.editor };
 }
 
 /** The same coupling for a single checkbox: edit on sets read, read off clears edit. */
@@ -431,6 +465,11 @@ export function initialDraft(
  * The decision the per-dataset dialog hands back to the group table, per
  * level: nothing differs from now → keep; set everywhere → grant; cleared
  * everywhere → revoke; anything else → custom, which then reads the draft.
+ *
+ * Then coupled like the dropdowns: read cleared everywhere also revokes edit,
+ * even where edit was off already and would come out as keep. For the slots
+ * of the draft that changes nothing; for datasets selected afterwards it
+ * makes "revoke read" withdraw edit there as well.
  */
 export function actionsFromDraft(
   group: GroupPermissionIds,
@@ -447,8 +486,10 @@ export function actionsFromDraft(
     }
     return values.some(Boolean) ? 'custom' : 'revoke';
   };
-  const viewer = actionFor('viewer');
-  const editor = actionFor('editor');
+  const { viewer, editor } = coupleDecision({
+    viewer: actionFor('viewer'),
+    editor: actionFor('editor'),
+  });
   return viewer === 'custom' || editor === 'custom'
     ? { viewer, editor, custom: { ...draft } }
     : { viewer, editor };

@@ -1,4 +1,8 @@
-@if (state.groups().length === 0) {
+@if (state.tenantUnknown()) {
+  <p class="rights-empty rights-no-tenant">
+    {{ 'ADMIN_DATASET_PERMISSIONS.RIGHTS.NO_TENANT' | translate: { owner: ownerName() } }}
+  </p>
+} @else if (state.groups().length === 0) {
   <p class="rights-empty">
     {{ 'ADMIN_DATASET_PERMISSIONS.RIGHTS.NO_GROUPS' | translate: { owner: ownerName() } }}
   </p>

@@ -116,6 +116,15 @@ export class DatasetPermissionsWizardStateService {
     );
   });
 
+  /**
+   * True when the owner's tenant cannot be determined. The wizard then offers
+   * no groups at all rather than every group of the instance.
+   */
+  readonly tenantUnknown = computed(() => {
+    const ownerId = this._ownerId();
+    return !!ownerId && !this.mandantService.mandantIdOfOwner(ownerId);
+  });
+
   private readonly groupsById = computed(
     () => new Map(this.groups().map((group) => [group.organizationalUnitId, group]))
   );

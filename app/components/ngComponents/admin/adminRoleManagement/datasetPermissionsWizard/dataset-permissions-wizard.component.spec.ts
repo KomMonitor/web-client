@@ -287,7 +287,8 @@ describe('DatasetPermissionsWizardComponent', () => {
       decideAndReview();
       await clickTransfer();
 
-      expect(notifications.showError).toHaveBeenCalledWith('Fehler: kaputt');
+      // Kept until closed, as it explains why nothing was stored.
+      expect(notifications.showError).toHaveBeenCalledWith('Fehler: kaputt', { autohide: false });
       expect(query('.transfer-done')).toBeUndefined();
       expect(visibleSections()).toEqual([2]);
       expect(state().decisions()['ou-2']).toEqual({ viewer: 'grant', editor: 'keep' });
