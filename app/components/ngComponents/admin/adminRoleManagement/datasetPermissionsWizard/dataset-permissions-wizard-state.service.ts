@@ -1,7 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
-import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { MandantService } from 'services/mandant-service/mandant.service';
@@ -71,7 +70,6 @@ export class DatasetPermissionsWizardStateService {
   private readonly spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private readonly adminRoleManagementService = inject(AdminRoleManagementService);
   private readonly metadataBootstrapService = inject(MetadataBootstrapService);
-  private readonly cacheHelperService = inject(CacheHelperServiceService);
 
   private readonly _ownerId = signal<string | null>(null);
   readonly ownerId = this._ownerId.asReadonly();
@@ -279,14 +277,11 @@ export class DatasetPermissionsWizardStateService {
   }
 
   /**
-   * The PATCH bumps only the access-control timestamp, not the ones of the
-   * datasets, so the timestamp-based cache would hand back the old lists —
-   * hence the explicit invalidation first.
+   * The PATCH bumps the indicator, georesource and spatial unit timestamps,
+   * and every fetch revalidates its cache entry against them, so a plain
+   * fetch returns the new lists.
    */
   private async reloadDatasets(): Promise<boolean> {
-    this.cacheHelperService.invalidateIndicatorsCache();
-    this.cacheHelperService.invalidateGeoresourcesCache();
-    this.cacheHelperService.invalidateSpatialUnitsCache();
     const roles = this.accessControlService.currentKeycloakLoginRoles;
     try {
       await Promise.all([

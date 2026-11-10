@@ -271,19 +271,6 @@ export class CacheHelperServiceService {
     this.invalidateCache(this.localStorageKey_spatialUnits);
   }
 
-  /**
-   * Drop the cached indicator and georesource metadata. Needed after the batch permission
-   * update (`PATCH /organizationalUnits/permissions`): it changes the datasets' `permissions`
-   * but bumps only the access-control timestamp, so the cache would keep serving the old lists.
-   */
-  invalidateIndicatorsCache(): void {
-    this.invalidateCache(this.localStorageKey_indicators);
-  }
-
-  invalidateGeoresourcesCache(): void {
-    this.invalidateCache(this.localStorageKey_georesources);
-  }
-
   /** Removes every cached entry (timestamp and metadata, for all role variants) under the key. */
   private invalidateCache(localStorageKey: string): void {
     const keysToRemove: string[] = [];

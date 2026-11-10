@@ -2,7 +2,6 @@ import { Provider, WritableSignal, signal } from '@angular/core';
 import { BehaviorSubject, of } from 'rxjs';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
-import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { MandantService } from 'services/mandant-service/mandant.service';
@@ -40,11 +39,6 @@ export interface WizardStateTestBed {
     fetchGeoresourcesMetadata: jest.Mock;
     fetchSpatialUnitsMetadata: jest.Mock;
   };
-  cacheHelper: {
-    invalidateIndicatorsCache: jest.Mock;
-    invalidateGeoresourcesCache: jest.Mock;
-    invalidateSpatialUnitsCache: jest.Mock;
-  };
 }
 
 /**
@@ -66,11 +60,6 @@ export function wizardStateTestBed(
     fetchIndicatorsMetadata: jest.fn().mockResolvedValue(undefined),
     fetchGeoresourcesMetadata: jest.fn().mockResolvedValue(undefined),
     fetchSpatialUnitsMetadata: jest.fn().mockResolvedValue(undefined),
-  };
-  const cacheHelper = {
-    invalidateIndicatorsCache: jest.fn(),
-    invalidateGeoresourcesCache: jest.fn(),
-    invalidateSpatialUnitsCache: jest.fn(),
   };
 
   const providers: Provider[] = [
@@ -118,7 +107,6 @@ export function wizardStateTestBed(
       provide: MetadataBootstrapService,
       useValue: { ...bootstrap, metadataLoading$: metadataLoading.asObservable() },
     },
-    { provide: CacheHelperServiceService, useValue: cacheHelper },
   ];
 
   return {
@@ -130,6 +118,5 @@ export function wizardStateTestBed(
     metadataLoading,
     adminRoleManagement,
     bootstrap,
-    cacheHelper,
   };
 }

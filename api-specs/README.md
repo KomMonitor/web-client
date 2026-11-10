@@ -5,7 +5,7 @@ source for generated TypeScript types.
 
 - `kommonitor_dataAccessAPI.yaml` — KomMonitor **Data Management API**. Source:
   <https://github.com/KomMonitor/data-management> (`src/main/resources/specs/data-management/kommonitor_dataAccessAPI.yaml`),
-  tag **`v6.0.0-SNAPSHOT`** = commit `f97af31c`, fetched 2026-11-09. Same content as upstream;
+  commit `f97af31c` (then the tag **`v6.0.0-SNAPSHOT`**), fetched 2026-11-09. Same content as upstream;
   only the YAML quoting differs (see "Updating the spec").
 - `examples.yaml` — the spec's neighbouring examples file, which it references by
   `./examples.yaml#/components/examples/...` (53 names). From the same commit and directory
@@ -23,11 +23,13 @@ there.
 
 Since 2026-11-06 the tag `v6.0.0-SNAPSHOT` — and the published
 `kommonitor/data-management:6.0.0-SNAPSHOT` image built from it — points one step further, at
-`feature/batch-permissions` (`f97af31c`, four commits ahead of `feature/v6`, not yet merged). It
-adds `PATCH /organizationalUnits/permissions`, which the dataset-permissions wizard sends, changes
-the answer of `GET /organizationalUnits/{id}/permissions`, and fixes the `spatialunits,` typo in the
-`ResourceType` enum. The vendored copy follows that tag for now; return to `feature/v6` once the
-branch is merged into it.
+`feature/batch-permissions` (not yet merged into `feature/v6`). That branch adds
+`PATCH /organizationalUnits/permissions`, which the dataset-permissions wizard sends, changes the
+answer of `GET /organizationalUnits/{id}/permissions`, and fixes the `spatialunits,` typo in the
+`ResourceType` enum. The vendored copy is from `f97af31c`; the tag has since moved on to `b891b17d`
+(2026-11-09), which only touches Java code (the PATCH now also bumps the indicator, georesource and
+spatial unit timestamps), so the spec is unchanged. The vendored copy follows that branch for now;
+return to `feature/v6` once it is merged.
 
 The deployed instance also serves a springdoc-generated spec at `/v3/api-docs`. It is **not** the
 right source here: it inlines the named enum schemas (`IndicatorTypeEnum`, `CreationTypeEnum`, …)

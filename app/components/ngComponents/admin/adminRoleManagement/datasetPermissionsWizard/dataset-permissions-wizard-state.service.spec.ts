@@ -27,7 +27,6 @@ const TENANT_OF: Record<string, string> = { owner: 'm', a: 'm', b: 'm', x: 'n' }
 let georesources: WizardStateTestBed['georesources'];
 let adminRoleManagement: WizardStateTestBed['adminRoleManagement'];
 let bootstrap: WizardStateTestBed['bootstrap'];
-let cacheHelper: WizardStateTestBed['cacheHelper'];
 
 let state: DatasetPermissionsWizardStateService;
 
@@ -44,7 +43,7 @@ beforeEach(() => {
     },
     TENANT_OF
   );
-  ({ georesources, adminRoleManagement, bootstrap, cacheHelper } = testBed);
+  ({ georesources, adminRoleManagement, bootstrap } = testBed);
 
   TestBed.configureTestingModule({
     providers: [DatasetPermissionsWizardStateService, ...testBed.providers],
@@ -195,7 +194,7 @@ describe('DatasetPermissionsWizardStateService', () => {
       expect(adminRoleManagement.patchDatasetPermissions).not.toHaveBeenCalled();
     });
 
-    it('sends the patch, then reloads the datasets past the cache', async () => {
+    it('sends the patch, then reloads the datasets', async () => {
       const response = new Subject<void>();
       adminRoleManagement.patchDatasetPermissions.mockReturnValue(response);
       bootstrap.fetchGeoresourcesMetadata.mockImplementation(async () =>
@@ -213,9 +212,6 @@ describe('DatasetPermissionsWizardStateService', () => {
 
       await expect(saving).resolves.toEqual({ status: 'saved', datasetCount: 4, reloaded: true });
       expect(adminRoleManagement.patchDatasetPermissions).toHaveBeenCalledWith(body);
-      expect(cacheHelper.invalidateIndicatorsCache).toHaveBeenCalled();
-      expect(cacheHelper.invalidateGeoresourcesCache).toHaveBeenCalled();
-      expect(cacheHelper.invalidateSpatialUnitsCache).toHaveBeenCalled();
       expect(bootstrap.fetchIndicatorsMetadata).toHaveBeenCalledWith(ROLES);
       expect(bootstrap.fetchGeoresourcesMetadata).toHaveBeenCalledWith(ROLES);
       expect(bootstrap.fetchSpatialUnitsMetadata).toHaveBeenCalledWith(ROLES);
@@ -223,17 +219,6 @@ describe('DatasetPermissionsWizardStateService', () => {
       expect(state.decisions()).toEqual({});
       // The reloaded rights are the new current state.
       expect(state.coverageOf('b', 'viewer')?.before).toBe(1);
-    });
-
-    it('invalidates the cache before it reloads', async () => {
-      const order: string[] = [];
-      cacheHelper.invalidateIndicatorsCache.mockImplementation(() => order.push('invalidate'));
-      bootstrap.fetchIndicatorsMetadata.mockImplementation(async () => order.push('fetch'));
-      state.setAction('a', 'viewer', 'grant');
-
-      await state.save();
-
-      expect(order).toEqual(['invalidate', 'fetch']);
     });
 
     it('keeps the decisions and reports the message when the request fails', async () => {
