@@ -1111,6 +1111,14 @@
       "NO_TENANT": "Der Mandant von {{owner}} lässt sich nicht ermitteln. Damit keine Rechte an Organisationseinheiten anderer Mandanten gehen, bietet der Assistent keine an.",
       "NO_DATASETS": "Keine Datensätze gewählt. Wählen Sie in Schritt 1 die Datensätze aus, auf die Rechte übertragen werden sollen.",
       "OPEN_HINT": "Klicken Sie auf eine Organisationseinheit, um ihre Rechte pro Datensatz zu sehen und einzeln anzupassen.",
+      "ADDED_SINCE_DIALOG": "Seit Rechte im Detaildialog festgelegt wurden, sind in Schritt 1 Datensätze hinzugekommen, die der Dialog nicht gezeigt hat. Bitte prüfen Sie die markierten Organisationseinheiten: Ein Klick auf den Namen zeigt die Rechte pro Datensatz, „Übernehmen“ bestätigt sie für die aktuelle Auswahl.",
+      "ADDED_ONE": "1 Datensatz ist erst danach hinzugekommen. Dafür gilt: Leserechte {{viewer}}, Editierrechte {{editor}}.",
+      "ADDED_MANY": "{{count}} Datensätze sind erst danach hinzugekommen. Dafür gilt: Leserechte {{viewer}}, Editierrechte {{editor}}.",
+      "ADDED_EFFECT": {
+        "GRANT": "erteilt",
+        "REVOKE": "entzogen",
+        "KEEP": "unverändert"
+      },
       "OPEN_GROUP": "Rechte pro Datensatz anzeigen"
     },
     "GROUP_DIALOG": {
@@ -1140,6 +1148,9 @@
       "NOTICE": "Die Änderungen werden einmalig auf die gewählten Datensätze geschrieben. Für Datensätze, die {{owner}} künftig anlegt, gelten sie nicht.",
       "PUBLIC_LOSS_ONE": "1 Datensatz, an dem Leserechte entzogen werden, ist ganz oder teilweise öffentlich: Dort kann ihn weiterhin jeder lesen. Ob ein Datensatz öffentlich ist, lässt sich nur am Datensatz selbst ändern.",
       "PUBLIC_LOSS_MANY": "{{count}} Datensätze, an denen Leserechte entzogen werden, sind ganz oder teilweise öffentlich: Dort kann sie weiterhin jeder lesen. Ob ein Datensatz öffentlich ist, lässt sich nur am Datensatz selbst ändern.",
+      "ADDED_SINCE_DIALOG_ONE": "Bei 1 Organisationseinheit sind seit der Festlegung im Detaildialog Datensätze hinzugekommen, die der Dialog nicht gezeigt hat. Was für diese gilt, zeigt Schritt 2.",
+      "ADDED_SINCE_DIALOG_MANY": "Bei {{count}} Organisationseinheiten sind seit der Festlegung im Detaildialog Datensätze hinzugekommen, die der Dialog nicht gezeigt hat. Was für diese gilt, zeigt Schritt 2.",
+      "TO_RIGHTS": "Zu Schritt 2",
       "SUMMARY_TITLE": "Zusammenfassung",
       "AFFECTS_ONE": "betrifft 1 Datensatz",
       "AFFECTS_MANY": "betrifft {{count}} Datensätze",

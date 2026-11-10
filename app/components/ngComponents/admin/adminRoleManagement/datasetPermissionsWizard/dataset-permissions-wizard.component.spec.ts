@@ -183,6 +183,27 @@ describe('DatasetPermissionsWizardComponent', () => {
     expect(testBed.bootstrap.reloadDatasetMetadata).toHaveBeenCalledTimes(3);
   });
 
+  it('goes from the review step to step 2 for datasets a dialog decision did not see', () => {
+    const state = fixture.debugElement.injector.get(DatasetPermissionsWizardStateService);
+    testBed.georesources.update((list) => [...list, georesourceSource('g2', 'ou-1', [])]);
+    state.setSelected('georesource:g2', false);
+    state.applyDraft('ou-2', { 'georesources:g1': { viewer: true, editor: false } });
+    state.setSelected('georesource:g2', true);
+    fixture.componentInstance.stepper.currentStep = 3;
+    fixture.detectChanges();
+
+    const toRights = fixture.debugElement.query(By.css('.added-since-dialog-notice .to-rights'));
+    (toRights.nativeElement as HTMLElement).click();
+    fixture.detectChanges();
+
+    expect(visibleSections()).toEqual([1]);
+    expect(
+      fixture.debugElement.query(
+        By.css('app-rights-step tr[data-group="ou-2"] .added-since-dialog')
+      )
+    ).not.toBeNull();
+  });
+
   it('dismisses on cancel and on the close button', () => {
     clickFooter('ADMIN_SHARED.CANCEL');
     (fixture.debugElement.query(By.css('.btn-close')).nativeElement as HTMLElement).click();

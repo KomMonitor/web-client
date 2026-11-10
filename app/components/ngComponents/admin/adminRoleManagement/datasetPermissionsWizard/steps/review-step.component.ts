@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { DatasetPermissionsWizardStateService } from '../dataset-permissions-wizard-state.service';
@@ -30,6 +30,21 @@ export class ReviewStepComponent {
 
   /** Named in the notice; the state knows the owner only by id. */
   readonly ownerName = input('');
+
+  /**
+   * "Go to step 2" in the notice on datasets added since a per-dataset dialog
+   * decision; the stepper is the dialog's, so the step only asks for it.
+   */
+  readonly showRights = output<void>();
+
+  /**
+   * How many groups have datasets their per-dataset dialog did not show. What
+   * applies to those is spelled out per group in step 2; the steps are freely
+   * reachable, so this step points there for a user who skipped it.
+   */
+  protected readonly groupsWithAddedDatasets = computed(
+    () => Object.keys(this.state.addedSinceDialog()).length
+  );
 
   protected readonly levelLabels = LEVEL_LABELS;
 

@@ -26,6 +26,7 @@ const TENANT_OF: Record<string, string> = { owner: 'm', a: 'm', b: 'm', x: 'n' }
 let georesources: WizardStateTestBed['georesources'];
 let adminRoleManagement: WizardStateTestBed['adminRoleManagement'];
 let bootstrap: WizardStateTestBed['bootstrap'];
+let accessControl: WizardStateTestBed['accessControl'];
 
 let state: DatasetPermissionsWizardStateService;
 
@@ -42,7 +43,7 @@ beforeEach(() => {
     },
     TENANT_OF
   );
-  ({ georesources, adminRoleManagement, bootstrap } = testBed);
+  ({ georesources, adminRoleManagement, bootstrap, accessControl } = testBed);
 
   TestBed.configureTestingModule({
     providers: [DatasetPermissionsWizardStateService, ...testBed.providers],
@@ -173,6 +174,58 @@ describe('DatasetPermissionsWizardStateService', () => {
       );
       state.applyDraft('b', all);
       expect(state.decisions()['b']).toEqual({ viewer: 'grant', editor: 'grant' });
+    });
+
+    describe('datasets added since the per-dataset dialog', () => {
+      /** A custom result from the dialog while g2 is not selected, then g2 added. */
+      function decideInDialogThenSelectG2(): void {
+        state.setSelected('georesource:g2', false);
+        state.applyDraft('b', {
+          ...state.draftFor('b'),
+          'georesources:g1': { viewer: true, editor: false },
+        });
+        expect(state.addedSinceDialog()).toEqual({});
+        state.setSelected('georesource:g2', true);
+      }
+
+      it('counts them per group whose decision came from the dialog', () => {
+        decideInDialogThenSelectG2();
+        expect(state.addedSinceDialog()).toEqual({ b: 1 });
+
+        // Taking datasets out does not count.
+        state.setSelected('spatialUnit:s1', false);
+        expect(state.addedSinceDialog()).toEqual({ b: 1 });
+      });
+
+      it('counts datasets that arrive with a reload as well', () => {
+        decideInDialogThenSelectG2();
+        georesources.update((list) => [...list, georesourceSource('g3', OWNER, [])]);
+        expect(state.addedSinceDialog()).toEqual({ b: 2 });
+      });
+
+      it('leaves out a group the wizard no longer offers', () => {
+        decideInDialogThenSelectG2();
+        accessControl.update((units) => units.filter((u) => u.organizationalUnitId !== 'b'));
+        expect(state.addedSinceDialog()).toEqual({});
+      });
+
+      it('forgets them once the dialog is applied again for the current selection', () => {
+        decideInDialogThenSelectG2();
+        state.applyDraft('b', state.draftFor('b'));
+        expect(state.addedSinceDialog()).toEqual({});
+      });
+
+      it('forgets them once the dropdowns make the decision a plain one again', () => {
+        decideInDialogThenSelectG2();
+        state.setAction('b', 'viewer', 'grant');
+        expect(state.addedSinceDialog()).toEqual({});
+      });
+
+      it('forgets them along with the decisions', () => {
+        decideInDialogThenSelectG2();
+        state.resetDecisions();
+        expect(state.addedSinceDialog()).toEqual({});
+      });
     });
 
     it('ignores a draft for a group it does not offer', () => {

@@ -67,3 +67,15 @@
   font-size: 0.85rem;
   color: var(--bs-secondary-color);
 }
+
+// On the group's row: what its dialog decision does to datasets added since.
+.added-since-dialog {
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: normal;
+  color: var(--bs-warning-text-emphasis);
+}
+
+.added-since-dialog-notice {
+  font-size: 0.9rem;
+}

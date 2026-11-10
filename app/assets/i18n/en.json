@@ -1111,6 +1111,14 @@
       "NO_TENANT": "The tenant of {{owner}} cannot be determined. So that no rights go to organizational units of other tenants, the wizard offers none.",
       "NO_DATASETS": "No datasets selected. Select the datasets to transfer rights to in step 1.",
       "OPEN_HINT": "Click an organizational unit to see its rights per dataset and adjust them one by one.",
+      "ADDED_SINCE_DIALOG": "Since rights were set in the per-dataset dialog, datasets the dialog did not show have been added in step 1. Please check the marked organizational units: clicking the name shows the rights per dataset, and \"Apply\" confirms them for the current selection.",
+      "ADDED_ONE": "1 dataset was added only afterwards. For it: read rights {{viewer}}, edit rights {{editor}}.",
+      "ADDED_MANY": "{{count}} datasets were added only afterwards. For them: read rights {{viewer}}, edit rights {{editor}}.",
+      "ADDED_EFFECT": {
+        "GRANT": "granted",
+        "REVOKE": "revoked",
+        "KEEP": "unchanged"
+      },
       "OPEN_GROUP": "Show rights per dataset"
     },
     "GROUP_DIALOG": {
@@ -1140,6 +1148,9 @@
       "NOTICE": "The changes are written once to the selected datasets. They do not apply to datasets that {{owner}} creates in the future.",
       "PUBLIC_LOSS_ONE": "1 dataset on which read rights are revoked is wholly or partly public: anyone can still read it there. Whether a dataset is public can only be changed on the dataset itself.",
       "PUBLIC_LOSS_MANY": "{{count}} datasets on which read rights are revoked are wholly or partly public: anyone can still read them there. Whether a dataset is public can only be changed on the dataset itself.",
+      "ADDED_SINCE_DIALOG_ONE": "For 1 organizational unit, datasets the per-dataset dialog did not show have been added since its rights were set there. Step 2 shows what applies to them.",
+      "ADDED_SINCE_DIALOG_MANY": "For {{count}} organizational units, datasets the per-dataset dialog did not show have been added since their rights were set there. Step 2 shows what applies to them.",
+      "TO_RIGHTS": "Go to step 2",
       "SUMMARY_TITLE": "Summary",
       "AFFECTS_ONE": "affects 1 dataset",
       "AFFECTS_MANY": "affects {{count}} datasets",

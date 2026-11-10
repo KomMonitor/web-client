@@ -68,6 +68,9 @@ describe('RightsStepComponent', () => {
           NO_GROUPS: '{{owner}} steht allein.',
           NO_TENANT: 'Mandant von {{owner}} unbekannt.',
           LEFT_OUT: 'Fehlt: {{names}}.',
+          ADDED_SINCE_DIALOG: 'Hinzugekommen.',
+          ADDED_ONE: '{{count}} neu: Lesen {{viewer}}, Editieren {{editor}}.',
+          ADDED_EFFECT: { GRANT: 'erteilt', REVOKE: 'entzogen', KEEP: 'unverändert' },
           NO_DATASETS: 'Nichts gewählt.',
         },
       },
@@ -220,6 +223,40 @@ describe('RightsStepComponent', () => {
       });
       expect(state.selectedDatasets().map((d) => d.id)).toEqual(['i1', 'g1']);
       expect(state.draftFor('a')['georesources:g1']).toEqual({ viewer: true, editor: false });
+    });
+
+    it('says per level what a dialog result does on datasets the dialog did not show', async () => {
+      setUp();
+      const note = (groupId: string) =>
+        text(host().querySelector(`tr[data-group="${groupId}"] .added-since-dialog`) ?? null);
+      state.setSelected('spatialUnit:su1', false);
+      fixture.detectChanges();
+
+      // a: edit on g1 only, so edit is custom; read stays as it is.
+      await openAndClose('a', {
+        ...state.draftFor('a'),
+        'georesources:g1': { viewer: true, editor: true },
+      });
+      // b: read everywhere (grant), edit moved from g1 to the indicator (custom).
+      await openAndClose('b', {
+        ...Object.fromEntries(
+          Object.entries(state.draftFor('b')).map(([key, rights]) => [
+            key,
+            { ...rights, viewer: true },
+          ])
+        ),
+        'indicators:i1': { viewer: true, editor: true },
+        'georesources:g1': { viewer: true, editor: false },
+      });
+      expect(values('b')).toEqual(['grant', 'custom']);
+      expect(host().querySelector('.added-since-dialog-notice')).toBeNull();
+
+      state.setSelected('spatialUnit:su1', true);
+      fixture.detectChanges();
+      expect(text(host().querySelector('.added-since-dialog-notice'))).toBe('Hinzugekommen.');
+      expect(note('a')).toBe('1 neu: Lesen unverändert, Editieren unverändert.');
+      // Grant reaches the added dataset, custom does not.
+      expect(note('b')).toBe('1 neu: Lesen erteilt, Editieren unverändert.');
     });
 
     it('takes over an uneven result as "custom"', async () => {

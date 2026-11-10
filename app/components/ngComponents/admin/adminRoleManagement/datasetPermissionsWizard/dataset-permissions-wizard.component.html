@@ -50,7 +50,10 @@
       </section>
 
       <section [style.display]="stepper.isActive('review') ? 'block' : 'none'">
-        <app-review-step [ownerName]="ownerName()"></app-review-step>
+        <app-review-step
+          [ownerName]="ownerName()"
+          (showRights)="stepper.goToKey('rights')"
+        ></app-review-step>
       </section>
     </app-loading-overlay>
   </div>

@@ -51,6 +51,9 @@ describe('ReviewStepComponent', () => {
           LOSES_MANY: 'verliert {{level}} an {{count}} Datensätzen',
           PUBLIC_LOSS_ONE: '1 Datensatz bleibt öffentlich.',
           PUBLIC_LOSS_MANY: '{{count}} Datensätze bleiben öffentlich.',
+          ADDED_SINCE_DIALOG_ONE: 'Bei 1 Einheit neu hinzugekommen.',
+          ADDED_SINCE_DIALOG_MANY: 'Bei {{count}} Einheiten neu hinzugekommen.',
+          TO_RIGHTS: 'Zu Schritt 2',
         },
       },
     });
@@ -157,5 +160,27 @@ describe('ReviewStepComponent', () => {
     state.setAction('b', 'viewer', 'revoke');
     update();
     expect(notice()).toBe('1 Datensatz bleibt öffentlich.');
+  });
+
+  it('points to step 2 where datasets came in after a per-dataset dialog decision', () => {
+    const notice = () => host().querySelector('.added-since-dialog-notice');
+    state.setSelected('georesource:g1', false);
+    state.applyDraft('a', {
+      ...state.draftFor('a'),
+      'spatialunits:su1': { viewer: true, editor: false },
+    });
+    update();
+    expect(notice()).toBeNull();
+
+    state.setSelected('georesource:g1', true);
+    update();
+    expect(text(notice()!.querySelector('span'))).toBe(
+      'Bei 1 Einheit neu hinzugekommen. Zu Schritt 2'
+    );
+
+    const showRights = jest.fn();
+    fixture.componentInstance.showRights.subscribe(showRights);
+    (notice()!.querySelector('.to-rights') as HTMLElement).click();
+    expect(showRights).toHaveBeenCalledTimes(1);
   });
 });

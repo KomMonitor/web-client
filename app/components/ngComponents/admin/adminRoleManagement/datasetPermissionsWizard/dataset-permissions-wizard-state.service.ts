@@ -97,6 +97,33 @@ export class DatasetPermissionsWizardStateService {
   private readonly _decisions = signal<Decisions>({});
   readonly decisions = this._decisions.asReadonly();
 
+  /**
+   * Per group whose decision came from the per-dataset dialog: the datasets
+   * the dialog showed. A dataset added to the selection only afterwards —
+   * selected in step 1, or newly arrived with a reload — was never shown
+   * there: see `addedSinceDialog`.
+   */
+  private readonly dialogScopes = signal<Readonly<Record<string, ReadonlySet<string>>>>({});
+
+  /**
+   * Per offered group, how many selected datasets its per-dataset dialog did
+   * not show. On those, each level acts as its dropdown says: `grant` and
+   * `revoke` reach them, `keep` and `custom` leave them as they are — the
+   * dialog's per-slot values cannot cover what it never showed.
+   */
+  readonly addedSinceDialog = computed<Readonly<Record<string, number>>>(() => {
+    const selected = this.selectedDatasets().map(datasetKey);
+    const offered = this.groupsById();
+    const counts: Record<string, number> = {};
+    for (const [groupId, shown] of Object.entries(this.dialogScopes())) {
+      const count = selected.filter((key) => !shown.has(key)).length;
+      if (count > 0 && offered.has(groupId)) {
+        counts[groupId] = count;
+      }
+    }
+    return counts;
+  });
+
   private readonly _saving = signal(false);
   readonly saving = this._saving.asReadonly();
 
@@ -223,6 +250,7 @@ export class DatasetPermissionsWizardStateService {
     this._ownerId.set(ownerId);
     this.deselected.set(new Set());
     this._decisions.set({});
+    this.dialogScopes.set({});
     return this.reload();
   }
 
@@ -281,10 +309,13 @@ export class DatasetPermissionsWizardStateService {
 
   /** The dropdown of a group's level; granting edit grants read, revoking read revokes edit. */
   setAction(groupId: string, level: RightLevel, action: SelectableAction): void {
-    this._decisions.update((decisions) => ({
-      ...decisions,
-      [groupId]: coupleAction(decisions[groupId] ?? KEEP_DECISION, level, action),
-    }));
+    const decision = coupleAction(this._decisions()[groupId] ?? KEEP_DECISION, level, action);
+    this._decisions.update((decisions) => ({ ...decisions, [groupId]: decision }));
+    // Without a custom level left, the decision is a plain one for every
+    // selected dataset, as the dropdowns say; nothing to point out any more.
+    if (decision.viewer !== 'custom' && decision.editor !== 'custom') {
+      this.forgetDialogScope(groupId);
+    }
   }
 
   coverageOf(groupId: string, level: RightLevel): Coverage | undefined {
@@ -303,13 +334,29 @@ export class DatasetPermissionsWizardStateService {
     if (!group) {
       return;
     }
-    const decision = actionsFromDraft(group, this.selectedDatasets(), draft);
+    const datasets = this.selectedDatasets();
+    const decision = actionsFromDraft(group, datasets, draft);
     this._decisions.update((decisions) => ({ ...decisions, [groupId]: decision }));
+    if (decision.viewer === 'keep' && decision.editor === 'keep') {
+      this.forgetDialogScope(groupId);
+    } else {
+      this.dialogScopes.update((scopes) => ({
+        ...scopes,
+        [groupId]: new Set(datasets.map(datasetKey)),
+      }));
+    }
   }
 
   /** "Further transfer": keeps the selection, forgets the decisions. */
   resetDecisions(): void {
     this._decisions.set({});
+    this.dialogScopes.set({});
+  }
+
+  private forgetDialogScope(groupId: string): void {
+    if (groupId in this.dialogScopes()) {
+      this.dialogScopes.update(({ [groupId]: _forgotten, ...rest }) => rest);
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -350,6 +397,7 @@ export class DatasetPermissionsWizardStateService {
         return { status: 'failed', message: errorMessage(error) };
       }
       this._decisions.set({});
+      this.dialogScopes.set({});
       const reloaded = await this.reload();
       return { status: 'saved', datasetCount, reloaded };
     } finally {

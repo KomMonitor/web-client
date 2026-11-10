@@ -56,6 +56,21 @@ export class RightsStepComponent {
   protected readonly levelLabels = LEVEL_LABELS;
   protected readonly actionLabels = ACTION_LABELS;
 
+  protected hasAddedSinceDialog(): boolean {
+    return Object.keys(this.state.addedSinceDialog()).length > 0;
+  }
+
+  /**
+   * What a level of the group's decision does on datasets its per-dataset
+   * dialog did not show: grant and revoke reach them, keep and custom leave
+   * them as they are (see `addedSinceDialog`).
+   */
+  protected effectOnAdded(groupId: string, level: RightLevel): string {
+    const action = this.actionOf(groupId, level);
+    const effect = action === 'grant' ? 'GRANT' : action === 'revoke' ? 'REVOKE' : 'KEEP';
+    return `ADMIN_DATASET_PERMISSIONS.RIGHTS.ADDED_EFFECT.${effect}`;
+  }
+
   protected actionOf(groupId: string, level: RightLevel): RightAction {
     return this.state.decisions()[groupId]?.[level] ?? 'keep';
   }
