@@ -7,16 +7,15 @@ import {
   indicatorSource,
   spatialUnitSource,
 } from './dataset-permissions.fixture';
-import {
-  TEST_ROLES as ROLES,
-  WizardStateTestBed,
-  wizardStateTestBed,
-} from './dataset-permissions-wizard-state.testing';
+import { WizardStateTestBed, wizardStateTestBed } from './dataset-permissions-wizard-state.testing';
 
 /**
  * The wizard's state on its own: the rules underneath are tested in
  * `dataset-permissions.model.spec`, so these specs check the wiring — what is
  * selected, how decisions are stored, and what a save sends and reloads.
+ *
+ * `start()` reloads once in `beforeEach`; each save reloads once before and
+ * once after the request.
  */
 
 const OWNER = 'owner';
@@ -49,8 +48,15 @@ beforeEach(() => {
     providers: [DatasetPermissionsWizardStateService, ...testBed.providers],
   });
   state = TestBed.inject(DatasetPermissionsWizardStateService);
-  state.start(OWNER);
+  void state.start(OWNER);
 });
+
+/** What another admin stores meanwhile: `b` gets read access to `g1`. */
+function grantBReadOnG1(): void {
+  georesources.update((list) =>
+    list.map((g) => (g.georesourceId === 'g1' ? { ...g, permissions: ['b-viewer'] } : g))
+  );
+}
 
 afterEach(() => jest.restoreAllMocks());
 
@@ -186,39 +192,124 @@ describe('DatasetPermissionsWizardStateService', () => {
     });
   });
 
+  describe('reload', () => {
+    it('reloads the stored rights when a run starts', async () => {
+      expect(bootstrap.reloadDatasetMetadata).toHaveBeenCalledTimes(1);
+
+      let finish!: () => void;
+      bootstrap.reloadDatasetMetadata.mockReturnValueOnce(
+        new Promise<void>((resolve) => (finish = resolve))
+      );
+      const started = state.start(OWNER);
+      expect(state.reloading()).toBe(true);
+
+      finish();
+      await expect(started).resolves.toBe(true);
+      expect(state.reloading()).toBe(false);
+      expect(state.loadFailed()).toBe(false);
+    });
+
+    it('flags a failed reload until one succeeds, keeping selection and decisions', async () => {
+      bootstrap.reloadDatasetMetadata.mockRejectedValueOnce(new Error('offline'));
+      state.setSelected('georesource:g1', false);
+      state.setAction('a', 'viewer', 'grant');
+
+      await expect(state.reload()).resolves.toBe(false);
+      expect(state.loadFailed()).toBe(true);
+
+      await expect(state.reload()).resolves.toBe(true);
+      expect(state.loadFailed()).toBe(false);
+      expect(state.isSelected('georesource:g1')).toBe(false);
+      expect(state.decisions()['a']).toEqual({ viewer: 'grant', editor: 'keep' });
+    });
+  });
+
   describe('save', () => {
     it('sends nothing when nothing changes', async () => {
       state.setAction('a', 'viewer', 'keep');
 
       await expect(state.save()).resolves.toEqual({ status: 'nothing' });
       expect(adminRoleManagement.patchDatasetPermissions).not.toHaveBeenCalled();
+      expect(bootstrap.reloadDatasetMetadata).toHaveBeenCalledTimes(1);
     });
 
-    it('sends the patch, then reloads the datasets', async () => {
+    it('reloads, sends the reviewed patch, then reloads the datasets again', async () => {
       const response = new Subject<void>();
-      adminRoleManagement.patchDatasetPermissions.mockReturnValue(response);
-      bootstrap.fetchGeoresourcesMetadata.mockImplementation(async () =>
-        georesources.update((list) =>
-          list.map((g) => (g.georesourceId === 'g1' ? { ...g, permissions: ['b-viewer'] } : g))
-        )
-      );
+      const order: string[] = [];
+      bootstrap.reloadDatasetMetadata.mockImplementation(async () => {
+        order.push('reload');
+        if (adminRoleManagement.patchDatasetPermissions.mock.calls.length > 0) {
+          grantBReadOnG1();
+        }
+      });
+      adminRoleManagement.patchDatasetPermissions.mockImplementation(() => {
+        order.push('patch');
+        return response;
+      });
       state.setAction('b', 'viewer', 'grant');
       const body = state.patch();
 
       const saving = state.save();
       expect(state.saving()).toBe(true);
+      await new Promise((resolve) => setTimeout(resolve));
       response.next();
       response.complete();
 
       await expect(saving).resolves.toEqual({ status: 'saved', datasetCount: 4, reloaded: true });
       expect(adminRoleManagement.patchDatasetPermissions).toHaveBeenCalledWith(body);
-      expect(bootstrap.fetchIndicatorsMetadata).toHaveBeenCalledWith(ROLES);
-      expect(bootstrap.fetchGeoresourcesMetadata).toHaveBeenCalledWith(ROLES);
-      expect(bootstrap.fetchSpatialUnitsMetadata).toHaveBeenCalledWith(ROLES);
+      expect(order).toEqual(['reload', 'patch', 'reload']);
       expect(state.saving()).toBe(false);
       expect(state.decisions()).toEqual({});
       // The reloaded rights are the new current state.
       expect(state.coverageOf('b', 'viewer')?.before).toBe(1);
+    });
+
+    it('sends nothing when the stored rights changed since the review', async () => {
+      bootstrap.reloadDatasetMetadata.mockImplementationOnce(async () => grantBReadOnG1());
+      state.setAction('b', 'viewer', 'grant');
+      const reviewed = state.patch();
+
+      await expect(state.save()).resolves.toEqual({ status: 'changed' });
+      expect(adminRoleManagement.patchDatasetPermissions).not.toHaveBeenCalled();
+      expect(state.decisions()['b']).toEqual({ viewer: 'grant', editor: 'keep' });
+      // The summary now shows what would be written on the reloaded rights.
+      expect(state.patch()).not.toEqual(reviewed);
+      expect(state.coverageOf('b', 'viewer')?.before).toBe(1);
+    });
+
+    it('still sends when the reload only returns the lists in another order', async () => {
+      bootstrap.reloadDatasetMetadata.mockImplementationOnce(async () =>
+        georesources.update((list) => [...list].reverse())
+      );
+      state.setAction('b', 'viewer', 'grant');
+
+      await expect(state.save()).resolves.toEqual({
+        status: 'saved',
+        datasetCount: 4,
+        reloaded: true,
+      });
+      expect(adminRoleManagement.patchDatasetPermissions).toHaveBeenCalledTimes(1);
+    });
+
+    it('sends nothing when the stored rights cannot be loaded before sending', async () => {
+      bootstrap.reloadDatasetMetadata.mockRejectedValueOnce(new Error('offline'));
+      state.setAction('a', 'viewer', 'grant');
+
+      await expect(state.save()).resolves.toEqual({ status: 'unverified' });
+      expect(adminRoleManagement.patchDatasetPermissions).not.toHaveBeenCalled();
+      expect(state.loadFailed()).toBe(true);
+      expect(state.decisions()['a']).toEqual({ viewer: 'grant', editor: 'keep' });
+      expect(state.saving()).toBe(false);
+    });
+
+    it('ignores a second save while one is under way', async () => {
+      state.setAction('a', 'viewer', 'grant');
+
+      const first = state.save();
+      await expect(state.save()).resolves.toEqual({ status: 'nothing' });
+      await first;
+
+      expect(adminRoleManagement.patchDatasetPermissions).toHaveBeenCalledTimes(1);
     });
 
     it('keeps the decisions and reports the message when the request fails', async () => {
@@ -233,7 +324,8 @@ describe('DatasetPermissionsWizardStateService', () => {
       });
       expect(state.decisions()['a']).toEqual({ viewer: 'grant', editor: 'keep' });
       expect(state.saving()).toBe(false);
-      expect(bootstrap.fetchIndicatorsMetadata).not.toHaveBeenCalled();
+      // Reloaded on start and before sending, not after.
+      expect(bootstrap.reloadDatasetMetadata).toHaveBeenCalledTimes(2);
     });
 
     it('falls back to the HTTP message when the backend sends none', async () => {
@@ -249,8 +341,9 @@ describe('DatasetPermissionsWizardStateService', () => {
     });
 
     it('reports a stored save whose reload failed', async () => {
-      jest.spyOn(console, 'error').mockImplementation(() => undefined);
-      bootstrap.fetchSpatialUnitsMetadata.mockRejectedValue(new Error('offline'));
+      bootstrap.reloadDatasetMetadata
+        .mockResolvedValueOnce(undefined)
+        .mockRejectedValueOnce(new Error('offline'));
       state.setAction('a', 'viewer', 'grant');
 
       await expect(state.save()).resolves.toEqual({
@@ -259,6 +352,7 @@ describe('DatasetPermissionsWizardStateService', () => {
         reloaded: false,
       });
       expect(state.decisions()).toEqual({});
+      expect(state.loadFailed()).toBe(true);
     });
   });
 });

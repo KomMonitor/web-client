@@ -20,6 +20,7 @@ import {
   draftState,
   initialDraft,
   resourcePermissionIds,
+  samePatch,
   setDraftLevel,
   summarize,
   targetRights,
@@ -640,6 +641,70 @@ describe('dataset-permissions.model', () => {
         });
         expect(buildPermissionsPatch([a], selected, { a: grantViewer })).toEqual([]);
       });
+    });
+  });
+  describe('samePatch', () => {
+    const patch = [
+      {
+        organizationalUnitId: 'a',
+        permissions: {
+          georesources: [
+            { id: 'g1', permissions: ['a-viewer', 'a-creator'] },
+            { id: 'g2', permissions: [] },
+          ],
+          indicatorspatialunits: [{ id: 'i', spatialUnitId: 's1', permissions: ['a-viewer'] }],
+        },
+      },
+      { organizationalUnitId: 'b', permissions: { spatialunits: [{ id: 's1', permissions: [] }] } },
+    ];
+
+    it('ignores the order of groups, sections, elements and ids', () => {
+      const reordered = [
+        patch[1],
+        {
+          organizationalUnitId: 'a',
+          permissions: {
+            indicatorspatialunits: patch[0].permissions.indicatorspatialunits,
+            georesources: [
+              { id: 'g2', permissions: [] },
+              { id: 'g1', permissions: ['a-creator', 'a-viewer'] },
+            ],
+          },
+        },
+      ];
+      expect(samePatch(patch, reordered)).toBe(true);
+      expect(samePatch([], [])).toBe(true);
+    });
+
+    it('tells apart a different id, element, timeseries or group', () => {
+      const withIds = (ids: string[]) => [
+        {
+          ...patch[0],
+          permissions: {
+            ...patch[0].permissions,
+            georesources: [
+              { id: 'g1', permissions: ids },
+              { id: 'g2', permissions: [] },
+            ],
+          },
+        },
+        patch[1],
+      ];
+      expect(samePatch(patch, withIds(['a-viewer']))).toBe(false);
+      expect(samePatch(patch, [patch[0]])).toBe(false);
+      expect(
+        samePatch(patch, [
+          {
+            ...patch[0],
+            permissions: {
+              ...patch[0].permissions,
+              indicatorspatialunits: [{ id: 'i', spatialUnitId: 's2', permissions: ['a-viewer'] }],
+            },
+          },
+          patch[1],
+        ])
+      ).toBe(false);
+      expect(samePatch(patch, [patch[0], { ...patch[1], organizationalUnitId: 'c' }])).toBe(false);
     });
   });
 });

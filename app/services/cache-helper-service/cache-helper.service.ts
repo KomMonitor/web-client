@@ -178,21 +178,20 @@ export class CacheHelperServiceService {
         );
       } else {
         // when code reaches this place we must overwrite/set timestamp and actual metadata
-
-        // persist last modification timestamp object as String in local storage.
-        // Only possible when we actually have the server-side modification info; otherwise
-        // we skip the timestamp (leaving the cache to be revalidated on the next successful load).
-        if (this.lastDatabaseModificationInfo) {
-          localStorage.setItem(
-            timestampKey,
-            JSON.stringify(this.lastDatabaseModificationInfo[lastModificationResourceName])
-          );
-        }
+        const lastModification = this.lastDatabaseModificationInfo?.[lastModificationResourceName];
 
         return await firstValueFrom(
           this.http.get<T>(this.baseUrlToKomMonitorDataAPI + resourceEndpoint)
         ).then((response) => {
           localStorage.setItem(metadataKey, JSON.stringify(response));
+          // Persist the timestamp only together with the list it belongs to: written
+          // before a request that then fails, it would pair the new timestamp with the
+          // old list, and the next call would serve that old list as current. Without
+          // the server-side modification info there is no timestamp to persist, which
+          // leaves the cache to be revalidated on the next successful load.
+          if (this.lastDatabaseModificationInfo) {
+            localStorage.setItem(timestampKey, JSON.stringify(lastModification));
+          }
 
           return response;
         });

@@ -81,15 +81,20 @@ export class DatasetPermissionsWizardComponent implements OnInit {
    * The admin area loads the metadata on entry, and the wizard may open before
    * that is done. The datasets then fill in by themselves once it is.
    */
-  protected readonly loading = toSignal(
+  private readonly bootstrapLoading = toSignal(
     inject(MetadataBootstrapService).metadataLoading$.pipe(
       map((state) => state === MetadataLoadingState.INPROGRESS)
     ),
     { initialValue: false }
   );
 
+  protected readonly loading = computed(() => this.bootstrapLoading() || this.state.reloading());
+
   /** Set once a transfer succeeded; the success view replaces the steps. */
   protected readonly done = signal<TransferDone | null>(null);
+
+  /** Set when a transfer was held back because the stored rights had changed meanwhile. */
+  protected readonly changedMeanwhile = signal(false);
 
   protected readonly ownerName = computed(() => {
     const ownerId = this.state.ownerId();
@@ -97,7 +102,15 @@ export class DatasetPermissionsWizardComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.state.start(this.ownerId);
+    void this.state.start(this.ownerId);
+  }
+
+  /** Retries loading the current rights; offered when a reload failed. */
+  async reload(): Promise<void> {
+    const reloaded = await this.state.reload();
+    if (reloaded) {
+      this.done.update((done) => (done ? { ...done, reloaded: true } : done));
+    }
   }
 
   cancel(): void {
@@ -105,12 +118,17 @@ export class DatasetPermissionsWizardComponent implements OnInit {
   }
 
   /**
-   * Sends the transfer. A failure keeps the dialog on the review step with
-   * everything entered, so the user can retry.
+   * Sends the transfer. Anything but success keeps the dialog on the review
+   * step with everything entered, so the user can retry. A failed reload
+   * before sending (`unverified`) needs no message of its own: the notice
+   * bound to `state.loadFailed()` already shows.
    */
   async transfer(): Promise<void> {
+    this.changedMeanwhile.set(false);
     const result = await this.state.save();
-    if (result.status === 'failed') {
+    if (result.status === 'changed') {
+      this.changedMeanwhile.set(true);
+    } else if (result.status === 'failed') {
       this.notificationService.showError(
         this.translate.instant('ADMIN_DATASET_PERMISSIONS.SAVE_FAILED', {
           message: result.message,
@@ -127,6 +145,7 @@ export class DatasetPermissionsWizardComponent implements OnInit {
    * save reloaded the datasets.
    */
   restart(): void {
+    this.changedMeanwhile.set(false);
     this.state.resetDecisions();
     this.done.set(null);
     this.stepper.currentStep = 1;

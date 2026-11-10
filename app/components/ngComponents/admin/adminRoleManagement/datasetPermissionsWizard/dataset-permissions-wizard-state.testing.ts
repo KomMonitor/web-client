@@ -34,11 +34,8 @@ export interface WizardStateTestBed {
   spatialUnits: WritableSignal<OwnerDatasetSources['spatialUnits'][number][]>;
   metadataLoading: BehaviorSubject<MetadataLoadingState>;
   adminRoleManagement: { patchDatasetPermissions: jest.Mock };
-  bootstrap: {
-    fetchIndicatorsMetadata: jest.Mock;
-    fetchGeoresourcesMetadata: jest.Mock;
-    fetchSpatialUnitsMetadata: jest.Mock;
-  };
+  /** `reloadDatasetMetadata` resolves without touching the stores unless a spec says otherwise. */
+  bootstrap: { reloadDatasetMetadata: jest.Mock };
 }
 
 /**
@@ -56,11 +53,7 @@ export function wizardStateTestBed(
   const metadataLoading = new BehaviorSubject(MetadataLoadingState.COMPLETE);
 
   const adminRoleManagement = { patchDatasetPermissions: jest.fn(() => of(undefined)) };
-  const bootstrap = {
-    fetchIndicatorsMetadata: jest.fn().mockResolvedValue(undefined),
-    fetchGeoresourcesMetadata: jest.fn().mockResolvedValue(undefined),
-    fetchSpatialUnitsMetadata: jest.fn().mockResolvedValue(undefined),
-  };
+  const bootstrap = { reloadDatasetMetadata: jest.fn().mockResolvedValue(undefined) };
 
   const providers: Provider[] = [
     {

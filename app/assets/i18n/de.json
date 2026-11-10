@@ -1144,11 +1144,14 @@
     },
     "TRANSFER": "Rechte übertragen",
     "SAVE_FAILED": "Die Rechte konnten nicht übertragen werden: {{message}}",
+    "LOAD_FAILED": "Der aktuelle Stand der Rechte konnte nicht geladen werden, die angezeigten Rechte sind womöglich veraltet. Übertragen wird erst, wenn das Laden gelingt.",
+    "CHANGED": "Die Rechte wurden inzwischen an anderer Stelle geändert, es wurde nichts übertragen. Die Zusammenfassung zeigt jetzt, was auf dem aktuellen Stand geschrieben würde. Bitte prüfen Sie sie und übertragen Sie erneut.",
+    "RELOAD": "Erneut laden",
     "DONE": {
       "TITLE_ONE": "Rechte auf 1 Datensatz übertragen",
       "TITLE_MANY": "Rechte auf {{count}} Datensätze übertragen",
       "TEXT": "Die Rechte sind jetzt an den einzelnen Datensätzen gespeichert und können dort unter Geodatenverwaltung weiter angepasst werden.",
-      "STALE": "Die Datensätze konnten danach nicht neu geladen werden, die angezeigten Rechte sind daher veraltet. Laden Sie die Seite neu, bevor Sie weitere Rechte übertragen.",
+      "STALE": "Die Datensätze konnten danach nicht neu geladen werden, die angezeigten Rechte sind daher veraltet. Laden Sie sie erneut, bevor Sie weitere Rechte übertragen.",
       "RESTART": "Weitere Übertragung"
     }
   },

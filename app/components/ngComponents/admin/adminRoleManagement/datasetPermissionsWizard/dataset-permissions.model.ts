@@ -663,6 +663,35 @@ export function buildPermissionsPatch(
   return patch;
 }
 
+/**
+ * Whether two PATCH bodies write the same. Order does not matter — not of the
+ * groups, the elements or the ids — since the endpoint treats each element on
+ * its own and each list as a set.
+ */
+export function samePatch(
+  a: readonly OrganizationalUnitPermissionInputType[],
+  b: readonly OrganizationalUnitPermissionInputType[]
+): boolean {
+  return canonicalPatch(a) === canonicalPatch(b);
+}
+
+function canonicalPatch(patch: readonly OrganizationalUnitPermissionInputType[]): string {
+  const entries = patch.map((entry) => {
+    const sections = (Object.keys(entry.permissions) as PermissionSection[])
+      .filter((section) => (entry.permissions[section] ?? []).length > 0)
+      .sort()
+      .map((section) => {
+        const elements = (entry.permissions[section] ?? []).map((element) => {
+          const spatialUnitId = 'spatialUnitId' in element ? element.spatialUnitId : '';
+          return JSON.stringify([element.id, spatialUnitId, [...element.permissions].sort()]);
+        });
+        return [section, elements.sort()];
+      });
+    return JSON.stringify([entry.organizationalUnitId, sections]);
+  });
+  return JSON.stringify(entries.sort());
+}
+
 function wantedIds(
   group: GroupPermissionIds,
   currentIds: readonly string[],

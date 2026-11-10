@@ -29,6 +29,7 @@ import {
   datasetKey,
   datasetsOfOwner,
   initialDraft,
+  samePatch,
   summarize,
   triState,
 } from './dataset-permissions.model';
@@ -37,12 +38,20 @@ import {
 export type SelectableAction = Exclude<RightAction, 'custom'>;
 
 /**
- * How a save ended. `nothing`: no change was decided, so no request was sent.
- * `saved` with `reloaded: false`: the rights are stored, but the datasets could
- * not be reloaded, so the current rights on screen are outdated.
+ * How a save ended. Only `saved` sent anything.
+ * - `nothing`: no change was decided, or a save is already running.
+ * - `unverified`: the stored rights could not be loaded before sending, so
+ *   nothing was sent; `loadFailed()` is set.
+ * - `changed`: the stored rights differ from those the review showed, so
+ *   nothing was sent; the summary now shows what would be written instead.
+ * - `failed`: the request failed; the backend stored nothing.
+ * - `saved` with `reloaded: false`: the rights are stored, but the datasets
+ *   could not be reloaded, so the current rights on screen are outdated.
  */
 export type SaveResult =
   | { status: 'nothing' }
+  | { status: 'unverified' }
+  | { status: 'changed' }
   | { status: 'failed'; message: string }
   | { status: 'saved'; datasetCount: number; reloaded: boolean };
 
@@ -58,8 +67,10 @@ export type SaveResult =
  * dialog.
  *
  * The current rights are read from the metadata stores. Those are
- * signal-backed, so after a save reloads them, everything derived here follows
- * by itself.
+ * signal-backed, so after a reload everything derived here follows by itself.
+ * The PATCH replaces a group's whole list per dataset, so a list computed from
+ * outdated rights would write them back: the stores are therefore reloaded when
+ * a run starts, right before sending, and after a save.
  */
 @Injectable()
 export class DatasetPermissionsWizardStateService {
@@ -86,6 +97,13 @@ export class DatasetPermissionsWizardStateService {
 
   private readonly _saving = signal(false);
   readonly saving = this._saving.asReadonly();
+
+  private readonly _reloading = signal(false);
+  readonly reloading = this._reloading.asReadonly();
+
+  /** Set when the last reload failed: the current rights on screen may be outdated. */
+  private readonly _loadFailed = signal(false);
+  readonly loadFailed = this._loadFailed.asReadonly();
 
   /** The groups that can receive rights: the owner's tenant without the owner. */
   readonly groups = computed<GroupPermissionIds[]>(() => {
@@ -170,11 +188,34 @@ export class DatasetPermissionsWizardStateService {
 
   readonly hasChanges = computed(() => this.patch().length > 0);
 
-  /** Starts a run for the owner: everything selected, nothing decided. */
-  start(ownerId: string): void {
+  /**
+   * Starts a run for the owner: everything selected, nothing decided, and the
+   * current rights reloaded — the stores may still hold those of the first
+   * load. Resolves with whether the reload succeeded.
+   */
+  start(ownerId: string): Promise<boolean> {
     this._ownerId.set(ownerId);
     this.deselected.set(new Set());
     this._decisions.set({});
+    return this.reload();
+  }
+
+  /**
+   * Reloads the datasets with their stored rights. Selection and decisions
+   * stay; they apply to the reloaded rights.
+   */
+  async reload(): Promise<boolean> {
+    this._reloading.set(true);
+    try {
+      await this.metadataBootstrapService.reloadDatasetMetadata();
+      this._loadFailed.set(false);
+      return true;
+    } catch {
+      this._loadFailed.set(true);
+      return false;
+    } finally {
+      this._reloading.set(false);
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -250,49 +291,43 @@ export class DatasetPermissionsWizardStateService {
   // -------------------------------------------------------------------------
 
   /**
-   * Sends the PATCH, then reloads the datasets so the current rights on screen
-   * are the stored ones. A failed request keeps the decisions, so the user can
-   * retry without entering them again; the backend writes all or nothing, so
-   * there is no partial success to account for.
+   * Sends the PATCH the user reviewed, then reloads the datasets so the
+   * current rights on screen are the stored ones.
+   *
+   * Right before sending, the stored rights are reloaded and the PATCH is
+   * computed again. If it differs from the reviewed one, someone changed the
+   * rights in between, and nothing is sent: the reviewed lists would undo
+   * that change. The decisions stay, so the user only has to check the
+   * summary again.
+   *
+   * A failed request keeps the decisions as well; the backend writes all or
+   * nothing, so there is no partial success to account for.
    */
   async save(): Promise<SaveResult> {
-    const body = this.patch();
-    if (body.length === 0) {
+    const reviewed = this.patch();
+    if (reviewed.length === 0 || this._saving()) {
       return { status: 'nothing' };
     }
-    const datasetCount = this.changedCount();
     this._saving.set(true);
     try {
+      if (!(await this.reload())) {
+        return { status: 'unverified' };
+      }
+      const body = this.patch();
+      if (!samePatch(reviewed, body)) {
+        return { status: 'changed' };
+      }
+      const datasetCount = this.changedCount();
       try {
         await firstValueFrom(this.adminRoleManagementService.patchDatasetPermissions(body));
       } catch (error) {
         return { status: 'failed', message: errorMessage(error) };
       }
       this._decisions.set({});
-      const reloaded = await this.reloadDatasets();
+      const reloaded = await this.reload();
       return { status: 'saved', datasetCount, reloaded };
     } finally {
       this._saving.set(false);
-    }
-  }
-
-  /**
-   * The PATCH bumps the indicator, georesource and spatial unit timestamps,
-   * and every fetch revalidates its cache entry against them, so a plain
-   * fetch returns the new lists.
-   */
-  private async reloadDatasets(): Promise<boolean> {
-    const roles = this.accessControlService.currentKeycloakLoginRoles;
-    try {
-      await Promise.all([
-        this.metadataBootstrapService.fetchIndicatorsMetadata(roles),
-        this.metadataBootstrapService.fetchGeoresourcesMetadata(roles),
-        this.metadataBootstrapService.fetchSpatialUnitsMetadata(roles),
-      ]);
-      return true;
-    } catch (error) {
-      console.error('Failed to reload the datasets after updating their permissions:', error);
-      return false;
     }
   }
 }

@@ -22,7 +22,19 @@ describe('DatasetPermissionsWizardComponent', () => {
   let activeModal: { dismiss: jest.Mock };
   let notifications: { showError: jest.Mock };
 
-  beforeEach(() => {
+  /**
+   * A reload that fails in a later task, as HttpClient does. A synchronous or
+   * microtask failure would reject before the native `await` in the state
+   * attaches its handler — jest runs async/await natively, unlike the app
+   * build — and zone.js would report that through NgZone as an uncaught error.
+   */
+  const failLater = () =>
+    new Promise<void>((_, reject) => setTimeout(() => reject(new Error('offline'))));
+
+  /** Lets the native promise chain behind a click run to its end. */
+  const settle = () => new Promise((resolve) => setTimeout(resolve));
+
+  beforeEach(async () => {
     testBed = wizardStateTestBed(
       { georesources: [georesourceSource('g1', 'ou-1', [])] },
       { 'ou-1': 'm', 'ou-2': 'm' }
@@ -56,6 +68,9 @@ describe('DatasetPermissionsWizardComponent', () => {
 
     fixture = TestBed.createComponent(DatasetPermissionsWizardComponent);
     fixture.componentInstance.ownerId = 'ou-1';
+    fixture.detectChanges();
+    // Opening reloads the current rights; let that finish.
+    await fixture.whenStable();
     fixture.detectChanges();
   });
 
@@ -135,6 +150,39 @@ describe('DatasetPermissionsWizardComponent', () => {
     expect(overlay()).toBeNull();
   });
 
+  it('covers the steps while the current rights are reloaded', async () => {
+    const overlay = () => fixture.debugElement.query(By.css('app-loading-overlay .overlay'));
+    let finish!: () => void;
+    testBed.bootstrap.reloadDatasetMetadata.mockReturnValueOnce(
+      new Promise<void>((resolve) => (finish = resolve))
+    );
+
+    const reloading = fixture.componentInstance.reload();
+    fixture.detectChanges();
+    expect(overlay()).not.toBeNull();
+
+    finish();
+    await reloading;
+    fixture.detectChanges();
+    expect(overlay()).toBeNull();
+  });
+
+  it('warns while the current rights could not be loaded and offers to retry', async () => {
+    const notice = () => fixture.debugElement.query(By.css('.wizard-steps .load-failed'));
+    expect(notice()).toBeNull();
+
+    testBed.bootstrap.reloadDatasetMetadata.mockImplementationOnce(failLater);
+    await fixture.componentInstance.reload();
+    fixture.detectChanges();
+    expect(notice()).not.toBeNull();
+
+    (notice().query(By.css('.reload')).nativeElement as HTMLElement).click();
+    await settle();
+    fixture.detectChanges();
+    expect(notice()).toBeNull();
+    expect(testBed.bootstrap.reloadDatasetMetadata).toHaveBeenCalledTimes(3);
+  });
+
   it('dismisses on cancel and on the close button', () => {
     clickFooter('ADMIN_SHARED.CANCEL');
     (fixture.debugElement.query(By.css('.btn-close')).nativeElement as HTMLElement).click();
@@ -156,10 +204,22 @@ describe('DatasetPermissionsWizardComponent', () => {
       fixture.detectChanges();
     }
 
+    /**
+     * Waits until a running transfer has finished. Its chain — reload, request,
+     * reload — runs on native promises and timers, which `whenStable` does not
+     * reliably wait for under load.
+     */
+    async function transferSettled(): Promise<void> {
+      for (let i = 0; i < 50 && state().saving(); i++) {
+        await settle();
+      }
+      await settle();
+      fixture.detectChanges();
+    }
+
     async function clickTransfer(): Promise<void> {
       clickFooter(TRANSFER);
-      await fixture.whenStable();
-      fixture.detectChanges();
+      await transferSettled();
     }
 
     it('is offered on the last step only, and only with changes', () => {
@@ -234,9 +294,39 @@ describe('DatasetPermissionsWizardComponent', () => {
       expect(footerLabels()).toContain(TRANSFER);
     });
 
+    it('holds the transfer back when the rights changed since the review', async () => {
+      // Another admin granted ou-2 read access meanwhile, so nothing is left to change.
+      testBed.bootstrap.reloadDatasetMetadata.mockImplementationOnce(async () =>
+        testBed.georesources.update((list) =>
+          list.map((g) => ({ ...g, permissions: ['ou-2-viewer'] }))
+        )
+      );
+      decideAndReview();
+      await clickTransfer();
+
+      expect(testBed.adminRoleManagement.patchDatasetPermissions).not.toHaveBeenCalled();
+      expect(query('.wizard-steps .changed-meanwhile')).toBeDefined();
+      expect(query('.transfer-done')).toBeUndefined();
+      expect(visibleSections()).toEqual([2]);
+      expect(footerLabels()).not.toContain(TRANSFER);
+      expect(notifications.showError).not.toHaveBeenCalled();
+    });
+
+    it('sends nothing and warns when the current rights cannot be loaded before sending', async () => {
+      testBed.bootstrap.reloadDatasetMetadata.mockImplementationOnce(failLater);
+      decideAndReview();
+      await clickTransfer();
+
+      expect(testBed.adminRoleManagement.patchDatasetPermissions).not.toHaveBeenCalled();
+      expect(query('.wizard-steps .load-failed')).toBeDefined();
+      expect(query('.transfer-done')).toBeUndefined();
+      expect(footerLabels()).toContain(TRANSFER);
+    });
+
     it('warns instead of offering a further transfer when the datasets could not be reloaded', async () => {
-      jest.spyOn(console, 'error').mockImplementation(() => undefined);
-      testBed.bootstrap.fetchGeoresourcesMetadata.mockRejectedValue(new Error('offline'));
+      testBed.bootstrap.reloadDatasetMetadata
+        .mockResolvedValueOnce(undefined)
+        .mockImplementationOnce(failLater);
       decideAndReview();
       await clickTransfer();
 
@@ -244,6 +334,12 @@ describe('DatasetPermissionsWizardComponent', () => {
       expect(query('.transfer-done .done-stale')).toBeDefined();
       expect(query('.transfer-done .restart')).toBeUndefined();
       expect(notifications.showError).not.toHaveBeenCalled();
+
+      query('.transfer-done .done-stale .reload')!.click();
+      await settle();
+      fixture.detectChanges();
+      expect(query('.transfer-done .done-stale')).toBeUndefined();
+      expect(query('.transfer-done .restart')).toBeDefined();
     });
 
     it('locks the dialog while the transfer is under way', async () => {
@@ -256,10 +352,12 @@ describe('DatasetPermissionsWizardComponent', () => {
       expect((query('.btn-close') as HTMLButtonElement).disabled).toBe(true);
       expect(query('app-loading-overlay .overlay')).toBeDefined();
 
+      // The request goes out once the reload before it has settled.
+      await settle();
+      expect(testBed.adminRoleManagement.patchDatasetPermissions).toHaveBeenCalled();
       response.next();
       response.complete();
-      await fixture.whenStable();
-      fixture.detectChanges();
+      await transferSettled();
       expect(doneTitle()).toBe('Ein Datensatz');
       expect((query('.btn-close') as HTMLButtonElement).disabled).toBe(false);
     });

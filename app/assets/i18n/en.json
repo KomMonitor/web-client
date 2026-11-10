@@ -1144,11 +1144,14 @@
     },
     "TRANSFER": "Transfer rights",
     "SAVE_FAILED": "The rights could not be transferred: {{message}}",
+    "LOAD_FAILED": "The current rights could not be loaded, so the rights shown may be outdated. Nothing is transferred until loading succeeds.",
+    "CHANGED": "The rights have been changed elsewhere in the meantime, so nothing was transferred. The summary now shows what would be written on the current state. Please check it and transfer again.",
+    "RELOAD": "Reload",
     "DONE": {
       "TITLE_ONE": "Rights transferred to 1 dataset",
       "TITLE_MANY": "Rights transferred to {{count}} datasets",
       "TEXT": "The rights are now stored on the individual datasets and can be adjusted further there under geodata management.",
-      "STALE": "The datasets could not be reloaded afterwards, so the rights shown are outdated. Reload the page before transferring further rights.",
+      "STALE": "The datasets could not be reloaded afterwards, so the rights shown are outdated. Reload them before transferring further rights.",
       "RESTART": "Further transfer"
     }
   },
