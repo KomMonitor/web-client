@@ -8,7 +8,7 @@ import { AuthService } from 'services/auth-service/auth.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { KeycloakHelperService } from 'services/keycloak-helper-service/keycloak-helper.service';
 
-import { StartupService } from './startup.service';
+import { StartupService, withCacheBuster } from './startup.service';
 import { LANGUAGE_STORAGE_KEY } from 'util/i18n.constants';
 
 describe('StartupService', () => {
@@ -51,12 +51,12 @@ describe('StartupService', () => {
       'http://config-server/env.js'
     );
     const remoteScript = document.head.querySelectorAll('script')[scriptsBefore];
-    expect(remoteScript.getAttribute('src')).toBe('http://config-server/env.js');
+    expect(remoteScript.getAttribute('src')).toMatch(/^http:\/\/config-server\/env\.js\?_=\d+$/);
     remoteScript.dispatchEvent(new Event('error'));
     await Promise.resolve();
 
     const fallbackScript = document.head.querySelectorAll('script')[scriptsBefore + 1];
-    expect(fallbackScript.getAttribute('src')).toBe('./config/env_backup.js');
+    expect(fallbackScript.getAttribute('src')).toMatch(/^\.\/config\/env_backup\.js\?_=\d+$/);
     fallbackScript.dispatchEvent(new Event('load'));
     await expect(loadPromise).resolves.toBeUndefined();
   });
@@ -75,10 +75,12 @@ describe('StartupService', () => {
     const loadPromise: Promise<void> = (service as any).loadAppConfigScript(
       'http://config-server/env.js'
     );
-    document.head.querySelectorAll('script')[scriptsBefore].dispatchEvent(new Event('load'));
+    const script = document.head.querySelectorAll('script')[scriptsBefore];
+    script.dispatchEvent(new Event('load'));
     await loadPromise;
 
-    expect(global.fetch).toHaveBeenCalledWith('http://config-server/env.js');
+    // Same URL as the script tag, so the browser answers from the copy it just loaded.
+    expect(global.fetch).toHaveBeenCalledWith(script.getAttribute('src'));
     expect(window.__env.appConfig).toBe('window.__env.apiUrl = "https://example.org";');
   });
 
@@ -88,6 +90,33 @@ describe('StartupService', () => {
 
     await expect(service.initApp()).rejects.toThrow('Unexpected HTTP status 404');
     expect(document.body.textContent).toContain('KomMonitor konnte nicht gestartet werden');
+  });
+
+  // The startup configs change at runtime (admin config editor), not with a
+  // build, so a cached copy must never be used without asking the server.
+  it('revalidates the bootstrap config and the JSON configs with the server', async () => {
+    window.__env = {};
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({}),
+    } as unknown as Response);
+
+    await (service as any).fetchJsonConfig('http://config-server/filter', 'filterConfig');
+    expect(global.fetch).toHaveBeenCalledWith('http://config-server/filter', { cache: 'no-cache' });
+
+    jest.spyOn(service as any, 'loadAppConfigScript').mockResolvedValue(undefined);
+    jest.spyOn(service as any, 'initEnvVariables').mockImplementation(() => undefined);
+    await (service as any).loadAllConfigs();
+    expect(global.fetch).toHaveBeenCalledWith('./config/config-storage-server.json', {
+      cache: 'no-cache',
+    });
+  });
+
+  describe('withCacheBuster', () => {
+    it('appends the parameter with ? or & as the URL requires', () => {
+      expect(withCacheBuster('http://x/env.js', 42)).toBe('http://x/env.js?_=42');
+      expect(withCacheBuster('http://x/config?name=app', 42)).toBe('http://x/config?name=app&_=42');
+    });
   });
 
   describe('loadTranslations', () => {

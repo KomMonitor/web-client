@@ -7,6 +7,23 @@ import { AuthService } from 'services/auth-service/auth.service';
 import { KeycloakHelperService } from 'services/keycloak-helper-service/keycloak-helper.service';
 import { DEFAULT_LANGUAGE_CODE, resolvePreferredLanguage } from 'util/i18n.constants';
 
+/**
+ * The startup configs must never come from a stale browser cache: the app
+ * config, Keycloak, controls and filter config are edited at runtime (admin
+ * config editor) without a new build, and the config service's cache headers
+ * are not ours to set. `no-cache` still lets the browser keep a copy, but makes
+ * it revalidate with the server before every use (a cheap 304 if unchanged).
+ */
+const REVALIDATE: RequestInit = { cache: 'no-cache' };
+
+/**
+ * A script tag has no cache mode, so a unique query parameter is the only way
+ * to make it bypass the cache.
+ */
+export function withCacheBuster(url: string, now: number = Date.now()): string {
+  return `${url}${url.includes('?') ? '&' : '?'}_=${now}`;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -65,7 +82,7 @@ export class StartupService {
   private async loadAllConfigs(): Promise<void> {
     let configStorageServerConfig;
     try {
-      const response = await fetch('./config/config-storage-server.json');
+      const response = await fetch('./config/config-storage-server.json', REVALIDATE);
       if (!response.ok) {
         throw new Error(`Unexpected HTTP status ${response.status}`);
       }
@@ -104,7 +121,7 @@ export class StartupService {
 
   private async fetchJsonConfig(url: string, envKey: string): Promise<void> {
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, REVALIDATE);
       window.__env[envKey] = await response.json();
       console.log(`${envKey} config file fetched`);
     } catch {
@@ -115,18 +132,20 @@ export class StartupService {
   }
 
   private async loadAppConfigScript(scriptUrl: string): Promise<void> {
-    if (await this.appendScript(scriptUrl)) {
+    const remoteUrl = withCacheBuster(scriptUrl);
+    if (await this.appendScript(remoteUrl)) {
       console.log('env.js loaded');
-      await this.fetchAppConfigSource(scriptUrl);
+      await this.fetchAppConfigSource(remoteUrl);
       return;
     }
 
     console.warn(
       'Error while loading app config from client config storage server. Falling back to local ./config/env_backup.js.'
     );
-    if (await this.appendScript('./config/env_backup.js')) {
+    const backupUrl = withCacheBuster('./config/env_backup.js');
+    if (await this.appendScript(backupUrl)) {
       console.log('env_backup.js loaded');
-      await this.fetchAppConfigSource('./config/env_backup.js');
+      await this.fetchAppConfigSource(backupUrl);
     } else {
       console.error(
         'Failed to load the local fallback app config (./config/env_backup.js). The app will start without an app config.'
@@ -141,7 +160,9 @@ export class StartupService {
    * `window.__env` but discards the source. The admin app-config editor edits
    * exactly that source, so it needs a copy — the deleted AngularJS app.js used
    * to fetch the same URL a second time for this. The browser serves it from
-   * cache here, since the script tag just requested it.
+   * cache here, since the script tag just requested it — so `url` must be the
+   * script's exact (cache-busted) URL, and no `no-cache` mode is set: the copy
+   * is as fresh as the script that just ran.
    */
   private async fetchAppConfigSource(url: string): Promise<void> {
     try {
