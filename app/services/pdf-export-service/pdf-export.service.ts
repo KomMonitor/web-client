@@ -6,6 +6,7 @@ import 'jspdf-autotable';
 import JSZip from 'jszip';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
+import { appUrl } from 'util/app-url';
 
 /** Maps Data Management API update-interval codes to their German display labels. */
 const UPDATE_INTERVAL_LABELS = new Map<string, string>([
@@ -92,7 +93,7 @@ export class PdfExportService {
     const doc: any = new jsPDF({ unit: 'mm', format: 'a4' });
 
     const img = new Image();
-    img.src = location.pathname + 'logos/KM_Logo1.png';
+    img.src = appUrl('logos/KM_Logo1.png');
     doc.addImage(img, 'PNG', 193, 5, 12, 12);
 
     doc.setFontSize(16);
@@ -210,7 +211,7 @@ export class PdfExportService {
     const doc: any = new jsPDF({ unit: 'mm', format: 'a4' });
 
     const img = new Image();
-    img.src = location.pathname + 'logos/KM_Logo1.png';
+    img.src = appUrl('logos/KM_Logo1.png');
     doc.addImage(img, 'PNG', 193, 5, 12, 12);
 
     doc.setFontSize(16);

@@ -24,6 +24,9 @@ RUN npm run build
 FROM nginx:1.31.8-alpine3.24
 
 COPY --from=build /kommonitor-webclient/nginx.conf /etc/nginx/nginx.conf
+# Sets <base href> from BASE_HREF at container start (sub-path deployments, e.g. /v6/ui/)
+COPY --from=build --chmod=755 /kommonitor-webclient/docker/40-base-href.sh /docker-entrypoint.d/40-base-href.sh
+ENV BASE_HREF=/
 
 WORKDIR /usr/share/nginx/html
 

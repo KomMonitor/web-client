@@ -6,6 +6,7 @@ import { IndicatorValueService } from 'services/indicator-value-service/indicato
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
 import { ReachabilityStateService } from 'services/reachability-state-service/reachability-state.service';
+import { appUrl } from 'util/app-url';
 
 // Assuming dom-to-image-more is imported or available globally
 declare let _domtoimage: any;
@@ -97,8 +98,7 @@ export class ReachabilityCoverageReportsHelperService {
 
   insertLogo(doc: jsPDF): jsPDF {
     const img = new Image();
-    const subPath = location.pathname;
-    img.src = subPath + 'logos/KM_Logo1.png';
+    img.src = appUrl('logos/KM_Logo1.png');
     doc.addImage(img, 'PNG', 193, 5, 12, 12);
     return doc;
   }

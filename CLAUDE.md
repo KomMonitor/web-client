@@ -35,6 +35,10 @@ npm run format:check     # prettier --check (CI-style, no writes)
 
 Production deployment is a static build served by nginx (see `Dockerfile`, `nginx.conf`). `docker-compose.yml` brings up the client plus the **client-config** service it depends on at startup.
 
+**Sub-path deployments** (e.g. the demo's v6 client at `/v6/ui/`): set `BASE_HREF=/v6/ui/` on the container; `docker/40-base-href.sh` writes it into `index.html`'s `<base href>` at start. It must be absolute — a relative `./` breaks every deep link (bundles are then requested below the current route). In code, never build URLs from `location.pathname` or `origin + '/'`; resolve app files with `appUrl()` (`app/util/app-url.ts`) and routes with `Location.prepareExternalUrl()`.
+
+**Caching:** `nginx.conf` caches the content-hashed bundles forever and sends `no-cache` (revalidate, 304 if unchanged) for everything else — `index.html`, `assets/i18n`, `config/`. `StartupService` additionally fetches the runtime configs with `cache: 'no-cache'` and cache-busts the `env.js` script tag, since the config service's headers are not ours.
+
 ### Tests, lint & format
 
 Tests **are runnable now**. The `test` target uses **Jest** via `@angular-builders/jest` (config in `jest.config.js` + `tsconfig.spec.json`, setup in `setup-jest.ts`); there are ~114 `*.spec.ts` files (391 tests, all green, no skips). The old Karma/Jasmine setup is gone. Run `npm test` (single pass) or `npm run test:watch`. Note `jest.config.js` carries a hand-tuned `transformIgnorePatterns` / `moduleNameMapper` for ESM-only deps (leaflet-geosearch, echarts/zrender, d3) — extend it there when a new ESM package breaks a test transform.
