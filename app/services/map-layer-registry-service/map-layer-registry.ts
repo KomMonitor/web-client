@@ -185,7 +185,10 @@ export class MapLayerRegistry implements MapLayerStatusSink {
     }
   }
 
-  /** `value` is a factor (0..1) on the layer's own style; values outside are clamped. */
+  /**
+   * `value` is a factor (0..1) on the layer's own style, applied to its pane, so
+   * sources may restyle freely; values outside are clamped.
+   */
   setOpacity(id: LayerId, value: number): void {
     if (Number.isNaN(value)) {
       return;
@@ -210,14 +213,6 @@ export class MapLayerRegistry implements MapLayerStatusSink {
   reportOutOfScale(id: LayerId, outOfScale: boolean): void {
     if (this.entry(id)?.outOfScale !== outOfScale) {
       this.patch(id, { outOfScale });
-    }
-  }
-
-  /** Applies the opacity again, after the source restyled its layer without it. */
-  reapply(id: LayerId): void {
-    const entry = this.entry(id);
-    if (entry && this.slots.get(id)?.layer) {
-      this.binding?.setOpacity(id, entry.opacity);
     }
   }
 

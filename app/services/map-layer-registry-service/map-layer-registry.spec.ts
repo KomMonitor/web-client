@@ -379,21 +379,10 @@ describe('MapLayerRegistry', () => {
     it('ignores unknown ids', () => {
       registry.setVisible('georesource:404', false);
       registry.setOpacity('georesource:404', 0.5);
-      registry.reapply('georesource:404');
       registry.zoomTo('georesource:404');
 
       expect(binding.calls).toEqual([]);
       expect(registry.entry('georesource:404')).toBeUndefined();
-    });
-
-    it('applies the current opacity again on reapply', () => {
-      registry.setOpacity('georesource:1', 0.25);
-      registry.reapply('georesource:1');
-
-      expect(binding.calls).toEqual([
-        ['setOpacity', 'georesource:1', 0.25],
-        ['setOpacity', 'georesource:1', 0.25],
-      ]);
     });
 
     it('delegates zoomTo to the binding', () => {

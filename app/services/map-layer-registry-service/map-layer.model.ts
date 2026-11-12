@@ -10,7 +10,7 @@ import type * as L from 'leaflet';
 /** Stable identity '<source>:<key>', e.g. 'georesource:4711', 'wms:<id>', 'indicator'. */
 export type LayerId = string;
 
-/** Selects the adapter that knows how to fade, bound and place the Leaflet layer. */
+/** The kind of Leaflet layer; sources pick the matching pane options (marker shadows, cluster icons). */
 export type LayerKind = 'raster' | 'vector' | 'marker' | 'cluster';
 
 /** One group of the layer panel. Groups are data: the panel and registry never branch on group ids. */
@@ -50,7 +50,7 @@ export interface LayerRegistration {
   load?: () => Promise<L.Layer>;
   initial?: { visible?: boolean; opacity?: number };
   capabilities?: Partial<LayerCapabilities>;
-  /** Per-layer override of the kind's adapter, e.g. the indicator's opacity. */
+  /** Per-layer override of the default adapter, e.g. WMS bounds from the capabilities. */
   adapter?: Partial<LayerAdapter>;
   info?: () => LayerInfo | Promise<LayerInfo>;
   owner?: MapLayerOwner;
@@ -65,13 +65,14 @@ export interface LayerCapabilities {
   searchable: boolean;
 }
 
-/** Applies opacity, bounds and pane to the Leaflet layer of one layer kind. */
+/**
+ * What the binding needs to know about a Leaflet layer beyond what Leaflet
+ * offers uniformly. Opacity is not part of it: the binding fades the layer's
+ * own pane, which covers every kind and survives restyles.
+ */
 export interface LayerAdapter {
-  /** `opacity` is a factor (0..1) on the layer's own style, not an absolute value. */
-  setOpacity(layer: L.Layer, opacity: number): void;
+  /** Where `zoomTo` goes; undefined if the layer has no known extent. */
   getBounds(layer: L.Layer): L.LatLngBounds | undefined;
-  /** Moves layers that were created without a pane option, e.g. the children of leaflet-wfst. */
-  assignPane?(layer: L.Layer, pane: string): void;
 }
 
 /** What the panel renders: serializable, no Leaflet objects. */
@@ -178,6 +179,7 @@ export interface MapLayerBinding {
   /** Takes the layer of `id` off the map and forgets it. */
   unbind(id: LayerId): void;
   setVisible(id: LayerId, visible: boolean): void;
+  /** A factor (0..1) on the layer's own style; the binding applies it to the layer's pane. */
   setOpacity(id: LayerId, opacity: number): void;
   zoomTo(id: LayerId): void;
   /**
