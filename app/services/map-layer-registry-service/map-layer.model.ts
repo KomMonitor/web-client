@@ -135,3 +135,40 @@ export interface BaseLayerEntry {
   /** null = the empty base layer. */
   layer: L.Layer | null;
 }
+
+/** One group of `MapLayerRegistry.tree()` with its sub groups or entries, top to bottom. */
+export interface LayerTreeNode {
+  group: LayerGroupDef;
+  children: LayerTreeNode[];
+  /** Only leaf groups hold entries. */
+  entries: LayerEntryState[];
+  /** Entries of this group including those of its sub groups. */
+  count: number;
+}
+
+/** Everything the map side needs to show one registered layer. */
+export interface BoundLayer {
+  id: LayerId;
+  kind: LayerKind;
+  /** The pane the source created the layer in, see `MapLayerRegistry.paneFor()`. */
+  pane: string;
+  layer: L.Layer;
+  adapter?: Partial<LayerAdapter>;
+  visible: boolean;
+  opacity: number;
+}
+
+/**
+ * Port between the registry and a concrete map. The registry first changes its
+ * state and then calls the binding synchronously, so code right after a
+ * command already finds the layer on the map.
+ */
+export interface MapLayerBinding {
+  /** Takes over the layer of `layer.id`, replacing a previous one of the same id, and shows it if visible. */
+  bind(layer: BoundLayer): void;
+  /** Takes the layer of `id` off the map and forgets it. */
+  unbind(id: LayerId): void;
+  setVisible(id: LayerId, visible: boolean): void;
+  setOpacity(id: LayerId, opacity: number): void;
+  zoomTo(id: LayerId): void;
+}
