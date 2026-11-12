@@ -119,7 +119,7 @@ export class MapLayerRegistry implements MapLayerStatusSink {
       kind: registration.kind,
       symbol: registration.symbol,
       visible: previous?.visible ?? registration.initial?.visible ?? true,
-      opacity: previous?.opacity ?? clampOpacity(registration.initial?.opacity ?? 1),
+      opacity: previous?.opacity ?? initialOpacity(registration.initial?.opacity),
       status: registration.layer ? 'ready' : 'idle',
       outOfScale: previous?.outOfScale ?? false,
       capabilities: { ...DEFAULT_LAYER_CAPABILITIES, ...registration.capabilities },
@@ -407,6 +407,14 @@ function sameIds(a: readonly LayerId[], b: readonly LayerId[]): boolean {
 /** A whole number between 0 and `max`. */
 function clampIndex(value: number, max: number): number {
   return Math.min(max, Math.max(0, Math.trunc(value)));
+}
+
+/**
+ * Missing or NaN means opaque: sources pass `1 - transparency`, and catalogue
+ * entries may lack a transparency, which Leaflet used to ignore silently.
+ */
+function initialOpacity(value: number | undefined): number {
+  return value === undefined || Number.isNaN(value) ? 1 : clampOpacity(value);
 }
 
 function clampOpacity(value: number): number {

@@ -117,6 +117,16 @@ describe('MapLayerRegistry', () => {
       });
     });
 
+    it('starts opaque when the initial opacity is missing or not a number', () => {
+      registry.register(poi('wms:1', { initial: { opacity: Number.NaN } }));
+      registry.register(poi('wms:2', { initial: { visible: true } }));
+      registry.register(poi('wms:3', { initial: { opacity: 1.7 } }));
+
+      expect(registry.entry('wms:1')?.opacity).toBe(1);
+      expect(registry.entry('wms:2')?.opacity).toBe(1);
+      expect(registry.entry('wms:3')?.opacity).toBe(1);
+    });
+
     it('marks a hidden entry that is only loaded on first show as idle', () => {
       registry.register(
         poi('outline:7', {

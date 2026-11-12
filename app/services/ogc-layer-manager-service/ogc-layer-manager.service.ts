@@ -27,25 +27,40 @@ export class OgcLayerManagerService {
     this.context = context;
   }
 
+  /**
+   * Registers the WMS with the map's layer registry, which puts it on the map
+   * and into the layer control. Both catalogues (georesources and indicator
+   * selection) end up here. `opacity` is the start value; the registry fades
+   * the layer's pane, so the tile layer itself stays opaque.
+   */
   addWmsLayer(dataset: WmsDataset, opacity: number) {
+    const id = wmsLayerId(dataset);
     const wmsLayer = L.tileLayer.wms(dataset.connectionDetails.baseUrl, {
       layers: dataset.connectionDetails.layerName,
       transparent: true,
       format: 'image/png',
       minZoom: this.envConfigService.minZoomLevel,
       maxZoom: this.envConfigService.maxZoomLevel,
-      opacity: opacity,
+      pane: this.context.layers.paneFor(id),
     });
 
-    this.context.layerControl.addOverlay(wmsLayer, dataset.title, MAP_LAYER_GROUPS.wms);
-    wmsLayer.addTo(this.context.map);
+    this.context.layers.register({
+      id,
+      groupId: 'georesource.service',
+      title: dataset.title,
+      kind: 'raster',
+      symbol: { kind: 'service', serviceType: 'wms' },
+      layer: wmsLayer,
+      initial: { opacity },
+    });
     this.context.updateSearchControl();
     this.context.map.invalidateSize(true);
     this.context.hideLoadingIcon();
   }
 
-  removeWmsLayer(dataset) {
-    this.removeLayersByTitle(dataset.title);
+  removeWmsLayer(dataset: WmsDataset) {
+    this.context.layers.unregister(wmsLayerId(dataset));
+    this.context.hideLoadingIcon();
   }
 
   addWfsLayer(dataset, opacity, useCluster) {
@@ -168,7 +183,8 @@ export class OgcLayerManagerService {
     });
   }
 
-  // matches by layer name only (not by group), mirroring the legacy behavior
+  // WFS only, until it moves to the registry (B4): matches by layer name only
+  // (not by group), mirroring the legacy behavior
   private removeLayersByTitle(title: string) {
     this.context.layerControl._layers.forEach((layer) => {
       if (layer.name.includes(title)) {
@@ -246,4 +262,9 @@ export class OgcLayerManagerService {
       return new L.Filter.And(...filterExpressions);
     }
   }
+}
+
+/** Stable id of a WMS in the layer registry, the same from both catalogues. */
+function wmsLayerId(dataset: WmsDataset): string {
+  return `wms:${dataset.id}`;
 }
