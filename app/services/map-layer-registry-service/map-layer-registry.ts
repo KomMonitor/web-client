@@ -9,8 +9,10 @@ import type {
   LayerGroupDef,
   LayerId,
   LayerRegistration,
+  LayerStatus,
   LayerTreeNode,
   MapLayerBinding,
+  MapLayerStatusSink,
 } from './map-layer.model';
 
 export const DEFAULT_LAYER_CAPABILITIES: Readonly<LayerCapabilities> = {
@@ -26,6 +28,7 @@ interface LayerSlot {
   registration: LayerRegistration;
   /** The layer on the map side; missing until a `load`-only entry was loaded. */
   layer?: L.Layer;
+  loading?: boolean;
 }
 
 /**
@@ -35,8 +38,11 @@ interface LayerSlot {
  * then calls the attached `MapLayerBinding` synchronously; before `attach()`
  * the registry only buffers. Plain class with signals, so tests and further
  * maps simply create their own instance.
+ *
+ * A slot object stands for one registration: replacing or unregistering an
+ * entry drops its slot, which turns a load still running for it stale.
  */
-export class MapLayerRegistry {
+export class MapLayerRegistry implements MapLayerStatusSink {
   /** All entries; their order within a group is their order in the panel and on the map. */
   private readonly _entries = signal<readonly LayerEntryState[]>([]);
   /** Top-level groups, top to bottom; sub groups keep the order of the catalogue. */
@@ -128,8 +134,13 @@ export class MapLayerRegistry {
 
     if (registration.layer) {
       this.binding?.bind(this.boundLayer(entry, registration.layer));
-    } else if (hadLayer) {
-      this.binding?.unbind(id);
+    } else {
+      if (hadLayer) {
+        this.binding?.unbind(id);
+      }
+      if (entry.visible) {
+        this.ensureLoaded(id);
+      }
     }
 
     if (group.maxEntries !== undefined && previous?.groupId !== groupId) {
@@ -168,6 +179,9 @@ export class MapLayerRegistry {
     }
     if (this.slots.get(id)?.layer) {
       this.binding?.setVisible(id, visible);
+    } else if (visible) {
+      // The first show of a `load`-only entry, or a new attempt after an error.
+      this.ensureLoaded(id);
     }
   }
 
@@ -182,6 +196,20 @@ export class MapLayerRegistry {
     }
     if (this.slots.get(id)?.layer) {
       this.binding?.setOpacity(id, opacity);
+    }
+  }
+
+  /** For the binding: tile loading and errors of a bound layer. Ignored for entries without one. */
+  reportStatus(id: LayerId, status: Exclude<LayerStatus, 'idle'>): void {
+    if (this.slots.get(id)?.layer && this.entry(id)?.status !== status) {
+      this.patch(id, { status });
+    }
+  }
+
+  /** For the binding: whether the map's zoom is outside the layer's zoom range. */
+  reportOutOfScale(id: LayerId, outOfScale: boolean): void {
+    if (this.entry(id)?.outOfScale !== outOfScale) {
+      this.patch(id, { outOfScale });
     }
   }
 
@@ -289,6 +317,48 @@ export class MapLayerRegistry {
       visible: entry.visible,
       opacity: entry.opacity,
     };
+  }
+
+  /** Starts loading the layer of a `load`-only entry, unless it has one or is loading it. */
+  private ensureLoaded(id: LayerId): void {
+    const slot = this.slots.get(id);
+    const load = slot?.registration.load;
+    if (!slot || !load || slot.layer || slot.loading) {
+      return;
+    }
+    slot.loading = true;
+    this.patch(id, { status: 'loading' });
+    // The executor turns a synchronous throw of `load` into a rejection as well.
+    new Promise<L.Layer>((resolve) => resolve(load())).then(
+      (layer) => this.loaded(id, slot, layer),
+      () => this.loadFailed(id, slot)
+    );
+  }
+
+  private loaded(id: LayerId, slot: LayerSlot, layer: L.Layer): void {
+    if (this.slots.get(id) !== slot) {
+      return; // replaced or unregistered meanwhile
+    }
+    slot.loading = false;
+    slot.layer = layer;
+    this.patch(id, { status: 'ready' });
+    const entry = this.entry(id);
+    if (entry) {
+      // With the current state: an entry hidden meanwhile is bound hidden.
+      this.binding?.bind(this.boundLayer(entry, layer));
+    }
+  }
+
+  /**
+   * Hides the entry again, so the next show is a new attempt. The registry only
+   * records the status; telling the user why is up to the source's `load`.
+   */
+  private loadFailed(id: LayerId, slot: LayerSlot): void {
+    if (this.slots.get(id) !== slot) {
+      return;
+    }
+    slot.loading = false;
+    this.patch(id, { status: 'error', visible: false });
   }
 
   /** Drops an entry that lost its place; its owner deselects it in its catalogue. */

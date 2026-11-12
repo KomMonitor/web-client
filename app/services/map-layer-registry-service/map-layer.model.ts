@@ -43,7 +43,10 @@ export interface LayerRegistration {
   symbol: LayerSymbol;
   /** A ready-made layer ... */
   layer?: L.Layer;
-  /** ... or one created on first show (outlines). */
+  /**
+   * ... or one created on first show (outlines). A rejection marks the entry
+   * 'error' and hides it again; the source tells the user why.
+   */
   load?: () => Promise<L.Layer>;
   initial?: { visible?: boolean; opacity?: number };
   capabilities?: Partial<LayerCapabilities>;
@@ -82,11 +85,17 @@ export interface LayerEntryState {
   visible: boolean;
   /** 0..1, factor on the layer's own style. */
   opacity: number;
-  status: 'idle' | 'loading' | 'ready' | 'error';
+  status: LayerStatus;
   /** Outside the layer's min/max zoom. */
   outOfScale: boolean;
   capabilities: LayerCapabilities;
 }
+
+/**
+ * 'idle': a `load`-only entry that was never shown; 'loading' / 'ready' /
+ * 'error': its own loading, or what the binding reports, e.g. for tiles.
+ */
+export type LayerStatus = 'idle' | 'loading' | 'ready' | 'error';
 
 /** Callbacks into the source that registered the entry. */
 export interface MapLayerOwner {
@@ -171,6 +180,17 @@ export interface MapLayerBinding {
   setVisible(id: LayerId, visible: boolean): void;
   setOpacity(id: LayerId, opacity: number): void;
   zoomTo(id: LayerId): void;
-  /** All registered ids, top to bottom; the binding derives the stacking of the layers from it. */
+  /**
+   * All registered ids, top to bottom; the binding derives the stacking of the
+   * layers from it. It includes entries whose layer is not bound yet, so the
+   * binding keeps the order for layers it gets later.
+   */
   setOrder(order: LayerId[]): void;
+}
+
+/** Where a binding reports what it learns from the map, e.g. from tile and zoom events. */
+export interface MapLayerStatusSink {
+  reportStatus(id: LayerId, status: Exclude<LayerStatus, 'idle'>): void;
+  /** Whether the map's zoom is outside the layer's min/max zoom. */
+  reportOutOfScale(id: LayerId, outOfScale: boolean): void;
 }

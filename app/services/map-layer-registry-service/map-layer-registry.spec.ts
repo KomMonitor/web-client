@@ -117,10 +117,11 @@ describe('MapLayerRegistry', () => {
       });
     });
 
-    it('marks an entry that is only loaded on first show as idle', () => {
+    it('marks a hidden entry that is only loaded on first show as idle', () => {
       registry.register(
         poi('outline:7', {
           groupId: 'outline',
+          initial: { visible: false },
           layer: undefined,
           load: () => Promise.resolve(fakeLayer('outline:7')),
         })
@@ -383,22 +384,6 @@ describe('MapLayerRegistry', () => {
 
       expect(binding.calls).toEqual([]);
       expect(registry.entry('georesource:404')).toBeUndefined();
-    });
-
-    it('only remembers the visibility of an entry that has no layer yet', () => {
-      registry.register(
-        poi('outline:7', {
-          groupId: 'outline',
-          initial: { visible: false },
-          layer: undefined,
-          load: () => Promise.resolve(fakeLayer('outline:7')),
-        })
-      );
-
-      registry.setVisible('outline:7', true);
-
-      expect(registry.entry('outline:7')?.visible).toBe(true);
-      expect(binding.calls).toEqual([]);
     });
 
     it('applies the current opacity again on reapply', () => {
@@ -708,6 +693,279 @@ describe('MapLayerRegistry', () => {
       registry.register(poi('georesource:2'));
 
       expect(binding.orders).toEqual([]);
+    });
+  });
+
+  describe('loading on first show', () => {
+    function deferred<T>() {
+      let resolve!: (value: T) => void;
+      let reject!: (reason: unknown) => void;
+      const promise = new Promise<T>((res, rej) => {
+        resolve = res;
+        reject = rej;
+      });
+      return { promise, resolve, reject };
+    }
+
+    /** Lets pending promise callbacks run. */
+    const flush = () => new Promise((resolve) => setTimeout(resolve));
+
+    function outline(
+      load: () => Promise<L.Layer>,
+      initial: LayerRegistration['initial'] = { visible: false }
+    ): LayerRegistration {
+      return poi('outline:7', {
+        groupId: 'outline',
+        kind: 'vector',
+        symbol: { kind: 'outline', color: '#ff0000' },
+        layer: undefined,
+        load,
+        initial,
+      });
+    }
+
+    it('does not load a hidden entry', () => {
+      const load = jest.fn();
+
+      registry.register(outline(load));
+
+      expect(registry.entry('outline:7')?.status).toBe('idle');
+      expect(load).not.toHaveBeenCalled();
+    });
+
+    it('loads on the first show and binds the layer with the current state', async () => {
+      const pending = deferred<L.Layer>();
+      const load = jest.fn(() => pending.promise);
+      registry.register(outline(load));
+      registry.attach(binding);
+      registry.setOpacity('outline:7', 0.5);
+
+      registry.setVisible('outline:7', true);
+
+      expect(registry.entry('outline:7')?.status).toBe('loading');
+      expect(load).toHaveBeenCalledTimes(1);
+      expect(binding.calls).toEqual([]);
+
+      const layer = fakeLayer('loaded');
+      pending.resolve(layer);
+      await flush();
+
+      expect(registry.entry('outline:7')?.status).toBe('ready');
+      expect(binding.calls).toEqual([
+        [
+          'bind',
+          {
+            id: 'outline:7',
+            kind: 'vector',
+            pane: registry.paneFor('outline:7'),
+            layer,
+            adapter: undefined,
+            visible: true,
+            opacity: 0.5,
+          },
+        ],
+      ]);
+
+      registry.setVisible('outline:7', false);
+      registry.setVisible('outline:7', true);
+
+      expect(load).toHaveBeenCalledTimes(1);
+      expect(binding.calls.slice(1)).toEqual([
+        ['setVisible', 'outline:7', false],
+        ['setVisible', 'outline:7', true],
+      ]);
+    });
+
+    it('loads an entry registered as visible right away and binds it on attach', async () => {
+      const layer = fakeLayer('loaded');
+      const load = jest.fn(() => Promise.resolve(layer));
+
+      registry.register(outline(load, { visible: true }));
+
+      expect(load).toHaveBeenCalledTimes(1);
+      await flush();
+      registry.attach(binding);
+
+      expect(binding.calls).toEqual([
+        ['bind', expect.objectContaining({ id: 'outline:7', layer, visible: true })],
+      ]);
+    });
+
+    it('binds an entry hidden while loading as hidden and does not load twice', async () => {
+      const pending = deferred<L.Layer>();
+      const load = jest.fn(() => pending.promise);
+      registry.attach(binding);
+      registry.register(outline(load));
+
+      registry.setVisible('outline:7', true);
+      registry.setVisible('outline:7', false);
+      registry.setVisible('outline:7', true);
+      registry.setVisible('outline:7', false);
+      pending.resolve(fakeLayer('loaded'));
+      await flush();
+
+      expect(load).toHaveBeenCalledTimes(1);
+      expect(binding.calls).toEqual([
+        ['bind', expect.objectContaining({ id: 'outline:7', visible: false })],
+      ]);
+    });
+
+    it('hides a failed entry and tries again on the next show', async () => {
+      const layer = fakeLayer('second try');
+      const load = jest
+        .fn()
+        .mockRejectedValueOnce(new Error('offline'))
+        .mockResolvedValueOnce(layer);
+      registry.attach(binding);
+      registry.register(outline(load));
+
+      registry.setVisible('outline:7', true);
+      await flush();
+
+      expect(registry.entry('outline:7')).toMatchObject({ status: 'error', visible: false });
+      expect(binding.calls).toEqual([]);
+
+      registry.setVisible('outline:7', true);
+      expect(registry.entry('outline:7')?.status).toBe('loading');
+      await flush();
+
+      expect(load).toHaveBeenCalledTimes(2);
+      expect(registry.entry('outline:7')).toMatchObject({ status: 'ready', visible: true });
+      expect(binding.calls).toEqual([['bind', expect.objectContaining({ layer, visible: true })]]);
+    });
+
+    it('treats a load function that throws as a failed load', async () => {
+      registry.register(
+        outline(() => {
+          throw new Error('bug');
+        })
+      );
+
+      registry.setVisible('outline:7', true);
+      await flush();
+
+      expect(registry.entry('outline:7')).toMatchObject({ status: 'error', visible: false });
+    });
+
+    it('drops the result of a load whose entry was replaced meanwhile', async () => {
+      const pending = deferred<L.Layer>();
+      registry.attach(binding);
+      registry.register(outline(() => pending.promise));
+      registry.setVisible('outline:7', true);
+      registry.register(poi('outline:7', { groupId: 'outline', layer: fakeLayer('replacement') }));
+      binding.calls.length = 0;
+
+      pending.resolve(fakeLayer('stale'));
+      await flush();
+
+      expect(binding.calls).toEqual([]);
+      expect(registry.entry('outline:7')?.status).toBe('ready');
+    });
+
+    it('starts the load of a replacement that is only loaded later', async () => {
+      const first = deferred<L.Layer>();
+      const second = deferred<L.Layer>();
+      const secondLoad = jest.fn(() => second.promise);
+      registry.register(outline(() => first.promise));
+      registry.setVisible('outline:7', true);
+
+      registry.register(outline(secondLoad));
+      registry.attach(binding);
+
+      expect(secondLoad).toHaveBeenCalledTimes(1);
+      second.resolve(fakeLayer('fresh'));
+      first.resolve(fakeLayer('stale'));
+      await flush();
+
+      expect(binding.calls).toEqual([
+        ['bind', expect.objectContaining({ layer: expect.objectContaining({ name: 'fresh' }) })],
+      ]);
+    });
+
+    it('drops the result of a load whose entry was unregistered meanwhile', async () => {
+      const pending = deferred<L.Layer>();
+      registry.attach(binding);
+      registry.register(outline(() => pending.promise));
+      registry.setVisible('outline:7', true);
+
+      registry.unregister('outline:7');
+      pending.resolve(fakeLayer('stale'));
+      await flush();
+
+      expect(binding.calls).toEqual([]);
+      expect(registry.entry('outline:7')).toBeUndefined();
+    });
+
+    it('only counts the new load after unregistering and registering again', async () => {
+      const first = deferred<L.Layer>();
+      const second = deferred<L.Layer>();
+      registry.register(outline(() => first.promise, { visible: true }));
+      registry.unregister('outline:7');
+      registry.register(outline(() => second.promise, { visible: true }));
+      registry.attach(binding);
+
+      second.resolve(fakeLayer('fresh'));
+      await flush();
+      first.resolve(fakeLayer('stale'));
+      await flush();
+
+      expect(binding.calls).toEqual([
+        ['bind', expect.objectContaining({ layer: expect.objectContaining({ name: 'fresh' }) })],
+      ]);
+    });
+  });
+
+  describe('status reported by the binding', () => {
+    beforeEach(() => {
+      registry.register(poi('wms:9', { groupId: 'georesource.service', kind: 'raster' }));
+    });
+
+    it('sets the status of an entry with a layer and keeps it visible on errors', () => {
+      registry.reportStatus('wms:9', 'loading');
+      expect(registry.entry('wms:9')?.status).toBe('loading');
+
+      registry.reportStatus('wms:9', 'error');
+      expect(registry.entry('wms:9')).toMatchObject({ status: 'error', visible: true });
+
+      registry.reportStatus('wms:9', 'ready');
+      expect(registry.entry('wms:9')?.status).toBe('ready');
+    });
+
+    it('ignores unknown entries and entries without a layer yet', () => {
+      registry.register(
+        poi('outline:7', {
+          groupId: 'outline',
+          initial: { visible: false },
+          layer: undefined,
+          load: () => Promise.resolve(fakeLayer('outline:7')),
+        })
+      );
+
+      registry.reportStatus('outline:7', 'error');
+      registry.reportStatus('wms:404', 'error');
+
+      expect(registry.entry('outline:7')?.status).toBe('idle');
+      expect(registry.entry('wms:404')).toBeUndefined();
+    });
+
+    it('leaves the state untouched when a report repeats it', () => {
+      const tree = registry.tree();
+
+      registry.reportStatus('wms:9', 'ready');
+      registry.reportOutOfScale('wms:9', false);
+
+      expect(registry.tree()).toBe(tree);
+    });
+
+    it('sets and clears outOfScale', () => {
+      registry.reportOutOfScale('wms:9', true);
+      expect(registry.entry('wms:9')?.outOfScale).toBe(true);
+
+      registry.reportOutOfScale('wms:9', false);
+      expect(registry.entry('wms:9')?.outOfScale).toBe(false);
+
+      registry.reportOutOfScale('wms:404', true);
+      expect(registry.entry('wms:404')).toBeUndefined();
     });
   });
 });
