@@ -272,6 +272,25 @@ describe('LeafletLayerBinding', () => {
     });
   });
 
+  describe('dispose', () => {
+    it('takes every layer off the map and stops reporting', () => {
+      const polygon = square('mapLayer1');
+      const tiles = L.tileLayer('https://example.org/{z}/{x}/{y}.png', { pane: 'mapLayer2' });
+      binding.bind(bound('georesource:1', polygon));
+      binding.bind(bound('wms:1', tiles, { kind: 'raster', visible: false }));
+
+      binding.dispose();
+      sink.reportStatus.mockClear();
+      sink.reportOutOfScale.mockClear();
+      tiles.fire('loading');
+      map.setZoom(12);
+
+      expect(map.hasLayer(polygon)).toBe(false);
+      expect(sink.reportStatus).not.toHaveBeenCalled();
+      expect(sink.reportOutOfScale).not.toHaveBeenCalled();
+    });
+  });
+
   describe('with the registry', () => {
     let registry: MapLayerRegistry;
 

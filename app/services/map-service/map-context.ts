@@ -1,3 +1,5 @@
+import type { MapLayerRegistry } from 'services/map-layer-registry-service/map-layer-registry';
+
 /**
  * Narrow handle on the main Leaflet map that KommonitorMapComponent passes to
  * the layer manager services (map refactoring plan, Phase 3). The Leaflet
@@ -7,8 +9,10 @@
 export interface MapContext {
   /** The Leaflet map instance of the main map. */
   map: any;
-  /** The grouped layer control of the main map. */
+  /** The grouped layer control of the main map; goes once the layer panel replaces it. */
   layerControl: any;
+  /** The layer registry of the main map: sources register their layers here. */
+  layers: MapLayerRegistry;
   /** Rebuilds the feature search index after layers changed. */
   updateSearchControl(): void;
   /** Hides the map loading spinner. */

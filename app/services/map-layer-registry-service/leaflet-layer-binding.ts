@@ -34,12 +34,19 @@ interface Bound {
 export class LeafletLayerBinding implements MapLayerBinding {
   private readonly bound = new Map<LayerId, Bound>();
   private order: readonly LayerId[] = [];
+  private readonly onZoomEnd = () => this.bound.forEach((_, id) => this.reportScale(id));
 
   constructor(
     private readonly map: L.Map,
     private readonly sink: MapLayerStatusSink
   ) {
-    map.on('zoomend', () => this.bound.forEach((_, id) => this.reportScale(id)));
+    map.on('zoomend', this.onZoomEnd);
+  }
+
+  /** Takes every layer off the map and stops listening, e.g. before the map is rebuilt. */
+  dispose(): void {
+    this.map.off('zoomend', this.onZoomEnd);
+    [...this.bound.keys()].forEach((id) => this.unbind(id));
   }
 
   bind(layer: BoundLayer): void {

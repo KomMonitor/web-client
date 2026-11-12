@@ -32,6 +32,7 @@ import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-servic
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { MAP_LAYER_GROUPS, MapContext } from 'services/map-service/map-context';
+import { MainMapLayersService } from 'services/map-layer-registry-service/map-layer-registry.service';
 import { MapCommand, MapService } from 'services/map-service/map.service';
 import { OgcLayerManagerService } from 'services/ogc-layer-manager-service/ogc-layer-manager.service';
 import { ReachabilityLayerManagerService } from 'services/reachability-layer-manager-service/reachability-layer-manager.service';
@@ -75,6 +76,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   private fileLayerManager = inject(FileLayerManagerService);
   private reachabilityLayerManager = inject(ReachabilityLayerManagerService);
   private mapControlsService = inject(MapControlsService);
+  private mainMapLayers = inject(MainMapLayersService);
   private mapViewportState = inject(MapViewportStateService);
   private metadataBootstrap = inject(MetadataBootstrapService);
 
@@ -448,6 +450,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     const context: MapContext = {
       map: this.map,
       layerControl: this.layerControl,
+      layers: this.mainMapLayers.registry,
       updateSearchControl: () => this.mapControlsService.updateSearchControl(),
       hideLoadingIcon: () => this.hideLoadingIconOnMap(),
     };
@@ -514,6 +517,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.baseMaps,
       this.sortableLayers
     );
+    this.mainMapLayers.attach(this.map, this.layerControl);
+    this.destroyRef.onDestroy(() => this.mainMapLayers.detach());
 
     this.outlierFillPattern_low = this.visualStyleHelperService.outlierFillPattern_low;
     this.outlierFillPattern_low.addTo(this.map);
